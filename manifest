@@ -1,5 +1,5 @@
-C Include\sthe\sMANIFEST_VERSION\sin\sthe\ssegfault\sbacktrace\slisting\sto\shelp\sthe\sdeveloper\schase\sthe\sissue\sin\sthe\sproper\sbinary.
-D 2024-03-29T17:37:49.240
+C Fix\san\sissue\swith\sthe\s"Autopush:"\sreport\sin\s"fossil\sgit\sexport".
+D 2024-03-29T17:41:11.558
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -425,7 +425,7 @@ F src/doc.c 121d89bbd13caed7c7bb44e411576448bb84468d68a3f1a03fb1009f223da77e
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
-F src/export.c effa1bec1bb723b7c66c60cd1b25709a8960b2baa89cb3939954a9f401c86aa8
+F src/export.c aa026dc8a0ef81f19e2490209f59a380950ca039a71afd416ca66517a3ea7c0a
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c 63150abb2b79ea300cb674556a4f8f527216231f188ca125160378e0040a7a84
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 11f6b5b06cfd9aaea449a350ee3da31e2514edf131ead454f415c66be5ace49c
-R 0de9a7f55f40de4bc19c49e0e2db29e0
-U stephan
-Z 74b72e1317ede4f9f10be9291f9a510d
+P f8580614d04d63c84e6647b1664480beb8afcae409962548c13ef7fb3ccecb27
+R ebedc4b533f5743cbe25b751bdca150a
+U drh
+Z 28ccb37a4bea2e682074ecbb315539ee
 # Remove this line to create a well-formed Fossil manifest.

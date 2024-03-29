@@ -1793,7 +1793,7 @@ void gitmirror_status_command(void){
       url_parse_local(z, 0, &url);
       fossil_print("Autopush:    %s\n", url.canonical);
     }else{
-      fossil_print("Autopush:    %s\n", url);
+      fossil_print("Autopush:    %s\n", z);
     }
     fossil_free(z);
   }
