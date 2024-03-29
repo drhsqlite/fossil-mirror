@@ -753,6 +753,23 @@ void takeitprivate_page(void){
 }
 
 /*
+** Output a message explaining that no error log is available.
+*/
+static void no_error_log_available(void){
+  @ <p>No error log is configured.
+  if( g.zCgiFile==0 ){
+    @ To create an error log, add the "--errorlog FILENAME"
+    @ command-line option to the command that launches the Fossil server.
+  }else{
+    @ To create an error log, edit the CGI control file "%h(g.zCgiFile)"
+    @ to add line like this:
+    @ <blockquote><pre>
+    @ errorlog: <i>FILENAME</i>
+    @ </pre></blockquote>
+  }
+}
+
+/*
 ** The maximum number of bytes of the error log to show by default.
 */
 #define MXSHOWLOG 500000
@@ -778,20 +795,7 @@ void errorlog_page(void){
   style_submenu_element("Log-Menu", "%R/setup-logmenu");
 
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    @ <p>To create a server error log:
-    @ <ol>
-    @ <li><p>
-    @ If the server is running as CGI, then create a line in the CGI file
-    @ like this:
-    @ <blockquote><pre>
-    @ errorlog: <i>FILENAME</i>
-    @ </pre></blockquote>
-    @ <li><p>
-    @ If the server is running using one of
-    @ the "fossil http" or "fossil server" commands then add
-    @ a command-line option "--errorlog <i>FILENAME</i>" to that
-    @ command.
-    @ </ol>
+    no_error_log_available();
     style_finish_page();
     return;
   }

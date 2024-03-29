@@ -228,6 +228,7 @@ struct Global {
   const char *zMainMenuFile; /* --mainmenu FILE from server/ui/cgi */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
+  const char *zCgiFile;      /* Name of the CGI file */
 #if USE_SEE
   const char *zPidKey;    /* Saved value of the --usepidkey option.  Only
                            * applicable when using SEE on Windows or Linux. */
@@ -2350,7 +2351,6 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 ** See also: [[http]], [[server]], [[winsrv]]
 */
 void cmd_cgi(void){
-  const char *zFile;
   const char *zNotFound = 0;
   char **azRedirect = 0;             /* List of repositories to redirect to */
   int nRedirect = 0;                 /* Number of entries in azRedirect */
@@ -2366,14 +2366,14 @@ void cmd_cgi(void){
   fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
   /* Find the name of the CGI control file */
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
-    zFile = g.argv[2];
+    g.zCgiFile = g.argv[2];
   }else if( g.argc>=2 ){
-    zFile = g.argv[1];
+    g.zCgiFile = g.argv[1];
   }else{
     cgi_panic("No CGI control file specified");
   }
   /* Read and parse the CGI control file. */
-  blob_read_from_file(&config, zFile, ExtFILE);
+  blob_read_from_file(&config, g.zCgiFile, ExtFILE);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
     if( blob_buffer(&key)[0]=='#' ) continue;
