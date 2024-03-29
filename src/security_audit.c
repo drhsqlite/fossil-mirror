@@ -700,6 +700,12 @@ void secaudit0_page(void){
     blob_append_escaped_arg(&cmd, g.argvOrig[i], 0);
   }
   @ <li><p>
+  if( g.zCgiFile ){
+    Blob fullname;
+    blob_init(&fullname, 0, 0);
+    file_canonical_name(g.zCgiFile, &fullname, 0);
+    @ The CGI control file for this page is "%h(blob_str(&fullname))".
+  }
   @ The command that generated this page:
   @ <blockquote>
   @ <tt>%h(blob_str(&cmd))</tt>
@@ -761,11 +767,15 @@ static void no_error_log_available(void){
     @ To create an error log, add the "--errorlog FILENAME"
     @ command-line option to the command that launches the Fossil server.
   }else{
-    @ To create an error log, edit the CGI control file "%h(g.zCgiFile)"
-    @ to add line like this:
+    Blob fullname;
+    blob_init(&fullname, 0, 0);
+    file_canonical_name(g.zCgiFile, &fullname, 0);
+    @ To create an error log, edit the CGI control file
+    @ named "%h(blob_str(&fullname))" to add a line like this:
     @ <blockquote><pre>
     @ errorlog: <i>FILENAME</i>
     @ </pre></blockquote>
+    blob_reset(&fullname);
   }
 }
 
