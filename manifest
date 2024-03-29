@@ -1,5 +1,5 @@
-C Fix\san\sissue\swith\sthe\s"Autopush:"\sreport\sin\s"fossil\sgit\sexport".
-D 2024-03-29T17:41:11.558
+C Do\snot\sissue\serror-log\spanics\sfor\stimeouts\sunless\sthe\stotal\sCPU\stime\sexceeds\n10\sseconds.
+D 2024-03-29T19:23:21.958
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -492,7 +492,7 @@ F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28
 F src/login.c 019c23164912022995a335a9e6963b862cced2ea028b09961a65566c432076b7
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c a27631649162e2296472a7239fef4d7fc956d4bd72ab35fb5bbf307451b4de3d
+F src/main.c a9d11dd53fa9a115b379cb25e325943bc1c11f50b09959872975127bd15e95a5
 F src/main.mk ade7ce2706847f14e0aa846e0bbfeead1a31877f81585996364c1146b1c8a127
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8580614d04d63c84e6647b1664480beb8afcae409962548c13ef7fb3ccecb27
-R ebedc4b533f5743cbe25b751bdca150a
+P 0298a6fc8629f1ba57f9306da04f57b9a416352da3c832e7315da7d0bb10f30c
+R 0220b9356f28645af55fb5d268b31c99
 U drh
-Z 28ccb37a4bea2e682074ecbb315539ee
+Z 8e3d2fd895e90c3bd060abbfbfe1e5f1
 # Remove this line to create a well-formed Fossil manifest.
