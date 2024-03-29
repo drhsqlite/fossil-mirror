@@ -1575,7 +1575,15 @@ void sigsegv_handler(int x){
   blob_init(&out, 0, 0);
   blob_appendf(&out, "Segfault during %s", g.zPhase);
   for(i=0; i<size; i++){
-    blob_appendf(&out, "\n(%d) %s", i, strings[i]);
+    size_t len;
+    const char *z = strings[i];
+    if( i==0 ) blob_appendf(&out, "\nBacktrace:");
+    len = strlen(strings[i]);
+    if( z[0]=='[' && z[len-1]==']' ){
+      blob_appendf(&out, " %.*s", (int)(len-2), &z[1]);
+    }else{
+      blob_appendf(&out, " %s", z);
+    }
   }
   fossil_panic("%s", blob_str(&out));
 #else
