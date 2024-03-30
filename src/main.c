@@ -1589,7 +1589,8 @@ void sigsegv_handler(int x){
   }
   fossil_panic("%s", blob_str(&out));
 #else
-  fossil_panic("Segfault during %s", g.zPhase);
+  fossil_panic("Segfault during %s in fossil %s",
+               g.zPhase, MANIFEST_VERSION);
 #endif
   exit(1);
 }
