@@ -123,7 +123,7 @@ server. Verify the certificate fingerprint is correct, then answer
 If you are cloning from or syncing to Fossil servers that use a
 certificate signed by a well-known CA or one of its delegates, Fossil
 still has to know which CA roots to trust. When this fails, you get an
-error message that looks like this in Fossil 2.11 and newer:
+error message that looks like this:
 
 <pre>
 Unable to verify SSL cert from fossil-scm.org
@@ -228,9 +228,8 @@ which explains what to do to authenticate with the server.
 
 <h2 id="server">Server-Side Configuration</h2>
 
-Fossil's built-in HTTP server got [./ssl-server.md | TLS support] in
-December 2021, released as version 2.18 in early 2022.  Prior to that,
-system administrators that wanted to add TLS support to a Fossil server
+Before Fossil's built-in HTTP server gained [./ssl-server.md | TLS support],
+system administrators that wanted to add this
 had to put it behind a reverse proxy that would do the translation.
 Since advantages remain for delegating TLS to another layer in the
 stack, instructions for doing so continue to be included in our

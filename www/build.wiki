@@ -413,7 +413,7 @@ list to ensure that your <tt>--fuzztype</tt> flag is there.
 <a id='wasm'></a>
 <h2>8.0 Building WebAssembly Components</h2>
 
-As of version 2.19, fossil uses one component built as
+Fossil uses one component built as
 [https://developer.mozilla.org/en-US/docs/WebAssembly | WebAssembly]
 a.k.a. WASM. Because compiling WASM code requires non-trivial
 client-side tooling, the repository includes compiled copies of these

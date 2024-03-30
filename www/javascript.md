@@ -323,7 +323,7 @@ diff them” feature.
 
 ### <a id="wedit"></a>The New Wiki Editor
 
-The [new wiki editor][fwt] added in Fossil 2.12 has many new features, a
+The [new wiki editor][fwt] has many new features, a
 few of which are impossible to get without use of JavaScript.
 
 First, it allows in-browser previews without losing client-side editor
@@ -357,9 +357,9 @@ button, meaning “make \[selected\] text boldface.” There is no standard
 WYSIWYG editor component in browsers, doubtless because it’s relatively
 straightforward to create one using JavaScript.
 
-_Graceful Fallback:_ Unlike in the Fossil 2.11 and earlier days, there
-is no longer a script-free wiki editor mode. This is not from lack of
-desire, only because the person who wrote the new wiki editor didn’t
+_Graceful Fallback:_ Fossil’s lack of
+a script-free wiki editor mode is not from lack of
+desire, but because the person who wrote the new wiki editor didn’t
 want to maintain three different editors. (New Ajaxy editor, old
 script-free HTML form based editor, and the old WYSIWYG JavaScript-based
 editor.) If someone wants to implement a `<noscript>` alternative to the
@@ -398,7 +398,7 @@ reader.
 
 ### <a id="fedit"></a>The File Editor
 
-Fossil 2.12 adds the [optional file editor feature][fedit], which works
+Fossil’s [optional file editor feature][fedit] works
 much like [the new wiki editor](#wedit), only on files committed to the
 repository.
 
@@ -439,10 +439,10 @@ _Potential Better Workaround:_ Someone sufficiently interested could
 would reload the page with this parameter included/excluded to implement
 the toggle via a server round-trip.
 
-As of Fossil 2.12, there is also a JavaScript-based interactive method
+A related feature is Fossil’s JavaScript-based interactive method
 for selecting a range of lines by clicking the line numbers when they’re
-visible, then copying the resulting URL to share your selection with
-others.
+visible. JavaScript lets us copy the resulting URL to the clipboard
+to share your selection with others.
 
 _Workaround:_ These interactive features would be difficult and
 expensive (in terms of network I/O) to implement without JavaScript.  A
@@ -467,7 +467,7 @@ _Graceful Fallback:_ Manually scroll both boxes to sync their views.
 
 ### <a id="diffcontext"></a>Diff Context Loading
 
-As of version 2.17, fossil adds the ability for the diff views to
+Fossil’s diff views can
 dynamically load more lines of context around changed blocks. The UI
 controls for this feature are injected using JavaScript when the page
 initializes and make use of XHR requests to fetch data from the
@@ -568,7 +568,7 @@ core developers to do this work for them.
 
 ### <a id="chat"></a>Chat
 
-The [chat feature](./chat.md) added in Fossil 2.14 is deeply dependent
+The [chat feature](./chat.md) is deeply dependent
 on JavaScript. There is no obvious way to do this sort of thing without
 active client-side code of some sort.
 
@@ -586,7 +586,7 @@ uses SQLite transactions.
 
 ### <a id="brlist"></a>List of branches
 
-Since Fossil 2.16 the [`/brlist`](/brlist) page uses JavaScript to enable
+The [`/brlist`](/brlist) page uses JavaScript to enable
 selection of several branches for further study via `/timeline`.
 Client-side script interactively responds to checkboxes' events
 and constructs a special hyperlink in the submenu.

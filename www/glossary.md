@@ -434,9 +434,9 @@ files, but under Fossil’s powerful version control features.
     repository’s contents.
 
 *   If you are at all uncertain whether to use the wiki or the embedded
-    documentation feature, prefer the latter, since it is more powerful
-    and, with the addition of the [`/fileedit` feature][fef] in Fossil
-    2.12, it’s nearly as easy to use.
+    documentation feature, prefer the latter, since it is inherently
+    more powerful, and when you use the [`/fileedit` feature][fef], the
+    workflow is scarcely different from using the wiki.
 
     (This very file is embedded documentation: clone
     [Fossil’s self-hosting repository][fshr] and you will find it as

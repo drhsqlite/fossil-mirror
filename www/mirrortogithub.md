@@ -102,8 +102,7 @@ by following these steps:
      not edit or delete them.
 
   *  The name of the "trunk" branch is automatically translated into "master"
-     in the Git mirror unless you give the `--mainbranch` option,
-     added in Fossil 2.14.
+     in the Git mirror unless you give the `--mainbranch` option.
 
   *  Only check-ins and simple tags are translated to Git.  Git does not
      support wiki or tickets or unversioned content or any of the other

@@ -580,7 +580,6 @@ Fossil 2.7.  These tables are not created in new repositories by
 default.  The tables only come into existence as needed when email
 alerts are configured and used.
 
-
   *  <b>SUBSCRIBER</b> →
      The subscriber table records the email address for people who
      want to receive email notifications.  Each subscriber has a
@@ -599,11 +598,6 @@ alerts are configured and used.
      row in the EVENT table for each possible timeline entry.  The
      PENDING\_ALERT table refers to EVENT table entries for which
      we might need to send alert emails.
-
-There was a third table "EMAIL_BOUNCE" in Fossil versions 2.7 through 2.14.
-That table was intended to record email bounce history so that
-subscribers with excessive bounces can be turned off.  But that feature
-was never implemented and the table was removed in Fossil 2.15.
 
 As pointed out above, ["subscribers" are distinct from "users"](#uvs).
 The SUBSCRIBER.SUNAME field is the optional linkage between users and

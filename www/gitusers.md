@@ -783,7 +783,7 @@ Because the `fossil git export` command has to work with both stock Git
 and with GitHub, Fossil uses Git’s traditional default rather than
 GitHub’s new default: your Fossil repo’s “trunk” branch becomes “master”
 when [mirroring to GitHub][mirgh] unless you give the `--mainbranch`
-option added in Fossil 2.14.
+option.
 
 We do not know what happens on subsequent exports if you later rename
 this branch on the GitHub side.
@@ -855,7 +855,7 @@ Fossil:
 *   Use the Fossil web UI to diff existing commits.
 
 *   To diff the current working directory contents against some parent
-    instead, Fossil 2.17 expanded the diff command so it can produce
+    instead, Fossil’s diff command can produce
     colorized HTML output and open it in the OS’s default web browser.
     For example, `fossil diff -by` will show side-by-side diffs.
 
@@ -1260,7 +1260,7 @@ We start the same way, cloning the work repo down to the laptop:
     cd repo
     fossil remote add work https://dev-server.example.com/repo
 
-We’ve chosen the new “`fossil clone URI`” syntax added in Fossil 2.14 rather than separate
+We’ve chosen the new “`fossil clone URI`” syntax rather than separate
 `clone` and `open` commands to make the parallel with Git clearer. [See
 above](#mwd) for more on that topic.
 

@@ -847,8 +847,8 @@ repositories.
 
 In October 2019, after the last of the major binary
 package repos offering Fossil upgraded to Fossil 2.<i>x</i>,
-we switched the default hash mode so that from
-Fossil 2.10 forward, the conversion to SHA-3 is fully automatic.
+we switched the default hash mode so that
+the conversion to SHA-3 is fully automatic.
 This not
 only solves the SHAttered problem, it should prevent a reoccurrence of
 similar problems for the foreseeable future.
@@ -953,8 +953,8 @@ for years now, so that the solution is now almost universally deployed.
     bundles, patch files collapse multiple checkins together, they don't
     include check-in comments, and they cannot encode changes made above
     the individual file content layer: you lose branching decisions,
-    tag changes, file renames, and more when using patch files. Fossil
-    2.16 adds [./patchcmd.md | a <tt>fossil patch</tt> command] that
+    tag changes, file renames, and more when using patch files. The
+    [./patchcmd.md | <tt>fossil patch</tt> command]
     also solves these problems, but it is because it works like a Fossil
     bundle, only for uncommitted changes; it doesn't use Larry Wall's
     <tt>patch</tt> tool to apply unified diff output to the receiving
