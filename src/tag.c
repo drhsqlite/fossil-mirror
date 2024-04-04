@@ -404,13 +404,13 @@ static void tag_cmd_tagname_check(const char *zTag){
 **         propagates to all descendants of that artifact.
 **
 **         Options:
-**           --raw                      Raw tag name. Ignored for
-**                                      non-CHECK-IN artifacts.
-**           --propagate                Propagating tag
 **           --date-override DATETIME   Set date and time added
-**           --user-override USER       Name USER when adding the tag
 **           -n|--dry-run               Display the tag text, but do not
 **                                      actually insert it into the database
+**           --propagate                Propagating tag
+**           --raw                      Raw tag name. Ignored for
+**                                      non-CHECK-IN artifacts.
+**           --user-override USER       Name USER when adding the tag
 **
 **         The --date-override and --user-override options support
 **         importing history from other SCM systems. DATETIME has
@@ -429,18 +429,19 @@ static void tag_cmd_tagname_check(const char *zTag){
 **         forbidden, as documented for the 'add' subcommand.
 **
 **         Options:
-**           --raw                       Raw tag name. Ignored for
-**                                       non-CHECK-IN artifacts.
 **           --date-override DATETIME    Set date and time deleted
-**           --user-override USER        Name USER when deleting the tag
 **           -n|--dry-run                Display the control artifact, but do
 **                                       not insert it into the database
+**           --raw                       Raw tag name. Ignored for
+**                                       non-CHECK-IN artifacts.
+**           --user-override USER        Name USER when deleting the tag
 **
 ** > fossil tag find ?OPTIONS? TAGNAME
 **
 **         List all objects that use TAGNAME.
 **
 **         Options:
+**           -n|--limit N    Limit to N results
 **           --raw           Interprets tag as a raw name instead of a
 **                           branch name and matches any type of artifact.
 **                           Changes the output to include only the
@@ -449,7 +450,6 @@ static void tag_cmd_tagname_check(const char *zTag){
 **                           e (event/technote), f (forum post),
 **                           t (ticket). Default is all types. Ignored
 **                           if --raw is used.
-**           -n|--limit N    Limit to N results
 **
 ** > fossil tag list|ls ?OPTIONS? ?ARTIFACT-ID?
 **
@@ -461,9 +461,6 @@ static void tag_cmd_tagname_check(const char *zTag){
 **         unless the --raw or --prefix options are used.
 **
 **         Options:
-**           --raw           List raw names of tags
-**           --tagtype TYPE  List only tags of type TYPE, which must
-**                           be one of: cancel, singleton, propagated
 **           -v|--inverse    Inverse the meaning of --tagtype TYPE
 **           --prefix        List only tags with the given prefix
 **                           Fossil-internal prefixes include "sym-"
@@ -472,6 +469,9 @@ static void tag_cmd_tagname_check(const char *zTag){
 **                           prefix is stripped from the resulting
 **                           list unless --raw is provided. Ignored if
 **                           ARTIFACT-ID is provided.
+**           --raw           List raw names of tags
+**           --tagtype TYPE  List only tags of type TYPE, which must
+**                           be one of: cancel, singleton, propagated
 **
 ** The option --raw allows the manipulation of all types of tags
 ** used for various internal purposes in fossil. It also shows
