@@ -40,6 +40,8 @@
      the docs] for migration advice.
   *  Add ability to render committed Pikchr files to SVG via
      <samp>/doc/…/foo.pikchr?popup</samp> URLs.
+  *  Update Fossil's internal robot detection logic so that it correctly
+     identifies the new GoogleOther crawler as a robot.
 
 <h2 id='v2_23'>Changes for version 2.23 (2023-11-01)</h2>
 
