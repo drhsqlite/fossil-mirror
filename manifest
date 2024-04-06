@@ -1,5 +1,5 @@
-C Cherry-pick\sSQLite\schanges\sintended\sfor\strunk.
-D 2024-04-04T21:07:45.913
+C Improved\srobot\sdetection\slogic.
+D 2024-04-06T19:01:38.677
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -489,7 +489,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28d
-F src/login.c 019c23164912022995a335a9e6963b862cced2ea028b09961a65566c432076b7
+F src/login.c 2760b91d9c729dba71c9740d29ff68d816cfcf50469d008024e79d63a5517a15
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c 01761ecef016ecf31134eff6d2a039f4bebddd379b5d61a3ed8c10f293472949
@@ -957,9 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72add409649d9c3f66c6c0b1a990747a320b02995b642006c5dbb0328fc4a791
-Q +755bebae805816b2c6c6fa53b95a354695f8d5ab7d4e1cce287bccd3dfdff4eb
-R 53d2bfd75ff7d0c75b9bce2352d2f53d
-U danield
-Z 82bf9050ea9fea2b07ed7691b2ca4bbe
+P 92f2a04d3780cf24f63e93c0301297fefa4351ccdeeae6f36aa29788ebc3ddb2
+R a6dd6ab9c9b947a23de39c33ea32e1dd
+U drh
+Z ce2cc8f56f7fc33978327a14444bdc3e
 # Remove this line to create a well-formed Fossil manifest.
