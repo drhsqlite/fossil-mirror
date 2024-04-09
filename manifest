@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\sversion\sfrom\strunk,\sfor\sSQLite\stesting.
-D 2024-04-08T12:40:08.444
+C Defend\sagainst\sundefined\svalues\sin\squery\sparameters\sin\sthe\s\ncgi_check_for_malice()\sroutine.
+D 2024-04-09T17:38:01.427
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -395,7 +395,7 @@ F src/bundle.c 4e533404e47bf1fd014372e558a15b1d00d3f7fecdbd41fc726b9d0f71598561
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
-F src/cgi.c 2fe42bf4b0a2b7ff7a4fccb40fc5010705ef242bcc430267f03f6328ee7925b1
+F src/cgi.c 3f940b52bf440fe839b056b1d5d1da690e8e07bfb2ad8f11240a19e7e2142fb2
 F src/chat.c 6c571e698c67c89f0987c86cfb8fbdd53cc60abcd4cc6d9bd1618b0c33c61d54
 F src/checkin.c e8e3d07896a783f7e49c498ca412ee413b9fb5b713874e380206d7ae36bc3390
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00b6b2f4dc47fc17677c798a5c941acaa327023631d545a99e22774dce6df99a
-R fc048e0fcb848b0db92e5cae3c070cef
+P e9d8c04c94fd072dcaac4732f9e8053df48c59f057e2f47b99ba2a5340904688
+R 6b9e90a4fdb4ac0272c88a89552d53a0
 U drh
-Z e079101ef5048b55e37ae1eab019da92
+Z 00024196a90bcbb0de0cc41fd2ffa1db
 # Remove this line to create a well-formed Fossil manifest.

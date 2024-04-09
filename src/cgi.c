@@ -2776,10 +2776,13 @@ int cgi_from_mobile(void){
 void cgi_check_for_malice(void){
   struct QParam * pParam;
   int i;
-  for(i = 0; i < nUsedQP; ++i){
+  for(i=0; i<nUsedQP; ++i){
     pParam = &aParamQP[i];
-    if(0 == pParam->isFetched
-       && fossil_islower(pParam->zName[0])){
+    if( 0==pParam->isFetched
+     && pParam->zValue!=0
+     && pParam->zName!=0
+     && fossil_islower(pParam->zName[0])
+    ){
       cgi_value_spider_check(pParam->zValue, pParam->zName);
     }
   }
