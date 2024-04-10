@@ -1329,10 +1329,10 @@ char *file_case_preferred_name(const char *zDir, const char *zPath){
           fossil_free(zSubPath);
           fossil_free(zSubDir);
         }
-        fossil_free(zUtf8);
+        fossil_path_free(zUtf8);
         break;
       }
-      fossil_free(zUtf8);
+      fossil_path_free(zUtf8);
     }
     closedir(d);
   }
