@@ -1,5 +1,5 @@
-C Defend\sagainst\sundefined\svalues\sin\squery\sparameters\sin\sthe\s\ncgi_check_for_malice()\sroutine.
-D 2024-04-09T17:38:01.427
+C When\spreparing\sa\spattern\sfor\sFTS\ssearch,\sif\sthe\spattern\sis\sempty\sconvert\sit\ninto\sa\sdouble-quoted\sempty\sstring,\sto\savoid\sFTS5\serrors.
+D 2024-04-10T11:31:41.020
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -521,7 +521,7 @@ F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c ff3f6164e5dc4f798e53635a4cfdb627931a9e9f2cfa97b33ee8e217df6533f5
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c f9c5c20536bfacaf8570ae2a265ec7c50e52873e0f60467efedf610fadb8d7f9
+F src/search.c b857d9fd424b7eb4f8ded0e20482965200c3f7da8ddac6df406ca60966c39467
 F src/security_audit.c f3d6bb56fcd650686f45f941bc21b619589498e258301ba2d081fadb94f48ff5
 F src/setup.c 62044534fab24aac22f073aeabe5c5dffa6c5a7c286c1d83251f7f9b8ae24289
 F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea019128
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e9d8c04c94fd072dcaac4732f9e8053df48c59f057e2f47b99ba2a5340904688
-R 6b9e90a4fdb4ac0272c88a89552d53a0
+P 08df33aa4cae9f3a476ae50a6b6dc2fcb66731fbf50c1abf979e9a36b7fb2a3a
+R 759b52a128306285bab2ab3539c7a3cc
 U drh
-Z 00024196a90bcbb0de0cc41fd2ffa1db
+Z 2ba0cb20cb3e68e20e5b62713094a6c9
 # Remove this line to create a well-formed Fossil manifest.

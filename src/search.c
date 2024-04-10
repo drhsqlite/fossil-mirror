@@ -1008,6 +1008,11 @@ LOCAL void search_indexed(
   for(i=0; zPat[i]; i++){
     if( (zPat[i]&0x80)==0 && !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
   }
+  for(i--; i>=0 && zPat[i]==' '; i--){}
+  if( i<0 ){
+    fossil_free(zPat);
+    zPat = mprintf("\"\"");
+  }
   blob_init(&sql, 0, 0);
   if( search_index_type(0)==4 ){
     /* If this repo is still using the legacy FTS4 search index, then
