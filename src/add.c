@@ -449,7 +449,7 @@ void add_cmd(void){
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else{
-      char *zTreeName = &zName[nRoot];
+      char *zTreeName = file_case_preferred_name(g.zLocalRoot,&zName[nRoot]);
       if( !forceFlag && glob_match(pIgnore, zTreeName) ){
         Blob ans;
         char cReply;
@@ -470,6 +470,7 @@ void add_cmd(void){
          "INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)",
          zTreeName
       );
+      fossil_free(zTreeName);
     }
     blob_reset(&fullName);
   }
