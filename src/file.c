@@ -1294,6 +1294,75 @@ char *file_canonical_name_dup(const char *zOrigName){
 }
 
 /*
+** Convert zPath, which is a relative pathname rooted at zDir, into the
+** case preferred by the underlying filesystem.  Return the a copy
+** of the converted path in memory obtained from fossil_malloc().
+**
+** For case-sensitive filesystems, such as on Linux, this routine is
+** just fossil_strdup().  But for case-insenstiive but "case preserving"
+** filesystems, such as on MacOS or Windows, we want the filename to be
+** in the preserved casing.  That's what this routine does.
+*/
+char *file_case_preferred_name(const char *zDir, const char *zPath){
+  DIR *d;
+  int i;
+  char *zResult = 0;
+  void *zNative = 0;
+
+  if( filenames_are_case_sensitive() ){
+    return fossil_strdup(zPath);
+  }
+  for(i=0; zPath[i] && zPath[i]!='/' && zPath[i]!='\\'; i++){}
+  zNative = fossil_utf8_to_path(zDir, 1);
+  d = opendir(zNative);
+  if( d ){
+    struct dirent *pEntry;
+    while( (pEntry = readdir(d))!=0 ){
+      char *zUtf8 = fossil_path_to_utf8(pEntry->d_name);
+      if( fossil_strnicmp(zUtf8, zPath, i)==0 && zUtf8[i]==0 ){
+        if( zPath[i]==0 ){
+          zResult = fossil_strdup(zUtf8);
+        }else{
+          char *zSubDir = mprintf("%s/%s", zDir, zUtf8);
+          char *zSubPath = file_case_preferred_name(zSubDir, &zPath[i+1]);
+          zResult = mprintf("%s/%s", zUtf8, zSubPath);
+          fossil_free(zSubPath);
+          fossil_free(zSubDir);
+        }
+        fossil_path_free(zUtf8);
+        break;
+      }
+      fossil_path_free(zUtf8);
+    }
+    closedir(d);
+  }
+  fossil_path_free(zNative);
+  if( zResult==0 ) zResult = fossil_strdup(zPath);
+  return zResult;
+}
+
+/*
+** COMMAND: test-case-filename
+**
+** Usage: fossil test-case-filename DIRECTORY PATH PATH PATH ....
+**
+** All the PATH arguments (there must be one at least one) are pathnames
+** relative to DIRECTORY.  This test command prints the OS-preferred name
+** for each PATH in filesystems where case is not significant.
+*/
+void test_preferred_fn(void){
+  int i;
+  if( g.argc<4 ){
+    usage("DIRECTORY PATH ...");
+  }
+  for(i=3; i<g.argc; i++){
+    char *z = file_case_preferred_name(g.argv[2], g.argv[i]);
+    fossil_print("%s -> %s\n", g.argv[i], z);
+    fossil_free(z);
+  }
+}
+
+/*
 ** The input is the name of an executable, such as one might
 ** type on a command-line.  This routine resolves that name into
 ** a full pathname.  The result is obtained from fossil_malloc()

@@ -1,5 +1,5 @@
-C When\spreparing\sa\spattern\sfor\sFTS\ssearch,\sif\sthe\spattern\sis\sempty\sconvert\sit\ninto\sa\sdouble-quoted\sempty\sstring,\sto\savoid\sFTS5\serrors.
-D 2024-04-10T11:31:41.020
+C Adjust\sthe\s"fossil\sadd"\scommand\sso\sthat\son\ssystems\swith\scase-insensitive\nfilenames,\sthe\snamed\sadded\sto\sthe\srepository\sis\sthe\soperating-systems\npreferred\scase\sfor\sthe\sname.
+D 2024-04-11T12:38:01.711
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -373,7 +373,7 @@ F skins/xekri/footer.txt 00760bbee5f45decff089e54bc8a11600eeb4644d01f21d7b2a0af5
 F skins/xekri/header.txt f518b8c6cfab016cb9d2e65b42c6f3463235199acf29a1e287226c979eb3dddf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
-F src/add.c a5e924841c9686f69ed6fd228ef2f28b913405cb5d26bf4f287571559154cee9
+F src/add.c 3c81663214c8edf178dd4751fe79db960228359b85b7e294286c0e461524aaaf
 F src/ajax.c caf28a8fdda103acbe9048eeed84f6b2cb1fb3545c1c68f38da66ea44f576e01
 F src/alerts.c 2c2851b6a73a47aba36eb0416bd102dabe572f611a32491b937a7ea34f310058
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
@@ -427,7 +427,7 @@ F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
 F src/export.c aa026dc8a0ef81f19e2490209f59a380950ca039a71afd416ca66517a3ea7c0a
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
-F src/file.c 63150abb2b79ea300cb674556a4f8f527216231f188ca125160378e0040a7a84
+F src/file.c 9f44a66c4dfa3e8c4e69d5f2f78571c6c1d6e19eba78f4d67100c533d7079977
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 14c0bab4c53125f241d7d657a2af6ff72f3ff1eb5fb42d2d15cf99c45561a89a
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
@@ -957,8 +957,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 08df33aa4cae9f3a476ae50a6b6dc2fcb66731fbf50c1abf979e9a36b7fb2a3a
-R 759b52a128306285bab2ab3539c7a3cc
+P 5bb323ff9eb82fbaa99d5c044abd729f08c605ffe8d27ace6587625a938202fe a9fa7d3cfaff9f43d4bff11209dff51bd1ae55070cffa5067f924cdc53c56b9a
+R 19f08800c14b9bd0cf008120cc1522af
+T +closed a9fa7d3cfaff9f43d4bff11209dff51bd1ae55070cffa5067f924cdc53c56b9a
 U drh
-Z 2ba0cb20cb3e68e20e5b62713094a6c9
+Z bc4152cebbf3f253a7bce752c1e287d9
 # Remove this line to create a well-formed Fossil manifest.
