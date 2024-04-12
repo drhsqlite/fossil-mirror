@@ -1813,7 +1813,7 @@ void cgi_print_all(int showAll, unsigned int eDest, FILE *out){
         break;
       }
       case 3: {
-        if( strlen(zValue)>100 ){
+        if( zValue!=0 && strlen(zValue)>100 ){
           fprintf(out,"%s = %.100s...\n", zName, zValue);
         }else{
           fprintf(out,"%s = %s\n", zName, zValue);
