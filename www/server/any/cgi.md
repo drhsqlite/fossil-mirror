@@ -90,3 +90,17 @@ in its config file section for CGI, provided that
 has been be added in the relevant proxying section of the Nginx config file.
 
 *[Return to the top-level Fossil server article.](../)*
+
+#### Apache mod_cgi and `CONTENT_LENGTH`
+
+Sometime in version 2.4, Apache's `mod_cgi` stopped passing on the
+`CONTENT_LENGTH` CGI variable to clients, which breaks fossil's sync
+protocol. In order to restore that functionality, clients need to add
+the following to their Apache configuration, scoped to the `<Directory>`
+entry or entries in which fossil is being served via CGI:
+
+```
+<Directory ...>
+  SetEnv ap_trust_cgilike_cl "yes"
+</Directory>
+```

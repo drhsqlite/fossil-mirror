@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sa\snewer\sversion\sthat\sfixes\sthe\sbtree\soverflow\npage\scache\sbug.
-D 2024-04-12T15:24:15.496
+C Add\sa\snote\sabout\show\sto\swork\saround\sthe\sApache\smod_cgi\sCONTENT_LENGTH\sbehavior\schange\swhich\sbreaks\sfossil\ssync,\sas\scovered\sin\s[forum:12ac403fd29cfc89|forum\spost\s12ac403fd29cfc89].
+D 2024-04-15T23:53:02.342
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -905,7 +905,7 @@ F www/scgi.wiki 8a0f5e5ba635f40fc9e2e8d9afc5eaa6df854152ab9413ebacd2809866e104b7
 F www/selfcheck.wiki 9a7db45ae11899205c631e42c64553a80624352b5fbf5101c0fd3059a5424dd3
 F www/selfhost.wiki ee86a1290195803262d7175ee4453f8e2771da3cb81cf713a2498fd8912c02df
 F www/server/any/althttpd.md 4ac7121aa47d8ce6321128097884528354428a7606d60a83efb01c1e31270fad
-F www/server/any/cgi.md 1f21c1a2f7946c93a7271abfa8df030bfc780a1ca4322036d176842b22590b3d
+F www/server/any/cgi.md ae017d59e5c6dd17e34817ea21c2562c9aa97bc822e56ea2af2b3d5b6af771d9
 F www/server/any/http-over-ssh.md 87c3f07f1b56beb9eab8a2504b38ec963b34d28e7c48deeaa753cced343ba008
 F www/server/any/index.md 362cf7a4991592606ef26bd684b4e89681c60558ff94a96f96651659ff62a86a
 F www/server/any/inetd.md 9bbff868954a69ed40b595f1a059cf74f7b4afd6ccb50d7ee2d7e4d6a6a7ff85
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c62e25ab05621f409bb44e90ed3109fbccb9ff15211808a1d61ac65c0f8d58f7
-R 01e1e1951036713e3dbda22b4268c9b1
-U drh
-Z 4553e1e09b287e1f26801dfae940e669
+P 6a571f88ccf5ef58391bea508a6a0617dc1b30d36843245b7dd256fe6e7484ba
+R 2bab05f095b8e915e07a4b0bedc8d44b
+U stephan
+Z 864615a566d7342145053d60001cfc6f
 # Remove this line to create a well-formed Fossil manifest.
