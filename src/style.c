@@ -1400,7 +1400,7 @@ void honeypot_page(void){
 ** If zFormat is an empty string, then this is the /test_env page.
 */
 void webpage_error(const char *zFormat, ...){
-  int showAll;
+  int showAll = 0;
   char *zErr = 0;
   int isAuth = 0;
   char zCap[100];
@@ -1497,6 +1497,10 @@ void webpage_error(const char *zFormat, ...){
     P("HTTP_USER_AGENT");
     P("SERVER_SOFTWARE");
     cgi_print_all(showAll, 0, 0);
+    @ <p><form method="POST" action="%R/test_env">
+    @ <input type="hidden" name="showall" value="%d(showAll)">
+    @ <input type="submit" name="post-test-button" value="POST Test">
+    @ </form>
     if( showAll && blob_size(&g.httpHeader)>0 ){
       @ <hr>
       @ <pre>

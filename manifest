@@ -1,5 +1,5 @@
-C For\s'fossil\sbundle\simport'\sand\s'cat'\ssubcommands,\sdo\snot\screate\sa\sbundle\sfile\sif\sit\sdoes\snot\sexist\s(reported\sin\s[forum:8a26dd5610|forum\spost\s8a26dd5610]).
-D 2024-04-16T12:01:34.966
+C Improvements\sto\sthe\s/test_env\spage\sthat\scan\sbe\sused\sto\shelp\sdiagnose\nproblems\ssuch\sas\smissing\sCONTENT_LENGTH\sCGI\sparameters.
+D 2024-04-16T13:50:03.526
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -395,7 +395,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
-F src/cgi.c 03236d1c73a221db4f710d86552721008458f8fdc9244a4e0d062ec0bd8a0cf1
+F src/cgi.c d4ec40bf2f84782a39239546b88e9aaab2985add4c113d1b3e8ccce6f4a6862c
 F src/chat.c 6c571e698c67c89f0987c86cfb8fbdd53cc60abcd4cc6d9bd1618b0c33c61d54
 F src/checkin.c e8e3d07896a783f7e49c498ca412ee413b9fb5b713874e380206d7ae36bc3390
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
@@ -556,7 +556,7 @@ F src/stash.c fbf8f1df39403a32893ce13a749b787d980b765496b2b7a89417b010e3b0cf52
 F src/stat.c 318d359a317da263f80db05dacd9c5ebbf69383945f9540a9a67fdfc4f6743b0
 F src/statrep.c be5687a6d6f012a5862e9a70e769de0db40100c4f3e3a1bfbc622235218a28b3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 11a00d5e354d09bb381afd42ea08aa7616081de83a0ba88b3fe9a8ea5621e20a
+F src/style.c 1f5432c589c306d9a9ed1a39e780dce85a29b1d1ce905b2ae314dc7899b00db5
 F src/style.chat.css cc9116158d5d7ab67268410c29561ed21493064d5062ba38695c9041a20b93ff
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 586dc75f498f231ab4da58d7374f2e881bc481feb61e48f1547753651a1fece6
-R 053610153bfff64688af9098aa9ed195
-U danield
-Z d21d9d7a5cc0078ebec53ab8e855728f
+P 3828746b57105d2e553f2347e16d0eb683fa302353b29e9cda9c7791917dff9f
+R dd473e2d97893cc8d348267ec54e55bf
+U drh
+Z 70fdc76954096352badd31982c278425
 # Remove this line to create a well-formed Fossil manifest.

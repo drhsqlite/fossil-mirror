@@ -1769,6 +1769,7 @@ void cgi_load_environment(void){
     "FOSSIL_FORCE_TICKET_MODERATION", "FOSSIL_FORCE_WIKI_MODERATION",
     "FOSSIL_TCL_PATH", "TH1_DELETE_INTERP", "TH1_ENABLE_DOCS",
     "TH1_ENABLE_HOOKS", "TH1_ENABLE_TCL", "REMOTE_HOST",
+    "CONTENT_TYPE", "CONTENT_LENGTH",
   };
   int i;
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
