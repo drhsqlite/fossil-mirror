@@ -49,6 +49,11 @@
 /* Keep track of HTTP Basic Authorization failures */
 static int fSeenHttpAuth = 0;
 
+/* The N value for most recent http-request-N.txt and http-reply-N.txt
+** trace files.
+*/
+static int traceCnt = 0;
+
 /*
 ** Construct the "login" card with the client credentials.
 **
@@ -393,6 +398,25 @@ void ssh_add_path_argument(Blob *pCmd){
 }
 
 /*
+** Return the complete text of the last HTTP reply as saved in the
+** http-reply-N.txt file.  This only works if run using --httptrace.
+** Without the --httptrace option, this routine returns a NULL pointer.
+** It still might return a NULL pointer if for some reason it cannot
+** find and open the last http-reply-N.txt file.
+*/
+char *http_last_trace_reply(void){
+  Blob x;
+  int n;
+  char *zFilename;
+  if( g.fHttpTrace==0 ) return 0;
+  zFilename = mprintf("http-reply-%d.txt", traceCnt);
+  n = blob_read_from_file(&x, zFilename, ExtFILE);
+  fossil_free(zFilename);
+  if( n<=0 ) return 0;
+  return blob_str(&x);
+}
+
+/*
 ** Sign the content in pSend, compress it, and send it to the server
 ** via HTTP or HTTPS.  Get a reply, uncompress the reply, and store the reply
 ** in pRecv.  pRecv is assumed to be uninitialized when
@@ -467,7 +491,6 @@ int http_exchange(
   **      ./fossil test-http <http-request-1.txt
   */
   if( g.fHttpTrace ){
-    static int traceCnt = 0;
     char *zOutFile;
     FILE *out;
     traceCnt++;

@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s/test_env\spage\sthat\scan\sbe\sused\sto\shelp\sdiagnose\nproblems\ssuch\sas\smissing\sCONTENT_LENGTH\sCGI\sparameters.
-D 2024-04-16T13:50:03.526
+C Attempt\sto\sprovide\smore\suseful\serror\smessages\swhen\san\sintermediate\sserver\n(such\sas\sApache)\sdoes\ssomething\swrong\sand\smesses\sup\san\sHTTP\srequest.
+D 2024-04-16T22:55:16.878
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -395,13 +395,13 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
-F src/cgi.c d4ec40bf2f84782a39239546b88e9aaab2985add4c113d1b3e8ccce6f4a6862c
+F src/cgi.c a5a22e5368ec514d6c45ef7607aa551aa2aefe7cc18c7b17a7775a4c0d59ce63
 F src/chat.c 6c571e698c67c89f0987c86cfb8fbdd53cc60abcd4cc6d9bd1618b0c33c61d54
 F src/checkin.c e8e3d07896a783f7e49c498ca412ee413b9fb5b713874e380206d7ae36bc3390
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c 582407b35dace59ae4cf5745fb2dc0f211eab947d51d09da08404fc8f4c0efa7
+F src/clone.c 7bb4d2f0066389d52502a3d205cef30506bd05af8ec4fe1b17bc3e3375885332
 F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
 F src/comformat.c 1a178e0c15c88c3bf6a5456fca17746f34400b3828242254cc46d00aff312af4
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
@@ -464,7 +464,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 98ab94b391b1dc5b842d5e54a52f9bccc92374d8962baf8af3ea2032d5a203b8
+F src/http.c e630c4fee2a42f7a5f89fd34fba679a5ff5bf1a9ac0b8294c922e986f5b67ead
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
@@ -492,7 +492,7 @@ F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28
 F src/login.c 2760b91d9c729dba71c9740d29ff68d816cfcf50469d008024e79d63a5517a15
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 01761ecef016ecf31134eff6d2a039f4bebddd379b5d61a3ed8c10f293472949
+F src/main.c 0a23252b2a1754819d30124740d37826c7a088546f4971f05612ff283b56ccc5
 F src/main.mk ade7ce2706847f14e0aa846e0bbfeead1a31877f81585996364c1146b1c8a127
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -957,8 +957,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3828746b57105d2e553f2347e16d0eb683fa302353b29e9cda9c7791917dff9f
-R dd473e2d97893cc8d348267ec54e55bf
+P 9c40ddbcd182f2645a0376858a66bf26c2d5acb1ebe66430e13da838eb034605
+R 9915928fa29d265b9d3fd5f78dc40e82
+T *branch * content-length-errors
+T *sym-content-length-errors *
+T -sym-trunk *
 U drh
-Z 70fdc76954096352badd31982c278425
+Z bc93688503a7762a75500ea1744817a6
 # Remove this line to create a well-formed Fossil manifest.

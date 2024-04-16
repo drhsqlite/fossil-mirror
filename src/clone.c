@@ -269,7 +269,17 @@ void clone_cmd(void){
     db_close(1);
     if( nErr ){
       file_delete(zRepo);
-      fossil_fatal("server returned an error - clone aborted");
+      if( g.fHttpTrace ){
+        fossil_fatal(
+          "server returned an error - clone aborted\n\n%s",
+          http_last_trace_reply()
+        );
+      }else{
+        fossil_fatal(
+          "server returned an error - clone aborted\n"
+          "Rerun using --httptrace for more detail"
+        );
+      }
     }
     db_open_repository(zRepo);
   }
