@@ -1240,7 +1240,7 @@ void cgi_trace(const char *z){
 }
 
 /* Forward declaration */
-static NORETURN void malformed_request(const char *zMsg);
+static NORETURN void malformed_request(const char *zMsg, ...);
 
 /*
 ** Checks the QUERY_STRING environment variable, sets it up
@@ -1323,6 +1323,7 @@ void cgi_init(void){
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
   const char *zPathInfo = cgi_parameter("PATH_INFO",0);
+  const char *zContentLength = 0;
 #ifdef _WIN32
   const char *zServerSoftware = cgi_parameter("SERVER_SOFTWARE",0);
 #endif
@@ -1420,7 +1421,15 @@ void cgi_init(void){
     g.zIpAddr = fossil_strdup(z);
   }
 
-  len = atoi(PD("CONTENT_LENGTH", "0"));
+  zContentLength = P("CONTENT_LENGTH");
+  if( zContentLength==0 ){
+    len = 0;
+    if( sqlite3_stricmp(PD("REQUEST_METHOD",""),"POST")==0 ){
+      malformed_request("missing CONTENT_LENGTH on a POST method");
+    }
+  }else{
+    len = atoi(zContentLength);
+  }
   zType = P("CONTENT_TYPE");
   zSemi = zType ? strchr(zType, ';') : 0;
   if( zSemi ){
@@ -1914,11 +1923,22 @@ void cgi_vprintf(const char *zFormat, va_list ap){
 /*
 ** Send a reply indicating that the HTTP request was malformed
 */
-static NORETURN void malformed_request(const char *zMsg){
-  cgi_set_status(501, "Not Implemented");
-  cgi_printf(
-    "<html><body><p>Bad Request: %s</p></body></html>\n", zMsg
-  );
+static NORETURN void malformed_request(const char *zMsg, ...){
+  va_list ap;
+  char *z;
+  va_start(ap, zMsg);
+  z = vmprintf(zMsg, ap);
+  va_end(ap);
+  cgi_set_status(400, "Bad Request");
+  zContentType = "text/plain";
+  if( g.zReqType==0 ) g.zReqType = "WWW";
+  if( g.zReqType[0]=='C' && PD("SERVER_SOFTWARE",0)!=0 ){
+    const char *zServer = PD("SERVER_SOFTWARE","");
+    cgi_printf("Bad CGI Request from \"%s\": %s\n",zServer,z);
+  }else{
+    cgi_printf("Bad %s Request: %s\n", g.zReqType, z);
+  }
+  fossil_free(z);
   cgi_reply();
   fossil_exit(0);
 }
@@ -2035,8 +2055,9 @@ void cgi_handle_http_request(const char *zIpAddr){
   const char *zScheme = "http";
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
+  g.zReqType = "HTTP";
   if( cgi_fgets(zLine, sizeof(zLine))==0 ){
-    malformed_request("missing HTTP header");
+    malformed_request("missing header");
   }
   blob_append(&g.httpHeader, zLine, -1);
   cgi_trace(zLine);
@@ -2048,13 +2069,14 @@ void cgi_handle_http_request(const char *zIpAddr){
    && fossil_strcmp(zToken,"POST")!=0
    && fossil_strcmp(zToken,"HEAD")!=0
   ){
-    malformed_request("unsupported HTTP method");
+    malformed_request("unsupported HTTP method: \"%s\" - Fossil only supports"
+                      "GET, POST, and HEAD", zToken);
   }
   cgi_setenv("GATEWAY_INTERFACE","CGI/1.0");
   cgi_setenv("REQUEST_METHOD",zToken);
   zToken = extract_token(z, &z);
   if( zToken==0 ){
-    malformed_request("malformed URL in HTTP header");
+    malformed_request("malformed URI in the HTTP header");
   }
   cgi_setenv("REQUEST_URI", zToken);
   cgi_setenv("SCRIPT_NAME", "");
@@ -2166,6 +2188,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   }else{
     fossil_fatal("missing SSH IP address");
   }
+  g.zReqType = "HTTP";
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request("missing HTTP header");
   }

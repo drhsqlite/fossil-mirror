@@ -229,6 +229,7 @@ struct Global {
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
   const char *zCgiFile;      /* Name of the CGI file */
+  const char *zReqType;      /* Type of request: "HTTP", "CGI", "SCGI" */
 #if USE_SEE
   const char *zPidKey;    /* Saved value of the --usepidkey option.  Only
                            * applicable when using SEE on Windows or Linux. */
@@ -2365,6 +2366,7 @@ void cmd_cgi(void){
   fossil_binary_mode(g.httpOut);
   fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
+  g.zReqType = "CGI";
   fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
   /* Find the name of the CGI control file */
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
@@ -2848,6 +2850,7 @@ void cmd_http(void){
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
   g.zExtRoot = find_option("extroot",0,1);
   g.zCkoutAlias = find_option("ckout-alias",0,1);
+  g.zReqType = "HTTP";
   zInFile = find_option("in",0,1);
   if( zInFile ){
     backoffice_disable();
@@ -2871,6 +2874,7 @@ void cmd_http(void){
   }
   zIpAddr = find_option("ipaddr",0,1);
   useSCGI = find_option("scgi", 0, 0)!=0;
+  if( useSCGI ) g.zReqType = "SCGI";
   zAltBase = find_option("baseurl", 0, 1);
   if( find_option("nodelay",0,0)!=0 ) backoffice_no_delay();
   if( zAltBase ) set_base_url(zAltBase);
@@ -2997,6 +3001,7 @@ void cmd_test_http(void){
   fossil_binary_mode(g.httpIn);
   g.zExtRoot = find_option("extroot",0,1);
   find_server_repository(2, 0);
+  g.zReqType = "HTTP";
   g.cgiOutput = 1;
   g.fNoHttpCompress = 1;
   g.fullHttpReply = 1;
@@ -3233,7 +3238,11 @@ void cmd_webserver(void){
   if( find_option("nocompress",0,0)!=0 ) g.fNoHttpCompress = 1;
   zAltBase = find_option("baseurl", 0, 1);
   fCreate = find_option("create",0,0)!=0;
-  if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;
+  g.zReqType = "HTTP";
+  if( find_option("scgi", 0, 0)!=0 ){
+    g.zReqType = "SCGI";
+    flags |= HTTP_SERVER_SCGI;
+  }
   if( zAltBase ){
     set_base_url(zAltBase);
   }
