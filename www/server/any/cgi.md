@@ -93,14 +93,23 @@ has been be added in the relevant proxying section of the Nginx config file.
 
 #### Apache mod_cgi and `CONTENT_LENGTH`
 
-Sometime in version 2.4, Apache's `mod_cgi` stopped passing on the
-`CONTENT_LENGTH` CGI variable to clients, which breaks fossil's sync
-protocol. In order to restore that functionality, clients need to add
-the following to their Apache configuration, scoped to the `<Directory>`
-entry or entries in which fossil is being served via CGI:
+Sometime around version 2.4, Apache's `mod_cgi` stopped relaying the
+Content-Length header in the HTTP reply from CGIs back to clients.
+However, Fossil clients prior to 2024-04-17 depending on seeing the
+Content-Length header and were unable to handle HTTP replies without
+one.  The change in Apache behavior caused "fossil clone" and "fossil sync"
+to stop working.  There are two possible fixes to this problem:
 
-```
-<Directory ...>
-  SetEnv ap_trust_cgilike_cl "yes"
-</Directory>
-```
+  1.  Restore legacy behavior in Apache by adding
+      the following to the Apache configuration, scoped to the `<Directory>`
+      entry or entries in which fossil is being served via CGI:
+      <blockquote><pre>
+      &lt;Directory ...&gt;
+         SetEnv ap_trust_cgilike_cl "yes"
+      &lt;/Directory&gt;
+      </pre></blockquote>
+
+  2.  Upgrade your Fossil client to any trunk check-in after 2024-04-17,
+      as Fossil was upgraded to be able to deal with the missing
+      Content-Length field by
+      [check-in a8e33fb161f45b65](/info/a8e33fb161f45b65).

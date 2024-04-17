@@ -1,5 +1,5 @@
-C Fix\sthe\sHTTP-reply\sparser\sso\sthat\sit\sis\sable\sto\sdeal\swith\sreplies\sthat\slack\na\sContent-Length\sheader\sfield.\s\sThis\sresolves\sthe\sissue\sreported\sby\n[forum:/forumpost/12ac403fd29cfc89|forum\spost\s12ac403fd29cfc89].\s\sAlso\sin\nthis\smerge:\s(1)\sAdd\sthe\s--xverbose\soption\sto\s"fossil\sclone".\s\s(2)\sImproved\nerror\smessages\swhen\sweb\sservers\smisbehave.\s\sSee\salso\smy\smisguided\sand\sincorrect\n[https://bz.apache.org/bugzilla/show_bug.cgi?id=68905|Apache\sbug\s68905].\nSpecial\sthanks\sto\sApache\sdevs\sfor\ssetting\sme\sstraight.
-D 2024-04-17T12:58:08.187
+C Update\sApache\smod_cgi/Content-Length\sdocumentation.
+D 2024-04-17T13:14:46.550
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -905,7 +905,7 @@ F www/scgi.wiki 8a0f5e5ba635f40fc9e2e8d9afc5eaa6df854152ab9413ebacd2809866e104b7
 F www/selfcheck.wiki 9a7db45ae11899205c631e42c64553a80624352b5fbf5101c0fd3059a5424dd3
 F www/selfhost.wiki ee86a1290195803262d7175ee4453f8e2771da3cb81cf713a2498fd8912c02df
 F www/server/any/althttpd.md 4ac7121aa47d8ce6321128097884528354428a7606d60a83efb01c1e31270fad
-F www/server/any/cgi.md ae017d59e5c6dd17e34817ea21c2562c9aa97bc822e56ea2af2b3d5b6af771d9
+F www/server/any/cgi.md a7ee318895a85cf3fee6a32781cdae29907819740d2af324be0d1f050bc6f480
 F www/server/any/http-over-ssh.md 87c3f07f1b56beb9eab8a2504b38ec963b34d28e7c48deeaa753cced343ba008
 F www/server/any/index.md 362cf7a4991592606ef26bd684b4e89681c60558ff94a96f96651659ff62a86a
 F www/server/any/inetd.md 9bbff868954a69ed40b595f1a059cf74f7b4afd6ccb50d7ee2d7e4d6a6a7ff85
@@ -957,9 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c40ddbcd182f2645a0376858a66bf26c2d5acb1ebe66430e13da838eb034605 de647e865230f5c012e13720881d00487813856d016b0f5d318fe343bd288fa6
-R f013b0744e582eb722d8d08f867184db
-T +closed de647e865230f5c012e13720881d00487813856d016b0f5d318fe343bd288fa6
+P a8e33fb161f45b65167f0dfe39b6fcbad21f5844ee469131fd8fa8fc09cd5e99
+R 6f2acf380394df557850f016fd1fbf0a
 U drh
-Z 975db7ce1decc496bbd60810504b01e0
+Z efb5851ae88e777169b8c5759582b201
 # Remove this line to create a well-formed Fossil manifest.
