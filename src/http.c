@@ -700,7 +700,7 @@ int http_exchange(
                      iRecvLen, iLength);
       goto write_err;
     }
-  }else{
+  }else if( closeConnection ){
     /* Read content until end-of-file */
     int iRecvLen;         /* Received length of the reply payload */
     unsigned int nReq = 1000;

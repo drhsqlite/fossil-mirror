@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog\sin\sorder\sto\smention\sthe\sApache\smod_cgi/Content-Length\nfix.
-D 2024-04-17T13:21:19.042
+C Only\sprocess\sHTTP\sreplies\sthat\slack\sa\sContent-Length\sheader\sif\sthe\nconnection\sis\sset\sto\sbe\sclosed.\s\sSuggested\sby\n[https://bz.apache.org/bugzilla/show_bug.cgi?id=68905].
+D 2024-04-17T13:27:34.111
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -464,7 +464,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c aec38a4445a127915a6d7f3041c39a1f83651bab88c8088ed1b90bdb5b3b8085
+F src/http.c de26ee380cc90699b22f12b4b8736c039aafaef9f5436f65fb23961504b6aa52
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 05181e4e15a7db4a21ce02648c2713d0b17412006e7b86a67f17218a772d0496
-R 9be010b45c49b070c3e3b6a634c30dac
+P 670c886e30c315d5195050bf60d2f15da8d93cb618f6359fa62122f5fdb94f7a
+R 40d7bd98c110f8c1676400fdf912f802
 U drh
-Z 67c2519b1555559d58e19be3aeab3b77
+Z 45d7b81649af8363701cd6d0bdf8b9b7
 # Remove this line to create a well-formed Fossil manifest.
