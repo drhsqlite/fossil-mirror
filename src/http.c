@@ -715,6 +715,9 @@ int http_exchange(
     if( mHttpFlags & HTTP_VERBOSE ){
       fossil_print("Reply received: %u bytes (w/o content-length)\n", nPrior);
     }
+  }else{
+    assert( iLength<0 && !closeConnection );
+    fossil_warning("\"content-length\" missing from %d keep-alive reply", rc);
   }
   if( isError ){
     char *z;
