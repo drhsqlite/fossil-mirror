@@ -565,6 +565,7 @@ int http_exchange(
         fossil_warning("server says: %s", &zLine[ii]);
         goto write_err;
       }
+      if( iHttpVersion<0 ) iHttpVersion = 1;
       closeConnection = 0;
     }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
       for(i=15; fossil_isspace(zLine[i]); i++){}

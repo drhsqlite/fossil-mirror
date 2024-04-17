@@ -1,5 +1,5 @@
-C Arrange\sfor\sthe\sHTTP\sreply\sparser\sto\sbe\sable\sto\sdeal\swith\sa\smissing\nContent-Length\sheader.\s\sAdd\sthe\s--xverbose\soption\sto\sthe\s"fossil\sclone"\ncommand.
-D 2024-04-17T12:18:22.732
+C Fix\sssh:\sclones,\sbroken\sby\sthe\sprevious\scheck-in.
+D 2024-04-17T12:49:37.326
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -464,7 +464,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 85217a1079d7b6d5afab934fb83d5a20f501854ca4c740853e74606c71a7c502
+F src/http.c aec38a4445a127915a6d7f3041c39a1f83651bab88c8088ed1b90bdb5b3b8085
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 131ba0fa1bf1e200b3b211c5761041b7dc037d5c41da9fbd289b685db9e00d3e
-R e159a94660a5ac2dcd2b4e529a18faf5
+P dfefd069b6026effb244718496a6d2d4b8dd820ad1b5ad025886e52e5e093516
+R f013b0744e582eb722d8d08f867184db
 U drh
-Z af16fd40d49f357c240fc43cb80a7bb3
+Z 6e6fe7edf9df00bccf739f13042621d7
 # Remove this line to create a well-formed Fossil manifest.
