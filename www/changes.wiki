@@ -2,11 +2,23 @@
 
 <h2 id='v2_24'>Changes for version 2.24 (pending)</h2>
 
-  *  Improvements to the default skin
+  *  Reworked the default skin to make everything more readable: larger
+     fonts, more whitespace, deeper indents to show hierarchy and to
+     offset command examples, etc.  Adjusted colors slightly to bring
+     things into better accord with the WCAG accessibility guidelines.
+     This constitutes a <strong>breaking change</strong> for those with
+     custom skins; see [./customskin.md#version-2.24 | this section of
+     the docs] for migration advice.
   *  If an "ssh:" sync fails in a way that suggests that the fossil executable
      could not be found on the remote host, then retry after adding a PATH=
      prefix to the command.  This helps "ssh:" to "just work" when the server
      is a Mac.
+  *  Fix an issue that caused Fossil to stop working when run from CGI under
+     Apache.  As part of a security fix, Apache stopped relaying the
+     Content-Length field of the HTTP reply header, but Fossil was depending
+     on that field.  Fossil has now been enhanced to be able to deal with
+     a missing Content-Length in the reply header.  See
+     [forum:/forumpost/12ac403fd29cfc89|forum thread 12ac403fd29cfc89].
   *  Enhancements to the [/help?cmd=/timeline|/timeline page]:
      <ul>
      <li> Add the x= query paramater
@@ -31,13 +43,6 @@
   *  Fix problems with one-click unsubscribe on email notifications.
   *  Import the latest [/doc/trunk/www/pikchr.md|Pikchr] containing support
      for "diamond" objects.
-  *  Reworked the default skin to make everything more readable: larger
-     fonts, more whitespace, deeper indents to show hierarchy and to
-     offset command examples, etc.  Adjusted colors slightly to bring
-     things into better accord with the WCAG accessibility guidelines.
-     This constitutes a <strong>breaking change</strong> for those with
-     custom skins; see [./customskin.md#version-2.24 | this section of
-     the docs] for migration advice.
   *  Add ability to render committed Pikchr files to SVG via
      <samp>/doc/…/foo.pikchr?popup</samp> URLs.
   *  Update Fossil's internal robot detection logic so that it correctly

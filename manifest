@@ -1,5 +1,5 @@
-C Update\sApache\smod_cgi/Content-Length\sdocumentation.
-D 2024-04-17T13:14:46.550
+C Update\sthe\schange\slog\sin\sorder\sto\smention\sthe\sApache\smod_cgi/Content-Length\nfix.
+D 2024-04-17T13:21:19.042
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -782,7 +782,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html 21ecdde02b27bccc3a43f1a3ba94ddb2b20f18abf85642127b45b6f9fe792ee9
 F www/cgi.wiki 8edf95fda013f9c854e2d2a2795c1b23f90e44f1c13a09e0640bd60d31e97eb1
-F www/changes.wiki d134d6081b47098cdbfca09d4786a585cecc527fa490566aee3213cd6946e150
+F www/changes.wiki a3b3e27e8b24f3f2189b36e3d20d281a27e2043bc3b02d508f314fa9736d9ba5
 F www/chat.md 572a2ac53c959f760e3d8ba6edf70a64f937ed6e7bc1492009f9f3217b6704ed
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 966187ef75f7150db2644fb2358b969672dd888d6f227a5587b975b935a327e7
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8e33fb161f45b65167f0dfe39b6fcbad21f5844ee469131fd8fa8fc09cd5e99
-R 6f2acf380394df557850f016fd1fbf0a
+P 05181e4e15a7db4a21ce02648c2713d0b17412006e7b86a67f17218a772d0496
+R 9be010b45c49b070c3e3b6a634c30dac
 U drh
-Z efb5851ae88e777169b8c5759582b201
+Z 67c2519b1555559d58e19be3aeab3b77
 # Remove this line to create a well-formed Fossil manifest.
