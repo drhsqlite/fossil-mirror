@@ -438,7 +438,6 @@ int http_exchange(
   Blob hdr;             /* The HTTP request header */
   int closeConnection;  /* True to close the connection when done */
   int iLength;          /* Expected length of the reply payload */
-  int iRecvLen;         /* Received length of the reply payload */
   int rc = 0;           /* Result code */
   int iHttpVersion;     /* Which version of HTTP protocol server uses */
   char *zLine;          /* A single line of the reply header */
@@ -527,6 +526,7 @@ int http_exchange(
   */
   closeConnection = 1;
   iLength = -1;
+  iHttpVersion = -1;
   while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){
     if( mHttpFlags & HTTP_VERBOSE ){
       fossil_print("Read: [%s]\n", zLine);
@@ -638,7 +638,7 @@ int http_exchange(
       }
     }
   }
-  if( iLength<0 ){
+  if( iHttpVersion<0 ){
     /* We got nothing back from the server.  If using the ssh: protocol,
     ** this might mean we need to add or remove the PATH=... argument
     ** to the SSH command being sent.  If that is the case, retry the
@@ -684,13 +684,37 @@ int http_exchange(
   ** Extract the reply payload that follows the header
   */
   blob_zero(pReply);
-  blob_resize(pReply, iLength);
-  iRecvLen = transport_receive(&g.url, blob_buffer(pReply), iLength);
-  if( iRecvLen != iLength ){
-    fossil_warning("response truncated: got %d bytes of %d", iRecvLen, iLength);
-    goto write_err;
+  if( iLength==0 ){
+    /* No content to read */
+  }else if( iLength>0 ){
+    /* Read content of a known length */
+    int iRecvLen;         /* Received length of the reply payload */
+    blob_resize(pReply, iLength);
+    iRecvLen = transport_receive(&g.url, blob_buffer(pReply), iLength);
+    if( mHttpFlags & HTTP_VERBOSE ){
+      fossil_print("Reply received: %d of %d bytes\n", iRecvLen, iLength);
+    }
+    if( iRecvLen != iLength ){
+      fossil_warning("response truncated: got %d bytes of %d",
+                     iRecvLen, iLength);
+      goto write_err;
+    }
+  }else{
+    /* Read content until end-of-file */
+    int iRecvLen;         /* Received length of the reply payload */
+    unsigned int nReq = 1000;
+    unsigned int nPrior = 0;
+    do{
+      nReq *= 2;
+      blob_resize(pReply, nPrior+nReq);
+      iRecvLen = transport_receive(&g.url, &pReply->aData[nPrior], (int)nReq);
+      nPrior += iRecvLen;
+      pReply->nUsed = nPrior;
+    }while( iRecvLen==nReq && nReq<0x20000000 );
+    if( mHttpFlags & HTTP_VERBOSE ){
+      fossil_print("Reply received: %u bytes (w/o content-length)\n", nPrior);
+    }
   }
-  blob_resize(pReply, iLength);
   if( isError ){
     char *z;
     int i, j;

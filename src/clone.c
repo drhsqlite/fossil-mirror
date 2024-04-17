@@ -138,6 +138,7 @@ void delete_private_content(void){
 **    -u|--unversioned           Also sync unversioned content
 **    -v|--verbose               Show more statistics in output
 **    --workdir DIR              Also open a check-out in DIR
+**    --xverbose                 Extra debugging output
 **
 ** See also: [[init]], [[open]]
 */
@@ -163,6 +164,7 @@ void clone_cmd(void){
     urlFlags |= URL_REMEMBER_PW;
   }
   if( find_option("verbose","v",0)!=0) syncFlags |= SYNC_VERBOSE;
+  if( find_option("xverbose",0,0)!=0) syncFlags |= SYNC_XVERBOSE;
   if( find_option("unversioned","u",0)!=0 ){
     syncFlags |= SYNC_UNVERSIONED;
     if( syncFlags & SYNC_VERBOSE ){
