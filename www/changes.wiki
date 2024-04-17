@@ -15,9 +15,10 @@
      is a Mac.
   *  Fix an issue that caused Fossil to stop working when run from CGI under
      Apache.  As part of a security fix, Apache stopped relaying the
-     Content-Length field of the HTTP reply header, but Fossil was depending
-     on that field.  Fossil has now been enhanced to be able to deal with
-     a missing Content-Length in the reply header.  See
+     Content-Length field of the HTTP reply header in cases where it was
+     not required, but Fossil was depending on that field.  Fossil has now
+     been enhanced to be able to deal with a missing Content-Length in the
+     reply header.  See
      [forum:/forumpost/12ac403fd29cfc89|forum thread 12ac403fd29cfc89].
   *  Enhancements to the [/help?cmd=/timeline|/timeline page]:
      <ul>
@@ -30,16 +31,22 @@
      </ul>
   *  Moved the /museum/repo.fossil file referenced from the Dockerfile from
      the ENTRYPOINT to the CMD part to allow use of --repolist mode.
-  *  The /uvlist page now shows the hash algorithm used so that
-     outsiders don't have to guess it from the hash length when
-     double-checking hashes of downloaded files on their end.
-  *  The hash itself is now shown in a fixed-width font on the /uvlist
-     page, suiting this tabular display.
+  *  The [/uvlist] page now shows the hash algorithm used so that
+     viewers don't have to guess.  And the hash is shows in a fixed-width
+     font for a more visually pleasing display.
   *  If the [/help?cmd=autosync|autosync setting] contains keyword "all",
      the automatic sync occurs against all defined remote repositories, not
      just the default.
   *  Markdown formatter: improved handling of indented fenced code blocks
      that contain blank lines.
+  *  When doing a "[/help?cmd=add|fossil add]" on a system with case-insensitive
+     but case-preserving filenames (Mac and Windows) try to use the filename
+     case as it is known to the filesystem, not the case entered by the
+     user on the command-line.  See
+     [forum:/forumpost/30d9c0d131610f53|forum thread 30d9c0d131610f53].
+  *  New link added to the [/login] page that allows the user to 
+     [/skins|select their preferred skin]. This preference is stored in
+     the [/fdscookie|fossil display_settings cookie].
   *  Fix problems with one-click unsubscribe on email notifications.
   *  Import the latest [/doc/trunk/www/pikchr.md|Pikchr] containing support
      for "diamond" objects.
