@@ -932,7 +932,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       ** if the pRow branch started off the bottom of the screen.
       */
       for(pRoot=pBottom->pNext; pRoot; pRoot=pRoot->pNext){
-        if( pRoot->aiRiser[iFrom]>=0 ) break;
+        if( pRoot->aiRiser[iFrom]==pBottom->idx ) break;
       }
       if( pRoot && pRoot->iRail==iTo ){
         /* The parent branch from which this branch emerges is on the
