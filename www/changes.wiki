@@ -2,6 +2,15 @@
 
 <h2 id='v2_24'>Changes for version 2.24 (pending)</h2>
 
+  *  Apache change work-around &rarr; As part of a security fix, the Apache webserver
+     mod_cgi module has stopped relaying the Content-Length field of the HTTP
+     reply header from the CGI programs back to the client in cases where the
+     connection is to be closed and the client is able to read until end-of-file.
+     The HTTP and CGI specs allow for this, though it does seem rude.
+     Older versions of Fossil was depending on the Content-Length header field
+     being set.  To work around the change to Apache, Fossil has
+     been enhanced to cope with a missing Content-Length in the reply header.  See
+     [forum:/forumpost/12ac403fd29cfc89|forum thread 12ac403fd29cfc89].
   *  [./customskin.md|Skin] enhancements:
      <ul>
      <li>  Reworked the default skin to make everything more readable: larger
@@ -22,13 +31,6 @@
      could not be found on the remote host, then retry after adding a PATH=
      prefix to the command.  This helps "ssh:" to "just work" when the server
      is a Mac.
-  *  Fix an issue that caused Fossil to stop working when run from CGI under
-     Apache.  As part of a security fix, Apache stopped relaying the
-     Content-Length field of the HTTP reply header in cases where it was
-     not required, but Fossil was depending on that field.  Fossil has now
-     been enhanced to be able to deal with a missing Content-Length in the
-     reply header.  See
-     [forum:/forumpost/12ac403fd29cfc89|forum thread 12ac403fd29cfc89].
   *  Enhancements to the [/help?cmd=/timeline|/timeline page]:
      <ul>
      <li> Add the x= query paramater
