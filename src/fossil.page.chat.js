@@ -126,7 +126,7 @@ window.fossil.onPageLoad(function(){
   })();
   fossil.FRK = ForceResizeKludge/*for debugging*/;
   const Chat = ForceResizeKludge.chat = (function(){
-    const cs = {
+    const cs = { // the "Chat" object (result of this function)
       verboseErrors: false /* if true then certain, mostly extraneous,
                               error messages may be sent to the console. */,
       e:{/*map of certain DOM elements.*/
@@ -1954,7 +1954,10 @@ window.fossil.onPageLoad(function(){
       fd.append('render_mode',F.page.previewModes.wiki);
       F.fetch('ajax/preview-text',{
         payload: fd,
-        onload: (html)=>Chat.setPreviewText(html),
+        onload: function(html){
+          Chat.setPreviewText(html);
+          F.pikchr.addSrcView(Chat.e.viewPreview.querySelectorAll('svg.pikchr'));
+        },
         onerror: function(e){
           F.fetch.onerror(e);
           Chat.setPreviewText("ERROR: "+(
