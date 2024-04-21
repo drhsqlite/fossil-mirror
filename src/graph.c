@@ -26,18 +26,24 @@
 ** The graph is laid out in 1 or more "rails".  A "rail" is a vertical
 ** band in the graph in which one can place nodes or arrows connecting
 ** nodes.  There can be between 1 and GR_MAX_RAIL rails.  If the graph
-** is to complex to be displayed in GR_MAX_RAIL rails, it is omitted.
+** is too complex to be displayed in GR_MAX_RAIL rails, it is omitted.
 **
 ** A "riser" is the thick line that comes out of the top of a node and
 ** goes up to the next node on the branch, or to the top of the screen.
 ** A "descender" is a thick line that comes out of the bottom of a node
 ** and proceeds down to the bottom of the page.
 **
+** A "merge riser" is a thin line going up out of a node to indicate a
+** merge or cherrypick.  (Cherrypicks are drawn with thin dashed lines.
+** Merges are drawn with thin solid lines.)  A "merge riser" might go
+** stright up out of the top of a leaf node, but for non-leaves, they
+** go horizontally to their assigned rail first, then up.
+**
 ** Invoke graph_init() to create a new GraphContext object.  Then
 ** call graph_add_row() to add nodes, one by one, to the graph.
 ** Nodes must be added in display order, from top to bottom.
 ** Then invoke graph_render() to run the layout algorithm.  The
-** layout algorithm computes which rails all of the nodes sit on, and
+** layout algorithm computes which rail each nodes sit on, and
 ** the rails used for merge arrows.
 */
 
