@@ -571,12 +571,9 @@ int http_exchange(
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
-      char c;
-      for(i=11; fossil_isspace(zLine[i]); i++){}
-      c = zLine[i];
-      if( c=='c' || c=='C' ){
+      if( sqlite3_strlike("%close%", &zLine[11], 0)==0 ){
         closeConnection = 1;
-      }else if( c=='k' || c=='K' ){
+      }else if( sqlite3_strlike("%keep-alive%", &zLine[11], 0)==0 ){
         closeConnection = 0;
       }
     }else if( ( rc==301 || rc==302 || rc==307 || rc==308 ) &&

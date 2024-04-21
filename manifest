@@ -1,5 +1,5 @@
-C In\s/chat\spreview\smode,\sapply\sthe\sclick\shandlers\sto\spikchrs\sin\sthe\spreview.
-D 2024-04-20T21:58:21.863
+C Fix\sparsing\sof\sthe\sargument\sto\sthe\s"Connection:"\sheader\sof\sHTTP\sreply\smessages\nto\sdeal\swith\sunusual\sarguments\sadded\sby\sApache\smod_cgi.\s\sSee\n[forum:/forumpost/ca6fc85c80f4704f|forum\sthread\sca6fc85c80f4704f].
+D 2024-04-21T16:20:19.640
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -464,7 +464,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 8bbee93f3a162a381a83d7b67be5a4cbcc1b40cf2f02db1154e81d20d68d9f20
+F src/http.c 88ee80fc188b5972abfc252d6a1d6c977596ab53191e8ebbc40344ba7c047c4b
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
@@ -957,8 +957,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 33fe72ca75bbd9d50c6651ad1d9c848349df6371cbd931e10d6ec9d5dc011d5c
-R 6733c47eec6875b9734b38c2b3e3513f
-U stephan
-Z 28ce46fffa6e86faedc1c1a7bbb26dc6
+P 133e6e59b97d118972c1cd4ffabdcedac16a7f2413d5f2cc8127b4540ace3e21 77f25829d2f9f7b9877c6f35c16b8f7c445a94eb89009e01f78b4cf006de36eb
+R 4a30a6dc650dd4d914c1befe02d833b6
+T +closed 77f25829d2f9f7b9877c6f35c16b8f7c445a94eb89009e01f78b4cf006de36eb
+U drh
+Z b18cf90494414170303ebf6ae398125f
 # Remove this line to create a well-formed Fossil manifest.
