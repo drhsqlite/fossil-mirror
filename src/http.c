@@ -571,23 +571,11 @@ int http_exchange(
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
-      int j;      /* Position of next separator (comma or zero terminator). */
-      int k = 0;  /* Position after last non-space char for current value. */
-      i = 11;
-      do{
-        while( fossil_isspace(zLine[i]) || zLine[i]==',' ) i++;
-        j = i;
-        while( zLine[j] && zLine[j]!=',' ){
-          if( !fossil_isspace(zLine[j]) ) k = j + 1;
-          j++;
-        }
-        if( k-i==5 && fossil_strnicmp(&zLine[i], "close", 5)==0 ){
-          closeConnection = 1;
-        }else if( k-i==10 && fossil_strnicmp(&zLine[i], "keep-alive", 10)==0 ){
-          closeConnection = 0;
-        }
-        i = j;
-      }while( zLine[i] );
+      if( sqlite3_strlike("%close%", &zLine[11], 0)==0 ){
+        closeConnection = 1;
+      }else if( sqlite3_strlike("%keep-alive%", &zLine[11], 0)==0 ){
+        closeConnection = 0;
+      }
     }else if( ( rc==301 || rc==302 || rc==307 || rc==308 ) &&
                 fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
