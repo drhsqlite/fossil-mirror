@@ -571,15 +571,19 @@ int http_exchange(
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
-      int j; /* Points to end of value (space, semicolon or zero terminator). */
+      int j;      /* Position of next separator (comma or zero terminator). */
+      int k = 0;  /* Position after last non-space char for current value. */
       i = 11;
       do{
         while( fossil_isspace(zLine[i]) || zLine[i]==',' ) i++;
         j = i;
-        while( !fossil_isspace(zLine[j]) && zLine[j]!=',' && zLine[j] ) j++;
-        if( j-i==5 && fossil_strnicmp(&zLine[i], "close", 5)==0 ){
+        while( zLine[j] && zLine[j]!=',' ){
+          if( !fossil_isspace(zLine[j]) ) k = j + 1;
+          j++;
+        }
+        if( k-i==5 && fossil_strnicmp(&zLine[i], "close", 5)==0 ){
           closeConnection = 1;
-        }else if( j-i==10 && fossil_strnicmp(&zLine[i], "keep-alive", 10)==0 ){
+        }else if( k-i==10 && fossil_strnicmp(&zLine[i], "keep-alive", 10)==0 ){
           closeConnection = 0;
         }
         i = j;
