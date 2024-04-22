@@ -93,8 +93,8 @@ has been be added in the relevant proxying section of the Nginx config file.
 
 #### Apache mod_cgi and `CONTENT_LENGTH`
 
-In version 2.4.59, Apache's `mod_cgi` stopped relaying the
-Content-Length header in the HTTP reply from CGIs back to clients.
+At some point in its 2.4.x family, Apache's `mod_cgi` stopped relaying
+the Content-Length header in the HTTP reply from CGIs back to clients.
 However, Fossil clients prior to 2024-04-17 depended on seeing the
 Content-Length header and were unable to handle HTTP replies without
 one.  The change in Apache behavior caused "fossil clone" and "fossil
