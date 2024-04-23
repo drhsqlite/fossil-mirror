@@ -86,7 +86,7 @@ system with these advanced features:
   8.  <b>Free and Open-Source</b> — [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
-<h3>Latest Release: 2.24 ([/timeline?c=version-2.24|2024-04-22])</h3>
+<h3>Latest Release: 2.24 ([/timeline?c=version-2.24|2024-04-23])</h3>
 
   *  [/uv/download.html|Download]
   *  [./changes.wiki#v2_24|Change Summary]
