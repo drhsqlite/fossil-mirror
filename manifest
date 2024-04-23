@@ -1,5 +1,5 @@
-C Adjustments\sto\stimeline\sgraph\slayout\sto\stry\sto\simprove\sthe\sappearance\sa\slittle.
-D 2024-04-23T14:43:55.226
+C Fix\sone\sof\sthe\shyperlinks\son\sthe\shomepage.
+D 2024-04-23T14:46:45.935
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -854,7 +854,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 308008689b50f1b0989387afe80285910ac3f42e4b80b5e1122181534bdbb425
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki da196dddacc7d0029c38ab14e76eb91d9d2625fa6fafa5ef6d2bafa897d36823
+F www/index.wiki b18a18aafc447d294f2ba53420444652ce5a127fce144a60a3c3b93b6bf9b0bd
 F www/inout.wiki 9982cc004c39afa5309bb3c6a26353859838a4e4424a8516bbc658f53c2260c6
 F www/interwiki.md 6a20986c754f3a0cf8014e1cbb0853d376321ab7e4dd596f90d5517f837c3500
 F www/javascript.md ee435e2efb1752666d6f4b9b42c3ebcb9aa9f930257897d7784fc100c4e2c0b8
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 929f36ae3c559584da81bed0fa086fcdf865ab260ac1843299d680ff37e8dfd9
-R 85cc45cf755df4b4bb6da0ec3ffeda6f
+P 797f1813f81871dc2393fb699cbe9d621af194cccb150179b088b4df27406df5
+R abe44f6bc2c30faff9d9e0466622fd32
 U drh
-Z 147cb8ac0124b1de712b0875a4877b5a
+Z cdf4149d6180505599e78708e55380e8
 # Remove this line to create a well-formed Fossil manifest.

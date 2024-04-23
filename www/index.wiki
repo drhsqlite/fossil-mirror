@@ -91,7 +91,7 @@ system with these advanced features:
   *  [/uv/download.html|Download]
   *  [./changes.wiki#v2_24|Change Summary]
   *  [/timeline?p=version-2.24&bt=version-2.23&y=ci|Check-ins in version 2.24]
-  *  [/timeline?df=version-2.23&y=ci|Check-ins derived from the 2.24 release]
+  *  [/timeline?df=version-2.24&y=ci|Check-ins derived from the 2.24 release]
   *  [/timeline?t=release|Timeline of all past releases]
 
 <hr>
