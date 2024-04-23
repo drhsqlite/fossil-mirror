@@ -982,6 +982,8 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     **    0x04      The preferred branch
     **
     **    0x02      A merge rail - a rail that contains merge lines
+    **    ^^^^----- Omit this as of 2024-04-23, as it actually seems to
+    **              detract from appearance, not help.
     **
     **    0x01      A rail that merges with the preferred branch
     */
@@ -1010,11 +1012,13 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
         }
       }
     }
+#if 0  /* Omit the 0x02 priority boost due to merge rails */
     for(i=0; i<=p->mxRail; i++){
       if( p->mergeRail & BIT(i) ){
         aPriority[i] |= 2;
       }
     }
+#endif
 
 #if 0
     fprintf(stderr,"mergeRail: 0x%llx\n", p->mergeRail);
