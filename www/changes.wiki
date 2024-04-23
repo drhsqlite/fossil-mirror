@@ -1,13 +1,13 @@
 <title>Change Log</title>
 
-<h2 id='v2_24'>Changes for version 2.24 (pending)</h2>
+<h2 id='v2_24'>Changes for version 2.24 (2024-04-23)</h2>
 
   *  Apache change work-around &rarr; As part of a security fix, the Apache webserver
      mod_cgi module has stopped relaying the Content-Length field of the HTTP
      reply header from the CGI programs back to the client in cases where the
      connection is to be closed and the client is able to read until end-of-file.
      The HTTP and CGI specs allow for this, though it does seem rude.
-     Older versions of Fossil was depending on the Content-Length header field
+     Older versions of Fossil were depending on the Content-Length header field
      being set.  To work around the change to Apache, Fossil has
      been enhanced to cope with a missing Content-Length in the reply header.  See
      [forum:/forumpost/12ac403fd29cfc89|forum thread 12ac403fd29cfc89].
@@ -43,7 +43,7 @@
   *  Moved the /museum/repo.fossil file referenced from the Dockerfile from
      the ENTRYPOINT to the CMD part to allow use of --repolist mode.
   *  The [/uvlist] page now shows the hash algorithm used so that
-     viewers don't have to guess.  And the hash is shows in a fixed-width
+     viewers don't have to guess.  The hash is shown in a fixed-width
      font for a more visually pleasing display.
   *  If the [/help?cmd=autosync|autosync setting] contains keyword "all",
      the automatic sync occurs against all defined remote repositories, not
