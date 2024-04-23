@@ -981,9 +981,10 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     **
     **    0x04      The preferred branch
     **
-    **    0x02      A merge rail - a rail that contains merge lines
-    **    ^^^^----- Omit this as of 2024-04-23, as it actually seems to
-    **              detract from appearance, not help.
+    **    0x02      A merge rail - a rail that contains merge lines into
+    **              the preferred branch.  Only applies if a preferred branch
+    **              is defined.  This improves the display of r=BRANCH
+    **              options to /timeline.
     **
     **    0x01      A rail that merges with the preferred branch
     */
@@ -1000,6 +1001,11 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
           if( pRow->mergeOut>=0 ) aPriority[pRow->mergeOut] |= 1;
         }
       }
+      for(i=0; i<=p->mxRail; i++){
+        if( p->mergeRail & BIT(i) ){
+          aPriority[i] |= 2;
+        }
+      }
     }else{
       j = 1;
       aPriority[0] = 4;
@@ -1012,13 +1018,6 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
         }
       }
     }
-#if 0  /* Omit the 0x02 priority boost due to merge rails */
-    for(i=0; i<=p->mxRail; i++){
-      if( p->mergeRail & BIT(i) ){
-        aPriority[i] |= 2;
-      }
-    }
-#endif
 
 #if 0
     fprintf(stderr,"mergeRail: 0x%llx\n", p->mergeRail);
