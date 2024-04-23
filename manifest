@@ -1,5 +1,5 @@
-C cgi.md:\sbe\sless\sspecific\sabout\sthe\sApache\sversion\sin\swhich\sthe\sContent-Length\schange\shappened\sbecause\sa\snew\sforum\spost\sreports\sthat\sit\shappens\sat\sleast\sas\sfar\sback\sas\s2.4.41.
-D 2024-04-22T16:29:45.993
+C Version\s2.24
+D 2024-04-23T13:25:26.442
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -957,8 +957,10 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 64ce68d590e62e252539049266b7fc9274d36538ed3eb930bfb82fbc8730120d
+P 9af5f38671295d6d4283ae6fefc5bfd316f3c69ca1d6530a39993945112fd016
 R 35b13fd02a92e12cbfebcb7249a8a3aa
-U stephan
-Z f89fc14cdd4985bfd4226e1a76609f47
+T +sym-release *
+T +sym-version-2.24 *
+U drh
+Z fb94cbc512351ac4d168c4aad839842b
 # Remove this line to create a well-formed Fossil manifest.
