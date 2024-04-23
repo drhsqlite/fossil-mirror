@@ -1,5 +1,5 @@
-C Version\s2.24
-D 2024-04-23T13:25:26.442
+C Update\sthe\shomepage\sfor\sthe\s2.24\srelease.
+D 2024-04-23T13:43:25.417
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -854,7 +854,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 308008689b50f1b0989387afe80285910ac3f42e4b80b5e1122181534bdbb425
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki 427f9327961e4f7b71085e3e1dc02a9776d401939979f8e1db3494b6921fa45c
+F www/index.wiki 9f8bfec589c87217afa15280036fc370e2edddcb9d9b9ee4d593f42ae67180b5
 F www/inout.wiki 9982cc004c39afa5309bb3c6a26353859838a4e4424a8516bbc658f53c2260c6
 F www/interwiki.md 6a20986c754f3a0cf8014e1cbb0853d376321ab7e4dd596f90d5517f837c3500
 F www/javascript.md ee435e2efb1752666d6f4b9b42c3ebcb9aa9f930257897d7784fc100c4e2c0b8
@@ -957,10 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9af5f38671295d6d4283ae6fefc5bfd316f3c69ca1d6530a39993945112fd016
-R 35b13fd02a92e12cbfebcb7249a8a3aa
-T +sym-release *
-T +sym-version-2.24 *
+P 8be0372c1051043761320c8ea8669c3cf320c406e5fe18ad36b7be5f844ca73b
+R 9ba18854d7f9acbcf44ba9c5f502ec42
 U drh
-Z fb94cbc512351ac4d168c4aad839842b
+Z 924b6e54f60e64cb4caaa171b45a9b5e
 # Remove this line to create a well-formed Fossil manifest.
