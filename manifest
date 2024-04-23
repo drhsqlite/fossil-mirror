@@ -1,5 +1,5 @@
-C Updated\sthe\srelease\sdate\sfor\s2.24\sin\sthe\schangelog,\splus\sa\sfew\sminor\ngrammar\sfixes.
-D 2024-04-23T13:48:57.362
+C Increase\sthe\sversion\snumber\sto\s2.25\sin\sorder\sto\sstart\sthe\snext\sdevelopment\scycle.
+D 2024-04-23T14:33:55.389
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -16,7 +16,7 @@ F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c
 F Makefile.in 8fd78b56e75bba3caeb029843994c8e9bb2a26160c55d05ede9b3ef8a11633a0 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION 4e58c9045713ccaca5c369ffb67314a437bc14e171523a8a923a64c3ce65aafc
+F VERSION 4ecd43a7f1483288486cdcff7ddf68299735b82a8804a9dc0da3c63084fd4c40
 F auto.def 813e22805867256c679fa2ce22826f8e6a581bd827b5f1c019bbcfa4aae03515
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5e761ec608ca07287d90efb06f29c62d45a9038465a121593bf1c4c68e99a50c
-R dd7a2b90a6050da6606515e8fe9e0b88
-U wyoung
-Z aa3f481ee5f45b4281b7bca2a2226ea0
+P 8cb7a7444c4fee9df3285632d1da11247f4e0cb305d9d3764c0b8e81ae97e669
+R ee67908f162b3d05c93932e36a39e2ed
+U danield
+Z f757b73d01e14417b6b0ab37f3f57cf6
 # Remove this line to create a well-formed Fossil manifest.
