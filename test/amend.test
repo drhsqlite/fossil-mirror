@@ -315,6 +315,7 @@ foreach {tagt result} $tagtests {
     append t2exp "sym-$res*"
   }
   eval fossil amend $HASH $tags
+  set t1exp [string trimleft $t1exp ,]
   test amend-tag-$tc.1 {[string match "*hash:*$HASH*tags:*$t1exp*" $RESULT]}
   fossil tag ls --raw $HASH
   test amend-tag-$tc.2 {[string match $t2exp $RESULT]}
