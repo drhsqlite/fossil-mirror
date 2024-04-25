@@ -1,5 +1,5 @@
-C Fix\sor\sdisable\sbrittle\stest\scases\sthat\swere\sbroken\sby\schanges\sin\s2.23.
-D 2024-04-24T21:19:54.521
+C Merge\stest\scase\sfixes\sfrom\sbranch-2.24\sback\sinto\strunk.
+D 2024-04-25T10:51:33.304
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -665,7 +665,7 @@ F test/unversioned.test 2293bb58141d7d9030dcadaa4f1a47ce13de99e0008f186b9ec005e1
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/update.test c13ead0c26bf794b038db9a40c2ecc2858df8b6d0df15991c4d8d2e67f6db93c
-F test/utf.test 2564b5c242004b0e30d8029ac0de3f98db2b0fa5e6943516053cf549b5c18596
+F test/utf.test c2426351ad7a2ea1fd9f8ea16284a62155080fcebbc33b17065b7f2235bd1f5d
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b71363e5c51f1192b06720bb159aa4f42eaf8233ba759ec6cd2c49bfff855d0e
-R f14b5d3e3e8bb543f68d22fe23e788f7
+P e198bfd1852e6b9b57bca1f7acc84e80961f9d7bd4ab86f31e9dce691d123dff fb4e90b662803e47e79b87e82ae4329885098d226bb2cc23162e2f484c7f0e08
+R addc106955f3762d250c6e7fc3628a09
 U drh
-Z 7706ac260f08ff41ffcf47dfb43f42dc
+Z ae93c4c49f6aabc89c24d72979f67021
 # Remove this line to create a well-formed Fossil manifest.
