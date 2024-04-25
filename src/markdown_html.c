@@ -265,6 +265,13 @@ static void html_list_item(
     blob_append_literal(ob, "<input type=\"checkbox\" \
      class=\"task-list-checkbox\" disabled>\n");
     blob_append(ob, text_data+4, text_size-4);
+  }else if( strncmp("[~] ", text_data, 4)==0 ){
+    blob_append_literal(ob, "<li class=\"task-list\">");
+    blob_append_literal(ob, "<input type=\"checkbox\" \
+     class=\"task-list-checkbox\" disabled>\n");
+    blob_append_literal(ob, "<s>");
+    blob_append(ob, text_data+4, text_size-4);
+    blob_append_literal(ob, "</s>");
   }else if( sqlite3_strnicmp("[x] ", text_data, 4)==0 ){
     blob_append_literal(ob, "<li class=\"task-list\">");
     blob_append_literal(ob, "<input type=\"checkbox\" \

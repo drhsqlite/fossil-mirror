@@ -87,10 +87,12 @@
       *  second-level item
 ~~~
 
-> A task list is created by placing `[ ] ` before item; to mark as complete place `[x] `.
+> A task list is created by placing `[ ] ` before item; to mark as complete place `[x] `;
+> to mark as an inapplicable place `[~] `.
 
 > ~~~
  - [ ] Task
+ - [~] Inapplicable task
  - [x] Completed task
 ~~~
 

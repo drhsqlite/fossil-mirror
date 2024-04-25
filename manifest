@@ -1,5 +1,5 @@
-C Add\smarkdown\stask\slist.\sSee\s[forum:/forumpost/bb6016bc44|forum\sthread\sbb6016bc44].
-D 2024-04-25T19:29:42.044
+C Add\sto\smarkdown\stask\slist\sinapplicable\svariant.
+D 2024-04-25T19:44:59.152
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -496,8 +496,8 @@ F src/main.c 0a23252b2a1754819d30124740d37826c7a088546f4971f05612ff283b56ccc5
 F src/main.mk ade7ce2706847f14e0aa846e0bbfeead1a31877f81585996364c1146b1c8a127
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
-F src/markdown.md b15f2fb048ee36ae9272c56ea09752968fb052fb00d0dd738ff972f4ce6d1872
-F src/markdown_html.c d31a522b64e5467d86f257c419a23e126a7855794ab73986a567ec25077b3380
+F src/markdown.md 2a00955d493c7d31fb11bbd80e96bcb8ec5d39f57632fe9dd991f4a5305441de
+F src/markdown_html.c d14dac41ed57223e7e8b5d1be48de4f2ac2265417da94e9ea2eae1dce22952af
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c a3e9edb0939858da2f538a9bc827278a1fcfb99d9b46bdcefc912966619eaee7
@@ -957,11 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 50a8a1bb707ba46ad25600f4bd4383e7e4908d21786328ff60b53fc8f7aea126
-R 061f9b54290584d913409ecaa701972d
-T *branch * markdown-task-list
-T *sym-markdown-task-list *
-T -sym-trunk *
+P 9583811be4b9e6cb0846822564ed536fd1ba8a7f5082f78e284db8dc9cc9efab
+R c7143ef418d6cc11a6033952a2a6e403
 U juef
-Z 8623f0e05aab0bead6f81bdedec17691
+Z 71044daa1a963fe3ec55dd0cc73c48cc
 # Remove this line to create a well-formed Fossil manifest.
