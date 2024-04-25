@@ -64,7 +64,7 @@ The last two rules are the HTML formatting rules.
       &lt;div&gt; &lt;dl&gt; &lt;dt&gt; &lt;em&gt; &lt;font&gt; &lt;footer&gt;
       &lt;ins&gt;
       &lt;h1&gt; &lt;h2&gt; &lt;h3&gt; &lt;h4&gt; &lt;h5&gt; &lt;h6&gt;
-      &lt;header&gt; &lt;hr&gt; &lt;i&gt; &lt;img&gt; &lt;kbd&gt; &lt;li&gt;
+      &lt;header&gt; &lt;hr&gt; &lt;i&gt; &lt;input&gt; &lt;img&gt; &lt;kbd&gt; &lt;li&gt;
       &lt;nav&gt; &lt;nobr&gt; &lt;nowiki&gt; &lt;ol&gt; &lt;p&gt; &lt;pre&gt;
       &lt;s&gt; &lt;samp&gt; &lt;section&gt; &lt;small&gt; &lt;span&gt;
       &lt;strike&gt; &lt;strong&gt; &lt;sub&gt; &lt;sup&gt; &lt;table&gt;

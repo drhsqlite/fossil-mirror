@@ -1870,6 +1870,10 @@ div.markdown span.notescope:target {
   border-bottom: 2px solid gold;
 }
 
+li.task-list {
+  list-style: none !important;
+}
+
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {
   .desktoponly {

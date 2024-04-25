@@ -87,6 +87,13 @@
       *  second-level item
 ~~~
 
+> A task list is created by placing `[ ] ` before item; to mark as complete place `[x] `.
+
+> ~~~
+ - [ ] Task
+ - [x] Completed task
+~~~
+
 ## Block Quotes ##
 
 > Begin each line of a paragraph with **>** to block quote that paragraph.
