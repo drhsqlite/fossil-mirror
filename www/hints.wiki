@@ -1,7 +1,9 @@
 <title>Fossil Tips And Usage Hints</title>
 
-  1.  Click on nodes of any timeline graph to see diffs between the two
-      selected versions.
+A collection of useful hints and tricks in no particular order:
+
+  1.  Click on two nodes of any timeline graph in succession
+      to see a diff between the two versions.
 
   2.  Add the "--tk" option to "[/help?cmd=diff | fossil diff]" commands
       to get a pop-up
@@ -60,3 +62,13 @@
        preview what the documentation will look like by using the special
        "ckout" branch name in the "doc" URL while running "fossil ui".
        See the [./embeddeddoc.wiki | embedded documentation] for details.
+
+  11.  Use the "[/help?cmd=ui|fossil ui /]" command to bring up a menu of
+       all of your local Fossil repositories in your web browser.
+
+  12.  If you have a bunch of Fossil repositories living on a remote machine
+       that you are able to access using ssh using a command like
+       "ssh login@remote", then you can bring up a user interface for all
+       those remote repositories using the command:
+       "[/help?cmd=ui|fossil ui login@remote:/]".  This works by tunneling
+       all HTTP traffic through SSH to the remote machine.
