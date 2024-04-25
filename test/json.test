@@ -109,7 +109,7 @@ Host: localhost\r
 User-Agent: Fossil-Test\r
 Cookie: $cookie\r
 Content-Type: application/json
-Content-Length $len
+Content-Length: $len
 \r
 $data}]
   } else {
