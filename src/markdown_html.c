@@ -753,15 +753,28 @@ static int html_codespan(
   return 1;
 }
 
+static void html_span(
+  struct Blob *ob,
+  struct Blob *text,
+  const char *tag
+){
+  blob_appendf(ob, "<%s>", tag);
+  blob_appendb(ob, text);
+  blob_appendf(ob, "</%s>", tag);
+}
+
 static int html_double_emphasis(
   struct Blob *ob,
   struct Blob *text,
   char c,
   void *opaque
 ){
-  blob_append_literal(ob, "<strong>");
-  blob_appendb(ob, text);
-  blob_append_literal(ob, "</strong>");
+  if( c=='~' ) html_span(ob, text, "s");
+  else if( c=='-' ) html_span(ob, text, "del");
+  else if( c=='+' ) html_span(ob, text, "ins");
+  else if( c=='=' ) html_span(ob, text, "mark");
+  else if( c=='^' ) return 0;
+  else html_span(ob, text, "strong");
   return 1;
 }
 
@@ -771,9 +784,10 @@ static int html_emphasis(
   char c,
   void *opaque
 ){
-  blob_append_literal(ob, "<em>");
-  blob_appendb(ob, text);
-  blob_append_literal(ob, "</em>");
+  if( c=='~' ) html_span(ob, text, "sub");
+  else if( c=='^' ) html_span(ob, text, "sup");
+  else if( c=='-' || c=='+' || c=='=' ) return 0;
+  else html_span(ob, text, "em");
   return 1;
 }
 
@@ -836,6 +850,7 @@ static int html_triple_emphasis(
   char c,
   void *opaque
 ){
+  if( c!='*' && c!='_' ) return 0;
   blob_append_literal(ob, "<strong><em>");
   blob_appendb(ob, text);
   blob_append_literal(ob, "</em></strong>");
@@ -895,7 +910,7 @@ void markdown_to_html(
     html_normal_text,
 
     /* misc. parameters */
-    "*_", /* emph_chars */
+    "*+-=^_~", /* emph_chars */
     0     /* opaque */
   };
   static int invocation = -1; /* no marker for the first document */

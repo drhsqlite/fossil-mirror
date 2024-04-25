@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s"hints\sand\stricks"\sdocument.
-D 2024-04-25T15:37:36.420
+C Add\smarkdown\sextra\semphasis\schars.\sSee\s[forum:/forumpost/3618539728|forum\sthread\s3618539728].
+D 2024-04-25T19:29:28.519
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/cookies.c 655257d116421e8ffa3d076379a3f5628849b06b295ed8a90fd288e17963a662
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 96ab100f63667a4a01560796f67251b647733613ff2ba4397bee5844f5015b9a
-F src/default.css b0f20dfb331d6dc4a7a3b5852f304d7d421132a3dbede89a2c711182840db368
+F src/default.css 26b4b95f140fe66299542e69787e19aa8d08a01047e29d4639a70c870fc7bc62
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -496,8 +496,8 @@ F src/main.c 0a23252b2a1754819d30124740d37826c7a088546f4971f05612ff283b56ccc5
 F src/main.mk ade7ce2706847f14e0aa846e0bbfeead1a31877f81585996364c1146b1c8a127
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
-F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
-F src/markdown_html.c c091000cdd12972fecbf0f1434e5224d5703c0e2b893003f764695676f9f46cf
+F src/markdown.md 3384a2e08027a95c9042386a8393141381e5720449ccffc803e70c1bea094dc1
+F src/markdown_html.c ee5df67a8a5369f75993c4c8f322cdee043582201dc24d717cc2e252dad88b88
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c a3e9edb0939858da2f538a9bc827278a1fcfb99d9b46bdcefc912966619eaee7
@@ -586,8 +586,8 @@ F src/util.c 2779c065497813512a8f321ed0dff329220890de5408766de1d03ed1a3905756
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c 57198aed8c83d25d02c87a55db2be473c3ee75c81761555b748c977f1522e116
-F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
+F src/wiki.wiki a7d3fb85dfe5e52527dbc9323cdd4e6e06b64e65c92237688a1afceb3237de8f
+F src/wikiformat.c bf1acf99bc7479da3bf9ee1faddadfa6fd62b288624ce5b435934fc0fa027f41
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 4ac22db1c25e2a96207a891aced5dd19090afa266586f6f563160cfe8b91890f
 F src/xfer.c 057d79a13481719e243de31d2730460d3fc765c9913658cdb60ee5a7479c5bb2
@@ -957,8 +957,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f0c4705d4923981870ffcf4b4e330c701fc28e4bca4a456f161059e4f89b2f2f
-R f766312db621233eb784941595ea23e7
-U drh
-Z ddb7b205ce484de6db2c2526817cec42
+P 50a8a1bb707ba46ad25600f4bd4383e7e4908d21786328ff60b53fc8f7aea126
+R 342b192287115fdf44859bdec9048a42
+T *branch * markdown-extra-emph-chars
+T *sym-markdown-extra-emph-chars *
+T -sym-trunk *
+U juef
+Z 152cc98b9cc366c965d7eec146f273ce
 # Remove this line to create a well-formed Fossil manifest.

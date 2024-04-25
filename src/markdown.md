@@ -60,8 +60,14 @@
 
 > *   _\*italic\*_
 > *   *\_italic\_*
+> *   subscript: \~text\~, e.g. H~2~O
+> *   supscript: \^text\^, e.g. E=mc^2^
+> *   ++\+\+inserted text\+\+++
+> *   --\-\-deleted text\-\---
+> *   ==\=\=mark\=\===
 > *   __\*\*bold\*\*__
 > *   **\_\_bold\_\_**
+> *   ~~\~\~strikethrough\~\~~~
 > *   ___\*\*\*italic+bold\*\*\*___
 > *   ***\_\_\_italic+bold\_\_\_***
 > *   \``code`\`

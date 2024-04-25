@@ -1870,6 +1870,21 @@ div.markdown span.notescope:target {
   border-bottom: 2px solid gold;
 }
 
+del {
+  text-decoration: line-through;
+  background-color: #fbb;
+  color: #555;
+}
+
+ins {
+  text-decoration: none;
+  background-color: #d4fcbc;
+}
+
+mark {
+  background-color: #f4fce3;
+}
+
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {
   .desktoponly {
