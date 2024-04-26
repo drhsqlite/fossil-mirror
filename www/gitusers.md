@@ -459,13 +459,44 @@ and apply similar rules as to Git commit messages.
 [lsl]:   https://chris.beams.io/posts/git-commit/#limit-50
 
 
+<a id="autocommit"></a>
+## Fossil Never Auto-Commits
+
+There are several features in Git besides its `commit` command that
+produce a new commit to the repository, and by default, they do it
+without prompting or even asking for a commit message. These include
+Git’s [`rebase`](#rebase), `merge`, and [`cherrypick`](#cpickrev)
+commands, plus the [commit splitting](#comsplit) sub-feature
+“`git commit -p`”.
+
+Fossil never does this, on firm philosophical grounds: we wish to be
+able to test that each potentially repository-changing command does not
+break anything _before_ freezing it immutably into the [Merkle
+tree](./blockchain.md). Where Fossil has equivalent commands, they
+modify the checkout tree alone, requiring a separate `commit` command
+afterward, withheld until the user has satisfied themselves that the
+command’s result is correct.
+
+We believe this is the main reason Git lacks an [autosync](#autosync)
+feature: making push a manual step gives the user a chance to rewrite
+history after triggering one of these autocommits locally, should the
+automatic commit fail to work out as expected.  Fossil chooses the
+inverse path under the philosophy that commits are *commitments,* not
+something you’re allowed to go back and rewrite later.
+
+This is also why there is no automatic commit message writing feature in
+Fossil, as in these autocommit-triggering Git commands. The user is
+meant to write the commit message by hand after they are sure it’s
+correct, in clear-headed retrospective fashion.  Having the tool do it
+prospectively before one can test the result is simply backwards.
+
 
 <a id="staging"></a>
 ## There Is No Staging Area
 
 Fossil omits the "Git index" or "staging area" concept.  When you
 type "`fossil commit`" _all_ changes in your check-out are committed,
-automatically.  There is no need for the "-a" option as with Git.
+by default.  There is no need for the "-a" option as with Git.
 
 If you only want to commit _some_ of the changes, list the names
 of the files or directories you want to commit as arguments, like this:
@@ -475,8 +506,16 @@ of the files or directories you want to commit as arguments, like this:
 Note that the last element is a directory name, meaning “any changed
 file under the `examples/feature` directory.”
 
-Although there are currently no
-<a id="csplit"></a>[commit splitting][gcspl] features in Fossil like
+
+<a id="comsplit"></a>
+## Commit Splitting
+
+<a id="csplit"></a>[Git’s commit splitting features][gcspl] rely on
+other features of Git that Fossil purposefully lacks, as covered in the
+prior two sections: [autocommit](#autocommit) and [the staging
+area](#staging).
+
+While there is no direct Fossil equivalent for
 `git add -p`, `git commit -p`, or `git rebase -i`, you can get the same
 effect by converting an uncommitted change set to a patch and then
 running it through [Patchouli].
@@ -496,24 +535,13 @@ hunks already applied.
 In this way, the combination of working tree and stash replaces the need
 for Git’s index feature.
 
-This also solves a philosophical problem with `git commit -p`: how can
-you test that a split commit doesn’t break anything if you do it as part
-of the commit action? Git’s lack of an autosync feature means you can
-commit locally and then rewrite history if the commit doesn’t work out,
-but we’d rather make changes only to the working directory, test the
-changes there, and only commit once we’re sure it’s right.
-
-This also explains why we don’t have anything like `git rebase -i`
-to split an existing commit: in Fossil, commits are *commitments,* not
-something you’re allowed to go back and rewrite later.
-
-If someone does [contribute][ctrb] a commit splitting feature to Fossil,
-we’d expect it to be an interactive form of
-[`fossil stash apply`][stash], rather than follow Git’s ill-considered
-design leads.
-
-Until then, there’s the third-party tool [`fnc`][fnc] and
-[its interactive `stash` command][fncsta].
+We believe we know how to do commit splitting in a way compatible with
+the Fossil philosophy, without following Git’s ill-considered design
+leads. It amounts to automating the above process through an interactive
+variant of [`fossil stash apply`][stash], as currently prototyped in the
+third-party tool [`fnc`][fnc] and [its interactive `stash`
+command][fncsta]. We merely await someone’s [contribution][ctrb] of this
+feature into Fossil proper.
 
 [ctrb]:      https://fossil-scm.org/fossil/doc/trunk/www/contribute.wiki
 [fnc]:       https://fnc.bsdbox.org/
