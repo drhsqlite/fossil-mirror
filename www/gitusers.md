@@ -141,9 +141,9 @@ We think this is a more sensible command design than `git pull` vs
 #### <a id="close" name="dotfile"></a> Closing a Check-Out
 
 The [`fossil close`][close] command dissociates a check-out directory from the
-Fossil repository database, nondestructively inverting [`fossil open`][open].
-(Contrast [its closest inverse](#worktree), `git worktree remove`, which *is*
-destructive in Git!) This Fossil command does not
+Fossil repository database, _nondestructively_ inverting [`fossil open`][open].
+(Contrast Git’s [closest alternative](#worktree), `git worktree remove`, which *is*
+destructive!) This Fossil command does not
 remove the managed files, and unless you give the `--force`
 option, it won’t let you close the check-out with uncommitted changes to
 those managed files.
