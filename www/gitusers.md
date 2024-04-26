@@ -510,7 +510,7 @@ file under the `examples/feature` directory.”
 <a id="comsplit"></a>
 ## Commit Splitting
 
-<a id="csplit"></a>[Git’s commit splitting features][gcspl] rely on
+[Git’s commit splitting features][gcspl] rely on
 other features of Git that Fossil purposefully lacks, as covered in the
 prior two sections: [autocommit](#autocommit) and [the staging
 area](#staging).
@@ -847,7 +847,7 @@ addressed there.
 
 There is only one sub-feature of `git rebase` that is philosophically
 compatible with Fossil yet which currently has no functional equivalent.
-We [covered this and the workaround for its lack](#csplit) above.
+We [covered this and the workaround for its lack](#comsplit) above.
 
 [3]: ./rebaseharm.md
 
