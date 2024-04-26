@@ -864,14 +864,14 @@ Fossil:
 
 *   The most direct method is to delegate diff behavior back to Git:
 
-      fossil set --global diff-command 'git diff --no-index'
+        fossil set --global diff-command 'git diff --no-index'
 
     The flag permits it to diff files that aren’t inside a Git repository.
 
 *   Another method is to install [`colordiff`][cdiff] — included in
     [many package systems][cdpkg] — then say:
 
-      fossil set --global diff-command 'colordiff -wu'
+        fossil set --global diff-command 'colordiff -wu'
 
     Because this is unconditional, unlike `git diff --color=auto`, you
     will then have to remember to add the `-i` option to `fossil diff`

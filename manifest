@@ -1,5 +1,5 @@
-C The\srecent\sgitusers\sdoc\simprovements\sallow\sa\sbetter\sHTML\sfragment\ntarget;\sthe\sbrowser's\sscroll-back\sincludes\sthe\snew\ssection\sheader\snow\nrather\sthan\starget\sa\sparagraph\swithin\sanother\ssection.
-D 2024-04-26T16:17:19.997
+C Indent\sfix\sin\sgitusers.md\sto\smake\sit\suse\sa\smonospace\sfont\sfor\snested\ncommand\sexamples.
+D 2024-04-26T16:19:45.157
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -840,7 +840,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
 F www/fossil_prompt.wiki 7c198e501721bbb613ff1c3238b35dc991408cf301d3718e040916d35c2bdc27
-F www/gitusers.md 8a58cb74e54817a06371b68cf0622764321ecf544292ff117435b777c1c675be
+F www/gitusers.md fb269ea1b5656dc56d03d0667b28acca17cc4ce811cd55432a7ae3f92dde77bc
 F www/globs.md ff40b819c050a7f5e96eface5ba10f9926e4a7e809d6f27462a2aeda2eb4cdb0
 F www/glossary.md ad08c38c08ef11000fbe19980b79b152698478413bb27cced12d85c6b50e2774
 F www/grep.md f204b91b0ef4c49314a70606968609609df6e90255391d4d1208381bc1ecdc06
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6a4f2d23ce075a162d967d9774a005d26fdae44c45b3847e47888b3653aceaad
-R 27b959208f66d2b7f3d636c47bf316da
+P 567658a71846de0d088d5c86a923a8eaaae6052c7b5604567cc2044d113ae428
+R 96c6c463ac44343f98528fe083ec2067
 U wyoung
-Z 6cab14fbfa7b68528304b8d72588673f
+Z 2b63ad643b2a81739de3f87d581a6998
 # Remove this line to create a well-formed Fossil manifest.
