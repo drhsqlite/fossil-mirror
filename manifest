@@ -1,5 +1,5 @@
-C Fixed\sa\sbroken\slink\sin\sthe\snew\scolordiff\sdoc\sdue\sto\sbeing\sextracted\sfrom\nthe\sgitusers\sdoc.
-D 2024-04-26T17:35:32.965
+C Added\sinternal\slink\sspacer\sto\scolordiff\sdoc,\swithout\swhich\sthe
+D 2024-04-26T17:36:43.915
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -791,7 +791,7 @@ F www/chroot.md 5b9110759a6c9db02fad8c1ddfc462afa6f3812d7932654ec5a1d6231d21705c
 F www/ckout-workflows.md 824c89a1319795b9c4dfa283a94f55acd71d8230ba36ceb47244987595bc75ec
 F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e854d
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
-F www/colordiff.md 3eebdf9c7b92b230e9903d8d1ed576f16eba2b9fba1dcecc11fa190778baf79c
+F www/colordiff.md 6f16b0907fb766bf6de861f65727b7ac314f39c903fab72f1cb83f48f4fafce1
 F www/concepts.wiki bf9e06a5dfc82213b92030bb43843b9710dd77b2d08ef4535d3a671eb3892444
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
 F www/containers.md e38fa1b6daeeb53c69ae0814d75bd31dae633b2c6f6d48c0e9b034df72a75288
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9fca91e8e3d225f7cf80b3b0226e7e3bc98df2b0918aa196b491a83e611d6da1
-R c0b934250f4b9f77a322c96f9f68bccc
+P 449879163a4dda516d3fc510616d7d1d9e4794d9ab0ae045ab9a29fdf8befdcf
+R 53a8131e263591ce15b31b84f5027b61
 U wyoung
-Z 6069518aee3949c48893dad72a0c5f05
+Z 7df98e69f27406067b4c9aa36a305dc2
 # Remove this line to create a well-formed Fossil manifest.

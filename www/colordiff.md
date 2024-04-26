@@ -100,3 +100,5 @@ limitation of unconditional color as [above](#diffutils).
 
 [cdurl]: https://www.colordiff.org/
 [cdpkg]: https://repology.org/project/colordiff/versions
+
+<div style="height:50em" id="this-space-intentionally-left-blank"></div>
