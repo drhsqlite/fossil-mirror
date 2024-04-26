@@ -852,44 +852,15 @@ We [covered this and the workaround for its lack](#comsplit) above.
 [3]: ./rebaseharm.md
 
 
-## <a id="cdiff"></a> Colorized Diffs
+<a id="cdiff"></a>
+## Colorized Diffs
 
 When you run `git diff` on an ANSI X3.64 capable terminal, it uses color
 to distinguish insertions, deletions, and replacements, but as of this
 writing, `fossil diff` produces traditional uncolored [unified diff
 format][udiff] output, suitable for producing a [patch file][pfile].
 
-Nevertheless, there are multiple ways to get colorized diff output from
-Fossil:
-
-*   The most direct method is to delegate diff behavior back to Git:
-
-        fossil set --global diff-command 'git diff --no-index'
-
-    The flag permits it to diff files that aren’t inside a Git repository.
-
-*   Another method is to install [`colordiff`][cdiff] — included in
-    [many package systems][cdpkg] — then say:
-
-        fossil set --global diff-command 'colordiff -wu'
-
-    Because this is unconditional, unlike `git diff --color=auto`, you
-    will then have to remember to add the `-i` option to `fossil diff`
-    commands when you want color disabled, such as when producing
-    `patch(1)` files or piping diff output to another command that
-    doesn’t understand ANSI escape sequences. There’s an example of this
-    [below](#dstat).
-
-*   Use the Fossil web UI to diff existing commits.
-
-*   To diff the current working directory contents against some parent
-    instead, Fossil’s diff command can produce
-    colorized HTML output and open it in the OS’s default web browser.
-    For example, `fossil diff -by` will show side-by-side diffs.
-
-*   Use the older `fossil diff --tk` option to do much the same using
-    Tcl/Tk instead of a browser.
-
+There are [many methods](./colordiff.md) for solving this.
 Viewed this way, Fossil doesn’t lack colorized diffs, it simply has
 *one* method where they *aren’t* colorized.
 
@@ -966,15 +937,13 @@ a histogram in its default output mode rather than bare integers:
     fossil diff -i -v --from 2020-04-01 | diffstat
 
 We gave the `-i` flag in both cases to force Fossil to use its internal
-diff implementation, bypassing [your local `diff-command` setting][dcset].
-The `--numstat` option has no effect when you have an external diff
-command set, and some diff command alternatives like
-[`colordiff`][cdiff] (covered [above](#cdiff)) produce output that confuses `diffstat`.
+diff implementation, bypassing [your local `diff-command` setting][dcset]
+since the `--numstat` option has no effect when you have an external diff
+command set.
 
 If you leave off the `-v` flag in the second example, the `diffstat`
 output won’t include info about any newly-added files.
 
-[cdiff]: https://www.colordiff.org/
 [dcset]: https://fossil-scm.org/home/help?cmd=diff-command
 [dst]:   https://invisible-island.net/diffstat/diffstat.html
 

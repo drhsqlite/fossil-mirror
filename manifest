@@ -1,5 +1,5 @@
-C Indent\sfix\sin\sgitusers.md\sto\smake\sit\suse\sa\smonospace\sfont\sfor\snested\ncommand\sexamples.
-D 2024-04-26T16:19:45.157
+C Added\sa\snew\sdoc\sdistilling\sall\sthe\scommon\smethods\sfor\sgetting\scolorized\ndiffs.\s\sExtracted\sits\sseed\sfrom\sthe\sgitusers\sdoc\sin\spart\sbecause\sit\nisn't\sGit-specific,\sand\sbecause\sthere\sare\smore\soptions\sto\scover,\nsufficient\sto\sjustify\sa\sseparate\sdoc.
+D 2024-04-26T17:28:01.454
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -791,6 +791,7 @@ F www/chroot.md 5b9110759a6c9db02fad8c1ddfc462afa6f3812d7932654ec5a1d6231d21705c
 F www/ckout-workflows.md 824c89a1319795b9c4dfa283a94f55acd71d8230ba36ceb47244987595bc75ec
 F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e854d
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
+F www/colordiff.md 5513224b974fffb675aebd9d8060b2028a71701bec306aba8b8e4de8428ec581
 F www/concepts.wiki bf9e06a5dfc82213b92030bb43843b9710dd77b2d08ef4535d3a671eb3892444
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
 F www/containers.md e38fa1b6daeeb53c69ae0814d75bd31dae633b2c6f6d48c0e9b034df72a75288
@@ -840,7 +841,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
 F www/fossil_prompt.wiki 7c198e501721bbb613ff1c3238b35dc991408cf301d3718e040916d35c2bdc27
-F www/gitusers.md fb269ea1b5656dc56d03d0667b28acca17cc4ce811cd55432a7ae3f92dde77bc
+F www/gitusers.md b02b4045b82b16d37ba5bd12e2583ae387fce03439d8dbab296f19696c7a8f71
 F www/globs.md ff40b819c050a7f5e96eface5ba10f9926e4a7e809d6f27462a2aeda2eb4cdb0
 F www/glossary.md ad08c38c08ef11000fbe19980b79b152698478413bb27cced12d85c6b50e2774
 F www/grep.md f204b91b0ef4c49314a70606968609609df6e90255391d4d1208381bc1ecdc06
@@ -887,11 +888,11 @@ F www/makefile.wiki 39cfe5bb11593a5c22feef02d0d741595e42d9d7db052b567adad53c697e
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 39296236c7596193e364ddc06f522a64b7b058f8461697a08bc54641c2157b3c
-F www/mkindex.tcl 34842945e1282f74e0d4d68908b3be376baec9afc52bb5b47fd5dd5ad55b1a4a x
+F www/mkindex.tcl f7fe5d63e29ea5d3cb0e9264e9b426bc8b03d5844db9f04a7e2780d110cfb3a2 x
 F www/newrepo.wiki 6a71485f3f2d0f3635a3ce7d804f2ceda0c25ea9186340889e6ecb00d4000634
 F www/password.wiki 54f05c93212a9ad41fe3b41ec51c24093a1e261abb05b28b3651f3e8b10189f2
 F www/patchcmd.md 86eb9976dc81b657052018f807d8ee82a41333b1df78c06515b9383d9fe4858f
-F www/permutedindex.html 3d7fd271c71ac1919f3a0be9af80d83bbc10cbc2ac02e1c9463300af4df8975a
+F www/permutedindex.html 74c4963dfad7b95f09a46d75d2b51dce878158e2fe61a3491c4289f2ad411fab
 F www/pikchr.md 2eaa7bd7defc5e6a7b3d14adb03c21b43924a70fd65858bebb1a3aee733cf609
 F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
 F www/private.wiki 6c5a854ac8558b1420d9619b48bf36ac56df03d49421604c3e77dc6c3ff78bb0
@@ -957,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 567658a71846de0d088d5c86a923a8eaaae6052c7b5604567cc2044d113ae428
-R 96c6c463ac44343f98528fe083ec2067
+P dd8d1a5809af15b799ad129c81b65c69b73c6207dcead0e277e27e485a4da272
+R 096e79ba04cf0953070d634f7384e95b
 U wyoung
-Z 2b63ad643b2a81739de3f87d581a6998
+Z 0aa9f99cdcae72fbdfb894b929774ee4
 # Remove this line to create a well-formed Fossil manifest.
