@@ -89,7 +89,7 @@ through `bat`, you still get colorized output from GNU diff.
 ## Colordiff
 
 A method that works on systems predating GNU diffutils 3.4 or the
-widespread availability of `bat` is to install [`colordiff`][cd], as
+widespread availability of `bat` is to install [`colordiff`][cdurl], as
 it is included in [many package systems][cdpkg], including ones for
 outdated OSes. That then lets you say:
 
@@ -98,4 +98,5 @@ outdated OSes. That then lets you say:
 The main reason we list this alternative last is that it has the same
 limitation of unconditional color as [above](#diffutils).
 
-[cd]: https://www.colordiff.org/
+[cdurl]: https://www.colordiff.org/
+[cdpkg]: https://repology.org/project/colordiff/versions

@@ -864,7 +864,6 @@ There are [many methods](./colordiff.md) for solving this.
 Viewed this way, Fossil doesn’t lack colorized diffs, it simply has
 *one* method where they *aren’t* colorized.
 
-[cdpkg]: https://repology.org/project/colordiff/versions
 [pfile]: https://en.wikipedia.org/wiki/Patch_(Unix)
 [udiff]: https://en.wikipedia.org/wiki/Diff#Unified_format
 
