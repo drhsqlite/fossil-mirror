@@ -70,11 +70,17 @@ as our pager to [`bat`][bat], as it can detect GNU diff output and
 colorize it for you:
 
     fossil set --global diff-command 'diff -dwu --color=auto'
-    fossil diff -i | bat
+    fossil diff | bat
 
 In this author’s experience, that works a lot more reliably than GNU
 less’s ANSI color escape code handling, even when you set `LESS=-R` in
 your environment.
+
+The reason we don’t leave the `diff-command` unset in this case is that
+Fossil produces additional lines at the start which confuse the diff
+format detection in `bat`. Forcing output through an external diff
+command solves that. It also means that if you forget to pipe the output
+through `bat`, you still get colorized output from GNU diff.
 
 [bat]: https://github.com/sharkdp/bat
 
