@@ -302,11 +302,11 @@ reads from a single disk file rather than visit potentially many
 files in sequence as Git must, so the OS’s buffer cache can result in
 [still better performance][35pct].
 
-Unlike Git’s log, Fossil’s timeline shows info across branches by
-default, a feature for maintaining better situational awareness. Although the
-`fossil timeline` command has no way to show a single branch’s commits,
-you can restrict your view like this using the web UI equivalent by
-clicking the name of a branch on the `/timeline` or `/brlist` page. (Or
+Unlike Git’s log, Fossil’s timeline shows info across all branches by
+default, a feature for maintaining better situational awareness.
+It is possible to restrict the timeline to a single branch using `fossil timeline -b`.
+Similarly, to restrict the timeline using the web UI equivalent,
+click the name of a branch on the `/timeline` or `/brlist` page. (Or
 manually, by adding the `r=` query parameter.) Note that even in this
 case, the Fossil timeline still shows other branches where they interact
 with the one you’ve referenced in this way; again, better situational
