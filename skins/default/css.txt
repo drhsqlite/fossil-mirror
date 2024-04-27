@@ -214,6 +214,61 @@ div.forumSel {
 
 /* Markdown and Wiki-formatted pages: /wiki, /doc, /file... */
 
+.markdown p.admonition-note:before {
+  content: "ℹ️ NOTE";
+  display: block;
+  font-weight: bold;
+}
+.markdown p.admonition-note {
+  background-color: #32b1b121;
+  border-left: 3px solid #40bbc2;
+  padding: 0.1em 1em;
+}
+
+.markdown p.admonition-tip:before {
+  content: "💡 TIP";
+  display: block;
+  font-weight: bold;
+}
+.markdown p.admonition-tip {
+  background-color: #28df2b42;
+  border-left: 3px solid #2eac5f;
+  padding: 0.1em 1em;
+}
+
+.markdown p.admonition-important:before {
+  content: "❗ IMPORTANT";
+  display: block;
+  font-weight: bold;
+}
+.markdown p.admonition-important {
+  background-color: #f0504085;
+  border-left: 3px solid #f91818;
+  padding: 0.1em 1em;
+}
+
+.markdown p.admonition-caution:before {
+  content: "🔥 CAUTION";
+  display: block;
+  font-weight: bold;
+}
+.markdown p.admonition-caution {
+  background-color: #9215e829;
+  border-left: 3px solid #d547e1;
+  padding: 0.1em 1em;
+}
+
+.markdown p.admonition-warning:before {
+  content: "⚠️ WARNING";
+  display: block;
+  font-weight: bold;
+}
+.markdown p.admonition-warning {
+  background-color: #f97e256b;
+  border-left: 3px solid #ff6a21;
+  padding: 0.1em 1em;
+}
+
 .markdown blockquote, p.blockquote, .sidebar {
   /* Override default.css version with our accent colors.  Background is
    * the solid version of rgba(65, 131, 196, 0.1) on white, needed to
@@ -513,6 +568,27 @@ tr.timelineCurrent td:last-child {
   border-right:  1px dashed #446979;
 }
 
+details {
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  padding: 0.5em 0.5em 0;
+}
+
+summary {
+  font-weight: bold;
+  margin: -0.5em -0.5em 0;
+  padding: 0.5em;
+}
+
+details[open] {
+  padding: 0.5em;
+}
+
+details[open] summary {
+  border-bottom: 1px solid #aaa;
+  margin-bottom: 0.5em;
+}
+
 
 /* Miscellaneous UI elements */
 
@@ -603,6 +679,9 @@ tr.timelineCurrent td:last-child {
   .artifact > .content               > p,
   .artifact > .content > .markdown   > p,
   .artifact > .content > .fossil-doc > p,
+  .artifact > .content               > details,
+  .artifact > .content > .markdown   > details,
+  .artifact > .content > .fossil-doc > details,
   .artifact > .content               > ol, .artifact > .content               > ul,
   .artifact > .content > .markdown   > ol, .artifact > .content > .markdown   > ul,
   .artifact > .content > .fossil-doc > ol, .artifact > .content > .fossil-doc > ul,
@@ -612,6 +691,9 @@ tr.timelineCurrent td:last-child {
   .dir      > .content               > p,
   .dir      > .content > .markdown   > p,
   .dir      > .content > .fossil-doc > p,
+  .dir      > .content               > details,
+  .dir      > .content > .markdown   > details,
+  .dir      > .content > .fossil-doc > details,
   .dir      > .content               > ol, .dir > .content               > ul,
   .dir      > .content > .markdown   > ol, .dir > .content > .markdown   > ul,
   .dir      > .content > .fossil-doc > ol, .dir > .content > .fossil-doc > ul,
@@ -621,6 +703,9 @@ tr.timelineCurrent td:last-child {
   .doc      > .content               > p,
   .doc      > .content > .markdown   > p,
   .doc      > .content > .fossil-doc > p,
+  .doc      > .content               > details,
+  .doc      > .content > .markdown   > details,
+  .doc      > .content > .fossil-doc > details,
   .doc      > .content               > ol, .doc > .content               > ul,
   .doc      > .content > .markdown   > ol, .doc > .content > .markdown   > ul,
   .doc      > .content > .fossil-doc > ol, .doc > .content > .fossil-doc > ul,
@@ -630,6 +715,9 @@ tr.timelineCurrent td:last-child {
   .wiki     > .content               > p,
   .wiki     > .content > .markdown   > p,
   .wiki     > .content > .fossil-doc > p,
+  .wiki     > .content               > details,
+  .wiki     > .content > .markdown   > details,
+  .wiki     > .content > .fossil-doc > details,
   .wiki     > .content               > ol, .wiki > .content               > ul,
   .wiki     > .content > .markdown   > ol, .wiki > .content > .markdown   > ul,
   .wiki     > .content > .fossil-doc > ol, .wiki > .content > .fossil-doc > ul,
@@ -637,18 +725,22 @@ tr.timelineCurrent td:last-child {
   .wiki     > .content > .markdown   > table,
   .wiki     > .content > .fossil-doc > table,
   #fileedit-tab-preview-wrapper > p,
+  #fileedit-tab-preview-wrapper > details,
   #fileedit-tab-preview-wrapper > ol,
   #fileedit-tab-preview-wrapper > ul,
   #fileedit-tab-preview-wrapper > table,
   #fileedit-tab-preview-wrapper > .markdown > p,
+  #fileedit-tab-preview-wrapper > .markdown > details,
   #fileedit-tab-preview-wrapper > .markdown > ol,
   #fileedit-tab-preview-wrapper > .markdown > ul,
   #fileedit-tab-preview-wrapper > .markdown > table,
   #wikiedit-tab-preview-wrapper > p,
+  #wikiedit-tab-preview-wrapper > details,
   #wikiedit-tab-preview-wrapper > ol,
   #wikiedit-tab-preview-wrapper > ul,
   #wikiedit-tab-preview-wrapper > table,
   #wikiedit-tab-preview-wrapper > .markdown > p,
+  #wikiedit-tab-preview-wrapper > .markdown > details,
   #wikiedit-tab-preview-wrapper > .markdown > ol,
   #wikiedit-tab-preview-wrapper > .markdown > ul,
   #wikiedit-tab-preview-wrapper > .markdown > table {

@@ -1,5 +1,5 @@
-C Use\sthe\spreferred\scase\sfor\sthe\sdestination\sname\sin\sthe\s"fossil\smv"\scommand.
-D 2024-04-27T10:45:09.920
+C Add\smarkdown\sparagraphs\sspecial\sstyling.\sSee\s[forum:/forumpost/6e7e2f68b6|forum\sthread\s6e7e2f68b6].
+D 2024-04-27T11:46:16.089
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt f836de28bcd65e3101349141588c932f366e209255e4312ee054aad0ac01b526
 F skins/darkmode/header.txt 3fe4fb78b2a6f8d6c9a4c2c4dbba7d80a7302b166fe5e4cec86f05713ddf830b
 F skins/default/README.md 0542b429a020494e005378b95831e699df17ab7933ddb7ffa3ac878d2bad087a
-F skins/default/css.txt 63ece4dd7a4b1d059a7df0c88bd5bfefdf6e9a910344ddba96806bd7e8246936
+F skins/default/css.txt a75d2b1b7d4df30acccb0766ef6f5ce25e2ce245cac1121692b1f9576ce74ed2
 F skins/default/details.txt b8827752a356cf0073e493a6cf2afbbe7a82ff75eafd0b7549161e21de3cdaaa
 F skins/default/footer.txt 10f51aa013d1fc032703fe21281526b82ddbf6afa8b6d2bfb5eb0e694c2de877
 F skins/default/header.txt d1e9025e8bcc2de8f6d83bc5b0279782ff0aaf2f9b23312bce4b97206f3c9f24
@@ -496,8 +496,8 @@ F src/main.c 0a23252b2a1754819d30124740d37826c7a088546f4971f05612ff283b56ccc5
 F src/main.mk ade7ce2706847f14e0aa846e0bbfeead1a31877f81585996364c1146b1c8a127
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
-F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
-F src/markdown_html.c c091000cdd12972fecbf0f1434e5224d5703c0e2b893003f764695676f9f46cf
+F src/markdown.md 172b2e79b7f3c37576d0390890fd5963c0af398496bc2942111f3c21e492bc5c
+F src/markdown_html.c f195b1453e55584c4e163536c03bd9ca7dab7d693d3582f42c4f94eab4a18834
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c a3e9edb0939858da2f538a9bc827278a1fcfb99d9b46bdcefc912966619eaee7
@@ -958,8 +958,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P abb54cb0cf1ee96f9028787498fa85413dd027f8399a33b724fd676eb3642d5e
-R 6888b825ed993cda5852f6b6e7110228
-U drh
-Z cd3252c853bff0ddbaa0c2df153ae8da
+P 859b00b77698c436a2ccd5a9338ec2c7332e37ae067510396e3088b966213e64
+R 2da2f1a74174bf8f485a18c0127ce16f
+T *branch * markdown-admonitions
+T *sym-markdown-admonitions *
+T -sym-trunk *
+U juef
+Z 2ac4abbf2cac729a24649ada2d39462f
 # Remove this line to create a well-formed Fossil manifest.

@@ -266,10 +266,39 @@ static void html_list_item(
 }
 
 static void html_paragraph(struct Blob *ob, struct Blob *text, void *opaque){
+  char *text_data = blob_buffer(text);
+  size_t text_size = blob_size(text);
   INTER_BLOCK(ob);
-  blob_append_literal(ob, "<p>");
-  blob_appendb(ob, text);
-  blob_append_literal(ob, "</p>\n");
+
+  if( strncmp(":: FOLD ::", text_data, 10)==0 ){
+    blob_append_literal(ob, "<details>\n<summary>Click to expand</summary>\n");
+    blob_append(ob, text_data+10, text_size-10);
+    blob_append_literal(ob, "</details>\n");
+  }else if( strncmp(":: NOTE ::", text_data, 10)==0 ){
+    blob_append_literal(ob, "<p class=\"admonition-note\">");
+    blob_append(ob, text_data+10, text_size-10);
+    blob_append_literal(ob, "</p>\n");
+  }else if( strncmp(":: TIP ::", text_data, 9)==0 ){
+    blob_append_literal(ob, "<p class=\"admonition-tip\">");
+    blob_append(ob, text_data+9, text_size-9);
+    blob_append_literal(ob, "</p>\n");
+  }else if( strncmp(":: IMPORTANT ::", text_data, 15)==0 ){
+    blob_append_literal(ob, "<p class=\"admonition-important\">");
+    blob_append(ob, text_data+15, text_size-15);
+    blob_append_literal(ob, "</p>\n");
+  }else if( strncmp(":: CAUTION ::", text_data, 13)==0 ){
+    blob_append_literal(ob, "<p class=\"admonition-caution\">");
+    blob_append(ob, text_data+13, text_size-13);
+    blob_append_literal(ob, "</p>\n");
+  }else if( strncmp(":: WARNING ::", text_data, 13)==0 ){
+    blob_append_literal(ob, "<p class=\"admonition-warning\">");
+    blob_append(ob, text_data+13, text_size-13);
+    blob_append_literal(ob, "</p>\n");
+  }else{
+    blob_append_literal(ob, "<p>");
+    blob_appendb(ob, text);
+    blob_append_literal(ob, "</p>\n");
+  }
 }
 
 

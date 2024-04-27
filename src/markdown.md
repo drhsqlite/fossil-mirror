@@ -5,6 +5,57 @@
 > Paragraphs are divided by blank lines.  
 > End a line with two or more spaces to force a mid-paragraph line break.
 
+### Admonitions ###
+There are special admonition types.
+
+> ~~~
+:: FOLD ::
+Folded text.
+~~~
+
+:: FOLD ::
+Folded text.
+
+> ~~~
+:: NOTE ::
+Note text.
+~~~
+
+:: NOTE ::
+Note text.
+
+> ~~~
+:: TIP ::
+Tip text.
+~~~
+
+:: TIP ::
+Tip text.
+
+> ~~~
+:: IMPORTANT ::
+Important text.
+~~~
+
+:: IMPORTANT ::
+Important text.
+
+> ~~~
+:: CAUTION ::
+Caution text.
+~~~
+
+:: CAUTION ::
+Caution text.
+
+> ~~~
+:: WARNING ::
+Warning text.
+~~~
+
+:: WARNING ::
+Warning text.
+
 ## Headings ##
 
 >
