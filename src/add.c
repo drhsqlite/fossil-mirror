@@ -1059,7 +1059,7 @@ void mv_cmd(void){
   if( g.argc<4 ){
     usage("OLDNAME NEWNAME");
   }
-  zDest = g.argv[g.argc-1];
+  zDest = file_case_preferred_name(".",g.argv[g.argc-1]);
   db_begin_transaction();
   if( g.argv[1][0]=='r' ){ /* i.e. "rename" */
     moveFiles = 0;
@@ -1145,6 +1145,7 @@ void mv_cmd(void){
   undo_reset();
   db_end_transaction(0);
   if( moveFiles ) process_files_to_move(dryRunFlag);
+  fossil_free(zDest);
 }
 
 /*
