@@ -1,5 +1,5 @@
-C Use\sthe\spreferred\scase\sfor\sthe\sdestination\sname\sin\sthe\s"fossil\smv"\scommand.
-D 2024-04-27T10:45:09.920
+C Fix\sa\sbroken\slink.
+D 2024-04-28T16:50:55.666
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -808,7 +808,7 @@ F www/defcsp.md 9acc92726d34c94be1ad4e011101043aff08a6e6cf78d54e0daebe16e2bf3e49
 F www/delta-manifests.md 906357ba85aab092d43875ad4f28230bc2b2601371388d7a177fb13453b332c4
 F www/delta_encoder_algorithm.wiki 3a178f152bf2fe72a6ee610a303e253e0bc467aaa055b6311776ed5578c913d4
 F www/delta_format.wiki 33a3f71dc160959bd4c612e7ffee5be54548990e53eb0f6d9b50779c8767bd58
-F www/embeddeddoc.wiki 918175ad2763d00b530c433faaa7b75b17e55c1d613b2d3f98057e92b93e78bb
+F www/embeddeddoc.wiki 5d5424e8c5ad61652cd7564024302da69699b460558a505d9275c8e5db85766c
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
 F www/encode3.gif 1565ebf8d7579785bc05ce80434b2eae1773a813
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P abb54cb0cf1ee96f9028787498fa85413dd027f8399a33b724fd676eb3642d5e
-R 6888b825ed993cda5852f6b6e7110228
-U drh
-Z cd3252c853bff0ddbaa0c2df153ae8da
+P 859b00b77698c436a2ccd5a9338ec2c7332e37ae067510396e3088b966213e64
+R 15d124c329bd2f52bc395d25e5855ef8
+U juef
+Z f856a6189860ebc6089a0c322a47be6f
 # Remove this line to create a well-formed Fossil manifest.
