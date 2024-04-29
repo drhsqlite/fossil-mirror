@@ -595,24 +595,6 @@ void status_cmd(void){
   }
 }
 
-/*
-** Characters used for drawing a file hierarchy graph.
-*/
-#if _WIN32
-/* ASCII only available on Windows */
-#define ENTRY   "|-- "
-#define LASTE   "`-- "
-#define CONTU   "|   "
-#define BLANK   "    "
-#else
-/* All other platforms support Unicode box-drawing chracters */
-#define ENTRY   "\342\224\234\342\224\200\342\224\200 "
-#define LASTE   "\342\224\224\342\224\200\342\224\200 "
-#define CONTU   "\342\224\202   "
-#define BLANK   "    "
-#endif
-
-
 /* zIn is a string that is guaranteed to be followed by \n.  Return
 ** a pointer to the next line after the \n.  The returned value might
 ** point to the \000 string terminator.
@@ -651,21 +633,19 @@ static const char *print_filelist_section(
   int nDir,                  /* Ignore this many characters of directory name */
   int treeFmt                /* 1 = use Unicode symbols, 2 = use ASCII chars */
 ){
+  /* ASCII characters used for drawing a file hierarchy graph */
   const char *treeEntry = "|-- ";
   const char *treeLastE = "`-- ";
   const char *treeContu = "|   ";
   const char *treeBlank = "    ";
   if( treeFmt == 1 ){
+    /* Unicode box-drawing characters: U+251C, U+2514, U+2502 */
     treeEntry = "\342\224\234\342\224\200\342\224\200 ";
     treeLastE = "\342\224\224\342\224\200\342\224\200 ";   
     treeContu = "\342\224\202   ";
   }
   while( zIn<=zLast ){
     int i;
-    // const char *treeContu = (treeFmt == 1) ? "\342\224\202   " : "|   ";
-    // const char *treeEntry = (treeFmt == 1) ? "\342\224\234\342\224\200\342\224\200 " : "|-- ";
-    // const char *treeLastE = (treeFmt == 1) ? "\342\224\224\342\224\200\342\224\200 " : "`-- ";
-    // const char *treeBlank = "    ";
     for(i=nDir; zIn[i]!='\n' && zIn[i]!='/'; i++){}
     if( zIn[i]=='/' ){
       char *zSubPrefix;
@@ -816,7 +796,7 @@ static void ls_cmd_rev(
 **   -R|--repository REPO  Extract info from repository REPO
 **   -t                    Sort output in time order
 **   --tree                Tree format
-**   -u|--unicode-tree     Use Unicode symbols when drawing the tree
+**   -u|--unicode-tree     Use Unicode characters when drawing the tree
 **   -v|--verbose          Provide extra information about each file
 **
 ** See also: [[changes]], [[extras]], [[status]], [[tree]]
@@ -854,7 +834,7 @@ void ls_cmd(void){
     if( zRev==0 ) zRev = "current";
 #ifdef _WIN32
     treeFmt = 2;
-#endif    
+#endif
     if( unicodeTree ) treeFmt = 1;
     if( asciiTree ) treeFmt = 2;    
   }
@@ -976,7 +956,7 @@ void ls_cmd(void){
 **   -a|--ascii-tree       Use ASCII characters when drawing the tree
 **   -r VERSION            The specific check-in to list
 **   -R|--repository REPO  Extract info from repository REPO
-**   -u|--unicode-tree     Use Unicode symbols when drawing the tree
+**   -u|--unicode-tree     Use Unicode characters when drawing the tree
 **
 ** See also: [[ls]]
 */
@@ -987,7 +967,7 @@ void tree_cmd(void){
   int unicodeTree = find_option("unicode-tree","u",0)!=0;
 #ifdef _WIN32
   treeFmt = 2;
-#endif    
+#endif
   if( unicodeTree ) treeFmt = 1;
   if( asciiTree ) treeFmt = 2;
   zRev = find_option("r","r",1);
@@ -1026,7 +1006,7 @@ void tree_cmd(void){
 **    --rel-paths             Display pathnames relative to the current working
 **                            directory
 **    --tree                  Show output in the tree format
-**    -u|--unicode-tree       Use Unicode symbols when drawing the tree
+**    -u|--unicode-tree       Use Unicode characters when drawing the tree
 **
 ** See also: [[changes]], [[clean]], [[status]]
 */
@@ -1054,7 +1034,7 @@ void extras_cmd(void){
     flags &= ~C_RELPATH;
 #ifdef _WIN32
     treeFmt = 2;
-#endif    
+#endif
     if( unicodeTree ) treeFmt = 1;
     if( asciiTree ) treeFmt = 2;
   }

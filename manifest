@@ -1,5 +1,5 @@
-C Add\soptions\sfor\sdrawing\sthe\sfile\stree\swith\sUnicode\ssymbols\sor\sASCII\scharacters\s(Windows\sdefaults\sto\sthe\slatter,\sall\sothers\sto\sthe\sformer).
-D 2024-04-29T15:25:20.954
+C Code\scleaning\safter\sthe\sprevious\scheck-in.\sNo\sfunctional\schanges.
+D 2024-04-29T21:33:09.237
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -397,7 +397,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c a5a22e5368ec514d6c45ef7607aa551aa2aefe7cc18c7b17a7775a4c0d59ce63
 F src/chat.c 6c571e698c67c89f0987c86cfb8fbdd53cc60abcd4cc6d9bd1618b0c33c61d54
-F src/checkin.c 2f0d814f842d5d3e2b3c80e487d9cef95bd2826795c89ea1791f29d7a9d30477
+F src/checkin.c 7edbc7a4610bd9575e25c2eb99384a0d26e9ac64cfc13f2cc88a6d5cc589d337
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd72a96111edd296ea1fb2c09a637f471a3fa48ec1a7c2d11842bcc668cae8e4
-R ef930779f76547511fa85bb9e2c30061
+P 635fa090d10a20436e281e040c3a50f6a98ef9c4b474e1db6c4e8b3eb6064b70
+R 338932c3efd92436a47d47d2ad3e62ed
 U danield
-Z 873c6dfa266e3a167a9a98339c03a6b1
+Z b427af4a02d758d8f88069ddc81f29e7
 # Remove this line to create a well-formed Fossil manifest.
