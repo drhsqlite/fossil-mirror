@@ -648,21 +648,36 @@ static const char *print_filelist_section(
   const char *zIn,           /* List of filenames, separated by \n */
   const char *zLast,         /* Last filename in the list to print */
   const char *zPrefix,       /* Prefix so put before each output line */
-  int nDir                   /* Ignore this many characters of directory name */
+  int nDir,                  /* Ignore this many characters of directory name */
+  int treeFmt                /* 1 = use Unicode symbols, 2 = use ASCII chars */
 ){
+  const char *treeEntry = "|-- ";
+  const char *treeLastE = "`-- ";
+  const char *treeContu = "|   ";
+  const char *treeBlank = "    ";
+  if( treeFmt == 1 ){
+    treeEntry = "\342\224\234\342\224\200\342\224\200 ";
+    treeLastE = "\342\224\224\342\224\200\342\224\200 ";   
+    treeContu = "\342\224\202   ";
+  }
   while( zIn<=zLast ){
     int i;
+    // const char *treeContu = (treeFmt == 1) ? "\342\224\202   " : "|   ";
+    // const char *treeEntry = (treeFmt == 1) ? "\342\224\234\342\224\200\342\224\200 " : "|-- ";
+    // const char *treeLastE = (treeFmt == 1) ? "\342\224\224\342\224\200\342\224\200 " : "`-- ";
+    // const char *treeBlank = "    ";
     for(i=nDir; zIn[i]!='\n' && zIn[i]!='/'; i++){}
     if( zIn[i]=='/' ){
       char *zSubPrefix;
       const char *zSubLast = last_line(zIn, i+1);
-      zSubPrefix = mprintf("%s%s", zPrefix, zSubLast==zLast ? BLANK : CONTU);
-      fossil_print("%s%s%.*s\n", zPrefix, zSubLast==zLast ? LASTE : ENTRY,
-                   i-nDir, &zIn[nDir]);
-      zIn = print_filelist_section(zIn, zSubLast, zSubPrefix, i+1);
+      zSubPrefix = mprintf("%s%s", zPrefix,
+                          zSubLast==zLast ? treeBlank : treeContu);
+      fossil_print("%s%s%.*s\n", zPrefix,
+                   zSubLast==zLast ? treeLastE : treeEntry, i-nDir, &zIn[nDir]);
+      zIn = print_filelist_section(zIn, zSubLast, zSubPrefix, i+1, treeFmt);
       fossil_free(zSubPrefix);
     }else{
-      fossil_print("%s%s%.*s\n", zPrefix, zIn==zLast ? LASTE : ENTRY,
+      fossil_print("%s%s%.*s\n", zPrefix, zIn==zLast ? treeLastE : treeEntry,
                    i-nDir, &zIn[nDir]);
       zIn = next_line(zIn);
     }
@@ -675,14 +690,14 @@ static const char *print_filelist_section(
 ** in sorted order and with / directory separators.  Output this list
 ** as a tree in a manner similar to the "tree" command on Linux.
 */
-static void print_filelist_as_tree(Blob *pList){
+static void print_filelist_as_tree(Blob *pList, int treeFmt){
   char *zAll;
   const char *zLast;
   fossil_print("%s\n", g.zLocalRoot);
   zAll = blob_str(pList);
   if( zAll[0] ){
     zLast = last_line(zAll, 0);
-    print_filelist_section(zAll, zLast, "", 0);
+    print_filelist_section(zAll, zLast, "", 0, treeFmt);
   }
 }
 
@@ -762,7 +777,7 @@ static void ls_cmd_rev(
   }
   db_finalize(&q);
   if( treeFmt ){
-    print_filelist_as_tree(&out);
+    print_filelist_as_tree(&out, treeFmt);
     blob_reset(&out);
   }
 }
@@ -794,13 +809,15 @@ static void ls_cmd_rev(
 **
 ** Options:
 **   --age                 Show when each file was committed
-**   -v|--verbose          Provide extra information about each file
-**   -t                    Sort output in time order
-**   --tree                Tree format
-**   -r VERSION            The specific check-in to list
-**   -R|--repository REPO  Extract info from repository REPO
+**   -a|--ascii-tree       Use ASCII characters when drawing the tree
 **   --hash                With -v, verify file status using hashing
 **                         rather than relying on file sizes and mtimes
+**   -r VERSION            The specific check-in to list
+**   -R|--repository REPO  Extract info from repository REPO
+**   -t                    Sort output in time order
+**   --tree                Tree format
+**   -u|--unicode-tree     Use Unicode symbols when drawing the tree
+**   -v|--verbose          Provide extra information about each file
 **
 ** See also: [[changes]], [[extras]], [[status]], [[tree]]
 */
@@ -810,6 +827,8 @@ void ls_cmd(void){
   int verboseFlag;
   int showAge;
   int treeFmt;
+  int asciiTree;
+  int unicodeTree;
   int timeOrder;
   char *zOrderBy = "pathname";
   Blob where;
@@ -829,8 +848,15 @@ void ls_cmd(void){
     useHash = find_option("hash",0,0)!=0;
   }
   treeFmt = find_option("tree",0,0)!=0;
+  asciiTree = find_option("ascii-tree","a",0)!=0;
+  unicodeTree = find_option("unicode-tree","u",0)!=0;
   if( treeFmt ){
     if( zRev==0 ) zRev = "current";
+#ifdef _WIN32
+    treeFmt = 2;
+#endif    
+    if( unicodeTree ) treeFmt = 1;
+    if( asciiTree ) treeFmt = 2;    
   }
 
   if( zRev!=0 ){
@@ -947,19 +973,28 @@ void ls_cmd(void){
 ** (or their children if directories) are shown.
 **
 ** Options:
+**   -a|--ascii-tree       Use ASCII characters when drawing the tree
 **   -r VERSION            The specific check-in to list
 **   -R|--repository REPO  Extract info from repository REPO
+**   -u|--unicode-tree     Use Unicode symbols when drawing the tree
 **
 ** See also: [[ls]]
 */
 void tree_cmd(void){
   const char *zRev;
-
+  int treeFmt = 1;
+  int asciiTree = find_option("ascii-tree","a",0)!=0;
+  int unicodeTree = find_option("unicode-tree","u",0)!=0;
+#ifdef _WIN32
+  treeFmt = 2;
+#endif    
+  if( unicodeTree ) treeFmt = 1;
+  if( asciiTree ) treeFmt = 2;
   zRev = find_option("r","r",1);
   if( zRev==0 ) zRev = "current";
   db_find_and_open_repository(0, 0);
   verify_all_options();
-  ls_cmd_rev(zRev,0,0,0,1);
+  ls_cmd_rev(zRev, 0, 0, 0, treeFmt);
 }
 
 /*
@@ -983,6 +1018,7 @@ void tree_cmd(void){
 **
 ** Options:
 **    --abs-paths             Display absolute pathnames
+**    -a|--ascii-tree         Use ASCII characters when drawing the tree
 **    --case-sensitive BOOL   Override case-sensitive setting
 **    --dotfiles              Include files beginning with a dot (".")
 **    --header                Identify the repository if there are extras
@@ -990,6 +1026,7 @@ void tree_cmd(void){
 **    --rel-paths             Display pathnames relative to the current working
 **                            directory
 **    --tree                  Show output in the tree format
+**    -u|--unicode-tree       Use Unicode symbols when drawing the tree
 **
 ** See also: [[changes]], [[clean]], [[status]]
 */
@@ -1000,6 +1037,8 @@ void extras_cmd(void){
   unsigned flags = C_EXTRA;
   int showHdr = find_option("header",0,0)!=0;
   int treeFmt = find_option("tree",0,0)!=0;
+  int asciiTree = find_option("ascii-tree","a",0)!=0;
+  int unicodeTree = find_option("unicode-tree","u",0)!=0;
   Glob *pIgnore;
 
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
@@ -1013,6 +1052,11 @@ void extras_cmd(void){
 
   if( treeFmt ){
     flags &= ~C_RELPATH;
+#ifdef _WIN32
+    treeFmt = 2;
+#endif    
+    if( unicodeTree ) treeFmt = 1;
+    if( asciiTree ) treeFmt = 2;
   }
 
   /* We should be done with options.. */
@@ -1033,7 +1077,7 @@ void extras_cmd(void){
                    g.zLocalRoot);
     }
     if( treeFmt ){
-      print_filelist_as_tree(&report);
+      print_filelist_as_tree(&report, treeFmt);
     }else{
       blob_write_to_file(&report, "-");
     }
