@@ -596,13 +596,105 @@ void status_cmd(void){
 }
 
 /*
+** Characters used for drawing a file hierarchy graph.
+*/
+#if _WIN32
+/* ASCII only available on Windows */
+#define ENTRY   "|-- "
+#define LASTE   "`-- "
+#define CONTU   "|   "
+#define BLANK   "    "
+#else
+/* All other platforms support Unicode box-drawing chracters */
+#define ENTRY   "\342\224\234\342\224\200\342\224\200 "
+#define LASTE   "\342\224\224\342\224\200\342\224\200 "
+#define CONTU   "\342\224\202   "
+#define BLANK   "    "
+#endif
+
+
+/* zIn is a string that is guaranteed to be followed by \n.  Return
+** a pointer to the next line after the \n.  The returned value might
+** point to the \000 string terminator.
+*/
+static const char *next_line(const char *zIn){
+  const char *z = strchr(zIn, '\n');
+  assert( z!=0 );
+  return z+1;
+}
+
+/* zIn is a non-empty list of filenames in sorted order and separated
+** by \n.  There might be a cluster of lines that have the same n-character
+** prefix.  Return a pointer to the start of the last line of that
+** cluster.  The return value might be zIn if the first line of zIn is
+** unique in its first n character.
+*/
+static const char *last_line(const char *zIn, int n){
+  const char *zLast = zIn;
+  const char *z;
+  while( 1 ){
+    z = next_line(zLast);
+    if( z[0]==0 || (n>0 && strncmp(zIn, z, n)!=0) ) break;
+    zLast = z;
+  }
+  return zLast;
+}
+
+/*
+** Print a section of a filelist hierarchy graph.  This is a helper
+** routine for print_filelist_as_tree() below.
+*/
+static const char *print_filelist_section(
+  const char *zIn,           /* List of filenames, separated by \n */
+  const char *zLast,         /* Last filename in the list to print */
+  const char *zPrefix,       /* Prefix so put before each output line */
+  int nDir                   /* Ignore this many characters of directory name */
+){
+  while( zIn<=zLast ){
+    int i;
+    for(i=nDir; zIn[i]!='\n' && zIn[i]!='/'; i++){}
+    if( zIn[i]=='/' ){
+      char *zSubPrefix;
+      const char *zSubLast = last_line(zIn, i+1);
+      zSubPrefix = mprintf("%s%s", zPrefix, zSubLast==zLast ? BLANK : CONTU);
+      fossil_print("%s%s%.*s\n", zPrefix, zSubLast==zLast ? LASTE : ENTRY,
+                   i-nDir, &zIn[nDir]);
+      zIn = print_filelist_section(zIn, zSubLast, zSubPrefix, i+1);
+      fossil_free(zSubPrefix);
+    }else{
+      fossil_print("%s%s%.*s\n", zPrefix, zIn==zLast ? LASTE : ENTRY,
+                   i-nDir, &zIn[nDir]);
+      zIn = next_line(zIn);
+    }
+  }
+  return zIn;
+}
+
+/*
+** Input blob pList is a list of filenames, one filename per line,
+** in sorted order and with / directory separators.  Output this list
+** as a tree in a manner similar to the "tree" command on Linux.
+*/
+static void print_filelist_as_tree(Blob *pList){
+  char *zAll;
+  const char *zLast;
+  fossil_print("%s\n", g.zLocalRoot);
+  zAll = blob_str(pList);
+  if( zAll[0] ){
+    zLast = last_line(zAll, 0);
+    print_filelist_section(zAll, zLast, "", 0);
+  }
+}
+
+/*
 ** Take care of -r version of ls command
 */
 static void ls_cmd_rev(
   const char *zRev,  /* Revision string given */
   int verboseFlag,   /* Verbose flag given */
   int showAge,       /* Age flag given */
-  int timeOrder      /* Order by time flag given */
+  int timeOrder,     /* Order by time flag given */
+  int treeFmt        /* Show output in the tree format */
 ){
   Stmt q;
   char *zOrderBy = "pathname COLLATE nocase";
@@ -610,6 +702,7 @@ static void ls_cmd_rev(
   Blob where;
   int rid;
   int i;
+  Blob out;
 
   /* Handle given file names */
   blob_zero(&where);
@@ -651,12 +744,15 @@ static void ls_cmd_rev(
     " ORDER BY %s;", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
   );
   blob_reset(&where);
+  if( treeFmt ) blob_init(&out, 0, 0);
 
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTime = db_column_text(&q,0);
     const char *zFile = db_column_text(&q,1);
     int size = db_column_int(&q,2);
-    if( verboseFlag ){
+    if( treeFmt ){
+      blob_appendf(&out, "%s\n", zFile);
+    }else if( verboseFlag ){
       fossil_print("%s  %7d  %s\n", zTime, size, zFile);
     }else if( showAge ){
       fossil_print("%s  %s\n", zTime, zFile);
@@ -665,6 +761,10 @@ static void ls_cmd_rev(
     }
   }
   db_finalize(&q);
+  if( treeFmt ){
+    print_filelist_as_tree(&out);
+    blob_reset(&out);
+  }
 }
 
 /*
@@ -696,18 +796,20 @@ static void ls_cmd_rev(
 **   --age                 Show when each file was committed
 **   -v|--verbose          Provide extra information about each file
 **   -t                    Sort output in time order
+**   --tree                Tree format
 **   -r VERSION            The specific check-in to list
 **   -R|--repository REPO  Extract info from repository REPO
 **   --hash                With -v, verify file status using hashing
 **                         rather than relying on file sizes and mtimes
 **
-** See also: [[changes]], [[extras]], [[status]]
+** See also: [[changes]], [[extras]], [[status]], [[tree]]
 */
 void ls_cmd(void){
   int vid;
   Stmt q;
   int verboseFlag;
   int showAge;
+  int treeFmt;
   int timeOrder;
   char *zOrderBy = "pathname";
   Blob where;
@@ -726,11 +828,15 @@ void ls_cmd(void){
   if( verboseFlag ){
     useHash = find_option("hash",0,0)!=0;
   }
+  treeFmt = find_option("tree",0,0)!=0;
+  if( treeFmt ){
+    if( zRev==0 ) zRev = "current";
+  }
 
   if( zRev!=0 ){
     db_find_and_open_repository(0, 0);
     verify_all_options();
-    ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder);
+    ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder,treeFmt);
     return;
   }else if( find_option("R",0,1)!=0 ){
     fossil_fatal("the -r is required in addition to -R");
@@ -832,6 +938,31 @@ void ls_cmd(void){
 }
 
 /*
+** COMMAND: tree
+**
+** Usage: %fossil tree ?OPTIONS? ?PATHS ...?
+**
+** List all files in the current check-out in after the fashion of the
+** "tree" command.  If PATHS is included, only the named files
+** (or their children if directories) are shown.
+**
+** Options:
+**   -r VERSION            The specific check-in to list
+**   -R|--repository REPO  Extract info from repository REPO
+**
+** See also: [[ls]]
+*/
+void tree_cmd(void){
+  const char *zRev;
+
+  zRev = find_option("r","r",1);
+  if( zRev==0 ) zRev = "current";
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  ls_cmd_rev(zRev,0,0,0,1);
+}
+
+/*
 ** COMMAND: extras
 **
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
@@ -858,6 +989,7 @@ void ls_cmd(void){
 **    --ignore CSG            Ignore files matching patterns from the argument
 **    --rel-paths             Display pathnames relative to the current working
 **                            directory
+**    --tree                  Show output in the tree format
 **
 ** See also: [[changes]], [[clean]], [[status]]
 */
@@ -867,6 +999,7 @@ void extras_cmd(void){
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   unsigned flags = C_EXTRA;
   int showHdr = find_option("header",0,0)!=0;
+  int treeFmt = find_option("tree",0,0)!=0;
   Glob *pIgnore;
 
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
@@ -877,6 +1010,10 @@ void extras_cmd(void){
   }
 
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
+
+  if( treeFmt ){
+    flags &= ~C_RELPATH;
+  }
 
   /* We should be done with options.. */
   verify_all_options();
@@ -895,7 +1032,11 @@ void extras_cmd(void){
       fossil_print("Extras for %s at %s:\n", db_get("project-name","<unnamed>"),
                    g.zLocalRoot);
     }
-    blob_write_to_file(&report, "-");
+    if( treeFmt ){
+      print_filelist_as_tree(&report);
+    }else{
+      blob_write_to_file(&report, "-");
+    }
   }
   blob_reset(&report);
 }

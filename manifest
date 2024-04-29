@@ -1,5 +1,5 @@
-C Really\sfix\sa\sbroken\slink.
-D 2024-04-28T16:55:10.630
+C Add\sthe\s"fossil\stree"\scommand\sand\sthe\s--tree\soption\sto\s"fossil\sls"\sand\n"fossil\sextras".
+D 2024-04-29T03:04:08.763
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -397,7 +397,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c a5a22e5368ec514d6c45ef7607aa551aa2aefe7cc18c7b17a7775a4c0d59ce63
 F src/chat.c 6c571e698c67c89f0987c86cfb8fbdd53cc60abcd4cc6d9bd1618b0c33c61d54
-F src/checkin.c e8e3d07896a783f7e49c498ca412ee413b9fb5b713874e380206d7ae36bc3390
+F src/checkin.c 39c46c43c3139c707d10afc7c288962828733e34620494f8a0dbc25e97b62318
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P efb5321d5f0c1cce310c7610958711d99d016ec1ee40114a32888ad10462a433
-R 0de40003ab030b95ea521db5755d58c4
-U juef
-Z 9655c8e36187d3f7c058394158a44d9d
+P e012f50a4b4c4dfe6a539f60362b438673686b7b3571162d990bf6640a00e4e5
+R aaff1d4abe1dd3b237b37e657b52482c
+U drh
+Z 15fb6e9c439ba2ab943c9aff20c28c14
 # Remove this line to create a well-formed Fossil manifest.
