@@ -633,17 +633,12 @@ static const char *print_filelist_section(
   int nDir,                  /* Ignore this many characters of directory name */
   int treeFmt                /* 1 = use Unicode symbols, 2 = use ASCII chars */
 ){
-  /* ASCII characters used for drawing a file hierarchy graph */
-  const char *treeEntry = "|-- ";
-  const char *treeLastE = "`-- ";
-  const char *treeContu = "|   ";
+  /* Unicode box-drawing characters: U+251C, U+2514, U+2502 */
+  const char *treeEntry = "\342\224\234\342\224\200\342\224\200 ";
+  const char *treeLastE = "\342\224\224\342\224\200\342\224\200 ";   
+  const char *treeContu = "\342\224\202   ";
   const char *treeBlank = "    ";
-  if( treeFmt == 1 ){
-    /* Unicode box-drawing characters: U+251C, U+2514, U+2502 */
-    treeEntry = "\342\224\234\342\224\200\342\224\200 ";
-    treeLastE = "\342\224\224\342\224\200\342\224\200 ";   
-    treeContu = "\342\224\202   ";
-  }
+
   while( zIn<=zLast ){
     int i;
     for(i=nDir; zIn[i]!='\n' && zIn[i]!='/'; i++){}
@@ -789,14 +784,12 @@ static void ls_cmd_rev(
 **
 ** Options:
 **   --age                 Show when each file was committed
-**   -a|--ascii-tree       Use ASCII characters when drawing the tree
 **   --hash                With -v, verify file status using hashing
 **                         rather than relying on file sizes and mtimes
 **   -r VERSION            The specific check-in to list
 **   -R|--repository REPO  Extract info from repository REPO
 **   -t                    Sort output in time order
 **   --tree                Tree format
-**   -u|--unicode-tree     Use Unicode characters when drawing the tree
 **   -v|--verbose          Provide extra information about each file
 **
 ** See also: [[changes]], [[extras]], [[status]], [[tree]]
@@ -807,8 +800,6 @@ void ls_cmd(void){
   int verboseFlag;
   int showAge;
   int treeFmt;
-  int asciiTree;
-  int unicodeTree;
   int timeOrder;
   char *zOrderBy = "pathname";
   Blob where;
@@ -828,15 +819,8 @@ void ls_cmd(void){
     useHash = find_option("hash",0,0)!=0;
   }
   treeFmt = find_option("tree",0,0)!=0;
-  asciiTree = find_option("ascii-tree","a",0)!=0;
-  unicodeTree = find_option("unicode-tree","u",0)!=0;
   if( treeFmt ){
     if( zRev==0 ) zRev = "current";
-#ifdef _WIN32
-    treeFmt = 2;
-#endif
-    if( unicodeTree ) treeFmt = 1;
-    if( asciiTree ) treeFmt = 2;    
   }
 
   if( zRev!=0 ){
@@ -953,28 +937,18 @@ void ls_cmd(void){
 ** (or their children if directories) are shown.
 **
 ** Options:
-**   -a|--ascii-tree       Use ASCII characters when drawing the tree
 **   -r VERSION            The specific check-in to list
 **   -R|--repository REPO  Extract info from repository REPO
-**   -u|--unicode-tree     Use Unicode characters when drawing the tree
 **
 ** See also: [[ls]]
 */
 void tree_cmd(void){
   const char *zRev;
-  int treeFmt = 1;
-  int asciiTree = find_option("ascii-tree","a",0)!=0;
-  int unicodeTree = find_option("unicode-tree","u",0)!=0;
-#ifdef _WIN32
-  treeFmt = 2;
-#endif
-  if( unicodeTree ) treeFmt = 1;
-  if( asciiTree ) treeFmt = 2;
   zRev = find_option("r","r",1);
   if( zRev==0 ) zRev = "current";
   db_find_and_open_repository(0, 0);
   verify_all_options();
-  ls_cmd_rev(zRev, 0, 0, 0, treeFmt);
+  ls_cmd_rev(zRev, 0, 0, 0, 1);
 }
 
 /*
@@ -998,7 +972,6 @@ void tree_cmd(void){
 **
 ** Options:
 **    --abs-paths             Display absolute pathnames
-**    -a|--ascii-tree         Use ASCII characters when drawing the tree
 **    --case-sensitive BOOL   Override case-sensitive setting
 **    --dotfiles              Include files beginning with a dot (".")
 **    --header                Identify the repository if there are extras
@@ -1006,7 +979,6 @@ void tree_cmd(void){
 **    --rel-paths             Display pathnames relative to the current working
 **                            directory
 **    --tree                  Show output in the tree format
-**    -u|--unicode-tree       Use Unicode characters when drawing the tree
 **
 ** See also: [[changes]], [[clean]], [[status]]
 */
@@ -1017,8 +989,6 @@ void extras_cmd(void){
   unsigned flags = C_EXTRA;
   int showHdr = find_option("header",0,0)!=0;
   int treeFmt = find_option("tree",0,0)!=0;
-  int asciiTree = find_option("ascii-tree","a",0)!=0;
-  int unicodeTree = find_option("unicode-tree","u",0)!=0;
   Glob *pIgnore;
 
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
@@ -1032,11 +1002,6 @@ void extras_cmd(void){
 
   if( treeFmt ){
     flags &= ~C_RELPATH;
-#ifdef _WIN32
-    treeFmt = 2;
-#endif
-    if( unicodeTree ) treeFmt = 1;
-    if( asciiTree ) treeFmt = 2;
   }
 
   /* We should be done with options.. */
