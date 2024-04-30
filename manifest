@@ -1,5 +1,5 @@
-C Remove\soptions\sfor\srendering\sthe\stree\shierarchy\susing\sASCII-art\sfor\sthe\n"fossil\stree"\scommand\sand\ssimilar.\s\sAlways\suse\sonly\sUnicode\sbox-drawing\ncharacters.\s\sThis\sworks\son\snewer\sWin10\sand\sWin11.\s\sMaybe\sit\sdoesn't\swork\non\solder\sWindows,\sbut\sthe\s"fossil\stree"\scommand\sis\snot\sessential\sfor\sanything\s-\nit\sis\sonly\sa\sconvenience\s-\sso\sif\sit\sdoesn't\swork\son\san\solder\splatform,\nthat\sreally\sdoesn't\sreally\smatter.
-D 2024-04-29T23:42:43.046
+C Remove\san\sunused\sparameter\sand\sbring\sthe\scode\smore\sin\sline\swith\s[dd72a96111].
+D 2024-04-30T10:17:13.845
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -397,7 +397,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c a5a22e5368ec514d6c45ef7607aa551aa2aefe7cc18c7b17a7775a4c0d59ce63
 F src/chat.c 6c571e698c67c89f0987c86cfb8fbdd53cc60abcd4cc6d9bd1618b0c33c61d54
-F src/checkin.c 3bc03622924b05be7519034b2672f79c2cb08849fe1b5681178d7cef3c34cef0
+F src/checkin.c 839d9113b2b439caec2332b77225d92c9a33665c3d19c45b1e31c2fe4156b78a
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b705d756cf645ecd3d8ae2197179cbf7bac6d2f7c507ff2816fc977620477f57
-R 882d0c9299d72bc9c228841b681cf91f
-U drh
-Z 42fcd586707f6022ff50712cdb3a3f8e
+P 7045859339403bb5495d5ed8efe547dc0ec437a38cdb153447b06709ce3f0437
+R 3b67a656a56eb685a40fee69344eabf6
+U danield
+Z df8e3baa47040d7233b9f91881d92f44
 # Remove this line to create a well-formed Fossil manifest.
