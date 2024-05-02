@@ -470,6 +470,14 @@ void find_filename_changes(
       continue;
     }
     db_bind_int(&q1, ":mid", p->rid);
+    if( zDebug ){
+      fossil_print("%s check-in %.16z %z rid %d\n",
+         zDebug,
+         db_text(0, "SELECT uuid FROM blob WHERE rid=%d", p->rid),
+         db_text(0, "SELECT date(mtime) FROM event WHERE objid=%d", p->rid),
+         p->rid
+      );
+    }
     while( db_step(&q1)==SQLITE_ROW ){
       fnid = db_column_int(&q1, 1);
       pfnid = db_column_int(&q1, 0);
@@ -483,9 +491,8 @@ void find_filename_changes(
         pfnid = t;
       }
       if( zDebug ){
-        fossil_print("%s at %d%s %.10z: %d[%z] -> %d[%z]\n",
-           zDebug, p->rid, p->fromIsParent ? ">" : "<",
-           db_text(0, "SELECT uuid FROM blob WHERE rid=%d", p->rid),
+        fossil_print("%s %d[%z] -> %d[%z]\n",
+           zDebug,
            pfnid,
            db_text(0, "SELECT name FROM filename WHERE fnid=%d", pfnid),
            fnid,

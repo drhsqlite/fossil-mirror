@@ -1,5 +1,5 @@
-C When\s(stash\ssave)\sis\sgiven\sno\svalid\sfile\snames,\sfail\sloudly\srather\sthan\ssilently,\sas\sthe\slatter\semits\sonly\sa\smessage\sabout\san\suncommitted\stransaction.\sReported\sin\s[forum:747f0c32aa].
-D 2024-05-02T10:03:41.471
+C Improvements\sto\sthe\stracing\soutput\sin\sthe\sfind_filename_changes()\sroutine.
+D 2024-05-02T17:22:29.075
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -505,7 +505,7 @@ F src/merge3.c 19b67bb5c7742daa22348de9efd2db11de51a6f9e20940277e8557d187dd6147
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
 F src/patch.c dfdc926e5197c725855b5efe30735e1ea2db497772acb6f21813627698cb3ef4
-F src/path.c 07612d7936518a6aae19ee27bf480bb86a6c2931dfe3cc051f093e03d00d101f
+F src/path.c d3c1faab2d600f84228a538017df350ac64731536041a1756d2bf8988ab1118f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c 2fd902bca920b4e00b2ca7fddcc62ec2c39ecc90e5e28fe6ceeeed71ea62d5a4
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89da205267ee6e8322ba5e080bca26cea89c21acf8c86dfe6b0eda1c154c9a75
-R cd3555add2e3ad5ae12e4ec199154f88
-U stephan
-Z 19097529c99efe9c43c450e17395c659
+P 85a7d82e94f487ef2b61633a24aee0223dc98d671729bef08ad069b97c2f3c94
+R 4e607b7d26729052a6c415aa23e6e0f1
+U drh
+Z 2c9b1196c9280e128723fd2f741040f1
 # Remove this line to create a well-formed Fossil manifest.
