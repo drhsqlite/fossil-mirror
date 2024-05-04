@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\stracing\soutput\sin\sthe\sfind_filename_changes()\sroutine.
-D 2024-05-02T17:22:29.075
+C file_directory_size()\snow\sunconditionally\sskips\sthe\smagic\s"."\sand\s".."\sentries.\sThis\sdoes\snot\saffect\scurrent\suses\sof\sthe\sroutine\sbut\sa\sproposed\spatch\sprovided\sin\s[forum:383838fbd0b6c881|forum\spost\s383838fbd0b6c881]\swould\sbe\sawkwardly\saffected\sby\sthem.
+D 2024-05-04T11:26:44.363
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
 F src/export.c aa026dc8a0ef81f19e2490209f59a380950ca039a71afd416ca66517a3ea7c0a
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
-F src/file.c 9f44a66c4dfa3e8c4e69d5f2f78571c6c1d6e19eba78f4d67100c533d7079977
+F src/file.c 9a76e1a44a484d1a92161c8f4f5ea63c167d737e515b380ca4cfc9f64dde8165
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 14c0bab4c53125f241d7d657a2af6ff72f3ff1eb5fb42d2d15cf99c45561a89a
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 85a7d82e94f487ef2b61633a24aee0223dc98d671729bef08ad069b97c2f3c94
-R 4e607b7d26729052a6c415aa23e6e0f1
-U drh
-Z 2c9b1196c9280e128723fd2f741040f1
+P 40086b74bac897695d53f24cf9efe18a2a2f7162cfd94163eb1f4e32fb740e4a
+R bda3ad6fa46204b1f7e55eb96b263e05
+U stephan
+Z 1426c4779042a9fae7b976fa89b9af22
 # Remove this line to create a well-formed Fossil manifest.

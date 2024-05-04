@@ -2411,6 +2411,9 @@ const char *file_cleanup_fullpath(const char *z){
 ** Count the number of objects (files and subdirectories) in a given
 ** directory.  Return the count.  Return -1 if the object is not a
 ** directory.
+**
+** This routine never counts the two "." and ".." special directory
+** entries, even if the provided glob would match them.
 */
 int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
   void *zNative;
@@ -2423,7 +2426,13 @@ int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
     n = 0;
     while( (pEntry=readdir(d))!=0 ){
       if( pEntry->d_name[0]==0 ) continue;
-      if( omitDotFiles && pEntry->d_name[0]=='.' ) continue;
+      if( pEntry->d_name[0]=='.' &&
+          (omitDotFiles
+           /* Skip the special "." and ".." entries. */
+           || pEntry->d_name[1]==0
+           || (pEntry->d_name[1]=='.' && pEntry->d_name[2]==0))){
+        continue;
+      }
       if( zGlob ){
         char *zUtf8 = fossil_path_to_utf8(pEntry->d_name);
         int rc = sqlite3_strglob(zGlob, zUtf8);
