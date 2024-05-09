@@ -472,12 +472,14 @@ merge_next_child:
       " WHERE event.objid=%d AND blob.rid=%d",
       mid, mid
     );
+    zVersion = 0;
     if( db_step(&q)==SQLITE_ROW ){
       char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
             db_column_text(&q, 0), db_column_text(&q, 1),
             db_column_text(&q, 3), db_column_text(&q, 2));
       comment_print(zCom, db_column_text(&q,2), 0, -1, get_comment_format());
       fossil_free(zCom);
+      zVersion = mprintf("%S",db_column_text(&q,0));
     }
     db_finalize(&q);
   }else{
