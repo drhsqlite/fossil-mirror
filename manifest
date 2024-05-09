@@ -1,5 +1,5 @@
-C Add\sthe\sd2=,\sp2=,\sand\sdp2=\squery\sparameters\sto\s/timeline.
-D 2024-05-08T12:27:25.449
+C Change\sthe\sname\sof\sthe\s"cherry-pick"\scommand\sto\s"cherrypick",\sthough\sretain\n"cherry-pick"\sas\san\salias.\s\sExtend\sthe\s"cherrypick"\sand\s"merge"\scommands\sso\nthat\sthey\swill\saccept\smultiple\scheck-ins\sto\sbe\smerged\sin\sall\sin\sone\sgo.
+D 2024-05-09T20:52:33.949
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -500,7 +500,7 @@ F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb25
 F src/markdown_html.c c091000cdd12972fecbf0f1434e5224d5703c0e2b893003f764695676f9f46cf
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c a3e9edb0939858da2f538a9bc827278a1fcfb99d9b46bdcefc912966619eaee7
+F src/merge.c 7d55095e43e6afcea324e493fe54d075027fa818b7f958a6430e69aa85d6ddf6
 F src/merge3.c 19b67bb5c7742daa22348de9efd2db11de51a6f9e20940277e8557d187dd6147
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c09fea32997d778f654d103c7cb3d34584b11e8c87b7755c8902abdb2286ce25
-R 4aa7db47f7e08715c8f447b09ed63905
+P a080751e5c370833dd72f894059315134ecb332f40496be2bed1527161c35201
+R d249e27692d1939b26ad2e74782b7162
 U drh
-Z e5b53d1267470f38711776ae1c6ef3bf
+Z a89494f9da530005ec8a78151c397067
 # Remove this line to create a well-formed Fossil manifest.
