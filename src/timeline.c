@@ -1917,6 +1917,7 @@ void page_timeline(void){
     nEntry = 0;
     useDividers = 0;
     cgi_replace_query_parameter("d",fossil_strdup(z));
+    zDPName = z;
   }
 
   /* Undocumented query parameter to set JS mode */
