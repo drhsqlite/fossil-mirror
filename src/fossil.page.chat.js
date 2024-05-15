@@ -129,6 +129,7 @@ window.fossil.onPageLoad(function(){
     const cs = { // the "Chat" object (result of this function)
       verboseErrors: false /* if true then certain, mostly extraneous,
                               error messages may be sent to the console. */,
+      playedBeep: false /* used for the beep-once setting */,
       e:{/*map of certain DOM elements.*/
         messageInjectPoint: E1('#message-inject-point'),
         pageTitle: E1('head title'),
@@ -412,6 +413,9 @@ window.fossil.onPageLoad(function(){
              the first entry in the audio file selection list will be
              used. */
           "audible-alert": true,
+          /*
+           */
+          "beep-once": false,
           /* When on, show the list of "active" users - those from
              whom we have messages in the currently-loaded history
              (noting that deletions are also messages). */
@@ -436,7 +440,13 @@ window.fossil.onPageLoad(function(){
       */
       playNewMessageSound: function f(){
         if(f.uri){
+          if(!cs.pageIsActive
+             /* ^^^ this could also arguably apply when chat is visible */
+             && this.playedBeep && this.settings.getBool('beep-once',false)){
+            return;
+          }
           try{
+            this.playedBeep = true;
             if(!f.audio) f.audio = new Audio(f.uri);
             f.audio.currentTime = 0;
             f.audio.play();
@@ -453,6 +463,7 @@ window.fossil.onPageLoad(function(){
          this.
       */
       setNewMessageSound: function f(uri){
+        this.playedBeep = false;
         delete this.playNewMessageSound.audio;
         this.playNewMessageSound.uri = uri;
         this.settings.set('audible-alert', uri);
@@ -782,7 +793,7 @@ window.fossil.onPageLoad(function(){
         "HTTP status ", response.status,": ",response.url,": ",
         response.statusText].join(''));
     };
-    
+
     /** Helper for reporting HTTP-level response errors via fetch().
         If response.ok then response.json() is returned, else an Error
         is thrown. */
@@ -790,7 +801,7 @@ window.fossil.onPageLoad(function(){
       if(response.ok) return response.json();
       else throw cs._newResponseError(response);
     };
-    
+
     /**
        Removes the given message ID from the local chat record and, if
        the message was posted by this user OR this user in an
@@ -821,6 +832,7 @@ window.fossil.onPageLoad(function(){
     };
     document.addEventListener('visibilitychange', function(ev){
       cs.pageIsActive = ('visible' === document.visibilityState);
+      cs.playedBeep = false;
       if(cs.pageIsActive){
         cs.e.pageTitle.innerText = cs.pageTitleOrig;
         if(document.activeElement!==cs.inputElement()){
@@ -1741,6 +1753,10 @@ window.fossil.onPageLoad(function(){
             if(v) setTimeout(()=>Chat.playNewMessageSound(), 0);
           }
         },{
+          label: "Notify only once when away",
+          hint: "Notify only for the first message received after chat is hidden from view.",
+          boolValue: 'beep-once'
+        },{
           label: "Play notification for your own messages",
           hint: "When enabled, the audio notification will be played for all messages, "+
             "including your own. When disabled only messages from other users "+
@@ -1924,7 +1940,7 @@ window.fossil.onPageLoad(function(){
          get in sync */;
     });
   })();
-  
+
   (function(){/*set up message preview*/
     const btnPreview = Chat.e.btnPreview;
     Chat.setPreviewText = function(t){
