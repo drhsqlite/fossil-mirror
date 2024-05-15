@@ -470,8 +470,13 @@ static void tag_cmd_tagname_check(const char *zTag){
 **                           list unless --raw is provided. Ignored if
 **                           ARTIFACT-ID is provided.
 **           --raw           List raw names of tags
+**           --sep SEP       Separator when concatenating values
 **           --tagtype TYPE  List only tags of type TYPE, which must
 **                           be one of: cancel, singleton, propagated
+**           --values        List tag values
+**                           If --sep is supplied, list all values of a tag on
+**                           the same line, separated by SEP; otherwise list
+**                           each value on its own line.
 **
 ** The option --raw allows the manipulation of all types of tags
 ** used for various internal purposes in fossil. It also shows
@@ -637,6 +642,9 @@ void tag_cmd(void){
     const int fInverse = find_option("inverse","v",0)!=0;
     const char *zTagPrefix = find_option("prefix","",1);
     int nTagType = fRaw ? -1 : 0;
+    int fValues = find_option("values","",0)!=0;
+    const char *zSep = find_option("sep","",1);
+
 
     if( zTagType!=0 ){
       int l = strlen(zTagType);
@@ -652,25 +660,57 @@ void tag_cmd(void){
     }
     if( g.argc==3 ){
       const int nTagPrefix = zTagPrefix ? (int)strlen(zTagPrefix) : 0;
-      db_prepare(&q,
-        "SELECT tagname FROM tag"
-        " WHERE EXISTS(SELECT 1 FROM tagxref"
-        "               WHERE tagid=tag.tagid"
-        "                 AND tagtype%s%d)"
-        " AND CASE WHEN %Q IS NULL THEN 1 ELSE tagname GLOB %Q||'*' "
-        " END ORDER BY tagname COLLATE uintnocase",
-        zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
-        nTagType, zTagPrefix, zTagPrefix
-      );
+      if( !fValues ){
+        db_prepare(&q,
+          "SELECT tagname FROM tag"
+          " WHERE EXISTS(SELECT 1 FROM tagxref"
+          "               WHERE tagid=tag.tagid"
+          "                 AND tagtype%s%d)"
+          " AND CASE WHEN %Q IS NULL THEN 1 ELSE tagname GLOB %Q||'*' "
+          " END ORDER BY tagname COLLATE uintnocase",
+          zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
+          nTagType, zTagPrefix, zTagPrefix
+        );
+      }else{
+        if( zSep ){
+          db_prepare(&q,
+            /* work around group_concat() with DISTINCT and custom separator */
+            "SELECT tagname,"
+            "  rtrim(replace(group_concat(DISTINCT value||'@!' "
+            "                             ORDER BY value ASC), '@!,', %Q),'@!')"
+            " FROM tagxref, tag"
+            " WHERE tagxref.tagid=tag.tagid AND tagtype%s%d"
+            " AND CASE WHEN %Q IS NULL THEN 1 ELSE tagname GLOB %Q||'*' END"
+            " GROUP BY tagname"
+            " ORDER BY tagname COLLATE uintnocase",
+            ( zSep && strlen(zSep)>0 ) ? zSep : ",",
+            zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
+            nTagType, zTagPrefix, zTagPrefix
+          );
+        }else{
+          db_prepare(&q,
+            "SELECT DISTINCT tagname, value"
+            " FROM tagxref, tag"
+            " WHERE tagxref.tagid=tag.tagid AND tagtype%s%d"
+            " AND CASE WHEN %Q IS NULL THEN 1 ELSE tagname GLOB %Q||'*' END"
+            " ORDER BY tagname, value COLLATE uintnocase",
+            zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
+            nTagType, zTagPrefix, zTagPrefix
+          );
+        }
+      }
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);
+        const char *zValue = db_column_text(&q, 1);
+        int nWidth = fValues ? 20 : 0;
+        const char *zzValue = (fValues && zValue) ? mprintf(" %s", zValue) : "";
         if( fRaw ){
-          fossil_print("%s\n", zName);
+          fossil_print("%-*s%s\n", nWidth, zName, zzValue);
         }else if( nTagPrefix>0 ){
           assert(db_column_bytes(&q,0)>=nTagPrefix);
-          fossil_print("%s\n", &zName[nTagPrefix]);
+          fossil_print("%-*s%s\n", nWidth, &zName[nTagPrefix], zzValue);
         }else if( strncmp(zName, "sym-", 4)==0 ){
-          fossil_print("%s\n", &zName[4]);
+          fossil_print("%-*s%s\n", nWidth, &zName[4], zzValue);
         }
       }
       db_finalize(&q);
