@@ -1705,6 +1705,13 @@ static void process_one_web_page(
   signal(SIGSEGV, sigsegv_handler);
 #endif
 
+  /* Decode %HH escapes in PATHINFO */
+  if( strchr(zPathInfo,'%') ){
+    char *z = fossil_strdup(zPathInfo);
+    dehttpize(z);
+    zPathInfo = z;
+  }
+
   /* Handle universal query parameters */
   if( PB("utc") ){
     g.fTimeFormat = 1;
@@ -1759,18 +1766,27 @@ static void process_one_web_page(
       }
 
 
-      /* For safety -- to prevent an attacker from accessing arbitrary disk
-      ** files by sending a maliciously crafted request URI to a public
-      ** server -- make sure the repository basename contains no
-      ** characters other than alphanumerics, "/", "_", "-", and ".", and
-      ** that "-" never occurs immediately after a "/" and that "." is always
-      ** surrounded by two alphanumerics.  Any character that does not
-      ** satisfy these constraints is converted into "_".
-      */
+      /* Restrictions on the URI for security:
+      **
+      **    1.  Reject characters that are not ASCII alphanumerics, 
+      **        "-", "_", ".", "/", or unicode (above ASCII).
+      **        In other words:  No ASCII punctuation or control characters
+      **        other than "-", "_", "." and "/".
+      **    2.  Exception to rule 1: Allow /X:/ where X is any ASCII 
+      **        alphabetic character at the beginning of the name on windows.
+      **    3.  "-" may not occur immediately after "/"
+      **    4.  "." may not be adjacent to another "." or to "/"
+      **
+      ** Any character does not satisfy these constraints a Not Found
+      ** error is returned.
+      */  
       szFile = 0;
       for(j=nBase+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
-        if( fossil_isalnum(c) ) continue;
+        if( c>='a' && c<='z' ) continue;
+        if( c>='A' && c<='Z' ) continue;
+        if( c>='0' && c<='9' ) continue;
+        if( (c&0x80)==0x80 ) continue;
 #if defined(_WIN32) || defined(__CYGWIN__)
         /* Allow names to begin with "/X:/" on windows */
         if( c==':' && j==2 && sqlite3_strglob("/[a-zA-Z]:/*", zRepo)==0 ){
@@ -1780,7 +1796,10 @@ static void process_one_web_page(
         if( c=='/' ) continue;
         if( c=='_' ) continue;
         if( c=='-' && zRepo[j-1]!='/' ) continue;
-        if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
+        if( c=='.'
+         && zRepo[j-1]!='.' && zRepo[j-1]!='/'
+         && zRepo[j+1]!='.' && zRepo[j+1]!='/'
+        ){
           continue;
         }
         if( c=='.' && g.fAllowACME && j==(int)nBase+1
