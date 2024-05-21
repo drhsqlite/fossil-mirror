@@ -15917,62 +15917,74 @@ static void dbdataValue(
   u8 *pData,
   sqlite3_int64 nData
 ){
-  if( eType>=0 && dbdataValueBytes(eType)<=nData ){
-    switch( eType ){
-      case 0: 
-      case 10: 
-      case 11: 
-        sqlite3_result_null(pCtx);
-        break;
-      
-      case 8: 
-        sqlite3_result_int(pCtx, 0);
-        break;
-      case 9:
-        sqlite3_result_int(pCtx, 1);
-        break;
-  
-      case 1: case 2: case 3: case 4: case 5: case 6: case 7: {
-        sqlite3_uint64 v = (signed char)pData[0];
-        pData++;
-        switch( eType ){
-          case 7:
-          case 6:  v = (v<<16) + (pData[0]<<8) + pData[1];  pData += 2;
-          case 5:  v = (v<<16) + (pData[0]<<8) + pData[1];  pData += 2;
-          case 4:  v = (v<<8) + pData[0];  pData++;
-          case 3:  v = (v<<8) + pData[0];  pData++;
-          case 2:  v = (v<<8) + pData[0];  pData++;
-        }
-  
-        if( eType==7 ){
-          double r;
-          memcpy(&r, &v, sizeof(r));
-          sqlite3_result_double(pCtx, r);
-        }else{
-          sqlite3_result_int64(pCtx, (sqlite3_int64)v);
-        }
-        break;
-      }
-  
-      default: {
-        int n = ((eType-12) / 2);
-        if( eType % 2 ){
-          switch( enc ){
-#ifndef SQLITE_OMIT_UTF16
-            case SQLITE_UTF16BE:
-              sqlite3_result_text16be(pCtx, (void*)pData, n, SQLITE_TRANSIENT);
-              break;
-            case SQLITE_UTF16LE:
-              sqlite3_result_text16le(pCtx, (void*)pData, n, SQLITE_TRANSIENT);
-              break;
-#endif
-            default:
-              sqlite3_result_text(pCtx, (char*)pData, n, SQLITE_TRANSIENT);
-              break;
+  if( eType>=0 ){
+    if( dbdataValueBytes(eType)<=nData ){
+      switch( eType ){
+        case 0: 
+        case 10: 
+        case 11: 
+          sqlite3_result_null(pCtx);
+          break;
+        
+        case 8: 
+          sqlite3_result_int(pCtx, 0);
+          break;
+        case 9:
+          sqlite3_result_int(pCtx, 1);
+          break;
+    
+        case 1: case 2: case 3: case 4: case 5: case 6: case 7: {
+          sqlite3_uint64 v = (signed char)pData[0];
+          pData++;
+          switch( eType ){
+            case 7:
+            case 6:  v = (v<<16) + (pData[0]<<8) + pData[1];  pData += 2;
+            case 5:  v = (v<<16) + (pData[0]<<8) + pData[1];  pData += 2;
+            case 4:  v = (v<<8) + pData[0];  pData++;
+            case 3:  v = (v<<8) + pData[0];  pData++;
+            case 2:  v = (v<<8) + pData[0];  pData++;
           }
-        }else{
-          sqlite3_result_blob(pCtx, pData, n, SQLITE_TRANSIENT);
+    
+          if( eType==7 ){
+            double r;
+            memcpy(&r, &v, sizeof(r));
+            sqlite3_result_double(pCtx, r);
+          }else{
+            sqlite3_result_int64(pCtx, (sqlite3_int64)v);
+          }
+          break;
         }
+    
+        default: {
+          int n = ((eType-12) / 2);
+          if( eType % 2 ){
+            switch( enc ){
+  #ifndef SQLITE_OMIT_UTF16
+              case SQLITE_UTF16BE:
+                sqlite3_result_text16be(pCtx, (void*)pData, n, SQLITE_TRANSIENT);
+                break;
+              case SQLITE_UTF16LE:
+                sqlite3_result_text16le(pCtx, (void*)pData, n, SQLITE_TRANSIENT);
+                break;
+  #endif
+              default:
+                sqlite3_result_text(pCtx, (char*)pData, n, SQLITE_TRANSIENT);
+                break;
+            }
+          }else{
+            sqlite3_result_blob(pCtx, pData, n, SQLITE_TRANSIENT);
+          }
+        }
+      }
+    }else{
+      if( eType==7 ){
+        sqlite3_result_double(pCtx, 0.0);
+      }else if( eType<7 ){
+        sqlite3_result_int(pCtx, 0);
+      }else if( eType%2 ){
+        sqlite3_result_text(pCtx, "", 0, SQLITE_STATIC);
+      }else{
+        sqlite3_result_blob(pCtx, "", 0, SQLITE_STATIC);
       }
     }
   }
@@ -26034,7 +26046,10 @@ static struct {
   int iCnt;          /* Trigger the fault only if iCnt is already zero */
   int iInterval;     /* Reset iCnt to this value after each fault */
   int eVerbose;      /* When to print output */
-} faultsim_state = {-1, 0, 0, 0, 0};
+  int nHit;          /* Number of hits seen so far */
+  int nRepeat;       /* Turn off after this many hits.  0 for never */
+  int nSkip;         /* Skip this many before first fault */
+} faultsim_state = {-1, 0, 0, 0, 0, 0, 0};
 
 /*
 ** This is the fault-sim callback
@@ -26043,8 +26058,8 @@ static int faultsim_callback(int iArg){
   if( faultsim_state.iId>0 && faultsim_state.iId!=iArg ){
     return SQLITE_OK;
   }
-  if( faultsim_state.iCnt>0 ){
-    faultsim_state.iCnt--;
+  if( faultsim_state.iCnt ){
+    if( faultsim_state.iCnt>0 ) faultsim_state.iCnt--;
     if( faultsim_state.eVerbose>=2 ){
       oputf("FAULT-SIM id=%d no-fault (cnt=%d)\n", iArg, faultsim_state.iCnt);
     }
@@ -26054,6 +26069,10 @@ static int faultsim_callback(int iArg){
     oputf("FAULT-SIM id=%d returns %d\n", iArg, faultsim_state.iErr);
   }
   faultsim_state.iCnt = faultsim_state.iInterval;
+  faultsim_state.nHit++;
+  if( faultsim_state.nRepeat>0 && faultsim_state.nRepeat<=faultsim_state.nHit ){
+    faultsim_state.iCnt = -1;
+  }
   return faultsim_state.iErr;
 }
 
@@ -29215,17 +29234,23 @@ static int do_meta_command(char *zLine, ShellState *p){
             if( cli_strcmp(z,"off")==0 ){
               sqlite3_test_control(testctrl, 0);
             }else if( cli_strcmp(z,"on")==0 ){
-              faultsim_state.iCnt = faultsim_state.iInterval;
+              faultsim_state.iCnt = faultsim_state.nSkip;
               if( faultsim_state.iErr==0 ) faultsim_state.iErr = 1;
+              faultsim_state.nHit = 0;
               sqlite3_test_control(testctrl, faultsim_callback);
             }else if( cli_strcmp(z,"reset")==0 ){
-              faultsim_state.iCnt = faultsim_state.iInterval;
+              faultsim_state.iCnt = faultsim_state.nSkip;
+              faultsim_state.nHit = 0;
+              sqlite3_test_control(testctrl, faultsim_callback);
             }else if( cli_strcmp(z,"status")==0 ){
               oputf("faultsim.iId:       %d\n", faultsim_state.iId);
               oputf("faultsim.iErr:      %d\n", faultsim_state.iErr);
               oputf("faultsim.iCnt:      %d\n", faultsim_state.iCnt);
+              oputf("faultsim.nHit:      %d\n", faultsim_state.nHit);
               oputf("faultsim.iInterval: %d\n", faultsim_state.iInterval);
               oputf("faultsim.eVerbose:  %d\n", faultsim_state.eVerbose);
+              oputf("faultsim.nRepeat:   %d\n", faultsim_state.nRepeat);
+              oputf("faultsim.nSkip:     %d\n", faultsim_state.nSkip);
             }else if( cli_strcmp(z,"-v")==0 ){
               if( faultsim_state.eVerbose<2 ) faultsim_state.eVerbose++;
             }else if( cli_strcmp(z,"-q")==0 ){
@@ -29236,6 +29261,10 @@ static int do_meta_command(char *zLine, ShellState *p){
               faultsim_state.iErr = atoi(azArg[++kk]);
             }else if( cli_strcmp(z,"-interval")==0 && kk+1<nArg ){
               faultsim_state.iInterval = atoi(azArg[++kk]);
+            }else if( cli_strcmp(z,"-repeat")==0 && kk+1<nArg ){
+              faultsim_state.nRepeat = atoi(azArg[++kk]);
+           }else if( cli_strcmp(z,"-skip")==0 && kk+1<nArg ){
+              faultsim_state.nSkip = atoi(azArg[++kk]);
             }else if( cli_strcmp(z,"-?")==0 || sqlite3_strglob("*help*",z)==0){
               bShowHelp = 1;
             }else{
@@ -29259,6 +29288,8 @@ static int do_meta_command(char *zLine, ShellState *p){
                "   --errcode N       When triggered, return N as error code\n"
                "   --id ID           Trigger only for the ID specified\n"
                "   --interval N      Trigger only after every N-th call\n"
+               "   --repeat N        Turn off after N hits.  0 means never\n"
+               "   --skip N          Skip the first N encounters\n"
             );
           }
           break;
