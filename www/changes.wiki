@@ -1,5 +1,20 @@
 <title>Change Log</title>
 
+<h2 id='v2_25'>Changes for version 2.25 (pending)</h2>
+
+  *  The "[/help?cmd=ui|fossil ui /]" command now works even for repositories
+     that have non-ASCII filenames
+  *  Add the [/help?cmd=tree|fossil tree] command.
+  *  On case-insensitive filesystems, store files using the filesystem's
+     preferred case rather than the case typed in by the user.
+  *  Change the name "fossil cherry-pick" command to "fossil cherrypick",
+     which is more familiar to Git users.  Retain the legacy name for
+     compatibility.
+  *  Add new query parameters to the [/help?cmd=/timeline|/timeline page]:
+     d2=, p2=, and dp2=.
+  *  Add options to the [/help?cmd=tag|fossil tag] command that will list tag values
+     
+
 <h2 id='v2_24'>Changes for version 2.24 (2024-04-23)</h2>
 
   *  Apache change work-around &rarr; As part of a security fix, the Apache webserver
