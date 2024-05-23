@@ -15776,6 +15776,7 @@ static void dbdataResetCursor(DbdataCursor *pCsr){
   sqlite3_free(pCsr->aPage);
   dbdataBufferFree(&pCsr->rec);
   pCsr->aPage = 0;
+  pCsr->nRec = 0;
 }
 
 /*
@@ -16047,6 +16048,7 @@ static int dbdataNext(sqlite3_vtab_cursor *pCursor){
       }
     }else{
       /* If there is no record loaded, load it now. */
+      assert( pCsr->rec.aBuf!=0 || pCsr->nRec==0 );
       if( pCsr->nRec==0 ){
         int bHasRowid = 0;
         int nPointer = 0;
@@ -26049,7 +26051,7 @@ static struct {
   int nHit;          /* Number of hits seen so far */
   int nRepeat;       /* Turn off after this many hits.  0 for never */
   int nSkip;         /* Skip this many before first fault */
-} faultsim_state = {-1, 0, 0, 0, 0, 0, 0};
+} faultsim_state = {-1, 0, 0, 0, 0, 0, 0, 0};
 
 /*
 ** This is the fault-sim callback
