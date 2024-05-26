@@ -1,5 +1,5 @@
-C Add\smention\sof\srecent\senhancements\sto\sthe\schange\slog.
-D 2024-05-23T14:52:44.038
+C Add\simage/jp2\sto\sthe\smime\stypes,\sper\sforum\srequest.
+D 2024-05-26T20:18:48.240
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,7 +421,7 @@ F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
 F src/diffcmd.c e11ab5f28e58d80735eaafc6b29fd78d479571bd767553bb8a685018790d1285
 F src/dispatch.c 23c8f2cdf73f3d4d3a7064c66a1d354339671db74f61a4356e180f762cabe460
-F src/doc.c 121d89bbd13caed7c7bb44e411576448bb84468d68a3f1a03fb1009f223da77e
+F src/doc.c 5ac0e076d646e30eb7b2fccbfe3ff811c3833a3e90b93858f46f5b2a5f2a1224
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 253fc1df76130a7121f5e185e1e9e0107440fae0f952bf34ae2b7af01902dcf3
-R 78ea0d5c97ed91dee5c2267cb08f511e
-U drh
-Z 394bfcce9b39bdf59be7849c7d68c5ee
+P 1bbb0b1316a91bd0d609a24406312deef67657194b76687307665a8c62627a7d
+R 83253abaac6427556826877aa8b8849d
+U stephan
+Z f8770a99bce9d8fbdfbf457770dc94e5
 # Remove this line to create a well-formed Fossil manifest.

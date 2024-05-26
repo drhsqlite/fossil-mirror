@@ -155,6 +155,7 @@ static const struct {
   { "ipx",        3, "application/x-ipix"                },
   { "jad",        3, "text/vnd.sun.j2me.app-descriptor"  },
   { "jar",        3, "application/java-archive"          },
+  { "jp2",        3, "image/jp2"                         },
   { "jpe",        3, "image/jpeg"                        },
   { "jpeg",       4, "image/jpeg"                        },
   { "jpg",        3, "image/jpeg"                        },
