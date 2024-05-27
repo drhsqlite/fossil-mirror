@@ -1,5 +1,5 @@
-C Add\simage/jp2\sto\sthe\smime\stypes,\sper\sforum\srequest.
-D 2024-05-26T20:18:48.240
+C Add\srobustness\sto\sdecoding\sof\squery\sparameters\son\sthe\s/wdiff\spage.
+D 2024-05-27T09:56:59.652
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -585,7 +585,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 2779c065497813512a8f321ed0dff329220890de5408766de1d03ed1a3905756
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
-F src/wiki.c 57198aed8c83d25d02c87a55db2be473c3ee75c81761555b748c977f1522e116
+F src/wiki.c d6a99a1a705323e326213f67e45e304e774914f632fae52b75366605c51fc8c6
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1bbb0b1316a91bd0d609a24406312deef67657194b76687307665a8c62627a7d
-R 83253abaac6427556826877aa8b8849d
-U stephan
-Z f8770a99bce9d8fbdfbf457770dc94e5
+P 2669f492cd9460826ea61649e433ea52a9018faa1db0f400bf11be22376994d1
+R 9309cc79b64f6473990835d6c882e9c1
+U drh
+Z a38ed10826494f2066c34ae9bb76dadc
 # Remove this line to create a well-formed Fossil manifest.

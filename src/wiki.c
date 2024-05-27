@@ -1847,6 +1847,7 @@ void whistory_page(void){
 */
 void wdiff_page(void){
   const char *zId;
+  const char *zIdFull;
   const char *zPid;
   Manifest *pW1, *pW2 = 0;
   int rid1, rid2, nextRid;
@@ -1861,7 +1862,16 @@ void wdiff_page(void){
   }else{
     rid1 = name_to_typed_rid(zId, "w");
   }
-  zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid1);
+  zIdFull = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid1);
+  if( zIdFull==0 ){
+    if( zId ){
+      webpage_notfound_error("No such wiki page: \"%s\"", zId);
+    }else{
+      webpage_notfound_error("No such wiki page: %d", rid1);
+    }
+    return;
+  }
+  zId = zIdFull;
   pW1 = manifest_get(rid1, CFTYPE_WIKI, 0);
   if( pW1==0 ) fossil_redirect_home();
   blob_init(&w1, pW1->zWiki, -1);
