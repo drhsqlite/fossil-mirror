@@ -1250,7 +1250,13 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
       u64 lenCpy = (*zDiff)&0x3f;
       const char *zCpy;
       switch( (*zDiff)&0xC0 ){
-        case 0x00: zCpy = blob_buffer(pSrc)+offSrc; break;
+        case 0x00:
+          if( 0==blob_size(pSrc) ){
+            /* https://fossil-scm.org/forum/forumpost/15d4b242bda2a108 */
+            fossil_fatal("Don't know how to handle NULL input");
+          }
+          zCpy = blob_buffer(pSrc)+offSrc;
+          break;
         case 0x40: zCpy = blob_buffer(pOut); break;
         case 0x80: zCpy = zData; break;
         default: fossil_fatal("Invalid svndiff0 instruction");
