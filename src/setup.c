@@ -238,6 +238,15 @@ void setup_logmenu_page(void){
     "in the \"accesslog\" table of the respository.\n"
   );
 
+  setup_menu_entry("Hack Log", "hacklog",
+    "All 418 hack attempts"
+  );
+
+  setup_menu_entry("Non-Hack Log", "hacklog?not",
+    "All log messages that are not hack attempts"
+  );
+
+
   @ </table>
   style_finish_page();
 }
