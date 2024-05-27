@@ -1253,7 +1253,9 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
         case 0x00:
           if( 0==blob_size(pSrc) ){
             /* https://fossil-scm.org/forum/forumpost/15d4b242bda2a108 */
-            fossil_fatal("Don't know how to handle NULL input");
+            fossil_fatal("Don't know how to handle NULL input. "
+                         "Tip: do not use --incremental flag in "
+                         "svn dump command.");
           }
           zCpy = blob_buffer(pSrc)+offSrc;
           break;
