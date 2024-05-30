@@ -146,9 +146,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.46.0"
-#define SQLITE_VERSION_NUMBER 3046000
-#define SQLITE_SOURCE_ID      "2024-05-23 13:25:27 96c92aba00c8375bc32fafcdf12429c58bd8aabfcadab6683e35bbb9cdebf19e"
+#define SQLITE_VERSION        "3.47.0"
+#define SQLITE_VERSION_NUMBER 3047000
+#define SQLITE_SOURCE_ID      "2024-05-30 13:27:29 a47c644fef71f3ab3dc584ea917eaab9a8e5b4c9dcb57bdd29747ba32108e85f"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -3570,8 +3570,8 @@ SQLITE_API void sqlite3_progress_handler(sqlite3*, int, int(*)(void*), void*);
 **
 ** [[OPEN_EXRESCODE]] ^(<dt>[SQLITE_OPEN_EXRESCODE]</dt>
 ** <dd>The database connection comes up in "extended result code mode".
-** In other words, the database behaves has if
-** [sqlite3_extended_result_codes(db,1)] where called on the database
+** In other words, the database behaves as if
+** [sqlite3_extended_result_codes(db,1)] were called on the database
 ** connection as soon as the connection is created. In addition to setting
 ** the extended result code mode, this flag also causes [sqlite3_open_v2()]
 ** to return an extended result code.</dd>
