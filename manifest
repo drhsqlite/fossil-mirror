@@ -1,5 +1,5 @@
-C Add\sthe\s--ii\soption\sto\sthe\s"fossil\sbisect\srun"\scommand.
-D 2024-05-27T13:06:44.908
+C Switch\sto\sthe\smsteveb\slinenoise\sfork\sand\supdate\sto\sthe\strunk\ssqlite3\sshell.c\sto\saccount\sfor\sthat\schange,\sper\s/chat\sdiscussion.
+D 2024-05-30T11:17:24.825
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -267,13 +267,13 @@ F configure 05e4b3ca2e1ff283d82e0c4ced9215edc47157c4b4ba6839fb7f895bf224dcd2 x
 F debian/makedeb.sh a6f25e2697977d7865196cc87b67271575681d2fc148256b58bdd574bd49a5d7
 F extsrc/cson_amalgamation.c 5fcb1947aca6b836007f165622c1b96e2167487f889265ab64711757f01b913b
 F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
-F extsrc/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
-F extsrc/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
+F extsrc/linenoise.c c9e953e2f3ce6fc3aad1455fe9ff2865cafecfa051e1d4dec2a6a8b656eab780
+F extsrc/linenoise.h 8f20fae1acd1ca76c4632c882249827410246f1045ebd800edeeea6b17905e00
 F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc36f71318c48
 F extsrc/pikchr.c 598eea7de6f0d7aeb90079642605a6ccff13d96cf3405283500339473833d602
 F extsrc/pikchr.js bf23761009296341d6423974cd7a67cadec6f79944f3e3dcc49a0bfc2a28cd05
 F extsrc/pikchr.wasm de56cf6f1d7faab2cb4627b5131c490ba3fbaa47fb7f75e8e02026aa8438f77c
-F extsrc/shell.c 4444f3fbc1d07ad3287d6a8c8d7af5cfa87ab0b3c23eb99fb76e103f28c0ecb8
+F extsrc/shell.c 4a7e33d2fb7158b5760e223af44d981ea83f4e4601a98773ea04891936c828b1
 F extsrc/sqlite3.c 094429ea827fcd32275e767134bc6c7b9ea394a2c5a9e653dd0a0690b2c11358
 F extsrc/sqlite3.h 114f335591c0c3f9a31274d70e9952892e03a20f1749bb1c6be303e6514d677a
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c50da2eaa428133d0f3cece73059299f190b60f744e22ae27993ef81fde63c0d
-R bec676713f61bfe5a685312d981100a6
-U drh
-Z 6fa68142ecc34a30243ff0f79e8046c4
+P 93c918b6dd37e35ad795c5355cf2507a565cac42a1d405d28eb8e535df3244db
+R 40d6222a5da956be42a4ecfd89dd117e
+U stephan
+Z e2e0cb432bf3b8074d2e9af84c307faa
 # Remove this line to create a well-formed Fossil manifest.

@@ -14070,7 +14070,6 @@ void sqlite3_expert_destroy(sqlite3expert *p){
 #endif /* ifndef SQLITE_OMIT_VIRTUALTABLE */
 
 /************************* End ../ext/expert/sqlite3expert.c ********************/
-
 /************************* Begin ../ext/intck/sqlite3intck.h ******************/
 /*
 ** 2024-02-08
@@ -15188,6 +15187,106 @@ const char *sqlite3_intck_test_sql(sqlite3_intck *p, const char *zObj){
 }
 
 /************************* End ../ext/intck/sqlite3intck.c ********************/
+/************************* Begin ../ext/misc/stmtrand.c ******************/
+/*
+** 2024-05-24
+**
+** The author disclaims copyright to this source code.  In place of
+** a legal notice, here is a blessing:
+**
+**    May you do good and not evil.
+**    May you find forgiveness for yourself and forgive others.
+**    May you share freely, never taking more than you give.
+**
+******************************************************************************
+**
+** An SQL function that return pseudo-random non-negative integers.
+**
+**      SELECT stmtrand(123);
+**
+** A special feature of this function is that the same sequence of random
+** integers is returned for each invocation of the statement.  This makes
+** the results repeatable, and hence useful for testing.  The argument is
+** an integer which is the seed for the random number sequence.  The seed
+** is used by the first invocation of this function only and is ignored
+** for all subsequent calls within the same statement.
+**
+** Resetting a statement (sqlite3_reset()) also resets the random number
+** sequence.
+*/
+/* #include "sqlite3ext.h" */
+SQLITE_EXTENSION_INIT1
+#include <assert.h>
+#include <string.h>
+
+/* State of the pseudo-random number generator */
+typedef struct Stmtrand {
+  unsigned int x, y;
+} Stmtrand;
+
+/* auxdata key */
+#define STMTRAND_KEY  (-4418371)
+
+/*
+** Function:     stmtrand(SEED)
+**
+** Return a pseudo-random number.
+*/
+static void stmtrandFunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  Stmtrand *p;
+
+  p = (Stmtrand*)sqlite3_get_auxdata(context, STMTRAND_KEY);
+  if( p==0 ){
+    unsigned int seed;
+    p = sqlite3_malloc( sizeof(*p) );
+    if( p==0 ){
+      sqlite3_result_error_nomem(context);
+      return;
+    }
+    if( argc>=1 ){
+      seed = (unsigned int)sqlite3_value_int(argv[0]);
+    }else{
+      seed = 0;
+    }
+    p->x = seed | 1;
+    p->y = seed;
+    sqlite3_set_auxdata(context, STMTRAND_KEY, p, sqlite3_free);
+    p = (Stmtrand*)sqlite3_get_auxdata(context, STMTRAND_KEY);
+    if( p==0 ){
+      sqlite3_result_error_nomem(context);
+      return;
+    }
+  }
+  p->x = (p->x>>1) ^ ((1+~(p->x&1)) & 0xd0000001);
+  p->y = p->y*1103515245 + 12345;
+  sqlite3_result_int(context, (int)((p->x ^ p->y)&0x7fffffff));
+}
+
+#ifdef _WIN32
+
+#endif
+int sqlite3_stmtrand_init(
+  sqlite3 *db, 
+  char **pzErrMsg, 
+  const sqlite3_api_routines *pApi
+){
+  int rc = SQLITE_OK;
+  SQLITE_EXTENSION_INIT2(pApi);
+  (void)pzErrMsg;  /* Unused parameter */
+  rc = sqlite3_create_function(db, "stmtrand", 1, SQLITE_UTF8, 0,
+                               stmtrandFunc, 0, 0);
+  if( rc==SQLITE_OK ){
+    rc = sqlite3_create_function(db, "stmtrand", 0, SQLITE_UTF8, 0,
+                                 stmtrandFunc, 0, 0);
+  }
+  return rc;
+}
+
+/************************* End ../ext/misc/stmtrand.c ********************/
 
 #if !defined(SQLITE_OMIT_VIRTUALTABLE) && defined(SQLITE_ENABLE_DBPAGE_VTAB)
 #define SQLITE_SHELL_HAVE_RECOVER 1
@@ -23472,6 +23571,7 @@ static void open_db(ShellState *p, int openFlags){
 #endif
     sqlite3_shathree_init(p->db, 0, 0);
     sqlite3_uint_init(p->db, 0, 0);
+    sqlite3_stmtrand_init(p->db, 0, 0);
     sqlite3_decimal_init(p->db, 0, 0);
     sqlite3_base64_init(p->db, 0, 0);
     sqlite3_base85_init(p->db, 0, 0);
@@ -23625,15 +23725,18 @@ static char **readline_completion(const char *zText, int iStart, int iEnd){
 
 #elif HAVE_LINENOISE
 /*
-** Linenoise completion callback
+** Linenoise completion callback. Note that the 3rd argument is from
+** the "msteveb" version of linenoise, not the "antirez" version.
 */
-static void linenoise_completion(const char *zLine, linenoiseCompletions *lc){
+static void linenoise_completion(const char *zLine, linenoiseCompletions *lc,
+                                 void *pUserData){
   i64 nLine = strlen(zLine);
   i64 i, iStart;
   sqlite3_stmt *pStmt = 0;
   char *zSql;
   char zBuf[1000];
 
+  UNUSED_PARAMETER(pUserData);
   if( nLine>(i64)sizeof(zBuf)-30 ) return;
   if( zLine[0]=='.' || zLine[0]=='#') return;
   for(i=nLine-1; i>=0 && (isalnum(zLine[i]) || zLine[i]=='_'); i--){}
@@ -27085,7 +27188,6 @@ static int do_meta_command(char *zLine, ShellState *p){
       import_cleanup(&sCtx);
       shell_out_of_memory();
     }
-    nByte = strlen(zSql);    
     rc =  sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     sqlite3_free(zSql);
     zSql = 0;
@@ -27104,16 +27206,21 @@ static int do_meta_command(char *zLine, ShellState *p){
     sqlite3_finalize(pStmt);
     pStmt = 0;
     if( nCol==0 ) return 0; /* no columns, no error */
-    zSql = sqlite3_malloc64( nByte*2 + 20 + nCol*2 );
+
+    nByte = 64                 /* space for "INSERT INTO", "VALUES(", ")\0" */
+          + (zSchema ? strlen(zSchema)*2 + 2: 0)  /* Quoted schema name */
+          + strlen(zTable)*2 + 2                  /* Quoted table name */
+          + nCol*2;            /* Space for ",?" for each column */
+    zSql = sqlite3_malloc64( nByte );
     if( zSql==0 ){
       import_cleanup(&sCtx);
       shell_out_of_memory();
     }
     if( zSchema ){
-      sqlite3_snprintf(nByte+20, zSql, "INSERT INTO \"%w\".\"%w\" VALUES(?", 
+      sqlite3_snprintf(nByte, zSql, "INSERT INTO \"%w\".\"%w\" VALUES(?", 
                        zSchema, zTable);
     }else{
-      sqlite3_snprintf(nByte+20, zSql, "INSERT INTO \"%w\" VALUES(?", zTable);
+      sqlite3_snprintf(nByte, zSql, "INSERT INTO \"%w\" VALUES(?", zTable);
     }
     j = strlen30(zSql);
     for(i=1; i<nCol; i++){
@@ -27122,6 +27229,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
     zSql[j++] = ')';
     zSql[j] = 0;
+    assert( j<nByte );
     if( eVerbose>=2 ){
       oputf("Insert using: %s\n", zSql);
     }
@@ -30901,7 +31009,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
 #if HAVE_READLINE || HAVE_EDITLINE
       rl_attempted_completion_function = readline_completion;
 #elif HAVE_LINENOISE
-      linenoiseSetCompletionCallback(linenoise_completion);
+      linenoiseSetCompletionCallback(linenoise_completion, NULL);
 #endif
       data.in = 0;
       rc = process_input(&data);
