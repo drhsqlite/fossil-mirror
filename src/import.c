@@ -1586,6 +1586,8 @@ static void svn_dump_import(FILE *pIn){
             }
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
             rid = svn_handle_symlinks(zPerm, &target);
+            blob_reset(&deltaSrc);
+            blob_reset(&target);
           }else if( rec.contentFlag ){
             rid = svn_handle_symlinks(zPerm, &rec.content);
           }else if( zSrcPath ){
@@ -1628,6 +1630,8 @@ static void svn_dump_import(FILE *pIn){
             content_get(rid, &deltaSrc);
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
             rid = svn_handle_symlinks(zPerm, &target);
+            blob_reset(&deltaSrc);
+            blob_reset(&target);
           }else{
             rid = svn_handle_symlinks(zPerm, &rec.content);
           }
