@@ -2633,7 +2633,8 @@ void artifact_page(void){
     Stmt q;
     db_prepare(&q,
       "SELECT coalesce(user.login,rcvfrom.uid),"
-      "       datetime(rcvfrom.mtime,toLocal()), rcvfrom.ipaddr"
+      "       datetime(rcvfrom.mtime,toLocal()),"
+      "       coalesce(rcvfrom.ipaddr,'unknown')"
       "  FROM blob, rcvfrom LEFT JOIN user ON user.uid=rcvfrom.uid"
       " WHERE blob.rid=%d"
       "   AND rcvfrom.rcvid=blob.rcvid;", rid);

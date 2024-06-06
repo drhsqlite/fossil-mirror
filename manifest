@@ -1,5 +1,5 @@
-C Fix\sthe\s'describe'\scommand\sto\suse\sonly\sdirect\sancestors,\sand\sadd\sa\ssafety\slimit\son\sthe\srecursive\sCTE.
-D 2024-06-05T15:12:04.244
+C In\scase\sthe\soriginating\sIP\saddress\sfor\san\sartifact\sis\smissing,\sdisplay\sit\sas\s'unknown'.
+D 2024-06-06T08:33:00.069
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c 476d51b554eced514e6fa833e984677d514fb3abbf82d2d204ba04b75e150dcd
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
 F src/import.c 313d8f9b6964cdb6fb73eb6d87810d746018542bc65b6b0eb7285903f0d27873
-F src/info.c 308a35dd32eee23a11c99387a2d259209bf3e1c92cedf6010b5f9d68e9003254
+F src/info.c d85965a8279ddbb632ad68f1a3084aee961ae91aeb3ee3b85e22fa2a6decf605
 F src/interwiki.c 5ddeb43781f01107e75740ae978677dd156c439ba5772e3a8ef7161244b44080
 F src/json.c 60efff7e65795acaa680c845a7aab4871cbf6d62e9ea5f53cf0a9235b2bfd093
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 93266c5151d769c1ceb8b83419009bef7eecc47dbe68b5f377acd616dbf3903c
-R ee4ae1bad3cdf1b15a1c8f8977b7f6d7
+P 1cc2da2ee0eca4a0d6ebbcf9185e1b11e6274f9085a17ccd62b13e5e0dd4da9a
+R 378cf9739a98a465ad9c6ac0ed645713
 U danield
-Z 3e2fb42d19f4f433a2cab2fa73b6f781
+Z 060acaa49e1179d990c823c5a820a6ee
 # Remove this line to create a well-formed Fossil manifest.
