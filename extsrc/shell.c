@@ -9410,7 +9410,9 @@ SQLITE_EXTENSION_INIT1
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <stdint.h>
+#ifndef SQLITE_NO_STDINT
+#  include <stdint.h>
+#endif
 
 #include <zlib.h>
 
@@ -22460,6 +22462,7 @@ static int shell_exec(
         sqlite3_reset(pExplain);
         rc = sqlite3_stmt_explain(pExplain, 2);
         if( rc==SQLITE_OK ){
+          bind_prepared_stmt(pArg, pExplain);
           while( sqlite3_step(pExplain)==SQLITE_ROW ){
             const char *zEQPLine = (const char*)sqlite3_column_text(pExplain,3);
             int iEqpId = sqlite3_column_int(pExplain, 0);
@@ -22477,6 +22480,7 @@ static int shell_exec(
           if( rc==SQLITE_OK ){
             pArg->cMode = MODE_Explain;
             assert( sqlite3_stmt_isexplain(pExplain)==1 );
+            bind_prepared_stmt(pArg, pExplain);
             explain_data_prepare(pArg, pExplain);
             exec_prepared_stmt(pArg, pExplain);
             explain_data_delete(pArg);
@@ -27162,6 +27166,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         eputf("%s: empty file\n", sCtx.zFile);
         import_cleanup(&sCtx);
         rc = 1;
+        sqlite3_free(zCreate);
         goto meta_command_exit;
       }
       zCreate = sqlite3_mprintf("%z%z\n", zCreate, zColDefs);
@@ -29112,7 +29117,7 @@ static int do_meta_command(char *zLine, ShellState *p){
 #ifdef YYCOVERAGE
     {"parser_coverage",    SQLITE_TESTCTRL_PARSER_COVERAGE,0,""             },
 #endif
-    {"pending_byte",       SQLITE_TESTCTRL_PENDING_BYTE,0, "OFFSET  "       },
+    {"pending_byte",       SQLITE_TESTCTRL_PENDING_BYTE,1, "OFFSET  "       },
     {"prng_restore",       SQLITE_TESTCTRL_PRNG_RESTORE,0, ""               },
     {"prng_save",          SQLITE_TESTCTRL_PRNG_SAVE,   0, ""               },
     {"prng_seed",          SQLITE_TESTCTRL_PRNG_SEED,   0, "SEED ?db?"      },
@@ -30956,8 +30961,8 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       if( azCmd[i][0]=='.' ){
         rc = do_meta_command(azCmd[i], &data);
         if( rc ){
-          free(azCmd);
-          return rc==2 ? 0 : rc;
+          if( rc==2 ) rc = 0;
+          goto shell_main_exit;
         }
       }else{
         open_db(&data, 0);
@@ -30970,8 +30975,8 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
             eputf("Error: unable to process SQL: %s\n", azCmd[i]);
           }
           sqlite3_free(zErrMsg);
-          free(azCmd);
-          return rc!=0 ? rc : 1;
+          if( rc==0 ) rc = 1;
+          goto shell_main_exit;
         }
       }
     }
@@ -31031,6 +31036,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     expertFinish(&data, 1, 0);
   }
 #endif
+ shell_main_exit:
   free(azCmd);
   set_table_name(&data, 0);
   if( data.db ){
@@ -31063,7 +31069,9 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
           (unsigned int)(sqlite3_memory_used()-mem_main_enter));
   }
 #endif
-#endif /* !SQLITE_SHELL_FIDDLE */
+#else /* SQLITE_SHELL_FIDDLE... */
+  shell_main_exit:
+#endif
   return rc;
 }
 
