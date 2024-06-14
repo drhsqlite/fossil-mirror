@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sa\sversion\sfrom\sthe\sexists-to-join\sbranch\sin\nthe\sSQLite\ssource\stree,\sin\sorder\sto\sbeta-test\sthe\sexists-to-join\soptimization.\nFossil\suses\sEXISTS\soperators\sin\sthe\sWHERE\sclause\sof\squeries\sin\smany\splaces\sand\nis\stherefore\sa\sgood\stest\scase.
-D 2024-06-11T18:44:53.300
+C Temporary\sfix\sfor\sa\sbad\squery\splan\scaused\sby\sissues\sin\sSQLite.\s\sSee\n[forum:/forumpost/6900455c28dcd3da|forum\spost\s6900455c28dcd3da].
+D 2024-06-14T00:06:10.120
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -415,7 +415,7 @@ F src/default.css b0f20dfb331d6dc4a7a3b5852f304d7d421132a3dbede89a2c711182840db3
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
-F src/descendants.c 6fa21312cf0d694c07f0bf8261ad585f46ae24dd415cc71614277ffb5a63659a
+F src/descendants.c bb63b0429bf6e45d2f015ab68b2e94cd4457c0678a590060f317c9354bad7b45
 F src/diff.c 74d304a16e33d8cb803b79132fca644c9932efdfa9de321fc76243e6463659d5
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 382a61e327d62afb9097760d10f0030b82157f1346edc42becf99b16a349a8a3
-R 196307363b626da6e2fb3a3fb70291e9
+P b58b30512e88213cfc43a3ac252f41b46cb7b6ce8ffe7b522e991d28df8706be
+R 88ba450a6198e7bd3f3734d310397f63
 U drh
-Z 3040e1fba405efa85b799e9bbfb0d213
+Z 3cbd0434668d792adcc57da17b885624
 # Remove this line to create a well-formed Fossil manifest.
