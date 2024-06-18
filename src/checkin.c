@@ -2311,8 +2311,6 @@ static int tagCmp(const void *a, const void *b){
 **    --bgcolor COLOR            Apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   Check in to this new branch
 **    --branchcolor COLOR        Apply given COLOR to the branch
-**                                 ("auto" lets Fossil choose it automatically,
-**                                  even for private branches)
 **    --close                    Close the branch being committed
 **    --date-override DATETIME   DATE to use instead of 'now'
 **    --delta                    Use a delta manifest in the commit process
@@ -2395,7 +2393,6 @@ void commit_cmd(void){
   Blob ans;              /* Answer to continuation prompts */
   char cReply;           /* First character of ans */
   int bRecheck = 0;      /* Repeat fork and closed-branch checks*/
-  int bAutoBrClr = 0;    /* Value of "--branchcolor" is "auto" */
   int bIgnoreSkew = 0;   /* --ignore-clock-skew flag */
   int mxSize;
 
@@ -2437,10 +2434,6 @@ void commit_cmd(void){
   sCiInfo.zBranch = find_option("branch","b",1);
   sCiInfo.zColor = find_option("bgcolor",0,1);
   sCiInfo.zBrClr = find_option("branchcolor",0,1);
-  if ( fossil_strncmp(sCiInfo.zBrClr, "auto", 4)==0 ) {
-    bAutoBrClr = 1;
-    sCiInfo.zBrClr = 0;
-  }
   sCiInfo.closeFlag = find_option("close",0,0)!=0;
   sCiInfo.integrateFlag = find_option("integrate",0,0)!=0;
   sCiInfo.zMimetype = find_option("mimetype",0,1);
@@ -2482,9 +2475,6 @@ void commit_cmd(void){
     ** specified otherwise on the command-line, and if the parent is not
     ** already private. */
     if( sCiInfo.zBranch==0 ) sCiInfo.zBranch = "private";
-    if( sCiInfo.zBrClr==0 && sCiInfo.zColor==0 && !bAutoBrClr) {
-      sCiInfo.zBrClr = "#fec084";
-    }
   }
 
   /* Do not allow the creation of a new branch using an existing open

@@ -83,14 +83,9 @@ void branch_new(void){
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
   int isPrivate = 0;     /* True if the branch should be private */
-  int bAutoColor = 0;    /* Value of "--bgcolor" is "auto" */
 
   noSign = find_option("nosign","",0)!=0;
   zColor = find_option("bgcolor","c",1);
-  if( fossil_strncmp(zColor, "auto", 4)==0 ) {
-    bAutoColor = 1;
-    zColor = 0;
-  }
   isPrivate = find_option("private",0,0)!=0;
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
@@ -154,7 +149,6 @@ void branch_new(void){
   /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */
   if( content_is_private(rootid) ) isPrivate = 1;
-  if( isPrivate && zColor==0 && !bAutoColor) zColor = "#fec084";
   if( zColor!=0 ){
     blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }
@@ -667,8 +661,6 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        Options:
 **          --private             Branch is private (i.e., remains local)
 **          --bgcolor COLOR       Use COLOR instead of automatic background
-**                                ("auto" lets Fossil choose it automatically,
-**                                even for private branches)
 **          --nosign              Do not sign contents on this branch
 **          --date-override DATE  DATE to use instead of 'now'
 **          --user-override USER  USER to use instead of the current default
