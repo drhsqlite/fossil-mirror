@@ -1,5 +1,5 @@
-C Use\sauto-coloring\sfor\sprivate\sbranches,\sinstead\sof\sapplying\sthe\sorangeish\sdefault\s`#fec084',\sso\scolors\splay\sbetter\swith\sskins\sand\sthe\s`fossil\spublish'\scommand.
-D 2024-06-18T05:20:00.000
+C Fix\sa\sbug\sin\sgit-export\sin\swhich\sthe\s\\n\sat\sthe\send\sof\smanifest.uuid\sis\somitted.
+D 2024-06-19T18:26:12.262
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -425,7 +425,7 @@ F src/doc.c 5ac0e076d646e30eb7b2fccbfe3ff811c3833a3e90b93858f46f5b2a5f2a1224
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
-F src/export.c aa026dc8a0ef81f19e2490209f59a380950ca039a71afd416ca66517a3ea7c0a
+F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c 9a76e1a44a484d1a92161c8f4f5ea63c167d737e515b380ca4cfc9f64dde8165
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
@@ -958,9 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9866c97b357062f8ef3c3f5a5aa92c065d0de1f3d82655d0a4cb343dd44aeccf 08dadf3fe42514ce210af324baea27ef85b07c9f15d8348efe4890f10a3a64e1
-R 55ba2e18d823590c4ae8596036de1a3d
-T +closed 08dadf3fe42514ce210af324baea27ef85b07c9f15d8348efe4890f10a3a64e1
-U florian
-Z 310d7d36152401cbfa95117ca3f47b89
+P ee827465178878d0ffe947d0b89b705a40fd0644d9f200199e21b15c0229fc8a
+R 9e616b32632bff42ba28fd0fc9fb2d4f
+U drh
+Z 7913a1199b7be114e07963364bb8ca8e
 # Remove this line to create a well-formed Fossil manifest.

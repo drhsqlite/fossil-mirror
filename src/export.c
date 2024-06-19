@@ -1281,7 +1281,7 @@ static int gitmirror_send_checkin(
   }
   if( fManifest & MFESTFLG_UUID ){
     int n = (int)strlen(zUuid);
-    fprintf(xCmd,"M 100644 inline manifest.uuid\ndata %d\n%s\n", n, zUuid);
+    fprintf(xCmd,"M 100644 inline manifest.uuid\ndata %d\n%s\n\n", n+1, zUuid);
   }
   if( fManifest & MFESTFLG_TAGS ){
     Blob tagslist;
