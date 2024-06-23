@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sgit-export\sin\swhich\sthe\s\\n\sat\sthe\send\sof\smanifest.uuid\sis\somitted.
-D 2024-06-19T18:26:12.262
+C Capture\sthe\sidea\sof\s"Fossil\sPush\sPolicy"\sproposal\sin\sa\sdocument\sso\sthat\sit\ncan\sbe\sdebated\sand\sdiscussed.
+D 2024-06-23T08:31:31.919
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -823,6 +823,7 @@ F www/env-opts.md ab37f892ab4e2482046f7ffc6ab40ff04f8c6f72e4b68a4ade1d433ada784a
 F www/event.wiki abbc834163b54136f49ae4fbfc0503a5a70115d915d4b435ed140a10f557958b
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
+F www/fdd.md 3c6bd80793a5a45ba3b89afe6817838b612f8c6a798af068afd496f9e99a039b
 F www/fileedit-page.md f4ee3720f76208c81a394f0765aadcf129cca5cc259068d624048079d90f9937
 F www/fileformat.wiki e03aac299cc392d9d34105f4d0dbbd75fdeffceb292d24955695dc55bc86a6a1
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
@@ -958,8 +959,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ee827465178878d0ffe947d0b89b705a40fd0644d9f200199e21b15c0229fc8a
-R 9e616b32632bff42ba28fd0fc9fb2d4f
+P fc8d476aca7c3c7994283a0187932f71ad3eed69ce62067e45621f7537b36c51
+R 95a370e9a821088518213c37c0451aa5
+T *branch * fdd
+T *sym-fdd *
+T -sym-trunk *
 U drh
-Z 7913a1199b7be114e07963364bb8ca8e
+Z 05f4faf9367f8a8832701eaa73fbf116
 # Remove this line to create a well-formed Fossil manifest.
