@@ -524,6 +524,19 @@ void unversioned_cmd(void){
 }
 
 /*
+** Emit an HTML form for uploading a new unversioned file if
+** the current user has WrUnver permissions, else this is
+** a no-op.
+*/
+static void uv_form_upload(void){
+  if( !g.perm.WrUnver ) return;
+  CX("<form class='uvupload' method='POST'>");
+  CX("<label for='uvupload'>Select file to upload:</label>");
+  CX("<input type='file' id='uvupload' name='uvupload'/>");
+  CX("</form>");
+}
+
+/*
 ** WEBPAGE: uvlist
 **
 ** Display a list of all unversioned files in the repository.
@@ -549,6 +562,7 @@ void uvlist_page(void){
   style_header("Unversioned Files");
   if( !db_table_exists("repository","unversioned") ){
     @ No unversioned files on this server
+    uv_form_upload();
     style_finish_page();
     return;
   }
@@ -641,6 +655,7 @@ void uvlist_page(void){
   }else{
     @ No unversioned files on this server.
   }
+  uv_form_upload();
   style_finish_page();
 }
 
