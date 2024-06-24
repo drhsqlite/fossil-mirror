@@ -233,6 +233,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.numbered-lines.js \
   $(SRCDIR)/fossil.page.brlist.js \
   $(SRCDIR)/fossil.page.chat.js \
+  $(SRCDIR)/fossil.page.chatsearch.js \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
@@ -271,6 +272,7 @@ EXTRA_FILES = \
   $(SRCDIR)/sounds/f.wav \
   $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/style.chat.css \
+  $(SRCDIR)/style.chat-search.css \
   $(SRCDIR)/style.fileedit.css \
   $(SRCDIR)/style.pikchrshow.css \
   $(SRCDIR)/style.wikiedit.css \

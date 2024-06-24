@@ -1,5 +1,5 @@
-C Ensure\sthat\sthe\spattern\sstring\sfor\ssearch\sis\sall\slower-case,\sso\sthat\nFTS5\skeywords\slike\sNOT\sand\sAND\scannot\scause\sconfusion\sand\serrors.
-D 2024-06-24T06:09:39.720
+C Add\snew\spage\s/chat-search,\sfor\ssearching\schat\shistory.
+D 2024-06-24T20:52:55.929
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c a5a22e5368ec514d6c45ef7607aa551aa2aefe7cc18c7b17a7775a4c0d59ce63
-F src/chat.c 6c571e698c67c89f0987c86cfb8fbdd53cc60abcd4cc6d9bd1618b0c33c61d54
+F src/chat.c 8552e56d6318459ff8101a2191c98c7bae67a884393c980a43ec15fc4e8ef5a6
 F src/checkin.c 2e10b230ccd15ee4b4d2a043aed9bdfa8bb5f070ff45a5774a354c49826e2e17
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -442,6 +442,7 @@ F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe244919
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js b1aa83a1ca012093382168d8409493075d9c191930e3a8309609ce4f50f37faa
+F src/fossil.page.chatsearch.js 41ccbbd79b2b0d754fbdcaf77d760ca93c102424291d7b2e8720f4e98134d80c
 F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f230c108063bdcc5
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 354e405e2813de4bfeec16d12a4dbfb370b2fa89f25325f245c51c194115adbf
@@ -493,7 +494,7 @@ F src/login.c 2760b91d9c729dba71c9740d29ff68d816cfcf50469d008024e79d63a5517a15
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c 6fb27ae7f35b0ea4cc9dfc89421748423bc6b35754b4c383a35869e843840794
-F src/main.mk ade7ce2706847f14e0aa846e0bbfeead1a31877f81585996364c1146b1c8a127
+F src/main.mk 47e52c51a20ad65a6acb9db052c715d8a953ddd9186fa8cbcd83875a6b4ba871
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
@@ -557,6 +558,7 @@ F src/stat.c 318d359a317da263f80db05dacd9c5ebbf69383945f9540a9a67fdfc4f6743b0
 F src/statrep.c be5687a6d6f012a5862e9a70e769de0db40100c4f3e3a1bfbc622235218a28b3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 1f5432c589c306d9a9ed1a39e780dce85a29b1d1ce905b2ae314dc7899b00db5
+F src/style.chat-search.css d5566beb34925c15ba0f3c7a7b3ac11f042e1480e97951b744d7ae267716c297
 F src/style.chat.css cc9116158d5d7ab67268410c29561ed21493064d5062ba38695c9041a20b93ff
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -958,8 +960,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bdc8b4a4064aa61f45ae7ff876f2051438786ff6dd94cb88b501b72b481da362
-R f4a791f2dd6137433d280d35e307aa34
-U drh
-Z 6416dba63820e8d1aa72fe2a57e032c4
+P ec68aaf42536b4fb48614a66fcd8bb8de5f3e1d2a4c64f3c13a5fe9c6aef3336
+R 32909897ecfa9ee82dc454a689fe1adc
+T *branch * fts5-chat-search
+T *sym-fts5-chat-search *
+T -sym-trunk *
+U dan
+Z f656c4ed3cd049b4dc39371e199a6d5f
 # Remove this line to create a well-formed Fossil manifest.
