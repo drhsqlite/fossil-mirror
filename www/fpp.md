@@ -1,6 +1,6 @@
 # Fossil Push Policy
 
-"Fossil Push Policy" or "FDD" is a proposed mechanism to help project
+"Fossil Push Policy" or "FPP" is a proposed mechanism to help project
 administrators help enforce project development policies by restricting
 the kinds of changes that can be pushed up into a community server.
 
@@ -25,15 +25,15 @@ developer who owns it.
 Any automatic policy enforcement must happen on the common repository
 when the developer attempts to push.
 
-FDD is *not* a security mechanism.  FDD is not intended to allow
-untrusted individuals to push to a common repository.  FDD does not
-guarantee that no undesirable changes ever get pushed.  Rather, FDD
+FPP is *not* a security mechanism.  FPP is not intended to allow
+untrusted individuals to push to a common repository.  FPP does not
+guarantee that no undesirable changes ever get pushed.  Rather, FPP
 is designed as an adminstrative aid and an automatic mechanism to prevent
 accidents or misunderstandings.
 
 ## Example Use Cases
 
-Here are examples of the kinds of pushes that FDD is designed to prevent
+Here are examples of the kinds of pushes that FPP is designed to prevent
 for unauthorized users:
 
   *   Do not allow check-ins on trunk (or some other
@@ -53,18 +53,18 @@ for unauthorized users:
   *   Do not allow tags to be added to a check-in created by a different
       developer.
 
-The foregoing is not an exhaustive list of the kinds of behavior that FDD
+The foregoing is not an exhaustive list of the kinds of behavior that FPP
 is suppose to detect and prevent.  It is just a representative sample of
-the kinds of changes FDD is intended to detect and disallow.
+the kinds of changes FPP is intended to detect and disallow.
 
 Rules can be written such that they apply only to specific developers,
 groups or classes of developers, or to everyone other than administrators.
-Administrators can also be subject to FDD rules, though they have the
+Administrators can also be subject to FPP rules, though they have the
 option to override.
 
 ## Mechanism
 
-FDD is a set of rules contained in a single configuration setting.
+FPP is a set of rules contained in a single configuration setting.
 The rules consist of Boolean expression and error message pairs.
 At the end of each push request received by the server, all boolean
 expressions are evaluated.  If any boolean is true, then the push
@@ -80,7 +80,7 @@ to better follow the rules in the future.
 
 ## Client Side Warnings
 
-FDD rules are downloaded on a "fossil clone" and on "fossil config pull fdd".
+FPP rules are downloaded on a "fossil clone" and on "fossil config pull fdd".
 When rules exist on the client side, then certain client-side operations
 (such as "fossil commit")
 are also evaluated for rule violations, and appropriate warnings are issued.
