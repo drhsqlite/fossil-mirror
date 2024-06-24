@@ -1007,6 +1007,7 @@ LOCAL void search_indexed(
      search_rank_sqlfunc, 0, 0);
   for(i=0; zPat[i]; i++){
     if( (zPat[i]&0x80)==0 && !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
+    if( fossil_isupper(zPat[i]) ) zPat[i] = fossil_tolower(zPat[i]);
   }
   for(i--; i>=0 && zPat[i]==' '; i--){}
   if( i<0 ){

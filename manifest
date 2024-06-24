@@ -1,5 +1,5 @@
-C Small\shelp\stext\sfix\sin\sthe\sunversioned\scommand.
-D 2024-06-23T18:38:24.118
+C Ensure\sthat\sthe\spattern\sstring\sfor\ssearch\sis\sall\slower-case,\sso\sthat\nFTS5\skeywords\slike\sNOT\sand\sAND\scannot\scause\sconfusion\sand\serrors.
+D 2024-06-24T06:09:39.720
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -521,7 +521,7 @@ F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c ff3f6164e5dc4f798e53635a4cfdb627931a9e9f2cfa97b33ee8e217df6533f5
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c b857d9fd424b7eb4f8ded0e20482965200c3f7da8ddac6df406ca60966c39467
+F src/search.c 8929a6b8803f001c9bfcf29556b6154cc412f767908ee08c4644a808855bf48e
 F src/security_audit.c 6e0c2c2feb404a475e246f437a8bda6cb888e5e1e914d46ca1f7a5cd9f576887
 F src/setup.c 3d80b70ddace4010e91027481114cb730d6fb321aaf723e89360d474d753f3ab
 F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea019128
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc8d476aca7c3c7994283a0187932f71ad3eed69ce62067e45621f7537b36c51
-R e99990aa706a7fefd603ee4101fc6def
-U stephan
-Z ea9f6d359caee6cdfd4a73e1fc7be817
+P bdc8b4a4064aa61f45ae7ff876f2051438786ff6dd94cb88b501b72b481da362
+R f4a791f2dd6137433d280d35e307aa34
+U drh
+Z 6416dba63820e8d1aa72fe2a57e032c4
 # Remove this line to create a well-formed Fossil manifest.
