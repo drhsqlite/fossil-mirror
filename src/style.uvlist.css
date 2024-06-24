@@ -1,3 +1,7 @@
-body.uvlist form.uvupload label {
+body.uvlist input {
+  margin: 0.5em;
+}
+
+body.uvlist form {
   display: block;
 }
