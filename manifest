@@ -1,5 +1,5 @@
-C Correct\sthe\sFDD\sacronym\sto\sbe\sFPP,\sas\sit\sshould\sbe.
-D 2024-06-24T02:40:14.359
+C Typo\sand\sclarity\sfixes\sto\sthe\snew\sfpp\sdoc.
+D 2024-06-25T11:59:17.983
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -841,7 +841,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
 F www/fossil_prompt.wiki 7c198e501721bbb613ff1c3238b35dc991408cf301d3718e040916d35c2bdc27
-F www/fpp.md 34742488ecfb1039f01fd61a73d1007b7ce7077ed3adb0efad24b29ae43f7632 w www/fdd.md
+F www/fpp.md 5ff4c7a2f976c31bfbf2a45a38f97305d8dc13fc357fded27ea92575939d44e7
 F www/gitusers.md 3e4b91fc002eb49ec78a4582f3fb37810ed7e9b99fd5198ffb3c7ab159ce3915
 F www/globs.md ff40b819c050a7f5e96eface5ba10f9926e4a7e809d6f27462a2aeda2eb4cdb0
 F www/glossary.md ad08c38c08ef11000fbe19980b79b152698478413bb27cced12d85c6b50e2774
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 344fd46df02af1c7fd5f6e3c392e2802882f5459466eb7a01b38c64dfeeeb3c6
-R 6489eca78524e8e8a519bd82d9f6e8ea
-U drh
-Z 8d32f1304e7ca37d69880eaac82ec789
+P ce73819d0e088673524205057e0979e60acf7fe6e94a4578ed095482fb9dc4c8
+R b20dd49e67f423b3a39c9251c9a5be64
+U wyoung
+Z cba91d4a3ec881f3123e965265210db3
 # Remove this line to create a well-formed Fossil manifest.
