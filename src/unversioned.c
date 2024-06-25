@@ -524,6 +524,52 @@ void unversioned_cmd(void){
 }
 
 /*
+** Emit an HTML form for uploading a new unversioned file if
+** the current user has WrUnver permissions, else this is
+** a no-op.
+**
+** If this function detects that the form it emits has been submitted,
+** it will add the uploaded file to the unversioned file list before
+** returning.
+**
+** Intended only for use by /uvlist, and its form's action is that
+** page.
+*/
+static void uvlist_upload(void){
+  const char * aContent;
+  if( !g.perm.WrUnver ) return;
+  aContent = P("f");
+  if( aContent!=0 ){
+    const char * const zName = P("f:filename");
+    int const nContent = atoi(PD("f:bytes","0"));
+    const char * zError = 0;
+    Blob content;
+    if( zName[0]==0 ){
+      zError = "be an empty string";
+    }else if( contains_whitespace(zName) ){
+      zError = "contain spaces";
+    }
+    if( zError ){
+      fossil_fatal("Unversioned filenames may not %s: %Q",
+                   zError, zName);
+    }
+    unversioned_schema();
+    db_begin_transaction();
+    content_rcvid_init("#!fossil /uvlist upload");
+    blob_init(&content, aContent, nContent);
+    unversioned_write(zName, &content, time(0));
+    blob_reset(&content);
+    db_end_transaction(0);
+    CX("<div>Added: %s</div>", zName);
+  }
+  form_begin("enctype='multipart/form-data'", "%R/uvlist");
+  CX("<label for='uvupload'>Upload unversioned file:</label>");
+  CX("<input type='file' id='uvupload' name='f'/>");
+  CX("<input type='submit' value='Upload'/>");
+  CX("</form>");
+}
+
+/*
 ** WEBPAGE: uvlist
 **
 ** Display a list of all unversioned files in the repository.
@@ -547,6 +593,7 @@ void uvlist_page(void){
   cgi_check_for_malice();
   etag_check(ETAG_DATA,0);
   style_header("Unversioned Files");
+  uvlist_upload();
   if( !db_table_exists("repository","unversioned") ){
     @ No unversioned files on this server
     style_finish_page();

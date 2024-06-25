@@ -13,7 +13,8 @@
   *  Add new query parameters to the [/help?cmd=/timeline|/timeline page]:
      d2=, p2=, and dp2=.
   *  Add options to the [/help?cmd=tag|fossil tag] command that will list tag values
-     
+  *  Add ability to upload unversioned files via the [/help?cmd=/uvlist|/uvlist page].
+
 
 <h2 id='v2_24'>Changes for version 2.24 (2024-04-23)</h2>
 
