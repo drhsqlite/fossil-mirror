@@ -553,6 +553,7 @@ static void uvlist_upload(void){
       fossil_fatal("Unversioned filenames may not %s: %Q",
                    zError, zName);
     }
+    unversioned_schema();
     db_begin_transaction();
     content_rcvid_init("#!fossil /uvlist upload");
     blob_init(&content, aContent, nContent);
