@@ -3232,7 +3232,8 @@ void db_initial_setup(
 ** page, either directly or indirectly, will be copied.  Normal users and
 ** their associated permissions will not be copied; however, the system
 ** default users "anonymous", "nobody", "reader", "developer", and their
-** associated permissions will be copied.
+** associated permissions will be copied.  In case of SQL errors, rebuild the
+** template repository and try again.
 **
 ** Options:
 **    --template      FILE         Copy settings from repository file

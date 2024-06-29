@@ -1,12 +1,10 @@
 B 2d4fd55fee5c4a142b7653de43673d4919249bbfd9e59512b24f722a1088d09f
-C Add\smissing\scolumns\sto\sthe\sschema\sduring\srebuild.
-D 2024-06-29T12:54:39.670
+C Explain\swhat\sto\sdo\sin\scase\sof\sSQL\serrors\swhen\screating\sa\snew\sFossil\srepository\swith\sthe\s'--template'\soption.
+D 2024-06-29T12:57:44.385
+F src/db.c 614ca656edb400a637361b5df82c84281f6c2c45410b5f446c312d71809ec16a
 F src/rebuild.c abf9b8b76e75c1d1e9597f896b867c38e1f476217bd7890b2e0fb2dc646d61ae
-P 2d4fd55fee5c4a142b7653de43673d4919249bbfd9e59512b24f722a1088d09f
-R b7cff0ca32284a00be54169b530cf13c
-T *branch * rebuild-fix
-T *sym-rebuild-fix *
-T -sym-trunk *
+P f302d31fd40b35c2c8c63b838521f5d6b17c464f264843ab3e718b6ee8cc8989
+R b56bc5c247bb996851e9f77e774408b5
 U tsbg
-Z 19eff39f79106abe1c4177be30422ec1
+Z 902a39762f7f7f61a08edbce238be0d4
 # Remove this line to create a well-formed Fossil manifest.
