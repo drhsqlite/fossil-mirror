@@ -550,7 +550,7 @@ static void uvlist_upload(void){
       zError = "contain spaces";
     }
     if( zError ){
-      fossil_fatal("Unversioned filenames may not %s: %Q",
+      fossil_fatal("Unversioned filenames may not %s: %h",
                    zError, zName);
     }
     unversioned_schema();
@@ -560,7 +560,7 @@ static void uvlist_upload(void){
     unversioned_write(zName, &content, time(0));
     blob_reset(&content);
     db_end_transaction(0);
-    CX("<div>Added: %s</div>", zName);
+    CX("<div>Added: %h</div>", zName);
   }
   form_begin("enctype='multipart/form-data'", "%R/uvlist");
   CX("<label for='uvupload'>Upload unversioned file:</label>");
