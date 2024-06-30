@@ -177,17 +177,25 @@ window.fossil.onPageLoad(function(){
           return this.activeUser===uname || !this.activeUser;
         }
       },
-      /** Gets (no args) or sets (1 arg) the current input text field value,
-          taking into account single- vs multi-line input. The getter returns
-          a string and the setter returns this object. */
-      inputValue: function(){
+      /** Gets (no args) or sets (1 arg) the current input text field
+          value, taking into account single- vs multi-line input. The
+          getter returns a string and the setter returns this
+          object. As a special case, if arguments[0] is a boolean
+          value, it behaves like a getter and, if arguments[0]===true
+          it clears the input field before returning. */
+      inputValue: function(/*string newValue | bool clearInputField*/){
         const e = this.inputElement();
-        if(arguments.length){
+        if(arguments.length && 'boolean'!==typeof arguments[0]){
           if(e.isContentEditable) e.innerText = arguments[0];
           else e.value = arguments[0];
           return this;
         }
-        return e.isContentEditable ? e.innerText : e.value;
+        const rc = e.isContentEditable ? e.innerText : e.value;
+        if( true===arguments[0] ){
+          if(e.isContentEditable) e.innerText = '';
+          else e.value = '';
+        }
+        return rc;
       },
       /** Asks the current user input field to take focus. Returns this. */
       inputFocus: function(){
@@ -516,7 +524,7 @@ window.fossil.onPageLoad(function(){
               uSpan.classList.add('selected');
             }
             uSpan.dataset.uname = u;
-            D.append(uSpan, u, "\n", 
+            D.append(uSpan, u, "\n",
                      D.append(
                        D.addClass(D.span(),'timestamp'),
                        localTimeString(uDate)//.substr(5/*chop off year*/)
@@ -1428,12 +1436,19 @@ window.fossil.onPageLoad(function(){
      Submits the contents of the message input field (if not empty)
      and/or the file attachment field to the server. If both are
      empty, this is a no-op.
+
+     If the current view is the history search, this instead sends the
+     input text to that widget.
   */
   Chat.submitMessage = function f(){
     if(!f.spaces){
       f.spaces = /\s+$/;
       f.markdownContinuation = /\\\s+$/;
       f.spaces2 = /\s{3,}$/;
+    }
+    if( this.e.currentView===this.e.viewSearch ){
+      this.submitSearch();
+      return;
     }
     this.setCurrentView(this.e.viewMessages);
     const fd = new FormData();
@@ -1575,15 +1590,15 @@ window.fossil.onPageLoad(function(){
     }
     const settingsButton = document.querySelector('#chat-button-settings');
     const optionsMenu = E1('#chat-config-options');
-    const cbToggle = function(ev){
+    const eToggleView = function(ev){
       ev.preventDefault();
       ev.stopPropagation();
       Chat.setCurrentView(Chat.e.currentView===Chat.e.viewConfig
                           ? Chat.e.viewMessages : Chat.e.viewConfig);
       return false;
     };
-    D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
-    Chat.e.viewConfig.querySelector('button.action-close').addEventListener('click', cbToggle, false);
+    D.attr(settingsButton, 'role', 'button').addEventListener('click', eToggleView, false);
+    Chat.e.viewConfig.querySelector('button.action-close').addEventListener('click', eToggleView, false);
 
     /** Internal acrobatics to allow certain settings toggles to access
         related toggles. */
@@ -1919,7 +1934,7 @@ window.fossil.onPageLoad(function(){
       Chat.e.inputFields[Chat.e.inputFields.$currentIndex].focus();
     });
     Chat.settings.addListener('edit-ctrl-send',function(s){
-      const label = (s.value ? "Ctrl-" : "")+"Enter submits messages.";
+      const label = "Submit message ("+(s.value ? "Ctrl-" : "")+"Enter)";
       Chat.e.inputFields.forEach((e)=>{
         const v = e.dataset.placeholder0 + " " +label;
         if(e.isContentEditable) e.dataset.placeholder = v;
@@ -1999,18 +2014,26 @@ window.fossil.onPageLoad(function(){
   })()/*message preview setup*/;
 
   (function(){/*Set up #chat-search and related bits */
-    const settingsButton = document.querySelector('#chat-button-search');
-    const eBody = E1('#chat-search-body');
-    const cbToggle = function(ev){
+    const btn = document.querySelector('#chat-button-search');
+    D.attr(btn, 'role', 'button').addEventListener('click', function(ev){
       ev.preventDefault();
       ev.stopPropagation();
-      Chat.setCurrentView(Chat.e.currentView===Chat.e.viewSearch
-                          ? Chat.e.viewMessages : Chat.e.viewSearch);
+      const msg = Chat.inputValue();
+      if( Chat.e.currentView===Chat.e.viewSearch ){
+        if( msg ) Chat.submitSearch();
+        else Chat.setCurrentView(Chat.e.viewMessages);
+      }else{
+        Chat.setCurrentView(Chat.e.viewSearch);
+        if( msg ) Chat.submitSearch();
+      }
       return false;
-    };
-    D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
-    Chat.e.viewSearch.querySelector('button.action-close').addEventListener('click', cbToggle, false);
-
+    }, false);
+    Chat.e.viewSearch.querySelector('button.action-close').addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      Chat.setCurrentView(Chat.e.viewMessages);
+      return false;
+    }, false);
   })()/*search view setup*/;
 
   /** Callback for poll() to inject new content into the page.  jx ==
@@ -2144,6 +2167,19 @@ window.fossil.onPageLoad(function(){
     toolbar.disabled = true /*will be enabled when msg load finishes */;
   })()/*end history loading widget setup*/;
 
+  /**
+     Submits a history search using the main input field's current
+     text. It is assumed that Chat.e.viewSearch===Chat.e.currentView.
+  */
+  Chat.submitSearch = function(){
+    const term = this.inputValue(true);
+    const eMWC = D.clearElement(
+      this.e.viewSearch.querySelector('.message-widget-content')
+    );
+    if( !term ) return;
+    D.append(eMWC, "TODO: search term = ", term);
+  };
+
   const afterFetch = function f(){
     if(true===f.isFirstCall){
       f.isFirstCall = false;
@@ -2205,12 +2241,6 @@ window.fossil.onPageLoad(function(){
     Chat.chatOnlyMode(true);
   }
   Chat.intervalTimer = setInterval(poll, 1000);
-  if(0){
-    const flip = (ev)=>Chat.animate(ev.target,'anim-flip-h');
-    document.querySelectorAll('#chat-buttons-wrapper .cbutton').forEach(function(e){
-      e.addEventListener('click',flip, false);
-    });
-  }
   delete ForceResizeKludge.$disabled;
   ForceResizeKludge();
   Chat.animate.$disabled = false;

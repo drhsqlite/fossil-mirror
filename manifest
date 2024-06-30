@@ -1,5 +1,5 @@
-C Main\sUI\sof\schat\shistory\ssearch\sfor\s/chat,\swithout\sthe\sactual\ssearch\sfunctionality.
-D 2024-06-30T13:06:14.690
+C Hook\sup\sthe\sevent\shandlers\sfor\sthe\s/chat\ssearch\sUI.\sNext\sup:\srun\sthe\ssearch.
+D 2024-06-30T13:57:05.287
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -441,7 +441,7 @@ F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e0
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 8cfee24bd779b918daa1431dd830184def6679157fd2dc64d03d7a1a86379e81
+F src/fossil.page.chat.js b8f8118d9af2a22de3e2c30cffe1320e39d86a401c119acefdcf3c8351bef0a3
 F src/fossil.page.chatsearch.js 707ea2d6c4f39c30d13478e4dd74bdabd39541201912049f3cfd385e87ba27b5
 F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f230c108063bdcc5
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3b84b4f8c6de64cfc5cd0ff2cbdefe10357af1cf36ff558baaf6e68b006e6bf0
-R 261eefa853579e69b83a40a351986eb3
+P 80b869acf9efffe484d0e5988f1ae4a78cf07f4487f985817d0e38a19d242053
+R 87d5eae3f6727b7a690e58a80fbc2f79
 U stephan
-Z 38902790436176fb8be5c2bb98e9aea2
+Z 7414c9a4adfaaaf3f2758935a0e3e8c2
 # Remove this line to create a well-formed Fossil manifest.
