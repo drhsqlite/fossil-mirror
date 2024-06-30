@@ -253,10 +253,10 @@ window.fossil.onPageLoad(function(){
 
     const cf = function(o){
 
-      /* iFirstInTable: 
+      /* iFirstInTable:
       **   msgid of first row in chatfts table.
       **
-      ** iLastInTable: 
+      ** iLastInTable:
       **   msgid of last row in chatfts table.
       **
       ** iPrevId:
@@ -271,7 +271,7 @@ window.fossil.onPageLoad(function(){
       **   ignore any clicks if this is true. This is used to ensure there
       **   is only ever one request belonging to this widget outstanding
       **   at any time.
-      */ 
+      */
       this.o = {
         iFirstInTable: o.first,
         iLastInTable: o.last,
@@ -299,11 +299,6 @@ window.fossil.onPageLoad(function(){
       D.append(this.e.buttons, this.e.up, this.e.down, this.e.all);
       D.append(this.e.body, this.e.above, this.e.buttons, this.e.below);
 
-      this.e.up.style.float = 'left';
-      this.e.down.style.float = 'left';
-      this.e.all.style.float = 'left';
-      this.e.below.style.clear = 'both';
-
       const ms = this;
       this.e.up.addEventListener('click', function(){
         ms.load_messages(false);
@@ -326,9 +321,7 @@ window.fossil.onPageLoad(function(){
         var iNextId = (o.iNextId!=0) ? o.iNextId : o.iLastInTable+1;
         var nDiff = (iNextId - iPrevId) - 1;
 
-        this.e.up.style.display = 'none';
-        this.e.down.style.display = 'none';
-        this.e.all.style.display = 'none';
+        D.addClass([this.e.up, this.e.down, this.e.all], 'hidden');
 
         if( nDiff>0 ){
 
@@ -337,13 +330,13 @@ window.fossil.onPageLoad(function(){
           }
 
           if( nDiff<=nMsgContext && o.iPrevId!=0 && o.iNextId!=0 ){
-            this.e.all.style.display = 'block';
+            D.removeClass(this.e.all, 'hidden');
             this.e.all.innerText = (
               zUpArrow + " Load " + nDiff + " more " + zDownArrow
             );
           }else{
-            if( o.iPrevId!=0 ) this.e.up.style.display = 'block';
-            if( o.iNextId!=0 ) this.e.down.style.display = 'block';
+            if( o.iPrevId!=0 ) D.removeClass(this.e.up, 'hidden');
+            if( o.iNextId!=0 ) D.removeClass(this.e.down, 'hidden');
           }
         }
       },

@@ -1,5 +1,5 @@
-C Teach\sstylesheet_url_var()\sto\suse\sthe\sstyle_set_current_page()\svalue,\sif\sset,\sinstead\sof\sg.zPage,\sso\sthat\sstyle_set_current_page()\scan\sbe\sused\sto\sforce\sclosely-related\spages\s(namely\s/chat\sand\s/chat-search)\sto\suse\sthe\ssame\sstyle.CurrentPageName.css,\sto\savoid\shaving\sto\sduplicate\sstyle\ssheets.\sRemove\sthe\snow-unnecessary\sstyle.chat-search.css\sand\sport\sits\shandful\sof\sadditions\sinto\sstyle.chat.css.\sAdjust\sthe\s/chat-search\s'mark'\sCSS\sclass\sto\sbehave\snicely\sin\sdark-mode\sthemes.
-D 2024-06-30T11:25:01.494
+C Replace\ssome\shard-coded\s/chat-search\sstyles\swith\sproject-conventional\sCSS\sclasses.\sMinor\slayout\stweaks.
+D 2024-06-30T11:43:55.074
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -442,7 +442,7 @@ F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe244919
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js b1aa83a1ca012093382168d8409493075d9c191930e3a8309609ce4f50f37faa
-F src/fossil.page.chatsearch.js 2bc7673077262356dcc3c8df5e1014294c3076682d26604384ccdaf637c2bdf8
+F src/fossil.page.chatsearch.js 707ea2d6c4f39c30d13478e4dd74bdabd39541201912049f3cfd385e87ba27b5
 F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f230c108063bdcc5
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 354e405e2813de4bfeec16d12a4dbfb370b2fa89f25325f245c51c194115adbf
@@ -558,7 +558,7 @@ F src/stat.c 318d359a317da263f80db05dacd9c5ebbf69383945f9540a9a67fdfc4f6743b0
 F src/statrep.c be5687a6d6f012a5862e9a70e769de0db40100c4f3e3a1bfbc622235218a28b3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c f718624794c3d1a63111bc0e893662ffcafcd1de0e10d6995754b95dd3e901fd
-F src/style.chat.css 8f542396e9659d876aca0e17d96727f2d88f02ee23f380c2705aa4eb1ffe25da
+F src/style.chat.css 59274a5094f0908ba8afca2501c0bcf032331fa5930c1bc8d01a31793ae2d263
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cdbdaee6421987ba07de435431d2c738007c08214f21d8e0227cd1609bd8d56b
-R 24b169fc3d97a2a025f55a01c7a95197
+P 3bf2275393d213f674bbf54016305004f45e4f084a3be7d94e9fd20849de82f1
+R 6b1d5505ae7fa4a7e54cebb27f2e4f1f
 U stephan
-Z 83dcd0ee042925c3949e6aacf3e13b80
+Z 8a5099bcd54ca5f8e43bf7e7fe242acc
 # Remove this line to create a well-formed Fossil manifest.
