@@ -508,21 +508,26 @@ static char *chat_format_to_html(const char *zMsg, int isWiki){
 /*
 ** COMMAND: test-chat-formatter
 **
-** Usage: %fossil test-chat-formatter STRING ...
+** Usage: %fossil test-chat-formatter ?OPTIONS? STRING ...
 **
 ** Transform each argument string into HTML that will display the
 ** chat message.  This is used to test the formatter and to verify
 ** that a malicious message text will not cause HTML or JS injection
 ** into the chat display in a browser.
+**
+** Options:
+**
+**     -w|--wiki     Assume fossil wiki format instead of markdown
 */
 void chat_test_formatter_cmd(void){
   int i;
   char *zOut;
+  int const isWiki = find_option("w","wiki",0)!=0;
   db_find_and_open_repository(0,0);
   g.perm.Hyperlink = 1;
-  for(i=0; i<g.argc; i++){
-    zOut = chat_format_to_html(g.argv[i], 0);
-    fossil_print("[%d]: %s\n", i, zOut);
+  for(i=2; i<g.argc; i++){
+    zOut = chat_format_to_html(g.argv[i], isWiki);
+    fossil_print("[%d]: %s\n", i-1, zOut);
     fossil_free(zOut);
   }
 }
