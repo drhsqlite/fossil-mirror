@@ -246,8 +246,7 @@ void chat_webpage(void){
   @ <div class='button-bar'><button class='action-close'>Close Settings</button></div>
   @ </div>
   @ <div id='chat-search' class='hidden chat-view'>
-  @ <header>Chat history search...</header>
-  @ <div id='chat-search-body' class='message-widget-content'></div>
+  @ <div class='message-widget-content'></div>
     /* ^^^populated client-side */
   @ <div class='button-bar'><button class='action-close'>Close Search</button></div>
   @ </div>

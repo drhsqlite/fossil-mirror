@@ -1013,7 +1013,7 @@ window.fossil.onPageLoad(function(){
         if(isHidden) D.addClass(iframe, 'hidden');
       }
     };
-    
+
     cf.prototype = {
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
@@ -1293,6 +1293,156 @@ window.fossil.onPageLoad(function(){
     };
     return cf;
   })()/*MessageWidget*/;
+
+  /**
+     A widget for loading more messages (context) around a /chat-query
+     result message.
+  */
+  Chat.SearchCtxLoader = (function(){
+    const nMsgContext = 5;
+    const zUpArrow = '\u25B2';
+    const zDownArrow = '\u25BC';
+    const cf = function(o){
+
+      /* iFirstInTable:
+      **   msgid of first row in chatfts table.
+      **
+      ** iLastInTable:
+      **   msgid of last row in chatfts table.
+      **
+      ** iPrevId:
+      **   msgid of message immediately above this spacer. Or 0 if this
+      **   spacer is above all results.
+      **
+      ** iNextId:
+      **   msgid of message immediately below this spacer. Or 0 if this
+      **   spacer is below all results.
+      **
+      ** bIgnoreClick:
+      **   ignore any clicks if this is true. This is used to ensure there
+      **   is only ever one request belonging to this widget outstanding
+      **   at any time.
+      */
+      this.o = {
+        iFirstInTable: o.first,
+        iLastInTable: o.last,
+        iPrevId: o.previd,
+        iNextId: o.nextid,
+        bIgnoreClick: false,
+      };
+
+      this.e = {
+        body:    D.addClass(D.div(), 'spacer-widget'),
+
+        above:   D.addClass(D.div(), 'spacer-widget-above'),
+        buttons: D.addClass(D.div(), 'spacer-widget-buttons'),
+        below:   D.addClass(D.div(), 'spacer-widget-below'),
+
+        up:      D.addClass(
+          D.button(zDownArrow+' Load '+nMsgContext+' more '+zDownArrow),
+          'up'
+        ),
+        down:    D.addClass(
+          D.button(zUpArrow+' Load '+nMsgContext+' more '+zUpArrow),
+          'down'
+        ),
+        all:     D.addClass(D.button('Load More'), 'all')
+      };
+
+      D.append(this.e.buttons, this.e.up, this.e.down, this.e.all);
+      D.append(this.e.body, this.e.above, this.e.buttons, this.e.below);
+
+      const ms = this;
+      this.e.up.addEventListener('click', ()=>ms.load_messages(false));
+      this.e.down.addEventListener('click', ()=>ms.load_messages(true));
+      this.e.all.addEventListener('click', ()=>ms.load_messages( (ms.o.iPrevId==0) ));
+      this.set_button_visibility();
+    };
+
+    cf.prototype = {
+      set_button_visibility: function() {
+        const o = this.o;
+
+        const iPrevId = (o.iPrevId!=0) ? o.iPrevId : o.iFirstInTable-1;
+        const iNextId = (o.iNextId!=0) ? o.iNextId : o.iLastInTable+1;
+        var nDiff = (iNextId - iPrevId) - 1;
+
+        D.addClass([this.e.up, this.e.down, this.e.all], 'hidden');
+
+        if( nDiff>0 ){
+
+          if( nDiff>nMsgContext && (o.iPrevId==0 || o.iNextId==0) ){
+            nDiff = nMsgContext;
+          }
+
+          if( nDiff<=nMsgContext && o.iPrevId!=0 && o.iNextId!=0 ){
+            D.removeClass(this.e.all, 'hidden');
+            this.e.all.innerText = (
+              zUpArrow + " Load " + nDiff + " more " + zDownArrow
+            );
+          }else{
+            if( o.iPrevId!=0 ) D.removeClass(this.e.up, 'hidden');
+            if( o.iNextId!=0 ) D.removeClass(this.e.down, 'hidden');
+          }
+        }
+      },
+
+      load_messages: function(bDown) {
+        if( this.bIgnoreClick ) return;
+
+        var iFirst = 0;           /* msgid of first message to fetch */
+        var nFetch = 0;           /* Number of messages to fetch */
+        var iEof = 0;             /* last msgid in spacers range, plus 1 */
+
+        const e = this.e, o = this.o;
+        this.bIgnoreClick = true;
+
+        /* Figure out the required range of messages. */
+        if( bDown ){
+          iFirst = this.o.iNextId - nMsgContext;
+          if( iFirst<this.o.iFirstInTable ){
+            iFirst = this.o.iFirstInTable;
+          }
+        }else{
+          iFirst = this.o.iPrevId+1;
+        }
+        nFetch = nMsgContext;
+        iEof = (this.o.iNextId > 0) ? this.o.iNextId : this.o.iLastInTable+1;
+        if( iFirst+nFetch>iEof ){
+          nFetch = iEof - iFirst;
+        }
+        const ms = this;
+        F.fetch("chat-query",{
+          urlParams:{
+            q: '',
+            n: nFetch,
+            i: iFirst
+          },
+          responseType: "json",
+          onload:function(jx){
+            const firstChildOfBelow = e.below.firstChild;
+            jx.msgs.forEach((m) => {
+              var mw = new Chat.MessageWidget(m);
+              if( bDown ){
+                e.below.insertBefore(mw.e.body, firstChildOfBelow);
+              }else{
+                D.append(e.above, mw.e.body);
+              }
+            });
+            if( bDown ){
+              o.iNextId -= jx.msgs.length;
+            }else{
+              o.iPrevId += jx.msgs.length;
+            }
+            ms.set_button_visibility();
+            ms.bIgnoreClick = false;
+          }
+        });
+      }
+    };
+
+    return cf;
+  })() /*SearchCtxLoader*/;
 
   const BlobXferState = (function(){
     /* State for paste and drag/drop */
@@ -2175,24 +2325,36 @@ window.fossil.onPageLoad(function(){
     const term = this.inputValue(true);
     const eMsgTgt = D.clearElement(
       this.e.viewSearch.querySelector('.message-widget-content')
-    );
+    )
     if( !term ) return;
-    D.append(eMsgTgt, "TODO: search term = ", term);
+    D.append( eMsgTgt, "Searching for ",term," ...");
     F.fetch(
       "chat-query", {
         urlParams: {q: term},
         responseType: 'json',
         onload:function(jx){
-          let prevId = 0;
+          let previd = 0;
           console.log("jx =",jx);
           D.clearElement(eMsgTgt);
           jx.msgs.forEach((m)=>{
             const mw = new Chat.MessageWidget(m);
-            D.append( eMsgTgt, mw.e.body );
-            prevId = m.msgid;
+            const spacer = new Chat.SearchCtxLoader({
+              first: jx.first,
+              last: jx.last,
+              previd: previd,
+              nextid: m.msgid
+            });
+            D.append( eMsgTgt, spacer.e.body, mw.e.body );
+            previd = m.msgid;
           });
           if( jx.msgs.length ){
-            // TODO: MessageSpacer
+            const spacer = new Chat.SearchCtxLoader({
+              first: jx.first,
+              last: jx.last,
+              previd: previd,
+              nextid: 0
+            });
+            D.append( eMsgTgt, spacer.e.body );
           }else{
             D.append( D.clearElement(eMsgTgt),
                       'No results matching the search term: ',
