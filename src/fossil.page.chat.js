@@ -2173,11 +2173,34 @@ window.fossil.onPageLoad(function(){
   */
   Chat.submitSearch = function(){
     const term = this.inputValue(true);
-    const eMWC = D.clearElement(
+    const eMsgTgt = D.clearElement(
       this.e.viewSearch.querySelector('.message-widget-content')
     );
     if( !term ) return;
-    D.append(eMWC, "TODO: search term = ", term);
+    D.append(eMsgTgt, "TODO: search term = ", term);
+    F.fetch(
+      "chat-query", {
+        urlParams: {q: term},
+        responseType: 'json',
+        onload:function(jx){
+          let prevId = 0;
+          console.log("jx =",jx);
+          D.clearElement(eMsgTgt);
+          jx.msgs.forEach((m)=>{
+            const mw = new Chat.MessageWidget(m);
+            D.append( eMsgTgt, mw.e.body );
+            prevId = m.msgid;
+          });
+          if( jx.msgs.length ){
+            // TODO: MessageSpacer
+          }else{
+            D.append( D.clearElement(eMsgTgt),
+                      'No results matching the search term: ',
+                      term );
+          }
+        }
+      }
+    );
   };
 
   const afterFetch = function f(){

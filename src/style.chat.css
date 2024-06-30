@@ -613,6 +613,7 @@ body.chat.fossil-dark-style #chat-button-attach > svg {
   /* The black paperclip is barely visible in dark-mode
      skins when they have dark buttons */
   filter: invert(0.8);
+  transform: scale(130%);
 }
 
 body.cpage-chat-search .searchForm {
