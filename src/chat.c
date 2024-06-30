@@ -304,8 +304,6 @@ void chat_search_webpage(void){
   @ window.addEventListener('load', function(){
   @ document.body.classList.add('chat');
   @ /*^^^for skins which add their own BODY tag */;
-  // ajax_emit_js_preview_modes(0);
-  // chat_emit_alert_list();
   @ }, false);
   @ </script>
 
@@ -345,7 +343,7 @@ static void chat_create_tables(void){
   }
 
   if( !db_table_exists("repository", "chatfts1") ){
-    db_multi_exec( 
+    db_multi_exec(
       "CREATE VIRTUAL TABLE chatfts1 USING fts5("
       "    xmsg, content=chat, content_rowid=msgid, tokenize=porter"
       ");"
@@ -792,16 +790,26 @@ void chat_query_webpage(void){
   cgi_set_content_type("application/json");
 
   if( zQuery[0] ){
+    char *zChatRobot = db_get("chat-timeline-user", 0);
     iMax = db_int64(0, "SELECT max(msgid) FROM chat");
     iMin = db_int64(0, "SELECT min(msgid) FROM chat");
     blob_append_sql(&sql,
         "SELECT * FROM ("
         "SELECT c.msgid, datetime(c.mtime), c.xfrom, "
-        "  highlight(chatfts1, 0, '<span class=match>', '</span>'), "
+        "  highlight(chatfts1, 0, '<span class=\"match\">', '</span>'), "
         "  octet_length(c.file), c.fname, c.fmime, c.mdel, c.lmtime"
-        "  FROM chatfts1(%Q) f, chat c WHERE f.rowid=c.msgid "
+        "  FROM chatfts1(%Q) f, chat c WHERE f.rowid=c.msgid ",
+        zQuery
+    );
+    if( zChatRobot!=0 ){
+      if( zChatRobot[0]!=0 ){
+        blob_append_sql(&sql, "AND c.xfrom IS NOT %Q ", zChatRobot);
+      }
+      fossil_free( zChatRobot );
+    }
+    blob_append_sql(&sql,
         "  ORDER BY f.rowid DESC LIMIT %d"
-        ") ORDER BY 1 ASC", zQuery, nLimit
+        ") ORDER BY 1 ASC", nLimit
     );
   }else{
     blob_append_sql(&sql,

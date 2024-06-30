@@ -1,5 +1,5 @@
 /*
-** This file contains the client-side implementation of fossil's 
+** This file contains the client-side implementation of fossil's
 ** /chat-search application.
 */
 window.fossil.onPageLoad(function(){
@@ -114,7 +114,7 @@ window.fossil.onPageLoad(function(){
         if(isHidden) D.addClass(iframe, 'hidden');
       }
     };
-    
+
     cf.prototype = {
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
@@ -390,7 +390,6 @@ window.fossil.onPageLoad(function(){
           },
 
           onload:function(jx){
-            
             const firstChildOfBelow = e.below.firstChild;
             jx.msgs.forEach((m) => {
               var mw = new MessageWidget(m);
@@ -413,7 +412,7 @@ window.fossil.onPageLoad(function(){
         });
       }
     };
-    
+
     return cf;
   })(); /* MessageSpacer */
 
@@ -472,7 +471,7 @@ window.fossil.onPageLoad(function(){
 
   /* Add event listeners to call submit_search() if the user presses Enter
   ** or clicks the search button.
-  */ 
+  */
   E1('#searchbutton').addEventListener('click', function(){
     submit_search();
   });
