@@ -344,17 +344,17 @@ static void chat_create_tables(void){
 
   if( !db_table_exists("repository", "chatfts1") ){
     db_multi_exec(
-      "CREATE VIRTUAL TABLE chatfts1 USING fts5("
+      "CREATE VIRTUAL TABLE repository.chatfts1 USING fts5("
       "    xmsg, content=chat, content_rowid=msgid, tokenize=porter"
       ");"
-      "CREATE TRIGGER chat_ai AFTER INSERT ON chat BEGIN "
+      "CREATE TRIGGER repository.chat_ai AFTER INSERT ON chat BEGIN "
       "  INSERT INTO chatfts1(rowid, xmsg) VALUES(new.msgid, new.xmsg);"
       "END;"
-      "CREATE TRIGGER chat_ad AFTER DELETE ON chat BEGIN "
+      "CREATE TRIGGER repository.chat_ad AFTER DELETE ON chat BEGIN "
       "  INSERT INTO chatfts1(chatfts1, rowid, xmsg) "
       "    VALUES('delete', old.msgid, old.xmsg);"
       "END;"
-      "INSERT INTO chatfts1(chatfts1) VALUES('rebuild');"
+      "INSERT INTO repository.chatfts1(chatfts1) VALUES('rebuild');"
     );
   }
 }
