@@ -123,6 +123,16 @@ body.chat .message-widget .message-widget-tab .xfrom {
   font-style: italic;
   font-weight: bold;
 }
+
+body.chat .message-widget .match {
+  font-weight: bold;
+  background-color: yellow;
+}
+
+body.chat.fossil-dark-style .message-widget .match {
+  background-color: #ff4800;
+}
+
 /* The popup element for displaying message timestamps
    and deletion controls. */
 body.chat .chat-message-popup {
@@ -613,6 +623,26 @@ body.chat.fossil-dark-style #chat-button-attach > svg {
   filter: invert(0.8);
 }
 
+body.cpage-chat-search .searchForm {
+  margin-top: 1em;
+}
+body.cpage-chat-search .spacer-widget button {
+  margin-left: 1ex;
+  margin-right: 1ex;
+}
+
+body.cpage-chat-search .spacer-widget-buttons .up {
+  margin-top: -0.75em;
+  margin-bottom: 1em;
+}
+body.cpage-chat-search .spacer-widget-buttons .down {
+  margin-top: 1em;
+}
+body.cpage-chat-search .spacer-widget-buttons .all {
+  margin-bottom: 0.75em;
+}
+
+
 body.chat .anim-rotate-360 {
   animation: rotate-360 750ms linear;
 }
@@ -651,3 +681,4 @@ body.chat .anim-fade-out-fast {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+

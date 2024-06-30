@@ -1,5 +1,5 @@
-C Ensure\sthat\sthat\sthe\schatfts1\stable\sand\striggers\sare\screated\sin\sthe\srepository\sdb,\srather\sthan\sthe\smain\sdb,\selse\sit\sbreaks\swhen\srunning\svia\sthe\sui\scommand\s(where\sthe\scheckout\sis\sthe\smain\sdb).
-D 2024-06-30T10:47:20.121
+C Teach\sstylesheet_url_var()\sto\suse\sthe\sstyle_set_current_page()\svalue,\sif\sset,\sinstead\sof\sg.zPage,\sso\sthat\sstyle_set_current_page()\scan\sbe\sused\sto\sforce\sclosely-related\spages\s(namely\s/chat\sand\s/chat-search)\sto\suse\sthe\ssame\sstyle.CurrentPageName.css,\sto\savoid\shaving\sto\sduplicate\sstyle\ssheets.\sRemove\sthe\snow-unnecessary\sstyle.chat-search.css\sand\sport\sits\shandful\sof\sadditions\sinto\sstyle.chat.css.\sAdjust\sthe\s/chat-search\s'mark'\sCSS\sclass\sto\sbehave\snicely\sin\sdark-mode\sthemes.
+D 2024-06-30T11:25:01.494
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c a5a22e5368ec514d6c45ef7607aa551aa2aefe7cc18c7b17a7775a4c0d59ce63
-F src/chat.c 07f01fa78414e74e65f62639b50ba86204e1044365943b8e6a6bce841cdbabd3
+F src/chat.c b7459e6425e4e7de92236332c314e9d51d5f7407cc52d331f04eb83a168bcdea
 F src/checkin.c 2e10b230ccd15ee4b4d2a043aed9bdfa8bb5f070ff45a5774a354c49826e2e17
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -494,7 +494,7 @@ F src/login.c 2760b91d9c729dba71c9740d29ff68d816cfcf50469d008024e79d63a5517a15
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c 6fb27ae7f35b0ea4cc9dfc89421748423bc6b35754b4c383a35869e843840794
-F src/main.mk 47e52c51a20ad65a6acb9db052c715d8a953ddd9186fa8cbcd83875a6b4ba871
+F src/main.mk 37f69fbbd9fbf90df7bc820db7d80522b387a8f2499bb6bbe6ab4efc91e52cb0
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
@@ -557,9 +557,8 @@ F src/stash.c 63cef80d3740c54c448d60b992be69b9f8c8b9acb7b28241bcfd769efdc6ad22
 F src/stat.c 318d359a317da263f80db05dacd9c5ebbf69383945f9540a9a67fdfc4f6743b0
 F src/statrep.c be5687a6d6f012a5862e9a70e769de0db40100c4f3e3a1bfbc622235218a28b3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 1f5432c589c306d9a9ed1a39e780dce85a29b1d1ce905b2ae314dc7899b00db5
-F src/style.chat-search.css d5566beb34925c15ba0f3c7a7b3ac11f042e1480e97951b744d7ae267716c297
-F src/style.chat.css cc9116158d5d7ab67268410c29561ed21493064d5062ba38695c9041a20b93ff
+F src/style.c f718624794c3d1a63111bc0e893662ffcafcd1de0e10d6995754b95dd3e901fd
+F src/style.chat.css 8f542396e9659d876aca0e17d96727f2d88f02ee23f380c2705aa4eb1ffe25da
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
@@ -748,9 +747,9 @@ F tools/skintxt2config.c b542d5e56db4aa69100e85061db820f6b1c9734cf292bda2d67445d
 F tools/sqlcompattest.c e55aa8c8ab4d12e10db6941f5e4f6c518209305fa2fb8903c2ffa9d6c3a183dd
 F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
 F win/Makefile.dmc 01a0d435b6f77213339280e30fd6913e146c1f4e889bacd58854a2c95f27bb61
-F win/Makefile.mingw f0eda223f09a22a857267965fd1b0e1e17a2f2426adf297d8ac00d3fe1a82334
+F win/Makefile.mingw 3334b6f9ab92ed5e1ddb9f4fc3a53da3c9116d9ed0745d32f1e4da93ad53d42c
 F win/Makefile.mingw.mistachkin 781390cab203b926f21de517390b7323267513df67fe821ec789eebdc2ba733c
-F win/Makefile.msc df7478c521e5696a8664cb91fe7201c0fa9e42a7c17bd0766f71fa39c6bd787e
+F win/Makefile.msc 49aefdc084fc9a528c784a85600959a54a83d776fb017643eeeba0e64f0cbafc
 F win/buildmsvc.bat b5c945900619a63112b1483e01569241d3cb2a955099e4a46ee7eafcff9e8b6e x
 F win/fossil.exe.manifest 1f742a2524c7c4127f4d84f5029a02211912803c26ed383beebdf7ceeb397fcc
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -960,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09ee2c8e718a8a05e767442841c0feffce621511d6a374c71ff5931b6c928de8
-R 558d00579e12930fad84c92b89bd829c
+P cdbdaee6421987ba07de435431d2c738007c08214f21d8e0227cd1609bd8d56b
+R 24b169fc3d97a2a025f55a01c7a95197
 U stephan
-Z 9390d8c0326ba7040df97230584d806b
+Z 83dcd0ee042925c3949e6aacf3e13b80
 # Remove this line to create a well-formed Fossil manifest.

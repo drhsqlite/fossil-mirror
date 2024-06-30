@@ -286,6 +286,7 @@ void chat_search_webpage(void){
   }
 
   style_set_current_feature("chat");
+  style_set_current_page("chat") /* so that we use style.chat.css */;
   style_header("Chat Search");
   @
   @ <div id=results>
