@@ -147,6 +147,7 @@ window.fossil.onPageLoad(function(){
         contentDiv: E1('div.content'),
         viewConfig: E1('#chat-config'),
         viewPreview: E1('#chat-preview'),
+        viewSearch: E1('#chat-search'),
         previewContent: E1('#chat-preview-content'),
         btnPreview: E1('#chat-button-preview'),
         views: document.querySelectorAll('.chat-view'),
@@ -1582,7 +1583,7 @@ window.fossil.onPageLoad(function(){
       return false;
     };
     D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
-    Chat.e.viewConfig.querySelector('button').addEventListener('click', cbToggle, false);
+    Chat.e.viewConfig.querySelector('button.action-close').addEventListener('click', cbToggle, false);
 
     /** Internal acrobatics to allow certain settings toggles to access
         related toggles. */
@@ -1842,7 +1843,7 @@ window.fossil.onPageLoad(function(){
             if(op.checkbox) op.checkbox.checked = !!setting.value;
             else if(op.select) op.select.value = setting.value;
             if(op.callback) op.callback(setting);
-          }             
+          }
         );
         if(op.checkbox){
           op.checkbox.addEventListener(
@@ -1949,7 +1950,7 @@ window.fossil.onPageLoad(function(){
       this.e.viewPreview.querySelectorAll('a').forEach(addAnchorTargetBlank);
       this.inputFocus();
     };
-    Chat.e.viewPreview.querySelector('#chat-preview-close').
+    Chat.e.viewPreview.querySelector('button.action-close').
       addEventListener('click', ()=>Chat.setCurrentView(Chat.e.viewMessages), false);
     let previewPending = false;
     const elemsToEnable = [btnPreview, Chat.e.btnSubmit, Chat.e.inputFields];
@@ -1996,6 +1997,21 @@ window.fossil.onPageLoad(function(){
     };
     btnPreview.addEventListener('click', submit, false);
   })()/*message preview setup*/;
+
+  (function(){/*Set up #chat-search and related bits */
+    const settingsButton = document.querySelector('#chat-button-search');
+    const eBody = E1('#chat-search-body');
+    const cbToggle = function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      Chat.setCurrentView(Chat.e.currentView===Chat.e.viewSearch
+                          ? Chat.e.viewMessages : Chat.e.viewSearch);
+      return false;
+    };
+    D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
+    Chat.e.viewSearch.querySelector('button.action-close').addEventListener('click', cbToggle, false);
+
+  })()/*search view setup*/;
 
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is

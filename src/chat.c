@@ -205,6 +205,8 @@ void chat_webpage(void){
   @     <div id='chat-buttons-wrapper'>
   @       <span class='cbutton' id="chat-button-preview" \
   @         title="Preview message (Shift-Enter)">&#128065;</span>
+  @       <span class='cbutton' id="chat-button-search" \
+  @         title="Search chat history">&#x1f50d;</span>
   @       <span class='cbutton' id="chat-button-attach" \
   @         title="Attach file to message">%s(zPaperclip)</span>
   @       <span class='cbutton' id="chat-button-settings" \
@@ -236,12 +238,18 @@ void chat_webpage(void){
   @ <div id='chat-preview' class='hidden chat-view'>
   @  <header>Preview: (<a href='%R/md_rules' target='_blank'>markdown reference</a>)</header>
   @  <div id='chat-preview-content' class='message-widget-content'></div>
-  @  <div id='chat-preview-buttons'><button id='chat-preview-close'>Close Preview</button></div>
+  @  <div class='button-bar'><button class='action-close'>Close Preview</button></div>
   @ </div>
   @ <div id='chat-config' class='hidden chat-view'>
   @ <div id='chat-config-options'></div>
     /* ^^^populated client-side */
-  @ <button>Close Settings</button>
+  @ <div class='button-bar'><button class='action-close'>Close Settings</button></div>
+  @ </div>
+  @ <div id='chat-search' class='hidden chat-view'>
+  @ <header>Chat history search...</header>
+  @ <div id='chat-search-body' class='message-widget-content'></div>
+    /* ^^^populated client-side */
+  @ <div class='button-bar'><button class='action-close'>Close Search</button></div>
   @ </div>
   @ <div id='chat-messages-wrapper' class='chat-view'>
   /* New chat messages get inserted immediately after this element */
