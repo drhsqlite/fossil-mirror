@@ -63,7 +63,7 @@
     }
     return str ? str.split(f.rx) : [str];
   };
-  
+
   dom.div = dom.createElemFactory('div');
   dom.p = dom.createElemFactory('p');
   dom.code = dom.createElemFactory('code');
@@ -551,7 +551,7 @@
       old.parentNode.removeChild(old);
     }
   };
-  dom.replaceNode.counter = 0;        
+  dom.replaceNode.counter = 0;
   /**
      Two args == getter: (e,key), returns value
 

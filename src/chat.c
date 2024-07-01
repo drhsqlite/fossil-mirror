@@ -220,7 +220,7 @@ void chat_webpage(void){
   @ </div>
   @ <div id='chat-preview' class='hidden chat-view'>
   @  <header>Preview: (<a href='%R/md_rules' target='_blank'>markdown reference</a>)</header>
-  @  <div id='chat-preview-content' class='message-widget-content'></div>
+  @  <div id='chat-preview-content'></div>
   @  <div class='button-bar'><button class='action-close'>Close Preview</button></div>
   @ </div>
   @ <div id='chat-config' class='hidden chat-view'>
@@ -229,7 +229,7 @@ void chat_webpage(void){
   @ <div class='button-bar'><button class='action-close'>Close Settings</button></div>
   @ </div>
   @ <div id='chat-search' class='hidden chat-view'>
-  @   <div class='message-widget-content'></div>
+  @   <div id='chat-search-content'></div>
       /* ^^^populated client-side */
   @   <div class='button-bar'>
   @     <button class='action-clear'>Clear results</button>

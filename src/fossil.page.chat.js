@@ -147,8 +147,9 @@ window.fossil.onPageLoad(function(){
         contentDiv: E1('div.content'),
         viewConfig: E1('#chat-config'),
         viewPreview: E1('#chat-preview'),
-        viewSearch: E1('#chat-search'),
         previewContent: E1('#chat-preview-content'),
+        viewSearch: E1('#chat-search'),
+        searchContent: E1('#chat-search-content'),
         btnPreview: E1('#chat-button-preview'),
         views: document.querySelectorAll('.chat-view'),
         activeUserListWrapper: E1('#chat-user-list-wrapper'),
@@ -1342,16 +1343,11 @@ window.fossil.onPageLoad(function(){
         iLastInTable: o.last,
         iPrevId: o.previd,
         iNextId: o.nextid,
-        bIgnoreClick: false,
+        bIgnoreClick: false
       };
 
       this.e = {
         body:    D.addClass(D.div(), 'spacer-widget'),
-
-        above:   D.addClass(D.div(), 'spacer-widget-above'),
-        buttons: D.addClass(D.div(), 'spacer-widget-buttons'),
-        below:   D.addClass(D.div(), 'spacer-widget-below'),
-
         up:      D.addClass(
           D.button(zDownArrow+' Load '+nMsgContext+' more '+zDownArrow),
           'up'
@@ -1363,8 +1359,8 @@ window.fossil.onPageLoad(function(){
         all:     D.addClass(D.button('Load More'), 'all')
       };
 
-      D.append(this.e.buttons, this.e.up, this.e.down, this.e.all);
-      D.append(this.e.body, this.e.above, this.e.buttons, this.e.below);
+      ;
+      D.append( this.e.body, this.e.up, this.e.down, this.e.all );
 
       const ms = this;
       this.e.up.addEventListener('click', ()=>ms.load_messages(false));
@@ -1375,29 +1371,51 @@ window.fossil.onPageLoad(function(){
 
     cf.prototype = {
       set_button_visibility: function() {
+        if( !this.e ) return;
         const o = this.o;
 
         const iPrevId = (o.iPrevId!=0) ? o.iPrevId : o.iFirstInTable-1;
         const iNextId = (o.iNextId!=0) ? o.iNextId : o.iLastInTable+1;
-        var nDiff = (iNextId - iPrevId) - 1;
+        let nDiff = (iNextId - iPrevId) - 1;
 
-        D.addClass([this.e.up, this.e.down, this.e.all], 'hidden');
-
+        for( const x of [this.e.up, this.e.down, this.e.all] ){
+          if( x ) D.addClass(x, 'hidden');
+        }
+        let nVisible = 0;
         if( nDiff>0 ){
-
           if( nDiff>nMsgContext && (o.iPrevId==0 || o.iNextId==0) ){
             nDiff = nMsgContext;
           }
 
           if( nDiff<=nMsgContext && o.iPrevId!=0 && o.iNextId!=0 ){
             D.removeClass(this.e.all, 'hidden');
+            ++nVisible;
             this.e.all.innerText = (
               zUpArrow + " Load " + nDiff + " more " + zDownArrow
             );
           }else{
-            if( o.iPrevId!=0 ) D.removeClass(this.e.up, 'hidden');
-            if( o.iNextId!=0 ) D.removeClass(this.e.down, 'hidden');
+            if( o.iPrevId!=0 ){
+              ++nVisible;
+              D.removeClass(this.e.up, 'hidden');
+            }else if( this.e.up ){
+              if( this.e.up.parentNode ) D.remove(this.e.up);
+              delete this.e.up;
+            }
+            if( o.iNextId!=0 ){
+              ++nVisible;
+              D.removeClass(this.e.down, 'hidden');
+            }else if( this.e.down ){
+              if( this.e.down.parentNode ) D.remove( this.e.down );
+              delete this.e.down;
+            }
           }
+        }
+        if( !nVisible ){
+          /* The DOM elements can now be disposed of. */
+          for( const x of [this.e.up, this.e.down, this.e.all, this.e.body] ){
+            if( x?.parentNode ) D.remove(x);
+          }
+          delete this.e;
         }
       },
 
@@ -1434,13 +1452,18 @@ window.fossil.onPageLoad(function(){
           },
           responseType: "json",
           onload:function(jx){
-            const firstChildOfBelow = e.below.firstChild;
+            if( bDown ) jx.msgs.reverse();
             jx.msgs.forEach((m) => {
               var mw = new Chat.MessageWidget(m);
               if( bDown ){
-                e.below.insertBefore(mw.e.body, firstChildOfBelow);
+                /* Inject the message below this object's body, or
+                   append it to Chat.e.searchContent if this element
+                   is the final one in its parent (Chat.e.searchContent). */
+                const eAnchor = e.body.nextElementSibling;
+                if( eAnchor ) Chat.e.searchContent.insertBefore(mw.e.body, eAnchor);
+                else D.append(Chat.e.searchContent, mw.e.body);
               }else{
-                D.append(e.above, mw.e.body);
+                Chat.e.searchContent.insertBefore(mw.e.body, e.body);
               }
             });
             if( bDown ){
@@ -2349,11 +2372,12 @@ window.fossil.onPageLoad(function(){
      the message-entry widget (noting that that widget has text
      implying that it's only for submitting a message, which isn't
      exactly true when the search view is active).
+
+     Returns the DOM element which wraps all of the chat search
+     result elements.
   */
-  Chat.clearSearch = function(addInstructions=false){
-    const e = D.clearElement(
-      this.e.viewSearch.querySelector('.message-widget-content')
-    );
+  Chat.clearSearch = function f(addInstructions=false){
+    const e = D.clearElement( this.e.searchContent );
     if(addInstructions){
       D.append(e, "Enter search terms in the message field.");
     }
@@ -2384,7 +2408,8 @@ window.fossil.onPageLoad(function(){
               previd: previd,
               nextid: m.msgid
             });
-            D.append( eMsgTgt, spacer.e.body, mw.e.body );
+            if( spacer.e ) D.append( eMsgTgt, spacer.e.body );
+            D.append( eMsgTgt, mw.e.body );
             previd = m.msgid;
           });
           if( jx.msgs.length ){
@@ -2394,7 +2419,7 @@ window.fossil.onPageLoad(function(){
               previd: previd,
               nextid: 0
             });
-            D.append( eMsgTgt, spacer.e.body );
+            if( spacer.e ) D.append( eMsgTgt, spacer.e.body );
           }else{
             D.append( D.clearElement(eMsgTgt),
                       'No search results found for: ',
@@ -2403,7 +2428,7 @@ window.fossil.onPageLoad(function(){
         }
       }
     );
-  };
+  }/*Chat.submitSearch()*/;
 
   const afterFetch = function f(){
     if(true===f.isFirstCall){

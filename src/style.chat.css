@@ -521,8 +521,8 @@ body.chat #chat-config #chat-config-options .menu-entry .hint {
 }
 body.chat #chat-config #chat-config-options .menu-entry select {
 }
-body.chat #chat-preview .message-widget-content,
-body.chat #chat-search .message-widget-content {
+body.chat #chat-preview #chat-preview-content,
+body.chat #chat-search #chat-search-content {
   overflow: auto;
   flex: 1 1 auto;
   padding: 0.5em;
