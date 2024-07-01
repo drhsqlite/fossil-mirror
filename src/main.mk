@@ -233,7 +233,6 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.numbered-lines.js \
   $(SRCDIR)/fossil.page.brlist.js \
   $(SRCDIR)/fossil.page.chat.js \
-  $(SRCDIR)/fossil.page.chatsearch.js \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
