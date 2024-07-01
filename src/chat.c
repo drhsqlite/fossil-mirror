@@ -285,8 +285,38 @@ static const char zChatSchema1[] =
 
 
 /*
-** Make sure the repository data tables used by chat exist.  Create them
-** if they do not.
+** Create or rebuild the /chat search index. Requires that the
+** repository.chat table exists. If bForce is true, it will drop the
+** chatfts1 table and recreate/reindex it. If bForce is 0, it will
+** only index the chat content if the chatfts1 table does not already
+** exist.
+*/
+void chat_rebuild_index(int bForce){
+  if( bForce!=0 ){
+    db_multi_exec("DROP TABLE IF EXISTS chatfts1");
+  }
+  if( bForce!=0 || !db_table_exists("repository", "chatfts1") ){
+    const int tokType = search_tokenizer_type(0);
+    const char *zTokenizer = search_tokenize_arg_for_type(
+      tokType==FTS5TOK_NONE ? FTS5TOK_PORTER : tokType
+      /* Special case: if fts search is disabled for the main repo
+      ** content, use a default tokenizer here. */
+    );
+    assert( zTokenizer && zTokenizer[0] );
+    db_multi_exec(
+      "CREATE VIRTUAL TABLE repository.chatfts1 USING fts5("
+      "    xmsg, content=chat, content_rowid=msgid%s"
+      ");"
+      "INSERT INTO repository.chatfts1(chatfts1) VALUES('rebuild');",
+      zTokenizer/*safe-for-%s*/
+    );
+  }
+}
+
+/*
+** Make sure the repository data tables used by chat exist.  Create
+** them if they do not. Set up TEMP triggers (if needed) to update the
+** chatfts1 table as the chat table is updated.
 */
 static void chat_create_tables(void){
   if( !db_table_exists("repository","chat") ){
@@ -297,22 +327,12 @@ static void chat_create_tables(void){
     }
     db_multi_exec("ALTER TABLE chat ADD COLUMN lmtime TEXT");
   }
-
-  if( !db_table_exists("repository", "chatfts1") ){
-    db_multi_exec(
-      "CREATE VIRTUAL TABLE repository.chatfts1 USING fts5("
-      "    xmsg, content=chat, content_rowid=msgid, tokenize=porter"
-      ");"
-      "INSERT INTO repository.chatfts1(chatfts1) VALUES('rebuild');"
-    );
-  }
+  chat_rebuild_index(0);
   db_multi_exec(
-    "DROP TRIGGER IF EXISTS chat_ai;"
-    "DROP TRIGGER IF EXISTS chat_ad;"
-    "CREATE TEMP TRIGGER chat_ai AFTER INSERT ON chat BEGIN "
+    "CREATE TEMP TRIGGER IF NOT EXISTS chat_ai AFTER INSERT ON chat BEGIN "
     "  INSERT INTO chatfts1(rowid, xmsg) VALUES(new.msgid, new.xmsg);"
     "END;"
-    "CREATE TEMP TRIGGER chat_ad AFTER DELETE ON chat BEGIN "
+    "CREATE TEMP TRIGGER IF NOT EXISTS chat_ad AFTER DELETE ON chat BEGIN "
     "  INSERT INTO chatfts1(chatfts1, rowid, xmsg) "
     "    VALUES('delete', old.msgid, old.xmsg);"
     "END;"

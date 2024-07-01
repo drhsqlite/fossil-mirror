@@ -615,27 +615,16 @@ body.chat #chat-user-list .chat-user.selected {
   text-decoration: underline;
 }
 
-body.cpage-chat-search .searchForm {
+body.chat .searchForm {
   margin-top: 1em;
 }
-body.cpage-chat-search .spacer-widget button {
+body.chat .spacer-widget button {
   margin-left: 1ex;
   margin-right: 1ex;
   display: block;
-}
-
-body.chat .spacer-widget-buttons .up {
   margin-top: 0.5em;
-  margin-bottom: 1em;
-}
-body.chat .spacer-widget-buttons .down {
-  margin-top: 1em;
   margin-bottom: 0.5em;
 }
-body.chat .spacer-widget-buttons .all {
-  margin-bottom: 0.75em;
-}
-
 
 body.chat .anim-rotate-360 {
   animation: rotate-360 750ms linear;
