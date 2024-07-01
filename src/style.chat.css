@@ -615,15 +615,6 @@ body.chat #chat-user-list .chat-user.selected {
   text-decoration: underline;
 }
 
-body.chat.fossil-dark-style #chat-button-attach > svg {
-  /* The black paperclip is barely visible in dark-mode
-     skins when they have dark buttons */
-  filter: invert(0.8);
-}
-body.chat #chat-button-attach > svg {
-  transform: scale(170%);
-}
-
 body.cpage-chat-search .searchForm {
   margin-top: 1em;
 }
