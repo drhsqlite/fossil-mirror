@@ -540,8 +540,14 @@ body.chat .chat-view .button-bar {
 }
 body.chat .chat-view .button-bar button {
   padding: 0.5em;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   margin: 0.25em 0;
+}
+
+body.chat #chat-search .button-bar {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: row;
 }
 
 body.chat #chat-user-list-wrapper {

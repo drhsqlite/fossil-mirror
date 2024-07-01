@@ -1610,9 +1610,12 @@ window.fossil.onPageLoad(function(){
       f.markdownContinuation = /\\\s+$/;
       f.spaces2 = /\s{3,}$/;
     }
-    if( this.e.currentView===this.e.viewSearch ){
-      this.submitSearch();
-      return;
+    switch( this.e.currentView ){
+      case this.e.viewSearch: this.submitSearch();
+        return;
+      case this.e.viewPreview: this.e.btnPreview.click();
+        return;
+      default: break;
     }
     this.setCurrentView(this.e.viewMessages);
     const fd = new FormData();
@@ -1689,10 +1692,12 @@ window.fossil.onPageLoad(function(){
       const compactMode = Chat.settings.getBool('edit-compact-mode', false);
       ev.preventDefault();
       ev.stopPropagation();
-      /* Shift-enter will run preview mode UNLESS preview mode is
-         active AND the input field is empty, in which case it will
+      /* Shift-enter will run preview mode UNLESS the input field is empty
+         AND (preview or search mode) is active, in which cases it will
          switch back to message view. */
-      if(Chat.e.currentView===Chat.e.viewPreview && !text){
+      if(!text &&
+         (Chat.e.currentView===Chat.e.viewPreview
+          | Chat.e.currentView===Chat.e.viewSearch)){
         Chat.setCurrentView(Chat.e.viewMessages);
       }else if(!text){
         f.$toggleCompact(compactMode);
@@ -2192,6 +2197,13 @@ window.fossil.onPageLoad(function(){
       }
       return false;
     }, false);
+    Chat.e.viewSearch.querySelector('button.action-clear').addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      Chat.clearSearch(true);
+      Chat.setCurrentView(Chat.e.viewMessages);
+      return false;
+    }, false);
     Chat.e.viewSearch.querySelector('button.action-close').addEventListener('click', function(ev){
       ev.preventDefault();
       ev.stopPropagation();
@@ -2332,14 +2344,29 @@ window.fossil.onPageLoad(function(){
   })()/*end history loading widget setup*/;
 
   /**
+     Clears the search result view. If addInstructions is true it adds
+     text to that view instructing the user to enter their query into
+     the message-entry widget (noting that that widget has text
+     implying that it's only for submitting a message, which isn't
+     exactly true when the search view is active).
+  */
+  Chat.clearSearch = function(addInstructions=false){
+    const e = D.clearElement(
+      this.e.viewSearch.querySelector('.message-widget-content')
+    );
+    if(addInstructions){
+      D.append(e, "Enter search terms in the message field.");
+    }
+    return e;
+  };
+  Chat.clearSearch(true);
+  /**
      Submits a history search using the main input field's current
      text. It is assumed that Chat.e.viewSearch===Chat.e.currentView.
   */
   Chat.submitSearch = function(){
     const term = this.inputValue(true);
-    const eMsgTgt = D.clearElement(
-      this.e.viewSearch.querySelector('.message-widget-content')
-    )
+    const eMsgTgt = this.clearSearch(true);
     if( !term ) return;
     D.append( eMsgTgt, "Searching for ",term," ...");
     F.fetch(
@@ -2370,7 +2397,7 @@ window.fossil.onPageLoad(function(){
             D.append( eMsgTgt, spacer.e.body );
           }else{
             D.append( D.clearElement(eMsgTgt),
-                      'No results matching the search term: ',
+                      'No search results found for: ',
                       term );
           }
         }
