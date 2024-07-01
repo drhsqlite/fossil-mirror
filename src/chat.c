@@ -755,7 +755,6 @@ void chat_query_webpage(void){
   cgi_set_content_type("application/json");
 
   if( zQuery[0] ){
-    char *zChatRobot = db_get("chat-timeline-user", 0);
     iMax = db_int64(0, "SELECT max(msgid) FROM chat");
     iMin = db_int64(0, "SELECT min(msgid) FROM chat");
     blob_append_sql(&sql,
@@ -763,18 +762,9 @@ void chat_query_webpage(void){
         "SELECT c.msgid, datetime(c.mtime), c.xfrom, "
         "  highlight(chatfts1, 0, '<span class=\"match\">', '</span>'), "
         "  octet_length(c.file), c.fname, c.fmime, c.mdel, c.lmtime"
-        "  FROM chatfts1(%Q) f, chat c WHERE f.rowid=c.msgid ",
-        zQuery
-    );
-    if( zChatRobot!=0 ){
-      if( zChatRobot[0]!=0 ){
-        blob_append_sql(&sql, "AND c.xfrom IS NOT %Q ", zChatRobot);
-      }
-      fossil_free( zChatRobot );
-    }
-    blob_append_sql(&sql,
+        "  FROM chatfts1(%Q) f, chat c WHERE f.rowid=c.msgid "
         "  ORDER BY f.rowid DESC LIMIT %d"
-        ") ORDER BY 1 ASC", nLimit
+        ") ORDER BY 1 ASC", zQuery, nLimit
     );
   }else{
     blob_append_sql(&sql,
