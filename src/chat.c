@@ -303,16 +303,20 @@ static void chat_create_tables(void){
       "CREATE VIRTUAL TABLE repository.chatfts1 USING fts5("
       "    xmsg, content=chat, content_rowid=msgid, tokenize=porter"
       ");"
-      "CREATE TRIGGER repository.chat_ai AFTER INSERT ON chat BEGIN "
-      "  INSERT INTO chatfts1(rowid, xmsg) VALUES(new.msgid, new.xmsg);"
-      "END;"
-      "CREATE TRIGGER repository.chat_ad AFTER DELETE ON chat BEGIN "
-      "  INSERT INTO chatfts1(chatfts1, rowid, xmsg) "
-      "    VALUES('delete', old.msgid, old.xmsg);"
-      "END;"
       "INSERT INTO repository.chatfts1(chatfts1) VALUES('rebuild');"
     );
   }
+  db_multi_exec(
+    "DROP TRIGGER IF EXISTS chat_ai;"
+    "DROP TRIGGER IF EXISTS chat_ad;"
+    "CREATE TEMP TRIGGER chat_ai AFTER INSERT ON chat BEGIN "
+    "  INSERT INTO chatfts1(rowid, xmsg) VALUES(new.msgid, new.xmsg);"
+    "END;"
+    "CREATE TEMP TRIGGER chat_ad AFTER DELETE ON chat BEGIN "
+    "  INSERT INTO chatfts1(chatfts1, rowid, xmsg) "
+    "    VALUES('delete', old.msgid, old.xmsg);"
+    "END;"
+  );
 }
 
 /*
