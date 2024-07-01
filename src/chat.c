@@ -149,7 +149,7 @@ static void chat_emit_alert_list(void){
 **
 ** This is the main page that humans use to access the chatroom.  Simply
 ** point a web-browser at /chat and the screen fills with the latest
-** chat messages, and waits for new one.
+** chat messages, and waits for new ones.
 **
 ** Other /chat-OP pages are used by XHR requests from this page to
 ** send new chat message, delete older messages, or poll for changes.
@@ -246,9 +246,12 @@ void chat_webpage(void){
   @ <div class='button-bar'><button class='action-close'>Close Settings</button></div>
   @ </div>
   @ <div id='chat-search' class='hidden chat-view'>
-  @ <div class='message-widget-content'></div>
-    /* ^^^populated client-side */
-  @ <div class='button-bar'><button class='action-close'>Close Search</button></div>
+  @   <div class='message-widget-content'></div>
+      /* ^^^populated client-side */
+  @   <div class='button-bar'>
+  @     <button class='action-clear'>Clear results</button>
+  @     <button class='action-close'>Close Search</button>
+  @   </div>
   @ </div>
   @ <div id='chat-messages-wrapper' class='chat-view'>
   /* New chat messages get inserted immediately after this element */
@@ -281,45 +284,7 @@ void chat_webpage(void){
 }
 
 /*
-** WEBPAGE: chat-search hidden loadavg-exempt
-**
-** Webpage allowing users to search the archive of chat messages using fts5.
-*/
-void chat_search_webpage(void){
-  login_check_credentials();
-  if( !g.perm.Chat ){
-    login_needed(g.anon.Chat);
-    return;
-  }
-
-  style_set_current_feature("chat");
-  style_set_current_page("chat") /* so that we use style.chat.css */;
-  style_header("Chat Search");
-  @
-  @ <div id=results>
-  @ </div>
-  @ <div class='searchForm'>
-  @   <input id=textinput type="text" name="s" size="40">
-  @   <input id=searchbutton type="submit" value="Search">
-  @ </div>
-  builtin_fossil_js_bundle_or("popupwidget", "storage", "fetch",
-                              "pikchr", "confirmer", "copybutton",
-                              NULL);
-  /* Always in-line the javascript for the chat page */
-  @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
-  /* We need an onload handler to ensure that window.fossil is
-     initialized before the chat init code runs. */
-  @ window.addEventListener('load', function(){
-  @ document.body.classList.add('chat');
-  @ /*^^^for skins which add their own BODY tag */;
-  @ }, false);
-  @ </script>
-
-  builtin_request_js("fossil.page.chatsearch.js");
-  style_finish_page();
-}
-
-/* Definition of repository tables used by chat
+** Definition of repository tables used by chat
 */
 static const char zChatSchema1[] =
 @ CREATE TABLE repository.chat(

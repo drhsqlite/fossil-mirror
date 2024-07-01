@@ -928,16 +928,30 @@ window.fossil.onPageLoad(function(){
       3: "Wednesday", 4: "Thursday", 5: "Friday",
       6: "Saturday"
     };
-    /* Given a Date, returns the timestamp string used in the
-       "tab" part of message widgets. */
-    const theTime = function(d){
-      return [
-        //d.getFullYear(),'-',pad2(d.getMonth()+1/*sigh*/),
-        //'-',pad2(d.getDate()), ' ',
-        d.getHours(),":",
-        (d.getMinutes()+100).toString().slice(1,3),
-        ' ', dowMap[d.getDay()]
-      ].join('');
+    /* Given a Date, returns the timestamp string used in the "tab"
+       part of message widgets. If longFmt is true then a verbose
+       format is used, else a brief format is used. The returned string
+       is in client-local time. */
+    const theTime = function(d, longFmt=true){
+      const li = [];
+      if( longFmt ){
+        //li.push( d.toISOString() );
+        li.push(
+          d.getFullYear(),
+          '-', pad2(d.getMonth()+1/*sigh*/),
+          '-', pad2(d.getDate()),
+          ' ',
+          d.getHours(), ":",
+          (d.getMinutes()+100).toString().slice(1,3)
+        );
+      }else{
+        li.push(
+          d.getHours(),":",
+          (d.getMinutes()+100).toString().slice(1,3),
+          ' ', dowMap[d.getDay()]
+        );
+      }
+      return li.join('');
     };
 
     /**
@@ -1039,7 +1053,7 @@ window.fossil.onPageLoad(function(){
           eXFrom = D.append(D.addClass(D.span(), 'xfrom'), m.xfrom);
           const wrapper = D.append(
             D.span(), eXFrom,
-            D.text(" #",(m.msgid||'???'),' @ ',theTime(d)))
+            D.text(" #",(m.msgid||'???'),' ',theTime(d)))
           D.append(this.e.tab, wrapper);
         }else{/*notification*/
           D.addClass(this.e.body, 'notification');
@@ -2334,7 +2348,6 @@ window.fossil.onPageLoad(function(){
         responseType: 'json',
         onload:function(jx){
           let previd = 0;
-          console.log("jx =",jx);
           D.clearElement(eMsgTgt);
           jx.msgs.forEach((m)=>{
             const mw = new Chat.MessageWidget(m);
