@@ -329,7 +329,7 @@ void setup_notification(void){
   entry_attribute("Canonical Server URL", 40, "email-url",
                    "eurl", "", 0);
   @ <p><b>Required.</b>
-  @ This is URL used as the basename for hyperlinks included in
+  @ This URL is used as the basename for hyperlinks included in
   @ email alert text.  Omit the trailing "/".
   @ Suggested value: "%h(g.zBaseURL)"
   @ (Property: "email-url")</p>
