@@ -563,10 +563,17 @@ static void uvlist_upload(void){
     CX("<div>Added: %h</div>", zName);
   }
   form_begin("enctype='multipart/form-data'", "%R/uvlist");
-  CX("<label for='uvupload'>Upload unversioned file:</label>");
-  CX("<input type='file' id='uvupload' name='f'/>");
-  CX("<input type='submit' value='Upload'/>");
-  CX("</form>");
+  @ <label for='uvupload'>Upload unversioned file:</label>
+  @ <input type='file' id='uvupload' name='f'/>
+  @ <input type='submit' id='uvsubmit' value='Upload'/>
+  @ </form>
+  @ <script nonce='%h(style_nonce())'>;/* unversioned.c:%d(__LINE__) */
+  @ document.getElementById('uvsubmit').onclick = function(){
+  @   var bNofile = !document.getElementById('uvupload').value;
+  @   if (bNofile) alert('Please select a file');
+  @   return !bNofile;
+  @ }  
+  @ </script>
 }
 
 /*
