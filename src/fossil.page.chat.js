@@ -1358,10 +1358,7 @@ window.fossil.onPageLoad(function(){
         ),
         all:     D.addClass(D.button('Load More'), 'all')
       };
-
-      ;
       D.append( this.e.body, this.e.up, this.e.down, this.e.all );
-
       const ms = this;
       this.e.up.addEventListener('click', ()=>ms.load_messages(false));
       this.e.down.addEventListener('click', ()=>ms.load_messages(true));
@@ -2376,7 +2373,7 @@ window.fossil.onPageLoad(function(){
      Returns the DOM element which wraps all of the chat search
      result elements.
   */
-  Chat.clearSearch = function f(addInstructions=false){
+  Chat.clearSearch = function(addInstructions=false){
     const e = D.clearElement( this.e.searchContent );
     if(addInstructions){
       D.append(e, "Enter search terms in the message field.");
