@@ -910,7 +910,7 @@ window.fossil.onPageLoad(function(){
        Constructor. If passed an argument, it is passed to
        this.setMessage() after initialization.
     */
-    const cf = function(){
+    const ctor = function(){
       this.e = {
         body: D.addClass(D.div(), 'message-widget'),
         tab: D.addClass(D.div(), 'message-widget-tab'),
@@ -933,13 +933,12 @@ window.fossil.onPageLoad(function(){
        part of message widgets. If longFmt is true then a verbose
        format is used, else a brief format is used. The returned string
        is in client-local time. */
-    const theTime = function(d, longFmt=true){
+    const theTime = function(d, longFmt=false){
       const li = [];
       if( longFmt ){
-        //li.push( d.toISOString() );
         li.push(
           d.getFullYear(),
-          '-', pad2(d.getMonth()+1/*sigh*/),
+          '-', pad2(d.getMonth()+1),
           '-', pad2(d.getDate()),
           ' ',
           d.getHours(), ":",
@@ -963,6 +962,7 @@ window.fossil.onPageLoad(function(){
       if(!f.$rx){
         f.$rx = /\.((html?)|(txt)|(md)|(wiki)|(pikchr))$/i;
         f.$specificTypes = [
+          /* Mime types we know we can embed, sans image/... */
           'text/plain',
           'text/html',
           'text/x-markdown',
@@ -970,8 +970,8 @@ window.fossil.onPageLoad(function(){
           'text/markdown',
           'text/x-pikchr',
           'text/x-fossil-wiki'
-          // add more as we discover which ones Firefox won't
-          // force the user to try to download.
+          /* Add more as we discover which ones Firefox won't
+             force the user to try to download. */
         ];
       }
       if(msg.fmime){
@@ -989,7 +989,7 @@ window.fossil.onPageLoad(function(){
       raw content form. This is only intended to be passed
       message objects for which canEmbedFile() returns true.
     */
-    const shouldWikiRenderEmbed = function f(msg){
+    const shouldFossilRenderEmbed = function f(msg){
       if(!f.$rx){
         f.$rx = /\.((md)|(wiki)|(pikchr))$/i;
         f.$specificTypes = [
@@ -997,8 +997,6 @@ window.fossil.onPageLoad(function(){
           'text/markdown' /* Firefox-uploaded md files */,
           'text/x-pikchr',
           'text/x-fossil-wiki'
-          // add more as we discover which ones Firefox won't
-          // force the user to try to download.
         ];
       }
       if(msg.fmime){
@@ -1029,7 +1027,7 @@ window.fossil.onPageLoad(function(){
       }
     };
 
-    cf.prototype = {
+    ctor.prototype = {
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
       },
@@ -1054,7 +1052,13 @@ window.fossil.onPageLoad(function(){
           eXFrom = D.append(D.addClass(D.span(), 'xfrom'), m.xfrom);
           const wrapper = D.append(
             D.span(), eXFrom,
-            D.text(" #",(m.msgid||'???'),' ',theTime(d)))
+            ' ',
+            D.append(D.addClass(D.span(), 'msgid'),
+                     '#' + (m.msgid||'???')),
+            (m.isSearchResult ? ' ' : ' @ '),
+            D.append(D.addClass(D.span(), 'timestamp'),
+                     theTime(d,!!m.isSearchResult))
+          );
           D.append(this.e.tab, wrapper);
         }else{/*notification*/
           D.addClass(this.e.body, 'notification');
@@ -1063,7 +1067,7 @@ window.fossil.onPageLoad(function(){
           }
           D.append(
             this.e.tab,
-            D.append(D.code(), 'notification @ ',theTime(d))
+            D.append(D.code(), 'notification @ ',theTime(d,false))
           );
         }
         if( m.xfrom && m.fsize>0 ){
@@ -1090,14 +1094,14 @@ window.fossil.onPageLoad(function(){
             if(canEmbedFile(m)){
               /* Add an option to embed HTML attachments in an iframe. The primary
                  use case is attached diffs. */
-              const shouldWikiRender = shouldWikiRenderEmbed(m);
-              const downloadArgs = shouldWikiRender ? '?render' : '';
+              const shouldFossilRender = shouldFossilRenderEmbed(m);
+              const downloadArgs = shouldFossilRender ? '?render' : '';
               D.addClass(contentTarget, 'wide');
               const embedTarget = this.e.content;
               const self = this;
               const btnEmbed = D.attr(D.checkbox("1", false), 'id',
                                       'embed-'+ds.msgid);
-              const btnLabel = D.label(btnEmbed, shouldWikiRender
+              const btnLabel = D.label(btnEmbed, shouldFossilRender
                                        ? "Embed (fossil-rendered)" : "Embed");
               /* Maintenance reminder: do not disable the toggle
                  button while the content is loading because that will
@@ -1306,7 +1310,7 @@ window.fossil.onPageLoad(function(){
         if(theMsg) f.popup.show(theMsg);
       }/*_handleLegendClicked()*/
     };
-    return cf;
+    return ctor;
   })()/*MessageWidget*/;
 
   /**
@@ -1317,7 +1321,7 @@ window.fossil.onPageLoad(function(){
     const nMsgContext = 5;
     const zUpArrow = '\u25B2';
     const zDownArrow = '\u25BC';
-    const cf = function(o){
+    const ctor = function(o){
 
       /* iFirstInTable:
       **   msgid of first row in chatfts table.
@@ -1366,7 +1370,7 @@ window.fossil.onPageLoad(function(){
       this.set_button_visibility();
     };
 
-    cf.prototype = {
+    ctor.prototype = {
       set_button_visibility: function() {
         if( !this.e ) return;
         const o = this.o;
@@ -1475,7 +1479,7 @@ window.fossil.onPageLoad(function(){
       }
     };
 
-    return cf;
+    return ctor;
   })() /*SearchCtxLoader*/;
 
   const BlobXferState = (function(){
@@ -2398,6 +2402,7 @@ window.fossil.onPageLoad(function(){
           let previd = 0;
           D.clearElement(eMsgTgt);
           jx.msgs.forEach((m)=>{
+            m.isSearchResult = true;
             const mw = new Chat.MessageWidget(m);
             const spacer = new Chat.SearchCtxLoader({
               first: jx.first,
