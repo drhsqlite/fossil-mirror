@@ -2403,6 +2403,10 @@ window.fossil.onPageLoad(function(){
       "chat-query", {
         payload: fd,
         responseType: 'json',
+        onerror:function(err){
+          Chat.setCurrentView(Chat.e.viewMessages);
+          Chat.reportErrorAsMessage(err);
+        },
         onload:function(jx){
           let previd = 0;
           D.clearElement(eMsgTgt);
