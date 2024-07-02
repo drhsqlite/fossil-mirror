@@ -142,6 +142,11 @@ static void rebuild_update_schema(void){
   /* Do the fossil-2.0 updates to the schema.  (2017-02-28)
   */
   rebuild_schema_update_2_0();
+
+  /* Add the user.jx and reportfmt.jx columns if they are missing. (2022-11-18)
+  */
+  user_update_user_table();
+  report_update_reportfmt_table();
 }
 
 /*
