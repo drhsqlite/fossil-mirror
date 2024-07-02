@@ -1883,8 +1883,9 @@ window.fossil.onPageLoad(function(){
         label: "Compact mode",
         hint: [
           "Toggle between a space-saving or more spacious writing area. ",
-          "When the input field has focus, is empty, and preview mode ",
-          "is NOT active then Shift-Enter toggles this setting."].join(''),
+          "When the input field has focus and is empty ",
+          "then Shift-Enter may (depending on the current view) toggle this setting."
+        ].join(''),
         boolValue: 'edit-compact-mode'
       },{
         label: "Use 'contenteditable' editing mode",
@@ -2129,7 +2130,7 @@ window.fossil.onPageLoad(function(){
       Chat.e.inputFields[Chat.e.inputFields.$currentIndex].focus();
     });
     Chat.settings.addListener('edit-ctrl-send',function(s){
-      const label = "Submit message ("+(s.value ? "Ctrl-" : "")+"Enter)";
+      const label = (s.value ? "Ctrl-" : "")+"Enter submits message";
       Chat.e.inputFields.forEach((e)=>{
         const v = e.dataset.placeholder0 + " " +label;
         if(e.isContentEditable) e.dataset.placeholder = v;
@@ -2460,6 +2461,21 @@ window.fossil.onPageLoad(function(){
     poll.running = false;
   };
   afterFetch.isFirstCall = true;
+  /**
+     FIXME: when polling fails because the remote server is
+     reachable but it's not accepting HTTP requests, we should back
+     off on polling for a while. e.g. if the remote web server process
+     is killed, the poll fails quickly and immediately retries,
+     hammering the remote server until the httpd is back up. That
+     happens often during development of this application.
+
+     XHR does not offer a direct way of distinguishing between
+     HTTP/connection errors, but we can hypothetically use the
+     xhrRequest.status value to do so, with status==0 being a
+     connection error. We do not currently have a clean way of passing
+     that info back to the fossil.fetch() client, so we'll need to
+     hammer on that API a bit to get this working.
+  */
   const poll = async function f(){
     if(f.running) return;
     f.running = true;
