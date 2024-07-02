@@ -565,13 +565,14 @@ static void uvlist_upload(void){
   form_begin("enctype='multipart/form-data'", "%R/uvlist");
   @ <label for='uvupload'>Upload unversioned file:</label>
   @ <input type='file' id='uvupload' name='f'/>
-  @ <input type='submit' id='uvsubmit' value='Upload'/>
+  @ <input type='submit' id='uvsubmit' value='Upload' disabled='disabled'/>
   @ </form>
   @ <script nonce='%h(style_nonce())'>;/* unversioned.c:%d(__LINE__) */
-  @ document.getElementById('uvsubmit').onclick = function(){
-  @   var bNofile = !document.getElementById('uvupload').value;
-  @   if (bNofile) alert('Please select a file');
-  @   return !bNofile;
+  @ var upl = document.getElementById('uvupload');
+  @ var sbm = document.getElementById('uvsubmit');
+  @ upl.onchange = function(){
+  @   if (!upl.value) sbm.setAttribute('disabled', 'disabled');
+  @   else sbm.removeAttribute('disabled');
   @ }  
   @ </script>
 }

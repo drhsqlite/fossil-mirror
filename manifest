@@ -1,5 +1,5 @@
-C For\s/uvlist,\scheck\sif\sany\sfile\shas\sbeen\schosen\sbefore\ssubmitting\sthe\sform.
-D 2024-07-01T15:44:36.184
+C For\sthe\sprevious\scheck-in,\sdisable\sthe\ssubmit\sbutton\srather\sthan\suse\salert().
+D 2024-07-02T08:19:35.859
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -577,7 +577,7 @@ F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
-F src/unversioned.c 056c7bd83f7c9c698057cb020b0f9b884fdc306441bdb55d2a7432be48299bd0
+F src/unversioned.c d6e33d7ff74b6646c3869f381331fbc355f7b686741f23d17db0a4b0a72fa0b4
 F src/update.c 9364bc0f5bc0f0eb43f2a379cfb295d0fcc6853c12fe000e0a9d4a87297a2111
 F src/url.c 303318d7493ac31ed88aaf97a29c4262edbf3be7c804ce3004790e73c0a9f24a
 F src/user.c cda5e43af6b01c05aacd01450e707d1ed8f2910d19321d2a543e948ff7fcf53b
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb3421c493b959e79d3d0158879ee91847205dee4d0eaa56a8c772c17dea9f44
-R d024e853159ff6fd870e60e1a5d8bb05
+P 4a8a7742da8206439d27592421baaccf6233c7051dcc83ce6b5613d46413c6dc
+R c9f2ae15c1df26c2b8be04c1d9cc7f71
 U danield
-Z 108da75102b1fab4f07d123955b1b77d
+Z 5aac2ce9182f9f04e21854bdda6a8d1b
 # Remove this line to create a well-formed Fossil manifest.
