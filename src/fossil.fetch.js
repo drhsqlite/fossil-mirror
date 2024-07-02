@@ -236,7 +236,7 @@ fossil.fetch = function f(uri,opt){
    URL parameters to pass with it (in the form a of a string
    ("a=b&c=d...") or an object of key/value pairs (which it converts
    to such a string), and returns the resulting URL or URI as a string.
-*/  
+*/
 fossil.fetch.urlTransform = (u,p)=>fossil.repoUrl(u,p);
 fossil.fetch.beforesend = function(){};
 fossil.fetch.aftersend = function(){};

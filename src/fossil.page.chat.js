@@ -178,12 +178,14 @@ window.fossil.onPageLoad(function(){
           return this.activeUser===uname || !this.activeUser;
         }
       },
-      /** Gets (no args) or sets (1 arg) the current input text field
-          value, taking into account single- vs multi-line input. The
-          getter returns a string and the setter returns this
-          object. As a special case, if arguments[0] is a boolean
-          value, it behaves like a getter and, if arguments[0]===true
-          it clears the input field before returning. */
+      /**
+         Gets (no args) or sets (1 arg) the current input text field
+         value, taking into account single- vs multi-line input. The
+         getter returns a trim()'d string and the setter returns this
+         object. As a special case, if arguments[0] is a boolean
+         value, it behaves like a getter and, if arguments[0]===true
+         it clears the input field before returning.
+      */
       inputValue: function(/*string newValue | bool clearInputField*/){
         const e = this.inputElement();
         if(arguments.length && 'boolean'!==typeof arguments[0]){
@@ -196,7 +198,7 @@ window.fossil.onPageLoad(function(){
           if(e.isContentEditable) e.innerText = '';
           else e.value = '';
         }
-        return rc;
+        return rc && rc.trim();
       },
       /** Asks the current user input field to take focus. Returns this. */
       inputFocus: function(){
@@ -2380,7 +2382,8 @@ window.fossil.onPageLoad(function(){
   Chat.clearSearch = function(addInstructions=false){
     const e = D.clearElement( this.e.searchContent );
     if(addInstructions){
-      D.append(e, "Enter search terms in the message field.");
+      D.append(e, "Enter search terms in the message field. "+
+               "Use #NNNNN to search for the message with ID NNNNN.");
     }
     return e;
   };
@@ -2394,9 +2397,11 @@ window.fossil.onPageLoad(function(){
     const eMsgTgt = this.clearSearch(true);
     if( !term ) return;
     D.append( eMsgTgt, "Searching for ",term," ...");
+    const fd = new FormData();
+    fd.set('q', term);
     F.fetch(
       "chat-query", {
-        urlParams: {q: term},
+        payload: fd,
         responseType: 'json',
         onload:function(jx){
           let previd = 0;

@@ -757,12 +757,11 @@ void chat_poll_webpage(void){
 */
 void chat_query_webpage(void){
   Blob json;                  /* The json to be constructed and returned */
-  int nLimit = atoi(PD("n","500"));
-  const char *zQuery = PD("q", "");
-  int iFirst = atoi(PD("i","0"));
-
   Blob sql = empty_blob;
   Stmt q1;
+  int nLimit = atoi(PD("n","500"));
+  int iFirst = atoi(PD("i","0"));
+  const char *zQuery = PD("q", "");
   i64 iMin = 0;
   i64 iMax = 0;
 
@@ -777,15 +776,27 @@ void chat_query_webpage(void){
   if( zQuery[0] ){
     iMax = db_int64(0, "SELECT max(msgid) FROM chat");
     iMin = db_int64(0, "SELECT min(msgid) FROM chat");
-    blob_append_sql(&sql,
+    if( '#'==zQuery[0] ){
+      /* Assume we're looking for an exact msgid match. */
+      ++zQuery;
+      blob_append_sql(&sql,
+        "SELECT msgid, datetime(mtime), xfrom, "
+        "  xmsg, octet_length(file), fname, fmime, mdel, lmtime "
+        "  FROM chat WHERE msgid=+%Q",
+        zQuery
+      );
+    }else{
+      blob_append_sql(&sql,
         "SELECT * FROM ("
         "SELECT c.msgid, datetime(c.mtime), c.xfrom, "
         "  highlight(chatfts1, 0, '<span class=\"match\">', '</span>'), "
-        "  octet_length(c.file), c.fname, c.fmime, c.mdel, c.lmtime"
-        "  FROM chatfts1(%Q) f, chat c WHERE f.rowid=c.msgid "
+        "  octet_length(c.file), c.fname, c.fmime, c.mdel, c.lmtime "
+        "  FROM chatfts1(%Q) f, chat c "
+        "  WHERE f.rowid=c.msgid"
         "  ORDER BY f.rowid DESC LIMIT %d"
         ") ORDER BY 1 ASC", zQuery, nLimit
-    );
+      );
+    }
   }else{
     blob_append_sql(&sql,
         "SELECT msgid, datetime(mtime), xfrom, "
