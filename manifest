@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\strunk\senhancements\sinto\sthe\sfts5-chat-search\sbranch.
-D 2024-07-02T11:10:15.067
+C Add\sa\smention\sof\s/chat\ssearch\sto\sthe\schange\slog.
+D 2024-07-02T11:23:22.504
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -783,7 +783,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html 21ecdde02b27bccc3a43f1a3ba94ddb2b20f18abf85642127b45b6f9fe792ee9
 F www/cgi.wiki 8edf95fda013f9c854e2d2a2795c1b23f90e44f1c13a09e0640bd60d31e97eb1
-F www/changes.wiki 1b3a46283703b6ad2a2821e4f965193202e863fa3a76235b1204614f38be1347
+F www/changes.wiki 71639ff2d7c716393ccc55741152d644ac197810a72ee061406eaab5f7167826
 F www/chat.md 572a2ac53c959f760e3d8ba6edf70a64f937ed6e7bc1492009f9f3217b6704ed
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 966187ef75f7150db2644fb2358b969672dd888d6f227a5587b975b935a327e7
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5ae93fd23f036bef6991291ccb8d6f049a5652a6f4ffa2f825fb177ac733d8db fe24713a27cc4d0a17057c3a26593c1a36b27d93223c4d990ad2a344b1b5f455
-R a25fcd35e54c2b40dd86b25a62543719
-U drh
-Z e7c8023c4ee76f039e8024738f76803b
+P b35b293defa64846829627bb22093a2a6f82aa55416866e4c6df927925d44f57
+R d42d7e3de31fd913cf186af070831b05
+U stephan
+Z 97609b814b68c8991cb169f08f22a726
 # Remove this line to create a well-formed Fossil manifest.
