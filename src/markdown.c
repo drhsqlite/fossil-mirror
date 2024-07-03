@@ -44,7 +44,6 @@ enum mkd_autolink {
 
 /* mkd_tagspan -- type of tagged <span> */
 enum mkd_tagspan {
-  MKDT_ATREF,           /* @name references, as in /chat attention targeting */
   MKDT_HASHTAG,         /* #hashtags */
   MKDT_NUMTAG           /* #123[.456] /chat or /forum message IDs. */
 };
@@ -962,44 +961,6 @@ static size_t char_entity(
   return end;
 }
 
-/* char_atref_tag -- '@' followed by "word" characters to tag
- * at-references */
-static size_t char_atref_tag(
-  struct Blob *ob,
-  struct render *rndr,
-  char *data,
-  size_t offset,
-  size_t size
-){
-  size_t end;
-  struct Blob work = BLOB_INITIALIZER;
-
-  if(offset>0 && !fossil_isspace(data[-1])){
-    /* Only ever match if the *previous* character is
-       whitespace or we're at the start of the input. */
-    return 0;
-  }
-  /*fprintf(stderr,"@-REF: %.*s\n", (int)size, data);*/
-  if (size < 2 || !fossil_isalpha(data[1])) return 0;
-  for (end = 2; (end < size)
-         && (fossil_isalnum(data[end])
-             /* TODO: email addresses are legal fossil user names, but
-                parsing those is beyond our current ambitions.
-                Similarly, non-ASCII names are legal, but not
-                currently handled here. */
-             /*|| data[end] == '.' || data[end] == '_'
-               || data[end] == '-'*/);
-       ++end);
-  if(end<size){
-    if(!fossil_isspace(data[end])){
-      return 0;
-    }
-  }
-  blob_init(&work, data + 1, end - 1);
-  rndr->make.tagspan(ob, &work, MKDT_ATREF, rndr->make.opaque);
-  return end;
-}
-
 /* char_hashref_tag -- '#' followed by "word" characters to tag
 ** post numbers, hashtags, etc.
 **
@@ -1040,10 +1001,10 @@ static size_t char_hashref_tag(
                   and 2 for #NNN.NNN. */;
   if(offset>0 && !fossil_isspace(data[-1])){
     /* Only ever match if the *previous* character is whitespace or
-       we're at the start of the input.  Note that we rely on fossil
-       processing emphasis markup before reaching this function, so
-       *#Hash* will Do The Right Thing. Not that this means that
-       "#Hash." will match while ".#Hash" won't. That's okay. */
+    ** we're at the start of the input.  Note that we rely on fossil
+    ** processing emphasis markup before reaching this function, so
+    ** *#Hash* will Do The Right Thing. Not that this means that
+    ** "#Hash." will match while ".#Hash" won't. That's okay. */
     return 0;
   }
   assert( '#' == data[0] );
@@ -1054,8 +1015,8 @@ static size_t char_hashref_tag(
   }else if(!fossil_isalpha(data[1])){
     switch(data[1] & 0xF0){
       /* Reminder: UTF8 char lengths can be determined by
-         masking against 0xF0: 0xf0==4, 0xe0==3, 0xc0==2,
-         else 1. */
+      ** masking against 0xF0: 0xf0==4, 0xe0==3, 0xc0==2,
+      ** else 1. */
       case 0xF0: end+=3; break;
       case 0xE0: end+=2; break;
       case 0xC0: end+=1; break;
@@ -2888,7 +2849,6 @@ void markdown(
   if( rndr.make.codespan ) rndr.active_char['`'] = char_codespan;
   if( rndr.make.linebreak ) rndr.active_char['\n'] = char_linebreak;
   if( rndr.make.image || rndr.make.link ) rndr.active_char['['] = char_link;
-  rndr.active_char['@'] = char_atref_tag;
   rndr.active_char['#'] = char_hashref_tag;
   if( rndr.make.footnote_ref ) rndr.active_char['('] = char_footnote;
   rndr.active_char['<'] = char_langle_tag;

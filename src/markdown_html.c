@@ -849,8 +849,6 @@ static int html_tagspan(
     char cPrefix = '!';
     blob_append_literal(ob, "<span data-");
     switch (type) {
-      case MKDT_ATREF:
-        cPrefix = '@'; blob_append_literal(ob, "atref"); break;
       case MKDT_HASHTAG:
         cPrefix = '#'; blob_append_literal(ob, "hashtag"); break;
       case MKDT_NUMTAG:

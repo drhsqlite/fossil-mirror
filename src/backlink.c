@@ -287,8 +287,8 @@ static int (*mkdn_noop_tri_emphas)(Blob*, Blob*, char,
                                    void*) = mkdn_noop_emphasis;
 static int mkdn_noop_footnoteref(Blob *b1, const Blob *b2, const Blob *b3,
                                  int i1, int i2, void *v){ return 1; }
-static int mkdn_noop_tagref(Blob*,Blob*, enum mkd_tagspan,
-                            void*){ return 1; }
+static int mkdn_noop_tagref(Blob *b1,Blob *b2, enum mkd_tagspan t,
+                            void *p){ return 1; }
 
 /*
 ** Scan markdown text and add self-hyperlinks to the BACKLINK table.
@@ -323,7 +323,7 @@ void markdown_extract_links(
     /* linebreak  */ mkdn_noop_linebreak,
     /* link       */ backlink_md_link,
     /* r_html_tag */ mkdn_noop_r_html_tag,
-    /* @/#tags    */ mkdn_noop_tagref,
+    /* #tags    */ mkdn_noop_tagref,
     /* tri_emphas */ mkdn_noop_tri_emphas,
     /* footnoteref*/ mkdn_noop_footnoteref,
 

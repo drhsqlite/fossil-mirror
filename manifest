@@ -1,5 +1,5 @@
-C Merge\strunk\sinto\smarkdown-tagrefs\sbranch.
-D 2024-07-03T09:16:13.938
+C Remove\sthe\sincomplete\s@tag\ssupport.\sAdd\ssome\ssample\sinputs\sto\sthe\s[/wiki?name=branch/markdown-tagrefs|branch/markdown-tagrefs]\spage.
+D 2024-07-03T09:35:20.266
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -383,7 +383,7 @@ F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c 2c1866f703796d33774f0b961523a1f489ce6e0d1788534829b8467b586767a9
 F src/attach.c 6eb936f9976bbbae8b98b1645539c98091bbc43ca4e8f3ea9cf9e51211f8708c
-F src/backlink.c 03acdddd573c0c62383b51e2bc998eaf4e9cd19cbceb8a14358af5c327137954
+F src/backlink.c ea9045aa8458240fa7172c62e4cedc0621173163ce77eb9ea1403421daf205d0
 F src/backoffice.c 8ed33abacbbebe8d353255346d629b5d7f1be800b883dc0625e660eb3d58ee1d
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 44446bda0779cbcebe645d3df9030b2edd42b24c56e10ef64a5535e29014be0e
@@ -495,9 +495,9 @@ F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c
 F src/main.c 6fb27ae7f35b0ea4cc9dfc89421748423bc6b35754b4c383a35869e843840794
 F src/main.mk 176240dce5136923b41efc270fd3276d31a6c3e879fa46470282d550ab891d30
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
-F src/markdown.c 06f6c068eb2cd7cbe392c42ceb606910c3ac17d494a6822b53417762a391edaf
+F src/markdown.c 60b5402b1ce716c89daf1fc42b91d2ac3520672a1cd6f8de5d553bbe22df04b8
 F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
-F src/markdown_html.c d35aefa949cf13a91df338fd86ae371ab3d3d8ac293b0f30976b545934b93f94
+F src/markdown_html.c 5d3d38730c55f616f79d6dc86e892a2b48fb01eb45eef79344f159e4d28e0cd5
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c f6ed95443e2b266790d22624749f29adfe90c770037e7e14a5ce421623426c73
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0517bd2dd8db5b81457e9c839a307870da213dc20f4d01376538c693d5c0474c fe24713a27cc4d0a17057c3a26593c1a36b27d93223c4d990ad2a344b1b5f455
-R 4477e77bd5c4a3c8f5cddae141a42e93
+P 9d3ca32ef7ad570d5be8cdf483e2c4413440ba2b1043c6431cc6937ed94dcc7b
+R a6db0509befc2b7facba158ad78390b4
 U stephan
-Z ed2adf2b943d2f7bcc51609b22879cd1
+Z 2331ff37d45a454ccde153ac4e5be2b9
 # Remove this line to create a well-formed Fossil manifest.
