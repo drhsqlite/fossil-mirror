@@ -255,6 +255,7 @@ static const struct {
   { "snd",        3, "audio/basic"                       },
   { "sol",        3, "application/solids"                },
   { "spl",        3, "application/x-futuresplash"        },
+  { "sql",        3, "application/sql"                   },
   { "src",        3, "application/x-wais-source"         },
   { "step",       4, "application/STEP"                  },
   { "stl",        3, "application/SLA"                   },
