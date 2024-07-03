@@ -148,6 +148,8 @@ window.fossil.onPageLoad(function(){
         viewConfig: E1('#chat-config'),
         viewPreview: E1('#chat-preview'),
         previewContent: E1('#chat-preview-content'),
+        viewSearch: E1('#chat-search'),
+        searchContent: E1('#chat-search-content'),
         btnPreview: E1('#chat-button-preview'),
         views: document.querySelectorAll('.chat-view'),
         activeUserListWrapper: E1('#chat-user-list-wrapper'),
@@ -176,17 +178,27 @@ window.fossil.onPageLoad(function(){
           return this.activeUser===uname || !this.activeUser;
         }
       },
-      /** Gets (no args) or sets (1 arg) the current input text field value,
-          taking into account single- vs multi-line input. The getter returns
-          a string and the setter returns this object. */
-      inputValue: function(){
+      /**
+         Gets (no args) or sets (1 arg) the current input text field
+         value, taking into account single- vs multi-line input. The
+         getter returns a trim()'d string and the setter returns this
+         object. As a special case, if arguments[0] is a boolean
+         value, it behaves like a getter and, if arguments[0]===true
+         it clears the input field before returning.
+      */
+      inputValue: function(/*string newValue | bool clearInputField*/){
         const e = this.inputElement();
-        if(arguments.length){
+        if(arguments.length && 'boolean'!==typeof arguments[0]){
           if(e.isContentEditable) e.innerText = arguments[0];
           else e.value = arguments[0];
           return this;
         }
-        return e.isContentEditable ? e.innerText : e.value;
+        const rc = e.isContentEditable ? e.innerText : e.value;
+        if( true===arguments[0] ){
+          if(e.isContentEditable) e.innerText = '';
+          else e.value = '';
+        }
+        return rc && rc.trim();
       },
       /** Asks the current user input field to take focus. Returns this. */
       inputFocus: function(){
@@ -515,7 +527,7 @@ window.fossil.onPageLoad(function(){
               uSpan.classList.add('selected');
             }
             uSpan.dataset.uname = u;
-            D.append(uSpan, u, "\n", 
+            D.append(uSpan, u, "\n",
                      D.append(
                        D.addClass(D.span(),'timestamp'),
                        localTimeString(uDate)//.substr(5/*chop off year*/)
@@ -900,7 +912,7 @@ window.fossil.onPageLoad(function(){
        Constructor. If passed an argument, it is passed to
        this.setMessage() after initialization.
     */
-    const cf = function(){
+    const ctor = function(){
       this.e = {
         body: D.addClass(D.div(), 'message-widget'),
         tab: D.addClass(D.div(), 'message-widget-tab'),
@@ -919,16 +931,29 @@ window.fossil.onPageLoad(function(){
       3: "Wednesday", 4: "Thursday", 5: "Friday",
       6: "Saturday"
     };
-    /* Given a Date, returns the timestamp string used in the
-       "tab" part of message widgets. */
-    const theTime = function(d){
-      return [
-        //d.getFullYear(),'-',pad2(d.getMonth()+1/*sigh*/),
-        //'-',pad2(d.getDate()), ' ',
-        d.getHours(),":",
-        (d.getMinutes()+100).toString().slice(1,3),
-        ' ', dowMap[d.getDay()]
-      ].join('');
+    /* Given a Date, returns the timestamp string used in the "tab"
+       part of message widgets. If longFmt is true then a verbose
+       format is used, else a brief format is used. The returned string
+       is in client-local time. */
+    const theTime = function(d, longFmt=false){
+      const li = [];
+      if( longFmt ){
+        li.push(
+          d.getFullYear(),
+          '-', pad2(d.getMonth()+1),
+          '-', pad2(d.getDate()),
+          ' ',
+          d.getHours(), ":",
+          (d.getMinutes()+100).toString().slice(1,3)
+        );
+      }else{
+        li.push(
+          d.getHours(),":",
+          (d.getMinutes()+100).toString().slice(1,3),
+          ' ', dowMap[d.getDay()]
+        );
+      }
+      return li.join('');
     };
 
     /**
@@ -939,6 +964,7 @@ window.fossil.onPageLoad(function(){
       if(!f.$rx){
         f.$rx = /\.((html?)|(txt)|(md)|(wiki)|(pikchr))$/i;
         f.$specificTypes = [
+          /* Mime types we know we can embed, sans image/... */
           'text/plain',
           'text/html',
           'text/x-markdown',
@@ -946,8 +972,8 @@ window.fossil.onPageLoad(function(){
           'text/markdown',
           'text/x-pikchr',
           'text/x-fossil-wiki'
-          // add more as we discover which ones Firefox won't
-          // force the user to try to download.
+          /* Add more as we discover which ones Firefox won't
+             force the user to try to download. */
         ];
       }
       if(msg.fmime){
@@ -965,7 +991,7 @@ window.fossil.onPageLoad(function(){
       raw content form. This is only intended to be passed
       message objects for which canEmbedFile() returns true.
     */
-    const shouldWikiRenderEmbed = function f(msg){
+    const shouldFossilRenderEmbed = function f(msg){
       if(!f.$rx){
         f.$rx = /\.((md)|(wiki)|(pikchr))$/i;
         f.$specificTypes = [
@@ -973,8 +999,6 @@ window.fossil.onPageLoad(function(){
           'text/markdown' /* Firefox-uploaded md files */,
           'text/x-pikchr',
           'text/x-fossil-wiki'
-          // add more as we discover which ones Firefox won't
-          // force the user to try to download.
         ];
       }
       if(msg.fmime){
@@ -1004,8 +1028,8 @@ window.fossil.onPageLoad(function(){
         if(isHidden) D.addClass(iframe, 'hidden');
       }
     };
-    
-    cf.prototype = {
+
+    ctor.prototype = {
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
       },
@@ -1030,7 +1054,13 @@ window.fossil.onPageLoad(function(){
           eXFrom = D.append(D.addClass(D.span(), 'xfrom'), m.xfrom);
           const wrapper = D.append(
             D.span(), eXFrom,
-            D.text(" #",(m.msgid||'???'),' @ ',theTime(d)))
+            ' ',
+            D.append(D.addClass(D.span(), 'msgid'),
+                     '#' + (m.msgid||'???')),
+            (m.isSearchResult ? ' ' : ' @ '),
+            D.append(D.addClass(D.span(), 'timestamp'),
+                     theTime(d,!!m.isSearchResult))
+          );
           D.append(this.e.tab, wrapper);
         }else{/*notification*/
           D.addClass(this.e.body, 'notification');
@@ -1039,7 +1069,7 @@ window.fossil.onPageLoad(function(){
           }
           D.append(
             this.e.tab,
-            D.append(D.code(), 'notification @ ',theTime(d))
+            D.append(D.code(), 'notification @ ',theTime(d,false))
           );
         }
         if( m.xfrom && m.fsize>0 ){
@@ -1066,14 +1096,14 @@ window.fossil.onPageLoad(function(){
             if(canEmbedFile(m)){
               /* Add an option to embed HTML attachments in an iframe. The primary
                  use case is attached diffs. */
-              const shouldWikiRender = shouldWikiRenderEmbed(m);
-              const downloadArgs = shouldWikiRender ? '?render' : '';
+              const shouldFossilRender = shouldFossilRenderEmbed(m);
+              const downloadArgs = shouldFossilRender ? '?render' : '';
               D.addClass(contentTarget, 'wide');
               const embedTarget = this.e.content;
               const self = this;
               const btnEmbed = D.attr(D.checkbox("1", false), 'id',
                                       'embed-'+ds.msgid);
-              const btnLabel = D.label(btnEmbed, shouldWikiRender
+              const btnLabel = D.label(btnEmbed, shouldFossilRender
                                        ? "Embed (fossil-rendered)" : "Embed");
               /* Maintenance reminder: do not disable the toggle
                  button while the content is loading because that will
@@ -1282,8 +1312,177 @@ window.fossil.onPageLoad(function(){
         if(theMsg) f.popup.show(theMsg);
       }/*_handleLegendClicked()*/
     };
-    return cf;
+    return ctor;
   })()/*MessageWidget*/;
+
+  /**
+     A widget for loading more messages (context) around a /chat-query
+     result message.
+  */
+  Chat.SearchCtxLoader = (function(){
+    const nMsgContext = 5;
+    const zUpArrow = '\u25B2';
+    const zDownArrow = '\u25BC';
+    const ctor = function(o){
+
+      /* iFirstInTable:
+      **   msgid of first row in chatfts table.
+      **
+      ** iLastInTable:
+      **   msgid of last row in chatfts table.
+      **
+      ** iPrevId:
+      **   msgid of message immediately above this spacer. Or 0 if this
+      **   spacer is above all results.
+      **
+      ** iNextId:
+      **   msgid of message immediately below this spacer. Or 0 if this
+      **   spacer is below all results.
+      **
+      ** bIgnoreClick:
+      **   ignore any clicks if this is true. This is used to ensure there
+      **   is only ever one request belonging to this widget outstanding
+      **   at any time.
+      */
+      this.o = {
+        iFirstInTable: o.first,
+        iLastInTable: o.last,
+        iPrevId: o.previd,
+        iNextId: o.nextid,
+        bIgnoreClick: false
+      };
+
+      this.e = {
+        body:    D.addClass(D.div(), 'spacer-widget'),
+        up:      D.addClass(
+          D.button(zDownArrow+' Load '+nMsgContext+' more '+zDownArrow),
+          'up'
+        ),
+        down:    D.addClass(
+          D.button(zUpArrow+' Load '+nMsgContext+' more '+zUpArrow),
+          'down'
+        ),
+        all:     D.addClass(D.button('Load More'), 'all')
+      };
+      D.append( this.e.body, this.e.up, this.e.down, this.e.all );
+      const ms = this;
+      this.e.up.addEventListener('click', ()=>ms.load_messages(false));
+      this.e.down.addEventListener('click', ()=>ms.load_messages(true));
+      this.e.all.addEventListener('click', ()=>ms.load_messages( (ms.o.iPrevId==0) ));
+      this.set_button_visibility();
+    };
+
+    ctor.prototype = {
+      set_button_visibility: function() {
+        if( !this.e ) return;
+        const o = this.o;
+
+        const iPrevId = (o.iPrevId!=0) ? o.iPrevId : o.iFirstInTable-1;
+        const iNextId = (o.iNextId!=0) ? o.iNextId : o.iLastInTable+1;
+        let nDiff = (iNextId - iPrevId) - 1;
+
+        for( const x of [this.e.up, this.e.down, this.e.all] ){
+          if( x ) D.addClass(x, 'hidden');
+        }
+        let nVisible = 0;
+        if( nDiff>0 ){
+          if( nDiff>nMsgContext && (o.iPrevId==0 || o.iNextId==0) ){
+            nDiff = nMsgContext;
+          }
+
+          if( nDiff<=nMsgContext && o.iPrevId!=0 && o.iNextId!=0 ){
+            D.removeClass(this.e.all, 'hidden');
+            ++nVisible;
+            this.e.all.innerText = (
+              zUpArrow + " Load " + nDiff + " more " + zDownArrow
+            );
+          }else{
+            if( o.iPrevId!=0 ){
+              ++nVisible;
+              D.removeClass(this.e.up, 'hidden');
+            }else if( this.e.up ){
+              if( this.e.up.parentNode ) D.remove(this.e.up);
+              delete this.e.up;
+            }
+            if( o.iNextId!=0 ){
+              ++nVisible;
+              D.removeClass(this.e.down, 'hidden');
+            }else if( this.e.down ){
+              if( this.e.down.parentNode ) D.remove( this.e.down );
+              delete this.e.down;
+            }
+          }
+        }
+        if( !nVisible ){
+          /* The DOM elements can now be disposed of. */
+          for( const x of [this.e.up, this.e.down, this.e.all, this.e.body] ){
+            if( x?.parentNode ) D.remove(x);
+          }
+          delete this.e;
+        }
+      },
+
+      load_messages: function(bDown) {
+        if( this.bIgnoreClick ) return;
+
+        var iFirst = 0;           /* msgid of first message to fetch */
+        var nFetch = 0;           /* Number of messages to fetch */
+        var iEof = 0;             /* last msgid in spacers range, plus 1 */
+
+        const e = this.e, o = this.o;
+        this.bIgnoreClick = true;
+
+        /* Figure out the required range of messages. */
+        if( bDown ){
+          iFirst = this.o.iNextId - nMsgContext;
+          if( iFirst<this.o.iFirstInTable ){
+            iFirst = this.o.iFirstInTable;
+          }
+        }else{
+          iFirst = this.o.iPrevId+1;
+        }
+        nFetch = nMsgContext;
+        iEof = (this.o.iNextId > 0) ? this.o.iNextId : this.o.iLastInTable+1;
+        if( iFirst+nFetch>iEof ){
+          nFetch = iEof - iFirst;
+        }
+        const ms = this;
+        F.fetch("chat-query",{
+          urlParams:{
+            q: '',
+            n: nFetch,
+            i: iFirst
+          },
+          responseType: "json",
+          onload:function(jx){
+            if( bDown ) jx.msgs.reverse();
+            jx.msgs.forEach((m) => {
+              var mw = new Chat.MessageWidget(m);
+              if( bDown ){
+                /* Inject the message below this object's body, or
+                   append it to Chat.e.searchContent if this element
+                   is the final one in its parent (Chat.e.searchContent). */
+                const eAnchor = e.body.nextElementSibling;
+                if( eAnchor ) Chat.e.searchContent.insertBefore(mw.e.body, eAnchor);
+                else D.append(Chat.e.searchContent, mw.e.body);
+              }else{
+                Chat.e.searchContent.insertBefore(mw.e.body, e.body);
+              }
+            });
+            if( bDown ){
+              o.iNextId -= jx.msgs.length;
+            }else{
+              o.iPrevId += jx.msgs.length;
+            }
+            ms.set_button_visibility();
+            ms.bIgnoreClick = false;
+          }
+        });
+      }
+    };
+
+    return ctor;
+  })() /*SearchCtxLoader*/;
 
   const BlobXferState = (function(){
     /* State for paste and drag/drop */
@@ -1427,12 +1626,22 @@ window.fossil.onPageLoad(function(){
      Submits the contents of the message input field (if not empty)
      and/or the file attachment field to the server. If both are
      empty, this is a no-op.
+
+     If the current view is the history search, this instead sends the
+     input text to that widget.
   */
   Chat.submitMessage = function f(){
     if(!f.spaces){
       f.spaces = /\s+$/;
       f.markdownContinuation = /\\\s+$/;
       f.spaces2 = /\s{3,}$/;
+    }
+    switch( this.e.currentView ){
+      case this.e.viewSearch: this.submitSearch();
+        return;
+      case this.e.viewPreview: this.e.btnPreview.click();
+        return;
+      default: break;
     }
     this.setCurrentView(this.e.viewMessages);
     const fd = new FormData();
@@ -1509,10 +1718,12 @@ window.fossil.onPageLoad(function(){
       const compactMode = Chat.settings.getBool('edit-compact-mode', false);
       ev.preventDefault();
       ev.stopPropagation();
-      /* Shift-enter will run preview mode UNLESS preview mode is
-         active AND the input field is empty, in which case it will
+      /* Shift-enter will run preview mode UNLESS the input field is empty
+         AND (preview or search mode) is active, in which cases it will
          switch back to message view. */
-      if(Chat.e.currentView===Chat.e.viewPreview && !text){
+      if(!text &&
+         (Chat.e.currentView===Chat.e.viewPreview
+          | Chat.e.currentView===Chat.e.viewSearch)){
         Chat.setCurrentView(Chat.e.viewMessages);
       }else if(!text){
         f.$toggleCompact(compactMode);
@@ -1574,15 +1785,15 @@ window.fossil.onPageLoad(function(){
     }
     const settingsButton = document.querySelector('#chat-button-settings');
     const optionsMenu = E1('#chat-config-options');
-    const cbToggle = function(ev){
+    const eToggleView = function(ev){
       ev.preventDefault();
       ev.stopPropagation();
       Chat.setCurrentView(Chat.e.currentView===Chat.e.viewConfig
                           ? Chat.e.viewMessages : Chat.e.viewConfig);
       return false;
     };
-    D.attr(settingsButton, 'role', 'button').addEventListener('click', cbToggle, false);
-    Chat.e.viewConfig.querySelector('button').addEventListener('click', cbToggle, false);
+    D.attr(settingsButton, 'role', 'button').addEventListener('click', eToggleView, false);
+    Chat.e.viewConfig.querySelector('button.action-close').addEventListener('click', eToggleView, false);
 
     /** Internal acrobatics to allow certain settings toggles to access
         related toggles. */
@@ -1672,8 +1883,9 @@ window.fossil.onPageLoad(function(){
         label: "Compact mode",
         hint: [
           "Toggle between a space-saving or more spacious writing area. ",
-          "When the input field has focus, is empty, and preview mode ",
-          "is NOT active then Shift-Enter toggles this setting."].join(''),
+          "When the input field has focus and is empty ",
+          "then Shift-Enter may (depending on the current view) toggle this setting."
+        ].join(''),
         boolValue: 'edit-compact-mode'
       },{
         label: "Use 'contenteditable' editing mode",
@@ -1842,7 +2054,7 @@ window.fossil.onPageLoad(function(){
             if(op.checkbox) op.checkbox.checked = !!setting.value;
             else if(op.select) op.select.value = setting.value;
             if(op.callback) op.callback(setting);
-          }             
+          }
         );
         if(op.checkbox){
           op.checkbox.addEventListener(
@@ -1918,7 +2130,7 @@ window.fossil.onPageLoad(function(){
       Chat.e.inputFields[Chat.e.inputFields.$currentIndex].focus();
     });
     Chat.settings.addListener('edit-ctrl-send',function(s){
-      const label = (s.value ? "Ctrl-" : "")+"Enter submits messages.";
+      const label = (s.value ? "Ctrl-" : "")+"Enter submits message";
       Chat.e.inputFields.forEach((e)=>{
         const v = e.dataset.placeholder0 + " " +label;
         if(e.isContentEditable) e.dataset.placeholder = v;
@@ -1949,7 +2161,7 @@ window.fossil.onPageLoad(function(){
       this.e.viewPreview.querySelectorAll('a').forEach(addAnchorTargetBlank);
       this.inputFocus();
     };
-    Chat.e.viewPreview.querySelector('#chat-preview-close').
+    Chat.e.viewPreview.querySelector('button.action-close').
       addEventListener('click', ()=>Chat.setCurrentView(Chat.e.viewMessages), false);
     let previewPending = false;
     const elemsToEnable = [btnPreview, Chat.e.btnSubmit, Chat.e.inputFields];
@@ -1996,6 +2208,36 @@ window.fossil.onPageLoad(function(){
     };
     btnPreview.addEventListener('click', submit, false);
   })()/*message preview setup*/;
+
+  (function(){/*Set up #chat-search and related bits */
+    const btn = document.querySelector('#chat-button-search');
+    D.attr(btn, 'role', 'button').addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      const msg = Chat.inputValue();
+      if( Chat.e.currentView===Chat.e.viewSearch ){
+        if( msg ) Chat.submitSearch();
+        else Chat.setCurrentView(Chat.e.viewMessages);
+      }else{
+        Chat.setCurrentView(Chat.e.viewSearch);
+        if( msg ) Chat.submitSearch();
+      }
+      return false;
+    }, false);
+    Chat.e.viewSearch.querySelector('button.action-clear').addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      Chat.clearSearch(true);
+      Chat.setCurrentView(Chat.e.viewMessages);
+      return false;
+    }, false);
+    Chat.e.viewSearch.querySelector('button.action-close').addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      Chat.setCurrentView(Chat.e.viewMessages);
+      return false;
+    }, false);
+  })()/*search view setup*/;
 
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is
@@ -2128,6 +2370,78 @@ window.fossil.onPageLoad(function(){
     toolbar.disabled = true /*will be enabled when msg load finishes */;
   })()/*end history loading widget setup*/;
 
+  /**
+     Clears the search result view. If addInstructions is true it adds
+     text to that view instructing the user to enter their query into
+     the message-entry widget (noting that that widget has text
+     implying that it's only for submitting a message, which isn't
+     exactly true when the search view is active).
+
+     Returns the DOM element which wraps all of the chat search
+     result elements.
+  */
+  Chat.clearSearch = function(addInstructions=false){
+    const e = D.clearElement( this.e.searchContent );
+    if(addInstructions){
+      D.append(e, "Enter search terms in the message field. "+
+               "Use #NNNNN to search for the message with ID NNNNN.");
+    }
+    return e;
+  };
+  Chat.clearSearch(true);
+  /**
+     Submits a history search using the main input field's current
+     text. It is assumed that Chat.e.viewSearch===Chat.e.currentView.
+  */
+  Chat.submitSearch = function(){
+    const term = this.inputValue(true);
+    const eMsgTgt = this.clearSearch(true);
+    if( !term ) return;
+    D.append( eMsgTgt, "Searching for ",term," ...");
+    const fd = new FormData();
+    fd.set('q', term);
+    F.fetch(
+      "chat-query", {
+        payload: fd,
+        responseType: 'json',
+        onerror:function(err){
+          Chat.setCurrentView(Chat.e.viewMessages);
+          Chat.reportErrorAsMessage(err);
+        },
+        onload:function(jx){
+          let previd = 0;
+          D.clearElement(eMsgTgt);
+          jx.msgs.forEach((m)=>{
+            m.isSearchResult = true;
+            const mw = new Chat.MessageWidget(m);
+            const spacer = new Chat.SearchCtxLoader({
+              first: jx.first,
+              last: jx.last,
+              previd: previd,
+              nextid: m.msgid
+            });
+            if( spacer.e ) D.append( eMsgTgt, spacer.e.body );
+            D.append( eMsgTgt, mw.e.body );
+            previd = m.msgid;
+          });
+          if( jx.msgs.length ){
+            const spacer = new Chat.SearchCtxLoader({
+              first: jx.first,
+              last: jx.last,
+              previd: previd,
+              nextid: 0
+            });
+            if( spacer.e ) D.append( eMsgTgt, spacer.e.body );
+          }else{
+            D.append( D.clearElement(eMsgTgt),
+                      'No search results found for: ',
+                      term );
+          }
+        }
+      }
+    );
+  }/*Chat.submitSearch()*/;
+
   const afterFetch = function f(){
     if(true===f.isFirstCall){
       f.isFirstCall = false;
@@ -2147,6 +2461,21 @@ window.fossil.onPageLoad(function(){
     poll.running = false;
   };
   afterFetch.isFirstCall = true;
+  /**
+     FIXME: when polling fails because the remote server is
+     reachable but it's not accepting HTTP requests, we should back
+     off on polling for a while. e.g. if the remote web server process
+     is killed, the poll fails quickly and immediately retries,
+     hammering the remote server until the httpd is back up. That
+     happens often during development of this application.
+
+     XHR does not offer a direct way of distinguishing between
+     HTTP/connection errors, but we can hypothetically use the
+     xhrRequest.status value to do so, with status==0 being a
+     connection error. We do not currently have a clean way of passing
+     that info back to the fossil.fetch() client, so we'll need to
+     hammer on that API a bit to get this working.
+  */
   const poll = async function f(){
     if(f.running) return;
     f.running = true;
@@ -2189,12 +2518,6 @@ window.fossil.onPageLoad(function(){
     Chat.chatOnlyMode(true);
   }
   Chat.intervalTimer = setInterval(poll, 1000);
-  if(0){
-    const flip = (ev)=>Chat.animate(ev.target,'anim-flip-h');
-    document.querySelectorAll('#chat-buttons-wrapper .cbutton').forEach(function(e){
-      e.addEventListener('click',flip, false);
-    });
-  }
   delete ForceResizeKludge.$disabled;
   ForceResizeKludge();
   Chat.animate.$disabled = false;

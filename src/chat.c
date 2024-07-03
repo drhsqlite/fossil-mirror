@@ -149,7 +149,7 @@ static void chat_emit_alert_list(void){
 **
 ** This is the main page that humans use to access the chatroom.  Simply
 ** point a web-browser at /chat and the screen fills with the latest
-** chat messages, and waits for new one.
+** chat messages, and waits for new ones.
 **
 ** Other /chat-OP pages are used by XHR requests from this page to
 ** send new chat message, delete older messages, or poll for changes.
@@ -158,23 +158,6 @@ void chat_webpage(void){
   char *zAlert;
   char *zProjectName;
   char * zInputPlaceholder0;  /* Common text input placeholder value */
-  const char *zPaperclip =
-    "<svg height=\"8.0\" width=\"16.0\"><path "
-    "stroke=\"rgb(100,100,100)\" "
-    "d=\"M 15.93452,3.2530441 "
-    "A 4.1499493,4.1265346 0 0 0 11.804809,6.5256284e-4 H 2.8582923 A "
-    "2.8239899,2.8080565 0 0 0 0.68965668,0.96142476 2.874599,2.8583801 "
-    "0 0 0 0.03119302,3.2388108 2.7632589,2.7476682 0 0 0 "
-    "0.81132923,4.7689293 3.168132,3.1502569 0 0 0 3.0300653,5.66565 l "
-    "7.7297897,-4e-7 a 1.6802234,1.6707433 0 0 0 0.0072,-3.3377933 H "
-    "5.6138192 v 1.0105899 l 5.1460358,-0.00712 a 0.66804062,0.66427143 "
-    "0 0 1 0,1.3237305 l -7.7226325,0.00712 A 2.0243655,2.0129437 0 0 1 "
-    "1.0332029,3.0964741 1.8522944,1.8418435 0 0 1 2.8511351,1.0041257 h "
-    "8.9465169 a 3.1478884,3.1301275 0 0 1 3.134859,2.4339559 3.0365483,"
-    "3.0194156 0 0 1 -0.629835,2.4908908 3.0365483,3.0194156 0 0 1 "
-    "-2.31178,1.0746415 l -7.5437026,-0.014233 -0.00716,1.0034736 "
-    "7.5365456,0.00715 a 4.048731,4.0258875 0 0 0 3.957938,-4.7469259 z\""
-    "/></svg>";
 
   login_check_credentials();
   if( !g.perm.Chat ){
@@ -205,8 +188,10 @@ void chat_webpage(void){
   @     <div id='chat-buttons-wrapper'>
   @       <span class='cbutton' id="chat-button-preview" \
   @         title="Preview message (Shift-Enter)">&#128065;</span>
+  @       <span class='cbutton' id="chat-button-search" \
+  @         title="Search chat history">&#x1f50d;</span>
   @       <span class='cbutton' id="chat-button-attach" \
-  @         title="Attach file to message">%s(zPaperclip)</span>
+  @         title="Attach file to message">&#x1f4ce;</span>
   @       <span class='cbutton' id="chat-button-settings" \
   @         title="Configure chat">&#9881;</span>
   @       <span class='cbutton' id="chat-button-submit" \
@@ -235,13 +220,21 @@ void chat_webpage(void){
   @ </div>
   @ <div id='chat-preview' class='hidden chat-view'>
   @  <header>Preview: (<a href='%R/md_rules' target='_blank'>markdown reference</a>)</header>
-  @  <div id='chat-preview-content' class='message-widget-content'></div>
-  @  <div id='chat-preview-buttons'><button id='chat-preview-close'>Close Preview</button></div>
+  @  <div id='chat-preview-content'></div>
+  @  <div class='button-bar'><button class='action-close'>Close Preview</button></div>
   @ </div>
   @ <div id='chat-config' class='hidden chat-view'>
   @ <div id='chat-config-options'></div>
     /* ^^^populated client-side */
-  @ <button>Close Settings</button>
+  @ <div class='button-bar'><button class='action-close'>Close Settings</button></div>
+  @ </div>
+  @ <div id='chat-search' class='hidden chat-view'>
+  @   <div id='chat-search-content'></div>
+      /* ^^^populated client-side */
+  @   <div class='button-bar'>
+  @     <button class='action-clear'>Clear results</button>
+  @     <button class='action-close'>Close Search</button>
+  @   </div>
   @ </div>
   @ <div id='chat-messages-wrapper' class='chat-view'>
   /* New chat messages get inserted immediately after this element */
@@ -273,7 +266,8 @@ void chat_webpage(void){
   style_finish_page();
 }
 
-/* Definition of repository tables used by chat
+/*
+** Definition of repository tables used by chat
 */
 static const char zChatSchema1[] =
 @ CREATE TABLE repository.chat(
@@ -291,8 +285,38 @@ static const char zChatSchema1[] =
 
 
 /*
-** Make sure the repository data tables used by chat exist.  Create them
-** if they do not.
+** Create or rebuild the /chat search index. Requires that the
+** repository.chat table exists. If bForce is true, it will drop the
+** chatfts1 table and recreate/reindex it. If bForce is 0, it will
+** only index the chat content if the chatfts1 table does not already
+** exist.
+*/
+void chat_rebuild_index(int bForce){
+  if( bForce!=0 ){
+    db_multi_exec("DROP TABLE IF EXISTS chatfts1");
+  }
+  if( bForce!=0 || !db_table_exists("repository", "chatfts1") ){
+    const int tokType = search_tokenizer_type(0);
+    const char *zTokenizer = search_tokenize_arg_for_type(
+      tokType==FTS5TOK_NONE ? FTS5TOK_PORTER : tokType
+      /* Special case: if fts search is disabled for the main repo
+      ** content, use a default tokenizer here. */
+    );
+    assert( zTokenizer && zTokenizer[0] );
+    db_multi_exec(
+      "CREATE VIRTUAL TABLE repository.chatfts1 USING fts5("
+      "    xmsg, content=chat, content_rowid=msgid%s"
+      ");"
+      "INSERT INTO repository.chatfts1(chatfts1) VALUES('rebuild');",
+      zTokenizer/*safe-for-%s*/
+    );
+  }
+}
+
+/*
+** Make sure the repository data tables used by chat exist.  Create
+** them if they do not. Set up TEMP triggers (if needed) to update the
+** chatfts1 table as the chat table is updated.
 */
 static void chat_create_tables(void){
   if( !db_table_exists("repository","chat") ){
@@ -303,6 +327,16 @@ static void chat_create_tables(void){
     }
     db_multi_exec("ALTER TABLE chat ADD COLUMN lmtime TEXT");
   }
+  chat_rebuild_index(0);
+  db_multi_exec(
+    "CREATE TEMP TRIGGER IF NOT EXISTS chat_ai AFTER INSERT ON chat BEGIN "
+    "  INSERT INTO chatfts1(rowid, xmsg) VALUES(new.msgid, new.xmsg);"
+    "END;"
+    "CREATE TEMP TRIGGER IF NOT EXISTS chat_ad AFTER DELETE ON chat BEGIN "
+    "  INSERT INTO chatfts1(chatfts1, rowid, xmsg) "
+    "    VALUES('delete', old.msgid, old.xmsg);"
+    "END;"
+  );
 }
 
 /*
@@ -454,23 +488,96 @@ static char *chat_format_to_html(const char *zMsg, int isWiki){
 /*
 ** COMMAND: test-chat-formatter
 **
-** Usage: %fossil test-chat-formatter STRING ...
+** Usage: %fossil test-chat-formatter ?OPTIONS? STRING ...
 **
 ** Transform each argument string into HTML that will display the
 ** chat message.  This is used to test the formatter and to verify
 ** that a malicious message text will not cause HTML or JS injection
 ** into the chat display in a browser.
+**
+** Options:
+**
+**     -w|--wiki     Assume fossil wiki format instead of markdown
 */
 void chat_test_formatter_cmd(void){
   int i;
   char *zOut;
+  int const isWiki = find_option("w","wiki",0)!=0;
   db_find_and_open_repository(0,0);
   g.perm.Hyperlink = 1;
-  for(i=0; i<g.argc; i++){
-    zOut = chat_format_to_html(g.argv[i], 0);
-    fossil_print("[%d]: %s\n", i, zOut);
+  for(i=2; i<g.argc; i++){
+    zOut = chat_format_to_html(g.argv[i], isWiki);
+    fossil_print("[%d]: %s\n", i-1, zOut);
     fossil_free(zOut);
   }
+}
+
+/*
+**
+*/
+static int chat_poll_rowstojson(
+  Stmt *p,                        /* Statement to read rows from */
+  const char *zChatUser,          /* Current user */
+  int bRaw,                       /* True to return raw format xmsg */
+  Blob *pJson                     /* Append json array entries here */
+){
+  int cnt = 0;
+  while( db_step(p)==SQLITE_ROW ){
+    int isWiki = 0;             /* True if chat message is x-fossil-wiki */
+    int id = db_column_int(p, 0);
+    const char *zDate = db_column_text(p, 1);
+    const char *zFrom = db_column_text(p, 2);
+    const char *zRawMsg = db_column_text(p, 3);
+    int nByte = db_column_int(p, 4);
+    const char *zFName = db_column_text(p, 5);
+    const char *zFMime = db_column_text(p, 6);
+    int iToDel = db_column_int(p, 7);
+    const char *zLMtime = db_column_text(p, 8);
+    char *zMsg;
+    if(cnt++){
+      blob_append(pJson, ",\n", 2);
+    }
+    blob_appendf(pJson, "{\"msgid\":%d,", id);
+    blob_appendf(pJson, "\"mtime\":\"%.10sT%sZ\",", zDate, zDate+11);
+    if( zLMtime && zLMtime[0] ){
+      blob_appendf(pJson, "\"lmtime\":%!j,", zLMtime);
+    }
+    blob_append(pJson, "\"xfrom\":", -1);
+    if(zFrom){
+      blob_appendf(pJson, "%!j,", zFrom);
+      isWiki = fossil_strcmp(zFrom,zChatUser)==0;
+    }else{
+      /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
+      blob_appendf(pJson, "null,");
+      isWiki = 0;
+    }
+    blob_appendf(pJson, "\"uclr\":%!j,",
+        isWiki ? "transparent" : user_color(zFrom ? zFrom : "nobody"));
+
+    if(bRaw){
+      blob_appendf(pJson, "\"xmsg\":%!j,", zRawMsg);
+    }else{
+      zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "", isWiki);
+      blob_appendf(pJson, "\"xmsg\":%!j,", zMsg);
+      fossil_free(zMsg);
+    }
+
+    if( nByte==0 ){
+      blob_appendf(pJson, "\"fsize\":0");
+    }else{
+      blob_appendf(pJson, "\"fsize\":%d,\"fname\":%!j,\"fmime\":%!j",
+          nByte, zFName, zFMime);
+    }
+
+    if( iToDel ){
+      blob_appendf(pJson, ",\"mdel\":%d}", iToDel);
+    }else{
+      blob_append(pJson, "}", 1);
+    }
+  }
+  db_reset(p);
+
+  return cnt;
 }
 
 /*
@@ -571,7 +678,6 @@ void chat_poll_webpage(void){
   const int iDelay = 1000;    /* Delay until next poll (milliseconds) */
   int nDelay;                 /* Maximum delay.*/
   const char *zChatUser;      /* chat-timeline-user */
-  int isWiki = 0;             /* True if chat message is x-fossil-wiki */
   int msgid = atoi(PD("name","0"));
   const int msgBefore = atoi(PD("before","0"));
   int nLimit = msgBefore>0 ? atoi(PD("n","0")) : 0;
@@ -625,60 +731,7 @@ void chat_poll_webpage(void){
   blob_reset(&sql);
   blob_init(&json, "{\"msgs\":[\n", -1);
   while( nDelay>0 ){
-    int cnt = 0;
-    while( db_step(&q1)==SQLITE_ROW ){
-      int id = db_column_int(&q1, 0);
-      const char *zDate = db_column_text(&q1, 1);
-      const char *zFrom = db_column_text(&q1, 2);
-      const char *zRawMsg = db_column_text(&q1, 3);
-      int nByte = db_column_int(&q1, 4);
-      const char *zFName = db_column_text(&q1, 5);
-      const char *zFMime = db_column_text(&q1, 6);
-      int iToDel = db_column_int(&q1, 7);
-      const char *zLMtime = db_column_text(&q1, 8);
-      char *zMsg;
-      if(cnt++){
-        blob_append(&json, ",\n", 2);
-      }
-      blob_appendf(&json, "{\"msgid\":%d,", id);
-      blob_appendf(&json, "\"mtime\":\"%.10sT%sZ\",", zDate, zDate+11);
-      if( zLMtime && zLMtime[0] ){
-        blob_appendf(&json, "\"lmtime\":%!j,", zLMtime);
-      }
-      blob_append(&json, "\"xfrom\":", -1);
-      if(zFrom){
-        blob_appendf(&json, "%!j,", zFrom);
-        isWiki = fossil_strcmp(zFrom,zChatUser)==0;
-      }else{
-        /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
-        blob_appendf(&json, "null,");
-        isWiki = 0;
-      }
-      blob_appendf(&json, "\"uclr\":%!j,",
-                 isWiki ? "transparent" : user_color(zFrom ? zFrom : "nobody"));
-
-      if(bRaw){
-        blob_appendf(&json, "\"xmsg\":%!j,", zRawMsg);
-      }else{
-        zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "", isWiki);
-        blob_appendf(&json, "\"xmsg\":%!j,", zMsg);
-        fossil_free(zMsg);
-      }
-
-      if( nByte==0 ){
-        blob_appendf(&json, "\"fsize\":0");
-      }else{
-        blob_appendf(&json, "\"fsize\":%d,\"fname\":%!j,\"fmime\":%!j",
-               nByte, zFName, zFMime);
-      }
-
-      if( iToDel ){
-        blob_appendf(&json, ",\"mdel\":%d}", iToDel);
-      }else{
-        blob_append(&json, "}", 1);
-      }
-    }
-    db_reset(&q1);
+    int cnt = chat_poll_rowstojson(&q1, zChatUser, bRaw, &json);
     if( cnt || msgBefore>0 ){
       break;
     }
@@ -694,6 +747,73 @@ void chat_poll_webpage(void){
   } /* Exit by "break" */
   db_finalize(&q1);
   blob_append(&json, "\n]}", 3);
+  cgi_set_content(&json);
+  return;
+}
+
+
+/*
+** WEBPAGE: chat-query hidden loadavg-exempt
+*/
+void chat_query_webpage(void){
+  Blob json;                  /* The json to be constructed and returned */
+  Blob sql = empty_blob;
+  Stmt q1;
+  int nLimit = atoi(PD("n","500"));
+  int iFirst = atoi(PD("i","0"));
+  const char *zQuery = PD("q", "");
+  i64 iMin = 0;
+  i64 iMax = 0;
+
+  login_check_credentials();
+  if( !g.perm.Chat ) {
+    chat_emit_permissions_error(1);
+    return;
+  }
+  chat_create_tables();
+  cgi_set_content_type("application/json");
+
+  if( zQuery[0] ){
+    iMax = db_int64(0, "SELECT max(msgid) FROM chat");
+    iMin = db_int64(0, "SELECT min(msgid) FROM chat");
+    if( '#'==zQuery[0] ){
+      /* Assume we're looking for an exact msgid match. */
+      ++zQuery;
+      blob_append_sql(&sql,
+        "SELECT msgid, datetime(mtime), xfrom, "
+        "  xmsg, octet_length(file), fname, fmime, mdel, lmtime "
+        "  FROM chat WHERE msgid=+%Q",
+        zQuery
+      );
+    }else{
+      char * zPat = search_simplify_pattern(zQuery);
+      blob_append_sql(&sql,
+        "SELECT * FROM ("
+        "SELECT c.msgid, datetime(c.mtime), c.xfrom, "
+        "  highlight(chatfts1, 0, '<span class=\"match\">', '</span>'), "
+        "  octet_length(c.file), c.fname, c.fmime, c.mdel, c.lmtime "
+        "  FROM chatfts1(%Q) f, chat c "
+        "  WHERE f.rowid=c.msgid"
+        "  ORDER BY f.rowid DESC LIMIT %d"
+        ") ORDER BY 1 ASC", zPat, nLimit
+      );
+      fossil_free(zPat);
+    }
+  }else{
+    blob_append_sql(&sql,
+        "SELECT msgid, datetime(mtime), xfrom, "
+        "  xmsg, octet_length(file), fname, fmime, mdel, lmtime"
+        "  FROM chat WHERE msgid>=%d LIMIT %d",
+        iFirst, nLimit
+    );
+  }
+
+  db_prepare(&q1, "%s", blob_sql_text(&sql));
+  blob_reset(&sql);
+  blob_init(&json, "{\"msgs\":[\n", -1);
+  chat_poll_rowstojson(&q1, "", 0, &json);
+  db_finalize(&q1);
+  blob_appendf(&json, "\n], \"first\":%lld, \"last\":%lld}", iMin, iMax);
   cgi_set_content(&json);
   return;
 }

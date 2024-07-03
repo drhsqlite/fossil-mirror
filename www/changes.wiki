@@ -12,8 +12,9 @@
      compatibility.
   *  Add new query parameters to the [/help?cmd=/timeline|/timeline page]:
      d2=, p2=, and dp2=.
-  *  Add options to the [/help?cmd=tag|fossil tag] command that will list tag values
+  *  Add options to the [/help?cmd=tag|fossil tag] command that will list tag values.
   *  Add ability to upload unversioned files via the [/help?cmd=/uvlist|/uvlist page].
+  *  Add history search to the [/help?cmd=/chat|/chat page].
 
 
 <h2 id='v2_24'>Changes for version 2.24 (2024-04-23)</h2>
@@ -36,7 +37,7 @@
            This constitutes a <strong>breaking change</strong> for those with
            custom skins; see [./customskin.md#version-2.24 | this section of
            the docs] for migration advice.
-     <li>  Add a new link added to the [/login] page that allows the user to 
+     <li>  Add a new link added to the [/login] page that allows the user to
            [/skins|select their preferred skin]. This preference is stored in
            the [/fdscookie|fossil display_settings cookie].
      <li>  The /setup_skin_admin page is simplified to let administrators easily
