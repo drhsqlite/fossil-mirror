@@ -421,6 +421,7 @@ void style_set_current_page(const char *zFormat, ...){
 static void stylesheet_url_var(void){
   char *zBuiltin;              /* Auxiliary page-specific CSS page */
   Blob url;                    /* The URL */
+  const char * zPage = local_zCurrentPage ? local_zCurrentPage : g.zPath;
 
   /* Initialize the URL to its baseline */
   url = empty_blob;
@@ -440,9 +441,9 @@ static void stylesheet_url_var(void){
   ** path information and include the page-specific CSS along with the
   ** default CSS when it delivers the page.
   */
-  zBuiltin = mprintf("style.%s.css", g.zPath);
+  zBuiltin = mprintf("style.%s.css", zPage);
   if( builtin_file(zBuiltin,0)!=0 ){
-    blob_appendf(&url, "/%s", g.zPath);
+    blob_appendf(&url, "/%s", zPage);
   }
   fossil_free(zBuiltin);
 

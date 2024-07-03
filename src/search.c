@@ -979,6 +979,29 @@ static void search_rank_sqlfunc(
 }
 
 /*
+** Expects a search pattern string. Makes a copy of the string,
+** replaces all non-alphanum ASCII characters with a space, and
+** lower-cases all upper-case ASCII characters. The intent is to avoid
+** causing errors in FTS5 searches with inputs which contain AND, OR,
+** and symbols like #. The caller is responsible for passing the
+** result to fossil_free().
+*/
+char *search_simplify_pattern(const char * zPattern){
+  char *zPat = mprintf("%s",zPattern);
+  int i;
+  for(i=0; zPat[i]; i++){
+    if( (zPat[i]&0x80)==0 && !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
+    if( fossil_isupper(zPat[i]) ) zPat[i] = fossil_tolower(zPat[i]);
+  }
+  for(i--; i>=0 && zPat[i]==' '; i--){}
+  if( i<0 ){
+    fossil_free(zPat);
+    zPat = mprintf("\"\"");
+  }
+  return zPat;
+}
+
+/*
 ** When this routine is called, there already exists a table
 **
 **       x(label,url,score,id,snip).
@@ -999,21 +1022,12 @@ LOCAL void search_indexed(
   unsigned int srchFlags      /* What to search over */
 ){
   Blob sql;
-  char *zPat = mprintf("%s",zPattern);
-  int i;
+  char *zPat;
   static const char *zSnippetCall;
   if( srchFlags==0 ) return;
   sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
      search_rank_sqlfunc, 0, 0);
-  for(i=0; zPat[i]; i++){
-    if( (zPat[i]&0x80)==0 && !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
-    if( fossil_isupper(zPat[i]) ) zPat[i] = fossil_tolower(zPat[i]);
-  }
-  for(i--; i>=0 && zPat[i]==' '; i--){}
-  if( i<0 ){
-    fossil_free(zPat);
-    zPat = mprintf("\"\"");
-  }
+  zPat = search_simplify_pattern(zPattern);
   blob_init(&sql, 0, 0);
   if( search_index_type(0)==4 ){
     /* If this repo is still using the legacy FTS4 search index, then
@@ -1639,6 +1653,7 @@ static const char zFtsDrop[] =
 @ DROP TABLE IF EXISTS repository.ftsidx;
 @ DROP VIEW IF EXISTS repository.ftscontent;
 @ DROP TABLE IF EXISTS repository.ftsdocs;
+@ DROP TABLE IF EXISTS repository.chatfts1;
 ;
 
 #if INTERFACE
@@ -1685,6 +1700,21 @@ int search_tokenizer_type(int bRecheck){
 }
 
 /*
+** Returns a string in the form ",tokenize=X", where X is the string
+** counterpart of the given FTS5TOK_xyz value.  Returns "" if tokType
+** does not correspond to a known FTS5 tokenizer.
+*/
+const char * search_tokenize_arg_for_type(int tokType){
+  switch( tokType ){
+    case FTS5TOK_PORTER: return ",tokenize=porter";
+    case FTS5TOK_UNICODE61: return ",tokenize=unicode61";
+    case FTS5TOK_TRIGRAM: return ",tokenize=trigram";
+    case FTS5TOK_NONE:
+    default: return "";
+  }
+}
+
+/*
 ** Returns a string value suitable for use as the search-tokenizer
 ** setting's value, depending on the value of z. If z is 0 then the
 ** current search-tokenizer value is used as the basis for formulating
@@ -1728,14 +1758,9 @@ void search_set_tokenizer(const char *zName){
 */
 static int searchIdxExists = -1;
 void search_create_index(void){
-  const int useTokenizer = search_tokenizer_type(0);
-  const char *zExtra;
-  switch(useTokenizer){
-    case FTS5TOK_PORTER: zExtra = ",tokenize=porter"; break;
-    case FTS5TOK_UNICODE61: zExtra = ",tokenize=unicode61"; break;
-    case FTS5TOK_TRIGRAM: zExtra = ",tokenize=trigram"; break;
-    default: zExtra = ""; break;
-  }
+  const char *zExtra =
+    search_tokenize_arg_for_type(search_tokenizer_type(0));
+  assert( zExtra );
   search_sql_setup(g.db);
   db_multi_exec(zFtsSchema/*works-like:"%s"*/, zExtra/*safe-for-%s*/);
   searchIdxExists = 1;
@@ -2059,6 +2084,9 @@ void search_rebuild_index(void){
   search_create_index();
   search_fill_index();
   search_update_index(search_restrict(SRCH_ALL));
+  if( db_table_exists("repository","chat") ){
+    chat_rebuild_index(1);
+  }
   fossil_print(" done\n");
 }
 
