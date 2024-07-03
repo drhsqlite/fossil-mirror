@@ -979,6 +979,29 @@ static void search_rank_sqlfunc(
 }
 
 /*
+** Expects a search pattern string. Makes a copy of the string,
+** replaces all non-alphanum ASCII characters with a space, and
+** lower-cases all upper-case ASCII characters. The intent is to avoid
+** causing errors in FTS5 searches with inputs which contain AND, OR,
+** and symbols like #. The caller is responsible for passing the
+** result to fossil_free().
+*/
+char *search_simplify_pattern(const char * zPattern){
+  char *zPat = mprintf("%s",zPattern);
+  int i;
+  for(i=0; zPat[i]; i++){
+    if( (zPat[i]&0x80)==0 && !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
+    if( fossil_isupper(zPat[i]) ) zPat[i] = fossil_tolower(zPat[i]);
+  }
+  for(i--; i>=0 && zPat[i]==' '; i--){}
+  if( i<0 ){
+    fossil_free(zPat);
+    zPat = mprintf("\"\"");
+  }
+  return zPat;
+}
+
+/*
 ** When this routine is called, there already exists a table
 **
 **       x(label,url,score,id,snip).
@@ -999,21 +1022,12 @@ LOCAL void search_indexed(
   unsigned int srchFlags      /* What to search over */
 ){
   Blob sql;
-  char *zPat = mprintf("%s",zPattern);
-  int i;
+  char *zPat;
   static const char *zSnippetCall;
   if( srchFlags==0 ) return;
   sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
      search_rank_sqlfunc, 0, 0);
-  for(i=0; zPat[i]; i++){
-    if( (zPat[i]&0x80)==0 && !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
-    if( fossil_isupper(zPat[i]) ) zPat[i] = fossil_tolower(zPat[i]);
-  }
-  for(i--; i>=0 && zPat[i]==' '; i--){}
-  if( i<0 ){
-    fossil_free(zPat);
-    zPat = mprintf("\"\"");
-  }
+  zPat = search_simplify_pattern(zPattern);
   blob_init(&sql, 0, 0);
   if( search_index_type(0)==4 ){
     /* If this repo is still using the legacy FTS4 search index, then

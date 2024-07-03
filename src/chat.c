@@ -786,6 +786,7 @@ void chat_query_webpage(void){
         zQuery
       );
     }else{
+      char * zPat = search_simplify_pattern(zQuery);
       blob_append_sql(&sql,
         "SELECT * FROM ("
         "SELECT c.msgid, datetime(c.mtime), c.xfrom, "
@@ -794,8 +795,9 @@ void chat_query_webpage(void){
         "  FROM chatfts1(%Q) f, chat c "
         "  WHERE f.rowid=c.msgid"
         "  ORDER BY f.rowid DESC LIMIT %d"
-        ") ORDER BY 1 ASC", zQuery, nLimit
+        ") ORDER BY 1 ASC", zPat, nLimit
       );
+      fossil_free(zPat);
     }
   }else{
     blob_append_sql(&sql,

@@ -1,5 +1,5 @@
-C Chat\shelp\stext\scleanups\sand\sadd\sa\sFIXME\sregarding\sconnection\sfailure\s(as\sopposed\sto\sHTTP-level\serrors)\swhile\spolling\sfor\snew\schat\smessages\s(which\sis\snot\sa\snew\sproblem,\sbut\sis\sone\swhich\scame\sup\swhile\sworking\son\sfts5-chat-search).
-D 2024-07-02T12:04:47.910
+C Apply\sthe\slogic\sin/around\s[ec68aaf42536b4fb]\sto\sthe\schat\ssearch\sso\sthat\sit\sdoes\snot\sabort,\sand\sgenerate\san\serror\slog\sentry,\swhen\sgiven\scharacters\swhich\sfts5\sdoes\snot\slike.
+D 2024-07-03T10:26:35.923
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c a5a22e5368ec514d6c45ef7607aa551aa2aefe7cc18c7b17a7775a4c0d59ce63
-F src/chat.c 2c3fd031a7b71318223e03946ded106bdf8ab259d07892c3755c27995a62651a
+F src/chat.c 8436119515da25b8b8a593294986972460cd0f9be6dcae9e6f6b13f60bf4776f
 F src/checkin.c 2e10b230ccd15ee4b4d2a043aed9bdfa8bb5f070ff45a5774a354c49826e2e17
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -521,7 +521,7 @@ F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c ff3f6164e5dc4f798e53635a4cfdb627931a9e9f2cfa97b33ee8e217df6533f5
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 6d88d848daf26d583972cdb06d575cf23a08ac3fa52f0371b5fdfcb3aefd244c
+F src/search.c e9e388269d6e528cb8e1f2e2adf04f5425195c6e08228deb37ce53817b916572
 F src/security_audit.c 6e0c2c2feb404a475e246f437a8bda6cb888e5e1e914d46ca1f7a5cd9f576887
 F src/setup.c 3d80b70ddace4010e91027481114cb730d6fb321aaf723e89360d474d753f3ab
 F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea019128
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 874a1bb920b1a5b2ef2153a185eb3f668aa0b0d1ee71d294345e93889c2d4f3c
-R 73de21a4a70f1227c75cae8c77f7732b
+P 4711a8c4ddd2e14af03b092c59311ad21f055fb92509d4e7fedac820cf60f9e3
+R fe54e74d4b7ce9f005722510c0b86248
 U stephan
-Z 1dba679a894a843dcca057474808bac0
+Z adff7a8ef9636c7ed9205fe66f619abe
 # Remove this line to create a well-formed Fossil manifest.
