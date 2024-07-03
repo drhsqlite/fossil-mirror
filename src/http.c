@@ -49,6 +49,11 @@
 /* Keep track of HTTP Basic Authorization failures */
 static int fSeenHttpAuth = 0;
 
+/* The N value for most recent http-request-N.txt and http-reply-N.txt
+** trace files.
+*/
+static int traceCnt = 0;
+
 /*
 ** Construct the "login" card with the client credentials.
 **
@@ -393,6 +398,25 @@ void ssh_add_path_argument(Blob *pCmd){
 }
 
 /*
+** Return the complete text of the last HTTP reply as saved in the
+** http-reply-N.txt file.  This only works if run using --httptrace.
+** Without the --httptrace option, this routine returns a NULL pointer.
+** It still might return a NULL pointer if for some reason it cannot
+** find and open the last http-reply-N.txt file.
+*/
+char *http_last_trace_reply(void){
+  Blob x;
+  int n;
+  char *zFilename;
+  if( g.fHttpTrace==0 ) return 0;
+  zFilename = mprintf("http-reply-%d.txt", traceCnt);
+  n = blob_read_from_file(&x, zFilename, ExtFILE);
+  fossil_free(zFilename);
+  if( n<=0 ) return 0;
+  return blob_str(&x);
+}
+
+/*
 ** Sign the content in pSend, compress it, and send it to the server
 ** via HTTP or HTTPS.  Get a reply, uncompress the reply, and store the reply
 ** in pRecv.  pRecv is assumed to be uninitialized when
@@ -414,7 +438,6 @@ int http_exchange(
   Blob hdr;             /* The HTTP request header */
   int closeConnection;  /* True to close the connection when done */
   int iLength;          /* Expected length of the reply payload */
-  int iRecvLen;         /* Received length of the reply payload */
   int rc = 0;           /* Result code */
   int iHttpVersion;     /* Which version of HTTP protocol server uses */
   char *zLine;          /* A single line of the reply header */
@@ -467,7 +490,6 @@ int http_exchange(
   **      ./fossil test-http <http-request-1.txt
   */
   if( g.fHttpTrace ){
-    static int traceCnt = 0;
     char *zOutFile;
     FILE *out;
     traceCnt++;
@@ -504,6 +526,7 @@ int http_exchange(
   */
   closeConnection = 1;
   iLength = -1;
+  iHttpVersion = -1;
   while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){
     if( mHttpFlags & HTTP_VERBOSE ){
       fossil_print("Read: [%s]\n", zLine);
@@ -542,17 +565,15 @@ int http_exchange(
         fossil_warning("server says: %s", &zLine[ii]);
         goto write_err;
       }
+      if( iHttpVersion<0 ) iHttpVersion = 1;
       closeConnection = 0;
     }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
-      char c;
-      for(i=11; fossil_isspace(zLine[i]); i++){}
-      c = zLine[i];
-      if( c=='c' || c=='C' ){
+      if( sqlite3_strlike("%close%", &zLine[11], 0)==0 ){
         closeConnection = 1;
-      }else if( c=='k' || c=='K' ){
+      }else if( sqlite3_strlike("%keep-alive%", &zLine[11], 0)==0 ){
         closeConnection = 0;
       }
     }else if( ( rc==301 || rc==302 || rc==307 || rc==308 ) &&
@@ -615,7 +636,7 @@ int http_exchange(
       }
     }
   }
-  if( iLength<0 ){
+  if( iHttpVersion<0 ){
     /* We got nothing back from the server.  If using the ssh: protocol,
     ** this might mean we need to add or remove the PATH=... argument
     ** to the SSH command being sent.  If that is the case, retry the
@@ -661,13 +682,40 @@ int http_exchange(
   ** Extract the reply payload that follows the header
   */
   blob_zero(pReply);
-  blob_resize(pReply, iLength);
-  iRecvLen = transport_receive(&g.url, blob_buffer(pReply), iLength);
-  if( iRecvLen != iLength ){
-    fossil_warning("response truncated: got %d bytes of %d", iRecvLen, iLength);
-    goto write_err;
+  if( iLength==0 ){
+    /* No content to read */
+  }else if( iLength>0 ){
+    /* Read content of a known length */
+    int iRecvLen;         /* Received length of the reply payload */
+    blob_resize(pReply, iLength);
+    iRecvLen = transport_receive(&g.url, blob_buffer(pReply), iLength);
+    if( mHttpFlags & HTTP_VERBOSE ){
+      fossil_print("Reply received: %d of %d bytes\n", iRecvLen, iLength);
+    }
+    if( iRecvLen != iLength ){
+      fossil_warning("response truncated: got %d bytes of %d",
+                     iRecvLen, iLength);
+      goto write_err;
+    }
+  }else if( closeConnection ){
+    /* Read content until end-of-file */
+    int iRecvLen;         /* Received length of the reply payload */
+    unsigned int nReq = 1000;
+    unsigned int nPrior = 0;
+    do{
+      nReq *= 2;
+      blob_resize(pReply, nPrior+nReq);
+      iRecvLen = transport_receive(&g.url, &pReply->aData[nPrior], (int)nReq);
+      nPrior += iRecvLen;
+      pReply->nUsed = nPrior;
+    }while( iRecvLen==nReq && nReq<0x20000000 );
+    if( mHttpFlags & HTTP_VERBOSE ){
+      fossil_print("Reply received: %u bytes (w/o content-length)\n", nPrior);
+    }
+  }else{
+    assert( iLength<0 && !closeConnection );
+    fossil_warning("\"content-length\" missing from %d keep-alive reply", rc);
   }
-  blob_resize(pReply, iLength);
   if( isError ){
     char *z;
     int i, j;

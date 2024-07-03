@@ -873,13 +873,13 @@ void configuration_cmd(void){
     url_enable_proxy("via proxy: ");
     if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
-      client_sync(0,0,(unsigned)mask,0);
+      client_sync(0,0,(unsigned)mask,0,0);
     }else if( strncmp(zMethod, "pull", n)==0 ){
       if( overwriteFlag ) db_unprotect(PROTECT_USER);
-      client_sync(0,(unsigned)mask,0,0);
+      client_sync(0,(unsigned)mask,0,0,0);
       if( overwriteFlag ) db_protect_pop();
     }else{
-      client_sync(0,(unsigned)mask,(unsigned)mask,0);
+      client_sync(0,(unsigned)mask,(unsigned)mask,0,0);
     }
   }else
   if( strncmp(zMethod, "reset", n)==0 ){

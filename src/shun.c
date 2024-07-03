@@ -376,9 +376,7 @@ void rcvfromlist_page(void){
     return;
   }
   style_header("Artifact Receipts");
-  style_submenu_element("Admin-Log", "admin_log");
-  style_submenu_element("User-Log", "access_log");
-  style_submenu_element("Error-Log", "errorlog");
+  style_submenu_element("Log-Menu", "setup-logmenu");
   if( showAll ){
     ofst = 0;
   }else{

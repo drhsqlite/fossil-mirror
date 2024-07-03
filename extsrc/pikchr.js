@@ -3,13 +3,14 @@ var initPikchrModule = (() => {
   var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
   
   return (
-function(moduleArg = {}) {
+function(config) {
+  var initPikchrModule = config || {};
 
-var Module = moduleArg;
+var Module = typeof initPikchrModule != "undefined" ? initPikchrModule : {};
 
 var readyPromiseResolve, readyPromiseReject;
 
-Module["ready"] = new Promise((resolve, reject) => {
+Module["ready"] = new Promise(function(resolve, reject) {
  readyPromiseResolve = resolve;
  readyPromiseReject = reject;
 });
@@ -37,7 +38,7 @@ function locateFile(path) {
  return scriptDirectory + path;
 }
 
-var read_, readAsync, readBinary;
+var read_, readAsync, readBinary, setWindowTitle;
 
 if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
  if (ENVIRONMENT_IS_WORKER) {
@@ -48,33 +49,33 @@ if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
  if (_scriptDir) {
   scriptDirectory = _scriptDir;
  }
- if (scriptDirectory.startsWith("blob:")) {
-  scriptDirectory = "";
- } else {
+ if (scriptDirectory.indexOf("blob:") !== 0) {
   scriptDirectory = scriptDirectory.substr(0, scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1);
+ } else {
+  scriptDirectory = "";
  }
  {
   read_ = url => {
-   var xhr = new XMLHttpRequest;
+   var xhr = new XMLHttpRequest();
    xhr.open("GET", url, false);
    xhr.send(null);
    return xhr.responseText;
   };
   if (ENVIRONMENT_IS_WORKER) {
    readBinary = url => {
-    var xhr = new XMLHttpRequest;
+    var xhr = new XMLHttpRequest();
     xhr.open("GET", url, false);
     xhr.responseType = "arraybuffer";
     xhr.send(null);
-    return new Uint8Array(/** @type{!ArrayBuffer} */ (xhr.response));
+    return new Uint8Array(xhr.response);
    };
   }
   readAsync = (url, onload, onerror) => {
-   var xhr = new XMLHttpRequest;
+   var xhr = new XMLHttpRequest();
    xhr.open("GET", url, true);
    xhr.responseType = "arraybuffer";
    xhr.onload = () => {
-    if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
+    if (xhr.status == 200 || xhr.status == 0 && xhr.response) {
      onload(xhr.response);
      return;
     }
@@ -84,11 +85,12 @@ if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
    xhr.send(null);
   };
  }
+ setWindowTitle = title => document.title = title;
 } else {}
 
 var out = Module["print"] || console.log.bind(console);
 
-var err = Module["printErr"] || console.error.bind(console);
+var err = Module["printErr"] || console.warn.bind(console);
 
 Object.assign(Module, moduleOverrides);
 
@@ -104,6 +106,8 @@ var wasmBinary;
 
 if (Module["wasmBinary"]) wasmBinary = Module["wasmBinary"];
 
+var noExitRuntime = Module["noExitRuntime"] || true;
+
 if (typeof WebAssembly != "object") {
  abort("no native wasm support detected");
 }
@@ -114,19 +118,102 @@ var ABORT = false;
 
 var EXITSTATUS;
 
-var /** @type {!Int8Array} */ HEAP8, /** @type {!Uint8Array} */ HEAPU8, /** @type {!Int16Array} */ HEAP16, /** @type {!Uint16Array} */ HEAPU16, /** @type {!Int32Array} */ HEAP32, /** @type {!Uint32Array} */ HEAPU32, /** @type {!Float32Array} */ HEAPF32, /** @type {!Float64Array} */ HEAPF64;
+var UTF8Decoder = typeof TextDecoder != "undefined" ? new TextDecoder("utf8") : undefined;
+
+function UTF8ArrayToString(heapOrArray, idx, maxBytesToRead) {
+ var endIdx = idx + maxBytesToRead;
+ var endPtr = idx;
+ while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
+ if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
+  return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
+ }
+ var str = "";
+ while (idx < endPtr) {
+  var u0 = heapOrArray[idx++];
+  if (!(u0 & 128)) {
+   str += String.fromCharCode(u0);
+   continue;
+  }
+  var u1 = heapOrArray[idx++] & 63;
+  if ((u0 & 224) == 192) {
+   str += String.fromCharCode((u0 & 31) << 6 | u1);
+   continue;
+  }
+  var u2 = heapOrArray[idx++] & 63;
+  if ((u0 & 240) == 224) {
+   u0 = (u0 & 15) << 12 | u1 << 6 | u2;
+  } else {
+   u0 = (u0 & 7) << 18 | u1 << 12 | u2 << 6 | heapOrArray[idx++] & 63;
+  }
+  if (u0 < 65536) {
+   str += String.fromCharCode(u0);
+  } else {
+   var ch = u0 - 65536;
+   str += String.fromCharCode(55296 | ch >> 10, 56320 | ch & 1023);
+  }
+ }
+ return str;
+}
+
+function UTF8ToString(ptr, maxBytesToRead) {
+ return ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : "";
+}
+
+function stringToUTF8Array(str, heap, outIdx, maxBytesToWrite) {
+ if (!(maxBytesToWrite > 0)) return 0;
+ var startIdx = outIdx;
+ var endIdx = outIdx + maxBytesToWrite - 1;
+ for (var i = 0; i < str.length; ++i) {
+  var u = str.charCodeAt(i);
+  if (u >= 55296 && u <= 57343) {
+   var u1 = str.charCodeAt(++i);
+   u = 65536 + ((u & 1023) << 10) | u1 & 1023;
+  }
+  if (u <= 127) {
+   if (outIdx >= endIdx) break;
+   heap[outIdx++] = u;
+  } else if (u <= 2047) {
+   if (outIdx + 1 >= endIdx) break;
+   heap[outIdx++] = 192 | u >> 6;
+   heap[outIdx++] = 128 | u & 63;
+  } else if (u <= 65535) {
+   if (outIdx + 2 >= endIdx) break;
+   heap[outIdx++] = 224 | u >> 12;
+   heap[outIdx++] = 128 | u >> 6 & 63;
+   heap[outIdx++] = 128 | u & 63;
+  } else {
+   if (outIdx + 3 >= endIdx) break;
+   heap[outIdx++] = 240 | u >> 18;
+   heap[outIdx++] = 128 | u >> 12 & 63;
+   heap[outIdx++] = 128 | u >> 6 & 63;
+   heap[outIdx++] = 128 | u & 63;
+  }
+ }
+ heap[outIdx] = 0;
+ return outIdx - startIdx;
+}
+
+function stringToUTF8(str, outPtr, maxBytesToWrite) {
+ return stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
+}
+
+var HEAP8, HEAPU8, HEAP16, HEAPU16, HEAP32, HEAPU32, HEAPF32, HEAPF64;
 
 function updateMemoryViews() {
  var b = wasmMemory.buffer;
  Module["HEAP8"] = HEAP8 = new Int8Array(b);
  Module["HEAP16"] = HEAP16 = new Int16Array(b);
+ Module["HEAP32"] = HEAP32 = new Int32Array(b);
  Module["HEAPU8"] = HEAPU8 = new Uint8Array(b);
  Module["HEAPU16"] = HEAPU16 = new Uint16Array(b);
- Module["HEAP32"] = HEAP32 = new Int32Array(b);
  Module["HEAPU32"] = HEAPU32 = new Uint32Array(b);
  Module["HEAPF32"] = HEAPF32 = new Float32Array(b);
  Module["HEAPF64"] = HEAPF64 = new Float64Array(b);
 }
+
+var INITIAL_MEMORY = Module["INITIAL_MEMORY"] || 16777216;
+
+var wasmTable;
 
 var __ATPRERUN__ = [];
 
@@ -135,6 +222,10 @@ var __ATINIT__ = [];
 var __ATPOSTRUN__ = [];
 
 var runtimeInitialized = false;
+
+function keepRuntimeAlive() {
+ return noExitRuntime;
+}
 
 function preRun() {
  if (Module["preRun"]) {
@@ -181,12 +272,16 @@ var dependenciesFulfilled = null;
 
 function addRunDependency(id) {
  runDependencies++;
- Module["monitorRunDependencies"]?.(runDependencies);
+ if (Module["monitorRunDependencies"]) {
+  Module["monitorRunDependencies"](runDependencies);
+ }
 }
 
 function removeRunDependency(id) {
  runDependencies--;
- Module["monitorRunDependencies"]?.(runDependencies);
+ if (Module["monitorRunDependencies"]) {
+  Module["monitorRunDependencies"](runDependencies);
+ }
  if (runDependencies == 0) {
   if (runDependencyWatcher !== null) {
    clearInterval(runDependencyWatcher);
@@ -200,24 +295,25 @@ function removeRunDependency(id) {
  }
 }
 
-/** @param {string|number=} what */ function abort(what) {
- Module["onAbort"]?.(what);
+function abort(what) {
+ if (Module["onAbort"]) {
+  Module["onAbort"](what);
+ }
  what = "Aborted(" + what + ")";
  err(what);
  ABORT = true;
  EXITSTATUS = 1;
  what += ". Build with -sASSERTIONS for more info.";
- /** @suppress {checkTypes} */ var e = new WebAssembly.RuntimeError(what);
+ var e = new WebAssembly.RuntimeError(what);
  readyPromiseReject(e);
  throw e;
 }
 
 var dataURIPrefix = "data:application/octet-stream;base64,";
 
-/**
- * Indicates whether filename is a base64 data URI.
- * @noinline
- */ var isDataURI = filename => filename.startsWith(dataURIPrefix);
+function isDataURI(filename) {
+ return filename.startsWith(dataURIPrefix);
+}
 
 var wasmBinaryFile;
 
@@ -227,351 +323,246 @@ if (!isDataURI(wasmBinaryFile)) {
  wasmBinaryFile = locateFile(wasmBinaryFile);
 }
 
-function getBinarySync(file) {
- if (file == wasmBinaryFile && wasmBinary) {
-  return new Uint8Array(wasmBinary);
+function getBinary(file) {
+ try {
+  if (file == wasmBinaryFile && wasmBinary) {
+   return new Uint8Array(wasmBinary);
+  }
+  if (readBinary) {
+   return readBinary(file);
+  }
+  throw "both async and sync fetching of the wasm failed";
+ } catch (err) {
+  abort(err);
  }
- if (readBinary) {
-  return readBinary(file);
- }
- throw "both async and sync fetching of the wasm failed";
 }
 
-function getBinaryPromise(binaryFile) {
+function getBinaryPromise() {
  if (!wasmBinary && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER)) {
   if (typeof fetch == "function") {
-   return fetch(binaryFile, {
+   return fetch(wasmBinaryFile, {
     credentials: "same-origin"
-   }).then(response => {
+   }).then(function(response) {
     if (!response["ok"]) {
-     throw `failed to load wasm binary file at '${binaryFile}'`;
+     throw "failed to load wasm binary file at '" + wasmBinaryFile + "'";
     }
     return response["arrayBuffer"]();
-   }).catch(() => getBinarySync(binaryFile));
+   }).catch(function() {
+    return getBinary(wasmBinaryFile);
+   });
   }
  }
- return Promise.resolve().then(() => getBinarySync(binaryFile));
-}
-
-function instantiateArrayBuffer(binaryFile, imports, receiver) {
- return getBinaryPromise(binaryFile).then(binary => WebAssembly.instantiate(binary, imports)).then(instance => instance).then(receiver, reason => {
-  err(`failed to asynchronously prepare wasm: ${reason}`);
-  abort(reason);
+ return Promise.resolve().then(function() {
+  return getBinary(wasmBinaryFile);
  });
-}
-
-function instantiateAsync(binary, binaryFile, imports, callback) {
- if (!binary && typeof WebAssembly.instantiateStreaming == "function" && !isDataURI(binaryFile) && typeof fetch == "function") {
-  return fetch(binaryFile, {
-   credentials: "same-origin"
-  }).then(response => {
-   /** @suppress {checkTypes} */ var result = WebAssembly.instantiateStreaming(response, imports);
-   return result.then(callback, function(reason) {
-    err(`wasm streaming compile failed: ${reason}`);
-    err("falling back to ArrayBuffer instantiation");
-    return instantiateArrayBuffer(binaryFile, imports, callback);
-   });
-  });
- }
- return instantiateArrayBuffer(binaryFile, imports, callback);
 }
 
 function createWasm() {
  var info = {
-  "a": wasmImports
+  "a": asmLibraryArg
  };
- /** @param {WebAssembly.Module=} module*/ function receiveInstance(instance, module) {
-  wasmExports = instance.exports;
-  wasmMemory = wasmExports["d"];
+ function receiveInstance(instance, module) {
+  var exports = instance.exports;
+  Module["asm"] = exports;
+  wasmMemory = Module["asm"]["d"];
   updateMemoryViews();
-  addOnInit(wasmExports["e"]);
+  wasmTable = Module["asm"]["g"];
+  addOnInit(Module["asm"]["e"]);
   removeRunDependency("wasm-instantiate");
-  return wasmExports;
  }
  addRunDependency("wasm-instantiate");
  function receiveInstantiationResult(result) {
   receiveInstance(result["instance"]);
  }
+ function instantiateArrayBuffer(receiver) {
+  return getBinaryPromise().then(function(binary) {
+   return WebAssembly.instantiate(binary, info);
+  }).then(function(instance) {
+   return instance;
+  }).then(receiver, function(reason) {
+   err("failed to asynchronously prepare wasm: " + reason);
+   abort(reason);
+  });
+ }
+ function instantiateAsync() {
+  if (!wasmBinary && typeof WebAssembly.instantiateStreaming == "function" && !isDataURI(wasmBinaryFile) && typeof fetch == "function") {
+   return fetch(wasmBinaryFile, {
+    credentials: "same-origin"
+   }).then(function(response) {
+    var result = WebAssembly.instantiateStreaming(response, info);
+    return result.then(receiveInstantiationResult, function(reason) {
+     err("wasm streaming compile failed: " + reason);
+     err("falling back to ArrayBuffer instantiation");
+     return instantiateArrayBuffer(receiveInstantiationResult);
+    });
+   });
+  } else {
+   return instantiateArrayBuffer(receiveInstantiationResult);
+  }
+ }
  if (Module["instantiateWasm"]) {
   try {
-   return Module["instantiateWasm"](info, receiveInstance);
+   var exports = Module["instantiateWasm"](info, receiveInstance);
+   return exports;
   } catch (e) {
-   err(`Module.instantiateWasm callback failed with error: ${e}`);
+   err("Module.instantiateWasm callback failed with error: " + e);
    readyPromiseReject(e);
   }
  }
- instantiateAsync(wasmBinary, wasmBinaryFile, info, receiveInstantiationResult).catch(readyPromiseReject);
+ instantiateAsync().catch(readyPromiseReject);
  return {};
 }
 
-/** @constructor */ function ExitStatus(status) {
+var tempDouble;
+
+var tempI64;
+
+function ExitStatus(status) {
  this.name = "ExitStatus";
- this.message = `Program terminated with exit(${status})`;
+ this.message = "Program terminated with exit(" + status + ")";
  this.status = status;
 }
 
-var callRuntimeCallbacks = callbacks => {
+function callRuntimeCallbacks(callbacks) {
  while (callbacks.length > 0) {
   callbacks.shift()(Module);
  }
-};
+}
 
-/**
-     * @param {number} ptr
-     * @param {string} type
-     */ function getValue(ptr, type = "i8") {
+function getValue(ptr, type = "i8") {
  if (type.endsWith("*")) type = "*";
  switch (type) {
  case "i1":
-  return HEAP8[((ptr) >> 0)];
+  return HEAP8[ptr >> 0];
 
  case "i8":
-  return HEAP8[((ptr) >> 0)];
+  return HEAP8[ptr >> 0];
 
  case "i16":
-  return HEAP16[((ptr) >> 1)];
+  return HEAP16[ptr >> 1];
 
  case "i32":
-  return HEAP32[((ptr) >> 2)];
+  return HEAP32[ptr >> 2];
 
  case "i64":
-  abort("to do getValue(i64) use WASM_BIGINT");
+  return HEAP32[ptr >> 2];
 
  case "float":
-  return HEAPF32[((ptr) >> 2)];
+  return HEAPF32[ptr >> 2];
 
  case "double":
-  return HEAPF64[((ptr) >> 3)];
+  return HEAPF64[ptr >> 3];
 
  case "*":
-  return HEAPU32[((ptr) >> 2)];
+  return HEAPU32[ptr >> 2];
 
  default:
-  abort(`invalid type for getValue: ${type}`);
+  abort("invalid type for getValue: " + type);
  }
+ return null;
 }
 
-var noExitRuntime = Module["noExitRuntime"] || true;
-
-/**
-     * @param {number} ptr
-     * @param {number} value
-     * @param {string} type
-     */ function setValue(ptr, value, type = "i8") {
+function setValue(ptr, value, type = "i8") {
  if (type.endsWith("*")) type = "*";
  switch (type) {
  case "i1":
-  HEAP8[((ptr) >> 0)] = value;
+  HEAP8[ptr >> 0] = value;
   break;
 
  case "i8":
-  HEAP8[((ptr) >> 0)] = value;
+  HEAP8[ptr >> 0] = value;
   break;
 
  case "i16":
-  HEAP16[((ptr) >> 1)] = value;
+  HEAP16[ptr >> 1] = value;
   break;
 
  case "i32":
-  HEAP32[((ptr) >> 2)] = value;
+  HEAP32[ptr >> 2] = value;
   break;
 
  case "i64":
-  abort("to do setValue(i64) use WASM_BIGINT");
+  tempI64 = [ value >>> 0, (tempDouble = value, +Math.abs(tempDouble) >= 1 ? tempDouble > 0 ? (Math.min(+Math.floor(tempDouble / 4294967296), 4294967295) | 0) >>> 0 : ~~+Math.ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296) >>> 0 : 0) ], 
+  HEAP32[ptr >> 2] = tempI64[0], HEAP32[ptr + 4 >> 2] = tempI64[1];
+  break;
 
  case "float":
-  HEAPF32[((ptr) >> 2)] = value;
+  HEAPF32[ptr >> 2] = value;
   break;
 
  case "double":
-  HEAPF64[((ptr) >> 3)] = value;
+  HEAPF64[ptr >> 3] = value;
   break;
 
  case "*":
-  HEAPU32[((ptr) >> 2)] = value;
+  HEAPU32[ptr >> 2] = value;
   break;
 
  default:
-  abort(`invalid type for setValue: ${type}`);
+  abort("invalid type for setValue: " + type);
  }
 }
 
-var UTF8Decoder = typeof TextDecoder != "undefined" ? new TextDecoder("utf8") : undefined;
+function ___assert_fail(condition, filename, line, func) {
+ abort("Assertion failed: " + UTF8ToString(condition) + ", at: " + [ filename ? UTF8ToString(filename) : "unknown filename", line, func ? UTF8ToString(func) : "unknown function" ]);
+}
 
-/**
-     * Given a pointer 'idx' to a null-terminated UTF8-encoded string in the given
-     * array that contains uint8 values, returns a copy of that string as a
-     * Javascript String object.
-     * heapOrArray is either a regular array, or a JavaScript typed array view.
-     * @param {number} idx
-     * @param {number=} maxBytesToRead
-     * @return {string}
-     */ var UTF8ArrayToString = (heapOrArray, idx, maxBytesToRead) => {
- var endIdx = idx + maxBytesToRead;
- var endPtr = idx;
- while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
- if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
-  return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
- }
- var str = "";
- while (idx < endPtr) {
-  var u0 = heapOrArray[idx++];
-  if (!(u0 & 128)) {
-   str += String.fromCharCode(u0);
-   continue;
-  }
-  var u1 = heapOrArray[idx++] & 63;
-  if ((u0 & 224) == 192) {
-   str += String.fromCharCode(((u0 & 31) << 6) | u1);
-   continue;
-  }
-  var u2 = heapOrArray[idx++] & 63;
-  if ((u0 & 240) == 224) {
-   u0 = ((u0 & 15) << 12) | (u1 << 6) | u2;
-  } else {
-   u0 = ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (heapOrArray[idx++] & 63);
-  }
-  if (u0 < 65536) {
-   str += String.fromCharCode(u0);
-  } else {
-   var ch = u0 - 65536;
-   str += String.fromCharCode(55296 | (ch >> 10), 56320 | (ch & 1023));
-  }
- }
- return str;
-};
-
-/**
-     * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
-     * emscripten HEAP, returns a copy of that string as a Javascript String object.
-     *
-     * @param {number} ptr
-     * @param {number=} maxBytesToRead - An optional length that specifies the
-     *   maximum number of bytes to read. You can omit this parameter to scan the
-     *   string until the first 0 byte. If maxBytesToRead is passed, and the string
-     *   at [ptr, ptr+maxBytesToReadr[ contains a null byte in the middle, then the
-     *   string will cut short at that byte index (i.e. maxBytesToRead will not
-     *   produce a string of exact length [ptr, ptr+maxBytesToRead[) N.B. mixing
-     *   frequent uses of UTF8ToString() with and without maxBytesToRead may throw
-     *   JS JIT optimizations off, so it is worth to consider consistently using one
-     * @return {string}
-     */ var UTF8ToString = (ptr, maxBytesToRead) => ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : "";
-
-var ___assert_fail = (condition, filename, line, func) => {
- abort(`Assertion failed: ${UTF8ToString(condition)}, at: ` + [ filename ? UTF8ToString(filename) : "unknown filename", line, func ? UTF8ToString(func) : "unknown function" ]);
-};
-
-var abortOnCannotGrowMemory = requestedSize => {
+function abortOnCannotGrowMemory(requestedSize) {
  abort("OOM");
-};
+}
 
-var _emscripten_resize_heap = requestedSize => {
+function _emscripten_resize_heap(requestedSize) {
  var oldSize = HEAPU8.length;
- requestedSize >>>= 0;
+ requestedSize = requestedSize >>> 0;
  abortOnCannotGrowMemory(requestedSize);
+}
+
+var SYSCALLS = {
+ varargs: undefined,
+ get: function() {
+  SYSCALLS.varargs += 4;
+  var ret = HEAP32[SYSCALLS.varargs - 4 >> 2];
+  return ret;
+ },
+ getStr: function(ptr) {
+  var ret = UTF8ToString(ptr);
+  return ret;
+ }
 };
 
-var runtimeKeepaliveCounter = 0;
-
-var keepRuntimeAlive = () => noExitRuntime || runtimeKeepaliveCounter > 0;
-
-var _proc_exit = code => {
+function _proc_exit(code) {
  EXITSTATUS = code;
  if (!keepRuntimeAlive()) {
-  Module["onExit"]?.(code);
+  if (Module["onExit"]) Module["onExit"](code);
   ABORT = true;
  }
  quit_(code, new ExitStatus(code));
-};
+}
 
-/** @param {boolean|number=} implicit */ var exitJS = (status, implicit) => {
+function exitJS(status, implicit) {
  EXITSTATUS = status;
  _proc_exit(status);
-};
+}
 
 var _exit = exitJS;
 
-var getCFunc = ident => {
+function getCFunc(ident) {
  var func = Module["_" + ident];
  return func;
-};
+}
 
-var writeArrayToMemory = (array, buffer) => {
+function writeArrayToMemory(array, buffer) {
  HEAP8.set(array, buffer);
-};
+}
 
-var lengthBytesUTF8 = str => {
- var len = 0;
- for (var i = 0; i < str.length; ++i) {
-  var c = str.charCodeAt(i);
-  if (c <= 127) {
-   len++;
-  } else if (c <= 2047) {
-   len += 2;
-  } else if (c >= 55296 && c <= 57343) {
-   len += 4;
-   ++i;
-  } else {
-   len += 3;
-  }
- }
- return len;
-};
-
-var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
- if (!(maxBytesToWrite > 0)) return 0;
- var startIdx = outIdx;
- var endIdx = outIdx + maxBytesToWrite - 1;
- for (var i = 0; i < str.length; ++i) {
-  var u = str.charCodeAt(i);
-  if (u >= 55296 && u <= 57343) {
-   var u1 = str.charCodeAt(++i);
-   u = 65536 + ((u & 1023) << 10) | (u1 & 1023);
-  }
-  if (u <= 127) {
-   if (outIdx >= endIdx) break;
-   heap[outIdx++] = u;
-  } else if (u <= 2047) {
-   if (outIdx + 1 >= endIdx) break;
-   heap[outIdx++] = 192 | (u >> 6);
-   heap[outIdx++] = 128 | (u & 63);
-  } else if (u <= 65535) {
-   if (outIdx + 2 >= endIdx) break;
-   heap[outIdx++] = 224 | (u >> 12);
-   heap[outIdx++] = 128 | ((u >> 6) & 63);
-   heap[outIdx++] = 128 | (u & 63);
-  } else {
-   if (outIdx + 3 >= endIdx) break;
-   heap[outIdx++] = 240 | (u >> 18);
-   heap[outIdx++] = 128 | ((u >> 12) & 63);
-   heap[outIdx++] = 128 | ((u >> 6) & 63);
-   heap[outIdx++] = 128 | (u & 63);
-  }
- }
- heap[outIdx] = 0;
- return outIdx - startIdx;
-};
-
-var stringToUTF8 = (str, outPtr, maxBytesToWrite) => stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
-
-var stringToUTF8OnStack = str => {
- var size = lengthBytesUTF8(str) + 1;
- var ret = stackAlloc(size);
- stringToUTF8(str, ret, size);
- return ret;
-};
-
-/**
-     * @param {string|null=} returnType
-     * @param {Array=} argTypes
-     * @param {Arguments|Array=} args
-     * @param {Object=} opts
-     */ var ccall = (ident, returnType, argTypes, args, opts) => {
+function ccall(ident, returnType, argTypes, args, opts) {
  var toC = {
   "string": str => {
    var ret = 0;
    if (str !== null && str !== undefined && str !== 0) {
-    ret = stringToUTF8OnStack(str);
+    var len = (str.length << 2) + 1;
+    ret = stackAlloc(len);
+    stringToUTF8(str, ret, len);
    }
    return ret;
   },
@@ -609,14 +600,11 @@ var stringToUTF8OnStack = str => {
  }
  ret = onDone(ret);
  return ret;
-};
+}
 
-/**
-     * @param {string=} returnType
-     * @param {Array=} argTypes
-     * @param {Object=} opts
-     */ var cwrap = (ident, returnType, argTypes, opts) => {
- var numericArgs = !argTypes || argTypes.every(type => type === "number" || type === "boolean");
+function cwrap(ident, returnType, argTypes, opts) {
+ argTypes = argTypes || [];
+ var numericArgs = argTypes.every(type => type === "number" || type === "boolean");
  var numericRet = returnType !== "string";
  if (numericRet && numericArgs && !opts) {
   return getCFunc(ident);
@@ -624,27 +612,35 @@ var stringToUTF8OnStack = str => {
  return function() {
   return ccall(ident, returnType, argTypes, arguments, opts);
  };
+}
+
+var asmLibraryArg = {
+ "a": ___assert_fail,
+ "b": _emscripten_resize_heap,
+ "c": _exit
 };
 
-var wasmImports = {
- /** @export */ a: ___assert_fail,
- /** @export */ b: _emscripten_resize_heap,
- /** @export */ c: _exit
+var asm = createWasm();
+
+var ___wasm_call_ctors = Module["___wasm_call_ctors"] = function() {
+ return (___wasm_call_ctors = Module["___wasm_call_ctors"] = Module["asm"]["e"]).apply(null, arguments);
 };
 
-var wasmExports = createWasm();
+var _pikchr = Module["_pikchr"] = function() {
+ return (_pikchr = Module["_pikchr"] = Module["asm"]["f"]).apply(null, arguments);
+};
 
-var ___wasm_call_ctors = () => (___wasm_call_ctors = wasmExports["e"])();
+var stackSave = Module["stackSave"] = function() {
+ return (stackSave = Module["stackSave"] = Module["asm"]["h"]).apply(null, arguments);
+};
 
-var _pikchr = Module["_pikchr"] = (a0, a1, a2, a3, a4) => (_pikchr = Module["_pikchr"] = wasmExports["f"])(a0, a1, a2, a3, a4);
+var stackRestore = Module["stackRestore"] = function() {
+ return (stackRestore = Module["stackRestore"] = Module["asm"]["i"]).apply(null, arguments);
+};
 
-var stackSave = () => (stackSave = wasmExports["h"])();
-
-var stackRestore = a0 => (stackRestore = wasmExports["i"])(a0);
-
-var stackAlloc = a0 => (stackAlloc = wasmExports["j"])(a0);
-
-Module["stackAlloc"] = stackAlloc;
+var stackAlloc = Module["stackAlloc"] = function() {
+ return (stackAlloc = Module["stackAlloc"] = Module["asm"]["j"]).apply(null, arguments);
+};
 
 Module["stackSave"] = stackSave;
 
@@ -663,7 +659,8 @@ dependenciesFulfilled = function runCaller() {
  if (!calledRun) dependenciesFulfilled = runCaller;
 };
 
-function run() {
+function run(args) {
+ args = args || arguments_;
  if (runDependencies > 0) {
   return;
  }
@@ -704,11 +701,13 @@ if (Module["preInit"]) {
 run();
 
 
-  return moduleArg.ready
+  return initPikchrModule.ready
 }
 );
 })();
 if (typeof exports === 'object' && typeof module === 'object')
   module.exports = initPikchrModule;
 else if (typeof define === 'function' && define['amd'])
-  define([], () => initPikchrModule);
+  define([], function() { return initPikchrModule; });
+else if (typeof exports === 'object')
+  exports["initPikchrModule"] = initPikchrModule;

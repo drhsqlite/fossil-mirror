@@ -273,6 +273,7 @@ EXTRA_FILES = \
   $(SRCDIR)/style.chat.css \
   $(SRCDIR)/style.fileedit.css \
   $(SRCDIR)/style.pikchrshow.css \
+  $(SRCDIR)/style.uvlist.css \
   $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \

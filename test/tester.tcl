@@ -310,6 +310,7 @@ proc get_all_settings {} {
       crnl-glob \
       default-csp \
       default-perms \
+      default-skin \
       diff-binary \
       diff-command \
       dont-commit \

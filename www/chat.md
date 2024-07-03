@@ -2,8 +2,7 @@
 
 ## Introduction
 
-As of version 2.14,
-Fossil supports a developer chatroom feature.  The chatroom provides an
+Fossil’s developer chatroom feature provides an
 ephemeral discussion venue for insiders.  Design goals include:
 
   *  **Simple but functional** &rarr;
@@ -64,8 +63,8 @@ people with chat privilege.  There is also a "Chat" option on
 the [Sitemap page](/sitemap), which means that chat will appear
 as an option under the hamburger menu for many [skins](./customskin.md).
 
-As of version 2.17, chat messages are subject to [fossil's
-full range of markdown processing](/md_rules). Because chat messages are
+Chat messages are subject to [Fossil's
+full range of Markdown processing](/md_rules). Because chat messages are
 stored as-is when they arrive from a client, this change applies
 retroactively to messages stored by previous fossil versions.
 
@@ -112,8 +111,8 @@ button.
 
 Because the chat app has to be able to work over transient CGI-based
 connections, as opposed to a stable socket connection to the server,
-real-time tracking of "who's online" is not feasible. As of version
-2.17, chat offers an optional feature, toggleable in the settings,
+real-time tracking of "who's online" is not feasible.
+Chat offers an optional feature, toggleable in the settings,
 which can list users who have posted messages in the client's current
 list of loaded messages. This is not the same thing as tracking who's
 online, but it gives an overview of which users have been active most

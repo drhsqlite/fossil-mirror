@@ -90,8 +90,7 @@ workflow above with `fossil up` commands.
 
 #### <a id="open"></a> Opening a Repository by URI
 
-In Fossil 2.12, we added a feature to simplify the single-worktree use
-case:
+You can instead open the repo’s URI directly:
 
     mkdir work-dir
     cd work-dir
@@ -111,7 +110,7 @@ details.)
 
 #### <a id="clone"></a> Git-Like Clone-and-Open
 
-In Fossil 2.14, we added a more Git-like alternative:
+Fossil also supports a more Git-like alternative:
 
     fossil clone https://fossil-scm.org/fossil
     cd fossil

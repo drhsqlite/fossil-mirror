@@ -700,6 +700,12 @@ void secaudit0_page(void){
     blob_append_escaped_arg(&cmd, g.argvOrig[i], 0);
   }
   @ <li><p>
+  if( g.zCgiFile ){
+    Blob fullname;
+    blob_init(&fullname, 0, 0);
+    file_canonical_name(g.zCgiFile, &fullname, 0);
+    @ The CGI control file for this page is "%h(blob_str(&fullname))".
+  }
   @ The command that generated this page:
   @ <blockquote>
   @ <tt>%h(blob_str(&cmd))</tt>
@@ -753,9 +759,30 @@ void takeitprivate_page(void){
 }
 
 /*
-** The maximum number of bytes of log to show
+** Output a message explaining that no error log is available.
 */
-#define MXSHOWLOG 50000
+static void no_error_log_available(void){
+  @ <p>No error log is configured.
+  if( g.zCgiFile==0 ){
+    @ To create an error log, add the "--errorlog FILENAME"
+    @ command-line option to the command that launches the Fossil server.
+  }else{
+    Blob fullname;
+    blob_init(&fullname, 0, 0);
+    file_canonical_name(g.zCgiFile, &fullname, 0);
+    @ To create an error log, edit the CGI control file
+    @ named "%h(blob_str(&fullname))" to add a line like this:
+    @ <blockquote><pre>
+    @ errorlog: <i>FILENAME</i>
+    @ </pre></blockquote>
+    blob_reset(&fullname);
+  }
+}
+
+/*
+** The maximum number of bytes of the error log to show by default.
+*/
+#define MXSHOWLOG 500000
 
 /*
 ** WEBPAGE: errorlog
@@ -766,6 +793,7 @@ void takeitprivate_page(void){
 void errorlog_page(void){
   i64 szFile;
   FILE *in;
+  char *zLog;
   char z[10000];
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -775,25 +803,12 @@ void errorlog_page(void){
   style_header("Server Error Log");
   style_submenu_element("Test", "%R/test-warning");
   style_submenu_element("Refresh", "%R/errorlog");
-  style_submenu_element("Admin-Log", "admin_log");
-  style_submenu_element("User-Log", "access_log");
-  style_submenu_element("Artifact-Log", "rcvfromlist");
+  style_submenu_element("Log-Menu", "%R/setup-logmenu");
+  style_submenu_element("Panics", "%R/paniclog");
+  style_submenu_element("Non-Hacks", "%R/hacklog?not");
 
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    @ <p>To create a server error log:
-    @ <ol>
-    @ <li><p>
-    @ If the server is running as CGI, then create a line in the CGI file
-    @ like this:
-    @ <blockquote><pre>
-    @ errorlog: <i>FILENAME</i>
-    @ </pre></blockquote>
-    @ <li><p>
-    @ If the server is running using one of
-    @ the "fossil http" or "fossil server" commands then add
-    @ a command-line option "--errorlog <i>FILENAME</i>" to that
-    @ command.
-    @ </ol>
+    no_error_log_available();
     style_finish_page();
     return;
   }
@@ -818,7 +833,9 @@ void errorlog_page(void){
     style_finish_page();
     return;
   }
-  @ <p>The server error log at "%h(g.zErrlog)" is %,lld(szFile) bytes in size.
+  zLog = file_canonical_name_dup(g.zErrlog);
+  @ <p>The server error log at "%h(zLog)" is %,lld(szFile) bytes in size.
+  fossil_free(zLog);
   style_submenu_element("Download", "%R/errorlog?download");
   style_submenu_element("Truncate", "%R/errorlog?truncate");
   in = fossil_fopen(g.zErrlog, "rb");
@@ -838,6 +855,140 @@ void errorlog_page(void){
   @ <pre>
   while( fgets(z, sizeof(z), in) ){
     @ %h(z)\
+  }
+  fclose(in);
+  @ </pre>
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: paniclog
+**
+** Scan the error log for panics.  Show all panic messages, ignoring all
+** other error log entries.
+*/
+void paniclog_page(void){
+  i64 szFile;
+  char *zLog;
+  FILE *in;
+  int bOutput = 0;
+  int prevWasTime = 0;
+  char z[10000];
+  char zTime[10000];
+
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_header("Server Panic Log");
+  style_submenu_element("Log-Menu", "%R/setup-logmenu");
+
+  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
+    no_error_log_available();
+    style_finish_page();
+    return;
+  }
+  in = fossil_fopen(g.zErrlog, "rb");
+  if( in==0 ){
+    @ <p class='generalError'>Unable to open that file for reading!</p>
+    style_finish_page();
+    return;
+  }
+  szFile = file_size(g.zErrlog, ExtFILE);
+  zLog = file_canonical_name_dup(g.zErrlog);
+  @ Panic messages contained within the %lld(szFile)-byte 
+  @ <a href="%R/errorlog?all">error log</a> found at
+  @ "%h(zLog)".
+  fossil_free(zLog);
+  @ <hr>
+  @ <pre>
+  while( fgets(z, sizeof(z), in) ){
+    if( prevWasTime
+     && (strncmp(z,"panic: ", 7)==0 || strstr(z," assertion fault ")!=0)
+    ){
+      @ %h(zTime)\
+      bOutput = 1;
+    }
+    if( strncmp(z, "--------", 8)==0 ){
+      size_t n = strlen(z);
+      memcpy(zTime, z, n+1);
+      prevWasTime = 1;
+      bOutput = 0;
+    }else{
+      prevWasTime = 0;
+    }
+    if( bOutput ){
+      @ %h(z)\
+    }
+  }
+  fclose(in);
+  @ </pre>
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: hacklog
+**
+** Scan the error log for "possible hack attempt" entries  Show hack
+** attempt messages only, omitting all others.  Or if the "not" query
+** parameter is present, show only messages that are not hack attempts.
+*/
+void hacklog_page(void){
+  i64 szFile;
+  char *zLog;
+  FILE *in;
+  int bOutput = 0;
+  int prevWasTime = 0;
+  int isNot = P("not")!=0;
+  char z[10000];
+  char zTime[10000];
+
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_header("Server Hack Log");
+  style_submenu_element("Log-Menu", "%R/setup-logmenu");
+
+  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
+    no_error_log_available();
+    style_finish_page();
+    return;
+  }
+  in = fossil_fopen(g.zErrlog, "rb");
+  if( in==0 ){
+    @ <p class='generalError'>Unable to open that file for reading!</p>
+    style_finish_page();
+    return;
+  }
+  szFile = file_size(g.zErrlog, ExtFILE);
+  zLog = file_canonical_name_dup(g.zErrlog);
+  @ %s(isNot?"Non-hack":"Hack") messages contained within the %lld(szFile)-byte 
+  @ <a href="%R/errorlog?all">error log</a> found at
+  @ "%h(zLog)".
+  fossil_free(zLog);
+  @ <hr>
+  @ <pre>
+  while( fgets(z, sizeof(z), in) ){
+    if( prevWasTime 
+     && ((strncmp(z,"possible hack attempt - 418 ", 27)==0) ^ isNot)
+    ){
+      @ %h(zTime)\
+      bOutput = 1;
+    }
+    if( strncmp(z, "--------", 8)==0 ){
+      size_t n = strlen(z);
+      memcpy(zTime, z, n+1);
+      prevWasTime = 1;
+      bOutput = 0;
+    }else{
+      prevWasTime = 0;
+    }
+    if( bOutput ){
+      @ %h(z)\
+    }
   }
   fclose(in);
   @ </pre>

@@ -276,9 +276,11 @@ void test_show_vfile_cmd(void){
 
 /*
 ** COMMAND: merge
-** COMMAND: cherry-pick
+** COMMAND: cherry-pick  alias
+** COMMAND: cherrypick
 **
-** Usage: %fossil merge ?OPTIONS? ?VERSION?
+** Usage: %fossil merge ?OPTIONS? ?VERSION ...?
+** Or:    %fossil cherrypick ?OPTIONS? ?VERSION ...?
 **
 ** The argument VERSION is a version that should be merged into the
 ** current check-out.  All changes from VERSION back to the nearest
@@ -286,14 +288,18 @@ void test_show_vfile_cmd(void){
 ** or --backout options are used only the changes associated with the
 ** single check-in VERSION are merged.  The --backout option causes
 ** the changes associated with VERSION to be removed from the current
-** check-out rather than added. When invoked with the name
-** cherry-pick, this command works exactly like merge --cherrypick.
+** check-out rather than added.  When invoked with the name
+** "cherrypick" instead of "merge", this command works exactly like
+** "merge --cherrypick".
 **
 ** Files which are renamed in the merged-in branch will be renamed in
 ** the current check-out.
 **
 ** If the VERSION argument is omitted, then Fossil attempts to find
 ** a recent fork on the current branch to merge.
+**
+** If there are multiple VERSION arguments, then each VERSION is merged
+** (or cherrypicked) in the order that they appear on the command-line.
 **
 ** Options:
 **   --backout               Do a reverse cherrypick merge against VERSION.
@@ -339,7 +345,10 @@ void merge_cmd(void){
   int nConflict = 0;    /* Number of conflicts seen */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   char vAncestor = 'p'; /* If P is an ancestor of V then 'p', else 'n' */
-  Stmt q;
+  const char *zVersion; /* The VERSION argument */
+  int bMultiMerge = 0;  /* True if there are two or more VERSION arguments */
+  int nMerge = 0;       /* Number of prior merges processed */
+  Stmt q;               /* SQL statment used for merge processing */
 
 
   /* Notation:
@@ -357,7 +366,7 @@ void merge_cmd(void){
     verboseFlag = find_option("detail",0,0)!=0; /* deprecated */
   }
   pickFlag = find_option("cherrypick",0,0)!=0;
-  if('c'==*g.zCmdName/*called as cherry-pick, possibly a short form*/){
+  if('c'==*g.zCmdName /*called as cherrypick, possibly a short form*/){
     pickFlag = 1;
   }
   integrateFlag = find_option("integrate",0,0)!=0;
@@ -403,13 +412,36 @@ void merge_cmd(void){
     }
   }
 
-  /* Find mid, the artifactID of the version to be merged into the current
-  ** check-out */
-  if( g.argc==3 ){
+  /*
+  ** A "multi-merge" means two or more other check-ins are being merged
+  ** into the current check-in.  In other words, there are two or more
+  ** VERSION arguments on the command-line.  Multi-merge works by doing
+  ** the merges one by one, as long as there are no conflicts.  At the
+  ** bottom of this routine, a jump is made back up to this point if there
+  ** are more merges yet to be done and no errors have yet been seen.
+  **
+  ** Related variables:
+  **    bMultiMerge       True if there are one or more merges yet to do
+  **    zVersion          The name of the current checking being merged in
+  **    nMerge            Number of prior merges
+  */
+merge_next_child:
+
+  /* Find mid, the artifactID of the version to be merged into
+  ** the current check-out.
+  */
+  if( g.argc>=3 ){
+    int i;
     /* Mid is specified as an argument on the command-line */
-    mid = name_to_typed_rid(g.argv[2], "ci");
+    zVersion = g.argv[2];
+    mid = name_to_typed_rid(zVersion, "ci");
     if( mid==0 || !is_a_version(mid) ){
-      fossil_fatal("not a version: %s", g.argv[2]);
+      fossil_fatal("not a version: %s", zVersion);
+    }
+    bMultiMerge = g.argc>3;
+    if( bMultiMerge ){
+      for(i=3; i<g.argc; i++) g.argv[i-1] = g.argv[i];
+      g.argc--;
     }
   }else if( g.argc==2 ){
     /* No version specified on the command-line so pick the most recent
@@ -440,12 +472,14 @@ void merge_cmd(void){
       " WHERE event.objid=%d AND blob.rid=%d",
       mid, mid
     );
+    zVersion = 0;
     if( db_step(&q)==SQLITE_ROW ){
       char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
             db_column_text(&q, 0), db_column_text(&q, 1),
             db_column_text(&q, 3), db_column_text(&q, 2));
       comment_print(zCom, db_column_text(&q,2), 0, -1, get_comment_format());
       fossil_free(zCom);
+      zVersion = mprintf("%S",db_column_text(&q,0));
     }
     db_finalize(&q);
   }else{
@@ -469,7 +503,7 @@ void merge_cmd(void){
     }
     pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
     if( pid<=0 ){
-      fossil_fatal("cannot find an ancestor for %s", g.argv[2]);
+      fossil_fatal("cannot find an ancestor for %s", zVersion);
     }
   }else{
     if( !zPivot ){
@@ -483,7 +517,7 @@ void merge_cmd(void){
       pid = pivot_find(0);
       if( pid<=0 ){
         fossil_fatal("cannot find a common ancestor between the current "
-                     "check-out and %s", g.argv[2]);
+                     "check-out and %s", zVersion);
       }
     }
     pivot_set_primary(mid);
@@ -510,14 +544,14 @@ void merge_cmd(void){
     return;
   }
   if( integrateFlag && !is_a_leaf(mid)){
-    fossil_warning("ignoring --integrate: %s is not a leaf", g.argv[2]);
+    fossil_warning("ignoring --integrate: %s is not a leaf", zVersion);
     integrateFlag = 0;
   }
   if( integrateFlag && content_is_private(mid) ){
     fossil_warning(
       "ignoring --integrate: %s is on a private branch"
       "\n Use \"fossil amend --close\" (after commit) to close the leaf.",
-      g.argv[2]);
+      zVersion);
     integrateFlag = 0;
   }
   if( verboseFlag ){
@@ -526,7 +560,7 @@ void merge_cmd(void){
     print_checkin_description(pid, 12, "baseline:");
   }
   vfile_check_signature(vid, CKSIG_ENOTFILE);
-  db_begin_transaction();
+  if( nMerge==0 ) db_begin_transaction();
   if( !dryRunFlag ) undo_begin();
   if( load_vfile_from_rid(mid) && !forceMissingFlag ){
     fossil_fatal("missing content, unable to merge");
@@ -1016,12 +1050,26 @@ void merge_cmd(void){
   */
   if( nConflict ){
     fossil_warning("WARNING: %d merge conflicts", nConflict);
+    if( bMultiMerge ){
+      int i;
+      Blob msg;
+      blob_init(&msg, 0, 0);
+      blob_appendf(&msg,
+         "The following %ss were not attempted due to prior conflicts:",
+         pickFlag ? "cherrypick" : backoutFlag ? "backout" : "merge"
+      );
+      for(i=2; i<g.argc; i++){
+        blob_appendf(&msg, " %s", g.argv[i]);
+      }
+      fossil_warning("%s", blob_str(&msg));
+      blob_zero(&msg);
+    }
   }
   if( nOverwrite ){
     fossil_warning("WARNING: %d unmanaged files were overwritten",
                    nOverwrite);
   }
-  if( dryRunFlag ){
+  if( dryRunFlag && !bMultiMerge ){
     fossil_warning("REMINDER: this was a dry run -"
                    " no files were actually changed.");
   }
@@ -1032,7 +1080,7 @@ void merge_cmd(void){
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
   if( pickFlag ){
     vmerge_insert(-1, mid);
-    /* For a cherry-pick merge, make the default check-in comment the same
+    /* For a cherrypick merge, make the default check-in comment the same
     ** as the check-in comment on the check-in that is being merged in. */
     db_multi_exec(
        "REPLACE INTO vvar(name,value)"
@@ -1047,6 +1095,11 @@ void merge_cmd(void){
   }else{
     vmerge_insert(0, mid);
   }
+  if( bMultiMerge && nConflict==0 ){
+    nMerge++;
+    goto merge_next_child;
+  }
   if( !dryRunFlag ) undo_finish();
+
   db_end_transaction(dryRunFlag);
 }

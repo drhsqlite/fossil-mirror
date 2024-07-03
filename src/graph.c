@@ -26,18 +26,24 @@
 ** The graph is laid out in 1 or more "rails".  A "rail" is a vertical
 ** band in the graph in which one can place nodes or arrows connecting
 ** nodes.  There can be between 1 and GR_MAX_RAIL rails.  If the graph
-** is to complex to be displayed in GR_MAX_RAIL rails, it is omitted.
+** is too complex to be displayed in GR_MAX_RAIL rails, it is omitted.
 **
 ** A "riser" is the thick line that comes out of the top of a node and
 ** goes up to the next node on the branch, or to the top of the screen.
 ** A "descender" is a thick line that comes out of the bottom of a node
 ** and proceeds down to the bottom of the page.
 **
+** A "merge riser" is a thin line going up out of a node to indicate a
+** merge or cherrypick.  (Cherrypicks are drawn with thin dashed lines.
+** Merges are drawn with thin solid lines.)  A "merge riser" might go
+** stright up out of the top of a leaf node, but for non-leaves, they
+** go horizontally to their assigned rail first, then up.
+**
 ** Invoke graph_init() to create a new GraphContext object.  Then
 ** call graph_add_row() to add nodes, one by one, to the graph.
 ** Nodes must be added in display order, from top to bottom.
 ** Then invoke graph_render() to run the layout algorithm.  The
-** layout algorithm computes which rails all of the nodes sit on, and
+** layout algorithm computes which rail each nodes sit on, and
 ** the rails used for merge arrows.
 */
 
@@ -932,7 +938,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       ** if the pRow branch started off the bottom of the screen.
       */
       for(pRoot=pBottom->pNext; pRoot; pRoot=pRoot->pNext){
-        if( pRoot->aiRiser[iFrom]>=0 ) break;
+        if( pRoot->aiRiser[iFrom]==pBottom->idx ) break;
       }
       if( pRoot && pRoot->iRail==iTo ){
         /* The parent branch from which this branch emerges is on the
@@ -975,7 +981,10 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     **
     **    0x04      The preferred branch
     **
-    **    0x02      A merge rail - a rail that contains merge lines
+    **    0x02      A merge rail - a rail that contains merge lines into
+    **              the preferred branch.  Only applies if a preferred branch
+    **              is defined.  This improves the display of r=BRANCH
+    **              options to /timeline.
     **
     **    0x01      A rail that merges with the preferred branch
     */
@@ -992,6 +1001,11 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
           if( pRow->mergeOut>=0 ) aPriority[pRow->mergeOut] |= 1;
         }
       }
+      for(i=0; i<=p->mxRail; i++){
+        if( p->mergeRail & BIT(i) ){
+          aPriority[i] |= 2;
+        }
+      }
     }else{
       j = 1;
       aPriority[0] = 4;
@@ -1002,11 +1016,6 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
           }
           if( pRow->mergeOut>=0 ) aPriority[pRow->mergeOut] |= 1;
         }
-      }
-    }
-    for(i=0; i<=p->mxRail; i++){
-      if( p->mergeRail & BIT(i) ){
-        aPriority[i] |= 2;
       }
     }
 

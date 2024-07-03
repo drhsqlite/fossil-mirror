@@ -79,9 +79,10 @@ There are many other cases, [covered below](#serving).
 
 ### <a id="img"></a> img-src * data:
 
-As of Fossil 2.15, we don’t restrict the source of inline images at all.
-You can pull them in from remote systems as well as pull them from
-within the Fossil repository itself, or use `data:` URIs.
+It was not always thus, but after careful consideration, we’ve chosen to
+leave the source of inline images unrestricted by default in Fossil.
+This allows you to pull them in from remote systems, to pull them from
+within the Fossil repository itself, or to use `data:` URIs.
 
 If you are certain all images come from only within the repository, you
 can close off certain risks — tracking pixels, broken image format

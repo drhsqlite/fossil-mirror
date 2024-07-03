@@ -243,7 +243,7 @@ of the document that was most recently checked in as of the date
 and time specified.  So, for example, to see what the fossil website
 looked like at the beginning of 2010, enter:
 
-<pre><a href="/doc/2010-01-01/www/index.wiki">https://fossil-scm.org/home/doc/<b>2010-01-01</b>/www/index.wiki
+<pre><a href="https://fossil-scm.org/home/doc/2010-01-01/www/index.wiki">https://fossil-scm.org/home/doc/<b>2010-01-01</b>/www/index.wiki
 </a></pre>
 
 The file that encodes this document is stored in the fossil source tree under

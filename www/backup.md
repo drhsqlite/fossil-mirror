@@ -161,9 +161,9 @@ The first method doesn’t get you a copy of the remote’s
 remote, such as SQL-level customizations that the sync protocol can’t
 see. (Some [ticket system customization][tkt] schemes rely on this ability, for example.) You can
 solve such problems if you have access to the remote server, which
-allows you to get a SQL-level backup. This requires Fossil 2.12 or
-newer, which added [the `backup` command][bu] to take care of
-locking and transaction isolation, allowing the user to safely back up an in-use
+allows you to get a SQL-level backup by delegating handling of locking
+and transaction isolation to
+[the `backup` command][bu], allowing the user to safely back up an in-use
 repository.
 
 If you have SSH access to the remote server, something like this will work:

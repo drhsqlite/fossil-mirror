@@ -1226,8 +1226,15 @@ void vdiff_page(void){
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
   zGlob = P("glob");
-  zFrom = P_NoBot("from");
-  zTo = P_NoBot("to");
+  /*
+  ** Maintenace reminder: we explicitly do _not_ use P_NoBot()
+  ** for "from" and "to" because those args can contain legitimate
+  ** strings which may trigger the looks-like SQL checks, e.g.
+  **   from=merge-in:OR-clause-improvement
+  **   to=OR-clause-improvement
+  */
+  zFrom = P("from");
+  zTo = P("to");
   if( bInvert ){
     Manifest *pTemp = pTo;
     const char *zTemp = zTo;
@@ -2626,7 +2633,8 @@ void artifact_page(void){
     Stmt q;
     db_prepare(&q,
       "SELECT coalesce(user.login,rcvfrom.uid),"
-      "       datetime(rcvfrom.mtime,toLocal()), rcvfrom.ipaddr"
+      "       datetime(rcvfrom.mtime,toLocal()),"
+      "       coalesce(rcvfrom.ipaddr,'unknown')"
       "  FROM blob, rcvfrom LEFT JOIN user ON user.uid=rcvfrom.uid"
       " WHERE blob.rid=%d"
       "   AND rcvfrom.rcvid=blob.rcvid;", rid);
@@ -3790,9 +3798,11 @@ int describe_commit(
     "       FROM ancestor, plink, event"
     "       LEFT JOIN singletonTag ON singletonTag.rid=plink.pid"
     "      WHERE plink.cid=ancestor.rid"
+    "        AND plink.isprim=1"
     "        AND event.objid=plink.pid"
     "        AND ancestor.tagname IS NULL"
     "      ORDER BY mtime DESC"
+    "      LIMIT 100000"
     "  )"
     "SELECT tagname, n"
     "  FROM ancestor"

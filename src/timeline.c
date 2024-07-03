@@ -1720,9 +1720,12 @@ void timeline_test_endpoint(void){
 **                       Use "n1=COUNT" for a one-time display change
 **    p=CHECKIN       Parents and ancestors of CHECKIN
 **                       bt=PRIOR   ... going back to PRIOR
+**                       p2=CKIN2   ... use CKIN2 if CHECKIN is not found
 **    d=CHECKIN       Children and descendants of CHECKIN
+**                       d2=CKIN2        ... Use CKIN2 if CHECKIN is not found
 **                       ft=DESCENDANT   ... going forward to DESCENDANT
 **    dp=CHECKIN      Same as 'd=CHECKIN&p=CHECKIN'
+**    dp2=CKIN2       Same as 'd2=CKIN2&p2=CKIN2'
 **    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
 **    bt=CHECKIN      "Back To".  Show ancenstors going back to CHECKIN
 **                       p=CX       ... from CX back to time of CHECKIN
@@ -1753,6 +1756,7 @@ void timeline_test_endpoint(void){
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
 **    from=CHECKIN    Path from...
 **                       to=CHECKIN      ... to this
+**                       to2=CHECKIN     ... backup name if to= doesn't resolve
 **                       shortest        ... show only the shortest path
 **                       rel             ... also show related checkins
 **                       bt=PRIOR        ... path from CHECKIN back to PRIOR
@@ -1839,11 +1843,13 @@ void page_timeline(void){
   const char *zThisUser = 0;         /* Suppress links to this user */
   HQuery url;                        /* URL for various branch links */
   int from_rid = name_to_typed_rid(P("from"),"ci"); /* from= for paths */
-  int to_rid = name_to_typed_rid(P("to"),"ci");    /* to= for path timelines */
+  const char *zTo2 = 0;
+  int to_rid = name_choice("to","to2",&zTo2);    /* to= for path timelines */
   int noMerge = P("shortest")==0;           /* Follow merge links if shorter */
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
   int pd_rid;
+  const char *zDPName;                /* Value of p=, d=, or dp= params */
   double rBefore, rAfter, rCirca;     /* Boundary times */
   const char *z;
   char *zOlderButton = 0;             /* URL for Older button at the bottom */
@@ -1902,10 +1908,8 @@ void page_timeline(void){
   }
 
   /* Query parameters d=, p=, and f= and variants */
-  z = P("p");
-  p_rid = z ? name_to_typed_rid(z,"ci") : 0;
-  z = P("d");
-  d_rid = z ? name_to_typed_rid(z,"ci") : 0;
+  p_rid = name_choice("p","p2", &zDPName);
+  d_rid = name_choice("d","d2", &zDPName);
   z = P("f");
   f_rid = z ? name_to_typed_rid(z,"ci") : 0;
   z = P("df");
@@ -1913,6 +1917,7 @@ void page_timeline(void){
     nEntry = 0;
     useDividers = 0;
     cgi_replace_query_parameter("d",fossil_strdup(z));
+    zDPName = z;
   }
 
   /* Undocumented query parameter to set JS mode */
@@ -1936,7 +1941,7 @@ void page_timeline(void){
 
   /* To view the timeline, must have permission to read project data.
   */
-  pd_rid = name_to_typed_rid(P("dp"),"ci");
+  pd_rid = name_choice("dp","dp2",&zDPName);
   if( pd_rid ){
     p_rid = d_rid = pd_rid;
   }
@@ -2213,7 +2218,7 @@ void page_timeline(void){
         p = path_shortest(to_rid, from_rid, 0, 1, 0);
       }
       zFrom = P("from");
-      zTo = P("to");
+      zTo = zTo2 ? zTo2 : P("to");
     }else{
       if( path_common_ancestor(me_rid, you_rid) ){
         p = path_first();
@@ -2329,7 +2334,7 @@ void page_timeline(void){
     );
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d",
                          p_rid ? p_rid : d_rid);
-    zCiName = pd_rid ? P("pd") : p_rid ? P("p") : P("d");
+    zCiName = zDPName;
     if( zCiName==0 ) zCiName = zUuid;
     blob_append_sql(&sql, " AND event.objid IN ok");
     nd = 0;

@@ -228,6 +228,8 @@ struct Global {
   const char *zMainMenuFile; /* --mainmenu FILE from server/ui/cgi */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
+  const char *zCgiFile;      /* Name of the CGI file */
+  const char *zReqType;      /* Type of request: "HTTP", "CGI", "SCGI" */
 #if USE_SEE
   const char *zPidKey;    /* Saved value of the --usepidkey option.  Only
                            * applicable when using SEE on Windows or Linux. */
@@ -1573,13 +1575,23 @@ void sigsegv_handler(int x){
   size = backtrace(array, sizeof(array)/sizeof(array[0]));
   strings = backtrace_symbols(array, size);
   blob_init(&out, 0, 0);
-  blob_appendf(&out, "Segfault during %s", g.zPhase);
+  blob_appendf(&out, "Segfault during %s in fossil %s",
+               g.zPhase, MANIFEST_VERSION);
   for(i=0; i<size; i++){
-    blob_appendf(&out, "\n(%d) %s", i, strings[i]);
+    size_t len;
+    const char *z = strings[i];
+    if( i==0 ) blob_appendf(&out, "\nBacktrace:");
+    len = strlen(strings[i]);
+    if( z[0]=='[' && z[len-1]==']' ){
+      blob_appendf(&out, " %.*s", (int)(len-2), &z[1]);
+    }else{
+      blob_appendf(&out, " %s", z);
+    }
   }
   fossil_panic("%s", blob_str(&out));
 #else
-  fossil_panic("Segfault during %s", g.zPhase);
+  fossil_panic("Segfault during %s in fossil %s",
+               g.zPhase, MANIFEST_VERSION);
 #endif
   exit(1);
 }
@@ -1693,6 +1705,13 @@ static void process_one_web_page(
   signal(SIGSEGV, sigsegv_handler);
 #endif
 
+  /* Decode %HH escapes in PATHINFO */
+  if( strchr(zPathInfo,'%') ){
+    char *z = fossil_strdup(zPathInfo);
+    dehttpize(z);
+    zPathInfo = z;
+  }
+
   /* Handle universal query parameters */
   if( PB("utc") ){
     g.fTimeFormat = 1;
@@ -1747,18 +1766,27 @@ static void process_one_web_page(
       }
 
 
-      /* For safety -- to prevent an attacker from accessing arbitrary disk
-      ** files by sending a maliciously crafted request URI to a public
-      ** server -- make sure the repository basename contains no
-      ** characters other than alphanumerics, "/", "_", "-", and ".", and
-      ** that "-" never occurs immediately after a "/" and that "." is always
-      ** surrounded by two alphanumerics.  Any character that does not
-      ** satisfy these constraints is converted into "_".
-      */
+      /* Restrictions on the URI for security:
+      **
+      **    1.  Reject characters that are not ASCII alphanumerics, 
+      **        "-", "_", ".", "/", or unicode (above ASCII).
+      **        In other words:  No ASCII punctuation or control characters
+      **        other than "-", "_", "." and "/".
+      **    2.  Exception to rule 1: Allow /X:/ where X is any ASCII 
+      **        alphabetic character at the beginning of the name on windows.
+      **    3.  "-" may not occur immediately after "/"
+      **    4.  "." may not be adjacent to another "." or to "/"
+      **
+      ** Any character does not satisfy these constraints a Not Found
+      ** error is returned.
+      */  
       szFile = 0;
       for(j=nBase+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
-        if( fossil_isalnum(c) ) continue;
+        if( c>='a' && c<='z' ) continue;
+        if( c>='A' && c<='Z' ) continue;
+        if( c>='0' && c<='9' ) continue;
+        if( (c&0x80)==0x80 ) continue;
 #if defined(_WIN32) || defined(__CYGWIN__)
         /* Allow names to begin with "/X:/" on windows */
         if( c==':' && j==2 && sqlite3_strglob("/[a-zA-Z]:/*", zRepo)==0 ){
@@ -1768,7 +1796,10 @@ static void process_one_web_page(
         if( c=='/' ) continue;
         if( c=='_' ) continue;
         if( c=='-' && zRepo[j-1]!='/' ) continue;
-        if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
+        if( c=='.'
+         && zRepo[j-1]!='.' && zRepo[j-1]!='/'
+         && zRepo[j+1]!='.' && zRepo[j+1]!='/'
+        ){
           continue;
         }
         if( c=='.' && g.fAllowACME && j==(int)nBase+1
@@ -2342,7 +2373,6 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 ** See also: [[http]], [[server]], [[winsrv]]
 */
 void cmd_cgi(void){
-  const char *zFile;
   const char *zNotFound = 0;
   char **azRedirect = 0;             /* List of repositories to redirect to */
   int nRedirect = 0;                 /* Number of entries in azRedirect */
@@ -2355,17 +2385,18 @@ void cmd_cgi(void){
   fossil_binary_mode(g.httpOut);
   fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
+  g.zReqType = "CGI";
   fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
   /* Find the name of the CGI control file */
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
-    zFile = g.argv[2];
+    g.zCgiFile = g.argv[2];
   }else if( g.argc>=2 ){
-    zFile = g.argv[1];
+    g.zCgiFile = g.argv[1];
   }else{
     cgi_panic("No CGI control file specified");
   }
   /* Read and parse the CGI control file. */
-  blob_read_from_file(&config, zFile, ExtFILE);
+  blob_read_from_file(&config, g.zCgiFile, ExtFILE);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
     if( blob_buffer(&key)[0]=='#' ) continue;
@@ -2838,6 +2869,7 @@ void cmd_http(void){
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
   g.zExtRoot = find_option("extroot",0,1);
   g.zCkoutAlias = find_option("ckout-alias",0,1);
+  g.zReqType = "HTTP";
   zInFile = find_option("in",0,1);
   if( zInFile ){
     backoffice_disable();
@@ -2861,6 +2893,7 @@ void cmd_http(void){
   }
   zIpAddr = find_option("ipaddr",0,1);
   useSCGI = find_option("scgi", 0, 0)!=0;
+  if( useSCGI ) g.zReqType = "SCGI";
   zAltBase = find_option("baseurl", 0, 1);
   if( find_option("nodelay",0,0)!=0 ) backoffice_no_delay();
   if( zAltBase ) set_base_url(zAltBase);
@@ -2987,6 +3020,7 @@ void cmd_test_http(void){
   fossil_binary_mode(g.httpIn);
   g.zExtRoot = find_option("extroot",0,1);
   find_server_repository(2, 0);
+  g.zReqType = "HTTP";
   g.cgiOutput = 1;
   g.fNoHttpCompress = 1;
   g.fullHttpReply = 1;
@@ -3012,10 +3046,10 @@ static void sigalrm_handler(int x){
   sqlite3_uint64 tmUser = 0, tmKernel = 0;
   fossil_cpu_times(&tmUser, &tmKernel);
   if( fossil_strcmp(g.zPhase, "web-page reply")==0
-   && tmUser+tmKernel<1000000
+   && tmUser+tmKernel<10000000
   ){
     /* Do not log time-outs during web-page reply unless more than
-    ** 1 second of CPU time has been consumed */
+    ** 10 seconds of CPU time has been consumed */
     return;
   }
   fossil_panic("Timeout after %d seconds during %s"
@@ -3144,7 +3178,7 @@ void fossil_set_timeout(int N){
 **   --notfound URL      Redirect to URL if a page is not found.
 **   -p|--page PAGE      Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   --pkey FILE         Read the private key used for TLS from FILE
-**   -P|--port TCPPORT   Listen to request on port TCPPORT
+**   -P|--port [IP:]PORT  Listen on the given IP (optional) and port
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
@@ -3223,7 +3257,11 @@ void cmd_webserver(void){
   if( find_option("nocompress",0,0)!=0 ) g.fNoHttpCompress = 1;
   zAltBase = find_option("baseurl", 0, 1);
   fCreate = find_option("create",0,0)!=0;
-  if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;
+  g.zReqType = "HTTP";
+  if( find_option("scgi", 0, 0)!=0 ){
+    g.zReqType = "SCGI";
+    flags |= HTTP_SERVER_SCGI;
+  }
   if( zAltBase ){
     set_base_url(zAltBase);
   }

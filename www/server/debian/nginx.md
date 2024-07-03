@@ -299,10 +299,7 @@ Fossil.  We have to teach it by putting the following into
     [Definition]
     failregex = ^<HOST> - .*POST .*/login HTTP/..." 401
 
-That teaches `fail2ban` how to recognize the errors logged by Fossil
-[as of 2.14](/info/39d7eb0e22). (Earlier versions of Fossil returned
-HTTP status code 200 for this, so you couldn’t distinguish a successful
-login from a failure.)
+That teaches `fail2ban` how to recognize the errors logged by Fossil.
 
 Then in `/etc/fail2ban/jail.local`, add this section:
 

@@ -1007,6 +1007,12 @@ LOCAL void search_indexed(
      search_rank_sqlfunc, 0, 0);
   for(i=0; zPat[i]; i++){
     if( (zPat[i]&0x80)==0 && !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
+    if( fossil_isupper(zPat[i]) ) zPat[i] = fossil_tolower(zPat[i]);
+  }
+  for(i--; i>=0 && zPat[i]==' '; i--){}
+  if( i<0 ){
+    fossil_free(zPat);
+    zPat = mprintf("\"\"");
   }
   blob_init(&sql, 0, 0);
   if( search_index_type(0)==4 ){
@@ -1159,7 +1165,7 @@ int search_run_and_output(
       @ (%e(db_column_double(&q,3)), %s(db_column_text(&q,4))
     }
     @ <br><span class='snippet'>%z(cleanSnippet(zSnippet)) \
-    if( zDate && zDate[0] && strstr(zLabel,zDate)==0 ){
+    if( zLabel && zDate && zDate[0] && strstr(zLabel,zDate)==0 ){
       @ <small>(%h(zDate))</small>
     }
     @ </span></li>

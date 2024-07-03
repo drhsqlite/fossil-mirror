@@ -1281,7 +1281,7 @@ static int gitmirror_send_checkin(
   }
   if( fManifest & MFESTFLG_UUID ){
     int n = (int)strlen(zUuid);
-    fprintf(xCmd,"M 100644 inline manifest.uuid\ndata %d\n%s\n", n, zUuid);
+    fprintf(xCmd,"M 100644 inline manifest.uuid\ndata %d\n%s\n\n", n+1, zUuid);
   }
   if( fManifest & MFESTFLG_TAGS ){
     Blob tagslist;
@@ -1789,8 +1789,12 @@ void gitmirror_status_command(void){
     fossil_print("Autopush:    off\n");
   }else{
     UrlData url;
-    url_parse_local(z, 0, &url);
-    fossil_print("Autopush:    %s\n", url.canonical);
+    if( sqlite3_strglob("http*", z)==0 ){
+      url_parse_local(z, 0, &url);
+      fossil_print("Autopush:    %s\n", url.canonical);
+    }else{
+      fossil_print("Autopush:    %s\n", z);
+    }
     fossil_free(z);
   }
   n = db_int(0,

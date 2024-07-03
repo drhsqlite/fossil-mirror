@@ -147,8 +147,8 @@ to close out the generated HTML:
 
 ## <a id="mainmenu"></a>Changing the Main Menu Contents
 
-As of Fossil 2.15, the actual text content of the skin’s main menu is no
-longer part of the skin proper if you’re using one of the stock skins.
+The actual text content of the skin’s main menu is not
+part of the skin proper if you’re using one of the stock skins.
 If you look at the Header section of the skin, you’ll find a
 `<div class="mainmenu">` element whose contents are set by a short
 [TH1](./th1.md) script from the contents of the **Main Menu** section of
@@ -222,7 +222,7 @@ disable it.  The "white-foreground:" setting should be set to
 "1" if the page color has light-color text on a darker background,
 and "0" if the page has dark text on a light-colored background.
 
-If the "pikchr-foreground" setting (added in Fossil 2.14)
+If the "pikchr-foreground" setting
 is defined and is not an empty string then it specifies a
 foreground color to use for [pikchr diagrams](./pikchr.md).  The
 default pikchr foreground color is black, or white if the
@@ -269,16 +269,14 @@ following TH1 code in the "header.txt" file:
 &lt;th1&gt;builtin_request_js hbmenu.js&lt;/th1&gt;
 </pre>
 
-The difference between styleScript and builtin_request_js
-is that the styleScript command interprets the file
+The difference between `styleScript` and `builtin_request_js`
+is that the `styleScript` command interprets the file
 using TH1 and injects the content directly into the output
-stream, whereas the builtin_request_js command inserts the
-javascript verbatim and does so at some unspecified future time
-down inside the Fossil-generated footer.  The built-in skins
-of Fossil originally used the styleScript command to load
-the hamburger menu javascript, but as of version 2.15 switched
-to using the builtin_request_js method.  You can use either
-approach in custom skins that you right yourself.
+stream, whereas the `builtin_request_js` command inserts the
+Javascript verbatim and does so at some unspecified future time
+down inside the Fossil-generated footer.
+You can use either
+approach in custom skins that you create.
 
 Note that the "js.txt" file is *not* automatically inserted into
 the generate HTML for a page.  You, the skin designer, must
