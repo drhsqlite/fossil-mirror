@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\stesting.
-D 2024-07-04T00:05:41.647
+C Minor\stweaks\sto\swww/unverse.wiki,\sbased\sroughly\son\sforum\sfeedback.
+D 2024-07-04T11:06:04.735
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -950,7 +950,7 @@ F www/theory1.wiki d4ae96337cdbb6fa6677d023aa9d2abe8db4f471d7450a32a92b1f06496e0
 F www/tickets.wiki 8a19c866b38766c2559dc32a7fa509eaa780fcb8b7ca9fecdba2b20de2766692
 F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
 F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294c6
-F www/unvers.wiki 3c82abb88674d738b06780640d2a55cc1bbfff05c49ec79592f52c5ba4de46ca
+F www/unvers.wiki 327cf60fc7df172164bd11eca12fc53a633969808900fcff251da816b90a4502
 F www/userlinks.wiki 956685758aacbd5bd84d32751a3df6987f2d82a1eebc75f4d0fed0b6de2688b8
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 7988ca46928242dc0d9c8d6ffe5e0ba7d4c2ba3a774b848a2a463bebc9cac8df
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c76c6aa733e811e95b0bc8ea328f49b04c2e9e5212dcecc71eb0b63a8100898
-R acfba24e1ac99964362dcf769d4b8058
-U drh
-Z e97e99c15f1e9a2f036e45f3ea5018a9
+P cd508204105a40aa7823f91d385c9b03f952b31b340c81bc4ea040ed72c77616
+R 708e2bb0303ff57b697600751e8e7f2e
+U stephan
+Z 19a86ca531479c848c0de9894929c9a5
 # Remove this line to create a well-formed Fossil manifest.
