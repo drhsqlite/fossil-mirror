@@ -20629,7 +20629,7 @@ static int shell_callback(
     case MODE_Explain: {
       static const int aExplainWidth[] = {4,       13, 4, 4, 4, 13, 2, 13};
       static const int aExplainMap[] =   {0,       1,  2, 3, 4, 5,  6, 7 };
-      static const int aScanExpWidth[] = {4, 6, 6, 13, 4, 4, 4, 13, 2, 13};
+      static const int aScanExpWidth[] = {4, 15, 6, 13, 4, 4, 4, 13, 2, 13};
       static const int aScanExpMap[] =   {0, 9, 8, 1,  2, 3, 4, 5,  6, 7 };
 
       const int *aWidth = aExplainWidth;
@@ -21639,7 +21639,13 @@ static void display_scanstats(
   if( pArg->scanstatsOn==3 ){
     const char *zSql =
       "  SELECT addr, opcode, p1, p2, p3, p4, p5, comment, nexec,"
-      "   round(ncycle*100.0 / (sum(ncycle) OVER ()), 2)||'%' AS cycles"
+      "   format('% 6s (%.2f%%)',"
+      "      CASE WHEN ncycle<100_000 THEN ncycle || ' '"
+      "         WHEN ncycle<100_000_000 THEN (ncycle/1_000) || 'K'"
+      "         WHEN ncycle<100_000_000_000 THEN (ncycle/1_000_000) || 'M'"
+      "         ELSE (ncycle/1000_000_000) || 'G' END,"
+      "       ncycle*100.0/(sum(ncycle) OVER ())"
+      "   )  AS cycles"
       "   FROM bytecode(?)";
 
     int rc = SQLITE_OK;
@@ -30177,27 +30183,29 @@ static char *find_home_dir(int clearFlag){
 /*
 ** On non-Windows platforms, look for $XDG_CONFIG_HOME.
 ** If ${XDG_CONFIG_HOME}/sqlite3/sqliterc is found, return
-** the path to it, else return 0. The result is cached for
-** subsequent calls.
+** the path to it.  If there is no $(XDG_CONFIG_HOME) then
+** look for $(HOME)/.config/sqlite3/sqliterc and if found
+** return that.  If none of these are found, return 0.
+**
+** The string returned is obtained from sqlite3_malloc() and
+** should be freed by the caller.
 */
-static const char *find_xdg_config(void){
+static char *find_xdg_config(void){
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN32_WCE) \
      || defined(__RTP__) || defined(_WRS_KERNEL)
   return 0;
 #else
-  static int alreadyTried = 0;
-  static char *zConfig = 0;
+  char *zConfig = 0;
   const char *zXdgHome;
 
-  if( alreadyTried!=0 ){
-    return zConfig;
-  }
-  alreadyTried = 1;
   zXdgHome = getenv("XDG_CONFIG_HOME");
   if( zXdgHome==0 ){
-    return 0;
+    const char *zHome = getenv("HOME");
+    if( zHome==0 ) return 0;
+    zConfig = sqlite3_mprintf("%s/.config/sqlite3/sqliterc", zHome);
+  }else{
+    zConfig = sqlite3_mprintf("%s/sqlite3/sqliterc", zXdgHome);
   }
-  zConfig = sqlite3_mprintf("%s/sqlite3/sqliterc", zXdgHome);
   shell_check_oom(zConfig);
   if( access(zConfig,0)!=0 ){
     sqlite3_free(zConfig);
@@ -30225,7 +30233,7 @@ static void process_sqliterc(
   int savedLineno = p->lineno;
 
   if( sqliterc == NULL ){
-    sqliterc = find_xdg_config();
+    sqliterc = zBuf = find_xdg_config();
   }
   if( sqliterc == NULL ){
     home_dir = find_home_dir(0);

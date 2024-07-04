@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.47.0"
 #define SQLITE_VERSION_NUMBER 3047000
-#define SQLITE_SOURCE_ID      "2024-06-11 18:22:48 33a3f327855b427ae6ba0057218d043a1417bc9d780728f47f23acdd836e1686"
+#define SQLITE_SOURCE_ID      "2024-07-03 20:19:33 baa83b460c677c210c7fa3f20314d7e05f305aed8a69026bc5fa106a3de4ea38"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -772,8 +772,8 @@ struct sqlite3_file {
 ** to xUnlock() is a no-op.
 ** The xCheckReservedLock() method checks whether any database connection,
 ** either in this process or in some other process, is holding a RESERVED,
-** PENDING, or EXCLUSIVE lock on the file.  It returns true
-** if such a lock exists and false otherwise.
+** PENDING, or EXCLUSIVE lock on the file.  It returns, via its output
+** pointer parameter, true if such a lock exists and false otherwise.
 **
 ** The xFileControl() method is a generic interface that allows custom
 ** VFS implementations to directly control an open file using the
@@ -13033,6 +13033,10 @@ struct Fts5PhraseIter {
 **   with either "detail=none" or "detail=column" and "content=" option
 **   (i.e. if it is a contentless table), then this API always iterates
 **   through an empty set (all calls to xPhraseFirst() set iCol to -1).
+**
+**   In all cases, matches are visited in (column ASC, offset ASC) order.
+**   i.e. all those in column 0, sorted by offset, followed by those in
+**   column 1, etc.
 **
 ** xPhraseNext()
 **   See xPhraseFirst above.
