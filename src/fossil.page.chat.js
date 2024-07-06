@@ -1018,13 +1018,13 @@ window.fossil.onPageLoad(function(){
     }
     return e;
   };
-  
+
   /** To be passed each MessageWidget's top-level DOM element
       after initial processing of the message, to set up
       hashtag and numtag references. */
   const setupHashtags = function f(elem){
-    if(!f.$click){
-      f.$click = function(ev){
+    if(!f.$clickTag){
+      f.$clickTag = function(ev){
         /* Click handler for hashtags */
         const tag = ev.target.dataset.hashtag;
         if(tag){
@@ -1053,14 +1053,14 @@ window.fossil.onPageLoad(function(){
               //console.debug("Chat.numtagHistoryStack =",Chat.numtagHistoryStack);
             }
           }else{
-            F.toast.warning("Message #"+tag+" not found in loaded messages.");
+            Chat.submitSearch('#'+tag);
           }
         }
       };
     }
     elem.querySelectorAll('[data-hashtag]').forEach(function(e){
       e.dataset.hashtag = e.dataset.hashtag.toLowerCase();
-      e.addEventListener('click', f.$click, false);
+      e.addEventListener('click', f.$clickTag, false);
     })
     elem.querySelectorAll('[data-numtag]').forEach(
       (e)=>e.addEventListener('click', f.$clickNum, false)
@@ -1485,7 +1485,7 @@ window.fossil.onPageLoad(function(){
     /** Assumes that e is a MessageWidget element, ensures that
         Chat.e.viewMessages is visible, scrolls the message,
         and animates it a bit to make it more visible. */
-    cf.scrollToMessageElem = function(e){
+    ctor.scrollToMessageElem = function(e){
       if(e.firstElementChild){
         Chat.setCurrentView(Chat.e.viewMessages);
         e.scrollIntoView(false);
@@ -2571,11 +2571,12 @@ window.fossil.onPageLoad(function(){
   };
   Chat.clearSearch(true);
   /**
-     Submits a history search using the main input field's current
-     text. It is assumed that Chat.e.viewSearch===Chat.e.currentView.
+     Submits a history search using either its argument or the the
+     main input field's current text.
   */
-  Chat.submitSearch = function(){
-    const term = this.inputValue(true);
+  Chat.submitSearch = function(term){
+    Chat.setCurrentView(Chat.e.viewSearch);
+    if(!arguments.length) term = this.inputValue(true);
     const eMsgTgt = this.clearSearch(true);
     if( !term ) return;
     D.append( eMsgTgt, "Searching for ",term," ...");
