@@ -2323,8 +2323,9 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **    nocompress               Do not compress HTTP replies.
 **
 **    skin: LABEL              Use the built-in skin called LABEL rather than
-**                             the default.  If there are no skins called LABEL
-**                             then this line is a no-op.
+**                             the default, or the default if LABEL is empty.
+**                             If there are no skins called LABEL then this
+**                             line is a no-op.
 **
 **    files: GLOBLIST          GLOBLIST is a comma-separated list of GLOB
 **                             patterns that specify files that can be
@@ -3181,7 +3182,8 @@ void fossil_set_timeout(int N){
 **   -P|--port [IP:]PORT  Listen on the given IP (optional) and port
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos
 **   --scgi              Accept SCGI rather than HTTP
-**   --skin LABEL        Use override skin LABEL
+**   --skin LABEL        Use override skin LABEL, or the site's default skin if
+**                       LABEL is an empty string.
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows or Linux.
