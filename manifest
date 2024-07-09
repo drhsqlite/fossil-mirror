@@ -1,5 +1,5 @@
-C Use\sthe\slong\sdate\sformat\sfor\sall\smessages\sin\sthe\schat\ssearch\sdialog,\snot\sjust\sthose\sthat\smatch\sthe\scurrent\squery.
-D 2024-07-09T15:20:26.260
+C Use\sthe\schat-timeline-user\ssetting\swhen\sformatting\sresults\sfor\schat\ssearches.
+D 2024-07-09T17:30:29.595
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c a5a22e5368ec514d6c45ef7607aa551aa2aefe7cc18c7b17a7775a4c0d59ce63
-F src/chat.c 8436119515da25b8b8a593294986972460cd0f9be6dcae9e6f6b13f60bf4776f
+F src/chat.c 9758f84855b349d5cf15d9373f58614663d81a4e1acbcaf4dbbd0e74b5294899
 F src/checkin.c 48622797a8bcd02fb6c7faee28ffe4055c980e3fa8720733772e866534c64958
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 77e1f8670d42049bb982ac8af01e9d13cdb36ed89da9bf1c82d836cb683fb2ed
-R e80e72b43d4eabe312e7257a1572fd24
+P 2a3a32edea798488bd39381fdd149cbae81548a3fc54a187e79c9397bd7cbf8c
+R 32cd9675bfac0c5ebb79a2019cbf2beb
 U dan
-Z 0cfe131c4a50ecfc9e0102809fc528d7
+Z 0610080921babf50fe8d89e828d782d8
 # Remove this line to create a well-formed Fossil manifest.

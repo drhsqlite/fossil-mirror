@@ -513,15 +513,34 @@ void chat_test_formatter_cmd(void){
 }
 
 /*
+** The SQL statement passed as the first argument should return zero or
+** more rows of data, each of which represents a single message from the
+** "chat" table. The rows returned should be similar to those returned
+** by:
 **
+**     SELECT msgid, 
+**            datetime(mtime), 
+**            xfrom, 
+**            xmsg, 
+**            octet_length(file),"
+**            fname, 
+**            fmime, 
+**            mdel, 
+**            lmtime
+**     FROM chat;
+**
+** This function loops through all rows returned by statement p, adding
+** a record to the JSON stored in argument pJson for each. See comments 
+** above function chat_poll_webpage() for a description of the JSON records
+** added to pJson.
 */
 static int chat_poll_rowstojson(
   Stmt *p,                        /* Statement to read rows from */
-  const char *zChatUser,          /* Current user */
   int bRaw,                       /* True to return raw format xmsg */
   Blob *pJson                     /* Append json array entries here */
 ){
   int cnt = 0;
+  const char *zChatUser = db_get("chat-timeline-user",0);
   while( db_step(p)==SQLITE_ROW ){
     int isWiki = 0;             /* True if chat message is x-fossil-wiki */
     int id = db_column_int(p, 0);
@@ -677,7 +696,6 @@ void chat_poll_webpage(void){
   sqlite3_int64 dataVersion;  /* Data version.  Used for polling. */
   const int iDelay = 1000;    /* Delay until next poll (milliseconds) */
   int nDelay;                 /* Maximum delay.*/
-  const char *zChatUser;      /* chat-timeline-user */
   int msgid = atoi(PD("name","0"));
   const int msgBefore = atoi(PD("before","0"));
   int nLimit = msgBefore>0 ? atoi(PD("n","0")) : 0;
@@ -691,7 +709,6 @@ void chat_poll_webpage(void){
     chat_emit_permissions_error(1);
     return;
   }
-  zChatUser = db_get("chat-timeline-user",0);
   chat_create_tables();
   cgi_set_content_type("application/json");
   dataVersion = db_int64(0, "PRAGMA data_version");
@@ -731,7 +748,7 @@ void chat_poll_webpage(void){
   blob_reset(&sql);
   blob_init(&json, "{\"msgs\":[\n", -1);
   while( nDelay>0 ){
-    int cnt = chat_poll_rowstojson(&q1, zChatUser, bRaw, &json);
+    int cnt = chat_poll_rowstojson(&q1, bRaw, &json);
     if( cnt || msgBefore>0 ){
       break;
     }
@@ -811,7 +828,7 @@ void chat_query_webpage(void){
   db_prepare(&q1, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   blob_init(&json, "{\"msgs\":[\n", -1);
-  chat_poll_rowstojson(&q1, "", 0, &json);
+  chat_poll_rowstojson(&q1, 0, &json);
   db_finalize(&q1);
   blob_appendf(&json, "\n], \"first\":%lld, \"last\":%lld}", iMin, iMax);
   cgi_set_content(&json);
