@@ -1457,6 +1457,7 @@ window.fossil.onPageLoad(function(){
           onload:function(jx){
             if( bDown ) jx.msgs.reverse();
             jx.msgs.forEach((m) => {
+              m.isSearchResult = true;
               var mw = new Chat.MessageWidget(m);
               if( bDown ){
                 /* Inject the message below this object's body, or
