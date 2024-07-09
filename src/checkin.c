@@ -1504,7 +1504,8 @@ static void prepare_commit_comment(
       diffFiles = fossil_malloc_zero((i+1) * sizeof(*diffFiles));
       for(i=0; g.aCommitFile[i]!=0; ++i){
         blob_append_sql(&sql,
-                        "SELECT pathname, deleted, rid WHERE id=%d",
+                        "SELECT pathname, deleted, rid "
+                        "FROM vfile WHERE id=%d",
                         g.aCommitFile[i]);
         db_prepare(&q, "%s", blob_sql_text(&sql));
         blob_reset(&sql);

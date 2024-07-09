@@ -1,5 +1,5 @@
-C Document\sthe\sempty-string\scase\sfor\sthe\sserver/ui\s--skin\sflag\sand\scgi\sskin:\sdirective.
-D 2024-07-08T23:24:42.324
+C Fix\sfor\scheckin\s--verbose\serror\sreported\sin\s[forum:9cd41258f9|forum\spost\s9cd41258f9].\sProblem\sintroduced\sin\s[caa6ad39db443929].
+D 2024-07-09T00:19:43.687
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -397,7 +397,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c a5a22e5368ec514d6c45ef7607aa551aa2aefe7cc18c7b17a7775a4c0d59ce63
 F src/chat.c 8436119515da25b8b8a593294986972460cd0f9be6dcae9e6f6b13f60bf4776f
-F src/checkin.c 2e10b230ccd15ee4b4d2a043aed9bdfa8bb5f070ff45a5774a354c49826e2e17
+F src/checkin.c 48622797a8bcd02fb6c7faee28ffe4055c980e3fa8720733772e866534c64958
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2f6d120261ec55d22fa22e10405ecb90f0355f9ea2079f247b7f1dd45cf0be85
-R 99a85747d468183ee336830ad2591c48
+P 699b9ca54d8f30510f0b7e279038996000d5a896eba10f5bb48859c4b4e2f238
+R 6a7fa0c5a585d6b0f56fc072a1d31240
 U stephan
-Z 71d768536ef15566aa624d04b3d011d1
+Z 20d45dd719d54db847e7092568fcb9ec
 # Remove this line to create a well-formed Fossil manifest.
