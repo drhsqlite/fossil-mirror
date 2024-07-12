@@ -310,6 +310,21 @@ static void ssl_global_init_client(void){
       fossil_fatal("Cannot load CA root certificates from %s", zFile);
     }
 
+/* Enable OpenSSL to use the Windows system ROOT certificate store to search for
+** certificates missing in the file and directory trust stores already loaded by
+** `SSL_CTX_load_verify_locations()'.
+** This feature was introduced with OpenSSL 3.2.0, and may be enabled by default
+** for future versions of OpenSSL, and explicit initialization may be redundant.
+** NOTE TO HACKERS TWEAKING THEIR OPENSSL CONFIGURATION:
+** The following OpenSSL configuration options must not be used for this feature
+** to be available: `no-autoalginit', `no-winstore'. The Fossil makefiles do not
+** currently set these options when building OpenSSL for Windows. */
+#if defined (_WIN32)
+#if OPENSSL_VERSION_NUMBER >= 0x030200000
+    SSL_CTX_load_verify_store(sslCtx, "org.openssl.winstore:");
+#endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
+#endif /* _WIN32 */
+
     /* Load client SSL identity, preferring the filename specified on the
     ** command line */
     if( g.zSSLIdentity!=0 ){
@@ -1032,6 +1047,20 @@ void test_tlsconfig_info(void){
          "    values are built into your OpenSSL library.\n\n"
       );
     }
+
+#if defined (_WIN32)
+#if OPENSSL_VERSION_NUMBER >= 0x030200000
+    fossil_print("  OpenSSL-winstore:   Yes\n");
+#else /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
+    fossil_print("  OpenSSL-winstore:   No\n");
+#endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
+    if( verbose ){
+      fossil_print("\n"
+         "    OpenSSL 3.2.0 (or newer) also uses the certificates managed by\n"
+         "    the Windows operating system.\n\n"
+      );
+    }
+#endif /* _WIN32 */
 
     if( zUsed==0 ) zUsed = "";
     fossil_print("  Trust store used:   %s\n", zUsed);
