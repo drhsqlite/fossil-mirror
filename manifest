@@ -1,5 +1,5 @@
-C Enable\sOpenSSL\sto\suse\sthe\sWindows\scertificate\sstore.
-D 2024-07-12T17:50:00.000
+C Amend\sthe\sprevious\scommit:\sDisplay\sa\swarning\son\sfailure\sto\sload\sthe\sWindows\sroot\scertificates,\swhich\smay\sbe\shelpful\suntil\sthe\sfeature\shas\sproven\sto\swork\swell.\sAdd\sa\shint\show\sto\slist\sthe\sWindows\sroot\scertificates.\sUse\sconsistent\scode\sstyle.
+D 2024-07-13T08:23:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -466,7 +466,7 @@ F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
 F src/http.c 88ee80fc188b5972abfc252d6a1d6c977596ab53191e8ebbc40344ba7c047c4b
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
-F src/http_ssl.c 5b561db235fb1e2cca8de8aacabbc5b9dee16f2158690c39142f6d0c662f3279
+F src/http_ssl.c 1706fa3b93fe158229ede2d09ae1d9446b39072637273bc53254b9fb880739bc
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
 F src/import.c 313d8f9b6964cdb6fb73eb6d87810d746018542bc65b6b0eb7285903f0d27873
 F src/info.c d85965a8279ddbb632ad68f1a3084aee961ae91aeb3ee3b85e22fa2a6decf605
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 02349c875d62f7016436ca8f3a52627a3d10d43da77039b018ed43921708c0a9
-R 6451fb5cf2f129f1544ec1f232870b19
+P 6fc64abe34856054951968b17ffc49a19194cbed7a37cb4882588cc5b64c2831
+R 91dc20f9fb3199efb958163a8e58fc4b
 U florian
-Z 224f9505bad66483ab8f468df462bea9
+Z b59a53d9cc34e782cf6eeb4282d04de3
 # Remove this line to create a well-formed Fossil manifest.

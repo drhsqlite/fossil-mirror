@@ -319,9 +319,11 @@ static void ssl_global_init_client(void){
 ** The following OpenSSL configuration options must not be used for this feature
 ** to be available: `no-autoalginit', `no-winstore'. The Fossil makefiles do not
 ** currently set these options when building OpenSSL for Windows. */
-#if defined (_WIN32)
+#if defined(_WIN32)
 #if OPENSSL_VERSION_NUMBER >= 0x030200000
-    SSL_CTX_load_verify_store(sslCtx, "org.openssl.winstore:");
+    if( SSL_CTX_load_verify_store(sslCtx, "org.openssl.winstore:")==0 ){
+      fprintf(stderr,"WARNING: Failed to load Windows root certificates.\n");
+    }
 #endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
 #endif /* _WIN32 */
 
@@ -1048,7 +1050,7 @@ void test_tlsconfig_info(void){
       );
     }
 
-#if defined (_WIN32)
+#if defined(_WIN32)
 #if OPENSSL_VERSION_NUMBER >= 0x030200000
     fossil_print("  OpenSSL-winstore:   Yes\n");
 #else /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
@@ -1056,8 +1058,10 @@ void test_tlsconfig_info(void){
 #endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
     if( verbose ){
       fossil_print("\n"
-         "    OpenSSL 3.2.0 (or newer) also uses the certificates managed by\n"
-         "    the Windows operating system.\n\n"
+         "    OpenSSL 3.2.0, or newer, use the root certificates managed by\n"
+         "    the Windows operating system. The installed root certificates\n"
+         "    are listed by the command:\n\n"
+         "        certutil -store \"ROOT\"\n\n"
       );
     }
 #endif /* _WIN32 */
