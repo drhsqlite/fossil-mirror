@@ -322,7 +322,7 @@ static void ssl_global_init_client(void){
 #if defined(_WIN32)
 #if OPENSSL_VERSION_NUMBER >= 0x030200000
     if( SSL_CTX_load_verify_store(sslCtx, "org.openssl.winstore:")==0 ){
-      fprintf(stderr,"WARNING: Failed to load Windows root certificates.\n");
+      fossil_print("NOTICE: Failed to load the Windows root certificates.\n");
     }
 #endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
 #endif /* _WIN32 */
