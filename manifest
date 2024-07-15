@@ -1,5 +1,5 @@
-C Reduce\sthe\sWARNING\sthat\sthe\sWindows\sroot\scertificates\scannot\sbe\sloaded\sto\sa\sNOTICE\sand\soutput\sit\son\sthe\ssame\schannel\sas\sthe\s"Unable\sto\sverify\sSSL\scert\sfrom\s...\saccept\sthis\scert\sand\scontinue\s(y/N/fingerprint)?"\sprompt.
-D 2024-07-15T10:42:00.000
+C Update\sthe\sTLS\sdoc\sto\smention\sthe\suse\sof\sthe\sWindows\sroot\scertificates\s(intented\smore\sas\sa\sreminder\sfrom\sa\snon-tech-writer\sand\snon-security-expert\sto\sproperly\sdocument\sthe\sfeature\sonce\smore\speople\shave\sused\sit\sand\snot\sreported\sany\sproblems).
+D 2024-07-15T16:42:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -939,7 +939,7 @@ F www/serverext.wiki 6ca97cde49057937831ef70adb207642e6befd1f5b18decb31ca1b35cd1
 F www/settings.wiki 194a1b8a22acf5098168ffd991758a5903f135c4870dcbe5beb3ffdf57915e6b
 F www/shunning.wiki c8e96dbccdd3aea354ecf31c6e6f265010213bd234a5441606da60b636bbc93b
 F www/ssl-server.md a2df89dac308c5143f95e30c9acfa8ab5cbeaa931bbefbcb40d49e37dd0cc4a8
-F www/ssl.wiki c2bec741c68c213305f89cfeb9d1efa228d772f6eb44f0822a9437a86c2f05a8
+F www/ssl.wiki d1fc950cf538f469424b7a2d67d465678cc5f5a53c01e4c9f5cbc4929bd1c65f
 F www/stats.wiki db154391c71965d6d9205f691885848f9c7fa629271682a03a1133bdc32cc6e3
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki c7acd5857e123a2cd996cf81413f5b5f04712f4eb5d4b49c9c5f187d9a9013c7
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P de6a059493bdc1210f2c1c6e13c84919546d216ff80db7a94b791fc5eb230332
-R cb5dbb9091750956b8c91aa2e9f7281d
+P 5d993d54394bcff73ccd984db064f4bd7f5b12d2ebecb2987aea44057052871a
+R 5b61eccb96bc11938d23e373f9a66163
 U florian
-Z 6c468869e0fee3557989d4c355d49425
+Z d5d9d6e6e3bca7ca4c041d13587a8c12
 # Remove this line to create a well-formed Fossil manifest.

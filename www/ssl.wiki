@@ -191,6 +191,22 @@ This can also happen if you've linked Fossil to a version of OpenSSL
 [#openssl-src|built from source]. That same <tt>cacert.pem</tt> fix can
 work in that case, too.
 
+<blockquote>
+OpenSSL 3.2.0 or greater is able to use the stock CA certificates
+managed by Windows, and Fossil 2.25 (still in development as of
+2024-07-15) takes advantage of this feature. This <em>possibly</em>
+eliminates the need to manually install the Mozilla certificate package,
+for example when connecting to Fossil servers secured by the widely-used
+Let's Encrypt certificates. Run the following command to check if the
+feature is supported:
+
+<pre>
+fossil tls-config show -v
+</pre>
+
+(See the "OpenSSL-winstore" section, requires Fossil 2.25 or greater.)
+</blockquote>
+
 When you build Fossil on Linux platforms against the binary OpenSSL
 package provided with the OS, you typically get a root cert store along
 with the platform OpenSSL package, either built-in or as a hard
