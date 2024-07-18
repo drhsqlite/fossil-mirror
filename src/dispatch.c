@@ -871,13 +871,14 @@ void help_page(void){
     }
   }else{
     int i;
+    const char *zWidth = "28ex";
     unsigned char occHelp[FOSSIL_MX_CMDIDX] = {0};   /* Help str occurrences */
     int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {{0}};/* Help str->commands */
     style_header("Help");
 
     @ <a name='commands'></a>
     @ <h1>Available commands:</h1>
-    @ <div class="columns" style="column-width: 12ex;">
+    @ <div class="columns" style="column-width: %s(zWidth);">
     @ <ul>
     /* Fill in help string buckets */
     for(i=0; i<MX_COMMAND; i++){
@@ -922,7 +923,7 @@ void help_page(void){
 
     @ <a name='webpages'></a>
     @ <h1>Available web UI pages:</h1>
-    @ <div class="columns" style="column-width: 18ex;">
+    @ <div class="columns" style="column-width: %s(zWidth);">
     @ <ul>
     for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
@@ -938,7 +939,7 @@ void help_page(void){
 
     @ <a name='unsupported'></a>
     @ <h1>Unsupported commands:</h1>
-    @ <div class="columns" style="column-width: 20ex;">
+    @ <div class="columns" style="column-width: %s(zWidth);">
     @ <ul>
     for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
@@ -954,7 +955,7 @@ void help_page(void){
 
     @ <a name='settings'></a>
     @ <h1>Settings:</h1>
-    @ <div class="columns" style="column-width: 20ex;">
+    @ <div class="columns" style="column-width: %s(zWidth);">
     @ <ul>
     for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
