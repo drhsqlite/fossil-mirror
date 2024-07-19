@@ -1,5 +1,5 @@
-C Wider\scolumns\son\sthe\s/help\spage,\sso\sthat\slonger\scommand\snames\sdo\snot\soverflow\nthe\savailable\scolumn\swidth.
-D 2024-07-18T10:22:54.507
+C Add\sthe\s--nosync\soption\sto\scommands\s"commit",\s"merge",\sand\s"branch\screate".\nSee\s[forum:/forumpost/592513119fdae69c|forum\sthread\s592513119fdae69c].
+D 2024-07-19T12:53:42.750
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -388,7 +388,7 @@ F src/backoffice.c 8ed33abacbbebe8d353255346d629b5d7f1be800b883dc0625e660eb3d58e
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 44446bda0779cbcebe645d3df9030b2edd42b24c56e10ef64a5535e29014be0e
 F src/blob.c cb8e0d4941b290c717892a5f9823dec6dc3224d1dfcf378c66403067250b0e20
-F src/branch.c c0dfc94074587dfd8f3f5f602d0934553f65af6e6165dfb9143ad98227b694c4
+F src/branch.c f4bb7a773d48c1eeab6be111b51fa62546c1a2815aa259bb04ca449752bee3c8
 F src/browse.c 4a86e0ba6767fb50b99ca19a7f796d99ad1a3634064530375269d5ba29c3ca12
 F src/builtin.c 78d68f7ea4407815416d606efea9d7e2e63df943292fc978e1ad7ce7767b94c7
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
@@ -397,7 +397,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c 6138e7f4cd402570b2feba24b953314ee914a36649646493b425a3fdb03e02c8
 F src/cgi.c a5a22e5368ec514d6c45ef7607aa551aa2aefe7cc18c7b17a7775a4c0d59ce63
 F src/chat.c 9758f84855b349d5cf15d9373f58614663d81a4e1acbcaf4dbbd0e74b5294899
-F src/checkin.c 48622797a8bcd02fb6c7faee28ffe4055c980e3fa8720733772e866534c64958
+F src/checkin.c 7e0013b78efc08b3656d048b0eab92aedf2581b7b462b8aab377c7f1fd63d67f
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -500,7 +500,7 @@ F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb25
 F src/markdown_html.c c091000cdd12972fecbf0f1434e5224d5703c0e2b893003f764695676f9f46cf
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c f6ed95443e2b266790d22624749f29adfe90c770037e7e14a5ce421623426c73
+F src/merge.c dc6afed7bcecf0d946e22a0067fa63ed34eabe8cabe5e29df3e0d54e3dce2dab
 F src/merge3.c 19b67bb5c7742daa22348de9efd2db11de51a6f9e20940277e8557d187dd6147
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b8b22d795e5b51b55aca70e770f90b2c3430e63606029b409338be5005d08d30
-R 4fe7c5330b8bb8a29c997ce678f73cce
+P b919738dc5372114fa4ff5930cdc4c3d3d35980e78cfb7694a8f927fe2c5e073
+R a05d9093abad6a2499add93e0cba2cda
 U drh
-Z 9c4d7273dbe48828e8c4714e33b58357
+Z a9f4fa4851701a790f8bb20e8f57c1db
 # Remove this line to create a well-formed Fossil manifest.
