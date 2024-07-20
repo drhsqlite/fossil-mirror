@@ -1,5 +1,5 @@
-C Add\sthe\s--nosync\soption\sto\scommands\s"commit",\s"merge",\sand\s"branch\screate".\nSee\s[forum:/forumpost/592513119fdae69c|forum\sthread\s592513119fdae69c].
-D 2024-07-19T12:53:42.750
+C Revise\sa\squery\sassociated\swith\s/tree\sso\sthat\sit\sruns\sa\slittle\sfaster.
+D 2024-07-20T10:34:46.900
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -389,7 +389,7 @@ F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 44446bda0779cbcebe645d3df9030b2edd42b24c56e10ef64a5535e29014be0e
 F src/blob.c cb8e0d4941b290c717892a5f9823dec6dc3224d1dfcf378c66403067250b0e20
 F src/branch.c f4bb7a773d48c1eeab6be111b51fa62546c1a2815aa259bb04ca449752bee3c8
-F src/browse.c 4a86e0ba6767fb50b99ca19a7f796d99ad1a3634064530375269d5ba29c3ca12
+F src/browse.c 113dc2b7d8fc88462dfc4401262c6c91857ea787fb15b9ddc46a5ddc1c057cf6
 F src/builtin.c 78d68f7ea4407815416d606efea9d7e2e63df943292fc978e1ad7ce7767b94c7
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b919738dc5372114fa4ff5930cdc4c3d3d35980e78cfb7694a8f927fe2c5e073
-R a05d9093abad6a2499add93e0cba2cda
+P e8a21ab43c775a670957bb21c02b826368bedfc8d218fcf95955eebb4f0c5dcf
+R bb1fa4a25ca1ab3862ccb9d80af4de58
 U drh
-Z a9f4fa4851701a790f8bb20e8f57c1db
+Z f4744eb6ddd88a2b515cae398e65f272
 # Remove this line to create a well-formed Fossil manifest.
