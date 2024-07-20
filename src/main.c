@@ -188,7 +188,7 @@ struct Global {
   int fNoHttpCompress;    /* Do not compress HTTP traffic (for debugging) */
   char *zSshCmd;          /* SSH command string */
   const char *zHttpCmd;   /* External program to do HTTP requests */
-  int fNoSync;            /* Do not do an autosync ever.  --nosync */
+  int fNoSync;            /* Do not do an autosync ever.  --no-sync */
   int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
   char *zPath;            /* Name of webpage being served (may be NULL) */
   char *zExtra;           /* Extra path information past the webpage name */
@@ -765,7 +765,8 @@ int fossil_main(int argc, char **argv){
       fossil_fatal("no such VFS: \"%s\"", g.zVfsName);
     }
   }
-  if( !find_option("nocgi", 0, 0) && fossil_getenv("GATEWAY_INTERFACE")!=0){
+  if( !find_option("no-cgi", 0, 0) && !find_option("nocgi", 0, 0)
+      && fossil_getenv("GATEWAY_INTERFACE")!=0){
     zCmdName = "cgi";
     g.isHTTP = 1;
   }else if( g.argc<2 && !fossilExeHasAppendedRepo() ){
@@ -2812,11 +2813,11 @@ static void decode_ssl_options(void){
 **                       privileges without having to log in
 **   --mainmenu FILE     Override the mainmenu config setting with the contents
 **                       of the given file
-**   --nocompress        Do not compress HTTP replies
-**   --nodelay           Omit backoffice processing if it would delay
+**   --no-compress       Do not compress HTTP replies
+**   --no-delay          Omit backoffice processing if it would delay
 **                       process exit
-**   --nojail            Drop root privilege but do not enter the chroot jail
-**   --nossl             Do not do http: to https: redirects, regardless of
+**   --no-jail           Drop root privilege but do not enter the chroot jail
+**   --no-ssl            Do not do http: to https: redirects, regardless of
 **                       the redirect-to-https setting.
 **   --notfound URL      Use URL as the "HTTP 404, object not found" page
 **   --out FILE          Write the HTTP reply to FILE instead of to
@@ -2863,11 +2864,13 @@ void cmd_http(void){
   skin_override();
   zNotFound = find_option("notfound", 0, 1);
   zChRoot = find_option("chroot",0,1);
-  noJail = find_option("nojail",0,0)!=0;
+  noJail = find_option("no-jail",0,0)!=0 || find_option("nojail",0,0)!=0;
   allowRepoList = find_option("repolist",0,0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
-  g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
-  g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
+  g.sslNotAvailable = find_option("no-ssl", 0, 0)!=0
+                      || find_option("nossl", 0, 0)!=0;
+  g.fNoHttpCompress = find_option("no-compress",0,0)!=0
+                      || find_option("nocompress",0,0)!=0;
   g.zExtRoot = find_option("extroot",0,1);
   g.zCkoutAlias = find_option("ckout-alias",0,1);
   g.zReqType = "HTTP";
@@ -2896,7 +2899,9 @@ void cmd_http(void){
   useSCGI = find_option("scgi", 0, 0)!=0;
   if( useSCGI ) g.zReqType = "SCGI";
   zAltBase = find_option("baseurl", 0, 1);
-  if( find_option("nodelay",0,0)!=0 ) backoffice_no_delay();
+  if( find_option("no-delay",0,0)!=0 || find_option("nodelay",0,0)!=0 ){
+    backoffice_no_delay();
+  }
   if( zAltBase ) set_base_url(zAltBase);
   if( find_option("https",0,0)!=0 ){
     zIpAddr = fossil_getenv("REMOTE_HOST"); /* From stunnel */
@@ -3169,11 +3174,11 @@ void fossil_set_timeout(int N){
 **                       of the given file
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
-**   -B|--nobrowser      Do not automatically launch a web-browser for the
+**   -B|--no-browser     Do not automatically launch a web-browser for the
 **                       "fossil ui" command
-**   --nocompress        Do not compress HTTP replies
-**   --nojail            Drop root privileges but do not enter the chroot jail
-**   --nossl             Do not force redirects to SSL even if the repository
+**   --no-compress       Do not compress HTTP replies
+**   --no-jail           Drop root privileges but do not enter the chroot jail
+**   --no-ssl            Do not force redirects to SSL even if the repository
 **                       setting "redirect-to-https" requests it.  This is set
 **                       by default for the "ui" command.
 **   --notfound URL      Redirect to URL if a page is not found.
@@ -3242,7 +3247,7 @@ void cmd_webserver(void){
   skin_override();
 #if !defined(_WIN32)
   zChRoot = find_option("chroot",0,1);
-  noJail = find_option("nojail",0,0)!=0;
+  noJail = find_option("no-jail",0,0)!=0 || find_option("nojail",0,0)!=0;
   zTimeout = find_option("max-latency",0,1);
 #endif
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
@@ -3256,7 +3261,9 @@ void cmd_webserver(void){
   }
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
-  if( find_option("nocompress",0,0)!=0 ) g.fNoHttpCompress = 1;
+  if( find_option("no-compress",0,0)!=0 || find_option("nocompress",0,0)!=0 ){
+    g.fNoHttpCompress = 1;
+  }
   zAltBase = find_option("baseurl", 0, 1);
   fCreate = find_option("create",0,0)!=0;
   g.zReqType = "HTTP";
@@ -3267,8 +3274,10 @@ void cmd_webserver(void){
   if( zAltBase ){
     set_base_url(zAltBase);
   }
-  g.sslNotAvailable = find_option("nossl", 0, 0)!=0 || isUiCmd;
-  fNoBrowser = find_option("nobrowser", "B", 0)!=0;
+  g.sslNotAvailable = find_option("no-ssl", 0, 0)!=0
+                      || find_option("nossl", 0, 0)!=0 || isUiCmd;
+  fNoBrowser = find_option("no-browser", "B", 0)!=0 
+               || find_option("nobrowser", "B", 0)!=0;
   decode_ssl_options();
   if( find_option("https",0,0)!=0 || g.httpUseSSL ){
     cgi_replace_parameter("HTTPS","on");
@@ -3382,7 +3391,7 @@ void cmd_webserver(void){
   }
   if( zRemote ){
     /* If a USER@HOST:REPO argument is supplied, then use SSH to run
-    ** "fossil ui --nobrowser" on the remote system and to set up a
+    ** "fossil ui --no-browser" on the remote system and to set up a
     ** tunnel from the local machine to the remote. */
     FILE *sshIn;
     Blob ssh;
@@ -3406,7 +3415,7 @@ void cmd_webserver(void){
       }else{
         blob_appendf(&ssh, " %$", zFossilCmd);
       }
-      blob_appendf(&ssh, " ui --nobrowser --localauth --port %d", iPort);
+      blob_appendf(&ssh, " ui --no-browser --localauth --port %d", iPort);
       if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
       if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
       if( g.zCkoutAlias ) blob_appendf(&ssh," --ckout-alias %!$",g.zCkoutAlias);

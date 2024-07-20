@@ -102,7 +102,7 @@ int update_to(int vid){
 **                           and *-merge.
 **   --latest                Acceptable in place of VERSION, update to
 **                           latest version
-**   --nosync                Do not auto-sync prior to update
+**   --no-sync               Do not auto-sync prior to update
 **   --setmtime              Set timestamps of all files to match their
 **                           SCM-side times (the timestamp of the last
 **                           check-in which modified them).
@@ -130,7 +130,7 @@ void update_cmd(void){
   int nConflict = 0;    /* Number of merge conflicts */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   int nUpdate = 0;      /* Number of changes of any kind */
-  int bNosync = 0;      /* --nosync.  Omit the auto-sync */
+  int bNosync = 0;      /* --no-sync.  Omit the auto-sync */
   int width;            /* Width of printed comment lines */
   Stmt mtimeXfer;       /* Statement to transfer mtimes */
   const char *zWidth;   /* Width option string value */
@@ -151,14 +151,15 @@ void update_cmd(void){
   latestFlag = find_option("latest",0, 0)!=0;
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
-    dryRunFlag = find_option("nochange",0,0)!=0; /* deprecated */
+    dryRunFlag = find_option("no-change",0,0)!=0
+                 || find_option("nochange",0,0)!=0; /* deprecated */
   }
   verboseFlag = find_option("verbose","v",0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   keepMergeFlag = find_option("keep-merge-files", "K",0)!=0;
-  bNosync = find_option("nosync",0,0)!=0;
+  bNosync = find_option("no-sync",0,0)!=0 || find_option("nosync",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();

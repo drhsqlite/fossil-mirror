@@ -1874,9 +1874,9 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **    --buttons        Set the WIKI_BUTTONS flag
 **    --htmlonly       Set the WIKI_HTMLONLY flag
 **    --linksonly      Set the WIKI_LINKSONLY flag
-**    --nobadlinks     Set the WIKI_NOBADLINKS flag
+**    --no-badlinks    Set the WIKI_NOBADLINKS flag
 **    --inline         Set the WIKI_INLINE flag
-**    --noblock        Set the WIKI_NOBLOCK flag
+**    --no-block       Set the WIKI_NOBLOCK flag
 **    --dark-pikchr    Render pikchrs in dark mode
 */
 void test_wiki_render(void){
@@ -1885,9 +1885,13 @@ void test_wiki_render(void){
   if( find_option("buttons",0,0)!=0 ) flags |= WIKI_BUTTONS;
   if( find_option("htmlonly",0,0)!=0 ) flags |= WIKI_HTMLONLY;
   if( find_option("linksonly",0,0)!=0 ) flags |= WIKI_LINKSONLY;
-  if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
+  if( find_option("no-badlinks",0,0)!=0 || find_option("nobadlinks",0,0)!=0 ){
+    flags |= WIKI_NOBADLINKS;
+  }
   if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
-  if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
+  if( find_option("no-block",0,0)!=0 || find_option("noblock",0,0)!=0 ){
+    flags |= WIKI_NOBLOCK;
+  }
   if( find_option("dark-pikchr",0,0)!=0 ){
     pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
   }

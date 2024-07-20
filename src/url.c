@@ -548,7 +548,7 @@ static const char *zProxyOpt = 0;
 ** also happens to be a convenient place to look for other
 ** network-related options:
 **
-**    --nosync             Temporarily disable "autosync"
+**    --no-sync            Temporarily disable "autosync"
 **
 **    --ipv4               Disallow IPv6.  Use only IPv4.
 **
@@ -559,7 +559,7 @@ static const char *zProxyOpt = 0;
 */
 void url_proxy_options(void){
   zProxyOpt = find_option("proxy", 0, 1);
-  if( find_option("nosync",0,0) ) g.fNoSync = 1;
+  if( find_option("no-sync",0,0) || find_option("nosync",0,0) ) g.fNoSync = 1;
   if( find_option("ipv4",0,0) ) g.fIPv4 = 1;
 #ifdef FOSSIL_ENABLE_SSL
   if( find_option("accept-any-cert",0,0) ){

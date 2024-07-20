@@ -666,8 +666,8 @@ void repack_command(void){
 **   --force           Force the rebuild to complete even if errors are seen
 **   --ifneeded        Only do the rebuild if it would change the schema version
 **   --index           Always add in the full-text search index
-**   --noverify        Skip the verification of changes to the BLOB table
-**   --noindex         Always omit the full-text search index
+**   --no-verify       Skip the verification of changes to the BLOB table
+**   --no-index        Always omit the full-text search index
 **   --pagesize N      Set the database pagesize to N (512..65536, power of 2)
 **   --quiet           Only show output if there are errors
 **   --stats           Show artifact statistics after rebuilding
@@ -693,7 +693,7 @@ void rebuild_database(void){
   int optIfNeeded;
   int compressOnlyFlag;
 
-  omitVerify = find_option("noverify",0,0)!=0;
+  omitVerify = find_option("no-verify",0,0)!=0 ||find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
@@ -703,7 +703,7 @@ void rebuild_database(void){
   zPagesize = find_option("pagesize",0,1);
   showStats = find_option("stats",0,0)!=0;
   optIndex = find_option("index",0,0)!=0;
-  optNoIndex = find_option("noindex",0,0)!=0;
+  optNoIndex = find_option("no-index",0,0)!=0 || find_option("noindex",0,0)!=0;
   optIfNeeded = find_option("ifneeded",0,0)!=0;
   compressOnlyFlag = find_option("compress-only",0,0)!=0;
   if( compressOnlyFlag ) runCompress = 1;

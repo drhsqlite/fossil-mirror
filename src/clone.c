@@ -127,7 +127,7 @@ void delete_private_content(void){
 **    -B|--httpauth USER:PASS    Add HTTP Basic Authorization to requests
 **    --nested                   Allow opening a repository inside an opened
 **                               check-out
-**    --nocompress               Omit extra delta compression
+**    --no-compress              Omit extra delta compression
 **    --no-open                  Clone only.  Do not open a check-out.
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
@@ -149,7 +149,8 @@ void clone_cmd(void){
   int nErr = 0;
   int urlFlags = URL_PROMPT_PW | URL_REMEMBER;
   int syncFlags = SYNC_CLONE;
-  int noCompress = find_option("nocompress",0,0)!=0;
+  int noCompress = find_option("no-compress",0,0)!=0
+                   || find_option("nocompress",0,0)!=0;
   int noOpen = find_option("no-open",0,0)!=0;
   int allowNested = find_option("nested",0,0)!=0; /* Used by open */
   const char *zRepo = 0;      /* Name of the new local repository file */
@@ -327,7 +328,7 @@ void clone_cmd(void){
     blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_append(&cmd, " open ", -1);
     blob_append_escaped_arg(&cmd, zRepo, 1);
-    blob_append(&cmd, " --nosync --workdir ", -1);
+    blob_append(&cmd, " --no-sync --workdir ", -1);
     blob_append_escaped_arg(&cmd, zWorkDir, 1);
     if( allowNested ){
       blob_append(&cmd, " --nested", -1);

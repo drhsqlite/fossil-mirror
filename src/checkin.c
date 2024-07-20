@@ -2333,8 +2333,8 @@ static int tagCmp(const void *a, const void *b){
 **                               question.
 **    --no-warnings              Omit all warnings about file contents
 **    --no-verify                Do not run before-commit hooks
-**    --nosign                   Do not attempt to sign this commit with gpg
-**    --nosync                   Do not auto-sync prior to committing
+**    --no-sign                  Do not attempt to sign this commit with gpg
+**    --no-sync                  Do not auto-sync prior to committing
 **    --override-lock            Allow a check-in even though parent is locked
 **    --private                  Do not sync changes and their descendants
 **    --tag TAG-NAME             Assign given tag TAG-NAME to the check-in
@@ -2402,8 +2402,8 @@ void commit_cmd(void){
   url_proxy_options();
   /* --sha1sum is an undocumented alias for --hash for backwards compatiblity */
   useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
-  noSign = find_option("nosign",0,0)!=0;
-  if( find_option("nosync",0,0) ) g.fNoSync = 1;
+  noSign = find_option("no-sign",0,0)!=0 || find_option("nosign",0,0)!=0;
+  if( find_option("no-sync",0,0) || find_option("nosync",0,0) ) g.fNoSync = 1;
   privateFlag = find_option("private",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;

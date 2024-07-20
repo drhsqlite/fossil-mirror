@@ -84,8 +84,8 @@ void branch_new(void){
   const char *zUserOvrd; /* Override user name */
   int isPrivate = 0;     /* True if the branch should be private */
 
-  noSign = find_option("nosign","",0)!=0;
-  if( find_option("nosync",0,0) ) g.fNoSync = 1;
+  noSign = find_option("no-sign","",0)!=0 || find_option("nosign","",0)!=0;
+  if( find_option("no-sync",0,0) || find_option("nosync",0,0) ) g.fNoSync = 1;
   zColor = find_option("bgcolor","c",1);
   isPrivate = find_option("private",0,0)!=0;
   zDateOvrd = find_option("date-override",0,1);
@@ -662,8 +662,8 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        Options:
 **          --private             Branch is private (i.e., remains local)
 **          --bgcolor COLOR       Use COLOR instead of automatic background
-**          --nosign              Do not sign contents on this branch
-**          --nosync              Do not auto-sync prior to creating the branch
+**          --no-sign             Do not sign contents on this branch
+**          --no-sync             Do not auto-sync prior to creating the branch
 **          --date-override DATE  DATE to use instead of 'now'
 **          --user-override USER  USER to use instead of the current default
 **

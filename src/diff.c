@@ -3107,7 +3107,7 @@ int *text_diff(
 **   --html                       Format for HTML            DIFF_HTML
 **   --invert                     Invert the diff            DIFF_INVERT
 **   -n|--linenum                 Show line numbers          DIFF_LINENO
-**   --noopt                      Disable optimization       DIFF_NOOPT
+**   --no-opt                     Disable optimization       DIFF_NOOPT
 **   --numstat                    Show change counts         DIFF_NUMSTAT
 **   --strip-trailing-cr          Strip trailing CR          DIFF_STRIP_EOLCR
 **   --unified                    Unified diff.              ~DIFF_SIDEBYSIDE
@@ -3172,7 +3172,9 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
     pCfg->wColumn = f;
   }
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
-  if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
+  if( find_option("no-opt",0,0)!=0 || find_option("noopt",0,0)!=0 ){
+    diffFlags |= DIFF_NOOPT;
+  }
   if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("versions","h",0)!=0 ) diffFlags |= DIFF_SHOW_VERS;
   if( find_option("dark",0,0)!=0 ) diffFlags |= DIFF_DARKMODE;

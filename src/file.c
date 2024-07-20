@@ -2450,19 +2450,20 @@ int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
 /*
 ** COMMAND: test-dir-size
 **
-** Usage: %fossil test-dir-size NAME [GLOB] [--nodots]
+** Usage: %fossil test-dir-size NAME [GLOB] [--no-dots]
 **
 ** Return the number of objects in the directory NAME.  If GLOB is
 ** provided, then only count objects that match the GLOB pattern.
-** if --nodots is specified, omit files that begin with ".".
+** if --no-dots is specified, omit files that begin with ".".
 */
 void test_dir_size_cmd(void){
-  int omitDotFiles = find_option("nodots",0,0)!=0;
+  int omitDotFiles = find_option("no-dots",0,0)!=0
+                     || find_option("nodots",0,0)!=0;
   const char *zGlob;
   const char *zDir;
   verify_all_options();
   if( g.argc!=3 && g.argc!=4 ){
-    usage("NAME [GLOB] [-nodots]");
+    usage("NAME [GLOB] [--no-dots]");
   }
   zDir = g.argv[2];
   zGlob = g.argc==4 ? g.argv[3] : 0;

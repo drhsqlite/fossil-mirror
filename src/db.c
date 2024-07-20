@@ -4106,7 +4106,7 @@ void db_record_repository_filename(const char *zName){
 **   --force-missing   Force opening a repository with missing content
 **   -k|--keep         Only modify the manifest file(s)
 **   --nested          Allow opening a repository inside an opened check-out
-**   --nosync          Do not auto-sync the repository prior to opening even
+**   --no-sync         Do not auto-sync the repository prior to opening even
 **                     if the autosync setting is on.
 **   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
 **                     the clone in DIR rather than in "."
@@ -4145,7 +4145,7 @@ void cmd_open(void){
   zWorkDir = find_option("workdir",0,1);
   zRepoDir = find_option("repodir",0,1);
   bForce = find_option("force","f",0)!=0;
-  if( find_option("nosync",0,0) ) g.fNoSync = 1;
+  if( find_option("no-sync",0,0) || find_option("nosync",0,0) ) g.fNoSync = 1;
   bVerbose = find_option("verbose",0,0)!=0;
   zPwd = file_getcwd(0,0);
 

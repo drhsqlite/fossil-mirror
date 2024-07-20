@@ -701,12 +701,12 @@ void backoffice_work(void){
 ** Options intended for internal use only which may change or be
 ** discontinued in future releases:
 **
-**    --nodelay               Do not queue up or wait for a backoffice job
+**    --no-delay              Do not queue up or wait for a backoffice job
 **                            to complete. If no work is available or if
 **                            backoffice has run recently, return immediately.
 **
-**    --nolease               Always run backoffice, even if there is a lease
-**                            conflict.  This option implies --nodelay.  This
+**    --no-lease              Always run backoffice, even if there is a lease
+**                            conflict.  This option implies --no-delay.  This
 **                            option is added to secondary backoffice commands
 **                            that are invoked by the --poll option.
 */
@@ -718,14 +718,16 @@ void backoffice_command(void){
   int bNoLease = 0;
   unsigned int nCmd = 0;
   if( find_option("trace",0,0)!=0 ) g.fAnyTrace = 1;
-  if( find_option("nodelay",0,0)!=0 ) backofficeNoDelay = 1;
+  if( find_option("no-delay",0,0)!=0 || find_option("nodelay",0,0)!=0 ){
+    backofficeNoDelay = 1;
+  }
   backofficeLogfile = find_option("logfile",0,1);
   zPoll = find_option("poll",0,1);
   nPoll = zPoll ? atoi(zPoll) : 0;
   zPoll = find_option("min",0,1);
   nMin = zPoll ? atoi(zPoll) : 3600;
   bDebug = find_option("debug",0,0)!=0;
-  bNoLease = find_option("nolease",0,0)!=0;
+  bNoLease = find_option("no-lease",0,0)!=0 || find_option("nolease",0,0)!=0;
 
   /* Silently consume the -R or --repository flag, leaving behind its
   ** argument. This is for legacy compatibility. Older versions of the
@@ -758,7 +760,7 @@ void backoffice_command(void){
         }
         blob_init(&cmd, 0, 0);
         blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
-        blob_append(&cmd, " backoffice --nodelay", -1);
+        blob_append(&cmd, " backoffice --no-delay", -1);
         if( g.fAnyTrace ){
           blob_append(&cmd, " --trace", -1);
         }
@@ -766,7 +768,7 @@ void backoffice_command(void){
           blob_append(&cmd, " --debug", -1);
         }
         if( nPoll>0 ){
-          blob_append(&cmd, " --nolease", -1);
+          blob_append(&cmd, " --no-lease", -1);
         }
         if( backofficeLogfile ){
           blob_append(&cmd, " --logfile", -1);

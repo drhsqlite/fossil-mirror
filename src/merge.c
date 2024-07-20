@@ -323,7 +323,7 @@ void test_show_vfile_cmd(void){
 **                           used for merging, named *-baseline, *-original,
 **                           and *-merge.
 **   -n|--dry-run            If given, display instead of run actions
-**   --nosync                Do not auto-sync prior to merging
+**   --no-sync               Do not auto-sync prior to merging
 **   -v|--verbose            Show additional details of the merge
 */
 void merge_cmd(void){
@@ -375,9 +375,10 @@ void merge_cmd(void){
   zBinGlob = find_option("binary",0,1);
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
-    dryRunFlag = find_option("nochange",0,0)!=0; /* deprecated */
+    dryRunFlag = find_option("no-change",0,0)!=0
+                 || find_option("nochange",0,0)!=0; /* deprecated */
   }
-  if( find_option("nosync",0,0) ) g.fNoSync = 1;
+  if( find_option("no-sync",0,0) || find_option("nosync",0,0) ) g.fNoSync = 1;
   forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
   keepMergeFlag = find_option("keep-merge-files", "K",0)!=0;

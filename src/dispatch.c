@@ -1133,7 +1133,7 @@ static const char zOptions[] =
 @   --help                  Show help on the command rather than running it
 @   --httptrace             Trace outbound HTTP requests
 @   --localtime             Display times using the local timezone
-@   --nocgi                 Do not act as CGI
+@   --no-cgi                Do not act as CGI
 @   --no-th-hook            Do not run TH1 hooks
 @   --quiet                 Reduce the amount of output
 @   --sqlstats              Show SQL usage statistics when done
