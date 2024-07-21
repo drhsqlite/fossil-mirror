@@ -1,5 +1,8 @@
-C Removed\sall\sreferences\sto\s"Fossil\s2.1x"\sfrom\sthe\sdocs,\sexcepting\sthe\nchangelog\sand\sthe\shashpolicy\sdoc.\s\sThe\sbulk\sof\sthese\swere\sfor\s2.14\sor\nolder\s—\s*ten*\sversions\sback\snow!\s—\sand\sthere\sis\sno\sreason\sto\ssuppose\nsuch\sold\sversions\sare\sstill\sin\suse\sany\smore.\s\sThese\snotes\swere\sjustified\nwhen\sthey\sinformed\susers\sabout\ssurprising\schanges\sand\sfeature\sadditions,\nbut\sthey\snow\sdo\snothing\sbut\sclutter\sthe\sdocs.\s\sIf\sI\sam\swrong\sabout\npeople\sbeing\ssurprised\sby\sthese\sthings,\swe\sstill\shave\sthe\schangelog,\sthe\ntimeline,\sand\sthe\sforum.
-D 2024-03-30T20:48:35.924
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+C Update\sconfig.guess\sand\sconfig.guess\sto\smake\sit\spossible\sto\scompile\sFossil\sfor\sLoongArch
+D 2024-07-21T16:20:59.813
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -21,8 +24,8 @@ F auto.def 813e22805867256c679fa2ce22826f8e6a581bd827b5f1c019bbcfa4aae03515
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
-F autosetup/autosetup-config.guess 3b75d9d5f8326458c69745d92193103e27e0481d2f9abd1bae73623cfc598114 x
-F autosetup/autosetup-config.sub 0697a5484327430771886185831e84042e91ce215da18fa282616d22c26f478e x
+F autosetup/autosetup-config.guess eff4d47d66f861ef1c6955de84dda6ecdb97166d733e7d0efb22a7630161c744 x
+F autosetup/autosetup-config.sub 85c85f02514951636734a90505f2c43cc4d6c185b5a93dc4767d7962c5091771 x
 F autosetup/autosetup-find-tclsh 3ed4869b390e09b69b787aa6494abd84482ca4af9e86ee9c88888e877bb02cb3 x
 F autosetup/autosetup-test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c x
 F autosetup/cc-db.tcl 4d410387006384f65ec986af45c5799eab1b8ef33f2b74bbcb976c0988ee8279
@@ -957,8 +960,18 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f3cac5259349653094619b7a9a5dc66f99e13293f6e7e8476cff715cf6526c08
-R 57984e05abd065a1ddce31cc3a525981
-U wyoung
-Z 784577753998e7436e6dfb701fdc03ce
+P ad47a447c81277763293d99487c4ea4c12b76ff951d4ce18a50acf48f5277b33
+R 7af6cd7ac0e1ca122c415e21d6802871
+T *branch * loongarch
+T *sym-loongarch *
+T -sym-trunk *
+U js
+Z e6eb12915904f46bb60b15eac77e516b
 # Remove this line to create a well-formed Fossil manifest.
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQRjLipNv+PzQ1ovIb+UKW7y7JvmgwUCZp01awAKCRCUKW7y7Jvm
+g5e4AQCk9J7WLTA08JUreyDGHOax/uIV/qvuVnmWxqEitr0MyAD/YPZBELTm01pI
+YHgaxcTaGkxMRZPTW703rG4JedGBdww=
+=Aso8
+-----END PGP SIGNATURE-----
