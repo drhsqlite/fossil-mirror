@@ -199,12 +199,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   Blob branch;           /* manifest for the new branch */
   Manifest *pParent;     /* Parsed parent manifest */
   Blob mcksum;           /* Self-checksum on the manifest */
-  int bAutoColor = 0;    /* Value of "--bgcolor" is "auto" */
 
-  if( fossil_strncmp(zColor, "auto", 4)==0 ) {
-    bAutoColor = 1;
-    zColor = 0;
-  }
   /* fossil branch new name */
   if( zBranch==0 || zBranch[0]==0 ){
     zOpt->rcErrMsg = "Branch name may not be null/empty.";
@@ -267,7 +262,6 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */
   if( content_is_private(rootid) ) zOpt->isPrivate = 1;
-  if( zOpt->isPrivate && zColor==0 && !bAutoColor) zColor = "#fec084";
   if( zColor!=0 ){
     blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }

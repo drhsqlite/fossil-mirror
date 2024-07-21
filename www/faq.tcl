@@ -74,7 +74,7 @@ faq {
   option to give a check-in multiple tags.  Tags need not be unique.  So,
   for example, it is common to give every released version a "release" tag.
 
-  If you want add a tag to an existing check-in, you can use the
+  If you want to add a tag to an existing check-in, you can use the
   <b>[/help/tag|tag]</b> command.  For example:
 
   <pre>
@@ -86,7 +86,7 @@ faq {
 
   You can also add (and remove) tags from a check-in using the
   [./webui.wiki | web interface].  First locate the check-in that you
-  what to tag on the timeline, then click on the link to go the detailed
+  want to tag on the timeline, then click on the link to go the detailed
   information page for that check-in.  Then find the "<b>edit</b>"
   link (near the "Commands:" label) and click on that.  There are
   controls on the edit page that allow new tags to be added and existing
@@ -98,7 +98,7 @@ faq {
   main repository.
 } {
   Use the <b>--private</b> command-line option on the
-  <b>commit</b> command.  The result will be a check-in which exists on
+  <b>commit</b> command.  The result will be a check-in which exists in
   your local repository only and is never pushed to other repositories.
   All descendants of a private check-in are also private.
 

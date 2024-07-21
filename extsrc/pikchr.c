@@ -269,7 +269,7 @@ static int pik_token_eq(PToken *pToken, const char *z){
 ** tokenizer
 */
 #define T_PARAMETER  253     /* $1, $2, ..., $9 */
-#define T_WHITESPACE 254     /* Whitespace of comments */
+#define T_WHITESPACE 254     /* Whitespace or comments */
 #define T_ERROR      255     /* Any text that is not a valid token */
 
 /* Directions of movement */
@@ -6124,7 +6124,7 @@ static void pik_set_at(Pik *p, PToken *pEdge, PPoint *pAt, PToken *pErrTok){
   pObj->mProp |= A_AT;
   pObj->eWith = pEdge ? pEdge->eEdge : CP_C;
   if( pObj->eWith>=CP_END ){
-    int dir = pObj->eWith==CP_END ? pObj->outDir : pObj->inDir;
+    int dir = pObj->eWith==CP_END ? pObj->outDir : (pObj->inDir+2)%4;
     pObj->eWith = eDirToCp[dir];
   }
   pObj->with = *pAt;
@@ -7438,7 +7438,7 @@ static int pik_token_length(PToken *pToken, int bAllowCodeBlock){
     case '\t':
     case '\f':
     case '\r': {
-      for(i=1; (c = z[i])==' ' || c=='\t' || c=='\r' || c=='\t'; i++){}
+      for(i=1; (c = z[i])==' ' || c=='\t' || c=='\r' || c=='\f'; i++){}
       pToken->eType = T_WHITESPACE;
       return i;
     }
@@ -8001,6 +8001,7 @@ static void usage(const char *argv0){
     "Convert Pikchr input files into SVG.  Filename \"-\" means stdin.\n"
     "All output goes to stdout.\n"
     "Options:\n"
+    "   --dark-mode      Generate \"dark mode\" output\n"
     "   --dont-stop      Process all files even if earlier files have errors\n"
     "   --svg-only       Emit raw SVG without the HTML wrapper\n"
   );
@@ -8139,7 +8140,7 @@ int main(int argc, char **argv){
     zIn = readFile(argv[i]);
     if( zIn==0 ) continue;
     zOut = pikchr(zIn, "pikchr", mFlags, &w, &h);
-    if( w<0 ) exitCode = 1;
+    if( w<0 && !bDontStop ) exitCode = 1;
     if( zOut==0 ){
       fprintf(stderr, "pikchr() returns NULL.  Out of memory?\n");
       if( !bDontStop ) exit(1);
@@ -8242,4 +8243,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8270 "pikchr.c"
+#line 8271 "pikchr.c"

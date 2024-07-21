@@ -141,9 +141,9 @@ We think this is a more sensible command design than `git pull` vs
 #### <a id="close" name="dotfile"></a> Closing a Check-Out
 
 The [`fossil close`][close] command dissociates a check-out directory from the
-Fossil repository database, nondestructively inverting [`fossil open`][open].
-(Contrast [its closest inverse](#worktree), `git worktree remove`, which *is*
-destructive in Git!) This Fossil command does not
+Fossil repository database, _nondestructively_ inverting [`fossil open`][open].
+(Contrast Git’s [closest alternative](#worktree), `git worktree remove`, which *is*
+destructive!) This Fossil command does not
 remove the managed files, and unless you give the `--force`
 option, it won’t let you close the check-out with uncommitted changes to
 those managed files.
@@ -302,11 +302,11 @@ reads from a single disk file rather than visit potentially many
 files in sequence as Git must, so the OS’s buffer cache can result in
 [still better performance][35pct].
 
-Unlike Git’s log, Fossil’s timeline shows info across branches by
-default, a feature for maintaining better situational awareness. Although the
-`fossil timeline` command has no way to show a single branch’s commits,
-you can restrict your view like this using the web UI equivalent by
-clicking the name of a branch on the `/timeline` or `/brlist` page. (Or
+Unlike Git’s log, Fossil’s timeline shows info across all branches by
+default, a feature for maintaining better situational awareness.
+It is possible to restrict the timeline to a single branch using `fossil timeline -b`.
+Similarly, to restrict the timeline using the web UI equivalent,
+click the name of a branch on the `/timeline` or `/brlist` page. (Or
 manually, by adding the `r=` query parameter.) Note that even in this
 case, the Fossil timeline still shows other branches where they interact
 with the one you’ve referenced in this way; again, better situational
@@ -459,13 +459,44 @@ and apply similar rules as to Git commit messages.
 [lsl]:   https://chris.beams.io/posts/git-commit/#limit-50
 
 
+<a id="autocommit"></a>
+## Fossil Never Auto-Commits
+
+There are several features in Git besides its `commit` command that
+produce a new commit to the repository, and by default, they do it
+without prompting or even asking for a commit message. These include
+Git’s [`rebase`](#rebase), `merge`, and [`cherrypick`](#cpickrev)
+commands, plus the [commit splitting](#comsplit) sub-feature
+“`git commit -p`”.
+
+Fossil never does this, on firm philosophical grounds: we wish to be
+able to test that each potentially repository-changing command does not
+break anything _before_ freezing it immutably into the [Merkle
+tree](./blockchain.md). Where Fossil has equivalent commands, they
+modify the checkout tree alone, requiring a separate `commit` command
+afterward, withheld until the user has satisfied themselves that the
+command’s result is correct.
+
+We believe this is the main reason Git lacks an [autosync](#autosync)
+feature: making push a manual step gives the user a chance to rewrite
+history after triggering one of these autocommits locally, should the
+automatic commit fail to work out as expected.  Fossil chooses the
+inverse path under the philosophy that commits are *commitments,* not
+something you’re allowed to go back and rewrite later.
+
+This is also why there is no automatic commit message writing feature in
+Fossil, as in these autocommit-triggering Git commands. The user is
+meant to write the commit message by hand after they are sure it’s
+correct, in clear-headed retrospective fashion.  Having the tool do it
+prospectively before one can test the result is simply backwards.
+
 
 <a id="staging"></a>
 ## There Is No Staging Area
 
 Fossil omits the "Git index" or "staging area" concept.  When you
 type "`fossil commit`" _all_ changes in your check-out are committed,
-automatically.  There is no need for the "-a" option as with Git.
+by default.  There is no need for the "-a" option as with Git.
 
 If you only want to commit _some_ of the changes, list the names
 of the files or directories you want to commit as arguments, like this:
@@ -475,8 +506,16 @@ of the files or directories you want to commit as arguments, like this:
 Note that the last element is a directory name, meaning “any changed
 file under the `examples/feature` directory.”
 
-Although there are currently no
-<a id="csplit"></a>[commit splitting][gcspl] features in Fossil like
+
+<a id="comsplit"></a>
+## Commit Splitting
+
+[Git’s commit splitting features][gcspl] rely on
+other features of Git that Fossil purposefully lacks, as covered in the
+prior two sections: [autocommit](#autocommit) and [the staging
+area](#staging).
+
+While there is no direct Fossil equivalent for
 `git add -p`, `git commit -p`, or `git rebase -i`, you can get the same
 effect by converting an uncommitted change set to a patch and then
 running it through [Patchouli].
@@ -496,24 +535,13 @@ hunks already applied.
 In this way, the combination of working tree and stash replaces the need
 for Git’s index feature.
 
-This also solves a philosophical problem with `git commit -p`: how can
-you test that a split commit doesn’t break anything if you do it as part
-of the commit action? Git’s lack of an autosync feature means you can
-commit locally and then rewrite history if the commit doesn’t work out,
-but we’d rather make changes only to the working directory, test the
-changes there, and only commit once we’re sure it’s right.
-
-This also explains why we don’t have anything like `git rebase -i`
-to split an existing commit: in Fossil, commits are *commitments,* not
-something you’re allowed to go back and rewrite later.
-
-If someone does [contribute][ctrb] a commit splitting feature to Fossil,
-we’d expect it to be an interactive form of
-[`fossil stash apply`][stash], rather than follow Git’s ill-considered
-design leads.
-
-Until then, there’s the third-party tool [`fnc`][fnc] and
-[its interactive `stash` command][fncsta].
+We believe we know how to do commit splitting in a way compatible with
+the Fossil philosophy, without following Git’s ill-considered design
+leads. It amounts to automating the above process through an interactive
+variant of [`fossil stash apply`][stash], as currently prototyped in the
+third-party tool [`fnc`][fnc] and [its interactive `stash`
+command][fncsta]. We merely await someone’s [contribution][ctrb] of this
+feature into Fossil proper.
 
 [ctrb]:      https://fossil-scm.org/fossil/doc/trunk/www/contribute.wiki
 [fnc]:       https://fnc.bsdbox.org/
@@ -819,53 +847,23 @@ addressed there.
 
 There is only one sub-feature of `git rebase` that is philosophically
 compatible with Fossil yet which currently has no functional equivalent.
-We [covered this and the workaround for its lack](#csplit) above.
+We [covered this and the workaround for its lack](#comsplit) above.
 
 [3]: ./rebaseharm.md
 
 
-## <a id="cdiff"></a> Colorized Diffs
+<a id="cdiff"></a>
+## Colorized Diffs
 
 When you run `git diff` on an ANSI X3.64 capable terminal, it uses color
 to distinguish insertions, deletions, and replacements, but as of this
 writing, `fossil diff` produces traditional uncolored [unified diff
 format][udiff] output, suitable for producing a [patch file][pfile].
 
-Nevertheless, there are multiple ways to get colorized diff output from
-Fossil:
-
-*   The most direct method is to delegate diff behavior back to Git:
-
-      fossil set --global diff-command 'git diff --no-index'
-
-    The flag permits it to diff files that aren’t inside a Git repository.
-
-*   Another method is to install [`colordiff`][cdiff] — included in
-    [many package systems][cdpkg] — then say:
-
-      fossil set --global diff-command 'colordiff -wu'
-
-    Because this is unconditional, unlike `git diff --color=auto`, you
-    will then have to remember to add the `-i` option to `fossil diff`
-    commands when you want color disabled, such as when producing
-    `patch(1)` files or piping diff output to another command that
-    doesn’t understand ANSI escape sequences. There’s an example of this
-    [below](#dstat).
-
-*   Use the Fossil web UI to diff existing commits.
-
-*   To diff the current working directory contents against some parent
-    instead, Fossil’s diff command can produce
-    colorized HTML output and open it in the OS’s default web browser.
-    For example, `fossil diff -by` will show side-by-side diffs.
-
-*   Use the older `fossil diff --tk` option to do much the same using
-    Tcl/Tk instead of a browser.
-
+There are [many methods](./colordiff.md) for solving this.
 Viewed this way, Fossil doesn’t lack colorized diffs, it simply has
 *one* method where they *aren’t* colorized.
 
-[cdpkg]: https://repology.org/project/colordiff/versions
 [pfile]: https://en.wikipedia.org/wiki/Patch_(Unix)
 [udiff]: https://en.wikipedia.org/wiki/Diff#Unified_format
 
@@ -938,15 +936,13 @@ a histogram in its default output mode rather than bare integers:
     fossil diff -i -v --from 2020-04-01 | diffstat
 
 We gave the `-i` flag in both cases to force Fossil to use its internal
-diff implementation, bypassing [your local `diff-command` setting][dcset].
-The `--numstat` option has no effect when you have an external diff
-command set, and some diff command alternatives like
-[`colordiff`][cdiff] (covered [above](#cdiff)) produce output that confuses `diffstat`.
+diff implementation, bypassing [your local `diff-command` setting][dcset]
+since the `--numstat` option has no effect when you have an external diff
+command set.
 
 If you leave off the `-v` flag in the second example, the `diffstat`
 output won’t include info about any newly-added files.
 
-[cdiff]: https://www.colordiff.org/
 [dcset]: https://fossil-scm.org/home/help?cmd=diff-command
 [dst]:   https://invisible-island.net/diffstat/diffstat.html
 

@@ -1,8 +1,49 @@
 <title>Change Log</title>
 
-<h2 id='v2_24'>Changes for version 2.24 (pending)</h2>
+<h2 id='v2_25'>Changes for version 2.25 (pending)</h2>
 
-  *  Improvements to the default skin
+  *  The "[/help?cmd=ui|fossil ui /]" command now works even for repositories
+     that have non-ASCII filenames
+  *  Add the [/help?cmd=tree|fossil tree] command.
+  *  On case-insensitive filesystems, store files using the filesystem's
+     preferred case rather than the case typed in by the user.
+  *  Change the name "fossil cherry-pick" command to "fossil cherrypick",
+     which is more familiar to Git users.  Retain the legacy name for
+     compatibility.
+  *  Add new query parameters to the [/help?cmd=/timeline|/timeline page]:
+     d2=, p2=, and dp2=.
+  *  Add options to the [/help?cmd=tag|fossil tag] command that will list tag values.
+  *  Add ability to upload unversioned files via the [/help?cmd=/uvlist|/uvlist page].
+  *  Add history search to the [/help?cmd=/chat|/chat page].
+
+
+<h2 id='v2_24'>Changes for version 2.24 (2024-04-23)</h2>
+
+  *  Apache change work-around &rarr; As part of a security fix, the Apache webserver
+     mod_cgi module has stopped relaying the Content-Length field of the HTTP
+     reply header from the CGI programs back to the client in cases where the
+     connection is to be closed and the client is able to read until end-of-file.
+     The HTTP and CGI specs allow for this, though it does seem rude.
+     Older versions of Fossil were depending on the Content-Length header field
+     being set.  To work around the change to Apache, Fossil has
+     been enhanced to cope with a missing Content-Length in the reply header.  See
+     [forum:/forumpost/12ac403fd29cfc89|forum thread 12ac403fd29cfc89].
+  *  [./customskin.md|Skin] enhancements:
+     <ul>
+     <li>  Reworked the default skin to make everything more readable: larger
+           fonts, more whitespace, deeper indents to show hierarchy and to
+           offset command examples, etc.  Adjusted colors slightly to bring
+           things into better accord with the WCAG accessibility guidelines.
+           This constitutes a <strong>breaking change</strong> for those with
+           custom skins; see [./customskin.md#version-2.24 | this section of
+           the docs] for migration advice.
+     <li>  Add a new link added to the [/login] page that allows the user to
+           [/skins|select their preferred skin]. This preference is stored in
+           the [/fdscookie|fossil display_settings cookie].
+     <li>  The /setup_skin_admin page is simplified to let administrators easily
+           select one of the built-in skins as a default, or to specify a
+           custom skin.
+     </ul>
   *  If an "ssh:" sync fails in a way that suggests that the fossil executable
      could not be found on the remote host, then retry after adding a PATH=
      prefix to the command.  This helps "ssh:" to "just work" when the server
@@ -18,28 +59,26 @@
      </ul>
   *  Moved the /museum/repo.fossil file referenced from the Dockerfile from
      the ENTRYPOINT to the CMD part to allow use of --repolist mode.
-  *  The /uvlist page now shows the hash algorithm used so that
-     outsiders don't have to guess it from the hash length when
-     double-checking hashes of downloaded files on their end.
-  *  The hash itself is now shown in a fixed-width font on the /uvlist
-     page, suiting this tabular display.
+  *  The [/uvlist] page now shows the hash algorithm used so that
+     viewers don't have to guess.  The hash is shown in a fixed-width
+     font for a more visually pleasing display.
   *  If the [/help?cmd=autosync|autosync setting] contains keyword "all",
      the automatic sync occurs against all defined remote repositories, not
      just the default.
   *  Markdown formatter: improved handling of indented fenced code blocks
      that contain blank lines.
+  *  When doing a "[/help?cmd=add|fossil add]" on a system with case-insensitive
+     but case-preserving filenames (Mac and Windows) try to use the filename
+     case as it is known to the filesystem, not the case entered by the
+     user on the command-line.  See
+     [forum:/forumpost/30d9c0d131610f53|forum thread 30d9c0d131610f53].
   *  Fix problems with one-click unsubscribe on email notifications.
   *  Import the latest [/doc/trunk/www/pikchr.md|Pikchr] containing support
      for "diamond" objects.
-  *  Reworked the default skin to make everything more readable: larger
-     fonts, more whitespace, deeper indents to show hierarchy and to
-     offset command examples, etc.  Adjusted colors slightly to bring
-     things into better accord with the WCAG accessibility guidelines.
-     This constitutes a <strong>breaking change</strong> for those with
-     custom skins; see [./customskin.md#version-2.24 | this section of
-     the docs] for migration advice.
   *  Add ability to render committed Pikchr files to SVG via
      <samp>/doc/…/foo.pikchr?popup</samp> URLs.
+  *  Update Fossil's internal robot detection logic so that it correctly
+     identifies the new GoogleOther crawler as a robot.
 
 <h2 id='v2_23'>Changes for version 2.23 (2023-11-01)</h2>
 

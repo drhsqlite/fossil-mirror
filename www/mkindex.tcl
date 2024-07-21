@@ -37,6 +37,7 @@ set doclist {
   chroot.md {Server Chroot Jail}
   ckout-workflows.md {Check-Out Workflows}
   co-vs-up.md {Checkout vs Update}
+  colordiff.md {Colorized Diffs}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contact.md {Developer Contact Information}

@@ -404,13 +404,13 @@ static void tag_cmd_tagname_check(const char *zTag){
 **         propagates to all descendants of that artifact.
 **
 **         Options:
-**           --raw                      Raw tag name. Ignored for
-**                                      non-CHECK-IN artifacts.
-**           --propagate                Propagating tag
 **           --date-override DATETIME   Set date and time added
-**           --user-override USER       Name USER when adding the tag
 **           -n|--dry-run               Display the tag text, but do not
 **                                      actually insert it into the database
+**           --propagate                Propagating tag
+**           --raw                      Raw tag name. Ignored for
+**                                      non-CHECK-IN artifacts.
+**           --user-override USER       Name USER when adding the tag
 **
 **         The --date-override and --user-override options support
 **         importing history from other SCM systems. DATETIME has
@@ -429,18 +429,19 @@ static void tag_cmd_tagname_check(const char *zTag){
 **         forbidden, as documented for the 'add' subcommand.
 **
 **         Options:
-**           --raw                       Raw tag name. Ignored for
-**                                       non-CHECK-IN artifacts.
 **           --date-override DATETIME    Set date and time deleted
-**           --user-override USER        Name USER when deleting the tag
 **           -n|--dry-run                Display the control artifact, but do
 **                                       not insert it into the database
+**           --raw                       Raw tag name. Ignored for
+**                                       non-CHECK-IN artifacts.
+**           --user-override USER        Name USER when deleting the tag
 **
 ** > fossil tag find ?OPTIONS? TAGNAME
 **
 **         List all objects that use TAGNAME.
 **
 **         Options:
+**           -n|--limit N    Limit to N results
 **           --raw           Interprets tag as a raw name instead of a
 **                           branch name and matches any type of artifact.
 **                           Changes the output to include only the
@@ -449,7 +450,6 @@ static void tag_cmd_tagname_check(const char *zTag){
 **                           e (event/technote), f (forum post),
 **                           t (ticket). Default is all types. Ignored
 **                           if --raw is used.
-**           -n|--limit N    Limit to N results
 **
 ** > fossil tag list|ls ?OPTIONS? ?ARTIFACT-ID?
 **
@@ -461,9 +461,6 @@ static void tag_cmd_tagname_check(const char *zTag){
 **         unless the --raw or --prefix options are used.
 **
 **         Options:
-**           --raw           List raw names of tags
-**           --tagtype TYPE  List only tags of type TYPE, which must
-**                           be one of: cancel, singleton, propagated
 **           -v|--inverse    Inverse the meaning of --tagtype TYPE
 **           --prefix        List only tags with the given prefix
 **                           Fossil-internal prefixes include "sym-"
@@ -472,6 +469,14 @@ static void tag_cmd_tagname_check(const char *zTag){
 **                           prefix is stripped from the resulting
 **                           list unless --raw is provided. Ignored if
 **                           ARTIFACT-ID is provided.
+**           --raw           List raw names of tags
+**           --sep SEP       Separator when concatenating values
+**           --tagtype TYPE  List only tags of type TYPE, which must
+**                           be one of: cancel, singleton, propagated
+**           --values        List tag values
+**                           If --sep is supplied, list all values of a tag on
+**                           the same line, separated by SEP; otherwise list
+**                           each value on its own line.
 **
 ** The option --raw allows the manipulation of all types of tags
 ** used for various internal purposes in fossil. It also shows
@@ -637,6 +642,9 @@ void tag_cmd(void){
     const int fInverse = find_option("inverse","v",0)!=0;
     const char *zTagPrefix = find_option("prefix","",1);
     int nTagType = fRaw ? -1 : 0;
+    int fValues = find_option("values","",0)!=0;
+    const char *zSep = find_option("sep","",1);
+
 
     if( zTagType!=0 ){
       int l = strlen(zTagType);
@@ -652,25 +660,57 @@ void tag_cmd(void){
     }
     if( g.argc==3 ){
       const int nTagPrefix = zTagPrefix ? (int)strlen(zTagPrefix) : 0;
-      db_prepare(&q,
-        "SELECT tagname FROM tag"
-        " WHERE EXISTS(SELECT 1 FROM tagxref"
-        "               WHERE tagid=tag.tagid"
-        "                 AND tagtype%s%d)"
-        " AND CASE WHEN %Q IS NULL THEN 1 ELSE tagname GLOB %Q||'*' "
-        " END ORDER BY tagname COLLATE uintnocase",
-        zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
-        nTagType, zTagPrefix, zTagPrefix
-      );
+      if( !fValues ){
+        db_prepare(&q,
+          "SELECT tagname FROM tag"
+          " WHERE EXISTS(SELECT 1 FROM tagxref"
+          "               WHERE tagid=tag.tagid"
+          "                 AND tagtype%s%d)"
+          " AND CASE WHEN %Q IS NULL THEN 1 ELSE tagname GLOB %Q||'*' "
+          " END ORDER BY tagname COLLATE uintnocase",
+          zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
+          nTagType, zTagPrefix, zTagPrefix
+        );
+      }else{
+        if( zSep ){
+          db_prepare(&q,
+            /* work around group_concat() with DISTINCT and custom separator */
+            "SELECT tagname,"
+            "  rtrim(replace(group_concat(DISTINCT value||'@!' "
+            "                             ORDER BY value ASC), '@!,', %Q),'@!')"
+            " FROM tagxref, tag"
+            " WHERE tagxref.tagid=tag.tagid AND tagtype%s%d"
+            " AND CASE WHEN %Q IS NULL THEN 1 ELSE tagname GLOB %Q||'*' END"
+            " GROUP BY tagname"
+            " ORDER BY tagname COLLATE uintnocase",
+            ( zSep && strlen(zSep)>0 ) ? zSep : ",",
+            zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
+            nTagType, zTagPrefix, zTagPrefix
+          );
+        }else{
+          db_prepare(&q,
+            "SELECT DISTINCT tagname, value"
+            " FROM tagxref, tag"
+            " WHERE tagxref.tagid=tag.tagid AND tagtype%s%d"
+            " AND CASE WHEN %Q IS NULL THEN 1 ELSE tagname GLOB %Q||'*' END"
+            " ORDER BY tagname, value COLLATE uintnocase",
+            zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
+            nTagType, zTagPrefix, zTagPrefix
+          );
+        }
+      }
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);
+        const char *zValue = db_column_text(&q, 1);
+        int nWidth = fValues ? 20 : 0;
+        const char *zzValue = (fValues && zValue) ? mprintf(" %s", zValue) : "";
         if( fRaw ){
-          fossil_print("%s\n", zName);
+          fossil_print("%-*s%s\n", nWidth, zName, zzValue);
         }else if( nTagPrefix>0 ){
           assert(db_column_bytes(&q,0)>=nTagPrefix);
-          fossil_print("%s\n", &zName[nTagPrefix]);
+          fossil_print("%-*s%s\n", nWidth, &zName[nTagPrefix], zzValue);
         }else if( strncmp(zName, "sym-", 4)==0 ){
-          fossil_print("%s\n", &zName[4]);
+          fossil_print("%-*s%s\n", nWidth, &zName[4], zzValue);
         }
       }
       db_finalize(&q);

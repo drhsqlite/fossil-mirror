@@ -617,6 +617,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\style.chat.css" \
         "$(SRCDIR)\style.fileedit.css" \
         "$(SRCDIR)\style.pikchrshow.css" \
+        "$(SRCDIR)\style.uvlist.css" \
         "$(SRCDIR)\style.wikiedit.css" \
         "$(SRCDIR)\tree.js" \
         "$(SRCDIR)\useredit.js" \
@@ -1246,6 +1247,7 @@ realclean: clean
 	echo "$(SRCDIR)\style.chat.css" >> $@
 	echo "$(SRCDIR)\style.fileedit.css" >> $@
 	echo "$(SRCDIR)\style.pikchrshow.css" >> $@
+	echo "$(SRCDIR)\style.uvlist.css" >> $@
 	echo "$(SRCDIR)\style.wikiedit.css" >> $@
 	echo "$(SRCDIR)\tree.js" >> $@
 	echo "$(SRCDIR)\useredit.js" >> $@

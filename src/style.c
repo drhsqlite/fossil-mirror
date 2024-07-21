@@ -421,6 +421,7 @@ void style_set_current_page(const char *zFormat, ...){
 static void stylesheet_url_var(void){
   char *zBuiltin;              /* Auxiliary page-specific CSS page */
   Blob url;                    /* The URL */
+  const char * zPage = local_zCurrentPage ? local_zCurrentPage : g.zPath;
 
   /* Initialize the URL to its baseline */
   url = empty_blob;
@@ -440,9 +441,9 @@ static void stylesheet_url_var(void){
   ** path information and include the page-specific CSS along with the
   ** default CSS when it delivers the page.
   */
-  zBuiltin = mprintf("style.%s.css", g.zPath);
+  zBuiltin = mprintf("style.%s.css", zPage);
   if( builtin_file(zBuiltin,0)!=0 ){
-    blob_appendf(&url, "/%s", g.zPath);
+    blob_appendf(&url, "/%s", zPage);
   }
   fossil_free(zBuiltin);
 
@@ -1400,7 +1401,7 @@ void honeypot_page(void){
 ** If zFormat is an empty string, then this is the /test_env page.
 */
 void webpage_error(const char *zFormat, ...){
-  int showAll;
+  int showAll = 0;
   char *zErr = 0;
   int isAuth = 0;
   char zCap[100];
@@ -1497,6 +1498,10 @@ void webpage_error(const char *zFormat, ...){
     P("HTTP_USER_AGENT");
     P("SERVER_SOFTWARE");
     cgi_print_all(showAll, 0, 0);
+    @ <p><form method="POST" action="%R/test_env">
+    @ <input type="hidden" name="showall" value="%d(showAll)">
+    @ <input type="submit" name="post-test-button" value="POST Test">
+    @ </form>
     if( showAll && blob_size(&g.httpHeader)>0 ){
       @ <hr>
       @ <pre>

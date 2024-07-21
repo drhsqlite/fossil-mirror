@@ -229,6 +229,7 @@ struct Global {
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
   const char *zCgiFile;      /* Name of the CGI file */
+  const char *zReqType;      /* Type of request: "HTTP", "CGI", "SCGI" */
 #if USE_SEE
   const char *zPidKey;    /* Saved value of the --usepidkey option.  Only
                            * applicable when using SEE on Windows or Linux. */
@@ -1704,6 +1705,13 @@ static void process_one_web_page(
   signal(SIGSEGV, sigsegv_handler);
 #endif
 
+  /* Decode %HH escapes in PATHINFO */
+  if( strchr(zPathInfo,'%') ){
+    char *z = fossil_strdup(zPathInfo);
+    dehttpize(z);
+    zPathInfo = z;
+  }
+
   /* Handle universal query parameters */
   if( PB("utc") ){
     g.fTimeFormat = 1;
@@ -1758,18 +1766,27 @@ static void process_one_web_page(
       }
 
 
-      /* For safety -- to prevent an attacker from accessing arbitrary disk
-      ** files by sending a maliciously crafted request URI to a public
-      ** server -- make sure the repository basename contains no
-      ** characters other than alphanumerics, "/", "_", "-", and ".", and
-      ** that "-" never occurs immediately after a "/" and that "." is always
-      ** surrounded by two alphanumerics.  Any character that does not
-      ** satisfy these constraints is converted into "_".
-      */
+      /* Restrictions on the URI for security:
+      **
+      **    1.  Reject characters that are not ASCII alphanumerics, 
+      **        "-", "_", ".", "/", or unicode (above ASCII).
+      **        In other words:  No ASCII punctuation or control characters
+      **        other than "-", "_", "." and "/".
+      **    2.  Exception to rule 1: Allow /X:/ where X is any ASCII 
+      **        alphabetic character at the beginning of the name on windows.
+      **    3.  "-" may not occur immediately after "/"
+      **    4.  "." may not be adjacent to another "." or to "/"
+      **
+      ** Any character does not satisfy these constraints a Not Found
+      ** error is returned.
+      */  
       szFile = 0;
       for(j=nBase+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
-        if( fossil_isalnum(c) ) continue;
+        if( c>='a' && c<='z' ) continue;
+        if( c>='A' && c<='Z' ) continue;
+        if( c>='0' && c<='9' ) continue;
+        if( (c&0x80)==0x80 ) continue;
 #if defined(_WIN32) || defined(__CYGWIN__)
         /* Allow names to begin with "/X:/" on windows */
         if( c==':' && j==2 && sqlite3_strglob("/[a-zA-Z]:/*", zRepo)==0 ){
@@ -1779,7 +1796,10 @@ static void process_one_web_page(
         if( c=='/' ) continue;
         if( c=='_' ) continue;
         if( c=='-' && zRepo[j-1]!='/' ) continue;
-        if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
+        if( c=='.'
+         && zRepo[j-1]!='.' && zRepo[j-1]!='/'
+         && zRepo[j+1]!='.' && zRepo[j+1]!='/'
+        ){
           continue;
         }
         if( c=='.' && g.fAllowACME && j==(int)nBase+1
@@ -2303,8 +2323,9 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **    nocompress               Do not compress HTTP replies.
 **
 **    skin: LABEL              Use the built-in skin called LABEL rather than
-**                             the default.  If there are no skins called LABEL
-**                             then this line is a no-op.
+**                             the default, or the default if LABEL is empty.
+**                             If there are no skins called LABEL then this
+**                             line is a no-op.
 **
 **    files: GLOBLIST          GLOBLIST is a comma-separated list of GLOB
 **                             patterns that specify files that can be
@@ -2365,6 +2386,7 @@ void cmd_cgi(void){
   fossil_binary_mode(g.httpOut);
   fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
+  g.zReqType = "CGI";
   fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
   /* Find the name of the CGI control file */
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
@@ -2848,6 +2870,7 @@ void cmd_http(void){
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
   g.zExtRoot = find_option("extroot",0,1);
   g.zCkoutAlias = find_option("ckout-alias",0,1);
+  g.zReqType = "HTTP";
   zInFile = find_option("in",0,1);
   if( zInFile ){
     backoffice_disable();
@@ -2871,6 +2894,7 @@ void cmd_http(void){
   }
   zIpAddr = find_option("ipaddr",0,1);
   useSCGI = find_option("scgi", 0, 0)!=0;
+  if( useSCGI ) g.zReqType = "SCGI";
   zAltBase = find_option("baseurl", 0, 1);
   if( find_option("nodelay",0,0)!=0 ) backoffice_no_delay();
   if( zAltBase ) set_base_url(zAltBase);
@@ -2997,6 +3021,7 @@ void cmd_test_http(void){
   fossil_binary_mode(g.httpIn);
   g.zExtRoot = find_option("extroot",0,1);
   find_server_repository(2, 0);
+  g.zReqType = "HTTP";
   g.cgiOutput = 1;
   g.fNoHttpCompress = 1;
   g.fullHttpReply = 1;
@@ -3157,7 +3182,8 @@ void fossil_set_timeout(int N){
 **   -P|--port [IP:]PORT  Listen on the given IP (optional) and port
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos
 **   --scgi              Accept SCGI rather than HTTP
-**   --skin LABEL        Use override skin LABEL
+**   --skin LABEL        Use override skin LABEL, or the site's default skin if
+**                       LABEL is an empty string.
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows or Linux.
@@ -3233,7 +3259,11 @@ void cmd_webserver(void){
   if( find_option("nocompress",0,0)!=0 ) g.fNoHttpCompress = 1;
   zAltBase = find_option("baseurl", 0, 1);
   fCreate = find_option("create",0,0)!=0;
-  if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;
+  g.zReqType = "HTTP";
+  if( find_option("scgi", 0, 0)!=0 ){
+    g.zReqType = "SCGI";
+    flags |= HTTP_SERVER_SCGI;
+  }
   if( zAltBase ){
     set_base_url(zAltBase);
   }

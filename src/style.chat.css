@@ -70,7 +70,7 @@ body.chat .message-widget-content> a {
 }
 body.chat.monospace-messages .message-widget-content,
 body.chat.monospace-messages .chat-input-field{
-  font-family: monospace;  
+  font-family: monospace;
 }
 body.chat .message-widget-content > * {
   margin: 0;
@@ -117,12 +117,33 @@ body.chat .message-widget .message-widget-tab {
 body.chat .fossil-tooltip.help-buttonlet-content {
   font-size: 80%;
 }
+
+body.chat .message-widget .message-widget-tab {
+  /* Element which renders the main metadata for a given message. */
+}
 body.chat .message-widget .message-widget-tab .xfrom {
-  /* Element which holds the "this message is from user X" part
-     of the message banner. */
+  /* xfrom part of the message tab */
   font-style: italic;
   font-weight: bold;
 }
+
+body.chat .message-widget .message-widget-tab .mtime {
+  /* mtime part of the message tab */
+}
+
+body.chat .message-widget .message-widget-tab .msgid {
+  /* msgid part of the message tab */
+}
+
+body.chat .message-widget .match {
+  font-weight: bold;
+  background-color: yellow;
+}
+
+body.chat.fossil-dark-style .message-widget .match {
+  background-color: #ff4800;
+}
+
 /* The popup element for displaying message timestamps
    and deletion controls. */
 body.chat .chat-message-popup {
@@ -184,16 +205,6 @@ body.chat.chat-only-mode{
   margin: 0 auto;
 }
 body.chat #chat-button-settings {}
-/** Popup widget for the /chat settings. */
-body.chat .chat-settings-popup {
-  font-size: 0.8em;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 0.25em;
-  z-index: 200;
-}
 
 /** Container for the list of /chat messages. */
 body.chat #chat-messages-wrapper {
@@ -348,14 +359,14 @@ body.chat #chat-buttons-wrapper > .cbutton:hover {
 }
 body.chat #chat-input-line-wrapper.compact #chat-buttons-wrapper > .cbutton {
   margin: 2px 0.125em 0 0.125em;
-  min-width: 6ex;
-  max-width: 6ex;
+  min-width: 4.5ex;
+  max-width: 4.5ex;
   min-height: 2.3ex;
   max-height: 2.3ex;
   font-size: 120%;
 }
 body.chat #chat-input-line-wrapper.compact #chat-buttons-wrapper #chat-button-submit {
-  min-width: 12ex;
+  min-width: 10ex;
 }
 .chat-input-field {
   font-family: inherit
@@ -442,6 +453,7 @@ body.chat .chat-view {
   margin-bottom: 0.2em;
 }
 body.chat #chat-config,
+body.chat #chat-search,
 body.chat #chat-preview {
   /* /chat configuration widget */
   display: flex;
@@ -520,26 +532,33 @@ body.chat #chat-config #chat-config-options .menu-entry .hint {
 }
 body.chat #chat-config #chat-config-options .menu-entry select {
 }
-body.chat #chat-preview #chat-preview-content {
+body.chat #chat-preview #chat-preview-content,
+body.chat #chat-search #chat-search-content {
   overflow: auto;
   flex: 1 1 auto;
   padding: 0.5em;
   border: 1px dotted;
 }
+
 body.chat #chat-preview #chat-preview-content > * {
   margin: 0;
   padding: 0;
 }
-body.chat #chat-preview #chat-preview-buttons {
+body.chat .chat-view .button-bar {
   flex: 0 1 auto;
   display: flex;
   flex-direction: column;
 }
-body.chat #chat-config > button,
-body.chat #chat-preview #chat-preview-buttons > button {
+body.chat .chat-view .button-bar button {
   padding: 0.5em;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   margin: 0.25em 0;
+}
+
+body.chat #chat-search .button-bar {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: row;
 }
 
 body.chat #chat-user-list-wrapper {
@@ -607,10 +626,15 @@ body.chat #chat-user-list .chat-user.selected {
   text-decoration: underline;
 }
 
-body.chat.fossil-dark-style #chat-button-attach > svg {
-  /* The black paperclip is barely visible in dark-mode
-     skins when they have dark buttons */
-  filter: invert(0.8);
+body.chat .searchForm {
+  margin-top: 1em;
+}
+body.chat .spacer-widget button {
+  margin-left: 1ex;
+  margin-right: 1ex;
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
 
 body.chat .anim-rotate-360 {
@@ -651,3 +675,4 @@ body.chat .anim-fade-out-fast {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+

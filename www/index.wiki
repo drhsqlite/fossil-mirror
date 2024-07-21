@@ -86,12 +86,12 @@ system with these advanced features:
   8.  <b>Free and Open-Source</b> — [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
-<h3>Latest Release: 2.23 ([/timeline?c=version-2.23|2023-11-01])</h3>
+<h3>Latest Release: 2.24 ([/timeline?c=version-2.24|2024-04-23])</h3>
 
   *  [/uv/download.html|Download]
-  *  [./changes.wiki#v2_23|Change Summary]
-  *  [/timeline?p=version-2.23&bt=version-2.22&y=ci|Check-ins in version 2.23]
-  *  [/timeline?df=version-2.23&y=ci|Check-ins derived from the 2.23 release]
+  *  [./changes.wiki#v2_24|Change Summary]
+  *  [/timeline?p=version-2.24&bt=version-2.23&y=ci|Check-ins in version 2.24]
+  *  [/timeline?df=version-2.24&y=ci|Check-ins derived from the 2.24 release]
   *  [/timeline?t=release|Timeline of all past releases]
 
 <hr>

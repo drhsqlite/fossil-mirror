@@ -2633,7 +2633,8 @@ void artifact_page(void){
     Stmt q;
     db_prepare(&q,
       "SELECT coalesce(user.login,rcvfrom.uid),"
-      "       datetime(rcvfrom.mtime,toLocal()), rcvfrom.ipaddr"
+      "       datetime(rcvfrom.mtime,toLocal()),"
+      "       coalesce(rcvfrom.ipaddr,'unknown')"
       "  FROM blob, rcvfrom LEFT JOIN user ON user.uid=rcvfrom.uid"
       " WHERE blob.rid=%d"
       "   AND rcvfrom.rcvid=blob.rcvid;", rid);
@@ -3797,9 +3798,11 @@ int describe_commit(
     "       FROM ancestor, plink, event"
     "       LEFT JOIN singletonTag ON singletonTag.rid=plink.pid"
     "      WHERE plink.cid=ancestor.rid"
+    "        AND plink.isprim=1"
     "        AND event.objid=plink.pid"
     "        AND ancestor.tagname IS NULL"
     "      ORDER BY mtime DESC"
+    "      LIMIT 100000"
     "  )"
     "SELECT tagname, n"
     "  FROM ancestor"

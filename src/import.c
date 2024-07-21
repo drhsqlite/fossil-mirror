@@ -1250,7 +1250,15 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
       u64 lenCpy = (*zDiff)&0x3f;
       const char *zCpy;
       switch( (*zDiff)&0xC0 ){
-        case 0x00: zCpy = blob_buffer(pSrc)+offSrc; break;
+        case 0x00:
+          if( 0==blob_size(pSrc) ){
+            /* https://fossil-scm.org/forum/forumpost/15d4b242bda2a108 */
+            fossil_fatal("Don't know how to handle NULL input. "
+                         "Tip: do not use the --incremental flag "
+                         "in the svn dump command.");
+          }
+          zCpy = blob_buffer(pSrc)+offSrc;
+          break;
         case 0x40: zCpy = blob_buffer(pOut); break;
         case 0x80: zCpy = zData; break;
         default: fossil_fatal("Invalid svndiff0 instruction");
@@ -1578,6 +1586,8 @@ static void svn_dump_import(FILE *pIn){
             }
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
             rid = svn_handle_symlinks(zPerm, &target);
+            blob_reset(&deltaSrc);
+            blob_reset(&target);
           }else if( rec.contentFlag ){
             rid = svn_handle_symlinks(zPerm, &rec.content);
           }else if( zSrcPath ){
@@ -1620,6 +1630,8 @@ static void svn_dump_import(FILE *pIn){
             content_get(rid, &deltaSrc);
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
             rid = svn_handle_symlinks(zPerm, &target);
+            blob_reset(&deltaSrc);
+            blob_reset(&target);
           }else{
             rid = svn_handle_symlinks(zPerm, &rec.content);
           }

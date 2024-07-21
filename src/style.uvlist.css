@@ -1,0 +1,7 @@
+body.uvlist input {
+  margin: 0.5em;
+}
+
+body.uvlist form {
+  display: block;
+}

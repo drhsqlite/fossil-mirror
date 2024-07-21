@@ -3,17 +3,18 @@
 "Unversioned content" or "unversioned files" are
 files stored in a Fossil repository without history, meaning
 it retains the newest version of each such file, and that alone.
+Unversioned files may have an optional directory name prefix.
 
 Though it omits history, Fossil does sync unversioned content between
 repositories.  In the event of a conflict during a sync, it retains
 the most recent version of each unversioned file, discarding
 older versions.
 
-Unversioned files are useful for storing ephemeral content such as builds
-or frequently changing web pages. We store
-the [https://fossil-scm.org/home/uv/download.html|download] page of
-the self-hosting Fossil repository as unversioned
-content, for example.
+Unversioned files are useful for storing ephemeral content such as
+builds or frequently changing web pages. We store the
+[https://fossil-scm.org/home/uv/download.html|download] page of the
+self-hosting Fossil repository as unversioned content, for
+example.
 
 <h2>Accessing Unversioned Files</h2>
 
@@ -25,10 +26,11 @@ followed by the name of the unversioned file will retrieve the content
 of the file.  The MIME type is inferred from the filename suffix.
 
 The content of unversioned files can also be retrieved using the
-[/help?cmd=unversioned|fossil unvers cat <i>FILENAME</i>] command.
+[/help?cmd=unversioned|fossil unvers cat <i>FILENAME...</i>]
+or [/help?cmd=unversioned|fossil unvers export <i>FILENAME</i>] commands.
 
 A list of all unversioned files on a server can be seen using
-the [/help?cmd=/uvlist|/uvlist] URL.  ([/uvlist|example]).
+the [/help?cmd=/uvlist|/uvlist] URL.  ([/uvlist|example].)
 
 <h2>Syncing Unversioned Files</h2>
 
