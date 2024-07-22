@@ -1,5 +1,5 @@
-C Explicit\scheckin\sof\sautosetup/autosetup-test-tclsh,\swhich\sthe\sprevious\scheckin\scuriously\soverlooked.
-D 2024-07-22T23:39:28.311
+C Explicit\scheckin\sof\sautosetup/autosetup-test-tclsh,\swhich\sthe\sprevious\scheckin\sagain\scuriously\soverlooked.\sPossibly\sa\sbug\sin\slibfossil's\shandling\sof\sexec-bit-only\schanges.
+D 2024-07-22T23:40:37.969
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -24,7 +24,7 @@ F autosetup/autosetup 6f6e19a6b0cebebb99e92adcad28d97d04b4928bc62188e37789322a22
 F autosetup/autosetup-config.guess af5884053b46ec977d9a349401e599ef5af07f9e5225fc401aa63285182bd73f x
 F autosetup/autosetup-config.sub a5dc581ccc42b30454469377ac9290c590c2fdf39288f97f922dc58c7c8884b5 x
 F autosetup/autosetup-find-tclsh 21cd642a0c8b3c2966b8c39dec0f3cd7d8f344e65132279006103bfd7ddb1fe9 x
-F autosetup/autosetup-test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c x
+F autosetup/autosetup-test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
 F autosetup/cc-db.tcl 6e0ed90146197a5a05b245e649975c07c548e30926b218ca3e1d4dc034b10a7b
 F autosetup/cc-lib.tcl 493c5935b5dd3bf9bd4eca89b07c8b1b1a9356d61783035144e21795facf7360
 F autosetup/cc-shared.tcl 4f024e94a47f427ba61de1739f6381ef0080210f9fae89112d5c1de1e5460d78
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dacbf76c8a571525319a07410834a48b563de9f9892dcee75a29caf978b696f1
+P 5354f5a2d60e5fb9e0e390d4b42694f012cf168820f02a6664f85da4520ed558
 R b654c8c491b351db69fb0ac0895fa8aa
 U stephan
-Z a142149907d5e44d6674a8c6aa86d7a0
+Z 020aae2c6fa8660506dd4a6b516e6341
 # Remove this line to create a well-formed Fossil manifest.
