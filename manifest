@@ -1,5 +1,5 @@
-C Upgrade\sautosetup\sfrom\s0.6.9\sto\s0.7.1+.\sSeems\sto\swork\sbut\sneed\sto\stry\sit\son\smore\ssystems\sbefore\smerging.
-D 2024-07-22T23:30:01.859
+C Explicit\scheckin\sof\sautosetup/autosetup-test-tclsh,\swhich\sthe\sprevious\scheckin\scuriously\soverlooked.
+D 2024-07-22T23:39:28.311
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -959,11 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 02349c875d62f7016436ca8f3a52627a3d10d43da77039b018ed43921708c0a9
+P dacbf76c8a571525319a07410834a48b563de9f9892dcee75a29caf978b696f1
 R b654c8c491b351db69fb0ac0895fa8aa
-T *branch * autosetup-0.7.1
-T *sym-autosetup-0.7.1 *
-T -sym-trunk * Cancelled\sby\sbranch.
 U stephan
-Z d05768c78fbf06ce9765d9050a97ebdc
+Z a142149907d5e44d6674a8c6aa86d7a0
 # Remove this line to create a well-formed Fossil manifest.
