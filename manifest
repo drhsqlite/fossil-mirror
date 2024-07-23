@@ -1,5 +1,5 @@
-C Upgrade\sautosetup\sto\supstream\sversion\s0.7.1+.\sTested\son\s3\sLinux\svariants\swith\sno\sregressions.
-D 2024-07-22T23:44:16.291
+C Revert\sa\s/chat\schange,\sintroduced\sin\s[be01315c86cd2f7d],\swhich\scauses\sthe\sSend\sbutton\sto\strigger\sa\spreview\supdate\sif\sthe\scurrent\sview\sis\sthe\spreview.\sIn\spractice\sthat's\sannoying,\sas\sthe\sshift-enter\sand\sthe\spreview\sbutton\sdo\sthe\ssame\sthing\sand\sthis\schange\sforces\sa\sseparate\sclick\sto\sleave\spreview\smode.
+D 2024-07-23T12:27:28.494
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -441,7 +441,7 @@ F src/fossil.dom.js b4b1d84f17a420603124f4f2cc821852d9815ec7cec338ab124b4e12582e
 F src/fossil.fetch.js 79291600341f980b23bc20455e0415fae0db0a3a355aae4dffbc0e431f210cc8
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 151f9f840fb80dd44cf8b1cf30011a8c952203a1a84bded87a8d97821c18e9ca
+F src/fossil.page.chat.js e7ab13ddac9387c321359d45229a7c25d3e9a9d12f21e1b7c594bd9c4a837ddc
 F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f230c108063bdcc5
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 354e405e2813de4bfeec16d12a4dbfb370b2fa89f25325f245c51c194115adbf
@@ -959,9 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0e2930f8e5b1985d3cbbab9956c3af31b20587ed5196fe4c3c6dd9d3eb71e7e5 5eb29539218db5db85f175b18bd27419e136460e76a93080400cde11d494aff1
-R 82e7aa05376b97286ccb65359880c1d0
-T +closed 5eb29539218db5db85f175b18bd27419e136460e76a93080400cde11d494aff1
+P 370c263964ffa4ec4628790cc9b5ee9c62efb35572c4de1535b254e61c4d92d9
+R 81dcc575773736c634c3b456f3b16b39
 U stephan
-Z e7273a43896d866d46ffe29a7db8a6c2
+Z 5fb249e35fd6e8129b59d9ebd6224056
 # Remove this line to create a well-formed Fossil manifest.

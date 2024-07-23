@@ -1640,8 +1640,6 @@ window.fossil.onPageLoad(function(){
     switch( this.e.currentView ){
       case this.e.viewSearch: this.submitSearch();
         return;
-      case this.e.viewPreview: this.e.btnPreview.click();
-        return;
       default: break;
     }
     this.setCurrentView(this.e.viewMessages);
