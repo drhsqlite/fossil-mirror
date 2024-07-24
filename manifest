@@ -1,5 +1,5 @@
-C Revert\sa\s/chat\schange,\sintroduced\sin\s[be01315c86cd2f7d],\swhich\scauses\sthe\sSend\sbutton\sto\strigger\sa\spreview\supdate\sif\sthe\scurrent\sview\sis\sthe\spreview.\sIn\spractice\sthat's\sannoying,\sas\sthe\sshift-enter\sand\sthe\spreview\sbutton\sdo\sthe\ssame\sthing\sand\sthis\schange\sforces\sa\sseparate\sclick\sto\sleave\spreview\smode.
-D 2024-07-23T12:27:28.494
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.47.0\salpha,\sincluding\sthe\npercentile()\sand\smedian()\sextensions\sin\sthe\sCLI.\s\sUpdate\sto\sthe\slatest\nPikchr\sversion.
+D 2024-07-24T14:47:03.241
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -270,12 +270,12 @@ F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef
 F extsrc/linenoise.c c9e953e2f3ce6fc3aad1455fe9ff2865cafecfa051e1d4dec2a6a8b656eab780
 F extsrc/linenoise.h 8f20fae1acd1ca76c4632c882249827410246f1045ebd800edeeea6b17905e00
 F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc36f71318c48
-F extsrc/pikchr.c 7481e059b4de76d1a1928cb96cac13f811d1a3fb671dc27469754713f93dfa64
+F extsrc/pikchr.c 85e65b968651b342c46e6334f4772b45d6cbb4317c5cbaa95d207779a50c6709
 F extsrc/pikchr.js ef8475dfa65cdeff238905f1d7c5d22af6d576eb073b84789f6cb9d00d8f2585
-F extsrc/pikchr.wasm 03f3f05685913e1628e848de36d39fd6183434746e72d01130b2d022e1fe7f3d
-F extsrc/shell.c 1f6a347f42e821404f39c5e18a3584f3f623ef4194aca77046f443b832cd8a09
-F extsrc/sqlite3.c 15cd7cdb41ea493302414fbfc93345c1c5332c9580ffa876be2a91306dfb45f7
-F extsrc/sqlite3.h 995b76a686d0dc23f02ea67b731ed9f3b62f3bd4ed06ea180b7b0d0c0a46d488
+F extsrc/pikchr.wasm e1c849f2a839522073ee700e0b1f51a9a453cb702a5181e0ff25cfc32f59bc47
+F extsrc/shell.c a49ab471535b43127d2947acbe0c346bd44507f38a019f5c4499ffde568cacbc
+F extsrc/sqlite3.c e746673a73488571bb36e7eeaf2f61c6498a061f9c772e3acdac85b533176af8
+F extsrc/sqlite3.h f2aa6bcf446fa825be793e139acd9d6fa90da5da1baca510171b29ad62d93785
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 370c263964ffa4ec4628790cc9b5ee9c62efb35572c4de1535b254e61c4d92d9
-R 81dcc575773736c634c3b456f3b16b39
-U stephan
-Z 5fb249e35fd6e8129b59d9ebd6224056
+P ec6fbe98635fa96d6cc6999a6b2290b15d73caefc4a5a60cffcb42858234dc42
+R 6447276fbda3c15db8329d7e08935d17
+U drh
+Z f59ba11cb4604090a3d065cc15bc24c5
 # Remove this line to create a well-formed Fossil manifest.

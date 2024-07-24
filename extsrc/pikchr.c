@@ -7215,7 +7215,8 @@ static void pik_render(Pik *p, PList *pList){
     p->bbox.sw.y -= margin + pik_value(p,"bottommargin",12,0);
 
     /* Output the SVG */
-    pik_append(p, "<svg xmlns='http://www.w3.org/2000/svg'",-1);
+    pik_append(p, "<svg xmlns='http://www.w3.org/2000/svg'"
+                  " style='font-size:initial;'",-1);
     if( p->zClass ){
       pik_append(p, " class=\"", -1);
       pik_append(p, p->zClass, -1);
@@ -8243,4 +8244,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8271 "pikchr.c"
+#line 8272 "pikchr.c"
