@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.47.0\salpha,\sincluding\sthe\npercentile()\sand\smedian()\sextensions\sin\sthe\sCLI.\s\sUpdate\sto\sthe\slatest\nPikchr\sversion.
-D 2024-07-24T14:47:03.241
+C Fixed\sa\stypo\s[forum:/forumpost/0356ab78b6\s|\sreported\son\sthe\sforum].
+D 2024-07-26T05:02:30.031
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -431,7 +431,7 @@ F src/file.c 9a76e1a44a484d1a92161c8f4f5ea63c167d737e515b380ca4cfc9f64dde8165
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 14c0bab4c53125f241d7d657a2af6ff72f3ff1eb5fb42d2d15cf99c45561a89a
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c b6484592581b757b04337b17cdf472f56cefc45d66ca6c0c93964feab79b1d40
+F src/forum.c a35a18de4e4453688f4cc3a1d5ae4eeb72b4aa04ae8a31fbb7b462cf48639c95
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec6fbe98635fa96d6cc6999a6b2290b15d73caefc4a5a60cffcb42858234dc42
-R 6447276fbda3c15db8329d7e08935d17
-U drh
-Z f59ba11cb4604090a3d065cc15bc24c5
+P 4a26cb95d5dcdb0c04df867381357abaa4cbdb9e9e888cf3ebb05cb0afa9112f
+R 74a1e10eca91410243c4350479ce97cc
+U wyoung
+Z c5efe59e943433dcc844202bf97ecee7
 # Remove this line to create a well-formed Fossil manifest.
