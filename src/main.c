@@ -2996,6 +2996,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** breaking legacy.
 **
 ** Options:
+**   --nobody            Pretend to be user "nobody"
 **   --test              Do not do special "sync" processing when operating
 **                       over an SSH link
 **   --th-trace          Trace TH1 execution (for debugging purposes)
@@ -3009,12 +3010,14 @@ void cmd_test_http(void){
 
   Th_InitTraceLog();
   zUserCap = find_option("usercap",0,1);
-  if( zUserCap==0 ){
-    g.useLocalauth = 1;
-    zUserCap = "sxy";
+  if( !find_option("nobody",0,0) ){
+    if( zUserCap==0 ){
+      g.useLocalauth = 1;
+      zUserCap = "sxy";
+    }
+    login_set_capabilities(zUserCap, 0);
   }
   bTest = find_option("test",0,0)!=0;
-  login_set_capabilities(zUserCap, 0);
   g.httpIn = stdin;
   g.httpOut = stdout;
   fossil_binary_mode(g.httpOut);

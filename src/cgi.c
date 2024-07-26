@@ -901,6 +901,19 @@ void cgi_delete_query_parameter(const char *zName){
 }
 
 /*
+** Return the number of query parameters.  Cookies and environment variables
+** do not count.  Also, do not count the special QP "name".
+*/
+int cgi_qp_count(void){
+  int cnt = 0;
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( aParamQP[i].isQP && fossil_strcmp(aParamQP[i].zName,"name")!=0 ) cnt++;
+  }
+  return cnt;
+}
+
+/*
 ** Add an environment varaible value to the parameter set.  The zName
 ** portion is fixed but a copy is be made of zValue.
 */
