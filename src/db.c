@@ -4211,8 +4211,11 @@ void cmd_open(void){
       fossil_fatal("unable to deduce a repository name from the url \"%s\"",
                    zUri);
     }
-    if( zRepoDir==0 ) zRepoDir = zPwd;
-    zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    if( zRepoDir==0 ){
+      zRepo = mprintf("%s.fossil", zNewBase);
+    }else{
+      zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    }
     fossil_free(zNewBase);
     blob_init(&cmd, 0, 0);
     blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
