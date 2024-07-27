@@ -1,5 +1,5 @@
-C In\sthe\sdefault\sskin,\sdisable\sthe\s'disc'\sview\sof\sUL/LI\selements\sfor\sthe\s/dir\spage.\sReported\sin\s[forum:915412fb92|forum\spost\s915412fb92].
-D 2024-07-27T10:31:33.970
+C Only\sapply\sthe\scomplex-request\srestriction\sto\spages\slisted\sin\sthe\nrobot-restrict\ssetting.\s\sDeprecate\sthe\srobot-limiter\sand\srobot-allow\ssettings.
+D 2024-07-27T14:30:31.593
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -489,7 +489,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28d
-F src/login.c 69ebb41300db904a66906f2f8c400a58b6ac5e7a33f7545615a086f0f4b90441
+F src/login.c f0f8ace6d2eead08742e14e087c0aed6adb80438719a5cba90d3a94626de2c6f
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c 2995189e88d91df7d9fd2ab1e892dfe33465b572734366235940e1659498cd97
@@ -523,7 +523,7 @@ F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c e9e388269d6e528cb8e1f2e2adf04f5425195c6e08228deb37ce53817b916572
 F src/security_audit.c 6e0c2c2feb404a475e246f437a8bda6cb888e5e1e914d46ca1f7a5cd9f576887
-F src/setup.c c35d1480911d9f18bb64fdebd176abee8a8d2bc3bd6e4d56ec75e839921cf3f7
+F src/setup.c 1f4fa0ec20ef2ce3808e7749ad28163268fddccb1af2e8acda7490ba644c20a5
 F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea019128
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa4159f781b4366ff07228bb2c351745dc293eb802da58860cb09fab2fe45988
-R f992adc3fe9ba7ddb74d0ac6de3ede74
-U stephan
-Z 3d4a2e61a5be2a1f73d9c816a0117f7a
+P 61e62c02a10f0e68e42d78f0a7ef5b17d1d27cf087d6a03ef42f78ee8ea95d88
+R 1f7ed8acef81c6fe35c6c88acef4db09
+U drh
+Z d04c45edd294d3632ab8cdff820016c7
 # Remove this line to create a well-formed Fossil manifest.

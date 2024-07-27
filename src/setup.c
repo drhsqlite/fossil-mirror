@@ -493,27 +493,18 @@ void setup_robots(void){
   @ (Property: "max-loadavg")</p>
 
   @ <hr>
-  onoff_attribute("Prohibit robots from issuing complex requests",
-                  "robot-limiter", "rlb", 0, 0);
+  @ <p><b>Do not allow robots to make complex requests
+  @ against the following pages.</b>
   @ <p> A "complex request" is an HTTP request that has one or more query
   @ parameters. Some robots will spend hours juggling around query parameters
   @ or even forging fake query parameters in an effort to discover new
   @ behavior or to find an SQL injection opportunity or similar.  This can
-  @ waste hours of CPU time and gigabytes of bandwidth on the server.  Hence,
-  @ it is recommended to turn this feature on to stop such nefarious behavior.
-  @ (Property: robot-limiter)
-  @
-  @ <p> When enabled, complex requests from user "nobody" without a Referer
-  @ redirect to the honeypot.
-  @
-  @ <p> Additional settings below allow positive and negative overrides of
-  @ this complex request limiter. 
-  @ <p><b>Allow Robots To See These Pages</b> (Property: robot-allow)<br>
-  textarea_attribute("", 4, 80,
-      "robot-allow", "rballow", "", 0);
-  @ <p><b>Restrict Robots From Seeing Only These Pages</b>
-  @ (Property: robot-restrict)<br>
-  textarea_attribute("", 4, 80,
+  @ waste hours of CPU time and gigabytes of bandwidth on the server.  A
+  @ suggested value for this setting is:
+  @ "<tt>timeline,vdiff,fdiff,annotate,blame</tt>".
+  @ (Property: robot-restrict)
+  @ <p>
+  textarea_attribute("", 2, 80,
       "robot-restrict", "rbrestrict", "", 0);
 
   @ <hr>

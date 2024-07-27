@@ -1256,36 +1256,20 @@ static int login_basic_authentication(const char *zIpAddr){
 }
 
 /*
-** SETTING: robot-limiter                 boolean default=off
-** If enabled, HTTP requests with one or more query parameters and
-** without a REFERER string and without a valid login cookie are
-** assumed to be hostile robots and are redirected to the honeypot.
-** See also the robot-allow and robot-restrict settings which can
-** be used to override the value of this setting for specific pages.
-*/
-/*
-** SETTING: robot-allow                   width=40 block-text
-** The VALUE of this setting is a list of GLOB patterns which match
-** pages for which the robot-limiter is overwritten to false.  If this
-** setting is missing or an empty string, then it is assumed to match
-** nothing.
-*/
-/*
 ** SETTING: robot-restrict                width=40 block-text
-** The VALUE of this setting is a list of GLOB patterns which match
-** pages for which the robot-limiter setting should be enforced.
-** In other words, if the robot-limiter is true and this setting either
-** does not exist or is empty or matches the current page, then a
-** redirect to the honeypot is issues.  If this setting exists
-** but does not match the current page, then the robot-limiter setting
-** is overridden to false.
+** The VALUE of this setting is a list of GLOB patterns that match
+** pages for which complex HTTP requests from robots should be disallowed.
+** The recommended value for this setting is:
+** 
+**      timeline,vdiff,fdiff,annotate,blame
+** 
 */
 
 /*
 ** Check to see if the current HTTP request is a complex request that
 ** is coming from a robot and if access should restricted for such robots.
 ** For the purposes of this module, a "complex request" is an HTTP
-** request with one or more query parameters.
+** request with one or more query parameters other than "name".
 **
 ** If this routine determines that robots should be restricted, then
 ** this routine publishes a redirect to the honeypot and exits without
@@ -1300,17 +1284,10 @@ static int login_basic_authentication(const char *zIpAddr){
 **
 ** Robot restrictions are governed by settings.
 **
-**    robot-limiter     The restrictions implemented by this routine only
-**                      apply if this setting exists and is true.
-**
-**    robot-allow       If this setting exists and the page of the request
-**                      matches the comma-separate GLOB list that is the
-**                      value of this setting, then no robot restrictions
-**                      are applied.
-**
-**    robot-restrict    If this setting exists then robot restrictions only
-**                      apply to pages that match the comma-separated
-**                      GLOB list that is the value of this setting.
+**    robot-restrict    The value is a list of GLOB patterns for pages
+**                      that should restrict robot access.  No restrictions
+**                      are applied if this setting is undefined or is
+**                      an empty string.
 */
 void login_restrict_robot_access(void){
   const char *zReferer;
@@ -1320,22 +1297,13 @@ void login_restrict_robot_access(void){
   if( g.zLogin!=0 ) return;
   zReferer = P("HTTP_REFERER");
   if( zReferer && zReferer[0]!=0 ) return;
-  if( !db_get_boolean("robot-limiter",0) ) return;
-  if( cgi_qp_count()<1 ) return;
-  zGlob = db_get("robot-allow",0);
-  if( zGlob && zGlob[0] ){
-    pGlob = glob_create(zGlob);
-    go = glob_match(pGlob, g.zPath);
-    glob_free(pGlob);
-    if( go ) return;
-  }
   zGlob = db_get("robot-restrict",0);
-  if( zGlob && zGlob[0] ){
-    pGlob = glob_create(zGlob);
-    go = glob_match(pGlob, g.zPath);
-    glob_free(pGlob);
-    if( !go ) return;
-  }
+  if( zGlob==0 || zGlob[0]==0 ) return;
+  if( cgi_qp_count()<1 ) return;
+  pGlob = glob_create(zGlob);
+  go = glob_match(pGlob, g.zPath);
+  glob_free(pGlob);
+  if( !go ) return;
 
   /* If we reach this point, it means we have a situation where we
   ** want to restrict the activity of a robot.
