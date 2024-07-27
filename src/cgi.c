@@ -1918,7 +1918,7 @@ char *cgi_reconstruct_original_url(void){
       cSep = '&';
     }
   }
-  return blob_str(&url);  
+  return blob_str(&url);
 }
 
 /*

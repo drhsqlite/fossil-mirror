@@ -1374,18 +1374,43 @@ void page_test_env(void){
 ** This page is a honeypot for spiders and bots.
 */
 void honeypot_page(void){
+  unsigned int uSeed = captcha_seed();
+  const char *zDecoded = captcha_decode(uSeed);
+  int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
+  char *zCaptcha = captcha_render(zDecoded);
   style_header("I think you are a robot");
   @ <p>You seem like a robot.</p>
   @
-  @ <p>Is this wrong?  Are you really a human?  If so, please prove it
-  @ by <a href="%R/login">logging in</a>.
-  if( g.anon.Hyperlink ){
-    @ You can <a href="%R/login?anon=1">log in anonymously</a> if you
-    @ prefer.
+  @ <p>Is that incorrect?  Are you really human?
+  @ If so, please prove it by transcribing the captcha text
+  @ into the entry box below and pressing "Submit".
+  @ <form action="%R/login" method="post">
+  @ <input type="hidden" id="u" name="u" value="anonymous">
+  @ <p>
+  @ Captcha: <input type="text" id="p" name="p" value="">
+  @ <input type="submit" name="in" value="Submit">
+  @ 
+  @ <p>Alternatively, you can <a href="%R/login">log in</a> using an
+  @ existing userid.
+  @
+  @ <p><input type="hidden" name="cs" value="%u(uSeed)">
+  @ <div class="captcha"><table class="captcha"><tr><td>\
+  @ <pre class="captcha">
+  @ %h(zCaptcha)
+  @ </pre></td></tr></table>
+  if( bAutoCaptcha ) {
+     @ <input type="button" value="Fill out captcha" id='autofillButton' \
+     @ data-af='%s(zDecoded)'>
+     builtin_request_js("login.js");
   }
-  @ <p>Sorry for the inconvenience. The point of this is to prevent
-  @ robots from following the countless of hyperlinks in this site and
-  @ soaking up all the available CPU time and network bandwidth.
+  @ </div>
+  free(zCaptcha);
+  @
+  @ <p>We regret this inconvenience. However, robots have become so
+  @ prolific and so aggressive that they will soak up too much CPU time
+  @ and network bandwidth on our servers if allowed to run unchecked.
+  @ Your cooperation in demonstrating that you are human is
+  @ appreciated.
   style_finish_page();
 }
 
