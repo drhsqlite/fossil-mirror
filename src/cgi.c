@@ -1898,6 +1898,30 @@ void cgi_query_parameters_to_url(HQuery *p){
 }
 
 /*
+** Reconstruct the URL into memory obtained from fossil_malloc() and
+** return a pointer to that URL.
+*/
+char *cgi_reconstruct_original_url(void){
+  int i;
+  char cSep = '?';
+  Blob url;
+  blob_init(&url, 0, 0);
+  blob_appendf(&url, "%s/%s", g.zBaseURL, g.zPath);
+  for(i=0; i<nUsedQP; i++){
+    if( aParamQP[i].isQP ){
+      struct QParam *p = &aParamQP[i];
+      if( p->zValue && p->zValue[0] ){
+        blob_appendf(&url, "%c%t=%t", cSep, p->zName, p->zValue);
+      }else{
+        blob_appendf(&url, "%c%t", cSep, p->zName);
+      }
+      cSep = '&';
+    }
+  }
+  return blob_str(&url);  
+}
+
+/*
 ** Tag query parameter zName so that it is not exported by
 ** cgi_query_parameters_to_hidden().  Or if zName==0, then
 ** untag all query parameters.

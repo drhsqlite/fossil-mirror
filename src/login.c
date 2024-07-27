@@ -123,6 +123,9 @@ static void redirect_to_g(void){
   const char *zGoto = P("g");
   if( zGoto ){
     cgi_redirectf("%R/%s",zGoto);
+  }else if( (zGoto = P("fossil-goto"))!=0 && zGoto[0]!=0 ){
+    cgi_set_cookie("fossil-goto","",0,1);
+    cgi_redirect(zGoto);
   }else{
     fossil_redirect_home();
   }
@@ -1337,6 +1340,7 @@ void login_restrict_robot_access(void){
   /* If we reach this point, it means we have a situation where we
   ** want to restrict the activity of a robot.
   */
+  cgi_set_cookie("fossil-goto", cgi_reconstruct_original_url(), 0, 600);
   cgi_redirectf("%R/honeypot");
 }  
 
