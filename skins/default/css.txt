@@ -357,7 +357,7 @@ div.sidebar {
   line-height: 1.25;
 }
 
-.content ul li {
+.content ul:not(.browser) li {
   list-style-type: disc;
 }
 
