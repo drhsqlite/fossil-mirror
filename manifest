@@ -1,5 +1,5 @@
-C Simplified\sinteraction\son\sthe\shoneypot.\s\sHumans\scan\sprove\sthemselves\swith\njust\stwo\ssimple\sclicks\swhen\sthe\sauto-captcha\ssetting\sis\senabled.
-D 2024-07-27T17:28:21.288
+C Updates\sto\sthe\srecommended\svalue\sfor\sthe\srobot-restrict\ssetting.
+D 2024-07-27T19:11:07.506
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -523,7 +523,7 @@ F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c e9e388269d6e528cb8e1f2e2adf04f5425195c6e08228deb37ce53817b916572
 F src/security_audit.c 6e0c2c2feb404a475e246f437a8bda6cb888e5e1e914d46ca1f7a5cd9f576887
-F src/setup.c 1f4fa0ec20ef2ce3808e7749ad28163268fddccb1af2e8acda7490ba644c20a5
+F src/setup.c 9132a5cfd3bbc37fa8d83a91e425eb476c4b0388f982b31e1261a95e57ba2d27
 F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea019128
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cee1af5a3731d2c44e35abba2623da6ae570520fde9690ec86bbe127448d0884
-R d77dd42a312e98ed95490ff3932562c4
+P 0e675ad32cb71c6b5dfeae97f41c08b61d16c1674bff5b9478a26b7a266302c0
+R 79f5c0f6c9b4ab5a56c794883c1b8253
 U drh
-Z 91deb495a8dfb310b2f8e3e93546fa9d
+Z f7c1e622dc1db0e2c3af4e0527885a9a
 # Remove this line to create a well-formed Fossil manifest.
