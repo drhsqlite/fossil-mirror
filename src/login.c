@@ -119,7 +119,7 @@ char *login_cookie_name(void){
 ** Redirect to the page specified by the "g" query parameter.
 ** Or if there is no "g" query parameter, redirect to the homepage.
 */
-static void redirect_to_g(void){
+NORETURN void login_redirect_to_g(void){
   const char *zGoto = P("g");
   if( zGoto ){
     cgi_redirectf("%R/%s",zGoto);
@@ -347,8 +347,7 @@ void login_set_user_cookie(
 **
 ** If bSessionCookie is true, the cookie will be a session cookie.
 */
-void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest,
-                           int bSessionCookie ){
+void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   const char *zNow;            /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
   const char *zCookieName;     /* Name of the login cookie */
@@ -588,7 +587,7 @@ void login_page(void){
   /* Handle log-out requests */
   if( P("out") && cgi_csrf_safe(2) ){
     login_clear_login_data();
-    redirect_to_g();
+    login_redirect_to_g();
     return;
   }
 
@@ -661,7 +660,7 @@ void login_page(void){
           zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
           fossil_free(zErr);
         }else{
-          redirect_to_g();
+          login_redirect_to_g();
           return;
         }
       }
@@ -683,9 +682,9 @@ void login_page(void){
     rememberMe = P("remember")!=0;
   }
   if( uid>0 ){
-    login_set_anon_cookie(zIpAddr, NULL, rememberMe?0:1);
+    login_set_anon_cookie(NULL, rememberMe?0:1);
     record_login_attempt("anonymous", zIpAddr, 1);
-    redirect_to_g();
+    login_redirect_to_g();
   }
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
     /* Attempting to log in as a user other than anonymous.
@@ -709,7 +708,7 @@ void login_page(void){
       ** code prefix, and LOGIN is the user name.
       */
       login_set_user_cookie(zUsername, uid, NULL, rememberMe?0:1);
-      redirect_to_g();
+      login_redirect_to_g();
     }
   }
   style_set_current_feature("login");
@@ -1293,7 +1292,7 @@ void login_restrict_robot_access(void){
   const char *zReferer;
   const char *zGlob;
   Glob *pGlob;
-  int go = 1;
+  int isMatch = 1;
   if( g.zLogin!=0 ) return;
   zReferer = P("HTTP_REFERER");
   if( zReferer && zReferer[0]!=0 ) return;
@@ -1301,15 +1300,17 @@ void login_restrict_robot_access(void){
   if( zGlob==0 || zGlob[0]==0 ) return;
   if( cgi_qp_count()<1 ) return;
   pGlob = glob_create(zGlob);
-  go = glob_match(pGlob, g.zPath);
+  isMatch = glob_match(pGlob, g.zPath);
   glob_free(pGlob);
-  if( !go ) return;
+  if( !isMatch ) return;
 
   /* If we reach this point, it means we have a situation where we
   ** want to restrict the activity of a robot.
   */
-  cgi_set_cookie("fossil-goto", cgi_reconstruct_original_url(), 0, 600);
-  cgi_redirectf("%R/honeypot");
+  g.isHuman = 0;
+  (void)exclude_spiders(0);
+  cgi_reply();
+  fossil_exit(0);
 }  
 
 /*
@@ -2141,7 +2142,7 @@ void register_page(void){
         /* This the case where the user was formerly a verified subscriber
         ** and here they have also registered as a user as well.  It is
         ** not necessary to repeat the verfication step */
-        redirect_to_g();
+        login_redirect_to_g();
       }
       /* A verification email */
       pSender = alert_sender_new(0,0);
@@ -2170,7 +2171,7 @@ void register_page(void){
       style_finish_page();
       return;
     }
-    redirect_to_g();
+    login_redirect_to_g();
   }
 
   /* Prepare the captcha. */

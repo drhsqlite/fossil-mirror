@@ -1164,7 +1164,7 @@ void fileage_page(void){
   double baseTime;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( exclude_spiders() ) return;
+  if( exclude_spiders(0) ) return;
   zName = P("name");
   if( zName==0 ) zName = "tip";
   rid = symbolic_name_to_rid(zName, "ci");
