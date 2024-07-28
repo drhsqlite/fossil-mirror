@@ -1,5 +1,5 @@
-C Updates\sto\sthe\srecommended\svalue\sfor\sthe\srobot-restrict\ssetting.
-D 2024-07-27T19:11:07.506
+C Remove\sthe\sLI\sdiscs\sfrom\sthe\s/tree\sview,\sas\sdiscussed\sin\s[forum:915412fb926ffccb|forum\spost\s915412fb926ffccb].
+D 2024-07-28T22:21:49.806
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c0
 F skins/darkmode/footer.txt f836de28bcd65e3101349141588c932f366e209255e4312ee054aad0ac01b526
 F skins/darkmode/header.txt 3fe4fb78b2a6f8d6c9a4c2c4dbba7d80a7302b166fe5e4cec86f05713ddf830b
 F skins/default/README.md 0542b429a020494e005378b95831e699df17ab7933ddb7ffa3ac878d2bad087a
-F skins/default/css.txt 58f612d2c49813c8e729ced5d9087729ddc0d2a612bdda26f9781d980ab12e73
+F skins/default/css.txt 08b84c5ef66df4589af029feef7f138f4c40aa56f9fb386c9176d37b6f8e3712
 F skins/default/details.txt b8827752a356cf0073e493a6cf2afbbe7a82ff75eafd0b7549161e21de3cdaaa
 F skins/default/footer.txt 10f51aa013d1fc032703fe21281526b82ddbf6afa8b6d2bfb5eb0e694c2de877
 F skins/default/header.txt d1e9025e8bcc2de8f6d83bc5b0279782ff0aaf2f9b23312bce4b97206f3c9f24
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0e675ad32cb71c6b5dfeae97f41c08b61d16c1674bff5b9478a26b7a266302c0
-R 79f5c0f6c9b4ab5a56c794883c1b8253
-U drh
-Z f7c1e622dc1db0e2c3af4e0527885a9a
+P de7bf23a90ebdcfff37871545f1546905f23eff23c865a4f6e3159f73b94e197
+R 0cdf75f10f42806b8b67c705f1f5493d
+U stephan
+Z b446bfe024e25094b256813320caf55c
 # Remove this line to create a well-formed Fossil manifest.

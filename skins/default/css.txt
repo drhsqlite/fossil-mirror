@@ -360,6 +360,11 @@ div.sidebar {
 .content ul:not(.browser) li {
   list-style-type: disc;
 }
+div.filetree ul li.dir,
+div.filetree ul li.subdir,
+div.filetree ul li.file{
+  list-style-type: none;
+}
 
 .artifact > .content table,
 .dir      > .content table,
