@@ -501,7 +501,7 @@ void setup_robots(void){
   @ behavior or to find an SQL injection opportunity or similar.  This can
   @ waste hours of CPU time and gigabytes of bandwidth on the server.  A
   @ suggested value for this setting is:
-  @ "<tt>timeline,*diff,vpatch,annotate,blame,praise</tt>".
+  @ "<tt>timeline,*diff,vpatch,annotate,blame,praise,dir,tree</tt>".
   @ (Property: robot-restrict)
   @ <p>
   textarea_attribute("", 2, 80,
