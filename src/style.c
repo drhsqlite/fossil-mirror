@@ -87,12 +87,6 @@ static unsigned adUnitFlags = 0;
 static int submenuEnable = 1;
 
 /*
-** Disable content-security-policy.
-** Warning:  Do not disable the CSP without careful consideration!
-*/
-static int disableCSP = 0;
-
-/*
 ** Flags for various javascript files needed prior to </body>
 */
 static int needHrefJs = 0;      /* href.js */
@@ -610,9 +604,8 @@ char *style_csp(int toHeader){
   char *zNonce;
   char *zCsp;
   int i;
-  if( disableCSP ) return fossil_strdup("");
   zFormat = db_get("default-csp",0);
-  if( zFormat==0 ){
+  if( zFormat==0 || zFormat[0]==0 ){
     zFormat = zBackupCSP;
   }
   blob_init(&csp, 0, 0);
@@ -630,17 +623,6 @@ char *style_csp(int toHeader){
     cgi_printf_header("Content-Security-Policy: %s\r\n", zCsp);
   }
   return zCsp;
-}
-
-/*
-** Disable content security policy for the current page.
-** WARNING:  Do not do this lightly!
-**
-** This routine must be called before the CSP is sued by
-** style_header().
-*/
-void style_disable_csp(void){
-  disableCSP = 1;
 }
 
 /*
