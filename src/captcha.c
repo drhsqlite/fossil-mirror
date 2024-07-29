@@ -691,11 +691,14 @@ int exclude_spiders(int bTest){
   style_set_current_feature("captcha");
   style_header("I think you are a robot");
   style_submenu_enable(0);
-  @ <form method='POST' action='%R/captchacb'>
+  @ <form method='POST' action='%R/ityaar'>
   @ <p>You seem like a robot.
   @
   @ <p>If you are human, you can prove that by solving the captcha below,
   @ after which you will be allowed to proceed.
+  if( bTest ){
+    @ <input type="hidden" name="istest" value="1">
+  }
   captcha_generate(3);
   @ </form>
   if( !bTest ){
@@ -709,22 +712,30 @@ int exclude_spiders(int bTest){
 }
 
 /*
-** WEBPAGE: captchacb
+** WEBPAGE: ityaar
 **
-** This is action for the form that is the captcha.  Not intended
-** for external use.
+** This is the action for the form that is the captcha.  Not intended
+** for external use.  "ityaar" is an acronym "I Think You Are A Robot".
 **
 ** If the captcha is correctly solved, then an anonymous login cookie
 ** is set.  Regardless of whether or not the captcha was solved, this
 ** page always redirects to the fossil-goto cookie.
 */
 void captcha_callback(void){
+  int bTest = atoi(PD("istest","0"));
   if( captcha_is_correct(1) ){
-    login_set_anon_cookie(0, 0);
-    cgi_append_header("X-Robot: 0\r\n");
+    if( bTest==0 ){
+      login_set_anon_cookie(0, 0);
+      cgi_append_header("X-Robot: 0\r\n");
+    }
     login_redirect_to_g();
   }else{
-    exclude_spiders(0);
+    g.isHuman = 0;
+    (void)exclude_spiders(bTest);
+    if( bTest ){
+      @ <hr><p>Wrong code.  Try again
+      style_finish_page();
+    }
   }
 }
 
