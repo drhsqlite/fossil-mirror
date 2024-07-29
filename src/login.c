@@ -1291,7 +1291,6 @@ static int login_basic_authentication(const char *zIpAddr){
 void login_restrict_robot_access(void){
   const char *zReferer;
   const char *zGlob;
-  Glob *pGlob;
   int isMatch = 1;
   if( g.zLogin!=0 ) return;
   zReferer = P("HTTP_REFERER");
@@ -1299,9 +1298,7 @@ void login_restrict_robot_access(void){
   zGlob = db_get("robot-restrict",0);
   if( zGlob==0 || zGlob[0]==0 ) return;
   if( cgi_qp_count()<1 ) return;
-  pGlob = glob_create(zGlob);
-  isMatch = glob_match(pGlob, g.zPath);
-  glob_free(pGlob);
+  isMatch = glob_multi_match(zGlob, g.zPath);
   if( !isMatch ) return;
 
   /* If we reach this point, it means we have a situation where we
@@ -1561,13 +1558,11 @@ int login_set_uid(int uid, const char *zCap){
   */
   zPublicPages = db_get("public-pages",0);
   if( zPublicPages!=0 ){
-    Glob *pGlob = glob_create(zPublicPages);
     const char *zUri = PD("REQUEST_URI","");
     zUri += (int)strlen(g.zTop);
-    if( glob_match(pGlob, zUri) ){
+    if( glob_multi_match(zPublicPages, zUri) ){
       login_set_capabilities(db_get("default-perms", "u"), 0);
     }
-    glob_free(pGlob);
   }
   return g.zLogin!=0;
 }
@@ -1969,19 +1964,15 @@ void test_email_used(void){
 */
 int authorized_subscription_email(const char *zEAddr){
   char *zGlob = db_get("auth-sub-email",0);
-  Glob *pGlob;
   char *zAddr;
   int rc;
 
   if( zGlob==0 || zGlob[0]==0 ) return 1;
   zGlob = fossil_strtolwr(fossil_strdup(zGlob));
-  pGlob = glob_create(zGlob);
-  fossil_free(zGlob);
-
   zAddr = fossil_strtolwr(fossil_strdup(zEAddr));
-  rc = glob_match(pGlob, zAddr);
+  rc = glob_multi_match(zGlob, zAddr);
+  fossil_free(zGlob);
   fossil_free(zAddr);
-  glob_free(pGlob);
   return rc!=0;
 }
 

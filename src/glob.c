@@ -142,6 +142,57 @@ Glob *glob_create(const char *zPatternList){
 }
 
 /*
+** Return TRUE if zString matches any of the GLOB patterns in the
+** string zPatternList.
+**
+** This is a like calling glob_create(), glob_match(), and glob_free()
+** in sequence, without the overhead of creating the reusable Glob object.
+** Use this for one-time matches against a comma-separated GLOB list.
+*/
+int glob_multi_match(const char *zPatternList, const char *zString){
+  int i;               /* Loop counters */
+  int n = 0;           /* Pattern counter */
+  const char *z;       /* Current GLOB pattern */
+  char delimiter;      /* '\'' or '\"' or 0 */
+  int rc;              /* Result of comparison */
+  char zPat[100];      /* Copy of just the current pattern */
+
+  if( zPatternList==0 ) return 0;
+  z = zPatternList;
+  while( z[0] ){
+    while( fossil_isspace(z[0]) || z[0]==',' ){
+      z++;  /* Skip leading commas, spaces, and newlines */
+    }
+    if( z[0]==0 ) break;
+    if( z[0]=='\'' || z[0]=='"' ){
+      delimiter = z[0];
+      z++;
+    }else{
+      delimiter = ',';
+    }
+    /* Find the next delimiter (or the end of the string). */
+    for(i=0; z[i] && z[i]!=delimiter &&
+        !(delimiter==',' && fossil_isspace(z[i])); i++){
+      /* keep looking for the end of the glob pattern */
+    }
+    n++;
+    if( i>sizeof(zPat)-1 ){
+      char *zMPat = fossil_strndup(z, i);
+      rc = sqlite3_strglob(zMPat, zString);
+      fossil_free(zMPat);
+    }else{
+      memcpy(zPat, z, i);
+      zPat[i] = 0;
+      rc = sqlite3_strglob(zPat, zString);
+    }
+    if( rc==0 ) return n;
+    if( z[i]==0 ) break;
+    z += i+1;
+  }
+  return 0;
+}
+
+/*
 ** Return true (non-zero) if zString matches any of the patterns in
 ** the Glob.  The value returned is actually a 1-based index of the pattern
 ** that matched.  Return 0 if none of the patterns match zString.
@@ -212,6 +263,10 @@ void glob_render_json_to_cgi(Glob *pGlob){
 ** If PATTERN begins with "@" the rest of the pattern is understood
 ** to be a setting name (such as binary-glob, crln-glob, or encoding-glob)
 ** and the value of that setting is used as the actually glob pattern.
+**
+** The output consists of two numbers and a STRING.  The first number
+** is the result of glob_match() and the second is the result of
+** glob_multi_match().
 */
 void glob_test_cmd(void){
   Glob *pGlob;
@@ -231,7 +286,10 @@ void glob_test_cmd(void){
     fossil_print("pattern[%d] = [%s]\n", i, pGlob->azPattern[i]);
   }
   for(i=3; i<g.argc; i++){
-    fossil_print("%d %s\n", glob_match(pGlob, g.argv[i]), g.argv[i]);
+    fossil_print("%d %d %s\n",
+       glob_match(pGlob, g.argv[i]),
+       glob_multi_match(zPattern, g.argv[i]),
+       g.argv[i]);
   }
   glob_free(pGlob);
 }

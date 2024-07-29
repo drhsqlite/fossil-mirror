@@ -1,5 +1,5 @@
-C Fix\sthe\sdefault-csp\ssetting\sto\sconform\sto\sthe\sspec:\s\sUse\sthe\sdefault\nCSP\sif\sthe\ssetting\sis\san\sempty\sstring.
-D 2024-07-29T12:19:51.576
+C Add\sthe\sglob_multi_match()\sinterface\sthat\sallows\schecking\sagainst\sa\ncomma-separated\slist\sof\sGLOB\spatterns\swithout\shaving\sto\scompile\sthe\slist\sfirst.
+D 2024-07-29T12:45:21.906
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -456,7 +456,7 @@ F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f028993
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
-F src/glob.c 981f15f08c9a51d0cb5391beb476196393eae479410e619946231b82a99981af
+F src/glob.c 120efbb723e9b140a148ccbd820439d9455314e2eb3e88d540cdf034e3c3e430
 F src/graph.c 9c4d48fd54838910eb903083316fb1555a389ff1d7fd8f2fab14bac2c4d7aeaa
 F src/graph.js 91271ed35b6f576c3527664d6c1a255f67af5b7fa9f667854ef47e6837404c37
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
@@ -489,7 +489,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 722ad6b001fd44c48adcee45fe45587db90709f3bb0bad07d4ec11c994e8c28d
-F src/login.c 7248fe097d04400a5a56c9882cc71f09a440b08244138ead0c87372af5ca3c65
+F src/login.c f563e858bc90a7a96844c3bb35a41d55496e40657e764179c9244f8e1894869e
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c 2995189e88d91df7d9fd2ab1e892dfe33465b572734366235940e1659498cd97
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 503354d1cad453c655702c3262b34e8bff564b6f60c7d4dfaba8afa1bd9c5816
-R 18f5b410bd5a7530c737a9a63e702be5
+P 6b5606d8321c396e9a1fae769ead698d63d657d397b27749fe147cbb56bca27c
+R 328e46153cb3cc141697ba4d23e8bb55
 U drh
-Z dcb8304801d16fba4d1557a906f15034
+Z d00acc4e5ce92a132db90fecbf9fd7d6
 # Remove this line to create a well-formed Fossil manifest.
