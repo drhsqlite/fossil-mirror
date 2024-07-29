@@ -1075,6 +1075,7 @@ void fossil_errorlog(const char *zFormat, ...){
   vfprintf(out, zFormat, ap);
   fprintf(out, "\n");
   va_end(ap);
+  if( g.zPhase!=0 ) fprintf(out, "while in %s\n", g.zPhase);
   if( bDetail ){
     cgi_print_all(1,3,out);
   }else{
