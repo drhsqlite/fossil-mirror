@@ -696,7 +696,7 @@ void secaudit0_page(void){
   }
 
   @ <li><p>Robot Defenses:
-  @ <ol>
+  @ <ol type="a">
   switch( db_get_int("auto-hyperlink",1) ){
     default:
        @ <li> No auto-enable of hyperlinks.
