@@ -578,7 +578,7 @@ void secaudit0_page(void){
     @ filesystem is mounted within the jail, so that the load average
     @ can be obtained from the /proc/loadavg file.
   }else {
-    double r = atof(db_get("max-loadavg", 0));
+    double r = atof(db_get("max-loadavg", "0.0"));
     if( r<=0.0 ){
       @ <li><p>
       @ Load average limiting is turned off.  This can cause the server
@@ -694,6 +694,33 @@ void secaudit0_page(void){
     table_of_public_phantoms();
     @ </li>
   }
+
+  @ <li><p>Robot Defenses:
+  @ <ol>
+  switch( db_get_int("auto-hyperlink",1) ){
+    default:
+       @ <li> No auto-enable of hyperlinks.
+       break;
+    case 1:
+       @ <li> Hyperlinks auto-enabled based on UserAgent and Javascript.
+       break;
+    case 2:
+       @ <li> Hyperlinks auto-enabled based on UserAgent only.
+       break;
+  }
+  z = db_get("max-loadavg",0);
+  if( z && atof(z)>0.0 ){
+    @ <li> Maximum load average for expensive requests: %h(z);
+  }else{
+    @ <li> No limits on the load average
+  }
+  z = db_get("robot-restrict",0);
+  if( z==0 ){
+    @ <li> No complex-request constraints on robots
+  }else{
+    @ <li> Complex requests limited for pages matching: %h(z)
+  }
+  @ </ol>
 
   blob_init(&cmd, 0, 0);
   for(i=0; g.argvOrig[i]!=0; i++){
