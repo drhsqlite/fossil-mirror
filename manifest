@@ -1,5 +1,5 @@
-C Report\sthe\sphase\sof\soperation\sin\serror\slog\smessages.
-D 2024-07-29T11:25:10.351
+C Drop\sall\sdatabase\sprotection\swhen\sstarting\sthe\sbackoffice.
+D 2024-07-29T11:50:06.680
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -384,7 +384,7 @@ F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3
 F src/allrepo.c 2c1866f703796d33774f0b961523a1f489ce6e0d1788534829b8467b586767a9
 F src/attach.c 6eb936f9976bbbae8b98b1645539c98091bbc43ca4e8f3ea9cf9e51211f8708c
 F src/backlink.c e79a38fc0bbcdae1912bed05cb7a2df9741c78aec4dafe48f20ca5d377b4357f
-F src/backoffice.c 8ed33abacbbebe8d353255346d629b5d7f1be800b883dc0625e660eb3d58ee1d
+F src/backoffice.c c274f8f5047313b8055e1b319d4ac0be67bb0dcaea47d8158ba1aa460a61b410
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 44446bda0779cbcebe645d3df9030b2edd42b24c56e10ef64a5535e29014be0e
 F src/blob.c cb8e0d4941b290c717892a5f9823dec6dc3224d1dfcf378c66403067250b0e20
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8777eeb43cfb99fa1432e96a23b0834e63a87157a3907efc391a860bc804da7
-R 52da3a0f05869342793fc07b3f31810e
+P 49f676e3b3c8c39e693232b4ec84cdb0954ec4be532d6e71ad7ad544c2c0bef7
+R 36c035f6dbfe8726409b23335b1197e7
 U drh
-Z a1e1b31a26a4e2c4314eee397b821327
+Z 2839c58daf5178f9f96dd3e92055a2d5
 # Remove this line to create a well-formed Fossil manifest.

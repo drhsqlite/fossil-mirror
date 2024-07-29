@@ -486,6 +486,7 @@ static void backoffice_thread(void){
   static int once = 0;
 
   if( sqlite3_db_readonly(g.db, 0) ) return;
+  while( db_is_protected(PROTECT_ALL) ) db_protect_pop();
   g.zPhase = "backoffice";
   backoffice_error_check_one(&once);
   idSelf = backofficeProcessId();
