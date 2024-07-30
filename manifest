@@ -1,5 +1,5 @@
-C Spell\sout\s"setting"\sin\sloadmgmt.md.\n[forum:/forumpost/7485b4bf89|Forum\spost\s7485b4bf89].
-D 2024-07-30T10:56:10.250
+C For\sthe\s'all'\scommand,\saccept\sany\sof\s(set,\ssetting,\ssettings)\sfor\sthe\ssettings\scommand,\sper\s/chat\sdiscussion.
+D 2024-07-30T12:35:37.376
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -381,7 +381,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c 2c1866f703796d33774f0b961523a1f489ce6e0d1788534829b8467b586767a9
+F src/allrepo.c c6a65f0884be4f13d02d04f3c3fa2239711f4c841cafff96178d92d1f975563a
 F src/attach.c 6eb936f9976bbbae8b98b1645539c98091bbc43ca4e8f3ea9cf9e51211f8708c
 F src/backlink.c e79a38fc0bbcdae1912bed05cb7a2df9741c78aec4dafe48f20ca5d377b4357f
 F src/backoffice.c ecb3997466581e6a3290e4d194ac59b7678e9236de1d18c0ed489df141d75f49
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1e4202dec7dee2a5391942a563dca7ca037702c1b51cb0627ccbf6c0a23f8a07
-R 5509309aa67387e2467f90625ea0c681
-U drh
-Z 690fe959687731bf1a3c70ab261035dc
+P d90990701db3db615517798d68571e196dc420c68d7a775c0a805dac2cdbf3d0
+R fafd1db58bf8fdf9aab31ab32c82f485
+U stephan
+Z 1dadc2afb94a5477c8612456fdf58a56
 # Remove this line to create a well-formed Fossil manifest.

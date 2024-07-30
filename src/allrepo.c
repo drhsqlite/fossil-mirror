@@ -120,7 +120,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    sync        Run a "sync" on all repositories.  Only the --verbose
 **                and --unversioned and --share-links options are supported.
 **
-**    set         Run the "setting" or "set" commands on all repositories.
+**    set[tings]  Run the "settings" command on all repositories.
 **                This command is useful for settings like "max-loadavg" which
 **                you usually want to be the same across all repositories
 **                on a server.
@@ -315,8 +315,10 @@ void all_cmd(void){
     }
   }else if( fossil_strcmp(zCmd, "repack")==0 ){
     zCmd = "repack";
-  }else if( fossil_strcmp(zCmd, "setting")==0 ){
-    zCmd = "setting -R";
+  }else if( fossil_strcmp(zCmd, "set")==0
+            || fossil_strcmp(zCmd, "setting")==0
+            || fossil_strcmp(zCmd, "settings")==0 ){
+    zCmd = "settings -R";
     collect_argv(&extra, 3);
   }else if( fossil_strcmp(zCmd, "unset")==0 ){
     zCmd = "unset -R";
@@ -426,7 +428,7 @@ void all_cmd(void){
     fossil_fatal("\"all\" subcommand should be one of: "
       "add cache changes clean dbstat extras fts-config git ignore "
       "info list ls pull push rebuild remote "
-      "server setting sync ui unset whatis");
+      "server settings sync ui unset whatis");
   }
   verify_all_options();
   db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");
