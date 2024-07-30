@@ -108,7 +108,7 @@ window.fossil.onPageLoad(function(){
     const m = f.rx[getStart ? 'start' : 'end'].exec(td.innerText);
     return m ? +m[1] : undefined/*"shouldn't happen"*/;
   };
-  
+
   /**
      Installs chunk-loading controls into TR.diffskip element tr.
      Each instance corresponds to a single TR.diffskip element.
@@ -640,6 +640,14 @@ window.fossil.onPageLoad(function(){
   const F = window.fossil, D = F.dom, Diff = F.diff;
   var lastWidth;
   Diff.checkTableWidth = function f(force){
+    if(1){
+      return this;
+      /**
+         What follows is largely obsolete but we will want parts of it
+         if we decide to retain the synchronous-scroll feature of
+         SBS diffs (which we otherwise lose in the CSS-based reimplementation).
+      */
+    }
     if(undefined === f.contentNode){
       f.contentNode = document.querySelector('div.content');
     }
@@ -752,10 +760,20 @@ window.fossil.onPageLoad(function(){
     }
     return this;
   }
-  window.fossil.page.tweakSbsDiffs = function(){
-    document.querySelectorAll('table.splitdiff').forEach((e)=>Diff.initTableDiff(e));
-    Diff.checkTableWidth();
-  };
-  Diff.initTableDiff().checkTableWidth();
-  window.addEventListener('resize', F.debounce(()=>Diff.checkTableWidth()));
+  if(0){
+    window.fossil.page.tweakSbsDiffs = function(){
+      document.querySelectorAll('table.splitdiff').forEach((e)=>Diff.initTableDiff(e));
+      Diff.checkTableWidth();
+    };
+    Diff.initTableDiff().checkTableWidth();
+    window.addEventListener('resize', F.debounce(()=>Diff.checkTableWidth()));
+  }else{
+    /* tweakSbsDiffs() is called by /fileedit and /wikieedit when it
+       runs an SBS diff. We _might_ want to retain this function to
+       re-enable synchronized sbs diff scrolling. If we decided to not
+       retain that feature with the CSS-based SBS diff, we can remove
+       this block and the corresponding calls to this function in
+       fossil.page.{wikiedit,fileedit}.js. */
+    window.fossil.page.tweakSbsDiffs = function(){};
+  }
 }, false);
