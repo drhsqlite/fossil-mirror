@@ -1,5 +1,5 @@
-C The\ssublist\sof\srobot\sdefenses\sunder\ssecurity\saudit\sshould\suse\sa,b,c,...\nnot\s1,2,3,...
-D 2024-07-29T22:39:01.390
+C Spell\sout\s"setting"\sin\sloadmgmt.md.\n[forum:/forumpost/7485b4bf89|Forum\spost\s7485b4bf89].
+D 2024-07-30T10:56:10.250
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -884,7 +884,7 @@ F www/json-api/hacking.md 5e916b51718458ceef1f2641c2c29774eaa89f8817f02dc77b91aa
 F www/json-api/index.md 1f06115e752536000e1a6aaca37f4e44671f4b9c89b4ce6b7024522224f142bc
 F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
-F www/loadmgmt.md 4c251aab5d71a55a832919dcf1ee7390b04bec9495f45d5fc1cd37aa9c6d38dc
+F www/loadmgmt.md 09ddb13024bd3fbbb85dd2eb11be279d478db3db5d0757299fd236ba28e92499
 F www/makefile.wiki 39cfe5bb11593a5c22feef02d0d741595e42d9d7db052b567adad53c697e4b2a
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9018c6f22ae8afc0f96dd941db01cb507c3f0f0d67cf56360a8176e378c4eb77
-R 9dbb8cf44468148bdcdd4634f0da436e
+P 1e4202dec7dee2a5391942a563dca7ca037702c1b51cb0627ccbf6c0a23f8a07
+R 5509309aa67387e2467f90625ea0c681
 U drh
-Z 7d2282380d02b32131efd07c14f804c2
+Z 690fe959687731bf1a3c70ab261035dc
 # Remove this line to create a well-formed Fossil manifest.

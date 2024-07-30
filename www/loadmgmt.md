@@ -54,8 +54,8 @@ easily set it higher on a multi-core server.
 The maximum load average can also be set on the command line using
 commands like this:
 
-    fossil set max-loadavg 1.5
-    fossil all set max-loadavg 1.5
+    fossil setting max-loadavg 1.5
+    fossil all setting max-loadavg 1.5
 
 The second form is especially useful for changing the maximum load
 average simultaneously on a large number of repositories.
