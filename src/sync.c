@@ -465,13 +465,15 @@ void push_cmd(void){
 /*
 ** COMMAND: sync
 **
-** Usage: %fossil sync ?URL? ?options?
+** Usage: %fossil sync ?REMOTE? ?options?
 **
 ** Synchronize all sharable changes between the local repository and a
-** remote repository.  Sharable changes include public check-ins and
-** edits to wiki pages, tickets, forum posts, and technical notes.
+** remote repository, with the remote provided as a URL or a
+** configured remote name (see the [[remote]] command).  Sharable
+** changes include public check-ins and edits to wiki pages, tickets,
+** forum posts, and technical notes.
 **
-** If URL is not specified, then the URL from the most recent clone, push,
+** If REMOTE is not specified, then the URL from the most recent clone, push,
 ** pull, remote, or sync command is used.  See "fossil help clone" for
 ** details on the URL formats.
 **
