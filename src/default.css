@@ -682,6 +682,7 @@ table.udiff tr.diffchunk {
   grid-template-columns: auto auto auto 1fr;
   grid-template-areas: "difflnl difflnr diffsep difftxtu";
 }
+td.difflnl { grid-area: difflnl; }
 td.difflnr { grid-area: difflnr; }
 td.difftxtu { grid-area: difftxtu; }
 td.difftxtl  { grid-area: difftxtl; }
@@ -690,7 +691,6 @@ td.diffln {
   width: fit-content;
   text-align: right;
   padding: 0 1em 0 0;
-  grid-area: difflnl;
 }
 td.difflne {
   padding-bottom: 0.4em;
