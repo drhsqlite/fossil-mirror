@@ -670,11 +670,12 @@ tr.diffskip > td.chunkctrl .jcbutton:hover {
   opacity: 1;
   filter: contrast(1);
 }
-
-table.splitdiff tr.diffchunk {
+tr.diffchunk {
   display: grid;
   gap: 0px 0px;
   grid-template-rows: 1fr;
+}
+table.splitdiff tr.diffchunk {
   grid-template-columns: auto 1fr auto auto 1fr;
   grid-template-areas: "difflnl difftxtl diffsep difflnr difftxtr";
 }

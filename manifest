@@ -1,5 +1,5 @@
-C In\sthe\sdiff\schunk\sloader,\sremove\sstray\scalls\sto\sthe\sJS\scode\swhich\swas\sremoved\sin\s[61fd1e841fd].
-D 2024-07-31T11:14:05.298
+C Resolve\sthe\sawkward\smisalignment\sof\sconsecutive\sdiff\schunks,\sthanks\sto\sa\shint\sfrom\s[forum:85ab14eecd|forum\spost\s85ab14eecd].
+D 2024-07-31T19:54:41.997
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/cookies.c 655257d116421e8ffa3d076379a3f5628849b06b295ed8a90fd288e17963a662
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 3ac7e8d2000e3f5465a730811ac8ef0ff8b7a453a1c1d92325561ec1ac04b880
-F src/default.css 548a8cc3fa315f98bd133dd9a1a59cceab8b0ce2d54a943eb3ba87f56f306a38
+F src/default.css b3f99b4184f6484b1010f1206aff63f8c537603c588fcf16a4878cb9a605a6ff
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 61fd1e841fda0b869ceb271fe149d2a7ef3e448c39af0879da23afb995499235
-R a1f4b6f4633051aee50794220f7ec17e
+P ac965480d4d8b9b3071a95adc990c56eeecdc2a2e28517c79c696d76e9bb81c7
+R cb43ffeb93a2e11b2b56741efd647b5c
 U stephan
-Z 76582a202d67d0cc8613034f9e8dddf4
+Z c384e50665f63065b7e759fb447cb212
 # Remove this line to create a well-formed Fossil manifest.
