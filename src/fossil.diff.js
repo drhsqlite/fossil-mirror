@@ -402,7 +402,6 @@ window.fossil.onPageLoad(function(){
         }
         td.innerHTML = content.join('');
         if(joinTr) D.remove(joinTr);
-        Diff.checkTableWidth(true);
         this.destroy();
         return this;
       }else if(this.FetchType.PrevDown===fetchType){
@@ -431,7 +430,6 @@ window.fossil.onPageLoad(function(){
           this.maybeReplaceButtons();
           this.updatePosDebug();
         }
-        Diff.checkTableWidth(true);
         return this;
       }else if(this.FetchType.NextUp===fetchType){
         /* Prepend content to next TR. */
@@ -460,7 +458,6 @@ window.fossil.onPageLoad(function(){
           this.maybeReplaceButtons();
           this.updatePosDebug();
         }
-        Diff.checkTableWidth(true);
         return this;
       }else{
         throw new Error("Unexpected 'fetchType' value.");

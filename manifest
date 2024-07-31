@@ -1,5 +1,5 @@
-C Remove\sapprox.\s150\slines\sof\sJS\srelated\sto\sdiff\slayout\sand\ssyncronous\sscrolling.
-D 2024-07-31T11:06:10.174
+C In\sthe\sdiff\schunk\sloader,\sremove\sstray\scalls\sto\sthe\sJS\scode\swhich\swas\sremoved\sin\s[61fd1e841fd].
+D 2024-07-31T11:14:05.298
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
-F src/fossil.diff.js 89ddf09c86568a42337b6b97bf85ce2365a053ebc95730e1eb277e95da72ee22
+F src/fossil.diff.js 9ec63e0e9d1bfdbf61ec9a2d9050e652f8de93d44d66546088a67f2b51b4bc06
 F src/fossil.dom.js b4b1d84f17a420603124f4f2cc821852d9815ec7cec338ab124b4e12582e7b9d
 F src/fossil.fetch.js 79291600341f980b23bc20455e0415fae0db0a3a355aae4dffbc0e431f210cc8
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 15139fa8214d14d5b9c5a1920e9874f5d56bdd10dd1222ee9a250fc4ac4d159d
-R bbd3773b330bc7b5f117cfe1b305d039
+P 61fd1e841fda0b869ceb271fe149d2a7ef3e448c39af0879da23afb995499235
+R a1f4b6f4633051aee50794220f7ec17e
 U stephan
-Z 77cf5fbfa5baa95ef6fbcc6dbc9c561c
+Z 76582a202d67d0cc8613034f9e8dddf4
 # Remove this line to create a well-formed Fossil manifest.
