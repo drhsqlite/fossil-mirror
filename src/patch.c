@@ -533,6 +533,7 @@ void patch_apply(unsigned mFlags){
     }
     if( blob_size(&data)==0 ){
       /* No changes to the file */
+      continue;
     }else if( zHash ){
       Blob basis;
       int rid = fast_uuid_to_rid(zHash);
