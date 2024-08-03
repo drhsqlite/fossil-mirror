@@ -1007,9 +1007,7 @@ void chat_download_webpage(void){
     ** to attempt to render in the browser when clicked via
     ** download links in chat.
     **
-    ** The workaround: if a text/... file is looks_like_binary()
-    ** then change the mimetype to application/octet-stream.
-    */
+    ** The workaround: */
     if( looks_like_binary(&r) ){
       zMime = "application/octet-stream";
     }
