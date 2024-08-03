@@ -944,8 +944,10 @@ void chat_fetch_one(void){
 */
 void chat_download_webpage(void){
   int msgid;
-  Blob r;
-  const char *zMime;
+  int bCheckedMimetype = 0;  /* true to bypass the text/... mimetype
+                             ** check at the end */
+  Blob r;                    /* file content */
+  const char *zMime;         /* file mimetype */
   const char *zName = PD("name","0");
   login_check_credentials();
   if( !g.perm.Chat ){
@@ -972,11 +974,13 @@ void chat_download_webpage(void){
       markdown_to_html(&r, 0, &r2);
       safe_html(&r2);
       zMime2 = "text/html";
+      bCheckedMimetype = 1;
     }else if(fossil_strcmp(zMime, "text/x-fossil-wiki")==0
              || sqlite3_strglob("*.wiki", zName)==0){
       /* .wiki files get uploaded as application/octet-stream */
       wiki_convert(&r, &r2, 0);
       zMime2 = "text/html";
+      bCheckedMimetype = 1;
     }else if(fossil_strcmp(zMime, "text/x-pikchr")==0
              || sqlite3_strglob("*.pikchr",zName)==0){
       /* .pikchr files get uploaded as application/octet-stream */
@@ -988,11 +992,26 @@ void chat_download_webpage(void){
       }
       zMime2 = w>0 ? "image/svg+xml" : "text/html";
       free(zOut);
+      bCheckedMimetype = 1;
     }
     if(r2.aData!=0){
       blob_swap(&r, &r2);
       blob_reset(&r2);
       zMime = zMime2;
+    }
+  }
+  if( bCheckedMimetype==0 && sqlite3_strglob("text/*", zMime)==0 ){
+    /* The problem: both Chrome and Firefox upload *.patch with
+    ** the mimetype text/x-patch, whereas we very often use that
+    ** name glob for fossil-format patches. That causes such files
+    ** to attempt to render in the browser when clicked via
+    ** download links in chat.
+    **
+    ** The workaround: if a text/... file is looks_like_binary()
+    ** then change the mimetype to application/octet-stream.
+    */
+    if( looks_like_binary(&r) ){
+      zMime = "application/octet-stream";
     }
   }
   cgi_set_content_type(zMime);
