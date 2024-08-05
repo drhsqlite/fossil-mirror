@@ -72,12 +72,14 @@
 # include <ws2tcpip.h>
 #else
 # include <sys/socket.h>
+# include <sys/un.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/times.h>
 # include <sys/time.h>
 # include <sys/wait.h>
 # include <sys/select.h>
+# include <errno.h>
 #endif
 #ifdef __EMX__
   typedef int socklen_t;
@@ -2477,6 +2479,7 @@ void cgi_handle_scgi_request(void){
 #define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
 #define HTTP_SERVER_REPOLIST       0x0010     /* Allow repo listing */
 #define HTTP_SERVER_NOFORK         0x0020     /* Do not call fork() */
+#define HTTP_SERVER_UNIXDOMAINSOCK 0x0040     /* Use a unix-domain socket */
 
 #endif /* INTERFACE */
 
@@ -2517,24 +2520,40 @@ int cgi_http_server(
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
   struct sockaddr_in inaddr;   /* The socket address */
+  struct sockaddr_un uxaddr;   /* The address for unix-domain sockets */
   int opt = 1;                 /* setsockopt flag */
-  int iPort = mnPort;
+  int rc;                      /* Result code from system calls */
+  int iPort = mnPort;          /* Port to try to use */
 
   while( iPort<=mxPort ){
-    memset(&inaddr, 0, sizeof(inaddr));
-    inaddr.sin_family = AF_INET;
-    if( zIpAddr ){
-      inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
-      if( inaddr.sin_addr.s_addr == INADDR_NONE ){
-        fossil_fatal("not a valid IP address: %s", zIpAddr);
+    if( flags & HTTP_SERVER_UNIXDOMAINSOCK ){
+      memset(&uxaddr, 0, sizeof(uxaddr));
+      if( strlen(zIpAddr)>sizeof(uxaddr.sun_path) ){
+        fossil_fatal("name of unix-domain socket too big: %s\n"
+                     "max size: %d\n", zIpAddr, (int)sizeof(uxaddr.sun_path));
       }
-    }else if( flags & HTTP_SERVER_LOCALHOST ){
-      inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+      if( unlink(zIpAddr)==-1 && errno!=ENOENT ){
+        fossil_fatal("Cannot remove existing file at %s\n", zIpAddr);
+      }
+      uxaddr.sun_family = AF_UNIX;
+      strncpy(uxaddr.sun_path, zIpAddr, sizeof(uxaddr.sun_path)-1);
+      listener = socket(AF_UNIX, SOCK_STREAM, 0);
     }else{
-      inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+      memset(&inaddr, 0, sizeof(inaddr));
+      inaddr.sin_family = AF_INET;
+      if( zIpAddr ){
+        inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
+        if( inaddr.sin_addr.s_addr == INADDR_NONE ){
+          fossil_fatal("not a valid IP address: %s", zIpAddr);
+        }
+      }else if( flags & HTTP_SERVER_LOCALHOST ){
+        inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+      }else{
+        inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+      }
+      inaddr.sin_port = htons(iPort);
+      listener = socket(AF_INET, SOCK_STREAM, 0);
     }
-    inaddr.sin_port = htons(iPort);
-    listener = socket(AF_INET, SOCK_STREAM, 0);
     if( listener<0 ){
       iPort++;
       continue;
@@ -2542,8 +2561,13 @@ int cgi_http_server(
 
     /* if we can't terminate nicely, at least allow the socket to be reused */
     setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
-
-    if( bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr))<0 ){
+  
+    if( flags & HTTP_SERVER_UNIXDOMAINSOCK ){
+      rc = bind(listener, (struct sockaddr*)&uxaddr, sizeof(uxaddr));
+    }else{
+      rc = bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr));
+    }
+    if( rc<0 ){
       close(listener);
       iPort++;
       continue;
@@ -2551,7 +2575,9 @@ int cgi_http_server(
     break;
   }
   if( iPort>mxPort ){
-    if( mnPort==mxPort ){
+    if( flags & HTTP_SERVER_UNIXDOMAINSOCK ){
+      fossil_fatal("unable to listen on unix-domain socket %s", zIpAddr);
+    }else if( mnPort==mxPort ){
       fossil_fatal("unable to open listening socket on port %d", mnPort);
     }else{
       fossil_fatal("unable to open listening socket on any"
@@ -2560,11 +2586,17 @@ int cgi_http_server(
   }
   if( iPort>mxPort ) return 1;
   listen(listener,10);
-  fossil_print("Listening for %s requests on TCP port %d\n",
-     (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
-        g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  iPort);
+  if( flags & HTTP_SERVER_UNIXDOMAINSOCK ){
+    fossil_print("Listening for %s requests on unix-domain socket %s\n",
+       (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
+          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  zIpAddr);
+  }else{
+    fossil_print("Listening for %s requests on TCP port %d\n",
+       (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
+          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  iPort);
+  }
   fflush(stdout);
-  if( zBrowser ){
+  if( zBrowser && (flags & HTTP_SERVER_UNIXDOMAINSOCK)==0 ){
     assert( strstr(zBrowser,"%d")!=0 );
     zBrowser = mprintf(zBrowser /*works-like:"%d"*/, iPort);
 #if defined(__CYGWIN__)

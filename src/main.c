@@ -3188,6 +3188,8 @@ void fossil_set_timeout(int N){
 **   --skin LABEL        Use override skin LABEL, or the site's default skin if
 **                       LABEL is an empty string.
 **   --th-trace          Trace TH1 execution (for debugging purposes)
+**   --unix-socket NAME  Listen on unix-domain socket NAME rather than on a
+**                       TCP/IP port.
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows or Linux.
 **
@@ -3209,7 +3211,7 @@ void cmd_webserver(void){
   int allowRepoList;         /* List repositories on URL "/" */
   const char *zAltBase;      /* Argument to the --baseurl option */
   const char *zFileGlob;     /* Static content must match this */
-  char *zIpAddr = 0;         /* Bind to this IP address */
+  char *zIpAddr = 0;         /* Bind to this IP address or UN socket */
   int fCreate = 0;           /* The --create flag */
   int fNoBrowser = 0;        /* Do not auto-launch web-browser */
   const char *zInitPage = 0; /* Start on this page.  --page option */
@@ -3285,6 +3287,19 @@ void cmd_webserver(void){
     fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
   if( find_option("acme",0,0)!=0 ) g.fAllowACME = 1;
+  zIpAddr = (char*)find_option("unix-socket",0,1);
+  if( zIpAddr ){
+#if defined(_WIN32)
+    fossil_fatal("unix sockets are not supported on Windows");
+#endif
+    if( zPort ){
+      fossil_fatal("cannot specify a port number for a unix socket");
+    }
+    if( isUiCmd && !fNoBrowser ){
+      fossil_fatal("cannot start a web-browser on a unix socket");
+    }
+    flags |= HTTP_SERVER_UNIXDOMAINSOCK;
+  }
 
   /* Undocumented option:  --debug-nofork
   **
