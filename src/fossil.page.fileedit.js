@@ -1247,7 +1247,6 @@
           c||'No changes.'
         ].join(''));
         F.diff.setupDiffContextLoad();
-        if(sbs) P.tweakSbsDiffs();
         F.message('Updated diff.');
         self.tabs.switchToTab(self.e.tabs.diff);
       }

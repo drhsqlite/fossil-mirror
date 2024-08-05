@@ -665,14 +665,31 @@ tr.diffskip > td.chunkctrl .jcbutton.down > span::before {
 tr.diffskip > td.chunkctrl .jcbutton.up.down > span::before {
   content: '⇡⇣';
 }
-
 tr.diffskip > td.chunkctrl .jcbutton:hover {
   cursor: pointer;
   opacity: 1;
   filter: contrast(1);
 }
+tr.diffchunk {
+  display: grid;
+  gap: 0px 0px;
+  grid-template-rows: 1fr;
+}
+table.splitdiff tr.diffchunk {
+  grid-template-columns: auto 1fr auto auto 1fr;
+  grid-template-areas: "difflnl difftxtl diffsep difflnr difftxtr";
+}
+table.udiff tr.diffchunk {
+  grid-template-columns: auto auto auto 1fr;
+  grid-template-areas: "difflnl difflnr diffsep difftxtu";
+}
+td.difflnl { grid-area: difflnl; }
+td.difflnr { grid-area: difflnr; }
+td.difftxtu { grid-area: difftxtu; }
+td.difftxtl  { grid-area: difftxtl; }
+td.difftxtr  { grid-area: difftxtr; }
 td.diffln {
-  width: 1px;
+  width: fit-content;
   text-align: right;
   padding: 0 1em 0 0;
 }
@@ -680,8 +697,9 @@ td.difflne {
   padding-bottom: 0.4em;
 }
 td.diffsep {
-  width: 1px;
+  width: fit-content;
   padding: 0 0.3em 0 0.5em;
+  grid-area: diffsep;
 }
 td.difftxt pre {
   overflow-x: auto;

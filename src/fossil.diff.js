@@ -108,7 +108,7 @@ window.fossil.onPageLoad(function(){
     const m = f.rx[getStart ? 'start' : 'end'].exec(td.innerText);
     return m ? +m[1] : undefined/*"shouldn't happen"*/;
   };
-  
+
   /**
      Installs chunk-loading controls into TR.diffskip element tr.
      Each instance corresponds to a single TR.diffskip element.
@@ -402,7 +402,6 @@ window.fossil.onPageLoad(function(){
         }
         td.innerHTML = content.join('');
         if(joinTr) D.remove(joinTr);
-        Diff.checkTableWidth(true);
         this.destroy();
         return this;
       }else if(this.FetchType.PrevDown===fetchType){
@@ -431,7 +430,6 @@ window.fossil.onPageLoad(function(){
           this.maybeReplaceButtons();
           this.updatePosDebug();
         }
-        Diff.checkTableWidth(true);
         return this;
       }else if(this.FetchType.NextUp===fetchType){
         /* Prepend content to next TR. */
@@ -460,7 +458,6 @@ window.fossil.onPageLoad(function(){
           this.maybeReplaceButtons();
           this.updatePosDebug();
         }
-        Diff.checkTableWidth(true);
         return this;
       }else{
         throw new Error("Unexpected 'fetchType' value.");
@@ -625,137 +622,3 @@ window.fossil.onPageLoad(function(){
   };
   Diff.setupDiffContextLoad();
 });
-
-/* Refinements to the display of unified and side-by-side diffs.
-**
-** In all cases, the table columns tagged with "difftxt" are expanded,
-** where possible, to fill the width of the screen.
-**
-** For a side-by-side diff, if either column is two wide to fit on the
-** display, scrollbars are added.  The scrollbars are linked, so that
-** both sides scroll together.  Left and right arrows also scroll.
-*/
-window.fossil.onPageLoad(function(){
-  const SCROLL_LEN = 25;
-  const F = window.fossil, D = F.dom, Diff = F.diff;
-  var lastWidth;
-  Diff.checkTableWidth = function f(force){
-    if(undefined === f.contentNode){
-      f.contentNode = document.querySelector('div.content');
-    }
-    force = true;
-    const parentCS = window.getComputedStyle(f.contentNode);
-    const parentWidth = (
-      //document.body.clientWidth;
-      //parentCS.width;
-      f.contentNode.clientWidth
-        - parseFloat(parentCS.marginLeft) - parseFloat(parentCS.marginRight)
-    );
-    if( !force && parentWidth===lastWidth ) return this;
-    lastWidth = parentWidth;
-    let w = lastWidth*0.5 - 100;
-    //console.debug( "w = ",w,", lastWidth =",lastWidth," body = ",document.body.clientWidth);
-    if(force || !f.colsL){
-      f.colsL = document.querySelectorAll('td.difftxtl pre');
-    }
-    f.colsL.forEach(function(e){
-      e.style.width = w + "px";
-      e.style.maxWidth = w + "px";
-    });
-    if(force || !f.colsR){
-      f.colsR = document.querySelectorAll('td.difftxtr pre');
-    }
-    f.colsR.forEach(function(e){
-      e.style.width = w + "px";
-      e.style.maxWidth = w + "px";
-    });
-    if(force || !f.colsU){
-      f.colsU = document.querySelectorAll('td.difftxtu pre');
-    }
-    f.colsU.forEach(function(e){
-      w = lastWidth - 3; // Outer border
-      var k = e.parentElement/*TD*/;
-      while(k = k.previousElementSibling/*TD*/) w -= k.scrollWidth;
-      e.style.width = w + "px";
-      e.style.maxWidth = w + "px";
-    });
-    if(0){ // seems to be unnecessary
-      if(!f.allDiffs){
-        f.allDiffs = document.querySelectorAll('table.diff');
-      }
-      w = lastWidth;
-      f.allDiffs.forEach(function f(e){
-        if(0 && !f.$){
-          f.$ = e.getClientRects()[0];
-          console.debug("diff table w =",w," f.$x",f.$);
-          w - 2*f.$.x /* left margin (assume right==left, for simplicity) */;
-        }
-        e.style.maxWidth = w + "px";
-      });
-      //console.debug("checkTableWidth(",force,") lastWidth =",lastWidth);
-    }
-    return this;
-  };
-
-  const scrollLeft = function(event){
-    //console.debug("scrollLeft",this,event);
-    const table = this.parentElement/*TD*/.parentElement/*TR*/.
-      parentElement/*TBODY*/.parentElement/*TABLE*/;
-    table.$txtPres.forEach((e)=>(e===this) ? 1 : (e.scrollLeft = this.scrollLeft));
-    return false;
-  };
-  Diff.initTableDiff = function f(diff, unifiedDiffs){
-    if(!diff){
-      let i, diffs;
-      diffs = document.querySelectorAll('table.splitdiff');
-      for(i=0; i<diffs.length; ++i){
-        f.call(this, diffs[i], false);
-      }
-      diffs = document.querySelectorAll('table.udiff');
-      for(i=0; i<diffs.length; ++i){
-        f.call(this, diffs[i], true);
-      }
-      return this;
-    }
-    diff.$txtCols = diff.querySelectorAll('td.difftxt');
-    diff.$txtPres = diff.querySelectorAll('td.difftxt pre');
-    var width = 0;
-    diff.$txtPres.forEach(function(e){
-      if(width < e.scrollWidth) width = e.scrollWidth;
-    });
-    //console.debug("diff.$txtPres =",diff.$txtPres);
-    diff.$txtCols.forEach((e)=>e.style.width = width + 'px');
-    diff.$txtPres.forEach(function(e){
-      e.style.maxWidth = width + 'px';
-      e.style.width = width + 'px';
-      if(!unifiedDiffs && !e.classList.contains('scroller')){
-        D.addClass(e, 'scroller');
-        e.addEventListener('scroll', scrollLeft, false);
-      }
-    });
-    if(!unifiedDiffs){
-      diff.tabIndex = 0;
-      if(!diff.classList.contains('scroller')){
-        D.addClass(diff, 'scroller');
-        diff.addEventListener('keydown', function(e){
-          e = e || event;
-          const len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
-          if( !len ) return;
-          this.$txtPres[0].scrollLeft += len;
-          /* ^^^ bug: if there is a 2nd column and it has a scrollbar
-             but txtPres[0] does not, no scrolling happens here. We need
-             to find the widest of txtPres and scroll that one. Example:
-             Checkin a7fbefee38a1c522 file diff.c */
-          return false;
-        }, false);
-      }
-    }
-    return this;
-  }
-  window.fossil.page.tweakSbsDiffs = function(){
-    document.querySelectorAll('table.splitdiff').forEach((e)=>Diff.initTableDiff(e));
-    Diff.checkTableWidth();
-  };
-  Diff.initTableDiff().checkTableWidth();
-  window.addEventListener('resize', F.debounce(()=>Diff.checkTableWidth()));
-}, false);

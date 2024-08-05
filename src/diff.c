@@ -1288,7 +1288,7 @@ static void dfunifiedFinishRow(DiffBuilder *p){
 }
 static void dfunifiedStartRow(DiffBuilder *p){
   if( blob_size(&p->aCol[0])>0 ) return;
-  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\" class=\"diffchunk\">"
                        "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
 }
 static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
@@ -1514,7 +1514,7 @@ static void dfsplitFinishRow(DiffBuilder *p){
 }
 static void dfsplitStartRow(DiffBuilder *p){
   if( blob_size(&p->aCol[0])>0 ) return;
-  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\" class=\"diffchunk\">"
                        "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
   p->eState = 0;
 }
