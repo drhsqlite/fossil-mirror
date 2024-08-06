@@ -769,8 +769,7 @@ void file_set_owner(const char *zFN, int fd, const char *zOwner){
     }
     gid = grp->gr_gid;
   }
-printf("fd=%d zFN=%s uid=%d gid=%d\n", (int)fd, zFN, (int)uid, (int)gid);
-  if( fchown(fd, uid, gid) ){
+  if( chown(zFN, uid, gid) ){
     fossil_fatal("cannot change ownership of %s to %s",zFN, zOwner);
   }
   if( zOwner!=zUsr ){

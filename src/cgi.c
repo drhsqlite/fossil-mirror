@@ -2550,15 +2550,12 @@ int cgi_http_server(
                      g.zSockName);
       }
       /* Set the access permission for the new socket.  Default to 0660.
-      ** But use an alternative specified by --socket-mode if available */
+      ** But use an alternative specified by --socket-mode if available.
+      ** Do this before bind() to avoid a race condition. */
       if( g.zSockMode ){
         file_set_mode(g.zSockName, listener, g.zSockMode, 0);
       }else{
         file_set_mode(g.zSockName, listener, "0660", 1);
-      }
-      /* Set the owner of the socket if requested by --socket-owner */
-      if( g.zSockOwner ){
-        file_set_owner(g.zSockName, listener, g.zSockOwner);
       }
     }else{
       /* Initialize a TCP/IP socket on port iPort */
@@ -2587,6 +2584,13 @@ int cgi_http_server(
   
     if( flags & HTTP_SERVER_UNIXSOCKET ){
       rc = bind(listener, (struct sockaddr*)&uxaddr, sizeof(uxaddr));
+      /* Set the owner of the socket if requested by --socket-owner.  This
+      ** must wait until after bind(), after the filesystem object has been
+      ** created.  See https://lkml.org/lkml/2004/11/1/84 and
+      ** https://fossil-scm.org/forum/forumpost/7517680ef9684c57 */
+      if( g.zSockOwner ){
+        file_set_owner(g.zSockName, listener, g.zSockOwner);
+      }
     }else{
       rc = bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr));
     }
@@ -2610,9 +2614,9 @@ int cgi_http_server(
   if( iPort>mxPort ) return 1;
   listen(listener,10);
   if( flags & HTTP_SERVER_UNIXSOCKET ){
-    fossil_print("Listening for %s requests on unix-domain socket %s\n",
+    fossil_print("Listening for %s requests on unix socket %s\n",
        (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
-          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  zIpAddr);
+          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  g.zSockName);
   }else{
     fossil_print("Listening for %s requests on TCP port %d\n",
        (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
