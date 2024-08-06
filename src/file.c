@@ -36,6 +36,8 @@
 # include <sys/utime.h>
 #else
 # include <sys/time.h>
+# include <pwd.h>
+# include <grp.h>
 #endif
 
 #if INTERFACE
@@ -230,6 +232,16 @@ int file_isfile_or_link(const char *zFilename){
 */
 int file_isfile(const char *zFilename, int eFType){
   return getStat(zFilename, eFType) ? 0 : S_ISREG(fx.fileStat.st_mode);
+}
+
+/*
+** Return TRUE if zFilename is a socket.
+*/
+int file_issocket(const char *zFilename){
+  if( getStat(zFilename, ExtFILE) ){
+    return 0;  /* stat() failed.  Return false. */
+  }
+  return S_ISSOCK(fx.fileStat.st_mode);
 }
 
 /*
@@ -715,6 +727,57 @@ void test_set_mtime(void){
   zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMTime);
   fossil_print("Set mtime of \"%s\" to %s (%lld)\n", zFile, zDate, iMTime);
 }
+
+/*
+** Change access permissions on a file.
+*/
+void file_set_mode(const char *zFN, int fd, const char *zMode, int bNoErr){
+  mode_t m;
+  char *zEnd = 0;
+  m = strtol(zMode, &zEnd, 0);
+  if( (zEnd[0] || fchmod(fd, m)) && !bNoErr ){
+    fossil_fatal("cannot change permissions on %s to \"%s\"",
+                 zFN, zMode);
+  }
+}
+
+/* Change the owner of a file to zOwner.  zOwner can be of the form
+** USER:GROUP.
+*/
+void file_set_owner(const char *zFN, int fd, const char *zOwner){
+  const char *zGrp;
+  const char *zUsr = zOwner;
+  struct passwd *pw;
+  struct group *grp;
+  uid_t uid = -1;
+  gid_t gid = -1;
+  zGrp = strchr(zUsr, ':');
+  if( zGrp ){
+    int n = (int)(zGrp - zUsr);
+    zUsr = fossil_strndup(zUsr, n);
+    zGrp++;
+  }
+  pw = getpwnam(zUsr);
+  if( pw==0 ){
+    fossil_fatal("no such user: \"%s\"", zUsr);
+  }
+  uid = pw->pw_uid;
+  if( zGrp ){
+    grp = getgrnam(zGrp);
+    if( grp==0 ){
+      fossil_fatal("no such group: \"%s\"", zGrp);
+    }
+    gid = grp->gr_gid;
+  }
+printf("fd=%d zFN=%s uid=%d gid=%d\n", (int)fd, zFN, (int)uid, (int)gid);
+  if( fchown(fd, uid, gid) ){
+    fossil_fatal("cannot change ownership of %s to %s",zFN, zOwner);
+  }
+  if( zOwner!=zUsr ){
+    fossil_free((char*)zUsr);
+  }
+}
+
 
 /*
 ** Delete a file.
@@ -1516,6 +1579,7 @@ static void emitFileStat(
   fossil_print("  file_mode(ExtFILE)     = 0%o\n", file_mode(zPath,ExtFILE));
   fossil_print("  file_isfile(ExtFILE)   = %d\n", file_isfile(zPath,ExtFILE));
   fossil_print("  file_isdir(ExtFILE)    = %d\n", file_isdir(zPath,ExtFILE));
+  fossil_print("  file_issocket()        = %d\n", file_issocket(zPath));
   if( reset ) resetStat();
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zPath,RepoFILE));
   fossil_print("  file_size(RepoFILE)    = %s\n", zBuf);
