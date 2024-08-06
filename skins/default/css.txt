@@ -368,7 +368,8 @@ div.filetree ul li.file{
 
 .artifact > .content table,
 .dir      > .content table,
-.doc      > .content table {
+.doc      > .content table,
+.wiki     > .content table {
   background-color: #f0f5f9;
   border: 1px solid #a7c2dc;
   border-radius: 0.5em;
@@ -377,7 +378,8 @@ div.filetree ul li.file{
 }
 .artifact > .content th,
 .dir      > .content th,
-.doc      > .content th {
+.doc      > .content th,
+.wiki     > .content th {
   border-bottom: 1px solid #dee8f2;
   padding-bottom: 4px;
   padding-right: 6px;
@@ -385,17 +387,20 @@ div.filetree ul li.file{
 }
 .artifact > .content tr > th,
 .dir      > .content tr > th,
-.doc      > .content tr > th {
+.doc      > .content tr > th,
+.wiki     > .content tr > th {
   background-color: #dee8f0;
 }
 .artifact > .content tr:nth-child(odd),
 .dir      > .content tr:nth-child(odd),
-.doc      > .content tr:nth-child(odd) {
+.doc      > .content tr:nth-child(odd),
+.wiki     > .content tr:nth-child(odd) {
   background-color: #e0e8ee;
 }
 .artifact > .content td,
 .dir      > .content td,
-.doc      > .content td {
+.doc      > .content td,
+.wiki     > .content td {
   padding-bottom: 4px;
   padding-right: 6px;
   text-align: left;
