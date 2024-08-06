@@ -240,6 +240,9 @@ struct Global {
   int isHuman;            /* True if access by a human, not a spider or bot */
   int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
                           ** accessed through get_comment_format(). */
+  const char *zSockName;  /* Name of the unix-domain socket file */
+  const char *zSockMode;  /* File permissions for unix-domain socket */
+  const char *zSockOwner; /* Owner, or owner:group for unix-domain socket */
 
   /* Information used to populate the RCVFROM table */
   int rcvid;              /* The rcvid.  0 if not yet defined. */
@@ -393,6 +396,11 @@ static void fossil_atexit(void) {
 #ifdef FOSSIL_ENABLE_JSON
   cson_value_free(g.json.gc.v);
   memset(&g.json, 0, sizeof(g.json));
+#endif
+#if !defined(_WIN32)
+  if( g.zSockName && file_issocket(g.zSockName) ){
+    unlink(g.zSockName);
+  }
 #endif
   free(g.zErrMsg);
   if(g.db){
@@ -1509,26 +1517,40 @@ static char *enter_chroot_jail(const char *zRepo, int noJail){
     struct stat sStat;
     Blob dir;
     char *zDir;
+    size_t nDir;
     if( g.db!=0 ){
       db_close(1);
     }
 
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
+    nDir = blob_size(&dir);
     if( !noJail ){
       if( file_isdir(zDir, ExtFILE)==1 ){
+        /* Translate the repository name to the new root */
         if( g.zRepositoryName ){
-          size_t n = strlen(zDir);
           Blob repo;
           file_canonical_name(g.zRepositoryName, &repo, 0);
           zRepo = blob_str(&repo);
-          if( strncmp(zRepo, zDir, n)!=0 ){
+          if( strncmp(zRepo, zDir, nDir)!=0 ){
             fossil_fatal("repo %s not under chroot dir %s", zRepo, zDir);
           }
-          zRepo += n;
+          zRepo += nDir;
           if( *zRepo == '\0' ) zRepo = "/";
         }else {
           zRepo = "/";
+        }
+        /* If a unix socket is defined, try to translate its name into
+        ** the new root so that it can be delete by atexit().  If unable,
+        ** just zero out the socket name. */
+        if( g.zSockName ){
+          if( strncmp(g.zSockName, zDir, nDir)==0
+           && g.zSockName[nDir]=='/'
+          ){
+            g.zSockName += nDir;
+          }else{
+            g.zSockName = 0;
+          }
         }
         if( file_chdir(zDir, 1) ){
           fossil_panic("unable to chroot into %s", zDir);
@@ -3187,9 +3209,14 @@ void fossil_set_timeout(int N){
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL, or the site's default skin if
 **                       LABEL is an empty string.
+**   --socket-mode MODE  File permissions to set for the unix socket created
+**                       by the --socket-name option.
+**   --socket-name NAME  Use a unix-domain socket called NAME instead of a
+**                       TCP/IP socket.
+**   --socket-owner USR  Try to set the owner of the unix socket to USR.
+**                       USR can be of the form USER:GROUP to set both
+**                       user and group.
 **   --th-trace          Trace TH1 execution (for debugging purposes)
-**   --unix-socket NAME  Listen on unix-domain socket NAME rather than on a
-**                       TCP/IP port.
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows or Linux.
 **
@@ -3287,8 +3314,10 @@ void cmd_webserver(void){
     fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
   if( find_option("acme",0,0)!=0 ) g.fAllowACME = 1;
-  zIpAddr = (char*)find_option("unix-socket",0,1);
-  if( zIpAddr ){
+  g.zSockMode = find_option("socket-mode",0,1);
+  g.zSockName = find_option("socket-name",0,1);
+  g.zSockOwner = find_option("socket-owner",0,1);
+  if( g.zSockName ){
 #if defined(_WIN32)
     fossil_fatal("unix sockets are not supported on Windows");
 #endif
@@ -3298,7 +3327,7 @@ void cmd_webserver(void){
     if( isUiCmd && !fNoBrowser ){
       fossil_fatal("cannot start a web-browser on a unix socket");
     }
-    flags |= HTTP_SERVER_UNIXDOMAINSOCK;
+    flags |= HTTP_SERVER_UNIXSOCKET;
   }
 
   /* Undocumented option:  --debug-nofork
@@ -3469,7 +3498,7 @@ void cmd_webserver(void){
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
 #if !defined(_WIN32)
-  if( getpid()==1 ){
+  if( 1 ){
     /* Modern kernels suppress SIGTERM to PID 1 to prevent root from
     ** rebooting the system by nuking the init system.  The only way
     ** Fossil becomes that PID 1 is when it's running solo in a Linux
@@ -3492,7 +3521,7 @@ void cmd_webserver(void){
 #if !defined(_WIN32)
   /* Unix implementation */
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
-    fossil_fatal("unable to listen on TCP socket %d", iPort);
+    fossil_fatal("unable to listen on CGI socket");
   }
   /* For the parent process, the cgi_http_server() command above never
   ** returns (except in the case of an error).  Instead, for each incoming

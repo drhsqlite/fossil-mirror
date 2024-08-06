@@ -1,5 +1,5 @@
-C Add\sthe\s--unix-socket\soption\sto\sthe\s"fossil\sserver"\scommand.
-D 2024-08-05T20:23:40.923
+C Enhancements\sto\sunix-domain\ssocket\ssupport\sfor\s"fossil\sserver":\n(1)\sChange\sthe\scommand-line\soption\sto\s"--socket-name\sFILENAME"\sfor\screating\nthe\sunix\ssocket.\s\s(It\swas\sformerly\s--unix-socket.)\n(2)\sAdd\snew\scommand-line\soptions\s"--socket-mode\sMODE"\sand\n"--socket-owner\sUSER"\sor\s"...\sUSER:GROUP"\sto\sset\spermissions\sand\sownership\non\sthe\snew\ssocket.\n(3)\sAttempt\sto\sunlink\sthe\ssocket\sfrom\sthe\sfilesystem\supon\sexit.
+D 2024-08-06T20:39:34.515
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -395,7 +395,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 4ff97800454692b079d42af7f673c1745d123d4fd960a02edca2e237125ef4e7
-F src/cgi.c 0487999407c052e1e215c6547adb5c940b086c420f08a576353bfa04ec2ac70e
+F src/cgi.c 0aa599d2ded08ff4522fb0599ffc54cc64f93670aa0ff5b30a2401589612567a
 F src/chat.c 43706d27669c93ba6682d9af7502b173e1aa745fd018f42f883a8c150c0cfc52
 F src/checkin.c 7e0013b78efc08b3656d048b0eab92aedf2581b7b462b8aab377c7f1fd63d67f
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
@@ -427,7 +427,7 @@ F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
 F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
-F src/file.c 9a76e1a44a484d1a92161c8f4f5ea63c167d737e515b380ca4cfc9f64dde8165
+F src/file.c b7e4ef320bb54ae6540b1f9c82db036c592a7491ce4227ff3544515a849fb10c
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 14c0bab4c53125f241d7d657a2af6ff72f3ff1eb5fb42d2d15cf99c45561a89a
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
@@ -492,7 +492,7 @@ F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22
 F src/login.c f563e858bc90a7a96844c3bb35a41d55496e40657e764179c9244f8e1894869e
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 815020f039d4cf0e3fd4019dd999685668adb4017e3ec731dea4324817c6bd91
+F src/main.c 7604b9e7e9f88e70314ba8eb233d39b0d3832606460feedae4c4ffab0a2c2d05
 F src/main.mk 176240dce5136923b41efc270fd3276d31a6c3e879fa46470282d550ab891d30
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -959,8 +959,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 71e9ca7869f0307c81dca9006c25621f12638d53cda854fd03d3623fe7a44946
-R 2a4d65a76f5530cb24e36849ffd5fc64
+P 7fc2902126d43f87f897a46d12209f5b04d71d2cb50acd08ffad94c9b0c6aba6 d474c95d5a35c66b247a7a80415e8d1e39a00b20f5bd0fad7d62e75290d700e8
+R 1419477ed8057afa56379741a5083d82
+T +closed d474c95d5a35c66b247a7a80415e8d1e39a00b20f5bd0fad7d62e75290d700e8
 U drh
-Z 3685d66705b1cc8559fc526ff6791eee
+Z 24acaa76a2c1eb15d52699f03bef82e5
 # Remove this line to create a well-formed Fossil manifest.

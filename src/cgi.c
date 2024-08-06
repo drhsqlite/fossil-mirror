@@ -2479,7 +2479,7 @@ void cgi_handle_scgi_request(void){
 #define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
 #define HTTP_SERVER_REPOLIST       0x0010     /* Allow repo listing */
 #define HTTP_SERVER_NOFORK         0x0020     /* Do not call fork() */
-#define HTTP_SERVER_UNIXDOMAINSOCK 0x0040     /* Use a unix-domain socket */
+#define HTTP_SERVER_UNIXSOCKET     0x0040     /* Use a unix-domain socket */
 
 #endif /* INTERFACE */
 
@@ -2526,19 +2526,39 @@ int cgi_http_server(
   int iPort = mnPort;          /* Port to try to use */
 
   while( iPort<=mxPort ){
-    if( flags & HTTP_SERVER_UNIXDOMAINSOCK ){
+    if( flags & HTTP_SERVER_UNIXSOCKET ){
+      /* Initialize a Unix socket named g.zSockName */
+      assert( g.zSockName!=0 );
       memset(&uxaddr, 0, sizeof(uxaddr));
-      if( strlen(zIpAddr)>sizeof(uxaddr.sun_path) ){
-        fossil_fatal("name of unix-domain socket too big: %s\n"
-                     "max size: %d\n", zIpAddr, (int)sizeof(uxaddr.sun_path));
+      if( strlen(g.zSockName)>sizeof(uxaddr.sun_path) ){
+        fossil_fatal("name of unix socket too big: %s\nmax size: %d\n",
+                     g.zSockName, (int)sizeof(uxaddr.sun_path));
       }
-      if( unlink(zIpAddr)==-1 && errno!=ENOENT ){
-        fossil_fatal("Cannot remove existing file at %s\n", zIpAddr);
+      if( file_isdir(g.zSockName, ExtFILE)!=0 ){
+        if( !file_issocket(g.zSockName) ){
+          fossil_fatal("cannot name socket \"%s\" because another object"
+                       " with that name already exists", g.zSockName);
+        }else{
+          unlink(g.zSockName);
+        }
       }
       uxaddr.sun_family = AF_UNIX;
-      strncpy(uxaddr.sun_path, zIpAddr, sizeof(uxaddr.sun_path)-1);
+      strncpy(uxaddr.sun_path, g.zSockName, sizeof(uxaddr.sun_path)-1);
       listener = socket(AF_UNIX, SOCK_STREAM, 0);
+      if( listener<0 ){
+        fossil_fatal("unable to create a unix socket named %s",
+                     g.zSockName);
+      }
+      /* Set the access permission for the new socket.  Default to 0660.
+      ** But use an alternative specified by --socket-mode if available.
+      ** Do this before bind() to avoid a race condition. */
+      if( g.zSockMode ){
+        file_set_mode(g.zSockName, listener, g.zSockMode, 0);
+      }else{
+        file_set_mode(g.zSockName, listener, "0660", 1);
+      }
     }else{
+      /* Initialize a TCP/IP socket on port iPort */
       memset(&inaddr, 0, sizeof(inaddr));
       inaddr.sin_family = AF_INET;
       if( zIpAddr ){
@@ -2553,17 +2573,24 @@ int cgi_http_server(
       }
       inaddr.sin_port = htons(iPort);
       listener = socket(AF_INET, SOCK_STREAM, 0);
-    }
-    if( listener<0 ){
-      iPort++;
-      continue;
+      if( listener<0 ){
+        iPort++;
+        continue;
+      }
     }
 
     /* if we can't terminate nicely, at least allow the socket to be reused */
     setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
   
-    if( flags & HTTP_SERVER_UNIXDOMAINSOCK ){
+    if( flags & HTTP_SERVER_UNIXSOCKET ){
       rc = bind(listener, (struct sockaddr*)&uxaddr, sizeof(uxaddr));
+      /* Set the owner of the socket if requested by --socket-owner.  This
+      ** must wait until after bind(), after the filesystem object has been
+      ** created.  See https://lkml.org/lkml/2004/11/1/84 and
+      ** https://fossil-scm.org/forum/forumpost/7517680ef9684c57 */
+      if( g.zSockOwner ){
+        file_set_owner(g.zSockName, listener, g.zSockOwner);
+      }
     }else{
       rc = bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr));
     }
@@ -2575,8 +2602,8 @@ int cgi_http_server(
     break;
   }
   if( iPort>mxPort ){
-    if( flags & HTTP_SERVER_UNIXDOMAINSOCK ){
-      fossil_fatal("unable to listen on unix-domain socket %s", zIpAddr);
+    if( flags & HTTP_SERVER_UNIXSOCKET ){
+      fossil_fatal("unable to listen on unix socket %s", zIpAddr);
     }else if( mnPort==mxPort ){
       fossil_fatal("unable to open listening socket on port %d", mnPort);
     }else{
@@ -2586,17 +2613,17 @@ int cgi_http_server(
   }
   if( iPort>mxPort ) return 1;
   listen(listener,10);
-  if( flags & HTTP_SERVER_UNIXDOMAINSOCK ){
-    fossil_print("Listening for %s requests on unix-domain socket %s\n",
+  if( flags & HTTP_SERVER_UNIXSOCKET ){
+    fossil_print("Listening for %s requests on unix socket %s\n",
        (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
-          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  zIpAddr);
+          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  g.zSockName);
   }else{
     fossil_print("Listening for %s requests on TCP port %d\n",
        (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
           g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  iPort);
   }
   fflush(stdout);
-  if( zBrowser && (flags & HTTP_SERVER_UNIXDOMAINSOCK)==0 ){
+  if( zBrowser && (flags & HTTP_SERVER_UNIXSOCKET)==0 ){
     assert( strstr(zBrowser,"%d")!=0 );
     zBrowser = mprintf(zBrowser /*works-like:"%d"*/, iPort);
 #if defined(__CYGWIN__)
