@@ -732,6 +732,7 @@ void test_set_mtime(void){
 ** Change access permissions on a file.
 */
 void file_set_mode(const char *zFN, int fd, const char *zMode, int bNoErr){
+#if !defined(_WIN32)
   mode_t m;
   char *zEnd = 0;
   m = strtol(zMode, &zEnd, 0);
@@ -739,12 +740,14 @@ void file_set_mode(const char *zFN, int fd, const char *zMode, int bNoErr){
     fossil_fatal("cannot change permissions on %s to \"%s\"",
                  zFN, zMode);
   }
+#endif
 }
 
 /* Change the owner of a file to zOwner.  zOwner can be of the form
 ** USER:GROUP.
 */
 void file_set_owner(const char *zFN, int fd, const char *zOwner){
+#if !defined(_WIN32)
   const char *zGrp;
   const char *zUsr = zOwner;
   struct passwd *pw;
@@ -775,6 +778,7 @@ void file_set_owner(const char *zFN, int fd, const char *zOwner){
   if( zOwner!=zUsr ){
     fossil_free((char*)zUsr);
   }
+#endif
 }
 
 
