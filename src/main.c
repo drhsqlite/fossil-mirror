@@ -3521,7 +3521,7 @@ void cmd_webserver(void){
 #if !defined(_WIN32)
   /* Unix implementation */
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
-    fossil_fatal("unable to listen on TCP socket %d", iPort);
+    fossil_fatal("unable to listen on CGI socket");
   }
   /* For the parent process, the cgi_http_server() command above never
   ** returns (except in the case of an error).  Instead, for each incoming

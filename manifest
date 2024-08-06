@@ -1,5 +1,5 @@
-C Change\s--unix-socket\sto\s--socket-name.\s\sAdd\s--socket-mode\sand\s--socket-owner.\nMostly\sworking,\saccept\sthat\s--socket-owner\sseemingly\shas\sno\seffect,\seven\sthough\nthe\sfchown()\sreturn\s0.\s\sThere\sis\scurrently\sa\sdebugging\sprintf()\sin\sthat\sline\nof\scode.\s\sThis\sis\san\sexperimental\scheck-in.
-D 2024-08-06T15:00:11.930
+C Changed\sa\sfatal\serror\smessage\sspeaking\sof\sthe\sTCP\ssocket's\sport\snumber\nin\sa\scall\sto\sa\sfunction\sthat\smay\snow\suse\sa\sUnix\ssocket\sinstead.
+D 2024-08-06T17:22:51.961
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -492,7 +492,7 @@ F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22
 F src/login.c f563e858bc90a7a96844c3bb35a41d55496e40657e764179c9244f8e1894869e
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 89fb1365b54f4b0aec685cd39620af7aecaa9892f02a2f3066f8babc1497a114
+F src/main.c 7604b9e7e9f88e70314ba8eb233d39b0d3832606460feedae4c4ffab0a2c2d05
 F src/main.mk 176240dce5136923b41efc270fd3276d31a6c3e879fa46470282d550ab891d30
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -959,11 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7fc2902126d43f87f897a46d12209f5b04d71d2cb50acd08ffad94c9b0c6aba6
-R 7a2ba124b3d3bf3aa76680b06871606a
-T *branch * unix-sockets
-T *sym-unix-sockets *
-T -sym-trunk *
-U drh
-Z fea8e7be9bd394d74ae97132909b2150
+P 9f71e5cc027f656bd263c6bf7fde53381e5186f7a49ef2231b9bc451672c8200
+R 4a690386df607d6fc6bd645da28bd2e2
+U wyoung
+Z b01ea64138c536ffb3da53a9f335c920
 # Remove this line to create a well-formed Fossil manifest.
