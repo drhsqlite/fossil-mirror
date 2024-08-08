@@ -424,7 +424,9 @@ void chat_send_webpage(void){
     chat_emit_permissions_error(0);
     return;
   }
-  chat_create_tables();
+  if( !db_table_exists("repository","chat") ){
+    return;
+  }
   zUserName = (g.zLogin && g.zLogin[0]) ? g.zLogin : "nobody";
   nByte = atoi(PD("file:bytes","0"));
   zMsg = PD("msg","");

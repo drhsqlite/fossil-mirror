@@ -1,5 +1,5 @@
-C The\snew\szebra-striped\stable\sstyling\sin\sthe\sdefault\sskin\swas\snot\s\ntargeting\s/wiki\sdocs,\sonly\s.wiki\sembedded\sdocs,\sleaving\sthem\sunstyled.
-D 2024-08-06T22:35:16.655
+C The\s"fossil\schat\ssend"\smechanism\swas\sbroken\sby\scheck-in\s[fc853823b2218a76]\n(chat\shistory)\sbecause\sof\schanges\sto\schat_create_tables().\s\sThis\sfixes\sthe\nissue.
+D 2024-08-08T00:28:16.099
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 4ff97800454692b079d42af7f673c1745d123d4fd960a02edca2e237125ef4e7
 F src/cgi.c 0aa599d2ded08ff4522fb0599ffc54cc64f93670aa0ff5b30a2401589612567a
-F src/chat.c 43706d27669c93ba6682d9af7502b173e1aa745fd018f42f883a8c150c0cfc52
+F src/chat.c af5b6184491b327d4d54c05d1fb8da3ae330a28fb01c44d6882eaedc1a778353
 F src/checkin.c 7e0013b78efc08b3656d048b0eab92aedf2581b7b462b8aab377c7f1fd63d67f
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P effdadadd0cbef4ef987e87b51d8962f64575753e3561a9161c77f3d1347ca68
-R 83675629331f33fb8bc0488f6d93e452
-U wyoung
-Z 783c7176eb44dd2c3752d8108069b2b5
+P 072a860909d297a4a709ab8b7f19e283fb03333f655d28a26a1c8ccdb378aac6
+R 7dda921c08b1f324acab72b96044c4de
+U drh
+Z 4cceb1e1d7376ab19d70bd6407600fd6
 # Remove this line to create a well-formed Fossil manifest.
