@@ -424,14 +424,12 @@ void chat_send_webpage(void){
     chat_emit_permissions_error(0);
     return;
   }
-  if( !db_table_exists("repository","chat") ){
-    return;
-  }
   zUserName = (g.zLogin && g.zLogin[0]) ? g.zLogin : "nobody";
   nByte = atoi(PD("file:bytes","0"));
   zMsg = PD("msg","");
   db_begin_write();
   db_unprotect(PROTECT_READONLY);
+  chat_create_tables();
   chat_purge();
   if( nByte==0 ){
     if( zMsg[0] ){
@@ -455,8 +453,8 @@ void chat_send_webpage(void){
     db_finalize(&q);
     blob_reset(&b);
   }
-  db_protect_pop();
   db_commit_transaction();
+  db_protect_pop();
 }
 
 /*
@@ -1267,7 +1265,7 @@ void chat_command(void){
 #endif
     fossil_system(zCmd);
   }else if( strcmp(g.argv[2],"send")==0 ){
-    const char *zFilename = find_option("file","r",1);
+    const char *zFilename = find_option("file","f",1);
     const char *zAs = find_option("as",0,1);
     const char *zMsg = find_option("message","m",1);
     int allowUnsafe = find_option("unsafe",0,0)!=0;
