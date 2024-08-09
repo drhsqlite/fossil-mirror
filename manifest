@@ -1,5 +1,5 @@
-C Doc\stouchups\sin\s/chat.\sNo\scode\schanges.
-D 2024-08-09T10:32:32.662
+C Tell\sfile_issocket()\sto\salways\sreturn\s0\son\sWindows\sbuilds,\sas\sreported\sin\s[forum:a41fe3d6d0c97b43|forum\spost\sa41fe3d6d0c97b43].
+D 2024-08-09T12:13:25.752
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
 F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
-F src/file.c b7e4ef320bb54ae6540b1f9c82db036c592a7491ce4227ff3544515a849fb10c
+F src/file.c f22240c1890302c6a7a3301c0e58234cd325c9d5eb1305d2f50d168407f6b956
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 14c0bab4c53125f241d7d657a2af6ff72f3ff1eb5fb42d2d15cf99c45561a89a
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 892dfd2b5510d628c5cfe6c804117fb447952c54882f1a9fb536d84ae84f2f85
-R e9a704e1acf259cc32d673c755b67443
+P 714142737069ca13064df7dfe6d983bb1b7b0c36d8fc9d043f5bd2bdec197e28
+R 66cbe69a799bdbdb8fa47f8b9adc6ce6
 U stephan
-Z e27687b802da4dcf70a17af78472178d
+Z d1fd977aed2c043beb11872a623fbc1e
 # Remove this line to create a well-formed Fossil manifest.

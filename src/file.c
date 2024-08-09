@@ -238,10 +238,14 @@ int file_isfile(const char *zFilename, int eFType){
 ** Return TRUE if zFilename is a socket.
 */
 int file_issocket(const char *zFilename){
+#ifdef _WIN32
+  return 0;
+#else
   if( getStat(zFilename, ExtFILE) ){
     return 0;  /* stat() failed.  Return false. */
   }
   return S_ISSOCK(fx.fileStat.st_mode);
+#endif
 }
 
 /*
