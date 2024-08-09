@@ -67,6 +67,10 @@ window.fossil.onPageLoad(function(){
       D.append(document.body,dbg);
     }
   })();
+  /* Returns a list of DOM elements which "frame" the chat UI. These
+     elements are considered to _not_ be part of the chat UI and that
+     info is used for sizing the chat UI. In chat-only mode, these are
+     the elements that get hidden. */
   const GetFramingElements = function() {
     return document.querySelectorAll([
       "body > header",
@@ -713,7 +717,7 @@ window.fossil.onPageLoad(function(){
 
        Expects the ID of a currently-loaded message or a
        message-widget DOM elment from which it can extract an id.
-       This is an aync operation the first time it's passed a given
+       This is an async operation the first time it's passed a given
        message and synchronous on subsequent calls for that
        message. It is a no-op if id does not resolve to a loaded
        message.
@@ -785,7 +789,7 @@ window.fossil.onPageLoad(function(){
       });
       return true;
     };
-    
+
     /** Given a .message-row element, this function returns whethe the
         current user may, at least hypothetically, delete the message
         globally.  A user may always delete a local copy of a
@@ -1816,8 +1820,9 @@ window.fossil.onPageLoad(function(){
         }
       }, false);
     }/*namedOptions.activeUsers additional setup*/
-    /* Settings menu entries... the most frequently-needed ones "should"
-       (arguably) be closer to the start of this list. */
+    /* Settings menu entries... they are presented in the order listed
+       here, so the most frequently-needed ones "should" (arguably) be
+       closer to the start of this list. */
     /**
        Settings ops structure:
 
