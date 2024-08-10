@@ -605,11 +605,6 @@ zSkipValidUtf8(const char *z, int nAccept, long ccm);
 #endif
 
 #if CIO_WIN_WC_XLATE
-/* Character used to represent a known-incomplete UTF-8 char group (�) */
-static WCHAR cBadGroup = 0xfffd;
-#endif
-
-#if CIO_WIN_WC_XLATE
 static HANDLE handleOfFile(FILE *pf){
   int fileDesc = _fileno(pf);
   union { intptr_t osfh; HANDLE fh; } fid = {
@@ -12841,7 +12836,7 @@ static int expertFilter(
   pCsr->pData = 0;
   if( rc==SQLITE_OK ){
     rc = idxPrintfPrepareStmt(pExpert->db, &pCsr->pData, &pVtab->base.zErrMsg,
-        "SELECT * FROM main.%Q WHERE sample()", pVtab->pTab->zName
+        "SELECT * FROM main.%Q WHERE sqlite_expert_sample()", pVtab->pTab->zName
     );
   }
 
@@ -13715,7 +13710,7 @@ struct IdxRemCtx {
 };
 
 /*
-** Implementation of scalar function rem().
+** Implementation of scalar function sqlite_expert_rem().
 */
 static void idxRemFunc(
   sqlite3_context *pCtx,
@@ -13728,7 +13723,7 @@ static void idxRemFunc(
   assert( argc==2 );
 
   iSlot = sqlite3_value_int(argv[0]);
-  assert( iSlot<=p->nSlot );
+  assert( iSlot<p->nSlot );
   pSlot = &p->aSlot[iSlot];
 
   switch( pSlot->eType ){
@@ -13839,7 +13834,8 @@ static int idxPopulateOneStat1(
     const char *zName = (const char*)sqlite3_column_text(pIndexXInfo, 0);
     const char *zColl = (const char*)sqlite3_column_text(pIndexXInfo, 1);
     zCols = idxAppendText(&rc, zCols, 
-        "%sx.%Q IS rem(%d, x.%Q) COLLATE %s", zComma, zName, nCol, zName, zColl
+        "%sx.%Q IS sqlite_expert_rem(%d, x.%Q) COLLATE %s", 
+        zComma, zName, nCol, zName, zColl
     );
     zOrder = idxAppendText(&rc, zOrder, "%s%d", zComma, ++nCol);
   }
@@ -13972,13 +13968,13 @@ static int idxPopulateStat1(sqlite3expert *p, char **pzErr){
 
   if( rc==SQLITE_OK ){
     sqlite3 *dbrem = (p->iSample==100 ? p->db : p->dbv);
-    rc = sqlite3_create_function(
-        dbrem, "rem", 2, SQLITE_UTF8, (void*)pCtx, idxRemFunc, 0, 0
+    rc = sqlite3_create_function(dbrem, "sqlite_expert_rem", 
+        2, SQLITE_UTF8, (void*)pCtx, idxRemFunc, 0, 0
     );
   }
   if( rc==SQLITE_OK ){
-    rc = sqlite3_create_function(
-        p->db, "sample", 0, SQLITE_UTF8, (void*)&samplectx, idxSampleFunc, 0, 0
+    rc = sqlite3_create_function(p->db, "sqlite_expert_sample", 
+        0, SQLITE_UTF8, (void*)&samplectx, idxSampleFunc, 0, 0
     );
   }
 
@@ -14029,6 +14025,9 @@ static int idxPopulateStat1(sqlite3expert *p, char **pzErr){
   if( rc==SQLITE_OK ){
     rc = sqlite3_exec(p->dbm, "ANALYZE sqlite_schema", 0, 0, 0);
   }
+
+  sqlite3_create_function(p->db, "sqlite_expert_rem", 2, SQLITE_UTF8, 0,0,0,0);
+  sqlite3_create_function(p->db, "sqlite_expert_sample", 0,SQLITE_UTF8,0,0,0,0);
 
   sqlite3_exec(p->db, "DROP TABLE IF EXISTS temp."UNIQUE_TABLE_NAME,0,0,0);
   return rc;
@@ -16523,6 +16522,7 @@ static int dbdataNext(sqlite3_vtab_cursor *pCursor){
             ** near the end of a corrupt record.  */
             rc = dbdataBufferSize(&pCsr->rec, nPayload+DBDATA_PADDING_BYTES);
             if( rc!=SQLITE_OK ) return rc;
+            assert( pCsr->rec.aBuf!=0 );
             assert( nPayload!=0 );
 
             /* Load the nLocal bytes of payload */
@@ -17229,8 +17229,8 @@ static int recoverError(
   va_start(ap, zFmt);
   if( zFmt ){
     z = sqlite3_vmprintf(zFmt, ap);
-    va_end(ap);
   }
+  va_end(ap);
   sqlite3_free(p->zErrMsg);
   p->zErrMsg = z;
   p->errCode = errCode;
@@ -22045,6 +22045,14 @@ static void bind_prepared_stmt(ShellState *pArg, sqlite3_stmt *pStmt){
     }else if( sqlite3_strlike("_INF", zVar, 0)==0 ){
       sqlite3_bind_double(pStmt, i, INFINITY);
 #endif
+    }else if( strncmp(zVar, "$int_", 5)==0 ){
+      sqlite3_bind_int(pStmt, i, atoi(&zVar[5]));
+    }else if( strncmp(zVar, "$text_", 6)==0 ){
+      char *zBuf = sqlite3_malloc64( strlen(zVar)-5 );
+      if( zBuf ){
+        memcpy(zBuf, &zVar[6], strlen(zVar)-5);
+        sqlite3_bind_text64(pStmt, i, zBuf, -1, sqlite3_free, SQLITE_UTF8);
+      }
     }else{
       sqlite3_bind_null(pStmt, i);
     }
@@ -30140,7 +30148,10 @@ static int doAutoDetectRestore(ShellState *p, const char *zSql){
       case 0: {
         const char *zExpect = "PRAGMA foreign_keys=OFF;";
         assert( strlen(zExpect)==24 );
-        if( p->bSafeMode==0 && memcmp(zSql, zExpect, 25)==0 ){
+        if( p->bSafeMode==0
+         && strlen(zSql)>=24
+         && memcmp(zSql, zExpect, 25)==0
+        ){
           p->eRestoreState = 1;
         }else{
           p->eRestoreState = 7;

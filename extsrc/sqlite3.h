@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.47.0"
 #define SQLITE_VERSION_NUMBER 3047000
-#define SQLITE_SOURCE_ID      "2024-07-24 13:53:51 bcc31846964102385d5a21eb5e85d7db153b155e76b4e2847c9453d3d0e1af04"
+#define SQLITE_SOURCE_ID      "2024-08-10 15:46:57 3778b2a9ca1cc12a88ef6c32a1ee7c58a0a829ed9715a3d32a225d377d7527ef"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5820,7 +5820,7 @@ SQLITE_API int sqlite3_value_encoding(sqlite3_value*);
 ** one SQL function to another.  Use the [sqlite3_result_subtype()]
 ** routine to set the subtype for the return value of an SQL function.
 **
-** Every [application-defined SQL function] that invoke this interface
+** Every [application-defined SQL function] that invokes this interface
 ** should include the [SQLITE_SUBTYPE] property in the text
 ** encoding argument when the function is [sqlite3_create_function|registered].
 ** If the [SQLITE_SUBTYPE] property is omitted, then sqlite3_value_subtype()
