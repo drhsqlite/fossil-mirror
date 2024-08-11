@@ -863,9 +863,10 @@ void taglist_page(void){
   db_prepare(&q,
     "SELECT substr(tagname,5),\n"
            "row_number()OVER(ORDER BY tagname COLLATE uintnocase),\n"
-           "substr(datetime(max(mtime)),1,16),\n"
+           "substr(datetime(max(event.mtime)),1,16),\n"
            "count(*)\n"
       "FROM tagxref JOIN tag USING(tagid)\n"
+          " JOIN event ON event.objid=tagxref.rid\n"
      "WHERE tagname like 'sym-%%'\n"
        "AND tagxref.tagtype=1\n"
      "GROUP BY 1\n"
