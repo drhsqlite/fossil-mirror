@@ -853,27 +853,41 @@ void taglist_page(void){
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Timeline", "tagtimeline");
   @ <h2>Non-propagating tags:</h2>
+  @ <table class='sortable' data-column-types='ktn' data-init-sort='2'>
+  @ <thead><tr>
+  @ <th>Tag Name</th>
+  @ <th>Most Recent</th>
+  @ <th>Count</th>
+  @ </tr></thead><tbody>
+
   db_prepare(&q,
-    "SELECT substr(tagname,5)"
-    "  FROM tag"
-    " WHERE EXISTS(SELECT 1 FROM tagxref"
-    "               WHERE tagid=tag.tagid"
-    "                 AND tagtype=1)"
-    " AND tagname GLOB 'sym-*'"
-    " ORDER BY tagname COLLATE uintnocase"
+    "SELECT substr(tagname,5),\n"
+           "row_number()OVER(ORDER BY tagname COLLATE uintnocase),\n"
+           "substr(datetime(max(mtime)),1,16),\n"
+           "count(*)\n"
+      "FROM tagxref JOIN tag USING(tagid)\n"
+     "WHERE tagname like 'sym-%%'\n"
+       "AND tagxref.tagtype=1\n"
+     "GROUP BY 1\n"
+     "ORDER BY 3 DESC;\n"
   );
-  @ <ul>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
+    int rn = db_column_int(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    int cnt = db_column_int(&q, 3);
+    @ <tr><td data-sortkey="%06x(rn)">\
     if( g.perm.Hyperlink ){
-      @ <li>%z(chref("taglink","%R/timeline?t=%T",zName))
-      @ %h(zName)</a></li>
+      @ %z(chref("taglink","%R/timeline?t=%T",zName))%h(zName)</a></td>\
     }else{
-      @ <li><span class="tagDsp">%h(zName)</span></li>
+      @ <span class="tagDsp">%h(zName)</span></td>\
     }
+    @ <td>&nbsp;&nbsp;&nbsp;%h(zDate)&nbsp;&nbsp;&nbsp;</td>\
+    @ <td align="center">%d(cnt)</td></tr>
   }
-  @ </ul>
+  @ </table>
   db_finalize(&q);
+  style_table_sorter();
   style_finish_page();
 }
 

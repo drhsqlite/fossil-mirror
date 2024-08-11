@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\sversion\s3.47.0\salpha.\s\sThis\sSQLite\nhas\sall\sof\sthe\sfixes\sthat\sare\sgoing\sinto\sthe\s3.46.1\srelease,\sand\sso\sthe\spurpose\nof\sthis\supdate\sis\sto\sbeta\stest\sthose\sfixes.
-D 2024-08-10T17:49:41.751
+C Improved\s/taglist\spage.
+D 2024-08-11T21:26:54.090
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -563,7 +563,7 @@ F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2
 F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f12099fbe
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
-F src/tag.c b5064ca775bf81aafc71d6161bb39415d0753fd765de83b2adeb4b64edd7d541
+F src/tag.c 4380a330b06782ef60e33209ebd518312ff71038e3f3ef52f33ed433804c3913
 F src/tar.c b6a23b6fa52a62880071710c412152b48a0626a01eeedfef4862826d6c4d71c6
 F src/terminal.c 7f284dd1392def382140da6c6c103dc9b2d61c4f477610231442e8dafc91629e
 F src/th.c 7383ab45bd0fca16f607b30b60c6b71645d29f87bcb65d400350bdac06368cf5
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba884453e5cf7a2c12ad74b03dd3b31b6d12d6ea7d761b6b1a33131021205a31
-R be61b0c29c27f585b5f4fa49e3d2f260
+P dc15083b9ab67f13927adb50d3a70ea00df6e4c1f5eb0689cc6999e3a859105d
+R 77b613255c8fb94cae0b99208cfe126e
 U drh
-Z 6129d9d1d0f0c63f2d8a323c7de60170
+Z 1c96c23a4e20d2c48ef7d8b0ef8ff236
 # Remove this line to create a well-formed Fossil manifest.
