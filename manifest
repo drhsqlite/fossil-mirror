@@ -1,5 +1,5 @@
-C Fix\sthe\squery\sfor\sthe\snew\s/taglist\spage\sso\sthe\s"Most\sRecent"\sis\sthe\stime\sof\nthe\sobject\sbeing\stagged,\snot\sthe\stag\sitself.
-D 2024-08-11T21:31:48.692
+C Add\stimeline-hard-newlines\sto\sCONFIGSET_SKIN\sin\san\sattempt\sto\sresolve\s[forum:23d58b1b67|forum\spost\s23d58b1b67].\sBring\s/json/config\sup\sto\sdate\swith\sthe\scentral\sconfig\soption\slist.
+D 2024-08-14T09:17:53.004
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -405,7 +405,7 @@ F src/clone.c 9e98d0e64d8f19456a345f20275f1094b3c2022e27b0acbe5d7cbb6b917b06f5
 F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
 F src/comformat.c 1a178e0c15c88c3bf6a5456fca17746f34400b3828242254cc46d00aff312af4
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
-F src/configure.c ec1aa3a8a353e76d710514936fba8fd39294b88919a70862a42e024f694b67d5
+F src/configure.c 49087161ddb9de8de77411b66cdd80fecaa54ab90390d6227947444c288a1566
 F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
 F src/cookies.c 655257d116421e8ffa3d076379a3f5628849b06b295ed8a90fd288e17963a662
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
@@ -474,7 +474,7 @@ F src/interwiki.c 5ddeb43781f01107e75740ae978677dd156c439ba5772e3a8ef7161244b440
 F src/json.c 60efff7e65795acaa680c845a7aab4871cbf6d62e9ea5f53cf0a9235b2bfd093
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
 F src/json_branch.c 8d9dd577e0aa2b9fd8011584224c775e83ccc44ff84b0464b4ab28211d6e1aa4
-F src/json_config.c a70d1000006055cad9a0052276e1ffcd72462bfcca85d10188a022c5683eda3c
+F src/json_config.c 50eb640804535840e0af610ca472507180004a4382f7aaa7d83f05ef97dfbe62
 F src/json_detail.h d48c61ce1de7b5dc696384aaaa7b4761ae7e39b4b3d65602e122590d2184bad1
 F src/json_diff.c fc9d84cc28fcba644c6edb7203d200fa64de54369ef1fd4de449864670536b67
 F src/json_dir.c 89cc2a9475618fa93baae9eca3b56d28e156d78e9959fc47a955bf62aed521ad
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 239a3fa34eebb1ce7423e2f56fcd2c93897b9051ad4fd106ea19f78c26b07a33
-R 2f5c2f0ed139195206154d31e4f6bfdb
-U drh
-Z 4a0c13572e0b4370337f2afe86a7ca3e
+P ac446f27ed1e725b32a0ef4c5d8a25b123f629879a477b5f4f2a251183ac55d9
+R 831e3ad2c6fcddf2dd32222d775b6d3c
+U stephan
+Z 8272a347c4dd7aec91ae2110e2f52b03
 # Remove this line to create a well-formed Fossil manifest.

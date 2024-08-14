@@ -107,6 +107,7 @@ static struct {
   { "timeline-default-style", CONFIGSET_SKIN },
   { "timeline-dwelltime",     CONFIGSET_SKIN },
   { "timeline-closetime",     CONFIGSET_SKIN },
+  { "timeline-hard-newlines", CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
   { "timeline-plaintext",     CONFIGSET_SKIN },
   { "timeline-truncate-at-blank", CONFIGSET_SKIN },
