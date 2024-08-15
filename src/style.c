@@ -1806,3 +1806,46 @@ void style_emit_noscript_for_js_page(void){
      "This page requires JavaScript (ES2015, a.k.a. ES6, or newer)."
      "</div></noscript>");
 }
+
+/*
+** SETTING: robots-txt width=70 block-text keep-empty
+**
+** This setting is the override value for the /robots.txt file that
+** Fossil returns when run as a stand-alone server for a domain.  As
+** Fossil is seldom run as a stand-alone server (and is more commonly
+** deployed as a CGI or SCGI or behind a reverse proxy) this setting
+** rarely needed.  A reasonable default robots.txt is sent if this
+** setting is empty.
+*/
+
+/*
+** WEBPAGE: robots.txt
+**
+** Return text/plain which is the content of the "robots-txt" setting, if
+** such a setting exists and is non-empty.  Or construct an RFC-9309 complaint
+** robots.txt file and return that if there is not "robots.txt" setting.
+**
+** This is useful for robot exclusion in cases where Fossil is run as a
+** stand-alone server in its own domain.  For the more common case where
+** Fossil is run as a CGI, or SCGI, or a server that responding to a reverse
+** proxy, the returns robots.txt file will not be at the top level of the
+** domain, and so it will be pointless.
+*/
+void robotstxt_page(void){
+  const char *z;
+  static const char *zDflt = 
+     "User-agent: *\n"
+     "Allow: /doc\n"
+     "Allow: /home\n"
+     "Allow: /forum\n"
+     "Allow: /technote\n"
+     "Allow: /tktview\n"
+     "Allow: /wiki\n"
+     "Allow: /uv/\n"
+     "Allow: /$\n"
+     "Disallow: /*\n"
+  ;
+  z = db_get("robots-txt",zDflt);
+  cgi_set_content_type("text/plain");
+  cgi_append_content(z, -1);
+}

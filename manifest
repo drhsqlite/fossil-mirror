@@ -1,5 +1,5 @@
-C Always\sapply\sthe\srobot-restrict\ssetting\sto\sself-declared\srobots.
-D 2024-08-15T13:02:02.092
+C Add\sa\s/robots.txt\spage\s-\suseful\sonly\swhen\sFossil\sis\sdeployed\sas\sa\sstand-alone\nserver\sinstead\sof\sas\sa\ssub-component\sto\sa\slarger\swebsite.
+D 2024-08-15T14:11:10.319
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -556,7 +556,7 @@ F src/stash.c 63cef80d3740c54c448d60b992be69b9f8c8b9acb7b28241bcfd769efdc6ad22
 F src/stat.c 318d359a317da263f80db05dacd9c5ebbf69383945f9540a9a67fdfc4f6743b0
 F src/statrep.c be5687a6d6f012a5862e9a70e769de0db40100c4f3e3a1bfbc622235218a28b3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c d14e53aab1ee039bce995fd24e686fbea5c9d433f1bc8164c8d500196240dce3
+F src/style.c 797f34fe6cad1cc5c1453ff8b583c4c1b62e26049dc5b0a342d5a43380029975
 F src/style.chat.css 21306b3184bfe8687412c7ce2237344ae7963304dd0fc67899dbed063e7e5dde
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89388d4c60723545a80025e9b80385f0381944062d80911f8812943282a5a4ed
-R ed6b16d8222b31184975cf6ba210605d
+P 398ea9e425aa60eaaf0c1c2fbcee125166e023f300ca9024462c1ca82aab305d
+R fa501eb2daec5756eb541ce444fa6cc7
 U drh
-Z c36830cc22b4b7f59442f7c693d68f54
+Z 1cdf79cf0009005ebd11f01a3de26f11
 # Remove this line to create a well-formed Fossil manifest.
