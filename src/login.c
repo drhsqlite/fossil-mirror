@@ -1278,7 +1278,9 @@ static int login_basic_authentication(const char *zIpAddr){
 ** a robot if all of the following are true:
 **
 **    *   The user is "nobody".
-**    *   The REFERER field of the HTTP header is missing or empty.
+**    *   Either the REFERER field of the HTTP header is missing or empty,
+**        or the USERAGENT field of the HTTP header suggests that
+**        the request as coming from a robot.
 **    *   There are one or more query parameters other than "name".
 **
 ** Robot restrictions are governed by settings.
@@ -1293,10 +1295,12 @@ void login_restrict_robot_access(void){
   const char *zGlob;
   int isMatch = 1;
   if( g.zLogin!=0 ) return;
-  zReferer = P("HTTP_REFERER");
-  if( zReferer && zReferer[0]!=0 ) return;
   zGlob = db_get("robot-restrict",0);
   if( zGlob==0 || zGlob[0]==0 ) return;
+  if( g.isHuman ){
+    zReferer = P("HTTP_REFERER");
+    if( zReferer && zReferer[0]!=0 ) return;
+  }
   if( cgi_qp_count()<1 ) return;
   isMatch = glob_multi_match(zGlob, g.zPath);
   if( !isMatch ) return;
