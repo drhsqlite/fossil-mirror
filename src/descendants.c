@@ -251,6 +251,7 @@ int compute_youngest_ancestor_in_branch(int rid, const char *zBranch){
     "   WHERE EXISTS(SELECT 1 FROM tagxref"
                     " WHERE tagid=%d AND tagxref.rid=+ancestor.rid"
                     "   AND value=%Q AND tagtype>0)"
+    "  ORDER BY mtime DESC"
     "  LIMIT 1",
     rid, rid, TAG_BRANCH, zBranch
   );
