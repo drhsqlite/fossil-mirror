@@ -728,8 +728,8 @@ int fossil_main(int argc, char **argv){
   /* When updating the minimum SQLite version, change the number here,
   ** and also MINIMUM_SQLITE_VERSION value set in ../auto.def.  Take
   ** care that both places agree! */
-  if( sqlite3_libversion_number()<3043000
-   || strncmp(sqlite3_sourceid(),"2023-06-12",10)<0
+  if( sqlite3_libversion_number()<3046000
+   || strncmp(sqlite3_sourceid(),"2024-08-16",10)<0
   ){
     fossil_panic("Unsuitable SQLite version %s, must be at least 3.43.0",
                  sqlite3_libversion());

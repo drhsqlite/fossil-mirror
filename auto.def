@@ -38,7 +38,7 @@ options {
 # Update the minimum required SQLite version number here, and also
 # in src/main.c near the sqlite3_libversion_number() call.  Take care
 # that both places agree!
-define MINIMUM_SQLITE_VERSION "3.43.0"
+define MINIMUM_SQLITE_VERSION "3.46.0"
 
 # This is useful for people wanting Fossil to use an external SQLite library
 # to compare the one they have against the minimum required
