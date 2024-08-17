@@ -930,11 +930,10 @@ struct DiffBuilder {
   void (*xEnd)(DiffBuilder*);
   unsigned int lnLeft;              /* Lines seen on the left (delete) side */
   unsigned int lnRight;             /* Lines seen on the right (insert) side */
-  unsigned int nPending;            /* Number of pending lines */
   int eState;                       /* State of the output */
   int width;                        /* Display width */
   Blob *pOut;                       /* Output blob */
-  Blob aCol[5];                     /* Holding blobs */
+  Blob bBuf2;                       /* Storage to hold retained lines */
   DiffConfig *pCfg;                 /* Configuration information */
 };
 
@@ -1222,74 +1221,36 @@ static DiffBuilder *dfjsonNew(Blob *pOut){
 **
 **     1.   The line numbers for the first file.
 **     2.   The line numbers for the second file.
-**     3.   The "diff mark":  "+" or "-" or just a space
-**     4.   Text of the line
+**     3.   The "diff mark": "+", "-" or blank.
+**     4.   Text of the line.
 **
-** Inserted lines are marked with <ins> and deleted lines are marked
-** with <del>.  The whole line is marked this way, not just the part that
-** changed.  The part that change has an additional nested <ins> or <del>.
-** The CSS needs to be set up such that a single <ins> or <del> gives a
-** light background and a nested <ins> or <del> gives a darker background.
-** Additional attributes (like bold font) might also be added to nested
-** <ins> and <del> since those are the characters that have actually
-** changed.
+** The table cells holding the inserted and deleted lines are assigned to CSS
+** classes .nul, .ins or .del to color them accordingly. The changed parts of
+** each line have additional <ins> or <del> elements. The CSS needs to be set
+** up such that the <ins> or <del> intensify the background color of the .ins
+** and .del CSS classes.
 **
 ** Accumulator strategy:
 **
-**    *   Delete line numbers are output directly to p->pOut
-**    *   Insert line numbers accumulate in p->aCol[0].
-**    *   Separator marks accumulate in p->aCol[1].
-**    *   Change text accumulates in p->aCol[2].
-**    *   Pending insert line numbers go into p->aCol[3].
-**    *   Pending insert text goes into p->aCol[4].
+**    *   Retained insert text goes to p->bBuf2
+**    *   Anything else goes directly to p->pOut
 **
-** eState is 1 if text has an open <del>
+** eState is 1 if the last line was a deletion.
 */
 static void dfunifiedFinishDelete(DiffBuilder *p){
   if( p->eState==0 ) return;
-  blob_append(p->pOut, "</del>", 6);
-  blob_append(&p->aCol[2], "</del>", 6);
   p->eState = 0;
 }
 static void dfunifiedFinishInsert(DiffBuilder *p){
-  unsigned int i;
-  if( p->nPending==0 ) return;
+  if( blob_size(&p->bBuf2)==0 ) return;
   dfunifiedFinishDelete(p);
-
-  /* Blank lines for delete line numbers for each inserted line */
-  for(i=0; i<p->nPending; i++) blob_append_char(p->pOut, '\n');
-
-  /* Insert line numbers */
-  blob_append(&p->aCol[0], "<ins>", 5);
-  blob_append_xfer(&p->aCol[0], &p->aCol[3]);
-  blob_append(&p->aCol[0], "</ins>", 6);
-
-  /* "+" marks for the separator on inserted lines */
-  for(i=0; i<p->nPending; i++) blob_append(&p->aCol[1], "+\n", 2);
-
-  /* Text of the inserted lines */
-  blob_append(&p->aCol[2], "<ins>", 5);
-  blob_append_xfer(&p->aCol[2], &p->aCol[4]);
-  blob_append(&p->aCol[2], "</ins>", 6);
-
-  p->nPending = 0;
+  blob_append_xfer(p->pOut,&p->bBuf2);
 }
 static void dfunifiedFinishRow(DiffBuilder *p){
   dfunifiedFinishDelete(p);
   dfunifiedFinishInsert(p);
-  if( blob_size(&p->aCol[0])==0 ) return;
-  blob_append(p->pOut, "</pre></td><td class=\"diffln difflnr\"><pre>\n", -1);
-  blob_append_xfer(p->pOut, &p->aCol[0]);
-  blob_append(p->pOut, "</pre></td><td class=\"diffsep\"><pre>\n", -1);
-  blob_append_xfer(p->pOut, &p->aCol[1]);
-  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtu\"><pre>\n",-1);
-  blob_append_xfer(p->pOut, &p->aCol[2]);
-  blob_append(p->pOut, "</pre></td></tr>\n", -1);
 }
 static void dfunifiedStartRow(DiffBuilder *p){
-  if( blob_size(&p->aCol[0])>0 ) return;
-  blob_appendf(p->pOut,"<tr id=\"chunk%d\" class=\"diffchunk\">"
-                       "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
 }
 static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
   dfunifiedFinishRow(p);
@@ -1297,13 +1258,12 @@ static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
     blob_appendf(p->pOut,
        "<tr class=\"diffskip\" data-startln=\"%d\" data-endln=\"%d\""
        " id=\"skip%xh%xi%x\">\n",
-       p->lnLeft+1, p->lnLeft+n,
-       nChunk, p->lnLeft, n);
+       p->lnLeft+1, p->lnLeft+n, nChunk, p->lnLeft, n);
   }else{
     blob_append(p->pOut, "<tr>", 4);
   }
-  blob_append(p->pOut, "<td class=\"diffln difflne\">"
-                       "&#xfe19;</td><td></td><td></td></tr>\n", -1);
+  blob_append(p->pOut, "<td class=\"diffln difflne\" colspan=\"4\">"
+                       "&#xfe19;</td></tr>\n", -1);
   p->lnLeft += n;
   p->lnRight += n;
 }
@@ -1313,60 +1273,47 @@ static void dfunifiedCommon(DiffBuilder *p, const DLine *pLine){
   dfunifiedFinishInsert(p);
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  blob_appendf(&p->aCol[0],"%d\n",p->lnRight);
-  blob_append_char(&p->aCol[1], '\n');
-  htmlize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n);
-  blob_append_char(&p->aCol[2], '\n');
+  blob_append (p->pOut, "<tr class=\"diffline\">", 21);
+  blob_appendf(p->pOut, "<td class=\"diffln difflnl\">%d</td>", p->lnLeft);
+  blob_appendf(p->pOut, "<td class=\"diffln difflnr\">%d</td>", p->lnRight);
+  blob_append (p->pOut, "<td class=\"diffsep\"></td>", 25);
+  blob_append (p->pOut, "<td class=\"difftxt difftxtu\">", 29);
+  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  blob_append (p->pOut, "</td>", 5);
+  blob_append (p->pOut, "</tr>\n", 6);
 }
 static void dfunifiedInsert(DiffBuilder *p, const DLine *pLine){
   dfunifiedStartRow(p);
   p->lnRight++;
-  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
-  blob_append(&p->aCol[4], "<ins>", 5);
-  htmlize_to_blob(&p->aCol[4], pLine->z, (int)pLine->n);
-  blob_append(&p->aCol[4], "</ins>\n", 7);
-  p->nPending++;
+  blob_append (&p->bBuf2, "<tr class=\"diffline\">", 21);
+  blob_append (&p->bBuf2, "<td class=\"diffln difflnl ins\"></td>", 36);
+  blob_appendf(&p->bBuf2, "<td class=\"diffln difflnr ins\">%d</td>",
+               p->lnRight);
+  blob_append (&p->bBuf2, "<td class=\"diffsep ins\">+</td>", 30);
+  blob_append (&p->bBuf2, "<td class=\"difftxt difftxtu ins\"><ins>", 38);
+  htmlize_to_blob(&p->bBuf2, pLine->z, (int)pLine->n);
+  blob_append (&p->bBuf2, "</ins></td>", 11);
+  blob_append (&p->bBuf2, "</tr>\n", 6);
 }
 static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
   dfunifiedStartRow(p);
   dfunifiedFinishInsert(p);
   if( p->eState==0 ){
     dfunifiedFinishInsert(p);
-    blob_append(p->pOut, "<del>", 5);
-    blob_append(&p->aCol[2], "<del>", 5);
     p->eState = 1;
   }
   p->lnLeft++;
-  blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  blob_append_char(&p->aCol[0],'\n');
-  blob_append(&p->aCol[1],"-\n",2);
-  blob_append(&p->aCol[2], "<del>", 5);
-  htmlize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n);
-  blob_append(&p->aCol[2], "</del>\n", 7);
+  blob_append (p->pOut, "<tr class=\"diffline\">", 21);
+  blob_appendf(p->pOut, "<td class=\"diffln difflnl del\">%d</td>", p->lnLeft);
+  blob_append (p->pOut, "<td class=\"diffln difflnr del\"></td>", 36);
+  blob_append (p->pOut, "<td class=\"diffsep del\">-</td>", 30);
+  blob_append (p->pOut, "<td class=\"difftxt difftxtu del\"><del>", 38);
+  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  blob_append (p->pOut, "</del></td>", 11);
+  blob_append (p->pOut, "</tr>\n", 6);
 }
 static void dfunifiedReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
-  dfunifiedStartRow(p);
-  if( p->eState==0 ){
-    dfunifiedFinishInsert(p);
-    blob_append(p->pOut, "<del>", 5);
-    blob_append(&p->aCol[2], "<del>", 5);
-    p->eState = 1;
-  }
-  p->lnLeft++;
-  p->lnRight++;
-  blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  blob_append_char(&p->aCol[0], '\n');
-  blob_append(&p->aCol[1], "-\n", 2);
-
-  htmlize_to_blob(&p->aCol[2], pX->z,  pX->n);
-  blob_append_char(&p->aCol[2], '\n');
-
-  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
-
-  htmlize_to_blob(&p->aCol[4], pY->z,  pY->n);
-  blob_append_char(&p->aCol[4], '\n');
-  p->nPending++;
+  assert( 0 && "The seemingly unused function dfunifiedReplace() was called!");
 }
 static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
@@ -1376,51 +1323,56 @@ static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   dfunifiedStartRow(p);
   if( p->eState==0 ){
     dfunifiedFinishInsert(p);
-    blob_append(p->pOut, "<del>", 5);
-    blob_append(&p->aCol[2], "<del>", 5);
     p->eState = 1;
   }
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  blob_append_char(&p->aCol[0], '\n');
-  blob_append(&p->aCol[1], "-\n", 2);
-
-  for(i=x=0; i<chng.n; i++){
+  blob_append (p->pOut, "<tr class=\"diffline\">", 21);
+  blob_appendf(p->pOut, "<td class=\"diffln difflnl del\">%d</td>", p->lnLeft);
+  blob_append (p->pOut, "<td class=\"diffln difflnr del\"></td>", 36);
+  blob_append (p->pOut, "<td class=\"diffsep del\">-</td>", 30);
+  blob_append (p->pOut, "<td class=\"difftxt difftxtu del\">", 33);
+  for( i=x=0; i<chng.n; i++ ){
     int ofst = chng.a[i].iStart1;
     int len = chng.a[i].iLen1;
     if( len ){
-      htmlize_to_blob(&p->aCol[2], pX->z+x, ofst - x);
+      htmlize_to_blob(p->pOut, pX->z+x, ofst - x);
       x = ofst;
-      blob_append(&p->aCol[2], "<del>", 5);
-      htmlize_to_blob(&p->aCol[2], pX->z+x, len);
+      blob_append(p->pOut, "<del>", 5);
+      htmlize_to_blob(p->pOut, pX->z+x, len);
       x += len;
-      blob_append(&p->aCol[2], "</del>", 6);
+      blob_append(p->pOut, "</del>", 6);
     }
   }
-  htmlize_to_blob(&p->aCol[2], pX->z+x,  pX->n - x);
-  blob_append_char(&p->aCol[2], '\n');
-
-  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
-  for(i=x=0; i<chng.n; i++){
+  htmlize_to_blob(p->pOut, pX->z+x, pX->n - x);
+  blob_append (p->pOut, "</td>", 5);
+  blob_append (p->pOut, "</tr>\n", 6);
+  blob_append (&p->bBuf2, "<tr class=\"diffline\">", 21);
+  blob_append (&p->bBuf2, "<td class=\"diffln difflnl ins\"></td>", 36);
+  blob_appendf(&p->bBuf2, "<td class=\"diffln difflnr ins\">%d</td>",
+               p->lnRight);
+  blob_append (&p->bBuf2, "<td class=\"diffsep ins\">+</td>", 30);
+  blob_append (&p->bBuf2, "<td class=\"difftxt difftxtu ins\">", 33);
+  for( i=x=0; i<chng.n; i++ ){
     int ofst = chng.a[i].iStart2;
     int len = chng.a[i].iLen2;
     if( len ){
-      htmlize_to_blob(&p->aCol[4], pY->z+x, ofst - x);
+      htmlize_to_blob(&p->bBuf2, pY->z+x, ofst - x);
       x = ofst;
-      blob_append(&p->aCol[4], "<ins>", 5);
-      htmlize_to_blob(&p->aCol[4], pY->z+x, len);
+      blob_append(&p->bBuf2, "<ins>", 5);
+      htmlize_to_blob(&p->bBuf2, pY->z+x, len);
       x += len;
-      blob_append(&p->aCol[4], "</ins>", 6);
+      blob_append(&p->bBuf2, "</ins>", 6);
     }
   }
-  htmlize_to_blob(&p->aCol[4], pY->z+x,  pY->n - x);
-  blob_append_char(&p->aCol[4], '\n');
-  p->nPending++;
+  htmlize_to_blob(&p->bBuf2, pY->z+x, pY->n - x);
+  blob_append (&p->bBuf2, "</td>", 5);
+  blob_append (&p->bBuf2, "</tr>\n", 6);
 }
 static void dfunifiedEnd(DiffBuilder *p){
   dfunifiedFinishRow(p);
-  blob_append(p->pOut, "</table>\n",-1);
+  blob_append(p->pOut, "</table>\n", 9);
+  blob_reset(&p->bBuf2);
   fossil_free(p);
 }
 static DiffBuilder *dfunifiedNew(Blob *pOut, DiffConfig *pCfg){
@@ -1434,216 +1386,154 @@ static DiffBuilder *dfunifiedNew(Blob *pOut, DiffConfig *pCfg){
   p->xEnd = dfunifiedEnd;
   p->lnLeft = p->lnRight = 0;
   p->eState = 0;
-  p->nPending = 0;
   p->pOut = pOut;
   if( pCfg->zLeftHash ){
     blob_appendf(pOut, "<table class=\"diff udiff\" data-lefthash=\"%s\">\n",
-                pCfg->zLeftHash);
+                 pCfg->zLeftHash);
   }else{
-    blob_append(pOut, "<table class=\"diff udiff\">\n", -1);
+    blob_append(pOut, "<table class=\"diff udiff\">\n", 27);
   }
-  blob_init(&p->aCol[0], 0, 0);
-  blob_init(&p->aCol[1], 0, 0);
-  blob_init(&p->aCol[2], 0, 0);
-  blob_init(&p->aCol[3], 0, 0);
-  blob_init(&p->aCol[4], 0, 0);
+  blob_init(&p->bBuf2, 0, 0);
   p->pCfg = pCfg;
   return p;
 }
 
 /************************* DiffBuilderSplit  ******************************/
 /* This formatter creates a side-by-side diff in HTML.  The output is a
-** <table> with 5 columns:
+** <table> with 6 columns:
 **
-**    1.  Line numbers for the first file.
-**    2.  Text for the first file.
-**    3.  The difference mark.  "<", ">", "|" or blank
-**    4.  Line numbers for the second file.
-**    5.  Text for the second file.
+**     1.   Line numbers for the first file.
+**     2.   First difference mark: "+", "-" or blank.
+**     3.   Text for the first file.
+**     4.   Line numbers for the second file.
+**     5.   Second difference mark: "+", "-" or blank.
+**     6.   Text for the second file.
 **
-** The <ins> and <del> strategy is the same as for unified diff above.
-** In fact, the same CSS can be used for both.
+** The styling approach with .nul, .ins and .del CSS classes and <ins> and
+** <del> elements is the same as for the unified diffs above. In fact, the
+** same CSS can be used for both.
 **
 ** Accumulator strategy:
 **
-**    *   Left line numbers are output directly to p->pOut
-**    *   Left text accumulates in p->aCol[0].
-**    *   Edit marks accumulates in p->aCol[1].
-**    *   Right line numbers accumulate in p->aCol[2].
-**    *   Right text accumulates in p->aCol[3].
+**    *   All output goes directly to p->pOut
 **
-** eState:
-**    0   In common block
-**    1   Have <del> on the left
-**    2   Have <ins> on the right
-**    3   Have <del> on left and <ins> on the right
+** eState is not unused.
 */
-static void dfsplitChangeState(DiffBuilder *p, int newState){
-  if( p->eState == newState ) return;
-  if( (p->eState&1)==0 && (newState & 1)!=0 ){
-    blob_append(p->pOut, "<del>", 5);
-    blob_append(&p->aCol[0], "<del>", 5);
-    p->eState |= 1;
-  }else if( (p->eState&1)!=0 && (newState & 1)==0 ){
-    blob_append(p->pOut, "</del>", 6);
-    blob_append(&p->aCol[0], "</del>", 6);
-    p->eState &= ~1;
-  }
-  if( (p->eState&2)==0 && (newState & 2)!=0 ){
-    blob_append(&p->aCol[2], "<ins>", 5);
-    blob_append(&p->aCol[3], "<ins>", 5);
-    p->eState |= 2;
-  }else if( (p->eState&2)!=0 && (newState & 2)==0 ){
-    blob_append(&p->aCol[2], "</ins>", 6);
-    blob_append(&p->aCol[3], "</ins>", 6);
-    p->eState &= ~2;
-  }
-}
-static void dfsplitFinishRow(DiffBuilder *p){
-  if( blob_size(&p->aCol[0])==0 ) return;
-  dfsplitChangeState(p, 0);
-  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtl\"><pre>\n",-1);
-  blob_append_xfer(p->pOut, &p->aCol[0]);
-  blob_append(p->pOut, "</pre></td><td class=\"diffsep\"><pre>\n", -1);
-  blob_append_xfer(p->pOut, &p->aCol[1]);
-  blob_append(p->pOut, "</pre></td><td class=\"diffln difflnr\"><pre>\n",-1);
-  blob_append_xfer(p->pOut, &p->aCol[2]);
-  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtr\"><pre>\n",-1);
-  blob_append_xfer(p->pOut, &p->aCol[3]);
-  blob_append(p->pOut, "</pre></td></tr>\n", -1);
-}
-static void dfsplitStartRow(DiffBuilder *p){
-  if( blob_size(&p->aCol[0])>0 ) return;
-  blob_appendf(p->pOut,"<tr id=\"chunk%d\" class=\"diffchunk\">"
-                       "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
-  p->eState = 0;
-}
 static void dfsplitSkip(DiffBuilder *p, unsigned int n, int isFinal){
-  dfsplitFinishRow(p);
   if( p->pCfg && p->pCfg->zLeftHash ){
     blob_appendf(p->pOut,
        "<tr class=\"diffskip\" data-startln=\"%d\" data-endln=\"%d\""
        " id=\"skip%xh%xi%x\">\n",
-       p->lnLeft+1, p->lnLeft+n,
-       nChunk,p->lnLeft,n);
+       p->lnLeft+1, p->lnLeft+n, nChunk, p->lnLeft, n);
   }else{
     blob_append(p->pOut, "<tr>", 4);
   }
   blob_append(p->pOut,
-       "<td class=\"diffln difflnl difflne\">&#xfe19;</td>"
-       "<td></td><td></td>"
-       "<td class=\"diffln difflnr difflne\">&#xfe19;</td>"
-       "<td/td></tr>\n", -1);
+       "<td class=\"diffln difflnl difflne\" colspan=\"3\">&#xfe19;</td>"
+       "<td class=\"diffln difflnr difflne\" colspan=\"3\">&#xfe19;</td>"
+       "</tr>\n", -1);
   p->lnLeft += n;
   p->lnRight += n;
 }
 static void dfsplitCommon(DiffBuilder *p, const DLine *pLine){
-  dfsplitStartRow(p);
-  dfsplitChangeState(p, 0);
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  htmlize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n);
-  blob_append_char(&p->aCol[0], '\n');
-  blob_append_char(&p->aCol[1], '\n');
-  blob_appendf(&p->aCol[2],"%d\n",p->lnRight);
-  htmlize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n);
-  blob_append_char(&p->aCol[3], '\n');
+  blob_append (p->pOut, "<tr class=\"diffline\">", 21);
+  blob_appendf(p->pOut, "<td class=\"diffln difflnl\">%d</td>", p->lnLeft);
+  blob_append (p->pOut, "<td class=\"diffsep\"></td>", 25);
+  blob_append (p->pOut, "<td class=\"difftxt difftxtl\">", 29);
+  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  blob_append (p->pOut, "</td>", 5);
+  blob_appendf(p->pOut, "<td class=\"diffln difflnr\">%d</td>", p->lnRight);
+  blob_append (p->pOut, "<td class=\"diffsep\"></td>", 25);
+  blob_append (p->pOut, "<td class=\"difftxt difftxtr\">", 29);
+  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  blob_append (p->pOut, "</td>", 5);
+  blob_append (p->pOut, "</tr>\n", 6);
 }
 static void dfsplitInsert(DiffBuilder *p, const DLine *pLine){
-  dfsplitStartRow(p);
-  dfsplitChangeState(p, 2);
   p->lnRight++;
-  blob_append_char(p->pOut, '\n');
-  blob_append_char(&p->aCol[0], '\n');
-  blob_append(&p->aCol[1], "&gt;\n", -1);
-  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
-  blob_append(&p->aCol[3], "<ins>", 5);
-  htmlize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n);
-  blob_append(&p->aCol[3], "</ins>\n", 7);
+  blob_append (p->pOut, "<tr class=\"diffline\">", 21);
+  blob_append (p->pOut, "<td class=\"diffln difflnl nul\"></td>", 36);
+  blob_append (p->pOut, "<td class=\"diffsep nul\"></td>", 29);
+  blob_append (p->pOut, "<td class=\"difftxt difftxtl nul\"></td>", 38);
+  blob_appendf(p->pOut, "<td class=\"diffln difflnr ins\">%d</td>", p->lnRight);
+  blob_append (p->pOut, "<td class=\"diffsep ins\">+</td>", 30);
+  blob_append (p->pOut, "<td class=\"difftxt difftxtr ins\"><ins>", 38);
+  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  blob_append (p->pOut, "</ins></td>", 11);
+  blob_append (p->pOut, "</tr>\n", 6);
 }
 static void dfsplitDelete(DiffBuilder *p, const DLine *pLine){
-  dfsplitStartRow(p);
-  dfsplitChangeState(p, 1);
   p->lnLeft++;
-  blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  blob_append(&p->aCol[0], "<del>", 5);
-  htmlize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n);
-  blob_append(&p->aCol[0], "</del>\n", 7);
-  blob_append(&p->aCol[1], "&lt;\n", -1);
-  blob_append_char(&p->aCol[2],'\n');
-  blob_append_char(&p->aCol[3],'\n');
+  blob_append (p->pOut, "<tr class=\"diffline\">", 21);
+  blob_appendf(p->pOut, "<td class=\"diffln difflnl del\">%d</td>", p->lnLeft);
+  blob_append (p->pOut, "<td class=\"diffsep del\">-</td>", 30);
+  blob_append (p->pOut, "<td class=\"difftxt difftxtl del\"><del>", 38);
+  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  blob_append (p->pOut, "</del></td>", 11);
+  blob_append (p->pOut, "<td class=\"diffln difflnr nul\"></td>", 36);
+  blob_append (p->pOut, "<td class=\"diffsep nul\"></td>", 29);
+  blob_append (p->pOut, "<td class=\"difftxt difftxtr nul\"></td>", 38);
+  blob_append (p->pOut, "</tr>\n", 6);
 }
 static void dfsplitReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
-  dfsplitStartRow(p);
-  dfsplitChangeState(p, 3);
-  p->lnLeft++;
-  p->lnRight++;
-  blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  htmlize_to_blob(&p->aCol[0], pX->z,  pX->n);
-  blob_append_char(&p->aCol[0], '\n');
-
-  blob_append(&p->aCol[1], "|\n", 2);
-
-  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
-
-  htmlize_to_blob(&p->aCol[3], pY->z,  pY->n);
-  blob_append_char(&p->aCol[3], '\n');
+  assert( 0 && "The seemingly unused function dfsplitReplace() was called!");
 }
 static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
   int x;
   LineChange chng;
   oneLineChange(pX, pY, &chng);
-  dfsplitStartRow(p);
-  dfsplitChangeState(p, 3);
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  for(i=x=0; i<chng.n; i++){
+  blob_append (p->pOut, "<tr class=\"diffline\">", 21);
+  blob_appendf(p->pOut, "<td class=\"diffln difflnl del\">%d</td>", p->lnLeft);
+  blob_append (p->pOut, "<td class=\"diffsep del\">-</td>", 30);
+  blob_append (p->pOut, "<td class=\"difftxt difftxtl del\">", 33);
+  for( i=x=0; i<chng.n; i++ ){
     int ofst = chng.a[i].iStart1;
     int len = chng.a[i].iLen1;
     if( len ){
-      htmlize_to_blob(&p->aCol[0], pX->z+x, ofst - x);
+      htmlize_to_blob(p->pOut, pX->z+x, ofst - x);
       x = ofst;
       if( chng.a[i].iLen2 ){
-        blob_append(&p->aCol[0], "<del class='edit'>", -1);
+        blob_append(p->pOut, "<del class=\"edit\">", 18);
       }else{
-        blob_append(&p->aCol[0], "<del>", 5);
+        blob_append(p->pOut, "<del>", 5);
       }
-      htmlize_to_blob(&p->aCol[0], pX->z+x, len);
+      htmlize_to_blob(p->pOut, pX->z+x, len);
       x += len;
-      blob_append(&p->aCol[0], "</del>", 6);
+      blob_append(p->pOut, "</del>", 6);
     }
   }
-  htmlize_to_blob(&p->aCol[0], pX->z+x,  pX->n - x);
-  blob_append_char(&p->aCol[0], '\n');
-
-  blob_append(&p->aCol[1], "|\n", 2);
-
-  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
-  for(i=x=0; i<chng.n; i++){
+  htmlize_to_blob(p->pOut, pX->z+x, pX->n - x);
+  blob_append (p->pOut, "</td>", 5);
+  blob_appendf(p->pOut, "<td class=\"diffln difflnr ins\">%d</td>", p->lnRight);
+  blob_append (p->pOut, "<td class=\"diffsep ins\">+</td>", 30);
+  blob_append (p->pOut, "<td class=\"difftxt difftxtr ins\">", 33);
+  for( i=x=0; i<chng.n; i++ ){
     int ofst = chng.a[i].iStart2;
     int len = chng.a[i].iLen2;
     if( len ){
-      htmlize_to_blob(&p->aCol[3], pY->z+x, ofst - x);
+      htmlize_to_blob(p->pOut, pY->z+x, ofst - x);
       x = ofst;
       if( chng.a[i].iLen1 ){
-        blob_append(&p->aCol[3], "<ins class='edit'>", -1);
+        blob_append(p->pOut, "<ins class=\"edit\">", 18);
       }else{
-        blob_append(&p->aCol[3], "<ins>", 5);
+        blob_append(p->pOut, "<ins>", 5);
       }
-      htmlize_to_blob(&p->aCol[3], pY->z+x, len);
+      htmlize_to_blob(p->pOut, pY->z+x, len);
       x += len;
-      blob_append(&p->aCol[3], "</ins>", 6);
+      blob_append(p->pOut, "</ins>", 6);
     }
   }
-  htmlize_to_blob(&p->aCol[3], pY->z+x,  pY->n - x);
-  blob_append_char(&p->aCol[3], '\n');
+  htmlize_to_blob(p->pOut, pY->z+x,  pY->n - x);
+  blob_append (p->pOut, "</td>", 5);
+  blob_append (p->pOut, "</tr>\n", 6);
 }
 static void dfsplitEnd(DiffBuilder *p){
-  dfsplitFinishRow(p);
-  blob_append(p->pOut, "</table>\n",-1);
+  blob_append(p->pOut, "</table>\n", 9);
   fossil_free(p);
 }
 static DiffBuilder *dfsplitNew(Blob *pOut, DiffConfig *pCfg){
@@ -1663,13 +1553,8 @@ static DiffBuilder *dfsplitNew(Blob *pOut, DiffConfig *pCfg){
       "<table class=\"diff splitdiff\" data-lefthash=\"%s\">\n",
       pCfg->zLeftHash);
   }else{
-    blob_append(pOut, "<table class=\"diff splitdiff\">\n", -1);
+    blob_append(pOut, "<table class=\"diff splitdiff\">\n", 31);
   }
-  blob_init(&p->aCol[0], 0, 0);
-  blob_init(&p->aCol[1], 0, 0);
-  blob_init(&p->aCol[2], 0, 0);
-  blob_init(&p->aCol[3], 0, 0);
-  blob_init(&p->aCol[4], 0, 0);
   p->pCfg = pCfg;
   return p;
 }

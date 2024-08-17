@@ -559,49 +559,31 @@ table.diff {
   border-spacing: 0;
   border-radius: 5px;
   border: 1px solid black;
-  font-size: 80%;
-}
-table.diff td.diffln{
-  padding: 0;
-}
-table.diff td.diffln > pre{
-  padding: 0 0.25em 0 0.5em;
-  margin: 0;
 }
 table.diff td {
   vertical-align: top;
+  text-align: left;
+  margin: 0;
   padding: 0;
-  overflow: hidden /*work around inner PRE slight overflow/overlap*/;
+  border: 0;
+  font-family: monospace;
+  line-height: 1.2;
+  text-size-adjust: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
-table.diff pre {
-  margin: 0 0 0 0;
-  padding: 0 0.5em;
-  line-height: 1.275/*for mobile: forum post e6f4ee7de98b55c0*/;
-  text-size-adjust: none
-  /* ^^^ attempt to keep mobile from inflating some text */;
+table.diff td.diffln {
+  width: 0%;
+  text-align: right;
+  padding: 0 0.16em 0 0.32em;
 }
-table.diff pre > ins,
-table.diff pre > del {
-  /* Fill platform-dependent color gaps caused by
-     inflated line-height */
-  padding: 0.062em 0 0.062em 0;
+table.diff td.difflne {
+  text-align: left;
+  padding: 0 0.32em;
 }
-table.diff pre > ins > *,
-table.diff pre > del > *{
-  /* Avoid odd-looking color swatches in conjunction with
-     (table.diff pre > ins/del) padding */
-  padding: inherit;
-}
-table.diff td.diffln > pre {
-  padding: 0 0.35em 0 0.5em;
-}
-table.diff td > pre {
-  box-sizing: border-box;
-  /* Workaround for "slight wiggle" when using mouse-wheel in some FF
-     versions, apparently caused by the increased line-height forcing
-     these elements to be a *tick* larger than they should be but not
-     large enough to force a scroll bar to show up. */
-  overflow-y: hidden;
+table.diff td.diffsep {
+  width: 0%;
+  padding: 0 0.32em 0 0.16em;
 }
 tr.diffskip.jchunk {
   /* jchunk gets added from JS to diffskip rows when they are
@@ -625,7 +607,7 @@ tr.diffskip > td.chunkctrl > div {
   align-items: center;
 }
 tr.diffskip > td.chunkctrl > div > span.error {
-  padding: 0.25em 0.5em;
+  padding: 2px;
   border-radius: 0.5em;
 }
 tr.diffskip > td.chunkctrl .jcbutton
@@ -670,75 +652,46 @@ tr.diffskip > td.chunkctrl .jcbutton:hover {
   opacity: 1;
   filter: contrast(1);
 }
-tr.diffchunk {
-  display: grid;
-  gap: 0px 0px;
-  grid-template-rows: 1fr;
+td.difftxt {
+  max-width: 0;
 }
-table.splitdiff tr.diffchunk {
-  grid-template-columns: auto 1fr auto auto 1fr;
-  grid-template-areas: "difflnl difftxtl diffsep difflnr difftxtr";
+td.difftxtu {
+  width: 100%;
 }
-table.udiff tr.diffchunk {
-  grid-template-columns: auto auto auto 1fr;
-  grid-template-areas: "difflnl difflnr diffsep difftxtu";
+td.difftxtl,
+td.difftxtr {
+  width: 50%;
 }
-td.difflnl { grid-area: difflnl; }
-td.difflnr { grid-area: difflnr; }
-td.difftxtu { grid-area: difftxtu; }
-td.difftxtl  { grid-area: difftxtl; }
-td.difftxtr  { grid-area: difftxtr; }
-td.diffln {
-  width: fit-content;
-  text-align: right;
-  padding: 0 1em 0 0;
+td.diffln.nul,
+td.diffsep.nul,
+td.difftxt.nul {
+  background-color: #f9f9f9;
 }
-td.difflne {
-  padding-bottom: 0.4em;
-}
-td.diffsep {
-  width: fit-content;
-  padding: 0 0.3em 0 0.5em;
-  grid-area: diffsep;
-}
-td.difftxt pre {
-  overflow-x: auto;
-}
-td.diffln ins {
-  background-color: #a0e4b2;
-  text-decoration: none;
-}
-td.diffln del {
-  background-color: #ffc0c0;
-  text-decoration: none;
-}
-td.difftxt del {
+td.diffln.del,
+td.diffsep.del,
+td.difftxt.del {
   background-color: #ffe8e8;
-  text-decoration: none;
 }
-td.difftxt del > del {
+td.diffln.ins,
+td.diffsep.ins,
+td.difftxt.ins {
+  background-color: #dafbe1;
+}
+td.difftxt.del del {
   background-color: #ffc0c0;
   text-decoration: none;
-  font-weight: bold;
+  display: inline-block;
 }
-td.difftxt del > del.edit {
+td.difftxt.del del.edit {
   background-color: #c0c0ff;
-  text-decoration: none;
-  font-weight: bold;
 }
-td.difftxt ins {
-  background-color: #dafbe1;
-  text-decoration: none;
-}
-td.difftxt ins > ins {
+td.difftxt.ins ins {
   background-color: #a0e4b2;
   text-decoration: none;
-  font-weight: bold;
+  display: inline-block;
 }
-td.difftxt ins > ins.edit {
+td.difftxt.ins ins.edit {
   background-color: #c0c0ff;
-  text-decoration: none;
-  font-weight: bold;
 }
 body.tkt div.content li > table.udiff {
   margin-left: 1.5em;

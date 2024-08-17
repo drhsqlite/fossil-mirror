@@ -232,119 +232,107 @@ static const char zWebpageHdr[] =
 @ h1 {
 @   font-size: 150%;
 @ }
-@
 @ table.diff {
 @   width: 100%;
 @   border-spacing: 0;
+@   border-radius: 5px;
 @   border: 1px solid black;
-@   line-height: inherit;
-@   font-size: inherit;
 @ }
 @ table.diff td {
 @   vertical-align: top;
-@   line-height: inherit;
-@   font-size: inherit;
+@   text-align: left;
+@   margin: 0;
+@   padding: 0;
+@   border: 0;
+@   font-family: monospace;
+@   line-height: 1.2;
+@   text-size-adjust: none;
+@   white-space: pre-wrap;
+@   word-wrap: break-word;
 @ }
-@ table.diff pre {
-@   margin: 0 0 0 0;
-@   line-height: inherit;
-@   font-size: inherit;
-@ }
-@ td.diffln {
-@   width: 1px;
+@ table.diff td.diffln {
+@   width: 0%;
 @   text-align: right;
-@   padding: 0 1em 0 0;
+@   padding: 0 0.16em 0 0.32em;
 @ }
-@ td.difflne {
-@   padding-bottom: 0.4em;
+@ table.diff td.difflne {
+@   text-align: left;
+@   padding: 0 0.32em;
 @ }
-@ td.diffsep {
-@   width: 1px;
-@   padding: 0 0.3em 0 1em;
-@   line-height: inherit;
-@   font-size: inherit;
+@ table.diff td.diffsep {
+@   width: 0%;
+@   padding: 0 0.32em 0 0.16em;
 @ }
-@ td.diffsep pre {
-@   line-height: inherit;
-@   font-size: inherit;
+@ td.difftxt {
+@   max-width: 0;
 @ }
-@ td.difftxt pre {
-@   overflow-x: auto;
+@ td.difftxtu {
+@   width: 100%;
 @ }
-@ td.diffln ins {
-@   background-color: #a0e4b2;
-@   text-decoration: none;
-@   line-height: inherit;
-@   font-size: inherit;
+@ td.difftxtl,
+@ td.difftxtr {
+@   width: 50%;
 @ }
-@ td.diffln del {
-@   background-color: #ffc0c0;
-@   text-decoration: none;
-@   line-height: inherit;
-@   font-size: inherit;
+@ td.diffln.nul,
+@ td.diffsep.nul,
+@ td.difftxt.nul {
+@   background-color: #f9f9f9;
 @ }
-@ td.difftxt del {
+@ td.diffln.del,
+@ td.diffsep.del,
+@ td.difftxt.del {
 @   background-color: #ffe8e8;
-@   text-decoration: none;
-@   line-height: inherit;
-@   font-size: inherit;
 @ }
-@ td.difftxt del > del {
+@ td.diffln.ins,
+@ td.diffsep.ins,
+@ td.difftxt.ins {
+@   background-color: #dafbe1;
+@ }
+@ td.difftxt.del del {
 @   background-color: #ffc0c0;
 @   text-decoration: none;
-@   font-weight: bold;
+@   display: inline-block;
 @ }
-@ td.difftxt del > del.edit {
+@ td.difftxt.del del.edit {
 @   background-color: #c0c0ff;
-@   text-decoration: none;
-@   font-weight: bold;
 @ }
-@ td.difftxt ins {
-@   background-color: #dafbe1;
-@   text-decoration: none;
-@   line-height: inherit;
-@   font-size: inherit;
-@ }
-@ td.difftxt ins > ins {
+@ td.difftxt.ins ins {
 @   background-color: #a0e4b2;
 @   text-decoration: none;
-@   font-weight: bold;
+@   display: inline-block;
 @ }
-@ td.difftxt ins > ins.edit {
+@ td.difftxt.ins ins.edit {
 @   background-color: #c0c0ff;
-@   text-decoration: none;
-@   font-weight: bold;
 @ }
 @ @media (prefers-color-scheme: dark) {
 @   body {
+@     color: #fff;
 @     background-color: #353535;
-@     color: #ffffff;
 @   }
-@   td.diffln ins {
-@     background-color: #559855;
-@     color: #000000;
+@   td.diffln.nul,
+@   td.diffsep.nul,
+@   td.difftxt.nul {
+@     background-color: #454545;
 @   }
-@   td.diffln del {
-@     background-color: #cc5555;
-@     color: #000000;
-@   }
-@   td.difftxt del {
+@   td.diffln.del,
+@   td.diffsep.del,
+@   td.difftxt.del {
+@     color: #000;
 @     background-color: #f9cfcf;
-@     color: #000000;
 @   }
-@     td.difftxt del > del {
-@     background-color: #cc5555;
-@     color: #000000;
-@   }
-@   td.difftxt ins {
+@   td.diffln.ins,
+@   td.diffsep.ins,
+@   td.difftxt.ins {
+@     color: #000;
 @     background-color: #a2dbb2;
-@     color: #000000;
 @   }
-@   td.difftxt ins > ins {
+@   td.difftxt.del del {
+@     background-color: #cc5555;
+@   }
+@   td.difftxt.ins ins {
 @     background-color: #559855;
 @   }
 @ }
-@
 @ </style>
 @ </head>
 @ <body>
@@ -356,101 +344,87 @@ static const char zWebpageHdrDark[] =
 @ <meta charset="UTF-8">
 @ <style>
 @ body {
+@    color: #fff;
 @    background-color: #353535;
-@    color: #ffffff;
 @ }
 @ h1 {
 @   font-size: 150%;
 @ }
-@
 @ table.diff {
 @   width: 100%;
 @   border-spacing: 0;
+@   border-radius: 5px;
 @   border: 1px solid black;
-@   line-height: inherit;
-@   font-size: inherit;
 @ }
 @ table.diff td {
 @   vertical-align: top;
-@   line-height: inherit;
-@   font-size: inherit;
+@   text-align: left;
+@   margin: 0;
+@   padding: 0;
+@   border: 0;
+@   font-family: monospace;
+@   line-height: 1.2;
+@   text-size-adjust: none;
+@   white-space: pre-wrap;
+@   word-wrap: break-word;
 @ }
-@ table.diff pre {
-@   margin: 0 0 0 0;
-@   line-height: inherit;
-@   font-size: inherit;
-@ }
-@ td.diffln {
-@   width: 1px;
+@ table.diff td.diffln {
+@   width: 0%;
 @   text-align: right;
-@   padding: 0 1em 0 0;
+@   padding: 0 0.16em 0 0.32em;
 @ }
-@ td.difflne {
-@   padding-bottom: 0.4em;
+@ table.diff td.difflne {
+@   text-align: left;
+@   padding: 0 0.32em;
 @ }
-@ td.diffsep {
-@   width: 1px;
-@   padding: 0 0.3em 0 1em;
-@   line-height: inherit;
-@   font-size: inherit;
+@ table.diff td.diffsep {
+@   width: 0%;
+@   padding: 0 0.32em 0 0.16em;
 @ }
-@ td.diffsep pre {
-@   line-height: inherit;
-@   font-size: inherit;
+@ td.difftxt {
+@   max-width: 0;
 @ }
-@ td.difftxt pre {
-@   overflow-x: auto;
+@ td.difftxtu {
+@   width: 100%;
 @ }
-@ td.diffln ins {
-@   background-color: #559855;
-@   color: #000000;
-@   text-decoration: none;
-@   line-height: inherit;
-@   font-size: inherit;
+@ td.difftxtl,
+@ td.difftxtr {
+@   width: 50%;
 @ }
-@ td.diffln del {
-@   background-color: #cc5555;
-@   color: #000000;
-@   text-decoration: none;
-@   line-height: inherit;
-@   font-size: inherit;
+@ td.diffln.nul,
+@ td.diffsep.nul,
+@ td.difftxt.nul {
+@   background-color: #454545;
 @ }
-@ td.difftxt del {
+@ td.diffln.del,
+@ td.diffsep.del,
+@ td.difftxt.del {
+@   color: #000;
 @   background-color: #f9cfcf;
-@   color: #000000;
-@   text-decoration: none;
-@   line-height: inherit;
-@   font-size: inherit;
 @ }
-@ td.difftxt del > del {
-@   background-color: #cc5555;
-@   color: #000000;
-@   text-decoration: none;
-@   font-weight: bold;
-@ }
-@ td.difftxt del > del.edit {
-@   background-color: #c0c0ff;
-@   text-decoration: none;
-@   font-weight: bold;
-@ }
-@ td.difftxt ins {
+@ td.diffln.ins,
+@ td.diffsep.ins,
+@ td.difftxt.ins {
+@   color: #000;
 @   background-color: #a2dbb2;
-@   color: #000000;
-@   text-decoration: none;
-@   line-height: inherit;
-@   font-size: inherit;
 @ }
-@ td.difftxt ins > ins {
+@ td.difftxt.del del {
+@   color: #000;
+@   background-color: #cc5555;
+@   text-decoration: none;
+@   display: inline-block;
+@ }
+@ td.difftxt.del del.edit {
+@   background-color: #c0c0ff;
+@ }
+@ td.difftxt.ins ins {
 @   background-color: #559855;
 @   text-decoration: none;
-@   font-weight: bold;
+@   display: inline-block;
 @ }
-@ td.difftxt ins > ins.edit {
+@ td.difftxt.ins ins.edit {
 @   background-color: #c0c0ff;
-@   text-decoration: none;
-@   font-weight: bold;
 @ }
-@
 @ </style>
 @ </head>
 @ <body>

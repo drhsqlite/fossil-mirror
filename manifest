@@ -1,5 +1,5 @@
-C Make\ssure\sFossil\sis\srun\swith\sa\sversion\sof\sSQLite\sthat\sinclude\sthe\norder-by-subquery\soptimization,\sto\savoid\sa\sperformance\sproblem.
-D 2024-08-16T19:28:37.832
+C First\sdraft\sto\simplement\sword-wrap\sfor\sweb\sUI\sdiffs.\sThe\slist\sof\sTODO\sitems\scan\sbe\sfound\son\sthe\sbranch\swiki\spage.
+D 2024-08-17T16:03:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,15 +411,15 @@ F src/cookies.c 655257d116421e8ffa3d076379a3f5628849b06b295ed8a90fd288e17963a662
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 3ac7e8d2000e3f5465a730811ac8ef0ff8b7a453a1c1d92325561ec1ac04b880
-F src/default.css b3f99b4184f6484b1010f1206aff63f8c537603c588fcf16a4878cb9a605a6ff
+F src/default.css 2c4a9d4f2343a4fa9f9e0f5c49538e7f738d7f7e58da358048a0951340b2b603
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c 940b768edff94b00adc2b474bb75c8b9d03bfd0d27f834e37217d2c755a70e53
-F src/diff.c c6e9fecd607fcde34257054f607a556da571c5e214084d7e4c794634d964ef3d
-F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
+F src/diff.c ae1e498b2e7c673ef3ab608c51ddae3715870562b53f4cc2b1f2f2b6e1274be2
+F src/diff.js 3dc821a47a58e669ff6b63fd338e3ea1fd360de0f5d30c96d3fc082a0ce5bfbd
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
-F src/diffcmd.c e11ab5f28e58d80735eaafc6b29fd78d479571bd767553bb8a685018790d1285
+F src/diffcmd.c 8aa4598f4b710d5e87e2c3d6cfd280bed41df77acee8a3c692286c0552db7046
 F src/dispatch.c 888760a3fae9c8270eaf90f8f5a5ee2dcef8e4b48482a694eec29e6d778ddb68
 F src/doc.c 55dd74f447c1fd2ba655fa68a48136505e70a9d6212f138c5328031c06a007f9
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -436,7 +436,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
-F src/fossil.diff.js 9ec63e0e9d1bfdbf61ec9a2d9050e652f8de93d44d66546088a67f2b51b4bc06
+F src/fossil.diff.js f59f66f569b192a18d42c5035e64e40ab8b27e4f3bd549a5f0d0ad1cbf5535f4
 F src/fossil.dom.js b4b1d84f17a420603124f4f2cc821852d9815ec7cec338ab124b4e12582e7b9d
 F src/fossil.fetch.js 79291600341f980b23bc20455e0415fae0db0a3a355aae4dffbc0e431f210cc8
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -959,8 +959,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60debc7ed76b9d8fc0aa9ce1be6793cbb67609c2b1709c39c299249c81b5b306
-R 509c44659bd26ba16c93760aae4eb47f
-U drh
-Z ce3605def95159fc99d1b749c4fa8326
+P 668fefe796fd5e2441c80d98dad5b637bc7a94f705794797c28512f4409421cc
+R 24ee6bc4eba6f54dbe3b4d02d6ef9fc2
+T *branch * diff-word-wrap
+T *sym-diff-word-wrap *
+T -sym-trunk *
+U florian
+Z a118a003297bbf8d89b9209d22efce5c
 # Remove this line to create a well-formed Fossil manifest.

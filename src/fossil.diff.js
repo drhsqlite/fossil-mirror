@@ -95,18 +95,8 @@ window.fossil.onPageLoad(function(){
      if getLHS is true, else the RHS.
   */
   const extractLineNo = function f(getLHS, getStart, tr, isSplit){
-    if(!f.rx){
-      f.rx = {
-        start: /^\s*(\d+)/,
-        end: /(\d+)\n?$/
-      }
-    }
-    const td = tr.querySelector('td:nth-child('+(
-      /* TD element with the line numbers */
-      getLHS ? 1 : (isSplit ? 4 : 2)
-    )+')');
-    const m = f.rx[getStart ? 'start' : 'end'].exec(td.innerText);
-    return m ? +m[1] : undefined/*"shouldn't happen"*/;
+    var n = getLHS ? 0 : isSplit ? 3 : 1;
+    return parseInt(tr.childNodes[n].innerText);
   };
 
   /**
@@ -138,7 +128,7 @@ window.fossil.onPageLoad(function(){
     D.clearElement(tr);
     this.e.td = D.addClass(
       /* Holder for our UI controls */
-      D.attr(D.td(tr), 'colspan', this.isSplit ? 5 : 4),
+      D.attr(D.td(tr), 'colspan', this.isSplit ? 6 : 4),
       'chunkctrl'
     );
     this.e.msgWidget = D.addClass(D.span(), 'hidden');
@@ -303,126 +293,75 @@ window.fossil.onPageLoad(function(){
         return this;
       }
       this.msg(false);
-      //console.debug("Loaded line range ",
-      //urlParam.from,"-",urlParam.to, "fetchType ",fetchType);
-      const lineno = [],
-            trPrev = this.e.tr.previousElementSibling,
-            trNext = this.e.tr.nextElementSibling,
-            doAppend = (
-              !!trPrev && fetchType>=this.FetchType.FillGap
-            ) /* true to append to previous TR, else prepend to NEXT TR */;
-      const tr = doAppend ? trPrev : trNext;
-      const joinTr = (
-        this.FetchType.FillGap===fetchType && trPrev && trNext
-      ) ? trNext : false
-      /* Truthy if we want to combine trPrev, the new content, and
-         trNext into trPrev and then remove trNext. */;
-      let i, td;
-      if(!f.convertLines){
-        /* Reminder: string.replaceAll() is a relatively new
-           JS feature, not available in some still-widely-used
-           browser versions. */
-        f.rx = [[/&/g, '&amp;'], [/</g, '&lt;']];
-        f.convertLines = function(li){
-          var s = li.join('\n');
-          f.rx.forEach((a)=>s=s.replace(a[0],a[1]));
-          return s + '\n';
-        };
+      var startLnR = -2147483648; /* ⚠ */
+      switch( fetchType ){
+        case this.FetchType.PrevDown:
+          startLnR = this.pos.prev.endRhs + 1;
+          break;
+        case this.FetchType.NextUp:
+          startLnR = this.pos.next.startRhs - lines.length;
+          break;
+        case this.FetchType.FillGap:
+          startLnR = this.pos.prev ? 
+                       this.pos.prev.endRhs + 1 :
+                       this.pos.next.startRhs - lines.length;
+          break;
       }
-      if(1){ // LHS line numbers...
-        const selector = '.difflnl > pre';
-        td = tr.querySelector(selector);
-        const lnTo = Math.min(urlParam.to,
-                              urlParam.from +
-                              lines.length - 1/*b/c request range is inclusive*/);
-        for( i = urlParam.from; i <= lnTo; ++i ){
-          lineno.push(i);
+      const lnTo = Math.min(urlParam.to,
+                            urlParam.from +
+                            lines.length - 1/*b/c request range is inclusive*/);
+      function createDiffCommonLine(isSplit,lnl,lnr,txt){
+        var tr, td;
+        tr = document.createElement('tr');
+        tr.className = 'diffline';
+        td = document.createElement('td');
+        td.className = 'diffln difflnl';
+        td.appendChild(document.createTextNode(lnl));
+        tr.appendChild(td);
+        if( isSplit ){
+          td = document.createElement('td');
+          td.className = 'diffsep';
+          tr.appendChild(td);
+          td = document.createElement('td');
+          td.className = 'difftxt difftxtl';
+          td.appendChild(document.createTextNode(txt));
+          tr.appendChild(td);
         }
-        const lineNoTxt = lineno.join('\n')+'\n';
-        const content = [td.innerHTML];
-        if(doAppend) content.push(lineNoTxt);
-        else content.unshift(lineNoTxt);
-        if(joinTr){
-          content.push(trNext.querySelector(selector).innerHTML);
+        td = document.createElement('td');
+        td.className = 'diffln difflnlr';
+        td.appendChild(document.createTextNode(lnr));
+        tr.appendChild(td);
+        td = document.createElement('td');
+        td.className = 'diffsep';
+        tr.appendChild(td);
+        td = document.createElement('td');
+        td.className = 'difftxt difftxt' + isSplit ? 'r' : 'u';
+        td.appendChild(document.createTextNode(txt));
+        tr.appendChild(td);
+        return tr;
+      }
+      if( fetchType==this.FetchType.NextUp ){
+        for( i=lnTo; i>=urlParam.from; i-- ){
+          var tr =
+            createDiffCommonLine(
+              this.isSplit,i,startLnR+i-urlParam.from,lines[i-urlParam.from]);
+          this.e.tr.parentElement.insertBefore(tr,this.e.tr.nextElementSibling);
         }
-        td.innerHTML = content.join('');
-      }
-
-      if(1){// code block(s)...
-        const selector = '.difftxt > pre';
-        td = tr.querySelectorAll(selector);
-        const code = f.convertLines(lines);
-        let joinNdx = 0/*selector[X] index to join together*/;
-        td.forEach(function(e){
-          const content = [e.innerHTML];
-          if(doAppend) content.push(code);
-          else content.unshift(code);
-          if(joinTr){
-            content.push(trNext.querySelectorAll(selector)[joinNdx++].innerHTML)
-          }
-          e.innerHTML = content.join('');
-        });
-      }
-
-      if(1){// Add blank lines in (.diffsep>pre)
-        const selector = '.diffsep > pre';
-        td = tr.querySelector(selector);
-        for(i = 0; i < lineno.length; ++i) lineno[i] = '';
-        const blanks = lineno.join('\n')+'\n';
-        const content = [td.innerHTML];
-        if(doAppend) content.push(blanks);
-        else content.unshift(blanks);
-        if(joinTr){
-          content.push(trNext.querySelector(selector).innerHTML);
+      }else{
+        for( i=urlParam.from; i<=lnTo; i++ ){
+          var tr =
+            createDiffCommonLine(
+              this.isSplit,i,startLnR+i-urlParam.from,lines[i-urlParam.from]);
+          this.e.tr.parentElement.insertBefore(tr,this.e.tr);
         }
-        td.innerHTML = content.join('');
       }
-
       if(this.FetchType.FillGap===fetchType){
-        /* Closing the whole gap between two chunks or a whole gap
-           at the start or end of a diff. */
-        // RHS line numbers...
-        let startLnR = this.pos.prev
-            ? this.pos.prev.endRhs+1 /* Closing the whole gap between two chunks
-                                        or end-of-file gap. */
-            : this.pos.next.startRhs - lines.length /* start-of-file gap */;
-        lineno.length = lines.length;
-        for( i = startLnR; i < startLnR + lines.length; ++i ){
-          lineno[i-startLnR] = i;
-        }
-        const selector = '.difflnr > pre';
-        td = tr.querySelector(selector);
-        const lineNoTxt = lineno.join('\n')+'\n';
-        lineno.length = 0;
-        const content = [td.innerHTML];
-        if(doAppend) content.push(lineNoTxt);
-        else content.unshift(lineNoTxt);
-        if(joinTr){
-          content.push(trNext.querySelector(selector).innerHTML);
-        }
-        td.innerHTML = content.join('');
-        if(joinTr) D.remove(joinTr);
         this.destroy();
         return this;
       }else if(this.FetchType.PrevDown===fetchType){
-        /* Append context to previous TR. */
-        // RHS line numbers...
-        let startLnR = this.pos.prev.endRhs+1;
-        lineno.length = lines.length;
-        for( i = startLnR; i < startLnR + lines.length; ++i ){
-          lineno[i-startLnR] = i;
-        }
         this.pos.startLhs += lines.length;
         this.pos.prev.endRhs += lines.length;
         this.pos.prev.endLhs += lines.length;
-        const selector = '.difflnr > pre';
-        td = tr.querySelector(selector);
-        const lineNoTxt = lineno.join('\n')+'\n';
-        lineno.length = 0;
-        const content = [td.innerHTML];
-        if(doAppend) content.push(lineNoTxt);
-        else content.unshift(lineNoTxt);
-        td.innerHTML = content.join('');
         if(lines.length < (urlParam.to - urlParam.from)){
           /* No more data. */
           this.destroy();
@@ -432,24 +371,9 @@ window.fossil.onPageLoad(function(){
         }
         return this;
       }else if(this.FetchType.NextUp===fetchType){
-        /* Prepend content to next TR. */
-        // RHS line numbers...
-        if(doAppend){
-          throw new Error("Internal precondition violation: doAppend is true.");
-        }
-        let startLnR = this.pos.next.startRhs - lines.length;
-        lineno.length = lines.length;
-        for( i = startLnR; i < startLnR + lines.length; ++i ){
-          lineno[i-startLnR] = i;
-        }
         this.pos.endLhs -= lines.length;
         this.pos.next.startRhs -= lines.length;
         this.pos.next.startLhs -= lines.length;
-        const selector = '.difflnr > pre';
-        td = tr.querySelector(selector);
-        const lineNoTxt = lineno.join('\n')+'\n';
-        lineno.length = 0;
-        td.innerHTML = lineNoTxt + td.innerHTML;
         if(this.pos.endLhs<1
            || lines.length < (urlParam.to - urlParam.from)){
           /* No more data. */
