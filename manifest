@@ -1,5 +1,5 @@
-C Avoid\sdeleting\sUnix\ssocket\sfiles\svia\satexit()\sfrom\sforked\sHTTP\sresponses,\sas\sreported\sin\s[forum:11c9b27397|forum\spost\s11c9b27397].
-D 2024-08-21T10:29:36.234
+C Rename\ssome\sJS\svars\sfor\sclarity.\sNo\sfunctional\schanges.
+D 2024-08-21T11:36:54.143
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -433,7 +433,7 @@ F src/finfo.c 14c0bab4c53125f241d7d657a2af6ff72f3ff1eb5fb42d2d15cf99c45561a89a
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c a35a18de4e4453688f4cc3a1d5ae4eeb72b4aa04ae8a31fbb7b462cf48639c95
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
-F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
+F src/fossil.bootstrap.js 965d2b396e4786ae866d4d99e7af33c4f45b412eb7ddf7bf55a9f1bc0b863f26
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
 F src/fossil.diff.js 9ec63e0e9d1bfdbf61ec9a2d9050e652f8de93d44d66546088a67f2b51b4bc06
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dee17d9c1b1e2706638837ecd708f54f2720ab14027c8a1bbd2ae124ce464816
-R 023412f6b23ea65df284302a1cb67a39
+P e0236194d861e23f0d776240d41409cd8544f59de384001da75a9104aa604fe0
+R 7b95211d127e0a2938045e0889ccfb41
 U stephan
-Z 83592c6223ebd4b148ad1f9c1873aa86
+Z 04c9cf0fbdcbacf4bf4dd23b4269fa4b
 # Remove this line to create a well-formed Fossil manifest.
