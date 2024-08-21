@@ -1,5 +1,5 @@
-C Make\ssure\sFossil\sis\srun\swith\sa\sversion\sof\sSQLite\sthat\sinclude\sthe\norder-by-subquery\soptimization,\sto\savoid\sa\sperformance\sproblem.
-D 2024-08-16T19:28:37.832
+C /shun\spage:\sfix\sa\stypo\sreported\sin\sthe\sforum\sand\smake\sthe\sunshunned\smessage\smore\slegible\s(not\sdark-on-dark)\sin\sthe\seagle\sand\sdarkmode\sskins.
+D 2024-08-21T09:20:44.387
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -335,7 +335,7 @@ F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f
 F skins/blitz/header.txt 9cbbf8a2cede512b4ccf47f2bf284ef043c1acd1e6dab38b776a0140fd7fa200
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401d7fdd60446d9a13db
-F skins/darkmode/css.txt 9309752373eb920fed817d2e4fa890302791879bd2974128c59c0f5025e8e915
+F skins/darkmode/css.txt 1ea65f9a84ebe177cc9947e107c88a56a25b01c95ede2e74f1812378bdf08b05
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt f836de28bcd65e3101349141588c932f366e209255e4312ee054aad0ac01b526
 F skins/darkmode/header.txt 3fe4fb78b2a6f8d6c9a4c2c4dbba7d80a7302b166fe5e4cec86f05713ddf830b
@@ -345,7 +345,7 @@ F skins/default/details.txt b8827752a356cf0073e493a6cf2afbbe7a82ff75eafd0b754916
 F skins/default/footer.txt 10f51aa013d1fc032703fe21281526b82ddbf6afa8b6d2bfb5eb0e694c2de877
 F skins/default/header.txt d1e9025e8bcc2de8f6d83bc5b0279782ff0aaf2f9b23312bce4b97206f3c9f24
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt 844d15dfd0ad3853240289ff0c8d28e73a73a210892e3ea0862bf74d77f68b19
+F skins/eagle/css.txt 606f4560b695cc22bd561c8ece3802d08f763bbf160ab8c7bd6bc954b6ad5399
 F skins/eagle/details.txt a8c0f5e2241004045378a5f0ef484c58c0f66436e766000f8c62db2b74c5befe
 F skins/eagle/footer.txt e45fdd982bef772e32d2602ae4558c1f017478a48a82825fd9d13391e4a6d427
 F skins/eagle/header.txt 3025c66c714e5609f2ff40c24f7938afe9c8530d79dac4bff095f5bcec64f794
@@ -528,7 +528,7 @@ F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea0191
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
-F src/shun.c 57f58eae891dd4e5bed76ae293717c4e1f3b4278f0eb96e641704666a133149e
+F src/shun.c c6b51eff5005ef3e87aa85a7ce4a0ec5138c078cff5071ec2ff55c1864af3700
 F src/sitemap.c 8d5b61937f3adf75bff06ff06d2b5b73d86fa829980e6eceb7be4aa65b51f50e
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 3f8c75ddc6ab8a47a01d537cda16c28f57c9709446d5373dbf7b0c026783f57b
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60debc7ed76b9d8fc0aa9ce1be6793cbb67609c2b1709c39c299249c81b5b306
-R 509c44659bd26ba16c93760aae4eb47f
-U drh
-Z ce3605def95159fc99d1b749c4fa8326
+P 668fefe796fd5e2441c80d98dad5b637bc7a94f705794797c28512f4409421cc
+R 4270df1b42b46b53376bbcd8e8048c59
+U stephan
+Z 90e60bc76549849715b5b2a12515670f
 # Remove this line to create a well-formed Fossil manifest.
