@@ -2669,6 +2669,7 @@ int cgi_http_server(
           close(connection);
         }else{
           int nErr = 0, fd;
+          g.zSockName = 0 /* avoid deleting the socket via atexit() */;
           close(0);
           fd = dup(connection);
           if( fd!=0 ) nErr++;
