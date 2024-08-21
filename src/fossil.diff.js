@@ -622,3 +622,61 @@ window.fossil.onPageLoad(function(){
   };
   Diff.setupDiffContextLoad();
 });
+/*
+** For a side-by-side diff, ensure that horizontal scrolling of either
+** side of the diff is synchronized with the other side.
+*/
+window.fossil.onPageLoad(function(){
+  const SCROLL_LEN = 25;
+  const F = window.fossil, D = F.dom, Diff = F.diff;
+  const scrollLeft = function(event){
+    const table = this.parentElement/*TD*/.parentElement/*TR*/.
+      parentElement/*TBODY*/.parentElement/*TABLE*/;
+    table.$txtPres.forEach((e)=>(e===this) ? 1 : (e.scrollLeft = this.scrollLeft));
+    return false;
+  };
+  Diff.initTableDiff = function f(diff, unifiedDiffs){
+    if(!diff){
+      let i, diffs;
+      diffs = document.querySelectorAll('table.splitdiff');
+      for(i=0; i<diffs.length; ++i){
+        f.call(this, diffs[i], false);
+      }
+      diffs = document.querySelectorAll('table.udiff');
+      for(i=0; i<diffs.length; ++i){
+        f.call(this, diffs[i], true);
+      }
+      return this;
+    }
+    diff.$txtCols = diff.querySelectorAll('td.difftxt');
+    diff.$txtPres = diff.querySelectorAll('td.difftxt pre');
+    var width = 0;
+    diff.$txtPres.forEach(function(e){
+      if(width < e.scrollWidth) width = e.scrollWidth;
+    });
+    diff.$txtPres.forEach(function(e){
+      if(!unifiedDiffs && !e.classList.contains('scroller')){
+        D.addClass(e, 'scroller');
+        e.addEventListener('scroll', scrollLeft, false);
+      }
+    });
+    if(!unifiedDiffs){
+      diff.tabIndex = 0;
+      if(!diff.classList.contains('scroller')){
+        D.addClass(diff, 'scroller');
+        diff.addEventListener('keydown', function(e){
+          e = e || event;
+          const len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
+          if( !len ) return;
+          this.$txtPres[0].scrollLeft += len;
+          return false;
+        }, false);
+      }
+    }
+    return this;
+  }
+  window.fossil.page.tweakSbsDiffs = function(){
+    document.querySelectorAll('table.splitdiff').forEach((e)=>Diff.initTableDiff(e));
+  };
+  Diff.initTableDiff();
+}, false);
