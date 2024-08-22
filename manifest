@@ -1,5 +1,5 @@
-C On\sthe\s/login\spage,\sfor\slogged-in\susers\sadd\sa\slink\sto\s/cookies.
-D 2024-08-22T19:05:49.043
+C When\sa\suser\scorrectly\senters\sthe\scaptcha\sfor\s/ityaar,\sdo\snot\schange\stheir\nlogin\sto\sanonymous\sif\sthey\sare\salready\slogged\sin.
+D 2024-08-22T20:10:33.629
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -394,7 +394,7 @@ F src/builtin.c 78d68f7ea4407815416d606efea9d7e2e63df943292fc978e1ad7ce7767b94c7
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
-F src/captcha.c 4ff97800454692b079d42af7f673c1745d123d4fd960a02edca2e237125ef4e7
+F src/captcha.c bc2881624f2e15648ee1c414ef363e6ee96b4aa68b179b550d359e203b8c931c
 F src/cgi.c a284c934cc7efc8d2c800f15996d8ab239a91854f14c189e7b1496a8ef368481
 F src/chat.c 09dee6cb0237d2c50f02ebfa9cadf2da9aca9511add07faeae3e2bc9be6f8f86
 F src/checkin.c 7e0013b78efc08b3656d048b0eab92aedf2581b7b462b8aab377c7f1fd63d67f
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P abeb57d28e44c2f1cf7d2227be8ecb91c8e57cf7aef210396504cda44ab609bd
-R 9389fe5bed8d5c1be7bbdc152e834680
-U stephan
-Z 36afa9e5486a844d03c0655aa587ef50
+P 6a20a34a6c2278a5b7d29ba7bb3d49d3547c0e3fe7df34dde3eaa7b352495c61
+R e61f2712975242a37c64f801be394f93
+U drh
+Z 7a5cfb907f2810623ceb694f1c6827ef
 # Remove this line to create a well-formed Fossil manifest.

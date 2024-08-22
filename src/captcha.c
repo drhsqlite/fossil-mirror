@@ -725,7 +725,10 @@ void captcha_callback(void){
   int bTest = atoi(PD("istest","0"));
   if( captcha_is_correct(1) ){
     if( bTest==0 ){
-      login_set_anon_cookie(0, 0);
+      login_check_credentials();
+      if( g.zLogin==0 ){
+        login_set_anon_cookie(0, 0);
+      }
       cgi_append_header("X-Robot: 0\r\n");
     }
     login_redirect_to_g();
