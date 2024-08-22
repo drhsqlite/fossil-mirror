@@ -843,6 +843,8 @@ void login_page(void){
     @ <hr><p>
     @ Select your preferred <a href="%R/skins">site skin</a>.
     @ </p>
+    @ <hr><p>
+    @ Manage your <a href="%R/cookies">cookies</a>.</p>
     if( g.perm.Password ){
       char *zRPW = fossil_random_password(12);
       @ <hr>
