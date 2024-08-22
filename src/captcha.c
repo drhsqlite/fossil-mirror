@@ -658,7 +658,13 @@ void captcha_test(void){
     (void)exclude_spiders(1);
     @ <hr><p>The captcha is shown above.  Add a name=HEX query parameter
     @ to see how HEX would be rendered in the current captcha font.
-    @ <p>captcha_is_correct(1) returns %d(captcha_is_correct(1)).
+    @ <h2>Debug/Testing Values:</h2>
+    @ <ul>
+    @ <li> g.isHuman = %d(g.isHuman)
+    @ <li> g.zLogin = %h(g.zLogin)
+    @ <li> login_cookie_welformed() = %d(login_cookie_wellformed())
+    @ <li> captcha_is_correct(1) = %d(captcha_is_correct(1)).
+    @ </ul>
     style_finish_page();
   }else{
     style_set_current_feature("test");
@@ -685,7 +691,14 @@ void captcha_test(void){
 ** how the agent identifies.  This is used for testing only.
 */
 int exclude_spiders(int bTest){
-  if( !bTest && (g.isHuman || g.zLogin!=0) ) return 0;
+  if( !bTest ){
+    if( g.isHuman ) return 0;  /* This user has already proven human */
+    if( g.zLogin!=0 ) return 0;  /* Logged in.  Consider them human */
+    if( login_cookie_wellformed() ){
+      /* Logged into another member of the login group */
+      return 0;
+    }
+  }
 
   /* This appears to be a spider.  Offer the captcha */
   style_set_current_feature("captcha");
@@ -725,8 +738,8 @@ void captcha_callback(void){
   int bTest = atoi(PD("istest","0"));
   if( captcha_is_correct(1) ){
     if( bTest==0 ){
-      login_check_credentials();
-      if( g.zLogin==0 ){
+      if( !login_cookie_wellformed() ){
+        /* ^^^^--- Don't overwrite a valid login on another repo! */
         login_set_anon_cookie(0, 0);
       }
       cgi_append_header("X-Robot: 0\r\n");

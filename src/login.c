@@ -1314,7 +1314,36 @@ void login_restrict_robot_access(void){
   (void)exclude_spiders(0);
   cgi_reply();
   fossil_exit(0);
-}  
+}
+
+/*
+** When this routine is called, we know that the request does not
+** have a login on the present repository.  This routine checks to
+** see if their login cookie might be for another member of the
+** login-group.
+**
+** If this repository is not a part of any login group, then this
+** routine always returns false.
+**
+** If this repository is part of a login group, and the login cookie
+** appears to be well-formed, then return true.  That might be a
+** false-positive, as we don't actually check to see if the login
+** cookie is valid for some other repository.  But false-positives
+** are ok.  This routine is used for robot defense only.
+*/
+int login_cookie_wellformed(void){
+  const char *zCookie;
+  int n;
+  zCookie = P(login_cookie_name());
+  if( zCookie==0 ){
+    return 0;
+  }
+  if( !db_exists("SELECT 1 FROM config WHERE name='login-group-code'") ){
+    return 0;
+  }
+  for(n=0; fossil_isXdigit(zCookie[n]); n++){}
+  return n>48 && zCookie[n]=='/' && zCookie[n+1]!=0;
+}
 
 /*
 ** This routine examines the login cookie to see if it exists and

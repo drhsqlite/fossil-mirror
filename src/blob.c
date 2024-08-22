@@ -127,6 +127,9 @@ int fossil_islower(char c){ return c>='a' && c<='z'; }
 int fossil_isupper(char c){ return c>='A' && c<='Z'; }
 int fossil_isdigit(char c){ return c>='0' && c<='9'; }
 int fossil_isxdigit(char c){ return (c>='0' && c<='9') || (c>='a' && c<='f'); }
+int fossil_isXdigit(char c){
+   return (c>='0' && c<='9') || (c>='A' && c<='F') || (c>='a' && c<='f');
+}
 int fossil_tolower(char c){
   return fossil_isupper(c) ? c - 'A' + 'a' : c;
 }
