@@ -1437,7 +1437,7 @@ void db_obscure(
   }else{
     zTemp = unobscure((char*)zIn);
   }
-  strcpy(zOut, zTemp);
+  fossil_strcpy(zOut, zTemp);
   fossil_free(zTemp);
   sqlite3_result_text(context, zOut, strlen(zOut), sqlite3_free);
 }

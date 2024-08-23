@@ -3169,6 +3169,11 @@ static InFile *CreateInFile(char *zArg, int *pnErr){
   return pFile;
 }
 
+/* Local strcpy() clone to squelch an unwarranted warning from OpenBSD. */
+static void local_strcpy(char *dest, const char *src){
+  while( (*(dest++) = *(src++))!=0 ){}
+}
+
 /* MS-Windows and MS-DOS both have the following serious OS bug:  the
 ** length of a command line is severely restricted.  But this program
 ** occasionally requires long command lines.  Hence the following
@@ -3245,7 +3250,7 @@ static void AddParameters(int index, int *pArgc, char ***pArgv){
         int j = nNew + index;
         zNew[j] = malloc( n + 1 );
         if( zNew[j] ){
-          strcpy( zNew[j], zBuf );
+          local_strcpy( zNew[j], zBuf );
         }
       }
     }

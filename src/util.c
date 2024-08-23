@@ -172,6 +172,12 @@ char *fossil_strdup_nn(const char *zOrig){
   return fossil_strndup(zOrig, -1);
 }
 
+/*
+** strcpy() workalike to squelch an unwarranted warning from OpenBSD.
+*/
+void fossil_strcpy(char *dest, const char *src){
+  while( (*(dest++) = *(src++))!=0 ){}
+}
 
 /*
 ** Translate every upper-case character in the input string into

@@ -991,7 +991,7 @@ void style_finish_page(){
         }
       }
     }
-    strcpy(zClass,"smc-");   /* common prefix for submenu controls */
+    fossil_strcpy(zClass,"smc-");   /* common prefix for submenu controls */
     for(i=0; i<nSubmenuCtrl; i++){
       const char *zQPN = aSubmenuCtrl[i].zName;
       const char *zDisabled = "";

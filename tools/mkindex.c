@@ -330,6 +330,11 @@ void scan_for_default(const char *zLine){
   aEntry[nUsed-1].zDflt = string_dup(z,len);
 }
 
+/* Local strcpy() clone to squelch an unwarranted warning from OpenBSD. */
+static void local_strcpy(char *dest, const char *src){
+  while( (*(dest++) = *(src++))!=0 ){}
+}
+
 /*
 ** Scan a line for a function that implements a web page or command.
 */
@@ -351,7 +356,7 @@ void scan_for_func(char *zLine){
       zHelp[nHelp++] = '\n';
     }else{
       if( strncmp(&zLine[3], "Usage: ", 6)==0 ) nHelp = 0;
-      strcpy(&zHelp[nHelp], &zLine[3]);
+      local_strcpy(&zHelp[nHelp], &zLine[3]);
       nHelp += strlen(&zHelp[nHelp]);
     }
     return;
