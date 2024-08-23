@@ -1457,7 +1457,9 @@ void login_check_credentials(void){
           /* The login cookie is a valid login for project CODE, but no
           ** user named USER exists on this repository.  Cannot login as
           ** USER, but at least give them "anonymous" login. */
-          uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'");
+          uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
+                          " AND octet_length(cap)>0"
+                          " AND octet_length(pw)>0");
         }
       }
     }
