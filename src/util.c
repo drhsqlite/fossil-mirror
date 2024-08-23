@@ -168,7 +168,7 @@ char *fossil_strdup(const char *zOrig){
   return fossil_strndup(zOrig, -1);
 }
 char *fossil_strdup_nn(const char *zOrig){
-  if( zOrig==0 ) fossil_strndup("", 0);
+  if( zOrig==0 ) return fossil_strndup("", 0);
   return fossil_strndup(zOrig, -1);
 }
 
