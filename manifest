@@ -1,5 +1,5 @@
-C Allow\sfor\smultiple\scaptcha-secret\svalues.\sThe\sprimary\sis\sstill\s'captcha-secret'.\nBackups\sare\sin\s'captcha-secret-N'\swhere\sN\sis\sa\ssmall\sinteger.\s\sThe\sbackups\nare\sonly\svalid\sfor\s6\shours.\s\sThis\sallows\sthe\scaptcha-secret\sto\sbe\schanged\nwithout\sdisrupting\sanonymous\slogins\sand/or\scaptcha\sdialogs\sthat\sare\sin\nprogress\swhen\sthe\ssecret\schanges.
-D 2024-08-23T13:55:16.413
+C Add\sthe\sability\sto\srotate\sthe\scaptcha-secret,\ssetting\sup\sa\snew\ssecret\sthat\nis\scommon\sto\sall\smembers\sof\sa\slogin-group.
+D 2024-08-23T14:43:53.675
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -394,7 +394,7 @@ F src/builtin.c 78d68f7ea4407815416d606efea9d7e2e63df943292fc978e1ad7ce7767b94c7
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
-F src/captcha.c 3d5b6bc2a67b7f64be04e00fb632fe4de2e1d450da602aec94131dfd64f75af4
+F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c a284c934cc7efc8d2c800f15996d8ab239a91854f14c189e7b1496a8ef368481
 F src/chat.c 09dee6cb0237d2c50f02ebfa9cadf2da9aca9511add07faeae3e2bc9be6f8f86
 F src/checkin.c 7e0013b78efc08b3656d048b0eab92aedf2581b7b462b8aab377c7f1fd63d67f
@@ -523,7 +523,7 @@ F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c e9e388269d6e528cb8e1f2e2adf04f5425195c6e08228deb37ce53817b916572
 F src/security_audit.c edafc6d6858f23d47e5066497165152d78f55072ffad5225d233c2dd3b8bec7b
-F src/setup.c 2217a865ac8ddb9941ddc4943fce469517cb27644f79bd73187c1d6f4b170a22
+F src/setup.c 2e0b418c3701e7f7e4c28d9eebb0dc605bfef44b2fa47642494aecd3e513ca4e
 F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea019128
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 06a72cea3aa06bdee63d4c66f8fba0c1cd81213c24cf6afd6ae7eed9929c7fc8
-R 46d45cf59dab01b83af2ce9a50f9c9cc
+P 8659d84aff2874737b58cda1b23f781f17509e71f16c32bc6c28d03380901045
+R 99c84676d4206e070cd37e26afc2a1ee
 U drh
-Z 2743fd5e6caf8d11507015107b714f06
+Z 06aa32d2dc639ee3b77600e9e1680f66
 # Remove this line to create a well-formed Fossil manifest.

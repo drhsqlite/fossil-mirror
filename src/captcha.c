@@ -511,6 +511,54 @@ unsigned int captcha_seed(void){
   return x;
 }
 
+/* The SQL that will rotate the the captcha-secret. */
+static const char captchaSecretRotationSql[] = 
+@ SAVEPOINT rotate;
+@ DELETE FROM config
+@  WHERE name GLOB 'captcha-secret-*'
+@    AND mtime<unixepoch('now','-6 hours');
+@ UPDATE config
+@    SET name=format('captcha-secret-%%d',substr(name,16)+1)
+@  WHERE name GLOB 'captcha-secret-*';
+@ UPDATE config
+@    SET name='captcha-secret-1', mtime=unixepoch()
+@  WHERE name='captcha-secret';
+@ REPLACE INTO config(name,value,mtime)
+@   VALUES('captcha-secret',%Q,unixepoch());
+@ RELEASE rotate;
+;
+
+
+/*
+** Create a new random captcha-secret.  Rotate the old one into
+** the captcha-secret-N backups.  Purge captch-secret-N backups
+** older than 6 hours.
+**
+** Do this on the current database and in all other databases of
+** the same login group.
+*/
+void captcha_secret_rotate(void){
+  char *zNew = db_text(0, "SELECT lower(hex(randomblob(20)))");
+  char *zSql = mprintf(captchaSecretRotationSql/*works-like:"%Q"*/, zNew);
+  char *zErrs = 0;
+  fossil_free(zNew);
+  db_unprotect(PROTECT_CONFIG);
+  db_begin_transaction();
+  sqlite3_exec(g.db, zSql, 0, 0, &zErrs);
+  db_protect_pop();
+  if( zErrs && zErrs[0] ){
+    db_rollback_transaction();
+    fossil_fatal("Unable to rotate captcha-secret\n%s\nERROR: %s\n",
+                 zSql, zErrs);
+  }
+  db_end_transaction(0);
+  login_group_sql(zSql, "", "", &zErrs);
+  if( zErrs ){
+    sqlite3_free(zErrs);  /* Silently ignore errors on other repos */
+  }
+  fossil_free(zSql);
+}
+
 /*
 ** Return the value of the N-th more recent captcha-secret.  The
 ** most recent captch-secret is 0.  Others are prior captcha-secrets

@@ -782,6 +782,8 @@ void setup_login_group(void){
     login_group_join(zRepo, 1, zLogin, zPw, zNewName, &zErrMsg);
   }else if( P("leave") ){
     login_group_leave(&zErrMsg);
+  }else if( P("rotate") ){
+    captcha_secret_rotate();
   }
   style_set_current_feature("setup");
   style_header("Login Group Configuration");
@@ -851,8 +853,11 @@ void setup_login_group(void){
     @
     @ <p><form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
-    @ To leave this login group press
+    @ <p>To leave this login group press:
     @ <input type="submit" value="Leave Login Group" name="leave">
+    @ <p>To rotate the captcha-secret on all members of the login-group
+    @ so that they can all share anonymous logins, press:
+    @ <input type="submit" name="rotate" value="Rotate the captcha-secret">
     @ </form></p>
   }
   @ <hr><h2>Implementation Details</h2>
