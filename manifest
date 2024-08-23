@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s/setup_login_group\sconfiguration\spage.
-D 2024-08-23T09:50:33.541
+C Add\sdocumentation\sabout\sinternal\sdata\sstructures\s(specifically,\sthe\nCONFIG\stable\sentries\sused\sand\swhat\sthey\smean)\son\sthe\slogin-group\nsetup\spage.
+D 2024-08-23T10:41:25.941
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -523,7 +523,7 @@ F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c e9e388269d6e528cb8e1f2e2adf04f5425195c6e08228deb37ce53817b916572
 F src/security_audit.c edafc6d6858f23d47e5066497165152d78f55072ffad5225d233c2dd3b8bec7b
-F src/setup.c 1a222b258cdcf6f90ef4bdfd66153c354e58be98ad74124ef59f1e51632621b2
+F src/setup.c 2217a865ac8ddb9941ddc4943fce469517cb27644f79bd73187c1d6f4b170a22
 F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea019128
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6bbf550e73fe07f4e2720cd91504e11c0c4df557c47708bdd8aae0b91427786
-R 0ad49f2c55d96f34e4998ec352a63eae
+P 4420efdf32bc45557386515d09d88f953fd04495273b4a50d80ce342f639cafa
+R d3c604c2964a8d049bae1b89925c14b8
 U drh
-Z 76e3441796bfb70b525e025378d2695e
+Z ebd37f8b69cba3a13735546f96ea42e5
 # Remove this line to create a well-formed Fossil manifest.

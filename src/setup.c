@@ -875,6 +875,42 @@ void setup_login_group(void){
   }
   db_finalize(&q);
   @ </tbody></table>
+  @ <h2>Interpretation</h2>
+  @ <ul>
+  @ <li><p><b>login-group-code</b> &rarr;
+  @ A random code assigned to each login-group.  The login-group-code is
+  @ a unique identifier for the login-group.
+  @
+  @ <li><p><b>login-group-name</b> &rarr;
+  @ The human-readable name of the login-group.
+  @
+  @ <li><p><b>project-code</b> &rarr;
+  @ A random code assigned to each project.  The project-code is
+  @ a unique identifier for the project.  Multiple repositories can share
+  @ the same project-code.  When two or more repositories have the same
+  @ project code, that mean those repositories are clones of each other.
+  @ Repositories are only able to sync if they share the same project-code.
+  @
+  @ <li><p><b>project-description</b> &rarr;
+  @ A description of project in this repository.  This is a verbose form
+  @ of project-name.  This description can be edited in the second entry
+  @ box on the <a href="./setup_config">Setup/Configuration page</a>.
+  @
+  @ <li><p><b>project-name</b> &rarr;
+  @ The human-readable name for the project.  The project-name can be
+  @ modified in the first entry on the 
+  @ <a href="./setup_config">Setup/Configuration page</a>.
+  @
+  @ <li><p><b>peer-repo-<i>CODE</i></b> &rarr;
+  @ <i>CODE</i> is 16-character prefix of the project-code for another
+  @ repository that is part of the same login-group.  The value is the
+  @ filename for the peer repository.
+  @
+  @ <li><p><b>peer-name-<i>CODE</i></b> &rarr;
+  @ <i>CODE</i> is 16-character prefix of the project-code for another
+  @ repository that is part of the same login-group.  The value is
+  @ project-name value for the other repository.
+  @ </ul>
   style_table_sorter();
   style_finish_page();
 }
