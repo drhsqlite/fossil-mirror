@@ -2915,7 +2915,12 @@ void page_timeline(void){
       tmFlags |= TIMELINE_CHPICK|TIMELINE_DISJOINT;
     }
     if( zUser ){
-      blob_appendf(&desc, " by user %h", zUser);
+      if( g.perm.Admin ){
+        blob_appendf(&desc, " by user <a href='%R/setup_uinfo?l=%h'>%h</a>",
+                     zUser, zUser);
+      }else{
+        blob_appendf(&desc, " by user %h", zUser);
+      }
       tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
     if( zTagSql ){

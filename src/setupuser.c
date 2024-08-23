@@ -941,3 +941,96 @@ void user_edit(void){
   @ </ul>
   style_finish_page();
 }
+
+/*
+** WEBPAGE: setup_uinfo
+**
+** Detailed information about a user account, available to administrators
+** only.
+**
+**    u=UID
+**    l=LOGIN
+*/
+void setup_uinfo_page(void){
+  Stmt q;
+  Blob sql;
+  const char *zLogin;
+  int uid;
+
+  /* Must have ADMIN privileges to access this page
+  */
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(0); return; }
+  style_set_current_feature("setup");
+  zLogin = P("l");
+  uid = atoi(PD("u","0"));
+  if( zLogin==0 && uid==0 ){
+    uid = db_int(1,"SELECT uid FROM user");
+  }
+  blob_init(&sql, 0, 0);
+  blob_append_sql(&sql,
+    "SELECT "
+       /*  0 */ "uid,"
+       /*  1 */ "login,"
+       /*  2 */ "cap,"
+       /*  3 */ "cookie,"
+       /*  4 */ "datetime(cexpire),"
+       /*  5 */ "info,"
+       /*  6 */ "datetime(user.mtime,'unixepoch'),"
+  );
+  if( db_table_exists("repository","subscriber") ){
+    blob_append_sql(&sql,
+      /*  7 */ "subscriberId,"
+      /*  8 */ "semail,"
+      /*  9 */ "sverified,"
+      /* 10 */ "date(lastContact+2440587.5)"
+      " FROM user LEFT JOIN subscriber ON suname=login"
+    );
+  }else{
+    blob_append_sql(&sql,
+      /*  7 */ "NULL,"
+      /*  8 */ "NULL,"
+      /*  9 */ "NULL,"
+      /* 10 */ "NULL"
+      " FROM user"
+    );
+  }
+  if( zLogin!=0 ){
+    blob_append_sql(&sql, " WHERE login=%Q", zLogin);
+  }else{
+    blob_append_sql(&sql, " WHERE uid=%d", uid);
+  }
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  blob_zero(&sql);
+  if( db_step(&q)!=SQLITE_ROW ){
+    style_header("No Such User");
+    if( zLogin ){
+      @ <p>Cannot find any information on user %h(zLogin).
+    }else{
+      @ <p>Cannot find any information on userid %d(uid).
+    }
+    style_finish_page();
+    db_finalize(&q);
+    return;
+  }
+  style_header("User %h", db_column_text(&q,1));
+  @ <table class="label-value">
+  @ <tr><th>uid:</th><td>%d(db_column_int(&q,0))
+  @  (<a href="%R/setup_uedit?uid=%d(db_column_int(&q,0))">edit</a>)</td></tr>
+  @ <tr><th>login:</th><td>%h(db_column_text(&q,1))</td></tr>
+  @ <tr><th>capabilities:</th><td>%h(db_column_text(&q,2))</th></tr>
+  @ <tr><th valign="top">info:</th>
+  @ <td valign="top"><span style='white-space:pre-line;'>\
+  @ %h(db_column_text(&q,5))</span></td></tr>
+  @ <tr><th>user.mtime:</th><td>%h(db_column_text(&q,6))</td></tr>
+  if( db_column_type(&q,7)!=SQLITE_NULL ){
+    @ <tr><th>subscriberId:</th><td>%d(db_column_int(&q,7))
+    @  (<a href="%R/alerts?sid=%d(db_column_int(&q,7))">edit</a>)</td></tr>
+    @ <tr><th>semail:</th><td>%h(db_column_text(&q,8))</td></tr>
+    @ <tr><th>verified:</th><td>%s(db_column_int(&q,9)?"yes":"no")</td></th>
+    @ <tr><th>lastContact:</th><td>%h(db_column_text(&q,10))</td></tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_finish_page();
+}
