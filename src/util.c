@@ -152,6 +152,28 @@ void fossil_secure_free_page(void *p, size_t n){
 }
 
 /*
+** Duplicate a string.
+*/
+char *fossil_strndup(const char *zOrig, ssize_t len){
+  char *z = 0;
+  if( zOrig ){
+    if( len<0 ) len = strlen(zOrig);
+    z = fossil_malloc( len+1 );
+    memcpy(z, zOrig, len);
+    z[len] = 0;
+  }
+  return z;
+}
+char *fossil_strdup(const char *zOrig){
+  return fossil_strndup(zOrig, -1);
+}
+char *fossil_strdup_nn(const char *zOrig){
+  if( zOrig==0 ) fossil_strndup("", 0);
+  return fossil_strndup(zOrig, -1);
+}
+
+
+/*
 ** Translate every upper-case character in the input string into
 ** its equivalent lower-case.
 */

@@ -1,5 +1,5 @@
-C Add\sdocumentation\sabout\sinternal\sdata\sstructures\s(specifically,\sthe\nCONFIG\stable\sentries\sused\sand\swhat\sthey\smean)\son\sthe\slogin-group\nsetup\spage.
-D 2024-08-23T10:41:25.941
+C Move\sthe\sfossil_strdup()\simplementation\sfrom\simport.c\sover\sto\sutil.c\swhere\nit\sbelongs.\s\sAdd\sa\snew\sfossil_strdup_nn()\sthat\smimics\sthe\sbehavior\sof\nmprintf("%s",...),\sonly\sfaster.
+D 2024-08-23T13:00:08.266
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -410,7 +410,7 @@ F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
 F src/cookies.c 655257d116421e8ffa3d076379a3f5628849b06b295ed8a90fd288e17963a662
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 3ac7e8d2000e3f5465a730811ac8ef0ff8b7a453a1c1d92325561ec1ac04b880
+F src/db.c 6e8614c8b83c8ba3d85668137e258126c35fd4bad49cb0eb5b3bb296e5739742
 F src/default.css b3f99b4184f6484b1010f1206aff63f8c537603c588fcf16a4878cb9a605a6ff
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -468,7 +468,7 @@ F src/http.c 88ee80fc188b5972abfc252d6a1d6c977596ab53191e8ebbc40344ba7c047c4b
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c 724d17ae234e05e22d8e85957f50884b92e237f79697a260cff33b74e18b5958
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
-F src/import.c 313d8f9b6964cdb6fb73eb6d87810d746018542bc65b6b0eb7285903f0d27873
+F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
 F src/info.c d85965a8279ddbb632ad68f1a3084aee961ae91aeb3ee3b85e22fa2a6decf605
 F src/interwiki.c 5ddeb43781f01107e75740ae978677dd156c439ba5772e3a8ef7161244b44080
 F src/json.c 60efff7e65795acaa680c845a7aab4871cbf6d62e9ea5f53cf0a9235b2bfd093
@@ -583,7 +583,7 @@ F src/url.c 303318d7493ac31ed88aaf97a29c4262edbf3be7c804ce3004790e73c0a9f24a
 F src/user.c cda5e43af6b01c05aacd01450e707d1ed8f2910d19321d2a543e948ff7fcf53b
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
-F src/util.c 2779c065497813512a8f321ed0dff329220890de5408766de1d03ed1a3905756
+F src/util.c 57391f9b9821240b46e39444db3d748180b4427067ce9ec1daa349aff123327e
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c d6a99a1a705323e326213f67e45e304e774914f632fae52b75366605c51fc8c6
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4420efdf32bc45557386515d09d88f953fd04495273b4a50d80ce342f639cafa
-R d3c604c2964a8d049bae1b89925c14b8
+P 5bb4cee5ec5a67f56abf890329a50330e35e82a5ca0ccf2526f1a4255d9e974a
+R 49a658a50f1e7a729a65a580dc3d7383
 U drh
-Z ebd37f8b69cba3a13735546f96ea42e5
+Z 009c021d96d2809f4076a2b3ce2c33c1
 # Remove this line to create a well-formed Fossil manifest.
