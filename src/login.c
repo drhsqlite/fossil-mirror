@@ -1451,7 +1451,14 @@ void login_check_credentials(void){
       uid = login_find_user(zUser, zHash);
       if( uid==0 && login_transfer_credentials(zUser,zArg,zHash) ){
         uid = login_find_user(zUser, zHash);
-        if( uid ) record_login_attempt(zUser, zIpAddr, 1);
+        if( uid ){
+          record_login_attempt(zUser, zIpAddr, 1);
+        }else{
+          /* The login cookie is a valid login for project CODE, but no
+          ** user named USER exists on this repository.  Cannot login as
+          ** USER, but at least give them "anonymous" login. */
+          uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'");
+        }
       }
     }
     login_create_csrf_secret(zHash);
