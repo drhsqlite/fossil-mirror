@@ -846,11 +846,13 @@ void login_page(void){
       @ <a href="%R/timeline?ss=v&y=f&vfx&u=%t(g.zLogin)">Forum
       @ post timeline</a> for user <b>%h(g.zLogin)</b></p>
     }
-    @ <hr><p>
-    @ Select your preferred <a href="%R/skins">site skin</a>.
-    @ </p>
-    @ <hr><p>
-    @ Manage your <a href="%R/cookies">cookies</a>.</p>
+  }
+  @ <hr><p>
+  @ Select your preferred <a href="%R/skins">site skin</a>.
+  @ </p>
+  @ <hr><p>
+  @ Manage your <a href="%R/cookies">cookies</a>.</p>
+  if( login_is_individual() ){
     if( g.perm.Password ){
       char *zRPW = fossil_random_password(12);
       @ <hr>

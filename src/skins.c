@@ -1347,7 +1347,7 @@ void setup_skin(void){
 /*
 ** WEBPAGE: skins
 **
-** Show a list of all of the built-in skins, plus the responsitory skin,
+** Show a list of all of the built-in skins, plus the respository skin,
 ** and provide the user with an opportunity to change to any of them.
 */
 void skins_page(void){
