@@ -762,6 +762,7 @@ void setup_access(void){
 void setup_login_group(void){
   const char *zGroup;
   char *zErrMsg = 0;
+  Stmt q;
   Blob fullName;
   char *zSelfRepo;
   const char *zRepo = PD("repo", "");
@@ -823,7 +824,6 @@ void setup_login_group(void){
     @ <input type="submit" value="Join" name="join"></td></tr>
     @ </table></blockquote></div></form>
   }else{
-    Stmt q;
     int n = 0;
     @ <p>This repository (in the file "%h(zSelfRepo)")
     @ is currently part of the "<b>%h(zGroup)</b>" login group.
@@ -854,28 +854,28 @@ void setup_login_group(void){
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
     @ </form></p>
-    @ <hr><h2>Implementation Details</h2>
-    @ <p>The following are fields from the CONFIG table related to login-groups,
-    @ provided here for instructional and debugging purposes:</p>
-    @ <table border='1' class='sortable' data-column-types='ttt' \
-    @ data-init-sort='1'>
-    @ <thead><tr>
-    @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
-    @ </thead><tbody>
-    db_prepare(&q, "SELECT name, value, datetime(mtime,'unixepoch') FROM config"
-                   " WHERE name GLOB 'peer-*'"
-                   "    OR name GLOB 'project-*'"
-                   "    OR name GLOB 'login-group-*'"
-                   " ORDER BY name");
-    while( db_step(&q)==SQLITE_ROW ){
-      @ <tr><td>%h(db_column_text(&q,0))</td>
-      @ <td>%h(db_column_text(&q,1))</td>
-      @ <td>%h(db_column_text(&q,2))</td></tr>
-    }
-    db_finalize(&q);
-    @ </tbody></table>
-    style_table_sorter();
   }
+  @ <hr><h2>Implementation Details</h2>
+  @ <p>The following are fields from the CONFIG table related to login-groups.
+  @ </p>
+  @ <table border='1' cellspacing="0" cellpadding="4"\
+  @ class='sortable' data-column-types='ttt' data-init-sort='1'>
+  @ <thead><tr>
+  @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
+  @ </thead><tbody>
+  db_prepare(&q, "SELECT name, value, datetime(mtime,'unixepoch') FROM config"
+                 " WHERE name GLOB 'peer-*'"
+                 "    OR name GLOB 'project-*'"
+                 "    OR name GLOB 'login-group-*'"
+                 " ORDER BY name");
+  while( db_step(&q)==SQLITE_ROW ){
+    @ <tr><td>%h(db_column_text(&q,0))</td>
+    @ <td>%h(db_column_text(&q,1))</td>
+    @ <td>%h(db_column_text(&q,2))</td></tr>
+  }
+  db_finalize(&q);
+  @ </tbody></table>
+  style_table_sorter();
   style_finish_page();
 }
 
