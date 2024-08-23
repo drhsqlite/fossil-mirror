@@ -1,5 +1,5 @@
-C For\s'update\s--dry-run',\sremind\sthe\suser\sthat\sno\sfile\schanges\shave\soccurred.'
-D 2024-08-23T13:23:26.917
+C Allow\sfor\smultiple\scaptcha-secret\svalues.\sThe\sprimary\sis\sstill\s'captcha-secret'.\nBackups\sare\sin\s'captcha-secret-N'\swhere\sN\sis\sa\ssmall\sinteger.\s\sThe\sbackups\nare\sonly\svalid\sfor\s6\shours.\s\sThis\sallows\sthe\scaptcha-secret\sto\sbe\schanged\nwithout\sdisrupting\sanonymous\slogins\sand/or\scaptcha\sdialogs\sthat\sare\sin\nprogress\swhen\sthe\ssecret\schanges.
+D 2024-08-23T13:55:16.413
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -375,7 +375,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c 323aeb537c23a5fc4bfd3edfe289230f80a3edcca2651688db0fd07dd312edc6
 F src/ajax.c caf28a8fdda103acbe9048eeed84f6b2cb1fb3545c1c68f38da66ea44f576e01
-F src/alerts.c 72ec947ba10547abd4982d174e98fdba1ea84d945a540fca352458294b2282b4
+F src/alerts.c 1525ee2c1f56953a3c5043d699fe050d0ef19694938ff72ab00eb4e8039153d1
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -394,7 +394,7 @@ F src/builtin.c 78d68f7ea4407815416d606efea9d7e2e63df943292fc978e1ad7ce7767b94c7
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
-F src/captcha.c 6207012fe85315c429ff43956966d6124d39c7bb4e4685583b01cac1fb5b8fd1
+F src/captcha.c 3d5b6bc2a67b7f64be04e00fb632fe4de2e1d450da602aec94131dfd64f75af4
 F src/cgi.c a284c934cc7efc8d2c800f15996d8ab239a91854f14c189e7b1496a8ef368481
 F src/chat.c 09dee6cb0237d2c50f02ebfa9cadf2da9aca9511add07faeae3e2bc9be6f8f86
 F src/checkin.c 7e0013b78efc08b3656d048b0eab92aedf2581b7b462b8aab377c7f1fd63d67f
@@ -479,7 +479,7 @@ F src/json_detail.h d48c61ce1de7b5dc696384aaaa7b4761ae7e39b4b3d65602e122590d2184
 F src/json_diff.c fc9d84cc28fcba644c6edb7203d200fa64de54369ef1fd4de449864670536b67
 F src/json_dir.c 89cc2a9475618fa93baae9eca3b56d28e156d78e9959fc47a955bf62aed521ad
 F src/json_finfo.c 6a2acfb47c4414d186ae6e9be53b8f6225934fca8c00d8e5189df1b5d6ed533d
-F src/json_login.c 7b9b3682cd14058dd6e253e7f8c7b1e6d411132b8c5fc97edaedeac5f9a7ca87
+F src/json_login.c 7ac3650ba85237ab945195f5532d03774148684859326139083b79fc4f8babbd
 F src/json_query.c 8389173e1d2cf5429e39ecbeed2742e3907d84842961e2843805a62ba7aaae4b
 F src/json_report.c 10f8c32bb045ab3fee49d9c0df386deb60a59beee2c2142aeb69a8106989c6f9
 F src/json_status.c 6b0b99247c64db4073fae83da552c2f1f90859824a70c50e36fbd03f2985d94f
@@ -489,7 +489,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22a
-F src/login.c c819224e0edae57ee9a03f4f3927249f95d9850304337f5b684518b85f9aaa2b
+F src/login.c 4114cdd49d1e6eaae1c42897b1d02dfdd4a93f5de3da196c49243743c63f1f0b
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c ed3226841d854b013c2599f617f9ba016bb3dfc34c93e317e025be7c82525011
@@ -556,7 +556,7 @@ F src/stash.c 63cef80d3740c54c448d60b992be69b9f8c8b9acb7b28241bcfd769efdc6ad22
 F src/stat.c 318d359a317da263f80db05dacd9c5ebbf69383945f9540a9a67fdfc4f6743b0
 F src/statrep.c be5687a6d6f012a5862e9a70e769de0db40100c4f3e3a1bfbc622235218a28b3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 797f34fe6cad1cc5c1453ff8b583c4c1b62e26049dc5b0a342d5a43380029975
+F src/style.c eff142b945fc9d724347d71ea057436827f83a007510b787ed5a68180e991395
 F src/style.chat.css 21306b3184bfe8687412c7ce2237344ae7963304dd0fc67899dbed063e7e5dde
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a04d18198d854231ac27c33b33123a96fce28ccd1ae8b22d1e808be13e42b4b0
-R f350f94072b0c0b05ee7a5ee01e53925
-U danield
-Z 07d20d0d18ef6fdc15d0745bf3054c11
+P 06a72cea3aa06bdee63d4c66f8fba0c1cd81213c24cf6afd6ae7eed9929c7fc8
+R 46d45cf59dab01b83af2ce9a50f9c9cc
+U drh
+Z 2743fd5e6caf8d11507015107b714f06
 # Remove this line to create a well-formed Fossil manifest.

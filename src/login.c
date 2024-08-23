@@ -156,13 +156,18 @@ int login_is_valid_anonymous(
 ){
   const char *zPw;        /* The correct password shown in the captcha */
   int uid;                /* The user ID of anonymous */
+  int n = 0;              /* Counter of captcha-secrets */
 
   if( zUsername==0 ) return 0;
   else if( zPassword==0 ) return 0;
   else if( zCS==0 ) return 0;
   else if( fossil_strcmp(zUsername,"anonymous")!=0 ) return 0;
-  zPw = captcha_decode((unsigned int)atoi(zCS));
-  if( fossil_stricmp(zPw, zPassword)!=0 ) return 0;
+  while( 1/*exit-by-break*/ ){
+    zPw = captcha_decode((unsigned int)atoi(zCS), n);
+    if( zPw==0 ) return 0;
+    if( fossil_stricmp(zPw, zPassword)==0 ) break;
+    n++;
+  }
   uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
                   " AND octet_length(pw)>0 AND octet_length(cap)>0");
   return uid;
@@ -348,7 +353,7 @@ void login_set_user_cookie(
 ** If bSessionCookie is true, the cookie will be a session cookie.
 */
 void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
-  const char *zNow;            /* Current time (julian day number) */
+  char *zNow;                  /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
@@ -357,7 +362,7 @@ void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
   blob_init(&b, zNow, -1);
-  blob_appendf(&b, "/%s", db_get("captcha-secret",""));
+  blob_appendf(&b, "/%z", captcha_secret(0));
   sha1sum_blob(&b, &b);
   zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
   blob_reset(&b);
@@ -367,6 +372,7 @@ void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   }else{
     free(zCookie);
   }
+  fossil_free(zNow);
 }
 
 /*
@@ -808,7 +814,7 @@ void login_page(void){
     }
     @ </table>
     if( zAnonPw && !noAnon ){
-      const char *zDecoded = captcha_decode(uSeed);
+      const char *zDecoded = captcha_decode(uSeed, 0);
       int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
       char *zCaptcha = captcha_render(zDecoded);
 
@@ -1430,18 +1436,25 @@ void login_check_credentials(void){
       */
       double rTime = atof(zArg);
       Blob b;
-      blob_zero(&b);
-      blob_appendf(&b, "%s/%s", zArg, db_get("captcha-secret",""));
-      sha1sum_blob(&b, &b);
-      if( fossil_strcmp(zHash, blob_str(&b))==0 ){
-        uid = db_int(0,
-            "SELECT uid FROM user WHERE login='anonymous'"
-            " AND octet_length(cap)>0"
-            " AND octet_length(pw)>0"
-            " AND %.17g+0.25>julianday('now')",
-            rTime
-        );
-      }
+      char *zSecret;
+      int n = 0;
+
+      do{
+        blob_zero(&b);
+        zSecret = captcha_secret(n++);
+        if( zSecret==0 ) break;
+        blob_appendf(&b, "%s/%s", zArg, zSecret);
+        sha1sum_blob(&b, &b);
+        if( fossil_strcmp(zHash, blob_str(&b))==0 ){
+          uid = db_int(0,
+              "SELECT uid FROM user WHERE login='anonymous'"
+              " AND octet_length(cap)>0"
+              " AND octet_length(pw)>0"
+              " AND %.17g+0.25>julianday('now')",
+              rTime
+          );
+        }
+      }while( uid==0 );
       blob_reset(&b);
     }else{
       /* Cookies of the form "HASH/CODE/USER".  Search first in the
@@ -2215,7 +2228,7 @@ void register_page(void){
   }else{
     uSeed = captcha_seed();
   }
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
 
   style_header("Register");
@@ -2425,7 +2438,7 @@ void login_reqpwreset_page(void){
   }else{
     uSeed = captcha_seed();
   }
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
 
   style_header("Request Password Reset");

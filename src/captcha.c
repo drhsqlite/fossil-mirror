@@ -512,25 +512,59 @@ unsigned int captcha_seed(void){
 }
 
 /*
+** Return the value of the N-th more recent captcha-secret.  The
+** most recent captch-secret is 0.  Others are prior captcha-secrets
+** that have expired, but are retained for a limited period of time
+** so that pending anonymous login cookies and/or captcha dialogs
+** don't malfunction when the captcha-secret changes.
+**
+** Clients should start by using the 0-th captcha-secret.  Only if
+** that one does not work should they advance to 1 and 2 and so forth,
+** until this routine returns a NULL pointer.
+**
+** The value returned is a string obtained from fossil_malloc() and
+** should be freed by the caller.
+**
+** The 0-th captcha secret is the value of Config.Name='captcha-secret'.
+** For N>0, the value is in Config.Name='captcha-secret-$N'.
+*/
+char *captcha_secret(int N){
+  if( N==0 ){
+    return db_text(0, "SELECT value FROM config WHERE name='captcha-secret'");
+  }else{
+    return db_text(0, 
+        "SELECT value FROM config"
+        " WHERE name='captcha-secret-%d'"
+        "   AND mtime>unixepoch('now','-6 hours')", N);
+  }
+}
+
+/*
 ** Translate a captcha seed value into the captcha password string.
 ** The returned string is static and overwritten on each call to
 ** this function.
+**
+** Use the N-th captcha secret to compute the password.  When N==0,
+** a valid password is always returned.  A new captcha-secret will
+** be created if necessary.  But for N>0, the return value might
+** be NULL to indicate that there is no N-th captcha-secret.
 */
-const char *captcha_decode(unsigned int seed){
-  const char *zSecret;
+const char *captcha_decode(unsigned int seed, int N){
+  char *zSecret;
   const char *z;
   Blob b;
   static char zRes[20];
 
-  zSecret = db_get("captcha-secret", 0);
+  zSecret = captcha_secret(N);
   if( zSecret==0 ){
+    if( N>0 ) return 0;
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "REPLACE INTO config(name,value)"
       " VALUES('captcha-secret', lower(hex(randomblob(20))));"
     );
     db_protect_pop();
-    zSecret = db_get("captcha-secret", 0);
+    zSecret = captcha_secret(0);
     assert( zSecret!=0 );
   }
   blob_init(&b, 0, 0);
@@ -539,6 +573,7 @@ const char *captcha_decode(unsigned int seed){
   z = blob_buffer(&b);
   memcpy(zRes, z, 8);
   zRes[8] = 0;
+  fossil_free(zSecret);
   return zRes;
 }
 
@@ -571,6 +606,7 @@ int captcha_is_correct(int bAlwaysNeeded){
   const char *zDecode;
   char z[30];
   int i;
+  int n = 0;
   if( !bAlwaysNeeded && !captcha_needed() ){
     return 1;  /* No captcha needed */
   }
@@ -578,15 +614,17 @@ int captcha_is_correct(int bAlwaysNeeded){
   if( zSeed==0 ) return 0;
   zEntered = P("captcha");
   if( zEntered==0 || strlen(zEntered)!=8 ) return 0;
-  zDecode = captcha_decode((unsigned int)atoi(zSeed));
-  assert( strlen(zDecode)==8 );
-  for(i=0; i<8; i++){
-    char c = zEntered[i];
-    if( c>='A' && c<='F' ) c += 'a' - 'A';
-    if( c=='O' ) c = '0';
-    z[i] = c;
-  }
-  if( strncmp(zDecode,z,8)!=0 ) return 0;
+  do{
+    zDecode = captcha_decode((unsigned int)atoi(zSeed), n++);
+    if( zDecode==0 ) return 0;
+    assert( strlen(zDecode)==8 );
+    for(i=0; i<8; i++){
+      char c = zEntered[i];
+      if( c>='A' && c<='F' ) c += 'a' - 'A';
+      if( c=='O' ) c = '0';
+      z[i] = c;
+    }
+  }while( strncmp(zDecode,z,8)!=0 );
   return 1;
 }
 
@@ -609,7 +647,7 @@ void captcha_generate(int mFlags){
 
   if( !captcha_needed() && (mFlags & 0x02)==0 ) return;
   uSeed = captcha_seed();
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
   @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
@@ -810,7 +848,7 @@ static void captcha_wav(const char *zHex, Blob *pOut){
 */
 void captcha_wav_page(void){
   const char *zSeed = PD("name","0");
-  const char *zDecode = captcha_decode((unsigned int)atoi(zSeed));
+  const char *zDecode = captcha_decode((unsigned int)atoi(zSeed), 0);
   Blob audio;
   captcha_wav(zDecode, &audio);
   cgi_set_content_type("audio/wav");

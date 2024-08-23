@@ -1651,7 +1651,7 @@ void subscribe_page(void){
     }else{
       uSeed = captcha_seed();
     }
-    zDecoded = captcha_decode(uSeed);
+    zDecoded = captcha_decode(uSeed, 0);
     zCaptcha = captcha_render(zDecoded);
     @ <tr>
     @  <td class="form_label">Security Code:</td>
@@ -2355,7 +2355,7 @@ void unsubscribe_page(void){
   }
   @ </tr>
   uSeed = captcha_seed();
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
   @ <tr>
   @  <td class="form_label">Security Code:</td>
@@ -3358,7 +3358,7 @@ void contact_admin_page(void){
   }
   if( captcha_needed() ){
     uSeed = captcha_seed();
-    zDecoded = captcha_decode(uSeed);
+    zDecoded = captcha_decode(uSeed, 0);
     zCaptcha = captcha_render(zDecoded);
   }
   style_set_current_feature("alerts");
