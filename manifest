@@ -1,5 +1,5 @@
-C Fix\sa\sJS\sternary\soperator\sprecedence\sbug\sto\smess\sup\slater\sloaded\sdiff\scontext.
-D 2024-08-23T05:21:00.000
+C Remove\s'display:\sinline-block'\sfrom\sinsertion\sand\sdeletion\smarks\sto\sget\smore\snatural\sword-wrapping.\sTry\swhether\sthe\sprevious,\sprecisely\scalculated\sline\sheight\sand\spadding\svalues\salso\swork\sto\sextend\sthe\sbackground\scolor\sto\sthe\sentire\sline\sheight.
+D 2024-08-23T06:02:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/cookies.c 655257d116421e8ffa3d076379a3f5628849b06b295ed8a90fd288e17963a662
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 3ac7e8d2000e3f5465a730811ac8ef0ff8b7a453a1c1d92325561ec1ac04b880
-F src/default.css 2c4a9d4f2343a4fa9f9e0f5c49538e7f738d7f7e58da358048a0951340b2b603
+F src/default.css 79f9b0930359f0c20d648aa9ebc503b49e39259a7635d3633dad13e12d27e8f3
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -419,7 +419,7 @@ F src/descendants.c 940b768edff94b00adc2b474bb75c8b9d03bfd0d27f834e37217d2c755a7
 F src/diff.c ae1e498b2e7c673ef3ab608c51ddae3715870562b53f4cc2b1f2f2b6e1274be2
 F src/diff.js 3dc821a47a58e669ff6b63fd338e3ea1fd360de0f5d30c96d3fc082a0ce5bfbd
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
-F src/diffcmd.c 8aa4598f4b710d5e87e2c3d6cfd280bed41df77acee8a3c692286c0552db7046
+F src/diffcmd.c 0f6484d4d2fa50f8d7abbc6c65e6a9bdf4f1b4e946defdb397c350941dcf3576
 F src/dispatch.c 888760a3fae9c8270eaf90f8f5a5ee2dcef8e4b48482a694eec29e6d778ddb68
 F src/doc.c 55dd74f447c1fd2ba655fa68a48136505e70a9d6212f138c5328031c06a007f9
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P faf4b4718d51d887420f7e5254db4c374968d216f28b93a28d3a8b3369aea13d
-R f8b63a92684f28a0ac1e86bda53da500
+P 18c5117b11df51c5af0a905d51c35163c0c6ad4670f139703430afb56e4272b2
+R 5f25b08d8f0d1a47898fbd540e5fd078
 U florian
-Z c5e4748bad8716626911ff4582e709d6
+Z 553b1ffc38b1b13e38fa97a62ffcd3d9
 # Remove this line to create a well-formed Fossil manifest.

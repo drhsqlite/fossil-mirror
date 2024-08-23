@@ -245,10 +245,15 @@ static const char zWebpageHdr[] =
 @   padding: 0;
 @   border: 0;
 @   font-family: monospace;
-@   line-height: 1.2;
+@   line-height: 1.275;
 @   text-size-adjust: none;
 @   white-space: pre-wrap;
 @   word-wrap: break-word;
+@ }
+@ table.diff td del,
+@ table.diff td ins {
+@   padding: 0.062em 0 0.062em 0;
+@   text-decoration: none;
 @ }
 @ table.diff td.diffln {
 @   width: 0%;
@@ -290,16 +295,12 @@ static const char zWebpageHdr[] =
 @ }
 @ td.difftxt.del del {
 @   background-color: #ffc0c0;
-@   text-decoration: none;
-@   display: inline-block;
 @ }
 @ td.difftxt.del del.edit {
 @   background-color: #c0c0ff;
 @ }
 @ td.difftxt.ins ins {
 @   background-color: #a0e4b2;
-@   text-decoration: none;
-@   display: inline-block;
 @ }
 @ td.difftxt.ins ins.edit {
 @   background-color: #c0c0ff;
@@ -363,10 +364,15 @@ static const char zWebpageHdrDark[] =
 @   padding: 0;
 @   border: 0;
 @   font-family: monospace;
-@   line-height: 1.2;
+@   line-height: 1.275;
 @   text-size-adjust: none;
 @   white-space: pre-wrap;
 @   word-wrap: break-word;
+@ }
+@ table.diff td del,
+@ table.diff td ins {
+@   padding: 0.062em 0 0.062em 0;
+@   text-decoration: none;
 @ }
 @ table.diff td.diffln {
 @   width: 0%;
@@ -411,16 +417,12 @@ static const char zWebpageHdrDark[] =
 @ td.difftxt.del del {
 @   color: #000;
 @   background-color: #cc5555;
-@   text-decoration: none;
-@   display: inline-block;
 @ }
 @ td.difftxt.del del.edit {
 @   background-color: #c0c0ff;
 @ }
 @ td.difftxt.ins ins {
 @   background-color: #559855;
-@   text-decoration: none;
-@   display: inline-block;
 @ }
 @ td.difftxt.ins ins.edit {
 @   background-color: #c0c0ff;
