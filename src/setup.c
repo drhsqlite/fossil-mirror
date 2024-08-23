@@ -855,9 +855,13 @@ void setup_login_group(void){
     login_insert_csrf_secret();
     @ <p>To leave this login group press:
     @ <input type="submit" value="Leave Login Group" name="leave">
-    @ <p>To rotate the captcha-secret on all members of the login-group
-    @ so that they can all share anonymous logins, press:
-    @ <input type="submit" name="rotate" value="Rotate the captcha-secret">
+    @ <p>Setting a common captcha-secret on all repositories in the login-group
+    @ allows anonymous logins for one repository in the login group to be used
+    @ by all other repositories of the group within the same domain.  Warning:
+    @ If a captcha dialog was painted before setting the common captcha-secret
+    @ and the "Speak password for 'anonymous'" button is pressed afterwards,
+    @ the spoken text will be incorrect.
+    @ <input type="submit" name="rotate" value="Set common captcha-secret">
     @ </form></p>
   }
   @ <hr><h2>Implementation Details</h2>

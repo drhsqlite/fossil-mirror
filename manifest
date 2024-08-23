@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\srotate\sthe\scaptcha-secret,\ssetting\sup\sa\snew\ssecret\sthat\nis\scommon\sto\sall\smembers\sof\sa\slogin-group.
-D 2024-08-23T14:43:53.675
+C Improved\sinstructions\sfor\ssetting\sa\scommon\scaptcha-secret\sacross\sa\slogin-group\non\sthe\s/setup_login_group\spage.
+D 2024-08-23T15:42:11.197
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -523,7 +523,7 @@ F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c e9e388269d6e528cb8e1f2e2adf04f5425195c6e08228deb37ce53817b916572
 F src/security_audit.c edafc6d6858f23d47e5066497165152d78f55072ffad5225d233c2dd3b8bec7b
-F src/setup.c 2e0b418c3701e7f7e4c28d9eebb0dc605bfef44b2fa47642494aecd3e513ca4e
+F src/setup.c 7bb40eb1f23130e91324ea33eb21104ad014e9317d24d66d17a2de0d43e8bc92
 F src/setupuser.c 85e0ec8a0bb362563f83cfcfc6d4385cf155ddd6cd9b1120429e9aedea019128
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8659d84aff2874737b58cda1b23f781f17509e71f16c32bc6c28d03380901045
-R 99c84676d4206e070cd37e26afc2a1ee
+P acfaf4e48e776d84222cdad6cda8dbb4b39c49607494de5057b7e744173dc697
+R 7a20b38df3f6b02f8c913cc88ff91ee3
 U drh
-Z 06aa32d2dc639ee3b77600e9e1680f66
+Z 9e1e504b5acc1a944ad711a7abfcb1e7
 # Remove this line to create a well-formed Fossil manifest.
