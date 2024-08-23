@@ -618,6 +618,9 @@ void update_cmd(void){
   */
   if( dryRunFlag ){
     db_end_transaction(1);  /* With --dry-run, rollback changes */
+    fossil_warning("\nREMINDER: this was a dry run -"
+                   " no files were actually changed "
+                   "(checkout is still %.10s).", rid_to_uuid(vid));
   }else{
     char *zPwd;
     ensure_empty_dirs_created(1);
