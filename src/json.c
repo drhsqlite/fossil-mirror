@@ -223,10 +223,10 @@ int cson_data_dest_cgi(void * pState, void const * src, unsigned int n){
 **
 */
 char const * json_rc_cstr( int code ){
-  enum { BufSize = 12 };
+  enum { BufSize = 13 };
   static char buf[BufSize] = {'F','O','S','S','I','L','-',0};
   assert((code >= 1000) && (code <= 9999) && "Invalid Fossil/JSON code.");
-  sprintf(buf+7,"%04d", code);
+  sqlite3_snprintf((int)BufSize, buf+7,"%04d", code);
   return buf;
 }
 

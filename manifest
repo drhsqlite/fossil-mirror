@@ -1,5 +1,5 @@
-C Replace\scalls\sto\sstrcpy()\swith\sa\stree-local\sstrcpy()\sclone\sto\ssquelch\sunwarranted\slink-time\swarnings\swhen\sbuilding\son\sOpenBSD.\sThere\sis\sstill\sone\sstrcpy()\sinstance\sin\sthe\supstream\sextsrc/shell.c.
-D 2024-08-23T20:51:04.233
+C Latest\supstream\sextsrc/cson_amalgamation.*,\sand\supdate\ssrc/json*.c,\sto\ssquelch\swarnings\sfrom\sOpenBSD.
+D 2024-08-23T22:18:52.324
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -265,8 +265,8 @@ F compat/zlib/zutil.c af69ff1a313b2e3c300fc6ae27205cee2f5a5b103b4c259ad0257c55e6
 F compat/zlib/zutil.h d128bc5cf4f5010b4ff86fcf0708b052b88ca9cf9fe75888ba60f3d923d51dc6
 F configure 9a00b21dfd13757bbfb8d89b30660a89ec1f8f3a79402b8f9f9b6fc475c3303a x
 F debian/makedeb.sh a6f25e2697977d7865196cc87b67271575681d2fc148256b58bdd574bd49a5d7
-F extsrc/cson_amalgamation.c 5fcb1947aca6b836007f165622c1b96e2167487f889265ab64711757f01b913b
-F extsrc/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
+F extsrc/cson_amalgamation.c 171c1a56656bcf160ef23e47b8eb8593f270dca8c2d7f3dd431c50eb76668988
+F extsrc/cson_amalgamation.h 6ecaa2c23ed07ddc773dbe2ea10af677d026983c3ad2daebc8b3577c7eb3c721
 F extsrc/linenoise.c c9e953e2f3ce6fc3aad1455fe9ff2865cafecfa051e1d4dec2a6a8b656eab780
 F extsrc/linenoise.h 8f20fae1acd1ca76c4632c882249827410246f1045ebd800edeeea6b17905e00
 F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc36f71318c48
@@ -471,7 +471,7 @@ F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
 F src/info.c d85965a8279ddbb632ad68f1a3084aee961ae91aeb3ee3b85e22fa2a6decf605
 F src/interwiki.c 5ddeb43781f01107e75740ae978677dd156c439ba5772e3a8ef7161244b44080
-F src/json.c 60efff7e65795acaa680c845a7aab4871cbf6d62e9ea5f53cf0a9235b2bfd093
+F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
 F src/json_branch.c 8d9dd577e0aa2b9fd8011584224c775e83ccc44ff84b0464b4ab28211d6e1aa4
 F src/json_config.c 50eb640804535840e0af610ca472507180004a4382f7aaa7d83f05ef97dfbe62
@@ -479,7 +479,7 @@ F src/json_detail.h d48c61ce1de7b5dc696384aaaa7b4761ae7e39b4b3d65602e122590d2184
 F src/json_diff.c fc9d84cc28fcba644c6edb7203d200fa64de54369ef1fd4de449864670536b67
 F src/json_dir.c 89cc2a9475618fa93baae9eca3b56d28e156d78e9959fc47a955bf62aed521ad
 F src/json_finfo.c 6a2acfb47c4414d186ae6e9be53b8f6225934fca8c00d8e5189df1b5d6ed533d
-F src/json_login.c 7ac3650ba85237ab945195f5532d03774148684859326139083b79fc4f8babbd
+F src/json_login.c 819ecd10c202b55d014b344e5d2129dfb1935c4f96f1404b4d141f2e894a0822
 F src/json_query.c 8389173e1d2cf5429e39ecbeed2742e3907d84842961e2843805a62ba7aaae4b
 F src/json_report.c 10f8c32bb045ab3fee49d9c0df386deb60a59beee2c2142aeb69a8106989c6f9
 F src/json_status.c 6b0b99247c64db4073fae83da552c2f1f90859824a70c50e36fbd03f2985d94f
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 24eb1822483412f7ca640998a4d200f57d20498cfaf27232303c1f2be41098b3
-R 31ee541d1ed8002ffdc60db6a6135913
+P c0b9b4487f0318093ca3ffcbd95f408a57bfb4d95b70721a895bbc8914b9f0c8
+R 08a151396345344672e7ab9e4395d5cf
 U stephan
-Z 8932c6d840786d4f9d560b7c64d5ee51
+Z 994fa5267935121f9b97685eb95be6da
 # Remove this line to create a well-formed Fossil manifest.
