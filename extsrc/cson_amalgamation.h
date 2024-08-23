@@ -2673,7 +2673,7 @@ the client eventually link to (or directly embed) the sqlite3 library.
 #endif
 
 #if CSON_ENABLE_SQLITE3 /* we do this here for the sake of the amalgamation build */
-#include <sqlite3.h>
+#include "sqlite3.h"
 
 #if defined(__cplusplus)
 extern "C" {
