@@ -635,6 +635,9 @@ window.fossil.onPageLoad(function(){
     table.$txtPres.forEach((e)=>(e===this) ? 1 : (e.scrollLeft = this.scrollLeft));
     return false;
   };
+  const keycodes = Object.assign(Object.create(null),{
+    37: -SCROLL_LEN, 39: SCROLL_LEN
+  });
   Diff.initTableDiff = function f(diff, unifiedDiffs){
     if(!diff){
       let i, diffs;
@@ -665,8 +668,7 @@ window.fossil.onPageLoad(function(){
       if(!diff.classList.contains('scroller')){
         D.addClass(diff, 'scroller');
         diff.addEventListener('keydown', function(e){
-          e = e || event;
-          const len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
+          const len = keycodes[e.keyCode];
           if( !len ) return;
           this.$txtPres[0].scrollLeft += len;
           return false;
