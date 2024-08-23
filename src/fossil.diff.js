@@ -335,7 +335,7 @@ window.fossil.onPageLoad(function(){
         td.className = 'diffsep';
         tr.appendChild(td);
         td = document.createElement('td');
-        td.className = 'difftxt difftxt' + isSplit ? 'r' : 'u';
+        td.className = 'difftxt difftxt' + ( isSplit ? 'r' : 'u' );
         td.appendChild(document.createTextNode(txt));
         tr.appendChild(td);
         return tr;
