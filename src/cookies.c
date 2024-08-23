@@ -278,7 +278,7 @@ void cookie_page(void){
       @ be logged out.
     }else
     if( fossil_strncmp(zName, "fossil-", 7)==0
-     && strlen(zName)==32
+     && strlen(zName)==23
      && hex_prefix_length(&zName[7])==16
      && hex_prefix_length(zValue)>24
     ){
