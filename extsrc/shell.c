@@ -1523,6 +1523,14 @@ static char *shell_strncpy(char *dest, const char *src, size_t n){
 }
 
 /*
+** strcpy() workalike to squelch an unwarranted link-time warning
+** from OpenBSD.
+*/
+static void shell_strcpy(char *dest, const char *src){
+  while( (*(dest++) = *(src++))!=0 ){}
+}
+
+/*
 ** Optionally disable dynamic continuation prompt.
 ** Unless disabled, the continuation prompt shows open SQL lexemes if any,
 ** or open parentheses level if non-zero, or continuation prompt as set.
@@ -1587,7 +1595,7 @@ static char *dynamicContinuePrompt(void){
       size_t ncp = strlen(continuePrompt);
       size_t ndp = strlen(dynPrompt.zScannerAwaits);
       if( ndp > ncp-3 ) return continuePrompt;
-      strcpy(dynPrompt.dynamicPrompt, dynPrompt.zScannerAwaits);
+      shell_strcpy(dynPrompt.dynamicPrompt, dynPrompt.zScannerAwaits);
       while( ndp<3 ) dynPrompt.dynamicPrompt[ndp++] = ' ';
       shell_strncpy(dynPrompt.dynamicPrompt+3, continuePrompt+3,
               PROMPT_LEN_MAX-4);
@@ -6134,6 +6142,26 @@ int sqlite3_ieee_init(
 ** and a very large cost if either start or stop are unavailable.  This
 ** encourages the query planner to order joins such that the bounds of the
 ** series are well-defined.
+**
+** Update on 2024-08-22:
+** xBestIndex now also looks for equality and inequality constraints against
+** the value column and uses those constraints as additional bounds against
+** the sequence range.  Thus, a query like this:
+**
+**     SELECT value FROM generate_series($SA,$EA)
+**      WHERE value BETWEEN $SB AND $EB;
+**
+** Is logically the same as:
+**
+**     SELECT value FROM generate_series(max($SA,$SB),min($EA,$EB));
+**
+** Constraints on the value column can server as substitutes for constraints
+** on the hidden start and stop columns.  So, the following two queries
+** are equivalent:
+**
+**     SELECT value FROM generate_series($S,$E);
+**     SELECT value FROM generate_series WHERE value BETWEEN $S and $E;
+**
 */
 /* #include "sqlite3ext.h" */
 SQLITE_EXTENSION_INIT1
@@ -6175,8 +6203,10 @@ static sqlite3_int64 genSeqMember(
 /* typedef unsigned char u8; */
 
 typedef struct SequenceSpec {
-  sqlite3_int64 iBase;         /* Starting value ("start") */
-  sqlite3_int64 iTerm;         /* Given terminal value ("stop") */
+  sqlite3_int64 iOBase;        /* Original starting value ("start") */
+  sqlite3_int64 iOTerm;        /* Original terminal value ("stop") */
+  sqlite3_int64 iBase;         /* Starting value to actually use */
+  sqlite3_int64 iTerm;         /* Terminal value to actually use */
   sqlite3_int64 iStep;         /* Increment ("step") */
   sqlite3_uint64 uSeqIndexMax; /* maximum sequence index (aka "n") */
   sqlite3_uint64 uSeqIndexNow; /* Current index during generation */
@@ -6369,9 +6399,9 @@ static int seriesColumn(
   series_cursor *pCur = (series_cursor*)cur;
   sqlite3_int64 x = 0;
   switch( i ){
-    case SERIES_COLUMN_START:  x = pCur->ss.iBase; break;
-    case SERIES_COLUMN_STOP:   x = pCur->ss.iTerm; break;
-    case SERIES_COLUMN_STEP:   x = pCur->ss.iStep;   break;
+    case SERIES_COLUMN_START:  x = pCur->ss.iOBase;     break;
+    case SERIES_COLUMN_STOP:   x = pCur->ss.iOTerm;     break;
+    case SERIES_COLUMN_STEP:   x = pCur->ss.iStep;      break;
     default:                   x = pCur->ss.iValueNow;  break;
   }
   sqlite3_result_int64(ctx, x);
@@ -6379,7 +6409,9 @@ static int seriesColumn(
 }
 
 #ifndef LARGEST_UINT64
+#define LARGEST_INT64  (0xffffffff|(((sqlite3_int64)0x7fffffff)<<32))
 #define LARGEST_UINT64 (0xffffffff|(((sqlite3_uint64)0xffffffff)<<32))
+#define SMALLEST_INT64 (((sqlite3_int64)-1) - LARGEST_INT64)
 #endif
 
 /*
@@ -6420,13 +6452,18 @@ static int seriesEof(sqlite3_vtab_cursor *cur){
 ** parameter.  (idxStr is not used in this implementation.)  idxNum
 ** is a bitmask showing which constraints are available:
 **
-**   0x01:    start=VALUE
-**   0x02:    stop=VALUE
-**   0x04:    step=VALUE
-**   0x08:    descending order
-**   0x10:    ascending order
-**   0x20:    LIMIT  VALUE
-**   0x40:    OFFSET  VALUE
+**   0x0001:    start=VALUE
+**   0x0002:    stop=VALUE
+**   0x0004:    step=VALUE
+**   0x0008:    descending order
+**   0x0010:    ascending order
+**   0x0020:    LIMIT  VALUE
+**   0x0040:    OFFSET  VALUE
+**   0x0080:    value=VALUE
+**   0x0100:    value>=VALUE
+**   0x0200:    value>VALUE
+**   0x1000:    value<=VALUE
+**   0x2000:    value<VALUE
 **
 ** This routine should initialize the cursor and position it so that it
 ** is pointing at the first row, or pointing off the end of the table
@@ -6439,6 +6476,12 @@ static int seriesFilter(
 ){
   series_cursor *pCur = (series_cursor *)pVtabCursor;
   int i = 0;
+  int returnNoRows = 0;
+  sqlite3_int64 iMin = SMALLEST_INT64;
+  sqlite3_int64 iMax = LARGEST_INT64;
+  sqlite3_int64 iLimit = 0;
+  sqlite3_int64 iOffset = 0;
+
   (void)idxStrUnused;
   if( idxNum & 0x01 ){
     pCur->ss.iBase = sqlite3_value_int64(argv[i++]);
@@ -6460,16 +6503,98 @@ static int seriesFilter(
   }else{
     pCur->ss.iStep = 1;
   }
+
+  /* If there are constraints on the value column but there are
+  ** no constraints on  the start, stop, and step columns, then
+  ** initialize the default range to be the entire range of 64-bit signed
+  ** integers.  This range will contracted by the value column constraints
+  ** further below.
+  */
+  if( (idxNum & 0x05)==0 && (idxNum & 0x0380)!=0 ){
+    pCur->ss.iBase = SMALLEST_INT64;
+  }
+  if( (idxNum & 0x06)==0 && (idxNum & 0x3080)!=0 ){
+    pCur->ss.iTerm = LARGEST_INT64;
+  }
+  pCur->ss.iOBase = pCur->ss.iBase;
+  pCur->ss.iOTerm = pCur->ss.iTerm;
+
+  /* Extract the LIMIT and OFFSET values, but do not apply them yet.
+  ** The range must first be constrained by the limits on value.
+  */
   if( idxNum & 0x20 ){
-    sqlite3_int64 iLimit = sqlite3_value_int64(argv[i++]);
-    sqlite3_int64 iTerm;
+    iLimit = sqlite3_value_int64(argv[i++]);
     if( idxNum & 0x40 ){
-      sqlite3_int64 iOffset = sqlite3_value_int64(argv[i++]);
-      if( iOffset>0 ){
-        pCur->ss.iBase += pCur->ss.iStep*iOffset;
+      iOffset = sqlite3_value_int64(argv[i++]);
+    }
+  }
+
+  if( idxNum & 0x3380 ){
+    /* Extract the maximum range of output values determined by
+    ** constraints on the "value" column.
+    */
+    if( idxNum & 0x0080 ){
+      iMin = iMax = sqlite3_value_int64(argv[i++]);
+    }else{
+      if( idxNum & 0x0300 ){
+        iMin = sqlite3_value_int64(argv[i++]);
+        if( idxNum & 0x0200 ){
+          if( iMin==LARGEST_INT64 ){
+            returnNoRows = 1;
+          }else{
+            iMin++;
+          }
+        }
+      }
+      if( idxNum & 0x3000 ){
+        iMax = sqlite3_value_int64(argv[i++]);
+        if( idxNum & 0x2000 ){
+          if( iMax==SMALLEST_INT64 ){
+            returnNoRows = 1;
+          }else{
+            iMax--;
+          }
+        }
+      }
+      if( iMin>iMax ){
+        returnNoRows = 1;
       }
     }
+
+    /* Try to reduce the range of values to be generated based on
+    ** constraints on the "value" column.
+    */
+    if( pCur->ss.iStep>0 ){
+      sqlite3_int64 szStep = pCur->ss.iStep;
+      if( pCur->ss.iBase<iMin ){
+        sqlite3_uint64 d = iMin - pCur->ss.iBase;
+        pCur->ss.iBase += ((d+szStep-1)/szStep)*szStep;
+      }
+      if( pCur->ss.iTerm>iMax ){
+        sqlite3_uint64 d = pCur->ss.iTerm - iMax;
+        pCur->ss.iTerm -= ((d+szStep-1)/szStep)*szStep;
+      }
+    }else{
+      sqlite3_int64 szStep = -pCur->ss.iStep;
+      assert( szStep>0 );
+      if( pCur->ss.iBase>iMax ){
+        sqlite3_uint64 d = pCur->ss.iBase - iMax;
+        pCur->ss.iBase -= ((d+szStep-1)/szStep)*szStep;
+      }
+      if( pCur->ss.iTerm<iMin ){
+        sqlite3_uint64 d = iMin - pCur->ss.iTerm;
+        pCur->ss.iTerm += ((d+szStep-1)/szStep)*szStep;
+      }
+    }
+  }
+
+  /* Apply LIMIT and OFFSET constraints, if any */
+  if( idxNum & 0x20 ){
+    if( iOffset>0 ){
+      pCur->ss.iBase += pCur->ss.iStep*iOffset;
+    }
     if( iLimit>=0 ){
+      sqlite3_int64 iTerm;
       iTerm = pCur->ss.iBase + (iLimit - 1)*pCur->ss.iStep;
       if( pCur->ss.iStep<0 ){
         if( iTerm>pCur->ss.iTerm ) pCur->ss.iTerm = iTerm;
@@ -6478,15 +6603,20 @@ static int seriesFilter(
       }
     }
   }
+
+
   for(i=0; i<argc; i++){
     if( sqlite3_value_type(argv[i])==SQLITE_NULL ){
       /* If any of the constraints have a NULL value, then return no rows.
       ** See ticket https://www.sqlite.org/src/info/fac496b61722daf2 */
-      pCur->ss.iBase = 1;
-      pCur->ss.iTerm = 0;
-      pCur->ss.iStep = 1;
+      returnNoRows = 1;
       break;
     }
+  }
+  if( returnNoRows ){
+    pCur->ss.iBase = 1;
+    pCur->ss.iTerm = 0;
+    pCur->ss.iStep = 1;
   }
   if( idxNum & 0x08 ){
     pCur->ss.isReversing = pCur->ss.iStep > 0;
@@ -6508,13 +6638,35 @@ static int seriesFilter(
 **
 ** The query plan is represented by bits in idxNum:
 **
-**   0x01  start = $value  -- constraint exists
-**   0x02  stop = $value   -- constraint exists
-**   0x04  step = $value   -- constraint exists
-**   0x08  output is in descending order
-**   0x10  output is in ascending order
-**   0x20  LIMIT $value    -- constraint exists
-**   0x40  OFFSET $value   -- constraint exists
+**   0x0001  start = $num
+**   0x0002  stop = $num
+**   0x0004  step = $num
+**   0x0008  output is in descending order
+**   0x0010  output is in ascending order
+**   0x0020  LIMIT $num
+**   0x0040  OFFSET $num
+**   0x0080  value = $num
+**   0x0100  value >= $num
+**   0x0200  value > $num
+**   0x1000  value <= $num
+**   0x2000  value < $num
+**
+** Only one of 0x0100 or 0x0200 will be returned.  Similarly, only
+** one of 0x1000 or 0x2000 will be returned.  If the 0x0080 is set, then
+** none of the 0xff00 bits will be set.
+**
+** The order of parameters passed to xFilter is as follows:
+**
+**    * The argument to start= if bit 0x0001 is in the idxNum mask
+**    * The argument to stop= if bit 0x0002 is in the idxNum mask
+**    * The argument to step= if bit 0x0004 is in the idxNum mask
+**    * The argument to LIMIT if bit 0x0020 is in the idxNum mask
+**    * The argument to OFFSET if bit 0x0040 is in the idxNum mask
+**    * The argument to value=, or value>= or value> if any of
+**      bits 0x0380 are in the idxNum mask
+**    * The argument to value<= or value< if either of bits 0x3000
+**      are in the mask
+**
 */
 static int seriesBestIndex(
   sqlite3_vtab *pVTab,
@@ -6527,7 +6679,9 @@ static int seriesBestIndex(
 #endif
   int unusableMask = 0;  /* Mask of unusable constraints */
   int nArg = 0;          /* Number of arguments that seriesFilter() expects */
-  int aIdx[5];           /* Constraints on start, stop, step, LIMIT, OFFSET */
+  int aIdx[7];           /* Constraints on start, stop, step, LIMIT, OFFSET,
+                         ** and value.  aIdx[5] covers value=, value>=, and
+                         ** value>,  aIdx[6] covers value<= and value< */
   const struct sqlite3_index_constraint *pConstraint;
 
   /* This implementation assumes that the start, stop, and step columns
@@ -6535,7 +6689,7 @@ static int seriesBestIndex(
   assert( SERIES_COLUMN_STOP == SERIES_COLUMN_START+1 );
   assert( SERIES_COLUMN_STEP == SERIES_COLUMN_START+2 );
 
-  aIdx[0] = aIdx[1] = aIdx[2] = aIdx[3] = aIdx[4] = -1;
+  aIdx[0] = aIdx[1] = aIdx[2] = aIdx[3] = aIdx[4] = aIdx[5] = aIdx[6] = -1;
   pConstraint = pIdxInfo->aConstraint;
   for(i=0; i<pIdxInfo->nConstraint; i++, pConstraint++){
     int iCol;    /* 0 for start, 1 for stop, 2 for step */
@@ -6556,7 +6710,50 @@ static int seriesBestIndex(
       }
       continue;
     }
-    if( pConstraint->iColumn<SERIES_COLUMN_START ) continue;
+    if( pConstraint->iColumn==SERIES_COLUMN_VALUE ){
+      switch( op ){
+        case SQLITE_INDEX_CONSTRAINT_EQ:
+        case SQLITE_INDEX_CONSTRAINT_IS: {
+          idxNum |=  0x0080;
+          idxNum &= ~0x3300;
+          aIdx[5] = i;
+          aIdx[6] = -1;
+          bStartSeen = 1;
+          break;
+        }
+        case SQLITE_INDEX_CONSTRAINT_GE: {
+          if( idxNum & 0x0080 ) break;
+          idxNum |=  0x0100;
+          idxNum &= ~0x0200;
+          aIdx[5] = i;
+          bStartSeen = 1;
+          break;
+        }
+        case SQLITE_INDEX_CONSTRAINT_GT: {
+          if( idxNum & 0x0080 ) break;
+          idxNum |=  0x0200;
+          idxNum &= ~0x0100;
+          aIdx[5] = i;
+          bStartSeen = 1;
+          break;
+        }
+        case SQLITE_INDEX_CONSTRAINT_LE: {
+          if( idxNum & 0x0080 ) break;
+          idxNum |=  0x1000;
+          idxNum &= ~0x2000;
+          aIdx[6] = i;
+          break;
+        }
+        case SQLITE_INDEX_CONSTRAINT_LT: {
+          if( idxNum & 0x0080 ) break;
+          idxNum |=  0x2000;
+          idxNum &= ~0x1000;
+          aIdx[6] = i;
+          break;
+        }
+      }
+      continue;
+    }
     iCol = pConstraint->iColumn - SERIES_COLUMN_START;
     assert( iCol>=0 && iCol<=2 );
     iMask = 1 << iCol;
@@ -6578,7 +6775,7 @@ static int seriesBestIndex(
     idxNum &= ~0x60;
     aIdx[4] = 0;
   }
-  for(i=0; i<5; i++){
+  for(i=0; i<7; i++){
     if( (j = aIdx[i])>=0 ){
       pIdxInfo->aConstraintUsage[j].argvIndex = ++nArg;
       pIdxInfo->aConstraintUsage[j].omit =
@@ -6626,6 +6823,9 @@ static int seriesBestIndex(
     pIdxInfo->estimatedRows = 2147483647;
   }
   pIdxInfo->idxNum = idxNum;
+#ifdef SQLITE_INDEX_SCAN_HEX
+  pIdxInfo->idxFlags = SQLITE_INDEX_SCAN_HEX;
+#endif
   return SQLITE_OK;
 }
 
@@ -24973,11 +25173,16 @@ static int shell_dbinfo_command(ShellState *p, int nArg, char **azArg){
 #endif /* SQLITE_SHELL_HAVE_RECOVER */
 
 /*
+** Print the given string as an error message.
+*/
+static void shellEmitError(const char *zErr){
+  eputf("Error: %s\n", zErr);
+}
+/*
 ** Print the current sqlite3_errmsg() value to stderr and return 1.
 */
 static int shellDatabaseError(sqlite3 *db){
-  const char *zErr = sqlite3_errmsg(db);
-  eputf("Error: %s\n", zErr);
+  shellEmitError(sqlite3_errmsg(db));
   return 1;
 }
 
@@ -25522,7 +25727,7 @@ static int arErrorMsg(ArCommand *pAr, const char *zFmt, ...){
   va_start(ap, zFmt);
   z = sqlite3_vmprintf(zFmt, ap);
   va_end(ap);
-  eputf("Error: %s\n", z);
+  shellEmitError(z);
   if( pAr->fromCmdLine ){
     eputz("Use \"-A\" for more help\n");
   }else{
@@ -26753,7 +26958,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     open_db(p, 0);
     pBackup = sqlite3_backup_init(pDest, "main", p->db, zDb);
     if( pBackup==0 ){
-      eputf("Error: %s\n", sqlite3_errmsg(pDest));
+      shellDatabaseError(pDest);
       close_db(pDest);
       return 1;
     }
@@ -26762,7 +26967,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     if( rc==SQLITE_DONE ){
       rc = 0;
     }else{
-      eputf("Error: %s\n", sqlite3_errmsg(pDest));
+      shellDatabaseError(pDest);
       rc = 1;
     }
     close_db(pDest);
@@ -26938,7 +27143,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     open_db(p, 0);
     rc = sqlite3_prepare_v2(p->db, "PRAGMA database_list", -1, &pStmt, 0);
     if( rc ){
-      eputf("Error: %s\n", sqlite3_errmsg(p->db));
+      shellDatabaseError(p->db);
       rc = 1;
     }else{
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
@@ -27634,7 +27839,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     zSql = 0;
     if( rc ){
       if (pStmt) sqlite3_finalize(pStmt);
-      eputf("Error: %s\n", sqlite3_errmsg(p->db));
+      shellDatabaseError(p->db);
       import_cleanup(&sCtx);
       rc = 1;
       goto meta_command_exit;
@@ -27678,7 +27883,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     sqlite3_free(zSql);
     zSql = 0;
     if( rc ){
-      eputf("Error: %s\n", sqlite3_errmsg(p->db));
+      shellDatabaseError(p->db);
       if (pStmt) sqlite3_finalize(pStmt);
       import_cleanup(&sCtx);
       rc = 1;
@@ -27972,7 +28177,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     open_db(p, 0);
     rc = sqlite3_load_extension(p->db, zFile, zProc, &zErrMsg);
     if( rc!=SQLITE_OK ){
-      eputf("Error: %s\n", zErrMsg);
+      shellEmitError(zErrMsg);
       sqlite3_free(zErrMsg);
       rc = 1;
     }
@@ -28594,7 +28799,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     open_db(p, 0);
     pBackup = sqlite3_backup_init(p->db, zDb, pSrc, "main");
     if( pBackup==0 ){
-      eputf("Error: %s\n", sqlite3_errmsg(p->db));
+      shellDatabaseError(p->db);
       close_db(pSrc);
       return 1;
     }
@@ -28612,7 +28817,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       eputz("Error: source database is busy\n");
       rc = 1;
     }else{
-      eputf("Error: %s\n", sqlite3_errmsg(p->db));
+      shellDatabaseError(p->db);
       rc = 1;
     }
     close_db(pSrc);
@@ -28709,7 +28914,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       rc = sqlite3_prepare_v2(p->db, "SELECT name FROM pragma_database_list",
                               -1, &pStmt, 0);
       if( rc ){
-        eputf("Error: %s\n", sqlite3_errmsg(p->db));
+        shellDatabaseError(p->db);
         sqlite3_finalize(pStmt);
         rc = 1;
         goto meta_command_exit;
@@ -28778,7 +28983,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       freeText(&sSelect);
     }
     if( zErrMsg ){
-      eputf("Error: %s\n", zErrMsg);
+      shellEmitError(zErrMsg);
       sqlite3_free(zErrMsg);
       rc = 1;
     }else if( rc != SQLITE_OK ){
@@ -29549,7 +29754,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     {"json_selfcheck",     SQLITE_TESTCTRL_JSON_SELFCHECK ,0,"BOOLEAN"      },
     {"localtime_fault",    SQLITE_TESTCTRL_LOCALTIME_FAULT,0,"BOOLEAN"      },
     {"never_corrupt",      SQLITE_TESTCTRL_NEVER_CORRUPT,1, "BOOLEAN"       },
-    {"optimizations",      SQLITE_TESTCTRL_OPTIMIZATIONS,0,"DISABLE-MASK"   },
+    {"optimizations",      SQLITE_TESTCTRL_OPTIMIZATIONS,0,"DISABLE-MASK ..."},
 #ifdef YYCOVERAGE
     {"parser_coverage",    SQLITE_TESTCTRL_PARSER_COVERAGE,0,""             },
 #endif
@@ -29613,8 +29818,118 @@ static int do_meta_command(char *zLine, ShellState *p){
     }else{
       switch(testctrl){
 
+        /* Special processing for .testctrl opt MASK ...
+        ** Each MASK argument can be one of:
+        **
+        **      +LABEL       Enable the named optimization 
+        **
+        **      -LABEL       Disable the named optimization
+        **
+        **      INTEGER      Mask of optimizations to disable
+        */
+        case SQLITE_TESTCTRL_OPTIMIZATIONS: {
+          static const struct {
+             unsigned int mask;    /* Mask for this optimization */
+             unsigned int bDsply;  /* Display this on output */
+             const char *zLabel;   /* Name of optimization */
+          } aLabel[] = {
+            { 0x00000001, 1, "QueryFlattener" },
+            { 0x00000001, 0, "Flatten" },
+            { 0x00000002, 1, "WindowFunc" },
+            { 0x00000004, 1, "GroupByOrder" },
+            { 0x00000008, 1, "FactorOutConst" },
+            { 0x00000010, 1, "DistinctOpt" },
+            { 0x00000020, 1, "CoverIdxScan" },
+            { 0x00000040, 1, "OrderByIdxJoin" },
+            { 0x00000080, 1, "Transitive" },
+            { 0x00000100, 1, "OmitNoopJoin" },
+            { 0x00000200, 1, "CountOfView" },
+            { 0x00000400, 1, "CurosrHints" },
+            { 0x00000800, 1, "Stat4" },
+            { 0x00001000, 1, "PushDown" },
+            { 0x00002000, 1, "SimplifyJoin" },
+            { 0x00004000, 1, "SkipScan" },
+            { 0x00008000, 1, "PropagateConst" },
+            { 0x00010000, 1, "MinMaxOpt" },
+            { 0x00020000, 1, "SeekScan" },
+            { 0x00040000, 1, "OmitOrderBy" },
+            { 0x00080000, 1, "BloomFilter" },
+            { 0x00100000, 1, "BloomPulldown" },
+            { 0x00200000, 1, "BalancedMerge" },
+            { 0x00400000, 1, "ReleaseReg" },
+            { 0x00800000, 1, "FlttnUnionAll" },
+            { 0x01000000, 1, "IndexedEXpr" },
+            { 0x02000000, 1, "Coroutines" },
+            { 0x04000000, 1, "NullUnusedCols" },
+            { 0x08000000, 1, "OnePass" },
+            { 0x10000000, 1, "OrderBySubq" },
+            { 0xffffffff, 0, "All" },
+          };
+          unsigned int curOpt;
+          unsigned int newOpt;
+          int ii;
+          sqlite3_test_control(SQLITE_TESTCTRL_GETOPT, p->db, &curOpt);
+          newOpt = curOpt;
+          for(ii=2; ii<nArg; ii++){
+            const char *z = azArg[ii];
+            int useLabel = 0;
+            const char *zLabel;
+            if( (z[0]=='+'|| z[0]=='-') && !IsDigit(z[1]) ){
+              useLabel = z[0];
+              zLabel = &z[1];
+            }else if( !IsDigit(z[0]) && z[0]!=0 && !IsDigit(z[1]) ){
+              useLabel = '+';
+              zLabel = z;
+            }else{
+              newOpt = (unsigned int)strtol(z,0,0);
+            }
+            if( useLabel ){
+              int jj;
+              for(jj=0; jj<ArraySize(aLabel); jj++){
+                if( sqlite3_stricmp(zLabel, aLabel[jj].zLabel)==0 ) break;
+              }
+              if( jj>=ArraySize(aLabel) ){
+                eputf("Error: no such optimization: \"%s\"\n", zLabel);
+                eputf("Should be one of:");
+                for(jj=0; jj<ArraySize(aLabel); jj++){
+                  eputf(" %s", aLabel[jj].zLabel);
+                }
+                eputf("\n");
+                rc = 1;
+                goto meta_command_exit;
+              }
+              if( useLabel=='+' ){
+                newOpt &= ~aLabel[jj].mask;
+              }else{
+                newOpt |= aLabel[jj].mask;
+              }
+            }
+          }
+          if( curOpt!=newOpt ){
+            sqlite3_test_control(SQLITE_TESTCTRL_OPTIMIZATIONS,p->db,newOpt);
+          }else if( nArg<3 ){
+            curOpt = ~newOpt;
+          }
+          if( newOpt==0 ){
+            oputf("+All\n");
+          }else if( newOpt==0xffffffff ){
+            oputf("-All\n");
+          }else{
+            int jj;
+            for(jj=0; jj<ArraySize(aLabel); jj++){
+              unsigned int m = aLabel[jj].mask;
+              if( !aLabel[jj].bDsply  ) continue;
+              if( (curOpt&m)!=(newOpt&m) ){
+                oputf("%c%s\n", (newOpt & m)==0 ? '+' : '-',
+                      aLabel[jj].zLabel);
+              }
+            }
+          }
+          rc2 = isOk = 3;
+          break;
+        }
+
         /* sqlite3_test_control(int, db, int) */
-        case SQLITE_TESTCTRL_OPTIMIZATIONS:
         case SQLITE_TESTCTRL_FK_NO_ACTION:
           if( nArg==3 ){
             unsigned int opt = (unsigned int)strtol(azArg[2], 0, 0);
@@ -31357,7 +31672,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
         open_db(&data, 0);
         rc = shell_exec(&data, z, &zErrMsg);
         if( zErrMsg!=0 ){
-          eputf("Error: %s\n", zErrMsg);
+          shellEmitError(zErrMsg);
           if( bail_on_error ) return rc!=0 ? rc : 1;
         }else if( rc!=0 ){
           eputf("Error: unable to process SQL \"%s\"\n", z);
@@ -31411,7 +31726,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
         rc = shell_exec(&data, azCmd[i], &zErrMsg);
         if( zErrMsg || rc ){
           if( zErrMsg!=0 ){
-            eputf("Error: %s\n", zErrMsg);
+            shellEmitError(zErrMsg);
           }else{
             eputf("Error: unable to process SQL: %s\n", azCmd[i]);
           }
