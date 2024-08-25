@@ -1313,7 +1313,7 @@ static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
   blob_append (p->pOut, "</tr>\n", 6);
 }
 static void dfunifiedReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
-  assert( 0 && "The seemingly unused function dfunifiedReplace() was called!");
+  fossil_fatal("The seemingly unused function dfunifiedReplace() was called!");
 }
 static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
@@ -1478,7 +1478,7 @@ static void dfsplitDelete(DiffBuilder *p, const DLine *pLine){
   blob_append (p->pOut, "</tr>\n", 6);
 }
 static void dfsplitReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
-  assert( 0 && "The seemingly unused function dfsplitReplace() was called!");
+  fossil_fatal("The seemingly unused function dfsplitReplace() was called!");
 }
 static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;

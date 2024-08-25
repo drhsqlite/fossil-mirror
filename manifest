@@ -1,5 +1,5 @@
-C Exempt\sdiff\sline\snumbers\sand\sdiff\smarks\s(separators)\sfrom\stext\sselections\sand\shave\sclick-and-drag\sselection\sinclude\sonly\sthe\smost\srecently\sclicked\sside\sfor\sside-by-side\s(split)\sdiffs.
-D 2024-08-25T05:17:00.000
+C Change\san\sassert()\sto\sa\sfossil_fatal()\sto\smake\sthe\serror\smessage\sappear\sin\sthe\sweb\sUI.
+D 2024-08-25T17:48:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c 940b768edff94b00adc2b474bb75c8b9d03bfd0d27f834e37217d2c755a70e53
-F src/diff.c ae1e498b2e7c673ef3ab608c51ddae3715870562b53f4cc2b1f2f2b6e1274be2
+F src/diff.c 767fd1caa0303af997f27ce90e1cb6e3cad7c5b430958d05f8a0810fbebd4ca2
 F src/diff.js 3dc821a47a58e669ff6b63fd338e3ea1fd360de0f5d30c96d3fc082a0ce5bfbd
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
 F src/diffcmd.c 0f6484d4d2fa50f8d7abbc6c65e6a9bdf4f1b4e946defdb397c350941dcf3576
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b912690fc4479057651ac2436368a8b757dc385c149ccc9524e498d19e8b114d
-R b2cd199c457dc5a382424c8a55e213ac
+P abd3bca70ecb9ef3128297926c16fd751fffd32f30c13fdbe1786d47292f0e4f
+R 319c373d40a53380ef4401a042bc88ca
 U florian
-Z 2fdc8b2326d94714e5a437bd8d9db190
+Z 7715d7ba0849c7b55d031683408ed0b2
 # Remove this line to create a well-formed Fossil manifest.
