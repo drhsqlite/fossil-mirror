@@ -1,5 +1,5 @@
-C Remove\s'display:\sinline-block'\sfrom\sinsertion\sand\sdeletion\smarks\sto\sget\smore\snatural\sword-wrapping.\sTry\swhether\sthe\sprevious,\sprecisely\scalculated\sline\sheight\sand\spadding\svalues\salso\swork\sto\sextend\sthe\sbackground\scolor\sto\sthe\sentire\sline\sheight.
-D 2024-08-23T06:02:00.000
+C Exempt\sdiff\sline\snumbers\sand\sdiff\smarks\s(separators)\sfrom\stext\sselections\sand\shave\sclick-and-drag\sselection\sinclude\sonly\sthe\smost\srecently\sclicked\sside\sfor\sside-by-side\s(split)\sdiffs.
+D 2024-08-25T05:17:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/cookies.c 655257d116421e8ffa3d076379a3f5628849b06b295ed8a90fd288e17963a662
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 3ac7e8d2000e3f5465a730811ac8ef0ff8b7a453a1c1d92325561ec1ac04b880
-F src/default.css 79f9b0930359f0c20d648aa9ebc503b49e39259a7635d3633dad13e12d27e8f3
+F src/default.css 7b93b8b9cefb8047eb47e1f38c277e6aab8f0a3024bf35b513bf5faf562cc508
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -436,7 +436,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 9879d1c35e953d130d459656dd97b2d8621f859c425cb1bb8c561f5184c4c5c0
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
-F src/fossil.diff.js 8fdf2b4e2bc0d83c8edf31341f49d14520d4699b5d9724da7442bdf172ff39a8
+F src/fossil.diff.js 50e2d964e47d23b15c1b373f298918c3dacbce5aa4ec880501e79710b605c5b6
 F src/fossil.dom.js b4b1d84f17a420603124f4f2cc821852d9815ec7cec338ab124b4e12582e7b9d
 F src/fossil.fetch.js 79291600341f980b23bc20455e0415fae0db0a3a355aae4dffbc0e431f210cc8
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 18c5117b11df51c5af0a905d51c35163c0c6ad4670f139703430afb56e4272b2
-R 5f25b08d8f0d1a47898fbd540e5fd078
+P b912690fc4479057651ac2436368a8b757dc385c149ccc9524e498d19e8b114d
+R b2cd199c457dc5a382424c8a55e213ac
 U florian
-Z 553b1ffc38b1b13e38fa97a62ffcd3d9
+Z 2fdc8b2326d94714e5a437bd8d9db190
 # Remove this line to create a well-formed Fossil manifest.

@@ -694,6 +694,12 @@ td.difftxt.ins ins {
 td.difftxt.ins ins.edit {
   background-color: #c0c0ff;
 }
+table.diff td.diffln,
+table.diff td.diffsep,
+table.splitdiff.select_right td.difftxtl,
+table.splitdiff.select_left td.difftxtr {
+  user-select: none;
+}
 body.tkt div.content li > table.udiff {
   margin-left: 1.5em;
   margin-top: 0.5em;

@@ -546,3 +546,33 @@ window.fossil.onPageLoad(function(){
   };
   Diff.setupDiffContextLoad();
 });
+/* Click-handler for side-by-side diffs to activate text selection for the most
+** recently clicked side (left or right). If the click-handler target is one of
+** the simple-nested <del> or <ins> elements, the parent <td> is deciding. Note
+** the "pointerdown" event seems to be exactly what is desired here: activating
+** the clicked side just before the selection operation starts. */
+(function(){
+  window.addEventListener('load',function(){
+    var s = document.getElementsByClassName('splitdiff');
+    for( var i=0; i<s.length; i++ ){
+      s[i].addEventListener('pointerdown',splitdiff_click);
+    }
+  });
+  function splitdiff_click(e){
+    var n = e.target.nodeName,
+        t = n=='DEL' || n=='INS' ? e.target.parentElement : e.target;
+    if( /\bdifftxtl\b/.test(t.className) ){
+      var s = document.getElementsByClassName('splitdiff');
+      for( var i=0; i<s.length; i++ ){
+        s[i].classList.remove('select_right');
+        s[i].classList.add('select_left');
+      }
+    }else if( /\bdifftxtr\b/.test(t.className) ){
+      var s = document.getElementsByClassName('splitdiff');
+      for( var i=0; i<s.length; i++ ){
+        s[i].classList.remove('select_left');
+        s[i].classList.add('select_right');
+      }
+    }
+  }
+}());
