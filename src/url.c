@@ -23,12 +23,6 @@
 
 #ifdef _WIN32
 #include <io.h>
-#ifndef isatty
-#define isatty(d) _isatty(d)
-#endif
-#ifndef fileno
-#define fileno(s) _fileno(s)
-#endif
 #endif
 
 #if INTERFACE
@@ -326,7 +320,8 @@ void url_parse_local(
          && (urlFlags & URL_PROMPT_PW)!=0 ){
     url_prompt_for_password_local(pUrlData);
   }else if( pUrlData->user!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) ){
-    if( isatty(fileno(stdin)) && ( urlFlags & URL_REMEMBER_PW )==0 ){
+    if( fossil_isatty(fossil_fileno(stdin))
+        && ( urlFlags & URL_REMEMBER_PW )==0 ){
       if( save_password_prompt(pUrlData->passwd) ){
         pUrlData->flags = urlFlags |= URL_REMEMBER_PW;
       }else{
@@ -737,7 +732,7 @@ char *url_render(
 */
 void url_prompt_for_password_local(UrlData *pUrlData){
   if( pUrlData->isSsh || pUrlData->isFile ) return;
-  if( isatty(fileno(stdin))
+  if( fossil_isatty(fossil_fileno(stdin))
    && (pUrlData->flags & URL_PROMPT_PW)!=0
    && (pUrlData->flags & URL_PROMPTED)==0
   ){
@@ -798,7 +793,7 @@ void url_remember(void){
 void url_get_password_if_needed(void){
   if( (g.url.user && g.url.user[0])
    && (g.url.passwd==0 || g.url.passwd[0]==0)
-   && isatty(fileno(stdin))
+   && fossil_isatty(fossil_fileno(stdin))
   ){
     url_prompt_for_password();
   }

@@ -30,6 +30,7 @@
 */
 #ifdef _WIN32
 # include <windows.h>
+# include <io.h>
 #else
 # include <sys/time.h>
 # include <sys/resource.h>
@@ -39,6 +40,28 @@
 # include <fcntl.h>
 # include <errno.h>
 #endif
+
+/*
+** Returns the same as the platform's isatty() or _isatty() function.
+*/
+int fossil_isatty(int fd){
+#ifdef _WIN32
+  return _isatty(fd);
+#else
+  return isatty(fd);
+#endif
+}
+
+/*
+** Returns the same as the platform's fileno() or _fileno() function.
+*/
+int fossil_fileno(FILE *p){
+#ifdef _WIN32
+  return _fileno(p);
+#else
+  return fileno(p);
+#endif
+}
 
 /*
 ** Exit.  Take care to close the database first.

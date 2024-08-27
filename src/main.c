@@ -23,7 +23,6 @@
 #if defined(_WIN32)
 #  include <windows.h>
 #  include <io.h>
-#  define isatty(h) _isatty(h)
 #  define GETPID (int)GetCurrentProcessId
 #endif
 
@@ -707,7 +706,7 @@ int fossil_main(int argc, char **argv){
   g.zPhase = "init";
 #if !defined(_WIN32_WCE)
   if( fossil_getenv("FOSSIL_BREAK") ){
-    if( isatty(0) && isatty(2) ){
+    if( fossil_isatty(0) && fossil_isatty(2) ){
       fprintf(stderr,
           "attach debugger to process %d and press any key to continue.\n",
           GETPID());

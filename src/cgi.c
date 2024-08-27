@@ -2124,7 +2124,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
   if( zIpAddr==0 ){
-    zIpAddr = cgi_remote_ip(fileno(g.httpIn));
+    zIpAddr = cgi_remote_ip(fossil_fileno(g.httpIn));
   }
   if( zIpAddr ){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
