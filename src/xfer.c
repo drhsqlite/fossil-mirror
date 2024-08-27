@@ -1991,6 +1991,7 @@ int client_sync(
   const char *zCkinLock;  /* Name of check-in to lock.  NULL for none */
   const char *zClientId;  /* A unique identifier for this check-out */
   unsigned int mHttpFlags;/* Flags for the http_exchange() subsystem */
+  const int bOutIsTty = fossil_isatty(fossil_fileno(stdout));
 
   if( pnRcvd ) *pnRcvd = 0;
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
@@ -2306,8 +2307,10 @@ int client_sync(
     }else{
       nRoundtrip++;
       nArtifactSent += xfer.nFileSent + xfer.nDeltaSent;
-      fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
-                   nRoundtrip, nArtifactSent, nArtifactRcvd);
+      if( bOutIsTty!=0 ){
+        fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
+                     nRoundtrip, nArtifactSent, nArtifactRcvd);
+      }
     }
     nCardSent = 0;
     nCardRcvd = 0;
@@ -2807,8 +2810,10 @@ int client_sync(
                    blob_size(&recv), nCardRcvd,
                    xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);
     }else{
-      fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
-                   nRoundtrip, nArtifactSent, nArtifactRcvd);
+      if( bOutIsTty!=0 ){
+        fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
+                     nRoundtrip, nArtifactSent, nArtifactRcvd);
+      }
     }
     nUncRcvd += blob_size(&recv);
     blob_reset(&recv);
@@ -2866,7 +2871,11 @@ int client_sync(
                     db_timespan_name(-rSkew));
      g.clockSkewSeen = 1;
   }
-
+  if( bOutIsTty==0 ){
+    fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
+                 nRoundtrip, nArtifactSent, nArtifactRcvd);
+    fossil_force_newline();
+  }
   fossil_force_newline();
   if( g.zHttpCmd==0 ){
     if( syncFlags & SYNC_VERBOSE ){
