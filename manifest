@@ -1,5 +1,5 @@
-C Fix\sone\smis-changed\sline\sin\s[898a70ce82a5]\swhich\swould\shave\sbroken\sbuilds\son\sOS/2.
-D 2024-08-27T19:38:14.359
+C Proposed\sfix\sfor\sthe\ssearch\sbranch\sbug\sreported\sin\s[forum:520d420d04e482b2|forum\spost\s520d420d04].\sThis\sseems\sto\swork\sbut\scould\suse\smore\stesting.\sTo\shit\sthe\saffected\squery,\sfirst\srun\s(fossil\sfts-config\sindex\soff)\sthen\s(fossil\ssearch\s-fts\s...terms...).
+D 2024-08-30T09:39:11.231
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -521,7 +521,7 @@ F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c ff3f6164e5dc4f798e53635a4cfdb627931a9e9f2cfa97b33ee8e217df6533f5
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c e9e388269d6e528cb8e1f2e2adf04f5425195c6e08228deb37ce53817b916572
+F src/search.c 6f9bb956a5e138e02d03a580e6025f2849c4dfad6929a833b965b62b80fcd9a1
 F src/security_audit.c edafc6d6858f23d47e5066497165152d78f55072ffad5225d233c2dd3b8bec7b
 F src/setup.c 7bb40eb1f23130e91324ea33eb21104ad014e9317d24d66d17a2de0d43e8bc92
 F src/setupuser.c ac128b1ec2ba2a3dd1694d641db9a0aefd4ebe37a98ae1453b42a8add9d5566d
@@ -959,8 +959,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8800f34645e7cda785409ccad39e19864925e4b30114f32160d14040907fe84
-R d901af32b94fe2e446dfda880f798b79
+P 94c8af02ea1c1731aa1f076fea4b6093cba3f96196afc2aa8efdd21551a6bb39
+R 1914597e0a65133ee2fa7c5daeac848f
+T *branch * search-branch-fix
+T *sym-search-branch-fix *
+T -sym-trunk * Cancelled\sby\sbranch.
 U stephan
-Z f85037e2558bd87b5301712bc7e20e2b
+Z c48d7ee17397e967190347496fa9f82d
 # Remove this line to create a well-formed Fossil manifest.
