@@ -1,5 +1,5 @@
-C Fix\sone\smis-changed\sline\sin\s[898a70ce82a5]\swhich\swould\shave\sbroken\sbuilds\son\sOS/2.
-D 2024-08-27T19:38:14.359
+C Revert\sthe\stemporary\sfix\s[9866c97b35]\sas\sthe\sunderlying\sproblem\shas\sbeen\sresolved\sin\sSQLite.
+D 2024-08-31T17:30:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -415,7 +415,7 @@ F src/default.css b3f99b4184f6484b1010f1206aff63f8c537603c588fcf16a4878cb9a605a6
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
-F src/descendants.c 940b768edff94b00adc2b474bb75c8b9d03bfd0d27f834e37217d2c755a70e53
+F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec6811823705
 F src/diff.c c6e9fecd607fcde34257054f607a556da571c5e214084d7e4c794634d964ef3d
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
@@ -959,8 +959,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8800f34645e7cda785409ccad39e19864925e4b30114f32160d14040907fe84
-R d901af32b94fe2e446dfda880f798b79
-U stephan
-Z f85037e2558bd87b5301712bc7e20e2b
+P 94c8af02ea1c1731aa1f076fea4b6093cba3f96196afc2aa8efdd21551a6bb39
+Q -9866c97b357062f8ef3c3f5a5aa92c065d0de1f3d82655d0a4cb343dd44aeccf
+R 928afbd5e1da8845fd2d9893a43537c4
+U florian
+Z a1a2969561ffc6cac59338330bcce09e
 # Remove this line to create a well-formed Fossil manifest.
