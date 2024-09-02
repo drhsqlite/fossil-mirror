@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.47.0"
 #define SQLITE_VERSION_NUMBER 3047000
-#define SQLITE_SOURCE_ID      "2024-08-23 17:40:29 9a9d0f6301faefe324261f03543023ffb6a90823349c6946abb0df2f69b3alt1"
+#define SQLITE_SOURCE_ID      "2024-09-02 21:59:31 7891a266c4425722ae8b9231397ef9e42e2432be9e6b70632dfaf9ff15300d2c"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5615,6 +5615,15 @@ SQLITE_API int sqlite3_create_window_function(
 ** [sqlite3_result_subtype()] should avoid setting this property, as the
 ** purpose of this property is to disable certain optimizations that are
 ** incompatible with subtypes.
+**
+** [[SQLITE_SELFORDER1]] <dt>SQLITE_SELFORDER1</dt><dd>
+** The SQLITE_SELFORDER1 flag indicates that the function is an aggregate
+** that internally orders the values provided to the first argument.  The
+** ordered-set aggregate SQL notation with a single ORDER BY term can be
+** used to invoke this function.  If the ordered-set aggregate notation is
+** used on a function that lacks this flag, then an error is raised. Note
+** that the ordered-set aggregate syntax is only available if SQLite is
+** built using the -DSQLITE_ENABLE_ORDERED_SET_AGGREGATES compile-time option.
 ** </dd>
 ** </dl>
 */
@@ -5623,6 +5632,7 @@ SQLITE_API int sqlite3_create_window_function(
 #define SQLITE_SUBTYPE          0x000100000
 #define SQLITE_INNOCUOUS        0x000200000
 #define SQLITE_RESULT_SUBTYPE   0x001000000
+#define SQLITE_SELFORDER1       0x002000000
 
 /*
 ** CAPI3REF: Deprecated Functions
@@ -13294,18 +13304,19 @@ struct Fts5ExtensionApi {
 **
 ** FTS5_TOKENIZER
 **
-** There is also an fts5_tokenizer object. This is an older version of
-** fts5_tokenizer_v2. It is similar except that:
+** There is also an fts5_tokenizer object. This is an older, deprecated,
+** version of fts5_tokenizer_v2. It is similar except that:
 **
 **  <ul>
 **    <li> There is no "iVersion" field, and
 **    <li> The xTokenize() method does not take a locale argument.
 **  </ul>
 **
-** fts5_tokenizer tokenizers should be registered with the xCreateTokenizer()
-** function, instead of xCreateTokenizer_v2(). Tokenizers implementations
-** registered using either API may be retrieved using both xFindTokenizer()
-** and xFindTokenizer_v2().
+** Legacy fts5_tokenizer tokenizers must be registered using the
+** legacy xCreateTokenizer() function, instead of xCreateTokenizer_v2().
+**
+** Tokenizer implementations registered using either API may be retrieved
+** using both xFindTokenizer() and xFindTokenizer_v2().
 **
 ** SYNONYM SUPPORT
 **
