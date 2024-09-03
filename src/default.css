@@ -1353,9 +1353,16 @@ hr {
   border-radius: 0.25em;
   padding: 0.1em;
   margin: 0 0.5em;
-  display: inline-block;
+  display: inline-block
+           /* We would really like flex layout but changing that
+              currently introduces a good deal of UI breakage
+              to chase down. The advantage would be better alignment
+              of the contained elements. */;
   cursor: default;
   white-space: nowrap;
+}
+.submenu .input-with-label {
+  border: none;
 }
 .input-with-label > * {
   vertical-align: middle;
@@ -1363,6 +1370,7 @@ hr {
 .input-with-label > label {
   display: inline; /* some skins set label display to block! */
   cursor: pointer;
+  white-space: nowrap;
 }
 .input-with-label > input {
   margin: 0;

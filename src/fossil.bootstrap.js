@@ -139,7 +139,7 @@
      Creates a URL by prepending this.rootPath to the given path
      (which must be relative from the top of the site, without a
      leading slash). If urlParams is a string, it must be
-     paramters encoded in the form "key=val&key2=val2..." WITHOUT
+     parameters encoded in the form "key=val&key2=val2..." WITHOUT
      a leading '?'. If it's an object, all of its properties get
      appended to the URL in that form.
   */
