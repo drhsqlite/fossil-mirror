@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk,\sjust\sso\swe\scan\sstay\son\sthe\nbleeding\sedge.
-D 2024-09-02T22:20:32.621
+C In\s/setup_uinfo,\scorrect\sthe\sURL\sparameter\spassed\sfrom\sthe\s'edit'\slink\sto\s/setup_uedit:\sid\sinstead\sof\suid.
+D 2024-09-03T09:47:35.077
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -524,7 +524,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c e9e388269d6e528cb8e1f2e2adf04f5425195c6e08228deb37ce53817b916572
 F src/security_audit.c edafc6d6858f23d47e5066497165152d78f55072ffad5225d233c2dd3b8bec7b
 F src/setup.c 7bb40eb1f23130e91324ea33eb21104ad014e9317d24d66d17a2de0d43e8bc92
-F src/setupuser.c ac128b1ec2ba2a3dd1694d641db9a0aefd4ebe37a98ae1453b42a8add9d5566d
+F src/setupuser.c aa855e809561c501a29785b7ecf902571a022f8e607f190aeab1a97ab1dde11a
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2126566e942aee506966034385c0786b502c26e9ee4b2461873ef3f89573f3ea
-R 5d9cdc466fa9cfd3b85b517be1b16d88
-U drh
-Z 1a5ff3552a75ae0f52e3ad69d808f163
+P ff931032bd23cd4c116b96063d7d707283c3f7514a44eb5143c43652717f20fa
+R 6f3c5e1e277858b10a4cd68a006c611b
+U stephan
+Z 4f0033448915ebe28d9e5f9ee83c0908
 # Remove this line to create a well-formed Fossil manifest.

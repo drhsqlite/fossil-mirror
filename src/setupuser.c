@@ -1016,7 +1016,7 @@ void setup_uinfo_page(void){
   style_header("User %h", db_column_text(&q,1));
   @ <table class="label-value">
   @ <tr><th>uid:</th><td>%d(db_column_int(&q,0))
-  @  (<a href="%R/setup_uedit?uid=%d(db_column_int(&q,0))">edit</a>)</td></tr>
+  @  (<a href="%R/setup_uedit?id=%d(db_column_int(&q,0))">edit</a>)</td></tr>
   @ <tr><th>login:</th><td>%h(db_column_text(&q,1))</td></tr>
   @ <tr><th>capabilities:</th><td>%h(db_column_text(&q,2))</th></tr>
   @ <tr><th valign="top">info:</th>
