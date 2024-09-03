@@ -659,7 +659,7 @@ window.fossil.onPageLoad(function(){
     D.append(eToggleParent, D.append(
       D.addClass(D.create('span'), 'input-with-label'),
       D.append(D.create('label'),
-               cbSync, "Sync side-by-side scrolling?")
+               cbSync, "Sync side-by-side scrolling")
     ));
     cbSync.addEventListener('change', function(e){
       F.storage.set(keySbsScroll, e.target.checked);
