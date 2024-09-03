@@ -1,11 +1,11 @@
 B 4eef2de39f9f496909353dbe8a4a19c1f21b26fa2449d529b43ce36359315952
-C Merged\sexperimental\sbranch\smd-col-header-alignment
-D 2024-09-03T17:03:06.152
+C Removed\sredundant\sLIBS=-lfuse,\scausing\sduplicate\slibrary\swarning\sin\sthe\ncase\swhere\sautosetup\sdetermines\sit's\sneeded.\s\sCalling\scc-check-function-in-lib\nalready\sappends\sthe\slibrary\sto\sLIBS\sif\sneeded.
+D 2024-09-03T17:06:02.255
+F auto.def 44b02af5652b2e2933916c2e6a35aa9e158db3316fdb97c620b90cde18230546
 F skins/default/css.txt e067edb07ef3c1211c327a2e97c6d12f7886193b5574ca92b12b704f1dedbc44
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
-P 4eef2de39f9f496909353dbe8a4a19c1f21b26fa2449d529b43ce36359315952 5e5732f1d92c6fc0da9bf678cd8bb87afb67a5c8124e3ec57f0fc8387ed34a7d
-R 9de9bce55e89cace64cccdd7fbf48f96
-T +closed 5e5732f1d92c6fc0da9bf678cd8bb87afb67a5c8124e3ec57f0fc8387ed34a7d
+P 9f8bf6918570c5b88d575ba62069fa1b7a45454a17a6e86cd73680d66563c653
+R 9ec02f67213b3a9ee9bdb9a04e3c8f87
 U wyoung
-Z d917018a17711331dea9d90603805747
+Z 4218c5d2b8b024d361d0aa296047d205
 # Remove this line to create a well-formed Fossil manifest.

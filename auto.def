@@ -766,7 +766,6 @@ if {[opt-bool fusefs]} {
   } elseif {[cc-check-function-in-lib fuse_mount fuse]} {
      define-append EXTRA_CFLAGS -DFOSSIL_HAVE_FUSEFS
      define FOSSIL_HAVE_FUSEFS 1
-     define-append LIBS -lfuse
      msg-result "FuseFS support enabled"
   }
 }
