@@ -1,5 +1,5 @@
-C Remove\sextraneous\squestion\smark\sfrom\sthe\sside-by-side\sscroll\ssync\scheckbox.
-D 2024-09-03T20:20:20.989
+C Updatr\sthe\smarkdown\srules\sdoc:\stable\sheader\scells\sare\sleft-aligned\sas\swell.
+D 2024-09-03T22:05:17.921
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -496,7 +496,7 @@ F src/main.c 8f88afb2f8d0d00c1c541368bfae5f50715d658fa9a13714ddc61adf11260f3d
 F src/main.mk 176240dce5136923b41efc270fd3276d31a6c3e879fa46470282d550ab891d30
 F src/manifest.c 7b19505af6ebbffb92dfe528c991ee228391442d85423b56ffc68655c5f266ea
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
-F src/markdown.md 0dd55238c8753fb78a326ea0ba76ef0645f802e2b2503797c7237a0edfbb259c
+F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07673a1368b5977295e9bb6421fbb696db697d8b237a85c048e0c14b99ebce9e
-R 822ab3919364954f61b31597d2b8b35c
-U stephan
-Z 9a2401d0ddae7e69fc18d0d6a5f204b2
+P 019494e32df1c27c11d78c42bc0eb33f46d44a0a22ed52ce9c00ce9ad9d89201
+R 32a70b1ff843285c1d25f4913e31faa4
+U danield
+Z a15464d65f3fb58debff2cfed74f9158
 # Remove this line to create a well-formed Fossil manifest.
