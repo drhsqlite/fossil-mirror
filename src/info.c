@@ -893,7 +893,8 @@ void ci_page(void){
   render_checkin_context(rid, 0, 0, 0);
   @ </div><div class="section accordion">Changes</div>
   @ <div class="accordion_panel">
-  @ <div class="sectionmenu">
+  @ <div class="sectionmenu info-changes-menu">
+  /* ^^^ .info-changes-menu is used by diff scroll sync */
   pCfg = construct_diff_flags(diffType, &DCfg);
   DCfg.pRe = pRe;
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";

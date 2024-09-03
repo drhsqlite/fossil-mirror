@@ -627,18 +627,74 @@ window.fossil.onPageLoad(function(){
 ** side of the diff is synchronized with the other side.
 */
 window.fossil.onPageLoad(function(){
-  const SCROLL_LEN = 25;
   const F = window.fossil, D = F.dom, Diff = F.diff;
+
+  /* Look for a parent element to hold the sbs-sync-scroll toggle
+     checkbox.  This differs per page. If we don't find one, simply
+     elide that toggle and use whatever preference the user last
+     specified (defaulting to on). */
+  let cbSync /* scroll-sync checkbox */;
+  let eToggleParent /* element to put the sync-scroll checkbox in */;
+  const potentialParents = [ /* possible parents for the checkbox */
+    /* Put the most likely pages at the end, as array.pop() is more
+       efficient than array.shift() (see loop below). */
+    /* /filedit */ 'body.cpage-fileedit #fileedit-tab-diff-buttons',
+    /* /wikiedit */ 'body.cpage-wikiedit #wikiedit-tab-diff-buttons',
+    /* /vdiff */ 'body.vdiff form div.submenu',
+    /* /info, /vinfo */ 'body.vinfo div.sectionmenu.info-changes-menu'
+  ];
+  while( potentialParents.length ){
+    if( (eToggleParent = document.querySelector(potentialParents.pop())) ){
+      break;
+    }
+  }
+  const keySbsScroll = 'sync-diff-scroll' /* F.storage key */;
+  if( eToggleParent ){
+    /* Add a checkbox to toggle sbs scroll sync. Remember that in
+       order to be UI-consistent in the /vdiff page we have to ensure
+       that the checkbox is to the LEFT of of its label. We store the
+       sync-scroll preference in F.storage (not a cookie) so that it
+       persists across page loads and different apps. */
+    cbSync = D.checkbox(keySbsScroll, F.storage.getBool(keySbsScroll,true));
+    D.append(eToggleParent, D.append(
+      D.addClass(D.create('span'), 'input-with-label'),
+      D.append(D.create('label'),
+               cbSync, "Sync side-by-side scrolling?")
+    ));
+    cbSync.addEventListener('change', function(e){
+      F.storage.set(keySbsScroll, e.target.checked);
+    });
+  }
+  const useSync = cbSync ? ()=>cbSync.checked : ()=>F.storage.getBool(keySbsScroll,true);
+
+  /* Now set up the events to enable syncronized scrolling... */
   const scrollLeft = function(event){
     const table = this.parentElement/*TD*/.parentElement/*TR*/.
       parentElement/*TBODY*/.parentElement/*TABLE*/;
-    table.$txtPres.forEach((e)=>(e===this) ? 1 : (e.scrollLeft = this.scrollLeft));
+    if( useSync() ){
+      table.$txtPres.forEach((e)=>(e===this) ? 1 : (e.scrollLeft = this.scrollLeft));
+    }
     return false;
   };
+  const SCROLL_LEN = 64/* pixels to scroll for keyboard events */;
   const keycodes = Object.assign(Object.create(null),{
-    37: -SCROLL_LEN, 39: SCROLL_LEN
+    37/*cursor left*/: -SCROLL_LEN, 39/*cursor right*/: SCROLL_LEN
   });
-  Diff.initTableDiff = function f(diff, unifiedDiffs){
+  /**
+     Sets up synchronized scrolling of table.splitdiff element
+     `diff`. If passed no argument, it scans the dom for elements to
+     initialize. The second argument is for this function's own
+     internal use.
+
+     It's okay (but wasteful) to pass the same element to this
+     function multiple times: it will only be set up for sync
+     scrolling the first time it's passed to this function.
+
+     Note that this setup is ignorant of the cbSync toggle: the toggle
+     is checked when scrolling, not when initializing the sync-scroll
+     capability.
+  */
+  const initTableDiff = function f(diff, unifiedDiffs){
     if(!diff){
       let i, diffs;
       diffs = document.querySelectorAll('table.splitdiff');
@@ -653,10 +709,6 @@ window.fossil.onPageLoad(function(){
     }
     diff.$txtCols = diff.querySelectorAll('td.difftxt');
     diff.$txtPres = diff.querySelectorAll('td.difftxt pre');
-    var width = 0;
-    diff.$txtPres.forEach(function(e){
-      if(width < e.scrollWidth) width = e.scrollWidth;
-    });
     diff.$txtPres.forEach(function(e){
       if(!unifiedDiffs && !e.classList.contains('scroller')){
         D.addClass(e, 'scroller');
@@ -669,7 +721,7 @@ window.fossil.onPageLoad(function(){
         D.addClass(diff, 'scroller');
         diff.addEventListener('keydown', function(e){
           const len = keycodes[e.keyCode];
-          if( !len ) return;
+          if( !len ) return false;
           this.$txtPres[0].scrollLeft += len;
           return false;
         }, false);
@@ -678,7 +730,7 @@ window.fossil.onPageLoad(function(){
     return this;
   }
   window.fossil.page.tweakSbsDiffs = function(){
-    document.querySelectorAll('table.splitdiff').forEach((e)=>Diff.initTableDiff(e));
+    document.querySelectorAll('table.splitdiff').forEach((e)=>initTableDiff(e));
   };
-  Diff.initTableDiff();
+  initTableDiff();
 }, false);
