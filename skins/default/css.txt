@@ -383,7 +383,6 @@ div.filetree ul li.file{
   border-bottom: 1px solid #dee8f2;
   padding-bottom: 4px;
   padding-right: 6px;
-  text-align: left;
 }
 .artifact > .content tr > th,
 .dir      > .content tr > th,
@@ -403,6 +402,12 @@ div.filetree ul li.file{
 .wiki     > .content td {
   padding-bottom: 4px;
   padding-right: 6px;
+}
+th {
+  /* Special rule at high level to override default centering of table
+     header cell text.  If it isn't at this level, it can't be
+     overridden in the HTML, as by the MD table generator's handling
+     of `:` alignment markers. */
   text-align: left;
 }
 

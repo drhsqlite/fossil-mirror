@@ -308,15 +308,15 @@ static void html_table_cell(
   }
   switch( flags & MKD_CELL_ALIGN_MASK ){
     case MKD_CELL_ALIGN_LEFT: {
-      blob_append_literal(ob, " align=\"left\"");
+      blob_append_literal(ob, " style=\"text-align:left\"");
       break;
     }
     case MKD_CELL_ALIGN_RIGHT: {
-      blob_append_literal(ob, " align=\"right\"");
+      blob_append_literal(ob, " style=\"text-align:right\"");
       break;
     }
     case MKD_CELL_ALIGN_CENTER: {
-      blob_append_literal(ob, " align=\"center\"");
+      blob_append_literal(ob, " style=\"text-align:center\"");
       break;
     }
   }
