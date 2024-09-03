@@ -709,22 +709,34 @@ window.fossil.onPageLoad(function(){
     }
     diff.$txtCols = diff.querySelectorAll('td.difftxt');
     diff.$txtPres = diff.querySelectorAll('td.difftxt pre');
-    diff.$txtPres.forEach(function(e){
-      if(!unifiedDiffs && !e.classList.contains('scroller')){
-        D.addClass(e, 'scroller');
-        e.addEventListener('scroll', scrollLeft, false);
-      }
-    });
     if(!unifiedDiffs){
+      diff.$txtPres.forEach(function(e){
+        if(!e.classList.contains('scroller')){
+          D.addClass(e, 'scroller');
+          e.addEventListener('scroll', scrollLeft, false);
+        }
+      });
       diff.tabIndex = 0;
       if(!diff.classList.contains('scroller')){
+        /* Keyboard-based scrolling requires special-case handling to
+           ensure that we scroll the proper side of the diff when sync
+           is off. */
         D.addClass(diff, 'scroller');
         diff.addEventListener('keydown', function(e){
           const len = keycodes[e.keyCode];
           if( !len ) return false;
-          this.$txtPres[0].scrollLeft += len;
+          if( useSync() ){
+            this.$txtPres[0].scrollLeft += len;
+          }else if( diff.$preCurrent ){
+            this.$preCurrent.scrollLeft += len;
+          }
           return false;
         }, false);
+        diff.$txtPres.forEach((e)=>{
+          e.addEventListener('click', function(ev){
+            diff.$preCurrent = this /* NOT ev.target, which is probably a child element */;
+          }, false);
+        })
       }
     }
     return this;
