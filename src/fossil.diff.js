@@ -680,6 +680,17 @@ window.fossil.onPageLoad(function(){
   const keycodes = Object.assign(Object.create(null),{
     37/*cursor left*/: -SCROLL_LEN, 39/*cursor right*/: SCROLL_LEN
   });
+  /** keydown handler for a diff element */
+  const handleDiffKeydown = function(e){
+    const len = keycodes[e.keyCode];
+    if( !len ) return false;
+    if( useSync() ){
+      this.$txtPres[0].scrollLeft += len;
+    }else if( this.$preCurrent ){
+      this.$preCurrent.scrollLeft += len;
+    }
+    return false;
+  };
   /**
      Sets up synchronized scrolling of table.splitdiff element
      `diff`. If passed no argument, it scans the dom for elements to
@@ -722,21 +733,11 @@ window.fossil.onPageLoad(function(){
            ensure that we scroll the proper side of the diff when sync
            is off. */
         D.addClass(diff, 'scroller');
-        diff.addEventListener('keydown', function(e){
-          const len = keycodes[e.keyCode];
-          if( !len ) return false;
-          if( useSync() ){
-            this.$txtPres[0].scrollLeft += len;
-          }else if( diff.$preCurrent ){
-            this.$preCurrent.scrollLeft += len;
-          }
-          return false;
-        }, false);
-        diff.$txtPres.forEach((e)=>{
-          e.addEventListener('click', function(ev){
-            diff.$preCurrent = this /* NOT ev.target, which is probably a child element */;
-          }, false);
-        })
+        diff.addEventListener('keydown', handleDiffKeydown, false);
+        const handleLRClick = function(ev){
+          diff.$preCurrent = this /* NOT ev.target, which is probably a child element */;
+        };
+        diff.$txtPres.forEach((e)=>e.addEventListener('click', handleLRClick, false));
       }
     }
     return this;
