@@ -747,7 +747,8 @@ if {[cctest -link 1 -includes {unistd.h} -code "getpass(0);"]} {
 }
 
 # Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
-if {![cc-check-functions getloadavg]} {
+if {![cc-check-functions getloadavg] ||
+    ![cctest -link 1 -includes {unistd.h} -code "double a\[3\]; getloadavg(a,3);"]} {
   define FOSSIL_OMIT_LOAD_AVERAGE 1
   msg-result "Load average support unavailable"
 }

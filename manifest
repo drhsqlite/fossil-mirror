@@ -1,5 +1,5 @@
-C Updatr\sthe\smarkdown\srules\sdoc:\stable\sheader\scells\sare\sleft-aligned\sas\swell.
-D 2024-09-03T22:05:17.921
+C Detect\sbetter\smissing\sload\saverage\ssupport,\sfor\sexample\sin\sTermux.
+D 2024-09-04T11:15:49.474
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 8fd78b56e75bba3caeb029843994c8e9bb2a26160c55d05ede9b3ef8a11633a0 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 4ecd43a7f1483288486cdcff7ddf68299735b82a8804a9dc0da3c63084fd4c40
-F auto.def 44b02af5652b2e2933916c2e6a35aa9e158db3316fdb97c620b90cde18230546
+F auto.def f219f8ecfe85c31446238b0468d241d2d87cf851222dd58fe84d9380e37f9ba5
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 7d7fe206980a6d04113f85e570229953f7e0cd5ef31bb40868653b976f8698af x
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 019494e32df1c27c11d78c42bc0eb33f46d44a0a22ed52ce9c00ce9ad9d89201
-R 32a70b1ff843285c1d25f4913e31faa4
+P f141791d80e1aaa0f07316725294192ad0e56c0c22120cc2259e30867c2df894
+R 1b64acf6f729aaabd14c9458cc0b896a
 U danield
-Z a15464d65f3fb58debff2cfed74f9158
+Z 0a8f5b0c6ec9e6c2866891570090e150
 # Remove this line to create a well-formed Fossil manifest.
