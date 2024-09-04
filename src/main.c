@@ -3574,6 +3574,10 @@ void cmd_webserver(void){
 #endif /* FOSSIL_ENABLE_SSL */
 
 #else /* WIN32 */
+  find_server_repository(2, 0);
+  if( fossil_strcmp(g.zRepositoryName,"/")==0 ){
+    allowRepoList = 1;
+  }
   /* Win32 implementation */
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;
