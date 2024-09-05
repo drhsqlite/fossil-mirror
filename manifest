@@ -1,5 +1,5 @@
-C Make\srepository\slisting\sworks\sin\swindows\swhen\sdoing\s"fossil\sall\sserver".
-D 2024-09-04T14:08:32.958
+C In\sthe\s'unsaved\schanges'\serror\sof\sthe\spatch\scommand,\smake\sit\sexplicit\sthat\sthe\spatch\scannot\sbe\sapplied\s(because\sit\sotherwise\scomes\sacross\sas\sinformational,\snot\san\serror).
+D 2024-09-05T09:19:49.985
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -504,7 +504,7 @@ F src/merge.c dc6afed7bcecf0d946e22a0067fa63ed34eabe8cabe5e29df3e0d54e3dce2dab
 F src/merge3.c 19b67bb5c7742daa22348de9efd2db11de51a6f9e20940277e8557d187dd6147
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
-F src/patch.c 3ead5a8c30f961a642da255aa996535ec9e0622fcc3e48bc0dd729637e85f525
+F src/patch.c 53be9e0fa4e60acdb2c44861ed17ba4a2411aa68e6189f7c15eb46524312241b
 F src/path.c d3c1faab2d600f84228a538017df350ac64731536041a1756d2bf8988ab1118f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c 2fd902bca920b4e00b2ca7fddcc62ec2c39ecc90e5e28fe6ceeeed71ea62d5a4
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 50ba8d8d0584ba676b6807b1e5318e6dc023bb09a5f3ec137b347f29bd6040cf
-R 14ef5c1d0e362b8ec5adc869a0200fdd
-U mgagnon
-Z ef7700877897db9fe491fb04ada295aa
+P 0a473cd5533f5bb22ead6afa508b339cd5705487cdea056e243db9f43f696e6d
+R ecac0894a12b1f91cce716fb38a1cf4f
+U stephan
+Z 4acaffcbff4cf689f0130abcd1d29a0f
 # Remove this line to create a well-formed Fossil manifest.

@@ -386,7 +386,8 @@ void patch_apply(unsigned mFlags){
   blob_init(&cmd, 0, 0);
   if( unsaved_changes(0) ){
     if( (mFlags & PATCH_FORCE)==0 ){
-      fossil_fatal("there are unsaved changes in the current check-out");
+      fossil_fatal("Cannot apply patch: there are unsaved changes "
+                   "in the current check-out");
     }else{
       blob_appendf(&cmd, "%$ revert", g.nameOfExe);
       if( mFlags & PATCH_DRYRUN ){
