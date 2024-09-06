@@ -511,26 +511,108 @@ unsigned int captcha_seed(void){
   return x;
 }
 
+/* The SQL that will rotate the the captcha-secret. */
+static const char captchaSecretRotationSql[] = 
+@ SAVEPOINT rotate;
+@ DELETE FROM config
+@  WHERE name GLOB 'captcha-secret-*'
+@    AND mtime<unixepoch('now','-6 hours');
+@ UPDATE config
+@    SET name=format('captcha-secret-%%d',substr(name,16)+1)
+@  WHERE name GLOB 'captcha-secret-*';
+@ UPDATE config
+@    SET name='captcha-secret-1', mtime=unixepoch()
+@  WHERE name='captcha-secret';
+@ REPLACE INTO config(name,value,mtime)
+@   VALUES('captcha-secret',%Q,unixepoch());
+@ RELEASE rotate;
+;
+
+
+/*
+** Create a new random captcha-secret.  Rotate the old one into
+** the captcha-secret-N backups.  Purge captch-secret-N backups
+** older than 6 hours.
+**
+** Do this on the current database and in all other databases of
+** the same login group.
+*/
+void captcha_secret_rotate(void){
+  char *zNew = db_text(0, "SELECT lower(hex(randomblob(20)))");
+  char *zSql = mprintf(captchaSecretRotationSql/*works-like:"%Q"*/, zNew);
+  char *zErrs = 0;
+  fossil_free(zNew);
+  db_unprotect(PROTECT_CONFIG);
+  db_begin_transaction();
+  sqlite3_exec(g.db, zSql, 0, 0, &zErrs);
+  db_protect_pop();
+  if( zErrs && zErrs[0] ){
+    db_rollback_transaction();
+    fossil_fatal("Unable to rotate captcha-secret\n%s\nERROR: %s\n",
+                 zSql, zErrs);
+  }
+  db_end_transaction(0);
+  login_group_sql(zSql, "", "", &zErrs);
+  if( zErrs ){
+    sqlite3_free(zErrs);  /* Silently ignore errors on other repos */
+  }
+  fossil_free(zSql);
+}
+
+/*
+** Return the value of the N-th more recent captcha-secret.  The
+** most recent captch-secret is 0.  Others are prior captcha-secrets
+** that have expired, but are retained for a limited period of time
+** so that pending anonymous login cookies and/or captcha dialogs
+** don't malfunction when the captcha-secret changes.
+**
+** Clients should start by using the 0-th captcha-secret.  Only if
+** that one does not work should they advance to 1 and 2 and so forth,
+** until this routine returns a NULL pointer.
+**
+** The value returned is a string obtained from fossil_malloc() and
+** should be freed by the caller.
+**
+** The 0-th captcha secret is the value of Config.Name='captcha-secret'.
+** For N>0, the value is in Config.Name='captcha-secret-$N'.
+*/
+char *captcha_secret(int N){
+  if( N==0 ){
+    return db_text(0, "SELECT value FROM config WHERE name='captcha-secret'");
+  }else{
+    return db_text(0, 
+        "SELECT value FROM config"
+        " WHERE name='captcha-secret-%d'"
+        "   AND mtime>unixepoch('now','-6 hours')", N);
+  }
+}
+
 /*
 ** Translate a captcha seed value into the captcha password string.
 ** The returned string is static and overwritten on each call to
 ** this function.
+**
+** Use the N-th captcha secret to compute the password.  When N==0,
+** a valid password is always returned.  A new captcha-secret will
+** be created if necessary.  But for N>0, the return value might
+** be NULL to indicate that there is no N-th captcha-secret.
 */
-const char *captcha_decode(unsigned int seed){
-  const char *zSecret;
+const char *captcha_decode(unsigned int seed, int N){
+  char *zSecret;
   const char *z;
   Blob b;
   static char zRes[20];
 
-  zSecret = db_get("captcha-secret", 0);
+  zSecret = captcha_secret(N);
   if( zSecret==0 ){
+    if( N>0 ) return 0;
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "REPLACE INTO config(name,value)"
       " VALUES('captcha-secret', lower(hex(randomblob(20))));"
     );
     db_protect_pop();
-    zSecret = db_get("captcha-secret", 0);
+    zSecret = captcha_secret(0);
     assert( zSecret!=0 );
   }
   blob_init(&b, 0, 0);
@@ -539,6 +621,7 @@ const char *captcha_decode(unsigned int seed){
   z = blob_buffer(&b);
   memcpy(zRes, z, 8);
   zRes[8] = 0;
+  fossil_free(zSecret);
   return zRes;
 }
 
@@ -571,6 +654,7 @@ int captcha_is_correct(int bAlwaysNeeded){
   const char *zDecode;
   char z[30];
   int i;
+  int n = 0;
   if( !bAlwaysNeeded && !captcha_needed() ){
     return 1;  /* No captcha needed */
   }
@@ -578,15 +662,17 @@ int captcha_is_correct(int bAlwaysNeeded){
   if( zSeed==0 ) return 0;
   zEntered = P("captcha");
   if( zEntered==0 || strlen(zEntered)!=8 ) return 0;
-  zDecode = captcha_decode((unsigned int)atoi(zSeed));
-  assert( strlen(zDecode)==8 );
-  for(i=0; i<8; i++){
-    char c = zEntered[i];
-    if( c>='A' && c<='F' ) c += 'a' - 'A';
-    if( c=='O' ) c = '0';
-    z[i] = c;
-  }
-  if( strncmp(zDecode,z,8)!=0 ) return 0;
+  do{
+    zDecode = captcha_decode((unsigned int)atoi(zSeed), n++);
+    if( zDecode==0 ) return 0;
+    assert( strlen(zDecode)==8 );
+    for(i=0; i<8; i++){
+      char c = zEntered[i];
+      if( c>='A' && c<='F' ) c += 'a' - 'A';
+      if( c=='O' ) c = '0';
+      z[i] = c;
+    }
+  }while( strncmp(zDecode,z,8)!=0 );
   return 1;
 }
 
@@ -609,7 +695,7 @@ void captcha_generate(int mFlags){
 
   if( !captcha_needed() && (mFlags & 0x02)==0 ) return;
   uSeed = captcha_seed();
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
   @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
@@ -658,7 +744,13 @@ void captcha_test(void){
     (void)exclude_spiders(1);
     @ <hr><p>The captcha is shown above.  Add a name=HEX query parameter
     @ to see how HEX would be rendered in the current captcha font.
-    @ <p>captcha_is_correct(1) returns %d(captcha_is_correct(1)).
+    @ <h2>Debug/Testing Values:</h2>
+    @ <ul>
+    @ <li> g.isHuman = %d(g.isHuman)
+    @ <li> g.zLogin = %h(g.zLogin)
+    @ <li> login_cookie_welformed() = %d(login_cookie_wellformed())
+    @ <li> captcha_is_correct(1) = %d(captcha_is_correct(1)).
+    @ </ul>
     style_finish_page();
   }else{
     style_set_current_feature("test");
@@ -685,7 +777,14 @@ void captcha_test(void){
 ** how the agent identifies.  This is used for testing only.
 */
 int exclude_spiders(int bTest){
-  if( !bTest && (g.isHuman || g.zLogin!=0) ) return 0;
+  if( !bTest ){
+    if( g.isHuman ) return 0;  /* This user has already proven human */
+    if( g.zLogin!=0 ) return 0;  /* Logged in.  Consider them human */
+    if( login_cookie_wellformed() ){
+      /* Logged into another member of the login group */
+      return 0;
+    }
+  }
 
   /* This appears to be a spider.  Offer the captcha */
   style_set_current_feature("captcha");
@@ -725,7 +824,10 @@ void captcha_callback(void){
   int bTest = atoi(PD("istest","0"));
   if( captcha_is_correct(1) ){
     if( bTest==0 ){
-      login_set_anon_cookie(0, 0);
+      if( !login_cookie_wellformed() ){
+        /* ^^^^--- Don't overwrite a valid login on another repo! */
+        login_set_anon_cookie(0, 0);
+      }
       cgi_append_header("X-Robot: 0\r\n");
     }
     login_redirect_to_g();
@@ -794,7 +896,7 @@ static void captcha_wav(const char *zHex, Blob *pOut){
 */
 void captcha_wav_page(void){
   const char *zSeed = PD("name","0");
-  const char *zDecode = captcha_decode((unsigned int)atoi(zSeed));
+  const char *zDecode = captcha_decode((unsigned int)atoi(zSeed), 0);
   Blob audio;
   captcha_wav(zDecode, &audio);
   cgi_set_content_type("audio/wav");

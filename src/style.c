@@ -991,7 +991,7 @@ void style_finish_page(){
         }
       }
     }
-    strcpy(zClass,"smc-");   /* common prefix for submenu controls */
+    fossil_strcpy(zClass,"smc-");   /* common prefix for submenu controls */
     for(i=0; i<nSubmenuCtrl; i++){
       const char *zQPN = aSubmenuCtrl[i].zName;
       const char *zDisabled = "";
@@ -1357,7 +1357,7 @@ void page_test_env(void){
 */
 void honeypot_page(void){
   unsigned int uSeed = captcha_seed();
-  const char *zDecoded = captcha_decode(uSeed);
+  const char *zDecoded = captcha_decode(uSeed, 0);
   int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
   char *zCaptcha = captcha_render(zDecoded);
   style_header("I think you are a robot");

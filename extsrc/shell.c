@@ -264,6 +264,7 @@ extern LPWSTR sqlite3_win32_utf8_to_unicode(const char *zText);
 # define SQLITE_CIO_NO_CLASSIFY
 # define SQLITE_CIO_NO_TRANSLATE
 # define SQLITE_CIO_NO_SETMODE
+# define SQLITE_CIO_NO_FLUSH
 #endif
 /************************* Begin ../ext/consio/console_io.h ******************/
 /*
@@ -445,11 +446,18 @@ ePutbUtf8(const char *cBuf, int nAccept);
 #endif
 
 /*
+** Flush the given output stream. Return non-zero for success, else 0.
+*/
+#if !defined(SQLITE_CIO_NO_FLUSH) && !defined(SQLITE_CIO_NO_SETMODE)
+SQLITE_INTERNAL_LINKAGE int
+fFlushBuffer(FILE *pfOut);
+#endif
+
+/*
 ** Collect input like fgets(...) with special provisions for input
-** from the console on platforms that require same. Defers to the
-** C library fgets() when input is not from the console. Newline
-** translation may be done as set by set{Binary,Text}Mode(). As a
-** convenience, pfIn==NULL is treated as stdin.
+** from the console on such platforms as require same. Newline
+** translation may be done as set by set{Binary,Text}Mode().
+** As a convenience, pfIn==NULL is treated as stdin.
 */
 SQLITE_INTERNAL_LINKAGE char* fGetsUtf8(char *cBuf, int ncMax, FILE *pfIn);
 /* Like fGetsUtf8 except stream is always the designated input. */
@@ -1146,6 +1154,86 @@ oPutbUtf8(const char *cBuf, int nAccept){
 # endif
 }
 
+/*
+** Flush the given output stream. Return non-zero for success, else 0.
+*/
+#if !defined(SQLITE_CIO_NO_FLUSH) && !defined(SQLITE_CIO_NO_SETMODE)
+SQLITE_INTERNAL_LINKAGE int
+fFlushBuffer(FILE *pfOut){
+# if CIO_WIN_WC_XLATE && !defined(SHELL_OMIT_FIO_DUPE)
+  return FlushFileBuffers(handleOfFile(pfOut))? 1 : 0;
+# else
+  return fflush(pfOut);
+# endif
+}
+#endif
+
+#if CIO_WIN_WC_XLATE \
+   && !defined(SHELL_OMIT_FIO_DUPE) \
+   && defined(SQLITE_USE_ONLY_WIN32)
+static struct FileAltIds {
+  int fd;
+  HANDLE fh;
+} altIdsOfFile(FILE *pf){
+  struct FileAltIds rv = { _fileno(pf) };
+  union { intptr_t osfh; HANDLE fh; } fid = {
+    (rv.fd>=0)? _get_osfhandle(rv.fd) : (intptr_t)INVALID_HANDLE_VALUE
+  };
+  rv.fh = fid.fh;
+  return rv;
+}
+
+SQLITE_INTERNAL_LINKAGE size_t
+cfWrite(const void *buf, size_t osz, size_t ocnt, FILE *pf){
+  size_t rv = 0;
+  struct FileAltIds fai = altIdsOfFile(pf);
+  int fmode = _setmode(fai.fd, _O_BINARY);
+  _setmode(fai.fd, fmode);
+  while( rv < ocnt ){
+    size_t nbo = osz;
+    while( nbo > 0 ){
+      DWORD dwno = (nbo>(1L<<24))? 1L<<24 : (DWORD)nbo;
+      BOOL wrc = TRUE;
+      BOOL genCR = (fmode & _O_TEXT)!=0;
+      if( genCR ){
+        const char *pnl = (const char*)memchr(buf, '\n', nbo);
+        if( pnl ) nbo = pnl - (const char*)buf;
+        else genCR = 0;
+      }
+      if( dwno>0 ) wrc = WriteFile(fai.fh, buf, dwno, 0,0);
+      if( genCR && wrc ){
+        wrc = WriteFile(fai.fh, "\r\n", 2, 0,0);
+        ++dwno; /* Skip over the LF */
+      }
+      if( !wrc ) return rv;
+      buf = (const char*)buf + dwno;
+      nbo += dwno;
+    }
+    ++rv;
+  }
+  return rv;
+}
+
+SQLITE_INTERNAL_LINKAGE char *
+cfGets(char *cBuf, int n, FILE *pf){
+  int nci = 0;
+  struct FileAltIds fai = altIdsOfFile(pf);
+  int fmode = _setmode(fai.fd, _O_BINARY);
+  BOOL eatCR = (fmode & _O_TEXT)!=0;
+  _setmode(fai.fd, fmode);
+  while( nci < n-1 ){
+    DWORD nr;
+    if( !ReadFile(fai.fh, cBuf+nci, 1, &nr, 0) || nr==0 ) break;
+    if( nr>0 && (!eatCR || cBuf[nci]!='\r') ) nci += nr;
+  }
+  if( nci < n ) cBuf[nci] = 0;
+  return (nci>0)? cBuf : 0;
+}
+# else
+#  define cfWrite(b,os,no,f) fwrite(b,os,no,f)
+#  define cfGets(b,n,f) fgets(b,n,f)
+# endif
+
 # ifdef CONSIO_EPUTB
 SQLITE_INTERNAL_LINKAGE int
 ePutbUtf8(const char *cBuf, int nAccept){
@@ -1157,7 +1245,7 @@ ePutbUtf8(const char *cBuf, int nAccept){
     return conZstrEmit(ppst, cBuf, nAccept);
   }else {
 #  endif
-    return (int)fwrite(cBuf, 1, nAccept, pfErr);
+    return (int)cfWrite(cBuf, 1, nAccept, pfErr);
 #  if CIO_WIN_WC_XLATE
   }
 #  endif
@@ -1223,7 +1311,7 @@ SQLITE_INTERNAL_LINKAGE char* fGetsUtf8(char *cBuf, int ncMax, FILE *pfIn){
 #  endif
   }else{
 # endif
-    return fgets(cBuf, ncMax, pfIn);
+    return cfGets(cBuf, ncMax, pfIn);
 # if CIO_WIN_WC_XLATE
   }
 # endif
@@ -1267,11 +1355,12 @@ SQLITE_INTERNAL_LINKAGE char* fGetsUtf8(char *cBuf, int ncMax, FILE *pfIn){
 # define eputz(z) ePutsUtf8(z)
 # define eputf ePrintfUtf8
 # define oputb(buf,na) oPutbUtf8(buf,na)
+# define fflush(s) fFlushBuffer(s);
 
 #else
 /* For Fiddle, all console handling and emit redirection is omitted. */
 /* These next 3 macros are for emitting formatted output. When complaints
- * from the WASM build are issued for non-formatted output, (when a mere
+ * from the WASM build are issued for non-formatted output, when a mere
  * string literal is to be emitted, the ?putz(z) forms should be used.
  * (This permits compile-time checking of format string / argument mismatch.)
  */
@@ -1283,6 +1372,7 @@ SQLITE_INTERNAL_LINKAGE char* fGetsUtf8(char *cBuf, int ncMax, FILE *pfIn){
 # define eputz(z) fputs(z,stderr)
 # define sputz(fp,z) fputs(z,fp)
 # define oputb(buf,na) fwrite(buf,1,na,stdout)
+# undef fflush
 #endif
 
 /* True if the timer is enabled */
@@ -1523,6 +1613,14 @@ static char *shell_strncpy(char *dest, const char *src, size_t n){
 }
 
 /*
+** strcpy() workalike to squelch an unwarranted link-time warning
+** from OpenBSD.
+*/
+static void shell_strcpy(char *dest, const char *src){
+  while( (*(dest++) = *(src++))!=0 ){}
+}
+
+/*
 ** Optionally disable dynamic continuation prompt.
 ** Unless disabled, the continuation prompt shows open SQL lexemes if any,
 ** or open parentheses level if non-zero, or continuation prompt as set.
@@ -1587,7 +1685,7 @@ static char *dynamicContinuePrompt(void){
       size_t ncp = strlen(continuePrompt);
       size_t ndp = strlen(dynPrompt.zScannerAwaits);
       if( ndp > ncp-3 ) return continuePrompt;
-      strcpy(dynPrompt.dynamicPrompt, dynPrompt.zScannerAwaits);
+      shell_strcpy(dynPrompt.dynamicPrompt, dynPrompt.zScannerAwaits);
       while( ndp<3 ) dynPrompt.dynamicPrompt[ndp++] = ' ';
       shell_strncpy(dynPrompt.dynamicPrompt+3, continuePrompt+3,
               PROMPT_LEN_MAX-4);
@@ -4683,7 +4781,7 @@ int sqlite3_decimal_init(
 ******************************************************************************
 **
 ** This file contains code to implement the percentile(Y,P) SQL function
-** as described below:
+** and similar as described below:
 **
 **   (1)  The percentile(Y,P) function is an aggregate function taking
 **        exactly two arguments.
@@ -4732,31 +4830,105 @@ int sqlite3_decimal_init(
 **
 **  (13)  A separate median(Y) function is the equivalent percentile(Y,50).
 **
-**  (14)  A separate percentile_cond(Y,X) function is the equivalent of
-**        percentile(Y,X*100.0).
+**  (14)  A separate percentile_cont(Y,P) function is equivalent to
+**        percentile(Y,P/100.0).  In other words, the fraction value in
+**        the second argument is in the range of 0 to 1 instead of 0 to 100.
+**
+**  (15)  A separate percentile_disc(Y,P) function is like
+**        percentile_cont(Y,P) except that instead of returning the weighted
+**        average of the nearest two input values, it returns the next lower
+**        value.  So the percentile_disc(Y,P) will always return a value
+**        that was one of the inputs.
+**
+**  (16)  All of median(), percentile(Y,P), percentile_cont(Y,P) and
+**        percentile_disc(Y,P) can be used as window functions.
+**
+** Differences from standard SQL:
+**
+**  *  The percentile_cont(X,P) function is equivalent to the following in
+**     standard SQL:
+**
+**         (percentile_cont(P) WITHIN GROUP (ORDER BY X))
+**
+**     The SQLite syntax is much more compact.  The standard SQL syntax
+**     is also supported if SQLite is compiled with the
+**     -DSQLITE_ENABLE_ORDERED_SET_AGGREGATES option.
+**
+**  *  No median(X) function exists in the SQL standard.  App developers
+**     are expected to write "percentile_cont(0.5)WITHIN GROUP(ORDER BY X)".
+**
+**  *  No percentile(Y,P) function exists in the SQL standard.  Instead of
+**     percential(Y,P), developers must write this:
+**     "percentile_cont(P/100.0) WITHIN GROUP (ORDER BY Y)".  Note that
+**     the fraction parameter to percentile() goes from 0 to 100 whereas
+**     the fraction parameter in SQL standard percentile_cont() goes from
+**     0 to 1.
+**
+** Implementation notes as of 2024-08-31:
+**
+**  *  The regular aggregate-function versions of these routines work
+**     by accumulating all values in an array of doubles, then sorting
+**     that array using quicksort before computing the answer. Thus
+**     the runtime is O(NlogN) where N is the number of rows of input.
+**
+**  *  For the window-function versions of these routines, the array of
+**     inputs is sorted as soon as the first value is computed.  Thereafter,
+**     the array is kept in sorted order using an insert-sort.  This
+**     results in O(N*K) performance where K is the size of the window.
+**     One can imagine alternative implementations that give O(N*logN*logK)
+**     performance, but they require more complex logic and data structures.
+**     The developers have elected to keep the asymptotically slower
+**     algorithm for now, for simplicity, under the theory that window
+**     functions are seldom used and when they are, the window size K is
+**     often small.  The developers might revisit that decision later,
+**     should the need arise.
 */
-/* #include "sqlite3ext.h" */
-SQLITE_EXTENSION_INIT1
+#if defined(SQLITE3_H)
+  /* no-op */
+#elif defined(SQLITE_STATIC_PERCENTILE)
+/* #  include "sqlite3.h" */
+#else
+/* #  include "sqlite3ext.h" */
+   SQLITE_EXTENSION_INIT1
+#endif
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* The following object is the session context for a single percentile()
-** function.  We have to remember all input Y values until the very end.
+/* The following object is the group context for a single percentile()
+** aggregate.  Remember all input Y values until the very end.
 ** Those values are accumulated in the Percentile.a[] array.
 */
 typedef struct Percentile Percentile;
 struct Percentile {
   unsigned nAlloc;     /* Number of slots allocated for a[] */
   unsigned nUsed;      /* Number of slots actually used in a[] */
-  double rPct;         /* 1.0 more than the value for P */
+  char bSorted;        /* True if a[] is already in sorted order */
+  char bKeepSorted;    /* True if advantageous to keep a[] sorted */
+  char bPctValid;      /* True if rPct is valid */
+  double rPct;         /* Fraction.  0.0 to 1.0 */
   double *a;           /* Array of Y values */
+};
+
+/* Details of each function in the percentile family */
+typedef struct PercentileFunc PercentileFunc;
+struct PercentileFunc {
+  const char *zName;   /* Function name */
+  char nArg;           /* Number of arguments */
+  char mxFrac;         /* Maximum value of the "fraction" input */
+  char bDiscrete;      /* True for percentile_disc() */
+};
+static const PercentileFunc aPercentFunc[] = {
+  { "median",           1,   1, 0 },
+  { "percentile",       2, 100, 0 },
+  { "percentile_cont",  2,   1, 0 },
+  { "percentile_disc",  2,   1, 1 },
 };
 
 /*
 ** Return TRUE if the input floating-point number is an infinity.
 */
-static int isInfinity(double r){
+static int percentIsInfinity(double r){
   sqlite3_uint64 u;
   assert( sizeof(u)==sizeof(r) );
   memcpy(&u, &r, sizeof(u));
@@ -4764,11 +4936,62 @@ static int isInfinity(double r){
 }
 
 /*
-** Return TRUE if two doubles differ by 0.001 or less
+** Return TRUE if two doubles differ by 0.001 or less.
 */
-static int sameValue(double a, double b){
+static int percentSameValue(double a, double b){
   a -= b;
   return a>=-0.001 && a<=0.001;
+}
+
+/*
+** Search p (which must have p->bSorted) looking for an entry with
+** value y.  Return the index of that entry.
+**
+** If bExact is true, return -1 if the entry is not found.
+**
+** If bExact is false, return the index at which a new entry with
+** value y should be insert in order to keep the values in sorted
+** order.  The smallest return value in this case will be 0, and
+** the largest return value will be p->nUsed.
+*/
+static int percentBinarySearch(Percentile *p, double y, int bExact){
+  int iFirst = 0;              /* First element of search range */
+  int iLast = p->nUsed - 1;    /* Last element of search range */
+  while( iLast>=iFirst ){
+    int iMid = (iFirst+iLast)/2;
+    double x = p->a[iMid];
+    if( x<y ){
+      iFirst = iMid + 1;
+    }else if( x>y ){
+      iLast = iMid - 1;
+    }else{
+      return iMid;
+    }
+  }
+  if( bExact ) return -1;
+  return iFirst;
+}
+
+/*
+** Generate an error for a percentile function.
+**
+** The error format string must have exactly one occurrance of "%%s()"
+** (with two '%' characters).  That substring will be replaced by the name
+** of the function.
+*/
+static void percentError(sqlite3_context *pCtx, const char *zFormat, ...){
+  PercentileFunc *pFunc = (PercentileFunc*)sqlite3_user_data(pCtx);
+  char *zMsg1;
+  char *zMsg2;
+  va_list ap;
+
+  va_start(ap, zFormat);
+  zMsg1 = sqlite3_vmprintf(zFormat, ap);
+  va_end(ap);
+  zMsg2 = zMsg1 ? sqlite3_mprintf(zMsg1, pFunc->zName) : 0;
+  sqlite3_result_error(pCtx, zMsg2, -1);
+  sqlite3_free(zMsg1);
+  sqlite3_free(zMsg2);
 }
 
 /*
@@ -4784,28 +5007,20 @@ static void percentStep(sqlite3_context *pCtx, int argc, sqlite3_value **argv){
 
   if( argc==1 ){
     /* Requirement 13:  median(Y) is the same as percentile(Y,50). */
-    rPct = 50.0;
-  }else if( sqlite3_user_data(pCtx)==0 ){
-    /* Requirement 3:  P must be a number between 0 and 100 */
-    eType = sqlite3_value_numeric_type(argv[1]);
-    rPct = sqlite3_value_double(argv[1]);
-    if( (eType!=SQLITE_INTEGER && eType!=SQLITE_FLOAT)
-     || rPct<0.0 || rPct>100.0 ){
-       sqlite3_result_error(pCtx, "2nd argument to percentile() is not "
-                           "a number between 0.0 and 100.0", -1);
-      return;
-    }
+    rPct = 0.5;
   }else{
-    /* Requirement 3:  P must be a number between 0 and 1 */
+    /* Requirement 3:  P must be a number between 0 and 100 */
+    PercentileFunc *pFunc = (PercentileFunc*)sqlite3_user_data(pCtx);
     eType = sqlite3_value_numeric_type(argv[1]);
-    rPct = sqlite3_value_double(argv[1]);
+    rPct = sqlite3_value_double(argv[1])/(double)pFunc->mxFrac;
     if( (eType!=SQLITE_INTEGER && eType!=SQLITE_FLOAT)
-     || rPct<0.0 || rPct>1.0 ){
-       sqlite3_result_error(pCtx, "2nd argument to percentile_cont() is not "
-                           "a number between 0.0 and 1.0", -1);
+     || rPct<0.0 || rPct>1.0
+    ){
+      percentError(pCtx, "the fraction argument to %%s()"
+                        " is not between 0.0 and %.1f",
+                        (double)pFunc->mxFrac);
       return;
     }
-    rPct *= 100.0;
   }
 
   /* Allocate the session context. */
@@ -4814,11 +5029,12 @@ static void percentStep(sqlite3_context *pCtx, int argc, sqlite3_value **argv){
 
   /* Remember the P value.  Throw an error if the P value is different
   ** from any prior row, per Requirement (2). */
-  if( p->rPct==0.0 ){
-    p->rPct = rPct+1.0;
-  }else if( !sameValue(p->rPct,rPct+1.0) ){
-    sqlite3_result_error(pCtx, "2nd argument to percentile() is not the "
-                               "same for all input rows", -1);
+  if( !p->bPctValid ){
+    p->rPct = rPct;
+    p->bPctValid = 1;
+  }else if( !percentSameValue(p->rPct,rPct) ){
+    percentError(pCtx, "the fraction argument to %%s()"
+                      " is not the same for all input rows");
     return;
   }
 
@@ -4829,15 +5045,14 @@ static void percentStep(sqlite3_context *pCtx, int argc, sqlite3_value **argv){
   /* If not NULL, then Y must be numeric.  Otherwise throw an error.
   ** Requirement 4 */
   if( eType!=SQLITE_INTEGER && eType!=SQLITE_FLOAT ){
-    sqlite3_result_error(pCtx, "1st argument to percentile() is not "
-                               "numeric", -1);
+    percentError(pCtx, "input to %%s() is not numeric");
     return;
   }
 
   /* Throw an error if the Y value is infinity or NaN */
   y = sqlite3_value_double(argv[0]);
-  if( isInfinity(y) ){
-    sqlite3_result_error(pCtx, "Inf input to percentile()", -1);
+  if( percentIsInfinity(y) ){
+    percentError(pCtx, "Inf input to %%s()");
     return;
   }
 
@@ -4854,50 +5069,80 @@ static void percentStep(sqlite3_context *pCtx, int argc, sqlite3_value **argv){
     p->nAlloc = n;
     p->a = a;
   }
-  p->a[p->nUsed++] = y;
+  if( p->nUsed==0 ){
+    p->a[p->nUsed++] = y;
+    p->bSorted = 1;
+  }else if( !p->bSorted || y>=p->a[p->nUsed-1] ){
+    p->a[p->nUsed++] = y;
+  }else if( p->bKeepSorted ){
+    int i;
+    i = percentBinarySearch(p, y, 0);
+    if( i<p->nUsed ){
+      memmove(&p->a[i+1], &p->a[i], (p->nUsed-i)*sizeof(p->a[0]));
+    }
+    p->a[i] = y;
+    p->nUsed++;
+  }else{
+    p->a[p->nUsed++] = y;
+    p->bSorted = 0;
+  }
 }
 
 /*
-** Sort an array of doubles.
+** Interchange two doubles.
 */
-static void sortDoubles(double *a, int n){
-  int iLt;       /* Entries with index less than iLt are less than rPivot */
-  int iGt;       /* Entries with index iGt or more are greater than rPivot */
+#define SWAP_DOUBLE(X,Y)  {double ttt=(X);(X)=(Y);(Y)=ttt;}
+
+/*
+** Sort an array of doubles.
+**
+** Algorithm: quicksort
+**
+** This is implemented separately rather than using the qsort() routine
+** from the standard library because:
+**
+**    (1)  To avoid a dependency on qsort()
+**    (2)  To avoid the function call to the comparison routine for each
+**         comparison.
+*/
+static void percentSort(double *a, unsigned int n){
+  int iLt;  /* Entries before a[iLt] are less than rPivot */
+  int iGt;  /* Entries at or after a[iGt] are greater than rPivot */
   int i;         /* Loop counter */
   double rPivot; /* The pivot value */
-  double rTmp;   /* Temporary used to swap two values */
-
-  if( n<2 ) return;
-  if( n>5 ){
-    rPivot = (a[0] + a[n/2] + a[n-1])/3.0;
-  }else{
-    rPivot = a[n/2];
+  
+  assert( n>=2 );
+  if( a[0]>a[n-1] ){
+    SWAP_DOUBLE(a[0],a[n-1])
   }
-  iLt = i = 0;
-  iGt = n;
-  while( i<iGt ){
+  if( n==2 ) return;
+  iGt = n-1;
+  i = n/2;
+  if( a[0]>a[i] ){
+    SWAP_DOUBLE(a[0],a[i])
+  }else if( a[i]>a[iGt] ){
+    SWAP_DOUBLE(a[i],a[iGt])
+  }
+  if( n==3 ) return;
+  rPivot = a[i];
+  iLt = i = 1;
+  do{
     if( a[i]<rPivot ){
-      if( i>iLt ){
-        rTmp = a[i];
-        a[i] = a[iLt];
-        a[iLt] = rTmp;
-      }
+      if( i>iLt ) SWAP_DOUBLE(a[i],a[iLt])
       iLt++;
       i++;
     }else if( a[i]>rPivot ){
       do{
         iGt--;
       }while( iGt>i && a[iGt]>rPivot );
-      rTmp = a[i];
-      a[i] = a[iGt];
-      a[iGt] = rTmp;
+      SWAP_DOUBLE(a[i],a[iGt])
     }else{
       i++;
     }
-  }
-  if( iLt>=2 ) sortDoubles(a, iLt);
-  if( n-iGt>=2 ) sortDoubles(a+iGt, n-iGt);
-
+  }while( i<iGt );
+  if( iLt>=2 ) percentSort(a, iLt);
+  if( n-iGt>=2 ) percentSort(a+iGt, n-iGt);
+    
 /* Uncomment for testing */
 #if 0
   for(i=0; i<n-1; i++){
@@ -4906,12 +5151,61 @@ static void sortDoubles(double *a, int n){
 #endif
 }
 
+
 /*
-** Called to compute the final output of percentile() and to clean
-** up all allocated memory.
+** The "inverse" function for percentile(Y,P) is called to remove a
+** row that was previously inserted by "step".
 */
-static void percentFinal(sqlite3_context *pCtx){
+static void percentInverse(sqlite3_context *pCtx,int argc,sqlite3_value **argv){
   Percentile *p;
+  int eType;
+  double y;
+  int i;
+  assert( argc==2 || argc==1 );
+
+  /* Allocate the session context. */
+  p = (Percentile*)sqlite3_aggregate_context(pCtx, sizeof(*p));
+  assert( p!=0 );
+
+  /* Ignore rows for which Y is NULL */
+  eType = sqlite3_value_type(argv[0]);
+  if( eType==SQLITE_NULL ) return;
+
+  /* If not NULL, then Y must be numeric.  Otherwise throw an error.
+  ** Requirement 4 */
+  if( eType!=SQLITE_INTEGER && eType!=SQLITE_FLOAT ){
+    return;
+  }
+
+  /* Ignore the Y value if it is infinity or NaN */
+  y = sqlite3_value_double(argv[0]);
+  if( percentIsInfinity(y) ){
+    return;
+  }
+  if( p->bSorted==0 ){
+    assert( p->nUsed>1 );
+    percentSort(p->a, p->nUsed);
+    p->bSorted = 1;
+  }
+  p->bKeepSorted = 1;
+
+  /* Find and remove the row */
+  i = percentBinarySearch(p, y, 1);
+  if( i>=0 ){
+    p->nUsed--;
+    if( i<p->nUsed ){
+      memmove(&p->a[i], &p->a[i+1], (p->nUsed - i)*sizeof(p->a[0]));
+    }
+  }
+}
+
+/*
+** Compute the final output of percentile().  Clean up all allocated
+** memory if and only if bIsFinal is true.
+*/
+static void percentCompute(sqlite3_context *pCtx, int bIsFinal){
+  Percentile *p;
+  PercentileFunc *pFunc = (PercentileFunc*)sqlite3_user_data(pCtx);
   unsigned i1, i2;
   double v1, v2;
   double ix, vx;
@@ -4919,21 +5213,38 @@ static void percentFinal(sqlite3_context *pCtx){
   if( p==0 ) return;
   if( p->a==0 ) return;
   if( p->nUsed ){
-    sortDoubles(p->a, p->nUsed);
-    ix = (p->rPct-1.0)*(p->nUsed-1)*0.01;
+    if( p->bSorted==0 ){
+      assert( p->nUsed>1 );
+      percentSort(p->a, p->nUsed);
+      p->bSorted = 1;
+    }
+    ix = p->rPct*(p->nUsed-1);
     i1 = (unsigned)ix;
-    i2 = ix==(double)i1 || i1==p->nUsed-1 ? i1 : i1+1;
-    v1 = p->a[i1];
-    v2 = p->a[i2];
-    vx = v1 + (v2-v1)*(ix-i1);
+    if( pFunc->bDiscrete ){
+      vx = p->a[i1];
+    }else{
+      i2 = ix==(double)i1 || i1==p->nUsed-1 ? i1 : i1+1;
+      v1 = p->a[i1];
+      v2 = p->a[i2];
+      vx = v1 + (v2-v1)*(ix-i1);
+    }
     sqlite3_result_double(pCtx, vx);
   }
-  sqlite3_free(p->a);
-  memset(p, 0, sizeof(*p));
+  if( bIsFinal ){
+    sqlite3_free(p->a);
+    memset(p, 0, sizeof(*p));
+  }else{
+    p->bKeepSorted = 1;
+  }
+}
+static void percentFinal(sqlite3_context *pCtx){
+  percentCompute(pCtx, 1);
+}
+static void percentValue(sqlite3_context *pCtx){
+  percentCompute(pCtx, 0);
 }
 
-
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(SQLITE3_H) && !defined(SQLITE_STATIC_PERCENTILE)
 
 #endif
 int sqlite3_percentile_init(
@@ -4942,20 +5253,21 @@ int sqlite3_percentile_init(
   const sqlite3_api_routines *pApi
 ){
   int rc = SQLITE_OK;
+  int i;
+#if defined(SQLITE3_H) || defined(SQLITE_STATIC_PERCENTILE)
+  (void)pApi;      /* Unused parameter */
+#else
   SQLITE_EXTENSION_INIT2(pApi);
+#endif
   (void)pzErrMsg;  /* Unused parameter */
-  rc = sqlite3_create_function(db, "percentile", 2, 
-                               SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
-                               0, percentStep, percentFinal);
-  if( rc==SQLITE_OK ){
-    rc = sqlite3_create_function(db, "median", 1, 
-                                 SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
-                                 0, percentStep, percentFinal);
-  }
-  if( rc==SQLITE_OK ){
-    rc = sqlite3_create_function(db, "percentile_cont", 2, 
-                                 SQLITE_UTF8|SQLITE_INNOCUOUS, &percentStep,
-                                 0, percentStep, percentFinal);
+  for(i=0; i<sizeof(aPercentFunc)/sizeof(aPercentFunc[0]); i++){
+    rc = sqlite3_create_window_function(db,
+            aPercentFunc[i].zName,
+            aPercentFunc[i].nArg,
+            SQLITE_UTF8|SQLITE_INNOCUOUS|SQLITE_SELFORDER1,
+            (void*)&aPercentFunc[i],
+            percentStep, percentFinal, percentValue, percentInverse, 0);
+    if( rc ) break;
   }
   return rc;
 }
@@ -6134,6 +6446,26 @@ int sqlite3_ieee_init(
 ** and a very large cost if either start or stop are unavailable.  This
 ** encourages the query planner to order joins such that the bounds of the
 ** series are well-defined.
+**
+** Update on 2024-08-22:
+** xBestIndex now also looks for equality and inequality constraints against
+** the value column and uses those constraints as additional bounds against
+** the sequence range.  Thus, a query like this:
+**
+**     SELECT value FROM generate_series($SA,$EA)
+**      WHERE value BETWEEN $SB AND $EB;
+**
+** Is logically the same as:
+**
+**     SELECT value FROM generate_series(max($SA,$SB),min($EA,$EB));
+**
+** Constraints on the value column can server as substitutes for constraints
+** on the hidden start and stop columns.  So, the following two queries
+** are equivalent:
+**
+**     SELECT value FROM generate_series($S,$E);
+**     SELECT value FROM generate_series WHERE value BETWEEN $S and $E;
+**
 */
 /* #include "sqlite3ext.h" */
 SQLITE_EXTENSION_INIT1
@@ -6175,8 +6507,10 @@ static sqlite3_int64 genSeqMember(
 /* typedef unsigned char u8; */
 
 typedef struct SequenceSpec {
-  sqlite3_int64 iBase;         /* Starting value ("start") */
-  sqlite3_int64 iTerm;         /* Given terminal value ("stop") */
+  sqlite3_int64 iOBase;        /* Original starting value ("start") */
+  sqlite3_int64 iOTerm;        /* Original terminal value ("stop") */
+  sqlite3_int64 iBase;         /* Starting value to actually use */
+  sqlite3_int64 iTerm;         /* Terminal value to actually use */
   sqlite3_int64 iStep;         /* Increment ("step") */
   sqlite3_uint64 uSeqIndexMax; /* maximum sequence index (aka "n") */
   sqlite3_uint64 uSeqIndexNow; /* Current index during generation */
@@ -6369,9 +6703,9 @@ static int seriesColumn(
   series_cursor *pCur = (series_cursor*)cur;
   sqlite3_int64 x = 0;
   switch( i ){
-    case SERIES_COLUMN_START:  x = pCur->ss.iBase; break;
-    case SERIES_COLUMN_STOP:   x = pCur->ss.iTerm; break;
-    case SERIES_COLUMN_STEP:   x = pCur->ss.iStep;   break;
+    case SERIES_COLUMN_START:  x = pCur->ss.iOBase;     break;
+    case SERIES_COLUMN_STOP:   x = pCur->ss.iOTerm;     break;
+    case SERIES_COLUMN_STEP:   x = pCur->ss.iStep;      break;
     default:                   x = pCur->ss.iValueNow;  break;
   }
   sqlite3_result_int64(ctx, x);
@@ -6379,7 +6713,9 @@ static int seriesColumn(
 }
 
 #ifndef LARGEST_UINT64
+#define LARGEST_INT64  (0xffffffff|(((sqlite3_int64)0x7fffffff)<<32))
 #define LARGEST_UINT64 (0xffffffff|(((sqlite3_uint64)0xffffffff)<<32))
+#define SMALLEST_INT64 (((sqlite3_int64)-1) - LARGEST_INT64)
 #endif
 
 /*
@@ -6420,13 +6756,18 @@ static int seriesEof(sqlite3_vtab_cursor *cur){
 ** parameter.  (idxStr is not used in this implementation.)  idxNum
 ** is a bitmask showing which constraints are available:
 **
-**   0x01:    start=VALUE
-**   0x02:    stop=VALUE
-**   0x04:    step=VALUE
-**   0x08:    descending order
-**   0x10:    ascending order
-**   0x20:    LIMIT  VALUE
-**   0x40:    OFFSET  VALUE
+**   0x0001:    start=VALUE
+**   0x0002:    stop=VALUE
+**   0x0004:    step=VALUE
+**   0x0008:    descending order
+**   0x0010:    ascending order
+**   0x0020:    LIMIT  VALUE
+**   0x0040:    OFFSET  VALUE
+**   0x0080:    value=VALUE
+**   0x0100:    value>=VALUE
+**   0x0200:    value>VALUE
+**   0x1000:    value<=VALUE
+**   0x2000:    value<VALUE
 **
 ** This routine should initialize the cursor and position it so that it
 ** is pointing at the first row, or pointing off the end of the table
@@ -6439,6 +6780,12 @@ static int seriesFilter(
 ){
   series_cursor *pCur = (series_cursor *)pVtabCursor;
   int i = 0;
+  int returnNoRows = 0;
+  sqlite3_int64 iMin = SMALLEST_INT64;
+  sqlite3_int64 iMax = LARGEST_INT64;
+  sqlite3_int64 iLimit = 0;
+  sqlite3_int64 iOffset = 0;
+
   (void)idxStrUnused;
   if( idxNum & 0x01 ){
     pCur->ss.iBase = sqlite3_value_int64(argv[i++]);
@@ -6460,16 +6807,98 @@ static int seriesFilter(
   }else{
     pCur->ss.iStep = 1;
   }
+
+  /* If there are constraints on the value column but there are
+  ** no constraints on  the start, stop, and step columns, then
+  ** initialize the default range to be the entire range of 64-bit signed
+  ** integers.  This range will contracted by the value column constraints
+  ** further below.
+  */
+  if( (idxNum & 0x05)==0 && (idxNum & 0x0380)!=0 ){
+    pCur->ss.iBase = SMALLEST_INT64;
+  }
+  if( (idxNum & 0x06)==0 && (idxNum & 0x3080)!=0 ){
+    pCur->ss.iTerm = LARGEST_INT64;
+  }
+  pCur->ss.iOBase = pCur->ss.iBase;
+  pCur->ss.iOTerm = pCur->ss.iTerm;
+
+  /* Extract the LIMIT and OFFSET values, but do not apply them yet.
+  ** The range must first be constrained by the limits on value.
+  */
   if( idxNum & 0x20 ){
-    sqlite3_int64 iLimit = sqlite3_value_int64(argv[i++]);
-    sqlite3_int64 iTerm;
+    iLimit = sqlite3_value_int64(argv[i++]);
     if( idxNum & 0x40 ){
-      sqlite3_int64 iOffset = sqlite3_value_int64(argv[i++]);
-      if( iOffset>0 ){
-        pCur->ss.iBase += pCur->ss.iStep*iOffset;
+      iOffset = sqlite3_value_int64(argv[i++]);
+    }
+  }
+
+  if( idxNum & 0x3380 ){
+    /* Extract the maximum range of output values determined by
+    ** constraints on the "value" column.
+    */
+    if( idxNum & 0x0080 ){
+      iMin = iMax = sqlite3_value_int64(argv[i++]);
+    }else{
+      if( idxNum & 0x0300 ){
+        iMin = sqlite3_value_int64(argv[i++]);
+        if( idxNum & 0x0200 ){
+          if( iMin==LARGEST_INT64 ){
+            returnNoRows = 1;
+          }else{
+            iMin++;
+          }
+        }
+      }
+      if( idxNum & 0x3000 ){
+        iMax = sqlite3_value_int64(argv[i++]);
+        if( idxNum & 0x2000 ){
+          if( iMax==SMALLEST_INT64 ){
+            returnNoRows = 1;
+          }else{
+            iMax--;
+          }
+        }
+      }
+      if( iMin>iMax ){
+        returnNoRows = 1;
       }
     }
+
+    /* Try to reduce the range of values to be generated based on
+    ** constraints on the "value" column.
+    */
+    if( pCur->ss.iStep>0 ){
+      sqlite3_int64 szStep = pCur->ss.iStep;
+      if( pCur->ss.iBase<iMin ){
+        sqlite3_uint64 d = iMin - pCur->ss.iBase;
+        pCur->ss.iBase += ((d+szStep-1)/szStep)*szStep;
+      }
+      if( pCur->ss.iTerm>iMax ){
+        sqlite3_uint64 d = pCur->ss.iTerm - iMax;
+        pCur->ss.iTerm -= ((d+szStep-1)/szStep)*szStep;
+      }
+    }else{
+      sqlite3_int64 szStep = -pCur->ss.iStep;
+      assert( szStep>0 );
+      if( pCur->ss.iBase>iMax ){
+        sqlite3_uint64 d = pCur->ss.iBase - iMax;
+        pCur->ss.iBase -= ((d+szStep-1)/szStep)*szStep;
+      }
+      if( pCur->ss.iTerm<iMin ){
+        sqlite3_uint64 d = iMin - pCur->ss.iTerm;
+        pCur->ss.iTerm += ((d+szStep-1)/szStep)*szStep;
+      }
+    }
+  }
+
+  /* Apply LIMIT and OFFSET constraints, if any */
+  if( idxNum & 0x20 ){
+    if( iOffset>0 ){
+      pCur->ss.iBase += pCur->ss.iStep*iOffset;
+    }
     if( iLimit>=0 ){
+      sqlite3_int64 iTerm;
       iTerm = pCur->ss.iBase + (iLimit - 1)*pCur->ss.iStep;
       if( pCur->ss.iStep<0 ){
         if( iTerm>pCur->ss.iTerm ) pCur->ss.iTerm = iTerm;
@@ -6478,15 +6907,20 @@ static int seriesFilter(
       }
     }
   }
+
+
   for(i=0; i<argc; i++){
     if( sqlite3_value_type(argv[i])==SQLITE_NULL ){
       /* If any of the constraints have a NULL value, then return no rows.
       ** See ticket https://www.sqlite.org/src/info/fac496b61722daf2 */
-      pCur->ss.iBase = 1;
-      pCur->ss.iTerm = 0;
-      pCur->ss.iStep = 1;
+      returnNoRows = 1;
       break;
     }
+  }
+  if( returnNoRows ){
+    pCur->ss.iBase = 1;
+    pCur->ss.iTerm = 0;
+    pCur->ss.iStep = 1;
   }
   if( idxNum & 0x08 ){
     pCur->ss.isReversing = pCur->ss.iStep > 0;
@@ -6508,13 +6942,35 @@ static int seriesFilter(
 **
 ** The query plan is represented by bits in idxNum:
 **
-**   0x01  start = $value  -- constraint exists
-**   0x02  stop = $value   -- constraint exists
-**   0x04  step = $value   -- constraint exists
-**   0x08  output is in descending order
-**   0x10  output is in ascending order
-**   0x20  LIMIT $value    -- constraint exists
-**   0x40  OFFSET $value   -- constraint exists
+**   0x0001  start = $num
+**   0x0002  stop = $num
+**   0x0004  step = $num
+**   0x0008  output is in descending order
+**   0x0010  output is in ascending order
+**   0x0020  LIMIT $num
+**   0x0040  OFFSET $num
+**   0x0080  value = $num
+**   0x0100  value >= $num
+**   0x0200  value > $num
+**   0x1000  value <= $num
+**   0x2000  value < $num
+**
+** Only one of 0x0100 or 0x0200 will be returned.  Similarly, only
+** one of 0x1000 or 0x2000 will be returned.  If the 0x0080 is set, then
+** none of the 0xff00 bits will be set.
+**
+** The order of parameters passed to xFilter is as follows:
+**
+**    * The argument to start= if bit 0x0001 is in the idxNum mask
+**    * The argument to stop= if bit 0x0002 is in the idxNum mask
+**    * The argument to step= if bit 0x0004 is in the idxNum mask
+**    * The argument to LIMIT if bit 0x0020 is in the idxNum mask
+**    * The argument to OFFSET if bit 0x0040 is in the idxNum mask
+**    * The argument to value=, or value>= or value> if any of
+**      bits 0x0380 are in the idxNum mask
+**    * The argument to value<= or value< if either of bits 0x3000
+**      are in the mask
+**
 */
 static int seriesBestIndex(
   sqlite3_vtab *pVTab,
@@ -6527,7 +6983,9 @@ static int seriesBestIndex(
 #endif
   int unusableMask = 0;  /* Mask of unusable constraints */
   int nArg = 0;          /* Number of arguments that seriesFilter() expects */
-  int aIdx[5];           /* Constraints on start, stop, step, LIMIT, OFFSET */
+  int aIdx[7];           /* Constraints on start, stop, step, LIMIT, OFFSET,
+                         ** and value.  aIdx[5] covers value=, value>=, and
+                         ** value>,  aIdx[6] covers value<= and value< */
   const struct sqlite3_index_constraint *pConstraint;
 
   /* This implementation assumes that the start, stop, and step columns
@@ -6535,7 +6993,7 @@ static int seriesBestIndex(
   assert( SERIES_COLUMN_STOP == SERIES_COLUMN_START+1 );
   assert( SERIES_COLUMN_STEP == SERIES_COLUMN_START+2 );
 
-  aIdx[0] = aIdx[1] = aIdx[2] = aIdx[3] = aIdx[4] = -1;
+  aIdx[0] = aIdx[1] = aIdx[2] = aIdx[3] = aIdx[4] = aIdx[5] = aIdx[6] = -1;
   pConstraint = pIdxInfo->aConstraint;
   for(i=0; i<pIdxInfo->nConstraint; i++, pConstraint++){
     int iCol;    /* 0 for start, 1 for stop, 2 for step */
@@ -6556,7 +7014,50 @@ static int seriesBestIndex(
       }
       continue;
     }
-    if( pConstraint->iColumn<SERIES_COLUMN_START ) continue;
+    if( pConstraint->iColumn==SERIES_COLUMN_VALUE ){
+      switch( op ){
+        case SQLITE_INDEX_CONSTRAINT_EQ:
+        case SQLITE_INDEX_CONSTRAINT_IS: {
+          idxNum |=  0x0080;
+          idxNum &= ~0x3300;
+          aIdx[5] = i;
+          aIdx[6] = -1;
+          bStartSeen = 1;
+          break;
+        }
+        case SQLITE_INDEX_CONSTRAINT_GE: {
+          if( idxNum & 0x0080 ) break;
+          idxNum |=  0x0100;
+          idxNum &= ~0x0200;
+          aIdx[5] = i;
+          bStartSeen = 1;
+          break;
+        }
+        case SQLITE_INDEX_CONSTRAINT_GT: {
+          if( idxNum & 0x0080 ) break;
+          idxNum |=  0x0200;
+          idxNum &= ~0x0100;
+          aIdx[5] = i;
+          bStartSeen = 1;
+          break;
+        }
+        case SQLITE_INDEX_CONSTRAINT_LE: {
+          if( idxNum & 0x0080 ) break;
+          idxNum |=  0x1000;
+          idxNum &= ~0x2000;
+          aIdx[6] = i;
+          break;
+        }
+        case SQLITE_INDEX_CONSTRAINT_LT: {
+          if( idxNum & 0x0080 ) break;
+          idxNum |=  0x2000;
+          idxNum &= ~0x1000;
+          aIdx[6] = i;
+          break;
+        }
+      }
+      continue;
+    }
     iCol = pConstraint->iColumn - SERIES_COLUMN_START;
     assert( iCol>=0 && iCol<=2 );
     iMask = 1 << iCol;
@@ -6578,7 +7079,7 @@ static int seriesBestIndex(
     idxNum &= ~0x60;
     aIdx[4] = 0;
   }
-  for(i=0; i<5; i++){
+  for(i=0; i<7; i++){
     if( (j = aIdx[i])>=0 ){
       pIdxInfo->aConstraintUsage[j].argvIndex = ++nArg;
       pIdxInfo->aConstraintUsage[j].omit =
@@ -6626,6 +7127,9 @@ static int seriesBestIndex(
     pIdxInfo->estimatedRows = 2147483647;
   }
   pIdxInfo->idxNum = idxNum;
+#ifdef SQLITE_INDEX_SCAN_HEX
+  pIdxInfo->idxFlags = SQLITE_INDEX_SCAN_HEX;
+#endif
   return SQLITE_OK;
 }
 
@@ -22177,10 +22681,11 @@ static void bind_prepared_stmt(ShellState *pArg, sqlite3_stmt *pStmt){
     }else if( strncmp(zVar, "$int_", 5)==0 ){
       sqlite3_bind_int(pStmt, i, atoi(&zVar[5]));
     }else if( strncmp(zVar, "$text_", 6)==0 ){
-      char *zBuf = sqlite3_malloc64( strlen(zVar)-5 );
+      size_t szVar = strlen(zVar);
+      char *zBuf = sqlite3_malloc64( szVar-5 );
       if( zBuf ){
-        memcpy(zBuf, &zVar[6], strlen(zVar)-5);
-        sqlite3_bind_text64(pStmt, i, zBuf, -1, sqlite3_free, SQLITE_UTF8);
+        memcpy(zBuf, &zVar[6], szVar-5);
+        sqlite3_bind_text64(pStmt, i, zBuf, szVar-6, sqlite3_free, SQLITE_UTF8);
       }
     }else{
       sqlite3_bind_null(pStmt, i);
@@ -24973,11 +25478,16 @@ static int shell_dbinfo_command(ShellState *p, int nArg, char **azArg){
 #endif /* SQLITE_SHELL_HAVE_RECOVER */
 
 /*
+** Print the given string as an error message.
+*/
+static void shellEmitError(const char *zErr){
+  eputf("Error: %s\n", zErr);
+}
+/*
 ** Print the current sqlite3_errmsg() value to stderr and return 1.
 */
 static int shellDatabaseError(sqlite3 *db){
-  const char *zErr = sqlite3_errmsg(db);
-  eputf("Error: %s\n", zErr);
+  shellEmitError(sqlite3_errmsg(db));
   return 1;
 }
 
@@ -25522,7 +26032,7 @@ static int arErrorMsg(ArCommand *pAr, const char *zFmt, ...){
   va_start(ap, zFmt);
   z = sqlite3_vmprintf(zFmt, ap);
   va_end(ap);
-  eputf("Error: %s\n", z);
+  shellEmitError(z);
   if( pAr->fromCmdLine ){
     eputz("Use \"-A\" for more help\n");
   }else{
@@ -26753,7 +27263,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     open_db(p, 0);
     pBackup = sqlite3_backup_init(pDest, "main", p->db, zDb);
     if( pBackup==0 ){
-      eputf("Error: %s\n", sqlite3_errmsg(pDest));
+      shellDatabaseError(pDest);
       close_db(pDest);
       return 1;
     }
@@ -26762,7 +27272,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     if( rc==SQLITE_DONE ){
       rc = 0;
     }else{
-      eputf("Error: %s\n", sqlite3_errmsg(pDest));
+      shellDatabaseError(pDest);
       rc = 1;
     }
     close_db(pDest);
@@ -26938,7 +27448,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     open_db(p, 0);
     rc = sqlite3_prepare_v2(p->db, "PRAGMA database_list", -1, &pStmt, 0);
     if( rc ){
-      eputf("Error: %s\n", sqlite3_errmsg(p->db));
+      shellDatabaseError(p->db);
       rc = 1;
     }else{
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
@@ -27634,7 +28144,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     zSql = 0;
     if( rc ){
       if (pStmt) sqlite3_finalize(pStmt);
-      eputf("Error: %s\n", sqlite3_errmsg(p->db));
+      shellDatabaseError(p->db);
       import_cleanup(&sCtx);
       rc = 1;
       goto meta_command_exit;
@@ -27678,7 +28188,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     sqlite3_free(zSql);
     zSql = 0;
     if( rc ){
-      eputf("Error: %s\n", sqlite3_errmsg(p->db));
+      shellDatabaseError(p->db);
       if (pStmt) sqlite3_finalize(pStmt);
       import_cleanup(&sCtx);
       rc = 1;
@@ -27972,7 +28482,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     open_db(p, 0);
     rc = sqlite3_load_extension(p->db, zFile, zProc, &zErrMsg);
     if( rc!=SQLITE_OK ){
-      eputf("Error: %s\n", zErrMsg);
+      shellEmitError(zErrMsg);
       sqlite3_free(zErrMsg);
       rc = 1;
     }
@@ -28594,7 +29104,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     open_db(p, 0);
     pBackup = sqlite3_backup_init(p->db, zDb, pSrc, "main");
     if( pBackup==0 ){
-      eputf("Error: %s\n", sqlite3_errmsg(p->db));
+      shellDatabaseError(p->db);
       close_db(pSrc);
       return 1;
     }
@@ -28612,7 +29122,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       eputz("Error: source database is busy\n");
       rc = 1;
     }else{
-      eputf("Error: %s\n", sqlite3_errmsg(p->db));
+      shellDatabaseError(p->db);
       rc = 1;
     }
     close_db(pSrc);
@@ -28709,7 +29219,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       rc = sqlite3_prepare_v2(p->db, "SELECT name FROM pragma_database_list",
                               -1, &pStmt, 0);
       if( rc ){
-        eputf("Error: %s\n", sqlite3_errmsg(p->db));
+        shellDatabaseError(p->db);
         sqlite3_finalize(pStmt);
         rc = 1;
         goto meta_command_exit;
@@ -28778,7 +29288,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       freeText(&sSelect);
     }
     if( zErrMsg ){
-      eputf("Error: %s\n", zErrMsg);
+      shellEmitError(zErrMsg);
       sqlite3_free(zErrMsg);
       rc = 1;
     }else if( rc != SQLITE_OK ){
@@ -29549,7 +30059,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     {"json_selfcheck",     SQLITE_TESTCTRL_JSON_SELFCHECK ,0,"BOOLEAN"      },
     {"localtime_fault",    SQLITE_TESTCTRL_LOCALTIME_FAULT,0,"BOOLEAN"      },
     {"never_corrupt",      SQLITE_TESTCTRL_NEVER_CORRUPT,1, "BOOLEAN"       },
-    {"optimizations",      SQLITE_TESTCTRL_OPTIMIZATIONS,0,"DISABLE-MASK"   },
+    {"optimizations",      SQLITE_TESTCTRL_OPTIMIZATIONS,0,"DISABLE-MASK ..."},
 #ifdef YYCOVERAGE
     {"parser_coverage",    SQLITE_TESTCTRL_PARSER_COVERAGE,0,""             },
 #endif
@@ -29613,8 +30123,118 @@ static int do_meta_command(char *zLine, ShellState *p){
     }else{
       switch(testctrl){
 
+        /* Special processing for .testctrl opt MASK ...
+        ** Each MASK argument can be one of:
+        **
+        **      +LABEL       Enable the named optimization 
+        **
+        **      -LABEL       Disable the named optimization
+        **
+        **      INTEGER      Mask of optimizations to disable
+        */
+        case SQLITE_TESTCTRL_OPTIMIZATIONS: {
+          static const struct {
+             unsigned int mask;    /* Mask for this optimization */
+             unsigned int bDsply;  /* Display this on output */
+             const char *zLabel;   /* Name of optimization */
+          } aLabel[] = {
+            { 0x00000001, 1, "QueryFlattener" },
+            { 0x00000001, 0, "Flatten" },
+            { 0x00000002, 1, "WindowFunc" },
+            { 0x00000004, 1, "GroupByOrder" },
+            { 0x00000008, 1, "FactorOutConst" },
+            { 0x00000010, 1, "DistinctOpt" },
+            { 0x00000020, 1, "CoverIdxScan" },
+            { 0x00000040, 1, "OrderByIdxJoin" },
+            { 0x00000080, 1, "Transitive" },
+            { 0x00000100, 1, "OmitNoopJoin" },
+            { 0x00000200, 1, "CountOfView" },
+            { 0x00000400, 1, "CurosrHints" },
+            { 0x00000800, 1, "Stat4" },
+            { 0x00001000, 1, "PushDown" },
+            { 0x00002000, 1, "SimplifyJoin" },
+            { 0x00004000, 1, "SkipScan" },
+            { 0x00008000, 1, "PropagateConst" },
+            { 0x00010000, 1, "MinMaxOpt" },
+            { 0x00020000, 1, "SeekScan" },
+            { 0x00040000, 1, "OmitOrderBy" },
+            { 0x00080000, 1, "BloomFilter" },
+            { 0x00100000, 1, "BloomPulldown" },
+            { 0x00200000, 1, "BalancedMerge" },
+            { 0x00400000, 1, "ReleaseReg" },
+            { 0x00800000, 1, "FlttnUnionAll" },
+            { 0x01000000, 1, "IndexedEXpr" },
+            { 0x02000000, 1, "Coroutines" },
+            { 0x04000000, 1, "NullUnusedCols" },
+            { 0x08000000, 1, "OnePass" },
+            { 0x10000000, 1, "OrderBySubq" },
+            { 0xffffffff, 0, "All" },
+          };
+          unsigned int curOpt;
+          unsigned int newOpt;
+          int ii;
+          sqlite3_test_control(SQLITE_TESTCTRL_GETOPT, p->db, &curOpt);
+          newOpt = curOpt;
+          for(ii=2; ii<nArg; ii++){
+            const char *z = azArg[ii];
+            int useLabel = 0;
+            const char *zLabel = 0;
+            if( (z[0]=='+'|| z[0]=='-') && !IsDigit(z[1]) ){
+              useLabel = z[0];
+              zLabel = &z[1];
+            }else if( !IsDigit(z[0]) && z[0]!=0 && !IsDigit(z[1]) ){
+              useLabel = '+';
+              zLabel = z;
+            }else{
+              newOpt = (unsigned int)strtol(z,0,0);
+            }
+            if( useLabel ){
+              int jj;
+              for(jj=0; jj<ArraySize(aLabel); jj++){
+                if( sqlite3_stricmp(zLabel, aLabel[jj].zLabel)==0 ) break;
+              }
+              if( jj>=ArraySize(aLabel) ){
+                eputf("Error: no such optimization: \"%s\"\n", zLabel);
+                eputz("Should be one of:");
+                for(jj=0; jj<ArraySize(aLabel); jj++){
+                  eputf(" %s", aLabel[jj].zLabel);
+                }
+                eputz("\n");
+                rc = 1;
+                goto meta_command_exit;
+              }
+              if( useLabel=='+' ){
+                newOpt &= ~aLabel[jj].mask;
+              }else{
+                newOpt |= aLabel[jj].mask;
+              }
+            }
+          }
+          if( curOpt!=newOpt ){
+            sqlite3_test_control(SQLITE_TESTCTRL_OPTIMIZATIONS,p->db,newOpt);
+          }else if( nArg<3 ){
+            curOpt = ~newOpt;
+          }
+          if( newOpt==0 ){
+            oputz("+All\n");
+          }else if( newOpt==0xffffffff ){
+            oputz("-All\n");
+          }else{
+            int jj;
+            for(jj=0; jj<ArraySize(aLabel); jj++){
+              unsigned int m = aLabel[jj].mask;
+              if( !aLabel[jj].bDsply  ) continue;
+              if( (curOpt&m)!=(newOpt&m) ){
+                oputf("%c%s\n", (newOpt & m)==0 ? '+' : '-',
+                      aLabel[jj].zLabel);
+              }
+            }
+          }
+          rc2 = isOk = 3;
+          break;
+        }
+
         /* sqlite3_test_control(int, db, int) */
-        case SQLITE_TESTCTRL_OPTIMIZATIONS:
         case SQLITE_TESTCTRL_FK_NO_ACTION:
           if( nArg==3 ){
             unsigned int opt = (unsigned int)strtol(azArg[2], 0, 0);
@@ -31357,7 +31977,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
         open_db(&data, 0);
         rc = shell_exec(&data, z, &zErrMsg);
         if( zErrMsg!=0 ){
-          eputf("Error: %s\n", zErrMsg);
+          shellEmitError(zErrMsg);
           if( bail_on_error ) return rc!=0 ? rc : 1;
         }else if( rc!=0 ){
           eputf("Error: unable to process SQL \"%s\"\n", z);
@@ -31411,7 +32031,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
         rc = shell_exec(&data, azCmd[i], &zErrMsg);
         if( zErrMsg || rc ){
           if( zErrMsg!=0 ){
-            eputf("Error: %s\n", zErrMsg);
+            shellEmitError(zErrMsg);
           }else{
             eputf("Error: unable to process SQL: %s\n", azCmd[i]);
           }

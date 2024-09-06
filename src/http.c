@@ -23,12 +23,6 @@
 
 #ifdef _WIN32
 #include <io.h>
-#ifndef isatty
-#define isatty(d) _isatty(d)
-#endif
-#ifndef fileno
-#define fileno(s) _fileno(s)
-#endif
 #endif
 
 
@@ -208,7 +202,7 @@ char *prompt_for_httpauth_creds(void){
   char *zPw;
   char *zPrompt;
   char *zHttpAuth = 0;
-  if( !isatty(fileno(stdin)) ) return 0;
+  if( !fossil_isatty(fossil_fileno(stdin)) ) return 0;
   zPrompt = mprintf("\n%s authorization required by\n%s\n",
     g.url.isHttps==1 ? "Encrypted HTTPS" : "Unencrypted HTTP", g.url.canonical);
   fossil_print("%s", zPrompt);

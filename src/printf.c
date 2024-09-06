@@ -1271,6 +1271,6 @@ void fossil_binary_mode(FILE *p){
   _setmode(_fileno(p), _O_BINARY);
 #endif
 #ifdef __EMX__     /* OS/2 */
-  setmode(fileno(p), O_BINARY);
+  setmode(fossil_fileno(p), O_BINARY);
 #endif
 }

@@ -762,6 +762,7 @@ void setup_access(void){
 void setup_login_group(void){
   const char *zGroup;
   char *zErrMsg = 0;
+  Stmt q;
   Blob fullName;
   char *zSelfRepo;
   const char *zRepo = PD("repo", "");
@@ -781,6 +782,8 @@ void setup_login_group(void){
     login_group_join(zRepo, 1, zLogin, zPw, zNewName, &zErrMsg);
   }else if( P("leave") ){
     login_group_leave(&zErrMsg);
+  }else if( P("rotate") ){
+    captcha_secret_rotate();
   }
   style_set_current_feature("setup");
   style_header("Login Group Configuration");
@@ -823,7 +826,6 @@ void setup_login_group(void){
     @ <input type="submit" value="Join" name="join"></td></tr>
     @ </table></blockquote></div></form>
   }else{
-    Stmt q;
     int n = 0;
     @ <p>This repository (in the file "%h(zSelfRepo)")
     @ is currently part of the "<b>%h(zGroup)</b>" login group.
@@ -851,31 +853,74 @@ void setup_login_group(void){
     @
     @ <p><form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
-    @ To leave this login group press
+    @ <p>To leave this login group press:
     @ <input type="submit" value="Leave Login Group" name="leave">
+    @ <p>Setting a common captcha-secret on all repositories in the login-group
+    @ allows anonymous logins for one repository in the login group to be used
+    @ by all other repositories of the group within the same domain.  Warning:
+    @ If a captcha dialog was painted before setting the common captcha-secret
+    @ and the "Speak password for 'anonymous'" button is pressed afterwards,
+    @ the spoken text will be incorrect.
+    @ <input type="submit" name="rotate" value="Set common captcha-secret">
     @ </form></p>
-    @ <hr><h2>Implementation Details</h2>
-    @ <p>The following are fields from the CONFIG table related to login-groups,
-    @ provided here for instructional and debugging purposes:</p>
-    @ <table border='1' class='sortable' data-column-types='ttt' \
-    @ data-init-sort='1'>
-    @ <thead><tr>
-    @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
-    @ </thead><tbody>
-    db_prepare(&q, "SELECT name, value, datetime(mtime,'unixepoch') FROM config"
-                   " WHERE name GLOB 'peer-*'"
-                   "    OR name GLOB 'project-*'"
-                   "    OR name GLOB 'login-group-*'"
-                   " ORDER BY name");
-    while( db_step(&q)==SQLITE_ROW ){
-      @ <tr><td>%h(db_column_text(&q,0))</td>
-      @ <td>%h(db_column_text(&q,1))</td>
-      @ <td>%h(db_column_text(&q,2))</td></tr>
-    }
-    db_finalize(&q);
-    @ </tbody></table>
-    style_table_sorter();
   }
+  @ <hr><h2>Implementation Details</h2>
+  @ <p>The following are fields from the CONFIG table related to login-groups.
+  @ </p>
+  @ <table border='1' cellspacing="0" cellpadding="4"\
+  @ class='sortable' data-column-types='ttt' data-init-sort='1'>
+  @ <thead><tr>
+  @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
+  @ </thead><tbody>
+  db_prepare(&q, "SELECT name, value, datetime(mtime,'unixepoch') FROM config"
+                 " WHERE name GLOB 'peer-*'"
+                 "    OR name GLOB 'project-*'"
+                 "    OR name GLOB 'login-group-*'"
+                 " ORDER BY name");
+  while( db_step(&q)==SQLITE_ROW ){
+    @ <tr><td>%h(db_column_text(&q,0))</td>
+    @ <td>%h(db_column_text(&q,1))</td>
+    @ <td>%h(db_column_text(&q,2))</td></tr>
+  }
+  db_finalize(&q);
+  @ </tbody></table>
+  @ <h2>Interpretation</h2>
+  @ <ul>
+  @ <li><p><b>login-group-code</b> &rarr;
+  @ A random code assigned to each login-group.  The login-group-code is
+  @ a unique identifier for the login-group.
+  @
+  @ <li><p><b>login-group-name</b> &rarr;
+  @ The human-readable name of the login-group.
+  @
+  @ <li><p><b>project-code</b> &rarr;
+  @ A random code assigned to each project.  The project-code is
+  @ a unique identifier for the project.  Multiple repositories can share
+  @ the same project-code.  When two or more repositories have the same
+  @ project code, that mean those repositories are clones of each other.
+  @ Repositories are only able to sync if they share the same project-code.
+  @
+  @ <li><p><b>project-description</b> &rarr;
+  @ A description of project in this repository.  This is a verbose form
+  @ of project-name.  This description can be edited in the second entry
+  @ box on the <a href="./setup_config">Setup/Configuration page</a>.
+  @
+  @ <li><p><b>project-name</b> &rarr;
+  @ The human-readable name for the project.  The project-name can be
+  @ modified in the first entry on the 
+  @ <a href="./setup_config">Setup/Configuration page</a>.
+  @
+  @ <li><p><b>peer-repo-<i>CODE</i></b> &rarr;
+  @ <i>CODE</i> is 16-character prefix of the project-code for another
+  @ repository that is part of the same login-group.  The value is the
+  @ filename for the peer repository.
+  @
+  @ <li><p><b>peer-name-<i>CODE</i></b> &rarr;
+  @ <i>CODE</i> is 16-character prefix of the project-code for another
+  @ repository that is part of the same login-group.  The value is
+  @ project-name value for the other repository.
+  @ </ul>
+  style_table_sorter();
   style_finish_page();
 }
 

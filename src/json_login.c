@@ -107,7 +107,8 @@ cson_value * json_page_login(void){
     }
     if(jseed){
       if( cson_value_is_number(jseed) ){
-        sprintf(seedBuffer, "%"CSON_INT_T_PFMT, cson_value_get_integer(jseed));
+        sqlite3_snprintf((int)SeedBufLen, seedBuffer, "%"CSON_INT_T_PFMT,
+			 cson_value_get_integer(jseed));
         anonSeed = seedBuffer;
       }else if( cson_value_is_string(jseed) ){
         anonSeed = cson_string_cstr(cson_value_get_string(jseed));
@@ -215,7 +216,7 @@ cson_value * json_page_anon_password(void){
   cson_value * v = cson_value_new_object();
   cson_object * o = cson_value_get_object(v);
   unsigned const int seed = captcha_seed();
-  char const * zCaptcha = captcha_decode(seed);
+  char const * zCaptcha = captcha_decode(seed, 0);
   cson_object_set(o, "seed",
                   cson_value_new_integer( (cson_int_t)seed )
                   );

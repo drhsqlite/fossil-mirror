@@ -156,13 +156,18 @@ int login_is_valid_anonymous(
 ){
   const char *zPw;        /* The correct password shown in the captcha */
   int uid;                /* The user ID of anonymous */
+  int n = 0;              /* Counter of captcha-secrets */
 
   if( zUsername==0 ) return 0;
   else if( zPassword==0 ) return 0;
   else if( zCS==0 ) return 0;
   else if( fossil_strcmp(zUsername,"anonymous")!=0 ) return 0;
-  zPw = captcha_decode((unsigned int)atoi(zCS));
-  if( fossil_stricmp(zPw, zPassword)!=0 ) return 0;
+  while( 1/*exit-by-break*/ ){
+    zPw = captcha_decode((unsigned int)atoi(zCS), n);
+    if( zPw==0 ) return 0;
+    if( fossil_stricmp(zPw, zPassword)==0 ) break;
+    n++;
+  }
   uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
                   " AND octet_length(pw)>0 AND octet_length(cap)>0");
   return uid;
@@ -348,7 +353,7 @@ void login_set_user_cookie(
 ** If bSessionCookie is true, the cookie will be a session cookie.
 */
 void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
-  const char *zNow;            /* Current time (julian day number) */
+  char *zNow;                  /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
@@ -357,7 +362,7 @@ void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
   blob_init(&b, zNow, -1);
-  blob_appendf(&b, "/%s", db_get("captcha-secret",""));
+  blob_appendf(&b, "/%z", captcha_secret(0));
   sha1sum_blob(&b, &b);
   zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
   blob_reset(&b);
@@ -367,6 +372,7 @@ void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   }else{
     free(zCookie);
   }
+  fossil_free(zNow);
 }
 
 /*
@@ -808,7 +814,7 @@ void login_page(void){
     }
     @ </table>
     if( zAnonPw && !noAnon ){
-      const char *zDecoded = captcha_decode(uSeed);
+      const char *zDecoded = captcha_decode(uSeed, 0);
       int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
       char *zCaptcha = captcha_render(zDecoded);
 
@@ -840,9 +846,13 @@ void login_page(void){
       @ <a href="%R/timeline?ss=v&y=f&vfx&u=%t(g.zLogin)">Forum
       @ post timeline</a> for user <b>%h(g.zLogin)</b></p>
     }
-    @ <hr><p>
-    @ Select your preferred <a href="%R/skins">site skin</a>.
-    @ </p>
+  }
+  @ <hr><p>
+  @ Select your preferred <a href="%R/skins">site skin</a>.
+  @ </p>
+  @ <hr><p>
+  @ Manage your <a href="%R/cookies">cookies</a>.</p>
+  if( login_is_individual() ){
     if( g.perm.Password ){
       char *zRPW = fossil_random_password(12);
       @ <hr>
@@ -1312,7 +1322,36 @@ void login_restrict_robot_access(void){
   (void)exclude_spiders(0);
   cgi_reply();
   fossil_exit(0);
-}  
+}
+
+/*
+** When this routine is called, we know that the request does not
+** have a login on the present repository.  This routine checks to
+** see if their login cookie might be for another member of the
+** login-group.
+**
+** If this repository is not a part of any login group, then this
+** routine always returns false.
+**
+** If this repository is part of a login group, and the login cookie
+** appears to be well-formed, then return true.  That might be a
+** false-positive, as we don't actually check to see if the login
+** cookie is valid for some other repository.  But false-positives
+** are ok.  This routine is used for robot defense only.
+*/
+int login_cookie_wellformed(void){
+  const char *zCookie;
+  int n;
+  zCookie = P(login_cookie_name());
+  if( zCookie==0 ){
+    return 0;
+  }
+  if( !db_exists("SELECT 1 FROM config WHERE name='login-group-code'") ){
+    return 0;
+  }
+  for(n=0; fossil_isXdigit(zCookie[n]); n++){}
+  return n>48 && zCookie[n]=='/' && zCookie[n+1]!=0;
+}
 
 /*
 ** This routine examines the login cookie to see if it exists and
@@ -1399,18 +1438,25 @@ void login_check_credentials(void){
       */
       double rTime = atof(zArg);
       Blob b;
-      blob_zero(&b);
-      blob_appendf(&b, "%s/%s", zArg, db_get("captcha-secret",""));
-      sha1sum_blob(&b, &b);
-      if( fossil_strcmp(zHash, blob_str(&b))==0 ){
-        uid = db_int(0,
-            "SELECT uid FROM user WHERE login='anonymous'"
-            " AND octet_length(cap)>0"
-            " AND octet_length(pw)>0"
-            " AND %.17g+0.25>julianday('now')",
-            rTime
-        );
-      }
+      char *zSecret;
+      int n = 0;
+
+      do{
+        blob_zero(&b);
+        zSecret = captcha_secret(n++);
+        if( zSecret==0 ) break;
+        blob_appendf(&b, "%s/%s", zArg, zSecret);
+        sha1sum_blob(&b, &b);
+        if( fossil_strcmp(zHash, blob_str(&b))==0 ){
+          uid = db_int(0,
+              "SELECT uid FROM user WHERE login='anonymous'"
+              " AND octet_length(cap)>0"
+              " AND octet_length(pw)>0"
+              " AND %.17g+0.25>julianday('now')",
+              rTime
+          );
+        }
+      }while( uid==0 );
       blob_reset(&b);
     }else{
       /* Cookies of the form "HASH/CODE/USER".  Search first in the
@@ -1420,7 +1466,16 @@ void login_check_credentials(void){
       uid = login_find_user(zUser, zHash);
       if( uid==0 && login_transfer_credentials(zUser,zArg,zHash) ){
         uid = login_find_user(zUser, zHash);
-        if( uid ) record_login_attempt(zUser, zIpAddr, 1);
+        if( uid ){
+          record_login_attempt(zUser, zIpAddr, 1);
+        }else{
+          /* The login cookie is a valid login for project CODE, but no
+          ** user named USER exists on this repository.  Cannot login as
+          ** USER, but at least give them "anonymous" login. */
+          uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
+                          " AND octet_length(cap)>0"
+                          " AND octet_length(pw)>0");
+        }
       }
     }
     login_create_csrf_secret(zHash);
@@ -2175,7 +2230,7 @@ void register_page(void){
   }else{
     uSeed = captcha_seed();
   }
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
 
   style_header("Register");
@@ -2385,7 +2440,7 @@ void login_reqpwreset_page(void){
   }else{
     uSeed = captcha_seed();
   }
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
 
   style_header("Request Password Reset");

@@ -898,7 +898,7 @@ int db_column_count(Stmt *pStmt){
   return sqlite3_column_count(pStmt->pStmt);
 }
 char *db_column_malloc(Stmt *pStmt, int N){
-  return mprintf("%s", db_column_text(pStmt, N));
+  return fossil_strdup_nn(db_column_text(pStmt, N));
 }
 void db_column_blob(Stmt *pStmt, int N, Blob *pBlob){
   blob_append(pBlob, sqlite3_column_blob(pStmt->pStmt, N),
@@ -1194,11 +1194,9 @@ char *db_text(const char *zDefault, const char *zSql, ...){
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
   if( db_step(&s)==SQLITE_ROW ){
-    z = mprintf("%s", sqlite3_column_text(s.pStmt, 0));
-  }else if( zDefault ){
-    z = mprintf("%s", zDefault);
+    z = fossil_strdup_nn((const char*)sqlite3_column_text(s.pStmt, 0));
   }else{
-    z = 0;
+    z = fossil_strdup(zDefault);
   }
   db_finalize(&s);
   return z;
@@ -1439,7 +1437,7 @@ void db_obscure(
   }else{
     zTemp = unobscure((char*)zIn);
   }
-  strcpy(zOut, zTemp);
+  fossil_strcpy(zOut, zTemp);
   fossil_free(zTemp);
   sqlite3_result_text(context, zOut, strlen(zOut), sqlite3_free);
 }
@@ -2536,7 +2534,7 @@ int db_open_local_v2(const char *zDbName, int bRootOnly){
           return 0; /* Configuration could not be opened */
         }
         /* Found a valid check-out database file */
-        g.zLocalDbName = mprintf("%s", zPwd);
+        g.zLocalDbName = fossil_strdup(zPwd);
         zPwd[n] = 0;
         while( n>0 && zPwd[n-1]=='/' ){
           n--;
@@ -2672,7 +2670,7 @@ void db_open_repository(const char *zDbName){
       fossil_fatal("not a valid repository: %s", zDbName);
     }
   }
-  g.zRepositoryName = mprintf("%s", zDbName);
+  g.zRepositoryName = fossil_strdup(zDbName);
   db_open_or_attach(g.zRepositoryName, "repository");
   g.repositoryOpen = 1;
   sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION,
@@ -3512,7 +3510,7 @@ char *db_reveal(const char *zKey){
     zOut = 0;
   }
   if( zOut==0 ){
-    zOut = mprintf("%s", zKey);
+    zOut = fossil_strdup_nn(zKey);
   }
   return zOut;
 }

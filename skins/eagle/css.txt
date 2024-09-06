@@ -454,3 +454,7 @@ body.branch .brlist > table > tbody > tr:hover:not(.selected),
 body.branch .brlist > table > tbody > tr.selected {
   background-color: #7EA2D9;
 }
+
+p.noMoreShun {
+  color: #e5e500;
+}
