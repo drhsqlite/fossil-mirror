@@ -56,9 +56,11 @@ window.fossil.onPageLoad(function(){
         kSHOW = mSHIFT | 73 /* SHIFT+I */,
         kHIDE = 73 /* I */,
         kNEXT = 80 /* P */,
-        kPREV = 79 /* O */,
+        kPREV = 79 /* O (Letter O) */,
         kUNID = 85 /* U */,
         kSBSD = mSHIFT | 85 /* SHIFT+U */,
+        kNULD = 48 /* 0 (Digit Zero) */,
+        kUDCD = 68 /* D */,
         mod = evt.altKey<<15|evt.ctrlKey<<14|evt.shiftKey<<13|evt.metaKey<<12,
         key = ( evt.which || evt.keyCode ) | mod;
       switch( key ){
@@ -67,7 +69,9 @@ window.fossil.onPageLoad(function(){
         case kNEXT:
         case kPREV:
         case kUNID:
-        case kSBSD: break;
+        case kSBSD:
+        case kNULD:
+        case kUDCD: break;
         default: return;
       }
       evt.preventDefault();
@@ -121,9 +125,10 @@ window.fossil.onPageLoad(function(){
           btnScrollIntoView(btn[0]);
         }
       }
-      else if( key==kUNID || key==kSBSD ){
+      else if( key==kUNID || key==kSBSD || key==kNULD ){
+        var T={}; T[kUNID]='unified', T[kSBSD]='side-by-side', T[kNULD]='hide';
         var
-          type = ( key==kUNID ? 'unified' : 'side-by-side' ),
+          type = T[key],
           link = document.querySelector('.smb-'+type+'-diff')
                   || document.querySelector('.sml-'+type+'-diff'),
           href;
@@ -132,6 +137,15 @@ window.fossil.onPageLoad(function(){
           else href = link.href;
         }
         if( href && href!=location.href.slice(-href.length) ){
+          location.href = href;
+        }
+      }
+      else if( key==kUDCD ){
+        var
+          pqry = 'udc=1',
+          psep = /\?/.test(location.href) ? '&' : '?',
+          href = location.href + psep + pqry;
+        if( location.href.slice(-pqry.length)!=pqry ){
           location.href = href;
         }
       }

@@ -452,7 +452,7 @@ static void append_file_change_line(
 ** Generate javascript to enhance HTML diffs.
 */
 void append_diff_javascript(int diffType){
-  if( diffType==0 ) return;
+  /* Load fossil.diff.js even if diffType==0 to enable keyboard shortcuts. */
   builtin_fossil_js_bundle_or("diff", NULL);
 }
 
@@ -902,7 +902,9 @@ void ci_page(void){
   DCfg.pRe = pRe;
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=0 ){
-    @ %z(chref("button","%R/%s/%T?diff=0",zPageHide,zName))\
+    /* Class "smb-hide-diff" required by the fossil.diff.js script. */
+    const char *zBtnClass = "button smb-hide-diff";
+    @ %z(chref(zBtnClass,"%R/%s/%T?diff=0",zPageHide,zName))\
     @ Hide&nbsp;Diffs</a>
   }
   if( diffType!=1 ){
@@ -1198,6 +1200,8 @@ static void checkin_description(int rid){
 **    o     Show only previous file change.
 **    u     Reload page in Unified Diff mode.
 **    U     Reload page in Side-By-Side Diff mode.
+**    0     Reload page in Hidden Diff mode.
+**    d     Reload page and set current Diff mode as default.
 **
 ** The keyboard shortcuts also apply to /vinfo, /ci and /fdiff pages,
 ** and to /info pages describing check-in information.
