@@ -659,6 +659,7 @@ tr.diffskip > td.chunkctrl .jcbutton:hover {
 }
 td.difftxt {
   max-width: 0;
+  overflow-x: hidden;
 }
 td.difftxtu {
   width: 100%;

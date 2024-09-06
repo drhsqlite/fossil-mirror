@@ -270,6 +270,7 @@ static const char zWebpageHdr[] =
 @ }
 @ td.difftxt {
 @   max-width: 0;
+@   overflow-x: hidden;
 @ }
 @ td.difftxtu {
 @   width: 100%;
@@ -389,6 +390,7 @@ static const char zWebpageHdrDark[] =
 @ }
 @ td.difftxt {
 @   max-width: 0;
+@   overflow-x: hidden;
 @ }
 @ td.difftxtu {
 @   width: 100%;
