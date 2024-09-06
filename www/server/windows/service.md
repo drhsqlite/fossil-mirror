@@ -11,8 +11,8 @@ Fossil as a Windows Service.
 ## Place Fossil on Server
 
 However you obtained your copy of Fossil, it is recommended that you follow
-Windows conventions and place it within `\Program Files\FossilSCM`.  Since
-Fossil 2.10 is a 64bit binary, this is the proper location for the executable.
+Windows conventions and place it within `\Program Files\FossilSCM`, the
+proper location for the official 64-bit binary.
 This way Fossil is at an expected location and you will have minimal issues with
 Windows interfering in your ability to run Fossil as a service.  You will need
 Administrative rights to place fossil at the recommended location.  If you will

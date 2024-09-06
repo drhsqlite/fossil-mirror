@@ -55,18 +55,18 @@ To do this, write the following in
 `~/.local/share/systemd/user/fossil.service`:
 
 ```dosini
-    [Unit]
-    Description=Fossil user server
-    After=network-online.target
+[Unit]
+Description=Fossil user server
+After=network-online.target
 
-    [Service]
-    WorkingDirectory=/home/fossil/museum
-    ExecStart=/home/fossil/bin/fossil server --port 9000 repo.fossil
-    Restart=always
-    RestartSec=3
+[Service]
+WorkingDirectory=/home/fossil/museum
+ExecStart=/home/fossil/bin/fossil server --port 9000 repo.fossil
+Restart=always
+RestartSec=3
 
-    [Install]
-    WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
 ```
 
 Unlike with `inetd` and `xinetd`, we don’t need to tell `systemd` which
@@ -92,11 +92,11 @@ Because we’ve set this up as a user service, the commands you give to
 manipulate the service vary somewhat from the sort you’re more likely to
 find online:
 
-        $ systemctl --user daemon-reload
-        $ systemctl --user enable fossil
-        $ systemctl --user start fossil
-        $ systemctl --user status fossil -l
-        $ systemctl --user stop fossil
+    $ systemctl --user daemon-reload
+    $ systemctl --user enable fossil
+    $ systemctl --user start fossil
+    $ systemctl --user status fossil -l
+    $ systemctl --user stop fossil
 
 That is, we don’t need to talk to `systemd` with `sudo` privileges, but
 we do need to tell it to look at the user configuration rather than the
@@ -111,7 +111,7 @@ logged in interactively. This is common on systems aiming to provide
 desktop environments, where this is the behavior you often want. To
 allow background services to continue to run after logout, say:
 
-       $ sudo loginctl enable-linger $USER
+    $ sudo loginctl enable-linger $USER
 
 You can paste the command just like that into your terminal, since
 `$USER` will expand to your login name.
@@ -167,16 +167,16 @@ We first need to define the privileged socket listener by writing
 `/etc/systemd/system/fossil.socket`:
 
 ```dosini
-    [Unit]
-    Description=Fossil socket
+[Unit]
+Description=Fossil socket
 
-    [Socket]
-    Accept=yes
-    ListenStream=80
-    NoDelay=true
+[Socket]
+Accept=yes
+ListenStream=80
+NoDelay=true
 
-    [Install]
-    WantedBy=sockets.target
+[Install]
+WantedBy=sockets.target
 ```
 
 Note the change of configuration directory from the `~/.local` directory
@@ -192,17 +192,17 @@ Next, create the service definition file in that same directory as
 `fossil@.service`:
 
 ```dosini
-    [Unit]
-    Description=Fossil socket server
-    After=network-online.target
+[Unit]
+Description=Fossil socket server
+After=network-online.target
 
-    [Service]
-    WorkingDirectory=/home/fossil/museum
-    ExecStart=/home/fossil/bin/fossil http repo.fossil
-    StandardInput=socket
+[Service]
+WorkingDirectory=/home/fossil/museum
+ExecStart=/home/fossil/bin/fossil http repo.fossil
+StandardInput=socket
 
-    [Install]
-    WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
 ```
 
 Notice that we haven’t told `systemd` which user and group to run Fossil
@@ -219,14 +219,14 @@ handles that single client’s request and then immediately shuts down.
 Next, you need to tell `systemd` to reload its system-level
 configuration files and enable the listening socket:
 
-        $ sudo systemctl daemon-reload
-        $ sudo systemctl enable fossil.socket
+    $ sudo systemctl daemon-reload
+    $ sudo systemctl enable fossil.socket
 
 And now you can manipulate the socket listener:
 
-        $ sudo systemctl start fossil.socket
-        $ sudo systemctl status -l fossil.socket
-        $ sudo systemctl stop fossil.socket
+    $ sudo systemctl start fossil.socket
+    $ sudo systemctl status -l fossil.socket
+    $ sudo systemctl stop fossil.socket
 
 Notice that we’re working with the *socket*, not the *service*. The fact
 that we’ve given them the same base name and marked the service as an
@@ -236,13 +236,13 @@ on the socket that `systemd` is monitoring on Fossil’s behalf. To see
 this service instantiation at work, visit a long-running Fossil page
 (e.g. `/tarball`) and then give a command like this:
 
-        $ sudo systemctl --full | grep fossil
+    $ sudo systemctl --full | grep fossil
 
 This will show information about the `fossil` socket and service
 instances, which should show your `/tarball` hit handler, if it’s still
 running:
 
-        fossil@20-127.0.0.1:80-127.0.0.1:38304.service
+    fossil@20-127.0.0.1:80-127.0.0.1:38304.service
 
 You can feed that service instance description to a `systemctl kill`
 command to stop that single instance without restarting the whole

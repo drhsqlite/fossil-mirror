@@ -360,7 +360,7 @@ void page_dir(void){
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
   if( mxLen<12 ) mxLen = 12;
   mxLen += (mxLen+9)/10;
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT x, u FROM localfiles ORDER BY x COLLATE uintnocase /*scan*/");
   @ <div class="columns files" style="columns: %d(mxLen)ex auto">
   @ <ul class="browser">
@@ -473,7 +473,8 @@ struct FileTreeNode {
   char *zFullName;          /* Full pathname of this entry */
   char *zUuid;              /* Artifact hash of this file.  May be NULL. */
   double mtime;             /* Modification time for this entry */
-  double sortBy;            /* Either mtime or size, depending on desired sort order */
+  double sortBy;            /* Either mtime or size, depending on desired
+                               sort order */
   int iSize;                /* Size for this entry */
   unsigned nFullName;       /* Length of zFullName */
   unsigned iLevel;          /* Levels of parent directories */
@@ -510,7 +511,7 @@ static void tree_add_node(
 ){
   int i;
   FileTreeNode *pParent;   /* Parent (directory) of the next node to insert */
-  
+
   /* Make pParent point to the most recent ancestor of zPath, or
   ** NULL if there are no prior entires that are a container for zPath.
   */
@@ -861,13 +862,20 @@ void page_tree(void){
   }else{
     Stmt q;
     db_prepare(&q,
+      "WITH mx(fnid,fid,mtime) AS (\n"
+      "  SELECT fnid, fid, max(event.mtime)\n"
+      "    FROM mlink, event\n"
+      "   WHERE event.objid=mlink.mid\n"
+      "   GROUP BY 1\n"
+      ")\n"
       "SELECT\n"
-      "    (SELECT name FROM filename WHERE filename.fnid=mlink.fnid),\n"
-      "    (SELECT uuid FROM blob WHERE blob.rid=mlink.fid),\n"
-      "    (SELECT size FROM blob WHERE blob.rid=mlink.fid),\n"
-      "    max(event.mtime)\n"
-      "  FROM mlink JOIN event ON event.objid=mlink.mid\n"
-      " GROUP BY mlink.fnid\n"
+      "  filename.name,\n"
+      "  blob.uuid,\n"
+      "  blob.size,\n"
+      "  mx.mtime\n"
+      "FROM mx\n"
+      " LEFT JOIN filename ON filename.fnid=mx.fnid\n"
+      " LEFT JOIN blob ON blob.rid=mx.fid\n"
       " ORDER BY 1 COLLATE uintnocase;");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
@@ -1156,7 +1164,7 @@ void fileage_page(void){
   double baseTime;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( exclude_spiders() ) return;
+  if( exclude_spiders(0) ) return;
   zName = P("name");
   if( zName==0 ) zName = "tip";
   rid = symbolic_name_to_rid(zName, "ci");

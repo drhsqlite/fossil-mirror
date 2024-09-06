@@ -1,4 +1,4 @@
-<div class="header">
+<header>
   <div class="logo">
     <th1>
     ##
@@ -78,32 +78,34 @@
        puts "Not logged in"
      }
   </th1></nobr><small><div id="clock"></div></small></div>
-</div>
+</header>
 <th1>html "<script nonce='$nonce'>"</th1>
-(function updateClock(){
-  var e = document.getElementById("clock");
-  if(!e) return;
-  if(!updateClock.fmt){
-    updateClock.fmt = function(n){
-      return n < 10 ? '0' + n : n;
-    };
-  }
-  var d = new Date();
-  e.innerHTML = d.getUTCFullYear()+ '-' +
-    updateClock.fmt(d.getUTCMonth() + 1) + '-' +
-    updateClock.fmt(d.getUTCDate())      + ' ' +
-    updateClock.fmt(d.getUTCHours())     + ':' +
-    updateClock.fmt(d.getUTCMinutes());
-  setTimeout(updateClock,(60-d.getUTCSeconds())*1000);
-})();
+  (function updateClock(){
+    var e = document.getElementById("clock");
+    if(!e) return;
+    if(!updateClock.fmt){
+      updateClock.fmt = function(n){
+        return n < 10 ? '0' + n : n;
+      };
+    }
+    var d = new Date();
+    e.innerHTML = d.getUTCFullYear()+ '-' +
+      updateClock.fmt(d.getUTCMonth() + 1) + '-' +
+      updateClock.fmt(d.getUTCDate())      + ' ' +
+      updateClock.fmt(d.getUTCHours())     + ':' +
+      updateClock.fmt(d.getUTCMinutes());
+    setTimeout(updateClock,(60-d.getUTCSeconds())*1000);
+  })();
 </script>
-<div class="mainmenu"><th1>
-html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>\n"
-builtin_request_js hbmenu.js
-foreach {name url expr class} $mainmenu {
-  if {![capexpr $expr]} continue
-  if {[string match /* $url]} {set url $home$url}
-  html "<a href='$url' class='$class'>$name</a>\n"
-}
-</th1></div>
-<div id="hbdrop"></div>
+<nav class="mainmenu" title="Main Menu">
+  <th1>
+    html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>\n"
+    builtin_request_js hbmenu.js
+    foreach {name url expr class} $mainmenu {
+      if {![capexpr $expr]} continue
+      if {[string match /* $url]} {set url $home$url}
+      html "<a href='$url' class='$class'>$name</a>\n"
+    }
+  </th1>
+</nav>
+<nav id="hbdrop" class='hbdrop' title="sitemap"></nav>

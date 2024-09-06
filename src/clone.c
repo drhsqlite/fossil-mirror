@@ -138,6 +138,7 @@ void delete_private_content(void){
 **    -u|--unversioned           Also sync unversioned content
 **    -v|--verbose               Show more statistics in output
 **    --workdir DIR              Also open a check-out in DIR
+**    --xverbose                 Extra debugging output
 **
 ** See also: [[init]], [[open]]
 */
@@ -163,6 +164,7 @@ void clone_cmd(void){
     urlFlags |= URL_REMEMBER_PW;
   }
   if( find_option("verbose","v",0)!=0) syncFlags |= SYNC_VERBOSE;
+  if( find_option("xverbose",0,0)!=0) syncFlags |= SYNC_XVERBOSE;
   if( find_option("unversioned","u",0)!=0 ){
     syncFlags |= SYNC_UNVERSIONED;
     if( syncFlags & SYNC_VERBOSE ){
@@ -198,7 +200,7 @@ void clone_cmd(void){
       zWorkDir = mprintf("./%s", zBase);
     }
     fossil_free(zBase);
-  }  
+  }
   if( -1 != file_size(zRepo, ExtFILE) ){
     fossil_fatal("file already exists: %s", zRepo);
   }
@@ -262,14 +264,24 @@ void clone_cmd(void){
     clone_ssh_db_set_options();
     url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
-    nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0);
+    nErr = client_sync(syncFlags,CONFIGSET_ALL,0,0,0);
     g.xlinkClusterOnly = 0;
     verify_cancel();
     db_end_transaction(0);
     db_close(1);
     if( nErr ){
       file_delete(zRepo);
-      fossil_fatal("server returned an error - clone aborted");
+      if( g.fHttpTrace ){
+        fossil_fatal(
+          "server returned an error - clone aborted\n\n%s",
+          http_last_trace_reply()
+        );
+      }else{
+        fossil_fatal(
+          "server returned an error - clone aborted\n"
+          "Rerun using --httptrace for more detail"
+        );
+      }
     }
     db_open_repository(zRepo);
   }

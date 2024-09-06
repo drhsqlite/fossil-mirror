@@ -23,12 +23,6 @@
 
 #ifdef _WIN32
 #include <io.h>
-#ifndef isatty
-#define isatty(d) _isatty(d)
-#endif
-#ifndef fileno
-#define fileno(s) _fileno(s)
-#endif
 #endif
 
 
@@ -48,6 +42,11 @@
 
 /* Keep track of HTTP Basic Authorization failures */
 static int fSeenHttpAuth = 0;
+
+/* The N value for most recent http-request-N.txt and http-reply-N.txt
+** trace files.
+*/
+static int traceCnt = 0;
 
 /*
 ** Construct the "login" card with the client credentials.
@@ -100,7 +99,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   ** SHA1 hash, not an original password.  If a user has a password which
   ** just happens to be a 40-character hex string, then this routine won't
   ** be able to distinguish it from a hash, the translation will not be
-  ** performed, and the sync won't work.  
+  ** performed, and the sync won't work.
   */
   if( zPw && zPw[0] && (strlen(zPw)!=40 || !validate16(zPw,40)) ){
     const char *zProjectCode = 0;
@@ -203,7 +202,7 @@ char *prompt_for_httpauth_creds(void){
   char *zPw;
   char *zPrompt;
   char *zHttpAuth = 0;
-  if( !isatty(fileno(stdin)) ) return 0;
+  if( !fossil_isatty(fossil_fileno(stdin)) ) return 0;
   zPrompt = mprintf("\n%s authorization required by\n%s\n",
     g.url.isHttps==1 ? "Encrypted HTTPS" : "Unencrypted HTTP", g.url.canonical);
   fossil_print("%s", zPrompt);
@@ -260,7 +259,7 @@ static int http_exchange_external(
   rc = fossil_system(zCmd);
   if( rc ){
     fossil_warning("Transport command failed: %s\n", zCmd);
-  }    
+  }
   fossil_free(zCmd);
   file_delete(zUplink);
   if( file_size(zDownlink, ExtFILE)<0 ){
@@ -269,7 +268,146 @@ static int http_exchange_external(
     blob_read_from_file(pReply, zDownlink, ExtFILE);
     file_delete(zDownlink);
   }
-  return rc; 
+  return rc;
+}
+
+/* If iTruth<0 then guess as to whether or not a PATH= argument is required
+** when using ssh to run fossil on a remote machine name zHostname.  Return
+** true if a PATH= should be provided and 0 if not.
+**
+** If iTruth is 1 or 0 then that means that the PATH= is or is not required,
+** respectively.  Record this fact for future reference.
+**
+** If iTruth is 99 or more, then toggle the value that will be returned
+** for future iTruth==(-1) queries.
+*/
+int ssh_needs_path_argument(const char *zHostname, int iTruth){
+  int ans = 0;  /* Default to "no" */
+  char *z = mprintf("use-path-for-ssh:%s", zHostname);
+  if( iTruth<0 ){
+    if( db_get_boolean(z/*works-like:"x"*/, 0) ) ans = 1;
+  }else{
+    if( iTruth>=99 ){
+      iTruth = !db_get_boolean(z/*works-like:"x"*/, 0);
+    }
+    if( iTruth ){
+      ans = 1;
+      db_set(z/*works-like:"x"*/, "1", 1);
+    }else{
+      db_unset(z/*works-like:"x"*/, 1);
+    }
+  }
+  fossil_free(z);
+  return ans;
+}
+
+/*
+** COMMAND: test-ssh-needs-path
+**
+** Usage: fossil test-ssh-needs-path ?HOSTNAME? ?BOOLEAN?
+**
+** With one argument, show whether or not the PATH= argument is included
+** by default for HOSTNAME.  If the second argument is a boolean, then
+** change the value.
+**
+** With no arguments, show all hosts for which ssh-needs-path is true.
+*/
+void test_ssh_needs_path(void){
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
+  db_open_config(0,0);
+  if( g.argc>=3 ){
+    const char *zHost = g.argv[2];
+    int a = -1;
+    int rc;
+    if( g.argc>=4 ) a = is_truth(g.argv[3]);
+    rc = ssh_needs_path_argument(zHost, a);
+    fossil_print("%-20s %s\n", zHost, rc ? "yes" : "no");
+  }else{
+    Stmt s;
+    db_swap_connections();
+    db_prepare(&s, "SELECT substr(name,18) FROM global_config"
+                   " WHERE name GLOB 'use-path-for-ssh:*'");
+    while( db_step(&s)==SQLITE_ROW ){
+      const char *zHost = db_column_text(&s,0);
+      fossil_print("%-20s yes\n", zHost);
+    }
+    db_finalize(&s);
+    db_swap_connections();
+  }
+}
+
+/* Add an approprate PATH= argument to the SSH command under construction
+** in pCmd.
+**
+** About This Feature
+** ==================
+**
+** On some ssh servers (Macs in particular are guilty of this) the PATH
+** variable in the shell that runs the command that is sent to the remote
+** host contains a limited number of read-only system directories:
+**
+**      /usr/bin:/bin:/usr/sbin:/sbin
+**
+** The fossil executable cannot be installed into any of those directories
+** because they are locked down, and so the "fossil" command cannot run.
+**
+** To work around this, the fossil command is prefixed with the PATH=
+** argument, inserted by this function, to augment the PATH with additional
+** directories in which the fossil executable is often found.
+**
+** But other ssh servers are confused by this initial PATH= argument.
+** Some ssh servers have a list of programs that they are allowed to run
+** and will fail if the first argument is not on that list, and PATH=....
+** is not on that list.
+**
+** So that various commands that use ssh can run seamlessly on a variety
+** of systems (commands that use ssh include "fossil sync" with an ssh:
+** URL and the "fossil patch pull" and "fossil patch push" commands where
+** the destination directory starts with HOSTNAME: or USER@HOSTNAME:.)
+** the following algorithm is used:
+**
+**   *  First try running the fossil without any PATH= argument.  If that
+**      works (and it does on a majority of systems) then we are done.
+**
+**   *  If the first attempt fails, then try again after adding the
+**      PATH= prefix argument.  (This function is what adds that
+**      argument.)  If the retry works, then remember that fact using
+**      the use-path-for-ssh:HOSTNAME setting so that the first step
+**      is skipped on subsequent uses of the same command.
+**
+** See the forum thread at
+** https://fossil-scm.org/forum/forumpost/4903cb4b691af7ce for more
+** background.
+**
+** See also:
+**
+**   *  The ssh_needs_path_argument() function above.
+**   *  The test-ssh-needs-path command that shows the settings
+**      that cache whether or not a PATH= is needed for a particular
+**      HOSTNAME.
+*/
+void ssh_add_path_argument(Blob *pCmd){
+  blob_append_escaped_arg(pCmd, 
+     "PATH=$HOME/bin:/usr/local/bin:/opt/homebrew/bin:$PATH", 1);
+}
+
+/*
+** Return the complete text of the last HTTP reply as saved in the
+** http-reply-N.txt file.  This only works if run using --httptrace.
+** Without the --httptrace option, this routine returns a NULL pointer.
+** It still might return a NULL pointer if for some reason it cannot
+** find and open the last http-reply-N.txt file.
+*/
+char *http_last_trace_reply(void){
+  Blob x;
+  int n;
+  char *zFilename;
+  if( g.fHttpTrace==0 ) return 0;
+  zFilename = mprintf("http-reply-%d.txt", traceCnt);
+  n = blob_read_from_file(&x, zFilename, ExtFILE);
+  fossil_free(zFilename);
+  if( n<=0 ) return 0;
+  return blob_str(&x);
 }
 
 /*
@@ -294,7 +432,6 @@ int http_exchange(
   Blob hdr;             /* The HTTP request header */
   int closeConnection;  /* True to close the connection when done */
   int iLength;          /* Expected length of the reply payload */
-  int iRecvLen;         /* Received length of the reply payload */
   int rc = 0;           /* Result code */
   int iHttpVersion;     /* Which version of HTTP protocol server uses */
   char *zLine;          /* A single line of the reply header */
@@ -305,6 +442,16 @@ int http_exchange(
   if( g.zHttpCmd!=0 ){
     /* Handle the --transport-command option for "fossil sync" and similar */
     return http_exchange_external(pSend,pReply,mHttpFlags,zAltMimetype);
+  }
+
+  /* Activate the PATH= auxiliary argument to the ssh command if that
+  ** is called for.
+  */
+  if( g.url.isSsh
+   && (g.url.flags & URL_SSH_RETRY)==0
+   && ssh_needs_path_argument(g.url.hostname, -1)
+  ){
+    g.url.flags |= URL_SSH_PATH;
   }
 
   if( transport_open(&g.url) ){
@@ -337,7 +484,6 @@ int http_exchange(
   **      ./fossil test-http <http-request-1.txt
   */
   if( g.fHttpTrace ){
-    static int traceCnt = 0;
     char *zOutFile;
     FILE *out;
     traceCnt++;
@@ -374,6 +520,7 @@ int http_exchange(
   */
   closeConnection = 1;
   iLength = -1;
+  iHttpVersion = -1;
   while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){
     if( mHttpFlags & HTTP_VERBOSE ){
       fossil_print("Read: [%s]\n", zLine);
@@ -412,17 +559,15 @@ int http_exchange(
         fossil_warning("server says: %s", &zLine[ii]);
         goto write_err;
       }
+      if( iHttpVersion<0 ) iHttpVersion = 1;
       closeConnection = 0;
     }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
-      char c;
-      for(i=11; fossil_isspace(zLine[i]); i++){}
-      c = zLine[i];
-      if( c=='c' || c=='C' ){
+      if( sqlite3_strlike("%close%", &zLine[11], 0)==0 ){
         closeConnection = 1;
-      }else if( c=='k' || c=='K' ){
+      }else if( sqlite3_strlike("%keep-alive%", &zLine[11], 0)==0 ){
         closeConnection = 0;
       }
     }else if( ( rc==301 || rc==302 || rc==307 || rc==308 ) &&
@@ -485,9 +630,42 @@ int http_exchange(
       }
     }
   }
-  if( iLength<0 ){
-    fossil_warning("server did not reply");
-    goto write_err;
+  if( iHttpVersion<0 ){
+    /* We got nothing back from the server.  If using the ssh: protocol,
+    ** this might mean we need to add or remove the PATH=... argument
+    ** to the SSH command being sent.  If that is the case, retry the
+    ** request after adding or removing the PATH= argument.
+    */
+    if( g.url.isSsh                         /* This is an SSH: sync */
+     && (g.url.flags & URL_SSH_EXE)==0      /* Does not have ?fossil=.... */
+     && (g.url.flags & URL_SSH_RETRY)==0    /* Not retried already */
+    ){
+      /* Retry after flipping the SSH_PATH setting */
+      transport_close(&g.url);
+      fossil_print(
+        "First attempt to run fossil on %s using SSH failed.\n"
+        "Retrying %s the PATH= argument.\n",
+        g.url.hostname,
+        (g.url.flags & URL_SSH_PATH)!=0 ? "without" : "with"
+      );
+      g.url.flags ^= URL_SSH_PATH|URL_SSH_RETRY;
+      rc = http_exchange(pSend,pReply,mHttpFlags,0,zAltMimetype);
+      if( rc==0 ){
+        (void)ssh_needs_path_argument(g.url.hostname,
+                                (g.url.flags & URL_SSH_PATH)!=0);
+      }
+      return rc;
+    }else{
+      /* The problem could not be corrected by retrying.  Report the
+      ** the error. */
+      if( g.url.isSsh && !g.fSshTrace ){
+        fossil_warning("server did not reply: "
+                       " rerun with --sshtrace for diagnostics");
+      }else{
+        fossil_warning("server did not reply");
+      }
+      goto write_err;
+    }
   }
   if( rc!=200 ){
     fossil_warning("\"location:\" missing from %d redirect reply", rc);
@@ -498,13 +676,40 @@ int http_exchange(
   ** Extract the reply payload that follows the header
   */
   blob_zero(pReply);
-  blob_resize(pReply, iLength);
-  iRecvLen = transport_receive(&g.url, blob_buffer(pReply), iLength);
-  if( iRecvLen != iLength ){
-    fossil_warning("response truncated: got %d bytes of %d", iRecvLen, iLength);
-    goto write_err;
+  if( iLength==0 ){
+    /* No content to read */
+  }else if( iLength>0 ){
+    /* Read content of a known length */
+    int iRecvLen;         /* Received length of the reply payload */
+    blob_resize(pReply, iLength);
+    iRecvLen = transport_receive(&g.url, blob_buffer(pReply), iLength);
+    if( mHttpFlags & HTTP_VERBOSE ){
+      fossil_print("Reply received: %d of %d bytes\n", iRecvLen, iLength);
+    }
+    if( iRecvLen != iLength ){
+      fossil_warning("response truncated: got %d bytes of %d",
+                     iRecvLen, iLength);
+      goto write_err;
+    }
+  }else if( closeConnection ){
+    /* Read content until end-of-file */
+    int iRecvLen;         /* Received length of the reply payload */
+    unsigned int nReq = 1000;
+    unsigned int nPrior = 0;
+    do{
+      nReq *= 2;
+      blob_resize(pReply, nPrior+nReq);
+      iRecvLen = transport_receive(&g.url, &pReply->aData[nPrior], (int)nReq);
+      nPrior += iRecvLen;
+      pReply->nUsed = nPrior;
+    }while( iRecvLen==nReq && nReq<0x20000000 );
+    if( mHttpFlags & HTTP_VERBOSE ){
+      fossil_print("Reply received: %u bytes (w/o content-length)\n", nPrior);
+    }
+  }else{
+    assert( iLength<0 && !closeConnection );
+    fossil_warning("\"content-length\" missing from %d keep-alive reply", rc);
   }
-  blob_resize(pReply, iLength);
   if( isError ){
     char *z;
     int i, j;

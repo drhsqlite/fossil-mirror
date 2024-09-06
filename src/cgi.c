@@ -39,7 +39,7 @@
 **
 ** The code in this file abstracts the web-request so that downstream
 ** modules that generate the body of the reply (based on the requested page)
-** do not need to know if the request is coming from CGI, direct HTTP, 
+** do not need to know if the request is coming from CGI, direct HTTP,
 ** SCGI, or some other means.
 **
 ** This module gathers information about web page request into a key/value
@@ -72,12 +72,14 @@
 # include <ws2tcpip.h>
 #else
 # include <sys/socket.h>
+# include <sys/un.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/times.h>
 # include <sys/time.h>
 # include <sys/wait.h>
 # include <sys/select.h>
+# include <errno.h>
 #endif
 #ifdef __EMX__
   typedef int socklen_t;
@@ -483,7 +485,7 @@ void cgi_reply(void){
 
   if( g.fullHttpReply ){
     if( rangeEnd>0
-     && iReplyStatus==200 
+     && iReplyStatus==200
      && fossil_strcmp(P("REQUEST_METHOD"),"GET")==0
     ){
       iReplyStatus = 206;
@@ -564,7 +566,7 @@ void cgi_reply(void){
     if( iReplyStatus==206 ){
       blob_appendf(&hdr, "Content-Range: bytes %d-%d/%d\r\n",
               rangeStart, rangeEnd-1, total_size);
-      total_size = rangeEnd - rangeStart; 
+      total_size = rangeEnd - rangeStart;
     }
     blob_appendf(&hdr, "Content-Length: %d\r\n", total_size);
   }else{
@@ -898,6 +900,19 @@ void cgi_delete_query_parameter(const char *zName){
       return;
     }
   }
+}
+
+/*
+** Return the number of query parameters.  Cookies and environment variables
+** do not count.  Also, do not count the special QP "name".
+*/
+int cgi_qp_count(void){
+  int cnt = 0;
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( aParamQP[i].isQP && fossil_strcmp(aParamQP[i].zName,"name")!=0 ) cnt++;
+  }
+  return cnt;
 }
 
 /*
@@ -1240,7 +1255,7 @@ void cgi_trace(const char *z){
 }
 
 /* Forward declaration */
-static NORETURN void malformed_request(const char *zMsg);
+static NORETURN void malformed_request(const char *zMsg, ...);
 
 /*
 ** Checks the QUERY_STRING environment variable, sets it up
@@ -1258,7 +1273,7 @@ int cgi_setup_query_string(void){
     add_param_list(z, '&');
     z = (char*)P("skin");
     if( z ){
-      char *zErr = skin_use_alternative(z, 2);
+      char *zErr = skin_use_alternative(z, 2, SKIN_FROM_QPARAM);
       ++rc;
       if( !zErr && P("once")==0 ){
         cookie_write_parameter("skin","skin",z);
@@ -1313,7 +1328,7 @@ int cgi_setup_query_string(void){
 **      |       HTTP_HOST      |        PATH_INFO     QUERY_STRING
 **      |                      |
 **    REQUEST_SCHEMA         SCRIPT_NAME
-**               
+**
 */
 void cgi_init(void){
   char *z;
@@ -1323,6 +1338,7 @@ void cgi_init(void){
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
   const char *zPathInfo = cgi_parameter("PATH_INFO",0);
+  const char *zContentLength = 0;
 #ifdef _WIN32
   const char *zServerSoftware = cgi_parameter("SERVER_SOFTWARE",0);
 #endif
@@ -1350,7 +1366,7 @@ void cgi_init(void){
 #ifdef _WIN32
   /* The Microsoft IIS web server does not define REQUEST_URI, instead it uses
   ** PATH_INFO for virtually the same purpose.  Define REQUEST_URI the same as
-  ** PATH_INFO and redefine PATH_INFO with SCRIPT_NAME removed from the 
+  ** PATH_INFO and redefine PATH_INFO with SCRIPT_NAME removed from the
   ** beginning. */
   if( zServerSoftware && strstr(zServerSoftware, "Microsoft-IIS") ){
     int i, j;
@@ -1409,7 +1425,7 @@ void cgi_init(void){
     add_param_list(z, ';');
     z = (char*)cookie_value("skin",0);
     if(z){
-      skin_use_alternative(z, 2);
+      skin_use_alternative(z, 2, SKIN_FROM_COOKIE);
     }
   }
 
@@ -1420,7 +1436,15 @@ void cgi_init(void){
     g.zIpAddr = fossil_strdup(z);
   }
 
-  len = atoi(PD("CONTENT_LENGTH", "0"));
+  zContentLength = P("CONTENT_LENGTH");
+  if( zContentLength==0 ){
+    len = 0;
+    if( sqlite3_stricmp(PD("REQUEST_METHOD",""),"POST")==0 ){
+      malformed_request("missing CONTENT_LENGTH on a POST method");
+    }
+  }else{
+    len = atoi(zContentLength);
+  }
   zType = P("CONTENT_TYPE");
   zSemi = zType ? strchr(zType, ';') : 0;
   if( zSemi ){
@@ -1769,6 +1793,7 @@ void cgi_load_environment(void){
     "FOSSIL_FORCE_TICKET_MODERATION", "FOSSIL_FORCE_WIKI_MODERATION",
     "FOSSIL_TCL_PATH", "TH1_DELETE_INTERP", "TH1_ENABLE_DOCS",
     "TH1_ENABLE_HOOKS", "TH1_ENABLE_TCL", "REMOTE_HOST",
+    "CONTENT_TYPE", "CONTENT_LENGTH",
   };
   int i;
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
@@ -1813,7 +1838,7 @@ void cgi_print_all(int showAll, unsigned int eDest, FILE *out){
         break;
       }
       case 3: {
-        if( strlen(zValue)>100 ){
+        if( zValue!=0 && strlen(zValue)>100 ){
           fprintf(out,"%s = %.100s...\n", zName, zValue);
         }else{
           fprintf(out,"%s = %s\n", zName, zValue);
@@ -1875,6 +1900,30 @@ void cgi_query_parameters_to_url(HQuery *p){
 }
 
 /*
+** Reconstruct the URL into memory obtained from fossil_malloc() and
+** return a pointer to that URL.
+*/
+char *cgi_reconstruct_original_url(void){
+  int i;
+  char cSep = '?';
+  Blob url;
+  blob_init(&url, 0, 0);
+  blob_appendf(&url, "%s/%s", g.zBaseURL, g.zPath);
+  for(i=0; i<nUsedQP; i++){
+    if( aParamQP[i].isQP ){
+      struct QParam *p = &aParamQP[i];
+      if( p->zValue && p->zValue[0] ){
+        blob_appendf(&url, "%c%t=%t", cSep, p->zName, p->zValue);
+      }else{
+        blob_appendf(&url, "%c%t", cSep, p->zName);
+      }
+      cSep = '&';
+    }
+  }
+  return blob_str(&url);
+}
+
+/*
 ** Tag query parameter zName so that it is not exported by
 ** cgi_query_parameters_to_hidden().  Or if zName==0, then
 ** untag all query parameters.
@@ -1913,11 +1962,22 @@ void cgi_vprintf(const char *zFormat, va_list ap){
 /*
 ** Send a reply indicating that the HTTP request was malformed
 */
-static NORETURN void malformed_request(const char *zMsg){
-  cgi_set_status(501, "Not Implemented");
-  cgi_printf(
-    "<html><body><p>Bad Request: %s</p></body></html>\n", zMsg
-  );
+static NORETURN void malformed_request(const char *zMsg, ...){
+  va_list ap;
+  char *z;
+  va_start(ap, zMsg);
+  z = vmprintf(zMsg, ap);
+  va_end(ap);
+  cgi_set_status(400, "Bad Request");
+  zContentType = "text/plain";
+  if( g.zReqType==0 ) g.zReqType = "WWW";
+  if( g.zReqType[0]=='C' && PD("SERVER_SOFTWARE",0)!=0 ){
+    const char *zServer = PD("SERVER_SOFTWARE","");
+    cgi_printf("Bad CGI Request from \"%s\": %s\n",zServer,z);
+  }else{
+    cgi_printf("Bad %s Request: %s\n", g.zReqType, z);
+  }
+  fossil_free(z);
   cgi_reply();
   fossil_exit(0);
 }
@@ -2034,8 +2094,9 @@ void cgi_handle_http_request(const char *zIpAddr){
   const char *zScheme = "http";
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
+  g.zReqType = "HTTP";
   if( cgi_fgets(zLine, sizeof(zLine))==0 ){
-    malformed_request("missing HTTP header");
+    malformed_request("missing header");
   }
   blob_append(&g.httpHeader, zLine, -1);
   cgi_trace(zLine);
@@ -2047,13 +2108,14 @@ void cgi_handle_http_request(const char *zIpAddr){
    && fossil_strcmp(zToken,"POST")!=0
    && fossil_strcmp(zToken,"HEAD")!=0
   ){
-    malformed_request("unsupported HTTP method");
+    malformed_request("unsupported HTTP method: \"%s\" - Fossil only supports"
+                      "GET, POST, and HEAD", zToken);
   }
   cgi_setenv("GATEWAY_INTERFACE","CGI/1.0");
   cgi_setenv("REQUEST_METHOD",zToken);
   zToken = extract_token(z, &z);
   if( zToken==0 ){
-    malformed_request("malformed URL in HTTP header");
+    malformed_request("malformed URI in the HTTP header");
   }
   cgi_setenv("REQUEST_URI", zToken);
   cgi_setenv("SCRIPT_NAME", "");
@@ -2062,7 +2124,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
   if( zIpAddr==0 ){
-    zIpAddr = cgi_remote_ip(fileno(g.httpIn));
+    zIpAddr = cgi_remote_ip(fossil_fileno(g.httpIn));
   }
   if( zIpAddr ){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
@@ -2165,6 +2227,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   }else{
     fossil_fatal("missing SSH IP address");
   }
+  g.zReqType = "HTTP";
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request("missing HTTP header");
   }
@@ -2416,6 +2479,7 @@ void cgi_handle_scgi_request(void){
 #define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
 #define HTTP_SERVER_REPOLIST       0x0010     /* Allow repo listing */
 #define HTTP_SERVER_NOFORK         0x0020     /* Do not call fork() */
+#define HTTP_SERVER_UNIXSOCKET     0x0040     /* Use a unix-domain socket */
 
 #endif /* INTERFACE */
 
@@ -2456,33 +2520,81 @@ int cgi_http_server(
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
   struct sockaddr_in inaddr;   /* The socket address */
+  struct sockaddr_un uxaddr;   /* The address for unix-domain sockets */
   int opt = 1;                 /* setsockopt flag */
-  int iPort = mnPort;
+  int rc;                      /* Result code from system calls */
+  int iPort = mnPort;          /* Port to try to use */
 
   while( iPort<=mxPort ){
-    memset(&inaddr, 0, sizeof(inaddr));
-    inaddr.sin_family = AF_INET;
-    if( zIpAddr ){
-      inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
-      if( inaddr.sin_addr.s_addr == INADDR_NONE ){
-        fossil_fatal("not a valid IP address: %s", zIpAddr);
+    if( flags & HTTP_SERVER_UNIXSOCKET ){
+      /* Initialize a Unix socket named g.zSockName */
+      assert( g.zSockName!=0 );
+      memset(&uxaddr, 0, sizeof(uxaddr));
+      if( strlen(g.zSockName)>sizeof(uxaddr.sun_path) ){
+        fossil_fatal("name of unix socket too big: %s\nmax size: %d\n",
+                     g.zSockName, (int)sizeof(uxaddr.sun_path));
       }
-    }else if( flags & HTTP_SERVER_LOCALHOST ){
-      inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+      if( file_isdir(g.zSockName, ExtFILE)!=0 ){
+        if( !file_issocket(g.zSockName) ){
+          fossil_fatal("cannot name socket \"%s\" because another object"
+                       " with that name already exists", g.zSockName);
+        }else{
+          unlink(g.zSockName);
+        }
+      }
+      uxaddr.sun_family = AF_UNIX;
+      strncpy(uxaddr.sun_path, g.zSockName, sizeof(uxaddr.sun_path)-1);
+      listener = socket(AF_UNIX, SOCK_STREAM, 0);
+      if( listener<0 ){
+        fossil_fatal("unable to create a unix socket named %s",
+                     g.zSockName);
+      }
+      /* Set the access permission for the new socket.  Default to 0660.
+      ** But use an alternative specified by --socket-mode if available.
+      ** Do this before bind() to avoid a race condition. */
+      if( g.zSockMode ){
+        file_set_mode(g.zSockName, listener, g.zSockMode, 0);
+      }else{
+        file_set_mode(g.zSockName, listener, "0660", 1);
+      }
     }else{
-      inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    }
-    inaddr.sin_port = htons(iPort);
-    listener = socket(AF_INET, SOCK_STREAM, 0);
-    if( listener<0 ){
-      iPort++;
-      continue;
+      /* Initialize a TCP/IP socket on port iPort */
+      memset(&inaddr, 0, sizeof(inaddr));
+      inaddr.sin_family = AF_INET;
+      if( zIpAddr ){
+        inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
+        if( inaddr.sin_addr.s_addr == INADDR_NONE ){
+          fossil_fatal("not a valid IP address: %s", zIpAddr);
+        }
+      }else if( flags & HTTP_SERVER_LOCALHOST ){
+        inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+      }else{
+        inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+      }
+      inaddr.sin_port = htons(iPort);
+      listener = socket(AF_INET, SOCK_STREAM, 0);
+      if( listener<0 ){
+        iPort++;
+        continue;
+      }
     }
 
     /* if we can't terminate nicely, at least allow the socket to be reused */
     setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
-
-    if( bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr))<0 ){
+  
+    if( flags & HTTP_SERVER_UNIXSOCKET ){
+      rc = bind(listener, (struct sockaddr*)&uxaddr, sizeof(uxaddr));
+      /* Set the owner of the socket if requested by --socket-owner.  This
+      ** must wait until after bind(), after the filesystem object has been
+      ** created.  See https://lkml.org/lkml/2004/11/1/84 and
+      ** https://fossil-scm.org/forum/forumpost/7517680ef9684c57 */
+      if( g.zSockOwner ){
+        file_set_owner(g.zSockName, listener, g.zSockOwner);
+      }
+    }else{
+      rc = bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr));
+    }
+    if( rc<0 ){
       close(listener);
       iPort++;
       continue;
@@ -2490,7 +2602,9 @@ int cgi_http_server(
     break;
   }
   if( iPort>mxPort ){
-    if( mnPort==mxPort ){
+    if( flags & HTTP_SERVER_UNIXSOCKET ){
+      fossil_fatal("unable to listen on unix socket %s", zIpAddr);
+    }else if( mnPort==mxPort ){
       fossil_fatal("unable to open listening socket on port %d", mnPort);
     }else{
       fossil_fatal("unable to open listening socket on any"
@@ -2499,11 +2613,17 @@ int cgi_http_server(
   }
   if( iPort>mxPort ) return 1;
   listen(listener,10);
-  fossil_print("Listening for %s requests on TCP port %d\n",
-     (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
-        g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  iPort);
+  if( flags & HTTP_SERVER_UNIXSOCKET ){
+    fossil_print("Listening for %s requests on unix socket %s\n",
+       (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
+          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  g.zSockName);
+  }else{
+    fossil_print("Listening for %s requests on TCP port %d\n",
+       (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
+          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  iPort);
+  }
   fflush(stdout);
-  if( zBrowser ){
+  if( zBrowser && (flags & HTTP_SERVER_UNIXSOCKET)==0 ){
     assert( strstr(zBrowser,"%d")!=0 );
     zBrowser = mprintf(zBrowser /*works-like:"%d"*/, iPort);
 #if defined(__CYGWIN__)
@@ -2549,6 +2669,7 @@ int cgi_http_server(
           close(connection);
         }else{
           int nErr = 0, fd;
+          g.zSockName = 0 /* avoid deleting the socket via atexit() */;
           close(0);
           fd = dup(connection);
           if( fd!=0 ) nErr++;
@@ -2776,10 +2897,13 @@ int cgi_from_mobile(void){
 void cgi_check_for_malice(void){
   struct QParam * pParam;
   int i;
-  for(i = 0; i < nUsedQP; ++i){
+  for(i=0; i<nUsedQP; ++i){
     pParam = &aParamQP[i];
-    if(0 == pParam->isFetched
-       && fossil_islower(pParam->zName[0])){
+    if( 0==pParam->isFetched
+     && pParam->zValue!=0
+     && pParam->zName!=0
+     && fossil_islower(pParam->zName[0])
+    ){
       cgi_value_spider_check(pParam->zValue, pParam->zName);
     }
   }

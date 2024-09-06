@@ -148,7 +148,7 @@ static void bundle_ls_cmd(void){
 /*
 ** Implement the "fossil bundle append BUNDLE FILE..." command.  Add
 ** the named files into the BUNDLE.  Create the BUNDLE if it does not
-** alraedy exist.
+** already exist.
 */
 static void bundle_append_cmd(void){
   Blob content, hash;
@@ -541,7 +541,7 @@ static void bundle_cat_cmd(void){
   Blob x;
   verify_all_options();
   if( g.argc<5 ) usage("cat BUNDLE HASH...");
-  bundle_attach_file(g.argv[3], "b1", 1);
+  bundle_attach_file(g.argv[3], "b1", 0);
   blob_zero(&x);
   for(i=4; i<g.argc; i++){
     int blobid = db_int(0,"SELECT blobid FROM bblob WHERE uuid LIKE '%q%%'",
@@ -571,7 +571,7 @@ static void bundle_import_cmd(void){
   char *zMissingDeltas;
   verify_all_options();
   if ( g.argc!=4 ) usage("import BUNDLE ?OPTIONS?");
-  bundle_attach_file(g.argv[3], "b1", 1);
+  bundle_attach_file(g.argv[3], "b1", 0);
 
   /* Only import a bundle that was generated from a repo with the same
   ** project code, unless the --force flag is true */

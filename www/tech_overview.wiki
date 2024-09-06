@@ -1,7 +1,4 @@
-<title>Technical Overview</title>
-<h2 align="center">
-A Technical Overview<br>Of The Design And Implementation<br>Of Fossil
-</h2>
+<title>A Technical Overview of Fossil's Design & Implementation</title>
 
 <h2>1.0 Introduction</h2>
 
@@ -55,7 +52,7 @@ to that working checkout.
 
 Fossil does not always use all three database files.  The web interface,
 for example, typically only uses the repository database.  And the
-[/help/all | fossil settings] command only opens the configuration database
+[/help/settings | fossil settings] command only opens the configuration database
 when the --global option is used.  But other commands use all three
 databases at once.  For example, the [/help/status | fossil status]
 command will first locate the checkout database, then use the checkout
@@ -67,19 +64,18 @@ SQLite's [http://www.sqlite.org/lang_attach.html | ATTACH] command.
 The chart below provides a quick summary of how each of these
 database files are used by Fossil, with detailed discussion following.
 
-<table border="1" width="80%" cellpadding="0" align="center">
-<tr>
-<td width="33%" valign="top">
-<h3 align="center">Configuration Database<br>"~/.fossil" or<br>
-"~/.config/fossil.db"</h3>
-<ul>
+<table align="center">
+<tr valign="bottom">
+<th style="text-align:center">Configuration&nbsp;Database<br>"~/.fossil" or<br>
+"~/.config/fossil.db"
+<th style="text-align:center">Repository Database<br>"<i>project</i>.fossil"
+<th style="text-align:center">Checkout Database<br>"_FOSSIL_" or ".fslckout"
+<tr valign="top">
+<td><ul>
 <li>Global [/help/settings |settings]
 <li>List of active repositories used by the [/help/all | all] command
-</ul>
-</td>
-<td width="34%" valign="top">
-<h3 align="center">Repository Database<br>"<i>project</i>.fossil"</h3>
-<ul>
+</ul></td>
+<td><ul>
 <li>[./fileformat.wiki | Global state of the project]
     encoded using delta-compression
 <li>Local [/help/settings|settings]
@@ -87,11 +83,8 @@ database files are used by Fossil, with detailed discussion following.
 <li>User credentials and permissions
 <li>Metadata about the global state to facilitate rapid
     queries
-</ul>
-</td>
-<td width="33%" valign="top">
-<h3 align="center">Checkout Database<br>"_FOSSIL_" or ".fslckout"</h3>
-<ul>
+</ul></td>
+<td><ul>
 <li>The repository database used by this checkout
 <li>The version currently checked out
 <li>Other versions [/help/merge | merged] in but not
@@ -102,8 +95,7 @@ database files are used by Fossil, with detailed discussion following.
      local edits
 <li>The "[/help/stash | stash]"
 <li>Information needed to "[/help/undo|undo]" or "[/help/redo|redo]"
-</ul>
-</td>
+</ul></td>
 </tr>
 </table>
 
@@ -131,16 +123,17 @@ operations such as "sync" or "rebuild" on all repositories managed by a user.
 On Unix systems, the configuration database is named by the following
 algorithm:
 
-<blockquote><table border="0">
+<table>
 <tr><td>1. if environment variable FOSSIL_HOME exists
-<td>&nbsp;&rarr;&nbsp;<td>$FOSSIL_HOME/.fossil
-<tr><td>2. if file ~/.fossil exists<td>&nbsp;&rarr;<td>~/.fossil
+     <td>&nbsp;&rarr;&nbsp;<td>$FOSSIL_HOME/.fossil
+<tr><td>2. if file ~/.fossil exists
+     <td>&nbsp;&rarr;<td>~/.fossil
 <tr><td>3. if environment variable XDG_CONFIG_HOME exists
     <td>&nbsp;&rarr;<td>$XDG_CONFIG_HOME/fossil.db
 <tr><td>4. if the directory ~/.config exists
     <td>&nbsp;&rarr;<td>~/.config/fossil.db
 <tr><td>5. Otherwise<td>&nbsp;&rarr;<td>~/.fossil
-</table></blockquote>
+</table>
 
 Another way of thinking of this algorithm is the following:
 
@@ -165,7 +158,7 @@ for which the corresponding environment variables exist:
   *  %USERPROFILES%/_fossil
   *  %HOMEDRIVE%%HOMEPATH%/_fossil
 
-The second case is the one that usually determines the name  Note that the
+The second case is the one that usually determines the name. Note that the
 FOSSIL_HOME environment variable can always be set to determine the 
 location of the configuration database.  Note also that the configuration
 database file itself is called ".fossil" or "fossil.db" on unix but

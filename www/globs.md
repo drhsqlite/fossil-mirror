@@ -44,7 +44,7 @@ quotation marks are treated literally. Moreover, a pattern that begins
 with a quote mark ends when the first instance of the same mark occurs,
 _not_ at a whitespace or comma. Thus, this:
 
-      "foo bar"qux
+    "foo bar"qux
 
 …constitutes _two_ patterns rather than one with an embedded space, in
 contravention of normal shell quoting rules.

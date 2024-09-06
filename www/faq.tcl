@@ -14,9 +14,9 @@ faq {
   The fossil executable comes with a [./webui.wiki | web-based GUI] built in.
   Just run:
 
-  <blockquote>
+  <pre>
   <b>fossil [/help/ui|ui]</b> <i>REPOSITORY-FILENAME</i>
-  </blockquote>
+  </pre>
 
   And your default web browser should pop up and automatically point to
   the fossil interface.  (Hint:  You can omit the <i>REPOSITORY-FILENAME</i>
@@ -44,9 +44,9 @@ faq {
   If you want to create a new branch whose initial content is the
   same as an existing check-in, use this command:
 
-  <blockquote>
+  <pre>
   <b>fossil [/help/branch|branch] new</b> <i>BRANCH-NAME BASIS</i>
-  </blockquote>
+  </pre>
 
   The <i>BRANCH-NAME</i> argument is the name of the new branch and the
   <i>BASIS</i> argument is the name of the check-in that the branch splits
@@ -74,19 +74,19 @@ faq {
   option to give a check-in multiple tags.  Tags need not be unique.  So,
   for example, it is common to give every released version a "release" tag.
 
-  If you want add a tag to an existing check-in, you can use the
+  If you want to add a tag to an existing check-in, you can use the
   <b>[/help/tag|tag]</b> command.  For example:
 
-  <blockquote>
+  <pre>
   <b>fossil [/help/branch|tag] add</b> <i>TAGNAME</i> <i>CHECK-IN</i>
-  </blockquote>
+  </pre>
 
   The CHECK-IN in the previous line can be any
   [./checkin_names.wiki | valid check-in name format].
 
   You can also add (and remove) tags from a check-in using the
   [./webui.wiki | web interface].  First locate the check-in that you
-  what to tag on the timeline, then click on the link to go the detailed
+  want to tag on the timeline, then click on the link to go the detailed
   information page for that check-in.  Then find the "<b>edit</b>"
   link (near the "Commands:" label) and click on that.  There are
   controls on the edit page that allow new tags to be added and existing
@@ -98,7 +98,7 @@ faq {
   main repository.
 } {
   Use the <b>--private</b> command-line option on the
-  <b>commit</b> command.  The result will be a check-in which exists on
+  <b>commit</b> command.  The result will be a check-in which exists in
   your local repository only and is never pushed to other repositories.
   All descendants of a private check-in are also private.
 
@@ -129,21 +129,26 @@ faq {
   How do I make a clone of the fossil self-hosting repository?
 } {
   Any of the following commands should work:
-  <blockquote><pre>
+
+  <pre>
   fossil [/help/clone|clone]  https://fossil-scm.org/  fossil.fossil
   fossil [/help/clone|clone]  https://www2.fossil-scm.org/  fossil.fossil
   fossil [/help/clone|clone]  https://www3.fossil-scm.org/site.cgi  fossil.fossil
-  </pre></blockquote>
+  </pre>
+
   Once you have the repository cloned, you can open a local check-out
   as follows:
-  <blockquote><pre>
+
+  <pre>
   mkdir src; cd src; fossil [/help/open|open] ../fossil.fossil
-  </pre></blockquote>
+  </pre>
+
   Thereafter you should be able to keep your local check-out up to date
   with the latest code in the public repository by typing:
-  <blockquote><pre>
+
+  <pre>
   fossil [/help/update|update]
-  </pre></blockquote>
+  </pre>
 }
 
 faq {
@@ -157,8 +162,7 @@ faq {
 #############################################################################
 # Code to actually generate the FAQ
 #
-puts "<title>Fossil FAQ</title>"
-puts "<h1 align=\"center\">Frequently Asked Questions</h1>\n"
+puts "<title>Fossil FAQ</title>\n"
 puts "Note: See also <a href=\"qandc.wiki\">Questions and Criticisms</a>.\n"
 
 puts {<ol>}
@@ -172,6 +176,6 @@ for {set i 1} {$i<$cnt} {incr i} {
   puts "<p id=\"q$i\"><b>($i) [lindex $faq($i) 0]</b></p>\n"
   set body [lindex $faq($i) 1]
   regsub -all "\n *" [string trim $body] "\n" body
-  puts "<blockquote>$body</blockquote></li>\n"
+  puts "$body</li>\n"
 }
 puts {</ol>}

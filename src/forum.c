@@ -1522,7 +1522,7 @@ static void forum_render_debug_options(void){
     @ <br><label><input type="checkbox" name="showqp" %s(PCK("showqp"))> \
     @ Show query parameters</label>
     @ <br><label><input type="checkbox" name="fpsilent" %s(PCK("fpsilent"))> \
-    @ Do not sent notification emails</label>
+    @ Do not send notification emails</label>
     @ </div>
   }
 }

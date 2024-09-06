@@ -54,16 +54,28 @@ static int client_sync_all_urls(
   unsigned configSendMask, /* Send these configuration items */
   const char *zAltPCode    /* Alternative project code (usually NULL) */
 ){
-  int nErr;
-  int nOther;
-  char **azOther;
-  int i;
-  Stmt q;
+  int nErr = 0;            /* Number of errors seen */
+  int nOther;              /* Number of extra remote URLs */
+  char **azOther;          /* Text of extra remote URLs */
+  int i;                   /* Loop counter */
+  int iEnd;                /* Loop termination point */
+  int nextIEnd;            /* Loop termination point for next pass */
+  int iPass;               /* Which pass through the remotes.  0 or 1 */
+  int nPass;               /* Number of passes to make.  1 or 2 */
+  Stmt q;                  /* An SQL statement */
+  UrlData baseUrl;         /* Saved parse of the default remote */
 
   sync_explain(syncFlags);
-  nErr = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
-  if( nErr==0 ) url_remember();
-  if( (syncFlags & SYNC_ALLURL)==0 ) return nErr;
+  if( (syncFlags & SYNC_ALLURL)==0 ){
+    /* Common-case:  Only sync with the remote identified by g.url */
+    nErr = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode, 0);
+    if( nErr==0 ) url_remember();
+    return nErr;
+  }
+
+  /* If we reach this point, it means we want to sync with all remotes */
+  memset(&baseUrl, 0, sizeof(baseUrl));
+  url_move_parse(&baseUrl, &g.url);
   nOther = 0;
   azOther = 0;
   db_prepare(&q,
@@ -77,26 +89,56 @@ static int client_sync_all_urls(
     azOther[nOther++] = fossil_strdup(zUrl);
   }
   db_finalize(&q);
-  for(i=0; i<nOther; i++){
-    int rc;
-    url_unparse(&g.url);
-    url_parse(azOther[i], URL_PROMPT_PW|URL_ASK_REMEMBER_PW|URL_USE_CONFIG);
-    sync_explain(syncFlags);
-    rc = client_sync(syncFlags, configRcvMask, configSendMask, zAltPCode);
-    nErr += rc;
-    if( (g.url.flags & URL_REMEMBER_PW)!=0 && rc==0 ){
-      char *zKey = mprintf("sync-pw:%s", azOther[i]);
-      char *zPw = obscure(g.url.passwd);
-      if( zPw && zPw[0] ){
-        db_set(zKey/*works-like:""*/, zPw, 0);
+  iEnd = nOther+1;
+  nextIEnd = 0;
+  nPass = 1 + ((syncFlags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL));
+  for(iPass=0; iPass<nPass; iPass++){
+    for(i=0; i<iEnd; i++){
+      int rc;
+      int nRcvd;
+      if( i==0 ){
+        url_move_parse(&g.url, &baseUrl);  /* Load canonical URL */
+      }else{
+        /* Load an auxiliary remote URL */
+        url_parse(azOther[i-1],
+                  URL_PROMPT_PW|URL_ASK_REMEMBER_PW|URL_USE_CONFIG);
       }
-      fossil_free(zPw);
-      fossil_free(zKey);
+      if( i>0 || iPass>0 ) sync_explain(syncFlags);
+      rc = client_sync(syncFlags, configRcvMask, configSendMask,
+                       zAltPCode, &nRcvd);
+      if( nRcvd>0 ){
+        /* If new artifacts were received, we want to repeat all prior
+        ** remotes on the second pass */
+        nextIEnd = i;
+      }
+      nErr += rc;
+      if( rc==0 && iPass==0 ){
+        if( i==0 ){
+          url_remember();
+        }else if( (g.url.flags & URL_REMEMBER_PW)!=0 ){
+          char *zKey = mprintf("sync-pw:%s", azOther[i-1]);
+          char *zPw = obscure(g.url.passwd);
+          if( zPw && zPw[0] ){
+            db_set(zKey/*works-like:""*/, zPw, 0);
+          }
+          fossil_free(zPw);
+          fossil_free(zKey);
+        }
+      }
+      if( i==0 ){
+        url_move_parse(&baseUrl, &g.url); /* Don't forget canonical URL */
+      }else{
+        url_unparse(&g.url);  /* Delete auxiliary URL parses */
+      }
     }
+    iEnd = nextIEnd;
+  }
+  for(i=0; i<nOther; i++){
     fossil_free(azOther[i]);
     azOther[i] = 0;
   }
   fossil_free(azOther);
+  url_move_parse(&g.url, &baseUrl);  /* Restore the canonical URL parse */
   return nErr;
 }
 
@@ -130,7 +172,7 @@ static int autosync(int flags, const char *zSubsys){
   zAutosync = db_get_for_subsystem("autosync", zSubsys);
   if( zAutosync==0 ) zAutosync = "on";  /* defend against misconfig */
   if( is_false(zAutosync) ) return 0;
-  if( db_get_boolean("dont-push",0) 
+  if( db_get_boolean("dont-push",0)
    || sqlite3_strglob("*pull*", zAutosync)==0
   ){
     flags &= ~SYNC_CKIN_LOCK;
@@ -151,7 +193,7 @@ static int autosync(int flags, const char *zSubsys){
     url_remember();
     sync_explain(flags);
     url_enable_proxy("via proxy: ");
-    rc = client_sync(flags, configSync, 0, 0);
+    rc = client_sync(flags, configSync, 0, 0, 0);
   }
   return rc;
 }
@@ -305,6 +347,12 @@ static void process_sync_args(
   user_select();
   url_enable_proxy("via proxy: ");
   *pConfigFlags |= configSync;
+  if( (*pSyncFlags & SYNC_ALLURL)==0 && zUrl==0 ){
+    const char *zAutosync = db_get_for_subsystem("autosync", "sync");
+    if( sqlite3_strglob("*all*", zAutosync)==0 ){
+      *pSyncFlags |= SYNC_ALLURL;
+    }
+  }
 }
 
 
@@ -417,13 +465,15 @@ void push_cmd(void){
 /*
 ** COMMAND: sync
 **
-** Usage: %fossil sync ?URL? ?options?
+** Usage: %fossil sync ?REMOTE? ?options?
 **
 ** Synchronize all sharable changes between the local repository and a
-** remote repository.  Sharable changes include public check-ins and
-** edits to wiki pages, tickets, forum posts, and technical notes.
+** remote repository, with the remote provided as a URL or a
+** configured remote name (see the [[remote]] command).  Sharable
+** changes include public check-ins and edits to wiki pages, tickets,
+** forum posts, and technical notes.
 **
-** If URL is not specified, then the URL from the most recent clone, push,
+** If REMOTE is not specified, then the URL from the most recent clone, push,
 ** pull, remote, or sync command is used.  See "fossil help clone" for
 ** details on the URL formats.
 **
@@ -476,7 +526,7 @@ void sync_unversioned(unsigned syncFlags){
   (void)find_option("uv-noop",0,0);
   process_sync_args(&configFlags, &syncFlags, 1, 0);
   verify_all_options();
-  client_sync(syncFlags, 0, 0, 0);
+  client_sync(syncFlags, 0, 0, 0, 0);
 }
 
 /*
@@ -529,7 +579,7 @@ void sync_unversioned(unsigned syncFlags){
 **
 ** > fossil remote off
 **
-**     Forget the default URL. This disables autosync. 
+**     Forget the default URL. This disables autosync.
 **
 **     This is a convenient way to enter "airplane mode".  To enter
 **     airplane mode, first save the current default URL, then turn the
@@ -591,7 +641,7 @@ void remote_url_cmd(void){
   ** entries.  Thus, when doing a "fossil sync --all" or an autosync with
   ** autosync=all, each sync-url:NAME entry is checked to see if it is the
   ** same as last-sync-url and if it is then that entry is skipped.
-  */ 
+  */
 
   if( g.argc==2 ){
     /* "fossil remote" with no arguments:  Show the last sync URL. */

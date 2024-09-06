@@ -212,7 +212,7 @@ int start_of_branch(int rid, int eType){
 **
 ** This is a tricky query to do efficiently.
 ** If the tag is very common (ex: "trunk") then
-** we want to use the query identified below as Q1 - which searching
+** we want to use the query identified below as Q1 - which searches
 ** the most recent EVENT table entries for the most recent with the tag.
 ** But if the tag is relatively scarce (anything other than "trunk", basically)
 ** then we want to do the indexed search show below as Q2.
@@ -515,8 +515,8 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( strncmp(zTag, "start:", 6)==0 ){
     rid = symbolic_name_to_rid(zTag+6, zType);
     return start_of_branch(rid, 1);
-  }  
-  
+  }
+
   /* merge-in:BR -> Most recent merge-in for the branch named BR */
   if( strncmp(zTag, "merge-in:", 9)==0 ){
     rid = symbolic_name_to_rid(zTag+9, zType);
@@ -526,7 +526,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   /* symbolic-name ":" date-time */
   nTag = strlen(zTag);
   for(i=0; i<nTag-8 && zTag[i]!=':'; i++){}
-  if( zTag[i]==':' 
+  if( zTag[i]==':'
    && (fossil_isdate(&zTag[i+1]) || fossil_expand_datetime(&zTag[i+1],0)!=0)
   ){
     char *zDate = mprintf("%s", &zTag[i+1]);
@@ -823,6 +823,37 @@ int name_to_rid(const char *zName){
 }
 
 /*
+** Try to resolve zQP1 into a check-in name.  If zQP1 does not exist,
+** return 0.  If zQP1 exists but cannot be resolved, then also try to
+** resolve zQP2 if it exists.  If zQP1 cannot be resolved but zQP2 does
+** not exist, then raise an error.  If both zQP1 and zQP2 exists but
+** neither can be resolved, also raise an error.
+**
+** If pzPick is not a NULL pointer, then *pzPick to be the value of whichever
+** query parameter ended up being used.
+*/
+int name_choice(const char *zQP1, const char *zQP2, const char **pzPick){
+  const char *zName, *zName2;
+  int rid;
+  zName = P(zQP1);
+  if( zName==0 || zName[0]==0 ) return 0;
+  rid = symbolic_name_to_rid(zName, "ci");
+  if( rid>0 ){
+    if( pzPick ) *pzPick = zName;
+    return rid;
+  }
+  if( rid<0 ){
+    fossil_fatal("ambiguous name: %s", zName);
+  }
+  zName2 = P(zQP2);
+  if( zName2==0 || zName2[0]==0 ){
+    fossil_fatal("cannot resolve name: %s", zName);
+  }
+  if( pzPick ) *pzPick = zName2;
+  return name_to_typed_rid(zName2, "ci");
+}
+
+/*
 ** WEBPAGE: ambiguous
 ** URL: /ambiguous?name=NAME&src=WEBPAGE
 **
@@ -1089,7 +1120,7 @@ void whatis_rid(int rid, int flags){
     "   AND event.objid=mlink.mid"
     "   AND blob.rid=mlink.mid"
     " ORDER BY event.mtime %s /*sort*/",
-    rid, 
+    rid,
     (flags & WHATIS_BRIEF) ? "LIMIT 1" : "DESC");
   while( db_step(&q)==SQLITE_ROW ){
     if( flags & WHATIS_BRIEF ){

@@ -76,28 +76,6 @@ static struct {
 } gg;
 
 /*
-** Duplicate a string.
-*/
-char *fossil_strndup(const char *zOrig, int len){
-  char *z = 0;
-  if( zOrig ){
-    int n;
-    if( len<0 ){
-      n = strlen(zOrig);
-    }else{
-      for( n=0; zOrig[n] && n<len; ++n );
-    }
-    z = fossil_malloc( n+1 );
-    memcpy(z, zOrig, n);
-    z[n] = 0;
-  }
-  return z;
-}
-char *fossil_strdup(const char *zOrig){
-  return fossil_strndup(zOrig, -1);
-}
-
-/*
 ** A no-op "xFinish" method
 */
 static void finish_noop(void){}
@@ -819,7 +797,7 @@ static void git_fast_import(FILE *pIn){
     }else
     if( strncmp(zLine, "property branch-nick ", 21)==0 ){
       /* Breezy uses this property to store the branch name.
-      ** It has two values. Integer branch number, then the 
+      ** It has two values. Integer branch number, then the
       ** user-readable branch name. */
       z = &zLine[21];
       next_token(&z);
@@ -1250,7 +1228,15 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
       u64 lenCpy = (*zDiff)&0x3f;
       const char *zCpy;
       switch( (*zDiff)&0xC0 ){
-        case 0x00: zCpy = blob_buffer(pSrc)+offSrc; break;
+        case 0x00:
+          if( 0==blob_size(pSrc) ){
+            /* https://fossil-scm.org/forum/forumpost/15d4b242bda2a108 */
+            fossil_fatal("Don't know how to handle NULL input. "
+                         "Tip: do not use the --incremental flag "
+                         "in the svn dump command.");
+          }
+          zCpy = blob_buffer(pSrc)+offSrc;
+          break;
         case 0x40: zCpy = blob_buffer(pOut); break;
         case 0x80: zCpy = zData; break;
         default: fossil_fatal("Invalid svndiff0 instruction");
@@ -1578,6 +1564,8 @@ static void svn_dump_import(FILE *pIn){
             }
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
             rid = svn_handle_symlinks(zPerm, &target);
+            blob_reset(&deltaSrc);
+            blob_reset(&target);
           }else if( rec.contentFlag ){
             rid = svn_handle_symlinks(zPerm, &rec.content);
           }else if( zSrcPath ){
@@ -1620,6 +1608,8 @@ static void svn_dump_import(FILE *pIn){
             content_get(rid, &deltaSrc);
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
             rid = svn_handle_symlinks(zPerm, &target);
+            blob_reset(&deltaSrc);
+            blob_reset(&target);
           }else{
             rid = svn_handle_symlinks(zPerm, &rec.content);
           }

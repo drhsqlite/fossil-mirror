@@ -1437,7 +1437,6 @@ extern "C" {
 #endif
 
 
-    
 /**
    This type holds the "vtbl" for type-specific operations when
    working with cson_value objects.
@@ -1688,8 +1687,8 @@ static char cson_value_is_builtin( void const * m )
 
 char const * cson_rc_string(int rc)
 {
-    if(0 == rc) return "OK";
-#define CHECK(N) else if(cson_rc.N == rc ) return #N
+    switch(rc){
+#define CHECK(N) case CSON_RC_##N: return #N;
     CHECK(OK);
     CHECK(ArgError);
     CHECK(RangeError);
@@ -1710,7 +1709,8 @@ char const * cson_rc_string(int rc)
     CHECK(Parse_UNBALANCED_COLLECTION);
     CHECK(Parse_EXPECTED_KEY);
     CHECK(Parse_EXPECTED_COLON);
-    else return "UnknownError";
+    default: return "UnknownError";
+    }
 #undef CHECK
 }
 
@@ -1856,7 +1856,7 @@ static void cson_refcount_incr( cson_value * cv )
 #if 0
 int cson_value_refcount_set( cson_value * cv, unsigned short rc )
 {
-    if( NULL == cv ) return cson_rc.ArgError;
+    if( NULL == cv ) return CSON_RC_ArgError;
     else
     {
         cv->refcount = rc;
@@ -1867,10 +1867,10 @@ int cson_value_refcount_set( cson_value * cv, unsigned short rc )
 
 int cson_value_add_reference( cson_value * cv )
 {
-    if( NULL == cv ) return cson_rc.ArgError;
+    if( NULL == cv ) return CSON_RC_ArgError;
     else if( (cv->refcount+1) < cv->refcount )
     {
-        return cson_rc.RangeError;
+        return CSON_RC_RangeError;
     }
     else
     {
@@ -2337,7 +2337,7 @@ void cson_value_clean( cson_value * val )
     }
 }
 
-static cson_value * cson_value_array_alloc()
+static cson_value * cson_value_array_alloc(void)
 {
     cson_value * v = cson_value_new(CSON_TYPE_ARRAY,0);
     if( NULL != v )
@@ -2349,7 +2349,7 @@ static cson_value * cson_value_array_alloc()
     return v;
 }
 
-static cson_value * cson_value_object_alloc()
+static cson_value * cson_value_object_alloc(void)
 {
     cson_value * v = cson_value_new(CSON_TYPE_OBJECT,0);
     if( NULL != v )
@@ -2361,24 +2361,24 @@ static cson_value * cson_value_object_alloc()
     return v;
 }
 
-cson_value * cson_value_new_object()
+cson_value * cson_value_new_object(void)
 {
     return cson_value_object_alloc();
 }
 
-cson_object * cson_new_object()
+cson_object * cson_new_object(void)
 {
     
     return cson_value_get_object( cson_value_new_object() );
 }
 
-cson_value * cson_value_new_array()
+cson_value * cson_value_new_array(void)
 {
     return cson_value_array_alloc();
 }
 
 
-cson_array * cson_new_array()
+cson_array * cson_new_array(void)
 {
     return cson_value_get_array( cson_value_new_array() );
 }
@@ -2504,7 +2504,7 @@ int cson_buffer_fill_from( cson_buffer * dest, cson_data_source_f src, void * st
     char rbuf[BufSize];
     size_t total = 0;
     unsigned int rlen = 0;
-    if( ! dest || ! src ) return cson_rc.ArgError;
+    if( ! dest || ! src ) return CSON_RC_ArgError;
     dest->used = 0;
     while(1)
     {
@@ -2532,12 +2532,12 @@ int cson_buffer_fill_from( cson_buffer * dest, cson_data_source_f src, void * st
 int cson_data_source_FILE( void * state, void * dest, unsigned int * n )
 {
     FILE * f = (FILE*) state;
-    if( ! state || ! n || !dest ) return cson_rc.ArgError;
-    else if( !*n ) return cson_rc.RangeError;
+    if( ! state || ! n || !dest ) return CSON_RC_ArgError;
+    else if( !*n ) return CSON_RC_RangeError;
     *n = (unsigned int)fread( dest, 1, *n, f );
     if( !*n )
     {
-        return feof(f) ? 0 : cson_rc.IOError;
+        return feof(f) ? 0 : CSON_RC_IOError;
     }
     return 0;
 }
@@ -2555,7 +2555,7 @@ int cson_value_fetch_bool( cson_value const * val, char * v )
        FIXME: move the to-bool operation into cson_value_api, like we
        do in the C++ API.
      */
-    if( ! val || !val->api ) return cson_rc.ArgError;
+    if( ! val || !val->api ) return CSON_RC_ArgError;
     else
     {
         int rc = 0;
@@ -2590,7 +2590,7 @@ int cson_value_fetch_bool( cson_value const * val, char * v )
               break;
           }
           default:
-              rc = cson_rc.TypeError;
+              rc = CSON_RC_TypeError;
               break;
         }
         if( v ) *v = b;
@@ -2607,7 +2607,7 @@ char cson_value_get_bool( cson_value const * val )
 
 int cson_value_fetch_integer( cson_value const * val, cson_int_t * v )
 {
-    if( ! val || !val->api ) return cson_rc.ArgError;
+    if( ! val || !val->api ) return CSON_RC_ArgError;
     else
     {
         cson_int_t i = 0;
@@ -2643,7 +2643,7 @@ int cson_value_fetch_integer( cson_value const * val, cson_int_t * v )
             case CSON_TYPE_ARRAY:
             case CSON_TYPE_OBJECT:
             default:
-                rc = cson_rc.TypeError;
+                rc = CSON_RC_TypeError;
                 break;
         }
         if(!rc && v) *v = i;
@@ -2660,7 +2660,7 @@ cson_int_t cson_value_get_integer( cson_value const * val )
 
 int cson_value_fetch_double( cson_value const * val, cson_double_t * v )
 {
-    if( ! val || !val->api ) return cson_rc.ArgError;
+    if( ! val || !val->api ) return CSON_RC_ArgError;
     else
     {
         cson_double_t d = 0.0;
@@ -2689,7 +2689,7 @@ int cson_value_fetch_double( cson_value const * val, cson_double_t * v )
               break;
           }
           default:
-              rc = cson_rc.TypeError;
+              rc = CSON_RC_TypeError;
               break;
         }
         if(v) *v = d;
@@ -2706,8 +2706,8 @@ cson_double_t cson_value_get_double( cson_value const * val )
 
 int cson_value_fetch_string( cson_value const * val, cson_string ** dest )
 {
-    if( ! val || ! dest ) return cson_rc.ArgError;
-    else if( ! cson_value_is_string(val) ) return cson_rc.TypeError;
+    if( ! val || ! dest ) return CSON_RC_ArgError;
+    else if( ! cson_value_is_string(val) ) return CSON_RC_TypeError;
     else
     {
         if( dest ) *dest = CSON_STR(val);
@@ -2729,8 +2729,8 @@ char const * cson_value_get_cstr( cson_value const * val )
 
 int cson_value_fetch_object( cson_value const * val, cson_object ** obj )
 {
-    if( ! val ) return cson_rc.ArgError;
-    else if( ! cson_value_is_object(val) ) return cson_rc.TypeError;
+    if( ! val ) return CSON_RC_ArgError;
+    else if( ! cson_value_is_object(val) ) return CSON_RC_TypeError;
     else
     {
         if(obj) *obj = CSON_OBJ(val);
@@ -2746,8 +2746,8 @@ cson_object * cson_value_get_object( cson_value const * v )
 
 int cson_value_fetch_array( cson_value const * val, cson_array ** ar)
 {
-    if( ! val ) return cson_rc.ArgError;
-    else if( !cson_value_is_array(val) ) return cson_rc.TypeError;
+    if( ! val ) return CSON_RC_ArgError;
+    else if( !cson_value_is_array(val) ) return CSON_RC_TypeError;
     else
     {
         if(ar) *ar = CSON_ARRAY(val);
@@ -2762,7 +2762,7 @@ cson_array * cson_value_get_array( cson_value const * v )
     return ar;
 }
 
-cson_kvp * cson_kvp_alloc()
+cson_kvp * cson_kvp_alloc(void)
 {
     cson_kvp * kvp = (cson_kvp*)cson_malloc(sizeof(cson_kvp),"cson_kvp");
     if( kvp )
@@ -2776,8 +2776,8 @@ cson_kvp * cson_kvp_alloc()
 
 int cson_array_append( cson_array * ar, cson_value * v )
 {
-    if( !ar || !v ) return cson_rc.ArgError;
-    else if( (ar->list.count+1) < ar->list.count ) return cson_rc.RangeError;
+    if( !ar || !v ) return CSON_RC_ArgError;
+    else if( (ar->list.count+1) < ar->list.count ) return CSON_RC_RangeError;
     else
     {
         if( !ar->list.alloced || (ar->list.count == ar->list.alloced-1))
@@ -2785,7 +2785,7 @@ int cson_array_append( cson_array * ar, cson_value * v )
             unsigned int const n = ar->list.count ? (ar->list.count*2) : 7;
             if( n > cson_value_list_reserve( &ar->list, n ) )
             {
-                return cson_rc.AllocError;
+                return CSON_RC_AllocError;
             }
         }
         return cson_array_set( ar, ar->list.count, v );
@@ -2834,16 +2834,16 @@ cson_value * cson_value_new_bool( char v )
     return v ? &CSON_SPECIAL_VALUES[CSON_VAL_TRUE] : &CSON_SPECIAL_VALUES[CSON_VAL_FALSE];
 }
 
-cson_value * cson_value_true()
+cson_value * cson_value_true(void)
 {
     return &CSON_SPECIAL_VALUES[CSON_VAL_TRUE];
 }
-cson_value * cson_value_false()
+cson_value * cson_value_false(void)
 {
     return &CSON_SPECIAL_VALUES[CSON_VAL_FALSE];
 }
 
-cson_value * cson_value_null()
+cson_value * cson_value_null(void)
 {
     return &CSON_SPECIAL_VALUES[CSON_VAL_NULL];
 }
@@ -2919,8 +2919,8 @@ cson_value * cson_value_new_string( char const * str, unsigned int len )
 
 int cson_array_value_fetch( cson_array const * ar, unsigned int pos, cson_value ** v )
 {
-    if( !ar) return cson_rc.ArgError;
-    if( pos >= ar->list.count ) return cson_rc.RangeError;
+    if( !ar) return CSON_RC_ArgError;
+    if( pos >= ar->list.count ) return CSON_RC_RangeError;
     else
     {
         if(v) *v = ar->list.list[pos];
@@ -2937,7 +2937,7 @@ cson_value * cson_array_get( cson_array const * ar, unsigned int pos )
 
 int cson_array_length_fetch( cson_array const * ar, unsigned int * v )
 {
-    if( ! ar || !v ) return cson_rc.ArgError;
+    if( ! ar || !v ) return CSON_RC_ArgError;
     else
     {
         if(v) *v = ar->list.count;
@@ -2954,7 +2954,7 @@ unsigned int cson_array_length_get( cson_array const * ar )
 
 int cson_array_reserve( cson_array * ar, unsigned int size )
 {
-    if( ! ar ) return cson_rc.ArgError;
+    if( ! ar ) return CSON_RC_ArgError;
     else if( size <= ar->list.alloced )
     {
         /* We don't want to introduce a can of worms by trying to
@@ -2965,7 +2965,7 @@ int cson_array_reserve( cson_array * ar, unsigned int size )
     else
     {
         return (ar->list.alloced > cson_value_list_reserve( &ar->list, size ))
-            ? cson_rc.AllocError
+            ? CSON_RC_AllocError
             : 0
             ;
     }
@@ -2973,12 +2973,12 @@ int cson_array_reserve( cson_array * ar, unsigned int size )
 
 int cson_array_set( cson_array * ar, unsigned int ndx, cson_value * v )
 {
-    if( !ar || !v ) return cson_rc.ArgError;
-    else if( (ndx+1) < ndx) /* overflow */return cson_rc.RangeError;
+    if( !ar || !v ) return CSON_RC_ArgError;
+    else if( (ndx+1) < ndx) /* overflow */return CSON_RC_RangeError;
     else
     {
         unsigned const int len = cson_value_list_reserve( &ar->list, ndx+1 );
-        if( len <= ndx ) return cson_rc.AllocError;
+        if( len <= ndx ) return CSON_RC_AllocError;
         else
         {
             cson_value * old = ar->list.list[ndx];
@@ -3078,14 +3078,14 @@ static void cson_object_sort_props( cson_object * obj )
 
 int cson_object_unset( cson_object * obj, char const * key )
 {
-    if( ! obj || !key || !*key ) return cson_rc.ArgError;
+    if( ! obj || !key || !*key ) return CSON_RC_ArgError;
     else
     {
         unsigned int ndx = 0;
         cson_kvp * kvp = cson_object_search_impl( obj, key, &ndx );
         if( ! kvp )
         {
-            return cson_rc.NotFoundError;
+            return CSON_RC_NotFoundError;
         }
         assert( obj->kvp.count > 0 );
         assert( obj->kvp.list[ndx] == kvp );
@@ -3111,7 +3111,7 @@ int cson_object_unset( cson_object * obj, char const * key )
 
 int cson_object_set_s( cson_object * obj, cson_string * key, cson_value * v )
 {
-    if( !obj || !key ) return cson_rc.ArgError;
+    if( !obj || !key ) return CSON_RC_ArgError;
     else if( NULL == v ) return cson_object_unset( obj, cson_string_cstr(key) );
     else
     {
@@ -3121,7 +3121,7 @@ int cson_object_set_s( cson_object * obj, cson_string * key, cson_value * v )
         vKey = cson_string_value(key);
         assert(vKey && (key==CSON_STR(vKey)));
         if( vKey == CSON_VCAST(obj) ){
-            return cson_rc.ArgError;
+            return CSON_RC_ArgError;
         }
         cKey =  cson_string_cstr(key);
         kvp = cson_object_search_impl( obj, cKey, NULL );
@@ -3144,7 +3144,7 @@ int cson_object_set_s( cson_object * obj, cson_string * key, cson_value * v )
             unsigned int const n = obj->kvp.count ? (obj->kvp.count*2) : 6;
             if( n > cson_kvp_list_reserve( &obj->kvp, n ) )
             {
-                return cson_rc.AllocError;
+                return CSON_RC_AllocError;
             }
         }
         { /* insert new item... */
@@ -3152,7 +3152,7 @@ int cson_object_set_s( cson_object * obj, cson_string * key, cson_value * v )
             kvp = cson_kvp_alloc();
             if( ! kvp )
             {
-                return cson_rc.AllocError;
+                return CSON_RC_AllocError;
             }
             rc = cson_kvp_list_append( &obj->kvp, kvp );
             if( 0 != rc )
@@ -3176,7 +3176,7 @@ int cson_object_set_s( cson_object * obj, cson_string * key, cson_value * v )
 }
 int cson_object_set( cson_object * obj, char const * key, cson_value * v )
 {
-    if( ! obj || !key || !*key ) return cson_rc.ArgError;
+    if( ! obj || !key || !*key ) return CSON_RC_ArgError;
     else if( NULL == v )
     {
         return cson_object_unset( obj, key );
@@ -3184,7 +3184,7 @@ int cson_object_set( cson_object * obj, char const * key, cson_value * v )
     else
     {
         cson_string * cs = cson_new_string(key,strlen(key));
-        if(!cs) return cson_rc.AllocError;
+        if(!cs) return CSON_RC_AllocError;
         else
         {
             int const rc = cson_object_set_s(obj, cs, v);
@@ -3239,9 +3239,9 @@ cson_value * cson_object_take( cson_object * obj, char const * key )
 /** @internal
 
    If p->node is-a Object then value is inserted into the object
-   using p->key. In any other case cson_rc.InternalError is returned.
+   using p->key. In any other case CSON_RC_InternalError is returned.
 
-   Returns cson_rc.AllocError if an allocation fails.
+   Returns CSON_RC_AllocError if an allocation fails.
 
    Returns 0 on success. On error, parsing must be ceased immediately.
    
@@ -3269,14 +3269,14 @@ static int cson_parser_set_key( cson_parser * p, cson_value * val )
             if( obj->kvp.alloced > cson_kvp_list_reserve( &obj->kvp, obj->kvp.count ? (obj->kvp.count*2) : 5 ) )
             {
                 cson_value_free(val);
-                return cson_rc.AllocError;
+                return CSON_RC_AllocError;
             }
         }
         kvp = cson_kvp_alloc();
         if( ! kvp )
         {
             cson_value_free(val);
-            return cson_rc.AllocError;
+            return CSON_RC_AllocError;
         }
         kvp->key = cson_string_value(p->ckey)/*transfer ownership*/;
         assert(0 == kvp->key->refcount);
@@ -3298,7 +3298,7 @@ static int cson_parser_set_key( cson_parser * p, cson_value * val )
     else
     {
         if(val) cson_value_free(val);
-        return p->errNo = cson_rc.InternalError;
+        return p->errNo = CSON_RC_InternalError;
     }
 
 }
@@ -3339,7 +3339,7 @@ static int cson_parser_push_value( cson_parser * p, cson_value * val )
     else
     { /* WTF? */
         assert( 0 && "Internal error in cson_parser code" );
-        return p->errNo = cson_rc.InternalError;
+        return p->errNo = CSON_RC_InternalError;
     }
 }
 
@@ -3351,7 +3351,7 @@ static int cson_parse_callback( void * cx, int type, JSON_value const * value )
 {
     cson_parser * p = (cson_parser *)cx;
     int rc = 0;
-#define ALLOC_V(T,V) cson_value * v = cson_value_new_##T(V); if( ! v ) { rc = cson_rc.AllocError; break; }
+#define ALLOC_V(T,V) cson_value * v = cson_value_new_##T(V); if( ! v ) { rc = CSON_RC_AllocError; break; }
     switch(type) {
       case JSON_T_ARRAY_BEGIN:
       case JSON_T_OBJECT_BEGIN: {
@@ -3360,7 +3360,7 @@ static int cson_parse_callback( void * cx, int type, JSON_value const * value )
               : cson_value_new_object();
           if( ! obja )
           {
-              p->errNo = cson_rc.AllocError;
+              p->errNo = CSON_RC_AllocError;
               break;
           }
           if( 0 != rc ) break;
@@ -3397,7 +3397,7 @@ static int cson_parse_callback( void * cx, int type, JSON_value const * value )
       case JSON_T_OBJECT_END: {
           if( 0 == p->stack.list.count )
           {
-              rc = cson_rc.RangeError;
+              rc = CSON_RC_RangeError;
               break;
           }
 #if CSON_OBJECT_PROPS_SORT
@@ -3483,7 +3483,7 @@ static int cson_parse_callback( void * cx, int type, JSON_value const * value )
           p->ckey = cson_new_string( value->vu.str.value, value->vu.str.length );
           if( ! p->ckey )
           {
-              rc = cson_rc.AllocError;
+              rc = CSON_RC_AllocError;
               break;
           }
           ++p->totalKeyCount;
@@ -3492,13 +3492,13 @@ static int cson_parse_callback( void * cx, int type, JSON_value const * value )
       case JSON_T_STRING: {
           cson_value * v = cson_value_new_string( value->vu.str.value, value->vu.str.length );
           rc = ( NULL == v ) 
-            ? cson_rc.AllocError
+            ? CSON_RC_AllocError
             : cson_parser_push_value( p, v );
           break;
       }
       default:
           assert(0);
-          rc = cson_rc.InternalError;
+          rc = CSON_RC_InternalError;
           break;
     }
 #undef ALLOC_V
@@ -3514,18 +3514,18 @@ static int cson_json_err_to_rc( JSON_error jrc )
     switch(jrc)
     {
       case JSON_E_NONE: return 0;
-      case JSON_E_INVALID_CHAR: return cson_rc.Parse_INVALID_CHAR;
-      case JSON_E_INVALID_KEYWORD: return cson_rc.Parse_INVALID_KEYWORD;
-      case JSON_E_INVALID_ESCAPE_SEQUENCE: return cson_rc.Parse_INVALID_ESCAPE_SEQUENCE;
-      case JSON_E_INVALID_UNICODE_SEQUENCE: return cson_rc.Parse_INVALID_UNICODE_SEQUENCE;
-      case JSON_E_INVALID_NUMBER: return cson_rc.Parse_INVALID_NUMBER;
-      case JSON_E_NESTING_DEPTH_REACHED: return cson_rc.Parse_NESTING_DEPTH_REACHED;
-      case JSON_E_UNBALANCED_COLLECTION: return cson_rc.Parse_UNBALANCED_COLLECTION;
-      case JSON_E_EXPECTED_KEY: return cson_rc.Parse_EXPECTED_KEY;
-      case JSON_E_EXPECTED_COLON: return cson_rc.Parse_EXPECTED_COLON;
-      case JSON_E_OUT_OF_MEMORY: return cson_rc.AllocError;
+      case JSON_E_INVALID_CHAR: return CSON_RC_Parse_INVALID_CHAR;
+      case JSON_E_INVALID_KEYWORD: return CSON_RC_Parse_INVALID_KEYWORD;
+      case JSON_E_INVALID_ESCAPE_SEQUENCE: return CSON_RC_Parse_INVALID_ESCAPE_SEQUENCE;
+      case JSON_E_INVALID_UNICODE_SEQUENCE: return CSON_RC_Parse_INVALID_UNICODE_SEQUENCE;
+      case JSON_E_INVALID_NUMBER: return CSON_RC_Parse_INVALID_NUMBER;
+      case JSON_E_NESTING_DEPTH_REACHED: return CSON_RC_Parse_NESTING_DEPTH_REACHED;
+      case JSON_E_UNBALANCED_COLLECTION: return CSON_RC_Parse_UNBALANCED_COLLECTION;
+      case JSON_E_EXPECTED_KEY: return CSON_RC_Parse_EXPECTED_KEY;
+      case JSON_E_EXPECTED_COLON: return CSON_RC_Parse_EXPECTED_COLON;
+      case JSON_E_OUT_OF_MEMORY: return CSON_RC_AllocError;
       default:
-          return cson_rc.InternalError;
+          return CSON_RC_InternalError;
     }
 }
 
@@ -3545,7 +3545,7 @@ static int cson_json_err_to_rc( JSON_error jrc )
 */
 static int cson_parser_clean( cson_parser * p )
 {
-    if( ! p ) return cson_rc.ArgError;
+    if( ! p ) return CSON_RC_ArgError;
     else
     {
         if( p->p )
@@ -3576,7 +3576,7 @@ int cson_parse( cson_value ** tgt, cson_data_source_f src, void * state,
     unsigned int len = 1;
     cson_parse_info info = info_ ? *info_ : cson_parse_info_empty;
     cson_parser p = cson_parser_empty;
-    if( ! tgt || ! src ) return cson_rc.ArgError;
+    if( ! tgt || ! src ) return CSON_RC_ArgError;
     
     {
         JSON_config jopt = {0};
@@ -3589,7 +3589,7 @@ int cson_parse( cson_value ** tgt, cson_data_source_f src, void * state,
         p.p = new_JSON_parser(&jopt);
         if( ! p.p )
         {
-            return cson_rc.AllocError;
+            return CSON_RC_AllocError;
         }
     }
 
@@ -3610,7 +3610,7 @@ int cson_parse( cson_value ** tgt, cson_data_source_f src, void * state,
         {
             rc = cson_json_err_to_rc( JSON_parser_get_last_error(p.p) );
             if(0==rc) rc = p.errNo;
-            if(0==rc) rc = cson_rc.InternalError;
+            if(0==rc) rc = CSON_RC_InternalError;
             info.errorCode = rc;
             break;
         }
@@ -3632,7 +3632,7 @@ int cson_parse( cson_value ** tgt, cson_data_source_f src, void * state,
         rc = cson_json_err_to_rc( JSON_parser_get_last_error(p.p) );
         cson_parser_clean(&p);
         if(0==rc) rc = p.errNo;
-        if(0==rc) rc = cson_rc.InternalError;
+        if(0==rc) rc = CSON_RC_InternalError;
     }
     else
     {
@@ -3654,7 +3654,7 @@ int cson_parse( cson_value ** tgt, cson_data_source_f src, void * state,
         }
         else
         { /* then can happen on empty input. */
-            rc = cson_rc.UnknownError;
+            rc = CSON_RC_UnknownError;
         }
     }
     return rc;
@@ -3773,7 +3773,7 @@ static int cson_str_to_json( char const * str, unsigned int len,
                              char escapeFwdSlash,
                              cson_data_dest_f f, void * state )
 {
-    if( NULL == f ) return cson_rc.ArgError;
+    if( NULL == f ) return CSON_RC_ArgError;
     else if( !str || !*str || (0 == len) )
     { /* special case for 0-length strings. */
         return f( state, "\"\"", 2 );
@@ -3879,22 +3879,22 @@ static int cson_str_to_json( char const * str, unsigned int len,
 #endif
                 memset(ubuf,0,UBLen);
                 if(ch <= 0xFFFF){
-                    rc = sprintf(ubuf, "\\u%04x",ch);
+                    rc = snprintf(ubuf, (size_t)UBLen, "\\u%04x",ch);
                     if( rc != 6 )
                     {
-                        rc = cson_rc.RangeError;
+                        rc = CSON_RC_RangeError;
                         break;
                     }
                     rc = f( state, ubuf, 6 );
                 }else{ /* encode as a UTF16 surrogate pair */
                     /* http://unicodebook.readthedocs.org/en/latest/unicode_encodings.html#surrogates */
                     ch -= 0x10000;
-                    rc = sprintf(ubuf, "\\u%04x\\u%04x",
-                                 (0xd800 | (ch>>10)),
-                                 (0xdc00 | (ch & 0x3ff)));
+                    rc = snprintf(ubuf, (size_t)UBLen, "\\u%04x\\u%04x",
+                                  (0xd800 | (ch>>10)),
+                                  (0xdc00 | (ch & 0x3ff)));
                     if( rc != 12 )
                     {
-                        rc = cson_rc.RangeError;
+                        rc = CSON_RC_RangeError;
                         break;
                     }
                     rc = f( state, ubuf, 12 );
@@ -3912,7 +3912,7 @@ static int cson_str_to_json( char const * str, unsigned int len,
 
 int cson_object_iter_init( cson_object const * obj, cson_object_iterator * iter )
 {
-    if( ! obj || !iter ) return cson_rc.ArgError;
+    if( ! obj || !iter ) return CSON_RC_ArgError;
     else
     {
         iter->obj = obj;
@@ -3938,7 +3938,7 @@ cson_kvp * cson_object_iter_next( cson_object_iterator * iter )
 
 static int cson_output_null( cson_data_dest_f f, void * state )
 {
-    if( !f ) return cson_rc.ArgError;
+    if( !f ) return CSON_RC_ArgError;
     else
     {
         return f(state, "null", 4);
@@ -3947,7 +3947,7 @@ static int cson_output_null( cson_data_dest_f f, void * state )
 
 static int cson_output_bool( cson_value const * src, cson_data_dest_f f, void * state )
 {
-    if( !f ) return cson_rc.ArgError;
+    if( !f ) return CSON_RC_ArgError;
     else
     {
         char const v = cson_value_get_bool(src);
@@ -3957,19 +3957,18 @@ static int cson_output_bool( cson_value const * src, cson_data_dest_f f, void * 
 
 static int cson_output_integer( cson_value const * src, cson_data_dest_f f, void * state )
 {
-    if( !f ) return cson_rc.ArgError;
-    else if( !cson_value_is_integer(src) ) return cson_rc.TypeError;
+    if( !f ) return CSON_RC_ArgError;
+    else if( !cson_value_is_integer(src) ) return CSON_RC_TypeError;
     else
     {
         enum { BufLen = 100 };
         char b[BufLen];
         int rc;
         memset( b, 0, BufLen );
-        rc = sprintf( b, "%"CSON_INT_T_PFMT, cson_value_get_integer(src) )
-            /* Reminder: snprintf() is C99 */
-            ;
+        rc = snprintf( b, (size_t)BufLen, "%"CSON_INT_T_PFMT,
+                       cson_value_get_integer(src) );
         return ( rc<=0 )
-            ? cson_rc.RangeError
+            ? CSON_RC_RangeError
             : f( state, b, (unsigned int)rc )
             ;
     }
@@ -3977,8 +3976,8 @@ static int cson_output_integer( cson_value const * src, cson_data_dest_f f, void
 
 static int cson_output_double( cson_value const * src, cson_data_dest_f f, void * state )
 {
-    if( !f ) return cson_rc.ArgError;
-    else if( !cson_value_is_double(src) ) return cson_rc.TypeError;
+    if( !f ) return CSON_RC_ArgError;
+    else if( !cson_value_is_double(src) ) return CSON_RC_TypeError;
     else
     {
         enum { BufLen = 128 /* this must be relatively large or huge
@@ -3988,10 +3987,9 @@ static int cson_output_double( cson_value const * src, cson_data_dest_f f, void 
         char b[BufLen];
         int rc;
         memset( b, 0, BufLen );
-        rc = sprintf( b, "%"CSON_DOUBLE_T_PFMT, cson_value_get_double(src) )
-            /* Reminder: snprintf() is C99 */
-            ;
-        if( rc<=0 ) return cson_rc.RangeError;
+        rc = snprintf( b, (size_t)BufLen, "%"CSON_DOUBLE_T_PFMT,
+                       cson_value_get_double(src) );
+        if( rc<=0 ) return CSON_RC_RangeError;
         else if(1)
         { /* Strip trailing zeroes before passing it on... */
             unsigned int urc = (unsigned int)rc;
@@ -4014,8 +4012,8 @@ static int cson_output_double( cson_value const * src, cson_data_dest_f f, void 
 
 static int cson_output_string( cson_value const * src, char escapeFwdSlash, cson_data_dest_f f, void * state )
 {
-    if( !f ) return cson_rc.ArgError;
-    else if( ! cson_value_is_string(src) ) return cson_rc.TypeError;
+    if( !f ) return CSON_RC_ArgError;
+    else if( ! cson_value_is_string(src) ) return CSON_RC_TypeError;
     else
     {
         cson_string const * str = cson_value_get_string(src);
@@ -4077,7 +4075,7 @@ static int cson_output_object( cson_value const * src, cson_data_dest_f f, void 
 static int cson_output_impl( cson_value const * src, cson_data_dest_f f, void * state,
                              cson_output_opt const * fmt, unsigned int level )
 {
-    if( ! src || !f || !src->api ) return cson_rc.ArgError;
+    if( ! src || !f || !src->api ) return CSON_RC_ArgError;
     else
     {
         int rc = 0;
@@ -4107,7 +4105,7 @@ static int cson_output_impl( cson_value const * src, cson_data_dest_f f, void * 
               rc = cson_output_object( src, f, state, fmt, level );
               break;
           default:
-              rc = cson_rc.TypeError;
+              rc = CSON_RC_TypeError;
               break;
         }
         return rc;
@@ -4118,9 +4116,9 @@ static int cson_output_impl( cson_value const * src, cson_data_dest_f f, void * 
 static int cson_output_array( cson_value const * src, cson_data_dest_f f, void * state,
                               cson_output_opt const * fmt, unsigned int level )
 {
-    if( !src || !f || !fmt ) return cson_rc.ArgError;
-    else if( ! cson_value_is_array(src) ) return cson_rc.TypeError;
-    else if( level > fmt->maxDepth ) return cson_rc.RangeError;
+    if( !src || !f || !fmt ) return CSON_RC_ArgError;
+    else if( ! cson_value_is_array(src) ) return CSON_RC_TypeError;
+    else if( level > fmt->maxDepth ) return CSON_RC_RangeError;
     else
     {
         int rc;
@@ -4179,9 +4177,9 @@ static int cson_output_array( cson_value const * src, cson_data_dest_f f, void *
 static int cson_output_object( cson_value const * src, cson_data_dest_f f, void * state,
                                cson_output_opt const * fmt, unsigned int level )
 {
-    if( !src || !f || !fmt ) return cson_rc.ArgError;
-    else if( ! cson_value_is_object(src) ) return cson_rc.TypeError;
-    else if( level > fmt->maxDepth ) return cson_rc.RangeError;
+    if( !src || !f || !fmt ) return CSON_RC_ArgError;
+    else if( ! cson_value_is_object(src) ) return CSON_RC_TypeError;
+    else if( level > fmt->maxDepth ) return CSON_RC_RangeError;
     else
     {
         int rc;
@@ -4269,13 +4267,13 @@ int cson_output( cson_value const * src, cson_data_dest_f f,
 
 int cson_data_dest_FILE( void * state, void const * src, unsigned int n )
 {
-    if( ! state ) return cson_rc.ArgError;
+    if( ! state ) return CSON_RC_ArgError;
     else if( !src || !n ) return 0;
     else
     {
         return ( 1 == fwrite( src, n, 1, (FILE*) state ) )
             ? 0
-            : cson_rc.IOError;
+            : CSON_RC_IOError;
     }
 }
 
@@ -4302,11 +4300,11 @@ int cson_output_FILE( cson_value const * src, FILE * dest, cson_output_opt const
 
 int cson_output_filename( cson_value const * src, char const * dest, cson_output_opt const * fmt )
 {
-    if( !src || !dest ) return cson_rc.ArgError;
+    if( !src || !dest ) return CSON_RC_ArgError;
     else
     {
         FILE * f = fopen(dest,"wb");
-        if( !f ) return cson_rc.IOError;
+        if( !f ) return CSON_RC_IOError;
         else
         {
             int const rc = cson_output_FILE( src, f, fmt );
@@ -4319,11 +4317,11 @@ int cson_output_filename( cson_value const * src, char const * dest, cson_output
 int cson_parse_filename( cson_value ** tgt, char const * src,
                          cson_parse_opt const * opt, cson_parse_info * err )
 {
-    if( !src || !tgt ) return cson_rc.ArgError;
+    if( !src || !tgt ) return CSON_RC_ArgError;
     else
     {
         FILE * f = fopen(src, "r");
-        if( !f ) return cson_rc.IOError;
+        if( !f ) return CSON_RC_IOError;
         else
         {
             int const rc = cson_parse_FILE( tgt, f, opt, err );
@@ -4351,7 +4349,7 @@ typedef struct cson_data_source_StringSource_
 */
 static int cson_data_source_StringSource( void * state, void * dest, unsigned int * n )
 {
-    if( !state || !n || !dest ) return cson_rc.ArgError;
+    if( !state || !n || !dest ) return CSON_RC_ArgError;
     else if( !*n ) return 0 /* ignore this */;
     else
     {
@@ -4370,8 +4368,8 @@ static int cson_data_source_StringSource( void * state, void * dest, unsigned in
 int cson_parse_string( cson_value ** tgt, char const * src, unsigned int len,
                        cson_parse_opt const * opt, cson_parse_info * err )
 {
-    if( ! tgt || !src ) return cson_rc.ArgError;
-    else if( !*src || (len<2/*2==len of {} and []*/) ) return cson_rc.RangeError;
+    if( ! tgt || !src ) return CSON_RC_ArgError;
+    else if( !*src || (len<2/*2==len of {} and []*/) ) return CSON_RC_RangeError;
     else
     {
         cson_data_source_StringSource_t ss;
@@ -4388,14 +4386,14 @@ int cson_parse_buffer( cson_value ** tgt,
                        cson_parse_info * err )
 {
     return ( !tgt || !buf || !buf->mem || !buf->used )
-        ? cson_rc.ArgError
+        ? CSON_RC_ArgError
         : cson_parse_string( tgt, (char const *)buf->mem,
                              buf->used, opt, err );
 }
 
 int cson_buffer_reserve( cson_buffer * buf, cson_size_t n )
 {
-    if( ! buf ) return cson_rc.ArgError;
+    if( ! buf ) return CSON_RC_ArgError;
     else if( 0 == n )
     {
         cson_free(buf->mem, "cson_buffer::mem");
@@ -4409,7 +4407,7 @@ int cson_buffer_reserve( cson_buffer * buf, cson_size_t n )
     else
     {
         unsigned char * x = (unsigned char *)cson_realloc( buf->mem, n, "cson_buffer::mem" );
-        if( ! x ) return cson_rc.AllocError;
+        if( ! x ) return CSON_RC_AllocError;
         memset( x + buf->used, 0, n - buf->used );
         buf->mem = x;
         buf->capacity = n;
@@ -4436,7 +4434,7 @@ cson_size_t cson_buffer_fill( cson_buffer * buf, char c )
 */
 static int cson_data_dest_cson_buffer( void * arg, void const * data_, unsigned int n )
 {
-    if( !arg ) return cson_rc.ArgError;
+    if( !arg ) return CSON_RC_ArgError;
     else if( ! n ) return 0;
     else
     {
@@ -4448,8 +4446,8 @@ static int cson_data_dest_cson_buffer( void * arg, void const * data_, unsigned 
         {
             const cson_size_t oldCap = sb->capacity;
             const cson_size_t asz = npos * 2;
-            if( asz < npos ) return cson_rc.ArgError; /* overflow */
-            else if( 0 != cson_buffer_reserve( sb, asz ) ) return cson_rc.AllocError;
+            if( asz < npos ) return CSON_RC_ArgError; /* overflow */
+            else if( 0 != cson_buffer_reserve( sb, asz ) ) return CSON_RC_AllocError;
             assert( (sb->capacity > oldCap) && "Internal error in memory buffer management!" );
             /* make sure it gets NUL terminated. */
             memset( sb->mem + oldCap, 0, (sb->capacity - oldCap) );
@@ -4535,15 +4533,15 @@ static char cson_next_token( char const ** inp, char separator, char const ** en
 
 int cson_object_fetch_sub2( cson_object const * obj, cson_value ** tgt, char const * path )
 {
-    if( ! obj || !path ) return cson_rc.ArgError;
-    else if( !*path || !*(1+path) ) return cson_rc.RangeError;
+    if( ! obj || !path ) return CSON_RC_ArgError;
+    else if( !*path || !*(1+path) ) return CSON_RC_RangeError;
     else return cson_object_fetch_sub(obj, tgt, path+1, *path);
 }
 
 int cson_object_fetch_sub( cson_object const * obj, cson_value ** tgt, char const * path, char sep )
 {
-    if( ! obj || !path ) return cson_rc.ArgError;
-    else if( !*path || !sep ) return cson_rc.RangeError;
+    if( ! obj || !path ) return CSON_RC_ArgError;
+    else if( !*path || !sep ) return CSON_RC_RangeError;
     else
     {
         char const * beg = path;
@@ -4567,7 +4565,7 @@ int cson_object_fetch_sub( cson_object const * obj, cson_value ** tgt, char cons
                 end = NULL;
             }
         }
-        if( 0 == tokenCount ) return cson_rc.RangeError;
+        if( 0 == tokenCount ) return CSON_RC_RangeError;
         beg = path;
         end = NULL;
         for( i = 0; i < tokenCount; ++i, beg=end, end=NULL )
@@ -4577,12 +4575,12 @@ int cson_object_fetch_sub( cson_object const * obj, cson_value ** tgt, char cons
             assert( beg != end );
             assert( end > beg );
             len = end - beg;
-            if( len > (BufSize-1) ) return cson_rc.RangeError;
+            if( len > (BufSize-1) ) return CSON_RC_RangeError;
             memset( buf, 0, len + 1 );
             memcpy( buf, beg, len );
             buf[len] = 0;
             cv = cson_object_get( curObj, buf );
-            if( NULL == cv ) return cson_rc.NotFoundError;
+            if( NULL == cv ) return CSON_RC_NotFoundError;
             else if( i == (tokenCount-1) )
             {
                 if(tgt) *tgt = cv;
@@ -4596,11 +4594,11 @@ int cson_object_fetch_sub( cson_object const * obj, cson_value ** tgt, char cons
             /* TODO: arrays. Requires numeric parsing for the index. */
             else
             {
-                return cson_rc.NotFoundError;
+                return CSON_RC_NotFoundError;
             }
         }
         assert( i == tokenCount );
-        return cson_rc.NotFoundError;
+        return CSON_RC_NotFoundError;
     }
 }
 
@@ -4840,12 +4838,13 @@ char * cson_pod_to_string( cson_value const * orig )
               cson_string const * jstr = cson_value_get_string(orig);
               unsigned const int slen = cson_string_length_bytes( jstr );
               assert( NULL != jstr );
-              v = cson_strdup( cson_string_cstr( jstr ), slen ); 
+              v = cson_strdup( cson_string_cstr( jstr ), slen );
               break;
           }
           case CSON_TYPE_INTEGER: {
               char buf[BufSize] = {0};
-              if( 0 < sprintf( v, "%"CSON_INT_T_PFMT, cson_value_get_integer(orig)) )
+              if( 0 < snprintf( v, (size_t)BufSize, "%"CSON_INT_T_PFMT,
+                                cson_value_get_integer(orig)) )
               {
                   v = cson_strdup( buf, strlen(buf) );
               }
@@ -4853,7 +4852,8 @@ char * cson_pod_to_string( cson_value const * orig )
           }
           case CSON_TYPE_DOUBLE: {
               char buf[BufSize] = {0};
-              if( 0 < sprintf( v, "%"CSON_DOUBLE_T_PFMT, cson_value_get_double(orig)) )
+              if( 0 < snprintf( v, (size_t)BufSize, "%"CSON_DOUBLE_T_PFMT,
+                                cson_value_get_double(orig)) )
               {
                   v = cson_strdup( buf, strlen(buf) );
               }
@@ -4893,12 +4893,13 @@ char * cson_pod_to_string( cson_value const * orig )
               cson_string const * jstr = cson_value_get_string(orig);
               unsigned const int slen = cson_string_length_bytes( jstr );
               assert( NULL != jstr );
-              v = cson_strdup( cson_string_cstr( jstr ), slen ); 
+              v = cson_strdup( cson_string_cstr( jstr ), slen );
               break;
           }
           case CSON_TYPE_INTEGER: {
               char buf[BufSize] = {0};
-              if( 0 < sprintf( v, "%"CSON_INT_T_PFMT, cson_value_get_integer(orig)) )
+              if( 0 < snprintf( v, (size_t)BufSize, "%"CSON_INT_T_PFMT,
+                               cson_value_get_integer(orig)) )
               {
                   v = cson_strdup( buf, strlen(buf) );
               }
@@ -4906,7 +4907,8 @@ char * cson_pod_to_string( cson_value const * orig )
           }
           case CSON_TYPE_DOUBLE: {
               char buf[BufSize] = {0};
-              if( 0 < sprintf( v, "%"CSON_DOUBLE_T_PFMT, cson_value_get_double(orig)) )
+              if( 0 < snprintf( v, (size_t)BufSize, "%"CSON_DOUBLE_T_PFMT,
+                                cson_value_get_double(orig)) )
               {
                   v = cson_strdup( buf, strlen(buf) );
               }
@@ -4990,7 +4992,7 @@ int cson_object_merge( cson_object * dest, cson_object const * src, int flags ){
     char const replace = (flags & CSON_MERGE_REPLACE);
     char const recurse = !(flags & CSON_MERGE_NO_RECURSE);
     cson_kvp const * kvp;
-    if((!dest || !src) || (dest==src)) return cson_rc.ArgError;
+    if((!dest || !src) || (dest==src)) return CSON_RC_ArgError;
     rc = cson_object_iter_init( src, &iter );
     if(rc) return rc;
     while( (kvp = cson_object_iter_next(&iter) ) )
@@ -5054,7 +5056,7 @@ int cson_parse_argv_flags( int argc, char const * const * argv,
     cson_object * o = NULL;
     int rc = 0;
     int i = 0;
-    if(argc<1 || !argc || !tgt) return cson_rc.ArgError;
+    if(argc<1 || !argc || !tgt) return CSON_RC_ArgError;
     o = *tgt ? *tgt : cson_new_object();
     if(count) *count = 0;
     for( i = 0; i < argc; ++i ){
@@ -5070,7 +5072,7 @@ int cson_parse_argv_flags( int argc, char const * const * argv,
         while( *pos && ('=' != *pos)) ++pos;
         k = cson_new_string(key, pos-key);
         if(!k){
-            rc = cson_rc.AllocError;
+            rc = CSON_RC_AllocError;
             break;
         }
         if(!*pos){ /** --key */
@@ -5391,7 +5393,7 @@ cson_value * cson_sqlite3_row_to_object2( sqlite3_stmt * st,
     int rc = 0;
     cson_value * currentValue = NULL;
     int const colCount = sqlite3_column_count(st);
-    if( !colCount || (colCount>(int)cson_array_length_get(colNames)) ) {
+    if( !colCount || (colCount>cson_array_length_get(colNames)) ) {
         return NULL;
     }
     rootV = cson_value_new_object();

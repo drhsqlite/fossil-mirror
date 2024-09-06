@@ -49,7 +49,7 @@ The two ticket tables are called TICKET and TICKETCHNG.
 The default schema (as of this writing) for these two tables is shown
 below:
 
-<blockquote><verbatim>
+<verbatim>
 CREATE TABLE ticket(
   -- Do not change any column that begins with tkt_
   tkt_id INTEGER PRIMARY KEY,
@@ -80,7 +80,7 @@ CREATE TABLE ticketchng(
   icomment TEXT
 );
 CREATE INDEX ticketchng_idx1 ON ticketchng(tkt_id, tkt_mtime);
-</verbatim></blockquote>
+</verbatim>
 
 Generally speaking, there is one row in the TICKETCHNG table for each
 change to each ticket.  In other words, there is one row in the

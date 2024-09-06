@@ -583,9 +583,13 @@ void stash_cmd(void){
     if( g.argc>=2 ){
       int nFile = db_int(0, "SELECT count(*) FROM stashfile WHERE stashid=%d",
                          stashid);
-      char **newArgv = fossil_malloc( sizeof(char*)*(nFile+2) );
+      char **newArgv;
       int i = 2;
       Stmt q;
+      if( nFile==0 ){
+        fossil_fatal("No modified files match the provided pattern.");
+      }
+      newArgv = fossil_malloc( sizeof(char*)*(nFile+2) );
       db_prepare(&q,"SELECT origname FROM stashfile WHERE stashid=%d", stashid);
       while( db_step(&q)==SQLITE_ROW ){
         newArgv[i++] = mprintf("%s%s", g.zLocalRoot, db_column_text(&q, 0));
@@ -595,7 +599,6 @@ void stash_cmd(void){
       newArgv[1] = 0;
       g.argv = newArgv;
       g.argc = nFile+2;
-      if( nFile==0 ) return;
     }
     /* Make sure the stash has committed before running the revert, so that
     ** we have a copy of the changes before deleting them. */

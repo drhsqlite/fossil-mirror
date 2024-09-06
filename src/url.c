@@ -23,26 +23,23 @@
 
 #ifdef _WIN32
 #include <io.h>
-#ifndef isatty
-#define isatty(d) _isatty(d)
-#endif
-#ifndef fileno
-#define fileno(s) _fileno(s)
-#endif
 #endif
 
 #if INTERFACE
 /*
 ** Flags for url_parse()
 */
-#define URL_PROMPT_PW        0x001  /* Prompt for password if needed */
-#define URL_REMEMBER         0x002  /* Remember the url for later reuse */
-#define URL_ASK_REMEMBER_PW  0x004  /* Ask whether to remember prompted pw */
-#define URL_REMEMBER_PW      0x008  /* Should remember pw */
-#define URL_PROMPTED         0x010  /* Prompted for PW already */
-#define URL_OMIT_USER        0x020  /* Omit the user name from URL */
-#define URL_USE_CONFIG       0x040  /* Use remembered URLs from CONFIG table */
-#define URL_USE_PARENT       0x080  /* Use the URL of the parent project */
+#define URL_PROMPT_PW        0x0001  /* Prompt for password if needed */
+#define URL_REMEMBER         0x0002  /* Remember the url for later reuse */
+#define URL_ASK_REMEMBER_PW  0x0004  /* Ask whether to remember prompted pw */
+#define URL_REMEMBER_PW      0x0008  /* Should remember pw */
+#define URL_PROMPTED         0x0010  /* Prompted for PW already */
+#define URL_OMIT_USER        0x0020  /* Omit the user name from URL */
+#define URL_USE_CONFIG       0x0040  /* Use remembered URLs from CONFIG table */
+#define URL_USE_PARENT       0x0080  /* Use the URL of the parent project */
+#define URL_SSH_PATH         0x0100  /* Include PATH= on SSH syncs */
+#define URL_SSH_RETRY        0x0200  /* This a retry of an SSH */
+#define URL_SSH_EXE          0x0400  /* ssh: URL contains fossil= query param*/
 
 /*
 ** The URL related data used with this subsystem.
@@ -91,7 +88,7 @@ struct UrlData {
 **      canonical   The URL in canonical form, omitting the password
 **
 ** If URL_USECONFIG is set and zUrl is NULL or "default", then parse the
-** URL stored in last-sync-url and last-sync-pw of the CONFIG table.  Or if 
+** URL stored in last-sync-url and last-sync-pw of the CONFIG table.  Or if
 ** URL_USE_PARENT is also set, then use parent-project-url and
 ** parent-project-pw from the CONFIG table instead of last-sync-url
 ** and last-sync-pw.
@@ -112,7 +109,7 @@ void url_parse_local(
   int i, j, c;
   char *zFile = 0;
 
-  pUrlData->pwConfig = 0;
+  memset(pUrlData, 0, sizeof(*pUrlData));
   if( urlFlags & URL_USE_CONFIG ){
     if( zUrl==0 || strcmp(zUrl,"default")==0 ){
       const char *zPwConfig = "last-sync-pw";
@@ -161,8 +158,6 @@ void url_parse_local(
     char *zExe;
     char cQuerySep = '?';
 
-    pUrlData->isFile = 0;
-    pUrlData->useProxy = 0;
     if( zUrl[4]=='s' ){
       pUrlData->isHttps = 1;
       pUrlData->protocol = "https";
@@ -257,11 +252,13 @@ void url_parse_local(
         i++;
       }
       if( fossil_strcmp(zName,"fossil")==0 ){
+        fossil_free(pUrlData->fossil);
         pUrlData->fossil = fossil_strdup(zValue);
         dehttpize(pUrlData->fossil);
         fossil_free(zExe);
         zExe = mprintf("%cfossil=%T", cQuerySep, pUrlData->fossil);
         cQuerySep = '&';
+        urlFlags |= URL_SSH_EXE;
       }
     }
 
@@ -319,11 +316,12 @@ void url_parse_local(
     pUrlData->name = mprintf("%b", &cfile);
     pUrlData->canonical = mprintf("file://%T", pUrlData->name);
     blob_reset(&cfile);
-  }else if( pUrlData->user!=0 && pUrlData->passwd==0 
+  }else if( pUrlData->user!=0 && pUrlData->passwd==0
          && (urlFlags & URL_PROMPT_PW)!=0 ){
     url_prompt_for_password_local(pUrlData);
   }else if( pUrlData->user!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) ){
-    if( isatty(fileno(stdin)) && ( urlFlags & URL_REMEMBER_PW )==0 ){
+    if( fossil_isatty(fossil_fileno(stdin))
+        && ( urlFlags & URL_REMEMBER_PW )==0 ){
       if( save_password_prompt(pUrlData->passwd) ){
         pUrlData->flags = urlFlags |= URL_REMEMBER_PW;
       }else{
@@ -415,6 +413,15 @@ void url_unparse(UrlData *p){
 }
 
 /*
+** Move a URL parse from one UrlData object to another.
+*/
+void url_move_parse(UrlData *pTo, UrlData *pFrom){
+  url_unparse(pTo);
+  memcpy(pTo, pFrom, sizeof(*pTo));
+  memset(pFrom, 0, sizeof(*pFrom));
+}
+
+/*
 ** Parse the given URL, which describes a sync server.  Populate variables
 ** in the global "g.url" structure as shown below.  If zUrl is NULL, then
 ** parse the URL given in the last-sync-url setting, taking the password
@@ -457,6 +464,32 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
 }
 
 /*
+** Print the content of g.url
+*/
+void urlparse_print(int showPw){
+  fossil_print("g.url.isFile    = %d\n", g.url.isFile);
+  fossil_print("g.url.isHttps   = %d\n", g.url.isHttps);
+  fossil_print("g.url.isSsh     = %d\n", g.url.isSsh);
+  fossil_print("g.url.protocol  = %s\n", g.url.protocol);
+  fossil_print("g.url.name      = %s\n", g.url.name);
+  fossil_print("g.url.port      = %d\n", g.url.port);
+  fossil_print("g.url.dfltPort  = %d\n", g.url.dfltPort);
+  fossil_print("g.url.hostname  = %s\n", g.url.hostname);
+  fossil_print("g.url.path      = %s\n", g.url.path);
+  fossil_print("g.url.user      = %s\n", g.url.user);
+  if( showPw || g.url.pwConfig==0 ){
+    fossil_print("g.url.passwd    = %s\n", g.url.passwd);
+  }else{
+    fossil_print("g.url.passwd    = ************\n");
+  }
+  fossil_print("g.url.pwConfig  = %s\n", g.url.pwConfig);
+  fossil_print("g.url.canonical = %s\n", g.url.canonical);
+  fossil_print("g.url.fossil    = %s\n", g.url.fossil);
+  fossil_print("g.url.flags     = 0x%04x\n", g.url.flags);
+  fossil_print("url_full(g.url) = %z\n", url_full(&g.url));
+}
+
+/*
 ** COMMAND: test-urlparser
 **
 ** Usage: %fossil test-urlparser URL ?options?
@@ -484,26 +517,7 @@ void cmd_test_urlparser(void){
   }
   url_parse(g.argv[2], fg);
   for(i=0; i<2; i++){
-    fossil_print("g.url.isFile    = %d\n", g.url.isFile);
-    fossil_print("g.url.isHttps   = %d\n", g.url.isHttps);
-    fossil_print("g.url.isSsh     = %d\n", g.url.isSsh);
-    fossil_print("g.url.protocol  = %s\n", g.url.protocol);
-    fossil_print("g.url.name      = %s\n", g.url.name);
-    fossil_print("g.url.port      = %d\n", g.url.port);
-    fossil_print("g.url.dfltPort  = %d\n", g.url.dfltPort);
-    fossil_print("g.url.hostname  = %s\n", g.url.hostname);
-    fossil_print("g.url.path      = %s\n", g.url.path);
-    fossil_print("g.url.user      = %s\n", g.url.user);
-    if( showPw || g.url.pwConfig==0 ){
-      fossil_print("g.url.passwd    = %s\n", g.url.passwd);
-    }else{
-      fossil_print("g.url.passwd    = ************\n");
-    }
-    fossil_print("g.url.pwConfig  = %s\n", g.url.pwConfig);
-    fossil_print("g.url.canonical = %s\n", g.url.canonical);
-    fossil_print("g.url.fossil    = %s\n", g.url.fossil);
-    fossil_print("g.url.flags     = 0x%02x\n", g.url.flags);
-    fossil_print("url_full(g.url) = %z\n", url_full(&g.url));
+    urlparse_print(showPw);
     if( g.url.isFile || g.url.isSsh ) break;
     if( i==0 ){
       fossil_print("********\n");
@@ -718,7 +732,7 @@ char *url_render(
 */
 void url_prompt_for_password_local(UrlData *pUrlData){
   if( pUrlData->isSsh || pUrlData->isFile ) return;
-  if( isatty(fileno(stdin))
+  if( fossil_isatty(fossil_fileno(stdin))
    && (pUrlData->flags & URL_PROMPT_PW)!=0
    && (pUrlData->flags & URL_PROMPTED)==0
   ){
@@ -779,7 +793,7 @@ void url_remember(void){
 void url_get_password_if_needed(void){
   if( (g.url.user && g.url.user[0])
    && (g.url.passwd==0 || g.url.passwd[0]==0)
-   && isatty(fileno(stdin))
+   && fossil_isatty(fossil_fileno(stdin))
   ){
     url_prompt_for_password();
   }
@@ -793,7 +807,7 @@ void url_get_password_if_needed(void){
 **       elided.
 **
 **    *  If the URL is just a domain name, without a path, then use the
-**       first element of the domain name, except skip over "www." if 
+**       first element of the domain name, except skip over "www." if
 **       present and if there is a ".com" or ".org" or similar suffix.
 **
 ** The string returned is obtained from fossil_malloc().  NULL might be

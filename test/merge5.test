@@ -25,7 +25,7 @@ protOut {
 fossil sqlite3 --no-repository reacts badly to SQL dumped from
 repositories created from fossil older than version 2.0.
 }
-test merge5-sqlite3-issue false knownBug
+#test merge5-sqlite3-issue false knownBug
 test_cleanup_then_return
 
 # Verify the results of a check-out

@@ -142,6 +142,11 @@ static void rebuild_update_schema(void){
   /* Do the fossil-2.0 updates to the schema.  (2017-02-28)
   */
   rebuild_schema_update_2_0();
+
+  /* Add the user.jx and reportfmt.jx columns if they are missing. (2022-11-18)
+  */
+  user_update_user_table();
+  report_update_reportfmt_table();
 }
 
 /*
@@ -663,7 +668,7 @@ void repack_command(void){
 **   --index           Always add in the full-text search index
 **   --noverify        Skip the verification of changes to the BLOB table
 **   --noindex         Always omit the full-text search index
-**   --pagesize N      Set the database pagesize to N. (512..65536 and power of 2)
+**   --pagesize N      Set the database pagesize to N (512..65536, power of 2)
 **   --quiet           Only show output if there are errors
 **   --stats           Show artifact statistics after rebuilding
 **   --vacuum          Run VACUUM on the database after rebuilding
@@ -1397,7 +1402,8 @@ void reconstruct_cmd(void) {
   fossil_print("project-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id: %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  fossil_print("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
+  fossil_print("admin-user: %s (initial password is \"%s\")\n", g.zLogin,
+               zPassword);
   hash_user_password(g.zLogin);
 }
 

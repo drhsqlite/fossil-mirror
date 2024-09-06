@@ -193,6 +193,10 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/eagle/details.txt \
   $(SRCDIR)/../skins/eagle/footer.txt \
   $(SRCDIR)/../skins/eagle/header.txt \
+  $(SRCDIR)/../skins/etienne/css.txt \
+  $(SRCDIR)/../skins/etienne/details.txt \
+  $(SRCDIR)/../skins/etienne/footer.txt \
+  $(SRCDIR)/../skins/etienne/header.txt \
   $(SRCDIR)/../skins/khaki/css.txt \
   $(SRCDIR)/../skins/khaki/details.txt \
   $(SRCDIR)/../skins/khaki/footer.txt \
@@ -269,6 +273,7 @@ EXTRA_FILES = \
   $(SRCDIR)/style.chat.css \
   $(SRCDIR)/style.fileedit.css \
   $(SRCDIR)/style.pikchrshow.css \
+  $(SRCDIR)/style.uvlist.css \
   $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \

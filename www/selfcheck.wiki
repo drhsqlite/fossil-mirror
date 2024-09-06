@@ -1,7 +1,5 @@
 <title>Fossil Repository Integrity Self-Checks</title>
 
-<h1 align="center">Fossil Repository Integrity Self-Checks</h1>
-
 Fossil is designed with features to give it a high level
 of integrity so that users can have confidence that content will
 never be mangled or lost by Fossil.

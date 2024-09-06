@@ -87,12 +87,6 @@ static unsigned adUnitFlags = 0;
 static int submenuEnable = 1;
 
 /*
-** Disable content-security-policy.
-** Warning:  Do not disable the CSP without careful consideration!
-*/
-static int disableCSP = 0;
-
-/*
 ** Flags for various javascript files needed prior to </body>
 */
 static int needHrefJs = 0;      /* href.js */
@@ -421,6 +415,7 @@ void style_set_current_page(const char *zFormat, ...){
 static void stylesheet_url_var(void){
   char *zBuiltin;              /* Auxiliary page-specific CSS page */
   Blob url;                    /* The URL */
+  const char * zPage = local_zCurrentPage ? local_zCurrentPage : g.zPath;
 
   /* Initialize the URL to its baseline */
   url = empty_blob;
@@ -440,9 +435,9 @@ static void stylesheet_url_var(void){
   ** path information and include the page-specific CSS along with the
   ** default CSS when it delivers the page.
   */
-  zBuiltin = mprintf("style.%s.css", g.zPath);
+  zBuiltin = mprintf("style.%s.css", zPage);
   if( builtin_file(zBuiltin,0)!=0 ){
-    blob_appendf(&url, "/%s", g.zPath);
+    blob_appendf(&url, "/%s", zPage);
   }
   fossil_free(zBuiltin);
 
@@ -454,7 +449,7 @@ static void stylesheet_url_var(void){
     blob_appendf(&url, "&skin=%s&once", skin_in_use());
   }
 
-  /* Generate the CSS URL variable */  
+  /* Generate the CSS URL variable */
   Th_Store("stylesheet_url", blob_str(&url));
   blob_reset(&url);
 }
@@ -474,7 +469,7 @@ static void image_url_var(const char *zImageName){
   zResource = mprintf("%s-image", zImageName);
   zUrl = mprintf("%R/%s?id=%x", zImageName, skin_id(zResource));
   free(zResource);
-  zVarName = mprintf("%s_image_url", zImageName);  
+  zVarName = mprintf("%s_image_url", zImageName);
   Th_Store(zVarName, zUrl);
   free(zVarName);
   free(zUrl);
@@ -599,7 +594,7 @@ char *style_nonce(void){
 ** should be released by the caller.
 */
 char *style_csp(int toHeader){
-  static const char zBackupCSP[] = 
+  static const char zBackupCSP[] =
    "default-src 'self' data:; "
    "script-src 'self' 'nonce-$nonce'; "
    "style-src 'self' 'unsafe-inline'; "
@@ -609,9 +604,8 @@ char *style_csp(int toHeader){
   char *zNonce;
   char *zCsp;
   int i;
-  if( disableCSP ) return fossil_strdup("");
   zFormat = db_get("default-csp",0);
-  if( zFormat==0 ){
+  if( zFormat==0 || zFormat[0]==0 ){
     zFormat = zBackupCSP;
   }
   blob_init(&csp, 0, 0);
@@ -632,22 +626,11 @@ char *style_csp(int toHeader){
 }
 
 /*
-** Disable content security policy for the current page.
-** WARNING:  Do not do this lightly!
-**
-** This routine must be called before the CSP is sued by 
-** style_header().
-*/
-void style_disable_csp(void){
-  disableCSP = 1;
-}
-
-/*
 ** Default HTML page header text through <body>.  If the repository-specific
 ** header template lacks a <body> tag, then all of the following is
 ** prepended.
 */
-static const char zDfltHeader[] = 
+static const char zDfltHeader[] =
 @ <html>
 @ <head>
 @ <meta charset="UTF-8">
@@ -672,7 +655,7 @@ const char *get_default_header(){
 /*
 ** The default TCL list that defines the main menu.
 */
-static const char zDfltMainMenu[] = 
+static const char zDfltMainMenu[] =
 @ Home      /home        *              {}
 @ Timeline  /timeline    {o r j}        {}
 @ Files     /dir?ci=tip  oh             desktoponly
@@ -797,8 +780,8 @@ static void style_init_th1_vars(const char *zTitle){
   if( g.ftntsIssues[0] || g.ftntsIssues[1] ||
       g.ftntsIssues[2] || g.ftntsIssues[3] ){
     char buf[80];
-    sqlite3_snprintf(sizeof(buf),buf,"%i %i %i %i",g.ftntsIssues[0],g.ftntsIssues[1],
-                                  g.ftntsIssues[2],g.ftntsIssues[3]);
+    sqlite3_snprintf(sizeof(buf), buf, "%i %i %i %i", g.ftntsIssues[0],
+                     g.ftntsIssues[1], g.ftntsIssues[2], g.ftntsIssues[3]);
     Th_Store("footnotes_issues_counters", buf);
   }
 }
@@ -1008,7 +991,7 @@ void style_finish_page(){
         }
       }
     }
-    strcpy(zClass,"smc-");   /* common prefix for submenu controls */
+    fossil_strcpy(zClass,"smc-");   /* common prefix for submenu controls */
     for(i=0; i<nSubmenuCtrl; i++){
       const char *zQPN = aSubmenuCtrl[i].zName;
       const char *zDisabled = "";
@@ -1287,7 +1270,7 @@ static void page_style_css_append_page_style(Blob *pOut){
 **    *   $background
 **
 ** The output from TH1 becomes the style sheet.  Fossil always reports
-** that the style sheet is cacheable.  
+** that the style sheet is cacheable.
 */
 void page_style_css(void){
   Blob css = empty_blob;
@@ -1327,7 +1310,7 @@ void page_style_css(void){
 /*
 ** All possible capabilities
 */
-static const char allCap[] = 
+static const char allCap[] =
   "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKL";
 
 /*
@@ -1373,18 +1356,43 @@ void page_test_env(void){
 ** This page is a honeypot for spiders and bots.
 */
 void honeypot_page(void){
+  unsigned int uSeed = captcha_seed();
+  const char *zDecoded = captcha_decode(uSeed, 0);
+  int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
+  char *zCaptcha = captcha_render(zDecoded);
   style_header("I think you are a robot");
   @ <p>You seem like a robot.</p>
   @
-  @ <p>Is this wrong?  Are you really a human?  If so, please prove it
-  @ by <a href="%R/login">logging in</a>.
-  if( g.anon.Hyperlink ){
-    @ You can <a href="%R/login?anon=1">log in anonymously</a> if you
-    @ prefer.
+  @ <p>Is that incorrect?  Are you really human?
+  @ If so, please prove it by transcribing the captcha text
+  @ into the entry box below and pressing "Submit".
+  @ <form action="%R/login" method="post">
+  @ <input type="hidden" id="u" name="u" value="anonymous">
+  @ <p>
+  @ Captcha: <input type="text" id="p" name="p" value="">
+  @ <input type="submit" name="in" value="Submit">
+  @ 
+  @ <p>Alternatively, you can <a href="%R/login">log in</a> using an
+  @ existing userid.
+  @
+  @ <p><input type="hidden" name="cs" value="%u(uSeed)">
+  @ <div class="captcha"><table class="captcha"><tr><td>\
+  @ <pre class="captcha">
+  @ %h(zCaptcha)
+  @ </pre></td></tr></table>
+  if( bAutoCaptcha ) {
+     @ <input type="button" value="Fill out captcha" id='autofillButton' \
+     @ data-af='%s(zDecoded)'>
+     builtin_request_js("login.js");
   }
-  @ <p>Sorry for the inconvenience. The point of this is to prevent
-  @ robots from following the countless of hyperlinks in this site and
-  @ soaking up all the available CPU time and network bandwidth.
+  @ </div>
+  free(zCaptcha);
+  @
+  @ <p>We regret this inconvenience. However, robots have become so
+  @ prolific and so aggressive that they will soak up too much CPU time
+  @ and network bandwidth on our servers if allowed to run unchecked.
+  @ Your cooperation in demonstrating that you are human is
+  @ appreciated.
   style_finish_page();
 }
 
@@ -1400,7 +1408,7 @@ void honeypot_page(void){
 ** If zFormat is an empty string, then this is the /test_env page.
 */
 void webpage_error(const char *zFormat, ...){
-  int showAll;
+  int showAll = 0;
   char *zErr = 0;
   int isAuth = 0;
   char zCap[100];
@@ -1481,7 +1489,7 @@ void webpage_error(const char *zFormat, ...){
          break;
       }
     }
-    
+
     @ fossil_exe_id() = %h(fossil_exe_id())<br>
     if( g.perm.Admin ){
       int k;
@@ -1497,6 +1505,10 @@ void webpage_error(const char *zFormat, ...){
     P("HTTP_USER_AGENT");
     P("SERVER_SOFTWARE");
     cgi_print_all(showAll, 0, 0);
+    @ <p><form method="POST" action="%R/test_env">
+    @ <input type="hidden" name="showall" value="%d(showAll)">
+    @ <input type="submit" name="post-test-button" value="POST Test">
+    @ </form>
     if( showAll && blob_size(&g.httpHeader)>0 ){
       @ <hr>
       @ <pre>
@@ -1653,7 +1665,7 @@ void style_labeled_checkbox(const char * zWrapperId,
 **                       atoi(PD("my_field","0")),
 **                       "", 1, "2", 2, "Three", 3,
 **                       NULL);
-** 
+**
 */
 void style_select_list_int(const char * zWrapperId,
                            const char *zFieldName, const char * zLabel,
@@ -1777,7 +1789,7 @@ void style_script_begin(const char *zOrigin, int iLine){
   CX("<script nonce='%s'>/* %s:%d */\n", style_nonce(), zOrigin, iLine);
 }
 
-/* Generate the closing </script> tag 
+/* Generate the closing </script> tag
 */
 void style_script_end(void){
   CX("</script>\n");
@@ -1793,4 +1805,47 @@ void style_emit_noscript_for_js_page(void){
   CX("<noscript><div class='error'>"
      "This page requires JavaScript (ES2015, a.k.a. ES6, or newer)."
      "</div></noscript>");
+}
+
+/*
+** SETTING: robots-txt width=70 block-text keep-empty
+**
+** This setting is the override value for the /robots.txt file that
+** Fossil returns when run as a stand-alone server for a domain.  As
+** Fossil is seldom run as a stand-alone server (and is more commonly
+** deployed as a CGI or SCGI or behind a reverse proxy) this setting
+** rarely needed.  A reasonable default robots.txt is sent if this
+** setting is empty.
+*/
+
+/*
+** WEBPAGE: robots.txt
+**
+** Return text/plain which is the content of the "robots-txt" setting, if
+** such a setting exists and is non-empty.  Or construct an RFC-9309 complaint
+** robots.txt file and return that if there is not "robots.txt" setting.
+**
+** This is useful for robot exclusion in cases where Fossil is run as a
+** stand-alone server in its own domain.  For the more common case where
+** Fossil is run as a CGI, or SCGI, or a server that responding to a reverse
+** proxy, the returns robots.txt file will not be at the top level of the
+** domain, and so it will be pointless.
+*/
+void robotstxt_page(void){
+  const char *z;
+  static const char *zDflt = 
+     "User-agent: *\n"
+     "Allow: /doc\n"
+     "Allow: /home\n"
+     "Allow: /forum\n"
+     "Allow: /technote\n"
+     "Allow: /tktview\n"
+     "Allow: /wiki\n"
+     "Allow: /uv/\n"
+     "Allow: /$\n"
+     "Disallow: /*\n"
+  ;
+  z = db_get("robots-txt",zDflt);
+  cgi_set_content_type("text/plain");
+  cgi_append_content(z, -1);
 }

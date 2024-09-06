@@ -27,11 +27,14 @@ due to excessive requests to expensive pages:
     answer if the same page is requested again.
 
 2.  Page requests can be configured to fail with a
-    “[503 Server Overload][503]” HTTP error if an expensive request is
+    “[503 Server Overload][503]” HTTP error if any request is
     received while the host load average is too high.
 
 Both of these load-control mechanisms are turned off by default, but
-they are recommended for high-traffic sites.
+they are recommended for high-traffic sites. Users with [admin
+permissions](caps/index.md) are exempt from these restrictions,
+provided they are logged in before the load gets too high (login is
+disabled under high load).
 
 The webpage cache is activated using the [`fossil cache init`](/help/cache)
 command-line on the server.  Add a `-R` option to
@@ -51,8 +54,8 @@ easily set it higher on a multi-core server.
 The maximum load average can also be set on the command line using
 commands like this:
 
-        fossil set max-loadavg 1.5
-        fossil all set max-loadavg 1.5
+    fossil setting max-loadavg 1.5
+    fossil all setting max-loadavg 1.5
 
 The second form is especially useful for changing the maximum load
 average simultaneously on a large number of repositories.
@@ -70,7 +73,7 @@ jail](./chroot.md) and you have not mounted the `/proc` virtual file
 system inside that jail. On the [self-hosting Fossil repositories][sh],
 this was accomplished by adding a line to the `/etc/fstab` file:
 
-        chroot_jail_proc /home/www/proc proc ro 0 0
+    chroot_jail_proc /home/www/proc proc ro 0 0
 
 The `/home/www/proc` pathname should be adjusted so that the `/proc`
 component is at the root of the chroot jail, of course.

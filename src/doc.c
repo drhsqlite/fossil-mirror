@@ -155,6 +155,7 @@ static const struct {
   { "ipx",        3, "application/x-ipix"                },
   { "jad",        3, "text/vnd.sun.j2me.app-descriptor"  },
   { "jar",        3, "application/java-archive"          },
+  { "jp2",        3, "image/jp2"                         },
   { "jpe",        3, "image/jpeg"                        },
   { "jpeg",       4, "image/jpeg"                        },
   { "jpg",        3, "image/jpeg"                        },
@@ -254,6 +255,7 @@ static const struct {
   { "snd",        3, "audio/basic"                       },
   { "sol",        3, "application/solids"                },
   { "spl",        3, "application/x-futuresplash"        },
+  { "sql",        3, "application/sql"                   },
   { "src",        3, "application/x-wais-source"         },
   { "step",       4, "application/STEP"                  },
   { "stl",        3, "application/SLA"                   },
@@ -343,7 +345,7 @@ static const char *mimetype_from_name_custom(const char *zSuffix){
   int tokenizerState /* 0=expecting a key, 1=skip next token,
                      ** 2=accept next token */;
   if(once==0){
-    once = 1; 
+    once = 1;
     zList = db_get("mimetypes",0);
     if(zList==0){
       return 0;
@@ -731,9 +733,9 @@ static int isWithinHref(const char *z, int i){
 **       action="$ROOT/..."
 **       href=".../doc/$CURRENT/..."
 **
-** Convert $ROOT to the root URI of the repository, and $CURRENT to the 
+** Convert $ROOT to the root URI of the repository, and $CURRENT to the
 ** version number of the /doc/ document currently being displayed (if any).
-** Allow ' in place of " and any case for href or action.  
+** Allow ' in place of " and any case for href or action.
 **
 ** Efforts are made to limit this translation to cases where the text is
 ** fully contained with an HTML markup element.
@@ -832,9 +834,9 @@ void document_render(
     }
   }else if( fossil_strcmp(zMime, "text/x-pikchr")==0 ){
     style_adunit_config(ADUNIT_RIGHT_OK);
-    style_header("%s", zDefaultTitle);
+    if( !isPopup ) style_header("%s", zDefaultTitle);
     wiki_render_by_mimetype(pBody, zMime);
-    style_finish_page();
+    if( !isPopup ) style_finish_page();
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( Th_AreDocsEnabled() &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
@@ -1213,7 +1215,7 @@ void background_page(void){
 ** in the HTML header using a line like:
 **
 **   <link rel="icon" href="URL-FOR-YOUR-ICON" type="MIMETYPE"/>
-** 
+**
 */
 void favicon_page(void){
   Blob icon;
