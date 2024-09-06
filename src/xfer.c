@@ -357,7 +357,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
 
   /* The isWriter flag must be true in order to land the new file */
   if( !isWriter ){
-    blob_appendf(&pXfer->err, "Write permissions for unversioned files missing");
+    blob_appendf(&pXfer->err,"Write permissions for unversioned files missing");
     goto end_accept_unversioned_file;
   }
 
@@ -1191,7 +1191,7 @@ static int disableLogin = 0;
 ** clone clients to specify a URL that omits default pathnames, such
 ** as "http://fossil-scm.org/" instead of "http://fossil-scm.org/index.cgi".
 **
-** WEBPAGE: xfer  raw-content
+** WEBPAGE: xfer  raw-content  loadavg-exempt
 **
 ** This is the transfer handler on the server side.  The transfer
 ** message has been uncompressed and placed in the g.cgiIn blob.
@@ -1836,7 +1836,7 @@ void page_xfer(void){
       if( x.name!=0 && sqlite3_strlike("%localhost%", x.name, 0)!=0 ){
         @ pragma link %F(x.canonical) %F(zArg) %lld(iMtime)
       }
-      url_unparse(&x);      
+      url_unparse(&x);
     }
     db_finalize(&q);
   }
@@ -1861,7 +1861,7 @@ void page_xfer(void){
 ** protocol handler.  Generate a reply on standard output.
 **
 ** This command was original created to help debug the server side of
-** sync messages.  The XFERFILE is the uncompressed content of an 
+** sync messages.  The XFERFILE is the uncompressed content of an
 ** "xfer" HTTP request from client to server.  This command interprets
 ** that message and generates the content of an HTTP reply (without any
 ** encoding and without the HTTP reply headers) and writes that reply
@@ -1951,7 +1951,8 @@ int client_sync(
   unsigned syncFlags,      /* Mask of SYNC_* flags */
   unsigned configRcvMask,  /* Receive these configuration items */
   unsigned configSendMask, /* Send these configuration items */
-  const char *zAltPCode    /* Alternative project code (usually NULL) */
+  const char *zAltPCode,   /* Alternative project code (usually NULL) */
+  int *pnRcvd              /* Set to # received artifacts, if not NULL */
 ){
   int go = 1;             /* Loop until zero */
   int nCardSent = 0;      /* Number of cards sent */
@@ -1990,7 +1991,9 @@ int client_sync(
   const char *zCkinLock;  /* Name of check-in to lock.  NULL for none */
   const char *zClientId;  /* A unique identifier for this check-out */
   unsigned int mHttpFlags;/* Flags for the http_exchange() subsystem */
+  const int bOutIsTty = fossil_isatty(fossil_fileno(stdout));
 
+  if( pnRcvd ) *pnRcvd = 0;
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
      && configRcvMask==0
@@ -2304,8 +2307,10 @@ int client_sync(
     }else{
       nRoundtrip++;
       nArtifactSent += xfer.nFileSent + xfer.nDeltaSent;
-      fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
-                   nRoundtrip, nArtifactSent, nArtifactRcvd);
+      if( bOutIsTty!=0 ){
+        fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
+                     nRoundtrip, nArtifactSent, nArtifactRcvd);
+      }
     }
     nCardSent = 0;
     nCardRcvd = 0;
@@ -2530,7 +2535,7 @@ int client_sync(
             "         sufficient permission on the server\n"
           );
           uvPullOnly = 2;
-        }          
+        }
         if( iStatus<=3 || uvPullOnly ){
           db_multi_exec("DELETE FROM uv_tosend WHERE name=%Q", zName);
         }else if( iStatus==4 ){
@@ -2805,8 +2810,10 @@ int client_sync(
                    blob_size(&recv), nCardRcvd,
                    xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);
     }else{
-      fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
-                   nRoundtrip, nArtifactSent, nArtifactRcvd);
+      if( bOutIsTty!=0 ){
+        fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
+                     nRoundtrip, nArtifactSent, nArtifactRcvd);
+      }
     }
     nUncRcvd += blob_size(&recv);
     blob_reset(&recv);
@@ -2854,6 +2861,7 @@ int client_sync(
     db_end_transaction(0);
   };
   transport_stats(&nSent, &nRcvd, 1);
+  if( pnRcvd ) *pnRcvd = nArtifactRcvd;
   if( (rSkew*24.0*3600.0) > 10.0 ){
      fossil_warning("*** time skew *** server is fast by %s",
                     db_timespan_name(rSkew));
@@ -2863,7 +2871,11 @@ int client_sync(
                     db_timespan_name(-rSkew));
      g.clockSkewSeen = 1;
   }
-
+  if( bOutIsTty==0 ){
+    fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
+                 nRoundtrip, nArtifactSent, nArtifactRcvd);
+    fossil_force_newline();
+  }
   fossil_force_newline();
   if( g.zHttpCmd==0 ){
     if( syncFlags & SYNC_VERBOSE ){
@@ -2884,6 +2896,8 @@ int client_sync(
     fossil_print(
       "Uncompressed payload sent: %lld  received: %lld\n", nUncSent, nUncRcvd);
   }
+  blob_reset(&send);
+  blob_reset(&recv);
   transport_close(&g.url);
   transport_global_shutdown(&g.url);
   if( nErr && go==2 ){

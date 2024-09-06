@@ -459,7 +459,7 @@ void db_protect_only(unsigned flags){
     fossil_panic("too many db_protect() calls");
   }
   db.aProtect[db.nProtect++] = db.protectMask;
-  if( (flags & PROTECT_SENSITIVE)!=0 
+  if( (flags & PROTECT_SENSITIVE)!=0
    && db.bProtectTriggers==0
    && g.repositoryOpen
   ){
@@ -898,7 +898,7 @@ int db_column_count(Stmt *pStmt){
   return sqlite3_column_count(pStmt->pStmt);
 }
 char *db_column_malloc(Stmt *pStmt, int N){
-  return mprintf("%s", db_column_text(pStmt, N));
+  return fossil_strdup_nn(db_column_text(pStmt, N));
 }
 void db_column_blob(Stmt *pStmt, int N, Blob *pBlob){
   blob_append(pBlob, sqlite3_column_blob(pStmt->pStmt, N),
@@ -1194,11 +1194,9 @@ char *db_text(const char *zDefault, const char *zSql, ...){
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
   if( db_step(&s)==SQLITE_ROW ){
-    z = mprintf("%s", sqlite3_column_text(s.pStmt, 0));
-  }else if( zDefault ){
-    z = mprintf("%s", zDefault);
+    z = fossil_strdup_nn((const char*)sqlite3_column_text(s.pStmt, 0));
   }else{
-    z = 0;
+    z = fossil_strdup(zDefault);
   }
   db_finalize(&s);
   return z;
@@ -1439,7 +1437,7 @@ void db_obscure(
   }else{
     zTemp = unobscure((char*)zIn);
   }
-  strcpy(zOut, zTemp);
+  fossil_strcpy(zOut, zTemp);
   fossil_free(zTemp);
   sqlite3_result_text(context, zOut, strlen(zOut), sqlite3_free);
 }
@@ -1559,9 +1557,9 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "url_nouser", 1, SQLITE_UTF8, 0,
                           url_nouser_func,0,0);
   sqlite3_create_function(db, "chat_msg_from_event", 4,
-        SQLITE_UTF8 | SQLITE_INNOCUOUS, 0, 
+        SQLITE_UTF8 | SQLITE_INNOCUOUS, 0,
         chat_msg_from_event, 0, 0);
-                           
+
 }
 
 #if USE_SEE
@@ -2491,7 +2489,7 @@ static int isValidLocalDb(const char *zDbName){
     }
   }
 
-  /* The design of the check-out database changed on 2019-01-19, adding the mhash
+  /* The design of the check-out database changed on 2019-01-19 adding the mhash
   ** column to vfile and vmerge and changing the UNIQUE index on vmerge into
   ** a PRIMARY KEY that includes the new mhash column.  However, we must have
   ** the repository database at hand in order to do the migration, so that
@@ -2536,7 +2534,7 @@ int db_open_local_v2(const char *zDbName, int bRootOnly){
           return 0; /* Configuration could not be opened */
         }
         /* Found a valid check-out database file */
-        g.zLocalDbName = mprintf("%s", zPwd);
+        g.zLocalDbName = fossil_strdup(zPwd);
         zPwd[n] = 0;
         while( n>0 && zPwd[n-1]=='/' ){
           n--;
@@ -2608,7 +2606,7 @@ int db_looks_like_a_repository(const char *zDbName){
   db = db_open(zDbName);
   if( !db ) return 0;
   if( !g.zVfsName && sz%512 ) return 0;
-  rc = sqlite3_prepare_v2(db, 
+  rc = sqlite3_prepare_v2(db,
        "SELECT count(*) FROM sqlite_schema"
        " WHERE name COLLATE nocase IN"
        "('blob','delta','rcvfrom','user','config','mlink','plink');",
@@ -2672,7 +2670,7 @@ void db_open_repository(const char *zDbName){
       fossil_fatal("not a valid repository: %s", zDbName);
     }
   }
-  g.zRepositoryName = mprintf("%s", zDbName);
+  g.zRepositoryName = fossil_strdup(zDbName);
   db_open_or_attach(g.zRepositoryName, "repository");
   g.repositoryOpen = 1;
   sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION,
@@ -3232,7 +3230,8 @@ void db_initial_setup(
 ** page, either directly or indirectly, will be copied.  Normal users and
 ** their associated permissions will not be copied; however, the system
 ** default users "anonymous", "nobody", "reader", "developer", and their
-** associated permissions will be copied.
+** associated permissions will be copied.  In case of SQL errors, rebuild the
+** template repository and try again.
 **
 ** Options:
 **    --template      FILE         Copy settings from repository file
@@ -3511,7 +3510,7 @@ char *db_reveal(const char *zKey){
     zOut = 0;
   }
   if( zOut==0 ){
-    zOut = mprintf("%s", zKey);
+    zOut = fossil_strdup_nn(zKey);
   }
   return zOut;
 }
@@ -3718,7 +3717,8 @@ char *db_get(const char *zName, const char *zDefault){
   }
   return z;
 }
-char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault){
+char *db_get_mtime(const char *zName, const char *zFormat,
+                   const char *zDefault){
   char *z = 0;
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
@@ -4023,7 +4023,7 @@ void db_record_repository_filename(const char *zName){
   (void)filename_collation();  /* Initialize before connection swap */
   db_swap_connections();
   zRepoSetting = mprintf("repo:%q", blob_str(&full));
-  
+
   db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
      "DELETE FROM global_config WHERE name %s = %Q;",
@@ -4187,7 +4187,7 @@ void cmd_open(void){
   ){
     fossil_fatal("directory %s is not empty\n"
                  "use the -f (--force) option to override\n"
-                 "or the -k (--keep) option to keep local files unchanged", 
+                 "or the -k (--keep) option to keep local files unchanged",
                  file_getcwd(0,0));
   }
 
@@ -4209,8 +4209,11 @@ void cmd_open(void){
       fossil_fatal("unable to deduce a repository name from the url \"%s\"",
                    zUri);
     }
-    if( zRepoDir==0 ) zRepoDir = zPwd;
-    zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    if( zRepoDir==0 ){
+      zRepo = mprintf("%s.fossil", zNewBase);
+    }else{
+      zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    }
     fossil_free(zNewBase);
     blob_init(&cmd, 0, 0);
     blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
@@ -4393,7 +4396,7 @@ struct Setting {
 /*
 ** SETTING: allow-symlinks  boolean default=off sensitive
 **
-** When allow-symlinks is OFF, Fossil does not see symbolic links 
+** When allow-symlinks is OFF, Fossil does not see symbolic links
 ** (a.k.a "symlinks") on disk as a separate class of object.  Instead Fossil
 ** sees the object that the symlink points to.  Fossil will only manage files
 ** and directories, not symlinks.  When a symlink is added to a repository,
@@ -4451,7 +4454,7 @@ struct Setting {
 /*
 ** SETTING: auto-hyperlink-mouseover  boolean default=off
 **
-** When the auto-hyperlink setting is 1 and this setting is on, the 
+** When the auto-hyperlink setting is 1 and this setting is on, the
 ** javascript that runs to set the href= attributes of hyperlinks waits
 ** until either a mousedown or mousemove event is seen.  This helps
 ** to distinguish real users from robots. For maximum robot defense,
@@ -4486,6 +4489,9 @@ struct Setting {
 ** The syntax is a comma-separated list of VALUE and COMMAND=VALUE entries.
 ** A plain VALUE entry is the default that is used if no COMMAND matches.
 ** Otherwise, the VALUE of the matching command is used.
+**
+** The "all" value is special in that it applies to the "sync" command in
+** addition to "commit", "merge", "open", and "update".
 */
 /*
 ** SETTING: autosync-tries  width=16 default=1
@@ -4672,7 +4678,7 @@ struct Setting {
 ** SETTING: forbid-delta-manifests    boolean default=off
 ** If enabled on a client, new delta manifests are prohibited on
 ** commits.  If enabled on a server, whenever a client attempts
-** to obtain a check-in lock during auto-sync, the server will 
+** to obtain a check-in lock during auto-sync, the server will
 ** send the "pragma avoid-delta-manifests" statement in its reply,
 ** which will cause the client to avoid generating a delta
 ** manifest.
@@ -5013,7 +5019,7 @@ struct Setting {
 ** SETTING: large-file-size     width=10 default=200000000
 ** Fossil considers any file whose size is greater than this value
 ** to be a "large file".  Fossil might issue warnings if you try to
-** "add" or "commit" a "large file".  Set this value to 0 or less 
+** "add" or "commit" a "large file".  Set this value to 0 or less
 ** to disable all such warnings.
 */
 
@@ -5238,7 +5244,7 @@ void test_timespan_cmd(void){
 ** of SQLite.  There is no big advantage to using WITHOUT ROWID in Fossil.
 **
 ** Options:
-**    -n|--dry-run  	No changes.  Just print what would happen.
+**    -n|--dry-run     No changes.  Just print what would happen.
 */
 void test_without_rowid(void){
   int i, j;

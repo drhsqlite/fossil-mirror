@@ -569,7 +569,7 @@ void update_cmd(void){
     show_common_info(tid, "checkout:", 1, 0);
     fossil_print("%-13s None. Already up-to-date\n", "changes:");
   }else{
-    fossil_print("%-13s %.40s %s\n", "updated-from:", rid_to_uuid(vid), 
+    fossil_print("%-13s %.40s %s\n", "updated-from:", rid_to_uuid(vid),
                  db_text("", "SELECT datetime(mtime) || ' UTC' FROM event "
                          "  WHERE objid=%d", vid));
     show_common_info(tid, "updated-to:", 1, 0);
@@ -618,6 +618,9 @@ void update_cmd(void){
   */
   if( dryRunFlag ){
     db_end_transaction(1);  /* With --dry-run, rollback changes */
+    fossil_warning("\nREMINDER: this was a dry run -"
+                   " no files were actually changed "
+                   "(checkout is still %.10s).", rid_to_uuid(vid));
   }else{
     char *zPwd;
     ensure_empty_dirs_created(1);

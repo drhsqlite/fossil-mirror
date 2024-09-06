@@ -23,7 +23,6 @@
 #if defined(_WIN32)
 #  include <windows.h>
 #  include <io.h>
-#  define isatty(h) _isatty(h)
 #  define GETPID (int)GetCurrentProcessId
 #endif
 
@@ -228,6 +227,8 @@ struct Global {
   const char *zMainMenuFile; /* --mainmenu FILE from server/ui/cgi */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
+  const char *zCgiFile;      /* Name of the CGI file */
+  const char *zReqType;      /* Type of request: "HTTP", "CGI", "SCGI" */
 #if USE_SEE
   const char *zPidKey;    /* Saved value of the --usepidkey option.  Only
                            * applicable when using SEE on Windows or Linux. */
@@ -238,6 +239,9 @@ struct Global {
   int isHuman;            /* True if access by a human, not a spider or bot */
   int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
                           ** accessed through get_comment_format(). */
+  const char *zSockName;  /* Name of the unix-domain socket file */
+  const char *zSockMode;  /* File permissions for unix-domain socket */
+  const char *zSockOwner; /* Owner, or owner:group for unix-domain socket */
 
   /* Information used to populate the RCVFROM table */
   int rcvid;              /* The rcvid.  0 if not yet defined. */
@@ -391,6 +395,11 @@ static void fossil_atexit(void) {
 #ifdef FOSSIL_ENABLE_JSON
   cson_value_free(g.json.gc.v);
   memset(&g.json, 0, sizeof(g.json));
+#endif
+#if !defined(_WIN32)
+  if( g.zSockName && file_issocket(g.zSockName) ){
+    unlink(g.zSockName);
+  }
 #endif
   free(g.zErrMsg);
   if(g.db){
@@ -697,7 +706,7 @@ int fossil_main(int argc, char **argv){
   g.zPhase = "init";
 #if !defined(_WIN32_WCE)
   if( fossil_getenv("FOSSIL_BREAK") ){
-    if( isatty(0) && isatty(2) ){
+    if( fossil_isatty(0) && fossil_isatty(2) ){
       fprintf(stderr,
           "attach debugger to process %d and press any key to continue.\n",
           GETPID());
@@ -718,8 +727,8 @@ int fossil_main(int argc, char **argv){
   /* When updating the minimum SQLite version, change the number here,
   ** and also MINIMUM_SQLITE_VERSION value set in ../auto.def.  Take
   ** care that both places agree! */
-  if( sqlite3_libversion_number()<3043000
-   || strncmp(sqlite3_sourceid(),"2023-06-12",10)<0
+  if( sqlite3_libversion_number()<3046000
+   || strncmp(sqlite3_sourceid(),"2024-08-16",10)<0
   ){
     fossil_panic("Unsuitable SQLite version %s, must be at least 3.43.0",
                  sqlite3_libversion());
@@ -854,7 +863,7 @@ int fossil_main(int argc, char **argv){
       g.argc = 3;
       g.argv = zNewArgv;
 #endif
-    }   
+    }
     zCmdName = g.argv[1];
   }
 #ifndef _WIN32
@@ -1416,7 +1425,7 @@ void set_base_url(const char *zAltBase){
     }else{
       /* Remove trailing ":80" from the HOST */
       if( i>3 && z[i-1]=='0' && z[i-2]=='8' && z[i-3]==':' ) i -= 3;
-    }    
+    }
     if( i && z[i-1]=='.' ) i--;
     z[i] = 0;
     zCur = PD("SCRIPT_NAME","/");
@@ -1507,26 +1516,40 @@ static char *enter_chroot_jail(const char *zRepo, int noJail){
     struct stat sStat;
     Blob dir;
     char *zDir;
+    size_t nDir;
     if( g.db!=0 ){
       db_close(1);
     }
 
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
+    nDir = blob_size(&dir);
     if( !noJail ){
       if( file_isdir(zDir, ExtFILE)==1 ){
+        /* Translate the repository name to the new root */
         if( g.zRepositoryName ){
-          size_t n = strlen(zDir);
           Blob repo;
           file_canonical_name(g.zRepositoryName, &repo, 0);
           zRepo = blob_str(&repo);
-          if( strncmp(zRepo, zDir, n)!=0 ){
+          if( strncmp(zRepo, zDir, nDir)!=0 ){
             fossil_fatal("repo %s not under chroot dir %s", zRepo, zDir);
           }
-          zRepo += n;
+          zRepo += nDir;
           if( *zRepo == '\0' ) zRepo = "/";
         }else {
           zRepo = "/";
+        }
+        /* If a unix socket is defined, try to translate its name into
+        ** the new root so that it can be delete by atexit().  If unable,
+        ** just zero out the socket name. */
+        if( g.zSockName ){
+          if( strncmp(g.zSockName, zDir, nDir)==0
+           && g.zSockName[nDir]=='/'
+          ){
+            g.zSockName += nDir;
+          }else{
+            g.zSockName = 0;
+          }
         }
         if( file_chdir(zDir, 1) ){
           fossil_panic("unable to chroot into %s", zDir);
@@ -1573,13 +1596,23 @@ void sigsegv_handler(int x){
   size = backtrace(array, sizeof(array)/sizeof(array[0]));
   strings = backtrace_symbols(array, size);
   blob_init(&out, 0, 0);
-  blob_appendf(&out, "Segfault during %s", g.zPhase);
+  blob_appendf(&out, "Segfault during %s in fossil %s",
+               g.zPhase, MANIFEST_VERSION);
   for(i=0; i<size; i++){
-    blob_appendf(&out, "\n(%d) %s", i, strings[i]);
+    size_t len;
+    const char *z = strings[i];
+    if( i==0 ) blob_appendf(&out, "\nBacktrace:");
+    len = strlen(strings[i]);
+    if( z[0]=='[' && z[len-1]==']' ){
+      blob_appendf(&out, " %.*s", (int)(len-2), &z[1]);
+    }else{
+      blob_appendf(&out, " %s", z);
+    }
   }
   fossil_panic("%s", blob_str(&out));
 #else
-  fossil_panic("Segfault during %s", g.zPhase);
+  fossil_panic("Segfault during %s in fossil %s",
+               g.zPhase, MANIFEST_VERSION);
 #endif
   exit(1);
 }
@@ -1616,7 +1649,7 @@ int fossil_wants_https(int iLevel){
 
 /*
 ** Redirect to the equivalent HTTPS request if the current connection is
-** insecure and if the redirect-to-https flag greater than or equal to 
+** insecure and if the redirect-to-https flag greater than or equal to
 ** iLevel.  iLevel is 1 for /login pages and 2 for every other page.
 */
 int fossil_redirect_to_https_if_needed(int iLevel){
@@ -1693,6 +1726,13 @@ static void process_one_web_page(
   signal(SIGSEGV, sigsegv_handler);
 #endif
 
+  /* Decode %HH escapes in PATHINFO */
+  if( strchr(zPathInfo,'%') ){
+    char *z = fossil_strdup(zPathInfo);
+    dehttpize(z);
+    zPathInfo = z;
+  }
+
   /* Handle universal query parameters */
   if( PB("utc") ){
     g.fTimeFormat = 1;
@@ -1747,18 +1787,27 @@ static void process_one_web_page(
       }
 
 
-      /* For safety -- to prevent an attacker from accessing arbitrary disk
-      ** files by sending a maliciously crafted request URI to a public
-      ** server -- make sure the repository basename contains no
-      ** characters other than alphanumerics, "/", "_", "-", and ".", and
-      ** that "-" never occurs immediately after a "/" and that "." is always
-      ** surrounded by two alphanumerics.  Any character that does not
-      ** satisfy these constraints is converted into "_".
-      */
+      /* Restrictions on the URI for security:
+      **
+      **    1.  Reject characters that are not ASCII alphanumerics, 
+      **        "-", "_", ".", "/", or unicode (above ASCII).
+      **        In other words:  No ASCII punctuation or control characters
+      **        other than "-", "_", "." and "/".
+      **    2.  Exception to rule 1: Allow /X:/ where X is any ASCII 
+      **        alphabetic character at the beginning of the name on windows.
+      **    3.  "-" may not occur immediately after "/"
+      **    4.  "." may not be adjacent to another "." or to "/"
+      **
+      ** Any character does not satisfy these constraints a Not Found
+      ** error is returned.
+      */  
       szFile = 0;
       for(j=nBase+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
-        if( fossil_isalnum(c) ) continue;
+        if( c>='a' && c<='z' ) continue;
+        if( c>='A' && c<='Z' ) continue;
+        if( c>='0' && c<='9' ) continue;
+        if( (c&0x80)==0x80 ) continue;
 #if defined(_WIN32) || defined(__CYGWIN__)
         /* Allow names to begin with "/X:/" on windows */
         if( c==':' && j==2 && sqlite3_strglob("/[a-zA-Z]:/*", zRepo)==0 ){
@@ -1768,7 +1817,10 @@ static void process_one_web_page(
         if( c=='/' ) continue;
         if( c=='_' ) continue;
         if( c=='-' && zRepo[j-1]!='/' ) continue;
-        if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
+        if( c=='.'
+         && zRepo[j-1]!='.' && zRepo[j-1]!='/'
+         && zRepo[j+1]!='.' && zRepo[j+1]!='/'
+        ){
           continue;
         }
         if( c=='.' && g.fAllowACME && j==(int)nBase+1
@@ -1971,7 +2023,7 @@ static void process_one_web_page(
     etag_cancel();
   }
 
-  /* If the content type is application/x-fossil or 
+  /* If the content type is application/x-fossil or
   ** application/x-fossil-debug, then a sync/push/pull/clone is
   ** desired, so default the PATH_INFO to /xfer
   */
@@ -2292,8 +2344,9 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **    nocompress               Do not compress HTTP replies.
 **
 **    skin: LABEL              Use the built-in skin called LABEL rather than
-**                             the default.  If there are no skins called LABEL
-**                             then this line is a no-op.
+**                             the default, or the default if LABEL is empty.
+**                             If there are no skins called LABEL then this
+**                             line is a no-op.
 **
 **    files: GLOBLIST          GLOBLIST is a comma-separated list of GLOB
 **                             patterns that specify files that can be
@@ -2342,7 +2395,6 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 ** See also: [[http]], [[server]], [[winsrv]]
 */
 void cmd_cgi(void){
-  const char *zFile;
   const char *zNotFound = 0;
   char **azRedirect = 0;             /* List of repositories to redirect to */
   int nRedirect = 0;                 /* Number of entries in azRedirect */
@@ -2355,17 +2407,18 @@ void cmd_cgi(void){
   fossil_binary_mode(g.httpOut);
   fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
+  g.zReqType = "CGI";
   fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
   /* Find the name of the CGI control file */
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
-    zFile = g.argv[2];
+    g.zCgiFile = g.argv[2];
   }else if( g.argc>=2 ){
-    zFile = g.argv[1];
+    g.zCgiFile = g.argv[1];
   }else{
     cgi_panic("No CGI control file specified");
   }
   /* Read and parse the CGI control file. */
-  blob_read_from_file(&config, zFile, ExtFILE);
+  blob_read_from_file(&config, g.zCgiFile, ExtFILE);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
     if( blob_buffer(&key)[0]=='#' ) continue;
@@ -2527,7 +2580,7 @@ void cmd_cgi(void){
       ** the skin stored in the CONFIG db table is used.
       */
       blob_token(&line, &value);
-      fossil_free(skin_use_alternative(blob_str(&value), 1));
+      fossil_free(skin_use_alternative(blob_str(&value), 1, SKIN_FROM_CGI));
       blob_reset(&value);
       continue;
     }
@@ -2787,7 +2840,7 @@ static void decode_ssl_options(void){
 **   --nossl             Do not do http: to https: redirects, regardless of
 **                       the redirect-to-https setting.
 **   --notfound URL      Use URL as the "HTTP 404, object not found" page
-**   --out FILE          Write the HTTP reply to FILE instead of to 
+**   --out FILE          Write the HTTP reply to FILE instead of to
 **                       standard output
 **   --pkey FILE         Read the private key used for TLS from FILE
 **   --repolist          If REPOSITORY is directory, URL "/" lists all repos
@@ -2838,6 +2891,7 @@ void cmd_http(void){
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
   g.zExtRoot = find_option("extroot",0,1);
   g.zCkoutAlias = find_option("ckout-alias",0,1);
+  g.zReqType = "HTTP";
   zInFile = find_option("in",0,1);
   if( zInFile ){
     backoffice_disable();
@@ -2861,6 +2915,7 @@ void cmd_http(void){
   }
   zIpAddr = find_option("ipaddr",0,1);
   useSCGI = find_option("scgi", 0, 0)!=0;
+  if( useSCGI ) g.zReqType = "SCGI";
   zAltBase = find_option("baseurl", 0, 1);
   if( find_option("nodelay",0,0)!=0 ) backoffice_no_delay();
   if( zAltBase ) set_base_url(zAltBase);
@@ -2962,6 +3017,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** breaking legacy.
 **
 ** Options:
+**   --nobody            Pretend to be user "nobody"
 **   --test              Do not do special "sync" processing when operating
 **                       over an SSH link
 **   --th-trace          Trace TH1 execution (for debugging purposes)
@@ -2975,18 +3031,21 @@ void cmd_test_http(void){
 
   Th_InitTraceLog();
   zUserCap = find_option("usercap",0,1);
-  if( zUserCap==0 ){
-    g.useLocalauth = 1;
-    zUserCap = "sxy";
+  if( !find_option("nobody",0,0) ){
+    if( zUserCap==0 ){
+      g.useLocalauth = 1;
+      zUserCap = "sxy";
+    }
+    login_set_capabilities(zUserCap, 0);
   }
   bTest = find_option("test",0,0)!=0;
-  login_set_capabilities(zUserCap, 0);
   g.httpIn = stdin;
   g.httpOut = stdout;
   fossil_binary_mode(g.httpOut);
   fossil_binary_mode(g.httpIn);
   g.zExtRoot = find_option("extroot",0,1);
   find_server_repository(2, 0);
+  g.zReqType = "HTTP";
   g.cgiOutput = 1;
   g.fNoHttpCompress = 1;
   g.fullHttpReply = 1;
@@ -3012,10 +3071,10 @@ static void sigalrm_handler(int x){
   sqlite3_uint64 tmUser = 0, tmKernel = 0;
   fossil_cpu_times(&tmUser, &tmKernel);
   if( fossil_strcmp(g.zPhase, "web-page reply")==0
-   && tmUser+tmKernel<1000000
+   && tmUser+tmKernel<10000000
   ){
     /* Do not log time-outs during web-page reply unless more than
-    ** 1 second of CPU time has been consumed */
+    ** 10 seconds of CPU time has been consumed */
     return;
   }
   fossil_panic("Timeout after %d seconds during %s"
@@ -3067,10 +3126,11 @@ void fossil_set_timeout(int N){
 ** the command is run on the remote host specified and the results are
 ** tunneled back to the local machine via SSH.  This feature only works for
 ** the "fossil ui" command, not the "fossil server" command.  The name of the
-** fossil executable on the remote host is specified by the --fossilcmd option,
-** or if there is no --fossilcmd, it first tries "$HOME/bin/fossil" and if
-** not found there it searches for any executable named "fossil" on the
-** default $PATH set by SSH on the remote.
+** fossil executable on the remote host is specified by the --fossilcmd
+** option, or if there is no --fossilcmd, it first tries "fossil" and if it
+** is not found in the default $PATH set by SSH on the remote, it then adds
+** "$HOME/bin:/usr/local/bin:/opt/homebrew/bin" to the PATH and tries again to
+** run "fossil".
 **
 ** REPOSITORY may also be a directory (aka folder) that contains one or
 ** more repositories with names ending in ".fossil".  In this case, a
@@ -3143,10 +3203,18 @@ void fossil_set_timeout(int N){
 **   --notfound URL      Redirect to URL if a page is not found.
 **   -p|--page PAGE      Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   --pkey FILE         Read the private key used for TLS from FILE
-**   -P|--port TCPPORT   Listen to request on port TCPPORT
+**   -P|--port [IP:]PORT  Listen on the given IP (optional) and port
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos
 **   --scgi              Accept SCGI rather than HTTP
-**   --skin LABEL        Use override skin LABEL
+**   --skin LABEL        Use override skin LABEL, or the site's default skin if
+**                       LABEL is an empty string.
+**   --socket-mode MODE  File permissions to set for the unix socket created
+**                       by the --socket-name option.
+**   --socket-name NAME  Use a unix-domain socket called NAME instead of a
+**                       TCP/IP socket.
+**   --socket-owner USR  Try to set the owner of the unix socket to USR.
+**                       USR can be of the form USER:GROUP to set both
+**                       user and group.
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows or Linux.
@@ -3169,7 +3237,7 @@ void cmd_webserver(void){
   int allowRepoList;         /* List repositories on URL "/" */
   const char *zAltBase;      /* Argument to the --baseurl option */
   const char *zFileGlob;     /* Static content must match this */
-  char *zIpAddr = 0;         /* Bind to this IP address */
+  char *zIpAddr = 0;         /* Bind to this IP address or UN socket */
   int fCreate = 0;           /* The --create flag */
   int fNoBrowser = 0;        /* Do not auto-launch web-browser */
   const char *zInitPage = 0; /* Start on this page.  --page option */
@@ -3177,7 +3245,7 @@ void cmd_webserver(void){
   char *zRemote = 0;         /* Remote host on which to run "fossil ui" */
   const char *zJsMode;       /* The --jsmode parameter */
   const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
-  
+
 
 #if USE_SEE
   db_setup_for_saved_encryption_key();
@@ -3222,7 +3290,11 @@ void cmd_webserver(void){
   if( find_option("nocompress",0,0)!=0 ) g.fNoHttpCompress = 1;
   zAltBase = find_option("baseurl", 0, 1);
   fCreate = find_option("create",0,0)!=0;
-  if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;
+  g.zReqType = "HTTP";
+  if( find_option("scgi", 0, 0)!=0 ){
+    g.zReqType = "SCGI";
+    flags |= HTTP_SERVER_SCGI;
+  }
   if( zAltBase ){
     set_base_url(zAltBase);
   }
@@ -3241,6 +3313,21 @@ void cmd_webserver(void){
     fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
   if( find_option("acme",0,0)!=0 ) g.fAllowACME = 1;
+  g.zSockMode = find_option("socket-mode",0,1);
+  g.zSockName = find_option("socket-name",0,1);
+  g.zSockOwner = find_option("socket-owner",0,1);
+  if( g.zSockName ){
+#if defined(_WIN32)
+    fossil_fatal("unix sockets are not supported on Windows");
+#endif
+    if( zPort ){
+      fossil_fatal("cannot specify a port number for a unix socket");
+    }
+    if( isUiCmd && !fNoBrowser ){
+      fossil_fatal("cannot start a web-browser on a unix socket");
+    }
+    flags |= HTTP_SERVER_UNIXSOCKET;
+  }
 
   /* Undocumented option:  --debug-nofork
   **
@@ -3345,45 +3432,64 @@ void cmd_webserver(void){
     ** tunnel from the local machine to the remote. */
     FILE *sshIn;
     Blob ssh;
+    int bRunning = 0;    /* True when fossil starts up on the remote */
+    int isRetry;         /* True if on the second attempt */        
     char zLine[1000];
+
     blob_init(&ssh, 0, 0);
-    transport_ssh_command(&ssh);
-    db_close_config();
-    blob_appendf(&ssh, 
-       " -t -L 127.0.0.1:%d:127.0.0.1:%d %!$",
-       iPort, iPort, zRemote
-    );
-    if( zFossilCmd==0 ){
-      blob_appendf(&ssh, " %$ fossil", "PATH=$HOME/bin:$PATH");
-    }else{
-      blob_appendf(&ssh, " %$", zFossilCmd);
-    }
-    blob_appendf(&ssh, " ui --nobrowser --localauth --port %d", iPort);
-    if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
-    if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
-    if( g.zCkoutAlias ) blob_appendf(&ssh, " --ckout-alias %!$",g.zCkoutAlias);
-    if( g.zExtRoot ) blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
-    if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
-    if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
-    if( fCreate ) blob_appendf(&ssh, " --create");
-    blob_appendf(&ssh, " %$", g.argv[2]);
-    fossil_print("%s\n", blob_str(&ssh));
-    sshIn = popen(blob_str(&ssh), "r");
-    if( sshIn==0 ){
-      fossil_fatal("unable to %s", blob_str(&ssh));
-    }
-    while( fgets(zLine, sizeof(zLine), sshIn) ){
-      fputs(zLine, stdout);
-      fflush(stdout);
-      if( zBrowserCmd && sqlite3_strglob("*Listening for HTTP*",zLine)==0 ){
-        char *zCmd = mprintf(zBrowserCmd/*works-like:"%d"*/,iPort);
-        fossil_system(zCmd);
-        fossil_free(zCmd);
-        fossil_free(zBrowserCmd);
-        zBrowserCmd = 0;
+    for(isRetry=0; isRetry<2 && !bRunning; isRetry++){
+      blob_reset(&ssh);
+      transport_ssh_command(&ssh);
+      blob_appendf(&ssh,
+         " -t -L 127.0.0.1:%d:127.0.0.1:%d %!$",
+         iPort, iPort, zRemote
+      );
+      if( zFossilCmd==0 ){
+        if( ssh_needs_path_argument(zRemote,-1) ^ isRetry ){
+          ssh_add_path_argument(&ssh);
+        }
+        blob_append_escaped_arg(&ssh, "fossil", 1);
+      }else{
+        blob_appendf(&ssh, " %$", zFossilCmd);
       }
+      blob_appendf(&ssh, " ui --nobrowser --localauth --port %d", iPort);
+      if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
+      if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
+      if( g.zCkoutAlias ) blob_appendf(&ssh," --ckout-alias %!$",g.zCkoutAlias);
+      if( g.zExtRoot ) blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
+      if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
+      if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
+      if( fCreate ) blob_appendf(&ssh, " --create");
+      blob_appendf(&ssh, " %$", g.argv[2]);
+      if( isRetry ){
+        fossil_print("First attempt to run \"fossil\" on %s failed\n"
+                     "Retry: ", zRemote);
+      } 
+      fossil_print("%s\n", blob_str(&ssh));
+      sshIn = popen(blob_str(&ssh), "r");
+      if( sshIn==0 ){
+        fossil_fatal("unable to %s", blob_str(&ssh));
+      }
+      while( fgets(zLine, sizeof(zLine), sshIn) ){
+        fputs(zLine, stdout);
+        fflush(stdout);
+        if( !bRunning && sqlite3_strglob("*Listening for HTTP*",zLine)==0 ){
+          bRunning = 1;
+          if( isRetry ){
+            ssh_needs_path_argument(zRemote,99);
+          }
+          db_close_config();
+          if( zBrowserCmd ){
+            char *zCmd = mprintf(zBrowserCmd/*works-like:"%d"*/,iPort);
+            fossil_system(zCmd);
+            fossil_free(zCmd);
+            fossil_free(zBrowserCmd);
+            zBrowserCmd = 0;
+          }
+        }
+      }
+      pclose(sshIn);
     }
-    pclose(sshIn);
     fossil_free(zBrowserCmd);
     return;
   }
@@ -3391,7 +3497,7 @@ void cmd_webserver(void){
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
 #if !defined(_WIN32)
-  if( getpid()==1 ){
+  if( 1 ){
     /* Modern kernels suppress SIGTERM to PID 1 to prevent root from
     ** rebooting the system by nuking the init system.  The only way
     ** Fossil becomes that PID 1 is when it's running solo in a Linux
@@ -3414,7 +3520,7 @@ void cmd_webserver(void){
 #if !defined(_WIN32)
   /* Unix implementation */
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
-    fossil_fatal("unable to listen on TCP socket %d", iPort);
+    fossil_fatal("unable to listen on CGI socket");
   }
   /* For the parent process, the cgi_http_server() command above never
   ** returns (except in the case of an error).  Instead, for each incoming
@@ -3468,6 +3574,10 @@ void cmd_webserver(void){
 #endif /* FOSSIL_ENABLE_SSL */
 
 #else /* WIN32 */
+  find_server_repository(2, 0);
+  if( fossil_strcmp(g.zRepositoryName,"/")==0 ){
+    allowRepoList = 1;
+  }
   /* Win32 implementation */
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;

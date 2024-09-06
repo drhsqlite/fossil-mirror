@@ -896,7 +896,8 @@ void ci_page(void){
   render_checkin_context(rid, 0, 0, 0);
   @ </div><div class="section accordion">Changes</div>
   @ <div class="accordion_panel">
-  @ <div class="sectionmenu">
+  @ <div class="sectionmenu info-changes-menu">
+  /* ^^^ .info-changes-menu is used by diff scroll sync */
   pCfg = construct_diff_flags(diffType, &DCfg);
   DCfg.pRe = pRe;
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
@@ -1245,8 +1246,15 @@ void vdiff_page(void){
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
   zGlob = P("glob");
-  zFrom = P_NoBot("from");
-  zTo = P_NoBot("to");
+  /*
+  ** Maintenace reminder: we explicitly do _not_ use P_NoBot()
+  ** for "from" and "to" because those args can contain legitimate
+  ** strings which may trigger the looks-like SQL checks, e.g.
+  **   from=merge-in:OR-clause-improvement
+  **   to=OR-clause-improvement
+  */
+  zFrom = P("from");
+  zTo = P("to");
   if( bInvert ){
     Manifest *pTemp = pTo;
     const char *zTemp = zTo;
@@ -2526,7 +2534,7 @@ void artifact_page(void){
       }
       /* No directory found, look for an historic version of the file
       ** that was subsequently deleted. */
-      db_prepare(&q, 
+      db_prepare(&q,
         "SELECT fid, uuid FROM mlink, filename, event, blob"
         " WHERE filename.name=%Q"
         "   AND mlink.fnid=filename.fnid AND mlink.fid>0"
@@ -2648,7 +2656,8 @@ void artifact_page(void){
     Stmt q;
     db_prepare(&q,
       "SELECT coalesce(user.login,rcvfrom.uid),"
-      "       datetime(rcvfrom.mtime,toLocal()), rcvfrom.ipaddr"
+      "       datetime(rcvfrom.mtime,toLocal()),"
+      "       coalesce(rcvfrom.ipaddr,'unknown')"
       "  FROM blob, rcvfrom LEFT JOIN user ON user.uid=rcvfrom.uid"
       " WHERE blob.rid=%d"
       "   AND rcvfrom.rcvid=blob.rcvid;", rid);
@@ -2824,7 +2833,7 @@ void tinfo_page(void){
     }
   }
   zTktTitle = db_table_has_column("repository", "ticket", "title" )
-      ? db_text("(No title)", 
+      ? db_text("(No title)",
                 "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName)
       : 0;
   style_set_current_feature("tinfo");
@@ -3815,9 +3824,11 @@ int describe_commit(
     "       FROM ancestor, plink, event"
     "       LEFT JOIN singletonTag ON singletonTag.rid=plink.pid"
     "      WHERE plink.cid=ancestor.rid"
+    "        AND plink.isprim=1"
     "        AND event.objid=plink.pid"
     "        AND ancestor.tagname IS NULL"
     "      ORDER BY mtime DESC"
+    "      LIMIT 100000"
     "  )"
     "SELECT tagname, n"
     "  FROM ancestor"
@@ -3859,7 +3870,7 @@ int describe_commit(
 ** ancestor is found, show only the short hash of VERSION.
 **
 ** Options:
-**    --digits           Display so many hex digits of the hash 
+**    --digits           Display so many hex digits of the hash
 **                       (default: the larger of 6 and the 'hash-digit' setting)
 **    -d|--dirty         Show whether there are changes to be committed
 **    --long             Always show all three components

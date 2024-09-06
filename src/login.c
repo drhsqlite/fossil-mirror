@@ -119,10 +119,13 @@ char *login_cookie_name(void){
 ** Redirect to the page specified by the "g" query parameter.
 ** Or if there is no "g" query parameter, redirect to the homepage.
 */
-static void redirect_to_g(void){
+NORETURN void login_redirect_to_g(void){
   const char *zGoto = P("g");
   if( zGoto ){
     cgi_redirectf("%R/%s",zGoto);
+  }else if( (zGoto = P("fossil-goto"))!=0 && zGoto[0]!=0 ){
+    cgi_set_cookie("fossil-goto","",0,1);
+    cgi_redirect(zGoto);
   }else{
     fossil_redirect_home();
   }
@@ -153,13 +156,18 @@ int login_is_valid_anonymous(
 ){
   const char *zPw;        /* The correct password shown in the captcha */
   int uid;                /* The user ID of anonymous */
+  int n = 0;              /* Counter of captcha-secrets */
 
   if( zUsername==0 ) return 0;
   else if( zPassword==0 ) return 0;
   else if( zCS==0 ) return 0;
   else if( fossil_strcmp(zUsername,"anonymous")!=0 ) return 0;
-  zPw = captcha_decode((unsigned int)atoi(zCS));
-  if( fossil_stricmp(zPw, zPassword)!=0 ) return 0;
+  while( 1/*exit-by-break*/ ){
+    zPw = captcha_decode((unsigned int)atoi(zCS), n);
+    if( zPw==0 ) return 0;
+    if( fossil_stricmp(zPw, zPassword)==0 ) break;
+    n++;
+  }
   uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
                   " AND octet_length(pw)>0 AND octet_length(cap)>0");
   return uid;
@@ -256,7 +264,7 @@ int login_search_uid(const char **pzUsername, const char *zPasswd){
       }
     }
     db_finalize(&q);
-  }    
+  }
   free(zSha1Pw);
   return uid;
 }
@@ -344,9 +352,8 @@ void login_set_user_cookie(
 **
 ** If bSessionCookie is true, the cookie will be a session cookie.
 */
-void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest,
-                           int bSessionCookie ){
-  const char *zNow;            /* Current time (julian day number) */
+void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
+  char *zNow;                  /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
@@ -355,7 +362,7 @@ void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest,
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
   blob_init(&b, zNow, -1);
-  blob_appendf(&b, "/%s", db_get("captcha-secret",""));
+  blob_appendf(&b, "/%z", captcha_secret(0));
   sha1sum_blob(&b, &b);
   zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
   blob_reset(&b);
@@ -365,6 +372,7 @@ void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest,
   }else{
     free(zCookie);
   }
+  fossil_free(zNow);
 }
 
 /*
@@ -397,45 +405,28 @@ void login_clear_login_data(){
 }
 
 /*
-** Return true if the prefix of zStr matches zPattern.  Return false if
-** they are different.
-**
-** A lowercase character in zPattern will match either upper or lower
-** case in zStr.  But an uppercase in zPattern will only match an
-** uppercase in zStr.
-*/
-static int prefix_match(const char *zPattern, const char *zStr){
-  int i;
-  char c;
-  for(i=0; (c = zPattern[i])!=0; i++){
-    if( zStr[i]!=c && fossil_tolower(zStr[i])!=c ) return 0;
-  }
-  return 1;
-}
-
-/*
 ** Look at the HTTP_USER_AGENT parameter and try to determine if the user agent
 ** is a manually operated browser or a bot.  When in doubt, assume a bot.
 ** Return true if we believe the agent is a real person.
 */
 static int isHuman(const char *zAgent){
-  int i;
   if( zAgent==0 ) return 0;  /* If no UserAgent, then probably a bot */
-  for(i=0; zAgent[i]; i++){
-    if( prefix_match("bot", zAgent+i) ) return 0;
-    if( prefix_match("spider", zAgent+i) ) return 0;
-    if( prefix_match("crawl", zAgent+i) ) return 0;
-    /* If a URI appears in the User-Agent, it is probably a bot */
-    if( strncmp("http", zAgent+i,4)==0 ) return 0;
-  }
+  if( strstr(zAgent, "bot")!=0 ) return 0;
+  if( strstr(zAgent, "spider")!=0 ) return 0;
+  if( strstr(zAgent, "crawl")!=0 ) return 0;
+  /* If a URI appears in the User-Agent, it is probably a bot */
+  if( strstr(zAgent, "http")!=0 ) return 0;
   if( strncmp(zAgent, "Mozilla/", 8)==0 ){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
+
+    /* Google AI Robot, maybe? */
+    if( strstr(zAgent, "GoogleOther)")!=0 ) return 0;
 
     /* 2016-05-30:  A pernicious spider that likes to walk Fossil timelines has
     ** been detected on the SQLite website.  The spider changes its user-agent
     ** string frequently, but it always seems to include the following text:
     */
-    if( sqlite3_strglob("*Safari/537.36Mozilla/5.0*", zAgent)==0 ) return 0;
+    if( strstr(zAgent, "Safari/537.36Mozilla/5.0")!=0 ) return 0;
 
     if( sqlite3_strglob("*Firefox/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*Chrome/[1-9]*", zAgent)==0 ) return 1;
@@ -602,7 +593,7 @@ void login_page(void){
   /* Handle log-out requests */
   if( P("out") && cgi_csrf_safe(2) ){
     login_clear_login_data();
-    redirect_to_g();
+    login_redirect_to_g();
     return;
   }
 
@@ -675,7 +666,7 @@ void login_page(void){
           zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
           fossil_free(zErr);
         }else{
-          redirect_to_g();
+          login_redirect_to_g();
           return;
         }
       }
@@ -697,9 +688,9 @@ void login_page(void){
     rememberMe = P("remember")!=0;
   }
   if( uid>0 ){
-    login_set_anon_cookie(zIpAddr, NULL, rememberMe?0:1);
+    login_set_anon_cookie(NULL, rememberMe?0:1);
     record_login_attempt("anonymous", zIpAddr, 1);
-    redirect_to_g();
+    login_redirect_to_g();
   }
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
     /* Attempting to log in as a user other than anonymous.
@@ -723,7 +714,7 @@ void login_page(void){
       ** code prefix, and LOGIN is the user name.
       */
       login_set_user_cookie(zUsername, uid, NULL, rememberMe?0:1);
-      redirect_to_g();
+      login_redirect_to_g();
     }
   }
   style_set_current_feature("login");
@@ -777,7 +768,7 @@ void login_page(void){
     if( P("HTTPS")==0 ){
       @ <tr><td class="form_label">Warning:</td>
       @ <td><span class='securityWarning'>
-      @ Login information, including the password, 
+      @ Login information, including the password,
       @ will be sent in the clear over an unencrypted connection.
       if( !g.sslNotAvailable ){
         @ Consider logging in at
@@ -823,10 +814,10 @@ void login_page(void){
     }
     @ </table>
     if( zAnonPw && !noAnon ){
-      const char *zDecoded = captcha_decode(uSeed);
+      const char *zDecoded = captcha_decode(uSeed, 0);
       int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
       char *zCaptcha = captcha_render(zDecoded);
-  
+
       @ <p><input type="hidden" name="cs" value="%u(uSeed)">
       @ Visitors may enter <b>anonymous</b> as the user-ID with
       @ the 8-character hexadecimal password shown below:</p>
@@ -855,6 +846,13 @@ void login_page(void){
       @ <a href="%R/timeline?ss=v&y=f&vfx&u=%t(g.zLogin)">Forum
       @ post timeline</a> for user <b>%h(g.zLogin)</b></p>
     }
+  }
+  @ <hr><p>
+  @ Select your preferred <a href="%R/skins">site skin</a>.
+  @ </p>
+  @ <hr><p>
+  @ Manage your <a href="%R/cookies">cookies</a>.</p>
+  if( login_is_individual() ){
     if( g.perm.Password ){
       char *zRPW = fossil_random_password(12);
       @ <hr>
@@ -1031,7 +1029,7 @@ void login_resetpw(void){
     @ Password-reset URLs have a short lifespan.
     @ </span></p>
     style_finish_page();
-    sleep(1);  /* Introduce a small delay on an invalid suffix as an 
+    sleep(1);  /* Introduce a small delay on an invalid suffix as an
                ** extra defense against search attacks */
     return;
   }
@@ -1165,7 +1163,7 @@ static int login_transfer_credentials(
       db_multi_exec(
         "UPDATE user SET cookie=%Q, cexpire=%.17g"
         " WHERE login=%Q",
-        zHash, 
+        zHash,
         sqlite3_column_double(pStmt, 0), zLogin
       );
       db_protect_pop();
@@ -1267,6 +1265,95 @@ static int login_basic_authentication(const char *zIpAddr){
 }
 
 /*
+** SETTING: robot-restrict                width=40 block-text
+** The VALUE of this setting is a list of GLOB patterns that match
+** pages for which complex HTTP requests from robots should be disallowed.
+** The recommended value for this setting is:
+** 
+**      timeline,vdiff,fdiff,annotate,blame
+** 
+*/
+
+/*
+** Check to see if the current HTTP request is a complex request that
+** is coming from a robot and if access should restricted for such robots.
+** For the purposes of this module, a "complex request" is an HTTP
+** request with one or more query parameters other than "name".
+**
+** If this routine determines that robots should be restricted, then
+** this routine publishes a redirect to the honeypot and exits without
+** returning to the caller.
+**
+** This routine believes that this is a complex request is coming from
+** a robot if all of the following are true:
+**
+**    *   The user is "nobody".
+**    *   Either the REFERER field of the HTTP header is missing or empty,
+**        or the USERAGENT field of the HTTP header suggests that
+**        the request as coming from a robot.
+**    *   There are one or more query parameters other than "name".
+**
+** Robot restrictions are governed by settings.
+**
+**    robot-restrict    The value is a list of GLOB patterns for pages
+**                      that should restrict robot access.  No restrictions
+**                      are applied if this setting is undefined or is
+**                      an empty string.
+*/
+void login_restrict_robot_access(void){
+  const char *zReferer;
+  const char *zGlob;
+  int isMatch = 1;
+  if( g.zLogin!=0 ) return;
+  zGlob = db_get("robot-restrict",0);
+  if( zGlob==0 || zGlob[0]==0 ) return;
+  if( g.isHuman ){
+    zReferer = P("HTTP_REFERER");
+    if( zReferer && zReferer[0]!=0 ) return;
+  }
+  if( cgi_qp_count()<1 ) return;
+  isMatch = glob_multi_match(zGlob, g.zPath);
+  if( !isMatch ) return;
+
+  /* If we reach this point, it means we have a situation where we
+  ** want to restrict the activity of a robot.
+  */
+  g.isHuman = 0;
+  (void)exclude_spiders(0);
+  cgi_reply();
+  fossil_exit(0);
+}
+
+/*
+** When this routine is called, we know that the request does not
+** have a login on the present repository.  This routine checks to
+** see if their login cookie might be for another member of the
+** login-group.
+**
+** If this repository is not a part of any login group, then this
+** routine always returns false.
+**
+** If this repository is part of a login group, and the login cookie
+** appears to be well-formed, then return true.  That might be a
+** false-positive, as we don't actually check to see if the login
+** cookie is valid for some other repository.  But false-positives
+** are ok.  This routine is used for robot defense only.
+*/
+int login_cookie_wellformed(void){
+  const char *zCookie;
+  int n;
+  zCookie = P(login_cookie_name());
+  if( zCookie==0 ){
+    return 0;
+  }
+  if( !db_exists("SELECT 1 FROM config WHERE name='login-group-code'") ){
+    return 0;
+  }
+  for(n=0; fossil_isXdigit(zCookie[n]); n++){}
+  return n>48 && zCookie[n]=='/' && zCookie[n+1]!=0;
+}
+
+/*
 ** This routine examines the login cookie to see if it exists and
 ** is valid.  If the login cookie checks out, it then sets global
 ** variables appropriately.
@@ -1351,18 +1438,25 @@ void login_check_credentials(void){
       */
       double rTime = atof(zArg);
       Blob b;
-      blob_zero(&b);
-      blob_appendf(&b, "%s/%s", zArg, db_get("captcha-secret",""));
-      sha1sum_blob(&b, &b);
-      if( fossil_strcmp(zHash, blob_str(&b))==0 ){
-        uid = db_int(0,
-            "SELECT uid FROM user WHERE login='anonymous'"
-            " AND octet_length(cap)>0"
-            " AND octet_length(pw)>0"
-            " AND %.17g+0.25>julianday('now')",
-            rTime
-        );
-      }
+      char *zSecret;
+      int n = 0;
+
+      do{
+        blob_zero(&b);
+        zSecret = captcha_secret(n++);
+        if( zSecret==0 ) break;
+        blob_appendf(&b, "%s/%s", zArg, zSecret);
+        sha1sum_blob(&b, &b);
+        if( fossil_strcmp(zHash, blob_str(&b))==0 ){
+          uid = db_int(0,
+              "SELECT uid FROM user WHERE login='anonymous'"
+              " AND octet_length(cap)>0"
+              " AND octet_length(pw)>0"
+              " AND %.17g+0.25>julianday('now')",
+              rTime
+          );
+        }
+      }while( uid==0 );
       blob_reset(&b);
     }else{
       /* Cookies of the form "HASH/CODE/USER".  Search first in the
@@ -1372,7 +1466,16 @@ void login_check_credentials(void){
       uid = login_find_user(zUser, zHash);
       if( uid==0 && login_transfer_credentials(zUser,zArg,zHash) ){
         uid = login_find_user(zUser, zHash);
-        if( uid ) record_login_attempt(zUser, zIpAddr, 1);
+        if( uid ){
+          record_login_attempt(zUser, zIpAddr, 1);
+        }else{
+          /* The login cookie is a valid login for project CODE, but no
+          ** user named USER exists on this repository.  Cannot login as
+          ** USER, but at least give them "anonymous" login. */
+          uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
+                          " AND octet_length(cap)>0"
+                          " AND octet_length(pw)>0");
+        }
       }
     }
     login_create_csrf_secret(zHash);
@@ -1429,6 +1532,9 @@ void login_check_credentials(void){
   }
 
   login_set_uid(uid, zCap);
+
+  /* Maybe restrict access to robots */
+  login_restrict_robot_access();
 }
 
 /*
@@ -1511,13 +1617,11 @@ int login_set_uid(int uid, const char *zCap){
   */
   zPublicPages = db_get("public-pages",0);
   if( zPublicPages!=0 ){
-    Glob *pGlob = glob_create(zPublicPages);
     const char *zUri = PD("REQUEST_URI","");
     zUri += (int)strlen(g.zTop);
-    if( glob_match(pGlob, zUri) ){
+    if( glob_multi_match(zPublicPages, zUri) ){
       login_set_capabilities(db_get("default-perms", "u"), 0);
     }
-    glob_free(pGlob);
   }
   return g.zLogin!=0;
 }
@@ -1582,7 +1686,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->TktFmt = p->Attach = p->ApndTkt =
                              p->ModWiki = p->ModTkt =
                              p->RdForum = p->WrForum = p->ModForum =
-                             p->WrTForum = p->AdminForum = p->Chat = 
+                             p->WrTForum = p->AdminForum = p->Chat =
                              p->EmailAlert = p->Announce = p->Debug = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
@@ -1829,7 +1933,7 @@ void login_insert_csrf_secret(void){
 
 /*
 ** Check to see if the candidate username zUserID is already used.
-** Return 1 if it is already in use.  Return 0 if the name is 
+** Return 1 if it is already in use.  Return 0 if the name is
 ** available for a self-registeration.
 */
 static int login_self_choosen_userid_already_exists(const char *zUserID){
@@ -1851,7 +1955,7 @@ static int login_self_choosen_userid_already_exists(const char *zUserID){
 */
 static int email_address_in_use(const char *zEMail){
   int uid;
-  uid = db_int(0, 
+  uid = db_int(0,
     "SELECT uid FROM user"
     " WHERE info LIKE '%%<%q>%%'", zEMail);
   if( uid>0 ){
@@ -1880,7 +1984,7 @@ static int email_address_in_use(const char *zEMail){
 /*
 ** COMMAND: test-email-used
 ** Usage:  fossil test-email-used EMAIL ...
-** 
+**
 ** Given a list of email addresses, show the UID and LOGIN associated
 ** with each one.
 */
@@ -1905,7 +2009,7 @@ void test_email_used(void){
     }
   }
 }
-    
+
 
 /*
 ** Check an email address and confirm that it is valid for self-registration.
@@ -1919,19 +2023,15 @@ void test_email_used(void){
 */
 int authorized_subscription_email(const char *zEAddr){
   char *zGlob = db_get("auth-sub-email",0);
-  Glob *pGlob;
   char *zAddr;
   int rc;
 
   if( zGlob==0 || zGlob[0]==0 ) return 1;
   zGlob = fossil_strtolwr(fossil_strdup(zGlob));
-  pGlob = glob_create(zGlob);
-  fossil_free(zGlob);
-
   zAddr = fossil_strtolwr(fossil_strdup(zEAddr));
-  rc = glob_match(pGlob, zAddr);
+  rc = glob_multi_match(zGlob, zAddr);
+  fossil_free(zGlob);
   fossil_free(zAddr);
-  glob_free(pGlob);
   return rc!=0;
 }
 
@@ -1997,7 +2097,7 @@ void register_page(void){
   }else if( sqlite3_strglob("*[^-a-zA-Z0-9_.]*",zUserID)==0 ){
     iErrLine = 1;
     zErr = "User ID may not contain spaces or special characters.";
-  }else if( sqlite3_strlike("anonymous%", zUserID, 0)==0 
+  }else if( sqlite3_strlike("anonymous%", zUserID, 0)==0
          || sqlite3_strlike("nobody%", zUserID, 0)==0
          || sqlite3_strlike("reader%", zUserID, 0)==0
          || sqlite3_strlike("developer%", zUserID, 0)==0
@@ -2092,7 +2192,7 @@ void register_page(void){
         /* This the case where the user was formerly a verified subscriber
         ** and here they have also registered as a user as well.  It is
         ** not necessary to repeat the verfication step */
-        redirect_to_g();
+        login_redirect_to_g();
       }
       /* A verification email */
       pSender = alert_sender_new(0,0);
@@ -2121,7 +2221,7 @@ void register_page(void){
       style_finish_page();
       return;
     }
-    redirect_to_g();
+    login_redirect_to_g();
   }
 
   /* Prepare the captcha. */
@@ -2130,7 +2230,7 @@ void register_page(void){
   }else{
     uSeed = captcha_seed();
   }
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
 
   style_header("Register");
@@ -2340,7 +2440,7 @@ void login_reqpwreset_page(void){
   }else{
     uSeed = captcha_seed();
   }
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
 
   style_header("Request Password Reset");

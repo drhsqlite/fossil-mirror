@@ -10,10 +10,10 @@ Git as an intermediary.
 
 To import a Git repository into Fossil, say something like:
 
-<blockquote><pre>
+<pre>
 cd git-repo
 git fast-export --all | fossil import --git new-repo.fossil
-</pre></blockquote>
+</pre>
 
 The 3rd argument to the "fossil import"
 command is the name of a new Fossil repository that is created to hold the Git
@@ -60,11 +60,11 @@ any dependency on the amount of data involved.
 To convert a Fossil repository into a Git repository, run commands like
 this:
 
-<blockquote><pre>
+<pre>
 git init new-repo
 cd new-repo
 fossil export --git ../repo.fossil | git fast-import
-</pre></blockquote>
+</pre>
 
 In other words, create a new Git repository, then pipe the output from the
 "fossil export --git" command into the "git fast-import" command.
@@ -99,7 +99,7 @@ To illustrate, consider the example of a remote Fossil repository that a
 user wants to import into a local Git repository.  First, the user would clone
 the remote repository and import it into a new Git repository:
 
-<blockquote><pre>
+<pre>
 fossil clone /path/to/remote/repo.fossil repo.fossil
 mkdir repo
 cd repo
@@ -110,13 +110,13 @@ git init .
 fossil export --git --export-marks ../repo/fossil.marks  \
        ../repo.fossil | git fast-import                  \
        --export-marks=../repo/git.marks
-</pre></blockquote>
+</pre>
 
 Once the import has completed, the user would need to <tt>git checkout
 trunk</tt>.  At any point after this, new changes can be imported from the
 remote Fossil repository:
 
-<blockquote><pre>
+<pre>
 cd ../repo
 fossil pull
 cd ../repo.git
@@ -125,16 +125,16 @@ fossil export --git --import-marks ../repo/fossil.marks  \
        ../repo.fossil | git fast-import                  \
        --import-marks=../repo/git.marks                  \
        --export-marks=../repo/git.marks
-</pre></blockquote>
+</pre>
 
 Changes in the Git repository can be exported to the Fossil repository and then
 pushed to the remote:
 
-<blockquote><pre>
+<pre>
 git fast-export --import-marks=../repo/git.marks                  \
     --export-marks=../repo/git.marks --all | fossil import --git  \
     --incremental --import-marks ../repo/fossil.marks             \
     --export-marks ../repo/fossil.marks ../repo.fossil
 cd ../repo
 fossil push
-</pre></blockquote>
+</pre>

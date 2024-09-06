@@ -12,28 +12,28 @@ the “update in place” working style.
 With Fossil, it is routine to have multiple check-outs from the same
 repository:
 
-        fossil clone https://example.com/repo /path/to/repo.fossil
+    fossil clone https://example.com/repo /path/to/repo.fossil
 
-        mkdir -p ~/src/my-project/trunk
-        cd ~/src/my-project/trunk
-        fossil open /path/to/repo.fossil    # implicitly opens “trunk”
+    mkdir -p ~/src/my-project/trunk
+    cd ~/src/my-project/trunk
+    fossil open /path/to/repo.fossil    # implicitly opens “trunk”
 
-        mkdir ../release
-        cd ../release
-        fossil open /path/to/repo.fossil release
+    mkdir ../release
+    cd ../release
+    fossil open /path/to/repo.fossil release
 
-        mkdir ../my-other-branch
-        cd ../my-other-branch
-        fossil open /path/to/repo.fossil my-other-branch
+    mkdir ../my-other-branch
+    cd ../my-other-branch
+    fossil open /path/to/repo.fossil my-other-branch
 
-        mkdir ../scratch
-        cd ../scratch
-        fossil open /path/to/repo.fossil abcd1234
+    mkdir ../scratch
+    cd ../scratch
+    fossil open /path/to/repo.fossil abcd1234
 
-        mkdir ../test
-        cd ../test
-        fossil open /path/to/repo.fossil 2019-04-01
-        
+    mkdir ../test
+    cd ../test
+    fossil open /path/to/repo.fossil 2019-04-01
+
 Now you have five separate check-out directories: one each for:
 
 *   trunk
@@ -75,14 +75,14 @@ style, switching between versions in a single check-out directory.
 
 The most idiomatic way is as follows:
 
-        fossil clone https://example.com/repo /path/to/repo.fossil
-        mkdir work-dir
-        cd work-dir
-        fossil open /path/to/repo.fossil
-        ...work on trunk...
+    fossil clone https://example.com/repo /path/to/repo.fossil
+    mkdir work-dir
+    cd work-dir
+    fossil open /path/to/repo.fossil
+    ...work on trunk...
 
-        fossil update my-other-branch
-        ...work on your other branch in the same directory...
+    fossil update my-other-branch
+    ...work on your other branch in the same directory...
 
 Basically, you replace the `cd` commands in the multiple checkouts
 workflow above with `fossil up` commands.
@@ -90,12 +90,11 @@ workflow above with `fossil up` commands.
 
 #### <a id="open"></a> Opening a Repository by URI
 
-In Fossil 2.12, we added a feature to simplify the single-worktree use
-case:
+You can instead open the repo’s URI directly:
 
-        mkdir work-dir
-        cd work-dir
-        fossil open https://example.com/repo
+    mkdir work-dir
+    cd work-dir
+    fossil open https://example.com/repo
 
 Now you have “trunk” open in `work-dir`, with the repo file stored as
 `repo.fossil` in that same directory.
@@ -111,10 +110,10 @@ details.)
 
 #### <a id="clone"></a> Git-Like Clone-and-Open
 
-In Fossil 2.14, we added a more Git-like alternative:
+Fossil also supports a more Git-like alternative:
 
-        fossil clone https://fossil-scm.org/fossil
-        cd fossil
+    fossil clone https://fossil-scm.org/fossil
+    cd fossil
 
 This results in a `fossil.fossil` repo DB file and a `fossil/` working
 directory.
@@ -124,7 +123,7 @@ check-out, solving our major problem with the Git design.
 
 If you want the repo to be named something else, adjust the URL:
 
-        fossil clone https://fossil-scm.org/fossil/fsl
+    fossil clone https://fossil-scm.org/fossil/fsl
 
 That gets you `fsl.fossil` checked out into `fsl/`.
 
@@ -132,7 +131,7 @@ For sites where the repo isn’t served from a subdirectory like this, you
 might need another form of the URL. For example, you might have your
 repo served from `dev.example.com` and want it cloned as `my-project`:
 
-        fossil clone https://dev.example.com/repo/my-project
+    fossil clone https://dev.example.com/repo/my-project
 
 The `/repo` addition is the key: whatever comes after is used as the
 repository name. [See the docs][clone] for more details.

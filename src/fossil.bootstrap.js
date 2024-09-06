@@ -139,7 +139,7 @@
      Creates a URL by prepending this.rootPath to the given path
      (which must be relative from the top of the site, without a
      leading slash). If urlParams is a string, it must be
-     paramters encoded in the form "key=val&key2=val2..." WITHOUT
+     parameters encoded in the form "key=val&key2=val2..." WITHOUT
      a leading '?'. If it's an object, all of its properties get
      appended to the URL in that form.
   */
@@ -302,20 +302,20 @@
      the default wait time set in this function's $defaultDelay
      property is used.
 
-     Source: underscore.js, by way of https://davidwalsh.name/javascript-debounce-function
+     Inspiration: underscore.js, by way of https://davidwalsh.name/javascript-debounce-function
   */
-  F.debounce = function f(func, wait, immediate) {
-    var timeout;
-    if(!wait) wait = f.$defaultDelay;
+  F.debounce = function f(func, waitMs, immediate) {
+    var timeoutId;
+    if(!waitMs) waitMs = f.$defaultDelay;
     return function() {
       const context = this, args = Array.prototype.slice.call(arguments);
       const later = function() {
-        timeout = undefined;
+        timeoutId = undefined;
         if(!immediate) func.apply(context, args);
       };
-      const callNow = immediate && !timeout;
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
+      const callNow = immediate && !timeoutId;
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(later, waitMs);
       if(callNow) func.apply(context, args);
     };
   };

@@ -498,7 +498,6 @@ table.rpteditex {
   border-spacing: 0;
 }
 table.report {
-  border-collapse:collapse;
   border: 1px solid #999;
   margin: 1em 0 1em 0;
   cursor: pointer;
@@ -584,7 +583,7 @@ table.diff pre {
 table.diff pre > ins,
 table.diff pre > del {
   /* Fill platform-dependent color gaps caused by
-     inflated line-height */;
+     inflated line-height */
   padding: 0.062em 0 0.062em 0;
 }
 table.diff pre > ins > *,
@@ -620,7 +619,6 @@ tr.diffskip.jchunk:hover {
 }
 tr.diffskip > td.chunkctrl {
   text-align: left;
-  font-family: monospace;
 }
 tr.diffskip > td.chunkctrl > div {
   display: flex;
@@ -667,14 +665,31 @@ tr.diffskip > td.chunkctrl .jcbutton.down > span::before {
 tr.diffskip > td.chunkctrl .jcbutton.up.down > span::before {
   content: '⇡⇣';
 }
-
 tr.diffskip > td.chunkctrl .jcbutton:hover {
   cursor: pointer;
   opacity: 1;
   filter: contrast(1);
 }
+tr.diffchunk {
+  display: grid;
+  gap: 0px 0px;
+  grid-template-rows: 1fr;
+}
+table.splitdiff tr.diffchunk {
+  grid-template-columns: auto 1fr auto auto 1fr;
+  grid-template-areas: "difflnl difftxtl diffsep difflnr difftxtr";
+}
+table.udiff tr.diffchunk {
+  grid-template-columns: auto auto auto 1fr;
+  grid-template-areas: "difflnl difflnr diffsep difftxtu";
+}
+td.difflnl { grid-area: difflnl; }
+td.difflnr { grid-area: difflnr; }
+td.difftxtu { grid-area: difftxtu; }
+td.difftxtl  { grid-area: difftxtl; }
+td.difftxtr  { grid-area: difftxtr; }
 td.diffln {
-  width: 1px;
+  width: fit-content;
   text-align: right;
   padding: 0 1em 0 0;
 }
@@ -682,8 +697,9 @@ td.difflne {
   padding-bottom: 0.4em;
 }
 td.diffsep {
-  width: 1px;
+  width: fit-content;
   padding: 0 0.3em 0 0.5em;
+  grid-area: diffsep;
 }
 td.difftxt pre {
   overflow-x: auto;
@@ -1296,7 +1312,6 @@ hr {
 }
 #fossil-status-bar {
   display: block;
-  font-family: monospace;
   border-width: 1px;
   border-style: inset;
   border-color: inherit;
@@ -1338,9 +1353,16 @@ hr {
   border-radius: 0.25em;
   padding: 0.1em;
   margin: 0 0.5em;
-  display: inline-block;
+  display: inline-block
+           /* We would really like flex layout but changing that
+              currently introduces a good deal of UI breakage
+              to chase down. The advantage would be better alignment
+              of the contained elements. */;
   cursor: default;
   white-space: nowrap;
+}
+.submenu .input-with-label {
+  border: none;
 }
 .input-with-label > * {
   vertical-align: middle;
@@ -1348,6 +1370,7 @@ hr {
 .input-with-label > label {
   display: inline; /* some skins set label display to block! */
   cursor: pointer;
+  white-space: nowrap;
 }
 .input-with-label > input {
   margin: 0;
@@ -1387,7 +1410,6 @@ table.numbered-lines {
                          on them. */;
 }
 table.numbered-lines > tbody > tr {
-  font-family: monospace;
   line-height: 1.35;
   white-space: pre;
 }
@@ -1536,6 +1558,27 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
 blockquote.file-content {
   /* file content block in the /file page */
   margin: 0 1em;
+}
+
+/* Generic sidebar styling inherited by skins that don't make their own
+ * arrangements. */
+.markdown blockquote, p.blockquote, .sidebar {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-left: 3px solid #777;
+  padding: 0.1em 1em;
+}
+.sidebar {
+  /* Generic form that can be applied to any block element. */
+  font-size: 90%;
+}
+div.sidebar {
+  /* Special exception for div-type sidebars, where there is no p
+   * wrapper inside to give us the extra padding we want. */
+  padding: 1em;
+}
+div.sidebar:not(.no-label):before {
+  content: "Sidebar: ";
+  font-weight: bold;
 }
 
 
@@ -1763,8 +1806,19 @@ body.branch .submenu > a.timeline-link.selected {
   display: inline;
 }
 
-.monospace {
-  font-family: monospace;
+/* Candidate fonts for various forms of monospaced text. Collected here
+ * to avoid repeating this long list of fonts. */
+code, kbd, pre, samp, tt, var,
+    div.markdown ol.footnotes > li.fn-joined > sup.fn-joined,
+    table.numbered-lines > tbody > tr,
+    tr.diffskip > td.chunkctrl,
+    #fossil-status-bar,
+    .monospace {
+  font-family: "Source Code Pro", "Menlo", "Monaco", "Consolas",
+               "Andale Mono", "Ubuntu Mono", "Deja Vu Sans Mono",
+               "Letter Gothic", "Letter Gothic Std", "Prestige Elite Std",
+               "Courier", "Courier New",
+               monospace;
 }
 
 div.markdown > ol.footnotes {
@@ -1775,7 +1829,6 @@ div.markdown > ol.footnotes > li {
 }
 div.markdown ol.footnotes > li.fn-joined > sup.fn-joined {
   color: gray;
-  font-family: monospace;
 }
 div.markdown ol.footnotes > li.fn-joined > sup.fn-joined::after {
   content: "(joined from multiple locations) ";
@@ -1847,6 +1900,14 @@ div.markdown span.notescope:target {
 @media screen and (max-width: 600px) {
   .desktoponly {
     display: none;
+  }
+}
+/* Float sidebars to the right of the main content only if there's room. */
+@media screen and (min-width: 600px) {
+  .sidebar {
+    float: right;
+    max-width: 33%;
+    margin-left: 1em;
   }
 }
 /* Objects in the "wideonly" class are invisible only on wide-screen desktops */

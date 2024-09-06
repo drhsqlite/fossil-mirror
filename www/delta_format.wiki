@@ -192,9 +192,9 @@ written base-64 encoded, MSB first, and without leading
 The base-64 encoding uses one character for each 6 bits of
 the integer to be encoded.  The encoding characters are:
 
-<blockquote><pre>
+<pre>
 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~
-</pre></blockquote>
+</pre>
 
 The least significant 6 bits of the integer are encoded by
 the first character, followed by
@@ -207,7 +207,7 @@ ASCII decimal rendering of the number itself.
 
 <h2 id="examplesint">4.1 Integer encoding</h2>
 
-<table border=1>
+<table>
 <tr>
 <th>Value</th>
 <th>Encoding</th>
@@ -230,14 +230,14 @@ ASCII decimal rendering of the number itself.
 
 An example of a delta using the specified encoding is:
 
-<table border=1><tr><td><pre>
+<pre>
 1Xb
 4E@0,2:thFN@4C,6:scenda1B@Jd,6:scenda5x@Kt,6:pieces79@Qt,F: Example: eskil~E@Y0,2zMM3E;</pre>
-</td></tr></table>
+</pre>
 
 This can be taken apart into the following parts:
 
-<table border=1>
+<table>
 <tr><th>What  </th> <th>Encoding         </th><th>Meaning </th><th>Details</th></tr>
 <tr><td>Header</td> <td>1Xb              </td><td>Size    </td><td> 6246         </td></tr>
 <tr><td>S-List</td> <td>4E@0,            </td><td>Copy    </td><td> 270 @ 0      </td></tr>
@@ -256,7 +256,7 @@ This can be taken apart into the following parts:
 
 The unified diff behind the above delta is
 
-<table border=1><tr><td><pre>
+<verbatim>
 bluepeak:(761) ~/Projects/Tcl/Fossil/Devel/devel > diff -u ../DELTA/old ../DELTA/new
 --- ../DELTA/old        2007-08-23 21:14:40.000000000 -0700
 +++ ../DELTA/new        2007-08-23 21:14:33.000000000 -0700
@@ -297,8 +297,7 @@ bluepeak:(761) ~/Projects/Tcl/Fossil/Devel/devel > diff -u ../DELTA/old ../DELTA
 +    visual differ of the users choice. Example: eskil.
 
   *  Ticketing interface (expand this bullet)
-
-</pre></td></tr></table>
+</verbatim>
 
 
 

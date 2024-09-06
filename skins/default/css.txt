@@ -1,17 +1,25 @@
-/* Overall page style */
+/* Overall page style; vi: filetype=css
+ */
 
 body {
   margin: 0 auto;
   background-color: white;
   font-family: sans-serif;
-  font-size: 14pt;
-     -moz-text-size-adjust: none;
-      -mx-text-size-adjust: none;
-  -webkit-text-size-adjust: none;
 }
 
 a {
-  color: #4183C4;
+  /* Unvisited links are a lightness-adjusted version of this skin's
+   * header blue, balancing contrast between the body text and the
+   * background in order to meet the goals specified by the WCAG 2
+   * accessbility standard, earning us an "AA" grade according to
+   * the calculator result here:
+   *
+   *   https://webaim.org/resources/linkcontrastchecker/?fcolor=2E2E2E&bcolor=FFFFFF&lcolor=3779BF
+   *
+   * It is for this same reason that our not-quite-black body text
+   * color is the shade of dark gray that it is.  It can't be any
+   * lighter and still allow us to meet both targets. */
+  color: #3779BF;
   text-decoration: none;
 }
 a:hover {
@@ -26,24 +34,54 @@ a:hover {
   color: #4183C4;
   float: left;
 }
+h1.page-title {
+  font-size: 1.60em;  /* match content > h1 */
+  margin-bottom: 0;   /* div.content top margin suffices */
+  display: none;      /* don't use body-area h1 except… */
+}
+.artifact h1.page-title,
+.dir      h1.page-title,
+.doc      h1.page-title,
+.wiki     h1.page-title {
+  display: block;   /* …for potentially long doc titles… */
+}
+.artifact .title > .page-title,
+.dir      .title > .page-title,
+.doc      .title > .page-title,
+.wiki     .title > .page-title {
+  display: none;   /* …where we suppress the title area h1 instead */
+}
 .title h1 {
   display: inline;
+  font-size: 2.20em;
 }
 .title h1:after {
   content: " / ";
   color: #777;
   font-weight: normal;
 }
+.artifact .title h1:after,
+.dir      .title h1:after,
+.doc      .title h1:after,
+.wiki     .title h1:after {
+  content: "";    /* hide solidus for docs along with title h1 */
+}
 .status {
   float: right;
-  font-size: 0.7em;
+  font-size: 0.8em;
+}
+div.logo {
+  float: left;
+  padding-right: 10px;
+}
+div.logo img {
+  max-height: 2em;    /* smaller than title to keep it above the baseline */
 }
 
 
 /* Main menu and optional sub-menu */
 
 .mainmenu {
-  font-size: 0.8em;
   clear: both;
   background: #eaeaea linear-gradient(#fafafa, #eaeaea) repeat-x;
   border: 1px solid #eaeaea;
@@ -63,7 +101,7 @@ a:hover {
   color: #000;
   border-bottom: 2px solid #D26911;
 }
-div#hbdrop {
+nav#hbdrop {
   background-color: white;
   border: 1px solid black;
   border-top: white;
@@ -78,7 +116,7 @@ div#hbdrop {
 }
 
 .submenu {
-  font-size: .7em;
+  font-size: 0.8em;
   padding: 10px;
   border-bottom: 1px solid #ccc;
 }
@@ -107,22 +145,14 @@ span.submenuctrl {
 /* Main document area; elements common to most pages. */
 
 .content {
-  padding-top: 10px;
-  font-size: 0.8em;
-  color: #444;
+  padding: 1ex;
+  color: #2e2e2e;   /* justified above in "WCAG 2" comment */
 }
-.content blockquote {
-  padding: 0 15px;
-}
-.content h1 {
-  font-size: 1.25em;
-}
-.content h2 {
-  font-size: 1.15em;
-}
-.content h3 {
-  font-size: 1.05em;
-}
+.content h1 { font-size: 1.60em; color: #444; }
+.content h2 { font-size: 1.45em; color: #444; }
+.content h3 { font-size: 1.15em; color: #444; }
+.content h4 { font-size: 1.05em; color: #444; }
+.content h5 { font-size: 1.00em; color: #444; }
 
 .section {
   font-size: 1em;
@@ -153,10 +183,10 @@ hr {
 
 /* Page footer */
 
-.footer {
+footer {
   border-top: 1px solid #ccc;
   padding: 10px;
-  font-size: 0.7em;
+  font-size: 0.8em;
   margin-top: 10px;
   color: #ccc;
 }
@@ -167,10 +197,231 @@ hr {
   color: #6A7F94;
 }
 
-.forum blockquote {
-  background-color: rgba(65, 131, 196, 0.1);
-  border-left: 3px solid #254769;
-  padding: .1em 1em;
+div.forumSel {
+  animation: 1s linear 0s sel-fade;
+  background-color: white;      /* animation end state */
+  border-left: 4px solid black; /* after-animation selection indicator */
+}
+@keyframes sel-fade {
+  from { background-color: #cef;  }
+    to { background-color: white; }
+}
+
+.forum form input {
+  margin: 0.5em 0;
+}
+
+
+/* Markdown and Wiki-formatted pages: /wiki, /doc, /file... */
+
+.markdown blockquote, p.blockquote, .sidebar {
+  /* Override default.css version with our accent colors.  Background is
+   * the solid version of rgba(65, 131, 196, 0.1) on white, needed to
+   * avoid tinting pre block backgrounds going "under" them. */
+  background-color: #ebf2f9;
+  border-left-color: #4183c4;
+}
+div.sidebar {
+  /* Add extra whitespace between sidebar and content, both for spacing
+   * and to put a gap between it and any <pre> blocks that happen to run
+   * up against it. */
+  outline: 1em solid white;
+}
+
+/* Mark inline code fragments in the near-universal manner pioneered by
+ * Stack Overflow, then picked up by approximately everyone, including
+ * us, now.
+ *
+ * This combinatorial selector explosion results from a need to apply
+ * these stylings inside multiple page container types, multiplied by
+ * the surprisingly large number of tags HTML defines for semantically
+ * differentiated monospaced inline markup.  If we do not target the
+ * elements we want to affect carefully, we'll end up overreaching,
+ * styling Fossil UI elements that use these tags for local purposes.
+ *
+ * HTML generated and emitted by Fossil UI does not always fall under
+ * the skin's generic rules; we must avoid intruding on its domain.
+ * Our limited intent here is to style user content only, where it is
+ * unreasonable to expect its author to take the time to hand-craft
+ * per-document styling.  Contrast Fossil UI, which often does exactly
+ * that in order to get particular results.
+ *
+ * Its rough equivalent in Sass syntax is far more compact, thus clearer:
+ * 
+ * .artifact, .dir, .doc, .forum, .wiki        // the page types we target
+ *   > .content                                // hands off header & footer
+ *     &, > .fossil-doc, > .markdown           // wiki, HTML & MD emb docs
+ *       > p                                   // in top-level paras only
+ *         > code, > kbd, > samp, > tt, > var  // monospaced tag types
+ *           background-color: #f4f4f4         // pale gray box which…
+ *           padding: 0 4px                    // …extends around the sides
+ *
+ * We then need something similar for the block-level pre elements.
+ *
+ * The CSS below is based on feeding that Sass code through this:
+ *
+ *   $ sassc code.sass | sed -e 's/, /,\n/g'
+ *
+ * …then hand-cleansing it to make it _somewhat_ more understandable.
+ * That largely amounts to whitespace tweaks, but we've also done things
+ * like trim back the forum-specific styling to apply to the default MD
+ * markup only; direct HTML formatting isn't even an option there, and
+ * while wiki markup _is_ supported, MD was the default from day 1.
+ * Another quirk of the forum post handling is that the .markdown class
+ * gets applied per-post, not up at the top level as with the wiki,
+ * embedded docs, etc.
+ */
+.artifact > .content               > p > code,
+.artifact > .content               > p > kbd,
+.artifact > .content               > p > samp,
+.artifact > .content               > p > tt,
+.artifact > .content               > p > var,
+.artifact > .content > .fossil-doc > p > code,
+.artifact > .content > .fossil-doc > p > kbd,
+.artifact > .content > .fossil-doc > p > samp,
+.artifact > .content > .fossil-doc > p > tt,
+.artifact > .content > .fossil-doc > p > var,
+.artifact > .content > .markdown   > p > code,
+.artifact > .content > .markdown   > p > kbd,
+.artifact > .content > .markdown   > p > samp,
+.artifact > .content > .markdown   > p > tt,
+.artifact > .content > .markdown   > p > var,
+.dir      > .content               > p > code,
+.dir      > .content               > p > kbd,
+.dir      > .content               > p > samp,
+.dir      > .content               > p > tt,
+.dir      > .content               > p > var,
+.dir      > .content > .fossil-doc > p > code,
+.dir      > .content > .fossil-doc > p > kbd,
+.dir      > .content > .fossil-doc > p > samp,
+.dir      > .content > .fossil-doc > p > tt,
+.dir      > .content > .fossil-doc > p > var,
+.dir      > .content > .markdown   > p > code,
+.dir      > .content > .markdown   > p > kbd,
+.dir      > .content > .markdown   > p > samp,
+.dir      > .content > .markdown   > p > tt,
+.dir      > .content > .markdown   > p > var,
+.doc      > .content               > p > code,
+.doc      > .content               > p > kbd,
+.doc      > .content               > p > samp,
+.doc      > .content               > p > tt,
+.doc      > .content               > p > var,
+.doc      > .content > .fossil-doc > p > code,
+.doc      > .content > .fossil-doc > p > kbd,
+.doc      > .content > .fossil-doc > p > samp,
+.doc      > .content > .fossil-doc > p > tt,
+.doc      > .content > .fossil-doc > p > var,
+.doc      > .content > .markdown   > p > code,
+.doc      > .content > .markdown   > p > kbd,
+.doc      > .content > .markdown   > p > samp,
+.doc      > .content > .markdown   > p > tt,
+.doc      > .content > .markdown   > p > var,
+.forum    > .content   .markdown   > p > code,
+.forum    > .content   .markdown   > p > kbd,
+.forum    > .content   .markdown   > p > samp,
+.forum    > .content   .markdown   > p > tt,
+.forum    > .content   .markdown   > p > var,
+.wiki     > .content               > p > code,
+.wiki     > .content               > p > kbd,
+.wiki     > .content               > p > samp,
+.wiki     > .content               > p > tt,
+.wiki     > .content               > p > var,
+.wiki     > .content > .fossil-doc > p > code,
+.wiki     > .content > .fossil-doc > p > kbd,
+.wiki     > .content > .fossil-doc > p > samp,
+.wiki     > .content > .fossil-doc > p > tt,
+.wiki     > .content > .fossil-doc > p > var,
+.wiki     > .content > .markdown   > p > code,
+.wiki     > .content > .markdown   > p > kbd,
+.wiki     > .content > .markdown   > p > samp,
+.wiki     > .content > .markdown   > p > tt,
+.wiki     > .content > .markdown   > p > var,
+.artifact > .content               > pre,
+.artifact > .content > .fossil-doc > pre,
+.artifact > .content > .markdown   > pre,
+.dir      > .content               > pre,
+.dir      > .content > .fossil-doc > pre,
+.dir      > .content > .markdown   > pre,
+.doc      > .content               > pre,
+.doc      > .content > .fossil-doc > pre,
+.doc      > .content > .markdown   > pre,
+.forum    > .content   .markdown   > pre,
+.wiki     > .content               > pre,
+.wiki     > .content > .fossil-doc > pre,
+.wiki     > .content > .markdown   > pre {
+  background-color: #f4f4f4;
+  padding: 0 4px;
+}
+.content pre, table.numbered-lines > tbody > tr {
+  hyphens: none;
+  line-height: 1.25;
+}
+
+.content ul:not(.browser) li {
+  list-style-type: disc;
+}
+div.filetree ul li.dir,
+div.filetree ul li.subdir,
+div.filetree ul li.file{
+  list-style-type: none;
+}
+
+.artifact > .content table,
+.dir      > .content table,
+.doc      > .content table,
+.wiki     > .content table {
+  background-color: #f0f5f9;
+  border: 1px solid #a7c2dc;
+  border-radius: 0.5em;
+  border-spacing: 0;
+  padding: 6px;
+}
+.artifact > .content th,
+.dir      > .content th,
+.doc      > .content th,
+.wiki     > .content th {
+  border-bottom: 1px solid #dee8f2;
+  padding-bottom: 4px;
+  padding-right: 6px;
+}
+.artifact > .content tr > th,
+.dir      > .content tr > th,
+.doc      > .content tr > th,
+.wiki     > .content tr > th {
+  background-color: #dee8f0;
+}
+.artifact > .content tr:nth-child(odd),
+.dir      > .content tr:nth-child(odd),
+.doc      > .content tr:nth-child(odd),
+.wiki     > .content tr:nth-child(odd) {
+  background-color: #e0e8ee;
+}
+.artifact > .content td,
+.dir      > .content td,
+.doc      > .content td,
+.wiki     > .content td {
+  padding-bottom: 4px;
+  padding-right: 6px;
+}
+th {
+  /* Special rule at high level to override default centering of table
+     header cell text.  If it isn't at this level, it can't be
+     overridden in the HTML, as by the MD table generator's handling
+     of `:` alignment markers. */
+  text-align: left;
+}
+
+/* Wiki adjustments */
+pre.verbatim {
+  /* keep code examples from crashing into sidebars, etc. */
+  white-space: pre-wrap;  
+}
+textarea.wikiedit {
+  /* Monospace fonts tend to have smaller x-heights; compensate.
+   * Can't do this generally because not all fonts have this problem.
+   * A textarea stands alone, whereas inline <code> has to work with
+   * the browser's choice of sans-serif proportional font. */
+  font-size: 1.1em;  
 }
 
 
@@ -178,8 +429,8 @@ hr {
 
 table.report {
   cursor: auto;
-  border-radius: 5px;
   border: 1px solid #ccc;
+  border-radius: 0.5em;
   margin: 1em 0;
 }
 .report td, .report th {
@@ -229,11 +480,52 @@ td.tktDspValue pre {
 /* Timeline */
 
 span.timelineDetail {
-    font-size: 90%;
+  font-size: 90%;
 }
 div.timelineDate {
-    font-weight: bold;
-    white-space: nowrap;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Extend default.css comment cell rounding to the whole row for the
+ * various types of "selected" rows, making them "hang" into the left
+ * margin, distinguishing them from the coloring used for branch cells.
+ * Care must be taken to avoid having the box-shadow rounded but the
+ * background squared-off. */
+table.timelineTable {
+  padding: 0 3px;  /* leave space to sides for box shadow; can clip otherwise */
+}
+table.timelineTable tr {
+  border-radius: 1em;
+}
+tr.timelineSelected, tr.timelineSecondary { background-color: unset; }
+tr.timelineSelected  td, span.timelineSelected {
+  background-color: #fbe8d5;
+}
+tr.timelineSecondary td, span.timelineSecondary {
+  background-color: #d5e8fb;
+}
+tr.timelineCurrent   td:first-child,
+tr.timelineSecondary td:first-child,
+tr.timelineSelected  td:first-child {
+  border-top-left-radius:    1em;
+  border-bottom-left-radius: 1em;
+}
+tr.timelineCurrent   td:last-child,
+tr.timelineSecondary td:last-child,
+tr.timelineSelected  td:last-child {
+  border-top-right-radius:    1em;
+  border-bottom-right-radius: 1em;
+}
+tr.timelineCurrent td {
+  border-top:    1px dashed #446979;
+  border-bottom: 1px dashed #446979;
+}
+tr.timelineCurrent td:first-child {
+  border-left:   1px dashed #446979;
+}
+tr.timelineCurrent td:last-child {
+  border-right:  1px dashed #446979;
 }
 
 
@@ -252,9 +544,21 @@ div.timelineDate {
     padding-left: 4px;
     padding-right: 4px;
   }
+  .content {
+    font-size: 0.9em;
+  }
   .title {
     padding-top: 0px;
     padding-bottom: 0px;
+  }
+  .title > .page-title {
+    display: inline;    /* show page titles above menu bar… */
+  }
+  .artifact .title > .page-title,
+  .dir      .title > .page-title,
+  .doc      .title > .page-title,
+  .wiki     .title > .page-title {
+    display: none;     /* …except for docs, where it may force wrapping */
   }
   .status {padding-top: 0px;}
   .mainmenu a {
@@ -274,11 +578,210 @@ div.timelineDate {
     padding-top: 10px;
     padding-bottom: 10px;
   }
+  span.page-title {
+    font-size: 18px;
+  }
+  div.logo {
+    padding-top: 10px;
+  }
   .status {padding-top: 30px;}
   .mainmenu a {
     padding: 8px 20px;
   }
   .mainmenu {
     padding: 10px;
+  }
+
+  /* Wide screens mean long lines.  Add extra leading to give the eye a
+   * "gutter" to follow from the end of one to the start of the next. */
+  .content dd,
+  .content dt,
+  .content div,
+  .content li,
+  .content p,
+  .content table {
+    line-height: 1.4em;
+  }
+
+  /* This horror show has the same cause that informed our handling of
+   * <code> and friends above; see "combinatorial selector explosion."
+   * Without this careful targeting, we'd not only overreach into areas
+   * of Fossil UI where our meddling is not wanted, we would mistakenly
+   * apply double indents to nested formatting in MD forum posts, p
+   * within td tags, and more.
+   *
+   * Rather than give the equivalent Sass code here, see the SCSS file
+   * that the [Inskinerator](https://tangentsoft.com/inskinerator/)
+   * project ships as override/modern/media.scss.  Rendering that
+   * through sassc gives substantially identical output, modulo the
+   * hand-polishing we've done here. */
+  .artifact > .content               > p,
+  .artifact > .content > .markdown   > p,
+  .artifact > .content > .fossil-doc > p,
+  .artifact > .content               > ol, .artifact > .content               > ul,
+  .artifact > .content > .markdown   > ol, .artifact > .content > .markdown   > ul,
+  .artifact > .content > .fossil-doc > ol, .artifact > .content > .fossil-doc > ul,
+  .artifact > .content               > table,
+  .artifact > .content > .markdown   > table,
+  .artifact > .content > .fossil-doc > table,
+  .dir      > .content               > p,
+  .dir      > .content > .markdown   > p,
+  .dir      > .content > .fossil-doc > p,
+  .dir      > .content               > ol, .dir > .content               > ul,
+  .dir      > .content > .markdown   > ol, .dir > .content > .markdown   > ul,
+  .dir      > .content > .fossil-doc > ol, .dir > .content > .fossil-doc > ul,
+  .dir      > .content               > table,
+  .dir      > .content > .markdown   > table,
+  .dir      > .content > .fossil-doc > table,
+  .doc      > .content               > p,
+  .doc      > .content > .markdown   > p,
+  .doc      > .content > .fossil-doc > p,
+  .doc      > .content               > ol, .doc > .content               > ul,
+  .doc      > .content > .markdown   > ol, .doc > .content > .markdown   > ul,
+  .doc      > .content > .fossil-doc > ol, .doc > .content > .fossil-doc > ul,
+  .doc      > .content               > table,
+  .doc      > .content > .markdown   > table,
+  .doc      > .content > .fossil-doc > table,
+  .wiki     > .content               > p,
+  .wiki     > .content > .markdown   > p,
+  .wiki     > .content > .fossil-doc > p,
+  .wiki     > .content               > ol, .wiki > .content               > ul,
+  .wiki     > .content > .markdown   > ol, .wiki > .content > .markdown   > ul,
+  .wiki     > .content > .fossil-doc > ol, .wiki > .content > .fossil-doc > ul,
+  .wiki     > .content               > table,
+  .wiki     > .content > .markdown   > table,
+  .wiki     > .content > .fossil-doc > table,
+  #fileedit-tab-preview-wrapper > p,
+  #fileedit-tab-preview-wrapper > ol,
+  #fileedit-tab-preview-wrapper > ul,
+  #fileedit-tab-preview-wrapper > table,
+  #fileedit-tab-preview-wrapper > .markdown > p,
+  #fileedit-tab-preview-wrapper > .markdown > ol,
+  #fileedit-tab-preview-wrapper > .markdown > ul,
+  #fileedit-tab-preview-wrapper > .markdown > table,
+  #wikiedit-tab-preview-wrapper > p,
+  #wikiedit-tab-preview-wrapper > ol,
+  #wikiedit-tab-preview-wrapper > ul,
+  #wikiedit-tab-preview-wrapper > table,
+  #wikiedit-tab-preview-wrapper > .markdown > p,
+  #wikiedit-tab-preview-wrapper > .markdown > ol,
+  #wikiedit-tab-preview-wrapper > .markdown > ul,
+  #wikiedit-tab-preview-wrapper > .markdown > table {
+    margin-left:  50pt;
+    margin-right: 50pt;
+  }
+
+  /* Code blocks get extra indenting.  We need a selector explosion
+   * equally powerful to the one above for inline <code> fragments and
+   * similar elements, for essentially the same reason: Fossil UI also
+   * uses <pre>, and we want to affect user content only.
+   *
+   * The equivalent Sass code is:
+   *
+   *   .artifact, .dir, .doc, .wiki       // doc types we target
+   *     > .content                       // hands off header & footer
+   *       @import 'pre-doc-margins.sass'
+   *
+   *   #fileedit-tab-preview-wrapper,     // include /fileedit previews
+   *   #wikiedit-tab-preview-wrapper      // ditto /wikiedit
+   *     @import 'pre-doc-margins.sass'
+   * 
+   * …where pre-doc-margins.sass contains the elements common to both:
+   * 
+   *   &, > .fossil-doc, > .markdown      // wiki, HTML & MD doc types
+   *     > pre                            // direct pre descendants only
+   *       margin-left: 70pt;
+   *       margin-right: 50pt;
+   *
+   * This is a technical overreach since /wiki & /wikiedit lack support
+   * for Fossil's HTML embedded doc markup capability, but we prefer to
+   * draw the /fileedit parallel in our Sass example over the dubious
+   * pleasure of being nit-picky on this point.  Instead, we've chosen
+   * to back that overreach out by hand below.
+   */
+  .artifact > .content               > pre,
+  .artifact > .content > .fossil-doc > pre,
+  .artifact > .content > .markdown   > pre,
+  .dir      > .content               > pre,
+  .dir      > .content > .fossil-doc > pre,
+  .dir      > .content > .markdown   > pre,
+  .doc      > .content               > pre,
+  .doc      > .content > .fossil-doc > pre,
+  .doc      > .content > .markdown   > pre,
+  .wiki     > .content               > pre,
+  .wiki     > .content > .markdown   > pre {
+    margin-left:  70pt;
+    margin-right: 50pt;
+  }
+  #fileedit-tab-preview-wrapper               > pre,
+  #wikiedit-tab-preview-wrapper               > pre,
+  #fileedit-tab-preview-wrapper > .fossil-doc > pre,
+  #fileedit-tab-preview-wrapper > .markdown   > pre,
+  #wikiedit-tab-preview-wrapper > .markdown   > pre {
+    margin-left:  70pt;
+    margin-right: 50pt;
+  }
+  .forum > .content .markdown > pre {
+    margin-left: 20pt;  /* special case for MD in forum; need less indent */
+  }
+
+  /* Fossil UI uses these, but in sufficiently constrained ways that we
+   * don't have to be nearly as careful to avoid an overreach. */
+  .doc > .content h1, .artifact h1, .dir h1, .fileedit h1, .wiki h1 { margin-left: 10pt; }
+  .doc > .content h2, .artifact h2, .dir h2, .fileedit h2, .wiki h2 { margin-left: 20pt; }
+  .doc > .content h3, .artifact h3, .dir h3, .fileedit h3, .wiki h3 { margin-left: 30pt; }
+  .doc > .content h4, .artifact h4, .dir h4, .fileedit h4, .wiki h4 { margin-left: 40pt; }
+  .doc > .content h5, .artifact h5, .dir h5, .fileedit h5, .wiki h5 { margin-left: 50pt; }
+  .doc > .content hr, .artifact hr, .dir hr, .fileedit hr, .wiki hr { margin-left: 10pt; }
+
+  /* Don't need to be nearly as careful with tags Fossil UI doesn't use. */
+  .doc dd, .artifact dd, .dir dd, .fileedit dd, .wikiedit dd { margin-left: 30pt; margin-bottom: 1em; }
+  .doc dl, .artifact dl, .dir dl, .fileedit dl, .wikiedit dl { margin-left: 60pt; }
+  .doc dt, .artifact dt, .dir dt, .fileedit dt, .wikiedit dt { margin-left: 10pt; }
+
+  /* Fossil UI doesn't use Pikchr at all (yet?) so we can be quite loose
+   * with these selectors. */
+  .content .pikchr-wrapper { margin-left: 70pt; }
+  div.pikchr-wrapper.indent:not(.source) {
+    /* Selector naming scheme mismatch is intentional: it must match the
+     * way it's given in default.css exactly if it is to override it. */
+    margin-left: 70pt;
+    margin-right: 50pt;
+  }
+  div.pikchr-wrapper.center:not(.source),
+  div.pikchr-wrapper.float-right:not(.source) {
+    margin-left: 0;
+  }
+
+  /* Special treatment for backward compatibility. */
+  .indent,                /* clean alternative to misusing <blockquote> */
+  .artifact > .content > blockquote:not(.file-content),
+  .dir      > .content > blockquote,
+  .doc      > .content > blockquote,
+  .fileedit > .content > blockquote,
+  .wiki     > .content > blockquote {
+    /* We must apply extra indent relative to "p" since Fossil's wiki
+     * generator misuses the blockquote tag against HTML and MD norms
+     * to mean "indented paragraph."  Skip it for file content retrieved
+     * by /dir URLs. */
+    margin-left: 80pt;
+  }
+  .artifact > .content > .markdown > blockquote,
+  .dir      > .content > .markdown > blockquote,
+  .doc      > .content > .markdown > blockquote,
+  .fileedit > .content > .markdown > blockquote,
+  .wiki     > .content > .markdown > blockquote {
+    /* Fossil MD didn't inherit that bug; its HTML generator emits
+     * blockquote tags only for _block quotes_!  A moderate indent
+     * suffices due to the visual styling applied above. */
+    margin-left: 60pt;
+  }
+
+  /* Alternative to BLOCK.indent when wrapped in something that is
+   * itself indented.  The value is the delta between p and blockquote
+   * above, expressed as padding instead of margin so it adds to the
+   * outer margin instead of forcing the browser into picking one. */
+  .local-indent {
+    padding-left: 30pt;
   }
 }

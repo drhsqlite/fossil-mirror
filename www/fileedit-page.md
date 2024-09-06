@@ -264,9 +264,6 @@ lost on a page reload. How that is done is completely dependent on the
 myCustomWidget.on('eventName', ()=>fossil.page.notifyOfChange());
 ```
 
-(This feature requires fossil version 2.13 or later. In 2.12 it is
-possible to do this but requires making use of a "leaky abstraction".)
-
 Lastly, if the 3rd-party editor does *not* hide or remove the native
 editor widget, and does not inject itself into the DOM on the caller's
 behalf, we can replace the native widget with the 3rd-party one with:

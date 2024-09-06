@@ -30,14 +30,14 @@ at the request of the child.
 To create a new child project, first clone the parent.  Then make manual
 SQL changes to the child repository as follows:
 
-<blockquote><verbatim>
+<verbatim>
 UPDATE config SET name='parent-project-code' WHERE name='project-code';
 UPDATE config SET name='parent-project-name' WHERE name='project-name';
 INSERT INTO config(name,value)
    VALUES('project-code',lower(hex(randomblob(20))));
 INSERT INTO config(name,value)
    VALUES('project-name','CHILD-PROJECT-NAME');
-</verbatim></blockquote>
+</verbatim>
 
 Modify the CHILD-PROJECT-NAME in the last statement to be the name of
 the child project, of course.

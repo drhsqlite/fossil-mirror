@@ -84,15 +84,15 @@ Another option is to download the source code to OpenSSL and build
 Fossil against that private version of OpenSSL:
 
 <pre>
-    cd compat             # relative to the Fossil source tree root
-    tar xf /path/to/openssl-*.tar.gz
-    ln -fs openssl-x.y.z openssl
-    cd openssl
-    ./config              # or, e.g. ./Configure darwin64-x86_64-cc
-    make -j11
-    cd ../..
-    ./configure --with-openssl=tree
-    make -j11
+cd compat             # relative to the Fossil source tree root
+tar xf /path/to/openssl-*.tar.gz
+ln -fs openssl-x.y.z openssl
+cd openssl
+./config              # or, e.g. ./Configure darwin64-x86_64-cc
+make -j11
+cd ../..
+./configure --with-openssl=tree
+make -j11
 </pre>
 
 That will get you a Fossil binary statically linked to this in-tree
@@ -123,20 +123,20 @@ server. Verify the certificate fingerprint is correct, then answer
 If you are cloning from or syncing to Fossil servers that use a
 certificate signed by a well-known CA or one of its delegates, Fossil
 still has to know which CA roots to trust. When this fails, you get an
-error message that looks like this in Fossil 2.11 and newer:
+error message that looks like this:
 
 <pre>
-    Unable to verify SSL cert from fossil-scm.org
-      subject: CN = sqlite.org
-      issuer:  C = US, O = Let's Encrypt, CN = Let's Encrypt Authority X3
-      sha256:  bf26092dd97df6e4f7bf1926072e7e8d200129e1ffb8ef5276c1e5dd9bc95d52
-    accept this cert and continue (y/N)?
+Unable to verify SSL cert from fossil-scm.org
+  subject: CN = sqlite.org
+  issuer:  C = US, O = Let's Encrypt, CN = Let's Encrypt Authority X3
+  sha256:  bf26092dd97df6e4f7bf1926072e7e8d200129e1ffb8ef5276c1e5dd9bc95d52
+accept this cert and continue (y/N)?
 </pre>
 
 In older versions, the message was much longer and began with this line:
 
 <pre>
-    SSL verification failed: unable to get local issuer certificate
+SSL verification failed: unable to get local issuer certificate
 </pre>
 
 Fossil relies on the OpenSSL library to have some way to check a trusted
@@ -155,7 +155,7 @@ enterprises.  You can solve this sort of problem by getting your local
 CA's signing certificate in PEM format and pointing OpenSSL at it:
 
 <pre>
-     fossil set --global ssl-ca-location /path/to/local-ca.pem
+fossil set --global ssl-ca-location /path/to/local-ca.pem
 </pre>
 
 The use of <tt>--global</tt> with this option is common, since you may
@@ -184,12 +184,28 @@ a [https://curl.se/docs/caextract.html | third party source] for the
 user home directory so that you can then point Fossil at it like so:
 
 <pre>
-     fossil set --global ssl-ca-location %userprofile%\cacert.pem
+fossil set --global ssl-ca-location %userprofile%\cacert.pem
 </pre>
 
 This can also happen if you've linked Fossil to a version of OpenSSL
 [#openssl-src|built from source]. That same <tt>cacert.pem</tt> fix can
 work in that case, too.
+
+<blockquote>
+OpenSSL 3.2.0 or greater is able to use the stock CA certificates
+managed by Windows, and Fossil 2.25 (still in development as of
+2024-07-15) takes advantage of this feature. This <em>possibly</em>
+eliminates the need to manually install the Mozilla certificate package,
+for example when connecting to Fossil servers secured by the widely-used
+Let's Encrypt certificates. Run the following command to check if the
+feature is supported:
+
+<pre>
+fossil tls-config show -v
+</pre>
+
+(See the "OpenSSL-winstore" section, requires Fossil 2.25 or greater.)
+</blockquote>
 
 When you build Fossil on Linux platforms against the binary OpenSSL
 package provided with the OS, you typically get a root cert store along
@@ -228,9 +244,8 @@ which explains what to do to authenticate with the server.
 
 <h2 id="server">Server-Side Configuration</h2>
 
-Fossil's built-in HTTP server got [./ssl-server.md | TLS support] in
-December 2021, released as version 2.18 in early 2022.  Prior to that,
-system administrators that wanted to add TLS support to a Fossil server
+Before Fossil's built-in HTTP server gained [./ssl-server.md | TLS support],
+system administrators that wanted to add this
 had to put it behind a reverse proxy that would do the translation.
 Since advantages remain for delegating TLS to another layer in the
 stack, instructions for doing so continue to be included in our

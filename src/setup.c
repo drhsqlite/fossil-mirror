@@ -51,7 +51,7 @@ void setup_menu_entry(
 ){
   @ <tr><td valign="top" align="right">
   if( zLink && zLink[0] ){
-    @ <a href="%s(zLink)">%h(zTitle)</a>
+    @ <a href="%s(zLink)"><nobr>%h(zTitle)</nobr></a>
   }else{
     @ %h(zTitle)
   }
@@ -145,7 +145,7 @@ void setup_page(void){
     setup_menu_entry("Transfers", "xfersetup",
       "Configure the transfer system for this repository");
   }
-  setup_menu_entry("Skins", "setup_skin",
+  setup_menu_entry("Skins", "setup_skin_admin",
     "Select and/or modify the web interface \"skins\"");
   setup_menu_entry("Moderation", "setup_modreq",
     "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
@@ -162,14 +162,8 @@ void setup_page(void){
     "Change the logo and background images for the server");
   setup_menu_entry("Shunned", "shun",
     "Show artifacts that are shunned by this repository");
-  setup_menu_entry("Artifact Receipts Log", "rcvfromlist",
-    "A record of received artifacts and their sources");
-  setup_menu_entry("User Log", "access_log",
-    "A record of login attempts");
-  setup_menu_entry("Administrative Log", "admin_log",
-    "View the admin_log entries");
-  setup_menu_entry("Error Log", "errorlog",
-    "View the Fossil server error log");
+  setup_menu_entry("Log Files", "setup-logmenu",
+    "A menu of available log files");
   setup_menu_entry("Unversioned Files", "uvlist?byage=1",
     "Show all unversioned files held");
   setup_menu_entry("Stats", "stat",
@@ -184,6 +178,76 @@ void setup_page(void){
   }
   @ </table>
 
+  style_finish_page();
+}
+
+
+/*
+** WEBPAGE: setup-logmenu
+**
+** Show a menu of available log renderings accessible to an administrator, 
+** together with a succinct explanation of each.
+**
+** This page is only accessible by administrators.
+*/
+void setup_logmenu_page(void){
+  Blob desc;
+  blob_init(&desc, 0, 0);
+
+  /* Administrator access only */
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_header("Log Menu");
+  @ <table border="0" cellspacing="3">
+  setup_menu_entry("Admin Log", "admin_log",
+    "The admin log records configuration changes to the repository.\n"
+    "The admin log is stored in the \"admin_log\" table of the repository.\n"
+  );
+  setup_menu_entry("Artifact Log", "rcvfromlist",
+    "The artifact log records when new content is added to the repository.\n"
+    "The time and date and origin of the new content is entered into the\n"
+    "Log.  The artifact log is always on and is stored in the \"rcvfrom\"\n"
+    "table of the repository.\n"
+  );
+
+  blob_appendf(&desc,
+    "The error log is a separate text file to which warning and error\n"
+    "messages are appended.  A single error log can and often is shared\n"
+    "across multiple repositories.\n"
+  );
+  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
+    blob_appendf(&desc,"The error log is disabled for this repository.");
+  }else{
+    blob_appendf(&desc,"In this repository, the error log is in the file"
+       "named \"%s\".", g.zErrlog);
+  }
+  setup_menu_entry("Error Log", "errorlog", blob_str(&desc));
+  blob_reset(&desc);
+
+  setup_menu_entry("Panic Log", "paniclog",
+    "The panic log is a filtering of the Error Log that shows only the\n"
+    "most important messages - assertion faults, segmentation faults, and\n"
+    "similar malfunctions."
+  );
+
+  setup_menu_entry("User Log", "user_log",
+    "The user log is a record of login attempts.  The user log is stored\n"
+    "in the \"accesslog\" table of the respository.\n"
+  );
+
+  setup_menu_entry("Hack Log", "hacklog",
+    "All 418 hack attempts"
+  );
+
+  setup_menu_entry("Non-Hack Log", "hacklog?not",
+    "All log messages that are not hack attempts"
+  );
+
+
+  @ </table>
   style_finish_page();
 }
 
@@ -429,6 +493,21 @@ void setup_robots(void){
   @ (Property: "max-loadavg")</p>
 
   @ <hr>
+  @ <p><b>Do not allow robots to make complex requests
+  @ against the following pages.</b>
+  @ <p> A "complex request" is an HTTP request that has one or more query
+  @ parameters. Some robots will spend hours juggling around query parameters
+  @ or even forging fake query parameters in an effort to discover new
+  @ behavior or to find an SQL injection opportunity or similar.  This can
+  @ waste hours of CPU time and gigabytes of bandwidth on the server.  A
+  @ suggested value for this setting is:
+  @ "<tt>timeline,*diff,vpatch,annotate,blame,praise,dir,tree</tt>".
+  @ (Property: robot-restrict)
+  @ <p>
+  textarea_attribute("", 2, 80,
+      "robot-restrict", "rbrestrict", "", 0);
+
+  @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
@@ -590,7 +669,7 @@ void setup_access(void){
                   "pubpage", "", 0);
   @ <p>A comma-separated list of glob patterns for pages that are accessible
   @ without needing a login and using the privileges given by the
-  @ "Default privileges" setting below. 
+  @ "Default privileges" setting below.
   @
   @ <p>Example use case: Set this field to "/doc/trunk/www/*" and set
   @ the "Default privileges" to include the "o" privilege
@@ -683,6 +762,7 @@ void setup_access(void){
 void setup_login_group(void){
   const char *zGroup;
   char *zErrMsg = 0;
+  Stmt q;
   Blob fullName;
   char *zSelfRepo;
   const char *zRepo = PD("repo", "");
@@ -702,6 +782,8 @@ void setup_login_group(void){
     login_group_join(zRepo, 1, zLogin, zPw, zNewName, &zErrMsg);
   }else if( P("leave") ){
     login_group_leave(&zErrMsg);
+  }else if( P("rotate") ){
+    captcha_secret_rotate();
   }
   style_set_current_feature("setup");
   style_header("Login Group Configuration");
@@ -744,7 +826,6 @@ void setup_login_group(void){
     @ <input type="submit" value="Join" name="join"></td></tr>
     @ </table></blockquote></div></form>
   }else{
-    Stmt q;
     int n = 0;
     @ <p>This repository (in the file "%h(zSelfRepo)")
     @ is currently part of the "<b>%h(zGroup)</b>" login group.
@@ -772,31 +853,74 @@ void setup_login_group(void){
     @
     @ <p><form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
-    @ To leave this login group press
+    @ <p>To leave this login group press:
     @ <input type="submit" value="Leave Login Group" name="leave">
+    @ <p>Setting a common captcha-secret on all repositories in the login-group
+    @ allows anonymous logins for one repository in the login group to be used
+    @ by all other repositories of the group within the same domain.  Warning:
+    @ If a captcha dialog was painted before setting the common captcha-secret
+    @ and the "Speak password for 'anonymous'" button is pressed afterwards,
+    @ the spoken text will be incorrect.
+    @ <input type="submit" name="rotate" value="Set common captcha-secret">
     @ </form></p>
-    @ <hr><h2>Implementation Details</h2>
-    @ <p>The following are fields from the CONFIG table related to login-groups,
-    @ provided here for instructional and debugging purposes:</p>
-    @ <table border='1' class='sortable' data-column-types='ttt' \
-    @ data-init-sort='1'>
-    @ <thead><tr>
-    @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
-    @ </thead><tbody>
-    db_prepare(&q, "SELECT name, value, datetime(mtime,'unixepoch') FROM config"
-                   " WHERE name GLOB 'peer-*'"
-                   "    OR name GLOB 'project-*'"
-                   "    OR name GLOB 'login-group-*'"
-                   " ORDER BY name");
-    while( db_step(&q)==SQLITE_ROW ){
-      @ <tr><td>%h(db_column_text(&q,0))</td>
-      @ <td>%h(db_column_text(&q,1))</td>
-      @ <td>%h(db_column_text(&q,2))</td></tr>
-    }
-    db_finalize(&q);
-    @ </tbody></table>
-    style_table_sorter();
   }
+  @ <hr><h2>Implementation Details</h2>
+  @ <p>The following are fields from the CONFIG table related to login-groups.
+  @ </p>
+  @ <table border='1' cellspacing="0" cellpadding="4"\
+  @ class='sortable' data-column-types='ttt' data-init-sort='1'>
+  @ <thead><tr>
+  @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
+  @ </thead><tbody>
+  db_prepare(&q, "SELECT name, value, datetime(mtime,'unixepoch') FROM config"
+                 " WHERE name GLOB 'peer-*'"
+                 "    OR name GLOB 'project-*'"
+                 "    OR name GLOB 'login-group-*'"
+                 " ORDER BY name");
+  while( db_step(&q)==SQLITE_ROW ){
+    @ <tr><td>%h(db_column_text(&q,0))</td>
+    @ <td>%h(db_column_text(&q,1))</td>
+    @ <td>%h(db_column_text(&q,2))</td></tr>
+  }
+  db_finalize(&q);
+  @ </tbody></table>
+  @ <h2>Interpretation</h2>
+  @ <ul>
+  @ <li><p><b>login-group-code</b> &rarr;
+  @ A random code assigned to each login-group.  The login-group-code is
+  @ a unique identifier for the login-group.
+  @
+  @ <li><p><b>login-group-name</b> &rarr;
+  @ The human-readable name of the login-group.
+  @
+  @ <li><p><b>project-code</b> &rarr;
+  @ A random code assigned to each project.  The project-code is
+  @ a unique identifier for the project.  Multiple repositories can share
+  @ the same project-code.  When two or more repositories have the same
+  @ project code, that mean those repositories are clones of each other.
+  @ Repositories are only able to sync if they share the same project-code.
+  @
+  @ <li><p><b>project-description</b> &rarr;
+  @ A description of project in this repository.  This is a verbose form
+  @ of project-name.  This description can be edited in the second entry
+  @ box on the <a href="./setup_config">Setup/Configuration page</a>.
+  @
+  @ <li><p><b>project-name</b> &rarr;
+  @ The human-readable name for the project.  The project-name can be
+  @ modified in the first entry on the 
+  @ <a href="./setup_config">Setup/Configuration page</a>.
+  @
+  @ <li><p><b>peer-repo-<i>CODE</i></b> &rarr;
+  @ <i>CODE</i> is 16-character prefix of the project-code for another
+  @ repository that is part of the same login-group.  The value is the
+  @ filename for the peer repository.
+  @
+  @ <li><p><b>peer-name-<i>CODE</i></b> &rarr;
+  @ <i>CODE</i> is 16-character prefix of the project-code for another
+  @ repository that is part of the same login-group.  The value is
+  @ project-name value for the other repository.
+  @ </ul>
+  style_table_sorter();
   style_finish_page();
 }
 
@@ -1203,7 +1327,7 @@ void setup_config(void){
     db_unset("mainmenu", 0);
     cgi_delete_parameter("mmenu");
   }
-  textarea_attribute("Main Menu", 12, 80, 
+  textarea_attribute("Main Menu", 12, 80,
       "mainmenu", "mmenu", style_default_mainmenu(), 0);
   @ </p>
   @ <p><input type='checkbox' id='cbResetMenu' name='resetMenu' value='1'>
@@ -1231,7 +1355,7 @@ void setup_config(void){
   @ <p>The default value is blank, meaning no added entries.
   @ (Property: sitemap-extra)
   @ <p>
-  textarea_attribute("Custom Sitemap Entries", 8, 80, 
+  textarea_attribute("Custom Sitemap Entries", 8, 80,
       "sitemap-extra", "smextra", "", 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
@@ -1964,9 +2088,7 @@ void page_admin_log(){
   }
   style_set_current_feature("setup");
   style_header("Admin Log");
-  style_submenu_element("User-Log", "access_log");
-  style_submenu_element("Artifact-Log", "rcvfromlist");
-  style_submenu_element("Error-Log", "errorlog");
+  style_submenu_element("Log-Menu", "setup-logmenu");
   create_admin_log_table();
   limit = atoi(PD("n","200"));
   ofst = atoi(PD("x","0"));

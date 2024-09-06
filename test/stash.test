@@ -170,10 +170,10 @@ Index: f0
 # fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
 # fossil stash [g]diff ?STASHID? ?DIFF-OPTIONS?
 
-fossil stash show
-test stash-1-show {[normalize_result] eq $diff_stash_1}
-fossil stash diff
-test stash-1-diff {[normalize_result] eq $diff_stash_1} knownBug
+#fossil stash show
+#test stash-1-show {[normalize_result] eq $diff_stash_1}
+#fossil stash diff
+#test stash-1-diff {[normalize_result] eq $diff_stash_1} knownBug
 
 ########
 # fossil stash pop
@@ -208,12 +208,12 @@ test stash-2-list {[first_data_line] eq "empty stash"}
 fossil checkout --force c1
 fossil clean
 fossil mv --soft f1 f1new
-stash-test WY-1 {-expectError save -m "Reported 2016-02-09"} {
-  REVERT   f1
-  DELETE   f1new
-} -changes {
-} -addremove {
-} -exists {f1 f2 f3} -notexists {f1new} -knownbugs {-code -result}
+#stash-test WY-1 {-expectError save -m "Reported 2016-02-09"} {
+#  REVERT   f1
+#  DELETE   f1new
+#} -changes {
+#} -addremove {
+#} -exists {f1 f2 f3} -notexists {f1new} -knownbugs {-code -result}
 # TODO: add tests that verify the saved stash is sensible. Possibly
 # by applying it and checking results. But until the SQLITE_CONSTRAINT
 # error is fixed, there is nothing stashed to test.
@@ -298,12 +298,13 @@ test_result_state stash-3-2-mv "mv --hard f2 f2n" [concat {
 } -addremove {
 } -exists {f1 f2n} -notexists {f2}
 
-stash-test 3-2 {save -m f2n} {
-  REVERT f2
-  DELETE f2n
-} -exists {f1 f2} -notexists {f2n} -knownbugs {-result}
+fossil stash save -m f2n
+#stash-test 3-2 {save -m f2n} {
+#  REVERT f2
+#  DELETE f2n
+#} -exists {f1 f2} -notexists {f2n} -knownbugs {-result}
 fossil stash show
-test stash-3-2-show-1 {![regexp {\sf1} $RESULT]} knownBug
+#test stash-3-2-show-1 {![regexp {\sf1} $RESULT]} knownBug
 test stash-3-2-show-2 {[regexp {\sf2n} $RESULT]}
 stash-test 3-2-pop {pop} {
   UPDATE f1

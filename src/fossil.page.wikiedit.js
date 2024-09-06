@@ -1656,5 +1656,4 @@
   P.getStashedWinfo = function(winfo){
     return $stash.getWinfo(winfo);
   };
-  
 })(window.fossil);

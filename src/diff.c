@@ -21,6 +21,7 @@
 #include "config.h"
 #include "diff.h"
 #include <assert.h>
+#include <errno.h>
 
 
 #if INTERFACE
@@ -92,12 +93,12 @@
 **
 ** Information encoded by this object includes but is not limited to:
 **
-**    *   The desired output format (unified vs. side-by-side, 
+**    *   The desired output format (unified vs. side-by-side,
 **        TCL, JSON, HTML vs. plain-text).
 **
 **    *   Number of lines of context surrounding each difference block
 **
-**    *   Width of output columns for text side-by-side diffop          
+**    *   Width of output columns for text side-by-side diffop
 */
 struct DiffConfig {
   u64 diffFlags;           /* Diff flags */
@@ -917,7 +918,7 @@ static int minInt(int a, int b){ return a<b ? a : b; }
 **
 ** To subclass, create an instance of the DiffBuilder object and fill
 ** in appropriate method implementations.
-*/ 
+*/
 typedef struct DiffBuilder DiffBuilder;
 struct DiffBuilder {
   void (*xSkip)(DiffBuilder*, unsigned int, int);
@@ -1102,7 +1103,7 @@ static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     blob_append_tcl_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
     x += chng.a[i].iLen1;
     blob_append_char(p->pOut, ' ');
-    blob_append_tcl_literal(p->pOut, 
+    blob_append_tcl_literal(p->pOut,
                          pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
   }
   if( x<pX->n ){
@@ -1188,7 +1189,7 @@ static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     blob_append_json_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
     x += chng.a[i].iLen1;
     blob_append_char(p->pOut, ',');
-    blob_append_json_literal(p->pOut, 
+    blob_append_json_literal(p->pOut,
                          pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
   }
   blob_append_char(p->pOut, ',');
@@ -1270,7 +1271,7 @@ static void dfunifiedFinishInsert(DiffBuilder *p){
   blob_append(&p->aCol[2], "<ins>", 5);
   blob_append_xfer(&p->aCol[2], &p->aCol[4]);
   blob_append(&p->aCol[2], "</ins>", 6);
-  
+
   p->nPending = 0;
 }
 static void dfunifiedFinishRow(DiffBuilder *p){
@@ -1287,7 +1288,7 @@ static void dfunifiedFinishRow(DiffBuilder *p){
 }
 static void dfunifiedStartRow(DiffBuilder *p){
   if( blob_size(&p->aCol[0])>0 ) return;
-  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\" class=\"diffchunk\">"
                        "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
 }
 static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
@@ -1513,7 +1514,7 @@ static void dfsplitFinishRow(DiffBuilder *p){
 }
 static void dfsplitStartRow(DiffBuilder *p){
   if( blob_size(&p->aCol[0])>0 ) return;
-  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\" class=\"diffchunk\">"
                        "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
   p->eState = 0;
 }
@@ -2007,7 +2008,7 @@ static unsigned char *diffBlockAlignmentDivideAndConquer(
   iDivSmall = nSmall/2;
 
   if( pCfg->diffFlags & DIFF_DEBUG ){
-    fossil_print("  Divide at [%.*s]\n", 
+    fossil_print("  Divide at [%.*s]\n",
                  aBig[iDivBig].n, aBig[iDivBig].z);
   }
 
@@ -3159,9 +3160,13 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
     if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
     if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
   }
-  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))!=0 ){
-    pCfg->nContext = f;
-    diffFlags |= DIFF_CONTEXT_EX;
+  if( (z = find_option("context","c",1))!=0 ){
+    char *zEnd;
+    f = (int)strtol(z, &zEnd, 10);
+    if( zEnd[0]==0 && errno!=ERANGE ){
+      pCfg->nContext = f;
+      diffFlags |= DIFF_CONTEXT_EX;
+    }
   }
   if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
     pCfg->wColumn = f;
@@ -3495,7 +3500,8 @@ static void annotate_file(
 
   if( p->nVers==0 ){
     if( zRevision ){
-      fossil_fatal("file %s does not exist in check-in %s", zFilename, zRevision);
+      fossil_fatal("file %s does not exist in check-in %s",
+                   zFilename, zRevision);
     }else{
       fossil_fatal("no history for file: %s", zFilename);
     }
@@ -3584,7 +3590,7 @@ void annotation_page(void){
   /* Gather query parameters */
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( exclude_spiders() ) return;
+  if( exclude_spiders(0) ) return;
   fossil_nice_default();
   zFilename = P("filename");
   zRevision = PD("checkin",0);

@@ -20,7 +20,7 @@ socket activation.
 For more information on `launchd`, the single best resource we’ve found
 is [launchd.info](https://launchd.info). The next best is:
 
-        $ man launchd.plist
+    $ man launchd.plist
 
 [la]:     http://www.grivet-tools.com/blog/2014/launchdaemons-vs-launchagents/
 [ldhome]: https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html
@@ -34,38 +34,39 @@ To configure `launchd` to start Fossil as a standalone HTTP server,
 write the following as `com.example.dev.FossilHTTP.plist`:
 
 ```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
-    <dict>
-        <key>Label</key>
-        <string>com.example.dev.FossilHTTP</string>
-        <key>ProgramArguments</key>
-        <array>
-            <string>/usr/local/bin/fossil</string>
-            <string>server</string>
-            <string>--port</string>
-            <string>9000</string>
-            <string>repo.fossil</string>
-        </array>
-        <key>WorkingDirectory</key>
-        <string>/Users/you/museum</string>
-        <key>KeepAlive</key>
-        <true/>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>StandardErrorPath</key>
-        <string>/tmp/fossil-error.log</string>
-        <key>StandardOutPath</key>
-        <string>/tmp/fossil-info.log</string>
-        <key>UserName</key>
-        <string>you</string>
-        <key>GroupName</key>
-        <string>staff</string>
-        <key>InitGroups</key>
-        <true/>
-    </dict>
-    </plist>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.example.dev.FossilHTTP</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/fossil</string>
+        <string>server</string>
+        <string>--port</string>
+        <string>9000</string>
+        <string>repo.fossil</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/you/museum</string>
+    <key>KeepAlive</key>
+    <true/>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StandardErrorPath</key>
+    <string>/tmp/fossil-error.log</string>
+    <key>StandardOutPath</key>
+    <string>/tmp/fossil-info.log</string>
+    <key>UserName</key>
+    <string>you</string>
+    <key>GroupName</key>
+    <string>staff</string>
+    <key>InitGroups</key>
+    <true/>
+</dict>
+</plist>
 ```
 
 In this example, we’re assuming your development organization uses the
@@ -83,15 +84,15 @@ plist file out, Fossil will remain running as root!
 
 Install that file and set it to start with:
 
-        $ sudo install -o root -g wheel -m 644 com.example.dev.FossilHTTP.plist \
-          /Library/LaunchDaemons/
-        $ sudo launchctl load -w /Library/LaunchDaemons/com.example.dev.FossilHTTP.plist
+    $ sudo install -o root -g wheel -m 644 com.example.dev.FossilHTTP.plist \
+      /Library/LaunchDaemons/
+    $ sudo launchctl load -w /Library/LaunchDaemons/com.example.dev.FossilHTTP.plist
 
 Because we set the `RunAtLoad` key, this will also launch the daemon.
 
 Stop the daemon with:
 
-        $ sudo launchctl unload -w /Library/LaunchDaemons/com.example.dev.FossilHTTP.plist
+    $ sudo launchctl unload -w /Library/LaunchDaemons/com.example.dev.FossilHTTP.plist
 
 
 ## Socket Listener
@@ -101,7 +102,8 @@ up a socket listener:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>Label</key>

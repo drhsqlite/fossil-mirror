@@ -49,9 +49,8 @@ correct operation of the file-age computation.
 
 <li><p>
 Verify correct name-change tracking behavior (no net changes) for:
-<blockquote><b>
-fossil test-name-changes --debug  b120bc8b262ac 374920b20944b
-</b></blockquote>
+<pre><b>fossil test-name-changes --debug  b120bc8b262ac 374920b20944b
+</b></pre>
 
 <li><p>
 Compile for all of the following platforms:

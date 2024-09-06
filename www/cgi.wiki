@@ -25,10 +25,10 @@ those options.
 The CGI script used to launch a Fossil server will usually look something
 like this:
 
-<blockquote><verbatim>
+<verbatim>
 #!/usr/bin/fossil
 repository: /home/www/fossils/myproject.fossil
-</verbatim></blockquote>
+</verbatim>
 
 Of course, pathnames will likely be different.  The first line 
 (the "[wikipedia:/wiki/Shebang_(Unix)|shebang]")

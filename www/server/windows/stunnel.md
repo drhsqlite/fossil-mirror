@@ -13,12 +13,6 @@ extra step of configuring stunnel to provide a proper HTTPS setup.
 2. You have PowerShell 5.1 or above installed.
 3. You have acquired a certificate either from a Public CA or an Internal CA.
 
-These instructions were tested with Fossil 2.10 and stunnel 5.55.  Other
-versions may not function in a similar manner.  There is a bug in Fossil 2.9 and
-earlier that prevents these versions of Fossil from properly constructing https
-URLs when used with stunnel as a proxy.  Please make sure you are using Fossil
-2.10 or later on Windows.
-
 ## Configure Fossil Service for https
 
 Due to the need for the `--https` option for successfully using Fossil with

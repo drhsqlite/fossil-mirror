@@ -618,7 +618,7 @@ table,
 ul {
   margin-bottom: 1.5rem
 }
-.header {
+header {
   color: #888;
   font-weight: 400;
   padding-top: 10px;
@@ -631,28 +631,28 @@ ul {
   position: absolute
 }
 .filetree>ul,
-.header .logo,
-.header .logo h1 {
+header .logo,
+header .logo h1 {
   display: inline-block
 }
-.header .login {
+header .login {
   padding-top: 2px;
   text-align: right
 }
-.header .login .button {
+header .login .button {
   margin: 0
 }
-.header h1 {
+header h1 {
   margin: 0;
   color: #888;
   display: inline-block
 }
-.header .title h1 {
+header .title h1 {
   padding-bottom: 10px
 }
-.header .login,
-.header h1 small,
-.header h2 small {
+header .login,
+header h1 small,
+header h2 small {
   color: #777
 }
 .middle {
@@ -686,17 +686,17 @@ ul {
   background: #000;
   border-radius: 5px
 }
-.footer {
+footer {
   padding: 10px 0 60px;
   border-top: 0;
   color: #888
 }
-.footer a {
+footer a {
   color: #527b8f;
   background-repeat: no-repeat;
   background-position: center top 10px
 }
-.footer a:hover {
+footer a:hover {
   color: #eef8ff
 }
 .mainmenu {
@@ -735,7 +735,7 @@ ul {
 .mainmenu li:hover a {
   color: #000
 }
-div#hbdrop {
+nav#hbdrop {
   background-color: #161819;
   border-radius: 15px;
   display: none;

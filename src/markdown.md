@@ -132,8 +132,8 @@
 > The first row is a header if followed by a horizontal rule or a blank line.
 
 > Placing **:** at the left, both, or right sides of a cell gives left-aligned,
-> centered, or right-aligned text, respectively.  By default, header cells are
-> centered, and body cells are left-aligned.
+> centered, or right-aligned text, respectively.  By default, both header and
+> body cells are left-aligned.
 
 > The leftmost or rightmost **\|** is required only if the first or last column,
 > respectively, contains at least one blank cell.

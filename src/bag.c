@@ -76,7 +76,7 @@ void bag_clear(Bag *p){
 /*
 ** The hash function
 */
-#define bag_hash(i)  (i*101)
+#define bag_hash(i)  (((u64)(i))*101)
 
 /*
 ** Change the size of the hash table on a bag so that

@@ -64,20 +64,11 @@ h3 {
   font-size: 1.25rem;
 }
 
-span[style^=background-color] {
-  color: #000;
-}
-
-td[style^=background-color] {
-  color: #000;
-}
-
-
 /**************************************
  * Main Area
  */
 
-div.header, div.mainmenu, div.submenu, div.content, div.footer {
+header, nav.mainmenu, div.submenu, div.content, footer {
   clear: both;
   margin: 0 auto;
   max-width: 90%;
@@ -89,7 +80,7 @@ div.header, div.mainmenu, div.submenu, div.content, div.footer {
  * Main Area: Header
  */
 
-div.header {
+header {
   margin: 0.5rem auto 0 auto;
   display: flex;
   flex-direction: row;
@@ -148,7 +139,7 @@ div.status {
  * Main Area: Global Menu
  */
 
-div.mainmenu, div.submenu {
+nav.mainmenu, div.submenu {
   background-color: #080;
   border-radius: 1rem 1rem 0 0;
   box-shadow: 3px 4px 1px #000;
@@ -158,7 +149,7 @@ div.mainmenu, div.submenu {
   text-align: center;
 }
 
-div.mainmenu {
+nav.mainmenu {
   padding-top: 0.33rem;
   padding-bottom: 0.25rem;
 }
@@ -169,13 +160,13 @@ div.submenu {
   display: block;
 }
 
-div.mainmenu a, div.submenu a, div.submenu label {
+nav.mainmenu a, div.submenu a, div.submenu label {
   color: #000;
   padding: 0 0.75rem;
   text-decoration: none;
 }
 
-div.mainmenu a:hover, div.submenu a:hover, div.submenu label:hover {
+nav.mainmenu a:hover, div.submenu a:hover, div.submenu label:hover {
   color: #fff;
   text-shadow: 0px 0px 6px #0f0;
 }
@@ -225,7 +216,7 @@ div.content table[bgcolor="white"] {
  * Main Area: Footer
  */
 
-div.footer {
+footer {
   color: #ee0;
   font-size: 0.75rem;
   padding: 0;
@@ -234,7 +225,7 @@ div.footer {
 }
 
 
-div.footer div {
+footer div {
   background-color: #222;
   box-shadow: 3px 3px 1px #000;
   border-radius: 0 0 1rem 1rem;
@@ -242,19 +233,19 @@ div.footer div {
   padding: 0.25rem 0.75rem;
 }
 
-div.footer div.page-time {
+footer div.page-time {
   float: left;
 }
 
-div.footer div.fossil-info {
+footer div.fossil-info {
   float: right;
 }
 
-div.footer a, div.footer a:link, div.footer a:visited {
+footer a, footer a:link, footer a:visited {
   color: #ee0;
 }
 
-div.footer a:hover {
+footer a:hover {
   color: #fff;
   text-shadow: 0px 0px 6px #ee0;
 }
@@ -575,7 +566,7 @@ div.section, div.sectionmenu {
 
 div.sectionmenu {
   border-radius: 0 0 3rem 3rem;
-  margin-top: -0.75rem;
+  margin-top: auto;
   width: 75%;
 }
 
@@ -1086,11 +1077,11 @@ blockquote.reportError {
 }
 /* format for artifact lines, no longer shunned */
 p.noMoreShun {
-  color: #00f;
+  color: yellow;
 }
 /* format for artifact lines being shunned */
 p.shunned {
-  color: #00f;
+  color: yellow;
 }
 /* a broken hyperlink */
 span.brokenlink {
@@ -1166,8 +1157,8 @@ body.branch .brlist > table > tbody > tr.selected {
   background-color: #444;
 }
 
-body.chat div.header, body.chat div.footer,
-body.chat div.mainmenu, body.chat div.submenu,
+body.chat header, body.chat footer,
+body.chat nav.mainmenu, body.chat div.submenu,
 body.chat div.content {
   margin-left: 0.5em;
   margin-right: 0.5em;

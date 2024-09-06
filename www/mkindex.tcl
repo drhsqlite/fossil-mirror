@@ -37,6 +37,7 @@ set doclist {
   chroot.md {Server Chroot Jail}
   ckout-workflows.md {Check-Out Workflows}
   co-vs-up.md {Checkout vs Update}
+  colordiff.md {Colorized Diffs}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contact.md {Developer Contact Information}
@@ -168,8 +169,8 @@ puts $out {
 <li> <a href='../COPYRIGHT-BSD2.txt'>License</a>
 <li> <a href='userlinks.wiki'>Miscellaneous Docs for Fossil Users</a>
 <li> <a href='hacker-howto.wiki'>Fossil Developer's Guide</a>
-  <ul><li><a href='$ROOT/wiki?name=Release Build How-To'>Release Build How-To</a>, a.k.a.
-  how deliverables are built</li></ul>
+<li><a href='$ROOT/wiki?name=Release Build How-To'>Release Build How-To</a>,
+a.k.a.  how deliverables are built</li>
 </li>
 <li> <a href='$ROOT/wiki?name=To+Do+List'>To Do List (Wiki)</a>
 <li> <a href='https://fossil-scm.org/fossil-book/'>Fossil book</a>

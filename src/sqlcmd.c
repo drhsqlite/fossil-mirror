@@ -386,7 +386,7 @@ static void fossil_close(int bDb, int noRepository){
 **
 **    helptext                  A virtual table with one row for each command,
 **                              webpage, and setting together with the built-in
-**                              help text.  
+**                              help text.
 **
 **    now()                     Return the number of seconds since 1970.
 **

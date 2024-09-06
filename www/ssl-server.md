@@ -32,9 +32,7 @@ obtaining a CA-signed certificate.
 To put any of the Fossil server commands into SSL/TLS mode, simply
 add the "--cert" command-line option.
 
-> ~~~
-fossil ui --cert unsafe-builtin
-~~~
+    fossil ui --cert unsafe-builtin
 
 The --cert option is what tells Fossil to use TLS encryption.
 Normally, the argument to --cert is the name of a file containing
@@ -90,17 +88,15 @@ Fossil wants to read certs and public keys in the
 PEM is a pure ASCII text format.  The private key consists of text
 like this:
 
->
-`-----BEGIN PRIVATE KEY-----`  
-*base-64 encoding of the private key*  
-`-----END PRIVATE KEY-----`
+    -----BEGIN PRIVATE KEY-----
+    *base-64 encoding of the private key*  
+    -----END PRIVATE KEY-----
 
 Similarly, a PEM-encoded cert will look like this:
 
->
-`-----BEGIN CERTIFICATE-----`  
-*base-64 encoding of the certificate*  
-`-----END CERTIFICATE-----`
+    -----BEGIN CERTIFICATE-----
+    *base-64 encoding of the certificate*  
+    -----END CERTIFICATE-----
 
 In both formats, text outside of the delimiters is ignored.  That means
 that if you have a PEM-formatted private key and a separate PEM-formatted
@@ -111,9 +107,7 @@ If you have a single file that holds both your private key and your
 cert, you can hand it off to the "[fossil server](/help?cmd=server)"
 command using the --cert option.  Like this:
 
-> ~~~
-fossil server --port 443 --cert mycert.pem /home/www/myproject.fossil
-~~~
+    fossil server --port 443 --cert mycert.pem /home/www/myproject.fossil
 
 The command above is sufficient to run a fully-encrypted web site for
 the "myproject.fossil" Fossil repository.  This command must be run as
@@ -128,9 +122,7 @@ If you do not want to combine your cert and private key into a single
 big PEM file, you can keep them separate using the --pkey option to
 Fossil.
 
-> ~~~
-fossil server --port 443 --cert fullchain.pem --pkey privkey.pem /home/www/myproject.fossil
-~~~
+    fossil server --port 443 --cert fullchain.pem --pkey privkey.pem /home/www/myproject.fossil
 
 ## The ACME Protocol
 
@@ -175,9 +167,7 @@ should be in that top-level directory.
 Thus, to set up a project website, you should first run Fossil in ordinary
 unencrypted HTTP mode like this:
 
-> ~~~
-fossil server --port 80 --acme /home/www/myproject.fossil
-~~~
+    fossil server --port 80 --acme /home/www/myproject.fossil
 
 Then you create your public/private key pair and run certbot, giving it
 a --webroot of /home/www.  Certbot will create the sub-directory

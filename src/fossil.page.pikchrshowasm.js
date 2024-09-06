@@ -394,7 +394,7 @@
     }/*Examples*/
 
     /**
-       TODO: Handle load/import of an external pikchr file.
+       TODO? Handle load/import of an external pikchr file.
     */
     if(0) E('#load-pikchr').addEventListener('change',function(){
       const f = this.files[0];
@@ -481,9 +481,9 @@
       const elemsToCount = [
         /* Elements which we need to always count in the
            visible body size. */
-        E('body > div.header'),
-        E('body > div.mainmenu'),
-        E('body > div.footer')
+        E('body > header'),
+        E('body > nav.mainmenu'),
+        E('body > footer')
       ];
       const resized = function f(){
         if(f.$disabled) return;

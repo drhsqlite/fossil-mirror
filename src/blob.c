@@ -127,6 +127,9 @@ int fossil_islower(char c){ return c>='a' && c<='z'; }
 int fossil_isupper(char c){ return c>='A' && c<='Z'; }
 int fossil_isdigit(char c){ return c>='0' && c<='9'; }
 int fossil_isxdigit(char c){ return (c>='0' && c<='9') || (c>='a' && c<='f'); }
+int fossil_isXdigit(char c){
+   return (c>='0' && c<='9') || (c>='A' && c<='F') || (c>='a' && c<='f');
+}
 int fossil_tolower(char c){
   return fossil_isupper(c) ? c - 'A' + 'a' : c;
 }
@@ -1553,15 +1556,15 @@ void blob_cp1252_to_utf8(Blob *p){
 
 /*
 ** ASCII (for reference):
-**    x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf 
-** 0x ^`  ^a  ^b  ^c  ^d  ^e  ^f  ^g  \b  \t  \n  ()  \f  \r  ^n  ^o 
-** 1x ^p  ^q  ^r  ^s  ^t  ^u  ^v  ^w  ^x  ^y  ^z  ^{  ^|  ^}  ^~  ^ 
-** 2x ()  !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /  
-** 3x 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?  
-** 4x @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O  
-** 5x P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _  
-** 6x `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o  
-** 7x p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~   ^_ 
+**    x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf
+** 0x ^`  ^a  ^b  ^c  ^d  ^e  ^f  ^g  \b  \t  \n  ()  \f  \r  ^n  ^o
+** 1x ^p  ^q  ^r  ^s  ^t  ^u  ^v  ^w  ^x  ^y  ^z  ^{  ^|  ^}  ^~  ^
+** 2x ()  !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /
+** 3x 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?
+** 4x @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O
+** 5x P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _
+** 6x `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o
+** 7x p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~   ^_
 */
 
 /*
@@ -1577,7 +1580,7 @@ void blob_cp1252_to_utf8(Blob *p){
 static const char aSafeChar[256] = {
 #ifdef _WIN32
 /* Windows
-** Prohibit:  all control characters, including tab, \r and \n
+** Prohibit:  all control characters, including tab, \r and \n.
 ** Escape:    (space) " # $ % & ' ( ) * ; < > ? [ ] ^ ` { | }
 */
 /*  x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf  */
@@ -1667,7 +1670,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
         }
         i += x-2;
       }
-    } 
+    }
   }
 
   /* Separate from the previous argument by a space */
@@ -1702,6 +1705,8 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
     for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
       blob_append_char(pBlob, (char)c);
       if( c=='"' ) blob_append_char(pBlob, '"');
+      if( c=='\\' ) blob_append_char(pBlob, '\\');
+      if( c=='%' && isFilename ) blob_append(pBlob, "%cd:~,%", 7);
     }
     blob_append_char(pBlob, '"');
 #else
@@ -1797,7 +1802,7 @@ void test_escaped_arg_command(void){
       if( zBuf[0]=='-' && zArg[0]=='.' && zArg[1]=='/' ) zArg += 2;
 #endif
       if( strcmp(zBuf, zArg)!=0 ){
-        fossil_fatal("argument disagree: \"%s\" (%s) versus \"%s\"", 
+        fossil_fatal("argument disagree: \"%s\" (%s) versus \"%s\"",
                      zBuf, g.argv[i-1], zArg);
       }
       continue;

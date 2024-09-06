@@ -52,7 +52,7 @@ void loadavg_test_cmd(void){
 ** restriction.
 */
 void load_control(void){
-  double mxLoad = atof(db_get("max-loadavg", 0));
+  double mxLoad = atof(db_get("max-loadavg", "0.0"));
 #if 1
   /* Disable this block only to test load restrictions */
   if( mxLoad<=0.0 || mxLoad>=load_average() ) return;

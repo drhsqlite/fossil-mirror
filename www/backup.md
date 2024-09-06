@@ -138,16 +138,12 @@ where you want a *nearly-complete* clone of the remote repository using nothing
 but the normal Fossil sync protocol. It only does so if you are logged into
 the remote as a user with Setup capability, however.
 
-----
-
 ``` shell
 #!/bin/sh
 fossil sync --unversioned
 fossil configuration pull all
 fossil rebuild
 ```
-
-----
 
 The last step is needed to ensure that shunned artifacts on the remote
 are removed from the local clone. The second step includes
@@ -165,14 +161,12 @@ The first method doesn’t get you a copy of the remote’s
 remote, such as SQL-level customizations that the sync protocol can’t
 see. (Some [ticket system customization][tkt] schemes rely on this ability, for example.) You can
 solve such problems if you have access to the remote server, which
-allows you to get a SQL-level backup. This requires Fossil 2.12 or
-newer, which added [the `backup` command][bu] to take care of
-locking and transaction isolation, allowing the user to safely back up an in-use
+allows you to get a SQL-level backup by delegating handling of locking
+and transaction isolation to
+[the `backup` command][bu], allowing the user to safely back up an in-use
 repository.
 
 If you have SSH access to the remote server, something like this will work:
-
-----
 
 ``` shell
 #!/bin/bash
@@ -180,8 +174,6 @@ bf=repo-$(date +%Y-%m-%d).fossil
 ssh example.com "cd museum ; fossil backup -R repo.fossil backups/$bf" &&
     scp example.com:museum/backups/$bf ~/museum/backups
 ```
-
-----
 
 Beware that this method does not solve [the intransitive sync
 problem](#ait), in and of itself: if you do a SQL-level backup of a
@@ -200,8 +192,6 @@ leak your information. This addition to the prior scripts will encrypt
 the resulting backup in such a way that the cloud copy is a useless blob
 of noise to anyone without the key:
 
-----
-
 ```shell
 iter=152830
 pass="h8TixP6Mt6edJ3d6COaexiiFlvAM54auF2AjT7ZYYn"
@@ -209,8 +199,6 @@ gd="$HOME/Google Drive/Fossil Backups/$bf.xz.enc"
 fossil sql -R ~/museum/backups/"$bf" .dump | xz -9 |
     openssl enc -e -aes-256-cbc -pbkdf2 -iter $iter -pass pass:"$pass" -out "$gd"
 ```
-
-----
 
 If you’re adding this to the first script above, remove the
 “`-R repo-name`” bit so you get a dump of the repository backing the
@@ -264,8 +252,8 @@ PBKDF2. To avoid a conflict with the platform’s `openssl` binary,
 Homebrew’s installation is [unlinked][hbul] by default, so you have to
 give an explicit path to it, one of:
 
-       /usr/local/opt/openssl/bin/openssl ...     # Intel x86 Macs
-       /opt/homebrew/opt/openssl/bin/openssl ...  # ARM Macs (“Apple silicon”)
+    /usr/local/opt/openssl/bin/openssl ...     # Intel x86 Macs
+    /opt/homebrew/opt/openssl/bin/openssl ...  # ARM Macs (“Apple silicon”)
 
 [lssl]: https://www.libressl.org/
 
