@@ -1,5 +1,5 @@
-C In\sthe\s'unsaved\schanges'\serror\sof\sthe\spatch\scommand,\smake\sit\sexplicit\sthat\sthe\spatch\scannot\sbe\sapplied\s(because\sit\sotherwise\scomes\sacross\sas\sinformational,\snot\san\serror).
-D 2024-09-05T09:19:49.985
+C Add\sfossil.storage\sto\sthe\sfossil.diff\sJS\sbundle\sdependencies,\swhich\sshould\shave\sbeen\spart\sof\s[c03ce0f4d43197a].\sResolves\sthe\sreport\sin\s[forum:3e1b1f82d1\s|\sforum\spost\s3e1b1f82d1]\sbut\sdoes\snot\sexplain\swhy\sit\sworked\sfor\sme\slocally\sbefore\sthis\sfix\s(it\sshould\snot\shave).
+D 2024-09-06T14:37:33.003
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -390,7 +390,7 @@ F src/bisect.c 44446bda0779cbcebe645d3df9030b2edd42b24c56e10ef64a5535e29014be0e
 F src/blob.c be8ca2174fac1aee7811483657a86e23f5af1859f569a9d05e3de62db5d76ef1
 F src/branch.c f4bb7a773d48c1eeab6be111b51fa62546c1a2815aa259bb04ca449752bee3c8
 F src/browse.c acc1af4df496aa3f9a37321b18c2bdf8d7088eecb4091ba328d602f726627709
-F src/builtin.c 78d68f7ea4407815416d606efea9d7e2e63df943292fc978e1ad7ce7767b94c7
+F src/builtin.c 78307e47c271177cd3271b9c0b13dc9a1167055531ec52b393b3766d384de898
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0a473cd5533f5bb22ead6afa508b339cd5705487cdea056e243db9f43f696e6d
-R ecac0894a12b1f91cce716fb38a1cf4f
+P 8c5faa368ff19b8b2888f8313b4f8d5fd0c1c691feb5091082fed68ed9bf809c
+R e22d520abaf6da7eb020c5f93fd6e02c
 U stephan
-Z 4acaffcbff4cf689f0130abcd1d29a0f
+Z 9a87cbda7cedf0ce3ac49d2f0393c325
 # Remove this line to create a well-formed Fossil manifest.
