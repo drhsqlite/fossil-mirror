@@ -15,6 +15,8 @@
   *  Add options to the [/help?cmd=tag|fossil tag] command that will list tag values.
   *  Add ability to upload unversioned files via the [/help?cmd=/uvlist|/uvlist page].
   *  Add history search to the [/help?cmd=/chat|/chat page].
+  *  Add Unix socket support to the [/help?cmd=server|server command].
+  *  Numerous minor fixes and additions.
 
 
 <h2 id='v2_24'>Changes for version 2.24 (2024-04-23)</h2>
@@ -87,7 +89,7 @@
      threads or respond to them by default, and the
      [/help?cmd=forum-close-policy|forum-close-policy setting] can be
      used to add that capability to moderators.
-  *  Add the [/help?cmd=all|fossil all whatis] command. 
+  *  Add the [/help?cmd=all|fossil all whatis] command.
   *  The [/help?cmd=status|fossil status] command and relevant UI pages now
      correctly report files which were both renamed <b>and</b> edited as such.
   *  Show default value of settings that have a default in
@@ -129,7 +131,6 @@
      </ul>
   *  Update built-in libraries SQLite, ZLib, Pikchr to their latest versions.
   *  Documentation enhancements and typo fixes.
-  
 
 
 <h2 id='v2_22'>Changes for version 2.22 (2023-05-31)</h2>
@@ -157,7 +158,7 @@
      inside the jail for Fossil's use.
   *  Add support for the trigram tokenizer for FTS5 search to enable
      searching in Chinese.
-  *  Comment lines (starting with a '#') are now supported inside 
+  *  Comment lines (starting with a '#') are now supported inside
      [./settings.wiki#versionable|versioned settings].
   *  Default permissions for anonymous users in new repositories are
      changed to "hz".

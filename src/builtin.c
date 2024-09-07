@@ -720,7 +720,9 @@ static int builtin_emit_fossil_js_once(const char * zName){
   /* This list ordering isn't strictly important. */
   {"confirmer",      0, 0},
   {"copybutton",     0, "dom\0"},
-  {"diff",           0, "dom\0fetch\0storage\0"},
+  {"diff",           0, "dom\0fetch\0storage\0"
+   /* maintenance note: "diff" needs "storage" for storing the the
+   ** sbs-sync-scroll toggle. */},
   {"dom",            0, 0},
   {"fetch",          0, 0},
   {"numbered-lines", 0, "popupwidget\0copybutton\0"},

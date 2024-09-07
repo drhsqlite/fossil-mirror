@@ -1,5 +1,5 @@
-C Add\sfossil.storage\sto\sthe\sfossil.diff\sJS\sbundle\sdependencies,\swhich\sshould\shave\sbeen\spart\sof\s[c03ce0f4d43197a].\sResolves\sthe\sreport\sin\s[forum:3e1b1f82d1\s|\sforum\spost\s3e1b1f82d1]\sbut\sdoes\snot\sexplain\swhy\sit\sworked\sfor\sme\slocally\sbefore\sthis\sfix\s(it\sshould\snot\shave).
-D 2024-09-06T14:37:33.003
+C Add\ssocket\ssupport\sto\sthe\schange\slog.\sAdd\sa\scomment\sabout\swhy\sthe\s'diff'\sJS\sbits\snow\srequire\sthe\s'storage'\sbits.\sNo\sfunctional\schanges.
+D 2024-09-07T10:18:06.746
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -390,7 +390,7 @@ F src/bisect.c 44446bda0779cbcebe645d3df9030b2edd42b24c56e10ef64a5535e29014be0e
 F src/blob.c be8ca2174fac1aee7811483657a86e23f5af1859f569a9d05e3de62db5d76ef1
 F src/branch.c f4bb7a773d48c1eeab6be111b51fa62546c1a2815aa259bb04ca449752bee3c8
 F src/browse.c acc1af4df496aa3f9a37321b18c2bdf8d7088eecb4091ba328d602f726627709
-F src/builtin.c 78307e47c271177cd3271b9c0b13dc9a1167055531ec52b393b3766d384de898
+F src/builtin.c b89bc60148524e25e986deb7c71b08e04f2cf0e792595cac26d9bc5420b1d5fd
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
@@ -783,7 +783,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html 21ecdde02b27bccc3a43f1a3ba94ddb2b20f18abf85642127b45b6f9fe792ee9
 F www/cgi.wiki 8edf95fda013f9c854e2d2a2795c1b23f90e44f1c13a09e0640bd60d31e97eb1
-F www/changes.wiki 71639ff2d7c716393ccc55741152d644ac197810a72ee061406eaab5f7167826
+F www/changes.wiki 608c00611b46a0ead580860da7ef2de57e1046d5a3bb9f3dd617fd93c5a482b1
 F www/chat.md 572a2ac53c959f760e3d8ba6edf70a64f937ed6e7bc1492009f9f3217b6704ed
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 966187ef75f7150db2644fb2358b969672dd888d6f227a5587b975b935a327e7
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c5faa368ff19b8b2888f8313b4f8d5fd0c1c691feb5091082fed68ed9bf809c
-R e22d520abaf6da7eb020c5f93fd6e02c
+P 59b383ae14eae6f8f1d24dd39442d8bc7abcf3d07da84e27bcbdc316d132026e
+R 6f550926110bedc9b734f566f9a9bb6f
 U stephan
-Z 9a87cbda7cedf0ce3ac49d2f0393c325
+Z cb5adcd36b5ce8233358cea72979f818
 # Remove this line to create a well-formed Fossil manifest.
