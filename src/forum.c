@@ -1399,8 +1399,9 @@ static void forum_post_widget(
   }
   @ %z(href("%R/markup_help"))Markup style</a>:
   mimetype_option_menu(zMimetype, "mimetype");
-  @ <br><textarea aria-label="Content:" name="content" class="wikiedit" \
-  @ cols="80" rows="25" wrap="virtual">%h(zContent)</textarea><br>
+  @ <div class="forum-editor-widget">
+  @ <textarea aria-label="Content:" name="content" class="wikiedit" \
+  @ cols="80" rows="25" wrap="virtual">%h(zContent)</textarea></div>
 }
 
 /*
