@@ -1,5 +1,5 @@
-C Use\sCSS\sflex\slayout\saround\sthe\s/forum\seditor\stextarea\sso\sthat\sit\swill\sshrink\sand\sgrow\sto\sfit\sthe\sscreen.\sThe\sintent\sis\smaking\sit\seasier\sto\suse\son\sa\smobile\sdevice.
-D 2024-09-07T11:06:47.016
+C Adapt\sglob\stests\sto\schanges\sfrom\s[dc86831179].
+D 2024-09-10T06:26:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -610,7 +610,7 @@ F test/fake-editor.tcl 0c795f3bb07c4c24cc54c145d6e73e6bc55940b41ac55eb06f23d781e
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 57ada6bea09e70908d9525c41db62b915abfee58e5f7a702adda91e0c5c06a36
 F test/fileage-test-1.wiki 50661a791a5037d949534b42cfb1c8245687803fa46894f84a1ad458264d8501
-F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
+F test/glob.test 3b2fbff1bd6cc3693251cd4357b482f982620985e57fac614a0134628a2e7209
 F test/graph-test-1.wiki 005464d7086c690588eee46e29f551145178c0eed085f5063f647b0d1231197e
 F test/graph-test-2.md 4dc6143ec96d321846ee7814d762c71d01d76336069074307241bf02ee93546f
 F test/json.test 6328ffc6773d8a1bf26ef471b5913f7237e620abdd35e087c9bfa289e40c5b51
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 77adf8dba1b17ddf25fd9bd51b10776effacee99eac7dc7633e90a1a497bd527
-R 64967398df6399f4e1814944e01c38b9
-U stephan
-Z 90806579de063031c0f52a0c17513ce4
+P 268bb7394713e22ee4ab5cf9c1073be6b9d83eaa7f261c612d8c459ac2a32bac
+R 61b23c693b801c6a088f08b61dcd3e46
+U florian
+Z acff9b4b2053b43c054ff5726ca70baa
 # Remove this line to create a well-formed Fossil manifest.
