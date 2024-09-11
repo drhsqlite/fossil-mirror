@@ -1,5 +1,5 @@
-C Set\sthe\s'autofocus'\sattribute\sfor\sdefault\sinput\sfields\son\sthe\slogin,\slogout\sand\sregister\sHTML\sforms.\sSee\s[forum:4add4de05f\s|\sForum\spost\s4add4de05f]\sfor\smore\sinformation.
-D 2024-09-11T07:07:00.000
+C Update\sinstructions\sfor\senabling\sth1-docs\ssupport,\sper\sforum\sfeedback.
+D 2024-09-11T10:25:34.519
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -809,7 +809,7 @@ F www/defcsp.md 9acc92726d34c94be1ad4e011101043aff08a6e6cf78d54e0daebe16e2bf3e49
 F www/delta-manifests.md 906357ba85aab092d43875ad4f28230bc2b2601371388d7a177fb13453b332c4
 F www/delta_encoder_algorithm.wiki 3a178f152bf2fe72a6ee610a303e253e0bc467aaa055b6311776ed5578c913d4
 F www/delta_format.wiki 33a3f71dc160959bd4c612e7ffee5be54548990e53eb0f6d9b50779c8767bd58
-F www/embeddeddoc.wiki 661639dd3e68b83a33b3f70b7bf1013906afec256c0561abf96d38ab6ef031a0
+F www/embeddeddoc.wiki e1bfbd848daa038b29f09d58d695144563ebc1af10138f4458ba988a5dd05c83
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
 F www/encode3.gif 1565ebf8d7579785bc05ce80434b2eae1773a813
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d663a324515d19f7302ff3c424afca534ff65ee1b61afa29bb044b08d774c63d
-R b9c17a5505785dc412a47f4a3ff86236
-U florian
-Z a0847278678460327feb0bf7e2fe7433
+P bc05e6cc2798049956465dd02f1046ab867f13709340c693b35ad358539c73d5
+R bce59af550b3d2a4911a634dd072aedb
+U stephan
+Z 64954d3131672a73489e528ebef745a1
 # Remove this line to create a well-formed Fossil manifest.
