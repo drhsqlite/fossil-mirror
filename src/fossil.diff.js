@@ -643,6 +643,7 @@ window.fossil.onPageLoad(function(){
        efficient than array.shift() (see loop below). */
     /* /filedit */ 'body.cpage-fileedit #fileedit-tab-diff-buttons',
     /* /wikiedit */ 'body.cpage-wikiedit #wikiedit-tab-diff-buttons',
+    /* /fdiff */ 'body.fdiff form div.submenu',
     /* /vdiff */ 'body.vdiff form div.submenu',
     /* /info, /vinfo */ 'body.vinfo div.sectionmenu.info-changes-menu'
   ];
