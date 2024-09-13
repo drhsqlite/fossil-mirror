@@ -141,12 +141,9 @@ window.fossil.onPageLoad(function(){
         }
       }
       else if( key==kUDCD ){
-        var
-          pqry = 'udc=1',
-          psep = /\?/.test(location.href) ? '&' : '?',
-          href = location.href + psep + pqry;
-        if( location.href.slice(-pqry.length)!=pqry ){
-          location.href = href;
+        if( !/[?&]udc=1/.test(location.href) ){
+          var sep = /\?/.test(location.href) ? '&' : '?';
+          location.href += sep + 'udc=1';
         }
       }
     }/*,true*/);
