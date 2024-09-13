@@ -31,6 +31,12 @@ set path [file dirname [info script]]; test_setup
 #
 ###############################################################################
 #
+# NOTE: The [get_all_settings] procedure from test/tester.tcl returns the list
+#       of settings to test and needs to be manually updated when new settings
+#       are added.
+#
+###############################################################################
+#
 # NOTE: The [extract_setting_names] procedure extracts the list of setting
 #       names from the line-ending normalized output of the "fossil settings"
 #       command.  It assumes that a setting name must begin with a lowercase

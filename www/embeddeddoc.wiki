@@ -180,13 +180,21 @@ documents.  For Wiki documents, you would need to use a relative URL.
 
 <h2 id="th1">2.3 TH1 Documents</h2>
 
-Fossil will substitute the value of [./th1.md | TH1 expressions] within
-<tt>{</tt> curly braces <tt>}</tt> into the output HTML if you have
-configured it with the <tt>--with-th1-docs</tt> option, which is
-disabled by default.
+Enabling TH1 document support requires the following:
+
+   *  Configure the build with the <code>--with-th1-docs</code> flag.
+   *  Enable the <code>th1-docs</code> setting, which is only available
+      after building with <code>--with-th1-docs</code>.
+   *  Affected files must have a <code>.th1</code> file extension.
+   *  The code to run must be embedded in blocks of
+      <code>&lt;th1>...&lt;/th1></code>.
+
+Fossil will substitute the value of [./th1.md | TH1 expressions]
+within the <code>&lt;th1>...&lt;/th1></code> blocks into
+the output HTML.
 
 Since TH1 is a full scripting language, this feature essential grants
-the ability to execute code on the server to anyone with check-in 
+the ability to execute code on the server to anyone with check-in
 privilege for the project.
 This is a security risk that needs to be carefully managed.
 The feature is off by default.

@@ -907,6 +907,13 @@ table.forumeditform td {
 div.forum_body p {
   margin-top: 0;
 }
+div.forum-editor-widget{
+  display: flex;
+  flex-direction: column;
+}
+div.forum-editor-widget > textarea {
+  max-width: initial;
+}
 td.form_label {
   vertical-align: top;
   text-align: right;
@@ -968,8 +975,12 @@ div.forumpost-single-controls {
   ** in the thread view. */
 }
 .forum div > form {
+  width: 100%;
   margin: 0.5em 0;
-  display: inline-block;
+  display: block;
+}
+.forum div > form > * {
+  margin-bottom: 0.35em;
 }
 .forum-post-collapser {
   /* Common style for the bottom-of-post and right-of-post
