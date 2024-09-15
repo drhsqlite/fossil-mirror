@@ -1,5 +1,5 @@
-C Make\sthe\soption\sfor\ssynchronous\sscrolling\sof\sside-by-side\sdiff\savailable\son\sthe\s/fdiff\spage.
-D 2024-09-13T16:54:00.000
+C Correct\sswapped\s--revision/-r\sflag\shandling\sfor\sthe\sannotate\sfamily\sof\scommands,\sas\sreported\sin\s[forum:1673b986fa\s|\sforum\spost\s1673b986fa].
+D 2024-09-15T00:11:55.896
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec6811823705
-F src/diff.c c6e9fecd607fcde34257054f607a556da571c5e214084d7e4c794634d964ef3d
+F src/diff.c 17aafb7d56aa68ad53d7d1c18d8aea6c73567511f98c1d4c41bd3c724e6d07d4
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
 F src/diffcmd.c e11ab5f28e58d80735eaafc6b29fd78d479571bd767553bb8a685018790d1285
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a1177148338341ef00fd5076381fec64ed180400e1657cfad9e71e9b23afbce
-R 233598ef3d9a3d41cf874fa415cab032
-U florian
-Z 531ad2c6d1be616a028c96b1e3acdbac
+P 035b29eccc91602a201ac7d61e3018afdbaa568e66c93226db3467f66d99b72b
+R dd910a785808d43753e08dddbdcce6f5
+U stephan
+Z 2339f1fe93e99c3425a38caadfa93269
 # Remove this line to create a well-formed Fossil manifest.

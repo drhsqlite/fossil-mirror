@@ -3773,7 +3773,7 @@ void annotate_cmd(void){
   char *zFilename;       /* Name of file to be annotated */
 
   bBlame = g.argv[1][0]!='a';
-  zRevision = find_option("r","revision",1);
+  zRevision = find_option("revision","r",1);
   zLimit = find_option("limit","n",1);
   zOrig = find_option("origin","o",1);
   showLog = find_option("log","l",0)!=0;
