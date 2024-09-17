@@ -622,6 +622,7 @@ void finfo_page(void){
     int gidx;
     char zTime[10];
     int nParent = 0;
+    int bIsModified = 0;
     GraphRowId aParent[GR_MAX_RAIL];
 
     db_bind_int(&qparent, ":fid", frid);
@@ -664,6 +665,9 @@ void finfo_page(void){
     }else{
       @ <td class="timeline%s(zStyle)Cell">
     }
+    if( zPUuid && zUuid && fossil_strcmp(zPUuid, zUuid)!=0 ){
+      bIsModified = 1;
+    }
     if( tmFlags & TIMELINE_COMPACT ){
       @ <span class='timelineCompactComment' data-id='%d(frid)'>
     }else{
@@ -671,7 +675,11 @@ void finfo_page(void){
       if( pfnid ){
         char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
                                    pfnid);
-        @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
+        if( bIsModified ){
+          @ <b>Renamed and modified</b> %h(zPrevName) &rarr; %h(zFName).
+        }else{
+          @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
+        }
         fossil_free(zPrevName);
       }
       if( zUuid && ridTo==0 && nParent==0 ){
@@ -758,7 +766,7 @@ void finfo_page(void){
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
       @ %z(href("%R/timeline?uf=%!S",zUuid))[check-ins&nbsp;using]</a>
-      if( fpid>0 ){
+      if( fpid>0 && bIsModified!=0 ){
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
       if( fileedit_is_editable(zFName) ){
