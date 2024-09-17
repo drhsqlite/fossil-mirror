@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog\sto\smention\sthat\sFossil\sis\sable\sto\suse\sthe\sWindows\sroot\scertificates\sif\sbuilt\swith\sOpenSSL\s3.2.0\sor\sgreater.
-D 2024-09-17T06:12:00.000
+C Clarify\sthat\s--nosign\swith\s'branch\snew'\sonly\sdoes\snot\ssign\sthe\sbranch\screation\scheck-in\s(future\sbranch\scheck-ins\sare\ssigned).
+D 2024-09-17T12:39:13.330
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -388,7 +388,7 @@ F src/backoffice.c ecb3997466581e6a3290e4d194ac59b7678e9236de1d18c0ed489df141d75
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 44446bda0779cbcebe645d3df9030b2edd42b24c56e10ef64a5535e29014be0e
 F src/blob.c be8ca2174fac1aee7811483657a86e23f5af1859f569a9d05e3de62db5d76ef1
-F src/branch.c f4bb7a773d48c1eeab6be111b51fa62546c1a2815aa259bb04ca449752bee3c8
+F src/branch.c 206ac28dfd68e03948d00ce16ce6b5acb3fd79d747d52f5edaa7d3949fa5376e
 F src/browse.c acc1af4df496aa3f9a37321b18c2bdf8d7088eecb4091ba328d602f726627709
 F src/builtin.c b89bc60148524e25e986deb7c71b08e04f2cf0e792595cac26d9bc5420b1d5fd
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P caf60202f790241d352fa84a0eb246c20b20be6ba4a8fadc2450969767f1aaa6
-R 9eab6305f09d6eab5d1e6d4baeaae475
-U florian
-Z 331c776d706f7f9f7475587eb81f5e8d
+P 0f8153dac42f9fca3605386a7501ba5a8d625ca1d77a4c62b9d72e3850876814
+R e52d9e3e082ba606ee1d4e875f35da9d
+U danield
+Z e9300a67e5d18ecee0affadb7396087c
 # Remove this line to create a well-formed Fossil manifest.

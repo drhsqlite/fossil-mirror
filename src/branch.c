@@ -662,7 +662,8 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        Options:
 **          --private             Branch is private (i.e., remains local)
 **          --bgcolor COLOR       Use COLOR instead of automatic background
-**          --nosign              Do not sign contents on this branch
+**          --nosign              Do not sign the manifest for the check-in
+**                                that creates this branch
 **          --nosync              Do not auto-sync prior to creating the branch
 **          --date-override DATE  DATE to use instead of 'now'
 **          --user-override USER  USER to use instead of the current default
