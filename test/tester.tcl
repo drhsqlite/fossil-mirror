@@ -361,6 +361,8 @@ proc get_all_settings {} {
       relative-paths \
       repo-cksum \
       repolist-skin \
+      robot-restrict \
+      robots-txt \
       safe-html \
       self-pw-reset \
       self-register \

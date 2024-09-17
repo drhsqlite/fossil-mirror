@@ -753,7 +753,7 @@ void login_page(void){
   }
   if( g.zLogin ){
     @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
-    @ <input type="submit" name="out" value="Logout"></p>
+    @ <input type="submit" name="out" value="Logout" autofocus></p>
     @ </form>
   }else{
     unsigned int uSeed = captcha_seed();
@@ -779,7 +779,7 @@ void login_page(void){
     @ <tr>
     @   <td class="form_label" id="userlabel1">User ID:</td>
     @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
-    @ size="30" value="%s(anonFlag?"anonymous":"")"></td>
+    @ size="30" value="%s(anonFlag?"anonymous":"")" autofocus></td>
     @ </tr>
     @ <tr>
     @  <td class="form_label" id="pswdlabel">Password:</td>
@@ -2245,7 +2245,7 @@ void register_page(void){
   @ <tr>
   @   <td class="form_label" align="right" id="uid">User ID:</td>
   @   <td><input aria-labelledby="uid" type="text" name="u" \
-  @ value="%h(zUserID)" size="30"></td>
+  @ value="%h(zUserID)" size="30" autofocus></td>
   @
   if( iErrLine==1 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
