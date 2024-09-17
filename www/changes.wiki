@@ -16,6 +16,8 @@
   *  Add ability to upload unversioned files via the [/help?cmd=/uvlist|/uvlist page].
   *  Add history search to the [/help?cmd=/chat|/chat page].
   *  Add Unix socket support to the [/help?cmd=server|server command].
+  *  On Windows, use the root certificates managed by the operating system
+     (requires OpenSSL 3.2.0 or greater).
   *  Numerous minor fixes and additions.
 
 

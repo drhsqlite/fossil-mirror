@@ -1,5 +1,5 @@
-C Correct\sswapped\s--revision/-r\sflag\shandling\sfor\sthe\sannotate\sfamily\sof\scommands,\sas\sreported\sin\s[forum:1673b986fa\s|\sforum\spost\s1673b986fa].
-D 2024-09-15T00:11:55.896
+C Update\sthe\schange\slog\sto\smention\sthat\sFossil\sis\sable\sto\suse\sthe\sWindows\sroot\scertificates\sif\sbuilt\swith\sOpenSSL\s3.2.0\sor\sgreater.
+D 2024-09-17T06:12:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -783,7 +783,7 @@ F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html 21ecdde02b27bccc3a43f1a3ba94ddb2b20f18abf85642127b45b6f9fe792ee9
 F www/cgi.wiki 8edf95fda013f9c854e2d2a2795c1b23f90e44f1c13a09e0640bd60d31e97eb1
-F www/changes.wiki 608c00611b46a0ead580860da7ef2de57e1046d5a3bb9f3dd617fd93c5a482b1
+F www/changes.wiki 4ba2549e5884e414b9414f5f0b84d7b5689dab5125398399c0fbe42099f5a481
 F www/chat.md 572a2ac53c959f760e3d8ba6edf70a64f937ed6e7bc1492009f9f3217b6704ed
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 966187ef75f7150db2644fb2358b969672dd888d6f227a5587b975b935a327e7
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 035b29eccc91602a201ac7d61e3018afdbaa568e66c93226db3467f66d99b72b
-R dd910a785808d43753e08dddbdcce6f5
-U stephan
-Z 2339f1fe93e99c3425a38caadfa93269
+P caf60202f790241d352fa84a0eb246c20b20be6ba4a8fadc2450969767f1aaa6
+R 9eab6305f09d6eab5d1e6d4baeaae475
+U florian
+Z 331c776d706f7f9f7475587eb81f5e8d
 # Remove this line to create a well-formed Fossil manifest.
