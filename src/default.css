@@ -975,9 +975,11 @@ div.forumpost-single-controls {
   ** in the thread view. */
 }
 .forum div > form {
-  width: 100%;
   margin: 0.5em 0;
-  display: block;
+  display: inline-block;
+}
+body.cpage-forumedit div > form {
+  width: 100%;
 }
 .forum div > form > * {
   margin-bottom: 0.35em;
