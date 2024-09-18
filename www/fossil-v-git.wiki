@@ -864,8 +864,7 @@ as this author is aware, but there is now
 conversion from SHA-1 to SHA-256, breaking all public hashes in the
 repo. One way to characterize such a massive upheaval in Git terms is a
 whole-project rebase, which violates
-[https://blog.axosoft.com/golden-rule-of-rebasing-in-git/ | Git's own
-Golden Rule of Rebasing].
+[https://www.atlassian.com/git/tutorials/merging-vs-rebasing#the-golden-rule-of-rebasing|Golden Rule of Rebasing].
 
 Regardless of the eventual implementation details, we fully expect Git
 to move off SHA-1 eventually and for the changes to take years more to

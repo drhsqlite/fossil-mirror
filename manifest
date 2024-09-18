@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.47.0\salpha,\sfor\stesting.
-D 2024-09-18T11:53:41.804
+C Fix\sbroken\slink\sin\sfossil-v-git.
+D 2024-09-18T12:55:38.459
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -831,7 +831,7 @@ F www/forum.wiki cd4e1230640d1e5b1eb39e22b39397681c48052898d30ad8ec960563746ce3e
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 42373b5cb455cb12c130488eaf28a1c0daccdcc2c3506bbbde229ac5f03e1dec
-F www/fossil-v-git.wiki 5fafc6a699a14cf600d696635f5cf88940d44cfccded40bcf937a925d1ce425b
+F www/fossil-v-git.wiki f9e5992e1da3c3948474ee96e929a2d9340660160e53d810982c33a4c01aa2fd
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b08f062316aa5517f905e18fde19291c47de15c8751f28b4aab1e745710be0fc
-R cfa9b401717793a89b2d3c6ebc7d6fbc
+P 5522ad5fa42bf05f1c2a467ceb35a4a0cb8e9bbd9408872c5e0fa302939b5598
+R cd05a3dd5b2fde55b4d51756abe7dbe7
 U drh
-Z 267cc79cfa68566eae33f5fe7e3a9074
+Z 218b1e8581bf76e0d334dfd2eb177c04
 # Remove this line to create a well-formed Fossil manifest.
