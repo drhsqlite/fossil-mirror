@@ -1,5 +1,5 @@
-C Clarify\sthat\s--nosign\swith\s'branch\snew'\sonly\sdoes\snot\ssign\sthe\sbranch\screation\scheck-in\s(future\sbranch\scheck-ins\sare\ssigned).
-D 2024-09-17T12:39:13.330
+C Record\sOlorin's\sdisputes\swith\sthe\sfossil-v-git\sdocument.\s\sAlso\sfix\sa\sstale\ntable-of-contents\slink\sin\sthat\ssame\sdocument.
+D 2024-09-18T11:42:05.734
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -831,7 +831,7 @@ F www/forum.wiki cd4e1230640d1e5b1eb39e22b39397681c48052898d30ad8ec960563746ce3e
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 42373b5cb455cb12c130488eaf28a1c0daccdcc2c3506bbbde229ac5f03e1dec
-F www/fossil-v-git.wiki af01cb850f1756090b7fce6743ffdc65cfbff259bce5e4d33c844bca56a20acd
+F www/fossil-v-git.wiki 5fafc6a699a14cf600d696635f5cf88940d44cfccded40bcf937a925d1ce425b
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f8153dac42f9fca3605386a7501ba5a8d625ca1d77a4c62b9d72e3850876814
-R e52d9e3e082ba606ee1d4e875f35da9d
-U danield
-Z e9300a67e5d18ecee0affadb7396087c
+P ab54928db765a55bbdb6c2ffc06d8b8607aa171c35e58e11063a40f15225e643
+R 8b246e7b43a47e30ad94cbeabd2b9406
+U drh
+Z d3860a6a3847ffaf27b21dedc47004a2
 # Remove this line to create a well-formed Fossil manifest.
