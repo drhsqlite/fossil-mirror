@@ -1,5 +1,5 @@
-C Revert\spart\sof\s[268bb7394713e22e]\sso\sthat\sthe\sClose\sbutton\son\sforum\sposts\sis\snot\son\sits\sown\sline.\sApply\sthe\s100%\sform\selement\swidth\schange\sonly\sto\sforms\son\sthe\sforumedit\spage.
-D 2024-09-18T19:14:19.405
+C Merge\sdiff-web-noise-reduction\sbranch\sto\strunk,\schange\sthat\stry\sto\sskip\sdiff\nprocessing/rendering\supfront\swhere\sno\suseful\sdiff\soutput\scan\sbe\sdone.
+D 2024-09-19T12:05:37.664
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -429,7 +429,7 @@ F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c f22240c1890302c6a7a3301c0e58234cd325c9d5eb1305d2f50d168407f6b956
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
-F src/finfo.c 14c0bab4c53125f241d7d657a2af6ff72f3ff1eb5fb42d2d15cf99c45561a89a
+F src/finfo.c 96d48c31655466f34cdbf754088b9c54e6a0d1327cdfc453283a1ef91eac824d
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c ca7476eb7264d724ca90b0827f5e633c16ac127256d78597fc05c42ebff4c1d8
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c 724d17ae234e05e22d8e85957f50884b92e237f79697a260cff33b74e18b5958
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c b836037d89f947ad25d4c6a2bb2bb23842918df1e5f65510c5edbef95cbdbed4
+F src/info.c 77c1d2a610e2fa0e8b359832cb03eef9dde58ae9aaa63b1cb83932881817565b
 F src/interwiki.c 5ddeb43781f01107e75740ae978677dd156c439ba5772e3a8ef7161244b44080
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -959,8 +959,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd903e92c2187d3613f5f0e2df7862273ebdebe42c296ba7ce1c1cc4b54ede13
-R 68b7456f09f0be2cbc0c795e145576ba
-U stephan
-Z 0edf4215ce347364e5cf9f27d6f3debe
+P a767b75e8ffaaf8f8851b90f69b67eeec0f57454742de609382db71f6321cb6c f69cf768ccb74e6d9df57177f79f6a6189ed668f03851e135dbbbdebdfcaadd5
+R 30e242376a1c7ac43a1b905e60dacd73
+T +closed f69cf768ccb74e6d9df57177f79f6a6189ed668f03851e135dbbbdebdfcaadd5
+U mgagnon
+Z 1b7e2580a877142b41bb0b2eb6128a30
 # Remove this line to create a well-formed Fossil manifest.
