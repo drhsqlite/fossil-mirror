@@ -72,14 +72,9 @@ with further description in the text that follows.
     <td><a href="#scale">2.5.2&nbsp;&darr;</a></td>
 </tr>
 <tr>
-    <td>Many contributors</td>
-    <td>Select contributors</td>
-    <td><a href="#contrib">2.5.3&nbsp;&darr;</a></td>
-</tr>
-<tr>
     <td>Focus on individual branches</td>
     <td>Focus on the entire tree of changes</td>
-    <td><a href="#branches">2.5.4&nbsp;&darr;</a></td>
+    <td><a href="#branches">2.5.3&nbsp;&darr;</a></td>
 </tr>
 <tr>
     <td>One check-out per repository</td>
@@ -593,6 +588,9 @@ changes on all branches all at once helps keep the whole team
 up-to-date with what everybody else is doing, resulting in a more 
 tightly focused and cohesive implementation.
 
+Parts of this section are [https://fossil-scm.org/forum/forumpost/5961e969fa|disputed]
+by [https://github.com/olorin37|Jakub A. G.].
+
 
 <h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>
 
@@ -662,6 +660,8 @@ Plus,
 <tt>cd</tt> is faster to type than <tt>git checkout</tt> or <tt>fossil
 update</tt>.
 
+Parts of this section are [https://fossil-scm.org/forum/forumpost/5961e969fa|disputed]
+by [https://github.com/olorin37|Jakub A. G.].
 
 <h3 id="history">2.7 What you should have done vs. What you actually did</h3>
 
@@ -864,8 +864,7 @@ as this author is aware, but there is now
 conversion from SHA-1 to SHA-256, breaking all public hashes in the
 repo. One way to characterize such a massive upheaval in Git terms is a
 whole-project rebase, which violates
-[https://blog.axosoft.com/golden-rule-of-rebasing-in-git/ | Git's own
-Golden Rule of Rebasing].
+[https://www.atlassian.com/git/tutorials/merging-vs-rebasing#the-golden-rule-of-rebasing|Golden Rule of Rebasing].
 
 Regardless of the eventual implementation details, we fully expect Git
 to move off SHA-1 eventually and for the changes to take years more to
