@@ -1,5 +1,5 @@
-C Sync\swith\strunk.
-D 2024-09-20T03:50:00.000
+C Try\sdynamic\scalculation\sof\sthe\stop\sand\sbottom\spaddings\sof\sinserted\sand\sdeleted\stext\sso\sthat\sthe\sbackground\scolor\sextends\sexactly\sto\sthe\sline\sheight\s(using\sthe\s`calc()'\sCSS\sfunction).\sIn\sChromium,\s`overflow-y:\shidden'\sis\srequired\sso\sthat\sthe\stable\scell\scontaining\sthe\sdiff\sline\sdoesn't\sdisplay\svertical\sscrollbars\s(without\sotherwise\schanging\sthe\svisual\sresult).
+D 2024-09-20T03:57:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 0904ec73c5e5fa4e74dfaa0d860329411de055f63d31b4d755875ce765cebc64
-F src/default.css c5b0f5a53f565c2ed164f7487a3e896b422e50cc11e5195534649d078ef4298f
+F src/default.css 5fafb0fe187aefb171d242f2f98cc898c301075d9101c38bc3c9b63e50fc2cff
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -419,7 +419,7 @@ F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec681182
 F src/diff.c 726a9d2c479151ecaa448e7ba854edd12b33ab67bb8aed64430cab7ce24ce649
 F src/diff.js 3dc821a47a58e669ff6b63fd338e3ea1fd360de0f5d30c96d3fc082a0ce5bfbd
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
-F src/diffcmd.c 4f7e85991f3607c768dba0fced5a4e69111bbb34679d93241091999f761681e1
+F src/diffcmd.c c1df73ca1e5bf76e0c726de41dfc56f06c47eb3fa19ecf406dd8d0d7709a9279
 F src/dispatch.c 888760a3fae9c8270eaf90f8f5a5ee2dcef8e4b48482a694eec29e6d778ddb68
 F src/doc.c 55dd74f447c1fd2ba655fa68a48136505e70a9d6212f138c5328031c06a007f9
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ac3d7c9b4fa7c042f419f6a63c7cf1943a28c6e2290de7f16ec11522f9765c59 8b73fbbd1a860708268cf3dee1d1f9f6d37f8ef6d575b0f2c2e2a258955cca3d
-R d693a55436ac3c8a19c1e45c5dc76f1b
+P ef298b282a22b59b061bcba1afbbd0ac82bca4b5fec7e2448b020ab246f11475
+R dad5cea9dca3f0b2458566437a774db5
 U florian
-Z e419faf21c4308a16489d43ab6db84e1
+Z 6011d866d17b91889aa73bfba82f05ef
 # Remove this line to create a well-formed Fossil manifest.

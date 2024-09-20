@@ -574,7 +574,7 @@ table.diff td {
 }
 table.diff td del,
 table.diff td ins {
-  padding: 0.062em 0 0.062em 0;
+  padding: calc((1em*1.275 - 1em)/2) 0;
   text-decoration: none;
 }
 table.diff td.diffln {
@@ -660,6 +660,7 @@ tr.diffskip > td.chunkctrl .jcbutton:hover {
 td.difftxt {
   max-width: 0;
   overflow-x: hidden;
+  overflow-y: hidden;
 }
 td.difftxtu {
   width: 100%;

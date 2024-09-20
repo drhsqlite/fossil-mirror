@@ -252,7 +252,7 @@ static const char zWebpageHdr[] =
 @ }
 @ table.diff td del,
 @ table.diff td ins {
-@   padding: 0.062em 0 0.062em 0;
+@   padding: calc((1em*1.275 - 1em)/2) 0;
 @   text-decoration: none;
 @ }
 @ table.diff td.diffln {
@@ -271,6 +271,7 @@ static const char zWebpageHdr[] =
 @ td.difftxt {
 @   max-width: 0;
 @   overflow-x: hidden;
+@   overflow-y: hidden;
 @ }
 @ td.difftxtu {
 @   width: 100%;
@@ -372,7 +373,7 @@ static const char zWebpageHdrDark[] =
 @ }
 @ table.diff td del,
 @ table.diff td ins {
-@   padding: 0.062em 0 0.062em 0;
+@   padding: calc((1em*1.275 - 1em)/2) 0;
 @   text-decoration: none;
 @ }
 @ table.diff td.diffln {
@@ -391,6 +392,7 @@ static const char zWebpageHdrDark[] =
 @ td.difftxt {
 @   max-width: 0;
 @   overflow-x: hidden;
+@   overflow-y: hidden;
 @ }
 @ td.difftxtu {
 @   width: 100%;
