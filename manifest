@@ -1,5 +1,5 @@
-C Merge\sdiff-web-noise-reduction\sbranch\sto\strunk,\schange\sthat\stry\sto\sskip\sdiff\nprocessing/rendering\supfront\swhere\sno\suseful\sdiff\soutput\scan\sbe\sdone.
-D 2024-09-19T12:05:37.664
+C Remove\sthe\sempty\simplementation\sof\sthe\s/files\swebpage.\s(It's\snot\sonly\sdead\ncode\ssince\sa\s/help\spage\sget\sgenerated\sfor\sit.)
+D 2024-09-20T20:24:08.514
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -389,7 +389,7 @@ F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 44446bda0779cbcebe645d3df9030b2edd42b24c56e10ef64a5535e29014be0e
 F src/blob.c be8ca2174fac1aee7811483657a86e23f5af1859f569a9d05e3de62db5d76ef1
 F src/branch.c 206ac28dfd68e03948d00ce16ce6b5acb3fd79d747d52f5edaa7d3949fa5376e
-F src/browse.c acc1af4df496aa3f9a37321b18c2bdf8d7088eecb4091ba328d602f726627709
+F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
 F src/builtin.c b89bc60148524e25e986deb7c71b08e04f2cf0e792595cac26d9bc5420b1d5fd
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
@@ -959,9 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a767b75e8ffaaf8f8851b90f69b67eeec0f57454742de609382db71f6321cb6c f69cf768ccb74e6d9df57177f79f6a6189ed668f03851e135dbbbdebdfcaadd5
-R 30e242376a1c7ac43a1b905e60dacd73
-T +closed f69cf768ccb74e6d9df57177f79f6a6189ed668f03851e135dbbbdebdfcaadd5
+P 8b73fbbd1a860708268cf3dee1d1f9f6d37f8ef6d575b0f2c2e2a258955cca3d
+R 4441623c44adb6783f77cce5b6ca4d56
 U mgagnon
-Z 1b7e2580a877142b41bb0b2eb6128a30
+Z e78a382eaf2eb39d75ea9581d411efb7
 # Remove this line to create a well-formed Fossil manifest.
