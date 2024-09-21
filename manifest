@@ -1,5 +1,5 @@
-C Reverse\sthe\slogic\sof\sthe\s"--brief|-b"\sflag\sof\sthe\sfinfo\scommand\sso\sit\sfits\nwith\sthe\sflag\sname.\s(no\sfunctional\schange)
-D 2024-09-20T22:30:30.884
+C Apply\sthe\sform-width\schange\sfrom\s[268bb73947]\sand\s[a767b75e8ffa]\sto\s/forume2.
+D 2024-09-21T13:31:40.045
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 0904ec73c5e5fa4e74dfaa0d860329411de055f63d31b4d755875ce765cebc64
-F src/default.css 0a4a7ba41f31f97eeccbfc2d45261f3292fb0bb7385374e1d36a431adb891acd
+F src/default.css ff273a0313b63f3fde647dbbd0a899f9c80834c9d487f7e4d57ef9192f030a5c
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e897da20a083d12dd78c4ab1f26009cfff5b14fc8d32f620088f499bfb50fedf
-R efe9f5cba8820249fec367d385eb55ae
-U mgagnon
-Z d1e6592c5babb422367452f1c18060fe
+P b8e378bcf85ae181aba685004c671d46556edb07452247de849c7442e91a8235
+R 621be33d7b2dcf0d53f6b99b6251737b
+U stephan
+Z d33e2d2dc6110941382685bae75e2ae1
 # Remove this line to create a well-formed Fossil manifest.

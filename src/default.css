@@ -978,7 +978,8 @@ div.forumpost-single-controls {
   margin: 0.5em 0;
   display: inline-block;
 }
-body.cpage-forumedit div > form {
+body.cpage-forumedit div > form,
+body.cpage-forume2 div > form{
   width: 100%;
 }
 .forum div > form > * {
