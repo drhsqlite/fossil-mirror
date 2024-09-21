@@ -8536,7 +8536,7 @@ int sqlite3_regexp_init(
 **   modification-time of the target file is set to this value before
 **   returning.
 **
-**   If three or more arguments are passed to this function and an
+**   If five or more arguments are passed to this function and an
 **   error is encountered, an exception is raised.
 **
 ** READFILE(FILE):
@@ -17051,7 +17051,7 @@ static const char *lockName(int eLock){
   const char *azLockNames[] = {
      "NONE", "SHARED", "RESERVED", "PENDING", "EXCLUSIVE"
   };
-  if( eLock<0 || eLock>=sizeof(azLockNames)/sizeof(azLockNames[0]) ){
+  if( eLock<0 || eLock>=(int)(sizeof(azLockNames)/sizeof(azLockNames[0])) ){
     return "???";
   }else{
     return azLockNames[eLock];
