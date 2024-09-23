@@ -1123,6 +1123,19 @@ const char *xfer_ticket_code(void){
 }
 
 /*
+** Reset the CGI content, roll back any pending db transaction, and
+** emit an "error" xfer message, which must be pre-fossilized by the
+** caller.
+*/
+static void xfer_error(const char *zFossilizedMsg){
+  cgi_reset_content();
+  if( db_transaction_nesting_depth() > 0 ){
+    db_rollback_transaction();
+  }
+  @ error %s(zFossilizedMsg)
+}
+
+/*
 ** Run the specified TH1 script, if any, and returns 1 on error.
 */
 int xfer_run_script(
@@ -1463,6 +1476,10 @@ void page_xfer(void){
           cgi_set_content_type("application/x-fossil-uncompressed");
         }
         blob_is_int(&xfer.aToken[2], &seqno);
+        if( seqno<=0 ){
+          xfer_error("invalid\\sclone\\ssequence\\snumber");
+          return;
+        }
         max = db_int(0, "SELECT max(rid) FROM blob");
         while( xfer.mxSend>(int)blob_size(xfer.pOut) && seqno<=max){
           if( time(NULL) >= xfer.maxTime ) break;
@@ -1846,7 +1863,7 @@ void page_xfer(void){
   */
   zNow = db_text(0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', 'now')");
   @ # timestamp %s(zNow) errors %d(nErr)
-  free(zNow);
+  fossil_free(zNow);
 
   db_commit_transaction();
   configure_rebuild();

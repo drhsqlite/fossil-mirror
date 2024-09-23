@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\stesting.
-D 2024-09-21T15:59:27.950
+C Improve\sthe\svalidation\sof\sthe\ssequence\snumber\sin\sclone\smessages\sin\sthe\ssync\sprotocol.
+D 2024-09-23T22:06:18.131
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -591,7 +591,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 4ac22db1c25e2a96207a891aced5dd19090afa266586f6f563160cfe8b91890f
-F src/xfer.c 28e610f55b434d955de98412cd03fb6aa38839284df6c24453c21bbce0e859fe
+F src/xfer.c d7affe19fa5f0e2b0f691df15f907ff6fdc1fb43e44511b5a741e53384bd2f77
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c bb0767a627953d909af866e2f0fa3ff5fa697a154d313191c203b3b8eaaf84fe
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f75f1d60df85fc331cd6a000b4191b2bfcab53dec3245c13444dac060d35c071
-R 34730ddfdf6700dd3d98f6f199949c97
-U drh
-Z 26cba46dfff88205adf48c6f6e866d27
+P 5de7ce9a0673c9972169a24e33f8fc65ae88f61c33d2561e260b4d688fc9f0b8
+R 02c9cc4b7e12775e001551e1769b24c3
+U stephan
+Z 107ee1c5c33faeb51b0a08874fcc3b22
 # Remove this line to create a well-formed Fossil manifest.
