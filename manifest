@@ -1,5 +1,5 @@
-C Fix\sa\smemleak\sin\smanifest_crosslink()\swhen\shooks\sare\sactivated\s(one\suuid\sleaked\sper\scheckin\smanifest).\sWhen\sposting\sa\schat-robot\smessage\sfor\sa\sforum\spost,\sadd\slinks\sto\sthe\sartifact\sand\suser's\stimeline\sto\sthat\smessage\s(as\sis\sdone\sfor\scheckins.
-D 2024-09-24T18:05:33.252
+C Latest\supstream\sautosetup\s(supports\smore\senvironments).
+D 2024-09-24T21:21:17.406
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -21,8 +21,8 @@ F auto.def f219f8ecfe85c31446238b0468d241d2d87cf851222dd58fe84d9380e37f9ba5
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 7d7fe206980a6d04113f85e570229953f7e0cd5ef31bb40868653b976f8698af x
-F autosetup/autosetup-config.guess af5884053b46ec977d9a349401e599ef5af07f9e5225fc401aa63285182bd73f x
-F autosetup/autosetup-config.sub a5dc581ccc42b30454469377ac9290c590c2fdf39288f97f922dc58c7c8884b5 x
+F autosetup/autosetup-config.guess dfa101c5e8220e864d5e9c72a85e87110df60260d36cb951ad0a85d6d9eaa463 x
+F autosetup/autosetup-config.sub a38fb074d0dece01cf919e9fb534a26011608aa8fa606490864295328526cd73 x
 F autosetup/autosetup-find-tclsh c5053419348cdd1aba824c3701bd97392d987b948c1bd748b32f11bbca2c0d8a x
 F autosetup/autosetup-test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
 F autosetup/cc-db.tcl 6e0ed90146197a5a05b245e649975c07c548e30926b218ca3e1d4dc034b10a7b
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f9f90d9b15cb3669d803d5ebf4e0726cfc1c906cfa4bafe2b22ee0a4754e7afc
-R 9cff5698ab98002cb18196e807856810
+P 5fabb7ccb7d195c423cc7a0ed7c1283e3cdaae85256d8ba35e50fff552852507
+R 9ab682ea566cc6aa36d21c4670fcb88f
 U stephan
-Z cfb7b03d83fade47614219c6ebb04025
+Z 46896cdab62e4ed0ad9faeb02c959f87
 # Remove this line to create a well-formed Fossil manifest.
