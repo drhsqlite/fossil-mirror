@@ -1139,8 +1139,7 @@ void chat_msg_from_event(
     fossil_free(zUuid);
   }else if( zType[0]=='w' ){
     /* Wiki page changes */
-    char *zUuid;
-    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    char *zUuid = rid_to_uuid(rid);
     wiki_hyperlink_override(zUuid);
     if( zMsg[0]=='-' ){
       zRes = mprintf("Delete wiki page <a href='%R/whistory?name=%t'>%h</a>",
@@ -1156,6 +1155,13 @@ void chat_msg_from_event(
       zRes = mprintf("%W", zMsg);
     }
     wiki_hyperlink_override(0);
+    fossil_free(zUuid);
+  }else if( zType[0]=='f' ){
+    /* Forum changes */
+    char *zUuid = rid_to_uuid(rid);
+    zRes = mprintf( "%W (artifact: <a href='%R/info/%S'>%S</a>, "
+                    "user: <a href='%R/timeline?u=%t&c=%S'>%h</a>)",
+                    zMsg, zUuid, zUuid, zUser, zUuid, zUser);
     fossil_free(zUuid);
   }else{
     /* Anything else */
