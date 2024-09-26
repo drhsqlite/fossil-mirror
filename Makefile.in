@@ -94,6 +94,9 @@ MAKE_COMPILATION_DB = @MAKE_COMPILATION_DB@
 .PHONY: all tags
 
 include $(SRCDIR)/main.mk
+SQLITE_OPTIONS += @SQLITE_OPTIONS_EXT@
+SHELL_OPTIONS += @SQLITE_OPTIONS_EXT@
+# ^^^ must come after main.mk is included
 
 distclean: clean
 	-rm -f autoconfig.h config.log Makefile

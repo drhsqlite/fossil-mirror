@@ -114,6 +114,8 @@ define USE_MMAN_H 0
 define USE_SEE 0
 define SQLITE3_ORIGIN 0
 # SQLITE3_ORIGIN 0 = src/sqlite3, 1=src/sqlite3-see.c, 2=client-provided
+define SQLITE_OPTIONS_EXT ""
+# SQLITE_OPTIONS_EXT => build-dependent CFLAGS for sqlite3.c and shell.c
 
 # Maintain the C89/C90-style order of variable declarations before statements.
 # Check if the compiler supports the respective warning flag.
@@ -402,6 +404,10 @@ if {$zlibpath eq "tree"} {
       } else {
         define-append EXTRA_LDFLAGS "$lcheck"
         msg-result "Linked to zlib via $lcheck"
+      }
+      if {![check-function-in-lib compressBound z]} {
+        puts "Notice: disabling zlib compression in the SQL shell"
+        define-append SQLITE_OPTIONS_EXT {-USQLITE_HAVE_ZLIB}
       }
       break
     }

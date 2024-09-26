@@ -1,5 +1,5 @@
-C Latest\supstream\sautosetup\s(supports\smore\senvironments).
-D 2024-09-24T21:21:17.406
+C At\sconfigure-time,\sdisable\sSQLITE_HAVE_ZLIB\sif\szlib\sdoes\snot\scontain\scompressBound().\sThis\sresolves\sa\sbuild\sfailure\son\sMartin\sG.'s\sQNX\ssystem.
+D 2024-09-26T17:47:40.886
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -13,11 +13,11 @@ F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 2054fbcf2af6a12d67375f377d2779f4e30bcc19815af1c6e0c588f9c0e18063
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
-F Makefile.in 8fd78b56e75bba3caeb029843994c8e9bb2a26160c55d05ede9b3ef8a11633a0 x
+F Makefile.in cd2437faccc882116ace8e8c2a3a5dd15336164af17be83b788fa362e1299177 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 4ecd43a7f1483288486cdcff7ddf68299735b82a8804a9dc0da3c63084fd4c40
-F auto.def f219f8ecfe85c31446238b0468d241d2d87cf851222dd58fe84d9380e37f9ba5
+F auto.def acf77887a06b4f40d22e95c6469bf81567af6ffda01aa087eb2453090e9e15f7
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 7d7fe206980a6d04113f85e570229953f7e0cd5ef31bb40868653b976f8698af x
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5fabb7ccb7d195c423cc7a0ed7c1283e3cdaae85256d8ba35e50fff552852507
-R 9ab682ea566cc6aa36d21c4670fcb88f
+P 921edd2e51aca6aacdcc2a9b4291a499ccd17cbffe7f639f1bed7ba3fe85f35c
+R c6742813559794c649db22acf8834677
 U stephan
-Z 46896cdab62e4ed0ad9faeb02c959f87
+Z 25427026b73d7dcf554fb5652770f5af
 # Remove this line to create a well-formed Fossil manifest.
