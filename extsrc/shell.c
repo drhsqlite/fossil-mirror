@@ -1026,7 +1026,7 @@ int cli_wcwidth(int c){
 **
 ** This routine only works for *multi-byte* UTF-8 characters.
 */
-static int decodeUtf8(const unsigned char *z, int *pU){
+int decodeUtf8(const unsigned char *z, int *pU){
   if( (z[0] & 0xe0)==0xc0 && (z[1] & 0xc0)==0x80 ){
     *pU = ((z[0] & 0x1f)<<6) | (z[1] & 0x3f);
     return 2;

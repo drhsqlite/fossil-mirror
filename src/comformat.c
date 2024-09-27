@@ -296,6 +296,11 @@ static void comment_print_line(
       cchUTF8++;
       zBuf[iBuf++] = zLine[index++];
     }
+    if( cchUTF8>1 ){
+      int utf32;
+      decodeUtf8(&zLine[index-cchUTF8],&utf32);
+      useChars += cli_wcwidth(utf32) - 1;
+    }
     maxChars -= useChars;
     if( maxChars<=0 ) break;
     if( c=='\n' ) break;
@@ -381,6 +386,11 @@ static int comment_print_legacy(
           cchUTF8++;
           zBuf[k++] = zText[++i];
         }
+      }
+      if( cchUTF8>1 ){
+        int utf32;
+        decodeUtf8(&zText[k-cchUTF8],&utf32);
+        kc += cli_wcwidth(utf32) - 1;
       }
       else if( fossil_isspace(c) ){
         si = i;
