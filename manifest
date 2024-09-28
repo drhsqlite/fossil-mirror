@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\sSQLite\senhancements,\sand\sin\sparticular\sthe\snew\s".www"\ndot-command\savailable\sto\s"fossil\ssql".
-D 2024-09-26T19:49:40.469
+C Latest\supstream\sautosetup\sfor\sa\s--help\sfix\son\sQNX.
+D 2024-09-28T00:34:32.228
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -20,7 +20,7 @@ F VERSION 4ecd43a7f1483288486cdcff7ddf68299735b82a8804a9dc0da3c63084fd4c40
 F auto.def acf77887a06b4f40d22e95c6469bf81567af6ffda01aa087eb2453090e9e15f7
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
-F autosetup/autosetup 7d7fe206980a6d04113f85e570229953f7e0cd5ef31bb40868653b976f8698af x
+F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
 F autosetup/autosetup-config.guess dfa101c5e8220e864d5e9c72a85e87110df60260d36cb951ad0a85d6d9eaa463 x
 F autosetup/autosetup-config.sub a38fb074d0dece01cf919e9fb534a26011608aa8fa606490864295328526cd73 x
 F autosetup/autosetup-find-tclsh c5053419348cdd1aba824c3701bd97392d987b948c1bd748b32f11bbca2c0d8a x
@@ -28,7 +28,7 @@ F autosetup/autosetup-test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
 F autosetup/cc-db.tcl 6e0ed90146197a5a05b245e649975c07c548e30926b218ca3e1d4dc034b10a7b
 F autosetup/cc-lib.tcl 493c5935b5dd3bf9bd4eca89b07c8b1b1a9356d61783035144e21795facf7360
 F autosetup/cc-shared.tcl 4f024e94a47f427ba61de1739f6381ef0080210f9fae89112d5c1de1e5460d78
-F autosetup/cc.tcl 1b52de228642c1db5a714d54ca974d723ec8b4092e8c3765d348b625850f7311
+F autosetup/cc.tcl 7e2fe943ae9d45cf39e9f5b05b6230df8e719415edea5af06c30eb68680bde14
 F autosetup/default.auto f78163e478676728918cbb7360abddb9c830e882
 F autosetup/jimsh0.c 1b5fe91fffcddbc29f2b16acb80f1650632ea2edbe8336b8155ef7b4c66f6d8d
 F autosetup/local.tcl 60b0633b484a89c87aed299e4c22ac5287803f921ba9b653a04b0c518f699cda
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ac3e326adf180ee427954b0f32e43135f24542292b3bc7b5ae021dd605a24f29
-R da6aed33c32b1245bffae1dca0a5b9eb
-U drh
-Z ef4133de551024eb73655ed954fae7d3
+P c20aa86727773e3a8a87ec576ec646302f364cdc6d4a4ac76c2100afe96a89c0
+R bf16b5ed1aaf24729aa8293012ef7413
+U stephan
+Z 12144a3114604258f1edf462032807e2
 # Remove this line to create a well-formed Fossil manifest.
