@@ -1,5 +1,5 @@
-C Quick\stest\swhether\sthe\s`cli_wcwidth()'\sfunction\s[https://sqlite.org/src/vdiff?branch=variable-width-char\s|\srecently\sadded\sto\sthe\sSQLite\sshell]\scan\sbe\sused\sby\sthe\scomment\sformatter\sto\stake\scharacter\swidths\sinto\saccount\swhen\scalculating\sword-break\spositions.\sTODOs:\s(0)\sFix\sthe\s"modern"\s(i.e.\snon-legacy)\scomment\sformatter\sbeing\soff\sby\sone\sif\sa\sfullwidth\scharacter\sonly\sfits\spartially.\s(1)\sAdd\stests\sfor\sthe\scomment\sformatters\swith\snon-ASCII\sinput.\s(2)\sImplement\sa\smodified\s`decodeUtf8()'\sfunction\s(which\sis\sstatic,\sanyway)\sthat\salso\saccepts\ssingle-byte\sUTF-8\scharacters\sand\smay\sallow\sfor\ssome\ssimplifications\sto\sthe\scomment\sformatter\salgorithms.
-D 2024-09-27T04:52:00.000
+C Copy\sthe\swcwidth()\simplementation\sfrom\sSQLite\sover\sinto\scomformat.c,\sso\sthat\ncomformat.c\sdoes\snot\sdepend\son\sSQLite.\s\sFix\sthe\scomformat\sroutine\sso\sthat\sit\ndoes\snot\sbegin\sa\snew\sline\swith\sspaces.
+D 2024-09-28T18:19:14.013
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -273,7 +273,7 @@ F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc3
 F extsrc/pikchr.c 85e65b968651b342c46e6334f4772b45d6cbb4317c5cbaa95d207779a50c6709
 F extsrc/pikchr.js ef8475dfa65cdeff238905f1d7c5d22af6d576eb073b84789f6cb9d00d8f2585
 F extsrc/pikchr.wasm e1c849f2a839522073ee700e0b1f51a9a453cb702a5181e0ff25cfc32f59bc47
-F extsrc/shell.c 6f2573a6502519faff05f88fd114f40ff958696bd7e67e49aded559774b4a1cc
+F extsrc/shell.c 893754124c412a695b0112d28799b5daab6bcc5514f3314caf5f6e7f5e901749
 F extsrc/sqlite3.c e0a0846483ec1a5139e8710645f9a5709570eccfa91b01b66349da3b6ef0b532
 F extsrc/sqlite3.h ec98bffe4e5e6c18aeb248b96a8169607cb13c4f2da64b1d6f4787f06d4bb927
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
@@ -403,7 +403,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c 9e98d0e64d8f19456a345f20275f1094b3c2022e27b0acbe5d7cbb6b917b06f5
 F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
-F src/comformat.c e944c9c701909be10bd58ba7bc5b71a6b6bedb5ab4e4713633313fa227b97308
+F src/comformat.c 9a78e4ddc83b1621731b7c8a29896938502128c3b2619f68d6a095eb30b973df
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 49087161ddb9de8de77411b66cdd80fecaa54ab90390d6227947444c288a1566
 F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
@@ -959,11 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c20aa86727773e3a8a87ec576ec646302f364cdc6d4a4ac76c2100afe96a89c0
-R c8b101c8005bed884fc1180489e73a2b
-T *branch * comment-formatter-wcwidth
-T *sym-comment-formatter-wcwidth *
-T -sym-trunk *
-U florian
-Z fb06462d321cb63c4280e9cc106bb9b0
+P b2dbdc8afbff1c162400696cae7e8a80e444cd6129b01c496fda15ad59e8f68c
+R e3ceaeaddd883982f1201baeb8e6c4c9
+U drh
+Z a854e667421e22c83ffcad65b34b376e
 # Remove this line to create a well-formed Fossil manifest.
