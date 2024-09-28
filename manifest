@@ -1,5 +1,5 @@
-C Latest\supstream\sautosetup\sfor\sa\s--help\sfix\son\sQNX.
-D 2024-09-28T00:34:32.228
+C Add\sxsl/xslt\smimetype\sentries\sfor\sconsistency\swith\salthttpd.
+D 2024-09-28T17:59:43.221
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,7 +421,7 @@ F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
 F src/diffcmd.c e11ab5f28e58d80735eaafc6b29fd78d479571bd767553bb8a685018790d1285
 F src/dispatch.c 888760a3fae9c8270eaf90f8f5a5ee2dcef8e4b48482a694eec29e6d778ddb68
-F src/doc.c 55dd74f447c1fd2ba655fa68a48136505e70a9d6212f138c5328031c06a007f9
+F src/doc.c 684b3d4fe993ccd618fdd5dfbf73e4bcc2ec019b21503190a503e3eb37008eca
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c20aa86727773e3a8a87ec576ec646302f364cdc6d4a4ac76c2100afe96a89c0
-R bf16b5ed1aaf24729aa8293012ef7413
+P 742450caf4bf3b3ff0cf150d5e5d7dbdc495c65703b897156b0815778d691ed5
+R 3ccaf5643f70919d4896877ee33d632e
 U stephan
-Z 12144a3114604258f1edf462032807e2
+Z 88a759198fc4f8696bef5e819ad37cdb
 # Remove this line to create a well-formed Fossil manifest.
