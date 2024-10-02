@@ -167,6 +167,7 @@ void page_timeline_rss(void){
   db_prepare(&q, "%s", blob_sql_text(&bSQL));
   blob_reset( &bSQL );
   while( db_step(&q)==SQLITE_ROW && nLine<nLimit ){
+    int rid = db_column_int(&q, 0);
     const char *zId = db_column_text(&q, 1);
     const char *zEType = db_column_text(&q, 3);
     const char *zCom = db_column_text(&q, 4);
@@ -178,6 +179,7 @@ void page_timeline_rss(void){
     int nParent = db_column_int(&q, 7);
     const char *zTagList = db_column_text(&q, 8);
     time_t ts;
+    Manifest *pPost;
 
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
     ts = (time_t)((db_column_double(&q,2) - 2440587.5)*86400.0);
@@ -207,7 +209,19 @@ void page_timeline_rss(void){
     @     <item>
     @       <title>%s(zPrefix)%h(zCom)%h(zSuffix)</title>
     @       <link>%s(g.zBaseURL)/info/%s(zId)</link>
+    if ('f'==zEType[0]
+      && (g.perm.ModForum || !content_is_private(rid))
+    ){
+      pPost = manifest_get(rid, CFTYPE_FORUM, 0);
+      if( pPost ){
+    @       <description>%s(zPrefix)<![CDATA[
+        forum_render(0, pPost->zMimetype, pPost->zWiki, 0, 0);
+    @]]>%h(zSuffix)</description>
+        manifest_destroy(pPost);
+      }
+    }else{
     @       <description>%s(zPrefix)%h(zCom)%h(zSuffix)</description>
+    }
     @       <pubDate>%s(zDate)</pubDate>
     @       <dc:creator>%h(zAuthor)</dc:creator>
     @       <guid>%s(g.zBaseURL)/info/%s(zId)</guid>
@@ -368,9 +382,11 @@ void cmd_timeline_rss(void){
   db_prepare(&q, "%s", blob_sql_text(&bSQL));
   blob_reset( &bSQL );
   while( db_step(&q)==SQLITE_ROW && nLine<nLimit ){
+    int rid = db_column_int(&q, 0);
     const char *zId = db_column_text(&q, 1);
     const char *zCom = db_column_text(&q, 3);
     const char *zAuthor = db_column_text(&q, 4);
+    char *zDesc;
     char *zPrefix = "";
     char *zSuffix = 0;
     char *zDate;
@@ -378,6 +394,7 @@ void cmd_timeline_rss(void){
     int nParent = db_column_int(&q, 6);
     const char *zTagList = db_column_text(&q, 7);
     time_t ts;
+    Manifest *pPost;
 
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
     ts = (time_t)((db_column_double(&q,2) - 2440587.5)*86400.0);
@@ -395,14 +412,23 @@ void cmd_timeline_rss(void){
       zSuffix = mprintf(" (tags: %s)", zTagList);
     }
 
+    pPost = manifest_get(rid, CFTYPE_FORUM, 0);
+    if( pPost ){
+      zDesc = mprintf("%s<pre>%h</pre>%h", zPrefix, pPost->zWiki, zSuffix);
+      manifest_destroy(pPost);
+    }else{
+      zDesc = mprintf("%s%h%h", zPrefix, zCom, zSuffix);
+    }
+
     fossil_print("<item>");
     fossil_print("<title>%s%h%h</title>\n", zPrefix, zCom, zSuffix);
     fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zId);
-    fossil_print("<description>%s%h%h</description>\n", zPrefix, zCom, zSuffix);
+    fossil_print("<description>%s</description>\n", zDesc);
     fossil_print("<pubDate>%s</pubDate>\n", zDate);
     fossil_print("<dc:creator>%h</dc:creator>\n", zAuthor);
     fossil_print("<guid>%s/info/%s</guid>\n", g.zBaseURL, zId);
     fossil_print("</item>\n");
+    fossil_free(zDesc);
     free(zDate);
     free(zSuffix);
     nLine++;
