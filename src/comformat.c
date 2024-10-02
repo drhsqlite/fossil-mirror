@@ -767,6 +767,7 @@ void test_comment_format(void){
   }else{
     indent = -1; /* automatic */
   }
+  verify_all_options();
   if( g.argc!=4 && g.argc!=5 ){
     usage("?OPTIONS? PREFIX TEXT ?ORIGTEXT?");
   }
