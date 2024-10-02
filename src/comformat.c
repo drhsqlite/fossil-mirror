@@ -33,7 +33,7 @@
 #define COMMENT_PRINT_UNSET      (-1)              /* Not initialized. */
 #endif
 
-/********* Code copied from SQLite src/shell.c.in on 2024-09-28 **********/
+/********* Code copied from SQLite src/shell.c.in on 2024-09-30 **********/
 /* Lookup table to estimate the number of columns consumed by a Unicode
 ** character.
 */
