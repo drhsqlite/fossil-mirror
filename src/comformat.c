@@ -138,32 +138,6 @@ static int cli_wcwidth(int c){
   if( aUWidth[iLast].iFirst > c ) return aUWidth[iFirst].w;
   return aUWidth[iLast].w;
 }
-
-/*
-** Compute the value and length of a multi-byte UTF-8 character that
-** begins at z[0].   Return the length.  Write the Unicode value into *pU.
-**
-** This routine only works for *multi-byte* UTF-8 characters.
-*/
-static int decodeUtf8(const unsigned char *z, int *pU){
-  if( (z[0] & 0xe0)==0xc0 && (z[1] & 0xc0)==0x80 ){
-    *pU = ((z[0] & 0x1f)<<6) | (z[1] & 0x3f);
-    return 2;
-  }
-  if( (z[0] & 0xf0)==0xe0 && (z[1] & 0xc0)==0x80 && (z[2] & 0xc0)==0x80 ){
-    *pU = ((z[0] & 0x0f)<<12) | ((z[1] & 0x3f)<<6) | (z[2] & 0x3f);
-    return 3;
-  }
-  if( (z[0] & 0xf8)==0xf0 && (z[1] & 0xc0)==0x80 && (z[2] & 0xc0)==0x80
-   && (z[3] & 0xc0)==0x80
-  ){
-    *pU = ((z[0] & 0x0f)<<18) | ((z[1] & 0x3f)<<12) | ((z[2] & 0x3f))<<6
-                              | (z[4] & 0x3f);
-    return 4;
-  }
-  *pU = 0;
-  return 1;
-}
 /******* End of code copied from SQLite *************************************/
 
 /*
@@ -273,7 +247,7 @@ static int comment_next_space(
 ** point (UTF-16 surrogates U+D800 to U+DFFF) are allowed.
 */
 void char_info_utf8(
-  const unsigned char *z,
+  const char *z,
   int *pCchUTF8,
   int *pUtf32
 ){
@@ -296,7 +270,7 @@ void char_info_utf8(
   }
   *pCchUTF8 = cchUTF8;
   if( cchUTF8!=maxUTF8 ||                 /* Incomplete UTF-8 sequence. */
-      cchUTF8==1 && (c&0x80)==0x80 ){     /* Lone UTF-8 trail byte. */
+      ( cchUTF8==1 && (c&0x80)==0x80 )){  /* Lone UTF-8 trail byte. */
     *pUtf32 = 0xfffd;                     /* U+FFFD Replacement Character */
 #ifdef FOSSIL_DEBUG
     assert( *pUtf32!=0xfffd );            /* Invalid UTF-8 sequence. */
