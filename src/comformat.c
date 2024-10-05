@@ -243,6 +243,7 @@ static int comment_check_orig(
 static int comment_next_space(
   const char *zLine, /* [in] The comment line being printed. */
   int index,         /* [in] The current character index being handled. */
+  int maxChars,      /* [in] Optimization hint to abort before space found. */
   int *sumWidth      /* [out] Summated width of all characters to next space. */
 ){
   int cchUTF8, utf32, wcwidth = 0;
@@ -251,7 +252,8 @@ static int comment_next_space(
     char_info_utf8(&zLine[nextIndex],&cchUTF8,&utf32);
     nextIndex += cchUTF8;
     wcwidth += cli_wcwidth(utf32);
-    if( zLine[nextIndex]==0 || fossil_isspace(zLine[nextIndex]) ){
+    if( zLine[nextIndex]==0 || fossil_isspace(zLine[nextIndex]) ||
+        wcwidth>maxChars ){
       *sumWidth = wcwidth;
       return nextIndex;
     }
@@ -279,7 +281,12 @@ void char_info_utf8(
   int cchUTF8 = 1;                        /* Code units consumed. */
   int maxUTF8 = 1;                        /* Expected sequence length. */
   char c = z[i++];
-  if( (c&0xe0)==0xc0 ) maxUTF8 = 2;       /* UTF-8 lead byte 110vvvvv */
+  if( (c&0x80)==0x00 ){                   /* 7-bit ASCII character. */
+    *pCchUTF8 = 1;
+    *pUtf32 = (int)z[0];
+    return;
+  }
+  else if( (c&0xe0)==0xc0 ) maxUTF8 = 2;  /* UTF-8 lead byte 110vvvvv */
   else if( (c&0xf0)==0xe0 ) maxUTF8 = 3;  /* UTF-8 lead byte 1110vvvv */
   else if( (c&0xf8)==0xf0 ) maxUTF8 = 4;  /* UTF-8 lead byte 11110vvv */
   while( cchUTF8<maxUTF8 &&
@@ -314,9 +321,6 @@ void char_info_utf8(
       *pUtf32 =
         ( (z[0] & 0x1f)<< 6 ) | 
         ( (z[1] & 0x3f)<< 0 ) ;
-      break;
-    case 1:
-      *pUtf32 = (int)z[0];
       break;
   }
 #ifdef FOSSIL_DEBUG
@@ -426,7 +430,7 @@ static void comment_print_line(
       useChars = 0;
     }else if( c=='\t' ){
       int sumWidth;
-      int nextIndex = comment_next_space(zLine, index, &sumWidth);
+      int nextIndex = comment_next_space(zLine, index, maxChars, &sumWidth);
       if( nextIndex<=0 || sumWidth>maxChars ){
         break;
       }
@@ -438,7 +442,7 @@ static void comment_print_line(
       }
     }else if( wordBreak && fossil_isspace(c) ){
       int sumWidth;
-      int nextIndex = comment_next_space(zLine, index, &sumWidth);
+      int nextIndex = comment_next_space(zLine, index, maxChars, &sumWidth);
       if( nextIndex<=0 || sumWidth>=maxChars ){
         break;
       }
