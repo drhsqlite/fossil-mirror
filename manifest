@@ -1,5 +1,5 @@
-C Update\sthe\scomment\sfor\sthe\scode\scopied\sfrom\sthe\sSQLite\sshell.
-D 2024-10-02T14:47:00.000
+C Add\stests\sfor\sthe\scomment\sformatter\swith\smulti-byte\sand\sfullwidth\scharacters.
+D 2024-10-05T13:04:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -599,7 +599,7 @@ F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c1ea044297b09158caa5c800b2017bcf807d0138cc8c8901ba464bcb8798bafb
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
-F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
+F test/comment.test 72475d5367fe0952462cbde57e7e3f335fd12e5ffafb01b06c93c88d3f6b6bbe
 F test/commit-warning.test 77c7375437d510e306e55790d1de7e0f9dad8b36749e098716730393cb6f5f56
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
@@ -669,6 +669,7 @@ F test/update.test c13ead0c26bf794b038db9a40c2ecc2858df8b6d0df15991c4d8d2e67f6db
 F test/utf.test c2426351ad7a2ea1fd9f8ea16284a62155080fcebbc33b17065b7f2235bd1f5d
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
+F test/utf8-comment.txt 0964b79ef7d4065702dd6c304b44d26a796409e2e5a3e5eb31d64300df58b165
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
 F test/wiki.test 8a6977e1231c4ebcc8065e831db579eb624d4ad74458c987c00b5ebc8b3b0eb3
 F tools/co-rsync.tcl bcc9d6d68374f0d03cb4db5a06b0680015df8ed1d185c235939e7a0b0b966e17 x
@@ -959,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fb0845d1aaab27f37f52dc6f29b474e85151db07cb492c8c00b3ffa13cb60dfb
-R 57720c083ffb3b3338e24b8ecf5a052b
+P d98999f80136664c5f08d7afc90b4300e76dccf200c9dc10637ae18d10a688b0
+R 8e6ca2c5eb089937f9e988ebdbb20045
 U florian
-Z d41f5bb4d211a2c754b14f4916e60e23
+Z 6d480dc879072c64a606156c1451cedd
 # Remove this line to create a well-formed Fossil manifest.
