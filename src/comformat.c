@@ -33,7 +33,7 @@
 #define COMMENT_PRINT_UNSET      (-1)              /* Not initialized. */
 #endif
 
-/********* Code copied from SQLite src/shell.c.in on 2024-09-28 **********/
+/********* Code copied from SQLite src/shell.c.in on 2024-09-30 **********/
 /* Lookup table to estimate the number of columns consumed by a Unicode
 ** character.
 */
@@ -138,32 +138,6 @@ static int cli_wcwidth(int c){
   if( aUWidth[iLast].iFirst > c ) return aUWidth[iFirst].w;
   return aUWidth[iLast].w;
 }
-
-/*
-** Compute the value and length of a multi-byte UTF-8 character that
-** begins at z[0].   Return the length.  Write the Unicode value into *pU.
-**
-** This routine only works for *multi-byte* UTF-8 characters.
-*/
-static int decodeUtf8(const unsigned char *z, int *pU){
-  if( (z[0] & 0xe0)==0xc0 && (z[1] & 0xc0)==0x80 ){
-    *pU = ((z[0] & 0x1f)<<6) | (z[1] & 0x3f);
-    return 2;
-  }
-  if( (z[0] & 0xf0)==0xe0 && (z[1] & 0xc0)==0x80 && (z[2] & 0xc0)==0x80 ){
-    *pU = ((z[0] & 0x0f)<<12) | ((z[1] & 0x3f)<<6) | (z[2] & 0x3f);
-    return 3;
-  }
-  if( (z[0] & 0xf8)==0xf0 && (z[1] & 0xc0)==0x80 && (z[2] & 0xc0)==0x80
-   && (z[3] & 0xc0)==0x80
-  ){
-    *pU = ((z[0] & 0x0f)<<18) | ((z[1] & 0x3f)<<12) | ((z[2] & 0x3f))<<6
-                              | (z[4] & 0x3f);
-    return 4;
-  }
-  *pU = 0;
-  return 1;
-}
 /******* End of code copied from SQLite *************************************/
 
 /*
@@ -243,58 +217,92 @@ static int comment_check_orig(
 static int comment_next_space(
   const char *zLine, /* [in] The comment line being printed. */
   int index,         /* [in] The current character index being handled. */
-  int *distUTF8      /* [out] Distance to next space in UTF-8 sequences. */
+  int maxChars,      /* [in] Optimization hint to abort before space found. */
+  int *sumWidth      /* [out] Summated width of all characters to next space. */
 ){
-  int nextIndex = index + 1;
-  int fNonASCII=0;
+  int cchUTF8, utf32, wcwidth = 0;
+  int nextIndex = index;
   for(;;){
-    char c = zLine[nextIndex];
-    if( (c&0x80)==0x80 ) fNonASCII=1;
-    if( c==0 || fossil_isspace(c) ){
-      if( distUTF8 ){
-        if( fNonASCII!=0 ){
-          *distUTF8 = strlen_utf8(&zLine[index], nextIndex-index);
-        }else{
-          *distUTF8 = nextIndex-index;
-        }
-      }
+    char_info_utf8(&zLine[nextIndex],&cchUTF8,&utf32);
+    nextIndex += cchUTF8;
+    wcwidth += cli_wcwidth(utf32);
+    if( zLine[nextIndex]==0 || fossil_isspace(zLine[nextIndex]) ||
+        wcwidth>maxChars ){
+      *sumWidth = wcwidth;
       return nextIndex;
     }
-    nextIndex++;
   }
   return 0; /* NOT REACHED */
 }
 
 /*
-** Count the number of UTF-8 sequences in a string. Incomplete, ill-formed and
-** overlong sequences are counted as one sequence. The invalid lead bytes 0xC0
-** to 0xC1 and 0xF5 to 0xF7 are allowed to initiate (ill-formed) 2- and 4-byte
-** sequences, respectively, the other invalid lead bytes 0xF8 to 0xFF are
-** treated as invalid 1-byte sequences (as lone trail bytes).
-** Combining characters and East Asian Wide and Fullwidth characters are counted
-** as one, so this function does not calculate the effective "display width".
+** Return information about the next (single- or multi-byte) character in the
+** specified UTF-8 string: The number of UTF-8 code units (in this case: bytes)
+** and the decoded UTF-32 code point. Incomplete, ill-formed and overlong
+** sequences are consumed together as one invalid code point. The invalid lead
+** bytes 0xC0 to 0xC1 and 0xF5 to 0xF7 are allowed to initiate (ill-formed) 2-
+** and 4-byte sequences, respectively, the other invalid lead bytes 0xF8 to 0xFF
+** are treated as invalid 1-byte sequences (as lone trail bytes), all resulting
+** in one invalid code point. Invalid UTF-8 sequences encoding a non-scalar code
+** point (UTF-16 surrogates U+D800 to U+DFFF) are allowed.
 */
-int strlen_utf8(const char *zString, int lengthBytes){
-  int i;          /* Counted bytes. */
-  int lengthUTF8; /* Counted UTF-8 sequences. */
-#if 0
-  assert( lengthBytes>=0 );
-#endif
-  for(i=0, lengthUTF8=0; i<lengthBytes; i++, lengthUTF8++){
-    char c = zString[i];
-    int cchUTF8=1; /* Code units consumed. */
-    int maxUTF8=1; /* Expected sequence length. */
-    if( (c&0xe0)==0xc0 )maxUTF8=2;          /* UTF-8 lead byte 110vvvvv */
-    else if( (c&0xf0)==0xe0 )maxUTF8=3;     /* UTF-8 lead byte 1110vvvv */
-    else if( (c&0xf8)==0xf0 )maxUTF8=4;     /* UTF-8 lead byte 11110vvv */
-    while( cchUTF8<maxUTF8 &&
-            i<lengthBytes-1 &&
-            (zString[i+1]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
-      cchUTF8++;
-      i++;
-    }
+void char_info_utf8(
+  const char *z,
+  int *pCchUTF8,
+  int *pUtf32
+){
+  int i = 0;                              /* Counted bytes. */
+  int cchUTF8 = 1;                        /* Code units consumed. */
+  int maxUTF8 = 1;                        /* Expected sequence length. */
+  char c = z[i++];
+  if( (c&0x80)==0x00 ){                   /* 7-bit ASCII character. */
+    *pCchUTF8 = 1;
+    *pUtf32 = (int)z[0];
+    return;
   }
-  return lengthUTF8;
+  else if( (c&0xe0)==0xc0 ) maxUTF8 = 2;  /* UTF-8 lead byte 110vvvvv */
+  else if( (c&0xf0)==0xe0 ) maxUTF8 = 3;  /* UTF-8 lead byte 1110vvvv */
+  else if( (c&0xf8)==0xf0 ) maxUTF8 = 4;  /* UTF-8 lead byte 11110vvv */
+  while( cchUTF8<maxUTF8 &&
+          (z[i]&0xc0)==0x80 ){            /* UTF-8 trail byte 10vvvvvv */
+    cchUTF8++;
+    i++;
+  }
+  *pCchUTF8 = cchUTF8;
+  if( cchUTF8!=maxUTF8 ||                 /* Incomplete UTF-8 sequence. */
+      ( cchUTF8==1 && (c&0x80)==0x80 )){  /* Lone UTF-8 trail byte. */
+    *pUtf32 = 0xfffd;                     /* U+FFFD Replacement Character */
+#ifdef FOSSIL_DEBUG
+    assert( *pUtf32!=0xfffd );            /* Invalid UTF-8 sequence. */
+#endif
+    return;
+  }
+  switch( cchUTF8 ){
+    case 4:
+      *pUtf32 =
+        ( (z[0] & 0x0f)<<18 ) |
+        ( (z[1] & 0x3f)<<12 ) |
+        ( (z[2] & 0x3f)<< 6 ) |
+        ( (z[4] & 0x3f)<< 0 ) ;
+      break;
+    case 3:
+      *pUtf32 =
+        ( (z[0] & 0x0f)<<12 ) | 
+        ( (z[1] & 0x3f)<< 6 ) | 
+        ( (z[2] & 0x3f)<< 0 ) ;
+      break;
+    case 2:
+      *pUtf32 =
+        ( (z[0] & 0x1f)<< 6 ) | 
+        ( (z[1] & 0x3f)<< 0 ) ;
+      break;
+  }
+#ifdef FOSSIL_DEBUG
+  assert(
+    *pUtf32>=0 && *pUtf32<=0x10ffff &&    /* Valid range U+0000 to U+10FFFF. */
+    *pUtf32<0xd800 && *pUtf32>0xdfff      /* Non-scalar (UTF-16 surrogates). */
+  );
+#endif
 }
 
 /*
@@ -341,7 +349,6 @@ static void comment_print_line(
 ){
   int index = 0, charCnt = 0, lineCnt = 0, maxChars, i;
   char zBuf[400]; int iBuf=0; /* Output buffer and counter. */
-  int cchUTF8, maxUTF8;       /* Helper variables to count UTF-8 sequences. */
   if( !zLine ) return;
   if( lineChars<=0 ) return;
 #if 0
@@ -364,6 +371,7 @@ static void comment_print_line(
   }
   maxChars = lineChars;
   for(;;){
+    int cchUTF8, utf32;
     int useChars = 1;
     char c = zLine[index];
     /* Flush the output buffer if there's no space left for at least one more
@@ -395,9 +403,9 @@ static void comment_print_line(
       charCnt = 0;
       useChars = 0;
     }else if( c=='\t' ){
-      int distUTF8;
-      int nextIndex = comment_next_space(zLine, index, &distUTF8);
-      if( nextIndex<=0 || distUTF8>maxChars ){
+      int sumWidth;
+      int nextIndex = comment_next_space(zLine, index, maxChars, &sumWidth);
+      if( nextIndex<=0 || sumWidth>maxChars ){
         break;
       }
       charCnt++;
@@ -407,9 +415,9 @@ static void comment_print_line(
         break;
       }
     }else if( wordBreak && fossil_isspace(c) ){
-      int distUTF8;
-      int nextIndex = comment_next_space(zLine, index, &distUTF8);
-      if( nextIndex<=0 || distUTF8>=maxChars ){
+      int sumWidth;
+      int nextIndex = comment_next_space(zLine, index, maxChars, &sumWidth);
+      if( nextIndex<=0 || sumWidth>=maxChars ){
         break;
       }
       charCnt++;
@@ -418,21 +426,20 @@ static void comment_print_line(
     }
     assert( c!='\n' || charCnt==0 );
     zBuf[iBuf++] = c;
-    /* Skip over UTF-8 sequences, see comment on strlen_utf8() for details. */
-    cchUTF8=1; /* Code units consumed. */
-    maxUTF8=1; /* Expected sequence length. */
-    if( (c&0xe0)==0xc0 )maxUTF8=2;          /* UTF-8 lead byte 110vvvvv */
-    else if( (c&0xf0)==0xe0 )maxUTF8=3;     /* UTF-8 lead byte 1110vvvv */
-    else if( (c&0xf8)==0xf0 )maxUTF8=4;     /* UTF-8 lead byte 11110vvv */
-    while( cchUTF8<maxUTF8 &&
-            (zLine[index]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
-      cchUTF8++;
-      zBuf[iBuf++] = zLine[index++];
-    }
+    char_info_utf8(&zLine[index-1],&cchUTF8,&utf32);
     if( cchUTF8>1 ){
-      int utf32;
-      decodeUtf8((const unsigned char*)&zLine[index-cchUTF8],&utf32);
-      useChars += cli_wcwidth(utf32) - 1;
+      int wcwidth;
+      wcwidth = cli_wcwidth(utf32);
+      if( wcwidth>maxChars && lineChars>=wcwidth ){ /* rollback */
+        index--;
+        iBuf--;
+        zBuf[iBuf] = 0;
+        break;
+      }
+      for( ; cchUTF8>1; cchUTF8-- ){
+        zBuf[iBuf++] = zLine[index++];
+      }
+      useChars += wcwidth - 1;
     }
     maxChars -= useChars;
     if( maxChars<=0 ) break;
@@ -478,7 +485,6 @@ static int comment_print_legacy(
   char *zBuf;
   char zBuffer[400];
   int lineCnt = 0;
-  int cchUTF8, maxUTF8; /* Helper variables to count UTF-8 sequences. */
 
   if( width<0 ){
     comment_set_maxchars(indent, &maxChars);
@@ -504,26 +510,21 @@ static int comment_print_legacy(
       return lineCnt;
     }
     for(sk=si=i=k=kc=0; zText[i] && kc<maxChars; i++){
+      int cchUTF8, utf32;
       char c = zText[i];
       kc++; /* Count complete UTF-8 sequences. */
-      /* Skip over UTF-8 sequences, see comment on strlen_utf8() for details. */
-      cchUTF8=1; /* Code units consumed. */
-      maxUTF8=1; /* Expected sequence length. */
-      if( (c&0xe0)==0xc0 )maxUTF8=2;        /* UTF-8 lead byte 110vvvvv */
-      else if( (c&0xf0)==0xe0 )maxUTF8=3;   /* UTF-8 lead byte 1110vvvv */
-      else if( (c&0xf8)==0xf0 )maxUTF8=4;   /* UTF-8 lead byte 11110vvv */
-      if( maxUTF8>1 ){
-        zBuf[k++] = c;
-        while( cchUTF8<maxUTF8 &&
-                (zText[i+1]&0xc0)==0x80 ){  /* UTF-8 trail byte 10vvvvvv */
-          cchUTF8++;
+      char_info_utf8(&zText[i],&cchUTF8,&utf32);
+      if( cchUTF8>1 ){
+        int wcwidth;
+        wcwidth = cli_wcwidth(utf32);
+        if( kc+wcwidth-1>maxChars && maxChars>=wcwidth ){ /* rollback */
+          kc--;
+          break;
+        }
+        for( i--; cchUTF8>0; cchUTF8-- ){
           zBuf[k++] = zText[++i];
         }
-      }
-      if( cchUTF8>1 ){
-        int utf32;
-        decodeUtf8((const unsigned char*)&zText[k-cchUTF8],&utf32);
-        kc += cli_wcwidth(utf32) - 1;
+        kc += wcwidth - 1;
       }
       else if( fossil_isspace(c) ){
         si = i;
@@ -744,6 +745,7 @@ void test_comment_format(void){
   }else{
     indent = -1; /* automatic */
   }
+  verify_all_options();
   if( g.argc!=4 && g.argc!=5 ){
     usage("?OPTIONS? PREFIX TEXT ?ORIGTEXT?");
   }
