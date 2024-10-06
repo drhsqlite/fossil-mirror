@@ -1,5 +1,5 @@
-C Merge\supdates\sto\sthe\scharacter\swidth\smeasurements\sof\sthe\scomment\sformatter.\sNote\sthat\smulti-byte\sand\swide\scharacters\sare\snot\shandled\sin\sthe\scomment\sprefix,\swhich\sis\sentirely\scontrolled\sby\sthe\sapplication\sand\sonly\scontains\sASCII\stext.
-D 2024-10-05T13:29:00.000
+C Merge\sanother\supdate\sto\sthe\scomment\sformatter.
+D 2024-10-06T04:32:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -403,7 +403,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c 9e98d0e64d8f19456a345f20275f1094b3c2022e27b0acbe5d7cbb6b917b06f5
 F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
-F src/comformat.c 46534203db54fb379592e4df12715fa62d0559b0fa934c2f7f6aec91776b35a1
+F src/comformat.c dc2c4c667ddab67e2c8d5eb96837a104d0bb827a27ca643fdda52ce9f530a0f2
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 49087161ddb9de8de77411b66cdd80fecaa54ab90390d6227947444c288a1566
 F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
@@ -960,9 +960,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e483b3b15fad08e6dc03fe1d7f304d6cee69db48539dd3a2912561813ae9b8d4 b9e34fa9d29fa98e4640cb7e60e67bfc0c93a1122bae5e0bd654faadb7df14e6
-R 71e4287e61d5b74dd69dc0438bf7d93b
-T +closed b9e34fa9d29fa98e4640cb7e60e67bfc0c93a1122bae5e0bd654faadb7df14e6
+P 725af9479166f68a76b2dc564329d35ddf1278404dbca97b63ba3730576eb1af cc8a3116d1a3bd7b12a8bc7d6031362c14ce1b17c1e9727c812d57b85cc0828a
+R 5a6df36c624d3a05c59b71091c6b85cd
+T +closed cc8a3116d1a3bd7b12a8bc7d6031362c14ce1b17c1e9727c812d57b85cc0828a
 U florian
-Z 6c96f84483c56bf2c2664a7b09d75d18
+Z c813f23846768c2d61adc04277b9f526
 # Remove this line to create a well-formed Fossil manifest.

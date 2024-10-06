@@ -296,6 +296,9 @@ void char_info_utf8(
         ( (z[0] & 0x1f)<< 6 ) | 
         ( (z[1] & 0x3f)<< 0 ) ;
       break;
+    default:
+      *pUtf32 = 0xfffd;                   /* U+FFFD Replacement Character */
+      break;
   }
 #ifdef FOSSIL_DEBUG
   assert(
