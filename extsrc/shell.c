@@ -919,7 +919,7 @@ static const struct {
   unsigned char w;    /* Width of the character in columns */
   int iFirst;         /* First character in a span having this width */
 } aUWidth[] = {
-   /* {0, 0x00000},  {1, 0x00020},  {0, 0x0007f},  {1, 0x000a0}, */
+   /* {1, 0x00000}, */
   {0, 0x00300},  {1, 0x00370},  {0, 0x00483},  {1, 0x00487},  {0, 0x00488},
   {1, 0x0048a},  {0, 0x00591},  {1, 0x005be},  {0, 0x005bf},  {1, 0x005c0},
   {0, 0x005c1},  {1, 0x005c3},  {0, 0x005c4},  {1, 0x005c6},  {0, 0x005c7},
@@ -997,9 +997,6 @@ int cli_wcwidth(int c){
   int iFirst, iLast;
 
   /* Fast path for common characters */
-  if( c<0x20 ) return 0;
-  if( c<0x7f ) return 1;
-  if( c<0xa0 ) return 0;
   if( c<=0x300 ) return 1;
 
   /* The general case */
@@ -29669,7 +29666,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     int eMode = 0;
     int bOnce = 0;            /* 0: .output, 1: .once, 2: .excel/.www */
     int bPlain = 0;           /* --plain option */
-    static const char *zBomUtf8 = "\xef\xbb\xbf﻿";
+    static const char *zBomUtf8 = "\357\273\277";
     const char *zBom = 0;
 
     failIfSafeMode(p, "cannot run .%s in safe mode", azArg[0]);
@@ -31016,7 +31013,6 @@ static int do_meta_command(char *zLine, ShellState *p){
     {"seek_count",         SQLITE_TESTCTRL_SEEK_COUNT,  0, ""               },
     {"sorter_mmap",        SQLITE_TESTCTRL_SORTER_MMAP, 0, "NMAX"           },
     {"tune",               SQLITE_TESTCTRL_TUNE,        1, "ID VALUE"       },
-    {"uselongdouble",  SQLITE_TESTCTRL_USELONGDOUBLE,0,"?BOOLEAN|\"default\"?"},
     };
     int testctrl = -1;
     int iCtrl = -1;
@@ -31249,21 +31245,6 @@ static int do_meta_command(char *zLine, ShellState *p){
             isOk = 3;
           }
           break;
-
-        /* sqlite3_test_control(int, int) */
-        case SQLITE_TESTCTRL_USELONGDOUBLE: {
-          int opt = -1;
-          if( nArg==3 ){
-            if( cli_strcmp(azArg[2],"default")==0 ){
-              opt = 2;
-            }else{
-              opt = booleanValue(azArg[2]);
-            }
-          }
-          rc2 = sqlite3_test_control(testctrl, opt);
-          isOk = 1;
-          break;
-        }
 
         /* sqlite3_test_control(sqlite3*) */
         case SQLITE_TESTCTRL_INTERNAL_FUNCTIONS:
@@ -32488,7 +32469,11 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       sqlite3_fprintf(stderr,
             "attach debugger to process %d and press ENTER to continue...",
             GETPID());
-      sqlite3_fgets(zLine, sizeof(zLine), stdin);
+      if( sqlite3_fgets(zLine, sizeof(zLine), stdin)!=0
+       && cli_strcmp(zLine,"stop")==0
+      ){
+        exit(1);
+      }
     }else{
 #if defined(_WIN32) || defined(WIN32)
 #if SQLITE_OS_WINRT
