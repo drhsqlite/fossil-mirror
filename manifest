@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.47.0\salpha\sfor\stesting.
-D 2024-10-07T13:33:14.531
+C Show\stechnotes\sin\s/timeline.rss.\sResolves\sproblem\sreported\sin\s[forum:04614e8efa8e4af6\s|\sforum\spost\s04614e8efa8e4af6].
+D 2024-10-09T18:16:11.909
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -518,7 +518,7 @@ F src/rebuild.c abf9b8b76e75c1d1e9597f896b867c38e1f476217bd7890b2e0fb2dc646d61ae
 F src/regexp.c 64d16050dcd8fdec7dc69a4a2edb38358dfd2fe19479d53269e1f0555f0a43d0
 F src/repolist.c bd7d0525d04927b3850a0ad14a96afb482a258b2c52c058dfc26909c190c5af4
 F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
-F src/rss.c ff3f6164e5dc4f798e53635a4cfdb627931a9e9f2cfa97b33ee8e217df6533f5
+F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c e9e388269d6e528cb8e1f2e2adf04f5425195c6e08228deb37ce53817b916572
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9ae999d74fe0a3b69ba08feb56174a3b96a51e574022eebd9c8d7558860ae033
-R 82d925905658717c1006a0e98f56b0f4
-U drh
-Z 0fc0184289d09f38a190566fcba84f9e
+P 72070b304b8d269dd451c39168db7919ab32076ff54efbea30472af1b7b1522c
+R 8c3771a2a0afe9a275c702af3f969054
+U stephan
+Z f4c9f60814535379a746d105921f38e8
 # Remove this line to create a well-formed Fossil manifest.
