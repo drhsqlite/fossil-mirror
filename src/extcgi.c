@@ -337,7 +337,7 @@ void ext_page(void){
         zMime = mprintf("%.*s", j-i, &zLine[i]);
       }else{
         cgi_append_header(zLine);
-        cgi_append_header("\r\n");
+        cgi_append_header(CRLF);
       }
     }
   }

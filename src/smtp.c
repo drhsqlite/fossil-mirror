@@ -377,7 +377,7 @@ int smtp_client_quit(SmtpSession *p){
   int iCode = 0;
   int bMore = 0;
   char *zArg = 0;
-  smtp_send_line(p, "QUIT\r\n");
+  smtp_send_line(p, "QUIT" CRLF);
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
@@ -404,7 +404,7 @@ int smtp_client_startup(SmtpSession *p){
     smtp_client_quit(p);
     return 1;
   }
-  smtp_send_line(p, "EHLO %s\r\n", p->zFrom);
+  smtp_send_line(p, "EHLO %s" CRLF, p->zFrom);
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
@@ -458,7 +458,7 @@ void test_smtp_probe(void){
 
 /*
 ** Send the content of an email message followed by a single
-** "." line.  All lines must be \r\n terminated.  Any isolated
+** "." line.  All lines must be \r\n terminated. (NOT!)  Any isolated
 ** \n line terminators in the input must be converted.  Also,
 ** a line beginning with "." must have the dot doubled per
 ** https://tools.ietf.org/html/rfc5321#section-4.5.2
@@ -484,9 +484,9 @@ static void smtp_send_email_body(
     }else{
       blob_append(&out, z, n);
     }
-    blob_append(&out, "\r\n", 2);
+    blob_append(&out, CRLF, CRLF_SZ);
   }
-  blob_append(&out, ".\r\n", 3);
+  blob_append(&out, "." CRLF, CRLF_SZ+1);
   xSend(pArg, blob_buffer(&out), blob_size(&out));
   blob_reset(&out);
   blob_reset(&line);
@@ -543,19 +543,19 @@ int smtp_send_msg(
   char *zArg = 0;
   Blob in;
   blob_init(&in, 0, 0);
-  smtp_send_line(p, "MAIL FROM:<%s>\r\n", zFrom);
+  smtp_send_line(p, "MAIL FROM:<%s>" CRLF, zFrom);
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
   if( iCode!=250 ) return 1;
   for(i=0; i<nTo; i++){
-    smtp_send_line(p, "RCPT TO:<%s>\r\n", azTo[i]);
+    smtp_send_line(p, "RCPT TO:<%s>" CRLF, azTo[i]);
     do{
       smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
     }while( bMore );
     if( iCode!=250 ) return 1;
   }
-  smtp_send_line(p, "DATA\r\n");
+  smtp_send_line(p, "DATA" CRLF);
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );

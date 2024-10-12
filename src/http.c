@@ -139,32 +139,32 @@ static void http_build_header(
   int nPayload = pPayload ? blob_size(pPayload) : 0;
 
   blob_zero(pHdr);
-  blob_appendf(pHdr, "%s %s%s HTTP/1.0\r\n",
+  blob_appendf(pHdr, "%s %s%s HTTP/1.0" CRLF,
                nPayload>0 ? "POST" : "GET", g.url.path,
                g.url.path[0]==0 ? "/" : "");
   if( g.url.proxyAuth ){
-    blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
+    blob_appendf(pHdr, "Proxy-Authorization: %s" CRLF, g.url.proxyAuth);
   }
   if( g.zHttpAuth && g.zHttpAuth[0] ){
     const char *zCredentials = g.zHttpAuth;
     char *zEncoded = encode64(zCredentials, -1);
-    blob_appendf(pHdr, "Authorization: Basic %s\r\n", zEncoded);
+    blob_appendf(pHdr, "Authorization: Basic %s" CRLF, zEncoded);
     fossil_free(zEncoded);
   }
-  blob_appendf(pHdr, "Host: %s\r\n", g.url.hostname);
-  blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
-  if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
+  blob_appendf(pHdr, "Host: %s" CRLF, g.url.hostname);
+  blob_appendf(pHdr, "User-Agent: %s" CRLF, get_user_agent());
+  if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH" CRLF);
   if( nPayload ){
     if( zAltMimetype ){
-      blob_appendf(pHdr, "Content-Type: %s\r\n", zAltMimetype);
+      blob_appendf(pHdr, "Content-Type: %s" CRLF, zAltMimetype);
     }else if( g.fHttpTrace ){
-      blob_appendf(pHdr, "Content-Type: application/x-fossil-debug\r\n");
+      blob_appendf(pHdr, "Content-Type: application/x-fossil-debug" CRLF);
     }else{
-      blob_appendf(pHdr, "Content-Type: application/x-fossil\r\n");
+      blob_appendf(pHdr, "Content-Type: application/x-fossil" CRLF);
     }
-    blob_appendf(pHdr, "Content-Length: %d\r\n", blob_size(pPayload));
+    blob_appendf(pHdr, "Content-Length: %d" CRLF, blob_size(pPayload));
   }
-  blob_append(pHdr, "\r\n", 2);
+  blob_append(pHdr, CRLF, CRLF_SZ);
 }
 
 /*

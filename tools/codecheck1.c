@@ -232,10 +232,15 @@ static char *simplify_expr(char *z){
 ** Return true if the input is a string literal.
 */
 static int is_string_lit(const char *z){
-  int nu1, nu2;
-  z = next_non_whitespace(z, &nu1, &nu2);
-  if( strcmp(z, "NULL")==0 ) return 1;
-  return z[0]=='"';
+  int len, eType;
+  while( 1 /* exit by return */ ){
+    z = next_non_whitespace(z, &len, &eType);
+    if( len==4 ){
+      if( strncmp(z, "NULL", 4)==0 ) return 1;
+      if( strncmp(z, "CRLF", 4)==0 ) return 1;
+    }
+    return z[0]=='"';
+  }
 }
 
 /*

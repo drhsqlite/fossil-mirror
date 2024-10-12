@@ -318,11 +318,11 @@ void cgi_set_cookie(
   }
   if( lifetime!=0 ){
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly; %s\r\n",
+       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly; %s" CRLF,
        zName, lifetime>0 ? zValue : "null", zPath, lifetime, zSecure);
   }else{
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; HttpOnly; %s\r\n",
+       "Set-Cookie: %s=%t; Path=%s; HttpOnly; %s" CRLF,
        zName, zValue, zPath, zSecure);
   }
 }
@@ -491,13 +491,13 @@ void cgi_reply(void){
       iReplyStatus = 206;
       zReplyStatus = "Partial Content";
     }
-    blob_appendf(&hdr, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
-    blob_appendf(&hdr, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
-    blob_appendf(&hdr, "Connection: close\r\n");
-    blob_appendf(&hdr, "X-UA-Compatible: IE=edge\r\n");
+    blob_appendf(&hdr, "HTTP/1.0 %d %s" CRLF, iReplyStatus, zReplyStatus);
+    blob_appendf(&hdr, "Date: %s" CRLF, cgi_rfc822_datestamp(time(0)));
+    blob_appendf(&hdr, "Connection: close" CRLF);
+    blob_appendf(&hdr, "X-UA-Compatible: IE=edge" CRLF);
   }else{
     assert( rangeEnd==0 );
-    blob_appendf(&hdr, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
+    blob_appendf(&hdr, "Status: %d %s" CRLF, iReplyStatus, zReplyStatus);
   }
   if( etag_tag()[0]!=0
    && iReplyStatus==200
@@ -506,18 +506,18 @@ void cgi_reply(void){
     /* Do not cache HTML replies as those will have been generated and
     ** will likely, therefore, contains a nonce and we want that nonce to
     ** be different every time. */
-    blob_appendf(&hdr, "ETag: %s\r\n", etag_tag());
-    blob_appendf(&hdr, "Cache-Control: max-age=%d\r\n", etag_maxage());
+    blob_appendf(&hdr, "ETag: %s" CRLF, etag_tag());
+    blob_appendf(&hdr, "Cache-Control: max-age=%d" CRLF, etag_maxage());
     if( etag_mtime()>0 ){
-      blob_appendf(&hdr, "Last-Modified: %s\r\n",
+      blob_appendf(&hdr, "Last-Modified: %s" CRLF,
               cgi_rfc822_datestamp(etag_mtime()));
     }
   }else if( g.isConst ){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
-    blob_appendf(&hdr, "Cache-Control: max-age=315360000, immutable\r\n");
+    blob_appendf(&hdr, "Cache-Control: max-age=315360000, immutable" CRLF);
   }else{
-    blob_appendf(&hdr, "Cache-control: no-cache\r\n");
+    blob_appendf(&hdr, "Cache-control: no-cache" CRLF);
   }
 
   if( blob_size(&extraHeader)>0 ){
@@ -525,7 +525,7 @@ void cgi_reply(void){
   }
 
   /* Add headers to turn on useful security options in browsers. */
-  blob_appendf(&hdr, "X-Frame-Options: SAMEORIGIN\r\n");
+  blob_appendf(&hdr, "X-Frame-Options: SAMEORIGIN" CRLF);
   /* The previous stops fossil pages appearing in frames or iframes, preventing
   ** click-jacking attacks on supporting browsers.
   **
@@ -543,7 +543,7 @@ void cgi_reply(void){
   */
 
   if( iReplyStatus!=304 ) {
-    blob_appendf(&hdr, "Content-Type: %s%s\r\n", zContentType,
+    blob_appendf(&hdr, "Content-Type: %s%s" CRLF, zContentType,
                  content_type_charset(zContentType));
     if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
       cgi_combine_header_and_body();
@@ -559,20 +559,20 @@ void cgi_reply(void){
         blob_reset(&cgiContent[i]);
       }
       gzip_finish(&cgiContent[0]);
-      blob_appendf(&hdr, "Content-Encoding: gzip\r\n");
-      blob_appendf(&hdr, "Vary: Accept-Encoding\r\n");
+      blob_appendf(&hdr, "Content-Encoding: gzip" CRLF);
+      blob_appendf(&hdr, "Vary: Accept-Encoding" CRLF);
     }
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
     if( iReplyStatus==206 ){
-      blob_appendf(&hdr, "Content-Range: bytes %d-%d/%d\r\n",
+      blob_appendf(&hdr, "Content-Range: bytes %d-%d/%d" CRLF,
               rangeStart, rangeEnd-1, total_size);
       total_size = rangeEnd - rangeStart;
     }
-    blob_appendf(&hdr, "Content-Length: %d\r\n", total_size);
+    blob_appendf(&hdr, "Content-Length: %d" CRLF, total_size);
   }else{
     total_size = 0;
   }
-  blob_appendf(&hdr, "\r\n");
+  blob_appendf(&hdr, CRLF);
   cgi_fwrite(blob_buffer(&hdr), blob_size(&hdr));
   blob_reset(&hdr);
   if( total_size>0
@@ -622,14 +622,14 @@ NORETURN void cgi_redirect_with_status(
   CGIDEBUG(("redirect to %s\n", zURL));
   if( fossil_strncmp(zURL,"http:",5)==0
       || fossil_strncmp(zURL,"https:",6)==0 ){
-    zLocation = mprintf("Location: %s\r\n", zURL);
+    zLocation = mprintf("Location: %s" CRLF, zURL);
   }else if( *zURL=='/' ){
     int n1 = (int)strlen(g.zBaseURL);
     int n2 = (int)strlen(g.zTop);
     if( g.zBaseURL[n1-1]=='/' ) zURL++;
-    zLocation = mprintf("Location: %.*s%s\r\n", n1-n2, g.zBaseURL, zURL);
+    zLocation = mprintf("Location: %.*s%s" CRLF, n1-n2, g.zBaseURL, zURL);
   }else{
-    zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
+    zLocation = mprintf("Location: %s/%s" CRLF, g.zBaseURL, zURL);
   }
   cgi_append_header(zLocation);
   cgi_reset_content();
@@ -660,7 +660,7 @@ void cgi_content_disposition_filename(const char *zFilename){
   int i, n;
 
            /*  0123456789 123456789 123456789 123456789 123456*/
-  z = mprintf("Content-Disposition: attachment; filename=\"%s\";\r\n",
+  z = mprintf("Content-Disposition: attachment; filename=\"%s\";" CRLF,
                     file_tail(zFilename));
   n = (int)strlen(z);
   for(i=43; i<n-4; i++){
@@ -1016,7 +1016,7 @@ static char *get_line_from_string(char **pz, int *pLen){
 }
 
 /*
-** The input *pz points to content that is terminated by a "\r\n"
+** The input *pz points to content that is terminated by a \n or \r\n
 ** followed by the boundary marker zBoundary.  An extra "--" may or
 ** may not be appended to the boundary marker.  There are *pLen characters
 ** in *pz.

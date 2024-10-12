@@ -804,7 +804,7 @@ int exclude_spiders(int bTest){
     if( P("fossil-goto")==0 ){
       cgi_set_cookie("fossil-goto", cgi_reconstruct_original_url(), 0, 600);
     }
-    cgi_append_header("X-Robot: 1\r\n");
+    cgi_append_header("X-Robot: 1" CRLF);
     style_finish_page();
   }
   return 1;
@@ -828,7 +828,7 @@ void captcha_callback(void){
         /* ^^^^--- Don't overwrite a valid login on another repo! */
         login_set_anon_cookie(0, 0);
       }
-      cgi_append_header("X-Robot: 0\r\n");
+      cgi_append_header("X-Robot: 0" CRLF);
     }
     login_redirect_to_g();
   }else{

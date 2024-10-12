@@ -381,16 +381,16 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
   Blob snd, reply;
   int done=0,end=0;
   blob_zero(&snd);
-  blob_appendf(&snd, "CONNECT %s:%d HTTP/1.1\r\n", pUrlData->hostname,
+  blob_appendf(&snd, "CONNECT %s:%d HTTP/1.1" CRLF, pUrlData->hostname,
       pUrlData->proxyOrigPort);
-  blob_appendf(&snd, "Host: %s:%d\r\n",
+  blob_appendf(&snd, "Host: %s:%d" CRLF,
                pUrlData->hostname, pUrlData->proxyOrigPort);
   if( pUrlData->proxyAuth ){
-    blob_appendf(&snd, "Proxy-Authorization: %s\r\n", pUrlData->proxyAuth);
+    blob_appendf(&snd, "Proxy-Authorization: %s" CRLF, pUrlData->proxyAuth);
   }
-  blob_append(&snd, "Proxy-Connection: keep-alive\r\n", -1);
-  blob_appendf(&snd, "User-Agent: %s\r\n", get_user_agent());
-  blob_append(&snd, "\r\n", 2);
+  blob_append(&snd, "Proxy-Connection: keep-alive" CRLF, -1);
+  blob_appendf(&snd, "User-Agent: %s" CRLF, get_user_agent());
+  blob_append(&snd, CRLF, CRLF_SZ);
   BIO_write(bio, blob_buffer(&snd), blob_size(&snd));
   blob_reset(&snd);
 
@@ -405,12 +405,10 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
     bbuf = blob_buffer(&reply);
     len = blob_size(&reply);
     while(end < len) {
-      if(bbuf[end] == '\r') {
-        if(len - end < 4) {
-          /* need more data */
-          break;
-        }
-        if(memcmp(&bbuf[end], "\r\n\r\n", 4) == 0) {
+      if( bbuf[end]=='\n' ) {
+        if( (end+1<len && bbuf[end+1]=='\n')
+         || (end+2<len && bbuf[end+1]=='\r' && bbuf[end+1]=='\n')
+        ){
           done = 1;
           break;
         }

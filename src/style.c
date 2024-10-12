@@ -620,7 +620,7 @@ char *style_csp(int toHeader){
   ** string.  See https://fossil-scm.org/forum/forumpost/d29e3af43c */
   for(i=0; zCsp[i]; i++){ if( fossil_isspace(zCsp[i]) ) zCsp[i] = ' '; }
   if( toHeader ){
-    cgi_printf_header("Content-Security-Policy: %s\r\n", zCsp);
+    cgi_printf_header("Content-Security-Policy: %s" CRLF, zCsp);
   }
   return zCsp;
 }

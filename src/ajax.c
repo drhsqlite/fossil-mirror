@@ -340,7 +340,7 @@ void ajax_route_preview_text(void){
       assert(!"cannot happen");
   }
   if(zRenderMode!=0){
-    cgi_printf_header("x-ajax-render-mode: %s\r\n", zRenderMode);
+    cgi_printf_header("x-ajax-render-mode: %s" CRLF, zRenderMode);
   }
 }
 

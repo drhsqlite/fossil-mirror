@@ -269,6 +269,25 @@ typedef signed char i8;
 #define ArraySize(X)  (int)(sizeof(X)/sizeof(X[0]))
 
 /*
+** Fossil normally only sends a \n, not a full \r\n, for line endings
+** even on protocols that specifically require \r\n (HTTP, SMTP, etc.)
+** This is in rebellion to the silliness that is \r\n.  Everybody
+** understands a bare \n.  Fossil deliberately violates the spec in an
+** attempt to promote change.
+**
+** If you prefer to follow the protocol exactly, compile with -DSEND_CR=1
+*/
+#if defined(SEND_CR) && SEND_CR+0>=1
+/* This case for strict compliance */
+# define CRLF    "\r\n"
+# define CRLF_SZ 2
+#else
+/* Default: Send only \n */
+# define CRLF    "\n"
+# define CRLF_SZ 1
+#endif
+
+/*
 ** The pledge() interface is currently only available on OpenBSD 5.9
 ** and later.  Make calls to fossil_pledge() no-ops on all platforms
 ** that omit the HAVE_PLEDGE configuration parameter.

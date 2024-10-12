@@ -2185,25 +2185,25 @@ static int httpCmd(
       zSep = "/";
     }
     blob_zero(&hdr);
-    blob_appendf(&hdr, "%s %s%s%s HTTP/1.0\r\n",
+    blob_appendf(&hdr, "%s %s%s%s HTTP/1.0" CRLF,
                  zType, zSep, urlData.path, zParams ? zParams : "");
     if( urlData.proxyAuth ){
-      blob_appendf(&hdr, "Proxy-Authorization: %s\r\n", urlData.proxyAuth);
+      blob_appendf(&hdr, "Proxy-Authorization: %s" CRLF, urlData.proxyAuth);
     }
     if( urlData.passwd && urlData.user && urlData.passwd[0]=='#' ){
       char *zCredentials = mprintf("%s:%s", urlData.user, &urlData.passwd[1]);
       char *zEncoded = encode64(zCredentials, -1);
-      blob_appendf(&hdr, "Authorization: Basic %s\r\n", zEncoded);
+      blob_appendf(&hdr, "Authorization: Basic %s" CRLF, zEncoded);
       fossil_free(zEncoded);
       fossil_free(zCredentials);
     }
-    blob_appendf(&hdr, "Host: %s\r\n"
-        "User-Agent: %s\r\n", urlData.hostname, get_user_agent());
+    blob_appendf(&hdr, "Host: %s" CRLF
+        "User-Agent: %s" CRLF, urlData.hostname, get_user_agent());
     if( zType[0]=='P' ){
-      blob_appendf(&hdr, "Content-Type: application/x-www-form-urlencoded\r\n"
-          "Content-Length: %d\r\n\r\n", blob_size(&payload));
+      blob_appendf(&hdr, "Content-Type: application/x-www-form-urlencoded" CRLF
+          "Content-Length: %d" CRLF CRLF, blob_size(&payload));
     }else{
-      blob_appendf(&hdr, "\r\n");
+      blob_appendf(&hdr, CRLF);
     }
     if( transport_open(&urlData) ){
       Th_ErrorMessage(interp, transport_errmsg(&urlData), 0, 0);

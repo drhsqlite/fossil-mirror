@@ -1304,22 +1304,30 @@ void chat_command(void){
     zLMTime = db_text(0,
               "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S','now','localtime')");
     if( zLMTime ){
-      blob_appendf(&up,"\r\nContent-Disposition: form-data; name=\"lmtime\"\r\n"
-                       "\r\n%z\r\n%s", zLMTime, zBoundary);
+      blob_appendf(&up,
+          CRLF "Content-Disposition: form-data; name=\"lmtime\"" CRLF
+          CRLF "%z" CRLF "%s",
+          zLMTime, zBoundary);
     }
     if( g.url.user && g.url.user[0] ){
-      blob_appendf(&up,"\r\nContent-Disposition: form-data; name=\"resid\"\r\n"
-                       "\r\n%z\r\n%s", obscure(g.url.user), zBoundary);
+      blob_appendf(&up,
+          CRLF "Content-Disposition: form-data; name=\"resid\"" CRLF
+          CRLF "%z" CRLF "%s",
+          obscure(g.url.user), zBoundary);
     }
     zPw = g.url.passwd;
     if( zPw==0 && isDefaultUrl ) zPw = unobscure(db_get("last-sync-pw", 0));
     if( zPw && zPw[0] ){
-      blob_appendf(&up,"\r\nContent-Disposition: form-data; name=\"token\"\r\n"
-                       "\r\n%z\r\n%s", obscure(zPw), zBoundary);
+      blob_appendf(&up,
+          CRLF "Content-Disposition: form-data; name=\"token\"" CRLF
+          CRLF "%z" CRLF "%s",
+          obscure(zPw), zBoundary);
     }
     if( zMsg && zMsg[0] ){
-      blob_appendf(&up,"\r\nContent-Disposition: form-data; name=\"msg\"\r\n"
-                       "\r\n%s\r\n%s", zMsg, zBoundary);
+      blob_appendf(&up,
+          CRLF "Content-Disposition: form-data; name=\"msg\"" CRLF
+          CRLF "%s" CRLF "%s",
+          zMsg, zBoundary);
     }
     if( zFilename && blob_read_from_file(&fcontent, zFilename, ExtFILE)>0 ){
       char *zFN = mprintf("%s", file_tail(zAs ? zAs : zFilename));
@@ -1332,13 +1340,14 @@ void chat_command(void){
         if( c=='-' ) continue;
         zFN[i] = '_';
       }
-      blob_appendf(&up,"\r\nContent-Disposition: form-data; name=\"file\";"
-                       " filename=\"%s\"\r\n", zFN);
-      blob_appendf(&up,"Content-Type: %s\r\n\r\n", zMime);
+      blob_appendf(&up,
+        CRLF "Content-Disposition: form-data; name=\"file\";"
+             " filename=\"%s\"" CRLF, zFN);
+      blob_appendf(&up,"Content-Type: %s" CRLF CRLF, zMime);
       blob_append(&up, fcontent.aData, fcontent.nUsed);
-      blob_appendf(&up,"\r\n%s", zBoundary);
+      blob_appendf(&up,CRLF "%s", zBoundary);
     }
-    blob_append(&up,"--\r\n", 4);
+    blob_append(&up,"--" CRLF, CRLF_SZ+2);
     http_exchange(&up, &down, mFlags, 4, "multipart/form-data");
     blob_reset(&up);
     if( sqlite3_strglob("{\"isError\": true,*", blob_str(&down))==0 ){

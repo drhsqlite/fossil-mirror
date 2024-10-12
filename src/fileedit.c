@@ -1067,13 +1067,13 @@ static void fileedit_ajax_content(void){
     char * zFuuid = fileedit_file_uuid(zFilename, vid, &fperm);
     const char * zPerm = mfile_permint_mstring(fperm);
     assert(zFuuid);
-    cgi_printf_header("x-fileedit-file-perm:%s\r\n", zPerm);
+    cgi_printf_header("x-fileedit-file-perm:%s" CRLF, zPerm);
     fossil_free(zFuuid);
   }
   { /* Send branch name via response header for UI usability reasons */
     char * zBranch = branch_of_rid(vid);
     if(zBranch!=0 && zBranch[0]!=0){
-      cgi_printf_header("x-fileedit-checkin-branch: %s\r\n", zBranch);
+      cgi_printf_header("x-fileedit-checkin-branch: %s" CRLF, zBranch);
     }
     fossil_free(zBranch);
   }

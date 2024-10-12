@@ -377,14 +377,14 @@ static void win32_http_request(void *pAppData){
     }
     amt += got;
     zBuf[amt] = 0;
-    z = strstr(zBuf, "\r\n\r\n");
+    z = strstr(zBuf, "\n\n");
     if( z ){
-      wanted = find_content_length(zBuf) + (&z[4]-zBuf) - amt;
+      wanted = find_content_length(zBuf) + (&z[2]-zBuf) - amt;
       break;
     }else{
-      z = strstr(zBuf, "\n\n");
+      z = strstr(zBuf, "\n\r\n");
       if( z ){
-        wanted = find_content_length(zBuf) + (&z[2]-zBuf) - amt;
+        wanted = find_content_length(zBuf) + (&z[3]-zBuf) - amt;
         break;
       }
     }

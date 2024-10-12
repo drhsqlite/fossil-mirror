@@ -273,7 +273,7 @@ void pikchrshowcs_page(void){
       const int isErr =
         pikchr_process(zContent, pikFlags, 0, &out);
       if(isErr){
-        cgi_printf_header("x-pikchrshow-is-error: %d\r\n", isErr);
+        cgi_printf_header("x-pikchrshow-is-error: %d" CRLF, isErr);
       }
       CX("%b", &out);
       blob_reset(&out);
