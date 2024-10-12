@@ -1195,6 +1195,7 @@ void vdiff_page(void){
   const char *zTo;
   const char *zRe;
   const char *zGlob;
+  Glob * pGlob = 0;
   char *zMergeOrigin = 0;
   ReCompiled *pRe = 0;
   DiffConfig DCfg, *pCfg = 0;
@@ -1246,11 +1247,14 @@ void vdiff_page(void){
     zTo = zFrom;
     zFrom = zTemp;
   }
-  if( zGlob ){
+  if( P("clearglob") ){
+    zGlob = 0;
+  }else if( zGlob){
     if( !*zGlob ){
       zGlob = NULL;
     }else{
       blob_appendf(&qp, "&glob=%T", zGlob);
+      pGlob = glob_create(zGlob);
     }
   }
   if( PB("nc") ){
@@ -1279,7 +1283,7 @@ void vdiff_page(void){
     style_submenu_element("Invert","%R/vdiff?diff=%d&inv&%b", diffType, &qp);
   }
   if( zGlob ){
-    style_submenu_element("Clear glob", "%R/vdiff?diff=%d&%b", diffType, &qp);
+    style_submenu_element("Clear glob", "%R/vdiff?diff=%d&%b&clearglob", diffType, &qp);
   }else{
     style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo,
            (DCfg.diffFlags & DIFF_IGNORE_ALLWS)?"&w":"");
@@ -1341,13 +1345,13 @@ void vdiff_page(void){
       cmp = fossil_strcmp(pFileFrom->zName, pFileTo->zName);
     }
     if( cmp<0 ){
-      if( !zGlob || sqlite3_strglob(zGlob, pFileFrom->zName)==0 ){
+      if( !pGlob || glob_match(pGlob, pFileFrom->zName) ){
         append_file_change_line(zFrom, pFileFrom->zName,
                                 pFileFrom->zUuid, 0, 0, pCfg, 0);
       }
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
-      if( !zGlob || sqlite3_strglob(zGlob, pFileTo->zName)==0 ){
+      if( !pGlob || glob_match(pGlob, pFileTo->zName) ){
         append_file_change_line(zTo, pFileTo->zName,
                                 0, pFileTo->zUuid, 0, pCfg,
                                 manifest_file_mperm(pFileTo));
@@ -1357,8 +1361,8 @@ void vdiff_page(void){
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }else{
-      if(!zGlob || (sqlite3_strglob(zGlob, pFileFrom->zName)==0
-                || sqlite3_strglob(zGlob, pFileTo->zName)==0) ){
+      if(!pGlob || (glob_match(pGlob, pFileFrom->zName)
+                    || glob_match(pGlob, pFileTo->zName)) ){
         append_file_change_line(zFrom, pFileFrom->zName,
                                 pFileFrom->zUuid,
                                 pFileTo->zUuid, 0, pCfg,
@@ -1368,6 +1372,7 @@ void vdiff_page(void){
       pFileTo = manifest_file_next(pTo, 0);
     }
   }
+  glob_free(pGlob);
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
   append_diff_javascript(diffType);
