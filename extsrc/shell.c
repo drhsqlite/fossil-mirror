@@ -345,27 +345,21 @@ void sqlite3_fsetmode(FILE *stream, int mode);
 #include <fcntl.h>
 
 /*
-** If the SQLITE_U8TEXT_ONLY option is defined, then only use
-** _O_U8TEXT, _O_WTEXT, and similar together with the UTF-16
-** interfaces to the Windows CRT.  The use of ANSI-only routines
-** like fputs() and ANSI modes like _O_TEXT and _O_BINARY is
-** avoided.
+** If the SQLITE_U8TEXT_ONLY option is defined, then use O_U8TEXT
+** when appropriate on all output.  (Sometimes use O_BINARY when
+** rendering ASCII text in cases where NL-to-CRLF expansion would
+** not be correct.)
 **
-** The downside of using SQLITE_U8TEXT_ONLY is that it becomes
-** impossible to output a bare newline character (0x0a) - that is,
-** a newline that is not preceded by a carriage return (0x0d).
-** And without that capability, sometimes the output will be slightly
-** incorrect, as extra 0x0d characters will have been inserted where
-** they do not belong.
+** If the SQLITE_U8TEXT_STDIO option is defined, then use O_U8TEXT
+** when appropriate when writing to stdout or stderr.  Use O_BINARY
+** or O_TEXT (depending on things like the .mode and the .crnl setting
+** in the CLI, or other context clues in other applications) for all
+** other output channels.
 **
-** The SQLITE_U8TEXT_STDIO compile-time option is a compromise.
-** It always enables _O_WTEXT or similar for stdin, stdout, stderr,
-** but allows other streams to be _O_TEXT and/or O_BINARY.  The
-** SQLITE_U8TEXT_STDIO option has the same downside as SQLITE_U8TEXT_ONLY
-** in that stray 0x0d characters might appear where they ought not, but
-** at least with this option those characters only appear on standard
-** I/O streams, and not on new streams that might be created by the
-** application using sqlite3_fopen() or sqlite3_popen().
+** The default behavior, if neither of the above is defined is to
+** use O_U8TEXT when writing to the Windows console (or anything
+** else for which _isatty() returns true) and to use O_BINARY or O_TEXT
+** for all other output channels.
 */
 #if defined(SQLITE_U8TEXT_ONLY)
 # define UseWtextForOutput(fd) 1
@@ -380,6 +374,31 @@ void sqlite3_fsetmode(FILE *stream, int mode);
 # define UseWtextForInput(fd)  _isatty(_fileno(fd))
 # define IsConsole(fd)         1
 #endif
+
+/*
+** Global variables determine if simulated O_BINARY mode is to be
+** used for stdout or other, respectively.  Simulated O_BINARY mode
+** means the mode is usually O_BINARY, but switches to O_U8TEXT for
+** unicode characters U+0080 or greater (any character that has a
+** multi-byte representation in UTF-8).  This is the only way we
+** have found to render Unicode characters on a Windows console while
+** at the same time avoiding undesirable \n to \r\n translation.
+*/
+static int simBinaryStdout = 0;
+static int simBinaryOther = 0;
+
+
+/*
+** Determine if simulated binary mode should be used for output to fd
+*/
+static int UseBinaryWText(FILE *fd){
+  if( fd==stdout || fd==stderr ){
+    return simBinaryStdout;
+  }else{
+    return simBinaryOther;
+  }
+}
+
 
 /*
 ** Work-alike for the fopen() routine from the standard C library.
@@ -402,6 +421,7 @@ FILE *sqlite3_fopen(const char *zFilename, const char *zMode){
   }
   free(b1);
   free(b2);
+  simBinaryOther = 0;
   return fp;
 }
 
@@ -458,12 +478,52 @@ char *sqlite3_fgets(char *buf, int sz, FILE *in){
 }
 
 /*
+** Send ASCII text as O_BINARY.  But for Unicode characters U+0080 and
+** greater, switch to O_U8TEXT.
+*/
+static void piecemealOutput(wchar_t *b1, int sz, FILE *out){
+  int i;
+  wchar_t c;
+  while( sz>0 ){
+    for(i=0; i<sz && b1[i]>=0x80; i++){}
+    if( i>0 ){
+      c = b1[i];
+      b1[i] = 0;
+      fflush(out);
+      _setmode(_fileno(out), _O_U8TEXT);
+      fputws(b1, out);
+      fflush(out);
+      b1 += i;
+      b1[0] = c;
+      sz -= i;
+    }else{
+      fflush(out);
+      _setmode(_fileno(out), _O_TEXT);
+      _setmode(_fileno(out), _O_BINARY);
+      fwrite(&b1[0], 1, 1, out);
+      for(i=1; i<sz && b1[i]<0x80; i++){
+        fwrite(&b1[i], 1, 1, out);
+      }
+      fflush(out);
+      _setmode(_fileno(out), _O_U8TEXT);
+      b1 += i;
+      sz -= i;
+    }
+  }
+}
+
+/*
 ** Work-alike for fputs() from the standard C library.
 */
 int sqlite3_fputs(const char *z, FILE *out){
-  if( UseWtextForOutput(out) ){
+  if( !UseWtextForOutput(out) ){
+    /* Writing to a file or other destination, just write bytes without
+    ** any translation. */
+    return fputs(z, out);
+  }else{
     /* When writing to the command-prompt in Windows, it is necessary
-    ** to use _O_WTEXT input mode and write UTF-16 characters.
+    ** to use O_U8TEXT to render Unicode U+0080 and greater.  Go ahead
+    ** use O_U8TEXT for everything in text mode.
     */
     int sz = (int)strlen(z);
     wchar_t *b1 = malloc( (sz+1)*sizeof(wchar_t) );
@@ -471,13 +531,13 @@ int sqlite3_fputs(const char *z, FILE *out){
     sz = MultiByteToWideChar(CP_UTF8, 0, z, sz, b1, sz);
     b1[sz] = 0;
     _setmode(_fileno(out), _O_U8TEXT);
-    fputws(b1, out);
+    if( UseBinaryWText(out) ){
+      piecemealOutput(b1, sz, out);
+    }else{
+      fputws(b1, out);
+    }
     sqlite3_free(b1);
     return 0;
-  }else{
-    /* Writing to a file or other destination, just write bytes without
-    ** any translation. */
-    return fputs(z, out);
   }
 }
 
@@ -519,6 +579,10 @@ void sqlite3_fsetmode(FILE *fp, int mode){
   if( !UseWtextForOutput(fp) ){
     fflush(fp);
     _setmode(_fileno(fp), mode);
+  }else if( fp==stdout || fp==stderr ){
+    simBinaryStdout = (mode==_O_BINARY);
+  }else{
+    simBinaryOther = (mode==_O_BINARY);
   }
 }
 
@@ -6768,46 +6832,48 @@ static int seriesBestIndex(
       }
       continue;
     }
-    if( pConstraint->iColumn==SERIES_COLUMN_VALUE ){
-      switch( op ){
-        case SQLITE_INDEX_CONSTRAINT_EQ:
-        case SQLITE_INDEX_CONSTRAINT_IS: {
-          idxNum |=  0x0080;
-          idxNum &= ~0x3300;
-          aIdx[5] = i;
-          aIdx[6] = -1;
-          bStartSeen = 1;
-          break;
-        }
-        case SQLITE_INDEX_CONSTRAINT_GE: {
-          if( idxNum & 0x0080 ) break;
-          idxNum |=  0x0100;
-          idxNum &= ~0x0200;
-          aIdx[5] = i;
-          bStartSeen = 1;
-          break;
-        }
-        case SQLITE_INDEX_CONSTRAINT_GT: {
-          if( idxNum & 0x0080 ) break;
-          idxNum |=  0x0200;
-          idxNum &= ~0x0100;
-          aIdx[5] = i;
-          bStartSeen = 1;
-          break;
-        }
-        case SQLITE_INDEX_CONSTRAINT_LE: {
-          if( idxNum & 0x0080 ) break;
-          idxNum |=  0x1000;
-          idxNum &= ~0x2000;
-          aIdx[6] = i;
-          break;
-        }
-        case SQLITE_INDEX_CONSTRAINT_LT: {
-          if( idxNum & 0x0080 ) break;
-          idxNum |=  0x2000;
-          idxNum &= ~0x1000;
-          aIdx[6] = i;
-          break;
+    if( pConstraint->iColumn<SERIES_COLUMN_START ){
+      if( pConstraint->iColumn==SERIES_COLUMN_VALUE ){
+        switch( op ){
+          case SQLITE_INDEX_CONSTRAINT_EQ:
+          case SQLITE_INDEX_CONSTRAINT_IS: {
+            idxNum |=  0x0080;
+            idxNum &= ~0x3300;
+            aIdx[5] = i;
+            aIdx[6] = -1;
+            bStartSeen = 1;
+            break;
+          }
+          case SQLITE_INDEX_CONSTRAINT_GE: {
+            if( idxNum & 0x0080 ) break;
+            idxNum |=  0x0100;
+            idxNum &= ~0x0200;
+            aIdx[5] = i;
+            bStartSeen = 1;
+            break;
+          }
+          case SQLITE_INDEX_CONSTRAINT_GT: {
+            if( idxNum & 0x0080 ) break;
+            idxNum |=  0x0200;
+            idxNum &= ~0x0100;
+            aIdx[5] = i;
+            bStartSeen = 1;
+            break;
+          }
+          case SQLITE_INDEX_CONSTRAINT_LE: {
+            if( idxNum & 0x0080 ) break;
+            idxNum |=  0x1000;
+            idxNum &= ~0x2000;
+            aIdx[6] = i;
+            break;
+          }
+          case SQLITE_INDEX_CONSTRAINT_LT: {
+            if( idxNum & 0x0080 ) break;
+            idxNum |=  0x2000;
+            idxNum &= ~0x1000;
+            aIdx[6] = i;
+            break;
+          }
         }
       }
       continue;
@@ -21204,6 +21270,7 @@ struct ShellState {
   u8 bSafeMode;          /* True to prohibit unsafe operations */
   u8 bSafeModePersist;   /* The long-term value of bSafeMode */
   u8 eRestoreState;      /* See comments above doAutoDetectRestore() */
+  u8 crnlMode;           /* Do NL-to-CRLF translations when enabled (maybe) */
   ColModeOpts cmOpts;    /* Option values affecting columnar mode output */
   unsigned statsOn;      /* True to display memory stats before each finalize */
   unsigned mEqpLines;    /* Mask of vertical lines in the EQP output graph */
@@ -21384,13 +21451,7 @@ static const char *modeDescr[] = {
 #define SEP_Tab       "\t"
 #define SEP_Space     " "
 #define SEP_Comma     ","
-#ifdef SQLITE_U8TEXT_ONLY
-  /* With the SQLITE_U8TEXT_ONLY option, the output will always be in
-  ** text mode.  The \r will be inserted automatically. */
-# define SEP_CrLf      "\n"
-#else
-# define SEP_CrLf      "\r\n"
-#endif
+#define SEP_CrLf      "\n"   /* Use ".crnl on" to get \r\n line endings */
 #define SEP_Unit      "\x1F"
 #define SEP_Record    "\x1E"
 
@@ -21608,6 +21669,19 @@ static void outputModePop(ShellState *p){
 }
 
 /*
+** Set output mode to text or binary for Windows.
+*/
+static void setCrnlMode(ShellState *p){
+#ifdef _WIN32
+  if( p->crnlMode ){
+    sqlite3_fsetmode(p->out, _O_TEXT);
+  }else{
+    sqlite3_fsetmode(p->out, _O_BINARY);
+  }
+#endif    
+}
+
+/*
 ** Output the given string as a hex-encoded blob (eg. X'1234' )
 */
 static void output_hex_blob(FILE *out, const void *pBlob, int nBlob){
@@ -21657,9 +21731,10 @@ static const char *unused_string(
 **
 ** See also: output_quoted_escaped_string()
 */
-static void output_quoted_string(FILE *out, const char *z){
+static void output_quoted_string(ShellState *p, const char *z){
   int i;
   char c;
+  FILE *out = p->out;
   sqlite3_fsetmode(out, _O_BINARY);
   if( z==0 ) return;
   for(i=0; (c = z[i])!=0 && c!='\''; i++){}
@@ -21685,7 +21760,7 @@ static void output_quoted_string(FILE *out, const char *z){
     }
     sqlite3_fputs("'", out);
   }
-  sqlite3_fsetmode(out, _O_TEXT);
+  setCrnlMode(p);
 }
 
 /*
@@ -21697,9 +21772,10 @@ static void output_quoted_string(FILE *out, const char *z){
 ** This is like output_quoted_string() but with the addition of the \r\n
 ** escape mechanism.
 */
-static void output_quoted_escaped_string(FILE *out, const char *z){
+static void output_quoted_escaped_string(ShellState *p, const char *z){
   int i;
   char c;
+  FILE *out = p->out;
   sqlite3_fsetmode(out, _O_BINARY);
   for(i=0; (c = z[i])!=0 && c!='\'' && c!='\n' && c!='\r'; i++){}
   if( c==0 ){
@@ -21752,7 +21828,7 @@ static void output_quoted_escaped_string(FILE *out, const char *z){
       sqlite3_fprintf(out, ",'%s',char(10))", zNL);
     }
   }
-  sqlite3_fsetmode(stdout, _O_TEXT);
+  setCrnlMode(p);
 }
 
 /*
@@ -22541,15 +22617,23 @@ static int shell_callback(
         for(i=0; i<nArg; i++){
           output_csv(p, azCol[i] ? azCol[i] : "", i<nArg-1);
         }
-        sqlite3_fputs(p->rowSeparator, p->out);
+        if( p->crnlMode && cli_strcmp(p->rowSeparator,SEP_CrLf)==0 ){
+          sqlite3_fputs("\r\n", p->out);
+        }else{
+          sqlite3_fputs(p->rowSeparator, p->out);
+        }
       }
       if( nArg>0 ){
         for(i=0; i<nArg; i++){
           output_csv(p, azArg[i], i<nArg-1);
         }
-        sqlite3_fputs(p->rowSeparator, p->out);
+        if( p->crnlMode && cli_strcmp(p->rowSeparator,SEP_CrLf)==0 ){
+          sqlite3_fputs("\r\n", p->out);
+        }else{
+          sqlite3_fputs(p->rowSeparator, p->out);
+        }
       }
-      sqlite3_fsetmode(p->out, _O_TEXT);
+      setCrnlMode(p);
       break;
     }
     case MODE_Insert: {
@@ -22577,9 +22661,9 @@ static int shell_callback(
           sqlite3_fputs("NULL", p->out);
         }else if( aiType && aiType[i]==SQLITE_TEXT ){
           if( ShellHasFlag(p, SHFLG_Newlines) ){
-            output_quoted_string(p->out, azArg[i]);
+            output_quoted_string(p, azArg[i]);
           }else{
-            output_quoted_escaped_string(p->out, azArg[i]);
+            output_quoted_escaped_string(p, azArg[i]);
           }
         }else if( aiType && aiType[i]==SQLITE_INTEGER ){
           sqlite3_fputs(azArg[i], p->out);
@@ -22608,9 +22692,9 @@ static int shell_callback(
         }else if( isNumber(azArg[i], 0) ){
           sqlite3_fputs(azArg[i], p->out);
         }else if( ShellHasFlag(p, SHFLG_Newlines) ){
-          output_quoted_string(p->out, azArg[i]);
+          output_quoted_string(p, azArg[i]);
         }else{
-          output_quoted_escaped_string(p->out, azArg[i]);
+          output_quoted_escaped_string(p, azArg[i]);
         }
       }
       sqlite3_fputs(");\n", p->out);
@@ -22663,7 +22747,7 @@ static int shell_callback(
       if( p->cnt==0 && p->showHeader ){
         for(i=0; i<nArg; i++){
           if( i>0 ) sqlite3_fputs(p->colSeparator, p->out);
-          output_quoted_string(p->out, azCol[i]);
+          output_quoted_string(p, azCol[i]);
         }
         sqlite3_fputs(p->rowSeparator, p->out);
       }
@@ -22673,7 +22757,7 @@ static int shell_callback(
         if( (azArg[i]==0) || (aiType && aiType[i]==SQLITE_NULL) ){
           sqlite3_fputs("NULL", p->out);
         }else if( aiType && aiType[i]==SQLITE_TEXT ){
-          output_quoted_string(p->out, azArg[i]);
+          output_quoted_string(p, azArg[i]);
         }else if( aiType && aiType[i]==SQLITE_INTEGER ){
           sqlite3_fputs(azArg[i], p->out);
         }else if( aiType && aiType[i]==SQLITE_FLOAT ){
@@ -22688,7 +22772,7 @@ static int shell_callback(
         }else if( isNumber(azArg[i], 0) ){
           sqlite3_fputs(azArg[i], p->out);
         }else{
-          output_quoted_string(p->out, azArg[i]);
+          output_quoted_string(p, azArg[i]);
         }
       }
       sqlite3_fputs(p->rowSeparator, p->out);
@@ -24692,10 +24776,7 @@ static const char *(azHelp[]) = {
   ".clone NEWDB             Clone data into NEWDB from the existing database",
 #endif
   ".connection [close] [#]  Open or close an auxiliary database connection",
-#if defined(_WIN32) && !defined(SQLITE_U8TEXT_ONLY) \
-                    && !defined(SQLITE_U8TEXT_STDIO)
-  ".crnl on|off             Translate \\n to \\r\\n.  Default ON",
-#endif /* _WIN32 && U8TEXT_ONLY && U8TEXT_STDIO */
+  ".crnl on|off             Translate \\n to \\r\\n sometimes.  Default OFF",
   ".databases               List names and files of attached databases",
   ".dbconfig ?op? ?val?     List or change sqlite3_db_config() options",
 #if SQLITE_SHELL_HAVE_RECOVER
@@ -25694,7 +25775,7 @@ static void output_file_close(FILE *f){
 ** recognized and do the right thing.  NULL is returned if the output
 ** filename is "off".
 */
-static FILE *output_file_open(const char *zFile, int bTextMode){
+static FILE *output_file_open(const char *zFile){
   FILE *f;
   if( cli_strcmp(zFile,"stdout")==0 ){
     f = stdout;
@@ -25703,7 +25784,7 @@ static FILE *output_file_open(const char *zFile, int bTextMode){
   }else if( cli_strcmp(zFile, "off")==0 ){
     f = 0;
   }else{
-    f = sqlite3_fopen(zFile, bTextMode ? "w" : "wb");
+    f = sqlite3_fopen(zFile, "w");
     if( f==0 ){
       sqlite3_fprintf(stderr,"Error: cannot open \"%s\"\n", zFile);
     }
@@ -26176,6 +26257,7 @@ static void output_redir(ShellState *p, FILE *pfNew){
     sqlite3_fputs("Output already redirected.\n", stderr);
   }else{
     p->out = pfNew;
+    setCrnlMode(p);
     if( p->mode==MODE_Www ){
       sqlite3_fputs(
         "<!DOCTYPE html>\n"
@@ -26231,6 +26313,7 @@ static void output_reset(ShellState *p){
   }
   p->outfile[0] = 0;
   p->out = stdout;
+  setCrnlMode(p);
 }
 #else
 # define output_redir(SS,pfO)
@@ -28185,7 +28268,7 @@ static int do_meta_command(char *zLine, ShellState *p){
 
   /* Undocumented.  Legacy only.  See "crnl" below */
   if( c=='b' && n>=3 && cli_strncmp(azArg[0], "binary", n)==0 ){
-    eputz("The \".binary\" command is deprecated. Use \".crnl\" instead.\n");
+    eputz("The \".binary\" command is deprecated.\n");
     rc = 1;
   }else
 
@@ -28312,21 +28395,13 @@ static int do_meta_command(char *zLine, ShellState *p){
   }else
 
   if( c=='c' && n==4 && cli_strncmp(azArg[0], "crnl", n)==0 ){
-#if !defined(_WIN32) || defined(SQLITE_U8TEXT_ONLY) \
-                     || defined(SQLITE_U8TEXT_STDIO)
-    sqlite3_fputs("The \".crnl\" command is disable in this build.\n", p->out);
-#else
     if( nArg==2 ){
-      if( booleanValue(azArg[1]) ){
-        sqlite3_fsetmode(p->out, _O_TEXT);
-      }else{
-        sqlite3_fsetmode(p->out, _O_BINARY);
-      }
+      p->crnlMode = booleanValue(azArg[1]);
+      setCrnlMode(p);
     }else{
-      eputz("Usage: .crnl on|off\n");
-      rc = 1;
+      sqlite3_fprintf(stderr, "crnl is currently %s\n",
+                      p->crnlMode ? "ON" : "OFF");
     }
-#endif
   }else
 
   if( c=='d' && n>1 && cli_strncmp(azArg[0], "databases", n)==0 ){
@@ -29406,7 +29481,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       }
       output_file_close(p->pLog);
       if( cli_strcmp(zFile,"on")==0 ) zFile = "stdout";
-      p->pLog = output_file_open(zFile, 0);
+      p->pLog = output_file_open(zFile);
     }
   }else
 
@@ -29661,7 +29736,6 @@ static int do_meta_command(char *zLine, ShellState *p){
    || (c=='w' && n==3 && cli_strcmp(azArg[0],"www")==0)
   ){
     char *zFile = 0;
-    int bTxtMode = 0;
     int i;
     int eMode = 0;
     int bOnce = 0;            /* 0: .output, 1: .once, 2: .excel/.www */
@@ -29743,11 +29817,9 @@ static int do_meta_command(char *zLine, ShellState *p){
         /* web-browser mode. */
         newTempFile(p, "html");
         if( !bPlain ) p->mode = MODE_Www;
-        bTxtMode = 1;
       }else{
         /* text editor mode */
         newTempFile(p, "txt");
-        bTxtMode = 1;
       }
       sqlite3_free(zFile);
       zFile = sqlite3_mprintf("%s", p->zTempFile);
@@ -29771,7 +29843,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       }
 #endif
     }else{
-      FILE *pfFile = output_file_open(zFile, bTxtMode);
+      FILE *pfFile = output_file_open(zFile);
       if( pfFile==0 ){
         if( cli_strcmp(zFile,"off")!=0 ){
           sqlite3_fprintf(stderr,"Error: cannot write to \"%s\"\n", zFile);
@@ -29779,13 +29851,13 @@ static int do_meta_command(char *zLine, ShellState *p){
         rc = 1;
       } else {
         output_redir(p, pfFile);
+        if( zBom ) sqlite3_fputs(zBom, pfFile);
         if( bPlain && eMode=='w' ){
           sqlite3_fputs(
             "<!DOCTYPE html>\n<BODY>\n<PLAINTEXT>\n",
             pfFile
           );
         }
-        if( zBom ) sqlite3_fputs(zBom, pfFile);
         sqlite3_snprintf(sizeof(p->outfile), p->outfile, "%s", zFile);
       }
     }
@@ -29982,7 +30054,6 @@ static int do_meta_command(char *zLine, ShellState *p){
 #ifdef SQLITE_OMIT_POPEN
       eputz("Error: pipes are not supported in this OS\n");
       rc = 1;
-      p->out = stdout;
 #else
       p->in = sqlite3_popen(azArg[1]+1, "r");
       if( p->in==0 ){
@@ -30969,7 +31040,7 @@ static int do_meta_command(char *zLine, ShellState *p){
   /* Begin redirecting output to the file "testcase-out.txt" */
   if( c=='t' && cli_strcmp(azArg[0],"testcase")==0 ){
     output_reset(p);
-    p->out = output_file_open("testcase-out.txt", 0);
+    p->out = output_file_open("testcase-out.txt");
     if( p->out==0 ){
       eputz("Error: cannot open 'testcase-out.txt'\n");
     }
@@ -31473,7 +31544,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         }
       }else{
         output_file_close(p->traceOut);
-        p->traceOut = output_file_open(z, 0);
+        p->traceOut = output_file_open(z);
       }
     }
     if( p->traceOut==0 ){
@@ -32363,6 +32434,16 @@ static void main_init(ShellState *data) {
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
   sqlite3_snprintf(sizeof(mainPrompt), mainPrompt,"sqlite> ");
   sqlite3_snprintf(sizeof(continuePrompt), continuePrompt,"   ...> ");
+
+  /* By default, come up in O_BINARY mode.  That way, the default output is
+  ** the same for Windows and non-Windows systems.  Use the ".crnl on"
+  ** command to change into O_TEXT mode to do automatic NL-to-CRLF
+  ** conversions on output for Windows.
+  **
+  ** End-of-line marks on CVS output is CRLF when in .crnl is on and
+  ** NL when .crnl is off.
+  */
+  data->crnlMode = 0;
 }
 
 /*
