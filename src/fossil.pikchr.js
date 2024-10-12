@@ -40,7 +40,10 @@
 
      <DIV.pikchr-wrapper>
        <DIV.pikchr-svg><SVG.pikchr></SVG></DIV>
-       <PRE.pikchr-src></PRE>
+       <DIV.pikchr-src>
+         <PRE>pikchr source code</PRE>
+         <SPAN class='hidden'><A>link to open pikchr in /pikchrshow</A></SPAN>
+       </DIV>
      </DIV>
   */
   P.addSrcView = function f(svg){
@@ -59,6 +62,20 @@
           ev.stopPropagation();
           ev.preventDefault();
         }
+      };
+      /**
+         Event handler for the "open in pikchrshow" links: store the
+         source code for the link's pikchr in
+         window.sessionStorage['pikchr-xfer'] then open
+         /pikchrshow?fromSession to trigger loading of that pikchr.
+      */
+      f.clickPikchrShow = function(ev){
+        const pId = this.dataset['pikchrid'];
+        if(!pId) return;
+        const ePikchr = this.parentNode.parentNode.querySelector('#'+pId);
+        if(!ePikchr) return;
+        window.sessionStorage.setItem('pikchr-xfer', ePikchr.innerText);
+        ev.stopPropagation() /* keep pikchr source view from toggling */;
       };
     };
     if(!svg) svg = 'svg.pikchr';
@@ -80,6 +97,14 @@
       return this;
     }
     parent.addEventListener('click', f.parentClick, false);
+    const eSpan = srcView.querySelector('span');
+    if(window.sessionStorage && eSpan){
+      const openLink = eSpan.querySelector('a');
+      if( openLink ){
+        D.removeClass(eSpan, 'hidden');
+        openLink.addEventListener('click', f.clickPikchrShow, false);
+      }
+    }
     return this;
   };
 })(window.fossil);
