@@ -216,7 +216,8 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
                        "<span class='hidden'>"
                        "[<a href='%R/pikchrshow?fromSession' "
                        "class='pikchr-src-pikchrshow' target='_new-%d' "
-                       "data-pikchrid='pikchr-src-%d'"
+                       "data-pikchrid='pikchr-src-%d' "
+                       "title='Open this pikchr in /pikchrshow'"
                        ">&rarr; /pikchrshow</a>]</span>"
                        "</div>\n",
                        counter, blob_str(&bIn), counter, counter);
