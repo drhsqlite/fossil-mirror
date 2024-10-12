@@ -1,5 +1,5 @@
-C Add\sa\s'title'\sattribute\sto\sthe\snew\sopen-in-pikchrshow\slinks,\swhich\sserves\sas\sa\stooltip\sin\sdesktop\sbrowsers.
-D 2024-10-12T22:18:35.724
+C Minor\sstyle\stweaks\sto\sthe\sopen-in-pikchrshow\slinks.\sNo\sfunctional\schanges.
+D 2024-10-12T23:08:18.519
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 0904ec73c5e5fa4e74dfaa0d860329411de055f63d31b4d755875ce765cebc64
-F src/default.css 4f46ecdf26002fce166007a144c46403acea0ebfc35a523735e83881cdf6c59b
+F src/default.css 0ae6c1eb354ebeb9e5cdab013a1119b93b0ed173be12d2481c2fc842a8dfc223
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -507,7 +507,7 @@ F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
 F src/patch.c 53be9e0fa4e60acdb2c44861ed17ba4a2411aa68e6189f7c15eb46524312241b
 F src/path.c d3c1faab2d600f84228a538017df350ac64731536041a1756d2bf8988ab1118f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
-F src/pikchrshow.c 43e21b1963dee1245aa9becd2e21931e7106449cf7f23624566a1659733a5fe2
+F src/pikchrshow.c 5177deaa0a785ae30791617ebf8dd6703a06a87942dac2e7dfdfaf41bd6673c7
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
 F src/popen.c 1b97d68d5aa43c0d88af6c9324b32efc011920038a382f39097d6f204b2f3a4d
 F src/pqueue.c d92e2b6cb6b19f894dbd4245ee93df36ea160ecb6fecf6ea80f096a95251c88a
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca27e6917904d5d14ccb36954e9b62099083eaf8f0e964e55f2974851d1ac43b
-R eb7bbd9634fcec461926a0997a003077
+P 4f6282357c6989e6c03ce7425696a721cc162b93df46182575e1e8d55df2c5f9
+R b2cc9e8ded086a0305a3a8e100a8cd80
 U stephan
-Z 4f72d0370fc231fab2b64fa0efebf94e
+Z 75288a46594f418efbe83f3e1106c070
 # Remove this line to create a well-formed Fossil manifest.

@@ -1709,8 +1709,14 @@ div.pikchr-src > pre {
 }
 div.pikchr-src > span {
   /*Wrapper for a link to open a pikchr in /pikchrshow*/
-  margin-top: 0.8em;
-  font-size: 80%;
+  margin-top: 0.5em;
+  font-size: 85%;
+}
+div.pikchr-src > span::before {
+  content: "[";
+}
+div.pikchr-src > span::after {
+  content: "]";
 }
 /* The .source-inline class tells the .source class that the
    source view, when enabled, should be "inline" (same position
