@@ -43,6 +43,7 @@ set doclist {
   contact.md {Developer Contact Information}
   containers.md {OCI Containers}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
+  crlf-free.md {Fossil Does Not Send CRLF}
   css-tricks.md {Fossil CSS Tips and Tricks}
   customgraph.md {Theming: Customizing the Timeline Graph}
   customskin.md {Theming: Customizing The Appearance of Web Pages}

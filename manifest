@@ -1,5 +1,5 @@
-C Internal\scleanups\sand\sdocs\sto\sthe\sopen-in-pikchrshow\slink\sbits.\sNo\sfunctional\sor\svisible\schanges.
-D 2024-10-13T12:24:19.900
+C Document\sthat\sFossil\sis\sCRLF-free.
+D 2024-10-13T20:27:47.401
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -800,6 +800,7 @@ F www/containers.md e38fa1b6daeeb53c69ae0814d75bd31dae633b2c6f6d48c0e9b034df72a7
 F www/contribute.wiki 62d46875895a7e4b503cb39cfb83e84b882252334804a1568c04cd3963d0c617
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
+F www/crlf-free.md cf7ee408bb6da0716c0f98a4a86fa842ddab30a50d1f462d09ab7c04296943d7
 F www/css-tricks.md 4c9646386ffd98790c703503b08797d567687d3e8f07bcb03d5a54f44a2f6ffb
 F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272bf3
 F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
@@ -890,11 +891,11 @@ F www/makefile.wiki 39cfe5bb11593a5c22feef02d0d741595e42d9d7db052b567adad53c697e
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 39296236c7596193e364ddc06f522a64b7b058f8461697a08bc54641c2157b3c
-F www/mkindex.tcl f7fe5d63e29ea5d3cb0e9264e9b426bc8b03d5844db9f04a7e2780d110cfb3a2 x
+F www/mkindex.tcl f9cb119c2afad20cf1e16c50f7139ee69ff0a98535a4a0913f72dd1673eebb22 x
 F www/newrepo.wiki 6a71485f3f2d0f3635a3ce7d804f2ceda0c25ea9186340889e6ecb00d4000634
 F www/password.wiki 54f05c93212a9ad41fe3b41ec51c24093a1e261abb05b28b3651f3e8b10189f2
 F www/patchcmd.md 86eb9976dc81b657052018f807d8ee82a41333b1df78c06515b9383d9fe4858f
-F www/permutedindex.html 74c4963dfad7b95f09a46d75d2b51dce878158e2fe61a3491c4289f2ad411fab
+F www/permutedindex.html 5dc7c8cc37b3f1be2f87574e4b28ef8edcef09719ad3b5a3a8b260b9ba05e27a
 F www/pikchr.md 2eaa7bd7defc5e6a7b3d14adb03c21b43924a70fd65858bebb1a3aee733cf609
 F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
 F www/private.wiki 6c5a854ac8558b1420d9619b48bf36ac56df03d49421604c3e77dc6c3ff78bb0
@@ -960,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c0f192102af8cc402498670ef911f2581832f2d1681cd2a67bb5f916a86ccf0d
-R d6e384392a284fe8c8c7c103982e5b47
-U stephan
-Z f550af450c557de3a9bbd78d41e1fb0d
+P d81c80651a00ae360c67901713086a704aaf72fe8832902c67cc5b59965302c7
+R 69bbd09fb06b4b0128d3ee70ef303ae7
+U drh
+Z feb551554e90b67be17993d7062c94d9
 # Remove this line to create a well-formed Fossil manifest.
