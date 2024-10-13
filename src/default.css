@@ -1710,6 +1710,7 @@ div.pikchr-src > pre {
 div.pikchr-src > span {
   /*Wrapper for a link to open a pikchr in /pikchrshow*/
   margin-top: 0.5em;
+  margin-bottom: 0.5em;
   font-size: 85%;
 }
 div.pikchr-src > span::before {
