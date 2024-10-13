@@ -48,6 +48,15 @@ static int fSeenHttpAuth = 0;
 */
 static int traceCnt = 0;
 
+/* True to send full CRLF, not just a NL, in the HTTP headers.  This is
+** to work around issues in some web servers.
+*/
+#if CRLF_SZ==1
+static int sendCRLF = 0;
+#else
+static int sendCRLF = 1;
+#endif
+
 /*
 ** Construct the "login" card with the client credentials.
 **
@@ -137,34 +146,36 @@ static void http_build_header(
   const char *zAltMimetype     /* Alternative mimetype */
 ){
   int nPayload = pPayload ? blob_size(pPayload) : 0;
+  const char *zCRLF = sendCRLF ? "\r\n" : "\n";
 
   blob_zero(pHdr);
-  blob_appendf(pHdr, "%s %s%s HTTP/1.0" CRLF,
+  blob_appendf(pHdr, "%s %s%s HTTP/1.0%s",
                nPayload>0 ? "POST" : "GET", g.url.path,
-               g.url.path[0]==0 ? "/" : "");
+               g.url.path[0]==0 ? "/" : "", zCRLF);
   if( g.url.proxyAuth ){
-    blob_appendf(pHdr, "Proxy-Authorization: %s" CRLF, g.url.proxyAuth);
+    blob_appendf(pHdr, "Proxy-Authorization: %s%s", g.url.proxyAuth, zCRLF);
   }
   if( g.zHttpAuth && g.zHttpAuth[0] ){
     const char *zCredentials = g.zHttpAuth;
     char *zEncoded = encode64(zCredentials, -1);
-    blob_appendf(pHdr, "Authorization: Basic %s" CRLF, zEncoded);
+    blob_appendf(pHdr, "Authorization: Basic %s%s", zEncoded, zCRLF);
     fossil_free(zEncoded);
   }
-  blob_appendf(pHdr, "Host: %s" CRLF, g.url.hostname);
-  blob_appendf(pHdr, "User-Agent: %s" CRLF, get_user_agent());
-  if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH" CRLF);
+  blob_appendf(pHdr, "Host: %s%s", g.url.hostname, zCRLF);
+  blob_appendf(pHdr, "User-Agent: %s%s", get_user_agent(), zCRLF);
+  if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH%s", zCRLF);
   if( nPayload ){
     if( zAltMimetype ){
-      blob_appendf(pHdr, "Content-Type: %s" CRLF, zAltMimetype);
+      blob_appendf(pHdr, "Content-Type: %s", zAltMimetype);
     }else if( g.fHttpTrace ){
-      blob_appendf(pHdr, "Content-Type: application/x-fossil-debug" CRLF);
+      blob_appendf(pHdr, "Content-Type: application/x-fossil-debug");
     }else{
-      blob_appendf(pHdr, "Content-Type: application/x-fossil" CRLF);
+      blob_appendf(pHdr, "Content-Type: application/x-fossil");
     }
-    blob_appendf(pHdr, "Content-Length: %d" CRLF, blob_size(pPayload));
+    blob_appendf(pHdr, "%sContent-Length: %d%s",
+                 zCRLF, blob_size(pPayload), zCRLF);
   }
-  blob_append(pHdr, CRLF, CRLF_SZ);
+  blob_appendf(pHdr, "%s", zCRLF);
 }
 
 /*
@@ -543,6 +554,12 @@ int http_exchange(
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
         fossil_warning("server says: %s", &zLine[ii]);
+        if( rc==400 && sendCRLF==0 && strstr(zLine,"Bad Request")!=0 ){
+          sendCRLF = 1;
+          transport_close(&g.url);
+          return http_exchange(pSend, pReply, mHttpFlags,
+                               maxRedirect, zAltMimetype);
+        }
         goto write_err;
       }
       if( iHttpVersion==0 ){
@@ -628,6 +645,13 @@ int http_exchange(
           isError = 1;
         }
       }
+    }else if( sendCRLF==1
+           && rc==200
+           && fossil_strnicmp(zLine, "server: ", 8)==0 ){
+      fossil_warning("Server bug work-around: %s requires CRLF line endings "
+                     "contra RFC-2616 section 19.3 paragraph 3",
+                     zLine+8);
+      sendCRLF = 2;
     }
   }
   if( iHttpVersion<0 ){
