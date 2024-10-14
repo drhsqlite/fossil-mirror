@@ -405,12 +405,10 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
     bbuf = blob_buffer(&reply);
     len = blob_size(&reply);
     while(end < len) {
-      if(bbuf[end] == '\r') {
-        if(len - end < 4) {
-          /* need more data */
-          break;
-        }
-        if(memcmp(&bbuf[end], "\r\n\r\n", 4) == 0) {
+      if( bbuf[end]=='\n' ) {
+        if( (end+1<len && bbuf[end+1]=='\n')
+         || (end+2<len && bbuf[end+1]=='\r' && bbuf[end+1]=='\n')
+        ){
           done = 1;
           break;
         }
