@@ -1,5 +1,5 @@
-C Fix\sthe\sestablish_proxy_tunnel()\sroutine\sso\sthat\sit\sworks\seven\sif\sCRs\sare\nomitted\sfrom\sthe\sprotocol\sby\sthe\sproxy.
-D 2024-10-14T01:31:21.533
+C When\sbuilding\swith\stcl8.7\sor\shigher,\seliminate\sthe\scall\sto\sTcl_MakeSafe(),\swhich\sdoes\snot\sexist\sin\sthose\sversions\s(8.7\sincludes\sit\sin\stheir\sheaders\sbut\snot\stheir\slib).\sBuilding\swith\stcl8.7+\sreveals\san\sunrelated\sfunction-type\sconversion\serror\scaused\s(apparently)\sby\schanges\sin\stcl8.7+,\sand\sthat's\sstill\sunresolved.
+D 2024-10-14T19:00:03.435
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -570,7 +570,7 @@ F src/th.c 7383ab45bd0fca16f607b30b60c6b71645d29f87bcb65d400350bdac06368cf5
 F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c baac5d2f93a6afc57fab8bdeb29b2e0c76beaf1709436003c2bb50351b63b7a1
-F src/th_tcl.c 6ed2e926c4dfaecc99827030d8c6ecc764d7e2d706d3cf1a4b3a637fbdb94090
+F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c ff3634ed7abe5836f4e3e1ce72cba50dfc98ac481bed7d615ebcc1b510575952
 F src/tkt.c 6a9ba46397f7e48b85e465d3a03c459e1508ff97bed12124b85a9c730f4f3154
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 521da5cd31fa47d66d020784fb0435233a6f3f8fd6330f708eca16cafc1ad998
-R 90de865503e966c96168f98e18f82a7a
-U drh
-Z ee11892ab9d464c1c6e9943c5df261e4
+P e8d328cbd320e2417606a99a5ed6f0d8a3f67dd06d115fcf14a86df1b1fb4a6f
+R fd15a9bf44a4e0b89e798a7c51b86815
+U stephan
+Z 327f17f1b28a9c908c6f98de897e2fd1
 # Remove this line to create a well-formed Fossil manifest.
