@@ -1683,7 +1683,11 @@ noscript > .error {
     <DIV.pikchr-svg>
       <SVG.pikchr>...</SVG>
     </DIV.pikchr-svg>
-    <PRE.pikchr-src>...</PRE>
+    <DIV.pikchr-src>
+     <PRE>pikchr source code</PRE>
+     <SPAN class='hidden'><A>link to open pikchr in /pikchrshow</A></SPAN>
+     <!-- ^^^ is unhidden and activated by JS code -->
+    </DIV.pikchr-src>
   </DIV.pikchr-wrapper>
 
 ************************************************************/
@@ -1692,9 +1696,28 @@ div.pikchr-svg {/*wrapper for SVG.pikchr element*/}
 svg.pikchr {/*pikchr SVG*/
   width: 100%/*necessary for SOME SVGs for Chrome!*/;
 }
-pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
+
+div.pikchr-src {
+  /*Wrapper for source code view of a pikchr (see fossil.pikchr.js)*/
+  display: flex;
+  flex-direction: column;
+}
+div.pikchr-src > pre {
+  /*Source code for a pikchr*/
   box-sizing: border-box;
   text-align: left;
+}
+div.pikchr-src > span {
+  /*Wrapper for a link to open a pikchr in /pikchrshow*/
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-size: 85%;
+}
+div.pikchr-src > span::before {
+  content: "[";
+}
+div.pikchr-src > span::after {
+  content: "]";
 }
 /* The .source-inline class tells the .source class that the
    source view, when enabled, should be "inline" (same position
@@ -1714,10 +1737,10 @@ div.pikchr-wrapper.center.source.source-inline{
 div.pikchr-wrapper.center > div.pikchr-svg {
   width: 100%/*necessary for Chrome!*/;
 }
-div.pikchr-wrapper.center:not(.source) > pre.pikchr-src,
+div.pikchr-wrapper.center:not(.source) > div.pikchr-src,
 div.pikchr-wrapper.center:not(.source) > div.pikchr-svg,
 /* ^^^ Centered non-source-view elements */
-div.pikchr-wrapper.center.source.source-inline > pre.pikchr-src,
+div.pikchr-wrapper.center.source.source-inline div.pikchr-src,
 div.pikchr-wrapper.center.source.source-inline > div.pikchr-svg
 /* ^^^ Centered inline-source-view elements */{
   display:inline-block/*allows parent text-align to do the alignment*/;
@@ -1745,10 +1768,10 @@ div.pikchr-wrapper.float-right.source.source-inline{
 
 /* For pikchr-wrapper.source mode, toggle pre.pikchr-src and
    svg.pikchr visibility... */
-div.pikchr-wrapper.source > pre.pikchr-src {
+div.pikchr-wrapper.source > div.pikchr-src {
   /* Source code  ^^^^^^^ is visible, else it is hidden */
 }
-div.pikchr-wrapper:not(.source) > pre.pikchr-src {
+div.pikchr-wrapper:not(.source) > div.pikchr-src {
   /* Hide sources when image is being shown. */
   position: absolute !important;
   opacity: 0 !important;
