@@ -245,9 +245,19 @@ const char *configure_inop_rhs(int iMask){
 int configure_is_exportable(const char *zName){
   int i;
   int n = strlen(zName);
+  Setting *pSet;
   if( n>2 && zName[0]=='\'' && zName[n-1]=='\'' ){
+    char * zCpy;
     zName++;
     n -= 2;
+    zCpy = fossil_strndup(zName, (ssize_t)n);
+    pSet = db_find_setting(zCpy, 0);
+    fossil_free(zCpy);
+  }else{
+    pSet = db_find_setting(zName, 0);
+  }
+  if( pSet && pSet->sensitive ){
+    return 0;
   }
   for(i=0; i<count(aConfig); i++){
     if( strncmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
@@ -416,6 +426,11 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     if( nToken<2 ) return;
     if( aType[ii].zName[0]=='/' ){
       thisMask = configure_is_exportable(azToken[1]);
+      if( 0==thisMask ){
+        fossil_warning("Skipping non-exportable setting: %s = %s",
+                       azToken[1], nToken>3 ? azToken[3] : "?");
+        /* Will be skipped below */
+      }
     }else{
       thisMask = configure_is_exportable(aType[ii].zName);
     }

@@ -1,5 +1,5 @@
-C Fix\sthe\sestablish_proxy_tunnel()\sroutine\sso\sthat\sit\sworks\seven\sif\sCRs\sare\nomitted\sfrom\sthe\sprotocol\sby\sthe\sproxy.
-D 2024-10-14T01:31:21.533
+C Part\sof\sa\sproposed\ssolution\sfor\sthe\sproblem\sreported\sin\s[forum:6179500deadf6ec7\s|\sforum\spost\s6179500deadf6ec7],\sin\swhich\ssynching\sfrom\sa\srepo\swhich\sis\sbuilt\s--with-tcl\sis\snot\spossible\sif\sthe\s'tcl'\sor\s'tcl-setup'\ssettings\sare\sset.\sconfigure_is_exportable()\snow\sreturns\s0\sfor\sany\ssettings\swhich\sare\sflagged\sas\ssensitive\s(so\sthey\swon't\sbe\simported).\sWe\sshould\salso\selide\sall\ssensitive\ssettings\sfrom\sthe\sserver\sside,\sbut\sthat\swould\snot\shelp\sfolks\ssynching\sfrom\san\solder\sserver\sinstance\sbuilt\s--with-tcl,\sso\swe\sneed\sthis\shalf\sof\sthe\sfix\stoo.
+D 2024-10-14T17:01:20.437
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -405,7 +405,7 @@ F src/clone.c 9e98d0e64d8f19456a345f20275f1094b3c2022e27b0acbe5d7cbb6b917b06f5
 F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
 F src/comformat.c dc2c4c667ddab67e2c8d5eb96837a104d0bb827a27ca643fdda52ce9f530a0f2
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
-F src/configure.c 49087161ddb9de8de77411b66cdd80fecaa54ab90390d6227947444c288a1566
+F src/configure.c cb65ccabbd66e1ad589bdec8ab19090322a5a236a56625369a5da53b7d5c0152
 F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
@@ -960,8 +960,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 521da5cd31fa47d66d020784fb0435233a6f3f8fd6330f708eca16cafc1ad998
-R 90de865503e966c96168f98e18f82a7a
-U drh
-Z ee11892ab9d464c1c6e9943c5df261e4
+P e8d328cbd320e2417606a99a5ed6f0d8a3f67dd06d115fcf14a86df1b1fb4a6f
+R e34130a25b37cc22a6878715721a0315
+T *branch * sync-skip-sensitive
+T *sym-sync-skip-sensitive *
+T -sym-trunk * Cancelled\sby\sbranch.
+U stephan
+Z f8183fee08ec4047cf9dbef13b5a7209
 # Remove this line to create a well-formed Fossil manifest.
