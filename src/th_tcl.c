@@ -733,6 +733,15 @@ static int tclMakeSafe_command(
     Tcl_RegisterChannel(NULL, Tcl_GetStdChannel(TCL_STDERR));
   }
   Tcl_Preserve((ClientData)tclInterp);
+#if ((TCL_MAJOR_VERSION==8 && TCL_MINOR_VERSION>6) \
+     || (TCL_MAJOR_VERSION>8))
+  /* TCL 8.7+ removes Tcl_MakeSafe():
+  ** https://core.tcl-lang.org/tcl/tktview?name=655300
+  ** https://core.tcl-lang.org/tips/doc/trunk/tip/624.md
+  ** 8.7 has it in the headers but not in the libs.
+  */
+#  define Tcl_MakeSafe(X) TCL_OK
+#endif
   if( Tcl_MakeSafe(tclInterp)!=TCL_OK ){
     int nResult;
     const char *zResult = getTclResult(tclInterp, &nResult);
