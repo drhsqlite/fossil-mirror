@@ -257,6 +257,7 @@ int configure_is_exportable(const char *zName){
     pSet = db_find_setting(zName, 0);
   }
   if( pSet && pSet->sensitive ){
+    /* https://fossil-scm.org/forum/forumpost/6179500deadf6ec7 */
     return 0;
   }
   for(i=0; i<count(aConfig); i++){
@@ -698,6 +699,11 @@ int configure_send_group(
                  " WHERE name=:name AND mtime>=%lld", iStart);
   for(ii=0; ii<count(aConfig); ii++){
     if( (aConfig[ii].groupMask & groupMask)!=0 && aConfig[ii].zName[0]!='@' ){
+      const Setting * pSet = db_find_setting(aConfig[ii].zName, 0);
+      if( pSet && pSet->sensitive ){
+        /* https://fossil-scm.org/forum/forumpost/6179500deadf6ec7 */
+        continue;
+      }
       db_bind_text(&q, ":name", aConfig[ii].zName);
       while( db_step(&q)==SQLITE_ROW ){
         blob_appendf(&rec,"%s %s value %s",
