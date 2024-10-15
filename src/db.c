@@ -4969,7 +4969,7 @@ struct Setting {
 */
 #endif
 /*
-** SETTING: th1-setup        width=40 block-text
+** SETTING: th1-setup        width=40 block-text sensitive
 ** This is the setup script to be evaluated after creating
 ** and initializing the TH1 interpreter.  By default, this
 ** is empty and no extra setup is performed.

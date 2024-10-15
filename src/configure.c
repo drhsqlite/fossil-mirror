@@ -120,19 +120,10 @@ static struct {
   { "sitemap-extra",          CONFIGSET_SKIN },
   { "safe-html",              CONFIGSET_SKIN },
 
-#ifdef FOSSIL_ENABLE_TH1_DOCS
-  { "th1-docs",               CONFIGSET_TH1 },
-#endif
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
   { "th1-hooks",              CONFIGSET_TH1 },
 #endif
-  { "th1-setup",              CONFIGSET_TH1 },
   { "th1-uri-regexp",         CONFIGSET_TH1 },
-
-#ifdef FOSSIL_ENABLE_TCL
-  { "tcl",                    CONFIGSET_TH1 },
-  { "tcl-setup",              CONFIGSET_TH1 },
-#endif
 
   { "project-name",           CONFIGSET_PROJ },
   { "short-project-name",     CONFIGSET_PROJ },
@@ -241,13 +232,31 @@ const char *configure_inop_rhs(int iMask){
 ** export the property.  In other words, the requesting side has presented
 ** login credentials and has sufficient capabilities to access the requested
 ** information.
+**
+** Settings which are specifically flagged as sensitive will (as of
+** 2024-10-15) cause this function to return 0, regardless of user
+** permissions. As an example, if the th1-setup setting were not
+** sensitive then a malicious repo admin could set that to include
+** arbitrary TCL code and affect users who configure fossil with the
+** --with-tcl flag.
 */
 int configure_is_exportable(const char *zName){
   int i;
   int n = strlen(zName);
+  Setting *pSet;
   if( n>2 && zName[0]=='\'' && zName[n-1]=='\'' ){
+    char * zCpy;
     zName++;
     n -= 2;
+    zCpy = fossil_strndup(zName, (ssize_t)n);
+    pSet = db_find_setting(zCpy, 0);
+    fossil_free(zCpy);
+  }else{
+    pSet = db_find_setting(zName, 0);
+  }
+  if( pSet && pSet->sensitive ){
+    /* https://fossil-scm.org/forum/forumpost/6179500deadf6ec7 */
+    return 0;
   }
   for(i=0; i<count(aConfig); i++){
     if( strncmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
@@ -416,6 +425,11 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     if( nToken<2 ) return;
     if( aType[ii].zName[0]=='/' ){
       thisMask = configure_is_exportable(azToken[1]);
+      if( 0==thisMask ){
+        fossil_warning("Skipping non-exportable setting: %s = %s",
+                       azToken[1], nToken>3 ? azToken[3] : "?");
+        /* Will be skipped below */
+      }
     }else{
       thisMask = configure_is_exportable(aType[ii].zName);
     }
@@ -683,6 +697,11 @@ int configure_send_group(
                  " WHERE name=:name AND mtime>=%lld", iStart);
   for(ii=0; ii<count(aConfig); ii++){
     if( (aConfig[ii].groupMask & groupMask)!=0 && aConfig[ii].zName[0]!='@' ){
+      const Setting * pSet = db_find_setting(aConfig[ii].zName, 0);
+      if( pSet && pSet->sensitive ){
+        /* https://fossil-scm.org/forum/forumpost/6179500deadf6ec7 */
+        continue;
+      }
       db_bind_text(&q, ":name", aConfig[ii].zName);
       while( db_step(&q)==SQLITE_ROW ){
         blob_appendf(&rec,"%s %s value %s",
