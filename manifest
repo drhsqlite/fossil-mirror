@@ -1,5 +1,5 @@
-C When\sbuilding\swith\stcl8.7\sor\shigher,\seliminate\sthe\scall\sto\sTcl_MakeSafe(),\swhich\sdoes\snot\sexist\sin\sthose\sversions\s(8.7\sincludes\sit\sin\stheir\sheaders\sbut\snot\stheir\slib).\sBuilding\swith\stcl8.7+\sreveals\san\sunrelated\sfunction-type\sconversion\serror\scaused\s(apparently)\sby\schanges\sin\stcl8.7+,\sand\sthat's\sstill\sunresolved.
-D 2024-10-14T19:00:03.435
+C Enhance\sthe\sfunction\sto\sfind\scase-preserved\sfilenames\son\sWindows\sto\sdeal\swith\snon-ASCII\sfilenames.
+D 2024-10-15T05:18:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
 F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
-F src/file.c f22240c1890302c6a7a3301c0e58234cd325c9d5eb1305d2f50d168407f6b956
+F src/file.c cea04e3168a515736c158d115d13a0b6ed674e9d4e2b1d87be591757b7cc395e
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 3eacb1b2e40382a539d16fa54ef4e4f0da931513a56fe974b41fa58f85538740
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
@@ -589,7 +589,7 @@ F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c d6a99a1a705323e326213f67e45e304e774914f632fae52b75366605c51fc8c6
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
-F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
+F src/winfile.c cac9ef1e59a7126f81a5be60c13b6fefd719bf51a4bb76b821f98626317fc45f
 F src/winhttp.c 4ac22db1c25e2a96207a891aced5dd19090afa266586f6f563160cfe8b91890f
 F src/xfer.c b86f3973f9db537c84b873a749150c24ac8197a801c94fdbe527009dfbdd10e2
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e8d328cbd320e2417606a99a5ed6f0d8a3f67dd06d115fcf14a86df1b1fb4a6f
-R fd15a9bf44a4e0b89e798a7c51b86815
-U stephan
-Z 327f17f1b28a9c908c6f98de897e2fd1
+P 2d5a23e919dff2f689307f7b656218687f63b1804099d377d1839b0e3abe1817
+R bc087bd59f1a958dd0da795236fcafb6
+U florian
+Z 782860653c51d4c017013ed5770b4a56
 # Remove this line to create a well-formed Fossil manifest.

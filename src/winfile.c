@@ -292,4 +292,122 @@ void win32_getcwd(char *zBuf, int nBuf){
   strncpy(zBuf, zUtf8, nBuf);
   fossil_path_free(zUtf8);
 }
+
+/* Perform case-insensitive comparison of two UTF-16 file names. Try to load the
+** CompareStringOrdinal() function on Windows Vista and newer, and resort to the
+** lstrcmpiW() function on Windows XP.
+*/
+int win32_compare_filenames_nocase(
+  const wchar_t *fn1,
+  const wchar_t *fn2
+){
+  static FARPROC fnCompareStringOrdinal;
+  static int try_fnCompareStringOrdinal;
+  if( !try_fnCompareStringOrdinal ){
+    fnCompareStringOrdinal =
+      GetProcAddress(GetModuleHandleA("kernel32"),"CompareStringOrdinal");
+    try_fnCompareStringOrdinal = 1;
+  }
+  if( fnCompareStringOrdinal ){
+    return -2 + fnCompareStringOrdinal(fn1,-1,fn2,-1,1);
+  }else{
+    return lstrcmpiW(fn1,fn2);
+  }
+}
+
+/* Helper macros to deal with directory separators. */
+#define IS_DIRSEP(s,i) ( s[i]=='/' || s[i]=='\\' )
+#define NEXT_DIRSEP(s,i) while( s[i] && s[i]!='/' && s[i]!='\\' ){i++;}
+
+/* The Win32 version of file_case_preferred_name() from file.c, which is able to
+** find case-preserved file names containing non-ASCII characters. The result is
+** allocated by fossil_malloc() and *should* be free'd by tha caller. While this
+** function usually gets canonicalized paths, it is able to handle any input and
+** figure out more cases than the original:
+**
+**    fossil test-case-filename C:/ .//..\WINDOWS\/.//.\SYSTEM32\.\NOTEPAD.EXE
+**    → Original:   .//..\WINDOWS\/.//.\SYSTEM32\.\NOTEPAD.EXE
+**    → Modified:   .//..\Windows\/.//.\System32\.\notepad.exe
+**
+**    md ÄÖÜ
+**    fossil test-case-filename ./\ .\äöü\/[empty]\\/
+**    → Original:   ./äöü\/[empty]\\/
+**    → Modified:   .\ÄÖÜ\/[empty]\\/
+**
+** The function preserves slashes and backslashes: only single file or directory
+** components without directory separators ("basenames") are converted to UTF-16
+** using fossil_utf8_to_path(), so bypassing its slash ↔ backslash translations.
+** Note that the original function doesn't preserve all slashes and backslashes,
+** for example in the second example above.
+**
+** NOTE: As of Windows 10, version 1803, case sensitivity may be enabled on a
+** per-directory basis, as returned by NtQueryInformationFile() with the file
+** information class FILE_CASE_SENSITIVE_INFORMATION. So this function may be
+** changed to act like fossil_strdup() for files located in such directories.
+*/
+char *win32_file_case_preferred_name(
+  const char *zBase,
+  const char *zPath
+){
+  int cchBase = strlen(zBase);
+  int cchPath = strlen(zPath);
+  int cchBuf = cchBase + cchPath + 1;
+  int cchRes = cchPath + 1;
+  char *zBuf = fossil_malloc(cchBuf);
+  char *zRes = fossil_malloc(cchRes);
+  int i, j;
+  memcpy(zBuf,zBase,cchBase);
+  cchRes = 0;
+  if( !IS_DIRSEP(zBuf,cchBase-1) ){
+    zBuf[cchBase++]=L'/';
+  }
+  memcpy(zBuf+cchBase,zPath,cchPath+1);
+  i = j = cchBase;
+  while( 1 ){
+    WIN32_FIND_DATAW fd;
+    HANDLE hFind;
+    wchar_t *wzBuf;
+    char *zCompBuf = 0;
+    char *zComp = &zBuf[i];
+    int cchComp;
+    char chSep;
+    int fDone;
+    if( IS_DIRSEP(zBuf,i) ){
+      zRes[cchRes++] = zBuf[i];
+      i = j = i+1;
+      continue;
+    }
+    NEXT_DIRSEP(zBuf,j);
+    fDone = zBuf[j]==0;
+    chSep = zBuf[j];
+    zBuf[j] = 0;                /* Truncate working buffer. */
+    wzBuf = fossil_utf8_to_path(zBuf,0);
+    hFind = FindFirstFileW(wzBuf,&fd);
+    if( hFind!= INVALID_HANDLE_VALUE ){
+      wchar_t *wzComp = fossil_utf8_to_path(zComp,0);
+      FindClose(hFind);
+      /* Test fd.cFileName, not fd.cAlternateFileName (classic 8.3 format). */
+      if( win32_compare_filenames_nocase(wzComp,fd.cFileName)==0 ){
+        zCompBuf = fossil_path_to_utf8(fd.cFileName);
+        zComp = zCompBuf;
+      }
+      fossil_path_free(wzComp);
+    }
+    fossil_path_free(wzBuf);
+    cchComp = strlen(zComp);
+    memcpy(zRes+cchRes,zComp,cchComp);
+    cchRes += cchComp;
+    if( zCompBuf ){
+      fossil_path_free(zCompBuf);
+    }
+    if( fDone ){
+      zRes[cchRes] = 0;
+      break;
+    }
+    zBuf[j] = chSep;            /* Undo working buffer truncation. */
+    i = j;
+  }
+  fossil_free(zBuf);
+  return zRes;
+}
 #endif /* _WIN32  -- This code is for win32 only */

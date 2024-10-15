@@ -1374,6 +1374,7 @@ char *file_canonical_name_dup(const char *zOrigName){
 ** in the preserved casing.  That's what this routine does.
 */
 char *file_case_preferred_name(const char *zDir, const char *zPath){
+#ifndef _WIN32 /* Call win32_file_case_preferred_name() on Windows. */
   DIR *d;
   int i;
   char *zResult = 0;
@@ -1409,6 +1410,9 @@ char *file_case_preferred_name(const char *zDir, const char *zPath){
   fossil_path_free(zNative);
   if( zResult==0 ) zResult = fossil_strdup(zPath);
   return zResult;
+#else /* _WIN32 */
+  return win32_file_case_preferred_name(zDir,zPath);
+#endif /* _WIN32 */
 }
 
 /*
