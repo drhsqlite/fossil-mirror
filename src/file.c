@@ -1643,7 +1643,7 @@ void cmd_test_file_environment(void){
   if( zAllow ){
     g.allowSymlinks = !is_false(zAllow);
   }
-  if( zRoot==0 ) zRoot = g.zLocalRoot;
+  if( zRoot==0 ) zRoot = g.zLocalRoot==0 ? "" : g.zLocalRoot;
   fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
   fossil_print("local-root = [%s]\n", zRoot);
   for(i=2; i<g.argc; i++){

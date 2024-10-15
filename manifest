@@ -1,5 +1,5 @@
-C Mention\sthe\scomment\sformatter\supdates\sin\sthe\schange\sas\sa\shint\sto\susers\sencountering\sproblems\swith\stimeline\soutput.
-D 2024-10-15T05:21:00.000
+C Fix\sa\scrash\sif\sthe\stest-file-environment\scommand\sis\scalled\sfrom\soutside\sa\scheck-out.
+D 2024-10-15T05:25:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
 F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
-F src/file.c cea04e3168a515736c158d115d13a0b6ed674e9d4e2b1d87be591757b7cc395e
+F src/file.c ba4ec3f818041ddfab94b90326eaa223f6e4ce3afe517a6a6a896607e6064b5e
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 3eacb1b2e40382a539d16fa54ef4e4f0da931513a56fe974b41fa58f85538740
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9919dfbbaa2019e7eb7bbfdb2f821058e25553478e27079f95122d672a6fbdff
-R 16d610d183d5b261e935f5b55ad66baf
+P 3c6e5a1e4cf6e71972bacc2ee5fb91c227775daf9e36b6971124c8ab54b4bf08
+R 0b366377e21d903265ed0b82bc63e49a
 U florian
-Z 3a531c6e6824cb95ed8f5cc92203a9ae
+Z 88e6b0c1b2831e6100b1a4583785971d
 # Remove this line to create a well-formed Fossil manifest.
