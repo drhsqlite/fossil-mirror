@@ -18,6 +18,8 @@
   *  Add Unix socket support to the [/help?cmd=server|server command].
   *  On Windows, use the root certificates managed by the operating system
      (requires OpenSSL 3.2.0 or greater).
+  *  Take into account zero-width and double-width unicode characters when
+     formatting the command-line timeline.
   *  Numerous minor fixes and additions.
 
 
