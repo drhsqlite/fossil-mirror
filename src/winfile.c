@@ -302,11 +302,11 @@ int win32_compare_filenames_nocase(
   const wchar_t *fn2
 ){
   static FARPROC fnCompareStringOrdinal;
-  static int try_fnCompareStringOrdinal;
-  if( !try_fnCompareStringOrdinal ){
+  static int tried_CompareStringOrdinal;
+  if( !tried_CompareStringOrdinal ){
     fnCompareStringOrdinal =
       GetProcAddress(GetModuleHandleA("kernel32"),"CompareStringOrdinal");
-    try_fnCompareStringOrdinal = 1;
+    tried_CompareStringOrdinal = 1;
   }
   if( fnCompareStringOrdinal ){
     return -2 + fnCompareStringOrdinal(fn1,-1,fn2,-1,1);
@@ -321,7 +321,7 @@ int win32_compare_filenames_nocase(
 
 /* The Win32 version of file_case_preferred_name() from file.c, which is able to
 ** find case-preserved file names containing non-ASCII characters. The result is
-** allocated by fossil_malloc() and *should* be free'd by tha caller. While this
+** allocated by fossil_malloc() and *should* be free'd by the caller. While this
 ** function usually gets canonicalized paths, it is able to handle any input and
 ** figure out more cases than the original:
 **
