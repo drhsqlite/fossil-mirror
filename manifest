@@ -1,5 +1,5 @@
-C [Grammar]\santibot.wiki\schanges.
-D 2024-10-16T08:50:45.763
+C [Grammar]\sbackoffice.md\schanges.
+D 2024-10-16T09:08:09.603
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -764,7 +764,7 @@ F www/alerts.md 8cd4170eb115c9c05facc5a00d083be2b5f4fc1321371ff44501df2b48b37cd6
 F www/antibot.wiki 3c80ceb5d18462ba69f0ab7793652abec83f7292ad16cc57a70a8d4e78501615
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
-F www/backoffice.md b0ca100e4fa8fd5d86460a9cb4b4c426dc9b464680c985ed41fda3b1e21eee6b
+F www/backoffice.md 4d0f11a2ec4d099442bebfbf44afbbda1277f7b7a100a2b4c1f15e82e1ed7267
 F www/backup.md 8c3b478b8178fe86bc238158f36807851813853b3e70546339823c488a4a4238
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md bd934c673cf72cd200c9c32aae5f9ea173167f9763d3bd92ca320801db2b4599
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1a97a4e96c9e11aa5ca0cbc549d1a78685e12e95d1e396f24f9ffc6e5d2f795f
-R 31b61aa8490c3d195c3b89cf67a3100d
+P c6a6cd11bd6123bbb3b2c74f751667493b1aa990ced7f7f4e9a0ccf305839391
+R 99ee364831a35e95f3f94a76c540bf35
 U brickviking
-Z 192bd28df4d840677f15f84d73245206
+Z e82bbc2893ed86aeda77e399b1842cc6
 # Remove this line to create a well-formed Fossil manifest.

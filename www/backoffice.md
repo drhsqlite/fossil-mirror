@@ -117,10 +117,10 @@ command-line options.  See the "[fossil backoffice](/help?cmd=backoffice)"
 documentation for details.
 
 The backoffice processes run manually using the "fossil backoffice"
-command do not normally use a lease.  That means that you run the
+command do not normally use a lease.  That means that if you run the
 "fossil backoffice" command with --poll and you forget to disable
 automatic backoffice by setting the "backoffice-disable" flag, then
-you might have one backoffice running due command and another due
+you might have one backoffice running due to a command and another due
 to a webpage access, both at the same time.  This is harmless.  The
 only downside is that it uses extra CPU time.
 
@@ -212,7 +212,7 @@ backoffice works needs to be done.  If something is going wrong and
 backoffice leases are causing delays in webpage processing, then setting
 "backoffice-nodelay" to true can work around the problem until the bug
 can be fixed.  The "backoffice-logfile" setting is the name of a log
-file onto which is appended a short message everything a backoffice
+file onto which is appended a short message every time a backoffice
 process actually starts to do the backoffice work.  This log file can
 be used to verify that backoffice really is running, if there is any
 doubt.  The "backoffice-disable" setting prevents automatic backoffice
