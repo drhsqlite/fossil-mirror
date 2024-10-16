@@ -1,5 +1,5 @@
-C Removed\sa\spointless\sdiff\srelative\sto\strunk.
-D 2024-10-16T17:03:18.974
+C [Grammar]\sblame.wiki\schanges
+D 2024-10-16T20:51:35.029
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -766,7 +766,7 @@ F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 4d0f11a2ec4d099442bebfbf44afbbda1277f7b7a100a2b4c1f15e82e1ed7267
 F www/backup.md 8c3b478b8178fe86bc238158f36807851813853b3e70546339823c488a4a4238
-F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
+F www/blame.wiki dce6db0881b7185b9003e92bdd484b180f272a604406420859c148883a2220b3
 F www/blockchain.md bd934c673cf72cd200c9c32aae5f9ea173167f9763d3bd92ca320801db2b4599
 F www/branching.wiki 3c7227bea01c4f0adcf2aa7c0eb3692ec11a4dcf686f8aa60b395fd628fcba34
 F www/bugtheory.wiki 05d4c22d09171d3077d0662a940dfddd8290d34ea83b48847978ece08021c1fa
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2d9ce6d5addf2fda9086deb519883dab7f04aea896f309eaceedbd51c7eb758
-R 369cda2afc1640626556e7ffb3a9040a
-U wyoung
-Z ae4114953bcc99d9a777f2a5d8c8412e
+P 3d430cf7119c9bae9797b149d76b44c96eb80dbdfcb23d753d8742eea734211d
+R 49d8fb8d4ddd64619ed3acff529cea21
+U brickviking
+Z bebf96fcc33a97bcf986c47dcb10ebd0
 # Remove this line to create a well-formed Fossil manifest.

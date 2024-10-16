@@ -21,7 +21,7 @@ for a file in Fossil.
     of the primary parent of C0.  Merged in branches are not part of
     the direct ancestors of C0.
 <li>Prune the list of ancestors of C0 so that it contains only
-    check-in in which the file to be annotated was modified.
+    check-ins in which the file to be annotated was modified.
 <li>Load the complete text of the file to be annotated from check-in C0.
     Call this version of the file F0.
 <li>Parse F0 into lines.  Mark each line as "unchanged".
