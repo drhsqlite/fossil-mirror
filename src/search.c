@@ -806,17 +806,19 @@ LOCAL void search_fullscan(
         "         search_score(),"
         "         'd'||blob.rid,"
         "         (SELECT datetime(event.mtime) FROM event"
-        "            WHERE objid=symbolic_name_to_rid('trunk')),"
+        "            WHERE objid=symbolic_name_to_rid(%Q)),"
         "         search_snippet()"
         "    FROM foci CROSS JOIN blob"
-        "   WHERE checkinID=symbolic_name_to_rid('trunk')"
+        "   WHERE checkinID=symbolic_name_to_rid(%Q)"
         "     AND blob.uuid=foci.uuid"
         "     AND search_match(title('d',blob.rid,foci.filename),"
         "                      body('d',blob.rid,foci.filename))"
         "     AND %z",
-        zDocBr, glob_expr("foci.filename", zDocGlob)
+        zDocBr, zDocBr, zDocBr, glob_expr("foci.filename", zDocGlob)
       );
     }
+    fossil_free(zDocGlob);
+    fossil_free(zDocBr);
   }
   if( (srchFlags & SRCH_WIKI)!=0 ){
     db_multi_exec(

@@ -351,13 +351,13 @@ char *win32_file_case_preferred_name(
 ){
   int cchBase = strlen(zBase);
   int cchPath = strlen(zPath);
-  int cchBuf = cchBase + cchPath + 1;
-  int cchRes = cchPath + 1;
+  int cchBuf = cchBase + cchPath + 2; /* + NULL + optional directory slash */
+  int cchRes = cchPath + 1;           /* + NULL */
   char *zBuf = fossil_malloc(cchBuf);
   char *zRes = fossil_malloc(cchRes);
+  int ncUsed = 0;
   int i, j;
   memcpy(zBuf,zBase,cchBase);
-  cchRes = 0;
   if( !IS_DIRSEP(zBuf,cchBase-1) ){
     zBuf[cchBase++]=L'/';
   }
@@ -373,7 +373,7 @@ char *win32_file_case_preferred_name(
     char chSep;
     int fDone;
     if( IS_DIRSEP(zBuf,i) ){
-      zRes[cchRes++] = zBuf[i];
+      zRes[ncUsed++] = zBuf[i];
       i = j = i+1;
       continue;
     }
@@ -383,7 +383,7 @@ char *win32_file_case_preferred_name(
     zBuf[j] = 0;                /* Truncate working buffer. */
     wzBuf = fossil_utf8_to_path(zBuf,0);
     hFind = FindFirstFileW(wzBuf,&fd);
-    if( hFind!= INVALID_HANDLE_VALUE ){
+    if( hFind!=INVALID_HANDLE_VALUE ){
       wchar_t *wzComp = fossil_utf8_to_path(zComp,0);
       FindClose(hFind);
       /* Test fd.cFileName, not fd.cAlternateFileName (classic 8.3 format). */
@@ -395,13 +395,17 @@ char *win32_file_case_preferred_name(
     }
     fossil_path_free(wzBuf);
     cchComp = strlen(zComp);
-    memcpy(zRes+cchRes,zComp,cchComp);
-    cchRes += cchComp;
+    if( ncUsed+cchComp+1>cchRes ){
+      cchRes = ncUsed + cchComp + 32; /* While at it, add some extra space. */
+      zRes = fossil_realloc(zRes,cchRes);
+    }
+    memcpy(zRes+ncUsed,zComp,cchComp);
+    ncUsed += cchComp;
     if( zCompBuf ){
       fossil_path_free(zCompBuf);
     }
     if( fDone ){
-      zRes[cchRes] = 0;
+      zRes[ncUsed] = 0;
       break;
     }
     zBuf[j] = chSep;            /* Undo working buffer truncation. */
