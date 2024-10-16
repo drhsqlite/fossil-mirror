@@ -1,5 +1,5 @@
-C [Grammar]\sbugtheory.wiki\schanges,\striggers\sreformat\sof\sparagraph.
-D 2024-10-16T21:40:39.184
+C [Grammar]\sbuild.wiki\schanges.
+D 2024-10-16T22:28:12.624
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -776,7 +776,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 746fd2a084d05a56119162211b0855b7958d99e1849592e6998add89da96980a
+F www/build.wiki 9e8bacb2830ec9561907ca665e1e7bf85cb3e7e32d568f3f41ce1bb0f9860c90
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 140c085da529e1564c2ec0f6ed83b1ac84dd53873e8f6cdf631be261f1e9b0d6
-R 5d3e08d66ea90851cff376f0ebc3417f
+P 7852e40b1b4b4ac3e867708a812e5373ff8f5b4c1b7838fcdd90fe7658160717
+R 7db0c9b416929d19f96f01e6743919af
 U brickviking
-Z ddfa361c576b95caba53c16e749cc4c6
+Z 726bb58124dd05e2b882be1f7fe852ac
 # Remove this line to create a well-formed Fossil manifest.
