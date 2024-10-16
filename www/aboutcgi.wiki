@@ -10,8 +10,8 @@ This is a "how it works" guide.  This document provides background
 information on the CGI protocol so that you can better understand what
 is going on behind the scenes.  If you just want to set up Fossil
 as a CGI server, see the [./server/ | Fossil Server Setup] page.  Or
-if you want to develop CGI-based extensions to Fossil, see the
-[./serverext.wiki|CGI Server Extensions] page.
+if you want to develop CGI-based extensions to Fossil, see
+the [./serverext.wiki|CGI Server Extensions] page.
 
 <h2>A Quick Review Of CGI</h2>
 
