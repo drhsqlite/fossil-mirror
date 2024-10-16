@@ -1,5 +1,5 @@
-C [Grammar]\sblame.wiki\schange.
-D 2024-10-16T21:02:41.880
+C [Grammar]\sbugtheory.wiki\schanges,\striggers\sreformat\sof\sparagraph.
+D 2024-10-16T21:40:39.184
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -769,7 +769,7 @@ F www/backup.md 8c3b478b8178fe86bc238158f36807851813853b3e70546339823c488a4a4238
 F www/blame.wiki 8802c5b95dcaa4ba6b631f543b9d6a1caa70a80bd02890a83fe447813640d046
 F www/blockchain.md bd934c673cf72cd200c9c32aae5f9ea173167f9763d3bd92ca320801db2b4599
 F www/branching.wiki 3c7227bea01c4f0adcf2aa7c0eb3692ec11a4dcf686f8aa60b395fd628fcba34
-F www/bugtheory.wiki 05d4c22d09171d3077d0662a940dfddd8290d34ea83b48847978ece08021c1fa
+F www/bugtheory.wiki c49ca65a4945c1d0de3af9111f2eb50ea5c2a5763cbdeaab8e40811f7c57484e
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
 F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3f26d623bc61bf3d9432877340273a5d0ef50811ad5c3d52df8511ed1ead7808
-R cc62d1247ffc902ce815907e2775385d
+P 140c085da529e1564c2ec0f6ed83b1ac84dd53873e8f6cdf631be261f1e9b0d6
+R 5d3e08d66ea90851cff376f0ebc3417f
 U brickviking
-Z ae9c3024b5c5bb23130144a5c18b1b15
+Z ddfa361c576b95caba53c16e749cc4c6
 # Remove this line to create a well-formed Fossil manifest.
