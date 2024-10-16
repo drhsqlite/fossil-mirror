@@ -1,5 +1,5 @@
-C Amend\s[9919dfbbaa]:\sfix\sa\scomment\stypo\sand\srename\sa\svariable.
-D 2024-10-15T05:36:00.000
+C Create\snew\sbranch\snamed\s"bv-corrections01"
+D 2024-10-16T07:28:46.140
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -960,8 +960,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3bb9cbe8cc1fdf834c05277c33350c76dab637668ab5c3db8ee5767cb918f413
+P d7d106227fad4ae365daa9c309f23daeb231bc0f40e67135dc335cb7e75381d6
 R e33f8b73faf4352109635beb13cb48b5
-U florian
-Z 8b79c976a2b9e4536adf417ea7c99395
+T *branch * bv-corrections01
+T *sym-bv-corrections01 *
+T -sym-trunk *
+U brickviking
+Z 0bb0242c8c259fcc86c98fa063fa8271
 # Remove this line to create a well-formed Fossil manifest.
