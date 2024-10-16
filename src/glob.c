@@ -36,8 +36,8 @@
 ** "...".  This allows commas and/or whitespace to be used in the elements
 ** themselves.
 **
-** This routine makes no effort to free the memory space it uses, which
-** currently consists of a blob object and its contents.
+** The returned string is owned by the caller, who must fossil_free()
+** it.
 */
 char *glob_expr(const char *zVal, const char *zGlobList){
   Blob expr;
