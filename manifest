@@ -1,5 +1,5 @@
-C When\ssearching\sembedded\sdocs,\ssearch\sthe\sconfigured\s'doc-branch'\sbranch\sinstead\sof\shard-wiring\sthe\ssearch\sfor\strunk.\sProblem\sreported\sin\s[forum:520d420d04e482b2|forum\spost\s520d420d04].\sPreviously\sit\swas\salways\ssearching\strunk\sbut\sgenerating\slinks\sto\sthe\sdoc-branch.
-D 2024-10-16T00:18:02.813
+C Amend\s[9919dfbbaa],\sagain:\sInclude\san\soptional\sdirectory\sseparator\sin\sbuffer\ssize\scalculation,\sguard\sagainst\sthe\sunlikely\s(impossible?)\scase\sthat\sa\scase-adjusted\sfilename\scomponent\sround-tripping\sfrom\sUTF-8\sto\sUTF-16\sand\sback\sget\slonger,\splus\ssome\sunrelated\swhite\sspace\sfix.
+D 2024-10-16T05:16:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -589,7 +589,7 @@ F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c d6a99a1a705323e326213f67e45e304e774914f632fae52b75366605c51fc8c6
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
-F src/winfile.c 9fbd239f9cd1f93bcf289658a0daa1ce31ed2b61961d3b762a69438014b83859
+F src/winfile.c 5676effc3205315315d3837b0fe0abde9d28b3fa5b7216ee0fc2b26d79f1ffa0
 F src/winhttp.c 4ac22db1c25e2a96207a891aced5dd19090afa266586f6f563160cfe8b91890f
 F src/xfer.c b86f3973f9db537c84b873a749150c24ac8197a801c94fdbe527009dfbdd10e2
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
@@ -960,9 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ff87d4e0f7864117cf312ea4f42b8b3da7dd01a743c34c24a955bbecc4a494d f4fdd7d385b7e063486a4e5dca043f083f46ee0c964f7a3140032d5456fa2b43
-R dccff7adfdbba45d0a087ee7c467859a
-T +closed f4fdd7d385b7e063486a4e5dca043f083f46ee0c964f7a3140032d5456fa2b43 Closed\sby\sintegrate-merge.
-U stephan
-Z a99c0ae6084a5ea7f07dc574266640e4
+P 163f2f599e9f9178bef0e2fd5a28023b3c12a3e0303d0574e667797855208d14
+R 36d872a19b901ab8528a9663338e8292
+U florian
+Z a2128d747d2d1047997829ad293e3e81
 # Remove this line to create a well-formed Fossil manifest.
