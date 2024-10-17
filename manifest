@@ -1,5 +1,5 @@
-C [Grammar]\scontribute.wiki\schanges.
-D 2024-10-17T07:14:42.811
+C [Grammar]\scustom_ticket.wiki\schanges.
+D 2024-10-17T08:28:06.810
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -803,7 +803,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 4c9646386ffd98790c703503b08797d567687d3e8f07bcb03d5a54f44a2f6ffb
 F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272bf3
 F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
-F www/custom_ticket.wiki 78144925dba3634f948a20ccf9d2fa358a98e2e7d31fbaad7833e2822a3be46b
+F www/custom_ticket.wiki 11f68a5cf7372bc7807254a347582cc6179ee1a31c71720d80dbe8e7155fabf4
 F www/customgraph.md 1478a72db903b5a77166b0487b9d4546b0d0d036bd8acd5532608d6bc4ae398a
 F www/customskin.md 7198e48eb9e0e07218e9bd13c1a8fef877d7672ba919238d108fa871fbb28985
 F www/defcsp.md 9acc92726d34c94be1ad4e011101043aff08a6e6cf78d54e0daebe16e2bf3e49
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0ae6ba539cb3f23011f3ef449be54cda14a68fa977758ee3d0b4ea7c38982d97
-R 7c4e85c2f928e9e0a825e088de2aeb94
+P 1f95211c409c24715e7bb8b7a5795c1c3062dea6051965f1e9f7b36f4689b45a
+R cb4e3f4c7d8e5d1fcb4220fdda27945c
 U brickviking
-Z 1432a5eab32eaaf32ab9ffd16df95bba
+Z 5373019976009da5a41934a39d0932db
 # Remove this line to create a well-formed Fossil manifest.
