@@ -1,5 +1,5 @@
-C [Grammar]\schat.md\schanges.
-D 2024-10-17T00:26:16.831
+C [Grammar]\scheckin_names.wiki\schanges.
+D 2024-10-17T01:24:00.261
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -787,7 +787,7 @@ F www/cgi.wiki 0d8ae1d55db302a98d95da41ac75de4dcc665b66262e1873b5a3e6bcabf213d0
 F www/changes.wiki a6770d3afcd335940c139dad295f76d9e8893f45f7d410824925f611f0bd6fe9
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
-F www/checkin_names.wiki 966187ef75f7150db2644fb2358b969672dd888d6f227a5587b975b935a327e7
+F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
 F www/childprojects.wiki 7ae960b153c84280c72de5ee172c1beb823f07b65ea00756a4a62f54bdec64f7
 F www/chroot.md 5b9110759a6c9db02fad8c1ddfc462afa6f3812d7932654ec5a1d6231d21705c
 F www/ckout-workflows.md 824c89a1319795b9c4dfa283a94f55acd71d8230ba36ceb47244987595bc75ec
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 35c515e7e82ee870bc858f8879f08daed527d07230b5820aa1d7e74e652d9ea4
-R 14934063192a38c391e38bb6031eb95a
+P 0c3aa7553bb8c35bed6133ad675a871c06a58f731769a8088b327714eea00688
+R a476dbe15e8d0ae9e279b65494ddb40f
 U brickviking
-Z 1dd1429885c2fe1c75327bb51b72b3d6
+Z 316212ef2b60081fadb25f906401f1fc
 # Remove this line to create a well-formed Fossil manifest.

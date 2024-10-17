@@ -248,7 +248,7 @@ can be chained: one can say for example
 fossil info merge-in:xyzzy:2022-03-01
 </pre>
 
-to get informations about the most recent merge-in point on the branch 
+to get information about the most recent merge-in point on the branch 
 "xyzzy" that happened on or before March 1, 2022.
 
 <h2 id="special">Special Tags</h2>
