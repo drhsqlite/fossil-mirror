@@ -352,7 +352,7 @@ void sqlite3_fsetmode(FILE *stream, int mode);
 **
 ** If the SQLITE_U8TEXT_STDIO option is defined, then use O_U8TEXT
 ** when appropriate when writing to stdout or stderr.  Use O_BINARY
-** or O_TEXT (depending on things like the .mode and the .crnl setting
+** or O_TEXT (depending on things like the .mode and the .crlf setting
 ** in the CLI, or other context clues in other applications) for all
 ** other output channels.
 **
@@ -14070,6 +14070,66 @@ static int idxProcessTriggers(sqlite3expert *p, char **pzErr){
   return rc;
 }
 
+/*
+** This function tests if the schema of the main database of database handle
+** db contains an object named zTab. Assuming no error occurs, output parameter
+** (*pbContains) is set to true if zTab exists, or false if it does not.
+**
+** Or, if an error occurs, an SQLite error code is returned. The final value
+** of (*pbContains) is undefined in this case.
+*/
+static int expertDbContainsObject(
+  sqlite3 *db, 
+  const char *zTab, 
+  int *pbContains                 /* OUT: True if object exists */
+){
+  const char *zSql = "SELECT 1 FROM sqlite_schema WHERE name = ?";
+  sqlite3_stmt *pSql = 0;
+  int rc = SQLITE_OK;
+  int ret = 0;
+
+  rc = sqlite3_prepare_v2(db, zSql, -1, &pSql, 0);
+  if( rc==SQLITE_OK ){
+    sqlite3_bind_text(pSql, 1, zTab, -1, SQLITE_STATIC);
+    if( SQLITE_ROW==sqlite3_step(pSql) ){
+      ret = 1;
+    }
+    rc = sqlite3_finalize(pSql);
+  }
+
+  *pbContains = ret;
+  return rc;
+}
+
+/*
+** Execute SQL command zSql using database handle db. If no error occurs,
+** set (*pzErr) to NULL and return SQLITE_OK. 
+**
+** If an error does occur, return an SQLite error code and set (*pzErr) to
+** point to a buffer containing an English language error message. Except,
+** if the error message begins with "no such module:", then ignore the
+** error and return as if the SQL statement had succeeded.
+**
+** This is used to copy as much of the database schema as possible while 
+** ignoring any errors related to missing virtual table modules.
+*/
+static int expertSchemaSql(sqlite3 *db, const char *zSql, char **pzErr){
+  int rc = SQLITE_OK;
+  char *zErr = 0;
+
+  rc = sqlite3_exec(db, zSql, 0, 0, &zErr);
+  if( rc!=SQLITE_OK && zErr ){
+    int nErr = STRLEN(zErr);
+    if( nErr>=15 && memcmp(zErr, "no such module:", 15)==0 ){
+      sqlite3_free(zErr);
+      rc = SQLITE_OK;
+      zErr = 0;
+    }
+  }
+
+  *pzErr = zErr;
+  return rc;
+}
 
 static int idxCreateVtabSchema(sqlite3expert *p, char **pzErrmsg){
   int rc = idxRegisterVtab(p);
@@ -14081,22 +14141,29 @@ static int idxCreateVtabSchema(sqlite3expert *p, char **pzErrmsg){
   **   2) Create the equivalent virtual table in dbv.
   */
   rc = idxPrepareStmt(p->db, &pSchema, pzErrmsg,
-      "SELECT type, name, sql, 1 FROM sqlite_schema "
+      "SELECT type, name, sql, 1, sql LIKE 'create virtual%' "
+      "FROM sqlite_schema "
       "WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%%' "
       " UNION ALL "
-      "SELECT type, name, sql, 2 FROM sqlite_schema "
+      "SELECT type, name, sql, 2, 0 FROM sqlite_schema "
       "WHERE type = 'trigger'"
       "  AND tbl_name IN(SELECT name FROM sqlite_schema WHERE type = 'view') "
-      "ORDER BY 4, 1"
+      "ORDER BY 4, 5 DESC, 1"
   );
   while( rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pSchema) ){
     const char *zType = (const char*)sqlite3_column_text(pSchema, 0);
     const char *zName = (const char*)sqlite3_column_text(pSchema, 1);
     const char *zSql = (const char*)sqlite3_column_text(pSchema, 2);
+    int bVirtual = sqlite3_column_int(pSchema, 4);
+    int bExists = 0;
 
     if( zType==0 || zName==0 ) continue;
-    if( zType[0]=='v' || zType[1]=='r' ){
-      if( zSql ) rc = sqlite3_exec(p->dbv, zSql, 0, 0, pzErrmsg);
+    rc = expertDbContainsObject(p->dbv, zName, &bExists);
+    if( rc || bExists ) continue;
+
+    if( zType[0]=='v' || zType[1]=='r' || bVirtual ){
+      /* A view. Or a trigger on a view. */
+      if( zSql ) rc = expertSchemaSql(p->dbv, zSql, pzErrmsg);
     }else{
       IdxTable *pTab;
       rc = idxGetTableInfo(p->db, zName, &pTab, pzErrmsg);
@@ -14635,12 +14702,18 @@ sqlite3expert *sqlite3_expert_new(sqlite3 *db, char **pzErrmsg){
   if( rc==SQLITE_OK ){
     sqlite3_stmt *pSql = 0;
     rc = idxPrintfPrepareStmt(pNew->db, &pSql, pzErrmsg, 
-        "SELECT sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%%'"
-        " AND sql NOT LIKE 'CREATE VIRTUAL %%' ORDER BY rowid"
+        "SELECT sql, name "
+        " FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%%'"
+        " ORDER BY rowid"
     );
     while( rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pSql) ){
       const char *zSql = (const char*)sqlite3_column_text(pSql, 0);
-      if( zSql ) rc = sqlite3_exec(pNew->dbm, zSql, 0, 0, pzErrmsg);
+      const char *zName = (const char*)sqlite3_column_text(pSql, 1);
+      int bExists = 0;
+      rc = expertDbContainsObject(pNew->dbm, zName, &bExists);
+      if( rc==SQLITE_OK && zSql && bExists==0 ){
+        rc = expertSchemaSql(pNew->dbm, zSql, pzErrmsg);
+      }
     }
     idxFinalize(&rc, pSql);
   }
@@ -19074,7 +19147,7 @@ static const char *recoverUnusedString(
 }
 
 /*
-** Implementation of scalar SQL function "escape_crnl".  The argument passed to
+** Implementation of scalar SQL function "escape_crlf".  The argument passed to
 ** this function is the output of built-in function quote(). If the first
 ** character of the input is "'", indicating that the value passed to quote()
 ** was a text value, then this function searches the input for "\n" and "\r"
@@ -19085,7 +19158,7 @@ static const char *recoverUnusedString(
 ** Or, if the first character of the input is not "'", then a copy of the input
 ** is returned.
 */
-static void recoverEscapeCrnl(
+static void recoverEscapeCrlf(
   sqlite3_context *context, 
   int argc, 
   sqlite3_value **argv
@@ -19300,7 +19373,7 @@ static int recoverOpenOutput(sqlite3_recover *p){
     { "getpage", 1, recoverGetPage },
     { "page_is_used", 1, recoverPageIsUsed },
     { "read_i32", 2, recoverReadI32 },
-    { "escape_crnl", 1, recoverEscapeCrnl },
+    { "escape_crlf", 1, recoverEscapeCrlf },
   };
 
   const int flags = SQLITE_OPEN_URI|SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE;
@@ -19653,7 +19726,7 @@ static sqlite3_stmt *recoverInsertStmt(
 
       if( bSql ){
         zBind = recoverMPrintf(p, 
-            "%z%sescape_crnl(quote(?%d))", zBind, zSqlSep, pTab->aCol[ii].iBind
+            "%z%sescape_crlf(quote(?%d))", zBind, zSqlSep, pTab->aCol[ii].iBind
         );
         zSqlSep = "||', '||";
       }else{
@@ -21270,7 +21343,7 @@ struct ShellState {
   u8 bSafeMode;          /* True to prohibit unsafe operations */
   u8 bSafeModePersist;   /* The long-term value of bSafeMode */
   u8 eRestoreState;      /* See comments above doAutoDetectRestore() */
-  u8 crnlMode;           /* Do NL-to-CRLF translations when enabled (maybe) */
+  u8 crlfMode;           /* Do NL-to-CRLF translations when enabled (maybe) */
   ColModeOpts cmOpts;    /* Option values affecting columnar mode output */
   unsigned statsOn;      /* True to display memory stats before each finalize */
   unsigned mEqpLines;    /* Mask of vertical lines in the EQP output graph */
@@ -21451,7 +21524,7 @@ static const char *modeDescr[] = {
 #define SEP_Tab       "\t"
 #define SEP_Space     " "
 #define SEP_Comma     ","
-#define SEP_CrLf      "\n"   /* Use ".crnl on" to get \r\n line endings */
+#define SEP_CrLf      "\r\n"
 #define SEP_Unit      "\x1F"
 #define SEP_Record    "\x1E"
 
@@ -21536,7 +21609,7 @@ static void editFunc(
   char *zCmd = 0;
   int bBin;
   int rc;
-  int hasCRNL = 0;
+  int hasCRLF = 0;
   FILE *f = 0;
   sqlite3_int64 sz;
   sqlite3_int64 x;
@@ -21581,7 +21654,7 @@ static void editFunc(
   }else{
     const char *z = (const char*)sqlite3_value_text(argv[0]);
     /* Remember whether or not the value originally contained \r\n */
-    if( z && strstr(z,"\r\n")!=0 ) hasCRNL = 1;
+    if( z && strstr(z,"\r\n")!=0 ) hasCRLF = 1;
     x = fwrite(sqlite3_value_text(argv[0]), 1, (size_t)sz, f);
   }
   fclose(f);
@@ -21626,7 +21699,7 @@ static void editFunc(
     sqlite3_result_blob64(context, p, sz, sqlite3_free);
   }else{
     sqlite3_int64 i, j;
-    if( hasCRNL ){
+    if( hasCRLF ){
       /* If the original contains \r\n then do no conversions back to \n */
     }else{
       /* If the file did not originally contain \r\n then convert any new
@@ -21671,13 +21744,15 @@ static void outputModePop(ShellState *p){
 /*
 ** Set output mode to text or binary for Windows.
 */
-static void setCrnlMode(ShellState *p){
+static void setCrlfMode(ShellState *p){
 #ifdef _WIN32
-  if( p->crnlMode ){
+  if( p->crlfMode ){
     sqlite3_fsetmode(p->out, _O_TEXT);
   }else{
     sqlite3_fsetmode(p->out, _O_BINARY);
   }
+#else
+  UNUSED_PARAMETER(p);
 #endif    
 }
 
@@ -21760,7 +21835,7 @@ static void output_quoted_string(ShellState *p, const char *z){
     }
     sqlite3_fputs("'", out);
   }
-  setCrnlMode(p);
+  setCrlfMode(p);
 }
 
 /*
@@ -21828,7 +21903,7 @@ static void output_quoted_escaped_string(ShellState *p, const char *z){
       sqlite3_fprintf(out, ",'%s',char(10))", zNL);
     }
   }
-  setCrnlMode(p);
+  setCrlfMode(p);
 }
 
 /*
@@ -22617,23 +22692,15 @@ static int shell_callback(
         for(i=0; i<nArg; i++){
           output_csv(p, azCol[i] ? azCol[i] : "", i<nArg-1);
         }
-        if( p->crnlMode && cli_strcmp(p->rowSeparator,SEP_CrLf)==0 ){
-          sqlite3_fputs("\r\n", p->out);
-        }else{
-          sqlite3_fputs(p->rowSeparator, p->out);
-        }
+        sqlite3_fputs(p->rowSeparator, p->out);
       }
       if( nArg>0 ){
         for(i=0; i<nArg; i++){
           output_csv(p, azArg[i], i<nArg-1);
         }
-        if( p->crnlMode && cli_strcmp(p->rowSeparator,SEP_CrLf)==0 ){
-          sqlite3_fputs("\r\n", p->out);
-        }else{
-          sqlite3_fputs(p->rowSeparator, p->out);
-        }
+        sqlite3_fputs(p->rowSeparator, p->out);
       }
-      setCrnlMode(p);
+      setCrlfMode(p);
       break;
     }
     case MODE_Insert: {
@@ -24591,7 +24658,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azNotUsed){
   noSys    = (p->shellFlgs & SHFLG_DumpNoSys)!=0;
 
   if( cli_strcmp(zTable, "sqlite_sequence")==0 && !noSys ){
-    if( !dataOnly ) sqlite3_fputs("DELETE FROM sqlite_sequence;\n", p->out);
+    /* no-op */
   }else if( sqlite3_strglob("sqlite_stat?", zTable)==0 && !noSys ){
     if( !dataOnly ) sqlite3_fputs("ANALYZE sqlite_schema;\n", p->out);
   }else if( cli_strncmp(zTable, "sqlite_", 7)==0 ){
@@ -24776,7 +24843,7 @@ static const char *(azHelp[]) = {
   ".clone NEWDB             Clone data into NEWDB from the existing database",
 #endif
   ".connection [close] [#]  Open or close an auxiliary database connection",
-  ".crnl on|off             Translate \\n to \\r\\n sometimes.  Default OFF",
+  ".crlf ?on|off?           Whether or not to use \\r\\n line endings",
   ".databases               List names and files of attached databases",
   ".dbconfig ?op? ?val?     List or change sqlite3_db_config() options",
 #if SQLITE_SHELL_HAVE_RECOVER
@@ -26257,7 +26324,7 @@ static void output_redir(ShellState *p, FILE *pfNew){
     sqlite3_fputs("Output already redirected.\n", stderr);
   }else{
     p->out = pfNew;
-    setCrnlMode(p);
+    setCrlfMode(p);
     if( p->mode==MODE_Www ){
       sqlite3_fputs(
         "<!DOCTYPE html>\n"
@@ -26313,7 +26380,7 @@ static void output_reset(ShellState *p){
   }
   p->outfile[0] = 0;
   p->out = stdout;
-  setCrnlMode(p);
+  setCrlfMode(p);
 }
 #else
 # define output_redir(SS,pfO)
@@ -28266,7 +28333,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
   }else
 
-  /* Undocumented.  Legacy only.  See "crnl" below */
+  /* Undocumented.  Legacy only.  See "crlf" below */
   if( c=='b' && n>=3 && cli_strncmp(azArg[0], "binary", n)==0 ){
     eputz("The \".binary\" command is deprecated.\n");
     rc = 1;
@@ -28394,14 +28461,18 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
   }else
 
-  if( c=='c' && n==4 && cli_strncmp(azArg[0], "crnl", n)==0 ){
+  if( c=='c' && n==4
+   && (cli_strncmp(azArg[0], "crlf", n)==0
+       || cli_strncmp(azArg[0], "crnl",n)==0)
+  ){
     if( nArg==2 ){
-      p->crnlMode = booleanValue(azArg[1]);
-      setCrnlMode(p);
-    }else{
-      sqlite3_fprintf(stderr, "crnl is currently %s\n",
-                      p->crnlMode ? "ON" : "OFF");
+#ifdef _WIN32
+      p->crlfMode = booleanValue(azArg[1]);
+#else
+      p->crlfMode = 0;
+#endif
     }
+    sqlite3_fprintf(stderr, "crlf is %s\n", p->crlfMode ? "ON" : "OFF");
   }else
 
   if( c=='d' && n>1 && cli_strncmp(azArg[0], "databases", n)==0 ){
@@ -32421,6 +32492,9 @@ static void main_init(ShellState *data) {
   memset(data, 0, sizeof(*data));
   data->normalMode = data->cMode = data->mode = MODE_List;
   data->autoExplain = 1;
+#ifdef _WIN32
+  data->crlfMode = 1;
+#endif
   data->pAuxDb = &data->aAuxDb[0];
   memcpy(data->colSeparator,SEP_Column, 2);
   memcpy(data->rowSeparator,SEP_Row, 2);
@@ -32434,16 +32508,6 @@ static void main_init(ShellState *data) {
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
   sqlite3_snprintf(sizeof(mainPrompt), mainPrompt,"sqlite> ");
   sqlite3_snprintf(sizeof(continuePrompt), continuePrompt,"   ...> ");
-
-  /* By default, come up in O_BINARY mode.  That way, the default output is
-  ** the same for Windows and non-Windows systems.  Use the ".crnl on"
-  ** command to change into O_TEXT mode to do automatic NL-to-CRLF
-  ** conversions on output for Windows.
-  **
-  ** End-of-line marks on CVS output is CRLF when in .crnl is on and
-  ** NL when .crnl is off.
-  */
-  data->crnlMode = 0;
 }
 
 /*

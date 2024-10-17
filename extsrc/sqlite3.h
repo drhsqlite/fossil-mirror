@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.47.0"
 #define SQLITE_VERSION_NUMBER 3047000
-#define SQLITE_SOURCE_ID      "2024-10-11 23:31:37 2db24c5364808008fa503f37ca8ccf5d135e8f6bfac2efb29e509e26f7190470"
+#define SQLITE_SOURCE_ID      "2024-10-17 13:29:49 b7814350381a2929e9fa6444867a80437291b8bbe59479d4525350b2719bc72c"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4232,7 +4232,7 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** is the number of bytes in the input string <i>including</i>
 ** the nul-terminator.
 ** Note that nByte measure the length of the input in bytes, not
-** characters, even for the UTF-16 inferfaces.
+** characters, even for the UTF-16 interfaces.
 **
 ** ^If pzTail is not NULL then *pzTail is made to point to the first byte
 ** past the end of the first SQL statement in zSql.  These routines only
@@ -9344,6 +9344,16 @@ typedef struct sqlite3_backup sqlite3_backup;
 ** APIs are not strictly speaking threadsafe. If they are invoked at the
 ** same time as another thread is invoking sqlite3_backup_step() it is
 ** possible that they return invalid values.
+**
+** <b>Alternatives To Using The Backup API</b>
+**
+** Other techniques for safely creating a consistent backup of an SQLite
+** database include:
+**
+** <ul>
+** <li> The [VACUUM INTO] command.
+** <li> The [sqlite3_rsync] utility program.
+** </ul>
 */
 SQLITE_API sqlite3_backup *sqlite3_backup_init(
   sqlite3 *pDest,                        /* Destination database handle */
