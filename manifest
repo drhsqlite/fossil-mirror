@@ -1,5 +1,5 @@
-C Merge\sbrickviking's\sdocumentation\stypo\sfixes\sto\strunk.
-D 2024-10-17T16:54:26.467
+C Create\snew\sbranch\snamed\s"bv-corrections01"
+D 2024-10-17T21:00:50.147
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -960,8 +960,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d0730da076b93045bdbd126a29e6f55c8f3f3caec72ea05e07340c39392715f7 09777bc2247437c9b1a28dd74761dbd7572b37fd0d36cc8db4e856103240aa35
+P efd79f87f55bcfafb3ac8336d71951f2e9f154b48d0f560e0e8fee96dcc00fb7
 R a02aae737f15f0be9858ba5a2dba00af
-U drh
-Z b53a2680425fa0f1e1a81c392adb8f5c
+T *branch * bv-corrections01
+T *sym-bv-corrections01 *
+T -sym-trunk *
+U viking
+Z 50683a509ccfb351c5a7100e6685de4a
 # Remove this line to create a well-formed Fossil manifest.
