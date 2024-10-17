@@ -1,5 +1,5 @@
-C [Grammar]\sconcepts.wiki\schanges.
-D 2024-10-17T05:39:45.311
+C [Grammar]\scontribute.wiki\schanges.
+D 2024-10-17T07:14:42.811
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -797,7 +797,7 @@ F www/colordiff.md 6f16b0907fb766bf6de861f65727b7ac314f39c903fab72f1cb83f48f4faf
 F www/concepts.wiki adfd20e1b92857bb4a100ed041cd94ca2bd6b3ebc4e6129675aa36fb1c19cbe9
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
 F www/containers.md e38fa1b6daeeb53c69ae0814d75bd31dae633b2c6f6d48c0e9b034df72a75288
-F www/contribute.wiki 62d46875895a7e4b503cb39cfb83e84b882252334804a1568c04cd3963d0c617
+F www/contribute.wiki fe38a7aae20f715e722d2764c94f699c7f53c8a374ac7ba25698637c2b385b89
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 4c9646386ffd98790c703503b08797d567687d3e8f07bcb03d5a54f44a2f6ffb
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42e3cf5aaf4915713f95c8ec51c20b542ead82052a5d2fa9543ba9bc65dbd662
-R f0d698b85f302f3ae26e6b08fc9659e8
+P 0ae6ba539cb3f23011f3ef449be54cda14a68fa977758ee3d0b4ea7c38982d97
+R 7c4e85c2f928e9e0a825e088de2aeb94
 U brickviking
-Z cf250718b6268ce5242115aa0eed653a
+Z 1432a5eab32eaaf32ab9ffd16df95bba
 # Remove this line to create a well-formed Fossil manifest.
