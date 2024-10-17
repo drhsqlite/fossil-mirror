@@ -39,7 +39,7 @@ preprocessors with all the right arguments and in the right order.  So it is
 not necessary to understand the details of how these preprocessors work.
 (Though, the sources for all three preprocessors are included in the source
 tree and are well commented, if you want to dig deeper.)  It is only necessary
-to know that these preprocessors exist and hence will effect the way you
+to know that these preprocessors exist and hence will affect the way you
 write code.
 
 <h2>3.0 Adding New Source Code Files</h2>
@@ -100,7 +100,7 @@ information.
 
 After creating a template file such as shown above, and after updating
 the makefiles, you should be able to recompile Fossil and have it include
-your new source file, even before you source file contains any code.
+your new source file, even before your source file contains any code.
 It is recommended that you try this.
 
 Be sure to [/help/add|fossil add] your new source file to the self-hosting
@@ -214,7 +214,7 @@ non-HTML content, look at existing webpage implementations
 (ex: "logo" or "style.css") to see how that is done.
 
 There are lots of other things that a real web-page implementation will
-need to do, such verifying user credentials, parsing query parameters,
+need to do, such as verifying user credentials, parsing query parameters,
 and interacting with the repository.  But now that you have the general
 idea of how webpages are implemented, you can look at the many other
 webpage implementations already built into Fossil to see how all that

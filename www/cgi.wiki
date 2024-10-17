@@ -15,7 +15,7 @@ script].  CGI is the technique that the three
 [./selfhost.wiki|self-hosting Fossil repositories] all use.
 
 Setting up a Fossil server using CGI is mostly about writing a short
-script (usually just 2 lines line) in the cgi-bin folder of an ordinary
+script (usually just 2 lines) in the cgi-bin folder of an ordinary
 web-server.  But there are a lot of extra options that can be added
 to this script, to customize the configuration.  This article describes
 those options.
@@ -193,7 +193,7 @@ http --jsmode]" for the allowed values and their meanings.
 <h2 id="mainmenu">mainmenu: <i>FILE</i></h2>
 
 This parameter causes the contents of the given file to override the
-site's <tt>mainmenu</tt> configuration setting, much in the same way
+site's <tt>mainmenu</tt> configuration setting, in much the same way
 that the <tt>skin</tt> setting overrides the skin. This can be used to
 apply a common main menu to a number of sites, and centrally maintain
 it, without having to copy its contents into each site. Note, however,

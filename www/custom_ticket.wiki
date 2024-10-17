@@ -111,8 +111,8 @@ Before the "Severity:" line, add this:
 That will give you a drop-down list of assignees. The first argument to the TH1
 command 'combobox' is the database field which the combobox is associated to.
 The next argument is the list of choices you want to show in the combobox (and
-that you specified in the second step above. The last argument should be 1 for a
-true combobox (see the <a href="th1.md#combobox">TH1 documentation</a> for
+that you specified in the second step above.) The last argument should be 1 for
+a true combobox (see the <a href="th1.md#combobox">TH1 documentation</a> for
 details).
 
 Now, similar to the previous
