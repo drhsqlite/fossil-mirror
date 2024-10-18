@@ -221,7 +221,7 @@ contains 3 properties:
   by Fossil (by its file extension).
 
 The event listener callback shown above doesn't use the `mimetype`,
-but makes used of the other two. It fishes all `code` blocks out of
+but makes use of the other two. It fishes all `code` blocks out of
 the preview which explicitly have a CSS class named
 `language-`something, and then asks highlightjs to highlight them.
 
