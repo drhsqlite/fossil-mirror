@@ -1,5 +1,5 @@
-C (Grammar)\sfileedit-page.md\schanges.
-D 2024-10-18T09:06:01.500
+C (Grammar)\sfileformat.wiki\schanges.
+D 2024-10-18T10:09:40.871
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -826,7 +826,7 @@ F www/event.wiki b2b5694047176815ed3701face7910e89bda204b07af878a16c04d8c6b3e08a
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
 F www/fileedit-page.md 49171074beb098684e0d156609a4d1cb4dbd31c5dccf2cc6f9a5e069ae301ad2
-F www/fileformat.wiki e03aac299cc392d9d34105f4d0dbbd75fdeffceb292d24955695dc55bc86a6a1
+F www/fileformat.wiki 24e81a24ca0acf48aafa65e3b45eaf07140dd762064e22b0591e77057e1adcab
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
 F www/forum.wiki cd4e1230640d1e5b1eb39e22b39397681c48052898d30ad8ec960563746ce3ec
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 98b9f5b5331f269014636ee6f9d432d1bd4f8f5631d17787be63d1bd195fe97e
-R 557575040e35c78fc2f257c109556a12
+P d44c25f235514502742b4c7f5636aaff614951f66190e4aedafde4639725b692
+R 6e580e11749fcf5caefb46afef907339
 U brickviking
-Z 08cdadc560ab0783e3920d35c4bf311a
+Z d8d4eb054305e41ae1dc1a0dd14a2ee9
 # Remove this line to create a well-formed Fossil manifest.
