@@ -1,5 +1,5 @@
-C (Grammar)\senv-opts.md\schanges.\sEnglish\sisn't\sentirely\slogical.
-D 2024-10-18T05:01:41.817
+C (Grammar)\sevent.wiki\schanges.
+D 2024-10-18T05:13:30.906
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -822,7 +822,7 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki e97cbf256e11b913298031503eda9042295865ab1ee2f6c5ae558cb091300fd7
 F www/env-opts.md fe9163f03b4502e0290a01ad5c7d2e1a9328f560aa373e16184be7232ff33813
-F www/event.wiki abbc834163b54136f49ae4fbfc0503a5a70115d915d4b435ed140a10f557958b
+F www/event.wiki b2b5694047176815ed3701face7910e89bda204b07af878a16c04d8c6b3e08ad
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
 F www/fileedit-page.md f4ee3720f76208c81a394f0765aadcf129cca5cc259068d624048079d90f9937
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b05d71a66f62e8c3c173c940fc94a3b13ae73dab4c427b02dc06db616f00aa8a
-R 28f1c3b4c953f62700cb62b2446a4d93
+P d556997670e25ae27564f2657664a64dc6d9d971bac9c3dad3c6cd73231dbe27
+R 66c7116c7e08457d0cbaf9d74c9a6082
 U viking
-Z 8e7070121f83e3cdab3fd15a2fdc43d7
+Z f4fe31e4281c379dff768ef4cfbba9b8
 # Remove this line to create a well-formed Fossil manifest.
