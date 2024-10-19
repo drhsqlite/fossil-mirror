@@ -1,5 +1,5 @@
-C (Typo)\sgrep.md\scorrection.\n\n
-D 2024-10-19T09:14:13.314
+C (Grammar)\shashpolicy.wiki\schange.\n\n
+D 2024-10-19T09:46:25.226
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -850,7 +850,7 @@ F www/grep.md d6cd46483d3598877477b488a4841d9f0ec86b6c853e355f35dfc999ce422d08
 F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c4888dc
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashes.md 0ad9fb7af0f21d16dde0062f7909765f9aac2005fe28ffcc7af6e616be5bbc3e
-F www/hashpolicy.wiki de49bc15473801c37306ae83419e6a7d80d77cc6b61b43d5c5c2486bee2f5f00
+F www/hashpolicy.wiki 7abfc804b535e7c1ff987fd69c4038b0e36f12994046f69a3fd9f7c13bfa8b60
 F www/hints.wiki 241f3d562a990bba37fdf6a9e66e4afb57ec0e865f990f257329a9f11a8e305a
 F www/history.md ec29ba623dceb4d162772bb6faa81a8fbdbff81f0d5c742e158d998d9a00aedb
 F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 248e05a7e1e462b68ad49ba1dcb5dfb7a7780a744e4b8512423c7f297ed950f7
-R 9e6d7a5aa627b949da0f03d910c902cb
+P d1788d5634384345c80d24fd8f097f399326f7f19c62a13869cb4434456b4217
+R 634e7874816aa2d151060676de673b14
 U brickviking
-Z b5a5723cf5a9e17784c7baf33093f907
+Z b3467277597fa22307040064f60cc63e
 # Remove this line to create a well-formed Fossil manifest.
