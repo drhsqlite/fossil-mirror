@@ -1,5 +1,5 @@
-C Rephrase\sinitial\sparagraph\sslightly.\n\n
-D 2024-10-19T01:08:25.393
+C Typos\sin\sfossil-vs-git.wiki\sare\svery\srare.\n\n\sGrammar\smistakes\sare\seven\srarer.\n
+D 2024-10-19T02:04:37.033
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -832,7 +832,7 @@ F www/forum.wiki c7b63aaa760046ccab564f54bfda038b01eb1684c1ee4fbc0a16706b23c14a9
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 0f2bca57d157a701f5222d0428ae4ed46f9e1a070a7adbabe8073a51c21a8687
-F www/fossil-v-git.wiki f9e5992e1da3c3948474ee96e929a2d9340660160e53d810982c33a4c01aa2fd
+F www/fossil-v-git.wiki b1be877a58f7e62cf747b77f7d0a62dd87fbd3a5125b720cbae4d5eeea0745e0
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20c4a2026e31881f81bea280138ffa167ecaed1cbbc311d6ad55cc2c91afc572
-R 1001754e0cee07fd9329a55f495ce116
+P 42f2e7a66f1b373b9cc0515c5c2b6d134288fce8418c12a6759de6edffaa01eb
+R b31a7ba631f9d32852d71d49462dca79
 U brickviking
-Z d82ee24b5f6e180f68c13ac1baadd195
+Z 89ec3c3d1fc289edf66bef7ba320b933
 # Remove this line to create a well-formed Fossil manifest.
