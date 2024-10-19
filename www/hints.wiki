@@ -10,7 +10,7 @@ A collection of useful hints and tricks in no particular order:
       window containing a complete side-by-side diff.  (NB:  The pop-up
       window is run as a separate Tcl/Tk process, so you will need to
       have Tcl/Tk installed on your machine for this to work.  Visit
-      [http://www.activestate.com/activetcl] to for a quick download of
+      [http://www.activestate.com/activetcl] for a quick download of
       Tcl/Tk if you do not already have it on your system.)
 
   3.  The "[/help/clean | fossil clean -x]" command is a great
