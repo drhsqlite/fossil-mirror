@@ -295,24 +295,49 @@ void win32_getcwd(char *zBuf, int nBuf){
 
 /* Perform case-insensitive comparison of two UTF-16 file names. Try to load the
 ** CompareStringOrdinal() function on Windows Vista and newer, and resort to the
-** lstrcmpiW() function on Windows XP.
+** RtlEqualUnicodeString() function on Windows XP.
+** The dance to invoke RtlEqualUnicodeString() is necessary because lstrcmpiW()
+** performs linguistic comparison, while the former performs binary comparison.
+** As an example, matching "ß" (U+00DF Latin Small Letter Sharp S) with "ss" is
+** undesirable in file name comparison, so lstrcmpiW() is only invoked in cases
+** that are technically impossible and contradicting all known laws of physics.
 */
-int win32_compare_filenames_nocase(
+int win32_filenames_equal_nocase(
   const wchar_t *fn1,
   const wchar_t *fn2
 ){
   static FARPROC fnCompareStringOrdinal;
-  static int tried_CompareStringOrdinal;
-  if( !tried_CompareStringOrdinal ){
+  static FARPROC fnRtlInitUnicodeString;
+  static FARPROC fnRtlEqualUnicodeString;
+  static int loaded_CompareStringOrdinal;
+  static int loaded_RtlUnicodeStringAPIs;
+  if( !loaded_CompareStringOrdinal ){
     fnCompareStringOrdinal =
       GetProcAddress(GetModuleHandleA("kernel32"),"CompareStringOrdinal");
-    tried_CompareStringOrdinal = 1;
+    loaded_CompareStringOrdinal = 1;
   }
   if( fnCompareStringOrdinal ){
-    return -2 + fnCompareStringOrdinal(fn1,-1,fn2,-1,1);
-  }else{
-    return lstrcmpiW(fn1,fn2);
+    return fnCompareStringOrdinal(fn1,-1,fn2,-1,1)-2==0;
   }
+  if( !loaded_RtlUnicodeStringAPIs ){
+    fnRtlInitUnicodeString =
+      GetProcAddress(GetModuleHandleA("ntdll"),"RtlInitUnicodeString");
+    fnRtlEqualUnicodeString =
+      GetProcAddress(GetModuleHandleA("ntdll"),"RtlEqualUnicodeString");
+    loaded_RtlUnicodeStringAPIs = 1;
+  }
+  if( fnRtlInitUnicodeString && fnRtlEqualUnicodeString ){
+    struct { /* UNICODE_STRING from <ntdef.h> */
+      unsigned short Length;
+      unsigned short MaximumLength;
+      wchar_t *Buffer;
+    } u1, u2;
+    fnRtlInitUnicodeString(&u1,fn1);
+    fnRtlInitUnicodeString(&u2,fn2);
+    return (unsigned char)fnRtlEqualUnicodeString(&u1,&u2,1);
+  }
+  /* In what kind of strange parallel universe are we? */
+  return lstrcmpiW(fn1,fn2)==0;
 }
 
 /* Helper macros to deal with directory separators. */
@@ -349,14 +374,24 @@ char *win32_file_case_preferred_name(
   const char *zBase,
   const char *zPath
 ){
-  int cchBase = strlen(zBase);
-  int cchPath = strlen(zPath);
-  int cchBuf = cchBase + cchPath + 2; /* + NULL + optional directory slash */
-  int cchRes = cchPath + 1;           /* + NULL */
-  char *zBuf = fossil_malloc(cchBuf);
-  char *zRes = fossil_malloc(cchRes);
-  int ncUsed = 0;
+  int cchBase;
+  int cchPath;
+  int cchBuf;
+  int cchRes;
+  char *zBuf;
+  char *zRes;
+  int ncUsed;
   int i, j;
+  if( filenames_are_case_sensitive() ){
+    return fossil_strdup(zPath);
+  }
+  cchBase = strlen(zBase);
+  cchPath = strlen(zPath);
+  cchBuf = cchBase + cchPath + 2; /* + NULL + optional directory slash */
+  cchRes = cchPath + 1;           /* + NULL */
+  zBuf = fossil_malloc(cchBuf);
+  zRes = fossil_malloc(cchRes);
+  ncUsed = 0;
   memcpy(zBuf,zBase,cchBase);
   if( !IS_DIRSEP(zBuf,cchBase-1) ){
     zBuf[cchBase++]=L'/';
@@ -374,6 +409,10 @@ char *win32_file_case_preferred_name(
     int fDone;
     if( IS_DIRSEP(zBuf,i) ){
       zRes[ncUsed++] = zBuf[i];
+      if( ncUsed+2>cchRes ){  /* Directory slash + NULL*/
+        cchRes += 32;         /* Overprovisioning. */
+        zRes = fossil_realloc(zRes,cchRes);
+      }
       i = j = i+1;
       continue;
     }
@@ -387,7 +426,7 @@ char *win32_file_case_preferred_name(
       wchar_t *wzComp = fossil_utf8_to_path(zComp,0);
       FindClose(hFind);
       /* Test fd.cFileName, not fd.cAlternateFileName (classic 8.3 format). */
-      if( win32_compare_filenames_nocase(wzComp,fd.cFileName)==0 ){
+      if( win32_filenames_equal_nocase(wzComp,fd.cFileName) ){
         zCompBuf = fossil_path_to_utf8(fd.cFileName);
         zComp = zCompBuf;
       }
@@ -395,8 +434,8 @@ char *win32_file_case_preferred_name(
     }
     fossil_path_free(wzBuf);
     cchComp = strlen(zComp);
-    if( ncUsed+cchComp+1>cchRes ){
-      cchRes = ncUsed + cchComp + 32; /* While at it, add some extra space. */
+    if( ncUsed+cchComp+1>cchRes ){  /* Current component + NULL */
+      cchRes += cchComp + 32;       /* Overprovisioning. */
       zRes = fossil_realloc(zRes,cchRes);
     }
     memcpy(zRes+ncUsed,zComp,cchComp);
