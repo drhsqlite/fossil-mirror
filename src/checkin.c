@@ -432,6 +432,7 @@ static int determine_cwd_relative_option()
 **
 ** General options:
 **    --abs-paths       Display absolute pathnames
+**    -b|--brief        Show a single keyword for the status
 **    --rel-paths       Display pathnames relative to the current working
 **                      directory
 **    --hash            Verify file status using hashing rather than
@@ -495,6 +496,44 @@ void status_cmd(void){
   int vid, i;
 
   fossil_pledge("stdio rpath wpath cpath fattr id flock tty chown");
+
+  if( find_option("brief","b",0) ){
+    /* The --brief or -b option is special.  It cannot be used with any
+    ** other options.  It outputs a single keyword which indicates the
+    ** fossil status, for use by shell scripts.  The output might be
+    ** one of:
+    **
+    **     clean         The current working directory is within a
+    **                   unmodified fossil check-out.
+    **
+    **     dirty         The pwd is within a fossil check-out that has
+    **                   uncommitted changes
+    **
+    **     none          The pwd is not within a fossil check-out.
+    */
+    int chnged;
+    if( g.argc>2 ){
+      fossil_fatal("No other arguments or options may occur with --brief");
+    }
+    if( db_open_local(0)==0 ){
+      fossil_print("none\n");
+      return;
+    }
+    vid = db_lget_int("checkout", 0);
+    vfile_check_signature(vid, 0);
+    chnged = db_int(0,
+      "SELECT 1 FROM vfile"
+      " WHERE vid=%d"
+      "   AND (chnged>0 OR deleted OR rid==0)",
+      vid
+    );
+    if( chnged ){
+      fossil_print("dirty\n");
+    }else{
+      fossil_print("clean\n");
+    }
+    return;
+  }
 
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
