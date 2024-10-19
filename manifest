@@ -1,5 +1,5 @@
-C (Grammar)\sfossil_prompt.wiki\schanges.\n\n
-D 2024-10-18T10:44:27.817
+C Rephrase\sinitial\sparagraph\sslightly.\n\n
+D 2024-10-19T01:08:25.393
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -825,7 +825,7 @@ F www/env-opts.md fe9163f03b4502e0290a01ad5c7d2e1a9328f560aa373e16184be7232ff338
 F www/event.wiki b2b5694047176815ed3701face7910e89bda204b07af878a16c04d8c6b3e08ad
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
-F www/fileedit-page.md 49171074beb098684e0d156609a4d1cb4dbd31c5dccf2cc6f9a5e069ae301ad2
+F www/fileedit-page.md 4611d0f3f9520358c1cca55ff5f9b40fbf3c49ab7dd937bea56ee415516ec43b
 F www/fileformat.wiki 24e81a24ca0acf48aafa65e3b45eaf07140dd762064e22b0591e77057e1adcab
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
 F www/forum.wiki c7b63aaa760046ccab564f54bfda038b01eb1684c1ee4fbc0a16706b23c14a9a
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 21bebbae1c7b6bbfec82bf4fdd1ed0e129251c396df4a1c91dc10caa2dc33b58
-R 75e327910e0f1bfabd33ef66a2e12888
+P 20c4a2026e31881f81bea280138ffa167ecaed1cbbc311d6ad55cc2c91afc572
+R 1001754e0cee07fd9329a55f495ce116
 U brickviking
-Z f7121d890e1bbcf6a65497e1e7b7043d
+Z d82ee24b5f6e180f68c13ac1baadd195
 # Remove this line to create a well-formed Fossil manifest.

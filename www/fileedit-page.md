@@ -2,8 +2,8 @@
 
 This document describes the limitations of, caveats for, and
 disclaimers for the [](/fileedit) page, which provides users with
-[checkin privileges](./caps/index.md) basic editing features for files
-via the web interface.
+ basic editing features for files via the web interface when they
+ have [checkin privileges](./caps/index.md).
 
 # Important Caveats and Disclaimers
 
