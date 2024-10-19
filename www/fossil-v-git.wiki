@@ -863,7 +863,7 @@ as this author is aware, but there is now
 | a competing SHA-256 based plan] which requires complete repository
 conversion from SHA-1 to SHA-256, breaking all public hashes in the
 repo. One way to characterize such a massive upheaval in Git terms is a
-whole-project rebase, which violates
+whole-project rebase, which violates the
 [https://www.atlassian.com/git/tutorials/merging-vs-rebasing#the-golden-rule-of-rebasing|Golden Rule of Rebasing].
 
 Regardless of the eventual implementation details, we fully expect Git

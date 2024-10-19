@@ -470,7 +470,7 @@ the browser is launched pointing at the web server started by `fossil
 ui` listening on a private TCP port.
 
 On all platforms, if the local or global settings `web-browser` is
-set, that is the command used to open an URL.
+set, that is the command used to open a URL.
 
 Otherwise, the specific actions vary by platform.
 
@@ -478,11 +478,11 @@ On Unix-like platforms other than Apple's, it looks for the first
 program from the list `xdg-open`, `gnome-open`, `firefox`, and
 `google-chrome` that it can find on the `PATH`.
 
-On Apple platforms, it assumes that `open` is the command to open an
+On Apple platforms, it assumes that `open` is the command to open a
 URL in the user's configured default browser.
 
 On Windows platforms, it assumes that `start` is the command to open
-an URL in the user's configured default browser.
+a URL in the user's configured default browser.
 
 [configdb]: ./tech_overview.wiki#configdb
 [configloc]: ./tech_overview.wiki#configloc
