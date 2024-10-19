@@ -503,7 +503,7 @@ void status_cmd(void){
     ** fossil status, for use by shell scripts.  The output might be
     ** one of:
     **
-    **     clean         The current working directory is within a
+    **     clean         The current working directory is within an
     **                   unmodified fossil check-out.
     **
     **     dirty         The pwd is within a fossil check-out that has

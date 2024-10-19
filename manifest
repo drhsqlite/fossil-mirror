@@ -1,5 +1,5 @@
-C Merged\sfrom\strunk.
-D 2024-10-19T21:11:58.943
+C (Grammar)\stiny\scomment\schange\sin\ssrc/checkin.c
+D 2024-10-19T21:15:04.663
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -397,7 +397,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c b791622afb8c8c5d3ea3fb40372b04e8d16af4e7595a394fe850dac8277b13b0
 F src/chat.c ecc49bf32d2858dcea409d90ffb6b828da89ec080790abc6972750d6ca456fa3
-F src/checkin.c 7a4ff1caa94033132a1ff8f0b6ce8c150e9a8e449727e6981a5c36a98fe05d8f
+F src/checkin.c afe5b74b5b78eae6a20f5d33f2d3a0040512b5d93a5b119c7e4fabdf90951fe6
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2fa907ecad2af67ccd6d23a0ec0405d52503a1f31475eba03aced8940eab5055 514149fc5b78e61c75cde72bef95d78f18983d6170ef0c65b0e2a31fff55c02c
-R 2698210f9b74b5dc8851881cb59e8b4e
+P 5155a1c1d7043a69c4dfb8822535dc3eead3e33ecc3e01c13560afe0c3feebd1
+R 39828859beefaf15cc3bc1ab8849a7c8
 U brickviking
-Z c6d9c4dd9ea76ec6c3a8d64ba93218ba
+Z e0482d00f3b6c1503c778bdf5e1386f4
 # Remove this line to create a well-formed Fossil manifest.
