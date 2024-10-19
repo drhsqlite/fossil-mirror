@@ -75,7 +75,7 @@ history of that project being a valuable record.
     try to use Fossil as a system deployment tool by archiving versions
     of the OS configuration files and then unpacking them on a new
     system, the extracted project files would have read/write access by
-    the user who did the extraction, which probably isn’t want you were
+    the user who did the extraction, which probably isn’t what you were
     wanting.
 
     Even with these problems aside, do you really want a `.fslckout`
