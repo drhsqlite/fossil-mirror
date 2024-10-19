@@ -1,5 +1,5 @@
-C Typos\sin\sfossil-vs-git.wiki\sare\svery\srare.\n\n\sGrammar\smistakes\sare\seven\srarer.\n
-D 2024-10-19T02:04:37.033
+C (Grammar)\sgitusers.md\s-\sExpand\sa\scolloquial\sterm.\n\n
+D 2024-10-19T04:06:05.085
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -843,7 +843,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
 F www/fossil_prompt.wiki 1aa5ff0096c0d861d15472d58bb27427c0e44ce86316edcd0fd58cc1cb24b346
-F www/gitusers.md 3e4b91fc002eb49ec78a4582f3fb37810ed7e9b99fd5198ffb3c7ab159ce3915
+F www/gitusers.md 64557c5b8d5e95b23357922eb80626b686f0e8a67a633fd18c1832b5667ec1b9
 F www/globs.md ff40b819c050a7f5e96eface5ba10f9926e4a7e809d6f27462a2aeda2eb4cdb0
 F www/glossary.md ad08c38c08ef11000fbe19980b79b152698478413bb27cced12d85c6b50e2774
 F www/grep.md f204b91b0ef4c49314a70606968609609df6e90255391d4d1208381bc1ecdc06
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42f2e7a66f1b373b9cc0515c5c2b6d134288fce8418c12a6759de6edffaa01eb
-R b31a7ba631f9d32852d71d49462dca79
+P 3fcd5bd44270c4cc6ee42ae5322bc13b3451bc3251b31a1021e0bac236fb3d3a
+R f453226b0c3b52ea24694cd3920a600e
 U brickviking
-Z 89ec3c3d1fc289edf66bef7ba320b933
+Z 29c75bb6d8b69faa372482b2e651e74d
 # Remove this line to create a well-formed Fossil manifest.

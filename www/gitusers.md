@@ -775,7 +775,7 @@ hashes.)
 In this scheme, Alice then needs to say “`fossil update trunk`” in order
 to return her check-out’s parent commit to the previous version lest her
 next attempted commit land atop this mistake branch. The fact that Bob
-marked the branch as closed will prevent that from going thru, cluing
+marked the branch as closed will prevent that from going through, cluing
 Alice into what she needs to do to remedy the situation, but that merely
 shows why it’s a better workflow if Alice makes the amendment herself:
 
