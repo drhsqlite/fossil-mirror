@@ -1410,9 +1410,9 @@ char *file_case_preferred_name(const char *zDir, const char *zPath){
   fossil_path_free(zNative);
   if( zResult==0 ) zResult = fossil_strdup(zPath);
   return zResult;
-#else /* _WIN32 */
+#else /* !_WIN32 */
   return win32_file_case_preferred_name(zDir,zPath);
-#endif /* _WIN32 */
+#endif /* !_WIN32 */
 }
 
 /*
