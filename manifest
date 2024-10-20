@@ -1,5 +1,5 @@
-C (Typo)\shistory.md\schange.\n\n
-D 2024-10-20T03:33:29.841
+C hooks.md\shas\sseveral\ssmall\schanges.\n\n
+D 2024-10-20T04:05:49.178
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -853,7 +853,7 @@ F www/hashes.md 0ad9fb7af0f21d16dde0062f7909765f9aac2005fe28ffcc7af6e616be5bbc3e
 F www/hashpolicy.wiki 7abfc804b535e7c1ff987fd69c4038b0e36f12994046f69a3fd9f7c13bfa8b60
 F www/hints.wiki 31eefa3c243dfd8126c0a87f5418b6eb4df3e4bbd2a2892378220e550f53dbde
 F www/history.md 3ee9f7bc4dca635f94c951914b5cad958d500906abc9a528331239dd09f3da73
-F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
+F www/hooks.md 9295ae0ba5e7a8a428f561f1dc1d30b9a2d41a2d9712a7fb3cc1e3e6b65684d3
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 308008689b50f1b0989387afe80285910ac3f42e4b80b5e1122181534bdbb425
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b519fce972c4084b05b379aa96a62fcbd66b447ed8b09d9377013e1d2e42a9c1
-R bbde8f2ad5ef0b8bdc86f89ebf358951
+P 861b1b58250b26299040c025bb25f6570df21983098f9a62f009526aec9d4037
+R 8250cf548e043c7f9277537dd72ff3f5
 U brickviking
-Z b470e81e097817329aa9ec4457bfa36a
+Z bed20340090c87d03f9429e29c499ce3
 # Remove this line to create a well-formed Fossil manifest.
