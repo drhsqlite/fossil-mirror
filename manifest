@@ -1,5 +1,5 @@
-C makefile.wiki\schanges.\sSmall\srewrite\sof\sfinal\sparagraph.\n\n
-D 2024-10-20T11:35:13.090
+C Added\splatform-dependent\snote.
+D 2024-10-20T11:59:38.746
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -891,7 +891,7 @@ F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f297687
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 39296236c7596193e364ddc06f522a64b7b058f8461697a08bc54641c2157b3c
 F www/mkindex.tcl f7fe5d63e29ea5d3cb0e9264e9b426bc8b03d5844db9f04a7e2780d110cfb3a2 x
-F www/newrepo.wiki 6a71485f3f2d0f3635a3ce7d804f2ceda0c25ea9186340889e6ecb00d4000634
+F www/newrepo.wiki 8192ea396a087f94064c6a13cb03b81bf26d8be4809cd1d8a3d42eb3d508094c
 F www/password.wiki 54f05c93212a9ad41fe3b41ec51c24093a1e261abb05b28b3651f3e8b10189f2
 F www/patchcmd.md 86eb9976dc81b657052018f807d8ee82a41333b1df78c06515b9383d9fe4858f
 F www/permutedindex.html 74c4963dfad7b95f09a46d75d2b51dce878158e2fe61a3491c4289f2ad411fab
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 49c48f336cf8eaa38b2f47e1ee2ef804b109d2a29035be566587a447bb028be0
-R 1741043295d18354296373642f371d56
+P 03313e9c965b684dbf2fa6742e56d391470e439545f2208b2cd4aba49e411dfa
+R ea31668de8b78aea9430afe14def53ee
 U brickviking
-Z 84a6fcb62d56700b5c83aed858d39f32
+Z a293c9bab96c067e6e20749bbda80cf0
 # Remove this line to create a well-formed Fossil manifest.
