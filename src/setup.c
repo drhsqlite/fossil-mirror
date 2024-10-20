@@ -2189,10 +2189,11 @@ void page_srchsetup(){
   @ <td>Search nothing. (Disables document search).</tr>
   @ </table>
   @ <hr>
-  entry_attribute("Document Branch", 20, "doc-branch", "db", "trunk", 0);
+  entry_attribute("Document Branches", 20, "doc-branch", "db", "trunk", 0);
   @ <p>When searching documents, use the versions of the files found at the
-  @ type of the "Document Branch" branch.  Recommended value: "trunk".
-  @ Document search is disabled if blank.
+  @ type of the "Document Branches" branch.  Recommended value: "trunk".
+  @ Document search is disabled if blank. It may be a list of branch names
+  @ separated by spaces and/or commas.
   @ <hr>
   onoff_attribute("Search Check-in Comments", "search-ci", "sc", 0, 0);
   @ <br>

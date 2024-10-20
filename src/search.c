@@ -796,26 +796,34 @@ LOCAL void search_fullscan(
     char *zDocGlob = db_get("doc-glob","");
     char *zDocBr = db_get("doc-branch","trunk");
     if( zDocGlob && zDocGlob[0] && zDocBr && zDocBr[0] ){
+      Glob * pGlob = glob_create(zDocBr)
+        /* We're misusing a Glob as a list of comma-/space-delimited
+        ** tokens. We're not actually doing glob matches here. */;
+      int i;
       db_multi_exec(
         "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;"
       );
-      db_multi_exec(
-        "INSERT INTO x(label,url,score,id,date,snip)"
-        "  SELECT printf('Document: %%s',title('d',blob.rid,foci.filename)),"
-        "         printf('/doc/%T/%%s',foci.filename),"
-        "         search_score(),"
-        "         'd'||blob.rid,"
-        "         (SELECT datetime(event.mtime) FROM event"
-        "            WHERE objid=symbolic_name_to_rid(%Q)),"
-        "         search_snippet()"
-        "    FROM foci CROSS JOIN blob"
-        "   WHERE checkinID=symbolic_name_to_rid(%Q)"
-        "     AND blob.uuid=foci.uuid"
-        "     AND search_match(title('d',blob.rid,foci.filename),"
-        "                      body('d',blob.rid,foci.filename))"
-        "     AND %z",
-        zDocBr, zDocBr, zDocBr, glob_expr("foci.filename", zDocGlob)
-      );
+      for( i = 0; i < pGlob->nPattern; ++i ){
+        const char * zBranch = pGlob->azPattern[i];
+        db_multi_exec(
+          "INSERT INTO x(label,url,score,id,date,snip)"
+          "  SELECT printf('Document: %%s',title('d',blob.rid,foci.filename)),"
+          "         printf('/doc/%T/%%s',foci.filename),"
+          "         search_score(),"
+          "         'd'||blob.rid,"
+          "         (SELECT datetime(event.mtime) FROM event"
+          "            WHERE objid=symbolic_name_to_rid(%Q)),"
+          "         search_snippet()"
+          "    FROM foci CROSS JOIN blob"
+          "   WHERE checkinID=symbolic_name_to_rid(%Q)"
+          "     AND blob.uuid=foci.uuid"
+          "     AND search_match(title('d',blob.rid,foci.filename),"
+          "                      body('d',blob.rid,foci.filename))"
+          "     AND %z",
+          zBranch, zBranch, zBranch, glob_expr("foci.filename", zDocGlob)
+        );
+      }
+      glob_free(pGlob);
     }
     fossil_free(zDocGlob);
     fossil_free(zDocBr);
