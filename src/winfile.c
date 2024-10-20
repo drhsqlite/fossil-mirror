@@ -408,11 +408,11 @@ char *win32_file_case_preferred_name(
     char chSep;
     int fDone;
     if( IS_DIRSEP(zBuf,i) ){
-      zRes[ncUsed++] = zBuf[i];
       if( ncUsed+2>cchRes ){  /* Directory slash + NULL*/
         cchRes += 32;         /* Overprovisioning. */
         zRes = fossil_realloc(zRes,cchRes);
       }
+      zRes[ncUsed++] = zBuf[i];
       i = j = i+1;
       continue;
     }
