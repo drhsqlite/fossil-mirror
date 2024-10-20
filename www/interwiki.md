@@ -52,7 +52,7 @@ Three different classes of PageNames are recognized by Fossil:
   2.  <b>Hash Links</b> &rarr; the PageName is a hexadecimal number with
       at least four digits.
 
-  3.  <b>Wiki Links</b> &rarr; An PageName that is not a Path or Hash.
+  3.  <b>Wiki Links</b> &rarr; A PageName that is not a Path or Hash.
 
 The Intermap defines a base URL for each Tag.  Path links are appended
 directly to the URL contained in the Intermap.  The Intermap can define
@@ -64,7 +64,7 @@ Hash and Wiki links, respectively.
 
 The intermap defines a mapping from interwiki Tags to full URLs.  The
 Intermap can be viewed and managed using the [fossil interwiki][iwiki]
-command or the [/intermap][imap] webpages.  
+command or the [/intermap][imap] webpage.
 
 [iwiki]: /help?cmd=interwiki
 [imap]: /intermap
@@ -79,7 +79,7 @@ wiki.  The intermap entry might also store additional path text that
 is used for Hash and Wiki links.  If only the base URL is provided,
 then the intermap will only allow Path style interwiki links.  The
 Hash and Wiki style interwiki links are only allowed if the necessary
-extensions for provided in the intermap.
+extensions are provided in the intermap.
 
 
 ## Disadvantages and Limitations
@@ -87,7 +87,7 @@ extensions for provided in the intermap.
   *  Configuration is required.  The intermap must be set up correctly
      before interwiki links will work.  This contrasts with ordinary
      links that just work without any configuration.  Cloning a repository
-     copies the intermap, but normal syncs to not keep the intermap in
+     copies the intermap, but normal syncs do not keep the intermap in
      sync.  Use the "[fossil config pull interwiki][fcfg]" command to
      synchronize the intermap.
 
@@ -98,7 +98,7 @@ extensions for provided in the intermap.
      shows up in the "References" section of the target check-in.
      ([example](31af805348690958).  In other words, Fossil tracks not just
      "_source&rarr;target_", but it also tracks "_target&rarr;source_".
-     But backtracking do not work for interwiki links, since the Fossil
+     But backtracking does not work for interwiki links, since the Fossil
      running on the target has no way of scanning the source text and
      hence has no way of knowing that it is a target of a link from the source.
 
