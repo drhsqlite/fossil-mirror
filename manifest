@@ -1,5 +1,5 @@
-C (Typos)\sinterwiki.md\schanges.\n\n
-D 2024-10-20T10:46:11.252
+C makefile.wiki\schanges.\sSmall\srewrite\sof\sfinal\sparagraph.\n\n
+D 2024-10-20T11:35:13.090
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -886,7 +886,7 @@ F www/json-api/index.md 1f06115e752536000e1a6aaca37f4e44671f4b9c89b4ce6b70245222
 F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
 F www/loadmgmt.md 09ddb13024bd3fbbb85dd2eb11be279d478db3db5d0757299fd236ba28e92499
-F www/makefile.wiki 39cfe5bb11593a5c22feef02d0d741595e42d9d7db052b567adad53c697e4b2a
+F www/makefile.wiki 14f9da723eeea6f002a9d4067435e5f1239312e97ef1e46bcea173cc98e6fd73
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 39296236c7596193e364ddc06f522a64b7b058f8461697a08bc54641c2157b3c
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a6714794f0ad5808f9c090cf1a4eea0f9beecd804950fa79f8eb7c363455adcf
-R b82740f6f8105c7eba159e776c278bd6
+P 49c48f336cf8eaa38b2f47e1ee2ef804b109d2a29035be566587a447bb028be0
+R 1741043295d18354296373642f371d56
 U brickviking
-Z 70fe0a91ed7c059c7cfa1d5e689fb414
+Z 84a6fcb62d56700b5c83aed858d39f32
 # Remove this line to create a well-formed Fossil manifest.
