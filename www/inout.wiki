@@ -50,7 +50,7 @@ but we've seen the problem recur on multiple machines.
 
 While one workaround is to fall back to <tt>cmd.exe</tt> — which doesn't
 seem to be affected by this problem — we instead recommend using
-Mirosoft's own [https://learn.microsoft.com/en-us/windows/wsl/ | Windows
+Microsoft's own [https://learn.microsoft.com/en-us/windows/wsl/ | Windows
 Subsystem for Linux] or either of the two popular "Git for Windows"
 distributions based on MSYS2. They handle pipes the POSIX way, avoiding
 any dependency on the amount of data involved.
@@ -78,7 +78,7 @@ since the git-fast-export file format is currently the only VCS interchange
 format that Fossil will generate.  However,
 future versions of Fossil might add the ability to generate other
 VCS interchange formats, and so for compatibility, the use of the --git
-option recommended.
+option is recommended.
 
 <h2>Mirror A Fossil Repository In Git</h2>
 

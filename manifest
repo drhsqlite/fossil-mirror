@@ -1,5 +1,5 @@
-C Cherrypick\sfrom\s([95c1490cd6]\sby\sflorian\son\s2024-10-20\s04:24:00)
-D 2024-10-20T06:11:23.825
+C (Typos)\sinout.wiki\schanges.\n\n
+D 2024-10-20T10:19:01.970
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -858,7 +858,7 @@ F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984
 F www/image-format-vs-repo-size.md 308008689b50f1b0989387afe80285910ac3f42e4b80b5e1122181534bdbb425
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki b18a18aafc447d294f2ba53420444652ce5a127fce144a60a3c3b93b6bf9b0bd
-F www/inout.wiki 9982cc004c39afa5309bb3c6a26353859838a4e4424a8516bbc658f53c2260c6
+F www/inout.wiki f1623d3b27506631390538c5933d889d12a9999562ffd9ae6b9b42446c59b001
 F www/interwiki.md 6a20986c754f3a0cf8014e1cbb0853d376321ab7e4dd596f90d5517f837c3500
 F www/javascript.md ee435e2efb1752666d6f4b9b42c3ebcb9aa9f930257897d7784fc100c4e2c0b8
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -960,9 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e885757bfba4d0230ea43b317e7a2f32d886ebacf7e760347578086df802a195
-Q +95c1490cd630e37b2da2dfcad931619bb8fda9ffdd11a6821b1ac6ee6289d492
-R 34cdadbcab7d553e59b81cb664ae5195
+P 9bd9a62e522c8732d9cf306f3e7a63a179f49b65bb1a91e11f6aeadf784b0341
+R 665fbd8ed058f15ac65400d125b3a509
 U brickviking
-Z 3530776f79f33e3358c90e4f0d23e2c2
+Z d6fc7740897665aef50aa5c448334463
 # Remove this line to create a well-formed Fossil manifest.
