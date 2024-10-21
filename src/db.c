@@ -4843,7 +4843,7 @@ struct Setting {
 ** used.
 */
 /*
-** SETTING: redirect-to-https   default=0 width=-1
+** SETTING: redirect-to-https   default=0 width=2
 ** Specifies whether or not to redirect http:// requests to
 ** https:// URIs. A value of 0 (the default) means not to
 ** redirect, 1 means to redirect only the /login page, and 2

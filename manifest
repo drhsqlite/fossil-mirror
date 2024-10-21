@@ -1,5 +1,5 @@
-C Initial\scut\sat\sbetter\sexplanation\sregarding\susername/password\sauthentication.
-D 2024-10-21T11:04:16.879
+C Merge\sfrom\strunk.
+D 2024-10-21T11:12:10.426
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -410,7 +410,7 @@ F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 435648879a72045400f9fdebfe1125c19f3951b196381eaddd291d11973ad9f5
+F src/db.c 580e864e184d6af74af8bd034b14eff4fa20c774a4545451415dc22ce933da4a
 F src/default.css 3a83ddf9d27b99b2b7eebfc3958ea4b942cd120958fa546455e40e9f84ab07f5
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 445d1a86bac9ddf1800949a3a9019af7f473a56285021a594eea8bdb98e59bf7
-R 4a04838d058d9a5f4556716a88e5f2b6
+P 62077d3fd4e3050e1002e64ec53b5cd341433138365536cc77d8889ee3427124 b087b03a7ed6cabd5762247b1e6e066b08eb78637a839a401aebe963b53d9f77
+R cc932b29d2660903f7def9bd3bce8759
 U brickviking
-Z 6a29912c1c800100cc2102b6912fb35a
+Z d176b0e3f65b739966ac7f03f1346d9d
 # Remove this line to create a well-formed Fossil manifest.
