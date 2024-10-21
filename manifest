@@ -1,5 +1,5 @@
-C Show\sthe\sredirect-to-https\son\sthe\s/setup_settings\spage.
-D 2024-10-21T11:07:54.007
+C Improvements\sto\sthe\sredirect-to-https\sdocumentation.
+D 2024-10-21T11:15:02.880
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -410,7 +410,7 @@ F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 580e864e184d6af74af8bd034b14eff4fa20c774a4545451415dc22ce933da4a
+F src/db.c 67f490202c2d119b379f8fd6dffcaf9b2ca9e3c47af573e11b2eca5d9d36aba4
 F src/default.css 3a83ddf9d27b99b2b7eebfc3958ea4b942cd120958fa546455e40e9f84ab07f5
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a186d8b8c965c25144d20b2e5ca21c3230994543faa8b1ee8df5d59ad158fbb7
-R a218f7fd7523a72da1c8a3b8fbbc49e6
+P b087b03a7ed6cabd5762247b1e6e066b08eb78637a839a401aebe963b53d9f77
+R c231228048f0ba0f2bf95266c8ee5ef2
 U drh
-Z 6957cc44a871f4245cf977f8c483e92a
+Z 1f7426c61796c87792ad9096892580f4
 # Remove this line to create a well-formed Fossil manifest.
