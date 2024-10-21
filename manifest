@@ -1,5 +1,5 @@
-C Changes\sfor\sthe\sfollowing\sfiles\sunder\swww:\npassword.wiki\npatchcmd.md\npikchr.md\nquickstart.wiki\nrebaseharm.md\nselfcheck.wiki\nselfhost.wiki\n
-D 2024-10-21T10:17:20.690
+C Initial\scut\sat\sbetter\sexplanation\sregarding\susername/password\sauthentication.
+D 2024-10-21T11:04:16.879
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -892,7 +892,7 @@ F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f6
 F www/mirrortogithub.md 39296236c7596193e364ddc06f522a64b7b058f8461697a08bc54641c2157b3c
 F www/mkindex.tcl f7fe5d63e29ea5d3cb0e9264e9b426bc8b03d5844db9f04a7e2780d110cfb3a2 x
 F www/newrepo.wiki 8192ea396a087f94064c6a13cb03b81bf26d8be4809cd1d8a3d42eb3d508094c
-F www/password.wiki 72d1229aea8fb9228beb015b33657e6660fd9699cdeb3d880d60f04b9d570e13
+F www/password.wiki e26cf0c24be00488b15c364d91079d08ed1afea12923a71d722a740fc690b367
 F www/patchcmd.md f2ee74ce0e4474e5ade667abc995f8a52f04a31b333a529ebef784eb48860bd8
 F www/permutedindex.html 74c4963dfad7b95f09a46d75d2b51dce878158e2fe61a3491c4289f2ad411fab
 F www/pikchr.md 231f484be5306b2280542c2a36e2147ceb7027a04218cf299e43d6fb7a3ba7c1
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 601d09c1e97e3d9ef09234e20eebfb1e590a7952c912f2903e7f2f8fe8ddffcd
-R 4b5ffe49dcf25bf2c0f1bb8efa21d7e1
+P 445d1a86bac9ddf1800949a3a9019af7f473a56285021a594eea8bdb98e59bf7
+R 4a04838d058d9a5f4556716a88e5f2b6
 U brickviking
-Z 2a562022e74eb2043467bedb4ee8e720
+Z 6a29912c1c800100cc2102b6912fb35a
 # Remove this line to create a well-formed Fossil manifest.
