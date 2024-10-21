@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.47.0\srelease\scandidate\sfor\sfinal\nvalidation.
-D 2024-10-21T11:16:39.416
+C Fix\s'off-by-one'\serror\swithin\sestablish_proxy_tunnel()\sroutine\sintroduced\sin\s[e8d328cbd32].
+D 2024-10-21T21:38:23.461
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -466,7 +466,7 @@ F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
 F src/http.c 3f1e118b64554d1b91a678e4c7d1d74cd90dcc042b0b40d8c13e052c15f1614f
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
-F src/http_ssl.c a87c36f35454bffb7f7ee1c4b917e7a10e91f33b93a9059097847199d953be42
+F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6e
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
 F src/info.c 6e272bc81fedfda6707196f018547cc97f09c3fdc5ba20b26ecf17f96efb67d6
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 27891979e10f9ee9d84fe5f22698c3b86aa1fd9c0f383be920e0e278f814c667
-R 8cef2b91c520b588b3621ecd5cad503f
-U drh
-Z 8c8300fd0826ce2afefc18575b5aec08
+P f99e9cb3ab1a6ecfb96a97a92dfb665d45f11b6e1aecc9fbdb092b606b432236
+R ce1dd0ab2f075d434c9024d4835432a0
+U george
+Z bc8bc74cef951e56398ced07fb33b702
 # Remove this line to create a well-formed Fossil manifest.

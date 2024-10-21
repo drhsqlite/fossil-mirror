@@ -407,7 +407,7 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
     while(end < len) {
       if( bbuf[end]=='\n' ) {
         if( (end+1<len && bbuf[end+1]=='\n')
-         || (end+2<len && bbuf[end+1]=='\r' && bbuf[end+1]=='\n')
+         || (end+2<len && bbuf[end+1]=='\r' && bbuf[end+2]=='\n')
         ){
           done = 1;
           break;
