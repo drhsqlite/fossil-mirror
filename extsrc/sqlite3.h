@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.47.0"
 #define SQLITE_VERSION_NUMBER 3047000
-#define SQLITE_SOURCE_ID      "2024-10-17 13:29:49 b7814350381a2929e9fa6444867a80437291b8bbe59479d4525350b2719bc72c"
+#define SQLITE_SOURCE_ID      "2024-10-21 10:47:24 9f642b3dbc8febfacad97076030f44e9b40067e27222f2bcb84813c5765d3d2a"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -13229,7 +13229,6 @@ struct Fts5ExtensionApi {
 ** Applications may also register custom tokenizer types. A tokenizer
 ** is registered by providing fts5 with a populated instance of the
 ** following structure. All structure methods must be defined, setting
-**
 ** any member of the fts5_tokenizer struct to NULL leads to undefined
 ** behaviour. The structure methods are expected to function as follows:
 **
