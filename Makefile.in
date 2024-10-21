@@ -53,7 +53,7 @@ TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H
 #
 # Fuzzing may be enable by appending -fsanitize=fuzzer -DFOSSIL_FUZZ
 # to the TCCFLAGS variable.
-# For more thorouth (but also slower) investigation
+# For more thorough (but also slower) investigation
 #      -fsanitize=fuzzer,undefined,address
 # might be more useful.
 

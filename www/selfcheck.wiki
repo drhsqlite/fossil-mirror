@@ -15,7 +15,7 @@ lost.  The integrity checks are doing their job well.</p>
 
 The Fossil repository is stored in an
 <a href="http://www.sqlite.org/">SQLite</a> database file.
-([./tech_overview.wiki | Addition information] about the repository
+([./tech_overview.wiki | Additional information] about the repository
 file format.)
 SQLite is very mature and stable and has been in wide-spread use for many
 years, so we are confident it will not cause repository
