@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk.
-D 2024-10-21T11:12:10.426
+C Added\slink\sto\shelp\spage\sfor\sredirect-to-https.\sUntested\sin\s.wiki.\n\n
+D 2024-10-21T11:13:01.083
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -892,7 +892,7 @@ F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f6
 F www/mirrortogithub.md 39296236c7596193e364ddc06f522a64b7b058f8461697a08bc54641c2157b3c
 F www/mkindex.tcl f7fe5d63e29ea5d3cb0e9264e9b426bc8b03d5844db9f04a7e2780d110cfb3a2 x
 F www/newrepo.wiki 8192ea396a087f94064c6a13cb03b81bf26d8be4809cd1d8a3d42eb3d508094c
-F www/password.wiki e26cf0c24be00488b15c364d91079d08ed1afea12923a71d722a740fc690b367
+F www/password.wiki 31b38688df7596ceca17011ffadae0140380470b4895adf1bcce57ae9b4f3b05
 F www/patchcmd.md f2ee74ce0e4474e5ade667abc995f8a52f04a31b333a529ebef784eb48860bd8
 F www/permutedindex.html 74c4963dfad7b95f09a46d75d2b51dce878158e2fe61a3491c4289f2ad411fab
 F www/pikchr.md 231f484be5306b2280542c2a36e2147ceb7027a04218cf299e43d6fb7a3ba7c1
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62077d3fd4e3050e1002e64ec53b5cd341433138365536cc77d8889ee3427124 b087b03a7ed6cabd5762247b1e6e066b08eb78637a839a401aebe963b53d9f77
-R cc932b29d2660903f7def9bd3bce8759
+P 201004367baed3d6593ada3b6007d5cb40dfe60687feb65d54b71626a16df7d6
+R 3804b6cd18a1dd3eafc0a08b0a5964ed
 U brickviking
-Z d176b0e3f65b739966ac7f03f1346d9d
+Z c1ef5cc1c9e5ba8e6eb98455a1bb7da4
 # Remove this line to create a well-formed Fossil manifest.
