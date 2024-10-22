@@ -1,5 +1,5 @@
-C Update\ssqlite3.c/h\sto\sthe\s3.47.0\srelease.
-D 2024-10-21T17:14:17.608
+C Restore\sthe\sconfigure-time\sCFLAGS\sdefaults\sof\s{-g\s-O2},\swhich\swere\slost\svia\san\sautosetup\supgrade\sin\s[dacbf76c8a571525],\sas\sdiscussed\sin\s[forum:603062d760e974d2\s|\sforum\spost\s603062d760e].
+D 2024-10-22T21:42:36.516
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in cd2437faccc882116ace8e8c2a3a5dd15336164af17be83b788fa362e1299177 x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 4ecd43a7f1483288486cdcff7ddf68299735b82a8804a9dc0da3c63084fd4c40
-F auto.def acf77887a06b4f40d22e95c6469bf81567af6ffda01aa087eb2453090e9e15f7
+F auto.def fca5446493fbd27a40ceef594d7ac788a2118edde58daaf38c9abef275b2ea7d
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b82749b94bd1db3fe23c128579ea858cca3542b2e41b0f81b18c022d008338a2
-R 2381f5cd399afa18b130bbfb80b9360a
+P 9db0468611bd913b3870e7f17d631f21e6dd275414366bacec71de7723715102
+R 6461831dd5e2c1c2a6ad0cea04860d05
 U stephan
-Z 81be3397e82e40e9ba14c9a29dd1c9c6
+Z 4516657044272f53ed60ed77da6db55e
 # Remove this line to create a well-formed Fossil manifest.
