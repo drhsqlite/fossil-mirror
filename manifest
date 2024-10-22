@@ -1,5 +1,5 @@
-C Restore\sthe\sconfigure-time\sCFLAGS\sdefaults\sof\s{-g\s-O2},\swhich\swere\slost\svia\san\sautosetup\supgrade\sin\s[dacbf76c8a571525],\sas\sdiscussed\sin\s[forum:603062d760e974d2\s|\sforum\spost\s603062d760e].
-D 2024-10-22T21:42:36.516
+C Extend\s[b82749b94bd1db3f]\sto\sinclude\sthe\sfts\sreindexing\sstep.
+D 2024-10-22T23:42:59.697
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -521,7 +521,7 @@ F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c bc044fd6631dffe39632a49ba34e126c856b3737490bfbc54eb76f2a8b3d024c
+F src/search.c 6a9ae77e876da44ee7ad87d4c1151ec10af468dac326312cd7b1aaf322ab728b
 F src/security_audit.c edafc6d6858f23d47e5066497165152d78f55072ffad5225d233c2dd3b8bec7b
 F src/setup.c 72cfebffa3bb5f4cdc176c43cd4602fcdbd888a716154e53bbbf55a136f9e30a
 F src/setupuser.c aa855e809561c501a29785b7ecf902571a022f8e607f190aeab1a97ab1dde11a
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9db0468611bd913b3870e7f17d631f21e6dd275414366bacec71de7723715102
-R 6461831dd5e2c1c2a6ad0cea04860d05
+P a344402e9fb36a03595433328b522e1e4a9dbdf633c341bce0ceea94e8b257df
+R 5db9cc7758c7cff5af86d2e7d31c1ce0
 U stephan
-Z 4516657044272f53ed60ed77da6db55e
+Z 7a9bd45e4860d42f0d36778d93125929
 # Remove this line to create a well-formed Fossil manifest.

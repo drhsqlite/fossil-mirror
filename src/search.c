@@ -1890,55 +1890,64 @@ void search_doc_touch(char cType, int rid, const char *zName){
 ** changed.
 */
 static void search_update_doc_index(void){
-  const char *zDocBr = db_get("doc-branch","trunk");
-  int ckid = zDocBr ? symbolic_name_to_rid(zDocBr,"ci") : 0;
-  double rTime;
-  if( ckid==0 ) return;
-  if( !db_exists("SELECT 1 FROM ftsdocs WHERE type='c' AND rid=%d"
-                 "   AND NOT idxed", ckid) ) return;
-
-  /* If we get this far, it means that changes to 'd' entries are
-  ** required. */
-  rTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", ckid);
+  const char *zDocBranches = db_get("doc-branch","trunk");
+  int i;
+  Glob * pGlob = glob_create(zDocBranches)
+    /* We're misusing a Glob as a list of comma-/space-delimited
+    ** tokens. We're not actually doing glob matches here. */;
+  if( !pGlob ) return;
   db_multi_exec(
     "CREATE TEMP TABLE current_docs(rid INTEGER PRIMARY KEY, name);"
     "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;"
-    "INSERT OR IGNORE INTO current_docs(rid, name)"
-    "  SELECT blob.rid, foci.filename FROM foci, blob"
-    "   WHERE foci.checkinID=%d AND blob.uuid=foci.uuid"
-    "     AND %z",
-    ckid, glob_expr("foci.filename", db_get("doc-glob",""))
   );
-  db_multi_exec(
-    "DELETE FROM ftsidx WHERE rowid IN"
-    "  (SELECT rowid FROM ftsdocs WHERE type='d'"
-    "      AND rid NOT IN (SELECT rid FROM current_docs))"
-  );
-  db_multi_exec(
-    "DELETE FROM ftsdocs WHERE type='d'"
-    "      AND rid NOT IN (SELECT rid FROM current_docs)"
-  );
-  db_multi_exec(
-    "INSERT OR IGNORE INTO ftsdocs(type,rid,name,idxed,label,bx,url,mtime)"
-    "  SELECT 'd', rid, name, 0,"
-    "         title('d',rid,name),"
-    "         body('d',rid,name),"
-    "         printf('/doc/%T/%%s',urlencode(name)),"
-    "         %.17g"
-    " FROM current_docs",
-    zDocBr, rTime
-  );
-  db_multi_exec(
-    "INSERT INTO ftsidx(rowid,title,body)"
-    "  SELECT rowid, label, bx FROM ftsdocs WHERE type='d' AND NOT idxed"
-  );
-  db_multi_exec(
-    "UPDATE ftsdocs SET"
-    "  idxed=1,"
-    "  bx=NULL,"
-    "  label='Document: '||label"
-    " WHERE type='d' AND NOT idxed"
-  );
+  for( i = 0; i < pGlob->nPattern; ++i ){
+    const char *zDocBr = pGlob->azPattern[i];
+    int ckid = symbolic_name_to_rid(zDocBr,"ci");
+    double rTime;
+    if( !db_exists("SELECT 1 FROM ftsdocs WHERE type='c' AND rid=%d"
+                   "   AND NOT idxed", ckid) ) continue;
+    /* If we get this far, it means that changes to 'd' entries are
+    ** required. */
+    rTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", ckid);
+    db_multi_exec(
+      "INSERT OR IGNORE INTO current_docs(rid, name)"
+      "  SELECT blob.rid, foci.filename FROM foci, blob"
+      "   WHERE foci.checkinID=%d AND blob.uuid=foci.uuid"
+      "     AND %z",
+      ckid, glob_expr("foci.filename", db_get("doc-glob",""))
+    );
+    db_multi_exec(
+      "DELETE FROM ftsidx WHERE rowid IN"
+      "  (SELECT rowid FROM ftsdocs WHERE type='d'"
+      "      AND rid NOT IN (SELECT rid FROM current_docs))"
+    );
+    db_multi_exec(
+      "DELETE FROM ftsdocs WHERE type='d'"
+      "      AND rid NOT IN (SELECT rid FROM current_docs)"
+    );
+    db_multi_exec(
+      "INSERT OR IGNORE INTO ftsdocs(type,rid,name,idxed,label,bx,url,mtime)"
+      "  SELECT 'd', rid, name, 0,"
+      "         title('d',rid,name),"
+      "         body('d',rid,name),"
+      "         printf('/doc/%T/%%s',urlencode(name)),"
+      "         %.17g"
+      " FROM current_docs",
+      zDocBr, rTime
+    );
+    db_multi_exec(
+      "INSERT INTO ftsidx(rowid,title,body)"
+      "  SELECT rowid, label, bx FROM ftsdocs WHERE type='d' AND NOT idxed"
+    );
+    db_multi_exec(
+      "UPDATE ftsdocs SET"
+      "  idxed=1,"
+      "  bx=NULL,"
+      "  label='Document: '||label"
+      " WHERE type='d' AND NOT idxed"
+    );
+  }
+  glob_free(pGlob);
 }
 
 /*
