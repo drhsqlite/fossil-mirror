@@ -520,7 +520,7 @@ English (including the dialect spoken by the original author of Fossil).
 
 <h4>3.7.1 Unversioned Gimme Cards</h4>
 
-Sync synchronizing unversioned content, the client may send "uvgimme"
+When synchronizing unversioned content, the client may send "uvgimme"
 cards to the server.  A uvgimme card requests that the server send
 unversioned content to the client.  The format of a uvgimme card is
 as follows:
