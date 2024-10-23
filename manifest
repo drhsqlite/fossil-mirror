@@ -1,5 +1,5 @@
-C Updated\stable\sunder\swww/sync.wiki\sin\ssection\s3.9.\n\nSeveral\snew\skeywords\shave\sbeen\sadded\sover\sthe\spast\ssix\syears,\nthis\scommit\smay\saccidentally\sinclude\ssettings\sthat\saren't\sactually\naccepted\sby\sthe\sserver\sany\smore.\sFix\sif\syou\ssee\sthem.\n
-D 2024-10-23T09:44:21.353
+C Hopefully\sthe\slast\sof\sthe\schanges\sfor\swww/sync.wiki\n\n
+D 2024-10-23T10:02:41.410
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -943,7 +943,7 @@ F www/ssl-server.md a2df89dac308c5143f95e30c9acfa8ab5cbeaa931bbefbcb40d49e37dd0c
 F www/ssl.wiki d1fc950cf538f469424b7a2d67d465678cc5f5a53c01e4c9f5cbc4929bd1c65f
 F www/stats.wiki f2713acf5c005f1ccecbec63dc5f826499f5f842e8ad17ec3d34ab2f57790792
 F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c068
-F www/sync.wiki e5a28588acaed2cf5def3d17820ab73b15427095b44ceea8c7ecb50287f07060
+F www/sync.wiki 376cccf25ed1126eeaae876c119e91eee6919dbf22a8a448c54d62c24498e471
 F www/tech_overview.wiki a40dd7668234ed325091106f0473568584fb1a164a04e680d8179a81d74e178d
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md b6c105b64e83514458c7d52e74cabe34adf4182d74a8b54850c51065f774a629
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8f0d5977cb021ae7bba4aa52720f80134eccb3c9b048fd94c1b25ac296e1769
-R 0c8609763e23b8aa95c8d0ce1ae88bc7
+P d25826d447c7fd52ed481307f7ef0c7faa4cc3333f3e4c103b3a6142bd3de58a
+R 314c326979eeeaf8213a013bf78cc92a
 U brickviking
-Z f8aad22aca735b76768988b8e9694f44
+Z 5be66b9df9d7891637841da5181e8310
 # Remove this line to create a well-formed Fossil manifest.

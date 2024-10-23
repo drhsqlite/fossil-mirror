@@ -883,7 +883,7 @@ of clusters to find every artifact in the repository.
 <h3 id="pull-strategy">5.1 Pull</h3>
 
 A typical pull operation proceeds as shown below.  Details
-of the actual implementation may very slightly but the gist of
+of the actual implementation may vary slightly but the gist of
 a pull is captured in the following steps:
 
 <ol>
@@ -1093,4 +1093,4 @@ CMD is given three arguments:
 In a complex debugging situation, you can run the command
 "fossil sync --transport-command ./debugging_script" where
 "debugging_script" is some script of your own that invokes
-the anomolous behavior your are trying to debug.
+the anomalous behavior you are trying to debug.
