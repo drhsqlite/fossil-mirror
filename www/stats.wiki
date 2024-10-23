@@ -3,7 +3,7 @@
 The questions will inevitably arise:  How does Fossil perform?
 Does it use a lot of disk space or bandwidth?  Is it scalable?
 
-In an attempt to answers these questions, this report looks at several
+In an attempt to answer these questions, this report looks at several
 projects that use fossil for configuration management and examines how
 well they are working.  The following table is a summary of the results.
 (Last updated on 2018-06-04.)
@@ -102,7 +102,7 @@ characteristics of Fossil is that the entire project history can be
 reconstructed simply by scanning the artifacts in an arbitrary order.
 
 The number of check-ins is the number of times that the "commit" command
-has been run.  A single check-in might change a 3 or 4 files, or it might
+has been run.  A single check-in might change 3 or 4 files, or it might
 change dozens or hundreds of files.  Regardless of the number of files
 changed, it still only counts as one check-in.
 

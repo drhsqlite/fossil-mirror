@@ -46,9 +46,8 @@ replicating changes, these settings are "versionable". As well as being
 able to be set using the <tt>settings</tt> command or the web interface,
 you can create versioned files in the <tt>.fossil-settings</tt>
 subdirectory of the check-out root, named with the setting name.
-The contents of the file is the
-value of the setting, and these files are checked in, committed, merged,
-and so on, as with any other file.
+Each file holds the value of a setting, and these files are checked in,
+committed, merged, and so on, as with any other file.
 
 Where a setting is a list of values, such as <tt>ignore-glob</tt>, you
 can use a newline as a separator as well as a comma.
