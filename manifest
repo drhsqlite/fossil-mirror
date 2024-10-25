@@ -1,5 +1,5 @@
-C (Typos)\sunvers.wiki\schange.\n\n
-D 2024-10-25T12:30:15.221
+C Updated\sdate\sin\suserlinks.wiki\sto\sreflect\sstill-current\spractice.\n\n
+D 2024-10-25T22:07:11.290
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -952,7 +952,7 @@ F www/tickets.wiki d46ce2febd0160a67a7b804d9ee68ef0c8a5f482255247d157cb4ded88233
 F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
 F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294c6
 F www/unvers.wiki 9299caef1613ccb370a28698bafd2900d4f05c8c8e06620807879052bdcb61b2
-F www/userlinks.wiki 956685758aacbd5bd84d32751a3df6987f2d82a1eebc75f4d0fed0b6de2688b8
+F www/userlinks.wiki 852a32a0842b48bb68e029029f67038b7494303fa07d3b3af556f607d0208fd8
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 7988ca46928242dc0d9c8d6ffe5e0ba7d4c2ba3a774b848a2a463bebc9cac8df
 F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bf5118059b20b12085fd6eea839273d861c16a1c9abc5598fd78836204f2f4c4
-R d79de9d3a97cca0a6cdfb643d7eceae6
+P 5ea2cb5b05e09a6607e52eb6f74bf8041cf4fbf61d24d1023c91703cbd9a7198
+R b17dc26a79e4e5c39e21fec0b8ed5b8b
 U brickviking
-Z a532a8a9dd64611957a2643beef0f799
+Z 4933a0508eede66501603a482a99dd5d
 # Remove this line to create a well-formed Fossil manifest.
