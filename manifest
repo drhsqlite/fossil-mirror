@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\smultiple\sbranch\snames\sin\sthe\sdoc-branch\ssetting,\sas\sdiscussed\sin\s[forum:520d420d04e482b2\s|\sforum\spost\s520d420d04].
-D 2024-10-23T18:21:36.592
+C Upstream\sfix\sto\sautosetup/autosetup-find-tcl\sto\swork\saround\san\sOpenBSD-ism\sof\semitting\snoise\sto\sstdout\sat\slink-time.
+D 2024-10-25T05:38:33.982
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -23,7 +23,7 @@ F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a7
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
 F autosetup/autosetup-config.guess dfa101c5e8220e864d5e9c72a85e87110df60260d36cb951ad0a85d6d9eaa463 x
 F autosetup/autosetup-config.sub a38fb074d0dece01cf919e9fb534a26011608aa8fa606490864295328526cd73 x
-F autosetup/autosetup-find-tclsh c5053419348cdd1aba824c3701bd97392d987b948c1bd748b32f11bbca2c0d8a x
+F autosetup/autosetup-find-tclsh 38dc4ac03c061d5ee53ecd1ec2fc3d5f0bbf4e84a7123d3160e01d26b5858f36 x
 F autosetup/autosetup-test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
 F autosetup/cc-db.tcl 6e0ed90146197a5a05b245e649975c07c548e30926b218ca3e1d4dc034b10a7b
 F autosetup/cc-lib.tcl 493c5935b5dd3bf9bd4eca89b07c8b1b1a9356d61783035144e21795facf7360
@@ -960,9 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af1456ba3496d6b7261d255d36b8b997d21c84516f5b85753689146cdf8bede2 3d76303a4f911db532fadef94f99b7840fd884834f7cc661471898192e1488dd
-R 1d0a77d82dbbd727652c00ab5ed6397f
-T +closed 3d76303a4f911db532fadef94f99b7840fd884834f7cc661471898192e1488dd Closed\sby\sintegrate-merge.
+P 40d0b360d2cf9d72b4430836a6ddef5a4e75a6859cfb339528250bf257be35e5
+R 49f2356d4b61c39e933ef6ea7fc601dd
 U stephan
-Z 2919776695c2ffb25e25283851023ea1
+Z ee99a008ecdb6ade758810c5abd84f5b
 # Remove this line to create a well-formed Fossil manifest.
