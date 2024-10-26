@@ -1,5 +1,5 @@
-C (Grammar)\swikitheory.wiki\stiny\stweak.\n\n
-D 2024-10-26T03:34:51.968
+C Change\sto\swww/caps/index.md
+D 2024-10-26T10:35:05.467
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -780,7 +780,7 @@ F www/build.wiki 9e8bacb2830ec9561907ca665e1e7bf85cb3e7e32d568f3f41ce1bb0f9860c9
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
-F www/caps/index.md f77efdce017dce11339eadfaa394ba5a6ee0ffdce38209e3d8fdc9c9764f7bc8
+F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f9020d8b
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html 21ecdde02b27bccc3a43f1a3ba94ddb2b20f18abf85642127b45b6f9fe792ee9
 F www/cgi.wiki 0d8ae1d55db302a98d95da41ac75de4dcc665b66262e1873b5a3e6bcabf213d0
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5b2bd1058cbd145ee53969b9f88ad6bcaa3470b6e22e9d8a2c608c8c0908ae1b
-R d4e4edacdf8f53132d9dd5f802ce5460
+P d1d2298090f1fb66addc0df6cc8f4ccaa56ba7616c8fa39b966e9cb1f9b5ecbc
+R 70495f75af28e8500a7a82c01245f846
 U brickviking
-Z dfe56ce6baab27c05c4b8a3c0696608d
+Z 599b3345bfadb32b2cab175527267ffa
 # Remove this line to create a well-formed Fossil manifest.
