@@ -143,7 +143,7 @@ features with the DVCS might be useful for a given project:
       consistent look-and-feel across all aspects of the project.
 
       Skinning independent software packages’ web interfaces to make
-      them appear unified is more work than skinning everything once, as
+      them appear unified is more work than [skinning] everything once, as
       in Fossil, and even then, you can’t make independently-developed
       software look like it was produced by a single entity without
       resorting to heroic levels of customization. If you use a separate
@@ -219,14 +219,17 @@ When you’re ready to turn these additional features on, you can do so
 with a few mouse clicks.
 
 Because Fossil is web-native out of the box, if you’ve delegated these
-features to outside systems to flesh out Git’s DVCS-only nature, Fossil
-can link out to these systems, and they back into Fossil, letting you
-use Fossil in the same DVCS-only mode.
+features to outside systems to flesh out Git’s DVCS-only nature, you are
+free to do the same with Fossil. One of the many things the [skinning]
+facility allows is replacing the built-in links to the wiki, forum,
+ticket system, etc. with links to external systems. How easy those
+systems make it to link back into Fossil is up to their developers.
 
 [Discord]:   https://discord.com/
 [edoc]:      ./embeddeddoc.wiki
 [Jira]:      https://www.atlassian.com/software/jira
 [MediaWiki]: https://www.mediawiki.org/
+[skinning]:  ./customskin.md
 [Sphinx]:    https://www.sphinx-doc.org/en/master/
 [SSO]:       https://en.wikipedia.org/wiki/Single_sign-on
 [srckl]:     https://www.sqlite.org/src/ext/checklist/top/index

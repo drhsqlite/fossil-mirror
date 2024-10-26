@@ -1,5 +1,5 @@
-C Upstream\sfix\sto\sautosetup/autosetup-find-tcl\sto\swork\saround\san\sOpenBSD-ism\sof\semitting\snoise\sto\sstdout\sat\slink-time.
-D 2024-10-25T05:38:33.982
+C Reworked\sthe\sfinal\sparagraph\sof\sthe\swhyallinone\sdoc\sto\sbe\sclearer\sin\npointing\sout\sthat\sexternal\sweb\sapps\scan\sbe\slinked\sbidirectionally\swith\nFossil.
+D 2024-10-26T09:10:41.697
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -955,13 +955,13 @@ F www/unvers.wiki 327cf60fc7df172164bd11eca12fc53a633969808900fcff251da816b90a45
 F www/userlinks.wiki 956685758aacbd5bd84d32751a3df6987f2d82a1eebc75f4d0fed0b6de2688b8
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 7988ca46928242dc0d9c8d6ffe5e0ba7d4c2ba3a774b848a2a463bebc9cac8df
-F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
+F www/whyallinone.md 47587c0dd6b2547bfa97da64a53acacd641ac8e924f0bd7f4c46566683821485
 F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c72726cf6
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 40d0b360d2cf9d72b4430836a6ddef5a4e75a6859cfb339528250bf257be35e5
-R 49f2356d4b61c39e933ef6ea7fc601dd
-U stephan
-Z ee99a008ecdb6ade758810c5abd84f5b
+P ddfc5c4267431da4d64b89f72a936cd49c3c6ce66e2970f3e711c3aaabb264b8
+R 7d7605817bc7b64e35a727fa6ae0348c
+U wyoung
+Z d4d11907d1d52807cd51e08c4af1b68a
 # Remove this line to create a well-formed Fossil manifest.
