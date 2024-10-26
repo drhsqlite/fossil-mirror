@@ -1,5 +1,5 @@
-C webui.wiki\stweaks.\n\n
-D 2024-10-26T00:19:58.854
+C (Grammar)\swikitheory.wiki\stiny\stweak.\n\n
+D 2024-10-26T03:34:51.968
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -957,11 +957,11 @@ F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c
 F www/webui.wiki b0a9e1731acf1934ac8f69534d03cd7c2814e364d762193e699855d969539168
 F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
 F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c72726cf6
-F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
+F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bdab6d6d9640c0d31f9ece251fb6b0a6a24807011b308a912f3d4f0a3b7b5a1b
-R d6c702858ee3c7d8d25f0f6edd4a0fab
+P 5b2bd1058cbd145ee53969b9f88ad6bcaa3470b6e22e9d8a2c608c8c0908ae1b
+R d4e4edacdf8f53132d9dd5f802ce5460
 U brickviking
-Z 8923cff7bbc00c1f2f20da049900bfbc
+Z dfe56ce6baab27c05c4b8a3c0696608d
 # Remove this line to create a well-formed Fossil manifest.
