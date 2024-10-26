@@ -1,5 +1,5 @@
-C Change\sto\swww/caps/index.md
-D 2024-10-26T10:35:05.467
+C Merge\swhyallinone.md\sfrom\strunk.
+D 2024-10-26T10:36:31.906
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -955,13 +955,13 @@ F www/unvers.wiki 9299caef1613ccb370a28698bafd2900d4f05c8c8e06620807879052bdcb61
 F www/userlinks.wiki 852a32a0842b48bb68e029029f67038b7494303fa07d3b3af556f607d0208fd8
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki b0a9e1731acf1934ac8f69534d03cd7c2814e364d762193e699855d969539168
-F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
+F www/whyallinone.md 47587c0dd6b2547bfa97da64a53acacd641ac8e924f0bd7f4c46566683821485
 F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c72726cf6
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d1d2298090f1fb66addc0df6cc8f4ccaa56ba7616c8fa39b966e9cb1f9b5ecbc
-R 70495f75af28e8500a7a82c01245f846
+P 0af46e5dc8c2de171c89eeeacbbba29addba31915b3803a5a1a28280277adbcf 7d50f6142cc0e925a382b925348c3a190d9ae54ab3796ce24ec1d2c7708a6945
+R 7fb6dd715949741b8f4c0e6e900bed16
 U brickviking
-Z 599b3345bfadb32b2cab175527267ffa
+Z 5920ae4fa61b4bb71c5c8ebd63f1e7d6
 # Remove this line to create a well-formed Fossil manifest.
