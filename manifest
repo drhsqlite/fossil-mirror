@@ -1,5 +1,5 @@
-C Merge\swhyallinone.md\sfrom\strunk.
-D 2024-10-26T10:36:31.906
+C test1.md\stiny\strivial\stext\stweak.\n\n
+D 2024-10-26T11:06:00.919
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -887,7 +887,7 @@ F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee7
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
 F www/loadmgmt.md 09ddb13024bd3fbbb85dd2eb11be279d478db3db5d0757299fd236ba28e92499
 F www/makefile.wiki 14f9da723eeea6f002a9d4067435e5f1239312e97ef1e46bcea173cc98e6fd73
-F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
+F www/mdtest/test1.md fcaaffd2e86feaa890814410d0c17f7873452f77f948164a2d29c9482c27ec99
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 39296236c7596193e364ddc06f522a64b7b058f8461697a08bc54641c2157b3c
 F www/mkindex.tcl f7fe5d63e29ea5d3cb0e9264e9b426bc8b03d5844db9f04a7e2780d110cfb3a2 x
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0af46e5dc8c2de171c89eeeacbbba29addba31915b3803a5a1a28280277adbcf 7d50f6142cc0e925a382b925348c3a190d9ae54ab3796ce24ec1d2c7708a6945
-R 7fb6dd715949741b8f4c0e6e900bed16
+P 31b8605e08be817f20455657f1d9fa4ad44003422138afae23cbad8f8ef40592
+R 4ca75db83ecc6052b43896717c3369b4
 U brickviking
-Z 5920ae4fa61b4bb71c5c8ebd63f1e7d6
+Z aec9b7d00c693b4e1d4e88ef1cc96817
 # Remove this line to create a well-formed Fossil manifest.
