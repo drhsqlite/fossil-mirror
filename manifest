@@ -1,5 +1,5 @@
-C (Typo)\swww/server/debian/service.md\sfix\sspelling.\n\n
-D 2024-10-27T01:49:56.527
+C Tiny\stweak\sto\sWindows\sservice.md\sarticle.\n\n
+D 2024-10-27T02:08:13.724
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -934,7 +934,7 @@ F www/server/windows/cgi.md 89c7bf1611509648df2362acfbcdd5bf275dda2fe8a1d64b3eed
 F www/server/windows/iis.md d842b0df8e3565f0b866ec1ce5152f93ad5b63cb14589d4194235e734f0e65d7
 F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3090199a5050f5e
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
-F www/server/windows/service.md 20d268dc56f5c87fb0c72ae87b79a0f5c6f6f7805b0ccffdfdb89e677b87278b
+F www/server/windows/service.md cf85475a76cc9f79c8025b888b84c02abf5c81e92fad3088159c777eaec6d974
 F www/server/windows/stunnel.md eb99980e32c075acd1dcd4c44bcebf2e67f3e0dba8419728beeefa2cdd8fbc3e
 F www/serverext.wiki 6ca97cde49057937831ef70adb207642e6befd1f5b18decb31ca1b35cd13b2f2
 F www/settings.wiki e8df2759821ed555cb47d068980f6904a374ad28ce3ba7cda695852e6ae07105
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e73731ffb7774660a1d9fdda16cbfa6ab1c3e7c5ea0113040df993d3ddd915b3
-R 677ad4bf5e7de921012066ab27a58609
+P f73188a5b840ce97af0f872d3563261a6bfd606fc3abcdbd263bda3751610fcc
+R 3f21fd0fc96e6308175eee712965153b
 U brickviking
-Z 0f103d78de0fe715651f3d60ff8d52ca
+Z 4a5156597fa4d6750c38b6b0517f3043
 # Remove this line to create a well-formed Fossil manifest.

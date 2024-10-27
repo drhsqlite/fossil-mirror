@@ -41,7 +41,7 @@ system account and accessible on port 8080 by default.  `fossil winsrv` can also
 start, stop, and delete the service.  For all available options, please execute
 `fossil help winsrv` on a windows install of Fossil.
 
-If you wish to server a directory of repositories, the `fossil winsrv` command
+If you wish to serve a directory of repositories, the `fossil winsrv` command
 requires a slightly different set of options vs. `fossil server`:
 
 ```
