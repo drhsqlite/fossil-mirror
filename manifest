@@ -1,5 +1,5 @@
-C Tiny\stweak\sto\sWindows\sservice.md\sarticle.\n\n
-D 2024-10-27T02:08:13.724
+C (Typo)\sopenbsd/fastcgi.md\schange.
+D 2024-10-28T09:08:29.108
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -922,7 +922,7 @@ F www/server/debian/service.md 0e4aae893c82c395d9745facd3570a4b2c893b3f37876a128
 F www/server/index.html 0ff54c3f63445b4d78cd4fed0cd84c6acc590631e1dc2c6919eb7222bf251ad9
 F www/server/macos/index.md bffa54bee41c93af0514d288f6a18debbf70b5cc0ce7f87da5c4707c9a16b000
 F www/server/macos/service.md 3ed197f29bef14f1b2bd34abb043021b024886d270942b757bfe423b4e06800e
-F www/server/openbsd/fastcgi.md b7d58a2e17f6136dca847abf16e561491a4f5cdb7794af3a74cb37c5ddf196f0
+F www/server/openbsd/fastcgi.md 2653742c272f7566ed93189057744409c6e04a1e32b099cf52c0d2a2a909583d
 F www/server/openbsd/index.md 196d9378a3fd6182fb826e800cb3eb55c44a63e69cbe344489913e55b0d77b54
 F www/server/openbsd/service.wiki 2cff4e972f45156e0906717dd6c094557a99761ffd6696f0a1eb0d720fc15647
 F www/server/whyuseaserver.wiki 7791e9e8e0c03d3c9f572fb37db03987e59d1d0d9bbeb03b4b98ef1edbec2533
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f73188a5b840ce97af0f872d3563261a6bfd606fc3abcdbd263bda3751610fcc
-R 3f21fd0fc96e6308175eee712965153b
+P 7a276195f2e509aff6c09428574bd3f3a915194d513f6b36edde9198e3486481
+R 2104ef3893f3a5ebad8d86447898ba6f
 U brickviking
-Z 4a5156597fa4d6750c38b6b0517f3043
+Z 7c7da61141f9f0ef1806e95c4c828e83
 # Remove this line to create a well-formed Fossil manifest.
