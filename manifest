@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk.
-D 2024-10-28T22:00:54.558
+C (Typos)\swww/json/api-auth.md\schanges.\n\n
+D 2024-10-28T22:21:54.533
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -863,7 +863,7 @@ F www/interwiki.md c1e8b87ed3dfe1ca09ce951e6ee15cbee50704986e2bdcf07fdd5bf55e177
 F www/javascript.md ee435e2efb1752666d6f4b9b42c3ebcb9aa9f930257897d7784fc100c4e2c0b8
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
-F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
+F www/json-api/api-auth.md 31250c99255a7f2fb9f83565d084c88be5adfc3a962e78bc7c52fab6eea47e73
 F www/json-api/api-branch.md fead45003061de747b18abf26212d1bac38f799e25118966aaf522a82ced7b54
 F www/json-api/api-checkout.md 63adf293598e2339cfbaefb197830c584e75e3e38aefdb4d0d5865fcab183928
 F www/json-api/api-config.md fd78b7737b04dac1b458259e2c9a4b8e49473533949420c8735c55afc654f229
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 203578f7102f0f3a7395279c33df3c9e33cf028d5ed758f45df563f648cc1727 8beffa1eb4154a2b0a65fc444997aad9fbcf4fbe9985333b82bc105bba277d0f
-R 88b03179bf9025a2f137b6dccb00a7b5
+P c050e96381128a82d5efa163a76a9dae0c60b8f4b8b4533a0c01a66bf15fc5d1
+R 8887680456cfbae902fc89f1401bf96f
 U brickviking
-Z 0c28d9328be96af91ed4ed3c7d1cb2c7
+Z 030ecdfdb6dac22f7cc817ade536c499
 # Remove this line to create a well-formed Fossil manifest.
