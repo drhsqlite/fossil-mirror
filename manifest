@@ -1,5 +1,5 @@
-C (Typos)\swww/json/conventions.md\s-\sVarious\sfixes.\n\n
-D 2024-10-28T09:48:47.358
+C (Typos)\swww/json-api/hacking.md\schanges.\n\n
+D 2024-10-28T10:44:09.157
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -881,7 +881,7 @@ F www/json-api/api-user.md 73bb8d8fc50a5214ef8c19c7277d71f5538705d9337fef05314b1
 F www/json-api/api-version.md 25fd79470bbab485de7ffddfa658d923be0aa514f86e0b4d3570c5bf2f06f6d6
 F www/json-api/api-wiki.md b96ed708d50b3c54d0e223291e6ea3d788613e1393d5306beeba77e84b3e3172
 F www/json-api/conventions.md 88a488874e96497940eff4816ffd008e6b7db23e409290c2a5eef9a9304afde3
-F www/json-api/hacking.md 5e916b51718458ceef1f2641c2c29774eaa89f8817f02dc77b91aab56f4d6a75
+F www/json-api/hacking.md 169f33efda63f71829d1356b059de995dc184e6f90c9cfc0a749e09bcfb614b1
 F www/json-api/index.md 1f06115e752536000e1a6aaca37f4e44671f4b9c89b4ce6b7024522224f142bc
 F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 33771ff04f7cc4309253516b95f21470b40fd4e1f52e09a985d84edaedf0eba1
-R 04aac9a9653101c288479c87454bba6d
+P 9d9193fd4db6cdbc386e148b026e284bf0a96cd1e624687b9ee68eb65a1c8550
+R 192a9d1dcd8718386af6b230b9c98ed9
 U brickviking
-Z 727703573822371943390d5ae89c1926
+Z bef520e372f0824854f9293e63276b2b
 # Remove this line to create a well-formed Fossil manifest.
