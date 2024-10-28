@@ -1,5 +1,5 @@
-C Reworked\sthe\sfinal\sparagraph\sof\sthe\swhyallinone\sdoc\sto\sbe\sclearer\sin\npointing\sout\sthat\sexternal\sweb\sapps\scan\sbe\slinked\sbidirectionally\swith\nFossil.
-D 2024-10-26T09:10:41.697
+C Fix\san\sissue\swith\s"fossil\spatch\spull"\son\sWindows\swhen\smultiple\sfiles\sare\nbeing\sdeleted\sby\sthe\spatch.
+D 2024-10-28T19:17:04.381
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -504,7 +504,7 @@ F src/merge.c dc6afed7bcecf0d946e22a0067fa63ed34eabe8cabe5e29df3e0d54e3dce2dab
 F src/merge3.c 19b67bb5c7742daa22348de9efd2db11de51a6f9e20940277e8557d187dd6147
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
-F src/patch.c 53be9e0fa4e60acdb2c44861ed17ba4a2411aa68e6189f7c15eb46524312241b
+F src/patch.c 2ab7db14cf10a0ecd89b664202979187f359eb16c523a213a666bf3cb2aeb866
 F src/path.c d3c1faab2d600f84228a538017df350ac64731536041a1756d2bf8988ab1118f
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a83c
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ddfc5c4267431da4d64b89f72a936cd49c3c6ce66e2970f3e711c3aaabb264b8
-R 7d7605817bc7b64e35a727fa6ae0348c
-U wyoung
-Z d4d11907d1d52807cd51e08c4af1b68a
+P 7d50f6142cc0e925a382b925348c3a190d9ae54ab3796ce24ec1d2c7708a6945
+R 47b1c7215d2c1072e0d944037fe99dd0
+U drh
+Z 0d793eed9af7c6366af8b057abdc23d6
 # Remove this line to create a well-formed Fossil manifest.
