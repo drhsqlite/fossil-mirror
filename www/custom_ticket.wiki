@@ -84,12 +84,14 @@ Look for the text "Contact:" (about halfway through).  Then insert these lines
 after the closing tr tag and before the "enable_output" line:
 
 <verbatim>
-<td align="right">Assigned to:</td><td bgcolor="#d0d0d0">
-  $<assigned_to>
-</td>
-<td align="right">Opened by:</td><td bgcolor="#d0d0d0">
-  $<opened_by>
-</td>
+<tr>
+  <td align="right">Assigned to:</td><td bgcolor="#d0d0d0">
+    $<assigned_to>
+  </td>
+  <td align="right">Opened by:</td><td bgcolor="#d0d0d0">
+    $<opened_by>
+  </td>
+</tr>
 </verbatim>
 
 This will add a row which displays these two fields, in the event the user has
