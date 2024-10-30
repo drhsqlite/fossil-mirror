@@ -185,7 +185,7 @@ level because of the low-numbered TCP port restriction we brought up
 above.
 
 This configuration says more or less the same thing as the socket part
-of an `inted` entry [exemplified elsewhere in this
+of an `inetd` entry [exemplified elsewhere in this
 documentation](../any/inetd.md).
 
 Next, create the service definition file in that same directory as

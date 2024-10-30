@@ -1,6 +1,6 @@
 # Markdown Link-test
 
-This document exist solely as a test for some of the hyperlinking
+This document exists solely as a test for some of the hyperlinking
 capabilities of Markdown as implemented by Fossil.
 
 ## Relative-Path Links
