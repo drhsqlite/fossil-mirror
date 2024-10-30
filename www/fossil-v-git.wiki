@@ -598,7 +598,7 @@ Because Git commingles the repository data with the initial checkout of
 that repository, the default mode of operation in Git is to stick to that
 single work/repo tree, even when that's a shortsighted way of working.
 
-Fossil doesn't work that way. A Fossil repository is a SQLite database
+Fossil doesn't work that way. A Fossil repository is an SQLite database
 file which is normally stored outside the working checkout directory. You can
 [/help?cmd=open | open] a Fossil repository any number of times into
 any number of working directories. A common usage pattern is to have one

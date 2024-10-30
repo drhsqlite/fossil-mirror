@@ -133,7 +133,7 @@ SCM-relevant state includes:
 - Raw file content of versioned files. These data are external to
   artifacts, which refer to them by their hashes. How they are stored
   is not the concern of the data model, but (spoiler alert!) Fossil
-  stores them in an sqlite database, one record per distinct hash, in
+  stores them in an SQLite database, one record per distinct hash, in
   its `blob` table (which we will cover more very soon).
 
 Non-SCM-relevant state includes:

@@ -313,7 +313,7 @@ send you an ale, as you might be hoping. Sorry.
 Fossil offers several methods of sending email:
 
   1.  Pipe the email message text into a command.
-  2.  Store email messages as entries in a SQLite database.
+  2.  Store email messages as entries in an SQLite database.
   3.  Store email messages as individual files in a directory.
   4.  Send emails to an SMTP relay.
   5.  Send emails directly to the recipients via SMTP.
@@ -392,7 +392,7 @@ it is running inside of a restrictive [chroot jail][cj] which is unable
 to hand off messages to the local MTA directly.
 
 When you configure a Fossil server this way, it adds outgoing email
-messages to a SQLite database file.  A separate daemon process can then
+messages to an SQLite database file.  A separate daemon process can then
 extract those messages for further disposition.
 
 Fossil includes a copy of [the daemon](/file/tools/email-sender.tcl)
