@@ -1,5 +1,5 @@
-C Merge\sdocumentation\stypo\sfixes\sby\sBrickViking.
-D 2024-10-30T10:39:11.516
+C Add\sability\sto\ssign\scheck-ins\swith\sssh.
+D 2024-10-30T13:21:14.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -400,7 +400,7 @@ F src/chat.c ecc49bf32d2858dcea409d90ffb6b828da89ec080790abc6972750d6ca456fa3
 F src/checkin.c afe5b74b5b78eae6a20f5d33f2d3a0040512b5d93a5b119c7e4fabdf90951fe6
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
-F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
+F src/clearsign.c 4deca06943c1052fb92e53c6853720e12db1b33266d229f4a69f1be792211d94
 F src/clone.c 9e98d0e64d8f19456a345f20275f1094b3c2022e27b0acbe5d7cbb6b917b06f5
 F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
 F src/comformat.c dc2c4c667ddab67e2c8d5eb96837a104d0bb827a27ca643fdda52ce9f530a0f2
@@ -960,8 +960,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8beffa1eb4154a2b0a65fc444997aad9fbcf4fbe9985333b82bc105bba277d0f d12511740f825271fae77a34f9bd68e4be5fcecd2c9fb69dfdb75d56d92a5b9d
-R 5b950064da9b6cc2e965e62f4ab7e265
-U drh
-Z 9cc068bf7262b1b44045fd2fd003676a
+P a3be0b80cebcbeccfc53a8412ab935910ac42312c81b2d715a90761bda75c43c
+R f52cb13e42f4642eacee8ef6e7ef589d
+T *branch * ssh-signing
+T *sym-ssh-signing *
+T -sym-trunk *
+U danield
+Z 94e866a6e45cd95a7d78f055fd5b497e
 # Remove this line to create a well-formed Fossil manifest.
