@@ -1,5 +1,5 @@
-C Add\sability\sto\ssign\scheck-ins\swith\sssh.
-D 2024-10-30T13:21:14.000
+C Remove\sssh\ssignature\sfrom\smanifests,\swhen\sneeded.
+D 2024-10-30T13:46:31.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -494,7 +494,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c 09de277fb95dcfd250c535864204b70d60d974fa1591c9d14a189c3d87dbd2c6
 F src/main.mk 176240dce5136923b41efc270fd3276d31a6c3e879fa46470282d550ab891d30
-F src/manifest.c f98b600d1850abeac77a1c13967c4f2ded26f8f968cd86a8e5a25943e385b54f
+F src/manifest.c ff73bb76d7e994bbefbaf43cd96835affd252d9e700a0ccd3dce584f4f612a0d
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
@@ -960,11 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a3be0b80cebcbeccfc53a8412ab935910ac42312c81b2d715a90761bda75c43c
-R f52cb13e42f4642eacee8ef6e7ef589d
-T *branch * ssh-signing
-T *sym-ssh-signing *
-T -sym-trunk *
+P bbed5d8d7e192fa9c72396fa87db09ec6bc008f64ed1b24b09b8cd358206a741
+R 3221ad9fba8210bb0b44b3f0a88e91f3
 U danield
-Z 94e866a6e45cd95a7d78f055fd5b497e
+Z 4401b55c017a2fff70cdb988260e22f1
 # Remove this line to create a well-formed Fossil manifest.
