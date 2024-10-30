@@ -78,7 +78,7 @@ system with these advanced features:
 
   7.  <b>Robust &amp; Reliable</b> —
       Fossil stores content using an [./fileformat.wiki | enduring file format]
-      in an SQLite database so that transactions are
+      in a SQLite database so that transactions are
       atomic even if interrupted by a power loss or system crash.
       Automatic [./selfcheck.wiki | self-checks] verify that all aspects of
       the repository are consistent prior to each commit.

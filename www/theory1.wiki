@@ -47,7 +47,7 @@ synchronize by computing the union of their artifact sets.  SQL and
 relation theory play no role in any of this.
 
 SQL enters the picture only in the implementation details.  The current
-implementation of Fossil stores each artifact as a BLOB in an SQLite
+implementation of Fossil stores each artifact as a BLOB in a SQLite
 database.
 The current implementation also parses up each control artifact as it
 arrives and stores the information discovered from that parse in various
