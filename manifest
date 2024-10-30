@@ -1,5 +1,5 @@
-C Remove\sssh\ssignature\sfrom\smanifests,\swhen\sneeded.
-D 2024-10-30T13:46:31.000
+C An\sssh\ssignature\sshould\slook\slike\sa\scontrol\sartifact.
+D 2024-10-30T14:08:33.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -406,7 +406,7 @@ F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
 F src/comformat.c dc2c4c667ddab67e2c8d5eb96837a104d0bb827a27ca643fdda52ce9f530a0f2
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 2792bba61c6fd0bf8adac377169513ef1a38286b603cc73ea78fe7ffd8d9f071
-F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
+F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bbed5d8d7e192fa9c72396fa87db09ec6bc008f64ed1b24b09b8cd358206a741
-R 3221ad9fba8210bb0b44b3f0a88e91f3
+P d346d6d20313e112eef0dbcf126c9d94f13057695031053a79a0a7f3cd121d00
+R 74f3d55fe77e8931a689ffe1225ec2e9
 U danield
-Z 4401b55c017a2fff70cdb988260e22f1
+Z 6394293087658c869753833fe16611d7
 # Remove this line to create a well-formed Fossil manifest.
