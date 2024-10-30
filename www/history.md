@@ -55,7 +55,7 @@ The SQLite developers reacted by creating [better check-in comments][330].
 At about this same time, the [Monotone][335] system appeared.
 Monotone was one of the first distributed version control systems. As far as
 this author is aware, Monotone was the first VCS to make use of
-SHA1 to identify artifacts.  Monotone stored its content in a SQLite
+SHA1 to identify artifacts.  Monotone stored its content in an SQLite
 database, which is what brought it to the attention of the SQLite architect.
 These design choices were a major source of inspiration for Fossil.
 

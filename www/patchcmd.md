@@ -83,7 +83,7 @@ fi
 ## Implementation Details
 
 The "fossil patch create" command records all of the local, uncommitted
-changes in a SQLite database file.  If the argument to "fossil patch create"
+changes in an SQLite database file.  If the argument to "fossil patch create"
 is a filename, then the patch-file database is written into that file.
 If the argument is "-" then the database is written on standard output.
 
