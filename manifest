@@ -1,5 +1,5 @@
-C Reverted\s'a\sSQLite'\sto\s'an\sSQLite'\son\sadvice.
-D 2024-10-30T11:05:10.396
+C Merge\sfrom\strunk
+D 2024-10-31T02:16:33.011
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -740,7 +740,7 @@ F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 
 F tools/makeheaders.c 5f464a5a25ae45978e49e1cc230cc4c6f2fddc8f2f45a044fff02dc074a0bcf6
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl fe2ba46bf1162c090ce85cce191124e3a85b40ee300c0cdaa5c6ecb258027ffc x
-F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
+F tools/man_page_command_list.tcl 8f7f2c0717cb7e2ddece0a92bd10809bb16a1d8c3aa8bf6f77f6143b9282a099 x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c 4fec986d4dda15fff9f97356a6aa20a77092db356bb86177b3bcef50c53e2a2a
 F tools/mkversion.c 50e3be4716625ffea38d0f8248051de7372b78282744f33dde201bed5dd977cb
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b9079597a41d6fe4afc13da5ba97e1ff192abf0f0dfb0ec154a07eb9c25f0ac1
-R 3b270ada2660e99c20cd44da523bfcb0
+P b0d7fb4ad40d6cc3eab8a0cf60a29bf9110914bde87030f67342398c3c347bf0 1995ab123e5ae4bd22530479a29d8367ce98f0ed24c17848cb9d3f2987c4af28
+R 10a7eddff86b561be8c7803faa773ff7
 U brickviking
-Z f1bdd0aef014cf42a6135e92aa63990d
+Z 6a51184b1f448f7a60dc1c35262a65cb
 # Remove this line to create a well-formed Fossil manifest.
