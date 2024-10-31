@@ -1,5 +1,5 @@
-C Updated\sman\spage.
-D 2024-10-31T02:37:48.638
+C (Typo)\sBUILD.txt\ssmall\schange.
+D 2024-10-31T03:40:16.685
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -9,7 +9,7 @@ F .fossil-settings/ignore-glob ec33bee0751eb55ec94623f8ef7cf569b06645c2d7ab08b2e
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
-F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
+F BUILD.txt a92d9dc35ad8b4dfb7c1e35278362da66ccbc5a41ee6decdd8727e17fd4542e0
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 2054fbcf2af6a12d67375f377d2779f4e30bcc19815af1c6e0c588f9c0e18063
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1995ab123e5ae4bd22530479a29d8367ce98f0ed24c17848cb9d3f2987c4af28
-R 4ec5d9e183b061a69276be157d405706
+P 18ed5157fc35e75d058db399ef7ae61875faf57a0a9b0f254256a4455bffc763
+R 48728cfab1434e457b7a2111f640e247
 U brickviking
-Z 918e1ea64ac814ee3415a2b693afba13
+Z 1bfec2a0e8b2dbb5a2020f31d7854065
 # Remove this line to create a well-formed Fossil manifest.
