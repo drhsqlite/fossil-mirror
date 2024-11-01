@@ -1,5 +1,5 @@
-C Mention\sthe\s`fossil\sstatus\s-b|--brief'\soption\sin\sthe\schange\slog.
-D 2024-11-01T17:06:00.000
+C Help\sedit\sto\stree\scommand.
+D 2024-11-01T21:23:26.932
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -397,7 +397,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c b791622afb8c8c5d3ea3fb40372b04e8d16af4e7595a394fe850dac8277b13b0
 F src/chat.c ecc49bf32d2858dcea409d90ffb6b828da89ec080790abc6972750d6ca456fa3
-F src/checkin.c afe5b74b5b78eae6a20f5d33f2d3a0040512b5d93a5b119c7e4fabdf90951fe6
+F src/checkin.c 6ed90559bb9d2cfd0fe97736c3411dab012b19722b605015b573eee1476e1ea5
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be78b70f8746252a9949e0c757e982c443914d97801fb6ab72e7e802388aa479
-R 4b8954ff816228ea00bc45c768260820
-U florian
-Z 50e986842c9398c1de3e519a8c8c2187
+P 0cf722b5e6b55969e08c9335f5179ee0c791c55325a792f3633e21a0da91366a
+R 78b70a739d4da632cd8038fa774ba6e9
+U brickviking
+Z 08401f4b7088eb7cd08542ce7327c238
 # Remove this line to create a well-formed Fossil manifest.
