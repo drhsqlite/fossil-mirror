@@ -13,6 +13,7 @@
   *  Add new query parameters to the [/help?cmd=/timeline|/timeline page]:
      d2=, p2=, and dp2=.
   *  Add options to the [/help?cmd=tag|fossil tag] command that will list tag values.
+  *  Add the -b|--brief option to the [/help?cmd=status|fossil status] command.
   *  Add ability to upload unversioned files via the [/help?cmd=/uvlist|/uvlist page].
   *  Add history search to the [/help?cmd=/chat|/chat page].
   *  Add Unix socket support to the [/help?cmd=server|server command].
