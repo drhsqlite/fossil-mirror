@@ -44,6 +44,7 @@ h1.page-title {
 .doc      h1.page-title,
 .wiki     h1.page-title {
   display: block;   /* …for potentially long doc titles… */
+  color: #444;
 }
 .artifact .title > .page-title,
 .dir      .title > .page-title,
