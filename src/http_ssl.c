@@ -303,6 +303,7 @@ static void ssl_global_init_client(int bDebug){
           break;
         }
       }
+      if( zFile ) break;
     }
     if( bDebug ){
       fossil_print("case-0:  X509_get_default_cert_file_env = %s\n",
