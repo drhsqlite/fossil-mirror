@@ -1,5 +1,5 @@
-C Add\sthe\stest-trust-store\scommand\sfor\sdebugging\sTLS\sproblems.
-D 2024-11-04T11:22:13.953
+C Add\sthe\s--no-cert-verify\soption\sto\sthe\stest-httpmsg\scommand.
+D 2024-11-04T12:12:03.648
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -464,7 +464,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 779a53a3fb5680934dcd440105d6019c82c220b60c7ed2b528ac16828f772f6c
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 3f1e118b64554d1b91a678e4c7d1d74cd90dcc042b0b40d8c13e052c15f1614f
+F src/http.c 6bdea07494dac3cde313b12a97c3c16e55b966be820d6497b61fdda3bfb52fea
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c e5d4a5e1e96ca6ad8af8580ccc0310aee2e1158f7df586ed23ce308d942bb867
 F src/http_transport.c aa9557591574ef2c5766e24f9fa90222fa15d2cac6a71471455557dae4e010a7
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6bb5ff4aeab1b8115a594488fc23f3a0b9726a68d7fa935777a93140dbb8286b
-R 546649fa42baf20705ca2791a2548a97
+P 28ea88e77039030fe7cd5d8a381a12f4c8613269dd925ccdda30b4bc4fa6923b
+R 4b5976a546c686450dd41d7794da906d
 U drh
-Z 4d11a4411b07063ace0b80fae60585c7
+Z a497cb6c63113acbcbe8cc892712d56f
 # Remove this line to create a well-formed Fossil manifest.
