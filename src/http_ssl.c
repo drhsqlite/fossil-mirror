@@ -249,7 +249,7 @@ static const char *ssl_asn1time_to_iso8601(ASN1_TIME *asn1_time,
 ** Call this routine once before any other use of the SSL interface.
 ** This routine does initial configuration of the SSL module.
 */
-static void ssl_global_init_client(void){
+static void ssl_global_init_client(int bDebug){
   const char *identityFile;
 
   if( sslIsInit==0 ){
@@ -304,6 +304,10 @@ static void ssl_global_init_client(void){
         }
       }
     }
+    if( bDebug ){
+      fossil_print("zCaFile      = %s\n"
+                   "zCaDirectory = %s\n", zCaFile, zCaDirectory);
+    }
     if( zFile==0 ){
       /* fossil_fatal("Cannot find a trust store"); */
     }else if( SSL_CTX_load_verify_locations(sslCtx, zCaFile, zCaDirectory)==0 ){
@@ -334,6 +338,9 @@ static void ssl_global_init_client(void){
     }else{
       identityFile = db_get("ssl-identity", 0);
     }
+    if( bDebug ){
+      fossil_print("identifyFile = %s\n", identityFile);
+    }
     if( identityFile!=0 && identityFile[0]!='\0' ){
       if( SSL_CTX_use_certificate_chain_file(sslCtx,identityFile)!=1
        || SSL_CTX_use_PrivateKey_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
@@ -361,6 +368,17 @@ void ssl_global_shutdown(void){
     sslIsInit = 0;
   }
 }
+
+/*
+** COMMAND: test-trust-store
+**
+** Show the trust store that is used by OpenSSL. 
+*/
+void test_openssl_trust_store(void){
+  ssl_global_init_client(1);
+  ssl_global_shutdown();
+}
+
 
 /*
 ** Close the currently open client SSL connection.  If no connection is open,
@@ -448,7 +466,7 @@ int ssl_open_client(UrlData *pUrlData){
   X509 *cert;
   const char *zRemoteHost;
 
-  ssl_global_init_client();
+  ssl_global_init_client(0);
   if( pUrlData->useProxy ){
     int rc;
     char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
