@@ -305,8 +305,23 @@ static void ssl_global_init_client(int bDebug){
       }
     }
     if( bDebug ){
-      fossil_print("zCaFile      = %s\n"
-                   "zCaDirectory = %s\n", zCaFile, zCaDirectory);
+      fossil_print("case-0:  X509_get_default_cert_file_env = %s\n",
+                   X509_get_default_cert_file_env());
+      fossil_print("case-1:  X509_get_default_cert_dir_env = %s\n",
+                   X509_get_default_cert_dir_env());
+      fossil_print("case-2:  ssl-ca-location = %s\n",
+             g.repositoryOpen ? db_get("ssl-ca-location","(none)") : "(none)");
+      fossil_print("case-3:  X509_get_default_cert_file = %s\n",
+                   X509_get_default_cert_file());
+      fossil_print("case-4:  X509_get_default_cert_dir = %s\n",
+                   X509_get_default_cert_dir());
+      if( i>=5 ){
+        fossil_print("No trust store found.\n");
+      }else{
+        fossil_print("case-used    = %d\n"
+                     "zCaFile      = %s\n"
+                     "zCaDirectory = %s\n", i, zCaFile, zCaDirectory);
+      }
     }
     if( zFile==0 ){
       /* fossil_fatal("Cannot find a trust store"); */
@@ -338,14 +353,18 @@ static void ssl_global_init_client(int bDebug){
     }else{
       identityFile = db_get("ssl-identity", 0);
     }
-    if( bDebug ){
-      fossil_print("identifyFile = %s\n", identityFile);
-    }
     if( identityFile!=0 && identityFile[0]!='\0' ){
+      if( bDebug ){
+        fossil_print("identifyFile = %s\n", identityFile);
+      }
       if( SSL_CTX_use_certificate_chain_file(sslCtx,identityFile)!=1
        || SSL_CTX_use_PrivateKey_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
       ){
         fossil_fatal("Could not load SSL identity from %s", identityFile);
+      }
+    }else{
+      if( bDebug ){
+        fossil_print("No identify file found.\n");
       }
     }
     /* Register a callback to tell the user what to do when the server asks
