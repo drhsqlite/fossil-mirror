@@ -770,6 +770,7 @@ write_err:
 ** Options:
 **     --compress                 Use ZLIB compression on the payload
 **     --mimetype TYPE            Mimetype of the payload
+**     --no-cert-verify           Disable TLS cert verification
 **     --out FILE                 Store the reply in FILE
 **     -v                         Verbose output
 **     --xfer                     PAYLOAD in a Fossil xfer protocol message
@@ -785,6 +786,9 @@ void test_httpmsg_command(void){
   zOutFile = find_option("out","o",1);
   if( find_option("verbose","v",0)!=0 ) mHttpFlags |= HTTP_VERBOSE;
   if( find_option("compress",0,0)!=0 ) mHttpFlags &= ~HTTP_NOCOMPRESS;
+  if( find_option("no-cert-verify",0,0)!=0 ){
+    ssl_disable_cert_verification();
+  }
   if( find_option("xfer",0,0)!=0 ){
     mHttpFlags |= HTTP_USE_LOGIN;
     mHttpFlags &= ~HTTP_GENERIC;

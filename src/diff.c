@@ -2464,7 +2464,7 @@ static void longestCommonSequence(
   int nextCutoff = -1;       /* Value of cutoff for next iteration */
 
   span = (iE1 - iS1) + (iE2 - iS2);
-  bestScore = -10000;
+  bestScore = -9223300000*(sqlite3_int64)1000000000;
   score = 0;
   iSXb = iSXp = iS1;
   iEXb = iEXp = iS1;

@@ -969,8 +969,8 @@ void ls_cmd(void){
 **
 ** Usage: %fossil tree ?OPTIONS? ?PATHS ...?
 **
-** List all files in the current check-out in after the fashion of the
-** "tree" command.  If PATHS is included, only the named files
+** List all files in the current check-out much like the "tree"
+** command does.  If PATHS is included, only the named files
 ** (or their children if directories) are shown.
 **
 ** Options:
