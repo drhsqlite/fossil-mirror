@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk
-D 2024-11-05T09:55:04.340
+C (Grammar)\sMissing\sterminating\speriod,\sone\sis\spresent\sin\spreceding\sphrase.
+D 2024-11-05T10:00:50.204
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -441,7 +441,7 @@ F src/fossil.dom.js b4b1d84f17a420603124f4f2cc821852d9815ec7cec338ab124b4e12582e
 F src/fossil.fetch.js 79291600341f980b23bc20455e0415fae0db0a3a355aae4dffbc0e431f210cc8
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 3cefe611f1b551ccc0393567cb23b60f9c078347289080b3e69e0d46bbcdbe50
+F src/fossil.page.chat.js 79429e7e100d758cd734e63cd629799f950ecd214130ce20a970d645fada887c
 F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f230c108063bdcc5
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 354e405e2813de4bfeec16d12a4dbfb370b2fa89f25325f245c51c194115adbf
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8aa183761b9e197f11850cb65ea7d13e30d29b63e57e848fa1774ee50491294 735bd3dccbeecada15611a1eacf76d2b9822f44223a918282ac4eab0acb78c5f
-R ad4429c21768832288faeba4204d1a1b
+P e367ca73732011d92ea3d013839ecc7286e3d412173d243e1a0d1a9d2d2f1b97
+R b91299ada4c119380273d7f4a1aa04b7
 U brickviking
-Z 4f2cd45d5e3198da0febd52d1b1aeffa
+Z 6708b9965a1c3b2203dedffde704da00
 # Remove this line to create a well-formed Fossil manifest.
