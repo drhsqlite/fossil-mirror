@@ -1,5 +1,5 @@
-C Fix\s(harmless)\soff-by-one\serror\sin\sthe\snew\stest-trust-store\scommand.
-D 2024-11-04T13:09:01.496
+C Create\snew\sbranch\snamed\s"bv-infotool"
+D 2024-11-05T05:57:28.847
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -960,8 +960,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa5bddda68337cec70bcb378ce4501053d5bbf2ace8615891d9374c51837a908
+P 735bd3dccbeecada15611a1eacf76d2b9822f44223a918282ac4eab0acb78c5f
 R ad4429c21768832288faeba4204d1a1b
-U drh
-Z 4369e57dff6de4def9f1d35565b7122f
+T *branch * bv-infotool
+T *sym-bv-infotool *
+T -sym-trunk *
+U brickviking
+Z 6b0b3726abf8d06d26f634a248ad434a
 # Remove this line to create a well-formed Fossil manifest.
