@@ -122,9 +122,6 @@ typedef unsigned short int u16;
 typedef sqlite3_int64 i64;
 typedef sqlite3_uint64 u64;
 typedef unsigned char u8;
-#if SQLITE_USER_AUTHENTICATION
-# include "sqlite3userauth.h"
-#endif
 #include <ctype.h>
 #include <stdarg.h>
 
@@ -410,8 +407,8 @@ FILE *sqlite3_fopen(const char *zFilename, const char *zMode){
 
   sz1 = (int)strlen(zFilename);
   sz2 = (int)strlen(zMode);
-  b1 = malloc( (sz1+1)*sizeof(b1[0]) );
-  b2 = malloc( (sz2+1)*sizeof(b1[0]) );
+  b1 = sqlite3_malloc( (sz1+1)*sizeof(b1[0]) );
+  b2 = sqlite3_malloc( (sz2+1)*sizeof(b1[0]) );
   if( b1 && b2 ){
     sz1 = MultiByteToWideChar(CP_UTF8, 0, zFilename, sz1, b1, sz1);
     b1[sz1] = 0;
@@ -419,8 +416,8 @@ FILE *sqlite3_fopen(const char *zFilename, const char *zMode){
     b2[sz2] = 0;
     fp = _wfopen(b1, b2);
   }
-  free(b1);
-  free(b2);
+  sqlite3_free(b1);
+  sqlite3_free(b2);
   simBinaryOther = 0;
   return fp;
 }
@@ -436,8 +433,8 @@ FILE *sqlite3_popen(const char *zCommand, const char *zMode){
 
   sz1 = (int)strlen(zCommand);
   sz2 = (int)strlen(zMode);
-  b1 = malloc( (sz1+1)*sizeof(b1[0]) );
-  b2 = malloc( (sz2+1)*sizeof(b1[0]) );
+  b1 = sqlite3_malloc( (sz1+1)*sizeof(b1[0]) );
+  b2 = sqlite3_malloc( (sz2+1)*sizeof(b1[0]) );
   if( b1 && b2 ){
     sz1 = MultiByteToWideChar(CP_UTF8, 0, zCommand, sz1, b1, sz1);
     b1[sz1] = 0;
@@ -445,8 +442,8 @@ FILE *sqlite3_popen(const char *zCommand, const char *zMode){
     b2[sz2] = 0;
     fp = _wpopen(b1, b2);
   }
-  free(b1);
-  free(b2);
+  sqlite3_free(b1);
+  sqlite3_free(b2);
   return fp;
 }
 
@@ -460,7 +457,7 @@ char *sqlite3_fgets(char *buf, int sz, FILE *in){
     ** that into UTF-8.  Otherwise, non-ASCII characters all get translated
     ** into '?'.
     */
-    wchar_t *b1 = malloc( sz*sizeof(wchar_t) );
+    wchar_t *b1 = sqlite3_malloc( sz*sizeof(wchar_t) );
     if( b1==0 ) return 0;
     _setmode(_fileno(in), IsConsole(in) ? _O_WTEXT : _O_U8TEXT);
     if( fgetws(b1, sz/4, in)==0 ){
@@ -526,7 +523,7 @@ int sqlite3_fputs(const char *z, FILE *out){
     ** use O_U8TEXT for everything in text mode.
     */
     int sz = (int)strlen(z);
-    wchar_t *b1 = malloc( (sz+1)*sizeof(wchar_t) );
+    wchar_t *b1 = sqlite3_malloc( (sz+1)*sizeof(wchar_t) );
     if( b1==0 ) return 0;
     sz = MultiByteToWideChar(CP_UTF8, 0, z, sz, b1, sz);
     b1[sz] = 0;
@@ -5072,10 +5069,10 @@ int sqlite3_percentile_init(
 ){
   int rc = SQLITE_OK;
   unsigned int i;
-#if defined(SQLITE3_H) || defined(SQLITE_STATIC_PERCENTILE)
-  (void)pApi;      /* Unused parameter */
-#else
+#ifdef SQLITE3EXT_H
   SQLITE_EXTENSION_INIT2(pApi);
+#else
+  (void)pApi;      /* Unused parameter */
 #endif
   (void)pzErrMsg;  /* Unused parameter */
   for(i=0; i<sizeof(aPercentFunc)/sizeof(aPercentFunc[0]); i++){
@@ -6833,7 +6830,7 @@ static int seriesBestIndex(
       continue;
     }
     if( pConstraint->iColumn<SERIES_COLUMN_START ){
-      if( pConstraint->iColumn==SERIES_COLUMN_VALUE ){
+      if( pConstraint->iColumn==SERIES_COLUMN_VALUE && pConstraint->usable ){
         switch( op ){
           case SQLITE_INDEX_CONSTRAINT_EQ:
           case SQLITE_INDEX_CONSTRAINT_IS: {
@@ -6841,7 +6838,9 @@ static int seriesBestIndex(
             idxNum &= ~0x3300;
             aIdx[5] = i;
             aIdx[6] = -1;
+#ifndef ZERO_ARGUMENT_GENERATE_SERIES
             bStartSeen = 1;
+#endif
             break;
           }
           case SQLITE_INDEX_CONSTRAINT_GE: {
@@ -6849,7 +6848,9 @@ static int seriesBestIndex(
             idxNum |=  0x0100;
             idxNum &= ~0x0200;
             aIdx[5] = i;
+#ifndef ZERO_ARGUMENT_GENERATE_SERIES
             bStartSeen = 1;
+#endif
             break;
           }
           case SQLITE_INDEX_CONSTRAINT_GT: {
@@ -6857,7 +6858,9 @@ static int seriesBestIndex(
             idxNum |=  0x0200;
             idxNum &= ~0x0100;
             aIdx[5] = i;
+#ifndef ZERO_ARGUMENT_GENERATE_SERIES
             bStartSeen = 1;
+#endif
             break;
           }
           case SQLITE_INDEX_CONSTRAINT_LE: {
@@ -21937,8 +21940,8 @@ const char *zSkipValidUtf8(const char *z, int nAccept, long ccm){
   const char *pcLimit = (nAccept>=0)? z+nAccept : 0;
   assert(z!=0);
   while( (pcLimit)? (z<pcLimit) : (ng-- != 0) ){
-    char c = *z;
-    if( (c & 0x80) == 0 ){
+    unsigned char c = *(u8*)z;
+    if( c<0x7f ){
       if( ccm != 0L && c < 0x20 && ((1L<<c) & ccm) != 0 ) return z;
       ++z; /* ASCII */
     }else if( (c & 0xC0) != 0xC0 ) return z; /* not a lead byte */
@@ -22006,7 +22009,7 @@ static void output_c_string(FILE *out, const char *z){
 }
 
 /*
-** Output the given string as a quoted according to JSON quoting rules.
+** Output the given string as quoted according to JSON quoting rules.
 */
 static void output_json_string(FILE *out, const char *z, i64 n){
   char c;
@@ -22044,8 +22047,8 @@ static void output_json_string(FILE *out, const char *z, i64 n){
     if( cbsSay ){
       ace[1] = cbsSay;
       sqlite3_fputs(ace, out);
-    }else if( c<=0x1f ){
-      sqlite3_fprintf(out, "u%04x", c);
+    }else if( c<=0x1f || c==0x7f ){
+      sqlite3_fprintf(out, "\\u%04x", c);
     }else{
       ace[1] = (char)c;
       sqlite3_fputs(ace+1, out);
@@ -25656,7 +25659,8 @@ void close_db(sqlite3 *db){
   }
 }
 
-#if HAVE_READLINE || HAVE_EDITLINE
+#if (HAVE_READLINE || HAVE_EDITLINE) \
+  && !defined(SQLITE_OMIT_READLINE_COMPLETION)
 /*
 ** Readline completion callbacks
 */
@@ -25694,15 +25698,22 @@ static char **readline_completion(const char *zText, int iStart, int iEnd){
 ** Linenoise completion callback. Note that the 3rd argument is from
 ** the "msteveb" version of linenoise, not the "antirez" version.
 */
-static void linenoise_completion(const char *zLine, linenoiseCompletions *lc,
-                                 void *pUserData){
+static void linenoise_completion(
+  const char *zLine,
+  linenoiseCompletions *lc
+#if HAVE_LINENOISE==2
+  ,void *pUserData
+#endif
+){
   i64 nLine = strlen(zLine);
   i64 i, iStart;
   sqlite3_stmt *pStmt = 0;
   char *zSql;
   char zBuf[1000];
 
+#if HAVE_LINENOISE==2
   UNUSED_PARAMETER(pUserData);
+#endif
   if( nLine>(i64)sizeof(zBuf)-30 ) return;
   if( zLine[0]=='.' || zLine[0]=='#') return;
   for(i=nLine-1; i>=0 && (isalnum(zLine[i]) || zLine[i]=='_'); i--){}
@@ -31654,69 +31665,6 @@ static int do_meta_command(char *zLine, ShellState *p){
   }else
 #endif
 
-#if SQLITE_USER_AUTHENTICATION
-  if( c=='u' && cli_strncmp(azArg[0], "user", n)==0 ){
-    if( nArg<2 ){
-      eputz("Usage: .user SUBCOMMAND ...\n");
-      rc = 1;
-      goto meta_command_exit;
-    }
-    open_db(p, 0);
-    if( cli_strcmp(azArg[1],"login")==0 ){
-      if( nArg!=4 ){
-        eputz("Usage: .user login USER PASSWORD\n");
-        rc = 1;
-        goto meta_command_exit;
-      }
-      rc = sqlite3_user_authenticate(p->db, azArg[2], azArg[3],
-                                     strlen30(azArg[3]));
-      if( rc ){
-        sqlite3_fprintf(stderr,"Authentication failed for user %s\n", azArg[2]);
-        rc = 1;
-      }
-    }else if( cli_strcmp(azArg[1],"add")==0 ){
-      if( nArg!=5 ){
-        eputz("Usage: .user add USER PASSWORD ISADMIN\n");
-        rc = 1;
-        goto meta_command_exit;
-      }
-      rc = sqlite3_user_add(p->db, azArg[2], azArg[3], strlen30(azArg[3]),
-                            booleanValue(azArg[4]));
-      if( rc ){
-        sqlite3_fprintf(stderr,"User-Add failed: %d\n", rc);
-        rc = 1;
-      }
-    }else if( cli_strcmp(azArg[1],"edit")==0 ){
-      if( nArg!=5 ){
-        eputz("Usage: .user edit USER PASSWORD ISADMIN\n");
-        rc = 1;
-        goto meta_command_exit;
-      }
-      rc = sqlite3_user_change(p->db, azArg[2], azArg[3], strlen30(azArg[3]),
-                              booleanValue(azArg[4]));
-      if( rc ){
-        sqlite3_fprintf(stderr,"User-Edit failed: %d\n", rc);
-        rc = 1;
-      }
-    }else if( cli_strcmp(azArg[1],"delete")==0 ){
-      if( nArg!=3 ){
-        eputz("Usage: .user delete USER\n");
-        rc = 1;
-        goto meta_command_exit;
-      }
-      rc = sqlite3_user_delete(p->db, azArg[2]);
-      if( rc ){
-        sqlite3_fprintf(stderr,"User-Delete failed: %d\n", rc);
-        rc = 1;
-      }
-    }else{
-      eputz("Usage: .user login|add|edit|delete ...\n");
-      rc = 1;
-      goto meta_command_exit;
-    }
-  }else
-#endif /* SQLITE_USER_AUTHENTICATION */
-
   if( c=='v' && cli_strncmp(azArg[0], "version", n)==0 ){
     char *zPtrSz = sizeof(void*)==8 ? "64-bit" : "32-bit";
     sqlite3_fprintf(p->out, "SQLite %s %s\n" /*extra-version-info*/,
@@ -33156,9 +33104,11 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
         }
       }
       if( zHistory ){ shell_read_history(zHistory); }
-#if HAVE_READLINE || HAVE_EDITLINE
+#if (HAVE_READLINE || HAVE_EDITLINE) && !defined(SQLITE_OMIT_READLINE_COMPLETION)
       rl_attempted_completion_function = readline_completion;
-#elif HAVE_LINENOISE
+#elif HAVE_LINENOISE==1
+      linenoiseSetCompletionCallback(linenoise_completion);
+#elif HAVE_LINENOISE==2
       linenoiseSetCompletionCallback(linenoise_completion, NULL);
 #endif
       data.in = 0;

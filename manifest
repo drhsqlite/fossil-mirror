@@ -1,5 +1,5 @@
-C Version\s2.25
-D 2024-11-06T12:59:09.889
+C Increase\sthe\sversion\snumber\sto\s2.26\sin\sorder\sto\sstart\sthe\snext\srelease\scycle.\nUpdate\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.48.0\spre-release\sfor\stesting.\nAdd\sthe\s2_26\stag\sto\sthe\schange\slog.
+D 2024-11-06T13:21:03.033
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -16,7 +16,7 @@ F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c
 F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION 4ecd43a7f1483288486cdcff7ddf68299735b82a8804a9dc0da3c63084fd4c40
+F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
 F auto.def fca5446493fbd27a40ceef594d7ac788a2118edde58daaf38c9abef275b2ea7d
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
@@ -273,9 +273,9 @@ F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc3
 F extsrc/pikchr.c 85e65b968651b342c46e6334f4772b45d6cbb4317c5cbaa95d207779a50c6709
 F extsrc/pikchr.js ef8475dfa65cdeff238905f1d7c5d22af6d576eb073b84789f6cb9d00d8f2585
 F extsrc/pikchr.wasm e1c849f2a839522073ee700e0b1f51a9a453cb702a5181e0ff25cfc32f59bc47
-F extsrc/shell.c 4fc1e8427bc9bfddfcf243bca37d86ba68ac318e62caffccec5f8bbcce551c20
-F extsrc/sqlite3.c bcec3a4fbc97e973547924677332996ef64e06a6d10d22e2c2344f447536cc29
-F extsrc/sqlite3.h 962a86bad9ba01999c59baded4ea769e1fde785a89be9532cfc7e70d84c9f000
+F extsrc/shell.c faf147981ec47c17827d021b12c9835863e2659e479b6ad02c6d353231874cfc
+F extsrc/sqlite3.c 810d7b3b50045edb955a847b5cfbc0eaeabf80ed7a285b6eca594a3e40a35ccf
+F extsrc/sqlite3.h 6cce197407e91d476f78d288b67821502f4a0594c71b7b87f3c2e43f6a6815fe
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -784,7 +784,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 0d8ae1d55db302a98d95da41ac75de4dcc665b66262e1873b5a3e6bcabf213d0
-F www/changes.wiki 10cf05d87ed84ad54daf352f2f6873141554ea479d99ebe69280fc874f234b71
+F www/changes.wiki ca63b8270de2fc3e76aec19d0769f17914aabf4fd471b7d4ec0e7be3eda6dc1b
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -960,10 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c8b678103191a9d93281aee54ae387a2b7a7a99200a6eb41e78e53b9004a67c
-R 850c46530739d29ae46b069e8401a64a
-T +sym-release *
-T +sym-version-2.25 *
+P 8f798279d5f7c3288099915f2ea88c57b6d6039f3f05eac5e237897af33376dc
+R b36e563b0cbbbee4ddcd0b160353fdd7
 U drh
-Z d50a91c89ab2acd89f8b4774e2a2b80d
+Z 549173a14a9f0c4fce704214637e747b
 # Remove this line to create a well-formed Fossil manifest.
