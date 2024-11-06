@@ -1,5 +1,5 @@
-C Mention\sthe\sSQLite\sand\sOpenSSL\sversions\sin\sthe\schange\slog\sfor\s2.25.
-D 2024-11-06T12:44:28.196
+C Version\s2.25
+D 2024-11-06T12:59:09.889
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -784,7 +784,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 0d8ae1d55db302a98d95da41ac75de4dcc665b66262e1873b5a3e6bcabf213d0
-F www/changes.wiki aca0b154bbb94c29cbdc12792cd223210d823f101737996dca2ec827062fc723
+F www/changes.wiki 10cf05d87ed84ad54daf352f2f6873141554ea479d99ebe69280fc874f234b71
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -857,7 +857,7 @@ F www/hooks.md 9295ae0ba5e7a8a428f561f1dc1d30b9a2d41a2d9712a7fb3cc1e3e6b65684d3
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 308008689b50f1b0989387afe80285910ac3f42e4b80b5e1122181534bdbb425
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki b18a18aafc447d294f2ba53420444652ce5a127fce144a60a3c3b93b6bf9b0bd
+F www/index.wiki 4c127d19b8c07d9726d1091fb78f8e08b130fc6e2a40f7106e2706cbe864f4ae
 F www/inout.wiki f1623d3b27506631390538c5933d889d12a9999562ffd9ae6b9b42446c59b001
 F www/interwiki.md c1e8b87ed3dfe1ca09ce951e6ee15cbee50704986e2bdcf07fdd5bf55e17735b
 F www/javascript.md ee435e2efb1752666d6f4b9b42c3ebcb9aa9f930257897d7784fc100c4e2c0b8
@@ -960,8 +960,10 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6bb5ff4aeab1b8115a594488fc23f3a0b9726a68d7fa935777a93140dbb8286b
-R 6e7efde7e4ba6ad06678ac16b2855ed8
+P 5c8b678103191a9d93281aee54ae387a2b7a7a99200a6eb41e78e53b9004a67c
+R 850c46530739d29ae46b069e8401a64a
+T +sym-release *
+T +sym-version-2.25 *
 U drh
-Z efab25dffc0a72206696f0365508a8b3
+Z d50a91c89ab2acd89f8b4774e2a2b80d
 # Remove this line to create a well-formed Fossil manifest.
