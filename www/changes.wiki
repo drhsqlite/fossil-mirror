@@ -21,6 +21,8 @@
      (requires OpenSSL 3.2.0 or greater).
   *  Take into account zero-width and double-width unicode characters when
      formatting the command-line timeline.
+  *  Update the built-in SQLite to version 3.47.0.  Precompiled binaries are
+     linked against OpenSSL 3.4.0.
   *  Numerous minor fixes and additions.
 
 
