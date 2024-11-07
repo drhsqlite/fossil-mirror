@@ -4,7 +4,7 @@ A Fossil server can be launched on-demand by `inetd` by  using the
 [`fossil http`](/help/http) command. To do so, add a line like the
 following to its configuration file, typically `/etc/inetd.conf`:
 
-        80 stream tcp nowait.1000 root /usr/bin/fossil /usr/bin/fossil http /home/fossil/repo.fossil
+    80 stream tcp nowait.1000 root /usr/bin/fossil /usr/bin/fossil http /home/fossil/repo.fossil
 
 In this example, you are telling `inetd` that when an incoming
 connection appears on TCP port 80 that it should launch the program
@@ -19,7 +19,7 @@ desired name and port to `/etc/services`.  For example, if you want your
 Fossil server running on TCP port 12345 instead of 80, you will need to
 add:
 
-        fossil          12345/tcp  # fossil server
+    fossil          12345/tcp  # fossil server
 
 and use the symbolic name “`fossil`” instead of the numeric TCP port
 number (“12345” in the above example) in `inetd.conf`.

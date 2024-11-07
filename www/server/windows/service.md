@@ -11,8 +11,8 @@ Fossil as a Windows Service.
 ## Place Fossil on Server
 
 However you obtained your copy of Fossil, it is recommended that you follow
-Windows conventions and place it within `\Program Files\FossilSCM`.  Since
-Fossil 2.10 is a 64bit binary, this is the proper location for the executable.
+Windows conventions and place it within `\Program Files\FossilSCM`, the
+proper location for the official 64-bit binary.
 This way Fossil is at an expected location and you will have minimal issues with
 Windows interfering in your ability to run Fossil as a service.  You will need
 Administrative rights to place fossil at the recommended location.  If you will
@@ -41,13 +41,25 @@ system account and accessible on port 8080 by default.  `fossil winsrv` can also
 start, stop, and delete the service.  For all available options, please execute
 `fossil help winsrv` on a windows install of Fossil.
 
-If you wish to server a directory of repositories, the `fossil winsrv` command
+If you wish to serve a directory of repositories, the `fossil winsrv` command
 requires a slightly different set of options vs. `fossil server`:
 
 ```
 fossil winsrv create --repository D:/Path/to/Repos --repolist
 ```
 
+### Choice of Directory Considerations
+
+When the Fossil server will be used at times that files may be locked
+during virus scanning, it is prudent to arrange that its directory used
+for temporary files is exempted from such scanning. Ordinarily, this
+will be a subdirectory named "fossil" in the temporary directory given
+by the Windows GetTempPath(...) API, [namely](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-gettemppathw#remarks)
+the value of the first existing environment variable from `%TMP%`, `%TEMP%`,
+`%USERPROFILE%`, and `%SystemRoot%`; you can look for their actual values in
+your system by accessing the `/test_env` webpage. 
+Excluding this subdirectory will avoid certain rare failures where the
+fossil.exe process is unable to use the directory normally during a scan.
 
 ### <a id='PowerShell'></a>Advanced service installation using PowerShell
 

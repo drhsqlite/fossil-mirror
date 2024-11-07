@@ -451,7 +451,7 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 
 /* This is the original header command (and hence documentation) for
 ** the "fossil export" command:
-** 
+**
 ** Usage: %fossil export --git ?OPTIONS? ?REPOSITORY?
 **
 ** Write an export of all check-ins to standard output.  The export is
@@ -1006,7 +1006,7 @@ static char *gitmirror_find_mark(const char *zUuid, int isFile, int bCreate){
 }
 
 /* This is the SHA3-256 hash of an empty file */
-static const char zEmptySha3[] = 
+static const char zEmptySha3[] =
   "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a";
 
 /*
@@ -1039,7 +1039,7 @@ static int gitmirror_send_file(FILE *xCmd, const char *zUuid, int bPhantomOk){
         blob_init(&data, 0, 0);
         gitmirror_message(VERB_EXTRA, "missing file: %s\n", zUuid);
         zUuid = zEmptySha3;
-      }else{      
+      }else{
         return 1;
       }
     }
@@ -1281,7 +1281,7 @@ static int gitmirror_send_checkin(
   }
   if( fManifest & MFESTFLG_UUID ){
     int n = (int)strlen(zUuid);
-    fprintf(xCmd,"M 100644 inline manifest.uuid\ndata %d\n%s\n", n, zUuid);
+    fprintf(xCmd,"M 100644 inline manifest.uuid\ndata %d\n%s\n\n", n+1, zUuid);
   }
   if( fManifest & MFESTFLG_TAGS ){
     Blob tagslist;
@@ -1352,7 +1352,7 @@ static char *gitmirror_init(
     if( xCmd==0 ){
       fossil_fatal("git command failed: %s", zCmd);
     }
-    
+
     z = fgets(zLine, sizeof(zLine), xCmd);
     pclose(xCmd);
     if( z==0 ){
@@ -1363,7 +1363,7 @@ static char *gitmirror_init(
     zMainBr = fossil_strdup(z);
   }
   return zMainBr;
-} 
+}
 
 /*
 ** Implementation of the "fossil git export" command.
@@ -1438,7 +1438,7 @@ void gitmirror_export_command(void){
     bNeedRepack = 1;
   }
   fossil_free(z);
-  
+
   /* Make sure the .mirror_state subdirectory exists */
   z = mprintf("%s/.mirror_state", zMirror);
   rc = file_mkdir(z, ExtFILE, 0);
@@ -1562,7 +1562,8 @@ void gitmirror_export_command(void){
     " WHERE type='ci'"
     "   AND mtime>coalesce((SELECT value FROM mconfig WHERE key='start'),0.0)"
     "   AND blob.rid=event.objid"
-    "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark WHERE NOT isfile);"
+    "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark WHERE NOT isfile)"
+    "   AND NOT EXISTS (SELECT 1 FROM private WHERE rid=blob.rid);"
   );
   nTotal = db_int(0, "SELECT count(*) FROM tomirror");
   if( nLimit<nTotal ){
@@ -1744,7 +1745,7 @@ void gitmirror_status_command(void){
 
   db_find_and_open_repository(0, 0);
   bQuiet = find_option("quiet","q",0)!=0;
-  bByAll = find_option("by-all",0,0)!=0; 
+  bByAll = find_option("by-all",0,0)!=0;
   verify_all_options();
   zMirror = db_get("last-git-export-repo", 0);
   if( zMirror==0 ){
@@ -1788,8 +1789,12 @@ void gitmirror_status_command(void){
     fossil_print("Autopush:    off\n");
   }else{
     UrlData url;
-    url_parse_local(z, 0, &url);
-    fossil_print("Autopush:    %s\n", url.canonical);
+    if( sqlite3_strglob("http*", z)==0 ){
+      url_parse_local(z, 0, &url);
+      fossil_print("Autopush:    %s\n", url.canonical);
+    }else{
+      fossil_print("Autopush:    %s\n", z);
+    }
     fossil_free(z);
   }
   n = db_int(0,
@@ -1857,7 +1862,7 @@ void gitmirror_status_command(void){
 **
 ** > fossil git import MIRROR
 **
-**       TBD...   
+**       TBD...
 **
 ** > fossil git status
 **
@@ -1869,7 +1874,7 @@ void gitmirror_command(void){
   char *zCmd;
   int nCmd;
   if( g.argc<3 ){
-    usage("export ARGS...");
+    usage("SUBCOMMAND ...");
   }
   zCmd =  g.argv[2];
   nCmd = (int)strlen(zCmd);

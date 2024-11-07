@@ -1,6 +1,6 @@
 (function(F/*the fossil object*/){
   "use strict";
-  /* JS code for /forumpage and friends. Requires fossil.dom
+  /* JS code for /forumpost and friends. Requires fossil.dom
      and can optionally use fossil.pikchr. */
   const P = F.page, D = F.dom;
 
@@ -9,7 +9,7 @@
 
      - Installs expand/collapse UI elements on "long" posts and collapses
      them.
-  
+
      - Any pikchr-generated SVGs get a source-toggle button added to them
      which activates when the mouse is over the image or it is tapped.
 
@@ -101,6 +101,24 @@
     if(F.pikchr){
       F.pikchr.addSrcView();
     }
-  })/*onload callback*/;
-  
+
+    /* Attempt to keep stray double-clicks from double-posting. */
+    const formSubmitted = function(event){
+      const form = event.target;
+      if( form.dataset.submitted ){
+        event.preventDefault();
+        return;
+      }
+      form.dataset.submitted = '1';
+      /** If the user is left waiting "a long time," disable the
+          resubmit protection. If we don't do this and they tap the
+          browser's cancel button while waiting, they'll be stuck with
+          an unsubmittable form. */
+      setTimeout(()=>{delete form.dataset.submitted}, 7000);
+      return;
+    };
+    document.querySelectorAll("form").forEach(function(form){
+      form.addEventListener('submit',formSubmitted);
+    });
+  })/*F.onPageLoad callback*/;
 })(window.fossil);

@@ -76,28 +76,6 @@ static struct {
 } gg;
 
 /*
-** Duplicate a string.
-*/
-char *fossil_strndup(const char *zOrig, int len){
-  char *z = 0;
-  if( zOrig ){
-    int n;
-    if( len<0 ){
-      n = strlen(zOrig);
-    }else{
-      for( n=0; zOrig[n] && n<len; ++n );
-    }
-    z = fossil_malloc( n+1 );
-    memcpy(z, zOrig, n);
-    z[n] = 0;
-  }
-  return z;
-}
-char *fossil_strdup(const char *zOrig){
-  return fossil_strndup(zOrig, -1);
-}
-
-/*
 ** A no-op "xFinish" method
 */
 static void finish_noop(void){}
@@ -298,12 +276,16 @@ static void finish_commit(void){
     if( zUuid==0 ) continue;
     blob_appendf(&record, "F %F %s", gg.aFile[i].zName, zUuid);
     if( gg.aFile[i].isExe ){
-      blob_append(&record, " x\n", 3);
+      blob_append(&record, " x", 2);
     }else if( gg.aFile[i].isLink ){
-      blob_append(&record, " l\n", 3);
+      blob_append(&record, " l", 2);
     }else{
-      blob_append(&record, "\n", 1);
+      blob_append(&record, " w", 2);
     }
+    if( gg.aFile[i].zPrior!=0 ){
+      blob_appendf(&record, " %F", gg.aFile[i].zPrior);
+    }
+    blob_append(&record, "\n", 1);
   }
   if( gg.zFrom ){
     blob_appendf(&record, "P %s", gg.zFrom);
@@ -599,7 +581,7 @@ static void git_fast_import(FILE *pIn){
       ** None of the above is explained in the git-fast-export
       ** documentation.  We had to figure it out via trial and error.
       */
-      for(i=5; i<strlen(zRefName) && zRefName[i]!='/'; i++){}
+      for(i=5; i<(int)strlen(zRefName) && zRefName[i]!='/'; i++){}
       gg.tagCommit = strncmp(&zRefName[5], "tags", 4)==0; /* pattern B */
       if( zRefName[i+1]!=0 ) zRefName += i+1;
       if( fossil_strcmp(zRefName, "master")==0 ) zRefName = ggit.zMasterName;
@@ -769,7 +751,7 @@ static void git_fast_import(FILE *pIn){
         if( pFile->isFrom==0 ) continue;
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
-        if( strlen(pFile->zName)>nFrom ){
+        if( (int)strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
           pNew->zName = fossil_strdup(zTo);
@@ -792,7 +774,7 @@ static void git_fast_import(FILE *pIn){
         if( pFile->isFrom==0 ) continue;
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
-        if( strlen(pFile->zName)>nFrom ){
+        if( (int)strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
           pNew->zName = fossil_strdup(zTo);
@@ -815,7 +797,7 @@ static void git_fast_import(FILE *pIn){
     }else
     if( strncmp(zLine, "property branch-nick ", 21)==0 ){
       /* Breezy uses this property to store the branch name.
-      ** It has two values. Integer branch number, then the 
+      ** It has two values. Integer branch number, then the
       ** user-readable branch name. */
       z = &zLine[21];
       next_token(&z);
@@ -1015,7 +997,7 @@ static int svn_read_rec(FILE *pIn, SvnRecord *rec){
     rec->contentFlag = 1;
     nLen = atoi(zLen);
     blob_read_from_channel(&rec->content, pIn, nLen);
-    if( blob_size(&rec->content)!=nLen ){
+    if( (int)blob_size(&rec->content)!=nLen ){
       fossil_fatal("short read: got %d of %d bytes",
         blob_size(&rec->content), nLen
       );
@@ -1246,7 +1228,15 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
       u64 lenCpy = (*zDiff)&0x3f;
       const char *zCpy;
       switch( (*zDiff)&0xC0 ){
-        case 0x00: zCpy = blob_buffer(pSrc)+offSrc; break;
+        case 0x00:
+          if( 0==blob_size(pSrc) ){
+            /* https://fossil-scm.org/forum/forumpost/15d4b242bda2a108 */
+            fossil_fatal("Don't know how to handle NULL input. "
+                         "Tip: do not use the --incremental flag "
+                         "in the svn dump command.");
+          }
+          zCpy = blob_buffer(pSrc)+offSrc;
+          break;
         case 0x40: zCpy = blob_buffer(pOut); break;
         case 0x80: zCpy = zData; break;
         default: fossil_fatal("Invalid svndiff0 instruction");
@@ -1280,7 +1270,7 @@ static int svn_parse_path(char *zPath, char **zFile, int *type){
     unsigned nPath = strlen(zPath);
     for( pzIgnTree = gsvn.azIgnTree; *pzIgnTree; ++pzIgnTree ){
       const char *zIgn = *pzIgnTree;
-      int nIgn = strlen(zIgn);
+      unsigned nIgn = strlen(zIgn);
       if( strncmp(zPath, zIgn, nIgn) == 0
        && ( nPath == nIgn || (nPath > nIgn && zPath[nIgn] == '/')) ){
         return 0;
@@ -1574,6 +1564,8 @@ static void svn_dump_import(FILE *pIn){
             }
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
             rid = svn_handle_symlinks(zPerm, &target);
+            blob_reset(&deltaSrc);
+            blob_reset(&target);
           }else if( rec.contentFlag ){
             rid = svn_handle_symlinks(zPerm, &rec.content);
           }else if( zSrcPath ){
@@ -1616,6 +1608,8 @@ static void svn_dump_import(FILE *pIn){
             content_get(rid, &deltaSrc);
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
             rid = svn_handle_symlinks(zPerm, &target);
+            blob_reset(&deltaSrc);
+            blob_reset(&target);
           }else{
             rid = svn_handle_symlinks(zPerm, &rec.content);
           }
@@ -1699,7 +1693,7 @@ static void svn_dump_import(FILE *pIn){
 **   --rename-trunk NAME  Use NAME as name of imported trunk branch
 **   --rename-branch PAT  Rename all branch names using PAT pattern
 **   --rename-tag PAT     Rename all tag names using PAT pattern
-**   -A|--admin-user NAME Use NAME for the admin user 
+**   -A|--admin-user NAME Use NAME for the admin user
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.  The --rename-* options may be useful to avoid name
@@ -1717,7 +1711,11 @@ static void svn_dump_import(FILE *pIn){
 ** The --attribute option takes a quoted string argument comprised of a
 ** Git committer email and the username to be attributed to corresponding
 ** check-ins in the Fossil repository. This option can be repeated. For
-** example, --attribute "drh@sqlite.org drh" --attribute "xyz@abc.net X"
+** example, --attribute "drh@sqlite.org drh" --attribute "xyz@abc.net X".
+** Attributions are persisted to the repository so that subsequent
+** 'fossil git export' operations attribute Fossil commits to corresponding
+** 'Git Committer <git@committer.com>' users, and incremental imports with
+** 'fossil import --git --incremental' use previous --attribute records.
 **
 ** See also: export
 */
@@ -1953,9 +1951,11 @@ void import_cmd(void){
     if(ggit.nGitAttr > 0) {
       int idx;
       db_unprotect(PROTECT_ALL);
-      db_multi_exec(
-        "CREATE TABLE fx_git(user TEXT, email TEXT UNIQUE);"
-      );
+      if( !db_table_exists("repository", "fx_git") ){
+        db_multi_exec(
+          "CREATE TABLE fx_git(user TEXT, email TEXT UNIQUE);"
+        );
+      }
       for(idx = 0; idx < ggit.nGitAttr; ++idx ){
         db_multi_exec(
             "INSERT OR IGNORE INTO fx_git(user, email) VALUES(%Q, %Q)",
@@ -2024,5 +2024,6 @@ void import_cmd(void){
     fossil_print("server-id:  %s\n", db_get("server-code", 0));
     zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
     fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+    hash_user_password(g.zLogin);
   }
 }

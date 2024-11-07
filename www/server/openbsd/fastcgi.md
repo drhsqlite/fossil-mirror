@@ -20,21 +20,21 @@ Use the OpenBSD package manager `pkg_add` to install Fossil, making sure
 to select the statically linked binary.
 
 ```console
-    $ doas pkg_add fossil
-    quirks-3.325 signed on 2020-06-12T06:24:53Z
-    Ambiguous: choose package for fossil
-          0: <None>
-          1: fossil-2.10v0
-          2: fossil-2.10v0-static
-    Your choice: 2
-    fossil-2.10v0-static: ok
+$ doas pkg_add fossil
+quirks-3.325 signed on 2020-06-12T06:24:53Z
+Ambiguous: choose package for fossil
+      0: <None>
+      1: fossil-2.10v0
+      2: fossil-2.10v0-static
+Your choice: 2
+fossil-2.10v0-static: ok
 ```
 
 This installs Fossil into the chroot. To facilitate local use, create a
 symbolic link of the fossil executable into `/usr/local/bin`.
 
 ```console
-    $ doas ln -s /var/www/bin/fossil /usr/local/bin/fossil
+$ doas ln -s /var/www/bin/fossil /usr/local/bin/fossil
 ```
 
 As a privileged user, create the file `/var/www/cgi-bin/scm` with the
@@ -43,11 +43,11 @@ response to `fsl.domain.tld` requests; all paths are relative to the
 `/var/www` chroot.
 
 ```sh
-    #!/bin/fossil
-    directory: /htdocs/fsl.domain.tld
-    notfound: https://domain.tld
-    repolist
-    errorlog: /logs/fossil.log
+#!/bin/fossil
+directory: /htdocs/fsl.domain.tld
+notfound: https://domain.tld
+repolist
+errorlog: /logs/fossil.log
 ```
 
 The `directory` directive instructs Fossil to serve all repositories
@@ -57,11 +57,11 @@ directory and log file—making the latter owned by the `www` user, and
 the script executable.
 
 ```console
-    $ doas mkdir /var/www/htdocs/fsl.domain.tld
-    $ doas touch /var/www/logs/fossil.log
-    $ doas chown www /var/www/logs/fossil.log
-    $ doas chmod 660 /var/www/logs/fossil.log
-    $ doas chmod 755 /var/www/cgi-bin/scm
+$ doas mkdir /var/www/htdocs/fsl.domain.tld
+$ doas touch /var/www/logs/fossil.log
+$ doas chown www /var/www/logs/fossil.log
+$ doas chmod 660 /var/www/logs/fossil.log
+$ doas chmod 755 /var/www/cgi-bin/scm
 ```
 
 ## <a id="chroot"></a>Setup chroot
@@ -77,17 +77,17 @@ of the needed ``/dev`` tree to automatically populate the memory
 filesystem.
 
 ```console
-    $ doas mkdir /var/www/dev
-    $ doas install -d -g daemon /template/dev
-    $ cd /template/dev
-    $ doas /dev/MAKEDEV urandom
-    $ doas mknod -m 666 null c 2 2
-    $ doas mount_mfs -s 1M -P /template/dev /dev/sd0b /var/www/dev
-    $ ls -l
-    total 0
-    crw-rw-rw-  1 root  daemon    2,   2 Jun 20 08:56 null
-    lrwxr-xr-x  1 root  daemon         7 Jun 18 06:30 random@ -> urandom
-    crw-r--r--  1 root  wheel    45,   0 Jun 18 06:30 urandom
+$ doas mkdir /var/www/dev
+$ doas install -d -g daemon /template/dev
+$ cd /template/dev
+$ doas /dev/MAKEDEV urandom
+$ doas mknod -m 666 null c 2 2
+$ doas mount_mfs -s 1M -P /template/dev /dev/sd0b /var/www/dev
+$ ls -l
+total 0
+crw-rw-rw-  1 root  daemon    2,   2 Jun 20 08:56 null
+lrwxr-xr-x  1 root  daemon         7 Jun 18 06:30 random@ -> urandom
+crw-r--r--  1 root  wheel    45,   0 Jun 18 06:30 urandom
 ```
 
 [mfs]: https://man.openbsd.org/mount_mfs.8
@@ -97,7 +97,7 @@ a privileged user and add the following line to automate creation of the
 filesystem at startup:
 
 ```console
-    swap /var/www/dev mfs rw,-s=1048576,-P=/template/dev 0 0
+swap /var/www/dev mfs rw,-s=1048576,-P=/template/dev 0 0
 ```
 
 The same user that executes the fossil binary must have writable access
@@ -106,8 +106,8 @@ this is `www`. In addition, grant repository directory ownership to the
 user who will push to, pull from, and create repositories.
 
 ```console
-   $ doas chown -R user:www /var/www/htdocs/fsl.domain.tld
-   $ doas chmod 770 /var/www/htdocs/fsl.domain.tld
+$ doas chown -R user:www /var/www/htdocs/fsl.domain.tld
+$ doas chmod 770 /var/www/htdocs/fsl.domain.tld
 ```
 
 ## <a id="httpdconfig"></a>Configure httpd
@@ -125,42 +125,42 @@ following contents.
 [httpd.conf(5)]: https://man.openbsd.org/httpd.conf.5
 
 ```apache
-    server "fsl.domain.tld" {
-            listen on * port http
-            root "/htdocs/fsl.domain.tld"
-            location "/.well-known/acme-challenge/*" {
-                    root "/acme"
-                    request strip 2
-            }
-            location * {
-                    block return 301 "https://$HTTP_HOST$REQUEST_URI"
-            }
-            location  "/*" {
-                    fastcgi { param SCRIPT_FILENAME "/cgi-bin/scm" }
-            }
+server "fsl.domain.tld" {
+    listen on * port http
+    root "/htdocs/fsl.domain.tld"
+    location "/.well-known/acme-challenge/*" {
+        root "/acme"
+        request strip 2
     }
+    location * {
+        block return 301 "https://$HTTP_HOST$REQUEST_URI"
+    }
+    location  "/*" {
+        fastcgi { param SCRIPT_FILENAME "/cgi-bin/scm" }
+    }
+}
 
-    server "fsl.domain.tld" {
-            listen on * tls port https
-            root "/htdocs/fsl.domain.tld"
-            tls {
-                    certificate "/etc/ssl/domain.tld.fullchain.pem"
-                    key "/etc/ssl/private/domain.tld.key"
-            }
-            hsts {
-                    max-age 15768000
-                    preload
-                    subdomains
-            }
-            connection max request body 104857600
-            location  "/*" {
-                    fastcgi { param SCRIPT_FILENAME "/cgi-bin/scm" }
-            }
-            location "/.well-known/acme-challenge/*" {
-                    root "/acme"
-                    request strip 2
-            }
+server "fsl.domain.tld" {
+    listen on * tls port https
+    root "/htdocs/fsl.domain.tld"
+    tls {
+        certificate "/etc/ssl/domain.tld.fullchain.pem"
+        key "/etc/ssl/private/domain.tld.key"
     }
+    hsts {
+        max-age 15768000
+        preload
+        subdomains
+    }
+    connection max request body 104857600
+    location  "/*" {
+        fastcgi { param SCRIPT_FILENAME "/cgi-bin/scm" }
+    }
+    location "/.well-known/acme-challenge/*" {
+        root "/acme"
+        request strip 2
+    }
+}
 ```
 
 [The default limit][dlim] for HTTP messages in OpenBSD’s `httpd` server
@@ -174,7 +174,7 @@ setting, raising the limit to 100 MiB.
 [dlim]: https://man.openbsd.org/httpd.conf.5#connection
 [uv]:   ../../unvers.wiki
 
-**NOTE:** If not already in possession of a HTTPS certificate, comment
+**NOTE:** If not already in possession of an HTTPS certificate, comment
 out the `https` server block and proceed to securing a free
 [Let's Encrypt Certificate](#letsencrypt); otherwise skip to
 [Start `httpd`](#starthttpd).
@@ -189,40 +189,40 @@ nameserver. Then open `/etc/acme-client.conf` as a privileged user to
 configure the request.
 
 ```dosini
-    authority letsencrypt {
-            api url "https://acme-v02.api.letsencrypt.org/directory"
-            account key "/etc/acme/letsencrypt-privkey.pem"
-    }
+authority letsencrypt {
+    api url "https://acme-v02.api.letsencrypt.org/directory"
+    account key "/etc/acme/letsencrypt-privkey.pem"
+}
 
-    authority letsencrypt-staging {
-            api url "https://acme-staging.api.letsencrypt.org/directory"
-            account key "/etc/acme/letsencrypt-staging-privkey.pem"
-    }
+authority letsencrypt-staging {
+    api url "https://acme-staging.api.letsencrypt.org/directory"
+    account key "/etc/acme/letsencrypt-staging-privkey.pem"
+}
 
-    domain domain.tld {
-            alternative names { www.domain.tld fsl.domain.tld }
-            domain key "/etc/ssl/private/domain.tld.key"
-            domain certificate "/etc/ssl/domain.tld.crt"
-            domain full chain certificate "/etc/ssl/domain.tld.fullchain.pem"
-            sign with letsencrypt
-    }
+domain domain.tld {
+    alternative names { www.domain.tld fsl.domain.tld }
+    domain key "/etc/ssl/private/domain.tld.key"
+    domain certificate "/etc/ssl/domain.tld.crt"
+    domain full chain certificate "/etc/ssl/domain.tld.fullchain.pem"
+    sign with letsencrypt
+}
 ```
 
 Start `httpd` with the new configuration file, and issue the certificate
 request.
 
 ```console
-    $ doas rcctl start httpd
-    $ doas acme-client -vv domain.tld
-    acme-client: /etc/acme/letsencrypt-privkey.pem: account key exists (not creating)
-    acme-client: /etc/acme/letsencrypt-privkey.pem: loaded RSA account key
-    acme-client: /etc/ssl/private/domain.tld.key: generated RSA domain key
-    acme-client: https://acme-v01.api.letsencrypt.org/directory: directories
-    acme-client: acme-v01.api.letsencrypt.org: DNS: 172.65.32.248
-    ...
-    N(Q????Z???j?j?>W#????b???? H????eb??T??*? DNosz(???n{L}???D???4[?B] (1174 bytes)
-    acme-client: /etc/ssl/domain.tld.crt: created
-    acme-client: /etc/ssl/domain.tld.fullchain.pem: created
+$ doas rcctl start httpd
+$ doas acme-client -vv domain.tld
+acme-client: /etc/acme/letsencrypt-privkey.pem: account key exists (not creating)
+acme-client: /etc/acme/letsencrypt-privkey.pem: loaded RSA account key
+acme-client: /etc/ssl/private/domain.tld.key: generated RSA domain key
+acme-client: https://acme-v01.api.letsencrypt.org/directory: directories
+acme-client: acme-v01.api.letsencrypt.org: DNS: 172.65.32.248
+...
+N(Q????Z???j?j?>W#????b???? H????eb??T??*? DNosz(???n{L}???D???4[?B] (1174 bytes)
+acme-client: /etc/ssl/domain.tld.crt: created
+acme-client: /etc/ssl/domain.tld.fullchain.pem: created
 ```
 
 A successful result will output the public certificate, full chain of
@@ -230,12 +230,12 @@ trust, and private key into the `/etc/ssl` directory as specified in
 `acme-client.conf`.
 
 ```console
-   $ doas ls -lR /etc/ssl
-   -r--r--r--   1 root  wheel   2.3K Mar  2 01:31:03 2018 domain.tld.crt
-   -r--r--r--   1 root  wheel   3.9K Mar  2 01:31:03 2018 domain.tld.fullchain.pem
+$ doas ls -lR /etc/ssl
+-r--r--r--   1 root  wheel   2.3K Mar  2 01:31:03 2018 domain.tld.crt
+-r--r--r--   1 root  wheel   3.9K Mar  2 01:31:03 2018 domain.tld.fullchain.pem
 
-   /etc/ssl/private:
-   -r--------  1 root  wheel   3.2K Mar  2 01:31:03 2018 domain.tld.key
+/etc/ssl/private:
+-r--------  1 root  wheel   3.2K Mar  2 01:31:03 2018 domain.tld.key
 ```
 
 Make sure to reopen `/etc/httpd.conf` to uncomment the second server
@@ -251,13 +251,13 @@ the `httpd.conf` configuration file is correct, and (re)starting the
 server (if still running from requesting a Let's Encrypt certificate).
 
 ```console
-    $ doas rcctl enable slowcgi
-    $ doas rcctl start slowcgi
-    slowcgi(ok)
-    $ doas httpd -vnf /etc/httpd.conf
-    configuration OK
-    $ doas rcctl start httpd
-    httpd(ok)
+$ doas rcctl enable slowcgi
+$ doas rcctl start slowcgi
+slowcgi(ok)
+$ doas httpd -vnf /etc/httpd.conf
+configuration OK
+$ doas rcctl start httpd
+httpd(ok)
 ```
 
 ## <a id="clientconfig"></a>Configure Client
@@ -267,16 +267,16 @@ add the following function to your `~/.cshrc` or `~/.zprofile` or the
 config file for whichever shell you are using on your development box.
 
 ```sh
-    finit() {
-            fossil init $1.fossil && \
-            chmod 664 $1.fossil && \
-            fossil open $1.fossil && \
-            fossil user password $USER $PASSWD && \
-            fossil remote-url https://$USER:$PASSWD@fsl.domain.tld/$1 && \
-            rsync --perms $1.fossil $USER@fsl.domain.tld:/var/www/htdocs/fsl.domain.tld/ >/dev/null && \
-            chmod 644 $1.fossil && \
-            fossil ui
-    }
+finit() {
+    fossil init $1.fossil && \
+    chmod 664 $1.fossil && \
+    fossil open $1.fossil && \
+    fossil user password $USER $PASSWD && \
+    fossil remote-url https://$USER:$PASSWD@fsl.domain.tld/$1 && \
+    rsync --perms $1.fossil $USER@fsl.domain.tld:/var/www/htdocs/fsl.domain.tld/ >/dev/null && \
+    chmod 644 $1.fossil && \
+    fossil ui
+}
 ```
 
 This enables a new repository to be made with `finit repo`, which will

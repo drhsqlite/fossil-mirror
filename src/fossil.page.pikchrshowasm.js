@@ -63,7 +63,7 @@
       outText: E('#pikchr-output-text'),
       pikOutWrapper: E('#pikchr-output-wrapper'),
       pikOut: E('#pikchr-output'),
-      btnRender: E('#btn-render')      
+      btnRender: E('#btn-render')
     },
     renderModes: ['svg'/*SVG must be at index 0*/,'markdown', 'wiki', 'text'],
     renderModeLabels: {
@@ -208,7 +208,7 @@
     };
     const setCurrentText = function(txt){
       taInput.value = txt;
-      renderCurrentText();        
+      renderCurrentText();
     };
     PS.e.btnRender.addEventListener('click',function(ev){
       ev.preventDefault();
@@ -394,7 +394,7 @@
     }/*Examples*/
 
     /**
-       TODO: Handle load/import of an external pikchr file.
+       TODO? Handle load/import of an external pikchr file.
     */
     if(0) E('#load-pikchr').addEventListener('change',function(){
       const f = this.files[0];
@@ -430,8 +430,20 @@
       }, false);
     });
 
+    if(window.sessionStorage){
+      /* If sessionStorage['pikchr-xfer'] exists and the "fromSession"
+         URL argument was passed to this page, load the pikchr source
+         from the session. This is used by the "open in pikchrshow"
+         link in the forum. */
+      const src = window.sessionStorage.getItem('pikchr-xfer');
+      if( src && (new URL(self.location.href).searchParams).has('fromSession') ){
+        taInput.value =  src;
+        window.sessionStorage.removeItem('pikchr-xfer');
+      }
+    }
+
     PS.e.btnRender.click();
-    
+
     /** Debounce handler for auto-rendering while typing. */
     const debounceAutoRender = F.debounce(function f(){
       if(!PS._isDirty) return;
@@ -481,9 +493,9 @@
       const elemsToCount = [
         /* Elements which we need to always count in the
            visible body size. */
-        E('body > div.header'),
-        E('body > div.mainmenu'),
-        E('body > div.footer')
+        E('body > header'),
+        E('body > nav.mainmenu'),
+        E('body > footer')
       ];
       const resized = function f(){
         if(f.$disabled) return;
@@ -620,7 +632,7 @@ text "Examples Of Pikchr Objects" big bold  at .8cm above north of AllObjects
     # fill in content for the Alice lane
     right
 A1: circle rad 0.1in at end of first line + (0.2,-0.2) \
-       fill white thickness 1.5px "1" 
+       fill white thickness 1.5px "1"
     arrow right 50%
     circle same "2"
     arrow right until even with first box.e - (0.65,0.0)
@@ -679,6 +691,44 @@ text "HIGH" big bold "QUALITY" big bold at 0.9 heading  -120 from O  color blue
 text "EXPENSIVE" at 0.55 below O  color cyan
 text "SLOW" at 0.55 heading  -60 from O  color magenta
 text "POOR" "QUALITY" at 0.55 heading   60 from O  color gold
+`},{name:"Precision Arrows",code:`
+# Source: https://pikchr.org/home/forumpost/7f2f9a03eb
+define quiver {
+	dot invis at 0.5 < $1.ne , $1.e >
+	dot invis at 0.5 < $1.nw , $1.w >
+	dot invis at 0.5 < $1.se , $1.e >
+	dot invis at 0.5 < $1.sw , $1.w >
+
+	dot at $2 right of 4th previous dot
+        dot at $3 right of 4th previous dot
+	dot at $4 right of 4th previous dot
+        dot at $5 right of 4th previous dot
+	arrow <- from previous dot to 2nd previous dot
+	arrow -> from 3rd previous dot to 4th previous dot
+}
+
+define show_compass_l {
+	dot color red  at $1.e " .e" ljust
+	dot same at $1.ne " .ne" ljust above
+	line thick color green from previous to 2nd last dot
+}
+
+define show_compass_r {
+	dot color red  at $1.w " .w" ljust
+	dot same at $1.nw " .nw" ljust above
+	line thick color green from previous to 2nd last dot
+}
+
+PROGRAM: file "Program" rad 45px
+show_compass_l(PROGRAM)
+QUIVER: box invis ht 0.75
+DATABASE: oval "Database" ht 0.75 wid 1.1
+show_compass_r(DATABASE)
+
+quiver(QUIVER, 5px, -5px, 5px, 0px)
+
+text "Query" with .c at 0.1in above last arrow
+text "Records" with .c at 0.1in below 2nd last arrow
 `}
   ];
 

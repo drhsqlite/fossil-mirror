@@ -24,6 +24,10 @@
 
 #if INTERFACE
 /* These are described in pikchr_process()'s docs. */
+/* The first two must match the values from pikchr.c */
+#define PIKCHR_PROCESS_PLAINTEXT_ERRORS  0x0001
+#define PIKCHR_PROCESS_DARK_MODE         0x0002
+/* end of flags supported directly by pikchr() */
 #define PIKCHR_PROCESS_PASSTHROUGH       0x0003   /* Pass through these flags */
 #define PIKCHR_PROCESS_TH1               0x0004
 #define PIKCHR_PROCESS_TH1_NOSVG         0x0008
@@ -137,7 +141,7 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
      /* If any TH1_xxx flags are set, set TH1 */
      && (PIKCHR_PROCESS_TH1_NOSVG & pikFlags || thFlags!=0)){
     pikFlags |= PIKCHR_PROCESS_TH1;
-  }  
+  }
   if(zNonce){
     blob_appendf(pOut, "%s\n", zNonce);
   }
@@ -205,8 +209,18 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
           blob_append(pOut, "</div>\n", 7);
         }
         if(PIKCHR_PROCESS_SRC & pikFlags){
-          blob_appendf(pOut, "<pre class='pikchr-src'>%h</pre>\n",
-                       blob_str(&bIn));
+          static int counter = 0;
+          ++counter;
+          blob_appendf(pOut, "<div class='pikchr-src'>"
+                       "<pre id='pikchr-src-%d'>%h</pre>"
+                       "<span class='hidden'>"
+                       "<a href='%R/pikchrshow?fromSession' "
+                       "class='pikchr-src-pikchrshow' target='_new-%d' "
+                       "data-pikchrid='pikchr-src-%d' "
+                       "title='Open this pikchr in /pikchrshow'"
+                       ">&rarr; /pikchrshow</a></span>"
+                       "</div>\n",
+                       counter, blob_str(&bIn), counter, counter);
         }
         if(PIKCHR_PROCESS_DIV & pikFlags){
           blob_append(pOut, "</div>\n", 7);
@@ -548,7 +562,7 @@ void pikchrshow_page(void){
 **    -src       Store the input pikchr's source code in the output as
 **               a separate element adjacent to the SVG one. Implied
 **               by -div-source.
-**                
+**
 **
 **    -th        Process the input using TH1 before passing it to pikchr
 **
@@ -561,6 +575,8 @@ void pikchrshow_page(void){
 **               instead of the pikchr-rendered output
 **
 **    -th-trace  Trace TH1 execution (for debugging purposes)
+**
+**    -dark      Change pikchr colors to assume a dark-mode theme.
 **
 **
 ** The -div-indent/center/left/right flags may not be combined.
@@ -614,6 +630,9 @@ void pikchr_cmd(void){
   }
   if(find_option("div-source",0,0)!=0){
     pikFlags |= PIKCHR_PROCESS_DIV_SOURCE | PIKCHR_PROCESS_SRC;
+  }
+  if(find_option("dark",0,0)!=0){
+    pikFlags |= PIKCHR_PROCESS_DARK_MODE;
   }
 
   verify_all_options();

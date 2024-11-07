@@ -1,14 +1,13 @@
 <title>Customizing The Ticket System</title>
-<nowiki>
+
 <h2>Introduction</h2>
-<p>
+
 This guide will explain how to add the "assigned_to" and "submitted_by" fields
 to the ticket system in Fossil, as well as making the system more useful.  You
 must have "admin" access to the repository to implement these instructions.
-</p>
 
-<h2>First modify the TICKET table</h2><blockquote>
-<p>
+<h2>First modify the TICKET table</h2>
+
 Click on the "Admin" menu, then "Tickets", then "Table".  After the other fields
 and before the final ")", insert:
 <pre>
@@ -16,14 +15,13 @@ and before the final ")", insert:
   assigned_to TEXT,
   opened_by TEXT
 </pre>
+
 And "Apply Changes".  You have just added two more fields to the ticket
 database!  NOTE: I won't tell you to "Apply Changes" after each step from here
 on out.  Now, how do you use these fields?
-</p>
-</blockquote>
 
-<h2>Next add assignees</h2><blockquote>
-<p>
+<h2>Next add assignees</h2>
+
 Back to the "Tickets" admin page, and click "Common".  Add something like this:
 <pre>
 set assigned_choices {
@@ -33,100 +31,110 @@ set assigned_choices {
   harriet
 }
 </pre>
+
 Obviously, choose names corresponding to the logins on your system.  The
 'unassigned' entry is important, as it prevents you from having a NULL in that
 field (which causes problems later when editing).
-</p>
-</blockquote>
 
-<h2>Now modify the 'new ticket' page</h2><blockquote>
-<p>
+<h2>Now modify the 'new ticket' page</h2>
+
 Back to the "Tickets" admin page, and click "New Ticket Page".  This is a little
 more tricky.  Edit the top part:
-<pre>
-  if {[info exists submit]} {
-     set status Open
-     set opened_by $login
-	 set assigned_to "unassigned"
-     submit_ticket
-  }
-</pre>
+
+<verbatim>
+if {[info exists submit]} {
+  set status Open
+  set opened_by $login
+  set assigned_to "unassigned"
+  submit_ticket
+}
+</verbatim>
+
 Note the "set opened_by" bit -- that will automatically set the "opened_by"
 field to the login name of the bug reporter.  Now, skip to the part with "EMail"
 and modify it like so:
-<pre>
-&lt;th1>enable_output [expr { "$login" eq "anonymous"}]&lt;/th1>
-&lt;tr>
-&lt;td align="right">EMail:
-&lt;input type="text" name="private_contact" value="$&lt;private_contact>" size="30">
-&lt;/td>
-&lt;td>&lt;u>Not publicly visible&lt;/u>. Used by developers to contact you with
-questions.&lt;/td>
-&lt;/tr>
-&lt;th1>enable_output 1&lt;/th1>
-</pre>
+
+<verbatim>
+<th1>enable_output expr { "$login" eq "anonymous"}</th1>
+<tr>
+<td align="right">
+  EMail:
+  <input type="text" name="private_contact" value="$<private_contact>" size="30">
+</td>
+<td>
+  <u>Not publicly visible</u>. Used by developers to contact you with questions.
+</td>
+</tr>
+<th1>enable_output 1</th1>
+</verbatim>
+
 This bit of code will get rid of the "email" field entry for logged-in users.
 Since we know the user's information, we don't have to ask for it. NOTE: it
 might be good to automatically scoop up the user's email and put it here.
-</p>
-<p>
+
 You might also want to enable people to actually assign the ticket to a specific
 person during creation. For this to work, you need to add the code
 for "assigned_to" as shown below under the heading "Modify the 'edit ticket' page".
 This will give you an additional combobox where you can choose a person during
 ticket creation.
-</p>
-</blockquote>
 
-<h2>Modify the 'view ticket' page</h2><blockquote>
-<p>
+<h2>Modify the 'view ticket' page</h2>
+
 Look for the text "Contact:" (about halfway through).  Then insert these lines
 after the closing tr tag and before the "enable_output" line:
-<pre>
+
+<verbatim>
 <tr>
-  &lt;td align="right">Assigned to:&lt;/td>&lt;td bgcolor="#d0d0d0">
-  $&lt;assigned_to>
-  &lt;/td>
-  &lt;td align="right">Opened by:&lt;/td>&lt;td bgcolor="#d0d0d0">
-  $&lt;opened_by>
-  &lt;/td>
-</pre>
+  <td align="right">Assigned to:</td><td bgcolor="#d0d0d0">
+    $<assigned_to>
+  </td>
+  <td align="right">Opened by:</td><td bgcolor="#d0d0d0">
+    $<opened_by>
+  </td>
+</tr>
+</verbatim>
+
 This will add a row which displays these two fields, in the event the user has
 <a href="./caps/ref.html#w">ticket "edit" capability</a>.
-</p>
-</blockquote>
 
-<h2>Modify the 'edit ticket' page</h2><blockquote>
-<p>
+<h2>Modify the 'edit ticket' page</h2>
+
 Before the "Severity:" line, add this:
-<pre>
-&lt;tr>&lt;td align="right">Assigned to:&lt;/td>&lt;td>
-&lt;th1>combobox assigned_to $assigned_choices 1&lt;/th1>
-&lt;/td>&lt;/tr>
-</pre>
+
+<verbatim>
+<tr>
+  <td align="right">Assigned to:</td>
+  <td>
+      <th1>combobox assigned_to $assigned_choices 1</th1>
+  </td>
+</tr>
+</verbatim>
+
 That will give you a drop-down list of assignees. The first argument to the TH1
 command 'combobox' is the database field which the combobox is associated to.
 The next argument is the list of choices you want to show in the combobox (and
-that you specified in the second step above. The last argument should be 1 for a
-true combobox (see the <a href="th1.md#combobox">TH1 documentation</a> for
-details).</p>
+that you specified in the second step above.) The last argument should be 1 for
+a true combobox (see the <a href="th1.md#combobox">TH1 documentation</a> for
+details).
 
-<p>Now, similar to the previous
+Now, similar to the previous
 section, look for "Contact:" and add this:
-<pre>
-  &lt;tr>&lt;td align="right">Reported by:&lt;/td>&lt;td>
-  &lt;input type="text" name="opened_by" size="40"
-   value="$&lt;opened_by>">
-  &lt;/td>&lt;/tr>
-</pre>
-</p>
-</blockquote>
 
-<h2>What next?</h2><blockquote>
-<p>
+<verbatim>
+<tr>
+  <td align="right">Reported by:</td>
+  <td>
+    <input type="text" name="opened_by" size="40" value="$<opened_by>">
+  </td>
+</tr>
+</verbatim>
+
+<h2>What next?</h2>
+
 Now you can add custom reports which select based on the person to whom the
 ticket is assigned.  For example, an "Assigned to me" report could be:
-<pre>
+
+<verbatim>
 SELECT
   CASE WHEN status IN ('Open','Verified') THEN '#f2dcdc'
        WHEN status='Review' THEN '#e8e8e8'
@@ -142,7 +150,4 @@ SELECT
   title
 FROM ticket
 WHERE assigned_to=user()
-</pre>
-</p>
-</blockquote>
-</nowiki>
+</verbatim>

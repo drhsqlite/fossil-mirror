@@ -76,7 +76,7 @@ void bag_clear(Bag *p){
 /*
 ** The hash function
 */
-#define bag_hash(i)  (i*101)
+#define bag_hash(i)  (((u64)(i))*101)
 
 /*
 ** Change the size of the hash table on a bag so that
@@ -103,7 +103,7 @@ static void bag_resize(Bag *p, int newSize){
       unsigned h = bag_hash(e)%newSize;
       while( p->a[h] ){
         h++;
-        if( h==newSize ) h = 0;
+        if( (int)h==newSize ) h = 0;
       }
       p->a[h] = e;
       nLive++;
@@ -133,7 +133,7 @@ int bag_insert(Bag *p, int e){
   h = bag_hash(e)%p->sz;
   while( p->a[h]>0 && p->a[h]!=e ){
     h++;
-    if( h>=p->sz ) h = 0;
+    if( (int)h>=p->sz ) h = 0;
   }
   if( p->a[h]<=0 ){
     if( p->a[h]==0 ) p->used++;
@@ -156,7 +156,7 @@ int bag_find(Bag *p, int e){
   h = bag_hash(e)%p->sz;
   while( p->a[h] && p->a[h]!=e ){
     h++;
-    if( h>=p->sz ) h = 0;
+    if( (int)h>=p->sz ) h = 0;
   }
   return p->a[h]==e;
 }
@@ -172,7 +172,7 @@ void bag_remove(Bag *p, int e){
   h = bag_hash(e)%p->sz;
   while( p->a[h] && p->a[h]!=e ){
     h++;
-    if( h>=p->sz ) h = 0;
+    if( (int)h>=p->sz ) h = 0;
   }
   if( p->a[h] ){
     int nx = h+1;
@@ -219,14 +219,14 @@ int bag_next(Bag *p, int e){
   h = bag_hash(e)%p->sz;
   while( p->a[h] && p->a[h]!=e ){
     h++;
-    if( h>=p->sz ) h = 0;
+    if( (int)h>=p->sz ) h = 0;
   }
   assert( p->a[h] );
   h++;
-  while( h<p->sz && p->a[h]<=0 ){
+  while( (int)h<p->sz && p->a[h]<=0 ){
     h++;
   }
-  return h<p->sz ? p->a[h] : 0;
+  return (int)h<p->sz ? p->a[h] : 0;
 }
 
 /*

@@ -1,5 +1,4 @@
 <title>Fossil Concepts</title>
-<h1 align="center">Fossil Concepts</h1>
 
 <h2>1.0 Introduction</h2>
 
@@ -117,13 +116,13 @@ same artifact ID.
 
 Artifact IDs look something like this:
 
-<blockquote><b>
-6089f0b563a9db0a6d90682fe47fd7161ff867c8<br>
-59712614a1b3ccfd84078a37fa5b606e28434326<br>
-19dbf73078be9779edd6a0156195e610f81c94f9<br>
-b4104959a67175f02d6b415480be22a239f1f077<br>
+<pre>
+6089f0b563a9db0a6d90682fe47fd7161ff867c8
+59712614a1b3ccfd84078a37fa5b606e28434326
+19dbf73078be9779edd6a0156195e610f81c94f9
+b4104959a67175f02d6b415480be22a239f1f077
 997c9d6ae03ad114b2b57f04e9eeef17dcb82788
-</b></blockquote>
+</pre>
 
 When referring to an artifact using Fossil, you can use a unique
 prefix of the artifact ID that is four characters or longer.  This saves
@@ -161,29 +160,29 @@ you look at a "timeline" of changes in Fossil, the ID associated
 with each check-in or commit is really just the artifact ID of the
 manifest for that check-in.
 
-<p>The manifest file is not normally a real file on disk.  Instead,
+The manifest file is not normally a real file on disk.  Instead,
 the manifest is computed in memory by Fossil whenever it needs it.
 However, the "fossil setting manifest on" command will cause the
 manifest file to be materialized to disk, if desired.  Both Fossil
 itself, and SQLite cause the manifest file to be materialized to disk
-so that the makefiles for these project can read the manifest and
+so that the makefiles for these projects can read the manifest and
 embed version information in generated binaries.
 
-<p>Fossil automatically generates a manifest whenever you "commit"
+Fossil automatically generates a manifest whenever you "commit"
 a new check-in.  So this is not something that you, the developer,
 need to worry with.  The format of a manifest is intentionally
 designed to be simple to parse, so that if
 you want to read and interpret a manifest, either by hand or
 with a script, that is easy to do.  But you will probably never
-need to do so.</p>
+need to do so.
 
-<p>In addition to identifying all files in the check-in, a
+In addition to identifying all files in the check-in, a
 manifest also contains a check-in comment, the date and time
 when the check-in was established, who created the check-in,
 and links to other check-ins from which the current check-in
-is derived.  There is also a couple of checksums used to verify
+is derived.  There are also a couple of checksums used to verify
 the integrity of the check-in.  And the whole manifest might
-be PGP clearsigned.</p>
+be PGP clearsigned.
 
 <h3 id="keyconc">2.3 Key concepts</h3>
 
@@ -220,7 +219,7 @@ Fossil effectively.  You will want to have some kind of text editor
 for entering check-in comments.  Fossil will use whatever text editor
 is identified by your VISUAL environment variable.  Fossil will also
 use GPG to clearsign your manifests if you happen to have it installed,
-but Fossil will skip that step if GPG missing from your system.
+but Fossil will skip that step if GPG is missing from your system.
 You can optionally set up Fossil to use external "diff" programs,
 though Fossil has an excellent built-in "diff" algorithm that works
 fine for most people.  If you happen to have Tcl/Tk installed on your
@@ -241,9 +240,7 @@ To use Fossil, simply type the name of the executable in your
 shell, followed by one of the various built-in commands and
 arguments appropriate for that command.  For example:
 
-<blockquote><b>
-fossil help
-</b></blockquote>
+<pre>fossil help</pre>
 
 In the next section, when we say things like "use the <b>help</b>
 command" we mean to use the command name "help" as the first
@@ -284,14 +281,14 @@ The default setting for Fossil is to be in autosync mode.  You
 can change the autosync setting or check the current autosync
 setting using commands like:
 
-<blockquote>
-<b>fossil setting autosync on<br>
-fossil setting autosync off<br>
-<b>fossil settings</b>
-</blockquote>
+<pre>
+fossil setting autosync on
+fossil setting autosync off
+fossil settings
+</pre>
 
 By default, Fossil runs with autosync mode turned on.  The
-authors finds that projects run more smoothly in autosync mode since
+authors find that projects run more smoothly in autosync mode since
 autosync helps to prevent pointless forking and merging and helps keeps
 all collaborators working on exactly the same code rather than on their
 own personal forks of the code.  In the author's view, manual-merge mode
@@ -437,25 +434,23 @@ Repeat all of the above until you have generated great software.
 With other configuration management software, setting up a server is
 a lot of work and normally takes time, patience, and a lot of system
 knowledge.  Fossil is designed to avoid this frustration.  Setting up
-a server with Fossil is ridiculously easy.  You have four options:</p>
+a server with Fossil is ridiculously easy.  You have four options:
 
-<ol>
-<li><p><b>Stand-alone server.</b>
-Simply run the [/help?cmd=server|fossil server] or
-[/help?cmd=ui|fossil ui] command from the command-line.
-
-<li><p><b>CGI.</b>
-Install a 2-line CGI script on a CGI-enabled web-server like Apache.
-
-<li><p><b>SCGI.</b>
-Start an SCGI server using the
-[/help?cmd=server| fossil server --scgi] command for handling
-SCGI requests from web-servers like Nginx.
-
-<li><p><b>Inetd or Stunnel.</b>
-Configure programs like inetd, xinetd, or stunnel to hand off HTTP requests
-directly to the [/help?cmd=http|fossil http] command.
-</ol>
+  #  <b>Stand-alone server.</b>
+     Simply run the [/help?cmd=server|fossil server] or
+     [/help?cmd=ui|fossil ui] command from the command-line.
+     <br><br>
+  #  <b>CGI.</b>
+     Install a 2-line CGI script on a CGI-enabled web-server like Apache.
+     <br><br>
+  #  <b>SCGI.</b>
+     Start an SCGI server using the
+     [/help?cmd=server| fossil server --scgi] command for handling
+     SCGI requests from web-servers like Nginx.
+     <br><br>
+  #  <b>Inetd or Stunnel.</b>
+     Configure programs like inetd, xinetd, or stunnel to hand off HTTP requests
+     directly to the [/help?cmd=http|fossil http] command.
 
 See the [./server/ | How To Configure A Fossil Server] document
 for details.

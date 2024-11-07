@@ -42,14 +42,14 @@ fossil commit -m "add f4"
 fossil update trunk
 write_file f1 "f1.1"
 write_file f3 "f3.1"
-fossil merge --integrate mrg
+fossil merge --integrate mrg -expectError
 test_status_list merge_warn-1 $RESULT {
-  WARNING: no common ancestor for f2
-  DELETE f1
-  WARNING: local edits lost for f1
-  ADDED f3 (overwrites an unmanaged file)
-  WARNING: 1 merge conflicts
   WARNING: 1 unmanaged files were overwritten
+  WARNING: 2 merge conflicts
+  DELETE f1
+  MERGE f2
+  ADDED f3 (overwrites an unmanaged file), original copy backed up locally
+  WARNING: local edits lost for f1
 }
 test merge_warn-2 {
   [string first "ignoring --integrate: mrg is not a leaf" $RESULT]>=0

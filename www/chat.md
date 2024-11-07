@@ -2,8 +2,7 @@
 
 ## Introduction
 
-As of version 2.14,
-Fossil supports a developer chatroom feature.  The chatroom provides an
+Fossil’s developer chatroom feature provides an
 ephemeral discussion venue for insiders.  Design goals include:
 
   *  **Simple but functional** &rarr;
@@ -64,8 +63,8 @@ people with chat privilege.  There is also a "Chat" option on
 the [Sitemap page](/sitemap), which means that chat will appear
 as an option under the hamburger menu for many [skins](./customskin.md).
 
-As of version 2.17, chat messages are subject to [fossil's
-full range of markdown processing](/md_rules). Because chat messages are
+Chat messages are subject to [Fossil's
+full range of Markdown processing](/md_rules). Because chat messages are
 stored as-is when they arrive from a client, this change applies
 retroactively to messages stored by previous fossil versions.
 
@@ -81,6 +80,15 @@ popup menu, such that images instead appear as downloadable links.
 Non-image files always appear in messages as download links.
 
 ### Deletion of Messages
+
+<div class="sidebar">Message deletion is itself a type of message, which
+is why deletions count towards updates in the recent activity list.  (It
+is counted for the person who performed the deletion, not the author of
+the deleted comment.) That can potentially lead to odd corner cases
+where a user shows up in the list but has no messages which are
+currently visible because they were deleted, or an admin user who has
+not posted anything but deleted a message. That is a known minor
+cosmetic-only bug with a resolution of "will not fix."</div>
 
 Any user may *locally* delete a given message by clicking on the "tab"
 at the top of the message and clicking the button which appears. Such
@@ -103,8 +111,8 @@ button.
 
 Because the chat app has to be able to work over transient CGI-based
 connections, as opposed to a stable socket connection to the server,
-real-time tracking of "who's online" is not feasible. As of version
-2.17, chat offers an optional feature, toggleable in the settings,
+real-time tracking of "who's online" is not feasible.
+Chat offers an optional feature, toggleable in the settings,
 which can list users who have posted messages in the client's current
 list of loaded messages. This is not the same thing as tracking who's
 online, but it gives an overview of which users have been active most
@@ -113,15 +121,6 @@ show up in that list, nor does the chat infrastructure have a way to
 track and present those. That list can be used to filter messages on a
 specific user by tapping on that user's name, tapping a second time to
 remove the filter.
-
-Sidebar: message deletion is a type of message and deletions count
-towards updates in the recent activity list (counted for the person
-who performed the deletion, not the author of the deleted
-comment). That can potentially lead to odd corner cases where a user
-shows up in the list but has no messages which are currently visible
-because they were deleted, or an admin user who has not posted
-anything but deleted a message. That is a known minor cosmetic-only
-bug with a resolution of "will not fix."
 
 ### <a id="cli"></a> The `fossil chat` Command
 
@@ -148,7 +147,7 @@ able to send chat messages, but not do anything else.  Then, in the
 program or script that runs the robot, when it wants to send a chat
 message, have it run a command like this:
 
-> ~~~~
+~~~~
 fossil chat send --remote https://robot:PASSWORD@project.org/fossil \
   --message 'MESSAGE TEXT' --file file-to-attach.txt
 ~~~~
@@ -158,7 +157,7 @@ name and password, message text and file attachment, of course.
 
 ### <a id="chat-robot"></a> Chat Messages For Timeline Events
 
-If the [chat-timeline-user setting](/help?cmd=chat-timeline-user) is not a
+If the [chat-timeline-user setting](/help?cmd=chat-timeline-user) is not an
 empty string, then any change to the repository that would normally result
 in a new timeline entry is announced in the chatroom.  The announcement
 appears to come from a user whose name is given by the chat-timeline-user
@@ -196,7 +195,7 @@ interfaces are used by the XHR:
 
 Fossil chat uses the venerable "hanging GET" or 
 "[long polling](wikipedia:/wiki/Push_technology#Long_polling)"
-technique to recieve asynchronous notification of new messages.
+technique to receive asynchronous notification of new messages.
 This is done because long polling works well with CGI and SCGI,
 which are the usual mechanisms for setting up a Fossil server.
 More advanced notification techniques such as 
@@ -214,7 +213,7 @@ Downloading of posted files and images uses a separate, non-XHR interface:
 Chat messages are stored on the server-side in the CHAT table of
 the repository.
 
-> ~~~
+~~~
 CREATE TABLE repository.chat(
   msgid INTEGER PRIMARY KEY AUTOINCREMENT,
   mtime JULIANDAY,  -- Time for this entry - Julianday Zulu

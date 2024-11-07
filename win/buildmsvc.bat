@@ -3,9 +3,11 @@
 ::
 :: buildmsvc.bat --
 ::
-:: This batch file attempts to build Fossil using the latest version
+:: This batch file attempts to build Fossil using the latest version of
 :: Microsoft Visual Studio installed on this machine.
 ::
+:: For VS 2017 and later, it uses the x64 build tools by default;
+:: pass "x86" as the first argument to use the x86 tools.
 ::
 
 SETLOCAL
@@ -52,7 +54,10 @@ REM Visual Studio 2017 / 2019 / 2022
 REM
 CALL :fn_TryUseVsWhereExe
 IF NOT DEFINED VSWHEREINSTALLDIR GOTO skip_detectVisualStudio2017
-SET VSVARS32=%VSWHEREINSTALLDIR%\Common7\Tools\VsDevCmd.bat
+SET VSVARS32=%VSWHEREINSTALLDIR%\VC\Auxiliary\Build\vcvars64.bat
+IF "%~1" == "x86" (
+  SET VSVARS32=%VSWHEREINSTALLDIR%\VC\Auxiliary\Build\vcvars32.bat
+)
 IF EXIST "%VSVARS32%" (
   %_AECHO% Using Visual Studio 2017 / 2019 / 2022...
   GOTO skip_detectVisualStudio

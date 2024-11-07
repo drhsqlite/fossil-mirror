@@ -123,7 +123,7 @@ static void status_report(
 ){
   Stmt q;
   int nErr = 0;
-  Blob rewrittenPathname;
+  Blob rewrittenOrigName, rewrittenPathname;
   Blob sql = BLOB_INITIALIZER, where = BLOB_INITIALIZER;
   const char *zName;
   int i;
@@ -207,6 +207,7 @@ static void status_report(
 
   /* Execute the query and assemble the report. */
   blob_zero(&rewrittenPathname);
+  blob_zero(&rewrittenOrigName);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q, 0);
     const char *zClass = 0;
@@ -270,14 +271,17 @@ static void status_report(
     }else if( (flags & (C_EDITED | C_CHANGED)) && isChnged
            && (isChnged<2 || isChnged>9) ){
       zClass = "EDITED";
-    }else if( (flags & C_RENAMED) && isRenamed ){
-      zClass = "RENAMED";
-      zOrigName = db_column_text(&q,8);
     }else if( (flags & C_UNCHANGED) && isManaged && !isNew
                                     && !isChnged && !isRenamed ){
       zClass = "UNCHANGED";
     }else if( (flags & C_EXTRA) && !isManaged ){
       zClass = "EXTRA";
+    }
+    if( (flags & C_RENAMED) && isRenamed ){
+      zOrigName = db_column_text(&q,8);
+      if( zClass==0 ){
+        zClass = "RENAMED";
+      }
     }
 
     /* Only report files for which a change classification was determined. */
@@ -297,26 +301,30 @@ static void status_report(
       }
       if( flags & C_RELPATH ){
         /* If C_RELPATH, display paths relative to current directory. */
-        const char *zDisplayName;
         file_relative_name(zFullName, &rewrittenPathname, 0);
-        zDisplayName = blob_str(&rewrittenPathname);
-        if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
-          zDisplayName += 2;  /* no unnecessary ./ prefix */
+        zPathname = blob_str(&rewrittenPathname);
+        if( zPathname[0]=='.' && zPathname[1]=='/' ){
+          zPathname += 2;  /* no unnecessary ./ prefix */
         }
         if( (flags & (C_FILTER ^ C_RENAMED)) && zOrigName ){
-          blob_appendf(report, "%s  ->  %s", zOrigName, zDisplayName);
-        }else{
-          blob_append(report, zDisplayName, -1);
+          char *zOrigFullName = mprintf("%s%s", g.zLocalRoot, zOrigName);
+          file_relative_name(zOrigFullName, &rewrittenOrigName, 0);
+          zOrigName = blob_str(&rewrittenOrigName);
+          fossil_free(zOrigFullName);
+          if( zOrigName[0]=='.' && zOrigName[1]=='/' ){
+            zOrigName += 2;  /* no unnecessary ./ prefix */
+          }
         }
-      }else{
-        /* If not C_RELPATH, display paths relative to project root. */
-        blob_append(report, zPathname, -1);
       }
-      blob_append(report, "\n", 1);
+      if( (flags & (C_FILTER ^ C_RENAMED)) && zOrigName ){
+        blob_appendf(report, "%s  ->  ", zOrigName);
+      }
+      blob_appendf(report, "%s\n", zPathname);
     }
     free(zFullName);
   }
   blob_reset(&rewrittenPathname);
+  blob_reset(&rewrittenOrigName);
   db_finalize(&q);
 
   /* If C_MERGE, put merge contributors at the end of the report. */
@@ -424,6 +432,7 @@ static int determine_cwd_relative_option()
 **
 ** General options:
 **    --abs-paths       Display absolute pathnames
+**    -b|--brief        Show a single keyword for the status
 **    --rel-paths       Display pathnames relative to the current working
 **                      directory
 **    --hash            Verify file status using hashing rather than
@@ -487,6 +496,44 @@ void status_cmd(void){
   int vid, i;
 
   fossil_pledge("stdio rpath wpath cpath fattr id flock tty chown");
+
+  if( find_option("brief","b",0) ){
+    /* The --brief or -b option is special.  It cannot be used with any
+    ** other options.  It outputs a single keyword which indicates the
+    ** fossil status, for use by shell scripts.  The output might be
+    ** one of:
+    **
+    **     clean         The current working directory is within an
+    **                   unmodified fossil check-out.
+    **
+    **     dirty         The pwd is within a fossil check-out that has
+    **                   uncommitted changes
+    **
+    **     none          The pwd is not within a fossil check-out.
+    */
+    int chnged;
+    if( g.argc>2 ){
+      fossil_fatal("No other arguments or options may occur with --brief");
+    }
+    if( db_open_local(0)==0 ){
+      fossil_print("none\n");
+      return;
+    }
+    vid = db_lget_int("checkout", 0);
+    vfile_check_signature(vid, 0);
+    chnged = db_int(0,
+      "SELECT 1 FROM vfile"
+      " WHERE vid=%d"
+      "   AND (chnged>0 OR deleted OR rid==0)",
+      vid
+    );
+    if( chnged ){
+      fossil_print("dirty\n");
+    }else{
+      fossil_print("clean\n");
+    }
+    return;
+  }
 
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
@@ -587,6 +634,85 @@ void status_cmd(void){
   }
 }
 
+/* zIn is a string that is guaranteed to be followed by \n.  Return
+** a pointer to the next line after the \n.  The returned value might
+** point to the \000 string terminator.
+*/
+static const char *next_line(const char *zIn){
+  const char *z = strchr(zIn, '\n');
+  assert( z!=0 );
+  return z+1;
+}
+
+/* zIn is a non-empty list of filenames in sorted order and separated
+** by \n.  There might be a cluster of lines that have the same n-character
+** prefix.  Return a pointer to the start of the last line of that
+** cluster.  The return value might be zIn if the first line of zIn is
+** unique in its first n character.
+*/
+static const char *last_line(const char *zIn, int n){
+  const char *zLast = zIn;
+  const char *z;
+  while( 1 ){
+    z = next_line(zLast);
+    if( z[0]==0 || (n>0 && strncmp(zIn, z, n)!=0) ) break;
+    zLast = z;
+  }
+  return zLast;
+}
+
+/*
+** Print a section of a filelist hierarchy graph.  This is a helper
+** routine for print_filelist_as_tree() below.
+*/
+static const char *print_filelist_section(
+  const char *zIn,           /* List of filenames, separated by \n */
+  const char *zLast,         /* Last filename in the list to print */
+  const char *zPrefix,       /* Prefix so put before each output line */
+  int nDir                   /* Ignore this many characters of directory name */
+){
+  /* Unicode box-drawing characters: U+251C, U+2514, U+2502 */
+  const char *zENTRY = "\342\224\234\342\224\200\342\224\200 ";
+  const char *zLASTE = "\342\224\224\342\224\200\342\224\200 ";   
+  const char *zCONTU = "\342\224\202   ";
+  const char *zBLANK = "    ";
+
+  while( zIn<=zLast ){
+    int i;
+    for(i=nDir; zIn[i]!='\n' && zIn[i]!='/'; i++){}
+    if( zIn[i]=='/' ){
+      char *zSubPrefix;
+      const char *zSubLast = last_line(zIn, i+1);
+      zSubPrefix = mprintf("%s%s", zPrefix, zSubLast==zLast ? zBLANK : zCONTU);
+      fossil_print("%s%s%.*s\n", zPrefix, zSubLast==zLast ? zLASTE : zENTRY,
+                   i-nDir, &zIn[nDir]);
+      zIn = print_filelist_section(zIn, zSubLast, zSubPrefix, i+1);
+      fossil_free(zSubPrefix);
+    }else{
+      fossil_print("%s%s%.*s\n", zPrefix, zIn==zLast ? zLASTE : zENTRY,
+                   i-nDir, &zIn[nDir]);
+      zIn = next_line(zIn);
+    }
+  }
+  return zIn;
+}
+
+/*
+** Input blob pList is a list of filenames, one filename per line,
+** in sorted order and with / directory separators.  Output this list
+** as a tree in a manner similar to the "tree" command on Linux.
+*/
+static void print_filelist_as_tree(Blob *pList){
+  char *zAll;
+  const char *zLast;
+  fossil_print("%s\n", g.zLocalRoot);
+  zAll = blob_str(pList);
+  if( zAll[0] ){
+    zLast = last_line(zAll, 0);
+    print_filelist_section(zAll, zLast, "", 0);
+  }
+}
+
 /*
 ** Take care of -r version of ls command
 */
@@ -594,7 +720,8 @@ static void ls_cmd_rev(
   const char *zRev,  /* Revision string given */
   int verboseFlag,   /* Verbose flag given */
   int showAge,       /* Age flag given */
-  int timeOrder      /* Order by time flag given */
+  int timeOrder,     /* Order by time flag given */
+  int treeFmt        /* Show output in the tree format */
 ){
   Stmt q;
   char *zOrderBy = "pathname COLLATE nocase";
@@ -602,6 +729,7 @@ static void ls_cmd_rev(
   Blob where;
   int rid;
   int i;
+  Blob out;
 
   /* Handle given file names */
   blob_zero(&where);
@@ -643,12 +771,15 @@ static void ls_cmd_rev(
     " ORDER BY %s;", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
   );
   blob_reset(&where);
+  if( treeFmt ) blob_init(&out, 0, 0);
 
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTime = db_column_text(&q,0);
     const char *zFile = db_column_text(&q,1);
     int size = db_column_int(&q,2);
-    if( verboseFlag ){
+    if( treeFmt ){
+      blob_appendf(&out, "%s\n", zFile);
+    }else if( verboseFlag ){
       fossil_print("%s  %7d  %s\n", zTime, size, zFile);
     }else if( showAge ){
       fossil_print("%s  %s\n", zTime, zFile);
@@ -657,6 +788,10 @@ static void ls_cmd_rev(
     }
   }
   db_finalize(&q);
+  if( treeFmt ){
+    print_filelist_as_tree(&out);
+    blob_reset(&out);
+  }
 }
 
 /*
@@ -686,20 +821,22 @@ static void ls_cmd_rev(
 **
 ** Options:
 **   --age                 Show when each file was committed
-**   -v|--verbose          Provide extra information about each file
-**   -t                    Sort output in time order
-**   -r VERSION            The specific check-in to list
-**   -R|--repository REPO  Extract info from repository REPO
 **   --hash                With -v, verify file status using hashing
 **                         rather than relying on file sizes and mtimes
+**   -r VERSION            The specific check-in to list
+**   -R|--repository REPO  Extract info from repository REPO
+**   -t                    Sort output in time order
+**   --tree                Tree format
+**   -v|--verbose          Provide extra information about each file
 **
-** See also: [[changes]], [[extras]], [[status]]
+** See also: [[changes]], [[extras]], [[status]], [[tree]]
 */
 void ls_cmd(void){
   int vid;
   Stmt q;
   int verboseFlag;
   int showAge;
+  int treeFmt;
   int timeOrder;
   char *zOrderBy = "pathname";
   Blob where;
@@ -718,11 +855,15 @@ void ls_cmd(void){
   if( verboseFlag ){
     useHash = find_option("hash",0,0)!=0;
   }
+  treeFmt = find_option("tree",0,0)!=0;
+  if( treeFmt ){
+    if( zRev==0 ) zRev = "current";
+  }
 
   if( zRev!=0 ){
     db_find_and_open_repository(0, 0);
     verify_all_options();
-    ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder);
+    ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder,treeFmt);
     return;
   }else if( find_option("R",0,1)!=0 ){
     fossil_fatal("the -r is required in addition to -R");
@@ -824,6 +965,31 @@ void ls_cmd(void){
 }
 
 /*
+** COMMAND: tree
+**
+** Usage: %fossil tree ?OPTIONS? ?PATHS ...?
+**
+** List all files in the current check-out much like the "tree"
+** command does.  If PATHS is included, only the named files
+** (or their children if directories) are shown.
+**
+** Options:
+**   -r VERSION            The specific check-in to list
+**   -R|--repository REPO  Extract info from repository REPO
+**
+** See also: [[ls]]
+*/
+void tree_cmd(void){
+  const char *zRev;
+
+  zRev = find_option("r","r",1);
+  if( zRev==0 ) zRev = "current";
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  ls_cmd_rev(zRev,0,0,0,1);
+}
+
+/*
 ** COMMAND: extras
 **
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
@@ -850,6 +1016,7 @@ void ls_cmd(void){
 **    --ignore CSG            Ignore files matching patterns from the argument
 **    --rel-paths             Display pathnames relative to the current working
 **                            directory
+**    --tree                  Show output in the tree format
 **
 ** See also: [[changes]], [[clean]], [[status]]
 */
@@ -859,6 +1026,7 @@ void extras_cmd(void){
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   unsigned flags = C_EXTRA;
   int showHdr = find_option("header",0,0)!=0;
+  int treeFmt = find_option("tree",0,0)!=0;
   Glob *pIgnore;
 
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
@@ -869,6 +1037,10 @@ void extras_cmd(void){
   }
 
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
+
+  if( treeFmt ){
+    flags &= ~C_RELPATH;
+  }
 
   /* We should be done with options.. */
   verify_all_options();
@@ -887,7 +1059,11 @@ void extras_cmd(void){
       fossil_print("Extras for %s at %s:\n", db_get("project-name","<unnamed>"),
                    g.zLocalRoot);
     }
-    blob_write_to_file(&report, "-");
+    if( treeFmt ){
+      print_filelist_as_tree(&report);
+    }else{
+      blob_write_to_file(&report, "-");
+    }
   }
   blob_reset(&report);
 }
@@ -1359,13 +1535,28 @@ static void prepare_commit_comment(
     diff_options(&DCfg, 0, 1);
     DCfg.diffFlags |= DIFF_VERBOSE;
     if( g.aCommitFile ){
+      Stmt q;
+      Blob sql = BLOB_INITIALIZER;
       FileDirList *diffFiles;
       int i;
       for(i=0; g.aCommitFile[i]!=0; ++i){}
       diffFiles = fossil_malloc_zero((i+1) * sizeof(*diffFiles));
       for(i=0; g.aCommitFile[i]!=0; ++i){
-        diffFiles[i].zName  = db_text(0,
-         "SELECT pathname FROM vfile WHERE id=%d", g.aCommitFile[i]);
+        blob_append_sql(&sql,
+                        "SELECT pathname, deleted, rid "
+                        "FROM vfile WHERE id=%d",
+                        g.aCommitFile[i]);
+        db_prepare(&q, "%s", blob_sql_text(&sql));
+        blob_reset(&sql);
+        assert( db_step(&q)==SQLITE_ROW );
+        diffFiles[i].zName = fossil_strdup(db_column_text(&q, 0));
+        DCfg.diffFlags &= (~DIFF_FILE_MASK);
+        if( db_column_int(&q, 1) ){
+          DCfg.diffFlags |= DIFF_FILE_DELETED;
+        }else if( db_column_int(&q, 2)==0 ){
+          DCfg.diffFlags |= DIFF_FILE_ADDED;
+        }
+        db_finalize(&q);
         if( fossil_strcmp(diffFiles[i].zName, "." )==0 ){
           diffFiles[0].zName[0] = '.';
           diffFiles[0].zName[1] = 0;
@@ -1871,6 +2062,8 @@ static int commit_warning(
   int fHasLoneCrOnly;     /* all detected line endings are CR only */
   int fHasCrLfOnly;       /* all detected line endings are CR/LF pairs */
   int fHasInvalidUtf8 = 0;/* contains invalid UTF-8 */
+  int fHasNul;            /* contains NUL chars? */
+  int fHasLong;           /* overly long line? */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -1890,9 +2083,11 @@ static int commit_warning(
     fBinary = (lookFlags & LOOK_BINARY);
     fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
     fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
+    fHasNul = (lookFlags & LOOK_NUL);
+    fHasLong = (lookFlags & LOOK_LONG);
   }else{
     fUnicode = fHasAnyCr = fBinary = fHasInvalidUtf8 = 0;
-    fHasLoneCrOnly = fHasCrLfOnly = 0;
+    fHasLoneCrOnly = fHasCrLfOnly = fHasNul = fHasLong = 0;
   }
   if( !sizeOk || fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8 ){
     const char *zWarning = 0;
@@ -1903,8 +2098,6 @@ static int commit_warning(
     char cReply;
 
     if( fBinary ){
-      int fHasNul = (lookFlags & LOOK_NUL); /* contains NUL chars? */
-      int fHasLong = (lookFlags & LOOK_LONG); /* overly long line? */
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
@@ -2158,8 +2351,6 @@ static int tagCmp(const void *a, const void *b){
 **    --bgcolor COLOR            Apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   Check in to this new branch
 **    --branchcolor COLOR        Apply given COLOR to the branch
-**                                 ("auto" lets Fossil choose it automatically,
-**                                  even for private branches)
 **    --close                    Close the branch being committed
 **    --date-override DATETIME   DATE to use instead of 'now'
 **    --delta                    Use a delta manifest in the commit process
@@ -2182,6 +2373,7 @@ static int tagCmp(const void *a, const void *b){
 **    --no-warnings              Omit all warnings about file contents
 **    --no-verify                Do not run before-commit hooks
 **    --nosign                   Do not attempt to sign this commit with gpg
+**    --nosync                   Do not auto-sync prior to committing
 **    --override-lock            Allow a check-in even though parent is locked
 **    --private                  Do not sync changes and their descendants
 **    --tag TAG-NAME             Assign given tag TAG-NAME to the check-in
@@ -2242,7 +2434,6 @@ void commit_cmd(void){
   Blob ans;              /* Answer to continuation prompts */
   char cReply;           /* First character of ans */
   int bRecheck = 0;      /* Repeat fork and closed-branch checks*/
-  int bAutoBrClr = 0;    /* Value of "--branchcolor" is "auto" */
   int bIgnoreSkew = 0;   /* --ignore-clock-skew flag */
   int mxSize;
 
@@ -2251,6 +2442,7 @@ void commit_cmd(void){
   /* --sha1sum is an undocumented alias for --hash for backwards compatiblity */
   useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
   noSign = find_option("nosign",0,0)!=0;
+  if( find_option("nosync",0,0) ) g.fNoSync = 1;
   privateFlag = find_option("private",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;
@@ -2284,10 +2476,6 @@ void commit_cmd(void){
   sCiInfo.zBranch = find_option("branch","b",1);
   sCiInfo.zColor = find_option("bgcolor",0,1);
   sCiInfo.zBrClr = find_option("branchcolor",0,1);
-  if ( fossil_strncmp(sCiInfo.zBrClr, "auto", 4)==0 ) {
-    bAutoBrClr = 1;
-    sCiInfo.zBrClr = 0;
-  }
   sCiInfo.closeFlag = find_option("close",0,0)!=0;
   sCiInfo.integrateFlag = find_option("integrate",0,0)!=0;
   sCiInfo.zMimetype = find_option("mimetype",0,1);
@@ -2329,9 +2517,6 @@ void commit_cmd(void){
     ** specified otherwise on the command-line, and if the parent is not
     ** already private. */
     if( sCiInfo.zBranch==0 ) sCiInfo.zBranch = "private";
-    if( sCiInfo.zBrClr==0 && sCiInfo.zColor==0 && !bAutoBrClr) {
-      sCiInfo.zBrClr = "#fec084";
-    }
   }
 
   /* Do not allow the creation of a new branch using an existing open
@@ -2513,7 +2698,7 @@ void commit_cmd(void){
                      "--allow-fork.");
       }
     }
-  
+
     /*
     ** Do not allow a commit against a closed leaf unless the commit
     ** ends up on a different branch.
@@ -2534,7 +2719,7 @@ void commit_cmd(void){
     /* Always exit the loop on the second pass */
     if( bRecheck ) break;
 
-  
+
     /* Get the check-in comment.  This might involve prompting the
     ** user for the check-in comment, in which case we should resync
     ** to renew the check-in lock and repeat the checks for conflicts.
@@ -2665,7 +2850,7 @@ void commit_cmd(void){
       }
       db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d, mhash=NULL WHERE id=%d",
                     nrid,nrid,id);
-      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+      db_add_unsent(nrid);
     }
   }
   db_finalize(&q);
@@ -2763,7 +2948,7 @@ void commit_cmd(void){
   if( nvid==0 ){
     fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
+  db_add_unsent(nvid);
   if( manifest_crosslink(nvid, &manifest,
                          dryRunFlag ? MC_NONE : MC_PERMIT_HOOKS)==0 ){
     fossil_fatal("%s", g.zErrMsg);

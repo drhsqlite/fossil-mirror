@@ -61,7 +61,7 @@ static int sslNoCertVerify = 0;  /* Do not verify SSL certs */
 /* This is a self-signed cert in the PEM format that can be used when
 ** no other certs are available.
 */
-static const char sslSelfCert[] = 
+static const char sslSelfCert[] =
 "-----BEGIN CERTIFICATE-----\n"
 "MIIDMTCCAhkCFGrDmuJkkzWERP/ITBvzwwI2lv0TMA0GCSqGSIb3DQEBCwUAMFQx\n"
 "CzAJBgNVBAYTAlVTMQswCQYDVQQIDAJOQzESMBAGA1UEBwwJQ2hhcmxvdHRlMRMw\n"
@@ -85,7 +85,7 @@ static const char sslSelfCert[] =
 
 /* This is the private-key corresponding to the cert above
 */
-static const char sslSelfPKey[] = 
+static const char sslSelfPKey[] =
 "-----BEGIN PRIVATE KEY-----\n"
 "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCCbTU26GRQHQqL\n"
 "q7vyZ0OxpAxmgfAKCxt6eIz+jBi2ZM/CB5vVXWVh2+SkSiWEA3UZiUqXxZlzmS/C\n"
@@ -131,7 +131,7 @@ static int sslctx_use_cert_from_mem(
 
   in = BIO_new_mem_buf(pData, nData);
   if( in==0 ) goto end_of_ucfm;
-  // x = X509_new_ex(ctx->libctx, ctx->propq);
+  /* x = X509_new_ex(ctx->libctx, ctx->propq); */
   x = X509_new();
   if( x==0 ) goto end_of_ucfm;
   cert = PEM_read_bio_X509(in, &x, 0, 0);
@@ -208,7 +208,7 @@ static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
 /*
 ** Convert an OpenSSL ASN1_TIME to an ISO8601 timestamp.
 **
-** Per RFC 5280, ASN1 timestamps in X.509 certificates must 
+** Per RFC 5280, ASN1 timestamps in X.509 certificates must
 ** be in UTC (Zulu timezone) with no fractional seconds.
 **
 ** If showUtc==1, add " UTC" at the end of the returned string. This is
@@ -310,6 +310,23 @@ static void ssl_global_init_client(void){
       fossil_fatal("Cannot load CA root certificates from %s", zFile);
     }
 
+/* Enable OpenSSL to use the Windows system ROOT certificate store to search for
+** certificates missing in the file and directory trust stores already loaded by
+** `SSL_CTX_load_verify_locations()'.
+** This feature was introduced with OpenSSL 3.2.0, and may be enabled by default
+** for future versions of OpenSSL, and explicit initialization may be redundant.
+** NOTE TO HACKERS TWEAKING THEIR OPENSSL CONFIGURATION:
+** The following OpenSSL configuration options must not be used for this feature
+** to be available: `no-autoalginit', `no-winstore'. The Fossil makefiles do not
+** currently set these options when building OpenSSL for Windows. */
+#if defined(_WIN32)
+#if OPENSSL_VERSION_NUMBER >= 0x030200000
+    if( SSL_CTX_load_verify_store(sslCtx, "org.openssl.winstore:")==0 ){
+      fossil_print("NOTICE: Failed to load the Windows root certificates.\n");
+    }
+#endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
+#endif /* _WIN32 */
+
     /* Load client SSL identity, preferring the filename specified on the
     ** command line */
     if( g.zSSLIdentity!=0 ){
@@ -388,12 +405,10 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
     bbuf = blob_buffer(&reply);
     len = blob_size(&reply);
     while(end < len) {
-      if(bbuf[end] == '\r') {
-        if(len - end < 4) {
-          /* need more data */
-          break;
-        }
-        if(memcmp(&bbuf[end], "\r\n\r\n", 4) == 0) {
+      if( bbuf[end]=='\n' ) {
+        if( (end+1<len && bbuf[end+1]=='\n')
+         || (end+2<len && bbuf[end+1]=='\r' && bbuf[end+2]=='\n')
+        ){
           done = 1;
           break;
         }
@@ -414,7 +429,7 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
 ** real server or a man-in-the-middle imposter.
 */
 void ssl_disable_cert_verification(void){
-  sslNoCertVerify = 1;  
+  sslNoCertVerify = 1;
 }
 
 /*
@@ -543,7 +558,7 @@ int ssl_open_client(UrlData *pUrlData){
     x = X509_digest(cert, EVP_sha1(), md, &mdLength);
 #endif
     if( x ){
-      int j;
+      unsigned j;
       for(j=0; j<mdLength && j*2+1<sizeof(zHash); ++j){
         zHash[j*2] = "0123456789abcdef"[md[j]>>4];
         zHash[j*2+1] = "0123456789abcdef"[md[j]&0xf];
@@ -567,12 +582,12 @@ int ssl_open_client(UrlData *pUrlData){
                  ssl_asn1time_to_iso8601(X509_get_notAfter(cert), 1));
       BIO_printf(mem, "\n  sha256:    %s", zHash);
       desclen = BIO_get_mem_data(mem, &desc);
-  
+
       prompt = mprintf("Unable to verify SSL cert from %s\n%.*s\n"
           "accept this cert and continue (y/N/fingerprint)? ",
           pUrlData->name, desclen, desc);
       BIO_free(mem);
-  
+
       prompt_user(prompt, &ans);
       free(prompt);
       cReply = blob_str(&ans)[0];
@@ -1033,6 +1048,22 @@ void test_tlsconfig_info(void){
       );
     }
 
+#if defined(_WIN32)
+#if OPENSSL_VERSION_NUMBER >= 0x030200000
+    fossil_print("  OpenSSL-winstore:   Yes\n");
+#else /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
+    fossil_print("  OpenSSL-winstore:   No\n");
+#endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
+    if( verbose ){
+      fossil_print("\n"
+         "    OpenSSL 3.2.0, or newer, use the root certificates managed by\n"
+         "    the Windows operating system. The installed root certificates\n"
+         "    are listed by the command:\n\n"
+         "        certutil -store \"ROOT\"\n\n"
+      );
+    }
+#endif /* _WIN32 */
+
     if( zUsed==0 ) zUsed = "";
     fossil_print("  Trust store used:   %s\n", zUsed);
     if( verbose ){
@@ -1177,7 +1208,7 @@ void wellknown_page(void){
 
 wellknown_notfound:
   fossil_free(zPath);
-  webpage_notfound_error(0);
+  webpage_notfound_error(0 /*works-like:""*/);
   return;
 }
 
@@ -1187,7 +1218,7 @@ wellknown_notfound:
 ** freed by the caller.
 */
 char *fossil_openssl_version(void){
-#if defined(FOSSIL_ENABLE_SSL) 
+#if defined(FOSSIL_ENABLE_SSL)
   return mprintf("%s (0x%09x)\n",
          SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
 #else

@@ -33,21 +33,53 @@
 #if defined(_WIN32)
 #  if USE_SEE
 #    include <windows.h>
+#    define GETPID (int)GetCurrentProcessId
 #  endif
 #else
 #  include <pwd.h>
+#  if USE_SEE
+#    define GETPID getpid
+#  endif
 #endif
 #if USE_SEE && !defined(SQLITE_HAS_CODEC)
 #  define SQLITE_HAS_CODEC
+#endif
+#if USE_SEE && defined(__linux__)
+#  include <sys/uio.h>
 #endif
 #include <sqlite3.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
+
+/* BUGBUG: This (PID_T) does not work inside of INTERFACE block. */
+#if USE_SEE
+#if defined(_WIN32)
+typedef DWORD PID_T;
+#else
+typedef pid_t PID_T;
+#endif
+#endif
+
 #include "db.h"
 
 #if INTERFACE
+/*
+** Type definitions used for handling the saved encryption key for SEE.
+*/
+#if !defined(_WIN32)
+typedef void *LPVOID;
+typedef size_t SIZE_T;
+#endif
+
+/*
+** Operations for db_maybe_handle_saved_encryption_key_for_process, et al.
+*/
+#define SEE_KEY_READ  ((int)0)
+#define SEE_KEY_WRITE ((int)1)
+#define SEE_KEY_ZERO  ((int)2)
+
 /*
 ** An single SQL statement is represented as an instance of the following
 ** structure.
@@ -142,7 +174,7 @@ static struct DbLocalData {
   unsigned aProtect[12];    /* Saved values of protectMask */
 } db = {
   PROTECT_USER|PROTECT_CONFIG|PROTECT_BASELINE,  /* protectMask */
-  0, 0, 0, 0, 0, 0, };
+  0, 0, 0, 0, 0, 0, 0, {{0}}, {0}, {0}, 0, 0, 0, 0, 0, 0, 0, 0, 0, {0}};
 
 /*
 ** Arrange for the given file to be deleted on a failure.
@@ -427,7 +459,7 @@ void db_protect_only(unsigned flags){
     fossil_panic("too many db_protect() calls");
   }
   db.aProtect[db.nProtect++] = db.protectMask;
-  if( (flags & PROTECT_SENSITIVE)!=0 
+  if( (flags & PROTECT_SENSITIVE)!=0
    && db.bProtectTriggers==0
    && g.repositoryOpen
   ){
@@ -866,7 +898,7 @@ int db_column_count(Stmt *pStmt){
   return sqlite3_column_count(pStmt->pStmt);
 }
 char *db_column_malloc(Stmt *pStmt, int N){
-  return mprintf("%s", db_column_text(pStmt, N));
+  return fossil_strdup_nn(db_column_text(pStmt, N));
 }
 void db_column_blob(Stmt *pStmt, int N, Blob *pBlob){
   blob_append(pBlob, sqlite3_column_blob(pStmt->pStmt, N),
@@ -1162,11 +1194,9 @@ char *db_text(const char *zDefault, const char *zSql, ...){
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
   if( db_step(&s)==SQLITE_ROW ){
-    z = mprintf("%s", sqlite3_column_text(s.pStmt, 0));
-  }else if( zDefault ){
-    z = mprintf("%s", zDefault);
+    z = fossil_strdup_nn((const char*)sqlite3_column_text(s.pStmt, 0));
   }else{
-    z = 0;
+    z = fossil_strdup(zDefault);
   }
   db_finalize(&s);
   return z;
@@ -1407,7 +1437,7 @@ void db_obscure(
   }else{
     zTemp = unobscure((char*)zIn);
   }
-  strcpy(zOut, zTemp);
+  fossil_strcpy(zOut, zTemp);
   fossil_free(zTemp);
   sqlite3_result_text(context, zOut, strlen(zOut), sqlite3_free);
 }
@@ -1527,9 +1557,9 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "url_nouser", 1, SQLITE_UTF8, 0,
                           url_nouser_func,0,0);
   sqlite3_create_function(db, "chat_msg_from_event", 4,
-        SQLITE_UTF8 | SQLITE_INNOCUOUS, 0, 
+        SQLITE_UTF8 | SQLITE_INNOCUOUS, 0,
         chat_msg_from_event, 0, 0);
-                           
+
 }
 
 #if USE_SEE
@@ -1541,7 +1571,26 @@ static char *zSavedKey = 0;
 /*
 ** This is the size of the saved database encryption key, in bytes.
 */
-size_t savedKeySize = 0;
+static size_t savedKeySize = 0;
+
+/*
+** This function returns non-zero if there is a saved database encryption
+** key available.
+*/
+int db_have_saved_encryption_key(){
+  return db_is_valid_saved_encryption_key(zSavedKey, savedKeySize);
+}
+
+/*
+** This function returns non-zero if the specified database encryption key
+** is valid.
+*/
+int db_is_valid_saved_encryption_key(const char *p, size_t n){
+  if( p==0 ) return 0;
+  if( n==0 ) return 0;
+  if( p[0]==0 ) return 0;
+  return 1;
+}
 
 /*
 ** This function returns the saved database encryption key -OR- zero if
@@ -1560,6 +1609,32 @@ size_t db_get_saved_encryption_key_size(){
 }
 
 /*
+** This function arranges for the saved database encryption key buffer
+** to be allocated and then sets up the environment variable to allow
+** a child process to initialize it with the actual database encryption
+** key.
+*/
+void db_setup_for_saved_encryption_key(){
+  void *p = NULL;
+  size_t n = 0;
+  size_t pageSize = 0;
+  Blob pidKey;
+
+  assert( !db_have_saved_encryption_key() );
+  db_unsave_encryption_key();
+  fossil_get_page_size(&pageSize);
+  assert( pageSize>0 );
+  p = fossil_secure_alloc_page(&n);
+  assert( p!=NULL );
+  assert( n==pageSize );
+  blob_zero(&pidKey);
+  blob_appendf(&pidKey, "%lu:%p:%u", (unsigned long)GETPID(), p, n);
+  fossil_setenv("FOSSIL_SEE_PID_KEY", blob_str(&pidKey));
+  zSavedKey = p;
+  savedKeySize = n;
+}
+
+/*
 ** This function arranges for the database encryption key to be securely
 ** saved in non-pagable memory (on platforms where this is possible).
 */
@@ -1571,6 +1646,7 @@ static void db_save_encryption_key(
   size_t pageSize = 0;
   size_t blobSize = 0;
 
+  assert( !db_have_saved_encryption_key() );
   blobSize = blob_size(pKey);
   if( blobSize==0 ) return;
   fossil_get_page_size(&pageSize);
@@ -1601,7 +1677,7 @@ void db_unsave_encryption_key(){
 ** This function sets the saved database encryption key to the specified
 ** string value, allocating or freeing the underlying memory if needed.
 */
-void db_set_saved_encryption_key(
+static void db_set_saved_encryption_key(
   Blob *pKey
 ){
   if( zSavedKey!=NULL ){
@@ -1621,21 +1697,75 @@ void db_set_saved_encryption_key(
   }
 }
 
-#if defined(_WIN32)
 /*
-** This function sets the saved database encryption key to one that gets
-** read from the specified Fossil parent process.  This is only necessary
-** (or functional) on Windows.
+** WEBPAGE: setseekey
+**
+** Sets the sets the saved database encryption key to one that gets passed
+** via the "key" query string parameter.  If the saved database encryption
+** key has already been set, does nothing.  This web page does not produce
+** any output on success or failure.  No permissions are required and none
+** are checked (partially due to lack of encrypted database access).
+**
+** Query parameters:
+**
+**   key                 The string to set as the saved database encryption
+**                       key.
 */
-void db_read_saved_encryption_key_from_process(
-  DWORD processId, /* Identifier for Fossil parent process. */
+void db_set_see_key_page(void){
+  Blob key;
+  const char *zKey;
+  if( db_have_saved_encryption_key() ){
+    fossil_trace("SEE: encryption key was already set\n");
+    return;
+  }
+  zKey = P("key");
+  blob_init(&key, 0, 0);
+  if( zKey!=0 ){
+    PID_T processId;
+    blob_set(&key, zKey);
+    db_set_saved_encryption_key(&key);
+    processId = db_maybe_handle_saved_encryption_key_for_process(
+      SEE_KEY_WRITE
+    );
+    fossil_trace("SEE: set encryption key for process %lu, length %u\n",
+                 (unsigned long)processId, blob_size(&key));
+  }else{
+    fossil_trace("SEE: no encryption key specified\n");
+  }
+  blob_reset(&key);
+}
+
+/*
+** WEBPAGE: unsetseekey
+**
+** Sets the saved database encryption key to zeros in the current and parent
+** Fossil processes.  This web page does not produce any output on success
+** or failure.  Setup permission is required.
+*/
+void db_unset_see_key_page(void){
+  PID_T processId;
+  login_check_credentials();
+  if( !g.perm.Setup ){ login_needed(0); return; }
+  processId = db_maybe_handle_saved_encryption_key_for_process(
+    SEE_KEY_ZERO
+  );
+  fossil_trace("SEE: unset encryption key for process %lu\n",
+               (unsigned long)processId);
+}
+
+/*
+** This function reads the saved database encryption key from the
+** specified Fossil parent process.  This is only necessary (or
+** functional) on Windows or Linux.
+*/
+static void db_read_saved_encryption_key_from_process(
+  PID_T processId, /* Identifier for Fossil parent process. */
   LPVOID pAddress, /* Pointer to saved key buffer in the parent process. */
   SIZE_T nSize     /* Size of saved key buffer in the parent process. */
 ){
   void *p = NULL;
   size_t n = 0;
   size_t pageSize = 0;
-  HANDLE hProcess = NULL;
 
   fossil_get_page_size(&pageSize);
   assert( pageSize>0 );
@@ -1646,26 +1776,182 @@ void db_read_saved_encryption_key_from_process(
   assert( p!=NULL );
   assert( n==pageSize );
   assert( n>=nSize );
-  hProcess = OpenProcess(PROCESS_VM_READ, FALSE, processId);
-  if( hProcess!=NULL ){
-    SIZE_T nRead = 0;
-    if( ReadProcessMemory(hProcess, pAddress, p, nSize, &nRead) ){
-      CloseHandle(hProcess);
-      if( nRead==nSize ){
-        db_unsave_encryption_key();
-        zSavedKey = p;
-        savedKeySize = n;
+  {
+#if defined(_WIN32)
+    HANDLE hProcess = OpenProcess(PROCESS_VM_READ, FALSE, processId);
+    if( hProcess!=NULL ){
+      SIZE_T nRead = 0;
+      if( ReadProcessMemory(hProcess, pAddress, p, nSize, &nRead) ){
+        CloseHandle(hProcess);
+        if( nRead==nSize ){
+          db_unsave_encryption_key();
+          zSavedKey = p;
+          savedKeySize = n;
+        }else{
+          fossil_secure_free_page(p, n);
+          fossil_panic("bad size read, %u out of %u bytes at %p from pid %lu",
+                       nRead, nSize, pAddress, processId);
+        }
       }else{
-        fossil_panic("bad size read, %u out of %u bytes at %p from pid %lu",
-                     nRead, nSize, pAddress, processId);
+        CloseHandle(hProcess);
+        fossil_secure_free_page(p, n);
+        fossil_panic("failed read, %u bytes at %p from pid %lu: %lu", nSize,
+                     pAddress, processId, GetLastError());
       }
     }else{
-      CloseHandle(hProcess);
-      fossil_panic("failed read, %u bytes at %p from pid %lu: %lu", nSize,
-                   pAddress, processId, GetLastError());
+      fossil_secure_free_page(p, n);
+      fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
     }
-  }else{
-    fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
+#elif defined(__linux__)
+    ssize_t nRead;
+    struct iovec liov = {0};
+    struct iovec riov = {0};
+    liov.iov_base = p;
+    liov.iov_len = n;
+    riov.iov_base = pAddress;
+    riov.iov_len = nSize;
+    nRead = process_vm_readv(processId, &liov, 1, &riov, 1, 0);
+    if( nRead==nSize ){
+      db_unsave_encryption_key();
+      zSavedKey = p;
+      savedKeySize = n;
+    }else{
+      fossil_secure_free_page(p, n);
+      fossil_panic("bad size read, %zd out of %zu bytes at %p from pid %lu",
+                   nRead, nSize, pAddress, (unsigned long)processId);
+    }
+#else
+    fossil_secure_free_page(p, n);
+    fossil_trace("db_read_saved_encryption_key_from_process unsupported");
+#endif
+  }
+}
+
+/*
+** This function writes the saved database encryption key into the
+** specified Fossil parent process.  This is only necessary (or
+** functional) on Windows or Linux.
+*/
+static void db_write_saved_encryption_key_to_process(
+  PID_T processId, /* Identifier for Fossil parent process. */
+  LPVOID pAddress, /* Pointer to saved key buffer in the parent process. */
+  SIZE_T nSize     /* Size of saved key buffer in the parent process. */
+){
+  void *p = db_get_saved_encryption_key();
+  size_t n = db_get_saved_encryption_key_size();
+  size_t pageSize = 0;
+
+  fossil_get_page_size(&pageSize);
+  assert( pageSize>0 );
+  if( nSize>pageSize ){
+    fossil_panic("key too large: %u versus %u", nSize, pageSize);
+  }
+  assert( p!=NULL );
+  assert( n==pageSize );
+  assert( n>=nSize );
+  {
+#if defined(_WIN32)
+    HANDLE hProcess = OpenProcess(PROCESS_VM_OPERATION|PROCESS_VM_WRITE,
+                                  FALSE, processId);
+    if( hProcess!=NULL ){
+      SIZE_T nWrite = 0;
+      if( WriteProcessMemory(hProcess, pAddress, p, nSize, &nWrite) ){
+        CloseHandle(hProcess);
+        if( nWrite!=nSize ){
+          fossil_panic("bad size write, %u out of %u bytes at %p from pid %lu",
+                       nWrite, nSize, pAddress, processId);
+        }
+      }else{
+        CloseHandle(hProcess);
+        fossil_panic("failed write, %u bytes at %p from pid %lu: %lu", nSize,
+                     pAddress, processId, GetLastError());
+      }
+    }else{
+      fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
+    }
+#elif defined(__linux__)
+    ssize_t nWrite;
+    struct iovec liov = {0};
+    struct iovec riov = {0};
+    liov.iov_base = p;
+    liov.iov_len = n;
+    riov.iov_base = pAddress;
+    riov.iov_len = nSize;
+    nWrite = process_vm_writev(processId, &liov, 1, &riov, 1, 0);
+    if( nWrite!=nSize ){
+      fossil_panic("bad size write, %zd out of %zu bytes at %p from pid %lu",
+                   nWrite, nSize, pAddress, (unsigned long)processId);
+    }
+#else
+    fossil_trace("db_write_saved_encryption_key_to_process unsupported");
+#endif
+  }
+}
+
+/*
+** This function zeros the saved database encryption key in the specified
+** Fossil parent process.  This is only necessary (or functional) on
+** Windows or Linux.
+*/
+static void db_zero_saved_encryption_key_in_process(
+  PID_T processId, /* Identifier for Fossil parent process. */
+  LPVOID pAddress, /* Pointer to saved key buffer in the parent process. */
+  SIZE_T nSize     /* Size of saved key buffer in the parent process. */
+){
+  void *p = NULL;
+  size_t n = 0;
+  size_t pageSize = 0;
+
+  fossil_get_page_size(&pageSize);
+  assert( pageSize>0 );
+  if( nSize>pageSize ){
+    fossil_panic("key too large: %u versus %u", nSize, pageSize);
+  }
+  p = fossil_secure_alloc_page(&n);
+  assert( p!=NULL );
+  assert( n==pageSize );
+  assert( n>=nSize );
+  {
+#if defined(_WIN32)
+    HANDLE hProcess = OpenProcess(PROCESS_VM_OPERATION|PROCESS_VM_WRITE,
+                                  FALSE, processId);
+    if( hProcess!=NULL ){
+      SIZE_T nWrite = 0;
+      if( WriteProcessMemory(hProcess, pAddress, p, nSize, &nWrite) ){
+        CloseHandle(hProcess);
+        fossil_secure_free_page(p, n);
+        if( nWrite!=nSize ){
+          fossil_panic("bad size zero, %u out of %u bytes at %p from pid %lu",
+                       nWrite, nSize, pAddress, processId);
+        }
+      }else{
+        CloseHandle(hProcess);
+        fossil_secure_free_page(p, n);
+        fossil_panic("failed zero, %u bytes at %p from pid %lu: %lu", nSize,
+                     pAddress, processId, GetLastError());
+      }
+    }else{
+      fossil_secure_free_page(p, n);
+      fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
+    }
+#elif defined(__linux__)
+    ssize_t nWrite;
+    struct iovec liov = {0};
+    struct iovec riov = {0};
+    liov.iov_base = p;
+    liov.iov_len = n;
+    riov.iov_base = pAddress;
+    riov.iov_len = nSize;
+    nWrite = process_vm_writev(processId, &liov, 1, &riov, 1, 0);
+    if( nWrite!=nSize ){
+      fossil_secure_free_page(p, n);
+      fossil_panic("bad size zero, %zd out of %zu bytes at %p from pid %lu",
+                   nWrite, nSize, pAddress, (unsigned long)processId);
+    }
+#else
+    fossil_secure_free_page(p, n);
+    fossil_trace("db_zero_saved_encryption_key_in_process unsupported");
+#endif
   }
 }
 
@@ -1673,11 +1959,14 @@ void db_read_saved_encryption_key_from_process(
 ** This function evaluates the specified TH1 script and attempts to parse
 ** its result as a colon-delimited triplet containing a process identifier,
 ** address, and size (in bytes) of the database encryption key.  This is
-** only necessary (or functional) on Windows.
+** only necessary (or functional) on Windows or Linux.
 */
-void db_read_saved_encryption_key_from_process_via_th1(
-  const char *zConfig /* The TH1 script to evaluate. */
+static PID_T db_handle_saved_encryption_key_for_process_via_th1(
+  const char *zConfig, /* The TH1 script to evaluate. */
+  int eType            /* Non-zero to write key to parent process -OR-
+                        * zero to read it from the parent process. */
 ){
+  PID_T processId = 0;
   int rc;
   char *zResult;
   char *zPwd = file_getcwd(0, 0);
@@ -1688,16 +1977,61 @@ void db_read_saved_encryption_key_from_process_via_th1(
     fossil_fatal("script for pid key failed: %s", zResult);
   }
   if( zResult ){
-    DWORD processId = 0;
     LPVOID pAddress = NULL;
     SIZE_T nSize = 0;
     parse_pid_key_value(zResult, &processId, &pAddress, &nSize);
-    db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+    if( eType==SEE_KEY_READ ){
+      db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+    }else if( eType==SEE_KEY_WRITE ){
+      db_write_saved_encryption_key_to_process(processId, pAddress, nSize);
+    }else if( eType==SEE_KEY_ZERO ){
+      db_zero_saved_encryption_key_in_process(processId, pAddress, nSize);
+    }else{
+      fossil_panic("unsupported SEE key operation %d", eType);
+    }
   }
   file_chdir(zPwd, 0);
   fossil_free(zPwd);
+  return processId;
 }
-#endif /* defined(_WIN32) */
+
+/*
+** This function sets the saved database encryption key to one that gets
+** read from the specified Fossil parent process, if applicable.  This is
+** only necessary (or functional) on Windows or Linux.
+*/
+PID_T db_maybe_handle_saved_encryption_key_for_process(int eType){
+  PID_T processId = 0;
+  g.zPidKey = find_option("usepidkey",0,1);
+  if( !g.zPidKey ){
+    g.zPidKey = fossil_getenv("FOSSIL_SEE_PID_KEY");
+  }
+  if( g.zPidKey ){
+    LPVOID pAddress = NULL;
+    SIZE_T nSize = 0;
+    parse_pid_key_value(g.zPidKey, &processId, &pAddress, &nSize);
+    if( eType==SEE_KEY_READ ){
+      db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+    }else if( eType==SEE_KEY_WRITE ){
+      db_write_saved_encryption_key_to_process(processId, pAddress, nSize);
+    }else if( eType==SEE_KEY_ZERO ){
+      db_zero_saved_encryption_key_in_process(processId, pAddress, nSize);
+    }else{
+      fossil_panic("unsupported SEE key operation %d", eType);
+    }
+  }else{
+    const char *zSeeDbConfig = find_option("seedbcfg",0,1);
+    if( !zSeeDbConfig ){
+      zSeeDbConfig = fossil_getenv("FOSSIL_SEE_DB_CONFIG");
+    }
+    if( zSeeDbConfig ){
+      processId = db_handle_saved_encryption_key_for_process_via_th1(
+        zSeeDbConfig, eType
+      );
+    }
+  }
+  return processId;
+}
 #endif /* USE_SEE */
 
 /*
@@ -1804,6 +2138,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
   sqlite3_set_authorizer(db, db_top_authorizer, db);
+  db_register_fts5(db) /* in search.c */;
   return db;
 }
 
@@ -2154,7 +2489,7 @@ static int isValidLocalDb(const char *zDbName){
     }
   }
 
-  /* The design of the check-out database changed on 2019-01-19, adding the mhash
+  /* The design of the check-out database changed on 2019-01-19 adding the mhash
   ** column to vfile and vmerge and changing the UNIQUE index on vmerge into
   ** a PRIMARY KEY that includes the new mhash column.  However, we must have
   ** the repository database at hand in order to do the migration, so that
@@ -2199,7 +2534,7 @@ int db_open_local_v2(const char *zDbName, int bRootOnly){
           return 0; /* Configuration could not be opened */
         }
         /* Found a valid check-out database file */
-        g.zLocalDbName = mprintf("%s", zPwd);
+        g.zLocalDbName = fossil_strdup(zPwd);
         zPwd[n] = 0;
         while( n>0 && zPwd[n-1]=='/' ){
           n--;
@@ -2271,7 +2606,7 @@ int db_looks_like_a_repository(const char *zDbName){
   db = db_open(zDbName);
   if( !db ) return 0;
   if( !g.zVfsName && sz%512 ) return 0;
-  rc = sqlite3_prepare_v2(db, 
+  rc = sqlite3_prepare_v2(db,
        "SELECT count(*) FROM sqlite_schema"
        " WHERE name COLLATE nocase IN"
        "('blob','delta','rcvfrom','user','config','mlink','plink');",
@@ -2335,7 +2670,7 @@ void db_open_repository(const char *zDbName){
       fossil_fatal("not a valid repository: %s", zDbName);
     }
   }
-  g.zRepositoryName = mprintf("%s", zDbName);
+  g.zRepositoryName = fossil_strdup(zDbName);
   db_open_or_attach(g.zRepositoryName, "repository");
   g.repositoryOpen = 1;
   sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION,
@@ -2729,7 +3064,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   if( !setupUserOnly ){
     db_multi_exec(
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
-       "   VALUES('anonymous',hex(randomblob(8)),'hmnc','Anon');"
+       "   VALUES('anonymous',hex(randomblob(8)),'hz','Anon');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('nobody','','gjorz','Nobody');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
@@ -2895,7 +3230,8 @@ void db_initial_setup(
 ** page, either directly or indirectly, will be copied.  Normal users and
 ** their associated permissions will not be copied; however, the system
 ** default users "anonymous", "nobody", "reader", "developer", and their
-** associated permissions will be copied.
+** associated permissions will be copied.  In case of SQL errors, rebuild the
+** template repository and try again.
 **
 ** Options:
 **    --template      FILE         Copy settings from repository file
@@ -2965,6 +3301,7 @@ void create_repository_cmd(void){
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (initial password is \"%s\")\n",
                g.zLogin, zPassword);
+  hash_user_password(g.zLogin);
 }
 
 /*
@@ -3173,7 +3510,7 @@ char *db_reveal(const char *zKey){
     zOut = 0;
   }
   if( zOut==0 ){
-    zOut = mprintf("%s", zKey);
+    zOut = fossil_strdup_nn(zKey);
   }
   return zOut;
 }
@@ -3295,6 +3632,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
     }
     blob_reset(&versionedPathname);
     if( found ){
+      blob_strip_comment_lines(&setting, &setting);
       blob_trim(&setting); /* Avoid non-obvious problems with line endings
                            ** on boolean properties */
       zVersionedSetting = fossil_strdup(blob_str(&setting));
@@ -3379,7 +3717,8 @@ char *db_get(const char *zName, const char *zDefault){
   }
   return z;
 }
-char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault){
+char *db_get_mtime(const char *zName, const char *zFormat,
+                   const char *zDefault){
   char *z = 0;
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
@@ -3392,7 +3731,17 @@ char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault)
   return z;
 }
 void db_set(const char *zName, const char *zValue, int globalFlag){
+  const CmdOrPage *pCmd = 0;
   db_assert_protection_off_or_not_sensitive(zName);
+  if( zValue!=0 && zValue[0]==0
+   && dispatch_name_search(zName, CMDFLAG_SETTING, &pCmd)==0
+   && (pCmd->eCmdFlags & CMDFLAG_KEEPEMPTY)==0
+  ){
+    /* Changing a setting to an empty string is the same as unsetting it,
+    ** unless that setting has the keep-empty flag. */
+    db_unset(zName/*works-like:"x"*/, globalFlag);
+    return;
+  }
   db_unprotect(PROTECT_CONFIG);
   db_begin_transaction();
   if( globalFlag ){
@@ -3674,7 +4023,7 @@ void db_record_repository_filename(const char *zName){
   (void)filename_collation();  /* Initialize before connection swap */
   db_swap_connections();
   zRepoSetting = mprintf("repo:%q", blob_str(&full));
-  
+
   db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
      "DELETE FROM global_config WHERE name %s = %Q;",
@@ -3751,7 +4100,7 @@ void db_record_repository_filename(const char *zName){
 **                     with the local repository. If you commit this check-out,
 **                     it will become a new "initial" commit in the repository.
 **   -f|--force        Continue with the open even if the working directory is
-**                     not empty
+**                     not empty, or if auto-sync fails.
 **   --force-missing   Force opening a repository with missing content
 **   -k|--keep         Only modify the manifest file(s)
 **   --nested          Allow opening a repository inside an opened check-out
@@ -3762,8 +4111,6 @@ void db_record_repository_filename(const char *zName){
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last check-in which modified
 **                     them).
-**   --sync            Auto-sync prior to opening even if the autosync setting
-**                     is off
 **   --verbose         If passed a URI then this flag is passed on to the clone
 **                     operation, otherwise it has no effect
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
@@ -3840,7 +4187,7 @@ void cmd_open(void){
   ){
     fossil_fatal("directory %s is not empty\n"
                  "use the -f (--force) option to override\n"
-                 "or the -k (--keep) option to keep local files unchanged", 
+                 "or the -k (--keep) option to keep local files unchanged",
                  file_getcwd(0,0));
   }
 
@@ -3862,8 +4209,11 @@ void cmd_open(void){
       fossil_fatal("unable to deduce a repository name from the url \"%s\"",
                    zUri);
     }
-    if( zRepoDir==0 ) zRepoDir = zPwd;
-    zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    if( zRepoDir==0 ){
+      zRepo = mprintf("%s.fossil", zNewBase);
+    }else{
+      zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    }
     fossil_free(zNewBase);
     blob_init(&cmd, 0, 0);
     blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
@@ -3950,8 +4300,24 @@ void cmd_open(void){
 ** Print the current value of a setting identified by the pSetting
 ** pointer.
 */
-void print_setting(const Setting *pSetting){
+void print_setting(const Setting *pSetting, int valueOnly){
   Stmt q;
+  int versioned = 0;
+  if( pSetting->versionable && g.localOpen ){
+    /* Check to see if this is overridden by a versionable settings file */
+    Blob versionedPathname;
+    blob_zero(&versionedPathname);
+    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
+                 g.zLocalRoot, pSetting->name);
+    if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
+      versioned = 1;
+    }
+    blob_reset(&versionedPathname);
+  }
+  if( valueOnly && versioned ){
+    fossil_print("%s\n", db_get_versioned(pSetting->name, NULL));
+    return;
+  }
   if( g.repositoryOpen ){
     db_prepare(&q,
        "SELECT '(local)', value FROM config WHERE name=%Q"
@@ -3966,22 +4332,20 @@ void print_setting(const Setting *pSetting){
     );
   }
   if( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%-20s %-8s %s\n", pSetting->name, db_column_text(&q, 0),
-        db_column_text(&q, 1));
+    if( valueOnly ){
+      fossil_print("%s\n", db_column_text(&q, 1));
+    }else{
+      fossil_print("%-20s %-8s %s\n", pSetting->name, db_column_text(&q, 0),
+          db_column_text(&q, 1));
+    }
+  }else if( valueOnly ){
+    fossil_print("\n");
   }else{
     fossil_print("%-20s\n", pSetting->name);
   }
-  if( pSetting->versionable && g.localOpen ){
-    /* Check to see if this is overridden by a versionable settings file */
-    Blob versionedPathname;
-    blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
-                 g.zLocalRoot, pSetting->name);
-    if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
-      fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
-                   pSetting->name);
-    }
-    blob_reset(&versionedPathname);
+  if( versioned ){
+    fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
+                 pSetting->name);
   }
   db_finalize(&q);
 }
@@ -4032,7 +4396,7 @@ struct Setting {
 /*
 ** SETTING: allow-symlinks  boolean default=off sensitive
 **
-** When allow-symlinks is OFF, Fossil does not see symbolic links 
+** When allow-symlinks is OFF, Fossil does not see symbolic links
 ** (a.k.a "symlinks") on disk as a separate class of object.  Instead Fossil
 ** sees the object that the symlink points to.  Fossil will only manage files
 ** and directories, not symlinks.  When a symlink is added to a repository,
@@ -4090,7 +4454,7 @@ struct Setting {
 /*
 ** SETTING: auto-hyperlink-mouseover  boolean default=off
 **
-** When the auto-hyperlink setting is 1 and this setting is on, the 
+** When the auto-hyperlink setting is 1 and this setting is on, the
 ** javascript that runs to set the href= attributes of hyperlinks waits
 ** until either a mousedown or mousemove event is seen.  This helps
 ** to distinguish real users from robots. For maximum robot defense,
@@ -4114,6 +4478,8 @@ struct Setting {
 **
 **    pullonly               Only to pull autosyncs
 **
+**    all                    Sync with all remotes
+**
 **    on,open=off            Autosync for most commands, but not for "open"
 **
 **    off,commit=pullonly    Do not autosync, except do a pull before each
@@ -4123,6 +4489,9 @@ struct Setting {
 ** The syntax is a comma-separated list of VALUE and COMMAND=VALUE entries.
 ** A plain VALUE entry is the default that is used if no COMMAND matches.
 ** Otherwise, the VALUE of the matching command is used.
+**
+** The "all" value is special in that it applies to the "sync" command in
+** addition to "commit", "merge", "open", and "update".
 */
 /*
 ** SETTING: autosync-tries  width=16 default=1
@@ -4159,9 +4528,10 @@ struct Setting {
 */
 /*
 ** SETTING: binary-glob     width=40 versionable block-text
-** The VALUE of this setting is a comma or newline-separated list of
-** GLOB patterns that should be treated as binary files
-** for committing and merging purposes.  Example: *.jpg
+** The VALUE of this setting is a list of GLOB patterns matching files
+** that should be treated as "binary" for committing and merging
+** purposes.  Example: *.jpg,*.png  The parsing rules are complex;
+** see https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
 */
 #if defined(_WIN32)||defined(__CYGWIN__)||defined(__DARWIN__)
 /*
@@ -4183,10 +4553,10 @@ struct Setting {
 #endif
 /*
 ** SETTING: clean-glob      width=40 versionable block-text
-** The VALUE of this setting is a comma or newline-separated list of GLOB
-** patterns specifying files that the "clean" command will
-** delete without prompting or allowing undo.
-** Example: *.a,*.lib,*.o
+** The VALUE of this setting is a list of GLOB patterns matching files
+** that the "clean" command will delete without prompting or allowing
+** undo.  Example: *.a,*.o,*.so  The parsing rules are complex;
+** see https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
 */
 /*
 ** SETTING: clearsign       boolean default=off
@@ -4218,9 +4588,10 @@ struct Setting {
 */
 /*
 ** SETTING: crlf-glob       width=40 versionable block-text
-** The value is a comma or newline-separated list of GLOB patterns for
-** text files in which it is ok to have CR, CR+LF or mixed
-** line endings. Set to "*" to disable CR+LF checking.
+** The VALUE of this setting is a list of GLOB patterns matching files
+** in which it is allowed to have CR, CR+LF or mixed line endings,
+** suppressing Fossil's normal warning about this. Set it to "*" to
+** disable CR+LF checking entirely.  Example: *.md,*.txt
 ** The crnl-glob setting is a compatibility alias.
 */
 /*
@@ -4228,7 +4599,7 @@ struct Setting {
 ** This is an alias for the crlf-glob setting.
 */
 /*
-** SETTING: default-perms   width=16 default=u sensitive
+** SETTING: default-perms   width=16 default=u sensitive keep-empty
 ** Permissions given automatically to new users.  For more
 ** information on permissions see the Users page in Server
 ** Administration of the HTTP UI.
@@ -4266,18 +4637,18 @@ struct Setting {
 */
 /*
 ** SETTING: empty-dirs      width=40 versionable block-text
-** The value is a comma or newline-separated list of pathnames. On
-** update and checkout commands, if no file or directory
-** exists with that name, an empty directory will be
-** created.
+** The value is a list of pathnames parsed according to the same rules as
+** the *-glob settings.  On update and checkout commands, if no directory
+** exists with that name, an empty directory will be be created, even if
+** it must create one or more parent directories.
 */
 /*
 ** SETTING: encoding-glob   width=40 versionable block-text
-** The value is a comma or newline-separated list of GLOB
-** patterns specifying files that the "commit" command will
-** ignore when issuing warnings about text files that may
-** use another encoding than ASCII or UTF-8. Set to "*"
-** to disable encoding checking.
+** The VALUE of this setting is a list of GLOB patterns matching files that
+** the "commit" command will ignore when issuing warnings about text files
+** that may use another encoding than ASCII or UTF-8. Set to "*" to disable
+** encoding checking.  Example: *.md,*.txt  The parsing rules are complex;
+** see https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
 */
 #if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
 /*
@@ -4296,20 +4667,28 @@ struct Setting {
 
 /*
 ** SETTING: fileedit-glob       width=40 block-text
-** A comma- or newline-separated list of globs of filenames
-** which are allowed to be edited using the /fileedit page.
-** An empty list prohibits editing via that page. Note that
-** it cannot edit binary files, so the list should not
+** The VALUE of this setting is a list of GLOB patterns matching files
+** which are allowed to be edited using the /fileedit page.  An empty list
+** suppresses the feature.  Example: *.md,*.txt  The parsing rules are
+** complex; see https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
+** Note that /fileedit cannot edit binary files, so the list should not
 ** contain any globs for, e.g., images or PDFs.
 */
 /*
 ** SETTING: forbid-delta-manifests    boolean default=off
 ** If enabled on a client, new delta manifests are prohibited on
 ** commits.  If enabled on a server, whenever a client attempts
-** to obtain a check-in lock during auto-sync, the server will 
+** to obtain a check-in lock during auto-sync, the server will
 ** send the "pragma avoid-delta-manifests" statement in its reply,
 ** which will cause the client to avoid generating a delta
 ** manifest.
+*/
+/*
+** SETTING: forum-close-policy    boolean default=off
+** If true, forum moderators may close/re-open forum posts, and reply
+** to closed posts. If false, only administrators may do so. Note that
+** this only affects the forum web UI, not post-closing tags which
+** arrive via the command-line or from synchronization with a remote.
 */
 /*
 ** SETTING: gdiff-command    width=40 default=gdiff sensitive
@@ -4341,17 +4720,17 @@ struct Setting {
 */
 /*
 ** SETTING: ignore-glob      width=40 versionable block-text
-** The value is a list of GLOB patterns, separated by spaces,
-** commas, or newlines, specifying files that the "add",
-** "addremove", "clean", and "extras" commands will ignore.
-**
-** Example:  *.log, customCode.c, notes.txt
+** The VALUE of this setting is a list of GLOB patterns matching files that
+** the "add", "addremove", "clean", and "extras" commands will ignore.
+** Example: *.log,notes.txt  The parsing rules are complex; see
+** https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
 */
 /*
 ** SETTING: keep-glob        width=40 versionable block-text
-** The value is list of GLOB patterns, separated by spaces,
-** commas, or newlines, specifying files that the "clean"
-** command will keep.
+** The VALUE of this setting is a list of GLOB patterns matching files that
+** the "clean" command must not delete.  Example: build/precious.exe
+** The parsing rules are complex; see
+** https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
 */
 /*
 ** SETTING: localauth        boolean default=off
@@ -4464,11 +4843,15 @@ struct Setting {
 ** used.
 */
 /*
-** SETTING: redirect-to-https   default=0 width=-1
-** Specifies whether or not to redirect http:// requests to
-** https:// URIs. A value of 0 (the default) means not to
+** SETTING: redirect-to-https   default=0 width=2
+** Specifies whether or not to redirect unencrypted "http://" requests to
+** encrypted "https://" URIs. A value of 0 (the default) means do not
 ** redirect, 1 means to redirect only the /login page, and 2
 ** means to always redirect.
+**
+** For security, a value of 2 is recommended.  The default value is 0
+** because not all sites are TLS-capable.  But you should definitely enable
+** TLS and change this setting to 2 for all public-facing repositories.
 */
 /*
 ** SETTING: relative-paths   boolean default=on
@@ -4590,7 +4973,7 @@ struct Setting {
 */
 #endif
 /*
-** SETTING: th1-setup        width=40 block-text
+** SETTING: th1-setup        width=40 block-text sensitive
 ** This is the setup script to be evaluated after creating
 ** and initializing the TH1 interpreter.  By default, this
 ** is empty and no extra setup is performed.
@@ -4602,7 +4985,7 @@ struct Setting {
 ** whatsoever.
 */
 /*
-** SETTING: default-csp      width=40 block-text
+** SETTING: default-csp      width=40 block-text keep-empty
 **
 ** The text of the Content Security Policy that is included
 ** in the Content-Security-Policy: header field of the HTTP
@@ -4640,7 +5023,7 @@ struct Setting {
 ** SETTING: large-file-size     width=10 default=200000000
 ** Fossil considers any file whose size is greater than this value
 ** to be a "large file".  Fossil might issue warnings if you try to
-** "add" or "commit" a "large file".  Set this value to 0 or less 
+** "add" or "commit" a "large file".  Set this value to 0 or less
 ** to disable all such warnings.
 */
 
@@ -4705,6 +5088,7 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 **   --global   Set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only
 **   --exact    Only consider exact name matches
+**   --value    Only show the value of a given property (implies --exact)
 **
 ** See also: [[configuration]]
 */
@@ -4712,6 +5096,7 @@ void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
+  int valueFlag = find_option("value",0,0)!=0;
   /* Undocumented "--test-for-subsystem SUBSYS" option used to test
   ** the db_get_for_subsystem() interface: */
   const char *zSubsys = find_option("test-for-subsystem",0,1);
@@ -4730,10 +5115,16 @@ void setting_cmd(void){
   if( unsetFlag && g.argc!=3 ){
     usage("PROPERTY ?-global?");
   }
+  if( valueFlag ){
+    if( g.argc!=3 ){
+      fossil_fatal("--value is only supported when qurying a given property");
+    }
+    exactFlag = 1;
+  }
 
   if( g.argc==2 ){
     for(i=0; i<nSetting; i++){
-      print_setting(&aSetting[i]);
+      print_setting(&aSetting[i], 0);
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
@@ -4747,7 +5138,7 @@ void setting_cmd(void){
     }
     if( unsetFlag || g.argc==4 ){
       int isManifest = fossil_strcmp(pSetting->name, "manifest")==0;
-      if( n!=strlen(pSetting[0].name) && pSetting[1].name &&
+      if( n!=(int)strlen(pSetting[0].name) && pSetting[1].name &&
           fossil_strncmp(pSetting[1].name, zName, n)==0 ){
         Blob x;
         int i;
@@ -4788,7 +5179,7 @@ void setting_cmd(void){
           }
           fossil_print("\n");
         }else{
-          print_setting(pSetting);
+          print_setting(pSetting, valueFlag);
         }
         pSetting++;
       }
@@ -4857,7 +5248,7 @@ void test_timespan_cmd(void){
 ** of SQLite.  There is no big advantage to using WITHOUT ROWID in Fossil.
 **
 ** Options:
-**    -n|--dry-run  	No changes.  Just print what would happen.
+**    -n|--dry-run     No changes.  Just print what would happen.
 */
 void test_without_rowid(void){
   int i, j;
@@ -4918,16 +5309,18 @@ void test_without_rowid(void){
 void create_admin_log_table(void){
   static int once = 0;
   if( once ) return;
-  once = 1;
-  db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS repository.admin_log(\n"
-    " id INTEGER PRIMARY KEY,\n"
-    " time INTEGER, -- Seconds since 1970\n"
-    " page TEXT,    -- path of page\n"
-    " who TEXT,     -- User who made the change\n"
-    " what TEXT     -- What changed\n"
-    ")"
-  );
+  if( !db_table_exists("repository","admin_log") ){
+    once = 1;
+    db_multi_exec(
+      "CREATE TABLE repository.admin_log(\n"
+      " id INTEGER PRIMARY KEY,\n"
+      " time INTEGER, -- Seconds since 1970\n"
+      " page TEXT,    -- path of page\n"
+      " who TEXT,     -- User who made the change\n"
+      " what TEXT     -- What changed\n"
+      ")"
+    );
+  }
 }
 
 /*
@@ -5109,4 +5502,11 @@ int db_fingerprint_ok(void){
   }
   fossil_free(zCkout);
   return rc;
+}
+
+/*
+** Adds the given rid to the UNSENT table.
+*/
+void db_add_unsent(int rid){
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", rid);
 }

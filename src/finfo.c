@@ -187,7 +187,7 @@ void finfo_cmd(void){
     iLimit = zLimit ? atoi(zLimit) : -1;
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;
-    iBrief = (find_option("brief","b",0) == 0);
+    iBrief = find_option("brief","b",0) != 0;
     if( iLimit==0 ){
       iLimit = -1;
     }
@@ -230,7 +230,7 @@ void finfo_cmd(void){
         iLimit, iOffset
     );
     blob_zero(&line);
-    if( iBrief ){
+    if( iBrief == 0 ){
       fossil_print("History for %s\n", blob_str(&fname));
     }
     while( db_step(&q)==SQLITE_ROW ){
@@ -242,7 +242,7 @@ void finfo_cmd(void){
       const char *zBr = db_column_text(&q, 5);
       char *zOut;
       if( zBr==0 ) zBr = "trunk";
-      if( iBrief ){
+      if( iBrief == 0 ){
         fossil_print("%s ", zDate);
         zOut = mprintf(
            "[%S] %s (user: %s, artifact: [%S], branch: %s)",
@@ -274,8 +274,9 @@ void finfo_cmd(void){
 ** Other versions may be specified using the -r option.
 **
 ** Options:
-**    -R|--repository REPO       Extract artifacts from repository REPO
-**    -r VERSION                 The specific check-in containing the file
+**    -o|--out OUTFILE         For exactly one given FILENAME, write to OUTFILE
+**    -R|--repository REPO     Extract artifacts from repository REPO
+**    -r VERSION               The specific check-in containing the file
 **
 ** See also: [[finfo]]
 */
@@ -283,17 +284,27 @@ void cat_cmd(void){
   int i;
   Blob content, fname;
   const char *zRev;
+  const char *zFileName;
   db_find_and_open_repository(0, 0);
   zRev = find_option("r","r",1);
+  zFileName = find_option("out","o",1);
 
   /* We should be done with options.. */
   verify_all_options();
+
+  if ( zFileName && g.argc>3 ){
+    fossil_fatal("output file can only be given when retrieving a single file");
+  }
 
   for(i=2; i<g.argc; i++){
     file_tree_name(g.argv[i], &fname, 0, 1);
     blob_zero(&content);
     historical_blob(zRev, blob_str(&fname), &content, 1);
-    blob_write_to_file(&content, "-");
+    if ( g.argc==3 && zFileName ){
+      blob_write_to_file(&content, zFileName);
+    }else{
+      blob_write_to_file(&content, "-");
+    }
     blob_reset(&fname);
     blob_reset(&content);
   }
@@ -414,6 +425,7 @@ void finfo_page(void){
     }
   }
   url_add_parameter(&url, "name", zFilename);
+  cgi_check_for_malice();
   blob_zero(&sql);
   if( ridCi ){
     /* If we will be tracking changes across renames, some extra temp
@@ -557,7 +569,7 @@ void finfo_page(void){
       fossil_free(zUuid);
     }
   }else if( ridCi ){
-    blob_appendf(&title, "History of the file that is called ");
+    blob_appendf(&title, "History of file ");
     hyperlinked_path(zFilename, &title, 0, "tree", "", LINKPATH_FILE);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
     blob_appendf(&title, " at check-in %z%h</a>",
@@ -610,6 +622,7 @@ void finfo_page(void){
     int gidx;
     char zTime[10];
     int nParent = 0;
+    int bIsModified = 0;
     GraphRowId aParent[GR_MAX_RAIL];
 
     db_bind_int(&qparent, ":fid", frid);
@@ -652,6 +665,9 @@ void finfo_page(void){
     }else{
       @ <td class="timeline%s(zStyle)Cell">
     }
+    if( zPUuid && zUuid && fossil_strcmp(zPUuid, zUuid)!=0 ){
+      bIsModified = 1;
+    }
     if( tmFlags & TIMELINE_COMPACT ){
       @ <span class='timelineCompactComment' data-id='%d(frid)'>
     }else{
@@ -659,7 +675,11 @@ void finfo_page(void){
       if( pfnid ){
         char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
                                    pfnid);
-        @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
+        if( bIsModified ){
+          @ <b>Renamed and modified</b> %h(zPrevName) &rarr; %h(zFName).
+        }else{
+          @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
+        }
         fossil_free(zPrevName);
       }
       if( zUuid && ridTo==0 && nParent==0 ){
@@ -683,6 +703,14 @@ void finfo_page(void){
       }
       if( (tmFlags & TIMELINE_VERBOSE)!=0 && zUuid ){
         hyperlink_to_version(zUuid);
+        if( fShowId ){
+          int srcId = delta_source_rid(frid);
+          if( srcId ){
+            @ (%z(href("%R/deltachain/%d",frid))%d(frid)&larr;%d(srcId)</a>)
+          }else{
+            @ (%z(href("%R/deltachain/%d",frid))%d(frid)</a>)
+          }
+        }
         @ part of check-in \
         hyperlink_to_version(zCkin);
       }
@@ -710,9 +738,10 @@ void finfo_page(void){
       if( fShowId ){
         int srcId = delta_source_rid(frid);
         if( srcId>0 ){
-          @ id:&nbsp;%d(frid)&larr;%d(srcId)
+          @ id:&nbsp;%z(href("%R/deltachain/%d",frid))\
+          @ %d(frid)&larr;%d(srcId)</a>
         }else{
-          @ id:&nbsp;%d(frid)
+          @ id:&nbsp;%z(href("%R/deltachain/%d",frid))%d(frid)</a>
         }
       }
     }
@@ -737,7 +766,7 @@ void finfo_page(void){
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
       @ %z(href("%R/timeline?uf=%!S",zUuid))[check-ins&nbsp;using]</a>
-      if( fpid>0 ){
+      if( fpid>0 && bIsModified!=0 ){
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
       if( fileedit_is_editable(zFName) ){
@@ -749,7 +778,7 @@ void finfo_page(void){
     if( fDebug & FINFO_DEBUG_MLINK ){
       int ii;
       char *zAncLink;
-      @ <br />fid=%d(frid) \
+      @ <br>fid=%d(frid) \
       @ graph-id=%lld(frid>0?(GraphRowId)frid*(mxfnid+1)+fnid:fpid+1000000000) \
       @ pid=%d(fpid) mid=%d(fmid) fnid=%d(fnid) \
       @ pfnid=%d(pfnid) mxfnid=%d(mxfnid)
@@ -912,7 +941,7 @@ void mlink_page(void){
     @ <h1>MLINK table for check-in %h(zCI)</h1>
     render_checkin_context(mid, 0, 1, 0);
     style_table_sorter();
-    @ <hr />
+    @ <hr>
     @ <div class='brlist'>
     @ <table class='sortable' data-column-types='ttxtttt' data-init-sort='1'>
     @ <thead><tr>

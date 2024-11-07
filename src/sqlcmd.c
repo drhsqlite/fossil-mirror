@@ -289,7 +289,7 @@ void fossil_key(const char **pzKey, int *pnKey){
   char *zKey;
   size_t savedKeySize = db_get_saved_encryption_key_size();
 
-  if( zSavedKey==0 || savedKeySize==0 ) return;
+  if( !db_is_valid_saved_encryption_key(zSavedKey, savedKeySize) ) return;
   zKey = (char*)malloc( savedKeySize );
   if( zKey ){
     memcpy(zKey, zSavedKey, savedKeySize);
@@ -386,7 +386,7 @@ static void fossil_close(int bDb, int noRepository){
 **
 **    helptext                  A virtual table with one row for each command,
 **                              webpage, and setting together with the built-in
-**                              help text.  
+**                              help text.
 **
 **    now()                     Return the number of seconds since 1970.
 **

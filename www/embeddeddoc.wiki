@@ -1,5 +1,4 @@
 <title>Project Documentation</title>
-<h1 align="center">Project Documentation</h1>
 
 Fossil provides a built-in <a href="wikitheory.wiki">wiki</a>
 that can be used to store the
@@ -32,9 +31,9 @@ The fossil web interface supports embedded documentation using
 the "/doc" page.  To access embedded documentation, one points
 a web browser to a fossil URL of the following form:
 
-<blockquote>
+<pre>
 <i>&lt;baseurl&gt;</i><big><b>/doc/</b></big><i>&lt;version&gt;</i><big><b>/</b></big><i>&lt;filename&gt;</i>
-</blockquote>
+</pre>
 
 The <i>&lt;baseurl&gt;</i> is the main URL used to access the fossil web server.
 For example, the <i>&lt;baseurl&gt;</i> for the fossil project itself is
@@ -141,17 +140,17 @@ at the beginning of a URL. For example, a Markdown hyperlink to
 the Markdown formatting rules might be
 written in the embedded document like this:
 
-<nowiki><pre>
-        [Markdown formatting rules]($ROOT/wiki_rules)
-</pre></nowiki>
+<verbatim>
+[Markdown formatting rules]($ROOT/wiki_rules)
+</verbatim>
 
 Depending on how the how the Fossil server is configured, that hyperlink
 might be renderer like one of the following:
 
-<nowiki><pre>
-        &lt;a href="/wiki_rules"&gt;Wiki formatting rules&lt;/a&gt;
-        &lt;a href="/cgi-bin/fossil/wiki_rules"&gt;Wiki formatting rules&lt;/a&gt;
-</pre></nowiki>
+<verbatim>
+<a href="/wiki_rules">Wiki formatting rule</a>
+<a href="/cgi-bin/fossil/wiki_rules">Wiki formatting rules</a>
+</verbatim>
 
 So, in other words, the "$ROOT" text is converted into whatever
 the "&lt;baseurl&gt;" is for the document.
@@ -172,22 +171,30 @@ For example, if an embedded document documented wanted to reference
 some other document in a separate file named "www/otherdoc.md",
 it could use a URL like this:
 
-<nowiki><pre>
-        [Other Document]($ROOT/doc/$CURRENT/www/otherdoc.md)
-</pre></nowiki>
+<verbatim>
+[Other Document]($ROOT/doc/$CURRENT/www/otherdoc.md)
+</verbatim>
 
 As with "$ROOT", this substitution only works for Markdown and HTML
 documents.  For Wiki documents, you would need to use a relative URL.
 
 <h2 id="th1">2.3 TH1 Documents</h2>
 
-Fossil will substitute the value of [./th1.md | TH1 expressions] within
-<tt>{</tt> curly braces <tt>}</tt> into the output HTML if you have
-configured it with the <tt>--with-th1-docs</tt> option, which is
-disabled by default.
+Enabling TH1 document support requires the following:
+
+   *  Configure the build with the <code>--with-th1-docs</code> flag.
+   *  Enable the <code>th1-docs</code> setting, which is only available
+      after building with <code>--with-th1-docs</code>.
+   *  Affected files must have a <code>.th1</code> file extension.
+   *  The code to run must be embedded in blocks of
+      <code>&lt;th1>...&lt;/th1></code>.
+
+Fossil will substitute the value of [./th1.md | TH1 expressions]
+within the <code>&lt;th1>...&lt;/th1></code> blocks into
+the output HTML.
 
 Since TH1 is a full scripting language, this feature essential grants
-the ability to execute code on the server to anyone with check-in 
+the ability to execute code on the server to anyone with check-in
 privilege for the project.
 This is a security risk that needs to be carefully managed.
 The feature is off by default.
@@ -203,7 +210,7 @@ source tree is "<b>www/embeddeddoc.wiki</b>".
 You are perhaps looking at this
 file using the URL:
 
-   [https://fossil-scm.org/home/doc/trunk/www/embeddeddoc.wiki].
+<pre>[https://fossil-scm.org/home/doc/trunk/www/embeddeddoc.wiki]</pre>
 
 The first part of this path, the "[https://fossil-scm.org/home]",
 is the base URL.  You might have originally typed:
@@ -213,10 +220,10 @@ site automatically redirects such links by appending "home".  The
 which runs the fossil web service in CGI mode.
 The "home" CGI script looks like this:
 
-<blockquote><pre>
+<pre>
 #!/usr/bin/fossil
 repository: /fossil/fossil.fossil
-</pre></blockquote>
+</pre>
 
 This is one of the many ways to set up a
 <a href="./server/">Fossil server</a>.
@@ -235,8 +242,8 @@ can also be a date and time string in any of the following formats:</p>
 
 <ul>
 <li> <i>YYYY-MM-DD</i>
-<li> <i>YYYY-MM-DD</i><b>T</b><i>HH:MM</i>
-<li> <i>YYYY-MM-DD</i><b>T</b><i>HH:MM:SS</i>
+<li> <i>YYYY-MM-DD<b>T</b>HH:MM</i>
+<li> <i>YYYY-MM-DD<b>T</b>HH:MM:SS</i>
 </ul>
 
 When the symbolic name is a date and time, fossil shows the version
@@ -244,11 +251,8 @@ of the document that was most recently checked in as of the date
 and time specified.  So, for example, to see what the fossil website
 looked like at the beginning of 2010, enter:
 
-<blockquote>
-<a href="/doc/2010-01-01/www/index.wiki">
-https://fossil-scm.org/home/doc/<b>2010-01-01</b>/www/index.wiki
-</a>
-</blockquote>
+<pre><a href="https://fossil-scm.org/home/doc/2010-01-01/www/index.wiki">https://fossil-scm.org/home/doc/<b>2010-01-01</b>/www/index.wiki
+</a></pre>
 
 The file that encodes this document is stored in the fossil source tree under
 the name "<b>www/embeddeddoc.wiki</b>" and so that name forms the

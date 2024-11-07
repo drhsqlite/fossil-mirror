@@ -1228,7 +1228,7 @@ int manifest_is_well_formed(const char *zIn, int nIn){
   blob_init(&errmsg, 0, 0);
   blob_append(&copy, zIn, nIn);
   pManifest = manifest_parse(&copy, 0, &errmsg);
-  iRes = pManifest!=0;  
+  iRes = pManifest!=0;
   manifest_destroy(pManifest);
   blob_reset(&errmsg);
   return iRes;
@@ -1340,7 +1340,7 @@ void manifest_test_parse_all_blobs_cmd(void){
                      "but manifest_parse() found nothing wrong.\n", id);
         nErr++;
       }
-    }else{            
+    }else{
       p = manifest_get(id, CFTYPE_ANY, &err);
       if( p==0 ){
         fossil_print("%d ERROR: %s\n", id, blob_str(&err));
@@ -2115,7 +2115,7 @@ void manifest_create_event_triggers(void){
     return;  /* Triggers already exists.  No-op. */
   }
   alert_create_trigger();
-  manifest_event_triggers_are_enabled = 1;  
+  manifest_event_triggers_are_enabled = 1;
 }
 
 /*
@@ -2336,7 +2336,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   int parentid = 0;
   int permitHooks = (flags & MC_PERMIT_HOOKS);
   const char *zScript = 0;
-  const char *zUuid = 0;
+  char *zUuid = 0;
 
   if( g.fSqlTrace ){
     fossil_trace("-- manifest_crosslink(%d)\n", rid);
@@ -2372,7 +2372,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_MANIFEST ){
     if( permitHooks ){
       zScript = xfer_commit_code();
-      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      zUuid = rid_to_uuid(rid);
     }
     if( p->nCherrypick && db_table_exists("repository","cherrypick") ){
       int i;
@@ -2724,7 +2724,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
             " WHERE event.type='ci' AND event.objid=blob.rid"
             " AND blob.uuid=%Q", zTagUuid) ){
           zScript = xfer_commit_code();
-          zUuid = zTagUuid;
+          fossil_free(zUuid);
+          zUuid = fossil_strdup(zTagUuid);
         }
       }
       zName = p->aTag[i].zName;
@@ -2807,6 +2808,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     int froot, fprev, firt;
     char *zFType;
     char *zTitle;
+
+    assert( 0==zUuid );
     schema_forum();
     search_doc_touch('f', rid, 0);
     froot = p->zThreadRoot ? uuid_to_rid(p->zThreadRoot, 1) : rid;
@@ -2879,6 +2882,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       rc = xfer_run_script(zScript, zUuid, 0);
     }
   }
+  fossil_free(zUuid);
   if( p->type==CFTYPE_MANIFEST ){
     manifest_cache_insert(p);
   }else{

@@ -213,7 +213,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   DiffConfig DCfg;
 
   blob_zero(pOut);         /* Merge results stored in pOut */
-  
+
   /* If both pV1 and pV2 start with a UTF-8 byte-order-mark (BOM),
   ** keep it in the output. This should be secure enough not to cause
   ** unintended changes to the merged file and consistent with what
@@ -458,7 +458,7 @@ void delta_3waymerge_cmd(void){
     fossil_fatal("cannot read %s", g.argv[4]);
   }
   nConflict = blob_merge(&pivot, &v1, &v2, &merged);
-  if( blob_write_to_file(&merged, g.argv[5])<blob_size(&merged) ){
+  if( blob_write_to_file(&merged, g.argv[5])<(int)blob_size(&merged) ){
     fossil_fatal("cannot write %s", g.argv[4]);
   }
   blob_reset(&pivot);

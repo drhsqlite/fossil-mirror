@@ -24,10 +24,10 @@
 #endif
 
 
-static cson_value * json_tag_add();
-static cson_value * json_tag_cancel();
-static cson_value * json_tag_find();
-static cson_value * json_tag_list();
+static cson_value * json_tag_add(void);
+static cson_value * json_tag_cancel(void);
+static cson_value * json_tag_find(void);
+static cson_value * json_tag_list(void);
 /*
 ** Mapping of /json/tag/XXX commands/paths to callbacks.
 */
@@ -44,7 +44,7 @@ static const JsonPageDef JsonPageDefs_Tag[] = {
 ** Implements the /json/tag family of pages/commands.
 **
 */
-cson_value * json_page_tag(){
+cson_value * json_page_tag(void){
   return json_page_dispatch_helper(&JsonPageDefs_Tag[0]);
 }
 
@@ -52,7 +52,7 @@ cson_value * json_page_tag(){
 /*
 ** Impl of /json/tag/add.
 */
-static cson_value * json_tag_add(){
+static cson_value * json_tag_add(void){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   char const * zName = NULL;
@@ -119,7 +119,8 @@ static cson_value * json_tag_add(){
     blob_append(&uu, zName, -1);
     rc = name_to_uuid(&uu, 9, "*");
     if(0!=rc){
-      json_set_err(FSL_JSON_E_UNKNOWN,"Could not convert name back to artifact hash!");
+      json_set_err(FSL_JSON_E_UNKNOWN,
+                   "Could not convert name back to artifact hash!");
       blob_reset(&uu);
       goto error;
     }
@@ -140,7 +141,7 @@ static cson_value * json_tag_add(){
 /*
 ** Impl of /json/tag/cancel.
 */
-static cson_value * json_tag_cancel(){
+static cson_value * json_tag_cancel(void){
   char const * zName = NULL;
   char const * zCheckin = NULL;
   char fRaw = 0;
@@ -190,7 +191,7 @@ static cson_value * json_tag_cancel(){
 /*
 ** Impl of /json/tag/find.
 */
-static cson_value * json_tag_find(){
+static cson_value * json_tag_find(void){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   cson_value * listV = NULL;
@@ -325,7 +326,7 @@ static cson_value * json_tag_find(){
 **
 ** Add -type TYPE (ci, w, e, t)
 */
-static cson_value * json_tag_list(){
+static cson_value * json_tag_list(void){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   cson_value const * tagsVal = NULL;

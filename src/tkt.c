@@ -452,7 +452,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
   getAllTicketFields();
   if( haveTicket==0 ) return;
   tktid = db_int(0, "SELECT tkt_id FROM ticket WHERE tkt_uuid=%Q", zTktUuid);
-  search_doc_touch('t', tktid, 0);
+  if( tktid!=0 ) search_doc_touch('t', tktid, 0);
   if( haveTicketChng ){
     db_multi_exec("DELETE FROM ticketchng WHERE tkt_id=%d;", tktid);
   }
@@ -473,6 +473,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
     createFlag = 0;
   }
   db_finalize(&q);
+  search_doc_touch('t', tktid, 0);
   /* Extract backlinks from the most recent values of TICKET fields */
   for(i=0; i<nField; i++){
     Blob *cards = fields + i;
@@ -558,7 +559,7 @@ static int ticket_schema_auth(
       ){
         goto ticket_schema_error;
       }
-      if( sqlite3_strnicmp(z0,"ticket",6)!=0 
+      if( sqlite3_strnicmp(z0,"ticket",6)!=0
        && sqlite3_strnicmp(z0,"fx_",3)!=0
       ){
         goto ticket_schema_error;
@@ -595,6 +596,7 @@ static int ticket_schema_auth(
       }
       break;
     }
+    case SQLITE_SELECT:
     case SQLITE_FUNCTION:
     case SQLITE_REINDEX:
     case SQLITE_TRANSACTION:
@@ -734,7 +736,9 @@ void tktview_page(void){
   }
   if( g.perm.Hyperlink ){
     style_submenu_element("History", "%R/tkthistory/%T", zUuid);
-    style_submenu_element("Check-ins", "%R/tkttimeline/%T?y=ci", zUuid);
+    if( g.perm.Read ){
+      style_submenu_element("Check-ins", "%R/tkttimeline/%T?y=ci", zUuid);
+    }
   }
   if( g.anon.NewTkt ){
     style_submenu_element("New Ticket", "%R/tktnew");
@@ -763,23 +767,23 @@ void tktview_page(void){
   if( !showTimeline && g.perm.Hyperlink ){
     style_submenu_element("Timeline", "%R/info/%T", zUuid);
   }
-  if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br>\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
   getAllTicketFields();
   initializeVariablesFromDb();
   zScript = ticket_viewpage_code();
   if( P("showfields")!=0 ) showAllFields();
-  if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br>\n", -1);
   safe_html_context(DOCSRC_TICKET);
   Th_Render(zScript);
-  if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
+  if( g.thTrace ) Th_Trace("END_TKTVIEW<br>\n", -1);
 
   zFullName = db_text(0,
        "SELECT tkt_uuid FROM ticket"
        " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( zFullName ){
-    attachment_list(zFullName, "<hr /><h2>Attachments:</h2><ul>");
+    attachment_list(zFullName, "<hr><h2>Attachments:</h2><ul>");
   }
 
   style_finish_page();
@@ -806,7 +810,7 @@ static int appendRemarkCmd(
     return Th_WrongNumArgs(interp, "append_field FIELD STRING");
   }
   if( g.thTrace ){
-    Th_Trace("append_field %#h {%#h}<br />\n",
+    Th_Trace("append_field %#h {%#h}<br>\n",
               argl[1], argv[1], argl[2], argv[2]);
   }
   for(idx=0; idx<nField; idx++){
@@ -863,7 +867,7 @@ static int ticket_put(
       rid, zTktId
     );
   }else{
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
+    db_add_unsent(rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   result = (manifest_crosslink(rid, pTicket, MC_NONE)==0);
@@ -899,7 +903,10 @@ static int submitTicketCmd(
   Blob tktchng, cksum;
   int needMod;
 
-  login_verify_csrf_secret();
+  if( !cgi_csrf_safe(2) ){
+    @ <p class="generalError">Error: Invalid CSRF token.</p>
+    return TH_OK;
+  }
   if( !captcha_is_correct(0) ){
     @ <p class="generalError">Error: Incorrect security code.</p>
     return TH_OK;
@@ -927,7 +934,7 @@ static int submitTicketCmd(
       while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
       if( ((aField[i].mUsed & USEDBY_TICKETCHNG)!=0 && nValue>0)
        || memcmp(zValue, aField[i].zValue, nValue)!=0
-       || strlen(aField[i].zValue)!=nValue
+       ||(int)strlen(aField[i].zValue)!=nValue
       ){
         if( memcmp(aField[i].zName, "private_", 8)==0 ){
           zValue = db_conceal(zValue, nValue);
@@ -966,11 +973,11 @@ static int submitTicketCmd(
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <blockquote><pre>Moderation would be %h(zNeedMod).</pre></blockquote>
     @ </div>
-    @ <hr />
+    @ <hr>
   }else{
     if( g.thTrace ){
       Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
-               "}<br />\n",
+               "}<br>\n",
          blob_str(&tktchng));
     }
     ticket_put(&tktchng, zUuid, aUsed, needMod);
@@ -997,6 +1004,7 @@ static int submitTicketCmd(
 void tktnew_page(void){
   const char *zScript;
   char *zNewUuid = 0;
+  int uid;
 
   login_check_credentials();
   if( !g.perm.NewTkt ){ login_needed(g.anon.NewTkt); return; }
@@ -1006,30 +1014,44 @@ void tktnew_page(void){
   style_set_current_feature("tkt");
   style_header("New Ticket");
   ticket_standard_submenu(T_ALL_BUT(T_NEW));
-  if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br>\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
   getAllTicketFields();
   initializeVariablesFromDb();
   if( g.zPath[0]=='d' ) showAllFields();
   form_begin(0, "%R/%s", g.zPath);
-  login_insert_csrf_secret();
   if( P("date_override") && g.perm.Setup ){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
   }
   zScript = ticket_newpage_code();
+  if( g.zLogin && g.zLogin[0] ){
+    int nEmail = 0;
+    (void)Th_MaybeGetVar(g.interp, "private_contact", &nEmail);
+    uid = nEmail>0
+      ? 0 : db_int(0, "SELECT uid FROM user WHERE login=%Q", g.zLogin);
+    if( uid ){
+      char * zEmail =
+        db_text(0, "SELECT find_emailaddr(info) FROM user WHERE uid=%d",
+                uid);
+      if( zEmail ){
+        Th_Store("private_contact", zEmail);
+        fossil_free(zEmail);
+      }
+    }
+  }
   Th_Store("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
                    (void*)&zNewUuid, 0);
-  if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br>\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
     cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
     return;
   }
   captcha_generate(0);
   @ </form>
-  if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
+  if( g.thTrace ) Th_Trace("END_TKTVIEW<br>\n", -1);
   style_finish_page();
 }
 
@@ -1080,28 +1102,27 @@ void tktedit_page(void){
     style_finish_page();
     return;
   }
-  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br>\n", -1);
   ticket_init();
   getAllTicketFields();
   initializeVariablesFromCGI();
   initializeVariablesFromDb();
   if( g.zPath[0]=='d' ) showAllFields();
   form_begin(0, "%R/%s", g.zPath);
-  @ <input type="hidden" name="name" value="%s(zName)" />
-  login_insert_csrf_secret();
+  @ <input type="hidden" name="name" value="%s(zName)">
   zScript = ticket_editpage_code();
   Th_Store("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
-  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT_SCRIPT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT_SCRIPT<br>\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zName ){
     cgi_redirect(mprintf("%R/tktview/%s", zName));
     return;
   }
   captcha_generate(0);
   @ </form>
-  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br>\n", -1);
   style_finish_page();
 }
 
@@ -1194,7 +1215,7 @@ void tkt_draw_timeline(int tagid, const char *zType){
 ** URL: /tkttimeline/TICKETUUID
 **
 ** Show the change history for a single ticket in timeline format.
-** 
+**
 ** Query parameters:
 **
 **     y=ci          Show only check-ins associated with the ticket
@@ -1214,7 +1235,9 @@ void tkttimeline_page(void){
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
-    style_submenu_element("Check-ins", "%R/tkttimeline/%T?y=ci", zUuid);
+    if( g.perm.Read ){
+      style_submenu_element("Check-ins", "%R/tkttimeline/%T?y=ci", zUuid);
+    }
   }else{
     style_submenu_element("Timeline", "%R/tkttimeline/%T", zUuid);
   }
@@ -1272,7 +1295,9 @@ void tkthistory_page(void){
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
   style_submenu_element("Status", "%R/info/%s", zUuid);
-  style_submenu_element("Check-ins", "%R/tkttimeline/%s?y=ci", zUuid);
+  if( g.perm.Read ){
+    style_submenu_element("Check-ins", "%R/tkttimeline/%s?y=ci", zUuid);
+  }
   style_submenu_element("Timeline", "%R/tkttimeline/%s", zUuid);
   if( P("raw")!=0 ){
     style_submenu_element("Decoded", "%R/tkthistory/%s", zUuid);

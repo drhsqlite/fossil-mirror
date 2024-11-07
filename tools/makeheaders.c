@@ -40,7 +40,8 @@
 #include <assert.h>
 #include <string.h>
 
-#if defined( __MINGW32__) ||  defined(__DMC__) || defined(_MSC_VER) || defined(__POCC__)
+#if defined( __MINGW32__) || defined(__DMC__)   || \
+    defined(_MSC_VER)     || defined(__POCC__)
 #  ifndef WIN32
 #    define WIN32
 #  endif
@@ -596,7 +597,8 @@ static Decl *CreateDecl(
   pDecl = SafeMalloc( sizeof(Decl) + nName + 1);
   memset(pDecl,0,sizeof(Decl));
   pDecl->zName = (char*)&pDecl[1];
-  sprintf(pDecl->zName,"%.*s",nName,zName);
+  memcpy(pDecl->zName, zName, nName);
+  pDecl->zName[nName] = 0;
   pDecl->zFile = zFilename;
   pDecl->pInclude = includeList;
   pDecl->zIf = GetIfString();
@@ -629,7 +631,8 @@ static int IdentTableInsert(
   }
   pId = SafeMalloc( sizeof(Ident) + nId + 1 );
   pId->zName = (char*)&pId[1];
-  sprintf(pId->zName,"%.*s",nId,zId);
+  memcpy(pId->zName, zId, nId);
+  pId->zName[nId] = 0;
   pId->pNext = pTable->pList;
   pTable->pList = pId;
   pId->pCollide = pTable->apTable[h];
@@ -2078,9 +2081,14 @@ static void PushIfMacro(
   if( zText ){
     pIf->zCondition = (char*)&pIf[1];
     if( zPrefix ){
-      sprintf(pIf->zCondition,"%s(%.*s)",zPrefix,nText,zText);
+      int nPrefix = (int)strlen(zPrefix);
+      memcpy(pIf->zCondition, zPrefix, nPrefix);
+      pIf->zCondition[nPrefix] = '(';
+      memcpy(&pIf->zCondition[nPrefix+1], zText, nText);
+      memcpy(&pIf->zCondition[nPrefix+nText+1], ")", 2);
     }else{
-      sprintf(pIf->zCondition,"%.*s",nText,zText);
+      memcpy(pIf->zCondition, zText, nText);
+      pIf->zCondition[nText] = 0;
     }
   }else{
     pIf->zCondition = 0;
@@ -2156,7 +2164,8 @@ static int ParsePreprocessor(Token *pToken, int flags, int *pPresetFlags){
     pDecl->pComment = pToken->pComment;
     DeclSetProperty(pDecl,TY_Macro);
     pDecl->zDecl = SafeMalloc( pToken->nText + 2 );
-    sprintf(pDecl->zDecl,"%.*s\n",pToken->nText,pToken->zText);
+    memcpy(pDecl->zDecl, pToken->zText, pToken->nText);
+    memcpy(&pDecl->zDecl[pToken->nText], "\n", 2);
     if( flags & PS_Export ){
       DeclSetProperty(pDecl,DP_Export);
     }else if( flags & PS_Local ){
@@ -2185,14 +2194,18 @@ static int ParsePreprocessor(Token *pToken, int flags, int *pPresetFlags){
       pInclude = SafeMalloc( sizeof(Include) + nArg*2 + strlen(zIf) + 10 );
       pInclude->zFile = (char*)&pInclude[1];
       pInclude->zLabel = &pInclude->zFile[nArg+1];
-      sprintf(pInclude->zFile,"%.*s",nArg,zArg);
-      sprintf(pInclude->zLabel,"%.*s:%s",nArg,zArg,zIf);
+      memcpy(pInclude->zFile, zArg, nArg);
+      pInclude->zFile[nArg] = 0;
+      memcpy(pInclude->zLabel, zArg, nArg);
+      pInclude->zLabel[nArg] = ':';
+      memcpy(&pInclude->zLabel[nArg+1], zIf, strlen(zIf)+1);
       pInclude->zIf = &pInclude->zLabel[nArg+1];
       SafeFree(zIf);
     }else{
       pInclude = SafeMalloc( sizeof(Include) + nArg + 1 );
       pInclude->zFile = (char*)&pInclude[1];
-      sprintf(pInclude->zFile,"%.*s",nArg,zArg);
+      memcpy(pInclude->zFile, zArg, nArg);
+      pInclude->zFile[nArg] = 0;
       pInclude->zIf = 0;
       pInclude->zLabel = pInclude->zFile;
     }
@@ -2216,7 +2229,8 @@ static int ParsePreprocessor(Token *pToken, int flags, int *pPresetFlags){
       PushIfMacro(0,0,0,pToken->nLine,PS_Export);
     }else if( nArg==15 && strncmp(zArg,"LOCAL_INTERFACE",15)==0 ){
       PushIfMacro(0,0,0,pToken->nLine,PS_Local);
-    }else if( nArg==15 && strncmp(zArg,"MAKEHEADERS_STOPLOCAL_INTERFACE",15)==0 ){
+    }else if( nArg==15 &&
+              strncmp(zArg,"MAKEHEADERS_STOPLOCAL_INTERFACE",15)==0 ){
       PushIfMacro(0,0,0,pToken->nLine,PS_Local);
     }else{
       PushIfMacro(0,zArg,nArg,pToken->nLine,0);
@@ -3155,6 +3169,11 @@ static InFile *CreateInFile(char *zArg, int *pnErr){
   return pFile;
 }
 
+/* Local strcpy() clone to squelch an unwarranted warning from OpenBSD. */
+static void local_strcpy(char *dest, const char *src){
+  while( (*(dest++) = *(src++))!=0 ){}
+}
+
 /* MS-Windows and MS-DOS both have the following serious OS bug:  the
 ** length of a command line is severely restricted.  But this program
 ** occasionally requires long command lines.  Hence the following
@@ -3231,7 +3250,7 @@ static void AddParameters(int index, int *pArgc, char ***pArgv){
         int j = nNew + index;
         zNew[j] = malloc( n + 1 );
         if( zNew[j] ){
-          strcpy( zNew[j], zBuf );
+          local_strcpy( zNew[j], zBuf );
         }
       }
     }

@@ -314,13 +314,13 @@ void piechart_test_page(void){
     @ <svg width=%d(width) height=%d(height) style="border:1px solid #d3d3d3;">
     piechart_render(width,height, PIE_OTHER|PIE_PERCENT);
     @ </svg>
-    @ <hr />
+    @ <hr>
   }
   @ <form method="POST" action='%R/test-piechart'>
-  @ <p>Comma-separated list of slice widths:<br />
-  @ <input type='text' name='data' size='80' value='%h(zData)'/><br />
+  @ <p>Comma-separated list of slice widths:<br>
+  @ <input type='text' name='data' size='80' value='%h(zData)'/><br>
   @ Width: <input type='text' size='8' name='width' value='%d(width)'/>
-  @ Height: <input type='text' size='8' name='height' value='%d(height)'/><br />
+  @ Height: <input type='text' size='8' name='height' value='%d(height)'/><br>
   @ <input type='submit' value='Draw The Pie Chart'/>
   @ </form>
   @ <p>Interesting test cases:

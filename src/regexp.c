@@ -713,7 +713,8 @@ static void re_sql_func(
     zErr = re_compile(&pRe, zPattern, sqlite3_user_data(context)!=0);
     if( zErr ){
       re_free(pRe);
-      sqlite3_result_error(context, zErr, -1);
+      sqlite3_result_int(context, 0);
+      /* sqlite3_result_error(context, zErr, -1); */
       return;
     }
     if( pRe==0 ){

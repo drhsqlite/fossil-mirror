@@ -76,6 +76,7 @@ void stats_for_email(void){
     sqlite3_stmt *pStmt;
     int rc;
     @ Queued to database "%h(zDb)"
+    g.dbIgnoreErrors++;
     rc = sqlite3_open(zDb, &db);
     if( rc==SQLITE_OK ){
       rc = sqlite3_prepare_v2(db, "SELECT count(*) FROM email",-1,&pStmt,0);
@@ -84,6 +85,10 @@ void stats_for_email(void){
         @ %,d(file_size(zDb,ExtFILE)) bytes)
       }
       sqlite3_finalize(pStmt);
+    }
+    g.dbIgnoreErrors--;
+    if( rc ){
+      @ &larr; cannot access database!
     }
     sqlite3_close(db);
   }else
@@ -116,7 +121,7 @@ void stats_for_email(void){
   nSub = db_int(0, "SELECT count(*) FROM subscriber");
   iCutoff = db_get_int("email-renew-cutoff",0);
   nASub = db_int(0, "SELECT count(*) FROM subscriber WHERE sverified"
-                   " AND NOT sdonotcall AND length(ssub)>1"
+                   " AND NOT sdonotcall AND octet_length(ssub)>1"
                    " AND lastContact>=%d;", iCutoff);
   @ %,d(nASub) active, %,d(nSub) total
   @ </td></tr>
@@ -143,6 +148,8 @@ void stat_page(void){
   int szMax, szAvg;
   int brief;
   const char *p;
+  char *z;
+  int Y, M, D;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -204,7 +211,7 @@ void stat_page(void){
       Stmt q;
       char zStored[100];
       db_prepare(&q,
-        "SELECT count(*), sum(sz), sum(length(content))"
+        "SELECT count(*), sum(sz), sum(octet_length(content))"
         "  FROM unversioned"
         " WHERE length(hash)>1"
       );
@@ -238,8 +245,8 @@ void stat_page(void){
       char zSz[100];
       n = db_int(0, "SELECT max(msgid) FROM chat");
       m = db_int(0, "SELECT count(*) FROM chat WHERE mdel IS NOT TRUE");
-      sz = db_int64(0, "SELECT sum(coalesce(length(xmsg),0)+"
-                                  "coalesce(length(file),0)) FROM chat");
+      sz = db_int64(0, "SELECT sum(coalesce(octet_length(xmsg),0)+"
+                                  "coalesce(octet_length(file),0)) FROM chat");
       approxSizeName(sizeof(zSz), zSz, sz);
       @ <tr><th>Number&nbsp;Of&nbsp;Chat&nbsp;Messages:</th>
       @ <td>%,d(n) (%,d(m) still alive, %s(zSz) in size)</td></tr>
@@ -259,10 +266,16 @@ void stat_page(void){
       }
     }
   }
-  @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
-  n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
-                " + 0.99");
-  @ %,d(n) days or approximately %.2f(n/365.2425) years.
+  @ <tr><th>Project&nbsp;Age:</th><td>
+  z = db_text(0, "SELECT timediff('now',(SELECT min(mtime) FROM event));");
+  sscanf(z, "+%d-%d-%d", &Y, &M, &D);
+  if( Y>0 ){
+    @ %d(Y) years, \
+  }
+  if( M>0 ){
+    @ %d(M) months, \
+  }
+  @ %d(D) days
   @ </td></tr>
   p = db_get("project-code", 0);
   if( p ){
@@ -546,7 +559,7 @@ void urllist_page(void){
     cnt++;
   }
   db_finalize(&q);
-  
+
   if( nOmitted ){
     @ <tr><td><a href="urllist?all"><i>Show %d(nOmitted) more...</i></a>
   }
@@ -704,6 +717,22 @@ void repo_schema_page(void){
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
+  if( zArg!=0
+   && db_table_exists("repository",zArg)
+   && cgi_csrf_safe(1)
+  ){
+    if( P("analyze")!=0 ){
+      db_multi_exec("ANALYZE \"%w\"", zArg);
+    }else if( P("analyze200")!=0 ){
+      db_multi_exec("PRAGMA analysis_limit=200; ANALYZE \"%w\"", zArg);
+    }else if( P("deanalyze")!=0 ){
+      db_unprotect(PROTECT_ALL);
+      db_multi_exec("DELETE FROM repository.sqlite_stat1"
+                    " WHERE tbl LIKE %Q", zArg);
+      db_protect_pop();
+    }
+  }
+
   style_set_current_feature("stat");
   style_header("Repository Schema");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -748,6 +777,13 @@ void repo_schema_page(void){
       style_submenu_element("Stat1","repo_stat1");
     }
   }
+  @ <hr><form method="POST">
+  @ <input type="submit" name="analyze" value="Run ANALYZE"><br />
+  @ <input type="submit" name="analyze200"\
+  @  value="Run ANALYZE with limit=200"><br />
+  @ <input type="submit" name="deanalyze" value="De-ANALYZE">
+  @ </form>
+
   style_finish_page();
 }
 
@@ -757,30 +793,66 @@ void repo_schema_page(void){
 ** Show the sqlite_stat1 table for the repository schema
 */
 void repo_stat1_page(void){
+  int bTabular;
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
+  bTabular = PB("tabular");
 
+  if( P("analyze")!=0 && cgi_csrf_safe(1) ){
+    db_multi_exec("ANALYZE");
+  }else if( P("analyze200")!=0 && cgi_csrf_safe(1) ){
+    db_multi_exec("PRAGMA analysis_limit=200; ANALYZE;");
+  }else if( P("deanalyze")!=0 && cgi_csrf_safe(1) ){
+    db_unprotect(PROTECT_ALL);
+    db_multi_exec("DELETE FROM repository.sqlite_stat1;");
+    db_protect_pop();
+  }
   style_set_current_feature("stat");
   style_header("Repository STAT1 Table");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "stat");
   style_submenu_element("Schema", "repo_schema");
+  style_submenu_checkbox("tabular", "Tabular", 0, 0);
   if( db_table_exists("repository","sqlite_stat1") ){
     Stmt q;
     db_prepare(&q,
       "SELECT tbl, idx, stat FROM repository.sqlite_stat1"
       " ORDER BY tbl, idx");
-    @ <pre>
+    if( bTabular ){
+      @ <table border="1" cellpadding="0" cellspacing="0">
+      @ <tr><th>Table<th>Index<th>Stat
+    }else{
+      @ <pre>
+    }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zTab = db_column_text(&q,0);
       const char *zIdx = db_column_text(&q,1);
       const char *zStat = db_column_text(&q,2);
       char *zUrl = href("%R/repo_schema?n=%t",zTab);
-      @ INSERT INTO sqlite_stat1 VALUES('%z(zUrl)%h(zTab)</a>','%h(zIdx)','%h(zStat)');
+      if( bTabular ){
+        @ <tr><td>%z(zUrl)%h(zTab)</a><td>%h(zIdx)<td>%h(zStat)
+      }else{
+        @ INSERT INTO sqlite_stat1 \
+        @ VALUES('%z(zUrl)%h(zTab)</a>','%h(zIdx)','%h(zStat)');
+      }
     }
-    @ </pre>
+    if( bTabular ){
+      @ </table>
+    }else{
+      @ </pre>
+    }
     db_finalize(&q);
   }
+  @ <p><form method="POST">
+  if( bTabular ){
+    @ <input type="hidden" name="tabular" value="1">
+  }
+  @ <input type="submit" name="analyze" value="Run ANALYZE"><br />
+  @ <input type="submit" name="analyze200"\
+  @  value="Run ANALYZE with limit=200"><br>
+  @ <input type="submit" name="deanalyze"\
+  @  value="De-ANALYZE">
+  @ </form>
   style_finish_page();
 }
 
@@ -796,6 +868,7 @@ void repo_tabsize_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_check_for_malice();
   style_set_current_feature("stat");
   style_header("Repository Table Sizes");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -863,7 +936,7 @@ void repo_tabsize_page(void){
 ** Only populate the artstat.atype field if the bWithTypes parameter is true.
 */
 void gather_artifact_stats(int bWithTypes){
-  static const char zSql[] = 
+  static const char zSql[] =
     @ CREATE TEMP TABLE artstat(
     @   id INTEGER PRIMARY KEY,   -- Corresponds to BLOB.RID
     @   atype TEXT,               -- 'data', 'manifest', 'tag', 'wiki', etc.
@@ -874,11 +947,11 @@ void gather_artifact_stats(int bWithTypes){
     @ INSERT INTO artstat(id,atype,isDelta,szExp,szCmpr)
     @    SELECT blob.rid, NULL,
     @           delta.rid IS NOT NULL,
-    @           size, length(content)
+    @           size, octet_length(content)
     @      FROM blob LEFT JOIN delta ON blob.rid=delta.rid
     @     WHERE content IS NOT NULL;
   ;
-  static const char zSql2[] = 
+  static const char zSql2[] =
     @ UPDATE artstat SET atype='file'
     @  WHERE +id IN (SELECT fid FROM mlink);
     @ UPDATE artstat SET atype='manifest'
@@ -886,34 +959,34 @@ void gather_artifact_stats(int bWithTypes){
     @ UPDATE artstat SET atype='forum'
     @  WHERE id IN (SELECT objid FROM event WHERE type='f') AND atype IS NULL;
     @ UPDATE artstat SET atype='cluster'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT rid FROM tagxref
     @                WHERE tagid=(SELECT tagid FROM tag
     @                              WHERE tagname='cluster'));
     @ UPDATE artstat SET atype='ticket'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT rid FROM tagxref
     @                WHERE tagid IN (SELECT tagid FROM tag
     @                              WHERE tagname GLOB 'tkt-*'));
     @ UPDATE artstat SET atype='wiki'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT rid FROM tagxref
     @                WHERE tagid IN (SELECT tagid FROM tag
     @                              WHERE tagname GLOB 'wiki-*'));
     @ UPDATE artstat SET atype='technote'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT rid FROM tagxref
     @                WHERE tagid IN (SELECT tagid FROM tag
     @                              WHERE tagname GLOB 'event-*'));
     @ UPDATE artstat SET atype='attachment'
-    @  WHERE atype IS NULL 
-    @    AND id IN (SELECT attachid FROM attachment UNION 
+    @  WHERE atype IS NULL
+    @    AND id IN (SELECT attachid FROM attachment UNION
     @               SELECT blob.rid FROM attachment JOIN blob ON uuid=src);
     @ UPDATE artstat SET atype='tag'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT srcid FROM tagxref);
     @ UPDATE artstat SET atype='tag'
-    @  WHERE atype IS NULL 
+    @  WHERE atype IS NULL
     @    AND id IN (SELECT objid FROM event WHERE type='g');
     @ UPDATE artstat SET atype='unused' WHERE atype IS NULL;
   ;
@@ -972,6 +1045,7 @@ void artifact_stats_page(void){
     login_needed(g.anon.Write);
     return;
   }
+  cgi_check_for_malice();
   fossil_nice_default();
 
   style_set_current_feature("stat");

@@ -344,7 +344,7 @@ void user_edit(void){
   }
 
   /* Check for requests to delete the user */
-  if( P("delete") && cgi_csrf_safe(1) ){
+  if( P("delete") && cgi_csrf_safe(2) ){
     int n;
     if( P("verifydelete") ){
       /* Verified delete user request */
@@ -388,7 +388,7 @@ void user_edit(void){
     /* An Admin (a) user cannot edit a Superuser (s) */
   }else if( zDeleteVerify!=0 ){
     /* Need to verify a delete request */
-  }else if( !cgi_csrf_safe(1) ){
+  }else if( !cgi_csrf_safe(2) ){
     /* This might be a cross-site request forgery, so ignore it */
   }else{
     /* We have all the information we need to make the change to the user */
@@ -442,7 +442,7 @@ void user_edit(void){
       style_finish_page();
       return;
     }
-    login_verify_csrf_secret();
+    cgi_csrf_verify();
     db_unprotect(PROTECT_USER);
     db_multi_exec(
        "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
@@ -613,7 +613,7 @@ void user_edit(void){
     @ </td>
   }else{
     @   <td>(new user)<input aria-labelledby="suuid" type="hidden" name="id" \
-    @ value="0" /></td>
+    @ value="0"></td>
   }
   @ </tr>
   @ <tr>
@@ -622,7 +622,7 @@ void user_edit(void){
     @    <td><b>%h(zLogin)</b></td>
   }else{
     @   <td><input aria-labelledby="sulgn" type="text" name="login" \
-    @ value="%h(zLogin)" />
+    @ value="%h(zLogin)">
     if( alert_tables_exist() ){
       int sid;
       sid = db_int(0, "SELECT subscriberId FROM subscriber"
@@ -646,78 +646,78 @@ void user_edit(void){
   @ <div class="columns" style="column-width:13em;">
   @ <ul style="list-style-type: none;">
   if( g.perm.Setup ){
-    @  <li><label><input type="checkbox" name="as"%s(oa['s']) />
+    @  <li><label><input type="checkbox" name="as"%s(oa['s'])>
     @  Setup%s(B('s'))</label>
   }
-  @  <li><label><input type="checkbox" name="aa"%s(oa['a']) />
+  @  <li><label><input type="checkbox" name="aa"%s(oa['a'])>
   @  Admin%s(B('a'))</label>
-  @  <li><label><input type="checkbox" name="au"%s(oa['u']) />
+  @  <li><label><input type="checkbox" name="au"%s(oa['u'])>
   @  Reader%s(B('u'))</label>
-  @  <li><label><input type="checkbox" name="av"%s(oa['v']) />
+  @  <li><label><input type="checkbox" name="av"%s(oa['v'])>
   @  Developer%s(B('v'))</label>
 #if 0  /* Not Used */
-  @  <li><label><input type="checkbox" name="ad"%s(oa['d']) />
+  @  <li><label><input type="checkbox" name="ad"%s(oa['d'])>
   @  Delete%s(B('d'))</label>
 #endif
-  @  <li><label><input type="checkbox" name="ae"%s(oa['e']) />
+  @  <li><label><input type="checkbox" name="ae"%s(oa['e'])>
   @  View-PII%s(B('e'))</label>
-  @  <li><label><input type="checkbox" name="ap"%s(oa['p']) />
+  @  <li><label><input type="checkbox" name="ap"%s(oa['p'])>
   @  Password%s(B('p'))</label>
-  @  <li><label><input type="checkbox" name="ai"%s(oa['i']) />
+  @  <li><label><input type="checkbox" name="ai"%s(oa['i'])>
   @  Check-In%s(B('i'))</label>
-  @  <li><label><input type="checkbox" name="ao"%s(oa['o']) />
+  @  <li><label><input type="checkbox" name="ao"%s(oa['o'])>
   @  Check-Out%s(B('o'))</label>
-  @  <li><label><input type="checkbox" name="ah"%s(oa['h']) />
+  @  <li><label><input type="checkbox" name="ah"%s(oa['h'])>
   @  Hyperlinks%s(B('h'))</label>
-  @  <li><label><input type="checkbox" name="ab"%s(oa['b']) />
+  @  <li><label><input type="checkbox" name="ab"%s(oa['b'])>
   @  Attachments%s(B('b'))</label>
-  @  <li><label><input type="checkbox" name="ag"%s(oa['g']) />
+  @  <li><label><input type="checkbox" name="ag"%s(oa['g'])>
   @  Clone%s(B('g'))</label>
-  @  <li><label><input type="checkbox" name="aj"%s(oa['j']) />
+  @  <li><label><input type="checkbox" name="aj"%s(oa['j'])>
   @  Read Wiki%s(B('j'))</label>
-  @  <li><label><input type="checkbox" name="af"%s(oa['f']) />
+  @  <li><label><input type="checkbox" name="af"%s(oa['f'])>
   @  New Wiki%s(B('f'))</label>
-  @  <li><label><input type="checkbox" name="am"%s(oa['m']) />
+  @  <li><label><input type="checkbox" name="am"%s(oa['m'])>
   @  Append Wiki%s(B('m'))</label>
-  @  <li><label><input type="checkbox" name="ak"%s(oa['k']) />
+  @  <li><label><input type="checkbox" name="ak"%s(oa['k'])>
   @  Write Wiki%s(B('k'))</label>
-  @  <li><label><input type="checkbox" name="al"%s(oa['l']) />
+  @  <li><label><input type="checkbox" name="al"%s(oa['l'])>
   @  Moderate Wiki%s(B('l'))</label>
-  @  <li><label><input type="checkbox" name="ar"%s(oa['r']) />
+  @  <li><label><input type="checkbox" name="ar"%s(oa['r'])>
   @  Read Ticket%s(B('r'))</label>
-  @  <li><label><input type="checkbox" name="an"%s(oa['n']) />
+  @  <li><label><input type="checkbox" name="an"%s(oa['n'])>
   @  New Tickets%s(B('n'))</label>
-  @  <li><label><input type="checkbox" name="ac"%s(oa['c']) />
+  @  <li><label><input type="checkbox" name="ac"%s(oa['c'])>
   @  Append To Ticket%s(B('c'))</label>
-  @  <li><label><input type="checkbox" name="aw"%s(oa['w']) />
+  @  <li><label><input type="checkbox" name="aw"%s(oa['w'])>
   @  Write Tickets%s(B('w'))</label>
-  @  <li><label><input type="checkbox" name="aq"%s(oa['q']) />
+  @  <li><label><input type="checkbox" name="aq"%s(oa['q'])>
   @  Moderate Tickets%s(B('q'))</label>
-  @  <li><label><input type="checkbox" name="at"%s(oa['t']) />
+  @  <li><label><input type="checkbox" name="at"%s(oa['t'])>
   @  Ticket Report%s(B('t'))</label>
-  @  <li><label><input type="checkbox" name="ax"%s(oa['x']) />
+  @  <li><label><input type="checkbox" name="ax"%s(oa['x'])>
   @  Private%s(B('x'))</label>
-  @  <li><label><input type="checkbox" name="ay"%s(oa['y']) />
+  @  <li><label><input type="checkbox" name="ay"%s(oa['y'])>
   @  Write Unversioned%s(B('y'))</label>
-  @  <li><label><input type="checkbox" name="az"%s(oa['z']) />
+  @  <li><label><input type="checkbox" name="az"%s(oa['z'])>
   @  Download Zip%s(B('z'))</label>
-  @  <li><label><input type="checkbox" name="a2"%s(oa['2']) />
+  @  <li><label><input type="checkbox" name="a2"%s(oa['2'])>
   @  Read Forum%s(B('2'))</label>
-  @  <li><label><input type="checkbox" name="a3"%s(oa['3']) />
+  @  <li><label><input type="checkbox" name="a3"%s(oa['3'])>
   @  Write Forum%s(B('3'))</label>
-  @  <li><label><input type="checkbox" name="a4"%s(oa['4']) />
+  @  <li><label><input type="checkbox" name="a4"%s(oa['4'])>
   @  WriteTrusted Forum%s(B('4'))</label>
-  @  <li><label><input type="checkbox" name="a5"%s(oa['5']) />
+  @  <li><label><input type="checkbox" name="a5"%s(oa['5'])>
   @  Moderate Forum%s(B('5'))</label>
-  @  <li><label><input type="checkbox" name="a6"%s(oa['6']) />
+  @  <li><label><input type="checkbox" name="a6"%s(oa['6'])>
   @  Supervise Forum%s(B('6'))</label>
-  @  <li><label><input type="checkbox" name="a7"%s(oa['7']) />
+  @  <li><label><input type="checkbox" name="a7"%s(oa['7'])>
   @  Email Alerts%s(B('7'))</label>
-  @  <li><label><input type="checkbox" name="aA"%s(oa['A']) />
+  @  <li><label><input type="checkbox" name="aA"%s(oa['A'])>
   @  Send Announcements%s(B('A'))</label>
-  @  <li><label><input type="checkbox" name="aC"%s(oa['C']) />
+  @  <li><label><input type="checkbox" name="aC"%s(oa['C'])>
   @  Chatroom%s(B('C'))</label>
-  @  <li><label><input type="checkbox" name="aD"%s(oa['D']) />
+  @  <li><label><input type="checkbox" name="aD"%s(oa['D'])>
   @  Enable Debug%s(B('D'))</label>
   @ </ul></div>
   @   </td>
@@ -735,13 +735,13 @@ void user_edit(void){
     if( zPw[0] ){
       /* Obscure the password for all users */
       @   <td><input aria-labelledby="supw" type="password" autocomplete="off" \
-      @   name="pw" value="**********" />
+      @   name="pw" value="**********">
       @   (Leave unchanged to retain password)</td>
     }else{
       /* Show an empty password as an empty input field */
       char *zRPW = fossil_random_password(12);
       @   <td><input aria-labelledby="supw" type="password" name="pw" \
-      @   autocomplete="off" value="" /> Password suggestion: %z(zRPW)</td>
+      @   autocomplete="off" value=""> Password suggestion: %z(zRPW)</td>
     }
     @ </tr>
   }
@@ -751,7 +751,7 @@ void user_edit(void){
     @ <td valign="top" align="right">Scope:</td>
     @ <td valign="top">
     @ <input type="radio" name="all" checked value="0">
-    @ Apply changes to this repository only.<br />
+    @ Apply changes to this repository only.<br>
     @ <input type="radio" name="all" value="1">
     @ Apply changes to all repositories in the "<b>%h(zGroup)</b>"
     @ login group.</td></tr>
@@ -812,7 +812,7 @@ void user_edit(void){
   @
   @ <li><p>
   @ The "<span class="ueditInheritDeveloper"><sub>D</sub></span>"
-  @ subscript suffix indicates the privileges of 
+  @ subscript suffix indicates the privileges of
   @ <span class="usertype">developer</span> that
   @ are inherited by all users with the
   @ <span class="capability">Developer</span> privilege.
@@ -939,5 +939,98 @@ void user_edit(void){
   @ but less than a <span class="usertype">developer</span>.
   @ </p></li>
   @ </ul>
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: setup_uinfo
+**
+** Detailed information about a user account, available to administrators
+** only.
+**
+**    u=UID
+**    l=LOGIN
+*/
+void setup_uinfo_page(void){
+  Stmt q;
+  Blob sql;
+  const char *zLogin;
+  int uid;
+
+  /* Must have ADMIN privileges to access this page
+  */
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(0); return; }
+  style_set_current_feature("setup");
+  zLogin = P("l");
+  uid = atoi(PD("u","0"));
+  if( zLogin==0 && uid==0 ){
+    uid = db_int(1,"SELECT uid FROM user");
+  }
+  blob_init(&sql, 0, 0);
+  blob_append_sql(&sql,
+    "SELECT "
+       /*  0 */ "uid,"
+       /*  1 */ "login,"
+       /*  2 */ "cap,"
+       /*  3 */ "cookie,"
+       /*  4 */ "datetime(cexpire),"
+       /*  5 */ "info,"
+       /*  6 */ "datetime(user.mtime,'unixepoch'),"
+  );
+  if( db_table_exists("repository","subscriber") ){
+    blob_append_sql(&sql,
+      /*  7 */ "subscriberId,"
+      /*  8 */ "semail,"
+      /*  9 */ "sverified,"
+      /* 10 */ "date(lastContact+2440587.5)"
+      " FROM user LEFT JOIN subscriber ON suname=login"
+    );
+  }else{
+    blob_append_sql(&sql,
+      /*  7 */ "NULL,"
+      /*  8 */ "NULL,"
+      /*  9 */ "NULL,"
+      /* 10 */ "NULL"
+      " FROM user"
+    );
+  }
+  if( zLogin!=0 ){
+    blob_append_sql(&sql, " WHERE login=%Q", zLogin);
+  }else{
+    blob_append_sql(&sql, " WHERE uid=%d", uid);
+  }
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  blob_zero(&sql);
+  if( db_step(&q)!=SQLITE_ROW ){
+    style_header("No Such User");
+    if( zLogin ){
+      @ <p>Cannot find any information on user %h(zLogin).
+    }else{
+      @ <p>Cannot find any information on userid %d(uid).
+    }
+    style_finish_page();
+    db_finalize(&q);
+    return;
+  }
+  style_header("User %h", db_column_text(&q,1));
+  @ <table class="label-value">
+  @ <tr><th>uid:</th><td>%d(db_column_int(&q,0))
+  @  (<a href="%R/setup_uedit?id=%d(db_column_int(&q,0))">edit</a>)</td></tr>
+  @ <tr><th>login:</th><td>%h(db_column_text(&q,1))</td></tr>
+  @ <tr><th>capabilities:</th><td>%h(db_column_text(&q,2))</th></tr>
+  @ <tr><th valign="top">info:</th>
+  @ <td valign="top"><span style='white-space:pre-line;'>\
+  @ %h(db_column_text(&q,5))</span></td></tr>
+  @ <tr><th>user.mtime:</th><td>%h(db_column_text(&q,6))</td></tr>
+  if( db_column_type(&q,7)!=SQLITE_NULL ){
+    @ <tr><th>subscriberId:</th><td>%d(db_column_int(&q,7))
+    @  (<a href="%R/alerts?sid=%d(db_column_int(&q,7))">edit</a>)</td></tr>
+    @ <tr><th>semail:</th><td>%h(db_column_text(&q,8))</td></tr>
+    @ <tr><th>verified:</th><td>%s(db_column_int(&q,9)?"yes":"no")</td></th>
+    @ <tr><th>lastContact:</th><td>%h(db_column_text(&q,10))</td></tr>
+  }
+  @ </table>
+  db_finalize(&q);
   style_finish_page();
 }

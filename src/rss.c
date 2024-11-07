@@ -41,7 +41,6 @@
 ** combined with one of the other filters (useful for looking at a specific
 ** branch).
 */
-
 void page_timeline_rss(void){
   Stmt q;
   int nLine=0;
@@ -81,9 +80,9 @@ void page_timeline_rss(void){
 
   if( zType[0]!='a' ){
     if( zType[0]=='c' && !g.perm.Read ) zType = "x";
-    if( zType[0]=='w' && !g.perm.RdWiki ) zType = "x";
-    if( zType[0]=='t' && !g.perm.RdTkt ) zType = "x";
-    if( zType[0]=='f' && !g.perm.RdForum ) zType = "x";
+    else if( (zType[0]=='w' || zType[0]=='e') && !g.perm.RdWiki ) zType = "x";
+    else if( zType[0]=='t' && !g.perm.RdTkt ) zType = "x";
+    else if( zType[0]=='f' && !g.perm.RdForum ) zType = "x";
     blob_append_sql(&bSQL, " AND event.type=%Q", zType);
   }else{
     blob_append_sql(&bSQL, " AND event.type in (");
@@ -94,7 +93,7 @@ void page_timeline_rss(void){
       blob_append_sql(&bSQL, "'t',");
     }
     if( g.perm.RdWiki ){
-      blob_append_sql(&bSQL, "'w',");
+      blob_append_sql(&bSQL, "'w','e',");
     }
     if( g.perm.RdForum ){
       blob_append_sql(&bSQL, "'f',");
@@ -145,8 +144,8 @@ void page_timeline_rss(void){
 
   zProjectName = db_get("project-name", 0);
   if( zProjectName==0 ){
-    zFreeProjectName = zProjectName = mprintf("Fossil source repository for: %s",
-      g.zBaseURL);
+    zFreeProjectName = zProjectName =
+      mprintf("Fossil source repository for: %s", g.zBaseURL);
   }
   zProjectDescr = db_get("project-description", 0);
   if( zProjectDescr==0 ){
@@ -260,7 +259,7 @@ void cmd_timeline_rss(void){
   int nLine=0;
   char *zPubDate, *zProjectName, *zProjectDescr, *zFreeProjectName=0;
   Blob bSQL;
-  const char *zType = find_option("type","y",1); /* Type of events.  All if NULL */
+  const char *zType = find_option("type","y",1); /* Type of events;All if NULL*/
   const char *zTicketUuid = find_option("tkt",NULL,1);
   const char *zTag = find_option("tag",NULL,1);
   const char *zFilename = find_option("name",NULL,1);
@@ -334,7 +333,8 @@ void cmd_timeline_rss(void){
 
   if( zFilename ){
     blob_append_sql(&bSQL,
-      " AND (SELECT mlink.fnid FROM mlink WHERE event.objid=mlink.mid) IN (SELECT fnid FROM filename WHERE name=%Q %s)",
+      " AND (SELECT mlink.fnid FROM mlink WHERE event.objid=mlink.mid) "
+      " IN (SELECT fnid FROM filename WHERE name=%Q %s)",
         zFilename, filename_collation()
     );
   }
@@ -343,8 +343,8 @@ void cmd_timeline_rss(void){
 
   zProjectName = db_get("project-name", 0);
   if( zProjectName==0 ){
-    zFreeProjectName = zProjectName = mprintf("Fossil source repository for: %s",
-      zBaseURL);
+    zFreeProjectName = zProjectName =
+      mprintf("Fossil source repository for: %s", zBaseURL);
   }
   zProjectDescr = db_get("project-description", 0);
   if( zProjectDescr==0 ){
@@ -354,7 +354,8 @@ void cmd_timeline_rss(void){
   zPubDate = cgi_rfc822_datestamp(time(NULL));
 
   fossil_print("<?xml version=\"1.0\"?>");
-  fossil_print("<rss xmlns:dc=\"http://purl.org/dc/elements/1.1/\" version=\"2.0\">");
+  fossil_print("<rss xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
+               "  version=\"2.0\">");
   fossil_print("<channel>\n");
   fossil_print("<title>%h</title>\n", zProjectName);
   fossil_print("<link>%s</link>\n", zBaseURL);

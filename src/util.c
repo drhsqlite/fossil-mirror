@@ -30,6 +30,7 @@
 */
 #ifdef _WIN32
 # include <windows.h>
+# include <io.h>
 #else
 # include <sys/time.h>
 # include <sys/resource.h>
@@ -39,6 +40,28 @@
 # include <fcntl.h>
 # include <errno.h>
 #endif
+
+/*
+** Returns the same as the platform's isatty() or _isatty() function.
+*/
+int fossil_isatty(int fd){
+#ifdef _WIN32
+  return _isatty(fd);
+#else
+  return isatty(fd);
+#endif
+}
+
+/*
+** Returns the same as the platform's fileno() or _fileno() function.
+*/
+int fossil_fileno(FILE *p){
+#ifdef _WIN32
+  return _fileno(p);
+#else
+  return fileno(p);
+#endif
+}
 
 /*
 ** Exit.  Take care to close the database first.
@@ -149,6 +172,34 @@ void fossil_secure_free_page(void *p, size_t n){
 #else
   fossil_free(p);
 #endif
+}
+
+/*
+** Duplicate a string.
+*/
+char *fossil_strndup(const char *zOrig, ssize_t len){
+  char *z = 0;
+  if( zOrig ){
+    if( len<0 ) len = strlen(zOrig);
+    z = fossil_malloc( len+1 );
+    memcpy(z, zOrig, len);
+    z[len] = 0;
+  }
+  return z;
+}
+char *fossil_strdup(const char *zOrig){
+  return fossil_strndup(zOrig, -1);
+}
+char *fossil_strdup_nn(const char *zOrig){
+  if( zOrig==0 ) return fossil_strndup("", 0);
+  return fossil_strndup(zOrig, -1);
+}
+
+/*
+** strcpy() workalike to squelch an unwarranted warning from OpenBSD.
+*/
+void fossil_strcpy(char *dest, const char *src){
+  while( (*(dest++) = *(src++))!=0 ){}
 }
 
 /*
@@ -682,14 +733,14 @@ char *fossil_temp_filename(void){
     if( zDir==0 ) zDir = ".";
   }
 #else
-  for(i=0; i<sizeof(azTmp)/sizeof(azTmp[0]); i++){
+  for(i=0; i<(int)(sizeof(azTmp)/sizeof(azTmp[0])); i++){
     struct stat buf;
     zDir = azTmp[i];
     if( stat(zDir,&buf)==0 && S_ISDIR(buf.st_mode) && access(zDir,03)==0 ){
       break;
     }
   }
-  if( i>=sizeof(azTmp)/sizeof(azTmp[0]) ) zDir = ".";
+  if( i>=(int)(sizeof(azTmp)/sizeof(azTmp[0])) ) zDir = ".";
   cDirSep = '/';
 #endif
   nDir = strlen(zDir);

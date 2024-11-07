@@ -214,7 +214,7 @@ char *urlize(const char *z, int n){
 }
 
 /*
-** If input string does not contain quotes (niether ' nor ")
+** If input string does not contain quotes (neither ' nor ")
 ** then return the argument itself. Otherwise return a newly allocated
 ** copy of input with all quotes %-escaped.
 */
@@ -710,7 +710,7 @@ int validate16(const char *zIn, int nIn){
   int i;
   if( nIn<0 ) nIn = (int)strlen(zIn);
   if( zIn[nIn]==0 ){
-    return strspn(zIn,"0123456789abcdefABCDEF")==nIn;
+    return (int)strspn(zIn,"0123456789abcdefABCDEF")==nIn;
   }
   for(i=0; i<nIn; i++, zIn++){
     if( zDecode[zIn[0]&0xff]>63 ){

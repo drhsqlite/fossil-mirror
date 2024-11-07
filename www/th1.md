@@ -34,7 +34,7 @@ seem inefficient, but it is faster than people imagine, and numeric
 computations do not come up very often for the kinds of work that TH1 does,
 so it has never been a factor.)
 
-A TH1 script consist of a sequence of commands.
+A TH1 script consists of a sequence of commands.
 Each command is terminated by the first *unescaped* newline or ";" character.
 The text of the command (excluding the newline or semicolon terminator)
 is broken into space-separated tokens.  The first token is the command
@@ -56,11 +56,11 @@ of TH1 are closer to FORTH or Lisp than they are to C.
 
 Consider the `if` command in TH1.
 
-        if {$current eq "dev"} {
-          puts "hello"
-        } else {
-          puts "world"
-        }
+    if {$current eq "dev"} {
+      puts "hello"
+    } else {
+      puts "world"
+    }
 
 The example above is a single command.  The first token, and the name
 of the command, is `if`.
@@ -85,12 +85,12 @@ over multiple lines. It is also why the `else` keyword must be cuddled
 up with the closing brace for the `if` clause's scriptlet. The following
 is invalid Tcl/TH1:
 
-        if {$current eq "dev"} {
-          puts "hello"
-        }
-        else {
-          puts "world"
-        }
+    if {$current eq "dev"} {
+      puts "hello"
+    }
+    else {
+      puts "world"
+    }
 
 If you try to run this under either Tcl or TH1, the interpreter will
 tell you that there is no `else` command, because with the newline on
@@ -101,9 +101,9 @@ end of a line to allow a command to extend over multiple lines without
 being considered two separate commands. Here's an example from one of
 Fossil's test scripts:
 
-        return [lindex [regexp -line -inline -nocase -- \
-            {^uuid:\s+([0-9A-F]{40}) } [eval [getFossilCommand \
-            $repository "" info trunk]]] end]
+    return [lindex [regexp -line -inline -nocase -- \
+        {^uuid:\s+([0-9A-F]{40}) } [eval [getFossilCommand \
+        $repository "" info trunk]]] end]
 
 Those backslashes allow the command to wrap nicely within a standard
 terminal width while telling the interpreter to consider those three
@@ -283,8 +283,6 @@ document.
 <a id="capexpr"></a>TH1 capexpr Command
 -----------------------------------------------------
 
-Added in Fossil 2.15.
-
   *  capexpr CAPABILITY-EXPR
 
 The capability expression is a list. Each term of the list is a
@@ -292,7 +290,7 @@ cluster of [capability letters](./caps/ref.html).
 The overall expression is true if any
 one term is true. A single term is true if all letters within that
 term are true. Or, if the term begins with "!", then the term is true
-if none of the terms or true. Or, if the term begins with "@" then
+if none of the terms are true. Or, if the term begins with "@" then
 the term is true if all of the capability letters in that term are
 available to the "anonymous" user. Or, if the term is "*" then it is
 always true.
@@ -300,12 +298,12 @@ always true.
 Examples:
 
 ```
-  capexpr {j o r}               True if any one of j, o, or r are available
-  capexpr {oh}                  True if both o and h are available
-  capexpr {@2 @3 4 5 6}         2 or 3 available for anonymous or one of
-                                  4, 5 or 6 is available for the user
-  capexpr L                     True if the user is logged in
-  capexpr !L                    True if the user is not logged in
+capexpr {j o r}               True if any one of j, o, or r are available
+capexpr {oh}                  True if both o and h are available
+capexpr {@2 @3 4 5 6}         2 or 3 available for anonymous or one of
+                              4, 5 or 6 is available for the user
+capexpr L                     True if the user is logged in
+capexpr !L                    True if the user is not logged in
 ```
 
 The `L` pseudo-capability is intended only to be used on its own or with
@@ -387,7 +385,7 @@ copied to clipboard:
 
   *  date ?-local?
 
-Return a strings which is the current time and date.  If the -local
+Return a string which is the current time and date.  If the -local
 option is used, the date appears using localtime instead of UTC.
 
 <a id="decorate"></a>TH1 decorate Command
@@ -574,7 +572,7 @@ as a hidden element of the form.
 
   *  linecount STRING MAX MIN
 
-Returns one more than the number of \n characters in STRING.  But
+Returns one more than the number of `\n` characters in STRING.  But
 never returns less than MIN or more than MAX.
 
 <a id="markdown"></a>TH1 markdown Command
@@ -685,11 +683,11 @@ needs to be searchable in order for that argument to be true.  But all
 arguments must be true for this routine to return true.  Hence, to see
 if ALL document classes are searchable:
 
-        if {[searchable c d t w]} {...}
+    if {[searchable c d t w]} {...}
 
 But to see if ANY document class is searchable:
 
-        if {[searchable cdtw]} {...}
+    if {[searchable cdtw]} {...}
 
 This command is useful for enabling or disabling a "Search" entry on the
 menu bar.
@@ -846,7 +844,7 @@ process in user space.
   *  verifyCsrf
 
 Before using the results of a form, first call this command to verify
-that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
+that the Anti-CSRF token is present and is valid.  If the Anti-CSRF token
 is missing or is incorrect, that indicates a cross-site scripting attack.
 If the event of an attack is detected, an error message is generated and
 all further processing is aborted.

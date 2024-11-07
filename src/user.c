@@ -159,7 +159,7 @@ static void userGenerateScrambleCode(void){
   memcpy(zOrig, "abcdefghijklmnopqrstuvwyz", nA+1);
   memcpy(zA, zOrig, nA+1);
   assert( nA==(int)strlen((char*)zA) );
-  for(i=0; i<sizeof(aSubst); i++) aSubst[i] = i;
+  for(i=0; i<(int)sizeof(aSubst); i++) aSubst[i] = i;
   printFive(zA);
   while( nA>0 ){
     int x = randint(nA);
@@ -401,7 +401,8 @@ void user_cmd(void){
         db_set("default-user", g.argv[3], 0);
       }
     }
-  }else if(( n>=2 && strncmp(g.argv[2],"list",n)==0 ) || ( n>=2 && strncmp(g.argv[2],"ls",n)==0 )){
+  }else if(( n>=2 && strncmp(g.argv[2],"list",n)==0 ) ||
+           ( n>=2 && strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
     db_prepare(&q, "SELECT login, info FROM user ORDER BY login");
     while( db_step(&q)==SQLITE_ROW ){
@@ -612,6 +613,20 @@ void user_hash_passwords_cmd(void){
 }
 
 /*
+** Ensure that the password for a user is hashed.
+*/
+void hash_user_password(const char *zUser){
+  sqlite3_create_function(g.db, "shared_secret", 2, SQLITE_UTF8, 0,
+                          sha1_shared_secret_sql_function, 0, 0);
+  db_unprotect(PROTECT_USER);
+  db_multi_exec(
+    "UPDATE user SET pw=shared_secret(pw,login), mtime=now()"
+    " WHERE login=%Q AND length(pw)>0 AND length(pw)!=40", zUser
+  );
+  db_protect_pop();
+}
+
+/*
 ** COMMAND: test-prompt-user
 **
 ** Usage: %fossil test-prompt-user PROMPT
@@ -654,6 +669,7 @@ void test_prompt_password_cmd(void){
 
 /*
 ** WEBPAGE: access_log
+** WEBPAGE: user_log
 **
 ** Show login attempts, including timestamp and IP address.
 ** Requires Admin privileges.
@@ -664,7 +680,7 @@ void test_prompt_password_cmd(void){
 **    n=N      Number of entries to show (default: 200)
 **    o=N      Skip this many entries (default: 0)
 */
-void access_log_page(void){
+void user_log_page(void){
   int y = atoi(PD("y","3"));
   int n = atoi(PD("n","200"));
   int skip = atoi(PD("o","0"));
@@ -682,30 +698,28 @@ void access_log_page(void){
 
   if( P("delall") && P("delallbtn") ){
     db_multi_exec("DELETE FROM accesslog");
-    cgi_redirectf("%R/access_log?y=%d&n=%d&o=%o", y, n, skip);
+    cgi_redirectf("%R/user_log?y=%d&n=%d&o=%o", y, n, skip);
     return;
   }
   if( P("delanon") && P("delanonbtn") ){
     db_multi_exec("DELETE FROM accesslog WHERE uname='anonymous'");
-    cgi_redirectf("%R/access_log?y=%d&n=%d&o=%o", y, n, skip);
+    cgi_redirectf("%R/user_log?y=%d&n=%d&o=%o", y, n, skip);
     return;
   }
   if( P("delfail") && P("delfailbtn") ){
     db_multi_exec("DELETE FROM accesslog WHERE NOT success");
-    cgi_redirectf("%R/access_log?y=%d&n=%d&o=%o", y, n, skip);
+    cgi_redirectf("%R/user_log?y=%d&n=%d&o=%o", y, n, skip);
     return;
   }
   if( P("delold") && P("deloldbtn") ){
     db_multi_exec("DELETE FROM accesslog WHERE rowid in"
                   "(SELECT rowid FROM accesslog ORDER BY rowid DESC"
                   " LIMIT -1 OFFSET 200)");
-    cgi_redirectf("%R/access_log?y=%d&n=%d", y, n);
+    cgi_redirectf("%R/user_log?y=%d&n=%d", y, n);
     return;
   }
-  style_header("Access Log");
-  style_submenu_element("Admin-Log", "admin_log");
-  style_submenu_element("Artifact-Log", "rcvfromlist");
-  style_submenu_element("Error-Log", "errorlog");
+  style_header("User Log");
+  style_submenu_element("Log-Menu", "setup-logmenu");
 
   blob_zero(&sql);
   blob_append_sql(&sql,
@@ -723,12 +737,12 @@ void access_log_page(void){
   }
   blob_append_sql(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
   if( skip ){
-    style_submenu_element("Newer", "%R/access_log?o=%d&n=%d&y=%d",
+    style_submenu_element("Newer", "%R/user_log?o=%d&n=%d&y=%d",
               skip>=n ? skip-n : 0, n, y);
   }
   rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
   fLogEnabled = db_get_boolean("access-log", 0);
-  @ <div align="center">Access logging is %s(fLogEnabled?"on":"off").
+  @ <div align="center">User logging is %s(fLogEnabled?"on":"off").
   @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
   @ <table border="1" cellpadding="5" class="sortable" align="center" \
   @  data-column-types='Ttt' data-init-sort='1'>
@@ -741,7 +755,7 @@ void access_log_page(void){
     int bSuccess = db_column_int(&q, 3);
     cnt++;
     if( cnt>n ){
-      style_submenu_element("Older", "%R/access_log?o=%d&n=%d&y=%d",
+      style_submenu_element("Older", "%R/user_log?o=%d&n=%d&y=%d",
                   skip+n, n, y);
       break;
     }
@@ -753,27 +767,27 @@ void access_log_page(void){
     @ <td>%s(zDate)</td><td>%h(zName)</td><td>%h(zIP)</td></tr>
   }
   if( skip>0 || cnt>n ){
-    style_submenu_element("All", "%R/access_log?n=10000000");
+    style_submenu_element("All", "%R/user_log?n=10000000");
   }
   @ </tbody></table>
   db_finalize(&q);
-  @ <hr />
-  @ <form method="post" action="%R/access_log">
+  @ <hr>
+  @ <form method="post" action="%R/user_log">
   @ <label><input type="checkbox" name="delold">
   @ Delete all but the most recent 200 entries</input></label>
   @ <input type="submit" name="deloldbtn" value="Delete"></input>
   @ </form>
-  @ <form method="post" action="%R/access_log">
+  @ <form method="post" action="%R/user_log">
   @ <label><input type="checkbox" name="delanon">
   @ Delete all entries for user "anonymous"</input></label>
   @ <input type="submit" name="delanonbtn" value="Delete"></input>
   @ </form>
-  @ <form method="post" action="%R/access_log">
+  @ <form method="post" action="%R/user_log">
   @ <label><input type="checkbox" name="delfail">
   @ Delete all failed login attempts</input></label>
   @ <input type="submit" name="delfailbtn" value="Delete"></input>
   @ </form>
-  @ <form method="post" action="%R/access_log">
+  @ <form method="post" action="%R/user_log">
   @ <label><input type="checkbox" name="delall">
   @ Delete all entries</input></label>
   @ <input type="submit" name="delallbtn" value="Delete"></input>

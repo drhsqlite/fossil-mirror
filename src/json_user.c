@@ -172,7 +172,8 @@ static cson_value * json_user_get(void){
 **
 */
 int json_user_update_from_json( cson_object * pUser ){
-#define CSTR(X) cson_string_cstr(cson_value_get_string( cson_object_get(pUser, X ) ))
+#define CSTR(X) cson_string_cstr(cson_value_get_string( cson_object_get(pUser, \
+                                                                        X ) ))
   char const * zName = CSTR("name");
   char const * zNameNew = zName;
   char * zNameFree = NULL;

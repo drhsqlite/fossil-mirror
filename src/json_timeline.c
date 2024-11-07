@@ -145,8 +145,8 @@ char const * json_timeline_query(void){
 ** Only one of "tag" or "branch" modes will work at a time, and if
 ** both are specified, which one takes precedence is unspecified.
 */
-static char json_timeline_add_tag_branch_clause(Blob *pSql,
-                                                cson_object * pPayload){
+static signed char json_timeline_add_tag_branch_clause(Blob *pSql,
+                                                       cson_object * pPayload){
   char const * zTag = NULL;
   char const * zBranch = NULL;
   char const * zMiOnly = NULL;
@@ -171,7 +171,8 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
     return -1;
   }
   if(pPayload){
-    cson_object_set( pPayload, zBranch ? "branch" : "tag", json_new_string(zTag) );
+    cson_object_set( pPayload, zBranch ? "branch" : "tag",
+                     json_new_string(zTag) );
   }
   blob_appendf(pSql,
                " AND ("
@@ -180,7 +181,8 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
                tagid);
   if(!zUnhide){
     blob_appendf(pSql,
-               " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=blob.rid"
+               " AND NOT EXISTS(SELECT 1 FROM plink "
+               "    JOIN tagxref ON rid=blob.rid"
                "    WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
                TAG_HIDDEN);
   }
@@ -222,7 +224,7 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
 ** Returns -1 if it adds a "before" clause, 1 if it adds
 ** an "after" clause, and 0 if adds only an order-by clause.
 */
-static char json_timeline_add_time_clause(Blob *pSql){
+static signed char json_timeline_add_time_clause(Blob *pSql){
   char const * zAfter = NULL;
   char const * zBefore = NULL;
   int rc = 0;
@@ -354,9 +356,10 @@ cson_value * json_get_changed_files(int rid, int flags){
     cson_object_set(row, "size", json_new_int(db_column_int(&q,5)));
 
     cson_object_set(row, "state",
-                    json_new_string(json_artifact_status_to_string(isNew,isDel)));
+                  json_new_string(json_artifact_status_to_string(isNew,isDel)));
     zDownload = mprintf("/raw/%s?name=%s",
-                        /* reminder: g.zBaseURL is of course not set for CLI mode. */
+                        /* reminder: g.zBaseURL is of course not set
+                           for CLI mode. */
                         db_column_text(&q,2),
                         db_column_text(&q,3));
     cson_object_set(row, "downloadPath", json_new_string(zDownload));
@@ -507,7 +510,7 @@ static cson_value * json_timeline_ci(void){
       if( !warnRowToJsonFailed ){
         warnRowToJsonFailed = 1;
         json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
-                   "Could not convert at least one timeline result row to JSON." );
+                "Could not convert at least one timeline result row to JSON." );
       }
       continue;
     }
@@ -550,7 +553,8 @@ cson_value * json_timeline_event(void){
 
 #if 0
   /* only for testing! */
-  cson_object_set(pay, "timelineSql", cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql))));
+  cson_object_set(pay, "timelineSql", cson_value_new_string(blob_buffer(&sql),
+                  strlen(blob_buffer(&sql))));
 #endif
   db_multi_exec("%s", blob_buffer(&sql) /*safe-for-%s*/);
   blob_reset(&sql);
@@ -558,7 +562,9 @@ cson_value * json_timeline_event(void){
              /* For events, the name is generally more useful than
                 the uuid, but the uuid is unambiguous and can be used
                 with commands like 'artifact'. */
-             " substr((SELECT tagname FROM tag AS tn WHERE tn.tagid=json_timeline.tagId AND tagname LIKE 'event-%%'),7) AS name,"
+             " substr((SELECT tagname FROM tag AS tn "
+             "   WHERE tn.tagid=json_timeline.tagId "
+             "   AND tagname LIKE 'event-%%'),7) AS name,"
              " uuid as uuid,"
              " mtime AS timestamp,"
              " comment AS comment, "
@@ -593,7 +599,8 @@ cson_value * json_timeline_wiki(void){
   Stmt q = empty_Stmt;
   Blob sql = empty_blob;
   if( !g.perm.RdWiki && !g.perm.Read ){
-    json_set_err( FSL_JSON_E_DENIED, "Wiki timeline requires 'o' or 'j' access.");
+    json_set_err( FSL_JSON_E_DENIED,
+                  "Wiki timeline requires 'o' or 'j' access.");
     return NULL;
   }
   payV = cson_value_new_object();
@@ -606,7 +613,8 @@ cson_value * json_timeline_wiki(void){
 
 #if 0
   /* only for testing! */
-  cson_object_set(pay, "timelineSql", cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql))));
+  cson_object_set(pay, "timelineSql", cson_value_new_string(blob_buffer(&sql),
+                  strlen(blob_buffer(&sql))));
 #endif
   db_multi_exec("%s", blob_buffer(&sql) /*safe-for-%s*/);
   blob_reset(&sql);
@@ -656,7 +664,8 @@ static cson_value * json_timeline_ticket(void){
   Stmt q = empty_Stmt;
   Blob sql = empty_blob;
   if( !g.perm.RdTkt && !g.perm.Read ){
-    json_set_err(FSL_JSON_E_DENIED, "Ticket timeline requires 'o' or 'r' access.");
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Ticket timeline requires 'o' or 'r' access.");
     return NULL;
   }
   payV = cson_value_new_object();
@@ -728,7 +737,7 @@ static cson_value * json_timeline_ticket(void){
     if(!row){
       manifest_destroy(pMan);
       json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
-                 "Could not convert at least one timeline result row to JSON." );
+                "Could not convert at least one timeline result row to JSON." );
       continue;
     }
     /* FIXME: certainly there's a more efficient way for use to get

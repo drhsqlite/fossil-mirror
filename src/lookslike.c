@@ -272,7 +272,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   if( n%sizeof(WCHAR_T) ){
     flags |= LOOK_ODD;  /* Odd number of bytes -> binary (UTF-8?) */
   }
-  if( n<sizeof(WCHAR_T) ) return flags;  /* Zero or One byte -> binary (UTF-8?) */
+  if( n<sizeof(WCHAR_T) ) return flags;/* Zero or One byte -> binary (UTF-8?) */
   c = *z;
   if( bReverse ){
     c = UTF16_SWAP(c);
@@ -345,7 +345,7 @@ int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
   const unsigned char *bom = get_utf8_bom(&bomSize);
 
   if( pnByte ) *pnByte = bomSize;
-  if( blob_size(pContent)<bomSize ) return 0;
+  if( (int)blob_size(pContent)<bomSize ) return 0;
   return memcmp(z, bom, bomSize)==0;
 }
 
@@ -461,4 +461,124 @@ void looks_like_utf_test_cmd(void){
   fossil_print("Has flag LOOK_ODD: %s\n",(lookFlags&LOOK_ODD)?"yes":"no");
   fossil_print("Has flag LOOK_SHORT: %s\n",(lookFlags&LOOK_SHORT)?"yes":"no");
   blob_reset(&blob);
+}
+
+/*
+** Return true if z[i] is the whole word given by zWord in a context that
+** might be an attempted SQL injection.
+*/
+static int isWholeWord(const char *z, unsigned int i, const char *zWord, int n){
+  if( i==0 ) return 0;
+  if( sqlite3_strnicmp(z+i, zWord, n)!=0 ) return 0;
+  if( fossil_isalnum(z[i-1]) ) return 0;
+  if( fossil_isalnum(z[i+n]) ) return 0;
+  if( strchr("-)_", z[i-1])!=0 ) return 0;
+  if( strchr("(_", z[i+n])!=0 ) return 0;
+  return 1;
+}
+
+/*
+** Returns true if the given text contains certain keywords or
+** punctuation which indicate that it might be an SQL injection attempt
+** or some other kind of mischief.
+**
+** This is not a defense against vulnerabilities in the Fossil code.
+** Rather, this is part of an effort to do early detection of malicious
+** spiders to avoid them using up too many CPU cycles.
+*/
+int looks_like_sql_injection(const char *zTxt){
+  unsigned int i;
+  if( zTxt==0 ) return 0;
+  for(i=0; zTxt[i]; i++){
+    switch( zTxt[i] ){
+      case ';':
+      case '\'':
+        return 1;
+      case '/':             /* 0123456789 123456789 */
+        if( strncmp(zTxt+i+1, "/wp-content/plugins/", 20)==0 ) return 1;
+        if( strncmp(zTxt+i+1, "/wp-admin/admin-ajax", 20)==0 ) return 1;
+        break;
+      case 'a':
+      case 'A':
+        if( isWholeWord(zTxt, i, "and", 3) ) return 1;
+        break;
+      case 'n':
+      case 'N':
+        if( isWholeWord(zTxt, i, "null", 4) ) return 1;
+        break;
+      case 'o':
+      case 'O':
+        if( isWholeWord(zTxt, i, "order", 5) && fossil_isspace(zTxt[i+5]) ){
+          return 1;
+        }
+        if( isWholeWord(zTxt, i, "or", 2) ) return 1;
+        break;
+      case 's':
+      case 'S':
+        if( isWholeWord(zTxt, i, "select", 6) ) return 1;
+        break;
+      case 'w':
+      case 'W':
+        if( isWholeWord(zTxt, i, "waitfor", 7) ) return 1;
+        break;
+    }
+  }
+  return 0;
+}
+
+/*
+** This is a utility routine associated with the test-looks-like-sql-injection
+** command.
+**
+** Read input from zInFile and print only those lines that look like they
+** might be SQL injection.
+**
+** Or if bInvert is true, then show the opposite - those lines that do NOT
+** look like SQL injection.
+*/
+static void show_sql_injection_lines(
+  const char *zInFile,       /* Name of input file */
+  int bInvert,               /* Invert the sense of the output (-v) */
+  int bDeHttpize             /* De-httpize the inputs.  (-d) */
+){
+  FILE *in;
+  char zLine[10000];
+  if( zInFile==0 || strcmp(zInFile,"-")==0 ){
+    in = stdin;
+  }else{
+    in = fopen(zInFile, "rb");
+    if( in==0 ){
+      fossil_fatal("cannot open \"%s\" for reading\n", zInFile);
+    }
+  }
+  while( fgets(zLine, sizeof(zLine), in) ){
+    dehttpize(zLine);
+    if( (looks_like_sql_injection(zLine)!=0) ^ bInvert ){
+      fossil_print("%s", zLine);
+    }
+  }
+  if( in!=stdin ) fclose(in);
+}
+
+/*
+** COMMAND: test-looks-like-sql-injection
+**
+** Read lines of input from files named as arguments (or from standard
+** input if no arguments are provided) and print those that look like they
+** might be part of an SQL injection attack.
+**
+** Used to test the looks_lide_sql_injection() utility subroutine, possibly
+** by piping in actual server log data.
+*/
+void test_looks_like_sql_injection(void){
+  int i;
+  int bInvert = find_option("invert","v",0)!=0;
+  int bDeHttpize = find_option("dehttpize","d",0)!=0;
+  verify_all_options();
+  if( g.argc==2 ){
+    show_sql_injection_lines(0, bInvert, bDeHttpize);
+  }
+  for(i=2; i<g.argc; i++){
+    show_sql_injection_lines(g.argv[i], bInvert, bDeHttpize);
+  }
 }

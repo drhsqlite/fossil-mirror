@@ -8,15 +8,14 @@ Git as an intermediary.
 
 <h2>Git → Fossil</h2>
 
-To import a Git repository into Fossil, run commands like this:
+To import a Git repository into Fossil, say something like:
 
-<blockquote><pre>
+<pre>
 cd git-repo
 git fast-export --all | fossil import --git new-repo.fossil
-</pre></blockquote>
+</pre>
 
-In other words, simply pipe the output of the "git fast-export" command
-into the "fossil import --git" command.  The 3rd argument to the "fossil import"
+The 3rd argument to the "fossil import"
 command is the name of a new Fossil repository that is created to hold the Git
 content.
 
@@ -36,16 +35,36 @@ and populate the new <code>fx_git</code> table in the repository database to
 maintain a record of correspondent usernames and email addresses that can be
 used in subsequent exports or incremental imports.
 
+<h3>Converting Repositories on Windows</h3>
+
+The above commands work best on proper POSIX systems like Linux, macOS,
+and the BSDs, where everything <tt>git</tt> sends is consumed by
+<tt>fossil</tt> as soon as it can manage, with both programs working
+concurrently.
+
+For some reason, the current version of PowerShell included with Windows
+chokes on the conversion when the in-flight repository size exceeds
+available memory. We do not know why it buffers the entire stream
+emitted by "<tt>git fast-export</tt>" before sending it along to Fossil,
+but we've seen the problem recur on multiple machines.
+
+While one workaround is to fall back to <tt>cmd.exe</tt> — which doesn't
+seem to be affected by this problem — we instead recommend using
+Microsoft's own [https://learn.microsoft.com/en-us/windows/wsl/ | Windows
+Subsystem for Linux] or either of the two popular "Git for Windows"
+distributions based on MSYS2. They handle pipes the POSIX way, avoiding
+any dependency on the amount of data involved.
+
 <h2>Fossil → Git</h2>
 
 To convert a Fossil repository into a Git repository, run commands like
 this:
 
-<blockquote><pre>
+<pre>
 git init new-repo
 cd new-repo
 fossil export --git ../repo.fossil | git fast-import
-</pre></blockquote>
+</pre>
 
 In other words, create a new Git repository, then pipe the output from the
 "fossil export --git" command into the "git fast-import" command.
@@ -59,7 +78,7 @@ since the git-fast-export file format is currently the only VCS interchange
 format that Fossil will generate.  However,
 future versions of Fossil might add the ability to generate other
 VCS interchange formats, and so for compatibility, the use of the --git
-option recommended.
+option is recommended.
 
 <h2>Mirror A Fossil Repository In Git</h2>
 
@@ -80,7 +99,7 @@ To illustrate, consider the example of a remote Fossil repository that a
 user wants to import into a local Git repository.  First, the user would clone
 the remote repository and import it into a new Git repository:
 
-<blockquote><pre>
+<pre>
 fossil clone /path/to/remote/repo.fossil repo.fossil
 mkdir repo
 cd repo
@@ -91,13 +110,13 @@ git init .
 fossil export --git --export-marks ../repo/fossil.marks  \
        ../repo.fossil | git fast-import                  \
        --export-marks=../repo/git.marks
-</pre></blockquote>
+</pre>
 
 Once the import has completed, the user would need to <tt>git checkout
 trunk</tt>.  At any point after this, new changes can be imported from the
 remote Fossil repository:
 
-<blockquote><pre>
+<pre>
 cd ../repo
 fossil pull
 cd ../repo.git
@@ -106,16 +125,16 @@ fossil export --git --import-marks ../repo/fossil.marks  \
        ../repo.fossil | git fast-import                  \
        --import-marks=../repo/git.marks                  \
        --export-marks=../repo/git.marks
-</pre></blockquote>
+</pre>
 
 Changes in the Git repository can be exported to the Fossil repository and then
 pushed to the remote:
 
-<blockquote><pre>
+<pre>
 git fast-export --import-marks=../repo/git.marks                  \
     --export-marks=../repo/git.marks --all | fossil import --git  \
     --incremental --import-marks ../repo/fossil.marks             \
     --export-marks ../repo/fossil.marks ../repo.fossil
 cd ../repo
 fossil push
-</pre></blockquote>
+</pre>

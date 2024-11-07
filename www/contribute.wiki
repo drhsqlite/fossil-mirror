@@ -1,6 +1,6 @@
 <title>Contributing To Fossil</title>
 
-Fossil users are encouraged to contributed enhancements back to the
+Fossil users are encouraged to contribute enhancements back to the
 project.  This note outlines some of the procedures for making
 useful contributions.
 
@@ -28,11 +28,11 @@ definition of that term is up to the project leader.
 Suggested changes or bug fixes can be submitted by creating a patch
 against the current source tree:
 
-    <tt>fossil diff -i > my-change.patch</tt>
+<pre>fossil diff -i > my-change.patch</pre>
 
 Alternatively, you can create a binary patch:
 
-    <tt>fossil patch create my-change.db</tt>
+<pre>fossil patch create my-change.db</pre>
 
 Post patches to
 [https://fossil-scm.org/forum | the forum] or email them to

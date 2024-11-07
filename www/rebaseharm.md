@@ -32,7 +32,7 @@ To help illustrate this fact,
 consider the first rebase example from the 
 [Git documentation][gitrebase].  The merge looks like this:
 
-~~~ pikchr toggle
+~~~ pikchr toggle center
 scale = 0.8
 circle "C0" fit
 arrow right 50%
@@ -50,7 +50,7 @@ arrow from C4 to C5 chop
 
 And the rebase looks like this:
 
-~~~ pikchr toggle
+~~~ pikchr toggle center
 scale = 0.8
 circle "C0" fit
 arrow right 50%
@@ -97,7 +97,7 @@ allows one to see just the changes in the feature branch without
 the concurrent changes in the main line of development. 
 Consider a hypothetical case:
 
-~~~ pikchr toggle
+~~~ pikchr toggle center
 scale = 0.8
 circle "C0" fit fill white
 arrow right 50%
@@ -125,7 +125,7 @@ for rebase say that you should rebase the feature branch to the tip
 of main in order to remove main-line development differences from
 the feature branch's history:
 
-~~~ pikchr toggle
+~~~ pikchr toggle center
 # Duplicated below in section 5.0
 scale = 0.8
 circle "C0" fit fill white
@@ -160,7 +160,7 @@ as part of this rebase, but that's a side issue we'll deal with
 Because Fossil purposefully lacks rebase, the closest you can get to this same check-in
 history is the following merge:
 
-~~~ pikchr toggle
+~~~ pikchr toggle center
 scale = 0.8
 circle "C0" fit fill white
 arrow right 50%
@@ -200,11 +200,14 @@ But that argument is comparing apples to oranges, since the two diffs
 do not have the same baseline.  The correct way to see only the feature
 branch changes in the merge case is not diff(C2,C7) but rather diff(C6,C7).
 
-<center><table border="1" cellpadding="5" cellspacing="0">
-<tr><th>Rebase<th>Merge<th>What You See
-<tr><td>diff(C2,C5\')<td>diff(C2,C7)<td>Commingled branch and mainline changes
-<tr><td>diff(C6,C5\')<td>diff(C6,C7)<td>Branch changes only
-</table></center>
+<div align=center>
+
+| Rebase        | Merge       | What You See                           |
+|---------------|-------------|----------------------------------------|
+| diff(C2,C5\') | diff(C2,C7) | Commingled branch and mainline changes |
+| diff(C6,C5\') | diff(C6,C7) | Branch changes only                    |
+
+</div>
 
 Remember: C7 and C5\' are bit-for-bit identical, so the output of the
 diff is not determined by whether you select C7 or C5\' as the target
@@ -223,12 +226,12 @@ doing siloed development.  You are not sharing your intermediate work
 with collaborators.  This is not good for product quality.
 
 [Nagappan, et. al][nagappan] studied bugs in Windows Vista and found
-that best predictor of bugs is the distance on the org-chart between
+that the best predictor of bugs is the distance on the org-chart between
 the stake-holders. The bug rate is inversely related to the
 amount of communication among the engineers.
 Similar findings arise in other disciplines.  Keeping
 private branches does not prove that developers are communicating
-insufficiently, but it is a key symptom that problem.
+insufficiently, but it is a key symptom of that problem.
 
 [Weinberg][weinberg] argues programming should be "egoless."  That
 is to say, programmers should avoid linking their code with their sense of
@@ -257,7 +260,7 @@ when they’re intermingled with code implementing some compelling new feature?
 
 Consider the earlier example of rebasing a feature branch:
 
-~~~ pikchr toggle
+~~~ pikchr toggle center
 # Copy of second diagram in section 2.2 above
 scale = 0.8
 circle "C0" fit fill white

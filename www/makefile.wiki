@@ -9,7 +9,7 @@ before it is compiled.  Most users will download a
 so this is of no consequence to them, and even those who
 want to compile the code themselves can use one of the
 [./build.wiki | existing makefiles].
-So must people do not need to be concerned with the
+So most people do not need to be concerned with the
 build complexities of Fossil.  But hard-core developers who desire
 a deep understanding of how Fossil is put together can benefit
 from reviewing this article.
@@ -58,7 +58,7 @@ The TH1 script engine is implemented using files:
   9.  th.c
   10.  th.h
 
-The proprocessing steps are omitted for all of these imported
+The preprocessing steps are omitted for all of these imported
 files.
 
 The VERSION.h header file is generated from other information sources
@@ -68,7 +68,7 @@ using a small program called:
 
 The builtin_data.h header file contains the definitions of C-language
 byte-array constants that contain various resources such as scripts and
-images.  The builtin_data.h header file is generate from the original
+images.  The builtin_data.h header file is generated from the original
 resource files using a small program called:
 
   12   [/file/tools/mkbuiltin.c | mkbuiltin.c]
@@ -134,7 +134,7 @@ the exceptions described above.
 <h1>3.0 Automatically generated files</h1>
 
 The "VERSION.h" header file contains some C preprocessor macros that
-identify the version of Fossil that is to be build.  The VERSION.h file is
+identify the version of Fossil that is to be built.  The VERSION.h file is
 generated automatically from information extracted from the "manifest",
 "manifest.uuid", and "VERSION" source files in the root directory of the
 source tree.
@@ -148,9 +148,9 @@ To run the VERSION.h generator, first compile the tools/mkversion.c
  source file into a command-line program (named "mkversion.exe")
 then run:
 
-<blockquote><pre>
+<pre>
 mkversion.exe manifest.uuid manifest VERSION &gt;VERSION.h
-</pre></blockquote>
+</pre>
 
 The pathnames in the above command might need to be adjusted to get the
 directories right.  The point is that the manifest.uuid, manifest, and
@@ -163,9 +163,9 @@ The builtin_data.h file contains C-language byte-array definitions for
 the content of resource files used by Fossil.  To generate the
 builtin_data.h file, first compile the mkbuiltin.c program, then run:
 
-<blockquote><pre>
+<pre>
 mkbuiltin.exe diff.tcl <i>OtherFiles...</i> &gt;builtin_data.h
-</pre></blockquote>
+</pre>
 
 At the time of this writing, the "diff.tcl" script (a Tcl/Tk script used
 to generate implement --tk option on the diff command) is the only resource
@@ -187,9 +187,9 @@ generates some C code that Fossil uses in order to dispatch commands and
 HTTP requests and to show on-line help.  Compile the mkindex program
 from the mkindex.c source file.  Then run:
 
-<blockquote><pre>
+<pre>
 ./mkindex src.c >page_index.h
-</pre></blockquote>
+</pre>
 
 Note that "src.c" in the above is a stand-in for the (79) regular source
 files of Fossil - all source files except for the exceptions described in
@@ -207,9 +207,9 @@ an HTTP request.  The translate preprocessor is a simple C program whose
 sources are in the translate.c source file.  The translate preprocess
 is run on each of the other ordinary source files separately, like this:
 
-<blockquote><pre>
+<pre>
 ./translate src.c >src_.c
-</pre></blockquote>
+</pre>
 
 In this case, the "src.c" file represents any single source file from the
 set of ordinary source files as described in section 2.0 above.  Note that
@@ -237,9 +237,9 @@ source files are not scanned by makeheaders.  Makeheaders only runs over
 makeheaders also uses some extra header files as input.  The general format
 is like this:
 
-<blockquote><pre>
+<pre>
 makeheaders src_.c:src.h sqlite3.h th.h VERSION.h
-</pre></blockquote>
+</pre>
 
 In the example above the "src_.c" and "src.h" names represent all of the
 (79) ordinary C source files, each as a separate argument.
@@ -296,8 +296,8 @@ dependences are used.
 
 <h1>7.0 Debugging</h1>
 
-Debug mode is controlled via FOSSIL_DEBUG preprocessor macro which could be
-set explicitly at the make command for the target platform.
+Debug mode is controlled via a FOSSIL_DEBUG preprocessor macro. This can be
+set explicitly with the make command for the target platform.
 
 However, in practice it is instead recommended to add a respective configure
 option for the target platform and then perform a clean build. This way the
@@ -306,19 +306,20 @@ example, use these Debug flags in addition to other flags passed to the
 configure scripts:
 
 On Linux, *NIX and similar platforms:
-<blockquote><pre>
+<pre>
 ./configure --fossil-debug
-</pre></blockquote>
+</pre>
 
 On Windows:
-<blockquote><pre>
+<pre>
 win\buildmsvc.bat FOSSIL_DEBUG=1
-</pre></blockquote>
+</pre>
 
-The resulting fossil binary could then be loaded into a platform-specific
+The resulting fossil binary can then be loaded into a platform-specific
 debugger. Source files displayed in the debugger correspond to the ones
-generated from the translation stage of the build process, that is what was
-actually compiled into the object files.
+generated from the translation stage of the build process, as that is what
+was actually compiled into the respective object files that make up the
+fossil binary.
 
 <h1>8.0 See Also</h1>
 

@@ -10,8 +10,8 @@ on the CGI protocol.
 To run Fossil as CGI, create a CGI script (here called "repo") in the
 CGI directory of your web server with content like this:
 
-        #!/usr/bin/fossil
-        repository: /home/fossil/repo.fossil
+    #!/usr/bin/fossil
+    repository: /home/fossil/repo.fossil
 
 Adjust the paths appropriately.  It may be necessary to set certain
 permissions on this file or to modify an `.htaccess` file or make other
@@ -59,9 +59,9 @@ To serve multiple repositories from a directory using CGI, use the
 might also want to add a "notfound:" tag to tell where to redirect if
 the particular repository requested by the URL is not found:
 
-        #!/usr/bin/fossil
-        directory: /home/fossil/repos
-        notfound: http://url-to-go-to-if-repo-not-found/
+    #!/usr/bin/fossil
+    directory: /home/fossil/repos
+    notfound: http://url-to-go-to-if-repo-not-found/
 
 Once deployed, a URL like: <b>http://mydomain.org/cgi-bin/repo/XYZ</b>
 will serve up the repository `/home/fossil/repos/XYZ.fossil` if it
@@ -81,12 +81,35 @@ However, Fossil in CGI mode needs it in order to generate the correct links.
 Apache can be instructed to pass this parameter further to the CGI scripts for
 TLS connections with a stanza like
 
-        SetEnvIf X-Forwarded-Proto "https" HTTPS=on
-        
+    SetEnvIf X-Forwarded-Proto "https" HTTPS=on
+
 in its config file section for CGI, provided that
 
-        proxy_set_header  X-Forwarded-Proto $scheme;
-        
+    proxy_set_header  X-Forwarded-Proto $scheme;
+
 has been be added in the relevant proxying section of the Nginx config file.
 
 *[Return to the top-level Fossil server article.](../)*
+
+#### Apache mod_cgi and `CONTENT_LENGTH`
+
+At some point in its 2.4.x family, Apache's `mod_cgi` stopped relaying
+the Content-Length header in the HTTP reply from CGIs back to clients.
+However, Fossil clients prior to 2024-04-17 depended on seeing the
+Content-Length header and were unable to handle HTTP replies without
+one.  The change in Apache behavior caused "fossil clone" and "fossil
+sync" to stop working.  There are two possible fixes to this problem:
+
+  1.  Restore legacy behavior in Apache by adding
+      the following to the Apache configuration, scoped to the `<Directory>`
+      entry or entries in which fossil is being served via CGI:
+      <blockquote><pre>
+      &lt;Directory ...&gt;
+         SetEnv ap_trust_cgilike_cl "yes"
+      &lt;/Directory&gt;
+      </pre></blockquote>
+
+  2.  Upgrade your Fossil client to any trunk check-in after 2024-04-17,
+      as Fossil was upgraded to be able to deal with the missing
+      Content-Length field by
+      [check-in a8e33fb161f45b65](/info/a8e33fb161f45b65).

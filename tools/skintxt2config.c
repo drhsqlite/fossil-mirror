@@ -1,4 +1,4 @@
-/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ 
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* vim: set ts=2 et sw=2 tw=80: */
 /*
 ** Copyright (c) 2021 Stephan Beal (https://wanderinghorse.net/home/stephan/)
@@ -104,7 +104,7 @@ int read_file(char const *zFilename, unsigned char ** zContent,
   }else{
     *zContent = zMem;
     *nContent = fpos;
-  }    
+  }
   return rc;
 }
 

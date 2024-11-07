@@ -36,12 +36,14 @@ Git to Fossil, see our [./gitusers.md | Git to Fossil Translation Guide].
 Differences between Fossil and Git are summarized by the following table,
 with further description in the text that follows.
 
-<blockquote><table border=1 cellpadding=5 align=center>
-<tr><th width="49%">GIT</th><th width="49%">FOSSIL</th><th width="2%">more</th></tr>
+<table style="width: fit-content">
+<tr><th>GIT</th><th>FOSSIL</th><th>more</th></tr>
 <tr>
     <td>File versioning only</td>
-    <td>VCS, tickets, wiki, docs, notes, forum, chat, UI,
-    [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]</td>
+    <td>
+      VCS, tickets, wiki, docs, notes, forum, chat, UI,
+      [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]
+    </td>
     <td><a href="#features">2.1&nbsp;&darr;</a></td>
 </tr>
 <tr>
@@ -70,14 +72,9 @@ with further description in the text that follows.
     <td><a href="#scale">2.5.2&nbsp;&darr;</a></td>
 </tr>
 <tr>
-    <td>Many contributors</td>
-    <td>Select contributors</td>
-    <td><a href="#contrib">2.5.3&nbsp;&darr;</a></td>
-</tr>
-<tr>
     <td>Focus on individual branches</td>
     <td>Focus on the entire tree of changes</td>
-    <td><a href="#branches">2.5.4&nbsp;&darr;</a></td>
+    <td><a href="#branches">2.5.3&nbsp;&darr;</a></td>
 </tr>
 <tr>
     <td>One check-out per repository</td>
@@ -99,7 +96,7 @@ with further description in the text that follows.
     <td>SHA-1 and/or SHA-3, in the same repository</td>
     <td><a href="#hash">2.9&nbsp;&darr;</a></td>
 </tr>
-</table></blockquote>
+</table>
 
 <h3 id="features">2.1 Featureful</h3>
 
@@ -183,18 +180,13 @@ restrictive container, anything from [./chroot.md | classic chroot
 jails] to modern [https://en.wikipedia.org/wiki/OS-level_virtualization
 | OS-level virtualization mechanisms] such as
 [https://en.wikipedia.org/wiki/Docker_(software) | Docker].
-Our [/file?name=Dockerfile.in&ci=trunk | stock <tt>Dockerfile</tt>]
-creates a ~4 MiB [https://opencontainers.org | OCI] image on 64-bit Linux, including
-a capable [https://www.busybox.net/ | Busybox] environment for live
-diagnostics of the running container.
+Our [./containers.md | stock container image] is under 8&nbsp;MB when
+uncompressed and running. It contains nothing but a single
+statically-linked binary.
 
-Modern Linux systems tend to make full static linking
-[https://stackoverflow.com/questions/3430400/linux-static-linking-is-dead
-| difficult], but our official executables do statically link to OpenSSL
-to remove a version dependency, resulting in an executable that's around
-6 MiB, depending on the platform. ([Release Build How-To | Details].)
-The result is dependent only upon widespread platform libraries with
-stable ABIs such as glibc, zlib, etc.
+If you build a dynamically linked binary instead, Fossil's on-disk size
+drops to around 6&nbsp;MB, and it's dependent only on widespread
+platform libraries with stable ABIs such as glibc, zlib, and openssl.
 
 Full static linking is easier on Windows, so our precompiled Windows
 binaries are just a ZIP archive
@@ -360,7 +352,7 @@ About half of Git's code is POSIX C, and about a third is POSIX shell
 code. This is largely why the so-called "Git for Windows" distributions
 (both [https://git-scm.com/download/win|first-party] and
 [https://gitforwindows.org/|third-party]) are actually an
-[http://mingw.org/wiki/msys|MSYS POSIX portability environment] bundled
+[https://www.msys2.org/wiki/Home/|MSYS POSIX portability environment] bundled
 with all of the Git stuff, because it would be too painful to port Git
 natively to Windows. Git is a foreign citizen on Windows, speaking to it
 only through a translator.⁶
@@ -370,7 +362,8 @@ line endings are treated as first-class citizens over CR+LF, for example
 — the Windows build of Fossil is truly native.
 
 The third-party extensions to Git tend to follow this same pattern.
-[http://mingw.org/wiki/msys|GitLab isn't portable to Windows at all],
+[https://docs.gitlab.com/ee/install/install_methods.html#microsoft-windows | 
+GitLab isn't portable to Windows at all],
 for example. For that matter, GitLab isn't even officially supported on
 macOS, the BSDs, or uncommon Linuxes! We have many users who regularly
 build and run Fossil on all of these systems.
@@ -430,78 +423,76 @@ Fossil's normal mode of operation differs on every one of these points,
 with the specific designed-in goal of promoting SQLite's cathedral
 development model:
 
-<ul>
-    <li><p><b>Personal engagement:</b> SQLite's developers know each
-    other by name and work together daily on the project.</p></li>
-
-    <li><p><b>Trust over hierarchy:</b> SQLite's developers check
-    changes into their local repository, and these are immediately and
-    automatically synchronized up to the central repository; there is no
-    "[https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#_dictator_and_lieutenants_workflow|dictator
-    and lieutenants]" hierarchy as with Linux kernel contributions.  D.
-    Richard Hipp rarely overrides decisions made by those he has trusted
-    with commit access on his repositories. Fossil allows you to give
-    [./caps/admin-v-setup.md|some users] more power over what
-    they can do with the repository, but Fossil [./caps/index.md#ucap |
-    only loosely supports] the enforcement of a development organization's
-    social and power hierarchies. Fossil is a great fit for
-    [https://en.wikipedia.org/wiki/Flat_organization|flat
-    organizations].</p></li>
-
-    <li><p><b>No easy drive-by contributions:</b> Git
-    [https://www.git-scm.com/docs/git-request-pull|pull requests] offer
-    a low-friction path to accepting
-    [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
-    contributions]. Fossil's closest equivalents are its unique
-    [/help?cmd=bundle|bundle] and [/help?cmd=patch|patch] features, which require higher engagement
-    than firing off a PR.⁷ This difference comes directly from the
-    initial designed purpose for each tool: the SQLite project doesn't
-    accept outside contributions from previously-unknown developers, but
-    the Linux kernel does.</p></li>
-
-    <li><p><b>No rebasing:</b> When your local repo clone syncs changes
-    up to its parent, those changes are sent exactly as they were
-    committed locally. [#history|There is no rebasing mechanism in
-    Fossil, on purpose.]</p></li>
-
-    <li><p><b>Sync over push:</b> Explicit pushes are uncommon in
-    Fossil-based projects: the default is to rely on
-    [/help?cmd=autosync|autosync mode] instead, in which each commit
-    syncs immediately to its parent repository. This is a mode so you
-    can turn it off temporarily when needed, such as when working
-    offline. Fossil is still a truly distributed version control system;
-    it's just that its starting default is to assume you're rarely out
-    of communication with the parent repo.
-    <br><br>
-    This is not merely a reflection of modern always-connected computing
-    environments. It is a conscious decision in direct support of
-    SQLite's cathedral development model: we don't want developers going
-    dark, then showing up weeks later with a massive bolus of changes
-    for us to integrate all at once.
-    [https://en.wikipedia.org/wiki/Jim_McCarthy_(author)|Jim McCarthy]
-    put it well in his book on software project management,
-    <i>[https://www.amazon.com/dp/0735623198/|Dynamics of Software
-    Development]</i>: "[https://www.youtube.com/watch?v=oY6BCHqEbyc|Beware
-    of a guy in a room]."</p></li>
-
-    <li><p><b>Branch names sync:</b> Unlike in Git, branch names in
-    Fossil are not purely local labels. They sync along with everything
-    else, so everyone sees the same set of branch names. Fossil's design
-    choice here is a direct reflection of the Linux vs. SQLite project
-    outlook: SQLite's developers collaborate closely on a single
-    coherent project, whereas Linux's developers go off on tangents and
-    occasionally send selected change sets to each other.</p></li>
-
-    <li><p><b>Private branches are rare:</b>
-    [/doc/trunk/www/private.wiki|Private branches exist in Fossil], but
-    they're normally used to handle rare exception cases, whereas in
-    many Git projects, they're part of the straight-line development
-    process.</p></li>
-
-    <li><p><b>Identical clones:</b> Fossil's autosync system tries to
-    keep each local clone identical to the repository it cloned
-    from.</p></li>
-</ul>
+  *  <b>Personal engagement:</b> SQLite's developers know each
+     other by name and work together daily on the project.
+ 
+  *  <b>Trust over hierarchy:</b> SQLite's developers check
+     changes into their local repository, and these are immediately and
+     automatically synchronized up to the central repository; there is no
+     "[https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#_dictator_and_lieutenants_workflow|dictator
+     and lieutenants]" hierarchy as with Linux kernel contributions.  D.
+     Richard Hipp rarely overrides decisions made by those he has trusted
+     with commit access on his repositories. Fossil allows you to give
+     [./caps/admin-v-setup.md|some users] more power over what
+     they can do with the repository, but Fossil [./caps/index.md#ucap |
+     only loosely supports] the enforcement of a development organization's
+     social and power hierarchies. Fossil is a great fit for
+     [https://en.wikipedia.org/wiki/Flat_organization|flat
+     organizations].
+ 
+  *  <b>No easy drive-by contributions:</b> Git
+     [https://www.git-scm.com/docs/git-request-pull|pull requests] offer
+     a low-friction path to accepting
+     [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
+     contributions]. Fossil's closest equivalents are its unique
+     [/help?cmd=bundle|bundle] and [/help?cmd=patch|patch] features, which require higher engagement
+     than firing off a PR.⁷ This difference comes directly from the
+     initial designed purpose for each tool: the SQLite project doesn't
+     accept outside contributions from previously-unknown developers, but
+     the Linux kernel does.
+ 
+  *  <b>No rebasing:</b> When your local repo clone syncs changes
+     up to its parent, those changes are sent exactly as they were
+     committed locally. [#history|There is no rebasing mechanism in
+     Fossil, on purpose.]
+ 
+  *  <b>Sync over push:</b> Explicit pushes are uncommon in
+     Fossil-based projects: the default is to rely on
+     [/help?cmd=autosync|autosync mode] instead, in which each commit
+     syncs immediately to its parent repository. This is a mode so you
+     can turn it off temporarily when needed, such as when working
+     offline. Fossil is still a truly distributed version control system;
+     it's just that its starting default is to assume you're rarely out
+     of communication with the parent repo.
+     <br><br>
+     This is not merely a reflection of modern always-connected computing
+     environments. It is a conscious decision in direct support of
+     SQLite's cathedral development model: we don't want developers going
+     dark, then showing up weeks later with a massive bolus of changes
+     for us to integrate all at once.
+     [https://en.wikipedia.org/wiki/Jim_McCarthy_(author)|Jim McCarthy]
+     put it well in his book on software project management,
+     <i>[https://www.amazon.com/dp/0735623198/|Dynamics of Software
+     Development]</i>: "[https://www.youtube.com/watch?v=oY6BCHqEbyc|Beware
+     of a guy in a room]."
+ 
+  *  <b>Branch names sync:</b> Unlike in Git, branch names in
+     Fossil are not purely local labels. They sync along with everything
+     else, so everyone sees the same set of branch names. Fossil's design
+     choice here is a direct reflection of the Linux vs. SQLite project
+     outlook: SQLite's developers collaborate closely on a single
+     coherent project, whereas Linux's developers go off on tangents and
+     occasionally send selected change sets to each other.
+ 
+  *  <b>Private branches are rare:</b>
+     [/doc/trunk/www/private.wiki|Private branches exist in Fossil], but
+     they're normally used to handle rare exception cases, whereas in
+     many Git projects, they're part of the straight-line development
+     process.
+ 
+  *  <b>Identical clones:</b> Fossil's autosync system tries to
+     keep each local clone identical to the repository it cloned
+     from.
 
 Where Git encourages siloed development, Fossil fights against it.
 Fossil places a lot of emphasis on synchronizing everyone's work and on
@@ -597,6 +588,9 @@ changes on all branches all at once helps keep the whole team
 up-to-date with what everybody else is doing, resulting in a more 
 tightly focused and cohesive implementation.
 
+Parts of this section are [https://fossil-scm.org/forum/forumpost/5961e969fa|disputed]
+by [https://github.com/olorin37|Jakub A. G.].
+
 
 <h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>
 
@@ -604,7 +598,7 @@ Because Git commingles the repository data with the initial checkout of
 that repository, the default mode of operation in Git is to stick to that
 single work/repo tree, even when that's a shortsighted way of working.
 
-Fossil doesn't work that way. A Fossil repository is a SQLite database
+Fossil doesn't work that way. A Fossil repository is an SQLite database
 file which is normally stored outside the working checkout directory. You can
 [/help?cmd=open | open] a Fossil repository any number of times into
 any number of working directories. A common usage pattern is to have one
@@ -666,6 +660,8 @@ Plus,
 <tt>cd</tt> is faster to type than <tt>git checkout</tt> or <tt>fossil
 update</tt>.
 
+Parts of this section are [https://fossil-scm.org/forum/forumpost/5961e969fa|disputed]
+by [https://github.com/olorin37|Jakub A. G.].
 
 <h3 id="history">2.7 What you should have done vs. What you actually did</h3>
 
@@ -805,17 +801,17 @@ Incidentally, this is a good example of Git's messy command design.
 These three commands:
 
 <pre>
-    $ git merge HASH 
-    $ git cherry-pick HASH 
-    $ git revert HASH
+$ git merge HASH 
+$ git cherry-pick HASH 
+$ git revert HASH
 </pre>
 
 ...are all the same command in Fossil:
 
 <pre>
-    $ fossil merge HASH
-    $ fossil merge --cherrypick HASH
-    $ fossil merge --backout HASH
+$ fossil merge HASH
+$ fossil merge --cherrypick HASH
+$ fossil merge --backout HASH
 </pre>
 
 If you think about it, they're all the same function: apply work done on
@@ -851,8 +847,8 @@ repositories.
 
 In October 2019, after the last of the major binary
 package repos offering Fossil upgraded to Fossil 2.<i>x</i>,
-we switched the default hash mode so that from
-Fossil 2.10 forward, the conversion to SHA-3 is fully automatic.
+we switched the default hash mode so that
+the conversion to SHA-3 is fully automatic.
 This not
 only solves the SHAttered problem, it should prevent a reoccurrence of
 similar problems for the foreseeable future.
@@ -867,9 +863,8 @@ as this author is aware, but there is now
 | a competing SHA-256 based plan] which requires complete repository
 conversion from SHA-1 to SHA-256, breaking all public hashes in the
 repo. One way to characterize such a massive upheaval in Git terms is a
-whole-project rebase, which violates
-[https://blog.axosoft.com/golden-rule-of-rebasing-in-git/ | Git's own
-Golden Rule of Rebasing].
+whole-project rebase, which violates the
+[https://www.atlassian.com/git/tutorials/merging-vs-rebasing#the-golden-rule-of-rebasing|Golden Rule of Rebasing].
 
 Regardless of the eventual implementation details, we fully expect Git
 to move off SHA-1 eventually and for the changes to take years more to
@@ -957,8 +952,8 @@ for years now, so that the solution is now almost universally deployed.
     bundles, patch files collapse multiple checkins together, they don't
     include check-in comments, and they cannot encode changes made above
     the individual file content layer: you lose branching decisions,
-    tag changes, file renames, and more when using patch files. Fossil
-    2.16 adds [./patchcmd.md | a <tt>fossil patch</tt> command] that
+    tag changes, file renames, and more when using patch files. The
+    [./patchcmd.md | <tt>fossil patch</tt> command]
     also solves these problems, but it is because it works like a Fossil
     bundle, only for uncommitted changes; it doesn't use Larry Wall's
     <tt>patch</tt> tool to apply unified diff output to the receiving

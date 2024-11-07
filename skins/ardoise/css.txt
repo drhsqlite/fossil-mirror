@@ -51,7 +51,7 @@ sup {
   position: relative
 }
 .filetree .dir > div.filetreeline > a,
-ul.browser li.dir {
+ul.browser li.dir > a {
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDUuMjkyIDQuMjMzIj48cGF0aCBkPSJNLjc5NC41M3YzLjE3NGgzLjcwNFYxLjMyM0gyLjkxVi41Mjl6IiBmaWxsPSIjMWQyMDIxIiBzdHJva2U9IiNmZjgwMDAiIHN0cm9rZS13aWR0aD0iLjUyOSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+)
 }
 dfn,
@@ -309,6 +309,11 @@ input[type=submit] {
   white-space: nowrap;
   cursor: pointer
 }
+input[type=submit]:disabled {
+  color: rgb(70,70,70);
+  background-color: rgb(153,153,153);
+}
+
 @media (min-width:550px) {
   .container {
     width: 95%
@@ -613,7 +618,7 @@ table,
 ul {
   margin-bottom: 1.5rem
 }
-.header {
+header {
   color: #888;
   font-weight: 400;
   padding-top: 10px;
@@ -626,28 +631,28 @@ ul {
   position: absolute
 }
 .filetree>ul,
-.header .logo,
-.header .logo h1 {
+header .logo,
+header .logo h1 {
   display: inline-block
 }
-.header .login {
+header .login {
   padding-top: 2px;
   text-align: right
 }
-.header .login .button {
+header .login .button {
   margin: 0
 }
-.header h1 {
+header h1 {
   margin: 0;
   color: #888;
   display: inline-block
 }
-.header .title h1 {
+header .title h1 {
   padding-bottom: 10px
 }
-.header .login,
-.header h1 small,
-.header h2 small {
+header .login,
+header h1 small,
+header h2 small {
   color: #777
 }
 .middle {
@@ -681,17 +686,17 @@ ul {
   background: #000;
   border-radius: 5px
 }
-.footer {
+footer {
   padding: 10px 0 60px;
   border-top: 0;
   color: #888
 }
-.footer a {
+footer a {
   color: #527b8f;
   background-repeat: no-repeat;
   background-position: center top 10px
 }
-.footer a:hover {
+footer a:hover {
   color: #eef8ff
 }
 .mainmenu {
@@ -730,7 +735,7 @@ ul {
 .mainmenu li:hover a {
   color: #000
 }
-div#hbdrop {
+nav#hbdrop {
   background-color: #161819;
   border-radius: 15px;
   display: none;
@@ -792,7 +797,7 @@ ul.browser li.dir {
   background-repeat: no-repeat
 }
 .filetree a,
-ul.browser li.file {
+ul.browser li.file > a{
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDUuMjkyIDQuMjMzIj48cGF0aCBkPSJNMS4zMjMuMjY1djMuNzA0aDIuNjQ2VjEuMzIzTDIuOTEuMjY1eiIgZmlsbD0iIzFkMjAyMSIgc3Ryb2tlPSIjZGRkIiBzdHJva2Utd2lkdGg9Ii41MjkiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cGF0aCBkPSJNMi42NDYuMjY1aC4yNjR2MS4zMjNoMS4wNiIgZmlsbD0iIzFkMjAyMSIgc3Ryb2tlPSIjZGRkIiBzdHJva2Utd2lkdGg9Ii41MjkiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=);
   background-repeat: no-repeat
 }
@@ -1029,6 +1034,14 @@ span.timelineSecondary {
   width: 4px;
   height: 4px;
   background: #bbb
+}
+.tl-node.closed-leaf svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 10px;
+  height: 10px;
+  color: #bbb;
 }
 .tl-node.sel:after {
   content: '';
@@ -1384,7 +1397,12 @@ span.ueditInheritAnonymous {
   background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDUuODIxIDUuODIxIj48cmVjdCByeT0iLjI2NSIgcng9Ii4yNjUiIHk9Ii0uMDAxIiBoZWlnaHQ9IjUuODIxIiB3aWR0aD0iNS44MjEiIGZpbGw9IiM1NTUiLz48cGF0aCBkPSJNMS43NTIgMy45NjhoLjc5M20tLjc5My0yLjExN2guNzkzbS0uNzkzIDIuMTE3Yy0uMzQzIDAtLjY1OS0uMTE5LS44My0uNDE1LS4xNzEtLjI5Ny0uMTcxLS45OSAwLTEuMjg3LjE3MS0uMjk2LjQ4Ny0uNDE1LjgzLS40MTVtMi4yMTcgMi4xMTdoLS43OTRtLjc5NC0yLjExN2gtLjc5NG0uNzk0IDIuMTE3Yy4zNDIgMCAuNjU4LS4xMTkuODMtLjQxNS4xNy0uMjk3LjE3LS45OSAwLTEuMjg3LS4xNzItLjI5Ni0uNDg4LS40MTUtLjgzLS40MTVNMi4xMTcgMi45MWgxLjU4NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZGRkIiBzdHJva2Utd2lkdGg9Ii41MjkiLz48L3N2Zz4=)
 }
 .statistics-report-graph-line {
-  background-color: #ff8000
+  border: 2px solid #ff8000;
+  background-color: #ff8000;
+}
+.statistics-report-graph-extra {
+  border: 2px dashed #446979;
+  border-left-style: none;
 }
 mark,
 p.noMoreShun,
@@ -1408,6 +1426,9 @@ table.captcha {
 }
 div.forumSel {
   background-color: #3a3a3a;
+}
+body.forum .forumPosts.fileage a:visited {
+  color: rgb(72, 144, 224);
 }
 .debug {
   background-color: #330;

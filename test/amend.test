@@ -298,7 +298,7 @@ foreach {tagt result} $tagtests {
   incr tc
   set tags {}
   set cancels {}
-  set t1exp ""
+  set t1exp [join $result ", "]
   set t2exp "*"
   set t3exp "*"
   set t5exp "*"
@@ -307,10 +307,11 @@ foreach {tagt result} $tagtests {
     lappend cancels -cancel $tag
   }
   foreach res $result {
-    append t1exp ", $res"
-    append t2exp "sym-$res*"
     append t3exp "Add*tag*\"$res\".*"
     append t5exp "Cancel*tag*\"$res\".*"
+  }
+  foreach res [lsort -nocase $result] {
+    append t2exp "sym-$res*"
   }
   eval fossil amend $HASH $tags
   test amend-tag-$tc.1 {[string match "*hash:*$HASH*tags:*$t1exp*" $RESULT]}

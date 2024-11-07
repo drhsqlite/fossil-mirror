@@ -438,7 +438,7 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 **
 ** On error, returns false (0) and, if pErr is not NULL, writes a
 ** diagnostic message there.
-** 
+**
 ** Returns true on success. If pRid is not NULL, the RID of the
 ** resulting manifest is written to *pRid.
 **
@@ -575,7 +575,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
     ** contain embedded newlines. Note that HTML5 specifies that
     ** form-submitted TEXTAREA content gets normalized to CRLF-style:
     **
-    ** https://html.spec.whatwg.org/multipage/form-elements.html#the-textarea-element
+    ** https://html.spec.whatwg.org/#the-textarea-element
     */
     const int pseudoBinary = LOOK_LONG | LOOK_NUL;
     const int lookFlags = LOOK_CRLF | LOOK_LONE_LF | pseudoBinary;
@@ -619,7 +619,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
             blob_add_cr(&pCI->fileContent);
           }
         }
-        if(blob_size(&pCI->fileContent)!=oldSize){
+        if((int)blob_size(&pCI->fileContent)!=oldSize){
           rehash = 1;
         }
       }
@@ -983,7 +983,7 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
   char * zFileUuid = 0;             /* file content UUID */
   const int checkFile = zFilename!=0 || frid!=0;
   int vid = 0;
-  
+
   if(checkFile && !fileedit_ajax_check_filename(zFilename)){
     return 0;
   }
@@ -1178,7 +1178,7 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr,
                                       int * bIsMissingArg){
   char * zFileUuid = 0;          /* UUID of file content */
   const char * zFlag;            /* generic flag */
-  int rc = 0, vid = 0, frid = 0; /* result code, check-in/file rids */ 
+  int rc = 0, vid = 0, frid = 0; /* result code, check-in/file rids */
 
 #define fail(EXPR) blob_appendf EXPR; goto end_fail
   zFlag = PD("filename",P("fn"));
@@ -1373,7 +1373,7 @@ static void fileedit_render_checkin_files(const char * zFullUuid){
     }
   }
   db_finalize(&q);
-  CX("]}");  
+  CX("]}");
 }
 
 /*
@@ -1429,7 +1429,7 @@ static void fileedit_ajax_filelist(){
 ** AJAX route /fileedit?ajax=commit
 **
 ** Required query parameters:
-** 
+**
 ** filename=FILENAME
 ** checkin=Parent check-in UUID
 ** content=text
@@ -1443,7 +1443,7 @@ static void fileedit_ajax_filelist(){
 **
 ** include_manifest=int (1 or 0), whether to include
 ** the generated manifest in the response.
-** 
+**
 **
 ** User must have Write permissions to use this page.
 **
@@ -1579,7 +1579,7 @@ void fileedit_page(void){
   ** given build of this code. An unknown "name" value triggers an
   ** error, as documented for ajax_route_error().
   */
-  
+
   /* Allow no access to this page without check-in privilege */
   login_check_credentials();
   if( !g.perm.Write ){
@@ -1672,7 +1672,7 @@ void fileedit_page(void){
   style_script_begin(__FILE__,__LINE__);
   CX("document.body.classList.add('fileedit');\n");
   style_script_end();
-  
+
   /* Status bar */
   CX("<div id='fossil-status-bar' "
      "title='Status message area. Double-click to clear them.'>"
@@ -1700,7 +1700,7 @@ void fileedit_page(void){
     CX("<div id='fileedit-file-selector'></div>");
     CX("</div>"/*#fileedit-tab-fileselect*/);
   }
-  
+
   /******* Content tab *******/
   {
     CX("<div id='fileedit-tab-content' "
@@ -1708,7 +1708,8 @@ void fileedit_page(void){
        "data-tab-label='File Content' "
        "class='hidden'"
        ">");
-    CX("<div class='flex-container flex-row child-gap-small'>");
+    CX("<div class='fileedit-options flex-container "
+       "flex-row child-gap-small'>");
     CX("<div class='input-with-label'>"
        "<button class='fileedit-content-reload confirmer' "
        ">Discard &amp; Reload</button>"
@@ -1726,6 +1727,7 @@ void fileedit_page(void){
                           "100%", 100, "125%", 125,
                           "150%", 150, "175%", 175,
                           "200%", 200, NULL);
+    wikiedit_emit_toggle_preview();
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='fileedit-content-editor' "
@@ -1939,7 +1941,7 @@ void fileedit_page(void){
                               "comment string.",
                               NULL,
                               "Fossil", "text/x-fossil-wiki",
-                              "Markdown", "text/x-markdown", 
+                              "Markdown", "text/x-markdown",
                               "Plain text", "text/plain",
                               NULL);
         CX("</div>\n");

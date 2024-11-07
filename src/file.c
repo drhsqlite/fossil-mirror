@@ -36,6 +36,8 @@
 # include <sys/utime.h>
 #else
 # include <sys/time.h>
+# include <pwd.h>
+# include <grp.h>
 #endif
 
 #if INTERFACE
@@ -61,6 +63,7 @@
 **                symbolic links are only recognized as something different
 **                from files or directories if allow-symlinks is true.
 */
+#include <stdlib.h>
 #define ExtFILE    0  /* Always follow symlinks */
 #define RepoFILE   1  /* Follow symlinks if and only if allow-symlinks is OFF */
 #define SymFILE    2  /* Never follow symlinks */
@@ -205,7 +208,7 @@ i64 file_mtime(const char *zFilename, int eFType){
 ** stat-ed file.
 */
 int file_mode(const char *zFilename, int eFType){
-  return getStat(zFilename, eFType) ? -1 : fx.fileStat.st_mode;
+  return getStat(zFilename, eFType) ? -1 : (int)(fx.fileStat.st_mode);
 }
 
 /*
@@ -232,6 +235,20 @@ int file_isfile(const char *zFilename, int eFType){
 }
 
 /*
+** Return TRUE if zFilename is a socket.
+*/
+int file_issocket(const char *zFilename){
+#ifdef _WIN32
+  return 0;
+#else
+  if( getStat(zFilename, ExtFILE) ){
+    return 0;  /* stat() failed.  Return false. */
+  }
+  return S_ISSOCK(fx.fileStat.st_mode);
+#endif
+}
+
+/*
 ** Create a symbolic link named zLinkFile that points to zTargetFile.
 **
 ** If allow-symlinks is off, create an ordinary file named zLinkFile
@@ -244,7 +261,7 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
     char *zName, zBuf[1000];
 
     nName = strlen(zLinkFile);
-    if( nName>=sizeof(zBuf) ){
+    if( nName>=(int)sizeof(zBuf) ){
       zName = mprintf("%s", zLinkFile);
     }else{
       zName = zBuf;
@@ -714,6 +731,60 @@ void test_set_mtime(void){
   zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMTime);
   fossil_print("Set mtime of \"%s\" to %s (%lld)\n", zFile, zDate, iMTime);
 }
+
+/*
+** Change access permissions on a file.
+*/
+void file_set_mode(const char *zFN, int fd, const char *zMode, int bNoErr){
+#if !defined(_WIN32)
+  mode_t m;
+  char *zEnd = 0;
+  m = strtol(zMode, &zEnd, 0);
+  if( (zEnd[0] || fchmod(fd, m)) && !bNoErr ){
+    fossil_fatal("cannot change permissions on %s to \"%s\"",
+                 zFN, zMode);
+  }
+#endif
+}
+
+/* Change the owner of a file to zOwner.  zOwner can be of the form
+** USER:GROUP.
+*/
+void file_set_owner(const char *zFN, int fd, const char *zOwner){
+#if !defined(_WIN32)
+  const char *zGrp;
+  const char *zUsr = zOwner;
+  struct passwd *pw;
+  struct group *grp;
+  uid_t uid = -1;
+  gid_t gid = -1;
+  zGrp = strchr(zUsr, ':');
+  if( zGrp ){
+    int n = (int)(zGrp - zUsr);
+    zUsr = fossil_strndup(zUsr, n);
+    zGrp++;
+  }
+  pw = getpwnam(zUsr);
+  if( pw==0 ){
+    fossil_fatal("no such user: \"%s\"", zUsr);
+  }
+  uid = pw->pw_uid;
+  if( zGrp ){
+    grp = getgrnam(zGrp);
+    if( grp==0 ){
+      fossil_fatal("no such group: \"%s\"", zGrp);
+    }
+    gid = grp->gr_gid;
+  }
+  if( chown(zFN, uid, gid) ){
+    fossil_fatal("cannot change ownership of %s to %s",zFN, zOwner);
+  }
+  if( zOwner!=zUsr ){
+    fossil_free((char*)zUsr);
+  }
+#endif
+}
+
 
 /*
 ** Delete a file.
@@ -1293,6 +1364,79 @@ char *file_canonical_name_dup(const char *zOrigName){
 }
 
 /*
+** Convert zPath, which is a relative pathname rooted at zDir, into the
+** case preferred by the underlying filesystem.  Return the a copy
+** of the converted path in memory obtained from fossil_malloc().
+**
+** For case-sensitive filesystems, such as on Linux, this routine is
+** just fossil_strdup().  But for case-insenstiive but "case preserving"
+** filesystems, such as on MacOS or Windows, we want the filename to be
+** in the preserved casing.  That's what this routine does.
+*/
+char *file_case_preferred_name(const char *zDir, const char *zPath){
+#ifndef _WIN32 /* Call win32_file_case_preferred_name() on Windows. */
+  DIR *d;
+  int i;
+  char *zResult = 0;
+  void *zNative = 0;
+
+  if( filenames_are_case_sensitive() ){
+    return fossil_strdup(zPath);
+  }
+  for(i=0; zPath[i] && zPath[i]!='/' && zPath[i]!='\\'; i++){}
+  zNative = fossil_utf8_to_path(zDir, 1);
+  d = opendir(zNative);
+  if( d ){
+    struct dirent *pEntry;
+    while( (pEntry = readdir(d))!=0 ){
+      char *zUtf8 = fossil_path_to_utf8(pEntry->d_name);
+      if( fossil_strnicmp(zUtf8, zPath, i)==0 && zUtf8[i]==0 ){
+        if( zPath[i]==0 ){
+          zResult = fossil_strdup(zUtf8);
+        }else{
+          char *zSubDir = mprintf("%s/%s", zDir, zUtf8);
+          char *zSubPath = file_case_preferred_name(zSubDir, &zPath[i+1]);
+          zResult = mprintf("%s/%s", zUtf8, zSubPath);
+          fossil_free(zSubPath);
+          fossil_free(zSubDir);
+        }
+        fossil_path_free(zUtf8);
+        break;
+      }
+      fossil_path_free(zUtf8);
+    }
+    closedir(d);
+  }
+  fossil_path_free(zNative);
+  if( zResult==0 ) zResult = fossil_strdup(zPath);
+  return zResult;
+#else /* !_WIN32 */
+  return win32_file_case_preferred_name(zDir,zPath);
+#endif /* !_WIN32 */
+}
+
+/*
+** COMMAND: test-case-filename
+**
+** Usage: fossil test-case-filename DIRECTORY PATH PATH PATH ....
+**
+** All the PATH arguments (there must be one at least one) are pathnames
+** relative to DIRECTORY.  This test command prints the OS-preferred name
+** for each PATH in filesystems where case is not significant.
+*/
+void test_preferred_fn(void){
+  int i;
+  if( g.argc<4 ){
+    usage("DIRECTORY PATH ...");
+  }
+  for(i=3; i<g.argc; i++){
+    char *z = file_case_preferred_name(g.argv[2], g.argv[i]);
+    fossil_print("%s -> %s\n", g.argv[i], z);
+    fossil_free(z);
+  }
+}
+
+/*
 ** The input is the name of an executable, such as one might
 ** type on a command-line.  This routine resolves that name into
 ** a full pathname.  The result is obtained from fossil_malloc()
@@ -1446,6 +1590,7 @@ static void emitFileStat(
   fossil_print("  file_mode(ExtFILE)     = 0%o\n", file_mode(zPath,ExtFILE));
   fossil_print("  file_isfile(ExtFILE)   = %d\n", file_isfile(zPath,ExtFILE));
   fossil_print("  file_isdir(ExtFILE)    = %d\n", file_isdir(zPath,ExtFILE));
+  fossil_print("  file_issocket()        = %d\n", file_issocket(zPath));
   if( reset ) resetStat();
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zPath,RepoFILE));
   fossil_print("  file_size(RepoFILE)    = %s\n", zBuf);
@@ -1498,7 +1643,7 @@ void cmd_test_file_environment(void){
   if( zAllow ){
     g.allowSymlinks = !is_false(zAllow);
   }
-  if( zRoot==0 ) zRoot = g.zLocalRoot;
+  if( zRoot==0 ) zRoot = g.zLocalRoot==0 ? "" : g.zLocalRoot;
   fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
   fossil_print("local-root = [%s]\n", zRoot);
   for(i=2; i<g.argc; i++){
@@ -2246,7 +2391,7 @@ FILE *fossil_fopen_for_output(const char *zFilename){
 ** path element.
 */
 const char *file_is_win_reserved(const char *zPath){
-  static const char *const azRes[] = { "CON", "PRN", "AUX", "NUL", "COM", "LPT" };
+  static const char *const azRes[] = { "CON","PRN","AUX","NUL","COM","LPT" };
   static char zReturn[5];
   int i;
   while( zPath[0] ){
@@ -2280,6 +2425,49 @@ void file_test_valid_for_windows(void){
 }
 
 /*
+** Returns non-zero if the specified file extension belongs to a Fossil
+** repository file.
+*/
+int file_is_repository_extension(const char *zPath){
+  if( fossil_strcmp(zPath, ".fossil")==0 ) return 1;
+#if USE_SEE
+  if( fossil_strcmp(zPath, ".efossil")==0 ) return 1;
+#endif
+  return 0;
+}
+
+/*
+** Returns non-zero if the specified path appears to match a file extension
+** that should belong to a Fossil repository file.
+*/
+int file_contains_repository_extension(const char *zPath){
+  if( sqlite3_strglob("*.fossil*",zPath)==0 ) return 1;
+#if USE_SEE
+  if( sqlite3_strglob("*.efossil*",zPath)==0 ) return 1;
+#endif
+  return 0;
+}
+
+/*
+** Returns non-zero if the specified path ends with a file extension that
+** should belong to a Fossil repository file.
+*/
+int file_ends_with_repository_extension(const char *zPath, int bQual){
+  if( bQual ){
+    if( sqlite3_strglob("*/*.fossil", zPath)==0 ) return 1;
+#if USE_SEE
+    if( sqlite3_strglob("*/*.efossil", zPath)==0 ) return 1;
+#endif
+  }else{
+    if( sqlite3_strglob("*.fossil", zPath)==0 ) return 1;
+#if USE_SEE
+    if( sqlite3_strglob("*.efossil", zPath)==0 ) return 1;
+#endif
+  }
+  return 0;
+}
+
+/*
 ** Remove surplus "/" characters from the beginning of a full pathname.
 ** Extra leading "/" characters are benign on unix.  But on Windows
 ** machines, they must be removed.  Example:  Convert "/C:/fossil/xyx.fossil"
@@ -2298,6 +2486,9 @@ const char *file_cleanup_fullpath(const char *z){
 ** Count the number of objects (files and subdirectories) in a given
 ** directory.  Return the count.  Return -1 if the object is not a
 ** directory.
+**
+** This routine never counts the two "." and ".." special directory
+** entries, even if the provided glob would match them.
 */
 int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
   void *zNative;
@@ -2310,7 +2501,13 @@ int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
     n = 0;
     while( (pEntry=readdir(d))!=0 ){
       if( pEntry->d_name[0]==0 ) continue;
-      if( omitDotFiles && pEntry->d_name[0]=='.' ) continue;
+      if( pEntry->d_name[0]=='.' &&
+          (omitDotFiles
+           /* Skip the special "." and ".." entries. */
+           || pEntry->d_name[1]==0
+           || (pEntry->d_name[1]=='.' && pEntry->d_name[2]==0))){
+        continue;
+      }
       if( zGlob ){
         char *zUtf8 = fossil_path_to_utf8(pEntry->d_name);
         int rc = sqlite3_strglob(zGlob, zUtf8);

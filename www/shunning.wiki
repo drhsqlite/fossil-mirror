@@ -35,60 +35,59 @@ All of these are rare cases: Fossil is [./antibot.wiki | designed to
 foil spammers up front], legally problematic check-ins should range from
 rare to nonexistent, and you have to go way out of your way to force
 Fossil to insert bad control artifacts. Therefore, before we get to
-methods of permanently deleting content from a Fossil repos, let's give
+methods of permanently deleting content from a Fossil repo, let's give
 some alternatives that usually suffice, which don't damage the project's
 fossil record:
 
-<ul>
-    <li><p>When a forum post or wiki article is "deleted," what actually
-    happens is that a new empty version is added to the Fossil repository.
-    The web interface interprets this
-    as "deleted," but the prior version remains available if you go
-    digging for it.</p></li>
-
-    <li><p>When you close a ticket, it's marked in a way that causes it
-    to not show up in the normal ticket reports. You usually want to
-    give it a Resolution such as "Rejected" when this happens, plus
-    possibly a comment explaining why you're closing it. This is all new
-    information added to the ticket, not deletion.</p></li>
-
-    <li><p>When you <tt>fossil rm</tt> a file, a new manifest is
-    checked into the repository with the same file list as for the prior
-    version minus the "removed" file. The file is still present in the
-    repository; it just isn't part of that version forward on that
-    branch.</p></li>
-
-    <li><p>If you make a bad check-in, you can shunt it off to the side
-    by amending it to put it on a different branch, then continuing
-    development on the prior branch:
-    <p>
-    <tt>$ fossil amend abcd1234 --branch BOGUS --hide<br>
-    $ fossil up trunk</tt>
-    <p>
-    The first command moves check-in ID <tt>abcd1234</tt> (and any
-    subsequent check-ins on that branch!) to a branch called
-    <tt>BOGUS</tt>, then hides it so it doesn't show up on the
-    timeline. You can call this branch anything you like, and you can
-    re-use the same name as many times as you like. No content is
-    actually deleted: it's just shunted off to the side and hidden away.
-    You might find it easier to do this from the Fossil web UI in
-    the "edit" function for a check-in.
-    <p>
-    The second command returns to the last good check-in on that branch
-    so you can continue work from that point.</p></li>
-
-    <li><p>When the check-in you want to remove is followed by good
-    check-ins on the same branch, you can't use the previous method,
-    because it will move the good check-ins, too. The solution is:
-    <p>
-    <tt>$ fossil merge --backout abcd1234</tt>
-    <p>That creates a diff in the check-out directory that backs out the
-    bad check-in <tt>abcd1234</tt>. You then fix up any merge conflicts,
-    build, test, etc., then check the reverting change into the
-    repository. Again, nothing is actually deleted; you're just adding
-    more information to the repository which corrects a prior
-    check-in.</p></li>
-</ul>
+  *  When a forum post or wiki article is "deleted," what actually
+     happens is that a new empty version is added to the Fossil repository.
+     The web interface interprets this
+     as "deleted," but the prior version remains available if you go
+     digging for it.
+ 
+  *  When you close a ticket, it's marked in a way that causes it
+     to not show up in the normal ticket reports. You usually want to
+     give it a Resolution such as "Rejected" when this happens, plus
+     possibly a comment explaining why you're closing it. This is all new
+     information added to the ticket, not deletion.
+ 
+  *  When you <tt>fossil rm</tt> a file, a new manifest is
+     checked into the repository with the same file list as for the prior
+     version minus the "removed" file. The file is still present in the
+     repository; it just isn't part of that version forward on that
+     branch.
+ 
+  *  If you make a bad check-in, you can shunt it off to the side
+     by amending it to put it on a different branch, then continuing
+     development on the prior branch:
+     <br><br>
+     <code>$ fossil amend abcd1234 --branch BOGUS --hide<br>
+     $ fossil up trunk</code>
+     <br><br>
+     The first command moves check-in ID <tt>abcd1234</tt> (and any
+     subsequent check-ins on that branch!) to a branch called
+     <tt>BOGUS</tt>, then hides it so it doesn't show up on the
+     timeline. You can call this branch anything you like, and you can
+     re-use the same name as many times as you like. No content is
+     actually deleted: it's just shunted off to the side and hidden away.
+     You might find it easier to do this from the Fossil web UI in
+     the "edit" function for a check-in.
+     <br><br>
+     The second command returns to the last good check-in on that branch
+     so you can continue work from that point.
+ 
+  *  When the check-in you want to remove is followed by good
+     check-ins on the same branch, you can't use the previous method,
+     because it will move the good check-ins, too. The solution is:
+     <br><br>
+     <tt>$ fossil merge --backout abcd1234</tt>
+     <br><br>
+     That creates a diff in the check-out directory that backs out the
+     bad check-in <tt>abcd1234</tt>. You then fix up any merge conflicts,
+     build, test, etc., then check the reverting change into the
+     repository. Again, nothing is actually deleted; you're just adding
+     more information to the repository which corrects a prior
+     check-in.
 
 <h2>Exception: Non-versioned Content</h2>
 
@@ -136,7 +135,7 @@ using the "configuration" command:
     <b>fossil configuration pull shun</b> <i>remote-url</i><br>
     <b>fossil configuration push shun</b> <i>remote-url</i>
 
-The two command above will pull or push shunning lists from or to
+The two commands above will pull or push shunning lists from or to
 the <i>remote-url</i> indicated and merge the lists on the receiving
 end.  "Admin" privilege on the remote server is required in order to
 push a shun list.  In contrast, the shunning list will be automatically

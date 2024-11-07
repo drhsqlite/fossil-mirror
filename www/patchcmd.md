@@ -9,9 +9,9 @@ test your changes on a Linux server before you commit, you can use the
 "fossil patch push" command to make a copy of all your changes on the
 remote Linux server:
 
->  fossil patch push linuxserver:/path/to/checkout
+   fossil patch push linuxserver:/path/to/checkout
 
-In the previous "linuxserver" is the name of the remote machine and
+In the previous line "linuxserver" is the name of the remote machine and
 "/path/to/checkout" is an existing checkout directory for the same project
 on the remote machine.
 
@@ -37,14 +37,14 @@ PATH on the remote machine.
 To check if Fossil is installed correctly on the remote, try a command
 like this:
 
->  `ssh -T remote "fossil version"`
+    ssh -T remote "fossil version"
 
 If the command above shows a recent version of Fossil, then you should be
 set to go.  If you get "fossil not found", or if the version shown is too
 old, put a newer fossil executable on the default PATH.  The default PATH
 can be shown using:
 
->  `ssh -T remote 'echo $PATH'`
+    ssh -T remote 'echo $PATH'
 
 ### Custom PATH Caveat
 
@@ -87,26 +87,26 @@ changes in an SQLite database file.  If the argument to "fossil patch create"
 is a filename, then the patch-file database is written into that file.
 If the argument is "-" then the database is written on standard output.
 
-The "fossil patch apply" command reads the database that is the patch file
+The "fossil patch apply" command reads the patch-file database 
 and applies it to the local check-out.  If a filename is given as an
 argument, then the database is read from that file.  If the argument is "-"
 then the database is read from standard input.
 
 Hence the command:
 
-> `fossil patch push remote:projectA`
+    fossil patch push remote:projectA
 
 Is equivalent to:
 
-> `fossil patch create - | ssh -T remote 'cd projectA;fossil patch apply -'`
+    fossil patch create - | ssh -T remote 'cd projectA;fossil patch apply -'
 
 Likewise, a command like this:
 
-> `fossil patch pull remote:projB`
+    fossil patch pull remote:projB
 
-Could be entered like this:
+could be entered like this:
 
-> `ssh -T remote 'cd projB;fossil patch create -' | fossil patch apply -`
+    ssh -T remote 'cd projB;fossil patch create -' | fossil patch apply -
 
-The "fossil patch view" command just opens the database file and prints
+The "fossil patch view" command just opens the patch-file database and prints
 a summary of its contents on standard output.

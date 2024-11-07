@@ -315,7 +315,7 @@ void cache_cmd(void){
       fossil_print("nothing to clear; cache does not exist\n");
     }
   }else if( strncmp(zCmd, "list", nCmd)==0
-        ||  strncmp(zCmd, "ls", nCmd)==0 
+        ||  strncmp(zCmd, "ls", nCmd)==0
         ||  strncmp(zCmd, "status", nCmd)==0
   ){
     db = cacheOpen(0);
@@ -425,7 +425,7 @@ void cache_page(void){
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
         const unsigned char *zName = sqlite3_column_text(pStmt,0);
         char *zHash = cache_hash_of_key((const char*)zName);
-        @ <li><p>%z(href("%R/cacheget?key=%T",zName))%h(zName)</a><br />
+        @ <li><p>%z(href("%R/cacheget?key=%T",zName))%h(zName)</a><br>
         @ size: %,lld(sqlite3_column_int64(pStmt,1))
         @ hit-count: %d(sqlite3_column_int(pStmt,2))
         @ last-access: %s(sqlite3_column_text(pStmt,3)) \
@@ -434,7 +434,7 @@ void cache_page(void){
           fossil_free(zHash);
         }
         @ </p></li>
-        
+
       }
       sqlite3_finalize(pStmt);
       @ </ol>

@@ -10,7 +10,7 @@ For a list of all settings, view the Settings page, or type
 <tt>fossil help settings</tt> from the command line.
 
 
-<h3>Repository settings</h3>
+<h3 id="repo">Repository settings</h3>
 
 Settings are set on a per-repository basis. When you clone a repository,
 a subset of settings are copied to your local repository.
@@ -26,7 +26,7 @@ overridden explicitly in a particular repository. Global settings can be
 set by using the <tt>-global</tt> option on the <tt>fossil settings</tt>
 command.
 
-<h3>"Versionable" settings</h3>
+<h3 id="versionable">"Versionable" settings</h3>
 
 Most of the settings control the behaviour of fossil on your local
 machine, largely acting to reflect your preference on how you want to
@@ -34,10 +34,10 @@ use Fossil, how you communicate with the server, or options for hosting
 a repository on the web.
 
 However, for historical reasons, some settings affect how you work with
-versioned files. These are <tt>allow-symlinks</tt>,
-<tt>binary-glob</tt>, <tt>crlf-glob</tt>, <tt>crnl-glob</tt>,
-<tt>empty-dirs</tt>, <tt>encoding-glob</tt>, <tt>ignore-glob</tt>,
-<tt>keep-glob</tt> and <tt>manifest</tt>. The most important is
+versioned files. These are <tt>clean-glob</tt>, <tt>binary-glob</tt>,
+<tt>crlf-glob</tt> (and its alias <tt>crnl-glob</tt>), <tt>empty-dirs</tt>,
+<tt>encoding-glob</tt>, <tt>ignore-glob</tt>, <tt>keep-glob</tt>,
+<tt>manifest</tt>, and <tt>mimetypes</tt>. The most important is
 <tt>ignore-glob</tt> which specifies which files should be ignored when
 looking for unmanaged files with the <tt>extras</tt> command.
 
@@ -46,9 +46,8 @@ replicating changes, these settings are "versionable". As well as being
 able to be set using the <tt>settings</tt> command or the web interface,
 you can create versioned files in the <tt>.fossil-settings</tt>
 subdirectory of the check-out root, named with the setting name.
-The contents of the file is the
-value of the setting, and these files are checked in, committed, merged,
-and so on, as with any other file.
+Each file holds the value of a setting, and these files are checked in,
+committed, merged, and so on, as with any other file.
 
 Where a setting is a list of values, such as <tt>ignore-glob</tt>, you
 can use a newline as a separator as well as a comma.

@@ -93,11 +93,11 @@ Save your changes.
 
 At the command line, say
 
-      $ fossil set email-send-command
+    $ fossil set email-send-command
 
 If that gives a blank value instead of `sendmail -ti`, say
 
-      $ fossil set email-send-command "sendmail -ti"
+    $ fossil set email-send-command "sendmail -ti"
 
 to force the setting. That works around a [known
 bug](https://fossil-scm.org/forum/forumpost/840b676410) which may be
@@ -115,9 +115,9 @@ with Fossil using the same steps as above.
 If you reload the Admin → Notification page, the Status section at the
 top should show:
 
-      Outgoing Email: Piped to command "sendmail -ti"
-      Pending Alerts: 0 normal, 0 digest
-      Subscribers:    0 active, 0 total
+    Outgoing Email: Piped to command "sendmail -ti"
+    Pending Alerts: 0 normal, 0 digest
+    Subscribers:    0 active, 0 total
 
 Before you move on to the next section, you might like to read up on
 [some subtleties](#pipe) with the "pipe to a command" method that we did
@@ -157,10 +157,7 @@ are the two records tied together under the hood. For more on this, see
 
 If you are seeing the following complaint from Fossil:
 
-<blockquote>
-  Use a different login with greater privilege than FOO to access
-  /subscribe
-</blockquote>
+> Use a different login with greater privilege than FOO to access /subscribe
 
 ...then the repository's administrator forgot to give the
 [**EmailAlert** capability][cap7]
@@ -216,7 +213,7 @@ is working.
 
 Another method is from the command line:
 
-      $ fossil alerts test-message you@example.com --body README.md --subject Test
+    $ fossil alerts test-message you@example.com --body README.md --subject Test
 
 That should send you an email with "Test" in the subject line and the
 contents of your project's `README.md` file in the body.
@@ -266,7 +263,7 @@ can give to figure out why.
 
 (Be sure to [`cd` into a repo checkout directory](#cd) first!)
 
-      $ fossil alerts status
+    $ fossil alerts status
 
 This should give much the same information as you saw [above](#status).
 One difference is that, since you've created a forum post, the
@@ -274,7 +271,7 @@ One difference is that, since you've created a forum post, the
 requested email alert. If it's zero, check your mailer's spam folder. If
 it's nonzero, continue with these troubleshooting steps.
 
-      $ fossil backoffice
+    $ fossil backoffice
 
 That forces Fossil to run its ["back office" process](./backoffice.md).
 Its only purpose at the time of this writing is to push out alert
@@ -282,18 +279,18 @@ emails, but it might do other things later. Sometimes it can get stuck
 and needs to be kicked. For that reason, you might want to set up a
 crontab entry to make sure it runs occasionally.
 
-      $ fossil alerts send
+    $ fossil alerts send
 
 This should also kick off the backoffice processing, if there are any
 pending alerts to send out.
 
-      $ fossil alert pending
+    $ fossil alert pending
 
 Show any pending alerts. The number of lines output here should equal
 the [status output above](#status).
 
-      $ fossil test-add-alerts f5900
-      $ fossil alert send
+    $ fossil test-add-alerts f5900
+    $ fossil alert send
 
 Manually create an email alert and push it out immediately.
 
@@ -304,7 +301,7 @@ by visiting `/timeline?showid` on your Fossil instance.
 The second command above is necessary because the `test-add-alerts`
 command doesn't kick off a backoffice run.
 
-      $ fossil ale send
+    $ fossil ale send
 
 This only does the same thing as the final command above, rather than
 send you an ale, as you might be hoping. Sorry.
@@ -316,7 +313,7 @@ send you an ale, as you might be hoping. Sorry.
 Fossil offers several methods of sending email:
 
   1.  Pipe the email message text into a command.
-  2.  Store email messages as entries in a SQLite database.
+  2.  Store email messages as entries in an SQLite database.
   3.  Store email messages as individual files in a directory.
   4.  Send emails to an SMTP relay.
   5.  Send emails directly to the recipients via SMTP.
@@ -368,11 +365,12 @@ it is important to give this option if your MTA treats leading dots on a
 line this way.
 
 <a id="msmtp"></a>
-We believe the [`msmtp`][msmtp] SMTP client is compatible with this
-protocol if you give it the `-t` option. To our knowledge, this remains
-untested, but if it works, this would be a useful option on a server
+The [`msmtp`][msmtp] SMTP client is compatible with this
+protocol if you give it the `-t` option. It’s a useful option on a server
 hosting a Fossil repository which doesn't otherwise require a separate
-SMTP server for other purposes.
+SMTP server for other purposes, such as because you’ve got a separate
+provider for your email and merely need a way to let Fossil feed
+messages into it.
 
 It is probably also possible to configure [`procmail`][pmdoc] to work
 with this protocol. If you know how to do it, a patch to this document
@@ -394,7 +392,7 @@ it is running inside of a restrictive [chroot jail][cj] which is unable
 to hand off messages to the local MTA directly.
 
 When you configure a Fossil server this way, it adds outgoing email
-messages to a SQLite database file.  A separate daemon process can then
+messages to an SQLite database file.  A separate daemon process can then
 extract those messages for further disposition.
 
 Fossil includes a copy of [the daemon](/file/tools/email-sender.tcl)
@@ -425,7 +423,7 @@ You can start this Tcl script as a daemon automatically on most Unix and
 Unix-like systems by adding the following line to the `/etc/rc.local`
 file of the server that hosts the repository sending email alerts:
 
-      /usr/bin/tclsh /home/www/fossil/email-sender.tcl &
+    /usr/bin/tclsh /home/www/fossil/email-sender.tcl &
 
 [cj]:   https://en.wikipedia.org/wiki/Chroot
 [rdbc]: https://www.sqlite.org/howtocorrupt.html#_filesystems_with_broken_or_missing_lock_implementations
@@ -582,7 +580,6 @@ Fossil 2.7.  These tables are not created in new repositories by
 default.  The tables only come into existence as needed when email
 alerts are configured and used.
 
-
   *  <b>SUBSCRIBER</b> →
      The subscriber table records the email address for people who
      want to receive email notifications.  Each subscriber has a
@@ -601,11 +598,6 @@ alerts are configured and used.
      row in the EVENT table for each possible timeline entry.  The
      PENDING\_ALERT table refers to EVENT table entries for which
      we might need to send alert emails.
-
-There was a third table "EMAIL_BOUNCE" in Fossil versions 2.7 through 2.14.
-That table was intended to record email bounce history so that
-subscribers with excessive bounces can be turned off.  But that feature
-was never implemented and the table was removed in Fossil 2.15.
 
 As pointed out above, ["subscribers" are distinct from "users"](#uvs).
 The SUBSCRIBER.SUNAME field is the optional linkage between users and
@@ -684,7 +676,7 @@ is not as secure as a separate password, but it has several virtues:
 If the `subscriberCodes` for a Fossil repository are ever compromised,
 new ones can be generated as follows:
 
-        UPDATE subscriber SET subscriberCode=randomblob(32);
+    UPDATE subscriber SET subscriberCode=randomblob(32);
 
 Since this then affects all new email alerts going out from Fossil, your
 end users may never even realize that they're getting new codes, as long

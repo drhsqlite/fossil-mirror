@@ -25,7 +25,7 @@ set doclist {
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
   cap-theorem.md {Fossil and the CAP Theorem}
-  caps/ {Administering User Capabilities}
+  caps/ {Administering User Capabilities (a.k.a. Permissions)}
   caps/admin-v-setup.md {Differences Between Setup and Admin Users}
   caps/ref.html {User Capability Reference}
   cgi.wiki {CGI Script Configuration Options}
@@ -37,6 +37,7 @@ set doclist {
   chroot.md {Server Chroot Jail}
   ckout-workflows.md {Check-Out Workflows}
   co-vs-up.md {Checkout vs Update}
+  colordiff.md {Colorized Diffs}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contact.md {Developer Contact Information}
@@ -155,12 +156,10 @@ fconfigure $out -encoding utf-8 -translation lf
 puts $out \
 "<div class='fossil-doc' data-title='Index Of Fossil Documentation'>"
 puts $out {
-<center>
-<form action='$ROOT/docsrch' method='GET'>
+<form action='$ROOT/docsrch' method='GET' style="text-align:center">
 <input type="text" name="s" size="40" autofocus>
 <input type="submit" value="Search Docs">
 </form>
-</center>
 <h2>Primary Documents:</h2>
 <ul>
 <li> <a href='quickstart.wiki'>Quick-start Guide</a>
@@ -170,8 +169,8 @@ puts $out {
 <li> <a href='../COPYRIGHT-BSD2.txt'>License</a>
 <li> <a href='userlinks.wiki'>Miscellaneous Docs for Fossil Users</a>
 <li> <a href='hacker-howto.wiki'>Fossil Developer's Guide</a>
-  <ul><li><a href='$ROOT/wiki?name=Release Build How-To'>Release Build How-To</a>, a.k.a.
-  how deliverables are built</li></ul>
+<li><a href='$ROOT/wiki?name=Release Build How-To'>Release Build How-To</a>,
+a.k.a.  how deliverables are built</li>
 </li>
 <li> <a href='$ROOT/wiki?name=To+Do+List'>To Do List (Wiki)</a>
 <li> <a href='https://fossil-scm.org/fossil-book/'>Fossil book</a>

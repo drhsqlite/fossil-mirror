@@ -1,23 +1,21 @@
 <title>Questions And Criticisms</title>
-<nowiki>
-<h1 align="center">Questions And Criticisms</h1>
 
-<p>This page is a collection of real questions and criticisms that were
+This page is a collection of real questions and criticisms that were
 raised against Fossil early in its history (circa 2008).
 This page is old and has not been kept up-to-date.  See the
-</nowiki>[/finfo?name=www/qandc.wiki|change history of this page]<nowiki>.</p>
+[/finfo?name=www/qandc.wiki|change history of this page].
 
 <b>Fossil sounds like a lot of reinvention of the wheel.
 Why create your own DVCS when you could have reused mercurial?</b>
 
-<blockquote>
-  <p>I wrote fossil because none of the
+<div class="indent">
+  I wrote fossil because none of the
   other available DVCSes met my needs.  If the other DVCSes do
   meet your needs, then you might not need fossil.  But they
-  don't meet mine, and so fossil is necessary for me.</p>
+  don't meet mine, and so fossil is necessary for me.
 
-  <p>Features provided by fossil that one does not get with other
-  DVCSes include:</p>
+  Features provided by fossil that one does not get with other
+  DVCSes include:
 
   <ol>
   <li> Integrated <a href="wikitheory.wiki">wiki</a>. </li>
@@ -29,11 +27,11 @@ Why create your own DVCS when you could have reused mercurial?</b>
        <a href="fileformat.wiki">enduring file format</a> </li>
   <li> Integrated <a href="webui.wiki">web interface</a> </li>
   </ol>
-</blockquote>
+</div>
 
 <b>Why should I use this rather than Trac?</b>
 
-<blockquote>
+<div class="indent">
   <ol>
   <li> Fossil is distributed.  You can view and/or edit tickets, wiki, and
        code while off network, then sync your changes later.  With Trac, you
@@ -46,11 +44,11 @@ Why create your own DVCS when you could have reused mercurial?</b>
        wiki and tickets.  There is nothing extra to add or install.
        Fossil is an all-in-one turnkey solution. </li>
   </ol>
-</blockquote>
+</div>
 
 <b>Love the concept here. Anyone using this for real work yet?</b>
 
-<blockquote>
+<div class="indent">
 Fossil is <a href="https://fossil-scm.org/">self-hosting</a>.
 In fact, this page was probably delivered
 to your web-browser via a working fossil instance.  The same virtual
@@ -63,32 +61,32 @@ fossil repository <a href="http://www.sqlite.org/docsrc/">here</a>,
 for example.
 Other projects are also adopting fossil.  But fossil does not yet have
 the massive user base of git or mercurial.
-</blockquote>
+</div>
 
 <b>Fossil looks like the bug tracker that would be in your
 Linksys Router's administration screen.</b>
 
-<blockquote>
-<p>I take a pragmatic approach to software: form follows function.
+<div class="indent">
+I take a pragmatic approach to software: form follows function.
 To me, it is more important to have a reliable, fast, efficient,
-enduring, and simple DVCS than one that looks pretty.</p>
+enduring, and simple DVCS than one that looks pretty.
 
-<p>On the other hand, if you have patches that improve the appearance
+On the other hand, if you have patches that improve the appearance
 of Fossil without seriously compromising its reliability, performance,
 and/or maintainability, I will be happy to accept them.  Fossil is
 self-hosting.  Send email to request a password that will let
-you push to the main fossil repository.</p>
-</blockquote>
+you push to the main fossil repository.
+</div>
 
 <b>It would be useful to have a separate application that
 keeps the bug-tracking database in a versioned file. That file can
 then be pushed and pulled along with the rest repository.</b>
 
-<blockquote>
-<p>Fossil already <u>does</u> push and pull bugs along with the files
+<div class="indent">
+Fossil already <u>does</u> push and pull bugs along with the files
 in your repository.
 But fossil does <u>not</u> track bugs as files in the source tree.
-That approach to bug tracking was rejected for three reasons:</p>
+That approach to bug tracking was rejected for three reasons:
 
 <ol>
 <li>  Check-ins in fossil are immutable.  So if
@@ -107,29 +105,29 @@ That approach to bug tracking was rejected for three reasons:</p>
       be permitted to create tickets.
 </ol>
 
-<p>These points are reiterated in the opening paragraphs of
-the <a href="bugtheory.wiki">Bug-Tracking In Fossil</a> document.</p>
-</blockquote>
+These points are reiterated in the opening paragraphs of
+the <a href="bugtheory.wiki">Bug-Tracking In Fossil</a> document.
+</div>
 
 <b>Fossil is already the name of a plan9 versioned
 append-only filesystem.</b>
 
-<blockquote>
+<div class="indent">
 I did not know that.  Perhaps they selected the name for the same reason that
 I did: because a repository with immutable artifacts preserves
 an excellent fossil record of a long-running project.
-</blockquote>
+</div>
 
 <b>The idea of storing a repository in a binary blob like an
 SQLite database terrifies me.</b>
 
-<blockquote>
+<div class="indent">
 The use of SQLite to store the database is likely more stable and secure
 than any other approach, due to the fact that SQLite is transactional.
 Fossil also implements several internal
 <a href="selfcheck.wiki">self-checks</a> to insure that no information
 is ever lost.
-</blockquote>
+</div>
 
 
 <b>I am dubious of the benefits of including wikis and bug trackers
@@ -137,23 +135,20 @@ directly in the VCS - either they are under-featured compared to full
 software like Trac, or the VCS is massively bloated compared to
 Subversion or Bazaar.</b>
 
-<blockquote>
-<p>I have no doubt that Trac has many features that fossil lacks.  But that
+<div class="indent">
+I have no doubt that Trac has many features that fossil lacks.  But that
 is not the point.  Fossil has several key features that Trac lacks and that
 I need:  most notably the fact that
-fossil supports disconnected operation.</p>
+fossil supports disconnected operation.
 
-<p>As for bloat:  Fossil is a single self-contained executable.
+As for bloat:  Fossil is a single self-contained executable.
 You do not need any other packages
 (diff, patch, merge, cvs, svn, rcs, git, python, perl, tcl, apache,
-sqlite, and so forth)
+SQLite, and so forth)
 in order to run fossil.  Fossil runs just fine in a chroot jail all
 by itself.  And the self-contained fossil
 executable is much less than 1MB in size.  (Update 2015-01-12: Fossil has
 grown in the years since the previous sentence was written but is still
 much less than 2MB according to "size" when compiled using -Os on x64 Linux.)
-Fossil is the very opposite of bloat.</p>
-</blockquote>
-
-
-</nowiki>
+Fossil is the very opposite of bloat.
+</div>

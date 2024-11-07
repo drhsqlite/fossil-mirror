@@ -251,12 +251,42 @@ static int backlink_md_link(
   int nTarget = blob_size(target);
 
   backlink_create(p, zTarget, nTarget);
-  return 1;    
+  return 1;
 }
 
-/* No-op routine for the rendering callbacks that we do not need */
-static void mkdn_noop0(Blob *x){ return; }
-static int mkdn_noop1(Blob *x){ return 1; }
+/* No-op routines for the rendering callbacks that we do not need */
+static void mkdn_noop_prolog(Blob *b, void *v){ return; }
+static void (*mkdn_noop_epilog)(Blob*, void*) = mkdn_noop_prolog;
+static void mkdn_noop_footnotes(Blob *b1, const Blob *b2, void *v){ return; }
+static void mkdn_noop_blockcode(Blob *b1, Blob *b2, void *v){ return; }
+static void (*mkdn_noop_blockquote)(Blob*, Blob*, void*) = mkdn_noop_blockcode;
+static void (*mkdn_noop_blockhtml)(Blob*, Blob*, void*) = mkdn_noop_blockcode;
+static void mkdn_noop_header(Blob *b1, Blob *b2, int i, void *v){ return; }
+static void (*mkdn_noop_hrule)(Blob*, void*) = mkdn_noop_prolog;
+static void (*mkdn_noop_list)(Blob*, Blob*, int, void*) = mkdn_noop_header;
+static void (*mkdn_noop_listitem)(Blob*, Blob*, int, void*) = mkdn_noop_header;
+static void (*mkdn_noop_paragraph)(Blob*, Blob*, void*) = mkdn_noop_blockcode;
+static void mkdn_noop_table(Blob *b1, Blob *b2, Blob *b3, void *v){ return; }
+static void (*mkdn_noop_table_cell)(Blob*, Blob*, int,
+                                    void*) = mkdn_noop_header;
+static void (*mkdn_noop_table_row)(Blob*, Blob*, int,
+                                   void*) = mkdn_noop_header;
+static void mkdn_noop_footnoteitm(Blob *b1, const Blob *b2, int i1, int i2,
+                                  void *v){ return; }
+static int mkdn_noop_autolink(Blob *b1, Blob *b2, enum mkd_autolink e,
+                              void *v){ return 1; }
+static int mkdn_noop_codespan(Blob *b1, Blob *b2, int i, void *v){ return 1; }
+static int mkdn_noop_emphasis(Blob *b1, Blob *b2, char c, void *v){ return 1; }
+static int (*mkdn_noop_dbl_emphas)(Blob*, Blob*, char,
+                                   void*) = mkdn_noop_emphasis;
+static int mkdn_noop_image(Blob *b1, Blob *b2, Blob *b3, Blob *b4,
+                           void *v){ return 1; }
+static int mkdn_noop_linebreak(Blob *b1, void *v){ return 1; }
+static int mkdn_noop_r_html_tag(Blob *b1, Blob *b2, void *v){ return 1; }
+static int (*mkdn_noop_tri_emphas)(Blob*, Blob*, char,
+                                   void*) = mkdn_noop_emphasis;
+static int mkdn_noop_footnoteref(Blob *b1, const Blob *b2, const Blob *b3,
+                                 int i1, int i2, void *v){ return 1; }
 
 /*
 ** Scan markdown text and add self-hyperlinks to the BACKLINK table.
@@ -266,33 +296,33 @@ void markdown_extract_links(
   Backlink *p
 ){
   struct mkd_renderer html_renderer = {
-    /* prolog     */ (void(*)(Blob*,void*))mkdn_noop0,
-    /* epilog     */ (void(*)(Blob*,void*))mkdn_noop0,
-    /* footnotes  */ (void(*)(Blob*,const Blob*, void*))mkdn_noop0,
+    /* prolog     */ mkdn_noop_prolog,
+    /* epilog     */ mkdn_noop_epilog,
+    /* footnotes  */ mkdn_noop_footnotes,
 
-    /* blockcode  */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
-    /* blockquote */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
-    /* blockhtml  */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
-    /* header     */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
-    /* hrule      */ (void(*)(Blob*,void*))mkdn_noop0,
-    /* list       */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
-    /* listitem   */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
-    /* paragraph  */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
-    /* table      */ (void(*)(Blob*,Blob*,Blob*,void*))mkdn_noop0,
-    /* table_cell */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
-    /* table_row  */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
-    /* footnoteitm*/ (void(*)(Blob*,const Blob*,int,int,void*))mkdn_noop0,
+    /* blockcode  */ mkdn_noop_blockcode,
+    /* blockquote */ mkdn_noop_blockquote,
+    /* blockhtml  */ mkdn_noop_blockhtml,
+    /* header     */ mkdn_noop_header,
+    /* hrule      */ mkdn_noop_hrule,
+    /* list       */ mkdn_noop_list,
+    /* listitem   */ mkdn_noop_listitem,
+    /* paragraph  */ mkdn_noop_paragraph,
+    /* table      */ mkdn_noop_table,
+    /* table_cell */ mkdn_noop_table_cell,
+    /* table_row  */ mkdn_noop_table_row,
+    /* footnoteitm*/ mkdn_noop_footnoteitm,
 
-    /* autolink   */ (int(*)(Blob*,Blob*,enum mkd_autolink,void*))mkdn_noop1,
-    /* codespan   */ (int(*)(Blob*,Blob*,int,void*))mkdn_noop1,
-    /* dbl_emphas */ (int(*)(Blob*,Blob*,char,void*))mkdn_noop1,
-    /* emphasis   */ (int(*)(Blob*,Blob*,char,void*))mkdn_noop1,
-    /* image      */ (int(*)(Blob*,Blob*,Blob*,Blob*,void*))mkdn_noop1,
-    /* linebreak  */ (int(*)(Blob*,void*))mkdn_noop1,
+    /* autolink   */ mkdn_noop_autolink,
+    /* codespan   */ mkdn_noop_codespan,
+    /* dbl_emphas */ mkdn_noop_dbl_emphas,
+    /* emphasis   */ mkdn_noop_emphasis,
+    /* image      */ mkdn_noop_image,
+    /* linebreak  */ mkdn_noop_linebreak,
     /* link       */ backlink_md_link,
-    /* r_html_tag */ (int(*)(Blob*,Blob*,void*))mkdn_noop1,
-    /* tri_emphas */ (int(*)(Blob*,Blob*,char,void*))mkdn_noop1,
-    /* footnoteref*/ (int(*)(Blob*,const Blob*,const Blob*,int,int,void*))mkdn_noop1,
+    /* r_html_tag */ mkdn_noop_r_html_tag,
+    /* tri_emphas */ mkdn_noop_tri_emphas,
+    /* footnoteref*/ mkdn_noop_footnoteref,
 
     0,  /* entity */
     0,  /* normal_text */

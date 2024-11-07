@@ -40,7 +40,10 @@
 
      <DIV.pikchr-wrapper>
        <DIV.pikchr-svg><SVG.pikchr></SVG></DIV>
-       <PRE.pikchr-src></PRE>
+       <DIV.pikchr-src>
+         <PRE>pikchr source code</PRE>
+         <SPAN class='hidden'><A>link to open pikchr in /pikchrshow</A></SPAN>
+       </DIV>
      </DIV>
   */
   P.addSrcView = function f(svg){
@@ -60,6 +63,42 @@
           ev.preventDefault();
         }
       };
+      /**
+         Event handler for the "open in pikchrshow" links: store the
+         source code for the link's pikchr in
+         window.sessionStorage['pikchr-xfer'] then open
+         /pikchrshow?fromSession to trigger loading of that pikchr.
+      */
+      f.clickPikchrShow = function(ev){
+        const pId = this.dataset['pikchrid'] /* ID of the associated pikchr source code element */;
+        if(!pId) return;
+        const ePikchr = this.parentNode.parentNode.querySelector('#'+pId);
+        if(!ePikchr) return;
+        ev.stopPropagation() /* keep pikchr source view from toggling */;
+        window.sessionStorage.setItem('pikchr-xfer', ePikchr.innerText);
+        /*
+          After returning from this function the link element will
+          open [/pikchrshow?fromSession], and pikchrshow will extract
+          the pikchr source code from sessionStorage['pikchr-xfer'].
+
+          Quirks of this ^^^ design:
+
+          We use only a single slot in sessionStorage. We could
+          alternately use a key like pikchr-$pId and pass that key on
+          to /pikchrshow via fromSession=pikchr-$pId, but that would
+          eventually lead to stale session entries if loading of
+          pikchrshow were interrupted at an untimely point. The
+          down-side of _not_ doing that is that some user (or
+          automation) options multiple "open in pikchrshow" links
+          rapidly enough, the will open the same pikchr (the one which
+          was stored in the session's slot most recently).  The
+          current approach should be fine for normal human interaction
+          speeds, but if it proves to be a problem we can instead use
+          the above-described approach of storing each pikchr in its
+          own session slot and simply accept that there may be stale
+          entries at some point.
+        */
+      };
     };
     if(!svg) svg = 'svg.pikchr';
     if('string' === typeof svg){
@@ -73,13 +112,22 @@
       return this;
     }
     svg.dataset.pikchrProcessed = 1;
-    const parent = svg.parentNode.parentNode /* outermost div.pikchr-wrapper */;
-    const srcView = parent ? svg.parentNode.nextElementSibling : undefined;
-    if(!srcView || !srcView.classList.contains('pikchr-src')){
+    const parent = svg.parentNode.parentNode /* outermost DIV.pikchr-wrapper */;
+    const srcView = parent ? svg.parentNode.nextElementSibling /* DIV.pikchr-src */ : undefined;
+    if(srcView && srcView.classList.contains('pikchr-src')){
       /* Without this element, there's nothing for us to do here. */
-      return this;
+      parent.addEventListener('click', f.parentClick, false);
+      const eSpan = window.sessionStorage
+            ? srcView.querySelector('span') /* "open in..." link wrapper */
+            : undefined;
+      if(eSpan){
+        const openLink = eSpan.querySelector('a');
+        if(openLink){
+          openLink.addEventListener('click', f.clickPikchrShow, false);
+          eSpan.classList.remove('hidden');
+        }
+      }
     }
-    parent.addEventListener('click', f.parentClick, false);
     return this;
   };
 })(window.fossil);

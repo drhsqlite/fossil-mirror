@@ -1,43 +1,7 @@
 <div class='fossil-doc' data-title="How To Configure A Fossil Server">
 
 <style type="text/css">
-  p {
-    margin-left: 4em;
-    margin-right: 3em;
-  }
-
-  li p {
-    margin-left: 0;
-  }
-
-  h2 {
-    margin-left: 1em;
-  }
-
-  h3 {
-    margin-left: 3em;
-  }
-
-  ol, ul {
-    margin-left: 3em;
-  }
-
-  a#all {
-    font-size: 90%;
-    margin-left: 1em;
-  }
-
-  div#tutpick.show {
-    max-height: 99em;
-    transition: max-height 1000ms ease-in;
-  }
-  div#tutpick {
-    max-height: 0;
-    overflow: hidden;
-  }
-
-  th.fep {
-    background-color: #e8e8e8;
+  .doc > .content th.fep {
     font-family: "Helvetica Neue", "Arial Narrow", "Myriad Pro", "Avenir Next Condensed";
     font-stretch: condensed;
     min-width: 3em;
@@ -45,15 +9,14 @@
     white-space: nowrap;
   }
 
-  th.host {
-    background-color: #e8e8e8;
+  .doc > .content th.host {
     font-family: "Helvetica Neue", "Arial Narrow", "Myriad Pro", "Avenir Next Condensed";
     font-stretch: condensed;
     padding: 0.4em;
     text-align: right;
   }
 
-  td.doc {
+  .doc > .content td.doc {
     text-align: center;
   }
 </style>
@@ -119,7 +82,7 @@ the server is running</a>.</p>
 </ol>
 
 <p>All of these methods can serve either a single repository or a
-directory hierarchy containing mulitiple repositories.</p>
+directory hierarchy containing multiple repositories.</p>
 
 <p>You are not restricted to a single server setup. The same Fossil
 repository can be served using two or more of the above techniques at
@@ -173,7 +136,7 @@ expose Fossil directly to the clients in this way or you can interpose a
 <a href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a>
 layer between the clients and Fossil.</p>
 
-<h3 id="scgi"3>SCGI</h3>
+<h3 id="scgi">SCGI</h3>
 
 <p>The Fossil standalone server can also handle <a href="any/scgi.md">SCGI</a>.
 When the <a href="$ROOT/help?cmd=server"><tt>fossil server</tt></a> command is
@@ -202,9 +165,7 @@ configuration</a>.</p>
 sub-articles. Some of these are generic, while others depend on
 particular operating systems or front-end software:</p>
 
-<div id="tutpick" class="show"></div>
-
-<table style="margin-left: 6em;">
+<div class="indent"><table>
     <tr>
         <th class="host">⇩ OS / Method ⇨</th>
         <th class="fep">direct</th>
@@ -282,7 +243,7 @@ particular operating systems or front-end software:</p>
         <td class="doc"><a href="windows/iis.md">✅</a></td>
         <td class="doc"><a href="windows/service.md">✅</a></td>
     </tr>
-</table>
+</table></div>
 
 <p>Where there is a check mark in the "<b>Any</b>" row, the method for that is
 generic enough that it works across OSes that Fossil is known to work

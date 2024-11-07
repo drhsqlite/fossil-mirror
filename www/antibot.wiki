@@ -75,13 +75,13 @@ In Fossil, under the Admin/Robot-Defense menu, there is a setting entitled
 If this setting is set to "UserAgent only" or "UserAgent and Javascript",
 and if the UserAgent string looks like a human and not a robot, then
 Fossil will enable hyperlinks even if the <b>Hyperlink</b> capability
-is omitted from the user permissions.  This settingn gives humans easy
+is omitted from the user permissions.  This setting gives humans easy
 access to the hyperlinks while preventing robots
 from walking the billions of pages on a typical Fossil site.
 
 If the setting is "UserAgent only", then the hyperlinks are simply
 enabled and that is all.  But if the setting is "UserAgent and Javascript",
-then the hyperlinks are not enabled directly .
+then the hyperlinks are not enabled directly.
 Instead, the HTML code that is generated contains anchor tags ("&lt;a&gt;")
 with "href=" attributes that point to [/honeypot] rather than the correct
 link.  JavaScript code is added to the end of the page that goes back and

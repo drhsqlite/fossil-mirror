@@ -1,4 +1,4 @@
-<div class="header">
+<header>
   <div class="status leftoftitle"><th1>
    if {[info exists login]} {
      set logintext "<a href='$home/login'>$login</a>\n"
@@ -9,22 +9,23 @@
   </th1></div>
   <div class="title">$<title></div>
   <div class="status"><nobr><th1>
-   html $logintext
+    html $logintext
   </th1></nobr></div>
-</div>
-<div class="mainmenu">
-<th1>
-html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
-builtin_request_js hbmenu.js
-foreach {name url expr class} $mainmenu {
-  if {![capexpr $expr]} continue
-  if {[string match /* $url]} {
-    if {[string match $url\[/?#\]* /$current_page/]} {
-      set class "active $class"
+</header>
+<nav class="mainmenu" title="Main Menu">
+  <th1>
+    html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
+    builtin_request_js hbmenu.js
+    foreach {name url expr class} $mainmenu {
+      if {![capexpr $expr]} continue
+      if {[string match /* $url]} {
+        if {[string match $url\[/?#\]* /$current_page/]} {
+          set class "active $class"
+        }
+        set url $home$url
+      }
+      html "<a href='$url' class='$class'>$name</a>\n"
     }
-    set url $home$url
-  }
-  html "<a href='$url' class='$class'>$name</a>\n"
-}
-</th1></div>
-<div id='hbdrop'></div>
+  </th1>
+</nav>
+<nav id="hbdrop" class='hbdrop' title="sitemap"></nav>

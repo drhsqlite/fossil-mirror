@@ -17,11 +17,11 @@ Put something like the following into the `sshd_config` file on the
 Fossil repository server:
 
 ``` ssh-config
-    Match Group fossil
-        X11Forwarding no
-        AllowTcpForwarding no
-        AllowAgentForwarding no
-        ForceCommand /home/fossil/bin/wrapper
+Match Group fossil
+    X11Forwarding no
+    AllowTcpForwarding no
+    AllowAgentForwarding no
+    ForceCommand /home/fossil/bin/wrapper
 ```
 
 This file is usually found in `/etc/ssh`, but some OSes put it
@@ -32,7 +32,7 @@ Fossil repositories into the `fossil` group, as we will do
 [below](#perms). You could instead say something like:
 
 ``` ssh-config
-    Match User alice,bob,carol,dave
+Match User alice,bob,carol,dave
 ```
 
 You have to list the users allowed to use Fossil in this case because
@@ -44,7 +44,7 @@ a `Match` block of some sort.
 You could instead list the exceptions:
 
 ``` ssh-config
-    Match User !evi
+Match User !evi
 ```
 
 This would permit only [Evi the System Administrator][evi] to bypass this
@@ -70,12 +70,12 @@ and rewrite other parts to make this work.
 Here is a simpler variant of Andy’s original wrapper script:
 
 ``` sh
-    #!/bin/bash
-    set -- $SSH_ORIGINAL_COMMAND
-    while [ $# -gt 1 ] ; do shift ; done
-    export REMOTE_USER="$USER"
-    ROOT=/home/fossil
-    exec "$ROOT/bin/fossil" http "$ROOT/museum/$(/bin/basename "$1")"
+#!/bin/bash
+set -- $SSH_ORIGINAL_COMMAND
+while [ $# -gt 1 ] ; do shift ; done
+export REMOTE_USER="$USER"
+ROOT=/home/fossil
+exec "$ROOT/bin/fossil" http "$ROOT/museum/$(/bin/basename "$1")"
 ```
 
 The substantive changes are:
@@ -106,7 +106,7 @@ installed on your system, for example?
 
 Under this scheme, you clone with a command like:
 
-        $ fossil clone ssh://HOST/repo.fossil
+    $ fossil clone ssh://HOST/repo.fossil
 
 This will clone the remote `/home/fossil/museum/repo.fossil` repository
 to your local machine under the same name and open it into a “`repo/`”
@@ -131,16 +131,16 @@ repositories are stored.
 You can achieve all of this on a Linux box with:
 
 ``` shell
-    sudo adduser fossil
-    for u in alice bob carol dave ; do 
-        sudo adduser $u
-        sudo gpasswd -a fossil $u
-    done
-    sudo -i -u fossil
-    chmod 710 .
-    mkdir -m 750 bin
-    mkdir -m 770 museum
-    ln -s /usr/local/bin/fossil bin
+sudo adduser fossil
+for u in alice bob carol dave ; do 
+    sudo adduser $u
+    sudo gpasswd -a fossil $u
+done
+sudo -i -u fossil
+chmod 710 .
+mkdir -m 750 bin
+mkdir -m 770 museum
+ln -s /usr/local/bin/fossil bin
 ```
 
 You then need to copy the Fossil repositories into `~fossil/museum` and
@@ -155,8 +155,8 @@ contexts, of which “`fossil http`” is not one. Run this command against
 each repo to allow that:
 
 ``` shell
-    echo "INSERT OR REPLACE INTO config VALUES ('remote_user_ok',1,strftime('%s','now'));" |
-    fossil sql -R museum/repo.fossil
+echo "INSERT OR REPLACE INTO config VALUES ('remote_user_ok',1,strftime('%s','now'));" |
+fossil sql -R museum/repo.fossil
 ```
 
 Now you can configure SSH authentication for each user. Since Fossil’s

@@ -325,7 +325,7 @@ void capabilities_count(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zCap = db_column_text(&q, 0);
     if( zCap==0 || zCap[0]==0 ) continue;
-    for(i=0; i<sizeof(aCap)/sizeof(aCap[0]); i++){
+    for(i=0; i<(int)(sizeof(aCap)/sizeof(aCap[0])); i++){
       if( strchr(zCap, aCap[i].cCap) ) aCap[i].nUser++;
     }
   }
@@ -343,7 +343,7 @@ void capabilities_table(unsigned mClass){
   if( g.perm.Admin ) capabilities_count();
   @ <table>
   @ <tbody>
-  for(i=0; i<sizeof(aCap)/sizeof(aCap[0]); i++){
+  for(i=0; i<(int)(sizeof(aCap)/sizeof(aCap[0])); i++){
     int n;
     if( (aCap[i].eClass & mClass)==0 ) continue;
     @ <tr><th valign="top">%c(aCap[i].cCap)</th>
@@ -389,7 +389,7 @@ void capability_summary(void){
     " SELECT 'Regular User', fullcap(capunion(cap)), 200, count(*) FROM user"
     " WHERE cap NOT GLOB '*[as]*' AND login NOT IN (SELECT id FROM t)"
     " UNION ALL"
-    " SELECT 'Adminstrator', fullcap(capunion(cap)), 300, count(*) FROM user"
+    " SELECT 'Administrator', fullcap(capunion(cap)), 300, count(*) FROM user"
     " WHERE cap GLOB '*[as]*'"
     " ORDER BY 3 ASC",
     zSelfCap, hasPubPages, zSelfCap
@@ -403,7 +403,7 @@ void capability_summary(void){
     int n = db_column_int(&q, 3);
     int eType;
     static const char *const azType[] = { "off", "read", "write" };
-    static const char *const azClass[] = 
+    static const char *const azClass[] =
         { "capsumOff", "capsumRead", "capsumWrite" };
 
     if( n==0 ) continue;

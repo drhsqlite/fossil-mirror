@@ -47,11 +47,11 @@ one day get this feature, it would have a different option letter, since
 `-R` in Fossil has a different meaning, by convention. Until then, you
 can get the same effect on systems with a POSIX shell like so:
 
-      $ fossil grep COMMAND: $(fossil ls src)
+    $ fossil grep COMMAND: $(fossil ls src)
 
 If you run that in a check-out of the [Fossil self-hosting source
 repository][fshsr], that returns the first line of the built-in
-documentation for each Fossil command, across all historical verisons.
+documentation for each Fossil command, across all historical versions.
 
 Fossil `grep` has extensions relative to these other `grep` standards,
 such as `--verbose` to print each checkin ID considered, regardless of

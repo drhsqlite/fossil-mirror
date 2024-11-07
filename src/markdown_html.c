@@ -232,7 +232,7 @@ static void html_header(
 
 static void html_hrule(struct Blob *ob, void *opaque){
   INTER_BLOCK(ob);
-  blob_append_literal(ob, "<hr />\n");
+  blob_append_literal(ob, "<hr>\n");
 }
 
 
@@ -308,15 +308,15 @@ static void html_table_cell(
   }
   switch( flags & MKD_CELL_ALIGN_MASK ){
     case MKD_CELL_ALIGN_LEFT: {
-      blob_append_literal(ob, " align=\"left\"");
+      blob_append_literal(ob, " style=\"text-align:left\"");
       break;
     }
     case MKD_CELL_ALIGN_RIGHT: {
-      blob_append_literal(ob, " align=\"right\"");
+      blob_append_literal(ob, " style=\"text-align:right\"");
       break;
     }
     case MKD_CELL_ALIGN_CENTER: {
-      blob_append_literal(ob, " align=\"center\"");
+      blob_append_literal(ob, " style=\"text-align:center\"");
       break;
     }
   }
@@ -404,7 +404,7 @@ static int html_footnote_ref(
   assert( locus > 0 );
   /* expect BUGs if the following yields compiler warnings */
   if( iMark > 0 ){      /* a regular reference to a footnote */
-    sprintf(pos, "%s-%d-%s", ctx->unique.c, iMark, l.c);
+    sqlite3_snprintf(sizeof(pos), pos, "%s-%d-%s", ctx->unique.c, iMark, l.c);
     if(span && blob_size(span)) {
       blob_append_literal(ob,"<span class='");
       append_footnote_upc(ob, upc, 0);
@@ -427,7 +427,7 @@ static int html_footnote_ref(
   }else{              /* misreference */
     assert( iMark == -1 );
 
-    sprintf(pos, "%s-%s", ctx->unique.c, l.c);
+    sqlite3_snprintf(sizeof(pos), pos, "%s-%s", ctx->unique.c, l.c);
     if(span && blob_size(span)) {
       blob_appendf(ob, "<span class='notescope' id='misref%s'>", pos);
       blob_appendb(ob, span);
@@ -487,7 +487,7 @@ static void html_footnote_item(
     assert( text );
     /* allow blob_size(text)==0 for constructs like  [...](^ [] ())  */
     memset(pos,0,24);
-    sprintf(pos, "%s-%d", unique, iMark);
+    sqlite3_snprintf(sizeof(pos), pos, "%s-%d", unique, iMark);
     blob_appendf(ob, "<li id='footnote%s' class='", pos);
     if( nUsed ){
       if( blob_size(text)>=_jfi_sz &&
@@ -601,6 +601,37 @@ static int html_autolink(
 }
 
 /*
+** Flags for use with/via pikchr_to_html_add_flags().
+*/
+static int pikchrToHtmlFlags = 0;
+/*
+** Sets additional pikchr_process() flags to use for all future calls
+** to pikch_to_html(). This is intended to be used by commands such as
+** test-wiki-render and test-markdown-render to set the
+** PIKCHR_PROCESS_DARK_MODE flag for all embedded pikchr elements.
+**
+** Not all PIKCHR_PROCESS flags are legal, as pikchr_to_html()
+** hard-codes a subset of flags and passing arbitrary flags here may
+** interfere with that.
+**
+** The only tested/intended use of this function is to pass it either
+** 0 or PIKCHR_PROCESS_DARK_MODE.
+**
+** Design note: this is not implemented as an additional argument to
+** pikchr_to_html() because the commands for which dark-mode rendering
+** are now supported (test-wiki-render and test-markdown-render) are
+** far removed from their corresponding pikchr_to_html() calls and
+** there is no direct path from those commands to those calls. A
+** cleaner, but much more invasive, approach would be to add a flag to
+** markdown_to_html(), extend the WIKI_... flags with
+** WIKI_DARK_PIKCHR, and extend both wiki.c:Renderer and
+** markdown_html.c:MarkdownToHtml to contain and pass on that flag.
+*/
+void pikchr_to_html_add_flags( int f ){
+  pikchrToHtmlFlags = f;
+}
+
+/*
 ** The nSrc bytes at zSrc[] are Pikchr input text (allegedly).  Process that
 ** text and insert the result in place of the original.
 */
@@ -612,7 +643,8 @@ void pikchr_to_html(
   int pikFlags = PIKCHR_PROCESS_NONCE
     | PIKCHR_PROCESS_DIV
     | PIKCHR_PROCESS_SRC
-    | PIKCHR_PROCESS_ERR_PRE;
+    | PIKCHR_PROCESS_ERR_PRE
+    | pikchrToHtmlFlags;
   Blob bSrc = empty_blob;
   const char *zPikVar;
   double rPikVar;
@@ -760,12 +792,12 @@ static int html_image(
     blob_append_literal(ob, "\" title=\"");
     html_quote(ob, blob_buffer(title), blob_size(title));
   }
-  blob_append_literal(ob, "\" />");
+  blob_append_literal(ob, "\">");
   return 1;
 }
 
 static int html_linebreak(struct Blob *ob, void *opaque){
-  blob_append_literal(ob, "<br />\n");
+  blob_append_literal(ob, "<br>\n");
   return 1;
 }
 
@@ -782,8 +814,8 @@ static int html_link(
 
   if( zLink==0 || zLink[0]==0 ){
     zClose[0] = 0;
-  }else{  
-    static const int flags = 
+  }else{
+    static const int flags =
        WIKI_NOBADLINKS |
        WIKI_MARKDOWNLINKS
     ;

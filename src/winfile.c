@@ -292,4 +292,165 @@ void win32_getcwd(char *zBuf, int nBuf){
   strncpy(zBuf, zUtf8, nBuf);
   fossil_path_free(zUtf8);
 }
+
+/* Perform case-insensitive comparison of two UTF-16 file names. Try to load the
+** CompareStringOrdinal() function on Windows Vista and newer, and resort to the
+** RtlEqualUnicodeString() function on Windows XP.
+** The dance to invoke RtlEqualUnicodeString() is necessary because lstrcmpiW()
+** performs linguistic comparison, while the former performs binary comparison.
+** As an example, matching "ß" (U+00DF Latin Small Letter Sharp S) with "ss" is
+** undesirable in file name comparison, so lstrcmpiW() is only invoked in cases
+** that are technically impossible and contradicting all known laws of physics.
+*/
+int win32_filenames_equal_nocase(
+  const wchar_t *fn1,
+  const wchar_t *fn2
+){
+  static FARPROC fnCompareStringOrdinal;
+  static FARPROC fnRtlInitUnicodeString;
+  static FARPROC fnRtlEqualUnicodeString;
+  static int loaded_CompareStringOrdinal;
+  static int loaded_RtlUnicodeStringAPIs;
+  if( !loaded_CompareStringOrdinal ){
+    fnCompareStringOrdinal =
+      GetProcAddress(GetModuleHandleA("kernel32"),"CompareStringOrdinal");
+    loaded_CompareStringOrdinal = 1;
+  }
+  if( fnCompareStringOrdinal ){
+    return fnCompareStringOrdinal(fn1,-1,fn2,-1,1)-2==0;
+  }
+  if( !loaded_RtlUnicodeStringAPIs ){
+    fnRtlInitUnicodeString =
+      GetProcAddress(GetModuleHandleA("ntdll"),"RtlInitUnicodeString");
+    fnRtlEqualUnicodeString =
+      GetProcAddress(GetModuleHandleA("ntdll"),"RtlEqualUnicodeString");
+    loaded_RtlUnicodeStringAPIs = 1;
+  }
+  if( fnRtlInitUnicodeString && fnRtlEqualUnicodeString ){
+    struct { /* UNICODE_STRING from <ntdef.h> */
+      unsigned short Length;
+      unsigned short MaximumLength;
+      wchar_t *Buffer;
+    } u1, u2;
+    fnRtlInitUnicodeString(&u1,fn1);
+    fnRtlInitUnicodeString(&u2,fn2);
+    return (unsigned char)fnRtlEqualUnicodeString(&u1,&u2,1);
+  }
+  /* In what kind of strange parallel universe are we? */
+  return lstrcmpiW(fn1,fn2)==0;
+}
+
+/* Helper macros to deal with directory separators. */
+#define IS_DIRSEP(s,i) ( s[i]=='/' || s[i]=='\\' )
+#define NEXT_DIRSEP(s,i) while( s[i] && s[i]!='/' && s[i]!='\\' ){i++;}
+
+/* The Win32 version of file_case_preferred_name() from file.c, which is able to
+** find case-preserved file names containing non-ASCII characters. The result is
+** allocated by fossil_malloc() and *should* be free'd by the caller. While this
+** function usually gets canonicalized paths, it is able to handle any input and
+** figure out more cases than the original:
+**
+**    fossil test-case-filename C:/ .//..\WINDOWS\/.//.\SYSTEM32\.\NOTEPAD.EXE
+**    → Original:   .//..\WINDOWS\/.//.\SYSTEM32\.\NOTEPAD.EXE
+**    → Modified:   .//..\Windows\/.//.\System32\.\notepad.exe
+**
+**    md ÄÖÜ
+**    fossil test-case-filename ./\ .\äöü\/[empty]\\/
+**    → Original:   ./äöü\/[empty]\\/
+**    → Modified:   .\ÄÖÜ\/[empty]\\/
+**
+** The function preserves slashes and backslashes: only single file or directory
+** components without directory separators ("basenames") are converted to UTF-16
+** using fossil_utf8_to_path(), so bypassing its slash ↔ backslash translations.
+** Note that the original function doesn't preserve all slashes and backslashes,
+** for example in the second example above.
+**
+** NOTE: As of Windows 10, version 1803, case sensitivity may be enabled on a
+** per-directory basis, as returned by NtQueryInformationFile() with the file
+** information class FILE_CASE_SENSITIVE_INFORMATION. So this function may be
+** changed to act like fossil_strdup() for files located in such directories.
+*/
+char *win32_file_case_preferred_name(
+  const char *zBase,
+  const char *zPath
+){
+  int cchBase;
+  int cchPath;
+  int cchBuf;
+  int cchRes;
+  char *zBuf;
+  char *zRes;
+  int ncUsed;
+  int i, j;
+  if( filenames_are_case_sensitive() ){
+    return fossil_strdup(zPath);
+  }
+  cchBase = strlen(zBase);
+  cchPath = strlen(zPath);
+  cchBuf = cchBase + cchPath + 2; /* + NULL + optional directory slash */
+  cchRes = cchPath + 1;           /* + NULL */
+  zBuf = fossil_malloc(cchBuf);
+  zRes = fossil_malloc(cchRes);
+  ncUsed = 0;
+  memcpy(zBuf,zBase,cchBase);
+  if( !IS_DIRSEP(zBuf,cchBase-1) ){
+    zBuf[cchBase++]=L'/';
+  }
+  memcpy(zBuf+cchBase,zPath,cchPath+1);
+  i = j = cchBase;
+  while( 1 ){
+    WIN32_FIND_DATAW fd;
+    HANDLE hFind;
+    wchar_t *wzBuf;
+    char *zCompBuf = 0;
+    char *zComp = &zBuf[i];
+    int cchComp;
+    char chSep;
+    int fDone;
+    if( IS_DIRSEP(zBuf,i) ){
+      if( ncUsed+2>cchRes ){  /* Directory slash + NULL*/
+        cchRes += 32;         /* Overprovisioning. */
+        zRes = fossil_realloc(zRes,cchRes);
+      }
+      zRes[ncUsed++] = zBuf[i];
+      i = j = i+1;
+      continue;
+    }
+    NEXT_DIRSEP(zBuf,j);
+    fDone = zBuf[j]==0;
+    chSep = zBuf[j];
+    zBuf[j] = 0;                /* Truncate working buffer. */
+    wzBuf = fossil_utf8_to_path(zBuf,0);
+    hFind = FindFirstFileW(wzBuf,&fd);
+    if( hFind!=INVALID_HANDLE_VALUE ){
+      wchar_t *wzComp = fossil_utf8_to_path(zComp,0);
+      FindClose(hFind);
+      /* Test fd.cFileName, not fd.cAlternateFileName (classic 8.3 format). */
+      if( win32_filenames_equal_nocase(wzComp,fd.cFileName) ){
+        zCompBuf = fossil_path_to_utf8(fd.cFileName);
+        zComp = zCompBuf;
+      }
+      fossil_path_free(wzComp);
+    }
+    fossil_path_free(wzBuf);
+    cchComp = strlen(zComp);
+    if( ncUsed+cchComp+1>cchRes ){  /* Current component + NULL */
+      cchRes += cchComp + 32;       /* Overprovisioning. */
+      zRes = fossil_realloc(zRes,cchRes);
+    }
+    memcpy(zRes+ncUsed,zComp,cchComp);
+    ncUsed += cchComp;
+    if( zCompBuf ){
+      fossil_path_free(zCompBuf);
+    }
+    if( fDone ){
+      zRes[ncUsed] = 0;
+      break;
+    }
+    zBuf[j] = chSep;            /* Undo working buffer truncation. */
+    i = j;
+  }
+  fossil_free(zBuf);
+  return zRes;
+}
 #endif /* _WIN32  -- This code is for win32 only */

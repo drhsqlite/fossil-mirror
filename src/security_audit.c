@@ -102,8 +102,9 @@ void secaudit0_page(void){
   const char *zSelfCap;      /* Capabilities of self-registered users */
   int hasSelfReg = 0;        /* True if able to self-register */
   const char *zPublicUrl;    /* Canonical access URL */
+  Blob cmd;
   char *z;
-  int n;
+  int n, i;
   CapabilityString *pCap;
   char **azCSP;              /* Parsed content security policy */
 
@@ -337,7 +338,7 @@ void secaudit0_page(void){
   */
   if( hasAnyCap(zAnonCap, "lq5") ){
     @ <li><p><b>WARNING:</b>
-    @ Anonymous users can act as moderators for wiki, tickets, or 
+    @ Anonymous users can act as moderators for wiki, tickets, or
     @ forum posts. This defeats the whole purpose of moderation.
     @ Fix this by removing the "Mod-Wiki", "Mod-Tkt", and "Mod-Forum"
     @ privileges (<a href="%R/setup_ucap_list">capabilities</a> "fq5")
@@ -354,7 +355,7 @@ void secaudit0_page(void){
     @ clone operation.  See the the <a href="%R/xfersetup">/xfersetup</a>
     @ page for more information.  These TH1 scripts are a potential
     @ security concern and so should be carefully audited by a human.
-  } 
+  }
 
   /* The strict-manifest-syntax setting should be on. */
   if( db_get_boolean("strict-manifest-syntax",1)==0 ){
@@ -577,13 +578,13 @@ void secaudit0_page(void){
     @ filesystem is mounted within the jail, so that the load average
     @ can be obtained from the /proc/loadavg file.
   }else {
-    double r = atof(db_get("max-loadavg", 0));
+    double r = atof(db_get("max-loadavg", "0.0"));
     if( r<=0.0 ){
       @ <li><p>
       @ Load average limiting is turned off.  This can cause the server
       @ to bog down if many requests for expensive services (such as
       @ large diffs or tarballs) arrive at about the same time.
-      @ To fix this, set the 
+      @ To fix this, set the
       @ <a href='%R/setup_access#slal'>"Server Load Average Limit"</a> on the
       @ <a href='%R/setup_access'>Access Control</a> page to the approximate
       @ the number of available cores on your server, or maybe just a little
@@ -605,7 +606,7 @@ void secaudit0_page(void){
       @ make an entry like "errorlog: <i>FILENAME</i>" in the
       @ CGI script at %h(P("SCRIPT_FILENAME")).
     }else{
-      @ add the "--errorlog <i>FILENAME</i>" option to the 
+      @ add the "--errorlog <i>FILENAME</i>" option to the
       @ "%h(g.argv[0]) %h(g.zCmdName)" command that launched this server.
     }
   }else{
@@ -636,7 +637,7 @@ void secaudit0_page(void){
 
   if( fileedit_glob()!=0 ){
     @ <li><p><a href='%R/fileedit'>Online File Editing</a> is enabled
-    @ for this repository.  Clear the 
+    @ for this repository.  Clear the
     @ <a href='%R/setup_settings'>"fileedit-glob" setting</a> to
     @ disable online editing.</p>
   }
@@ -652,7 +653,7 @@ void secaudit0_page(void){
     @ automatically insert an appropriate CSP if you let it generate the
     @ HTML <tt>&lt;head&gt;</tt> element by omitting <tt>&lt;body&gt;</tt>
     @ from the header configuration in your customized skin.
-    @ 
+    @
   }else{
     int ii;
     @ <li><p> Content Security Policy:
@@ -693,6 +694,50 @@ void secaudit0_page(void){
     table_of_public_phantoms();
     @ </li>
   }
+
+  @ <li><p>Robot Defenses:
+  @ <ol type="a">
+  switch( db_get_int("auto-hyperlink",1) ){
+    default:
+       @ <li> No auto-enable of hyperlinks.
+       break;
+    case 1:
+       @ <li> Hyperlinks auto-enabled based on UserAgent and Javascript.
+       break;
+    case 2:
+       @ <li> Hyperlinks auto-enabled based on UserAgent only.
+       break;
+  }
+  z = db_get("max-loadavg",0);
+  if( z && atof(z)>0.0 ){
+    @ <li> Maximum load average for expensive requests: %h(z);
+  }else{
+    @ <li> No limits on the load average
+  }
+  z = db_get("robot-restrict",0);
+  if( z==0 ){
+    @ <li> No complex-request constraints on robots
+  }else{
+    @ <li> Complex requests limited for pages matching: %h(z)
+  }
+  @ </ol>
+
+  blob_init(&cmd, 0, 0);
+  for(i=0; g.argvOrig[i]!=0; i++){
+    blob_append_escaped_arg(&cmd, g.argvOrig[i], 0);
+  }
+  @ <li><p>
+  if( g.zCgiFile ){
+    Blob fullname;
+    blob_init(&fullname, 0, 0);
+    file_canonical_name(g.zCgiFile, &fullname, 0);
+    @ The CGI control file for this page is "%h(blob_str(&fullname))".
+  }
+  @ The command that generated this page:
+  @ <blockquote>
+  @ <tt>%h(blob_str(&cmd))</tt>
+  @ </blockquote></li>
+  blob_zero(&cmd);
 
   @ </ol>
   style_finish_page();
@@ -741,9 +786,30 @@ void takeitprivate_page(void){
 }
 
 /*
-** The maximum number of bytes of log to show
+** Output a message explaining that no error log is available.
 */
-#define MXSHOWLOG 50000
+static void no_error_log_available(void){
+  @ <p>No error log is configured.
+  if( g.zCgiFile==0 ){
+    @ To create an error log, add the "--errorlog FILENAME"
+    @ command-line option to the command that launches the Fossil server.
+  }else{
+    Blob fullname;
+    blob_init(&fullname, 0, 0);
+    file_canonical_name(g.zCgiFile, &fullname, 0);
+    @ To create an error log, edit the CGI control file
+    @ named "%h(blob_str(&fullname))" to add a line like this:
+    @ <blockquote><pre>
+    @ errorlog: <i>FILENAME</i>
+    @ </pre></blockquote>
+    blob_reset(&fullname);
+  }
+}
+
+/*
+** The maximum number of bytes of the error log to show by default.
+*/
+#define MXSHOWLOG 500000
 
 /*
 ** WEBPAGE: errorlog
@@ -754,6 +820,7 @@ void takeitprivate_page(void){
 void errorlog_page(void){
   i64 szFile;
   FILE *in;
+  char *zLog;
   char z[10000];
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -763,29 +830,16 @@ void errorlog_page(void){
   style_header("Server Error Log");
   style_submenu_element("Test", "%R/test-warning");
   style_submenu_element("Refresh", "%R/errorlog");
-  style_submenu_element("Admin-Log", "admin_log");
-  style_submenu_element("User-Log", "access_log");
-  style_submenu_element("Artifact-Log", "rcvfromlist");
+  style_submenu_element("Log-Menu", "%R/setup-logmenu");
+  style_submenu_element("Panics", "%R/paniclog");
+  style_submenu_element("Non-Hacks", "%R/hacklog?not");
 
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    @ <p>To create a server error log:
-    @ <ol>
-    @ <li><p>
-    @ If the server is running as CGI, then create a line in the CGI file
-    @ like this:
-    @ <blockquote><pre>
-    @ errorlog: <i>FILENAME</i>
-    @ </pre></blockquote>
-    @ <li><p>
-    @ If the server is running using one of 
-    @ the "fossil http" or "fossil server" commands then add
-    @ a command-line option "--errorlog <i>FILENAME</i>" to that
-    @ command.
-    @ </ol>
+    no_error_log_available();
     style_finish_page();
     return;
   }
-  if( P("truncate1") && cgi_csrf_safe(1) ){
+  if( P("truncate1") && cgi_csrf_safe(2) ){
     fclose(fopen(g.zErrlog,"w"));
   }
   if( P("download") ){
@@ -798,6 +852,7 @@ void errorlog_page(void){
   szFile = file_size(g.zErrlog, ExtFILE);
   if( P("truncate") ){
     @ <form action="%R/errorlog" method="POST">
+    login_insert_csrf_secret();
     @ <p>Confirm that you want to truncate the %,lld(szFile)-byte error log:
     @ <input type="submit" name="truncate1" value="Confirm">
     @ <input type="submit" name="cancel" value="Cancel">
@@ -805,7 +860,9 @@ void errorlog_page(void){
     style_finish_page();
     return;
   }
-  @ <p>The server error log at "%h(g.zErrlog)" is %,lld(szFile) bytes in size.
+  zLog = file_canonical_name_dup(g.zErrlog);
+  @ <p>The server error log at "%h(zLog)" is %,lld(szFile) bytes in size.
+  fossil_free(zLog);
   style_submenu_element("Download", "%R/errorlog?download");
   style_submenu_element("Truncate", "%R/errorlog?truncate");
   in = fossil_fopen(g.zErrlog, "rb");
@@ -825,6 +882,140 @@ void errorlog_page(void){
   @ <pre>
   while( fgets(z, sizeof(z), in) ){
     @ %h(z)\
+  }
+  fclose(in);
+  @ </pre>
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: paniclog
+**
+** Scan the error log for panics.  Show all panic messages, ignoring all
+** other error log entries.
+*/
+void paniclog_page(void){
+  i64 szFile;
+  char *zLog;
+  FILE *in;
+  int bOutput = 0;
+  int prevWasTime = 0;
+  char z[10000];
+  char zTime[10000];
+
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_header("Server Panic Log");
+  style_submenu_element("Log-Menu", "%R/setup-logmenu");
+
+  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
+    no_error_log_available();
+    style_finish_page();
+    return;
+  }
+  in = fossil_fopen(g.zErrlog, "rb");
+  if( in==0 ){
+    @ <p class='generalError'>Unable to open that file for reading!</p>
+    style_finish_page();
+    return;
+  }
+  szFile = file_size(g.zErrlog, ExtFILE);
+  zLog = file_canonical_name_dup(g.zErrlog);
+  @ Panic messages contained within the %lld(szFile)-byte 
+  @ <a href="%R/errorlog?all">error log</a> found at
+  @ "%h(zLog)".
+  fossil_free(zLog);
+  @ <hr>
+  @ <pre>
+  while( fgets(z, sizeof(z), in) ){
+    if( prevWasTime
+     && (strncmp(z,"panic: ", 7)==0 || strstr(z," assertion fault ")!=0)
+    ){
+      @ %h(zTime)\
+      bOutput = 1;
+    }
+    if( strncmp(z, "--------", 8)==0 ){
+      size_t n = strlen(z);
+      memcpy(zTime, z, n+1);
+      prevWasTime = 1;
+      bOutput = 0;
+    }else{
+      prevWasTime = 0;
+    }
+    if( bOutput ){
+      @ %h(z)\
+    }
+  }
+  fclose(in);
+  @ </pre>
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: hacklog
+**
+** Scan the error log for "possible hack attempt" entries  Show hack
+** attempt messages only, omitting all others.  Or if the "not" query
+** parameter is present, show only messages that are not hack attempts.
+*/
+void hacklog_page(void){
+  i64 szFile;
+  char *zLog;
+  FILE *in;
+  int bOutput = 0;
+  int prevWasTime = 0;
+  int isNot = P("not")!=0;
+  char z[10000];
+  char zTime[10000];
+
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_header("Server Hack Log");
+  style_submenu_element("Log-Menu", "%R/setup-logmenu");
+
+  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
+    no_error_log_available();
+    style_finish_page();
+    return;
+  }
+  in = fossil_fopen(g.zErrlog, "rb");
+  if( in==0 ){
+    @ <p class='generalError'>Unable to open that file for reading!</p>
+    style_finish_page();
+    return;
+  }
+  szFile = file_size(g.zErrlog, ExtFILE);
+  zLog = file_canonical_name_dup(g.zErrlog);
+  @ %s(isNot?"Non-hack":"Hack") messages contained within the %lld(szFile)-byte 
+  @ <a href="%R/errorlog?all">error log</a> found at
+  @ "%h(zLog)".
+  fossil_free(zLog);
+  @ <hr>
+  @ <pre>
+  while( fgets(z, sizeof(z), in) ){
+    if( prevWasTime 
+     && ((strncmp(z,"possible hack attempt - 418 ", 27)==0) ^ isNot)
+    ){
+      @ %h(zTime)\
+      bOutput = 1;
+    }
+    if( strncmp(z, "--------", 8)==0 ){
+      size_t n = strlen(z);
+      memcpy(zTime, z, n+1);
+      prevWasTime = 1;
+      bOutput = 0;
+    }else{
+      prevWasTime = 0;
+    }
+    if( bOutput ){
+      @ %h(z)\
+    }
   }
   fclose(in);
   @ </pre>

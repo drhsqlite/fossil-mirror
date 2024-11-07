@@ -1,9 +1,13 @@
-# Administering User Capabilities
+# Administering User Capabilities (a.k.a. Permissions)
 
 Fossil includes a powerful [role-based access control system][rbac]
-which affects which users have which capabilities within a given
-[served][svr] Fossil repository. We call this the capability system, or
-“caps” for short.
+which affects which users have which capabilities(^Some parts of the
+Fossil code call these “permissions” instead, but since there is [a
+clear and present risk of confusion](#webonly) with operating system
+level file permissions in this context, we avoid using that term for
+Fossil’s RBAC capability flags in these pages.) within a given
+[served][svr] Fossil repository. We call this the “caps” system for
+short.
 
 Fossil stores a user’s caps as an unordered string of ASCII characters,
 one capability per, [currently](./impl.md#choices) limited to
@@ -292,7 +296,7 @@ can’t clone from a read-only repo DB file over a local file path.
 
 Even more surprising to you may be the fact that user caps do not affect
 cloning and syncing over SSH! (Not unless you go [out of your way][sshfc]
-patch around it, at any rate.) When you make a change to such a
+to patch around it, at any rate.) When you make a change to such a
 repository, the stock Fossil behavior is that the change first goes to the
 local repo clone where file system
 permissions are all that matter, but then upon sync, the situation is

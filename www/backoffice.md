@@ -81,7 +81,7 @@ daily digest might not go out until somebody does visit a webpage.
 If this is a problem, an administrator can set up a cron job to
 periodically run:
 
->   fossil backoffice _REPOSITORY_
+    fossil backoffice _REPOSITORY_
 
 That command will cause backoffice processing to occur immediately.
 Note that this is almost never necessary for an internet-facing
@@ -104,12 +104,12 @@ on OpenBSD systems.
 To set up fully-manual backoffice, first disable the automatic backoffice
 using the "[backoffice-disable](/help?cmd=backoffice-disable)" setting.
 
->   fossil setting backoffice-disable on
+    fossil setting backoffice-disable on
 
 Then arrange to invoke the backoffice separately using a command
 like this:
 
->   fossil backoffice --poll 30 _REPOSITORY-LIST_
+    fossil backoffice --poll 30 _REPOSITORY-LIST_
 
 Multiple repositories can be named.  This one command will handle
 launching the backoffice for all of them.  There are additional useful
@@ -117,10 +117,10 @@ command-line options.  See the "[fossil backoffice](/help?cmd=backoffice)"
 documentation for details.
 
 The backoffice processes run manually using the "fossil backoffice"
-command do not normally use a lease.  That means that you run the
+command do not normally use a lease.  That means that if you run the
 "fossil backoffice" command with --poll and you forget to disable
 automatic backoffice by setting the "backoffice-disable" flag, then
-you might have one backoffice running due command and another due
+you might have one backoffice running due to a command and another due
 to a webpage access, both at the same time.  This is harmless.  The
 only downside is that it uses extra CPU time.
 
@@ -149,7 +149,7 @@ not a process still exists.
 You can print out a decoded copy of the current backoffice lease using
 this command:
 
->  fossil test-backoffice-lease -R _REPOSITORY_
+    fossil test-backoffice-lease -R _REPOSITORY_
 
 If a system has been idle for a long time, then there will be no
 backoffice processes.  (Either the process id entries in the lease
@@ -199,7 +199,7 @@ there are some debugging aids.
 We have already mentioned the command that shows the backoffice lease
 for a repository:
 
->  fossil test-backoffice-lease -R _REPOSITORY_
+    fossil test-backoffice-lease -R _REPOSITORY_
 
 Running that command every few seconds should show what is going on with
 backoffice processing in a particular repository.
@@ -212,7 +212,7 @@ backoffice works needs to be done.  If something is going wrong and
 backoffice leases are causing delays in webpage processing, then setting
 "backoffice-nodelay" to true can work around the problem until the bug
 can be fixed.  The "backoffice-logfile" setting is the name of a log
-file onto which is appended a short message everything a backoffice
+file onto which is appended a short message every time a backoffice
 process actually starts to do the backoffice work.  This log file can
 be used to verify that backoffice really is running, if there is any
 doubt.  The "backoffice-disable" setting prevents automatic backoffice

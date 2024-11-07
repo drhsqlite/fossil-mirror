@@ -449,7 +449,7 @@ void add_cmd(void){
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else{
-      char *zTreeName = &zName[nRoot];
+      char *zTreeName = file_case_preferred_name(g.zLocalRoot,&zName[nRoot]);
       if( !forceFlag && glob_match(pIgnore, zTreeName) ){
         Blob ans;
         char cReply;
@@ -470,6 +470,7 @@ void add_cmd(void){
          "INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)",
          zTreeName
       );
+      fossil_free(zTreeName);
     }
     blob_reset(&fullName);
   }
@@ -1058,7 +1059,7 @@ void mv_cmd(void){
   if( g.argc<4 ){
     usage("OLDNAME NEWNAME");
   }
-  zDest = g.argv[g.argc-1];
+  zDest = file_case_preferred_name(".",g.argv[g.argc-1]);
   db_begin_transaction();
   if( g.argv[1][0]=='r' ){ /* i.e. "rename" */
     moveFiles = 0;
@@ -1144,6 +1145,7 @@ void mv_cmd(void){
   undo_reset();
   db_end_transaction(0);
   if( moveFiles ) process_files_to_move(dryRunFlag);
+  fossil_free(zDest);
 }
 
 /*

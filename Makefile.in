@@ -9,6 +9,7 @@
 #    the following to point from the build directory to the src/ folder.
 #
 SRCDIR = @srcdir@/src
+TOPDIR = @srcdir@
 #### Upstream source files included directly in this repository.
 #
 SRCDIR_extsrc = @srcdir@/extsrc
@@ -52,7 +53,7 @@ TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H
 #
 # Fuzzing may be enable by appending -fsanitize=fuzzer -DFOSSIL_FUZZ
 # to the TCCFLAGS variable.
-# For more thorouth (but also slower) investigation
+# For more thorough (but also slower) investigation
 #      -fsanitize=fuzzer,undefined,address
 # might be more useful.
 
@@ -86,9 +87,16 @@ EMSDK_ENV = @EMSDK_ENV@
 EMCC_OPT = @EMCC_OPT@
 EMCC_WRAPPER = $(SRCDIR_tools)/emcc.sh
 
+# MAKE_COMPILATION_DB (yes/no) determines whether or not the
+# compile_commands.json file will be generated.
+MAKE_COMPILATION_DB = @MAKE_COMPILATION_DB@
+
 .PHONY: all tags
 
 include $(SRCDIR)/main.mk
+SQLITE_OPTIONS += @SQLITE_OPTIONS_EXT@
+SHELL_OPTIONS += @SQLITE_OPTIONS_EXT@
+# ^^^ must come after main.mk is included
 
 distclean: clean
 	-rm -f autoconfig.h config.log Makefile
@@ -123,11 +131,12 @@ Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 SRCTB := src-@FOSSIL_CI_PFX@.tar.gz
 IMGVER := fossil:@FOSSIL_CI_PFX@
 CNTVER := fossil-@FOSSIL_CI_PFX@
+CENGINE := docker
 container:
-	docker image inspect $(IMGVER) > /dev/null 2>&1 || \
+	$(CENGINE) image inspect $(IMGVER) > /dev/null 2>&1 || \
 		$(MAKE) container-image
-	docker container inspect $(CNTVER) > /dev/null 2>&1 || \
-		docker create \
+	$(CENGINE) container inspect $(CNTVER) > /dev/null 2>&1 || \
+		$(CENGINE) create \
 			--name $(CNTVER) \
 			--cap-drop AUDIT_WRITE \
 			--cap-drop CHOWN \
@@ -139,16 +148,16 @@ container:
 			--cap-drop SETFCAP \
 			--cap-drop SETPCAP \
 			--publish 8080:8080 \
-			$(DCFLAGS) $(IMGVER)
+			$(DCFLAGS) $(IMGVER) $(DCCMD)
 
 container-clean:
-	-docker container kill $(CNTVER)
-	-docker container rm   $(CNTVER)
-	-docker image     rm   $(IMGVER)
+	-$(CENGINE) container kill $(CNTVER)
+	-$(CENGINE) container rm   $(CNTVER)
+	-$(CENGINE) image     rm   $(IMGVER)
 
 container-image:
 	$(APPNAME) tarball --name src @FOSSIL_CI_PFX@ $(SRCTB)
-	docker buildx build \
+	$(CENGINE) buildx build \
 		--load \
 		--tag $(IMGVER) \
 		--build-arg FSLURL=$(SRCTB) \
@@ -156,12 +165,12 @@ container-image:
 	rm -f $(SRCTB)
 
 container-run container-start: container
-	docker start $(DSFLAGS) $(CNTVER)
+	$(CENGINE) start $(DSFLAGS) $(CNTVER)
 	@sleep 1   # decrease likelihood of logging race condition
-	docker container logs $(CNTVER)
+	$(CENGINE) container logs $(CNTVER)
 
 container-stop:
-	docker stop $(CNTVER)
+	$(CENGINE) stop $(CNTVER)
 
 container-version:
 	@echo $(CNTVER)

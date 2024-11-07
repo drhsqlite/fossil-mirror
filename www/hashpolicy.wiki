@@ -80,7 +80,7 @@ to allow artifacts to be named by either SHA1 or SHA3-256 hashes.
 (SHA3-256 is the only variant of SHA3 that
 Fossil uses for artifact naming, so for the remainder of this article
 it will be called simply "SHA3".  Similarly, "Hardened SHA1" will
-shortened to "SHA1" in the remaining text.)
+be shortened to "SHA1" in the remaining text.)
 
 To be clear: Fossil (version 2.0 and later)
 allows the SHA1 and SHA3 hashes to be mixed within
@@ -170,9 +170,9 @@ If you are still on Fossil 2.1 through 2.9 but you want Fossil to go
 ahead and start using SHA3 hashes, change the hash policy to
 "sha3" using a command like this:
 
-<blockquote><verbatim>
+<verbatim>
 fossil hash-policy sha3
-</verbatim></blockquote>
+</verbatim>
 
 The next check-in will use a SHA3 hash, so that when that check-in is pushed
 to colleagues, their clones will include the new SHA3-named artifact, so

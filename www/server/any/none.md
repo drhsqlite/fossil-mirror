@@ -30,15 +30,15 @@ You can omit the _REPOSITORY_ argument if you run one of the above
 commands from within a Fossil checkout directory to serve that
 repository:
 
-        $ fossil ui          # or...
-        $ fossil server
+    $ fossil ui          # or...
+    $ fossil server
 
 You can abbreviate Fossil sub-commands as long as they are unambiguous.
 “`server`” can currently be as short as “`ser`”.
 
 You can serve a directory containing multiple `*.fossil` files like so:
 
-        $ fossil server --port 9000 --repolist /path/to/repo/dir
+    $ fossil server --port 9000 --repolist /path/to/repo/dir
 
 There is an [example script](/file/tools/fslsrv) in the Fossil
 distribution that wraps `fossil server` to produce more complicated

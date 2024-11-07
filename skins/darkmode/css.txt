@@ -36,14 +36,14 @@ div.leftoftitle {
 }
 
 /* The header across the top of the page */
-div.header {
+header {
   display: table;
   width: 100%;
 }
 
 /* The main menu bar that appears at the top of the page beneath
 ** the header */
-div.mainmenu {
+nav.mainmenu {
   padding: 0.25em 0.5em;
   font-size: 0.9em;
   font-weight: bold;
@@ -53,7 +53,7 @@ div.mainmenu {
   border-bottom: 1px dotted rgba(200,200,200,0.3);
   z-index: 21;  /* just above hbdrop */
 }
-div#hbdrop {
+nav#hbdrop {
   background-color: #1f1f1f;
   border: 2px solid #303536;
   border-radius: 0 0 0.5em 0.5em;
@@ -64,7 +64,7 @@ div#hbdrop {
   z-index: 20;  /* just below mainmenu, but above timeline bubbles */
 }
 
-div.mainmenu, div.submenu, div.sectionmenu {
+nav.mainmenu, div.submenu, div.sectionmenu {
   color: #ffffffcc;
   background-color: #303536/*#0000ff60*/;
 }
@@ -82,12 +82,12 @@ a, a:visited {
    text-decoration: none;
 }
 a:visited {opacity: 0.8}
-div.mainmenu a, div.submenu a,
+nav.mainmenu a, div.submenu a,
 div.sectionmenu>a.button, div.submenu label,
-div.footer a {
+footer a {
   padding: 0.15em 0.5em;
 }
-div.mainmenu a.active {
+nav.mainmenu a.active {
   border-bottom: 1px solid #FF4500f0;
 }
 a:hover,
@@ -127,6 +127,10 @@ input[type=submit]:hover {
   background-color: #FF4500f0;
   color: rgba(24,24,24,0.8);
   outline: 0
+}
+input[type=submit]:disabled {
+  color: #363636;
+  background-color: #707070;
 }
 .button:focus,
 button:focus,
@@ -170,7 +174,7 @@ div.divider {
 }
 
 /* The footer at the very bottom of the page */
-div.footer {
+footer {
   clear: both;
   font-size: 0.8em;
   padding: 0.15em 0.5em;
@@ -386,6 +390,14 @@ span.timelineSecondary {
   height: 4px;
   background: #bbb
 }
+.tl-node.closed-leaf svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 10px;
+  height: 10px;
+  color: #bbb;
+}
 .tl-node.sel:after {
   content: '';
   position: absolute;
@@ -558,14 +570,26 @@ body.forum .debug {
     color: rgba(24,24,24,0.8);
 }
 
-body.forum .fileage tr:hover {
+body.forum .forumPosts.fileage tr:hover {
     background-color: #333;
     color: rgba(24,24,24,0.8);
+}
+body.forum .forumPosts.fileage tr:hover {
+    background-color: #333;
+    color: rgba(24,24,24,0.8);
+}
+body.forum .forumPosts.fileage tr:hover > td:nth-child(1),
+body.forum .forumPosts.fileage tr:hover > td:nth-child(3) {
+  color: #ffffffe0;
 }
 
 body.forum .forumPostBody > div blockquote {
     border: 1px inset;
     padding: 0 0.5em;
+}
+
+body.forum .forumPosts.fileage a:visited {
+  color: rgba(98, 150, 205, 0.9);
 }
 
 body.report table.report tr td { color: black }
@@ -576,4 +600,8 @@ body.tkt td.tktDspValue a { color: blue }
 body.branch .brlist > table > tbody > tr:hover:not(.selected),
 body.branch .brlist > table > tbody > tr.selected {
   background-color: #442800;
+}
+
+p.noMoreShun {
+  color: #e5e500;
 }

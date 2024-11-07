@@ -31,18 +31,26 @@ options {
     no-opt=0             => {Build without optimization}
     json=0               => {Build with fossil JSON API enabled}
     with-emsdk:path      => {Directory containing the Emscripten SDK}
+    compile-commands=0 =>
+      "Check for compile_commands.json support."
 }
 
 # Update the minimum required SQLite version number here, and also
 # in src/main.c near the sqlite3_libversion_number() call.  Take care
 # that both places agree!
-define MINIMUM_SQLITE_VERSION "3.38.0"
+define MINIMUM_SQLITE_VERSION "3.46.0"
 
 # This is useful for people wanting Fossil to use an external SQLite library
 # to compare the one they have against the minimum required
 if {[opt-bool print-minimum-sqlite-version]} {
     puts [get-define MINIMUM_SQLITE_VERSION]
     exit 0
+}
+
+set outOfTreeBuild 0
+if {![file exists fossil.1]} {
+  puts "This appears to be an out-of-tree build."
+  set outOfTreeBuild 1
 }
 
 # sqlite wants these types if possible
@@ -98,6 +106,7 @@ if {[string equal false [get-define TCLSH]]} {
     }
 }
 
+define CFLAGS [get-env CFLAGS "-g -O2"]
 define EXTRA_CFLAGS "-Wall"
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
@@ -106,6 +115,8 @@ define USE_MMAN_H 0
 define USE_SEE 0
 define SQLITE3_ORIGIN 0
 # SQLITE3_ORIGIN 0 = src/sqlite3, 1=src/sqlite3-see.c, 2=client-provided
+define SQLITE_OPTIONS_EXT ""
+# SQLITE_OPTIONS_EXT => build-dependent CFLAGS for sqlite3.c and shell.c
 
 # Maintain the C89/C90-style order of variable declarations before statements.
 # Check if the compiler supports the respective warning flag.
@@ -180,9 +191,10 @@ if {![opt-bool internal-sqlite]} {
   find_system_sqlite
 
   proc test_system_sqlite {} {
-    # Check compatibility of the system SQLite library by running the sqlcompttest.c
-    # program in the source tree
-    # passes MINIMUM_SQLITE_VERSION set at the top of this file to sqlcompttest.c
+    # Check compatibility of the system SQLite library by running the
+    # sqlcompttest.c program in the source tree passes
+    # MINIMUM_SQLITE_VERSION set at the top of this file to
+    # sqlcompttest.c
     #
     set cmdline {}
     lappend cmdline {*}[get-define CCACHE]
@@ -360,14 +372,46 @@ if {$zlibpath eq "tree"} {
   set ::zlib_lib $zlibdir/libz.a
   msg-result "Using zlib in source tree"
 } else {
+  set cftry {""}
+  set ldtry {""}
   if {$zlibpath ni {auto ""}} {
-    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-    define-append EXTRA_CFLAGS -I$zlibpath
-    define-append EXTRA_LDFLAGS -L$zlibpath
-    msg-result "Using zlib from $zlibpath"
+    lappend cftry "-I$zlibpath"
+    lappend cftry "-I$zlibpath/include"
+    lappend ldtry "-L$zlibpath"
+    lappend ldtry "-L$zlibpath/lib"
   }
-  if {![cc-check-includes zlib.h] || ![check-function-in-lib inflateEnd z]} {
-    user-error "zlib not found please install it or specify the location with --with-zlib"
+
+  # Reverse the list of tests so we check most-specific to least, else
+  # platform devel files will shadow local --with-zlib overrides.
+  foreach c [lreverse $cftry] {
+    if {[cc-with [list -cflags $c] {cc-check-includes zlib.h}]} {
+      if {$c eq ""} {
+        msg-result "Found zlib.h in default include path"
+      } else {
+        define-append EXTRA_CFLAGS "$c"
+        msg-result "Found zlib.h via $c"
+      }
+      set cfound $c
+      break
+    }
+  }
+  if {![info exists cfound]} {
+    user-error "zlib.h not found; either install it or specify its location via --with-zlib"
+  }
+  foreach lcheck [lreverse $ldtry] {
+    if {[cc-with [list -cflags "$cfound $lcheck"] {check-function-in-lib inflateEnd z}]} {
+      if {$lcheck eq ""} {
+        msg-result "Linked to zlib via default library path"
+      } else {
+        define-append EXTRA_LDFLAGS "$lcheck"
+        msg-result "Linked to zlib via $lcheck"
+      }
+      if {![check-function-in-lib compressBound z]} {
+        puts "Notice: disabling zlib compression in the SQL shell"
+        define-append SQLITE_OPTIONS_EXT {-USQLITE_HAVE_ZLIB}
+      }
+      break
+    }
   }
   set ::zlib_lib -lz
 }
@@ -420,6 +464,8 @@ if {$ssldirs ne "none"} {
         define FOSSIL_ENABLE_SSL
         define-append EXTRA_CFLAGS $cflags
         define-append EXTRA_LDFLAGS $ldflags
+        define-append CFLAGS $cflags
+        define-append LDFLAGS $ldflags
         if {[info exists ssllibs]} {
             define-append LIBS $ssllibs
         } else {
@@ -620,6 +666,7 @@ if {$tclpath ne ""} {
         define-append LIBS $libs
     }
     define-append EXTRA_CFLAGS $cflags
+    define-append CFLAGS $cflags
     if {[info exists zlibpath] && $zlibpath eq "tree"} {
       #
       # NOTE: When using zlib in the source tree, prevent Tcl from
@@ -707,7 +754,8 @@ if {[cctest -link 1 -includes {unistd.h} -code "getpass(0);"]} {
 }
 
 # Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
-if {![cc-check-functions getloadavg]} {
+if {![cc-check-functions getloadavg] ||
+    ![cctest -link 1 -includes {unistd.h} -code "double a\[3\]; getloadavg(a,3);"]} {
   define FOSSIL_OMIT_LOAD_AVERAGE 1
   msg-result "Load average support unavailable"
 }
@@ -726,9 +774,41 @@ if {[opt-bool fusefs]} {
   } elseif {[cc-check-function-in-lib fuse_mount fuse]} {
      define-append EXTRA_CFLAGS -DFOSSIL_HAVE_FUSEFS
      define FOSSIL_HAVE_FUSEFS 1
-     define-append LIBS -lfuse
      msg-result "FuseFS support enabled"
   }
+}
+
+########################################################################
+# Checks the compiler for compile_commands.json support.
+#
+# Returns 1 if supported, else 0. Defines MAKE_COMPILATION_DB to "yes"
+# if supported, "no" if not.
+proc check-compile-commands {} {
+    msg-checking "compile_commands.json support... "
+    if {[cctest -lang c -cflags {/dev/null -MJ} -source {}]} {
+        # This test reportedly incorrectly succeeds on one of
+        # Martin G.'s older systems.
+        msg-result "compiler supports compile_commands.json"
+        define MAKE_COMPILATION_DB yes
+        return 1
+    } else {
+        msg-result "compiler does not support compile_commands.json"
+        define MAKE_COMPILATION_DB no
+        return 0
+    }
+}
+
+define MAKE_COMPILATION_DB no
+if {!$outOfTreeBuild} {
+  if {[opt-bool compile-commands]} {
+    check-compile-commands
+  } else {
+    puts "Use --compile-commands to enable check for compile-commands-capable compiler."
+  }
+} else {
+  puts "Disabling compile_commands.json check for out-of-tree build."
+  # This is an attempt to resolve the problem reported at
+  # https://fossil-scm.org/forum/forumpost/d19061d09a8179d0
 }
 
 # Add -fsanitize compile and link options late: we don't want the C
@@ -775,7 +855,6 @@ if {[get-define EMSDK_HOME] ne ""} {
 # tarball once only, keeping it in the local Docker/Podman cache.
 set ci [readfile "$::autosetup(srcdir)/manifest.uuid"]
 define FOSSIL_CI_PFX [string range $ci 0 11]
-make-template containers/os-release.in
 
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

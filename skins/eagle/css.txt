@@ -49,14 +49,14 @@ div.status {
 }
 
 /* The header across the top of the page */
-div.header {
+header {
   display: table;
   width: 100%;
 }
 
 /* The main menu bar that appears at the top of the page beneath
 ** the header */
-div.mainmenu {
+nav.mainmenu {
   padding: 5px 10px 5px 10px;
   font-size: 0.9em;
   font-weight: bold;
@@ -68,7 +68,7 @@ div.mainmenu {
   color: white;
 }
 
-div#hbdrop {
+nav#hbdrop {
   background-color: #485D7B;
   border-radius: 0 0 15px 15px;
   border-left: 0.5em solid #76869d;
@@ -89,14 +89,14 @@ div.submenu, div.sectionmenu {
   background-color: #485D7B;
   color: white;
 }
-div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited,
+nav.mainmenu a, nav.mainmenu a:visited, div.submenu a, div.submenu a:visited,
 div.sectionmenu>a.button:link, div.sectionmenu>a.button:visited,
 div.submenu label {
   padding: 3px 10px 3px 10px;
   color: white;
   text-decoration: none;
 }
-div.mainmenu a:hover, div.submenu a:hover, div.sectionmenu>a.button:hover,
+nav.mainmenu a:hover, div.submenu a:hover, div.sectionmenu>a.button:hover,
 div.submenu label:hover {
   text-decoration: underline;
 }
@@ -133,7 +133,7 @@ div.divider {
 }
 
 /* The footer at the very bottom of the page */
-div.footer {
+footer {
   clear: both;
   font-size: 0.8em;
   margin-top: 12px;
@@ -210,6 +210,16 @@ table.timelineTable {
   width: 4px;
   height: 4px;
   background: #fff;
+}
+
+/* closed leaf commit marker */
+.tl-node.closed-leaf svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 10px;
+  height: 10px;
+  color: #fff;
 }
 
 /* up arrow */
@@ -401,6 +411,9 @@ div.forumSel {
 div.forumObs {
   color: white;
 }
+body.forum .forumPosts.fileage a:visited {
+  color: rgba(176,176,176,1.0);
+}
 
 .fileage td {
   font-family: "courier new";
@@ -415,7 +428,12 @@ table.numbered-lines td.line-numbers span.selected-line {
 }
 
 .statistics-report-graph-line {
+  border: 2px solid #7EA2D9;
   background-color: #7EA2D9;
+}
+.statistics-report-graph-extra {
+  border: 2px solid #7EA2D9;
+  border-left-style: none;
 }
 
 .timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
@@ -435,4 +453,8 @@ table.numbered-lines td.line-numbers span.selected-line {
 body.branch .brlist > table > tbody > tr:hover:not(.selected),
 body.branch .brlist > table > tbody > tr.selected {
   background-color: #7EA2D9;
+}
+
+p.noMoreShun {
+  color: #e5e500;
 }

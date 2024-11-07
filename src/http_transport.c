@@ -84,7 +84,7 @@ void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
 static int is_safe_fossil_command(const char *zFossil){
   static const char *const azSafe[] = { "*/fossil", "*/fossil.exe", "*/echo" };
   int i;
-  for(i=0; i<sizeof(azSafe)/sizeof(azSafe[0]); i++){
+  for(i=0; i<(int)(sizeof(azSafe)/sizeof(azSafe[0])); i++){
     if( sqlite3_strglob(azSafe[i], zFossil)==0 ) return 1;
     if( strcmp(azSafe[i]+2, zFossil)==0 ) return 1;
   }
@@ -133,9 +133,16 @@ int transport_ssh_open(UrlData *pUrlData){
   }else{
     blob_append_escaped_arg(&zCmd, pUrlData->name, 0);
   }
-  if( !is_safe_fossil_command(pUrlData->fossil) ){
+  if( (pUrlData->flags & URL_SSH_EXE)!=0
+   && !is_safe_fossil_command(pUrlData->fossil)
+  ){
     fossil_fatal("the ssh:// URL is asking to run an unsafe command [%s] on "
                  "the server.", pUrlData->fossil);
+  }
+  if( (pUrlData->flags & URL_SSH_EXE)==0
+   && (pUrlData->flags & URL_SSH_PATH)!=0 
+  ){
+    ssh_add_path_argument(&zCmd);
   }
   blob_append_escaped_arg(&zCmd, pUrlData->fossil, 1);
   blob_append(&zCmd, " test-http", 10);
@@ -314,7 +321,7 @@ void transport_rewind(UrlData *pUrlData){
 */
 static int transport_fetch(UrlData *pUrlData, char *zBuf, int N){
   int got;
-  if( sshIn ){
+  if( pUrlData->isSsh ){
     int x;
     int wanted = N;
     got = 0;

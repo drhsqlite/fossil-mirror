@@ -68,7 +68,7 @@ struct Archive {
 ** Ensure that blob pBlob is at least nMin bytes in size.
 */
 static void zip_blob_minsize(Blob *pBlob, int nMin){
-  if( blob_size(pBlob)<nMin ){
+  if( (int)blob_size(pBlob)<nMin ){
     blob_resize(pBlob, nMin);
   }
 }
@@ -140,7 +140,7 @@ static int archiveDeviceCharacteristics(sqlite3_file *pFile){
 }
 
 static int archiveOpen(
-  sqlite3_vfs *pVfs, const char *zName, 
+  sqlite3_vfs *pVfs, const char *zName,
   sqlite3_file *pFile, int flags, int *pOutFlags
 ){
   static struct sqlite3_io_methods methods = {
@@ -249,8 +249,8 @@ void zip_set_timedate(double rDate){
 */
 static void zip_add_file_to_zip(
   Archive *p,
-  const char *zName, 
-  const Blob *pFile, 
+  const char *zName,
+  const Blob *pFile,
   int mPerm
 ){
   z_stream stream;
@@ -376,8 +376,8 @@ static void zip_add_file_to_zip(
 
 static void zip_add_file_to_sqlar(
   Archive *p,
-  const char *zName, 
-  const Blob *pFile, 
+  const char *zName,
+  const Blob *pFile,
   int mPerm
 ){
   int nName = (int)strlen(zName);
@@ -398,12 +398,12 @@ static void zip_add_file_to_sqlar(
     p->vfs.xCurrentTime = archiveCurrentTime;
     p->vfs.xGetLastError = archiveGetLastError;
     sqlite3_vfs_register(&p->vfs, 0);
-    sqlite3_open_v2("file:xyz.db", &p->db, 
+    sqlite3_open_v2("file:xyz.db", &p->db,
         SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE, p->vfs.zName
     );
     assert( p->db );
     blob_zero(&p->tmp);
-    sqlite3_exec(p->db, 
+    sqlite3_exec(p->db,
         "PRAGMA page_size=512;"
         "PRAGMA journal_mode = off;"
         "PRAGMA cache_spill = off;"
@@ -416,8 +416,8 @@ static void zip_add_file_to_sqlar(
           "data BLOB               -- compressed content\n"
         ");", 0, 0, 0
     );
-    sqlite3_prepare(p->db, 
-        "INSERT INTO sqlar VALUES(?, ?, ?, ?, ?)", -1, 
+    sqlite3_prepare(p->db,
+        "INSERT INTO sqlar VALUES(?, ?, ?, ?, ?)", -1,
         &p->pInsert, 0
     );
     assert( p->pInsert );
@@ -439,11 +439,11 @@ static void zip_add_file_to_sqlar(
     if( mPerm==PERM_LNK ){
       sqlite3_bind_int(p->pInsert, 2, 0120755);
       sqlite3_bind_int(p->pInsert, 4, -1);
-      sqlite3_bind_text(p->pInsert, 5, 
+      sqlite3_bind_text(p->pInsert, 5,
           blob_buffer(pFile), blob_size(pFile), SQLITE_STATIC
       );
     }else{
-      int nIn = blob_size(pFile);
+      unsigned int nIn = blob_size(pFile);
       unsigned long int nOut = nIn;
       sqlite3_bind_int(p->pInsert, 2, mPerm==PERM_EXE ? 0100755 : 0100644);
       sqlite3_bind_int(p->pInsert, 4, nIn);
@@ -451,12 +451,12 @@ static void zip_add_file_to_sqlar(
       compress( (unsigned char*)
           blob_buffer(&p->tmp), &nOut, (unsigned char*)blob_buffer(pFile), nIn
       );
-      if( nOut>=nIn ){
-        sqlite3_bind_blob(p->pInsert, 5, 
+      if( nOut>=(unsigned long)nIn ){
+        sqlite3_bind_blob(p->pInsert, 5,
             blob_buffer(pFile), blob_size(pFile), SQLITE_STATIC
         );
       }else{
-        sqlite3_bind_blob(p->pInsert, 5, 
+        sqlite3_bind_blob(p->pInsert, 5,
             blob_buffer(&p->tmp), nOut, SQLITE_STATIC
         );
       }
@@ -469,8 +469,8 @@ static void zip_add_file_to_sqlar(
 
 static void zip_add_file(
   Archive *p,
-  const char *zName, 
-  const Blob *pFile, 
+  const char *zName,
+  const Blob *pFile,
   int mPerm
 ){
   if( p->eType==ARCHIVE_ZIP ){
@@ -788,7 +788,7 @@ static void archive_cmd(int eType){
        db_get("project-name", "unnamed"), rid, rid
     );
   }
-  zip_of_checkin(eType, rid, zOut ? &zip : 0, 
+  zip_of_checkin(eType, rid, zOut ? &zip : 0,
                  zName, pInclude, pExclude, listFlag);
   glob_free(pInclude);
   glob_free(pExclude);
@@ -866,31 +866,41 @@ void sqlar_cmd(void){
 ** WEBPAGE: sqlar
 ** WEBPAGE: zip
 **
-** Generate a ZIP or SQL archive for the check-in specified by the "r"
-** query parameter.  Return the archive as the HTTP reply content.
+** URLs:
 **
-** If the NAME contains one "/" then the part before the "/" is taken
-** as the TAG and the part after the "/" becomes the true name.  Hence,
-** the following URLs are all equivalent:
+**     /zip/[VERSION/]NAME.zip
+**     /sqlar/[VERSION/]NAME.sqlar
 **
-**     /sqlar/508c42a6398f8/download.sqlar
-**     /sqlar?r=508c42a6398f8&name=download.sqlar
-**     /sqlar/download.sqlar?r=508c42a6398f8
-**     /sqlar?name=508c42a6398f8/download.sqlar
+** Generate a ZIP Archive or an SQL Archive for the check-in specified by
+** VERSION.  The archive is called NAME.zip or NAME.sqlar and has a top-level
+** directory called NAME.
+**
+** The optional VERSION element defaults to "trunk" per the r= rules below.
+** All of the following URLs are equivalent:
+**
+**      /zip/release/xyz.zip
+**      /zip?r=release&name=xyz.zip
+**      /zip/xyz.zip?r=release
+**      /zip?name=release/xyz.zip
 **
 ** Query parameters:
 **
-**   name=NAME           The base name of the output file.  The default
-**                       value is a configuration parameter in the project
-**                       settings.  A prefix of the name, omitting the
-**                       extension, is used as the top-most directory name.
+**   name=[CKIN/]NAME    The optional CKIN component of the name= parameter
+**                       identifies the check-in from which the archive is
+**                       constructed.  If CKIN is omitted and there is no
+**                       r= query parameter, then use "trunk".  NAME is the
+**                       name of the download file.  The top-level directory
+**                       in the generated archive is called by NAME with the
+**                       file extension removed.
 **
-**   r=TAG               The check-in that is turned into a ZIP archive.
-**                       Defaults to "trunk".  This query parameter used to
-**                       be called "uuid" and the older "uuid" name is still
-**                       accepted for backwards compatibility.  If this
-**                       query parameter is omitted, the latest "trunk"
-**                       check-in is used.
+**   r=TAG               TAG identifies the check-in that is turned into an
+**                       SQL or ZIP archive.  The default value is "trunk".
+**                       If r= is omitted and if the name= query parameter
+**                       contains one "/" character then the of part the
+**                       name= value before the / becomes the TAG and the
+**                       part of the name= value  after the / is the download
+**                       filename.  If no check-in is specified by either
+**                       name= or r=, then "trunk" is used.
 **
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=
@@ -939,14 +949,14 @@ void baseline_zip_page(void){
   if( zInclude==0 && zExclude==0 ){
     etag_check_for_invariant_name(z);
   }
-  if( eType==ARCHIVE_ZIP 
+  if( eType==ARCHIVE_ZIP
    && nName>4
    && fossil_strcmp(&zName[nName-4], ".zip")==0
   ){
     /* Special case:  Remove the ".zip" suffix.  */
     nName -= 4;
     zName[nName] = 0;
-  }else if( eType==ARCHIVE_SQLAR 
+  }else if( eType==ARCHIVE_SQLAR
    && nName>6
    && fossil_strcmp(&zName[nName-6], ".sqlar")==0
   ){
@@ -983,13 +993,13 @@ void baseline_zip_page(void){
   style_set_current_feature("zip");
   if( P("debug")!=0 ){
     style_header("%s Archive Generator Debug Screen", zType);
-    @ zName = "%h(zName)"<br />
-    @ rid = %d(rid)<br />
+    @ zName = "%h(zName)"<br>
+    @ rid = %d(rid)<br>
     if( zInclude ){
-      @ zInclude = "%h(zInclude)"<br />
+      @ zInclude = "%h(zInclude)"<br>
     }
     if( zExclude ){
-      @ zExclude = "%h(zExclude)"<br />
+      @ zExclude = "%h(zExclude)"<br>
     }
     @ zKey = "%h(zKey)"
     style_finish_page();
@@ -1001,11 +1011,12 @@ void baseline_zip_page(void){
     cgi_query_parameters_to_hidden();
     @ <p>%s(zType) Archive named <b>%h(zName).%s(g.zPath)</b>
     @ holding the content of check-in <b>%h(zRid)</b>:
-    @ <input type="submit" value="Download" />
+    @ <input type="submit" value="Download">
     @ </form>
     style_finish_page();
     return;
   }
+  cgi_check_for_malice();
   blob_zero(&zip);
   if( cache_read(&zip, zKey)==0 ){
     zip_of_checkin(eType, rid, &zip, zName, pInclude, pExclude, 0);

@@ -39,7 +39,7 @@
 **
 ** The code in this file abstracts the web-request so that downstream
 ** modules that generate the body of the reply (based on the requested page)
-** do not need to know if the request is coming from CGI, direct HTTP, 
+** do not need to know if the request is coming from CGI, direct HTTP,
 ** SCGI, or some other means.
 **
 ** This module gathers information about web page request into a key/value
@@ -72,12 +72,14 @@
 # include <ws2tcpip.h>
 #else
 # include <sys/socket.h>
+# include <sys/un.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/times.h>
 # include <sys/time.h>
 # include <sys/wait.h>
 # include <sys/select.h>
+# include <errno.h>
 #endif
 #ifdef __EMX__
   typedef int socklen_t;
@@ -96,13 +98,15 @@
 ** or cookie "x", or NULL if there is no such parameter or cookie.  PD("x","y")
 ** does the same except "y" is returned in place of NULL if there is not match.
 */
-#define P(x)        cgi_parameter((x),0)
-#define PD(x,y)     cgi_parameter((x),(y))
-#define PT(x)       cgi_parameter_trimmed((x),0)
-#define PDT(x,y)    cgi_parameter_trimmed((x),(y))
-#define PB(x)       cgi_parameter_boolean(x)
-#define PCK(x)      cgi_parameter_checked(x,1)
-#define PIF(x,y)    cgi_parameter_checked(x,y)
+#define P(x)          cgi_parameter((x),0)
+#define PD(x,y)       cgi_parameter((x),(y))
+#define PT(x)         cgi_parameter_trimmed((x),0)
+#define PDT(x,y)      cgi_parameter_trimmed((x),(y))
+#define PB(x)         cgi_parameter_boolean(x)
+#define PCK(x)        cgi_parameter_checked(x,1)
+#define PIF(x,y)      cgi_parameter_checked(x,y)
+#define P_NoBot(x)    cgi_parameter_nosql((x),0)
+#define PD_NoBot(x,y) cgi_parameter_nosql((x),(y))
 
 /*
 ** Shortcut for the cgi_printf() routine.  Instead of using the
@@ -314,13 +318,11 @@ void cgi_set_cookie(
   }
   if( lifetime!=0 ){
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly; "
-       "%s Version=1\r\n",
+       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly; %s\r\n",
        zName, lifetime>0 ? zValue : "null", zPath, lifetime, zSecure);
   }else{
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; HttpOnly; "
-       "%s Version=1\r\n",
+       "Set-Cookie: %s=%t; Path=%s; HttpOnly; %s\r\n",
        zName, zValue, zPath, zSecure);
   }
 }
@@ -483,7 +485,7 @@ void cgi_reply(void){
 
   if( g.fullHttpReply ){
     if( rangeEnd>0
-     && iReplyStatus==200 
+     && iReplyStatus==200
      && fossil_strcmp(P("REQUEST_METHOD"),"GET")==0
     ){
       iReplyStatus = 206;
@@ -497,7 +499,13 @@ void cgi_reply(void){
     assert( rangeEnd==0 );
     blob_appendf(&hdr, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
-  if( etag_tag()[0]!=0 ){
+  if( etag_tag()[0]!=0
+   && iReplyStatus==200
+   && strcmp(zContentType,"text/html")!=0
+  ){
+    /* Do not cache HTML replies as those will have been generated and
+    ** will likely, therefore, contains a nonce and we want that nonce to
+    ** be different every time. */
     blob_appendf(&hdr, "ETag: %s\r\n", etag_tag());
     blob_appendf(&hdr, "Cache-Control: max-age=%d\r\n", etag_maxage());
     if( etag_mtime()>0 ){
@@ -518,7 +526,7 @@ void cgi_reply(void){
 
   /* Add headers to turn on useful security options in browsers. */
   blob_appendf(&hdr, "X-Frame-Options: SAMEORIGIN\r\n");
-  /* This stops fossil pages appearing in frames or iframes, preventing
+  /* The previous stops fossil pages appearing in frames or iframes, preventing
   ** click-jacking attacks on supporting browsers.
   **
   ** Other good headers would be
@@ -534,9 +542,6 @@ void cgi_reply(void){
   ** a CGI script.
   */
 
-  /* Content intended for logged in users should only be cached in
-  ** the browser, not some shared location.
-  */
   if( iReplyStatus!=304 ) {
     blob_appendf(&hdr, "Content-Type: %s%s\r\n", zContentType,
                  content_type_charset(zContentType));
@@ -561,7 +566,7 @@ void cgi_reply(void){
     if( iReplyStatus==206 ){
       blob_appendf(&hdr, "Content-Range: bytes %d-%d/%d\r\n",
               rangeStart, rangeEnd-1, total_size);
-      total_size = rangeEnd - rangeStart; 
+      total_size = rangeEnd - rangeStart;
     }
     blob_appendf(&hdr, "Content-Length: %d\r\n", total_size);
   }else{
@@ -699,20 +704,61 @@ int cgi_same_origin(void){
 }
 
 /*
-** Return true if the current request appears to be safe from a
-** Cross-Site Request Forgery (CSRF) attack.  Conditions that must
-** be met:
-**
-**    *   The HTTP_REFERER must have the same origin
-**    *   The REQUEST_METHOD must be POST - or requirePost==0
+** Return true if the current CGI request is a POST request
 */
-int cgi_csrf_safe(int requirePost){
-  if( requirePost ){
-    const char *zMethod = P("REQUEST_METHOD");
-    if( zMethod==0 ) return 0;
-    if( strcmp(zMethod,"POST")!=0 ) return 0;
+static int cgi_is_post_request(void){
+  const char *zMethod = P("REQUEST_METHOD");
+  if( zMethod==0 ) return 0;
+  if( strcmp(zMethod,"POST")!=0 ) return 0;
+  return  1;
+}
+
+/*
+** Return true if the current request appears to be safe from a
+** Cross-Site Request Forgery (CSRF) attack.  The level of checking
+** is determined by the parameter.  The higher the number, the more
+** secure we are:
+**
+**    0:     Request must come from the same origin
+**    1:     Same origin and must be a POST request
+**    2:     All of the above plus must have a valid CSRF token
+**
+** Results are cached in the g.okCsrf variable.  The g.okCsrf value
+** has meaning as follows:
+**
+**    -1:   Not a secure request
+**     0:   Status unknown
+**     1:   Request comes from the same origin
+**     2:   (1) plus it is a POST request
+**     3:   (2) plus there is a valid "csrf" token in the request
+*/
+int cgi_csrf_safe(int securityLevel){
+  if( g.okCsrf<0 ) return 0;
+  if( g.okCsrf==0 ){
+    if( !cgi_same_origin() ){
+      g.okCsrf = -1;
+    }else{
+      g.okCsrf = 1;
+      if( cgi_is_post_request() ){
+        g.okCsrf = 2;
+        if( fossil_strcmp(P("csrf"), g.zCsrfToken)==0 ){
+          g.okCsrf = 3;
+        }
+      }
+    }
   }
-  return cgi_same_origin();
+  return g.okCsrf >= (securityLevel+1);
+}
+
+/*
+** Verify that CSRF defenses are maximal - that the request comes from
+** the same origin, that it is a POST request, and that there is a valid
+** "csrf" token.  If this is not the case, fail immediately.
+*/
+void cgi_csrf_verify(void){
+  if( !cgi_csrf_safe(2) ){
+    fossil_fatal("Cross-site Request Forgery detected");
+  }
 }
 
 /*
@@ -729,6 +775,7 @@ static struct QParam {   /* One entry for each query parameter or cookie */
   int seq;                  /* Order of insertion */
   char isQP;                /* True for query parameters */
   char cTag;                /* Tag on query parameters */
+  char isFetched;           /* 1 if the var is requested via P/PD() */
 } *aParamQP;             /* An array of all parameters and cookies */
 
 /*
@@ -756,6 +803,7 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
   aParamQP[nUsedQP].seq = seqQP++;
   aParamQP[nUsedQP].isQP = isQP;
   aParamQP[nUsedQP].cTag = 0;
+  aParamQP[nUsedQP].isFetched = 0;
   nUsedQP++;
   sortQP = 1;
 }
@@ -852,6 +900,19 @@ void cgi_delete_query_parameter(const char *zName){
       return;
     }
   }
+}
+
+/*
+** Return the number of query parameters.  Cookies and environment variables
+** do not count.  Also, do not count the special QP "name".
+*/
+int cgi_qp_count(void){
+  int cnt = 0;
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( aParamQP[i].isQP && fossil_strcmp(aParamQP[i].zName,"name")!=0 ) cnt++;
+  }
+  return cnt;
 }
 
 /*
@@ -1194,7 +1255,7 @@ void cgi_trace(const char *z){
 }
 
 /* Forward declaration */
-static NORETURN void malformed_request(const char *zMsg);
+static NORETURN void malformed_request(const char *zMsg, ...);
 
 /*
 ** Checks the QUERY_STRING environment variable, sets it up
@@ -1212,7 +1273,7 @@ int cgi_setup_query_string(void){
     add_param_list(z, '&');
     z = (char*)P("skin");
     if( z ){
-      char *zErr = skin_use_alternative(z, 2);
+      char *zErr = skin_use_alternative(z, 2, SKIN_FROM_QPARAM);
       ++rc;
       if( !zErr && P("once")==0 ){
         cookie_write_parameter("skin","skin",z);
@@ -1267,7 +1328,7 @@ int cgi_setup_query_string(void){
 **      |       HTTP_HOST      |        PATH_INFO     QUERY_STRING
 **      |                      |
 **    REQUEST_SCHEMA         SCRIPT_NAME
-**               
+**
 */
 void cgi_init(void){
   char *z;
@@ -1277,6 +1338,7 @@ void cgi_init(void){
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
   const char *zPathInfo = cgi_parameter("PATH_INFO",0);
+  const char *zContentLength = 0;
 #ifdef _WIN32
   const char *zServerSoftware = cgi_parameter("SERVER_SOFTWARE",0);
 #endif
@@ -1304,7 +1366,7 @@ void cgi_init(void){
 #ifdef _WIN32
   /* The Microsoft IIS web server does not define REQUEST_URI, instead it uses
   ** PATH_INFO for virtually the same purpose.  Define REQUEST_URI the same as
-  ** PATH_INFO and redefine PATH_INFO with SCRIPT_NAME removed from the 
+  ** PATH_INFO and redefine PATH_INFO with SCRIPT_NAME removed from the
   ** beginning. */
   if( zServerSoftware && strstr(zServerSoftware, "Microsoft-IIS") ){
     int i, j;
@@ -1363,7 +1425,7 @@ void cgi_init(void){
     add_param_list(z, ';');
     z = (char*)cookie_value("skin",0);
     if(z){
-      skin_use_alternative(z, 2);
+      skin_use_alternative(z, 2, SKIN_FROM_COOKIE);
     }
   }
 
@@ -1374,7 +1436,15 @@ void cgi_init(void){
     g.zIpAddr = fossil_strdup(z);
   }
 
-  len = atoi(PD("CONTENT_LENGTH", "0"));
+  zContentLength = P("CONTENT_LENGTH");
+  if( zContentLength==0 ){
+    len = 0;
+    if( sqlite3_stricmp(PD("REQUEST_METHOD",""),"POST")==0 ){
+      malformed_request("missing CONTENT_LENGTH on a POST method");
+    }
+  }else{
+    len = atoi(zContentLength);
+  }
   zType = P("CONTENT_TYPE");
   zSemi = zType ? strchr(zType, ';') : 0;
   if( zSemi ){
@@ -1483,6 +1553,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
     c = fossil_strcmp(aParamQP[mid].zName, zName);
     if( c==0 ){
       CGIDEBUG(("mem-match [%s] = [%s]\n", zName, aParamQP[mid].zValue));
+      aParamQP[mid].isFetched = 1;
       return aParamQP[mid].zValue;
     }else if( c>0 ){
       hi = mid-1;
@@ -1505,6 +1576,65 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   }
   CGIDEBUG(("no-match [%s]\n", zName));
   return zDefault;
+}
+
+/*
+** Renders the "begone, spider" page and exits.
+*/
+static void cgi_begone_spider(const char *zName){
+  Blob content = empty_blob;
+  cgi_set_content(&content);
+  style_set_current_feature("test");
+  style_submenu_enable(0);
+  style_header("Malicious Query Detected");
+  @ <h2>Begone, Knave!</h2>
+  @ <p>This page was generated because Fossil detected an (unsuccessful)
+  @ SQL injection attack or other nefarious content in your HTTP request.
+  @
+  @ <p>If you believe you are innocent and have reached this page in error,
+  @ contact the Fossil developers on the Fossil-SCM Forum.  Type
+  @ "fossil-scm forum" into any search engine to locate the Fossil-SCM Forum.
+  style_finish_page();
+  cgi_set_status(418,"I'm a teapot");
+  cgi_reply();
+  fossil_errorlog("Xpossible hack attempt - 418 response on \"%s\"", zName);
+  exit(0);
+}
+
+/*
+** If looks_like_sql_injection() returns true for the given string, calls
+** cgi_begone_spider() and does not return, else this function has no
+** side effects. The range of checks performed by this function may
+** be extended in the future.
+**
+** Checks are omitted for any logged-in user.
+**
+** This is NOT a defense against SQL injection.  Fossil should easily be
+** proof against SQL injection without this routine.  Rather, this is an
+** attempt to avoid denial-of-service caused by persistent spiders that hammer
+** the server with dozens or hundreds of SQL injection attempts per second
+** against pages (such as /vdiff) that are expensive to compute.  In other
+** words, this is an effort to reduce the CPU load imposed by malicious
+** spiders.  It is not an effect defense against SQL injection vulnerabilities.
+*/
+void cgi_value_spider_check(const char *zTxt, const char *zName){
+  if( g.zLogin==0 && looks_like_sql_injection(zTxt) ){
+    cgi_begone_spider(zName);
+  }
+}
+
+/*
+** A variant of cgi_parameter() with the same semantics except that if
+** cgi_parameter(zName,zDefault) returns a value other than zDefault
+** then it passes that value to cgi_value_spider_check().
+*/
+const char *cgi_parameter_nosql(const char *zName, const char *zDefault){
+  const char *zTxt = cgi_parameter(zName, zDefault);
+
+  if( zTxt!=zDefault ){
+    cgi_value_spider_check(zTxt, zName);
+  }
+  return zTxt;
 }
 
 /*
@@ -1663,6 +1793,7 @@ void cgi_load_environment(void){
     "FOSSIL_FORCE_TICKET_MODERATION", "FOSSIL_FORCE_WIKI_MODERATION",
     "FOSSIL_TCL_PATH", "TH1_DELETE_INTERP", "TH1_ENABLE_DOCS",
     "TH1_ENABLE_HOOKS", "TH1_ENABLE_TCL", "REMOTE_HOST",
+    "CONTENT_TYPE", "CONTENT_LENGTH",
   };
   int i;
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
@@ -1677,29 +1808,41 @@ void cgi_load_environment(void){
 ** The eDest parameter determines where the output is shown:
 **
 **     eDest==0:    Rendering as HTML into the CGI reply
-**     eDest==1:    Written to stderr
+**     eDest==1:    Written to fossil_trace
 **     eDest==2:    Written to cgi_debug
+**     eDest==3:    Written to out  (Used only by fossil_errorlog())
 */
-void cgi_print_all(int showAll, unsigned int eDest){
+void cgi_print_all(int showAll, unsigned int eDest, FILE *out){
   int i;
   cgi_parameter("","");  /* Force the parameters into sorted order */
   for(i=0; i<nUsedQP; i++){
     const char *zName = aParamQP[i].zName;
-    if( !showAll ){
-      if( fossil_stricmp("HTTP_COOKIE",zName)==0 ) continue;
-      if( fossil_strnicmp("fossil-",zName,7)==0 ) continue;
+    const char *zValue = aParamQP[i].zValue;
+    if( fossil_stricmp("HTTP_COOKIE",zName)==0
+     || fossil_strnicmp("fossil-",zName,7)==0
+    ){
+      if( !showAll ) continue;
+      if( eDest==3 ) zValue = "...";
     }
     switch( eDest ){
       case 0: {
-        cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+        cgi_printf("%h = %h  <br>\n", zName, zValue);
         break;
       }
-      case 1: {  
-        fossil_trace("%s = %s\n", zName, aParamQP[i].zValue);
+      case 1: {
+        fossil_trace("%s = %s\n", zName, zValue);
         break;
       }
       case 2: {
-        cgi_debug("%s = %s\n", zName, aParamQP[i].zValue);
+        cgi_debug("%s = %s\n", zName, zValue);
+        break;
+      }
+      case 3: {
+        if( zValue!=0 && strlen(zValue)>100 ){
+          fprintf(out,"%s = %.100s...\n", zName, zValue);
+        }else{
+          fprintf(out,"%s = %s\n", zName, zValue);
+        }
         break;
       }
     }
@@ -1757,6 +1900,30 @@ void cgi_query_parameters_to_url(HQuery *p){
 }
 
 /*
+** Reconstruct the URL into memory obtained from fossil_malloc() and
+** return a pointer to that URL.
+*/
+char *cgi_reconstruct_original_url(void){
+  int i;
+  char cSep = '?';
+  Blob url;
+  blob_init(&url, 0, 0);
+  blob_appendf(&url, "%s/%s", g.zBaseURL, g.zPath);
+  for(i=0; i<nUsedQP; i++){
+    if( aParamQP[i].isQP ){
+      struct QParam *p = &aParamQP[i];
+      if( p->zValue && p->zValue[0] ){
+        blob_appendf(&url, "%c%t=%t", cSep, p->zName, p->zValue);
+      }else{
+        blob_appendf(&url, "%c%t", cSep, p->zName);
+      }
+      cSep = '&';
+    }
+  }
+  return blob_str(&url);
+}
+
+/*
 ** Tag query parameter zName so that it is not exported by
 ** cgi_query_parameters_to_hidden().  Or if zName==0, then
 ** untag all query parameters.
@@ -1795,11 +1962,22 @@ void cgi_vprintf(const char *zFormat, va_list ap){
 /*
 ** Send a reply indicating that the HTTP request was malformed
 */
-static NORETURN void malformed_request(const char *zMsg){
-  cgi_set_status(501, "Not Implemented");
-  cgi_printf(
-    "<html><body><p>Bad Request: %s</p></body></html>\n", zMsg
-  );
+static NORETURN void malformed_request(const char *zMsg, ...){
+  va_list ap;
+  char *z;
+  va_start(ap, zMsg);
+  z = vmprintf(zMsg, ap);
+  va_end(ap);
+  cgi_set_status(400, "Bad Request");
+  zContentType = "text/plain";
+  if( g.zReqType==0 ) g.zReqType = "WWW";
+  if( g.zReqType[0]=='C' && PD("SERVER_SOFTWARE",0)!=0 ){
+    const char *zServer = PD("SERVER_SOFTWARE","");
+    cgi_printf("Bad CGI Request from \"%s\": %s\n",zServer,z);
+  }else{
+    cgi_printf("Bad %s Request: %s\n", g.zReqType, z);
+  }
+  fossil_free(z);
   cgi_reply();
   fossil_exit(0);
 }
@@ -1916,8 +2094,9 @@ void cgi_handle_http_request(const char *zIpAddr){
   const char *zScheme = "http";
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
+  g.zReqType = "HTTP";
   if( cgi_fgets(zLine, sizeof(zLine))==0 ){
-    malformed_request("missing HTTP header");
+    malformed_request("missing header");
   }
   blob_append(&g.httpHeader, zLine, -1);
   cgi_trace(zLine);
@@ -1929,13 +2108,14 @@ void cgi_handle_http_request(const char *zIpAddr){
    && fossil_strcmp(zToken,"POST")!=0
    && fossil_strcmp(zToken,"HEAD")!=0
   ){
-    malformed_request("unsupported HTTP method");
+    malformed_request("unsupported HTTP method: \"%s\" - Fossil only supports"
+                      "GET, POST, and HEAD", zToken);
   }
   cgi_setenv("GATEWAY_INTERFACE","CGI/1.0");
   cgi_setenv("REQUEST_METHOD",zToken);
   zToken = extract_token(z, &z);
   if( zToken==0 ){
-    malformed_request("malformed URL in HTTP header");
+    malformed_request("malformed URI in the HTTP header");
   }
   cgi_setenv("REQUEST_URI", zToken);
   cgi_setenv("SCRIPT_NAME", "");
@@ -1944,7 +2124,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
   if( zIpAddr==0 ){
-    zIpAddr = cgi_remote_ip(fileno(g.httpIn));
+    zIpAddr = cgi_remote_ip(fossil_fileno(g.httpIn));
   }
   if( zIpAddr ){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
@@ -1996,6 +2176,8 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }else if( fossil_strcmp(zFieldName,"authorization:")==0 ){
       cgi_setenv("HTTP_AUTHORIZATION", zVal);
+    }else if( fossil_strcmp(zFieldName,"accept-language:")==0 ){
+      cgi_setenv("HTTP_ACCEPT_LANGUAGE", zVal);
     }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
       const char *zIpAddr = cgi_accept_forwarded_for(zVal);
       if( zIpAddr!=0 ){
@@ -2045,6 +2227,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   }else{
     fossil_fatal("missing SSH IP address");
   }
+  g.zReqType = "HTTP";
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request("missing HTTP header");
   }
@@ -2296,6 +2479,7 @@ void cgi_handle_scgi_request(void){
 #define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
 #define HTTP_SERVER_REPOLIST       0x0010     /* Allow repo listing */
 #define HTTP_SERVER_NOFORK         0x0020     /* Do not call fork() */
+#define HTTP_SERVER_UNIXSOCKET     0x0040     /* Use a unix-domain socket */
 
 #endif /* INTERFACE */
 
@@ -2336,33 +2520,81 @@ int cgi_http_server(
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
   struct sockaddr_in inaddr;   /* The socket address */
+  struct sockaddr_un uxaddr;   /* The address for unix-domain sockets */
   int opt = 1;                 /* setsockopt flag */
-  int iPort = mnPort;
+  int rc;                      /* Result code from system calls */
+  int iPort = mnPort;          /* Port to try to use */
 
   while( iPort<=mxPort ){
-    memset(&inaddr, 0, sizeof(inaddr));
-    inaddr.sin_family = AF_INET;
-    if( zIpAddr ){
-      inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
-      if( inaddr.sin_addr.s_addr == (-1) ){
-        fossil_fatal("not a valid IP address: %s", zIpAddr);
+    if( flags & HTTP_SERVER_UNIXSOCKET ){
+      /* Initialize a Unix socket named g.zSockName */
+      assert( g.zSockName!=0 );
+      memset(&uxaddr, 0, sizeof(uxaddr));
+      if( strlen(g.zSockName)>sizeof(uxaddr.sun_path) ){
+        fossil_fatal("name of unix socket too big: %s\nmax size: %d\n",
+                     g.zSockName, (int)sizeof(uxaddr.sun_path));
       }
-    }else if( flags & HTTP_SERVER_LOCALHOST ){
-      inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+      if( file_isdir(g.zSockName, ExtFILE)!=0 ){
+        if( !file_issocket(g.zSockName) ){
+          fossil_fatal("cannot name socket \"%s\" because another object"
+                       " with that name already exists", g.zSockName);
+        }else{
+          unlink(g.zSockName);
+        }
+      }
+      uxaddr.sun_family = AF_UNIX;
+      strncpy(uxaddr.sun_path, g.zSockName, sizeof(uxaddr.sun_path)-1);
+      listener = socket(AF_UNIX, SOCK_STREAM, 0);
+      if( listener<0 ){
+        fossil_fatal("unable to create a unix socket named %s",
+                     g.zSockName);
+      }
+      /* Set the access permission for the new socket.  Default to 0660.
+      ** But use an alternative specified by --socket-mode if available.
+      ** Do this before bind() to avoid a race condition. */
+      if( g.zSockMode ){
+        file_set_mode(g.zSockName, listener, g.zSockMode, 0);
+      }else{
+        file_set_mode(g.zSockName, listener, "0660", 1);
+      }
     }else{
-      inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    }
-    inaddr.sin_port = htons(iPort);
-    listener = socket(AF_INET, SOCK_STREAM, 0);
-    if( listener<0 ){
-      iPort++;
-      continue;
+      /* Initialize a TCP/IP socket on port iPort */
+      memset(&inaddr, 0, sizeof(inaddr));
+      inaddr.sin_family = AF_INET;
+      if( zIpAddr ){
+        inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
+        if( inaddr.sin_addr.s_addr == INADDR_NONE ){
+          fossil_fatal("not a valid IP address: %s", zIpAddr);
+        }
+      }else if( flags & HTTP_SERVER_LOCALHOST ){
+        inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+      }else{
+        inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+      }
+      inaddr.sin_port = htons(iPort);
+      listener = socket(AF_INET, SOCK_STREAM, 0);
+      if( listener<0 ){
+        iPort++;
+        continue;
+      }
     }
 
     /* if we can't terminate nicely, at least allow the socket to be reused */
     setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
-
-    if( bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr))<0 ){
+  
+    if( flags & HTTP_SERVER_UNIXSOCKET ){
+      rc = bind(listener, (struct sockaddr*)&uxaddr, sizeof(uxaddr));
+      /* Set the owner of the socket if requested by --socket-owner.  This
+      ** must wait until after bind(), after the filesystem object has been
+      ** created.  See https://lkml.org/lkml/2004/11/1/84 and
+      ** https://fossil-scm.org/forum/forumpost/7517680ef9684c57 */
+      if( g.zSockOwner ){
+        file_set_owner(g.zSockName, listener, g.zSockOwner);
+      }
+    }else{
+      rc = bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr));
+    }
+    if( rc<0 ){
       close(listener);
       iPort++;
       continue;
@@ -2370,7 +2602,9 @@ int cgi_http_server(
     break;
   }
   if( iPort>mxPort ){
-    if( mnPort==mxPort ){
+    if( flags & HTTP_SERVER_UNIXSOCKET ){
+      fossil_fatal("unable to listen on unix socket %s", zIpAddr);
+    }else if( mnPort==mxPort ){
       fossil_fatal("unable to open listening socket on port %d", mnPort);
     }else{
       fossil_fatal("unable to open listening socket on any"
@@ -2379,11 +2613,17 @@ int cgi_http_server(
   }
   if( iPort>mxPort ) return 1;
   listen(listener,10);
-  fossil_print("Listening for %s requests on TCP port %d\n",
-     (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
-        g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  iPort);
+  if( flags & HTTP_SERVER_UNIXSOCKET ){
+    fossil_print("Listening for %s requests on unix socket %s\n",
+       (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
+          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  g.zSockName);
+  }else{
+    fossil_print("Listening for %s requests on TCP port %d\n",
+       (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
+          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  iPort);
+  }
   fflush(stdout);
-  if( zBrowser ){
+  if( zBrowser && (flags & HTTP_SERVER_UNIXSOCKET)==0 ){
     assert( strstr(zBrowser,"%d")!=0 );
     zBrowser = mprintf(zBrowser /*works-like:"%d"*/, iPort);
 #if defined(__CYGWIN__)
@@ -2429,6 +2669,7 @@ int cgi_http_server(
           close(connection);
         }else{
           int nErr = 0, fd;
+          g.zSockName = 0 /* avoid deleting the socket via atexit() */;
           close(0);
           fd = dup(connection);
           if( fd!=0 ) nErr++;
@@ -2625,4 +2866,45 @@ int cgi_from_mobile(void){
   if( zAgent==0 ) return 0;
   if( sqlite3_strglob("*iPad*", zAgent)==0 ) return 0;
   return sqlite3_strlike("%mobile%", zAgent, 0)==0;
+}
+
+/*
+** Look for query or POST parameters that:
+**
+**    (1)  Have not been used
+**    (2)  Appear to be malicious attempts to break into or otherwise
+**         harm the system, for example via SQL injection
+**
+** If any such parameters are seen, a 418 ("I'm a teapot") return is
+** generated and processing aborts - this routine does not return.
+**
+** When Fossil is launched via CGI from althttpd, the 418 return signals
+** the webserver to put the requestor IP address into "timeout", blocking
+** subsequent requests for 5 minutes.
+**
+** Fossil is not subject to any SQL injections, as far as anybody knows.
+** This routine is not necessary for the security of the system (though
+** an extra layer of security never hurts).  The main purpose here is
+** to shutdown malicious attack spiders and prevent them from burning
+** lots of CPU cycles and bogging down the website.  In other words, the
+** objective of this routine is to help prevent denial-of-service.
+**
+** Usage Hint: Put a call to this routine as late in the webpage
+** implementation as possible, ideally just before it begins doing
+** potentially CPU-intensive computations and after all query parameters
+** have been consulted.
+*/
+void cgi_check_for_malice(void){
+  struct QParam * pParam;
+  int i;
+  for(i=0; i<nUsedQP; ++i){
+    pParam = &aParamQP[i];
+    if( 0==pParam->isFetched
+     && pParam->zValue!=0
+     && pParam->zName!=0
+     && fossil_islower(pParam->zName[0])
+    ){
+      cgi_value_spider_check(pParam->zValue, pParam->zName);
+    }
+  }
 }

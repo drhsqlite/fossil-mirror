@@ -21,7 +21,7 @@
 ** email protocol?  That is not here.  See the "smtp.c" file instead.
 ** Yes, the choice of source code filenames is not the greatest, but
 ** it is not so bad that changing them seems justified.
-*/ 
+*/
 #include "config.h"
 #include "alerts.h"
 #include <assert.h>
@@ -49,8 +49,12 @@ static const char zAlertInit[] =
 @ --     a - Announcements
 @ --     c - Check-ins
 @ --     f - Forum posts
+@ --     k - ** Special: Unsubscribed using /oneclickunsub
+@ --     n - New forum threads
+@ --     r - Replies to my own forum posts
 @ --     t - Ticket changes
 @ --     w - Wiki changes
+@ --     x - Edits to forum posts
 @ -- Probably different codes will be added in the future.  In the future
 @ -- we might also add a separate table that allows subscribing to email
 @ -- notifications for specific branches or tags or tickets.
@@ -61,7 +65,7 @@ static const char zAlertInit[] =
 @   semail TEXT UNIQUE COLLATE nocase,-- email address
 @   suname TEXT,                      -- corresponding USER entry
 @   sverified BOOLEAN DEFAULT true,   -- email address verified
-@   sdonotcall BOOLEAN,               -- true for Do Not Call 
+@   sdonotcall BOOLEAN,               -- true for Do Not Call
 @   sdigest BOOLEAN,                  -- true for daily digests only
 @   ssub TEXT,                        -- baseline subscriptions
 @   sctime INTDATE,                   -- When this entry was created. unixtime
@@ -71,7 +75,7 @@ static const char zAlertInit[] =
 @ );
 @ CREATE INDEX repository.subscriberUname
 @   ON subscriber(suname) WHERE suname IS NOT NULL;
-@ 
+@
 @ DROP TABLE IF EXISTS repository.pending_alert;
 @ -- Email notifications that need to be sent.
 @ --
@@ -85,7 +89,7 @@ static const char zAlertInit[] =
 @   sentDigest BOOLEAN DEFAULT false, -- digest alert sent
 @   sentMod BOOLEAN DEFAULT false     -- pending moderation alert sent
 @ ) WITHOUT ROWID;
-@ 
+@
 @ -- Obsolete table.  No longer used.
 @ DROP TABLE IF EXISTS repository.alert_bounce;
 ;
@@ -188,7 +192,7 @@ void alert_create_trigger(void){
     );
   }
   if( db_table_exists("repository","chat")
-   && db_get("chat-timeline-user", "")[0]!=0 
+   && db_get("chat-timeline-user", "")[0]!=0
   ){
     /* Record events that will be relayed to chat, but do not relay
     ** them immediately, as the chat_msg_from_event() function requires
@@ -234,6 +238,22 @@ int alert_enabled(void){
   if( !alert_tables_exist() ) return 0;
   if( fossil_strcmp(db_get("email-send-method",0),"off")==0 ) return 0;
   return 1;
+}
+
+/*
+** If alerts are enabled, removes the pending_alert entry which
+** matches (eventType || rid). Note that pending_alert entries are
+** added via the manifest crosslinking process, so this has no effect
+** if called before crosslinking is performed. Because alerts are sent
+** asynchronously, unqueuing needs to be performed as part of the
+** transaction in which crosslinking is performed in order to avoid a
+** race condition.
+*/
+void alert_unqueue(char eventType, int rid){
+  if( alert_enabled() ){
+    db_multi_exec("DELETE FROM pending_alert WHERE eventid='%c%d'",
+                  eventType, rid);
+  }
 }
 
 /*
@@ -303,13 +323,13 @@ void setup_notification(void){
   @ <hr>
   @ <h1> Configuration </h1>
   @ <form action="%R/setup_notification" method="post"><div>
-  @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
+  @ <input type="submit"  name="submit" value="Apply Changes"><hr>
   login_insert_csrf_secret();
 
   entry_attribute("Canonical Server URL", 40, "email-url",
                    "eurl", "", 0);
   @ <p><b>Required.</b>
-  @ This is URL used as the basename for hyperlinks included in
+  @ This URL is used as the basename for hyperlinks included in
   @ email alert text.  Omit the trailing "/".
   @ Suggested value: "%h(g.zBaseURL)"
   @ (Property: "email-url")</p>
@@ -402,7 +422,7 @@ void setup_notification(void){
   @ (Property: "email-send-relayhost")</p>
   @ <hr>
 
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
   style_finish_page();
@@ -617,7 +637,8 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
     if( zRelay ){
       u32 smtpFlags = SMTP_DIRECT;
       if( mFlags & ALERT_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
-      p->pSmtp = smtp_session_new(p->zFrom, zRelay, smtpFlags);
+      p->pSmtp = smtp_session_new(domain_of_addr(p->zFrom), zRelay,
+                                  smtpFlags);
       smtp_client_startup(p->pSmtp);
     }
   }
@@ -716,8 +737,8 @@ int email_address_is_valid(const char *z, char cTerm){
 ** Make a copy of the input string up to but not including the
 ** first cTerm character.
 **
-** Verify that the string really that is to be copied really is a
-** valid email address.  If it is not, then return NULL.
+** Verify that the string to be copied really is a valid
+** email address.  If it is not, then return NULL.
 **
 ** This routine is more restrictive than necessary.  It does not
 ** allow comments, IP address, quoted strings, or certain uncommon
@@ -730,20 +751,21 @@ char *email_copy_addr(const char *z, char cTerm ){
 }
 
 /*
-** Scan the input string for a valid email address enclosed in <...>
+** Scan the input string for a valid email address that may be
+** enclosed in <...>, or delimited by ',' or ':' or '=' or ' '.
 ** If the string contains one or more email addresses, extract the first
 ** one into memory obtained from mprintf() and return a pointer to it.
 ** If no valid email address can be found, return NULL.
 */
 char *alert_find_emailaddr(const char *zIn){
   char *zOut = 0;
-  while( zIn!=0 ){
-     zIn = (const char*)strchr(zIn, '<');
-     if( zIn==0 ) break;
-     zIn++;
-     zOut = email_copy_addr(zIn, '>');
-     if( zOut!=0 ) break;
-  }
+  do{
+    zOut = email_copy_addr(zIn, zIn[strcspn(zIn, ">,:= ")]);
+    if( zOut!=0 ) break;
+    zIn = (const char *)strpbrk(zIn, "<,:= ");
+    if( zIn==0 ) break;
+    zIn++;
+  }while( zIn!=0 );
   return zOut;
 }
 
@@ -856,7 +878,7 @@ void email_header_to(Blob *pMsg, int *pnTo, char ***pazTo){
   Blob v;
   char *z, *zAddr;
   int i;
-  
+
   email_header_value(pMsg, "to", &v);
   z = blob_str(&v);
   for(i=0; z[i]; i++){
@@ -870,7 +892,7 @@ void email_header_to(Blob *pMsg, int *pnTo, char ***pazTo){
 }
 
 /*
-** Free a list of To addresses obtained from a prior call to 
+** Free a list of To addresses obtained from a prior call to
 ** email_header_to()
 */
 void email_header_to_free(int nTo, char **azTo){
@@ -896,7 +918,7 @@ void email_header_to_free(int nTo, char **azTo){
 **     Content-Transfer-Encoding:
 **     MIME-Version:
 **     Sender:
-**     
+**
 ** The caller maintains ownership of the input Blobs.  This routine will
 ** read the Blobs and send them onward to the email system, but it will
 ** not free them.
@@ -909,7 +931,7 @@ void email_header_to_free(int nTo, char **azTo){
 ** email address based on a hash of zFromName and the domain of email-self,
 ** and an additional "Sender:" field is inserted with the email-self
 ** address.  Downstream software might use the Sender header to set
-** the envelope-from address of the email.  If zFromName is a NULL pointer, 
+** the envelope-from address of the email.  If zFromName is a NULL pointer,
 ** then the "From:" is set to the email-self value and Sender is
 ** omitted.
 */
@@ -1026,7 +1048,7 @@ void alert_send(
 */
 /*
 ** SETTING: email-admin               width=40
-** This is the email address for the human administrator for the system. 
+** This is the email address for the human administrator for the system.
 ** Abuse and trouble reports and password reset requests are send here.
 */
 /*
@@ -1061,7 +1083,7 @@ void alert_send(
 ** last batch of "your subscription is about to expire" emails were
 ** sent out.
 **
-** email-renew-cutoff is normally 7 days behind email-renew-warning.  
+** email-renew-cutoff is normally 7 days behind email-renew-warning.
 */
 /*
 ** SETTING: email-send-method         width=5 default=off sensitive
@@ -1069,7 +1091,7 @@ void alert_send(
 ** "off", "relay", "pipe", "dir", "db", and "stdout".  The "off" value
 ** means no email is ever sent.  The "relay" value means emails are sent
 ** to an Mail Sending Agent using SMTP located at email-send-relayhost.
-** The "pipe" value means email messages are piped into a command 
+** The "pipe" value means email messages are piped into a command
 ** determined by the email-send-command setting. The "dir" value means
 ** emails are written to individual files in a directory determined
 ** by the email-send-dir setting.  The "db" value means that emails
@@ -1114,7 +1136,7 @@ void alert_send(
 
 /*
 ** COMMAND: alerts*
-** 
+**
 ** Usage: %fossil alerts SUBCOMMAND ARGS...
 **
 ** Subcommands:
@@ -1238,7 +1260,7 @@ void alert_cmd(void){
     pSetting = setting_info(&nSetting);
     for(; nSetting>0; nSetting--, pSetting++ ){
       if( strncmp(pSetting->name,"email-",6)!=0 ) continue;
-      print_setting(pSetting);
+      print_setting(pSetting, 0);
     }
   }else
   if( strncmp(zCmd, "status", nCmd)==0 ){
@@ -1253,7 +1275,7 @@ void alert_cmd(void){
     pSetting = setting_info(&nSetting);
     for(; nSetting>0; nSetting--, pSetting++ ){
       if( strncmp(pSetting->name,"email-",6)!=0 ) continue;
-      print_setting(pSetting);
+      print_setting(pSetting, 0);
     }
     n = db_int(0,"SELECT count(*) FROM pending_alert WHERE NOT sentSep");
     fossil_print(zFmt/*works-like:"%s%d"*/, "pending-alerts", n);
@@ -1440,7 +1462,7 @@ static int subscribe_error_check(
 /*
 ** Text of email message sent in order to confirm a subscription.
 */
-static const char zConfirmMsg[] = 
+static const char zConfirmMsg[] =
 @ Someone has signed you up for email alerts on the Fossil repository
 @ at %s.
 @
@@ -1526,7 +1548,7 @@ void subscribe_page(void){
   alert_submenu_common();
   needCaptcha = !login_is_individual();
   if( P("submit")
-   && cgi_csrf_safe(1)
+   && cgi_csrf_safe(2)
    && subscribe_error_check(&eErr,&zErr,needCaptcha)
   ){
     /* A validated request for a new subscription has been received. */
@@ -1540,6 +1562,8 @@ void subscribe_page(void){
     if( PB("sa") ) ssub[nsub++] = 'a';
     if( g.perm.Read && PB("sc") )    ssub[nsub++] = 'c';
     if( g.perm.RdForum && PB("sf") ) ssub[nsub++] = 'f';
+    if( g.perm.RdForum && PB("sn") ) ssub[nsub++] = 'n';
+    if( g.perm.RdForum && PB("sr") ) ssub[nsub++] = 'r';
     if( g.perm.RdTkt && PB("st") )   ssub[nsub++] = 't';
     if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
     if( g.perm.RdForum && PB("sx") ) ssub[nsub++] = 'x';
@@ -1602,6 +1626,8 @@ void subscribe_page(void){
     cgi_set_parameter_nocopy("sa","1",1);
     if( g.perm.Read )    cgi_set_parameter_nocopy("sc","1",1);
     if( g.perm.RdForum ) cgi_set_parameter_nocopy("sf","1",1);
+    if( g.perm.RdForum ) cgi_set_parameter_nocopy("sn","1",1);
+    if( g.perm.RdForum ) cgi_set_parameter_nocopy("sr","1",1);
     if( g.perm.RdTkt )   cgi_set_parameter_nocopy("st","1",1);
     if( g.perm.RdWiki )  cgi_set_parameter_nocopy("sw","1",1);
   }
@@ -1625,7 +1651,7 @@ void subscribe_page(void){
     }else{
       uSeed = captcha_seed();
     }
-    zDecoded = captcha_decode(uSeed);
+    zDecoded = captcha_decode(uSeed, 0);
     zCaptcha = captcha_render(zDecoded);
     @ <tr>
     @  <td class="form_label">Security Code:</td>
@@ -1659,9 +1685,13 @@ void subscribe_page(void){
   }
   if( g.perm.RdForum ){
     @  <label><input type="checkbox" name="sf" %s(PCK("sf"))> \
-    @  Forum Posts</label><br>
+    @  All Forum Posts</label><br>
+    @  <label><input type="checkbox" name="sn" %s(PCK("sn"))> \
+    @  New Forum Threads</label><br>
+    @  <label><input type="checkbox" name="sr" %s(PCK("sr"))> \
+    @  Replies To My Forum Posts</label><br>
     @  <label><input type="checkbox" name="sx" %s(PCK("sx"))> \
-    @  Forum Edits</label><br>
+    @  Edits To Forum Posts</label><br>
   }
   if( g.perm.RdTkt ){
     @  <label><input type="checkbox" name="st" %s(PCK("st"))> \
@@ -1715,7 +1745,7 @@ void subscribe_page(void){
 ** by the hex value zName.  Then paint a webpage that explains that
 ** the entry has been removed.
 */
-static void alert_unsubscribe(int sid){
+static void alert_unsubscribe(int sid, int bTotal){
   const char *zEmail = 0;
   const char *zLogin = 0;
   int uid = 0;
@@ -1732,10 +1762,20 @@ static void alert_unsubscribe(int sid){
     style_header("Unsubscribe Fail");
     @ <p>Unable to locate a subscriber with the requested key</p>
   }else{
-    
-    db_multi_exec(
-      "DELETE FROM subscriber WHERE subscriberId=%d", sid
-    );
+    db_unprotect(PROTECT_READONLY);
+    if( bTotal ){
+      /* Completely delete the subscriber */
+      db_multi_exec(
+        "DELETE FROM subscriber WHERE subscriberId=%d", sid
+      );
+    }else{
+      /* Keep the subscriber, but turn off all notifications */
+      db_multi_exec(
+        "UPDATE subscriber SET ssub='k', mtime=now() WHERE subscriberId=%d",
+        sid
+      );
+    }
+    db_protect_pop();
     style_header("Unsubscribed");
     @ <p>The "%h(zEmail)" email address has been unsubscribed from all
     @ notifications.  All subscription records for "%h(zEmail)" have
@@ -1767,7 +1807,7 @@ static void alert_unsubscribe(int sid){
 **    *    The sid= query parameter contains an integer subscriberId.
 **         This only works for the administrator.  It allows the
 **         administrator to edit any subscription.
-**         
+**
 **    *    The user is logged into an account other than "nobody" or
 **         "anonymous".  In that case the notification settings
 **         associated with that account can be edited without needing
@@ -1783,6 +1823,7 @@ void alert_page(void){
   const char *zName = 0;        /* Value of the name= query parameter */
   Stmt q;                       /* For querying the database */
   int sa, sc, sf, st, sw, sx;   /* Types of notifications requested */
+  int sn, sr;
   int sdigest = 0, sdonotcall = 0, sverified = 0;  /* Other fields */
   int isLogin;                  /* True if logged in as an individual */
   const char *ssub = 0;         /* Subscription flags */
@@ -1828,7 +1869,7 @@ void alert_page(void){
     /*NOTREACHED*/
   }
   alert_submenu_common();
-  if( P("submit")!=0 && cgi_csrf_safe(1) ){
+  if( P("submit")!=0 && cgi_csrf_safe(2) ){
     char newSsub[10];
     int nsub = 0;
     Blob update;
@@ -1839,6 +1880,8 @@ void alert_page(void){
     if( PB("sa") )                   newSsub[nsub++] = 'a';
     if( g.perm.Read && PB("sc") )    newSsub[nsub++] = 'c';
     if( g.perm.RdForum && PB("sf") ) newSsub[nsub++] = 'f';
+    if( g.perm.RdForum && PB("sn") ) newSsub[nsub++] = 'n';
+    if( g.perm.RdForum && PB("sr") ) newSsub[nsub++] = 'r';
     if( g.perm.RdTkt && PB("st") )   newSsub[nsub++] = 't';
     if( g.perm.RdWiki && PB("sw") )  newSsub[nsub++] = 'w';
     if( g.perm.RdForum && PB("sx") ) newSsub[nsub++] = 'x';
@@ -1888,15 +1931,15 @@ void alert_page(void){
     );
     db_protect_pop();
   }
-  if( P("delete")!=0 && cgi_csrf_safe(1) ){
+  if( P("delete")!=0 && cgi_csrf_safe(2) ){
     if( !PB("dodelete") ){
       eErr = 9;
       zErr = mprintf("Select this checkbox and press \"Unsubscribe\" again to"
                      " unsubscribe");
     }else{
-      alert_unsubscribe(sid);
+      alert_unsubscribe(sid, 1);
       db_commit_transaction();
-      return; 
+      return;
     }
   }
   style_set_current_feature("alerts");
@@ -1935,6 +1978,8 @@ void alert_page(void){
   sa = strchr(ssub,'a')!=0;
   sc = strchr(ssub,'c')!=0;
   sf = strchr(ssub,'f')!=0;
+  sn = strchr(ssub,'n')!=0;
+  sr = strchr(ssub,'r')!=0;
   st = strchr(ssub,'t')!=0;
   sw = strchr(ssub,'w')!=0;
   sx = strchr(ssub,'x')!=0;
@@ -2040,9 +2085,13 @@ void alert_page(void){
   }
   if( g.perm.RdForum ){
     @  <label><input type="checkbox" name="sf" %s(sf?"checked":"")>\
-    @  Forum Posts</label><br>
+    @  All Forum Posts</label><br>
+    @  <label><input type="checkbox" name="sn" %s(sn?"checked":"")>\
+    @  New Forum Threads</label><br>
+    @  <label><input type="checkbox" name="sr" %s(sr?"checked":"")>\
+    @  Replies To My Posts</label><br>
     @  <label><input type="checkbox" name="sx" %s(sx?"checked":"")>\
-    @  Forum Edits</label><br>
+    @  Edits To Forum Posts</label><br>
   }
   if( g.perm.RdTkt ){
     @  <label><input type="checkbox" name="st" %s(st?"checked":"")>\
@@ -2053,6 +2102,10 @@ void alert_page(void){
     @  Wiki</label>
   }
   @ </td></tr>
+  if( strchr(ssub,'k')!=0 ){
+    @ <tr><td></td><td>&nbsp;&uarr;&nbsp;
+    @ Note: User did a one-click unsubscribe</td></tr>
+  }
   @ <tr>
   @  <td class="form_label">Delivery:</td>
   @  <td><select size="1" name="sdigest">
@@ -2147,7 +2200,7 @@ void renewal_page(void){
 /* This is the message that gets sent to describe how to change
 ** or modify a subscription
 */
-static const char zUnsubMsg[] = 
+static const char zUnsubMsg[] =
 @ To changes your subscription settings at %s visit this link:
 @
 @    %s/alerts/%s
@@ -2159,6 +2212,7 @@ static const char zUnsubMsg[] =
 
 /*
 ** WEBPAGE: unsubscribe
+** WEBPAGE: oneclickunsub
 **
 ** Users visit this page to be delisted from email alerts.
 **
@@ -2171,6 +2225,9 @@ static const char zUnsubMsg[] =
 ** Non-logged-in users with no name= query parameter are invited to enter
 ** an email address to which will be sent the unsubscribe link that
 ** contains the correct subscriber code.
+**
+** The /unsubscribe page requires comfirmation.  The /oneclickunsub
+** page unsubscribes immediately without any need to confirm.
 */
 void unsubscribe_page(void){
   const char *zName = P("name");
@@ -2188,19 +2245,21 @@ void unsubscribe_page(void){
   if( zName==0 ) zName = P("scode");
 
   /* If a valid subscriber code is supplied, then either present the user
-  ** with a comformation, or if already confirmed, unsubscribe immediately.
+  ** with a confirmation, or if already confirmed, unsubscribe immediately.
   */
-  if( zName 
+  if( zName
    && (sid = db_int(0, "SELECT subscriberId FROM subscriber"
                        " WHERE subscriberCode=hextoblob(%Q)", zName))!=0
   ){
     char *zUnsubName = mprintf("confirm%04x", sid);
     if( P(zUnsubName)!=0 ){
-      alert_unsubscribe(sid);
+      alert_unsubscribe(sid, 1);
+    }else if( sqlite3_strglob("*oneclick*",g.zPath)==0 ){
+      alert_unsubscribe(sid, 0);
     }else if( P("manage")!=0 ){
       cgi_redirectf("%R/alerts/%s", zName);
     }else{
-      style_header("Unsubscribed");
+      style_header("Unsubscribe");
       form_begin(0, "%R/unsubscribe");
       @ <input type="hidden" name="scode" value="%h(zName)">
       @ <table border="0" cellpadding="10" width="100%%">
@@ -2213,7 +2272,7 @@ void unsubscribe_page(void){
       @ <input type="submit" name="manage" \
       @ value="Manage Subscription Settings">
       @ </td><td><big><b>&larr;</b></big></td>
-      @ <td>Make changes to your subscription preferences
+      @ <td>Make other changes to your subscription preferences
       @ </td><tr>
       @ </table>
       @ </form>
@@ -2233,7 +2292,7 @@ void unsubscribe_page(void){
 
   zEAddr = PD("e","");
   dx = atoi(PD("dx","0"));
-  bSubmit = P("submit")!=0 && P("e")!=0 && cgi_csrf_safe(1);
+  bSubmit = P("submit")!=0 && P("e")!=0 && cgi_csrf_safe(2);
   if( bSubmit ){
     if( !captcha_is_correct(1) ){
       eErr = 2;
@@ -2277,7 +2336,7 @@ void unsubscribe_page(void){
     alert_sender_free(pSender);
     style_finish_page();
     return;
-  }  
+  }
 
   /* Non-logged-in users have to enter an email address to which is
   ** sent a message containing the unsubscribe link.
@@ -2296,7 +2355,7 @@ void unsubscribe_page(void){
   }
   @ </tr>
   uSeed = captcha_seed();
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
   @ <tr>
   @  <td class="form_label">Security Code:</td>
@@ -2468,16 +2527,20 @@ void subscriber_list_page(void){
 **
 **      c       A new check-in
 **      f       An original forum post
+**      n       New forum threads
+**      r       Replies to my forum posts
 **      x       An edit to a prior forum post
 **      t       A new ticket or a change to an existing ticket
 **      w       A change to a wiki page
+**      x       Edits to forum posts
 */
 struct EmailEvent {
-  int type;          /* 'c', 'f', 't', 'w', 'x' */
+  int type;          /* 'c', 'f', 'n', 'r', 't', 'w', 'x' */
   int needMod;       /* Pending moderator approval */
   Blob hdr;          /* Header content, for forum entries */
   Blob txt;          /* Text description to appear in an alert */
   char *zFromName;   /* Human name of the sender */
+  char *zPriors;     /* Upthread sender IDs for forum posts */
   EmailEvent *pNext; /* Next in chronological order */
 };
 #endif
@@ -2491,9 +2554,39 @@ void alert_free_eventlist(EmailEvent *p){
     blob_reset(&p->txt);
     blob_reset(&p->hdr);
     fossil_free(p->zFromName);
+    fossil_free(p->zPriors);
     fossil_free(p);
     p = pNext;
   }
+}
+
+/*
+** Compute a string that is appropriate for the EmailEvent.zPriors field
+** for a particular forum post.
+**
+** This string is an encode list of sender names and rids for all ancestors
+** of the fpdi post - the post that fpid answer, the post that that parent
+** post answers, and so forth back up to the root post. Duplicates sender
+** names are omitted.
+**
+** The EmailEvent.zPriors field is used to screen events for people who
+** only want to see replies to their own posts or to specific posts.
+*/
+static char *alert_compute_priors(int fpid){
+  return db_text(0,
+    "WITH priors(rid,who) AS ("
+    "  SELECT firt, coalesce(euser,user)"
+    "    FROM forumpost LEFT JOIN event ON fpid=objid"
+    "   WHERE fpid=%d"
+    "  UNION ALL"
+    "  SELECT firt, coalesce(euser,user)"
+    "    FROM priors, forumpost LEFT JOIN event ON fpid=objid"
+    "   WHERE fpid=rid"
+    ")"
+    "SELECT ','||group_concat(DISTINCT 'u'||who)||"
+           "','||group_concat(rid) FROM priors;",
+    fpid
+  );
 }
 
 /*
@@ -2544,7 +2637,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zType = "";
     const char *zComment = db_column_text(&q, 2);
-    p = fossil_malloc( sizeof(EmailEvent) );
+    p = fossil_malloc_zero( sizeof(EmailEvent) );
     pLast->pNext = p;
     pLast = p;
     p->type = db_column_text(&q, 3)[0];
@@ -2628,7 +2721,8 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   zFrom = db_get("email-self",0);
   zSub = db_get("email-subname","");
   while( db_step(&q)==SQLITE_ROW ){
-    Manifest *pPost = manifest_get(db_column_int(&q,0), CFTYPE_FORUM, 0);
+    int fpid = db_column_int(&q,0);
+    Manifest *pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     const char *zIrt;
     const char *zUuid;
     const char *zTitle;
@@ -2641,6 +2735,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     p->needMod = db_column_int(&q, 5);
     z = db_column_text(&q,6);
     p->zFromName = z && z[0] ? fossil_strdup(z) : 0;
+    p->zPriors = alert_compute_priors(fpid);
     p->pNext = 0;
     blob_init(&p->hdr, 0, 0);
     zUuid = db_column_text(&q, 1);
@@ -2650,7 +2745,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
                    zSub, zTitle);
     }else{
       blob_appendf(&p->hdr, "Subject: %s %s\r\n", zSub, zTitle);
-      blob_appendf(&p->hdr, "Message-Id: <%.32s@%s>\r\n", 
+      blob_appendf(&p->hdr, "Message-Id: <%.32s@%s>\r\n",
                    zUuid, alert_hostname(zFrom));
       zIrt = db_column_text(&q, 4);
       if( zIrt && zIrt[0] ){
@@ -2849,6 +2944,21 @@ static void alert_renewal_msg(
   );
 }
 
+/*
+** If zUser is a sender of one of the ancestors of a forum post
+** (if zUser appears in zPriors) then return true.
+*/
+static int alert_in_priors(const char *zUser, const char *zPriors){
+  int n = (int)strlen(zUser);
+  char zBuf[200];
+  if( n>195 ) return 0;
+  if( zPriors==0 || zPriors[0]==0 ) return 0;
+  zBuf[0] = ',';
+  zBuf[1] = 'u';
+  memcpy(zBuf+2, zUser, n+1);
+  return strstr(zPriors, zBuf)!=0;
+}
+
 #if INTERFACE
 /*
 ** Flags for alert_send_alerts()
@@ -2996,12 +3106,13 @@ int alert_send_alerts(u32 flags){
      " hex(subscriberCode),"  /* 0 */
      " semail,"               /* 1 */
      " ssub,"                 /* 2 */
-     " fullcap(user.cap)"     /* 3 */
+     " fullcap(user.cap),"    /* 3 */
+     " suname"                /* 4 */
      " FROM subscriber LEFT JOIN user ON (login=suname)"
      " WHERE sverified"
      "   AND NOT sdonotcall"
      "   AND sdigest IS %s"
-     "   AND coalesce(subscriber.lastContact,subscriber.mtime)>=%d",
+     "   AND coalesce(subscriber.lastContact*86400,subscriber.mtime)>=%d",
      zDigest/*safe-for-%s*/,
      db_get_int("email-renew-cutoff",0)
   );
@@ -3010,9 +3121,20 @@ int alert_send_alerts(u32 flags){
     const char *zSub = db_column_text(&q, 2);
     const char *zEmail = db_column_text(&q, 1);
     const char *zCap = db_column_text(&q, 3);
+    const char *zUser = db_column_text(&q, 4);
     int nHit = 0;
     for(p=pEvents; p; p=p->pNext){
-      if( strchr(zSub,p->type)==0 ) continue;
+      if( strchr(zSub,p->type)==0 ){
+        if( p->type!='f' ) continue;
+        if( strchr(zSub,'n')!=0 && (p->zPriors==0 || p->zPriors[0]==0) ){
+          /* New post: accepted */
+        }else if( strchr(zSub,'r')!=0 && zUser!=0
+               && alert_in_priors(zUser, p->zPriors) ){
+          /* A follow-up to a post written by the user: accept */
+        }else{
+          continue;
+        }
+      }
       if( p->needMod ){
         /* For events that require moderator approval, only send an alert
         ** if the recipient is a moderator for that type of event.  Setup
@@ -3020,7 +3142,8 @@ int alert_send_alerts(u32 flags){
         char xType = '*';
         if( strpbrk(zCap,"as")==0 ){
           switch( p->type ){
-            case 'x': case 'f':  xType = '5';  break;
+            case 'x': case 'f':
+            case 'n': case 'r':  xType = '5';  break;
             case 't':            xType = 'q';  break;
             case 'w':            xType = 'l';  break;
           }
@@ -3035,7 +3158,8 @@ int alert_send_alerts(u32 flags){
         char xType = '*';
         switch( p->type ){
           case 'c':            xType = 'o';  break;
-          case 'x': case 'f':  xType = '2';  break;
+          case 'x': case 'f':
+          case 'n': case 'r':  xType = '2';  break;
           case 't':            xType = 'r';  break;
           case 'w':            xType = 'j';  break;
         }
@@ -3048,6 +3172,10 @@ int alert_send_alerts(u32 flags){
         blob_appendf(&fhdr, "To: <%s>\r\n", zEmail);
         blob_append(&fhdr, blob_buffer(&p->hdr), blob_size(&p->hdr));
         blob_init(&fbody, blob_buffer(&p->txt), blob_size(&p->txt));
+        blob_appendf(&fhdr, "List-Unsubscribe: <%s/oneclickunsub/%s>\r\n",
+                     zUrl, zCode);
+        blob_appendf(&fhdr,
+                   "List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n");
         blob_appendf(&fbody, "\n-- \nUnsubscribe: %s/unsubscribe/%s\n",
            zUrl, zCode);
         /* blob_appendf(&fbody, "Subscription settings: %s/alerts/%s\n",
@@ -3074,7 +3202,7 @@ int alert_send_alerts(u32 flags){
       }
     }
     if( nHit==0 ) continue;
-    blob_appendf(&hdr, "List-Unsubscribe: <%s/unsubscribe/%s>\r\n",
+    blob_appendf(&hdr, "List-Unsubscribe: <%s/oneclickunsub/%s>\r\n",
          zUrl, zCode);
     blob_appendf(&hdr, "List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n");
     blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
@@ -3097,7 +3225,7 @@ int alert_send_alerts(u32 flags){
   /* Send renewal messages to subscribers whose subscriptions are about
   ** to expire.  Only do this if:
   **
-  **  (1)  email-renew-interval is 14 or greater (or in other words if 
+  **  (1)  email-renew-interval is 14 or greater (or in other words if
   **       subscription expiration is enabled).
   **
   **  (2)  The SENDALERT_RENEWAL flag is set
@@ -3126,7 +3254,7 @@ send_alert_expiration_warnings:
         Blob hdr, body;
         blob_init(&hdr, 0, 0);
         blob_init(&body, 0, 0);
-        alert_renewal_msg(&hdr, &body, 
+        alert_renewal_msg(&hdr, &body,
            db_column_text(&q,0),
            db_column_int(&q,1),
            db_column_text(&q,2),
@@ -3196,11 +3324,11 @@ void contact_admin_page(void){
     style_finish_page();
     return;
   }
-  if( P("submit")!=0 
+  if( P("submit")!=0
    && P("subject")!=0
    && P("msg")!=0
    && P("from")!=0
-   && cgi_csrf_safe(1)
+   && cgi_csrf_safe(2)
    && captcha_is_correct(0)
   ){
     Blob hdr, body;
@@ -3230,7 +3358,7 @@ void contact_admin_page(void){
   }
   if( captcha_needed() ){
     uSeed = captcha_seed();
-    zDecoded = captcha_decode(uSeed);
+    zDecoded = captcha_decode(uSeed, 0);
     zCaptcha = captcha_render(zDecoded);
   }
   style_set_current_feature("alerts");
@@ -3375,9 +3503,9 @@ void announce_page(void){
     /* Visit the /announce/test1 page to see the CGI variables */
     zAction = "announce/test1";
     @ <p style='border: 1px solid black; padding: 1ex;'>
-    cgi_print_all(0, 0);
+    cgi_print_all(0, 0, 0);
     @ </p>
-  }else if( P("submit")!=0 && cgi_csrf_safe(1) ){
+  }else if( P("submit")!=0 && cgi_csrf_safe(2) ){
     char *zErr = alert_send_announcement();
     style_header("Announcement Sent");
     if( zErr ){
@@ -3402,6 +3530,7 @@ void announce_page(void){
 
   style_header("Send Announcement");
   @ <form method="POST" action="%R/%s(zAction)">
+  login_insert_csrf_secret();
   @ <table class="subscribe">
   if( g.perm.Admin ){
     int aa = PB("aa");

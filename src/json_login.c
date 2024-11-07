@@ -107,7 +107,8 @@ cson_value * json_page_login(void){
     }
     if(jseed){
       if( cson_value_is_number(jseed) ){
-        sprintf(seedBuffer, "%"CSON_INT_T_PFMT, cson_value_get_integer(jseed));
+        sqlite3_snprintf((int)SeedBufLen, seedBuffer, "%"CSON_INT_T_PFMT,
+			 cson_value_get_integer(jseed));
         anonSeed = seedBuffer;
       }else if( cson_value_is_string(jseed) ){
         anonSeed = cson_string_cstr(cson_value_get_string(jseed));
@@ -147,7 +148,7 @@ cson_value * json_page_login(void){
     cson_object * po;
     char * cap = NULL;
     if(anonSeed){
-      login_set_anon_cookie(NULL, &cookie, 0);
+      login_set_anon_cookie(&cookie, 0);
     }else{
       login_set_user_cookie(name, uid, &cookie, 0);
     }
@@ -157,9 +158,11 @@ cson_value * json_page_login(void){
     free(cookie);
     cson_object_set(po, "name", json_new_string(name));
     cap = db_text(NULL, "SELECT cap FROM user WHERE login=%Q", name);
-    cson_object_set(po, "capabilities", cap ? json_new_string(cap) : cson_value_null() );
+    cson_object_set(po, "capabilities",
+                    cap ? json_new_string(cap) : cson_value_null() );
     free(cap);
-    cson_object_set(po, "loginCookieName", json_new_string( login_cookie_name() ) );
+    cson_object_set(po, "loginCookieName",
+                    json_new_string( login_cookie_name() ) );
     /* TODO: add loginExpiryTime to the payload. To do this properly
        we "should" add an ([unsigned] int *) to
        login_set_user_cookie() and login_set_anon_cookie(), to which
@@ -213,7 +216,7 @@ cson_value * json_page_anon_password(void){
   cson_value * v = cson_value_new_object();
   cson_object * o = cson_value_get_object(v);
   unsigned const int seed = captcha_seed();
-  char const * zCaptcha = captcha_decode(seed);
+  char const * zCaptcha = captcha_decode(seed, 0);
   cson_object_set(o, "seed",
                   cson_value_new_integer( (cson_int_t)seed )
                   );

@@ -22,6 +22,11 @@
 # Where ../test/tester.tcl is the name of this file and ../bld/fossil
 # is the name of the executable to be tested.
 #
+# To run a subset of tests (i.e. only one or more of the test/*.test
+# scripts), append the script base names as arguments:
+#
+#     tclsh ../test/tester.tcl ../bld/fossil <script-basename>...
+#
 
 # We use some things introduced in 8.6 such as lmap.  auto.def should
 # have found us a suitable Tcl installation.
@@ -32,6 +37,7 @@ set testrundir [pwd]
 set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
 set is_windows [expr {$::tcl_platform(platform) eq "windows"}]
+set is_cygwin [regexp {^CYGWIN} $::tcl_platform(os)]
 
 if {$::is_windows} {
   if {[string length [file extension $fossilexe]] == 0} {
@@ -280,6 +286,8 @@ proc get_all_settings {} {
       allow-symlinks \
       auto-captcha \
       auto-hyperlink \
+      auto-hyperlink-delay \
+      auto-hyperlink-mouseover \
       auto-shun \
       autosync \
       autosync-tries \
@@ -294,6 +302,7 @@ proc get_all_settings {} {
       chat-keep-count \
       chat-keep-days \
       chat-poll-timeout \
+      chat-timeline-user \
       clean-glob \
       clearsign \
       comment-format \
@@ -301,12 +310,15 @@ proc get_all_settings {} {
       crnl-glob \
       default-csp \
       default-perms \
+      default-skin \
       diff-binary \
       diff-command \
+      dont-commit \
       dont-push \
       dotfiles \
       editor \
       email-admin \
+      email-listid \
       email-renew-interval \
       email-self \
       email-send-command \
@@ -321,6 +333,7 @@ proc get_all_settings {} {
       exec-rel-paths \
       fileedit-glob \
       forbid-delta-manifests \
+      forum-close-policy \
       gdiff-command \
       gmerge-command \
       hash-digits \
@@ -329,6 +342,7 @@ proc get_all_settings {} {
       https-login \
       ignore-glob \
       keep-glob \
+      large-file-size \
       localauth \
       lock-timeout \
       main-branch \
@@ -339,6 +353,7 @@ proc get_all_settings {} {
       max-upload \
       mimetypes \
       mtime-changes \
+      mv-rm-files \
       pgp-command \
       preferred-diff-type \
       proxy \
@@ -346,7 +361,10 @@ proc get_all_settings {} {
       relative-paths \
       repo-cksum \
       repolist-skin \
+      robot-restrict \
+      robots-txt \
       safe-html \
+      self-pw-reset \
       self-register \
       sitemap-extra \
       ssh-command \
@@ -435,6 +453,8 @@ proc require_no_open_checkout {} {
   }
   catch {exec $::fossilexe info} res
   if {[regexp {local-root:} $res]} {
+    global skipped_tests testfile
+    lappend skipped_tests $testfile
     set projectName <unknown>
     set localRoot <unknown>
     regexp -line -- {^project-name: (.*)$} $res dummy projectName
@@ -472,12 +492,18 @@ proc robust_delete { path {force ""} } {
 }
 
 proc test_cleanup_then_return {} {
+  global skipped_tests testfile
+  lappend skipped_tests $testfile
   uplevel 1 [list test_cleanup]
   return -code return
 }
 
 proc test_cleanup {} {
-  if {$::KEEP} {return}; # All cleanup disabled?
+  if {$::KEEP} {
+      # To avoid errors with require_no_open_checkout, cd out of here.
+      if {[info exists ::tempSavedPwd]} {cd $::tempSavedPwd; unset ::tempSavedPwd}
+      return
+  }
   if {![info exists ::tempRepoPath]} {return}
   if {![file exists $::tempRepoPath]} {return}
   if {![file isdirectory $::tempRepoPath]} {return}
@@ -506,7 +532,7 @@ proc test_cleanup {} {
 
 proc delete_temporary_home {} {
   if {$::KEEP} {return}; # All cleanup disabled?
-  if {$::is_windows} {
+  if {$::is_windows || $::is_cygwin} {
     robust_delete [file join $::tempHomePath _fossil]
   } else {
     robust_delete [file join $::tempHomePath .fossil]
@@ -833,6 +859,7 @@ proc test {name expr {constraints ""}} {
 }
 set bad_test {}
 set ignored_test {}
+set skipped_tests {}
 
 # Return a random string N characters long.
 #
@@ -997,7 +1024,7 @@ proc test_fossil_http { repository dataFileName url } {
   write_file $inFileName $data
 
   fossil http --in $inFileName --out $outFileName --ipaddr 127.0.0.1 \
-      $repository --localauth --th-trace
+      $repository --localauth --th-trace -expectError
 
   set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
 
@@ -1074,6 +1101,15 @@ please set TEMP variable in environment, error: $error"
 
 set tempHomePath [file join $tempPath home_[pid]]
 
+# Close stdin to avoid errors on wrapped text for narrow terminals.
+# Closing stdin means that terminal detection returns 0 width, in turn
+# causing the relvant strings to be printed on a single line.
+# However, closing stdin makes file descriptor 0 avaailable on some systems
+# and/or TCL implementations, which triggers fossil to complain about opening
+# databases using fd 0. Avoid this by opening the script, consuming fd 0.
+close stdin
+set possibly_fd0 [open [info script] r]
+
 if {[catch {
   file mkdir $tempHomePath
 } error] != 0} {
@@ -1084,6 +1120,11 @@ please set TEMP variable in environment, error: $error"
 
 protInit $fossilexe
 set ::tempKeepHome 1
+
+# Start in tempHomePath to help avoid errors with require_no_open_checkout
+set startPwd [pwd]
+cd $tempHomePath
+
 foreach testfile $argv {
   protOut "***** $testfile ******"
   if { [catch {source $testdir/$testfile.test} testerror testopts] } {
@@ -1095,7 +1136,12 @@ foreach testfile $argv {
   }
   protOut "***** End of $testfile: [llength $bad_test] errors so far ******"
 }
+cd $startPwd
 unset ::tempKeepHome; delete_temporary_home
+
+# Clean up the file descriptor
+close $possibly_fd0
+
 set nErr [llength $bad_test]
 if {$nErr>0 || !$::QUIET} {
   protOut "***** Final results: $nErr errors out of $test_count tests" 1
@@ -1109,4 +1155,11 @@ if {$nErr>0 || !$::QUIET} {
 }
 if {$nErr>0} {
   protOut "***** Ignored failures: $ignored_test" 1
+}
+set nSkipped [llength $skipped_tests]
+if {$nSkipped>0} {
+  protOut "***** Skipped tests: $skipped_tests" 1
+}
+if {$bad_test>0} {
+  exit 1
 }

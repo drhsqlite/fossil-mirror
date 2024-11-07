@@ -1,5 +1,9 @@
 # Delta Manifests
 
+<div class="sidebar">Do not confuse these with the core [Fossil delta
+format](./delta_format.wiki). This document describes an optional
+feature not enabled by default.</div>
+
 This article describes "delta manifests," a special-case form of
 checkin manifest which is intended to take up far less space than
 a normal checkin manifest, in particular for repositories with
@@ -10,12 +14,6 @@ This article assumes that the reader is at least moderately familiar
 with Fossil's [artifact file format](./fileformat.wiki), in particular
 the structure of checkin manifests, and it won't make much sense to
 readers unfamiliar with that topic.
-
-Sidebar: delta manifests are not to be confused with the core [Fossil
-delta format](./delta_format.wiki). The former is a special-case form
-of delta which applies *only* to checkin manifests whereas the latter
-is a general-purpose delta compression which can apply to any
-Fossil-stored data (including delta manifests).
 
 # Background and Motivation of Delta Manifests
 

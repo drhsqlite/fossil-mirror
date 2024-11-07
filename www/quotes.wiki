@@ -4,15 +4,15 @@ The following are collected quotes from various forums and blogs about
 Fossil, Git, and DVCSes in general.  This collection is put together
 by the creator of Fossil, so of course there is selection bias...
 
-<h2>On The Usability Of Git:</h2>
+<h2>On The Usability Of Git</h2>
 
 <ol>
 <li>Git approaches the usability of iptables, which is to say, utterly
 unusable unless you have the manpage tattooed on you arm.
 
-<blockquote>
+<p class="local-indent">
 <i>by mml at [http://news.ycombinator.com/item?id=1433387]</i>
-</blockquote>
+</p>
 
 <li><nowiki>It's simplest to think of the state of your [git] repository
 as a point in a high-dimensional "code-space",  in which branches are
@@ -20,11 +20,11 @@ represented as n-dimensional membranes, mapping the spatial loci of
 successive commits onto the projected manifold of each cloned
 repository.</nowiki>
 
-<blockquote>
+<p class="local-indent">
 <i>by Jonathan Hartley at
 [https://www.tartley.com/posts/a-guide-to-git-using-spatial-analogies];
 <br>Quoted here: [https://lwn.net/Articles/420152/].</i>
-</blockquote>
+</p>
 
 <li>Git is not a Prius. Git is a Model T.
 Its plumbing and wiring sticks out all over the place.
@@ -32,16 +32,16 @@ You have to be a mechanic to operate it successfully or you'll be
 stuck on the side of the road when it breaks down.
 And it <b>will</b> break down.
 
-<blockquote>
+<p class="local-indent">
 <i>Nick Farina at [http://nfarina.com/post/9868516270/git-is-simpler]</i>
-</blockquote>
+</p>
 
 <li>Initial revision of "git", The information manager from hell
 
-<blockquote>
+<p class="local-indent">
 <i>Linus Torvalds - 2005-04-07 22:13:13<br>
 Commit comment on the very first source-code check-in for git
-</blockquote>
+</p>
 
 <li>I've been experimenting a lot with git at work.
 Damn, it's complicated.
@@ -50,47 +50,47 @@ including the ability to allow you to commit stuff in such a way that you can't 
 it again afterwards (!!!)
 Demented workflow complexity on acid?
 <p>* dkf really wishes he could use fossil instead</p>
-<blockquote>
+<p class="local-indent">
 <i>by Donal K. Fellow (dkf) on the Tcl/Tk chatroom, 2013-04-09.</i>
-</blockquote>
+</p>
 
 <li>&#91;G&#93;it is <i>designed</i> to forget things.
 
-<blockquote>
+<p class="local-indent">
 <i>[http://www.cs.cmu.edu/~davide/howto/git_lose.html]
-</blockquote>
+</p>
 
 <li>&#91;I&#93;n nearly 31 years of using a computer i have, in total, lost more data to git
 (while following the instructions!!!) than any other single piece of software.
 
-<blockquote>
+<p class="local-indent">
 <i>Stephan Beal on the [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg17181.html|Fossil mailing list]
    2014-09-01.</i>
-</blockquote>
+</p>
 
 <li>If programmers _really_ wanted to help scientists, they'd build a version control
 system that was more usable than Git.
 
-<blockquote>
+<p class="local-indent">
 <i>Tweet by Greg Wilson @gvwilson on 2015-02-22 17:47</i>
-</blockquote>
+</p>
 
 <li><img src='xkcd-git.gif' align='top'>
 
-<blockquote><i>Randall Munroe.  [http://xkcd.com/1597/]</i></blockquote>
+<p class="local-indent"><i>Randall Munroe.  [http://xkcd.com/1597/]</i><p>
 
 </ol>
 
-<h2>On The Usability Of Fossil:</h2>
+<h2>On The Usability Of Fossil</h2>
 
 <ol>
 <li value=11>
 Fossil mesmerizes me with simplicity especially after I struggled to
 get a bug-tracking system to work with mercurial.
 
-<blockquote>
+<p class="local-indent">
 <i>rawjeev at [https://stackoverflow.com/a/2100469/142454]</i>
-</blockquote>
+</p>
 
 <li>Fossil is the best thing to happen
 to my development workflow this year, as I am pretty sure that using
@@ -98,17 +98,17 @@ Git has resulted in the premature death of too many of my brain cells.
 I'm glad to be able to replace Git in every place that I possibly can
 with Fossil.
 
-<blockquote>
+<p class="local-indent">
 <i>Joe Prostko at [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg16716.html]
-</blockquote>
+</p>
 
 <li>This is my favourite VCS. I can carry it on a USB. And it's a complete system, with it's own
 server, ticketing system, Wiki pages, and a very, very helpful timeline visualization. And
 the entire program in a single file!
 
-<blockquote>
+<p class="local-indent">
 <i>thunderbong commenting on hacker news: [https://news.ycombinator.com/item?id=9131619]</i>
-</blockquote>
+</p>
 
 
 </ol>
@@ -120,18 +120,18 @@ the entire program in a single file!
 <li value=14>
 After prolonged exposure to fossil, i tend to get the jitters when I work with git...
 
-<blockquote>
+<p class="local-indent">
 <i>sriku - at [https://news.ycombinator.com/item?id=16104427]</i>
-</blockquote>
+</p>
 
 
 <li>
 Just want to say thanks for fossil making my life easier....
 Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
 
-<blockquote>
+<p class="local-indent">
 <i>Joshua Paine at [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg02736.html]</i>
-</blockquote>
+</p>
 
 <li>We use it at a large university to manage code that small teams write.
 The runs everywhere, ease of installation and portability is something that
@@ -140,32 +140,32 @@ sometimes very restrictive firewalls, OSX/Win/Linux).  We are happy with it
 and teaching a Msc/Phd student (read complete novice) fossil has just
 been a smoother ride than Git was.
 
-<blockquote>
+<p class="local-indent">
 <i>viablepanic at [https://www.reddit.com/r/programming/comments/bxcto/why_not_fossil_scm/c0p30b4?utm_source=share&utm_medium=web2x&context=3]</i>
-</blockquote>
+</p>
 
 <li>In the fossil community - and hence in fossil itself - development history
 is pretty much sacrosanct. The very name "fossil" was to chosen to
 reflect the unchanging nature of things in that history.
-
-<p>In git (or rather, the git community), the development history is part of
+<br><br>
+In git (or rather, the git community), the development history is part of
 the published aspect of the project, so it provides tools for rearranging
 that history so you can present what you "should" have done rather
 than what you actually did.
 
-<blockquote>
+<p class="local-indent">
 <i>Mike Meyer on the Fossil mailing list, 2011-10-04</i>
-</blockquote>
+</p>
 
 <li>github is such a pale shadow of what fossil does.
 
-<blockquote>
+<p class="local-indent">
 <i>dkf on the Tcl chatroom, 2013-12-06</i>
-</blockquote>
+</p>
 
 <li>&#91;With fossil&#93; I actually enjoy keeping track of source files again.
 
-<blockquote>
+<p class="local-indent">
 <a href="https://wholesomedonut.prose.sh/using-fossil-not-git">https://wholesomedonut.prose.sh/using-fossil-not-git</a>
-</blockquote>
+</p>
 </ol>

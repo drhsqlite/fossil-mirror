@@ -1,5 +1,4 @@
 <title>Fossilized Bash Prompt</title>
-<h1>2013-02-21</h1>
 
 Dan Kennedy has contributed a
 [./fossil_prompt.sh?mimetype=text/plain | bash script]
@@ -12,12 +11,12 @@ red when there are uncommitted changes.
 To try out this script, simply download it from the link above, then
 type:
 
-<blockquote><pre>
+<pre>
 . fossil_prompt.sh
-</pre></blockquote>
+</pre>
 
 For a permanent installation, you can graft the code into your
 <tt>.bashrc</tt> file in your home directory.
 
 The code is very simple (only 32 non-comment lines, as of this writing)
-and hence easy to customized.
+and hence easy to customize.

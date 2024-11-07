@@ -138,16 +138,12 @@ where you want a *nearly-complete* clone of the remote repository using nothing
 but the normal Fossil sync protocol. It only does so if you are logged into
 the remote as a user with Setup capability, however.
 
-----
-
 ``` shell
 #!/bin/sh
 fossil sync --unversioned
 fossil configuration pull all
 fossil rebuild
 ```
-
-----
 
 The last step is needed to ensure that shunned artifacts on the remote
 are removed from the local clone. The second step includes
@@ -165,14 +161,12 @@ The first method doesn’t get you a copy of the remote’s
 remote, such as SQL-level customizations that the sync protocol can’t
 see. (Some [ticket system customization][tkt] schemes rely on this ability, for example.) You can
 solve such problems if you have access to the remote server, which
-allows you to get a SQL-level backup. This requires Fossil 2.12 or
-newer, which added [the `backup` command][bu] to take care of
-locking and transaction isolation, allowing the user to safely back up an in-use
+allows you to get a SQL-level backup by delegating handling of locking
+and transaction isolation to
+[the `backup` command][bu], allowing the user to safely back up an in-use
 repository.
 
 If you have SSH access to the remote server, something like this will work:
-
-----
 
 ``` shell
 #!/bin/bash
@@ -180,8 +174,6 @@ bf=repo-$(date +%Y-%m-%d).fossil
 ssh example.com "cd museum ; fossil backup -R repo.fossil backups/$bf" &&
     scp example.com:museum/backups/$bf ~/museum/backups
 ```
-
-----
 
 Beware that this method does not solve [the intransitive sync
 problem](#ait), in and of itself: if you do a SQL-level backup of a
@@ -200,25 +192,42 @@ leak your information. This addition to the prior scripts will encrypt
 the resulting backup in such a way that the cloud copy is a useless blob
 of noise to anyone without the key:
 
-----
-
 ```shell
-iter=52830
+iter=152830
 pass="h8TixP6Mt6edJ3d6COaexiiFlvAM54auF2AjT7ZYYn"
 gd="$HOME/Google Drive/Fossil Backups/$bf.xz.enc"
 fossil sql -R ~/museum/backups/"$bf" .dump | xz -9 |
     openssl enc -e -aes-256-cbc -pbkdf2 -iter $iter -pass pass:"$pass" -out "$gd"
 ```
 
-----
-
 If you’re adding this to the first script above, remove the
 “`-R repo-name`” bit so you get a dump of the repository backing the
 current working directory.
 
 Change the `pass` value to some other long random string, and change the
-`iter` value to something between 10000 and 100000. A good source for
+`iter` value to something in the hundreds of thousands range. A good source for
 the first is [here][grcp], and for the second, [here][rint].
+
+You may find posts online written by people recommending millions of
+iterations for PBKDF2, but they’re generally talking about this in the
+context of memorizable passwords, where adding even one more character
+to the password is a significant burden. Given our script’s purely
+random maximum-length passphrase, there isn’t much more that increasing
+the key derivation iteration count can do for us.
+
+Conversely, if you were to reduce the passphrase to 41 characters, that
+would drop the key strength by roughly 2⁶, being the entropy value per
+character for using most of printable ASCII in our passphrase. To make
+that lost strength up on the PBKDF2 end, you’d have to multiply your
+iterations by 2⁶ = 64 times. It’s easier to use a max-length passphrase
+in this situation than get crazy with key derivation iteration counts.
+
+(This, by the way, is why the example passphrase above is 42 characters:
+with 6 bits of entropy per character, that gives you a key size of 252,
+as close as we can get to our chosen encryption algorithm’s 256-bit key
+size without going over. If it pleases you to give it 43 random
+characters for a passphrase in order to pick up those last four bits of
+security, you’re welcome to do so.)
 
 Compressing the data before encrypting it removes redundancies that can
 make decryption easier, and it results in a smaller backup than you get
@@ -243,8 +252,8 @@ PBKDF2. To avoid a conflict with the platform’s `openssl` binary,
 Homebrew’s installation is [unlinked][hbul] by default, so you have to
 give an explicit path to it, one of:
 
-       /usr/local/opt/openssl/bin/openssl ...     # Intel x86 Macs
-       /opt/homebrew/opt/openssl/bin/openssl ...  # ARM Macs (“Apple silicon”)
+    /usr/local/opt/openssl/bin/openssl ...     # Intel x86 Macs
+    /opt/homebrew/opt/openssl/bin/openssl ...  # ARM Macs (“Apple silicon”)
 
 [lssl]: https://www.libressl.org/
 
@@ -288,7 +297,7 @@ this way saves you from needing to go and build a matching version of
 [hbul]:  https://docs.brew.sh/FAQ#what-does-keg-only-mean
 [lz4]:   https://lz4.github.io/lz4/
 [pbr]:   ./private.wiki
-[rint]:  https://www.random.org/integers/?num=1&min=10000&max=100000&col=5&base=10&format=html&rnd=new
+[rint]:  https://www.random.org/integers/?num=1&min=100000&max=1000000&col=5&base=10&format=html&rnd=new
 [Setup]: ./caps/admin-v-setup.md#apsu
 [shun]:  ./shunning.wiki
 [tkt]:   ./tickets.wiki

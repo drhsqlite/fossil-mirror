@@ -84,6 +84,11 @@ static void hash(const char *zIn, int N, char *zOut){
   zOut[n] = 0;
 }
 
+/* Local strcpy() clone to squelch an unwarranted warning from OpenBSD. */
+static void local_strcpy(char *dest, const char *src){
+  while( (*(dest++) = *(src++))!=0 ){}
+}
+
 int main(int argc, char *argv[]){
     FILE *m,*u,*v;
     char *z;
@@ -115,13 +120,14 @@ int main(int argc, char *argv[]){
     if( n + 50 < sizeof(b) ){
 #ifdef FOSSIL_BUILD_EPOCH
 #define str(s) #s
-      sprintf(b+n, "%d", (int)strtoll(str(FOSSIL_BUILD_EPOCH), 0, 10));
+      snprintf(b+n, sizeof(b)-n,
+               "%d", (int)strtoll(str(FOSSIL_BUILD_EPOCH), 0, 10));
 #else
       const char *zEpoch = getenv("SOURCE_DATE_EPOCH");
       if( zEpoch && isdigit(zEpoch[0]) ){
-        sprintf(b+n, "%d", (int)strtoll(zEpoch, 0, 10));
+        snprintf(b+n, sizeof(b)-n, "%d", (int)strtoll(zEpoch, 0, 10));
       }else{
-        sprintf(b+n, "%d", (int)time(0));
+        snprintf(b+n, sizeof(b)-n, "%d", (int)time(0));
       }
 #endif
       hash(b,33,vx);
@@ -174,7 +180,7 @@ int main(int argc, char *argv[]){
     for(z=vx; z[0]=='0'; z++){}
     printf("#define RELEASE_VERSION_NUMBER %d%02d%02d\n", vn[0], vn[1], vn[2]);
     memset(vx,0,sizeof(vx));
-    strcpy(vx,b);
+    local_strcpy(vx,b);
     for(z=vx; z[0]; z++){
       if( z[0]=='-' ){
         z[0] = 0;

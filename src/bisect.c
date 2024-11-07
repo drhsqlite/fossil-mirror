@@ -392,6 +392,8 @@ void bisect_reset(void){
 ** Options:
 **    -i|--interactive          Prompt user for decisions rather than
 **                              using the return code from COMMAND
+**    --ii                      Like -i but also pause after showing
+**                              the status after each step.
 */
 static void bisect_run(void){
   const char *zCmd;
@@ -405,6 +407,10 @@ static void bisect_run(void){
     if( zArg[0]=='-' && zArg[1]=='-' && zArg[2]!=0 ) zArg++;
     if( strcmp(zArg, "-i")==0 || strcmp(zArg, "-interactive")==0 ){
       isInteractive = 1;
+      continue;
+    }
+    if( strcmp(zArg, "-ii")==0 ){
+      isInteractive = 2;
       continue;
     }
     fossil_fatal("unknown command-line option: \"%s\"\n", g.argv[i]);
@@ -462,6 +468,18 @@ static void bisect_run(void){
     fossil_print("%s\n", blob_str(&cmd));
     fossil_system(blob_str(&cmd));
     blob_reset(&cmd);
+    if( isInteractive>=2 && db_lget_int("bisect-complete", 0)==0 ){
+      int n;
+      char *z;
+      Blob in;
+      int bContinue = 1;
+      prompt_user("Run testcase again?  (Y)es or No: ", &in);
+      n = blob_size(&in);
+      z = blob_str(&in);
+      if( n>0 && sqlite3_strnicmp("no", z, n)==0 ) bContinue = 0;
+      blob_reset(&in);
+      if( !bContinue ) break;
+    }
   }
 }
 

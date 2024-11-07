@@ -197,6 +197,7 @@ enum markup_t {
   MARKUP_COLGROUP,
   MARKUP_DD,
   MARKUP_DEL,
+  MARKUP_DETAILS,
   MARKUP_DFN,
   MARKUP_DIV,
   MARKUP_DL,
@@ -231,6 +232,7 @@ enum markup_t {
   MARKUP_STRIKE,
   MARKUP_STRONG,
   MARKUP_SUB,
+  MARKUP_SUMMARY,
   MARKUP_SUP,
   MARKUP_TABLE,
   MARKUP_TBODY,
@@ -288,10 +290,9 @@ static const struct AllowedMarkup {
                     AMSK_ID|AMSK_CLASS|AMSK_STYLE|AMSK_TITLE },
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         AMSK_STYLE },
  { "article",       MARKUP_HTML5_ARTICLE, MUTYPE_BLOCK,
-                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "aside",         MARKUP_HTML5_ASIDE,  MUTYPE_BLOCK,
-                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
-
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "b",             MARKUP_B,            MUTYPE_FONT,          AMSK_STYLE },
  { "big",           MARKUP_BIG,          MUTYPE_FONT,          AMSK_STYLE },
  { "blockquote",    MARKUP_BLOCKQUOTE,   MUTYPE_BLOCK,         AMSK_STYLE },
@@ -305,6 +306,8 @@ static const struct AllowedMarkup {
                     AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH|AMSK_STYLE},
  { "dd",            MARKUP_DD,           MUTYPE_LI,            AMSK_STYLE },
  { "del",           MARKUP_DEL,          MUTYPE_FONT,          AMSK_STYLE },
+ { "details",       MARKUP_DETAILS,      MUTYPE_BLOCK,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          AMSK_STYLE },
  { "div",           MARKUP_DIV,          MUTYPE_BLOCK,
                     AMSK_ID|AMSK_CLASS|AMSK_STYLE },
@@ -315,8 +318,7 @@ static const struct AllowedMarkup {
  { "font",          MARKUP_FONT,         MUTYPE_FONT,
                     AMSK_COLOR|AMSK_FACE|AMSK_SIZE|AMSK_STYLE },
  { "footer",        MARKUP_HTML5_FOOTER, MUTYPE_BLOCK,
-                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
-
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "h1",            MARKUP_H1,           MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "h2",            MARKUP_H2,           MUTYPE_BLOCK,
@@ -329,10 +331,8 @@ static const struct AllowedMarkup {
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "h6",            MARKUP_H6,           MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
-
  { "header",        MARKUP_HTML5_HEADER, MUTYPE_BLOCK,
-                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
-
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "hr",            MARKUP_HR,           MUTYPE_SINGLE,
                     AMSK_ALIGN|AMSK_COLOR|AMSK_SIZE|AMSK_WIDTH|
                     AMSK_STYLE|AMSK_CLASS  },
@@ -345,7 +345,7 @@ static const struct AllowedMarkup {
  { "li",            MARKUP_LI,           MUTYPE_LI,
                     AMSK_TYPE|AMSK_VALUE|AMSK_STYLE  },
  { "nav",           MARKUP_HTML5_NAV,    MUTYPE_BLOCK,
-                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "nobr",          MARKUP_NOBR,         MUTYPE_FONT,          0  },
  { "nowiki",        MARKUP_NOWIKI,       MUTYPE_SPECIAL,       0  },
  { "ol",            MARKUP_OL,           MUTYPE_LIST,
@@ -356,13 +356,15 @@ static const struct AllowedMarkup {
  { "s",             MARKUP_S,            MUTYPE_FONT,          AMSK_STYLE },
  { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          AMSK_STYLE },
  { "section",       MARKUP_HTML5_SECTION, MUTYPE_BLOCK,
-                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "small",         MARKUP_SMALL,        MUTYPE_FONT,          AMSK_STYLE },
  { "span",          MARKUP_SPAN,         MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "strike",        MARKUP_STRIKE,       MUTYPE_FONT,          AMSK_STYLE },
  { "strong",        MARKUP_STRONG,       MUTYPE_FONT,          AMSK_STYLE },
  { "sub",           MARKUP_SUB,          MUTYPE_FONT,          AMSK_STYLE },
+ { "summary",       MARKUP_SUMMARY,      MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "sup",           MARKUP_SUP,          MUTYPE_FONT,          AMSK_STYLE },
  { "table",         MARKUP_TABLE,        MUTYPE_TABLE,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_BORDER|AMSK_CELLPADDING|
@@ -460,6 +462,7 @@ struct Renderer {
   int preVerbState;           /* Value of state prior to verbatim */
   int wantAutoParagraph;      /* True if a <p> is desired */
   int inAutoParagraph;        /* True if within an automatic paragraph */
+  int pikchrHtmlFlags;        /* Flags for pikchr_to_html() */
   const char *zVerbatimId;    /* The id= attribute of <verbatim> */
   int nStack;                 /* Number of elements on the stack */
   int nAlloc;                 /* Space allocated for aStack */
@@ -792,7 +795,7 @@ static int parseMarkup(ParsedMarkup *p, char *z){
   }
   j = 0;
   while( fossil_isalnum(z[i]) ){
-    if( j<sizeof(zTag)-1 ) zTag[j++] = fossil_tolower(z[i]);
+    if( j<(int)sizeof(zTag)-1 ) zTag[j++] = fossil_tolower(z[i]);
     i++;
   }
   zTag[j] = 0;
@@ -815,7 +818,7 @@ static int parseMarkup(ParsedMarkup *p, char *z){
     int attrOk;    /* True to preserve attribute.  False to ignore it */
     j = 0;
     while( fossil_isalnum(z[i]) ){
-      if( j<sizeof(zTag)-1 ) zTag[j++] = fossil_tolower(z[i]);
+      if( j<(int)sizeof(zTag)-1 ) zTag[j++] = fossil_tolower(z[i]);
       i++;
     }
     zTag[j] = 0;
@@ -1107,7 +1110,7 @@ static int in_this_repo(const char *zUuid){
   );
   db_bind_text(&q, ":u", zUuid);
   n = (int)strlen(zUuid);
-  if( n>=sizeof(zU2) ) n = sizeof(zU2)-1;
+  if( n>=(int)sizeof(zU2) ) n = sizeof(zU2)-1;
   memcpy(zU2, zUuid, n);
   zU2[n-1]++;
   zU2[n] = 0;
@@ -1360,7 +1363,7 @@ void wiki_resolve_hyperlink(
     zTerm = "</span>";
   }
   if( zExtra ) fossil_free(zExtra);
-  assert( strlen(zTerm)<nClose );
+  assert( (int)strlen(zTerm)<nClose );
   sqlite3_snprintf(nClose, zClose, "%s", zTerm);
 }
 
@@ -1781,6 +1784,7 @@ static void wiki_render(Renderer *p, char *z){
               pushStack(p, MARKUP_TR);
               blob_append_string(p->pOut, "<tr>");
             }
+            p->wantAutoParagraph = 0;
             pushStack(p, markup.iCode);
             renderMarkup(p->pOut, &markup);
           }
@@ -1873,6 +1877,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **    --nobadlinks     Set the WIKI_NOBADLINKS flag
 **    --inline         Set the WIKI_INLINE flag
 **    --noblock        Set the WIKI_NOBLOCK flag
+**    --dark-pikchr    Render pikchrs in dark mode
 */
 void test_wiki_render(void){
   Blob in, out;
@@ -1883,6 +1888,9 @@ void test_wiki_render(void){
   if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
   if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
   if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
+  if( find_option("dark-pikchr",0,0)!=0 ){
+    pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
+  }
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
@@ -1902,6 +1910,7 @@ void test_wiki_render(void){
 **
 **    --safe            Restrict the output to use only "safe" HTML
 **    --lint-footnotes  Print stats for footnotes-related issues
+**    --dark-pikchr     Render pikchrs in dark mode
 */
 void test_markdown_render(void){
   Blob in, out;
@@ -1910,6 +1919,9 @@ void test_markdown_render(void){
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   bSafe = find_option("safe",0,0)!=0;
   bFnLint = find_option("lint-footnotes",0,0)!=0;
+  if( find_option("dark-pikchr",0,0)!=0 ){
+    pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
+  }
   verify_all_options();
   for(i=2; i<g.argc; i++){
     blob_zero(&out);
@@ -2219,7 +2231,7 @@ const char *html_attribute(const char *zMarkup, const char *zAttr, int *pLen){
       if( (zStart[0]=='"' || zStart[0]=='\'') && zStart[n-1]==zStart[0] ){
         zStart++;
         n -= 2;
-      } 
+      }
       *pLen = n;
       return zStart;
     }else{

@@ -63,7 +63,7 @@ void xfersetup_page(void){
                          g.url.canonical);
     }
     @ <p>Press the <strong>%h(zButton)</strong> button below to
-    @ synchronize with the <em>%h(g.url.canonical)</em> repository now.<br />
+    @ synchronize with the <em>%h(g.url.canonical)</em> repository now.<br>
     @ This may be useful when testing the various transfer scripts.</p>
     @ <p>You can use the <code>http -async</code> command in your scripts, but
     @ make sure the <code>th1-uri-regexp</code> setting is set first.</p>
@@ -75,14 +75,14 @@ void xfersetup_page(void){
     @
     @ <form method="post" action="%R/%s(g.zPath)"><div>
     login_insert_csrf_secret();
-    @ <input type="submit" name="sync" value="%h(zButton)" />
+    @ <input type="submit" name="sync" value="%h(zButton)">
     @ </div></form>
     @
     if( P("sync") ){
       user_select();
       url_enable_proxy(0);
       @ <pre class="xfersetup">
-      client_sync(syncFlags, 0, 0, 0);
+      client_sync(syncFlags, 0, 0, 0, 0);
       @ </pre>
     }
   }
@@ -120,14 +120,12 @@ static void xfersetup_generic(
   }
   style_set_current_feature("xfersetup");
   style_header("Edit %s", zTitle);
-  if( P("clear")!=0 ){
-    login_verify_csrf_secret();
+  if( P("clear")!=0 && cgi_csrf_safe(2) ){
     db_unset(zDbField/*works-like:"x"*/, 0);
     if( xRebuild ) xRebuild();
     z = zDfltValue;
-  }else if( isSubmit ){
+  }else if( isSubmit && cgi_csrf_safe(2) ){
     char *zErr = 0;
-    login_verify_csrf_secret();
     if( xText && (zErr = xText(z))!=0 ){
       @ <p class="xfersetupError">ERROR: %h(zErr)</p>
     }else{
@@ -141,13 +139,13 @@ static void xfersetup_generic(
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
   @ <p>
-  @ <input type="submit" name="submit" value="Apply Changes" />
-  @ <input type="submit" name="clear" value="Revert To Default" />
-  @ <input type="submit" name="setup" value="Cancel" />
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ <input type="submit" name="clear" value="Revert To Default">
+  @ <input type="submit" name="setup" value="Cancel">
   @ </p>
   @ </div></form>
   if ( zDfltValue ){
-    @ <hr />
+    @ <hr>
     @ <h2>Default %s(zTitle)</h2>
     @ <blockquote><pre>
     @ %h(zDfltValue)

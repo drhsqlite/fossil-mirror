@@ -523,11 +523,11 @@ static int builtinVtabEof(sqlite3_vtab_cursor *cur){
 /*
 ** This method is called to "rewind" the builtinVtab_cursor object back
 ** to the first row of output.  This method is always called at least
-** once prior to any call to builtinVtabColumn() or builtinVtabRowid() or 
+** once prior to any call to builtinVtabColumn() or builtinVtabRowid() or
 ** builtinVtabEof().
 */
 static int builtinVtabFilter(
-  sqlite3_vtab_cursor *pVtabCursor, 
+  sqlite3_vtab_cursor *pVtabCursor,
   int idxNum, const char *idxStr,
   int argc, sqlite3_value **argv
 ){
@@ -552,7 +552,7 @@ static int builtinVtabBestIndex(
 }
 
 /*
-** This following structure defines all the methods for the 
+** This following structure defines all the methods for the
 ** virtual table.
 */
 static sqlite3_module builtinVtabModule = {
@@ -579,7 +579,8 @@ static sqlite3_module builtinVtabModule = {
   /* xSavepoint  */ 0,
   /* xRelease    */ 0,
   /* xRollbackTo */ 0,
-  /* xShadowName */ 0
+  /* xShadowName */ 0,
+  /* xIntegrity  */ 0
 };
 
 
@@ -668,14 +669,6 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     CX("};\n"/*fossil.user*/);
     CX("if(fossil.config.skin.isDark) "
        "document.body.classList.add('fossil-dark-style');\n");
-#if 0
-    /* Is it safe to emit the CSRF token here? Some pages add it
-    ** as a hidden form field. */
-    if(g.zCsrfToken[0]!=0){
-      CX("window.fossil.csrfToken = %!j;\n",
-         g.zCsrfToken);
-    }
-#endif
     /*
     ** fossil.page holds info about the current page. This is also
     ** where the current page "should" store any of its own
@@ -727,7 +720,9 @@ static int builtin_emit_fossil_js_once(const char * zName){
   /* This list ordering isn't strictly important. */
   {"confirmer",      0, 0},
   {"copybutton",     0, "dom\0"},
-  {"diff",           0, "dom\0fetch\0"},
+  {"diff",           0, "dom\0fetch\0storage\0"
+   /* maintenance note: "diff" needs "storage" for storing the the
+   ** sbs-sync-scroll toggle. */},
   {"dom",            0, 0},
   {"fetch",          0, 0},
   {"numbered-lines", 0, "popupwidget\0copybutton\0"},
@@ -825,7 +820,7 @@ void test_js_once(void){
 ** dependencies also get queued (recursively) and that each module is
 ** queued only once.
 **
-** If passed a name which is not a base fossil module name then it 
+** If passed a name which is not a base fossil module name then it
 ** will fail fatally!
 **
 ** DO NOT use this for loading fossil.page.*.js: use

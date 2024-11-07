@@ -429,13 +429,16 @@ static void stash_diff(
     const char *zNew = db_column_text(&q, 5);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
     Blob a, b;
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &a);
       if( !bWebpage ) fossil_print("ADDED %s\n", zNew);
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
       diff_print_index(zNew, pCfg, 0);
       diff_file_mem(&empty, &a, zNew, pCfg);
     }else if( isRemoved ){
       if( !bWebpage) fossil_print("DELETE %s\n", zOrig);
+      pCfg->diffFlags |= DIFF_FILE_DELETED;
       diff_print_index(zNew, pCfg, 0);
       if( fBaseline ){
         content_get(rid, &a);
@@ -571,7 +574,7 @@ void stash_cmd(void){
     zCmd = g.argv[2];
   }
   nCmd = strlen(zCmd);
-  if( memcmp(zCmd, "save", nCmd)==0 ){
+  if( strncmp(zCmd, "save", nCmd)==0 ){
     if( unsaved_changes(0)==0 ){
       fossil_fatal("nothing to stash");
     }
@@ -580,9 +583,13 @@ void stash_cmd(void){
     if( g.argc>=2 ){
       int nFile = db_int(0, "SELECT count(*) FROM stashfile WHERE stashid=%d",
                          stashid);
-      char **newArgv = fossil_malloc( sizeof(char*)*(nFile+2) );
+      char **newArgv;
       int i = 2;
       Stmt q;
+      if( nFile==0 ){
+        fossil_fatal("No modified files match the provided pattern.");
+      }
+      newArgv = fossil_malloc( sizeof(char*)*(nFile+2) );
       db_prepare(&q,"SELECT origname FROM stashfile WHERE stashid=%d", stashid);
       while( db_step(&q)==SQLITE_ROW ){
         newArgv[i++] = mprintf("%s%s", g.zLocalRoot, db_column_text(&q, 0));
@@ -592,7 +599,6 @@ void stash_cmd(void){
       newArgv[1] = 0;
       g.argv = newArgv;
       g.argc = nFile+2;
-      if( nFile==0 ) return;
     }
     /* Make sure the stash has committed before running the revert, so that
     ** we have a copy of the changes before deleting them. */
@@ -602,10 +608,10 @@ void stash_cmd(void){
     fossil_print("stash %d saved\n", stashid);
     return;
   }else
-  if( memcmp(zCmd, "snapshot", nCmd)==0 ){
+  if( strncmp(zCmd, "snapshot", nCmd)==0 ){
     stash_create();
   }else
-  if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
+  if( strncmp(zCmd, "list", nCmd)==0 || strncmp(zCmd, "ls", nCmd)==0 ){
     Stmt q, q2;
     int n = 0, width;
     int verboseFlag = find_option("verbose","v",0)!=0;
@@ -669,7 +675,7 @@ void stash_cmd(void){
     if( verboseFlag ) db_finalize(&q2);
     if( n==0 ) fossil_print("empty stash\n");
   }else
-  if( memcmp(zCmd, "drop", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
+  if( strncmp(zCmd, "drop", nCmd)==0 || strncmp(zCmd, "rm", nCmd)==0 ){
     int allFlag = find_option("all", "a", 0)!=0;
     if( allFlag ){
       Blob ans;
@@ -695,7 +701,7 @@ void stash_cmd(void){
       undo_finish();
     }
   }else
-  if( memcmp(zCmd, "pop", nCmd)==0 ||  memcmp(zCmd, "apply", nCmd)==0 ){
+  if( strncmp(zCmd, "pop", nCmd)==0 ||  strncmp(zCmd, "apply", nCmd)==0 ){
     char *zCom = 0, *zDate = 0, *zHash = 0;
     int popped = *zCmd=='p';
     if( popped ){
@@ -724,7 +730,7 @@ void stash_cmd(void){
     undo_finish();
     if( popped ) stash_drop(stashid);
   }else
-  if( memcmp(zCmd, "goto", nCmd)==0 ){
+  if( strncmp(zCmd, "goto", nCmd)==0 ){
     int nConflict;
     int vid;
     if( g.argc>4 ) usage("apply STASHID");
@@ -739,12 +745,12 @@ void stash_cmd(void){
                   stashid);
     undo_finish();
   }else
-  if( memcmp(zCmd, "diff", nCmd)==0
-   || memcmp(zCmd, "gdiff", nCmd)==0
-   || memcmp(zCmd, "show", nCmd)==0
-   || memcmp(zCmd, "gshow", nCmd)==0
-   || memcmp(zCmd, "cat", nCmd)==0
-   || memcmp(zCmd, "gcat", nCmd)==0
+  if( strncmp(zCmd, "diff", nCmd)==0
+   || strncmp(zCmd, "gdiff", nCmd)==0
+   || strncmp(zCmd, "show", nCmd)==0
+   || strncmp(zCmd, "gshow", nCmd)==0
+   || strncmp(zCmd, "cat", nCmd)==0
+   || strncmp(zCmd, "gcat", nCmd)==0
   ){
     int fBaseline = 0;
     DiffConfig DCfg;
@@ -761,7 +767,7 @@ void stash_cmd(void){
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     stash_diff(stashid, fBaseline, &DCfg);
   }else
-  if( memcmp(zCmd, "help", nCmd)==0 ){
+  if( strncmp(zCmd, "help", nCmd)==0 ){
     g.argv[1] = "help";
     g.argv[2] = "stash";
     g.argc = 3;

@@ -185,16 +185,15 @@ int popen2(
   signal(SIGPIPE,SIG_IGN);
   if( *pChildPid==0 ){
     int fd;
-    int nErr = 0;
     /* This is the child process */
     close(0);
     fd = dup(pout[0]);
-    if( fd!=0 ) nErr++;
+    if( fd!=0 ) fossil_panic("popen() failed to open file descriptor 0");
     close(pout[0]);
     close(pout[1]);
     close(1);
     fd = dup(pin[1]);
-    if( fd!=1 ) nErr++;
+    if( fd!=1 ) fossil_panic("popen() failed to open file descriptor 1");
     close(pin[0]);
     close(pin[1]);
     if( bDirect ){

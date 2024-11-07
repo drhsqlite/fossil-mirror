@@ -24,13 +24,24 @@
 #include "color.h"
 
 /*
+** Compute a hash on a branch or user name
+*/
+static unsigned int hash_of_name(const char *z){
+  unsigned int h = 0;
+  int i;
+  for(i=0; z[i]; i++ ){
+    h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
+  }
+  return h;
+}
+
+/*
 ** Hash a string and use the hash to determine a background color.
 **
 ** This value returned is in static space and is overwritten with
 ** each subsequent call.
 */
 char *hash_color(const char *z){
-  int i;                       /* Loop counter */
   unsigned int h = 0;          /* Hash on the branch name */
   int r, g, b;                 /* Values for red, green, and blue */
   int h1, h2, h3, h4;          /* Elements of the hash value */
@@ -47,9 +58,7 @@ char *hash_color(const char *z){
       ix[1] = 0x20;
     }
   }
-  for(i=0; z[i]; i++ ){
-    h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
-  }
+  h = hash_of_name(z);
   h1 = h % 6;  h /= 6;
   h3 = h % 10; h /= 10;
   h4 = h % 10; h /= 10;
@@ -156,14 +165,14 @@ void test_hash_color_page(void){
     zBr = P(zNm);
     if( zBr && zBr[0] ){
       @ <p style='border:1px solid;background-color:%s(hash_color(zBr));'>
-      @ %h(zBr) - %s(hash_color(zBr)) -
+      @ %h(zBr) - hash 0x%x(hash_of_name(zBr)) - color %s(hash_color(zBr)) -
       @ Omnes nos quasi oves erravimus unusquisque in viam
       @ suam declinavit.</p>
       cnt++;
     }
   }
   if( cnt ){
-    @ <hr />
+    @ <hr>
   }
   @ <form method="POST">
   @ <p>Enter candidate branch names below and see them displayed in their
@@ -171,7 +180,7 @@ void test_hash_color_page(void){
   for(i=0; i<10; i++){
     sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
     zBr = P(zNm);
-    @ <input type="text" size="30" name='%s(zNm)' value='%h(PD(zNm,""))'><br />
+    @ <input type="text" size="30" name='%s(zNm)' value='%h(PD(zNm,""))'><br>
   }
   @ <input type="submit" value="Submit">
   @ <input type="submit" name="rand" value="Random">

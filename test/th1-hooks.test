@@ -148,7 +148,7 @@ test th1-cmd-hooks-1b {[normalize_result] eq \
 
 ###############################################################################
 
-fossil timeline custom3; # NOTE: Bad "WHEN" argument.
+fossil timeline custom3 -expectError; # NOTE: Bad "WHEN" argument.
 
 test th1-cmd-hooks-1c {[normalize_result] eq \
 {<h1><b>command_hook timeline</b></h1>
@@ -198,7 +198,7 @@ test th1-custom-cmd-3a {[string trim $RESULT] eq \
 
 ###############################################################################
 
-fossil test4
+fossil test4 -expectError
 
 test th1-custom-cmd-4a {[first_data_line] eq \
     {<h1><b>command_hook test4</b></h1>}}

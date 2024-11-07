@@ -251,6 +251,7 @@ int compute_youngest_ancestor_in_branch(int rid, const char *zBranch){
     "   WHERE EXISTS(SELECT 1 FROM tagxref"
                     " WHERE tagid=%d AND tagxref.rid=ancestor.rid"
                     "   AND value=%Q AND tagtype>0)"
+    "  ORDER BY mtime DESC"
     "  LIMIT 1",
     rid, rid, TAG_BRANCH, zBranch
   );
@@ -578,6 +579,7 @@ void leaves_page(void){
     style_submenu_element("Open", "%s", url_render(&url, 0, 0, 0, 0));
   }
   url_reset(&url);
+  cgi_check_for_malice();
   style_set_current_feature("leaves");
   style_header("Leaves");
   login_anonymous_available();
@@ -629,7 +631,7 @@ void leaves_page(void){
   if( fUBg ) tmFlags |= TIMELINE_UCOLOR;
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
-  @ <br />
+  @ <br>
   style_finish_page();
 }
 

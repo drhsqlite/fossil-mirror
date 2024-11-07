@@ -1,34 +1,31 @@
 <title>Fossil Quick Start Guide</title>
-<h1 align="center">Fossil Quick Start</h1>
 
-<p>This is a guide to help you get started using the Fossil [https://en.wikipedia.org/wiki/Distributed_version_control|Distributed Version Control System] quickly
-and painlessly.</p>
+This is a guide to help you get started using the Fossil [https://en.wikipedia.org/wiki/Distributed_version_control|Distributed Version Control System] quickly
+and painlessly.
 
 <h2 id="install">Installing</h2>
 
-<p>Fossil is a single self-contained C program.  You need to
+Fossil is a single self-contained C program.  You need to
 either download a
 [https://fossil-scm.org/home/uv/download.html|precompiled
 binary]
 or <a href="build.wiki">compile it yourself</a> from sources.
 Install Fossil by putting the fossil binary
-someplace on your $PATH.</p>
+someplace on your $PATH.
+
 You can test that Fossil is present and working like this:
 
-<blockquote>
-<b>
-fossil version<br>
-<tt>This is fossil version 2.13 [309af345ab] 2020-09-28 04:02:55 UTC</tt><br>
-</b>
-</blockquote>
+<pre><b>fossil version
+This is fossil version 2.13 [309af345ab] 2020-09-28 04:02:55 UTC
+</b></pre>
 
 <h2 id="workflow" name="fslclone">General Work Flow</h2>
 
-<p>Fossil works with repository files (a database in a single file with the project's
+Fossil works with repository files (a database in a single file with the project's
 complete history) and with checked-out local trees (the working directory
 you use to do your work). 
 (See [./glossary.md | the glossary] for more background.)
-The workflow looks like this:</p>
+The workflow looks like this:
 
 <ul>
     <li>Create or clone a repository file.  ([/help/init|fossil init] or
@@ -41,17 +38,16 @@ The workflow looks like this:</p>
 Fossil can be entirely driven from the command line. Many features
 can also be conveniently accessed from the built-in web user interface.
 
-<p>The following sections give a brief overview of these
-operations.</p>
+The following sections give a brief overview of these
+operations.
 
 <h2 id="new">Starting A New Project</h2>
 
-<p>To start a new project with fossil create a new empty repository
-this way: ([/help/init | more info]) </p>
+To start a new project with fossil create a new empty repository
+this way: ([/help/init | more info])
 
-<blockquote>
-<b>fossil init </b><i> repository-filename</i>
-</blockquote>
+<pre><b>fossil init</b> <i>repository-filename</i>
+</pre>
 
 You can name the database anything you like, and you can place it anywhere in the filesystem.
 The <tt>.fossil</tt> extension is traditional but only required if you are going to use the 
@@ -59,58 +55,50 @@ The <tt>.fossil</tt> extension is traditional but only required if you are going
 
 <h2 id="clone">Cloning An Existing Repository</h2>
 
-<p>Most fossil operations interact with a repository that is on the
+Most fossil operations interact with a repository that is on the
 local disk drive, not on a remote system.  Hence, before accessing
 a remote repository it is necessary to make a local copy of that
 repository.  Making a local copy of a remote repository is called
-"cloning".</p>
+"cloning".
 
-<p>Clone a remote repository as follows: ([/help/clone | more info])</p>
+Clone a remote repository as follows: ([/help/clone | more info])
 
-<blockquote>
-<b>fossil clone</b> <i>URL  repository-filename</i>
-</blockquote>
+<pre><b>fossil clone</b> <i>URL repository-filename</i>
+</pre>
 
-<p>The <i>URL</i> specifies the fossil repository
+The <i>URL</i> specifies the fossil repository
 you want to clone.  The <i>repository-filename</i> is the new local
 filename into which the cloned repository will be written.  For
 example, to clone the source code of Fossil itself:
 
-<blockquote>
-<b>fossil clone https://fossil-scm.org/ myclone.fossil</b>
-</blockquote>
+<pre><b>fossil clone https://fossil-scm.org/ myclone.fossil</b></pre>
 
 If your logged-in username is 'exampleuser', you should see output something like this:
 
-<blockquote>
-<b><tt>
-        Round-trips: 8   Artifacts sent: 0  received: 39421<br>
-        Clone done, sent: 2424  received: 42965725  ip: 10.10.10.0<br>
-        Rebuilding repository meta-data...<br>
-        100% complete...<br>
-        Extra delta compression... <br>
-        Vacuuming the database... <br>
-        project-id: 94259BB9F186226D80E49D1FA2DB29F935CCA0333<br>
-        server-id:  016595e9043054038a9ea9bc526d7f33f7ac0e42<br>
-        admin-user: exampleuser (password is "yoWgDR42iv")><br>
-</tt></b>
-</blockquote>
+<pre><b>Round-trips: 8   Artifacts sent: 0  received: 39421
+Clone done, sent: 2424  received: 42965725  ip: 10.10.10.0
+Rebuilding repository meta-data...
+100% complete...
+Extra delta compression... 
+Vacuuming the database... 
+project-id: 94259BB9F186226D80E49D1FA2DB29F935CCA0333
+server-id:  016595e9043054038a9ea9bc526d7f33f7ac0e42
+admin-user: exampleuser (password is "yoWgDR42iv")>
+</b></pre>
 
-<p>If the remote repository requires a login, include a
+If the remote repository requires a login, include a
 userid in the URL like this:
 
-<blockquote>
-<b>fossil clone https://</b><i>remoteuserid</i><b>@www.example.org/ myclone.fossil</b>
-</blockquote>
+<pre><b>fossil clone https://</b><i>remoteuserid</i><b>@www.example.org/ myclone.fossil</b></pre>
 
-<p>You will be prompted separately for the password.
- Use [https://en.wikipedia.org/wiki/Percent-encoding#Percent-encoding_reserved_characters|"%HH"] escapes for special characters in the userid.
- For example "/" would be replaced by "%2F" meaning that a userid of "Projects/Budget" would become "Projects%2FBudget") </p>
+You will be prompted separately for the password.
+Use [https://en.wikipedia.org/wiki/Percent-encoding#Percent-encoding_reserved_characters|"%HH"] escapes for special characters in the userid.
+For example "/" would be replaced by "%2F" meaning that a userid of "Projects/Budget" would become "Projects%2FBudget")
 
-<p>If you are behind a restrictive firewall, you might need
-to <a href="#proxy">specify an HTTP proxy</a>.</p>
+If you are behind a restrictive firewall, you might need
+to <a href="#proxy">specify an HTTP proxy</a>.
 
-<p>A Fossil repository is a single disk file.  Instead of cloning,
+A Fossil repository is a single disk file.  Instead of cloning,
 you can just make a copy of the repository file (for example, using
 "scp").  Note, however, that the repository file contains auxiliary
 information above and beyond the versioned files, including some
@@ -121,7 +109,7 @@ before transmitting the file.
 
 <h2 id="import">Importing From Another Version Control System</h2>
 
-<p>Rather than start a new project, or clone an existing Fossil project,
+Rather than start a new project, or clone an existing Fossil project,
 you might prefer to
 <a href="./inout.wiki">import an existing Git project</a>
 into Fossil using the [/help/import | fossil import] command. 
@@ -139,172 +127,160 @@ Fossil can also import [https://subversion.apache.org/|Subversion projects] dire
 
 <h2 id="checkout">Checking Out A Local Tree</h2>
 
-<p>To work on a project in fossil, you need to check out a local
+To work on a project in fossil, you need to check out a local
 copy of the source tree.  Create the directory you want to be
 the root of your tree and cd into that directory.  Then
-do this: ([/help/open | more info])</p>
+do this: ([/help/open | more info])
 
-<blockquote>
-<b>fossil open </b><i> repository-filename</i>
-</blockquote>
+<pre><b>fossil open</b> <i>repository-filename</i></pre>
 
 for example:
 
-<blockquote>
-<b><tt>
-    fossil open ../myclone.fossil<br>
-    BUILD.txt<br>
-    COPYRIGHT-BSD2.txt<br>
-    README.md<br>
-      ︙<br>
-</tt></b>
-</blockquote>
+<pre><b>fossil open ../myclone.fossil
+    BUILD.txt
+    COPYRIGHT-BSD2.txt
+    README.md
+      ︙
+</tt></b></pre>
 
 (or "fossil open ..\myclone.fossil" on Windows).
 
-<p>This leaves you with the newest version of the tree
+This leaves you with the newest version of the tree
 checked out.
 From anywhere underneath the root of your local tree, you
 can type commands like the following to find out the status of
-your local tree:</p>
+your local tree:
 
-<blockquote>
-<b>[/help/info | fossil info]</b><br>
-<b>[/help/status | fossil status]</b><br>
-<b>[/help/changes | fossil changes]</b><br>
-<b>[/help/diff | fossil diff]</b><br>
-<b>[/help/timeline | fossil timeline]</b><br>
-<b>[/help/ls | fossil ls]</b><br>
-<b>[/help/branch | fossil branch]</b><br>
-</blockquote>
+<pre>
+<b>[/help/info | fossil info]</b>
+<b>[/help/status | fossil status]</b>
+<b>[/help/changes | fossil changes]</b>
+<b>[/help/diff | fossil diff]</b>
+<b>[/help/timeline | fossil timeline]</b>
+<b>[/help/ls | fossil ls]</b>
+<b>[/help/branch | fossil branch]</b>
+</pre>
 
-<p>If you created a new repository using "fossil init" some commands will not
-produce much output.</p>
+If you created a new repository using "fossil init" some commands will not
+produce much output.
 
-<p>Note that Fossil allows you to make multiple check-outs in
+Note that Fossil allows you to make multiple check-outs in
 separate directories from the same repository.  This enables you,
 for example, to do builds from multiple branches or versions at
-the same time without having to generate extra clones.</p>
+the same time without having to generate extra clones.
 
-<p>To switch a checkout between different versions and branches,
-use:</p>
+To switch a checkout between different versions and branches,
+use:<
 
-<blockquote>
-<b>[/help/update | fossil update]</b><br>
-<b>[/help/checkout | fossil checkout]</b><br>
-</blockquote>
+<pre>
+<b>[/help/update | fossil update]</b>
+<b>[/help/checkout | fossil checkout]</b>
+</pre>
 
-<p>[/help/update | update] honors the "autosync" option and
+[/help/update | update] honors the "autosync" option and
 does a "soft" switch, merging any local changes into the target
 version, whereas [/help/checkout | checkout] does not
 automatically sync and does a "hard" switch, overwriting local
-changes if told to do so.</p>
+changes if told to do so.
 
 <h2 id="changes">Making and Committing Changes</h2>
 
-<p>To add new files to your project or remove existing ones, use these
-commands:</p>
+To add new files to your project or remove existing ones, use these
+commands:
 
-<blockquote>
-<b>[/help/add | fossil add]</b> <i>file...</i><br>
-<b>[/help/rm | fossil rm]</b> <i>file...</i><br>
-<b>[/help/addremove | fossil addremove]</b> <i>file...</i><br>
-</blockquote>
+<pre>
+<b>[/help/add | fossil add]</b> <i>file...</i>
+<b>[/help/rm | fossil rm]</b> <i>file...</i>
+<b>[/help/addremove | fossil addremove]</b> <i>file...</i>
+</pre>
 
-<p>The command:</p>
-<blockquote>
-<b>
-        [/help/changes | fossil changes]</b>
-</blockquote>
-<p>lists files that have changed since the last commit to the repository. For
-example, if you edit the file "README.md":</p>
+The command:
 
-<blockquote>
-<b>
-        fossil changes<br>
-        EDITED     README.md
-</b>
-</blockquote>
+<pre><b>[/help/changes | fossil changes]</b></pre>
 
-<p>To see exactly what change was made you can use the command</p>
-[/help/diff | fossil diff]:
-<blockquote>
-<b>
-        fossil diff <br><tt>
-        Index: README.md<br>
-        ============================================================<br>
-        --- README.md<br>
-        +++ README.md<br>
-        @@ -1,5 +1,6 @@<br>
-        +Made some changes to the project<br>
-        # Original text<br>
- </tt></b>
-</blockquote>
+lists files that have changed since the last commit to the repository. For
+example, if you edit the file "README.md":
 
-<p>"fossil diff" is the difference between your tree on disk now and as the tree was
-when you did "fossil open". An open is the first checkout from a repository 
-into a new directory. </p>
+<pre><b>fossil changes
+EDITED     README.md
+</b></pre>
 
-<p>To see the most recent changes made to the repository by other users, use "fossil timeline" to
+To see exactly what change was made you can use the command
+<b>[/help/diff | fossil diff]</b>:
+
+<pre><b>fossil diff
+Index: README.md
+============================================================
+--- README.md
++++ README.md
+@@ -1,5 +1,6 @@
++Made some changes to the project
+# Original text
+</b></pre>
+
+"fossil diff" shows the difference between your tree on disk now and as
+the tree was when you last committed changes. If you haven't committed
+yet, then it shows the difference relative to the tip-of-trunk commit in
+the repository, being what you get when you "fossil open" a repository
+without specifying a version, populating the working directory.
+
+To see the most recent changes made to the repository by other users, use "fossil timeline" to
 find out the most recent commit, and then "fossil diff" between that commit and the
-current tree: </p>
-<blockquote>
-<b>
-        fossil timeline <br><tt>
-        === 2021-03-28 === <br>
-        03:18:54 [ad75dfa4a0] *CURRENT* Added details to frobnicate command (user: user-one tags: trunk) <br>
-        === 2021-03-27 === <br>
-        23:58:05 [ab975c6632] Update README.md. (user: user-two tags: trunk) <br>
-             ⋮ <br>
-        </tt><br>
-        fossil diff --from current --to ab975c6632 <br><tt>
-        Index: frobnicate.c<br>
-        ============================================================<br>
-        --- frobnicate.c<br>
-        +++ frobnicate.c<br>
-        @@ -1,10 +1,11 @@<br>
-        +/* made a change to the source file */<br>
-        # Original text<br>
-</tt></b>
-</blockquote>
+current tree:
+
+<pre><b>fossil timeline
+=== 2021-03-28 === 
+03:18:54 [ad75dfa4a0] *CURRENT* Added details to frobnicate command (user: user-one tags: trunk) 
+=== 2021-03-27 === 
+23:58:05 [ab975c6632] Update README.md. (user: user-two tags: trunk) 
+     ⋮ 
+
+fossil diff --from current --to ab975c6632
+Index: frobnicate.c
+============================================================
+--- frobnicate.c
++++ frobnicate.c
+@@ -1,10 +1,11 @@
++/* made a change to the source file */
+# Original text
+</b></pre>
 
 "current" is an alias for the checkout version, so the command
 "fossil diff --from ad75dfa4a0 --to ab975c6632" gives identical results.
 
-<p>To commit your changes to a local-only repository:</p>
-<blockquote>
-<b>
-fossil commit     </b><i>(... Fossil will start your editor, if defined)</i><b><br><tt>
-# Enter a commit message for this check-in. Lines beginning with # are ignored.<br>
-#<br>
-# user: exampleuser<br>
-# tags: trunk<br>
-#<br>
-# EDITED     README.md<br>
-Edited file to add description of code changes<br>
-New_Version: 7b9a416ced4a69a60589dde1aedd1a30fde8eec3528d265dbeed5135530440ab<br>
-</tt></b>
-</blockquote>
+To commit your changes to a local-only repository:
 
-<p>You will be prompted for check-in comments using whatever editor
+<pre><b>fossil commit</b>     <i>(... Fossil will start your editor, if defined)</i><b>
+# Enter a commit message for this check-in. Lines beginning with # are ignored.
+#
+# user: exampleuser
+# tags: trunk
+#
+# EDITED     README.md
+Edited file to add description of code changes
+New_Version: 7b9a416ced4a69a60589dde1aedd1a30fde8eec3528d265dbeed5135530440ab
+</b></pre>
+
+You will be prompted for check-in comments using whatever editor
 is specified by your VISUAL or EDITOR environment variable. If none is
-specified Fossil uses line-editing in the terminal.</p>
+specified Fossil uses line-editing in the terminal.
 
-<p>To commit your changes to a repository that was cloned from remote you 
-perform the same actions but the results are different. Fossil
-defaults to 'autosync' mode, a single-stage commit that sends all changes 
-committed to the local repository immediately on to the remote parent repository. This
-only works if you have write permission to the remote respository.</p>
+To commit your changes to a repository that was cloned from a remote
+repository, you give the same command, but the results are different.
+Fossil defaults to [./concepts.wiki#workflow|autosync] mode, a
+single-stage commit that sends all changes committed to the local
+repository immediately on to the remote parent repository. This only
+works if you have write permission to the remote respository.
 
 <h2 id="naming">Naming of Files, Checkins, and Branches</h2>
 
-<p>Fossil deals with information artifacts. This Quickstart document only deals
+Fossil deals with information artifacts. This Quickstart document only deals
 with files and collections of files, but be aware there are also tickets, wiki pages and more. 
 Every artifact in Fossil has a universally-unique hash id, and may also have a
-human-readable name.</p>
+human-readable name.
 
-<p>The following are all equivalent ways of identifying a Fossil file,
-checkin or branch artifact:</p>
+The following are all equivalent ways of identifying a Fossil file,
+checkin or branch artifact:
 
 <ul>
 <li> the full unique SHA-256 hash, such as be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
@@ -312,9 +288,9 @@ checkin or branch artifact:</p>
 <li> a branch name, such as "special-features" or "juliet-testing". Each branch also has a unique SHA-256 hash
 </ul>
 
-<p>A special convenience branch is "trunk", which is Fossil's default branch name for
+A special convenience branch is "trunk", which is Fossil's default branch name for
 the first checkin, and the default for any time a branch name is needed but not
-specified.</p>
+specified.
 
 This will get you started on identifying checkins. The
 <a href="./checkin_names.wiki">Checkin Names document</a> is a complete reference, including
@@ -322,123 +298,95 @@ how timestamps can also be used.
 
 <h2 id="config">Configuring Your Local Repository</h2>
 
-<p>When you create a new repository, either by cloning an existing
+When you create a new repository, either by cloning an existing
 project or create a new project of your own, you usually want to do some
 local configuration.  This is easily accomplished using the web-server
 that is built into fossil.  Start the fossil web server like this:
-([/help/ui | more info])</p>
+([/help/ui | more info])
 
-<blockquote>
-<b>fossil ui </b><i> repository-filename</i>
-</blockquote>
+<pre>
+<b>fossil ui</b> <i>repository-filename</i>
+</pre>
 
-<p>You can omit the <i>repository-filename</i> from the command above
-if you are inside a checked-out local tree.</p>
+You can omit the <i>repository-filename</i> from the command above
+if you are inside a checked-out local tree.
 
-<p>This starts a web server then automatically launches your
+This starts a web server then automatically launches your
 web browser and makes it point to this web server.  If your system
 has an unusual configuration, fossil might not be able to figure out
 how to start your web browser.  In that case, first tell fossil
-where to find your web browser using a command like this:</p>
+where to find your web browser using a command like this:
 
-<blockquote>
-<b>fossil setting web-browser </b><i>  path-to-web-browser</i>
-</blockquote>
+<pre>
+<b>fossil setting web-browser</b> <i>path-to-web-browser</i>
+</pre>
 
-<p>By default, fossil does not require a login for HTTP connections
+By default, fossil does not require a login for HTTP connections
 coming in from the IP loopback address 127.0.0.1.  You can, and perhaps
-should, change this after you create a few users.</p>
+should, change this after you create a few users.
 
-<p>When you are finished configuring, just press Control-C or use
-the <b>kill</b> command to shut down the mini-server.</p>
-
-<h2 id="changes">Making Changes</h2>
-
-<p>To add new files to your project, or remove old files, use these
-commands:</p>
-
-<blockquote>
-<b>[/help/add | fossil add]</b> <i>file...</i><br>
-<b>[/help/rm | fossil rm]</b> <i>file...</i><br>
-<b>[/help/addremove | fossil addremove]</b> <i>file...</i><br>
-</blockquote>
-
-<p>You can also edit files freely.  Once you are ready to commit
-your changes, type:</p>
-
-<blockquote>
-<b>[/help/commit | fossil commit]</b>
-</blockquote>
-
-<p>You will be prompted for check-in comments using whatever editor
-is specified by your VISUAL or EDITOR environment variable.</p>
-
-In the default configuration, the [/help/commit|commit]
-command will also automatically [/help/push|push] your changes, but that
-feature can be disabled.  (More information about
-[./concepts.wiki#workflow|autosync] and how to disable it.)
-Remember that your coworkers can not see your changes until you
-commit and push them.</p>
+When you are finished configuring, just press Control-C or use
+the <b>kill</b> command to shut down the mini-server.
 
 <h2 id="sharing">Sharing Changes</h2>
 
-<p>When [./concepts.wiki#workflow|autosync] is turned off,
+When [./concepts.wiki#workflow|autosync] is turned off,
 the changes you [/help/commit | commit] are only
 on your local repository.
-To share those changes with other repositories, do:</p>
+To share those changes with other repositories, do:
 
-<blockquote>
+<pre>
 <b>[/help/push | fossil push]</b> <i>URL</i>
-</blockquote>
+</pre>
 
-<p>Where <i>URL</i> is the http: URL of the server repository you
+Where <i>URL</i> is the http: URL of the server repository you
 want to share your changes with.  If you omit the <i>URL</i> argument,
-fossil will use whatever server you most recently synced with.</p>
+fossil will use whatever server you most recently synced with.
 
-<p>The [/help/push | push] command only sends your changes to others.  To
+The [/help/push | push] command only sends your changes to others.  To
 Receive changes from others, use [/help/pull | pull].  Or go both ways at
-once using [/help/sync | sync]:</p>
+once using [/help/sync | sync]:
 
-<blockquote>
-<b>[/help/pull | fossil pull]</b> <i>URL</i><br>
+<pre>
+<b>[/help/pull | fossil pull]</b> <i>URL</i>
 <b>[/help/sync | fossil sync]</b> <i>URL</i>
-</blockquote>
+</pre>
 
-<p>When you pull in changes from others, they go into your repository,
+When you pull in changes from others, they go into your repository,
 not into your checked-out local tree.  To get the changes into your
-local tree, use [/help/update | update]:</p>
+local tree, use [/help/update | update]:
 
-<blockquote>
+<pre>
 <b>[/help/update | fossil update]</b> <i>VERSION</i>
-</blockquote>
+</pre>
 
-<p>The <i>VERSION</i> can be the name of a branch or tag or any
+The <i>VERSION</i> can be the name of a branch or tag or any
 abbreviation to the 40-character
 artifact identifier for a particular check-in, or it can be a
 date/time stamp.  ([./checkin_names.wiki | more info])
 If you omit
 the <i>VERSION</i>, then fossil moves you to the
-latest version of the branch your are currently on.</p>
+latest version of the branch you are currently on.
 
-<p>The default behavior is for [./concepts.wiki#workflow|autosync] to
+The default behavior is for [./concepts.wiki#workflow|autosync] to
 be turned on.  That means that a [/help/pull|pull] automatically occurs
 when you run [/help/update|update] and a [/help/push|push] happens
 automatically after you [/help/commit|commit].  So in normal practice,
 the push, pull, and sync commands are rarely used.  But it is important
-to know about them, all the same.</p>
+to know about them, all the same.
 
-<blockquote>
+<pre>
 <b>[/help/checkout | fossil checkout]</b> <i>VERSION</i>
-</blockquote>
+</pre>
 
-<p>Is similar to update except that it does not honor the autosync
+Is similar to update except that it does not honor the autosync
 setting, nor does it merge in local changes - it prefers to overwrite
 them and fails if local changes exist unless the <tt>--force</tt>
-flag is used.</p>
+flag is used.
 
 <h2 id="branch" name="merge">Branching And Merging</h2>
 
-<p>Use the --branch option to the [/help/commit | commit] command
+Use the --branch option to the [/help/commit | commit] command
 to start a new branch.  Note that in Fossil, branches are normally
 created when you commit, not before you start editing.  You can
 use the [/help/branch | branch new] command to create a new branch
@@ -449,21 +397,21 @@ To merge two branches back together, first
 [/help/update | update] to the branch you want to merge into.
 Then do a [/help/merge|merge] of the other branch that you want to incorporate
 the changes from.  For example, to merge "featureX" changes into "trunk"
-do this:</p>
+do this:
 
-<blockquote>
-<b>fossil [/help/update|update] trunk</b><br>
-<b>fossil [/help/merge|merge] featureX</b><br>
-<i># make sure the merge didn't break anything...</i><br>
+<pre>
+<b>fossil [/help/update|update] trunk</b>
+<b>fossil [/help/merge|merge] featureX</b>
+<i># make sure the merge didn't break anything...</i>
 <b>fossil [/help/commit|commit]
-</blockquote>
+</pre>
 
-<p>The argument to the [/help/merge|merge] command can be any of the
+The argument to the [/help/merge|merge] command can be any of the
 version identifier forms that work for [/help/update|update].
 ([./checkin_names.wiki|more info].)
 The merge command has options to cherry-pick individual
 changes, or to back out individual changes, if you don't want to
-do a full merge.</p>
+do a full merge.
 
 The merge command puts all changes in your working check-out.
 No changes are made to the repository.
@@ -480,35 +428,35 @@ into trunk previously, you can do so again and Fossil will automatically
 know to pull in only those changes that have occurred since the previous
 merge.
 
-<p>If a merge or update doesn't work out (perhaps something breaks or
-there are many merge conflicts) then you back up using:</p>
+If a merge or update doesn't work out (perhaps something breaks or
+there are many merge conflicts) then you back up using:
 
-<blockquote>
+<pre>
 <b>[/help/undo | fossil undo]</b>
-</blockquote>
+</pre>
 
-<p>This will back out the changes that the merge or update made to the
+This will back out the changes that the merge or update made to the
 working checkout.  There is also a [/help/redo|redo] command if you undo by
 mistake.  Undo and redo only work for changes that have
 not yet been checked in using commit and there is only a single
-level of undo/redo.</p>
+level of undo/redo.
 
 
 <h2 id="server">Setting Up A Server</h2>
 
-<p>Fossil can act as a stand-alone web server using one of these
-commands:</p>
+Fossil can act as a stand-alone web server using one of these
+commands:
 
-<blockquote>
-<b>[/help/server | fossil server]</b> <i>repository-filename</i><br>
+<pre>
+<b>[/help/server | fossil server]</b> <i>repository-filename</i>
 <b>[/help/ui | fossil ui]</b> <i>repository-filename</i>
-</blockquote>
+</pre>
 
-<p>The <i>repository-filename</i> can be omitted when these commands
+The <i>repository-filename</i> can be omitted when these commands
 are run from within an open check-out, which is a particularly useful
 shortcut with the <b>fossil ui</b> command.
 
-<p>The <b>ui</b> command is intended for accessing the web user interface
+The <b>ui</b> command is intended for accessing the web user interface
 from a local desktop. (We sometimes call this mode "Fossil UI.")
 The <b>ui</b> command differs from the
 <b>server</b> command by binding to the loopback IP
@@ -518,13 +466,13 @@ pointing it at the running UI
 server. The localhost restriction exists because it also gives anyone
 who can access the resulting web UI full control over the
 repository. (This is the [./caps/admin-v-setup.md#apsu | all-powerful
-Setup capabliity].)</p>
+Setup capabliity].)
 
-<p>For cross-machine collaboration, use the <b>server</b> command instead,
+For cross-machine collaboration, use the <b>server</b> command instead,
 which binds on all IP addresses, does not try to start a web browser,
-and enforces [./caps/ | Fossil's role-based access control system].</p>
+and enforces [./caps/ | Fossil's role-based access control system].
 
-<p>Servers are also easily configured as:
+Servers are also easily configured as:
 
 <ul>
 <li>[./server/any/inetd.md|inetd]
@@ -533,57 +481,57 @@ and enforces [./caps/ | Fossil's role-based access control system].</p>
 <li>[./server/any/scgi.md|SCGI]
 </ul>
 
-<p>…along with [./server/#matrix | several other options].</p>
+…along with [./server/#matrix | several other options].
 
-<p>The [./selfhost.wiki | self-hosting fossil repositories] use
+The [./selfhost.wiki | self-hosting fossil repositories] use
 CGI.
 
-<p>You might <i>need</i> to set up a server, whether you know it yet or
+You might <i>need</i> to set up a server, whether you know it yet or
 not.  See the [./server/whyuseaserver.wiki | Benefits of a Fossil Server]
-article for details.</p>
+article for details.
 
 <h2 id="proxy">HTTP Proxies</h2>
 
-<p>If you are behind a restrictive firewall that requires you to use
+If you are behind a restrictive firewall that requires you to use
 an HTTP proxy to reach the internet, then you can configure the proxy
 in three different ways.  You can tell fossil about your proxy using
 a command-line option on commands that use the network,
-<b>sync</b>, <b>clone</b>, <b>push</b>, and <b>pull</b>.</p>
+<b>sync</b>, <b>clone</b>, <b>push</b>, and <b>pull</b>.
 
-<blockquote>
-<b>fossil clone </b><i>URL</i>  <b>--proxy</b> <i>Proxy-URL</i>
-</blockquote>
+<pre>
+<b>fossil clone </b><i>URL</i> <b>--proxy</b> <i>Proxy-URL</i>
+</pre>
 
-<p>It is annoying to have to type in the proxy URL every time you
+It is annoying to have to type in the proxy URL every time you
 sync your project, though, so you can make the proxy configuration
-persistent using the [/help/setting | setting] command:</p>
+persistent using the [/help/setting | setting] command:
 
-<blockquote>
+<pre>
 <b>fossil setting proxy </b><i>Proxy-URL</i>
-</blockquote>
+</pre>
 
-<p>Or, you can set the "<b>http_proxy</b>" environment variable:</p>
+Or, you can set the "<b>http_proxy</b>" environment variable:
 
-<blockquote>
+<pre>
 <b>export http_proxy=</b><i>Proxy-URL</i>
-</blockquote>
+</pre>
 
-<p>To stop using the proxy, do:</p>
+To stop using the proxy, do:
 
-<blockquote>
+<pre>
 <b>fossil setting proxy off</b>
-</blockquote>
+</pre>
 
-<p>Or unset the environment variable.  The fossil setting for the
+Or unset the environment variable.  The fossil setting for the
 HTTP proxy takes precedence over the environment variable and the
 command-line option overrides both.  If you have a persistent
 proxy setting that you want to override for a one-time sync, that
 is easily done on the command-line.  For example, to sync with
-a co-worker's repository on your LAN, you might type:</p>
+a co-worker's repository on your LAN, you might type:
 
-<blockquote>
+<pre>
 <b>fossil sync http://192.168.1.36:8080/ --proxy off</b>
-</blockquote>
+</pre>
 
 <h2 id="links">Other Resources</h2>
 

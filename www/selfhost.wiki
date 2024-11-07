@@ -29,13 +29,13 @@ dozen other smaller projects.  This demonstrates that Fossil can run on
 a low-power host processor.
 Multiple fossil-based projects can easily be hosted on the same machine,
 even if that machine is itself one of several dozen virtual machines on
-single physical box.  The CGI script that runs the canonical Fossil
+a single physical box.  The CGI script that runs the canonical Fossil
 self-hosting repository is as follows:
 
-<blockquote><pre>
+<pre>
 #!/usr/bin/fossil
 repository: /fossil/fossil.fossil
-</pre></blockquote>
+</pre>
 
 Server (3) ran for 10 years as a CGI script on a shared hosting account at
 <a href="http://www.he.net/">Hurricane Electric</a> in Fremont, CA.
@@ -50,10 +50,10 @@ such a restricted environment.  The CGI script that ran on the
 Hurricane Electric server was the same as the CGI script shown above,
 except that the pathnames are modified to suit the environment:
 
-<blockquote><pre>
+<pre>
 #!/home/hwaci/bin/fossil
 repository: /home/hwaci/fossil/fossil.fossil
-</pre></blockquote>
+</pre>
 
 In recent years, virtual private servers have become a more flexible and
 less expensive hosting option compared to shared hosting accounts.
@@ -65,9 +65,9 @@ located in San Francisco.
 Server (3) is synchronized with the canonical server (1) by running
 a command similar to the following via cron:
 
-<blockquote><pre>
+<pre>
 /usr/local/bin/fossil all sync -u
-</pre></blockquote>
+</pre>
 
 Server (2) is a
 <a href="http://www.linode.com/">Linode 4096</a> located in Newark, NJ

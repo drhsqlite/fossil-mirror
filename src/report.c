@@ -47,7 +47,6 @@ void view_list(void){
   Blob ril;   /* Report Item List */
   Stmt q;
   int rn = 0;
-  int cnt = 0;
   char *defaultReport = db_get("ticket-default-report", 0);
 
   login_check_credentials();
@@ -57,9 +56,9 @@ void view_list(void){
   }
   style_header("Ticket Main Menu");
   ticket_standard_submenu(T_ALL_BUT(T_REPLIST));
-  if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST<br>\n", -1);
   zScript = ticket_reportlist_code();
-  if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST_SCRIPT<br />\n", -1);
+  if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST_SCRIPT<br>\n", -1);
 
   blob_zero(&ril);
   ticket_init();
@@ -72,7 +71,6 @@ void view_list(void){
       continue;
     }
     rn = db_column_int(&q, 0);
-    cnt++;
     blob_appendf(&ril, "<li>");
     if( zTitle[0] == '_' ){
       blob_appendf(&ril, "%s", zTitle);
@@ -109,7 +107,7 @@ void view_list(void){
   Th_Render(zScript);
 
   blob_reset(&ril);
-  if( g.thTrace ) Th_Trace("END_REPORTLIST<br />\n", -1);
+  if( g.thTrace ) Th_Trace("END_REPORTLIST<br>\n", -1);
 
   style_finish_page();
 }
@@ -475,12 +473,11 @@ void view_edit(void){
   zMimetype = P("m");
   zTag = P("x");
   report_update_reportfmt_table();
-  if( rn>0 && P("del2") ){
-    login_verify_csrf_secret();
+  if( rn>0 && P("del2") && cgi_csrf_safe(2) ){
     db_multi_exec("DELETE FROM reportfmt WHERE rn=%d", rn);
     cgi_redirect("reportlist");
     return;
-  }else if( rn>0 && P("del1") ){
+  }else if( rn>0 && P("del1") && cgi_csrf_safe(2) ){
     zTitle = db_text(0, "SELECT title FROM reportfmt "
                          "WHERE rn=%d", rn);
     if( zTitle==0 ) cgi_redirect("reportlist");
@@ -518,8 +515,7 @@ void view_edit(void){
     ){
       zErr = mprintf("There is already another report named \"%h\"", zTitle);
     }
-    if( zErr==0 ){
-      login_verify_csrf_secret();
+    if( zErr==0 && cgi_csrf_safe(2) ){
       if( zTag && zTag[0]==0 ) zTag = 0;
       if( zDesc && zDesc[0]==0 ){ zDesc = 0; zMimetype = 0; }
       if( zMimetype && zMimetype[0]==0 ){ zDesc = 0; zMimetype = 0; }
@@ -597,34 +593,34 @@ void view_edit(void){
     @ <blockquote class="reportError">%h(zErr)</blockquote>
   }
   @ <form action="rptedit" method="post"><div>
-  @ <input type="hidden" name="rn" value="%d(rn)" />
-  @ <p>Report Title:<br />
-  @ <input type="text" name="t" value="%h(zTitle)" size="60" /></p>
-  @ <p>Enter a complete SQL query statement against the "TICKET" table:<br />
+  @ <input type="hidden" name="rn" value="%d(rn)">
+  @ <p>Report Title:<br>
+  @ <input type="text" name="t" value="%h(zTitle)" size="60"></p>
+  @ <p>Enter a complete SQL query statement against the "TICKET" table:<br>
   @ <textarea name="s" rows="20" cols="80">%h(zSQL)</textarea>
   @ </p>
   login_insert_csrf_secret();
   if( g.perm.Admin ){
     @ <p>Report owner:
-    @ <input type="text" name="w" size="20" value="%h(zOwner)" />
+    @ <input type="text" name="w" size="20" value="%h(zOwner)">
     @ </p>
     @ <p>Tag:
-    @ <input type="text" name="x" size="20" value="%h(zTag?zTag:"")" />
+    @ <input type="text" name="x" size="20" value="%h(zTag?zTag:"")">
     @ </p>
   } else {
-    @ <input type="hidden" name="w" value="%h(zOwner)" />
+    @ <input type="hidden" name="w" value="%h(zOwner)">
     if( zTag && zTag[0] ){
-      @ <input type="hidden" name="x" value="%h(zTag)" />
+      @ <input type="hidden" name="x" value="%h(zTag)">
     }
   }
   @ <p>Enter an optional color key in the following box.  (If blank, no
   @ color key is displayed.)  Each line contains the text for a single
   @ entry in the key.  The first token of each line is the background
-  @ color for that line.<br />
+  @ color for that line.<br>
   @ <textarea name="k" rows="8" cols="50">%h(zClrKey)</textarea>
   @ </p>
 
-  @ <p>Optional human-readable description for this report<br />
+  @ <p>Optional human-readable description for this report<br>
   @ %z(href("%R/markup_help"))Markup style</a>:
   mimetype_option_menu(zMimetype, "m");
   @ <br><textarea aria-label="Description:" name="d" class="wikiedit" \
@@ -641,9 +637,9 @@ void view_edit(void){
     style_finish_page();
     return;
   }
-  @ <input type="submit" value="Apply Changes" />
+  @ <input type="submit" value="Apply Changes">
   if( rn>0 ){
-    @ <input type="submit" value="Delete This Report" name="del1" />
+    @ <input type="submit" value="Delete This Report" name="del1">
   }
   @ </div></form>
   report_format_hints();
@@ -661,7 +657,7 @@ static void report_format_hints(void){
     zSchema = db_text(0,"SELECT sql FROM repository.sqlite_schema"
                         " WHERE name='ticket'");
   }
-  @ <hr /><h3>TICKET Schema</h3>
+  @ <hr><h3>TICKET Schema</h3>
   @ <blockquote><pre>
   @ <code class="language-sql">%h(zSchema)</code>
   @ </pre></blockquote>
@@ -1132,7 +1128,7 @@ void rptview_page_content(
   Stmt q;
   char *zErr1 = 0;
   char *zErr2 = 0;
-  
+
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   report_update_reportfmt_table();
@@ -1374,7 +1370,8 @@ void rptshow(
   int count = 0;
   int rn;
 
-  if( !zRep || !strcmp(zRep,zFullTicketRptRn) || !strcmp(zRep,zFullTicketRptTitle) ){
+  if( !zRep || !strcmp(zRep,zFullTicketRptRn)
+      || !strcmp(zRep,zFullTicketRptTitle) ){
     zSql = "SELECT * FROM ticket";
   }else{
     rn = atoi(zRep);
