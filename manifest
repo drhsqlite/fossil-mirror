@@ -1,5 +1,5 @@
-C Merge\sall\sthe\slatest\strunk\senhancements\sand\sfixes\sinto\sthe\sbv-corrections01\nbranch.
-D 2024-11-06T13:29:04.251
+C Added\sclarification\snote\sfor\smerge\scommand.\n\n
+D 2024-11-07T01:09:41.747
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -500,7 +500,7 @@ F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad2
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c dc6afed7bcecf0d946e22a0067fa63ed34eabe8cabe5e29df3e0d54e3dce2dab
+F src/merge.c 0649a27c7696582c1f2e00438341af3c73eab0304e47bb90c5c531c8b04dcc6f
 F src/merge3.c 19b67bb5c7742daa22348de9efd2db11de51a6f9e20940277e8557d187dd6147
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00e8c0450053be958ea423678d3cc858dd30853f1bf37c7b5e2373094769997e 3380c7fef19f24a22027d5d0ffa3fdb8a7b1e28e28d9ef10d69f8edd29f4b8b4
-R 777c8f6d00f541246256cf917f701114
-U drh
-Z 12b265daccc090b330d11e40713a4050
+P c1aefb00c351f7b94fb56f09b6376ad53b7edda7e75f6af86a5c2655f6e54a65
+R cd3cc627d491b8bc28e693e6b76ff3fc
+U brickviking
+Z 8c216abec5d8909b4e8606b4bc8e6788
 # Remove this line to create a well-formed Fossil manifest.

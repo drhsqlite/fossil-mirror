@@ -298,6 +298,9 @@ void test_show_vfile_cmd(void){
 ** If the VERSION argument is omitted, then Fossil attempts to find
 ** a recent fork on the current branch to merge.
 **
+** Note that this command does not commit the merge, as that is a
+** separate step.
+**
 ** If there are multiple VERSION arguments, then each VERSION is merged
 ** (or cherrypicked) in the order that they appear on the command-line.
 **
