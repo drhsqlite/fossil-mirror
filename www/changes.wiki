@@ -1,6 +1,10 @@
 <title>Change Log</title>
 
-<h2 id='v2_25'>Changes for version 2.25 (pending)</h2>
+<h2 id='v2_26'>Changes for version 2.26 (pending)</h2>
+
+  *  <i>(pending)</i>
+
+<h2 id='v2_25'>Changes for version 2.25 (2024-11-06)</h2>
 
   *  The "[/help?cmd=ui|fossil ui /]" command now works even for repositories
      that have non-ASCII filenames
@@ -21,6 +25,8 @@
      (requires OpenSSL 3.2.0 or greater).
   *  Take into account zero-width and double-width unicode characters when
      formatting the command-line timeline.
+  *  Update the built-in SQLite to version 3.47.0.  Precompiled binaries are
+     linked against OpenSSL 3.4.0.
   *  Numerous minor fixes and additions.
 
 
