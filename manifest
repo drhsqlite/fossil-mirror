@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk
-D 2024-11-07T05:39:28.627
+C Added\stool\sto\screate\spreliminary\sinfo-formatted\sfile.\sIt\sneeds\sbash,\stail\sand\sGNU\ssed,\sas\swell\sas\smakeinfo.
+D 2024-11-07T05:41:08.081
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -737,6 +737,7 @@ F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3
 F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
+F tools/infoscript.bash a905f2080dcac38d0cb56e159318f73439cc325037090e2c88732078b01c458a x
 F tools/makeheaders.c 5f464a5a25ae45978e49e1cc230cc4c6f2fddc8f2f45a044fff02dc074a0bcf6
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl 0404808a8084bebebc951e0e7189f475f22673df59bfb1dafe918099588a6f72 x
@@ -960,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e413dc32f0e6456ae202bbd9942c47d2e6ce88b2651c08c62946f1a293762dc7 3380c7fef19f24a22027d5d0ffa3fdb8a7b1e28e28d9ef10d69f8edd29f4b8b4
-R 019c1118f60a56767d92560178f53df1
+P 26ea82a7400cf1f63cbbaf988aabd4665ac7161d6acccbb01c7c3ceebfee88a1
+R c9fb3594054d5875810d13e502e22373
 U brickviking
-Z 366db6e78f30621215b33ec90cc9ce8f
+Z b0a21af2c1f57aaa4397aadd7b452fdc
 # Remove this line to create a well-formed Fossil manifest.
