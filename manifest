@@ -1,5 +1,5 @@
-C src/chat.c\schange.
-D 2024-11-11T11:55:19.780
+C src/diffcmd.c\schange.
+D 2024-11-11T12:10:32.458
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -419,7 +419,7 @@ F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec681182
 F src/diff.c ffd16af7f9dd3eb22aace9f29ee69420b4632382b31fffc4e5682b6ec090f959
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
-F src/diffcmd.c e11ab5f28e58d80735eaafc6b29fd78d479571bd767553bb8a685018790d1285
+F src/diffcmd.c af3389fee66e086e0ae3988e87d2d6be1227596ec9288549ff1de436a15a438e
 F src/dispatch.c 888760a3fae9c8270eaf90f8f5a5ee2dcef8e4b48482a694eec29e6d778ddb68
 F src/doc.c 684b3d4fe993ccd618fdd5dfbf73e4bcc2ec019b21503190a503e3eb37008eca
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P efdd823f28a67d6ce293e9a8c0eacdbc197ae2731564ef0f619d38fcb5d80c4e
-R 3f2b1ebd57e85af40a8a616c8163517f
+P 40d3132fce947a843e2086bcecf5bb34f7b78893821df4ce0e2ddd8d68c94c6d
+R b824c9d1183c68247dfa5af560d9f675
 U brickviking
-Z 52f7a41d93e50d675c53986dcb1cbb30
+Z eb0e7b754bc58f9bafb90a9e78bc54c5
 # Remove this line to create a well-formed Fossil manifest.
