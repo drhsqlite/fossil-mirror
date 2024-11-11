@@ -1,5 +1,5 @@
-C src/diffcmd.c\schange.
-D 2024-11-11T12:10:32.458
+C (Typos)\ssrc/db.c\schanges.
+D 2024-11-11T12:27:42.151
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -410,7 +410,7 @@ F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 67f490202c2d119b379f8fd6dffcaf9b2ca9e3c47af573e11b2eca5d9d36aba4
+F src/db.c ffaae09f42fe60a8178ec991f98a3204bd66ee0fd7bf8b3bb8dd10a64eeae1a8
 F src/default.css 3a83ddf9d27b99b2b7eebfc3958ea4b942cd120958fa546455e40e9f84ab07f5
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 40d3132fce947a843e2086bcecf5bb34f7b78893821df4ce0e2ddd8d68c94c6d
-R b824c9d1183c68247dfa5af560d9f675
+P 59d97d2859aa2dda6519f41e8c8f602906b1aa5ad48fa1e6cab6a74bdc341ca9
+R c38e7b7dff38f243544460f7dc0a92de
 U brickviking
-Z eb0e7b754bc58f9bafb90a9e78bc54c5
+Z 62ae572cc408cdd02b1079185baa5144
 # Remove this line to create a well-formed Fossil manifest.
