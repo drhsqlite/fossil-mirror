@@ -569,7 +569,7 @@ void status_cmd(void){
   /* Confirm current working directory is within check-out. */
   db_must_be_within_tree();
 
-  /* Get check-out version. l*/
+  /* Get check-out version. */
   vid = db_lget_int("checkout", 0);
 
   /* Relative path flag determination is done by a shared function. */
@@ -2320,7 +2320,7 @@ static int tagCmp(const void *a, const void *b){
 ** appears.  An empty check-in (i.e. with nothing changed) is not
 ** allowed unless the --allow-empty option appears.  A check-in may not
 ** be older than its ancestor unless the --allow-older option appears.
-** If any of files in the check-in appear to contain unresolved merge
+** If any files in the check-in appear to contain unresolved merge
 ** conflicts, the check-in will not be allowed unless the
 ** --allow-conflict option is present.  In addition, the entire
 ** check-in process may be aborted if a file contains content that
@@ -2360,7 +2360,7 @@ static int tagCmp(const void *a, const void *b){
 **                               behave as if the user had entered 'yes' to
 **                               the question of whether to proceed despite
 **                               the skew.
-**    --ignore-oversize          Do not warning the user about oversized files
+**    --ignore-oversize          Do not warn the user about oversized files
 **    --integrate                Close all merged-in branches
 **    -m|--comment COMMENT-TEXT  Use COMMENT-TEXT as commit comment
 **    -M|--message-file FILE     Read the commit comment from given file
@@ -2562,7 +2562,7 @@ void commit_cmd(void){
   ** the autosync above, then also try to avoid deltas, unless the
   ** --delta option is specified.  The remote repo will send the
   ** avoid-delta-manifests pragma if it has its "forbid-delta-manifests"
-  ** setting is enabled.
+  ** setting enabled.
   */
   if( !db_get_boolean("seen-delta-manifest",0)
    || db_get_boolean("forbid-delta-manifests",0)
