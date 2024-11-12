@@ -132,6 +132,10 @@ fi
 
 # turns --switches into @option{--switches}
 sed -i -e 's/--\([[:alnum:]-]\{1,\}\)/@option\{--\1\}/g' workfile
+# now do the same for places where there's -f|--force
+sed -i -e 's/|--\([[:alnum:]-]\{1,\}\)/|@option\{--\1\}/g' workfile
+# turns -switches into @option{-switches}. Usually starts with space
+sed -i -e 's/ -\([[:alnum:]-]\{1,\}\)/ @option\{-\1\}/g' workfile
 # ... and adds it to the output file with some space
 cat workfile >> fossil.texi
 echo "" >> fossil.texi
