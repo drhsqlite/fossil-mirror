@@ -2134,7 +2134,7 @@ window.fossil.onPageLoad(function(){
       Chat.e.inputFields[Chat.e.inputFields.$currentIndex].focus();
     });
     Chat.settings.addListener('edit-ctrl-send',function(s){
-      const label = (s.value ? "Ctrl-" : "")+"Enter submits message";
+      const label = (s.value ? "Ctrl-" : "")+"Enter submits message.";
       Chat.e.inputFields.forEach((e)=>{
         const v = e.dataset.placeholder0 + " " +label;
         if(e.isContentEditable) e.dataset.placeholder = v;

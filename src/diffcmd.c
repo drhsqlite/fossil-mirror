@@ -1268,7 +1268,7 @@ const char *diff_get_binary_glob(void){
 **   --numstat                   Show only the number of added and deleted lines
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
-**   --tcl                       Tcl-formated output used internally by --tk
+**   --tcl                       Tcl-formatted output used internally by --tk
 **   --tclsh PATH                Tcl/Tk shell used for --tk (default: "tclsh")
 **   --tk                        Launch a Tcl/Tk GUI for display
 **   --to VERSION                Select VERSION as target for the diff

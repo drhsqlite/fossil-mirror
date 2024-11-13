@@ -4082,7 +4082,7 @@ void db_record_repository_filename(const char *zName){
 **
 ** REPOSITORY can be the filename for a repository that already exists on the
 ** local machine or it can be a URI for a remote repository.  If REPOSITORY
-** is a URI in one of the formats recognized by the [[clone]] command, then
+** is a URI in one of the formats recognized by the [[clone]] command, the
 ** remote repo is first cloned, then the clone is opened. The clone will be
 ** stored in the current directory, or in DIR if the "--repodir DIR" option
 ** is used. The name of the clone will be taken from the last term of the URI.
@@ -5364,7 +5364,7 @@ void test_database_name_cmd(void){
 /*
 ** Compute a "fingerprint" on the repository.  A fingerprint is used
 ** to verify that that the repository has not been replaced by a clone
-** of the same repository.  More precisely, a fingerprint are used to
+** of the same repository.  More precisely, a fingerprint is used to
 ** verify that the mapping between SHA3 hashes and RID values is unchanged.
 **
 ** The check-out database ("localdb") stores RID values.  When associating
@@ -5429,7 +5429,7 @@ char *db_fingerprint(int rcvid, int iVersion){
 ** Usage: %fossil test-fingerprint ?RCVID?
 **
 ** Display the repository fingerprint using the supplied RCVID or
-** using the latest RCVID if not is given on the command line.
+** using the latest RCVID if none is given on the command line.
 ** Show both the legacy and the newer version of the fingerprint,
 ** and the currently stored fingerprint if there is one.
 */
