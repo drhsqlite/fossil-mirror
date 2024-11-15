@@ -478,6 +478,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\skins_.c" \
         "$(OX)\smtp_.c" \
         "$(OX)\sqlcmd_.c" \
+        "$(OX)\sqldiff_.c" \
         "$(OX)\stash_.c" \
         "$(OX)\stat_.c" \
         "$(OX)\statrep_.c" \
@@ -744,6 +745,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\skins$O" \
         "$(OX)\smtp$O" \
         "$(OX)\sqlcmd$O" \
+        "$(OX)\sqldiff$O" \
         "$(OX)\sqlite3$O" \
         "$(OX)\stash$O" \
         "$(OX)\stat$O" \
@@ -993,6 +995,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\skins.obj" >> $@
 	echo "$(OX)\smtp.obj" >> $@
 	echo "$(OX)\sqlcmd.obj" >> $@
+	echo "$(OX)\sqldiff.obj" >> $@
 	echo "$(OX)\sqlite3.obj" >> $@
 	echo "$(OX)\stash.obj" >> $@
 	echo "$(OX)\stat.obj" >> $@
@@ -1961,6 +1964,12 @@ realclean: clean
 "$(OX)\sqlcmd_.c" : "$(SRCDIR)\sqlcmd.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\sqldiff$O" : "$(OX)\sqldiff_.c" "$(OX)\sqldiff.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\sqldiff_.c"
+
+"$(OX)\sqldiff_.c" : "$(SRCDIR)\sqldiff.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\stash$O" : "$(OX)\stash_.c" "$(OX)\stash.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\stash_.c"
 
@@ -2257,6 +2266,7 @@ realclean: clean
 			"$(OX)\skins_.c":"$(OX)\skins.h" \
 			"$(OX)\smtp_.c":"$(OX)\smtp.h" \
 			"$(OX)\sqlcmd_.c":"$(OX)\sqlcmd.h" \
+			"$(OX)\sqldiff_.c":"$(OX)\sqldiff.h" \
 			"$(OX)\stash_.c":"$(OX)\stash.h" \
 			"$(OX)\stat_.c":"$(OX)\stat.h" \
 			"$(OX)\statrep_.c":"$(OX)\statrep.h" \

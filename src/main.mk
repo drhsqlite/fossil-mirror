@@ -134,6 +134,7 @@ SRC = \
   $(SRCDIR)/skins.c \
   $(SRCDIR)/smtp.c \
   $(SRCDIR)/sqlcmd.c \
+  $(SRCDIR)/sqldiff.c \
   $(SRCDIR)/stash.c \
   $(SRCDIR)/stat.c \
   $(SRCDIR)/statrep.c \
@@ -398,6 +399,7 @@ TRANS_SRC = \
   $(OBJDIR)/skins_.c \
   $(OBJDIR)/smtp_.c \
   $(OBJDIR)/sqlcmd_.c \
+  $(OBJDIR)/sqldiff_.c \
   $(OBJDIR)/stash_.c \
   $(OBJDIR)/stat_.c \
   $(OBJDIR)/statrep_.c \
@@ -547,6 +549,7 @@ OBJ = \
  $(OBJDIR)/skins.o \
  $(OBJDIR)/smtp.o \
  $(OBJDIR)/sqlcmd.o \
+ $(OBJDIR)/sqldiff.o \
  $(OBJDIR)/stash.o \
  $(OBJDIR)/stat.o \
  $(OBJDIR)/statrep.o \
@@ -882,6 +885,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/skins_.c:$(OBJDIR)/skins.h \
 	$(OBJDIR)/smtp_.c:$(OBJDIR)/smtp.h \
 	$(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h \
+	$(OBJDIR)/sqldiff_.c:$(OBJDIR)/sqldiff.h \
 	$(OBJDIR)/stash_.c:$(OBJDIR)/stash.h \
 	$(OBJDIR)/stat_.c:$(OBJDIR)/stat.h \
 	$(OBJDIR)/statrep_.c:$(OBJDIR)/statrep.h \
@@ -1862,6 +1866,14 @@ $(OBJDIR)/sqlcmd.o:	$(OBJDIR)/sqlcmd_.c $(OBJDIR)/sqlcmd.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/sqlcmd.o -c $(OBJDIR)/sqlcmd_.c
 
 $(OBJDIR)/sqlcmd.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/sqldiff_.c:	$(SRCDIR)/sqldiff.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/sqldiff.c >$@
+
+$(OBJDIR)/sqldiff.o:	$(OBJDIR)/sqldiff_.c $(OBJDIR)/sqldiff.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/sqldiff.o -c $(OBJDIR)/sqldiff_.c
+
+$(OBJDIR)/sqldiff.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/stash_.c:	$(SRCDIR)/stash.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/stash.c >$@

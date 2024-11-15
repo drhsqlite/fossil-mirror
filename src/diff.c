@@ -3006,7 +3006,9 @@ int *text_diff(
   if( c.aFrom==0 || c.aTo==0 ){
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
-    if( pOut ){
+    if( sqldiff(pA_Blob, pB_Blob, pOut, pCfg) ){
+      /* An SQL diff has been put into pOut */
+    }else if( pOut ){
       diff_errmsg(pOut, DIFF_CANNOT_COMPUTE_BINARY, pCfg->diffFlags);
     }
     return 0;

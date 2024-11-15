@@ -167,6 +167,7 @@ set src {
   skins
   smtp
   sqlcmd
+  sqldiff
   stash
   stat
   statrep
