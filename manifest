@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.48.0\salpha\s-\smostly\sto\sget\srid\sof\nthe\s#line\smacros\sin\ssqlite3.c\sthat\swere\ssomehow\sintroduced\sin\sthe\sprevious\nupdate.
-D 2024-11-15T13:51:01.355
+C Fix\sthe\schecksum\sroutine\sin\sthe\sdelta\slogic\sso\sthat\sit\sworks\scorrectly\neven\sif\sthe\sinput\ssize\sis\szero.
+D 2024-11-18T17:40:11.346
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -412,7 +412,7 @@ F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e172
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c ffaae09f42fe60a8178ec991f98a3204bd66ee0fd7bf8b3bb8dd10a64eeae1a8
 F src/default.css 3a83ddf9d27b99b2b7eebfc3958ea4b942cd120958fa546455e40e9f84ab07f5
-F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
+F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec6811823705
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7b0a2378952457588d7479d463c27794b5ba59220293fc01cf976679dfd4123e
-R 53053f57afe64d839810bfb6202466e6
+P 5493cc7bb598466e6f9a42d4f82a96b9ab12d95e7b6a9b95c2003b04a9cb11f6
+R 516b503561cc0c3bd29280e0289919ca
 U drh
-Z 499d7743c145260b1e13614c2be204d2
+Z b0c62fbfb24ef5350bf4be8430233dfd
 # Remove this line to create a well-formed Fossil manifest.
