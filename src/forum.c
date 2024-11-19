@@ -1806,10 +1806,8 @@ void forum_setup(void){
   }
 
   @ <h2>Supervisors</h2>
-  @ <p>Users with capabilities 's', 'a', or '6'.</p>
   {
     Stmt q = empty_Stmt;
-    int nRows = 0;
     db_prepare(&q, "SELECT uid, login, cap FROM user "
                    "WHERE cap GLOB '*[as6]*' ORDER BY login");
     @ <table class='bordered'>
@@ -1819,7 +1817,6 @@ void forum_setup(void){
       const int iUid = db_column_int(&q, 0);
       const char *zUser = db_column_text(&q, 1);
       const char *zCap = db_column_text(&q, 2);
-      ++nRows;
       @ <tr>
       @ <td><a href='%R/setup_uedit?id=%d(iUid)'>%h(zUser)</a></td>
       @ <td>(%h(zCap))</td>
@@ -1827,20 +1824,18 @@ void forum_setup(void){
     }
     db_finalize(&q);
     @</tbody></table>
-    if( 0==nRows ){
-      @ No supervisors
-    }else{
-      @ %d(nRows) supervisor(s)
-    }
   }
 
   @ <h2>Moderators</h2>
-  @ <p>Users with capability '5'.</p>
-  {
+  if( db_int(0, "SELECT count(*) FROM user "
+                " WHERE cap GLOB '*5*' AND cap NOT GLOB '*[as6]*'")==0 ){
+      @ <p>No non-supervisor moderators
+  }else{
     Stmt q = empty_Stmt;
     int nRows = 0;
     db_prepare(&q, "SELECT uid, login, cap FROM user "
-               "WHERE cap GLOB '*5*' ORDER BY login");
+               "WHERE cap GLOB '*5*' AND cap NOT GLOB '*[as6]*'"
+               " ORDER BY login");
     @ <table class='bordered'>
     @ <thead><tr><th>User</th><th>Capabilities</th></tr></thead>
     @ <tbody>
@@ -1856,15 +1851,9 @@ void forum_setup(void){
     }
     db_finalize(&q);
     @ </tbody></table>
-    if( 0==nRows ){
-      @ No non-supervisor moderators
-    }else{
-      @ %d(nRows) moderator(s)
-    }
   }
 
   @ <h2>Settings</h2>
-  @ <p>Configuration settings specific to the forum.</p>
   if( P("submit") && cgi_csrf_safe(2) ){
     int i = 0;
     db_begin_transaction();
@@ -1897,19 +1886,18 @@ void forum_setup(void){
       zQP[2] = 0;
       if( pSetting->width==0 ){
         /* Boolean setting */
-        @ <tr><td>&nbsp;<td width="5">
-        onoff_attribute("", zQP, pSetting->name/*works-like:"x"*/, 0, 0);
+        @ <tr><td align="right">
+        @ <a href='%R/help?cmd=%h(pSetting->name)'>%h(pSetting->name)</a>:
         @ </td><td>
-        @ <a href='%R/help?cmd=%h(pSetting->name)'>%h(pSetting->name)</a>
-        @ </td>
-        @ <td>&nbsp;</td></tr>
+        onoff_attribute("", zQP, pSetting->name/*works-like:"x"*/, 0, 0);
+        @ </td></tr>
       }else{
         /* Text value setting */
-        @ <tr><td colspan="2">
+        @ <tr><td align="right">
+        @ <a href='%R/help?cmd=%h(pSetting->name)'>%h(pSetting->name)</a>:
+        @ </td><td>
         entry_attribute("", 25, pSetting->name, zQP/*works-like:""*/,
                         pSetting->def, 0);
-        @ </td><td>
-        @ <a href='%R/help?cmd=%h(pSetting->name)'>%h(pSetting->name)</a>
         @ </td></tr>
       }   
     }
