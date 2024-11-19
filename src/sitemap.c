@@ -194,7 +194,8 @@ void sitemap_page(void){
     @ <li>%z(href("%R/chat"))Chat</a></li>
   }
   if( g.perm.RdForum ){
-    @ <li>%z(href("%R/forum"))Forum</a>
+    const char *zTitle = db_get("forum-title","Forum");
+    @ <li>%z(href("%R/forum"))%h(zTitle)</a>
     @ <ul>
     @   <li>%z(href("%R/timeline?y=f"))Recent activity</a></li>
     @ </ul>
