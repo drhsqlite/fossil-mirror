@@ -1,5 +1,5 @@
-C Simplifications\sto\sthe\sForum\ssetup\spage.
-D 2024-11-19T13:08:31.758
+C Fix\sthe\s/timeline\spage\ssuch\sthat\swhen\sthe\srl=\squery\sparameter\sis\sused,\nsubsequent\shyperlinks\sare\scorrect.
+D 2024-11-19T14:28:30.578
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -571,7 +571,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c baac5d2f93a6afc57fab8bdeb29b2e0c76beaf1709436003c2bb50351b63b7a1
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c ff3634ed7abe5836f4e3e1ce72cba50dfc98ac481bed7d615ebcc1b510575952
+F src/timeline.c 4e51d0b3278750cb52f451d5f3219c0466e082310c9cb719fd2baf658659eaa2
 F src/tkt.c 6a9ba46397f7e48b85e465d3a03c459e1508ff97bed12124b85a9c730f4f3154
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f646537cb626f11e8bdbe84c7f6e5671e6b59cc88cf2b1faae560b3333e69a9d
-R fd08cf1330eabab9f33d39a6c698453c
+P 25e4b54238f705983422159ccc8d8f5a0d0af18f42b4ec7e71620dd6f20efa80
+R b4256e882759bd7fa7ec98d8502b1583
 U drh
-Z 863ad225b5b76ca4db6c82fd0892b657
+Z e6b33d41b558f281e349d66114352621
 # Remove this line to create a well-formed Fossil manifest.

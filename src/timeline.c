@@ -1992,6 +1992,7 @@ void page_timeline(void){
     }
     if( (z = P("rl"))!=0 ){
       zBrName = z;
+      related = 1;
       zMatchStyle = "brlist";
     }
   }
