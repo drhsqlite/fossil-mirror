@@ -1713,9 +1713,11 @@ void cmd_test_canonical_name(void){
 */
 int file_is_canonical(const char *z){
   int i;
-  if( z[0]!='/'
+  if(
 #if defined(_WIN32) || defined(__CYGWIN__)
-    && (!fossil_isupper(z[0]) || z[1]!=':' || z[2]!='/')
+    !fossil_isupper(z[0]) || z[1]!=':' || !fossil_isdirsep(z[2])
+#else
+    z[0]!='/'
 #endif
   ) return 0;
 
