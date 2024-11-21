@@ -1,5 +1,5 @@
-C Fix\sthe\s/timeline\spage\ssuch\sthat\swhen\sthe\srl=\squery\sparameter\sis\sused,\nsubsequent\shyperlinks\sare\scorrect.
-D 2024-11-19T14:28:30.578
+C Enhance\sthe\sfile_canonical_name()\sfunction\sso\sthat\sit\salways\sincludes\sthe\ndrive\sletter\sprefix\son\sWindows.
+D 2024-11-21T13:06:33.273
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
 F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
-F src/file.c 467ee5d5271ab8f73f1d5902e7d54da8edd71448ceca41921a642e4530ca0759
+F src/file.c 609b7e8d287d87f9e784eacdae44b0a90e83c6142b918818126263235b3ed5b0
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 3eacb1b2e40382a539d16fa54ef4e4f0da931513a56fe974b41fa58f85538740
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 25e4b54238f705983422159ccc8d8f5a0d0af18f42b4ec7e71620dd6f20efa80
-R b4256e882759bd7fa7ec98d8502b1583
+P 761c24e7b08137a7672a19ab509f38cc2a3b0271b8cae9cb7a4ef7997b1a3b34
+R d9b101e577ee2a682e52b85c8f7c75c1
 U drh
-Z e6b33d41b558f281e349d66114352621
+Z e3df50a622ecd42de8c9252368608519
 # Remove this line to create a well-formed Fossil manifest.

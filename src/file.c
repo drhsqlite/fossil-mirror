@@ -1304,21 +1304,33 @@ int file_is_absolute_path(const char *zPath){
 
 /*
 ** Compute a canonical pathname for a file or directory.
-** Make the name absolute if it is relative.
-** Remove redundant / characters
-** Remove all /./ path elements.
-** Convert /A/../ to just /
+**
+**  *  Make the name absolute if it is relative.
+**  *  Remove redundant / characters
+**  *  Remove all /./ path elements.
+**  *  Convert /A/../ to just /
+**  *  On windows, add the drive letter prefix.
+**
 ** If the slash parameter is non-zero, the trailing slash, if any,
 ** is retained.
 **
 ** See also: file_canonical_name_dup()
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
+  char zPwd[2000];
   blob_zero(pOut);
   if( file_is_absolute_path(zOrigName) ){
-    blob_appendf(pOut, "%/", zOrigName);
+#if defined(_WIN32)
+    if( fossil_isdirsep(zOrigName[0]) ){
+      /* Add the drive letter to the full pathname */
+      file_getcwd(zPwd, sizeof(zPwd)-strlen(zOrigName));
+      blob_appendf(pOut, "%.2s%/", zPwd, zOrigName);
+    }else
+#endif
+    {
+      blob_appendf(pOut, "%/", zOrigName);
+    }
   }else{
-    char zPwd[2000];
     file_getcwd(zPwd, sizeof(zPwd)-strlen(zOrigName));
     if( zPwd[0]=='/' && strlen(zPwd)==1 ){
       /* when on '/', don't add an extra '/' */
