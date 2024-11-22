@@ -1,5 +1,5 @@
-C Strengthen\sthe\sfile_is_canonical()\sroutine\sso\sthat\sit\sreturns\sfalse\son\nWindows\sif\sthe\spathname\sdoes\snot\sbegin\swith\sa\sdrive\sletter.
-D 2024-11-21T13:34:40.346
+C Provide\sthe\sability\sto\smake\sexceptions\sto\smaximum\snumber\sof\squery\sparameters\non\sthe\srobot\srestrictor.
+D 2024-11-22T14:29:46.125
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -489,7 +489,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22a
-F src/login.c 83a6bcf7a08c87eb5ed3115f7f3adc5ccb97940592605027024e81e1fc1184fa
+F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c 09de277fb95dcfd250c535864204b70d60d974fa1591c9d14a189c3d87dbd2c6
@@ -523,7 +523,7 @@ F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 6a9ae77e876da44ee7ad87d4c1151ec10af468dac326312cd7b1aaf322ab728b
 F src/security_audit.c edafc6d6858f23d47e5066497165152d78f55072ffad5225d233c2dd3b8bec7b
-F src/setup.c 72cfebffa3bb5f4cdc176c43cd4602fcdbd888a716154e53bbbf55a136f9e30a
+F src/setup.c 3b4cb2f5dc6d29e9e85ed63040a7e8781b003f29252170e835d1fb409ad26a21
 F src/setupuser.c d47e2a3bb3191a833f25613fdf1b5a80e3a7bb7175c7403377b5b4e3f34782d3
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -571,7 +571,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c baac5d2f93a6afc57fab8bdeb29b2e0c76beaf1709436003c2bb50351b63b7a1
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c 4e51d0b3278750cb52f451d5f3219c0466e082310c9cb719fd2baf658659eaa2
+F src/timeline.c 7d741668fa9f7f643afd036fd822a33b583336e93f8086f1c4810b32d137fb50
 F src/tkt.c 6a9ba46397f7e48b85e465d3a03c459e1508ff97bed12124b85a9c730f4f3154
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 40376ef892bbee029f554a413112eaa7fe86c7c15469f5aad6a2f140ed6ce6f0
-R 2cd62deddefb44e3be0c8aa3c1291481
+P f6ff25e1b75579a88c7189fc0ea69eb0f5389d0717942e7c56183338d2b5b937
+R e0665902efc24442720cb78c28d39639
 U drh
-Z dffa8169e565b86f856aeb68cbb1d265
+Z 63978cd809a4cd466a3bbaa0a21369fe
 # Remove this line to create a well-formed Fossil manifest.
