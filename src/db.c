@@ -1559,6 +1559,8 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "chat_msg_from_event", 4,
         SQLITE_UTF8 | SQLITE_INNOCUOUS, 0,
         chat_msg_from_event, 0, 0);
+  sqlite3_create_function(db, "inode", 1, SQLITE_UTF8, 0,
+                          file_inode_sql_func,0,0);
 
 }
 
