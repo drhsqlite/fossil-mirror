@@ -1,9 +1,9 @@
 B f6ff25e1b75579a88c7189fc0ea69eb0f5389d0717942e7c56183338d2b5b937
-C Fix\slogic\serror\sfrom\sprevious\scommit.
-D 2024-11-23T01:07:03.536
-F src/http_transport.c b0bac2506b18c19a5f6e586decace27d4969cbc0c1fb6f30964dbf17d5d76f79
-P f019cb5fc3f0b5f3fa438d760ff9dfd00deccfda63d7dc8adabaf1d2c1e1306b
-R d3a9cc6c409d60af7156a4f09571d7ac
+C This\scommit\shad\smore\sthan\sI\shad\sintended.
+D 2024-11-23T01:08:56.220
+F src/http_transport.c 658bfa6f67f50f2a4eb0c9fcfe5c42a620b3de4ab1cfa16ac806a67fe488bcec
+P 3ada7a67eff116991fd15d5ecf2580339d1962c35e10db7e312c291456d1d73d
+R effe7de61f42b7fb05faf1bfed110017
 U andybradford
-Z 0e9cdee11fb3a66019d7fd22420051f1
+Z 892cc5702769101168372da8ba7c6bb4
 # Remove this line to create a well-formed Fossil manifest.

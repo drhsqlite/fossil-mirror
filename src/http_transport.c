@@ -97,7 +97,7 @@ static int is_safe_fossil_command(const char *zFossil){
 #if 0 /* was: defined(_WIN32).  Windows generally has ssh now. */
 static const char zDefaultSshCmd[] = "plink -ssh";
 #else
-static const char zDefaultSshCmd[] = "ssh";
+static const char zDefaultSshCmd[] = "ssh -e none";
 #endif
 
 /*
@@ -106,7 +106,7 @@ static const char zDefaultSshCmd[] = "ssh";
 void transport_ssh_command(Blob *p){
   char *zSsh;        /* The base SSH command */
   zSsh = g.zSshCmd;
-  if( zSsh==0 || zSsh[0]==0 ){
+  if( zSsh==0 && zSsh[0]==0 ){
     zSsh = db_get("ssh-command", zDefaultSshCmd);
   }
   blob_init(p, zSsh, -1);
@@ -128,7 +128,7 @@ int transport_ssh_open(UrlData *pUrlData){
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
     blob_appendf(&zCmd, " -p %d", pUrlData->port);
   }
-  blob_appendf(&zCmd, " -e none -T --");  /* End of switches */
+  blob_appendf(&zCmd, " -T --");  /* End of switches */
   if( pUrlData->user && pUrlData->user[0] ){
     zHost = mprintf("%s@%s", pUrlData->user, pUrlData->name);
     blob_append_escaped_arg(&zCmd, zHost, 0);
