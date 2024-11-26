@@ -1658,6 +1658,7 @@ void cmd_test_file_environment(void){
   if( zRoot==0 ) zRoot = g.zLocalRoot==0 ? "" : g.zLocalRoot;
   fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
   fossil_print("local-root = [%s]\n", zRoot);
+  if( g.db==0 ) sqlite3_open(":memory:", &g.db);
   sqlite3_create_function(g.db, "inode", 1, SQLITE_UTF8, 0,
                           file_inode_sql_func, 0, 0);
   for(i=2; i<g.argc; i++){

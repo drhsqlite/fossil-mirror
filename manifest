@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\slogic\sin\sthe\s"fossil\sall"\scommand\sthat\sremoves\nredundant\sentries\sfor\srepositories\sin\sthe\sglobal_config\stable.\s\sIf\stwo\sor\nmore\sentries\sshare\sthe\ssame\sinode,\sonly\suse\sthe\sfirst\sone.\s\sOn\sWindows\n(which\slacks\sinodes)\sdetermine\suniqueness\sby\sthe\sfull,\scanonical\spathname.
-D 2024-11-23T21:27:00.391
+C Fix\sa\scrash\sif\sthe\stest-file-environment\scommand\sis\scalled\sfrom\soutside\sa\scheck-out\s(introduced\swith\s[106de276ee]).
+D 2024-11-26T05:17:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
 F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
-F src/file.c 8d97c53e91265a73565f14f65646ef586e7644f8a015759363c5751eb2b36265
+F src/file.c 987343baa2ffc7d3e7c98453a37c79f6503c0266255bdbc69eb3365658ce6f1d
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 3eacb1b2e40382a539d16fa54ef4e4f0da931513a56fe974b41fa58f85538740
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c6e394d1eaf275ce787efc435f3ec1399b50f7f41d50e8c75a17d8a2d2b440b
-R 5be5481f789dafdbbb1b45caf2cdb335
-U drh
-Z 6d4102dc17dabe7398b1bdc208f34f89
+P 106de276eec32eabb265d2b0f40bed48cb58ce6c7b6d6acb5f2f7f7d4327c603
+R 256411fff28d4d56ab9aa150d051af4c
+U florian
+Z 5b80279196f7fe5145fdb1c6bcdf315e
 # Remove this line to create a well-formed Fossil manifest.
