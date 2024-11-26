@@ -570,7 +570,7 @@ void update_cmd(void){
   db_finalize(&mtimeXfer);
   fossil_print("%.79c\n",'-');
   zNewBrName = branch_of_rid(tid);
-  if( fossil_strcmp(zCurBrName, zNewBrName)!=0 ){
+  if( g.argc<3 &&fossil_strcmp(zCurBrName, zNewBrName)!=0 ){
     zBrChgMsg = mprintf("  Branch changed from %s to %s.",
                            zCurBrName, zNewBrName);
   }

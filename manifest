@@ -1,12 +1,9 @@
 B 106de276eec32eabb265d2b0f40bed48cb58ce6c7b6d6acb5f2f7f7d4327c603
-C Improve\ssituational\sawareness\swith\s"fossil\supdate"\sby\sincluding\sa\smessages\nin\sthe\schanges:\sinformation\sif\sthe\sname\sof\sthe\sbranch\schanges.\nSee\s[forum:7f5ae505e4144a0c\s|\sforum\sdiscussion\s7f5ae505e4144a0c]\sfor\sdetails.
-D 2024-11-24T03:38:14.668
-F src/update.c 716662ce671b9023013145544d5c9f9e395453655aa6b31ed11cd93c458249be
-P 106de276eec32eabb265d2b0f40bed48cb58ce6c7b6d6acb5f2f7f7d4327c603
-R fe8af638e0ccf664c10917139bbeead2
-T *branch * show-branch-change
-T *sym-show-branch-change *
-T -sym-trunk *
+C Only\semit\sthe\schange\sin\sbranch\sif\sthere\sis\sno\sVERSION\sargument\sto\sminimize\nadditional\soutput.
+D 2024-11-26T19:24:32.069
+F src/update.c 80e98e954634642550ba5fdb3b339a659531f256929a262f48737b207b01384c
+P bb9150c403e78db3ac7665188ce4d8886180bc8accb43ca88e65613a82d7b095
+R d75d0dc81a63dfb35688cc60900ae15c
 U andybradford
-Z 4e86c7f71ec35fd15501d2d94522c50c
+Z 7c8147f1a038b43ca35c1ba059445fd3
 # Remove this line to create a well-formed Fossil manifest.
