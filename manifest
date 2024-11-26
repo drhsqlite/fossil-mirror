@@ -1,9 +1,9 @@
 B 106de276eec32eabb265d2b0f40bed48cb58ce6c7b6d6acb5f2f7f7d4327c603
-C Only\semit\sthe\schange\sin\sbranch\sif\sthere\sis\sno\sVERSION\sargument\sto\sminimize\nadditional\soutput.
-D 2024-11-26T19:24:32.069
-F src/update.c 80e98e954634642550ba5fdb3b339a659531f256929a262f48737b207b01384c
-P bb9150c403e78db3ac7665188ce4d8886180bc8accb43ca88e65613a82d7b095
-R d75d0dc81a63dfb35688cc60900ae15c
+C Minor\supdate\sto\sconform\sto\sstyle,\sno\schange\sin\sfunction.
+D 2024-11-26T19:49:02.903
+F src/update.c f99ed4cc4c3cbeb0b3f3b1af27b394376366024d6c5cb003332be13e5cc5bc42
+P 2ef47b81b4a55e4338ad57cf0b5f8c0b7abfa1948b501f3add0f18e1ec8ec293
+R 6a6cd3fdbe834bfe57c0ead886de4d96
 U andybradford
-Z 7c8147f1a038b43ca35c1ba059445fd3
+Z 1e30e7208309cf1dd65718987bd0d060
 # Remove this line to create a well-formed Fossil manifest.
