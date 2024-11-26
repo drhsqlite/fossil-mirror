@@ -453,4 +453,72 @@ char *win32_file_case_preferred_name(
   fossil_free(zBuf);
   return zRes;
 }
+
+/* Return the unique identifier (UID) for a file, made up of the file identifier
+** (equal to "inode" for Unix-style file systems) plus the volume serial number.
+** Call the GetFileInformationByHandleEx() function on Windows Vista, and resort
+** to the GetFileInformationByHandle() function on Windows XP. The result string
+** is allocated by mprintf(), or NULL on failure.
+*/
+char *win32_file_id(
+  const char *zFileName
+){
+  static FARPROC fnGetFileInformationByHandleEx;
+  static int loaded_fnGetFileInformationByHandleEx;
+  wchar_t *wzFileName = fossil_utf8_to_path(zFileName,0);
+  HANDLE hFile;
+  char *zFileId = 0;
+  hFile = CreateFileW(
+            wzFileName,
+            0,
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+            NULL,
+            OPEN_EXISTING,
+            FILE_FLAG_BACKUP_SEMANTICS,
+            NULL);
+  if( hFile!=INVALID_HANDLE_VALUE ){
+    BY_HANDLE_FILE_INFORMATION fi;
+    struct { /* FILE_ID_INFO from <winbase.h> */
+      u64 VolumeSerialNumber;
+      unsigned char FileId[16];
+    } fi2;
+    if( !loaded_fnGetFileInformationByHandleEx ){
+      fnGetFileInformationByHandleEx = GetProcAddress(
+        GetModuleHandleA("kernel32"),"GetFileInformationByHandleEx");
+      loaded_fnGetFileInformationByHandleEx = 1;
+    }
+    if( fnGetFileInformationByHandleEx ){
+      if( fnGetFileInformationByHandleEx(
+            hFile,/*FileIdInfo*/0x12,&fi2,sizeof(fi2)) ){
+        zFileId = mprintf(
+                    "%016llx/"
+                      "%02x%02x%02x%02x%02x%02x%02x%02x"
+                      "%02x%02x%02x%02x%02x%02x%02x%02x",
+                    fi2.VolumeSerialNumber,
+                    fi2.FileId[15], fi2.FileId[14],
+                    fi2.FileId[13], fi2.FileId[12],
+                    fi2.FileId[11], fi2.FileId[10],
+                    fi2.FileId[9],  fi2.FileId[8],
+                    fi2.FileId[7],  fi2.FileId[6],
+                    fi2.FileId[5],  fi2.FileId[4],
+                    fi2.FileId[3],  fi2.FileId[2],
+                    fi2.FileId[1],  fi2.FileId[0]);
+      }
+    }
+    if( zFileId==0 ){
+      if( GetFileInformationByHandle(hFile,&fi) ){
+        ULARGE_INTEGER FileId = {
+          /*.LowPart = */ fi.nFileIndexLow,
+          /*.HighPart = */ fi.nFileIndexHigh
+        };
+        zFileId = mprintf(
+                    "%08x/%016llx",
+                    fi.dwVolumeSerialNumber,(u64)FileId.QuadPart);
+      }
+    }
+    CloseHandle(hFile);
+  }
+  fossil_path_free(wzFileName);
+  return zFileId;
+}
 #endif /* _WIN32  -- This code is for win32 only */

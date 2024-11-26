@@ -2998,8 +2998,9 @@ int dir_has_ckout_db(const char *zDir){
 **       DEV/INODE
 **
 ** Where DEV and INODE are the device number and inode number for
-** the file.  Or, on Windows, the return value is the canonical
-** name of the file, because Windows does not have INODEs.
+** the file.  On Windows, the volume serial number (DEV) and file
+** identifier (INODE) are used to compute the value, see comments
+** on the win32_file_id() function.
 **
 ** If FILENAME does not exist, then the return is an empty string.
 **
@@ -3026,8 +3027,12 @@ void file_inode_sql_func(
   }
 #if defined(_WIN32)
   {
-    const char *zCanonical = file_canonical_name_dup(zFilename);
-    sqlite3_result_text(context, zCanonical, -1, fossil_free);
+    char *zFileId = win32_file_id(zFilename);
+    if( zFileId ){
+      sqlite3_result_text(context, zFileId, -1, fossil_free);
+    }else{
+      sqlite3_result_text(context, "", 0, SQLITE_STATIC);
+    }
   }
 #else
   {
