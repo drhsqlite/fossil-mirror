@@ -1,9 +1,10 @@
 B 106de276eec32eabb265d2b0f40bed48cb58ce6c7b6d6acb5f2f7f7d4327c603
-C Minor\supdate\sto\sconform\sto\sstyle,\sno\schange\sin\sfunction.
-D 2024-11-26T19:49:02.903
+C If\sthe\sbranch\sname\schanges\sduring\sa\scommit,\sprompt\suser\sto\sconfirm\scontinue\n(behaves\ssimilar\sto\sother\spre-commit\schecks).\s\sInspired\sby\n[forum:d5a1b209186552dd\s|\sforum\spost\sd5a1b209186552dd].
+D 2024-11-27T19:28:14.791
+F src/checkin.c 42dc4f8d18f8e8ffa38c1a992221ee0325dab26890ea669b2daa1b4047d29b17
 F src/update.c f99ed4cc4c3cbeb0b3f3b1af27b394376366024d6c5cb003332be13e5cc5bc42
-P 2ef47b81b4a55e4338ad57cf0b5f8c0b7abfa1948b501f3add0f18e1ec8ec293
-R 6a6cd3fdbe834bfe57c0ead886de4d96
+P 8e06863eebaa3951845e1b816cc35db1433ebe6b12b8dfd6a1f8df8143233fdd
+R 3b25ce69621caef2c36df7c82555dc77
 U andybradford
-Z 1e30e7208309cf1dd65718987bd0d060
+Z 5f56de206f85b2ad195484160518e107
 # Remove this line to create a well-formed Fossil manifest.

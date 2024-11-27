@@ -2436,6 +2436,8 @@ void commit_cmd(void){
   int bRecheck = 0;      /* Repeat fork and closed-branch checks*/
   int bIgnoreSkew = 0;   /* --ignore-clock-skew flag */
   int mxSize;
+  char *zCurBranch = 0;  /* The current branch name of checkout */
+  char *zNewBranch = 0;  /* The branch name after update */
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
@@ -2501,6 +2503,7 @@ void commit_cmd(void){
 
   /* Get the ID of the parent manifest artifact */
   vid = db_lget_int("checkout", 0);
+  zCurBranch = branch_of_rid(vid);
   if( vid==0 ){
     useCksum = 1;
     if( privateFlag==0 && sCiInfo.zBranch==0 ) {
@@ -2715,6 +2718,30 @@ void commit_cmd(void){
     ){
       fossil_fatal("cannot commit against a closed leaf");
     }
+
+    /* Require confirmation to continue with the check-in if the branch
+    ** has changed and the committer did not provide the same branch
+    */
+    zNewBranch = branch_of_rid(vid);
+    if( fossil_strcmp(zCurBranch, zNewBranch)!=0
+     && fossil_strcmp(sCiInfo.zBranch, zNewBranch)!=0
+    ){
+      fossil_warning("parent check-in [%.10s] changed branch from '%s' to '%s'",
+                     rid_to_uuid(vid), zCurBranch, zNewBranch);
+      if( !noPrompt ){
+        prompt_user("continue (y/N)? ", &ans);
+        cReply = blob_str(&ans)[0];
+        blob_reset(&ans);
+      }else{
+        cReply = 'N';
+      }
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_fatal("Abandoning commit because branch has changed");
+      }
+      fossil_free(zCurBranch);
+      zCurBranch = branch_of_rid(vid);
+    }
+    fossil_free(zNewBranch);
 
     /* Always exit the loop on the second pass */
     if( bRecheck ) break;
