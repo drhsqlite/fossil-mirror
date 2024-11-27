@@ -2726,7 +2726,7 @@ void commit_cmd(void){
     if( fossil_strcmp(zCurBranch, zNewBranch)!=0
      && fossil_strcmp(sCiInfo.zBranch, zNewBranch)!=0
     ){
-      fossil_warning("parent check-in [%.10s] changed branch from '%s' to '%s'",
+      fossil_warning("parent check-in [%.10s] branch changed from '%s' to '%s'",
                      rid_to_uuid(vid), zCurBranch, zNewBranch);
       if( !noPrompt ){
         prompt_user("continue (y/N)? ", &ans);

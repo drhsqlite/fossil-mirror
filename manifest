@@ -1,10 +1,10 @@
 B 106de276eec32eabb265d2b0f40bed48cb58ce6c7b6d6acb5f2f7f7d4327c603
-C If\sthe\sbranch\sname\schanges\sduring\sa\scommit,\sprompt\suser\sto\sconfirm\scontinue\n(behaves\ssimilar\sto\sother\spre-commit\schecks).\s\sInspired\sby\n[forum:d5a1b209186552dd\s|\sforum\spost\sd5a1b209186552dd].
-D 2024-11-27T19:28:14.791
-F src/checkin.c 42dc4f8d18f8e8ffa38c1a992221ee0325dab26890ea669b2daa1b4047d29b17
+C I\sthink\sthis\sconveys\sthe\smessage\swith\sslightly\smore\sclarity.
+D 2024-11-27T20:29:42.471
+F src/checkin.c e5016015bb06e43647bf040338f4d25949c4344c24a85372df02730f4195ccbc
 F src/update.c f99ed4cc4c3cbeb0b3f3b1af27b394376366024d6c5cb003332be13e5cc5bc42
-P 8e06863eebaa3951845e1b816cc35db1433ebe6b12b8dfd6a1f8df8143233fdd
-R 3b25ce69621caef2c36df7c82555dc77
+P a70f279a1d256711c0269df7f145244c2cac0e445e47be2df7ba20ed17cac9a9
+R 04f0b31e35d4861c4f4d8c29a3a4a8c9
 U andybradford
-Z 5f56de206f85b2ad195484160518e107
+Z 11f8824f052a03318d7ec6a415da35ed
 # Remove this line to create a well-formed Fossil manifest.
