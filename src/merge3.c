@@ -101,42 +101,6 @@ static int ends_at_CPY(int *aC, int sz){
 }
 
 /*
-** pSrc contains an edited file where aC[] describes the edit.  Part of
-** pSrc has already been output.  This routine outputs additional lines
-** of pSrc - lines that correspond to the next sz lines of the original
-** unedited file.
-**
-** Note that sz counts the number of lines of text in the original file.
-** But text is output from the edited file.  So the number of lines transfer
-** to pOut might be different from sz.  Fewer lines appear in pOut if there
-** are deletes.  More lines appear if there are inserts.
-**
-** The aC[] array is updated and the new index into aC[] is returned.
-*/
-static int output_one_side(
-  Blob *pOut,     /* Write to this blob */
-  Blob *pSrc,     /* The edited file that is to be copied to pOut */
-  int *aC,        /* Array of integer triples describing the edit */
-  int i,          /* Index in aC[] of current location in pSrc */
-  int sz,         /* Number of lines in unedited source to output */
-  int *pLn        /* Line number counter */
-){
-  while( sz>0 ){
-    if( aC[i]==0 && aC[i+1]==0 && aC[i+2]==0 ) break;
-    if( aC[i]>=sz ){
-      blob_copy_lines(pOut, pSrc, sz);  *pLn += sz;
-      aC[i] -= sz;
-      break;
-    }
-    blob_copy_lines(pOut, pSrc, aC[i]);      *pLn += aC[i];
-    blob_copy_lines(pOut, pSrc, aC[i+2]);    *pLn += aC[i+2];
-    sz -= aC[i] + aC[i+1];
-    i += 3;
-  }
-  return i;
-}
-
-/*
 ** Text of boundary markers for merge conflicts.
 */
 static const char *const mergeMarker[] = {
@@ -190,6 +154,224 @@ void append_merge_mark(Blob *pOut, int iMark, int ln, int useCrLf){
 }
 
 /*
+** This is an abstract class for constructing a merge.
+** Subclasses of this object format the merge output in different ways.
+**
+** To subclass, create an instance of the MergeBuilder object and fill
+** in appropriate method implementations.
+*/
+typedef struct MergeBuilder MergeBuilder;
+struct MergeBuilder {
+  void (*xStart)(MergeBuilder*);
+  void (*xSame)(MergeBuilder*, unsigned int);
+  void (*xChngV1)(MergeBuilder*, unsigned int, unsigned int);
+  void (*xChngV2)(MergeBuilder*, unsigned int, unsigned int);
+  void (*xChngBoth)(MergeBuilder*, unsigned int, unsigned int);
+  void (*xConflict)(MergeBuilder*, unsigned int, unsigned int, unsigned int);
+  void (*xEnd)(MergeBuilder*);
+  void (*xDestroy)(MergeBuilder*);
+  const char *zPivot;        /* Label or name for the pivot */
+  const char *zV1;           /* Label or name for the V1 file */
+  const char *zV2;           /* Label or name for the V2 file */
+  const char *zOut;          /* Label or name for the output */
+  Blob *pPivot;              /* The common ancestor */
+  Blob *pV1;                 /* First variant */
+  Blob *pV2;                 /* Second variant */
+  Blob *pOut;                /* Write merge results here */
+  int useCrLf;               /* Use CRLF line endings */
+  unsigned int lnPivot;      /* Lines read from pivot */
+  unsigned int lnV1;         /* Lines read from v1 */
+  unsigned int lnV2;         /* Lines read from v2 */
+  unsigned int lnOut;        /* Lines written to out */
+  unsigned int nConflict;    /* Number of conflicts seen */
+};
+
+
+/************************* Generic MergeBuilder ******************************/
+/* These are generic methods for MergeBuilder.  They just output debugging
+** information.  But some of them are useful as base methods for other useful
+** implementations of MergeBuilder.
+*/
+
+/* xStart() and xEnd() are called to generate header and fotter information
+** in the output.  This is a no-op in the generic implementation.
+*/
+static void dbgStartEnd(MergeBuilder *p){  (void)p; }
+
+/* The next N lines of PIVOT are unchanged in both V1 and V2
+*/
+static void dbgSame(MergeBuilder *p, unsigned int N){
+  blob_appendf(p->pOut, "COPY %u lines (%u..%u) FROM BASELINE\n",
+               N, p->lnPivot, p->lnPivot+N-1);
+  p->lnPivot += N;
+  p->lnV1 += N;
+  p->lnV2 += N;
+}
+
+/* The next nPivot lines of the PIVOT are changed into nV1 lines by V1
+*/
+static void dbgChngV1(MergeBuilder *p, unsigned int nPivot, unsigned int nV1){
+  blob_appendf(p->pOut, "COPY %u lines (%u..%u) FROM V1\n",
+               nV1, p->lnV1, p->lnV1+nV1-1);
+  p->lnPivot += nPivot;
+  p->lnV2 += nPivot;
+  p->lnV1 += nV1;
+}
+
+/* The next nPivot lines of the PIVOT are changed into nV2 lines by V2
+*/
+static void dbgChngV2(MergeBuilder *p, unsigned int nPivot, unsigned int nV2){
+  blob_appendf(p->pOut, "COPY %u lines (%u..%u) FROM V2\n",
+               nV2, p->lnV2, p->lnV2+nV2-1);
+  p->lnPivot += nPivot;
+  p->lnV1 += nPivot;
+  p->lnV2 += nV2;
+}
+
+/* The next nPivot lines of the PIVOT are changed into nV lines from V1 and
+** V2, which should be the same.  In other words, the same change is found
+** in both V1 and V2.
+*/
+static void dbgChngBoth(MergeBuilder *p, unsigned int nPivot, unsigned int nV){
+  blob_appendf(p->pOut, "COPY %u lines (%u..%u) FROM V1\n",
+               nV, p->lnV1, p->lnV1+nV-1);
+  p->lnPivot += nPivot;
+  p->lnV1 += nV;
+  p->lnV2 += nV;
+}
+
+/* V1 and V2 have different and overlapping changes.  The next nPivot lines
+** of the PIVOT are converted into nV1 lines of V1 and nV2 lines of V2.
+*/
+static void dbgConflict(
+  MergeBuilder *p,
+  unsigned int nPivot,
+  unsigned int nV1,
+  unsigned int nV2
+){
+  blob_appendf(p->pOut, 
+     "CONFLICT  BASELINE(%u..%u) versus V1(%u..%u) versus V2(%u..%u)\n",
+               p->lnPivot, p->lnPivot+nPivot-1,
+               p->lnV1, p->lnPivot+nV1-1,
+               p->lnV2, p->lnPivot+nV2-1);
+  p->lnV1 += nV1;
+  p->lnPivot += nPivot;
+  p->lnV2 += nV2;
+}
+
+/* Generic destructor for the MergeBuilder object
+*/
+static void dbgDestroy(MergeBuilder *p){
+  memset(p, 0, sizeof(*p));
+}
+
+/* Generic initializer for a MergeBuilder object
+*/
+static void mergebuilder_init(MergeBuilder *p){
+  memset(p, 0, sizeof(*p));
+  p->xStart = dbgStartEnd;
+  p->xSame = dbgSame;
+  p->xChngV1 = dbgChngV1;
+  p->xChngV2 = dbgChngV2;
+  p->xChngBoth = dbgChngBoth;
+  p->xConflict = dbgConflict;
+  p->xEnd = dbgStartEnd;
+  p->xDestroy = dbgDestroy;
+}
+
+
+/************************* MergeBuilderText **********************************/
+/* This version of MergeBuilder actually performs a merge on file and puts
+** the result in pOut
+*/
+static void txtStart(MergeBuilder *p){
+  /* If both pV1 and pV2 start with a UTF-8 byte-order-mark (BOM),
+  ** keep it in the output. This should be secure enough not to cause
+  ** unintended changes to the merged file and consistent with what
+  ** users are using in their source files.
+  */
+  if( starts_with_utf8_bom(p->pV1, 0) && starts_with_utf8_bom(p->pV2, 0) ){
+    blob_append(p->pOut, (char*)get_utf8_bom(0), -1);
+  }
+  if( contains_crlf(p->pV1) && contains_crlf(p->pV2) ){
+    p->useCrLf = 1;
+  }
+}
+static void txtSame(MergeBuilder *p, unsigned int N){
+  blob_copy_lines(p->pOut, p->pPivot, N);  p->lnPivot += N;
+  blob_copy_lines(0, p->pV1, N);           p->lnV1 += N;
+  blob_copy_lines(0, p->pV2, N);           p->lnV2 += N;
+}
+static void txtChngV1(MergeBuilder *p, unsigned int nPivot, unsigned int nV1){
+  blob_copy_lines(0, p->pPivot, nPivot);   p->lnPivot += nPivot;
+  blob_copy_lines(0, p->pV2, nPivot);      p->lnV2 += nPivot;
+  blob_copy_lines(p->pOut, p->pV1, nV1);   p->lnV1 += nV1;
+}
+static void txtChngV2(MergeBuilder *p, unsigned int nPivot, unsigned int nV2){
+  blob_copy_lines(0, p->pPivot, nPivot);   p->lnPivot += nPivot;
+  blob_copy_lines(0, p->pV1, nPivot);      p->lnV1 += nPivot;
+  blob_copy_lines(p->pOut, p->pV2, nV2);   p->lnV2 += nV2;
+}
+static void txtChngBoth(MergeBuilder *p, unsigned int nPivot, unsigned int nV){
+  blob_copy_lines(0, p->pPivot, nPivot);   p->lnPivot += nPivot;
+  blob_copy_lines(0, p->pV1, nPivot);      p->lnV1 += nV;
+  blob_copy_lines(p->pOut, p->pV2, nV);    p->lnV2 += nV;
+}
+static void txtConflict(
+  MergeBuilder *p,
+  unsigned int nPivot,
+  unsigned int nV1,
+  unsigned int nV2
+){
+  append_merge_mark(p->pOut, 0, p->lnV1, p->useCrLf);
+  blob_copy_lines(p->pOut, p->pV1, nV1);         p->lnV1 += nV1;
+
+  append_merge_mark(p->pOut, 1, p->lnPivot, p->useCrLf);
+  blob_copy_lines(p->pOut, p->pPivot, nPivot);   p->lnPivot += nPivot;
+
+  append_merge_mark(p->pOut, 2, p->lnV2, p->useCrLf);
+  blob_copy_lines(p->pOut, p->pV2, nV2);         p->lnV2 += nV2;
+
+  append_merge_mark(p->pOut, 3, -1, p->useCrLf);
+}
+static void mergebuilder_init_text(MergeBuilder *p){
+  mergebuilder_init(p);
+  p->xStart = txtStart;
+  p->xSame = txtSame;
+  p->xChngV1 = txtChngV1;
+  p->xChngV2 = txtChngV2;
+  p->xChngBoth = txtChngBoth;
+  p->xConflict = txtConflict;
+}
+/*****************************************************************************/
+
+/*
+** aC[] is an "edit triple" for changes from A to B.  Advance through
+** this triple to determine the number of lines to bypass on B in order
+** to match an advance of sz lines on A.
+*/
+static int skip_conflict(
+  int *aC,             /* Array of integer triples describing the edit */
+  int i,               /* Index in aC[] of current location */
+  int sz,              /* Lines of A that have been skipped */
+  unsigned int *pLn    /* OUT: Lines of B to skip to keep aligment with A */
+){
+  *pLn = 0;
+  while( sz>0 ){
+    if( aC[i]==0 && aC[i+1]==0 && aC[i+2]==0 ) break;
+    if( aC[i]>=sz ){
+      aC[i] -= sz;
+      break;
+    }
+    *pLn += aC[i];
+    *pLn += aC[i+2];
+    sz -= aC[i] + aC[i+1];
+    i += 3;
+  }
+  return i;
+}
+
+/*
 ** Do a three-way merge.  Initialize pOut to contain the result.
 **
 ** The merge is an edit against pV2.  Both pV1 and pV2 have a
@@ -201,35 +383,14 @@ void append_merge_mark(Blob *pOut, int iMark, int ln, int useCrLf){
 ** conflicts, the merge proceeds as best as it can and the number
 ** of conflicts is returns
 */
-static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
+static int blob_merge(MergeBuilder *p){
   int *aC1;              /* Changes from pPivot to pV1 */
   int *aC2;              /* Changes from pPivot to pV2 */
   int i1, i2;            /* Index into aC1[] and aC2[] */
   int nCpy, nDel, nIns;  /* Number of lines to copy, delete, or insert */
   int limit1, limit2;    /* Sizes of aC1[] and aC2[] */
   int nConflict = 0;     /* Number of merge conflicts seen so far */
-  int useCrLf = 0;
-  int ln1, ln2, lnPivot; /* Line numbers for all files */
   DiffConfig DCfg;
-
-  blob_zero(pOut);         /* Merge results stored in pOut */
-
-  /* If both pV1 and pV2 start with a UTF-8 byte-order-mark (BOM),
-  ** keep it in the output. This should be secure enough not to cause
-  ** unintended changes to the merged file and consistent with what
-  ** users are using in their source files.
-  */
-  if( starts_with_utf8_bom(pV1, 0) && starts_with_utf8_bom(pV2, 0) ){
-    blob_append(pOut, (char*)get_utf8_bom(0), -1);
-  }
-
-  /* Check once to see if both pV1 and pV2 contains CR/LF endings.
-  ** If true, CR/LF pair will be used later to append the
-  ** boundary markers for merge conflicts.
-  */
-  if( contains_crlf(pV1) && contains_crlf(pV2) ){
-    useCrLf = 1;
-  }
 
   /* Compute the edits that occur from pPivot => pV1 (into aC1)
   ** and pPivot => pV2 (into aC2).  Each of the aC1 and aC2 arrays is
@@ -240,17 +401,17 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   ** inserted.  The edit array ends with a triple of 0,0,0.
   */
   diff_config_init(&DCfg, 0);
-  aC1 = text_diff(pPivot, pV1, 0, &DCfg);
-  aC2 = text_diff(pPivot, pV2, 0, &DCfg);
+  aC1 = text_diff(p->pPivot, p->pV1, 0, &DCfg);
+  aC2 = text_diff(p->pPivot, p->pV2, 0, &DCfg);
   if( aC1==0 || aC2==0 ){
     free(aC1);
     free(aC2);
     return -1;
   }
 
-  blob_rewind(pV1);        /* Rewind inputs:  Needed to reconstruct output */
-  blob_rewind(pV2);
-  blob_rewind(pPivot);
+  blob_rewind(p->pV1);        /* Rewind inputs:  Needed to reconstruct output */
+  blob_rewind(p->pV2);
+  blob_rewind(p->pPivot);
 
   /* Determine the length of the aC1[] and aC2[] change vectors */
   for(i1=0; aC1[i1] || aC1[i1+1] || aC1[i1+2]; i1+=3){}
@@ -258,14 +419,8 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   for(i2=0; aC2[i2] || aC2[i2+1] || aC2[i2+2]; i2+=3){}
   limit2 = i2;
 
-  DEBUG(
-    for(i1=0; i1<limit1; i1+=3){
-      printf("c1: %4d %4d %4d\n", aC1[i1], aC1[i1+1], aC1[i1+2]);
-    }
-    for(i2=0; i2<limit2; i2+=3){
-      printf("c2: %4d %4d %4d\n", aC2[i2], aC2[i2+1], aC2[i2+2]);
-    }
-  )
+  /* Output header text and do any other required initialization */
+  p->xStart(p);
 
   /* Loop over the two edit vectors and use them to compute merged text
   ** which is written into pOut.  i1 and i2 are multiples of 3 which are
@@ -273,19 +428,11 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   ** processed
   */
   i1 = i2 = 0;
-  ln1 = ln2 = lnPivot = 1;
   while( i1<limit1 && i2<limit2 ){
-    DEBUG( printf("%d: %2d %2d %2d   %d: %2d %2d %2d\n",
-           i1/3, aC1[i1], aC1[i1+1], aC1[i1+2],
-           i2/3, aC2[i2], aC2[i2+1], aC2[i2+2]); )
-
     if( aC1[i1]>0 && aC2[i2]>0 ){
       /* Output text that is unchanged in both V1 and V2 */
       nCpy = min(aC1[i1], aC2[i2]);
-      DEBUG( printf("COPY %d\n", nCpy); )
-      blob_copy_lines(pOut, pPivot, nCpy); lnPivot += nCpy;
-      blob_copy_lines(0, pV1, nCpy);       ln1 += nCpy;
-      blob_copy_lines(0, pV2, nCpy);       ln2 += nCpy;
+      p->xSame(p, nCpy);
       aC1[i1] -= nCpy;
       aC2[i2] -= nCpy;
     }else
@@ -293,10 +440,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       /* Output edits to V2 that occurs within unchanged regions of V1 */
       nDel = aC2[i2+1];
       nIns = aC2[i2+2];
-      DEBUG( printf("EDIT -%d+%d left\n", nDel, nIns); )
-      blob_copy_lines(0, pPivot, nDel);    lnPivot += nDel;
-      blob_copy_lines(0, pV1, nDel);       ln1 += nDel;
-      blob_copy_lines(pOut, pV2, nIns);    ln2 += nIns;
+      p->xChngV2(p, nDel, nIns);
       aC1[i1] -= nDel;
       i2 += 3;
     }else
@@ -304,22 +448,16 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       /* Output edits to V1 that occur within unchanged regions of V2 */
       nDel = aC1[i1+1];
       nIns = aC1[i1+2];
-      DEBUG( printf("EDIT -%d+%d right\n", nDel, nIns); )
-      blob_copy_lines(0, pPivot, nDel);    lnPivot += nDel;
-      blob_copy_lines(0, pV2, nDel);       ln2 += nDel;
-      blob_copy_lines(pOut, pV1, nIns);    ln1 += nIns;
+      p->xChngV2(p, nDel, nIns);
       aC2[i2] -= nDel;
       i1 += 3;
     }else
-    if( sameEdit(&aC1[i1], &aC2[i2], pV1, pV2) ){
+    if( sameEdit(&aC1[i1], &aC2[i2], p->pV1, p->pV2) ){
       /* Output edits that are identical in both V1 and V2. */
       assert( aC1[i1]==0 );
       nDel = aC1[i1+1];
       nIns = aC1[i1+2];
-      DEBUG( printf("EDIT -%d+%d both\n", nDel, nIns); )
-      blob_copy_lines(0, pPivot, nDel);    lnPivot += nDel;
-      blob_copy_lines(pOut, pV1, nIns);    ln1 += nIns;
-      blob_copy_lines(0, pV2, nIns);       ln2 += nIns;
+      p->xChngBoth(p, nDel, nIns);
       i1 += 3;
       i2 += 3;
     }else
@@ -328,25 +466,17 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       ** This is a merge conflict.  Find the size of the conflict, then
       ** output both possible edits separated by distinctive marks.
       */
-      int sz = 1;    /* Size of the conflict in lines */
+      unsigned int sz = 1;    /* Size of the conflict in lines */
+      unsigned int nV1, nV2;
       nConflict++;
       while( !ends_at_CPY(&aC1[i1], sz) || !ends_at_CPY(&aC2[i2], sz) ){
         sz++;
       }
-      DEBUG( printf("CONFLICT %d\n", sz); )
-
-      append_merge_mark(pOut, 0, ln1, useCrLf);
-      i1 = output_one_side(pOut, pV1, aC1, i1, sz, &ln1);
-
-      append_merge_mark(pOut, 1, lnPivot, useCrLf);
-      blob_copy_lines(pOut, pPivot, sz);   lnPivot += sz;
-
-      append_merge_mark(pOut, 2, ln2, useCrLf);
-      i2 = output_one_side(pOut, pV2, aC2, i2, sz, &ln2);
-
-      append_merge_mark(pOut, 3, -1, useCrLf);
-   }
-
+      i1 = skip_conflict(aC1, i1, sz, &nV1);
+      i2 = skip_conflict(aC2, i2, sz, &nV2);
+      p->xConflict(p, sz, nV1, nV2);
+    }
+ 
     /* If we are finished with an edit triple, advance to the next
     ** triple.
     */
@@ -358,16 +488,14 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   ** be an insert in the other edit vector.  Output this remaining
   ** insert.
   */
-  DEBUG( printf("%d: %2d %2d %2d   %d: %2d %2d %2d\n",
-         i1/3, aC1[i1], aC1[i1+1], aC1[i1+2],
-         i2/3, aC2[i2], aC2[i2+1], aC2[i2+2]); )
   if( i1<limit1 && aC1[i1+2]>0 ){
-    DEBUG( printf("INSERT +%d left\n", aC1[i1+2]); )
-    blob_copy_lines(pOut, pV1, aC1[i1+2]);
+    p->xChngV1(p, 0, aC1[i1+2]);
   }else if( i2<limit2 && aC2[i2+2]>0 ){
-    DEBUG( printf("INSERT +%d right\n", aC2[i2+2]); )
-    blob_copy_lines(pOut, pV2, aC2[i2+2]);
+    p->xChngV1(p, 0, aC2[i2+2]);
   }
+
+  /* Output footer text */
+  p->xEnd(p);
 
   free(aC1);
   free(aC2);
@@ -414,10 +542,11 @@ int file_contains_merge_marker(const char *zFullpath){
 /*
 ** COMMAND: 3-way-merge*
 **
-** Usage: %fossil 3-way-merge BASELINE V1 V2 MERGED
+** Usage: %fossil 3-way-merge BASELINE V1 V2 [MERGED]
 **
 ** Inputs are files BASELINE, V1, and V2.  The file MERGED is generated
-** as output.
+** as output.  If no MERGED file is specified, output is sent to
+** stdout.
 **
 ** BASELINE is a common ancestor of two files V1 and V2 that have diverging
 ** edits.  The generated output file MERGED is the combination of all
@@ -438,33 +567,46 @@ int file_contains_merge_marker(const char *zFullpath){
 **      fossil commit
 **
 */
-void delta_3waymerge_cmd(void){
-  Blob pivot, v1, v2, merged;
+void merge_3way_cmd(void){
+  MergeBuilder s;
   int nConflict;
+  Blob pivot, v1, v2, out;
+
+  mergebuilder_init_text(&s);
+  if( find_option("debug", 0, 0) ){
+    mergebuilder_init(&s);
+  }
+  blob_zero(&pivot); s.pPivot = &pivot;
+  blob_zero(&v1);    s.pV1 = &v1;
+  blob_zero(&v2);    s.pV2 = &v2;
+  blob_zero(&out);   s.pOut = &out;
 
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc!=6 ){
-    usage("PIVOT V1 V2 MERGED");
+  if( g.argc!=6 && g.argc!=5 ){
+    usage("[OPTIONS] PIVOT V1 V2 [MERGED]");
   }
-  if( blob_read_from_file(&pivot, g.argv[2], ExtFILE)<0 ){
+  if( blob_read_from_file(s.pPivot, g.argv[2], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[2]);
   }
-  if( blob_read_from_file(&v1, g.argv[3], ExtFILE)<0 ){
+  if( blob_read_from_file(s.pV1, g.argv[3], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[3]);
   }
-  if( blob_read_from_file(&v2, g.argv[4], ExtFILE)<0 ){
+  if( blob_read_from_file(s.pV2, g.argv[4], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[4]);
   }
-  nConflict = blob_merge(&pivot, &v1, &v2, &merged);
-  if( blob_write_to_file(&merged, g.argv[5])<(int)blob_size(&merged) ){
-    fossil_fatal("cannot write %s", g.argv[4]);
+  nConflict = blob_merge(&s);
+  if( g.argc==6 ){
+    blob_write_to_file(s.pOut, g.argv[5]);
+  }else{
+    blob_write_to_file(s.pOut, "-");
   }
+  s.xDestroy(&s);
   blob_reset(&pivot);
   blob_reset(&v1);
   blob_reset(&v2);
-  blob_reset(&merged);
+  blob_reset(&out);
   if( nConflict>0 ) fossil_warning("WARNING: %d merge conflicts", nConflict);
 }
 
@@ -541,12 +683,19 @@ int merge_3way(
   Blob *pOut,         /* Output written here */
   unsigned mergeFlags /* Flags that control operation */
 ){
-  Blob v1;            /* Content of zV1 */
-  int rc;             /* Return code of subroutines and this routine */
+  Blob v1;               /* Content of zV1 */
+  int rc;                /* Return code of subroutines and this routine */
   const char *zGMerge;   /* Name of the gmerge command */
+  MergeBuilder s;        /* The merge state */
 
-  blob_read_from_file(&v1, zV1, ExtFILE);
-  rc = blob_merge(pPivot, &v1, pV2, pOut);
+  mergebuilder_init_text(&s);
+  s.pPivot = pPivot;
+  s.pV1 = &v1;
+  s.pV2 = pV2;
+  blob_zero(pOut);
+  s.pOut = pOut;
+  blob_read_from_file(s.pV1, zV1, ExtFILE);
+  rc = blob_merge(&s);
   zGMerge = rc<=0 ? 0 : db_get("gmerge-command", 0);
   if( (mergeFlags & MERGE_DRYRUN)==0
       && ((zGMerge!=0 && zGMerge[0]!=0)
@@ -556,11 +705,11 @@ int merge_3way(
     char *zOther;       /* Name of the merge file */
 
     zPivot = file_newname(zV1, "baseline", 1);
-    blob_write_to_file(pPivot, zPivot);
+    blob_write_to_file(s.pPivot, zPivot);
     zOrig = file_newname(zV1, "original", 1);
-    blob_write_to_file(&v1, zOrig);
+    blob_write_to_file(s.pV1, zOrig);
     zOther = file_newname(zV1, "merge", 1);
-    blob_write_to_file(pV2, zOther);
+    blob_write_to_file(s.pV2, zOther);
     if( rc>0 ){
       if( zGMerge && zGMerge[0] ){
         char *zOut;     /* Temporary output file */
@@ -591,6 +740,6 @@ int merge_3way(
     fossil_free(zOrig);
     fossil_free(zOther);
   }
-  blob_reset(&v1);
+  s.xDestroy(&s);
   return rc;
 }
