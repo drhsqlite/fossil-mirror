@@ -717,6 +717,77 @@ int file_contains_merge_marker(const char *zFullpath){
 }
 
 /*
+** Show merge output in a Tcl/Tk window, in response to the --tk option
+** to the "merge" or "3-way-merge" command.
+**
+** If fossil has direct access to a Tcl interpreter (either loaded
+** dynamically through stubs or linked in statically), we can use it
+** directly. Otherwise:
+** (1) Write the Tcl/Tk script used for rendering into a temp file.
+** (2) Invoke "tclsh" on the temp file using fossil_system().
+** (3) Delete the temp file.
+*/
+void merge_tk(const char *zSubCmd, int firstArg){
+  int i;
+  Blob script;
+  const char *zTempFile = 0;
+  char *zCmd;
+  const char *zTclsh;
+  int bDarkMode = find_option("dark",0,0)!=0;
+  blob_zero(&script);
+  blob_appendf(&script, "set fossilcmd {| \"%/\" %s -tcl",
+               g.nameOfExe, zSubCmd);
+  find_option("tcl",0,0);
+  find_option("debug",0,0);
+  zTclsh = find_option("tclsh",0,1);
+  if( zTclsh==0 ){
+    zTclsh = db_get("tclsh",0);
+  }
+  /* The undocumented --script FILENAME option causes the Tk script to
+  ** be written into the FILENAME instead of being run.  This is used
+  ** for testing and debugging. */
+  zTempFile = find_option("script",0,1);
+  for(i=firstArg; i<g.argc; i++){
+    const char *z = g.argv[i];
+    if( sqlite3_strglob("*}*",z) ){
+      blob_appendf(&script, " {%/}", z);
+    }else{
+      int j;
+      blob_append(&script, " ", 1);
+      for(j=0; z[j]; j++) blob_appendf(&script, "\\%03o", (unsigned char)z[j]);
+    }
+  }
+  blob_appendf(&script, "}\nset darkmode %d\n", bDarkMode);
+  blob_appendf(&script, "%s", builtin_file("merge.tcl", 0));
+  if( zTempFile ){
+    blob_write_to_file(&script, zTempFile);
+    fossil_print("To see the merge, run: %s \"%s\"\n", zTclsh, zTempFile);
+  }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    Th_FossilInit(TH_INIT_DEFAULT);
+    if( evaluateTclWithEvents(g.interp, &g.tcl, blob_str(&script),
+                              blob_size(&script), 1, 1, 0)==TCL_OK ){
+      blob_reset(&script);
+      return;
+    }
+    /*
+     * If evaluation of the Tcl script fails, the reason may be that Tk
+     * could not be found by the loaded Tcl, or that Tcl cannot be loaded
+     * dynamically (e.g. x64 Tcl with x86 Fossil).  Therefore, fallback
+     * to using the external "tclsh", if available.
+     */
+#endif
+    zTempFile = write_blob_to_temp_file(&script);
+    zCmd = mprintf("%$ %$", zTclsh, zTempFile);
+    fossil_system(zCmd);
+    file_delete(zTempFile);
+    fossil_free(zCmd);
+  }
+  blob_reset(&script);
+}
+
+
+/*
 ** COMMAND: 3-way-merge*
 **
 ** Usage: %fossil 3-way-merge BASELINE V1 V2 [MERGED]
@@ -748,6 +819,8 @@ void merge_3way_cmd(void){
   MergeBuilder s;
   int nConflict;
   Blob pivot, v1, v2, out;
+  int noWarn = 0;
+  int flagTk = 0;
 
   mergebuilder_init_text(&s);
   if( find_option("debug", 0, 0) ){
@@ -755,7 +828,9 @@ void merge_3way_cmd(void){
   }
   if( find_option("tcl", 0, 0) ){
     mergebuilder_init_tcl(&s);
+    noWarn = 1;
   }
+  flagTk = find_option("tk", 0, 0);
   blob_zero(&pivot); s.pPivot = &pivot;
   blob_zero(&v1);    s.pV1 = &v1;
   blob_zero(&v2);    s.pV2 = &v2;
@@ -766,6 +841,14 @@ void merge_3way_cmd(void){
 
   if( g.argc!=6 && g.argc!=5 ){
     usage("[OPTIONS] PIVOT V1 V2 [MERGED]");
+  }
+  if( flagTk ){
+    if( g.argc==6 ){
+      fossil_fatal("Cannot use an output file (\"%s\") with the --tk option",
+                   g.argv[5]);
+    }
+    merge_tk("3-way-merge", 2);
+    return;
   }
   if( blob_read_from_file(s.pPivot, g.argv[2], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[2]);
@@ -787,7 +870,9 @@ void merge_3way_cmd(void){
   blob_reset(&v1);
   blob_reset(&v2);
   blob_reset(&out);
-  if( nConflict>0 ) fossil_warning("WARNING: %d merge conflicts", nConflict);
+  if( nConflict>0 && !noWarn ){
+    fossil_warning("WARNING: %d merge conflicts", nConflict);
+  }
 }
 
 /*
