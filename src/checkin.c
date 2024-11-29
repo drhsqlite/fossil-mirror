@@ -2725,6 +2725,7 @@ void commit_cmd(void){
     zNewBranch = branch_of_rid(vid);
     if( fossil_strcmp(zCurBranch, zNewBranch)!=0
      && fossil_strcmp(sCiInfo.zBranch, zNewBranch)!=0
+     && forceFlag==0
     ){
       fossil_warning("parent check-in [%.10s] branch changed from '%s' to '%s'",
                      rid_to_uuid(vid), zCurBranch, zNewBranch);

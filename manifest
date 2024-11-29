@@ -1,10 +1,10 @@
 B 106de276eec32eabb265d2b0f40bed48cb58ce6c7b6d6acb5f2f7f7d4327c603
-C I\sthink\sthis\sconveys\sthe\smessage\swith\sslightly\smore\sclarity.
-D 2024-11-27T20:29:42.471
-F src/checkin.c e5016015bb06e43647bf040338f4d25949c4344c24a85372df02730f4195ccbc
+C When\s--force\sis\sspecified\sdo\snot\streat\sa\sbranch\sname\schange\sthat\sarrives\sduring\nautosync\sas\sfatal.
+D 2024-11-29T16:23:50.264
+F src/checkin.c c2d14045ede6e46bd3dda2501e69efb3b13dd67313b47fa3daf9d2a302a61eaf
 F src/update.c f99ed4cc4c3cbeb0b3f3b1af27b394376366024d6c5cb003332be13e5cc5bc42
-P a70f279a1d256711c0269df7f145244c2cac0e445e47be2df7ba20ed17cac9a9
-R 04f0b31e35d4861c4f4d8c29a3a4a8c9
+P 4e7e1647de944065e6dbbfb61933ffba5458a381ec5da456e724d286dd22fa31
+R 6aa94086914a60a8580de58acdf6d07d
 U andybradford
-Z 11f8824f052a03318d7ec6a415da35ed
+Z 2200ce4cc9bad1f5452c36459b1c377e
 # Remove this line to create a well-formed Fossil manifest.
