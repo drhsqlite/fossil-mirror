@@ -2726,16 +2726,13 @@ void commit_cmd(void){
     if( fossil_strcmp(zCurBranch, zNewBranch)!=0
      && fossil_strcmp(sCiInfo.zBranch, zNewBranch)!=0
      && forceFlag==0
+     && noPrompt==0
     ){
       fossil_warning("parent check-in [%.10s] branch changed from '%s' to '%s'",
                      rid_to_uuid(vid), zCurBranch, zNewBranch);
-      if( !noPrompt ){
-        prompt_user("continue (y/N)? ", &ans);
-        cReply = blob_str(&ans)[0];
-        blob_reset(&ans);
-      }else{
-        cReply = 'N';
-      }
+      prompt_user("continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
       if( cReply!='y' && cReply!='Y' ){
         fossil_fatal("Abandoning commit because branch has changed");
       }
