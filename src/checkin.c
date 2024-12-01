@@ -2503,7 +2503,6 @@ void commit_cmd(void){
 
   /* Get the ID of the parent manifest artifact */
   vid = db_lget_int("checkout", 0);
-  zCurBranch = branch_of_rid(vid);
   if( vid==0 ){
     useCksum = 1;
     if( privateFlag==0 && sCiInfo.zBranch==0 ) {
@@ -2512,6 +2511,48 @@ void commit_cmd(void){
   }else{
     privateParent = content_is_private(vid);
   }
+
+  user_select();
+  /*
+  ** Check that the user exists.
+  */
+  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.zLogin) ){
+    fossil_fatal("no such user: %s", g.zLogin);
+  }
+
+  /*
+  ** Detect if the branch name has changed from the parent check-in
+  ** and prompt if necessary
+  **/
+  zCurBranch = db_text(0,
+      " SELECT value FROM tagxref AS tx"
+      "  WHERE rid=(SELECT pid"
+      "               FROM tagxref LEFT JOIN event ON srcid=objid"
+      "          LEFT JOIN plink ON rid=cid"
+      "              WHERE rid=%d AND tagxref.tagid=%d"
+      "                AND srcid!=origid"
+      "                AND tagtype>0 AND coalesce(euser,user)!=%Q)"
+      "   AND tx.tagid=%d",
+      vid, TAG_BRANCH, g.zLogin, TAG_BRANCH
+  );
+  if( zCurBranch!=0 && zCurBranch[0]!=0
+   && forceFlag==0
+   && noPrompt==0
+  ){
+    zNewBranch = branch_of_rid(vid);
+    fossil_warning("parent check-in [%.10s] branch changed from '%s' to '%s'",
+                   rid_to_uuid(vid), zCurBranch, zNewBranch);
+    prompt_user("continue (y/N)? ", &ans);
+    cReply = blob_str(&ans)[0];
+    blob_reset(&ans);
+    if( cReply!='y' && cReply!='Y' ){
+      fossil_fatal("Abandoning commit because branch has changed");
+    }
+    fossil_free(zNewBranch);
+    fossil_free(zCurBranch);
+    zCurBranch = branch_of_rid(vid);
+  }
+  if( zCurBranch==0 ) zCurBranch = branch_of_rid(vid);
 
   /* Track the "private" status */
   g.markPrivate = privateFlag || privateParent;
@@ -2642,14 +2683,6 @@ void commit_cmd(void){
                    "'%s' was renamed to '%s'", zFrom, zTo, zFrom, zTo);
     }
     db_finalize(&q);
-  }
-
-  user_select();
-  /*
-  ** Check that the user exists.
-  */
-  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.zLogin) ){
-    fossil_fatal("no such user: %s", g.zLogin);
   }
 
   hasChanges = unsaved_changes(useHash ? CKSIG_HASH : 0);

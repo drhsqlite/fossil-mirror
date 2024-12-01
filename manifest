@@ -1,10 +1,10 @@
 B 106de276eec32eabb265d2b0f40bed48cb58ce6c7b6d6acb5f2f7f7d4327c603
-C When\s--no-prompt\sis\sbeing\sused\sand\sthere\sis\sa\sbranch\sname\schange\sduring\scommit\nskip\sthe\sprompt\sand\sthe\scondition\sbecause\sit's\snot\sa\sfatal\scondition.
-D 2024-11-30T17:37:47.778
-F src/checkin.c 45c207adb73ab595c8ee07cd35dfb7a948bd80c92dd457255fb53d911adb3692
+C Check\sthe\stagxref\stable\sfor\schanges\sto\sbranch\sname\sbefore\scommit\sand\sif\sthere\s\nexists\sa\schange\sthat\swasn't\smade\sby\sthe\scurrent\suser\sthen\sprompt.
+D 2024-12-01T01:44:07.643
+F src/checkin.c 9cf75788ca05906851b6ac603a685b6df7aa744f0ab60b10049af16c8cbd2e5a
 F src/update.c f99ed4cc4c3cbeb0b3f3b1af27b394376366024d6c5cb003332be13e5cc5bc42
-P 82fee40e14cb487319df4ccf8a94552ccdc4c9aa8125b89cc2a7d97d84446478
-R 6da5088424af3de3f097657453eacf35
+P c552f440587e6652b33c114bff96ad844193fd7ddfc60d43fb7f8583a2e12942
+R ad4b6c83dd3513c9df4dfd141b595440
 U andybradford
-Z 5a9b739427e270a1bc6e185e73368152
+Z d26a834b5c98c058463ba58b0753afd1
 # Remove this line to create a well-formed Fossil manifest.
