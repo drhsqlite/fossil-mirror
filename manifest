@@ -1,10 +1,10 @@
 B 106de276eec32eabb265d2b0f40bed48cb58ce6c7b6d6acb5f2f7f7d4327c603
-C Check\sthe\stagxref\stable\sfor\schanges\sto\sbranch\sname\sbefore\scommit\sand\sif\sthere\s\nexists\sa\schange\sthat\swasn't\smade\sby\sthe\scurrent\suser\sthen\sprompt.
-D 2024-12-01T01:44:07.643
-F src/checkin.c 9cf75788ca05906851b6ac603a685b6df7aa744f0ab60b10049af16c8cbd2e5a
+C This\sshould\sjust\sbe\sfor\spropagating\stags,\snot\ssingle.
+D 2024-12-01T05:23:38.782
+F src/checkin.c 96ae3f713adb6fa06afe12b536b0baf75c1a6d5787a66cda2d5c32318a2cd3ae
 F src/update.c f99ed4cc4c3cbeb0b3f3b1af27b394376366024d6c5cb003332be13e5cc5bc42
-P c552f440587e6652b33c114bff96ad844193fd7ddfc60d43fb7f8583a2e12942
-R ad4b6c83dd3513c9df4dfd141b595440
+P 0aabb6bcacd627eb428602647ca6b099cf8209694ab2f799052eca12461a0354
+R e9827524ec5ea6c6df49dd548a93a504
 U andybradford
-Z d26a834b5c98c058463ba58b0753afd1
+Z 31584da890e54c5c1081b77b09ad0d28
 # Remove this line to create a well-formed Fossil manifest.

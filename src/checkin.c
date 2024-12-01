@@ -2531,7 +2531,7 @@ void commit_cmd(void){
       "          LEFT JOIN plink ON rid=cid"
       "              WHERE rid=%d AND tagxref.tagid=%d"
       "                AND srcid!=origid"
-      "                AND tagtype>0 AND coalesce(euser,user)!=%Q)"
+      "                AND tagtype=2 AND coalesce(euser,user)!=%Q)"
       "   AND tx.tagid=%d",
       vid, TAG_BRANCH, g.zLogin, TAG_BRANCH
   );
