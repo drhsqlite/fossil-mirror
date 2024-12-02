@@ -179,6 +179,7 @@ struct MergeBuilder {
   Blob *pV2;                 /* Second variant */
   Blob *pOut;                /* Write merge results here */
   int useCrLf;               /* Use CRLF line endings */
+  int nContext;              /* Size of unchanged line boundaries */
   unsigned int lnPivot;      /* Lines read from pivot */
   unsigned int lnV1;         /* Lines read from v1 */
   unsigned int lnV2;         /* Lines read from v2 */
@@ -355,6 +356,7 @@ static void mergebuilder_init_text(MergeBuilder *p){
 **     T     Literal text follows that should have a \n terminator.
 **     R     Literal text follows that needs a \r\n terminator.
 **     Z     Literal text without a line terminator.
+**     S     Skipped lines in all 4 files.
 **     1     Text is a copy of token 1
 **     2     Use data from data-token 2
 **     3     Use data from data-token 3
@@ -398,11 +400,30 @@ static void tclLineOfText(Blob *pOut, Blob *pIn){
   blob_append_char(pOut, '"');
 }
 static void tclSame(MergeBuilder *p, unsigned int N){
-  int i;
-  for(i=0; i<N; i++){
+  int i = 0;
+  int nSkip;
+
+  if( p->lnPivot>=2 || p->lnV1>2 || p->lnV2>2 ){
+    while( i<N && i<p->nContext ){
+      tclLineOfText(p->pOut, p->pPivot);
+      blob_append(p->pOut, " 1 1 1\n", 7);
+      i++;
+    }
+    nSkip = N - p->nContext*2;
+  }else{
+    nSkip = N - p->nContext;
+  }
+  if( nSkip>0 ){
+    blob_appendf(p->pOut, "S%d . . .\n", nSkip);
+    blob_copy_lines(0, p->pPivot, nSkip);
+    i += nSkip;
+  }
+  while( i<N ){
     tclLineOfText(p->pOut, p->pPivot);
     blob_append(p->pOut, " 1 1 1\n", 7);
+    i++;
   }
+
   p->lnPivot += N;
   p->lnV1 += N;
   p->lnV2 += N;
@@ -519,6 +540,7 @@ static void mergebuilder_init_tcl(MergeBuilder *p){
   p->xChngV2 = tclChngV2;
   p->xChngBoth = tclChngBoth;
   p->xConflict = tclConflict;
+  p->nContext = 6;
 }
 /*****************************************************************************/
 
@@ -830,7 +852,7 @@ void merge_3way_cmd(void){
     mergebuilder_init_tcl(&s);
     noWarn = 1;
   }
-  flagTk = find_option("tk", 0, 0);
+  flagTk = find_option("tk", 0, 0)!=0;
   blob_zero(&pivot); s.pPivot = &pivot;
   blob_zero(&v1);    s.pV1 = &v1;
   blob_zero(&v2);    s.pV2 = &v2;

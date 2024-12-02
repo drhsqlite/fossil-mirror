@@ -18,7 +18,7 @@ array set CFG_light {
   TXT_COL_FG #000000
   MKR_COL_BG #444444
   MKR_COL_FG #dddddd
-  CHNG_BG    #d0d0ff
+  CHNG_BG    #d0d070
   ADD_BG     #c0ffc0
   RM_BG      #ffc0c0
   HR_FG      #444444
@@ -42,7 +42,7 @@ array set CFG_dark {
   TXT_COL_FG #dcdccc
   MKR_COL_BG #444444
   MKR_COL_FG #dddddd
-  CHNG_BG    #6a6afc
+  CHNG_BG    #6a6a00
   ADD_BG     #57934c
   RM_BG      #ef6767
   HR_FG      #444444
@@ -108,8 +108,27 @@ proc readMerge {fossilcmd} {
   set lnC 1
   set lnD 1
   foreach {A B C D} $mergetxt {
-    set key [string index $A 0]
-    if {$key=="."} {
+    set key1 [string index $A 0]
+    if {$key1=="S"} {
+      set N [string range $A 1 end]
+      incr lnA $N
+      incr lnB $N
+      incr lnC $N
+      incr lnD $N
+      .lnA insert end ...\n hrln
+      .txtA insert end [string repeat . 30]\n hrtxt
+      .lnB insert end ...\n hrln
+      .txtB insert end [string repeat . 30]\n hrtxt
+      .lnC insert end ...\n hrln
+      .txtC insert end [string repeat . 30]\n hrtxt
+      .lnD insert end ...\n hrln
+      .txtD insert end [string repeat . 30]\n hrtxt
+      continue
+    }
+    set key2 [string index $B 0]
+    set key3 [string index $C 0]
+    set key4 [string index $D 0]
+    if {$key1=="."} {
       .lnA insert end \n -
       .txtA insert end \n -
     } else {
@@ -117,47 +136,48 @@ proc readMerge {fossilcmd} {
       incr lnA
       .txtA insert end [string range $A 1 end]\n -
     }
-    set key [string index $B 0]
-    if {$key=="."} {
+    if {$key2=="."} {
       .lnB insert end \n -
       .txtB insert end \n -
     } else {
       .lnB insert end $lnB\n -
       incr lnB
-      if {$key=="1"} {
-        .txtB insert end [string range $A 1 end]\n -
+      if {$key4=="2"} {set tag chng} {set tag -}
+      if {$key2=="1"} {
+        .txtB insert end [string range $A 1 end]\n $tag
       } else {
-        .txtB insert end [string range $B 1 end]\n -
+        .txtB insert end [string range $B 1 end]\n $tag
       }
     }
-    set key [string index $C 0]
-    if {$key=="."} {
+    if {$key3=="."} {
       .lnC insert end \n -
       .txtC insert end \n -
     } else {
       .lnC insert end $lnC\n -
       incr lnC
-      if {$key=="1"} {
-        .txtC insert end [string range $A 1 end]\n -
-      } elseif {$key=="2"} {
-        .txtC insert end [string range $B 1 end]\n -
+      if {$key4=="3"} {set tag add} {set tag -}
+      if {$key3=="1"} {
+        .txtC insert end [string range $A 1 end]\n $tag
+      } elseif {$key3=="2"} {
+        .txtC insert end [string range $B 1 end]\n $tag
       } else {
-        .txtC insert end [string range $C 1 end]\n -
+        .txtC insert end [string range $C 1 end]\n $tag
       }
     }
-    set key [string index $D 0]
-    if {$key=="."} {
+    if {$key4=="."} {
       .lnD insert end \n -
       .txtD insert end \n -
     } else {
       .lnD insert end $lnD\n -
       incr lnD
-      if {$key=="1"} {
+      if {$key4=="1"} {
         .txtD insert end [string range $A 1 end]\n -
-      } elseif {$key=="2"} {
-        .txtD insert end [string range $B 1 end]\n -
-      } elseif {$key=="3"} {
-        .txtD insert end [string range $C 1 end]\n -
+      } elseif {$key4=="2"} {
+        .txtD insert end [string range $B 1 end]\n chng
+      } elseif {$key4=="3"} {
+        .txtD insert end [string range $C 1 end]\n add
+      } elseif {$key4=="X"} {
+        .txtD insert end "     \n" rm
       } else {
         .txtD insert end [string range $D 1 end]\n -
       }
