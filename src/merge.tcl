@@ -1,9 +1,9 @@
-# The "diff --tk" command outputs prepends a "set fossilcmd {...}" line
-# to this file, then runs this file using "tclsh" in order to display the
-# graphical diff in a separate window.  A typical "set fossilcmd" line
-# looks like this:
+# The "--tk" option to various merge commands prepends one or more
+# "set fossilcmd(NAME) {...}" lines to this file, then runs this file using
+# "tclsh" in order to show a graphical analysis of the merge results.
+# A typical "set fossilcmd" line looks like this:
 #
-#     set fossilcmd {| "./fossil" diff --tcl -i -v}
+#     set fossilcmd(file1.txt) {| "./fossil" diff --tcl -i -v}
 #
 # This header comment is stripped off by the "mkbuiltin.c" program.
 #
@@ -131,6 +131,8 @@ proc readMerge {fossilcmd} {
     if {$key1=="."} {
       .lnA insert end \n -
       .txtA insert end \n $dtag
+    } elseif {$key1=="N"} {
+      .nameA config -text [string range $A 1 end]
     } else {
       .lnA insert end $lnA\n -
       incr lnA
@@ -145,6 +147,8 @@ proc readMerge {fossilcmd} {
       if {$key4=="2"} {set tag chng} {set tag $dtag}
       if {$key2=="1"} {
         .txtB insert end [string range $A 1 end]\n $tag
+      } elseif {$key2=="N"} {
+        .nameB config -text [string range $B 1 end]
       } else {
         .txtB insert end [string range $B 1 end]\n $tag
       }
@@ -160,6 +164,8 @@ proc readMerge {fossilcmd} {
         .txtC insert end [string range $A 1 end]\n $tag
       } elseif {$key3=="2"} {
         .txtC insert end [string range $B 1 end]\n chng
+      } elseif {$key3=="N"} {
+        .nameC config -text [string range $C 1 end]
       } else {
         .txtC insert end [string range $C 1 end]\n $tag
       }
@@ -176,6 +182,8 @@ proc readMerge {fossilcmd} {
         .txtD insert end [string range $B 1 end]\n chng
       } elseif {$key4=="3"} {
         .txtD insert end [string range $C 1 end]\n add
+      } elseif {$key4=="N"} {
+        .nameD config -text [string range $D 1 end]
       } else {
         .txtD insert end [string range $D 1 end]\n -
       }
@@ -241,15 +249,15 @@ proc disableSync {axis} {
 proc sync-x {col first last} {
   disableSync x
   $col xview moveto [expr {$first*[xvis $col]/($last-$first)}]
-  foreach side {A B} {
+  foreach side {A B C D} {
     set sb .sbx$side
     set xview [.txt$side xview]
-    if {[lindex $xview 0] > 0 || [lindex $xview 1] < 1} {
-      grid $sb
-      eval $sb set $xview
-    } else {
-      grid remove $sb
-    }
+#    if {[lindex $xview 0] > 0 || [lindex $xview 1] < 1} {
+#      grid $sb
+#      eval $sb set $xview
+#    } else {
+#      grid remove $sb
+#    }
   }
   enableSync x
 }
@@ -384,6 +392,10 @@ foreach c [cols] {
   bind $c <1> {focus %W}
 }
 
+label .nameA
+label .nameB
+label .nameC
+label .nameD -text {Merge Result}
 ::ttk::scrollbar .sby -command {.txtA yview} -orient vertical
 ::ttk::scrollbar .sbxA -command {.txtA xview} -orient horizontal
 ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
@@ -481,11 +493,17 @@ foreach {lnwid txtwid} [cols] {
   incr rn 2
 }
 grid .bb -row 0 -columnspan 8
-eval grid [cols] -row 1 -sticky nsew
-grid .sby -row 1 -column 8 -sticky ns
-grid .sbxA -row 2 -columnspan 2 -sticky ew
-grid .spacer -row 2 -column 2
-grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
+grid .nameA -row 1 -column 1 -sticky ew
+grid .nameB -row 1 -column 3 -sticky ew
+grid .nameC -row 1 -column 5 -sticky ew
+grid .nameD -row 1 -column 7 -sticky ew
+eval grid [cols] -row 2 -sticky nsew
+grid .sby -row 2 -column 8 -sticky ns
+grid .sbxA -row 3 -column 1 -sticky ew
+grid .sbxB -row 3 -column 3 -sticky ew
+grid .sbxC -row 3 -column 5 -sticky ew
+grid .sbxD -row 3 -column 7 -sticky ew
+
 
 .spacer config -height [winfo height .sbxA]
 wm deiconify .

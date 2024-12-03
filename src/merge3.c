@@ -336,8 +336,10 @@ static void mergebuilder_init_text(MergeBuilder *p){
 ** information:
 **
 **     .     This line is omitted.
+**     N     Name of the file.
 **     T     Literal text follows that should have a \n terminator.
 **     R     Literal text follows that needs a \r\n terminator.
+**     X     Merge conflict.  (Column 4 only)
 **     Z     Literal text without a line terminator.
 **     S     Skipped lines in all 4 files.
 **     1     Text is a copy of token 1
@@ -345,24 +347,11 @@ static void mergebuilder_init_text(MergeBuilder *p){
 **     3     Use data from data-token 3
 */
 
-/* Copy one line of text from pIn and append to pOut, encoded as TCL */
-static void tclLineOfText(Blob *pOut, Blob *pIn){
-  int i, j, k;
-  for(i=pIn->iCursor; i<pIn->nUsed && pIn->aData[i]!='\n'; i++){}
-  if( i==pIn->nUsed ){
-    blob_append(pOut, "\"Z", 2);
-    k = i;
-  }else if( i>pIn->iCursor && pIn->aData[i-1]=='\r' ){
-    blob_append(pOut, "\"R", 2);
-    k = i-1;
-    i++;
-  }else{
-    blob_append(pOut, "\"T", 2);
-    k = i;
-    i++;
-  }
-  for(j=pIn->iCursor; j<k; j++){
-    char c = pIn->aData[j];
+/* Write text that goes into the interior of a double-quoted string in TCL */
+static void tclWriteQuotedText(Blob *pOut, const char *zIn, int nIn){
+  int j;
+  for(j=0; j<nIn; j++){
+    char c = zIn[j];
     if( c=='\\' ){
       blob_append(pOut, "\\\\", 2);
     }else if( c=='"' ){
@@ -379,8 +368,43 @@ static void tclLineOfText(Blob *pOut, Blob *pIn){
       blob_append_char(pOut, c);
     }
   }
+}
+
+/* Copy one line of text from pIn and append to pOut, encoded as TCL */
+static void tclLineOfText(Blob *pOut, Blob *pIn){
+  int i, k;
+  for(i=pIn->iCursor; i<pIn->nUsed && pIn->aData[i]!='\n'; i++){}
+  if( i==pIn->nUsed ){
+    blob_append(pOut, "\"Z", 2);
+    k = i;
+  }else if( i>pIn->iCursor && pIn->aData[i-1]=='\r' ){
+    blob_append(pOut, "\"R", 2);
+    k = i-1;
+    i++;
+  }else{
+    blob_append(pOut, "\"T", 2);
+    k = i;
+    i++;
+  }
+  tclWriteQuotedText(pOut, pIn->aData+pIn->iCursor, k-pIn->iCursor);
   pIn->iCursor = i;
   blob_append_char(pOut, '"');
+}
+static void tclStart(MergeBuilder *p){
+  Blob *pOut = p->pOut;
+  blob_append(pOut, "\"N", 2);
+  tclWriteQuotedText(pOut, p->zPivot, (int)strlen(p->zPivot));
+  blob_append(pOut, "\" \"N", 4);
+  tclWriteQuotedText(pOut, p->zV1, (int)strlen(p->zV1));
+  blob_append(pOut, "\" \"N", 4);
+  tclWriteQuotedText(pOut, p->zV2, (int)strlen(p->zV2));
+  blob_append(pOut, "\" \"N", 4);
+  if( p->zOut ){
+    tclWriteQuotedText(pOut, p->zOut, (int)strlen(p->zOut));
+  }else{
+    blob_append(pOut, "(Merge Result)", -1);
+  }
+  blob_append(pOut, "\"\n", 2);
 }
 static void tclSame(MergeBuilder *p, unsigned int N){
   int i = 0;
@@ -525,6 +549,7 @@ static void tclConflict(
 }
 static void mergebuilder_init_tcl(MergeBuilder *p){
   mergebuilder_init(p);
+  p->xStart = tclStart;
   p->xSame = tclSame;
   p->xChngV1 = tclChngV1;
   p->xChngV2 = tclChngV2;
@@ -770,13 +795,22 @@ int file_contains_merge_marker(const char *zFullpath){
 ** (2) Invoke "tclsh" on the temp file using fossil_system().
 ** (3) Delete the temp file.
 */
-void merge_tk(const char *zSubCmd, int firstArg, int nContext){
+void merge_tk(const char *zSubCmd, int firstArg){
   int i;
   Blob script;
   const char *zTempFile = 0;
   char *zCmd;
   const char *zTclsh;
+  const char *zCnt;
   int bDarkMode = find_option("dark",0,0)!=0;
+  int nContext;
+  zCnt = find_option("context", "c", 1);
+  if( zCnt==0 ){
+    nContext = 6;
+  }else{
+    nContext = atoi(zCnt);
+    if( nContext<0 ) nContext = 0xfffffff;
+  }
   blob_zero(&script);
   blob_appendf(&script, "set fossilcmd {| \"%/\" %s -tcl -c %d",
                g.nameOfExe, zSubCmd, nContext);
@@ -790,6 +824,12 @@ void merge_tk(const char *zSubCmd, int firstArg, int nContext){
   ** be written into the FILENAME instead of being run.  This is used
   ** for testing and debugging. */
   zTempFile = find_option("script",0,1);
+  verify_all_options();
+
+  if( (g.argc - firstArg)!=3 ){
+    fossil_fatal("Requires 3 filename arguments");
+  }
+
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
     if( sqlite3_strglob("*}*",z) ){
@@ -863,9 +903,12 @@ void merge_3way_cmd(void){
   int nConflict;
   Blob pivot, v1, v2, out;
   int noWarn = 0;
-  int flagTk = 0;
   const char *zCnt;
 
+  if( find_option("tk", 0, 0)!=0 ){
+    merge_tk("3-way-merge", 2);
+    return;
+  }
   mergebuilder_init_text(&s);
   if( find_option("debug", 0, 0) ){
     mergebuilder_init(&s);
@@ -874,7 +917,6 @@ void merge_3way_cmd(void){
     mergebuilder_init_tcl(&s);
     noWarn = 1;
   }
-  flagTk = find_option("tk", 0, 0)!=0;
   zCnt = find_option("context", "c", 1);
   if( zCnt ){
     s.nContext = atoi(zCnt);
@@ -893,14 +935,9 @@ void merge_3way_cmd(void){
   if( g.argc!=6 && g.argc!=5 ){
     usage("[OPTIONS] PIVOT V1 V2 [MERGED]");
   }
-  if( flagTk ){
-    if( g.argc==6 ){
-      fossil_fatal("Cannot use an output file (\"%s\") with the --tk option",
-                   g.argv[5]);
-    }
-    merge_tk("3-way-merge", 2, s.nContext);
-    return;
-  }
+  s.zPivot = file_tail(g.argv[2]);
+  s.zV1 = file_tail(g.argv[3]);
+  s.zV2 = file_tail(g.argv[4]);
   if( blob_read_from_file(s.pPivot, g.argv[2], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[2]);
   }
@@ -912,8 +949,10 @@ void merge_3way_cmd(void){
   }
   nConflict = merge_three_blobs(&s);
   if( g.argc==6 ){
+    s.zOut = file_tail(g.argv[5]);
     blob_write_to_file(s.pOut, g.argv[5]);
   }else{
+    s.zOut = "(Merge Result)";
     blob_write_to_file(s.pOut, "-");
   }
   s.xDestroy(&s);
