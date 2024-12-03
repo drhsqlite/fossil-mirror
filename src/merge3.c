@@ -78,29 +78,6 @@ static int sameEdit(
 }
 
 /*
-** The aC[] array contains triples of integers.  Within each triple, the
-** elements are:
-**
-**   (0)  The number of lines to copy
-**   (1)  The number of lines to delete
-**   (2)  The number of liens to insert
-**
-** Suppose we want to advance over sz lines of the original file.  This routine
-** returns true if that advance would land us on a copy operation.  It
-** returns false if the advance would end on a delete.
-*/
-static int ends_at_CPY(int *aC, int sz){
-  while( sz>0 && (aC[0]>0 || aC[1]>0 || aC[2]>0) ){
-    if( aC[0]>=sz ) return 1;
-    sz -= aC[0];
-    if( aC[1]>sz ) return 0;
-    sz -= aC[1];
-    aC += 3;
-  }
-  return 1;
-}
-
-/*
 ** Text of boundary markers for merge conflicts.
 */
 static const char *const mergeMarker[] = {
@@ -180,6 +157,9 @@ struct MergeBuilder {
   Blob *pOut;                /* Write merge results here */
   int useCrLf;               /* Use CRLF line endings */
   int nContext;              /* Size of unchanged line boundaries */
+  unsigned int mxPivot;      /* Number of lines in the pivot */
+  unsigned int mxV1;         /* Number of lines in V1 */
+  unsigned int mxV2;         /* Number of lines in V2 */
   unsigned int lnPivot;      /* Lines read from pivot */
   unsigned int lnV1;         /* Lines read from v1 */
   unsigned int lnV2;         /* Lines read from v2 */
@@ -202,8 +182,10 @@ static void dbgStartEnd(MergeBuilder *p){  (void)p; }
 /* The next N lines of PIVOT are unchanged in both V1 and V2
 */
 static void dbgSame(MergeBuilder *p, unsigned int N){
-  blob_appendf(p->pOut, "COPY %u lines (%u..%u) FROM BASELINE\n",
-               N, p->lnPivot, p->lnPivot+N-1);
+  blob_appendf(p->pOut, 
+     "COPY %u from BASELINE(%u..%u) or V1(%u..%u) or V2(%u..%u)\n",
+     N, p->lnPivot+1, p->lnPivot+N, p->lnV1+1, p->lnV1+N,
+     p->lnV2+1, p->lnV2+N);
   p->lnPivot += N;
   p->lnV1 += N;
   p->lnV2 += N;
@@ -212,8 +194,8 @@ static void dbgSame(MergeBuilder *p, unsigned int N){
 /* The next nPivot lines of the PIVOT are changed into nV1 lines by V1
 */
 static void dbgChngV1(MergeBuilder *p, unsigned int nPivot, unsigned int nV1){
-  blob_appendf(p->pOut, "COPY %u lines (%u..%u) FROM V1\n",
-               nV1, p->lnV1, p->lnV1+nV1-1);
+  blob_appendf(p->pOut, "COPY %u from V1(%u..%u)\n",
+               nV1, p->lnV1+1, p->lnV1+nV1);
   p->lnPivot += nPivot;
   p->lnV2 += nPivot;
   p->lnV1 += nV1;
@@ -222,8 +204,8 @@ static void dbgChngV1(MergeBuilder *p, unsigned int nPivot, unsigned int nV1){
 /* The next nPivot lines of the PIVOT are changed into nV2 lines by V2
 */
 static void dbgChngV2(MergeBuilder *p, unsigned int nPivot, unsigned int nV2){
-  blob_appendf(p->pOut, "COPY %u lines (%u..%u) FROM V2\n",
-               nV2, p->lnV2, p->lnV2+nV2-1);
+  blob_appendf(p->pOut, "COPY %u lines FROM V2(%u..%u)\n",
+               nV2, p->lnV2+1, p->lnV2+nV2);
   p->lnPivot += nPivot;
   p->lnV1 += nPivot;
   p->lnV2 += nV2;
@@ -234,8 +216,8 @@ static void dbgChngV2(MergeBuilder *p, unsigned int nPivot, unsigned int nV2){
 ** in both V1 and V2.
 */
 static void dbgChngBoth(MergeBuilder *p, unsigned int nPivot, unsigned int nV){
-  blob_appendf(p->pOut, "COPY %u lines (%u..%u) FROM V1\n",
-               nV, p->lnV1, p->lnV1+nV-1);
+  blob_appendf(p->pOut, "COPY %u lines from V1(%u..%u) or V2(%u..%u)\n",
+               nV, p->lnV1+1, p->lnV1+nV, p->lnV2+1, p->lnV2+nV);
   p->lnPivot += nPivot;
   p->lnV1 += nV;
   p->lnV2 += nV;
@@ -251,10 +233,11 @@ static void dbgConflict(
   unsigned int nV2
 ){
   blob_appendf(p->pOut, 
-     "CONFLICT  BASELINE(%u..%u) versus V1(%u..%u) versus V2(%u..%u)\n",
-               p->lnPivot, p->lnPivot+nPivot-1,
-               p->lnV1, p->lnPivot+nV1-1,
-               p->lnV2, p->lnPivot+nV2-1);
+   "CONFLICT %u,%u,%u BASELINE(%u..%u) versus V1(%u..%u) versus V2(%u..%u)\n",
+       nPivot, nV1, nV2,
+       p->lnPivot+1, p->lnPivot+nPivot,
+       p->lnV1+1, p->lnV1+nV1,
+       p->lnV2+1, p->lnV2+nV2);
   p->lnV1 += nV1;
   p->lnPivot += nPivot;
   p->lnV2 += nV2;
@@ -418,15 +401,19 @@ static void tclSame(MergeBuilder *p, unsigned int N){
     blob_copy_lines(0, p->pPivot, nSkip);
     i += nSkip;
   }
-  while( i<N ){
-    tclLineOfText(p->pOut, p->pPivot);
-    blob_append(p->pOut, " 1 1 1\n", 7);
-    i++;
-  }
 
   p->lnPivot += N;
   p->lnV1 += N;
   p->lnV2 += N;
+
+  if( p->lnPivot<p->mxPivot || p->lnV1<p->mxV1 || p->lnV2<p->mxV2 ){
+    while( i<N ){
+      tclLineOfText(p->pOut, p->pPivot);
+      blob_append(p->pOut, " 1 1 1\n", 7);
+      i++;
+    }
+  }
+
   blob_copy_lines(0, p->pV1, N);
   blob_copy_lines(0, p->pV2, N);
 }
@@ -532,6 +519,9 @@ static void tclConflict(
     }
     blob_append(p->pOut, " X\n", 3);
   }
+  p->lnPivot += nPivot;
+  p->lnV1 += nV1;
+  p->lnV2 += nV2;
 }
 static void mergebuilder_init_tcl(MergeBuilder *p){
   mergebuilder_init(p);
@@ -543,6 +533,29 @@ static void mergebuilder_init_tcl(MergeBuilder *p){
   p->nContext = 6;
 }
 /*****************************************************************************/
+
+/*
+** The aC[] array contains triples of integers.  Within each triple, the
+** elements are:
+**
+**   (0)  The number of lines to copy
+**   (1)  The number of lines to delete
+**   (2)  The number of liens to insert
+**
+** Suppose we want to advance over sz lines of the original file.  This routine
+** returns true if that advance would land us on a copy operation.  It
+** returns false if the advance would end on a delete.
+*/
+static int ends_with_copy(int *aC, int sz){
+  while( sz>0 && (aC[0]>0 || aC[1]>0 || aC[2]>0) ){
+    if( aC[0]>=sz ) return 1;
+    sz -= aC[0];
+    if( aC[1]>sz ) return 0;
+    sz -= aC[1];
+    aC += 3;
+  }
+  return 1;
+}
 
 /*
 ** aC[] is an "edit triple" for changes from A to B.  Advance through
@@ -560,6 +573,7 @@ static int skip_conflict(
     if( aC[i]==0 && aC[i+1]==0 && aC[i+2]==0 ) break;
     if( aC[i]>=sz ){
       aC[i] -= sz;
+      *pLn += sz;
       break;
     }
     *pLn += aC[i];
@@ -613,9 +627,17 @@ static int merge_three_blobs(MergeBuilder *p){
   blob_rewind(p->pPivot);
 
   /* Determine the length of the aC1[] and aC2[] change vectors */
-  for(i1=0; aC1[i1] || aC1[i1+1] || aC1[i1+2]; i1+=3){}
+  p->mxPivot = 0;
+  p->mxV1 = 0;
+  for(i1=0; aC1[i1] || aC1[i1+1] || aC1[i1+2]; i1+=3){
+    p->mxPivot += aC1[i1] + aC1[i1+1];
+    p->mxV1 += aC1[i1] + aC1[i1+2];
+  }
   limit1 = i1;
-  for(i2=0; aC2[i2] || aC2[i2+1] || aC2[i2+2]; i2+=3){}
+  p->mxV2 = 0;
+  for(i2=0; aC2[i2] || aC2[i2+1] || aC2[i2+2]; i2+=3){
+    p->mxV2 += aC2[i2] + aC2[i2+2];
+  }
   limit2 = i2;
 
   /* Output header text and do any other required initialization */
@@ -647,7 +669,7 @@ static int merge_three_blobs(MergeBuilder *p){
       /* Output edits to V1 that occur within unchanged regions of V2 */
       nDel = aC1[i1+1];
       nIns = aC1[i1+2];
-      p->xChngV2(p, nDel, nIns);
+      p->xChngV1(p, nDel, nIns);
       aC2[i2] -= nDel;
       i1 += 3;
     }else
@@ -665,10 +687,10 @@ static int merge_three_blobs(MergeBuilder *p){
       ** This is a merge conflict.  Find the size of the conflict, then
       ** output both possible edits separated by distinctive marks.
       */
-      unsigned int sz = 1;    /* Size of the conflict in lines */
-      unsigned int nV1, nV2;
+      unsigned int sz = 1;    /* Size of the conflict in the pivot, in lines */
+      unsigned int nV1, nV2;  /* Size of conflict in V1 and V2, in lines */
       nConflict++;
-      while( !ends_at_CPY(&aC1[i1], sz) || !ends_at_CPY(&aC2[i2], sz) ){
+      while( !ends_with_copy(&aC1[i1], sz) || !ends_with_copy(&aC2[i2], sz) ){
         sz++;
       }
       i1 = skip_conflict(aC1, i1, sz, &nV1);
@@ -690,7 +712,7 @@ static int merge_three_blobs(MergeBuilder *p){
   if( i1<limit1 && aC1[i1+2]>0 ){
     p->xChngV1(p, 0, aC1[i1+2]);
   }else if( i2<limit2 && aC2[i2+2]>0 ){
-    p->xChngV1(p, 0, aC2[i2+2]);
+    p->xChngV2(p, 0, aC2[i2+2]);
   }
 
   /* Output footer text */

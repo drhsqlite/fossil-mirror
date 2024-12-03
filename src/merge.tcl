@@ -128,21 +128,22 @@ proc readMerge {fossilcmd} {
     set key2 [string index $B 0]
     set key3 [string index $C 0]
     set key4 [string index $D 0]
+    if {$key4=="X"} {set dtag rm} {set dtag -}
     if {$key1=="."} {
       .lnA insert end \n -
-      .txtA insert end \n -
+      .txtA insert end \n $dtag
     } else {
       .lnA insert end $lnA\n -
       incr lnA
-      .txtA insert end [string range $A 1 end]\n -
+      .txtA insert end [string range $A 1 end]\n $dtag
     }
     if {$key2=="."} {
       .lnB insert end \n -
-      .txtB insert end \n -
+      .txtB insert end \n $dtag
     } else {
       .lnB insert end $lnB\n -
       incr lnB
-      if {$key4=="2"} {set tag chng} {set tag -}
+      if {$key4=="2"} {set tag chng} {set tag $dtag}
       if {$key2=="1"} {
         .txtB insert end [string range $A 1 end]\n $tag
       } else {
@@ -151,11 +152,11 @@ proc readMerge {fossilcmd} {
     }
     if {$key3=="."} {
       .lnC insert end \n -
-      .txtC insert end \n -
+      .txtC insert end \n $dtag
     } else {
       .lnC insert end $lnC\n -
       incr lnC
-      if {$key4=="3"} {set tag add} {set tag -}
+      if {$key4=="3"} {set tag add} {set tag $dtag}
       if {$key3=="1"} {
         .txtC insert end [string range $A 1 end]\n $tag
       } elseif {$key3=="2"} {
@@ -166,7 +167,7 @@ proc readMerge {fossilcmd} {
     }
     if {$key4=="."} {
       .lnD insert end \n -
-      .txtD insert end \n -
+      .txtD insert end \n $dtag
     } else {
       .lnD insert end $lnD\n -
       incr lnD
@@ -483,9 +484,13 @@ pack .bb.quit -side left
 if {$fossilcmd!=""} {pack .bb.save -side left}
 pack .bb.files .bb.search -side left
 grid rowconfigure . 1 -weight 1
-grid columnconfigure . 1 -weight 1
-grid columnconfigure . 4 -weight 1
-grid .bb -row 0 -columnspan 6
+set rn 0
+foreach {lnwid txtwid} [cols] {
+  grid columnconfigure . $rn            -weight 1 -uniform a
+  grid columnconfigure . [expr {$rn+1}] -weight 1 -uniform b
+  incr rn 2
+}
+grid .bb -row 0 -columnspan 8
 eval grid [cols] -row 1 -sticky nsew
 grid .sby -row 1 -column 8 -sticky ns
 grid .sbxA -row 2 -columnspan 2 -sticky ew
