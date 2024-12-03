@@ -23,6 +23,83 @@
 #include <assert.h>
 
 /*
+** COMMAND: merge-info
+**
+** Display information about the most recent merge operation.
+**
+** Right now, this command basically just dumps the localdb.mergestat
+** table.  The plan moving forward is that it can generate data for
+** a Tk-based GUI to show the details of the merge.  This command is
+** a work-in-progress.
+*/
+void merge_info_cmd(void){
+  Stmt q;
+  verify_all_options();
+  db_must_be_within_tree();
+
+  if( !db_table_exists("localdb","mergestat") ){
+    return;
+  }
+  db_prepare(&q,
+        /*  0   1   2    3   4  */
+    "SELECT op, fn, fnr, nc, msg FROM mergestat ORDER BY coalesce(fnr,fn)"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zOp = db_column_text(&q, 0);
+    const char *zName = db_column_text(&q, 2);
+    const char *zErr = db_column_text(&q, 4);
+    if( zName==0 ) zName = db_column_text(&q, 1);
+    if( zErr ){
+      fossil_print("%-7s %s ** %s **\n", zOp, zName, zErr);
+    }else{
+      fossil_print("%-7s %s\n", zOp, zName);
+    }
+  }
+  db_finalize(&q);
+}
+
+/*
+** Erase all information about prior merges.  Do this, for example, after
+** a commit.
+*/
+void merge_info_forget(void){
+  db_multi_exec("DROP TABLE IF EXISTS localdb.mergestat");
+}
+
+
+/*
+** Initialize the MERGESTAT table.
+**
+** Notes about mergestat:
+**
+**    *  ridv is a positive integer and sz is NULL if the V file contained
+**       no local edits prior to the merge.  If the V file was modified prior
+**       to the merge then ridv is NULL and sz is the size of the file prior
+**       to merge.
+**
+**    *  fnp, ridp, fn, ridv, and sz are all NULL for a file that was
+**       added by merge.
+*/
+void merge_info_init(void){
+  db_multi_exec(
+    "DROP TABLE IF EXISTS localdb.mergestat;\n"
+    "CREATE TABLE localdb.mergestat(\n"
+    "  op TEXT,   -- 'UPDATE', 'ADDED', 'MERGE', etc...\n"
+    "  fnp TEXT,  -- Name of the pivot file (P)\n"
+    "  ridp INT,  -- RID for the pivot file\n"
+    "  fn TEXT,   -- Name of origin file (V)\n"
+    "  ridv INT,  -- RID for origin file, or NULL if previously edited\n"
+    "  sz INT,    -- Size of origin file in bytes, NULL if unedited\n"
+    "  fnm TEXT,  -- Name of the file being merged in (M)\n"
+    "  ridm INT,  -- RID for the merge-in file\n"
+    "  fnr TEXT,  -- Name of the final output file, after all renaming\n"
+    "  nc INT DEFAULT 0,    -- Number of conflicts\n"
+    "  msg TEXT   -- Error message\n"
+    ");"
+  );
+}
+
+/*
 ** Print information about a particular check-in.
 */
 void print_checkin_description(int rid, int indent, const char *zLabel){
@@ -325,7 +402,7 @@ void test_show_vfile_cmd(void){
 **   -K|--keep-merge-files   On merge conflict, retain the temporary files
 **                           used for merging, named *-baseline, *-original,
 **                           and *-merge.
-**   -n|--dry-run            If given, display instead of run actions
+**   -n|--dry-run            Do not actually change files on disk
 **   --nosync                Do not auto-sync prior to merging
 **   -v|--verbose            Show additional details of the merge
 */
@@ -802,11 +879,17 @@ merge_next_child:
   ** All of the information needed to do the merge is now contained in the
   ** FV table.  Starting here, we begin to actually carry out the merge.
   **
-  ** First, find files that have changed from P->M but not P->V.
+  ** Begin by constructing the localdb.mergestat table. 
+  */
+  merge_info_init();
+
+  /*
+  ** Find files that have changed from P->M but not P->V.
   ** Copy the M content over into V.
   */
   db_prepare(&q,
-    "SELECT idv, ridm, fn, islinkm FROM fv"
+    /*      0    1     2   3        4    5     6     7   */
+    "SELECT idv, ridm, fn, islinkm, fnp, ridp, ridv, fnm FROM fv"
     " WHERE idp>0 AND idv>0 AND idm>0"
     "   AND ridm!=ridp AND ridv=ridp AND NOT chnged"
   );
@@ -827,6 +910,17 @@ merge_next_child:
       );
       vfile_to_disk(0, idv, 0, 0);
     }
+    db_multi_exec(
+      "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,fnm,ridm,fnr)"
+      "VALUES('UPDATE',%Q,%d,%Q,%d,%Q,%d,%Q)",
+      /* fnp   */ db_column_text(&q, 4),
+      /* ridp  */ db_column_int(&q,5),
+      /* fn    */ zName,
+      /* ridv  */ db_column_int(&q,6),
+      /* fnm   */ db_column_text(&q, 7),
+      /* ridm  */ ridm,
+      /* fnr   */ zName
+    ); 
   }
   db_finalize(&q);
 
@@ -838,7 +932,11 @@ merge_next_child:
   ** added to the file and user will be forced to take a decision.
   */
   db_prepare(&q,
-    "SELECT ridm, idv, ridp, ridv, %s, fn, isexe, islinkv, islinkm FROM fv"
+        /*  0     1    2     3     4   5   6      7        8 */
+    "SELECT ridm, idv, ridp, ridv, %s, fn, isexe, islinkv, islinkm,"
+        /*  9     10   11   */
+    "       fnp,  fnm, chnged"
+    "  FROM fv"
     " WHERE idv>0 AND idm>0"
     "   AND ridm!=ridp AND (ridv!=ridp OR chnged)",
     glob_expr("fv.fn", zBinGlob)
@@ -853,6 +951,7 @@ merge_next_child:
     int isExe = db_column_int(&q, 6);
     int islinkv = db_column_int(&q, 7);
     int islinkm = db_column_int(&q, 8);
+    int chnged = db_column_int(&q, 11);
     int rc;
     char *zFullPath;
     Blob m, p, r;
@@ -866,9 +965,25 @@ merge_next_child:
     if( islinkv || islinkm ){
       fossil_print("***** Cannot merge symlink %s\n", zName);
       nConflict++;
+      db_multi_exec(
+        "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,fnm,ridm,fnr,nc,msg)"
+        "VALUES('MERGE',%Q,%d,%Q,%d,%Q,%d,%Q,1,'cannot merge symlink')",
+        /* fnp  */ db_column_text(&q, 9),
+        /* ridp */ ridp,
+        /* fn   */ zName,
+        /* ridv */ ridv,
+        /* fnm  */ db_column_text(&q, 10),
+        /* ridm */ ridm,
+        /* fnr  */ zName
+      ); 
     }else{
+      i64 sz;
+      const char *zErrMsg = 0;
+      int nc = 0;
+
       if( !dryRunFlag ) undo_save(zName);
       zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
+      sz = file_size(zFullPath, ExtFILE);
       content_get(ridp, &p);
       content_get(ridm, &m);
       if( isBinary ){
@@ -889,11 +1004,31 @@ merge_next_child:
           fossil_print("***** %d merge conflict%s in %s\n",
                        rc, rc>1 ? "s" : "", zName);
           nConflict++;
+          nc = rc;
+          zErrMsg = "merge conflicts";
         }
       }else{
         fossil_print("***** Cannot merge binary file %s\n", zName);
         nConflict++;
+        nc = 1;
+        zErrMsg = "cannot merge binary file";
       }
+      db_multi_exec(
+        "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,fnr,nc,msg)"
+        "VALUES('MERGE',%Q,%d,%Q,iif(%d,%d,NULL),iif(%d,%d,NULL),%Q,%d,"
+               "%Q,%d,%Q)",
+        /* fnp  */ db_column_text(&q, 9),
+        /* ridp */ ridp,
+        /* fn   */ zName,
+        /* ridv */ chnged==0, ridv,
+        /* sz   */ chnged!=0, sz,
+        /* fnm  */ db_column_text(&q, 10),
+        /* ridm */ ridm,
+        /* fnr  */ zName,
+        /* nc   */ nc,
+        /* msg  */ zErrMsg
+      );
+      fossil_free(zFullPath);
       blob_reset(&p);
       blob_reset(&m);
       blob_reset(&r);
@@ -906,18 +1041,29 @@ merge_next_child:
   ** Drop files that are in P and V but not in M
   */
   db_prepare(&q,
-    "SELECT idv, fn, chnged FROM fv"
+    "SELECT idv, fn, chnged, ridv FROM fv"
     " WHERE idp>0 AND idv>0 AND idm=0"
   );
   while( db_step(&q)==SQLITE_ROW ){
     int idv = db_column_int(&q, 0);
     const char *zName = db_column_text(&q, 1);
     int chnged = db_column_int(&q, 2);
+    int ridv = db_column_int(&q, 3);
+    int sz = -1;
+    const char *zErrMsg = 0;
+    int nc = 0;
     /* Delete the file idv */
     fossil_print("DELETE %s\n", zName);
     if( chnged ){
+      char *zFullPath;
       fossil_warning("WARNING: local edits lost for %s", zName);
       nConflict++;
+      ridv = 0;
+      nc = 1;
+      zErrMsg = "local edits lost";
+      zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
+      sz = file_size(zFullPath, ExtFILE);
+      fossil_free(zFullPath);
     }
     if( !dryRunFlag ) undo_save(zName);
     db_multi_exec(
@@ -928,6 +1074,16 @@ merge_next_child:
       file_delete(zFullPath);
       free(zFullPath);
     }
+    db_multi_exec(
+      "INSERT INTO localdb.mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,nc,msg)"
+      "VALUES('DELETE',NULL,NULL,%Q,iif(%d,%d,NULL),iif(%d,%d,NULL),"
+             "NULL,NULL,%d,%Q)",
+      /* fn   */ zName,
+      /* ridv */ chnged==0, ridv,
+      /* sz   */ chnged!=0, sz,
+      /* nc   */ nc,
+      /* msg  */ zErrMsg
+    );
   }
   db_finalize(&q);
 
@@ -958,6 +1114,10 @@ merge_next_child:
     fossil_print("RENAME %s -> %s\n", zOldName, zNewName);
     if( !dryRunFlag ) undo_save(zOldName);
     if( !dryRunFlag ) undo_save(zNewName);
+    db_multi_exec(
+      "UPDATE mergestat SET fnr=fnm WHERE fnp=%Q",
+      zOldName
+    );
     db_multi_exec(
       "UPDATE vfile SET pathname=NULL, origname=pathname"
       " WHERE vid=%d AND pathname=%Q;"
@@ -1011,7 +1171,7 @@ merge_next_child:
   ** Insert into V any files that are not in V or P but are in M.
   */
   db_prepare(&q,
-    "SELECT idm, fnm FROM fv"
+    "SELECT idm, fnm, ridm FROM fv"
     " WHERE idp=0 AND idv=0 AND idm>0"
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -1044,6 +1204,13 @@ merge_next_child:
       fossil_print("ADDED %s\n", zName);
     }
     fossil_free(zFullName);
+    db_multi_exec(
+      "INSERT INTO mergestat(op,fnm,ridm,fnr)"
+      "VALUES('ADDED',%Q,%d,%Q)",
+      /* fnm  */ zName,
+      /* ridm */ db_column_int(&q,2),
+      /* fnr  */ zName
+    );
     if( !dryRunFlag ){
       undo_save(zName);
       vfile_to_disk(0, idm, 0, 0);

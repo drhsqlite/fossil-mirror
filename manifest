@@ -1,5 +1,5 @@
-C Add\sfilename\slabels\sat\sthe\stop\sof\seach\scolumn\sin\sthe\smerge\sdisplay.
-D 2024-12-03T13:36:54.934
+C Record\sinformation\sabout\smerge\soperations\sin\sthe\slocaldb.mergestat\stable.\nMake\sthat\sinformation\savailable\susing\sthe\smerge-info\scommand.
+D 2024-12-03T18:13:18.920
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -500,7 +500,7 @@ F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad2
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 0649a27c7696582c1f2e00438341af3c73eab0304e47bb90c5c531c8b04dcc6f
+F src/merge.c 93850f05814985152bec168c55b02e348d8d35835f70b54b3ccdd8f337db9825
 F src/merge.tcl 32869083da11ac44a34af096e9d7f542db3d12f8a25f8977a041ced7514c44f3
 F src/merge3.c abcd8bd93dd816f47c94dfa5e21f2f48d31e01d009c76f4b7c299c0eab62627f
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a70c64a51b284b6fabafe3431f2d3d5733ed292b645a510df3b6c4f7ba23241
-R 970e80d6e7b66c6906e200e3c357076d
+P 7b8be85206d9940a74ef14259765c519377663aa3c8fbda379c5be497be561b0
+R 65f3167e1c85ebc693a256a3a90aad83
 U drh
-Z e07a0b38b4a3fb4093febae513e0f242
+Z 45574d9d49b94bceb240d542a9024181
 # Remove this line to create a well-formed Fossil manifest.
