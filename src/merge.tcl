@@ -83,23 +83,13 @@ proc colType {c} {
   return $type
 }
 
-proc getLine {mergetxt N iivar} {
-  upvar $iivar ii
-  if {$ii>=$N} {return -1}
-  set x [lindex $mergetxt $ii]
-  incr ii
-  return $x
-}
-
 proc readMerge {fossilcmd} {
-  global mergetxt
-  if {![info exists mergetxt]} {
-    set in [open $fossilcmd r]
-    fconfigure $in -encoding utf-8
-    set mergetxt [read $in]
-    close $in
-  }
+  set in [open $fossilcmd r]
+  fconfigure $in -encoding utf-8
+  set mergetxt [read $in]
+  close $in
   foreach c [cols] {
+    $c config -state normal
     $c delete 1.0 end
   }
   set lnA 1
@@ -320,44 +310,46 @@ foreach {key axis args} {
 }
 
 frame .bb
-::ttk::menubutton .bb.files -text "Files"
-if {[tk windowingsystem] eq "win32"} {
-  ::ttk::style theme use winnative
-  .bb.files configure -padding {20 1 10 2}
-}
-toplevel .wfiles
-wm withdraw .wfiles
-update idletasks
-wm transient .wfiles .
-wm overrideredirect .wfiles 1
-listbox .wfiles.lb -width 0 -height $CFG(LB_HEIGHT) -activestyle none \
-  -yscroll {.wfiles.sb set}
-::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
-grid .wfiles.lb .wfiles.sb -sticky ns
-bind .bb.files <1> {
-  set x [winfo rootx %W]
-  set y [expr {[winfo rooty %W]+[winfo height %W]}]
-  wm geometry .wfiles +$x+$y
-  wm deiconify .wfiles
-  focus .wfiles.lb
-}
-bind .wfiles <FocusOut> {wm withdraw .wfiles}
-bind .wfiles <Escape> {focus .}
-foreach evt {1 Return} {
-  bind .wfiles.lb <$evt> {
-    catch {
-      set idx [lindex [.txtA tag ranges fn] [expr {[%W curselection]*2}]]
-      viewDiff $idx
+if {[info exists filelist]} {
+  ::ttk::menubutton .bb.files -text "Files"
+  if {[tk windowingsystem] eq "win32"} {
+    ::ttk::style theme use winnative
+    .bb.files configure -padding {20 1 10 2}
+  }
+  toplevel .wfiles
+  wm withdraw .wfiles
+  update idletasks
+  wm transient .wfiles .
+  wm overrideredirect .wfiles 1
+  set ht [llength $filelist]
+  if {$ht>$CFG(LB_HEIGHT)} {set ht $CFG(LB_HEIGHT)}
+  listbox .wfiles.lb -width 0 -height $ht -activestyle none \
+    -yscroll {.wfiles.sb set}
+  .wfiles.lb insert end {*}$filelist
+  ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
+  grid .wfiles.lb .wfiles.sb -sticky ns
+  bind .bb.files <1> {
+    set x [winfo rootx %W]
+    set y [expr {[winfo rooty %W]+[winfo height %W]}]
+    wm geometry .wfiles +$x+$y
+    wm deiconify .wfiles
+    focus .wfiles.lb
+  }
+  bind .wfiles <FocusOut> {wm withdraw .wfiles}
+  bind .wfiles <Escape> {focus .}
+  foreach evt {1 Return} {
+    bind .wfiles.lb <$evt> {
+      readMerge "$::fossilcmd [list [lindex $::filelist [%W curselection]]]"
+      focus .
+      break
     }
-    focus .
-    break
+  }
+  bind .wfiles.lb <Motion> {
+    %W selection clear 0 end
+    %W selection set @%x,%y
   }
 }
-bind .wfiles.lb <Motion> {
-  %W selection clear 0 end
-  %W selection set @%x,%y
-}
-
+  
 
 foreach {side syncCol} {A .txtB B .txtA C .txtC D .txtD} {
   set ln .ln$side
@@ -403,7 +395,11 @@ label .nameD -text {Merge Result}
 ::ttk::scrollbar .sbxD -command {.txtD xview} -orient horizontal
 frame .spacer
 
-readMerge $fossilcmd
+if {[info exists filelist]} {
+  readMerge "$fossilcmd [list [lindex $filelist 0]]"
+} else {
+  readMerge $fossilcmd
+}
 update idletasks
 
 proc searchOnOff {} {
@@ -483,7 +479,9 @@ proc searchStep {direction incr start stop} {
 ::ttk::button .bb.quit -text {Quit} -command exit
 ::ttk::button .bb.search -text {Search} -command searchOnOff
 pack .bb.quit -side left
-# pack .bb.files -side left
+if {[info exists filelist]} {
+  pack .bb.files -side left
+}
 pack .bb.search -side left
 grid rowconfigure . 1 -weight 1
 set rn 0

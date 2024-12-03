@@ -27,21 +27,100 @@
 ** Bring up a Tcl/Tk GUI to show details of the most recent merge.
 */
 static void merge_info_tk(int bDark, int nContext){
-  fossil_fatal("Not yet implemented");
+  int i;
+  Blob script;
+  const char *zTempFile = 0;
+  char *zCmd;
+  const char *zTclsh;
+  zTclsh = find_option("tclsh",0,1);
+  if( zTclsh==0 ){
+    zTclsh = db_get("tclsh",0);
+  }
+  /* The undocumented --script FILENAME option causes the Tk script to
+  ** be written into the FILENAME instead of being run.  This is used
+  ** for testing and debugging. */
+  zTempFile = find_option("script",0,1);
+  verify_all_options();
+
+  blob_zero(&script);
+  blob_appendf(&script, "set fossilcmd {| \"%/\" merge-info -tcl }\n",
+               g.nameOfExe);
+  blob_appendf(&script, "set filelist [list");
+  if( g.argc==2 ){
+    /* No files named on the command-line.  Use every file mentioned
+    ** in the MERGESTAT table to generate the file list. */
+    Stmt q;
+    db_prepare(&q,
+       "SELECT coalesce(fnr,fn) FROM mergestat ORDER BY 1"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_append_char(&script, ' ');
+      blob_append_tcl_literal(&script, db_column_text(&q,0),
+                              db_column_bytes(&q,0));
+    }
+  }else{
+    /* Use only files named on the command-line in the file list.
+    ** But verify each file named is actually found in the MERGESTAT
+    ** table first. */
+    for(i=2; i<g.argc; i++){
+      char *zFile;          /* Input filename */
+      char *zTreename;      /* Name of the file in the tree */
+      Blob fname;           /* Filename relative to root */
+      zFile = mprintf("%/", g.argv[i]);
+      file_tree_name(zFile, &fname, 0, 1);
+      zTreename = blob_str(&fname);
+      if( !db_exists("SELECT 1 FROM mergestat WHERE fn=%Q OR fnr=%Q",
+                     zTreename, zTreename) ){
+        fossil_fatal("file \"%s\" is not part of the most recent merge",
+                     g.argv[i]);
+      }
+      blob_append_char(&script, ' ');
+      fossil_free(zFile);
+      blob_append_tcl_literal(&script, zTreename, (int)strlen(zTreename));
+      blob_reset(&fname);
+    }
+  }
+  blob_appendf(&script, "]\n");
+  blob_appendf(&script, "set darkmode %d\n", bDark!=0);
+  blob_appendf(&script, "%s", builtin_file("merge.tcl", 0));
+  if( zTempFile ){
+    blob_write_to_file(&script, zTempFile);
+    fossil_print("To see the merge, run: %s \"%s\"\n", zTclsh, zTempFile);
+  }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    Th_FossilInit(TH_INIT_DEFAULT);
+    if( evaluateTclWithEvents(g.interp, &g.tcl, blob_str(&script),
+                              blob_size(&script), 1, 1, 0)==TCL_OK ){
+      blob_reset(&script);
+      return;
+    }
+    /*
+     * If evaluation of the Tcl script fails, the reason may be that Tk
+     * could not be found by the loaded Tcl, or that Tcl cannot be loaded
+     * dynamically (e.g. x64 Tcl with x86 Fossil).  Therefore, fallback
+     * to using the external "tclsh", if available.
+     */
+#endif
+    zTempFile = write_blob_to_temp_file(&script);
+    zCmd = mprintf("%$ %$", zTclsh, zTempFile);
+    fossil_system(zCmd);
+    file_delete(zTempFile);
+    fossil_free(zCmd);
+  }
+  blob_reset(&script);
 }
 
 /*
 ** Generate a TCL list on standard output that can be fed into the
 ** merge.tcl script to show the details of the most recent merge
-** command associated with file "zFName".
+** command associated with file "zFName".  zFName must be the filename
+** relative to the root of the check-in - in other words a "tree name".
 **
 ** When this routine is called, we know that the mergestat table
 ** exists, but we do not know if zFName is mentioned in that table.
 */
 static void merge_info_tcl(const char *zFName, int nContext){
-  char *zFile;          /* Normalized filename */
-  char *zTreename;      /* Name of the file in the tree */
-  Blob fname;           /* Filename relative to root */
+  const char *zTreename;/* Name of the file in the tree */
   Stmt q;               /* To query the MERGESTAT table */
   MergeBuilder mb;      /* The merge builder object */
   Blob pivot,v1,v2,out; /* Blobs for holding content */
@@ -49,9 +128,7 @@ static void merge_info_tcl(const char *zFName, int nContext){
   int rid;              /* RID value */
   int sz;               /* File size value */
 
-  zFile = mprintf("%/", zFName);
-  file_tree_name(zFile, &fname, 0, 1);
-  zTreename = blob_str(&fname);
+  zTreename = zFName;
   db_prepare(&q,
        /*   0    1     2   3     4   5    6     7  */
     "SELECT fnp, ridp, fn, ridv, sz, fnm, ridm, fnr"
@@ -166,7 +243,8 @@ static void merge_info_tcl(const char *zFName, int nContext){
 **   --dark               Use dark mode for the Tcl/Tk-based GUI
 **   --tcl FILE           Generate (to stdout) a TCL list containing
 **                        information needed to display the changes to
-**                        FILE caused by the most recent merge.
+**                        FILE caused by the most recent merge.  FILE must
+**                        be a pathname relative to the root of the check-out.
 **   --tk                 Bring up a Tcl/Tk GUI that shows the changes
 **                        associated with the most recent merge.
 **  
@@ -184,9 +262,11 @@ void merge_info_cmd(void){
   bTk = find_option("tk", 0, 0)!=0;
   zCnt = find_option("context", "c", 1);
   bDark = find_option("dark", 0, 0)!=0;  
-  verify_all_options();
-  if( g.argc>2 ){
-    usage("[OPTIONS]");
+  if( bTk==0 ){
+    verify_all_options();
+    if( g.argc>2 ){
+      usage("[OPTIONS]");
+    }
   }
   if( zCnt ){
     nContext = atoi(zCnt);
