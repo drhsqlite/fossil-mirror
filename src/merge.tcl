@@ -160,7 +160,7 @@ proc readMerge {fossilcmd} {
       if {$key3=="1"} {
         .txtC insert end [string range $A 1 end]\n $tag
       } elseif {$key3=="2"} {
-        .txtC insert end [string range $B 1 end]\n $tag
+        .txtC insert end [string range $B 1 end]\n chng
       } else {
         .txtC insert end [string range $C 1 end]\n $tag
       }

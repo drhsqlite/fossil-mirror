@@ -530,7 +530,6 @@ static void mergebuilder_init_tcl(MergeBuilder *p){
   p->xChngV2 = tclChngV2;
   p->xChngBoth = tclChngBoth;
   p->xConflict = tclConflict;
-  p->nContext = 6;
 }
 /*****************************************************************************/
 
@@ -771,7 +770,7 @@ int file_contains_merge_marker(const char *zFullpath){
 ** (2) Invoke "tclsh" on the temp file using fossil_system().
 ** (3) Delete the temp file.
 */
-void merge_tk(const char *zSubCmd, int firstArg){
+void merge_tk(const char *zSubCmd, int firstArg, int nContext){
   int i;
   Blob script;
   const char *zTempFile = 0;
@@ -779,8 +778,8 @@ void merge_tk(const char *zSubCmd, int firstArg){
   const char *zTclsh;
   int bDarkMode = find_option("dark",0,0)!=0;
   blob_zero(&script);
-  blob_appendf(&script, "set fossilcmd {| \"%/\" %s -tcl",
-               g.nameOfExe, zSubCmd);
+  blob_appendf(&script, "set fossilcmd {| \"%/\" %s -tcl -c %d",
+               g.nameOfExe, zSubCmd, nContext);
   find_option("tcl",0,0);
   find_option("debug",0,0);
   zTclsh = find_option("tclsh",0,1);
@@ -865,6 +864,7 @@ void merge_3way_cmd(void){
   Blob pivot, v1, v2, out;
   int noWarn = 0;
   int flagTk = 0;
+  const char *zCnt;
 
   mergebuilder_init_text(&s);
   if( find_option("debug", 0, 0) ){
@@ -875,6 +875,13 @@ void merge_3way_cmd(void){
     noWarn = 1;
   }
   flagTk = find_option("tk", 0, 0)!=0;
+  zCnt = find_option("context", "c", 1);
+  if( zCnt ){
+    s.nContext = atoi(zCnt);
+    if( s.nContext<0 ) s.nContext = 0xfffffff;
+  }else{
+    s.nContext = 6;
+  }
   blob_zero(&pivot); s.pPivot = &pivot;
   blob_zero(&v1);    s.pV1 = &v1;
   blob_zero(&v2);    s.pV2 = &v2;
@@ -891,7 +898,7 @@ void merge_3way_cmd(void){
       fossil_fatal("Cannot use an output file (\"%s\") with the --tk option",
                    g.argv[5]);
     }
-    merge_tk("3-way-merge", 2);
+    merge_tk("3-way-merge", 2, s.nContext);
     return;
   }
   if( blob_read_from_file(s.pPivot, g.argv[2], ExtFILE)<0 ){
