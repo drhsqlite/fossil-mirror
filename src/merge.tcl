@@ -7,11 +7,10 @@
 #
 # This header comment is stripped off by the "mkbuiltin.c" program.
 #
-set prog {
 package require Tk
 
 array set CFG_light {
-  TITLE      {Fossil Diff}
+  TITLE      {Fossil Merge}
   LN_COL_BG  #dddddd
   LN_COL_FG  #444444
   TXT_COL_BG #ffffff
@@ -35,7 +34,7 @@ array set CFG_light {
 }
 
 array set CFG_dark {
-  TITLE      {Fossil Diff}
+  TITLE      {Fossil Merge}
   LN_COL_BG  #dddddd
   LN_COL_FG  #444444
   TXT_COL_BG #3f3f3f
@@ -165,7 +164,7 @@ proc readMerge {fossilcmd} {
         .txtC insert end [string range $C 1 end]\n $tag
       }
     }
-    if {$key4=="."} {
+    if {$key4=="." || $key4=="X"} {
       .lnD insert end \n -
       .txtD insert end \n $dtag
     } else {
@@ -177,8 +176,6 @@ proc readMerge {fossilcmd} {
         .txtD insert end [string range $B 1 end]\n chng
       } elseif {$key4=="3"} {
         .txtD insert end [string range $C 1 end]\n add
-      } elseif {$key4=="X"} {
-        .txtD insert end "     \n" rm
       } else {
         .txtD insert end [string range $D 1 end]\n -
       }
@@ -353,6 +350,7 @@ bind .wfiles.lb <Motion> {
   %W selection set @%x,%y
 }
 
+
 foreach {side syncCol} {A .txtB B .txtA C .txtC D .txtD} {
   set ln .ln$side
   text $ln
@@ -396,25 +394,13 @@ frame .spacer
 readMerge $fossilcmd
 update idletasks
 
-proc saveDiff {} {
-  set fn [tk_getSaveFile]
-  if {$fn==""} return
-  set out [open $fn wb]
-  puts $out "#!/usr/bin/tclsh\n#\n# Run this script using 'tclsh' or 'wish'"
-  puts $out "# to see the graphical diff.\n#"
-  puts $out "set fossilcmd {}"
-  puts $out "set prog [list $::prog]"
-  puts $out "set mergetxt \173"
-  foreach e $::mergetxt {puts $out [list $e]}
-  puts $out "\175"
-  puts $out "eval \$prog"
-  close $out
-}
 proc searchOnOff {} {
   if {[info exists ::search]} {
     unset ::search
     .txtA tag remove search 1.0 end
     .txtB tag remove search 1.0 end
+    .txtC tag remove search 1.0 end
+    .txtD tag remove search 1.0 end
     pack forget .bb.sframe
     focus .
   } else {
@@ -443,7 +429,12 @@ proc searchStep {direction incr start stop} {
   if {$pattern==""} return
   set count 0
   set w $::search
-  if {"$w"==".txtA"} {set other .txtB} {set other .txtA}
+  switch $w {
+    .txtA {set other .txtB}
+    .txtB {set other .txtC}
+    .txtC {set other .txtD}
+    default {set other .txtA}
+  }
   if {[lsearch [$w mark names] search]<0} {
     $w mark set search $start
   }
@@ -478,11 +469,10 @@ proc searchStep {direction incr start stop} {
   set ::search $w
 }
 ::ttk::button .bb.quit -text {Quit} -command exit
-::ttk::button .bb.save -text {Save As...} -command saveDiff
 ::ttk::button .bb.search -text {Search} -command searchOnOff
 pack .bb.quit -side left
-if {$fossilcmd!=""} {pack .bb.save -side left}
-pack .bb.files .bb.search -side left
+# pack .bb.files -side left
+pack .bb.search -side left
 grid rowconfigure . 1 -weight 1
 set rn 0
 foreach {lnwid txtwid} [cols] {
@@ -499,5 +489,3 @@ grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
 
 .spacer config -height [winfo height .sbxA]
 wm deiconify .
-}
-eval $prog

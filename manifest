@@ -1,5 +1,5 @@
-C Add\sthe\s"-c\sN"\soption\sto\s"fossil\s3-way\s--tk".
-D 2024-12-03T01:31:34.478
+C Improvements\sto\s"3-way\s--tk"
+D 2024-12-03T12:36:22.736
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -501,7 +501,7 @@ F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 0649a27c7696582c1f2e00438341af3c73eab0304e47bb90c5c531c8b04dcc6f
-F src/merge.tcl 57647c801625ee0e70b17b1a6aaad19dd3cb275e85ff5def92cdc0f9f251cd3b
+F src/merge.tcl 12379820ec0e6fa7b567437d106c560ab3045db8f7cfdb8609d5adbd93e65473
 F src/merge3.c 91f940a53edbf3d626a0727cfed6a6a40c69297cfaad253c30627461f07430d1
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7002d98d7373dab303dd8be5d7fe80e29c7d5b3209a87ffaa388e428a6cef579
-R 38afb5a76ab6f4b6d166b325e8921819
+P c4b68636e2d895c8f8961b622492b65a8e108009ddff81e7d2d8186905a4b81a
+R da3234615ae445a5d9ddc947c56ef0f1
 U drh
-Z 61f7823c29dbe5440a6016ab72b5875e
+Z 78abee3dd6856a64eb0f368c0445e7a7
 # Remove this line to create a well-formed Fossil manifest.
