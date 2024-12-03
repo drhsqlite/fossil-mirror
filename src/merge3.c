@@ -130,6 +130,7 @@ void append_merge_mark(Blob *pOut, int iMark, int ln, int useCrLf){
   ensure_line_end(pOut, useCrLf);
 }
 
+#if INTERFACE
 /*
 ** This is an abstract class for constructing a merge.
 ** Subclasses of this object format the merge output in different ways.
@@ -137,7 +138,6 @@ void append_merge_mark(Blob *pOut, int iMark, int ln, int useCrLf){
 ** To subclass, create an instance of the MergeBuilder object and fill
 ** in appropriate method implementations.
 */
-typedef struct MergeBuilder MergeBuilder;
 struct MergeBuilder {
   void (*xStart)(MergeBuilder*);
   void (*xSame)(MergeBuilder*, unsigned int);
@@ -166,6 +166,7 @@ struct MergeBuilder {
   unsigned int lnOut;        /* Lines written to out */
   unsigned int nConflict;    /* Number of conflicts seen */
 };
+#endif /* INTERFACE */
 
 
 /************************* Generic MergeBuilder ******************************/
@@ -547,7 +548,7 @@ static void tclConflict(
   p->lnV1 += nV1;
   p->lnV2 += nV2;
 }
-static void mergebuilder_init_tcl(MergeBuilder *p){
+void mergebuilder_init_tcl(MergeBuilder *p){
   mergebuilder_init(p);
   p->xStart = tclStart;
   p->xSame = tclSame;
@@ -620,7 +621,7 @@ static int skip_conflict(
 ** conflicts, the merge proceeds as best as it can and the number
 ** of conflicts is returns
 */
-static int merge_three_blobs(MergeBuilder *p){
+int merge_three_blobs(MergeBuilder *p){
   int *aC1;              /* Changes from pPivot to pV1 */
   int *aC2;              /* Changes from pPivot to pV2 */
   int i1, i2;            /* Index into aC1[] and aC2[] */

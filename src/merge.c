@@ -22,8 +22,135 @@
 #include "merge.h"
 #include <assert.h>
 
+
+/*
+** Bring up a Tcl/Tk GUI to show details of the most recent merge.
+*/
+static void merge_info_tk(int bDark, int nContext){
+  fossil_fatal("Not yet implemented");
+}
+
+/*
+** Generate a TCL list on standard output that can be fed into the
+** merge.tcl script to show the details of the most recent merge
+** command associated with file "zFName".
+**
+** When this routine is called, we know that the mergestat table
+** exists, but we do not know if zFName is mentioned in that table.
+*/
+static void merge_info_tcl(const char *zFName, int nContext){
+  char *zFile;          /* Normalized filename */
+  char *zTreename;      /* Name of the file in the tree */
+  Blob fname;           /* Filename relative to root */
+  Stmt q;               /* To query the MERGESTAT table */
+  MergeBuilder mb;      /* The merge builder object */
+  Blob pivot,v1,v2,out; /* Blobs for holding content */
+  const char *zFN;      /* A filename */
+  int rid;              /* RID value */
+  int sz;               /* File size value */
+
+  zFile = mprintf("%/", zFName);
+  file_tree_name(zFile, &fname, 0, 1);
+  zTreename = blob_str(&fname);
+  db_prepare(&q,
+       /*   0    1     2   3     4   5    6     7  */
+    "SELECT fnp, ridp, fn, ridv, sz, fnm, ridm, fnr"
+    "  FROM mergestat"
+    " WHERE fnp=%Q OR fnr=%Q",
+    zTreename, zTreename
+  );
+  if( db_step(&q)!=SQLITE_ROW ){
+    db_finalize(&q);
+    fossil_print("ERROR {don't know anything about file: %s}\n", zTreename);
+    return;
+  }
+  mergebuilder_init_tcl(&mb);
+  mb.nContext = nContext;
+
+  /* Set up the pivot */
+  zFN = db_column_text(&q, 0);
+  if( zFN==0 ){
+    /* No pivot because the file was added */
+    mb.zPivot = "(no baseline)";
+    blob_zero(&pivot);
+  }else{
+    mb.zPivot = mprintf("%s (baseline)", file_tail(zFN));
+    rid = db_column_int(&q, 1);
+    content_get(rid, &pivot);
+  }
+  mb.pPivot = &pivot;
+
+  /* Set up the merge-in as V1 */
+  zFN = db_column_text(&q, 5);
+  if( zFN==0 ){
+    /* File deleted in the merged-in branch */
+    mb.zV1 = "(deleted file)";
+    blob_zero(&v1);
+  }else{
+    mb.zV1 = mprintf("%s (merge-in)", file_tail(zFN));
+    rid = db_column_int(&q, 6);
+    content_get(rid, &v1);
+  }
+  mb.pV1 = &v1;
+
+  /* Set up the local content as V2 */
+  zFN = db_column_text(&q, 2);
+  if( zFN==0 ){
+    /* File added by merge */
+    mb.zV2 = "(no original)";
+    blob_zero(&v2);
+  }else{
+    mb.zV2 = mprintf("%s (local)", file_tail(zFN));
+    rid = db_column_int(&q, 3);
+    sz = db_column_int(&q, 4);
+    if( rid==0 && sz>0 ){
+      /* The origin file had been edited so we'll have to pull its
+      ** original content out of the undo buffer */
+      Stmt q2;
+      db_prepare(&q2, 
+        "SELECT content FROM undo"
+        " WHERE pathname=%Q AND octet_length(content)=%d",
+        zFN, sz
+      );
+      blob_zero(&v2);
+      if( db_step(&q2)==SQLITE_ROW ){
+        db_column_blob(&q, 0, &v2);
+      }else{
+        mb.zV2 = "(local content missing)";
+      }
+      db_finalize(&q2);
+    }else{
+      /* The origin file was unchanged when the merge first occurred */
+      content_get(rid, &v2);
+    }
+  }
+  mb.pV2 = &v2;
+
+  /* Set up the output */
+  zFN = db_column_text(&q, 7);
+  if( zFN==0 ){
+    mb.zOut = "(Merge Result)";
+  }else{
+    mb.zOut = mprintf("%s (after merge)", file_tail(zFN));
+  }
+  blob_zero(&out);
+  mb.pOut = &out;
+
+  merge_three_blobs(&mb);
+  blob_write_to_file(&out, "-");
+
+  mb.xDestroy(&mb);
+  blob_reset(&pivot);
+  blob_reset(&v1);
+  blob_reset(&v2);
+  blob_reset(&out);
+  db_finalize(&q);
+}
+
 /*
 ** COMMAND: merge-info
+**
+** Usage: %fossil merge-info [OPTIONS]
 **
 ** Display information about the most recent merge operation.
 **
@@ -31,13 +158,56 @@
 ** table.  The plan moving forward is that it can generate data for
 ** a Tk-based GUI to show the details of the merge.  This command is
 ** a work-in-progress.
+**
+** Options:
+**   -c|--context N       Show N lines of context around each change,
+**                        with negative N meaning show all content.  Only
+**                        meaningful in combination with --tcl or --tk.
+**   --dark               Use dark mode for the Tcl/Tk-based GUI
+**   --tcl FILE           Generate (to stdout) a TCL list containing
+**                        information needed to display the changes to
+**                        FILE caused by the most recent merge.
+**   --tk                 Bring up a Tcl/Tk GUI that shows the changes
+**                        associated with the most recent merge.
+**  
 */
 void merge_info_cmd(void){
+  const char *zCnt;
+  const char *zTcl;
+  int bTk;
+  int bDark = 0;
+  int nContext;
   Stmt q;
-  verify_all_options();
-  db_must_be_within_tree();
 
+  db_must_be_within_tree();
+  zTcl = find_option("tcl", 0, 1);
+  bTk = find_option("tk", 0, 0)!=0;
+  zCnt = find_option("context", "c", 1);
+  bDark = find_option("dark", 0, 0)!=0;  
+  verify_all_options();
+  if( g.argc>2 ){
+    usage("[OPTIONS]");
+  }
+  if( zCnt ){
+    nContext = atoi(zCnt);
+    if( nContext<0 ) nContext = 0xfffffff;
+  }else{
+    nContext = 6;
+  }
   if( !db_table_exists("localdb","mergestat") ){
+    if( zTcl ){
+      fossil_print("ERROR {no merge data available}\n");
+    }else{
+      fossil_print("No merge data is available\n");
+    }
+    return;
+  }
+  if( bTk ){
+    merge_info_tk(bDark, nContext);
+    return;
+  }
+  if( zTcl ){
+    merge_info_tcl(zTcl, nContext);
     return;
   }
   db_prepare(&q,
