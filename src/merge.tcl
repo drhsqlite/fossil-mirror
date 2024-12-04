@@ -1,9 +1,20 @@
-# The "--tk" option to various merge commands prepends one or more
-# "set fossilcmd(NAME) {...}" lines to this file, then runs this file using
-# "tclsh" in order to show a graphical analysis of the merge results.
-# A typical "set fossilcmd" line looks like this:
+# Show details of a 3-way merge operation.  The left-most column is the
+# common ancestor.  The next two columns are edits of that common ancestor.
+# The right-most column is the result of the merge.
 #
-#     set fossilcmd(file1.txt) {| "./fossil" diff --tcl -i -v}
+# There is always a "fossilcmd" variable which tells the script how to
+# invoke Fossil to get the information it needs.  This script will
+# automatically append "-c N" to tell Fossil how much context it wants.
+#
+# If the "filelist" global variable is defined, then it is a list of
+# alternating "merge-type names" (ex: UPDATE, MERGE, CONFLICT, ERROR) and
+# filenames.  In that case, the initial display shows the changes for
+# the first pair on the list and there is a optionmenu that allows the
+# user to select other fiels on the list.
+#
+# There should also be a global variable named "ncontext" which is the
+# number of lines of context to display.  The value of this variable
+# controls the "-c N" argument that is appended to fossilcmd.
 #
 # This header comment is stripped off by the "mkbuiltin.c" program.
 #
@@ -83,11 +94,25 @@ proc colType {c} {
   return $type
 }
 
-proc readMerge {fossilcmd} {
-  set in [open $fossilcmd r]
-  fconfigure $in -encoding utf-8
-  set mergetxt [read $in]
-  close $in
+proc readMerge {args} {
+  global fossilcmd ncontext current_file
+  if {$ncontext=="All"} {
+    set cmd "$fossilcmd -c -1"
+  } else {
+    set cmd "$fossilcmd -c $ncontext"
+  }
+  if {[info exists current_file]} {
+    append cmd " -tcl [list $current_file]"
+  }
+  if {[catch {
+    set in [open $cmd r]
+    fconfigure $in -encoding utf-8
+    set mergetxt [read $in]
+    close $in
+  } msg]} {
+    tk_messageBox -message "Unable to run command: \"$cmd\""
+    return
+  }
   foreach c [cols] {
     $c config -state normal
     $c delete 1.0 end
@@ -311,7 +336,10 @@ foreach {key axis args} {
 
 frame .bb
 if {[info exists filelist]} {
-  ::ttk::menubutton .bb.files -text "Files"
+  label .bb.filetag -text "File:"
+  set current_file [lindex $filelist 1]
+  trace add variable current_file write readMerge
+  ::ttk::menubutton .bb.files -text $current_file
   if {[tk windowingsystem] eq "win32"} {
     ::ttk::style theme use winnative
     .bb.files configure -padding {20 1 10 2}
@@ -325,9 +353,13 @@ if {[info exists filelist]} {
   if {$ht>$CFG(LB_HEIGHT)} {set ht $CFG(LB_HEIGHT)}
   listbox .wfiles.lb -width 0 -height $ht -activestyle none \
     -yscroll {.wfiles.sb set}
+  set mx 1
   foreach {op fn} $filelist {
+    set n [string length $fn]
+    if {$n>$mx} {set mx $n}
     .wfiles.lb insert end [format "%-9s %s" $op $fn]
   }
+  .bb.files config -width $mx
   ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
   grid .wfiles.lb .wfiles.sb -sticky ns
   bind .bb.files <1> {
@@ -342,7 +374,8 @@ if {[info exists filelist]} {
   foreach evt {1 Return} {
     bind .wfiles.lb <$evt> {
       set ii [%W curselection]
-      readMerge "$::fossilcmd [list [lindex $::filelist [expr {$ii*2+1}]]]"
+      set ::current_file [lindex $::filelist [expr {$ii*2+1}]]
+      .bb.files config -text $::current_file
       focus .
       break
     }
@@ -352,7 +385,9 @@ if {[info exists filelist]} {
     %W selection set @%x,%y
   }
 }
-  
+label .bb.ctxtag -text "Context:"
+tk_optionMenu .bb.ctx ncontext 3 6 12 25 40 100 All
+trace add variable ncontext write readMerge
 
 foreach {side syncCol} {A .txtB B .txtA C .txtC D .txtD} {
   set ln .ln$side
@@ -398,11 +433,7 @@ label .nameD -text {Merge Result}
 ::ttk::scrollbar .sbxD -command {.txtD xview} -orient horizontal
 frame .spacer
 
-if {[info exists filelist]} {
-  readMerge "$fossilcmd [list [lindex $filelist 1]]"
-} else {
-  readMerge $fossilcmd
-}
+readMerge
 update idletasks
 
 proc searchOnOff {} {
@@ -483,8 +514,9 @@ proc searchStep {direction incr start stop} {
 ::ttk::button .bb.search -text {Search} -command searchOnOff
 pack .bb.quit -side left
 if {[info exists filelist]} {
-  pack .bb.files -side left
+  pack .bb.filetag .bb.files -side left
 }
+pack .bb.ctxtag .bb.ctx -side left
 pack .bb.search -side left
 grid rowconfigure . 1 -weight 1
 set rn 0

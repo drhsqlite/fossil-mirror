@@ -43,7 +43,8 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
   verify_all_options();
 
   blob_zero(&script);
-  blob_appendf(&script, "set fossilcmd {| \"%/\" merge-info -tcl }\n",
+  blob_appendf(&script, "set ncontext %d\n", nContext);
+  blob_appendf(&script, "set fossilcmd {| \"%/\" merge-info}\n",
                g.nameOfExe);
   blob_appendf(&script, "set filelist [list");
   if( g.argc==2 ){
@@ -240,14 +241,10 @@ static void merge_info_tcl(const char *zFName, int nContext){
 **
 ** Display information about the most recent merge operation.
 **
-** Right now, this command basically just dumps the localdb.mergestat
-** table.  The plan moving forward is that it can generate data for
-** a Tk-based GUI to show the details of the merge.  This command is
-** a work-in-progress.
-**
 ** Options:
-**   -a|--all             Show all changes.  Normally only merges, conflicts,
-**                        and errors are shown.
+**   -a|--all             Show all all file changes that happened because of
+**                        the merge.  Normally only MERGE, CONFLICT, and ERROR
+**                        lines are shown
 **   -c|--context N       Show N lines of context around each change,
 **                        with negative N meaning show all content.  Only
 **                        meaningful in combination with --tcl or --tk.
