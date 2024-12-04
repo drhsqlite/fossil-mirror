@@ -50,7 +50,7 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
     /* No files named on the command-line.  Use every file mentioned
     ** in the MERGESTAT table to generate the file list. */
     Stmt q;
-    int cnt;
+    int cnt = 0;
     db_prepare(&q,
        "SELECT coalesce(fnr,fn), op FROM mergestat %s ORDER BY 1",
        bAll ? "" : "WHERE op IN ('MERGE','CONFLICT')" /*safe-for-%s*/
