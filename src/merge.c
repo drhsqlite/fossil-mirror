@@ -26,7 +26,7 @@
 /*
 ** Bring up a Tcl/Tk GUI to show details of the most recent merge.
 */
-static void merge_info_tk(int bDark, int nContext){
+static void merge_info_tk(int bDark, int bAll, int nContext){
   int i;
   Blob script;
   const char *zTempFile = 0;
@@ -50,13 +50,23 @@ static void merge_info_tk(int bDark, int nContext){
     /* No files named on the command-line.  Use every file mentioned
     ** in the MERGESTAT table to generate the file list. */
     Stmt q;
+    int cnt;
     db_prepare(&q,
-       "SELECT coalesce(fnr,fn) FROM mergestat ORDER BY 1"
+       "SELECT coalesce(fnr,fn), op FROM mergestat %s ORDER BY 1",
+       bAll ? "" : "WHERE op IN ('MERGE','CONFLICT')" /*safe-for-%s*/
     );
     while( db_step(&q)==SQLITE_ROW ){
-      blob_append_char(&script, ' ');
+      blob_appendf(&script," %s ", db_column_text(&q,1));
       blob_append_tcl_literal(&script, db_column_text(&q,0),
                               db_column_bytes(&q,0));
+      cnt++;
+    }
+    db_finalize(&q);
+    if( cnt==0 ){
+      fossil_print(
+        "No interesting changes in this merge. Use --all to see everything\n"
+      );
+      return;
     }
   }else{
     /* Use only files named on the command-line in the file list.
@@ -66,16 +76,15 @@ static void merge_info_tk(int bDark, int nContext){
       char *zFile;          /* Input filename */
       char *zTreename;      /* Name of the file in the tree */
       Blob fname;           /* Filename relative to root */
+      char *zOp;            /* Operation on this file */
       zFile = mprintf("%/", g.argv[i]);
       file_tree_name(zFile, &fname, 0, 1);
-      zTreename = blob_str(&fname);
-      if( !db_exists("SELECT 1 FROM mergestat WHERE fn=%Q OR fnr=%Q",
-                     zTreename, zTreename) ){
-        fossil_fatal("file \"%s\" is not part of the most recent merge",
-                     g.argv[i]);
-      }
-      blob_append_char(&script, ' ');
       fossil_free(zFile);
+      zTreename = blob_str(&fname);
+      zOp = db_text(0, "SELECT op FROM mergestat WHERE fn=%Q or fnr=%Q",
+                       zTreename, zTreename);
+      blob_appendf(&script, " %s ", zOp);
+      fossil_free(zOp);
       blob_append_tcl_literal(&script, zTreename, (int)strlen(zTreename));
       blob_reset(&fname);
     }
@@ -237,6 +246,8 @@ static void merge_info_tcl(const char *zFName, int nContext){
 ** a work-in-progress.
 **
 ** Options:
+**   -a|--all             Show all changes.  Normally only merges, conflicts,
+**                        and errors are shown.
 **   -c|--context N       Show N lines of context around each change,
 **                        with negative N meaning show all content.  Only
 **                        meaningful in combination with --tcl or --tk.
@@ -253,15 +264,19 @@ void merge_info_cmd(void){
   const char *zCnt;
   const char *zTcl;
   int bTk;
-  int bDark = 0;
+  int bDark;
+  int bAll;
   int nContext;
   Stmt q;
+  const char *zWhere;
+  int cnt = 0;
 
   db_must_be_within_tree();
   zTcl = find_option("tcl", 0, 1);
   bTk = find_option("tk", 0, 0)!=0;
   zCnt = find_option("context", "c", 1);
-  bDark = find_option("dark", 0, 0)!=0;  
+  bDark = find_option("dark", 0, 0)!=0;
+  bAll = find_option("all", "a", 0)!=0;
   if( bTk==0 ){
     verify_all_options();
     if( g.argc>2 ){
@@ -283,29 +298,43 @@ void merge_info_cmd(void){
     return;
   }
   if( bTk ){
-    merge_info_tk(bDark, nContext);
+    merge_info_tk(bDark, bAll, nContext);
     return;
   }
   if( zTcl ){
     merge_info_tcl(zTcl, nContext);
     return;
   }
+  if( bAll ){
+    zWhere = "";
+  }else{
+    zWhere = "WHERE op IN ('MERGE','CONFLICT','ERROR')";
+  }
   db_prepare(&q,
-        /*  0   1   2    3   4  */
-    "SELECT op, fn, fnr, nc, msg FROM mergestat ORDER BY coalesce(fnr,fn)"
+        /*  0   1                 2  */
+    "SELECT op, coalesce(fnr,fn), msg"
+    "  FROM mergestat"
+    " %s"
+    " ORDER BY coalesce(fnr,fn)",
+    zWhere /*safe-for-%s*/
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zOp = db_column_text(&q, 0);
-    const char *zName = db_column_text(&q, 2);
-    const char *zErr = db_column_text(&q, 4);
-    if( zName==0 ) zName = db_column_text(&q, 1);
-    if( zErr ){
-      fossil_print("%-7s %s ** %s **\n", zOp, zName, zErr);
+    const char *zName = db_column_text(&q, 1);
+    const char *zErr = db_column_text(&q, 2);
+    if( zErr && fossil_strcmp(zOp,"CONFLICT")!=0 ){
+      fossil_print("%-9s %s  (%s)\n", zOp, zName, zErr);
     }else{
-      fossil_print("%-7s %s\n", zOp, zName);
+      fossil_print("%-9s %s\n", zOp, zName);
     }
+    cnt++;
   }
   db_finalize(&q);
+  if( !bAll && cnt==0 ){
+    fossil_print(
+      "No interesting change in this merge.  Use --all to see everything.\n"
+    );
+  }
 }
 
 /*
@@ -1204,6 +1233,7 @@ merge_next_child:
     int chnged = db_column_int(&q, 11);
     int rc;
     char *zFullPath;
+    const char *zType = "MERGE";
     Blob m, p, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
     if( verboseFlag ){
@@ -1217,7 +1247,7 @@ merge_next_child:
       nConflict++;
       db_multi_exec(
         "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,fnm,ridm,fnr,nc,msg)"
-        "VALUES('MERGE',%Q,%d,%Q,%d,%Q,%d,%Q,1,'cannot merge symlink')",
+        "VALUES('ERROR',%Q,%d,%Q,%d,%Q,%d,%Q,1,'cannot merge symlink')",
         /* fnp  */ db_column_text(&q, 9),
         /* ridp */ ridp,
         /* fn   */ zName,
@@ -1256,17 +1286,20 @@ merge_next_child:
           nConflict++;
           nc = rc;
           zErrMsg = "merge conflicts";
+          zType = "CONFLICT";
         }
       }else{
         fossil_print("***** Cannot merge binary file %s\n", zName);
         nConflict++;
         nc = 1;
         zErrMsg = "cannot merge binary file";
+        zType = "ERROR";
       }
       db_multi_exec(
         "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,fnr,nc,msg)"
-        "VALUES('MERGE',%Q,%d,%Q,iif(%d,%d,NULL),iif(%d,%d,NULL),%Q,%d,"
+        "VALUES(%Q,%Q,%d,%Q,iif(%d,%d,NULL),iif(%d,%d,NULL),%Q,%d,"
                "%Q,%d,%Q)",
+        /* op   */ zType,
         /* fnp  */ db_column_text(&q, 9),
         /* ridp */ ridp,
         /* fn   */ zName,

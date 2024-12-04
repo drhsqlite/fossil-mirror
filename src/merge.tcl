@@ -321,11 +321,13 @@ if {[info exists filelist]} {
   update idletasks
   wm transient .wfiles .
   wm overrideredirect .wfiles 1
-  set ht [llength $filelist]
+  set ht [expr {[llength $filelist]/2}]
   if {$ht>$CFG(LB_HEIGHT)} {set ht $CFG(LB_HEIGHT)}
   listbox .wfiles.lb -width 0 -height $ht -activestyle none \
     -yscroll {.wfiles.sb set}
-  .wfiles.lb insert end {*}$filelist
+  foreach {op fn} $filelist {
+    .wfiles.lb insert end [format "%-9s %s" $op $fn]
+  }
   ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
   grid .wfiles.lb .wfiles.sb -sticky ns
   bind .bb.files <1> {
@@ -339,7 +341,8 @@ if {[info exists filelist]} {
   bind .wfiles <Escape> {focus .}
   foreach evt {1 Return} {
     bind .wfiles.lb <$evt> {
-      readMerge "$::fossilcmd [list [lindex $::filelist [%W curselection]]]"
+      set ii [%W curselection]
+      readMerge "$::fossilcmd [list [lindex $::filelist [expr {$ii*2+1}]]]"
       focus .
       break
     }
@@ -396,7 +399,7 @@ label .nameD -text {Merge Result}
 frame .spacer
 
 if {[info exists filelist]} {
-  readMerge "$fossilcmd [list [lindex $filelist 0]]"
+  readMerge "$fossilcmd [list [lindex $filelist 1]]"
 } else {
   readMerge $fossilcmd
 }

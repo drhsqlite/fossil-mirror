@@ -1,5 +1,5 @@
-C The\s"fossil\smerge-info\s--tk"\scommand\sappears\sto\sbe\sworking.\s\sProbably\sthere\sare\nstill\sundiscovered\sbugs.
-D 2024-12-03T20:37:35.442
+C By\sdefault,\sthe\smerge-info\scommand\sonly\sshows\s"interesting"\schange\s-\sactual\nmerges,\serrors,\sand\sconflicts.\s\sUse\sthe\s--all\soption\sto\ssee\severything.
+D 2024-12-04T13:38:55.299
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -500,8 +500,8 @@ F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad2
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 29e36e24a9fe9ac584a0dc098c7cc2c36ee3e1508a7136f3cc86800ea78bceeb
-F src/merge.tcl 72d27c42bf1b1db4052e06081bdc27ece71319edd09ab94281bc30d5e8da7f83
+F src/merge.c aa5ea800b44d2ff64069068ebb5b7e140cc9daf0e9cd8e70cae88374f5a4bd10
+F src/merge.tcl d10c1cde291632f603c13b40b42891ff630e1a673c67657747fe70c7f61805c9
 F src/merge3.c e2b8e0bdff0369109957af2a7dc3904dd0a28bc8c8b36725e5d88aeb618c8d2e
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cbd24a2594c590a005aaa3e3c363545a73c0ace8d980dad7b2ce53545dacbd15
-R 4ed8e57f07ddb9294749837d04f91fbe
+P a199d970a551972ef57a26693c1cac8492ae0233a751092f811369c345587625
+R 4c23fc99a2602604b0ea6b8c6e6690b1
 U drh
-Z 29bb8f97ad258420ff20cf0a0b09500e
+Z 3a2afd3a70480c098afef32e61eb3cd5
 # Remove this line to create a well-formed Fossil manifest.
