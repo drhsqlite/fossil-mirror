@@ -1,5 +1,5 @@
-C Fix\sa\smis-quoted\sDOM\selement\sattribute,\sas\sreported\sin\s[forum:5bdbb8b949|forum\spost\s5bdbb8b949].
-D 2024-12-04T15:59:26.246
+C Wrap\sthe\slist\sof\sattachments\sdisplayed\son\stechnotes/events,\stickets\sand\swiki\spages\sin\stheir\sown\s'section'\sHTML\selement\swith\sCSS\sclass\sname\s'attachlist'.\sInspired\sby\s[forum:8da5a5d868\s|\sforum\sthread\s8da5a5d868].
+D 2024-12-04T17:00:55.565
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -382,7 +382,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c 5e0819deca945ec7183bb1f21b10736b583d241e0202f99e3de5d43fdc1e15fc
-F src/attach.c 6eb936f9976bbbae8b98b1645539c98091bbc43ca4e8f3ea9cf9e51211f8708c
+F src/attach.c 61506f3e69ff26c2f523b8f0c26e43e2f67cd78e01005c094c9665200fd61d8b
 F src/backlink.c e79a38fc0bbcdae1912bed05cb7a2df9741c78aec4dafe48f20ca5d377b4357f
 F src/backoffice.c ecb3997466581e6a3290e4d194ac59b7678e9236de1d18c0ed489df141d75f49
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
@@ -424,7 +424,7 @@ F src/dispatch.c 08b7f541f0fbf027c247d280ec2551342c238d39dac1e27c98a66013e6c71e0
 F src/doc.c 684b3d4fe993ccd618fdd5dfbf73e4bcc2ec019b21503190a503e3eb37008eca
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
-F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
+F src/event.c bbf9e79dfc96c597bab4f48ae290259a2dfa129a3d1c5878c13306ac46eb595c
 F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c 5d33865f83bf1b0acd7aea9fd897339f715f3dbdee74afee46d9e78fcd979d91
@@ -573,7 +573,7 @@ F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c baac5d2f93a6afc57fab8bdeb29b2e0c76beaf1709436003c2bb50351b63b7a1
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 7d741668fa9f7f643afd036fd822a33b583336e93f8086f1c4810b32d137fb50
-F src/tkt.c 6a9ba46397f7e48b85e465d3a03c459e1508ff97bed12124b85a9c730f4f3154
+F src/tkt.c e52093bf6399bc2cdd6d7bd77f0cb236f023858fbd4e39442f0c3df5b2b1b84a
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
@@ -587,7 +587,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c a390168e49ec5299c1c87e4510a86f771ce106218c9bd57a28ffcd4ba8150817
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
-F src/wiki.c 30a0ff4669a8fe2eb392d1862bcb51692d5f6f522b6a8b660509f1a59434d622
+F src/wiki.c 6e27ab4b85cccece51289a5c37b822ad108a87b2fedf550252472a73688c2dcc
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
 F src/winfile.c c32dbdb03d30ab85becf46070fa05bd79af2e0b644b1e68c90a87eee121be50f
@@ -961,8 +961,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3165e1bfb329c1528561fca8c2c8fa5f3b112c680d99c58d0313b4588682a00b
-R a190805265a179c1cd64e9bbd58ca416
+P f96a3ba792736d72eaacfdd7634927f4c7978f24192d610c8992ba0124ae7cc8 b111adbe355e12c081375919919075e2622d7404d3a41a1a3bbadf5ab423a014
+R b7f47c2cfe81ffced39b1837a1d3b68e
+T +closed b111adbe355e12c081375919919075e2622d7404d3a41a1a3bbadf5ab423a014 Closed\sby\sintegrate-merge.
 U stephan
-Z def31e1e4ce499ab0de206ceb61cb8f0
+Z 196676f6b2b6b6a588c5ca0dd9e74162
 # Remove this line to create a well-formed Fossil manifest.
