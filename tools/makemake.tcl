@@ -211,6 +211,7 @@ set src_ext {
 # be relative to that.
 set extra_files {
   diff.tcl
+  merge.tcl
   markdown.md
   wiki.wiki
   *.js

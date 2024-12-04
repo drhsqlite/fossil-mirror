@@ -1,24 +1,23 @@
-# The "diff --tk" command outputs prepends a "set fossilcmd {...}" line
-# to this file, then runs this file using "tclsh" in order to display the
-# graphical diff in a separate window.  A typical "set fossilcmd" line
-# looks like this:
+# The "--tk" option to various merge commands prepends one or more
+# "set fossilcmd(NAME) {...}" lines to this file, then runs this file using
+# "tclsh" in order to show a graphical analysis of the merge results.
+# A typical "set fossilcmd" line looks like this:
 #
-#     set fossilcmd {| "./fossil" diff --tcl -i -v}
+#     set fossilcmd(file1.txt) {| "./fossil" diff --tcl -i -v}
 #
 # This header comment is stripped off by the "mkbuiltin.c" program.
 #
-set prog {
 package require Tk
 
 array set CFG_light {
-  TITLE      {Fossil Diff}
+  TITLE      {Fossil Merge}
   LN_COL_BG  #dddddd
   LN_COL_FG  #444444
   TXT_COL_BG #ffffff
   TXT_COL_FG #000000
   MKR_COL_BG #444444
   MKR_COL_FG #dddddd
-  CHNG_BG    #d0d0ff
+  CHNG_BG    #d0d070
   ADD_BG     #c0ffc0
   RM_BG      #ffc0c0
   HR_FG      #444444
@@ -35,14 +34,14 @@ array set CFG_light {
 }
 
 array set CFG_dark {
-  TITLE      {Fossil Diff}
+  TITLE      {Fossil Merge}
   LN_COL_BG  #dddddd
   LN_COL_FG  #444444
   TXT_COL_BG #3f3f3f
   TXT_COL_FG #dcdccc
   MKR_COL_BG #444444
   MKR_COL_FG #dddddd
-  CHNG_BG    #6a6afc
+  CHNG_BG    #6a6a00
   ADD_BG     #57934c
   RM_BG      #ef6767
   HR_FG      #444444
@@ -76,7 +75,7 @@ proc dehtml {x} {
 }
 
 proc cols {} {
-  return [list .lnA .txtA .mkr .lnB .txtB]
+  return [list .lnA .txtA .lnB .txtB .lnC .txtC .lnD .txtD]
 }
 
 proc colType {c} {
@@ -84,153 +83,109 @@ proc colType {c} {
   return $type
 }
 
-proc getLine {difftxt N iivar} {
-  upvar $iivar ii
-  if {$ii>=$N} {return -1}
-  set x [lindex $difftxt $ii]
-  incr ii
-  return $x
-}
-
-proc readDiffs {fossilcmd} {
-  global difftxt
-  if {![info exists difftxt]} {
-    set in [open $fossilcmd r]
-    fconfigure $in -encoding utf-8
-    set difftxt [split [read $in] \n]
-    close $in
+proc readMerge {fossilcmd} {
+  set in [open $fossilcmd r]
+  fconfigure $in -encoding utf-8
+  set mergetxt [read $in]
+  close $in
+  foreach c [cols] {
+    $c config -state normal
+    $c delete 1.0 end
   }
-  set N [llength $difftxt]
-  set ii 0
-  set nDiffs 0
-  set n1 0
-  set n2 0  
-  array set widths {txt 3 ln 3 mkr 1}
-  
-  
-  set fromIndex [lsearch -glob $fossilcmd *-from]
-  set toIndex [lsearch -glob $fossilcmd *-to]
-  set branchIndex [lsearch -glob $fossilcmd *-branch]
-  set checkinIndex [lsearch -glob $fossilcmd *-checkin]
-  set fA {base check-in}
-  set fB {current check-out}
-  if {$fromIndex > -1} {set fA [lindex $fossilcmd $fromIndex+1]}
-  if {$toIndex > -1} {set fB [lindex $fossilcmd $toIndex+1]}
-  if {$branchIndex > -1} {set fA "branch point"; set fB "leaf of branch '[lindex $fossilcmd $branchIndex+1]'"}
-  if {$checkinIndex > -1} {set fA "primary parent"; set fB [lindex $fossilcmd $checkinIndex+1]}
-  
-  
-  while {[set line [getLine $difftxt $N ii]] != -1} {
-    switch -- [lindex $line 0] {
-      FILE {
-        incr nDiffs
-        foreach wx [list [string length $n1] [string length $n2]] {
-          if {$wx>$widths(ln)} {set widths(ln) $wx}
-        }
-        .lnA insert end \n fn \n -
-        .txtA insert end "[lindex $line 1] ($fA)\n" fn \n -
-        .mkr insert end \n fn \n -
-        .lnB insert end \n fn \n -
-        .txtB insert end "[lindex $line 2] ($fB)\n" fn \n -
-        .wfiles.lb insert end [lindex $line 2]
-        set n1 0
-        set n2 0
+  set lnA 1
+  set lnB 1
+  set lnC 1
+  set lnD 1
+  foreach {A B C D} $mergetxt {
+    set key1 [string index $A 0]
+    if {$key1=="S"} {
+      set N [string range $A 1 end]
+      incr lnA $N
+      incr lnB $N
+      incr lnC $N
+      incr lnD $N
+      .lnA insert end ...\n hrln
+      .txtA insert end [string repeat . 30]\n hrtxt
+      .lnB insert end ...\n hrln
+      .txtB insert end [string repeat . 30]\n hrtxt
+      .lnC insert end ...\n hrln
+      .txtC insert end [string repeat . 30]\n hrtxt
+      .lnD insert end ...\n hrln
+      .txtD insert end [string repeat . 30]\n hrtxt
+      continue
+    }
+    set key2 [string index $B 0]
+    set key3 [string index $C 0]
+    set key4 [string index $D 0]
+    if {$key4=="X"} {set dtag rm} {set dtag -}
+    if {$key1=="."} {
+      .lnA insert end \n -
+      .txtA insert end \n $dtag
+    } elseif {$key1=="N"} {
+      .nameA config -text [string range $A 1 end]
+    } else {
+      .lnA insert end $lnA\n -
+      incr lnA
+      .txtA insert end [string range $A 1 end]\n $dtag
+    }
+    if {$key2=="."} {
+      .lnB insert end \n -
+      .txtB insert end \n $dtag
+    } else {
+      .lnB insert end $lnB\n -
+      incr lnB
+      if {$key4=="2"} {set tag chng} {set tag $dtag}
+      if {$key2=="1"} {
+        .txtB insert end [string range $A 1 end]\n $tag
+      } elseif {$key2=="N"} {
+        .nameB config -text [string range $B 1 end]
+      } else {
+        .txtB insert end [string range $B 1 end]\n $tag
       }
-      SKIP {
-        set n [lindex $line 1]
-        incr n1 $n
-        incr n2 $n
-        .lnA insert end ...\n hrln
-        .txtA insert end [string repeat . 30]\n hrtxt
-        .mkr insert end \n hrln
-        .lnB insert end ...\n hrln
-        .txtB insert end [string repeat . 30]\n hrtxt
+    }
+    if {$key3=="."} {
+      .lnC insert end \n -
+      .txtC insert end \n $dtag
+    } else {
+      .lnC insert end $lnC\n -
+      incr lnC
+      if {$key4=="3"} {set tag add} {set tag $dtag}
+      if {$key3=="1"} {
+        .txtC insert end [string range $A 1 end]\n $tag
+      } elseif {$key3=="2"} {
+        .txtC insert end [string range $B 1 end]\n chng
+      } elseif {$key3=="N"} {
+        .nameC config -text [string range $C 1 end]
+      } else {
+        .txtC insert end [string range $C 1 end]\n $tag
       }
-      COM {
-        set x [lindex $line 1]
-        incr n1
-        incr n2
-        .lnA insert end $n1\n -
-        .txtA insert end $x\n -
-        .mkr insert end \n -
-        .lnB insert end $n2\n -
-        .txtB insert end $x\n -
-      }
-      INS {
-        set x [lindex $line 1]
-        incr n2
-        .lnA insert end \n -
-        .txtA insert end \n -
-        .mkr insert end >\n -
-        .lnB insert end $n2\n -
-        .txtB insert end $x add \n -
-      }
-      DEL {
-        set x [lindex $line 1]
-        incr n1
-        .lnA insert end $n1\n -
-        .txtA insert end $x rm \n -
-        .mkr insert end <\n -
-        .lnB insert end \n -
-        .txtB insert end \n -
-      }
-      EDIT {
-        incr n1
-        incr n2
-        .lnA insert end $n1\n -
-        .lnB insert end $n2\n -
-        .mkr insert end |\n -
-        set nn [llength $line]
-        for {set i 1} {$i<$nn} {incr i 3} {
-          set x [lindex $line $i]
-          if {$x ne ""} {
-            .txtA insert end $x -
-            .txtB insert end $x -
-          }
-          if {$i+2<$nn} {
-            set x1 [lindex $line [expr {$i+1}]]
-            set x2 [lindex $line [expr {$i+2}]]
-            if {"$x1" eq ""} {
-              .txtB insert end $x2 add
-            } elseif {"$x2" eq ""} {
-              .txtA insert end $x1 rm
-            } else {
-              .txtA insert end $x1 chng
-              .txtB insert end $x2 chng
-            }
-          }
-        }
-        .txtA insert end \n -
-        .txtB insert end \n -
-      }
-      "" {
-        foreach wx [list [string length $n1] [string length $n2]] {
-          if {$wx>$widths(ln)} {set widths(ln) $wx}
-        }
-      }
-      default {
-        .lnA insert end \n -
-        .txtA insert end $line\n err
-        .mkr insert end \n -
-        .lnB insert end \n -
-        .txtB insert end $line\n err
+    }
+    if {$key4=="." || $key4=="X"} {
+      .lnD insert end \n -
+      .txtD insert end \n $dtag
+    } else {
+      .lnD insert end $lnD\n -
+      incr lnD
+      if {$key4=="1"} {
+        .txtD insert end [string range $A 1 end]\n -
+      } elseif {$key4=="2"} {
+        .txtD insert end [string range $B 1 end]\n chng
+      } elseif {$key4=="3"} {
+        .txtD insert end [string range $C 1 end]\n add
+      } elseif {$key4=="N"} {
+        .nameD config -text [string range $D 1 end]
+      } else {
+        .txtD insert end [string range $D 1 end]\n -
       }
     }
   }
-
   foreach c [cols] {
     set type [colType $c]
     if {$type ne "txt"} {
-      $c config -width $widths($type)
+      $c config -width 6; # $widths($type)
     }
     $c config -state disabled
   }
-  if {$nDiffs <= [.wfiles.lb cget -height]} {
-    .wfiles.lb config -height $nDiffs
-    grid remove .wfiles.sb
-  }
-
-  return $nDiffs
 }
 
 proc viewDiff {idx} {
@@ -284,15 +239,15 @@ proc disableSync {axis} {
 proc sync-x {col first last} {
   disableSync x
   $col xview moveto [expr {$first*[xvis $col]/($last-$first)}]
-  foreach side {A B} {
+  foreach side {A B C D} {
     set sb .sbx$side
     set xview [.txt$side xview]
-    if {[lindex $xview 0] > 0 || [lindex $xview 1] < 1} {
-      grid $sb
-      eval $sb set $xview
-    } else {
-      grid remove $sb
-    }
+#    if {[lindex $xview 0] > 0 || [lindex $xview 1] < 1} {
+#      grid $sb
+#      eval $sb set $xview
+#    } else {
+#      grid remove $sb
+#    }
   }
   enableSync x
 }
@@ -355,45 +310,51 @@ foreach {key axis args} {
 }
 
 frame .bb
-::ttk::menubutton .bb.files -text "Files"
-if {[tk windowingsystem] eq "win32"} {
-  ::ttk::style theme use winnative
-  .bb.files configure -padding {20 1 10 2}
-}
-toplevel .wfiles
-wm withdraw .wfiles
-update idletasks
-wm transient .wfiles .
-wm overrideredirect .wfiles 1
-listbox .wfiles.lb -width 0 -height $CFG(LB_HEIGHT) -activestyle none \
-  -yscroll {.wfiles.sb set}
-::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
-grid .wfiles.lb .wfiles.sb -sticky ns
-bind .bb.files <1> {
-  set x [winfo rootx %W]
-  set y [expr {[winfo rooty %W]+[winfo height %W]}]
-  wm geometry .wfiles +$x+$y
-  wm deiconify .wfiles
-  focus .wfiles.lb
-}
-bind .wfiles <FocusOut> {wm withdraw .wfiles}
-bind .wfiles <Escape> {focus .}
-foreach evt {1 Return} {
-  bind .wfiles.lb <$evt> {
-    catch {
-      set idx [lindex [.txtA tag ranges fn] [expr {[%W curselection]*2}]]
-      viewDiff $idx
+if {[info exists filelist]} {
+  ::ttk::menubutton .bb.files -text "Files"
+  if {[tk windowingsystem] eq "win32"} {
+    ::ttk::style theme use winnative
+    .bb.files configure -padding {20 1 10 2}
+  }
+  toplevel .wfiles
+  wm withdraw .wfiles
+  update idletasks
+  wm transient .wfiles .
+  wm overrideredirect .wfiles 1
+  set ht [expr {[llength $filelist]/2}]
+  if {$ht>$CFG(LB_HEIGHT)} {set ht $CFG(LB_HEIGHT)}
+  listbox .wfiles.lb -width 0 -height $ht -activestyle none \
+    -yscroll {.wfiles.sb set}
+  foreach {op fn} $filelist {
+    .wfiles.lb insert end [format "%-9s %s" $op $fn]
+  }
+  ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
+  grid .wfiles.lb .wfiles.sb -sticky ns
+  bind .bb.files <1> {
+    set x [winfo rootx %W]
+    set y [expr {[winfo rooty %W]+[winfo height %W]}]
+    wm geometry .wfiles +$x+$y
+    wm deiconify .wfiles
+    focus .wfiles.lb
+  }
+  bind .wfiles <FocusOut> {wm withdraw .wfiles}
+  bind .wfiles <Escape> {focus .}
+  foreach evt {1 Return} {
+    bind .wfiles.lb <$evt> {
+      set ii [%W curselection]
+      readMerge "$::fossilcmd [list [lindex $::filelist [expr {$ii*2+1}]]]"
+      focus .
+      break
     }
-    focus .
-    break
+  }
+  bind .wfiles.lb <Motion> {
+    %W selection clear 0 end
+    %W selection set @%x,%y
   }
 }
-bind .wfiles.lb <Motion> {
-  %W selection clear 0 end
-  %W selection set @%x,%y
-}
+  
 
-foreach {side syncCol} {A .txtB B .txtA} {
+foreach {side syncCol} {A .txtB B .txtA C .txtC D .txtD} {
   set ln .ln$side
   text $ln
   $ln tag config - -justify right
@@ -426,63 +387,31 @@ foreach c [cols] {
   bind $c <1> {focus %W}
 }
 
+label .nameA
+label .nameB
+label .nameC
+label .nameD -text {Merge Result}
 ::ttk::scrollbar .sby -command {.txtA yview} -orient vertical
 ::ttk::scrollbar .sbxA -command {.txtA xview} -orient horizontal
 ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
+::ttk::scrollbar .sbxC -command {.txtC xview} -orient horizontal
+::ttk::scrollbar .sbxD -command {.txtD xview} -orient horizontal
 frame .spacer
 
-if {[readDiffs $fossilcmd] == 0} {
-  tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
-  exit
+if {[info exists filelist]} {
+  readMerge "$fossilcmd [list [lindex $filelist 1]]"
+} else {
+  readMerge $fossilcmd
 }
 update idletasks
 
-proc saveDiff {} {
-  set fn [tk_getSaveFile]
-  if {$fn==""} return
-  set out [open $fn wb]
-  puts $out "#!/usr/bin/tclsh\n#\n# Run this script using 'tclsh' or 'wish'"
-  puts $out "# to see the graphical diff.\n#"
-  puts $out "set fossilcmd {}"
-  puts $out "set prog [list $::prog]"
-  puts $out "set difftxt \173"
-  foreach e $::difftxt {puts $out [list $e]}
-  puts $out "\175"
-  puts $out "eval \$prog"
-  close $out
-}
-proc invertDiff {} {
-  global CFG
-  array set x [grid info .txtA]
-  if {$x(-column)==1} {
-    grid config .lnB -column 0
-    grid config .txtB -column 1
-    .txtB tag config add -background $CFG(RM_BG)
-    grid config .lnA -column 3
-    grid config .txtA -column 4
-    .txtA tag config rm -background $CFG(ADD_BG)
-    .bb.invert config -text Uninvert
-  } else {
-    grid config .lnA -column 0
-    grid config .txtA -column 1
-    .txtA tag config rm -background $CFG(RM_BG)
-    grid config .lnB -column 3
-    grid config .txtB -column 4
-    .txtB tag config add -background $CFG(ADD_BG)
-    .bb.invert config -text Invert
-  }
-  .mkr config -state normal
-  set clt [.mkr search -all < 1.0 end]
-  set cgt [.mkr search -all > 1.0 end]
-  foreach c $clt {.mkr replace $c "$c +1 chars" >}
-  foreach c $cgt {.mkr replace $c "$c +1 chars" <}
-  .mkr config -state disabled
-}
 proc searchOnOff {} {
   if {[info exists ::search]} {
     unset ::search
     .txtA tag remove search 1.0 end
     .txtB tag remove search 1.0 end
+    .txtC tag remove search 1.0 end
+    .txtD tag remove search 1.0 end
     pack forget .bb.sframe
     focus .
   } else {
@@ -511,7 +440,12 @@ proc searchStep {direction incr start stop} {
   if {$pattern==""} return
   set count 0
   set w $::search
-  if {"$w"==".txtA"} {set other .txtB} {set other .txtA}
+  switch $w {
+    .txtA {set other .txtB}
+    .txtB {set other .txtC}
+    .txtC {set other .txtD}
+    default {set other .txtA}
+  }
   if {[lsearch [$w mark names] search]<0} {
     $w mark set search $start
   }
@@ -546,23 +480,31 @@ proc searchStep {direction incr start stop} {
   set ::search $w
 }
 ::ttk::button .bb.quit -text {Quit} -command exit
-::ttk::button .bb.invert -text {Invert} -command invertDiff
-::ttk::button .bb.save -text {Save As...} -command saveDiff
 ::ttk::button .bb.search -text {Search} -command searchOnOff
-pack .bb.quit .bb.invert -side left
-if {$fossilcmd!=""} {pack .bb.save -side left}
-pack .bb.files .bb.search -side left
+pack .bb.quit -side left
+if {[info exists filelist]} {
+  pack .bb.files -side left
+}
+pack .bb.search -side left
 grid rowconfigure . 1 -weight 1
-grid columnconfigure . 1 -weight 1
-grid columnconfigure . 4 -weight 1
-grid .bb -row 0 -columnspan 6
-eval grid [cols] -row 1 -sticky nsew
-grid .sby -row 1 -column 5 -sticky ns
-grid .sbxA -row 2 -columnspan 2 -sticky ew
-grid .spacer -row 2 -column 2
-grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
+set rn 0
+foreach {lnwid txtwid} [cols] {
+  grid columnconfigure . $rn            -weight 1 -uniform a
+  grid columnconfigure . [expr {$rn+1}] -weight 1 -uniform b
+  incr rn 2
+}
+grid .bb -row 0 -columnspan 8
+grid .nameA -row 1 -column 1 -sticky ew
+grid .nameB -row 1 -column 3 -sticky ew
+grid .nameC -row 1 -column 5 -sticky ew
+grid .nameD -row 1 -column 7 -sticky ew
+eval grid [cols] -row 2 -sticky nsew
+grid .sby -row 2 -column 8 -sticky ns
+grid .sbxA -row 3 -column 1 -sticky ew
+grid .sbxB -row 3 -column 3 -sticky ew
+grid .sbxC -row 3 -column 5 -sticky ew
+grid .sbxD -row 3 -column 7 -sticky ew
+
 
 .spacer config -height [winfo height .sbxA]
 wm deiconify .
-}
-eval $prog
