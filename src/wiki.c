@@ -1333,7 +1333,7 @@ void wikiedit_page(void){
      "Status messages will go here.</div>\n"
      /* will be moved into the tab container via JS */);
 
-  CX("<div id='wikiedit-edit-status''>"
+  CX("<div id='wikiedit-edit-status'>"
      "<span class='name'></span>"
      "<span class='links'></span>"
      "</div>");
