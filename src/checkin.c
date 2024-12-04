@@ -2540,9 +2540,12 @@ void commit_cmd(void){
    && noPrompt==0
   ){
     zNewBranch = branch_of_rid(vid);
-    fossil_warning("parent check-in [%.10s] branch changed from '%s' to '%s'",
-                   rid_to_uuid(vid), zCurBranch, zNewBranch);
-    prompt_user("continue (y/N)? ", &ans);
+    fossil_warning(
+      "WARNING: The parent check-in [%.10s] has been moved from branch\n"
+      "         '%s' over to branch '%s'.",
+      rid_to_uuid(vid), zCurBranch, zNewBranch
+   );
+    prompt_user("Commit anyway? (y/N) ", &ans);
     cReply = blob_str(&ans)[0];
     blob_reset(&ans);
     if( cReply!='y' && cReply!='Y' ){
