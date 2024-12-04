@@ -1,5 +1,5 @@
-C Correct\sa\smismatched\sTD\sHTML\stag,\sas\sreported\sin\s[forum:5a7ca99ebe|forum\spost\s5a7ca99ebe].
-D 2024-12-04T06:32:05.793
+C Issue\swarnings\sif\sa\suser\stries\sto\scommit\sa\scheck-in\swhere\sthe\sbranch\shas\nchanged.\s\sSee\sthe\sdiscussion\sat\n[forum:/forumpost/7f5ae505e4144a0c|forum\sthread\s7f5ae505e4144a0c].
+D 2024-12-04T12:05:22.503
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -397,7 +397,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c b791622afb8c8c5d3ea3fb40372b04e8d16af4e7595a394fe850dac8277b13b0
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
-F src/checkin.c 5acd09c5fdf1e89cd3b04ed4c5f0bce39ef69219120af976dfdd643d9728ba73
+F src/checkin.c 8a9f0f094690a06f61f4d10e6fb51d0332d491b4b4a973081418532a67061765
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -578,7 +578,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
 F src/unversioned.c d6e33d7ff74b6646c3869f381331fbc355f7b686741f23d17db0a4b0a72fa0b4
-F src/update.c dc01914de23b5ae88ae40dff54308e5c354601c807acc7d0d3b48a99747664ef
+F src/update.c f99ed4cc4c3cbeb0b3f3b1af27b394376366024d6c5cb003332be13e5cc5bc42
 F src/url.c 8e2dc63f5556d4e8581d80cc00eb979000018d090815231b5fd7011c430b81d9
 F src/user.c cda5e43af6b01c05aacd01450e707d1ed8f2910d19321d2a543e948ff7fcf53b
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -960,8 +960,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5233364196e06d89c0f2af49d7ccaa80020c4d5b6b4f14cf29b2bbf8b8e38920
-R fc76386fb41d16feaa9d6d2e3af0036b
-U stephan
-Z ff8c8cded9013bb44b92bae106cbcee8
+P 11dafcf68da34a823813b00a5bc98ea9b7a8debff85369f6ae65921ecd148182 8cfa177f648beebe3027d491a22be6ae04cc7696ac877bf4765c1d1da4593bdd
+R 6562d361d9e22dc5ffe82e27145e0a51
+T +closed 8cfa177f648beebe3027d491a22be6ae04cc7696ac877bf4765c1d1da4593bdd
+U drh
+Z e7f0834993e9af16d7a264a552cb6e53
 # Remove this line to create a well-formed Fossil manifest.
