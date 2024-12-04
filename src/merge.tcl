@@ -156,14 +156,14 @@ proc readMerge {args} {
     if {$key2=="."} {
       .lnB insert end \n -
       .txtB insert end \n $dtag
+    } elseif {$key2=="N"} {
+      .nameB config -text [string range $B 1 end]
     } else {
       .lnB insert end $lnB\n -
       incr lnB
       if {$key4=="2"} {set tag chng} {set tag $dtag}
       if {$key2=="1"} {
         .txtB insert end [string range $A 1 end]\n $tag
-      } elseif {$key2=="N"} {
-        .nameB config -text [string range $B 1 end]
       } else {
         .txtB insert end [string range $B 1 end]\n $tag
       }
@@ -171,6 +171,8 @@ proc readMerge {args} {
     if {$key3=="."} {
       .lnC insert end \n -
       .txtC insert end \n $dtag
+   } elseif {$key3=="N"} {
+      .nameC config -text [string range $C 1 end]
     } else {
       .lnC insert end $lnC\n -
       incr lnC
@@ -179,15 +181,15 @@ proc readMerge {args} {
         .txtC insert end [string range $A 1 end]\n $tag
       } elseif {$key3=="2"} {
         .txtC insert end [string range $B 1 end]\n chng
-      } elseif {$key3=="N"} {
-        .nameC config -text [string range $C 1 end]
-      } else {
+       } else {
         .txtC insert end [string range $C 1 end]\n $tag
       }
     }
     if {$key4=="." || $key4=="X"} {
       .lnD insert end \n -
       .txtD insert end \n $dtag
+    } elseif {$key4=="N"} {
+      .nameD config -text [string range $D 1 end]
     } else {
       .lnD insert end $lnD\n -
       incr lnD
@@ -197,8 +199,6 @@ proc readMerge {args} {
         .txtD insert end [string range $B 1 end]\n chng
       } elseif {$key4=="3"} {
         .txtD insert end [string range $C 1 end]\n add
-      } elseif {$key4=="N"} {
-        .nameD config -text [string range $D 1 end]
       } else {
         .txtD insert end [string range $D 1 end]\n -
       }
@@ -379,9 +379,45 @@ if {[info exists filelist]} {
     %W selection set @%x,%y
   }
 }
+
 label .bb.ctxtag -text "Context:"
-tk_optionMenu .bb.ctx ncontext 3 6 12 25 40 100 All
+set context_choices {3 6 12 25 50 100 All}
+if {$ncontext<0} {set ncontext All}
 trace add variable ncontext write readMerge
+::ttk::menubutton .bb.ctx -text $ncontext
+if {[tk windowingsystem] eq "win32"} {
+  ::ttk::style theme use winnative
+  .bb.ctx configure -padding {20 1 10 2}
+}
+toplevel .wctx
+wm withdraw .wctx
+update idletasks
+wm transient .wctx .
+wm overrideredirect .wctx 1
+listbox .wctx.lb -width 0 -height 7 -activestyle none
+.wctx.lb insert end {*}$context_choices
+pack .wctx.lb
+bind .bb.ctx <1> {
+  set x [winfo rootx %W]
+  set y [expr {[winfo rooty %W]+[winfo height %W]}]
+  wm geometry .wctx +$x+$y
+  wm deiconify .wctx
+  focus .wctx.lb
+}
+bind .wctx <FocusOut> {wm withdraw .wctx}
+bind .wctx <Escape> {focus .}
+foreach evt {1 Return} {
+  bind .wctx.lb <$evt> {
+    set ::ncontext [lindex $::context_choices [%W curselection]]
+    .bb.ctx config -text $::ncontext
+    focus .
+    break
+  }
+}
+bind .wctx.lb <Motion> {
+  %W selection clear 0 end
+  %W selection set @%x,%y
+}
 
 foreach {side syncCol} {A .txtB B .txtA C .txtC D .txtD} {
   set ln .ln$side

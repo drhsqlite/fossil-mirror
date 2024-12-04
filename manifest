@@ -1,5 +1,5 @@
-C Bug\sfix\sin\sthe\sprevious\scheck-in\sfor\sthe\s"--tk"\soption\son\sthe\s"3-way-merge"\ncommand.
-D 2024-12-04T18:57:47.865
+C Fix\srendering\sof\smerge\sinformation\sthat\scontains\s"N"\sentries\sfollowed\nby\s"S".
+D 2024-12-04T19:25:36.531
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -501,7 +501,7 @@ F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c f0f0b393cd6d2c1050a941aae867e09fc8d6e586cf12a18d9df1e16a4bb349cd
-F src/merge.tcl 01ba5711b900391055a24be8c0b68a105228590d740fa6a0d35a8f4fb0bc39ed
+F src/merge.tcl 60b67fe43f2422f82e0e913a60e15196599075c992c1852822fe74d6d7312bab
 F src/merge3.c cc1b2af13207bf681a8af268d8c96e3dbf13d8e8187a948718c3d8c6930108a7
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8932be5aa8964d0cae016966f826aec38e46aa4d1ea1a19994701d526de34fb
-R d2b9df2ebf4c16104148f0b12775d940
+P d6fa91fdc843d732d3484da27055a5b959fddb6b117e079fff2ac2b69cc67209
+R 54a081298d67268ee290ec64856d7ce5
 U drh
-Z dfb1cde8ff69f167abe15dbd4cb69c37
+Z 449a9574baee7fe2da71bbbd48966acb
 # Remove this line to create a well-formed Fossil manifest.
