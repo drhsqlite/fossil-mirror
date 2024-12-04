@@ -1,5 +1,5 @@
-C Implement\sthe\sequivalent\sto\sthe\s`inode'\sSQL\sfunction\son\sWindows.
-D 2024-11-26T05:20:00.000
+C Correct\sa\smismatched\sTD\sHTML\stag,\sas\sreported\sin\s[forum:5a7ca99ebe|forum\spost\s5a7ca99ebe].
+D 2024-12-04T06:32:05.793
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -524,7 +524,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 6a9ae77e876da44ee7ad87d4c1151ec10af468dac326312cd7b1aaf322ab728b
 F src/security_audit.c edafc6d6858f23d47e5066497165152d78f55072ffad5225d233c2dd3b8bec7b
 F src/setup.c 3b4cb2f5dc6d29e9e85ed63040a7e8781b003f29252170e835d1fb409ad26a21
-F src/setupuser.c d47e2a3bb3191a833f25613fdf1b5a80e3a7bb7175c7403377b5b4e3f34782d3
+F src/setupuser.c 25e70f55d7cfb0ee847a778dda71a6e1541507424a43dd5a1eab66d682d88c6f
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 38930fbabe9b35ad97ab7c5c7fdb6931334f62781922c46e02909fb50a0a0476
-R a28c26003a8661483bd7987515818fa3
-U florian
-Z 1902f3811d9dfb428963a3cc798ed2bc
+P 5233364196e06d89c0f2af49d7ccaa80020c4d5b6b4f14cf29b2bbf8b8e38920
+R fc76386fb41d16feaa9d6d2e3af0036b
+U stephan
+Z ff8c8cded9013bb44b92bae106cbcee8
 # Remove this line to create a well-formed Fossil manifest.

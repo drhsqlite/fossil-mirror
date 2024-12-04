@@ -1020,7 +1020,7 @@ void setup_uinfo_page(void){
   @ <tr><th>uid:</th><td>%d(db_column_int(&q,0))
   @  (<a href="%R/setup_uedit?id=%d(db_column_int(&q,0))">edit</a>)</td></tr>
   @ <tr><th>login:</th><td>%h(db_column_text(&q,1))</td></tr>
-  @ <tr><th>capabilities:</th><td>%h(db_column_text(&q,2))</th></tr>
+  @ <tr><th>capabilities:</th><td>%h(db_column_text(&q,2))</td></tr>
   @ <tr><th valign="top">info:</th>
   @ <td valign="top"><span style='white-space:pre-line;'>\
   @ %h(db_column_text(&q,5))</span></td></tr>
