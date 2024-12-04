@@ -813,8 +813,9 @@ void merge_tk(const char *zSubCmd, int firstArg){
     if( nContext<0 ) nContext = 0xfffffff;
   }
   blob_zero(&script);
-  blob_appendf(&script, "set fossilcmd {| \"%/\" %s -tcl -c %d",
-               g.nameOfExe, zSubCmd, nContext);
+  blob_appendf(&script, "set ncontext %d\n", nContext);
+  blob_appendf(&script, "set fossilcmd {| \"%/\" %s -tcl",
+               g.nameOfExe, zSubCmd);
   find_option("tcl",0,0);
   find_option("debug",0,0);
   zTclsh = find_option("tclsh",0,1);

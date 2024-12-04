@@ -111,7 +111,7 @@ proc readMerge {args} {
     close $in
   } msg]} {
     tk_messageBox -message "Unable to run command: \"$cmd\""
-    return
+    set mergetxt {}
   }
   foreach c [cols] {
     $c config -state normal
@@ -267,12 +267,6 @@ proc sync-x {col first last} {
   foreach side {A B C D} {
     set sb .sbx$side
     set xview [.txt$side xview]
-#    if {[lindex $xview 0] > 0 || [lindex $xview 1] < 1} {
-#      grid $sb
-#      eval $sb set $xview
-#    } else {
-#      grid remove $sb
-#    }
   }
   enableSync x
 }
@@ -433,7 +427,6 @@ label .nameD -text {Merge Result}
 ::ttk::scrollbar .sbxD -command {.txtD xview} -orient horizontal
 frame .spacer
 
-readMerge
 update idletasks
 
 proc searchOnOff {} {
@@ -536,7 +529,7 @@ grid .sbxA -row 3 -column 1 -sticky ew
 grid .sbxB -row 3 -column 3 -sticky ew
 grid .sbxC -row 3 -column 5 -sticky ew
 grid .sbxD -row 3 -column 7 -sticky ew
-
+readMerge
 
 .spacer config -height [winfo height .sbxA]
 wm deiconify .
