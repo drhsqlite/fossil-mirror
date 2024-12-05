@@ -219,6 +219,16 @@ proc readMerge {args} {
     }
     $c config -state disabled
   }
+  set mx $lnA
+  if {$lnB>$mx} {set mx $lnB}
+  if {$lnC>$mx} {set mx $lnC}
+  if {$lnD>$mx} {set mx $lnD}
+  global lnWidth
+  set lnWidth [string length [format %d $mx]]
+  .lnA config -width $lnWidth
+  .lnB config -width $lnWidth
+  .lnC config -width $lnWidth
+  .lnD config -width $lnWidth
 }
 
 proc viewDiff {idx} {
@@ -555,13 +565,9 @@ if {[info exists filelist]} {
 }
 pack .bb.ctxtag .bb.ctx -side left
 pack .bb.search -side left
-grid rowconfigure . 1 -weight 1
-set rn 0
-foreach {lnwid txtwid} [cols] {
-  grid columnconfigure . $rn            -weight 1 -uniform a
-  grid columnconfigure . [expr {$rn+1}] -weight 1 -uniform b
-  incr rn 2
-}
+grid rowconfigure . 1 -weight 1 -minsize [winfo reqheight .nameA]
+grid rowconfigure . 2 -weight 100
+readMerge
 grid .bb -row 0 -columnspan 8
 grid .nameA -row 1 -column 1 -sticky ew
 grid .nameB -row 1 -column 3 -sticky ew
@@ -573,7 +579,9 @@ grid .sbxA -row 3 -column 1 -sticky ew
 grid .sbxB -row 3 -column 3 -sticky ew
 grid .sbxC -row 3 -column 5 -sticky ew
 grid .sbxD -row 3 -column 7 -sticky ew
-readMerge
+grid columnconfigure . {0 2 4 6} \
+   -weight 1 -uniform a -minsize [winfo reqwidth .lnA]
+grid columnconfigure . {1 3 5 7} -weight 100 -uniform b
 
 .spacer config -height [winfo height .sbxA]
 wm deiconify .
