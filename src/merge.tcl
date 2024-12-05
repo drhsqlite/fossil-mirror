@@ -102,7 +102,8 @@ proc readMerge {args} {
     set cmd "$fossilcmd -c $ncontext"
   }
   if {[info exists current_file]} {
-    append cmd " -tcl [list $current_file]"
+    regsub {^[A-Z]+ } $current_file {} fn
+    append cmd " -tcl [list $fn]"
   }
   if {[catch {
     set in [open $cmd r]
@@ -229,6 +230,7 @@ proc readMerge {args} {
   .lnB config -width $lnWidth
   .lnC config -width $lnWidth
   .lnD config -width $lnWidth
+  grid columnconfig . {0 2 4 6} -minsize $lnWidth
 }
 
 proc viewDiff {idx} {
@@ -339,14 +341,13 @@ foreach {key axis args} {
 frame .bb
 set useOptionMenu 1
 if {[info exists filelist]} {
-  set current_file [lindex $filelist 1]
+  set current_file "[lindex $filelist 0] [lindex $filelist 1]"
   if {[llength $filelist]>2} {
-    label .bb.filetag -text "File:"
     trace add variable current_file write readMerge
   
     if {$tcl_platform(os)=="Darwin" || [llength $filelist]<30} {
       set fnlist {}
-      foreach {op fn} $filelist {lappend fnlist $fn}
+      foreach {op fn} $filelist {lappend fnlist "$op $fn"}
       tk_optionMenu .bb.files current_file {*}$fnlist
     } else {
       set useOptionMenu 0
@@ -368,7 +369,7 @@ if {[info exists filelist]} {
       foreach {op fn} $filelist {
         set n [string length $fn]
         if {$n>$mx} {set mx $n}
-        .wfiles.lb insert end $fn
+        .wfiles.lb insert end "$op $fn"
       }
       .bb.files config -width $mx
       ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
@@ -385,7 +386,7 @@ if {[info exists filelist]} {
       foreach evt {1 Return} {
         bind .wfiles.lb <$evt> {
           set ii [%W curselection]
-          set ::current_file [lindex $::filelist [expr {$ii*2+1}]]
+          set ::current_file [%W get $ii]
           .bb.files config -text $::current_file
           focus .
           break
@@ -566,7 +567,7 @@ proc searchStep {direction incr start stop} {
 ::ttk::button .bb.search -text {Search} -command searchOnOff
 pack .bb.quit -side left
 if {[winfo exists .bb.files]} {
-  pack .bb.filetag .bb.files -side left
+  pack .bb.files -side left
 }
 pack .bb.ctxtag .bb.ctx -side left
 pack .bb.search -side left
