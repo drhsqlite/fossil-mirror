@@ -1,5 +1,5 @@
-C Minor\swidth\sadjustment\sfor\sthe\smerge-info\sGUI\son\sWindows.
-D 2024-12-05T20:48:24.366
+C Fix\smemory\sleaks\sin\smerge.
+D 2024-12-05T23:15:47.380
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -502,11 +502,11 @@ F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c ab5ad1eff1345e3ea6fa117f51b240be225c0c6be9659421f4d676e83eef354e
 F src/merge.tcl 9369e581e13cc9ad5b5b35b353335d8bd3fd4b8226b4efda7193eb1195aef322
-F src/merge3.c efe026862abbb6ffc239095bde1f7ed613ae6b737f05213abd2f7e4c8fd90358
+F src/merge3.c 3cf2981b3c4e4cb92e4c8e5bd0a6165cdfca4660553d9909660f0fe06917da22
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
 F src/patch.c 2ab7db14cf10a0ecd89b664202979187f359eb16c523a213a666bf3cb2aeb866
-F src/path.c d3c1faab2d600f84228a538017df350ac64731536041a1756d2bf8988ab1118f
+F src/path.c 4d10169056b216a2237cac07dced34e642b5bdcf516f57390fec34717fe11d41
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a83c
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1cf0d372fa69c7a9c93321d220b5ab3a43d68b33de186938b0bb72b98aba402e
-R 87f037d52d92217489dc2cbbe92cd3be
+P bf1af2e5467e88d8037b2963c057079583869d27b0d08ed7ad09a50110154c7f
+R 95e429d58aa221b60db0659ac90215b6
 U drh
-Z ccf4b0231005a57ad93d1e2e3474a8c0
+Z db0e1db2a8f84b9085edeafd8152853b
 # Remove this line to create a well-formed Fossil manifest.

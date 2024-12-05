@@ -342,13 +342,17 @@ int merge_try_to_resolve_conflict(
   blob_extract_lines(pMB->pV1, nV1, &v1);
   blob_extract_lines(pMB->pV2, nV2, &v2);
   blob_zero(pOut);
+  blob_materialize(&pv);
+  blob_materialize(&v1);
+  blob_materialize(&v2);
   mb.pPivot = &pv;
   mb.pV1 = &v1;
   mb.pV2 = &v2;
   mb.pOut = pOut;
   nConflict = merge_three_blobs(&mb);
-  /* The pv, v1, and v2 blobs are all ephemeral and hence do not need
-  ** to be freed. */
+  blob_reset(&pv);
+  blob_reset(&v1);
+  blob_reset(&v2);
   /* mb has not allocated any resources, so we do not need to invoke
   ** the xDestroy method. */
   blob_add_final_newline(pOut);
@@ -412,6 +416,7 @@ static void txtConflict(
     append_merge_mark(p->pOut, 1, 0, p->useCrLf);
     blob_copy_lines(p->pOut, &res, nRes);
   }
+  blob_reset(&res);
 
   append_merge_mark(p->pOut, 2, p->lnPivot+1, p->useCrLf);
   blob_copy_lines(p->pOut, p->pPivot, nPivot);   p->lnPivot += nPivot;
@@ -1221,6 +1226,7 @@ int merge_3way(
     fossil_free(zOrig);
     fossil_free(zOther);
   }
+  blob_reset(&v1);
   s.xDestroy(&s);
   return rc;
 }
