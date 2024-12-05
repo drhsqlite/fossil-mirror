@@ -102,7 +102,8 @@ proc readMerge {args} {
     set cmd "$fossilcmd -c $ncontext"
   }
   if {[info exists current_file]} {
-    append cmd " -tcl [list $current_file]"
+    regsub {^[A-Z]+ } $current_file {} fn
+    append cmd " -tcl [list $fn]"
   }
   if {[catch {
     set in [open $cmd r]
@@ -124,70 +125,76 @@ proc readMerge {args} {
   foreach {A B C D} $mergetxt {
     set key1 [string index $A 0]
     if {$key1=="S"} {
-      set N [string range $A 1 end]
-      incr lnA $N
-      incr lnB $N
-      incr lnC $N
-      incr lnD $N
-      .lnA insert end ...\n hrln
-      .txtA insert end [string repeat . 30]\n hrtxt
-      .lnB insert end ...\n hrln
-      .txtB insert end [string repeat . 30]\n hrtxt
-      .lnC insert end ...\n hrln
-      .txtC insert end [string repeat . 30]\n hrtxt
-      .lnD insert end ...\n hrln
-      .txtD insert end [string repeat . 30]\n hrtxt
+      scan [string range $A 1 end] "%d %d %d %d" nA nB nC nD
+      foreach x {A B C D} {
+        set N [set n$x]
+        incr ln$x $N
+        if {$N>0} {
+          .ln$x insert end ...\n hrln
+          .txt$x insert end [string repeat . 30]\n hrtxt
+        } else {
+          .ln$x insert end \n hrln
+          .txt$x insert end \n hrtxt
+        }
+      }
       continue
     }
     set key2 [string index $B 0]
     set key3 [string index $C 0]
     set key4 [string index $D 0]
-    if {$key4=="X"} {set dtag rm} {set dtag -}
     if {$key1=="."} {
       .lnA insert end \n -
-      .txtA insert end \n $dtag
+      .txtA insert end \n -
     } elseif {$key1=="N"} {
       .nameA config -text [string range $A 1 end]
     } else {
       .lnA insert end $lnA\n -
       incr lnA
-      .txtA insert end [string range $A 1 end]\n $dtag
+      if {$key1=="X"} {
+        .txtA insert end [string range $A 1 end]\n rm
+      } else {
+        .txtA insert end [string range $A 1 end]\n -
+      }
     }
     if {$key2=="."} {
       .lnB insert end \n -
-      .txtB insert end \n $dtag
+      .txtB insert end \n -
     } elseif {$key2=="N"} {
       .nameB config -text [string range $B 1 end]
     } else {
       .lnB insert end $lnB\n -
       incr lnB
-      if {$key4=="2"} {set tag chng} {set tag $dtag}
+      if {$key4=="2"} {set tag chng} {set tag -}
       if {$key2=="1"} {
         .txtB insert end [string range $A 1 end]\n $tag
+      } elseif {$key2=="X"} {
+        .txtB insert end [string range $B 1 end]\n rm
       } else {
         .txtB insert end [string range $B 1 end]\n $tag
       }
     }
     if {$key3=="."} {
       .lnC insert end \n -
-      .txtC insert end \n $dtag
-   } elseif {$key3=="N"} {
+      .txtC insert end \n -
+    } elseif {$key3=="N"} {
       .nameC config -text [string range $C 1 end]
     } else {
       .lnC insert end $lnC\n -
       incr lnC
-      if {$key4=="3"} {set tag add} {set tag $dtag}
+      if {$key4=="3"} {set tag add} {set tag -}
       if {$key3=="1"} {
         .txtC insert end [string range $A 1 end]\n $tag
       } elseif {$key3=="2"} {
         .txtC insert end [string range $B 1 end]\n chng
-       } else {
+      } elseif {$key3=="X"} {
+        .txtC insert end [string range $C 1 end]\n rm
+      } else {
         .txtC insert end [string range $C 1 end]\n $tag
       }
     }
-    if {$key4=="." || $key4=="X"} {
+    if {$key4=="."} {
       .lnD insert end \n -
-      .txtD insert end \n $dtag
+      .txtD insert end \n -
     } elseif {$key4=="N"} {
       .nameD config -text [string range $D 1 end]
     } else {
@@ -199,6 +206,8 @@ proc readMerge {args} {
         .txtD insert end [string range $B 1 end]\n chng
       } elseif {$key4=="3"} {
         .txtD insert end [string range $C 1 end]\n add
+      } elseif {$key4=="X"} {
+        .txtD insert end [string range $D 1 end]\n rm
       } else {
         .txtD insert end [string range $D 1 end]\n -
       }
@@ -211,6 +220,17 @@ proc readMerge {args} {
     }
     $c config -state disabled
   }
+  set mx $lnA
+  if {$lnB>$mx} {set mx $lnB}
+  if {$lnC>$mx} {set mx $lnC}
+  if {$lnD>$mx} {set mx $lnD}
+  global lnWidth
+  set lnWidth [string length [format %d $mx]]
+  .lnA config -width $lnWidth
+  .lnB config -width $lnWidth
+  .lnC config -width $lnWidth
+  .lnD config -width $lnWidth
+  grid columnconfig . {0 2 4 6} -minsize $lnWidth
 }
 
 proc viewDiff {idx} {
@@ -259,16 +279,6 @@ proc enableSync {axis} {
 proc disableSync {axis} {
   rename sync-$axis _sync-$axis
   interp alias {} sync-$axis {} noop
-}
-
-proc sync-x {col first last} {
-  disableSync x
-  $col xview moveto [expr {$first*[xvis $col]/($last-$first)}]
-  foreach side {A B C D} {
-    set sb .sbx$side
-    set xview [.txt$side xview]
-  }
-  enableSync x
 }
 
 proc sync-y {first last} {
@@ -329,54 +339,64 @@ foreach {key axis args} {
 }
 
 frame .bb
+set useOptionMenu 1
 if {[info exists filelist]} {
-  label .bb.filetag -text "File:"
-  set current_file [lindex $filelist 1]
-  trace add variable current_file write readMerge
-  ::ttk::menubutton .bb.files -text $current_file
-  if {[tk windowingsystem] eq "win32"} {
-    ::ttk::style theme use winnative
-    .bb.files configure -padding {20 1 10 2}
-  }
-  toplevel .wfiles
-  wm withdraw .wfiles
-  update idletasks
-  wm transient .wfiles .
-  wm overrideredirect .wfiles 1
-  set ht [expr {[llength $filelist]/2}]
-  if {$ht>$CFG(LB_HEIGHT)} {set ht $CFG(LB_HEIGHT)}
-  listbox .wfiles.lb -width 0 -height $ht -activestyle none \
-    -yscroll {.wfiles.sb set}
-  set mx 1
-  foreach {op fn} $filelist {
-    set n [string length $fn]
-    if {$n>$mx} {set mx $n}
-    .wfiles.lb insert end [format "%-9s %s" $op $fn]
-  }
-  .bb.files config -width $mx
-  ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
-  grid .wfiles.lb .wfiles.sb -sticky ns
-  bind .bb.files <1> {
-    set x [winfo rootx %W]
-    set y [expr {[winfo rooty %W]+[winfo height %W]}]
-    wm geometry .wfiles +$x+$y
-    wm deiconify .wfiles
-    focus .wfiles.lb
-  }
-  bind .wfiles <FocusOut> {wm withdraw .wfiles}
-  bind .wfiles <Escape> {focus .}
-  foreach evt {1 Return} {
-    bind .wfiles.lb <$evt> {
-      set ii [%W curselection]
-      set ::current_file [lindex $::filelist [expr {$ii*2+1}]]
-      .bb.files config -text $::current_file
-      focus .
-      break
+  set current_file "[lindex $filelist 0] [lindex $filelist 1]"
+  if {[llength $filelist]>2} {
+    trace add variable current_file write readMerge
+  
+    if {$tcl_platform(os)=="Darwin" || [llength $filelist]<30} {
+      set fnlist {}
+      foreach {op fn} $filelist {lappend fnlist "$op $fn"}
+      tk_optionMenu .bb.files current_file {*}$fnlist
+    } else {
+      set useOptionMenu 0
+      ::ttk::menubutton .bb.files -text $current_file
+      if {[tk windowingsystem] eq "win32"} {
+        ::ttk::style theme use winnative
+        .bb.files configure -padding {20 1 10 2}
+      }
+      toplevel .wfiles
+      wm withdraw .wfiles
+      update idletasks
+      wm transient .wfiles .
+      wm overrideredirect .wfiles 1
+      set ht [expr {[llength $filelist]/2}]
+      if {$ht>$CFG(LB_HEIGHT)} {set ht $CFG(LB_HEIGHT)}
+      listbox .wfiles.lb -width 0 -height $ht -activestyle none \
+        -yscroll {.wfiles.sb set}
+      set mx 1
+      foreach {op fn} $filelist {
+        set n [string length $fn]
+        if {$n>$mx} {set mx $n}
+        .wfiles.lb insert end "$op $fn"
+      }
+      .bb.files config -width $mx
+      ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
+      grid .wfiles.lb .wfiles.sb -sticky ns
+      bind .bb.files <1> {
+        set x [winfo rootx %W]
+        set y [expr {[winfo rooty %W]+[winfo height %W]}]
+        wm geometry .wfiles +$x+$y
+        wm deiconify .wfiles
+        focus .wfiles.lb
+      }
+      bind .wfiles <FocusOut> {wm withdraw .wfiles}
+      bind .wfiles <Escape> {focus .}
+      foreach evt {1 Return} {
+        bind .wfiles.lb <$evt> {
+          set ii [%W curselection]
+          set ::current_file [%W get $ii]
+          .bb.files config -text $::current_file
+          focus .
+          break
+        }
+      }
+      bind .wfiles.lb <Motion> {
+        %W selection clear 0 end
+        %W selection set @%x,%y
+      }
     }
-  }
-  bind .wfiles.lb <Motion> {
-    %W selection clear 0 end
-    %W selection set @%x,%y
   }
 }
 
@@ -384,39 +404,43 @@ label .bb.ctxtag -text "Context:"
 set context_choices {3 6 12 25 50 100 All}
 if {$ncontext<0} {set ncontext All}
 trace add variable ncontext write readMerge
-::ttk::menubutton .bb.ctx -text $ncontext
-if {[tk windowingsystem] eq "win32"} {
-  ::ttk::style theme use winnative
-  .bb.ctx configure -padding {20 1 10 2}
-}
-toplevel .wctx
-wm withdraw .wctx
-update idletasks
-wm transient .wctx .
-wm overrideredirect .wctx 1
-listbox .wctx.lb -width 0 -height 7 -activestyle none
-.wctx.lb insert end {*}$context_choices
-pack .wctx.lb
-bind .bb.ctx <1> {
-  set x [winfo rootx %W]
-  set y [expr {[winfo rooty %W]+[winfo height %W]}]
-  wm geometry .wctx +$x+$y
-  wm deiconify .wctx
-  focus .wctx.lb
-}
-bind .wctx <FocusOut> {wm withdraw .wctx}
-bind .wctx <Escape> {focus .}
-foreach evt {1 Return} {
-  bind .wctx.lb <$evt> {
-    set ::ncontext [lindex $::context_choices [%W curselection]]
-    .bb.ctx config -text $::ncontext
-    focus .
-    break
+if {$tcl_platform(os)=="Darwin" || $useOptionMenu} {
+  tk_optionMenu .bb.ctx ncontext {*}$context_choices
+} else {
+  ::ttk::menubutton .bb.ctx -text $ncontext
+  if {[tk windowingsystem] eq "win32"} {
+    ::ttk::style theme use winnative
+    .bb.ctx configure -padding {20 1 10 2}
   }
-}
-bind .wctx.lb <Motion> {
-  %W selection clear 0 end
-  %W selection set @%x,%y
+  toplevel .wctx
+  wm withdraw .wctx
+  update idletasks
+  wm transient .wctx .
+  wm overrideredirect .wctx 1
+  listbox .wctx.lb -width 0 -height 7 -activestyle none
+  .wctx.lb insert end {*}$context_choices
+  pack .wctx.lb
+  bind .bb.ctx <1> {
+    set x [winfo rootx %W]
+    set y [expr {[winfo rooty %W]+[winfo height %W]}]
+    wm geometry .wctx +$x+$y
+    wm deiconify .wctx
+    focus .wctx.lb
+  }
+  bind .wctx <FocusOut> {wm withdraw .wctx}
+  bind .wctx <Escape> {focus .}
+  foreach evt {1 Return} {
+    bind .wctx.lb <$evt> {
+      set ::ncontext [lindex $::context_choices [%W curselection]]
+      .bb.ctx config -text $::ncontext
+      focus .
+      break
+    }
+  }
+  bind .wctx.lb <Motion> {
+    %W selection clear 0 end
+    %W selection set @%x,%y
+  }
 }
 
 foreach {side syncCol} {A .txtB B .txtA C .txtC D .txtD} {
@@ -426,7 +450,7 @@ foreach {side syncCol} {A .txtB B .txtA C .txtC D .txtD} {
 
   set txt .txt$side
   text $txt -width $CFG(WIDTH) -height $CFG(HEIGHT) -wrap none \
-    -xscroll "sync-x $syncCol"
+    -xscroll ".sbx$side set"
   catch {$txt config -tabstyle wordprocessor} ;# Required for Tk>=8.5
   foreach tag {add rm chng} {
     $txt tag config $tag -background $CFG([string toupper $tag]_BG)
@@ -542,18 +566,14 @@ proc searchStep {direction incr start stop} {
 ::ttk::button .bb.quit -text {Quit} -command exit
 ::ttk::button .bb.search -text {Search} -command searchOnOff
 pack .bb.quit -side left
-if {[info exists filelist]} {
-  pack .bb.filetag .bb.files -side left
+if {[winfo exists .bb.files]} {
+  pack .bb.files -side left
 }
 pack .bb.ctxtag .bb.ctx -side left
 pack .bb.search -side left
-grid rowconfigure . 1 -weight 1
-set rn 0
-foreach {lnwid txtwid} [cols] {
-  grid columnconfigure . $rn            -weight 1 -uniform a
-  grid columnconfigure . [expr {$rn+1}] -weight 1 -uniform b
-  incr rn 2
-}
+grid rowconfigure . 1 -weight 1 -minsize [winfo reqheight .nameA]
+grid rowconfigure . 2 -weight 100
+readMerge
 grid .bb -row 0 -columnspan 8
 grid .nameA -row 1 -column 1 -sticky ew
 grid .nameB -row 1 -column 3 -sticky ew
@@ -565,7 +585,9 @@ grid .sbxA -row 3 -column 1 -sticky ew
 grid .sbxB -row 3 -column 3 -sticky ew
 grid .sbxC -row 3 -column 5 -sticky ew
 grid .sbxD -row 3 -column 7 -sticky ew
-readMerge
+grid columnconfigure . {0 2 4 6} \
+   -weight 1 -uniform a -minsize [winfo reqwidth .lnA]
+grid columnconfigure . {1 3 5 7} -weight 100 -uniform b
 
 .spacer config -height [winfo height .sbxA]
 wm deiconify .

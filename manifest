@@ -1,5 +1,5 @@
-C Fix\srendering\sof\smerge\sinformation\sthat\scontains\s"N"\sentries\sfollowed\nby\s"S".
-D 2024-12-04T19:25:36.531
+C When\sdoing\sa\smerge,\sif\sa\smerge\sconflict\soccurs,\sa\snew\ssection\sappears\sin\sthe\nmerge\sconflict\smarkings\sthat\sshows\sthe\ssuggested\sresolution.\s\sIn\saddition,\nthe\s"merge-info\s--tk"\sGUI\sis\simproved\sso\sthat\sline\snumbers\sin\sthe\sresult\ncolumn\scorrespond\swith\sline\snumbers\sin\sthe\sactual\sfile.
+D 2024-12-05T20:12:02.678
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -387,7 +387,7 @@ F src/backlink.c e79a38fc0bbcdae1912bed05cb7a2df9741c78aec4dafe48f20ca5d377b4357
 F src/backoffice.c ecb3997466581e6a3290e4d194ac59b7678e9236de1d18c0ed489df141d75f49
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 44446bda0779cbcebe645d3df9030b2edd42b24c56e10ef64a5535e29014be0e
-F src/blob.c be8ca2174fac1aee7811483657a86e23f5af1859f569a9d05e3de62db5d76ef1
+F src/blob.c 284b1a6e8750b25bd8d6b8aefcba0d77a01d6839c814864ac1ded88895ade148
 F src/branch.c 206ac28dfd68e03948d00ce16ce6b5acb3fd79d747d52f5edaa7d3949fa5376e
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
 F src/builtin.c b89bc60148524e25e986deb7c71b08e04f2cf0e792595cac26d9bc5420b1d5fd
@@ -416,7 +416,7 @@ F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec6811823705
-F src/diff.c ffd16af7f9dd3eb22aace9f29ee69420b4632382b31fffc4e5682b6ec090f959
+F src/diff.c ec5201ccc4ee523346d30e5085747217aefc72f7c743f00a9c1278f28042df41
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl a2731fc53cdf9d2ce3e03242eb007dda32e364c5c3f5ae104e00c53f9e8580bc
 F src/diffcmd.c af3389fee66e086e0ae3988e87d2d6be1227596ec9288549ff1de436a15a438e
@@ -500,9 +500,9 @@ F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad2
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c f0f0b393cd6d2c1050a941aae867e09fc8d6e586cf12a18d9df1e16a4bb349cd
-F src/merge.tcl 60b67fe43f2422f82e0e913a60e15196599075c992c1852822fe74d6d7312bab
-F src/merge3.c cc1b2af13207bf681a8af268d8c96e3dbf13d8e8187a948718c3d8c6930108a7
+F src/merge.c ab5ad1eff1345e3ea6fa117f51b240be225c0c6be9659421f4d676e83eef354e
+F src/merge.tcl e0bd4260f27cece3b6b83040402fdeeb26dfc3659bd2f176994f98e4d6b5158d
+F src/merge3.c efe026862abbb6ffc239095bde1f7ed613ae6b737f05213abd2f7e4c8fd90358
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
 F src/patch.c 2ab7db14cf10a0ecd89b664202979187f359eb16c523a213a666bf3cb2aeb866
@@ -961,8 +961,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6fa91fdc843d732d3484da27055a5b959fddb6b117e079fff2ac2b69cc67209
-R 54a081298d67268ee290ec64856d7ce5
+P 2ec8a7ae388d06794de6a41d3b686e73dcdd726e05fd08d71cbc43a083a49656 4582d69e34f17878eb2ff1c047d0145732dc19fc786ccb6405f1cee331f20ac8
+R 1e09d016b8bf489bc82e2708b358ca93
+T +closed 4582d69e34f17878eb2ff1c047d0145732dc19fc786ccb6405f1cee331f20ac8
 U drh
-Z 449a9574baee7fe2da71bbbd48966acb
+Z ed170202a8aa8018210b52cc52658148
 # Remove this line to create a well-formed Fossil manifest.
