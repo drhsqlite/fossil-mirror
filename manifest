@@ -1,5 +1,5 @@
-C Fix\smemory\sleaks\sin\smerge.
-D 2024-12-05T23:15:47.380
+C Fix\sa\smis-closed\sblockquote,\sas\sreported\sin\s[forum:2b17e349f9|forum\spost\s2b17e349f9].
+D 2024-12-05T23:36:18.625
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
 F src/info.c 6e272bc81fedfda6707196f018547cc97f09c3fdc5ba20b26ecf17f96efb67d6
-F src/interwiki.c 5ddeb43781f01107e75740ae978677dd156c439ba5772e3a8ef7161244b44080
+F src/interwiki.c 517f85da17421e2e6cf968345850138408104e8b82ce08ac2470e61273d62882
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
 F src/json_branch.c 8d9dd577e0aa2b9fd8011584224c775e83ccc44ff84b0464b4ab28211d6e1aa4
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bf1af2e5467e88d8037b2963c057079583869d27b0d08ed7ad09a50110154c7f
-R 95e429d58aa221b60db0659ac90215b6
-U drh
-Z db0e1db2a8f84b9085edeafd8152853b
+P 337617ba1973836a2fa2f403d6b0a2ca84987e88a1a2f9dad756eec21ec7dca3
+R 3ec7e4d0cbe89cda4a4ce59b5954ffdd
+U stephan
+Z 1801071ecd9a327d013faade90745a56
 # Remove this line to create a well-formed Fossil manifest.
