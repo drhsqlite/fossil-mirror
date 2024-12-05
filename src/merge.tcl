@@ -124,70 +124,76 @@ proc readMerge {args} {
   foreach {A B C D} $mergetxt {
     set key1 [string index $A 0]
     if {$key1=="S"} {
-      set N [string range $A 1 end]
-      incr lnA $N
-      incr lnB $N
-      incr lnC $N
-      incr lnD $N
-      .lnA insert end ...\n hrln
-      .txtA insert end [string repeat . 30]\n hrtxt
-      .lnB insert end ...\n hrln
-      .txtB insert end [string repeat . 30]\n hrtxt
-      .lnC insert end ...\n hrln
-      .txtC insert end [string repeat . 30]\n hrtxt
-      .lnD insert end ...\n hrln
-      .txtD insert end [string repeat . 30]\n hrtxt
+      scan [string range $A 1 end] "%d %d %d %d" nA nB nC nD
+      foreach x {A B C D} {
+        set N [set n$x]
+        incr ln$x $N
+        if {$N>0} {
+          .ln$x insert end ...\n hrln
+          .txt$x insert end [string repeat . 30]\n hrtxt
+        } else {
+          .ln$x insert end \n hrln
+          .txt$x insert end \n hrtxt
+        }
+      }
       continue
     }
     set key2 [string index $B 0]
     set key3 [string index $C 0]
     set key4 [string index $D 0]
-    if {$key4=="X"} {set dtag rm} {set dtag -}
     if {$key1=="."} {
       .lnA insert end \n -
-      .txtA insert end \n $dtag
+      .txtA insert end \n -
     } elseif {$key1=="N"} {
       .nameA config -text [string range $A 1 end]
     } else {
       .lnA insert end $lnA\n -
       incr lnA
-      .txtA insert end [string range $A 1 end]\n $dtag
+      if {$key1=="X"} {
+        .txtA insert end [string range $A 1 end]\n rm
+      } else {
+        .txtA insert end [string range $A 1 end]\n -
+      }
     }
     if {$key2=="."} {
       .lnB insert end \n -
-      .txtB insert end \n $dtag
+      .txtB insert end \n -
     } elseif {$key2=="N"} {
       .nameB config -text [string range $B 1 end]
     } else {
       .lnB insert end $lnB\n -
       incr lnB
-      if {$key4=="2"} {set tag chng} {set tag $dtag}
+      if {$key4=="2"} {set tag chng} {set tag -}
       if {$key2=="1"} {
         .txtB insert end [string range $A 1 end]\n $tag
+      } elseif {$key2=="X"} {
+        .txtB insert end [string range $B 1 end]\n rm
       } else {
         .txtB insert end [string range $B 1 end]\n $tag
       }
     }
     if {$key3=="."} {
       .lnC insert end \n -
-      .txtC insert end \n $dtag
-   } elseif {$key3=="N"} {
+      .txtC insert end \n -
+    } elseif {$key3=="N"} {
       .nameC config -text [string range $C 1 end]
     } else {
       .lnC insert end $lnC\n -
       incr lnC
-      if {$key4=="3"} {set tag add} {set tag $dtag}
+      if {$key4=="3"} {set tag add} {set tag -}
       if {$key3=="1"} {
         .txtC insert end [string range $A 1 end]\n $tag
       } elseif {$key3=="2"} {
         .txtC insert end [string range $B 1 end]\n chng
-       } else {
+      } elseif {$key3=="X"} {
+        .txtC insert end [string range $C 1 end]\n rm
+      } else {
         .txtC insert end [string range $C 1 end]\n $tag
       }
     }
     if {$key4=="."} {
       .lnD insert end \n -
-      .txtD insert end \n $dtag
+      .txtD insert end \n -
     } elseif {$key4=="N"} {
       .nameD config -text [string range $D 1 end]
     } else {
@@ -199,8 +205,10 @@ proc readMerge {args} {
         .txtD insert end [string range $B 1 end]\n chng
       } elseif {$key4=="3"} {
         .txtD insert end [string range $C 1 end]\n add
+      } elseif {$key4=="X"} {
+        .txtD insert end [string range $D 1 end]\n rm
       } else {
-        .txtD insert end [string range $D 1 end]\n $dtag
+        .txtD insert end [string range $D 1 end]\n -
       }
     }
   }
