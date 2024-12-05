@@ -226,6 +226,7 @@ proc readMerge {args} {
   if {$lnD>$mx} {set mx $lnD}
   global lnWidth
   set lnWidth [string length [format %d $mx]]
+  if {$::tcl_platform(platform)=="windows"} {incr lnWidth}
   .lnA config -width $lnWidth
   .lnB config -width $lnWidth
   .lnC config -width $lnWidth
