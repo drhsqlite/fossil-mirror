@@ -279,16 +279,6 @@ proc disableSync {axis} {
   interp alias {} sync-$axis {} noop
 }
 
-proc sync-x {col first last} {
-  disableSync x
-  $col xview moveto [expr {$first*[xvis $col]/($last-$first)}]
-  foreach side {A B C D} {
-    set sb .sbx$side
-    set xview [.txt$side xview]
-  }
-  enableSync x
-}
-
 proc sync-y {first last} {
   disableSync y
   foreach c [cols] {
@@ -455,7 +445,7 @@ foreach {side syncCol} {A .txtB B .txtA C .txtC D .txtD} {
 
   set txt .txt$side
   text $txt -width $CFG(WIDTH) -height $CFG(HEIGHT) -wrap none \
-    -xscroll "sync-x $syncCol"
+    -xscroll ".sbx$side set"
   catch {$txt config -tabstyle wordprocessor} ;# Required for Tk>=8.5
   foreach tag {add rm chng} {
     $txt tag config $tag -background $CFG([string toupper $tag]_BG)

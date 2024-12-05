@@ -1,5 +1,5 @@
-C Merge\sUI\smenu\sbuttons\sworking\son\sDarwin.
-D 2024-12-05T18:45:51.013
+C Fix\shorizontal\sscrolling\sin\sthe\smerge\sUI.
+D 2024-12-05T18:56:00.173
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -501,7 +501,7 @@ F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c ab5ad1eff1345e3ea6fa117f51b240be225c0c6be9659421f4d676e83eef354e
-F src/merge.tcl 000bfa479740113283b65c3da7ffdb171ee286edb90acc9234fdd8657c5bc59b
+F src/merge.tcl a67332624b043bb58d4de1068e97163ce5b9b889eece6d57d6cca5dc294710bf
 F src/merge3.c 71e9bedbc7608c30e667df7f1c2ba5c7ac50a3254981486e42f394fbac762972
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e9d1d71669248028442dc95bd7ec1f1ab80201b99a30c8ba835936c0c7c32571
-R 38de8d7461c0d5db0b2f02eea77daf7c
+P 76b39a2c9f5f60d21ad8fc426643297660b01c2e9bce0839aa03f8f474367825
+R 27d5121423922dae4d492cd88b43c377
 U drh
-Z f85fc14f63c2a70a24fa41bd19b46146
+Z 3b63f28645b1cde6b077d50fadd06b9e
 # Remove this line to create a well-formed Fossil manifest.
