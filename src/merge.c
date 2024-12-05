@@ -167,27 +167,27 @@ static void merge_info_tcl(const char *zFName, int nContext){
   }
   mb.pPivot = &pivot;
 
-  /* Set up the merge-in as V1 */
+  /* Set up the merge-in as V2 */
   zFN = db_column_text(&q, 5);
   if( zFN==0 ){
     /* File deleted in the merged-in branch */
-    mb.zV1 = "(deleted file)";
-    blob_zero(&v1);
+    mb.zV2 = "(deleted file)";
+    blob_zero(&v2);
   }else{
-    mb.zV1 = mprintf("%s (merge-in)", file_tail(zFN));
+    mb.zV2 = mprintf("%s (merge-in)", file_tail(zFN));
     rid = db_column_int(&q, 6);
-    content_get(rid, &v1);
+    content_get(rid, &v2);
   }
-  mb.pV1 = &v1;
+  mb.pV2 = &v2;
 
-  /* Set up the local content as V2 */
+  /* Set up the local content as V1 */
   zFN = db_column_text(&q, 2);
   if( zFN==0 ){
     /* File added by merge */
-    mb.zV2 = "(no original)";
-    blob_zero(&v2);
+    mb.zV1 = "(no original)";
+    blob_zero(&v1);
   }else{
-    mb.zV2 = mprintf("%s (local)", file_tail(zFN));
+    mb.zV1 = mprintf("%s (local)", file_tail(zFN));
     rid = db_column_int(&q, 3);
     sz = db_column_int(&q, 4);
     if( rid==0 && sz>0 ){
@@ -199,19 +199,19 @@ static void merge_info_tcl(const char *zFName, int nContext){
         " WHERE pathname=%Q AND octet_length(content)=%d",
         zFN, sz
       );
-      blob_zero(&v2);
+      blob_zero(&v1);
       if( db_step(&q2)==SQLITE_ROW ){
-        db_column_blob(&q, 0, &v2);
+        db_column_blob(&q, 0, &v1);
       }else{
-        mb.zV2 = "(local content missing)";
+        mb.zV1 = "(local content missing)";
       }
       db_finalize(&q2);
     }else{
       /* The origin file was unchanged when the merge first occurred */
-      content_get(rid, &v2);
+      content_get(rid, &v1);
     }
   }
-  mb.pV2 = &v2;
+  mb.pV1 = &v1;
 
   /* Set up the output */
   zFN = db_column_text(&q, 7);

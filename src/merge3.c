@@ -153,8 +153,8 @@ struct MergeBuilder {
   const char *zV2;           /* Label or name for the V2 file */
   const char *zOut;          /* Label or name for the output */
   Blob *pPivot;              /* The common ancestor */
-  Blob *pV1;                 /* First variant */
-  Blob *pV2;                 /* Second variant */
+  Blob *pV1;                 /* First variant (local copy) */
+  Blob *pV2;                 /* Second variant (merged in) */
   Blob *pOut;                /* Write merge results here */
   int useCrLf;               /* Use CRLF line endings */
   int nContext;              /* Size of unchanged line boundaries */
@@ -300,7 +300,8 @@ static void tokenConflict(
   unsigned int nV1,
   unsigned int nV2
 ){
-  blob_append(p->pOut, p->pV1->aData+p->pV1->iCursor, nV1);
+  /* For a token-merge conflict, use the text from the merge-in */
+  blob_append(p->pOut, p->pV2->aData+p->pV2->iCursor, nV2);
   p->pPivot->iCursor += nPivot;
   p->pV1->iCursor += nV1;
   p->pV2->iCursor += nV2;
@@ -408,7 +409,7 @@ static void txtConflict(
   blob_copy_lines(p->pOut, p->pV1, nV1);         p->lnV1 += nV1;
 
   if( nRes>0 ){
-    append_merge_mark(p->pOut, 1, 10000+nRes, p->useCrLf);
+    append_merge_mark(p->pOut, 1, 0, p->useCrLf);
     blob_copy_lines(p->pOut, &res, nRes);
   }
 
@@ -660,7 +661,7 @@ static void tclConflict(
     }else{
       blob_append(p->pOut, " .\n", 3);
     }
-    if( i==nRes-1 ){
+    if( i==mx-1 ){
       blob_appendf(p->pOut, "\"S0 0 0 %d\" . . .\n", nPivot+nV1+3);
     }
   }
