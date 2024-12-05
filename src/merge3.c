@@ -340,17 +340,13 @@ int merge_try_to_resolve_conflict(
   blob_extract_lines(pMB->pV1, nV1, &v1);
   blob_extract_lines(pMB->pV2, nV2, &v2);
   blob_zero(pOut);
-  blob_materialize(&pv);
-  blob_materialize(&v1);
-  blob_materialize(&v2);
   mb.pPivot = &pv;
   mb.pV1 = &v1;
   mb.pV2 = &v2;
   mb.pOut = pOut;
   nConflict = merge_three_blobs(&mb);
-  blob_reset(&pv);
-  blob_reset(&v1);
-  blob_reset(&v2);
+  /* The pv, v1, and v2 blobs are all ephemeral and hence do not need
+  ** to be freed. */
   /* mb has not allocated any resources, so we do not need to invoke
   ** the xDestroy method. */
   blob_add_final_newline(pOut);
