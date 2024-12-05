@@ -264,6 +264,94 @@ static void mergebuilder_init(MergeBuilder *p){
   p->xDestroy = dbgDestroy;
 }
 
+/************************* MergeBuilderToken ********************************/
+/* This version of MergeBuilder actually performs a merge on file that
+** are broken up into tokens instead of lines, and puts the result in pOut.
+*/
+static void tokenSame(MergeBuilder *p, unsigned int N){
+  blob_append(p->pOut, p->pPivot->aData+p->pPivot->iCursor, N);
+  p->pPivot->iCursor += N;
+  p->pV1->iCursor += N;
+  p->pV2->iCursor += N;
+}
+static void tokenChngV1(MergeBuilder *p, unsigned int nPivot, unsigned nV1){
+  blob_append(p->pOut, p->pV1->aData+p->pV1->iCursor, nV1);
+  p->pPivot->iCursor += nPivot;
+  p->pV1->iCursor += nV1;
+  p->pV2->iCursor += nPivot;
+}
+static void tokenChngV2(MergeBuilder *p, unsigned int nPivot, unsigned nV2){
+  blob_append(p->pOut, p->pV2->aData+p->pV2->iCursor, nV2);
+  p->pPivot->iCursor += nPivot;
+  p->pV1->iCursor += nPivot;
+  p->pV2->iCursor += nV2;
+}
+static void tokenChngBoth(MergeBuilder *p, unsigned int nPivot, unsigned nV){
+  blob_append(p->pOut, p->pV2->aData+p->pV2->iCursor, nV);
+  p->pPivot->iCursor += nPivot;
+  p->pV1->iCursor += nV;
+  p->pV2->iCursor += nV;
+}
+static void tokenConflict(
+  MergeBuilder *p,
+  unsigned int nPivot,
+  unsigned int nV1,
+  unsigned int nV2
+){
+  blob_append(p->pOut, p->pV1->aData+p->pV1->iCursor, nV1);
+  p->pPivot->iCursor += nPivot;
+  p->pV1->iCursor += nV1;
+  p->pV2->iCursor += nV2;
+}
+static void mergebuilder_init_token(MergeBuilder *p){
+  mergebuilder_init(p);
+  p->xSame = tokenSame;
+  p->xChngV1 = tokenChngV1;
+  p->xChngV2 = tokenChngV2;
+  p->xChngBoth = tokenChngBoth;
+  p->xConflict = tokenConflict;
+}
+
+/*
+** Attempt to do a low-level merge on a conflict.  The conflict is
+** described by the first four parameters, which are the same as the
+** arguments to the xConflict method of the MergeBuilder object.
+** This routine attempts to resolve the conflict by looking at
+** elements of the conflict region that are finer grain than complete
+** lines of text.
+**
+** The result is written into Blob pOut.  pOut is initialized by this
+** routine.
+*/
+int merge_try_to_resolve_conflict(
+  MergeBuilder *pMB,     /* MergeBuilder that encounter conflict */
+  unsigned int nPivot,   /* Lines of conflict in the pivot */
+  unsigned int nV1,      /* Lines of conflict in V1 */
+  unsigned int nV2,      /* Lines of conflict in V2 */
+  Blob *pOut             /* Write resolution text here */
+){
+  int nConflict;
+  MergeBuilder mb;
+  Blob pv, v1, v2;
+  mergebuilder_init_token(&mb);
+  blob_extract_lines(pMB->pPivot, nPivot, &pv);
+  blob_extract_lines(pMB->pV1, nV1, &v1);
+  blob_extract_lines(pMB->pV2, nV2, &v2);
+  blob_zero(pOut);
+  mb.pPivot = &pv;
+  mb.pV1 = &v1;
+  mb.pV2 = &v2;
+  mb.pOut = pOut;
+  nConflict = merge_three_blobs(&mb);
+  /* pv, v1, and v2 should all be ephemeral blobs, so they do not
+  ** need to be freed. */
+  /* mb has not allocated any resources, so we do not need to invoke
+  ** the xDestroy method. */
+  blob_add_final_newline(pOut);
+  return nConflict;
+}
+
+
 /************************* MergeBuilderText **********************************/
 /* This version of MergeBuilder actually performs a merge on file and puts
 ** the result in pOut
@@ -522,8 +610,14 @@ static void tclConflict(
 ){
   int mx = nPivot;
   int i;
+  int nOut;
+  Blob out;
+  
+  merge_try_to_resolve_conflict(p, nPivot, nV1, nV2, &out);
+  nOut = blob_linecount(&out);
   if( nV1>mx ) mx = nV1;
   if( nV2>mx ) mx = nV2;
+  if( nOut>mx ) mx = nOut;
   for(i=0; i<mx; i++){
     if( i<nPivot ){
       tclLineOfText(p->pOut, p->pPivot);
@@ -542,8 +636,13 @@ static void tclConflict(
     }else{
       blob_append_char(p->pOut, '.');
     }
-    blob_append(p->pOut, " X\n", 3);
+    if( i<nOut ){
+      tclLineOfText(p->pOut, &out);
+    }else{
+      blob_append(p->pOut, " X\n", 3);
+    }
   }
+  blob_reset(&out);
   p->lnPivot += nPivot;
   p->lnV1 += nV1;
   p->lnV2 += nV2;

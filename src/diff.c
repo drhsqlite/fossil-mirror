@@ -52,6 +52,7 @@
 #define DIFF_INCBINARY         0x00100000 /* The --diff-binary option */
 #define DIFF_SHOW_VERS         0x00200000 /* Show compared versions */
 #define DIFF_DARKMODE          0x00400000 /* Use dark mode for HTML */
+#define DIFF_BY_TOKEN          0x01000000 /* Split on tokens, not lines */
 
 /*
 ** Per file information that may influence output.
@@ -319,6 +320,109 @@ static DLine *break_into_lines(
 
   /* Return results */
   *pnLine = nLine;
+  return a;
+}
+
+/*
+** Character classes for the purpose of tokenization.
+**
+**    1 - alphanumeric
+**    2 - whitespace
+**    3 - punctuation
+*/
+static char aTCharClass[256] = {
+  2, 2, 2, 2,  2, 2, 2, 2,   2, 2, 2, 2,  2, 2, 2, 2, 
+  2, 2, 2, 2,  2, 2, 2, 2,   2, 2, 2, 2,  2, 2, 2, 2, 
+  2, 3, 3, 3,  3, 3, 3, 3,   3, 3, 3, 3,  3, 3, 3, 3,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 3, 3, 3,  3, 3, 3, 3,
+
+  3, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 3,  3, 3, 3, 3,
+  3, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 3,  3, 3, 3, 3,
+
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1
+};
+
+/*
+** Count the number of tokens in the given string.
+*/
+static int count_tokens(const unsigned char *p, int n){
+  int nToken = 0;
+  int iPrev = 0;
+  int i;
+  for(i=0; i<n; i++){
+    char x = aTCharClass[p[i]];
+    if( x!=iPrev ){
+      iPrev = x;
+      nToken++;
+    }
+  }
+  return nToken;
+}
+
+/*
+** Return an array of DLine objects containing a pointer to the
+** start of each token and a hash of that token.  The lower
+** bits of the hash store the length of each token.
+**
+** This is like break_into_lines() except that it works with tokens
+** instead of lines.  A token is:
+**
+**     *  A contiguous sequence of alphanumeric characters.
+**     *  A contiguous sequence of whitespace
+**     *  A contiguous sequence of punctuation characters.
+**
+** Return 0 if the file is binary or contains a line that is
+** too long.
+*/
+static DLine *break_into_tokens(
+  const char *z,
+  int n,
+  int *pnToken,
+  u64 diffFlags
+){
+  int nToken, i, k;
+  u64 h, h2;
+  DLine *a;
+  unsigned char *p = (unsigned char*)z;
+
+  nToken = count_tokens(p, n);
+  a = fossil_malloc( sizeof(a[0])*(nToken+1) );
+  memset(a, 0, sizeof(a[0])*(nToken+1));
+  if( n==0 ){
+    *pnToken = 0;
+    return a;
+  }
+  i = 0;
+  while( n>0 ){
+    char x = aTCharClass[*p];
+    h = 0xcbf29ce484222325LL;
+    for(k=1; k<n && aTCharClass[p[k]]==x; k++){
+      h ^= p[k];
+      h *= 0x100000001b3LL;
+    }
+    a[i].z = (char*)p;
+    a[i].n = k;
+    a[i].h = h = ((h%281474976710597LL)<<LENGTH_MASK_SZ) | k;
+    h2 = h % nToken;
+    a[i].iNext = a[h2].iHash;
+    a[h2].iHash = i+1;
+    p += k; n -= k;
+    i++;
+  };
+  assert( i==nToken );
+
+  /* Return results */
+  *pnToken = nToken;
   return a;
 }
 
@@ -2999,10 +3103,17 @@ int *text_diff(
   }else{
     c.xDiffer = compare_dline;
   }
-  c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
-                             &c.nFrom, pCfg->diffFlags);
-  c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
-                           &c.nTo, pCfg->diffFlags);
+  if( pCfg->diffFlags & DIFF_BY_TOKEN ){
+    c.aFrom = break_into_tokens(blob_str(pA_Blob), blob_size(pA_Blob),
+                               &c.nFrom, pCfg->diffFlags);
+    c.aTo = break_into_tokens(blob_str(pB_Blob), blob_size(pB_Blob),
+                             &c.nTo, pCfg->diffFlags);
+  }else{
+    c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
+                               &c.nFrom, pCfg->diffFlags);
+    c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
+                             &c.nTo, pCfg->diffFlags);
+  }
   if( c.aFrom==0 || c.aTo==0 ){
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
@@ -3037,6 +3148,22 @@ int *text_diff(
   if( (pCfg->diffFlags & DIFF_NOOPT)==0 ){
     diff_optimize(&c);
   }
+  if( (pCfg->diffFlags & DIFF_BY_TOKEN)!=0 ){
+    /* Convert token counts into byte counts. */
+    int i;
+    int iA = 0;
+    int iB = 0;
+    for(i=0; c.aEdit[i] || c.aEdit[i+1] || c.aEdit[i+2]; i+=3){
+      int k, sum;
+      for(k=0, sum=0; k<c.aEdit[i]; k++) sum += c.aFrom[iA++].n;
+      iB += c.aEdit[i];
+      c.aEdit[i] = sum;
+      for(k=0, sum=0; k<c.aEdit[i+1]; k++) sum += c.aFrom[iA++].n;
+      c.aEdit[i+1] = sum;
+      for(k=0, sum=0; k<c.aEdit[i+2]; k++) sum += c.aTo[iB++].n;
+      c.aEdit[i+2] = sum;
+    }
+  }
 
   if( pOut ){
     if( pCfg->diffFlags & DIFF_NUMSTAT ){
@@ -3051,7 +3178,7 @@ int *text_diff(
         g.diffCnt[0]++;
         blob_appendf(pOut, "%10d %10d", nIns, nDel);
       }
-    }else if( pCfg->diffFlags & DIFF_RAW ){
+    }else if( pCfg->diffFlags & (DIFF_RAW|DIFF_BY_TOKEN) ){
       const int *R = c.aEdit;
       unsigned int r;
       for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
@@ -3159,6 +3286,9 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
     ** debugging and analysis: */
     if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
     if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
+    if( find_option("bytoken",0,0)!=0 ){
+      diffFlags = DIFF_RAW|DIFF_BY_TOKEN;
+    }
   }
   if( (z = find_option("context","c",1))!=0 ){
     char *zEnd;
