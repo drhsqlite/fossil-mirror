@@ -185,7 +185,7 @@ proc readMerge {args} {
         .txtC insert end [string range $C 1 end]\n $tag
       }
     }
-    if {$key4=="." || $key4=="X"} {
+    if {$key4=="."} {
       .lnD insert end \n -
       .txtD insert end \n $dtag
     } elseif {$key4=="N"} {
@@ -200,7 +200,7 @@ proc readMerge {args} {
       } elseif {$key4=="3"} {
         .txtD insert end [string range $C 1 end]\n add
       } else {
-        .txtD insert end [string range $D 1 end]\n -
+        .txtD insert end [string range $D 1 end]\n $dtag
       }
     }
   }

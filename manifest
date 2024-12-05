@@ -1,5 +1,5 @@
-C Steps\stoward\sdoing\sa\sbetter\sjob\sof\sautomatically\sresolving\smerge\sconflicts.\nCompiles\sbut\sdoes\snot\swork.\s\sThis\sis\san\sincremental\scheck-in.
-D 2024-12-05T12:15:02.635
+C Bug\sfixes\ssufficient\sto\sget\sthe\sautomated\smerge\sconflict\sresolution\sworking.
+D 2024-12-05T13:16:25.165
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -387,7 +387,7 @@ F src/backlink.c e79a38fc0bbcdae1912bed05cb7a2df9741c78aec4dafe48f20ca5d377b4357
 F src/backoffice.c ecb3997466581e6a3290e4d194ac59b7678e9236de1d18c0ed489df141d75f49
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 44446bda0779cbcebe645d3df9030b2edd42b24c56e10ef64a5535e29014be0e
-F src/blob.c 93af8a484c29be7b2e63289fc4411a3b66e20ea6291ff63a10a6c3c6df2d2f26
+F src/blob.c 284b1a6e8750b25bd8d6b8aefcba0d77a01d6839c814864ac1ded88895ade148
 F src/branch.c 206ac28dfd68e03948d00ce16ce6b5acb3fd79d747d52f5edaa7d3949fa5376e
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
 F src/builtin.c b89bc60148524e25e986deb7c71b08e04f2cf0e792595cac26d9bc5420b1d5fd
@@ -501,8 +501,8 @@ F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c f0f0b393cd6d2c1050a941aae867e09fc8d6e586cf12a18d9df1e16a4bb349cd
-F src/merge.tcl 60b67fe43f2422f82e0e913a60e15196599075c992c1852822fe74d6d7312bab
-F src/merge3.c 81b568f18c677f49c1395d199ba3f2233475099eac9a9fe3be3459223a6a42df
+F src/merge.tcl 9677a6a1086567f6ad4aafdc693effe2fe66f3abd6c54cd4930b59bec5ac6add
+F src/merge3.c 20422a1423784fef29dbd3ee7678566a09dc4df06d5924def2ddcde8f00ee966
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
 F src/patch.c 2ab7db14cf10a0ecd89b664202979187f359eb16c523a213a666bf3cb2aeb866
@@ -961,11 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ec8a7ae388d06794de6a41d3b686e73dcdd726e05fd08d71cbc43a083a49656
-R 740dd3f09385cade3987e57914e14be6
-T *branch * better-merge
-T *sym-better-merge *
-T -sym-trunk *
+P 849c7eb6ca68061212b4f944e7f57fe11f265215c4fffb4cc1cef5389a5ac16d
+R 0fa039e1e43863773cfc30dbb0f31a2d
 U drh
-Z aff51ca24a95bfc57b09d01773cdb7e9
+Z 43bf9a934306c154707327f022edc8fe
 # Remove this line to create a well-formed Fossil manifest.

@@ -165,6 +165,7 @@ struct MergeBuilder {
   unsigned int lnV2;         /* Lines read from v2 */
   unsigned int lnOut;        /* Lines written to out */
   unsigned int nConflict;    /* Number of conflicts seen */
+  u64 diffFlags;             /* Flags for difference engine */
 };
 #endif /* INTERFACE */
 
@@ -310,6 +311,7 @@ static void mergebuilder_init_token(MergeBuilder *p){
   p->xChngV2 = tokenChngV2;
   p->xChngBoth = tokenChngBoth;
   p->xConflict = tokenConflict;
+  p->diffFlags = DIFF_BY_TOKEN;
 }
 
 /*
@@ -338,13 +340,17 @@ int merge_try_to_resolve_conflict(
   blob_extract_lines(pMB->pV1, nV1, &v1);
   blob_extract_lines(pMB->pV2, nV2, &v2);
   blob_zero(pOut);
+  blob_materialize(&pv);
+  blob_materialize(&v1);
+  blob_materialize(&v2);
   mb.pPivot = &pv;
   mb.pV1 = &v1;
   mb.pV2 = &v2;
   mb.pOut = pOut;
   nConflict = merge_three_blobs(&mb);
-  /* pv, v1, and v2 should all be ephemeral blobs, so they do not
-  ** need to be freed. */
+  blob_reset(&pv);
+  blob_reset(&v1);
+  blob_reset(&v2);
   /* mb has not allocated any resources, so we do not need to invoke
   ** the xDestroy method. */
   blob_add_final_newline(pOut);
@@ -428,7 +434,7 @@ static void mergebuilder_init_text(MergeBuilder *p){
 **     N     Name of the file.
 **     T     Literal text follows that should have a \n terminator.
 **     R     Literal text follows that needs a \r\n terminator.
-**     X     Merge conflict.  (Column 4 only)
+**     X     Merge conflict.
 **     Z     Literal text without a line terminator.
 **     S     Skipped lines in all 4 files.
 **     1     Text is a copy of token 1
@@ -460,18 +466,21 @@ static void tclWriteQuotedText(Blob *pOut, const char *zIn, int nIn){
 }
 
 /* Copy one line of text from pIn and append to pOut, encoded as TCL */
-static void tclLineOfText(Blob *pOut, Blob *pIn){
+static void tclLineOfText(Blob *pOut, Blob *pIn, char cType){
   int i, k;
   for(i=pIn->iCursor; i<pIn->nUsed && pIn->aData[i]!='\n'; i++){}
   if( i==pIn->nUsed ){
-    blob_append(pOut, "\"Z", 2);
+    blob_append_char(pOut, '"');
+    blob_append_char(pOut, cType ? cType : 'Z');
     k = i;
   }else if( i>pIn->iCursor && pIn->aData[i-1]=='\r' ){
-    blob_append(pOut, "\"R", 2);
+    blob_append_char(pOut, '"');
+    blob_append_char(pOut, cType ? cType : 'R');
     k = i-1;
     i++;
   }else{
-    blob_append(pOut, "\"T", 2);
+    blob_append_char(pOut, '"');
+    blob_append_char(pOut, cType ? cType : 'T');
     k = i;
     i++;
   }
@@ -501,7 +510,7 @@ static void tclSame(MergeBuilder *p, unsigned int N){
 
   if( p->lnPivot>=2 || p->lnV1>2 || p->lnV2>2 ){
     while( i<N && i<p->nContext ){
-      tclLineOfText(p->pOut, p->pPivot);
+      tclLineOfText(p->pOut, p->pPivot, 0);
       blob_append(p->pOut, " 1 1 1\n", 7);
       i++;
     }
@@ -521,7 +530,7 @@ static void tclSame(MergeBuilder *p, unsigned int N){
 
   if( p->lnPivot<p->mxPivot || p->lnV1<p->mxV1 || p->lnV2<p->mxV2 ){
     while( i<N ){
-      tclLineOfText(p->pOut, p->pPivot);
+      tclLineOfText(p->pOut, p->pPivot, 0);
       blob_append(p->pOut, " 1 1 1\n", 7);
       i++;
     }
@@ -533,19 +542,19 @@ static void tclSame(MergeBuilder *p, unsigned int N){
 static void tclChngV1(MergeBuilder *p, unsigned int nPivot, unsigned int nV1){
   int i;
   for(i=0; i<nPivot && i<nV1; i++){
-    tclLineOfText(p->pOut, p->pPivot);
+    tclLineOfText(p->pOut, p->pPivot, 0);
     blob_append_char(p->pOut, ' ');
-    tclLineOfText(p->pOut, p->pV1);
+    tclLineOfText(p->pOut, p->pV1, 0);
     blob_append(p->pOut, " 1 2\n", 5);
   }
   while( i<nPivot ){
-    tclLineOfText(p->pOut, p->pPivot);
+    tclLineOfText(p->pOut, p->pPivot, 0);
     blob_append(p->pOut, " . 1 .\n", 7);
     i++;
   }
   while( i<nV1 ){
     blob_append(p->pOut, ". ", 2);
-    tclLineOfText(p->pOut, p->pV1);
+    tclLineOfText(p->pOut, p->pV1, 0);
     blob_append(p->pOut, " . 2\n", 5);
     i++;
   }
@@ -557,19 +566,19 @@ static void tclChngV1(MergeBuilder *p, unsigned int nPivot, unsigned int nV1){
 static void tclChngV2(MergeBuilder *p, unsigned int nPivot, unsigned int nV2){
   int i;
   for(i=0; i<nPivot && i<nV2; i++){
-    tclLineOfText(p->pOut, p->pPivot);
+    tclLineOfText(p->pOut, p->pPivot, 0);
     blob_append(p->pOut, " 1 ", 3);
-    tclLineOfText(p->pOut, p->pV2);
+    tclLineOfText(p->pOut, p->pV2, 0);
     blob_append(p->pOut, " 3\n", 3);
   }
   while( i<nPivot ){
-    tclLineOfText(p->pOut, p->pPivot);
+    tclLineOfText(p->pOut, p->pPivot, 0);
     blob_append(p->pOut, " 1 . .\n", 7);
     i++;
   }
   while( i<nV2 ){
     blob_append(p->pOut, ". . ", 4);
-    tclLineOfText(p->pOut, p->pV2);
+    tclLineOfText(p->pOut, p->pV2, 0);
     blob_append(p->pOut, " 3\n", 3);
     i++;
   }
@@ -581,19 +590,19 @@ static void tclChngV2(MergeBuilder *p, unsigned int nPivot, unsigned int nV2){
 static void tclChngBoth(MergeBuilder *p, unsigned int nPivot, unsigned int nV){
   int i;
   for(i=0; i<nPivot && i<nV; i++){
-    tclLineOfText(p->pOut, p->pPivot);
+    tclLineOfText(p->pOut, p->pPivot, 0);
     blob_append_char(p->pOut, ' ');
-    tclLineOfText(p->pOut, p->pV1);
+    tclLineOfText(p->pOut, p->pV1, 0);
     blob_append(p->pOut, " 2 2\n", 5);
   }
   while( i<nPivot ){
-    tclLineOfText(p->pOut, p->pPivot);
+    tclLineOfText(p->pOut, p->pPivot, 0);
     blob_append(p->pOut, " . . .\n", 7);
     i++;
   }
   while( i<nV ){
     blob_append(p->pOut, ". ", 2);
-    tclLineOfText(p->pOut, p->pV1);
+    tclLineOfText(p->pOut, p->pV1, 0);
     blob_append(p->pOut, " 2 2\n", 5);
     i++;
   }
@@ -620,24 +629,26 @@ static void tclConflict(
   if( nOut>mx ) mx = nOut;
   for(i=0; i<mx; i++){
     if( i<nPivot ){
-      tclLineOfText(p->pOut, p->pPivot);
+      tclLineOfText(p->pOut, p->pPivot, 0);
     }else{
       blob_append_char(p->pOut, '.');
     }
     blob_append_char(p->pOut, ' ');
     if( i<nV1 ){
-      tclLineOfText(p->pOut, p->pV1);
+      tclLineOfText(p->pOut, p->pV1, 0);
     }else{
       blob_append_char(p->pOut, '.');
     }
     blob_append_char(p->pOut, ' ');
     if( i<nV2 ){
-      tclLineOfText(p->pOut, p->pV2);
+      tclLineOfText(p->pOut, p->pV2, 0);
     }else{
       blob_append_char(p->pOut, '.');
     }
     if( i<nOut ){
-      tclLineOfText(p->pOut, &out);
+      blob_append_char(p->pOut, ' ');
+      tclLineOfText(p->pOut, &out, 'X');
+      blob_append_char(p->pOut, '\n');
     }else{
       blob_append(p->pOut, " X\n", 3);
     }
@@ -738,6 +749,7 @@ int merge_three_blobs(MergeBuilder *p){
   ** inserted.  The edit array ends with a triple of 0,0,0.
   */
   diff_config_init(&DCfg, 0);
+  DCfg.diffFlags = p->diffFlags;
   aC1 = text_diff(p->pPivot, p->pV1, 0, &DCfg);
   aC2 = text_diff(p->pPivot, p->pV2, 0, &DCfg);
   if( aC1==0 || aC2==0 ){

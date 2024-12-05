@@ -715,6 +715,7 @@ int blob_extract_lines(Blob *pFrom, int N, Blob *pTo){
     while( i<mx && z[i]!='\n' ){ i++; }
     if( i>=mx ) break;
     i++;
+    N--;
   }
   iStart = pFrom->iCursor;
   n = blob_extract(pFrom, i-pFrom->iCursor, pTo);
