@@ -351,50 +351,57 @@ if {[info exists filelist]} {
   label .bb.filetag -text "File:"
   set current_file [lindex $filelist 1]
   trace add variable current_file write readMerge
-  ::ttk::menubutton .bb.files -text $current_file
-  if {[tk windowingsystem] eq "win32"} {
-    ::ttk::style theme use winnative
-    .bb.files configure -padding {20 1 10 2}
-  }
-  toplevel .wfiles
-  wm withdraw .wfiles
-  update idletasks
-  wm transient .wfiles .
-  wm overrideredirect .wfiles 1
-  set ht [expr {[llength $filelist]/2}]
-  if {$ht>$CFG(LB_HEIGHT)} {set ht $CFG(LB_HEIGHT)}
-  listbox .wfiles.lb -width 0 -height $ht -activestyle none \
-    -yscroll {.wfiles.sb set}
-  set mx 1
-  foreach {op fn} $filelist {
-    set n [string length $fn]
-    if {$n>$mx} {set mx $n}
-    .wfiles.lb insert end [format "%-9s %s" $op $fn]
-  }
-  .bb.files config -width $mx
-  ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
-  grid .wfiles.lb .wfiles.sb -sticky ns
-  bind .bb.files <1> {
-    set x [winfo rootx %W]
-    set y [expr {[winfo rooty %W]+[winfo height %W]}]
-    wm geometry .wfiles +$x+$y
-    wm deiconify .wfiles
-    focus .wfiles.lb
-  }
-  bind .wfiles <FocusOut> {wm withdraw .wfiles}
-  bind .wfiles <Escape> {focus .}
-  foreach evt {1 Return} {
-    bind .wfiles.lb <$evt> {
-      set ii [%W curselection]
-      set ::current_file [lindex $::filelist [expr {$ii*2+1}]]
-      .bb.files config -text $::current_file
-      focus .
-      break
+
+  if {$tcl_platform(os)=="Darwin"} {
+    set fnlist {}
+    foreach {op fn} $filelist {lappend fnlist $fn}
+    tk_optionMenu .bb.files current_file {*}$fnlist
+  } else {
+    ::ttk::menubutton .bb.files -text $current_file
+    if {[tk windowingsystem] eq "win32"} {
+      ::ttk::style theme use winnative
+      .bb.files configure -padding {20 1 10 2}
     }
-  }
-  bind .wfiles.lb <Motion> {
-    %W selection clear 0 end
-    %W selection set @%x,%y
+    toplevel .wfiles
+    wm withdraw .wfiles
+    update idletasks
+    wm transient .wfiles .
+    wm overrideredirect .wfiles 1
+    set ht [expr {[llength $filelist]/2}]
+    if {$ht>$CFG(LB_HEIGHT)} {set ht $CFG(LB_HEIGHT)}
+    listbox .wfiles.lb -width 0 -height $ht -activestyle none \
+      -yscroll {.wfiles.sb set}
+    set mx 1
+    foreach {op fn} $filelist {
+      set n [string length $fn]
+      if {$n>$mx} {set mx $n}
+      .wfiles.lb insert end [format "%-9s %s" $op $fn]
+    }
+    .bb.files config -width $mx
+    ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
+    grid .wfiles.lb .wfiles.sb -sticky ns
+    bind .bb.files <1> {
+      set x [winfo rootx %W]
+      set y [expr {[winfo rooty %W]+[winfo height %W]}]
+      wm geometry .wfiles +$x+$y
+      wm deiconify .wfiles
+      focus .wfiles.lb
+    }
+    bind .wfiles <FocusOut> {wm withdraw .wfiles}
+    bind .wfiles <Escape> {focus .}
+    foreach evt {1 Return} {
+      bind .wfiles.lb <$evt> {
+        set ii [%W curselection]
+        set ::current_file [lindex $::filelist [expr {$ii*2+1}]]
+        .bb.files config -text $::current_file
+        focus .
+        break
+      }
+    }
+    bind .wfiles.lb <Motion> {
+      %W selection clear 0 end
+      %W selection set @%x,%y
+    }
   }
 }
 
@@ -402,39 +409,43 @@ label .bb.ctxtag -text "Context:"
 set context_choices {3 6 12 25 50 100 All}
 if {$ncontext<0} {set ncontext All}
 trace add variable ncontext write readMerge
-::ttk::menubutton .bb.ctx -text $ncontext
-if {[tk windowingsystem] eq "win32"} {
-  ::ttk::style theme use winnative
-  .bb.ctx configure -padding {20 1 10 2}
-}
-toplevel .wctx
-wm withdraw .wctx
-update idletasks
-wm transient .wctx .
-wm overrideredirect .wctx 1
-listbox .wctx.lb -width 0 -height 7 -activestyle none
-.wctx.lb insert end {*}$context_choices
-pack .wctx.lb
-bind .bb.ctx <1> {
-  set x [winfo rootx %W]
-  set y [expr {[winfo rooty %W]+[winfo height %W]}]
-  wm geometry .wctx +$x+$y
-  wm deiconify .wctx
-  focus .wctx.lb
-}
-bind .wctx <FocusOut> {wm withdraw .wctx}
-bind .wctx <Escape> {focus .}
-foreach evt {1 Return} {
-  bind .wctx.lb <$evt> {
-    set ::ncontext [lindex $::context_choices [%W curselection]]
-    .bb.ctx config -text $::ncontext
-    focus .
-    break
+if {$tcl_platform(os)=="Darwin"} {
+  tk_optionMenu .bb.ctx ncontext {*}$context_choices
+} else {
+  ::ttk::menubutton .bb.ctx -text $ncontext
+  if {[tk windowingsystem] eq "win32"} {
+    ::ttk::style theme use winnative
+    .bb.ctx configure -padding {20 1 10 2}
   }
-}
-bind .wctx.lb <Motion> {
-  %W selection clear 0 end
-  %W selection set @%x,%y
+  toplevel .wctx
+  wm withdraw .wctx
+  update idletasks
+  wm transient .wctx .
+  wm overrideredirect .wctx 1
+  listbox .wctx.lb -width 0 -height 7 -activestyle none
+  .wctx.lb insert end {*}$context_choices
+  pack .wctx.lb
+  bind .bb.ctx <1> {
+    set x [winfo rootx %W]
+    set y [expr {[winfo rooty %W]+[winfo height %W]}]
+    wm geometry .wctx +$x+$y
+    wm deiconify .wctx
+    focus .wctx.lb
+  }
+  bind .wctx <FocusOut> {wm withdraw .wctx}
+  bind .wctx <Escape> {focus .}
+  foreach evt {1 Return} {
+    bind .wctx.lb <$evt> {
+      set ::ncontext [lindex $::context_choices [%W curselection]]
+      .bb.ctx config -text $::ncontext
+      focus .
+      break
+    }
+  }
+  bind .wctx.lb <Motion> {
+    %W selection clear 0 end
+    %W selection set @%x,%y
+  }
 }
 
 foreach {side syncCol} {A .txtB B .txtA C .txtC D .txtD} {
