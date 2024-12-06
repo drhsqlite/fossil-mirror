@@ -1227,6 +1227,8 @@ merge_next_child:
     int isExe = db_column_int(&q, 6);
     int islinkv = db_column_int(&q, 7);
     int islinkm = db_column_int(&q, 8);
+    const char *zFnp = db_column_text(&q, 9);
+    const char *zFnm = db_column_text(&q, 10);
     int chnged = db_column_int(&q, 11);
     int rc;
     char *zFullPath;
@@ -1257,6 +1259,7 @@ merge_next_child:
       i64 sz;
       const char *zErrMsg = 0;
       int nc = 0;
+      Blob sql;
 
       if( !dryRunFlag ) undo_save(zName);
       zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
@@ -1292,22 +1295,24 @@ merge_next_child:
         zErrMsg = "cannot merge binary file";
         zType = "ERROR";
       }
-      db_multi_exec(
+      blob_init(&sql, 0, 0);
+      blob_append_sql(&sql, 
         "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,fnr,nc,msg)"
-        "VALUES(%Q,%Q,%d,%Q,iif(%d,%d,NULL),iif(%d,%d,NULL),%Q,%d,"
-               "%Q,%d,%Q)",
+        "VALUES(%Q,%Q,%d,%Q,%d,%d,%Q,%d,%Q,%d,%Q)",
         /* op   */ zType,
-        /* fnp  */ db_column_text(&q, 9),
+        /* fnp  */ zFnp,
         /* ridp */ ridp,
         /* fn   */ zName,
-        /* ridv */ chnged==0, ridv,
-        /* sz   */ chnged!=0, sz,
-        /* fnm  */ db_column_text(&q, 10),
+        /* ridv */ chnged==0 ? ridv : 0,
+        /* sz   */ chnged!=0 ? sz : 0,
+        /* fnm  */ zFnm,
         /* ridm */ ridm,
         /* fnr  */ zName,
         /* nc   */ nc,
         /* msg  */ zErrMsg
       );
+      db_multi_exec("%s", blob_sql_text(&sql));
+      blob_reset(&sql);
       fossil_free(zFullPath);
       blob_reset(&p);
       blob_reset(&m);
