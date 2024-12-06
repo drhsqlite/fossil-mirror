@@ -1294,7 +1294,7 @@ merge_next_child:
       }
       db_multi_exec(
         "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,fnr,nc,msg)"
-        "VALUES(%Q,%Q,%d,%Q,iif(%d,%d,NULL),iif(%d,%d,NULL),%Q,%d,"
+        "VALUES(%Q,%Q,%d,%Q,iif(%d,%d,NULL),iif(%d,%lld,NULL),%Q,%d,"
                "%Q,%d,%Q)",
         /* op   */ zType,
         /* fnp  */ db_column_text(&q, 9),
