@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # v0.1 Quick and dirty script to grab fossil's help and stuff it into a file.
-# v0.2 Now I have working sed expressions, I can grab the help keywords
+# v0.2 Now I have working sed expressions, I can grab the help keywords.
 # v0.3 This gets me the keywords and only the keywords.
-# v0.4 Glue all relevant things together and produce an info file
-# v0.5 Working out sed/head/tail differences between GNU and BSD
+# v0.4 Glue all relevant things together and produce an info file.
+# v0.5 Working out sed/head/tail differences between GNU and BSD.
 # v0.6 Replaced "head -n -1" with "sed '$d'" which does the same thing.
-# v0.7 Adding help in separately for normal/auxil commands
+# v0.7 Adding help in separately for normal/auxil commands.
 # v0.8 Added common options and Features. Got rid of some obvious bugs.
+# v0.9 Added @bye at end.
 #        Builds (finally) on OpenBSD.
 #
 # Requires fossil, tail, GNU sed and makeinfo
