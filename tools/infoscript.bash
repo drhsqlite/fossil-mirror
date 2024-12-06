@@ -227,6 +227,9 @@ echo "
 
 " >> fossil.texi
 
+# Every good thing has to end
+echo "@bye" >> fossil.texi
+
 # and now we make the final info file - commented out for now
 # makeinfo fossil.texi
 

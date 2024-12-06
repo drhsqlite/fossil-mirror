@@ -1,5 +1,5 @@
-C Merge\slatest\sfrom\strunk
-D 2024-12-06T06:13:57.623
+C Put\sback\sforgotten\s@bye,\sneeded\sfor\smakeinfo\s--pdf\soutput.
+D 2024-12-06T06:16:40.752
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -738,7 +738,7 @@ F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3
 F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
-F tools/infoscript.bash 8d4fe945d1b470c970c924be07f324ae8d11f2fabc07714e5ea5f82c979e0ee4 x
+F tools/infoscript.bash 1299efb091fa5bd168437682d4faea3ec15f9d02291abdb10f52890154344908 x
 F tools/makeheaders.c 5f464a5a25ae45978e49e1cc230cc4c6f2fddc8f2f45a044fff02dc074a0bcf6
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl 0db25f5bb311cc5c9a547507dbbd4646e5e8c3d22163c25fd86587cebe944695 x
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f826331554a8848e4b9cdac37a2e63855ca055d12a86221f844f40ab6d6c7615 bbf6c30747c6a45deec536609c10b08224b1254c921eaa666bd4b9782e3f9c16
-R 848b7b528b5cc8a90a126ab85a2d23a3
+P f040c11f3293cd154baa992947c360e7e105a4e78c4d3c82b5b8b38a21fd3eff
+R 87b3cde4aacfa6e034fd78f39e00078c
 U brickviking
-Z bfd4fae144f09e36fbe8d7c63a2c31a0
+Z c5cb312a6abffd2596def16e1b289822
 # Remove this line to create a well-formed Fossil manifest.
