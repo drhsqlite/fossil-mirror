@@ -1,5 +1,5 @@
-C Fix\sa\svery\sminor\smemory\sleak\sin\sthe\smerge\slogic.
-D 2024-12-06T04:07:21.550
+C (Grammar)\sRemove\sduplicate\sword\sin\scomment.
+D 2024-12-06T05:07:04.229
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -500,7 +500,7 @@ F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad2
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 4ac807234a380c42911b663f66100a38e276fbcc2bef1763f8823326961cff59
+F src/merge.c ef0cfd73e4280b1b30bebd2768b78c045b7bba8c419bf8bf31a3033f99ca15fc
 F src/merge.tcl 9369e581e13cc9ad5b5b35b353335d8bd3fd4b8226b4efda7193eb1195aef322
 F src/merge3.c 3cf2981b3c4e4cb92e4c8e5bd0a6165cdfca4660553d9909660f0fe06917da22
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 546cbce277f90de693da26ea25d7a5fb85a9a0140e89513674aa1d6f71cad093
-R fc38e0f46bc18c101925b5696b785f38
-U drh
-Z 844cfc6b54accb87671330a03f3f52a4
+P 6ff817d3c7bd46e6cbf2a07e25f7f0b7f712559e11ff5175c627d1830cf67f68
+R 121959cdb7cc58daa82359b5d7c5146d
+U brickviking
+Z 388099827bccfe874b21d75311354f6f
 # Remove this line to create a well-formed Fossil manifest.

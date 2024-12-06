@@ -242,7 +242,7 @@ static void merge_info_tcl(const char *zFName, int nContext){
 ** Display information about the most recent merge operation.
 **
 ** Options:
-**   -a|--all             Show all all file changes that happened because of
+**   -a|--all             Show all file changes that happened because of
 **                        the merge.  Normally only MERGE, CONFLICT, and ERROR
 **                        lines are shown
 **   -c|--context N       Show N lines of context around each change,
