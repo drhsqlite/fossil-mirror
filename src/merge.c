@@ -255,7 +255,7 @@ static void merge_info_tcl(const char *zFName, int nContext){
 **                        be a pathname relative to the root of the check-out.
 **   --tk                 Bring up a Tcl/Tk GUI that shows the changes
 **                        associated with the most recent merge.
-**  
+**
 */
 void merge_info_cmd(void){
   const char *zCnt;
