@@ -1298,7 +1298,7 @@ merge_next_child:
       blob_init(&sql, 0, 0);
       blob_append_sql(&sql, 
         "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,fnr,nc,msg)"
-        "VALUES(%Q,%Q,%d,%Q,iff(%d,%d,NULL),iif(%d,%d,NULL),%Q,%d,%Q,%d,%Q)",
+        "VALUES(%Q,%Q,%d,%Q,iif(%d,%d,NULL),iif(%d,%d,NULL),%Q,%d,%Q,%d,%Q)",
         /* op   */ zType,
         /* fnp  */ zFnp,
         /* ridp */ ridp,

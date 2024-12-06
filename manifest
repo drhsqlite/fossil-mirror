@@ -1,5 +1,5 @@
-C Correction\sto\sthe\sprevious\scheck-in.
-D 2024-12-06T02:38:48.545
+C Typo\sin\sthe\sprevious\scommit.
+D 2024-12-06T02:42:17.407
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -500,7 +500,7 @@ F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad2
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c d5921b588a9e8f9a07df15663c20a1e79743dfc7d78e590caff71a0b0e155193
+F src/merge.c e04e52c2e2a7634d6ae8ee26e9e750de4d81becc658184dd253fad14b5317a35
 F src/merge.tcl 9369e581e13cc9ad5b5b35b353335d8bd3fd4b8226b4efda7193eb1195aef322
 F src/merge3.c 3cf2981b3c4e4cb92e4c8e5bd0a6165cdfca4660553d9909660f0fe06917da22
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 14959bc587effbd00d6550a408f8a56831a373d784d3e8f552fcf72a7d84b9f3
-R 1779f7b42d27196595bce974acf22d8b
+P a24f14900ddb50c1fb8540dcfdb53696d409cced411fc090be9b821b7cc80081
+R 8173acd098b30a701b356f84b286bff0
 U drh
-Z e42d0f3b147c41bca3cf45b04b1136e6
+Z 3719289d5a5f43380894c7f46133c34f
 # Remove this line to create a well-formed Fossil manifest.
