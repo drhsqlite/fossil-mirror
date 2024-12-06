@@ -28,6 +28,25 @@ printf "@c Initial rendition to convert fossil help -a -v into texinfo for furth
 @c later. Don't expect this to conform to GNU guidelines.
 
 " >> fossil.texi
+# Add a title page
+printf "@titlepage
+@title Fossil
+@subtitle The Fossil Source Code Manager (fossil-scm)
+@subtitle A distributed version control system
+@author The fossil committers
+
+@page
+@vskip 0pt plus 1filll
+
+@end titlepage
+
+" >> fossil.texi
+
+# Add @shortcontents and @contents
+printf "@shortcontents
+@contents\n
+
+" >> fossil.texi
 
 # Check fossil version. Only thing wrong with this is which fossil binary is picked up first.
 fossil version | sed 's/This is fossil version /@set VERSION /' | cut -c1-17  >> fossil.texi

@@ -1,5 +1,5 @@
-C Updated\sversion,\sterminated\sheader\ssentences.
-D 2024-12-06T08:31:53.382
+C Improvements\sto\spdf-formatted\sinfo\sdocumentation.
+D 2024-12-06T09:33:22.296
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -738,7 +738,7 @@ F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3
 F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
-F tools/infoscript.bash aab3d7b0433b79b3bf9bc7185003822caab47c5c4f7dd5628b662ae2b96b48ec x
+F tools/infoscript.bash af3d527b6001d9a7334e80713f4f063b7dd49770ae563893e7d7dff2a9bc8b7f x
 F tools/makeheaders.c 5f464a5a25ae45978e49e1cc230cc4c6f2fddc8f2f45a044fff02dc074a0bcf6
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl 0db25f5bb311cc5c9a547507dbbd4646e5e8c3d22163c25fd86587cebe944695 x
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 28656971ac6403cb015d52ad89bc1955149550f824881f78585f6432a8df8667
-R 01c8c8e460b45802c46547eac0e5771d
+P 03d36f0f72256a54626178c1f1e0294469c21c064d2f3db53f32f3ffd25415ea
+R fb9e9d3ea6624458366b243ae2a69841
 U brickviking
-Z f720449e6145890fe483183eb63f65c1
+Z d9b27f4e673f1ea80357d956bc7f9638
 # Remove this line to create a well-formed Fossil manifest.
