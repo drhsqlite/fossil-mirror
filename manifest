@@ -1,5 +1,5 @@
-C Automatically\sshrink\sthe\swidth\sof\sthe\smerge-info\s--tk\sGUI\sso\sthat\sit\sfits\ninto\sthe\savailable\sconsole\sspace.
-D 2024-12-06T10:59:10.226
+C Make\smore\suse\sof\sWITHOUT\sROWID\stables\sin\sthe\smain\sschema.
+D 2024-12-06T13:37:33.122
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -520,7 +520,7 @@ F src/regexp.c 64d16050dcd8fdec7dc69a4a2edb38358dfd2fe19479d53269e1f0555f0a43d0
 F src/repolist.c bd7d0525d04927b3850a0ad14a96afb482a258b2c52c058dfc26909c190c5af4
 F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
-F src/schema.c 0aa2eb6be8ed9da3e5069e53596d9020967f855ef138ee816c378a0ae565aae8
+F src/schema.c 11b6dd5c61135c54ece0bbbb612cd9718bb620043b0af5c61574d66e0c133c3f
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 6a9ae77e876da44ee7ad87d4c1151ec10af468dac326312cd7b1aaf322ab728b
 F src/security_audit.c edafc6d6858f23d47e5066497165152d78f55072ffad5225d233c2dd3b8bec7b
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bbf6c30747c6a45deec536609c10b08224b1254c921eaa666bd4b9782e3f9c16
-R f5cb1370360d8e5b9372e95617f14145
+P e75753438a31225e4ed5e8a9536fdf0c02ef760a20137b8fecee7325b06e250d
+R 4942cbe7d8484b9337d343dd45e48742
 U drh
-Z a20bcd8cad131bd43449e6472c63cc24
+Z 7291530ce036cd1337c7096c22f7856c
 # Remove this line to create a well-formed Fossil manifest.
