@@ -242,7 +242,7 @@ static void merge_info_tcl(const char *zFName, int nContext){
 ** Display information about the most recent merge operation.
 **
 ** Options:
-**   -a|--all             Show all all file changes that happened because of
+**   -a|--all             Show all file changes that happened because of
 **                        the merge.  Normally only MERGE, CONFLICT, and ERROR
 **                        lines are shown
 **   -c|--context N       Show N lines of context around each change,
@@ -255,7 +255,7 @@ static void merge_info_tcl(const char *zFName, int nContext){
 **                        be a pathname relative to the root of the check-out.
 **   --tk                 Bring up a Tcl/Tk GUI that shows the changes
 **                        associated with the most recent merge.
-**  
+**
 */
 void merge_info_cmd(void){
   const char *zCnt;
@@ -1209,7 +1209,7 @@ merge_next_child:
   */
   db_prepare(&q,
         /*  0     1    2     3     4   5   6      7        8 */
-    "SELECT ridm, idv, ridp, ridv, %s, fn, isexe, islinkv, islinkm,"
+    "SELECT ridm, idv, ridp, ridv, %z, fn, isexe, islinkv, islinkm,"
         /*  9     10   11   */
     "       fnp,  fnm, chnged"
     "  FROM fv"
@@ -1294,7 +1294,7 @@ merge_next_child:
       }
       db_multi_exec(
         "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,fnr,nc,msg)"
-        "VALUES(%Q,%Q,%d,%Q,iif(%d,%d,NULL),iif(%d,%d,NULL),%Q,%d,"
+        "VALUES(%Q,%Q,%d,%Q,iif(%d,%d,NULL),iif(%d,%lld,NULL),%Q,%d,"
                "%Q,%d,%Q)",
         /* op   */ zType,
         /* fnp  */ db_column_text(&q, 9),
