@@ -52,7 +52,6 @@ static void collect_argv(Blob *pExtra, int iStart){
   }
 }
 
-
 /*
 ** COMMAND: all
 **
@@ -431,11 +430,27 @@ void all_cmd(void){
       "server settings sync ui unset whatis");
   }
   verify_all_options();
-  db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");
+  db_multi_exec(
+     "CREATE TEMP TABLE repolist(\n"
+     "  name TEXT, -- Filename\n"
+     "  tag TEXT,  -- Key for the GLOBAL_CONFIG table entry\n"
+     "  inode TEXT -- Unique identifier for this file\n"
+     ");\n"
+
+     /* The seenFile() table holds inode names for entries that have
+     ** already been processed.  */
+     "CREATE TEMP TABLE seenFile(x TEXT COLLATE nocase);\n"
+
+     /* The toDel() table holds the "tag" for entries that need to be
+     ** deleted because they are redundant or no longer exist */
+     "CREATE TEMP TABLE toDel(x TEXT);\n"
+  );
+  sqlite3_create_function(g.db, "inode", 1, SQLITE_UTF8, 0,
+                          file_inode_sql_func, 0, 0);
   if( useCheckouts ){
     db_multi_exec(
        "INSERT INTO repolist "
-       "SELECT DISTINCT substr(name, 7), name COLLATE nocase"
+       "SELECT substr(name, 7), name, inode(substr(name,7))"
        "  FROM global_config"
        " WHERE substr(name, 1, 6)=='ckout:'"
        " ORDER BY 1"
@@ -443,28 +458,30 @@ void all_cmd(void){
   }else{
     db_multi_exec(
        "INSERT INTO repolist "
-       "SELECT DISTINCT substr(name, 6), name COLLATE nocase"
+       "SELECT substr(name, 6), name, inode(substr(name,6))"
        "  FROM global_config"
        " WHERE substr(name, 1, 5)=='repo:'"
        " ORDER BY 1"
     );
   }
-  db_multi_exec("CREATE TEMP TABLE toDel(x TEXT)");
-  db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
+  db_prepare(&q,"SELECT name, tag, inode FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     int rc;
     const char *zFilename = db_column_text(&q, 0);
+    const char *zInode = db_column_text(&q,2);
 #if !USE_SEE
     if( sqlite3_strglob("*.efossil", zFilename)==0 ) continue;
 #endif
     if( file_access(zFilename, F_OK)
      || !file_is_canonical(zFilename)
      || (useCheckouts && file_isdir(zFilename, ExtFILE)!=1)
+     || db_exists("SELECT 1 FROM temp.seenFile where x=%Q", zInode)
     ){
       db_multi_exec("INSERT INTO toDel VALUES(%Q)", db_column_text(&q, 1));
       nToDel++;
       continue;
     }
+    db_multi_exec("INSERT INTO seenFile(x) VALUES(%Q)", zInode);
     if( zCmd[0]=='l' ){
       fossil_print("%s\n", zFilename);
       continue;

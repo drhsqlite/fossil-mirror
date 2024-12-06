@@ -277,9 +277,10 @@ void interwiki_append_map_table(Blob *out){
     "  FROM config WHERE name glob 'interwiki:*' AND json_valid(value)"
     " ORDER BY name;"
   );
+  blob_append(out, "<blockquote>", -1);
   while( db_step(&q)==SQLITE_ROW ){
     if( n==0 ){
-      blob_appendf(out, "<blockquote><table>\n");
+      blob_appendf(out, "<table>\n");
     }
     blob_appendf(out,"<tr><td>%h</td><td>&nbsp;&rarr;&nbsp;</td>",
        db_column_text(&q,0));

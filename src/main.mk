@@ -250,6 +250,7 @@ EXTRA_FILES = \
   $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
+  $(SRCDIR)/merge.tcl \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \

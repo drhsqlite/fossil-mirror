@@ -459,10 +459,20 @@ char *sqlite3_fgets(char *buf, int sz, FILE *in){
     */
     wchar_t *b1 = sqlite3_malloc( sz*sizeof(wchar_t) );
     if( b1==0 ) return 0;
-    _setmode(_fileno(in), IsConsole(in) ? _O_WTEXT : _O_U8TEXT);
-    if( fgetws(b1, sz/4, in)==0 ){
-      sqlite3_free(b1);
-      return 0;
+#ifndef SQLITE_USE_STDIO_FOR_CONSOLE
+    DWORD nRead = 0;
+    if( IsConsole(in)
+     && ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), b1, sz, &nRead, 0)
+    ){
+      b1[nRead] = 0;
+    }else
+#endif
+    {
+      _setmode(_fileno(in), IsConsole(in) ? _O_WTEXT : _O_U8TEXT);
+      if( fgetws(b1, sz/4, in)==0 ){
+        sqlite3_free(b1);
+        return 0;
+      }
     }
     WideCharToMultiByte(CP_UTF8, 0, b1, -1, buf, sz, 0, 0);
     sqlite3_free(b1);
@@ -518,20 +528,33 @@ int sqlite3_fputs(const char *z, FILE *out){
     ** any translation. */
     return fputs(z, out);
   }else{
-    /* When writing to the command-prompt in Windows, it is necessary
-    ** to use O_U8TEXT to render Unicode U+0080 and greater.  Go ahead
-    ** use O_U8TEXT for everything in text mode.
+    /* One must use UTF16 in order to get unicode support when writing
+    ** to the console on Windows. 
     */
     int sz = (int)strlen(z);
     wchar_t *b1 = sqlite3_malloc( (sz+1)*sizeof(wchar_t) );
     if( b1==0 ) return 0;
     sz = MultiByteToWideChar(CP_UTF8, 0, z, sz, b1, sz);
     b1[sz] = 0;
-    _setmode(_fileno(out), _O_U8TEXT);
-    if( UseBinaryWText(out) ){
-      piecemealOutput(b1, sz, out);
-    }else{
-      fputws(b1, out);
+
+#ifndef SQLITE_STDIO_FOR_CONSOLE
+    DWORD nWr = 0;
+    if( IsConsole(out)
+      && WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),b1,sz,&nWr,0)
+    ){
+      /* If writing to the console, then the WriteConsoleW() is all we
+      ** need to do. */
+    }else
+#endif
+    {
+      /* For non-console I/O, or if SQLITE_USE_STDIO_FOR_CONSOLE is defined
+      ** then write using the standard library. */
+      _setmode(_fileno(out), _O_U8TEXT);
+      if( UseBinaryWText(out) ){
+        piecemealOutput(b1, sz, out);
+      }else{
+        fputws(b1, out);
+      }
     }
     sqlite3_free(b1);
     return 0;
@@ -16759,6 +16782,16 @@ static int vfstraceDeviceCharacteristics(sqlite3_file *pFile){
 ** Shared-memory operations.
 */
 static int vfstraceShmLock(sqlite3_file *pFile, int ofst, int n, int flags){
+  static const char *azLockName[] = {
+     "WRITE",
+     "CKPT",
+     "RECOVER",
+     "READ0",
+     "READ1",
+     "READ2",
+     "READ3",
+     "READ4",
+  };
   vfstrace_file *p = (vfstrace_file *)pFile;
   vfstrace_info *pInfo = p->pInfo;
   int rc;
@@ -16772,8 +16805,15 @@ static int vfstraceShmLock(sqlite3_file *pFile, int ofst, int n, int flags){
   if( flags & ~(0xf) ){
      sqlite3_snprintf(sizeof(zLck)-i, &zLck[i], "|0x%x", flags);
   }
-  vfstrace_printf(pInfo, "%s.xShmLock(%s,ofst=%d,n=%d,%s)",
-                  pInfo->zVfsName, p->zFName, ofst, n, &zLck[1]);
+  if( ofst>=0 && ofst<sizeof(azLockName)/sizeof(azLockName[0]) ){
+    vfstrace_printf(pInfo, "%s.xShmLock(%s,ofst=%d(%s),n=%d,%s)",
+                  pInfo->zVfsName, p->zFName, ofst, azLockName[ofst],
+                  n, &zLck[1]);
+  }else{
+    vfstrace_printf(pInfo, "%s.xShmLock(%s,ofst=5d,n=%d,%s)",
+                  pInfo->zVfsName, p->zFName, ofst,
+                  n, &zLck[1]);
+  }
   rc = p->pReal->pMethods->xShmLock(p->pReal, ofst, n, flags);
   vfstrace_print_errcode(pInfo, " -> %s\n", rc);
   return rc;
@@ -20233,6 +20273,8 @@ static int recoverWriteDataStep(sqlite3_recover *p){
           recoverError(p, SQLITE_NOMEM, 0);
         }
         p1->nVal = iField+1;
+      }else if( pTab->nCol==0 ){
+        p1->nVal = pTab->nCol;
       }
       p1->iPrevCell = iCell;
       p1->iPrevPage = iPage;
@@ -22012,7 +22054,7 @@ static void output_c_string(FILE *out, const char *z){
 ** Output the given string as quoted according to JSON quoting rules.
 */
 static void output_json_string(FILE *out, const char *z, i64 n){
-  char c;
+  unsigned char c;
   static const char *zq = "\"";
   static long ctrlMask = ~0L;
   static const char *zDQBS = "\"\\";
@@ -22032,7 +22074,7 @@ static void output_json_string(FILE *out, const char *z, i64 n){
       z = pcEnd;
     }
     if( z >= pcLimit ) break;
-    c = *(z++);
+    c = (unsigned char)*(z++);
     switch( c ){
     case '"': case '\\':
       cbsSay = (char)c;
@@ -22047,7 +22089,7 @@ static void output_json_string(FILE *out, const char *z, i64 n){
     if( cbsSay ){
       ace[1] = cbsSay;
       sqlite3_fputs(ace, out);
-    }else if( c<=0x1f || c==0x7f ){
+    }else if( c<=0x1f || c>=0x7f ){
       sqlite3_fprintf(out, "\\u%04x", c);
     }else{
       ace[1] = (char)c;
@@ -24789,9 +24831,9 @@ static int run_schema_dump_query(
     }else{
       rc = SQLITE_CORRUPT;
     }
-    sqlite3_free(zErr);
     free(zQ2);
   }
+  sqlite3_free(zErr);
   return rc;
 }
 
@@ -24854,6 +24896,7 @@ static const char *(azHelp[]) = {
 #if SQLITE_SHELL_HAVE_RECOVER
   ".dbinfo ?DB?             Show status information about the database",
 #endif
+  ".dbtotxt                 Hex dump of the database file",
   ".dump ?OBJECTS?          Render database content as SQL",
   "   Options:",
   "     --data-only            Output only INSERT statements",
@@ -26524,6 +26567,101 @@ static int shell_dbinfo_command(ShellState *p, int nArg, char **azArg){
   return 0;
 }
 #endif /* SQLITE_SHELL_HAVE_RECOVER */
+
+/*
+** Implementation of the ".dbtotxt" command.
+**
+** Return 1 on error, 2 to exit, and 0 otherwise.
+*/
+static int shell_dbtotxt_command(ShellState *p, int nArg, char **azArg){
+  sqlite3_stmt *pStmt = 0;
+  sqlite3_int64 nPage = 0;
+  int pgSz = 0;
+  const char *zFilename;
+  const char *zTail;
+  char *zName = 0;
+  int rc, i, j;
+  unsigned char bShow[256];   /* Characters ok to display */
+
+  memset(bShow, '.', sizeof(bShow));
+  for(i=' '; i<='~'; i++){
+    if( i!='{' && i!='}' && i!='"' && i!='\\' ) bShow[i] = (unsigned char)i;
+  }
+  rc = sqlite3_prepare_v2(p->db, "PRAGMA page_size", -1, &pStmt, 0);
+  if( rc ) goto dbtotxt_error;
+  rc = 0;
+  if( sqlite3_step(pStmt)!=SQLITE_ROW ) goto dbtotxt_error;
+  pgSz = sqlite3_column_int(pStmt, 0);
+  sqlite3_finalize(pStmt);
+  pStmt = 0;
+  if( pgSz<512 || pgSz>65536 || (pgSz&(pgSz-1))!=0 ) goto dbtotxt_error;
+  rc = sqlite3_prepare_v2(p->db, "PRAGMA page_count", -1, &pStmt, 0);
+  if( rc ) goto dbtotxt_error;
+  rc = 0;
+  if( sqlite3_step(pStmt)!=SQLITE_ROW ) goto dbtotxt_error;
+  nPage = sqlite3_column_int64(pStmt, 0);
+  sqlite3_finalize(pStmt);
+  pStmt = 0;
+  if( nPage<1 ) goto dbtotxt_error;
+  rc = sqlite3_prepare_v2(p->db, "PRAGMA databases", -1, &pStmt, 0);
+  if( rc ) goto dbtotxt_error;
+  rc = 0;
+  if( sqlite3_step(pStmt)!=SQLITE_ROW ){
+    zTail = zFilename = "unk.db";
+  }else{
+    zFilename = (const char*)sqlite3_column_text(pStmt, 2);
+    if( zFilename==0 || zFilename[0]==0 ) zFilename = "unk.db";
+    zTail = strrchr(zFilename, '/');
+#if defined(_WIN32)
+    if( zTail==0 ) zTail = strrchr(zFilename, '\\');
+#endif
+    if( zTail ) zFilename = zTail;
+  }
+  zName = strdup(zTail);
+  shell_check_oom(zName);
+  sqlite3_fprintf(p->out, "| size %lld pagesize %d filename %s\n",
+                  nPage*pgSz, pgSz, zName);
+  sqlite3_finalize(pStmt);
+  pStmt = 0;
+  rc = sqlite3_prepare_v2(p->db,
+           "SELECT pgno, data FROM sqlite_dbpage ORDER BY pgno", -1, &pStmt, 0);
+  if( rc ) goto dbtotxt_error;
+  rc = 0;
+  while( sqlite3_step(pStmt)==SQLITE_ROW ){
+    sqlite3_int64 pgno = sqlite3_column_int64(pStmt, 0);
+    const u8 *aData = sqlite3_column_blob(pStmt, 1);
+    int seenPageLabel = 0;
+    for(i=0; i<pgSz; i+=16){
+      const u8 *aLine = aData+i;
+      for(j=0; j<16 && aLine[j]==0; j++){}
+      if( j==16 ) continue;
+      if( !seenPageLabel ){
+        sqlite3_fprintf(p->out, "| page %lld offset %lld\n", pgno, pgno*pgSz);
+        seenPageLabel = 1;
+      }
+      sqlite3_fprintf(p->out, "|  %5d:", i);
+      for(j=0; j<16; j++) sqlite3_fprintf(p->out, " %02x", aLine[j]);
+      sqlite3_fprintf(p->out, "   ");
+      for(j=0; j<16; j++){
+        unsigned char c = (unsigned char)aLine[j];
+        sqlite3_fprintf(p->out, "%c", bShow[c]);
+      }
+      sqlite3_fprintf(p->out, "\n");
+    }
+  }
+  sqlite3_finalize(pStmt);
+  sqlite3_fprintf(p->out, "| end %s\n", zName);
+  free(zName);
+  return 0;
+
+dbtotxt_error:
+  if( rc ){
+    sqlite3_fprintf(stderr, "ERROR: %s\n", sqlite3_errmsg(p->db));
+  }
+  sqlite3_finalize(pStmt);
+  free(zName);
+  return 1;
+}
 
 /*
 ** Print the given string as an error message.
@@ -28700,6 +28838,10 @@ static int do_meta_command(char *zLine, ShellState *p){
       eputz("Usage: .echo on|off\n");
       rc = 1;
     }
+  }else
+
+  if( c=='d' && n>=3 && cli_strncmp(azArg[0], "dbtotxt", n)==0 ){
+    rc = shell_dbtotxt_command(p, nArg, azArg);
   }else
 
   if( c=='e' && cli_strncmp(azArg[0], "eqp", n)==0 ){
@@ -33079,15 +33221,10 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       char *zHome;
       char *zHistory;
       int nHistory;
-#if CIO_WIN_WC_XLATE
-# define SHELL_CIO_CHAR_SET (stdout_is_console? " (UTF-16 console I/O)" : "")
-#else
-# define SHELL_CIO_CHAR_SET ""
-#endif
       sqlite3_fprintf(stdout,
-            "SQLite version %s %.19s%s\n" /*extra-version-info*/
+            "SQLite version %s %.19s\n" /*extra-version-info*/
             "Enter \".help\" for usage hints.\n",
-            sqlite3_libversion(), sqlite3_sourceid(), SHELL_CIO_CHAR_SET);
+            sqlite3_libversion(), sqlite3_sourceid());
       if( warnInmemoryDb ){
         sputz(stdout, "Connected to a ");
         printBold("transient in-memory database");

@@ -227,55 +227,57 @@ static int digit_count(int v){
 static unsigned int checksum(const char *zIn, size_t N){
   static const int byteOrderTest = 1;
   const unsigned char *z = (const unsigned char *)zIn;
-  const unsigned char *zEnd = (const unsigned char*)&zIn[N&~3];
   unsigned sum = 0;
-  assert( (z - (const unsigned char*)0)%4==0 );  /* Four-byte alignment */
-  if( 0==*(char*)&byteOrderTest ){
-    /* This is a big-endian machine */
-    while( z<zEnd ){
-      sum += *(unsigned*)z;
-      z += 4;
+  if( N>0 ){
+    const unsigned char *zEnd = (const unsigned char*)&zIn[N&~3];
+    assert( (z - (const unsigned char*)0)%4==0 );  /* Four-byte alignment */
+    if( 0==*(char*)&byteOrderTest ){
+      /* This is a big-endian machine */
+      while( z<zEnd ){
+        sum += *(unsigned*)z;
+        z += 4;
+      }
+    }else{
+      /* A little-endian machine */
+  #if GCC_VERSION>=4003000
+      while( z<zEnd ){
+        sum += __builtin_bswap32(*(unsigned*)z);
+        z += 4;
+      }
+  #elif defined(_MSC_VER) && _MSC_VER>=1300
+      while( z<zEnd ){
+        sum += _byteswap_ulong(*(unsigned*)z);
+        z += 4;
+      }
+  #else
+      unsigned sum0 = 0;
+      unsigned sum1 = 0;
+      unsigned sum2 = 0;
+      while(N >= 16){
+        sum0 += ((unsigned)z[0] + z[4] + z[8] + z[12]);
+        sum1 += ((unsigned)z[1] + z[5] + z[9] + z[13]);
+        sum2 += ((unsigned)z[2] + z[6] + z[10]+ z[14]);
+        sum  += ((unsigned)z[3] + z[7] + z[11]+ z[15]);
+        z += 16;
+        N -= 16;
+      }
+      while(N >= 4){
+        sum0 += z[0];
+        sum1 += z[1];
+        sum2 += z[2];
+        sum  += z[3];
+        z += 4;
+        N -= 4;
+      }
+      sum += (sum2 << 8) + (sum1 << 16) + (sum0 << 24);
+  #endif
     }
-  }else{
-    /* A little-endian machine */
-#if GCC_VERSION>=4003000
-    while( z<zEnd ){
-      sum += __builtin_bswap32(*(unsigned*)z);
-      z += 4;
+    switch(N&3){
+      case 3:   sum += (z[2] << 8);
+      case 2:   sum += (z[1] << 16);
+      case 1:   sum += (z[0] << 24);
+      default:  ;
     }
-#elif defined(_MSC_VER) && _MSC_VER>=1300
-    while( z<zEnd ){
-      sum += _byteswap_ulong(*(unsigned*)z);
-      z += 4;
-    }
-#else
-    unsigned sum0 = 0;
-    unsigned sum1 = 0;
-    unsigned sum2 = 0;
-    while(N >= 16){
-      sum0 += ((unsigned)z[0] + z[4] + z[8] + z[12]);
-      sum1 += ((unsigned)z[1] + z[5] + z[9] + z[13]);
-      sum2 += ((unsigned)z[2] + z[6] + z[10]+ z[14]);
-      sum  += ((unsigned)z[3] + z[7] + z[11]+ z[15]);
-      z += 16;
-      N -= 16;
-    }
-    while(N >= 4){
-      sum0 += z[0];
-      sum1 += z[1];
-      sum2 += z[2];
-      sum  += z[3];
-      z += 4;
-      N -= 4;
-    }
-    sum += (sum2 << 8) + (sum1 << 16) + (sum0 << 24);
-#endif
-  }
-  switch(N&3){
-    case 3:   sum += (z[2] << 8);
-    case 2:   sum += (z[1] << 16);
-    case 1:   sum += (z[0] << 24);
-    default:  ;
   }
   return sum;
 }
