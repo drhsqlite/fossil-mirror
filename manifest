@@ -1,5 +1,5 @@
-C An\simproved\smethod\sfor\sclearing\sout\sunwanted\stable\sduring\srebuild.
-D 2024-12-06T19:07:39.696
+C Initial\sempty\sscaffolding\sfor\smerge-info\s--html/--browser\soptions.\sThere\sis\sstill\smuch\sto\sdo\shere.
+D 2024-12-06T23:46:23.032
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -500,7 +500,7 @@ F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad2
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c e7c35b5699bbf3b286cb75d78cb8e26830d8cebce1a6d4659f6284e3c46488fe
+F src/merge.c 7cebcb2f7db3c26f328fa104bafe4111a054f99f0f66f01660bf86231c97987e
 F src/merge.tcl 2247b6e11aa73a7645956691b928a06dc4cbba5179105badef27f965977fa1b3
 F src/merge3.c 3cf2981b3c4e4cb92e4c8e5bd0a6165cdfca4660553d9909660f0fe06917da22
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
@@ -961,8 +961,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 55f136610030f7e7204f8f0c2058ea943d964886adede2e652fdcfd0ffd76eac
-R 40312c0f0a70948ba64a81b77d581e42
-U drh
-Z 022680b603fc3c87be170163520c01f1
+P aeec557e897f2afb4734151998d285af80563052256c2b6763fc54d69492d55c
+R 8b959877ee7b485d1eea040303bbfb00
+T *branch * merge-info-html
+T *sym-merge-info-html *
+T -sym-trunk * Cancelled\sby\sbranch.
+U stephan
+Z c379a6582b08bde83e302c022a7ee277
 # Remove this line to create a well-formed Fossil manifest.

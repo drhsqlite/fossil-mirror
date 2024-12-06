@@ -194,7 +194,7 @@ static void merge_info_tcl(const char *zFName, int nContext){
       /* The origin file had been edited so we'll have to pull its
       ** original content out of the undo buffer */
       Stmt q2;
-      db_prepare(&q2, 
+      db_prepare(&q2,
         "SELECT content FROM undo"
         " WHERE pathname=%Q AND octet_length(content)=%d",
         zFN, sz
@@ -234,6 +234,13 @@ static void merge_info_tcl(const char *zFName, int nContext){
   db_finalize(&q);
 }
 
+static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
+                            int bDark,     /* use dark mode */
+                            int bAll,      /* All changes, not just merged content */
+                            int nContext   /* Diff context lines */){
+  /* TODO */
+}
+
 /*
 ** COMMAND: merge-info
 **
@@ -244,23 +251,26 @@ static void merge_info_tcl(const char *zFName, int nContext){
 ** Options:
 **   -a|--all             Show all file changes that happened because of
 **                        the merge.  Normally only MERGE, CONFLICT, and ERROR
-**                        lines are shown
+**                        lines are shown.
 **   -c|--context N       Show N lines of context around each change,
 **                        with negative N meaning show all content.  Only
 **                        meaningful in combination with --tcl or --tk.
-**   --dark               Use dark mode for the Tcl/Tk-based GUI
+**   --dark               Use dark mode for the Tcl/Tk/HTML output modes.
 **   --tcl FILE           Generate (to stdout) a TCL list containing
 **                        information needed to display the changes to
 **                        FILE caused by the most recent merge.  FILE must
 **                        be a pathname relative to the root of the check-out.
 **   --tk                 Bring up a Tcl/Tk GUI that shows the changes
 **                        associated with the most recent merge.
-**
+**   --html               Like --tk but emits HTML to stdout.
+**   -b|--browser         Like --html but show the result in a web browser.
 */
 void merge_info_cmd(void){
   const char *zCnt;
   const char *zTcl;
   int bTk;
+  int bBrowser;
+  int bHtml;
   int bDark;
   int bAll;
   int nContext;
@@ -271,10 +281,12 @@ void merge_info_cmd(void){
   db_must_be_within_tree();
   zTcl = find_option("tcl", 0, 1);
   bTk = find_option("tk", 0, 0)!=0;
+  bBrowser = find_option("browser", "b", 0)!=0;
+  bHtml = find_option("html", 0, 0)!=0 || bBrowser;
   zCnt = find_option("context", "c", 1);
   bDark = find_option("dark", 0, 0)!=0;
   bAll = find_option("all", "a", 0)!=0;
-  if( bTk==0 ){
+  if( (bTk + bHtml)==0 ){
     verify_all_options();
     if( g.argc>2 ){
       usage("[OPTIONS]");
@@ -297,8 +309,10 @@ void merge_info_cmd(void){
   if( bTk ){
     merge_info_tk(bDark, bAll, nContext);
     return;
-  }
-  if( zTcl ){
+  }else if( bHtml ){
+    merge_info_html(bBrowser, bDark, bAll, nContext);
+    return;
+  }else if( zTcl ){
     merge_info_tcl(zTcl, nContext);
     return;
   }
