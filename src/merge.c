@@ -1209,7 +1209,7 @@ merge_next_child:
   */
   db_prepare(&q,
         /*  0     1    2     3     4   5   6      7        8 */
-    "SELECT ridm, idv, ridp, ridv, %s, fn, isexe, islinkv, islinkm,"
+    "SELECT ridm, idv, ridp, ridv, %z, fn, isexe, islinkv, islinkm,"
         /*  9     10   11   */
     "       fnp,  fnm, chnged"
     "  FROM fv"
