@@ -402,6 +402,8 @@ int rebuild_db(int doOut, int doClustering){
                        "'subscriber','pending_alert','chat')"
      " AND name NOT GLOB 'sqlite_*'"
      " AND name NOT GLOB 'fx_*'"
+     " AND name NOT GLOB 'ftsidx_*'"
+     " AND name NOT GLOB 'chatfts1_*'"
   );
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(&sql, "DROP TABLE IF EXISTS \"%w\";\n", db_column_text(&q,0));

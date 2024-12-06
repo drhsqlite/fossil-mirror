@@ -339,7 +339,10 @@ void merge_info_cmd(void){
 ** a commit.
 */
 void merge_info_forget(void){
-  db_multi_exec("DROP TABLE IF EXISTS localdb.mergestat");
+  db_multi_exec(
+    "DROP TABLE IF EXISTS localdb.mergestat;"
+    "DELETE FROM localdb.vvar WHERE name glob 'mergestat-*';"
+  );
 }
 
 
@@ -357,8 +360,8 @@ void merge_info_forget(void){
 **       added by merge.
 */
 void merge_info_init(void){
+  merge_info_forget();
   db_multi_exec(
-    "DROP TABLE IF EXISTS localdb.mergestat;\n"
     "CREATE TABLE localdb.mergestat(\n"
     "  op TEXT,   -- 'UPDATE', 'ADDED', 'MERGE', etc...\n"
     "  fnp TEXT,  -- Name of the pivot file (P)\n"

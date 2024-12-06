@@ -1,5 +1,5 @@
-C Make\smore\suse\sof\sWITHOUT\sROWID\stables\sin\sthe\smain\sschema.
-D 2024-12-06T13:37:33.122
+C Fix\sthe\srebuilder\sso\sthat\sit\sdoes\snot\stry\sto\sdrop\sshadow\stables,\swhich\ncannot\sbe\sdropped\sin\snewer\sversions\sof\sSQLite,\sand\sthus\sdoes\snot\serror\nout\sfor\sdatabases\sthat\shave\sFTS\sindexes.
+D 2024-12-06T13:49:46.242
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -500,7 +500,7 @@ F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad2
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c d4602acf2c39e96985070a3f0f0e1b473c0a9f760f46e87f7473b8b6da4285d2
+F src/merge.c e7c35b5699bbf3b286cb75d78cb8e26830d8cebce1a6d4659f6284e3c46488fe
 F src/merge.tcl 2247b6e11aa73a7645956691b928a06dc4cbba5179105badef27f965977fa1b3
 F src/merge3.c 3cf2981b3c4e4cb92e4c8e5bd0a6165cdfca4660553d9909660f0fe06917da22
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
@@ -515,7 +515,7 @@ F src/pqueue.c d92e2b6cb6b19f894dbd4245ee93df36ea160ecb6fecf6ea80f096a95251c88a
 F src/printf.c 6b1690b1bde304b37a386d175737114cec31997c6ba493c81ffe2c9f6dfae896
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
-F src/rebuild.c abf9b8b76e75c1d1e9597f896b867c38e1f476217bd7890b2e0fb2dc646d61ae
+F src/rebuild.c 1eca0240f2a3e450e706adc64d4120fab23bd79e6da792fe3f6b8daf7798b73a
 F src/regexp.c 64d16050dcd8fdec7dc69a4a2edb38358dfd2fe19479d53269e1f0555f0a43d0
 F src/repolist.c bd7d0525d04927b3850a0ad14a96afb482a258b2c52c058dfc26909c190c5af4
 F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e75753438a31225e4ed5e8a9536fdf0c02ef760a20137b8fecee7325b06e250d
-R 4942cbe7d8484b9337d343dd45e48742
+P b8011bf50817c71ac843e405a5799e1e26ffe06cedd29aee85e3afda21241cdb
+R 8afd7fa9b8da58253bdf0994b16bbe8d
 U drh
-Z 7291530ce036cd1337c7096c22f7856c
+Z b798261c848de7301ffb3f7539604bfd
 # Remove this line to create a well-formed Fossil manifest.
