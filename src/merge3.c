@@ -435,7 +435,7 @@ static void txtConflict(
 ){
   int nRes;   /* Lines in the computed conflict resolution */
   Blob res;   /* Text of the conflict resolution */
-  
+
   merge_try_to_resolve_conflict(p, nPivot, nV1, nV2, &res);
   nRes = blob_linecount(&res);
 
@@ -724,7 +724,7 @@ static void htmlStart(MergeBuilder *p){
     blob_zero(&pH->aCol[i]);
   }
   /* TODO: open HTML table in p->pOut */
-  blob_appendf(p->pOut, "<li>%h &rarr; (%h, %h) &rarr; %h",
+  blob_appendf(p->pOut, "<h1>%h &rarr; (%h, %h) &rarr; %h</h1><pre>",
                p->zPivot, p->zV1, p->zV2, p->zOut);
 }
 
@@ -737,22 +737,26 @@ static void htmlEnd(MergeBuilder *p){
   for(i = 0; i < sizeof(pH->aCol)/sizeof(Blob); ++i){
     blob_reset(&pH->aCol[i]);
   }
-  blob_append(p->pOut, "</li>\n", -1);
+  blob_append(p->pOut, "</pre>\n", -1);
   p->pV1 = p->pV2 = p->pPivot = p->pOut = 0;
   p->zPivot = p->zV1 = p->zV2 = p->zOut = 0;
 }
 
 /* MergeBuilderHtml::xSame() */
 static void htmlSame(MergeBuilder *p, unsigned int N){
+  return dbgSame(p, N);
 }
 /* MergeBuilderHtml::xChngV1() */
 static void htmlChngV1(MergeBuilder *p, unsigned int nPivot, unsigned int nV1){
+  return dbgChngV1(p, nPivot, nV1);
 }
 /* MergeBuilderHtml::xChngV2() */
 static void htmlChngV2(MergeBuilder *p, unsigned int nPivot, unsigned int nV2){
+  return dbgChngV2(p, nPivot, nV2);
 }
 /* MergeBuilderHtml::xChngBoth() */
 static void htmlChngBoth(MergeBuilder *p, unsigned int nPivot, unsigned int nV){
+  return dbgChngBoth(p, nPivot, nV);
 }
 /* MergeBuilderHtml::xConflict() */
 static void htmlConflict(
@@ -761,6 +765,7 @@ static void htmlConflict(
   unsigned int nV1,
   unsigned int nV2
 ){
+  return dbgConflict(p, nPivot, nV1, nV2);
 }
 void mergebuilder_init_html(MergeBuilderHtml *pH){
   MergeBuilder *p = &pH->base;

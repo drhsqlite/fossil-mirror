@@ -367,7 +367,7 @@ static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
 
     /* Most of this loop is copy/paste/slight adjust from
     ** merge_info_tcl(). We can possibly consolidate this setup into a
-    ** separate funciton. */
+    ** separate function. */
 
     /* Set up the baseline/pivot... */
     zFN  = db_column_text(&q, 0);
