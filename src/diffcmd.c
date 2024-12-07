@@ -455,10 +455,27 @@ static const char zWebpageHdrDark[] =
 @ </head>
 @ <body>
 ;
-const char zWebpageEnd[] =
+static const char zWebpageEnd[] =
 @ </body>
 @ </html>
 ;
+
+/*
+** Returns the diff webpage header, which includes the whole page
+** prefix up to and including the BODY tag. If bDark is true, a
+** dark-mode version is returned. The non-dark impl relies on browser
+** preferences to determine whether to use dark mode.
+*/
+const char * diff_webpage_header(int bDark){
+  return bDark ? zWebpageHdrDark : zWebpageHdr;
+}
+/*
+** Returns the diff webpage footer, which closes the body tag and
+** page.
+*/
+const char * diff_webpage_footer(void){
+  return zWebpageEnd;
+}
 
 /*
 ** State variables used by the --browser option for diff.  These must
@@ -518,8 +535,8 @@ void diff_begin(DiffConfig *pCfg){
 #endif
   }
   if( (pCfg->diffFlags & DIFF_WEBPAGE)!=0 ){
-    fossil_print("%s",(pCfg->diffFlags & DIFF_DARKMODE)!=0 ? zWebpageHdrDark :
-                                                             zWebpageHdr);
+    fossil_print("%s",diff_webpage_header(
+                   (pCfg->diffFlags & DIFF_DARKMODE)!=0));
     fflush(stdout);
   }
 }
@@ -540,7 +557,7 @@ void diff_end(DiffConfig *pCfg, int nErr){
       const unsigned char *zJs = builtin_file("diff.js", 0);
       fossil_print("<script>\n%s</script>\n", zJs);
     }
-    fossil_print("%s", zWebpageEnd);
+    fossil_print("%s", diff_webpage_footer());
   }
   if( (pCfg->diffFlags & DIFF_BROWSER)!=0 && nErr==0 ){
     char *zCmd = mprintf("%s %$", fossil_web_browser(), tempDiffFilename);

@@ -234,11 +234,76 @@ static void merge_info_tcl(const char *zFName, int nContext){
   db_finalize(&q);
 }
 
+/*
+** Append STYLE tag for (merge-info --html) to p.
+**
+** Design notes...
+**
+** Layout is based on the /vdiff view, with 4 main content columns:
+**
+** baseline | local | merged-in | merge-result
+**
+** With columns between each to mark the line numbers (here "#") and
+** the change-type indicators (here "C"):
+**
+** # baseline C # local C # merged-in C # merge-result
+**
+** == 11 columns
+**
+** The C columns are, the context of a merge, initially only
+** for spacing between an LHS and its RHS's line numbers, but
+** we should probably apply change status markers like the
+** diff view does.
+*/
+static void merge_info_html_css(Blob *p){
+  blob_append(p, "<style>\n", -1);
+  blob_append(p, "tr.diffchunk {\n"
+              "display: grid; gap: 0px 0px;\n"
+              "grid-template-rows: 1fr;\n"
+              "grid-template-columns: "
+              "auto 1fr auto " /* # baseline sep */
+              "auto 1fr auto " /* # local sep */
+              "auto 1fr auto " /* # merged-in sep */
+              "auto 1fr" /* # merge-result */
+              ";\n"
+              "grid-template-areas: \""
+              "mrgBaseLn mrgBase mrgBaseSep "
+              "mrgLocalLn mrgLocal mrgLocalSep "
+              "mrgMILn mrgMI mrgMISep "
+              "mrgResLn mrgRes\";\n"
+              "}\n", -1);
+#define DA(N) blob_append(p,"td." # N " {grid-area: " # N "}\n", -1)
+  DA(mrgBaseLn);
+  DA(mrgBase);
+  DA(mrgBaseSep);
+  DA(mrgLocalLn);
+  DA(mrgLocal);
+  DA(mrgLocalSep);
+  DA(mrgMILn);
+  DA(mrgMI);
+  DA(mrgMISep);
+  DA(mrgResLn);
+  DA(mrgRes);
+#undef DA
+  blob_append(p, "</style>\n", -1);
+}
+
+/*
+** The HTML counterpart of merge_info_tk().
+*/
 static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
                             int bDark,     /* use dark mode */
                             int bAll,      /* All changes, not just merged content */
                             int nContext   /* Diff context lines */){
-  /* TODO */
+  Blob out = empty_blob;
+
+  blob_append(&out, diff_webpage_header(bDark), -1);
+  merge_info_html_css(&out);
+
+  blob_append(&out, diff_webpage_footer(), -1);
+  blob_append_char(&out, '\n');
+  blob_write_to_file(&out, "-");
+  blob_reset(&out);
 }
 
 /*
