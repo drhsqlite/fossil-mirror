@@ -299,10 +299,12 @@ static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
                             int bDark,     /* use dark mode */
                             int bAll,      /* All changes, not just merged content */
                             int nContext   /* Diff context lines */){
-  Blob out = empty_blob;
-  MergeBuilderHtml mbh;
-  MergeBuilder * mb = &mbh.base;
-  Stmt q;
+  MergeBuilderHtml mbh;               /* Merge builder */
+  MergeBuilder * mb = &mbh.base;      /* Merge builder base class ref */
+  Blob pivot = empty_blob,
+    v1 = empty_blob, v2 = empty_blob,
+    out = empty_blob;                 /* Merge builder content */
+  Stmt q;                             /* MERGESTAT query */
 
   /* Figure out which files to process. We do this level of indirection
   ** so that the loop which follows is identical for both the all-files and
@@ -343,31 +345,121 @@ static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
     }
   }
 
-  mergebuilder_init_html(&mbh);
-  mb->nContext = nContext;
   blob_append(&out, diff_webpage_header(bDark), -1);
   merge_info_html_css(&out);
-  mb->pOut = &out;
+  mergebuilder_init_html(&mbh);
+  mb->nContext = nContext;
 
   db_prepare(&q,
-       /*   0   1    2     3   4     5   6    7     8    9 */
-    "SELECT op, fnp, ridp, fn, ridv, sz, fnm, ridm, fnr, coalesce(fnr,fn) name"
-    "  FROM mergestat WHERE rowid IN mi_html ORDER BY name"
+       /*   0    1     2   3     4   5    6     7 */
+    "SELECT fnp, ridp, fn, ridv, sz, fnm, ridm, fnr"
+    "  FROM mergestat WHERE rowid IN mi_html"
+    "  ORDER BY coalesce(fnr,fn,fnp)"
   );
   blob_append(&out, "<ul>\n", 5);
   while( SQLITE_ROW==db_step(&q) ){
-    blob_appendf(&out, "<li>%s %h</li>\n",
-                 db_column_text(&q,0), db_column_text(&q,9));
-  }
+    const char * zFN;                /* A filename */
+    char * zToFree[5] = {0,0,0,0,0}; /* String memory to free */
+    unsigned zToFreeNdx = 0;         /* Current index into zToFree */
+    int rid = 0;                     /* A blob rid */
+    int sz;                          /* File size */
+    unsigned int i;                  /* Loop counter */
+
+    /* Most of this loop is copy/paste/slight adjust from
+    ** merge_info_tcl(). We can possibly consolidate this setup into a
+    ** separate funciton. */
+
+    /* Set up the baseline/pivot... */
+    zFN  = db_column_text(&q, 0);
+    if( zFN==0 ){
+      /* No pivot because the file was added */
+      mb->zPivot = "(no baseline)";
+      blob_reset(&pivot);
+    }else{
+      mb->zPivot = zToFree[zToFreeNdx++] =
+        mprintf("%s (baseline)", file_tail(zFN));
+      rid = db_column_int(&q, 1);
+      content_get(rid, &pivot);
+    }
+    mb->pPivot = &pivot;
+
+    /* Set up the merge-in as V2 */
+    zFN = db_column_text(&q, 5);
+    if( zFN==0 ){
+      /* File deleted in the merged-in branch */
+      mb->zV2 = "(deleted file)";
+      blob_zero(&v2);
+    }else{
+      mb->zV2  = zToFree[zToFreeNdx++] =
+        mprintf("%s (merge-in)", file_tail(zFN));
+      rid = db_column_int(&q, 6);
+      content_get(rid, &v2);
+    }
+    mb->pV2 = &v1;
+
+    /* Set up the merge-in as V1 */
+    zFN = db_column_text(&q, 2);
+    if( zFN==0 ){
+      /* File added by merge */
+      mb->zV1 = "(no original)";
+      blob_zero(&v1);
+    }else{
+      mb->zV1 = zToFree[zToFreeNdx++] =
+        mprintf("%s (local)", file_tail(zFN));
+      rid = db_column_int(&q, 3);
+      sz = db_column_int(&q, 4);
+      if( rid==0 && sz>0 ){
+        /* The origin file had been edited so we'll have to pull its
+        ** original content out of the undo buffer */
+        Stmt q2;
+        db_prepare(&q2,
+          "SELECT content FROM undo"
+          " WHERE pathname=%Q AND octet_length(content)=%d",
+          zFN, sz
+        );
+        blob_zero(&v1);
+        if( db_step(&q2)==SQLITE_ROW ){
+          db_column_blob(&q, 0, &v1);
+        }else{
+          mb->zV1 = "(local content missing)";
+        }
+        db_finalize(&q2);
+      }else{
+        /* The origin file was unchanged when the merge first occurred */
+        content_get(rid, &v1);
+      }
+    }
+    mb->pV1 = &v2;
+
+    /* Set up the output */
+    zFN = db_column_text(&q, 7);
+    if( zFN==0 ){
+      mb->zOut = "(Merge Result)";
+    }else{
+      mb->zOut = zToFree[zToFreeNdx++] =
+        mprintf("%s (after merge)", file_tail(zFN));
+    }
+    mb->pOut = &out;
+
+    assert( zToFreeNdx <= sizeof(zToFree)/sizeof(zToFree[0]) );
+
+    merge_three_blobs(mb);
+    for(i = 0; i < zToFreeNdx; ++i ){
+      fossil_free(zToFree[i]);
+      zToFree[i] = 0;
+    }
+  }/* for-each-file loop */
+  db_finalize(&q);
+  mb->xDestroy(mb);
   blob_append(&out, "</ul>\n", 6);
 
-  db_finalize(&q);
-
   blob_append(&out, diff_webpage_footer(), -1);
+  blob_reset(&v1);
+  blob_reset(&v2);
+  blob_reset(&pivot);
   blob_append_char(&out, '\n');
   blob_write_to_file(&out, "-");
   blob_reset(&out);
-  mb->xDestroy(mb);
   db_multi_exec("DROP TABLE mi_html");
 }
 

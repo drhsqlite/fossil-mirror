@@ -182,6 +182,22 @@ struct MergeBuilderHtml {
 };
 #endif /* INTERFACE */
 
+/*
+** Column IDs for MergeBuilderHtml::aCol.
+*/
+enum MBHtml {
+  MBH_COL_BASELINE_LN = 0,
+  MBH_COL_BASELINE = 1,
+  MBH_COL_BASELINE_SEP = 2,
+  MBH_COL_LOCAL_LN = 3,
+  MBH_COL_LOCAL = 4,
+  MBH_COL_LOCAL_SEP = 5,
+  MBH_COL_MERGEDIN_LN = 6,
+  MBH_COL_MERGEDIN = 7,
+  MBH_COL_MERGEDIN_SEP = 8,
+  MBH_COL_RESULT_LN = 9,
+  MBH_COL_RESULT = 10
+};
 
 /************************* Generic MergeBuilder ******************************/
 /* These are generic methods for MergeBuilder.  They just output debugging
@@ -704,10 +720,12 @@ static void htmlStart(MergeBuilder *p){
   MergeBuilderHtml *pH = (MergeBuilderHtml*)p;
   unsigned int i;
 
-  /* TODO: open HTML table */
   for(i = 0; i < sizeof(pH->aCol)/sizeof(Blob); ++i){
     blob_zero(&pH->aCol[i]);
   }
+  /* TODO: open HTML table in p->pOut */
+  blob_appendf(p->pOut, "<li>%h &rarr; (%h, %h) &rarr; %h",
+               p->zPivot, p->zV1, p->zV2, p->zOut);
 }
 
 /* MergeBuilderHtml::xEnd() */
@@ -719,6 +737,9 @@ static void htmlEnd(MergeBuilder *p){
   for(i = 0; i < sizeof(pH->aCol)/sizeof(Blob); ++i){
     blob_reset(&pH->aCol[i]);
   }
+  blob_append(p->pOut, "</li>\n", -1);
+  p->pV1 = p->pV2 = p->pPivot = p->pOut = 0;
+  p->zPivot = p->zV1 = p->zV2 = p->zOut = 0;
 }
 
 /* MergeBuilderHtml::xSame() */
