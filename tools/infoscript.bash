@@ -8,6 +8,7 @@
 # v0.7 Adding help in separately for normal/auxil commands.
 # v0.8 Added common options and Features. Got rid of some obvious bugs.
 # v0.9 Added @bye at end.
+# v0.10 Retitled Features to Fossil.
 #        Builds (finally) on OpenBSD.
 #
 # Requires fossil, tail, GNU sed and makeinfo
@@ -42,17 +43,30 @@ printf "@titlepage
 
 " >> fossil.texi
 
-# Add @shortcontents and @contents
-printf "@shortcontents
-@contents\n
+# Add @contents
+printf "@contents\n
 
 " >> fossil.texi
 
 # Check fossil version. Only thing wrong with this is which fossil binary is picked up first.
 fossil version | sed 's/This is fossil version /@set VERSION /' | cut -c1-17  >> fossil.texi
 
+# Insert repeat of Top node for PDF. We have to hack to do this
+printf "@ifnotinfo
+@ifnothtml
+@node Introduction
+@top Introduction for Fossil - a distributed version control system
+
+Fossil is a distributed version control system (DVCS) with built-in
+forum, wiki, ticket tracker, CGI/HTTP interface, and HTTP server.
+This file documents version @value{VERSION} of Fossil.
+
+@end ifnothtml
+@end ifnotinfo
+" >> fossil.texi
+
 printf "@node Top
-@top Fossil - a distributed version control system
+@chapter Fossil - a distributed version control system
 
 Fossil is a distributed version control system (DVCS) with built-in
 forum, wiki, ticket tracker, CGI/HTTP interface, and HTTP server.
@@ -60,7 +74,7 @@ This file documents version @value{VERSION} of Fossil.
 
 @c     @node menu
 @menu
-* Features::             Features listed from the website front page.
+* Fossil::             Introduction and features listed from the website front page.
 * Common commands::      These are the commands that are most likely to be used.
 * Uncommon commands::    These aren't used as often, but they're still there when needed.
 * Common arguments::     -o arguments common to all commands
@@ -79,27 +93,48 @@ help nodes from fossil into here, but it's vaguely possible I've missed some.
 " >> fossil.texi
 
 # Add in the Features from the front webpage
-printf "@node Features
-@chapter Features
+printf "@node Fossil
+@chapter Fossil
 
-Features as described on the fossil home page.
+Fossil is a distributed version control system (DVCS) with built-in
+forum, wiki, ticket tracker, CGI/HTTP interface, and HTTP server.
+This file documents version @value{VERSION} of Fossil.
 
-1.  Integrated Bug Tracking, Wiki, Forum, and Technotes - In addition to doing distributed version control like Git and Mercurial, Fossil also supports bug tracking, wiki, forum, and tech-notes.
+This is a quick breakdown of the things that you get when you run the fossil binary:
 
-2.  Built-in Web Interface - Fossil has a built-in and intuitive web interface that promotes project situational awareness. Type \"fossil ui\" and Fossil automatically opens a web browser to a page that shows detailed graphical history and status information on that project.
+@enumerate
+@item
+Integrated Bug Tracking, Wiki, Forum, and Technotes
+ - In addition to doing distributed version control like Git and Mercurial, Fossil also supports bug tracking, wiki, forum, and tech-notes.
 
-3.   Self-Contained  -  Fossil is a single self-contained stand-alone executable. To install, simply download a precompiled binary for Linux, Mac, OpenBSD, or Windows and put it on your  \$PATH. Easy-to-compile source code is available for users on other platforms.
+@item
+Built-in Web Interface
+ - Fossil has a built-in and intuitive web interface that promotes project situational awareness. Type \"fossil ui\" and Fossil automatically opens a web browser to a page that shows detailed graphical history and status information on that project.
 
-4.  Simple Networking - No custom protocols or TCP ports. Fossil uses plain old HTTP (or HTTPS or SSH) for all network communications, so it works fine from behind restrictive firewalls, including proxies. The protocol is bandwidth efficient to the point that Fossil can be used comfortably over dial-up or over the exceedingly slow Wifi on airliners.
+@item
+Self-Contained
+ -  Fossil is a single self-contained stand-alone executable. To install, simply download a precompiled binary for Linux, Mac, OpenBSD, or Windows and put it on your  \$PATH. Easy-to-compile source code is available for users on other platforms.
 
-5.  CGI/SCGI Enabled - No server is required, but if you want to set one up, Fossil supports four easy server configurations.
+@item
+Simple Networking
+ - No custom protocols or TCP ports. Fossil uses plain old HTTP (or HTTPS or SSH) for all network communications, so it works fine from behind restrictive firewalls, including proxies. The protocol is bandwidth efficient to the point that Fossil can be used comfortably over dial-up or over the exceedingly slow Wifi on airliners.
 
-6.   Autosync  -  Fossil supports \"autosync\" mode which helps to keep projects moving forward by reducing the amount of needless forking and merging often associated with distributed projects.
+@item
+CGI/SCGI Enabled
+ - No server is required, but if you want to set one up, Fossil supports four easy server configurations.
 
-7.  Robust & Reliable - Fossil stores content using an enduring file format in an SQLite database so that transactions are atomic even if interrupted by a power loss or system crash. Automatic self-checks verify that all aspects of the repository are consistent prior to each commit.
+@item
+Autosync
+ -  Fossil supports \"autosync\" mode which helps to keep projects moving forward by reducing the amount of needless forking and merging often associated with distributed projects.
 
-8.  Free and Open-Source - Uses the 2-clause BSD license.
+@item
+Robust & Reliable
+ - Fossil stores content using an enduring file format in an SQLite database so that transactions are atomic even if interrupted by a power loss or system crash. Automatic self-checks verify that all aspects of the repository are consistent prior to each commit.
 
+@item
+Free and Open-Source
+ - Uses the 2-clause BSD license.
+@end enumerate
 " >> fossil.texi
 
 ###### Common commands
@@ -135,10 +170,10 @@ fossil help -v | tail -n +7 | sed '$d' | sed '$d' >workfile
 echo "Doubling up the @'s"
 sed -i -e 's/@/@@/g' workfile
 
-echo "Swapping out # for @node ... \n@unnumbered ..."
+echo "Swapping out # for @node ... \n@section ..."
 # This swaps out "# keyword" with 
 # @node keyword
-# @unnumbered keyword
+# @section keyword
 # breaks on *BSD's seds, needs gsed there
 
 # Check the OS so we can use gsed if needed
