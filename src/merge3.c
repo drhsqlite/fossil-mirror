@@ -709,6 +709,7 @@ static void htmlStart(MergeBuilder *p){
     blob_zero(&pH->aCol[i]);
   }
 }
+
 /* MergeBuilderHtml::xEnd() */
 static void htmlEnd(MergeBuilder *p){
   MergeBuilderHtml *pH = (MergeBuilderHtml*)p;
@@ -719,6 +720,7 @@ static void htmlEnd(MergeBuilder *p){
     blob_reset(&pH->aCol[i]);
   }
 }
+
 /* MergeBuilderHtml::xSame() */
 static void htmlSame(MergeBuilder *p, unsigned int N){
 }

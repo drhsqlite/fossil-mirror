@@ -302,67 +302,73 @@ static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
   Blob out = empty_blob;
   MergeBuilderHtml mbh;
   MergeBuilder * mb = &mbh.base;
+  Stmt q;
+
+  /* Figure out which files to process. We do this level of indirection
+  ** so that the loop which follows is identical for both the all-files and
+  ** the CLI-list-of-files cases work identically.
+  */
+  db_multi_exec("CREATE TEMP TABLE mi_html ("
+                "mirid INTEGER UNIQUE ON CONFLICT IGNORE"
+                ")");
+  if( g.argc==2 ){
+    /* No files named on the command-line.  Use every file mentioned
+    ** in the MERGESTAT table to generate the file list. */
+    db_multi_exec("INSERT INTO mi_html (mirid) "
+                  "SELECT rowid FROM mergestat %s ",
+                  bAll ? ""
+                  : "WHERE op IN ('MERGE','CONFLICT')" /*safe-for-%s*/);
+  }else{
+    /* Use only files named on the command-line in the file list.
+    ** But verify each file named is actually found in the MERGESTAT
+    ** table first. */
+    int i;
+    for(i=2; i<g.argc; i++){
+      char *zFile;          /* Input filename */
+      char const *zTreename;/* Name of the file in the tree */
+      Blob fname;           /* Filename relative to root */
+      int gotRid;           /* mergestat row ID */
+      zFile = mprintf("%/", g.argv[i]);
+      file_tree_name(zFile, &fname, 0, 1);
+      fossil_free(zFile);
+      zTreename = blob_str(&fname);
+      gotRid = db_int(0, "SELECT rowid FROM mergestat WHERE fnr=%Q or fn=%Q",
+                      zTreename, zTreename);
+      if( !gotRid ){
+        fossil_fatal("Don't have merge info for %s", zTreename);
+      }
+      db_multi_exec("INSERT INTO mi_html (mirid) VALUES (%d)",
+                    gotRid);
+      blob_reset(&fname);
+    }
+  }
 
   mergebuilder_init_html(&mbh);
   mb->nContext = nContext;
   blob_append(&out, diff_webpage_header(bDark), -1);
   merge_info_html_css(&out);
+  mb->pOut = &out;
 
-  if( g.argc==2 ){
-    /* No files named on the command-line.  Use every file mentioned
-    ** in the MERGESTAT table to generate the file list. */
-    Stmt q;
-    int cnt = 0;
-    db_prepare(&q,
-       "SELECT coalesce(fnr,fn), op FROM mergestat %s ORDER BY 1",
-       bAll ? "" : "WHERE op IN ('MERGE','CONFLICT')" /*safe-for-%s*/
-    );
-    blob_append(&out, "<ul>\n", 5);
-    while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(&out,"<li>%s ", db_column_text(&q,1));
-      blob_appendf(&out, "%h</li>\n", db_column_text(&q, 0));
-      cnt++;
-    }
-    db_finalize(&q);
-    if( cnt==0 ){
-      blob_append(&out, "<li>No interesting changes in this merge. "
-                  "Use --all to see everything</li>\n",
-                  -1);
-    }
-    blob_append(&out, "</ul>\n", 6);
-  }else{
-    int i;
-    /* Use only files named on the command-line in the file list.
-    ** But verify each file named is actually found in the MERGESTAT
-    ** table first. */
-    blob_append(&out, "<ul>\n", 5);
-    for(i=2; i<g.argc; i++){
-      char *zFile;          /* Input filename */
-      char *zTreename;      /* Name of the file in the tree */
-      Blob fname;           /* Filename relative to root */
-      char *zOp;            /* Operation on this file */
-      zFile = mprintf("%/", g.argv[i]);
-      file_tree_name(zFile, &fname, 0, 1);
-      fossil_free(zFile);
-      zTreename = blob_str(&fname);
-      zOp = db_text(0, "SELECT op FROM mergestat WHERE fn=%Q or fnr=%Q",
-                    zTreename, zTreename);
-      if( !zOp ){
-        fossil_fatal("Don't have merge info for %s", zTreename);
-      }
-      blob_appendf(&out, "<li>%s ", zOp);
-      fossil_free(zOp);
-      blob_appendf(&out, "%h</li>\n", zTreename);
-      blob_reset(&fname);
-    }
-    blob_append(&out, "</ul>\n", 6);
+  db_prepare(&q,
+       /*   0   1    2     3   4     5   6    7     8    9 */
+    "SELECT op, fnp, ridp, fn, ridv, sz, fnm, ridm, fnr, coalesce(fnr,fn) name"
+    "  FROM mergestat WHERE rowid IN mi_html ORDER BY name"
+  );
+  blob_append(&out, "<ul>\n", 5);
+  while( SQLITE_ROW==db_step(&q) ){
+    blob_appendf(&out, "<li>%s %h</li>\n",
+                 db_column_text(&q,0), db_column_text(&q,9));
   }
+  blob_append(&out, "</ul>\n", 6);
+
+  db_finalize(&q);
 
   blob_append(&out, diff_webpage_footer(), -1);
   blob_append_char(&out, '\n');
   blob_write_to_file(&out, "-");
   blob_reset(&out);
   mb->xDestroy(mb);
+  db_multi_exec("DROP TABLE mi_html");
 }
 
 /*
