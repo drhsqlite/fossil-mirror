@@ -300,6 +300,56 @@ static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
   blob_append(&out, diff_webpage_header(bDark), -1);
   merge_info_html_css(&out);
 
+  if( g.argc==2 ){
+    /* No files named on the command-line.  Use every file mentioned
+    ** in the MERGESTAT table to generate the file list. */
+    Stmt q;
+    int cnt = 0;
+    db_prepare(&q,
+       "SELECT coalesce(fnr,fn), op FROM mergestat %s ORDER BY 1",
+       bAll ? "" : "WHERE op IN ('MERGE','CONFLICT')" /*safe-for-%s*/
+    );
+    blob_append(&out, "<ul>\n", 5);
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&out,"<li>%s ", db_column_text(&q,1));
+      blob_appendf(&out, "%h</li>\n", db_column_text(&q, 0));
+      cnt++;
+    }
+    db_finalize(&q);
+    if( cnt==0 ){
+      blob_append(&out, "<li>No interesting changes in this merge. "
+                  "Use --all to see everything</li>\n",
+                  -1);
+    }
+    blob_append(&out, "</ul>\n", 6);
+  }else{
+    int i;
+    /* Use only files named on the command-line in the file list.
+    ** But verify each file named is actually found in the MERGESTAT
+    ** table first. */
+    blob_append(&out, "<ul>\n", 5);
+    for(i=2; i<g.argc; i++){
+      char *zFile;          /* Input filename */
+      char *zTreename;      /* Name of the file in the tree */
+      Blob fname;           /* Filename relative to root */
+      char *zOp;            /* Operation on this file */
+      zFile = mprintf("%/", g.argv[i]);
+      file_tree_name(zFile, &fname, 0, 1);
+      fossil_free(zFile);
+      zTreename = blob_str(&fname);
+      zOp = db_text(0, "SELECT op FROM mergestat WHERE fn=%Q or fnr=%Q",
+                    zTreename, zTreename);
+      if( !zOp ){
+        fossil_fatal("Don't have merge info for %s", zTreename);
+      }
+      blob_appendf(&out, "<li>%s ", zOp);
+      fossil_free(zOp);
+      blob_appendf(&out, "%h</li>\n", zTreename);
+      blob_reset(&fname);
+    }
+    blob_append(&out, "</ul>\n", 6);
+  }
+
   blob_append(&out, diff_webpage_footer(), -1);
   blob_append_char(&out, '\n');
   blob_write_to_file(&out, "-");
