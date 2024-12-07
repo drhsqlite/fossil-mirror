@@ -225,6 +225,7 @@ static const char zWebpageHdr[] =
 @ <html>
 @ <head>
 @ <meta charset="UTF-8">
+@ <title></title>
 @ <style>
 @ body {
 @    background-color: white;
@@ -354,6 +355,7 @@ static const char zWebpageHdrDark[] =
 @ <html>
 @ <head>
 @ <meta charset="UTF-8">
+@ <title></title>
 @ <style>
 @ body {
 @    background-color: #353535;

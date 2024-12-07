@@ -168,6 +168,18 @@ struct MergeBuilder {
   unsigned int nConflict;    /* Number of conflicts seen */
   u64 diffFlags;             /* Flags for difference engine */
 };
+
+struct MergeBuilderHtml {
+  struct MergeBuilder base;
+  /*
+  ** Columns for each of the entries in this summary of the HTML
+  ** layout:
+  **
+  ** # baseline C # local C # merged-in C # merge-result
+  ** 0-1--------2-3-4-----5-6-7---------8-9-10
+  */
+  Blob aCol[11];
+};
 #endif /* INTERFACE */
 
 
@@ -177,15 +189,16 @@ struct MergeBuilder {
 ** implementations of MergeBuilder.
 */
 
-/* xStart() and xEnd() are called to generate header and fotter information
-** in the output.  This is a no-op in the generic implementation.
+/* xStart() and xEnd() are called to generate header and footer
+** information in the output.  This is a no-op in the generic
+** implementation.
 */
 static void dbgStartEnd(MergeBuilder *p){  (void)p; }
 
 /* The next N lines of PIVOT are unchanged in both V1 and V2
 */
 static void dbgSame(MergeBuilder *p, unsigned int N){
-  blob_appendf(p->pOut, 
+  blob_appendf(p->pOut,
      "COPY %u from BASELINE(%u..%u) or V1(%u..%u) or V2(%u..%u)\n",
      N, p->lnPivot+1, p->lnPivot+N, p->lnV1+1, p->lnV1+N,
      p->lnV2+1, p->lnV2+N);
@@ -235,7 +248,7 @@ static void dbgConflict(
   unsigned int nV1,
   unsigned int nV2
 ){
-  blob_appendf(p->pOut, 
+  blob_appendf(p->pOut,
    "CONFLICT %u,%u,%u BASELINE(%u..%u) versus V1(%u..%u) versus V2(%u..%u)\n",
        nPivot, nV1, nV2,
        p->lnPivot+1, p->lnPivot+nPivot,
@@ -325,7 +338,8 @@ static void mergebuilder_init_token(MergeBuilder *p){
 ** lines of text.
 **
 ** The result is written into Blob pOut.  pOut is initialized by this
-** routine.
+** routine. Returns the result of passing the merge state to
+** merge_three_blobs().
 */
 int merge_try_to_resolve_conflict(
   MergeBuilder *pMB,     /* MergeBuilder that encounter conflict */
@@ -632,7 +646,7 @@ static void tclConflict(
   int i;
   int nRes;
   Blob res;
-  
+
   merge_try_to_resolve_conflict(p, nPivot, nV1, nV2, &res);
   nRes = blob_linecount(&res);
   if( nV1>mx ) mx = nV1;
@@ -684,6 +698,63 @@ void mergebuilder_init_tcl(MergeBuilder *p){
   p->xChngBoth = tclChngBoth;
   p->xConflict = tclConflict;
 }
+
+/* MergeBuilderHtml::xStart() */
+static void htmlStart(MergeBuilder *p){
+  MergeBuilderHtml *pH = (MergeBuilderHtml*)p;
+  unsigned int i;
+
+  /* TODO: open HTML table */
+  for(i = 0; i < sizeof(pH->aCol)/sizeof(Blob); ++i){
+    blob_zero(&pH->aCol[i]);
+  }
+}
+/* MergeBuilderHtml::xEnd() */
+static void htmlEnd(MergeBuilder *p){
+  MergeBuilderHtml *pH = (MergeBuilderHtml*)p;
+  unsigned int i;
+
+  /* TODO: flush pH->aCol to p->pOut and close HTML table */
+  for(i = 0; i < sizeof(pH->aCol)/sizeof(Blob); ++i){
+    blob_reset(&pH->aCol[i]);
+  }
+}
+/* MergeBuilderHtml::xSame() */
+static void htmlSame(MergeBuilder *p, unsigned int N){
+}
+/* MergeBuilderHtml::xChngV1() */
+static void htmlChngV1(MergeBuilder *p, unsigned int nPivot, unsigned int nV1){
+}
+/* MergeBuilderHtml::xChngV2() */
+static void htmlChngV2(MergeBuilder *p, unsigned int nPivot, unsigned int nV2){
+}
+/* MergeBuilderHtml::xChngBoth() */
+static void htmlChngBoth(MergeBuilder *p, unsigned int nPivot, unsigned int nV){
+}
+/* MergeBuilderHtml::xConflict() */
+static void htmlConflict(
+  MergeBuilder *p,
+  unsigned int nPivot,
+  unsigned int nV1,
+  unsigned int nV2
+){
+}
+void mergebuilder_init_html(MergeBuilderHtml *pH){
+  MergeBuilder *p = &pH->base;
+  unsigned int i;
+  mergebuilder_init(p);
+  p->xStart = htmlStart;
+  p->xEnd = htmlEnd;
+  p->xSame = htmlSame;
+  p->xChngV1 = htmlChngV1;
+  p->xChngV2 = htmlChngV2;
+  p->xChngBoth = htmlChngBoth;
+  p->xConflict = htmlConflict;
+  for(i = 0; i < sizeof(pH->aCol)/sizeof(Blob); ++i){
+    pH->aCol[i] = empty_blob;
+  }
+}
+
 /*****************************************************************************/
 
 /*
@@ -746,7 +817,7 @@ static int skip_conflict(
 ** The return is 0 upon complete success. If any input file is binary,
 ** -1 is returned and pOut is unmodified.  If there are merge
 ** conflicts, the merge proceeds as best as it can and the number
-** of conflicts is returns
+** of conflicts is returned.
 */
 int merge_three_blobs(MergeBuilder *p){
   int *aC1;              /* Changes from pPivot to pV1 */
@@ -850,7 +921,7 @@ int merge_three_blobs(MergeBuilder *p){
       i2 = skip_conflict(aC2, i2, sz, &nV2);
       p->xConflict(p, sz, nV1, nV2);
     }
- 
+
     /* If we are finished with an edit triple, advance to the next
     ** triple.
     */

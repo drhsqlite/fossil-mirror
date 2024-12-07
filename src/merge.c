@@ -272,21 +272,25 @@ static void merge_info_html_css(Blob *p){
               "mrgMILn mrgMI mrgMISep "
               "mrgResLn mrgRes\";\n"
               "}\n", -1);
-#define DA(N) blob_append(p,"td." # N " {grid-area: " # N "}\n", -1)
-  DA(mrgBaseLn);
-  DA(mrgBase);
-  DA(mrgBaseSep);
-  DA(mrgLocalLn);
-  DA(mrgLocal);
-  DA(mrgLocalSep);
-  DA(mrgMILn);
-  DA(mrgMI);
-  DA(mrgMISep);
-  DA(mrgResLn);
-  DA(mrgRes);
-#undef DA
+#define GA(N) blob_append(p,"td." # N " {grid-area: " # N "}\n", -1)
+  GA(mrgBaseLn);
+  GA(mrgBase);
+  GA(mrgBaseSep);
+  GA(mrgLocalLn);
+  GA(mrgLocal);
+  GA(mrgLocalSep);
+  GA(mrgMILn);
+  GA(mrgMI);
+  GA(mrgMISep);
+  GA(mrgResLn);
+  GA(mrgRes);
+#undef GA
   blob_append(p, "</style>\n", -1);
 }
+
+/*static void merge_info_html_one(MergeBuilderHtml *pB, Blob *pOut,
+                                const char *zOp, const char *zFile){
+}*/
 
 /*
 ** The HTML counterpart of merge_info_tk().
@@ -296,7 +300,11 @@ static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
                             int bAll,      /* All changes, not just merged content */
                             int nContext   /* Diff context lines */){
   Blob out = empty_blob;
+  MergeBuilderHtml mbh;
+  MergeBuilder * mb = &mbh.base;
 
+  mergebuilder_init_html(&mbh);
+  mb->nContext = nContext;
   blob_append(&out, diff_webpage_header(bDark), -1);
   merge_info_html_css(&out);
 
@@ -354,6 +362,7 @@ static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
   blob_append_char(&out, '\n');
   blob_write_to_file(&out, "-");
   blob_reset(&out);
+  mb->xDestroy(mb);
 }
 
 /*
