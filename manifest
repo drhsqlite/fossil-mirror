@@ -1,5 +1,5 @@
-C Gather\smore\stransformations\sfor\smerge-info\sin\sa\s"fossil\supdate".
-D 2024-12-09T22:45:26.941
+C Fix\sa\sbug\sin\stext-merge\sfor\sthe\scase\swhen\sthe\ssame\schange\soccurs\salong\nboth\sbranches.
+D 2024-12-09T22:51:15.239
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -502,7 +502,7 @@ F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 66f75d82efcd073c9e72e9cb3d802ac3e1f335221311b60f40cc40346a16dcec
 F src/merge.tcl 2247b6e11aa73a7645956691b928a06dc4cbba5179105badef27f965977fa1b3
-F src/merge3.c 3cf2981b3c4e4cb92e4c8e5bd0a6165cdfca4660553d9909660f0fe06917da22
+F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
 F src/patch.c 2ab7db14cf10a0ecd89b664202979187f359eb16c523a213a666bf3cb2aeb866
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3a18c95df49f95a5ad726c671038daccc6eb99a5140825559a327c1f0ecb983c
-R b06af244b4501812d12a86b6d18809bf
+P 565a49062c741c9d79909c92955b49e97f3e7a87a840e7aac5f65e634d795ea4
+R ceb0405210afd44ac5bfb91d34826a9d
 U drh
-Z b5de9077211a8e45e001b1cbf03a52c1
+Z b8c8df213bb954e96ce95b75e2a554eb
 # Remove this line to create a well-formed Fossil manifest.
