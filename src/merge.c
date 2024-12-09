@@ -53,7 +53,10 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
     Stmt q;
     int cnt = 0;
     db_prepare(&q,
-       "SELECT coalesce(fnr,fn), op FROM mergestat %s ORDER BY 1",
+       "WITH priority(op,pri) AS (VALUES('CONFLICT',0),('ERROR',0),"
+                                       "('MERGE',1),('ADDED',2),('UPDATE',2))"
+       "SELECT coalesce(fnr,fn), op FROM mergestat JOIN priority USING(op)"
+           " %s ORDER BY pri, 1",
        bAll ? "" : "WHERE op IN ('MERGE','CONFLICT')" /*safe-for-%s*/
     );
     while( db_step(&q)==SQLITE_ROW ){
@@ -308,11 +311,14 @@ void merge_info_cmd(void){
     zWhere = "WHERE op IN ('MERGE','CONFLICT','ERROR')";
   }
   db_prepare(&q,
+    "WITH priority(op,pri) AS (VALUES('CONFLICT',0),('ERROR',0),"
+                                    "('MERGE',1),('ADDED',2),('UPDATE',2))"
+
         /*  0   1                 2  */
     "SELECT op, coalesce(fnr,fn), msg"
-    "  FROM mergestat"
+    "  FROM mergestat JOIN priority USING(op)"
     " %s"
-    " ORDER BY coalesce(fnr,fn)",
+    " ORDER BY pri, coalesce(fnr,fn)",
     zWhere /*safe-for-%s*/
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -329,7 +335,7 @@ void merge_info_cmd(void){
   db_finalize(&q);
   if( !bAll && cnt==0 ){
     fossil_print(
-      "No interesting change in this merge.  Use --all to see everything.\n"
+      "No interesting changes in this merge.  Use --all to see everything.\n"
     );
   }
 }
