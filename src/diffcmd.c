@@ -252,7 +252,7 @@ static const char zWebpageHdr[] =
 @   font-size: inherit;
 @ }
 @ td.diffln {
-@   width: 1px;
+@   width: fit-content;
 @   text-align: right;
 @   padding: 0 1em 0 0;
 @ }
@@ -260,7 +260,7 @@ static const char zWebpageHdr[] =
 @   padding-bottom: 0.4em;
 @ }
 @ td.diffsep {
-@   width: 1px;
+@   width: fit-content;
 @   padding: 0 0.3em 0 1em;
 @   line-height: inherit;
 @   font-size: inherit;
@@ -383,7 +383,7 @@ static const char zWebpageHdrDark[] =
 @   font-size: inherit;
 @ }
 @ td.diffln {
-@   width: 1px;
+@   width: fit-content;
 @   text-align: right;
 @   padding: 0 1em 0 0;
 @ }
@@ -391,7 +391,7 @@ static const char zWebpageHdrDark[] =
 @   padding-bottom: 0.4em;
 @ }
 @ td.diffsep {
-@   width: 1px;
+@   width: fit-content;
 @   padding: 0 0.3em 0 1em;
 @   line-height: inherit;
 @   font-size: inherit;

@@ -1,5 +1,5 @@
-C Plug\sthe\sdebug\smerge\sbuilder\sinto\sthe\shtml\sbuilder's\sas-yet-unimplemented\smethods\sto\sassist\sin\sthinking\sthrough\sthe\snext\ssteps.
-D 2024-12-07T20:14:33.118
+C Fix\swidth:1px\ssizes\son\sdiff\sline-number\sand\schange-type\scols\sfor\sdiff\s--browser\sand\sfriends.
+D 2024-12-09T07:05:17.436
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -419,7 +419,7 @@ F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec681182
 F src/diff.c ec5201ccc4ee523346d30e5085747217aefc72f7c743f00a9c1278f28042df41
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl a2731fc53cdf9d2ce3e03242eb007dda32e364c5c3f5ae104e00c53f9e8580bc
-F src/diffcmd.c dfac6270a272ca19e3b9e48fb040a676afff46aa7441a3471aad509888fb34a7
+F src/diffcmd.c 56694cf022e542b4455042ac5bf96f480df369cda6de52ee58d4bdf0a7f79723
 F src/dispatch.c 08b7f541f0fbf027c247d280ec2551342c238d39dac1e27c98a66013e6c71e09
 F src/doc.c 684b3d4fe993ccd618fdd5dfbf73e4bcc2ec019b21503190a503e3eb37008eca
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8145725503168303667ac75b1f0e25428c1f3005ba9d4211490efb209aa50253
-R acaedb7f6e628f70e34efc43c160dfda
+P d18f24e2ac96831dde8a6a63ae45ddeb777889c06d5f0ac7d4062fd261aa4e89
+R a70a37219609ed8920cb2a37fd7682c8
 U stephan
-Z 24599dde3b09f6fe72de3cf4c44ef2be
+Z 0d5e7b630ee26e4a11f327c6a4922dd5
 # Remove this line to create a well-formed Fossil manifest.
