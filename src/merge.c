@@ -257,6 +257,9 @@ static void merge_info_tcl(const char *zFName, int nContext){
 */
 static void merge_info_html_css(Blob *p){
   blob_append(p, "<style>\n", -1);
+  blob_append(p, "table.diff {\n"
+              "margin-bottom: 1em;"
+              "}\n", -1);
   blob_append(p, "tr.diffchunk {\n"
               "display: grid; gap: 0px 0px;\n"
               "grid-template-rows: 1fr;\n"

@@ -715,6 +715,19 @@ void mergebuilder_init_tcl(MergeBuilder *p){
   p->xConflict = tclConflict;
 }
 
+/*
+** Works like blob_copy_lines() except that if pTo is not NULL, the
+** copied content is HTML-escaped.
+*/
+/*static*/ void htmlCopyLines(Blob *pTo, Blob *pFrom, int N){
+  const unsigned int iStart = pFrom->iCursor;
+  blob_copy_lines(0, pFrom, N);
+  if( pTo ){
+    assert( iStart <= pFrom->iCursor );
+    htmlize_to_blob(pTo, blob_str(pFrom) + iStart, (int)(pFrom->iCursor - iStart));
+  }
+}
+
 /* MergeBuilderHtml::xStart() */
 static void htmlStart(MergeBuilder *p){
   MergeBuilderHtml *pH = (MergeBuilderHtml*)p;
@@ -723,31 +736,33 @@ static void htmlStart(MergeBuilder *p){
   for(i = 0; i < sizeof(pH->aCol)/sizeof(Blob); ++i){
     blob_zero(&pH->aCol[i]);
   }
-  /* TODO: open HTML table in p->pOut */
-  blob_appendf(p->pOut, "<h1>%h &rarr; (%h, %h) &rarr; %h</h1>",
-               p->zPivot, p->zV1, p->zV2, p->zOut);
-  /* Reminder; MergeBuilder does not currently contain enough state to
+  /* Reminder: MergeBuilder does not currently contain enough state to
   ** let us include version info in this diff. We have the raw content
   ** of p->pPivot and p->pV2, but p->pV1 may be locally edited.  We
   ** can't readily know whether we need to use SHA1 or SHA3 to find it
   ** in the blob table. */
   blob_append(p->pOut,
-              "<table class='diff'><tbody>"
-              "<tr class='diffchunk'>\n", -1);
-#define DCOL(KEY,KLASS,DUMMY)                                  \
-  blob_appendf(&pH->aCol[KEY], "<td class='" KLASS "'><pre>%h", DUMMY)
-  DCOL(MBH_COL_BASELINE_LN,  "mrgBaseLn diffln", "###");
-  DCOL(MBH_COL_BASELINE,     "mrgBase", "merge base");
-  DCOL(MBH_COL_BASELINE_SEP, "mrgBaseSep diffsep", " ");
-  DCOL(MBH_COL_LOCAL_LN,     "mrgLocalLn diffln", "###");
-  DCOL(MBH_COL_LOCAL,        "mrgLocal", "local");
-  DCOL(MBH_COL_LOCAL_SEP,    "mrgLocalSep diffsep", " ");
-  DCOL(MBH_COL_MERGEDIN_LN,  "mrgMILn diffln", "###");
-  DCOL(MBH_COL_MERGEDIN,     "mrgMI", "merged-in");
-  DCOL(MBH_COL_MERGEDIN_SEP, "mrgMISep diffsep", " ");
-  DCOL(MBH_COL_RESULT_LN,    "mrgResLn diffln", "###");
-  DCOL(MBH_COL_RESULT,       "mrgRes", "merge result");
+              "<table class='diff'>", -1);
+  blob_append(p->pOut, "<thead><tr class='diffchunk'>", -1);
+#define DCOL(KEY,KLASS,DUMMY,FILENAME)                                  \
+  blob_appendf(&pH->aCol[KEY], "<td class='" KLASS "'><pre>%h", DUMMY); \
+  blob_append(p->pOut, "<td class='" KLASS "'>", -1 );                  \
+  if( FILENAME ) blob_appendf(p->pOut, "%h", FILENAME);                 \
+  blob_append(p->pOut, "</td>", -1)
+  DCOL(MBH_COL_BASELINE_LN,  "mrgBaseLn diffln", "###", 0);
+  DCOL(MBH_COL_BASELINE,     "mrgBase", "", p->zPivot);
+  DCOL(MBH_COL_BASELINE_SEP, "mrgBaseSep diffsep", " ", 0);
+  DCOL(MBH_COL_LOCAL_LN,     "mrgLocalLn diffln", "###", 0);
+  DCOL(MBH_COL_LOCAL,        "mrgLocal", "", p->zV1);
+  DCOL(MBH_COL_LOCAL_SEP,    "mrgLocalSep diffsep", " ", 0);
+  DCOL(MBH_COL_MERGEDIN_LN,  "mrgMILn diffln", "###", 0);
+  DCOL(MBH_COL_MERGEDIN,     "mrgMI", "", p->zV2);
+  DCOL(MBH_COL_MERGEDIN_SEP, "mrgMISep diffsep", " ", 0);
+  DCOL(MBH_COL_RESULT_LN,    "mrgResLn diffln", "###", 0);
+  DCOL(MBH_COL_RESULT,       "mrgRes", "", p->zOut);
 #undef DCOL
+  blob_append(p->pOut, "</tr></thead>\n"
+              "<tbody><tr class='diffchunk'>\n", -1);
 }
 
 /* MergeBuilderHtml::xEnd() */
