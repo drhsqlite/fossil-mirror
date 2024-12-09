@@ -204,7 +204,7 @@ static void merge_info_tcl(const char *zFName, int nContext){
       );
       blob_zero(&v1);
       if( db_step(&q2)==SQLITE_ROW ){
-        db_column_blob(&q, 0, &v1);
+        db_column_blob(&q2, 0, &v1);
       }else{
         mb.zV1 = "(local content missing)";
       }

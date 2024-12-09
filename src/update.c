@@ -409,6 +409,7 @@ void update_cmd(void){
   assert( g.zLocalRoot!=0 );
   assert( strlen(g.zLocalRoot)>0 );
   assert( g.zLocalRoot[strlen(g.zLocalRoot)-1]=='/' );
+  merge_info_init();
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);  /* The filename from root */
     int idv = db_column_int(&q, 1);             /* VFILE entry for current */
@@ -502,6 +503,11 @@ void update_cmd(void){
       /* Merge the changes in the current tree into the target version */
       Blob r, t, v;
       int rc;
+      const char *zOp = "MERGE";
+      i64 sz = 0;
+      int nc = 0;
+      const char *zErrMsg = 0;
+
       if( nameChng ){
         fossil_print("MERGE %s -> %s\n", zName, zNewName);
       }else{
@@ -509,6 +515,7 @@ void update_cmd(void){
       }
       if( islinkv || islinkt ){
         fossil_print("***** Cannot merge symlink %s\n", zNewName);
+        zOp = "CONFLICT";
         nConflict++;
       }else{
         unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
@@ -516,6 +523,7 @@ void update_cmd(void){
         if( !dryRunFlag && !internalUpdate ) undo_save(zName);
         content_get(ridt, &t);
         content_get(ridv, &v);
+        sz = file_size(zFullPath, ExtFILE);
         rc = merge_3way(&v, zFullPath, &t, &r, mergeFlags);
         if( rc>=0 ){
           if( !dryRunFlag ){
@@ -523,6 +531,9 @@ void update_cmd(void){
             file_setexe(zFullNewPath, isexe);
           }
           if( rc>0 ){
+            nc = rc;
+            zOp = "CONFLICT";
+            zErrMsg = "merge conflicts";
             fossil_print("***** %d merge conflicts in %s\n", rc, zNewName);
             nConflict++;
           }
@@ -545,8 +556,25 @@ void update_cmd(void){
           }
           fossil_print("\n");
           nConflict++;
+          zOp = "ERROR";
+          zErrMsg = "cannot merge binary file";
+          nc = 1;
         }
       }
+      db_multi_exec(
+        "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,fnr,nc,msg)"
+        "VALUES(%Q,%Q,%d,%Q,NULL,%lld,%Q,%d,%Q,%d,%Q)",
+        /* op   */ zOp,
+        /* fnp  */ zName,
+        /* ridp */ ridv,
+        /* fn   */ zNewName,
+        /* sz   */ sz,
+        /* fnm  */ zName,
+        /* ridm */ ridt,
+        /* fnr  */ zNewName,
+        /* nc   */ nc,
+        /* msg  */ zErrMsg
+      );
       if( nameChng && !dryRunFlag ) file_delete(zFullPath);
       blob_reset(&v);
       blob_reset(&t);
