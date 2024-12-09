@@ -425,9 +425,14 @@ void update_cmd(void){
     char *zFullPath;                            /* Full pathname of the file */
     char *zFullNewPath;                         /* Full pathname of dest */
     char nameChng;                              /* True if the name changed */
+    const char *zOp = 0;                        /* Type of change.  */
+    i64 sz = 0;                                 /* Size of the file */
+    int nc = 0;                                 /* Number of conflicts */
+    const char *zErrMsg = 0;                    /* Error message */
 
     zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
     zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
+    sz = file_size(zFullNewPath, ExtFILE);
     nameChng = fossil_strcmp(zName, zNewName);
     nUpdate++;
     if( deleted ){
@@ -439,6 +444,9 @@ void update_cmd(void){
       */
       fossil_print("CONFLICT %s\n", zName);
       nConflict++;
+      zOp = "CONFLICT";
+      nc = 1;
+      zErrMsg = "duplicate file";
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
       if( file_isfile_or_link(zFullPath) ){
@@ -451,6 +459,9 @@ void update_cmd(void){
         if( !dryRunFlag ) fossil_print(", original copy backed up locally");
         fossil_print("\n");
         nOverwrite++;
+        nc = 1;
+        zOp = "CONFLICT";
+        zErrMsg = "new file overwrites unmanaged file";
       }else{
         fossil_print("ADD %s\n", zName);
       }
@@ -465,12 +476,14 @@ void update_cmd(void){
       }
       if( !dryRunFlag && !internalUpdate ) undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
+      zOp = "UPDATE";
     }else if( idt>0 && idv>0 && !deleted && file_size(zFullPath, RepoFILE)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
       fossil_print("UPDATE %s\n", zName);
       if( !dryRunFlag && !internalUpdate ) undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
+      zOp = "UPDATE";
     }else if( idt==0 && idv>0 ){
       if( ridv==0 ){
         /* Added in current check-out.  Continue to hold the file as
@@ -481,6 +494,9 @@ void update_cmd(void){
         ** file but keep the edited version around. */
         fossil_print("CONFLICT %s - edited locally but deleted by update\n",
                      zName);
+        zOp = "CONFLICT";
+        zErrMsg = "edited locally but deleted by update";
+        nc = 1;
         nConflict++;
       }else{
         fossil_print("REMOVE %s\n", zName);
@@ -503,10 +519,6 @@ void update_cmd(void){
       /* Merge the changes in the current tree into the target version */
       Blob r, t, v;
       int rc;
-      const char *zOp = "MERGE";
-      i64 sz = 0;
-      int nc = 0;
-      const char *zErrMsg = 0;
 
       if( nameChng ){
         fossil_print("MERGE %s -> %s\n", zName, zNewName);
@@ -523,7 +535,6 @@ void update_cmd(void){
         if( !dryRunFlag && !internalUpdate ) undo_save(zName);
         content_get(ridt, &t);
         content_get(ridv, &v);
-        sz = file_size(zFullPath, ExtFILE);
         rc = merge_3way(&v, zFullPath, &t, &r, mergeFlags);
         if( rc>=0 ){
           if( !dryRunFlag ){
@@ -536,6 +547,8 @@ void update_cmd(void){
             zErrMsg = "merge conflicts";
             fossil_print("***** %d merge conflicts in %s\n", rc, zNewName);
             nConflict++;
+          }else{
+            zOp = "MERGE";
           }
         }else{
           if( !dryRunFlag ){
@@ -561,20 +574,6 @@ void update_cmd(void){
           nc = 1;
         }
       }
-      db_multi_exec(
-        "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,fnr,nc,msg)"
-        "VALUES(%Q,%Q,%d,%Q,NULL,%lld,%Q,%d,%Q,%d,%Q)",
-        /* op   */ zOp,
-        /* fnp  */ zName,
-        /* ridp */ ridv,
-        /* fn   */ zNewName,
-        /* sz   */ sz,
-        /* fnm  */ zName,
-        /* ridm */ ridt,
-        /* fnr  */ zNewName,
-        /* nc   */ nc,
-        /* msg  */ zErrMsg
-      );
       if( nameChng && !dryRunFlag ) file_delete(zFullPath);
       blob_reset(&v);
       blob_reset(&t);
@@ -590,6 +589,22 @@ void update_cmd(void){
         db_reset(&mtimeXfer);
         if( verboseFlag ) fossil_print("UNCHANGED %s\n", zName);
       }
+    }
+    if( zOp!=0 ){
+      db_multi_exec(
+        "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,fnr,nc,msg)"
+        "VALUES(%Q,%Q,%d,%Q,NULL,%lld,%Q,%d,%Q,%d,%Q)",
+        /* op   */ zOp,
+        /* fnp  */ zName,
+        /* ridp */ ridv,
+        /* fn   */ zNewName,
+        /* sz   */ sz,
+        /* fnm  */ zName,
+        /* ridm */ ridt,
+        /* fnr  */ zNewName,
+        /* nc   */ nc,
+        /* msg  */ zErrMsg
+      );
     }
     free(zFullPath);
     free(zFullNewPath);

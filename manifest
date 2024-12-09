@@ -1,5 +1,5 @@
-C Record\smerge-info\sinformation\sfor\sthe\s"fossil\supdate"\scommand.
-D 2024-12-09T17:38:46.143
+C Gather\smore\stransformations\sfor\smerge-info\sin\sa\s"fossil\supdate".
+D 2024-12-09T22:45:26.941
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -579,7 +579,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
 F src/unversioned.c d6e33d7ff74b6646c3869f381331fbc355f7b686741f23d17db0a4b0a72fa0b4
-F src/update.c 5f6199faa1bfa47a78d6147815a828788c16f419ea768f737bcd805a3ab65925
+F src/update.c ab2c1100795954e1fd471721c743adbb7eaea29727f020185d24636c82e634b6
 F src/url.c 8e2dc63f5556d4e8581d80cc00eb979000018d090815231b5fd7011c430b81d9
 F src/user.c cda5e43af6b01c05aacd01450e707d1ed8f2910d19321d2a543e948ff7fcf53b
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0b5dfa9f6cacfba116b7d82a501114f747c523c988b7b42064dbb84cec8f55dc
-R e4a18bc5350a06c2c22497c4cdf25bb0
+P 3a18c95df49f95a5ad726c671038daccc6eb99a5140825559a327c1f0ecb983c
+R b06af244b4501812d12a86b6d18809bf
 U drh
-Z ed5d61116da2ded7d58b41904e305805
+Z b5de9077211a8e45e001b1cbf03a52c1
 # Remove this line to create a well-formed Fossil manifest.
