@@ -356,7 +356,6 @@ static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
     "  FROM mergestat WHERE rowid IN mi_html"
     "  ORDER BY coalesce(fnr,fn,fnp)"
   );
-  blob_append(&out, "<ul>\n", 5);
   while( SQLITE_ROW==db_step(&q) ){
     const char * zFN;                /* A filename */
     char * zToFree[5] = {0,0,0,0,0}; /* String memory to free */
@@ -451,7 +450,6 @@ static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
   }/* for-each-file loop */
   db_finalize(&q);
   mb->xDestroy(mb);
-  blob_append(&out, "</ul>\n", 6);
 
   blob_append(&out, diff_webpage_footer(), -1);
   blob_reset(&v1);

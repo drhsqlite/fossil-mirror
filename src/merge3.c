@@ -724,8 +724,30 @@ static void htmlStart(MergeBuilder *p){
     blob_zero(&pH->aCol[i]);
   }
   /* TODO: open HTML table in p->pOut */
-  blob_appendf(p->pOut, "<h1>%h &rarr; (%h, %h) &rarr; %h</h1><pre>",
+  blob_appendf(p->pOut, "<h1>%h &rarr; (%h, %h) &rarr; %h</h1>",
                p->zPivot, p->zV1, p->zV2, p->zOut);
+  /* Reminder; MergeBuilder does not currently contain enough state to
+  ** let us include version info in this diff. We have the raw content
+  ** of p->pPivot and p->pV2, but p->pV1 may be locally edited.  We
+  ** can't readily know whether we need to use SHA1 or SHA3 to find it
+  ** in the blob table. */
+  blob_append(p->pOut,
+              "<table class='diff'><tbody>"
+              "<tr class='diffchunk'>\n", -1);
+#define DCOL(KEY,KLASS,DUMMY)                                  \
+  blob_appendf(&pH->aCol[KEY], "<td class='" KLASS "'><pre>%h", DUMMY)
+  DCOL(MBH_COL_BASELINE_LN,  "mrgBaseLn diffln", "###");
+  DCOL(MBH_COL_BASELINE,     "mrgBase", "merge base");
+  DCOL(MBH_COL_BASELINE_SEP, "mrgBaseSep diffsep", " ");
+  DCOL(MBH_COL_LOCAL_LN,     "mrgLocalLn diffln", "###");
+  DCOL(MBH_COL_LOCAL,        "mrgLocal", "local");
+  DCOL(MBH_COL_LOCAL_SEP,    "mrgLocalSep diffsep", " ");
+  DCOL(MBH_COL_MERGEDIN_LN,  "mrgMILn diffln", "###");
+  DCOL(MBH_COL_MERGEDIN,     "mrgMI", "merged-in");
+  DCOL(MBH_COL_MERGEDIN_SEP, "mrgMISep diffsep", " ");
+  DCOL(MBH_COL_RESULT_LN,    "mrgResLn diffln", "###");
+  DCOL(MBH_COL_RESULT,       "mrgRes", "merge result");
+#undef DCOL
 }
 
 /* MergeBuilderHtml::xEnd() */
@@ -735,28 +757,29 @@ static void htmlEnd(MergeBuilder *p){
 
   /* TODO: flush pH->aCol to p->pOut and close HTML table */
   for(i = 0; i < sizeof(pH->aCol)/sizeof(Blob); ++i){
-    blob_reset(&pH->aCol[i]);
+    blob_appendf(&pH->aCol[i], "</pre></td><!-- end col-#%u -->", i);
+    blob_append_xfer(p->pOut, &pH->aCol[i]);
   }
-  blob_append(p->pOut, "</pre>\n", -1);
+  blob_append(p->pOut, "</tbody></table>\n", -1);
   p->pV1 = p->pV2 = p->pPivot = p->pOut = 0;
   p->zPivot = p->zV1 = p->zV2 = p->zOut = 0;
 }
 
 /* MergeBuilderHtml::xSame() */
 static void htmlSame(MergeBuilder *p, unsigned int N){
-  return dbgSame(p, N);
+  /*dbgSame(p, N);*/
 }
 /* MergeBuilderHtml::xChngV1() */
 static void htmlChngV1(MergeBuilder *p, unsigned int nPivot, unsigned int nV1){
-  return dbgChngV1(p, nPivot, nV1);
+  /*dbgChngV1(p, nPivot, nV1);*/
 }
 /* MergeBuilderHtml::xChngV2() */
 static void htmlChngV2(MergeBuilder *p, unsigned int nPivot, unsigned int nV2){
-  return dbgChngV2(p, nPivot, nV2);
+  /*dbgChngV2(p, nPivot, nV2);*/
 }
 /* MergeBuilderHtml::xChngBoth() */
 static void htmlChngBoth(MergeBuilder *p, unsigned int nPivot, unsigned int nV){
-  return dbgChngBoth(p, nPivot, nV);
+  /*dbgChngBoth(p, nPivot, nV);*/
 }
 /* MergeBuilderHtml::xConflict() */
 static void htmlConflict(
@@ -765,7 +788,7 @@ static void htmlConflict(
   unsigned int nV1,
   unsigned int nV2
 ){
-  return dbgConflict(p, nPivot, nV1, nV2);
+  /*dbgConflict(p, nPivot, nV1, nV2);*/
 }
 void mergebuilder_init_html(MergeBuilderHtml *pH){
   MergeBuilder *p = &pH->base;
