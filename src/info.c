@@ -622,7 +622,7 @@ void ckout_page(void){
   Stmt q;
 
   if( zName || !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
-    webpage_notfound_error(0 /*works-like:""*/);
+    cgi_redirect("%R/home");
     return;
   }
   diffType = preferred_diff_type();

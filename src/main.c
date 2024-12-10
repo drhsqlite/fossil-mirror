@@ -2042,16 +2042,23 @@ static void process_one_web_page(
   if( fossil_redirect_to_https_if_needed(2) ) return;
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
-    /* Second special case: If the PATH_INFO is blank, issue a redirect to
-    ** the home page identified by the "index-page" setting in the repository
-    ** CONFIG table, to "/index" if there no "index-page" setting. */
+    /* Second special case: If the PATH_INFO is blank, issue a redirect:
+    **    (1) to "/ckout" if g.useLocalauth and g.localOpen are both set.
+    **    (2) to the home page identified by the "index-page" setting
+    **        in the repository CONFIG table
+    **    (3) to "/index" if there no "index-page" setting in CONFIG
+    */
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,1);
       fossil_exit(0);
     }
 #endif
-    fossil_redirect_home() /*does not return*/;
+    if( g.useLocalauth && g.localOpen ){
+      cgi_redirectf("%R/ckout");
+    }else{
+      fossil_redirect_home() /*does not return*/;
+    }
   }else{
     zPath = mprintf("%s", zPathInfo);
   }
@@ -3386,11 +3393,7 @@ void cmd_webserver(void){
     find_server_repository(findServerArg, fCreate);
   }
   if( zInitPage==0 ){
-    if( isUiCmd && g.localOpen ){
-      zInitPage = "ckout";
-    }else{
-      zInitPage = "";
-    }
+    zInitPage = "";
   }
   if( zPort ){
     if( strchr(zPort,':') ){
