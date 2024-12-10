@@ -613,15 +613,15 @@ void ci_tags_page(void){
 ** started using "fossil ui" or similar) from with on open check-out.
 */
 void ckout_page(void){
-  const char *zName = P("name");
   int vid;
   char *zHostname;
   char *zCwd;
   int diffType;               /* 0: no diff,  1: unified,  2: side-by-side */
   DiffConfig DCfg,*pCfg;      /* Diff details */
+  const char *zHome;          /* Home directory */
   Stmt q;
 
-  if( zName || !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
+  if( !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
     cgi_redirect("%R/home");
     return;
   }
@@ -634,10 +634,17 @@ void ckout_page(void){
   style_set_current_feature("vinfo");
   zHostname = fossil_hostname();
   zCwd = file_getcwd(0,0);
+  zHome = fossil_getenv("HOME");
+  if( zHome ){
+    int nHome = (int)strlen(zHome);
+    if( strncmp(zCwd, zHome, nHome)==0 && zCwd[nHome]=='/' ){
+      zCwd = mprintf("~%s", zCwd+nHome);
+    }
+  }
   if( zHostname ){
-    style_header("Checkout %h on %h", zCwd, zHostname);
+    style_header("%h on %h", zCwd, zHostname);
   }else{
-    style_header("Checkout at %h", zCwd);
+    style_header("%h", zCwd);
   }
   render_checkin_context(vid, 0, 0, 0);
   db_prepare(&q,
