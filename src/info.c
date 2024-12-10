@@ -606,6 +606,35 @@ void ci_tags_page(void){
 }
 
 /*
+** WEBPAGE: ckout
+**
+** Show information about the current checkout.  This page only functions
+** if the web server is run as loopback and is on an open check-out and
+** has no "name" parameter.
+*/
+void ckout_page(void){
+  const char *zName = P("name");
+  int vid;
+  char *zHostname;
+  char *zCwd;
+  if( zName || !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
+    webpage_notfound_error(0 /*works-like:""*/);
+    return;
+  }
+  vid = db_lget_int("checkout", 0);
+  style_set_current_feature("vinfo");
+  zHostname = fossil_hostname();
+  zCwd = file_getcwd(0,0);
+  if( zHostname ){
+    style_header("Checkout at %s:%s", zHostname, zCwd);
+  }else{
+    style_header("Checkout at %s", zCwd);
+  }
+  render_checkin_context(vid, 0, 0, 0);
+  style_finish_page();
+}
+
+/*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
 ** URL:  /ci/ARTIFACTID
