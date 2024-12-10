@@ -609,8 +609,8 @@ void ci_tags_page(void){
 ** WEBPAGE: ckout
 **
 ** Show information about the current checkout.  This page only functions
-** if the web server is run as loopback and is on an open check-out and
-** has no "name" parameter.
+** if the web server is run on a loopback interface (in other words, was
+** started using "fossil ui" or similar) from with on open check-out.
 */
 void ckout_page(void){
   const char *zName = P("name");
