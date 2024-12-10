@@ -1,5 +1,5 @@
-C Begin\sadding\sthe\sinfrastructure\sfor\sa\s/ckout\swebpage.
-D 2024-12-10T00:36:10.504
+C Add\sdiffs\sto\sthe\s/ckout\spage.
+D 2024-12-10T12:16:26.454
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6e
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c f12b50246bddeac8cb3bd0ede8cc3bcb0c8ca1c46bd8acd5b7f73fbd9094acde
+F src/info.c 5445e8df8c71d4f71fa0443a34580f02abdcc328553bfa280cfce172a42eb8b6
 F src/interwiki.c 517f85da17421e2e6cf968345850138408104e8b82ce08ac2470e61273d62882
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -961,11 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P de6f88a6f00fa8540a742fd30656e179147093cdd6e75862aa9d526367c1a0bb
-R 17831ce5f89ecb084c3d8c429b6ba458
-T *branch * ckout-page
-T *sym-ckout-page *
-T -sym-trunk *
+P c620a8c74c6f9c72a5049c9b6f8fd0134420112a921903f97caad1fa2929e0ff
+R 2b9445d72cf17f328a11a9d5006af89e
 U drh
-Z 37d0150e2f2d80eb9350fee580ec057f
+Z 08f580824c39ff5c14500ccf45b0d5a0
 # Remove this line to create a well-formed Fossil manifest.

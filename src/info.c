@@ -617,10 +617,16 @@ void ckout_page(void){
   int vid;
   char *zHostname;
   char *zCwd;
+  int diffType;               /* 0: no diff,  1: unified,  2: side-by-side */
+  DiffConfig DCfg,*pCfg;      /* Diff details */
+  Stmt q;
+
   if( zName || !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
     webpage_notfound_error(0 /*works-like:""*/);
     return;
   }
+  diffType = preferred_diff_type();
+  pCfg = construct_diff_flags(diffType, &DCfg);
   vid = db_lget_int("checkout", 0);
   style_set_current_feature("vinfo");
   zHostname = fossil_hostname();
@@ -631,6 +637,77 @@ void ckout_page(void){
     style_header("Checkout at %s", zCwd);
   }
   render_checkin_context(vid, 0, 0, 0);
+  db_prepare(&q,
+       /*   0         1        2        3       4    5       6 */
+    "SELECT pathname, deleted, chnged , rid==0, rid, islink, uuid"
+    "  FROM vfile LEFT JOIN blob USING(rid)"
+    " WHERE vid=%d"
+    "   AND (deleted OR chnged OR rid==0)"
+    " ORDER BY pathname /*scan*/",
+    vid
+  );
+  if( pCfg->diffFlags & DIFF_SIDEBYSIDE ){
+    pCfg->diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
+  }else{
+    pCfg->diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
+  }
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTreename = db_column_text(&q,0);
+    int isDeleted = db_column_int(&q, 1);
+    int isChnged = db_column_int(&q,2);
+    int isNew = db_column_int(&q,3);
+    int srcid = db_column_int(&q, 4);
+    int isLink = db_column_int(&q, 5);
+    const char *zUuid = db_column_text(&q, 6);
+    int showDiff = 1;
+
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
+    if( isDeleted ){
+      @ <p>DELETED %h(zTreename)</p>
+      pCfg->diffFlags |= DIFF_FILE_DELETED;
+      showDiff = 0;
+    }else if( file_access(zTreename, F_OK) ){
+      @ <p>MISSING %h(zTreename)</p>
+      showDiff = 0;
+    }else if( isNew ){
+      @ <p>ADDED %h(zTreename)</p>
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
+      srcid = 0;
+      showDiff = 0;
+    }else if( isChnged==3 ){
+      @ <p>ADDED_BY_MERGE %h(zTreename)</p>
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
+      srcid = 0;
+      showDiff = 0;
+    }else if( isChnged==5 ){
+      @ <p>ADDED_BY_INTEGRATE %h(zTreename)</p>
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
+      srcid = 0;
+      showDiff = 0;
+    }else{
+      @ <p>CHANGED %h(zTreename)</p>
+    }
+    if( showDiff ){
+      Blob old, new;
+      if( !isLink != !file_islink(zTreename) ){
+        @ %s(DIFF_CANNOT_COMPUTE_SYMLINK)
+        continue;
+      }
+      if( srcid>0 ){
+        content_get(srcid, &old);
+        pCfg->zLeftHash = zUuid;
+      }else{
+        blob_zero(&old);
+        pCfg->zLeftHash = 0;
+      }
+      blob_read_from_file(&new, zTreename, ExtFILE);
+      text_diff(&old, &new, cgi_output_blob(), pCfg);
+      blob_reset(&old);
+      blob_reset(&new);
+    }
+  }
+  db_finalize(&q);
+  append_diff_javascript(diffType);
   style_finish_page();
 }
 
