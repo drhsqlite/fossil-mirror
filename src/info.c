@@ -628,6 +628,7 @@ void ckout_page(void){
   diffType = preferred_diff_type();
   pCfg = construct_diff_flags(diffType, &DCfg);
   vid = db_lget_int("checkout", 0);
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
   style_set_current_feature("vinfo");
   zHostname = fossil_hostname();
   zCwd = file_getcwd(0,0);
