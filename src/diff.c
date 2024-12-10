@@ -3229,16 +3229,25 @@ int *text_diff(
 ** Process diff-related command-line options and return an appropriate
 ** "diffFlags" integer.
 **
+**   -b|--browser                 Show the diff output in a web-browser
 **   --brief                      Show filenames only        DIFF_BRIEF
+**   --by                         Shorthand for "--browser -y"
 **   -c|--context N               N lines of context.        nContext
+**   --dark                       Use dark mode for Tcl/Tk and HTML output
 **   --html                       Format for HTML            DIFF_HTML
+**   -i|--internal                Use built-in diff, not an external tool
 **   --invert                     Invert the diff            DIFF_INVERT
+**   --json                       Output formatted as JSON
 **   -n|--linenum                 Show line numbers          DIFF_LINENO
+**   -N|--new-file                Alias for --verbose
 **   --noopt                      Disable optimization       DIFF_NOOPT
 **   --numstat                    Show change counts         DIFF_NUMSTAT
 **   --strip-trailing-cr          Strip trailing CR          DIFF_STRIP_EOLCR
+**   --tcl                        Tcl-formatted output used internally by --tk
 **   --unified                    Unified diff.              ~DIFF_SIDEBYSIDE
+**   -v|--verbose                 Show complete text of added or deleted files
 **   -w|--ignore-all-space        Ignore all whitespaces     DIFF_IGNORE_ALLWS
+**   --webpage                    Format output as a stand-alone HTML webpage
 **   -W|--width N                 N character lines.         wColumn
 **   -y|--side-by-side            Side-by-side diff.         DIFF_SIDEBYSIDE
 **   -Z|--ignore-trailing-space   Ignore eol-whitespaces     DIFF_IGNORE_EOLWS

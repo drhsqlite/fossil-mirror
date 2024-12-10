@@ -1314,7 +1314,8 @@ void diff_cmd(void){
   if( zCheckin!=0 && ( zFrom!=0 || zTo!=0 ) ){
     fossil_fatal("cannot use --checkin together with --from or --to");
   }
-  g.diffCnt[0] = g.diffCnt[1] = g.diffCnt[2] = 0;
+  diff_options(&DCfg, isGDiff, 0);
+  determine_exec_relative_option(1);
   if( 0==zCheckin ){
     if( zTo==0 || againstUndo ){
       db_must_be_within_tree();
@@ -1326,9 +1327,8 @@ void diff_cmd(void){
   }else{
     db_find_and_open_repository(0, 0);
   }
-  diff_options(&DCfg, isGDiff, 0);
-  determine_exec_relative_option(1);
   verify_all_options();
+  g.diffCnt[0] = g.diffCnt[1] = g.diffCnt[2] = 0;
   if( g.argc>=3 ){
     int i;
     Blob fname;
