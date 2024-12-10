@@ -635,9 +635,9 @@ void ckout_page(void){
   zHostname = fossil_hostname();
   zCwd = file_getcwd(0,0);
   if( zHostname ){
-    style_header("Checkout at %s:%s", zHostname, zCwd);
+    style_header("Checkout %h on %h", zCwd, zHostname);
   }else{
-    style_header("Checkout at %s", zCwd);
+    style_header("Checkout at %h", zCwd);
   }
   render_checkin_context(vid, 0, 0, 0);
   db_prepare(&q,

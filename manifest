@@ -1,5 +1,5 @@
-C Try\sto\salways\suse\s/ckout\sas\sthe\sstart\spage\sfor\s"fossil\sui"\sinvocations,\seven\non\sremote\shosts,\sunless\ssomething\selse\sis\sspecified\sby\sthe\suser.
-D 2024-12-10T18:18:52.463
+C Improved\stitle\son\sthe\s/ckout\spage.
+D 2024-12-10T18:24:28.241
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6e
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c b7e45e388b4c48b8e25ca6ab2e46b6ba12b90175e1894f4463748321bc11897a
+F src/info.c 7fb63bc45b7618d1a5e4232b7dfdc07c66d8b0e5909712ca9f44de07c0af59cd
 F src/interwiki.c 517f85da17421e2e6cf968345850138408104e8b82ce08ac2470e61273d62882
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db2f309787b18b1798081604bee4f1717bebed9a420037332e91b0ae4caf4ca1
-R dc7930db424dd683472f5d6221366190
+P 58849c4098eadb17b2083bc98050c8b043699fffcd378a0a5fc49094e837f5e8
+R 58f1744f4d7f3907599a7e989081301e
 U drh
-Z 0828d2e71b2a22f198a7f58fbec39a2f
+Z 97349c2f966b29eb808c649a5362ffa9
 # Remove this line to create a well-formed Fossil manifest.
