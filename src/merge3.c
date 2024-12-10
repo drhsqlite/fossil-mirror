@@ -424,7 +424,7 @@ static void txtChngV2(MergeBuilder *p, unsigned int nPivot, unsigned int nV2){
 }
 static void txtChngBoth(MergeBuilder *p, unsigned int nPivot, unsigned int nV){
   blob_copy_lines(0, p->pPivot, nPivot);   p->lnPivot += nPivot;
-  blob_copy_lines(0, p->pV1, nPivot);      p->lnV1 += nV;
+  blob_copy_lines(0, p->pV1, nV);          p->lnV1 += nV;
   blob_copy_lines(p->pOut, p->pV2, nV);    p->lnV2 += nV;
 }
 static void txtConflict(
