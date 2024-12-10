@@ -549,7 +549,7 @@ static void bisect_run(void){
 **
 **       Like "fossil ui" except start on a timeline that shows only the
 **       check-ins that are part of the current bisect.  If the optional
-**       fourth term is added, then information is show for the bisect that
+**       fourth term is added, then information is shown for the bisect that
 **       occurred in the PATH directory by USER on remote machine HOST.
 **
 ** > fossil bisect undo

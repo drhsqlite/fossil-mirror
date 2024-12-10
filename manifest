@@ -1,5 +1,5 @@
-C Add\san\soptional\sREMOTE:PATH\sterm\son\sthe\s"fossil\sbisect\sui"\scommand\sthat\sruns\nthe\sUI\son\sthe\sspecified\sremote\scheck-out.
-D 2024-12-10T20:56:25.654
+C (Grammar)\sCorrect\ssense\sof\sword.
+D 2024-12-10T21:30:24.700
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -386,7 +386,7 @@ F src/attach.c 61506f3e69ff26c2f523b8f0c26e43e2f67cd78e01005c094c9665200fd61d8b
 F src/backlink.c e79a38fc0bbcdae1912bed05cb7a2df9741c78aec4dafe48f20ca5d377b4357f
 F src/backoffice.c ecb3997466581e6a3290e4d194ac59b7678e9236de1d18c0ed489df141d75f49
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
-F src/bisect.c def7955185c4b61a6fe6b0e771e576590fe79d13ffa246152288941ca496183a
+F src/bisect.c 38f167fbdf74a113bb6e847137e6940a8cb43c8f61656ab00ffd25ac89c9d3ad
 F src/blob.c 284b1a6e8750b25bd8d6b8aefcba0d77a01d6839c814864ac1ded88895ade148
 F src/branch.c 206ac28dfd68e03948d00ce16ce6b5acb3fd79d747d52f5edaa7d3949fa5376e
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3f6a7e511390ad75eb39310494b1bffe12f792bfdea49af512b163f73a78bc7c
-R d4949e92a9ba41ac94166168e476cf00
-U drh
-Z 8b5c2743d558c59f4fc8438d83bf6098
+P a865c62a16b345d169ce5b610cfd899eb1965283fda135b307f3b2321510a461
+R 90ef1e7190e7bbc78d6a09c03e113aad
+U brickviking
+Z 9c6b9942f22a7570a051e4f12524c0c6
 # Remove this line to create a well-formed Fossil manifest.
