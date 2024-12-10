@@ -3387,7 +3387,7 @@ void cmd_webserver(void){
   }
   if( zInitPage==0 ){
     if( isUiCmd && g.localOpen ){
-      zInitPage = "timeline?c=current";
+      zInitPage = "ckout";
     }else{
       zInitPage = "";
     }
