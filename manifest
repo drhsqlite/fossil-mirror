@@ -1,5 +1,5 @@
-C Add\san\s"unprotect()"\scall\sto\s/ckout\sso\sthat\sit\scan\ssee\sthat\sfiles\shave\schanged\nand\supdate\sthe\svfile\stable\sappropriately.\s\sUpdates\sto\sdiff\scommand-line\sparser\ncomments\sto\smention\sall\sthe\slatest\soptions.
-D 2024-12-10T13:13:20.755
+C If\sthe\s"fossil\sdiff"\scommand\shas\sa\sdirectory\sargument,\sthen\srun\sa\s"fossil\sui"\ndiff\son\sthat\scheck-out.
+D 2024-12-10T13:58:22.147
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -419,7 +419,7 @@ F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec681182
 F src/diff.c 8f990098ef9cf6c590a1ea45e8f6e0a1a1649b4d66888827134374d06c9dab9f
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl a2731fc53cdf9d2ce3e03242eb007dda32e364c5c3f5ae104e00c53f9e8580bc
-F src/diffcmd.c de8cb5b0f19a1f1a98b1190873f75ab75e9dc217c72182df259ed8c31850abad
+F src/diffcmd.c 560d4e33cf3695ea19618713d9ee74b3c807bac64b555818745e12f99d415c23
 F src/dispatch.c 08b7f541f0fbf027c247d280ec2551342c238d39dac1e27c98a66013e6c71e09
 F src/doc.c 684b3d4fe993ccd618fdd5dfbf73e4bcc2ec019b21503190a503e3eb37008eca
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -961,8 +961,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d35d201840d9bef23ec4b9984d20728edad8f354ced759a5fd6183500fc55871
-R 29bc60d9d2612dd9d8843f354e2df57a
+P a2a0390cbf7df9a707766d7593d67d68b4a33bbb627cec03612984f96832974b
+R 0dfeda2c5a6773584afce4d6864cfcb4
+T *branch * diff-remote
+T *sym-diff-remote *
+T -sym-trunk *
 U drh
-Z 2016fbd3034a2d68f90543d570d9faa4
+Z 27c92db24e868e7333556ea6f74b832b
 # Remove this line to create a well-formed Fossil manifest.

@@ -1316,6 +1316,30 @@ void diff_cmd(void){
   }
   diff_options(&DCfg, isGDiff, 0);
   determine_exec_relative_option(1);
+
+  /* If there is a single argument which is the name of a directory that
+  ** appears to be a Fossil check-out, then convert this "diff" into
+  ** a command like the following that runs a diff on the checkout that
+  ** appears in the browser.
+  **
+  **      fossil ui DIR --page ckout
+  */
+  if( g.argc==3 
+   && (dir_has_ckout_db(g.argv[2]) || file_skip_userhost(g.argv[2]))
+  ){
+    char *azNew[10];
+    azNew[0] = g.argv[0];
+    azNew[1] = "ui";
+    azNew[2] = g.argv[2];
+    azNew[3] = "--page";
+    azNew[4] = "ckout";
+    azNew[5] = 0;
+    g.argc = 5;
+    g.argv = azNew;
+    cmd_webserver();
+    return;
+  }
+
   if( 0==zCheckin ){
     if( zTo==0 || againstUndo ){
       db_must_be_within_tree();
