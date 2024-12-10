@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\stitle\sof\sthe\sckout\spage.
-D 2024-12-10T19:18:13.638
+C Update\sthe\schange\slog.
+D 2024-12-10T20:28:23.845
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -785,7 +785,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 0d8ae1d55db302a98d95da41ac75de4dcc665b66262e1873b5a3e6bcabf213d0
-F www/changes.wiki ca63b8270de2fc3e76aec19d0769f17914aabf4fd471b7d4ec0e7be3eda6dc1b
+F www/changes.wiki 89aecbcbb4f24f5020d0c256039653daf6a1fcffb3ab67bc17b36da01611e9bc
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 842daebb2220d4dd4104c1baa724ba026e6e82a7e1eab194696824d2b6ed9136
-R af8544988e5919dec27068bb08890078
+P 726709d92ac74afde122c3dfec04c13cbeee73fd20f4fcfeb6e79c36e34cec5b
+R 5fbb8827e8fb83df26575699be0be9b2
 U drh
-Z 634216511b34ab1640012500fa135a67
+Z b389d0655b10ba76ec7bf48ab905f7c5
 # Remove this line to create a well-formed Fossil manifest.
