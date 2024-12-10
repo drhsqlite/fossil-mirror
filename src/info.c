@@ -642,9 +642,9 @@ void ckout_page(void){
     }
   }
   if( zHostname ){
-    style_header("%h on %h", zCwd, zHostname);
+    style_header("Checkout Status: %h on %h", zCwd, zHostname);
   }else{
-    style_header("%h", zCwd);
+    style_header("Checkout Status: %h", zCwd);
   }
   render_checkin_context(vid, 0, 0, 0);
   db_prepare(&q,

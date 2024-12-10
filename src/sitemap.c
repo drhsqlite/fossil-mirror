@@ -58,18 +58,6 @@ void sitemap_page(void){
   int e = atoi(PD("e","0"));
   const char *zExtra;
 
-#if 0  /* Removed 2021-01-26 */
-  const struct {
-    const char *zTitle;
-    const char *zProperty;
-  } aExtra[] = {
-    { "Documentation",  "sitemap-docidx" },
-    { "Download",       "sitemap-download" },
-    { "License",        "sitemap-license" },
-    { "Contact",        "sitemap-contact" },
-  };
-#endif
-
   login_check_credentials();
   if( P("popup")!=0 ){
     /* The "popup" query parameter
@@ -88,22 +76,6 @@ void sitemap_page(void){
   if( (e&1)==0 ){
     @ <li>%z(href("%R/home"))Home Page</a>
   }
-
-#if 0  /* Removed 2021-01-26  */
-  for(i=0; i<sizeof(aExtra)/sizeof(aExtra[0]); i++){
-    char *z = db_get(aExtra[i].zProperty,0);
-    if( z==0 || z[0]==0 ) continue;
-    if( !inSublist ){
-      @ <ul>
-      inSublist = 1;
-    }
-    if( z[0]=='/' ){
-      @ <li>%z(href("%R%s",z))%s(aExtra[i].zTitle)</a></li>
-    }else{
-      @ <li>%z(href("%s",z))%s(aExtra[i].zTitle)</a></li>
-    }
-  }
-#endif
 
   zExtra = db_get("sitemap-extra",0);
   if( zExtra && (e&2)==0 ){
@@ -141,22 +113,14 @@ void sitemap_page(void){
   }
   if( (e&1)!=0 ) goto end_of_sitemap;
 
-#if 0  /* Removed on 2021-02-11.  Make a sitemap-extra entry if you */
-       /* really want this */
-  if( srchFlags & SRCH_DOC ){
-    if( !inSublist ){
-      @ <ul>
-      inSublist = 1;
-    }
-    @ <li>%z(href("%R/docsrch"))Documentation Search</a></li>
-  }
-#endif
-
   if( inSublist ){
     @ </ul>
     inSublist = 0;
   }
   @ </li>
+  if( db_open_local(0) && cgi_is_loopback(g.zIpAddr) ){
+    @ <li>%z(href("%R/ckout"))Checkout Status</a></li>
+  }
   if( g.perm.Read ){
     const char *zEditGlob = db_get("fileedit-glob","");
     @ <li>%z(href("%R/tree"))File Browser</a>
