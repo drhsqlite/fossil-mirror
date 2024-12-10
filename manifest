@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatests\strunk\sversion,\swhich\sincludes\nfixes\sfound\sin\s3.47.2,\splus\sother\senhancements.
-D 2024-12-09T23:03:10.764
+C Fix\san\sobscure\spossible\sbug\sin\s"fossil\sui\sDIR"\sif\sthere\sare\s96\sor\smore\nadditional\sarguments.
+D 2024-12-10T00:09:47.609
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -492,7 +492,7 @@ F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22
 F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 09de277fb95dcfd250c535864204b70d60d974fa1591c9d14a189c3d87dbd2c6
+F src/main.c 2e6b8b9218cb4f3beb17ae9c6882a54d6d8237288c986e6133b2ca88dfde7a11
 F src/main.mk 95e820aa9e899db1edbbf7438fa89f1116ce7bb9a0cf6aefe00a9d8bb6e24913
 F src/manifest.c f98b600d1850abeac77a1c13967c4f2ded26f8f968cd86a8e5a25943e385b54f
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 58c74fc5c729ee9a33ac420e5592617ae8bbc011efb66663afe22aa0e360157d
-R 9e07b711a1dd9443384bdac0b1cb63f4
+P 077e53a341150a1fe85818e556381ec9e186cf565ac1c06bb5573658b08697b5
+R 6d6551a9c77fe69297e58d06d9c7ad4f
 U drh
-Z 0c9bfdaff3c485b217f30b0e8a5d6efc
+Z 39fa98c4a02c169313b5f93227c71994
 # Remove this line to create a well-formed Fossil manifest.

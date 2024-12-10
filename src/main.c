@@ -3358,7 +3358,7 @@ void cmd_webserver(void){
       if(0!=file_chdir(zDir, 0)){
         fossil_fatal("Cannot chdir to %s", zDir);
       }
-      findServerArg = 99;
+      findServerArg = g.argc;
       fCreate = 0;
       g.argv[2] = 0;
       --g.argc;
