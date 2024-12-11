@@ -1,5 +1,5 @@
-C More\srobust\sdetection\sof\stop\sof\sa\scheckout\sin\sthe\sdir_has_ckout_db()\sfunction.
-D 2024-12-11T00:32:37.166
+C Record\sthe\sname\sof\sthe\sbranch\sfor\sa\scheckout\swhen\sthe\scheckout\sis\sfirst\nopened.\s\sPossible\suse\slater\sto\swarn\sabout\sbranch\sname\schanges\sat\scheck-in\stime.
+D 2024-12-11T11:41:22.152
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -410,7 +410,7 @@ F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 323b70c62856023676ba402c6fe40e1589360751a4a2758a1ac5ea224909bf68
+F src/db.c 91270e4563274d9485ebdd6540e0c2a806281c474ea45d37e44c7c087ffece50
 F src/default.css 3a83ddf9d27b99b2b7eebfc3958ea4b942cd120958fa546455e40e9f84ab07f5
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -961,8 +961,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7bfa9636adf32d44a9335d39cbfeb463c3ba7870228aa7a0babc6b7c1c963af
-R 66c02c0fffc91d58fdff3aba735ca666
+P 36f916c504c525c72f48585e844aa6bfda22a401f3297d21611cb1fd0fecd041
+R 5b6eeeb9b051f388907213d089d90888
+T *branch * safe-checkout-branch
+T *sym-safe-checkout-branch *
+T -sym-trunk *
 U drh
-Z 6d11a68d2d7aaf2ede2ff6af04b50bd8
+Z e7a12507d991a2881cc0c7886d7121ab
 # Remove this line to create a well-formed Fossil manifest.

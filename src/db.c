@@ -5461,6 +5461,9 @@ void db_set_checkout(int rid){
     z = db_fingerprint(0, 1);
     db_lset("fingerprint", z);
     fossil_free(z);
+    z = branch_of_rid(rid);
+    db_lset("checkout-branch", z);
+    fossil_free(z);
   }
 }
 
