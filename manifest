@@ -1,5 +1,5 @@
-C (Grammar)\sCorrect\ssense\sof\sword.
-D 2024-12-10T21:30:24.700
+C More\srobust\sdetection\sof\stop\sof\sa\scheckout\sin\sthe\sdir_has_ckout_db()\sfunction.
+D 2024-12-11T00:32:37.166
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c bbf9e79dfc96c597bab4f48ae290259a2dfa129a3d1c5878c13306ac46eb595c
 F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
-F src/file.c 5d33865f83bf1b0acd7aea9fd897339f715f3dbdee74afee46d9e78fcd979d91
+F src/file.c 4e03460b7aa705b687689b9a797c21b2b1d253c286a768079ffecdbf12c2647c
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 3eacb1b2e40382a539d16fa54ef4e4f0da931513a56fe974b41fa58f85538740
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a865c62a16b345d169ce5b610cfd899eb1965283fda135b307f3b2321510a461
-R 90ef1e7190e7bbc78d6a09c03e113aad
-U brickviking
-Z 9c6b9942f22a7570a051e4f12524c0c6
+P c7bfa9636adf32d44a9335d39cbfeb463c3ba7870228aa7a0babc6b7c1c963af
+R 66c02c0fffc91d58fdff3aba735ca666
+U drh
+Z 6d11a68d2d7aaf2ede2ff6af04b50bd8
 # Remove this line to create a well-formed Fossil manifest.
