@@ -374,7 +374,9 @@ static void append_file_change_line(
   DiffConfig *pCfg,     /* Flags for text_diff() or NULL to omit all */
   int mperm             /* executable or symlink permission for zNew */
 ){
-  @ <p>
+  @ <div class='file-change-line'><span>
+    /* Maintenance reminder: the extra level of SPAN is for
+    ** arranging new elements via JS. */
   if( !g.perm.Hyperlink ){
     if( zNew==0 ){
       @ Deleted %h(zName).
@@ -393,6 +395,7 @@ static void append_file_change_line(
     }else{
       @ Changes to %h(zName).
     }
+    @ </span></div>
     if( pCfg ){
       append_diff(zOld, zNew, pCfg);
     }
@@ -438,16 +441,16 @@ static void append_file_change_line(
       @ Added %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
       @ %h(zName)</a> version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
+    @ </span></div>
     if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       if( pCfg ){
         append_diff(zOld, zNew, pCfg);
-      }else{ 
+      }else{
         @ &nbsp;&nbsp;
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a>
       }
     }
   }
-  @ </p>
 }
 
 /*
