@@ -642,8 +642,8 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **          -r               Reverse the sort order
 **          -t               Show recently changed branches first
 **          --self           List only branches where you participate
-**          --username USER  List only branches where USER participate
-**          --users N        List up to N users partipiating
+**          --username USER  List only branches where USER participates
+**          --users N        List up to N users participating
 **
 **        The current branch is marked with an asterisk.  Private branches are
 **        marked with a hash sign.

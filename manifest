@@ -1,5 +1,5 @@
-C More\srobust\sdetection\sof\stop\sof\sa\scheckout\sin\sthe\sdir_has_ckout_db()\sfunction.
-D 2024-12-11T00:32:37.166
+C (Spell)\sCorrect\sspelling\sin\sbranch.c.
+D 2024-12-11T07:41:49.113
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -388,7 +388,7 @@ F src/backoffice.c ecb3997466581e6a3290e4d194ac59b7678e9236de1d18c0ed489df141d75
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 38f167fbdf74a113bb6e847137e6940a8cb43c8f61656ab00ffd25ac89c9d3ad
 F src/blob.c 284b1a6e8750b25bd8d6b8aefcba0d77a01d6839c814864ac1ded88895ade148
-F src/branch.c 206ac28dfd68e03948d00ce16ce6b5acb3fd79d747d52f5edaa7d3949fa5376e
+F src/branch.c 99f1097e19a2c60cc6d78ab785620d49d789eb62340cdcae9878caca789379ff
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
 F src/builtin.c b89bc60148524e25e986deb7c71b08e04f2cf0e792595cac26d9bc5420b1d5fd
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7bfa9636adf32d44a9335d39cbfeb463c3ba7870228aa7a0babc6b7c1c963af
-R 66c02c0fffc91d58fdff3aba735ca666
-U drh
-Z 6d11a68d2d7aaf2ede2ff6af04b50bd8
+P 36f916c504c525c72f48585e844aa6bfda22a401f3297d21611cb1fd0fecd041
+R 50b8dab95457c2dd2645fc4bba219b5f
+U brickviking
+Z b4e43a1ae2ad2240e7b5817259a797da
 # Remove this line to create a well-formed Fossil manifest.
