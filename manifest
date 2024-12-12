@@ -1,5 +1,5 @@
-C Diff\stoggles:\sadd\sa\slabel\sto\sthe\scheckbox\sto\smake\sit\seasier\sto\sclick,\sadd\san\s'all'\sbutton\swhich\stoggles\sall\sdiffs,\sand\sremove\sthe\stoggle\sfrom\sthe\s/fdiff\spage\sbecause\sit\sonly\shas\sa\ssingle\sdiff\sblock.
-D 2024-12-11T23:09:44.886
+C Fix\sDOM\selement\spairing\swhen\sdiff=0\sis\sused\sin\s/vdiff\sand\sfriends.\sProblem\sintroduced\sin\s[a11d2454782].
+D 2024-12-12T03:37:23.657
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6e
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c 1876148668b7ca62eaf4212777d1c7f04a5929fe165208acc687afc321f33dc1
+F src/info.c 5b298c716ba6fef6c2fc3ada4d9a52c33e2032084502615bc4320a583d98ee30
 F src/interwiki.c 517f85da17421e2e6cf968345850138408104e8b82ce08ac2470e61273d62882
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -961,9 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2c0714f8d5e377a07e0f26d27c8a2228129f0fbee8ed1165a2985e4ef247d23f 419756c6fd966b7d55213eaa85d174cae1069f2ec575ba5132b09e13b681c4bc
-R ac004d888766bd18dc8d638cd87456d6
-T +closed 419756c6fd966b7d55213eaa85d174cae1069f2ec575ba5132b09e13b681c4bc Closed\sby\sintegrate-merge.
+P a11d24547826591f0521308560fd174a46edd405683a2df2a2d55bfb0c2b0deb
+R 13c6666ffe57b3e9acc85133516a3c71
 U stephan
-Z 250b144f9c945b75c5d8f3145729d8ed
+Z c4c27c63182517a321be143767f5b4c6
 # Remove this line to create a well-formed Fossil manifest.

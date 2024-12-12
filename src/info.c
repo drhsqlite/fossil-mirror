@@ -441,14 +441,16 @@ static void append_file_change_line(
       @ Added %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
       @ %h(zName)</a> version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
-    @ </span></div>
     if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       if( pCfg ){
+        @ </span></div>
         append_diff(zOld, zNew, pCfg);
       }else{
-        @ &nbsp;&nbsp;
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a>
+        @ </span></div>
       }
+    }else{
+      @ </span></div>
     }
   }
 }
