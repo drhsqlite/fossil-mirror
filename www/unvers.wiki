@@ -55,8 +55,8 @@ The "-u" option is only available on "sync" and "clone".
 A rough equivalent of an unversioned pull would be the
 [/help?cmd=unversioned|fossil unversioned revert] command.  The
 "unversioned revert"
-command causes the unversioned content on the local repository to overwritten
-by the unversioned content found on the remote repository.
+command causes the unversioned content on the local repository to be
+overwritten by the unversioned content found on the remote repository.
 
 Beware that because unversioned file sync is an uncommonly dangerous
 capability — there being no history to revert to in the case of human

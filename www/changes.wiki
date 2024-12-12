@@ -1,6 +1,20 @@
 <title>Change Log</title>
 
-<h2 id='v2_25'>Changes for version 2.25 (pending)</h2>
+<h2 id='v2_26'>Changes for version 2.26 (pending)</h2>
+
+  *  Added the [/help?cmd=/ckout|/ckout web page] to provide information
+     about pending changes in a working check-out
+  *  The [/help?cmd=ui|fossil ui] command defaults to using the /ckout
+     page as its start page.
+  *  Added the [/help?cmd=merge-info|fossil merge-info] command and especially
+     the --tk option to that command, to provide analysis of the most recent
+     merge or update operation.
+  *  Issue a warning if a user tries to commit on a check-in where the
+     branch has been changed.
+  *  When a merge conflict occurs, a new section is added to the conflict
+     text that shows Fossil's suggested resolution to the conflict.
+
+<h2 id='v2_25'>Changes for version 2.25 (2024-11-06)</h2>
 
   *  The "[/help?cmd=ui|fossil ui /]" command now works even for repositories
      that have non-ASCII filenames
@@ -13,9 +27,16 @@
   *  Add new query parameters to the [/help?cmd=/timeline|/timeline page]:
      d2=, p2=, and dp2=.
   *  Add options to the [/help?cmd=tag|fossil tag] command that will list tag values.
+  *  Add the -b|--brief option to the [/help?cmd=status|fossil status] command.
   *  Add ability to upload unversioned files via the [/help?cmd=/uvlist|/uvlist page].
   *  Add history search to the [/help?cmd=/chat|/chat page].
   *  Add Unix socket support to the [/help?cmd=server|server command].
+  *  On Windows, use the root certificates managed by the operating system
+     (requires OpenSSL 3.2.0 or greater).
+  *  Take into account zero-width and double-width unicode characters when
+     formatting the command-line timeline.
+  *  Update the built-in SQLite to version 3.47.0.  Precompiled binaries are
+     linked against OpenSSL 3.4.0.
   *  Numerous minor fixes and additions.
 
 

@@ -750,6 +750,15 @@ body.tkt div.content ol.tkt-changes > li:target > p > span {
 body.tkt div.content ol.tkt-changes > li:target > ol {
   border-left: 1px solid gold;
 }
+body.cpage-info .file-change-line,
+body.cpage-vdiff .file-change-line {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  margin-right: 1em /* keep it from nudging right up against the scrollbar-reveal zone */;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
 
 span.modpending {
   color: #b03800;
@@ -975,9 +984,12 @@ div.forumpost-single-controls {
   ** in the thread view. */
 }
 .forum div > form {
-  width: 100%;
   margin: 0.5em 0;
-  display: block;
+  display: inline-block;
+}
+body.cpage-forumedit div > form,
+body.cpage-forume2 div > form{
+  width: 100%;
 }
 .forum div > form > * {
   margin-bottom: 0.35em;
@@ -1680,7 +1692,11 @@ noscript > .error {
     <DIV.pikchr-svg>
       <SVG.pikchr>...</SVG>
     </DIV.pikchr-svg>
-    <PRE.pikchr-src>...</PRE>
+    <DIV.pikchr-src>
+     <PRE>pikchr source code</PRE>
+     <SPAN class='hidden'><A>link to open pikchr in /pikchrshow</A></SPAN>
+     <!-- ^^^ is unhidden and activated by JS code -->
+    </DIV.pikchr-src>
   </DIV.pikchr-wrapper>
 
 ************************************************************/
@@ -1689,9 +1705,28 @@ div.pikchr-svg {/*wrapper for SVG.pikchr element*/}
 svg.pikchr {/*pikchr SVG*/
   width: 100%/*necessary for SOME SVGs for Chrome!*/;
 }
-pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
+
+div.pikchr-src {
+  /*Wrapper for source code view of a pikchr (see fossil.pikchr.js)*/
+  display: flex;
+  flex-direction: column;
+}
+div.pikchr-src > pre {
+  /*Source code for a pikchr*/
   box-sizing: border-box;
   text-align: left;
+}
+div.pikchr-src > span {
+  /*Wrapper for a link to open a pikchr in /pikchrshow*/
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-size: 85%;
+}
+div.pikchr-src > span::before {
+  content: "[";
+}
+div.pikchr-src > span::after {
+  content: "]";
 }
 /* The .source-inline class tells the .source class that the
    source view, when enabled, should be "inline" (same position
@@ -1711,10 +1746,10 @@ div.pikchr-wrapper.center.source.source-inline{
 div.pikchr-wrapper.center > div.pikchr-svg {
   width: 100%/*necessary for Chrome!*/;
 }
-div.pikchr-wrapper.center:not(.source) > pre.pikchr-src,
+div.pikchr-wrapper.center:not(.source) > div.pikchr-src,
 div.pikchr-wrapper.center:not(.source) > div.pikchr-svg,
 /* ^^^ Centered non-source-view elements */
-div.pikchr-wrapper.center.source.source-inline > pre.pikchr-src,
+div.pikchr-wrapper.center.source.source-inline div.pikchr-src,
 div.pikchr-wrapper.center.source.source-inline > div.pikchr-svg
 /* ^^^ Centered inline-source-view elements */{
   display:inline-block/*allows parent text-align to do the alignment*/;
@@ -1742,10 +1777,10 @@ div.pikchr-wrapper.float-right.source.source-inline{
 
 /* For pikchr-wrapper.source mode, toggle pre.pikchr-src and
    svg.pikchr visibility... */
-div.pikchr-wrapper.source > pre.pikchr-src {
+div.pikchr-wrapper.source > div.pikchr-src {
   /* Source code  ^^^^^^^ is visible, else it is hidden */
 }
-div.pikchr-wrapper:not(.source) > pre.pikchr-src {
+div.pikchr-wrapper:not(.source) > div.pikchr-src {
   /* Hide sources when image is being shown. */
   position: absolute !important;
   opacity: 0 !important;
@@ -1792,10 +1827,6 @@ d='M3 4h3v2h-3zM12 4h9v2h-9zM8 3h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.55
 }
 body.fossil-dark-style .settings-icon {
   filter: invert(100%);
-}
-
-input[type="checkbox"].diff-toggle {
-  float: right;
 }
 
 body.branch .brlist > table > tbody > tr:hover:not(.selected),

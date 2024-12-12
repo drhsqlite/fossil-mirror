@@ -624,10 +624,10 @@ void wiki_page(void){
   }
   manifest_destroy(pWiki);
   if( !isPopup ){
-    char * zLabel = mprintf("<hr><h2><a href='%R/attachlist?name=%T'>"
-                            "Attachments</a>:</h2><ul>",
+    char * zLabel = mprintf("<h2><a href='%R/attachlist?page=%T'>"
+                            "Attachments</a>:</h2>",
                             zPageName);
-    attachment_list(zPageName, zLabel);
+    attachment_list(zPageName, zLabel, 1);
     fossil_free(zLabel);
     document_emit_js(/*for optional pikchr support*/);
     style_finish_page();
@@ -1333,7 +1333,7 @@ void wikiedit_page(void){
      "Status messages will go here.</div>\n"
      /* will be moved into the tab container via JS */);
 
-  CX("<div id='wikiedit-edit-status''>"
+  CX("<div id='wikiedit-edit-status'>"
      "<span class='name'></span>"
      "<span class='links'></span>"
      "</div>");

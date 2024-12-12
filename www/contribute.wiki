@@ -1,6 +1,6 @@
 <title>Contributing To Fossil</title>
 
-Fossil users are encouraged to contributed enhancements back to the
+Fossil users are encouraged to contribute enhancements back to the
 project.  This note outlines some of the procedures for making
 useful contributions.
 

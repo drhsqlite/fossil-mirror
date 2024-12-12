@@ -89,7 +89,9 @@
       if(forElem instanceof HTMLElement){
         forElem = this.attr(forElem, 'id');
       }
-      dom.attr(rc, 'for', forElem);
+      if(forElem){
+        dom.attr(rc, 'for', forElem);
+      }
     }
     if(text) this.append(rc, text);
     return rc;

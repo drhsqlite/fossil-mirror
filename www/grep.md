@@ -51,7 +51,7 @@ can get the same effect on systems with a POSIX shell like so:
 
 If you run that in a check-out of the [Fossil self-hosting source
 repository][fshsr], that returns the first line of the built-in
-documentation for each Fossil command, across all historical verisons.
+documentation for each Fossil command, across all historical versions.
 
 Fossil `grep` has extensions relative to these other `grep` standards,
 such as `--verbose` to print each checkin ID considered, regardless of

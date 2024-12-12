@@ -7,7 +7,7 @@ a continuous integration (CI) system.
 ## Interim Documentation.
 
   *  This is a work-in-progress.  The interface is in flux.
-     For the time being, the documentation as a list of
+     For the time being, the documentation is a list of
      bullet points.  We hope to transform this into a proper document
      later, after things settle down.
 
@@ -37,10 +37,10 @@ a continuous integration (CI) system.
   *  The "%F" sequence inside the script is translated into the
      name of the fossil executable.
 
-  *  The "%R" sequence in the script is translated in to the name of
+  *  The "%R" sequence in the script is translated into the name of
      the repository.
 
-  *  The "%A" sequence becomes the name of an auxiliary input files,
+  *  The "%A" sequence becomes the name of an auxiliary input file,
      the meaning of which depends on the hook type.  The auxiliary filename
      might be an empty string.  Take care to use appropriate quoting!
 
@@ -146,7 +146,7 @@ a continuous integration (CI) system.
   *  Commit-msg hooks are not yet implemented.
 
   *  The commit-msg hooks run during "fossil commit" after the check-in
-     messages has been entered by the user.  The "%A" argument to the
+     message has been entered by the user.  The "%A" argument to the
      commit-msg hook is the text of the commit message.  The intent
      of the commit-msg hook is to validate the text of the commit
      message to (for example) check for typos or ensure that it

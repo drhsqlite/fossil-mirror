@@ -209,8 +209,18 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
           blob_append(pOut, "</div>\n", 7);
         }
         if(PIKCHR_PROCESS_SRC & pikFlags){
-          blob_appendf(pOut, "<pre class='pikchr-src'>%h</pre>\n",
-                       blob_str(&bIn));
+          static int counter = 0;
+          ++counter;
+          blob_appendf(pOut, "<div class='pikchr-src'>"
+                       "<pre id='pikchr-src-%d'>%h</pre>"
+                       "<span class='hidden'>"
+                       "<a href='%R/pikchrshow?fromSession' "
+                       "class='pikchr-src-pikchrshow' target='_new-%d' "
+                       "data-pikchrid='pikchr-src-%d' "
+                       "title='Open this pikchr in /pikchrshow'"
+                       ">&rarr; /pikchrshow</a></span>"
+                       "</div>\n",
+                       counter, blob_str(&bIn), counter, counter);
         }
         if(PIKCHR_PROCESS_DIV & pikFlags){
           blob_append(pOut, "</div>\n", 7);

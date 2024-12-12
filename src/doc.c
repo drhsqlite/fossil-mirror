@@ -307,6 +307,8 @@ static const struct {
   { "xlw",        3, "application/vnd.ms-excel"          },
   { "xml",        3, "text/xml"                          },
   { "xpm",        3, "image/x-xpixmap"                   },
+  { "xsl",        3, "text/xml"                          },
+  { "xslt",       4, "text/xml"                          },
   { "xwd",        3, "image/x-xwindowdump"               },
   { "xyz",        3, "chemical/x-pdb"                    },
   { "zip",        3, "application/zip"                   },

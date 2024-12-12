@@ -466,14 +466,18 @@ void patch_apply(unsigned mFlags){
   db_prepare(&q, "SELECT pathname FROM patch.chng"
                  " WHERE origname IS NULL AND delta IS NULL");
   while( db_step(&q)==SQLITE_ROW ){
-    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
-    blob_appendf(&cmd, " rm --hard %$\n", db_column_text(&q,0));
+    if( blob_size(&cmd)==0 ){
+      blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
+      blob_appendf(&cmd, " rm --hard");
+    }
+    blob_appendf(&cmd, " %$", db_column_text(&q,0));
     if( mFlags & PATCH_VERBOSE ){
       fossil_print("%-10s %s\n", "DELETE", db_column_text(&q,0));
     }
   }
   db_finalize(&q);
   if( blob_size(&cmd)>0 ){
+    blob_appendf(&cmd, "\n");
     if( mFlags & PATCH_DRYRUN ){
       fossil_print("%s", blob_str(&cmd));
     }else{

@@ -1260,20 +1260,3 @@ void fileage_page(void){
   db_finalize(&q2);
   style_finish_page();
 }
-
-/*
-** WEBPAGE: files
-**
-** Show files as a flat table.  If the ci=LABEL query parameter is provided,
-** then show all the files in the specified check-in.  Without the ci= query
-** parameter show all files across all check-ins.
-**
-** Query parameters:
-**
-**    name=PATH        Directory to display.  Optional
-**    ci=LABEL         Show only files in this check-in.  Optional.
-**    re=REGEXP        Show only files matching REGEXP.  Optional.
-*/
-void files_page(void){
-  return;
-}

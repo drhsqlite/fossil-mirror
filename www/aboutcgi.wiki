@@ -10,7 +10,7 @@ This is a "how it works" guide.  This document provides background
 information on the CGI protocol so that you can better understand what
 is going on behind the scenes.  If you just want to set up Fossil
 as a CGI server, see the [./server/ | Fossil Server Setup] page.  Or
-if you want to development CGI-based extensions to Fossil, see
+if you want to develop CGI-based extensions to Fossil, see
 the [./serverext.wiki|CGI Server Extensions] page.
 
 <h2>A Quick Review Of CGI</h2>
@@ -20,7 +20,7 @@ An HTTP request is a block of text that is sent by a client application
 connection.  The HTTP request contains a URL that describes the information
 being requested.  The URL in the HTTP request is typically the same URL
 that appears in the URL bar at the top of the web browser that is making
-the request.  The URL might contain a "?" character followed
+the request.  The URL might contain a "?" character followed by
 query parameters.  The HTTP will usually also contain other information
 such as the name of the application that made the request, whether or
 not the requesting application can accept a compressed reply, POST
@@ -28,8 +28,8 @@ parameters from forms, and so forth.
 
 The job of the web server is to interpret the HTTP request and formulate
 an appropriate reply.
-The web server is free to interpret the HTTP request in any way it wants.
-But most web servers follow a similar pattern, described below.
+The web server is free to interpret the HTTP request in any way it wants,
+but most web servers follow a similar pattern, described below.
 (Note: details may vary from one web server to another.)
 
 Suppose the filename component of the URL in the HTTP request looks like this:

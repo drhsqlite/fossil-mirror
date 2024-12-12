@@ -165,7 +165,7 @@ the manifest is computed in memory by Fossil whenever it needs it.
 However, the "fossil setting manifest on" command will cause the
 manifest file to be materialized to disk, if desired.  Both Fossil
 itself, and SQLite cause the manifest file to be materialized to disk
-so that the makefiles for these project can read the manifest and
+so that the makefiles for these projects can read the manifest and
 embed version information in generated binaries.
 
 Fossil automatically generates a manifest whenever you "commit"
@@ -180,7 +180,7 @@ In addition to identifying all files in the check-in, a
 manifest also contains a check-in comment, the date and time
 when the check-in was established, who created the check-in,
 and links to other check-ins from which the current check-in
-is derived.  There is also a couple of checksums used to verify
+is derived.  There are also a couple of checksums used to verify
 the integrity of the check-in.  And the whole manifest might
 be PGP clearsigned.
 
@@ -219,7 +219,7 @@ Fossil effectively.  You will want to have some kind of text editor
 for entering check-in comments.  Fossil will use whatever text editor
 is identified by your VISUAL environment variable.  Fossil will also
 use GPG to clearsign your manifests if you happen to have it installed,
-but Fossil will skip that step if GPG missing from your system.
+but Fossil will skip that step if GPG is missing from your system.
 You can optionally set up Fossil to use external "diff" programs,
 though Fossil has an excellent built-in "diff" algorithm that works
 fine for most people.  If you happen to have Tcl/Tk installed on your
@@ -288,7 +288,7 @@ fossil settings
 </pre>
 
 By default, Fossil runs with autosync mode turned on.  The
-authors finds that projects run more smoothly in autosync mode since
+authors find that projects run more smoothly in autosync mode since
 autosync helps to prevent pointless forking and merging and helps keeps
 all collaborators working on exactly the same code rather than on their
 own personal forks of the code.  In the author's view, manual-merge mode

@@ -1764,15 +1764,30 @@ void forumedit_page(void){
 }
 
 /*
+** SETTING: forum-close-policy    boolean default=off
+** If true, forum moderators may close/re-open forum posts, and reply
+** to closed posts. If false, only administrators may do so. Note that
+** this only affects the forum web UI, not post-closing tags which
+** arrive via the command-line or from synchronization with a remote.
+*/
+/*
+** SETTING: forum-title          width=20 default=Forum
+** This is the name or "title" of the Forum for this repository.  The
+** default is just "Forum".  But in some setups, admins might want to
+** change it to "Developer Forum" or "User Forum" or whatever other name
+** seems more appropriate for the particular usage.
+*/
+
+/*
 ** WEBPAGE: setup_forum
 **
 ** Forum configuration and metrics.
 */
 void forum_setup(void){
   /* boolean config settings specific to the forum. */
-  const char * zSettingsBool[] = {
-  "forum-close-policy",
-  NULL /* sentinel entry */
+  static const char *azForumSettings[] =  {
+    "forum-close-policy",
+    "forum-title",
   };
 
   login_check_credentials();
@@ -1791,10 +1806,8 @@ void forum_setup(void){
   }
 
   @ <h2>Supervisors</h2>
-  @ <p>Users with capabilities 's', 'a', or '6'.</p>
   {
     Stmt q = empty_Stmt;
-    int nRows = 0;
     db_prepare(&q, "SELECT uid, login, cap FROM user "
                    "WHERE cap GLOB '*[as6]*' ORDER BY login");
     @ <table class='bordered'>
@@ -1804,7 +1817,6 @@ void forum_setup(void){
       const int iUid = db_column_int(&q, 0);
       const char *zUser = db_column_text(&q, 1);
       const char *zCap = db_column_text(&q, 2);
-      ++nRows;
       @ <tr>
       @ <td><a href='%R/setup_uedit?id=%d(iUid)'>%h(zUser)</a></td>
       @ <td>(%h(zCap))</td>
@@ -1812,20 +1824,18 @@ void forum_setup(void){
     }
     db_finalize(&q);
     @</tbody></table>
-    if( 0==nRows ){
-      @ No supervisors
-    }else{
-      @ %d(nRows) supervisor(s)
-    }
   }
 
   @ <h2>Moderators</h2>
-  @ <p>Users with capability '5'.</p>
-  {
+  if( db_int(0, "SELECT count(*) FROM user "
+                " WHERE cap GLOB '*5*' AND cap NOT GLOB '*[as6]*'")==0 ){
+      @ <p>No non-supervisor moderators
+  }else{
     Stmt q = empty_Stmt;
     int nRows = 0;
     db_prepare(&q, "SELECT uid, login, cap FROM user "
-               "WHERE cap GLOB '*5*' ORDER BY login");
+               "WHERE cap GLOB '*5*' AND cap NOT GLOB '*[as6]*'"
+               " ORDER BY login");
     @ <table class='bordered'>
     @ <thead><tr><th>User</th><th>Capabilities</th></tr></thead>
     @ <tbody>
@@ -1841,39 +1851,55 @@ void forum_setup(void){
     }
     db_finalize(&q);
     @ </tbody></table>
-    if( 0==nRows ){
-      @ No non-supervisor moderators
-    }else{
-      @ %d(nRows) moderator(s)
-    }
   }
 
   @ <h2>Settings</h2>
-  @ <p>Configuration settings specific to the forum.</p>
   if( P("submit") && cgi_csrf_safe(2) ){
     int i = 0;
-    const char *zSetting;
     db_begin_transaction();
-    while( (zSetting = zSettingsBool[i++]) ){
-      const char *z = P(zSetting);
-      if( !z || !z[0] ) z = "off";
-      db_set(zSetting/*works-like:"x"*/, z, 0);
+    for(i=0; i<ArraySize(azForumSettings); i++){
+      char zQP[4];
+      const char *z;
+      const Setting *pSetting = setting_find(azForumSettings[i]);
+      if( pSetting==0 ) continue;
+      zQP[0] = 'a'+i;
+      zQP[1] = zQP[0];
+      zQP[2] = 0;
+      z = P(zQP);
+      if( z==0 || z[0]==0 ) continue;
+      db_set(pSetting->name/*works-like:"x"*/, z, 0);
     }
     db_end_transaction(0);
     @ <p><em>Settings saved.</em></p>
   }
   {
     int i = 0;
-    const char *zSetting;
     @ <form action="%R/setup_forum" method="post">
     login_insert_csrf_secret();
     @ <table class='forum-settings-list'><tbody>
-    while( (zSetting = zSettingsBool[i++]) ){
-      @ <tr><td>
-      onoff_attribute("", zSetting, zSetting/*works-like:"x"*/, 0, 0);
-      @ </td><td>
-      @ <a href='%R/help?cmd=%h(zSetting)'>%h(zSetting)</a>
-      @ </td></tr>
+    for(i=0; i<ArraySize(azForumSettings); i++){
+      char zQP[4];
+      const Setting *pSetting = setting_find(azForumSettings[i]);
+      if( pSetting==0 ) continue;
+      zQP[0] = 'a'+i;
+      zQP[1] = zQP[0];
+      zQP[2] = 0;
+      if( pSetting->width==0 ){
+        /* Boolean setting */
+        @ <tr><td align="right">
+        @ <a href='%R/help?cmd=%h(pSetting->name)'>%h(pSetting->name)</a>:
+        @ </td><td>
+        onoff_attribute("", zQP, pSetting->name/*works-like:"x"*/, 0, 0);
+        @ </td></tr>
+      }else{
+        /* Text value setting */
+        @ <tr><td align="right">
+        @ <a href='%R/help?cmd=%h(pSetting->name)'>%h(pSetting->name)</a>:
+        @ </td><td>
+        entry_attribute("", 25, pSetting->name, zQP/*works-like:""*/,
+                        pSetting->def, 0);
+        @ </td></tr>
+      }   
     }
     @ </tbody></table>
     @ <input type='submit' name='submit' value='Apply changes'>
@@ -1912,7 +1938,8 @@ void forum_main_page(void){
   }
   cgi_check_for_malice();
   style_set_current_feature("forum");
-  style_header( "%s", isSearch ? "Forum Search Results" : "Forum" );
+  style_header("%s%s", db_get("forum-title","Forum"), 
+                       isSearch ? " Search Results" : "");
   style_submenu_element("Timeline", "%R/timeline?ss=v&y=f&vfx");
   if( g.perm.WrForum ){
     style_submenu_element("New Thread","%R/forumnew");

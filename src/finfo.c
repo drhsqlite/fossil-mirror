@@ -187,7 +187,7 @@ void finfo_cmd(void){
     iLimit = zLimit ? atoi(zLimit) : -1;
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;
-    iBrief = (find_option("brief","b",0) == 0);
+    iBrief = find_option("brief","b",0) != 0;
     if( iLimit==0 ){
       iLimit = -1;
     }
@@ -230,7 +230,7 @@ void finfo_cmd(void){
         iLimit, iOffset
     );
     blob_zero(&line);
-    if( iBrief ){
+    if( iBrief == 0 ){
       fossil_print("History for %s\n", blob_str(&fname));
     }
     while( db_step(&q)==SQLITE_ROW ){
@@ -242,7 +242,7 @@ void finfo_cmd(void){
       const char *zBr = db_column_text(&q, 5);
       char *zOut;
       if( zBr==0 ) zBr = "trunk";
-      if( iBrief ){
+      if( iBrief == 0 ){
         fossil_print("%s ", zDate);
         zOut = mprintf(
            "[%S] %s (user: %s, artifact: [%S], branch: %s)",
@@ -622,6 +622,7 @@ void finfo_page(void){
     int gidx;
     char zTime[10];
     int nParent = 0;
+    int bIsModified = 0;
     GraphRowId aParent[GR_MAX_RAIL];
 
     db_bind_int(&qparent, ":fid", frid);
@@ -664,6 +665,9 @@ void finfo_page(void){
     }else{
       @ <td class="timeline%s(zStyle)Cell">
     }
+    if( zPUuid && zUuid && fossil_strcmp(zPUuid, zUuid)!=0 ){
+      bIsModified = 1;
+    }
     if( tmFlags & TIMELINE_COMPACT ){
       @ <span class='timelineCompactComment' data-id='%d(frid)'>
     }else{
@@ -671,7 +675,11 @@ void finfo_page(void){
       if( pfnid ){
         char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
                                    pfnid);
-        @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
+        if( bIsModified ){
+          @ <b>Renamed and modified</b> %h(zPrevName) &rarr; %h(zFName).
+        }else{
+          @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
+        }
         fossil_free(zPrevName);
       }
       if( zUuid && ridTo==0 && nParent==0 ){
@@ -758,7 +766,7 @@ void finfo_page(void){
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
       @ %z(href("%R/timeline?uf=%!S",zUuid))[check-ins&nbsp;using]</a>
-      if( fpid>0 ){
+      if( fpid>0 && bIsModified!=0 ){
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
       if( fileedit_is_editable(zFName) ){

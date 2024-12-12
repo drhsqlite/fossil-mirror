@@ -366,7 +366,7 @@ artifact identifier for a particular check-in, or it can be a
 date/time stamp.  ([./checkin_names.wiki | more info])
 If you omit
 the <i>VERSION</i>, then fossil moves you to the
-latest version of the branch your are currently on.
+latest version of the branch you are currently on.
 
 The default behavior is for [./concepts.wiki#workflow|autosync] to
 be turned on.  That means that a [/help/pull|pull] automatically occurs

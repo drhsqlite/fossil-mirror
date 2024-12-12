@@ -407,5 +407,5 @@ Though forum users are permitted to delete their own posts, they are
 not permitted, without appropriate permissions, to close their own
 posts. This is intentional, as closing one's own post can be used to
 antagonize other forum users. For example, by posting something
-trollish or highly contraversial in nature and closing the post to
+trollish or highly controversial in nature and closing the post to
 further responses.

@@ -251,7 +251,7 @@ static const char zWebpageHdr[] =
 @   font-size: inherit;
 @ }
 @ td.diffln {
-@   width: 1px;
+@   width: fit-content;
 @   text-align: right;
 @   padding: 0 1em 0 0;
 @ }
@@ -259,7 +259,7 @@ static const char zWebpageHdr[] =
 @   padding-bottom: 0.4em;
 @ }
 @ td.diffsep {
-@   width: 1px;
+@   width: fit-content;
 @   padding: 0 0.3em 0 1em;
 @   line-height: inherit;
 @   font-size: inherit;
@@ -381,7 +381,7 @@ static const char zWebpageHdrDark[] =
 @   font-size: inherit;
 @ }
 @ td.diffln {
-@   width: 1px;
+@   width: fit-content;
 @   text-align: right;
 @   padding: 0 1em 0 0;
 @ }
@@ -389,7 +389,7 @@ static const char zWebpageHdrDark[] =
 @   padding-bottom: 0.4em;
 @ }
 @ td.diffsep {
-@   width: 1px;
+@   width: fit-content;
 @   padding: 0 0.3em 0 1em;
 @   line-height: inherit;
 @   font-size: inherit;
@@ -1268,7 +1268,7 @@ const char *diff_get_binary_glob(void){
 **   --numstat                   Show only the number of added and deleted lines
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
-**   --tcl                       Tcl-formated output used internally by --tk
+**   --tcl                       Tcl-formatted output used internally by --tk
 **   --tclsh PATH                Tcl/Tk shell used for --tk (default: "tclsh")
 **   --tk                        Launch a Tcl/Tk GUI for display
 **   --to VERSION                Select VERSION as target for the diff
@@ -1314,7 +1314,8 @@ void diff_cmd(void){
   if( zCheckin!=0 && ( zFrom!=0 || zTo!=0 ) ){
     fossil_fatal("cannot use --checkin together with --from or --to");
   }
-  g.diffCnt[0] = g.diffCnt[1] = g.diffCnt[2] = 0;
+  diff_options(&DCfg, isGDiff, 0);
+  determine_exec_relative_option(1);
   if( 0==zCheckin ){
     if( zTo==0 || againstUndo ){
       db_must_be_within_tree();
@@ -1326,9 +1327,8 @@ void diff_cmd(void){
   }else{
     db_find_and_open_repository(0, 0);
   }
-  diff_options(&DCfg, isGDiff, 0);
-  determine_exec_relative_option(1);
   verify_all_options();
+  g.diffCnt[0] = g.diffCnt[1] = g.diffCnt[2] = 0;
   if( g.argc>=3 ){
     int i;
     Blob fname;

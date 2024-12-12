@@ -29,7 +29,7 @@ dozen other smaller projects.  This demonstrates that Fossil can run on
 a low-power host processor.
 Multiple fossil-based projects can easily be hosted on the same machine,
 even if that machine is itself one of several dozen virtual machines on
-single physical box.  The CGI script that runs the canonical Fossil
+a single physical box.  The CGI script that runs the canonical Fossil
 self-hosting repository is as follows:
 
 <pre>
