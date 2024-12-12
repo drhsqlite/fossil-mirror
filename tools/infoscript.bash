@@ -66,7 +66,8 @@ This file documents version @value{VERSION} of Fossil.
 " >> fossil.texi
 
 printf "@node Top
-@chapter Fossil - a distributed version control system
+@chapter Top
+Fossil - a distributed version control system
 
 Fossil is a distributed version control system (DVCS) with built-in
 forum, wiki, ticket tracker, CGI/HTTP interface, and HTTP server.
@@ -93,7 +94,7 @@ help nodes from fossil into here, but it's vaguely possible I've missed some.
 " >> fossil.texi
 
 # Add in the Features from the front webpage
-printf "@node Fossil
+printf "@node Fossil,Common commands,Top,Top
 @chapter Fossil
 
 Fossil is a distributed version control system (DVCS) with built-in
@@ -138,7 +139,7 @@ Free and Open-Source
 " >> fossil.texi
 
 ###### Common commands
-printf "@node Common commands
+printf "@node Common commands,Uncommon commands,Fossil,Top
 @chapter Common commands
 
 These are the commands you're most likely to use as a fossil user. They
@@ -196,7 +197,7 @@ cat workfile >> fossil.texi
 echo "" >> fossil.texi
 
 ##### Uncommon commands ####
-echo "@node Uncommon commands
+echo "@node Uncommon commands,Common arguments,Common commands,Top
 @chapter Uncommon commands
 
 These are the commands that aren't used quite as often, and are normally
@@ -245,7 +246,7 @@ echo "" >> fossil.texi
 
 # Add in common args
 echo "Grab common args"
-echo "@node Common arguments
+echo "@node Common arguments,License,Uncommon commands,Top
 @chapter Common arguments
 
 These are the arguments that are common to all fossil commands.
@@ -275,7 +276,7 @@ else
 fi
 # TODO: This should fail if we couldn't find COPYRIGHT-BSD2.txt
 echo "
-@node License
+@node License,,Common arguments,Top
 @chapter License agreement
 
 @include ${HERE}
