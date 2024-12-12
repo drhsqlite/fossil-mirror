@@ -86,5 +86,5 @@ timelines and info screens.  Examples:
       [/wiki?name=checkin/19c60b7fc9e2400e56a6f938bbad0e34ca746ca2eabdecac10945539f1f5e8c6&p|checkin/19c60b7fc9e2...]
       wiki page in the "About" section.
 
-This special wiki pages are very useful for recording historical
+These special wiki pages are very useful for recording historical
 notes.

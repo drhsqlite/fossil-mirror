@@ -2,8 +2,8 @@
 
 This document describes the limitations of, caveats for, and
 disclaimers for the [](/fileedit) page, which provides users with
-[checkin privileges](./caps/index.md) basic editing features for files
-via the web interface.
+ basic editing features for files via the web interface when they
+ have [checkin privileges](./caps/index.md).
 
 # Important Caveats and Disclaimers
 
@@ -221,7 +221,7 @@ contains 3 properties:
   by Fossil (by its file extension).
 
 The event listener callback shown above doesn't use the `mimetype`,
-but makes used of the other two. It fishes all `code` blocks out of
+but makes use of the other two. It fishes all `code` blocks out of
 the preview which explicitly have a CSS class named
 `language-`something, and then asks highlightjs to highlight them.
 

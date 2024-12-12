@@ -208,7 +208,7 @@
     };
     const setCurrentText = function(txt){
       taInput.value = txt;
-      renderCurrentText();        
+      renderCurrentText();
     };
     PS.e.btnRender.addEventListener('click',function(ev){
       ev.preventDefault();
@@ -430,8 +430,20 @@
       }, false);
     });
 
+    if(window.sessionStorage){
+      /* If sessionStorage['pikchr-xfer'] exists and the "fromSession"
+         URL argument was passed to this page, load the pikchr source
+         from the session. This is used by the "open in pikchrshow"
+         link in the forum. */
+      const src = window.sessionStorage.getItem('pikchr-xfer');
+      if( src && (new URL(self.location.href).searchParams).has('fromSession') ){
+        taInput.value =  src;
+        window.sessionStorage.removeItem('pikchr-xfer');
+      }
+    }
+
     PS.e.btnRender.click();
-    
+
     /** Debounce handler for auto-rendering while typing. */
     const debounceAutoRender = F.debounce(function f(){
       if(!PS._isDirty) return;
@@ -620,7 +632,7 @@ text "Examples Of Pikchr Objects" big bold  at .8cm above north of AllObjects
     # fill in content for the Alice lane
     right
 A1: circle rad 0.1in at end of first line + (0.2,-0.2) \
-       fill white thickness 1.5px "1" 
+       fill white thickness 1.5px "1"
     arrow right 50%
     circle same "2"
     arrow right until even with first box.e - (0.65,0.0)

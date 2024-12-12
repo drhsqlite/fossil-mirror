@@ -117,4 +117,4 @@ privilege (permission "f") to create new technotes and edit-wiki
 privilege (permission "k") in order to edit existing technotes.
 
 Technote content may be formatted as [/wiki_rules | Fossil wiki],
-[/md_rules | Markdown], or a plain text.
+[/md_rules | Markdown], or plain text.

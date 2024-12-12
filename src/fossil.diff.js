@@ -8,19 +8,35 @@ window.fossil.onPageLoad(function(){
      /info and similar pages.
   */
   const D = window.fossil.dom;
-  const isFdiff = !!document.querySelector('body.fdiff');
+  const allToggles = [/*collection of all diff-toggle checkboxes */];
   const addToggle = function(diffElem){
     const sib = diffElem.previousElementSibling,
-          btn = sib ? D.addClass(D.checkbox(true), 'diff-toggle') : 0;
+          btnOne = sib ? D.addClass(D.checkbox(true), 'diff-toggle') : 0;
     if(!sib) return;
-    if(isFdiff) sib.parentElement.insertBefore(
-                  D.append(D.div(),btn),sib.nextElementSibling);
-    else D.append(sib,btn);
-    btn.addEventListener('click', function(){
-      diffElem.classList.toggle('hidden');
+    const lblToggle = D.append(D.label(null, " Toggle "), btnOne);
+    const wrapper = D.append(D.span(), lblToggle);
+    const btnAll = D.button("all");
+    btnAll.$cb = btnOne;
+    allToggles.push(btnOne);
+    D.append(sib, D.append(wrapper, lblToggle, D.text(" "), btnAll));
+    btnOne.addEventListener('change', function(){
+      diffElem.classList[this.checked ? 'remove' : 'add']('hidden');
+    }, false);
+    btnAll.addEventListener('click', function(){
+      /* Toggle all entries to match this line's new state. Note that
+         we use click() instead of cb.checked=... so that the
+         on-change event handler fires. */
+      const checked = !this.$cb.checked;
+      allToggles.forEach( (cb)=>{
+        if(cb.checked!==checked) cb.click();
+      });
     }, false);
   };
-  document.querySelectorAll('table.diff').forEach(addToggle);
+  if( !document.querySelector('body.fdiff') ){
+    /* Don't show the diff toggle button for /fdiff because it only
+       has a single file to show (and also a different DOM layout). */
+    document.querySelectorAll('table.diff').forEach(addToggle);
+  }
 });
 
 window.fossil.onPageLoad(function(){

@@ -1559,6 +1559,8 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "chat_msg_from_event", 4,
         SQLITE_UTF8 | SQLITE_INNOCUOUS, 0,
         chat_msg_from_event, 0, 0);
+  sqlite3_create_function(db, "inode", 1, SQLITE_UTF8, 0,
+                          file_inode_sql_func,0,0);
 
 }
 
@@ -4082,7 +4084,7 @@ void db_record_repository_filename(const char *zName){
 **
 ** REPOSITORY can be the filename for a repository that already exists on the
 ** local machine or it can be a URI for a remote repository.  If REPOSITORY
-** is a URI in one of the formats recognized by the [[clone]] command, then
+** is a URI in one of the formats recognized by the [[clone]] command, the
 ** remote repo is first cloned, then the clone is opened. The clone will be
 ** stored in the current directory, or in DIR if the "--repodir DIR" option
 ** is used. The name of the clone will be taken from the last term of the URI.
@@ -4684,13 +4686,6 @@ struct Setting {
 ** manifest.
 */
 /*
-** SETTING: forum-close-policy    boolean default=off
-** If true, forum moderators may close/re-open forum posts, and reply
-** to closed posts. If false, only administrators may do so. Note that
-** this only affects the forum web UI, not post-closing tags which
-** arrive via the command-line or from synchronization with a remote.
-*/
-/*
 ** SETTING: gdiff-command    width=40 default=gdiff sensitive
 ** The value is an external command to run when performing a graphical
 ** diff. If undefined, text diff will be used.
@@ -4843,11 +4838,15 @@ struct Setting {
 ** used.
 */
 /*
-** SETTING: redirect-to-https   default=0 width=-1
-** Specifies whether or not to redirect http:// requests to
-** https:// URIs. A value of 0 (the default) means not to
+** SETTING: redirect-to-https   default=0 width=2
+** Specifies whether or not to redirect unencrypted "http://" requests to
+** encrypted "https://" URIs. A value of 0 (the default) means do not
 ** redirect, 1 means to redirect only the /login page, and 2
 ** means to always redirect.
+**
+** For security, a value of 2 is recommended.  The default value is 0
+** because not all sites are TLS-capable.  But you should definitely enable
+** TLS and change this setting to 2 for all public-facing repositories.
 */
 /*
 ** SETTING: relative-paths   boolean default=on
@@ -4969,7 +4968,7 @@ struct Setting {
 */
 #endif
 /*
-** SETTING: th1-setup        width=40 block-text
+** SETTING: th1-setup        width=40 block-text sensitive
 ** This is the setup script to be evaluated after creating
 ** and initializing the TH1 interpreter.  By default, this
 ** is empty and no extra setup is performed.
@@ -5360,7 +5359,7 @@ void test_database_name_cmd(void){
 /*
 ** Compute a "fingerprint" on the repository.  A fingerprint is used
 ** to verify that that the repository has not been replaced by a clone
-** of the same repository.  More precisely, a fingerprint are used to
+** of the same repository.  More precisely, a fingerprint is used to
 ** verify that the mapping between SHA3 hashes and RID values is unchanged.
 **
 ** The check-out database ("localdb") stores RID values.  When associating
@@ -5425,7 +5424,7 @@ char *db_fingerprint(int rcvid, int iVersion){
 ** Usage: %fossil test-fingerprint ?RCVID?
 **
 ** Display the repository fingerprint using the supplied RCVID or
-** using the latest RCVID if not is given on the command line.
+** using the latest RCVID if none is given on the command line.
 ** Show both the legacy and the newer version of the fingerprint,
 ** and the currently stored fingerprint if there is one.
 */

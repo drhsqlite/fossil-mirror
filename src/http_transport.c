@@ -105,7 +105,10 @@ static const char zDefaultSshCmd[] = "ssh -e none";
 */
 void transport_ssh_command(Blob *p){
   char *zSsh;        /* The base SSH command */
-  zSsh = db_get("ssh-command", zDefaultSshCmd);
+  zSsh = g.zSshCmd;
+  if( zSsh==0 || zSsh[0]==0 ){
+    zSsh = db_get("ssh-command", zDefaultSshCmd);
+  }
   blob_init(p, zSsh, -1);
 }
 

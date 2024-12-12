@@ -544,6 +544,7 @@ void find_filename_changes(
       fossil_free(pChng);
     }
   }
+  path_reset();
 }
 
 /*

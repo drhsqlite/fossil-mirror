@@ -338,6 +338,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
    || (!blob_eq(pHash,"-") && !blob_is_hname(pHash))
    || !blob_is_int(&pXfer->aToken[4], &sz)
    || !blob_is_int(&pXfer->aToken[5], &flags)
+   || (mtime<0 || sz<0 || flags<0)
   ){
     blob_appendf(&pXfer->err, "malformed uvfile line");
     return;
@@ -1123,6 +1124,20 @@ const char *xfer_ticket_code(void){
 }
 
 /*
+** Reset the CGI content, roll back any pending db transaction, and
+** emit an "error" xfer message. The message text gets fossil-encoded
+** by this function. This is only intended for use with
+** fail-fast/fatal errors, not ones which can be skipped over.
+*/
+static void xfer_fatal_error(const char *zMsg){
+  cgi_reset_content();
+  if( db_transaction_nesting_depth()>0 ){
+    db_rollback_transaction();
+  }
+  @ error %F(zMsg)
+}
+
+/*
 ** Run the specified TH1 script, if any, and returns 1 on error.
 */
 int xfer_run_script(
@@ -1463,6 +1478,10 @@ void page_xfer(void){
           cgi_set_content_type("application/x-fossil-uncompressed");
         }
         blob_is_int(&xfer.aToken[2], &seqno);
+        if( seqno<=0 ){
+          xfer_fatal_error("invalid clone sequence number");
+          return;
+        }
         max = db_int(0, "SELECT max(rid) FROM blob");
         while( xfer.mxSend>(int)blob_size(xfer.pOut) && seqno<=max){
           if( time(NULL) >= xfer.maxTime ) break;
@@ -1534,6 +1553,10 @@ void page_xfer(void){
         && blob_is_int(&xfer.aToken[2], &size) ){
       const char *zName = blob_str(&xfer.aToken[1]);
       Blob content;
+      if( size<0 ){
+        xfer_fatal_error("invalid config record");
+        return;
+      }
       blob_zero(&content);
       blob_extract(xfer.pIn, size, &content);
       if( !g.perm.Admin ){
@@ -1846,7 +1869,7 @@ void page_xfer(void){
   */
   zNow = db_text(0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', 'now')");
   @ # timestamp %s(zNow) errors %d(nErr)
-  free(zNow);
+  fossil_free(zNow);
 
   db_commit_transaction();
   configure_rebuild();
@@ -2489,6 +2512,10 @@ int client_sync(
         const char *zName = blob_str(&xfer.aToken[1]);
         const char *zHash = blob_str(&xfer.aToken[3]);
         int iStatus;
+        if( mtime<0 || size<0 ){
+          xfer_fatal_error("invalid uvigot");
+          return ++nErr;
+        }
         iStatus = unversioned_status(zName, mtime, zHash);
         if( (syncFlags & SYNC_UV_REVERT)!=0 ){
           if( iStatus==4 ) iStatus = 2;
@@ -2575,6 +2602,10 @@ int client_sync(
           && blob_is_int(&xfer.aToken[2], &size) ){
         const char *zName = blob_str(&xfer.aToken[1]);
         Blob content;
+        if( size<0 ){
+          xfer_fatal_error("invalid config record");
+          return ++nErr;
+        }
         blob_zero(&content);
         blob_extract(xfer.pIn, size, &content);
         g.perm.Admin = g.perm.RdAddr = 1;
@@ -2619,6 +2650,10 @@ int client_sync(
       */
       if( blob_eq(&xfer.aToken[0], "clone_seqno") && xfer.nToken==2 ){
         blob_is_int(&xfer.aToken[1], &cloneSeqno);
+        if( cloneSeqno<0 ){
+          xfer_fatal_error("invalid clone_seqno");
+          return ++nErr;
+        }
       }else
 
       /*   message MESSAGE
@@ -2696,6 +2731,10 @@ int client_sync(
           defossilize(zUser);
           iNow = time(NULL);
           if( blob_is_int64(&xfer.aToken[3], &mtime) && iNow>mtime ){
+            if( mtime<0 ){
+              xfer_fatal_error("invalid ci-lock-fail time");
+              return ++nErr;
+            }
             iNow = time(NULL);
             fossil_print("\nParent check-in locked by %s %s ago\n",
                zUser, human_readable_age((iNow+1-mtime)/86400.0));

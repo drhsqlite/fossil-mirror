@@ -323,4 +323,24 @@ test comment-60 {$RESULT eq "00:00:00 \[0000000000\] *CURRENT* \n         xxxx x
 
 ###############################################################################
 
+fossil test-comment-format --width 72 --file "" [file join $testdir "utf8-comment.txt"]
+test comment-61 {$RESULT eq "The comment formatter handles ｆｕｌｌｗｉｄｔｈ and multi-byte \[äöü\] an\nd symbols \[☃\] and emoji \[💾\] characters!\n(2 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --width 72 --wordbreak --file "" [file join $testdir "utf8-comment.txt"]
+test comment-62 {$RESULT eq "The comment formatter handles ｆｕｌｌｗｉｄｔｈ and multi-byte \[äöü\]\nand symbols \[☃\] and emoji \[💾\] characters!\n(2 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --width 72 --legacy --file "" [file join $testdir "utf8-comment.txt"]
+test comment-63 {$RESULT eq "The comment formatter handles ｆｕｌｌｗｉｄｔｈ and multi-byte \[äöü\]\nand symbols \[☃\] and emoji \[💾\] characters!\n(2 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --width 72 --legacy --wordbreak --file "" [file join $testdir "utf8-comment.txt"]
+test comment-64 {$RESULT eq "The comment formatter handles ｆｕｌｌｗｉｄｔｈ and multi-byte \[äöü\]\nand symbols \[☃\] and emoji \[💾\] characters!\n(2 lines output)"}
+
+###############################################################################
+
 test_cleanup

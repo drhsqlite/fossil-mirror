@@ -21,7 +21,7 @@ for a file in Fossil.
     of the primary parent of C0.  Merged in branches are not part of
     the direct ancestors of C0.
 <li>Prune the list of ancestors of C0 so that it contains only
-    check-in in which the file to be annotated was modified.
+    check-ins in which the file to be annotated was modified.
 <li>Load the complete text of the file to be annotated from check-in C0.
     Call this version of the file F0.
 <li>Parse F0 into lines.  Mark each line as "unchanged".
@@ -47,7 +47,7 @@ The time-consuming part of this algorithm is step 6b - computing the
 diff from all historical versions of the file to the version of the file
 under analysis.  For a large file that has many historical changes, this
 can take several seconds.  For this reason, the default
-[/help?cmd=/annotate|/annotate] webpage only shows those lines that where
+[/help?cmd=/annotate|/annotate] webpage only shows those lines that were
 changed by the 20 most recent modifications to the file.  This allows
 the loop on step 6 to terminate after only 19 diffs instead of the hundreds
 or thousands of diffs that might be required for a frequently modified file.

@@ -187,7 +187,7 @@ void finfo_cmd(void){
     iLimit = zLimit ? atoi(zLimit) : -1;
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;
-    iBrief = (find_option("brief","b",0) == 0);
+    iBrief = find_option("brief","b",0) != 0;
     if( iLimit==0 ){
       iLimit = -1;
     }
@@ -230,7 +230,7 @@ void finfo_cmd(void){
         iLimit, iOffset
     );
     blob_zero(&line);
-    if( iBrief ){
+    if( iBrief == 0 ){
       fossil_print("History for %s\n", blob_str(&fname));
     }
     while( db_step(&q)==SQLITE_ROW ){
@@ -242,7 +242,7 @@ void finfo_cmd(void){
       const char *zBr = db_column_text(&q, 5);
       char *zOut;
       if( zBr==0 ) zBr = "trunk";
-      if( iBrief ){
+      if( iBrief == 0 ){
         fossil_print("%s ", zDate);
         zOut = mprintf(
            "[%S] %s (user: %s, artifact: [%S], branch: %s)",

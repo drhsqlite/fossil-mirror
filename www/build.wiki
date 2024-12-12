@@ -57,7 +57,7 @@ the Fossil source code?</h2>
 
 Yes!  Any check-in on the
 [/timeline?t=trunk | trunk branch] of the Fossil
-[https://fossil-scm.org/ | Fossil self-hosting repository]
+[https://fossil-scm.org/ | self-hosting repository]
 will work fine.  (Dodgy code is always on a branch.)  In the unlikely
 event that you pick a version with a serious bug, it still won't
 clobber your files.  Fossil uses several
@@ -477,7 +477,7 @@ fail if it cannot do so. Once it's set up the environment, it passes
 on all of its arguments to <tt>emcc</tt>.
 
 The WASM-related build parts are set up such that none of them should
-ever trigger implicity (e.g. via dependencies resolution) in a normal
+ever trigger implicitly (e.g. via dependencies resolution) in a normal
 build cycle. They are instead explicitly built as described below.
 
 From the top of the source tree, all WASM-related components can be

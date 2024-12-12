@@ -34,7 +34,7 @@ seem inefficient, but it is faster than people imagine, and numeric
 computations do not come up very often for the kinds of work that TH1 does,
 so it has never been a factor.)
 
-A TH1 script consist of a sequence of commands.
+A TH1 script consists of a sequence of commands.
 Each command is terminated by the first *unescaped* newline or ";" character.
 The text of the command (excluding the newline or semicolon terminator)
 is broken into space-separated tokens.  The first token is the command
@@ -290,7 +290,7 @@ cluster of [capability letters](./caps/ref.html).
 The overall expression is true if any
 one term is true. A single term is true if all letters within that
 term are true. Or, if the term begins with "!", then the term is true
-if none of the terms or true. Or, if the term begins with "@" then
+if none of the terms are true. Or, if the term begins with "@" then
 the term is true if all of the capability letters in that term are
 available to the "anonymous" user. Or, if the term is "*" then it is
 always true.
@@ -385,7 +385,7 @@ copied to clipboard:
 
   *  date ?-local?
 
-Return a strings which is the current time and date.  If the -local
+Return a string which is the current time and date.  If the -local
 option is used, the date appears using localtime instead of UTC.
 
 <a id="decorate"></a>TH1 decorate Command
@@ -572,7 +572,7 @@ as a hidden element of the form.
 
   *  linecount STRING MAX MIN
 
-Returns one more than the number of \n characters in STRING.  But
+Returns one more than the number of `\n` characters in STRING.  But
 never returns less than MIN or more than MAX.
 
 <a id="markdown"></a>TH1 markdown Command
@@ -844,7 +844,7 @@ process in user space.
   *  verifyCsrf
 
 Before using the results of a form, first call this command to verify
-that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
+that the Anti-CSRF token is present and is valid.  If the Anti-CSRF token
 is missing or is incorrect, that indicates a cross-site scripting attack.
 If the event of an attack is detected, an error message is generated and
 all further processing is aborted.

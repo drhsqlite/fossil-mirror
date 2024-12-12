@@ -100,11 +100,11 @@ The response format differs somewhat depending on the options:
     Since they are ordered from oldest to newest, the newest N results
     will be returned.
 -   `type=string` (default=`*`) Searches only for the given type of
-    artifact (using fossil's conventional type naming: ci, e, t, w.
+    artifact (using fossil's conventional type naming: ci, e, t, w.)
 -   `raw=bool` (=false) If enabled, the response is an array of hashes
     of the requested artifact type; otherwise,
     it is an array of higher-level objects. If this is
-    true, the "name" property is interpretted as-is. If it is false, the
+    true, the "name" property is interpreted as-is. If it is false, the
     name is automatically prepended with "sym-" (meaning a branch).
     (FIXME: the current semantics are confusing and hard to remember.
     Re-do them.)

@@ -44,6 +44,7 @@ h1.page-title {
 .doc      h1.page-title,
 .wiki     h1.page-title {
   display: block;   /* …for potentially long doc titles… */
+  color: #444;
 }
 .artifact .title > .page-title,
 .dir      .title > .page-title,
@@ -727,12 +728,12 @@ tr.timelineCurrent td:last-child {
 
   /* Fossil UI uses these, but in sufficiently constrained ways that we
    * don't have to be nearly as careful to avoid an overreach. */
-  .doc > .content h1, .artifact h1, .dir h1, .fileedit h1, .wiki h1 { margin-left: 10pt; }
-  .doc > .content h2, .artifact h2, .dir h2, .fileedit h2, .wiki h2 { margin-left: 20pt; }
-  .doc > .content h3, .artifact h3, .dir h3, .fileedit h3, .wiki h3 { margin-left: 30pt; }
-  .doc > .content h4, .artifact h4, .dir h4, .fileedit h4, .wiki h4 { margin-left: 40pt; }
-  .doc > .content h5, .artifact h5, .dir h5, .fileedit h5, .wiki h5 { margin-left: 50pt; }
-  .doc > .content hr, .artifact hr, .dir hr, .fileedit hr, .wiki hr { margin-left: 10pt; }
+  .doc > .content h1, .artifact .content h1, .dir .content h1, .fileedit .content h1, .wiki .content h1 { margin-left: 10pt; }
+  .doc > .content h2, .artifact .content h2, .dir .content h2, .fileedit .content h2, .wiki .content h2 { margin-left: 20pt; }
+  .doc > .content h3, .artifact .content h3, .dir .content h3, .fileedit .content h3, .wiki .content h3 { margin-left: 30pt; }
+  .doc > .content h4, .artifact .content h4, .dir .content h4, .fileedit .content h4, .wiki .content h4 { margin-left: 40pt; }
+  .doc > .content h5, .artifact .content h5, .dir .content h5, .fileedit .content h5, .wiki .content h5 { margin-left: 50pt; }
+  .doc > .content hr, .artifact .content hr, .dir .content hr, .fileedit .content hr, .wiki .content hr { margin-left: 10pt; }
 
   /* Don't need to be nearly as careful with tags Fossil UI doesn't use. */
   .doc dd, .artifact dd, .dir dd, .fileedit dd, .wikiedit dd { margin-left: 30pt; margin-bottom: 1em; }

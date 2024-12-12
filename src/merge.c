@@ -22,6 +22,368 @@
 #include "merge.h"
 #include <assert.h>
 
+
+/*
+** Bring up a Tcl/Tk GUI to show details of the most recent merge.
+*/
+static void merge_info_tk(int bDark, int bAll, int nContext){
+  int i;
+  Blob script;
+  const char *zTempFile = 0;
+  char *zCmd;
+  const char *zTclsh;
+  zTclsh = find_option("tclsh",0,1);
+  if( zTclsh==0 ){
+    zTclsh = db_get("tclsh",0);
+  }
+  /* The undocumented --script FILENAME option causes the Tk script to
+  ** be written into the FILENAME instead of being run.  This is used
+  ** for testing and debugging. */
+  zTempFile = find_option("script",0,1);
+  verify_all_options();
+
+  blob_zero(&script);
+  blob_appendf(&script, "set ncontext %d\n", nContext);
+  blob_appendf(&script, "set fossilcmd {| \"%/\" merge-info}\n",
+               g.nameOfExe);
+  blob_appendf(&script, "set filelist [list");
+  if( g.argc==2 ){
+    /* No files named on the command-line.  Use every file mentioned
+    ** in the MERGESTAT table to generate the file list. */
+    Stmt q;
+    int cnt = 0;
+    db_prepare(&q,
+       "WITH priority(op,pri) AS (VALUES('CONFLICT',0),('ERROR',0),"
+                                       "('MERGE',1),('ADDED',2),('UPDATE',2))"
+       "SELECT coalesce(fnr,fn), op FROM mergestat JOIN priority USING(op)"
+           " %s ORDER BY pri, 1",
+       bAll ? "" : "WHERE op IN ('MERGE','CONFLICT')" /*safe-for-%s*/
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&script," %s ", db_column_text(&q,1));
+      blob_append_tcl_literal(&script, db_column_text(&q,0),
+                              db_column_bytes(&q,0));
+      cnt++;
+    }
+    db_finalize(&q);
+    if( cnt==0 ){
+      fossil_print(
+        "No interesting changes in this merge. Use --all to see everything\n"
+      );
+      return;
+    }
+  }else{
+    /* Use only files named on the command-line in the file list.
+    ** But verify each file named is actually found in the MERGESTAT
+    ** table first. */
+    for(i=2; i<g.argc; i++){
+      char *zFile;          /* Input filename */
+      char *zTreename;      /* Name of the file in the tree */
+      Blob fname;           /* Filename relative to root */
+      char *zOp;            /* Operation on this file */
+      zFile = mprintf("%/", g.argv[i]);
+      file_tree_name(zFile, &fname, 0, 1);
+      fossil_free(zFile);
+      zTreename = blob_str(&fname);
+      zOp = db_text(0, "SELECT op FROM mergestat WHERE fn=%Q or fnr=%Q",
+                       zTreename, zTreename);
+      blob_appendf(&script, " %s ", zOp);
+      fossil_free(zOp);
+      blob_append_tcl_literal(&script, zTreename, (int)strlen(zTreename));
+      blob_reset(&fname);
+    }
+  }
+  blob_appendf(&script, "]\n");
+  blob_appendf(&script, "set darkmode %d\n", bDark!=0);
+  blob_appendf(&script, "%s", builtin_file("merge.tcl", 0));
+  if( zTempFile ){
+    blob_write_to_file(&script, zTempFile);
+    fossil_print("To see the merge, run: %s \"%s\"\n", zTclsh, zTempFile);
+  }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    Th_FossilInit(TH_INIT_DEFAULT);
+    if( evaluateTclWithEvents(g.interp, &g.tcl, blob_str(&script),
+                              blob_size(&script), 1, 1, 0)==TCL_OK ){
+      blob_reset(&script);
+      return;
+    }
+    /*
+     * If evaluation of the Tcl script fails, the reason may be that Tk
+     * could not be found by the loaded Tcl, or that Tcl cannot be loaded
+     * dynamically (e.g. x64 Tcl with x86 Fossil).  Therefore, fallback
+     * to using the external "tclsh", if available.
+     */
+#endif
+    zTempFile = write_blob_to_temp_file(&script);
+    zCmd = mprintf("%$ %$", zTclsh, zTempFile);
+    fossil_system(zCmd);
+    file_delete(zTempFile);
+    fossil_free(zCmd);
+  }
+  blob_reset(&script);
+}
+
+/*
+** Generate a TCL list on standard output that can be fed into the
+** merge.tcl script to show the details of the most recent merge
+** command associated with file "zFName".  zFName must be the filename
+** relative to the root of the check-in - in other words a "tree name".
+**
+** When this routine is called, we know that the mergestat table
+** exists, but we do not know if zFName is mentioned in that table.
+*/
+static void merge_info_tcl(const char *zFName, int nContext){
+  const char *zTreename;/* Name of the file in the tree */
+  Stmt q;               /* To query the MERGESTAT table */
+  MergeBuilder mb;      /* The merge builder object */
+  Blob pivot,v1,v2,out; /* Blobs for holding content */
+  const char *zFN;      /* A filename */
+  int rid;              /* RID value */
+  int sz;               /* File size value */
+
+  zTreename = zFName;
+  db_prepare(&q,
+       /*   0    1     2   3     4   5    6     7  */
+    "SELECT fnp, ridp, fn, ridv, sz, fnm, ridm, fnr"
+    "  FROM mergestat"
+    " WHERE fnp=%Q OR fnr=%Q",
+    zTreename, zTreename
+  );
+  if( db_step(&q)!=SQLITE_ROW ){
+    db_finalize(&q);
+    fossil_print("ERROR {don't know anything about file: %s}\n", zTreename);
+    return;
+  }
+  mergebuilder_init_tcl(&mb);
+  mb.nContext = nContext;
+
+  /* Set up the pivot */
+  zFN = db_column_text(&q, 0);
+  if( zFN==0 ){
+    /* No pivot because the file was added */
+    mb.zPivot = "(no baseline)";
+    blob_zero(&pivot);
+  }else{
+    mb.zPivot = mprintf("%s (baseline)", file_tail(zFN));
+    rid = db_column_int(&q, 1);
+    content_get(rid, &pivot);
+  }
+  mb.pPivot = &pivot;
+
+  /* Set up the merge-in as V2 */
+  zFN = db_column_text(&q, 5);
+  if( zFN==0 ){
+    /* File deleted in the merged-in branch */
+    mb.zV2 = "(deleted file)";
+    blob_zero(&v2);
+  }else{
+    mb.zV2 = mprintf("%s (merge-in)", file_tail(zFN));
+    rid = db_column_int(&q, 6);
+    content_get(rid, &v2);
+  }
+  mb.pV2 = &v2;
+
+  /* Set up the local content as V1 */
+  zFN = db_column_text(&q, 2);
+  if( zFN==0 ){
+    /* File added by merge */
+    mb.zV1 = "(no original)";
+    blob_zero(&v1);
+  }else{
+    mb.zV1 = mprintf("%s (local)", file_tail(zFN));
+    rid = db_column_int(&q, 3);
+    sz = db_column_int(&q, 4);
+    if( rid==0 && sz>0 ){
+      /* The origin file had been edited so we'll have to pull its
+      ** original content out of the undo buffer */
+      Stmt q2;
+      db_prepare(&q2, 
+        "SELECT content FROM undo"
+        " WHERE pathname=%Q AND octet_length(content)=%d",
+        zFN, sz
+      );
+      blob_zero(&v1);
+      if( db_step(&q2)==SQLITE_ROW ){
+        db_column_blob(&q2, 0, &v1);
+      }else{
+        mb.zV1 = "(local content missing)";
+      }
+      db_finalize(&q2);
+    }else{
+      /* The origin file was unchanged when the merge first occurred */
+      content_get(rid, &v1);
+    }
+  }
+  mb.pV1 = &v1;
+
+  /* Set up the output */
+  zFN = db_column_text(&q, 7);
+  if( zFN==0 ){
+    mb.zOut = "(Merge Result)";
+  }else{
+    mb.zOut = mprintf("%s (after merge)", file_tail(zFN));
+  }
+  blob_zero(&out);
+  mb.pOut = &out;
+
+  merge_three_blobs(&mb);
+  blob_write_to_file(&out, "-");
+
+  mb.xDestroy(&mb);
+  blob_reset(&pivot);
+  blob_reset(&v1);
+  blob_reset(&v2);
+  blob_reset(&out);
+  db_finalize(&q);
+}
+
+/*
+** COMMAND: merge-info
+**
+** Usage: %fossil merge-info [OPTIONS]
+**
+** Display information about the most recent merge operation.
+**
+** Options:
+**   -a|--all             Show all file changes that happened because of
+**                        the merge.  Normally only MERGE, CONFLICT, and ERROR
+**                        lines are shown
+**   -c|--context N       Show N lines of context around each change,
+**                        with negative N meaning show all content.  Only
+**                        meaningful in combination with --tcl or --tk.
+**   --dark               Use dark mode for the Tcl/Tk-based GUI
+**   --tcl FILE           Generate (to stdout) a TCL list containing
+**                        information needed to display the changes to
+**                        FILE caused by the most recent merge.  FILE must
+**                        be a pathname relative to the root of the check-out.
+**   --tk                 Bring up a Tcl/Tk GUI that shows the changes
+**                        associated with the most recent merge.
+**
+*/
+void merge_info_cmd(void){
+  const char *zCnt;
+  const char *zTcl;
+  int bTk;
+  int bDark;
+  int bAll;
+  int nContext;
+  Stmt q;
+  const char *zWhere;
+  int cnt = 0;
+
+  db_must_be_within_tree();
+  zTcl = find_option("tcl", 0, 1);
+  bTk = find_option("tk", 0, 0)!=0;
+  zCnt = find_option("context", "c", 1);
+  bDark = find_option("dark", 0, 0)!=0;
+  bAll = find_option("all", "a", 0)!=0;
+  if( bTk==0 ){
+    verify_all_options();
+    if( g.argc>2 ){
+      usage("[OPTIONS]");
+    }
+  }
+  if( zCnt ){
+    nContext = atoi(zCnt);
+    if( nContext<0 ) nContext = 0xfffffff;
+  }else{
+    nContext = 6;
+  }
+  if( !db_table_exists("localdb","mergestat") ){
+    if( zTcl ){
+      fossil_print("ERROR {no merge data available}\n");
+    }else{
+      fossil_print("No merge data is available\n");
+    }
+    return;
+  }
+  if( bTk ){
+    merge_info_tk(bDark, bAll, nContext);
+    return;
+  }
+  if( zTcl ){
+    merge_info_tcl(zTcl, nContext);
+    return;
+  }
+  if( bAll ){
+    zWhere = "";
+  }else{
+    zWhere = "WHERE op IN ('MERGE','CONFLICT','ERROR')";
+  }
+  db_prepare(&q,
+    "WITH priority(op,pri) AS (VALUES('CONFLICT',0),('ERROR',0),"
+                                    "('MERGE',1),('ADDED',2),('UPDATE',2))"
+
+        /*  0   1                 2  */
+    "SELECT op, coalesce(fnr,fn), msg"
+    "  FROM mergestat JOIN priority USING(op)"
+    " %s"
+    " ORDER BY pri, coalesce(fnr,fn)",
+    zWhere /*safe-for-%s*/
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zOp = db_column_text(&q, 0);
+    const char *zName = db_column_text(&q, 1);
+    const char *zErr = db_column_text(&q, 2);
+    if( zErr && fossil_strcmp(zOp,"CONFLICT")!=0 ){
+      fossil_print("%-9s %s  (%s)\n", zOp, zName, zErr);
+    }else{
+      fossil_print("%-9s %s\n", zOp, zName);
+    }
+    cnt++;
+  }
+  db_finalize(&q);
+  if( !bAll && cnt==0 ){
+    fossil_print(
+      "No interesting changes in this merge.  Use --all to see everything.\n"
+    );
+  }
+}
+
+/*
+** Erase all information about prior merges.  Do this, for example, after
+** a commit.
+*/
+void merge_info_forget(void){
+  db_multi_exec(
+    "DROP TABLE IF EXISTS localdb.mergestat;"
+    "DELETE FROM localdb.vvar WHERE name glob 'mergestat-*';"
+  );
+}
+
+
+/*
+** Initialize the MERGESTAT table.
+**
+** Notes about mergestat:
+**
+**    *  ridv is a positive integer and sz is NULL if the V file contained
+**       no local edits prior to the merge.  If the V file was modified prior
+**       to the merge then ridv is NULL and sz is the size of the file prior
+**       to merge.
+**
+**    *  fnp, ridp, fn, ridv, and sz are all NULL for a file that was
+**       added by merge.
+*/
+void merge_info_init(void){
+  merge_info_forget();
+  db_multi_exec(
+    "CREATE TABLE localdb.mergestat(\n"
+    "  op TEXT,   -- 'UPDATE', 'ADDED', 'MERGE', etc...\n"
+    "  fnp TEXT,  -- Name of the pivot file (P)\n"
+    "  ridp INT,  -- RID for the pivot file\n"
+    "  fn TEXT,   -- Name of origin file (V)\n"
+    "  ridv INT,  -- RID for origin file, or NULL if previously edited\n"
+    "  sz INT,    -- Size of origin file in bytes, NULL if unedited\n"
+    "  fnm TEXT,  -- Name of the file being merged in (M)\n"
+    "  ridm INT,  -- RID for the merge-in file\n"
+    "  fnr TEXT,  -- Name of the final output file, after all renaming\n"
+    "  nc INT DEFAULT 0,    -- Number of conflicts\n"
+    "  msg TEXT   -- Error message\n"
+    ");"
+  );
+}
+
 /*
 ** Print information about a particular check-in.
 */
@@ -298,6 +660,9 @@ void test_show_vfile_cmd(void){
 ** If the VERSION argument is omitted, then Fossil attempts to find
 ** a recent fork on the current branch to merge.
 **
+** Note that this command does not commit the merge, as that is a
+** separate step.
+**
 ** If there are multiple VERSION arguments, then each VERSION is merged
 ** (or cherrypicked) in the order that they appear on the command-line.
 **
@@ -322,7 +687,7 @@ void test_show_vfile_cmd(void){
 **   -K|--keep-merge-files   On merge conflict, retain the temporary files
 **                           used for merging, named *-baseline, *-original,
 **                           and *-merge.
-**   -n|--dry-run            If given, display instead of run actions
+**   -n|--dry-run            Do not actually change files on disk
 **   --nosync                Do not auto-sync prior to merging
 **   -v|--verbose            Show additional details of the merge
 */
@@ -799,11 +1164,17 @@ merge_next_child:
   ** All of the information needed to do the merge is now contained in the
   ** FV table.  Starting here, we begin to actually carry out the merge.
   **
-  ** First, find files that have changed from P->M but not P->V.
+  ** Begin by constructing the localdb.mergestat table. 
+  */
+  merge_info_init();
+
+  /*
+  ** Find files that have changed from P->M but not P->V.
   ** Copy the M content over into V.
   */
   db_prepare(&q,
-    "SELECT idv, ridm, fn, islinkm FROM fv"
+    /*      0    1     2   3        4    5     6     7   */
+    "SELECT idv, ridm, fn, islinkm, fnp, ridp, ridv, fnm FROM fv"
     " WHERE idp>0 AND idv>0 AND idm>0"
     "   AND ridm!=ridp AND ridv=ridp AND NOT chnged"
   );
@@ -824,6 +1195,17 @@ merge_next_child:
       );
       vfile_to_disk(0, idv, 0, 0);
     }
+    db_multi_exec(
+      "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,fnm,ridm,fnr)"
+      "VALUES('UPDATE',%Q,%d,%Q,%d,%Q,%d,%Q)",
+      /* fnp   */ db_column_text(&q, 4),
+      /* ridp  */ db_column_int(&q,5),
+      /* fn    */ zName,
+      /* ridv  */ db_column_int(&q,6),
+      /* fnm   */ db_column_text(&q, 7),
+      /* ridm  */ ridm,
+      /* fnr   */ zName
+    ); 
   }
   db_finalize(&q);
 
@@ -835,7 +1217,11 @@ merge_next_child:
   ** added to the file and user will be forced to take a decision.
   */
   db_prepare(&q,
-    "SELECT ridm, idv, ridp, ridv, %s, fn, isexe, islinkv, islinkm FROM fv"
+        /*  0     1    2     3     4   5   6      7        8 */
+    "SELECT ridm, idv, ridp, ridv, %z, fn, isexe, islinkv, islinkm,"
+        /*  9     10   11   */
+    "       fnp,  fnm, chnged"
+    "  FROM fv"
     " WHERE idv>0 AND idm>0"
     "   AND ridm!=ridp AND (ridv!=ridp OR chnged)",
     glob_expr("fv.fn", zBinGlob)
@@ -850,8 +1236,10 @@ merge_next_child:
     int isExe = db_column_int(&q, 6);
     int islinkv = db_column_int(&q, 7);
     int islinkm = db_column_int(&q, 8);
+    int chnged = db_column_int(&q, 11);
     int rc;
     char *zFullPath;
+    const char *zType = "MERGE";
     Blob m, p, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
     if( verboseFlag ){
@@ -863,9 +1251,25 @@ merge_next_child:
     if( islinkv || islinkm ){
       fossil_print("***** Cannot merge symlink %s\n", zName);
       nConflict++;
+      db_multi_exec(
+        "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,fnm,ridm,fnr,nc,msg)"
+        "VALUES('ERROR',%Q,%d,%Q,%d,%Q,%d,%Q,1,'cannot merge symlink')",
+        /* fnp  */ db_column_text(&q, 9),
+        /* ridp */ ridp,
+        /* fn   */ zName,
+        /* ridv */ ridv,
+        /* fnm  */ db_column_text(&q, 10),
+        /* ridm */ ridm,
+        /* fnr  */ zName
+      ); 
     }else{
+      i64 sz;
+      const char *zErrMsg = 0;
+      int nc = 0;
+
       if( !dryRunFlag ) undo_save(zName);
       zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
+      sz = file_size(zFullPath, ExtFILE);
       content_get(ridp, &p);
       content_get(ridm, &m);
       if( isBinary ){
@@ -886,11 +1290,34 @@ merge_next_child:
           fossil_print("***** %d merge conflict%s in %s\n",
                        rc, rc>1 ? "s" : "", zName);
           nConflict++;
+          nc = rc;
+          zErrMsg = "merge conflicts";
+          zType = "CONFLICT";
         }
       }else{
         fossil_print("***** Cannot merge binary file %s\n", zName);
         nConflict++;
+        nc = 1;
+        zErrMsg = "cannot merge binary file";
+        zType = "ERROR";
       }
+      db_multi_exec(
+        "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,fnr,nc,msg)"
+        "VALUES(%Q,%Q,%d,%Q,iif(%d,%d,NULL),iif(%d,%lld,NULL),%Q,%d,"
+               "%Q,%d,%Q)",
+        /* op   */ zType,
+        /* fnp  */ db_column_text(&q, 9),
+        /* ridp */ ridp,
+        /* fn   */ zName,
+        /* ridv */ chnged==0, ridv,
+        /* sz   */ chnged!=0, sz,
+        /* fnm  */ db_column_text(&q, 10),
+        /* ridm */ ridm,
+        /* fnr  */ zName,
+        /* nc   */ nc,
+        /* msg  */ zErrMsg
+      );
+      fossil_free(zFullPath);
       blob_reset(&p);
       blob_reset(&m);
       blob_reset(&r);
@@ -903,18 +1330,29 @@ merge_next_child:
   ** Drop files that are in P and V but not in M
   */
   db_prepare(&q,
-    "SELECT idv, fn, chnged FROM fv"
+    "SELECT idv, fn, chnged, ridv FROM fv"
     " WHERE idp>0 AND idv>0 AND idm=0"
   );
   while( db_step(&q)==SQLITE_ROW ){
     int idv = db_column_int(&q, 0);
     const char *zName = db_column_text(&q, 1);
     int chnged = db_column_int(&q, 2);
+    int ridv = db_column_int(&q, 3);
+    int sz = -1;
+    const char *zErrMsg = 0;
+    int nc = 0;
     /* Delete the file idv */
     fossil_print("DELETE %s\n", zName);
     if( chnged ){
+      char *zFullPath;
       fossil_warning("WARNING: local edits lost for %s", zName);
       nConflict++;
+      ridv = 0;
+      nc = 1;
+      zErrMsg = "local edits lost";
+      zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
+      sz = file_size(zFullPath, ExtFILE);
+      fossil_free(zFullPath);
     }
     if( !dryRunFlag ) undo_save(zName);
     db_multi_exec(
@@ -925,6 +1363,16 @@ merge_next_child:
       file_delete(zFullPath);
       free(zFullPath);
     }
+    db_multi_exec(
+      "INSERT INTO localdb.mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,nc,msg)"
+      "VALUES('DELETE',NULL,NULL,%Q,iif(%d,%d,NULL),iif(%d,%d,NULL),"
+             "NULL,NULL,%d,%Q)",
+      /* fn   */ zName,
+      /* ridv */ chnged==0, ridv,
+      /* sz   */ chnged!=0, sz,
+      /* nc   */ nc,
+      /* msg  */ zErrMsg
+    );
   }
   db_finalize(&q);
 
@@ -955,6 +1403,10 @@ merge_next_child:
     fossil_print("RENAME %s -> %s\n", zOldName, zNewName);
     if( !dryRunFlag ) undo_save(zOldName);
     if( !dryRunFlag ) undo_save(zNewName);
+    db_multi_exec(
+      "UPDATE mergestat SET fnr=fnm WHERE fnp=%Q",
+      zOldName
+    );
     db_multi_exec(
       "UPDATE vfile SET pathname=NULL, origname=pathname"
       " WHERE vid=%d AND pathname=%Q;"
@@ -1008,7 +1460,7 @@ merge_next_child:
   ** Insert into V any files that are not in V or P but are in M.
   */
   db_prepare(&q,
-    "SELECT idm, fnm FROM fv"
+    "SELECT idm, fnm, ridm FROM fv"
     " WHERE idp=0 AND idv=0 AND idm>0"
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -1041,6 +1493,13 @@ merge_next_child:
       fossil_print("ADDED %s\n", zName);
     }
     fossil_free(zFullName);
+    db_multi_exec(
+      "INSERT INTO mergestat(op,fnm,ridm,fnr)"
+      "VALUES('ADDED',%Q,%d,%Q)",
+      /* fnm  */ zName,
+      /* ridm */ db_column_int(&q,2),
+      /* fnr  */ zName
+    );
     if( !dryRunFlag ){
       undo_save(zName);
       vfile_to_disk(0, idm, 0, 0);

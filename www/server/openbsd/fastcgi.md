@@ -174,7 +174,7 @@ setting, raising the limit to 100 MiB.
 [dlim]: https://man.openbsd.org/httpd.conf.5#connection
 [uv]:   ../../unvers.wiki
 
-**NOTE:** If not already in possession of a HTTPS certificate, comment
+**NOTE:** If not already in possession of an HTTPS certificate, comment
 out the `https` server block and proceed to securing a free
 [Let's Encrypt Certificate](#letsencrypt); otherwise skip to
 [Start `httpd`](#starthttpd).
