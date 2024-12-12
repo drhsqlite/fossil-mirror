@@ -652,6 +652,10 @@ void ckout_page(void){
     style_header("Checkout Status: %h", zCwd);
   }
   render_checkin_context(vid, 0, 0, 0);
+  if( pCfg==0 ){
+    style_finish_page();
+    return;
+  }
   db_prepare(&q,
        /*   0         1        2        3       4    5       6 */
     "SELECT pathname, deleted, chnged , rid==0, rid, islink, uuid"
