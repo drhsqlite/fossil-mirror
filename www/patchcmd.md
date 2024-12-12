@@ -11,7 +11,7 @@ remote Linux server:
 
    fossil patch push linuxserver:/path/to/checkout
 
-In the previous "linuxserver" is the name of the remote machine and
+In the previous line "linuxserver" is the name of the remote machine and
 "/path/to/checkout" is an existing checkout directory for the same project
 on the remote machine.
 
@@ -87,7 +87,7 @@ changes in an SQLite database file.  If the argument to "fossil patch create"
 is a filename, then the patch-file database is written into that file.
 If the argument is "-" then the database is written on standard output.
 
-The "fossil patch apply" command reads the database that is the patch file
+The "fossil patch apply" command reads the patch-file database 
 and applies it to the local check-out.  If a filename is given as an
 argument, then the database is read from that file.  If the argument is "-"
 then the database is read from standard input.
@@ -104,9 +104,9 @@ Likewise, a command like this:
 
     fossil patch pull remote:projB
 
-Could be entered like this:
+could be entered like this:
 
     ssh -T remote 'cd projB;fossil patch create -' | fossil patch apply -
 
-The "fossil patch view" command just opens the database file and prints
+The "fossil patch view" command just opens the patch-file database and prints
 a summary of its contents on standard output.

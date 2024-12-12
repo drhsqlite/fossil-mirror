@@ -545,10 +545,12 @@ static void bisect_run(void){
 **
 **       List the versions in between the inner-most "bad" and "good".
 **
-** > fossil bisect ui
+** > fossil bisect ui ?HOST@USER:PATH?
 **
 **       Like "fossil ui" except start on a timeline that shows only the
-**       check-ins that are part of the current bisect.
+**       check-ins that are part of the current bisect.  If the optional
+**       fourth term is added, then information is shown for the bisect that
+**       occurred in the PATH directory by USER on remote machine HOST.
 **
 ** > fossil bisect undo
 **
@@ -721,13 +723,19 @@ void bisect_cmd(void){
     bisect_reset();
   }else if( strcmp(zCmd, "ui")==0 ){
     char *newArgv[8];
+    verify_all_options();
     newArgv[0] = g.argv[0];
     newArgv[1] = "ui";
     newArgv[2] = "--page";
     newArgv[3] = "timeline?bisect";
-    newArgv[4] = 0;
+    if( g.argc==4 ){
+      newArgv[4] = g.argv[3];
+      g.argc = 5;
+    }else{
+      g.argc = 4;
+    }
+    newArgv[g.argc] = 0;
     g.argv = newArgv;
-    g.argc = 4;
     cmd_webserver();
   }else if( strncmp(zCmd, "vlist", n)==0
          || strncmp(zCmd, "ls", n)==0

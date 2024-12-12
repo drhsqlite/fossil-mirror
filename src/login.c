@@ -753,7 +753,7 @@ void login_page(void){
   }
   if( g.zLogin ){
     @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
-    @ <input type="submit" name="out" value="Logout"></p>
+    @ <input type="submit" name="out" value="Logout" autofocus></p>
     @ </form>
   }else{
     unsigned int uSeed = captcha_seed();
@@ -779,7 +779,7 @@ void login_page(void){
     @ <tr>
     @   <td class="form_label" id="userlabel1">User ID:</td>
     @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
-    @ size="30" value="%s(anonFlag?"anonymous":"")"></td>
+    @ size="30" value="%s(anonFlag?"anonymous":"")" autofocus></td>
     @ </tr>
     @ <tr>
     @  <td class="form_label" id="pswdlabel">Password:</td>
@@ -1304,6 +1304,7 @@ void login_restrict_robot_access(void){
   const char *zReferer;
   const char *zGlob;
   int isMatch = 1;
+  int nQP;  /* Number of query parameters other than name= */
   if( g.zLogin!=0 ) return;
   zGlob = db_get("robot-restrict",0);
   if( zGlob==0 || zGlob[0]==0 ) return;
@@ -1311,9 +1312,20 @@ void login_restrict_robot_access(void){
     zReferer = P("HTTP_REFERER");
     if( zReferer && zReferer[0]!=0 ) return;
   }
-  if( cgi_qp_count()<1 ) return;
+  nQP = cgi_qp_count();
+  if( nQP<1 ) return;
   isMatch = glob_multi_match(zGlob, g.zPath);
   if( !isMatch ) return;
+
+  /* Check for exceptions to the restriction on the number of query
+  ** parameters. */
+  zGlob = db_get("robot-restrict-qp",0);
+  if( zGlob && zGlob[0] ){
+    char *zPath = mprintf("%s/%d", g.zPath, nQP);
+    isMatch = glob_multi_match(zGlob, zPath);
+    fossil_free(zPath);
+    if( isMatch ) return;
+  }
 
   /* If we reach this point, it means we have a situation where we
   ** want to restrict the activity of a robot.
@@ -2245,7 +2257,7 @@ void register_page(void){
   @ <tr>
   @   <td class="form_label" align="right" id="uid">User ID:</td>
   @   <td><input aria-labelledby="uid" type="text" name="u" \
-  @ value="%h(zUserID)" size="30"></td>
+  @ value="%h(zUserID)" size="30" autofocus></td>
   @
   if( iErrLine==1 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>

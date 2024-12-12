@@ -1887,6 +1887,7 @@ void page_timeline(void){
   int haveParameterN;                 /* True if n= query parameter present */
   int from_to_mode = 0;               /* 0: from,to. 1: from,ft 2: from,bt */
 
+  login_check_credentials();
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
 
@@ -1967,7 +1968,6 @@ void page_timeline(void){
   if( pd_rid ){
     p_rid = d_rid = pd_rid;
   }
-  login_check_credentials();
   if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum)
    || (bisectLocal && !g.perm.Setup)
   ){
@@ -2014,6 +2014,7 @@ void page_timeline(void){
     }
     if( (z = P("rl"))!=0 ){
       zBrName = z;
+      related = 1;
       zMatchStyle = "brlist";
     }
   }

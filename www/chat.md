@@ -157,7 +157,7 @@ name and password, message text and file attachment, of course.
 
 ### <a id="chat-robot"></a> Chat Messages For Timeline Events
 
-If the [chat-timeline-user setting](/help?cmd=chat-timeline-user) is not a
+If the [chat-timeline-user setting](/help?cmd=chat-timeline-user) is not an
 empty string, then any change to the repository that would normally result
 in a new timeline entry is announced in the chatroom.  The announcement
 appears to come from a user whose name is given by the chat-timeline-user
@@ -195,7 +195,7 @@ interfaces are used by the XHR:
 
 Fossil chat uses the venerable "hanging GET" or 
 "[long polling](wikipedia:/wiki/Push_technology#Long_polling)"
-technique to recieve asynchronous notification of new messages.
+technique to receive asynchronous notification of new messages.
 This is done because long polling works well with CGI and SCGI,
 which are the usual mechanisms for setting up a Fossil server.
 More advanced notification techniques such as 

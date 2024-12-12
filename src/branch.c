@@ -642,8 +642,8 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **          -r               Reverse the sort order
 **          -t               Show recently changed branches first
 **          --self           List only branches where you participate
-**          --username USER  List only branches where USER participate
-**          --users N        List up to N users partipiating
+**          --username USER  List only branches where USER participates
+**          --users N        List up to N users participating
 **
 **        The current branch is marked with an asterisk.  Private branches are
 **        marked with a hash sign.
@@ -662,7 +662,8 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        Options:
 **          --private             Branch is private (i.e., remains local)
 **          --bgcolor COLOR       Use COLOR instead of automatic background
-**          --nosign              Do not sign contents on this branch
+**          --nosign              Do not sign the manifest for the check-in
+**                                that creates this branch
 **          --nosync              Do not auto-sync prior to creating the branch
 **          --date-override DATE  DATE to use instead of 'now'
 **          --user-override USER  USER to use instead of the current default

@@ -118,11 +118,11 @@ hierarchy</b> of the project and to view complete changes histories on
 individual files, with hyperlinks to the check-ins that made those
 changes, and with diffs and annotated diffs between versions.
 
-The web interface supports [./embeddeddoc.wiki | embedded documentation].
-Embedded documentation is documentation files (usually in wiki format)
-that are checked into project as part of the source tree.  Such files
-can be viewed as if they were ordinary web pages.  This document that
-you are now reading is an example of embedded documentation.
+The web interface supports [./embeddeddoc.wiki | embedded documentation]
+files (usually in wiki format) that are checked into the project as
+part of the source tree.  Such files can be viewed as if they were
+ordinary web pages.  This document that you are now reading is an
+example of embedded documentation.
 
 <h2>Customizing The Web Interface Appearance</h2>
 

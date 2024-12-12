@@ -35,7 +35,7 @@ serve the same purpose), and the auth token is in fact just the value
 part of the login cookie (which has a project-specific key).
 
 Note that fossil has two conventional user names which can show up in
-various response but do not refer to specific people: nobody and
+various responses but do not refer to specific people: nobody and
 anonymous. The nobody user is anyone who is not logged in. The anonymous
 user is logged in but has no persistent user data (no associated user
 name, email address, or similar). Normally the guest (nobody) user has
@@ -160,7 +160,7 @@ send authentication info in their requests in order to be able to fetch
 ticket info.
 
 Cookie-aware clients should send the login-generated cookie with each
-request, in which case they do not need explicitly include the
+request, in which case they do not need to explicitly include the
 `authToken` in the JSON envelope/GET arguments. If submitted, the
 `authToken` is used, otherwise the cookie, if set, is used. Note that
 fossil uses a project-dependent cookie name in order to help thwart
@@ -202,7 +202,7 @@ The password value *may* be time-limited, and *may* eventually become
 invalidated due to old age. This is unspecified.
 
 ***Potential***** (low-probability) bug regarding the seed value:** from
-what i hear, some unusual JSON platforms don't support full 32-bit
+what I hear, some unusual JSON platforms don't support full 32-bit
 precision. If absolutely necessary we could chop off a bit or two from
 the seed value (*if* it ever becomes a problem and if DRH blesses it).
 Or we could just make it a double.

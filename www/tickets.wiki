@@ -29,7 +29,7 @@ that key, or the value may be appended to the prior value.
 <h2>2.0 Ticket Tables</h2>
 
 The low-level artifact format for ticket content is tedious and
-cumbersome to access in real time.  To facility reporting and display
+cumbersome to access in real time.  To facilitate reporting and display
 of tickets, the low-level artifact information is collected and
 summarized in a pair of SQL tables in each local repository.  Display
 and reporting of tickets is accomplished by querying these two tables.
@@ -193,7 +193,7 @@ support the "new-style" tickets.
 
 The TICKETCHNG table was added to support new-style tickets.  In the new
 style, comment text is stored with the "icomment" (for "Incremental Comment")
-key and appears separately, and with its on mimetype, in multiple rows
+key and appears separately, and with its own mimetype, in multiple rows
 of the TICKETCHNG table.  It then falls to the TH1 script code on the
 View Ticket Page to query the TICKETCHNG table and extract and format
 the various comments in time stamp order.

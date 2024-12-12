@@ -12,7 +12,7 @@ if {[llength $argv] == 1} {
 
 # Get list of common commands.
 set commands [exec fossil help]
-regsub -nocase {.*?\ncommon commands:.*\n} $commands {} commands
+regsub -nocase {.*?\nfrequently used commands:.*\n} $commands {} commands
 regsub -nocase {\nthis is fossil version.*} $commands {} commands
 regsub -all {\s+} $commands " " commands
 set commands [lsort $commands]

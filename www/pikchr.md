@@ -1,7 +1,7 @@
 # The Pikchr Diagram Language
 
 Pikchr (pronounced "picture") is a [PIC][1]-like markup language for creating
-diagrams in technical documentation.  Pikchr diagrams source text
+diagrams in technical documentation.  Source text for Pikchr diagrams 
 can be embedded directly in either [Markdown][2] or [Fossil Wiki][3].
 Fossil translates the Pikchr source text into SVG which is displayed as
 part of the rendered wiki.
@@ -136,4 +136,4 @@ of the diagram.
      text fills in around the diagram.
 
   *  **source** &rarr;  The display starts out showing the Pikchr source text.
-     The reader must click (or Alt-click or Ctrl-click) to set the diagram.
+     The reader must click (or Alt-click or Ctrl-click) to show the diagram.

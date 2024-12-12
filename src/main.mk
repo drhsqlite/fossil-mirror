@@ -250,6 +250,7 @@ EXTRA_FILES = \
   $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
+  $(SRCDIR)/merge.tcl \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \
@@ -706,7 +707,7 @@ SQLITE3_OBJ   = $(SQLITE3_OBJ.$(SQLITE3_ORIGIN))
 # to 1. If it is set to 0, then there is no need to build or link
 # the linenoise.o object.
 LINENOISE_DEF.0 =
-LINENOISE_DEF.1 = -DHAVE_LINENOISE
+LINENOISE_DEF.1 = -DHAVE_LINENOISE=2
 LINENOISE_DEF.  = $(LINENOISE_DEF.0)
 LINENOISE_OBJ.0 =
 LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o

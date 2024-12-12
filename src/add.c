@@ -355,7 +355,7 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 ** is used.  If the --clean option does not appear on the command line then
 ** the "clean-glob" setting is used.
 **
-** If files are attempted to be added explicitly on the command line which
+** When attempting to explicitly add files on the commandline, and if those
 ** match "ignore-glob", a confirmation is asked first. This can be prevented
 ** using the -f|--force option.
 **

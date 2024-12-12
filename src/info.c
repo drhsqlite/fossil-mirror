@@ -374,7 +374,9 @@ static void append_file_change_line(
   DiffConfig *pCfg,     /* Flags for text_diff() or NULL to omit all */
   int mperm             /* executable or symlink permission for zNew */
 ){
-  @ <p>
+  @ <div class='file-change-line'><span>
+    /* Maintenance reminder: the extra level of SPAN is for
+    ** arranging new elements via JS. */
   if( !g.perm.Hyperlink ){
     if( zNew==0 ){
       @ Deleted %h(zName).
@@ -393,6 +395,7 @@ static void append_file_change_line(
     }else{
       @ Changes to %h(zName).
     }
+    @ </span></div>
     if( pCfg ){
       append_diff(zOld, zNew, pCfg);
     }
@@ -438,14 +441,18 @@ static void append_file_change_line(
       @ Added %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
       @ %h(zName)</a> version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
-    if( pCfg ){
-      append_diff(zOld, zNew, pCfg);
-    }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
-      @ &nbsp;&nbsp;
-      @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a>
+    if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
+      if( pCfg ){
+        @ </span></div>
+        append_diff(zOld, zNew, pCfg);
+      }else{
+        @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a>
+        @ </span></div>
+      }
+    }else{
+      @ </span></div>
     }
   }
-  @ </p>
 }
 
 /*
@@ -600,6 +607,126 @@ void ci_tags_page(void){
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
                      0, 0, 0, rid, 0, 0);
   db_finalize(&q);
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: ckout
+**
+** Show information about the current checkout.  This page only functions
+** if the web server is run on a loopback interface (in other words, was
+** started using "fossil ui" or similar) from with on open check-out.
+*/
+void ckout_page(void){
+  int vid;
+  char *zHostname;
+  char *zCwd;
+  int diffType;               /* 0: no diff,  1: unified,  2: side-by-side */
+  DiffConfig DCfg,*pCfg;      /* Diff details */
+  const char *zHome;          /* Home directory */
+  Stmt q;
+
+  if( !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
+    cgi_redirect("%R/home");
+    return;
+  }
+  diffType = preferred_diff_type();
+  pCfg = construct_diff_flags(diffType, &DCfg);
+  vid = db_lget_int("checkout", 0);
+  db_unprotect(PROTECT_ALL);
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
+  db_protect_pop();
+  style_set_current_feature("vinfo");
+  zHostname = fossil_hostname();
+  zCwd = file_getcwd(0,0);
+  zHome = fossil_getenv("HOME");
+  if( zHome ){
+    int nHome = (int)strlen(zHome);
+    if( strncmp(zCwd, zHome, nHome)==0 && zCwd[nHome]=='/' ){
+      zCwd = mprintf("~%s", zCwd+nHome);
+    }
+  }
+  if( zHostname ){
+    style_header("Checkout Status: %h on %h", zCwd, zHostname);
+  }else{
+    style_header("Checkout Status: %h", zCwd);
+  }
+  render_checkin_context(vid, 0, 0, 0);
+  if( pCfg==0 ){
+    style_finish_page();
+    return;
+  }
+  db_prepare(&q,
+       /*   0         1        2        3       4    5       6 */
+    "SELECT pathname, deleted, chnged , rid==0, rid, islink, uuid"
+    "  FROM vfile LEFT JOIN blob USING(rid)"
+    " WHERE vid=%d"
+    "   AND (deleted OR chnged OR rid==0)"
+    " ORDER BY pathname /*scan*/",
+    vid
+  );
+  if( pCfg->diffFlags & DIFF_SIDEBYSIDE ){
+    pCfg->diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
+  }else{
+    pCfg->diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
+  }
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTreename = db_column_text(&q,0);
+    int isDeleted = db_column_int(&q, 1);
+    int isChnged = db_column_int(&q,2);
+    int isNew = db_column_int(&q,3);
+    int srcid = db_column_int(&q, 4);
+    int isLink = db_column_int(&q, 5);
+    const char *zUuid = db_column_text(&q, 6);
+    int showDiff = 1;
+
+    pCfg->diffFlags &= (~DIFF_FILE_MASK);
+    if( isDeleted ){
+      @ <p>DELETED %h(zTreename)</p>
+      pCfg->diffFlags |= DIFF_FILE_DELETED;
+      showDiff = 0;
+    }else if( file_access(zTreename, F_OK) ){
+      @ <p>MISSING %h(zTreename)</p>
+      showDiff = 0;
+    }else if( isNew ){
+      @ <p>ADDED %h(zTreename)</p>
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
+      srcid = 0;
+      showDiff = 0;
+    }else if( isChnged==3 ){
+      @ <p>ADDED_BY_MERGE %h(zTreename)</p>
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
+      srcid = 0;
+      showDiff = 0;
+    }else if( isChnged==5 ){
+      @ <p>ADDED_BY_INTEGRATE %h(zTreename)</p>
+      pCfg->diffFlags |= DIFF_FILE_ADDED;
+      srcid = 0;
+      showDiff = 0;
+    }else{
+      @ <p>CHANGED %h(zTreename)</p>
+    }
+    if( showDiff ){
+      Blob old, new;
+      if( !isLink != !file_islink(zTreename) ){
+        @ %s(DIFF_CANNOT_COMPUTE_SYMLINK)
+        continue;
+      }
+      if( srcid>0 ){
+        content_get(srcid, &old);
+        pCfg->zLeftHash = zUuid;
+      }else{
+        blob_zero(&old);
+        pCfg->zLeftHash = 0;
+      }
+      blob_read_from_file(&new, zTreename, ExtFILE);
+      text_diff(&old, &new, cgi_output_blob(), pCfg);
+      blob_reset(&old);
+      blob_reset(&new);
+    }
+  }
+  db_finalize(&q);
+  append_diff_javascript(diffType);
   style_finish_page();
 }
 
@@ -1193,11 +1320,13 @@ void vdiff_page(void){
   const char *zTo;
   const char *zRe;
   const char *zGlob;
+  Glob * pGlob = 0;
   char *zMergeOrigin = 0;
   ReCompiled *pRe = 0;
   DiffConfig DCfg, *pCfg = 0;
   int graphFlags = 0;
-  Blob qp;
+  Blob qp;                /* non-glob= query parameters for generated links */
+  Blob qpGlob;            /* glob= query parameter for generated links */
   int bInvert = PB("inv");
 
   login_check_credentials();
@@ -1205,6 +1334,7 @@ void vdiff_page(void){
   login_anonymous_available();
   fossil_nice_default();
   blob_init(&qp, 0, 0);
+  blob_init(&qpGlob, 0, 0);
   diffType = preferred_diff_type();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
@@ -1248,7 +1378,8 @@ void vdiff_page(void){
     if( !*zGlob ){
       zGlob = NULL;
     }else{
-      blob_appendf(&qp, "&glob=%T", zGlob);
+      blob_appendf(&qpGlob, "&glob=%T", zGlob);
+      pGlob = glob_create(zGlob);
     }
   }
   if( PB("nc") ){
@@ -1265,16 +1396,18 @@ void vdiff_page(void){
     style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
   }
   if( diffType!=0 ){
-    style_submenu_element("Hide Diff", "%R/vdiff?diff=0&%b", &qp);
+    style_submenu_element("Hide Diff", "%R/vdiff?diff=0&%b%b", &qp, &qpGlob);
   }
   if( diffType!=2 ){
-    style_submenu_element("Side-by-Side Diff", "%R/vdiff?diff=2&%b", &qp);
+    style_submenu_element("Side-by-Side Diff", "%R/vdiff?diff=2&%b%b", &qp,
+                          &qpGlob);
   }
   if( diffType!=1 ) {
-    style_submenu_element("Unified Diff", "%R/vdiff?diff=1&%b", &qp);
+    style_submenu_element("Unified Diff", "%R/vdiff?diff=1&%b%b", &qp, &qpGlob);
   }
   if( zBranch==0 ){
-    style_submenu_element("Invert","%R/vdiff?diff=%d&inv&%b", diffType, &qp);
+    style_submenu_element("Invert","%R/vdiff?diff=%d&inv&%b%b", diffType,
+                          &qp, &qpGlob);
   }
   if( zGlob ){
     style_submenu_element("Clear glob", "%R/vdiff?diff=%d&%b", diffType, &qp);
@@ -1323,6 +1456,7 @@ void vdiff_page(void){
     @<hr><p>
   }
   blob_reset(&qp);
+  blob_reset(&qpGlob);
 
   manifest_file_rewind(pFrom);
   pFileFrom = manifest_file_next(pFrom, 0);
@@ -1339,13 +1473,13 @@ void vdiff_page(void){
       cmp = fossil_strcmp(pFileFrom->zName, pFileTo->zName);
     }
     if( cmp<0 ){
-      if( !zGlob || sqlite3_strglob(zGlob, pFileFrom->zName)==0 ){
+      if( !pGlob || glob_match(pGlob, pFileFrom->zName) ){
         append_file_change_line(zFrom, pFileFrom->zName,
                                 pFileFrom->zUuid, 0, 0, pCfg, 0);
       }
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
-      if( !zGlob || sqlite3_strglob(zGlob, pFileTo->zName)==0 ){
+      if( !pGlob || glob_match(pGlob, pFileTo->zName) ){
         append_file_change_line(zTo, pFileTo->zName,
                                 0, pFileTo->zUuid, 0, pCfg,
                                 manifest_file_mperm(pFileTo));
@@ -1355,8 +1489,8 @@ void vdiff_page(void){
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }else{
-      if(!zGlob || (sqlite3_strglob(zGlob, pFileFrom->zName)==0
-                || sqlite3_strglob(zGlob, pFileTo->zName)==0) ){
+      if(!pGlob || (glob_match(pGlob, pFileFrom->zName)
+                    || glob_match(pGlob, pFileTo->zName)) ){
         append_file_change_line(zFrom, pFileFrom->zName,
                                 pFileFrom->zUuid,
                                 pFileTo->zUuid, 0, pCfg,
@@ -1366,6 +1500,7 @@ void vdiff_page(void){
       pFileTo = manifest_file_next(pTo, 0);
     }
   }
+  glob_free(pGlob);
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
   append_diff_javascript(diffType);

@@ -102,7 +102,7 @@ The API allows most of those (normally all but the payload) to come in
 as either GET parameters or properties of the top-level POSTed request
 JSON envelope, with GET taking priority over POST. (Reminder to self: we
 could potentially also use values from cookies. Fossil currently only
-uses 1 cookie (the login token), and i'd prefer to keep it that way.)
+uses 1 cookie (the login token), and I'd prefer to keep it that way.)
 
 POST requests without such an envelope will be rejected, generating a
 Fossil/JSON error response (as opposed to an HTTP error response). GET
@@ -171,7 +171,7 @@ accepted in string form. Such parameters must be set in the POST
 envelope or payload, as specified by the specific API.
 
 This API does not currently use any **floating-point** parameters, but
-does return floating-point results in a couple places.
+does return floating-point results in a couple of places.
 
 For **integer** parameters we use a conventional string-to-int algorithm
 and assume base 10 (analog to atoi(3)). The API may err on the side of
@@ -207,7 +207,7 @@ cause inconsistencies vis-a-vis the HTML interface).
 <a id="response-envelope"></a>
 # Response Envelope
 
-Every response comes in the form of a HTTP response or (in CLI mode)
+Every response comes in the form of an HTTP response or (in CLI mode)
 JSON sent to stdout. The body of the response is a JSON object following
 a common envelope format. The envelope has the following properties:
 
@@ -218,7 +218,7 @@ a common envelope format. The envelope has the following properties:
   Fossil/JSON APIs. This API never creates responses which do not
   contain this property.
 - `requestId`: Only set if the request contained it, and then it is
-  echoed back to the caller as-is. This can be use to determine
+  echoed back to the caller as-is. This can be used to determine
   (client-side) which request a given response is coming in for
   (assuming multiple asynchronous requests are pending). In practice
   this generally isn’t needed because response handling tends to be
@@ -237,7 +237,7 @@ a common envelope format. The envelope has the following properties:
   only for success responses (and only those which actually have a
   payload - not all do).
 - `timestamp`: Response timestamp (GMT Unix Epoch). We use seconds
-  precision because i did not know at the time that Fossil actually
+  precision because I did not know at the time that Fossil actually
   records millisecond precision.
 - `payloadVersion`: Not initially needed, but reserved for future use
   in maintaining version compatibility when the format of a given
@@ -404,7 +404,7 @@ replacement will corrupt JSON string contents - only the formatting will
 be affected.
 
 Potential TODO: because extraneous indention "could potentially" be used
-as a form DoS, the option *might* be subject to later removed from HTTP
+as a form of DoS, the option *might* be subject to later removal from HTTP
 mode (in CLI it's fine).
 
 In HTTP mode no trailing newline is added to the output, whereas in CLI
@@ -484,7 +484,7 @@ these conventions:
     codes to their generic category by simply doing a modulo 100
     (or 1000) against the native error code number. e.g. FOSSIL-1271
     could (via a simple modulo) be reduced to FOSSIL-1200 or
-    FOSSIL-1000, depending on the paranoia level of the sysadmin. i have
+    FOSSIL-1000, depending on the paranoia level of the sysadmin. I have
     tried to order the result code numbers so that a dumb-down level of
     2 provides reasonably usable results without giving away too much
     detail to malicious clients.\
@@ -535,7 +535,7 @@ not just go blindly change the numeric ranges used by the enum.
   continued). Note: if an `assert()` fails in CGI/server modes, the HTTP
   response will be code 500 (Internal Server Error). We want to avoid
   that and return a JSON response instead. All of that said - there seems
-  to be little reason to implementi this, since assertions are "truly
+  to be little reason to implement this, since assertions are "truly
   serious" errors.
 - `FOSSIL-1107`: Allocation/out of memory error. This cannot be reasonably
   reported because fossil aborts if an allocation fails.

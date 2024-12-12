@@ -144,7 +144,7 @@ fossil supports disconnected operation.
 As for bloat:  Fossil is a single self-contained executable.
 You do not need any other packages
 (diff, patch, merge, cvs, svn, rcs, git, python, perl, tcl, apache,
-sqlite, and so forth)
+SQLite, and so forth)
 in order to run fossil.  Fossil runs just fine in a chroot jail all
 by itself.  And the self-contained fossil
 executable is much less than 1MB in size.  (Update 2015-01-12: Fossil has

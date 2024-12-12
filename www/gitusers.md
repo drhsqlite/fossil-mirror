@@ -58,7 +58,7 @@ separate places when it comes to moving from Git to Fossil.
 
 #### <a id="cwork" name="scw"></a> Checkout Workflows
 
-A Fossil repository is a SQLite database storing the entire history of a
+A Fossil repository is an SQLite database storing the entire history of a
 project. It is not normally stored inside the working tree.
 A Fossil working tree — [also called a check-out](./glossary.md#check-out) — is a directory
 that contains a snapshot of your project that you are currently working
@@ -150,7 +150,7 @@ those managed files.
 
 The `close` command also refuses to run without `--force` when you have
 certain other precious per-checkout data that Fossil stores in the
-`.fslckout` file at the root of a check-out directory. This is a SQLite
+`.fslckout` file at the root of a check-out directory. This is an SQLite
 database that keeps track of local state such as what version you have
 checked out, the contents of the [stash] for that working directory, the
 [undo] buffers, per-checkout [settings][set], and so forth. The stash
@@ -775,7 +775,7 @@ hashes.)
 In this scheme, Alice then needs to say “`fossil update trunk`” in order
 to return her check-out’s parent commit to the previous version lest her
 next attempted commit land atop this mistake branch. The fact that Bob
-marked the branch as closed will prevent that from going thru, cluing
+marked the branch as closed will prevent that from going through, cluing
 Alice into what she needs to do to remedy the situation, but that merely
 shows why it’s a better workflow if Alice makes the amendment herself:
 

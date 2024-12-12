@@ -520,7 +520,7 @@ English (including the dialect spoken by the original author of Fossil).
 
 <h4>3.7.1 Unversioned Gimme Cards</h4>
 
-Sync synchronizing unversioned content, the client may send "uvgimme"
+When synchronizing unversioned content, the client may send "uvgimme"
 cards to the server.  A uvgimme card requests that the server send
 unversioned content to the client.  The format of a uvgimme card is
 as follows:
@@ -572,7 +572,7 @@ The reqconfig card is normally sent in response to the
 <b>reqconfig</b> <i>configuration-name</i>
 </pre>
 
-As of 2018-06-04, the configuration-name must be one of the
+As of 2024-10-22, the configuration-name must be one of the
 following values:
 
 <table border=0 align="center">
@@ -580,26 +580,39 @@ following values:
 <ul>
 <li> css
 <li> header
+<li> mainmenu
 <li> footer
 <li> details
+<li> js
+<li> default-skin
 <li> logo-mimetype
 <li> logo-image
 <li> background-mimetype
 <li> background-image
-<li> index-page
+<li> icon-mimetype
+<li> icon-image
 <li> timeline-block-markup
+<li> timeline-date-format
+<li> timeline-default-style
+<ul></td><td valign="top"><ul>
+<li> timeline-dwelltime
+<li> timeline-closetime
+<li> timeline-hard-newlines
 <li> timeline-max-comment
 <li> timeline-plaintext
+<li> timeline-truncate-at-blank
+<li> timeline-tslink-info
+<li> timeline-utc
 <li> adunit
 <li> adunit-omit-if-admin
 <li> adunit-omit-if-user
-<ul></td><td valign="top"><ul>
-<li> th1-docs
+<li> default-csp
+<li> sitemap-extra
+<li> safe-html
 <li> th1-hooks
-<li> th1-setup
-<li> tcl
-<li> tcl-setup
+<li> th1-uri-regexp
 <li> project-name
+<ul></td><td valign="top"><ul>
 <li> short-project-name
 <li> project-description
 <li> index-page
@@ -609,15 +622,18 @@ following values:
 <li> ignore-glob
 <li> keep-glob
 <li> crlf-glob
-<ul></td><td valign="top"><ul>
 <li> crnl-glob
 <li> encoding-glob
 <li> empty-dirs
 <li> <s title="removed 2020-08, version 2.12.1">allow-symlinks</s>
 <li> dotfiles
 <li> parent-project-code
-<li> parent-projet-name
+<li> parent-project-name
+<ul></td><td valign="top"><ul>
 <li> hash-policy
+<li> comment-format
+<li> mimetypes
+<li> forbid-delta-manifests
 <li> mv-rm-files
 <li> ticket-table
 <li> ticket-common
@@ -625,12 +641,13 @@ following values:
 <li> ticket-newpage
 <li> ticket-viewpage
 <li> ticket-editpage
-<ul></td><td valign="top"><ul>
 <li> ticket-reportlist
 <li> ticket-report-template
 <li> ticket-key-template
 <li> ticket-title-expr
 <li> ticket-closed-expr
+<ul></td><td valign="top"><ul>
+<li> user-color-map
 <li> xfer-common-script
 <li> xfer-push-script
 <li> xfer-commit-script
@@ -639,6 +656,9 @@ following values:
 <li> @user
 <li> @concealed
 <li> @shun
+<li> @alias
+<li> @subscriber
+<li> @interwiki
 </ul></td></tr>
 </table>
 
@@ -863,7 +883,7 @@ of clusters to find every artifact in the repository.
 <h3 id="pull-strategy">5.1 Pull</h3>
 
 A typical pull operation proceeds as shown below.  Details
-of the actual implementation may very slightly but the gist of
+of the actual implementation may vary slightly but the gist of
 a pull is captured in the following steps:
 
 <ol>
@@ -1073,4 +1093,4 @@ CMD is given three arguments:
 In a complex debugging situation, you can run the command
 "fossil sync --transport-command ./debugging_script" where
 "debugging_script" is some script of your own that invokes
-the anomolous behavior your are trying to debug.
+the anomalous behavior you are trying to debug.

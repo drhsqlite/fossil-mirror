@@ -1,6 +1,6 @@
 <title>Coding Style</title>
 
-Fossil source code should following the style guidelines below.
+Fossil source code should follow the style guidelines below.
 
 <em> The Fossil source tree includes a few files taken from external
 sources
@@ -40,9 +40,10 @@ and this externally sourced code might not comply with these style guidelines.
         The use of 'long long' resolves many problems with 64-bit arithmetics, especially on 32-bit machines.
         (http_ssl.c, sha3.c, shell.c, util.c)
 
-      <li>  alloca(): By default, sqlite3.c is compiled with the -DSQLITE_USE_ALLOCA flag to use the alloca() function.
-        alloca() is not considered ANSI C, and normally not recommended due to portability issues, but
-        performance and/or memory consumption improvement may be a stronger argument in favor of its usage.
+      <li>  alloca(): By default, sqlite3.c was compiled with the -DSQLITE_USE_ALLOCA flag to use the alloca() function.
+        This is no longer the case as of 20220119.  alloca() is not considered ANSI C, and normally not
+        recommended due to portability issues, but performance and/or memory consumption
+        improvement may have been a stronger argument in favor of its usage.
         (sqlite3.c)
      </ol>
 
@@ -77,7 +78,7 @@ and this externally sourced code might not comply with these style guidelines.
   <li value=30>  Every function has a header comment describing the purpose and use
        of the function.
 
-  <li>  Function header comment defines the behavior of the function in
+  <li> A function header comment defines the behavior of the function in
        sufficient detail to allow the function to be re-implemented from
        scratch without reference to the original code.
 
