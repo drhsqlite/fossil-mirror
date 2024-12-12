@@ -1,5 +1,5 @@
-C Fix\sDOM\selement\spairing\swhen\sdiff=0\sis\sused\sin\s/vdiff\sand\sfriends.\sProblem\sintroduced\sin\s[a11d2454782].
-D 2024-12-12T03:37:23.657
+C Increase\scontrast\sof\sbutton\sfor\sfile-change-line.
+D 2024-12-12T04:49:40.184
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -335,7 +335,7 @@ F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f
 F skins/blitz/header.txt 9cbbf8a2cede512b4ccf47f2bf284ef043c1acd1e6dab38b776a0140fd7fa200
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401d7fdd60446d9a13db
-F skins/darkmode/css.txt 1ea65f9a84ebe177cc9947e107c88a56a25b01c95ede2e74f1812378bdf08b05
+F skins/darkmode/css.txt a3d96eeb4ad6ef794044a08311ba8041da2c3c7972e74c5a0bebb2634f6b7c3f
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt f836de28bcd65e3101349141588c932f366e209255e4312ee054aad0ac01b526
 F skins/darkmode/header.txt 3fe4fb78b2a6f8d6c9a4c2c4dbba7d80a7302b166fe5e4cec86f05713ddf830b
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a11d24547826591f0521308560fd174a46edd405683a2df2a2d55bfb0c2b0deb
-R 13c6666ffe57b3e9acc85133516a3c71
-U stephan
-Z c4c27c63182517a321be143767f5b4c6
+P d463c7eea57edb3fe20db55e747934893446c35059d3cd16a0839b8e32ad5943
+R 13a073ec01f74fdc2d45d05ac804e228
+U brickviking
+Z c5a9966acb6c9109dd2a0b149d6bfe65
 # Remove this line to create a well-formed Fossil manifest.
