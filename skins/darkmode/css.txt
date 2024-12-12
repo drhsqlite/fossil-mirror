@@ -100,10 +100,13 @@ a:visited:hover {
 div.filetreeline:hover {
   background-color: #333;
 }
+div.file-change-line button {
+  background-color: #484848
+}
 .button,
 button {
   color: #aaa;
-  background-color: #444;
+  background-color: #484848;
   border-radius: 5px;
   border: 0
 }
@@ -539,7 +542,7 @@ textarea {
   margin: 0
 }
 button {
-  background-color: rgba(48,48,48,0.75);
+  background-color: rgba(45,45,45,0.75);
 }
 input, textarea, select {
   border: 1px solid rgba(127, 201, 255, 0.9);
