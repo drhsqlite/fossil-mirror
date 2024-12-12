@@ -1,5 +1,5 @@
-C Changes\sto\sinfoscript\snecessary\sfor\sOpenBSD's\smakeinfo,\swhich\sdates\sto\s2004.\sA\srename\sis\scoming.
-D 2024-12-12T07:42:54.009
+C Rename\sof\sinfoscript\sto\sfossil-makeinfo.
+D 2024-12-12T08:16:33.553
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -735,10 +735,10 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
+F tools/fossil-makeinfo 05ff8f715a0d2f61ccedf496809443c0d84818d9397f477ff3c6f2e506b96e1d x tools/infoscript.bash
 F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
-F tools/infoscript.bash 05ff8f715a0d2f61ccedf496809443c0d84818d9397f477ff3c6f2e506b96e1d x
 F tools/makeheaders.c 5f464a5a25ae45978e49e1cc230cc4c6f2fddc8f2f45a044fff02dc074a0bcf6
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl 0db25f5bb311cc5c9a547507dbbd4646e5e8c3d22163c25fd86587cebe944695 x
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6ee05bf62df4459956a3fce564796f8ea2b7a1d085745c4b0f3e872343248fcc
-R 70ca964796fa838d62aa9e050b1ff0b6
+P a28bcf55b024f78182d8e41e6ed1e1266316bb6627ca18d8567cbd25a30bf7f1
+R 40642dac316efa4e3786f90dd054021b
 U brickviking
-Z 86ef932ac7bf867eb61248067983e779
+Z 7202687d3270d50dfd9d397607206363
 # Remove this line to create a well-formed Fossil manifest.
