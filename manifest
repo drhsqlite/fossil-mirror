@@ -1,5 +1,5 @@
-C Sync\swith\strunk.
-D 2024-12-13T17:01:00.000
+C Enable\skeyboard\snavigation\sfor\sweb\sUI\sdiffs\son\sthe\snew\s/ckout\spage.\sRestore\sthe\s"Hide\sDiff"\slinks\s(at\sleast\stemporarily),\sso\sthe\skeyboard\shandler\scan\saccess\sthe\sURLs.
+D 2024-12-13T17:07:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6e
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c a42b9ea735c101834cf88ebe062a19fcce1d6a9e00945de1ae840d0cc9f593f3
+F src/info.c 557bd5dde6157cebec3be9092838c8a8fdfa09dbc8d5ce924ee1c9f68d727836
 F src/interwiki.c 517f85da17421e2e6cf968345850138408104e8b82ce08ac2470e61273d62882
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6599ed91278a049b1525415992e181042b40626537490a7d2ae819ee3471ba6b 02eb97d801a899ff9943f0e0cba63cee6d9bab9fbd3219354b78b7818aeb8b45
-R 6dd26da01697d96bf54051d2ba3968ec
+P edda30c66d22cfab825c2ac32a10ec6a9b375d4acc88b4b3da5109ab87d5dffa
+R 1e36802e0800fca9d46c648cc391891a
 U florian
-Z cf2a30ad08e2e4de0b20b61ae6409b86
+Z 0218464e14ba10ecb3d0f1a8854f5285
 # Remove this line to create a well-formed Fossil manifest.
