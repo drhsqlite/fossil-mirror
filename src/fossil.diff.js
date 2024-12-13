@@ -52,7 +52,7 @@ window.fossil.onPageLoad(function(){
   }
   const icm = allToggles.length>1 ? window.fossil.page.diffControlContainer : 0;
   if(icm) {
-    const btnAll = D.addClass(D.a("#", "Toggle all diffs"), "button");
+    const btnAll = D.addClass(D.a("#", "Show/Hide"), "button");
     D.append( icm, btnAll );
     btnAll.addEventListener('click', function(ev){
       ev.preventDefault();
