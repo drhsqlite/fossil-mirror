@@ -1369,8 +1369,8 @@ static void checkin_description(int rid){
 **    0     Reload page in Hidden Diff mode.
 **    d     Reload page and set current Diff mode as default.
 **
-** The keyboard shortcuts also apply to /vinfo, /ci and /fdiff pages,
-** and to /info pages describing check-in information.
+** The keyboard shortcuts also apply to /ckout, /vinfo, /ci and /fdiff
+** pages, and to /info pages describing check-in information.
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
