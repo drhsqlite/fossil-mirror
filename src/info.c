@@ -629,7 +629,7 @@ void ckout_page(void){
   Stmt q;
 
   if( !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
-    cgi_redirect("%R/home");
+    cgi_redirectf("%R/home");
     return;
   }
   file_chdir(g.zLocalRoot, 0);
