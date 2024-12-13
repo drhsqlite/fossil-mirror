@@ -24,7 +24,7 @@ printf "\\input texinfo
 @c @author brickviking
 @dircategory Development
 @direntry
-* Fossil (fossil).        A distributed version control system.
+* Fossil: (fossil).        A distributed version control system.
 @end direntry
 
 " > fossil.texi

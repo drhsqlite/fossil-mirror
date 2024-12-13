@@ -1,5 +1,5 @@
-C Corrected\sdir\sentry\sin\semitted\sheader.
-D 2024-12-13T09:17:38.943
+C Corrected\sdir\sentry\s(again)\sin\semitted\sheader.
+D 2024-12-13T10:01:55.703
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -735,7 +735,7 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
-F tools/fossil-makeinfo fe0d2396862bac757eef6e88796618f5498a4919767cf732cb40d2cc61aef080 x
+F tools/fossil-makeinfo 93637daf696f36b0739cb782632ceb1269c2ff013cbfee6af480bd4d62f88ae2 x
 F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d78a077a893d05c1858ba6eb90b59ccc0a228d21ef298876dcf0b0337bf460c5
-R 3f061a2ab8f6dd319eac354c9eebaf48
+P ac92f9d699c642b0105c9c67069c890e6b46d4f640f4ffefd1b03400b3cdee61
+R 0ac884c19ad7e19a165cb7392d1fdf8d
 U brickviking
-Z 6b48c1a6aed6381f8aceb3f3fb0e1479
+Z 33149f4135d90c7fe6b2ac8d3ab675c9
 # Remove this line to create a well-formed Fossil manifest.
