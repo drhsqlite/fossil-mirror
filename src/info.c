@@ -625,6 +625,7 @@ void ckout_page(void){
   DiffConfig DCfg,*pCfg;      /* Diff details */
   const char *zHome;          /* Home directory */
   const char *zW;             /* The "w" query parameter */
+  int nChng;                  /* Number of changes */
   Stmt q;
 
   if( !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
@@ -653,11 +654,14 @@ void ckout_page(void){
   }else{
     style_header("Checkout Status: %h", zCwd);
   }
-  builtin_request_js("accordion.js");
-  @ <div class="section accordion">Context</div>
-  @ <div class="accordion_panel"> <!-- ap-001 -->
   render_checkin_context(vid, 0, 0, 0);
-  @ </div> <!-- ap-001 -->
+  nChng = db_int(0, "SELECT count(*) FROM vfile"
+                    " WHERE vid=%d AND (deleted OR chnged OR rid==0)", vid);
+  if( nChng==0 ){
+    @ <p>No uncommitted changes</p>
+    style_finish_page();
+    return;
+  }
   db_prepare(&q,
        /*   0         1        2        3       4    5       6 */
     "SELECT pathname, deleted, chnged , rid==0, rid, islink, uuid"
@@ -672,18 +676,18 @@ void ckout_page(void){
   }else{
     DCfg.diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
-  @ <div class="section accordion">Uncommitted Changes</div>
-  @ <div class="accordion_panel">  <!-- ap-002 -->
+  if( nChng>1 ){
+    @ <div class="section">%d(nChng) Uncommitted Changes</div>
+  } else {
+    @ <div class="section">1 Uncommitted Change</div>
+  }
   @ <div class="sectionmenu info-changes-menu">
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
-  if( diffType!=0 ){
-    @ %z(chref("button","%R?diff=0"))Hide&nbsp;Diffs</a>
-  }
   if( diffType!=1 ){
-    @ %z(chref("button","%R?diff=1%s",zW))Unified&nbsp;Diffs</a>
+    @ %z(chref("button","%R?diff=1%s",zW))Unified&nbsp;Diff</a>
   }
   if( diffType!=2 ){
-    @ %z(chref("button","%R?diff=2%s",zW))Side-by-Side&nbsp;Diffs</a>
+    @ %z(chref("button","%R?diff=2%s",zW))Side-by-Side&nbsp;Diff</a>
   }
   if( diffType!=0 ){
     if( *zW ){
@@ -752,7 +756,7 @@ void ckout_page(void){
     }
   }
   db_finalize(&q);
-  @ </div> <!-- ap-002 -->
+  // @ </div> <!-- ap-002 -->
   append_diff_javascript(diffType);
   style_finish_page();
 }
@@ -782,7 +786,6 @@ void ci_page(void){
   ReCompiled *pRe = 0; /* regex */
   const char *zW;               /* URL param for ignoring whitespace */
   const char *zPage = "vinfo";  /* Page that shows diffs */
-  const char *zPageHide = "ci"; /* Page that hides diffs */
   const char *zBrName;          /* Branch name */
   DiffConfig DCfg,*pCfg;        /* Type of diff */
 
@@ -1052,17 +1055,13 @@ void ci_page(void){
   pCfg = construct_diff_flags(diffType, &DCfg);
   DCfg.pRe = pRe;
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
-  if( diffType!=0 ){
-    @ %z(chref("button","%R/%s/%T?diff=0",zPageHide,zName))\
-    @ Hide&nbsp;Diffs</a>
-  }
   if( diffType!=1 ){
     @ %z(chref("button","%R/%s/%T?diff=1%s",zPage,zName,zW))\
-    @ Unified&nbsp;Diffs</a>
+    @ Unified&nbsp;Diff</a>
   }
   if( diffType!=2 ){
     @ %z(chref("button","%R/%s/%T?diff=2%s",zPage,zName,zW))\
-    @ Side-by-Side&nbsp;Diffs</a>
+    @ Side-by-Side&nbsp;Diff</a>
   }
   if( diffType!=0 ){
     if( *zW ){
@@ -1421,9 +1420,6 @@ void vdiff_page(void){
   style_set_current_feature("vdiff");
   if( zBranch==0 ){
     style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
-  }
-  if( diffType!=0 ){
-    style_submenu_element("Hide Diff", "%R/vdiff?diff=0&%b%b", &qp, &qpGlob);
   }
   if( diffType!=2 ){
     style_submenu_element("Side-by-Side Diff", "%R/vdiff?diff=2&%b%b", &qp,

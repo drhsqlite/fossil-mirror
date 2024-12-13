@@ -52,7 +52,7 @@ window.fossil.onPageLoad(function(){
   }
   const icm = allToggles.length>1 ? window.fossil.page.diffControlContainer : 0;
   if(icm) {
-    const btnAll = D.addClass(D.a("#", "Toggle all diffs"), "button");
+    const btnAll = D.addClass(D.a("#", "Show/Hide"), "button");
     D.append( icm, btnAll );
     btnAll.addEventListener('click', function(ev){
       ev.preventDefault();
@@ -706,7 +706,7 @@ window.fossil.onPageLoad(function(){
     D.append(eToggleParent, D.append(
       D.addClass(D.create('span'), 'input-with-label'),
       D.append(D.create('label'),
-               cbSync, "Sync side-by-side scrolling")
+               cbSync, "Scroll Sync")
     ));
     cbSync.addEventListener('change', function(e){
       F.storage.set(keySbsScroll, e.target.checked);

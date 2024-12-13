@@ -1,5 +1,5 @@
-C Add\sthe\sinfo-changes-menu\sto\sthe\s"Uncommitted\sChanges"\ssection\sof\sthe\n/ckout\spage.
-D 2024-12-13T12:50:05.591
+C Attempts\sat\sbeautification:\n(1)\sSimplify\snames\sof\ssome\slinks/buttons\sin\sdiff\spages.\s\s(2)\sOmit\sthe\n"Hide\sDiffs"\slinks,\sas\sthose\sare\snow\sredundant.\s\s(3)\sRemove\sthe\saccordion\nmenu\sfrom\sthe\s/ckout\spage.
+D 2024-12-13T13:29:45.996
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
-F src/fossil.diff.js ae60886277eee3ee62e58ad8deed97e4a777b45c4708cdbc36807528ecb87365
+F src/fossil.diff.js 0049ca5e0470288f059c2e6056c97579692059e2b58b49d42e4ff8b7ec4319cc
 F src/fossil.dom.js d5a89a29606c1056be6cbfd5c6cd7f06559c5b46fca523d5eed34605a3443288
 F src/fossil.fetch.js 79291600341f980b23bc20455e0415fae0db0a3a355aae4dffbc0e431f210cc8
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6e
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c eee44a68a76906bd97d5bb90f156994b2670cf4dcb235cd7643c19970901c35f
+F src/info.c 0775f644fc8bbc5bd7706bb9624f0b234f20031d895ca657692c96d8a1ce8805
 F src/interwiki.c 517f85da17421e2e6cf968345850138408104e8b82ce08ac2470e61273d62882
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4af5cde63d01fdaa3eac35a84af42a4f8ae15d126981672f1ee1dd65011d8230
-R e1497eaf45ad5d61e8439574243acf72
+P 7cf712af979d10a70a8cf444a32e1d6e63b7cbf1eded16545be2ef5d6f4b8765
+R d62e48a46d9a1191c67f2d05eea6ea53
 U drh
-Z 27e9ee8fdea7ec02a6fee99ae89785e8
+Z fb0326b608f2089af8f422fda9201353
 # Remove this line to create a well-formed Fossil manifest.
