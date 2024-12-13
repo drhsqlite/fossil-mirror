@@ -1,5 +1,5 @@
-C Fix\sredirect\sfor\sthe\smisuse\sof\s/ckout.
-D 2024-12-13T15:36:09.442
+C Update\sthe\sall-diffs-toggle\sbutton's\slabel\sdynamically\sto\sclarify\swhether\sit\swill\sshow\sor\shide\sthe\sdiffs\son\sits\snext\sclick,\sper\srequest\sin\s[forum:516f1ba3d82ed249|forum\spost\s516f1ba3d82ed249].\sThe\ssemantics\shaven't\schecked:\sif\sany\sare\shidden,\sits\saction\swill\sbe\sto\sreveal\sthem,\selse\sit\swill\sbe\sto\shide\sthem.
+D 2024-12-13T23:40:43.803
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
-F src/fossil.diff.js 0049ca5e0470288f059c2e6056c97579692059e2b58b49d42e4ff8b7ec4319cc
+F src/fossil.diff.js 80c5bac3b02e0b82d839cc503febacaf36f807e17d494d2df91375a7c96f428e
 F src/fossil.dom.js d5a89a29606c1056be6cbfd5c6cd7f06559c5b46fca523d5eed34605a3443288
 F src/fossil.fetch.js 79291600341f980b23bc20455e0415fae0db0a3a355aae4dffbc0e431f210cc8
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b06e7c03ffbb01dabc3487b63c2f3636d7def6886e6ca9a25826adea3c89ea5
-R 2f60518b9f9e25815f3f128fc9b2b549
-U drh
-Z 020846623624c19921562b771065f24a
+P 02eb97d801a899ff9943f0e0cba63cee6d9bab9fbd3219354b78b7818aeb8b45
+R 48e18870e3e88a8126340e021bfc837a
+U stephan
+Z bc2a5dc7a25a73138a7332c925330d26
 # Remove this line to create a well-formed Fossil manifest.
