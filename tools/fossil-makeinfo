@@ -9,11 +9,12 @@
 # v0.8 Added common options and Features. Got rid of some obvious bugs.
 # v0.9 Added @bye at end.
 # v0.10 Retitled Features to Fossil.
-#        Builds (finally) on OpenBSD.
+# v0.11 Added entries relevant to system-wide dir entry.
+# v0.12 Reworded section introductions.
+#        Builds (finally) on OpenBSD and NetBSD.
 #
 # Requires fossil, tail, GNU sed and makeinfo
 #
-# TODO: figure out how to replace one line with two portably
 
 ##### Header #####
 # put header, then common node, finish menu, then uncommon node then finish menu
@@ -86,7 +87,7 @@ This file documents version @value{VERSION} of Fossil.
 * License::              The license agreement of the fossil project
 @end menu
 
-You can find the help to all of the available fossil commands by using 
+Help is available for any of the available fossil commands by using:
 
 @example
 fossil help some-command
@@ -146,9 +147,10 @@ Free and Open-Source
 printf "@node Common commands,Uncommon commands,Fossil,Top
 @chapter Common commands
 
-These are the commands you're most likely to use as a fossil user. They
-include most of the common commands you'd be used to in other VCS
-programs such as subversion, git or mercurial.
+These are the more commonly used commands for the average fossil user. 
+
+They are similar to commands that are available in other VCS programs such as
+subversion, git or mercurial.
 
 " >> fossil.texi
 
@@ -204,9 +206,8 @@ echo "" >> fossil.texi
 echo "@node Uncommon commands,Common arguments,Common commands,Top
 @chapter Uncommon commands
 
-These are the commands that aren't used quite as often, and are normally
-used in specific circumstances. You'll use these if you create fossils
-suitable for hosting, among other things.
+These are commands that aren't used quite as often, and are normally
+used in specific circumstances, such as creating fossils suitable for hosting.
 
 @menu
 " >> fossil.texi
@@ -253,7 +254,7 @@ echo "Grab common args"
 echo "@node Common arguments,License,Uncommon commands,Top
 @chapter Common arguments
 
-These are the arguments that are common to all fossil commands.
+These are commandline arguments that are common to all fossil commands.
 
 " >> fossil.texi
 
