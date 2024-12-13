@@ -624,6 +624,7 @@ void ckout_page(void){
   int diffType;               /* 0: no diff,  1: unified,  2: side-by-side */
   DiffConfig DCfg,*pCfg;      /* Diff details */
   const char *zHome;          /* Home directory */
+  const char *zW;             /* The "w" query parameter */
   Stmt q;
 
   if( !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
@@ -657,10 +658,6 @@ void ckout_page(void){
   @ <div class="accordion_panel"> <!-- ap-001 -->
   render_checkin_context(vid, 0, 0, 0);
   @ </div> <!-- ap-001 -->
-  if( pCfg==0 ){
-    style_finish_page();
-    return;
-  }
   db_prepare(&q,
        /*   0         1        2        3       4    5       6 */
     "SELECT pathname, deleted, chnged , rid==0, rid, islink, uuid"
@@ -670,15 +667,32 @@ void ckout_page(void){
     " ORDER BY pathname /*scan*/",
     vid
   );
-  if( pCfg->diffFlags & DIFF_SIDEBYSIDE ){
-    pCfg->diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
+  if( DCfg.diffFlags & DIFF_SIDEBYSIDE ){
+    DCfg.diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
   }else{
-    pCfg->diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
+    DCfg.diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
   @ <div class="section accordion">Uncommitted Changes</div>
   @ <div class="accordion_panel">  <!-- ap-002 -->
   @ <div class="sectionmenu info-changes-menu">
-  /* Filled out by JS */
+  zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  if( diffType!=0 ){
+    @ %z(chref("button","%R?diff=0"))Hide&nbsp;Diffs</a>
+  }
+  if( diffType!=1 ){
+    @ %z(chref("button","%R?diff=1%s",zW))Unified&nbsp;Diffs</a>
+  }
+  if( diffType!=2 ){
+    @ %z(chref("button","%R?diff=2%s",zW))Side-by-Side&nbsp;Diffs</a>
+  }
+  if( diffType!=0 ){
+    if( *zW ){
+      @ %z(chref("button","%R?diff=%d",diffType))\
+      @ Show&nbsp;Whitespace&nbsp;Changes</a>
+    }else{
+      @ %z(chref("button","%R?diff=%d&w",diffType))Ignore&nbsp;Whitespace</a>
+    }
+  }
   @ </div>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTreename = db_column_text(&q,0);
@@ -690,35 +704,35 @@ void ckout_page(void){
     const char *zUuid = db_column_text(&q, 6);
     int showDiff = 1;
 
-    pCfg->diffFlags &= (~DIFF_FILE_MASK);
+    DCfg.diffFlags &= (~DIFF_FILE_MASK);
     @ <div class='file-change-line'><span>
     if( isDeleted ){
       @ DELETED %h(zTreename)
-      pCfg->diffFlags |= DIFF_FILE_DELETED;
+      DCfg.diffFlags |= DIFF_FILE_DELETED;
       showDiff = 0;
     }else if( file_access(zTreename, F_OK) ){
       @ MISSING %h(zTreename)
       showDiff = 0;
     }else if( isNew ){
       @ ADDED %h(zTreename)
-      pCfg->diffFlags |= DIFF_FILE_ADDED;
+      DCfg.diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       showDiff = 0;
     }else if( isChnged==3 ){
       @ ADDED_BY_MERGE %h(zTreename)
-      pCfg->diffFlags |= DIFF_FILE_ADDED;
+      DCfg.diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       showDiff = 0;
     }else if( isChnged==5 ){
       @ ADDED_BY_INTEGRATE %h(zTreename)
-      pCfg->diffFlags |= DIFF_FILE_ADDED;
+      DCfg.diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       showDiff = 0;
     }else{
       @ CHANGED %h(zTreename)
     }
     @ </span></div>
-    if( showDiff ){
+    if( showDiff && pCfg ){
       Blob old, new;
       if( !isLink != !file_islink(zTreename) ){
         @ %s(DIFF_CANNOT_COMPUTE_SYMLINK)
