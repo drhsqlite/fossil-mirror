@@ -25,7 +25,7 @@ printf "\\input texinfo
 @dircategory Development
 @direntry
 * Fossil (fossil).        A distributed version control system.
-@end dirheader
+@end direntry
 
 " > fossil.texi
 printf "@c Initial rendition to convert fossil help -a -v into texinfo for further
