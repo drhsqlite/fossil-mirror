@@ -676,11 +676,7 @@ void ckout_page(void){
   }else{
     DCfg.diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
-  if( nChng>1 ){
-    @ <div class="section">%d(nChng) Uncommitted Changes</div>
-  } else {
-    @ <div class="section">1 Uncommitted Change</div>
-  }
+  @ <hr>
   @ <div class="sectionmenu info-changes-menu">
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=1 ){
