@@ -750,6 +750,7 @@ body.tkt div.content ol.tkt-changes > li:target > p > span {
 body.tkt div.content ol.tkt-changes > li:target > ol {
   border-left: 1px solid gold;
 }
+body.cpage-ckout .file-change-line,
 body.cpage-info .file-change-line,
 body.cpage-vdiff .file-change-line {
   margin-top: 16px;

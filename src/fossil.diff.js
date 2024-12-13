@@ -2,6 +2,29 @@
    diff-related JS APIs for fossil.
 */
 "use strict";
+/* Locate the UI element (if any) into which we can inject some diff-related
+   UI controls. */
+window.fossil.onPageLoad(function(){
+  const potentialParents = window.fossil.page.diffControlContainers = [
+    /* CSS selectors for possible parents for injected diff-related UI
+       controls. */
+    /* Put the most likely pages at the end, as array.pop() is more
+       efficient than array.shift() (see loop below). */
+    /* /filedit */ 'body.cpage-fileedit #fileedit-tab-diff-buttons',
+    /* /wikiedit */ 'body.cpage-wikiedit #wikiedit-tab-diff-buttons',
+    /* /fdiff */ 'body.fdiff form div.submenu',
+    /* /vdiff */ 'body.vdiff form div.submenu',
+    /* /info, /vinfo, /ckout */ 'body.vinfo div.sectionmenu.info-changes-menu'
+  ];
+  window.fossil.page.diffControlContainer = undefined;
+  while( potentialParents.length ){
+    if( (window.fossil.page.diffControlContainer
+         = document.querySelector(potentialParents.pop())) ){
+      break;
+    }
+  }
+});
+
 window.fossil.onPageLoad(function(){
   /**
      Adds toggle checkboxes to each file entry in the diff views for
@@ -11,31 +34,46 @@ window.fossil.onPageLoad(function(){
   const allToggles = [/*collection of all diff-toggle checkboxes */];
   const addToggle = function(diffElem){
     const sib = diffElem.previousElementSibling,
-          btnOne = sib ? D.addClass(D.checkbox(true), 'diff-toggle') : 0;
+          ckbox = sib ? D.addClass(D.checkbox(true), 'diff-toggle') : 0;
     if(!sib) return;
-    const lblToggle = D.append(D.label(null, " Toggle "), btnOne);
+    const lblToggle = D.label();
+    D.append(lblToggle, ckbox, D.text(" show/hide "));
     const wrapper = D.append(D.span(), lblToggle);
-    const btnAll = D.button("all");
-    btnAll.$cb = btnOne;
-    allToggles.push(btnOne);
-    D.append(sib, D.append(wrapper, lblToggle, D.text(" "), btnAll));
-    btnOne.addEventListener('change', function(){
+    allToggles.push(ckbox);
+    D.append(sib, D.append(wrapper, lblToggle));
+    ckbox.addEventListener('change', function(){
       diffElem.classList[this.checked ? 'remove' : 'add']('hidden');
-    }, false);
-    btnAll.addEventListener('click', function(){
-      /* Toggle all entries to match this line's new state. Note that
-         we use click() instead of cb.checked=... so that the
-         on-change event handler fires. */
-      const checked = !this.$cb.checked;
-      allToggles.forEach( (cb)=>{
-        if(cb.checked!==checked) cb.click();
-      });
     }, false);
   };
   if( !document.querySelector('body.fdiff') ){
     /* Don't show the diff toggle button for /fdiff because it only
        has a single file to show (and also a different DOM layout). */
     document.querySelectorAll('table.diff').forEach(addToggle);
+  }
+  const icm = allToggles.length>1 ? window.fossil.page.diffControlContainer : 0;
+  if(icm) {
+    const btnAll = D.addClass(D.a("#", "Show/Hide"), "button");
+    D.append( icm, btnAll );
+    btnAll.addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      /* Figure out whether we want to show all or hide all: if any diffs are
+         toggled off, show all, else hide all. */
+      let show = false;
+      let ckbox;
+      for( ckbox of allToggles ){
+        if( !ckbox.checked ){
+          show = true;
+          break;
+        }
+      }
+      for( ckbox of allToggles ){
+        /* Toggle all entries to match this new state. We use click()
+           instead of ckbox.checked=... so that the on-change event handler
+           fires. */
+        if(ckbox.checked!==show) ckbox.click();
+      }
+    }, false);
   }
   function resetToggles(){
     var cb = document.querySelectorAll(
@@ -783,22 +821,11 @@ window.fossil.onPageLoad(function(){
      elide that toggle and use whatever preference the user last
      specified (defaulting to on). */
   let cbSync /* scroll-sync checkbox */;
-  let eToggleParent /* element to put the sync-scroll checkbox in */;
-  const potentialParents = [ /* possible parents for the checkbox */
-    /* Put the most likely pages at the end, as array.pop() is more
-       efficient than array.shift() (see loop below). */
-    /* /filedit */ 'body.cpage-fileedit #fileedit-tab-diff-buttons',
-    /* /wikiedit */ 'body.cpage-wikiedit #wikiedit-tab-diff-buttons',
-    /* /fdiff */ 'body.fdiff form div.submenu',
-    /* /vdiff */ 'body.vdiff form div.submenu',
-    /* /info, /vinfo */ 'body.vinfo div.sectionmenu.info-changes-menu'
-  ];
-  while( potentialParents.length ){
-    if( (eToggleParent = document.querySelector(potentialParents.pop())) ){
-      break;
-    }
-  }
-  const keySbsScroll = 'sync-diff-scroll' /* F.storage key */;
+  let eToggleParent = /* element to put the sync-scroll checkbox in */
+      document.querySelector('table.diff.splitdiff')
+      ? window.fossil.page.diffControlContainer
+      : undefined;
+  const keySbsScroll = 'sync-diff-scroll' /* F.storage key for persistent user preference */;
   if( eToggleParent ){
     /* Add a checkbox to toggle sbs scroll sync. Remember that in
        order to be UI-consistent in the /vdiff page we have to ensure
@@ -809,7 +836,7 @@ window.fossil.onPageLoad(function(){
     D.append(eToggleParent, D.append(
       D.addClass(D.create('span'), 'input-with-label'),
       D.append(D.create('label'),
-               cbSync, "Sync side-by-side scrolling")
+               cbSync, "Scroll Sync")
     ));
     cbSync.addEventListener('change', function(e){
       F.storage.set(keySbsScroll, e.target.checked);
