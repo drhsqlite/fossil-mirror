@@ -22,6 +22,10 @@ printf "\\input texinfo
 @settitle Fossil
 @setfilename fossil.info
 @c @author brickviking
+@dircategory Development
+@direntry
+* Fossil (fossil).        A distributed version control system.
+@end dirheader
 
 " > fossil.texi
 printf "@c Initial rendition to convert fossil help -a -v into texinfo for further
