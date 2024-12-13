@@ -670,6 +670,9 @@ void ckout_page(void){
   }else{
     pCfg->diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
+  @ <div class="sectionmenu info-changes-menu">
+  /* Filled out by JS */
+  @ </div>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTreename = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
@@ -681,31 +684,33 @@ void ckout_page(void){
     int showDiff = 1;
 
     pCfg->diffFlags &= (~DIFF_FILE_MASK);
+    @ <div class='file-change-line'><span>
     if( isDeleted ){
-      @ <p>DELETED %h(zTreename)</p>
+      @ DELETED %h(zTreename)
       pCfg->diffFlags |= DIFF_FILE_DELETED;
       showDiff = 0;
     }else if( file_access(zTreename, F_OK) ){
-      @ <p>MISSING %h(zTreename)</p>
+      @ MISSING %h(zTreename)
       showDiff = 0;
     }else if( isNew ){
-      @ <p>ADDED %h(zTreename)</p>
+      @ ADDED %h(zTreename)
       pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       showDiff = 0;
     }else if( isChnged==3 ){
-      @ <p>ADDED_BY_MERGE %h(zTreename)</p>
+      @ ADDED_BY_MERGE %h(zTreename)
       pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       showDiff = 0;
     }else if( isChnged==5 ){
-      @ <p>ADDED_BY_INTEGRATE %h(zTreename)</p>
+      @ ADDED_BY_INTEGRATE %h(zTreename)
       pCfg->diffFlags |= DIFF_FILE_ADDED;
       srcid = 0;
       showDiff = 0;
     }else{
-      @ <p>CHANGED %h(zTreename)</p>
+      @ CHANGED %h(zTreename)
     }
+    @ </span></div>
     if( showDiff ){
       Blob old, new;
       if( !isLink != !file_islink(zTreename) ){

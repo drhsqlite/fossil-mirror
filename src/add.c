@@ -755,8 +755,7 @@ const char *filename_collation(void){
 **     all files that show as MISSING with the "status" command) are
 **     removed as if by the "[[rm]]" command.
 **
-** The command does not "[[commit]]".  You must run the "[[commit]]" separately
-** as a separate step.
+** Note that this command does not "commit", as that is a separate step.
 **
 ** Files and directories whose names begin with "." are ignored unless
 ** the --dotfiles option is used.
