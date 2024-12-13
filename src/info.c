@@ -630,6 +630,7 @@ void ckout_page(void){
     cgi_redirect("%R/home");
     return;
   }
+  file_chdir(g.zLocalRoot, 0);
   diffType = preferred_diff_type();
   pCfg = construct_diff_flags(diffType, &DCfg);
   vid = db_lget_int("checkout", 0);
