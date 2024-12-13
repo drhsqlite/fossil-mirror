@@ -964,6 +964,29 @@ static void diff_against_undo(
 }
 
 /*
+** Fetch the content for pFile into pContent. pContent is assumed to be
+** uninitialized.
+**
+** This routine accepts non-standard ManifestFile records where the
+** ManifestFile.zUuid is an absolute pathname rather than an artifact
+** hash.  When zUuid is a pathname, the content of the file at that pathname
+** is read directly from disk.
+*/
+static void diff_fetch_manifest_entry(
+  ManifestFile *pFile,
+  Blob *pContent
+){
+  if( pFile==0){
+    blob_zero(pContent);
+  }else if( file_is_absolute_path(pFile->zUuid) ){
+    blob_read_from_file(pContent, pFile->zUuid, ExtFILE);
+  }else{
+    int rid = uuid_to_rid(pFile->zUuid, 0);
+    content_get(rid, pContent);
+  }
+}
+
+/*
 ** Show the difference between two files identified by ManifestFile
 ** entries.
 **
@@ -973,6 +996,11 @@ static void diff_against_undo(
 ** When using an external diff program, zBinGlob contains the GLOB patterns
 ** for file names to treat as binary.  If fIncludeBinary is zero, these files
 ** will be skipped in addition to files that may contain binary content.
+**
+** This routine accepts non-standard ManifestFile records where the
+** ManifestFile.zUuid is an absolute pathname rather than an artifact
+** hash.  When zUuid is a pathname, the content of the file at that pathname
+** is read directly from disk.
 */
 static void diff_manifest_entry(
   struct ManifestFile *pFrom,
@@ -980,7 +1008,6 @@ static void diff_manifest_entry(
   DiffConfig *pCfg
 ){
   Blob f1, f2;
-  int rid;
   const char *zName;
   if( pFrom ){
     zName = pFrom->zName;
@@ -991,18 +1018,8 @@ static void diff_manifest_entry(
   }
   if( pCfg->diffFlags & DIFF_BRIEF ) return;
   diff_print_index(zName, pCfg, 0);
-  if( pFrom ){
-    rid = uuid_to_rid(pFrom->zUuid, 0);
-    content_get(rid, &f1);
-  }else{
-    blob_zero(&f1);
-  }
-  if( pTo ){
-    rid = uuid_to_rid(pTo->zUuid, 0);
-    content_get(rid, &f2);
-  }else{
-    blob_zero(&f2);
-  }
+  diff_fetch_manifest_entry(pFrom, &f1);
+  diff_fetch_manifest_entry(pTo, &f2);
   diff_file_mem(&f1, &f2, zName, pCfg);
   blob_reset(&f1);
   blob_reset(&f2);
