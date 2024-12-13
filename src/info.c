@@ -652,7 +652,11 @@ void ckout_page(void){
   }else{
     style_header("Checkout Status: %h", zCwd);
   }
+  builtin_request_js("accordion.js");
+  @ <div class="section accordion">Context</div>
+  @ <div class="accordion_panel"> <!-- ap-001 -->
   render_checkin_context(vid, 0, 0, 0);
+  @ </div> <!-- ap-001 -->
   if( pCfg==0 ){
     style_finish_page();
     return;
@@ -671,6 +675,8 @@ void ckout_page(void){
   }else{
     pCfg->diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
+  @ <div class="section accordion">Uncommitted Changes</div>
+  @ <div class="accordion_panel">  <!-- ap-002 -->
   @ <div class="sectionmenu info-changes-menu">
   /* Filled out by JS */
   @ </div>
@@ -732,6 +738,7 @@ void ckout_page(void){
     }
   }
   db_finalize(&q);
+  @ </div> <!-- ap-002 -->
   append_diff_javascript(diffType);
   style_finish_page();
 }
