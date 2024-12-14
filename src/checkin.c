@@ -1565,13 +1565,13 @@ static void prepare_commit_comment(
         diffFiles[i].nName = strlen(diffFiles[i].zName);
         diffFiles[i].nUsed = 0;
       }
-      diff_against_disk(0, &DCfg, diffFiles, &prompt);
+      diff_version_to_checkout(0, &DCfg, diffFiles, &prompt);
       for( i=0; diffFiles[i].zName; ++i ){
         fossil_free(diffFiles[i].zName);
       }
       fossil_free(diffFiles);
     }else{
-      diff_against_disk(0, &DCfg, 0, &prompt);
+      diff_version_to_checkout(0, &DCfg, 0, &prompt);
     }
   }
   prompt_for_user_comment(pComment, &prompt);

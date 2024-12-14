@@ -1,5 +1,5 @@
-C Update\sthe\sall-diffs-toggle\sbutton's\slabel\sdynamically\sto\sclarify\swhether\sit\swill\sshow\sor\shide\sthe\sdiffs\son\sits\snext\sclick,\sper\srequest\sin\s[forum:516f1ba3d82ed249|forum\spost\s516f1ba3d82ed249].\sThe\ssemantics\shaven't\schecked:\sif\sany\sare\shidden,\sits\saction\swill\sbe\sto\sreveal\sthem,\selse\sit\swill\sbe\sto\shide\sthem.
-D 2024-12-13T23:40:43.803
+C Add\sthe\s"--tree\sDIRECTORY"\soption\sto\sthe\s"fossil\sdiff"\scommand.
+D 2024-12-14T19:52:46.483
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -397,7 +397,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c b791622afb8c8c5d3ea3fb40372b04e8d16af4e7595a394fe850dac8277b13b0
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
-F src/checkin.c 8a9f0f094690a06f61f4d10e6fb51d0332d491b4b4a973081418532a67061765
+F src/checkin.c 86470bc61800f5be5979c92a767f9e39f722bc7e836d3d63bb44d23733acef8d
 F src/checkout.c bff6241b5d754d3d56e36463121d1c18dbf3f119237b4e6c149d96ee0764c0dc
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -419,7 +419,7 @@ F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec681182
 F src/diff.c 8f990098ef9cf6c590a1ea45e8f6e0a1a1649b4d66888827134374d06c9dab9f
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl a2731fc53cdf9d2ce3e03242eb007dda32e364c5c3f5ae104e00c53f9e8580bc
-F src/diffcmd.c de8cb5b0f19a1f1a98b1190873f75ab75e9dc217c72182df259ed8c31850abad
+F src/diffcmd.c 130a793aff8095870d42371f30604c07bad390b71c0555532e28e3b1de153640
 F src/dispatch.c 08b7f541f0fbf027c247d280ec2551342c238d39dac1e27c98a66013e6c71e09
 F src/doc.c 684b3d4fe993ccd618fdd5dfbf73e4bcc2ec019b21503190a503e3eb37008eca
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -961,8 +961,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 02eb97d801a899ff9943f0e0cba63cee6d9bab9fbd3219354b78b7818aeb8b45
-R 48e18870e3e88a8126340e021bfc837a
-U stephan
-Z bc2a5dc7a25a73138a7332c925330d26
+P 903142fef8a3c62451406bd7ae3d3d44d6b8a535ba5738d93ecf6c5a7e343254
+R 92575bf9bce716253bb658bac795f22e
+T *branch * diff-tree
+T *sym-diff-tree *
+T -sym-trunk *
+U drh
+Z 15322b8c38e67589233043be1205cce0
 # Remove this line to create a well-formed Fossil manifest.
