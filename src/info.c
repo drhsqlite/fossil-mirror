@@ -780,12 +780,25 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
     if( blob_size(&lhs)!=blob_size(&rhs)
      || memcmp(blob_buffer(&lhs), blob_buffer(&rhs), blob_size(&lhs))!=0
     ){
+      char *zFullFN;
+      char *zHexFN;
+      int nFullFN;
+      zFullFN = file_canonical_name_dup(zLhs);
+      nFullFN = (int)strlen(zFullFN);
+      zHexFN = fossil_malloc( nFullFN*2 + 5 );
+      zHexFN[0] = 'x';
+      encode16((const u8*)zFullFN, (u8*)(zHexFN+1), nFullFN);
+      zHexFN[1+nFullFN*2] = 0;
+      fossil_free(zFullFN);
+      pCfg->zLeftHash = zHexFN;
       @ <div class='file-change-line'><span>
       @ Changes to %h(zFile)
       @ </span></div>
       if( pCfg ){
         text_diff(&lhs, &rhs, cgi_output_blob(), pCfg);
       }
+      pCfg->zLeftHash = 0;
+      fossil_free(zHexFN);
     }
     blob_reset(&lhs);
     blob_reset(&rhs);
@@ -2168,6 +2181,12 @@ void secure_rawartifact_page(void){
 ** Return lines of text from a file as a JSON array - one entry in the
 ** array for each line of text.
 **
+** The HASH is normally a sha1 or sha3 hash that identifies an artifact
+** in the BLOB table of the database.  However, if HASH starts with an "x"
+** and is followed by valid hexadecimal, and if we are running in a
+** "fossil ui" situation (locally and with privilege), then decode the hex
+** into a filename and read the file content from that name.
+**
 ** **Warning:**  This is an internal-use-only interface that is subject to
 ** change at any moment.  External application should not use this interface
 ** since the application will break when this interface changes, and this
@@ -2182,6 +2201,7 @@ void secure_rawartifact_page(void){
 void jchunk_page(void){
   int rid = 0;
   const char *zName = PD("name", "");
+  int nName = (int)(strlen(zName)&0x7fffffff);
   int iFrom = atoi(PD("from","0"));
   int iTo = atoi(PD("to","0"));
   int ln;
@@ -2202,32 +2222,53 @@ void jchunk_page(void){
     ajax_route_error(403, "Access requires Read permissions.");
     return;
   }
-#if 1
-  /* Re-enable this block once this code is integrated somewhere into
-     the UI. */
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
-  if( rid==0 ){
-    ajax_route_error(404, "Unknown artifact: %h", zName);
-    return;
-  }
-#else
-  /* This impl is only to simplify "manual" testing via the JS
-     console. */
-  rid = symbolic_name_to_rid(zName, "*");
-  if( rid==0 ){
-    ajax_route_error(404, "Unknown artifact: %h", zName);
-    return;
-  }else if( rid<0 ){
-    ajax_route_error(418, "Ambiguous artifact name: %h", zName);
-    return;
-  }
-#endif
   if( iFrom<1 || iTo<iFrom ){
     ajax_route_error(500, "Invalid line range from=%d, to=%d.",
                      iFrom, iTo);
     return;
   }
-  content_get(rid, &content);
+  if( zName[0]=='x'
+   && ((nName-1)&1)==0
+   && validate16(&zName[1],nName-1)
+   && g.perm.Admin
+   && db_open_local(0)
+   && cgi_is_loopback(g.zIpAddr)
+  ){
+    /* Treat the HASH as a hex-encoded filename */
+    int n = (nName-1)/2;
+    char *zFN = fossil_malloc(n+1);
+    decode16((const u8*)&zName[1], (u8*)zFN, nName-1);
+    zFN[n] = 0;
+    if( file_size(zFN, ExtFILE)<0 ){
+      blob_zero(&content);
+    }else{
+      blob_read_from_file(&content, zFN, ExtFILE);
+    }
+    fossil_free(zFN);
+  }else{
+    /* Treat the HASH as an artifact hash matching BLOB.UUID */
+#if 1
+    /* Re-enable this block once this code is integrated somewhere into
+       the UI. */
+    rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
+    if( rid==0 ){
+      ajax_route_error(404, "Unknown artifact: %h", zName);
+      return;
+    }
+#else
+    /* This impl is only to simplify "manual" testing via the JS
+       console. */
+    rid = symbolic_name_to_rid(zName, "*");
+    if( rid==0 ){
+      ajax_route_error(404, "Unknown artifact: %h", zName);
+      return;
+    }else if( rid<0 ){
+      ajax_route_error(418, "Ambiguous artifact name: %h", zName);
+      return;
+    }
+#endif
+    content_get(rid, &content);
+  }
   g.isConst = 1;
   cgi_set_content_type("application/json");
   ln = 0;
