@@ -1097,12 +1097,12 @@ static void diff_two_versions(
 ** working checkout with its edits.
 **
 ** To put it another way:  Every managed file in the current working
-** checkout is compared to the file with same under in zTree.  The zTree
-** files are on the left and the files in the current working directory
-** are on the right.
+** checkout is compared to the file with same under in zExternBase.  The
+** zExternBase files are on the left and the files in the current working
+** directory are on the right.
 */
-void diff_tree_to_checkout(
-  const char *zExternTree,   /* Remote tree to use as the baseline */
+void diff_externbase_to_checkout(
+  const char *zExternBase,   /* Remote tree to use as the baseline */
   DiffConfig *pCfg,          /* Diff settings */
   FileDirList *pFileDir      /* Only look at these files */
 ){
@@ -1110,23 +1110,24 @@ void diff_tree_to_checkout(
   Stmt q;
 
   vid = db_lget_int("checkout",0);
-  if( file_isdir(zExternTree, ExtFILE)!=1 ){
-    fossil_fatal("\"%s\" is not a directory", zExternTree);
+  if( file_isdir(zExternBase, ExtFILE)!=1 ){
+    fossil_fatal("\"%s\" is not a directory", zExternBase);
   }
   db_prepare(&q,
     "SELECT pathname FROM vfile WHERE vid=%d ORDER BY pathname",
     vid
   );
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zTreename = db_column_text(&q,0);  /* Repo tree name of file */
-    char *zLhs;           /* Full name of left-hand side file */
-    char *zRhs;           /* Full name of right-hand side file */
-    Blob rhs;             /* Full text of RHS */
-    Blob lhs;             /* Full text of LHS */
+    const char *zFile;  /* Name of file in the repository */
+    char *zLhs;         /* Full name of left-hand side file */
+    char *zRhs;         /* Full name of right-hand side file */
+    Blob rhs;           /* Full text of RHS */
+    Blob lhs;           /* Full text of LHS */
 
-    if( !file_dir_match(pFileDir, zTreename) ) continue;
-    zLhs = mprintf("%s/%s", zExternTree, zTreename);
-    zRhs = mprintf("%s%s", g.zLocalRoot, zTreename);
+    zFile = db_column_text(&q,0);
+    if( !file_dir_match(pFileDir, zFile) ) continue;
+    zLhs = mprintf("%s/%s", zExternBase, zFile);
+    zRhs = mprintf("%s%s", g.zLocalRoot, zFile);
     if( file_size(zLhs, ExtFILE)<0 ){
       blob_zero(&lhs);
     }else{
@@ -1136,8 +1137,8 @@ void diff_tree_to_checkout(
     if( blob_size(&lhs)!=blob_size(&rhs)
      || memcmp(blob_buffer(&lhs), blob_buffer(&rhs), blob_size(&lhs))!=0
     ){
-      diff_print_index(zTreename, pCfg, 0);
-      diff_file_mem(&lhs, &rhs, zTreename, pCfg);
+      diff_print_index(zFile, pCfg, 0);
+      diff_file_mem(&lhs, &rhs, zFile, pCfg);
     }
     blob_reset(&lhs);
     blob_reset(&rhs);
@@ -1329,8 +1330,8 @@ const char *diff_get_binary_glob(void){
 **   --tclsh PATH                Tcl/Tk shell used for --tk (default: "tclsh")
 **   --tk                        Launch a Tcl/Tk GUI for display
 **   --to VERSION                Select VERSION as target for the diff
-**   --tree DIR                  Use files under DIR as the baseline
-**   --undo                      Diff against the "undo" buffer
+**   --external-baseline DIR     Use files under DIR as the baseline
+**   --undo                      Use the undo buffer as the baseline
 **   --unified                   Unified diff
 **   -v|--verbose                Output complete text of added or deleted files
 **   -h|--versions               Show compared versions in the diff header
@@ -1344,7 +1345,7 @@ void diff_cmd(void){
   const char *zTo;           /* Target version number */
   const char *zCheckin;      /* Check-in version number */
   const char *zBranch;       /* Branch to diff */
-  const char *zTree;         /* The --tree */
+  const char *zExBase;       /* The --external-baseline option */
   int againstUndo = 0;       /* Diff against files in the undo buffer */
   FileDirList *pFileDir = 0; /* Restrict the diff to these files */
   DiffConfig DCfg;           /* Diff configuration object */
@@ -1358,11 +1359,11 @@ void diff_cmd(void){
   zTo = find_option("to", 0, 1);
   zCheckin = find_option("checkin", "ci", 1);
   zBranch = find_option("branch", 0, 1);
-  zTree = find_option("tree", 0, 1);
+  zExBase = find_option("external-baseline", 0, 1);
   againstUndo = find_option("undo",0,0)!=0;
-  if( zTree && (zFrom || zTo || zCheckin || zBranch || againstUndo) ){
-    fossil_fatal("cannot use --tree together with --from, --to, --checkin,"
-                 " --branch, or --undo");
+  if( zExBase && (zFrom || zTo || zCheckin || zBranch || againstUndo) ){
+    fossil_fatal("cannot use --external-baseline together with any of"
+                 " --from, --to, --checkin, --branch, or --undo");
   }
   if( againstUndo && (zFrom!=0 || zTo!=0 || zCheckin!=0 || zBranch!=0) ){
     fossil_fatal("cannot use --undo together with --from, --to, --checkin,"
@@ -1423,8 +1424,8 @@ void diff_cmd(void){
     }
   }
   diff_begin(&DCfg);
-  if( zTree ){
-    diff_tree_to_checkout(zTree, &DCfg, pFileDir);
+  if( zExBase ){
+    diff_externbase_to_checkout(zExBase, &DCfg, pFileDir);
   }else if( againstUndo ){
     if( db_lget_int("undo_available",0)==0 ){
       fossil_print("No undo or redo is available\n");

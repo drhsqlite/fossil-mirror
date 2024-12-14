@@ -1,5 +1,5 @@
-C Fix\sthe\snew\s--tree\soption\sso\sthat\sit\sonly\sshows\sdiffs\sof\sfiles\sthat\sprefix\nmatch\sarguments\son\sthe\scommand-line.
-D 2024-12-14T19:57:31.834
+C Change\sthe\sname\sof\sthe\s--tree\soption\sto\s--external-baseline.
+D 2024-12-14T20:40:43.805
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -418,8 +418,8 @@ F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a6
 F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec6811823705
 F src/diff.c 8f990098ef9cf6c590a1ea45e8f6e0a1a1649b4d66888827134374d06c9dab9f
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
-F src/diff.tcl a2731fc53cdf9d2ce3e03242eb007dda32e364c5c3f5ae104e00c53f9e8580bc
-F src/diffcmd.c e54da15e308f5915a273db2f8c965fe6c31957b6f31e9bea2b84a211bc6080a1
+F src/diff.tcl 5d3d6d51dc6e05b06e5449299c0e2fbbfc754885fd08070fea232457c764d871
+F src/diffcmd.c 8dc77a24840f308116fc455ddae99b4cabb9afb00db849e38cd868961b3623d4
 F src/dispatch.c 08b7f541f0fbf027c247d280ec2551342c238d39dac1e27c98a66013e6c71e09
 F src/doc.c 684b3d4fe993ccd618fdd5dfbf73e4bcc2ec019b21503190a503e3eb37008eca
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07a699738a2f3e9e086bfc82d05599d416ffce4699e8afc350b5229d5043040f
-R 0d7855a9045a302c1654908b53985d2e
+P df94a3538e006dbac02850ad98ab70c4f23545303cf8b1b5106313d567ea025d
+R acc8e7836d920a0222df71322702e666
 U drh
-Z 42fe66a7422fe16ccd6d03fe3e67824a
+Z 4b685ea3b92b103f62edbe768f82e094
 # Remove this line to create a well-formed Fossil manifest.
