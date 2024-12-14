@@ -1118,11 +1118,15 @@ void diff_tree_to_checkout(
     vid
   );
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zTreename = db_column_text(&q,0);
-    char *zLhs = mprintf("%s/%s", zExternTree, zTreename);
-    char *zRhs = mprintf("%s%s", g.zLocalRoot, zTreename);
-    Blob rhs;
-    Blob lhs;
+    const char *zTreename = db_column_text(&q,0);  /* Repo tree name of file */
+    char *zLhs;           /* Full name of left-hand side file */
+    char *zRhs;           /* Full name of right-hand side file */
+    Blob rhs;             /* Full text of RHS */
+    Blob lhs;             /* Full text of LHS */
+
+    if( !file_dir_match(pFileDir, zTreename) ) continue;
+    zLhs = mprintf("%s/%s", zExternTree, zTreename);
+    zRhs = mprintf("%s%s", g.zLocalRoot, zTreename);
     if( file_size(zLhs, ExtFILE)<0 ){
       blob_zero(&lhs);
     }else{
