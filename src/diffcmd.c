@@ -1097,7 +1097,7 @@ static void diff_two_versions(
 ** working checkout with its edits.
 **
 ** To put it another way:  Every managed file in the current working
-** checkout is compared to the file with same under in zExternBase.  The
+** checkout is compared to the file with same name under zExternBase.  The
 ** zExternBase files are on the left and the files in the current working
 ** directory are on the right.
 */
