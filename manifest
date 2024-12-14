@@ -1,5 +1,5 @@
-C Begin\smaking\sinfrastructure\schanges\sto\ssupport\sdoing\sa\sdiff\sbetween\stwo\nindependently\sedited\scheck-outs.
-D 2024-12-13T21:37:52.263
+C Recognize\sthe\s--from-ckout\sand\s--to-ckout\soptions\sto\sthe\s"fossil\sdiff"\ncommand.
+D 2024-12-14T12:00:56.695
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,10 +416,10 @@ F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec6811823705
-F src/diff.c 8f990098ef9cf6c590a1ea45e8f6e0a1a1649b4d66888827134374d06c9dab9f
+F src/diff.c dc90d9317d7491a6fac3e8995a76743ef8cd02fe5e035e5e0e26e34adcba0ed8
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl a2731fc53cdf9d2ce3e03242eb007dda32e364c5c3f5ae104e00c53f9e8580bc
-F src/diffcmd.c 51a22627f70ba234b878f02ea0fcdb0302c2b3f01806760fc7cab9d9aa9bcbb1
+F src/diffcmd.c b800cfe1f9abe68582fe750e72a389360aca4b9e034a7bbd6ae6fb8e0cad2f93
 F src/dispatch.c 08b7f541f0fbf027c247d280ec2551342c238d39dac1e27c98a66013e6c71e09
 F src/doc.c 684b3d4fe993ccd618fdd5dfbf73e4bcc2ec019b21503190a503e3eb37008eca
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -494,7 +494,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c df5d18b1f8491bfd84a1e20a079a75173ac8865a6b474edeeab8c49ea8c12152
 F src/main.mk 95e820aa9e899db1edbbf7438fa89f1116ce7bb9a0cf6aefe00a9d8bb6e24913
-F src/manifest.c f98b600d1850abeac77a1c13967c4f2ded26f8f968cd86a8e5a25943e385b54f
+F src/manifest.c d556c5cbdfd72d5c8c8d1ad475c1e1897e54077dcef53915930530dc7eb13c7a
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
@@ -961,11 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 02eb97d801a899ff9943f0e0cba63cee6d9bab9fbd3219354b78b7818aeb8b45
-R 25404a13edc7b9f6f50343ecb7280453
-T *branch * diff-two-ckouts
-T *sym-diff-two-ckouts *
-T -sym-trunk *
+P b10cb2b536a92f49ea4da9bbcc74423c6cb0c0808f33ab062731c92234344cd3
+R 98804e2b5b56547ce840eb43fcc6d590
 U drh
-Z a8743fe906bc5e4926335dfca80522c0
+Z 595abbb7835c326a7a16c19322585f7f
 # Remove this line to create a well-formed Fossil manifest.

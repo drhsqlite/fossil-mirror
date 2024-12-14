@@ -54,6 +54,12 @@
 #define DIFF_DARKMODE          0x00400000 /* Use dark mode for HTML */
 #define DIFF_BY_TOKEN          0x01000000 /* Split on tokens, not lines */
 
+/* These bits influence the interpretation of the zFrom and zTo parameters
+** to the diff_two_versions() routine.
+*/
+#define DIFF_FROM_CKOUT        0x02000000 /* zFrom is a checkout pathname */
+#define DIFF_TO_CKOUT          0x04000000 /* zTo is a checkout pathname */
+
 /*
 ** Per file information that may influence output.
 */

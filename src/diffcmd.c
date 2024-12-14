@@ -1045,12 +1045,22 @@ static void diff_two_versions(
   ManifestFile *pFromFile, *pToFile;
   int asNewFlag = (pCfg->diffFlags & (DIFF_VERBOSE|DIFF_NUMSTAT))!=0 ? 1 : 0;
 
-  pFrom = manifest_get_by_name(zFrom, 0);
+  if( pCfg->diffFlags & DIFF_FROM_CKOUT ){
+    fossil_fatal("The --from-ckout option is not yet implemented");
+  }else{
+    pFrom = manifest_get_by_name(zFrom, 0);
+  }
   manifest_file_rewind(pFrom);
   pFromFile = manifest_file_next(pFrom,0);
-  pTo = manifest_get_by_name(zTo, 0);
+
+  if( pCfg->diffFlags & DIFF_TO_CKOUT ){
+    fossil_fatal("The --to-ckout option is not yet implemented");
+  }else{
+    pTo = manifest_get_by_name(zTo, 0);
+  }
   manifest_file_rewind(pTo);
   pToFile = manifest_file_next(pTo,0);
+
   if( (pCfg->diffFlags & DIFF_SHOW_VERS)!=0 ){
     diff_print_versions(zFrom, zTo, pCfg);
   }
@@ -1276,6 +1286,7 @@ const char *diff_get_binary_glob(void){
 **   --exec-abs-paths            Force absolute path names on external commands
 **   --exec-rel-paths            Force relative path names on external commands
 **   -r|--from VERSION           Select VERSION as source for the diff
+**   --from-ckout PATH           Path to foreign checkout to use as source
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -i|--internal               Use internal diff logic
 **   --invert                    Invert the diff
@@ -1289,6 +1300,7 @@ const char *diff_get_binary_glob(void){
 **   --tclsh PATH                Tcl/Tk shell used for --tk (default: "tclsh")
 **   --tk                        Launch a Tcl/Tk GUI for display
 **   --to VERSION                Select VERSION as target for the diff
+**   --to-ckout PATH             Path to foreign checkout to use as target
 **   --undo                      Diff against the "undo" buffer
 **   --unified                   Unified diff
 **   -v|--verbose                Output complete text of added or deleted files
@@ -1301,6 +1313,8 @@ void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
   const char *zFrom;         /* Source version number */
   const char *zTo;           /* Target version number */
+  const char *zFromCkout;    /* Foreign check-out for the from side */
+  const char *zToCkout;      /* Foreign check-out for the to side */
   const char *zCheckin;      /* Check-in version number */
   const char *zBranch;       /* Branch to diff */
   int againstUndo = 0;       /* Diff against files in the undo buffer */
@@ -1312,14 +1326,32 @@ void diff_cmd(void){
     return;
   }
   isGDiff = g.argv[1][0]=='g';
+  diff_options(&DCfg, isGDiff, 0);
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
+  zFromCkout = find_option("from-ckout", 0, 1);
+  zToCkout = find_option("to-ckout", 0, 1);
   zCheckin = find_option("checkin", "ci", 1);
   zBranch = find_option("branch", 0, 1);
   againstUndo = find_option("undo",0,0)!=0;
+  if( zFromCkout ){
+    if( zFrom || zCheckin || zBranch || againstUndo ){
+      fossil_fatal("cannot use --from-ckout with --from, --checkin, --branch,"
+                   " or --undo");
+    }
+    DCfg.diffFlags |= DIFF_FROM_CKOUT;
+    zFrom = zFromCkout;
+  }
+  if( zToCkout ){
+    if( zTo || zBranch || againstUndo ){
+      fossil_fatal("cannot use --from-ckout with --to, --branch or --undo");
+    }
+    DCfg.diffFlags |= DIFF_TO_CKOUT;
+    zTo = zToCkout;
+  }
   if( againstUndo && ( zFrom!=0 || zTo!=0 || zCheckin!=0 || zBranch!=0) ){
     fossil_fatal("cannot use --undo together with --from, --to, --checkin,"
-                 " or --branch");
+                 " --branch, --from-ckout, or --to-ckout");
   }
   if( zBranch ){
     if( zTo || zFrom || zCheckin ){
@@ -1331,7 +1363,6 @@ void diff_cmd(void){
   if( zCheckin!=0 && ( zFrom!=0 || zTo!=0 ) ){
     fossil_fatal("cannot use --checkin together with --from or --to");
   }
-  diff_options(&DCfg, isGDiff, 0);
   determine_exec_relative_option(1);
   if( 0==zCheckin ){
     if( zTo==0 || againstUndo ){

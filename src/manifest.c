@@ -53,7 +53,14 @@
 #define MC_NO_ERRORS      2  /*  do not issue errors for a bad parse */
 
 /*
-** A single F-card within a manifest
+** A single F-card within a manifest.
+**
+** In a true Manifest, zUuid is the sha1 or sha3 hash of the artifact
+** that is the file content.  But in a checkout manifest, if the file
+** has uncommitted modifications on disk, then zUuid is the absolute
+** pathname of the modified file on disk.  Absolute pathnames are always
+** distinguishable from hashes because they begin with "/" on unix or
+** with "X:\" on windows.
 */
 struct ManifestFile {
   char *zName;           /* Name of a file */
@@ -64,7 +71,29 @@ struct ManifestFile {
 
 
 /*
-** A parsed manifest or cluster.
+** The Manifest object (usually) represents a complete parse of a control
+** artifact.  There are various kinds of control artifacts:
+**
+**    Manifests     Description of a check-in
+**    Clusters      Used to expidite sync operations
+**    Controls      Set or cancel tags
+**    Wiki          Change to a wiki page
+**    Ticket        Change to a ticket
+**    Attachment    An attachment on a wiki page or ticket
+**    TechNote      A technote
+**    ForumPost     A forum post.
+**
+** A single Manifest object represents one of these.
+**
+** Sometimes, a Manifest object can also be used to represent the state of
+** all managed files in a check-out with uncommitted changes.  Call this
+** a "Checkout".  A Checkout does not have an artifact counterpart.  When
+** this object is used as a checkout, that is for internal use only.  A
+** checkout is like a manifest except that in the ManifestFile sub-objects,
+** the ManifestFile.zUuid is the absolute filename for files that have been
+** modified, rather than being an artifact hash.  These filenames are
+** appended to the end of Manifest.content and are thus freed when the
+** Manifest object is freed.
 */
 struct Manifest {
   Blob content;         /* The original content blob */
