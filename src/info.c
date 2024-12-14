@@ -611,50 +611,17 @@ void ci_tags_page(void){
 }
 
 /*
-** WEBPAGE: ckout
-**
-** Show information about the current checkout.  This page only functions
-** if the web server is run on a loopback interface (in other words, was
-** started using "fossil ui" or similar) from with on open check-out.
+** Render a web-page diff of the changes in the working check-out
 */
-void ckout_page(void){
-  int vid;
-  char *zHostname;
-  char *zCwd;
+static void ckout_normal_diff(int vid){
   int diffType;               /* 0: no diff,  1: unified,  2: side-by-side */
   DiffConfig DCfg,*pCfg;      /* Diff details */
-  const char *zHome;          /* Home directory */
   const char *zW;             /* The "w" query parameter */
   int nChng;                  /* Number of changes */
   Stmt q;
 
-  if( !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
-    cgi_redirectf("%R/home");
-    return;
-  }
-  file_chdir(g.zLocalRoot, 0);
   diffType = preferred_diff_type();
   pCfg = construct_diff_flags(diffType, &DCfg);
-  vid = db_lget_int("checkout", 0);
-  db_unprotect(PROTECT_ALL);
-  vfile_check_signature(vid, CKSIG_ENOTFILE);
-  db_protect_pop();
-  style_set_current_feature("vinfo");
-  zHostname = fossil_hostname();
-  zCwd = file_getcwd(0,0);
-  zHome = fossil_getenv("HOME");
-  if( zHome ){
-    int nHome = (int)strlen(zHome);
-    if( strncmp(zCwd, zHome, nHome)==0 && zCwd[nHome]=='/' ){
-      zCwd = mprintf("~%s", zCwd+nHome);
-    }
-  }
-  if( zHostname ){
-    style_header("Checkout Status: %h on %h", zCwd, zHostname);
-  }else{
-    style_header("Checkout Status: %h", zCwd);
-  }
-  render_checkin_context(vid, 0, 0, 0);
   nChng = db_int(0, "SELECT count(*) FROM vfile"
                     " WHERE vid=%d AND (deleted OR chnged OR rid==0)", vid);
   if( nChng==0 ){
@@ -676,7 +643,6 @@ void ckout_page(void){
   }else{
     DCfg.diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
-  @ <hr>
   @ <div class="sectionmenu info-changes-menu">
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=1 ){
@@ -752,8 +718,130 @@ void ckout_page(void){
     }
   }
   db_finalize(&q);
-  // @ </div> <!-- ap-002 -->
   append_diff_javascript(diffType);
+}
+
+/*
+** Render a web-page diff of the changes in the working check-out to
+** an external reference.
+*/
+static void ckout_external_base_diff(int vid, const char *zExBase){
+  int diffType;               /* 0: no diff,  1: unified,  2: side-by-side */
+  DiffConfig DCfg,*pCfg;      /* Diff details */
+  const char *zW;             /* The "w" query parameter */
+  Stmt q;
+
+  diffType = preferred_diff_type();
+  pCfg = construct_diff_flags(diffType, &DCfg);
+  db_prepare(&q,
+    "SELECT pathname FROM vfile WHERE vid=%d ORDER BY pathname", vid
+  );
+  if( DCfg.diffFlags & DIFF_SIDEBYSIDE ){
+    DCfg.diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
+  }else{
+    DCfg.diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
+  }
+  @ <div class="sectionmenu info-changes-menu">
+  zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  if( diffType!=1 ){
+    @ %z(chref("button","%R?diff=1&exbase=%h%s",zExBase,zW))\
+    @ Unified&nbsp;Diff</a>
+  }
+  if( diffType!=2 ){
+    @ %z(chref("button","%R?diff=2&exbase=%h%s",zExBase,zW))\
+    @ Side-by-Side&nbsp;Diff</a>
+  }
+  if( diffType!=0 ){
+    if( *zW ){
+      @ %z(chref("button","%R?diff=%d&exbase=%h",diffType,zExBase))\
+      @ Show&nbsp;Whitespace&nbsp;Changes</a>
+    }else{
+      @ %z(chref("button","%R?diff=%d&exbase=%h&w",diffType,zExBase))\
+      @ Ignore&nbsp;Whitespace</a>
+    }
+  }
+  @ </div>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFile;  /* Name of file in the repository */
+    char *zLhs;         /* Full name of left-hand side file */
+    char *zRhs;         /* Full name of right-hand side file */
+    Blob rhs;           /* Full text of RHS */
+    Blob lhs;           /* Full text of LHS */
+
+    zFile = db_column_text(&q,0);
+    zLhs = mprintf("%s/%s", zExBase, zFile);
+    zRhs = mprintf("%s%s", g.zLocalRoot, zFile);
+    if( file_size(zLhs, ExtFILE)<0 ){
+      blob_zero(&lhs);
+    }else{
+      blob_read_from_file(&lhs, zLhs, ExtFILE);
+    }
+    blob_read_from_file(&rhs, zRhs, ExtFILE);
+    if( blob_size(&lhs)!=blob_size(&rhs)
+     || memcmp(blob_buffer(&lhs), blob_buffer(&rhs), blob_size(&lhs))!=0
+    ){
+      @ <div class='file-change-line'><span>
+      @ Changes to %h(zFile)
+      @ </span></div>
+      if( pCfg ){
+        text_diff(&lhs, &rhs, cgi_output_blob(), pCfg);
+      }
+    }
+    blob_reset(&lhs);
+    blob_reset(&rhs);
+    fossil_free(zLhs);
+    fossil_free(zRhs);
+  }
+  db_finalize(&q);
+  append_diff_javascript(diffType);
+}
+
+/*
+** WEBPAGE: ckout
+**
+** Show information about the current checkout.  This page only functions
+** if the web server is run on a loopback interface (in other words, was
+** started using "fossil ui" or similar) from with on open check-out.
+*/
+void ckout_page(void){
+  int vid;
+  const char *zHome;          /* Home directory */
+  const char *zExBase;
+  char *zHostname;
+  char *zCwd;
+
+  if( !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
+    cgi_redirectf("%R/home");
+    return;
+  }
+  file_chdir(g.zLocalRoot, 0);
+  vid = db_lget_int("checkout", 0);
+  db_unprotect(PROTECT_ALL);
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
+  db_protect_pop();
+  style_set_current_feature("vinfo");
+  zHostname = fossil_hostname();
+  zCwd = file_getcwd(0,0);
+  zHome = fossil_getenv("HOME");
+  if( zHome ){
+    int nHome = (int)strlen(zHome);
+    if( strncmp(zCwd, zHome, nHome)==0 && zCwd[nHome]=='/' ){
+      zCwd = mprintf("~%s", zCwd+nHome);
+    }
+  }
+  if( zHostname ){
+    style_header("Checkout Status: %h on %h", zCwd, zHostname);
+  }else{
+    style_header("Checkout Status: %h", zCwd);
+  }
+  render_checkin_context(vid, 0, 0, 0);
+  @ <hr>
+  zExBase = P("exbase");
+  if( zExBase && zExBase[0] ){
+    ckout_external_base_diff(vid, zExBase);
+  }else{
+    ckout_normal_diff(vid);
+  }
   style_finish_page();
 }
 
