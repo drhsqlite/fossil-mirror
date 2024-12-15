@@ -3177,10 +3177,10 @@ void fossil_set_timeout(int N){
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --errorlog FILE     Append HTTP error messages to FILE
 **   --extroot DIR       Document root for the /ext extension mechanism
-**   --external-baseline DIR   External baseline for the initial /ckout page.
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --fossilcmd PATH    The pathname of the "fossil" executable on the remote
 **                       system when REPOSITORY is remote.
+**   --from PATH         Use PATH as the diff baseline for the /ckout page
 **   --localauth         Enable automatic login for requests from localhost
 **   --localhost         Listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
@@ -3253,7 +3253,7 @@ void cmd_webserver(void){
   char *zRemote = 0;         /* Remote host on which to run "fossil ui" */
   const char *zJsMode;       /* The --jsmode parameter */
   const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
-  const char *zExBase;       /* Value for --external-baseline */
+  const char *zFrom;         /* Value for --from */
 
 
 #if USE_SEE
@@ -3290,12 +3290,12 @@ void cmd_webserver(void){
   zPort = find_option("port", "P", 1);
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
-    zExBase = find_option("external-baseline", 0, 1);
+    zFrom = find_option("from", 0, 1);
     zInitPage = find_option("page", "p", 1);
     if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
     zFossilCmd = find_option("fossilcmd", 0, 1);
-    if( zExBase && zInitPage==0 ){
-      zInitPage = mprintf("ckout?exbase=%T", zExBase);
+    if( zFrom && zInitPage==0 ){
+      zInitPage = mprintf("ckout?exbase=%T", zFrom);
     }
   }
   zNotFound = find_option("notfound", 0, 1);

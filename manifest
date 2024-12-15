@@ -1,5 +1,5 @@
-C Add\sthe\sexbase=PATH\squery\sparameter\sto\sthe\s/ckout\spage\sso\sthat\sthe\sdiff\nuses\san\sexternal\sbaseline.\s\sAdd\sthe\s--external-baseline\soption\sto\sthe\n"fossil\sui"\scommand\sto\sforce\sthe\sinitial\spage\sto\sbe\s/ckout\swith\sthe\sexbase\nquery\sparameter.
-D 2024-12-15T00:17:23.975
+C Change\sthe\s--external-baseline\soption\son\s"diff"\sand\s"ui"\sto\sbe\sjust\s--from.\nSee\s[forum:forumpost/91ce9dd9f9afa7fe|forum\sthread\s91ce9dd9f9afa7fe].
+D 2024-12-15T15:57:39.518
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -419,7 +419,7 @@ F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec681182
 F src/diff.c 8f990098ef9cf6c590a1ea45e8f6e0a1a1649b4d66888827134374d06c9dab9f
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 5d3d6d51dc6e05b06e5449299c0e2fbbfc754885fd08070fea232457c764d871
-F src/diffcmd.c c10918f198db47a86448003aafd52a92846ca34b841ecd04a9302359b8452f71
+F src/diffcmd.c e49987d60089292ccc97f35716a59cc32302c3491860e6f552a1a2a756c88286
 F src/dispatch.c 08b7f541f0fbf027c247d280ec2551342c238d39dac1e27c98a66013e6c71e09
 F src/doc.c 684b3d4fe993ccd618fdd5dfbf73e4bcc2ec019b21503190a503e3eb37008eca
 F src/encode.c 6aa825e861fdc36490ffa3b96d68bb17cfce0da5fa1fbc22dcd9bba3d6f6c794
@@ -492,7 +492,7 @@ F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22
 F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c d7676af9820c7c466d5a2d3dc3f8cb6973b718ba6e29c25db7ece396f2d2942b
+F src/main.c 7c0dafeeedcd61e602ab5537815ac426b2481c3ffbc5b36b76bf13b2288a0cf7
 F src/main.mk 95e820aa9e899db1edbbf7438fa89f1116ce7bb9a0cf6aefe00a9d8bb6e24913
 F src/manifest.c f98b600d1850abeac77a1c13967c4f2ded26f8f968cd86a8e5a25943e385b54f
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -961,9 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 36f354927b013b160d4be2e9c5a5ec41d04a517f7b7b5e15c14bc604280d35ab 145ca85de9314ca16dadd17057f1f3fc18657c1a28cfff6eb9f19ec31c1cb7d4
-R 1630ca74dd2c1a0f3cbd3ed5f0baf8b6
-T +closed 145ca85de9314ca16dadd17057f1f3fc18657c1a28cfff6eb9f19ec31c1cb7d4
+P 3807891e6278559bc89bd80db7d45fb16c0435da351caf6cf70be88c2cd14e64
+R 6f325f941417d76aa27dbb268f046c1d
 U drh
-Z 6ca6623db1c7d6a5e6b9874bbf2bc4e3
+Z 2bcaf7ae9adac82e90579288c808141f
 # Remove this line to create a well-formed Fossil manifest.

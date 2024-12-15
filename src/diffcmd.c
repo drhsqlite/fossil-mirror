@@ -1285,6 +1285,10 @@ const char *diff_get_binary_glob(void){
 ** shows the changes made by check-in VERSION relative to its primary parent.
 ** The "--branch BRANCHNAME" shows all the changes on the branch BRANCHNAME.
 **
+** With the "--from VERSION" option, if VERSION is actually a directory name
+** (not a tag or check-in hash) then the files under that directory are used
+** as the baseline for the diff.
+**
 ** The "-i" command-line option forces the use of Fossil's own internal
 ** diff logic rather than any external diff program that might be configured
 ** using the "setting" command.  If no external diff program is configured,
@@ -1316,7 +1320,9 @@ const char *diff_get_binary_glob(void){
 **   --diff-binary BOOL          Include binary files with external commands
 **   --exec-abs-paths            Force absolute path names on external commands
 **   --exec-rel-paths            Force relative path names on external commands
-**   -r|--from VERSION           Select VERSION as source for the diff
+**   -r|--from VERSION           Use VERSION as the baseline for the diff, or
+**                               if VERSION is a directory name, use files in
+**                               that directory as the baseline.
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -i|--internal               Use internal diff logic
 **   --invert                    Invert the diff
@@ -1330,7 +1336,6 @@ const char *diff_get_binary_glob(void){
 **   --tclsh PATH                Tcl/Tk shell used for --tk (default: "tclsh")
 **   --tk                        Launch a Tcl/Tk GUI for display
 **   --to VERSION                Select VERSION as target for the diff
-**   --external-baseline DIR     Use files under DIR as the baseline
 **   --undo                      Use the undo buffer as the baseline
 **   --unified                   Unified diff
 **   -v|--verbose                Output complete text of added or deleted files
@@ -1345,10 +1350,10 @@ void diff_cmd(void){
   const char *zTo;           /* Target version number */
   const char *zCheckin;      /* Check-in version number */
   const char *zBranch;       /* Branch to diff */
-  const char *zExBase;       /* The --external-baseline option */
   int againstUndo = 0;       /* Diff against files in the undo buffer */
   FileDirList *pFileDir = 0; /* Restrict the diff to these files */
   DiffConfig DCfg;           /* Diff configuration object */
+  int bFromIsDir = 0;        /* True if zFrom is a directory name */
 
   if( find_option("tk",0,0)!=0 || has_option("tclsh") ){
     diff_tk("diff", 2);
@@ -1359,12 +1364,7 @@ void diff_cmd(void){
   zTo = find_option("to", 0, 1);
   zCheckin = find_option("checkin", "ci", 1);
   zBranch = find_option("branch", 0, 1);
-  zExBase = find_option("external-baseline", 0, 1);
   againstUndo = find_option("undo",0,0)!=0;
-  if( zExBase && (zFrom || zTo || zCheckin || zBranch || againstUndo) ){
-    fossil_fatal("cannot use --external-baseline together with any of"
-                 " --from, --to, --checkin, --branch, or --undo");
-  }
   if( againstUndo && (zFrom!=0 || zTo!=0 || zCheckin!=0 || zBranch!=0) ){
     fossil_fatal("cannot use --undo together with --from, --to, --checkin,"
                  " or --branch");
@@ -1379,8 +1379,6 @@ void diff_cmd(void){
   if( zCheckin!=0 && (zFrom!=0 || zTo!=0) ){
     fossil_fatal("cannot use --checkin together with --from or --to");
   }
-  diff_options(&DCfg, isGDiff, 0);
-  determine_exec_relative_option(1);
   if( 0==zCheckin ){
     if( zTo==0 || againstUndo ){
       db_must_be_within_tree();
@@ -1392,6 +1390,17 @@ void diff_cmd(void){
   }else{
     db_find_and_open_repository(0, 0);
   }
+  determine_exec_relative_option(1);
+  if( zFrom!=file_tail(zFrom)
+   && file_isdir(zFrom, ExtFILE)==1
+   && !db_exists("SELECT 1 FROM tag WHERE tagname='sym-%q'", zFrom)
+  ){
+    bFromIsDir = 1;
+    if( zTo ){
+      fossil_fatal("cannot use --to together with \"--from PATH\"");
+    }
+  }
+  diff_options(&DCfg, isGDiff, 0);
   verify_all_options();
   g.diffCnt[0] = g.diffCnt[1] = g.diffCnt[2] = 0;
   if( g.argc>=3 ){
@@ -1424,8 +1433,8 @@ void diff_cmd(void){
     }
   }
   diff_begin(&DCfg);
-  if( zExBase ){
-    diff_externbase_to_checkout(zExBase, &DCfg, pFileDir);
+  if( bFromIsDir ){
+    diff_externbase_to_checkout(zFrom, &DCfg, pFileDir);
   }else if( againstUndo ){
     if( db_lget_int("undo_available",0)==0 ){
       fossil_print("No undo or redo is available\n");
