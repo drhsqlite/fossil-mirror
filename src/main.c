@@ -3177,6 +3177,7 @@ void fossil_set_timeout(int N){
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --errorlog FILE     Append HTTP error messages to FILE
 **   --extroot DIR       Document root for the /ext extension mechanism
+**   --external-baseline DIR   External baseline for the initial /ckout page.
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --fossilcmd PATH    The pathname of the "fossil" executable on the remote
 **                       system when REPOSITORY is remote.
@@ -3252,6 +3253,7 @@ void cmd_webserver(void){
   char *zRemote = 0;         /* Remote host on which to run "fossil ui" */
   const char *zJsMode;       /* The --jsmode parameter */
   const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
+  const char *zExBase;       /* Value for --external-baseline */
 
 
 #if USE_SEE
@@ -3288,9 +3290,13 @@ void cmd_webserver(void){
   zPort = find_option("port", "P", 1);
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
+    zExBase = find_option("external-baseline", 0, 1);
     zInitPage = find_option("page", "p", 1);
     if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
     zFossilCmd = find_option("fossilcmd", 0, 1);
+    if( zExBase && zInitPage==0 ){
+      zInitPage = mprintf("ckout?exbase=%T", zExBase);
+    }
   }
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
