@@ -816,7 +816,15 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
 **
 ** Show information about the current checkout.  This page only functions
 ** if the web server is run on a loopback interface (in other words, was
-** started using "fossil ui" or similar) from with on open check-out.
+** started using "fossil ui" or similar) from within an open check-out.
+**
+** If the "exbase=PATH" query parameter is provided, then the diff shown
+** uses the files in PATH as the baseline.  This is the same as using
+** the "--from PATH" argument to the "fossil diff" command-line.  In fact,
+** when using "fossil ui --from PATH", the --from argument becomes the value
+** of the exbase query parameter for the start page.
+**
+** Other query parameters related to diffs are also accepted.
 */
 void ckout_page(void){
   int vid;
