@@ -1,5 +1,5 @@
-C Improvements\sto\s/ckout\swith\sthe\sexbase\squery\sparameter.
-D 2024-12-15T00:06:47.402
+C Add\sthe\s--external-baseline\soption\sto\sthe\s"fossil\sui"\scommand,\sto\sforce\sthe\ninitial\spage\sto\suse\sthe\sexbase\squery\sparameter.
+D 2024-12-15T00:15:45.373
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -492,7 +492,7 @@ F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22
 F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c df5d18b1f8491bfd84a1e20a079a75173ac8865a6b474edeeab8c49ea8c12152
+F src/main.c d7676af9820c7c466d5a2d3dc3f8cb6973b718ba6e29c25db7ece396f2d2942b
 F src/main.mk 95e820aa9e899db1edbbf7438fa89f1116ce7bb9a0cf6aefe00a9d8bb6e24913
 F src/manifest.c f98b600d1850abeac77a1c13967c4f2ded26f8f968cd86a8e5a25943e385b54f
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4ba97a66aaad0f64695c4dd06c5d5f8d01cfe219772dddc67d36220388ea6d5a
-R be71931d893f0b71edccbbd7af5ef63b
+P 16799dba71d98106dcb3b688aadda4089d1cef97c188676648cdb1db6d1c457f
+R 5756e6a2bb6c616ff576dca0b571c4ea
 U drh
-Z 1640f617a14360914380782fa45e012a
+Z 1691ca8db893fe6658d3bd61286e435e
 # Remove this line to create a well-formed Fossil manifest.
