@@ -772,36 +772,38 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
     zLhs = mprintf("%s/%s", zExBase, zFile);
     zRhs = mprintf("%s%s", g.zLocalRoot, zFile);
     if( file_size(zLhs, ExtFILE)<0 ){
-      blob_zero(&lhs);
+      @ <div class='file-change-line'><span>
+      @ Missing from external baseline: %h(zFile)
+      @ </span></div>
     }else{
       blob_read_from_file(&lhs, zLhs, ExtFILE);
-    }
-    blob_read_from_file(&rhs, zRhs, ExtFILE);
-    if( blob_size(&lhs)!=blob_size(&rhs)
-     || memcmp(blob_buffer(&lhs), blob_buffer(&rhs), blob_size(&lhs))!=0
-    ){
-      char *zFullFN;
-      char *zHexFN;
-      int nFullFN;
-      zFullFN = file_canonical_name_dup(zLhs);
-      nFullFN = (int)strlen(zFullFN);
-      zHexFN = fossil_malloc( nFullFN*2 + 5 );
-      zHexFN[0] = 'x';
-      encode16((const u8*)zFullFN, (u8*)(zHexFN+1), nFullFN);
-      zHexFN[1+nFullFN*2] = 0;
-      fossil_free(zFullFN);
-      pCfg->zLeftHash = zHexFN;
-      @ <div class='file-change-line'><span>
-      @ Changes to %h(zFile)
-      @ </span></div>
-      if( pCfg ){
-        text_diff(&lhs, &rhs, cgi_output_blob(), pCfg);
+      blob_read_from_file(&rhs, zRhs, ExtFILE);
+      if( blob_size(&lhs)!=blob_size(&rhs)
+       || memcmp(blob_buffer(&lhs), blob_buffer(&rhs), blob_size(&lhs))!=0
+      ){
+        @ <div class='file-change-line'><span>
+        @ Changes to %h(zFile)
+        @ </span></div>
+        if( pCfg ){
+          char *zFullFN;
+          char *zHexFN;
+          int nFullFN;
+          zFullFN = file_canonical_name_dup(zLhs);
+          nFullFN = (int)strlen(zFullFN);
+          zHexFN = fossil_malloc( nFullFN*2 + 5 );
+          zHexFN[0] = 'x';
+          encode16((const u8*)zFullFN, (u8*)(zHexFN+1), nFullFN);
+          zHexFN[1+nFullFN*2] = 0;
+          fossil_free(zFullFN);
+          pCfg->zLeftHash = zHexFN;
+          text_diff(&lhs, &rhs, cgi_output_blob(), pCfg);
+          pCfg->zLeftHash = 0;
+          fossil_free(zHexFN);
+        }
       }
-      pCfg->zLeftHash = 0;
-      fossil_free(zHexFN);
+      blob_reset(&lhs);
+      blob_reset(&rhs);
     }
-    blob_reset(&lhs);
-    blob_reset(&rhs);
     fossil_free(zLhs);
     fossil_free(zRhs);
   }
@@ -819,6 +821,7 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
 void ckout_page(void){
   int vid;
   const char *zHome;          /* Home directory */
+  int nHome;
   const char *zExBase;
   char *zHostname;
   char *zCwd;
@@ -837,10 +840,12 @@ void ckout_page(void){
   zCwd = file_getcwd(0,0);
   zHome = fossil_getenv("HOME");
   if( zHome ){
-    int nHome = (int)strlen(zHome);
+    nHome = (int)strlen(zHome);
     if( strncmp(zCwd, zHome, nHome)==0 && zCwd[nHome]=='/' ){
       zCwd = mprintf("~%s", zCwd+nHome);
     }
+  }else{
+    nHome = 0;
   }
   if( zHostname ){
     style_header("Checkout Status: %h on %h", zCwd, zHostname);
@@ -851,7 +856,14 @@ void ckout_page(void){
   @ <hr>
   zExBase = P("exbase");
   if( zExBase && zExBase[0] ){
-    ckout_external_base_diff(vid, zExBase);
+    char *zCBase = file_canonical_name_dup(zExBase);
+    if( nHome && strncmp(zCBase, zHome, nHome)==0 && zCBase[nHome]=='/' ){
+      @ <p>Using external baseline: ~%h(zCBase+nHome)</p>
+    }else{
+      @ <p>Using external baseline: %h(zCBase)</p>
+    }
+    ckout_external_base_diff(vid, zCBase);
+    fossil_free(zCBase);
   }else{
     ckout_normal_diff(vid);
   }
