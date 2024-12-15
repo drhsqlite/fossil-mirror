@@ -3291,6 +3291,10 @@ void cmd_webserver(void){
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
     zFrom = find_option("from", 0, 1);
+    if( zFrom && zFrom==file_tail(zFrom) ){
+      fossil_fatal("the argument to --from must be a pathname for"
+                   " the \"ui\" command");
+    }
     zInitPage = find_option("page", "p", 1);
     if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
     zFossilCmd = find_option("fossilcmd", 0, 1);
