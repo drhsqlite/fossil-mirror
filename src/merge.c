@@ -53,7 +53,10 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
     Stmt q;
     int cnt = 0;
     db_prepare(&q,
-       "SELECT coalesce(fnr,fn), op FROM mergestat %s ORDER BY 1",
+       "WITH priority(op,pri) AS (VALUES('CONFLICT',0),('ERROR',0),"
+                                       "('MERGE',1),('ADDED',2),('UPDATE',2))"
+       "SELECT coalesce(fnr,fn), op FROM mergestat JOIN priority USING(op)"
+           " %s ORDER BY pri, 1",
        bAll ? "" : "WHERE op IN ('MERGE','CONFLICT')" /*safe-for-%s*/
     );
     while( db_step(&q)==SQLITE_ROW ){
@@ -201,7 +204,7 @@ static void merge_info_tcl(const char *zFName, int nContext){
       );
       blob_zero(&v1);
       if( db_step(&q2)==SQLITE_ROW ){
-        db_column_blob(&q, 0, &v1);
+        db_column_blob(&q2, 0, &v1);
       }else{
         mb.zV1 = "(local content missing)";
       }
@@ -308,11 +311,14 @@ void merge_info_cmd(void){
     zWhere = "WHERE op IN ('MERGE','CONFLICT','ERROR')";
   }
   db_prepare(&q,
+    "WITH priority(op,pri) AS (VALUES('CONFLICT',0),('ERROR',0),"
+                                    "('MERGE',1),('ADDED',2),('UPDATE',2))"
+
         /*  0   1                 2  */
     "SELECT op, coalesce(fnr,fn), msg"
-    "  FROM mergestat"
+    "  FROM mergestat JOIN priority USING(op)"
     " %s"
-    " ORDER BY coalesce(fnr,fn)",
+    " ORDER BY pri, coalesce(fnr,fn)",
     zWhere /*safe-for-%s*/
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -329,7 +335,7 @@ void merge_info_cmd(void){
   db_finalize(&q);
   if( !bAll && cnt==0 ){
     fossil_print(
-      "No interesting change in this merge.  Use --all to see everything.\n"
+      "No interesting changes in this merge.  Use --all to see everything.\n"
     );
   }
 }
@@ -339,7 +345,10 @@ void merge_info_cmd(void){
 ** a commit.
 */
 void merge_info_forget(void){
-  db_multi_exec("DROP TABLE IF EXISTS localdb.mergestat");
+  db_multi_exec(
+    "DROP TABLE IF EXISTS localdb.mergestat;"
+    "DELETE FROM localdb.vvar WHERE name glob 'mergestat-*';"
+  );
 }
 
 
@@ -357,8 +366,8 @@ void merge_info_forget(void){
 **       added by merge.
 */
 void merge_info_init(void){
+  merge_info_forget();
   db_multi_exec(
-    "DROP TABLE IF EXISTS localdb.mergestat;\n"
     "CREATE TABLE localdb.mergestat(\n"
     "  op TEXT,   -- 'UPDATE', 'ADDED', 'MERGE', etc...\n"
     "  fnp TEXT,  -- Name of the pivot file (P)\n"

@@ -225,8 +225,7 @@ proc readMerge {args} {
   if {$lnC>$mx} {set mx $lnC}
   if {$lnD>$mx} {set mx $lnD}
   global lnWidth
-  set lnWidth [string length [format %d $mx]]
-  if {$::tcl_platform(platform)=="windows"} {incr lnWidth}
+  set lnWidth [string length [format +%d $mx]]
   .lnA config -width $lnWidth
   .lnB config -width $lnWidth
   .lnC config -width $lnWidth
@@ -444,9 +443,9 @@ if {$tcl_platform(os)=="Darwin" || $useOptionMenu} {
   }
 }
 
-foreach {side syncCol} {A .txtB B .txtA C .txtC D .txtD} {
+foreach {side syncCol} {A .txtA B .txtB C .txtC D .txtD} {
   set ln .ln$side
-  text $ln
+  text $ln -width 6
   $ln tag config - -justify right
 
   set txt .txt$side
@@ -462,6 +461,17 @@ foreach {side syncCol} {A .txtB B .txtA C .txtC D .txtD} {
   $txt tag config err -foreground $CFG(ERR_FG)
 }
 text .mkr
+
+set mxwidth [lindex [wm maxsize .] 0]
+while {$CFG(WIDTH)>=40} {
+  set wanted [expr {([winfo reqwidth .lnA]+[winfo reqwidth .txtA])*4+30}]
+  if {$wanted<=$mxwidth} break
+  incr CFG(WIDTH) -10
+  .txtA config -width $CFG(WIDTH)
+  .txtB config -width $CFG(WIDTH)
+  .txtC config -width $CFG(WIDTH)
+  .txtD config -width $CFG(WIDTH)
+}
 
 foreach c [cols] {
   set keyPrefix [string toupper [colType $c]]_COL_

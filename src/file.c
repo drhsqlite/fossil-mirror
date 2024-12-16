@@ -2975,6 +2975,7 @@ void test_is_reserved_name_cmd(void){
 */
 int dir_has_ckout_db(const char *zDir){
   int rc = 0;
+  i64 sz;
   char * zCkoutDb = mprintf("%//.fslckout", zDir);
   if(file_isfile(zCkoutDb, ExtFILE)){
     rc = 1;
@@ -2984,6 +2985,9 @@ int dir_has_ckout_db(const char *zDir){
     if(file_isfile(zCkoutDb, ExtFILE)){
       rc = 2;
     }
+  }
+  if( rc && ((sz = file_size(zCkoutDb, ExtFILE))<1024 || (sz%512)!=0) ){
+    rc = 0;
   }
   fossil_free(zCkoutDb);
   return rc;
