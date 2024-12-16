@@ -783,7 +783,7 @@ void tktview_page(void){
        "SELECT tkt_uuid FROM ticket"
        " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( zFullName ){
-    attachment_list(zFullName, "<hr><h2>Attachments:</h2><ul>");
+    attachment_list(zFullName, "<h2>Attachments:</h2>", 1);
   }
 
   style_finish_page();

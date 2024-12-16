@@ -2042,16 +2042,23 @@ static void process_one_web_page(
   if( fossil_redirect_to_https_if_needed(2) ) return;
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
-    /* Second special case: If the PATH_INFO is blank, issue a redirect to
-    ** the home page identified by the "index-page" setting in the repository
-    ** CONFIG table, to "/index" if there no "index-page" setting. */
+    /* Second special case: If the PATH_INFO is blank, issue a redirect:
+    **    (1) to "/ckout" if g.useLocalauth and g.localOpen are both set.
+    **    (2) to the home page identified by the "index-page" setting
+    **        in the repository CONFIG table
+    **    (3) to "/index" if there no "index-page" setting in CONFIG
+    */
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,1);
       fossil_exit(0);
     }
 #endif
-    fossil_redirect_home() /*does not return*/;
+    if( g.useLocalauth && g.localOpen ){
+      cgi_redirectf("%R/ckout");
+    }else{
+      fossil_redirect_home() /*does not return*/;
+    }
   }else{
     zPath = mprintf("%s", zPathInfo);
   }
@@ -3173,6 +3180,7 @@ void fossil_set_timeout(int N){
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --fossilcmd PATH    The pathname of the "fossil" executable on the remote
 **                       system when REPOSITORY is remote.
+**   --from PATH         Use PATH as the diff baseline for the /ckout page
 **   --localauth         Enable automatic login for requests from localhost
 **   --localhost         Listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
@@ -3245,6 +3253,7 @@ void cmd_webserver(void){
   char *zRemote = 0;         /* Remote host on which to run "fossil ui" */
   const char *zJsMode;       /* The --jsmode parameter */
   const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
+  const char *zFrom;         /* Value for --from */
 
 
 #if USE_SEE
@@ -3281,9 +3290,17 @@ void cmd_webserver(void){
   zPort = find_option("port", "P", 1);
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
+    zFrom = find_option("from", 0, 1);
+    if( zFrom && zFrom==file_tail(zFrom) ){
+      fossil_fatal("the argument to --from must be a pathname for"
+                   " the \"ui\" command");
+    }
     zInitPage = find_option("page", "p", 1);
     if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
     zFossilCmd = find_option("fossilcmd", 0, 1);
+    if( zFrom && zInitPage==0 ){
+      zInitPage = mprintf("ckout?exbase=%T", zFrom);
+    }
   }
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
@@ -3358,7 +3375,7 @@ void cmd_webserver(void){
       if(0!=file_chdir(zDir, 0)){
         fossil_fatal("Cannot chdir to %s", zDir);
       }
-      findServerArg = 99;
+      findServerArg = g.argc;
       fCreate = 0;
       g.argv[2] = 0;
       --g.argc;
@@ -3386,11 +3403,7 @@ void cmd_webserver(void){
     find_server_repository(findServerArg, fCreate);
   }
   if( zInitPage==0 ){
-    if( isUiCmd && g.localOpen ){
-      zInitPage = "timeline?c=current";
-    }else{
-      zInitPage = "";
-    }
+    zInitPage = "";
   }
   if( zPort ){
     if( strchr(zPort,':') ){

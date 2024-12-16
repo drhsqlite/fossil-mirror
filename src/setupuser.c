@@ -117,7 +117,7 @@ void setup_ulist(void){
     style_submenu_element("Unused", "setup_ulist?unused");
   }
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable sortable' \
-  @  data-column-types='ktxTTKt' data-init-sort='2'>
+  @  data-column-types='ktxKTKt' data-init-sort='4'>
   @ <thead><tr>
   @ <th>Login Name<th>Caps<th>Info<th>Date<th>Expire<th>Last Login\
   @ <th>Alerts</tr></thead>
@@ -163,11 +163,12 @@ void setup_ulist(void){
              "    THEN substr(info,instr(lower(info),'expires')+8,10)"
              "    END AS exp,"
              "atime,"
-     "       subscriber.ssub, subscriber.subscriberId"
+     "       subscriber.ssub, subscriber.subscriberId,"
+     "       user.mtime AS sorttime"
      "  FROM user LEFT JOIN lastAccess ON login=uname"
      "            LEFT JOIN subscriber ON login=suname"
      " WHERE login NOT IN ('anonymous','nobody','developer','reader') %s"
-     " ORDER BY sortkey", zWith/*safe-for-%s*/
+     " ORDER BY sorttime DESC", zWith/*safe-for-%s*/
   );
   rNow = db_double(0.0, "SELECT julianday('now');");
   while( db_step(&s)==SQLITE_ROW ){
@@ -182,6 +183,7 @@ void setup_ulist(void){
     char *zAge = 0;
     const char *zSub;
     int sid = db_column_int(&s,9);
+    sqlite3_int64 sorttime = db_column_int64(&s, 10);
     if( rATime>0.0 ){
       zAge = human_readable_age(rNow - rATime);
     }
@@ -194,7 +196,7 @@ void setup_ulist(void){
     @ <a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
     @ <td>%h(zCap)
     @ <td>%h(zInfo)
-    @ <td>%h(zDate?zDate:"")
+    @ <td data-sortkey='%09llx(sorttime)'>%h(zDate?zDate:"")
     @ <td>%h(zExp?zExp:"")
     @ <td data-sortkey='%f(rATime)' style='white-space:nowrap'>%s(zAge?zAge:"")
     if( db_column_type(&s,8)==SQLITE_NULL ){
@@ -1018,7 +1020,7 @@ void setup_uinfo_page(void){
   @ <tr><th>uid:</th><td>%d(db_column_int(&q,0))
   @  (<a href="%R/setup_uedit?id=%d(db_column_int(&q,0))">edit</a>)</td></tr>
   @ <tr><th>login:</th><td>%h(db_column_text(&q,1))</td></tr>
-  @ <tr><th>capabilities:</th><td>%h(db_column_text(&q,2))</th></tr>
+  @ <tr><th>capabilities:</th><td>%h(db_column_text(&q,2))</td></tr>
   @ <tr><th valign="top">info:</th>
   @ <td valign="top"><span style='white-space:pre-line;'>\
   @ %h(db_column_text(&q,5))</span></td></tr>

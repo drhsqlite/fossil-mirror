@@ -667,7 +667,8 @@ void blob_dehttpize(Blob *pBlob){
 
 /*
 ** Extract N bytes from blob pFrom and use it to initialize blob pTo.
-** Return the actual number of bytes extracted.
+** Return the actual number of bytes extracted.  The cursor position
+** is advanced by the number of bytes extracted.
 **
 ** After this call completes, pTo will be an ephemeral blob.
 */
@@ -688,6 +689,53 @@ int blob_extract(Blob *pFrom, int N, Blob *pTo){
   pTo->xRealloc = blobReallocStatic;
   pFrom->iCursor += N;
   return N;
+}
+
+/*
+** Extract N **lines** of text from blob pFrom beginning at the current
+** cursor position and use that text to initialize blob pTo.  Unlike the
+** blob_extract() routine,  the cursor position is unchanged.
+**
+** pTo is assumed to be uninitialized.
+**
+** After this call completes, pTo will be an ephemeral blob.
+*/
+int blob_extract_lines(Blob *pFrom, int N, Blob *pTo){
+  int i;
+  int mx;
+  int iStart;
+  int n;
+  const char *z;
+
+  blob_zero(pTo);
+  z = pFrom->aData;
+  i = pFrom->iCursor;
+  mx = pFrom->nUsed;
+  while( N>0 ){
+    while( i<mx && z[i]!='\n' ){ i++; }
+    if( i>=mx ) break;
+    i++;
+    N--;
+  }
+  iStart = pFrom->iCursor;
+  n = blob_extract(pFrom, i-pFrom->iCursor, pTo);
+  pFrom->iCursor = iStart;
+  return n;
+}
+
+/*
+** Return the number of lines of text in the blob.  If the last
+** line is incomplete (if it does not have a \n at the end) then
+** it still counts.
+*/
+int blob_linecount(Blob *p){
+  int n = 0;
+  int i;
+  for(i=0; i<p->nUsed; i++){
+    if( p->aData[i]=='\n' ) n++;
+  }
+  if( p->nUsed>0 && p->aData[p->nUsed-1]!='\n' ) n++;
+  return n;
 }
 
 /*

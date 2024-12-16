@@ -787,7 +787,9 @@ void test_httpmsg_command(void){
   if( find_option("verbose","v",0)!=0 ) mHttpFlags |= HTTP_VERBOSE;
   if( find_option("compress",0,0)!=0 ) mHttpFlags &= ~HTTP_NOCOMPRESS;
   if( find_option("no-cert-verify",0,0)!=0 ){
+    #ifdef FOSSIL_ENABLE_SSL
     ssl_disable_cert_verification();
+    #endif
   }
   if( find_option("xfer",0,0)!=0 ){
     mHttpFlags |= HTTP_USE_LOGIN;

@@ -1559,6 +1559,8 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "chat_msg_from_event", 4,
         SQLITE_UTF8 | SQLITE_INNOCUOUS, 0,
         chat_msg_from_event, 0, 0);
+  sqlite3_create_function(db, "inode", 1, SQLITE_UTF8, 0,
+                          file_inode_sql_func,0,0);
 
 }
 
@@ -4682,13 +4684,6 @@ struct Setting {
 ** send the "pragma avoid-delta-manifests" statement in its reply,
 ** which will cause the client to avoid generating a delta
 ** manifest.
-*/
-/*
-** SETTING: forum-close-policy    boolean default=off
-** If true, forum moderators may close/re-open forum posts, and reply
-** to closed posts. If false, only administrators may do so. Note that
-** this only affects the forum web UI, not post-closing tags which
-** arrive via the command-line or from synchronization with a remote.
 */
 /*
 ** SETTING: gdiff-command    width=40 default=gdiff sensitive

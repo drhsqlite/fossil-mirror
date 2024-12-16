@@ -503,9 +503,20 @@ void setup_robots(void){
   @ suggested value for this setting is:
   @ "<tt>timeline,*diff,vpatch,annotate,blame,praise,dir,tree</tt>".
   @ (Property: robot-restrict)
-  @ <p>
+  @ <br>
   textarea_attribute("", 2, 80,
       "robot-restrict", "rbrestrict", "", 0);
+  @ <br> The following comma-separated GLOB pattern allows for exceptions
+  @ in the maximum number of query parameters before a request is considered
+  @ complex.  If this GLOB pattern exists and is non-empty and if it
+  @ matches against the pagename followed by "/" and the number of query
+  @ parameters, then the request is allowed through.  For example, the
+  @ suggested pattern of "timeline/[012]" allows the /timeline page to
+  @ pass with up to 2 query parameters besides "name".
+  @ (Property: robot-restrict-qp)
+  @ <br>
+  textarea_attribute("", 2, 80,
+      "robot-restrict-qp", "rbrestrictqp", "", 0);
 
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
