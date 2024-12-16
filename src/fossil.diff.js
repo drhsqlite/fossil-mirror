@@ -30,13 +30,17 @@ window.fossil.onPageLoad(function(){
      Adds toggle checkboxes to each file entry in the diff views for
      /info and similar pages.
   */
+  if( !window.fossil.page.diffControlContainer ){
+    return;
+  }
   const D = window.fossil.dom;
   const allToggles = [/*collection of all diff-toggle checkboxes*/];
   let checkedCount =
       0 /* When showing more than one diff, keep track of how many
            "show/hide" checkboxes are are checked so we can update the
            "show/hide all" label dynamically. */;
-  let btnAll /* show/hide all diffs UI control */;
+  let btnAll /* UI control to show/hide all diffs */;
+  /* Install a diff-toggle button for the given diff table element. */
   const addToggle = function(diffElem){
     const sib = diffElem.previousElementSibling,
           ckbox = sib ? D.addClass(D.checkbox(true), 'diff-toggle') : 0;
@@ -61,6 +65,11 @@ window.fossil.onPageLoad(function(){
        has a single file to show (and also a different DOM layout). */
     document.querySelectorAll('table.diff').forEach(addToggle);
   }
+  /**
+     Set up a "toggle all diffs" button which toggles all of the
+     above-installed checkboxes, but only if more than one diff is
+     rendered.
+  */
   const icm = allToggles.length>1 ? window.fossil.page.diffControlContainer : 0;
   if(icm) {
     btnAll = D.addClass(D.a("#", "Hide diffs"), "button");
