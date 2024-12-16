@@ -1,5 +1,5 @@
-C Change\s(temporarily)\sto\stest\s<a\shref="https://fossil-scm.org/forum/forumpost/f8a4d4e1d4">this\sforum\spost</a>
-D 2024-12-16T03:24:48.648
+C Revert\schange.\sI'll\shave\sto\slook\sinto\sthe\sraw\ssql\sdata.
+D 2024-12-16T04:02:40.508
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -785,7 +785,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 0d8ae1d55db302a98d95da41ac75de4dcc665b66262e1873b5a3e6bcabf213d0
-F www/changes.wiki 36e15d710177e161566f3a65ce092ef4dc83f11b3e7a59ddc1d2a502880f0d71
+F www/changes.wiki e531dc1bfc031eac8c45a0808b77a3eee46153c4e9e3d957dda02dff2b923683
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0fc2f3d95beffbf47df1f905637e87ba03eeebe66aadeb039284b6bcc37c297d
-R 6fc8fc0fe11408950a15b1b43c1b7152
+P 78a28847f3773dbf9f80b52599b70215551c7ad97714e2d5de14779616e414f9
+R b450f95d88a3c9841e71b67e676f2c9e
 U brickviking
-Z 664eaecda244d2054aeb9e393b049d7e
+Z 107e791808576a044a9c25af40948c1c
 # Remove this line to create a well-formed Fossil manifest.

@@ -6,7 +6,7 @@
      it optionally accepts a directory name as its argument, and uses files
      under that directory as the baseline for the diff.
   *  Added the [/help?cmd=/ckout|/ckout web page] to provide information
-     about pending changes in a working check-out.
+     about pending changes in a working check-out
   *  The [/help?cmd=ui|fossil ui] command defaults to using the
      [/help?cmd=/ckout|/ckout page] as its start page.  Or, if the
      "--from PATH" option is present, the default start page becomes
