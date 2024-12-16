@@ -1,5 +1,5 @@
-C Documentation\supdates\sto\sbetter\sreflect\srecent\schanges.
-D 2024-12-15T16:30:06.073
+C Preliminary\sfix\sfor\sthe\sissue\sdescribed\sat\s\n[/forumpost/51a37054|developers\sforum\spost\s51a37054].
+D 2024-12-16T16:06:09.536
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -505,7 +505,7 @@ F src/merge.tcl 2247b6e11aa73a7645956691b928a06dc4cbba5179105badef27f965977fa1b3
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
-F src/patch.c 2ab7db14cf10a0ecd89b664202979187f359eb16c523a213a666bf3cb2aeb866
+F src/patch.c 0f15ecec0689dad8d04c703df82eb11f730afe81d73a8d5775fbebd689690dd0
 F src/path.c 4d10169056b216a2237cac07dced34e642b5bdcf516f57390fec34717fe11d41
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a83c
@@ -961,8 +961,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c72725ef58387f78a041b27c29a450759767f67f52209d6dae75bc76ad4fde7
-R b450f95d88a3c9841e71b67e676f2c9e
+P 7f1958acf8347439fd1668b77aab4dce13f869856c81a346785e38951474b5a4
+R d9f1603434698f5fadf0535670180177
+T *branch * patch-pull-fix
+T *sym-patch-pull-fix *
+T -sym-trunk *
 U drh
-Z f6c036db9086806a552587af52b7dc9a
+Z 89b2e9a0ff594a511d14b7ed5471be64
 # Remove this line to create a well-formed Fossil manifest.

@@ -431,6 +431,7 @@ void patch_apply(unsigned mFlags){
   }
   blob_reset(&cmd);
   if( db_table_exists("patch","patchmerge") ){
+    int nMerge = 0;
     db_prepare(&q,
       "SELECT type, mhash, upper(type) FROM patch.patchmerge"
       " WHERE type IN ('merge','cherrypick','backout','integrate')"
@@ -444,6 +445,7 @@ void patch_apply(unsigned mFlags){
       }else{
         blob_appendf(&cmd, " merge --%s %s\n", zType, db_column_text(&q,1));
       }
+      nMerge++;
       if( mFlags & PATCH_VERBOSE ){
         fossil_print("%-10s %s\n", db_column_text(&q,2),
                     db_column_text(&q,0));
@@ -460,6 +462,41 @@ void patch_apply(unsigned mFlags){
       }
     }
     blob_reset(&cmd);
+
+    /* 2024-12-16 https://fossil-scm.org/home/forumpost/51a37054
+    ** If one or more merge operations occurred in the patch and there are
+    ** files that are marked as "chnged' in the local VFILE but which
+    ** are not mentioned as having been modified in the patch, then
+    ** revert those files.
+    */
+    if( nMerge ){
+      int vid = db_lget_int("checkout", 0);
+      int nRevert = 0;
+      blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
+      blob_appendf(&cmd, " revert ");
+      db_prepare(&q,
+        "SELECT pathname FROM vfile WHERE vid=%d AND chnged "
+        "EXCEPT SELECT pathname FROM chng",
+        vid
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        blob_append_escaped_arg(&cmd, db_column_text(&q,0), 1);
+        nRevert++;
+      }
+      db_finalize(&q);
+      if( nRevert ){
+        if( mFlags & PATCH_DRYRUN ){
+          fossil_print("%s", blob_str(&cmd));
+        }else{
+          int rc = fossil_unsafe_system(blob_str(&cmd));
+          if( rc ){
+            fossil_fatal("unable to do reverts:\n%s",
+                         blob_str(&cmd));
+          }
+        }
+      }
+      blob_reset(&cmd);
+    }
   }
 
   /* Deletions */
