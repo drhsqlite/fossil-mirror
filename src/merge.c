@@ -689,7 +689,7 @@ void test_show_vfile_cmd(void){
 **                           and *-merge.
 **   -n|--dry-run            Do not actually change files on disk
 **   --nosync                Do not auto-sync prior to merging
-**   --noundo                Do not changes in the undo log
+**   --noundo                Do not record changes in the undo log
 **   -v|--verbose            Show additional details of the merge
 */
 void merge_cmd(void){
