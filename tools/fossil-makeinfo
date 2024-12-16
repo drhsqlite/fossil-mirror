@@ -11,6 +11,7 @@
 # v0.10 Retitled Features to Fossil.
 # v0.11 Added entries relevant to system-wide dir entry.
 # v0.12 Reworded section introductions.
+# v0.13 Added testing commands to texi output.
 #        Builds (finally) on OpenBSD and NetBSD.
 #
 # Requires fossil, tail, GNU sed and makeinfo
