@@ -83,6 +83,7 @@ This file documents version @value{VERSION} of Fossil.
 * Fossil::             Introduction and features listed from the website front page.
 * Common commands::      These are the commands that are most likely to be used.
 * Uncommon commands::    These aren't used as often, but they're still there when needed.
+* Test commands::        These are definitely not recommended for production use.
 * Common arguments::     -o arguments common to all commands
 * License::              The license agreement of the fossil project
 @end menu
@@ -203,7 +204,7 @@ cat workfile >> fossil.texi
 echo "" >> fossil.texi
 
 ##### Uncommon commands ####
-echo "@node Uncommon commands,Common arguments,Common commands,Top
+echo "@node Uncommon commands,Test commands,Common commands,Top
 @chapter Uncommon commands
 
 These are commands that aren't used quite as often, and are normally
@@ -249,9 +250,63 @@ sed -i -e 's/--\([[:alnum:]-]\{1,\}\)/@option\{--\1\}/g' workfile
 cat workfile >> fossil.texi
 echo "" >> fossil.texi
 
+# Now the test commands. Here be dragons.
+echo "Grab test commands"
+echo "@node Test commands,Common arguments,Uncommon commands,Top
+@chapter Testing commands
+
+These are testing commands. They're often used to solve specific little
+problems that didn't warrant a full tool, but are useful enough to be kept
+around. They are most definitely not supported, and the developers
+will expect to change these far more often. They are not stable, so do not
+depend upon their behavior, or even their existence.
+
+@menu
+" >> fossil.texi
+
+# Insert test commands in here
+echo "Grab test keywords"
+for u in $(for t in $(fossil help -t); do echo "$t"; done | sort); do echo "* ${u}::"; done >> fossil.texi
+
+
+# Now end that menu (Test commands)
+echo "@end menu
+
+" >> fossil.texi
+
+# Now add all the help from "fossil help -t -v"
+# WARNING: tail count is brittle
+# sed comands remove the last two lines.
+echo "Fossil output test help to workfile"
+fossil help -t -v | tail -n +4 | sed '$d' | sed '$d' >workfile
+
+# swap out @ with @@ so texinfo doesn't barf
+echo "Doubling up the @'s"
+sed -i -e 's/@/@@/g' workfile
+
+# This swaps out "# keyword" with 
+# @node keyword
+# @unnumbered keyword
+# breaks on *BSD's seds, needs gsed there
+echo "Swapping out # for @node ... \n@unnumbered ..."
+
+if [[ ${MYOS} == "Linux" ]]; then
+    sed -i -e 's/^##* \([a-z0-9-]\{1,\}\)/@node \1\n@section \1\n/' workfile
+else
+    # We'll assume we're on a BSD here, even though this won't always be true
+    gsed -i -e 's/^##* \([a-z0-9-]\{1,\}\)/@node \1\n@section \1\n/' workfile
+fi
+
+# turns --switches into @option{--switches}
+sed -i -e 's/--\([[:alnum:]-]\{1,\}\)/@option\{--\1\}/g' workfile
+
+# ... and adds it to the output file with a spacer line
+cat workfile >> fossil.texi
+echo "" >> fossil.texi
+
 # Add in common args
 echo "Grab common args"
-echo "@node Common arguments,License,Uncommon commands,Top
+echo "@node Common arguments,License,Test commands,Top
 @chapter Common arguments
 
 These are commandline arguments that are common to all fossil commands.
