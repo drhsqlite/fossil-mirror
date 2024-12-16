@@ -389,7 +389,7 @@ void patch_apply(unsigned mFlags){
       fossil_fatal("Cannot apply patch: there are unsaved changes "
                    "in the current check-out");
     }else{
-      blob_appendf(&cmd, "%$ revert", g.nameOfExe);
+      blob_appendf(&cmd, "%$ revert --noundo", g.nameOfExe);
       if( mFlags & PATCH_DRYRUN ){
         fossil_print("%s\n", blob_str(&cmd));
       }else{
@@ -441,9 +441,11 @@ void patch_apply(unsigned mFlags){
       const char *zType = db_column_text(&q,0);
       blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
       if( strcmp(zType,"merge")==0 ){
-        blob_appendf(&cmd, " merge %s\n", db_column_text(&q,1));
+        blob_appendf(&cmd, " merge --noundo --nosync %s\n",
+                     db_column_text(&q,1));
       }else{
-        blob_appendf(&cmd, " merge --%s %s\n", zType, db_column_text(&q,1));
+        blob_appendf(&cmd, " merge --%s --noundo --nosync %s\n",
+                     zType, db_column_text(&q,1));
       }
       nMerge++;
       if( mFlags & PATCH_VERBOSE ){
@@ -473,7 +475,7 @@ void patch_apply(unsigned mFlags){
       int vid = db_lget_int("checkout", 0);
       int nRevert = 0;
       blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
-      blob_appendf(&cmd, " revert ");
+      blob_appendf(&cmd, " revert --noundo ");
       db_prepare(&q,
         "SELECT pathname FROM vfile WHERE vid=%d AND chnged "
         "EXCEPT SELECT pathname FROM chng",

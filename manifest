@@ -1,5 +1,5 @@
-C Preliminary\sfix\sfor\sthe\sissue\sdescribed\sat\s\n[/forumpost/51a37054|developers\sforum\spost\s51a37054].
-D 2024-12-16T16:06:09.536
+C Do\snot\ssync\sor\sfill\sthe\sundo\slog\swhen\srunning\ssubcommands\sdue\sto\spatch.
+D 2024-12-16T16:15:44.187
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -500,12 +500,12 @@ F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad2
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 66f75d82efcd073c9e72e9cb3d802ac3e1f335221311b60f40cc40346a16dcec
+F src/merge.c 14dfbc25a2a981191515073fcc83a66ec2265f9e40009763364052fdd669f436
 F src/merge.tcl 2247b6e11aa73a7645956691b928a06dc4cbba5179105badef27f965977fa1b3
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 8a3d7756d8af9edb8e8147dad8f09e57369d1ff8ac79c24421b8567e0f92954b
-F src/patch.c 0f15ecec0689dad8d04c703df82eb11f730afe81d73a8d5775fbebd689690dd0
+F src/patch.c 620389eb62383a0e5b2c24ab19a4243683d1e6a7c629249c39fa3ea5d0727df0
 F src/path.c 4d10169056b216a2237cac07dced34e642b5bdcf516f57390fec34717fe11d41
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a83c
@@ -579,7 +579,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
 F src/unversioned.c d6e33d7ff74b6646c3869f381331fbc355f7b686741f23d17db0a4b0a72fa0b4
-F src/update.c ab2c1100795954e1fd471721c743adbb7eaea29727f020185d24636c82e634b6
+F src/update.c bf365b665300fe93f4b9cc89c94f98475f409271c592ebd8ff3cd50bb461b1fe
 F src/url.c 8e2dc63f5556d4e8581d80cc00eb979000018d090815231b5fd7011c430b81d9
 F src/user.c cda5e43af6b01c05aacd01450e707d1ed8f2910d19321d2a543e948ff7fcf53b
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -961,11 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7f1958acf8347439fd1668b77aab4dce13f869856c81a346785e38951474b5a4
-R d9f1603434698f5fadf0535670180177
-T *branch * patch-pull-fix
-T *sym-patch-pull-fix *
-T -sym-trunk *
+P f381794fd7c90d6e394496594eac17d5288d861e71714a73f5183ea13a013d17
+R 8cc30fb896aa023707acac348550f223
 U drh
-Z 89b2e9a0ff594a511d14b7ed5471be64
+Z c3f2d75d297fd7615d99a4b513533f14
 # Remove this line to create a well-formed Fossil manifest.

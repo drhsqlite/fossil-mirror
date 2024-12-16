@@ -856,6 +856,7 @@ int historical_blob(
 ** the "fossil undo" command.
 **
 ** Options:
+**   --noundo                 Do not record changes in the undo/redo log.
 **   -r|--revision VERSION    Revert given FILE(s) back to given
 **                            VERSION
 **
@@ -869,6 +870,7 @@ void revert_cmd(void){
   const char *zFile;              /* Filename relative to check-out root */
   const char *zRevision;          /* Selected revert version, NULL if current */
   Blob record = BLOB_INITIALIZER; /* Contents of each reverted file */
+  int useUndo = 1;                /* True to record changes in UNDO */
   int i;
   Stmt q;
   int revertAll = 0;
@@ -876,6 +878,7 @@ void revert_cmd(void){
 
   undo_capture_command_line();
   zRevision = find_option("revision", "r", 1);
+  useUndo = find_option("noundo", 0, 0)==0;
   verify_all_options();
 
   if( g.argc<2 ){
@@ -892,7 +895,11 @@ void revert_cmd(void){
   pCoManifest = zRevision ? historical_manifest(0) : 0;
 
   db_begin_transaction();
-  undo_begin();
+  if( useUndo ){
+    undo_begin();
+  }else{
+    undo_reset();
+  }
   db_multi_exec("CREATE TEMP TABLE torevert(name UNIQUE);");
 
   if( g.argc>2 ){
@@ -989,7 +996,7 @@ void revert_cmd(void){
                  zFile, zFile)==0 ){
         fossil_print("UNMANAGE %s\n", zFile);
       }else{
-        undo_save(zFile);
+        if( useUndo ) undo_save(zFile);
         file_delete(zFull);
         fossil_print("DELETE   %s\n", zFile);
       }
@@ -1016,7 +1023,7 @@ void revert_cmd(void){
       /* Get contents of reverted-to file. */
       content_get(fast_uuid_to_rid(pRvFile->zUuid), &record);
 
-      undo_save(zFile);
+      if( useUndo ) undo_save(zFile);
       if( file_size(zFull, RepoFILE)>=0
        && (rvPerm==PERM_LNK || file_islink(0))
       ){
@@ -1042,7 +1049,7 @@ void revert_cmd(void){
     free(zFull);
   }
   db_finalize(&q);
-  undo_finish();
+  if( useUndo) undo_finish();
   db_end_transaction(0);
 
   /* Deallocate parsed manifest structures. */
