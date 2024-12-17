@@ -112,7 +112,11 @@ proc readDiffs {fossilcmd} {
   set toIndex [lsearch -glob $fossilcmd *-to]
   set branchIndex [lsearch -glob $fossilcmd *-branch]
   set checkinIndex [lsearch -glob $fossilcmd *-checkin]
-  set fA {base check-in}
+  if {[string match *?--external-baseline* $fossilcmd]} {
+    set fA {external baseline}
+  } else {
+    set fA {base check-in}
+  }
   set fB {current check-out}
   if {$fromIndex > -1} {set fA [lindex $fossilcmd $fromIndex+1]}
   if {$toIndex > -1} {set fB [lindex $fossilcmd $toIndex+1]}

@@ -30,8 +30,17 @@ window.fossil.onPageLoad(function(){
      Adds toggle checkboxes to each file entry in the diff views for
      /info and similar pages.
   */
+  if( !window.fossil.page.diffControlContainer ){
+    return;
+  }
   const D = window.fossil.dom;
-  const allToggles = [/*collection of all diff-toggle checkboxes */];
+  const allToggles = [/*collection of all diff-toggle checkboxes*/];
+  let checkedCount =
+      0 /* When showing more than one diff, keep track of how many
+           "show/hide" checkboxes are are checked so we can update the
+           "show/hide all" label dynamically. */;
+  let btnAll /* UI control to show/hide all diffs */;
+  /* Install a diff-toggle button for the given diff table element. */
   const addToggle = function(diffElem){
     const sib = diffElem.previousElementSibling,
           ckbox = sib ? D.addClass(D.checkbox(true), 'diff-toggle') : 0;
@@ -40,9 +49,15 @@ window.fossil.onPageLoad(function(){
     D.append(lblToggle, ckbox, D.text(" show/hide "));
     const wrapper = D.append(D.span(), lblToggle);
     allToggles.push(ckbox);
+    ++checkedCount;
     D.append(sib, D.append(wrapper, lblToggle));
     ckbox.addEventListener('change', function(){
       diffElem.classList[this.checked ? 'remove' : 'add']('hidden');
+      if(btnAll){
+        checkedCount += (this.checked ? 1 : -1);
+        btnAll.innerText = (checkedCount < allToggles.length)
+          ? "Show diffs" : "Hide diffs";
+      }
     }, false);
   };
   if( !document.querySelector('body.fdiff') ){
@@ -50,24 +65,20 @@ window.fossil.onPageLoad(function(){
        has a single file to show (and also a different DOM layout). */
     document.querySelectorAll('table.diff').forEach(addToggle);
   }
+  /**
+     Set up a "toggle all diffs" button which toggles all of the
+     above-installed checkboxes, but only if more than one diff is
+     rendered.
+  */
   const icm = allToggles.length>1 ? window.fossil.page.diffControlContainer : 0;
   if(icm) {
-    const btnAll = D.addClass(D.a("#", "Show/Hide"), "button");
+    btnAll = D.addClass(D.a("#", "Hide diffs"), "button");
     D.append( icm, btnAll );
     btnAll.addEventListener('click', function(ev){
       ev.preventDefault();
       ev.stopPropagation();
-      /* Figure out whether we want to show all or hide all: if any diffs are
-         toggled off, show all, else hide all. */
-      let show = false;
-      let ckbox;
-      for( ckbox of allToggles ){
-        if( !ckbox.checked ){
-          show = true;
-          break;
-        }
-      }
-      for( ckbox of allToggles ){
+      const show = checkedCount < allToggles.length;
+      for( const ckbox of allToggles ){
         /* Toggle all entries to match this new state. We use click()
            instead of ckbox.checked=... so that the on-change event handler
            fires. */
