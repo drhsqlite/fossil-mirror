@@ -3299,7 +3299,7 @@ void cmd_webserver(void){
     if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
     zFossilCmd = find_option("fossilcmd", 0, 1);
     if( zFrom && zInitPage==0 ){
-      zInitPage = mprintf("ckout?exbase=%T", zFrom);
+      zInitPage = mprintf("ckout?exbase=%H", zFrom);
     }
   }
   zNotFound = find_option("notfound", 0, 1);

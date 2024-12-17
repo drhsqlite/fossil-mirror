@@ -786,13 +786,8 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
         if( pCfg ){
           char *zFullFN;
           char *zHexFN;
-          int nFullFN;
           zFullFN = file_canonical_name_dup(zLhs);
-          nFullFN = (int)strlen(zFullFN);
-          zHexFN = fossil_malloc( nFullFN*2 + 5 );
-          zHexFN[0] = 'x';
-          encode16((const u8*)zFullFN, (u8*)(zHexFN+1), nFullFN);
-          zHexFN[1+nFullFN*2] = 0;
+          zHexFN = mprintf("x%H", zFullFN);
           fossil_free(zFullFN);
           pCfg->zLeftHash = zHexFN;
           text_diff(&lhs, &rhs, cgi_output_blob(), pCfg);
@@ -821,7 +816,10 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
 ** uses the files in PATH as the baseline.  This is the same as using
 ** the "--from PATH" argument to the "fossil diff" command-line.  In fact,
 ** when using "fossil ui --from PATH", the --from argument becomes the value
-** of the exbase query parameter for the start page.
+** of the exbase query parameter for the start page.  Note that if PATH
+** is a pure hexadecimal string, it is decoded first before being used as
+** the pathname.  Real pathnames should contain at least one directory
+** separator character.
 **
 ** Other query parameters related to diffs are also accepted.
 */
@@ -863,7 +861,8 @@ void ckout_page(void){
   @ <hr>
   zExBase = P("exbase");
   if( zExBase && zExBase[0] ){
-    char *zCBase = file_canonical_name_dup(zExBase);
+    char *zPath = decode16_dup(zExBase);
+    char *zCBase = file_canonical_name_dup(zPath?zPath:zExBase);
     if( nHome && strncmp(zCBase, zHome, nHome)==0 && zCBase[nHome]=='/' ){
       @ <p>Using external baseline: ~%h(zCBase+nHome)</p>
     }else{
@@ -871,6 +870,7 @@ void ckout_page(void){
     }
     ckout_external_base_diff(vid, zCBase);
     fossil_free(zCBase);
+    fossil_free(zPath);
   }else{
     ckout_normal_diff(vid);
   }
