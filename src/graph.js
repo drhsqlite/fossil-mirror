@@ -860,6 +860,7 @@ function TimelineGraph(tx){
 **    to the "Max:" <input> field.
 **  o Auto-expand the hidden details (hash, user, tags) for focused entries in
 **    Compact View (by inheritance via CSS class `.timelineFocused').
+**  o Shortcut(s) to (re)load /ckout (with or without `exbase' query parameter).
 */
 (function(){
   window.addEventListener('load',function(){
