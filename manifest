@@ -1,5 +1,5 @@
-C Missed\shelp\sscreen\supdate.
-D 2024-12-13T17:42:00.000
+C Consistent\snaming\sof\sthe\s"Hide\sDiff"\slinks\sto\sskip\sserver-side\sdiff\sgeneration.\sNote\sthe\snaming\sconflict\swith\sthe\sscripted\slink\sto\sshow\sand\shide\sthe\sgenerated\sdiffs.
+D 2024-12-17T06:32:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6e
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c 5744459111dc9923d9993f541ed5c317035391ab5112096bd4068438ba890eae
+F src/info.c e5be74d23c6c5ab0ed3328ae4c6b630a3cad97405d787679b9e3843bb7c0a934
 F src/interwiki.c 517f85da17421e2e6cf968345850138408104e8b82ce08ac2470e61273d62882
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9e216433bc12868d127ea9907425183ed34cbd901fb132b94f47daf01d8a68e4
-R 4f63c9ae2494bae59c8c783cb734ad7e
+P e5093a9c7ed71113536265f36b920fc4f1d78f96003353ccc2c7239579724e2d
+R 8e2af22197f2b546d8fea1de5fcb91ea
 U florian
-Z b74c92f39276fe306a56df377c801bf7
+Z b0ca21641048dee73541a71e66c6e780
 # Remove this line to create a well-formed Fossil manifest.

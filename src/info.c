@@ -685,7 +685,7 @@ void ckout_page(void){
   if( diffType!=0 ){
     /* Class "smb-hide-diff" required by the fossil.diff.js script. */
     const char *zBtnClass = "button smb-hide-diff";
-    @ %z(chref(zBtnClass,"%R?diff=0"))Hide&nbsp;Diffs</a>
+    @ %z(chref(zBtnClass,"%R?diff=0"))Hide&nbsp;Diff</a>
   }
   if( diffType!=1 ){
     /* Class "smb-unified-diff" required by the fossil.diff.js script. */
@@ -1071,7 +1071,7 @@ void ci_page(void){
     /* Class "smb-hide-diff" required by the fossil.diff.js script. */
     const char *zBtnClass = "button smb-hide-diff";
     @ %z(chref(zBtnClass,"%R/%s/%T?diff=0",zPageHide,zName))\
-    @ Hide&nbsp;Diffs</a>
+    @ Hide&nbsp;Diff</a>
   }
   if( diffType!=1 ){
     /* Class "smb-unified-diff" required by the fossil.diff.js script. */
