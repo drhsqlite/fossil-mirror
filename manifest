@@ -1,5 +1,5 @@
-C Add\smissing\sword\sin\sthe\shelp\stext\sfor\s'merge'.
-D 2024-12-16T16:22:39.690
+C On\sthe\snew\s/ckout\sUI\spage,\soutput\sthe\spage\sfooter\sonly\sonce.
+D 2024-12-17T06:12:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6e
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c 229bdef1f80e8fa2b9af22c7a927220b2ea0f7bded8a7f5d541308055422f252
+F src/info.c 34cf27fa78cf0aed367e7da7592eb05c10e43d2c24f1257217cf7823188b54fa
 F src/interwiki.c 517f85da17421e2e6cf968345850138408104e8b82ce08ac2470e61273d62882
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3a39ae4c87773acf4c86e5229c49d7cd4a0c851a8222776834ce47e9dac18e77
-R ffcac2c043fd76cc434b8fdbd28a1a8e
-U danield
-Z 790ad960a9bac7bf81f46bc2bb40063e
+P bdc6bb1cfb2011da23968074c9e0f7d3a22e14891f8eb0c3f14b278e5335b35b
+R 69c5ce7c9f59f6cbe8d51cb20acb5891
+U florian
+Z b75ecb9dc179a7b2e8d6b2b948ee7792
 # Remove this line to create a well-formed Fossil manifest.

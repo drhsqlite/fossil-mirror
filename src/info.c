@@ -626,7 +626,6 @@ static void ckout_normal_diff(int vid){
                     " WHERE vid=%d AND (deleted OR chnged OR rid==0)", vid);
   if( nChng==0 ){
     @ <p>No uncommitted changes</p>
-    style_finish_page();
     return;
   }
   db_prepare(&q,
