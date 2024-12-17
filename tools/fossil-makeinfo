@@ -165,11 +165,11 @@ subversion, git or mercurial.
 " >> fossil.texi
 
 # begin menu for common keywords
-printf "@menu" >> fossil.texi
+printf "@menu\n" >> fossil.texi
 
 # Slurp in Common keywords from fossil help
 # WARNING: tail count is brittle
-echo "Grab common keywords"
+echo "Grab common keywords for menu"
 for u in $(for t in $(fossil help | tail -n +4| sed '$d'); do echo "$t"; done | sort);  do echo "* ${u}::"; done >> fossil.texi
 
 # Add end menu, add some space too
@@ -230,7 +230,7 @@ circumstances, such as creating fossils suitable for hosting.
 " >> fossil.texi
 
 # Slurp in auxiliary/uncommon keywords - no need to remove last line here
-echo "Grab uncommon keywords"
+echo "Grab uncommon keywords for menu"
 for u in $(for t in $(fossil help -x); do echo "$t"; done | sort); do echo "* ${u}::"; done >> fossil.texi
 
 echo "@end menu" >> fossil.texi
@@ -287,7 +287,7 @@ They're
 " >> fossil.texi
 
 # Insert test commands in here
-echo "Grab test keywords"
+echo "Grab test keywords for menu"
 for u in $(for t in $(fossil help -t); do echo "$t"; done | sort); do echo "* ${u}::"; done >> fossil.texi
 
 
@@ -373,6 +373,6 @@ echo "@bye" >> fossil.texi
 
 echo "Done ... for now. Please check fossil.texi file over for inconsistencies, and fill in descriptions."
 echo "Once everything's good, you can run your system's makeinfo command to turn"
-echo "your .texi file into .info file to install where you need"
+echo "your .texi file into a .info file to install where you need."
 
 
