@@ -2107,7 +2107,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
     sqlite3_appendvfs_init(0,0,0);
     g.zVfsName = "apndvfs";
   }
-  blob_zero(&bNameCheck);
+  blob_reset(&bNameCheck);
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,

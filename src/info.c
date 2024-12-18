@@ -322,6 +322,7 @@ void render_checkin_context(int rid, int rid2, int parentsOnly, int mFlags){
          |TIMELINE_CHPICK,
        0, 0, 0, rid, rid2, 0);
   db_finalize(&q);
+  blob_reset(&sql);
 }
 
 

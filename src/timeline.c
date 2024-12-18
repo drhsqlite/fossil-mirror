@@ -3079,6 +3079,8 @@ void page_timeline(void){
     @ &nbsp;&darr;</a>
   }
   document_emit_js(/*handles pikchrs rendered above*/);
+  blob_reset(&sql);
+  blob_reset(&desc);
   style_finish_page();
 }
 
