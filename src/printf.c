@@ -852,8 +852,9 @@ int vxprintf(
         char *zArg = va_arg(ap, char*);
         int szArg = (int)strlen(zArg);
         int szBlob = blob_size(pBlob);
+        u8 *aBuf;
         blob_resize(pBlob, szBlob+szArg*2+1);
-        u8 *aBuf = (u8*)&blob_buffer(pBlob)[szBlob];
+        aBuf = (u8*)&blob_buffer(pBlob)[szBlob];
         encode16((const u8*)zArg, aBuf, szArg);
         length = width = 0;
         break;
