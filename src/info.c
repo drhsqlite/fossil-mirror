@@ -831,7 +831,7 @@ void ckout_page(void){
   char *zHostname;
   char *zCwd;
 
-  if( !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
+  if( !cgi_is_loopback(g.zIpAddr) || !db_open_local(0) ){
     cgi_redirectf("%R/home");
     return;
   }
@@ -2250,8 +2250,8 @@ void jchunk_page(void){
    && ((nName-1)&1)==0
    && validate16(&zName[1],nName-1)
    && g.perm.Admin
-   && db_open_local(0)
    && cgi_is_loopback(g.zIpAddr)
+   && db_open_local(0)
   ){
     /* Treat the HASH as a hex-encoded filename */
     int n = (nName-1)/2;
