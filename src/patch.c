@@ -83,9 +83,8 @@ static void mkdeltaFunc(
   sqlite3_value **argv
 ){
   const char *zFile;
-  Blob x, y;
+  Blob x, y, out;
   int rid;
-  char *aOut;
   int nOut;
   sqlite3_int64 sz;
 
@@ -106,13 +105,8 @@ static void mkdeltaFunc(
     blob_reset(&x);
     return;
   }
-  aOut = sqlite3_malloc64(sz+70);
-  if( aOut==0 ){
-    sqlite3_result_error_nomem(context);
-    blob_reset(&y);
-    blob_reset(&x);
-    return;
-  }
+  blob_init(&out, 0, 0);
+  blob_resize(&out, sz+70);
   if( blob_size(&x)==blob_size(&y)
    && memcmp(blob_buffer(&x), blob_buffer(&y), blob_size(&x))==0
   ){
@@ -122,14 +116,14 @@ static void mkdeltaFunc(
     return;
   }
   nOut = delta_create(blob_buffer(&x),blob_size(&x),
-                      blob_buffer(&y),blob_size(&y), aOut);
+                      blob_buffer(&y),blob_size(&y), blob_buffer(&out));
+  blob_resize(&out, nOut);
   blob_reset(&x);
   blob_reset(&y);
-  blob_init(&x, aOut, nOut);
-  blob_compress(&x, &x);
-  sqlite3_result_blob64(context, blob_buffer(&x), blob_size(&x),
+  blob_compress(&out, &out);
+  sqlite3_result_blob64(context, blob_buffer(&out), blob_size(&out),
                         SQLITE_TRANSIENT);
-  blob_reset(&x);
+  blob_reset(&out);
 }
 
 

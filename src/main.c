@@ -1332,6 +1332,7 @@ void version_cmd(void){
   verify_all_options();
   fossil_version_blob(&versionInfo, verboseFlag);
   fossil_print("%s", blob_str(&versionInfo));
+  blob_reset(&versionInfo);
 }
 
 
