@@ -1,5 +1,5 @@
-C Fix\sadditional\sharmless\smemory\sleaks.
-D 2024-12-18T12:51:12.211
+C Fix\sa\sproblem\sintroduced\swith\s[593ceca27d]:\sthe\sblob\sresize\soperation\smay\srealloc\sthe\sbuffer,\sso\sobtain\sthe\spointer\sto\sthe\sbuffer\sonly\safter\sthe\sresize\sto\savoid\sa\s"use\safter\sfree".
+D 2024-12-18T18:30:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -512,7 +512,7 @@ F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
 F src/popen.c 1b97d68d5aa43c0d88af6c9324b32efc011920038a382f39097d6f204b2f3a4d
 F src/pqueue.c d92e2b6cb6b19f894dbd4245ee93df36ea160ecb6fecf6ea80f096a95251c88a
-F src/printf.c a7630f7ec6e74dad3f24c043b7681dc47e10fe98d4efd35a938d25e93d00a2bf
+F src/printf.c 0a4f7eba9206e217a6e8c55f314e060911dbee244fc9a94e44aa9463401b72cf
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/rebuild.c d89a601ec399a81e4dffcd7642f2aceb1f0387caf078994785d7f8c60de24a7d
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37ae94b365a9f32191b41862b989a9ac805fae9fe2c63d7c66bc9e5257971a15
-R f421b1830f878601168dbac83717787d
-U drh
-Z 9c5a92d73f80446c5a3bf8c68f9b7f12
+P d564056cce59a70a41eb981eb23109b1dcffb290f0ef9e8329ef4d2c5d4b6ecc
+R 9c2ca26bfcd4565d59e5033de423ed06
+U florian
+Z 27f5d54d328209e1e72a424cbbe5210b
 # Remove this line to create a well-formed Fossil manifest.
