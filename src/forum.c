@@ -1832,7 +1832,6 @@ void forum_setup(void){
       @ <p>No non-supervisor moderators
   }else{
     Stmt q = empty_Stmt;
-    int nRows = 0;
     db_prepare(&q, "SELECT uid, login, cap FROM user "
                "WHERE cap GLOB '*5*' AND cap NOT GLOB '*[as6]*'"
                " ORDER BY login");
@@ -1843,7 +1842,6 @@ void forum_setup(void){
       const int iUid = db_column_int(&q, 0);
       const char *zUser = db_column_text(&q, 1);
       const char *zCap = db_column_text(&q, 2);
-      ++nRows;
       @ <tr>
       @ <td><a href='%R/setup_uedit?id=%d(iUid)'>%h(zUser)</a></td>
       @ <td>(%h(zCap))</td>

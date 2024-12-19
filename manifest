@@ -1,5 +1,5 @@
-C Update\sthe\stests\sto\sreflect\sthe\scurrent\sstate\sof\sdevelopment.
-D 2024-12-19T16:46:00.000
+C Remove\sa\sharmless\sunused\slocal\svariable.\n[forum:/forumpost/1d5c8db08a327fb4|Forum\spost\s1d5c8db08a327fb4].
+D 2024-12-19T18:20:45.059
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -431,7 +431,7 @@ F src/file.c 4e03460b7aa705b687689b9a797c21b2b1d253c286a768079ffecdbf12c2647c
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 3eacb1b2e40382a539d16fa54ef4e4f0da931513a56fe974b41fa58f85538740
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c 1e2d268cbecb44ad4572f060f6c6ccf9bc022e250e332bb6d428674ecae1594f
+F src/forum.c c50e347570a0b6d9d48a1fda9713f15180122442c26bb416a2eaf3a5585400b3
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 693c7b9bd57e53d11d801713fb4ba229dc98ef71d16f750fbc2061c1db6676c3
-R ad711c39f67f1eb1fc7db4c31b3c7d86
-U florian
-Z 3ef31ee8491e5d580cd9d7cbe1697e5b
+P 6aee052f00e27cc97997267c86484d0a75c5d7ebf262ac8cd3c846a313ac1124
+R b3cfb96e866cf571bb9adbd5e0065b70
+U drh
+Z 7fe9593f6a551648176acac4399f83bc
 # Remove this line to create a well-formed Fossil manifest.
