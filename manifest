@@ -1,5 +1,5 @@
-C Comment\simprovements\sin\sthe\sDockerfile
-D 2024-12-19T11:59:37.968
+C Update\sthe\stests\sto\sreflect\sthe\scurrent\sstate\sof\sdevelopment.
+D 2024-12-19T16:46:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -619,10 +619,10 @@ F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
 F test/markdown-test3.md 70e697a5e9bab2f1a5bbb7bb4223a8d4b2d7f1a43973f7455e8c7eaebb0ae34a
-F test/merge1.test 7c09c990de1aaeb5318e0768c07f2526dacbb858d3a79118f25d0729312ad21b
+F test/merge1.test 431091c27e8478ce1520c91764f82a1129af9533476379f416d63acd4eb741b8
 F test/merge2.test c569f06bd3a13f01648db1796805972251ccc5fe1a575fa4e2c885172cb4b4ff
-F test/merge3.test 0562a7c4de7c7c13f9d3a722ac56a506ece4e57cb3b3bbcd9c5ca1743a8ed816
-F test/merge4.test 4bbf9c9d8efeb3cc8e2ff3ab8a045ab1782a5447826d1ff0688ebafd8df41763
+F test/merge3.test 363f50779245dc4f84ac165b2a561c6fa3fbcc4a67b7c3cb4bb875ac1b4dfe2c
+F test/merge4.test 0d0f77e07e2bdf8ca26753c3ab7d2b5679e078122d8ef7e6ee629224e0a9c3fc
 F test/merge5.test 5c4202c8702473cdccdb68ca0ee935fa3907b2fab03acf207a6b4fe6d1e5091a
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
@@ -646,7 +646,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 1ca2a95db55563fd16c4591037248a9fd7db36007cd4a0ea64c59051acac4e89
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 032143ee427f58fdf14bb47eb73574c58eefd39a4de30d3a2d586f5dee9b45bf
+F test/tester.tcl 4dc14ab66806f305ee2aadc758efb15764cac7fe9f46db3b34ca15dc64ba5d17
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 17be4d6a571e59568261d7be7e18dbf92eca61dda2ab5c66d8b6853ad0fabb2d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -666,7 +666,7 @@ F test/th1.test e3361427060c0075dd26fe13be3b151182d6de392a85e80116d637e4383712d0
 F test/unversioned.test 2293bb58141d7d9030dcadaa4f1a47ce13de99e0008f186b9ec005e11f1d711a
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/update.test c13ead0c26bf794b038db9a40c2ecc2858df8b6d0df15991c4d8d2e67f6db93c
+F test/update.test f002c229a7610f311943b342bb00998909379411a2bcde18215561e8e09e4d04
 F test/utf.test c2426351ad7a2ea1fd9f8ea16284a62155080fcebbc33b17065b7f2235bd1f5d
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8defefd3ff8dfe1f5be167da14ee188aac5cdd231a952ad32d7e036f67fa6e63
-R 8477ef7f154aaf3353672241e39b118c
-U wyoung
-Z 7f694f81627a600d702496f02ee800da
+P 693c7b9bd57e53d11d801713fb4ba229dc98ef71d16f750fbc2061c1db6676c3
+R ad711c39f67f1eb1fc7db4c31b3c7d86
+U florian
+Z 3ef31ee8491e5d580cd9d7cbe1697e5b
 # Remove this line to create a well-formed Fossil manifest.
