@@ -1,5 +1,5 @@
-C Remove\sa\sharmless\sunused\slocal\svariable.\n[forum:/forumpost/1d5c8db08a327fb4|Forum\spost\s1d5c8db08a327fb4].
-D 2024-12-19T18:20:45.059
+C Update\sto\sthe\schange\slog\sfor\s2.26.
+D 2024-12-19T19:13:55.762
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -785,7 +785,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 0d8ae1d55db302a98d95da41ac75de4dcc665b66262e1873b5a3e6bcabf213d0
-F www/changes.wiki e531dc1bfc031eac8c45a0808b77a3eee46153c4e9e3d957dda02dff2b923683
+F www/changes.wiki 52e3c7dd35efac15a5b996306e31ff6f3389ec2310146d93d9b1dfc95b452dbf
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6aee052f00e27cc97997267c86484d0a75c5d7ebf262ac8cd3c846a313ac1124
-R b3cfb96e866cf571bb9adbd5e0065b70
+P 08ea1bd4abe06d63bfea8d590448569a9658912490c593ed395dac791706a3a6
+R 83361340494f81d202d431115b61a55a
 U drh
-Z 7fe9593f6a551648176acac4399f83bc
+Z eff9738b989e6ced9efa8bb7fcea055c
 # Remove this line to create a well-formed Fossil manifest.
