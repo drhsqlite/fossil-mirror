@@ -1,5 +1,5 @@
-C Fix\sthe\sprevious\scommit\sto\srestore\sANSI\sC-89\sconformance.
-D 2024-12-18T18:40:00.000
+C Fix\sa\ssmall\sinconvenience\sin\sthe\s`translate'\sutility\sprogram\sdiscovered\swhile\sworking\swith\sMSVC\sdebug\sbuilds.
+D 2024-12-19T07:28:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -747,7 +747,7 @@ F tools/mkindex.c 4fec986d4dda15fff9f97356a6aa20a77092db356bb86177b3bcef50c53e2a
 F tools/mkversion.c 50e3be4716625ffea38d0f8248051de7372b78282744f33dde201bed5dd977cb
 F tools/skintxt2config.c b542d5e56db4aa69100e85061db820f6b1c9734cf292bda2d67445d364a5e154
 F tools/sqlcompattest.c e55aa8c8ab4d12e10db6941f5e4f6c518209305fa2fb8903c2ffa9d6c3a183dd
-F tools/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
+F tools/translate.c 1300fc72fe51da1d7cb8f8e81427728f7a0a62f06595c4d5d6006a3fe952298c
 F win/Makefile.dmc 01a0d435b6f77213339280e30fd6913e146c1f4e889bacd58854a2c95f27bb61
 F win/Makefile.mingw f26d106f543a4f085fa6ddfe7713b4a94f83fda4c384fbc07ebc1a700b467799
 F win/Makefile.mingw.mistachkin 781390cab203b926f21de517390b7323267513df67fe821ec789eebdc2ba733c
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 36bcaaeee06e23aced66d2a94c4d237d4898f5b9ec8b6d7d1db4f7297179ec5a
-R edf51587627b44c93d42c6e1569d7034
+P bee9b3016870835e9c5769a00af609d1ef6d860da0bb0a381b6f627d6d50755b
+R 33cd417f6654d0a69b51c915fbf1564d
 U florian
-Z 2513380cd1f8b5cabb1ce15722b0e6ab
+Z e00b3d66816630c61c71e387b249c1b1
 # Remove this line to create a well-formed Fossil manifest.
