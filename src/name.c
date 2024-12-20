@@ -2174,11 +2174,14 @@ void hash_collisions_webpage(void){
 */
 void clusterlist_page(void){
   Stmt q;
+  int cnt = 1;
+  sqlite3_int64 szTotal = 0;
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
   style_header("All Cluster Artifacts");
   db_prepare(&q,
     "SELECT blob.uuid, "
+    "       blob.size, "
     "       datetime(rcvfrom.mtime),"
     "       user.login,"
     "       rcvfrom.ipaddr"
@@ -2190,18 +2193,22 @@ void clusterlist_page(void){
     TAG_CLUSTER
   );
   @ <table cellpadding="2" cellspacing="0" border="1">
-  @ <tr><th>Hash<th>Date<th>User<th>IP-Address
+  @ <tr><th>&nbsp;<th>Hash<th>Received<th>Size<th>User<th>IP-Address
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
-    const char *zDate = db_column_text(&q, 1);
-    const char *zUser = db_column_text(&q, 2);
-    const char *zIp = db_column_text(&q, 3);
-    @ <tr><td><a href="%R/info/%S(zUuid)">%S(zUuid)</a>
+    sqlite3_int64 sz = db_column_int64(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    const char *zUser = db_column_text(&q, 3);
+    const char *zIp = db_column_text(&q, 4);
+    szTotal += sz;
+    @ <tr><td align="right">%d(cnt++)
+    @ <td><a href="%R/info/%S(zUuid)">%S(zUuid)</a>
     if( zDate ){
       @ <td>%h(zDate)
     }else{
       @ <td>&nbsp;
     }
+    @ <td align="right">%,lld(sz)
     if( zUser ){
       @ <td>%h(zUser)
     }else{
@@ -2216,5 +2223,6 @@ void clusterlist_page(void){
   }
   @ </table>
   db_finalize(&q);
+  @ <p>Total size of all clusters: %,lld(szTotal) bytes</p>
   style_finish_page();
 }
