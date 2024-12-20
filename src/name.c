@@ -2170,18 +2170,19 @@ void hash_collisions_webpage(void){
 ** WEBPAGE: clusterlist
 **
 ** Show information about all cluster artifacts in the database.
-** This page is accessible by administrators only.
 */
 void clusterlist_page(void){
   Stmt q;
   int cnt = 1;
   sqlite3_int64 szTotal = 0;
+  sqlite3_int64 szCTotal = 0;
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("All Cluster Artifacts");
   db_prepare(&q,
     "SELECT blob.uuid, "
     "       blob.size, "
+    "       octet_length(blob.content), "
     "       datetime(rcvfrom.mtime),"
     "       user.login,"
     "       rcvfrom.ipaddr"
@@ -2193,14 +2194,23 @@ void clusterlist_page(void){
     TAG_CLUSTER
   );
   @ <table cellpadding="2" cellspacing="0" border="1">
-  @ <tr><th>&nbsp;<th>Hash<th>Received<th>Size<th>User<th>IP-Address
+  @ <tr><th>&nbsp;
+  @ <th>Hash
+  @ <th>Date&nbsp;Received
+  @ <th>Size
+  @ <th>Compressed&nbsp;Size
+  if( g.perm.Admin ){
+    @ <th>User<th>IP-Address
+  }
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     sqlite3_int64 sz = db_column_int64(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 3);
-    const char *zIp = db_column_text(&q, 4);
+    sqlite3_int64 szC = db_column_int64(&q, 2);
+    const char *zDate = db_column_text(&q, 3);
+    const char *zUser = db_column_text(&q, 4);
+    const char *zIp = db_column_text(&q, 5);
     szTotal += sz;
+    szCTotal += szC;
     @ <tr><td align="right">%d(cnt++)
     @ <td><a href="%R/info/%S(zUuid)">%S(zUuid)</a>
     if( zDate ){
@@ -2209,20 +2219,24 @@ void clusterlist_page(void){
       @ <td>&nbsp;
     }
     @ <td align="right">%,lld(sz)
-    if( zUser ){
-      @ <td>%h(zUser)
-    }else{
-      @ <td>&nbsp;
-    }
-    if( zIp ){
-      @ <td>%h(zIp)
-    }else{
-      @ <td>&nbsp;
+    @ <td align="right">%,lld(szC)
+    if( g.perm.Admin ){
+      if( zUser ){
+        @ <td>%h(zUser)
+      }else{
+        @ <td>&nbsp;
+      }
+      if( zIp ){
+        @ <td>%h(zIp)
+      }else{
+        @ <td>&nbsp;
+      }
     }
     @ </tr>
   }
   @ </table>
   db_finalize(&q);
-  @ <p>Total size of all clusters: %,lld(szTotal) bytes</p>
+  @ <p>Total size of all clusters: %,lld(szTotal) bytes,
+  @ %,lld(szCTotal) bytes compressed</p>
   style_finish_page();
 }
