@@ -1689,6 +1689,7 @@ void bloblist_page(void){
   int phantomOnly = PB("phan");
   int hashClr = PB("hclr");
   int bRecent = PB("recent");
+  int bUnclst = PB("unclustered");
   char *zRange;
   char *zSha1Bg;
   char *zSha3Bg;
@@ -1700,6 +1701,9 @@ void bloblist_page(void){
   style_submenu_element("250 Largest", "bigbloblist");
   if( bRecent==0 || n!=250 ){
     style_submenu_element("Recent","bloblist?n=250&recent");
+  }
+  if( bUnclst==0 ){
+    style_submenu_element("Unclustered","bloblist?unclustered");
   }
   if( g.perm.Admin ){
     style_submenu_element("Artifact Log", "rcvfromlist");
@@ -1718,7 +1722,7 @@ void bloblist_page(void){
   if( g.perm.Write ){
     style_submenu_element("Artifact Stats", "artifact_stats");
   }
-  if( !privOnly && !phantomOnly && mx>n && P("s")==0 && !bRecent ){
+  if( !privOnly && !phantomOnly && mx>n && P("s")==0 && !bRecent && !bUnclst ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
     @ <ul>
@@ -1727,6 +1731,7 @@ void bloblist_page(void){
       @ %d(i)..%d(i+n-1<mx?i+n-1:mx)</a>
     }
     @ <li> %z(href("%R/bloblist?n=250&recent"))250 most recent</a>
+    @ <li> %z(href("%R/bloblist?unclustered"))All unclustered</a>
     @ </ul>
     style_finish_page();
     return;
@@ -1735,10 +1740,16 @@ void bloblist_page(void){
     style_submenu_element("Index", "bloblist");
   }
   if( privOnly ){
+    @ <h2>Private Artifacts</h2>
     zRange = mprintf("IN private");
   }else if( phantomOnly ){
+    @ <h2>Phantom Artifacts</h2>
     zRange = mprintf("IN phantom");
+  }else if( bUnclst ){
+    @ <h2>Unclustered Artifacts</h2>
+    zRange = mprintf("IN unclustered");
   }else if( bRecent ){
+    @ <h2>%d(n) Most Recent Artifacts</h2>
     zRange = mprintf(">=(SELECT rid FROM blob"
                      " ORDER BY rid DESC LIMIT 1 OFFSET %d)",n);
   }else{
@@ -1749,7 +1760,7 @@ void bloblist_page(void){
   db_prepare(&q,
     "SELECT rid, uuid, summary, isPrivate, type='phantom', rcvid, ref"
     "  FROM description ORDER BY rid %s",
-    (bRecent?"DESC":"ASC")/*safe-for-%s*/
+    ((bRecent||bUnclst)?"DESC":"ASC")/*safe-for-%s*/
   );
   if( skin_detail_boolean("white-foreground") ){
     zSha1Bg = "#714417";
