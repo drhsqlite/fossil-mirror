@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s/clusterlist\spage.
-D 2024-12-20T15:14:42.685
+C Fix\sa\stypo\sin\sa\scolumn\sname\sfor\sthe\squery\sthat\sdeals\swith\sphantom\sentries\nin\sthe\sinfo\spage\sfor\sclusters.
+D 2024-12-20T15:27:59.243
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6e
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c a47cddab400681eba333dc0375c9c34c3d85e0ad6b092727e03cd3d58fe7e64e
+F src/info.c ff74df93f27498f36690706275c023c6528fd402b0bf9cc900600a1ec454fbc1
 F src/interwiki.c 517f85da17421e2e6cf968345850138408104e8b82ce08ac2470e61273d62882
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a2ce1f109a21dc6426820f1e23fb10e278ca6befaacaa4f1f56d8a4fb7f6df84
-R 1419369631b299864320d7d3c084dfe7
+P e3ef536c6979e4a08374fd4d754f1baea1c48ab22aa3c8a0a972de0418b8dc32
+R 2ee0eff9d6aa27fb77682ecf4edd2bf2
 U drh
-Z 423d6ba9d9739b05fd2dde0480ce4694
+Z 7497143a0d42fed82a0113aaaf90973b
 # Remove this line to create a well-formed Fossil manifest.

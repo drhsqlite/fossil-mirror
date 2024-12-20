@@ -3210,7 +3210,7 @@ static void cluster_info(int rid, const char *zName){
   if( badRid>0 ){
     db_multi_exec(
       "WITH unks(rx,hx) AS (VALUES %s)\n"
-      "INSERT INTO description(rid,uuid,type,summmary) "
+      "INSERT INTO description(rid,uuid,type,summary) "
       "  SELECT rx, hx, 'phantom', '' FROM unks;",
       blob_sql_text(&unks)
     );
