@@ -1935,7 +1935,7 @@ int object_description(
   db_finalize(&q);
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d",
                 rid, TAG_CLUSTER) ){
-    @ Cluster
+    @ Cluster %z(href("%R/info/%S",zUuid))%S(zUuid)</a>.
     cnt++;
   }
   if( cnt==0 ){
@@ -3170,6 +3170,125 @@ void tinfo_page(void){
   style_finish_page();
 }
 
+/*
+** rid is a cluster.  Paint a page that contains detailed information
+** about that cluster.
+*/
+static void cluster_info(int rid, const char *zName){
+  Manifest *pCluster;
+  int i;
+  Blob where = BLOB_INITIALIZER;
+  Blob unks = BLOB_INITIALIZER;
+  Stmt q;
+  char *zSha1Bg;
+  char *zSha3Bg;
+  int badRid = 0;
+  int hashClr = PB("hclr");
+
+  pCluster = manifest_get(rid, CFTYPE_CLUSTER, 0);
+  if( pCluster==0 ){
+    artifact_page();
+    return;
+  }  
+  style_header("Cluster %S", zName);
+  @ <p>Artifact %z(href("%R/artifact/%h",zName))%S(zName)</a> is a cluster
+  @ with %d(pCluster->nCChild) entries:</p>
+  blob_appendf(&where,"IN(0");
+  for(i=0; i<pCluster->nCChild; i++){
+    int rid = fast_uuid_to_rid(pCluster->azCChild[i]);
+    if( rid ){
+      blob_appendf(&where,",%d", rid);
+    }else{
+      if( blob_size(&unks)>0 ) blob_append_char(&unks, ',');
+      badRid++;
+      blob_append_sql(&unks,"(%d,%Q)",-badRid,pCluster->azCChild[i]);
+    }
+  }
+  blob_append_char(&where,')');
+  describe_artifacts(blob_str(&where));
+  blob_reset(&where);
+  if( badRid>0 ){
+    db_multi_exec(
+      "WITH unks(rx,hx) AS (VALUES %s)\n"
+      "INSERT INTO description(rid,uuid,type,summmary) "
+      "  SELECT rx, hx, 'phantom', '' FROM unks;",
+      blob_sql_text(&unks)
+    );
+  }
+  blob_reset(&unks);
+  db_prepare(&q,
+    "SELECT rid, uuid, summary, isPrivate, type='phantom', rcvid, ref"
+    "  FROM description ORDER BY uuid"
+  );
+  if( skin_detail_boolean("white-foreground") ){
+    zSha1Bg = "#714417";
+    zSha3Bg = "#177117";
+  }else{
+    zSha1Bg = "#ebffb0";
+    zSha3Bg = "#b0ffb0";
+  }
+  @ <table cellpadding="2" cellspacing="0" border="1">
+  if( g.perm.Admin ){
+    @ <tr><th>RID<th>Hash<th>Rcvid<th>Description<th>Ref<th>Remarks
+  }else{
+    @ <tr><th>RID<th>Hash<th>Description<th>Ref<th>Remarks
+  }
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q,0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDesc = db_column_text(&q, 2);
+    int isPriv = db_column_int(&q,3);
+    int isPhantom = db_column_int(&q,4);
+    const char *zRef = db_column_text(&q,6);
+    if( isPriv && !isPhantom && !g.perm.Private && !g.perm.Admin ){
+      /* Don't show private artifacts to users without Private (x) permission */
+      continue;
+    }
+    if( rid<=0 ){
+      @ <tr><td>&nbsp;</td>
+    }else if( hashClr ){
+      const char *zClr = db_column_bytes(&q,1)>40 ? zSha3Bg : zSha1Bg;
+      @ <tr style='background-color:%s(zClr);'><td align="right">%d(rid)</td>
+    }else{
+      @ <tr><td align="right">%d(rid)</td>
+    }
+    if( rid<=0 ){
+      @ <td>&nbsp;%S(zUuid)&nbsp;</td>
+    }else{
+      @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
+    }
+    if( g.perm.Admin ){
+      int rcvid = db_column_int(&q,5);
+      if( rcvid<=0 ){
+        @ <td>&nbsp;
+      }else{
+        @ <td><a href='%R/rcvfrom?rcvid=%d(rcvid)'>%d(rcvid)</a>
+      }
+    }
+    @ <td align="left">%h(zDesc)</td>
+    if( zRef && zRef[0] ){
+      @ <td>%z(href("%R/info/%!S",zRef))%S(zRef)</a>
+    }else{
+      @ <td>&nbsp;
+    }
+    if( isPriv || isPhantom ){
+      if( isPriv==0 ){
+        @ <td>phantom</td>
+      }else if( isPhantom==0 ){
+        @ <td>private</td>
+      }else{
+        @ <td>private,phantom</td>
+      }
+    }else{
+      @ <td>&nbsp;
+    }
+    @ </tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_finish_page();
+}
+
 
 /*
 ** WEBPAGE: info
@@ -3258,6 +3377,10 @@ void info_page(void){
   }else
   if( db_exists("SELECT 1 FROM attachment WHERE attachid=%d", rid) ){
     ainfo_page();
+  }else
+  if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d",
+                rid, TAG_CLUSTER) ){
+    cluster_info(rid, zName);
   }else
   {
     artifact_page();

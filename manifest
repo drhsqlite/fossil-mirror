@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\stesting.
-D 2024-12-19T19:33:17.412
+C Improve\sthe\s/info\spage\sto\sshow\smore\sdetailed\sinformation\sabout\sclusters.
+D 2024-12-20T14:38:54.032
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6e
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c c384368d2ae1adf09181c91926fe764cb013b7bbf937cdaea278b2f25546f607
+F src/info.c a47cddab400681eba333dc0375c9c34c3d85e0ad6b092727e03cd3d58fe7e64e
 F src/interwiki.c 517f85da17421e2e6cf968345850138408104e8b82ce08ac2470e61273d62882
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f4f395b6a4e37ea3d297868a1e11e0dc82f434e8d929f2e057466217570a2cc7
-R b37c8eae9345ddda25cbd5ec05549cc6
+P 1b55133f9ea3a54863f853d3a8bef142c5aa68743e3fbd4c910ea9620b4b75a7
+R 5ec84403f1b41dc305f55af53c9505e9
 U drh
-Z f39edfb7d8fc9265739b3ed7b0e458a5
+Z 5ae64d0feaa5ad924072fb27a9393510
 # Remove this line to create a well-formed Fossil manifest.
