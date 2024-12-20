@@ -1678,6 +1678,7 @@ void test_describe_artifacts_cmd(void){
 **   priv        Show only unpublished or private artifacts
 **   phan        Show only phantom artifacts
 **   hclr        Color code hash types (SHA1 vs SHA3)
+**   recent      Show the most recent N artifacts
 */
 void bloblist_page(void){
   Stmt q;
@@ -1687,6 +1688,7 @@ void bloblist_page(void){
   int privOnly = PB("priv");
   int phantomOnly = PB("phan");
   int hashClr = PB("hclr");
+  int bRecent = PB("recent");
   char *zRange;
   char *zSha1Bg;
   char *zSha3Bg;
@@ -1696,6 +1698,9 @@ void bloblist_page(void){
   cgi_check_for_malice();
   style_header("List Of Artifacts");
   style_submenu_element("250 Largest", "bigbloblist");
+  if( bRecent==0 || n!=250 ){
+    style_submenu_element("Recent","bloblist?n=250&recent");
+  }
   if( g.perm.Admin ){
     style_submenu_element("Artifact Log", "rcvfromlist");
   }
@@ -1713,7 +1718,7 @@ void bloblist_page(void){
   if( g.perm.Write ){
     style_submenu_element("Artifact Stats", "artifact_stats");
   }
-  if( !privOnly && !phantomOnly && mx>n && P("s")==0 ){
+  if( !privOnly && !phantomOnly && mx>n && P("s")==0 && !bRecent ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
     @ <ul>
@@ -1721,6 +1726,7 @@ void bloblist_page(void){
       @ <li> %z(href("%R/bloblist?s=%d&n=%d",i,n))
       @ %d(i)..%d(i+n-1<mx?i+n-1:mx)</a>
     }
+    @ <li> %z(href("%R/bloblist?n=250&recent"))250 most recent</a>
     @ </ul>
     style_finish_page();
     return;
@@ -1732,6 +1738,9 @@ void bloblist_page(void){
     zRange = mprintf("IN private");
   }else if( phantomOnly ){
     zRange = mprintf("IN phantom");
+  }else if( bRecent ){
+    zRange = mprintf(">=(SELECT rid FROM blob"
+                     " ORDER BY rid DESC LIMIT 1 OFFSET %d)",n);
   }else{
     zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
   }
@@ -1739,7 +1748,8 @@ void bloblist_page(void){
   fossil_free(zRange);
   db_prepare(&q,
     "SELECT rid, uuid, summary, isPrivate, type='phantom', rcvid, ref"
-    "  FROM description ORDER BY rid"
+    "  FROM description ORDER BY rid %s",
+    (bRecent?"DESC":"ASC")/*safe-for-%s*/
   );
   if( skin_detail_boolean("white-foreground") ){
     zSha1Bg = "#714417";
