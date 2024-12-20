@@ -1702,6 +1702,7 @@ void bloblist_page(void){
   if( !phantomOnly ){
     style_submenu_element("Phantoms", "bloblist?phan");
   }
+  style_submenu_element("Clusters","clusterlist");
   if( g.perm.Private || g.perm.Admin ){
     if( !privOnly ){
       style_submenu_element("Private", "bloblist?priv");
@@ -2179,6 +2180,15 @@ void clusterlist_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("All Cluster Artifacts");
+  style_submenu_element("All Artifactst", "bloblist");
+  if( g.perm.Admin ){
+    style_submenu_element("Artifact Log", "rcvfromlist");
+  }
+  style_submenu_element("Phantoms", "bloblist?phan");
+  if( g.perm.Write ){
+    style_submenu_element("Artifact Stats", "artifact_stats");
+  }
+
   db_prepare(&q,
     "SELECT blob.uuid, "
     "       blob.size, "

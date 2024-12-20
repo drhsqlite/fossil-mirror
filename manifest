@@ -1,5 +1,5 @@
-C Get\sthe\s/clusterlist\sworking\sfor\snon-admin\susers,\sthough\somit\ssensitive\ninformation\sfor\snon-admins.\s\sShow\sthe\scompressed\ssize\sof\sclusters\son\sthat\npage.
-D 2024-12-20T16:50:21.926
+C Install\shyperlinks\sto\sthe\s/clusterlist\spage.
+D 2024-12-20T16:59:52.820
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -504,7 +504,7 @@ F src/merge.c 3c207fedff67b95a34769eb82c3451dca795f750c0315ef94d507670f9677e72
 F src/merge.tcl 2247b6e11aa73a7645956691b928a06dc4cbba5179105badef27f965977fa1b3
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c 50b9f8bd60c0f6e9ac3d6cb00fe64f7d2280d232289aca3762cd31ae52a9477f
+F src/name.c 10a310aa08bf9fb4116c9cb6d1058d4ce15fe4335166594d1daac49bb45f2d20
 F src/patch.c db1ea3f2bcd8d799efb0dcb5e33b0c458d04cc7db5e4a34cb8f5bb172d72f443
 F src/path.c 4d10169056b216a2237cac07dced34e642b5bdcf516f57390fec34717fe11d41
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72a218cecf7b9f84dfcc0b9df1e100cd3e252253de644191dedbf1ccf143274b
-R f96bb6b77c2a0adee10ff1800294becd
+P 90764bd6561cdade234f68ce7a1344fa788371ee6f4f13aa86694470c1d3f736
+R 83dfbd86b26a6a75d48732b63ded3272
 U drh
-Z fa917af816ec1cbb542b4b807e3d862f
+Z 08e3b46af981d8a391e1a820fa479bcc
 # Remove this line to create a well-formed Fossil manifest.
