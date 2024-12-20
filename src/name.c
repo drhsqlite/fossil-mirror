@@ -2165,3 +2165,56 @@ void hash_collisions_webpage(void){
   collision_report("SELECT uuid FROM blob ORDER BY 1");
   style_finish_page();
 }
+
+/*
+** WEBPAGE: clusterlist
+**
+** Show information about all cluster artifacts in the database.
+** This page is accessible by administrators only.
+*/
+void clusterlist_page(void){
+  Stmt q;
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
+  style_header("All Cluster Artifacts");
+  db_prepare(&q,
+    "SELECT blob.uuid, "
+    "       datetime(rcvfrom.mtime),"
+    "       user.login,"
+    "       rcvfrom.ipaddr"
+    "  FROM tagxref JOIN blob ON tagxref.rid=blob.rid"
+    "       LEFT JOIN rcvfrom ON blob.rcvid=rcvfrom.rcvid"
+    "       LEFT JOIN user ON user.uid=rcvfrom.uid"
+    " WHERE tagxref.tagid=%d"
+    " ORDER BY rcvfrom.mtime, blob.uuid",
+    TAG_CLUSTER
+  );
+  @ <table cellpadding="2" cellspacing="0" border="1">
+  @ <tr><th>Hash<th>Date<th>User<th>IP-Address
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    const char *zDate = db_column_text(&q, 1);
+    const char *zUser = db_column_text(&q, 2);
+    const char *zIp = db_column_text(&q, 3);
+    @ <tr><td><a href="%R/info/%S(zUuid)">%S(zUuid)</a>
+    if( zDate ){
+      @ <td>%h(zDate)
+    }else{
+      @ <td>&nbsp;
+    }
+    if( zUser ){
+      @ <td>%h(zUser)
+    }else{
+      @ <td>&nbsp;
+    }
+    if( zIp ){
+      @ <td>%h(zIp)
+    }else{
+      @ <td>&nbsp;
+    }
+    @ </tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_finish_page();
+}
