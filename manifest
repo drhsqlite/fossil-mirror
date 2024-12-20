@@ -1,5 +1,5 @@
-C Further\simprovements\sto\s/clusterlist\sand\sto\s/info\sfor\sa\scluster.
-D 2024-12-20T19:50:25.519
+C Optimize\ssync\sof\slong\scluster\schains\sby\ssending\sall\scluster\sartifacts\son\sthe\nthird\sclient/server\sround-trip.
+D 2024-12-20T21:16:30.300
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -592,7 +592,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
 F src/winfile.c c32dbdb03d30ab85becf46070fa05bd79af2e0b644b1e68c90a87eee121be50f
 F src/winhttp.c 4ac22db1c25e2a96207a891aced5dd19090afa266586f6f563160cfe8b91890f
-F src/xfer.c b86f3973f9db537c84b873a749150c24ac8197a801c94fdbe527009dfbdd10e2
+F src/xfer.c 4e6e873068cb207ba0cd483271fe4606fd3a59289ba7b0d8f15a3de071fcf87f
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c bb0767a627953d909af866e2f0fa3ff5fa697a154d313191c203b3b8eaaf84fe
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f374a46337177bc2dedf37fe2b04acf4813ddb8e917c3e15698f77a14468de38
-R 5ceca76ee98898c96cdf8d042994b7cf
+P 9953b169766f74ff05e12c8c8c0eebb62d1aa2a7d36798bff7e9cc304671901e
+R fecc003e4d21f2f8c6ca9b08e45b1dfc
 U drh
-Z b3f3f7f4e3a38423d81e2ef9df40e2b6
+Z 191cd0879b40362ce52cd34462b47c43
 # Remove this line to create a well-formed Fossil manifest.
