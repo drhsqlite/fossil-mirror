@@ -1758,8 +1758,11 @@ void bloblist_page(void){
   describe_artifacts(zRange);
   fossil_free(zRange);
   db_prepare(&q,
-    "SELECT rid, uuid, summary, isPrivate, type='phantom', rcvid, ref"
-    "  FROM description ORDER BY rid %s",
+         /*   0     1        2          3               4    5      6 */
+    "SELECT rid, uuid, summary, isPrivate, type='phantom', ref, rcvid, "
+    "  datetime(rcvfrom.mtime)"
+    "  FROM description LEFT JOIN rcvfrom USING(rcvid)"
+    " ORDER BY rid %s",
     ((bRecent||bUnclst)?"DESC":"ASC")/*safe-for-%s*/
   );
   if( skin_detail_boolean("white-foreground") ){
@@ -1770,18 +1773,15 @@ void bloblist_page(void){
     zSha3Bg = "#b0ffb0";
   }
   @ <table cellpadding="2" cellspacing="0" border="1">
-  if( g.perm.Admin ){
-    @ <tr><th>RID<th>Hash<th>Rcvid<th>Description<th>Ref<th>Remarks
-  }else{
-    @ <tr><th>RID<th>Hash<th>Description<th>Ref<th>Remarks
-  }
+  @ <tr><th>RID<th>Hash<th>Received<th>Description<th>Ref<th>Remarks
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zDesc = db_column_text(&q, 2);
     int isPriv = db_column_int(&q,3);
     int isPhantom = db_column_int(&q,4);
-    const char *zRef = db_column_text(&q,6);
+    const char *zRef = db_column_text(&q,5);
+    const char *zDate = db_column_text(&q,7);
     if( isPriv && !isPhantom && !g.perm.Private && !g.perm.Admin ){
       /* Don't show private artifacts to users without Private (x) permission */
       continue;
@@ -1794,12 +1794,10 @@ void bloblist_page(void){
     }
     @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
     if( g.perm.Admin ){
-      int rcvid = db_column_int(&q,5);
-      if( rcvid<=0 ){
-        @ <td>&nbsp;
-      }else{
-        @ <td><a href='%R/rcvfrom?rcvid=%d(rcvid)'>%d(rcvid)</a>
-      }
+      int rcvid = db_column_int(&q, 6);
+      @ <td><a href='%R/rcvfrom?rcvid=%d(rcvid)'>%h(zDate)</a>
+    }else{
+      @ <td>%h(zDate)
     }
     @ <td align="left">%h(zDesc)</td>
     if( zRef && zRef[0] ){

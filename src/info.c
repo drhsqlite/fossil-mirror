@@ -3183,7 +3183,9 @@ static void cluster_info(int rid, const char *zName){
   char *zSha1Bg;
   char *zSha3Bg;
   int badRid = 0;
+  int rcvid;
   int hashClr = PB("hclr");
+  const char *zDate;
 
   pCluster = manifest_get(rid, CFTYPE_CLUSTER, 0);
   if( pCluster==0 ){
@@ -3191,8 +3193,20 @@ static void cluster_info(int rid, const char *zName){
     return;
   }  
   style_header("Cluster %S", zName);
+  rcvid = db_int(0, "SELECT rcvid FROM blob WHERE rid=%d", rid);
+  if( rcvid==0 ){
+    zDate = 0;
+  }else{
+    zDate = db_text(0, "SELECT datetime(mtime) FROM rcvfrom WHERE rcvid=%d",
+                    rcvid);
+  }
   @ <p>Artifact %z(href("%R/artifact/%h",zName))%S(zName)</a> is a cluster
-  @ with %d(pCluster->nCChild) entries:</p>
+  @ with %d(pCluster->nCChild) entries
+  if( g.perm.Admin ){
+    @ received <a href="%R/rcvfrom?rcvid=%d(rcvid)">%h(zDate)</a>:
+  }else{
+    @ received %h(zDate):
+  }
   blob_appendf(&where,"IN(0");
   for(i=0; i<pCluster->nCChild; i++){
     int rid = fast_uuid_to_rid(pCluster->azCChild[i]);

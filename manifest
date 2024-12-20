@@ -1,5 +1,5 @@
-C Edit\spass\son\sthe\swww/ssl-server.md\sto\scover\ssome\sof\sthe\sdetails\sbrought\nup\s[forum:/forumpost/94c36cf8d2\s|\son\sthe\sforum].\s\sThis\salso\sadds\nfragment\sIDs\sfor\ssection\sheads\sand\simproves\sthe\sdiscussion\sgenerally.
-D 2024-12-20T19:44:34.874
+C Further\simprovements\sto\s/clusterlist\sand\sto\s/info\sfor\sa\scluster.
+D 2024-12-20T19:50:25.519
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c cffdb9d69b34104edf5316b980272fddc86c708dd234b649589b7caa0f107f6e
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c ff74df93f27498f36690706275c023c6528fd402b0bf9cc900600a1ec454fbc1
+F src/info.c 1a83f38c41a7e156d7b4d85b653cf88047e83149e6f3a0eddb2164667b69903b
 F src/interwiki.c 517f85da17421e2e6cf968345850138408104e8b82ce08ac2470e61273d62882
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -504,7 +504,7 @@ F src/merge.c 3c207fedff67b95a34769eb82c3451dca795f750c0315ef94d507670f9677e72
 F src/merge.tcl 2247b6e11aa73a7645956691b928a06dc4cbba5179105badef27f965977fa1b3
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c 547c7419dfb8f9b9f50c3b80009862f02c92506703e0cbd402ba47996f5d5f83
+F src/name.c a21f754b9ee6665471e035bd1bc0ff67132377f13ba530814f3c54cf2f582913
 F src/patch.c db1ea3f2bcd8d799efb0dcb5e33b0c458d04cc7db5e4a34cb8f5bb172d72f443
 F src/path.c 4d10169056b216a2237cac07dced34e642b5bdcf516f57390fec34717fe11d41
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9859eb0308cf63cfab44a95fde71d43a3108e0f0dff44d764a7ec0677a04c3b3
-R 4ae96a9367f7a7a8b7ecdf602abde906
-U wyoung
-Z e62734316433528e086e78818dbf8c14
+P f374a46337177bc2dedf37fe2b04acf4813ddb8e917c3e15698f77a14468de38
+R 5ceca76ee98898c96cdf8d042994b7cf
+U drh
+Z b3f3f7f4e3a38423d81e2ef9df40e2b6
 # Remove this line to create a well-formed Fossil manifest.
