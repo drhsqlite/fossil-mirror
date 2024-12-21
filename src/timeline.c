@@ -2209,6 +2209,8 @@ void page_timeline(void){
     const char *zTo = 0;
     Blob ins;
     int nNodeOnPath = 0;
+    int commonAncs = 0;    /* Common ancestors of me_rid and you_rid. */
+    int earlierRid = 0, laterRid = 0;
 
     if( from_rid && to_rid ){
       if( from_to_mode==0 ){
@@ -2221,11 +2223,21 @@ void page_timeline(void){
       zFrom = P("from");
       zTo = zTo2 ? zTo2 : P("to");
     }else{
-      if( path_common_ancestor(me_rid, you_rid) ){
+      commonAncs = path_common_ancestor(me_rid, you_rid);
+      if( commonAncs!=0 ){
         p = path_first();
       }
-      zFrom = P("me");
-      zTo = P("you");
+      if( commonAncs==you_rid ){
+        zFrom = P("you");
+        zTo = P("me");
+        earlierRid = you_rid;
+        laterRid = me_rid;
+      }else{
+        zFrom = P("me");
+        zTo = P("you");
+        earlierRid = me_rid;
+        laterRid = you_rid;
+      }
     }
     blob_init(&ins, 0, 0);
     db_multi_exec(
@@ -2268,6 +2280,19 @@ void page_timeline(void){
         }
       }
       db_multi_exec("INSERT OR IGNORE INTO pathnode SELECT x FROM related");
+      if( earlierRid && laterRid && commonAncs==earlierRid ){
+        /* On a query with me=XXX, you=YYY, and rel, omit all nodes that
+        ** are not ancestors of either XXX or YYY, as those nodes tend to
+        ** be extraneous */
+        db_multi_exec(
+          "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
+        );
+        compute_ancestors(laterRid, 0, 0, earlierRid);
+        db_multi_exec(
+          "DELETE FROM related WHERE x NOT IN ok;"
+          "DELETE FROM pathnode WHERE x NOT IN ok;"
+        );
+      }
     }
     blob_append_sql(&sql, " AND event.objid IN pathnode");
     if( zChng && zChng[0] ){

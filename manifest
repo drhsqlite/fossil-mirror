@@ -1,5 +1,5 @@
-C Documentation\supdates\sdue\sto\stoday's\schanges.
-D 2024-12-21T00:43:13.808
+C In\sa\s/timeline\swith\sme=AAA\sand\syou=BBB\sand\srel,\somit\snodes\sthat\sare\snot\nancestors\sof\sBBB.\s\sThis\shelps\sto\sbetter\sconvey\sthe\schanges\sfrom\sAAA\sto\sBBB.
+D 2024-12-21T22:48:42.721
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -572,7 +572,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c baac5d2f93a6afc57fab8bdeb29b2e0c76beaf1709436003c2bb50351b63b7a1
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c dd7f34510f95f1d2eb345667b540e02333ee0ed6615543b905e588d305574c28
+F src/timeline.c d43fce4182f1ba3d1ac184f4f6f8afaa526b15932e24be7f926b5b554e242dc3
 F src/tkt.c e52093bf6399bc2cdd6d7bd77f0cb236f023858fbd4e39442f0c3df5b2b1b84a
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 637fcef83023bad32ecf73db8cd9e55a122649e1373684d7aef0263b202541fc
-R a2a65f50dd83a49c2fd86a86321a4018
+P 5f8721753c268a7c482a68f53153f01a5c996cb2cb19fe5d243064dbc2ca55ee
+R 2f4a457eed446513be171d10a3ee33e8
 U drh
-Z c1048b5bdde0c873b6499b44a5c7df32
+Z d0fc24ba6336b7a0e0ee49399d236730
 # Remove this line to create a well-formed Fossil manifest.
