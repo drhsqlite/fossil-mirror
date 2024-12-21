@@ -20,6 +20,8 @@
      text that shows Fossil's suggested resolution to the conflict.
   *  Add the "Hide diffs/Show diffs" toggle to web-UI diff pages that show
      diffs of multiple files.
+  *  Added the [/help?cmd=/clusterlist|/clusterlist page] for analysis
+     and debugging
   *  Fix a bug in [/help?cmd=patch|fossil patch create] that causes
      [/help?cmd=revert|fossil revert] operations that happened on individual
      files after a [/help?cmd=merge|fossil merge] to be omitted from the

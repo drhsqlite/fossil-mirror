@@ -791,6 +791,14 @@ any lock on any check-in previously held by that client.
 The ci-unlock pragma helps to avoid false-positive lock warnings
 that might arise if a check-in is aborted and then restarted
 on a branch.
+
+<li><b>req-clusters</b> A client sends the "req-clusters" pragma
+to the server to ask the server to reply with "igot" cards for
+every [./fileformat.wiki#cluster|cluster artifact] that it holds.  The
+client typically does this when it thinks that it might be attempting
+to pull a long chain of cluster artifacts.  Sending the artifacts
+all at once can dramatically reduce the number of round trip
+messages needed to complete the synchronization.
 </ol>
 
 <h3 id="comment">3.12 Comment Cards</h3>
