@@ -334,6 +334,7 @@ proc get_all_settings {} {
       fileedit-glob \
       forbid-delta-manifests \
       forum-close-policy \
+      forum-title \
       gdiff-command \
       gmerge-command \
       hash-digits \

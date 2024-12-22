@@ -322,6 +322,7 @@ void render_checkin_context(int rid, int rid2, int parentsOnly, int mFlags){
          |TIMELINE_CHPICK,
        0, 0, 0, rid, rid2, 0);
   db_finalize(&q);
+  blob_reset(&sql);
 }
 
 
@@ -626,7 +627,6 @@ static void ckout_normal_diff(int vid){
                     " WHERE vid=%d AND (deleted OR chnged OR rid==0)", vid);
   if( nChng==0 ){
     @ <p>No uncommitted changes</p>
-    style_finish_page();
     return;
   }
   db_prepare(&q,
@@ -787,13 +787,8 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
         if( pCfg ){
           char *zFullFN;
           char *zHexFN;
-          int nFullFN;
           zFullFN = file_canonical_name_dup(zLhs);
-          nFullFN = (int)strlen(zFullFN);
-          zHexFN = fossil_malloc( nFullFN*2 + 5 );
-          zHexFN[0] = 'x';
-          encode16((const u8*)zFullFN, (u8*)(zHexFN+1), nFullFN);
-          zHexFN[1+nFullFN*2] = 0;
+          zHexFN = mprintf("x%H", zFullFN);
           fossil_free(zFullFN);
           pCfg->zLeftHash = zHexFN;
           text_diff(&lhs, &rhs, cgi_output_blob(), pCfg);
@@ -822,7 +817,10 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
 ** uses the files in PATH as the baseline.  This is the same as using
 ** the "--from PATH" argument to the "fossil diff" command-line.  In fact,
 ** when using "fossil ui --from PATH", the --from argument becomes the value
-** of the exbase query parameter for the start page.
+** of the exbase query parameter for the start page.  Note that if PATH
+** is a pure hexadecimal string, it is decoded first before being used as
+** the pathname.  Real pathnames should contain at least one directory
+** separator character.
 **
 ** Other query parameters related to diffs are also accepted.
 */
@@ -834,7 +832,7 @@ void ckout_page(void){
   char *zHostname;
   char *zCwd;
 
-  if( !db_open_local(0) || !cgi_is_loopback(g.zIpAddr) ){
+  if( !cgi_is_loopback(g.zIpAddr) || !db_open_local(0) ){
     cgi_redirectf("%R/home");
     return;
   }
@@ -864,7 +862,8 @@ void ckout_page(void){
   @ <hr>
   zExBase = P("exbase");
   if( zExBase && zExBase[0] ){
-    char *zCBase = file_canonical_name_dup(zExBase);
+    char *zPath = decode16_dup(zExBase);
+    char *zCBase = file_canonical_name_dup(zPath?zPath:zExBase);
     if( nHome && strncmp(zCBase, zHome, nHome)==0 && zCBase[nHome]=='/' ){
       @ <p>Using external baseline: ~%h(zCBase+nHome)</p>
     }else{
@@ -872,6 +871,7 @@ void ckout_page(void){
     }
     ckout_external_base_diff(vid, zCBase);
     fossil_free(zCBase);
+    fossil_free(zPath);
   }else{
     ckout_normal_diff(vid);
   }
@@ -1935,7 +1935,7 @@ int object_description(
   db_finalize(&q);
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d",
                 rid, TAG_CLUSTER) ){
-    @ Cluster
+    @ Cluster %z(href("%R/info/%S",zUuid))%S(zUuid)</a>.
     cnt++;
   }
   if( cnt==0 ){
@@ -2251,8 +2251,8 @@ void jchunk_page(void){
    && ((nName-1)&1)==0
    && validate16(&zName[1],nName-1)
    && g.perm.Admin
-   && db_open_local(0)
    && cgi_is_loopback(g.zIpAddr)
+   && db_open_local(0)
   ){
     /* Treat the HASH as a hex-encoded filename */
     int n = (nName-1)/2;
@@ -3170,6 +3170,139 @@ void tinfo_page(void){
   style_finish_page();
 }
 
+/*
+** rid is a cluster.  Paint a page that contains detailed information
+** about that cluster.
+*/
+static void cluster_info(int rid, const char *zName){
+  Manifest *pCluster;
+  int i;
+  Blob where = BLOB_INITIALIZER;
+  Blob unks = BLOB_INITIALIZER;
+  Stmt q;
+  char *zSha1Bg;
+  char *zSha3Bg;
+  int badRid = 0;
+  int rcvid;
+  int hashClr = PB("hclr");
+  const char *zDate;
+
+  pCluster = manifest_get(rid, CFTYPE_CLUSTER, 0);
+  if( pCluster==0 ){
+    artifact_page();
+    return;
+  }  
+  style_header("Cluster %S", zName);
+  rcvid = db_int(0, "SELECT rcvid FROM blob WHERE rid=%d", rid);
+  if( rcvid==0 ){
+    zDate = 0;
+  }else{
+    zDate = db_text(0, "SELECT datetime(mtime) FROM rcvfrom WHERE rcvid=%d",
+                    rcvid);
+  }
+  @ <p>Artifact %z(href("%R/artifact/%h",zName))%S(zName)</a> is a cluster
+  @ with %d(pCluster->nCChild) entries
+  if( g.perm.Admin ){
+    @ received <a href="%R/rcvfrom?rcvid=%d(rcvid)">%h(zDate)</a>:
+  }else{
+    @ received %h(zDate):
+  }
+  blob_appendf(&where,"IN(0");
+  for(i=0; i<pCluster->nCChild; i++){
+    int rid = fast_uuid_to_rid(pCluster->azCChild[i]);
+    if( rid ){
+      blob_appendf(&where,",%d", rid);
+    }else{
+      if( blob_size(&unks)>0 ) blob_append_char(&unks, ',');
+      badRid++;
+      blob_append_sql(&unks,"(%d,%Q)",-badRid,pCluster->azCChild[i]);
+    }
+  }
+  blob_append_char(&where,')');
+  describe_artifacts(blob_str(&where));
+  blob_reset(&where);
+  if( badRid>0 ){
+    db_multi_exec(
+      "WITH unks(rx,hx) AS (VALUES %s)\n"
+      "INSERT INTO description(rid,uuid,type,summary) "
+      "  SELECT rx, hx, 'phantom', '' FROM unks;",
+      blob_sql_text(&unks)
+    );
+  }
+  blob_reset(&unks);
+  db_prepare(&q,
+    "SELECT rid, uuid, summary, isPrivate, type='phantom', rcvid, ref"
+    "  FROM description ORDER BY uuid"
+  );
+  if( skin_detail_boolean("white-foreground") ){
+    zSha1Bg = "#714417";
+    zSha3Bg = "#177117";
+  }else{
+    zSha1Bg = "#ebffb0";
+    zSha3Bg = "#b0ffb0";
+  }
+  @ <table cellpadding="2" cellspacing="0" border="1">
+  if( g.perm.Admin ){
+    @ <tr><th>RID<th>Hash<th>Rcvid<th>Description<th>Ref<th>Remarks
+  }else{
+    @ <tr><th>RID<th>Hash<th>Description<th>Ref<th>Remarks
+  }
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q,0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDesc = db_column_text(&q, 2);
+    int isPriv = db_column_int(&q,3);
+    int isPhantom = db_column_int(&q,4);
+    const char *zRef = db_column_text(&q,6);
+    if( isPriv && !isPhantom && !g.perm.Private && !g.perm.Admin ){
+      /* Don't show private artifacts to users without Private (x) permission */
+      continue;
+    }
+    if( rid<=0 ){
+      @ <tr><td>&nbsp;</td>
+    }else if( hashClr ){
+      const char *zClr = db_column_bytes(&q,1)>40 ? zSha3Bg : zSha1Bg;
+      @ <tr style='background-color:%s(zClr);'><td align="right">%d(rid)</td>
+    }else{
+      @ <tr><td align="right">%d(rid)</td>
+    }
+    if( rid<=0 ){
+      @ <td>&nbsp;%S(zUuid)&nbsp;</td>
+    }else{
+      @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
+    }
+    if( g.perm.Admin ){
+      int rcvid = db_column_int(&q,5);
+      if( rcvid<=0 ){
+        @ <td>&nbsp;
+      }else{
+        @ <td><a href='%R/rcvfrom?rcvid=%d(rcvid)'>%d(rcvid)</a>
+      }
+    }
+    @ <td align="left">%h(zDesc)</td>
+    if( zRef && zRef[0] ){
+      @ <td>%z(href("%R/info/%!S",zRef))%S(zRef)</a>
+    }else{
+      @ <td>&nbsp;
+    }
+    if( isPriv || isPhantom ){
+      if( isPriv==0 ){
+        @ <td>phantom</td>
+      }else if( isPhantom==0 ){
+        @ <td>private</td>
+      }else{
+        @ <td>private,phantom</td>
+      }
+    }else{
+      @ <td>&nbsp;
+    }
+    @ </tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_finish_page();
+}
+
 
 /*
 ** WEBPAGE: info
@@ -3258,6 +3391,10 @@ void info_page(void){
   }else
   if( db_exists("SELECT 1 FROM attachment WHERE attachid=%d", rid) ){
     ainfo_page();
+  }else
+  if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d",
+                rid, TAG_CLUSTER) ){
+    cluster_info(rid, zName);
   }else
   {
     artifact_page();

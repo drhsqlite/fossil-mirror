@@ -1678,6 +1678,7 @@ void test_describe_artifacts_cmd(void){
 **   priv        Show only unpublished or private artifacts
 **   phan        Show only phantom artifacts
 **   hclr        Color code hash types (SHA1 vs SHA3)
+**   recent      Show the most recent N artifacts
 */
 void bloblist_page(void){
   Stmt q;
@@ -1687,6 +1688,8 @@ void bloblist_page(void){
   int privOnly = PB("priv");
   int phantomOnly = PB("phan");
   int hashClr = PB("hclr");
+  int bRecent = PB("recent");
+  int bUnclst = PB("unclustered");
   char *zRange;
   char *zSha1Bg;
   char *zSha3Bg;
@@ -1696,12 +1699,19 @@ void bloblist_page(void){
   cgi_check_for_malice();
   style_header("List Of Artifacts");
   style_submenu_element("250 Largest", "bigbloblist");
+  if( bRecent==0 || n!=250 ){
+    style_submenu_element("Recent","bloblist?n=250&recent");
+  }
+  if( bUnclst==0 ){
+    style_submenu_element("Unclustered","bloblist?unclustered");
+  }
   if( g.perm.Admin ){
     style_submenu_element("Artifact Log", "rcvfromlist");
   }
   if( !phantomOnly ){
     style_submenu_element("Phantoms", "bloblist?phan");
   }
+  style_submenu_element("Clusters","clusterlist");
   if( g.perm.Private || g.perm.Admin ){
     if( !privOnly ){
       style_submenu_element("Private", "bloblist?priv");
@@ -1712,7 +1722,7 @@ void bloblist_page(void){
   if( g.perm.Write ){
     style_submenu_element("Artifact Stats", "artifact_stats");
   }
-  if( !privOnly && !phantomOnly && mx>n && P("s")==0 ){
+  if( !privOnly && !phantomOnly && mx>n && P("s")==0 && !bRecent && !bUnclst ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
     @ <ul>
@@ -1720,6 +1730,8 @@ void bloblist_page(void){
       @ <li> %z(href("%R/bloblist?s=%d&n=%d",i,n))
       @ %d(i)..%d(i+n-1<mx?i+n-1:mx)</a>
     }
+    @ <li> %z(href("%R/bloblist?n=250&recent"))250 most recent</a>
+    @ <li> %z(href("%R/bloblist?unclustered"))All unclustered</a>
     @ </ul>
     style_finish_page();
     return;
@@ -1728,17 +1740,30 @@ void bloblist_page(void){
     style_submenu_element("Index", "bloblist");
   }
   if( privOnly ){
+    @ <h2>Private Artifacts</h2>
     zRange = mprintf("IN private");
   }else if( phantomOnly ){
+    @ <h2>Phantom Artifacts</h2>
     zRange = mprintf("IN phantom");
+  }else if( bUnclst ){
+    @ <h2>Unclustered Artifacts</h2>
+    zRange = mprintf("IN unclustered");
+  }else if( bRecent ){
+    @ <h2>%d(n) Most Recent Artifacts</h2>
+    zRange = mprintf(">=(SELECT rid FROM blob"
+                     " ORDER BY rid DESC LIMIT 1 OFFSET %d)",n);
   }else{
     zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
   }
   describe_artifacts(zRange);
   fossil_free(zRange);
   db_prepare(&q,
-    "SELECT rid, uuid, summary, isPrivate, type='phantom', rcvid, ref"
-    "  FROM description ORDER BY rid"
+         /*   0     1        2          3               4    5      6 */
+    "SELECT rid, uuid, summary, isPrivate, type='phantom', ref, rcvid, "
+    "  datetime(rcvfrom.mtime)"
+    "  FROM description LEFT JOIN rcvfrom USING(rcvid)"
+    " ORDER BY rid %s",
+    ((bRecent||bUnclst)?"DESC":"ASC")/*safe-for-%s*/
   );
   if( skin_detail_boolean("white-foreground") ){
     zSha1Bg = "#714417";
@@ -1748,18 +1773,15 @@ void bloblist_page(void){
     zSha3Bg = "#b0ffb0";
   }
   @ <table cellpadding="2" cellspacing="0" border="1">
-  if( g.perm.Admin ){
-    @ <tr><th>RID<th>Hash<th>Rcvid<th>Description<th>Ref<th>Remarks
-  }else{
-    @ <tr><th>RID<th>Hash<th>Description<th>Ref<th>Remarks
-  }
+  @ <tr><th>RID<th>Hash<th>Received<th>Description<th>Ref<th>Remarks
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zDesc = db_column_text(&q, 2);
     int isPriv = db_column_int(&q,3);
     int isPhantom = db_column_int(&q,4);
-    const char *zRef = db_column_text(&q,6);
+    const char *zRef = db_column_text(&q,5);
+    const char *zDate = db_column_text(&q,7);
     if( isPriv && !isPhantom && !g.perm.Private && !g.perm.Admin ){
       /* Don't show private artifacts to users without Private (x) permission */
       continue;
@@ -1772,12 +1794,10 @@ void bloblist_page(void){
     }
     @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
     if( g.perm.Admin ){
-      int rcvid = db_column_int(&q,5);
-      if( rcvid<=0 ){
-        @ <td>&nbsp;
-      }else{
-        @ <td><a href='%R/rcvfrom?rcvid=%d(rcvid)'>%d(rcvid)</a>
-      }
+      int rcvid = db_column_int(&q, 6);
+      @ <td><a href='%R/rcvfrom?rcvid=%d(rcvid)'>%h(zDate)</a>
+    }else{
+      @ <td>%h(zDate)
     }
     @ <td align="left">%h(zDesc)</td>
     if( zRef && zRef[0] ){
@@ -2163,5 +2183,89 @@ void hash_collisions_webpage(void){
                    " ORDER BY 1");
   @ <h1>Hash Prefix Collisions on All Artifacts</h1>
   collision_report("SELECT uuid FROM blob ORDER BY 1");
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: clusterlist
+**
+** Show information about all cluster artifacts in the database.
+*/
+void clusterlist_page(void){
+  Stmt q;
+  int cnt = 1;
+  sqlite3_int64 szTotal = 0;
+  sqlite3_int64 szCTotal = 0;
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_header("All Cluster Artifacts");
+  style_submenu_element("All Artifactst", "bloblist");
+  if( g.perm.Admin ){
+    style_submenu_element("Artifact Log", "rcvfromlist");
+  }
+  style_submenu_element("Phantoms", "bloblist?phan");
+  if( g.perm.Write ){
+    style_submenu_element("Artifact Stats", "artifact_stats");
+  }
+
+  db_prepare(&q,
+    "SELECT blob.uuid, "
+    "       blob.size, "
+    "       octet_length(blob.content), "
+    "       datetime(rcvfrom.mtime),"
+    "       user.login,"
+    "       rcvfrom.ipaddr"
+    "  FROM tagxref JOIN blob ON tagxref.rid=blob.rid"
+    "       LEFT JOIN rcvfrom ON blob.rcvid=rcvfrom.rcvid"
+    "       LEFT JOIN user ON user.uid=rcvfrom.uid"
+    " WHERE tagxref.tagid=%d"
+    " ORDER BY rcvfrom.mtime, blob.uuid",
+    TAG_CLUSTER
+  );
+  @ <table cellpadding="2" cellspacing="0" border="1">
+  @ <tr><th>&nbsp;
+  @ <th>Hash
+  @ <th>Date&nbsp;Received
+  @ <th>Size
+  @ <th>Compressed&nbsp;Size
+  if( g.perm.Admin ){
+    @ <th>User<th>IP-Address
+  }
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    sqlite3_int64 sz = db_column_int64(&q, 1);
+    sqlite3_int64 szC = db_column_int64(&q, 2);
+    const char *zDate = db_column_text(&q, 3);
+    const char *zUser = db_column_text(&q, 4);
+    const char *zIp = db_column_text(&q, 5);
+    szTotal += sz;
+    szCTotal += szC;
+    @ <tr><td align="right">%d(cnt++)
+    @ <td><a href="%R/info/%S(zUuid)">%S(zUuid)</a>
+    if( zDate ){
+      @ <td>%h(zDate)
+    }else{
+      @ <td>&nbsp;
+    }
+    @ <td align="right">%,lld(sz)
+    @ <td align="right">%,lld(szC)
+    if( g.perm.Admin ){
+      if( zUser ){
+        @ <td>%h(zUser)
+      }else{
+        @ <td>&nbsp;
+      }
+      if( zIp ){
+        @ <td>%h(zIp)
+      }else{
+        @ <td>&nbsp;
+      }
+    }
+    @ </tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  @ <p>Total size of all clusters: %,lld(szTotal) bytes,
+  @ %,lld(szCTotal) bytes compressed</p>
   style_finish_page();
 }

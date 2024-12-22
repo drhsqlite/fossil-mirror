@@ -173,19 +173,18 @@ void checkout_set_all_exe(int vid){
 */
 void manifest_to_disk(int vid){
   char *zManFile;
-  Blob manifest;
-  Blob taglist;
   int flg;
 
   flg = db_get_manifest_setting();
 
   if( flg & MFESTFLG_RAW ){
-    blob_zero(&manifest);
+    Blob manifest = BLOB_INITIALIZER;
     content_get(vid, &manifest);
     sterilize_manifest(&manifest, CFTYPE_MANIFEST);
     zManFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManFile);
     free(zManFile);
+    blob_reset(&manifest);
   }else{
     if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest'") ){
       zManFile = mprintf("%smanifest", g.zLocalRoot);
@@ -209,7 +208,7 @@ void manifest_to_disk(int vid){
     }
   }
   if( flg & MFESTFLG_TAGS ){
-    blob_zero(&taglist);
+    Blob taglist = BLOB_INITIALIZER;
     zManFile = mprintf("%smanifest.tags", g.zLocalRoot);
     get_checkin_taglist(vid, &taglist);
     blob_write_to_file(&taglist, zManFile);

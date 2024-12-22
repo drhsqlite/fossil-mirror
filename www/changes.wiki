@@ -18,6 +18,14 @@
      branch has been changed.
   *  When a merge conflict occurs, a new section is added to the conflict
      text that shows Fossil's suggested resolution to the conflict.
+  *  Add the "Hide diffs/Show diffs" toggle to web-UI diff pages that show
+     diffs of multiple files.
+  *  Added the [/help?cmd=/clusterlist|/clusterlist page] for analysis
+     and debugging
+  *  Fix a bug in [/help?cmd=patch|fossil patch create] that causes
+     [/help?cmd=revert|fossil revert] operations that happened on individual
+     files after a [/help?cmd=merge|fossil merge] to be omitted from the
+     patch.
 
 <h2 id='v2_25'>Changes for version 2.25 (2024-11-06)</h2>
 

@@ -83,9 +83,8 @@ static void mkdeltaFunc(
   sqlite3_value **argv
 ){
   const char *zFile;
-  Blob x, y;
+  Blob x, y, out;
   int rid;
-  char *aOut;
   int nOut;
   sqlite3_int64 sz;
 
@@ -106,13 +105,8 @@ static void mkdeltaFunc(
     blob_reset(&x);
     return;
   }
-  aOut = sqlite3_malloc64(sz+70);
-  if( aOut==0 ){
-    sqlite3_result_error_nomem(context);
-    blob_reset(&y);
-    blob_reset(&x);
-    return;
-  }
+  blob_init(&out, 0, 0);
+  blob_resize(&out, sz+70);
   if( blob_size(&x)==blob_size(&y)
    && memcmp(blob_buffer(&x), blob_buffer(&y), blob_size(&x))==0
   ){
@@ -122,14 +116,14 @@ static void mkdeltaFunc(
     return;
   }
   nOut = delta_create(blob_buffer(&x),blob_size(&x),
-                      blob_buffer(&y),blob_size(&y), aOut);
+                      blob_buffer(&y),blob_size(&y), blob_buffer(&out));
+  blob_resize(&out, nOut);
   blob_reset(&x);
   blob_reset(&y);
-  blob_init(&x, aOut, nOut);
-  blob_compress(&x, &x);
-  sqlite3_result_blob64(context, blob_buffer(&x), blob_size(&x),
+  blob_compress(&out, &out);
+  sqlite3_result_blob64(context, blob_buffer(&out), blob_size(&out),
                         SQLITE_TRANSIENT);
-  blob_reset(&x);
+  blob_reset(&out);
 }
 
 
@@ -389,7 +383,7 @@ void patch_apply(unsigned mFlags){
       fossil_fatal("Cannot apply patch: there are unsaved changes "
                    "in the current check-out");
     }else{
-      blob_appendf(&cmd, "%$ revert", g.nameOfExe);
+      blob_appendf(&cmd, "%$ revert --noundo", g.nameOfExe);
       if( mFlags & PATCH_DRYRUN ){
         fossil_print("%s\n", blob_str(&cmd));
       }else{
@@ -431,6 +425,7 @@ void patch_apply(unsigned mFlags){
   }
   blob_reset(&cmd);
   if( db_table_exists("patch","patchmerge") ){
+    int nMerge = 0;
     db_prepare(&q,
       "SELECT type, mhash, upper(type) FROM patch.patchmerge"
       " WHERE type IN ('merge','cherrypick','backout','integrate')"
@@ -440,10 +435,13 @@ void patch_apply(unsigned mFlags){
       const char *zType = db_column_text(&q,0);
       blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
       if( strcmp(zType,"merge")==0 ){
-        blob_appendf(&cmd, " merge %s\n", db_column_text(&q,1));
+        blob_appendf(&cmd, " merge --noundo --nosync %s\n",
+                     db_column_text(&q,1));
       }else{
-        blob_appendf(&cmd, " merge --%s %s\n", zType, db_column_text(&q,1));
+        blob_appendf(&cmd, " merge --%s --noundo --nosync %s\n",
+                     zType, db_column_text(&q,1));
       }
+      nMerge++;
       if( mFlags & PATCH_VERBOSE ){
         fossil_print("%-10s %s\n", db_column_text(&q,2),
                     db_column_text(&q,0));
@@ -460,6 +458,41 @@ void patch_apply(unsigned mFlags){
       }
     }
     blob_reset(&cmd);
+
+    /* 2024-12-16 https://fossil-scm.org/home/forumpost/51a37054
+    ** If one or more merge operations occurred in the patch and there are
+    ** files that are marked as "chnged' in the local VFILE but which
+    ** are not mentioned as having been modified in the patch, then
+    ** revert those files.
+    */
+    if( nMerge ){
+      int vid = db_lget_int("checkout", 0);
+      int nRevert = 0;
+      blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
+      blob_appendf(&cmd, " revert --noundo ");
+      db_prepare(&q,
+        "SELECT pathname FROM vfile WHERE vid=%d AND chnged "
+        "EXCEPT SELECT pathname FROM chng",
+        vid
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        blob_append_escaped_arg(&cmd, db_column_text(&q,0), 1);
+        nRevert++;
+      }
+      db_finalize(&q);
+      if( nRevert ){
+        if( mFlags & PATCH_DRYRUN ){
+          fossil_print("%s", blob_str(&cmd));
+        }else{
+          int rc = fossil_unsafe_system(blob_str(&cmd));
+          if( rc ){
+            fossil_fatal("unable to do reverts:\n%s",
+                         blob_str(&cmd));
+          }
+        }
+      }
+      blob_reset(&cmd);
+    }
   }
 
   /* Deletions */
