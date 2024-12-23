@@ -1593,6 +1593,7 @@ static int timeline_endpoint(
     endId = symbolic_name_to_rid(zEnd, "ci");
     if( endId==0 ) return 0;
   }
+  db_pause_dml_log();
   if( bForward ){
     if( tagId ){
       db_prepare(&q,
@@ -1660,6 +1661,7 @@ static int timeline_endpoint(
     ans = db_column_int(&q, 0);
   }
   db_finalize(&q);
+  db_unpause_dml_log();
   return ans;
 }
 
@@ -1864,10 +1866,13 @@ void page_timeline(void){
   int showCherrypicks = 1;            /* True to show cherrypick merges */
   int haveParameterN;                 /* True if n= query parameter present */
   int from_to_mode = 0;               /* 0: from,to. 1: from,ft 2: from,bt */
+  int showSql = PB("showsql");        /* True to show the SQL */
+  Blob allSql;                        /* Copy of all SQL text */
 
   login_check_credentials();
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
+  blob_init(&allSql, 0, 0);
 
   (void)P_NoBot("ss")
     /* "ss" is processed via the udc but at least one spider likes to
@@ -2084,6 +2089,7 @@ void page_timeline(void){
     tmFlags &= ~(TIMELINE_DELTA|TIMELINE_BRCOLOR|TIMELINE_UCOLOR);
     tmFlags |= TIMELINE_NOCOLOR;
   }
+  if( showSql ) db_append_dml_to_blob(&allSql);
   if( zUses!=0 ){
     int ufid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUses);
     if( ufid ){
@@ -2101,7 +2107,7 @@ void page_timeline(void){
     db_multi_exec(
       "CREATE TEMP TABLE rnfile(rid INTEGER PRIMARY KEY);"
       "INSERT OR IGNORE INTO rnfile"
-      "  SELECT mid FROM mlink WHERE pfnid>0 AND pfnid!=fnid;"
+      " SELECT mid FROM mlink WHERE pfnid>0 AND pfnid!=fnid;"
     );
     disableY = 1;
   }
@@ -2110,29 +2116,29 @@ void page_timeline(void){
       "CREATE TEMP TABLE rnfork(rid INTEGER PRIMARY KEY);\n"
       "INSERT OR IGNORE INTO rnfork(rid)\n"
       "  SELECT pid FROM plink\n"
-      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
-      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
-      "   GROUP BY pid"
+      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)==\n"
+      "         (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "   GROUP BY pid\n"
       "   HAVING count(*)>1;\n"
-      "INSERT OR IGNORE INTO rnfork(rid)"
+      "INSERT OR IGNORE INTO rnfork(rid)\n"
       "  SELECT cid FROM plink\n"
-      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
-      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
-      "   GROUP BY cid"
+      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)==\n"
+      "         (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "   GROUP BY cid\n"
       "   HAVING count(*)>1;\n",
       TAG_BRANCH, TAG_BRANCH, TAG_BRANCH, TAG_BRANCH
     );
     db_multi_exec(
       "INSERT OR IGNORE INTO rnfork(rid)\n"
       "  SELECT cid FROM plink\n"
-      "   WHERE pid IN rnfork"
-      "     AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
-      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
-      " UNION "
+      "   WHERE pid IN rnfork\n"
+      "     AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)==\n"
+      "         (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "  UNION\n"
       "  SELECT pid FROM plink\n"
-      "   WHERE cid IN rnfork"
-      "     AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
-      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n",
+      "   WHERE cid IN rnfork\n"
+      "     AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)==\n"
+      "         (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n",
       TAG_BRANCH, TAG_BRANCH, TAG_BRANCH, TAG_BRANCH
     );
     tmFlags |= TIMELINE_UNHIDE;
@@ -2241,14 +2247,21 @@ void page_timeline(void){
     }
     blob_init(&ins, 0, 0);
     db_multi_exec(
-      "CREATE TABLE IF NOT EXISTS temp.pathnode(x INTEGER PRIMARY KEY);"
+      "CREATE TEMP TABLE IF NOT EXISTS pathnode(x INTEGER PRIMARY KEY);"
     );
     if( p ){
+      int cnt = 4;
       blob_init(&ins, 0, 0);
       blob_append_sql(&ins, "INSERT INTO pathnode(x) VALUES(%d)", p->rid);
       p = p->u.pTo;
       while( p ){
-        blob_append_sql(&ins, ",(%d)", p->rid);
+        if( cnt==8 ){
+          blob_append_sql(&ins, ",\n  (%d)", p->rid);
+          cnt = 0;
+        }else{
+          cnt++;
+          blob_append_sql(&ins, ",(%d)", p->rid);
+        }
         p = p->u.pTo;
       }
     }
@@ -2257,25 +2270,25 @@ void page_timeline(void){
     blob_reset(&ins);
     if( related || P("mionly") ){
       db_multi_exec(
-        "CREATE TABLE IF NOT EXISTS temp.related(x INTEGER PRIMARY KEY);"
+        "CREATE TEMP TABLE IF NOT EXISTS related(x INTEGER PRIMARY KEY);"
         "INSERT OR IGNORE INTO related(x)"
-        "  SELECT pid FROM plink WHERE cid IN pathnode AND NOT isprim;"
+        " SELECT pid FROM plink WHERE cid IN pathnode AND NOT isprim;"
       );
       if( P("mionly")==0 ){
         db_multi_exec(
           "INSERT OR IGNORE INTO related(x)"
-          "  SELECT cid FROM plink WHERE pid IN pathnode;"
+          " SELECT cid FROM plink WHERE pid IN pathnode;"
         );
       }
       if( showCherrypicks ){
         db_multi_exec(
           "INSERT OR IGNORE INTO related(x)"
-          "  SELECT parentid FROM cherrypick WHERE childid IN pathnode;"
+          " SELECT parentid FROM cherrypick WHERE childid IN pathnode;"
         );
         if( P("mionly")==0 ){
           db_multi_exec(
             "INSERT OR IGNORE INTO related(x)"
-            "  SELECT childid FROM cherrypick WHERE parentid IN pathnode;"
+            " SELECT childid FROM cherrypick WHERE parentid IN pathnode;"
           );
         }
       }
@@ -2365,7 +2378,6 @@ void page_timeline(void){
     blob_append_sql(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
-      Stmt s;
       double rStopTime = 9e99;
       zFwdTo = P("ft");
       if( zFwdTo ){
@@ -2381,23 +2393,21 @@ void page_timeline(void){
             "SELECT mtime FROM event WHERE objid=%d", ridFwdTo);
         }
       }
-      db_prepare(&s,
-        "WITH RECURSIVE"
-        "  dx(rid,mtime) AS ("
-        "     SELECT %d, 0"
-        "     UNION"
-        "     SELECT plink.cid, plink.mtime FROM dx, plink"
-        "      WHERE plink.pid=dx.rid"
-        "        AND (:stop>=8e99 OR plink.mtime<=:stop)"
-        "      ORDER BY 2"
-        "  )"
+      if( rStopTime<9e99 ){
+        rStopTime += 5.8e-6;  /* Round up by 1/2 second */
+      }
+      db_multi_exec(
+        "WITH RECURSIVE dx(rid,mtime) AS (\n"
+        "  SELECT %d, 0\n"
+        "  UNION\n"
+        "  SELECT plink.cid, plink.mtime FROM dx, plink\n"
+        "   WHERE plink.pid=dx.rid\n"
+        "     AND plink.mtime<=%.*g\n"
+        "   ORDER BY 2\n"
+        ")\n"
         "INSERT OR IGNORE INTO ok SELECT rid FROM dx LIMIT %d",
-        d_rid, nEntry<=0 ? -1 : nEntry+1
+        d_rid, rStopTime<8e99 ? 17 : 2, rStopTime, nEntry<=0 ? -1 : nEntry+1
       );
-      db_bind_double(&s, ":stop", rStopTime);
-      db_step(&s);
-      db_finalize(&s);
-      /* compute_descendants(d_rid, nEntry==0 ? 0 : nEntry+1); */
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
       if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
       if( nd>0 || p_rid==0 ){
@@ -2510,13 +2520,13 @@ void page_timeline(void){
       tmFlags |= TIMELINE_XMERGE;
     }
     if( zUses ){
-      blob_append_sql(&cond, " AND event.objid IN usesfile ");
+      blob_append_sql(&cond, " AND event.objid IN usesfile\n");
     }
     if( renameOnly ){
-      blob_append_sql(&cond, " AND event.objid IN rnfile ");
+      blob_append_sql(&cond, " AND event.objid IN rnfile\n");
     }
     if( forkOnly ){
-      blob_append_sql(&cond, " AND event.objid IN rnfork ");
+      blob_append_sql(&cond, " AND event.objid IN rnfork\n");
     }
     if( cpOnly && showCherrypicks ){
       db_multi_exec(
@@ -2524,10 +2534,10 @@ void page_timeline(void){
         "INSERT OR IGNORE INTO cpnodes SELECT childid FROM cherrypick;"
         "INSERT OR IGNORE INTO cpnodes SELECT parentid FROM cherrypick;"
       );
-      blob_append_sql(&cond, " AND event.objid IN cpnodes ");
+      blob_append_sql(&cond, " AND event.objid IN cpnodes\n");
     }
     if( bisectLocal || zBisect!=0 ){
-      blob_append_sql(&cond, " AND event.objid IN (SELECT rid FROM bilog) ");
+      blob_append_sql(&cond, " AND event.objid IN (SELECT rid FROM bilog)\n");
     }
     if( zYearMonth ){
       char *zNext;
@@ -2880,9 +2890,6 @@ void page_timeline(void){
       if( nEntry>0 ){
         blob_append_sql(&sql2," LIMIT %d", (nEntry+1)/2);
       }
-      if( PB("showsql") ){
-         @ <pre>%h(blob_sql_text(&sql2))</pre>
-      }
       db_multi_exec("%s", blob_sql_text(&sql2));
       if( nEntry>0 ){
         nEntry -= db_int(0,"select count(*) from timeline");
@@ -3037,8 +3044,10 @@ void page_timeline(void){
     }
     blob_zero(&cond);
   }
-  if( PB("showsql") ){
-    @ <pre>%h(blob_sql_text(&sql))</pre>
+  if( showSql ){
+    db_append_dml_to_blob(0);
+    @ <pre>%h(blob_str(&allSql))</pre>
+    blob_reset(&allSql);
   }
   if( search_restrict(SRCH_CKIN)!=0 ){
     style_submenu_element("Search", "%R/search?y=c");

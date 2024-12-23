@@ -172,6 +172,8 @@ static struct DbLocalData {
   int bProtectTriggers;     /* True if protection triggers already exist */
   int nProtect;             /* Slots of aProtect used */
   unsigned aProtect[12];    /* Saved values of protectMask */
+  int pauseDmlLog;          /* Ignore pDmlLog if positive */
+  Blob *pDmlLog;            /* Append DML statements here, of not NULL */
 } db = {
   PROTECT_USER|PROTECT_CONFIG|PROTECT_BASELINE,  /* protectMask */
   0, 0, 0, 0, 0, 0, 0, {{0}}, {0}, {0}, 0, 0, 0, 0, 0, 0, 0, 0, 0, {0}};
@@ -646,6 +648,39 @@ void db_clear_authorizer(void){
 #endif
 
 /*
+** If zSql is a DML statement, append it db.pDmlLog.
+*/
+static void db_append_dml(const char *zSql){
+  size_t nSql;
+  if( db.pDmlLog==0 ) return;
+  if( db.pauseDmlLog ) return;
+  if( zSql==0 ) return;
+  nSql = strlen(zSql);
+  while( nSql>0 && fossil_isspace(zSql[0]) ){ nSql--; zSql++; }
+  while( nSql>0 && fossil_isspace(zSql[nSql-1]) ) nSql--;
+  if( nSql<6 ) return;
+  if( strncmp(zSql, "SELECT", 6)==0 ) return;
+  if( strncmp(zSql, "PRAGMA", 6)==0 ) return;
+  blob_append(db.pDmlLog, zSql, nSql);
+  if( zSql[nSql-1]!=';' ) blob_append_char(db.pDmlLog, ';');
+  blob_append_char(db.pDmlLog, '\n');
+}
+
+/*
+** Set the Blob to which DML statement text should be appended.  Set it
+** to zero to stop appending DML statement text.
+*/
+void db_append_dml_to_blob(Blob *pBlob){
+  db.pDmlLog = pBlob;
+}
+
+/*
+** Pause or unpause the DML log
+*/
+void db_pause_dml_log(void){    db.pauseDmlLog++; }
+void db_unpause_dml_log(void){  db.pauseDmlLog--; }
+
+/*
 ** Prepare a Stmt.  Assume that the Stmt is previously uninitialized.
 ** If the input string contains multiple SQL statements, only the first
 ** one is processed.  All statements beyond the first are silently ignored.
@@ -660,6 +695,7 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   va_end(ap);
   zSql = blob_str(&pStmt->sql);
   db.nPrepare++;
+  db_append_dml(zSql);
   if( flags & DB_PREPARE_PERSISTENT ){
     prepFlags = SQLITE_PREPARE_PERSISTENT;
   }
@@ -1049,6 +1085,7 @@ int db_exec_sql(const char *z){
       db_err("%s: {%s}", sqlite3_errmsg(g.db), z);
     }else if( pStmt ){
       db.nPrepare++;
+      db_append_dml(sqlite3_sql(pStmt));
       while( sqlite3_step(pStmt)==SQLITE_ROW ){}
       rc = sqlite3_finalize(pStmt);
       if( rc ) db_err("%s: {%.*s}", sqlite3_errmsg(g.db), (int)(zEnd-z), z);

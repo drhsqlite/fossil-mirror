@@ -201,6 +201,22 @@ static void bisect_append_skip(int rid){
 }
 
 /*
+** Append a VALUES entry to the bilog table insert
+*/
+static void bisect_log_append(Blob *pSql,int iSeq,const char *zStat,int iRid){
+  if( (iSeq%6)==3 ){
+    blob_append_sql(pSql, ",\n  ");
+  }else if( iSeq>1 ){
+    blob_append_sql(pSql, ",");
+  }
+  if( zStat ){
+    blob_append_sql(pSql, "(%d,%Q,%d)", iSeq, zStat, iRid);
+  }else{
+    blob_append_sql(pSql, "(NULL,NULL,%d)", iRid);
+  }
+}
+
+/*
 ** Create a TEMP table named "bilog" that contains the complete history
 ** of the current bisect.
 **
@@ -217,10 +233,10 @@ static void bisect_append_skip(int rid){
 int bisect_create_bilog_table(int iCurrent, const char *zDesc, int bDetail){
   char *zLog;
   Blob log, id;
-  Stmt q;
   int cnt = 0;
   int lastGood = -1;
   int lastBad = -1;
+  Blob ins = BLOB_INITIALIZER;
 
   if( zDesc!=0 ){
     blob_init(&log, 0, 0);
@@ -255,51 +271,38 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc, int bDetail){
      "  seq INTEGER UNIQUE"        /* Check-in number */
      ");"
   );
-  db_prepare(&q, "INSERT OR IGNORE INTO bilog(seq,stat,rid)"
-                 " VALUES(:seq,:stat,:rid)");
+  blob_append_sql(&ins, "INSERT OR IGNORE INTO bilog(seq,stat,rid) VALUES");
   while( blob_token(&log, &id) ){
     int rid;
-    db_bind_int(&q, ":seq", ++cnt);
+    cnt++;
     if( blob_str(&id)[0]=='s' ){
       rid = atoi(blob_str(&id)+1);
-      db_bind_text(&q, ":stat", "SKIP");
-      db_bind_int(&q, ":rid", rid);
+      bisect_log_append(&ins, cnt, "SKIP", rid);
     }else{
       rid = atoi(blob_str(&id));
       if( rid>0 ){
-        db_bind_text(&q, ":stat","GOOD");
-        db_bind_int(&q, ":rid", rid);
+        bisect_log_append(&ins, cnt, "GOOD", rid);
         lastGood = rid;
       }else{
-        db_bind_text(&q, ":stat", "BAD");
-        db_bind_int(&q, ":rid", -rid);
+        bisect_log_append(&ins, cnt, "BAD", rid);
         lastBad = -rid;
       }
     }
-    db_step(&q);
-    db_reset(&q);
   }
   if( iCurrent>0 ){
-    db_bind_int(&q, ":seq", ++cnt);
-    db_bind_text(&q, ":stat", "CURRENT");
-    db_bind_int(&q, ":rid", iCurrent);
-    db_step(&q);
-    db_reset(&q);
+    bisect_log_append(&ins, ++cnt, "CURRENT", iCurrent);
   }
   if( bDetail && lastGood>0 && lastBad>0 ){
     PathNode *p;
     p = path_shortest(lastGood, lastBad, bisect_option("direct-only"),0, 0);
     while( p ){
-      db_bind_null(&q, ":seq");
-      db_bind_null(&q, ":stat");
-      db_bind_int(&q, ":rid", p->rid);
-      db_step(&q);
-      db_reset(&q);
+      bisect_log_append(&ins, ++cnt, 0, p->rid);
       p = p->u.pTo;
     }
     path_reset();
   }
-  db_finalize(&q);
+  db_exec_sql(blob_sql_text(&ins));
+  blob_reset(&ins);
   return 1;
 }
 
