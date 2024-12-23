@@ -1667,6 +1667,47 @@ static int timeline_endpoint(
 }
 
 /*
+** Add to the (temp) table zTab, RID values for every check-in
+** identifier found on the zExtra string.  Check-in names can be separated
+** by commas or by whitespace.
+*/
+static void add_extra_rids(const char *zTab, const char *zExtra){
+  int ii;
+  int rid;
+  int cnt;
+  Blob sql;
+  char *zX;
+  char *zToDel;
+  if( zExtra==0 ) return;
+  cnt = 0;
+  blob_init(&sql, 0, 0);
+  zX = zToDel = fossil_strdup(zExtra);
+  blob_append_sql(&sql, "INSERT OR IGNORE INTO \"%w\" VALUES", zTab);
+  while( zX[0] ){
+    char c;
+    if( zX[0]==',' || zX[0]==' ' ){ zX++; continue; }
+    for(ii=1; zX[ii] && zX[ii]!=',' && zX[ii]!=' '; ii++){}
+    c = zX[ii];
+    zX[ii] = 0;
+    rid = name_to_rid(zX);
+    if( rid>0 ){
+      if( (cnt%10)==4 ){
+        blob_append_sql(&sql,",\n ");
+      }else if( cnt>0 ){
+        blob_append_sql(&sql,",");
+      }
+      blob_append_sql(&sql, "(%d)", rid);
+      cnt++;
+    }
+    zX[ii] = c;
+    zX += ii;
+  }
+  if( cnt ) db_exec_sql(blob_sql_text(&sql));
+  blob_reset(&sql);
+  fossil_free(zToDel);
+}
+
+/*
 ** COMMAND: test-endpoint
 **
 ** Usage: fossil test-endpoint BASE TAG ?OPTIONS?
@@ -2314,6 +2355,7 @@ void page_timeline(void){
       }
       db_multi_exec("INSERT OR IGNORE INTO pathnode SELECT x FROM related");
     }
+    add_extra_rids("pathnode",P("x"));
     blob_append_sql(&sql, " AND event.objid IN pathnode");
     if( zChng && zChng[0] ){
       db_multi_exec(
@@ -2379,6 +2421,7 @@ void page_timeline(void){
     db_multi_exec(
        "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
     );
+    add_extra_rids("ok", P("x"));
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d",
                          p_rid ? p_rid : d_rid);
     zCiName = zDPName;
@@ -2720,23 +2763,7 @@ void page_timeline(void){
         db_multi_exec(
           "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridMark);
       }
-      if( P("x")!=0 ){
-        char *zX = fossil_strdup(P("x"));
-        int ii;
-        int ridX;
-        while( zX[0] ){
-          char c;
-          if( zX[0]==',' || zX[0]==' ' ){ zX++; continue; }
-          for(ii=1; zX[ii] && zX[ii]!=',' && zX[ii]!=' '; ii++){}
-          c = zX[ii];
-          zX[ii] = 0;
-          ridX = name_to_rid(zX);
-          db_multi_exec(
-            "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridX);
-          zX[ii] = c;
-          zX += ii;
-        }
-      }
+      add_extra_rids("selected_nodes",P("x"));
       if( !related ){
         blob_append_sql(&cond, " AND blob.rid IN selected_nodes");
       }else{
