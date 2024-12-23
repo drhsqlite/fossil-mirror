@@ -1,5 +1,5 @@
-C When\s/timeline\sselects\sspecific\sbranches\susing\sr=,\st=,\srl=,\stl=\sor\ssimilar,\nthen\stry\sto\sshow\sthe\sselected\sbranches\sat\sthe\sleft\smargin.\sTo\shelp\saccomplish\nthis,\sthe\scode\sthat\scomputes\sbranch\sname\smatching\sby\svarious\salgorithms\s\n(GLOB,\sLIKE,\sREGEXP,\sLIST)\sis\sfactored\sout\sinto\sa\snew\ssource\sfile\s"match.c".
-D 2024-12-23T20:08:11.560
+C Experimental\schanges\sthat\scause\sbranches\sto\sappear\sin\sthe\sgraph\sin\sthe\nsame\sorder\sthat\sthey\sare\slisting\sthe\srl=\sor\stl=\squery\sparameter.
+D 2024-12-23T20:52:31.426
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -457,7 +457,7 @@ F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
 F src/glob.c 6415e69faa8a0714ed1d4e4457fe27accc839a674861064be31b49a7d7f80626
-F src/graph.c bb087a35c8adaf5ece18992347c3af586e23ac804f72f6af412b526016e2d5a7
+F src/graph.c 59235aae2fc4e228070811d5d0a4e9721d4b06bdee50c993f10d49535a788e07
 F src/graph.js 91271ed35b6f576c3527664d6c1a255f67af5b7fa9f667854ef47e6837404c37
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
@@ -498,7 +498,7 @@ F src/manifest.c f98b600d1850abeac77a1c13967c4f2ded26f8f968cd86a8e5a25943e385b54
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
 F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
-F src/match.c a999ac45ea5e27b752222ab4d8f1776557685102b4f2e4238c1b6d09a97cceb1
+F src/match.c 7bb0543f668afd4e4d431bed869394f2b007200e80382321bee7b6701c430f45
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 3c207fedff67b95a34769eb82c3451dca795f750c0315ef94d507670f9677e72
@@ -962,8 +962,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1611c972604a6b110e2c6646265939f0bb90addb86b757a9e3153b3f0a29749b
-R 74e0a3acee2b5244455caadd63525883
+P e89ea2c93c38fe1cd2b7746694ecddca26dae9e510d40f1fe9ffdb670c4879f0
+R 70db4d611bf25f0338aad6c7f3459787
+T *branch * rl-determines-graph-order
+T *sym-rl-determines-graph-order *
+T -sym-trunk *
 U drh
-Z 34f159efb67979956e70b29ecb26f64d
+Z 974193c2bebb1b78132bb9703ee24d6a
 # Remove this line to create a well-formed Fossil manifest.

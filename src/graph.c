@@ -981,6 +981,7 @@ void graph_finish(
   aMap = p->aiRailMap;
   for(i=0; i<=p->mxRail; i++) aMap[i] = i; /* Set up a default mapping */
   if( nTimewarp==0 ){
+    int kk;
     /* Priority bits:
     **
     **    0x04      The preferred branch
@@ -992,12 +993,15 @@ void graph_finish(
     **
     **    0x01      A rail that merges with the preferred branch
     */
-    u8 aPriority[GR_MAX_RAIL];
+    u16 aPriority[GR_MAX_RAIL];
+    int mxMatch = 0;
     memset(aPriority, 0, p->mxRail+1);
     if( pLeftBranch ){
       for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-        if( match_text(pLeftBranch, pRow->zBranch) ){
-          aPriority[pRow->iRail] |= 4;
+        int iMatch = match_text(pLeftBranch, pRow->zBranch);
+        if( iMatch>0 && iMatch<0x3fff ){
+          aPriority[pRow->iRail] |= iMatch*4;
+          if( mxMatch<iMatch ) mxMatch = iMatch;
           for(i=0; i<=p->mxRail; i++){
             if( pRow->mergeIn[i] ) aPriority[i] |= 1;
           }
@@ -1030,8 +1034,12 @@ void graph_finish(
 #endif
 
     j = 0;
-    for(i=0; i<=p->mxRail; i++){
-      if( aPriority[i]>=4 ) aMap[i] = j++;
+    for(kk=4; kk<=mxMatch*4; kk+=4){
+      for(i=0; i<=p->mxRail; i++){
+        if( aPriority[i]>=kk && aPriority[i]<=kk+3 ){
+          aMap[i] = j++;
+        }
+      }
     }
     for(i=p->mxRail; i>=0; i--){
       if( aPriority[i]==3 ) aMap[i] = j++;
