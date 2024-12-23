@@ -1738,8 +1738,8 @@ void timeline_test_endpoint(void){
 **                       from=CX    ... shortest path from CX up to CHECKIN
 **    t=TAG           Show only check-ins with the given TAG
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
-**    tl=TAGLIST      Shorthand for t=TAGLIST&ms=brlist
-**    rl=TAGLIST      Shorthand for r=TAGLIST&ms=brlist
+**    tl=TAGLIST      Same as 't=TAGLIST&ms=brlist'
+**    rl=TAGLIST      Same as 'r=TAGLIST&ms=brlist'
 **    rel             Show related check-ins as well as those matching t=TAG
 **    mionly          Limit rel to show ancestors but not descendants
 **    nowiki          Do not show wiki associated with branch or tag
@@ -1757,13 +1757,16 @@ void timeline_test_endpoint(void){
 **    v               Show details of files changed
 **    vfx             Show complete text of forum messages
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
-**    from=CHECKIN    Path from...
+**    from=CHECKIN    Path through common ancestor from...
 **                       to=CHECKIN      ... to this
 **                       to2=CHECKIN     ... backup name if to= doesn't resolve
 **                       shortest        ... show only the shortest path
 **                       rel             ... also show related checkins
 **                       bt=PRIOR        ... path from CHECKIN back to PRIOR
 **                       ft=LATER        ... path from CHECKIN forward to LATER
+**    me=CHECKIN      Most direct path from...
+**                       you=CHECKIN     ... to this
+**                       rel             ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
 **                       All qualifying check-ins are shown unless there is
 **                       also an n= or n1= query parameter.
@@ -1789,7 +1792,7 @@ void timeline_test_endpoint(void){
 **    bisect          Show the check-ins that are in the current bisect
 **    oldestfirst     Show events oldest first.
 **    showid          Show RIDs
-**    showsql         Show the SQL text
+**    showsql         Show the SQL used to generate the report
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
