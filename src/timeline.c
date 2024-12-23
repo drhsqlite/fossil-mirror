@@ -1753,8 +1753,8 @@ void timeline_test_endpoint(void){
 **                    event if TIMEORTAG is not part of the timeline.  If
 **                    the t= or r= is used, the m event is added to the timeline
 **                    if it isn't there already.
-**    x=HASHLIST      Show all check-ins in the comma-separated HASHLIST
-**                    in addition to check-ins specified by t= or r=
+**    x=LIST          Show check-ins in the comma- or space-separated LIST
+**                    in addition to check-ins specified by other parameters.
 **    sel1=TIMEORTAG  Highlight the check-in at TIMEORTAG if it is part of
 **                    the timeline.  Similar to m= except TIMEORTAG must
 **                    match a check-in that is already in the timeline.
