@@ -2227,8 +2227,12 @@ void page_timeline(void){
         p = path_shortest(from_rid, to_rid, noMerge, 0, 0);
       }else if( from_to_mode==1 ){
         p = path_shortest(from_rid, to_rid, 0, 1, 0);
+        earlierRid = commonAncs = from_rid;
+        laterRid = to_rid;
       }else{
         p = path_shortest(to_rid, from_rid, 0, 1, 0);
+        earlierRid = commonAncs = to_rid;
+        laterRid = from_rid;
       }
       zFrom = P("from");
       zTo = zTo2 ? zTo2 : P("to");
