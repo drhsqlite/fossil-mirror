@@ -134,6 +134,7 @@ set src {
   manifest
   markdown
   markdown_html
+  match
   md5
   merge
   merge3

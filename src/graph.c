@@ -497,7 +497,11 @@ static void riser_to_top(GraphRow *pRow){
 **       TIMELINE_FILLGAPS:    Use step-children
 **       TIMELINE_XMERGE:      Omit off-graph merge lines
 */
-void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
+void graph_finish(
+  GraphContext *p,                /* The graph to be laid out */
+  Matcher *pLeftBranch,           /* Compares true for left-most branch */
+  u32 tmFlags                     /* TIMELINE flags */
+){
   GraphRow *pRow, *pDesc, *pDup, *pLoop, *pParent;
   int i, j;
   u64 mask;
@@ -965,8 +969,8 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
 
   /*
   ** Compute the rail mapping that tries to put the branch named
-  ** zLeftBranch at the left margin.  Other branches that merge
-  ** with zLeftBranch are to the right with merge rails in between.
+  ** pLeftBranch at the left margin.  Other branches that merge
+  ** with pLeftBranch are to the right with merge rails in between.
   **
   ** aMap[X]=Y means that the X-th rail is drawn as the Y-th rail.
   **
@@ -990,10 +994,9 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     */
     u8 aPriority[GR_MAX_RAIL];
     memset(aPriority, 0, p->mxRail+1);
-    if( zLeftBranch ){
-      char *zLeft = persistBranchName(p, zLeftBranch);
+    if( pLeftBranch ){
       for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-        if( pRow->zBranch==zLeft ){
+        if( match_text(pLeftBranch, pRow->zBranch) ){
           aPriority[pRow->iRail] |= 4;
           for(i=0; i<=p->mxRail; i++){
             if( pRow->mergeIn[i] ) aPriority[i] |= 1;
