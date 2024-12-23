@@ -1292,8 +1292,9 @@ static void addFileGlobExclusion(
 ){
   if( zChng==0 || zChng[0]==0 ) return;
   blob_append_sql(pSql," AND event.objid IN ("
-      "SELECT mlink.mid FROM mlink, filename"
-      " WHERE mlink.fnid=filename.fnid AND %s)",
+      "SELECT mlink.mid FROM mlink, filename\n"
+      " WHERE mlink.fnid=filename.fnid\n"
+      "   AND %s)",
       glob_expr("filename.name", mprintf("\"%s\"", zChng)));
 }
 static void addFileGlobDescription(
@@ -2310,10 +2311,11 @@ void page_timeline(void){
     blob_append_sql(&sql, " AND event.objid IN pathnode");
     if( zChng && zChng[0] ){
       db_multi_exec(
-        "DELETE FROM pathnode "
-        " WHERE NOT EXISTS(SELECT 1 FROM mlink, filename"
-                          " WHERE mlink.mid=x"
-                          "   AND mlink.fnid=filename.fnid AND %s)",
+        "DELETE FROM pathnode\n"
+        " WHERE NOT EXISTS(SELECT 1 FROM mlink, filename\n"
+        "                   WHERE mlink.mid=x\n"
+        "                     AND mlink.fnid=filename.fnid\n"
+        "                     AND %s)",
         glob_expr("filename.name", zChng)
       );
     }
@@ -2700,9 +2702,10 @@ void page_timeline(void){
     if( zTagSql ){
       db_multi_exec(
         "CREATE TEMP TABLE selected_nodes(rid INTEGER PRIMARY KEY);"
-        "INSERT OR IGNORE INTO selected_nodes"
-        " SELECT tagxref.rid FROM tagxref NATURAL JOIN tag"
-        " WHERE %s AND tagtype>0", zTagSql/*safe-for-%s*/
+        "INSERT OR IGNORE INTO selected_nodes\n"
+        "  SELECT tagxref.rid FROM tagxref NATURAL JOIN tag\n"
+        "   WHERE tagtype>0\n"
+        "     AND %s", zTagSql/*safe-for-%s*/
       );
       if( zMark ){
         /* If the t=release option is used with m=UUID, then also
@@ -2743,36 +2746,38 @@ void page_timeline(void){
         ** branch that is infrequently merged with a much more activate branch.
         */
         db_multi_exec(
-          "INSERT OR IGNORE INTO related_nodes"
-          " SELECT pid FROM selected_nodes CROSS JOIN plink"
-          " WHERE selected_nodes.rid=plink.cid;"
+          "INSERT OR IGNORE INTO related_nodes\n"
+          "  SELECT pid FROM selected_nodes CROSS JOIN plink\n"
+          "  WHERE selected_nodes.rid=plink.cid;"
         );
         if( P("mionly")==0 ){
           db_multi_exec(
-            "INSERT OR IGNORE INTO related_nodes"
-            " SELECT cid FROM selected_nodes CROSS JOIN plink"
-            " WHERE selected_nodes.rid=plink.pid;"
+            "INSERT OR IGNORE INTO related_nodes\n"
+            "  SELECT cid FROM selected_nodes CROSS JOIN plink\n"
+            "  WHERE selected_nodes.rid=plink.pid;"
           );
           if( showCherrypicks ){
             db_multi_exec(
-              "INSERT OR IGNORE INTO related_nodes"
-              " SELECT childid FROM selected_nodes CROSS JOIN cherrypick"
-              " WHERE selected_nodes.rid=cherrypick.parentid;"
+              "INSERT OR IGNORE INTO related_nodes\n"
+              "  SELECT childid FROM selected_nodes CROSS JOIN cherrypick\n"
+              "  WHERE selected_nodes.rid=cherrypick.parentid;"
             );
           }
         }
         if( showCherrypicks ){
           db_multi_exec(
-            "INSERT OR IGNORE INTO related_nodes"
-            " SELECT parentid FROM selected_nodes CROSS JOIN cherrypick"
-            " WHERE selected_nodes.rid=cherrypick.childid;"
+            "INSERT OR IGNORE INTO related_nodes\n"
+            "  SELECT parentid FROM selected_nodes CROSS JOIN cherrypick\n"
+            "  WHERE selected_nodes.rid=cherrypick.childid;"
           );
         }
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
           db_multi_exec(
-            "DELETE FROM related_nodes WHERE rid IN "
-            " (SELECT related_nodes.rid FROM related_nodes, tagxref"
-            " WHERE tagid=%d AND tagtype>0 AND tagxref.rid=related_nodes.rid)",
+            "DELETE FROM related_nodes\n"
+            " WHERE rid IN (SELECT related_nodes.rid\n"
+            "                 FROM related_nodes, tagxref\n"
+            "                WHERE tagid=%d AND tagtype>0\n"
+            "                  AND tagxref.rid=related_nodes.rid)",
             TAG_HIDDEN
           );
         }
