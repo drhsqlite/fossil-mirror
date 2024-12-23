@@ -516,10 +516,6 @@ void update_cmd(void){
         }
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
-      /* Merge the changes in the current tree into the target version */
-      Blob r, t, v;
-      int rc;
-
       if( nameChng ){
         fossil_print("MERGE %s -> %s\n", zName, zNewName);
       }else{
@@ -530,6 +526,9 @@ void update_cmd(void){
         zOp = "CONFLICT";
         nConflict++;
       }else{
+        /* Merge the changes in the current tree into the target version */
+        Blob r, t, v;
+        int rc;
         unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
         if(keepMergeFlag!=0) mergeFlags |= MERGE_KEEP_FILES;
         if( !dryRunFlag && !internalUpdate ) undo_save(zName);
@@ -573,11 +572,11 @@ void update_cmd(void){
           zErrMsg = "cannot merge binary file";
           nc = 1;
         }
+        blob_reset(&v);
+        blob_reset(&t);
+        blob_reset(&r);
       }
       if( nameChng && !dryRunFlag ) file_delete(zFullPath);
-      blob_reset(&v);
-      blob_reset(&t);
-      blob_reset(&r);
     }else{
       nUpdate--;
       if( chnged ){
