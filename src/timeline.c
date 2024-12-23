@@ -1554,6 +1554,7 @@ void timeline_test_endpoint(void){
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
 **    tl=TAGLIST      Same as 't=TAGLIST&ms=brlist'
 **    rl=TAGLIST      Same as 'r=TAGLIST&ms=brlist'
+**    bo=TAGLIST      Show branches of the graph in the order defined TAGLIST
 **    rel             Show related check-ins as well as those matching t=TAG
 **    mionly          Limit rel to show ancestors but not descendants
 **    nowiki          Do not show wiki associated with branch or tag
@@ -2917,7 +2918,12 @@ void page_timeline(void){
   }
   cgi_check_for_malice();
   {
-    Matcher *pLeftBranch = match_create(matchStyle, zBrName);
+    Matcher *pLeftBranch;
+    if( P("bo")!=0 ){
+      pLeftBranch = match_create(MS_BRLIST, P("bo"));
+    }else{
+      pLeftBranch = match_create(matchStyle, zBrName);
+    }
     www_print_timeline(&q, tmFlags, zThisUser, zThisTag, pLeftBranch,
                        selectedRid, secondaryRid, 0);
     match_free(pLeftBranch);

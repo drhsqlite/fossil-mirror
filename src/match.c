@@ -184,7 +184,6 @@ int match_text(Matcher *p, const char *zText){
         if( re_match(p->aRe[i], (const u8*)zText, nText) ) return i+1;
       }
       break;
-
     }
   }
   return 0;

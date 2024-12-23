@@ -995,12 +995,13 @@ void graph_finish(
     */
     u16 aPriority[GR_MAX_RAIL];
     int mxMatch = 0;
-    memset(aPriority, 0, p->mxRail+1);
+    memset(aPriority, 0, (p->mxRail+1)*sizeof(aPriority[0]));
     if( pLeftBranch ){
       for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
         int iMatch = match_text(pLeftBranch, pRow->zBranch);
-        if( iMatch>0 && iMatch<0x3fff ){
-          aPriority[pRow->iRail] |= iMatch*4;
+        if( iMatch>0 ){
+          if( iMatch>10 ) iMatch = 10;
+          aPriority[pRow->iRail] |= 1<<(iMatch+1);
           if( mxMatch<iMatch ) mxMatch = iMatch;
           for(i=0; i<=p->mxRail; i++){
             if( pRow->mergeIn[i] ) aPriority[i] |= 1;
@@ -1029,14 +1030,17 @@ void graph_finish(
 #if 0
     fprintf(stderr,"mergeRail: 0x%llx\n", p->mergeRail);
     fprintf(stderr,"Priority:");
-    for(i=0; i<=p->mxRail; i++) fprintf(stderr," %d", aPriority[i]);
+    for(i=0; i<=p->mxRail; i++){
+        fprintf(stderr," %x.%x",
+                aPriority[i]/4, aPriority[i]&3);
+    }
     fprintf(stderr,"\n");
 #endif
 
     j = 0;
-    for(kk=4; kk<=mxMatch*4; kk+=4){
+    for(kk=4; kk<=1<<(mxMatch+1); kk*=2){
       for(i=0; i<=p->mxRail; i++){
-        if( aPriority[i]>=kk && aPriority[i]<=kk+3 ){
+        if( aPriority[i]>=kk && aPriority[i]<kk*2 ){
           aMap[i] = j++;
         }
       }
