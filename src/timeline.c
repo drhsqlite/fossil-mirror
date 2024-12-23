@@ -2764,7 +2764,7 @@ void page_timeline(void){
           "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridMark);
       }
       add_extra_rids("selected_nodes",P("x"));
-      if( !related ){
+      if( !related && !PB("mionly") ){
         blob_append_sql(&cond, " AND blob.rid IN selected_nodes");
       }else{
         db_multi_exec(

@@ -1,5 +1,5 @@
-C Update\sdocument\sfor\sthe\sx=\squery\sparameter\sto\s/timeline.
-D 2024-12-23T16:08:43.040
+C Fix\sthe\s"mionly"\squery\sparameter\sof\s/timeline\sso\sthat\sit\sworks\swith\stl=\sand\nrl=.
+D 2024-12-23T17:32:28.570
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -572,7 +572,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c baac5d2f93a6afc57fab8bdeb29b2e0c76beaf1709436003c2bb50351b63b7a1
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c 76d723459d57a3fa74addae4f43781079d193a5880361ebd8eccbb5c5ae13e9f
+F src/timeline.c 8d052685bbf27280fe5309056883da7f4bc26ad97fe168ea52e1572598341863
 F src/tkt.c e52093bf6399bc2cdd6d7bd77f0cb236f023858fbd4e39442f0c3df5b2b1b84a
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1e8451b55f3f38a6cc0bdcb62d579afbf5f7830be681807b2fe95fc92636e0fd
-R 835340a9dc56dcabde7ecd8f704babe2
+P d4d6cca0b590ab0bb3e93fd04af749729099ae124501c7ccc5d2d16d786c3665
+R d778f1ec5eb5dadc945e16ca3f3f1aec
 U drh
-Z 76d3ced1bd6143bcca555847fe094834
+Z d6b78cbb27573ca9c08c0b3efd66fff8
 # Remove this line to create a well-formed Fossil manifest.
