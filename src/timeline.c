@@ -2300,7 +2300,6 @@ void page_timeline(void){
           );
         }
       }
-      db_multi_exec("INSERT OR IGNORE INTO pathnode SELECT x FROM related");
       if( earlierRid && laterRid && commonAncs==earlierRid ){
         /* On a query with me=XXX, you=YYY, and rel, omit all nodes that
         ** are not ancestors of either XXX or YYY, as those nodes tend to
@@ -2311,9 +2310,9 @@ void page_timeline(void){
         compute_ancestors(laterRid, 0, 0, earlierRid);
         db_multi_exec(
           "DELETE FROM related WHERE x NOT IN ok;"
-          "DELETE FROM pathnode WHERE x NOT IN ok;"
         );
       }
+      db_multi_exec("INSERT OR IGNORE INTO pathnode SELECT x FROM related");
     }
     blob_append_sql(&sql, " AND event.objid IN pathnode");
     if( zChng && zChng[0] ){
