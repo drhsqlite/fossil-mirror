@@ -2866,19 +2866,19 @@ void page_timeline(void){
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
         blob_append_sql(&sql,
-           " AND event.mtime>=%.17g AND event.mtime<=%.17g"
+           " AND event.mtime>=%.17g AND event.mtime<=%.17g\n"
            " ORDER BY event.mtime ASC", rAfter-ONE_SECOND, rBefore+ONE_SECOND);
         nEntry = -1;
       }else{
         blob_append_sql(&sql,
-           " AND event.mtime>=%.17g  ORDER BY event.mtime ASC",
+           " AND event.mtime>=%.17g\n ORDER BY event.mtime ASC",
            rAfter-ONE_SECOND);
       }
       zCirca = 0;
       url_add_parameter(&url, "c", 0);
     }else if( rBefore>0.0 ){
       blob_append_sql(&sql,
-         " AND event.mtime<=%.17g ORDER BY event.mtime DESC",
+         " AND event.mtime<=%.17g\n ORDER BY event.mtime DESC",
          rBefore+ONE_SECOND);
       zCirca = 0;
       url_add_parameter(&url, "c", 0);
@@ -2886,7 +2886,7 @@ void page_timeline(void){
       Blob sql2;
       blob_init(&sql2, blob_sql_text(&sql), -1);
       blob_append_sql(&sql2,
-          " AND event.mtime>=%f ORDER BY event.mtime ASC", rCirca);
+          " AND event.mtime>=%f\n ORDER BY event.mtime ASC", rCirca);
       if( nEntry>0 ){
         blob_append_sql(&sql2," LIMIT %d", (nEntry+1)/2);
       }
@@ -2897,7 +2897,7 @@ void page_timeline(void){
       }
       blob_reset(&sql2);
       blob_append_sql(&sql,
-          " AND event.mtime<=%f ORDER BY event.mtime DESC",
+          " AND event.mtime<=%f\n ORDER BY event.mtime DESC",
           rCirca
       );
       if( zMark==0 ) zMark = zCirca;

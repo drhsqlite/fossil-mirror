@@ -659,8 +659,8 @@ static void db_append_dml(const char *zSql){
   while( nSql>0 && fossil_isspace(zSql[0]) ){ nSql--; zSql++; }
   while( nSql>0 && fossil_isspace(zSql[nSql-1]) ) nSql--;
   if( nSql<6 ) return;
-  if( strncmp(zSql, "SELECT", 6)==0 ) return;
-  if( strncmp(zSql, "PRAGMA", 6)==0 ) return;
+  if( fossil_strnicmp(zSql, "SELECT", 6)==0 ) return;
+  if( fossil_strnicmp(zSql, "PRAGMA", 6)==0 ) return;
   blob_append(db.pDmlLog, zSql, nSql);
   if( zSql[nSql-1]!=';' ) blob_append_char(db.pDmlLog, ';');
   blob_append_char(db.pDmlLog, '\n');
