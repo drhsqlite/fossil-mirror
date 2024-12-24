@@ -1816,17 +1816,17 @@ void page_timeline(void){
     const char *z;
     if( (z = P("tl"))!=0 ){
       zTagName = z;
-      zMatchStyle = "brlist";
+      if( zMatchStyle==0 ) zMatchStyle = "brlist";
     }else 
     if( (z = P("rl"))!=0 ){
       zBrName = z;
       if( related==0 ) related = 1;
-      zMatchStyle = "brlist";
+      if( zMatchStyle==0 ) zMatchStyle = "brlist";
     }else 
     if( (z = P("ml"))!=0 ){
       zBrName = z;
       if( related==0 ) related = 2;
-      zMatchStyle = "brlist";
+      if( zMatchStyle==0 ) zMatchStyle = "brlist";
     }
   }
 
