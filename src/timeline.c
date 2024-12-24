@@ -2921,8 +2921,10 @@ void page_timeline(void){
     Matcher *pLeftBranch;
     if( P("bo")!=0 ){
       pLeftBranch = match_create(MS_BRLIST, P("bo"));
-    }else{
+    }else if( zBrName ){
       pLeftBranch = match_create(matchStyle, zBrName);
+    }else if( zTagName ){
+      pLeftBranch = match_create(matchStyle, zTagName);
     }
     www_print_timeline(&q, tmFlags, zThisUser, zThisTag, pLeftBranch,
                        selectedRid, secondaryRid, 0);

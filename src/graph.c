@@ -1017,6 +1017,7 @@ void graph_finish(
     }else{
       j = 1;
       aPriority[0] = 4;
+      mxMatch = 1;
       for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
         if( pRow->iRail==0 ){
           for(i=0; i<=p->mxRail; i++){
