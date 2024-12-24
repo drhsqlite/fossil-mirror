@@ -1555,7 +1555,7 @@ void timeline_test_endpoint(void){
 **    tl=TAGLIST      Same as 't=TAGLIST&ms=brlist'.  Mnemonic: "Tag List"
 **    rl=TAGLIST      Same as 'r=TAGLIST&ms=brlist'.  Mnemonic: "Related List"
 **    ml=TAGLIST      Same as 'tl=TAGLIST&mionly'.  Mnemonic: "Merge-in List"
-**    so=TAGLIST      "Sort Order". Show TAGLIST branches ordered left to right.
+**    sl=TAGLIST      "Sort List". Draw TAGLIST branches ordered left to right.
 **    rel             Show related check-ins as well as those matching t=TAG
 **    mionly          Show related parents but not related children.
 **    nowiki          Do not show wiki associated with branch or tag
@@ -2929,8 +2929,8 @@ void page_timeline(void){
   cgi_check_for_malice();
   {
     Matcher *pLeftBranch;
-    if( P("so")!=0 ){
-      pLeftBranch = match_create(MS_BRLIST, P("so"));
+    if( P("sl")!=0 ){
+      pLeftBranch = match_create(MS_BRLIST, P("sl"));
     }else if( zBrName ){
       pLeftBranch = match_create(matchStyle, zBrName);
     }else{
