@@ -2664,9 +2664,14 @@ is_repo_end:
 
 /*
 ** COMMAND: test-is-repo
+** Usage: %fossil test-is-repo FILENAME...
+**
+** Test whether the specified files look like a SQLite database
+** containing a Fossil repository schema.
 */
 void test_is_repo(void){
   int i;
+  verify_all_options();
   for(i=2; i<g.argc; i++){
     fossil_print("%s: %s\n",
        db_looks_like_a_repository(g.argv[i]) ? "yes" : " no",
