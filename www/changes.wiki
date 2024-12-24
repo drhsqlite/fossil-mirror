@@ -36,6 +36,9 @@
      <li> In the various "from=","to=" query formats, if the one of the
           end points is an ancestor of the other, then the "rel" modifier
           omits check-ins that are not ancestors of the newer endpoint.
+     <li> For "tl=" and similar query parameters, if the pattern contains
+          GLOB characters, then the matching style ("ms=") is set to GLOB
+          automatically and the "ms=" query parameter can be omitted.
      </ol>
   *  Added the [/help?cmd=/clusterlist|/clusterlist page] for analysis
      and debugging
