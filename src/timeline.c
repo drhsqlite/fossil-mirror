@@ -1815,19 +1815,25 @@ void page_timeline(void){
   ** t=TAGLIST&ms=brlist and r=TAGLIST&ms=brlist repectively. */
   if( zBrName==0 && zTagName==0 ){
     const char *z;
+    const char *zPattern = 0;
     if( (z = P("tl"))!=0 ){
-      zTagName = z;
-      if( zMatchStyle==0 ) zMatchStyle = "brlist";
-    }else 
-    if( (z = P("rl"))!=0 ){
-      zBrName = z;
+      zPattern = zTagName = z;
+    }else if( (z = P("rl"))!=0 ){
+      zPattern = zBrName = z;
       if( related==0 ) related = 1;
-      if( zMatchStyle==0 ) zMatchStyle = "brlist";
-    }else 
-    if( (z = P("ml"))!=0 ){
-      zBrName = z;
+    }else if( (z = P("ml"))!=0 ){
+      zPattern = zBrName = z;
       if( related==0 ) related = 2;
-      if( zMatchStyle==0 ) zMatchStyle = "brlist";
+    }
+    if( zPattern!=0 && zMatchStyle==0 ){
+      /* If there was no ms= query parameter, set the match style to
+      ** "glob" if the pattern appears to contain GLOB character, or
+      ** "brlist" if it does not. */
+      if( strpbrk(zPattern,"*[?") ){
+        zMatchStyle = "glob";
+      }else{
+        zMatchStyle = "brlist";
+      }
     }
   }
 
@@ -2921,8 +2927,15 @@ void page_timeline(void){
   cgi_check_for_malice();
   {
     Matcher *pLeftBranch;
-    if( P("sl")!=0 ){
-      pLeftBranch = match_create(zMatchStyle?matchStyle:MS_BRLIST, P("sl"));
+    const char *zPattern = P("sl");
+    if( zPattern!=0 ){
+      MatchStyle ms;
+      if( zMatchStyle!=0 ){
+        ms = matchStyle;
+      }else{
+        ms = strpbrk(zPattern,"*[?")!=0 ? MS_GLOB : MS_BRLIST;
+      }
+      pLeftBranch = match_create(ms,zPattern);
     }else{
       pLeftBranch = match_create(matchStyle, zBrName?zBrName:zTagName);
     }
