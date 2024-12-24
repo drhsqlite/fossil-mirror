@@ -1554,6 +1554,7 @@ void timeline_test_endpoint(void){
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
 **    tl=TAGLIST      Same as 't=TAGLIST&ms=brlist'
 **    rl=TAGLIST      Same as 'r=TAGLIST&ms=brlist'
+**    ml=TAGLIST      Same as 't=TAGLIST&ms=brlist&mionly'
 **    bo=TAGLIST      Show branches of the graph in the order defined TAGLIST
 **    rel             Show related check-ins as well as those matching t=TAG
 **    mionly          Limit rel to show ancestors but not descendants
@@ -1693,6 +1694,9 @@ void page_timeline(void){
   cgi_query_parameters_to_url(&url);
   blob_init(&allSql, 0, 0);
 
+  /* The "mionly" query parameter is like "rel", but shows merge-ins only */
+  if( P("mionly")!=0 ) related = 2;
+
   (void)P_NoBot("ss")
     /* "ss" is processed via the udc but at least one spider likes to
     ** try to SQL inject via this argument, so let's catch that. */;
@@ -1813,10 +1817,15 @@ void page_timeline(void){
     if( (z = P("tl"))!=0 ){
       zTagName = z;
       zMatchStyle = "brlist";
-    }
+    }else 
     if( (z = P("rl"))!=0 ){
       zBrName = z;
-      related = 1;
+      if( related==0 ) related = 1;
+      zMatchStyle = "brlist";
+    }else 
+    if( (z = P("ml"))!=0 ){
+      zBrName = z;
+      if( related==0 ) related = 2;
       zMatchStyle = "brlist";
     }
   }
@@ -1827,7 +1836,7 @@ void page_timeline(void){
     cgi_set_query_parameter("t", zBrName);  (void)P("t");
     cgi_set_query_parameter("rel", "1");
     zTagName = zBrName;
-    related = 1;
+    if( related==0 ) related = 1;
     zType = "ci";
   }
 
@@ -2091,13 +2100,13 @@ void page_timeline(void){
     path_reset();
     db_multi_exec("%s", blob_str(&ins)/*safe-for-%s*/);
     blob_reset(&ins);
-    if( related || P("mionly") ){
+    if( related ){
       db_multi_exec(
         "CREATE TEMP TABLE IF NOT EXISTS related(x INTEGER PRIMARY KEY);"
         "INSERT OR IGNORE INTO related(x)"
         " SELECT pid FROM plink WHERE cid IN pathnode AND NOT isprim;"
       );
-      if( P("mionly")==0 ){
+      if( related==1 ){
         db_multi_exec(
           "INSERT OR IGNORE INTO related(x)"
           " SELECT cid FROM plink WHERE pid IN pathnode;"
@@ -2108,7 +2117,7 @@ void page_timeline(void){
           "INSERT OR IGNORE INTO related(x)"
           " SELECT parentid FROM cherrypick WHERE childid IN pathnode;"
         );
-        if( P("mionly")==0 ){
+        if( related==1 ){
           db_multi_exec(
             "INSERT OR IGNORE INTO related(x)"
             " SELECT childid FROM cherrypick WHERE parentid IN pathnode;"
@@ -2538,7 +2547,7 @@ void page_timeline(void){
           "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridMark);
       }
       add_extra_rids("selected_nodes",P("x"));
-      if( !related && !PB("mionly") ){
+      if( related==0 ){
         blob_append_sql(&cond, " AND blob.rid IN selected_nodes");
       }else{
         db_multi_exec(
@@ -2557,7 +2566,7 @@ void page_timeline(void){
           "  SELECT pid FROM selected_nodes CROSS JOIN plink\n"
           "  WHERE selected_nodes.rid=plink.cid;"
         );
-        if( P("mionly")==0 ){
+        if( related==1 ){
           db_multi_exec(
             "INSERT OR IGNORE INTO related_nodes\n"
             "  SELECT cid FROM selected_nodes CROSS JOIN plink\n"
