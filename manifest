@@ -1,5 +1,5 @@
-C Add\sonline\shelp\sand\schecks\sfor\sunrecognized\scommand-line\sarguments\sto\sthe\s`test-is-repo'\scommand.
-D 2024-12-24T06:38:00.000
+C Rephrase\sa\scomment\sfor\sclarification.
+D 2024-12-24T06:39:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -748,7 +748,7 @@ F tools/mkindex.c 4fec986d4dda15fff9f97356a6aa20a77092db356bb86177b3bcef50c53e2a
 F tools/mkversion.c 50e3be4716625ffea38d0f8248051de7372b78282744f33dde201bed5dd977cb
 F tools/skintxt2config.c b542d5e56db4aa69100e85061db820f6b1c9734cf292bda2d67445d364a5e154
 F tools/sqlcompattest.c e55aa8c8ab4d12e10db6941f5e4f6c518209305fa2fb8903c2ffa9d6c3a183dd
-F tools/translate.c 1300fc72fe51da1d7cb8f8e81427728f7a0a62f06595c4d5d6006a3fe952298c
+F tools/translate.c cc2165984ea592f6bb345041bc27d56b9513f03a84dec1445f254691c7ede36b
 F win/Makefile.dmc 4bafcfc71d4118f2f44374ec46685f2b8d44c0b227156b4d7fd35864295a3687
 F win/Makefile.mingw c07ac376eeb132a624b5d404029eb61533add0129802e83105b345efbd65da81
 F win/Makefile.mingw.mistachkin 781390cab203b926f21de517390b7323267513df67fe821ec789eebdc2ba733c
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e89ea2c93c38fe1cd2b7746694ecddca26dae9e510d40f1fe9ffdb670c4879f0
-R e8f0b363f300258ec7e8305e848ec6d9
+P bd5f1d6eca833ff9817d6297f644aca3a9984579104a96b3b8ff1b0146377512
+R 54318a8d11d656f39f3f1a8b54e1c7bf
 U florian
-Z 54d5017edb60997ea5998d29fba0f494
+Z 3c98ba732b7fc27f4df80be2bc6697be
 # Remove this line to create a well-formed Fossil manifest.

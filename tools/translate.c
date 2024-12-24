@@ -83,7 +83,7 @@ static const char *zInFile = "(stdin)";
 
 /*
 ** The `fossil_isspace()' function copied from the Fossil source code.
-** Some MSVC runtime library versions of `isspace()' fail with an assertion that
+** Some MSVC runtime library versions of `isspace()' break with an `assert()' if
 ** the input is smaller than -1 or greater than 255 in debug builds, due to sign
 ** extension when promoting `signed char' to `int' for non-ASCII characters. Use
 ** an `isspace()' replacement instead of explicit type casts to `unsigned char'.
