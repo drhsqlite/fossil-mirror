@@ -1847,18 +1847,10 @@ void page_timeline(void){
   }
 
   /* Finish preliminary processing of tag match queries. */
+  matchStyle = match_style(zMatchStyle, MS_EXACT);
   if( zTagName ){
     zType = "ci";
-    /* Interpet the tag style string. */
-    if( fossil_stricmp(zMatchStyle, "glob")==0 ){
-      matchStyle = MS_GLOB;
-    }else if( fossil_stricmp(zMatchStyle, "like")==0 ){
-      matchStyle = MS_LIKE;
-    }else if( fossil_stricmp(zMatchStyle, "regexp")==0 ){
-      matchStyle = MS_REGEXP;
-    }else if( fossil_stricmp(zMatchStyle, "brlist")==0 ){
-      matchStyle = MS_BRLIST;
-    }else{
+    if( matchStyle==MS_EXACT ){
       /* For exact maching, inhibit links to the selected tag. */
       zThisTag = zTagName;
       Th_Store("current_checkin", zTagName);
@@ -2930,11 +2922,9 @@ void page_timeline(void){
   {
     Matcher *pLeftBranch;
     if( P("sl")!=0 ){
-      pLeftBranch = match_create(MS_BRLIST, P("sl"));
-    }else if( zBrName ){
-      pLeftBranch = match_create(matchStyle, zBrName);
+      pLeftBranch = match_create(zMatchStyle?matchStyle:MS_BRLIST, P("sl"));
     }else{
-      pLeftBranch = match_create(matchStyle, zTagName);
+      pLeftBranch = match_create(matchStyle, zBrName?zBrName:zTagName);
     }
     www_print_timeline(&q, tmFlags, zThisUser, zThisTag, pLeftBranch,
                        selectedRid, secondaryRid, 0);

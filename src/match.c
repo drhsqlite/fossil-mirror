@@ -43,11 +43,11 @@
 ** Types of comparisons that we are able to perform:
 */
 typedef enum {
-  MS_EXACT,   /* Exact string comparison */
-  MS_GLOB,    /* Matches against a list of GLOB patterns. */
-  MS_LIKE,    /* Matches against a list of LIKE patterns. */
-  MS_REGEXP,  /* Matches against a list of regular expressions. */
-  MS_BRLIST,  /* Matches any element of a list */
+  MS_EXACT=1,   /* Exact string comparison */
+  MS_GLOB=2,    /* Matches against a list of GLOB patterns. */
+  MS_LIKE=3,    /* Matches against a list of LIKE patterns. */
+  MS_REGEXP=4,  /* Matches against a list of regular expressions. */
+  MS_BRLIST=5,  /* Matches any element of a list */
 } MatchStyle;
 
 /*
@@ -67,6 +67,22 @@ struct Matcher {
 };
   
 #endif /*INTERFACE*/
+
+/*
+** Translate a "match style" text name into the MS_* enum value.
+** Return eDflt if no match is found.
+*/
+MatchStyle match_style(const char *zStyle, MatchStyle eDflt){
+  if( zStyle==0 )                           return eDflt;
+  if( fossil_stricmp(zStyle, "brlist")==0 ) return MS_BRLIST;
+  if( fossil_stricmp(zStyle, "list")==0 )   return MS_BRLIST;
+  if( fossil_stricmp(zStyle, "regexp")==0 ) return MS_REGEXP;
+  if( fossil_stricmp(zStyle, "re")==0 )     return MS_REGEXP;
+  if( fossil_stricmp(zStyle, "glob")==0 )   return MS_GLOB;
+  if( fossil_stricmp(zStyle, "like")==0 )   return MS_LIKE;
+  if( fossil_stricmp(zStyle, "exact")==0 )  return MS_EXACT;
+  return eDflt;
+}
 
 
 /*
