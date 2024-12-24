@@ -2932,7 +2932,7 @@ void page_timeline(void){
       pLeftBranch = match_create(MS_BRLIST, P("bo"));
     }else if( zBrName ){
       pLeftBranch = match_create(matchStyle, zBrName);
-    }else if( zTagName ){
+    }else{
       pLeftBranch = match_create(matchStyle, zTagName);
     }
     www_print_timeline(&q, tmFlags, zThisUser, zThisTag, pLeftBranch,
