@@ -1517,11 +1517,11 @@ void timeline_test_endpoint(void){
 **
 ** Query parameters:
 **
-**    a=TIMEORTAG     Show events after TIMEORTAG
-**    b=TIMEORTAG     Show events before TIMEORTAG
+**    a=TIMEORTAG     Show events after TIMEORTAG.
+**    b=TIMEORTAG     Show events before TIMEORTAG.
 **    c=TIMEORTAG     Show events that happen "circa" TIMEORTAG
 **    cf=FILEHASH     Show events around the time of the first use of
-**                    the file with FILEHASH
+**                    the file with FILEHASH.
 **    m=TIMEORTAG     Highlight the event at TIMEORTAG, or the closest available
 **                    event if TIMEORTAG is not part of the timeline.  If
 **                    the t= or r= is used, the m event is added to the timeline
@@ -1551,19 +1551,20 @@ void timeline_test_endpoint(void){
 **                       d=CX       ... from CX up to the time of CHECKIN
 **                       from=CX    ... shortest path from CX up to CHECKIN
 **    t=TAG           Show only check-ins with the given TAG
-**    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
-**    tl=TAGLIST      Same as 't=TAGLIST&ms=brlist'
-**    rl=TAGLIST      Same as 'r=TAGLIST&ms=brlist'
-**    ml=TAGLIST      Same as 't=TAGLIST&ms=brlist&mionly'
-**    bo=TAGLIST      Show branches of the graph in the order defined TAGLIST
+**    r=TAG           Same as 't=TAG&rel'.  Mnemonic: "Related"
+**    tl=TAGLIST      Same as 't=TAGLIST&ms=brlist'.  Mnemonic: "Tag List"
+**    rl=TAGLIST      Same as 'r=TAGLIST&ms=brlist'.  Mnemonic: "Related List"
+**    ml=TAGLIST      Same as 'tl=TAGLIST&mionly'.  Mnemonic: "Merge-in List"
+**    so=TAGLIST      "Sort Order". Show TAGLIST branches ordered left to right.
 **    rel             Show related check-ins as well as those matching t=TAG
-**    mionly          Limit rel to show ancestors but not descendants
+**    mionly          Show related parents but not related children.
 **    nowiki          Do not show wiki associated with branch or tag
-**    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
+**    ms=MATCHSTYLE   Set tag name match algorithm.  One of "exact", "glob",
+**                    "like", or "regexp".
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact", v: "Verbose", m: "Modern", j: "Columnar",
-**                    x: "Classic".
+*                     x: "Classic".
 **    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
 **    ncp             Omit cherrypick merges
@@ -1572,7 +1573,7 @@ void timeline_test_endpoint(void){
 **    nc              Omit all graph colors other than highlights
 **    v               Show details of files changed
 **    vfx             Show complete text of forum messages
-**    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
+**    f=CHECKIN       Family (immediate parents and children) of CHECKIN
 **    from=CHECKIN    Path through common ancestor from...
 **                       to=CHECKIN      ... to this
 **                       to2=CHECKIN     ... backup name if to= doesn't resolve
@@ -1584,10 +1585,10 @@ void timeline_test_endpoint(void){
 **                       you=CHECKIN     ... to this
 **                       rel             ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
-**                       All qualifying check-ins are shown unless there is
-**                       also an n= or n1= query parameter.
+**                    All qualifying check-ins are shown unless there is
+**                    also an n= or n1= query parameter.
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
-**                       name matches one of the comma-separate GLOBLIST
+**                    name matches one of the comma-separate GLOBLIST
 **    brbg            Background color determined by branch name
 **    ubg             Background color determined by user
 **    deltabg         Background color red for delta manifests or green
@@ -2928,8 +2929,8 @@ void page_timeline(void){
   cgi_check_for_malice();
   {
     Matcher *pLeftBranch;
-    if( P("bo")!=0 ){
-      pLeftBranch = match_create(MS_BRLIST, P("bo"));
+    if( P("so")!=0 ){
+      pLeftBranch = match_create(MS_BRLIST, P("so"));
     }else if( zBrName ){
       pLeftBranch = match_create(matchStyle, zBrName);
     }else{
