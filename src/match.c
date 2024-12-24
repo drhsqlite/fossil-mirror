@@ -149,6 +149,9 @@ Matcher *match_create(MatchStyle style, const char *zPat){
 /*
 ** Return non-zero (true) if the input string matches the pattern
 ** described by the matcher.
+**
+** The return value is really the 1-based index of the particular
+** pattern that matched.
 */
 int match_text(Matcher *p, const char *zText){
   int i;
@@ -159,29 +162,28 @@ int match_text(Matcher *p, const char *zText){
     case MS_BRLIST:
     case MS_EXACT: {
       for(i=0; i<p->nPattern; i++){
-        if( strcmp(p->azPattern[i], zText)==0 ) return 1;
+        if( strcmp(p->azPattern[i], zText)==0 ) return i+1;
       }
       break;
     }
     case MS_GLOB: {
       for(i=0; i<p->nPattern; i++){
-        if( sqlite3_strglob(p->azPattern[i], zText)==0 ) return 1;
+        if( sqlite3_strglob(p->azPattern[i], zText)==0 ) return i+1;
       }
       break;
     }
     case MS_LIKE: {
       for(i=0; i<p->nPattern; i++){
-        if( sqlite3_strlike(p->azPattern[i], zText, 0)==0 ) return 1;
+        if( sqlite3_strlike(p->azPattern[i], zText, 0)==0 ) return i+1;
       }
       break;
     }
     case MS_REGEXP: {
       int nText = (int)strlen(zText);
       for(i=0; i<p->nPattern; i++){
-        if( re_match(p->aRe[i], (const u8*)zText, nText) ) return 1;
+        if( re_match(p->aRe[i], (const u8*)zText, nText) ) return i+1;
       }
       break;
-
     }
   }
   return 0;
