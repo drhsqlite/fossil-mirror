@@ -118,7 +118,7 @@ void sitemap_page(void){
     inSublist = 0;
   }
   @ </li>
-  if( db_open_local(0) && cgi_is_loopback(g.zIpAddr) ){
+  if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     @ <li>%z(href("%R/ckout"))Checkout Status</a></li>
   }
   if( g.perm.Read ){

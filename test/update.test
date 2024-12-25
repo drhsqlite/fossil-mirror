@@ -59,7 +59,7 @@ test_setup
 
 fossil update --verbose
 test update-already-up-to-date {
-  [regexp {^-{79}\ncheckout: .*\nchanges: +None. Already up-to-date$} $RESULT]
+  [regexp {^-{79}\ncheckout: .*\nchanges: +None. Already up-to-date.$} $RESULT]
 }
 
 # Remaining tests are carried out in the order update_cmd() performs checks.

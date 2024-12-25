@@ -733,6 +733,24 @@ void canonical16(char *z, int n){
 }
 
 /*
+** Decode hexadecimal into a string and return the new string.  Space to
+** hold the string is obtained from fossil_malloc() and should be released
+** by the caller.
+**
+** If the input is not hex, return NULL.
+*/
+char *decode16_dup(const char *zIn){
+  int nIn = (int)strlen(zIn);
+  char *zOut;
+  if( !validate16(zIn, nIn) ) return 0;
+  zOut = fossil_malloc(nIn/2+1);
+  decode16((const u8*)zIn, (u8*)zOut, nIn);
+  zOut[nIn/2] = 0;
+  return zOut;
+}
+
+
+/*
 ** Decode a string encoded using "quoted-printable".
 **
 **   (1)  "=" followed by two hex digits becomes a single
