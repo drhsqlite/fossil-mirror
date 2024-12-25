@@ -1563,20 +1563,27 @@ static int uintNocaseCollFunc(
 */
 void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_collation(db, "uintnocase", SQLITE_UTF8,0,uintNocaseCollFunc);
-  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
-                          db_checkin_mtime_function, 0, 0);
-  sqlite3_create_function(db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0,
-                          db_sym2rid_function, 0, 0);
-  sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
-                          db_sym2rid_function, 0, 0);
-  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "checkin_mtime", 2,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_checkin_mtime_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 1,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 2,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "now", 0,
+                          SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
                           db_now_function, 0, 0);
-  sqlite3_create_function(db, "toLocal", 0, SQLITE_UTF8, 0,
-                          db_tolocal_function, 0, 0);
-  sqlite3_create_function(db, "fromLocal", 0, SQLITE_UTF8, 0,
-                          db_fromlocal_function, 0, 0);
-  sqlite3_create_function(db, "hextoblob", 1, SQLITE_UTF8, 0,
-                          db_hextoblob, 0, 0);
+  sqlite3_create_function(db, "toLocal", 0,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_tolocal_function, 0, 0);
+  sqlite3_create_function(db, "fromLocal", 0,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_fromlocal_function, 0, 0);
+  sqlite3_create_function(db, "hextoblob", 1,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_hextoblob, 0, 0);
   sqlite3_create_function(db, "capunion", 1, SQLITE_UTF8, 0,
                           0, capability_union_step, capability_union_finalize);
   sqlite3_create_function(db, "fullcap", 1, SQLITE_UTF8, 0,
