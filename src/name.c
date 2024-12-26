@@ -67,29 +67,42 @@ int fossil_isdate(const char *z){
 ** of the input string only, without reference to the artifact table.
 */
 char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
-  static char zEDate[20];
+  static char zEDate[24];
   static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
   int n = (int)strlen(zIn);
   int i, j;
+  int addZulu = 0;
 
-  /* Only three forms allowed:
+  /* These forms are allowed:
+  **
   **   (1)  YYYYMMDD
   **   (2)  YYYYMMDDHHMM
   **   (3)  YYYYMMDDHHMMSS
+  **
+  ** Forms (2) and (3) may be followed by a "Z" zulu timezone designator,
+  ** which is carried through into the output.
   */
-  if( n!=8 && n!=12 && n!=14 ) return 0;
+  if( n!=8 && n!=12 && n!=14 ){
+    if( (n==13 || n==15) && (zIn[12]=='z' || zIn[12]=='Z') ){
+      n--;
+      addZulu = 1;
+    }else{
+      return 0;
+    }
+  }
 
   /* Every character must be a digit */
   for(i=0; fossil_isdigit(zIn[i]); i++){}
-  if( i!=n ) return 0;
+  if( i!=n && (!addZulu || i!=n+1) ) return 0;
 
   /* Expand the date */
-  for(i=j=0; zIn[i]; i++){
+  for(i=j=0; i<n; i++){
     if( i>=4 && (i%2)==0 ){
       zEDate[j++] = aPunct[i/2];
     }
     zEDate[j++] = zIn[i];
   }
+  if( addZulu ) zEDate[j++] = 'Z';
   zEDate[j] = 0;
 
   /* Check for reasonable date values.
@@ -113,7 +126,7 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
   }
 
   /* The string is not also a hash prefix */
-  if( bVerifyNotAHash ){
+  if( bVerifyNotAHash && !addZulu ){
     if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'",zIn) ) return 0;
   }
 

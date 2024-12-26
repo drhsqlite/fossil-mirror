@@ -1,5 +1,5 @@
-C Document\sthe\stimeline-utc\ssetting.\s\sProvide\sC-language\sinterfaces\sto\saccess\nthat\ssetting\sconsistently.
-D 2024-12-26T11:19:55.866
+C Access\sthe\s"Z"\szulu-timezone\sdesignator\son\sthe\send\sof\spunctuation-less\ndatetime\svalues.
+D 2024-12-26T11:51:45.119
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -505,7 +505,7 @@ F src/merge.c 3c207fedff67b95a34769eb82c3451dca795f750c0315ef94d507670f9677e72
 F src/merge.tcl 2247b6e11aa73a7645956691b928a06dc4cbba5179105badef27f965977fa1b3
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c 578aa7775249daa9f02c1c95b7b2797a33df7266e02c1a3dde0303f0ac16c785
+F src/name.c 583604650c222ca556f384525c5e17dfb92c81fcdabbc710964aa448edb9c96d
 F src/patch.c db1ea3f2bcd8d799efb0dcb5e33b0c458d04cc7db5e4a34cb8f5bb172d72f443
 F src/path.c 4d10169056b216a2237cac07dced34e642b5bdcf516f57390fec34717fe11d41
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 15df204706e2713f46010e68bc23798fc342d958cdaeebf8adeebbc79833b7d9
-R 49c085e562c45cf9185b6bf47eb2fea3
+P b1bb31e838138c8ee768abd63c149734abf8f9907e7ee6235d5d1bfaec655072
+R 645ef6527c4c5e152f719b22fe57e54a
 U drh
-Z c4da479cdeab5b797311c36059d0ed3c
+Z 1e8fa25fc6b405f6d122feb9a3cef6ea
 # Remove this line to create a well-formed Fossil manifest.
