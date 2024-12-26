@@ -1387,7 +1387,7 @@ int fossil_ui_utctime(void){
 /*
 ** Return true if Fossil is set to display times using the local timezone.
 */
-int fossil_use_localtime(void){
+int fossil_ui_localtime(void){
   return fossil_ui_utctime()==0;
 }
 

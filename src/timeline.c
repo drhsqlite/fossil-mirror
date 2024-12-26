@@ -1314,28 +1314,32 @@ static void addFileGlobDescription(
 **       20190419  =>  2019-04-19
 **       201904    =>  2019-04
 */
-const char *timeline_expand_datetime(const char *zIn){
-  static char zEDate[20];
-  static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
+const char *timeline_expand_datetime(const char *zIn, int *pbZulu){
+  static char zEDate[16];
   int n = (int)strlen(zIn);
   int i, j;
 
-  /* Only three forms allowed:
+  /* These forms are recognized:
+  **
   **   (1)  YYYYMMDD
   **   (2)  YYYYMM
   **   (3)  YYYYWW
   */
+  if( n && (zIn[n-1]=='Z' || zIn[n-1]=='z') ){
+    n--;
+    if( pbZulu ) *pbZulu = 1;
+  }else{
+    if( pbZulu ) *pbZulu = 0;
+  }
   if( n!=8 && n!=6 ) return zIn;
 
   /* Every character must be a digit */
-  for(i=0; fossil_isdigit(zIn[i]); i++){}
+  for(i=0; i<n && fossil_isdigit(zIn[i]); i++){}
   if( i!=n ) return zIn;
 
   /* Expand the date */
-  for(i=j=0; zIn[i]; i++){
-    if( i>=4 && (i%2)==0 ){
-      zEDate[j++] = aPunct[i/2];
-    }
+  for(i=j=0; i<n; i++){
+    if( j==4 || j==7 ) zEDate[j++] = '-';
     zEDate[j++] = zIn[i];
   }
   zEDate[j] = 0;
@@ -2374,7 +2378,8 @@ void page_timeline(void){
     }
     if( zYearMonth ){
       char *zNext;
-      zYearMonth = timeline_expand_datetime(zYearMonth);
+      int bZulu = 0;
+      zYearMonth = timeline_expand_datetime(zYearMonth, &bZulu);
       if( strlen(zYearMonth)>7 ){
         zYearMonth = mprintf("%.7s", zYearMonth);
       }
@@ -2409,7 +2414,8 @@ void page_timeline(void){
     }
     else if( zYearWeek ){
       char *z, *zNext;
-      zYearWeek = timeline_expand_datetime(zYearWeek);
+      int bZulu = 0;
+      zYearWeek = timeline_expand_datetime(zYearWeek, &bZulu);
       z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
       if( z && z[0] ){
         zYearWeekStart = db_text(0, "SELECT date(%Q,'-6 days','weekday 1')",
@@ -2456,34 +2462,43 @@ void page_timeline(void){
     }
     else if( zDay ){
       char *zNext;
-      zDay = timeline_expand_datetime(zDay);
+      int bZulu = 0;
+      const char *zTZMod;
+      zDay = timeline_expand_datetime(zDay, &bZulu);
       zDay = db_text(0, "SELECT date(%Q)", zDay);
       if( zDay==0 || zDay[0]==0 ){
         zDay = db_text(0, "SELECT date('now')");
       }
-      zNext = db_text(0, "SELECT date(%Q,'+1 day');", zDay);
+      zTZMod = (bZulu==0 && fossil_ui_localtime()) ? "localtime" : "utc";
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime>=julianday(%Q)%s)",
-          zNext, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime>=julianday(%Q,'+1 day',%Q)%s)",
+          zDay, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0,"SELECT strftime('%%Y%%m%%d%q',%Q,'+1 day');",
+                        &"Z"[!bZulu], zDay);
         zNewerButton = fossil_strdup(url_render(&url, "ymd", zNext, 0, 0));
         zNewerButtonLabel = "Following day";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      zNext = db_text(0, "SELECT date(%Q,'-1 day');", zDay);
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime<julianday(%Q)%s)",
-          zDay, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime<julianday(%Q,'-1 day',%Q)%s)",
+          zDay, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0,"SELECT strftime('%%Y%%m%%d%q',%Q,'-1 day');",
+                        &"Z"[!bZulu], zDay);
         zOlderButton = fossil_strdup(url_render(&url, "ymd", zNext, 0, 0));
         zOlderButtonLabel = "Previous day";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      blob_append_sql(&cond, " AND %Q=date(event.mtime) ",
-                   zDay);
+      blob_append_sql(&cond, " AND %Q=date(event.mtime,%Q) ", zDay, zTZMod);
       nEntry = -1;
+      if( fossil_ui_localtime() && bZulu ){
+        zDay = mprintf("%zZ", zDay); /* Add Z suffix to day for the title */
+      }
     }
     else if( zNDays ){
       nDays = atoi(zNDays);
@@ -3619,6 +3634,7 @@ void thisdayinhistory_page(void){
   int i;
   Stmt q;
   char *z;
+  int bZulu = 0;
 
   login_check_credentials();
   if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum) ){
@@ -3629,7 +3645,7 @@ void thisdayinhistory_page(void){
   style_header("Today In History");
   zToday = (char*)P("today");
   if( zToday ){
-    zToday = timeline_expand_datetime(zToday);
+    zToday = timeline_expand_datetime(zToday, &bZulu);
     if( !fossil_isdate(zToday) ) zToday = 0;
   }
   if( zToday==0 ){

@@ -1,5 +1,5 @@
-C Allow\sthe\soptional\s"Z"\szulu-time\sdesignator\seven\son\s8-character\spunctuationless\ndate-time\svalues.
-D 2024-12-26T12:03:19.190
+C The\symd=\squery\sparameter\son\s/timeline\sunderstands\sthe\s"Z"\ssuffix\son\sthe\ndate/time.
+D 2024-12-26T12:59:11.118
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -410,7 +410,7 @@ F src/content.c 502e450c17d30ec50a2528be96e99db2c33f7db3c5dd97f37c2af74aee7adfc8
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 3ec091af53b4d5a547d538a86e7322b2a3d6d31f4e9d5cff7b18831276dfa40a
+F src/db.c 604e5a65d9604809e8a7d7ae96da3dd3bb86461ed725134b6e84f9732297198f
 F src/default.css 4aad8d060e46796dd76486ded34e94bb42ddc23939f75738f5d0e46e853bb01b
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -573,7 +573,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c baac5d2f93a6afc57fab8bdeb29b2e0c76beaf1709436003c2bb50351b63b7a1
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c 288e1b68e625e1f17203818334bb08fcb863fcf93fd2fb04b30766396dca51eb
+F src/timeline.c 8d185a5b254f32e9a6c7548f6695fa1ebbbfb3a43358f65e9d4ae749330e29a7
 F src/tkt.c e52093bf6399bc2cdd6d7bd77f0cb236f023858fbd4e39442f0c3df5b2b1b84a
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c464947f8dee606d35a0333212373621caeb22cfe1de4c22c5d37ac7d9fb2177
-R 6c4fd9101a0fbcb9af1adac63732b1c9
+P 3a3ce2fc65184cc089561ec1b6d7c07ea2d910ba4f4b07dca5c19dde9f509845
+R f699128e18d4452c6f094f114143a295
 U drh
-Z f50f4c6f936d57910fc19168a4a2e504
+Z 706ee693ea608423df077da994b2650d
 # Remove this line to create a well-formed Fossil manifest.
