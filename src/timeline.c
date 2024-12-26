@@ -2573,9 +2573,9 @@ void page_timeline(void){
       nEntry = -1;
       
       if( fossil_ui_localtime() && bZulu ){
-        zDay = mprintf("%d days between %zZ through %zZ", nDay, zStart, zEnd);
+        zDay = mprintf("%d days between %zZ and %zZ", nDay, zStart, zEnd);
       }else{
-        zDay = mprintf("%d days between %z through %z", nDay, zStart, zEnd);
+        zDay = mprintf("%d days between %z and %z", nDay, zStart, zEnd);
       }
     }
     else if( zDay ){

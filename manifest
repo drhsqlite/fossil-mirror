@@ -1,5 +1,5 @@
-C Allow\sthe\sform\symd=YYYYMMDD-YYYYMMDD\sto\sshow\sa\srange\sof\sdays\sin\sthe\s/timeline.
-D 2024-12-26T15:20:32.406
+C Change\sthe\swording\sof\sthe\stitle\sline\sfor\symd=\swith\sa\sdate\srange.
+D 2024-12-26T15:25:18.469
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -573,7 +573,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c baac5d2f93a6afc57fab8bdeb29b2e0c76beaf1709436003c2bb50351b63b7a1
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c 8ec5ae51f5445d3468524889736aefebce9f6e4776c29d408924f72163ed87e6
+F src/timeline.c 436d0ed409b3d07b8f4d4ae412f8f9fe7913b3888e69455542928a2600918f7a
 F src/tkt.c e52093bf6399bc2cdd6d7bd77f0cb236f023858fbd4e39442f0c3df5b2b1b84a
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e9c68906107bc43267e6d4fc034838cab92569526e70904e9084b7f81443fecb
-R 545cbb6040c4864cb9808f9044d332a6
+P 7e68a6f1e029c6eb4929cf769db699744ec1036e2555f680fdbd448882236c1d
+R d676e3d003bbf87675081206413c98db
 U drh
-Z 314b7483edf7a99db9d3826773488dd7
+Z bc7a3dfc2ff39a5c914b26158564682d
 # Remove this line to create a well-formed Fossil manifest.
