@@ -455,6 +455,8 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
                       "  ORDER BY isprim DESC, mtime DESC", ridCkout);
     }else if( isCheckin>1 && fossil_strcmp(zTag, "ckout")==0 ){
       rid = RID_CKOUT;
+      assert(ridCkout>0);
+      g.localOpen = ridCkout;
     }
     if( rid ) return rid;
   }
@@ -701,6 +703,9 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
     return 1;
   }else{
     blob_reset(pName);
+    if( RID_CKOUT==rid ) {
+      rid = g.localOpen;
+    }
     db_blob(pName, "SELECT uuid FROM blob WHERE rid=%d", rid);
     return 0;
   }
