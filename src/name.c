@@ -75,20 +75,19 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
 
   /* These forms are allowed:
   **
-  **   (1)  YYYYMMDD
-  **   (2)  YYYYMMDDHHMM
-  **   (3)  YYYYMMDDHHMMSS
+  **        123456789 1234           123456789 123456789
+  **   (1)  YYYYMMDD            =>   YYYY-MM-DD
+  **   (2)  YYYYMMDDHHMM        =>   YYYY-MM-DD HH:MM
+  **   (3)  YYYYMMDDHHMMSS      =>   YYYY-MM-DD HH:MM:SS
   **
-  ** Forms (2) and (3) may be followed by a "Z" zulu timezone designator,
-  ** which is carried through into the output.
+  ** An optional "Z" zulu timezone designator is allowed at the end.
   */
+  if( n>0 && (zIn[n-1]=='Z' || zIn[n-1]=='z') ){
+    n--;
+    addZulu = 1;
+  }
   if( n!=8 && n!=12 && n!=14 ){
-    if( (n==13 || n==15) && (zIn[12]=='z' || zIn[12]=='Z') ){
-      n--;
-      addZulu = 1;
-    }else{
-      return 0;
-    }
+    return 0;
   }
 
   /* Every character must be a digit */
@@ -102,7 +101,13 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
     }
     zEDate[j++] = zIn[i];
   }
-  if( addZulu ) zEDate[j++] = 'Z';
+  if( addZulu ){
+    if( j==10 ){
+      memcpy(&zEDate[10]," 00:00", 6);
+      j += 6;
+    }
+    zEDate[j++] = 'Z';
+  }
   zEDate[j] = 0;
 
   /* Check for reasonable date values.
