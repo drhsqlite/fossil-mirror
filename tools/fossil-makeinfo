@@ -35,6 +35,7 @@ printf "@c Initial rendition to convert fossil help -a -v into texinfo for furth
 @c later. Don't expect this to conform to GNU guidelines.
 
 " >> fossil.texi
+
 # Add a title page
 printf "@titlepage
 @title Fossil
@@ -163,10 +164,10 @@ fossil help
 They are similar to commands that are available in other VCS programs such as
 subversion, git or mercurial.
 
+@menu
 " >> fossil.texi
 
 # begin menu for common keywords
-printf "@menu\n" >> fossil.texi
 
 # Slurp in Common keywords from fossil help
 # WARNING: tail count is brittle
@@ -283,13 +284,11 @@ tool, but are useful enough to be kept around. They are most definitely not
 supported, and the developers will expect to change these far more often. They
 are not stable, so do not depend upon their behavior, or even their existence.
 
-@menu
-" >> fossil.texi
+@menu" >> fossil.texi
 
 # Insert test commands in here
 echo "Grab test keywords for menu"
 for u in $(for t in $(fossil help -t); do echo "$t"; done | sort); do echo "* ${u}::"; done >> fossil.texi
-
 
 # Now end that menu (Test commands)
 echo "@end menu
@@ -344,8 +343,7 @@ example below, that starts from the final / (in this case, /timeline?ms=glob):
 https://fossil.example.com/fossil/timeline?ms=glob
 @end example
 
-@menu
-" >> fossil.texi
+@menu" >> fossil.texi
 
 # Insert webpage keywords in here
 echo "Grab web keywords for menu"
