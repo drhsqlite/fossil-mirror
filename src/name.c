@@ -67,28 +67,46 @@ int fossil_isdate(const char *z){
 ** of the input string only, without reference to the artifact table.
 */
 char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
-  static char zEDate[20];
+  static char zEDate[24];
   static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
   int n = (int)strlen(zIn);
   int i, j;
+  int addZulu = 0;
 
-  /* Only three forms allowed:
-  **   (1)  YYYYMMDD
-  **   (2)  YYYYMMDDHHMM
-  **   (3)  YYYYMMDDHHMMSS
+  /* These forms are allowed:
+  **
+  **        123456789 1234           123456789 123456789
+  **   (1)  YYYYMMDD            =>   YYYY-MM-DD
+  **   (2)  YYYYMMDDHHMM        =>   YYYY-MM-DD HH:MM
+  **   (3)  YYYYMMDDHHMMSS      =>   YYYY-MM-DD HH:MM:SS
+  **
+  ** An optional "Z" zulu timezone designator is allowed at the end.
   */
-  if( n!=8 && n!=12 && n!=14 ) return 0;
+  if( n>0 && (zIn[n-1]=='Z' || zIn[n-1]=='z') ){
+    n--;
+    addZulu = 1;
+  }
+  if( n!=8 && n!=12 && n!=14 ){
+    return 0;
+  }
 
   /* Every character must be a digit */
   for(i=0; fossil_isdigit(zIn[i]); i++){}
-  if( i!=n ) return 0;
+  if( i!=n && (!addZulu || i!=n+1) ) return 0;
 
   /* Expand the date */
-  for(i=j=0; zIn[i]; i++){
+  for(i=j=0; i<n; i++){
     if( i>=4 && (i%2)==0 ){
       zEDate[j++] = aPunct[i/2];
     }
     zEDate[j++] = zIn[i];
+  }
+  if( addZulu ){
+    if( j==10 ){
+      memcpy(&zEDate[10]," 00:00", 6);
+      j += 6;
+    }
+    zEDate[j++] = 'Z';
   }
   zEDate[j] = 0;
 
@@ -113,7 +131,7 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
   }
 
   /* The string is not also a hash prefix */
-  if( bVerifyNotAHash ){
+  if( bVerifyNotAHash && !addZulu ){
     if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'",zIn) ) return 0;
   }
 
@@ -455,6 +473,8 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
                       "  ORDER BY isprim DESC, mtime DESC", ridCkout);
     }else if( isCheckin>1 && fossil_strcmp(zTag, "ckout")==0 ){
       rid = RID_CKOUT;
+      assert(ridCkout>0);
+      g.localOpen = ridCkout;
     }
     if( rid ) return rid;
   }
@@ -701,6 +721,9 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
     return 1;
   }else{
     blob_reset(pName);
+    if( RID_CKOUT==rid ) {
+      rid = g.localOpen;
+    }
     db_blob(pName, "SELECT uuid FROM blob WHERE rid=%d", rid);
     return 0;
   }

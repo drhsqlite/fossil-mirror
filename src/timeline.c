@@ -1314,34 +1314,73 @@ static void addFileGlobDescription(
 **       20190419  =>  2019-04-19
 **       201904    =>  2019-04
 */
-const char *timeline_expand_datetime(const char *zIn){
-  static char zEDate[20];
-  static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
+const char *timeline_expand_datetime(const char *zIn, int *pbZulu){
+  static char zEDate[16];
   int n = (int)strlen(zIn);
   int i, j;
 
-  /* Only three forms allowed:
+  /* These forms are recognized:
+  **
   **   (1)  YYYYMMDD
   **   (2)  YYYYMM
   **   (3)  YYYYWW
   */
+  if( n && (zIn[n-1]=='Z' || zIn[n-1]=='z') ){
+    n--;
+    if( pbZulu ) *pbZulu = 1;
+  }else{
+    if( pbZulu ) *pbZulu = 0;
+  }
   if( n!=8 && n!=6 ) return zIn;
 
   /* Every character must be a digit */
-  for(i=0; fossil_isdigit(zIn[i]); i++){}
+  for(i=0; i<n && fossil_isdigit(zIn[i]); i++){}
   if( i!=n ) return zIn;
 
   /* Expand the date */
-  for(i=j=0; zIn[i]; i++){
-    if( i>=4 && (i%2)==0 ){
-      zEDate[j++] = aPunct[i/2];
-    }
+  for(i=j=0; i<n; i++){
+    if( j==4 || j==7 ) zEDate[j++] = '-';
     zEDate[j++] = zIn[i];
   }
   zEDate[j] = 0;
 
   /* It looks like this may be a date.  Return it with punctuation added. */
   return zEDate;
+}
+
+/*
+** Check to see if the argument is a date-span for the ymd= query
+** parameter.  A valid date-span is of the form:
+**
+**       0123456789 123456  <-- index
+**       YYYYMMDD-YYYYMMDD
+**
+** with an optional "Z" timeline modifier at the end.  Return true if
+** the input is a valid date space and false if not.
+*/
+static int timeline_is_datespan(const char *zDay){
+  size_t n = strlen(zDay);
+  int i, d, m;
+  
+  if( n<17 || n>18 ) return 0;
+  if( n==18 ){
+    if( zDay[17]!='Z' && zDay[17]!='z' ) return 0;
+    n--;
+  }
+  if( zDay[8]!='-' ) return 0;
+  for(i=0; i<17 && (fossil_isdigit(zDay[i]) || i==8); i++){}
+  if( i!=17 ) return 0;
+  i = atoi(zDay);
+  d = i%100;
+  if( d<1 || d>31 ) return 0;
+  m = (i/100)%100;
+  if( m<1 || m>12 ) return 0;
+  i = atoi(zDay+9);
+  d = i%100;
+  if( d<1 || d>31 ) return 0;
+  m = (i/100)%100;
+  if( m<1 || m>12 ) return 0;
+  return 1;
 }
 
 /*
@@ -1596,11 +1635,13 @@ void timeline_test_endpoint(void){
 **    namechng        Show only check-ins that have filename changes
 **    forks           Show only forks and their children
 **    cherrypicks     Show all cherrypicks
-**    ym=YYYY-MM      Show only events for the given year/month
-**    yw=YYYY-WW      Show only events for the given week of the given year
-**    yw=YYYY-MM-DD   Show events for the week that includes the given day
-**    ymd=YYYY-MM-DD  Show only events on the given day. The use "ymd=now"
-**                    to see all changes for the current week.
+**    ym=YYYYMM       Show only events for the given year/month
+**    yw=YYYYWW       Show only events for the given week of the given year
+**    yw=YYYYMMDD     Show events for the week that includes the given day
+**    ymd=YYYYMMDD    Show only events on the given day. The use "ymd=now"
+**                    to see all changes for the current week.  Add "z" at end
+**                    to divide days at UTC instead of localtime days.
+**                    Use ymd=YYYYMMDD-YYYYMMDD (with optional "z") for a range.
 **    year=YYYY       Show only events on the given year. The use "year=0"
 **                    to see all changes for the current year.
 **    days=N          Show events over the previous N days
@@ -2374,42 +2415,51 @@ void page_timeline(void){
     }
     if( zYearMonth ){
       char *zNext;
-      zYearMonth = timeline_expand_datetime(zYearMonth);
-      if( strlen(zYearMonth)>7 ){
-        zYearMonth = mprintf("%.7s", zYearMonth);
-      }
+      int bZulu = 0;
+      const char *zTZMod;
+      zYearMonth = timeline_expand_datetime(zYearMonth, &bZulu);
+      zYearMonth = mprintf("%.7s", zYearMonth);
       if( db_int(0,"SELECT julianday('%q-01') IS NULL", zYearMonth) ){
         zYearMonth = db_text(0, "SELECT strftime('%%Y-%%m','now');");
       }
-      zNext = db_text(0, "SELECT strftime('%%Y-%%m','%q-01','+1 month');",
-                      zYearMonth);
+      zTZMod = (bZulu==0 && fossil_ui_localtime()) ? "utc" : "+00:00";
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime>=julianday('%q-01')%s)",
-          zNext, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime>=julianday('%q-01',%Q)%s)",
+          zYearMonth, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0, "SELECT strftime('%%Y%%m%q','%q-01','+1 month');",
+                        &"Z"[!bZulu], zYearMonth);
         zNewerButton = fossil_strdup(url_render(&url, "ym", zNext, 0, 0));
         zNewerButtonLabel = "Following month";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      zNext = db_text(0, "SELECT strftime('%%Y-%%m','%q-01','-1 month');",
-                      zYearMonth);
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime<julianday('%q-01')%s)",
-          zYearMonth, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime<julianday('%q-01',%Q)%s)",
+          zYearMonth, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0, "SELECT strftime('%%Y%%m%q','%q-01','-1 month');",
+                        &"Z"[!bZulu], zYearMonth);
         zOlderButton = fossil_strdup(url_render(&url, "ym", zNext, 0, 0));
         zOlderButtonLabel = "Previous month";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
-                      zYearMonth);
+      blob_append_sql(&cond,
+         " AND event.mtime>=julianday('%q-01',%Q)"
+         " AND event.mtime<julianday('%q-01',%Q,'+1 month')\n",
+         zYearMonth, zTZMod, zYearMonth, zTZMod);
       nEntry = -1;
+      /* Adjust the zYearMonth for the title */
+      zYearMonth = mprintf("%z-01%s", zYearMonth, &"Z"[!bZulu]);
     }
     else if( zYearWeek ){
       char *z, *zNext;
-      zYearWeek = timeline_expand_datetime(zYearWeek);
+      int bZulu = 0;
+      const char *zTZMod;
+      zYearWeek = timeline_expand_datetime(zYearWeek, &bZulu);
       z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
       if( z && z[0] ){
         zYearWeekStart = db_text(0, "SELECT date(%Q,'-6 days','weekday 1')",
@@ -2430,60 +2480,148 @@ void page_timeline(void){
              "SELECT strftime('%%Y-%%W','now','-6 days','weekday 1')");
         }
       }
-      zNext = db_text(0, "SELECT date(%Q,'+7 day');", zYearWeekStart);
+      zTZMod = (bZulu==0 && fossil_ui_localtime()) ? "utc" : "+00:00";
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime>=julianday(%Q)%s)",
-          zNext, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime>=julianday(%Q,%Q)%s)",
+          zYearWeekStart, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0, "SELECT strftime('%%Y%%W%q',%Q,'+7 day');",
+                        &"Z"[!bZulu], zYearWeekStart);
         zNewerButton = fossil_strdup(url_render(&url, "yw", zNext, 0, 0));
         zNewerButtonLabel = "Following week";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      zNext = db_text(0, "SELECT date(%Q,'-7 days');", zYearWeekStart);
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime<julianday(%Q)%s)",
-          zYearWeekStart, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime<julianday(%Q,%Q)%s)",
+          zYearWeekStart, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0, "SELECT strftime('%%Y%%W%q',%Q,'-7 days');",
+                        &"Z"[!bZulu], zYearWeekStart);
         zOlderButton = fossil_strdup(url_render(&url, "yw", zNext, 0, 0));
         zOlderButtonLabel = "Previous week";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
-                   zYearWeek);
+      blob_append_sql(&cond,
+        " AND event.mtime>=julianday(%Q,%Q)"
+        " AND event.mtime<julianday(%Q,%Q,'+7 days')\n",
+        zYearWeekStart, zTZMod, zYearWeekStart, zTZMod);
       nEntry = -1;
+      if( fossil_ui_localtime() && bZulu ){
+        zYearWeekStart = mprintf("%zZ", zYearWeekStart);
+      }
+    }
+    else if( zDay && timeline_is_datespan(zDay) ){
+      char *zNext;
+      char *zStart, *zEnd;
+      int nDay;
+      int bZulu = 0;
+      const char *zTZMod;
+      zEnd = db_text(0, "SELECT date(%Q)",
+                     timeline_expand_datetime(zDay+9, &bZulu));
+      zStart = db_text(0, "SELECT date('%.4q-%.2q-%.2q')",
+                        zDay, zDay+4, zDay+6);
+      nDay = db_int(0, "SELECT julianday(%Q)-julianday(%Q)", zEnd, zStart);
+      if( nDay==0 ){
+        zDay = &zDay[9];
+        goto single_ymd;
+      }
+      if( nDay<0 ){
+        char *zTemp = zEnd;
+        zEnd = zStart;
+        zStart = zTemp;
+        nDay = 1 - nDay;
+      }else{
+        nDay += 1;
+      }
+      zTZMod = (bZulu==0 && fossil_ui_localtime()) ? "utc" : "+00:00";
+      if( nDay>0 && db_int(0,
+          "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+          " WHERE blob.rid=event.objid"
+          "   AND mtime>=julianday(%Q,'1 day',%Q)%s)",
+          zEnd, zTZMod, blob_sql_text(&cond))
+      ){
+        zNext = db_text(0,
+           "SELECT strftime('%%Y%%m%%d-',%Q,'%d days')||"
+                  "strftime('%%Y%%m%%d%q',%Q,'%d day');",
+                  zStart, nDay, &"Z"[!bZulu], zEnd, nDay);
+        zNewerButton = fossil_strdup(url_render(&url, "ymd", zNext, 0, 0));
+        zNewerButtonLabel = mprintf("Following %d days", nDay);
+        fossil_free(zNext);
+      }
+      if( nDay>1 && db_int(0,
+          "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+          " WHERE blob.rid=event.objid"
+          "   AND mtime<julianday(%Q,'-1 day',%Q)%s)",
+          zStart, zTZMod, blob_sql_text(&cond))
+      ){
+        zNext = db_text(0,
+           "SELECT strftime('%%Y%%m%%d-',%Q,'%d days')||"
+                  "strftime('%%Y%%m%%d%q',%Q,'%d day');",
+                  zStart, -nDay, &"Z"[!bZulu], zEnd, -nDay);
+        zOlderButton = fossil_strdup(url_render(&url, "ymd", zNext, 0, 0));
+        zOlderButtonLabel = mprintf("Previous %d days", nDay);
+        fossil_free(zNext);
+      }
+      blob_append_sql(&cond,
+        " AND event.mtime>=julianday(%Q,%Q)"
+        " AND event.mtime<julianday(%Q,%Q,'+1 day')\n",
+        zStart, zTZMod, zEnd, zTZMod);
+      nEntry = -1;
+      
+      if( fossil_ui_localtime() && bZulu ){
+        zDay = mprintf("%d days between %zZ and %zZ", nDay, zStart, zEnd);
+      }else{
+        zDay = mprintf("%d days between %z and %z", nDay, zStart, zEnd);
+      }
     }
     else if( zDay ){
       char *zNext;
-      zDay = timeline_expand_datetime(zDay);
+      int bZulu = 0;
+      const char *zTZMod;
+    single_ymd:
+      bZulu = 0;
+      zDay = timeline_expand_datetime(zDay, &bZulu);
       zDay = db_text(0, "SELECT date(%Q)", zDay);
       if( zDay==0 || zDay[0]==0 ){
         zDay = db_text(0, "SELECT date('now')");
       }
-      zNext = db_text(0, "SELECT date(%Q,'+1 day');", zDay);
+      zTZMod = (bZulu==0 && fossil_ui_localtime()) ? "utc" : "+00:00";
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime>=julianday(%Q)%s)",
-          zNext, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime>=julianday(%Q,'+1 day',%Q)%s)",
+          zDay, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0,"SELECT strftime('%%Y%%m%%d%q',%Q,'+1 day');",
+                        &"Z"[!bZulu], zDay);
         zNewerButton = fossil_strdup(url_render(&url, "ymd", zNext, 0, 0));
         zNewerButtonLabel = "Following day";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      zNext = db_text(0, "SELECT date(%Q,'-1 day');", zDay);
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime<julianday(%Q)%s)",
-          zDay, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime<julianday(%Q,'-1 day',%Q)%s)",
+          zDay, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0,"SELECT strftime('%%Y%%m%%d%q',%Q,'-1 day');",
+                        &"Z"[!bZulu], zDay);
         zOlderButton = fossil_strdup(url_render(&url, "ymd", zNext, 0, 0));
         zOlderButtonLabel = "Previous day";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      blob_append_sql(&cond, " AND %Q=date(event.mtime) ",
-                   zDay);
+      blob_append_sql(&cond,
+        " AND event.mtime>=julianday(%Q,%Q)"
+        " AND event.mtime<julianday(%Q,%Q,'+1 day')\n",
+        zDay, zTZMod, zDay, zTZMod);
       nEntry = -1;
+      if( fossil_ui_localtime() && bZulu ){
+        zDay = mprintf("%zZ", zDay); /* Add Z suffix to day for the title */
+      }
     }
     else if( zNDays ){
       nDays = atoi(zNDays);
@@ -2730,7 +2868,7 @@ void page_timeline(void){
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     zPlural = n==1 ? "" : "s";
     if( zYearMonth ){
-      blob_appendf(&desc, "%d %s%s for the month beginning %h-01",
+      blob_appendf(&desc, "%d %s%s for the month beginning %h",
                    n, zEType, zPlural, zYearMonth);
     }else if( zYearWeek ){
       blob_appendf(&desc, "%d %s%s for week %h beginning on %h",
@@ -3619,6 +3757,7 @@ void thisdayinhistory_page(void){
   int i;
   Stmt q;
   char *z;
+  int bZulu = 0;
 
   login_check_credentials();
   if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum) ){
@@ -3629,7 +3768,7 @@ void thisdayinhistory_page(void){
   style_header("Today In History");
   zToday = (char*)P("today");
   if( zToday ){
-    zToday = timeline_expand_datetime(zToday);
+    zToday = timeline_expand_datetime(zToday, &bZulu);
     if( !fossil_isdate(zToday) ) zToday = 0;
   }
   if( zToday==0 ){

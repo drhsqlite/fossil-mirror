@@ -1351,6 +1351,46 @@ void db_sym2rid_function(
   }
 }
 
+
+/*
+** SETTING: timeline-utc      boolean default=on
+**
+** If the timeline-utc setting is true, then Fossil tries to understand
+** and display all time values using UTC.  If this setting is false, Fossil
+** tries to understand and display time values using the local timezone.
+**
+** The word "timeline" in the name of this setting is historical.
+** This setting applies to all user interfaces of Fossil,
+** not just the timeline.
+**
+** Note that when accessing Fossil using the web interface, the localtime
+** used is the localtime on the server, not on the client.
+*/
+/*
+** Return true if Fossil is set to display times as UTC.  Return false
+** if it wants to display times using the local timezone.
+**
+** False is returned if display is set to localtime even if the localtime
+** happens to be the same as UTC.
+*/
+int fossil_ui_utctime(void){
+  if( g.fTimeFormat==0 ){
+    if( db_get_int("timeline-utc", 1) ){
+      g.fTimeFormat = 1; /* UTC */
+    }else{
+      g.fTimeFormat = 2; /* Localtime */
+    }
+  }
+  return g.fTimeFormat==1;
+}
+
+/*
+** Return true if Fossil is set to display times using the local timezone.
+*/
+int fossil_ui_localtime(void){
+  return fossil_ui_utctime()==0;
+}
+
 /*
 ** The toLocal() SQL function returns a string that is an argument to a
 ** date/time function that is appropriate for modifying the time for display.
@@ -1366,14 +1406,7 @@ void db_tolocal_function(
   int argc,
   sqlite3_value **argv
 ){
-  if( g.fTimeFormat==0 ){
-    if( db_get_int("timeline-utc", 1) ){
-      g.fTimeFormat = 1;
-    }else{
-      g.fTimeFormat = 2;
-    }
-  }
-  if( g.fTimeFormat==1 ){
+  if( fossil_ui_utctime() ){
     sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
   }else{
     sqlite3_result_text(context, "localtime", -1, SQLITE_STATIC);
@@ -1395,14 +1428,7 @@ void db_fromlocal_function(
   int argc,
   sqlite3_value **argv
 ){
-  if( g.fTimeFormat==0 ){
-    if( db_get_int("timeline-utc", 1) ){
-      g.fTimeFormat = 1;
-    }else{
-      g.fTimeFormat = 2;
-    }
-  }
-  if( g.fTimeFormat==1 ){
+  if( fossil_ui_utctime() ){
     sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
   }else{
     sqlite3_result_text(context, "utc", -1, SQLITE_STATIC);
@@ -1563,20 +1589,27 @@ static int uintNocaseCollFunc(
 */
 void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_collation(db, "uintnocase", SQLITE_UTF8,0,uintNocaseCollFunc);
-  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
-                          db_checkin_mtime_function, 0, 0);
-  sqlite3_create_function(db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0,
-                          db_sym2rid_function, 0, 0);
-  sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
-                          db_sym2rid_function, 0, 0);
-  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "checkin_mtime", 2,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_checkin_mtime_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 1,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 2,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "now", 0,
+                          SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
                           db_now_function, 0, 0);
-  sqlite3_create_function(db, "toLocal", 0, SQLITE_UTF8, 0,
-                          db_tolocal_function, 0, 0);
-  sqlite3_create_function(db, "fromLocal", 0, SQLITE_UTF8, 0,
-                          db_fromlocal_function, 0, 0);
-  sqlite3_create_function(db, "hextoblob", 1, SQLITE_UTF8, 0,
-                          db_hextoblob, 0, 0);
+  sqlite3_create_function(db, "toLocal", 0,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_tolocal_function, 0, 0);
+  sqlite3_create_function(db, "fromLocal", 0,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_fromlocal_function, 0, 0);
+  sqlite3_create_function(db, "hextoblob", 1,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_hextoblob, 0, 0);
   sqlite3_create_function(db, "capunion", 1, SQLITE_UTF8, 0,
                           0, capability_union_step, capability_union_finalize);
   sqlite3_create_function(db, "fullcap", 1, SQLITE_UTF8, 0,
