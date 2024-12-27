@@ -12,7 +12,7 @@
 # v0.11 Added entries relevant to system-wide dir entry.
 # v0.12 Reworded section introductions.
 # v0.13 Added testing commands to texi output.
-#        Builds (finally) on OpenBSD and NetBSD.
+#        Builds a correct texinfo file (finally) on OpenBSD and NetBSD.
 #
 # Requires fossil, tail, GNU sed and makeinfo
 #
@@ -449,5 +449,3 @@ echo "@bye" >> fossil.texi
 echo "Done ... for now. Please check fossil.texi file over for inconsistencies, and fill in descriptions."
 echo "Once everything's good, you can run your system's makeinfo command to turn"
 echo "your .texi file into a .info file to install where you need."
-
-
