@@ -3,20 +3,19 @@
 Fossil can sign check-in manifests. A basic concept in public-key
 cryptography, signing can bring some advantages such as authentication and
 non-repudiation. In practice, a serious obstacle is the public key
-infrastructure - that is, the problem of reliably verifying that a given
+infrastructure – that is, the problem of reliably verifying that a given
 public key belongs to its supposed owner (also known as _"signing is easy,
 verifying is hard"_).
 
 Fossil neither creates nor verifies signatures by itself, instead relying on
-external tools that have to be installed side-by-side. 
-Historically, the most used tool for this task was [GnuPG](https://gnupg.org);
-recently there has been an increase in the usage of
-[OpenSSH](https://openssh.com) for this (the minimum required version is 8.1, 
-released on 2019-10-09).
+external tools that have to be installed side-by-side. Historically, the tool
+most employed for this task was [GnuPG](https://gnupg.org); recently, there has
+been an increase in the usage of [OpenSSH](https://openssh.com) (the minimum
+required version is 8.1, released on 2019-10-09).
 
 ## Signing a check-in
 
-When the `clearsign` setting is on, every check-in will be signed
+The `clearsign` setting must be on; this will cause every check-in to be signed
 (unless you provide the `--nosign` flag to `fossil commit`). To this end,
 Fossil calls the command given by the `pgp-command` setting.
 
@@ -36,7 +35,7 @@ user to be used for signing.)
 
 ### OpenSSH
 
-A good value for `pgp-command` is
+A reasonable value for `pgp-command` is
 
 ```
 ssh-keygen -q -Y sign -n fossilscm -f ~/.ssh/id_ed25519
@@ -58,7 +57,7 @@ taken to use the same value when verifying the signature.
 ## Verifying a signature
 
 Fossil does not provide an internal method for verifying signatures and
-relies - like it does for signing - on external tools. 
+relies – like it does for signing – on external tools. 
 
 ### GnuPG
 
@@ -87,7 +86,7 @@ to fully-fledged scripts.
 ```bash
 fsig=$(mktemp /tmp/__fsig.XXXXXX) && \
 fusr=$(fossil artifact <CHECK-IN> | awk -v m="${fsig}" -v s="${fsig}.sig" '/^-----BEGIN SSH SIGNED/{of=m;next} /^-----BEGIN SSH SIGNATURE/{of=s} /^U /{usr=$2} /./{if(!of){exit 42};print >> of} END{print usr}') && \
-ssh-keygen -Y verify -f ~/.ssh/allowed_signers -I ${fusr} -n fossilscm -s "${fsig}.sig" < "${fsig}" > /dev/null 2>&1 || echo "No SSH signed check-in" && \
+ssh-keygen -Y verify -f ~/.ssh/allowed_signers -I ${fusr} -n fossilscm -s "${fsig}.sig" < "${fsig}" || echo "No SSH signed check-in" && \
 rm -f "${fsig}.sig" "${fsig}" && \
 unset -v fsig fusr
 ```

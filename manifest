@@ -1,5 +1,5 @@
-C Add\sdocumentation\son\ssigning\scheck-ins.
-D 2024-10-30T15:38:41.461
+C In\sthe\sverification\srecipe\sfor\sssh\ssigning,\sdo\snot\ssilent\sa\spossible\sconfirmation.
+D 2024-12-29T01:02:43.117
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -939,7 +939,7 @@ F www/server/windows/stunnel.md eb99980e32c075acd1dcd4c44bcebf2e67f3e0dba8419728
 F www/serverext.wiki 6ca97cde49057937831ef70adb207642e6befd1f5b18decb31ca1b35cd13b2f2
 F www/settings.wiki e8df2759821ed555cb47d068980f6904a374ad28ce3ba7cda695852e6ae07105
 F www/shunning.wiki 2945acf2d1865cd1301402b2085527d8b23f971c9f894c6d0511dc146a8df767
-F www/signing.md c7fadf6c68c9eb48b855df6e72337874ff7e3f1479266cb2c59501e4c475fc63
+F www/signing.md a1651e4c2118728f009d2a4c78224047b7a45e7add1849113e33d4651756ea1e
 F www/ssl-server.md a2df89dac308c5143f95e30c9acfa8ab5cbeaa931bbefbcb40d49e37dd0cc4a8
 F www/ssl.wiki d1fc950cf538f469424b7a2d67d465678cc5f5a53c01e4c9f5cbc4929bd1c65f
 F www/stats.wiki f2713acf5c005f1ccecbec63dc5f826499f5f842e8ad17ec3d34ab2f57790792
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e5240ec0428729a1d6dc1e335c607ae0bfc10c22042137a7d2834ded8ef51f8f
-R 688024dfc33002b90fe18e34a2207710
+P 37606a21f2f2bdd54189967ff5cad6edab8befe62d6537ebdf9d937813abd234
+R 7e23779c593c94df0e2b95745f715873
 U danield
-Z 36374c743c553353d9d643d68606790a
+Z c869f934e388f3bc0ba0e30ec3eac199
 # Remove this line to create a well-formed Fossil manifest.
