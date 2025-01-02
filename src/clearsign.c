@@ -31,6 +31,7 @@ int clearsign(Blob *pIn, Blob *pOut){
   char *zIn;
   char *zOut;
   char *zBase = db_get("pgp-command", "gpg --clearsign -o ");
+  const char *zTail;
   char *zCmd;
   int rc;
   if( is_false(zBase) ){
@@ -39,7 +40,8 @@ int clearsign(Blob *pIn, Blob *pOut){
   zRand = db_text(0, "SELECT hex(randomblob(10))");
   zOut = mprintf("out-%s", zRand);
   blob_write_to_file(pIn, zOut);
-  if( fossil_strncmp(zBase, "ssh", 3)==0 ){
+  zTail = command_tail(zBase);
+  if( fossil_strncmp(zTail, "ssh", 3)==0 ){
     zIn = mprintf("out-%s.sig", zRand);
     zCmd = mprintf("%s %s", zBase, zOut);
   }else{
@@ -53,7 +55,7 @@ int clearsign(Blob *pIn, Blob *pOut){
       blob_reset(pIn);
     }
     blob_zero(pOut);
-    if( fossil_strncmp(zBase, "ssh", 3)==0 ){
+    if( fossil_strncmp(zTail, "ssh", 3)==0 ){
         /* SSH cannot currently (2024) create non-detached SSH signatures */
         /* We put one together */
         Blob tmpBlob;

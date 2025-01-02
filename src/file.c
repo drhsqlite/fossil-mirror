@@ -559,6 +559,27 @@ const char *file_tail(const char *z){
 }
 
 /*
+** Return the tail of a command: the basename of the putative executable (which
+** could be quoted when containing spaces) and the following arguments.
+*/
+const char *command_tail(const char *z){
+  const char *zTail = z;
+  char chQuote = 0;
+  if( !zTail ) return 0;
+  while( z[0] && (!fossil_isspace(z[0]) ||
+                  chQuote) ){
+    if( z[0]=='"' || z[0]=='\'' ){
+      if( chQuote && chQuote==z[0] )
+        chQuote = 0;
+      else chQuote = z[0];
+    }
+    if( fossil_isdirsep(z[0]) ) zTail = &z[1];
+    z++;
+  }
+  return zTail;
+}
+
+/*
 ** Return the directory of a file path name.  The directory is all components
 ** except the last one.  For example, the directory of "/a/b/c.d" is "/a/b".
 ** If there is no directory, NULL is returned; otherwise, the returned memory
