@@ -566,12 +566,9 @@ const char *command_tail(const char *z){
   const char *zTail = z;
   char chQuote = 0;
   if( !zTail ) return 0;
-  while( z[0] && (!fossil_isspace(z[0]) ||
-                  chQuote) ){
+  while( z[0] && (!fossil_isspace(z[0]) || chQuote) ){
     if( z[0]=='"' || z[0]=='\'' ){
-      if( chQuote && chQuote==z[0] )
-        chQuote = 0;
-      else chQuote = z[0];
+      chQuote = (chQuote==z[0]) ? 0 : z[0];
     }
     if( fossil_isdirsep(z[0]) ) zTail = &z[1];
     z++;

@@ -1,5 +1,5 @@
-C Allow\sa\spath\sto\sthe\sssh-keygen\sin\sthe\spgp-command\ssetting.
-D 2025-01-02T00:12:29.925
+C Simplify\sa\stest\swhen\slooking\sfor\sthe\scommand\stail.
+D 2025-01-03T14:28:26.925
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c ab7ef078ade5131b1b6793a2b827f375c72abb9c7372e203903681ba7ef08987
 F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
-F src/file.c 88814d22b18ad492a5cd618b117d340b9ce2a8fca79e404060ca98e4325c821d
+F src/file.c ba7d79b573c499651e8fcf2c38cdcb5ebb2612d7ea1f7a6271e266a4b3b99c75
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 3eacb1b2e40382a539d16fa54ef4e4f0da931513a56fe974b41fa58f85538740
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P decad8811e9e464ebd0455fc79602cd8cc200d1a175a7b3148f2f91352373834
-R 00bbf65f0ffb27bf5bed9e565f725927
+P 121093b8351de663e634a37866b8938be016b517fd32bec239e8501a0e319439
+R df160c616c99f16b963a654a1c31addf
 U danield
-Z 1cb7c3798798371b97e04e4c1194a273
+Z 66bf660ca0e889295edfbffe22ff69d3
 # Remove this line to create a well-formed Fossil manifest.
