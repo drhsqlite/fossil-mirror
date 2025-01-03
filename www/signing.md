@@ -73,6 +73,8 @@ fossil artifact <CHECK-IN> | gpg --verify
 The user and the key that was used to create the signature must be listed
 together in the `ALLOWED_SIGNERS` file (see
 [documentation](https://man.openbsd.org/ssh-keygen#ALLOWED_SIGNERS)).
+Note that in that file, the "@DOMAIN" bit for the principal is only a
+recommendation; you can (or even _should_) simply use your Fossil user name.
 
 As mentioned, for lack of an OpenSSH built-in non-detached signature mechanism,
 the burden of extracting the relevant part of the signed check-in is on the

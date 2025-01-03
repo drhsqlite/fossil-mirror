@@ -1,5 +1,5 @@
-C Simplify\sa\stest\swhen\slooking\sfor\sthe\scommand\stail.
-D 2025-01-03T14:28:26.925
+C Make\sclear\sthe\sone\scan\suse\sthe\sFossil\suser\sname\sin\sthe\s.allowed_signers\sfile.
+D 2025-01-03T15:57:42.714
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -939,7 +939,7 @@ F www/server/windows/stunnel.md eb99980e32c075acd1dcd4c44bcebf2e67f3e0dba8419728
 F www/serverext.wiki 6ca97cde49057937831ef70adb207642e6befd1f5b18decb31ca1b35cd13b2f2
 F www/settings.wiki e8df2759821ed555cb47d068980f6904a374ad28ce3ba7cda695852e6ae07105
 F www/shunning.wiki 2945acf2d1865cd1301402b2085527d8b23f971c9f894c6d0511dc146a8df767
-F www/signing.md a1651e4c2118728f009d2a4c78224047b7a45e7add1849113e33d4651756ea1e
+F www/signing.md 4f44b2eedeaa1eddfdbd85b7de130cad3af65212479c52e89a51988a7febe45f
 F www/ssl-server.md a2df89dac308c5143f95e30c9acfa8ab5cbeaa931bbefbcb40d49e37dd0cc4a8
 F www/ssl.wiki d1fc950cf538f469424b7a2d67d465678cc5f5a53c01e4c9f5cbc4929bd1c65f
 F www/stats.wiki f2713acf5c005f1ccecbec63dc5f826499f5f842e8ad17ec3d34ab2f57790792
@@ -961,8 +961,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 121093b8351de663e634a37866b8938be016b517fd32bec239e8501a0e319439
-R df160c616c99f16b963a654a1c31addf
+P e1cbb9968d93b80446b83946964a1786958e77f097544edf73eb791a92b325df
+R 1fe132d8667e14db12bd570229f42480
 U danield
-Z 66bf660ca0e889295edfbffe22ff69d3
+Z d942a90ea298744a68f9ff5a930972f8
 # Remove this line to create a well-formed Fossil manifest.
