@@ -591,6 +591,23 @@ char *file_dirname(const char *z){
   }
 }
 
+/*
+** Return the basename of the putative executable in a command (w/o arguments).
+** The returned memory should be freed via fossil_free().
+*/
+char *command_basename(const char *z){
+  const char *zTail = command_tail(z);
+  const char *zEnd = zTail;
+  while( zEnd[0] && !fossil_isspace(zEnd[0]) && zEnd[0]!='"' && zEnd[0]!='\'' ){
+    zEnd++;
+  }
+  if( zEnd ){
+    return mprintf("%.*s", (int)(zEnd-zTail), zTail);
+  }else{
+    return 0;
+  }
+}
+
 /* SQL Function:  file_dirname(NAME)
 **
 ** Return the directory for NAME
