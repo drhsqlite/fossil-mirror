@@ -355,7 +355,7 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 ** is used.  If the --clean option does not appear on the command line then
 ** the "clean-glob" setting is used.
 **
-** If files are attempted to be added explicitly on the command line which
+** When attempting to explicitly add files on the commandline, and if those
 ** match "ignore-glob", a confirmation is asked first. This can be prevented
 ** using the -f|--force option.
 **
@@ -755,8 +755,7 @@ const char *filename_collation(void){
 **     all files that show as MISSING with the "status" command) are
 **     removed as if by the "[[rm]]" command.
 **
-** The command does not "[[commit]]".  You must run the "[[commit]]" separately
-** as a separate step.
+** Note that this command does not "commit", as that is a separate step.
 **
 ** Files and directories whose names begin with "." are ignored unless
 ** the --dotfiles option is used.

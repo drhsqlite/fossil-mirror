@@ -134,6 +134,9 @@ void update_cmd(void){
   int width;            /* Width of printed comment lines */
   Stmt mtimeXfer;       /* Statement to transfer mtimes */
   const char *zWidth;   /* Width option string value */
+  const char *zCurBrName;      /* Current branch name */
+  const char *zNewBrName;      /* New branch name */
+  const char *zBrChgMsg = "";  /* Message to display if branch changes */
 
   if( !internalUpdate ){
     undo_capture_command_line();
@@ -165,6 +168,7 @@ void update_cmd(void){
 
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
+  zCurBrName = branch_of_rid(vid);
   user_select();
   if( !dryRunFlag && !internalUpdate && !bNosync ){
     if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag, 1, "update") ){
@@ -405,6 +409,7 @@ void update_cmd(void){
   assert( g.zLocalRoot!=0 );
   assert( strlen(g.zLocalRoot)>0 );
   assert( g.zLocalRoot[strlen(g.zLocalRoot)-1]=='/' );
+  merge_info_init();
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);  /* The filename from root */
     int idv = db_column_int(&q, 1);             /* VFILE entry for current */
@@ -420,9 +425,14 @@ void update_cmd(void){
     char *zFullPath;                            /* Full pathname of the file */
     char *zFullNewPath;                         /* Full pathname of dest */
     char nameChng;                              /* True if the name changed */
+    const char *zOp = 0;                        /* Type of change.  */
+    i64 sz = 0;                                 /* Size of the file */
+    int nc = 0;                                 /* Number of conflicts */
+    const char *zErrMsg = 0;                    /* Error message */
 
     zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
     zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
+    sz = file_size(zFullNewPath, ExtFILE);
     nameChng = fossil_strcmp(zName, zNewName);
     nUpdate++;
     if( deleted ){
@@ -434,6 +444,9 @@ void update_cmd(void){
       */
       fossil_print("CONFLICT %s\n", zName);
       nConflict++;
+      zOp = "CONFLICT";
+      nc = 1;
+      zErrMsg = "duplicate file";
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
       if( file_isfile_or_link(zFullPath) ){
@@ -446,6 +459,9 @@ void update_cmd(void){
         if( !dryRunFlag ) fossil_print(", original copy backed up locally");
         fossil_print("\n");
         nOverwrite++;
+        nc = 1;
+        zOp = "CONFLICT";
+        zErrMsg = "new file overwrites unmanaged file";
       }else{
         fossil_print("ADD %s\n", zName);
       }
@@ -460,12 +476,14 @@ void update_cmd(void){
       }
       if( !dryRunFlag && !internalUpdate ) undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
+      zOp = "UPDATE";
     }else if( idt>0 && idv>0 && !deleted && file_size(zFullPath, RepoFILE)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
       fossil_print("UPDATE %s\n", zName);
       if( !dryRunFlag && !internalUpdate ) undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
+      zOp = "UPDATE";
     }else if( idt==0 && idv>0 ){
       if( ridv==0 ){
         /* Added in current check-out.  Continue to hold the file as
@@ -476,6 +494,9 @@ void update_cmd(void){
         ** file but keep the edited version around. */
         fossil_print("CONFLICT %s - edited locally but deleted by update\n",
                      zName);
+        zOp = "CONFLICT";
+        zErrMsg = "edited locally but deleted by update";
+        nc = 1;
         nConflict++;
       }else{
         fossil_print("REMOVE %s\n", zName);
@@ -495,9 +516,6 @@ void update_cmd(void){
         }
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
-      /* Merge the changes in the current tree into the target version */
-      Blob r, t, v;
-      int rc;
       if( nameChng ){
         fossil_print("MERGE %s -> %s\n", zName, zNewName);
       }else{
@@ -505,8 +523,12 @@ void update_cmd(void){
       }
       if( islinkv || islinkt ){
         fossil_print("***** Cannot merge symlink %s\n", zNewName);
+        zOp = "CONFLICT";
         nConflict++;
       }else{
+        /* Merge the changes in the current tree into the target version */
+        Blob r, t, v;
+        int rc;
         unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
         if(keepMergeFlag!=0) mergeFlags |= MERGE_KEEP_FILES;
         if( !dryRunFlag && !internalUpdate ) undo_save(zName);
@@ -519,8 +541,13 @@ void update_cmd(void){
             file_setexe(zFullNewPath, isexe);
           }
           if( rc>0 ){
+            nc = rc;
+            zOp = "CONFLICT";
+            zErrMsg = "merge conflicts";
             fossil_print("***** %d merge conflicts in %s\n", rc, zNewName);
             nConflict++;
+          }else{
+            zOp = "MERGE";
           }
         }else{
           if( !dryRunFlag ){
@@ -541,12 +568,15 @@ void update_cmd(void){
           }
           fossil_print("\n");
           nConflict++;
+          zOp = "ERROR";
+          zErrMsg = "cannot merge binary file";
+          nc = 1;
         }
+        blob_reset(&v);
+        blob_reset(&t);
+        blob_reset(&r);
       }
       if( nameChng && !dryRunFlag ) file_delete(zFullPath);
-      blob_reset(&v);
-      blob_reset(&t);
-      blob_reset(&r);
     }else{
       nUpdate--;
       if( chnged ){
@@ -559,22 +589,43 @@ void update_cmd(void){
         if( verboseFlag ) fossil_print("UNCHANGED %s\n", zName);
       }
     }
+    if( zOp!=0 ){
+      db_multi_exec(
+        "INSERT INTO mergestat(op,fnp,ridp,fn,ridv,sz,fnm,ridm,fnr,nc,msg)"
+        "VALUES(%Q,%Q,%d,%Q,NULL,%lld,%Q,%d,%Q,%d,%Q)",
+        /* op   */ zOp,
+        /* fnp  */ zName,
+        /* ridp */ ridv,
+        /* fn   */ zNewName,
+        /* sz   */ sz,
+        /* fnm  */ zName,
+        /* ridm */ ridt,
+        /* fnr  */ zNewName,
+        /* nc   */ nc,
+        /* msg  */ zErrMsg
+      );
+    }
     free(zFullPath);
     free(zFullNewPath);
   }
   db_finalize(&q);
   db_finalize(&mtimeXfer);
   fossil_print("%.79c\n",'-');
+  zNewBrName = branch_of_rid(tid);
+  if( g.argc<3 && fossil_strcmp(zCurBrName, zNewBrName)!=0 ){
+    zBrChgMsg = mprintf("  Branch changed from %s to %s.",
+                           zCurBrName, zNewBrName);
+  }
   if( nUpdate==0 ){
     show_common_info(tid, "checkout:", 1, 0);
-    fossil_print("%-13s None. Already up-to-date\n", "changes:");
+    fossil_print("%-13s None. Already up-to-date.%s\n", "changes:", zBrChgMsg);
   }else{
     fossil_print("%-13s %.40s %s\n", "updated-from:", rid_to_uuid(vid),
                  db_text("", "SELECT datetime(mtime) || ' UTC' FROM event "
                          "  WHERE objid=%d", vid));
     show_common_info(tid, "updated-to:", 1, 0);
-    fossil_print("%-13s %d file%s modified.\n", "changes:",
-                 nUpdate, nUpdate>1 ? "s" : "");
+    fossil_print("%-13s %d file%s modified.%s\n", "changes:",
+                 nUpdate, nUpdate>1 ? "s" : "", zBrChgMsg);
   }
 
   /* Report on conflicts
@@ -804,6 +855,7 @@ int historical_blob(
 ** the "fossil undo" command.
 **
 ** Options:
+**   --noundo                 Do not record changes in the undo/redo log.
 **   -r|--revision VERSION    Revert given FILE(s) back to given
 **                            VERSION
 **
@@ -817,6 +869,7 @@ void revert_cmd(void){
   const char *zFile;              /* Filename relative to check-out root */
   const char *zRevision;          /* Selected revert version, NULL if current */
   Blob record = BLOB_INITIALIZER; /* Contents of each reverted file */
+  int useUndo = 1;                /* True to record changes in UNDO */
   int i;
   Stmt q;
   int revertAll = 0;
@@ -824,6 +877,7 @@ void revert_cmd(void){
 
   undo_capture_command_line();
   zRevision = find_option("revision", "r", 1);
+  useUndo = find_option("noundo", 0, 0)==0;
   verify_all_options();
 
   if( g.argc<2 ){
@@ -840,7 +894,11 @@ void revert_cmd(void){
   pCoManifest = zRevision ? historical_manifest(0) : 0;
 
   db_begin_transaction();
-  undo_begin();
+  if( useUndo ){
+    undo_begin();
+  }else{
+    undo_reset();
+  }
   db_multi_exec("CREATE TEMP TABLE torevert(name UNIQUE);");
 
   if( g.argc>2 ){
@@ -937,7 +995,7 @@ void revert_cmd(void){
                  zFile, zFile)==0 ){
         fossil_print("UNMANAGE %s\n", zFile);
       }else{
-        undo_save(zFile);
+        if( useUndo ) undo_save(zFile);
         file_delete(zFull);
         fossil_print("DELETE   %s\n", zFile);
       }
@@ -964,7 +1022,7 @@ void revert_cmd(void){
       /* Get contents of reverted-to file. */
       content_get(fast_uuid_to_rid(pRvFile->zUuid), &record);
 
-      undo_save(zFile);
+      if( useUndo ) undo_save(zFile);
       if( file_size(zFull, RepoFILE)>=0
        && (rvPerm==PERM_LNK || file_islink(0))
       ){
@@ -990,7 +1048,7 @@ void revert_cmd(void){
     free(zFull);
   }
   db_finalize(&q);
-  undo_finish();
+  if( useUndo) undo_finish();
   db_end_transaction(0);
 
   /* Deallocate parsed manifest structures. */

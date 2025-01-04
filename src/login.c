@@ -1304,6 +1304,7 @@ void login_restrict_robot_access(void){
   const char *zReferer;
   const char *zGlob;
   int isMatch = 1;
+  int nQP;  /* Number of query parameters other than name= */
   if( g.zLogin!=0 ) return;
   zGlob = db_get("robot-restrict",0);
   if( zGlob==0 || zGlob[0]==0 ) return;
@@ -1311,9 +1312,20 @@ void login_restrict_robot_access(void){
     zReferer = P("HTTP_REFERER");
     if( zReferer && zReferer[0]!=0 ) return;
   }
-  if( cgi_qp_count()<1 ) return;
+  nQP = cgi_qp_count();
+  if( nQP<1 ) return;
   isMatch = glob_multi_match(zGlob, g.zPath);
   if( !isMatch ) return;
+
+  /* Check for exceptions to the restriction on the number of query
+  ** parameters. */
+  zGlob = db_get("robot-restrict-qp",0);
+  if( zGlob && zGlob[0] ){
+    char *zPath = mprintf("%s/%d", g.zPath, nQP);
+    isMatch = glob_multi_match(zGlob, zPath);
+    fossil_free(zPath);
+    if( isMatch ) return;
+  }
 
   /* If we reach this point, it means we have a situation where we
   ** want to restrict the activity of a robot.

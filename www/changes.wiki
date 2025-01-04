@@ -1,6 +1,53 @@
 <title>Change Log</title>
 
-<h2 id='v2_25'>Changes for version 2.25 (pending)</h2>
+<h2 id='v2_26'>Changes for version 2.26 (pending)</h2>
+
+  *  Enhanced the --from option on "[/help?cmd=diff|fossil diff]" so that
+     it optionally accepts a directory name as its argument, and uses files
+     under that directory as the baseline for the diff.
+  *  Added the [/help?cmd=/ckout|/ckout web page] to provide information
+     about pending changes in a working check-out
+  *  The [/help?cmd=ui|fossil ui] command defaults to using the
+     [/help?cmd=/ckout|/ckout page] as its start page.  Or, if the
+     "--from PATH" option is present, the default start page becomes
+     "/ckout?exbase=PATH".
+  *  Added the [/help?cmd=merge-info|fossil merge-info] command and especially
+     the --tk option to that command, to provide analysis of the most recent
+     merge or update operation.
+  *  Issue a warning if a user tries to commit on a check-in where the
+     branch has been changed.
+  *  When a merge conflict occurs, a new section is added to the conflict
+     text that shows Fossil's suggested resolution to the conflict.
+  *  Add the "Hide diffs/Show diffs" toggle to web-UI diff pages that show
+     diffs of multiple files.
+  *  Enhancements to the [/help?cmd=/timeline|/timeline page]:
+     <ol type="a">
+     <li> Added the "ml=" ("Merge-in List") query parameter that works
+          like "rl=" ("Related List") but adds "mionly" style related
+          check-ins instead of the full "rel" style.
+     <li> For "tl=", "rl=", and "ml=", the order of the branches in the
+          graph now tries to match the order of the branches named in
+          the list.
+     <li> The "ms=" ("Match Style") query parameter is honored for
+          "tl=", "rl=", and "ml=".
+     <li> New query parameter "sl=BRANCHLIST" ("Sort List") strives to
+          put branches in the specified order in the graph. This
+          overrides any "tl=" or similar ordering.
+     <li> In the various "from=","to=" query formats, if the one of the
+          end points is an ancestor of the other, then the "rel" modifier
+          omits check-ins that are not ancestors of the newer endpoint.
+     <li> For "tl=" and similar query parameters, if the pattern contains
+          GLOB characters, then the matching style ("ms=") is set to GLOB
+          automatically and the "ms=" query parameter can be omitted.
+     </ol>
+  *  Added the [/help?cmd=/clusterlist|/clusterlist page] for analysis
+     and debugging
+  *  Fix a bug in [/help?cmd=patch|fossil patch create] that causes
+     [/help?cmd=revert|fossil revert] operations that happened on individual
+     files after a [/help?cmd=merge|fossil merge] to be omitted from the
+     patch.
+
+<h2 id='v2_25'>Changes for version 2.25 (2024-11-06)</h2>
 
   *  The "[/help?cmd=ui|fossil ui /]" command now works even for repositories
      that have non-ASCII filenames
@@ -13,6 +60,7 @@
   *  Add new query parameters to the [/help?cmd=/timeline|/timeline page]:
      d2=, p2=, and dp2=.
   *  Add options to the [/help?cmd=tag|fossil tag] command that will list tag values.
+  *  Add the -b|--brief option to the [/help?cmd=status|fossil status] command.
   *  Add ability to upload unversioned files via the [/help?cmd=/uvlist|/uvlist page].
   *  Add history search to the [/help?cmd=/chat|/chat page].
   *  Add Unix socket support to the [/help?cmd=server|server command].
@@ -20,6 +68,8 @@
      (requires OpenSSL 3.2.0 or greater).
   *  Take into account zero-width and double-width unicode characters when
      formatting the command-line timeline.
+  *  Update the built-in SQLite to version 3.47.0.  Precompiled binaries are
+     linked against OpenSSL 3.4.0.
   *  Numerous minor fixes and additions.
 
 

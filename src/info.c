@@ -322,6 +322,7 @@ void render_checkin_context(int rid, int rid2, int parentsOnly, int mFlags){
          |TIMELINE_CHPICK,
        0, 0, 0, rid, rid2, 0);
   db_finalize(&q);
+  blob_reset(&sql);
 }
 
 
@@ -374,7 +375,9 @@ static void append_file_change_line(
   DiffConfig *pCfg,     /* Flags for text_diff() or NULL to omit all */
   int mperm             /* executable or symlink permission for zNew */
 ){
-  @ <p>
+  @ <div class='file-change-line'><span>
+    /* Maintenance reminder: the extra level of SPAN is for
+    ** arranging new elements via JS. */
   if( !g.perm.Hyperlink ){
     if( zNew==0 ){
       @ Deleted %h(zName).
@@ -393,6 +396,7 @@ static void append_file_change_line(
     }else{
       @ Changes to %h(zName).
     }
+    @ </span></div>
     if( pCfg ){
       append_diff(zOld, zNew, pCfg);
     }
@@ -440,14 +444,16 @@ static void append_file_change_line(
     }
     if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       if( pCfg ){
+        @ </span></div>
         append_diff(zOld, zNew, pCfg);
-      }else{ 
-        @ &nbsp;&nbsp;
+      }else{
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a>
+        @ </span></div>
       }
+    }else{
+      @ </span></div>
     }
   }
-  @ </p>
 }
 
 /*
@@ -606,6 +612,273 @@ void ci_tags_page(void){
 }
 
 /*
+** Render a web-page diff of the changes in the working check-out
+*/
+static void ckout_normal_diff(int vid){
+  int diffType;               /* 0: no diff,  1: unified,  2: side-by-side */
+  DiffConfig DCfg,*pCfg;      /* Diff details */
+  const char *zW;             /* The "w" query parameter */
+  int nChng;                  /* Number of changes */
+  Stmt q;
+
+  diffType = preferred_diff_type();
+  pCfg = construct_diff_flags(diffType, &DCfg);
+  nChng = db_int(0, "SELECT count(*) FROM vfile"
+                    " WHERE vid=%d AND (deleted OR chnged OR rid==0)", vid);
+  if( nChng==0 ){
+    @ <p>No uncommitted changes</p>
+    return;
+  }
+  db_prepare(&q,
+       /*   0         1        2        3       4    5       6 */
+    "SELECT pathname, deleted, chnged , rid==0, rid, islink, uuid"
+    "  FROM vfile LEFT JOIN blob USING(rid)"
+    " WHERE vid=%d"
+    "   AND (deleted OR chnged OR rid==0)"
+    " ORDER BY pathname /*scan*/",
+    vid
+  );
+  if( DCfg.diffFlags & DIFF_SIDEBYSIDE ){
+    DCfg.diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
+  }else{
+    DCfg.diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
+  }
+  @ <div class="sectionmenu info-changes-menu">
+  zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  if( diffType!=1 ){
+    @ %z(chref("button","%R?diff=1%s",zW))Unified&nbsp;Diff</a>
+  }
+  if( diffType!=2 ){
+    @ %z(chref("button","%R?diff=2%s",zW))Side-by-Side&nbsp;Diff</a>
+  }
+  if( diffType!=0 ){
+    if( *zW ){
+      @ %z(chref("button","%R?diff=%d",diffType))\
+      @ Show&nbsp;Whitespace&nbsp;Changes</a>
+    }else{
+      @ %z(chref("button","%R?diff=%d&w",diffType))Ignore&nbsp;Whitespace</a>
+    }
+  }
+  @ </div>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTreename = db_column_text(&q,0);
+    int isDeleted = db_column_int(&q, 1);
+    int isChnged = db_column_int(&q,2);
+    int isNew = db_column_int(&q,3);
+    int srcid = db_column_int(&q, 4);
+    int isLink = db_column_int(&q, 5);
+    const char *zUuid = db_column_text(&q, 6);
+    int showDiff = 1;
+
+    DCfg.diffFlags &= (~DIFF_FILE_MASK);
+    @ <div class='file-change-line'><span>
+    if( isDeleted ){
+      @ DELETED %h(zTreename)
+      DCfg.diffFlags |= DIFF_FILE_DELETED;
+      showDiff = 0;
+    }else if( file_access(zTreename, F_OK) ){
+      @ MISSING %h(zTreename)
+      showDiff = 0;
+    }else if( isNew ){
+      @ ADDED %h(zTreename)
+      DCfg.diffFlags |= DIFF_FILE_ADDED;
+      srcid = 0;
+      showDiff = 0;
+    }else if( isChnged==3 ){
+      @ ADDED_BY_MERGE %h(zTreename)
+      DCfg.diffFlags |= DIFF_FILE_ADDED;
+      srcid = 0;
+      showDiff = 0;
+    }else if( isChnged==5 ){
+      @ ADDED_BY_INTEGRATE %h(zTreename)
+      DCfg.diffFlags |= DIFF_FILE_ADDED;
+      srcid = 0;
+      showDiff = 0;
+    }else{
+      @ CHANGED %h(zTreename)
+    }
+    @ </span></div>
+    if( showDiff && pCfg ){
+      Blob old, new;
+      if( !isLink != !file_islink(zTreename) ){
+        @ %s(DIFF_CANNOT_COMPUTE_SYMLINK)
+        continue;
+      }
+      if( srcid>0 ){
+        content_get(srcid, &old);
+        pCfg->zLeftHash = zUuid;
+      }else{
+        blob_zero(&old);
+        pCfg->zLeftHash = 0;
+      }
+      blob_read_from_file(&new, zTreename, ExtFILE);
+      text_diff(&old, &new, cgi_output_blob(), pCfg);
+      blob_reset(&old);
+      blob_reset(&new);
+    }
+  }
+  db_finalize(&q);
+  append_diff_javascript(diffType);
+}
+
+/*
+** Render a web-page diff of the changes in the working check-out to
+** an external reference.
+*/
+static void ckout_external_base_diff(int vid, const char *zExBase){
+  int diffType;               /* 0: no diff,  1: unified,  2: side-by-side */
+  DiffConfig DCfg,*pCfg;      /* Diff details */
+  const char *zW;             /* The "w" query parameter */
+  Stmt q;
+
+  diffType = preferred_diff_type();
+  pCfg = construct_diff_flags(diffType, &DCfg);
+  db_prepare(&q,
+    "SELECT pathname FROM vfile WHERE vid=%d ORDER BY pathname", vid
+  );
+  if( DCfg.diffFlags & DIFF_SIDEBYSIDE ){
+    DCfg.diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
+  }else{
+    DCfg.diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
+  }
+  @ <div class="sectionmenu info-changes-menu">
+  zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  if( diffType!=1 ){
+    @ %z(chref("button","%R?diff=1&exbase=%h%s",zExBase,zW))\
+    @ Unified&nbsp;Diff</a>
+  }
+  if( diffType!=2 ){
+    @ %z(chref("button","%R?diff=2&exbase=%h%s",zExBase,zW))\
+    @ Side-by-Side&nbsp;Diff</a>
+  }
+  if( diffType!=0 ){
+    if( *zW ){
+      @ %z(chref("button","%R?diff=%d&exbase=%h",diffType,zExBase))\
+      @ Show&nbsp;Whitespace&nbsp;Changes</a>
+    }else{
+      @ %z(chref("button","%R?diff=%d&exbase=%h&w",diffType,zExBase))\
+      @ Ignore&nbsp;Whitespace</a>
+    }
+  }
+  @ </div>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFile;  /* Name of file in the repository */
+    char *zLhs;         /* Full name of left-hand side file */
+    char *zRhs;         /* Full name of right-hand side file */
+    Blob rhs;           /* Full text of RHS */
+    Blob lhs;           /* Full text of LHS */
+
+    zFile = db_column_text(&q,0);
+    zLhs = mprintf("%s/%s", zExBase, zFile);
+    zRhs = mprintf("%s%s", g.zLocalRoot, zFile);
+    if( file_size(zLhs, ExtFILE)<0 ){
+      @ <div class='file-change-line'><span>
+      @ Missing from external baseline: %h(zFile)
+      @ </span></div>
+    }else{
+      blob_read_from_file(&lhs, zLhs, ExtFILE);
+      blob_read_from_file(&rhs, zRhs, ExtFILE);
+      if( blob_size(&lhs)!=blob_size(&rhs)
+       || memcmp(blob_buffer(&lhs), blob_buffer(&rhs), blob_size(&lhs))!=0
+      ){
+        @ <div class='file-change-line'><span>
+        @ Changes to %h(zFile)
+        @ </span></div>
+        if( pCfg ){
+          char *zFullFN;
+          char *zHexFN;
+          zFullFN = file_canonical_name_dup(zLhs);
+          zHexFN = mprintf("x%H", zFullFN);
+          fossil_free(zFullFN);
+          pCfg->zLeftHash = zHexFN;
+          text_diff(&lhs, &rhs, cgi_output_blob(), pCfg);
+          pCfg->zLeftHash = 0;
+          fossil_free(zHexFN);
+        }
+      }
+      blob_reset(&lhs);
+      blob_reset(&rhs);
+    }
+    fossil_free(zLhs);
+    fossil_free(zRhs);
+  }
+  db_finalize(&q);
+  append_diff_javascript(diffType);
+}
+
+/*
+** WEBPAGE: ckout
+**
+** Show information about the current checkout.  This page only functions
+** if the web server is run on a loopback interface (in other words, was
+** started using "fossil ui" or similar) from within an open check-out.
+**
+** If the "exbase=PATH" query parameter is provided, then the diff shown
+** uses the files in PATH as the baseline.  This is the same as using
+** the "--from PATH" argument to the "fossil diff" command-line.  In fact,
+** when using "fossil ui --from PATH", the --from argument becomes the value
+** of the exbase query parameter for the start page.  Note that if PATH
+** is a pure hexadecimal string, it is decoded first before being used as
+** the pathname.  Real pathnames should contain at least one directory
+** separator character.
+**
+** Other query parameters related to diffs are also accepted.
+*/
+void ckout_page(void){
+  int vid;
+  const char *zHome;          /* Home directory */
+  int nHome;
+  const char *zExBase;
+  char *zHostname;
+  char *zCwd;
+
+  if( !cgi_is_loopback(g.zIpAddr) || !db_open_local(0) ){
+    cgi_redirectf("%R/home");
+    return;
+  }
+  file_chdir(g.zLocalRoot, 0);
+  vid = db_lget_int("checkout", 0);
+  db_unprotect(PROTECT_ALL);
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
+  db_protect_pop();
+  style_set_current_feature("vinfo");
+  zHostname = fossil_hostname();
+  zCwd = file_getcwd(0,0);
+  zHome = fossil_getenv("HOME");
+  if( zHome ){
+    nHome = (int)strlen(zHome);
+    if( strncmp(zCwd, zHome, nHome)==0 && zCwd[nHome]=='/' ){
+      zCwd = mprintf("~%s", zCwd+nHome);
+    }
+  }else{
+    nHome = 0;
+  }
+  if( zHostname ){
+    style_header("Checkout Status: %h on %h", zCwd, zHostname);
+  }else{
+    style_header("Checkout Status: %h", zCwd);
+  }
+  render_checkin_context(vid, 0, 0, 0);
+  @ <hr>
+  zExBase = P("exbase");
+  if( zExBase && zExBase[0] ){
+    char *zPath = decode16_dup(zExBase);
+    char *zCBase = file_canonical_name_dup(zPath?zPath:zExBase);
+    if( nHome && strncmp(zCBase, zHome, nHome)==0 && zCBase[nHome]=='/' ){
+      @ <p>Using external baseline: ~%h(zCBase+nHome)</p>
+    }else{
+      @ <p>Using external baseline: %h(zCBase)</p>
+    }
+    ckout_external_base_diff(vid, zCBase);
+    fossil_free(zCBase);
+    fossil_free(zPath);
+  }else{
+    ckout_normal_diff(vid);
+  }
+  style_finish_page();
+}
+
+/*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
 ** URL:  /ci/ARTIFACTID
@@ -630,7 +903,6 @@ void ci_page(void){
   ReCompiled *pRe = 0; /* regex */
   const char *zW;               /* URL param for ignoring whitespace */
   const char *zPage = "vinfo";  /* Page that shows diffs */
-  const char *zPageHide = "ci"; /* Page that hides diffs */
   const char *zBrName;          /* Branch name */
   DiffConfig DCfg,*pCfg;        /* Type of diff */
 
@@ -900,17 +1172,13 @@ void ci_page(void){
   pCfg = construct_diff_flags(diffType, &DCfg);
   DCfg.pRe = pRe;
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
-  if( diffType!=0 ){
-    @ %z(chref("button","%R/%s/%T?diff=0",zPageHide,zName))\
-    @ Hide&nbsp;Diffs</a>
-  }
   if( diffType!=1 ){
     @ %z(chref("button","%R/%s/%T?diff=1%s",zPage,zName,zW))\
-    @ Unified&nbsp;Diffs</a>
+    @ Unified&nbsp;Diff</a>
   }
   if( diffType!=2 ){
     @ %z(chref("button","%R/%s/%T?diff=2%s",zPage,zName,zW))\
-    @ Side-by-Side&nbsp;Diffs</a>
+    @ Side-by-Side&nbsp;Diff</a>
   }
   if( diffType!=0 ){
     if( *zW ){
@@ -1269,9 +1537,6 @@ void vdiff_page(void){
   style_set_current_feature("vdiff");
   if( zBranch==0 ){
     style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
-  }
-  if( diffType!=0 ){
-    style_submenu_element("Hide Diff", "%R/vdiff?diff=0&%b%b", &qp, &qpGlob);
   }
   if( diffType!=2 ){
     style_submenu_element("Side-by-Side Diff", "%R/vdiff?diff=2&%b%b", &qp,
@@ -1670,7 +1935,7 @@ int object_description(
   db_finalize(&q);
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d",
                 rid, TAG_CLUSTER) ){
-    @ Cluster
+    @ Cluster %z(href("%R/info/%S",zUuid))%S(zUuid)</a>.
     cnt++;
   }
   if( cnt==0 ){
@@ -1936,6 +2201,12 @@ void secure_rawartifact_page(void){
 ** Return lines of text from a file as a JSON array - one entry in the
 ** array for each line of text.
 **
+** The HASH is normally a sha1 or sha3 hash that identifies an artifact
+** in the BLOB table of the database.  However, if HASH starts with an "x"
+** and is followed by valid hexadecimal, and if we are running in a
+** "fossil ui" situation (locally and with privilege), then decode the hex
+** into a filename and read the file content from that name.
+**
 ** **Warning:**  This is an internal-use-only interface that is subject to
 ** change at any moment.  External application should not use this interface
 ** since the application will break when this interface changes, and this
@@ -1950,6 +2221,7 @@ void secure_rawartifact_page(void){
 void jchunk_page(void){
   int rid = 0;
   const char *zName = PD("name", "");
+  int nName = (int)(strlen(zName)&0x7fffffff);
   int iFrom = atoi(PD("from","0"));
   int iTo = atoi(PD("to","0"));
   int ln;
@@ -1970,32 +2242,53 @@ void jchunk_page(void){
     ajax_route_error(403, "Access requires Read permissions.");
     return;
   }
-#if 1
-  /* Re-enable this block once this code is integrated somewhere into
-     the UI. */
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
-  if( rid==0 ){
-    ajax_route_error(404, "Unknown artifact: %h", zName);
-    return;
-  }
-#else
-  /* This impl is only to simplify "manual" testing via the JS
-     console. */
-  rid = symbolic_name_to_rid(zName, "*");
-  if( rid==0 ){
-    ajax_route_error(404, "Unknown artifact: %h", zName);
-    return;
-  }else if( rid<0 ){
-    ajax_route_error(418, "Ambiguous artifact name: %h", zName);
-    return;
-  }
-#endif
   if( iFrom<1 || iTo<iFrom ){
     ajax_route_error(500, "Invalid line range from=%d, to=%d.",
                      iFrom, iTo);
     return;
   }
-  content_get(rid, &content);
+  if( zName[0]=='x'
+   && ((nName-1)&1)==0
+   && validate16(&zName[1],nName-1)
+   && g.perm.Admin
+   && cgi_is_loopback(g.zIpAddr)
+   && db_open_local(0)
+  ){
+    /* Treat the HASH as a hex-encoded filename */
+    int n = (nName-1)/2;
+    char *zFN = fossil_malloc(n+1);
+    decode16((const u8*)&zName[1], (u8*)zFN, nName-1);
+    zFN[n] = 0;
+    if( file_size(zFN, ExtFILE)<0 ){
+      blob_zero(&content);
+    }else{
+      blob_read_from_file(&content, zFN, ExtFILE);
+    }
+    fossil_free(zFN);
+  }else{
+    /* Treat the HASH as an artifact hash matching BLOB.UUID */
+#if 1
+    /* Re-enable this block once this code is integrated somewhere into
+       the UI. */
+    rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
+    if( rid==0 ){
+      ajax_route_error(404, "Unknown artifact: %h", zName);
+      return;
+    }
+#else
+    /* This impl is only to simplify "manual" testing via the JS
+       console. */
+    rid = symbolic_name_to_rid(zName, "*");
+    if( rid==0 ){
+      ajax_route_error(404, "Unknown artifact: %h", zName);
+      return;
+    }else if( rid<0 ){
+      ajax_route_error(418, "Ambiguous artifact name: %h", zName);
+      return;
+    }
+#endif
+    content_get(rid, &content);
+  }
   g.isConst = 1;
   cgi_set_content_type("application/json");
   ln = 0;
@@ -2877,6 +3170,139 @@ void tinfo_page(void){
   style_finish_page();
 }
 
+/*
+** rid is a cluster.  Paint a page that contains detailed information
+** about that cluster.
+*/
+static void cluster_info(int rid, const char *zName){
+  Manifest *pCluster;
+  int i;
+  Blob where = BLOB_INITIALIZER;
+  Blob unks = BLOB_INITIALIZER;
+  Stmt q;
+  char *zSha1Bg;
+  char *zSha3Bg;
+  int badRid = 0;
+  int rcvid;
+  int hashClr = PB("hclr");
+  const char *zDate;
+
+  pCluster = manifest_get(rid, CFTYPE_CLUSTER, 0);
+  if( pCluster==0 ){
+    artifact_page();
+    return;
+  }  
+  style_header("Cluster %S", zName);
+  rcvid = db_int(0, "SELECT rcvid FROM blob WHERE rid=%d", rid);
+  if( rcvid==0 ){
+    zDate = 0;
+  }else{
+    zDate = db_text(0, "SELECT datetime(mtime) FROM rcvfrom WHERE rcvid=%d",
+                    rcvid);
+  }
+  @ <p>Artifact %z(href("%R/artifact/%h",zName))%S(zName)</a> is a cluster
+  @ with %d(pCluster->nCChild) entries
+  if( g.perm.Admin ){
+    @ received <a href="%R/rcvfrom?rcvid=%d(rcvid)">%h(zDate)</a>:
+  }else{
+    @ received %h(zDate):
+  }
+  blob_appendf(&where,"IN(0");
+  for(i=0; i<pCluster->nCChild; i++){
+    int rid = fast_uuid_to_rid(pCluster->azCChild[i]);
+    if( rid ){
+      blob_appendf(&where,",%d", rid);
+    }else{
+      if( blob_size(&unks)>0 ) blob_append_char(&unks, ',');
+      badRid++;
+      blob_append_sql(&unks,"(%d,%Q)",-badRid,pCluster->azCChild[i]);
+    }
+  }
+  blob_append_char(&where,')');
+  describe_artifacts(blob_str(&where));
+  blob_reset(&where);
+  if( badRid>0 ){
+    db_multi_exec(
+      "WITH unks(rx,hx) AS (VALUES %s)\n"
+      "INSERT INTO description(rid,uuid,type,summary) "
+      "  SELECT rx, hx, 'phantom', '' FROM unks;",
+      blob_sql_text(&unks)
+    );
+  }
+  blob_reset(&unks);
+  db_prepare(&q,
+    "SELECT rid, uuid, summary, isPrivate, type='phantom', rcvid, ref"
+    "  FROM description ORDER BY uuid"
+  );
+  if( skin_detail_boolean("white-foreground") ){
+    zSha1Bg = "#714417";
+    zSha3Bg = "#177117";
+  }else{
+    zSha1Bg = "#ebffb0";
+    zSha3Bg = "#b0ffb0";
+  }
+  @ <table cellpadding="2" cellspacing="0" border="1">
+  if( g.perm.Admin ){
+    @ <tr><th>RID<th>Hash<th>Rcvid<th>Description<th>Ref<th>Remarks
+  }else{
+    @ <tr><th>RID<th>Hash<th>Description<th>Ref<th>Remarks
+  }
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q,0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDesc = db_column_text(&q, 2);
+    int isPriv = db_column_int(&q,3);
+    int isPhantom = db_column_int(&q,4);
+    const char *zRef = db_column_text(&q,6);
+    if( isPriv && !isPhantom && !g.perm.Private && !g.perm.Admin ){
+      /* Don't show private artifacts to users without Private (x) permission */
+      continue;
+    }
+    if( rid<=0 ){
+      @ <tr><td>&nbsp;</td>
+    }else if( hashClr ){
+      const char *zClr = db_column_bytes(&q,1)>40 ? zSha3Bg : zSha1Bg;
+      @ <tr style='background-color:%s(zClr);'><td align="right">%d(rid)</td>
+    }else{
+      @ <tr><td align="right">%d(rid)</td>
+    }
+    if( rid<=0 ){
+      @ <td>&nbsp;%S(zUuid)&nbsp;</td>
+    }else{
+      @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
+    }
+    if( g.perm.Admin ){
+      int rcvid = db_column_int(&q,5);
+      if( rcvid<=0 ){
+        @ <td>&nbsp;
+      }else{
+        @ <td><a href='%R/rcvfrom?rcvid=%d(rcvid)'>%d(rcvid)</a>
+      }
+    }
+    @ <td align="left">%h(zDesc)</td>
+    if( zRef && zRef[0] ){
+      @ <td>%z(href("%R/info/%!S",zRef))%S(zRef)</a>
+    }else{
+      @ <td>&nbsp;
+    }
+    if( isPriv || isPhantom ){
+      if( isPriv==0 ){
+        @ <td>phantom</td>
+      }else if( isPhantom==0 ){
+        @ <td>private</td>
+      }else{
+        @ <td>private,phantom</td>
+      }
+    }else{
+      @ <td>&nbsp;
+    }
+    @ </tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_finish_page();
+}
+
 
 /*
 ** WEBPAGE: info
@@ -2965,6 +3391,10 @@ void info_page(void){
   }else
   if( db_exists("SELECT 1 FROM attachment WHERE attachid=%d", rid) ){
     ainfo_page();
+  }else
+  if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d",
+                rid, TAG_CLUSTER) ){
+    cluster_info(rid, zName);
   }else
   {
     artifact_page();

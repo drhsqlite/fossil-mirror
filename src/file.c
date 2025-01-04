@@ -1339,21 +1339,33 @@ int file_is_absolute_path(const char *zPath){
 
 /*
 ** Compute a canonical pathname for a file or directory.
-** Make the name absolute if it is relative.
-** Remove redundant / characters
-** Remove all /./ path elements.
-** Convert /A/../ to just /
+**
+**  *  Make the name absolute if it is relative.
+**  *  Remove redundant / characters
+**  *  Remove all /./ path elements.
+**  *  Convert /A/../ to just /
+**  *  On windows, add the drive letter prefix.
+**
 ** If the slash parameter is non-zero, the trailing slash, if any,
 ** is retained.
 **
 ** See also: file_canonical_name_dup()
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
+  char zPwd[2000];
   blob_zero(pOut);
   if( file_is_absolute_path(zOrigName) ){
-    blob_appendf(pOut, "%/", zOrigName);
+#if defined(_WIN32)
+    if( fossil_isdirsep(zOrigName[0]) ){
+      /* Add the drive letter to the full pathname */
+      file_getcwd(zPwd, sizeof(zPwd)-strlen(zOrigName));
+      blob_appendf(pOut, "%.2s%/", zPwd, zOrigName);
+    }else
+#endif
+    {
+      blob_appendf(pOut, "%/", zOrigName);
+    }
   }else{
-    char zPwd[2000];
     file_getcwd(zPwd, sizeof(zPwd)-strlen(zOrigName));
     if( zPwd[0]=='/' && strlen(zPwd)==1 ){
       /* when on '/', don't add an extra '/' */
@@ -1681,6 +1693,9 @@ void cmd_test_file_environment(void){
   if( zRoot==0 ) zRoot = g.zLocalRoot==0 ? "" : g.zLocalRoot;
   fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
   fossil_print("local-root = [%s]\n", zRoot);
+  if( g.db==0 ) sqlite3_open(":memory:", &g.db);
+  sqlite3_create_function(g.db, "inode", 1, SQLITE_UTF8, 0,
+                          file_inode_sql_func, 0, 0);
   for(i=2; i<g.argc; i++){
     char *z;
     emitFileStat(g.argv[i], slashFlag, resetFlag);
@@ -1693,6 +1708,9 @@ void cmd_test_file_environment(void){
       int n = file_nondir_objects_on_path(zRoot, z);
       fossil_print("%.*s\n", n, z);
     }
+    fossil_free(z);
+    z = db_text(0, "SELECT inode(%Q)", g.argv[i]);
+    fossil_print("  file_inode_sql_func    = \"%s\"\n", z);
     fossil_free(z);
   }
 }
@@ -1736,9 +1754,11 @@ void cmd_test_canonical_name(void){
 */
 int file_is_canonical(const char *z){
   int i;
-  if( z[0]!='/'
+  if(
 #if defined(_WIN32) || defined(__CYGWIN__)
-    && (!fossil_isupper(z[0]) || z[1]!=':' || z[2]!='/')
+    !fossil_isupper(z[0]) || z[1]!=':' || !fossil_isdirsep(z[2])
+#else
+    z[0]!='/'
 #endif
   ) return 0;
 
@@ -2990,6 +3010,7 @@ void test_is_reserved_name_cmd(void){
 */
 int dir_has_ckout_db(const char *zDir){
   int rc = 0;
+  i64 sz;
   char * zCkoutDb = mprintf("%//.fslckout", zDir);
   if(file_isfile(zCkoutDb, ExtFILE)){
     rc = 1;
@@ -3000,6 +3021,71 @@ int dir_has_ckout_db(const char *zDir){
       rc = 2;
     }
   }
+  if( rc && ((sz = file_size(zCkoutDb, ExtFILE))<1024 || (sz%512)!=0) ){
+    rc = 0;
+  }
   fossil_free(zCkoutDb);
   return rc;
+}
+
+/*
+** This is the implementation of inode(FILENAME) SQL function.
+**
+** dev_inode(FILENAME) returns a string.  If FILENAME exists and is
+** a regular file, then the return string is of the form:
+**
+**       DEV/INODE
+**
+** Where DEV and INODE are the device number and inode number for
+** the file.  On Windows, the volume serial number (DEV) and file
+** identifier (INODE) are used to compute the value, see comments
+** on the win32_file_id() function.
+**
+** If FILENAME does not exist, then the return is an empty string.
+**
+** The value of inode() can be used to eliminate files from a list
+** that have duplicates because they have differing names due to links.
+**
+** Code that wants to use this SQL function needs to first register
+** it using a call such as the following:
+**
+**    sqlite3_create_function(g.db, "inode", 1, SQLITE_UTF8, 0,
+**                            file_inode_sql_func, 0, 0);
+*/
+void file_inode_sql_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zFilename;
+  assert( argc==1 );
+  zFilename = (const char*)sqlite3_value_text(argv[0]);
+  if( zFilename==0 || zFilename[0]==0 || file_access(zFilename,F_OK) ){
+    sqlite3_result_text(context, "", 0, SQLITE_STATIC);
+    return;
+  }
+#if defined(_WIN32)
+  {
+    char *zFileId = win32_file_id(zFilename);
+    if( zFileId ){
+      sqlite3_result_text(context, zFileId, -1, fossil_free);
+    }else{
+      sqlite3_result_text(context, "", 0, SQLITE_STATIC);
+    }
+  }
+#else
+  {
+    struct stat buf;
+    int rc;
+    memset(&buf, 0, sizeof(buf));
+    rc = stat(zFilename, &buf);
+    if( rc ){
+      sqlite3_result_text(context, "", 0, SQLITE_STATIC);
+    }else{
+      sqlite3_result_text(context,
+         mprintf("%lld/%lld", (i64)buf.st_dev, (i64)buf.st_ino), -1,
+         fossil_free);
+    }
+  }
+#endif
 }

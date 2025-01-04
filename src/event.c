@@ -231,7 +231,7 @@ void event_page(void){
                        "  FROM tag"
                        " WHERE tagname GLOB 'event-%q*'",
                     zId);
-  attachment_list(zFullId, "<hr><h2>Attachments:</h2><ul>");
+  attachment_list(zFullId, "<h2>Attachments:</h2>", 1);
   document_emit_js();
   style_finish_page();
   manifest_destroy(pTNote);

@@ -569,7 +569,7 @@ void status_cmd(void){
   /* Confirm current working directory is within check-out. */
   db_must_be_within_tree();
 
-  /* Get check-out version. l*/
+  /* Get check-out version. */
   vid = db_lget_int("checkout", 0);
 
   /* Relative path flag determination is done by a shared function. */
@@ -969,8 +969,8 @@ void ls_cmd(void){
 **
 ** Usage: %fossil tree ?OPTIONS? ?PATHS ...?
 **
-** List all files in the current check-out in after the fashion of the
-** "tree" command.  If PATHS is included, only the named files
+** List all files in the current check-out much like the "tree"
+** command does.  If PATHS is included, only the named files
 ** (or their children if directories) are shown.
 **
 ** Options:
@@ -1565,13 +1565,13 @@ static void prepare_commit_comment(
         diffFiles[i].nName = strlen(diffFiles[i].zName);
         diffFiles[i].nUsed = 0;
       }
-      diff_against_disk(0, &DCfg, diffFiles, &prompt);
+      diff_version_to_checkout(0, &DCfg, diffFiles, &prompt);
       for( i=0; diffFiles[i].zName; ++i ){
         fossil_free(diffFiles[i].zName);
       }
       fossil_free(diffFiles);
     }else{
-      diff_against_disk(0, &DCfg, 0, &prompt);
+      diff_version_to_checkout(0, &DCfg, 0, &prompt);
     }
   }
   prompt_for_user_comment(pComment, &prompt);
@@ -2320,7 +2320,7 @@ static int tagCmp(const void *a, const void *b){
 ** appears.  An empty check-in (i.e. with nothing changed) is not
 ** allowed unless the --allow-empty option appears.  A check-in may not
 ** be older than its ancestor unless the --allow-older option appears.
-** If any of files in the check-in appear to contain unresolved merge
+** If any files in the check-in appear to contain unresolved merge
 ** conflicts, the check-in will not be allowed unless the
 ** --allow-conflict option is present.  In addition, the entire
 ** check-in process may be aborted if a file contains content that
@@ -2360,7 +2360,7 @@ static int tagCmp(const void *a, const void *b){
 **                               behave as if the user had entered 'yes' to
 **                               the question of whether to proceed despite
 **                               the skew.
-**    --ignore-oversize          Do not warning the user about oversized files
+**    --ignore-oversize          Do not warn the user about oversized files
 **    --integrate                Close all merged-in branches
 **    -m|--comment COMMENT-TEXT  Use COMMENT-TEXT as commit comment
 **    -M|--message-file FILE     Read the commit comment from given file
@@ -2436,6 +2436,8 @@ void commit_cmd(void){
   int bRecheck = 0;      /* Repeat fork and closed-branch checks*/
   int bIgnoreSkew = 0;   /* --ignore-clock-skew flag */
   int mxSize;
+  char *zCurBranch = 0;  /* The current branch name of checkout */
+  char *zNewBranch = 0;  /* The branch name after update */
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
@@ -2510,6 +2512,51 @@ void commit_cmd(void){
     privateParent = content_is_private(vid);
   }
 
+  user_select();
+  /*
+  ** Check that the user exists.
+  */
+  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.zLogin) ){
+    fossil_fatal("no such user: %s", g.zLogin);
+  }
+
+  /*
+  ** Detect if the branch name has changed from the parent check-in
+  ** and prompt if necessary
+  **/
+  zCurBranch = db_text(0,
+      " SELECT value FROM tagxref AS tx"
+      "  WHERE rid=(SELECT pid"
+      "               FROM tagxref LEFT JOIN event ON srcid=objid"
+      "          LEFT JOIN plink ON rid=cid"
+      "              WHERE rid=%d AND tagxref.tagid=%d"
+      "                AND srcid!=origid"
+      "                AND tagtype=2 AND coalesce(euser,user)!=%Q)"
+      "   AND tx.tagid=%d",
+      vid, TAG_BRANCH, g.zLogin, TAG_BRANCH
+  );
+  if( zCurBranch!=0 && zCurBranch[0]!=0
+   && forceFlag==0
+   && noPrompt==0
+  ){
+    zNewBranch = branch_of_rid(vid);
+    fossil_warning(
+      "WARNING: The parent check-in [%.10s] has been moved from branch\n"
+      "         '%s' over to branch '%s'.",
+      rid_to_uuid(vid), zCurBranch, zNewBranch
+   );
+    prompt_user("Commit anyway? (y/N) ", &ans);
+    cReply = blob_str(&ans)[0];
+    blob_reset(&ans);
+    if( cReply!='y' && cReply!='Y' ){
+      fossil_fatal("Abandoning commit because branch has changed");
+    }
+    fossil_free(zNewBranch);
+    fossil_free(zCurBranch);
+    zCurBranch = branch_of_rid(vid);
+  }
+  if( zCurBranch==0 ) zCurBranch = branch_of_rid(vid);
+
   /* Track the "private" status */
   g.markPrivate = privateFlag || privateParent;
   if( privateFlag && !privateParent ){
@@ -2562,7 +2609,7 @@ void commit_cmd(void){
   ** the autosync above, then also try to avoid deltas, unless the
   ** --delta option is specified.  The remote repo will send the
   ** avoid-delta-manifests pragma if it has its "forbid-delta-manifests"
-  ** setting is enabled.
+  ** setting enabled.
   */
   if( !db_get_boolean("seen-delta-manifest",0)
    || db_get_boolean("forbid-delta-manifests",0)
@@ -2641,14 +2688,6 @@ void commit_cmd(void){
     db_finalize(&q);
   }
 
-  user_select();
-  /*
-  ** Check that the user exists.
-  */
-  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.zLogin) ){
-    fossil_fatal("no such user: %s", g.zLogin);
-  }
-
   hasChanges = unsaved_changes(useHash ? CKSIG_HASH : 0);
   db_begin_transaction();
   db_record_repository_filename(0);
@@ -2715,6 +2754,28 @@ void commit_cmd(void){
     ){
       fossil_fatal("cannot commit against a closed leaf");
     }
+
+    /* Require confirmation to continue with the check-in if the branch
+    ** has changed and the committer did not provide the same branch
+    */
+    zNewBranch = branch_of_rid(vid);
+    if( fossil_strcmp(zCurBranch, zNewBranch)!=0
+     && fossil_strcmp(sCiInfo.zBranch, zNewBranch)!=0
+     && forceFlag==0
+     && noPrompt==0
+    ){
+      fossil_warning("parent check-in [%.10s] branch changed from '%s' to '%s'",
+                     rid_to_uuid(vid), zCurBranch, zNewBranch);
+      prompt_user("continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_fatal("Abandoning commit because branch has changed");
+      }
+      fossil_free(zCurBranch);
+      zCurBranch = branch_of_rid(vid);
+    }
+    fossil_free(zNewBranch);
 
     /* Always exit the loop on the second pass */
     if( bRecheck ) break;

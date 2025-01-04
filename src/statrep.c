@@ -292,8 +292,8 @@ static void stats_report_by_month_year(
    @ <td>
     if(includeMonth){
       cgi_printf("<a href='%R/timeline?"
-                 "ym=%t&n=%d&y=%s",
-                 zTimeframe, nCount,
+                 "ym=%t&y=%s",
+                 zTimeframe,
                  statsReportTimelineYFlag );
       /* Reminder: n=nCount is not actually correct for bymonth unless
          that was the only user who caused events.
@@ -733,8 +733,8 @@ static void stats_report_year_weeks(const char *zUserName){
     if(!nSize) nSize = 1;
     total += nCount;
     cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
-    cgi_printf("<td><a href='%R/timeline?yw=%t-%s&n=%d&y=%s",
-               zYear, zWeek, nCount,
+    cgi_printf("<td><a href='%R/timeline?yw=%t%s&y=%s",
+               zYear, zWeek,
                statsReportTimelineYFlag);
     if( zUserName ){
       cgi_printf("&u=%t",zUserName);

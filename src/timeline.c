@@ -193,7 +193,7 @@ void www_print_timeline(
   int tmFlags,             /* Flags controlling display behavior */
   const char *zThisUser,   /* Suppress links to this user */
   const char *zThisTag,    /* Suppress links to this tag */
-  const char *zLeftBranch, /* Strive to put this branch on the left margin */
+  Matcher *pLeftBranch,    /* Comparison function to use for zLeftBranch */
   int selectedRid,         /* Highlight the line with this RID value or zero */
   int secondRid,           /* Secondary highlight (or zero) */
   void (*xExtra)(int)      /* Routine to call on each line of display */
@@ -815,7 +815,7 @@ void www_print_timeline(
     @ </td></tr>
   }
   if( pGraph ){
-    graph_finish(pGraph, zLeftBranch, tmFlags);
+    graph_finish(pGraph, pLeftBranch, tmFlags);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
@@ -1292,8 +1292,9 @@ static void addFileGlobExclusion(
 ){
   if( zChng==0 || zChng[0]==0 ) return;
   blob_append_sql(pSql," AND event.objid IN ("
-      "SELECT mlink.mid FROM mlink, filename"
-      " WHERE mlink.fnid=filename.fnid AND %s)",
+      "SELECT mlink.mid FROM mlink, filename\n"
+      " WHERE mlink.fnid=filename.fnid\n"
+      "   AND %s)",
       glob_expr("filename.name", mprintf("\"%s\"", zChng)));
 }
 static void addFileGlobDescription(
@@ -1306,233 +1307,6 @@ static void addFileGlobDescription(
 }
 
 /*
-** Tag match expression type code.
-*/
-typedef enum {
-  MS_EXACT,   /* Matches a single tag by exact string comparison. */
-  MS_GLOB,    /* Matches tags against a list of GLOB patterns. */
-  MS_LIKE,    /* Matches tags against a list of LIKE patterns. */
-  MS_REGEXP,  /* Matches tags against a list of regular expressions. */
-  MS_BRLIST,  /* Same as REGEXP, except the regular expression is a list
-              ** of branch names */
-} MatchStyle;
-
-/*
-** Quote a tag string by surrounding it with double quotes and preceding
-** internal double quotes and backslashes with backslashes.
-*/
-static const char *tagQuote(
-   int len,         /* Maximum length of zTag, or negative for unlimited */
-   const char *zTag /* Tag string */
-){
-  Blob blob = BLOB_INITIALIZER;
-  int i, j;
-  blob_zero(&blob);
-  blob_append(&blob, "\"", 1);
-  for( i=j=0; zTag[j] && (len<0 || j<len); ++j ){
-    if( zTag[j]=='\"' || zTag[j]=='\\' ){
-      if( j>i ){
-        blob_append(&blob, zTag+i, j-i);
-      }
-      blob_append(&blob, "\\", 1);
-      i = j;
-    }
-  }
-  if( j>i ){
-    blob_append(&blob, zTag+i, j-i);
-  }
-  blob_append(&blob, "\"", 1);
-  return blob_str(&blob);
-}
-
-/*
-** Construct the tag match SQL expression.
-**
-** This function is adapted from glob_expr() to support the MS_EXACT, MS_GLOB,
-** MS_LIKE, MS_REGEXP, and MS_BRLIST match styles.
-**
-** For MS_EXACT, the returned expression
-** checks for integer match against the tag ID which is looked up directly by
-** this function.  For the other modes, the returned SQL expression performs
-** string comparisons against the tag names, so it is necessary to join against
-** the tag table to access the "tagname" column.
-**
-** Each pattern is adjusted to to start with "sym-" and be anchored at end.
-**
-** In MS_REGEXP mode, backslash can be used to protect delimiter characters.
-** The backslashes are not removed from the regular expression.
-**
-** In addition to assembling and returning an SQL expression, this function
-** makes an English-language description of the patterns being matched, suitable
-** for display in the web interface.
-**
-** If any errors arise during processing, *zError is set to an error message.
-** Otherwise it is set to NULL.
-*/
-static const char *tagMatchExpression(
-  MatchStyle matchStyle,        /* Match style code */
-  const char *zTag,             /* Tag name, match pattern, or pattern list */
-  const char **zDesc,           /* Output expression description string */
-  const char **zError           /* Output error string */
-){
-  Blob expr = BLOB_INITIALIZER; /* SQL expression string assembly buffer */
-  Blob desc = BLOB_INITIALIZER; /* English description of match patterns */
-  Blob err = BLOB_INITIALIZER;  /* Error text assembly buffer */
-  const char *zStart;           /* Text at start of expression */
-  const char *zDelimiter;       /* Text between expression terms */
-  const char *zEnd;             /* Text at end of expression */
-  const char *zPrefix;          /* Text before each match pattern */
-  const char *zSuffix;          /* Text after each match pattern */
-  const char *zIntro;           /* Text introducing pattern description */
-  const char *zPattern = 0;     /* Previous quoted pattern */
-  const char *zFail = 0;        /* Current failure message or NULL if okay */
-  const char *zOr = " or ";     /* Text before final quoted pattern */
-  char cDel;                    /* Input delimiter character */
-  int i;                        /* Input match pattern length counter */
-
-  /* Optimize exact matches by looking up the ID in advance to create a simple
-   * numeric comparison.  Bypass the remainder of this function. */
-  if( matchStyle==MS_EXACT ){
-    *zDesc = tagQuote(-1, zTag);
-    return mprintf("(tagid=%d)", db_int(-1,
-        "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTag));
-  }
-
-  /* Decide pattern prefix and suffix strings according to match style. */
-  if( matchStyle==MS_GLOB ){
-    zStart = "(";
-    zDelimiter = " OR ";
-    zEnd = ")";
-    zPrefix = "tagname GLOB 'sym-";
-    zSuffix = "'";
-    zIntro = "glob pattern ";
-  }else if( matchStyle==MS_LIKE ){
-    zStart = "(";
-    zDelimiter = " OR ";
-    zEnd = ")";
-    zPrefix = "tagname LIKE 'sym-";
-    zSuffix = "'";
-    zIntro = "SQL LIKE pattern ";
-  }else if( matchStyle==MS_REGEXP ){
-    zStart = "(tagname REGEXP '^sym-(";
-    zDelimiter = "|";
-    zEnd = ")$')";
-    zPrefix = "";
-    zSuffix = "";
-    zIntro = "regular expression ";
-  }else/* if( matchStyle==MS_BRLIST )*/{
-    zStart = "tagname IN ('sym-";
-    zDelimiter = "','sym-";
-    zEnd = "')";
-    zPrefix = "";
-    zSuffix = "";
-    zIntro = "";
-  }
-
-  /* Convert the list of matches into an SQL expression and text description. */
-  blob_zero(&expr);
-  blob_zero(&desc);
-  blob_zero(&err);
-  while( 1 ){
-    /* Skip leading delimiters. */
-    for( ; fossil_isspace(*zTag) || *zTag==','; ++zTag );
-
-    /* Next non-delimiter character determines quoting. */
-    if( !*zTag ){
-      /* Terminate loop at end of string. */
-      break;
-    }else if( *zTag=='\'' || *zTag=='"' ){
-      /* If word is quoted, prepare to stop at end quote. */
-      cDel = *zTag;
-      ++zTag;
-    }else{
-      /* If word is not quoted, prepare to stop at delimiter. */
-      cDel = ',';
-    }
-
-    /* Find the next delimiter character or end of string. */
-    for( i=0; zTag[i] && zTag[i]!=cDel; ++i ){
-      /* If delimiter is comma, also recognize spaces as delimiters. */
-      if( cDel==',' && fossil_isspace(zTag[i]) ){
-        break;
-      }
-
-      /* In regexp mode, ignore delimiters following backslashes. */
-      if( matchStyle==MS_REGEXP && zTag[i]=='\\' && zTag[i+1] ){
-        ++i;
-      }
-    }
-
-    /* Check for regular expression syntax errors. */
-    if( matchStyle==MS_REGEXP ){
-      ReCompiled *regexp;
-      char *zTagDup = fossil_strndup(zTag, i);
-      zFail = re_compile(&regexp, zTagDup, 0);
-      re_free(regexp);
-      fossil_free(zTagDup);
-    }
-
-    /* Process success and error results. */
-    if( !zFail ){
-      /* Incorporate the match word into the output expression.  %q is used to
-       * protect against SQL injection attacks by replacing ' with ''. */
-      blob_appendf(&expr, "%s%s%#q%s", blob_size(&expr) ? zDelimiter : zStart,
-          zPrefix, i, zTag, zSuffix);
-
-      /* Build up the description string. */
-      if( !blob_size(&desc) ){
-        /* First tag: start with intro followed by first quoted tag. */
-        blob_append(&desc, zIntro, -1);
-        blob_append(&desc, tagQuote(i, zTag), -1);
-      }else{
-        if( zPattern ){
-          /* Third and subsequent tags: append comma then previous tag. */
-          blob_append(&desc, ", ", 2);
-          blob_append(&desc, zPattern, -1);
-          zOr = ", or ";
-        }
-
-        /* Second and subsequent tags: store quoted tag for next iteration. */
-        zPattern = tagQuote(i, zTag);
-      }
-    }else{
-      /* On error, skip the match word and build up the error message buffer. */
-      if( !blob_size(&err) ){
-        blob_append(&err, "Error: ", 7);
-      }else{
-        blob_append(&err, ", ", 2);
-      }
-      blob_appendf(&err, "(%s%s: %s)", zIntro, tagQuote(i, zTag), zFail);
-    }
-
-    /* Advance past all consumed input characters. */
-    zTag += i;
-    if( cDel!=',' && *zTag==cDel ){
-      ++zTag;
-    }
-  }
-
-  /* Finalize and extract the pattern description. */
-  if( zPattern ){
-    blob_append(&desc, zOr, -1);
-    blob_append(&desc, zPattern, -1);
-  }
-  *zDesc = blob_str(&desc);
-
-  /* Finalize and extract the error text. */
-  *zError = blob_size(&err) ? blob_str(&err) : 0;
-
-  /* Finalize and extract the SQL expression. */
-  if( blob_size(&expr) ){
-    blob_append(&expr, zEnd, -1);
-    return blob_str(&expr);
-  }
-
-  /* If execution reaches this point, the pattern was empty.  Return NULL. */
-  return 0;
-}
-
-/*
 ** Similar to fossil_expand_datetime()
 **
 ** Add missing "-" characters into a date/time.  Examples:
@@ -1540,34 +1314,73 @@ static const char *tagMatchExpression(
 **       20190419  =>  2019-04-19
 **       201904    =>  2019-04
 */
-const char *timeline_expand_datetime(const char *zIn){
-  static char zEDate[20];
-  static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
+const char *timeline_expand_datetime(const char *zIn, int *pbZulu){
+  static char zEDate[16];
   int n = (int)strlen(zIn);
   int i, j;
 
-  /* Only three forms allowed:
+  /* These forms are recognized:
+  **
   **   (1)  YYYYMMDD
   **   (2)  YYYYMM
   **   (3)  YYYYWW
   */
+  if( n && (zIn[n-1]=='Z' || zIn[n-1]=='z') ){
+    n--;
+    if( pbZulu ) *pbZulu = 1;
+  }else{
+    if( pbZulu ) *pbZulu = 0;
+  }
   if( n!=8 && n!=6 ) return zIn;
 
   /* Every character must be a digit */
-  for(i=0; fossil_isdigit(zIn[i]); i++){}
+  for(i=0; i<n && fossil_isdigit(zIn[i]); i++){}
   if( i!=n ) return zIn;
 
   /* Expand the date */
-  for(i=j=0; zIn[i]; i++){
-    if( i>=4 && (i%2)==0 ){
-      zEDate[j++] = aPunct[i/2];
-    }
+  for(i=j=0; i<n; i++){
+    if( j==4 || j==7 ) zEDate[j++] = '-';
     zEDate[j++] = zIn[i];
   }
   zEDate[j] = 0;
 
   /* It looks like this may be a date.  Return it with punctuation added. */
   return zEDate;
+}
+
+/*
+** Check to see if the argument is a date-span for the ymd= query
+** parameter.  A valid date-span is of the form:
+**
+**       0123456789 123456  <-- index
+**       YYYYMMDD-YYYYMMDD
+**
+** with an optional "Z" timeline modifier at the end.  Return true if
+** the input is a valid date space and false if not.
+*/
+static int timeline_is_datespan(const char *zDay){
+  size_t n = strlen(zDay);
+  int i, d, m;
+  
+  if( n<17 || n>18 ) return 0;
+  if( n==18 ){
+    if( zDay[17]!='Z' && zDay[17]!='z' ) return 0;
+    n--;
+  }
+  if( zDay[8]!='-' ) return 0;
+  for(i=0; i<17 && (fossil_isdigit(zDay[i]) || i==8); i++){}
+  if( i!=17 ) return 0;
+  i = atoi(zDay);
+  d = i%100;
+  if( d<1 || d>31 ) return 0;
+  m = (i/100)%100;
+  if( m<1 || m>12 ) return 0;
+  i = atoi(zDay+9);
+  d = i%100;
+  if( d<1 || d>31 ) return 0;
+  m = (i/100)%100;
+  if( m<1 || m>12 ) return 0;
+  return 1;
 }
 
 /*
@@ -1593,6 +1406,7 @@ static int timeline_endpoint(
     endId = symbolic_name_to_rid(zEnd, "ci");
     if( endId==0 ) return 0;
   }
+  db_pause_dml_log();
   if( bForward ){
     if( tagId ){
       db_prepare(&q,
@@ -1660,7 +1474,49 @@ static int timeline_endpoint(
     ans = db_column_int(&q, 0);
   }
   db_finalize(&q);
+  db_unpause_dml_log();
   return ans;
+}
+
+/*
+** Add to the (temp) table zTab, RID values for every check-in
+** identifier found on the zExtra string.  Check-in names can be separated
+** by commas or by whitespace.
+*/
+static void add_extra_rids(const char *zTab, const char *zExtra){
+  int ii;
+  int rid;
+  int cnt;
+  Blob sql;
+  char *zX;
+  char *zToDel;
+  if( zExtra==0 ) return;
+  cnt = 0;
+  blob_init(&sql, 0, 0);
+  zX = zToDel = fossil_strdup(zExtra);
+  blob_append_sql(&sql, "INSERT OR IGNORE INTO \"%w\" VALUES", zTab);
+  while( zX[0] ){
+    char c;
+    if( zX[0]==',' || zX[0]==' ' ){ zX++; continue; }
+    for(ii=1; zX[ii] && zX[ii]!=',' && zX[ii]!=' '; ii++){}
+    c = zX[ii];
+    zX[ii] = 0;
+    rid = name_to_rid(zX);
+    if( rid>0 ){
+      if( (cnt%10)==4 ){
+        blob_append_sql(&sql,",\n ");
+      }else if( cnt>0 ){
+        blob_append_sql(&sql,",");
+      }
+      blob_append_sql(&sql, "(%d)", rid);
+      cnt++;
+    }
+    zX[ii] = c;
+    zX += ii;
+  }
+  if( cnt ) db_exec_sql(blob_sql_text(&sql));
+  blob_reset(&sql);
+  fossil_free(zToDel);
 }
 
 /*
@@ -1700,17 +1556,17 @@ void timeline_test_endpoint(void){
 **
 ** Query parameters:
 **
-**    a=TIMEORTAG     Show events after TIMEORTAG
-**    b=TIMEORTAG     Show events before TIMEORTAG
+**    a=TIMEORTAG     Show events after TIMEORTAG.
+**    b=TIMEORTAG     Show events before TIMEORTAG.
 **    c=TIMEORTAG     Show events that happen "circa" TIMEORTAG
 **    cf=FILEHASH     Show events around the time of the first use of
-**                    the file with FILEHASH
+**                    the file with FILEHASH.
 **    m=TIMEORTAG     Highlight the event at TIMEORTAG, or the closest available
 **                    event if TIMEORTAG is not part of the timeline.  If
 **                    the t= or r= is used, the m event is added to the timeline
 **                    if it isn't there already.
-**    x=HASHLIST      Show all check-ins in the comma-separated HASHLIST
-**                    in addition to check-ins specified by t= or r=
+**    x=LIST          Show check-ins in the comma- or space-separated LIST
+**                    in addition to check-ins specified by other parameters.
 **    sel1=TIMEORTAG  Highlight the check-in at TIMEORTAG if it is part of
 **                    the timeline.  Similar to m= except TIMEORTAG must
 **                    match a check-in that is already in the timeline.
@@ -1734,17 +1590,20 @@ void timeline_test_endpoint(void){
 **                       d=CX       ... from CX up to the time of CHECKIN
 **                       from=CX    ... shortest path from CX up to CHECKIN
 **    t=TAG           Show only check-ins with the given TAG
-**    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
-**    tl=TAGLIST      Shorthand for t=TAGLIST&ms=brlist
-**    rl=TAGLIST      Shorthand for r=TAGLIST&ms=brlist
+**    r=TAG           Same as 't=TAG&rel'.  Mnemonic: "Related"
+**    tl=TAGLIST      Same as 't=TAGLIST&ms=brlist'.  Mnemonic: "Tag List"
+**    rl=TAGLIST      Same as 'r=TAGLIST&ms=brlist'.  Mnemonic: "Related List"
+**    ml=TAGLIST      Same as 'tl=TAGLIST&mionly'.  Mnemonic: "Merge-in List"
+**    sl=TAGLIST      "Sort List". Draw TAGLIST branches ordered left to right.
 **    rel             Show related check-ins as well as those matching t=TAG
-**    mionly          Limit rel to show ancestors but not descendants
+**    mionly          Show related parents but not related children.
 **    nowiki          Do not show wiki associated with branch or tag
-**    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
+**    ms=MATCHSTYLE   Set tag name match algorithm.  One of "exact", "glob",
+**                    "like", or "regexp".
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact", v: "Verbose", m: "Modern", j: "Columnar",
-**                    x: "Classic".
+*                     x: "Classic".
 **    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
 **    ncp             Omit cherrypick merges
@@ -1753,19 +1612,22 @@ void timeline_test_endpoint(void){
 **    nc              Omit all graph colors other than highlights
 **    v               Show details of files changed
 **    vfx             Show complete text of forum messages
-**    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
-**    from=CHECKIN    Path from...
+**    f=CHECKIN       Family (immediate parents and children) of CHECKIN
+**    from=CHECKIN    Path through common ancestor from...
 **                       to=CHECKIN      ... to this
 **                       to2=CHECKIN     ... backup name if to= doesn't resolve
 **                       shortest        ... show only the shortest path
 **                       rel             ... also show related checkins
 **                       bt=PRIOR        ... path from CHECKIN back to PRIOR
 **                       ft=LATER        ... path from CHECKIN forward to LATER
+**    me=CHECKIN      Most direct path from...
+**                       you=CHECKIN     ... to this
+**                       rel             ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
-**                       All qualifying check-ins are shown unless there is
-**                       also an n= or n1= query parameter.
+**                    All qualifying check-ins are shown unless there is
+**                    also an n= or n1= query parameter.
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
-**                       name matches one of the comma-separate GLOBLIST
+**                    name matches one of the comma-separate GLOBLIST
 **    brbg            Background color determined by branch name
 **    ubg             Background color determined by user
 **    deltabg         Background color red for delta manifests or green
@@ -1773,11 +1635,13 @@ void timeline_test_endpoint(void){
 **    namechng        Show only check-ins that have filename changes
 **    forks           Show only forks and their children
 **    cherrypicks     Show all cherrypicks
-**    ym=YYYY-MM      Show only events for the given year/month
-**    yw=YYYY-WW      Show only events for the given week of the given year
-**    yw=YYYY-MM-DD   Show events for the week that includes the given day
-**    ymd=YYYY-MM-DD  Show only events on the given day. The use "ymd=now"
-**                    to see all changes for the current week.
+**    ym=YYYYMM       Show only events for the given year/month
+**    yw=YYYYWW       Show only events for the given week of the given year
+**    yw=YYYYMMDD     Show events for the week that includes the given day
+**    ymd=YYYYMMDD    Show only events on the given day. The use "ymd=now"
+**                    to see all changes for the current week.  Add "z" at end
+**                    to divide days at UTC instead of localtime days.
+**                    Use ymd=YYYYMMDD-YYYYMMDD (with optional "z") for a range.
 **    year=YYYY       Show only events on the given year. The use "year=0"
 **                    to see all changes for the current year.
 **    days=N          Show events over the previous N days
@@ -1786,7 +1650,7 @@ void timeline_test_endpoint(void){
 **    bisect          Show the check-ins that are in the current bisect
 **    oldestfirst     Show events oldest first.
 **    showid          Show RIDs
-**    showsql         Show the SQL text
+**    showsql         Show the SQL used to generate the report
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1864,9 +1728,16 @@ void page_timeline(void){
   int showCherrypicks = 1;            /* True to show cherrypick merges */
   int haveParameterN;                 /* True if n= query parameter present */
   int from_to_mode = 0;               /* 0: from,to. 1: from,ft 2: from,bt */
+  int showSql = PB("showsql");        /* True to show the SQL */
+  Blob allSql;                        /* Copy of all SQL text */
 
+  login_check_credentials();
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
+  blob_init(&allSql, 0, 0);
+
+  /* The "mionly" query parameter is like "rel", but shows merge-ins only */
+  if( P("mionly")!=0 ) related = 2;
 
   (void)P_NoBot("ss")
     /* "ss" is processed via the udc but at least one spider likes to
@@ -1945,7 +1816,6 @@ void page_timeline(void){
   if( pd_rid ){
     p_rid = d_rid = pd_rid;
   }
-  login_check_credentials();
   if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum)
    || (bisectLocal && !g.perm.Setup)
   ){
@@ -1986,23 +1856,35 @@ void page_timeline(void){
   ** t=TAGLIST&ms=brlist and r=TAGLIST&ms=brlist repectively. */
   if( zBrName==0 && zTagName==0 ){
     const char *z;
+    const char *zPattern = 0;
     if( (z = P("tl"))!=0 ){
-      zTagName = z;
-      zMatchStyle = "brlist";
+      zPattern = zTagName = z;
+    }else if( (z = P("rl"))!=0 ){
+      zPattern = zBrName = z;
+      if( related==0 ) related = 1;
+    }else if( (z = P("ml"))!=0 ){
+      zPattern = zBrName = z;
+      if( related==0 ) related = 2;
     }
-    if( (z = P("rl"))!=0 ){
-      zBrName = z;
-      zMatchStyle = "brlist";
+    if( zPattern!=0 && zMatchStyle==0 ){
+      /* If there was no ms= query parameter, set the match style to
+      ** "glob" if the pattern appears to contain GLOB character, or
+      ** "brlist" if it does not. */
+      if( strpbrk(zPattern,"*[?") ){
+        zMatchStyle = "glob";
+      }else{
+        zMatchStyle = "brlist";
+      }
     }
   }
 
   /* Convert r=TAG to t=TAG&rel in order to populate the UI style widgets. */
-  if( zBrName && !related ){
+  if( zBrName ){
     cgi_delete_query_parameter("r");
     cgi_set_query_parameter("t", zBrName);  (void)P("t");
     cgi_set_query_parameter("rel", "1");
     zTagName = zBrName;
-    related = 1;
+    if( related==0 ) related = 1;
     zType = "ci";
   }
 
@@ -2012,18 +1894,10 @@ void page_timeline(void){
   }
 
   /* Finish preliminary processing of tag match queries. */
+  matchStyle = match_style(zMatchStyle, MS_EXACT);
   if( zTagName ){
     zType = "ci";
-    /* Interpet the tag style string. */
-    if( fossil_stricmp(zMatchStyle, "glob")==0 ){
-      matchStyle = MS_GLOB;
-    }else if( fossil_stricmp(zMatchStyle, "like")==0 ){
-      matchStyle = MS_LIKE;
-    }else if( fossil_stricmp(zMatchStyle, "regexp")==0 ){
-      matchStyle = MS_REGEXP;
-    }else if( fossil_stricmp(zMatchStyle, "brlist")==0 ){
-      matchStyle = MS_BRLIST;
-    }else{
+    if( matchStyle==MS_EXACT ){
       /* For exact maching, inhibit links to the selected tag. */
       zThisTag = zTagName;
       Th_Store("current_checkin", zTagName);
@@ -2035,7 +1909,7 @@ void page_timeline(void){
     }
 
     /* Construct the tag match expression. */
-    zTagSql = tagMatchExpression(matchStyle, zTagName, &zMatchDesc, &zError);
+    zTagSql = match_tag_sqlexpr(matchStyle, zTagName, &zMatchDesc, &zError);
   }
 
   if( zMark && zMark[0]==0 ){
@@ -2083,6 +1957,7 @@ void page_timeline(void){
     tmFlags &= ~(TIMELINE_DELTA|TIMELINE_BRCOLOR|TIMELINE_UCOLOR);
     tmFlags |= TIMELINE_NOCOLOR;
   }
+  if( showSql ) db_append_dml_to_blob(&allSql);
   if( zUses!=0 ){
     int ufid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUses);
     if( ufid ){
@@ -2100,7 +1975,7 @@ void page_timeline(void){
     db_multi_exec(
       "CREATE TEMP TABLE rnfile(rid INTEGER PRIMARY KEY);"
       "INSERT OR IGNORE INTO rnfile"
-      "  SELECT mid FROM mlink WHERE pfnid>0 AND pfnid!=fnid;"
+      " SELECT mid FROM mlink WHERE pfnid>0 AND pfnid!=fnid;"
     );
     disableY = 1;
   }
@@ -2109,29 +1984,29 @@ void page_timeline(void){
       "CREATE TEMP TABLE rnfork(rid INTEGER PRIMARY KEY);\n"
       "INSERT OR IGNORE INTO rnfork(rid)\n"
       "  SELECT pid FROM plink\n"
-      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
-      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
-      "   GROUP BY pid"
+      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)==\n"
+      "         (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "   GROUP BY pid\n"
       "   HAVING count(*)>1;\n"
-      "INSERT OR IGNORE INTO rnfork(rid)"
+      "INSERT OR IGNORE INTO rnfork(rid)\n"
       "  SELECT cid FROM plink\n"
-      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
-      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
-      "   GROUP BY cid"
+      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)==\n"
+      "         (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "   GROUP BY cid\n"
       "   HAVING count(*)>1;\n",
       TAG_BRANCH, TAG_BRANCH, TAG_BRANCH, TAG_BRANCH
     );
     db_multi_exec(
       "INSERT OR IGNORE INTO rnfork(rid)\n"
       "  SELECT cid FROM plink\n"
-      "   WHERE pid IN rnfork"
-      "     AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
-      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
-      " UNION "
+      "   WHERE pid IN rnfork\n"
+      "     AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)==\n"
+      "         (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "  UNION\n"
       "  SELECT pid FROM plink\n"
-      "   WHERE cid IN rnfork"
-      "     AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
-      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n",
+      "   WHERE cid IN rnfork\n"
+      "     AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)==\n"
+      "         (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n",
       TAG_BRANCH, TAG_BRANCH, TAG_BRANCH, TAG_BRANCH
     );
     tmFlags |= TIMELINE_UNHIDE;
@@ -2208,73 +2083,110 @@ void page_timeline(void){
     const char *zTo = 0;
     Blob ins;
     int nNodeOnPath = 0;
+    int commonAncs = 0;    /* Common ancestors of me_rid and you_rid. */
+    int earlierRid = 0, laterRid = 0;
 
     if( from_rid && to_rid ){
       if( from_to_mode==0 ){
         p = path_shortest(from_rid, to_rid, noMerge, 0, 0);
       }else if( from_to_mode==1 ){
         p = path_shortest(from_rid, to_rid, 0, 1, 0);
+        earlierRid = commonAncs = from_rid;
+        laterRid = to_rid;
       }else{
         p = path_shortest(to_rid, from_rid, 0, 1, 0);
+        earlierRid = commonAncs = to_rid;
+        laterRid = from_rid;
       }
       zFrom = P("from");
       zTo = zTo2 ? zTo2 : P("to");
     }else{
-      if( path_common_ancestor(me_rid, you_rid) ){
+      commonAncs = path_common_ancestor(me_rid, you_rid);
+      if( commonAncs!=0 ){
         p = path_first();
       }
-      zFrom = P("me");
-      zTo = P("you");
+      if( commonAncs==you_rid ){
+        zFrom = P("you");
+        zTo = P("me");
+        earlierRid = you_rid;
+        laterRid = me_rid;
+      }else{
+        zFrom = P("me");
+        zTo = P("you");
+        earlierRid = me_rid;
+        laterRid = you_rid;
+      }
     }
     blob_init(&ins, 0, 0);
     db_multi_exec(
-      "CREATE TABLE IF NOT EXISTS temp.pathnode(x INTEGER PRIMARY KEY);"
+      "CREATE TEMP TABLE IF NOT EXISTS pathnode(x INTEGER PRIMARY KEY);"
     );
     if( p ){
+      int cnt = 4;
       blob_init(&ins, 0, 0);
       blob_append_sql(&ins, "INSERT INTO pathnode(x) VALUES(%d)", p->rid);
       p = p->u.pTo;
       while( p ){
-        blob_append_sql(&ins, ",(%d)", p->rid);
+        if( cnt==8 ){
+          blob_append_sql(&ins, ",\n  (%d)", p->rid);
+          cnt = 0;
+        }else{
+          cnt++;
+          blob_append_sql(&ins, ",(%d)", p->rid);
+        }
         p = p->u.pTo;
       }
     }
     path_reset();
     db_multi_exec("%s", blob_str(&ins)/*safe-for-%s*/);
     blob_reset(&ins);
-    if( related || P("mionly") ){
+    if( related ){
       db_multi_exec(
-        "CREATE TABLE IF NOT EXISTS temp.related(x INTEGER PRIMARY KEY);"
+        "CREATE TEMP TABLE IF NOT EXISTS related(x INTEGER PRIMARY KEY);"
         "INSERT OR IGNORE INTO related(x)"
-        "  SELECT pid FROM plink WHERE cid IN pathnode AND NOT isprim;"
+        " SELECT pid FROM plink WHERE cid IN pathnode AND NOT isprim;"
       );
-      if( P("mionly")==0 ){
+      if( related==1 ){
         db_multi_exec(
           "INSERT OR IGNORE INTO related(x)"
-          "  SELECT cid FROM plink WHERE pid IN pathnode;"
+          " SELECT cid FROM plink WHERE pid IN pathnode;"
         );
       }
       if( showCherrypicks ){
         db_multi_exec(
           "INSERT OR IGNORE INTO related(x)"
-          "  SELECT parentid FROM cherrypick WHERE childid IN pathnode;"
+          " SELECT parentid FROM cherrypick WHERE childid IN pathnode;"
         );
-        if( P("mionly")==0 ){
+        if( related==1 ){
           db_multi_exec(
             "INSERT OR IGNORE INTO related(x)"
-            "  SELECT childid FROM cherrypick WHERE parentid IN pathnode;"
+            " SELECT childid FROM cherrypick WHERE parentid IN pathnode;"
           );
         }
       }
+      if( earlierRid && laterRid && commonAncs==earlierRid ){
+        /* On a query with me=XXX, you=YYY, and rel, omit all nodes that
+        ** are not ancestors of either XXX or YYY, as those nodes tend to
+        ** be extraneous */
+        db_multi_exec(
+          "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
+        );
+        compute_ancestors(laterRid, 0, 0, earlierRid);
+        db_multi_exec(
+          "DELETE FROM related WHERE x NOT IN ok;"
+        );
+      }
       db_multi_exec("INSERT OR IGNORE INTO pathnode SELECT x FROM related");
     }
+    add_extra_rids("pathnode",P("x"));
     blob_append_sql(&sql, " AND event.objid IN pathnode");
     if( zChng && zChng[0] ){
       db_multi_exec(
-        "DELETE FROM pathnode "
-        " WHERE NOT EXISTS(SELECT 1 FROM mlink, filename"
-                          " WHERE mlink.mid=x"
-                          "   AND mlink.fnid=filename.fnid AND %s)",
+        "DELETE FROM pathnode\n"
+        " WHERE NOT EXISTS(SELECT 1 FROM mlink, filename\n"
+        "                   WHERE mlink.mid=x\n"
+        "                     AND mlink.fnid=filename.fnid\n"
+        "                     AND %s)",
         glob_expr("filename.name", zChng)
       );
     }
@@ -2332,6 +2244,7 @@ void page_timeline(void){
     db_multi_exec(
        "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
     );
+    add_extra_rids("ok", P("x"));
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d",
                          p_rid ? p_rid : d_rid);
     zCiName = zDPName;
@@ -2339,7 +2252,6 @@ void page_timeline(void){
     blob_append_sql(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
-      Stmt s;
       double rStopTime = 9e99;
       zFwdTo = P("ft");
       if( zFwdTo ){
@@ -2355,23 +2267,21 @@ void page_timeline(void){
             "SELECT mtime FROM event WHERE objid=%d", ridFwdTo);
         }
       }
-      db_prepare(&s,
-        "WITH RECURSIVE"
-        "  dx(rid,mtime) AS ("
-        "     SELECT %d, 0"
-        "     UNION"
-        "     SELECT plink.cid, plink.mtime FROM dx, plink"
-        "      WHERE plink.pid=dx.rid"
-        "        AND (:stop>=8e99 OR plink.mtime<=:stop)"
-        "      ORDER BY 2"
-        "  )"
+      if( rStopTime<9e99 ){
+        rStopTime += 5.8e-6;  /* Round up by 1/2 second */
+      }
+      db_multi_exec(
+        "WITH RECURSIVE dx(rid,mtime) AS (\n"
+        "  SELECT %d, 0\n"
+        "  UNION\n"
+        "  SELECT plink.cid, plink.mtime FROM dx, plink\n"
+        "   WHERE plink.pid=dx.rid\n"
+        "     AND plink.mtime<=%.*g\n"
+        "   ORDER BY 2\n"
+        ")\n"
         "INSERT OR IGNORE INTO ok SELECT rid FROM dx LIMIT %d",
-        d_rid, nEntry<=0 ? -1 : nEntry+1
+        d_rid, rStopTime<8e99 ? 17 : 2, rStopTime, nEntry<=0 ? -1 : nEntry+1
       );
-      db_bind_double(&s, ":stop", rStopTime);
-      db_step(&s);
-      db_finalize(&s);
-      /* compute_descendants(d_rid, nEntry==0 ? 0 : nEntry+1); */
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
       if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
       if( nd>0 || p_rid==0 ){
@@ -2484,13 +2394,13 @@ void page_timeline(void){
       tmFlags |= TIMELINE_XMERGE;
     }
     if( zUses ){
-      blob_append_sql(&cond, " AND event.objid IN usesfile ");
+      blob_append_sql(&cond, " AND event.objid IN usesfile\n");
     }
     if( renameOnly ){
-      blob_append_sql(&cond, " AND event.objid IN rnfile ");
+      blob_append_sql(&cond, " AND event.objid IN rnfile\n");
     }
     if( forkOnly ){
-      blob_append_sql(&cond, " AND event.objid IN rnfork ");
+      blob_append_sql(&cond, " AND event.objid IN rnfork\n");
     }
     if( cpOnly && showCherrypicks ){
       db_multi_exec(
@@ -2498,49 +2408,58 @@ void page_timeline(void){
         "INSERT OR IGNORE INTO cpnodes SELECT childid FROM cherrypick;"
         "INSERT OR IGNORE INTO cpnodes SELECT parentid FROM cherrypick;"
       );
-      blob_append_sql(&cond, " AND event.objid IN cpnodes ");
+      blob_append_sql(&cond, " AND event.objid IN cpnodes\n");
     }
     if( bisectLocal || zBisect!=0 ){
-      blob_append_sql(&cond, " AND event.objid IN (SELECT rid FROM bilog) ");
+      blob_append_sql(&cond, " AND event.objid IN (SELECT rid FROM bilog)\n");
     }
     if( zYearMonth ){
       char *zNext;
-      zYearMonth = timeline_expand_datetime(zYearMonth);
-      if( strlen(zYearMonth)>7 ){
-        zYearMonth = mprintf("%.7s", zYearMonth);
-      }
+      int bZulu = 0;
+      const char *zTZMod;
+      zYearMonth = timeline_expand_datetime(zYearMonth, &bZulu);
+      zYearMonth = mprintf("%.7s", zYearMonth);
       if( db_int(0,"SELECT julianday('%q-01') IS NULL", zYearMonth) ){
         zYearMonth = db_text(0, "SELECT strftime('%%Y-%%m','now');");
       }
-      zNext = db_text(0, "SELECT strftime('%%Y-%%m','%q-01','+1 month');",
-                      zYearMonth);
+      zTZMod = (bZulu==0 && fossil_ui_localtime()) ? "utc" : "+00:00";
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime>=julianday('%q-01')%s)",
-          zNext, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime>=julianday('%q-01',%Q)%s)",
+          zYearMonth, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0, "SELECT strftime('%%Y%%m%q','%q-01','+1 month');",
+                        &"Z"[!bZulu], zYearMonth);
         zNewerButton = fossil_strdup(url_render(&url, "ym", zNext, 0, 0));
         zNewerButtonLabel = "Following month";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      zNext = db_text(0, "SELECT strftime('%%Y-%%m','%q-01','-1 month');",
-                      zYearMonth);
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime<julianday('%q-01')%s)",
-          zYearMonth, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime<julianday('%q-01',%Q)%s)",
+          zYearMonth, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0, "SELECT strftime('%%Y%%m%q','%q-01','-1 month');",
+                        &"Z"[!bZulu], zYearMonth);
         zOlderButton = fossil_strdup(url_render(&url, "ym", zNext, 0, 0));
         zOlderButtonLabel = "Previous month";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
-                      zYearMonth);
+      blob_append_sql(&cond,
+         " AND event.mtime>=julianday('%q-01',%Q)"
+         " AND event.mtime<julianday('%q-01',%Q,'+1 month')\n",
+         zYearMonth, zTZMod, zYearMonth, zTZMod);
       nEntry = -1;
+      /* Adjust the zYearMonth for the title */
+      zYearMonth = mprintf("%z-01%s", zYearMonth, &"Z"[!bZulu]);
     }
     else if( zYearWeek ){
       char *z, *zNext;
-      zYearWeek = timeline_expand_datetime(zYearWeek);
+      int bZulu = 0;
+      const char *zTZMod;
+      zYearWeek = timeline_expand_datetime(zYearWeek, &bZulu);
       z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
       if( z && z[0] ){
         zYearWeekStart = db_text(0, "SELECT date(%Q,'-6 days','weekday 1')",
@@ -2561,60 +2480,148 @@ void page_timeline(void){
              "SELECT strftime('%%Y-%%W','now','-6 days','weekday 1')");
         }
       }
-      zNext = db_text(0, "SELECT date(%Q,'+7 day');", zYearWeekStart);
+      zTZMod = (bZulu==0 && fossil_ui_localtime()) ? "utc" : "+00:00";
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime>=julianday(%Q)%s)",
-          zNext, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime>=julianday(%Q,%Q)%s)",
+          zYearWeekStart, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0, "SELECT strftime('%%Y%%W%q',%Q,'+7 day');",
+                        &"Z"[!bZulu], zYearWeekStart);
         zNewerButton = fossil_strdup(url_render(&url, "yw", zNext, 0, 0));
         zNewerButtonLabel = "Following week";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      zNext = db_text(0, "SELECT date(%Q,'-7 days');", zYearWeekStart);
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime<julianday(%Q)%s)",
-          zYearWeekStart, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime<julianday(%Q,%Q)%s)",
+          zYearWeekStart, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0, "SELECT strftime('%%Y%%W%q',%Q,'-7 days');",
+                        &"Z"[!bZulu], zYearWeekStart);
         zOlderButton = fossil_strdup(url_render(&url, "yw", zNext, 0, 0));
         zOlderButtonLabel = "Previous week";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
-                   zYearWeek);
+      blob_append_sql(&cond,
+        " AND event.mtime>=julianday(%Q,%Q)"
+        " AND event.mtime<julianday(%Q,%Q,'+7 days')\n",
+        zYearWeekStart, zTZMod, zYearWeekStart, zTZMod);
       nEntry = -1;
+      if( fossil_ui_localtime() && bZulu ){
+        zYearWeekStart = mprintf("%zZ", zYearWeekStart);
+      }
+    }
+    else if( zDay && timeline_is_datespan(zDay) ){
+      char *zNext;
+      char *zStart, *zEnd;
+      int nDay;
+      int bZulu = 0;
+      const char *zTZMod;
+      zEnd = db_text(0, "SELECT date(%Q)",
+                     timeline_expand_datetime(zDay+9, &bZulu));
+      zStart = db_text(0, "SELECT date('%.4q-%.2q-%.2q')",
+                        zDay, zDay+4, zDay+6);
+      nDay = db_int(0, "SELECT julianday(%Q)-julianday(%Q)", zEnd, zStart);
+      if( nDay==0 ){
+        zDay = &zDay[9];
+        goto single_ymd;
+      }
+      if( nDay<0 ){
+        char *zTemp = zEnd;
+        zEnd = zStart;
+        zStart = zTemp;
+        nDay = 1 - nDay;
+      }else{
+        nDay += 1;
+      }
+      zTZMod = (bZulu==0 && fossil_ui_localtime()) ? "utc" : "+00:00";
+      if( nDay>0 && db_int(0,
+          "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+          " WHERE blob.rid=event.objid"
+          "   AND mtime>=julianday(%Q,'1 day',%Q)%s)",
+          zEnd, zTZMod, blob_sql_text(&cond))
+      ){
+        zNext = db_text(0,
+           "SELECT strftime('%%Y%%m%%d-',%Q,'%d days')||"
+                  "strftime('%%Y%%m%%d%q',%Q,'%d day');",
+                  zStart, nDay, &"Z"[!bZulu], zEnd, nDay);
+        zNewerButton = fossil_strdup(url_render(&url, "ymd", zNext, 0, 0));
+        zNewerButtonLabel = mprintf("Following %d days", nDay);
+        fossil_free(zNext);
+      }
+      if( nDay>1 && db_int(0,
+          "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+          " WHERE blob.rid=event.objid"
+          "   AND mtime<julianday(%Q,'-1 day',%Q)%s)",
+          zStart, zTZMod, blob_sql_text(&cond))
+      ){
+        zNext = db_text(0,
+           "SELECT strftime('%%Y%%m%%d-',%Q,'%d days')||"
+                  "strftime('%%Y%%m%%d%q',%Q,'%d day');",
+                  zStart, -nDay, &"Z"[!bZulu], zEnd, -nDay);
+        zOlderButton = fossil_strdup(url_render(&url, "ymd", zNext, 0, 0));
+        zOlderButtonLabel = mprintf("Previous %d days", nDay);
+        fossil_free(zNext);
+      }
+      blob_append_sql(&cond,
+        " AND event.mtime>=julianday(%Q,%Q)"
+        " AND event.mtime<julianday(%Q,%Q,'+1 day')\n",
+        zStart, zTZMod, zEnd, zTZMod);
+      nEntry = -1;
+      
+      if( fossil_ui_localtime() && bZulu ){
+        zDay = mprintf("%d days between %zZ and %zZ", nDay, zStart, zEnd);
+      }else{
+        zDay = mprintf("%d days between %z and %z", nDay, zStart, zEnd);
+      }
     }
     else if( zDay ){
       char *zNext;
-      zDay = timeline_expand_datetime(zDay);
+      int bZulu = 0;
+      const char *zTZMod;
+    single_ymd:
+      bZulu = 0;
+      zDay = timeline_expand_datetime(zDay, &bZulu);
       zDay = db_text(0, "SELECT date(%Q)", zDay);
       if( zDay==0 || zDay[0]==0 ){
         zDay = db_text(0, "SELECT date('now')");
       }
-      zNext = db_text(0, "SELECT date(%Q,'+1 day');", zDay);
+      zTZMod = (bZulu==0 && fossil_ui_localtime()) ? "utc" : "+00:00";
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime>=julianday(%Q)%s)",
-          zNext, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime>=julianday(%Q,'+1 day',%Q)%s)",
+          zDay, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0,"SELECT strftime('%%Y%%m%%d%q',%Q,'+1 day');",
+                        &"Z"[!bZulu], zDay);
         zNewerButton = fossil_strdup(url_render(&url, "ymd", zNext, 0, 0));
         zNewerButtonLabel = "Following day";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      zNext = db_text(0, "SELECT date(%Q,'-1 day');", zDay);
       if( db_int(0,
           "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
-          " WHERE blob.rid=event.objid AND mtime<julianday(%Q)%s)",
-          zDay, blob_sql_text(&cond))
+          " WHERE blob.rid=event.objid"
+          "   AND mtime<julianday(%Q,'-1 day',%Q)%s)",
+          zDay, zTZMod, blob_sql_text(&cond))
       ){
+        zNext = db_text(0,"SELECT strftime('%%Y%%m%%d%q',%Q,'-1 day');",
+                        &"Z"[!bZulu], zDay);
         zOlderButton = fossil_strdup(url_render(&url, "ymd", zNext, 0, 0));
         zOlderButtonLabel = "Previous day";
+        fossil_free(zNext);
       }
-      fossil_free(zNext);
-      blob_append_sql(&cond, " AND %Q=date(event.mtime) ",
-                   zDay);
+      blob_append_sql(&cond,
+        " AND event.mtime>=julianday(%Q,%Q)"
+        " AND event.mtime<julianday(%Q,%Q,'+1 day')\n",
+        zDay, zTZMod, zDay, zTZMod);
       nEntry = -1;
+      if( fossil_ui_localtime() && bZulu ){
+        zDay = mprintf("%zZ", zDay); /* Add Z suffix to day for the title */
+      }
     }
     else if( zNDays ){
       nDays = atoi(zNDays);
@@ -2664,9 +2671,10 @@ void page_timeline(void){
     if( zTagSql ){
       db_multi_exec(
         "CREATE TEMP TABLE selected_nodes(rid INTEGER PRIMARY KEY);"
-        "INSERT OR IGNORE INTO selected_nodes"
-        " SELECT tagxref.rid FROM tagxref NATURAL JOIN tag"
-        " WHERE %s AND tagtype>0", zTagSql/*safe-for-%s*/
+        "INSERT OR IGNORE INTO selected_nodes\n"
+        "  SELECT tagxref.rid FROM tagxref NATURAL JOIN tag\n"
+        "   WHERE tagtype>0\n"
+        "     AND %s", zTagSql/*safe-for-%s*/
       );
       if( zMark ){
         /* If the t=release option is used with m=UUID, then also
@@ -2675,24 +2683,8 @@ void page_timeline(void){
         db_multi_exec(
           "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridMark);
       }
-      if( P("x")!=0 ){
-        char *zX = fossil_strdup(P("x"));
-        int ii;
-        int ridX;
-        while( zX[0] ){
-          char c;
-          if( zX[0]==',' || zX[0]==' ' ){ zX++; continue; }
-          for(ii=1; zX[ii] && zX[ii]!=',' && zX[ii]!=' '; ii++){}
-          c = zX[ii];
-          zX[ii] = 0;
-          ridX = name_to_rid(zX);
-          db_multi_exec(
-            "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridX);
-          zX[ii] = c;
-          zX += ii;
-        }
-      }
-      if( !related ){
+      add_extra_rids("selected_nodes",P("x"));
+      if( related==0 ){
         blob_append_sql(&cond, " AND blob.rid IN selected_nodes");
       }else{
         db_multi_exec(
@@ -2707,36 +2699,38 @@ void page_timeline(void){
         ** branch that is infrequently merged with a much more activate branch.
         */
         db_multi_exec(
-          "INSERT OR IGNORE INTO related_nodes"
-          " SELECT pid FROM selected_nodes CROSS JOIN plink"
-          " WHERE selected_nodes.rid=plink.cid;"
+          "INSERT OR IGNORE INTO related_nodes\n"
+          "  SELECT pid FROM selected_nodes CROSS JOIN plink\n"
+          "  WHERE selected_nodes.rid=plink.cid;"
         );
-        if( P("mionly")==0 ){
+        if( related==1 ){
           db_multi_exec(
-            "INSERT OR IGNORE INTO related_nodes"
-            " SELECT cid FROM selected_nodes CROSS JOIN plink"
-            " WHERE selected_nodes.rid=plink.pid;"
+            "INSERT OR IGNORE INTO related_nodes\n"
+            "  SELECT cid FROM selected_nodes CROSS JOIN plink\n"
+            "  WHERE selected_nodes.rid=plink.pid;"
           );
           if( showCherrypicks ){
             db_multi_exec(
-              "INSERT OR IGNORE INTO related_nodes"
-              " SELECT childid FROM selected_nodes CROSS JOIN cherrypick"
-              " WHERE selected_nodes.rid=cherrypick.parentid;"
+              "INSERT OR IGNORE INTO related_nodes\n"
+              "  SELECT childid FROM selected_nodes CROSS JOIN cherrypick\n"
+              "  WHERE selected_nodes.rid=cherrypick.parentid;"
             );
           }
         }
         if( showCherrypicks ){
           db_multi_exec(
-            "INSERT OR IGNORE INTO related_nodes"
-            " SELECT parentid FROM selected_nodes CROSS JOIN cherrypick"
-            " WHERE selected_nodes.rid=cherrypick.childid;"
+            "INSERT OR IGNORE INTO related_nodes\n"
+            "  SELECT parentid FROM selected_nodes CROSS JOIN cherrypick\n"
+            "  WHERE selected_nodes.rid=cherrypick.childid;"
           );
         }
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
           db_multi_exec(
-            "DELETE FROM related_nodes WHERE rid IN "
-            " (SELECT related_nodes.rid FROM related_nodes, tagxref"
-            " WHERE tagid=%d AND tagtype>0 AND tagxref.rid=related_nodes.rid)",
+            "DELETE FROM related_nodes\n"
+            " WHERE rid IN (SELECT related_nodes.rid\n"
+            "                 FROM related_nodes, tagxref\n"
+            "                WHERE tagid=%d AND tagtype>0\n"
+            "                  AND tagxref.rid=related_nodes.rid)",
             TAG_HIDDEN
           );
         }
@@ -2830,19 +2824,19 @@ void page_timeline(void){
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
         blob_append_sql(&sql,
-           " AND event.mtime>=%.17g AND event.mtime<=%.17g"
+           " AND event.mtime>=%.17g AND event.mtime<=%.17g\n"
            " ORDER BY event.mtime ASC", rAfter-ONE_SECOND, rBefore+ONE_SECOND);
         nEntry = -1;
       }else{
         blob_append_sql(&sql,
-           " AND event.mtime>=%.17g  ORDER BY event.mtime ASC",
+           " AND event.mtime>=%.17g\n ORDER BY event.mtime ASC",
            rAfter-ONE_SECOND);
       }
       zCirca = 0;
       url_add_parameter(&url, "c", 0);
     }else if( rBefore>0.0 ){
       blob_append_sql(&sql,
-         " AND event.mtime<=%.17g ORDER BY event.mtime DESC",
+         " AND event.mtime<=%.17g\n ORDER BY event.mtime DESC",
          rBefore+ONE_SECOND);
       zCirca = 0;
       url_add_parameter(&url, "c", 0);
@@ -2850,12 +2844,9 @@ void page_timeline(void){
       Blob sql2;
       blob_init(&sql2, blob_sql_text(&sql), -1);
       blob_append_sql(&sql2,
-          " AND event.mtime>=%f ORDER BY event.mtime ASC", rCirca);
+          " AND event.mtime>=%f\n ORDER BY event.mtime ASC", rCirca);
       if( nEntry>0 ){
         blob_append_sql(&sql2," LIMIT %d", (nEntry+1)/2);
-      }
-      if( PB("showsql") ){
-         @ <pre>%h(blob_sql_text(&sql2))</pre>
       }
       db_multi_exec("%s", blob_sql_text(&sql2));
       if( nEntry>0 ){
@@ -2864,7 +2855,7 @@ void page_timeline(void){
       }
       blob_reset(&sql2);
       blob_append_sql(&sql,
-          " AND event.mtime<=%f ORDER BY event.mtime DESC",
+          " AND event.mtime<=%f\n ORDER BY event.mtime DESC",
           rCirca
       );
       if( zMark==0 ) zMark = zCirca;
@@ -2877,7 +2868,7 @@ void page_timeline(void){
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     zPlural = n==1 ? "" : "s";
     if( zYearMonth ){
-      blob_appendf(&desc, "%d %s%s for the month beginning %h-01",
+      blob_appendf(&desc, "%d %s%s for the month beginning %h",
                    n, zEType, zPlural, zYearMonth);
     }else if( zYearWeek ){
       blob_appendf(&desc, "%d %s%s for week %h beginning on %h",
@@ -3011,8 +3002,10 @@ void page_timeline(void){
     }
     blob_zero(&cond);
   }
-  if( PB("showsql") ){
-    @ <pre>%h(blob_sql_text(&sql))</pre>
+  if( showSql ){
+    db_append_dml_to_blob(0);
+    @ <pre>%h(blob_str(&allSql))</pre>
+    blob_reset(&allSql);
   }
   if( search_restrict(SRCH_CKIN)!=0 ){
     style_submenu_element("Search", "%R/search?y=c");
@@ -3070,14 +3063,32 @@ void page_timeline(void){
     @ &nbsp;&uarr;</a>
   }
   cgi_check_for_malice();
-  www_print_timeline(&q, tmFlags, zThisUser, zThisTag, zBrName,
-                     selectedRid, secondaryRid, 0);
+  {
+    Matcher *pLeftBranch;
+    const char *zPattern = P("sl");
+    if( zPattern!=0 ){
+      MatchStyle ms;
+      if( zMatchStyle!=0 ){
+        ms = matchStyle;
+      }else{
+        ms = strpbrk(zPattern,"*[?")!=0 ? MS_GLOB : MS_BRLIST;
+      }
+      pLeftBranch = match_create(ms,zPattern);
+    }else{
+      pLeftBranch = match_create(matchStyle, zBrName?zBrName:zTagName);
+    }
+    www_print_timeline(&q, tmFlags, zThisUser, zThisTag, pLeftBranch,
+                       selectedRid, secondaryRid, 0);
+    match_free(pLeftBranch);
+  }
   db_finalize(&q);
   if( zOlderButton ){
     @ %z(chref("button","%s",zOlderButton))%h(zOlderButtonLabel)\
     @ &nbsp;&darr;</a>
   }
   document_emit_js(/*handles pikchrs rendered above*/);
+  blob_reset(&sql);
+  blob_reset(&desc);
   style_finish_page();
 }
 
@@ -3746,6 +3757,7 @@ void thisdayinhistory_page(void){
   int i;
   Stmt q;
   char *z;
+  int bZulu = 0;
 
   login_check_credentials();
   if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum) ){
@@ -3756,7 +3768,7 @@ void thisdayinhistory_page(void){
   style_header("Today In History");
   zToday = (char*)P("today");
   if( zToday ){
-    zToday = timeline_expand_datetime(zToday);
+    zToday = timeline_expand_datetime(zToday, &bZulu);
     if( !fossil_isdate(zToday) ) zToday = 0;
   }
   if( zToday==0 ){

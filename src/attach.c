@@ -636,7 +636,8 @@ void ainfo_page(void){
 */
 void attachment_list(
   const char *zTarget,   /* Object that things are attached to */
-  const char *zHeader    /* Header to display with attachments */
+  const char *zHeader,   /* Header to display with attachments */
+  int fHorizontalRule    /* Insert <hr> separator above header */
 ){
   int cnt = 0;
   Stmt q;
@@ -656,7 +657,12 @@ void attachment_list(
     const char *zSrc = db_column_text(&q, 4);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     if( cnt==0 ){
+      @ <section class='attachlist'>
+      if( fHorizontalRule ){
+        @ <hr>
+      }
       @ %s(zHeader)
+      @ <ul>
     }
     cnt++;
     @ <li>
@@ -669,6 +675,7 @@ void attachment_list(
   }
   if( cnt ){
     @ </ul>
+    @ </section>
   }
   db_finalize(&q);
 

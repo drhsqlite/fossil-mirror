@@ -101,6 +101,7 @@ SRC = \
   $(SRCDIR)/manifest.c \
   $(SRCDIR)/markdown.c \
   $(SRCDIR)/markdown_html.c \
+  $(SRCDIR)/match.c \
   $(SRCDIR)/md5.c \
   $(SRCDIR)/merge.c \
   $(SRCDIR)/merge3.c \
@@ -250,6 +251,7 @@ EXTRA_FILES = \
   $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
+  $(SRCDIR)/merge.tcl \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \
@@ -365,6 +367,7 @@ TRANS_SRC = \
   $(OBJDIR)/manifest_.c \
   $(OBJDIR)/markdown_.c \
   $(OBJDIR)/markdown_html_.c \
+  $(OBJDIR)/match_.c \
   $(OBJDIR)/md5_.c \
   $(OBJDIR)/merge_.c \
   $(OBJDIR)/merge3_.c \
@@ -514,6 +517,7 @@ OBJ = \
  $(OBJDIR)/manifest.o \
  $(OBJDIR)/markdown.o \
  $(OBJDIR)/markdown_html.o \
+ $(OBJDIR)/match.o \
  $(OBJDIR)/md5.o \
  $(OBJDIR)/merge.o \
  $(OBJDIR)/merge3.o \
@@ -706,7 +710,7 @@ SQLITE3_OBJ   = $(SQLITE3_OBJ.$(SQLITE3_ORIGIN))
 # to 1. If it is set to 0, then there is no need to build or link
 # the linenoise.o object.
 LINENOISE_DEF.0 =
-LINENOISE_DEF.1 = -DHAVE_LINENOISE
+LINENOISE_DEF.1 = -DHAVE_LINENOISE=2
 LINENOISE_DEF.  = $(LINENOISE_DEF.0)
 LINENOISE_OBJ.0 =
 LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
@@ -849,6 +853,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/manifest_.c:$(OBJDIR)/manifest.h \
 	$(OBJDIR)/markdown_.c:$(OBJDIR)/markdown.h \
 	$(OBJDIR)/markdown_html_.c:$(OBJDIR)/markdown_html.h \
+	$(OBJDIR)/match_.c:$(OBJDIR)/match.h \
 	$(OBJDIR)/md5_.c:$(OBJDIR)/md5.h \
 	$(OBJDIR)/merge_.c:$(OBJDIR)/merge.h \
 	$(OBJDIR)/merge3_.c:$(OBJDIR)/merge3.h \
@@ -1598,6 +1603,14 @@ $(OBJDIR)/markdown_html.o:	$(OBJDIR)/markdown_html_.c $(OBJDIR)/markdown_html.h 
 	$(XTCC) -o $(OBJDIR)/markdown_html.o -c $(OBJDIR)/markdown_html_.c
 
 $(OBJDIR)/markdown_html.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/match_.c:	$(SRCDIR)/match.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/match.c >$@
+
+$(OBJDIR)/match.o:	$(OBJDIR)/match_.c $(OBJDIR)/match.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/match.o -c $(OBJDIR)/match_.c
+
+$(OBJDIR)/match.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/md5_.c:	$(SRCDIR)/md5.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/md5.c >$@

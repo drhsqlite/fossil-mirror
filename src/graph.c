@@ -497,7 +497,11 @@ static void riser_to_top(GraphRow *pRow){
 **       TIMELINE_FILLGAPS:    Use step-children
 **       TIMELINE_XMERGE:      Omit off-graph merge lines
 */
-void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
+void graph_finish(
+  GraphContext *p,                /* The graph to be laid out */
+  Matcher *pLeftBranch,           /* Compares true for left-most branch */
+  u32 tmFlags                     /* TIMELINE flags */
+){
   GraphRow *pRow, *pDesc, *pDup, *pLoop, *pParent;
   int i, j;
   u64 mask;
@@ -965,8 +969,8 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
 
   /*
   ** Compute the rail mapping that tries to put the branch named
-  ** zLeftBranch at the left margin.  Other branches that merge
-  ** with zLeftBranch are to the right with merge rails in between.
+  ** pLeftBranch at the left margin.  Other branches that merge
+  ** with pLeftBranch are to the right with merge rails in between.
   **
   ** aMap[X]=Y means that the X-th rail is drawn as the Y-th rail.
   **
@@ -977,6 +981,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   aMap = p->aiRailMap;
   for(i=0; i<=p->mxRail; i++) aMap[i] = i; /* Set up a default mapping */
   if( nTimewarp==0 ){
+    int kk;
     /* Priority bits:
     **
     **    0x04      The preferred branch
@@ -988,13 +993,16 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     **
     **    0x01      A rail that merges with the preferred branch
     */
-    u8 aPriority[GR_MAX_RAIL];
-    memset(aPriority, 0, p->mxRail+1);
-    if( zLeftBranch ){
-      char *zLeft = persistBranchName(p, zLeftBranch);
+    u16 aPriority[GR_MAX_RAIL];
+    int mxMatch = 0;
+    memset(aPriority, 0, (p->mxRail+1)*sizeof(aPriority[0]));
+    if( pLeftBranch ){
       for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-        if( pRow->zBranch==zLeft ){
-          aPriority[pRow->iRail] |= 4;
+        int iMatch = match_text(pLeftBranch, pRow->zBranch);
+        if( iMatch>0 ){
+          if( iMatch>10 ) iMatch = 10;
+          aPriority[pRow->iRail] |= 1<<(iMatch+1);
+          if( mxMatch<iMatch ) mxMatch = iMatch;
           for(i=0; i<=p->mxRail; i++){
             if( pRow->mergeIn[i] ) aPriority[i] |= 1;
           }
@@ -1009,6 +1017,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     }else{
       j = 1;
       aPriority[0] = 4;
+      mxMatch = 1;
       for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
         if( pRow->iRail==0 ){
           for(i=0; i<=p->mxRail; i++){
@@ -1022,13 +1031,20 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
 #if 0
     fprintf(stderr,"mergeRail: 0x%llx\n", p->mergeRail);
     fprintf(stderr,"Priority:");
-    for(i=0; i<=p->mxRail; i++) fprintf(stderr," %d", aPriority[i]);
+    for(i=0; i<=p->mxRail; i++){
+        fprintf(stderr," %x.%x",
+                aPriority[i]/4, aPriority[i]&3);
+    }
     fprintf(stderr,"\n");
 #endif
 
     j = 0;
-    for(i=0; i<=p->mxRail; i++){
-      if( aPriority[i]>=4 ) aMap[i] = j++;
+    for(kk=4; kk<=1<<(mxMatch+1); kk*=2){
+      for(i=0; i<=p->mxRail; i++){
+        if( aPriority[i]>=kk && aPriority[i]<kk*2 ){
+          aMap[i] = j++;
+        }
+      }
     }
     for(i=p->mxRail; i>=0; i--){
       if( aPriority[i]==3 ) aMap[i] = j++;

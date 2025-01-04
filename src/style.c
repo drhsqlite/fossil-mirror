@@ -823,6 +823,7 @@ void style_header(const char *zTitleFormat, ...){
     cgi_print_all(0, 0, 0);
     @ </div>
   }
+  fossil_free(zTitle);
 }
 
 #if INTERFACE
@@ -1302,6 +1303,7 @@ void page_style_css(void){
   image_url_var("logo");
   image_url_var("background");
   Th_Render(blob_str(&css));
+  blob_reset(&css);
 
   /* Tell CGI that the content returned by this page is considered cacheable */
   g.isConst = 1;

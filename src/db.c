@@ -172,6 +172,8 @@ static struct DbLocalData {
   int bProtectTriggers;     /* True if protection triggers already exist */
   int nProtect;             /* Slots of aProtect used */
   unsigned aProtect[12];    /* Saved values of protectMask */
+  int pauseDmlLog;          /* Ignore pDmlLog if positive */
+  Blob *pDmlLog;            /* Append DML statements here, of not NULL */
 } db = {
   PROTECT_USER|PROTECT_CONFIG|PROTECT_BASELINE,  /* protectMask */
   0, 0, 0, 0, 0, 0, 0, {{0}}, {0}, {0}, 0, 0, 0, 0, 0, 0, 0, 0, 0, {0}};
@@ -646,6 +648,39 @@ void db_clear_authorizer(void){
 #endif
 
 /*
+** If zSql is a DML statement, append it db.pDmlLog.
+*/
+static void db_append_dml(const char *zSql){
+  size_t nSql;
+  if( db.pDmlLog==0 ) return;
+  if( db.pauseDmlLog ) return;
+  if( zSql==0 ) return;
+  nSql = strlen(zSql);
+  while( nSql>0 && fossil_isspace(zSql[0]) ){ nSql--; zSql++; }
+  while( nSql>0 && fossil_isspace(zSql[nSql-1]) ) nSql--;
+  if( nSql<6 ) return;
+  if( fossil_strnicmp(zSql, "SELECT", 6)==0 ) return;
+  if( fossil_strnicmp(zSql, "PRAGMA", 6)==0 ) return;
+  blob_append(db.pDmlLog, zSql, nSql);
+  if( zSql[nSql-1]!=';' ) blob_append_char(db.pDmlLog, ';');
+  blob_append_char(db.pDmlLog, '\n');
+}
+
+/*
+** Set the Blob to which DML statement text should be appended.  Set it
+** to zero to stop appending DML statement text.
+*/
+void db_append_dml_to_blob(Blob *pBlob){
+  db.pDmlLog = pBlob;
+}
+
+/*
+** Pause or unpause the DML log
+*/
+void db_pause_dml_log(void){    db.pauseDmlLog++; }
+void db_unpause_dml_log(void){  db.pauseDmlLog--; }
+
+/*
 ** Prepare a Stmt.  Assume that the Stmt is previously uninitialized.
 ** If the input string contains multiple SQL statements, only the first
 ** one is processed.  All statements beyond the first are silently ignored.
@@ -660,6 +695,7 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   va_end(ap);
   zSql = blob_str(&pStmt->sql);
   db.nPrepare++;
+  db_append_dml(zSql);
   if( flags & DB_PREPARE_PERSISTENT ){
     prepFlags = SQLITE_PREPARE_PERSISTENT;
   }
@@ -1049,6 +1085,7 @@ int db_exec_sql(const char *z){
       db_err("%s: {%s}", sqlite3_errmsg(g.db), z);
     }else if( pStmt ){
       db.nPrepare++;
+      db_append_dml(sqlite3_sql(pStmt));
       while( sqlite3_step(pStmt)==SQLITE_ROW ){}
       rc = sqlite3_finalize(pStmt);
       if( rc ) db_err("%s: {%.*s}", sqlite3_errmsg(g.db), (int)(zEnd-z), z);
@@ -1314,6 +1351,46 @@ void db_sym2rid_function(
   }
 }
 
+
+/*
+** SETTING: timeline-utc      boolean default=on
+**
+** If the timeline-utc setting is true, then Fossil tries to understand
+** and display all time values using UTC.  If this setting is false, Fossil
+** tries to understand and display time values using the local timezone.
+**
+** The word "timeline" in the name of this setting is historical.
+** This setting applies to all user interfaces of Fossil,
+** not just the timeline.
+**
+** Note that when accessing Fossil using the web interface, the localtime
+** used is the localtime on the server, not on the client.
+*/
+/*
+** Return true if Fossil is set to display times as UTC.  Return false
+** if it wants to display times using the local timezone.
+**
+** False is returned if display is set to localtime even if the localtime
+** happens to be the same as UTC.
+*/
+int fossil_ui_utctime(void){
+  if( g.fTimeFormat==0 ){
+    if( db_get_int("timeline-utc", 1) ){
+      g.fTimeFormat = 1; /* UTC */
+    }else{
+      g.fTimeFormat = 2; /* Localtime */
+    }
+  }
+  return g.fTimeFormat==1;
+}
+
+/*
+** Return true if Fossil is set to display times using the local timezone.
+*/
+int fossil_ui_localtime(void){
+  return fossil_ui_utctime()==0;
+}
+
 /*
 ** The toLocal() SQL function returns a string that is an argument to a
 ** date/time function that is appropriate for modifying the time for display.
@@ -1329,14 +1406,7 @@ void db_tolocal_function(
   int argc,
   sqlite3_value **argv
 ){
-  if( g.fTimeFormat==0 ){
-    if( db_get_int("timeline-utc", 1) ){
-      g.fTimeFormat = 1;
-    }else{
-      g.fTimeFormat = 2;
-    }
-  }
-  if( g.fTimeFormat==1 ){
+  if( fossil_ui_utctime() ){
     sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
   }else{
     sqlite3_result_text(context, "localtime", -1, SQLITE_STATIC);
@@ -1358,14 +1428,7 @@ void db_fromlocal_function(
   int argc,
   sqlite3_value **argv
 ){
-  if( g.fTimeFormat==0 ){
-    if( db_get_int("timeline-utc", 1) ){
-      g.fTimeFormat = 1;
-    }else{
-      g.fTimeFormat = 2;
-    }
-  }
-  if( g.fTimeFormat==1 ){
+  if( fossil_ui_utctime() ){
     sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
   }else{
     sqlite3_result_text(context, "utc", -1, SQLITE_STATIC);
@@ -1526,20 +1589,27 @@ static int uintNocaseCollFunc(
 */
 void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_collation(db, "uintnocase", SQLITE_UTF8,0,uintNocaseCollFunc);
-  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
-                          db_checkin_mtime_function, 0, 0);
-  sqlite3_create_function(db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0,
-                          db_sym2rid_function, 0, 0);
-  sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
-                          db_sym2rid_function, 0, 0);
-  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "checkin_mtime", 2,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_checkin_mtime_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 1,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 2,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "now", 0,
+                          SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
                           db_now_function, 0, 0);
-  sqlite3_create_function(db, "toLocal", 0, SQLITE_UTF8, 0,
-                          db_tolocal_function, 0, 0);
-  sqlite3_create_function(db, "fromLocal", 0, SQLITE_UTF8, 0,
-                          db_fromlocal_function, 0, 0);
-  sqlite3_create_function(db, "hextoblob", 1, SQLITE_UTF8, 0,
-                          db_hextoblob, 0, 0);
+  sqlite3_create_function(db, "toLocal", 0,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_tolocal_function, 0, 0);
+  sqlite3_create_function(db, "fromLocal", 0,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_fromlocal_function, 0, 0);
+  sqlite3_create_function(db, "hextoblob", 1,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_hextoblob, 0, 0);
   sqlite3_create_function(db, "capunion", 1, SQLITE_UTF8, 0,
                           0, capability_union_step, capability_union_finalize);
   sqlite3_create_function(db, "fullcap", 1, SQLITE_UTF8, 0,
@@ -1559,6 +1629,8 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "chat_msg_from_event", 4,
         SQLITE_UTF8 | SQLITE_INNOCUOUS, 0,
         chat_msg_from_event, 0, 0);
+  sqlite3_create_function(db, "inode", 1, SQLITE_UTF8, 0,
+                          file_inode_sql_func,0,0);
 
 }
 
@@ -2105,7 +2177,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
     sqlite3_appendvfs_init(0,0,0);
     g.zVfsName = "apndvfs";
   }
-  blob_zero(&bNameCheck);
+  blob_reset(&bNameCheck);
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
@@ -2625,9 +2697,14 @@ is_repo_end:
 
 /*
 ** COMMAND: test-is-repo
+** Usage: %fossil test-is-repo FILENAME...
+**
+** Test whether the specified files look like a SQLite database
+** containing a Fossil repository schema.
 */
 void test_is_repo(void){
   int i;
+  verify_all_options();
   for(i=2; i<g.argc; i++){
     fossil_print("%s: %s\n",
        db_looks_like_a_repository(g.argv[i]) ? "yes" : " no",
@@ -4082,7 +4159,7 @@ void db_record_repository_filename(const char *zName){
 **
 ** REPOSITORY can be the filename for a repository that already exists on the
 ** local machine or it can be a URI for a remote repository.  If REPOSITORY
-** is a URI in one of the formats recognized by the [[clone]] command, then
+** is a URI in one of the formats recognized by the [[clone]] command, the
 ** remote repo is first cloned, then the clone is opened. The clone will be
 ** stored in the current directory, or in DIR if the "--repodir DIR" option
 ** is used. The name of the clone will be taken from the last term of the URI.
@@ -4682,13 +4759,6 @@ struct Setting {
 ** send the "pragma avoid-delta-manifests" statement in its reply,
 ** which will cause the client to avoid generating a delta
 ** manifest.
-*/
-/*
-** SETTING: forum-close-policy    boolean default=off
-** If true, forum moderators may close/re-open forum posts, and reply
-** to closed posts. If false, only administrators may do so. Note that
-** this only affects the forum web UI, not post-closing tags which
-** arrive via the command-line or from synchronization with a remote.
 */
 /*
 ** SETTING: gdiff-command    width=40 default=gdiff sensitive
@@ -5364,7 +5434,7 @@ void test_database_name_cmd(void){
 /*
 ** Compute a "fingerprint" on the repository.  A fingerprint is used
 ** to verify that that the repository has not been replaced by a clone
-** of the same repository.  More precisely, a fingerprint are used to
+** of the same repository.  More precisely, a fingerprint is used to
 ** verify that the mapping between SHA3 hashes and RID values is unchanged.
 **
 ** The check-out database ("localdb") stores RID values.  When associating
@@ -5429,7 +5499,7 @@ char *db_fingerprint(int rcvid, int iVersion){
 ** Usage: %fossil test-fingerprint ?RCVID?
 **
 ** Display the repository fingerprint using the supplied RCVID or
-** using the latest RCVID if not is given on the command line.
+** using the latest RCVID if none is given on the command line.
 ** Show both the legacy and the newer version of the fingerprint,
 ** and the currently stored fingerprint if there is one.
 */

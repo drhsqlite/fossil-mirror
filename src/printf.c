@@ -107,6 +107,7 @@ int length_of_S_display(void){
                            See blob_append_escaped_arg() for details
                            "%$"  -> adds "./" prefix if necessary.
                            "%!$" -> omits the "./" prefix. */
+#define etHEX        27 /* Encode a string as hexadecimal */
 
 
 /*
@@ -144,7 +145,7 @@ typedef struct et_info {   /* Information about each format field */
 */
 static const char aDigits[] = "0123456789ABCDEF0123456789abcdef";
 static const char aPrefix[] = "-x0\000X0";
-static const char fmtchr[] = "dsgzqQbBWhRtTwFSjcouxXfeEGin%p/$";
+static const char fmtchr[] = "dsgzqQbBWhRtTwFSjcouxXfeEGin%p/$H";
 static const et_info fmtinfo[] = {
   {  'd', 10, 1, etRADIX,      0,  0 },
   {  's',  0, 4, etSTRING,     0,  0 },
@@ -178,6 +179,7 @@ static const et_info fmtinfo[] = {
   {  'p', 16, 0, etPOINTER,    0,  1 },
   {  '/',  0, 0, etPATH,       0,  0 },
   {  '$',  0, 0, etSHELLESC,   0,  0 },
+  {  'H',  0, 0, etHEX,        0,  0 },
   {  etERROR, 0,0,0,0,0}  /* Must be last */
 };
 #define etNINFO count(fmtinfo)
@@ -843,6 +845,17 @@ int vxprintf(
       case etSHELLESC: {
         char *zArg = va_arg(ap, char*);
         blob_append_escaped_arg(pBlob, zArg, !flag_altform2);
+        length = width = 0;
+        break;
+      }
+      case etHEX: {
+        char *zArg = va_arg(ap, char*);
+        int szArg = (int)strlen(zArg);
+        int szBlob = blob_size(pBlob);
+        u8 *aBuf;
+        blob_resize(pBlob, szBlob+szArg*2+1);
+        aBuf = (u8*)&blob_buffer(pBlob)[szBlob];
+        encode16((const u8*)zArg, aBuf, szArg);
         length = width = 0;
         break;
       }

@@ -30,7 +30,7 @@ const char zConfigSchema[] =
 @ CREATE TABLE global_config(
 @   name TEXT PRIMARY KEY,
 @   value TEXT
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Identifier for this file type.
 @ -- The integer is the same as 'FSLG'.
@@ -140,7 +140,7 @@ const char zRepositorySchema1[] =
 @   value CLOB,                      -- Content of the named parameter
 @   mtime DATE,                      -- last modified.  seconds since 1970
 @   CHECK( typeof(name)='text' AND length(name)>=1 )
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Artifacts that should not be processed are identified in the
 @ -- "shun" table.  Artifacts that are control-file forgeries or
@@ -153,10 +153,10 @@ const char zRepositorySchema1[] =
 @ -- UUID.
 @ --
 @ CREATE TABLE shun(
-@   uuid UNIQUE,          -- UUID of artifact to be shunned. Canonical form
+@   uuid TEXT PRIMARY KEY,-- UUID of artifact to be shunned. Canonical form
 @   mtime DATE,           -- When added.  seconds since 1970
 @   scom TEXT             -- Optional text explaining why the shun occurred
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Artifacts that should not be pushed are stored in the "private"
 @ -- table.  Private artifacts are omitted from the "unclustered" and
@@ -195,7 +195,7 @@ const char zRepositorySchema1[] =
 @   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
 @   mtime DATE,               -- Time created.  Seconds since 1970
 @   content TEXT              -- Content intended to be concealed
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- The application ID helps the unix "file" command to identify the
 @ -- database as a fossil repository.
@@ -530,7 +530,7 @@ const char zRepositorySchema2[] =
 ** the check-out.  See also the addendum in zLocalSchemaVmerge[].
 */
 const char zLocalSchema[] =
-@ -- The VVAR table holds miscellanous information about the local database
+@ -- The VVAR table holds miscellanous information about the local checkout
 @ -- in the form of name-value pairs.  This is similar to the VAR table
 @ -- table in the repository except that this table holds information that
 @ -- is specific to the local check-out.
@@ -544,7 +544,7 @@ const char zLocalSchema[] =
 @   name TEXT PRIMARY KEY NOT NULL,  -- Primary name of the entry
 @   value CLOB,                      -- Content of the named parameter
 @   CHECK( typeof(name)='text' AND length(name)>=1 )
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Each entry in the vfile table represents a single file in the
 @ -- current check-out.
