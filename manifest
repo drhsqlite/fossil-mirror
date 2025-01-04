@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.48.0\sbeta,\sfor\stesting.
-D 2024-12-31T20:29:55.521
+C Update\stests\sfor\snew\ssetting\sadded\swith\s[b1bb31e838].
+D 2025-01-04T14:40:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -647,7 +647,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 1ca2a95db55563fd16c4591037248a9fd7db36007cd4a0ea64c59051acac4e89
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 4dc14ab66806f305ee2aadc758efb15764cac7fe9f46db3b34ca15dc64ba5d17
+F test/tester.tcl 1e7db3b3ff3d0bb6d644711e8ad3b22c563e62800f303e6176286314b0e1c753
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 17be4d6a571e59568261d7be7e18dbf92eca61dda2ab5c66d8b6853ad0fabb2d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6b8b56ca1905c55a43c12a9dff5727a6a4c64470c16fb176dc4f337a08040b33
-R 4ba13622c55ae230d83de4179c5effba
-U drh
-Z 02fcc77d9fa8e8fa7f50a8b4af5ec9cf
+P 3cb092c0e2f0ff266a7dcf0c35b19c5f665180d0e9cdd13da0fd1538c97232bf
+R f9a78027692fe279cb9f3583f2a9f076
+U florian
+Z d4a927601101cc3a5c49343dcd540b36
 # Remove this line to create a well-formed Fossil manifest.
