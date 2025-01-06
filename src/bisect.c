@@ -284,7 +284,7 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc, int bDetail){
         bisect_log_append(&ins, cnt, "GOOD", rid);
         lastGood = rid;
       }else{
-        bisect_log_append(&ins, cnt, "BAD", rid);
+        bisect_log_append(&ins, cnt, "BAD", -rid);
         lastBad = -rid;
       }
     }

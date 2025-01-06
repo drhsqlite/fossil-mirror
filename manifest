@@ -1,5 +1,5 @@
-C Update\stests\sfor\snew\ssetting\sadded\swith\s[b1bb31e838].
-D 2025-01-04T14:40:00.000
+C Fix\sa\sbug\sin\s"fossil\sbisect"\sintroduced\sby\s[ebd239de02c4b9f2].
+D 2025-01-06T20:52:56.797
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -386,7 +386,7 @@ F src/attach.c 61506f3e69ff26c2f523b8f0c26e43e2f67cd78e01005c094c9665200fd61d8b
 F src/backlink.c e79a38fc0bbcdae1912bed05cb7a2df9741c78aec4dafe48f20ca5d377b4357f
 F src/backoffice.c ecb3997466581e6a3290e4d194ac59b7678e9236de1d18c0ed489df141d75f49
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
-F src/bisect.c 2251921a16fd23a115acdc9043e7216c2313c3741b60874998257b325a825a13
+F src/bisect.c 8d57bdd86be60d160c825e1d5eb9aca311da7ac9317f1832b3c3a550a2e4c0d7
 F src/blob.c 284b1a6e8750b25bd8d6b8aefcba0d77a01d6839c814864ac1ded88895ade148
 F src/branch.c 99f1097e19a2c60cc6d78ab785620d49d789eb62340cdcae9878caca789379ff
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3cb092c0e2f0ff266a7dcf0c35b19c5f665180d0e9cdd13da0fd1538c97232bf
-R f9a78027692fe279cb9f3583f2a9f076
-U florian
-Z d4a927601101cc3a5c49343dcd540b36
+P 787a45e58a59d49cebc2e1eb13252d81e18af7a731c12f5d633254e912044ffa
+R d501994290330b9bb89ce88b687e28b1
+U drh
+Z 9b159541ebe6a95fd491f0369e65f115
 # Remove this line to create a well-formed Fossil manifest.
