@@ -21,8 +21,8 @@ Fossil calls the command given by the `pgp-command` setting.
 
 Fossil needs a non-detached signature that includes the rest of the usual
 manifest. For GnuPG, this is no problem, but OpenSSH can currently (2024,
-version 9.8p1) create **and verify** only detached signatures; Fossil embeds 
-itself this signature into the manifest prior to committing. This makes the 
+version 9.8p1) create **and verify** only detached signatures; Fossil itself 
+embeds this signature into the manifest prior to committing. This makes the 
 verification more complex, as additional steps are needed to extract the
 signature and feed it into OpenSSH.
 
