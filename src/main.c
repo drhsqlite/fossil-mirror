@@ -3437,7 +3437,7 @@ void cmd_webserver(void){
     }else{
       zBrowserArg = mprintf("%s://%s:%%d/%s", zProtocol, zIpAddr, zInitPage);
     }
-    zBrowserCmd = mprintf("%s %!$ 2>/dev/null &", zBrowser, zBrowserArg);
+    zBrowserCmd = mprintf("%s %!$ &", zBrowser, zBrowserArg);
     fossil_free(zBrowserArg);
   }
   if( zRemote ){
