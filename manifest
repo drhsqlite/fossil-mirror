@@ -1,5 +1,5 @@
-C Change\sthe\sprevious\scheck-in\sso\sthat\s"2&gt;/dev/null"\sis\sonly\sadded\son\nunix,\snot\son\sWindows\sor\sMac.\s\sSuggested\sby\n[forum:/forumpost/ae7ed5b615|forum\spost\sae7ed5b615].
-D 2025-01-11T13:07:34.469
+C Adjust\sthe\sunix\smakefile\sto\sensure\sthat\sthe\s"bld"\ssubdirectory\sexists\nprior\sto\strying\sto\scompile\sthe\sbld/translate\sutility\sprogram.
+D 2025-01-11T13:12:11.853
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -493,7 +493,7 @@ F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c 590d0ce15961abd60c1c07689f4e9cb1c72053d24df4f24c2df6cb3428110329
-F src/main.mk 41bd7835655b4ded3ff7734881ab187faa38b567c4252d4695d7d54eb3661092
+F src/main.mk 8afc98da06ce2270063d9e88375500227faa82df0ba398841eadfa886a0d4fb6
 F src/manifest.c f98b600d1850abeac77a1c13967c4f2ded26f8f968cd86a8e5a25943e385b54f
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
@@ -741,7 +741,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c 5f464a5a25ae45978e49e1cc230cc4c6f2fddc8f2f45a044fff02dc074a0bcf6
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl b1892fd160127ff3be47449b72490fc072f37fe785001a35d1ddc058d388689c x
+F tools/makemake.tcl 715ef67b270c173e3481ec01e4d26b715bca6408b3aa312c56839afec09fb956 x
 F tools/man_page_command_list.tcl 8f7f2c0717cb7e2ddece0a92bd10809bb16a1d8c3aa8bf6f77f6143b9282a099 x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c 4fec986d4dda15fff9f97356a6aa20a77092db356bb86177b3bcef50c53e2a2a
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2cf91c0c885f539f567f244d32729503a34e9c8b0714ce2fb91dce5c3bf7c2c0
-R f95950c56c7d9dff580c494408cd0219
+P 36bd54234bf02d1fd8a778576836dea1267d7d991755d1a720da5f8935efa342
+R 0d5752097f1973563c4b9b172292cdd4
 U drh
-Z 05407749f37d57d192317e8cda422498
+Z b25c131eabe42d04054c2cfa69667630
 # Remove this line to create a well-formed Fossil manifest.

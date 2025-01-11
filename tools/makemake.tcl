@@ -382,6 +382,7 @@ $(OBJDIR):
 	-mkdir $(OBJDIR)
 
 $(OBJDIR)/translate:	$(SRCDIR_tools)/translate.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR_tools)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR_tools)/makeheaders.c
