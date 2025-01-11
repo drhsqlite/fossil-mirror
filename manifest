@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\s"fossil\sbisect"\sintroduced\sby\s[ebd239de02c4b9f2].
-D 2025-01-06T20:52:56.797
+C Add\sa\s"<tt>2&gt;/dev/null</tt>"\sto\sthe\ssubcommand\sthat\slaunches\sthe\swebbrowser\nfor\s"fossil\sui"\sand\ssimilar,\sbecause\sUbuntu\s24\sprints\sa\slots\sof\suseless\nverbage\son\sstderr\swhen\sstarting\sfirefox.
+D 2025-01-11T00:34:41.989
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -492,7 +492,7 @@ F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22
 F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 590d0ce15961abd60c1c07689f4e9cb1c72053d24df4f24c2df6cb3428110329
+F src/main.c 84a936adfb04b4e254cd463bbec94dca6a767de0ee2838eb8fdd8df5da59c6d1
 F src/main.mk 41bd7835655b4ded3ff7734881ab187faa38b567c4252d4695d7d54eb3661092
 F src/manifest.c f98b600d1850abeac77a1c13967c4f2ded26f8f968cd86a8e5a25943e385b54f
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 787a45e58a59d49cebc2e1eb13252d81e18af7a731c12f5d633254e912044ffa
-R d501994290330b9bb89ce88b687e28b1
+P 680acb2831ad5d5c2398773bf002bf2dd7fca14552e42bea9983ac33aca0ff8f
+R 2209a3f8f9224623659652c1b1da187b
 U drh
-Z 9b159541ebe6a95fd491f0369e65f115
+Z 543c238ea87546ce500eebf33a5d763d
 # Remove this line to create a well-formed Fossil manifest.
