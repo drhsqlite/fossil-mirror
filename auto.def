@@ -424,11 +424,11 @@ if {$ssldirs ne "none"} {
         if {![file isdirectory $ssldir]} {
             user-error "The OpenSSL in source tree directory does not exist"
         }
-        set msg "ssl in $ssldir"
+        set msg "openssl in $ssldir"
         set cflags "-I$ssldir/include"
         set ldflags "-L$ssldir"
         set ssllibs "$ssldir/libssl.a $ssldir/libcrypto.a -lpthread"
-        set found [check-for-openssl "ssl in source tree" "$cflags $ldflags" $ssllibs]
+        set found [check-for-openssl "openssl in source tree" "$cflags $ldflags" $ssllibs]
     } else {
         if {$ssldirs in {auto ""}} {
             catch {
@@ -445,17 +445,26 @@ if {$ssldirs ne "none"} {
         if {!$found} {
             foreach dir $ssldirs {
                 if {$dir eq ""} {
-                    set msg "system ssl"
+                    set msg "system openssl"
                     set cflags ""
                     set ldflags ""
                 } else {
-                    set msg "ssl in $dir"
+                    set msg "openssl in $dir"
                     set cflags "-I$dir/include"
                     set ldflags "-L$dir/lib"
                 }
                 if {[check-for-openssl $msg "$cflags $ldflags"]} {
                     incr found
                     break
+                }
+                if {$dir ne ""} {
+                    set ldflags ""
+                    set msg "static build of openssl in $dir"
+                    set ssllibs "$dir/libssl.a $dir/libcrypto.a -lpthread"
+                    if {[check-for-openssl $msg "$cflags $ldflags" $ssllibs]} {
+                        incr found
+                        break
+                    }
                 }
             }
         }

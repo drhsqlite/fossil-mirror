@@ -1,5 +1,5 @@
-C Add\sthe\s--if-changes\soption\sto\s"fossil\scommit"\swhich\scauses\sthe\scommand\sto\nbe\sa\sno-op\sif\sthere\shave\snot\sbeen\sany\schanges\sto\sthe\scurrent\scheckout.
-D 2025-01-11T16:57:32.612
+C Enhance\s./configure\sso\sthat\s--with-openssl=PATH\salso\schecks\sfor\sa\sstatic\nlibrary\sversion\sof\sOpenSSL\sat\sPATH.
+D 2025-01-12T17:10:52.396
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def 81c01485d7dee715508a219fe97a2e62caf74606f0a1138777c733d437b09fd5
+F auto.def ba59caf8950313cbb9dd4cf0d27d7c009c99ea90b6f56a5e89a1e3715de8ba44
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 57da8e297717a36c097926cc09603af8732a92096cb7db4209226dc5960f4a88
-R ab46326627c98d9fb41ab0b90af855d5
+P f36695adf3f13bbac5ca5ffba1ad10c721508ef906fb537508290e3165fb5333
+R a3836587815d3d7f751a2fc0a5f97976
 U drh
-Z 7d8a24ab2ee9494d2fc761472f13821d
+Z 23d9dd1b0d9cda959ac8bc43a9182106
 # Remove this line to create a well-formed Fossil manifest.
