@@ -1,5 +1,5 @@
-C Enhance\s./configure\sso\sthat\s--with-openssl=PATH\salso\schecks\sfor\sa\sstatic\nlibrary\sversion\sof\sOpenSSL\sat\sPATH.
-D 2025-01-12T17:10:52.396
+C Fix\sa\stypo\sreported\sby\s[forum:/forumpost/4302325028|forum\spost\s4302325028].
+D 2025-01-13T10:19:25.101
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -395,7 +395,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 026a935e3fe073812e1e2dc23e066ff8bd2c860184369bb67c26189f59446910
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c b791622afb8c8c5d3ea3fb40372b04e8d16af4e7595a394fe850dac8277b13b0
+F src/cgi.c b3b12af06bf8d6bd49079e0841013491b3630a67b77ddc76f18cd3b764fa9969
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
 F src/checkin.c d0204eeeb38d3a6b5ec4d68221a8c19bdb2491ef5cb26d226be7e8f36f1d0f92
 F src/checkout.c ff781ae83cd31549d2e1fa14449605eafed8ee71597410e96d1b4d506d549f39
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f36695adf3f13bbac5ca5ffba1ad10c721508ef906fb537508290e3165fb5333
-R a3836587815d3d7f751a2fc0a5f97976
+P 29fda91855af947c10c4a1c074d8c979efa9392d62b97141c89d5848ae65981e
+R f5d0d79e4424e6da050bf3023fae4ca9
 U drh
-Z 23d9dd1b0d9cda959ac8bc43a9182106
+Z 157f750808813f6d866ac80658cdd3e0
 # Remove this line to create a well-formed Fossil manifest.
