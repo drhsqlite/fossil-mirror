@@ -5291,15 +5291,15 @@ static u8* fromBase64( char *pIn, int ncIn, u8 *pOut ){
       case ND:
         /*  Treat dark non-digits as pad, but they terminate decode too. */
         ncIn = 0;
-        deliberate_fall_through;
+        deliberate_fall_through; /* FALLTHRU */
       case WS:
         /* Treat whitespace as pad and terminate this group.*/
         nti = nac;
-        deliberate_fall_through;
+        deliberate_fall_through; /* FALLTHRU */
       case PC:
         bdp = 0;
         --nbo;
-        deliberate_fall_through;
+        deliberate_fall_through; /* FALLTHRU */
       default: /* bdp is the digit value. */
         qv = qv<<6 | bdp;
         break;
@@ -5308,10 +5308,13 @@ static u8* fromBase64( char *pIn, int ncIn, u8 *pOut ){
     switch( nbo ){
     case 3:
       pOut[2] = (qv) & 0xff;
+      deliberate_fall_through; /* FALLTHRU */
     case 2:
       pOut[1] = (qv>>8) & 0xff;
+      deliberate_fall_through; /* FALLTHRU */
     case 1:
       pOut[0] = (qv>>16) & 0xff;
+      deliberate_fall_through; /* FALLTHRU */
     }
     pOut += nbo;
   }
@@ -5646,12 +5649,16 @@ static u8* fromBase85( char *pIn, int ncIn, u8 *pOut ){
     switch( nbo ){
     case 4:
       *pOut++ = (qv >> 24)&0xff;
+      /* FALLTHRU */
     case 3:
       *pOut++ = (qv >> 16)&0xff;
+      /* FALLTHRU */
     case 2:
       *pOut++ = (qv >> 8)&0xff;
+      /* FALLTHRU */
     case 1:
       *pOut++ = qv&0xff;
+      /* FALLTHRU */
     case 0:
       break;
     }
@@ -7694,7 +7701,8 @@ static const char *re_subcompile_string(ReCompiled *p){
 ** regular expression.  Applications should invoke this routine once
 ** for every call to re_compile() to avoid memory leaks.
 */
-static void re_free(ReCompiled *pRe){
+static void re_free(void *p){
+  ReCompiled *pRe = (ReCompiled*)p;
   if( pRe ){
     sqlite3_free(pRe->aOp);
     sqlite3_free(pRe->aArg);
@@ -8360,7 +8368,7 @@ static int writeFile(
 
     GetSystemTime(&currentTime);
     SystemTimeToFileTime(&currentTime, &lastAccess);
-    intervals = Int32x32To64(mtime, 10000000) + 116444736000000000;
+    intervals = (mtime*10000000) + 116444736000000000;
     lastWrite.dwLowDateTime = (DWORD)intervals;
     lastWrite.dwHighDateTime = intervals >> 32;
     zUnicodeName = sqlite3_win32_utf8_to_unicode(zFile);
@@ -16346,6 +16354,7 @@ struct vfstrace_file {
 #define VTR_SLEEP           0x02000000
 #define VTR_CURTIME         0x04000000
 #define VTR_LASTERR         0x08000000
+#define VTR_FETCH           0x10000000   /* Also coverse xUnfetch */
 
 /*
 ** Method declarations for vfstrace_file.
@@ -16775,6 +16784,7 @@ static int vfstraceFileControl(sqlite3_file *pFile, int op, void *pArg){
             { "currenttime",           VTR_CURTIME  },
             { "currenttimeint64",      VTR_CURTIME  },
             { "getlasterror",          VTR_LASTERR  },
+            { "fetch",                 VTR_FETCH    },
           };
           int onOff = 1;
           while( zArg[0] ){
@@ -17002,7 +17012,28 @@ static int vfstraceShmUnmap(sqlite3_file *pFile, int delFlag){
   vfstrace_print_errcode(pInfo, " -> %s\n", rc);
   return rc;
 }
-
+static int vfstraceFetch(sqlite3_file *pFile, i64 iOff, int nAmt, void **pptr){
+  vfstrace_file *p = (vfstrace_file *)pFile;
+  vfstrace_info *pInfo = p->pInfo;
+  int rc;
+  vfstraceOnOff(pInfo, VTR_FETCH);
+  vfstrace_printf(pInfo, "%s.xFetch(%s,iOff=%lld,nAmt=%d,p=%p)",
+                  pInfo->zVfsName, p->zFName, iOff, nAmt, *pptr);
+  rc = p->pReal->pMethods->xFetch(p->pReal, iOff, nAmt, pptr);
+  vfstrace_print_errcode(pInfo, " -> %s\n", rc);
+  return rc;
+}
+static int vfstraceUnfetch(sqlite3_file *pFile, i64 iOff, void *ptr){
+  vfstrace_file *p = (vfstrace_file *)pFile;
+  vfstrace_info *pInfo = p->pInfo;
+  int rc;
+  vfstraceOnOff(pInfo, VTR_FETCH);
+  vfstrace_printf(pInfo, "%s.xUnfetch(%s,iOff=%lld,p=%p)",
+                  pInfo->zVfsName, p->zFName, iOff, ptr);
+  rc = p->pReal->pMethods->xUnfetch(p->pReal, iOff, ptr);
+  vfstrace_print_errcode(pInfo, " -> %s\n", rc);
+  return rc;
+}
 
 
 /*
@@ -17048,6 +17079,10 @@ static int vfstraceOpen(
       pNew->xShmLock = pSub->xShmLock ? vfstraceShmLock : 0;
       pNew->xShmBarrier = pSub->xShmBarrier ? vfstraceShmBarrier : 0;
       pNew->xShmUnmap = pSub->xShmUnmap ? vfstraceShmUnmap : 0;
+    }
+    if( pNew->iVersion>=3 ){
+      pNew->xFetch = pSub->xFetch ? vfstraceFetch : 0;
+      pNew->xUnfetch = pSub->xUnfetch ? vfstraceUnfetch : 0;
     }
     pFile->pMethods = pNew;
   }
@@ -27462,7 +27497,7 @@ static int arProcessSwitch(ArCommand *pAr, int eSwitch, const char *zArg){
       break;
     case AR_SWITCH_APPEND:
       pAr->bAppend = 1;
-      deliberate_fall_through;
+      deliberate_fall_through; /* FALLTHRU */
     case AR_SWITCH_FILE:
       pAr->zFile = zArg;
       break;
@@ -30204,6 +30239,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     if( zFile==0 ){
       zFile = sqlite3_mprintf("stdout");
     }
+    shell_check_oom(zFile);
     if( bOnce ){
       p->outCount = 2;
     }else{
@@ -30246,6 +30282,7 @@ static int do_meta_command(char *zLine, ShellState *p){
 #else
       FILE *pfPipe = sqlite3_popen(zFile + 1, "w");
       if( pfPipe==0 ){
+        assert( stderr!=NULL );
         sqlite3_fprintf(stderr,"Error: cannot open pipe \"%s\"\n", zFile + 1);
         rc = 1;
       }else{
@@ -30258,7 +30295,8 @@ static int do_meta_command(char *zLine, ShellState *p){
       FILE *pfFile = output_file_open(zFile);
       if( pfFile==0 ){
         if( cli_strcmp(zFile,"off")!=0 ){
-          sqlite3_fprintf(stderr,"Error: cannot write to \"%s\"\n", zFile);
+         assert( stderr!=NULL );
+         sqlite3_fprintf(stderr,"Error: cannot write to \"%s\"\n", zFile);
         }
         rc = 1;
       } else {
@@ -30362,6 +30400,7 @@ static int do_meta_command(char *zLine, ShellState *p){
           rc = 1;
         }
       }
+      bind_prepared_stmt(p, pStmt);
       sqlite3_step(pStmt);
       sqlite3_finalize(pStmt);
     }else
@@ -32150,7 +32189,7 @@ static QuickScanState quickscan(char *zLine, QuickScanState qss,
         break;
       case '[':
         cin = ']';
-        deliberate_fall_through;
+        deliberate_fall_through; /* FALLTHRU */
       case '`': case '\'': case '"':
         cWait = cin;
         qss = QSS_HasDark | cWait;
@@ -32185,7 +32224,7 @@ static QuickScanState quickscan(char *zLine, QuickScanState qss,
             ++zLine;
             continue;
           }
-          deliberate_fall_through;
+          deliberate_fall_through; /* FALLTHRU */
         case ']':
           CONTINUE_PROMPT_AWAITC(pst, 0);
           qss = QSS_SETV(qss, 0);
