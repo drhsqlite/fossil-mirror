@@ -320,14 +320,18 @@ static void remove_pgp_signature(const char **pz, int *pn){
   const char *z = *pz;
   int n = *pn;
   int i;
-  if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)!=0 ) return;
-  for(i=34; i<n && !after_blank_line(z+i); i++){}
+  if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)==0 ) i = 34;
+  else if( strncmp(z, "-----BEGIN SSH SIGNED MESSAGE-----", 34)==0 ) i = 34;
+  else return;
+  for(; i<n && !after_blank_line(z+i); i++){}
   if( i>=n ) return;
   z += i;
   n -= i;
   *pz = z;
   for(i=n-1; i>=0; i--){
-    if( z[i]=='\n' && strncmp(&z[i],"\n-----BEGIN PGP SIGNATURE-", 25)==0 ){
+    if( z[i]=='\n' &&
+        (strncmp(&z[i],"\n-----BEGIN PGP SIGNATURE-----", 29)==0
+         || strncmp(&z[i],"\n-----BEGIN SSH SIGNATURE-----", 29)==0 )){
       n = i+1;
       break;
     }

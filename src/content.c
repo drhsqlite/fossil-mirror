@@ -948,6 +948,7 @@ static int looks_like_control_artifact(Blob *p){
   int n = blob_size(p);
   if( n<10 ) return 0;
   if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)==0 ) return 1;
+  if( strncmp(z, "-----BEGIN SSH SIGNED MESSAGE-----", 34)==0 ) return 1;
   if( z[0]<'A' || z[0]>'Z' || z[1]!=' ' || z[0]=='I' ) return 0;
   if( z[n-1]!='\n' ) return 0;
   return 1;
