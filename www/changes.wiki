@@ -14,6 +14,7 @@
   *  Added the [/help?cmd=merge-info|fossil merge-info] command and especially
      the --tk option to that command, to provide analysis of the most recent
      merge or update operation.
+  *  Added the ability to sign check-ins with SSH keys.
   *  Issue a warning if a user tries to commit on a check-in where the
      branch has been changed.
   *  When a merge conflict occurs, a new section is added to the conflict
