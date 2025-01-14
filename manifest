@@ -1,5 +1,5 @@
-C Slight\swording\schange.
-D 2025-01-09T07:10:55.740
+C Update\sdocumentation.
+D 2025-01-14T17:11:47.746
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -941,7 +941,7 @@ F www/server/windows/stunnel.md eb99980e32c075acd1dcd4c44bcebf2e67f3e0dba8419728
 F www/serverext.wiki 6ca97cde49057937831ef70adb207642e6befd1f5b18decb31ca1b35cd13b2f2
 F www/settings.wiki e8df2759821ed555cb47d068980f6904a374ad28ce3ba7cda695852e6ae07105
 F www/shunning.wiki 2945acf2d1865cd1301402b2085527d8b23f971c9f894c6d0511dc146a8df767
-F www/signing.md 24d27d6e1fa59817d47be5bce9be8de99a9da64de81e18e3a9ab02772e941c5c
+F www/signing.md dcf5bb65b7be89fc48bf80834b48fa1623cdbb63da71d4114ce0777d4767912a
 F www/ssl-server.md fa016137cf6ef21b75b13eb13f376348dc5c20ce487a1eba8665ce70efa23b3c
 F www/ssl.wiki d1fc950cf538f469424b7a2d67d465678cc5f5a53c01e4c9f5cbc4929bd1c65f
 F www/stats.wiki f2713acf5c005f1ccecbec63dc5f826499f5f842e8ad17ec3d34ab2f57790792
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 02cdfa5e0866368cbb2d5bf881b544fbcf924c6ad76d20f42c91f62ae266eb7b
-R d2a6f1b2001d712fff5e8c3e62038dd7
-U brickviking
-Z 42cfba8f5da003e85a7e13ebc35bec71
+P d4fae7d7b6fa2f964e9c9419e6561d3e8e7160ce966a9075a7c8abeac8970687
+R dfaf8b8d9b15e9795633efc2aea08e53
+U danield
+Z 1014713585ea09e1a229c5aef3875d72
 # Remove this line to create a well-formed Fossil manifest.

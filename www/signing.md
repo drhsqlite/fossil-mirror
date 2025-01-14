@@ -20,9 +20,9 @@ The `clearsign` setting must be on; this will cause every check-in to be signed
 Fossil calls the command given by the `pgp-command` setting.
 
 Fossil needs a non-detached signature that includes the rest of the usual
-manifest. For GnuPG, this is no problem, but OpenSSH can currently (2024,
-version 9.8p1) create **and verify** only detached signatures; Fossil itself 
-embeds this signature into the manifest prior to committing. This makes the 
+manifest. For GnuPG, this is no problem, but as of 2025 (version 9.9p1) OpenSSH
+can create **and verify** only detached signatures; Fossil itself must
+attach this signature to the manifest prior to committing. This makes the 
 verification more complex, as additional steps are needed to extract the
 signature and feed it into OpenSSH.
 
@@ -87,8 +87,14 @@ to fully-fledged scripts.
 
 ```bash
 fsig=$(mktemp /tmp/__fsig.XXXXXX) && \
-fusr=$(fossil artifact <CHECK-IN> | awk -v m="${fsig}" -v s="${fsig}.sig" '/^-----BEGIN SSH SIGNED/{of=m;next} /^-----BEGIN SSH SIGNATURE/{of=s} /^U /{usr=$2} /./{if(!of){exit 42};print >> of} END{print usr}') && \
-ssh-keygen -Y verify -f ~/.ssh/allowed_signers -I ${fusr} -n fossilscm -s "${fsig}.sig" < "${fsig}" || echo "No SSH signed check-in" && \
+fusr=$(fossil artifact tip \
+  | awk -v m="${fsig}" -v s="${fsig}.sig" \
+      '/^-----BEGIN SSH SIGNED/{of=m;next} \
+       /^-----BEGIN SSH SIGNATURE/{of=s} \
+       /^U /{usr=$2} \
+       /./{if(!of){exit 42};print >> of} END{print usr}') && \
+ssh-keygen -Y verify -f ~/.ssh/allowed_signers -I ${fusr} -n fossilscm \
+  -s "${fsig}.sig" < "${fsig}" || echo "No SSH signed check-in" && \
 rm -f "${fsig}.sig" "${fsig}" && \
 unset -v fsig fusr
 ```
@@ -96,16 +102,19 @@ unset -v fsig fusr
 #### For Windows (cmd):
 
 The following incantation makes use of `awk` and `dos2unix`, standard Unix
-tools but requiring separate installation on Windows (for example, using [BusyBox](https://frippery.org/busybox/#downloads)). The usage of `awk` can be
+tools but requiring separate installation on Windows (for example,using
+[BusyBox](https://frippery.org/busybox/#downloads)). The usage of `awk` can be
 replaced with the Windows basic tool `findstr`, leading to a longer recipe.
 
 ```bat
-fossil artifact <CHECK-IN> | awk -v m="__fsig" -v s="__fsig.sig" "/^-----BEGIN SSH SIGNED/{of=m;next} /^-----BEGIN SSH SIGNATURE/{of=s} /./{if(!of){exit 42};print >> of}"
+fossil artifact <CHECK-IN> | awk -v m="__fsig" -v s="__fsig.sig" ^
+  "/^-----BEGIN SSH SIGNED/{of=m;next} /^-----BEGIN SSH SIGNATURE/{of=s} /./{if(!of){exit 42};print >> of}"
 if %errorlevel% equ 42 (echo No SSH signed check-in)
 REM ---Skip remaining lines if no SSH signed message---
 for /f "tokens=2" %i in ('findstr /b "U " __fsig') do set fusr=%i
 dos2unix __fsig __fsig.sig
-ssh-keygen -Y verify -f %USERPROFILE%\.ssh\allowed_signers -I "%fusr%" -n fossilscm -s __fsig.sig < __fsig
+ssh-keygen -Y verify -f %USERPROFILE%\.ssh\allowed_signers -I "%fusr%" ^
+  -n fossilscm -s __fsig.sig < __fsig
 del __fsig __fsig.sig 2>nul & set "fusr="
 ```
 
