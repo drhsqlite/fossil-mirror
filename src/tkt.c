@@ -767,6 +767,9 @@ void tktview_page(void){
   if( !showTimeline && g.perm.Hyperlink ){
     style_submenu_element("Timeline", "%R/info/%T", zUuid);
   }
+  if( g.perm.WrWiki ){
+    style_submenu_element("Edit Description", "%R/wikiedit?name=ticket/%T", zUuid);
+  }
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br>\n", -1);
   ticket_init();
   initializeVariablesFromCGI();

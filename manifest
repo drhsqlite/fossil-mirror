@@ -1,5 +1,5 @@
-C add\sspecial\swiki\sfor\stickets
-D 2025-01-14T11:47:33.739
+C add\slink\sto\sedit\sdescription\sfor\sticket
+D 2025-01-14T13:19:46.836
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -574,7 +574,7 @@ F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c baac5d2f93a6afc57fab8bdeb29b2e0c76beaf1709436003c2bb50351b63b7a1
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 436d0ed409b3d07b8f4d4ae412f8f9fe7913b3888e69455542928a2600918f7a
-F src/tkt.c e52093bf6399bc2cdd6d7bd77f0cb236f023858fbd4e39442f0c3df5b2b1b84a
+F src/tkt.c 055aa8eecad411899b9146d93956d9fae8be3a3fd0e4f20e49327c8d5af2d78b
 F src/tktsetup.c ae0401b6efdd0c6db62d0b78b75f49512808487ead92ac4e26156ce0076a53c0
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 679f3b47594f3c94fa02971e248660a2400375cebe87e4e02ec343b57d2ad3d3
-R 631b6b76ab17f5935816e26b257859ea
+P 45419c62ea241bb90c3431b4f1ba119e5a3bfae4d1f145c1b478846ef35e822f
+R 97509f8bf8b9422c6b12c2598704a693
 U jkosche
-Z 2ec9529bb8e0082a8109565887bf586e
+Z c331477588d2aaadda43c9cc6992109a
 # Remove this line to create a well-formed Fossil manifest.
