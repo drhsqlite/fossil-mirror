@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.48.0\srelease.
-D 2025-01-14T15:25:07.393
+C Fix\sanother\stypo.
+D 2025-01-14T16:57:32.104
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -524,7 +524,7 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c 11b6dd5c61135c54ece0bbbb612cd9718bb620043b0af5c61574d66e0c133c3f
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 6a9ae77e876da44ee7ad87d4c1151ec10af468dac326312cd7b1aaf322ab728b
-F src/security_audit.c edafc6d6858f23d47e5066497165152d78f55072ffad5225d233c2dd3b8bec7b
+F src/security_audit.c 88ccc26b105d86edac19ac863314234312aa647e208066679ee3468e1616711c
 F src/setup.c 3b4cb2f5dc6d29e9e85ed63040a7e8781b003f29252170e835d1fb409ad26a21
 F src/setupuser.c 25e70f55d7cfb0ee847a778dda71a6e1541507424a43dd5a1eab66d682d88c6f
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ce71105677ce717cc61d72071734f1c7d50e739d5e6ce3f17ce2406f303753a
-R d54cd35eae8f04bec7f7315fbd50be0f
-U drh
-Z 3cddfbbff90919dc6494a762b3c2da34
+P b361aa14800536f947095121de16374c52c7be18a4246ac6cfaa65f2bf2f27d8
+R 3eb19eb9e3467191ad00fbb2e933d8ec
+U danield
+Z 1d706717c57dc7e806257e78ed3f5525
 # Remove this line to create a well-formed Fossil manifest.
