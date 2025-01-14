@@ -412,6 +412,7 @@ void wiki_srchpage(void){
 # define WIKITYPE_BRANCH     1
 # define WIKITYPE_CHECKIN    2
 # define WIKITYPE_TAG        3
+# define WIKITYPE_TICKET     4
 #endif
 
 /*
@@ -431,6 +432,9 @@ int wiki_page_type(const char *zPageName){
   }else
   if( sqlite3_strglob("tag/*", zPageName)==0 ){
     return WIKITYPE_TAG;
+  }else
+  if( sqlite3_strglob("ticket/*", zPageName)==0 ){
+    return WIKITYPE_TICKET;
   }
   return WIKITYPE_NORMAL;
 }
@@ -444,6 +448,7 @@ const char * wiki_page_type_name(const char *zPageName){
     case WIKITYPE_CHECKIN: return "checkin";
     case WIKITYPE_BRANCH: return "branch";
     case WIKITYPE_TAG: return "tag";
+    case WIKITYPE_TICKET: return "ticket";
     case WIKITYPE_NORMAL:
     default: return "normal";
   }
@@ -500,6 +505,16 @@ static int wiki_page_header(
       }else{
         style_header("Notes About Tag %h", zPageName);
         style_submenu_element("Tag Timeline","%R/timeline?t=%t",zPageName);
+      }
+      break;
+    }
+    case WIKITYPE_TICKET: {
+      zPageName += 7;
+      if( zExtra[0]==0 && !P("p") ){
+        cgi_redirectf("%R/tktview/%s",zPageName);
+      }else{
+        style_header("Notes About Ticket %h", zPageName);
+        style_submenu_element("Ticket","%R/tktview/%s",zPageName);
       }
       break;
     }
