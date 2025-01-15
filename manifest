@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog.
-D 2025-01-14T17:16:56.600
+C Add\slink\sto\sthe\sdocument\son\ssigning\sto\sthe\spermuted\sindex.
+D 2025-01-15T14:11:21.973
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -896,7 +896,7 @@ F www/mkindex.tcl f7fe5d63e29ea5d3cb0e9264e9b426bc8b03d5844db9f04a7e2780d110cfb3
 F www/newrepo.wiki 8192ea396a087f94064c6a13cb03b81bf26d8be4809cd1d8a3d42eb3d508094c
 F www/password.wiki 31b38688df7596ceca17011ffadae0140380470b4895adf1bcce57ae9b4f3b05
 F www/patchcmd.md f2ee74ce0e4474e5ade667abc995f8a52f04a31b333a529ebef784eb48860bd8
-F www/permutedindex.html 74c4963dfad7b95f09a46d75d2b51dce878158e2fe61a3491c4289f2ad411fab
+F www/permutedindex.html 1ec1615ffadc642144014a9b5504323299c0181a8328474a2468915a66536155
 F www/pikchr.md 231f484be5306b2280542c2a36e2147ceb7027a04218cf299e43d6fb7a3ba7c1
 F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
 F www/private.wiki 6c5a854ac8558b1420d9619b48bf36ac56df03d49421604c3e77dc6c3ff78bb0
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f0184e0cc8174ae51b8398494f006509d570ec4b620ae3fced1e8247263f796
-R ec14ee580240ed78db8cd0bf6bd837dd
+P 90a52b549f7e27fb0386d7c4dabf1491b35a907ebdd3430324009e794d8aaec4
+R 1f2977b8e4ed48ac697e77ba9d002a55
 U danield
-Z 0f529f369c6c759a98edc1c486f6f447
+Z 13ace1f5df0cc2ff8cf679d7b52a3abc
 # Remove this line to create a well-formed Fossil manifest.
