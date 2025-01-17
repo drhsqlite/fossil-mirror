@@ -2568,13 +2568,26 @@ static void wiki_section_label(
 /*
 ** Add an "Wiki" button in a submenu that links to the read-wiki page.
 */
-static void wiki_submenu_to_edit_wiki(
+static void wiki_submenu_to_read_wiki(
   const char *zPrefix,   /* "branch", "tag", or "checkin" */
   const char *zName,     /* Name of the object */
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
   if( g.perm.RdWiki && (mFlags & WIKIASSOC_MENU_READ)!=0 ){
-    style_submenu_element("Wiki", "%R/wikiedit?name=%s/%t", zPrefix, zName);
+    style_submenu_element("Wiki", "%R/wiki?name=%s/%t", zPrefix, zName);
+  }
+}
+
+/*
+** Add an "Edit Wiki" button in a submenu that links to the edit-wiki page.
+*/
+static void wiki_submenu_to_edit_wiki(
+  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zName,     /* Name of the object */
+  unsigned int mFlags   /* Zero or more WIKIASSOC_* flags */
+){
+  if( g.perm.WrWiki && (mFlags & WIKIASSOC_MENU_WRITE)!=0 ){
+    style_submenu_element("Edit Wiki", "%R/wikiedit?name=%s/%t", zPrefix, zName);
   }
 }
 
@@ -2618,6 +2631,7 @@ int wiki_render_associated(
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
     }
+    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
     wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
     @ <div class="accordion_panel">
     safe_html_context(DOCSRC_WIKI);

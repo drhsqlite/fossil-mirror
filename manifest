@@ -1,5 +1,5 @@
-C add\slink\sto\sedit\sdescription\sfor\sticket
-D 2025-01-14T13:19:46.836
+C fix\sconfusing\sbehaviour\saround\sWIKIASSOC_MENU_READ\sand\sWIKIASSOC_MENU_WRITE
+D 2025-01-17T11:17:01.966
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -588,7 +588,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 9ae31611c5c1dcd15f996cc9ce30c374871a0848a1d25c97c4964387ea74fad3
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
-F src/wiki.c 21122afd851e233bf67788a1b545ea51a6434cde3e1aa01d8e42ce64a7d6e076
+F src/wiki.c d7ed2381021a21d4bc59cb830608387749bdc10b698ce3329260b7c562575dc7
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
 F src/winfile.c c32dbdb03d30ab85becf46070fa05bd79af2e0b644b1e68c90a87eee121be50f
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45419c62ea241bb90c3431b4f1ba119e5a3bfae4d1f145c1b478846ef35e822f
-R 97509f8bf8b9422c6b12c2598704a693
+P d47a5f213455ae2d7c157d6e4ff107b003d3d7e0deda21999b069a5778a74e18
+R 61a3d3973506efb2caa2bbbdf64b93fe
 U jkosche
-Z c331477588d2aaadda43c9cc6992109a
+Z 413e28c1e59d1c00d3214e141d096333
 # Remove this line to create a well-formed Fossil manifest.
