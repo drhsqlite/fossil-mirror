@@ -1,5 +1,5 @@
-C fix\sconfusing\sbehaviour\saround\sWIKIASSOC_MENU_READ\sand\sWIKIASSOC_MENU_WRITE
-D 2025-01-17T11:17:01.966
+C add\sth1\scommand\swiki_assoc\swhich\scalls\swiki_render_associated
+D 2025-01-18T10:51:10.170
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -571,7 +571,7 @@ F src/terminal.c 7f284dd1392def382140da6c6c103dc9b2d61c4f477610231442e8dafc91629
 F src/th.c 7383ab45bd0fca16f607b30b60c6b71645d29f87bcb65d400350bdac06368cf5
 F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
-F src/th_main.c baac5d2f93a6afc57fab8bdeb29b2e0c76beaf1709436003c2bb50351b63b7a1
+F src/th_main.c c037e0d503f4a508e127a9581e51b85a5b23513d898512e209a39e3e9c93f1ae
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 436d0ed409b3d07b8f4d4ae412f8f9fe7913b3888e69455542928a2600918f7a
 F src/tkt.c 055aa8eecad411899b9146d93956d9fae8be3a3fd0e4f20e49327c8d5af2d78b
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d47a5f213455ae2d7c157d6e4ff107b003d3d7e0deda21999b069a5778a74e18
-R 61a3d3973506efb2caa2bbbdf64b93fe
+P 66ece81274c6dc7c62a333a66f1f13f5bc56a9e12f91820f30b02be003a2052f
+R 82d1548a1fb06a61d7b0584602904a4f
 U jkosche
-Z 413e28c1e59d1c00d3214e141d096333
+Z df21667cdb1b5d58eeba0d47817d4828
 # Remove this line to create a well-formed Fossil manifest.
