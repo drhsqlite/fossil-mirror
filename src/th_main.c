@@ -714,7 +714,7 @@ static int wikiAssocCmd(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "wiki_assoc STRING STRING");
   }
-  wiki_render_associated((char*)argv[1], (char*)argv[2], 0);
+  wiki_render_associated((char*)argv[1], (char*)argv[2], WIKIASSOC_FULL_TITLE);
   return TH_OK;
 }
 
