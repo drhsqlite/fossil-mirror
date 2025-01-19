@@ -1,5 +1,5 @@
-C hide\sspecial\swikis\sfor\stag\sand\sticket\sfrom\sthe\slist\sof\sall\swikis,\sexcept\sspecial\swikis\sare\sactivated
-D 2025-01-19T13:31:35.018
+C add\stickets\sin\sthe\stext\sfor\sthe\ssetup\spage\sfor\sthe\swiki-about\ssetting
+D 2025-01-19T14:15:44.997
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -525,7 +525,7 @@ F src/schema.c 11b6dd5c61135c54ece0bbbb612cd9718bb620043b0af5c61574d66e0c133c3f
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 6a9ae77e876da44ee7ad87d4c1151ec10af468dac326312cd7b1aaf322ab728b
 F src/security_audit.c edafc6d6858f23d47e5066497165152d78f55072ffad5225d233c2dd3b8bec7b
-F src/setup.c 3b4cb2f5dc6d29e9e85ed63040a7e8781b003f29252170e835d1fb409ad26a21
+F src/setup.c 1a9496b147e85def8e0b8ce398efdc43594c88b92ac62fd90153b0389eaee472
 F src/setupuser.c 25e70f55d7cfb0ee847a778dda71a6e1541507424a43dd5a1eab66d682d88c6f
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2f6a8564d5d5c4b6ab8c413ccd131aeca7336934f9ee5ba69639832709e4245b
-R bebdc4cfff664d701f2c1d362bc2b815
+P 3a7ad73413b849c56680cfc528d2194d6f06bb6b6fc2bd13e8ed35a05e3e6ff0
+R 5339dd15e63a510a768e724fb8a16ccd
 U jkosche
-Z e5596a08039dee61d85a6ee4e90c23cd
+Z 5b32d0faa0176e9062168ddf3172fb81
 # Remove this line to create a well-formed Fossil manifest.
