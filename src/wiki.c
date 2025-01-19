@@ -2016,7 +2016,9 @@ void wcontent_page(void){
 
     if( !showCkBr &&
         (sqlite3_strglob("checkin/*", zWName)==0 ||
-         sqlite3_strglob("branch/*", zWName)==0) ){
+         sqlite3_strglob("branch/*", zWName)==0  ||
+         sqlite3_strglob("tag/*", zWName)==0     ||
+         sqlite3_strglob("ticket/*", zWName)==0) ){
       continue;
     }
     if( sqlite3_strglob("checkin/*", zWName)==0 ){
