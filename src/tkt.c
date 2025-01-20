@@ -770,7 +770,7 @@ void tktview_page(void){
   zFullName = db_text(0,
        "SELECT tkt_uuid FROM ticket"
        " WHERE tkt_uuid GLOB '%q*'", zUuid);
-  if( g.perm.WrWiki ){
+  if( g.perm.WrWiki && g.perm.WrTkt ){
     style_submenu_element("Edit Description", "%R/wikiedit?name=ticket/%T", zFullName);
   }
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br>\n", -1);

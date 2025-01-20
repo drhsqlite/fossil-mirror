@@ -1,5 +1,5 @@
-C add\spermission\scheck\sin\swiki_special_permission\sto\saccount\sfor\sthe\sticket\snamespace
-D 2025-01-20T14:30:59.919
+C check\spermissions\sto\sshow\ssubmenu\sfor\sediting\sticket\swiki
+D 2025-01-20T14:39:53.710
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -574,7 +574,7 @@ F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c e3f2bf99e4aeef0a675a7ec8519a7838f34c5f428426554c4905c20bef0219cb
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 436d0ed409b3d07b8f4d4ae412f8f9fe7913b3888e69455542928a2600918f7a
-F src/tkt.c 2f7a26e145bca587869bb2ee206123f42cb4a00681097429adeab08181dfa7f6
+F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
 F src/tktsetup.c dee6358557178e83f24f09149f1aa241f331e2dde0084195156d34f012162e4e
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
@@ -962,8 +962,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8c13b59b7715beeee0df79991a80af22703a0e84faba5a5dfaeea2dda4ff884
-R 252163f48fa509a657708ddb8e6e9957
+P 0439daab73cafc4305031ca5de975f589084e8a9a045617b47166c10e093340c
+R b546e205803028cb0fe7b4ce119db72f
 U jkosche
-Z 43e2097051f0ad738d059a439140b123
+Z af0025b92b450389b4a67b98a0a1f473
 # Remove this line to create a well-formed Fossil manifest.
