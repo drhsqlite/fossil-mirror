@@ -533,11 +533,15 @@ static int wiki_special_permission(const char *zPageName){
   if( strncmp(zPageName,"branch/",7)!=0
    && strncmp(zPageName,"checkin/",8)!=0
    && strncmp(zPageName,"tag/",4)!=0
+   && strncmp(zPageName,"ticket/",7)!=0
   ){
     return 1;
   }
   if( db_get_boolean("wiki-about",1)==0 ){
     return 1;
+  }
+  if( strncmp(zPageName,"ticket/",7)==0 ){
+    return g.perm.WrTkt;
   }
   return g.perm.Write;
 }
