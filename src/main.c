@@ -1637,7 +1637,7 @@ void sigpipe_handler(int x){
 ** Return true if it is appropriate to redirect requests to HTTPS.
 **
 ** Redirect to https is appropriate if all of the above are true:
-**    (1) The redirect-to-https flag has a valud of iLevel or greater.
+**    (1) The redirect-to-https flag has a value of iLevel or greater.
 **    (2) The current connection is http, not https or ssh
 **    (3) The sslNotAvailable flag is clear
 */
