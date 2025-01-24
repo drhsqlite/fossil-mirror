@@ -1,5 +1,5 @@
-C Fix\stwo\sidentical\shelp\stext\stypos\sreported\sin\s[forum:1f641ab8dd|forum\spost\s1f641ab8dd].
-D 2025-01-23T20:19:29.496
+C backoffice.c\ssmall\stypo.
+D 2025-01-24T00:29:36.347
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -384,7 +384,7 @@ F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3
 F src/allrepo.c 5e0819deca945ec7183bb1f21b10736b583d241e0202f99e3de5d43fdc1e15fc
 F src/attach.c 61506f3e69ff26c2f523b8f0c26e43e2f67cd78e01005c094c9665200fd61d8b
 F src/backlink.c e79a38fc0bbcdae1912bed05cb7a2df9741c78aec4dafe48f20ca5d377b4357f
-F src/backoffice.c ecb3997466581e6a3290e4d194ac59b7678e9236de1d18c0ed489df141d75f49
+F src/backoffice.c a00ad3df48e45af4de8f6064f8cc3cc8d2b09fa46d7882d5adfd2ed938b345bf
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 8d57bdd86be60d160c825e1d5eb9aca311da7ac9317f1832b3c3a550a2e4c0d7
 F src/blob.c 284b1a6e8750b25bd8d6b8aefcba0d77a01d6839c814864ac1ded88895ade148
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 28a84e75929e6ed2c2e524186c77c60f18e61eec6ad56f9db19af99d7eb6c4a6
-R 93ced66297781c3f9786f10bf8c352c4
-U stephan
-Z 87b772a089375c5faf514ead635b1a2d
+P 277437dd59b0ec615da84539541371ade5929c259964e8418dd3c67f0b61e0dc
+R 2c2f300998021c4da57f0e22dbcd88a8
+U brickviking
+Z e682664cfc4d878d2fe152e1ff13f41b
 # Remove this line to create a well-formed Fossil manifest.
