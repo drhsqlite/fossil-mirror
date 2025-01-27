@@ -1,5 +1,5 @@
-C Update\shelp\sto\smention\sssh\ssigning\sof\scheck-ins.
-D 2025-01-27T11:50:54.781
+C Work\saround\san\sapparent\sbug\sin\sthe\s@AUTODEP@\sfeature\sof\sautosetup.\n[forum:/forumpost/c4e28a9995|Forum\sthread\sc4e28a9995].
+D 2025-01-27T12:40:57.738
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -13,7 +13,7 @@ F BUILD.txt a92d9dc35ad8b4dfb7c1e35278362da66ccbc5a41ee6decdd8727e17fd4542e0
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 609deb40ad1d5fed540cab1ec0a99aedf9b5c9e75d877cea4da6ffdf02b6009c
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
-F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
+F Makefile.in 3e3ac38258ac735d593e527f3e4b936f22349d8e5de54a7badfd7379a7c9f3bd x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0c7e4181b042df4ebde74be4a8bedec3d53c71c579d551d1fcf62721108ebd9
-R bfa1e8a3a3de069270630e3ab3209ad2
-U danield
-Z b033b4c9f9cfad798cadc8394111f570
+P 91d70b7cc7070f5f93292e63be85be9c0ed75a025048ba7e54ca853c189e8174
+R 223f5f711faf15629be579f0fbcc51b5
+U drh
+Z d3aa7c76ca7b7f63d4aff03bb24e929e
 # Remove this line to create a well-formed Fossil manifest.

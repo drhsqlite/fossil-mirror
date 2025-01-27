@@ -123,9 +123,22 @@ tags:
 # This is also why we repeat the reconfig target's command here instead
 # of delegating to it with "$(MAKE) reconfig": having children running
 # around interfering makes this failure mode even worse.
-Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
+#
+# 2025-01-27: The @AUTODEP@ macro in autosetup is broken for source trees
+# that contain space charater in their path.  So don't use it.  The
+# FOSSIL_AUTODEP macro is manual coded to be the autosetup dependencies.
+# FOSSIL_AUTODEP might need to be adjusted if autosetup changes.
+#
+FOSSIL_AUTODEP = \
+  $(TOPDIR)/auto.def \
+  $(TOPDIR)/autosetup/autosetup \
+  $(TOPDIR)/autosetup/local.tcl \
+  $(TOPDIR)/autosetup/system.tcl \
+  $(TOPDIR)/autosetup/cc.tcl \
+  $(TOPDIR)/autosetup/cc-lib.tcl
+Makefile: $(TOPDIR)/Makefile.in $(SRCDIR)/main.mk $(FOSSIL_AUTODEP)
 	@AUTOREMAKE@
-	touch @builddir@/Makefile
+	touch Makefile
 
 # Container stuff
 SRCTB := src-@FOSSIL_CI_PFX@.tar.gz
