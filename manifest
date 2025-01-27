@@ -1,5 +1,5 @@
-C backoffice.c\ssmall\stypo.
-D 2025-01-24T00:29:36.347
+C Update\shelp\sto\smention\sssh\ssigning\sof\scheck-ins.
+D 2025-01-27T11:50:54.781
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -410,7 +410,7 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 604e5a65d9604809e8a7d7ae96da3dd3bb86461ed725134b6e84f9732297198f
+F src/db.c cf9d32bd87c9419dcc3683dd3906f18f56ce08eb298d2c656fd70cf96d3dd41d
 F src/default.css 4aad8d060e46796dd76486ded34e94bb42ddc23939f75738f5d0e46e853bb01b
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 277437dd59b0ec615da84539541371ade5929c259964e8418dd3c67f0b61e0dc
-R 2c2f300998021c4da57f0e22dbcd88a8
-U brickviking
-Z e682664cfc4d878d2fe152e1ff13f41b
+P e0c7e4181b042df4ebde74be4a8bedec3d53c71c579d551d1fcf62721108ebd9
+R bfa1e8a3a3de069270630e3ab3209ad2
+U danield
+Z b033b4c9f9cfad798cadc8394111f570
 # Remove this line to create a well-formed Fossil manifest.

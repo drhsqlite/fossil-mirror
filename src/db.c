@@ -4638,7 +4638,7 @@ struct Setting {
 /*
 ** SETTING: clearsign       boolean default=off
 ** When enabled, fossil will attempt to sign all commits
-** with gpg.  When disabled, commits will be unsigned.
+** with gpg or ssh.  When disabled, commits will be unsigned.
 */
 /*
 ** SETTING: comment-format  width=16 default=1
@@ -4904,7 +4904,8 @@ struct Setting {
 /*
 ** SETTING: pgp-command      width=40 sensitive
 ** Command used to clear-sign manifests at check-in.
-** Default value is "gpg --clearsign -o"
+** Default value is "gpg --clearsign -o".
+** For SSH, use e.g. "ssh-keygen -q -Y sign -n fossilscm -f ~/.ssh/id_ed25519"
 */
 /*
 ** SETTING: proxy            width=32 default=system
