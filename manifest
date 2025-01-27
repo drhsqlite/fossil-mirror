@@ -1,5 +1,5 @@
-C Work\saround\san\sapparent\sbug\sin\sthe\s@AUTODEP@\sfeature\sof\sautosetup.\n[forum:/forumpost/c4e28a9995|Forum\sthread\sc4e28a9995].
-D 2025-01-27T12:40:57.738
+C Back\sout\sthe\sprevious\schange.\s\sInstead,\sraise\san\serror\sif\seither\sthe\nsource\stree\sor\sthe\sbuild\sdirectory\spathname\scontains\sany\sspace\scharacters.
+D 2025-01-27T17:55:03.125
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -13,11 +13,11 @@ F BUILD.txt a92d9dc35ad8b4dfb7c1e35278362da66ccbc5a41ee6decdd8727e17fd4542e0
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 609deb40ad1d5fed540cab1ec0a99aedf9b5c9e75d877cea4da6ffdf02b6009c
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
-F Makefile.in 3e3ac38258ac735d593e527f3e4b936f22349d8e5de54a7badfd7379a7c9f3bd x
+F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def ba59caf8950313cbb9dd4cf0d27d7c009c99ea90b6f56a5e89a1e3715de8ba44
+F auto.def e0f5f0b4128c9f339ad49fc06772b316d74191e63a23242b11bd2ad545532a62
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 91d70b7cc7070f5f93292e63be85be9c0ed75a025048ba7e54ca853c189e8174
-R 223f5f711faf15629be579f0fbcc51b5
+P da7092cc9312d72fa606802ab481caf6a641c23edbd2c243c00444cc3c0c608f
+R 24a7c71dee566243140f7d092073fc44
 U drh
-Z d3aa7c76ca7b7f63d4aff03bb24e929e
+Z 461506035dd2bc2dc3ed312ff4693c20
 # Remove this line to create a well-formed Fossil manifest.
