@@ -1,5 +1,5 @@
-C Back\sout\sthe\sprevious\schange.\s\sInstead,\sraise\san\serror\sif\seither\sthe\nsource\stree\sor\sthe\sbuild\sdirectory\spathname\scontains\sany\sspace\scharacters.
-D 2025-01-27T17:55:03.125
+C (Typo)\sCorrecting\ssubstitution.\sForum\spost\s[forum:/forumpost/e0c11cfb01|Forum\sthread\se0c11cfb01].
+D 2025-01-28T21:48:10.413
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -855,7 +855,7 @@ F www/hashes.md 0ad9fb7af0f21d16dde0062f7909765f9aac2005fe28ffcc7af6e616be5bbc3e
 F www/hashpolicy.wiki 7abfc804b535e7c1ff987fd69c4038b0e36f12994046f69a3fd9f7c13bfa8b60
 F www/hints.wiki 31eefa3c243dfd8126c0a87f5418b6eb4df3e4bbd2a2892378220e550f53dbde
 F www/history.md 3ee9f7bc4dca635f94c951914b5cad958d500906abc9a528331239dd09f3da73
-F www/hooks.md 9295ae0ba5e7a8a428f561f1dc1d30b9a2d41a2d9712a7fb3cc1e3e6b65684d3
+F www/hooks.md 327bfc3612213d3520abce00c3d92339f3bd4070b5860c5746393ef16d43fe02
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 308008689b50f1b0989387afe80285910ac3f42e4b80b5e1122181534bdbb425
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P da7092cc9312d72fa606802ab481caf6a641c23edbd2c243c00444cc3c0c608f
-R 24a7c71dee566243140f7d092073fc44
-U drh
-Z 461506035dd2bc2dc3ed312ff4693c20
+P b9f57f50de8b69c5a3ac8ce2f164a1bc736e46d327663318c2ecaf0b25d70f87
+R 1fa7ca2e75672e473862c60a6d84a639
+U brickviking
+Z 804a9556ff0f95f4642c1d9ee676f4e7
 # Remove this line to create a well-formed Fossil manifest.
