@@ -146,9 +146,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.48.0"
-#define SQLITE_VERSION_NUMBER 3048000
-#define SQLITE_SOURCE_ID      "2025-01-14 11:05:00 d2fe6b05f38d9d7cd78c5d252e99ac59f1aea071d669830c1ffe4e8966e84010"
+#define SQLITE_VERSION        "3.49.0"
+#define SQLITE_VERSION_NUMBER 3049000
+#define SQLITE_SOURCE_ID      "2025-01-29 18:53:19 d7c07581203a0a88456588e49e51b40a8341b0e7121809f75be0ee882d91650f"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -10748,8 +10748,9 @@ SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_recover(sqlite3 *db, const c
 /*
 ** CAPI3REF: Serialize a database
 **
-** The sqlite3_serialize(D,S,P,F) interface returns a pointer to memory
-** that is a serialization of the S database on [database connection] D.
+** The sqlite3_serialize(D,S,P,F) interface returns a pointer to
+** memory that is a serialization of the S database on
+** [database connection] D.  If S is a NULL pointer, the main database is used.
 ** If P is not a NULL pointer, then the size of the database in bytes
 ** is written into *P.
 **

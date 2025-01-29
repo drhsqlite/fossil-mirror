@@ -650,10 +650,11 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_MAX_EXPR_DEPTH=0 \
                  -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -DSQLITE_ENABLE_FTS4 \
-                 -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_FTS5 \
+                 -DSQLITE_ENABLE_MATH_FUNCTIONS \
                  -DSQLITE_ENABLE_STMTVTAB \
                  -DSQLITE_HAVE_ZLIB \
                  -DSQLITE_ENABLE_DBPAGE_VTAB \
@@ -675,10 +676,11 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_MAX_EXPR_DEPTH=0 \
                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                -DSQLITE_ENABLE_DBSTAT_VTAB \
                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                 -DSQLITE_ENABLE_FTS4 \
-                -DSQLITE_ENABLE_DBSTAT_VTAB \
                 -DSQLITE_ENABLE_FTS5 \
+                -DSQLITE_ENABLE_MATH_FUNCTIONS \
                 -DSQLITE_ENABLE_STMTVTAB \
                 -DSQLITE_HAVE_ZLIB \
                 -DSQLITE_ENABLE_DBPAGE_VTAB \
