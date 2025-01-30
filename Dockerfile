@@ -39,6 +39,11 @@ ARG FSLVER="trunk"
 ARG FSLURL="https://fossil-scm.org/home/tarball/src?r=${FSLVER}"
 ENV FSLSTB=/fsl/src.tar.gz
 ADD $FSLURL $FSLSTB
+COPY sqlite3-src.tar.gz /src/sqlite3
+RUN set -x                                                             \
+    && cd /src/sqlite3                                                 \
+    && ./configure --disable-amalgamation                              \
+    && make -j16 libsqlite3.a
 RUN set -x                                                             \
     && if [ -d $FSLSTB ] ;                                             \
        then mv $FSLSTB/src . ;                                         \

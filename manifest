@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\stesting.\nEnable\sfloating-point\smath\sfunctions\sin\sSQLite.
-D 2025-01-29T20:28:43.000
+C Partial\swork\stoward\scopying\ssqlite3-src.tar.gz\sin\sto\sbuild\slibsqlite3.a\nin\sparallel\sinstead\sof\sa\ssingle-core\sbuild\sfrom\sextsrc/sqlite3.c.
+D 2025-01-30T20:33:20.889
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt a92d9dc35ad8b4dfb7c1e35278362da66ccbc5a41ee6decdd8727e17fd4542e0
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 609deb40ad1d5fed540cab1ec0a99aedf9b5c9e75d877cea4da6ffdf02b6009c
+F Dockerfile 568757afe4ffaeb59f842646b7dceb0dca2c3e289a2bd00e57ef234be09b4053
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
 F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e41b8c32fc03468b7db9a98f648d9b3018168d932a66ccc0c2a218390b3b2d6
-R fbc0952153b6a32973976247e37269a0
-U drh
-Z ac6521605b63505932864b0c975afef4
+P 3ce667ae583477af82c6c07c7d685cf5f178154b249cd05561b27a6fa50d818e
+R aa6f3b75e6ccf06660f0b3601b6f1f86
+U wyoung
+Z 33fe2faad38a756862e27c936755f500
 # Remove this line to create a well-formed Fossil manifest.
