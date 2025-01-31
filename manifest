@@ -1,5 +1,5 @@
-C Bring\sthe\sconfigure/build\sEmscripten\ssupport\sin\ssync\swith\sits\scounterpart\sin\sthe\ssqlite\stree.
-D 2025-01-31T12:13:54.980
+C For\sGit\sconversions,\smention\sthat\sthe\snewer\sPowerShell\sversions\sare\sable\sto\spipe\sbyte\sstreams\sbetween\snative\scommands.
+D 2025-01-31T15:56:55.033
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -860,7 +860,7 @@ F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984
 F www/image-format-vs-repo-size.md 308008689b50f1b0989387afe80285910ac3f42e4b80b5e1122181534bdbb425
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki 4c127d19b8c07d9726d1091fb78f8e08b130fc6e2a40f7106e2706cbe864f4ae
-F www/inout.wiki f1623d3b27506631390538c5933d889d12a9999562ffd9ae6b9b42446c59b001
+F www/inout.wiki 2c01d728e4f5fcc4292cff503b138114c81ddac2d1fa0d7fe0236e89abc58e6b
 F www/interwiki.md c1e8b87ed3dfe1ca09ce951e6ee15cbee50704986e2bdcf07fdd5bf55e17735b
 F www/javascript.md ee435e2efb1752666d6f4b9b42c3ebcb9aa9f930257897d7784fc100c4e2c0b8
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f020f4568157c59a3264f56a8d276a5de5a5d5b84b59e97899475d2f4aeec922
-R 932c0cfeb4cb1dd654d098bc8d442c5e
-U stephan
-Z 62d5beeb6abc3319b8c18cdb6a1b1b1a
+P a3843d419d3c101f16258b4d1c0e2ce22b951be25c165d302c5d13eaff52b665
+R 93e5df98114b280b9f1d5c84d77cfc53
+U danield
+Z 06a2459935c4e6a28e27848125ce5789
 # Remove this line to create a well-formed Fossil manifest.
