@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\stesting.\nEnable\sfloating-point\smath\sfunctions\sin\sSQLite.
-D 2025-01-29T20:28:43.000
+C Correct\sa\stypo\sin\stool/emcc.sh.in\swhich\scould\scause\sall\sof\sthe\sconfigure-time\swork\sto\slocate\sthe\semcc\sbinary\sto\sgo\sunused.\sReported\sin\s[https://sqlite.org/forum/forumpost/feb325cdde5b6f37|sqlite\sforum\spost\sfeb325cdde5b6f37]\s(sqlite\suses\sa\sslight\svariant\sof\sthis\sscript).
+D 2025-01-31T11:49:45.184
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -731,7 +731,7 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/decode-email.c f5bd72404f2a4ebbded49b2a8cdc0b6b7a8acba5f5221c4d1bf65ff03a313cb7
 F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829abaaaefae4073 x
 F tools/email-sender.tcl 68217a0707268b570bd2f78e1799ae86c5cb0cc4e7eac321963fa24b6305c446 x
-F tools/emcc.sh.in 19f6186e5280c287f7576ca7a9dfcbd5677586f4e77c54a354359490cd5b5552
+F tools/emcc.sh.in 12d601ff322aef837dadfb29dd06c86f102108d93cf433e6d0316ea4626c7691
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e41b8c32fc03468b7db9a98f648d9b3018168d932a66ccc0c2a218390b3b2d6
-R fbc0952153b6a32973976247e37269a0
-U drh
-Z ac6521605b63505932864b0c975afef4
+P 3ce667ae583477af82c6c07c7d685cf5f178154b249cd05561b27a6fa50d818e
+R 460c8130e745220f142411b6bd977a14
+U stephan
+Z 8bd95371c6754210f41f685d476e6e43
 # Remove this line to create a well-formed Fossil manifest.

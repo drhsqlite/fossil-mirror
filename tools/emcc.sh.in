@@ -57,4 +57,4 @@ if [ x = "x${emcc}" ]; then
   fi
 fi
 
-exec emcc "$@"
+exec $emcc "$@"
