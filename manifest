@@ -1,5 +1,5 @@
-C Correct\sa\stypo\sin\stool/emcc.sh.in\swhich\scould\scause\sall\sof\sthe\sconfigure-time\swork\sto\slocate\sthe\semcc\sbinary\sto\sgo\sunused.\sReported\sin\s[https://sqlite.org/forum/forumpost/feb325cdde5b6f37|sqlite\sforum\spost\sfeb325cdde5b6f37]\s(sqlite\suses\sa\sslight\svariant\sof\sthis\sscript).
-D 2025-01-31T11:49:45.184
+C Bring\sthe\sconfigure/build\sEmscripten\ssupport\sin\ssync\swith\sits\scounterpart\sin\sthe\ssqlite\stree.
+D 2025-01-31T12:13:54.980
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def e0f5f0b4128c9f339ad49fc06772b316d74191e63a23242b11bd2ad545532a62
+F auto.def 2f2c6b42d52d33f75dda563d4a5bde5c9b9e7c4dc84bdb83005f1da3b0926c1f
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -731,7 +731,7 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/decode-email.c f5bd72404f2a4ebbded49b2a8cdc0b6b7a8acba5f5221c4d1bf65ff03a313cb7
 F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829abaaaefae4073 x
 F tools/email-sender.tcl 68217a0707268b570bd2f78e1799ae86c5cb0cc4e7eac321963fa24b6305c446 x
-F tools/emcc.sh.in 12d601ff322aef837dadfb29dd06c86f102108d93cf433e6d0316ea4626c7691
+F tools/emcc.sh.in 41a049468c8155433e37e656ba5bae063a000768b1d627025f277732c4e7c4a4
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ce667ae583477af82c6c07c7d685cf5f178154b249cd05561b27a6fa50d818e
-R 460c8130e745220f142411b6bd977a14
+P f020f4568157c59a3264f56a8d276a5de5a5d5b84b59e97899475d2f4aeec922
+R 932c0cfeb4cb1dd654d098bc8d442c5e
 U stephan
-Z 8bd95371c6754210f41f685d476e6e43
+Z 62d5beeb6abc3319b8c18cdb6a1b1b1a
 # Remove this line to create a well-formed Fossil manifest.
