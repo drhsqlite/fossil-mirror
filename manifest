@@ -1,5 +1,5 @@
-C For\sGit\sconversions,\smention\sthat\sthe\snewer\sPowerShell\sversions\sare\sable\sto\spipe\sbyte\sstreams\sbetween\snative\scommands.
-D 2025-01-31T15:56:55.033
+C Mention\sthe\sproblem\sof\s"diamond-merges"\sin\sthe\sGit-mirror\slimitations\ndocument.
+D 2025-02-01T13:10:02.975
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -890,7 +890,7 @@ F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b
 F www/loadmgmt.md 09ddb13024bd3fbbb85dd2eb11be279d478db3db5d0757299fd236ba28e92499
 F www/makefile.wiki 14f9da723eeea6f002a9d4067435e5f1239312e97ef1e46bcea173cc98e6fd73
 F www/mdtest/test1.md fcaaffd2e86feaa890814410d0c17f7873452f77f948164a2d29c9482c27ec99
-F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
+F www/mirrorlimitations.md 437121a6ddebd5f740407e4043afadd26a7d8704bbac50ff10d8968298c5ffb4
 F www/mirrortogithub.md 39296236c7596193e364ddc06f522a64b7b058f8461697a08bc54641c2157b3c
 F www/mkindex.tcl f7fe5d63e29ea5d3cb0e9264e9b426bc8b03d5844db9f04a7e2780d110cfb3a2 x
 F www/newrepo.wiki 8192ea396a087f94064c6a13cb03b81bf26d8be4809cd1d8a3d42eb3d508094c
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a3843d419d3c101f16258b4d1c0e2ce22b951be25c165d302c5d13eaff52b665
-R 93e5df98114b280b9f1d5c84d77cfc53
-U danield
-Z 06a2459935c4e6a28e27848125ce5789
+P c07468c20725ccc65da9046f73d760413da883ea4e181f845edaa3e176454f6f
+R eff98861d062366754eb5b198083aaaa
+U drh
+Z dd02cde8b97d31d6807e0944a9abc36e
 # Remove this line to create a well-formed Fossil manifest.

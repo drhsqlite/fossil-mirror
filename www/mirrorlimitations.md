@@ -49,6 +49,25 @@ track of historical branch names unambiguously,
 but the extra details about branch names that Fossil keeps
 at hand cannot be exported to Git.
 
+An example of the kinds of ambiguities that arise when branch names
+are not tracked is a "diamond-merge" history. In a diamond-merge, a
+long-running development branch merges enhancements from trunk from
+time to time and also periodically merges the development changes back
+to trunk at moments when the branch is stable.
+An example of diamond-merge in the Fossil source tree itself
+can be seen at on the [bv-corrections01 branch](/timeline?r=bv-corrections01).
+The distinction between checkins on the branch and checkins on trunk would
+be lost in Git, which does not track branches for individual checkins,
+and so you cannot (easily) tell which checkins are part of the branch and
+which are part of trunk in a diamond-merge history on Git.  For that
+reason, diamond-merge histories are considered an anti-pattern in Git
+and the usual recommendation for Git users is to employ
+[rebase](./rebaseharm.md) to clean the history up.  The point here is
+that if your project has a diamond-merge history that shows up cleanly
+in Fossil, it will export to Git and still be technically correct, but 
+the history display might be a jumbled mess that is difficult for humans
+to comprehend.
+
 ## (4) Non-unique Tags
 
 Git requires tags to be unique: each tag must refer to exactly one
