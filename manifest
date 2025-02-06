@@ -1,5 +1,5 @@
-C A\ssearch\scommand\shelp\stext\stypo\sfix.
-D 2025-02-06T11:07:31.968
+C Typo\sfix\sin\sfossil-is-not-relational.md
+D 2025-02-06T13:11:53.164
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -833,7 +833,7 @@ F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df12
 F www/forum.wiki c7b63aaa760046ccab564f54bfda038b01eb1684c1ee4fbc0a16706b23c14a9a
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-is-not-relational.md 69e45b71fb0ca98c8e3c16f31bd97716daf76e6f283d11e9b63aefac31a1894d
+F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
 F www/fossil-v-git.wiki c8c03e4e3d17a20ba3180ac6fca6294d44d2aab7a358ac3889db3eacbd072853
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 17eb363cd487d3408b3c440e2ff13e90a5ac0b04c6c5dfec3490f353125d15bf
-R 1d3b47c4d8bb2a75682b2644387653fb
-U stephan
-Z 4dd8e8c728d83d66ad02d11c9f435b62
+P 3bf6a8042f32d72a5f5143b552e0ece82ce711ee3689c36f789551df674718a6
+R 80160f771ad0de37bb9810febe8a4409
+U drh
+Z dfd2e16737d85ed8d75e8ea2d207fd3e
 # Remove this line to create a well-formed Fossil manifest.
