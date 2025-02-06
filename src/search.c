@@ -572,7 +572,7 @@ void search_sql_setup(sqlite3 *db){
 ** command line. Whole-word matches scope more highly than partial
 ** matches.
 **
-** Note:  The command only search the EVENT table.  So it will only
+** Note:  This command only searches the EVENT table.  So it will only
 ** display check-in comments or other comments that appear on an
 ** unaugmented timeline.  It does not search document text or forum
 ** messages.

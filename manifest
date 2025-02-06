@@ -1,5 +1,5 @@
-C Help\stext:\supdate\stwo\sfts4\sreferences\sto\sfts5.
-D 2025-02-06T10:58:12.933
+C A\ssearch\scommand\shelp\stext\stypo\sfix.
+D 2025-02-06T11:07:31.968
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -523,7 +523,7 @@ F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c 11b6dd5c61135c54ece0bbbb612cd9718bb620043b0af5c61574d66e0c133c3f
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c e8e188b782f840583a61091d191458df10686f2ffaed6d793326c9f0812e2f24
+F src/search.c 0a0b9e06f58b7bd304e5994af2cf37fe9642cb9cd79e5c2aac6dba2806554d23
 F src/security_audit.c 88ccc26b105d86edac19ac863314234312aa647e208066679ee3468e1616711c
 F src/setup.c 3b4cb2f5dc6d29e9e85ed63040a7e8781b003f29252170e835d1fb409ad26a21
 F src/setupuser.c 25e70f55d7cfb0ee847a778dda71a6e1541507424a43dd5a1eab66d682d88c6f
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e5366b6fc08e874bffa36c45c26af395406ac7d473869b0c4de7c8782b8db39
-R b97a1ab0759a27f581426d53b8407652
+P 17eb363cd487d3408b3c440e2ff13e90a5ac0b04c6c5dfec3490f353125d15bf
+R 1d3b47c4d8bb2a75682b2644387653fb
 U stephan
-Z 5740e191742287b71e1a0a3e2489ba4e
+Z 4dd8e8c728d83d66ad02d11c9f435b62
 # Remove this line to create a well-formed Fossil manifest.
