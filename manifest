@@ -1,5 +1,5 @@
-C Typo\sfix\sin\sfossil-is-not-relational.md
-D 2025-02-06T13:11:53.164
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.49.0\srelease.
+D 2025-02-06T15:57:56.709
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -274,8 +274,8 @@ F extsrc/pikchr.c 85e65b968651b342c46e6334f4772b45d6cbb4317c5cbaa95d207779a50c67
 F extsrc/pikchr.js ef8475dfa65cdeff238905f1d7c5d22af6d576eb073b84789f6cb9d00d8f2585
 F extsrc/pikchr.wasm e1c849f2a839522073ee700e0b1f51a9a453cb702a5181e0ff25cfc32f59bc47
 F extsrc/shell.c 8c8d86869ef4dacba56a62860da9a79eb2670c6106461d2b785a57ca04c471bd
-F extsrc/sqlite3.c 37251a1ead55272317bfdc29ce4d10b59ca0b00ee06265c11bb21f4e7ca846f1
-F extsrc/sqlite3.h 63976698c1c2f5ae0b8130a036dfeda245868aeddb796ecad6461c83d5e521de
+F extsrc/sqlite3.c 030c764eba64a3fa3bbf87447abd175bfef94851f970d62126a92877b30b611e
+F extsrc/sqlite3.h 2efdba854cff66e9b227f83110d0918e710916f6f774f62140056b608c51e0bf
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3bf6a8042f32d72a5f5143b552e0ece82ce711ee3689c36f789551df674718a6
-R 80160f771ad0de37bb9810febe8a4409
+P 4799aaef7d1683b9f113c50b14d124741fcd04aa41283620cd55b2fae0d3bb44
+R 7bf917fa6ec09e860dff864f5584b2db
 U drh
-Z dfd2e16737d85ed8d75e8ea2d207fd3e
+Z 7aea4b668bef4d0118091989b45272c0
 # Remove this line to create a well-formed Fossil manifest.
