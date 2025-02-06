@@ -20,7 +20,7 @@
 ** and/or forum posts.
 **
 ** The search can be either a per-query "grep"-like search that scans
-** the entire corpus.  Or it can use the FTS4 search engine of SQLite.
+** the entire corpus.  Or it can use the FTS5 search engine of SQLite.
 ** The choice is an administrator configuration option.
 **
 ** The first option is referred to as "full-scan search".  The second
@@ -1040,7 +1040,7 @@ LOCAL void search_indexed(
   zPat = search_simplify_pattern(zPattern);
   blob_init(&sql, 0, 0);
   if( search_index_type(0)==4 ){
-    /* If this repo is still using the legacy FTS4 search index, then
+    /* If this repo is still using the legacy FTS5 search index, then
     ** the snippet() function is slightly different */
     zSnippetCall = "snippet(ftsidx,'<mark>','</mark>',' ... ',-1,35)";
   }else{
