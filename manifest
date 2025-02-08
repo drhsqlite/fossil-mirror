@@ -1,5 +1,5 @@
-C auto.def:\schange\sthe\sinvocation\sof\s'exec\s/bin/sh'\sto\s'exec\ssh'\sas\sa\sconsolation\sfor\sUnix-like-environments\son\sWindows,\swhere\sthe\sformer\sdoes\snot\swork\sbut\sthe\slatter\sdoes.
-D 2025-02-08T21:27:25.474
+C Fix\sfor\sa\sstruct\sinitialization\swarning\son\sWindows,\sbut\scannot\scurrently\stest\sthis\sfor\sreasons\scovered\sin\s[forum:044797b3ac|forum\spost\s044797b3ac].
+D 2025-02-08T22:00:25.621
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -591,7 +591,7 @@ F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c 6e27ab4b85cccece51289a5c37b822ad108a87b2fedf550252472a73688c2dcc
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
-F src/winfile.c c32dbdb03d30ab85becf46070fa05bd79af2e0b644b1e68c90a87eee121be50f
+F src/winfile.c eaf26e6dedd30e7b82cf15bf2d7f29bb28677f93e122c84a8625f2b6cc223220
 F src/winhttp.c 4ac22db1c25e2a96207a891aced5dd19090afa266586f6f563160cfe8b91890f
 F src/xfer.c 4e6e873068cb207ba0cd483271fe4606fd3a59289ba7b0d8f15a3de071fcf87f
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
@@ -963,8 +963,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 935cd45f03304fed7358f1f07616aee67570f8ade39a62c057a68cebbf5de5b6
-R 959cc0019cc8d1c018f0c10f0db7fff8
+P 822a050d52619719a8ae091da3dfc09c9d5e43ae08ad93d164696905478ae310
+R c85ea3a7f83ee14cd2f24970a36459c6
+T *branch * windows-warning-fix
+T *sym-windows-warning-fix *
+T -sym-trunk *
 U stephan
-Z 413d943891f05c701d088e990325e4be
+Z a4f92d0c1f23b11bfe2f0cf481c76c38
 # Remove this line to create a well-formed Fossil manifest.
