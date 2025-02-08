@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.49.0\srelease.
-D 2025-02-06T15:57:56.709
+C auto.def:\schange\sthe\sinvocation\sof\s'exec\s/bin/sh'\sto\s'exec\ssh'\sas\sa\sconsolation\sfor\sUnix-like-environments\son\sWindows,\swhere\sthe\sformer\sdoes\snot\swork\sbut\sthe\slatter\sdoes.
+D 2025-02-08T21:27:25.474
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def 2f2c6b42d52d33f75dda563d4a5bde5c9b9e7c4dc84bdb83005f1da3b0926c1f
+F auto.def 730e4febc2efdfff6dab120e56d9fd2ed0170a845e78aadc95e809070f4192fc
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4799aaef7d1683b9f113c50b14d124741fcd04aa41283620cd55b2fae0d3bb44
-R 7bf917fa6ec09e860dff864f5584b2db
-U drh
-Z 7aea4b668bef4d0118091989b45272c0
+P 935cd45f03304fed7358f1f07616aee67570f8ade39a62c057a68cebbf5de5b6
+R 959cc0019cc8d1c018f0c10f0db7fff8
+U stephan
+Z 413d943891f05c701d088e990325e4be
 # Remove this line to create a well-formed Fossil manifest.
