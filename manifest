@@ -1,5 +1,5 @@
-C auto.def:\schange\sthe\sinvocation\sof\s'exec\s/bin/sh'\sto\s'exec\ssh'\sas\sa\sconsolation\sfor\sUnix-like-environments\son\sWindows,\swhere\sthe\sformer\sdoes\snot\swork\sbut\sthe\slatter\sdoes.
-D 2025-02-08T21:27:25.474
+C (Typo)\sfinfo\shelp\sfixup.
+D 2025-02-09T05:04:40.116
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -429,7 +429,7 @@ F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c 247e454a561c805565b18428f0b575517c6eed160fb9695624e7501b0fdc401f
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
-F src/finfo.c 3eacb1b2e40382a539d16fa54ef4e4f0da931513a56fe974b41fa58f85538740
+F src/finfo.c f5ba1e0a0de9db4b01a1fd6455d3480f6b3be6b6c62205cd7217a12bbb0cb5e1
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c c50e347570a0b6d9d48a1fda9713f15180122442c26bb416a2eaf3a5585400b3
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 935cd45f03304fed7358f1f07616aee67570f8ade39a62c057a68cebbf5de5b6
-R 959cc0019cc8d1c018f0c10f0db7fff8
-U stephan
-Z 413d943891f05c701d088e990325e4be
+P 822a050d52619719a8ae091da3dfc09c9d5e43ae08ad93d164696905478ae310
+R 13d792db793573b5c391a0124e53d224
+U brickviking
+Z b2d85b148c1c9e7a4ebada7c989d98f9
 # Remove this line to create a well-formed Fossil manifest.
