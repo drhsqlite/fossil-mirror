@@ -1,5 +1,5 @@
-C Narrowed\sthe\sconfigure\sscript's\sis_mingw\stest:\sit\swas\schecking\sonly\sthe\noutput\sof\suname\sfor\s`*mingw*`,\sbut\sthat\scatches\sMSYS2,\swhich\sprovides\sa\nLinux-like\senvironment,\snot\swhat\sthis\sMinGW\stest\sis\smeant\sto\shandle.
-D 2025-02-10T19:04:19.274
+C Split\sthe\sMSYS2/Cygwin\sbuild\sinstructions\sout\sfrom\sthe\sMinGW\sones\sand\nupdated\sboth.\s\sDropped\smention\sof\s"MSYS",\shaving\snot\stested\sthe\scurrent\nbuild\sunder\sit.\s\sIf\sit\sstill\sworks,\sand\ssomeone\scares\sto\srevive\sthe\ninstructions,\sthat\sshould\sbe\sdone\sonly\safter\sretesting.
+D 2025-02-10T19:21:30.570
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -778,7 +778,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 9e8bacb2830ec9561907ca665e1e7bf85cb3e7e32d568f3f41ce1bb0f9860c90
+F www/build.wiki 0c13540506bfee2e10a015ee79769ce09e0c1fc1cc49fbd3f065b6ceb285f6f9
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 25672b1def9cd6e1541a0fadc5d6e3e2bd5ead9293a7a3abc865b5d085130e12
-R ee46fbb17ab6e99147bc40eb7da1ea3d
+P 5c6dee54ca1965e338019feb7c1a86f2638a5f6aeb54ea88eb81d12aca9313db
+R f3a0307194c845f5efbbb43ce1f96d5d
 U wyoung
-Z 402322e2ccee6fcedec883648b211a8f
+Z ff961b8526a2277a8addd3dc6610d888
 # Remove this line to create a well-formed Fossil manifest.
