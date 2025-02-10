@@ -1,5 +1,5 @@
-C (Typo)\sfinfo\shelp\sfixup.
-D 2025-02-09T05:04:40.116
+C Narrowed\sthe\sconfigure\sscript's\sis_mingw\stest:\sit\swas\schecking\sonly\sthe\noutput\sof\suname\sfor\s`*mingw*`,\sbut\sthat\scatches\sMSYS2,\swhich\sprovides\sa\nLinux-like\senvironment,\snot\swhat\sthis\sMinGW\stest\sis\smeant\sto\shandle.
+D 2025-02-10T19:04:19.274
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def 730e4febc2efdfff6dab120e56d9fd2ed0170a845e78aadc95e809070f4192fc
+F auto.def f7e4cd0aca5619049f3a256fa0ec96c4b0285e25f3facb4dc56aaf74b5b1248c
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 822a050d52619719a8ae091da3dfc09c9d5e43ae08ad93d164696905478ae310
-R 13d792db793573b5c391a0124e53d224
-U brickviking
-Z b2d85b148c1c9e7a4ebada7c989d98f9
+P 25672b1def9cd6e1541a0fadc5d6e3e2bd5ead9293a7a3abc865b5d085130e12
+R ee46fbb17ab6e99147bc40eb7da1ea3d
+U wyoung
+Z 402322e2ccee6fcedec883648b211a8f
 # Remove this line to create a well-formed Fossil manifest.

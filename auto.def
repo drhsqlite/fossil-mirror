@@ -246,7 +246,10 @@ if {![opt-bool internal-sqlite]} {
 }
 
 proc is_mingw {} {
-    return [string match *mingw* [get-define host]]
+  return [expr {
+    [string match *mingw* [get-define host]] &&
+   ![file exists "/dev/null"]
+  }]
 }
 
 if {[is_mingw]} {
