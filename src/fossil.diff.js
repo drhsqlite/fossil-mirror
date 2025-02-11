@@ -47,10 +47,12 @@ window.fossil.onPageLoad(function(){
     if(!sib) return;
     const lblToggle = D.label();
     D.append(lblToggle, ckbox, D.text(" show/hide "));
-    const wrapper = D.append(D.span(), lblToggle);
     allToggles.push(ckbox);
     ++checkedCount;
-    D.append(sib, D.append(wrapper, lblToggle));
+    /* Make all of the available empty space a click zone for the checkbox */
+    lblToggle.style.flexGrow = 1;
+    lblToggle.style.textAlign = 'right';
+    D.append(sib, lblToggle);
     ckbox.addEventListener('change', function(){
       diffElem.classList[this.checked ? 'remove' : 'add']('hidden');
       if(btnAll){
