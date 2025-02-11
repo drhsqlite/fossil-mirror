@@ -720,6 +720,9 @@ if {![cc-check-function-in-lib socket {socket network}]} {
     }
 }
 
+# Some systems (ex: SunOS) require -lrt in order to use nanosleep
+cc-check-function-in-lib nanosleep rt
+
 # The SMTP module requires special libraries and headers for MX DNS
 # record lookups and such.
 cc-check-includes arpa/nameser.h

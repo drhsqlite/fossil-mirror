@@ -1,5 +1,5 @@
-C Split\sthe\sMSYS2/Cygwin\sbuild\sinstructions\sout\sfrom\sthe\sMinGW\sones\sand\nupdated\sboth.\s\sDropped\smention\sof\s"MSYS",\shaving\snot\stested\sthe\scurrent\nbuild\sunder\sit.\s\sIf\sit\sstill\sworks,\sand\ssomeone\scares\sto\srevive\sthe\ninstructions,\sthat\sshould\sbe\sdone\sonly\safter\sretesting.
-D 2025-02-10T19:21:30.570
+C Small\sMakefile\spatch\sfor\sSunOS\sreceived\sfrom\sClaes\sNästén.
+D 2025-02-11T10:42:34.639
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -12,12 +12,12 @@ F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b47
 F BUILD.txt a92d9dc35ad8b4dfb7c1e35278362da66ccbc5a41ee6decdd8727e17fd4542e0
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 609deb40ad1d5fed540cab1ec0a99aedf9b5c9e75d877cea4da6ffdf02b6009c
-F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
+F Makefile.classic 25ea72b6fe8959b5bbd638363af82dec3ba475c09ea79918deda199eb15c3d3a
 F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def f7e4cd0aca5619049f3a256fa0ec96c4b0285e25f3facb4dc56aaf74b5b1248c
+F auto.def 91d58e79fe849ba3a3f444d4e11f3fb2668a5301b0f5187a6952f29bf2b34a55
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c6dee54ca1965e338019feb7c1a86f2638a5f6aeb54ea88eb81d12aca9313db
-R f3a0307194c845f5efbbb43ce1f96d5d
-U wyoung
-Z ff961b8526a2277a8addd3dc6610d888
+P 738404347c68452c3a134d0edb497fbc32052c9a6861d9193353eefb1c158754
+R 782834e2c2e228962af45ffaf21ade8d
+U drh
+Z 3fe08f9b56752236d9d30967e7f7e8a7
 # Remove this line to create a well-formed Fossil manifest.
