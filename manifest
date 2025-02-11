@@ -1,5 +1,5 @@
-C Make\sall\snon-hyperlink\selements\sto\sthe\sleft\sof\sthe\sshow/hide\sdiff\scheckboxes\sactivate\sthose\scheckboxes.
-D 2025-02-11T18:13:36.787
+C Updates\sto\sthe\swww/selfhost.wiki\spage.
+D 2025-02-11T21:33:11.751
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -908,7 +908,7 @@ F www/relatedwork.md f099cea52511a1d914efe6fdbe2efb88f15f0345268212631ef42373b55
 F www/reviews.wiki aec384797fc2dc4d6d297ec5710f5763e602573e275643494a684be013d09e4a
 F www/scgi.wiki 8a0f5e5ba635f40fc9e2e8d9afc5eaa6df854152ab9413ebacd2809866e104b7
 F www/selfcheck.wiki bdadf16dc00fe01497186397287d311b4eeb3a578d8afc56b279a1bd65da1b2c
-F www/selfhost.wiki 05581af6bd88df78b0916420dd7d3d54e4dcdacce6c508d0820dd250fd731f35
+F www/selfhost.wiki 826535932d91d76e5d4dd6bcb33c6bf773f4be1778930b6a21c26a2e7b111e48
 F www/server/any/althttpd.md 4ac7121aa47d8ce6321128097884528354428a7606d60a83efb01c1e31270fad
 F www/server/any/cgi.md 3ea5ac4eab6916352192675869a4920a875db0e916374a2321fba3659281b693
 F www/server/any/http-over-ssh.md 87c3f07f1b56beb9eab8a2504b38ec963b34d28e7c48deeaa753cced343ba008
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6bc8c5f8829a8b7925b3aa91ec8ef8d4ae3be654716613fb328141da190541e6
-R 738bd30b81fd6b11aa0f67d53a77375a
-U stephan
-Z 49c005e45303bc03993fe8bdedfdca09
+P 7f2b3a2d987aef9c396a124d0e482a3afa0c9af064e2696060ce1ad0ae766cdb
+R 5f567fe1f0ce005c931dabd2743f970a
+U drh
+Z 13266df83614d90ca3cd8fc6981679f5
 # Remove this line to create a well-formed Fossil manifest.
