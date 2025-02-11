@@ -659,6 +659,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_HAVE_ZLIB \
                  -DSQLITE_ENABLE_DBPAGE_VTAB \
                  -DSQLITE_TRUSTED_SCHEMA=0 \
+                 -DSQLITE_ENABLE_SETLK_TIMEOUT \
                  -DHAVE_USLEEP
 
 # Setup the options used to compile the included SQLite shell.
@@ -685,6 +686,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_HAVE_ZLIB \
                 -DSQLITE_ENABLE_DBPAGE_VTAB \
                 -DSQLITE_TRUSTED_SCHEMA=0 \
+                -DSQLITE_ENABLE_SETLK_TIMEOUT \
                 -DHAVE_USLEEP \
                 -Dmain=sqlite3_shell \
                 -DSQLITE_SHELL_IS_UTF8=1 \

@@ -2194,6 +2194,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3_db_config(db, SQLITE_DBCONFIG_DQS_DML, 0, &rc);
   sqlite3_db_config(db, SQLITE_DBCONFIG_DEFENSIVE, 1, &rc);
   sqlite3_busy_timeout(db, 15000);
+  sqlite3_setlk_timeout(db, 15000, SQLITE_SETLK_BLOCK_ON_CONNECT);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
   sqlite3_create_function(db, "cgi", 1, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
