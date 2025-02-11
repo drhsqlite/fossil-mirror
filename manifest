@@ -1,5 +1,5 @@
-C Updates\sto\sthe\swww/selfhost.wiki\spage.
-D 2025-02-11T21:33:11.751
+C More\sdocumentation\supdates.
+D 2025-02-11T21:54:06.526
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -762,7 +762,7 @@ F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d
 F www/aboutcgi.wiki 0595ce2176aba3a10e79c840ed0e662609f754749583032230b0ed0071c235e7
 F www/aboutdownload.wiki ffd8d3848e190c5aec758ed578e81857629d39376488151aeb09da2572fdcc49
 F www/adding_code.wiki 06de2a518a772ed1fa8fdb165ff3c53149b6e68f43ad114b80d6df158683158a
-F www/alerts.md 4cb9ba01852bcd547c0d87338e672bfc3fea60008bf60137ce50f5a5f9361ecd
+F www/alerts.md a0ab0e8af2cb82e333961f1bb11d324db5dc93a5ceac92c4eb4ff9f37eb85a14
 F www/antibot.wiki 3c80ceb5d18462ba69f0ab7793652abec83f7292ad16cc57a70a8d4e78501615
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -791,7 +791,7 @@ F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
 F www/childprojects.wiki 7ae960b153c84280c72de5ee172c1beb823f07b65ea00756a4a62f54bdec64f7
-F www/chroot.md 5b9110759a6c9db02fad8c1ddfc462afa6f3812d7932654ec5a1d6231d21705c
+F www/chroot.md bef4b4596c6ee577aed587694f1c9c3b2861378df46e7582f4f68b08546e7f0e
 F www/ckout-workflows.md 824c89a1319795b9c4dfa283a94f55acd71d8230ba36ceb47244987595bc75ec
 F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e854d
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7f2b3a2d987aef9c396a124d0e482a3afa0c9af064e2696060ce1ad0ae766cdb
-R 5f567fe1f0ce005c931dabd2743f970a
+P 482bd93cf97f6526141a14a066ae4c489025b32c9383bad860dd7d7db2c1dfe8
+R 5975b8f94a60806e16f3b9570b04416a
 U drh
-Z 13266df83614d90ca3cd8fc6981679f5
+Z fd629a8a57fa3b19fcce68c59a91bcae
 # Remove this line to create a well-formed Fossil manifest.
