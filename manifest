@@ -1,5 +1,5 @@
-C For\sthe\sshow/hide\sdiff\scheckboxes,\sinvisibly\sextend\sthe\scorresponding\sLABEL\selement\ssuch\sthat\stapping\sany\sof\sthe\sempty\sspace\sto\sthe\sleft\sof\sthe\scheckbox\stoggles\sit.\sThis\sdoesn't\schange\sthe\sappearance\sbut\sextends\sthe\sclick\szone\sconsiderably\son\swide\sdisplays.
-D 2025-02-11T17:57:16.508
+C Make\sall\snon-hyperlink\selements\sto\sthe\sleft\sof\sthe\sshow/hide\sdiff\scheckboxes\sactivate\sthose\scheckboxes.
+D 2025-02-11T18:13:36.787
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
-F src/fossil.diff.js aa113557858f3fba3b6b680b217f82ba8c0066aa89f81270bcccddda40f5d8f2
+F src/fossil.diff.js 3eefca095a2440a363e0480e4dcedcaab1e5dc9209b7473f7d8f87d9646d9a86
 F src/fossil.dom.js d5a89a29606c1056be6cbfd5c6cd7f06559c5b46fca523d5eed34605a3443288
 F src/fossil.fetch.js 79291600341f980b23bc20455e0415fae0db0a3a355aae4dffbc0e431f210cc8
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3bff7b92d6d152daaaa587c2b690b60fd683da4ad281578577a91c3968ea1bf2
-R 7b7b70967eb3bb1aeffc8eb0358b3eeb
+P 6bc8c5f8829a8b7925b3aa91ec8ef8d4ae3be654716613fb328141da190541e6
+R 738bd30b81fd6b11aa0f67d53a77375a
 U stephan
-Z 9c14b6d115c9826e4cfb71c536cfb569
+Z 49c005e45303bc03993fe8bdedfdca09
 # Remove this line to create a well-formed Fossil manifest.
