@@ -66,8 +66,7 @@ window.fossil.onPageLoad(function(){
     sib.firstElementChild.addEventListener('click', (event)=>{
       if( event.target===sib.firstElementChild ){
         /* Don't respond to clicks bubbling via hyperlink children */
-        ckbox.checked = !ckbox.checked;
-        ckbox.dispatchEvent(new Event('change'));
+        ckbox.click();;
       }
     }, false);
   };
