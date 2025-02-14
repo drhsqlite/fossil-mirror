@@ -40,22 +40,22 @@ void setup_incr_cfgcnt(void){
 
 /*
 ** Output a single entry for a menu generated using an HTML table.
-** If zLink is not NULL or an empty string, then it is the page that
+** If zLink is neither NULL nor an empty string, then it is the page that
 ** the menu entry will hyperlink to.  If zLink is NULL or "", then
 ** the menu entry has no hyperlink - it is disabled.
 */
 void setup_menu_entry(
   const char *zTitle,
   const char *zLink,
-  const char *zDesc
+  const char *zDesc  /* Caution!  Rendered using %s.  May contain raw HTML. */
 ){
   @ <tr><td valign="top" align="right">
   if( zLink && zLink[0] ){
     @ <a href="%s(zLink)"><nobr>%h(zTitle)</nobr></a>
   }else{
-    @ %h(zTitle)
+    @ <nobr>%h(zTitle)</nobr>
   }
-  @ </td><td width="5"></td><td valign="top">%h(zDesc)</td></tr>
+  @ </td><td width="5"></td><td valign="top">%s(zDesc)</td></tr>
 }
 
 
@@ -192,6 +192,7 @@ void setup_page(void){
 */
 void setup_logmenu_page(void){
   Blob desc;
+  int bErrLog;                 /* True if Error Log enabled */
   blob_init(&desc, 0, 0);
 
   /* Administrator access only */
@@ -212,6 +213,10 @@ void setup_logmenu_page(void){
     "Log.  The artifact log is always on and is stored in the \"rcvfrom\"\n"
     "table of the repository.\n"
   );
+  setup_menu_entry("User Log", "user_log",
+    "The user log is a record of login attempts.  The user log is stored\n"
+    "in the \"accesslog\" table of the respository.\n"
+  );
 
   blob_appendf(&desc,
     "The error log is a separate text file to which warning and error\n"
@@ -219,33 +224,49 @@ void setup_logmenu_page(void){
     "across multiple repositories.\n"
   );
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    blob_appendf(&desc,"The error log is disabled for this repository.");
+    blob_appendf(&desc,"The error log is disabled. "
+                       "To activate the error log ");
+    if( fossil_strcmp(g.zCmdName, "cgi")==0 ){
+      blob_appendf(&desc,
+        "make an entry like \"errorlog: <i>FILENAME</i>\""
+        " in the CGI script at %h",
+        P("SCRIPT_FILENAME")
+      );
+    }else{
+      blob_appendf(&desc,
+        " add the \"--errorlog <i>FILENAME</i>\" option to the"
+        "\"%h %h\" command that launched this server.",
+        g.argv[0], g.zCmdName
+      );
+    }
+    bErrLog = 0;
   }else{
     blob_appendf(&desc,"In this repository, the error log is in the file"
        "named \"%s\".", g.zErrlog);
+    bErrLog = 1;
   }
-  setup_menu_entry("Error Log", "errorlog", blob_str(&desc));
+  setup_menu_entry("Error Log", bErrLog ? "errorlog" : 0, blob_str(&desc));
   blob_reset(&desc);
 
-  setup_menu_entry("Panic Log", "paniclog",
-    "The panic log is a filtering of the Error Log that shows only the\n"
-    "most important messages - assertion faults, segmentation faults, and\n"
-    "similar malfunctions."
+  @ <tr><td><td><td>
+  @ &mdash;&mdash;
+  @ <i>The remaining links are subsets of the Error Log</i>
+  @ &mdash;&mdash;
+  @ </td>  
+
+  setup_menu_entry("Panic Log", bErrLog ? "paniclog" : 0,
+    "Only the most important messages in the Error Log:\n"
+    "assertion faults, segmentation faults, and similar malfunctions.\n"
   );
 
-  setup_menu_entry("User Log", "user_log",
-    "The user log is a record of login attempts.  The user log is stored\n"
-    "in the \"accesslog\" table of the respository.\n"
+
+  setup_menu_entry("Hack Log", bErrLog ? "hacklog" : 0,
+    "All code-418 hack attempts in the Error Log"
   );
 
-  setup_menu_entry("Hack Log", "hacklog",
-    "All 418 hack attempts"
+  setup_menu_entry("Non-Hack Log", bErrLog ? "hacklog?not" : 0,
+    "All log messages that are not code-418 hack attempts"
   );
-
-  setup_menu_entry("Non-Hack Log", "hacklog?not",
-    "All log messages that are not hack attempts"
-  );
-
 
   @ </table>
   style_finish_page();
