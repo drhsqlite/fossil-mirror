@@ -418,12 +418,15 @@ static void win32_http_request(void *pAppData){
   zIp = SocketAddr_toString(&p->addr);
   if( (p->flags & HTTP_SERVER_HAD_CHECKOUT)==0 ){
     assert( g.zRepositoryName && g.zRepositoryName[0] );
-    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s--in %s\n--out %s\n--ipaddr %s\n%s",
-      get_utf8_bom(0), zRequestFName, zReplyFName, zIp, g.zRepositoryName
+    sqlite3_snprintf(sizeof(zCmd), zCmd,
+      "%s--in %s\n--out %s\n--ipaddr %s\n--as %s\n%s",
+      get_utf8_bom(0), zRequestFName, zReplyFName, zIp, g.zCmdName,
+      g.zRepositoryName
     );
   }else{
-    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s--in %s\n--out %s\n--ipaddr %s",
-      get_utf8_bom(0), zRequestFName, zReplyFName, zIp
+    sqlite3_snprintf(sizeof(zCmd), zCmd,
+      "%s--in %s\n--out %s\n--ipaddr %s\n--as %s\n",
+      get_utf8_bom(0), zRequestFName, zReplyFName, zIp, g.zCmdName
     );
   }
   fossil_free(zIp);
