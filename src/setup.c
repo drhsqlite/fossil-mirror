@@ -252,7 +252,7 @@ void setup_logmenu_page(void){
       );
     }else{
       blob_appendf(&desc,
-        " add the \"--errorlog <i>FILENAME</i>\" option to the"
+        " add the \"--errorlog <i>FILENAME</i>\" option to the\n"
         "\"%h %h\" command that launched this server.",
         g.argv[0], g.zCmdName
       );

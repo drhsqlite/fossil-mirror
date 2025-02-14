@@ -1,5 +1,5 @@
-C More\simprovements\sto\sthe\ssetup-logmenu\spage.
-D 2025-02-14T13:33:00.406
+C Fix\stypo\s(missing\sspace)\sin\sthe\snew\slog-menu\spage.
+D 2025-02-14T16:37:21.481
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -525,7 +525,7 @@ F src/schema.c 11b6dd5c61135c54ece0bbbb612cd9718bb620043b0af5c61574d66e0c133c3f
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 0a0b9e06f58b7bd304e5994af2cf37fe9642cb9cd79e5c2aac6dba2806554d23
 F src/security_audit.c 88ccc26b105d86edac19ac863314234312aa647e208066679ee3468e1616711c
-F src/setup.c 14378ec5a9326af9e4a5d9e059d2f30da937a8a652d354f30d7c5bf82199477d
+F src/setup.c 1388ed5f398da0a5ea3cf94e4cea2c4ff5615924fc5cdf6cd8796971a7880302
 F src/setupuser.c 25e70f55d7cfb0ee847a778dda71a6e1541507424a43dd5a1eab66d682d88c6f
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b0feaa6955ae9328a709b2d7b23f871a258b788768772b47481405eb7ef1a29e
-R 5d439d2086be81d83d6f5e1a8f3cf94d
+P 767509f6178b88506718aa582113833f99a40bbb800f50070592d11f18c59b18
+R 2692294428441b6ace9e2ee4406abdf8
 U drh
-Z c3e5d483dc50f023e1e6da405f092bc1
+Z d61a91bb317e71a0fc5e1484a390da0f
 # Remove this line to create a well-formed Fossil manifest.
