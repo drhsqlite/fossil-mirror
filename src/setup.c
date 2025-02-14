@@ -203,29 +203,47 @@ void setup_logmenu_page(void){
   }
   style_header("Log Menu");
   @ <table border="0" cellspacing="3">
-  setup_menu_entry("Admin Log", "admin_log",
-    "The admin log records configuration changes to the repository.\n"
-    "The admin log is stored in the \"admin_log\" table of the repository.\n"
-  );
+  
+  if( db_get_boolean("admin-log",0)==0 ){
+    blob_appendf(&desc,
+      "The admin log records configuration changes to the repository.\n"
+      "<b>Disabled</b>:  Turn on the "
+      " <a href='%R/setup_settings'>admin-log setting</a> to enable."
+    );
+    setup_menu_entry("Admin Log", 0, blob_str(&desc));
+    blob_reset(&desc);
+  }else{
+    setup_menu_entry("Admin Log", "admin_log",
+      "The admin log records configuration changes to the repository\n"
+      "in the \"admin_log\" table.\n"
+    );
+  }
   setup_menu_entry("Artifact Log", "rcvfromlist",
-    "The artifact log records when new content is added to the repository.\n"
-    "The time and date and origin of the new content is entered into the\n"
-    "Log.  The artifact log is always on and is stored in the \"rcvfrom\"\n"
-    "table of the repository.\n"
+    "The artifact log records when new content is added in the\n"
+    "\"rcvfrom\" table.\n"
   );
-  setup_menu_entry("User Log", "user_log",
-    "The user log is a record of login attempts.  The user log is stored\n"
-    "in the \"accesslog\" table of the respository.\n"
-  );
+  if( db_get_boolean("access-log",0) ){
+    setup_menu_entry("User Log", "user_log",
+      "Login attempts recorded in the \"accesslog\" table."
+    );
+  }else{
+    blob_appendf(&desc,
+      "Login attempts recorded in the \"accesslog\" table.\n"
+      "<b>Disabled</b>:  Turn on the "
+      "<a href='%R/setup_settings'>access-log setting</a> to enable."
+    );
+    setup_menu_entry("User Log", 0, blob_str(&desc));
+    blob_reset(&desc);
+  }
 
   blob_appendf(&desc,
-    "The error log is a separate text file to which warning and error\n"
+    "A separate text file to which warning and error\n"
     "messages are appended.  A single error log can and often is shared\n"
     "across multiple repositories.\n"
   );
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    blob_appendf(&desc,"The error log is disabled. "
-                       "To activate the error log ");
+    blob_appendf(&desc,"<b>Disabled</b>: "
+                       "To enable the error log ");
     if( fossil_strcmp(g.zCmdName, "cgi")==0 ){
       blob_appendf(&desc,
         "make an entry like \"errorlog: <i>FILENAME</i>\""
@@ -241,7 +259,7 @@ void setup_logmenu_page(void){
     }
     bErrLog = 0;
   }else{
-    blob_appendf(&desc,"In this repository, the error log is in the file"
+    blob_appendf(&desc,"In this repository, the error log is the file "
        "named \"%s\".", g.zErrlog);
     bErrLog = 1;
   }
@@ -258,12 +276,9 @@ void setup_logmenu_page(void){
     "Only the most important messages in the Error Log:\n"
     "assertion faults, segmentation faults, and similar malfunctions.\n"
   );
-
-
   setup_menu_entry("Hack Log", bErrLog ? "hacklog" : 0,
     "All code-418 hack attempts in the Error Log"
   );
-
   setup_menu_entry("Non-Hack Log", bErrLog ? "hacklog?not" : 0,
     "All log messages that are not code-418 hack attempts"
   );
