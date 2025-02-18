@@ -146,9 +146,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.49.0"
-#define SQLITE_VERSION_NUMBER 3049000
-#define SQLITE_SOURCE_ID      "2025-02-06 11:55:18 4a7dd425dc2a0e5082a9049c9b4a9d4f199a71583d014c24b4cfe276c5a77cde"
+#define SQLITE_VERSION        "3.50.0"
+#define SQLITE_VERSION_NUMBER 3050000
+#define SQLITE_SOURCE_ID      "2025-02-18 01:16:26 57caa3136d1bfca06e4f2285734a4977b8d3fa1f75bf87453b975867e9de38fc"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1989,13 +1989,16 @@ struct sqlite3_mem_methods {
 **
 ** [[SQLITE_CONFIG_LOOKASIDE]] <dt>SQLITE_CONFIG_LOOKASIDE</dt>
 ** <dd> ^(The SQLITE_CONFIG_LOOKASIDE option takes two arguments that determine
-** the default size of lookaside memory on each [database connection].
+** the default size of [lookaside memory] on each [database connection].
 ** The first argument is the
-** size of each lookaside buffer slot and the second is the number of
-** slots allocated to each database connection.)^  ^(SQLITE_CONFIG_LOOKASIDE
-** sets the <i>default</i> lookaside size. The [SQLITE_DBCONFIG_LOOKASIDE]
-** option to [sqlite3_db_config()] can be used to change the lookaside
-** configuration on individual connections.)^ </dd>
+** size of each lookaside buffer slot ("sz") and the second is the number of
+** slots allocated to each database connection ("cnt").)^
+** ^(SQLITE_CONFIG_LOOKASIDE sets the <i>default</i> lookaside size.
+** The [SQLITE_DBCONFIG_LOOKASIDE] option to [sqlite3_db_config()] can
+** be used to change the lookaside configuration on individual connections.)^
+** The [-DSQLITE_DEFAULT_LOOKASIDE] option can be used to change the
+** default lookaside configuration at compile-time.
+** </dd>
 **
 ** [[SQLITE_CONFIG_PCACHE2]] <dt>SQLITE_CONFIG_PCACHE2</dt>
 ** <dd> ^(The SQLITE_CONFIG_PCACHE2 option takes a single argument which is
@@ -2232,31 +2235,50 @@ struct sqlite3_mem_methods {
 ** [[SQLITE_DBCONFIG_LOOKASIDE]]
 ** <dt>SQLITE_DBCONFIG_LOOKASIDE</dt>
 ** <dd> The SQLITE_DBCONFIG_LOOKASIDE option is used to adjust the
-** configuration of the lookaside memory allocator within a database
+** configuration of the [lookaside memory allocator] within a database
 ** connection.
 ** The arguments to the SQLITE_DBCONFIG_LOOKASIDE option are <i>not</i>
 ** in the [DBCONFIG arguments|usual format].
 ** The SQLITE_DBCONFIG_LOOKASIDE option takes three arguments, not two,
 ** so that a call to [sqlite3_db_config()] that uses SQLITE_DBCONFIG_LOOKASIDE
 ** should have a total of five parameters.
-** ^The first argument (the third parameter to [sqlite3_db_config()] is a
+** <ol>
+** <li><p>The first argument ("buf") is a
 ** pointer to a memory buffer to use for lookaside memory.
-** ^The first argument after the SQLITE_DBCONFIG_LOOKASIDE verb
-** may be NULL in which case SQLite will allocate the
-** lookaside buffer itself using [sqlite3_malloc()]. ^The second argument is the
-** size of each lookaside buffer slot.  ^The third argument is the number of
-** slots.  The size of the buffer in the first argument must be greater than
-** or equal to the product of the second and third arguments.  The buffer
-** must be aligned to an 8-byte boundary.  ^If the second argument to
-** SQLITE_DBCONFIG_LOOKASIDE is not a multiple of 8, it is internally
-** rounded down to the next smaller multiple of 8.  ^(The lookaside memory
+** The first argument may be NULL in which case SQLite will allocate the
+** lookaside buffer itself using [sqlite3_malloc()].
+** <li><P>The second argument ("sz") is the
+** size of each lookaside buffer slot.  Lookaside is disabled if "sz"
+** is less than 8.  The "sz" argument should be a multiple of 8 less than
+** 65536.  If "sz" does not meet this constraint, it is reduced in size until
+** it does.
+** <li><p>The third argument ("cnt") is the number of slots. Lookaside is disabled
+** if "cnt"is less than 1.  The "cnt" value will be reduced, if necessary, so
+** that the product of "sz" and "cnt" does not exceed 2,147,418,112.  The "cnt"
+** parameter is usually chosen so that the product of "sz" and "cnt" is less
+** than 1,000,000.
+** </ol>
+** <p>If the "buf" argument is not NULL, then it must
+** point to a memory buffer with a size that is greater than
+** or equal to the product of "sz" and "cnt".
+** The buffer must be aligned to an 8-byte boundary.
+** The lookaside memory
 ** configuration for a database connection can only be changed when that
 ** connection is not currently using lookaside memory, or in other words
-** when the "current value" returned by
-** [sqlite3_db_status](D,[SQLITE_DBSTATUS_LOOKASIDE_USED],...) is zero.
+** when the value returned by [SQLITE_DBSTATUS_LOOKASIDE_USED] is zero.
 ** Any attempt to change the lookaside memory configuration when lookaside
 ** memory is in use leaves the configuration unchanged and returns
-** [SQLITE_BUSY].)^</dd>
+** [SQLITE_BUSY].
+** If the "buf" argument is NULL and an attempt
+** to allocate memory based on "sz" and "cnt" fails, then
+** lookaside is silently disabled.
+** <p>
+** The [SQLITE_CONFIG_LOOKASIDE] configuration option can be used to set the
+** default lookaside configuration at initialization.  The
+** [-DSQLITE_DEFAULT_LOOKASIDE] option can be used to set the default lookaside
+** configuration at compile-time.  Typical values for lookaside are 1200 for
+** "sz" and 40 to 100 for "cnt".
+** </dd>
 **
 ** [[SQLITE_DBCONFIG_ENABLE_FKEY]]
 ** <dt>SQLITE_DBCONFIG_ENABLE_FKEY</dt>
@@ -12010,19 +12032,6 @@ SQLITE_API int sqlite3changeset_concat(
   int *pnOut,                     /* OUT: Number of bytes in output changeset */
   void **ppOut                    /* OUT: Buffer containing output changeset */
 );
-
-
-/*
-** CAPI3REF: Upgrade the Schema of a Changeset/Patchset
-*/
-SQLITE_API int sqlite3changeset_upgrade(
-  sqlite3 *db,
-  const char *zDb,
-  int nIn, const void *pIn,       /* Input changeset */
-  int *pnOut, void **ppOut        /* OUT: Inverse of input */
-);
-
-
 
 /*
 ** CAPI3REF: Changegroup Handle

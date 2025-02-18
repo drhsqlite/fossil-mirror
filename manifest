@@ -1,5 +1,5 @@
-C Improvements\sto\s"fossil\sui/server"\son\sWindows.
-D 2025-02-14T17:36:56.147
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sthat\sincludes\sall\nrecent\sfixes.
+D 2025-02-18T12:23:31.744
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -274,8 +274,8 @@ F extsrc/pikchr.c 85e65b968651b342c46e6334f4772b45d6cbb4317c5cbaa95d207779a50c67
 F extsrc/pikchr.js ef8475dfa65cdeff238905f1d7c5d22af6d576eb073b84789f6cb9d00d8f2585
 F extsrc/pikchr.wasm e1c849f2a839522073ee700e0b1f51a9a453cb702a5181e0ff25cfc32f59bc47
 F extsrc/shell.c 8c8d86869ef4dacba56a62860da9a79eb2670c6106461d2b785a57ca04c471bd
-F extsrc/sqlite3.c 030c764eba64a3fa3bbf87447abd175bfef94851f970d62126a92877b30b611e
-F extsrc/sqlite3.h 2efdba854cff66e9b227f83110d0918e710916f6f774f62140056b608c51e0bf
+F extsrc/sqlite3.c 81839d11b4618934571521b7a25afa91dcd0454f69e7492f370d8fbd2ca4eeb0
+F extsrc/sqlite3.h 8be2868f5213bbacc3f57977f508d3013c173dc4978f25f0ddbdec14c444e387
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f38866e7497b22af59d86882310636be1fc5fe1f13482de1b277e6a1d1339082
-R 155dd46ed9903329317ecfd3ea08f335
+P f8e522e4673c698b063f2de8e0c1d6a2c4251fb641dd9e87b179cf010dce108d
+R 7943e02f3d61fcaf4b28fa52acdcf2e9
 U drh
-Z 50a5d98d66934e2052a60ffbeda00199
+Z a5c2a288f65f5b849ee8cad749a3d5fa
 # Remove this line to create a well-formed Fossil manifest.
