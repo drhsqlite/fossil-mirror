@@ -46,6 +46,7 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
 
   blob_zero(&script);
   blob_appendf(&script, "set ncontext %d\n", nContext);
+  blob_appendf(&script, "set fossilexe {\"%/\"}\n", g.nameOfExe);
   blob_appendf(&script, "set fossilcmd {| \"%/\" merge-info}\n",
                g.nameOfExe);
   blob_appendf(&script, "set filelist [list");
@@ -245,6 +246,51 @@ static void merge_info_tcl(const char *zFName, int nContext){
 }
 
 /*
+** Respond to one of the options --diff12, --diff13, or --diff23.
+**
+** The diffMode is one of 12, 13, or 23 according to which option provoked
+** this routine.  zFile is the name of the file on which to run the
+** two-way diff.
+**
+** This routine constructs a sub-command that runs "fossil diff" to show
+** the appropriate two-way diff.
+*/
+static void merge_two_way_file_diff(
+  int diffMode,
+  const char *zDiff2,
+  int nContext,
+  int bDark
+){
+  int ridLeft;             /* RID for the left file */
+  int ridRight;            /* RID for the right file */
+  char *zLeft;
+  char *zRight;
+  char *zCmd;
+
+  ridLeft = db_int(0,
+     "SELECT iif(%d,ridp,ridv) FROM mergestat"
+     " WHERE coalesce(fnr,fn)=%Q",
+     diffMode<20, zDiff2
+  );
+  ridRight = db_int(0,
+     "SELECT iif(%d,ridv,ridm) FROM mergestat"
+     " WHERE coalesce(fnr,fn)=%Q",
+     (diffMode%10)==2, zDiff2
+  );
+  zLeft = mprintf("%s (%s)", zDiff2, diffMode<20 ? "baseline" : "local");
+  zRight = mprintf("%s (%s)", zDiff2, 
+                    (diffMode%10)==2 ? "local" : "merge-in");
+  zCmd = mprintf(
+       "%!$ fdiff --tk --label %!$ --label %!$ -c %d%s rid:%d rid:%d &",
+       g.nameOfExe, zLeft, zRight, nContext,
+       bDark ? " -dark" : "",
+       ridLeft, ridRight);
+  fossil_system(zCmd);
+  return;
+}
+
+
+/*
 ** COMMAND: merge-info
 **
 ** Usage: %fossil merge-info [OPTIONS]
@@ -259,17 +305,22 @@ static void merge_info_tcl(const char *zFName, int nContext){
 **                        with negative N meaning show all content.  Only
 **                        meaningful in combination with --tcl or --tk.
 **   --dark               Use dark mode for the Tcl/Tk-based GUI
+**   --tk                 Bring up a Tcl/Tk GUI that shows the changes
+**                        associated with the most recent merge.
+**
+** Options used internally by --tk:
+**   --diff12 FILE        Bring up a separate --tk diff for just the baseline
+**                        and local variants of FILE.
+**   --diff13 FILE        Like --diff12 but for baseline versus merge-in
+**   --diff23 FILE        Like --diff12 but for local versus merge-in
 **   --tcl FILE           Generate (to stdout) a TCL list containing
 **                        information needed to display the changes to
 **                        FILE caused by the most recent merge.  FILE must
 **                        be a pathname relative to the root of the check-out.
-**   --tk                 Bring up a Tcl/Tk GUI that shows the changes
-**                        associated with the most recent merge.
 **
-** Additional debugging options available only when --tk is used:
+** Debugging options available only when --tk is used:
 **   --debug              Show sub-commands run to implement --tk
 **   --script FILE        Write script used to implement --tk into FILE
-
 */
 void merge_info_cmd(void){
   const char *zCnt;
@@ -281,6 +332,8 @@ void merge_info_cmd(void){
   Stmt q;
   const char *zWhere;
   int cnt = 0;
+  const char *zDiff2 = 0;
+  int diffMode = 0;
 
   db_must_be_within_tree();
   zTcl = find_option("tcl", 0, 1);
@@ -288,6 +341,15 @@ void merge_info_cmd(void){
   zCnt = find_option("context", "c", 1);
   bDark = find_option("dark", 0, 0)!=0;
   bAll = find_option("all", "a", 0)!=0;
+  if( (zDiff2 = find_option("diff12", 0, 1))!=0 ){
+    diffMode = 12;
+  }else
+  if( (zDiff2 = find_option("diff13", 0, 1))!=0 ){
+    diffMode = 13;
+  }else
+  if( (zDiff2 = find_option("diff23", 0, 1))!=0 ){
+    diffMode = 23;
+  }
   if( bTk==0 ){
     verify_all_options();
     if( g.argc>2 ){
@@ -314,6 +376,10 @@ void merge_info_cmd(void){
   }
   if( zTcl ){
     merge_info_tcl(zTcl, nContext);
+    return;
+  }
+  if( diffMode ){
+    merge_two_way_file_diff(diffMode, zDiff2, nContext, bDark);
     return;
   }
   if( bAll ){

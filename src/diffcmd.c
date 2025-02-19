@@ -166,6 +166,8 @@ void diff_print_filenames(
   /* Standardize on /dev/null, regardless of platform. */
   if( pCfg->diffFlags & DIFF_FILE_ADDED ) zLeft = "/dev/null";
   if( pCfg->diffFlags & DIFF_FILE_DELETED ) zRight = "/dev/null";
+  if( pCfg->azLabel[0] ) zLeft = pCfg->azLabel[0];
+  if( pCfg->azLabel[1] ) zRight = pCfg->azLabel[1];
   if( diffFlags & (DIFF_BRIEF|DIFF_RAW) ){
     /* no-op */
   }else if( diffFlags & DIFF_DEBUG ){
