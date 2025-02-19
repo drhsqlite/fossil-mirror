@@ -112,7 +112,10 @@ proc readDiffs {fossilcmd} {
   set toIndex [lsearch -glob $fossilcmd *-to]
   set branchIndex [lsearch -glob $fossilcmd *-branch]
   set checkinIndex [lsearch -glob $fossilcmd *-checkin]
-  if {[lsearch -glob $fossilcmd *-label]>=0} {
+  if {[lsearch -glob $fossilcmd *-label]>=0
+    || [lindex $fossilcmd 2]=="xdiff"
+    || [lindex $fossilcmd 2]=="fdiff"
+  } {
     set fA {}
     set fB {}
   } else {
