@@ -30,6 +30,7 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
   int i;
   Blob script;
   const char *zTempFile = 0;
+  int bDebug;
   char *zCmd;
   const char *zTclsh;
   zTclsh = find_option("tclsh",0,1);
@@ -40,6 +41,7 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
   ** be written into the FILENAME instead of being run.  This is used
   ** for testing and debugging. */
   zTempFile = find_option("script",0,1);
+  bDebug = find_option("debug",0,0)!=0;
   verify_all_options();
 
   blob_zero(&script);
@@ -95,6 +97,7 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
   }
   blob_appendf(&script, "]\n");
   blob_appendf(&script, "set darkmode %d\n", bDark!=0);
+  blob_appendf(&script, "set debug %d\n", bDebug!=0);
   blob_appendf(&script, "%s", builtin_file("merge.tcl", 0));
   if( zTempFile ){
     blob_write_to_file(&script, zTempFile);
@@ -116,6 +119,10 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
 #endif
     zTempFile = write_blob_to_temp_file(&script);
     zCmd = mprintf("%$ %$", zTclsh, zTempFile);
+    if( bDebug ){
+      fossil_print("%s\n", zCmd);
+      fflush(stdout);
+    }
     fossil_system(zCmd);
     file_delete(zTempFile);
     fossil_free(zCmd);
@@ -259,6 +266,10 @@ static void merge_info_tcl(const char *zFName, int nContext){
 **   --tk                 Bring up a Tcl/Tk GUI that shows the changes
 **                        associated with the most recent merge.
 **
+** Additional debugging options available only when --tk is used:
+**   --debug              Show sub-commands run to implement --tk
+**   --script FILE        Write script used to implement --tk into FILE
+
 */
 void merge_info_cmd(void){
   const char *zCnt;

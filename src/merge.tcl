@@ -95,7 +95,7 @@ proc colType {c} {
 }
 
 proc readMerge {args} {
-  global fossilcmd ncontext current_file
+  global fossilcmd ncontext current_file debug
   if {$ncontext=="All"} {
     set cmd "$fossilcmd -c -1"
   } else {
@@ -104,6 +104,11 @@ proc readMerge {args} {
   if {[info exists current_file]} {
     regsub {^[A-Z]+ } $current_file {} fn
     append cmd " -tcl [list $fn]"
+  }
+  if {$debug} {
+    regsub {^\| +} $cmd {} cmd2
+    puts $cmd2
+    flush stdout
   }
   if {[catch {
     set in [open $cmd r]
