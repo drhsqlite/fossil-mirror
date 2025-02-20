@@ -348,8 +348,8 @@ foreach {key axis args} {
 }
 
 frame .bb
-::ttk::menubutton .bb.diff2 -text {2-way diffs} -menu .bb.diff2.m
-menu .bb.diff2.m
+::ttk::menubutton .bb.diff2 -text {2-way diff} -menu .bb.diff2.m
+menu .bb.diff2.m -tearoff 0
 .bb.diff2.m add command -label {baseline vs. local} -command {two-way 12}
 .bb.diff2.m add command -label {baseline vs. merge-in} -command {two-way 13}
 .bb.diff2.m add command -label {local vs. merge-in} -command {two-way 23}
