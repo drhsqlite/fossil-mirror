@@ -1190,6 +1190,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   const char *zTempFile = 0;
   char *zCmd;
   const char *zTclsh;
+  int bDebug = find_option("tkdebug",0,0)!=0;
   int bDarkMode = find_option("dark",0,0)!=0;
   blob_zero(&script);
   /* Caution:  When this routine is called from the merge-info command,
@@ -1224,6 +1225,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
     }
   }
   blob_appendf(&script, "}\nset darkmode %d\n", bDarkMode);
+  blob_appendf(&script, "set debug %d\n", bDebug);
   blob_appendf(&script, "%s", builtin_file("diff.tcl", 0));
   if( zTempFile ){
     blob_write_to_file(&script, zTempFile);

@@ -369,6 +369,7 @@ proc two-way {mode} {
     lappend cmd --dark
   }
   if {$debug} {
+    lappend cmd --tkdebug
     puts $cmd
     flush stdout
   }

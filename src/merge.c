@@ -41,7 +41,7 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
   ** be written into the FILENAME instead of being run.  This is used
   ** for testing and debugging. */
   zTempFile = find_option("script",0,1);
-  bDebug = find_option("debug",0,0)!=0;
+  bDebug = find_option("tkdebug",0,0)!=0;
   verify_all_options();
 
   blob_zero(&script);
@@ -316,7 +316,7 @@ static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
 **                        be a pathname relative to the root of the check-out.
 **
 ** Debugging options available only when --tk is used:
-**   --debug              Show sub-commands run to implement --tk
+**   --tkdebug            Show sub-commands run to implement --tk
 **   --script FILE        Write script used to implement --tk into FILE
 */
 void merge_info_cmd(void){
@@ -347,14 +347,7 @@ void merge_info_cmd(void){
   if( (zDiff2 = find_option("diff23", 0, 1))!=0 ){
     diffMode = 23;
   }
-  
-  if( bTk==0 ){
-    find_option("v",0,0);
-    verify_all_options();
-    if( g.argc>2 ){
-      usage("[OPTIONS]");
-    }
-  }
+
   if( zCnt ){
     nContext = atoi(zCnt);
     if( nContext<0 ) nContext = 0xfffffff;
@@ -386,6 +379,12 @@ void merge_info_cmd(void){
     fossil_free(zCmd);
     return;
   }
+
+  verify_all_options();
+  if( g.argc>2 ){
+    usage("[OPTIONS]");
+  }
+
   if( bAll ){
     zWhere = "";
   }else{

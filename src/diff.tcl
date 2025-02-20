@@ -93,8 +93,12 @@ proc getLine {difftxt N iivar} {
 }
 
 proc readDiffs {fossilcmd} {
-  global difftxt
+  global difftxt debug
   if {![info exists difftxt]} {
+    if {$debug} {
+      puts "# [list open $fossilcmd r]"
+      flush stdout
+    }
     set in [open $fossilcmd r]
     fconfigure $in -encoding utf-8
     set difftxt [split [read $in] \n]
