@@ -1,5 +1,5 @@
-C Add\sthe\s--debug\soption\sto\s"fossil\smerge-info\s--tk".\s\sDocument\sthat\sand\sthe\n--script\soption.
-D 2025-02-19T17:10:11.540
+C Enhance\sthe\s"fossil\smerge-info\s--tk"\sapplication\swith\sa\snew\smenu\sthat\nwill\sbring\sup\sdetailed\stwo-way\sdiffs\sbetween\ssource\scomponents.\s\sThis\ninvolves\svarious\sdiff\ssubsystem\supgrades,\sincluding:\n(1)\sAdd\sthe\s"fdiff"\scommand.\s\s(Not\sactually\sneeded\shere,\sbut\suseful.)\n(2)\sAdd\s--label\soptions\son\sdiff\scommands.\n(3)\sAdd\s--tkdebug\son\sdiff\scommands\sfor\sdebugging.\n(4)\sImprovements\sto\scolumn\stitles\sin\stwo-way\sdiffs.
+D 2025-02-20T13:36:26.789
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,10 +416,10 @@ F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c fd6e2efe2463ecef6503efe9bd898f52bb1af3ff1c786d484c8998cb6a33a74a
-F src/diff.c 8f990098ef9cf6c590a1ea45e8f6e0a1a1649b4d66888827134374d06c9dab9f
+F src/diff.c 0144a6dfefff72e2a0ca6da7a74703be4150feab1fd2d272f39565c3cf35c849
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
-F src/diff.tcl 5d3d6d51dc6e05b06e5449299c0e2fbbfc754885fd08070fea232457c764d871
-F src/diffcmd.c e49987d60089292ccc97f35716a59cc32302c3491860e6f552a1a2a756c88286
+F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
+F src/diffcmd.c cec6c9f65439be9591c1ba8e79911cde35b40ba827709a27240e1600880c9a0c
 F src/dispatch.c 08b7f541f0fbf027c247d280ec2551342c238d39dac1e27c98a66013e6c71e09
 F src/doc.c d576f614d099399f5cd17db085743bd37fe73cadd136abb1a9db912c9e82a118
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
@@ -501,8 +501,8 @@ F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7
 F src/match.c 3fe696bc2df074431806817c5ebd95754ead9c26c700f92b8bc4cca192f44280
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 9783ebbd6eadff9dd1c2d26c0dd42fb710229e45d8b0a5a9941b5e057eac5e2f
-F src/merge.tcl 260b2623fb5f6f64c3a784484848b49ae1850c3c8bbfbd16a098f4552aa6c9aa
+F src/merge.c 1f8aadaa868b51906df6f7a2967abfe74b52e380dc00152ebfe194f5b2cef9bf
+F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 26dc83bb01d2c4c96959dfc071ec6bb328779dce4ec611b9d9135ad8fca28212
@@ -963,8 +963,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea94e4c1b20a2afc4ee1fb90e75ba3957be9636f71cf3323a5951b5ac097ea16
-R 5520f4a900f87ef3f3c2031e46e43f2b
+P 97aee327ef8e144910243ea42d71ea32ab66650842753a9044c430b2a0b31815 f9648f89467aac115dffa45ca588a387f5f22ce27ace42e11bfd298b83762529
+R 6590c0086635711d4402d20d5f906f83
+T +closed f9648f89467aac115dffa45ca588a387f5f22ce27ace42e11bfd298b83762529
 U drh
-Z 3f907b0306446a8be9027a5ab7f7e5d6
+Z e13758208afb11d2a12f4007ea6752bf
 # Remove this line to create a well-formed Fossil manifest.

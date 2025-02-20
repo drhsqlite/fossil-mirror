@@ -166,6 +166,8 @@ void diff_print_filenames(
   /* Standardize on /dev/null, regardless of platform. */
   if( pCfg->diffFlags & DIFF_FILE_ADDED ) zLeft = "/dev/null";
   if( pCfg->diffFlags & DIFF_FILE_DELETED ) zRight = "/dev/null";
+  if( pCfg->azLabel[0] ) zLeft = pCfg->azLabel[0];
+  if( pCfg->azLabel[1] ) zRight = pCfg->azLabel[1];
   if( diffFlags & (DIFF_BRIEF|DIFF_RAW) ){
     /* no-op */
   }else if( diffFlags & DIFF_DEBUG ){
@@ -1188,8 +1190,15 @@ void diff_tk(const char *zSubCmd, int firstArg){
   const char *zTempFile = 0;
   char *zCmd;
   const char *zTclsh;
+  int bDebug = find_option("tkdebug",0,0)!=0;
   int bDarkMode = find_option("dark",0,0)!=0;
   blob_zero(&script);
+  /* Caution:  When this routine is called from the merge-info command,
+  ** the --tcl argument requires an argument.  But merge-info does not
+  ** use -i, so we can take -i as that argument.  This routine needs to
+  ** always have -i after --tcl.
+  **                                                CAUTION!
+  **                                                vvvvvvv            */
   blob_appendf(&script, "set fossilcmd {| \"%/\" %s -tcl -i -v",
                g.nameOfExe, zSubCmd);
   find_option("tcl",0,0);
@@ -1216,6 +1225,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
     }
   }
   blob_appendf(&script, "}\nset darkmode %d\n", bDarkMode);
+  blob_appendf(&script, "set debug %d\n", bDebug);
   blob_appendf(&script, "%s", builtin_file("diff.tcl", 0));
   if( zTempFile ){
     blob_write_to_file(&script, zTempFile);

@@ -2,19 +2,23 @@
 # common ancestor.  The next two columns are edits of that common ancestor.
 # The right-most column is the result of the merge.
 #
-# There is always a "fossilcmd" variable which tells the script how to
-# invoke Fossil to get the information it needs.  This script will
-# automatically append "-c N" to tell Fossil how much context it wants.
+# Several variables will have been initialized:
+#
+#    ncontext            The number of lines of context to show on each change
+#
+#    fossilexe           Pathname of the fossil program
+#
+#    filelist            A list of "merge-type filename" pairs.
+#
+#    darkmode            Boolean.  True for dark mode
+#
+#    debug               Boolean.  True for debugging output
 #
 # If the "filelist" global variable is defined, then it is a list of
 # alternating "merge-type names" (ex: UPDATE, MERGE, CONFLICT, ERROR) and
 # filenames.  In that case, the initial display shows the changes for
 # the first pair on the list and there is a optionmenu that allows the
 # user to select other fiels on the list.
-#
-# There should also be a global variable named "ncontext" which is the
-# number of lines of context to display.  The value of this variable
-# controls the "-c N" argument that is appended to fossilcmd.
 #
 # This header comment is stripped off by the "mkbuiltin.c" program.
 #
@@ -95,15 +99,15 @@ proc colType {c} {
 }
 
 proc readMerge {args} {
-  global fossilcmd ncontext current_file debug
+  global fossilexe ncontext current_file debug
   if {$ncontext=="All"} {
-    set cmd "$fossilcmd -c -1"
+    set cmd "| $fossilexe merge-info -c -1"
   } else {
-    set cmd "$fossilcmd -c $ncontext"
+    set cmd "| $fossilexe merge-info -c $ncontext"
   }
   if {[info exists current_file]} {
     regsub {^[A-Z]+ } $current_file {} fn
-    append cmd " -tcl [list $fn]"
+    lappend cmd -tcl $fn
   }
   if {$debug} {
     regsub {^\| +} $cmd {} cmd2
@@ -344,6 +348,34 @@ foreach {key axis args} {
 }
 
 frame .bb
+::ttk::menubutton .bb.diff2 -text {2-way diff} -menu .bb.diff2.m
+menu .bb.diff2.m -tearoff 0
+.bb.diff2.m add command -label {baseline vs. local} -command {two-way 12}
+.bb.diff2.m add command -label {baseline vs. merge-in} -command {two-way 13}
+.bb.diff2.m add command -label {local vs. merge-in} -command {two-way 23}
+
+# Bring up a separate two-way diff between a pair of columns
+# the argument is one of:
+#    12       Baseline versus Local
+#    13       Baseline versus Merge-in
+#    23       Local versus Merge-in
+#
+proc two-way {mode} {
+  global current_file fossilexe debug darkmode ncontext
+  regsub {^[A-Z]+ } $current_file {} fn
+  set cmd $fossilexe
+  lappend cmd merge-info --diff$mode $fn -c $ncontext
+  if {$darkmode} {
+    lappend cmd --dark
+  }
+  if {$debug} {
+    lappend cmd --tkdebug
+    puts $cmd
+    flush stdout
+  }
+  exec {*}$cmd &
+}
+
 set useOptionMenu 1
 if {[info exists filelist]} {
   set current_file "[lindex $filelist 0] [lindex $filelist 1]"
@@ -581,12 +613,13 @@ proc searchStep {direction incr start stop} {
 }
 ::ttk::button .bb.quit -text {Quit} -command exit
 ::ttk::button .bb.search -text {Search} -command searchOnOff
-pack .bb.quit -side left
+pack .bb.quit -side left -fill y
+pack .bb.diff2 -side left -fill y
 if {[winfo exists .bb.files]} {
-  pack .bb.files -side left
+  pack .bb.files -side left -fill y
 }
-pack .bb.ctxtag .bb.ctx -side left
-pack .bb.search -side left
+pack .bb.ctxtag .bb.ctx -side left -fill y
+pack .bb.search -side left -fill y
 grid rowconfigure . 1 -weight 1 -minsize [winfo reqheight .nameA]
 grid rowconfigure . 2 -weight 100
 readMerge
