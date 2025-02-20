@@ -101,6 +101,7 @@ SRC = \
   $(SRCDIR)/manifest.c \
   $(SRCDIR)/markdown.c \
   $(SRCDIR)/markdown_html.c \
+  $(SRCDIR)/match.c \
   $(SRCDIR)/md5.c \
   $(SRCDIR)/merge.c \
   $(SRCDIR)/merge3.c \
@@ -366,6 +367,7 @@ TRANS_SRC = \
   $(OBJDIR)/manifest_.c \
   $(OBJDIR)/markdown_.c \
   $(OBJDIR)/markdown_html_.c \
+  $(OBJDIR)/match_.c \
   $(OBJDIR)/md5_.c \
   $(OBJDIR)/merge_.c \
   $(OBJDIR)/merge3_.c \
@@ -515,6 +517,7 @@ OBJ = \
  $(OBJDIR)/manifest.o \
  $(OBJDIR)/markdown.o \
  $(OBJDIR)/markdown_html.o \
+ $(OBJDIR)/match.o \
  $(OBJDIR)/md5.o \
  $(OBJDIR)/merge.o \
  $(OBJDIR)/merge3.o \
@@ -590,6 +593,7 @@ $(OBJDIR):
 	-mkdir $(OBJDIR)
 
 $(OBJDIR)/translate:	$(SRCDIR_tools)/translate.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR_tools)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR_tools)/makeheaders.c
@@ -646,10 +650,11 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_MAX_EXPR_DEPTH=0 \
                  -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -DSQLITE_ENABLE_FTS4 \
-                 -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_FTS5 \
+                 -DSQLITE_ENABLE_MATH_FUNCTIONS \
                  -DSQLITE_ENABLE_STMTVTAB \
                  -DSQLITE_HAVE_ZLIB \
                  -DSQLITE_ENABLE_DBPAGE_VTAB \
@@ -671,10 +676,11 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_MAX_EXPR_DEPTH=0 \
                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                -DSQLITE_ENABLE_DBSTAT_VTAB \
                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                 -DSQLITE_ENABLE_FTS4 \
-                -DSQLITE_ENABLE_DBSTAT_VTAB \
                 -DSQLITE_ENABLE_FTS5 \
+                -DSQLITE_ENABLE_MATH_FUNCTIONS \
                 -DSQLITE_ENABLE_STMTVTAB \
                 -DSQLITE_HAVE_ZLIB \
                 -DSQLITE_ENABLE_DBPAGE_VTAB \
@@ -850,6 +856,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/manifest_.c:$(OBJDIR)/manifest.h \
 	$(OBJDIR)/markdown_.c:$(OBJDIR)/markdown.h \
 	$(OBJDIR)/markdown_html_.c:$(OBJDIR)/markdown_html.h \
+	$(OBJDIR)/match_.c:$(OBJDIR)/match.h \
 	$(OBJDIR)/md5_.c:$(OBJDIR)/md5.h \
 	$(OBJDIR)/merge_.c:$(OBJDIR)/merge.h \
 	$(OBJDIR)/merge3_.c:$(OBJDIR)/merge3.h \
@@ -1599,6 +1606,14 @@ $(OBJDIR)/markdown_html.o:	$(OBJDIR)/markdown_html_.c $(OBJDIR)/markdown_html.h 
 	$(XTCC) -o $(OBJDIR)/markdown_html.o -c $(OBJDIR)/markdown_html_.c
 
 $(OBJDIR)/markdown_html.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/match_.c:	$(SRCDIR)/match.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/match.c >$@
+
+$(OBJDIR)/match.o:	$(OBJDIR)/match_.c $(OBJDIR)/match.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/match.o -c $(OBJDIR)/match_.c
+
+$(OBJDIR)/match.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/md5_.c:	$(SRCDIR)/md5.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/md5.c >$@

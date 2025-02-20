@@ -77,6 +77,8 @@ write_file_indented t3 {
 write_file_indented t23 {
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<< (line 1)
   111 - This is line ONE of the demo program - 1111
+  ####### SUGGESTED CONFLICT RESOLUTION follows ###################
+  111 - This is line ONE OF the demo program - 1111
   ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||| (line 1)
   111 - This is line one of the demo program - 1111
   ======= MERGED IN content follows =============================== (line 1)
@@ -90,6 +92,8 @@ write_file_indented t23 {
 write_file_indented t32 {
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<< (line 1)
   111 - This is line one OF the demo program - 1111
+  ####### SUGGESTED CONFLICT RESOLUTION follows ###################
+  111 - This is line ONE OF the demo program - 1111
   ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||| (line 1)
   111 - This is line one of the demo program - 1111
   ======= MERGED IN content follows =============================== (line 1)
@@ -161,6 +165,9 @@ write_file_indented t3 {
 }
 write_file_indented t32 {
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<< (line 1)
+  ####### SUGGESTED CONFLICT RESOLUTION follows ###################
+  000 - Zero lines added to the beginning of - 0000
+  111 - This is line one of the demo program - 1111
   ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||| (line 1)
   111 - This is line one of the demo program - 1111
   ======= MERGED IN content follows =============================== (line 1)
@@ -308,6 +315,15 @@ write_file_indented t23 {
   yzAB 2
   CDEF 2
   GHIJ 2
+  ####### SUGGESTED CONFLICT RESOLUTION follows ###################
+  efgh 2
+  ijkl 2
+  mnop 3
+  qrst 3
+  uvwx 3
+  yzAB 3
+  CDEF 2
+  GHIJ 2
   ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||| (line 2)
   efgh
   ijkl
@@ -374,6 +390,15 @@ write_file_indented t23 {
   qrst
   uvwx
   yzAB 2
+  CDEF 2
+  GHIJ 2
+  ####### SUGGESTED CONFLICT RESOLUTION follows ###################
+  efgh 2
+  ijkl 2
+  mnop 3
+  qrst 3
+  uvwx 3
+  yzAB 3
   CDEF 2
   GHIJ 2
   ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||| (line 2)

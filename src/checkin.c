@@ -1565,13 +1565,13 @@ static void prepare_commit_comment(
         diffFiles[i].nName = strlen(diffFiles[i].zName);
         diffFiles[i].nUsed = 0;
       }
-      diff_against_disk(0, &DCfg, diffFiles, &prompt);
+      diff_version_to_checkout(0, &DCfg, diffFiles, &prompt);
       for( i=0; diffFiles[i].zName; ++i ){
         fossil_free(diffFiles[i].zName);
       }
       fossil_free(diffFiles);
     }else{
-      diff_against_disk(0, &DCfg, 0, &prompt);
+      diff_version_to_checkout(0, &DCfg, 0, &prompt);
     }
   }
   prompt_for_user_comment(pComment, &prompt);
@@ -2356,6 +2356,8 @@ static int tagCmp(const void *a, const void *b){
 **    --delta                    Use a delta manifest in the commit process
 **    --hash                     Verify file status using hashing rather
 **                               than relying on file mtimes
+**    --if-changes               Make this command a silent no-op if there
+**                               are no changes
 **    --ignore-clock-skew        If a clock skew is detected, ignore it and
 **                               behave as if the user had entered 'yes' to
 **                               the question of whether to proceed despite
@@ -2411,6 +2413,7 @@ void commit_cmd(void){
   int forceBaseline = 0; /* Force a baseline-manifest */
   int allowConflict = 0; /* Allow unresolve merge conflicts */
   int allowEmpty = 0;    /* Allow a commit with no changes */
+  int onlyIfChanges = 0; /* No-op if there are no changes */
   int allowFork = 0;     /* Allow the commit to fork */
   int allowOlder = 0;    /* Allow a commit older than its ancestor */
   char *zManifestFile;   /* Name of the manifest file */
@@ -2468,6 +2471,7 @@ void commit_cmd(void){
   forceFlag = find_option("force", "f", 0)!=0;
   allowConflict = find_option("allow-conflict",0,0)!=0;
   allowEmpty = find_option("allow-empty",0,0)!=0;
+  onlyIfChanges = find_option("if-changes",0,0)!=0;
   allowFork = find_option("allow-fork",0,0)!=0;
   if( find_option("override-lock",0,0)!=0 ) allowFork = 1;
   allowOlder = find_option("allow-older",0,0)!=0;
@@ -2584,6 +2588,12 @@ void commit_cmd(void){
     qsort((void*)sCiInfo.azTag, nTag, sizeof(sCiInfo.azTag[0]), tagCmp);
   }
 
+  hasChanges = unsaved_changes(useHash ? CKSIG_HASH : 0);
+  if( hasChanges==0 && onlyIfChanges ){
+    /* "fossil commit --if-changes" is a no-op if there are no changes. */
+    return;
+  }
+
   /*
   ** Autosync if autosync is enabled and this is not a private check-in.
   */
@@ -2688,7 +2698,6 @@ void commit_cmd(void){
     db_finalize(&q);
   }
 
-  hasChanges = unsaved_changes(useHash ? CKSIG_HASH : 0);
   db_begin_transaction();
   db_record_repository_filename(0);
   if( hasChanges==0 && !isAMerge && !allowEmpty && !forceFlag ){

@@ -47,6 +47,20 @@ if {[opt-bool print-minimum-sqlite-version]} {
     exit 0
 }
 
+# Space characters have never been allowed in either the source
+# tree nor the build directory.  But the resulting error messages
+# could be confusing.  The following checks make the reason for the
+# failure clear.
+#
+if {[string first " " $autosetup(srcdir)] != -1} {
+  user-error "The pathname of the source tree\
+              may not contain space characters"
+}
+if {[string first " " $autosetup(builddir)] != -1} {
+  user-error "The pathname of the build directory\
+              may not contain space characters"
+}
+
 set outOfTreeBuild 0
 if {![file exists fossil.1]} {
   puts "This appears to be an out-of-tree build."
@@ -84,7 +98,7 @@ set hbtd /usr/local/Cellar/tcl-tk
 if {[string equal false [get-define TCLSH]]} {
     msg-result "WARNING: 'make test' will not run here."
 } else {
-    set v [exec /bin/sh -c "echo 'puts \$tcl_version' | tclsh"]
+    set v [exec sh -c "echo 'puts \$tcl_version' | tclsh"]
     if {[expr {$v >= 8.6}]} {
         msg-result "Found Tclsh version $v in the PATH."
         define TCLSH tclsh
@@ -106,7 +120,7 @@ if {[string equal false [get-define TCLSH]]} {
     }
 }
 
-define CFLAGS [get-env CFLAGS "-g -O2"]
+define CFLAGS [get-env CFLAGS "-g -Os"]
 define EXTRA_CFLAGS "-Wall"
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
@@ -232,7 +246,10 @@ if {![opt-bool internal-sqlite]} {
 }
 
 proc is_mingw {} {
-    return [string match *mingw* [get-define host]]
+  return [expr {
+    [string match *mingw* [get-define host]] &&
+   ![file exists "/dev/null"]
+  }]
 }
 
 if {[is_mingw]} {
@@ -424,11 +441,11 @@ if {$ssldirs ne "none"} {
         if {![file isdirectory $ssldir]} {
             user-error "The OpenSSL in source tree directory does not exist"
         }
-        set msg "ssl in $ssldir"
+        set msg "openssl in $ssldir"
         set cflags "-I$ssldir/include"
         set ldflags "-L$ssldir"
         set ssllibs "$ssldir/libssl.a $ssldir/libcrypto.a -lpthread"
-        set found [check-for-openssl "ssl in source tree" "$cflags $ldflags" $ssllibs]
+        set found [check-for-openssl "openssl in source tree" "$cflags $ldflags" $ssllibs]
     } else {
         if {$ssldirs in {auto ""}} {
             catch {
@@ -445,17 +462,26 @@ if {$ssldirs ne "none"} {
         if {!$found} {
             foreach dir $ssldirs {
                 if {$dir eq ""} {
-                    set msg "system ssl"
+                    set msg "system openssl"
                     set cflags ""
                     set ldflags ""
                 } else {
-                    set msg "ssl in $dir"
+                    set msg "openssl in $dir"
                     set cflags "-I$dir/include"
                     set ldflags "-L$dir/lib"
                 }
                 if {[check-for-openssl $msg "$cflags $ldflags"]} {
                     incr found
                     break
+                }
+                if {$dir ne ""} {
+                    set ldflags ""
+                    set msg "static build of openssl in $dir"
+                    set ssllibs "$dir/libssl.a $dir/libcrypto.a -lpthread"
+                    if {[check-for-openssl $msg "$cflags $ldflags" $ssllibs]} {
+                        incr found
+                        break
+                    }
                 }
             }
         }
@@ -685,33 +711,6 @@ if {$tclpath ne ""} {
     define FOSSIL_ENABLE_TCL
 }
 
-# Emscripten is a purely optional component used only for doing
-# in-tree builds of WASM stuff, as opposed to WASM binaries we import
-# from other places. This is only set up for Unix-style OSes and is
-# untested anywhere but Linux.
-set emsdkHome [opt-val with-emsdk]
-define EMSDK_HOME ""
-define EMSDK_ENV ""
-define EMCC_OPT "-Oz"
-if {$emsdkHome eq "" && [info exists ::env(EMSDK)]} {
-  # Fall back to checking the environment. $EMSDK gets set
-  # by sourcing emsdk_env.sh.
-  set emsdkHome $::env(EMSDK)
-}
-if {$emsdkHome ne ""} {
-  define EMSDK_HOME $emsdkHome
-  set emsdkEnv "$emsdkHome/emsdk_env.sh"
-  if {[file exists $emsdkEnv]} {
-    puts "Using Emscripten SDK environment from $emsdkEnv."
-    define EMSDK_ENV $emsdkEnv
-    if {[info exists ::env(EMCC_OPT)]} {
-      define EMCC_OPT $::env(EMCC_OPT)
-    }
-  } else {
-    puts "emsdk_env.sh not found. Assuming emcc is in the PATH."
-  }
-}
-
 # Network functions require libraries on some systems
 cc-check-function-in-lib gethostbyname nsl
 if {![cc-check-function-in-lib socket {socket network}]} {
@@ -720,6 +719,9 @@ if {![cc-check-function-in-lib socket {socket network}]} {
         define-append LIBS -lwsock32
     }
 }
+
+# Some systems (ex: SunOS) require -lrt in order to use nanosleep
+cc-check-function-in-lib nanosleep rt
 
 # The SMTP module requires special libraries and headers for MX DNS
 # record lookups and such.
@@ -746,7 +748,7 @@ cc-check-functions pledge
 cc-check-functions backtrace
 
 # Termux on Android adds "getpass(char *)" to unistd.h, so check this so we
-# guard against including it again; use cctest as cc-check-functions and 
+# guard against including it again; use cctest as cc-check-functions and
 # cctest_function check for "getpass()" with no args and fail
 if {[cctest -link 1 -includes {unistd.h} -code "getpass(0);"]} {
     define FOSSIL_HAVE_GETPASS 1
@@ -838,12 +840,84 @@ if {[opt-bool static]} {
     define-append LIBS -lpthread
 }
 
-if {[get-define EMSDK_HOME] ne ""} {
+
+########################################################################
+# @proj-check-emsdk
+#
+# Emscripten is used for doing in-tree builds of web-based WASM stuff,
+# as opposed to WASI-based WASM or WASM binaries we import from other
+# places. This is only set up for Unix-style OSes and is untested
+# anywhere but Linux. Requires that the --with-emsdk flag be
+# registered with autosetup.
+#
+# It looks for the SDK in the location specified by --with-emsdk.
+# Values of "" or "auto" mean to check for the environment var EMSDK
+# (which gets set by the emsdk_env.sh script from the SDK) or that
+# same var passed to configure.
+#
+# If the given directory is found, it expects to find emsdk_env.sh in
+# that directory, as well as the emcc compiler somewhere under there.
+#
+# If the --with-emsdk flag is explicitly provided and the SDK is not
+# found then a fatal error is generated, otherwise failure to find the
+# SDK is not fatal.
+#
+# Defines the following:
+#
+# - EMSDK_HOME = top dir of the emsdk or "".
+# - EMSDK_ENV_SH = path to EMSDK_HOME/emsdk_env.sh or ""
+# - BIN_EMCC = $EMSDK_HOME/upstream/emscripten/emcc or ""
+# - HAVE_EMSDK = 0 or 1 (this function's return value)
+#
+# Returns 1 if EMSDK_ENV_SH is found, else 0.  If EMSDK_HOME is not empty
+# but BIN_EMCC is then emcc was not found in the EMSDK_HOME, in which
+# case we have to rely on the fact that sourcing $EMSDK_ENV_SH from a
+# shell will add emcc to the $PATH.
+proc proj-check-emsdk {} {
+  set emsdkHome [opt-val with-emsdk]
+  define EMSDK_HOME ""
+  define EMSDK_ENV_SH ""
+  define BIN_EMCC ""
+  set hadValue [llength $emsdkHome]
+  msg-checking "Emscripten SDK? "
+  if {$emsdkHome in {"" "auto"}} {
+    # Check the environment. $EMSDK gets set by sourcing emsdk_env.sh.
+    set emsdkHome [get-env EMSDK ""]
+  }
+  set rc 0
+  if {$emsdkHome ne ""} {
+    define EMSDK_HOME $emsdkHome
+    set emsdkEnv "$emsdkHome/emsdk_env.sh"
+    if {[file exists $emsdkEnv]} {
+      msg-result "$emsdkHome"
+      define EMSDK_ENV_SH $emsdkEnv
+      set rc 1
+      set emcc "$emsdkHome/upstream/emscripten/emcc"
+      if {[file exists $emcc]} {
+        define BIN_EMCC $emcc
+      }
+    } else {
+      msg-result "emsdk_env.sh not found in $emsdkHome"
+    }
+  } else {
+    msg-result "not found"
+  }
+  if {$hadValue && 0 == $rc} {
+    # Fail if it was explicitly requested but not found
+    proj-fatal "Cannot find the Emscripten SDK"
+  }
+  define HAVE_EMSDK $rc
+  return $rc
+}
+
+if {[proj-check-emsdk]} {
   define EMCC_WRAPPER $::autosetup(dir)/../tools/emcc.sh
+  define EMCC_OPT [get-env EMCC_OPT "-Oz"]; # optional flags to pass to emcc
   make-template tools/emcc.sh.in
   catch {exec chmod u+x tools/emcc.sh}
 } else {
   define EMCC_WRAPPER ""
+  define EMCC_OPT ""
   catch {exec rm -f tools/emcc.sh}
 }
 

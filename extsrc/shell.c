@@ -357,6 +357,11 @@ void sqlite3_fsetmode(FILE *stream, int mode);
 ** use O_U8TEXT when writing to the Windows console (or anything
 ** else for which _isatty() returns true) and to use O_BINARY or O_TEXT
 ** for all other output channels.
+**
+** The SQLITE_USE_W32_FOR_CONSOLE_IO macro is also available.  If
+** defined, it forces the use of Win32 APIs for all console I/O, both
+** input and output.  This is necessary for some non-Microsoft run-times
+** that implement stdio differently from Microsoft/Visual-Studio.
 */
 #if defined(SQLITE_U8TEXT_ONLY)
 # define UseWtextForOutput(fd) 1
@@ -459,10 +464,10 @@ char *sqlite3_fgets(char *buf, int sz, FILE *in){
     */
     wchar_t *b1 = sqlite3_malloc( sz*sizeof(wchar_t) );
     if( b1==0 ) return 0;
-#ifndef SQLITE_USE_STDIO_FOR_CONSOLE
+#ifdef SQLITE_USE_W32_FOR_CONSOLE_IO
     DWORD nRead = 0;
     if( IsConsole(in)
-     && ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), b1, sz, &nRead, 0)
+     && ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), b1, sz-1, &nRead, 0)
     ){
       b1[nRead] = 0;
     }else
@@ -537,7 +542,7 @@ int sqlite3_fputs(const char *z, FILE *out){
     sz = MultiByteToWideChar(CP_UTF8, 0, z, sz, b1, sz);
     b1[sz] = 0;
 
-#ifndef SQLITE_STDIO_FOR_CONSOLE
+#ifdef SQLITE_USE_W32_FOR_CONSOLE_IO
     DWORD nWr = 0;
     if( IsConsole(out)
       && WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),b1,sz,&nWr,0)
@@ -547,8 +552,9 @@ int sqlite3_fputs(const char *z, FILE *out){
     }else
 #endif
     {
-      /* For non-console I/O, or if SQLITE_USE_STDIO_FOR_CONSOLE is defined
-      ** then write using the standard library. */
+      /* As long as SQLITE_USE_W32_FOR_CONSOLE_IO is not defined, or for
+      ** non-console I/O even if that macro is defined, write using the
+      ** standard library. */
       _setmode(_fileno(out), _O_U8TEXT);
       if( UseBinaryWText(out) ){
         piecemealOutput(b1, sz, out);
@@ -5291,15 +5297,15 @@ static u8* fromBase64( char *pIn, int ncIn, u8 *pOut ){
       case ND:
         /*  Treat dark non-digits as pad, but they terminate decode too. */
         ncIn = 0;
-        deliberate_fall_through;
+        deliberate_fall_through; /* FALLTHRU */
       case WS:
         /* Treat whitespace as pad and terminate this group.*/
         nti = nac;
-        deliberate_fall_through;
+        deliberate_fall_through; /* FALLTHRU */
       case PC:
         bdp = 0;
         --nbo;
-        deliberate_fall_through;
+        deliberate_fall_through; /* FALLTHRU */
       default: /* bdp is the digit value. */
         qv = qv<<6 | bdp;
         break;
@@ -5308,10 +5314,13 @@ static u8* fromBase64( char *pIn, int ncIn, u8 *pOut ){
     switch( nbo ){
     case 3:
       pOut[2] = (qv) & 0xff;
+      deliberate_fall_through; /* FALLTHRU */
     case 2:
       pOut[1] = (qv>>8) & 0xff;
+      deliberate_fall_through; /* FALLTHRU */
     case 1:
       pOut[0] = (qv>>16) & 0xff;
+      break;
     }
     pOut += nbo;
   }
@@ -5646,12 +5655,16 @@ static u8* fromBase85( char *pIn, int ncIn, u8 *pOut ){
     switch( nbo ){
     case 4:
       *pOut++ = (qv >> 24)&0xff;
+      /* FALLTHRU */
     case 3:
       *pOut++ = (qv >> 16)&0xff;
+      /* FALLTHRU */
     case 2:
       *pOut++ = (qv >> 8)&0xff;
+      /* FALLTHRU */
     case 1:
       *pOut++ = qv&0xff;
+      /* FALLTHRU */
     case 0:
       break;
     }
@@ -7694,7 +7707,8 @@ static const char *re_subcompile_string(ReCompiled *p){
 ** regular expression.  Applications should invoke this routine once
 ** for every call to re_compile() to avoid memory leaks.
 */
-static void re_free(ReCompiled *pRe){
+static void re_free(void *p){
+  ReCompiled *pRe = (ReCompiled*)p;
   if( pRe ){
     sqlite3_free(pRe->aOp);
     sqlite3_free(pRe->aArg);
@@ -8360,7 +8374,7 @@ static int writeFile(
 
     GetSystemTime(&currentTime);
     SystemTimeToFileTime(&currentTime, &lastAccess);
-    intervals = Int32x32To64(mtime, 10000000) + 116444736000000000;
+    intervals = (mtime*10000000) + 116444736000000000;
     lastWrite.dwLowDateTime = (DWORD)intervals;
     lastWrite.dwHighDateTime = intervals >> 32;
     zUnicodeName = sqlite3_win32_utf8_to_unicode(zFile);
@@ -16346,6 +16360,7 @@ struct vfstrace_file {
 #define VTR_SLEEP           0x02000000
 #define VTR_CURTIME         0x04000000
 #define VTR_LASTERR         0x08000000
+#define VTR_FETCH           0x10000000   /* Also coverse xUnfetch */
 
 /*
 ** Method declarations for vfstrace_file.
@@ -16775,6 +16790,7 @@ static int vfstraceFileControl(sqlite3_file *pFile, int op, void *pArg){
             { "currenttime",           VTR_CURTIME  },
             { "currenttimeint64",      VTR_CURTIME  },
             { "getlasterror",          VTR_LASTERR  },
+            { "fetch",                 VTR_FETCH    },
           };
           int onOff = 1;
           while( zArg[0] ){
@@ -17002,7 +17018,28 @@ static int vfstraceShmUnmap(sqlite3_file *pFile, int delFlag){
   vfstrace_print_errcode(pInfo, " -> %s\n", rc);
   return rc;
 }
-
+static int vfstraceFetch(sqlite3_file *pFile, i64 iOff, int nAmt, void **pptr){
+  vfstrace_file *p = (vfstrace_file *)pFile;
+  vfstrace_info *pInfo = p->pInfo;
+  int rc;
+  vfstraceOnOff(pInfo, VTR_FETCH);
+  vfstrace_printf(pInfo, "%s.xFetch(%s,iOff=%lld,nAmt=%d,p=%p)",
+                  pInfo->zVfsName, p->zFName, iOff, nAmt, *pptr);
+  rc = p->pReal->pMethods->xFetch(p->pReal, iOff, nAmt, pptr);
+  vfstrace_print_errcode(pInfo, " -> %s\n", rc);
+  return rc;
+}
+static int vfstraceUnfetch(sqlite3_file *pFile, i64 iOff, void *ptr){
+  vfstrace_file *p = (vfstrace_file *)pFile;
+  vfstrace_info *pInfo = p->pInfo;
+  int rc;
+  vfstraceOnOff(pInfo, VTR_FETCH);
+  vfstrace_printf(pInfo, "%s.xUnfetch(%s,iOff=%lld,p=%p)",
+                  pInfo->zVfsName, p->zFName, iOff, ptr);
+  rc = p->pReal->pMethods->xUnfetch(p->pReal, iOff, ptr);
+  vfstrace_print_errcode(pInfo, " -> %s\n", rc);
+  return rc;
+}
 
 
 /*
@@ -17048,6 +17085,10 @@ static int vfstraceOpen(
       pNew->xShmLock = pSub->xShmLock ? vfstraceShmLock : 0;
       pNew->xShmBarrier = pSub->xShmBarrier ? vfstraceShmBarrier : 0;
       pNew->xShmUnmap = pSub->xShmUnmap ? vfstraceShmUnmap : 0;
+    }
+    if( pNew->iVersion>=3 ){
+      pNew->xFetch = pSub->xFetch ? vfstraceFetch : 0;
+      pNew->xUnfetch = pSub->xUnfetch ? vfstraceUnfetch : 0;
     }
     pFile->pMethods = pNew;
   }
@@ -17164,7 +17205,7 @@ static void vfstraceDlClose(sqlite3_vfs *pVfs, void *pHandle){
   vfstrace_info *pInfo = (vfstrace_info*)pVfs->pAppData;
   sqlite3_vfs *pRoot = pInfo->pRootVfs;
   vfstraceOnOff(pInfo, VTR_DLCLOSE);
-  vfstrace_printf(pInfo, "%s.xDlOpen()\n", pInfo->zVfsName);
+  vfstrace_printf(pInfo, "%s.xDlClose()\n", pInfo->zVfsName);
   pRoot->xDlClose(pRoot, pHandle);
 }
 
@@ -27462,7 +27503,7 @@ static int arProcessSwitch(ArCommand *pAr, int eSwitch, const char *zArg){
       break;
     case AR_SWITCH_APPEND:
       pAr->bAppend = 1;
-      deliberate_fall_through;
+      deliberate_fall_through; /* FALLTHRU */
     case AR_SWITCH_FILE:
       pAr->zFile = zArg;
       break;
@@ -28850,6 +28891,9 @@ static int do_meta_command(char *zLine, ShellState *p){
       const char *zName;
       int op;
     } aDbConfig[] = {
+        { "attach_create",      SQLITE_DBCONFIG_ENABLE_ATTACH_CREATE  },
+        { "attach_write",       SQLITE_DBCONFIG_ENABLE_ATTACH_WRITE   },
+        { "comments",           SQLITE_DBCONFIG_ENABLE_COMMENTS       },
         { "defensive",          SQLITE_DBCONFIG_DEFENSIVE             },
         { "dqs_ddl",            SQLITE_DBCONFIG_DQS_DDL               },
         { "dqs_dml",            SQLITE_DBCONFIG_DQS_DML               },
@@ -30204,6 +30248,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     if( zFile==0 ){
       zFile = sqlite3_mprintf("stdout");
     }
+    shell_check_oom(zFile);
     if( bOnce ){
       p->outCount = 2;
     }else{
@@ -30246,6 +30291,7 @@ static int do_meta_command(char *zLine, ShellState *p){
 #else
       FILE *pfPipe = sqlite3_popen(zFile + 1, "w");
       if( pfPipe==0 ){
+        assert( stderr!=NULL );
         sqlite3_fprintf(stderr,"Error: cannot open pipe \"%s\"\n", zFile + 1);
         rc = 1;
       }else{
@@ -30258,7 +30304,8 @@ static int do_meta_command(char *zLine, ShellState *p){
       FILE *pfFile = output_file_open(zFile);
       if( pfFile==0 ){
         if( cli_strcmp(zFile,"off")!=0 ){
-          sqlite3_fprintf(stderr,"Error: cannot write to \"%s\"\n", zFile);
+         assert( stderr!=NULL );
+         sqlite3_fprintf(stderr,"Error: cannot write to \"%s\"\n", zFile);
         }
         rc = 1;
       } else {
@@ -30362,6 +30409,7 @@ static int do_meta_command(char *zLine, ShellState *p){
           rc = 1;
         }
       }
+      bind_prepared_stmt(p, pStmt);
       sqlite3_step(pStmt);
       sqlite3_finalize(pStmt);
     }else
@@ -31596,6 +31644,7 @@ static int do_meta_command(char *zLine, ShellState *p){
             { 0x04000000, 1, "NullUnusedCols" },
             { 0x08000000, 1, "OnePass" },
             { 0x10000000, 1, "OrderBySubq" },
+            { 0x20000000, 1, "StarQuery" },
             { 0xffffffff, 0, "All" },
           };
           unsigned int curOpt;
@@ -32150,7 +32199,7 @@ static QuickScanState quickscan(char *zLine, QuickScanState qss,
         break;
       case '[':
         cin = ']';
-        deliberate_fall_through;
+        deliberate_fall_through; /* FALLTHRU */
       case '`': case '\'': case '"':
         cWait = cin;
         qss = QSS_HasDark | cWait;
@@ -32185,7 +32234,7 @@ static QuickScanState quickscan(char *zLine, QuickScanState qss,
             ++zLine;
             continue;
           }
-          deliberate_fall_through;
+          deliberate_fall_through; /* FALLTHRU */
         case ']':
           CONTINUE_PROMPT_AWAITC(pst, 0);
           qss = QSS_SETV(qss, 0);

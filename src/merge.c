@@ -30,6 +30,7 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
   int i;
   Blob script;
   const char *zTempFile = 0;
+  int bDebug;
   char *zCmd;
   const char *zTclsh;
   zTclsh = find_option("tclsh",0,1);
@@ -40,6 +41,7 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
   ** be written into the FILENAME instead of being run.  This is used
   ** for testing and debugging. */
   zTempFile = find_option("script",0,1);
+  bDebug = find_option("debug",0,0)!=0;
   verify_all_options();
 
   blob_zero(&script);
@@ -95,6 +97,7 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
   }
   blob_appendf(&script, "]\n");
   blob_appendf(&script, "set darkmode %d\n", bDark!=0);
+  blob_appendf(&script, "set debug %d\n", bDebug!=0);
   blob_appendf(&script, "%s", builtin_file("merge.tcl", 0));
   if( zTempFile ){
     blob_write_to_file(&script, zTempFile);
@@ -116,6 +119,10 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
 #endif
     zTempFile = write_blob_to_temp_file(&script);
     zCmd = mprintf("%$ %$", zTclsh, zTempFile);
+    if( bDebug ){
+      fossil_print("%s\n", zCmd);
+      fflush(stdout);
+    }
     fossil_system(zCmd);
     file_delete(zTempFile);
     fossil_free(zCmd);
@@ -490,6 +497,10 @@ static void merge_info_html(int bBrowser,  /* 0=HTML only, no browser */
 **                        associated with the most recent merge.
 **   --html               Like --tk but emits HTML to stdout.
 **   -b|--browser         Like --html but show the result in a web browser.
+** Additional debugging options available only when --tk is used:
+**   --debug              Show sub-commands run to implement --tk
+**   --script FILE        Write script used to implement --tk into FILE
+
 */
 void merge_info_cmd(void){
   const char *zCnt;
@@ -926,6 +937,7 @@ void test_show_vfile_cmd(void){
 **                           and *-merge.
 **   -n|--dry-run            Do not actually change files on disk
 **   --nosync                Do not auto-sync prior to merging
+**   --noundo                Do not record changes in the undo log
 **   -v|--verbose            Show additional details of the merge
 */
 void merge_cmd(void){
@@ -951,6 +963,7 @@ void merge_cmd(void){
   const char *zVersion; /* The VERSION argument */
   int bMultiMerge = 0;  /* True if there are two or more VERSION arguments */
   int nMerge = 0;       /* Number of prior merges processed */
+  int useUndo = 1;      /* True to record changes in the undo log */
   Stmt q;               /* SQL statment used for merge processing */
 
 
@@ -999,6 +1012,8 @@ void merge_cmd(void){
   debugFlag = find_option("debug",0,0)!=0;
   if( debugFlag && verboseFlag ) debugFlag = 2;
   showVfileFlag = find_option("show-vfile",0,0)!=0;
+  useUndo = find_option("noundo",0,0)==0;
+  if( dryRunFlag ) useUndo = 0;
 
   verify_all_options();
   db_must_be_within_tree();
@@ -1165,7 +1180,7 @@ merge_next_child:
   }
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   if( nMerge==0 ) db_begin_transaction();
-  if( !dryRunFlag ) undo_begin();
+  if( useUndo ) undo_begin();
   if( load_vfile_from_rid(mid) && !forceMissingFlag ){
     fossil_fatal("missing content, unable to merge");
   }
@@ -1422,8 +1437,8 @@ merge_next_child:
     int islinkm = db_column_int(&q, 3);
     /* Copy content from idm over into idv.  Overwrite idv. */
     fossil_print("UPDATE %s\n", zName);
+    if( useUndo ) undo_save(zName);
     if( !dryRunFlag ){
-      undo_save(zName);
       db_multi_exec(
         "UPDATE vfile SET mtime=0, mrid=%d, chnged=%d, islink=%d,"
         " mhash=CASE WHEN rid<>%d"
@@ -1504,7 +1519,7 @@ merge_next_child:
       const char *zErrMsg = 0;
       int nc = 0;
 
-      if( !dryRunFlag ) undo_save(zName);
+      if( useUndo ) undo_save(zName);
       zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
       sz = file_size(zFullPath, ExtFILE);
       content_get(ridp, &p);
@@ -1591,7 +1606,7 @@ merge_next_child:
       sz = file_size(zFullPath, ExtFILE);
       fossil_free(zFullPath);
     }
-    if( !dryRunFlag ) undo_save(zName);
+    if( useUndo ) undo_save(zName);
     db_multi_exec(
       "UPDATE vfile SET deleted=1 WHERE id=%d", idv
     );
@@ -1638,8 +1653,8 @@ merge_next_child:
     const char *zNewName = db_column_text(&q, 2);
     int isExe = db_column_int(&q, 3);
     fossil_print("RENAME %s -> %s\n", zOldName, zNewName);
-    if( !dryRunFlag ) undo_save(zOldName);
-    if( !dryRunFlag ) undo_save(zNewName);
+    if( useUndo ) undo_save(zOldName);
+    if( useUndo ) undo_save(zNewName);
     db_multi_exec(
       "UPDATE mergestat SET fnr=fnm WHERE fnp=%Q",
       zOldName
@@ -1737,8 +1752,8 @@ merge_next_child:
       /* ridm */ db_column_int(&q,2),
       /* fnr  */ zName
     );
+    if( useUndo ) undo_save(zName);
     if( !dryRunFlag ){
-      undo_save(zName);
       vfile_to_disk(0, idm, 0, 0);
     }
   }
@@ -1797,7 +1812,7 @@ merge_next_child:
     nMerge++;
     goto merge_next_child;
   }
-  if( !dryRunFlag ) undo_finish();
+  if( useUndo ) undo_finish();
 
   db_end_transaction(dryRunFlag);
 }

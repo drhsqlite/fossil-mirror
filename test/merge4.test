@@ -28,11 +28,13 @@ proc merge-test {testid basis v1 v2 result1 result2 {fossil_args ""}} {
   fossil 3-way-merge t1 t3 t2 t5 {*}$fossil_args
   set x [read_file t4]
   regsub -all {<<<<<<< BEGIN MERGE CONFLICT.*<< \(line \d+\)} $x {>} x
+  regsub -all {####### SUGGESTED CONFLICT RESOLUTION.*##} $x {#} x
   regsub -all {\|\|\|\|\|\|\|.*======= \(line \d+\)} $x {=} x
   regsub -all {>>>>>>> END MERGE CONFLICT.*>>>>} $x {<} x
   set x [split [string trim $x] \n]
   set y [read_file t5]
   regsub -all {<<<<<<< BEGIN MERGE CONFLICT.*<< \(line \d+\)} $y {>} y
+  regsub -all {####### SUGGESTED CONFLICT RESOLUTION.*##} $y {#} y
   regsub -all {\|\|\|\|\|\|\|.*======= \(line \d+\)} $y {=} y
   regsub -all {>>>>>>> END MERGE CONFLICT.*>>>>} $y {<} y
   set y [split [string trim $y] \n]
@@ -60,9 +62,9 @@ merge-test 1000 {
 } {
   1 2 3 4c 5c 6c 7 8 9
 } {
-  1 > 2b 3b 4b 5 6b 7b 8b = 2 3 4c 5c 6c 7 8 < 9
+  1 > 2b 3b 4b 5 6b 7b 8b # 2b 3b 4c 5c 6c 7b 8b = 2 3 4c 5c 6c 7 8 < 9
 } {
-  1 > 2 3 4c 5c 6c 7 8 = 2b 3b 4b 5 6b 7b 8b < 9
+  1 > 2 3 4c 5c 6c 7 8 # 2b 3b 4b 5c 6b 7b 8b = 2b 3b 4b 5 6b 7b 8b < 9
 } -expectError
 merge-test 1001 {
   1 2 3 4 5 6 7 8 9
@@ -82,9 +84,9 @@ merge-test 1002 {
 } {
   2 3 4c 5c 6c 7 8
 } {
-  > 2b 3b 4b 5 6b 7b 8b = 2 3 4c 5c 6c 7 8 <
+  > 2b 3b 4b 5 6b 7b 8b # 2b 3b 4c 5c 6c 7b 8b = 2 3 4c 5c 6c 7 8 <
 } {
-  > 2 3 4c 5c 6c 7 8 = 2b 3b 4b 5 6b 7b 8b <
+  > 2 3 4c 5c 6c 7 8 # 2b 3b 4b 5c 6b 7b 8b = 2b 3b 4b 5 6b 7b 8b <
 } -expectError
 merge-test 1003 {
   2 3 4 5 6 7 8

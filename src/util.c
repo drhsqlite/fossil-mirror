@@ -945,6 +945,7 @@ const char *fossil_web_browser(void){
         break;
       }
     }
+    zBrowser = mprintf("%s 2>/dev/null", zBrowser);
   }
 #endif
   return zBrowser;

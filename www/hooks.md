@@ -118,7 +118,7 @@ a continuous integration (CI) system.
   *  The %A substitution is the name of a "commit description file" that
      shows the details of the commit in progress.  To see what a
      "commit description file" looks like, set a before-commit hook
-     with a command of "cat %Q" and then run a sample commit with
+     with a command of "cat %A" and then run a sample commit with
      the --dry-run option.
 
   *  If any before-commit hook returns a non-zero exit code, then

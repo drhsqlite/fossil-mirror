@@ -750,6 +750,16 @@ body.tkt div.content ol.tkt-changes > li:target > p > span {
 body.tkt div.content ol.tkt-changes > li:target > ol {
   border-left: 1px solid gold;
 }
+body.cpage-ckout .file-change-line,
+body.cpage-info .file-change-line,
+body.cpage-vdiff .file-change-line {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  margin-right: 1em /* keep it from nudging right up against the scrollbar-reveal zone */;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
 
 span.modpending {
   color: #b03800;
@@ -1818,10 +1828,6 @@ d='M3 4h3v2h-3zM12 4h9v2h-9zM8 3h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.55
 }
 body.fossil-dark-style .settings-icon {
   filter: invert(100%);
-}
-
-input[type="checkbox"].diff-toggle {
-  float: right;
 }
 
 body.branch .brlist > table > tbody > tr:hover:not(.selected),

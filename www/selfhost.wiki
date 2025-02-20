@@ -1,11 +1,11 @@
 <title>Fossil Self-Hosting Repositories</title>
 
-Fossil has self-hosted since 2007-07-21.  As of 2017-07-25
+Fossil has self-hosted since 2007-07-21.  As of 2025-02-11
 there are three publicly accessible repositories for the Fossil source code:
 
   1.  [https://fossil-scm.org/]
   2.  [https://www2.fossil-scm.org/]
-  3.  [https://www3.fossil-scm.org/site.cgi]
+  3.  [https://www3.fossil-scm.org/]
 
 The canonical repository is (1).  Repositories (2) and (3) automatically
 stay in synchronization with (1) via a
@@ -22,7 +22,7 @@ on any of the three servers and those changes automatically propagate to the
 other two servers.
 
 Server (1) runs as a [./aboutcgi.wiki|CGI script] on a
-<a href="http://www.linode.com/">Linode 8192</a> located in Dallas, TX
+<a href="http://www.linode.com/">Linode</a> located in Dallas, TX
 - on the same virtual machine that
 hosts <a href="http://www.sqlite.org/">SQLite</a> and over a
 dozen other smaller projects.  This demonstrates that Fossil can run on
@@ -59,6 +59,7 @@ In recent years, virtual private servers have become a more flexible and
 less expensive hosting option compared to shared hosting accounts.
 So on 2017-07-25, server (3) was moved
 onto a $5/month "droplet" [https://en.wikipedia.org/wiki/Virtual_private_server|VPS]
+(update: $6/month now)
 from [https://www.digitalocean.com|Digital Ocean]
 located in San Francisco.
 
@@ -70,7 +71,7 @@ a command similar to the following via cron:
 </pre>
 
 Server (2) is a
-<a href="http://www.linode.com/">Linode 4096</a> located in Newark, NJ
+<a href="http://www.linode.com/">Linode</a> located in Newark, NJ
 and set up just like the canonical server (1) with the addition of a
 cron job for synchronization.  The same cron job also runs the
 [/help?cmd=git|fossil git export] command after each sync in order to

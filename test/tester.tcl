@@ -334,6 +334,7 @@ proc get_all_settings {} {
       fileedit-glob \
       forbid-delta-manifests \
       forum-close-policy \
+      forum-title \
       gdiff-command \
       gmerge-command \
       hash-digits \
@@ -374,6 +375,7 @@ proc get_all_settings {} {
       th1-setup \
       th1-uri-regexp \
       ticket-default-report \
+      timeline-utc \
       user-color-map \
       uv-sync \
       web-browser]

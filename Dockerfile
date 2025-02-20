@@ -5,7 +5,7 @@
 ## STAGE 1: Build static Fossil binary
 ## ---------------------------------------------------------------------
 
-### We aren't pinning to a more stable version of Alpine because we want
+### We don't pin a more stable version of our base layer because we want
 ### to build with the latest tools and libraries available in case they
 ### fixed something that matters to us since the last build.  Everything
 ### below depends on this layer, and so, alas, we toss this container's
@@ -13,7 +13,7 @@
 FROM alpine:latest AS bld
 WORKDIR /fsl
 
-### Bake the basic Alpine Linux into a base layer so it only changes
+### Bake the build-time userland into a base layer so it only changes
 ### when the upstream image is updated or we change the package set.
 RUN set -x                                                             \
     && apk update                                                      \
@@ -25,15 +25,15 @@ RUN set -x                                                             \
          zlib-dev zlib-static
 
 ### Build Fossil as a separate layer so we don't have to rebuild the
-### Alpine environment for each iteration of Fossil's dev cycle.
+### userland for each iteration of Fossil's dev cycle.
 ###
 ### We must cope with a bizarre ADD misfeature here: it unpacks tarballs
 ### automatically when you give it a local file name but not if you give
 ### it a /tarball URL!  It matters because we default to a URL in case
 ### you're building outside a Fossil checkout, but when building via the
-### container-image target, we avoid a costly hit on fossil-scm.org
-### by leveraging its DVCS nature via the "tarball" command and passing
-### the resulting file's name in.
+### container-image target, we avoid a costly hit on fossil-scm.org by
+### leveraging its DVCS nature via the "tarball" command and passing the
+### resulting file's name in.
 ARG FSLCFG=""
 ARG FSLVER="trunk"
 ARG FSLURL="https://fossil-scm.org/home/tarball/src?r=${FSLVER}"
