@@ -1,5 +1,5 @@
-C For\s--with-openssl=PATH,\sthe\slibraries\sshould\sbe\sfound\sin\sthe\sPATH\sdirectory,\nnot\sin\sthe\sPATH/lib\ssubdirectory.
-D 2025-02-20T14:48:54.232
+C Adjust\sthe\s--with-openssl=PATH\sprocessing\sso\sthat\sit\slooks\sfor\sthe\slibrary\nfiles\sboth\sin\sthe\stop-level\sdirectory\sand\sin\sthe\slib/\ssubdirectory,\sas\ndifferent\seditions\sof\sOpenSSL\sput\sthem\sin\sdifferent\splaces.
+D 2025-02-20T20:00:25.530
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def 5af5ca0fdac198c1f93b3d4283350989ef5568b3e71b412b2657d22860e48636
+F auto.def 3bdd1ad7fd0fe75755eaa0463dc155d0081f11b21769543b959caeb19bacd19d
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -963,8 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f5cb12df5a5c9858208dd9ca6eb861d893f87e416f658a039d72526f9b061b1b
-R 9d267df3b4cd4d1bc620b1fc01c6360d
+P 304503ed24a2f3ccd755132e7f76dbf3c15f2eb8ad18f411b241635655e13369
+R 32aea29a50acde2f7220e7b87b41f330
 U drh
-Z fd89a5820e9e31592f674a0feea7f835
+Z f2347e1bfda4e19d39f4fb540396f8b3
 # Remove this line to create a well-formed Fossil manifest.
