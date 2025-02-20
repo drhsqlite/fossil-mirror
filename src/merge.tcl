@@ -612,13 +612,13 @@ proc searchStep {direction incr start stop} {
 }
 ::ttk::button .bb.quit -text {Quit} -command exit
 ::ttk::button .bb.search -text {Search} -command searchOnOff
-pack .bb.quit -side left
-pack .bb.diff2 -side left
+pack .bb.quit -side left -fill y
+pack .bb.diff2 -side left -fill y
 if {[winfo exists .bb.files]} {
-  pack .bb.files -side left
+  pack .bb.files -side left -fill y
 }
-pack .bb.ctxtag .bb.ctx -side left
-pack .bb.search -side left
+pack .bb.ctxtag .bb.ctx -side left -fill y
+pack .bb.search -side left -fill y
 grid rowconfigure . 1 -weight 1 -minsize [winfo reqheight .nameA]
 grid rowconfigure . 2 -weight 100
 readMerge

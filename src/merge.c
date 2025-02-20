@@ -165,7 +165,7 @@ static void merge_info_tcl(const char *zFName, int nContext){
   mergebuilder_init_tcl(&mb);
   mb.nContext = nContext;
 
-  /* Set up the pivot */
+  /* Set up the pivot or baseline */
   zFN = db_column_text(&q, 0);
   if( zFN==0 ){
     /* No pivot because the file was added */
