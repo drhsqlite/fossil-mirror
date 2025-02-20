@@ -117,7 +117,7 @@ proc readDiffs {fossilcmd} {
   set branchIndex [lsearch -glob $fossilcmd *-branch]
   set checkinIndex [lsearch -glob $fossilcmd *-checkin]
   if {[lsearch -glob $fossilcmd *-label]>=0
-    || [lsearch [lindex $fossilcmd 2] {xdiff fdiff merge-info}]>=0
+    || [lsearch {xdiff fdiff merge-info} [lindex $fossilcmd 2]]>=0
   } {
     set fA {}
     set fB {}

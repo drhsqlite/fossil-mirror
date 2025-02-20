@@ -258,7 +258,7 @@ static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
     cfg.nContext = mb.nContext;
     if( diffMode==12 || diffMode==13 ){
       pLeft = &pivot;
-      zTagLeft = "baselines";
+      zTagLeft = "baseline";
     }else{
       pLeft = &v1;
       zTagLeft = "local";
