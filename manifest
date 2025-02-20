@@ -1,5 +1,5 @@
-C Enhance\sthe\s"fossil\smerge-info\s--tk"\sapplication\swith\sa\snew\smenu\sthat\nwill\sbring\sup\sdetailed\stwo-way\sdiffs\sbetween\ssource\scomponents.\s\sThis\ninvolves\svarious\sdiff\ssubsystem\supgrades,\sincluding:\n(1)\sAdd\sthe\s"fdiff"\scommand.\s\s(Not\sactually\sneeded\shere,\sbut\suseful.)\n(2)\sAdd\s--label\soptions\son\sdiff\scommands.\n(3)\sAdd\s--tkdebug\son\sdiff\scommands\sfor\sdebugging.\n(4)\sImprovements\sto\scolumn\stitles\sin\stwo-way\sdiffs.
-D 2025-02-20T13:36:26.789
+C For\s--with-openssl=PATH,\sthe\slibraries\sshould\sbe\sfound\sin\sthe\sPATH\sdirectory,\nnot\sin\sthe\sPATH/lib\ssubdirectory.
+D 2025-02-20T14:48:54.232
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def 91d58e79fe849ba3a3f444d4e11f3fb2668a5301b0f5187a6952f29bf2b34a55
+F auto.def 5af5ca0fdac198c1f93b3d4283350989ef5568b3e71b412b2657d22860e48636
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -963,9 +963,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 97aee327ef8e144910243ea42d71ea32ab66650842753a9044c430b2a0b31815 f9648f89467aac115dffa45ca588a387f5f22ce27ace42e11bfd298b83762529
-R 6590c0086635711d4402d20d5f906f83
-T +closed f9648f89467aac115dffa45ca588a387f5f22ce27ace42e11bfd298b83762529
+P f5cb12df5a5c9858208dd9ca6eb861d893f87e416f658a039d72526f9b061b1b
+R 9d267df3b4cd4d1bc620b1fc01c6360d
 U drh
-Z e13758208afb11d2a12f4007ea6752bf
+Z fd89a5820e9e31592f674a0feea7f835
 # Remove this line to create a well-formed Fossil manifest.
