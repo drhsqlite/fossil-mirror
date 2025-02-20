@@ -1192,6 +1192,12 @@ void diff_tk(const char *zSubCmd, int firstArg){
   const char *zTclsh;
   int bDarkMode = find_option("dark",0,0)!=0;
   blob_zero(&script);
+  /* Caution:  When this routine is called from the merge-info command,
+  ** the --tcl argument requires an argument.  But merge-info does not
+  ** use -i, so we can take -i as that argument.  This routine needs to
+  ** always have -i after --tcl.
+  **                                                CAUTION!
+  **                                                vvvvvvv            */
   blob_appendf(&script, "set fossilcmd {| \"%/\" %s -tcl -i -v",
                g.nameOfExe, zSubCmd);
   find_option("tcl",0,0);
