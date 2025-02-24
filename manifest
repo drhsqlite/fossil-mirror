@@ -1,5 +1,5 @@
-C Adjust\sthe\s--with-openssl=PATH\sprocessing\sso\sthat\sit\slooks\sfor\sthe\slibrary\nfiles\sboth\sin\sthe\stop-level\sdirectory\sand\sin\sthe\slib/\ssubdirectory,\sas\ndifferent\seditions\sof\sOpenSSL\sput\sthem\sin\sdifferent\splaces.
-D 2025-02-20T20:00:25.530
+C Add\slinenoise-win32.c\sso\sthat\slinenoise\ssupport\scan\sbe\sused\son\smingw32\sbuilds.\sUpdate\slinenoise.c\sfrom\supstream\swhile\swe're\sat\sit.
+D 2025-02-24T07:44:19.858
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -267,7 +267,8 @@ F configure 9a00b21dfd13757bbfb8d89b30660a89ec1f8f3a79402b8f9f9b6fc475c3303a x
 F debian/makedeb.sh a6f25e2697977d7865196cc87b67271575681d2fc148256b58bdd574bd49a5d7
 F extsrc/cson_amalgamation.c d9432fa22c8b6491cea1874e8c9d7e3e121784bbde217ed71ab02b1bd482649a
 F extsrc/cson_amalgamation.h 3903869fccd066d54ce9716125e5d0fade48bc106b82a3c5f370160dcedc7551
-F extsrc/linenoise.c c9e953e2f3ce6fc3aad1455fe9ff2865cafecfa051e1d4dec2a6a8b656eab780
+F extsrc/linenoise-win32.c 4edab5d16a9ba9e1561ba271f35a9f74c86ab5363f402840c7c3a37647fb1a0b
+F extsrc/linenoise.c 2ae333dd88a25281998e9463a99b5c50ad3eaf8fa885dcf8eedfb362ded1f86f
 F extsrc/linenoise.h 8f20fae1acd1ca76c4632c882249827410246f1045ebd800edeeea6b17905e00
 F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc36f71318c48
 F extsrc/pikchr.c 85e65b968651b342c46e6334f4772b45d6cbb4317c5cbaa95d207779a50c6709
@@ -963,8 +964,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 304503ed24a2f3ccd755132e7f76dbf3c15f2eb8ad18f411b241635655e13369
-R 32aea29a50acde2f7220e7b87b41f330
-U drh
-Z f2347e1bfda4e19d39f4fb540396f8b3
+P be12316b902c4e282efcd0cab3aa1f0f177c1a8a6e2534bde19897a87267727b
+R 97dcd3e6cdbcd5dcaeb7f3bc34e69d5b
+U stephan
+Z fe4fcace021a24c2859bda42486383e8
 # Remove this line to create a well-formed Fossil manifest.
