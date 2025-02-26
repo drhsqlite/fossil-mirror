@@ -12,6 +12,7 @@
 # v0.11 Added entries relevant to system-wide dir entry.
 # v0.12 Reworded section introductions.
 # v0.13 Added testing commands to texi output.
+# v0.14 Added web commands to texi output. Note added far later.
 #        Builds a correct texinfo file (finally) on OpenBSD and NetBSD.
 #
 # Requires fossil, tail, GNU sed and makeinfo

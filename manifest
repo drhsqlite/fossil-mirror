@@ -1,5 +1,5 @@
-C Miscellaneous\ssmall\swhitespace\stweaks.
-D 2025-02-26T20:19:58.723
+C Added\snote\sabout\sweb\scommands\sthat\swere\sadded\spreviously.
+D 2025-02-26T20:31:51.756
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -737,7 +737,7 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
-F tools/fossil-makeinfo c2cfc1636b9433169db507ce0d7cf18ba7531d6aa3975f67fe07b4a57633037b x
+F tools/fossil-makeinfo cc51fe6abc35222cada18950842c397ed7a40b0bcf8830f4fbac2e5d818f7c18 x
 F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
@@ -965,8 +965,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 17efadc96f05895b816fb7b31d56ef672a27b37a8fa626302af58907b2c86e65
-R 4e25718e154c6ea0b5776b0da8162cf4
+P 481eb01921cc3b0e05c6588b129d5e30f775ea32549d110a950706663bfce781
+R 7689e8939133b38a1f836cb50ba53acd
 U brickviking
-Z 7fd57c3392507213c135fcb657dc26b5
+Z c5f92f23d386e01d3212c12b47bd7b44
 # Remove this line to create a well-formed Fossil manifest.
