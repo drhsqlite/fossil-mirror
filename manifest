@@ -1,5 +1,5 @@
-C Do\snot\sshow\sthe\ssearch\sentry\sboxes\son\sthe\s/help\spage\sif\shelp-search\sis\ndisabled.
-D 2025-02-26T12:55:17.085
+C Revamp\sthe\s"fossil\ssearch"\scommand\sto\salways\suse\sfull-text\ssearch\n(unless\sthe\sundocumented\s--legacy\soption\sis\sadded).\s\sImprove\sthe\soutput.\nLots\sof\snew\soptions\sto\s"fossil\ssearch".
+D 2025-02-26T14:54:36.803
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -524,7 +524,7 @@ F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c 11b6dd5c61135c54ece0bbbb612cd9718bb620043b0af5c61574d66e0c133c3f
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 9e0c3a4cc44eaf781d7aee8b41adb517d4855336b87c79abfd226ed90a1cd14a
+F src/search.c f3f73fd005eefa8492129c79698f4821f23fcc67cf1fcad2089e7776a36e21ae
 F src/security_audit.c 88ccc26b105d86edac19ac863314234312aa647e208066679ee3468e1616711c
 F src/setup.c 646b3741b268c0a8735da5690ff65fce9b45cde2aedea13f8248fa2cfab85049
 F src/setupuser.c 25e70f55d7cfb0ee847a778dda71a6e1541507424a43dd5a1eab66d682d88c6f
@@ -964,8 +964,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 64040c7254a26bb22023ba3b1841e1562ee4db56148caef67c6051d85eca601a
-R b30946bbf5d92d4a42fcc4a9d7be9e89
+P 4efa569a75ded316cc6c44b5d5c731e95c47237ebfea726df1e1d769bd251c93
+R 1054271d8859310b06df39f20adbd39a
 U drh
-Z 06866b9c6b77757a3542b035bef715d4
+Z ebb79f35eb289b68fc59ce879bda81e4
 # Remove this line to create a well-formed Fossil manifest.

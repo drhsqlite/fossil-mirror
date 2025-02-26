@@ -562,36 +562,117 @@ void search_sql_setup(sqlite3 *db){
 }
 
 /*
+** The pSnip input contains snippet text from a search formatted
+** as HTML.  Attempt to make that text more readable on a TTY.
+**
+** If nTty is positive, use ANSI escape codes "\e[Nm" where N is nTty
+** to highly marked text.
+*/
+void search_snippet_to_plaintext(Blob *pSnip, int nTty){
+  char *zSnip;
+  unsigned int j, k;
+
+  zSnip = pSnip->aData;
+  for(j=k=0; j<pSnip->nUsed; j++){
+    char c = zSnip[j];
+    if( c=='<' ){
+      if( memcmp(&zSnip[j],"<mark>",6)==0 ){
+        if( nTty ){
+          zSnip[k++] = 0x1b;
+          zSnip[k++] = '[';
+          if( nTty>=10 ) zSnip[k++] = (nTty/10)%10 + '0';
+          zSnip[k++] = nTty%10 + '0';
+          zSnip[k++] = 'm';
+        }
+        j += 5;
+      }else if( memcmp(&zSnip[j],"</mark>",7)==0 ){
+        if( nTty ){
+          zSnip[k++] = 0x1b;
+          zSnip[k++] = '[';
+          zSnip[k++] = '0';
+          zSnip[k++] = 'm';
+        }
+        j += 6;
+      }else{
+        zSnip[k++] = zSnip[j];
+      }
+    }else if( fossil_isspace(c) ){
+      zSnip[k++] = ' ';
+      while( fossil_isspace(zSnip[j+1]) ) j++;
+    }else if( c=='&' ){
+      if( zSnip[j+1]=='#' && fossil_isdigit(zSnip[j+2]) ){
+        int n = 3;
+        int x = zSnip[j+2] - '0';
+        if( fossil_isdigit(zSnip[j+3]) ){
+          x = x*10 + zSnip[j+3] - '0';
+          n++;
+          if( fossil_isdigit(zSnip[j+4]) ){
+            x = x*10 + zSnip[j+4] - '0';
+            n++;
+          }
+        }
+        if( zSnip[j+n]==';' ){
+          zSnip[k++] = (char)x;
+          j += n;
+        }else{
+          zSnip[k++] = c;
+        }
+      }else if( memcmp(&zSnip[j],"&lt;",4)==0 ){
+        zSnip[k++] = '<';
+        j += 3;
+      }else if( memcmp(&zSnip[j],"&gt;",4)==0 ){
+        zSnip[k++] = '>';
+        j += 3;
+      }else if( memcmp(&zSnip[j],"&quot;",6)==0 ){
+        zSnip[k++] = '<';
+        j += 5;
+      }else if( memcmp(&zSnip[j],"&amp;",5)==0 ){
+        zSnip[k++] = '<';
+        j += 4;
+      }else{
+        zSnip[k++] = c;
+      }
+    }else{
+      zSnip[k++] = c;
+    }
+  }
+  zSnip[k] = 0;
+  pSnip->nUsed = k;
+}
+
+/*
 ** Testing the search function.
 **
 ** COMMAND: search*
 **
-** Usage: %fossil search [-a|-all] [-n|-limit #] [-W|-width #] pattern...
+** Usage: %fossil search [OPTIONS] PATTERN...
 **
-** Search for timeline entries matching all words provided on the
-** command line. Whole-word matches scope more highly than partial
-** matches.
+** Search the repository database for PATTERN and show matches.
+** The following elements of the repository can be searched:
 **
-** Note:  This command only searches the EVENT table.  So it will only
-** display check-in comments or other comments that appear on an
-** unaugmented timeline.  It does not search document text or forum
-** messages.
+**    *   check-in comments
+**    *   embedded documentation
+**    *   forum posts
+**    *   tickets
+**    *   tech notes
+**    *   wiki pages
+**    *   built-in fossil help text
 **
-** Outputs, by default, some top-N fraction of the results. The -all
-** option can be used to output all matches, regardless of their search
-** score.  The -limit option can be used to limit the number of entries
-** returned.  The -width option can be used to set the output width used
-** when printing matches.
+** Use options (listed below) to select the scope of the search.  The
+** default is check-in comments only.
 **
 ** Options:
-**     -a|--all          Output all matches, not just best matches
-**     --debug           Show additional debug content on --fts search
-**     --fts             Use the full-text search mechanism (testing only)
+**     -a|--all          Search everything
+**     -c|--checkins     Search checkin comments
+**     --docs            Search embedded documentation
+**     --forum           Search forum posts
+**     -h|--bi-help      Search built-in help
 **     -n|--limit N      Limit output to N matches
-**     --scope SCOPE     Scope of search.  Valid for --fts only.  One or
-**                       more of: all, c, d, e, f, t, w.  Defaults to all.
+**     --technotes       Search tech notes
+**     --tickets         Search tickets
 **     -W|--width WIDTH  Set display width to WIDTH columns, 0 for
-**                       unlimited. Defaults the terminal's width.
+**                       unlimited. Defaults to the terminal's width.
+**     --wiki            Search wiki
 */
 void search_cmd(void){
   Blob pattern;
@@ -599,14 +680,26 @@ void search_cmd(void){
   Blob sql = empty_blob;
   Stmt q;
   int iBest;
+  int srchFlags = 0;
+  int bFts = 1;          /* Use FTS search by default now */
   char fAll = NULL != find_option("all", "a", 0);
   const char *zLimit = find_option("limit","n",1);
+  const char *zScope = 0;
   const char *zWidth = find_option("width","W",1);
-  const char *zScope = find_option("scope",0,1);
-  int bDebug = find_option("debug",0,0)!=0;
+  int bDebug = find_option("debug",0,0)!=0;     /* Undocumented */
   int nLimit = zLimit ? atoi(zLimit) : -1000;
   int width;
-  int bFts = find_option("fts",0,0)!=0;
+  int nTty = fossil_isatty(1) ? 91 : 0;
+
+  /* Undocumented option to change highlight color */
+  const char *zHighlight = find_option("highlight",0,1);
+  if( zHighlight ) nTty = atoi(zHighlight);
+
+  /* Undocumented option (legacy) */
+  zScope = find_option("scope",0,1);
+
+  if( find_option("fts",0,0)!=0 ) bFts = 1;      /* Undocumented legacy */
+  if( find_option("legacy",0,0)!=0 ) bFts = 0;   /* Undocumented */
 
   if( zWidth ){
     width = atoi(zWidth);
@@ -616,9 +709,46 @@ void search_cmd(void){
   }else{
     width = -1;
   }
+  if( zScope ){
+    for(i=0; zScope[i]; i++){
+      switch( zScope[i] ){
+        case 'a':  srchFlags = SRCH_ALL;       break;
+        case 'c':  srchFlags |= SRCH_CKIN;     break;
+        case 'd':  srchFlags |= SRCH_DOC;      break;
+        case 'e':  srchFlags |= SRCH_TECHNOTE; break;
+        case 'f':  srchFlags |= SRCH_FORUM;    break;
+        case 'h':  srchFlags |= SRCH_HELP;     break;
+        case 't':  srchFlags |= SRCH_TKT;      break;
+        case 'w':  srchFlags |= SRCH_WIKI;     break;
+      }
+    }
+    bFts = 1;
+  }
+  if( find_option("all","a",0) ){      srchFlags |= SRCH_ALL;      bFts = 1; }
+  if( find_option("bi-help","h",0) ){  srchFlags |= SRCH_HELP;     bFts = 1; }
+  if( find_option("checkins","c",0) ){ srchFlags |= SRCH_CKIN;     bFts = 1; }
+  if( find_option("docs",0,0) ){       srchFlags |= SRCH_DOC;      bFts = 1; }
+  if( find_option("forum",0,0) ){      srchFlags |= SRCH_FORUM;    bFts = 1; }
+  if( find_option("technotes",0,0) ){  srchFlags |= SRCH_TECHNOTE; bFts = 1; }
+  if( find_option("tickets",0,0) ){    srchFlags |= SRCH_TKT;      bFts = 1; }
+  if( find_option("wiki",0,0) ){       srchFlags |= SRCH_WIKI;     bFts = 1; }
+
+  /* If no search objects are specified, default to "check-in comments" */
+  if( srchFlags==0 ) srchFlags = SRCH_CKIN;
+
 
   db_find_and_open_repository(0, 0);
+  verify_all_options();
   if( g.argc<3 ) return;
+  login_set_capabilities("s", 0);
+  if( search_restrict(srchFlags)==0 ){
+    fossil_print(
+      "Search is disabled on this repository.\n"
+      "Use the \"fossil fts-config\" command to enable.\n"
+    );
+    return;
+  }
+
   blob_init(&pattern, g.argv[2], -1);
   for(i=3; i<g.argc; i++){
     blob_appendf(&pattern, " %s", g.argv[i]);
@@ -628,25 +758,6 @@ void search_cmd(void){
     Blob com;
     Blob snip;
     const char *zPattern = blob_str(&pattern);
-    int srchFlags;
-    unsigned int j;
-    if( zScope==0 ){
-      srchFlags = SRCH_ALL;
-    }else{
-      srchFlags = 0;
-      for(i=0; zScope[i]; i++){
-        switch( zScope[i] ){
-          case 'a':  srchFlags = SRCH_ALL;       break;
-          case 'c':  srchFlags |= SRCH_CKIN;     break;
-          case 'd':  srchFlags |= SRCH_DOC;      break;
-          case 'e':  srchFlags |= SRCH_TECHNOTE; break;
-          case 'f':  srchFlags |= SRCH_FORUM;    break;
-          case 'h':  srchFlags |= SRCH_HELP;     break;
-          case 't':  srchFlags |= SRCH_TKT;      break;
-          case 'w':  srchFlags |= SRCH_WIKI;     break;
-        }
-      }
-    }
     search_sql_setup(g.db);
     add_content_sql_commands(g.db);
     db_multi_exec(
@@ -674,12 +785,7 @@ void search_cmd(void){
       const char *zScore = db_column_text(&q, 2);
       const char *zId = db_column_text(&q, 3);
       blob_appendf(&snip, "%s", zSnippet);
-      for(j=0; j<snip.nUsed; j++){
-        if( snip.aData[j]=='\n' ){
-          if( j>0 && snip.aData[j-1]=='\r' ) snip.aData[j-1] = ' ';
-          snip.aData[j] = ' ';
-        }
-      }
+      search_snippet_to_plaintext(&snip, nTty);
       blob_appendf(&com, "%s\n%s\n%s", zLabel, blob_str(&snip), zDate);
       if( bDebug ){
         blob_appendf(&com," score: %s id: %s", zScore, zId);
@@ -2148,11 +2254,11 @@ void search_rebuild_index(void){
 **
 **     index (on|off)     Turn the search index on or off
 **
-**     enable cdtwef      Enable various kinds of search. c=Check-ins,
+**     enable cdtwefh     Enable various kinds of search. c=Check-ins,
 **                        d=Documents, t=Tickets, w=Wiki, e=Tech Notes,
-**                        f=Forum.
+**                        f=Forum, h=built-in-help.
 **
-**     disable cdtwef     Disable various kinds of search
+**     disable cdtwefh    Disable various kinds of search
 **
 **     tokenizer VALUE    Select a tokenizer for indexed search. VALUE
 **                        may be one of (porter, on, off, trigram, unicode61),
@@ -2178,12 +2284,13 @@ void fts_config_cmd(void){
     const char *zName;
     const char *zSw;
   } aSetng[] = {
-     { "search-ci",       "check-in search:",  "c" },
-     { "search-doc",      "document search:",  "d" },
-     { "search-tkt",      "ticket search:",    "t" },
-     { "search-wiki",     "wiki search:",      "w" },
-     { "search-technote", "tech note search:", "e" },
-     { "search-forum",    "forum search:",     "f" },
+     { "search-ci",       "check-in search:",       "c" },
+     { "search-doc",      "document search:",       "d" },
+     { "search-tkt",      "ticket search:",         "t" },
+     { "search-wiki",     "wiki search:",           "w" },
+     { "search-technote", "tech note search:",      "e" },
+     { "search-forum",    "forum search:",          "f" },
+     { "search-help",     "built-in help search:",  "h" },
   };
   char *zSubCmd = 0;
   int i, j, n;
@@ -2252,10 +2359,10 @@ void fts_config_cmd(void){
 
   /* Always show the status before ending */
   for(i=0; i<count(aSetng); i++){
-    fossil_print("%-17s %s\n", aSetng[i].zName,
+    fossil_print("%-21s %s\n", aSetng[i].zName,
        db_get_boolean(aSetng[i].zSetting,0) ? "on" : "off");
   }
-  fossil_print("%-17s %s\n", "tokenizer:",
+  fossil_print("%-21s %s\n", "tokenizer:",
        search_tokenizer_for_string(0));
   if( search_index_exists() ){
     int pgsz = db_int64(0, "PRAGMA repository.page_size;");
@@ -2264,14 +2371,14 @@ void fts_config_cmd(void){
                                " WHERE schema='repository'"
                                " AND name LIKE 'fts%%'")*pgsz;
     char zSize[50];
-    fossil_print("%-17s FTS%d\n", "full-text index:", search_index_type(1));
-    fossil_print("%-17s %d\n", "documents:",
+    fossil_print("%-21s FTS%d\n", "full-text index:", search_index_type(1));
+    fossil_print("%-21s %d\n", "documents:",
        db_int(0, "SELECT count(*) FROM ftsdocs"));
     approxSizeName(sizeof(zSize), zSize, nFts);
-    fossil_print("%-17s %s (%.1f%% of repository)\n", "space used",
+    fossil_print("%-21s %s (%.1f%% of repository)\n", "space used",
        zSize, 100.0*((double)nFts/(double)nTotal));
   }else{
-    fossil_print("%-17s disabled\n", "full-text index:");
+    fossil_print("%-21s disabled\n", "full-text index:");
   }
   db_end_transaction(0);
 }
