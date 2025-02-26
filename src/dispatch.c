@@ -834,7 +834,9 @@ void help_page(void){
     style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%R/help");
-    style_submenu_element("Search","%R/search?y=h");
+    if( search_restrict(SRCH_HELP)!=0 ){
+      style_submenu_element("Search","%R/search?y=h");
+    }
     rc = dispatch_name_search(zCmd, CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
     if( *zCmd=='/' ){
       /* Some of the webpages require query parameters in order to work.
@@ -876,7 +878,7 @@ void help_page(void){
     unsigned char occHelp[FOSSIL_MX_CMDIDX] = {0};   /* Help str occurrences */
     int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {{0}};/* Help str->commands */
     style_header("Help");
-    search_screen(SRCH_HELP, 0);
+    search_screen(SRCH_HELP, 0x02);
 
     @ <a name='commands'></a>
     @ <h1>Available commands:</h1>
