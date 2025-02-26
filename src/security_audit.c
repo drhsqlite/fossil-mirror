@@ -545,7 +545,7 @@ void secaudit0_page(void){
   }
   if( db_get_boolean("http_authentication_ok", 0) ){
     @ <li><p><b>Caution:</b>
-    @ This repository trusts that the HTTP_AUTHENITICATION environment
+    @ This repository trusts that the HTTP_AUTHENTICATION environment
     @ variable set up by the webserver contains the name of an
     @ authenticated user.
     @ Fossil's built-in authentication mechanism is bypassed.

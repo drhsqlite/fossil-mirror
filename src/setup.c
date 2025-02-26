@@ -40,22 +40,22 @@ void setup_incr_cfgcnt(void){
 
 /*
 ** Output a single entry for a menu generated using an HTML table.
-** If zLink is not NULL or an empty string, then it is the page that
+** If zLink is neither NULL nor an empty string, then it is the page that
 ** the menu entry will hyperlink to.  If zLink is NULL or "", then
 ** the menu entry has no hyperlink - it is disabled.
 */
 void setup_menu_entry(
   const char *zTitle,
   const char *zLink,
-  const char *zDesc
+  const char *zDesc  /* Caution!  Rendered using %s.  May contain raw HTML. */
 ){
   @ <tr><td valign="top" align="right">
   if( zLink && zLink[0] ){
     @ <a href="%s(zLink)"><nobr>%h(zTitle)</nobr></a>
   }else{
-    @ %h(zTitle)
+    @ <nobr>%h(zTitle)</nobr>
   }
-  @ </td><td width="5"></td><td valign="top">%h(zDesc)</td></tr>
+  @ </td><td width="5"></td><td valign="top">%s(zDesc)</td></tr>
 }
 
 
@@ -185,13 +185,14 @@ void setup_page(void){
 /*
 ** WEBPAGE: setup-logmenu
 **
-** Show a menu of available log renderings accessible to an administrator, 
+** Show a menu of available log renderings accessible to an administrator,
 ** together with a succinct explanation of each.
 **
 ** This page is only accessible by administrators.
 */
 void setup_logmenu_page(void){
   Blob desc;
+  int bErrLog;                 /* True if Error Log enabled */
   blob_init(&desc, 0, 0);
 
   /* Administrator access only */
@@ -202,50 +203,85 @@ void setup_logmenu_page(void){
   }
   style_header("Log Menu");
   @ <table border="0" cellspacing="3">
-  setup_menu_entry("Admin Log", "admin_log",
-    "The admin log records configuration changes to the repository.\n"
-    "The admin log is stored in the \"admin_log\" table of the repository.\n"
-  );
+  
+  if( db_get_boolean("admin-log",0)==0 ){
+    blob_appendf(&desc,
+      "The admin log records configuration changes to the repository.\n"
+      "<b>Disabled</b>:  Turn on the "
+      " <a href='%R/setup_settings'>admin-log setting</a> to enable."
+    );
+    setup_menu_entry("Admin Log", 0, blob_str(&desc));
+    blob_reset(&desc);
+  }else{
+    setup_menu_entry("Admin Log", "admin_log",
+      "The admin log records configuration changes to the repository\n"
+      "in the \"admin_log\" table.\n"
+    );
+  }
   setup_menu_entry("Artifact Log", "rcvfromlist",
-    "The artifact log records when new content is added to the repository.\n"
-    "The time and date and origin of the new content is entered into the\n"
-    "Log.  The artifact log is always on and is stored in the \"rcvfrom\"\n"
-    "table of the repository.\n"
+    "The artifact log records when new content is added in the\n"
+    "\"rcvfrom\" table.\n"
   );
+  if( db_get_boolean("access-log",0) ){
+    setup_menu_entry("User Log", "user_log",
+      "Login attempts recorded in the \"accesslog\" table."
+    );
+  }else{
+    blob_appendf(&desc,
+      "Login attempts recorded in the \"accesslog\" table.\n"
+      "<b>Disabled</b>:  Turn on the "
+      "<a href='%R/setup_settings'>access-log setting</a> to enable."
+    );
+    setup_menu_entry("User Log", 0, blob_str(&desc));
+    blob_reset(&desc);
+  }
 
   blob_appendf(&desc,
-    "The error log is a separate text file to which warning and error\n"
+    "A separate text file to which warning and error\n"
     "messages are appended.  A single error log can and often is shared\n"
     "across multiple repositories.\n"
   );
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    blob_appendf(&desc,"The error log is disabled for this repository.");
+    blob_appendf(&desc,"<b>Disabled</b>: "
+                       "To enable the error log ");
+    if( fossil_strcmp(g.zCmdName, "cgi")==0 ){
+      blob_appendf(&desc,
+        "make an entry like \"errorlog: <i>FILENAME</i>\""
+        " in the CGI script at %h",
+        P("SCRIPT_FILENAME")
+      );
+    }else{
+      blob_appendf(&desc,
+        " add the \"--errorlog <i>FILENAME</i>\" option to the\n"
+        "\"%h %h\" command that launched the server.",
+        g.argv[0], g.zCmdName
+      );
+    }
+    bErrLog = 0;
   }else{
-    blob_appendf(&desc,"In this repository, the error log is in the file"
+    blob_appendf(&desc,"In this repository, the error log is the file "
        "named \"%s\".", g.zErrlog);
+    bErrLog = 1;
   }
-  setup_menu_entry("Error Log", "errorlog", blob_str(&desc));
+  setup_menu_entry("Error Log", bErrLog ? "errorlog" : 0, blob_str(&desc));
   blob_reset(&desc);
 
-  setup_menu_entry("Panic Log", "paniclog",
-    "The panic log is a filtering of the Error Log that shows only the\n"
-    "most important messages - assertion faults, segmentation faults, and\n"
-    "similar malfunctions."
-  );
+  @ <tr><td><td><td>
+  @ &mdash;&mdash;
+  @ <i>The remaining links are subsets of the Error Log</i>
+  @ &mdash;&mdash;
+  @ </td>  
 
-  setup_menu_entry("User Log", "user_log",
-    "The user log is a record of login attempts.  The user log is stored\n"
-    "in the \"accesslog\" table of the respository.\n"
+  setup_menu_entry("Panic Log", bErrLog ? "paniclog" : 0,
+    "Only the most important messages in the Error Log:\n"
+    "assertion faults, segmentation faults, and similar malfunctions.\n"
   );
-
-  setup_menu_entry("Hack Log", "hacklog",
-    "All 418 hack attempts"
+  setup_menu_entry("Hack Log", bErrLog ? "hacklog" : 0,
+    "All code-418 hack attempts in the Error Log"
   );
-
-  setup_menu_entry("Non-Hack Log", "hacklog?not",
-    "All log messages that are not hack attempts"
+  setup_menu_entry("Non-Hack Log", bErrLog ? "hacklog?not" : 0,
+    "All log messages that are not code-418 hack attempts"
   );
-
 
   @ </table>
   style_finish_page();
@@ -918,7 +954,7 @@ void setup_login_group(void){
   @
   @ <li><p><b>project-name</b> &rarr;
   @ The human-readable name for the project.  The project-name can be
-  @ modified in the first entry on the 
+  @ modified in the first entry on the
   @ <a href="./setup_config">Setup/Configuration page</a>.
   @
   @ <li><p><b>peer-repo-<i>CODE</i></b> &rarr;
@@ -1394,17 +1430,18 @@ void setup_wiki(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  onoff_attribute("Associate Wiki Pages With Branches, Tags, or Checkins",
+  onoff_attribute("Associate Wiki Pages With Branches, Tags, Tickets, or Checkins",
                   "wiki-about", "wiki-about", 1, 0);
   @ <p>
-  @ Associate wiki pages with branches, tags, or checkins, based on
-  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/"
-  @ or "tag/" and which continue with the name of an existing branch, check-in
-  @ or tag are treated specially when this feature is enabled.
+  @ Associate wiki pages with branches, tags, tickets, or checkins, based on
+  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/",
+  @ "tag/" or "ticket" and which continue with the name of an existing branch,
+  @ check-in, tag or ticket are treated specially when this feature is enabled.
   @ <ul>
   @ <li> <b>branch/</b><i>branch-name</i>
   @ <li> <b>checkin/</b><i>full-check-in-hash</i>
   @ <li> <b>tag/</b><i>tag-name</i>
+  @ <li> <b>ticket/</b><i>full-ticket-hash</i>
   @ </ul>
   @ (Property: "wiki-about")</p>
   @ <hr>
@@ -2217,6 +2254,8 @@ void page_srchsetup(){
   onoff_attribute("Search Tech Notes", "search-technote", "se", 0, 0);
   @ <br>
   onoff_attribute("Search Forum", "search-forum", "sf", 0, 0);
+  @ <br>
+  onoff_attribute("Search Built-in Help Text", "search-help", "sh", 0, 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>

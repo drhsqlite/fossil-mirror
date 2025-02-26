@@ -93,8 +93,12 @@ proc getLine {difftxt N iivar} {
 }
 
 proc readDiffs {fossilcmd} {
-  global difftxt
+  global difftxt debug
   if {![info exists difftxt]} {
+    if {$debug} {
+      puts "# [list open $fossilcmd r]"
+      flush stdout
+    }
     set in [open $fossilcmd r]
     fconfigure $in -encoding utf-8
     set difftxt [split [read $in] \n]
@@ -112,17 +116,31 @@ proc readDiffs {fossilcmd} {
   set toIndex [lsearch -glob $fossilcmd *-to]
   set branchIndex [lsearch -glob $fossilcmd *-branch]
   set checkinIndex [lsearch -glob $fossilcmd *-checkin]
-  if {[string match *?--external-baseline* $fossilcmd]} {
-    set fA {external baseline}
+  if {[lsearch -glob $fossilcmd *-label]>=0
+    || [lsearch {xdiff fdiff merge-info} [lindex $fossilcmd 2]]>=0
+  } {
+    set fA {}
+    set fB {}
   } else {
-    set fA {base check-in}
+    if {[string match *?--external-baseline* $fossilcmd]} {
+      set fA {external baseline}
+    } else {
+      set fA {base check-in}
+    }
+    set fB {current check-out}
+    if {$fromIndex > -1} {
+      set fA [lindex $fossilcmd $fromIndex+1]
+    }
+    if {$toIndex > -1} {
+      set fB [lindex $fossilcmd $toIndex+1]
+    }
+    if {$branchIndex > -1} {
+      set fA "branch point"; set fB "leaf of branch '[lindex $fossilcmd $branchIndex+1]'"
+    }
+    if {$checkinIndex > -1} {
+      set fA "primary parent"; set fB [lindex $fossilcmd $checkinIndex+1]
+    }
   }
-  set fB {current check-out}
-  if {$fromIndex > -1} {set fA [lindex $fossilcmd $fromIndex+1]}
-  if {$toIndex > -1} {set fB [lindex $fossilcmd $toIndex+1]}
-  if {$branchIndex > -1} {set fA "branch point"; set fB "leaf of branch '[lindex $fossilcmd $branchIndex+1]'"}
-  if {$checkinIndex > -1} {set fA "primary parent"; set fB [lindex $fossilcmd $checkinIndex+1]}
-  
   
   while {[set line [getLine $difftxt $N ii]] != -1} {
     switch -- [lindex $line 0] {
@@ -132,10 +150,18 @@ proc readDiffs {fossilcmd} {
           if {$wx>$widths(ln)} {set widths(ln) $wx}
         }
         .lnA insert end \n fn \n -
-        .txtA insert end "[lindex $line 1] ($fA)\n" fn \n -
+        if {$fA==""} {
+          .txtA insert end "[lindex $line 1]\n" fn \n -
+        } else {
+          .txtA insert end "[lindex $line 1] ($fA)\n" fn \n -
+        }
         .mkr insert end \n fn \n -
         .lnB insert end \n fn \n -
-        .txtB insert end "[lindex $line 2] ($fB)\n" fn \n -
+        if {$fB==""} {
+          .txtB insert end "[lindex $line 2]\n" fn \n -
+        } else {
+          .txtB insert end "[lindex $line 2] ($fB)\n" fn \n -
+        }
         .wfiles.lb insert end [lindex $line 2]
         set n1 0
         set n2 0

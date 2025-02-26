@@ -14,6 +14,7 @@
   *  Added the [/help?cmd=merge-info|fossil merge-info] command and especially
      the --tk option to that command, to provide analysis of the most recent
      merge or update operation.
+  *  Added the ability to sign check-ins with SSH keys.
   *  Issue a warning if a user tries to commit on a check-in where the
      branch has been changed.
   *  When a merge conflict occurs, a new section is added to the conflict
@@ -39,7 +40,15 @@
      <li> For "tl=" and similar query parameters, if the pattern contains
           GLOB characters, then the matching style ("ms=") is set to GLOB
           automatically and the "ms=" query parameter can be omitted.
+     <li> Enhance the "ymd" query parameter so that when used like
+          "ymd=YYYYMMDD-YYYYMMDD" it shows all events in the range of
+          dates specified.
+     <li> Accept the "Z" (Zulu-time) suffix on date arguments for the
+          "ymd" and "yw" query parameters.
      </ol>
+  *  Add the "--if-changes" option to the [/help?cmd=commit|fossil commit]
+     command that causes the command to become a quiet no-op if there are
+     no pending changes.
   *  Added the [/help?cmd=/clusterlist|/clusterlist page] for analysis
      and debugging
   *  Fix a bug in [/help?cmd=patch|fossil patch create] that causes

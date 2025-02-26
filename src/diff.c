@@ -110,6 +110,7 @@ struct DiffConfig {
   const char *zBinGlob;    /* GLOB pattern for binary files */
   ReCompiled *pRe;         /* Show only changes matching this pattern */
   const char *zLeftHash;   /* HASH-id of the left file */
+  const char *azLabel[2];  /* Optional labels for left and right files */
 };
 
 #endif /* INTERFACE */
@@ -3238,6 +3239,7 @@ int *text_diff(
 **   -i|--internal                Use built-in diff, not an external tool
 **   --invert                     Invert the diff            DIFF_INVERT
 **   --json                       Output formatted as JSON
+**   --label NAME                 Column label.  Can be repeated once.
 **   -n|--linenum                 Show line numbers          DIFF_LINENO
 **   -N|--new-file                Alias for --verbose
 **   --noopt                      Disable optimization       DIFF_NOOPT
@@ -3310,6 +3312,10 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
     pCfg->wColumn = f;
   }
+  pCfg->azLabel[0] = find_option("label",0,1);
+  if( pCfg->azLabel[0] ){
+    pCfg->azLabel[1] = find_option("label",0,1);
+  }
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
@@ -3355,9 +3361,6 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
 ** This command prints the differences between the two files FILE1 and FILE2.
 ** all of the usual diff formatting options (--tk, --by, -c N, etc.) apply.
 ** See the "diff" command for a full list of command-line options.
-**
-** This command used to be called "test-diff".  The older "test-diff" spelling
-** still works, for compatibility.
 */
 void xdiff_cmd(void){
   Blob a, b, out;
@@ -3383,6 +3386,52 @@ void xdiff_cmd(void){
   diff_print_filenames(g.argv[2], g.argv[3], &DCfg, &out);
   blob_read_from_file(&a, g.argv[2], ExtFILE);
   blob_read_from_file(&b, g.argv[3], ExtFILE);
+  text_diff(&a, &b, &out, &DCfg);
+  blob_write_to_file(&out, "-");
+  diff_end(&DCfg, 0);
+  re_free(DCfg.pRe);
+}
+
+/*
+** COMMAND: fdiff
+**
+** Usage: %fossil fdiff [options] HASH1 HASH2
+**
+** Compute a diff between two artifacts in a repository (either a repository
+** identified by the "-R FILENAME" option, or the repository that contains
+** the working directory).
+**
+** All of the usual diff formatting options (--tk, --by, -c N, etc.) apply.
+** See the "diff" command for a full list of command-line options.
+*/
+void fdiff_cmd(void){
+  Blob a, b, out;
+  const char *zRe;           /* Regex filter for diff output */
+  int rid;
+  DiffConfig DCfg;
+
+  if( find_option("tk",0,0)!=0 ){
+    diff_tk("fdiff", 2);
+    return;
+  }
+  find_option("i",0,0);
+  find_option("v",0,0);
+  diff_options(&DCfg, 0, 0);
+  zRe = find_option("regexp","e",1);
+  if( zRe ){
+    const char *zErr = re_compile(&DCfg.pRe, zRe, 0);
+    if( zErr ) fossil_fatal("regex error: %s", zErr);
+  }
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  if( g.argc!=4 ) usage("HASH1 HASH2");
+  blob_zero(&out);
+  diff_begin(&DCfg);
+  diff_print_filenames(g.argv[2], g.argv[3], &DCfg, &out);
+  rid = name_to_typed_rid(g.argv[2], 0);
+  content_get(rid, &a);
+  rid = name_to_typed_rid(g.argv[3], 0);
+  content_get(rid, &b);
   text_diff(&a, &b, &out, &DCfg);
   blob_write_to_file(&out, "-");
   diff_end(&DCfg, 0);

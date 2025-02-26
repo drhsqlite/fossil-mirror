@@ -31,6 +31,7 @@ int clearsign(Blob *pIn, Blob *pOut){
   char *zIn;
   char *zOut;
   char *zBase = db_get("pgp-command", "gpg --clearsign -o ");
+  int useSsh = 0;
   char *zCmd;
   int rc;
   if( is_false(zBase) ){
@@ -38,9 +39,15 @@ int clearsign(Blob *pIn, Blob *pOut){
   }
   zRand = db_text(0, "SELECT hex(randomblob(10))");
   zOut = mprintf("out-%s", zRand);
-  zIn = mprintf("in-%z", zRand);
   blob_write_to_file(pIn, zOut);
-  zCmd = mprintf("%s %s %s", zBase, zIn, zOut);
+  useSsh = (fossil_strncmp(command_basename(zBase), "ssh", 3)==0);
+  if( useSsh ){
+    zIn = mprintf("out-%s.sig", zRand);
+    zCmd = mprintf("%s %s", zBase, zOut);
+  }else{
+    zIn = mprintf("in-%z", zRand);
+    zCmd = mprintf("%s %s %s", zBase, zIn, zOut);
+  }
   rc = fossil_system(zCmd);
   free(zCmd);
   if( rc==0 ){
@@ -48,7 +55,23 @@ int clearsign(Blob *pIn, Blob *pOut){
       blob_reset(pIn);
     }
     blob_zero(pOut);
-    blob_read_from_file(pOut, zIn, ExtFILE);
+    if( useSsh ){
+        /* As of 2025, SSH cannot create non-detached SSH signatures */
+        /* We put one together */
+        Blob tmpBlob;
+        blob_zero(&tmpBlob);
+        blob_read_from_file(&tmpBlob, zOut, ExtFILE);
+        /* Add armor header line and manifest */
+        blob_appendf(pOut, "%s", "-----BEGIN SSH SIGNED MESSAGE-----\n\n");
+        blob_appendf(pOut, "%s", blob_str(&tmpBlob));
+        blob_zero(&tmpBlob);
+        blob_read_from_file(&tmpBlob, zIn, ExtFILE);
+        /* Add signature - already armored by SSH */
+        blob_appendf(pOut, "%s", blob_str(&tmpBlob));
+    }else{
+      /* Assume that the external command creates non-detached signatures */
+      blob_read_from_file(pOut, zIn, ExtFILE);
+    }
   }else{
     if( pOut!=pIn ){
       blob_copy(pOut, pIn);

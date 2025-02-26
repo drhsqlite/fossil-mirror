@@ -36,11 +36,6 @@ in as a user with [**Admin** capability](./caps/ref.html#a). It is not possible 
 clone of the server's repository and push the configuration changes up
 to that repo as an Admin user, [on purpose](#backup).
 
-**Important:** Do not confuse that screen with Admin → Email-Server,
-which sets up a different subsystem within Fossil. That feature is
-related to this document's topic, but it is currently incomplete, so we
-do not cover it at this time.
-
 <a id="cd"></a>
 You will also need a CLI window open with its working directory changed
 to a checkout directory of the Fossil repository you are setting up to
@@ -57,9 +52,10 @@ below.
 <a id="quick"></a>
 ## Quick Email Service Setup
 
-If you've already got a working Postfix, Exim, or Sendmail server on the
-machine running your Fossil instance(s), and you aren't using Fossil's
-`chroot` feature to wall Fossil off from the rest of the machine, it's
+If you've already got a working OpenSMTPD, Postfix, Exim, Sendmail,
+or similar server on the machine running your Fossil instance(s),
+and you aren't using Fossil's [chroot jail feature](./chroot.md)
+to wall Fossil off from the rest of the machine, it's
 fairly simple to set up email alerts.
 
 (Otherwise, skip [ahead](#advanced) to the sections on advanced email

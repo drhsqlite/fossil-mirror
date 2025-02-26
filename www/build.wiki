@@ -149,32 +149,30 @@ system.</li>
 via the MinGW specific Makefile under a POSIX build of GNU make:
 "<b>make -f win/Makefile.mingw</b>".</li>
 
-There is limited support for building under MinGW's native Windows port
-of GNU Make instead by defining the <tt>USE_WINDOWS=1</tt> variable, but
-it's better to build under MSYS, Cygwin, or WSL on Windows since this
-mode doesn't take care of cases such as the "openssl" target, which
-depends on <tt>sed</tt>. We've gone as far down this path as is
-practical short of breaking cross-compilation under Linux, macOS, and so
-forth, as we'd have to do to make everything work under
-<tt>cmd.exe</tt>.
-
-Unless you're building under MSYS where commands like "<tt>gcc</tt>"
-give MinGW's GCC and not some other version, you will need to make minor
-edits to win/Makefile.mingw to configure the cross-compilation
-environment. It should suffice to switch to one of the predefined
-<tt>PREFIX</tt> values, causing the build to be done using
-"<tt>x86_64-w64-mingw32-gcc</tt>" for example, yielding a 64-bit native
-Windows binary.
-
 To enable the native [./th1.md#tclEval | Tcl integration feature], use a
 command line like the following (all on one line):
 
-<b>make -f win/Makefile.mingw FOSSIL_ENABLE_TCL=1 FOSSIL_ENABLE_TCL_STUBS=1 FOSSIL_ENABLE_TCL_PRIVATE_STUBS=1</b>
+<pre>make -f win/Makefile.mingw FOSSIL_ENABLE_TCL=1 FOSSIL_ENABLE_TCL_STUBS=1 FOSSIL_ENABLE_TCL_PRIVATE_STUBS=1</pre>
 
-Alternatively, running <b>./configure</b> under MSYS should give a
-suitable top-level Makefile. However, options passed to configure that are
-not applicable on Windows may cause the configuration or compilation to fail
-(e.g. fusefs, internal-sqlite, etc).
+<li><i>MSYS2 / Cygwin</i> → This is something of a hybrid between
+options "a" and "c" above: it configures and builds
+<code>fossil.exe</code> much as on Linux, but you get a native Windows
+executable out at the end. The primary downside is that this type of
+executable can become confused when attempting to interoperate with
+fully native Windows EXEs by making assumptions that only hold true when
+all elements are running under the Cygwin/MSYS environment. The MSVC and
+MinGW options do not have this limitation.
+
+Even so, there is value to Linux/Unix natives in having this hybrid
+while off in Windows-land. The simpler of the two paths is MSYS2, since
+it lets you install the necessary prerequisites in a single command
+after installing the base environment:
+
+<pre>pacman -sS gcc make openssl-devel zlib-devel</pre>
+
+The equivalent in Cygwin's <code>setup.exe</code> requires stepping
+through the GUI package chooser, and then if you miss one of the
+prereqs, going all the way back through it again until you get it right.
 
 <li><i>MSVC</i> → Use the MSVC makefile.</li>
 

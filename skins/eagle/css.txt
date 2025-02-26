@@ -182,7 +182,7 @@ table.timelineTable {
   cellpadding: 0;
   font-family: "courier new";
   border-spacing: 0px 2px;
-  // border-collapse: collapse;
+  /* border-collapse: collapse; */
 }
 
 .timelineSelected {

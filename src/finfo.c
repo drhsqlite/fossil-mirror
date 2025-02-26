@@ -39,7 +39,7 @@
 ** option to see similar information about the same file for the check-in
 ** specified by VERSION.
 **
-** In the -s mode prints the status as <status> <revision>.  This is
+** The -s mode prints the status as <status> <revision>.  This is
 ** a quick status and does not check for up-to-date-ness of the file.
 **
 ** In the -p mode, there's an optional flag "-r|--revision REVISION".

@@ -693,7 +693,7 @@ void backoffice_work(void){
 **                            this feature.  Default: 3600 (once per hour).
 **
 **    --poll N                Repeat backoffice calls for repositories that
-**                            change in appoximately N-second intervals.
+**                            change in approximately N-second intervals.
 **                            N less than 1 turns polling off (the default).
 **                            Recommended polling interval: 60 seconds.
 **

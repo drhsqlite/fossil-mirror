@@ -235,7 +235,7 @@ void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
 **
 **            --dry-run          Print the script on stdout rather than run it
 **            --base-rcvid N     Pretend that the hook-last-rcvid value is N
-**            --new-rcvid M      Pretend that the last rcvid valud is M
+**            --new-rcvid M      Pretend that the last rcvid value is M
 **            --aux-file NAME    NAME is substituted for %A in the script
 **
 **        The --base-rcvid and --new-rcvid options are silently ignored if

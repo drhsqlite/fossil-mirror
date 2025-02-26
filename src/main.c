@@ -1637,7 +1637,7 @@ void sigpipe_handler(int x){
 ** Return true if it is appropriate to redirect requests to HTTPS.
 **
 ** Redirect to https is appropriate if all of the above are true:
-**    (1) The redirect-to-https flag has a valud of iLevel or greater.
+**    (1) The redirect-to-https flag has a value of iLevel or greater.
 **    (2) The current connection is http, not https or ssh
 **    (3) The sslNotAvailable flag is clear
 */
@@ -2922,6 +2922,19 @@ void cmd_http(void){
 #endif
   }
   zIpAddr = find_option("ipaddr",0,1);
+#if defined(_WIN32)
+  /* The undocumented option "--as NAME" causes NAME to become
+  ** the fake command name.  This only happens on Windows and only
+  ** if preceded by --in, --out, and --ipaddr.  It is a work-around
+  ** to get the original command-name down into the "http" command that
+  ** is run in a subprocess to manage HTTP requests on Windows for
+  ** commands like "fossil ui" and "fossil server".
+  */
+  if( zInFile && zOutFile && zIpAddr ){
+    const char *z = find_option("as",0,1);
+    if( z ) g.zCmdName = z;
+  }
+#endif
   useSCGI = find_option("scgi", 0, 0)!=0;
   if( useSCGI ) g.zReqType = "SCGI";
   zAltBase = find_option("baseurl", 0, 1);

@@ -767,6 +767,12 @@ void tktview_page(void){
   if( !showTimeline && g.perm.Hyperlink ){
     style_submenu_element("Timeline", "%R/info/%T", zUuid);
   }
+  zFullName = db_text(0,
+       "SELECT tkt_uuid FROM ticket"
+       " WHERE tkt_uuid GLOB '%q*'", zUuid);
+  if( g.perm.WrWiki && g.perm.WrTkt ){
+    style_submenu_element("Edit Description", "%R/wikiedit?name=ticket/%T", zFullName);
+  }
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br>\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
@@ -779,9 +785,6 @@ void tktview_page(void){
   Th_Render(zScript);
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br>\n", -1);
 
-  zFullName = db_text(0,
-       "SELECT tkt_uuid FROM ticket"
-       " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( zFullName ){
     attachment_list(zFullName, "<h2>Attachments:</h2>", 1);
   }

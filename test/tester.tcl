@@ -375,6 +375,7 @@ proc get_all_settings {} {
       th1-setup \
       th1-uri-regexp \
       ticket-default-report \
+      timeline-utc \
       user-color-map \
       uv-sync \
       web-browser]
