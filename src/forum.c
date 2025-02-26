@@ -1929,7 +1929,7 @@ void forum_main_page(void){
   char const *zLimit = 0;
 
   login_check_credentials();
-  srchFlags = search_restrict(SRCH_FORUM);
+  srchFlags = search_restrict(SRCH_FORUM,0);
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);
     return;

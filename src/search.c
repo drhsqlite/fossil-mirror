@@ -741,7 +741,7 @@ void search_cmd(void){
   verify_all_options();
   if( g.argc<3 ) return;
   login_set_capabilities("s", 0);
-  if( search_restrict(srchFlags)==0 ){
+  if( search_restrict(srchFlags, 1)==0 ){
     fossil_print(
       "Search is disabled on this repository.\n"
       "Use the \"fossil fts-config\" command to enable.\n"
@@ -851,8 +851,11 @@ void search_cmd(void){
 ** Remove bits from srchFlags which are disallowed by either the
 ** current server configuration or by user permissions.  Return
 ** the revised search flags mask.
+**
+** If bFlex is true, that means allow through the SRCH_HELP option
+** even if it is not explicitly enabled.
 */
-unsigned int search_restrict(unsigned int srchFlags){
+unsigned int search_restrict(unsigned int srchFlags, int bFlex){
   static unsigned int knownGood = 0;
   static unsigned int knownBad = 0;
   static const struct { unsigned m; const char *zKey; } aSetng[] = {
@@ -879,6 +882,7 @@ unsigned int search_restrict(unsigned int srchFlags){
       knownBad |= m;
     }
   }
+  if( bFlex ) knownBad &= ~SRCH_HELP;
   return srchFlags & ~knownBad;
 }
 
@@ -1285,7 +1289,7 @@ int search_run_and_output(
   if( P("searchlimit")!=0 ){
     nLimit = atoi(P("searchlimit"));
   }
-  srchFlags = search_restrict(srchFlags);
+  srchFlags = search_restrict(srchFlags, 1);
   if( srchFlags==0 ) return 0;
   search_sql_setup(g.db);
   add_content_sql_commands(g.db);
@@ -1362,7 +1366,7 @@ int search_screen(unsigned srchFlags, int mFlags){
   const char *zPattern;
   int fDebug = PB("debug");
   int haveResult = 0;
-  srchFlags = search_restrict(srchFlags);
+  srchFlags = search_restrict(srchFlags, 0);
   switch( srchFlags ){
     case SRCH_CKIN:     zType = " Check-ins";  zClass = "Ckin"; break;
     case SRCH_DOC:      zType = " Docs";       zClass = "Doc";  break;
@@ -2234,7 +2238,7 @@ void search_rebuild_index(void){
   fflush(stdout);
   search_create_index();
   search_fill_index();
-  search_update_index(search_restrict(SRCH_ALL));
+  search_update_index(search_restrict(SRCH_ALL, 0));
   if( db_table_exists("repository","chat") ){
     chat_rebuild_index(1);
   }
@@ -2254,11 +2258,11 @@ void search_rebuild_index(void){
 **
 **     index (on|off)     Turn the search index on or off
 **
-**     enable cdtwefh     Enable various kinds of search. c=Check-ins,
-**                        d=Documents, t=Tickets, w=Wiki, e=Tech Notes,
-**                        f=Forum, h=built-in-help.
+**     enable TYPE ..     Enable search for TYPE.  TYPE is one of:
+**                        check-in, document, ticket, wiki, technote, 
+**                        forum, help, or all
 **
-**     disable cdtwefh    Disable various kinds of search
+**     disable TYPE ...   Disable search for TYPE
 **
 **     tokenizer VALUE    Select a tokenizer for indexed search. VALUE
 **                        may be one of (porter, on, off, trigram, unicode61),
@@ -2288,7 +2292,7 @@ void fts_config_cmd(void){
      { "search-doc",      "document search:",       "d" },
      { "search-tkt",      "ticket search:",         "t" },
      { "search-wiki",     "wiki search:",           "w" },
-     { "search-technote", "tech note search:",      "e" },
+     { "search-technote", "technote search:",       "e" },
      { "search-forum",    "forum search:",          "f" },
      { "search-help",     "built-in help search:",  "h" },
   };
@@ -2327,12 +2331,42 @@ void fts_config_cmd(void){
 
   /* Adjust search settings */
   if( iCmd==3 || iCmd==4 ){
+    int k;
     const char *zCtrl;
-    if( g.argc<4 ) usage(mprintf("%s STRING",zSubCmd));
-    zCtrl = g.argv[3];
-    for(j=0; j<count(aSetng); j++){
-      if( strchr(zCtrl, aSetng[j].zSw[0])!=0 ){
-        db_set_int(aSetng[j].zSetting/*works-like:"x"*/, iCmd-3, 0);
+    for(k=2; k<g.argc; k++){
+      if( k==2 ){
+        if( g.argc<4 ){
+          zCtrl = "all";
+        }else{
+          zCtrl = g.argv[3];
+          k++;
+        }
+      }else{
+        zCtrl = g.argv[k];
+      }
+      if( fossil_strcmp(zCtrl,"all")==0 ){
+        zCtrl = "cdtwefh";
+      }
+      if( strlen(zCtrl)>=4 ){
+        /* If the argument to "enable" or "disable" is a string of at least
+        ** 4 characters which matches part of any aSetng.zName, then use that
+        ** one aSetng value only. */
+        char *zGlob = mprintf("*%s*", zCtrl);
+        for(j=0; j<count(aSetng); j++){
+          if( sqlite3_strglob(zGlob, aSetng[j].zName)==0 ){
+            db_set_int(aSetng[j].zSetting/*works-like:"x"*/, iCmd-3, 0);
+            zCtrl = 0;
+            break;
+          }
+        }
+        fossil_free(zGlob);
+      }
+      if( zCtrl ){
+        for(j=0; j<count(aSetng); j++){
+          if( strchr(zCtrl, aSetng[j].zSw[0])!=0 ){
+            db_set_int(aSetng[j].zSetting/*works-like:"x"*/, iCmd-3, 0);
+          }
+        }
       }
     }
   }else if( iCmd==5 ){

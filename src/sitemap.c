@@ -66,7 +66,7 @@ void sitemap_page(void){
     g.perm.Hyperlink = 1;
     g.jsHref = 0;
   }
-  srchFlags = search_restrict(SRCH_ALL);
+  srchFlags = search_restrict(SRCH_ALL,0);
   if( !isPopup ){
     style_header("Site Map");
     style_adunit_config(ADUNIT_RIGHT_OK);
