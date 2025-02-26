@@ -2253,6 +2253,8 @@ void page_srchsetup(){
   onoff_attribute("Search Tech Notes", "search-technote", "se", 0, 0);
   @ <br>
   onoff_attribute("Search Forum", "search-forum", "sf", 0, 0);
+  @ <br>
+  onoff_attribute("Search Built-in Help Text", "search-help", "sh", 0, 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>

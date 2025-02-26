@@ -636,11 +636,12 @@ void search_cmd(void){
       srchFlags = 0;
       for(i=0; zScope[i]; i++){
         switch( zScope[i] ){
-          case 'a':  srchFlags = SRCH_ALL;  break;
+          case 'a':  srchFlags = SRCH_ALL;       break;
           case 'c':  srchFlags |= SRCH_CKIN;     break;
           case 'd':  srchFlags |= SRCH_DOC;      break;
           case 'e':  srchFlags |= SRCH_TECHNOTE; break;
           case 'f':  srchFlags |= SRCH_FORUM;    break;
+          case 'h':  srchFlags |= SRCH_HELP;     break;
           case 't':  srchFlags |= SRCH_TKT;      break;
           case 'w':  srchFlags |= SRCH_WIKI;     break;
         }
@@ -656,6 +657,9 @@ void search_cmd(void){
     }else{
       search_update_index(srchFlags);        /* Update the index */
       search_indexed(zPattern, srchFlags);   /* Indexed search */
+      if( srchFlags & SRCH_HELP ){
+        search_fullscan(zPattern, SRCH_HELP);
+      }
     }
     db_prepare(&q, "SELECT snip, label, score, id, date"
                    "  FROM x"
@@ -733,7 +737,8 @@ void search_cmd(void){
 #define SRCH_WIKI     0x0008    /* Search over wiki */
 #define SRCH_TECHNOTE 0x0010    /* Search over tech notes */
 #define SRCH_FORUM    0x0020    /* Search over forum messages */
-#define SRCH_ALL      0x003f    /* Search over everything */
+#define SRCH_HELP     0x0040    /* Search built-in help (full-scan only) */
+#define SRCH_ALL      0x007f    /* Search over everything */
 #endif
 
 /*
@@ -745,12 +750,13 @@ unsigned int search_restrict(unsigned int srchFlags){
   static unsigned int knownGood = 0;
   static unsigned int knownBad = 0;
   static const struct { unsigned m; const char *zKey; } aSetng[] = {
-     { SRCH_CKIN,     "search-ci"   },
-     { SRCH_DOC,      "search-doc"  },
-     { SRCH_TKT,      "search-tkt"  },
-     { SRCH_WIKI,     "search-wiki" },
+     { SRCH_CKIN,     "search-ci"       },
+     { SRCH_DOC,      "search-doc"      },
+     { SRCH_TKT,      "search-tkt"      },
+     { SRCH_WIKI,     "search-wiki"     },
      { SRCH_TECHNOTE, "search-technote" },
-     { SRCH_FORUM,    "search-forum" },
+     { SRCH_FORUM,    "search-forum"    },
+     { SRCH_HELP,     "search-help"     },
   };
   int i;
   if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC|SRCH_TECHNOTE);
@@ -914,6 +920,19 @@ LOCAL void search_fullscan(
       "   WHERE search_match('',body('f',rid,NULL));"
     );
   }
+  if( (srchFlags & SRCH_HELP)!=0 ){
+    helptext_vtab_register(g.db);
+    db_multi_exec(
+      "INSERT INTO x(label,url,score,id,snip)"
+      "  SELECT format('Built-in help for the \"%%s\" %%s',name,type),"
+      "         '/help?cmd='||name,"
+      "         search_score(),"
+      "         'h'||rowid,"
+      "         search_snippet()"
+      "    FROM helptext"
+      "   WHERE search_match('',helptext.helptext);"
+    );
+  }
 }
 
 /*
@@ -1070,6 +1089,7 @@ LOCAL void search_indexed(
        { SRCH_WIKI,     'w' },
        { SRCH_TECHNOTE, 'e' },
        { SRCH_FORUM,    'f' },
+       { SRCH_HELP,     'h' },
     };
     int i;
     for(i=0; i<count(aMask); i++){
@@ -1171,6 +1191,9 @@ int search_run_and_output(
   }else{
     search_update_index(srchFlags);        /* Update the index, if necessary */
     search_indexed(zPattern, srchFlags);   /* Indexed search */
+    if( srchFlags & SRCH_HELP ){
+      search_fullscan(zPattern, SRCH_HELP);
+    }
   }
   db_prepare(&q, "SELECT url, snip, label, score, id, substr(date,1,10)"
                  "  FROM x"
@@ -1241,6 +1264,7 @@ int search_screen(unsigned srchFlags, int mFlags){
     case SRCH_WIKI:     zType = " Wiki";       zClass = "Wiki"; break;
     case SRCH_TECHNOTE: zType = " Tech Notes"; zClass = "Note"; break;
     case SRCH_FORUM:    zType = " Forum";      zClass = "Frm";  break;
+    case SRCH_HELP:     zType = " Help";       zClass = "Hlp";  break;
   }
   if( srchFlags==0 ){
     if( mFlags & 0x02 ) return 0;
@@ -1268,6 +1292,7 @@ int search_screen(unsigned srchFlags, int mFlags){
        { "w",    "Wiki",       SRCH_WIKI     },
        { "e",    "Tech Notes", SRCH_TECHNOTE },
        { "f",    "Forum",      SRCH_FORUM    },
+       { "h",    "Help",       SRCH_HELP     },
     };
     const char *zY = PD("y","all");
     unsigned newFlags = srchFlags;
@@ -1323,6 +1348,7 @@ int search_screen(unsigned srchFlags, int mFlags){
 **                      w -> wiki
 **                      e -> tech notes
 **                      f -> forum
+**                      h -> built-in help
 **                    all -> everything
 */
 void search_page(void){

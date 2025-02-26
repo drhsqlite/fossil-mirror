@@ -1,5 +1,5 @@
-C Fix\sa\sglobal\svar\sref\sbroken\sin\sone\scode\spath\sby\s[af7475cda699].\sMove\ssome\sof\sthe\slarger\sauto.def\schunks\sinto\stheir\sown\sfunctions\sfor\slegibility,\sand\sto\ssimplify\seventual\srefactoring,\sbut\sdo\snot\schange\sany\sordering\sor\ssemantics\s(and\ssuch\schanges\sare\sbugs).
-D 2025-02-26T07:58:56.272
+C Add\ssupport\sfor\ssearch\sbuilt-in\shelp\stext.
+D 2025-02-26T12:49:42.503
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,7 +421,7 @@ F src/diff.c 0144a6dfefff72e2a0ca6da7a74703be4150feab1fd2d272f39565c3cf35c849
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
 F src/diffcmd.c cec6c9f65439be9591c1ba8e79911cde35b40ba827709a27240e1600880c9a0c
-F src/dispatch.c 08b7f541f0fbf027c247d280ec2551342c238d39dac1e27c98a66013e6c71e09
+F src/dispatch.c 2264389f57584f257042c430afe7f74425d2b35f3d748605e21b215edd76fa4a
 F src/doc.c d576f614d099399f5cd17db085743bd37fe73cadd136abb1a9db912c9e82a118
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
@@ -524,9 +524,9 @@ F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c 11b6dd5c61135c54ece0bbbb612cd9718bb620043b0af5c61574d66e0c133c3f
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 0a0b9e06f58b7bd304e5994af2cf37fe9642cb9cd79e5c2aac6dba2806554d23
+F src/search.c 9e0c3a4cc44eaf781d7aee8b41adb517d4855336b87c79abfd226ed90a1cd14a
 F src/security_audit.c 88ccc26b105d86edac19ac863314234312aa647e208066679ee3468e1616711c
-F src/setup.c 3dd251324a43ef6e2b0fba1ce6627066ee80572a6a50bf23b7d7ac1b3930586d
+F src/setup.c 646b3741b268c0a8735da5690ff65fce9b45cde2aedea13f8248fa2cfab85049
 F src/setupuser.c 25e70f55d7cfb0ee847a778dda71a6e1541507424a43dd5a1eab66d682d88c6f
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -964,8 +964,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af7475cda699462f4ec4d2288816e7c42ef2f7baae28e350d80a19d270489172
-R 15872b2af33158b64df5c660c8673270
-U stephan
-Z 455fd1df69ad0e5fe44325c4371cb3d8
+P d84494f487a0c615fccf886c3e6dbd77537b5ff86db42d8c5125bc7e4be8823c
+R 5a338e5f8e8bbcf11b48a10e3371e34d
+T *branch * help-search
+T *sym-help-search *
+T -sym-trunk *
+U drh
+Z 41bf550596b6ed0beadc80c8dca606ae
 # Remove this line to create a well-formed Fossil manifest.
