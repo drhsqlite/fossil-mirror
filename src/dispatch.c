@@ -834,6 +834,9 @@ void help_page(void){
     style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%R/help");
+    if( search_restrict(SRCH_HELP,0)!=0 ){
+      style_submenu_element("Search","%R/search?y=h");
+    }
     rc = dispatch_name_search(zCmd, CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
     if( *zCmd=='/' ){
       /* Some of the webpages require query parameters in order to work.
@@ -875,6 +878,7 @@ void help_page(void){
     unsigned char occHelp[FOSSIL_MX_CMDIDX] = {0};   /* Help str occurrences */
     int bktHelp[FOSSIL_MX_CMDIDX][MX_HELP_DUP] = {{0}};/* Help str->commands */
     style_header("Help");
+    search_screen(SRCH_HELP, 0x02);
 
     @ <a name='commands'></a>
     @ <h1>Available commands:</h1>
@@ -1272,11 +1276,11 @@ void help_cmd(void){
       fossil_print("  *  %s\n", az[i]);
     }
     fossil_print("Also consider using:\n");
-    fossil_print("   fossil help TOPIC     ;# show help on TOPIC\n");
-    fossil_print("   fossil help -a        ;# show all commands\n");
-    fossil_print("   fossil help -w        ;# show all web-pages\n");
-    fossil_print("   fossil help -s        ;# show all settings\n");
-    fossil_print("   fossil help -o        ;# show global options\n");
+    fossil_print("   fossil search -h PATTERN  ;# search all help text\n");
+    fossil_print("   fossil help -a            ;# show all commands\n");
+    fossil_print("   fossil help -w            ;# show all web-pages\n");
+    fossil_print("   fossil help -s            ;# show all settings\n");
+    fossil_print("   fossil help -o            ;# show global options\n");
     fossil_exit(1);
   }
   z = pCmd->zHelp;

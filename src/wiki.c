@@ -334,7 +334,7 @@ int wiki_need_moderation(
 ** Add some standard submenu elements for wiki screens.
 */
 static void wiki_standard_submenu(unsigned int ok){
-  if( (ok & W_SRCH)!=0 && search_restrict(SRCH_WIKI)!=0 ){
+  if( (ok & W_SRCH)!=0 && search_restrict(SRCH_WIKI,0)!=0 ){
     style_submenu_element("Search", "%R/wikisrch");
   }
   if( (ok & W_LIST)!=0 ){
@@ -381,7 +381,7 @@ void wiki_helppage(void){
   if( g.perm.ModWiki ){
     @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
   }
-  if( search_restrict(SRCH_WIKI)!=0 ){
+  if( search_restrict(SRCH_WIKI,0)!=0 ){
     @ <li> %z(href("%R/wikisrch"))Search</a> for wiki pages containing key
     @ words</li>
   }
@@ -563,7 +563,7 @@ void wiki_page(void){
   (void)P("s")/*for cgi_check_for_malice(). "s" == search stringy*/;
   cgi_check_for_malice();
   if( zPageName==0 ){
-    if( search_restrict(SRCH_WIKI)!=0 ){
+    if( search_restrict(SRCH_WIKI,0)!=0 ){
       wiki_srchpage();
     }else{
       wiki_helppage();

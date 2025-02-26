@@ -562,36 +562,117 @@ void search_sql_setup(sqlite3 *db){
 }
 
 /*
+** The pSnip input contains snippet text from a search formatted
+** as HTML.  Attempt to make that text more readable on a TTY.
+**
+** If nTty is positive, use ANSI escape codes "\e[Nm" where N is nTty
+** to highly marked text.
+*/
+void search_snippet_to_plaintext(Blob *pSnip, int nTty){
+  char *zSnip;
+  unsigned int j, k;
+
+  zSnip = pSnip->aData;
+  for(j=k=0; j<pSnip->nUsed; j++){
+    char c = zSnip[j];
+    if( c=='<' ){
+      if( memcmp(&zSnip[j],"<mark>",6)==0 ){
+        if( nTty ){
+          zSnip[k++] = 0x1b;
+          zSnip[k++] = '[';
+          if( nTty>=10 ) zSnip[k++] = (nTty/10)%10 + '0';
+          zSnip[k++] = nTty%10 + '0';
+          zSnip[k++] = 'm';
+        }
+        j += 5;
+      }else if( memcmp(&zSnip[j],"</mark>",7)==0 ){
+        if( nTty ){
+          zSnip[k++] = 0x1b;
+          zSnip[k++] = '[';
+          zSnip[k++] = '0';
+          zSnip[k++] = 'm';
+        }
+        j += 6;
+      }else{
+        zSnip[k++] = zSnip[j];
+      }
+    }else if( fossil_isspace(c) ){
+      zSnip[k++] = ' ';
+      while( fossil_isspace(zSnip[j+1]) ) j++;
+    }else if( c=='&' ){
+      if( zSnip[j+1]=='#' && fossil_isdigit(zSnip[j+2]) ){
+        int n = 3;
+        int x = zSnip[j+2] - '0';
+        if( fossil_isdigit(zSnip[j+3]) ){
+          x = x*10 + zSnip[j+3] - '0';
+          n++;
+          if( fossil_isdigit(zSnip[j+4]) ){
+            x = x*10 + zSnip[j+4] - '0';
+            n++;
+          }
+        }
+        if( zSnip[j+n]==';' ){
+          zSnip[k++] = (char)x;
+          j += n;
+        }else{
+          zSnip[k++] = c;
+        }
+      }else if( memcmp(&zSnip[j],"&lt;",4)==0 ){
+        zSnip[k++] = '<';
+        j += 3;
+      }else if( memcmp(&zSnip[j],"&gt;",4)==0 ){
+        zSnip[k++] = '>';
+        j += 3;
+      }else if( memcmp(&zSnip[j],"&quot;",6)==0 ){
+        zSnip[k++] = '<';
+        j += 5;
+      }else if( memcmp(&zSnip[j],"&amp;",5)==0 ){
+        zSnip[k++] = '<';
+        j += 4;
+      }else{
+        zSnip[k++] = c;
+      }
+    }else{
+      zSnip[k++] = c;
+    }
+  }
+  zSnip[k] = 0;
+  pSnip->nUsed = k;
+}
+
+/*
 ** Testing the search function.
 **
 ** COMMAND: search*
 **
-** Usage: %fossil search [-a|-all] [-n|-limit #] [-W|-width #] pattern...
+** Usage: %fossil search [OPTIONS] PATTERN...
 **
-** Search for timeline entries matching all words provided on the
-** command line. Whole-word matches scope more highly than partial
-** matches.
+** Search the repository database for PATTERN and show matches.
+** The following elements of the repository can be searched:
 **
-** Note:  This command only searches the EVENT table.  So it will only
-** display check-in comments or other comments that appear on an
-** unaugmented timeline.  It does not search document text or forum
-** messages.
+**    *   check-in comments
+**    *   embedded documentation
+**    *   forum posts
+**    *   tickets
+**    *   tech notes
+**    *   wiki pages
+**    *   built-in fossil help text
 **
-** Outputs, by default, some top-N fraction of the results. The -all
-** option can be used to output all matches, regardless of their search
-** score.  The -limit option can be used to limit the number of entries
-** returned.  The -width option can be used to set the output width used
-** when printing matches.
+** Use options (listed below) to select the scope of the search.  The
+** default is check-in comments only.
 **
 ** Options:
-**     -a|--all          Output all matches, not just best matches
-**     --debug           Show additional debug content on --fts search
-**     --fts             Use the full-text search mechanism (testing only)
+**     -a|--all          Search everything
+**     -c|--checkins     Search checkin comments
+**     --docs            Search embedded documentation
+**     --forum           Search forum posts
+**     -h|--bi-help      Search built-in help
 **     -n|--limit N      Limit output to N matches
-**     --scope SCOPE     Scope of search.  Valid for --fts only.  One or
-**                       more of: all, c, d, e, f, t, w.  Defaults to all.
+**     --technotes       Search tech notes
+**     --tickets         Search tickets
 **     -W|--width WIDTH  Set display width to WIDTH columns, 0 for
-**                       unlimited. Defaults the terminal's width.
+**                       unlimited. Defaults to the terminal's width.
+**     --wiki            Search wiki
 */
 void search_cmd(void){
   Blob pattern;
@@ -599,14 +680,26 @@ void search_cmd(void){
   Blob sql = empty_blob;
   Stmt q;
   int iBest;
+  int srchFlags = 0;
+  int bFts = 1;          /* Use FTS search by default now */
   char fAll = NULL != find_option("all", "a", 0);
   const char *zLimit = find_option("limit","n",1);
+  const char *zScope = 0;
   const char *zWidth = find_option("width","W",1);
-  const char *zScope = find_option("scope",0,1);
-  int bDebug = find_option("debug",0,0)!=0;
+  int bDebug = find_option("debug",0,0)!=0;     /* Undocumented */
   int nLimit = zLimit ? atoi(zLimit) : -1000;
   int width;
-  int bFts = find_option("fts",0,0)!=0;
+  int nTty = fossil_isatty(1) ? 91 : 0;
+
+  /* Undocumented option to change highlight color */
+  const char *zHighlight = find_option("highlight",0,1);
+  if( zHighlight ) nTty = atoi(zHighlight);
+
+  /* Undocumented option (legacy) */
+  zScope = find_option("scope",0,1);
+
+  if( find_option("fts",0,0)!=0 ) bFts = 1;      /* Undocumented legacy */
+  if( find_option("legacy",0,0)!=0 ) bFts = 0;   /* Undocumented */
 
   if( zWidth ){
     width = atoi(zWidth);
@@ -616,9 +709,54 @@ void search_cmd(void){
   }else{
     width = -1;
   }
+  if( zScope ){
+    for(i=0; zScope[i]; i++){
+      switch( zScope[i] ){
+        case 'a':  srchFlags = SRCH_ALL;       break;
+        case 'c':  srchFlags |= SRCH_CKIN;     break;
+        case 'd':  srchFlags |= SRCH_DOC;      break;
+        case 'e':  srchFlags |= SRCH_TECHNOTE; break;
+        case 'f':  srchFlags |= SRCH_FORUM;    break;
+        case 'h':  srchFlags |= SRCH_HELP;     break;
+        case 't':  srchFlags |= SRCH_TKT;      break;
+        case 'w':  srchFlags |= SRCH_WIKI;     break;
+      }
+    }
+    bFts = 1;
+  }
+  if( find_option("all","a",0) ){      srchFlags |= SRCH_ALL;      bFts = 1; }
+  if( find_option("bi-help","h",0) ){  srchFlags |= SRCH_HELP;     bFts = 1; }
+  if( find_option("checkins","c",0) ){ srchFlags |= SRCH_CKIN;     bFts = 1; }
+  if( find_option("docs",0,0) ){       srchFlags |= SRCH_DOC;      bFts = 1; }
+  if( find_option("forum",0,0) ){      srchFlags |= SRCH_FORUM;    bFts = 1; }
+  if( find_option("technotes",0,0) ){  srchFlags |= SRCH_TECHNOTE; bFts = 1; }
+  if( find_option("tickets",0,0) ){    srchFlags |= SRCH_TKT;      bFts = 1; }
+  if( find_option("wiki",0,0) ){       srchFlags |= SRCH_WIKI;     bFts = 1; }
+
+  /* If no search objects are specified, default to "check-in comments" */
+  if( srchFlags==0 ) srchFlags = SRCH_CKIN;
+
 
   db_find_and_open_repository(0, 0);
+  verify_all_options();
   if( g.argc<3 ) return;
+  login_set_capabilities("s", 0);
+  if( search_restrict(srchFlags, 1)==0 ){
+    const char *zC1 = 0, *zPlural = "s";
+    if( srchFlags & SRCH_TECHNOTE ){  zC1 = "technote"; }
+    if( srchFlags & SRCH_TKT ){       zC1 = "ticket";   }
+    if( srchFlags & SRCH_FORUM ){     zC1 = "forum";    zPlural = ""; }
+    if( srchFlags & SRCH_DOC ){       zC1 = "document"; }
+    if( srchFlags & SRCH_WIKI ){      zC1 = "wiki";     zPlural = ""; }
+    if( srchFlags & SRCH_CKIN ){      zC1 = "check-in"; }
+    fossil_print(
+      "Search of %s%s is disabled on this repository.\n"
+      "Enable using \"fossil fts-config enable %s\".\n",
+      zC1, zPlural, zC1
+    );
+    return;
+  }
+
   blob_init(&pattern, g.argv[2], -1);
   for(i=3; i<g.argc; i++){
     blob_appendf(&pattern, " %s", g.argv[i]);
@@ -628,24 +766,6 @@ void search_cmd(void){
     Blob com;
     Blob snip;
     const char *zPattern = blob_str(&pattern);
-    int srchFlags;
-    unsigned int j;
-    if( zScope==0 ){
-      srchFlags = SRCH_ALL;
-    }else{
-      srchFlags = 0;
-      for(i=0; zScope[i]; i++){
-        switch( zScope[i] ){
-          case 'a':  srchFlags = SRCH_ALL;  break;
-          case 'c':  srchFlags |= SRCH_CKIN;     break;
-          case 'd':  srchFlags |= SRCH_DOC;      break;
-          case 'e':  srchFlags |= SRCH_TECHNOTE; break;
-          case 'f':  srchFlags |= SRCH_FORUM;    break;
-          case 't':  srchFlags |= SRCH_TKT;      break;
-          case 'w':  srchFlags |= SRCH_WIKI;     break;
-        }
-      }
-    }
     search_sql_setup(g.db);
     add_content_sql_commands(g.db);
     db_multi_exec(
@@ -656,6 +776,9 @@ void search_cmd(void){
     }else{
       search_update_index(srchFlags);        /* Update the index */
       search_indexed(zPattern, srchFlags);   /* Indexed search */
+      if( srchFlags & SRCH_HELP ){
+        search_fullscan(zPattern, SRCH_HELP);
+      }
     }
     db_prepare(&q, "SELECT snip, label, score, id, date"
                    "  FROM x"
@@ -670,12 +793,7 @@ void search_cmd(void){
       const char *zScore = db_column_text(&q, 2);
       const char *zId = db_column_text(&q, 3);
       blob_appendf(&snip, "%s", zSnippet);
-      for(j=0; j<snip.nUsed; j++){
-        if( snip.aData[j]=='\n' ){
-          if( j>0 && snip.aData[j-1]=='\r' ) snip.aData[j-1] = ' ';
-          snip.aData[j] = ' ';
-        }
-      }
+      search_snippet_to_plaintext(&snip, nTty);
       blob_appendf(&com, "%s\n%s\n%s", zLabel, blob_str(&snip), zDate);
       if( bDebug ){
         blob_appendf(&com," score: %s id: %s", zScore, zId);
@@ -733,24 +851,29 @@ void search_cmd(void){
 #define SRCH_WIKI     0x0008    /* Search over wiki */
 #define SRCH_TECHNOTE 0x0010    /* Search over tech notes */
 #define SRCH_FORUM    0x0020    /* Search over forum messages */
-#define SRCH_ALL      0x003f    /* Search over everything */
+#define SRCH_HELP     0x0040    /* Search built-in help (full-scan only) */
+#define SRCH_ALL      0x007f    /* Search over everything */
 #endif
 
 /*
 ** Remove bits from srchFlags which are disallowed by either the
 ** current server configuration or by user permissions.  Return
 ** the revised search flags mask.
+**
+** If bFlex is true, that means allow through the SRCH_HELP option
+** even if it is not explicitly enabled.
 */
-unsigned int search_restrict(unsigned int srchFlags){
+unsigned int search_restrict(unsigned int srchFlags, int bFlex){
   static unsigned int knownGood = 0;
   static unsigned int knownBad = 0;
   static const struct { unsigned m; const char *zKey; } aSetng[] = {
-     { SRCH_CKIN,     "search-ci"   },
-     { SRCH_DOC,      "search-doc"  },
-     { SRCH_TKT,      "search-tkt"  },
-     { SRCH_WIKI,     "search-wiki" },
+     { SRCH_CKIN,     "search-ci"       },
+     { SRCH_DOC,      "search-doc"      },
+     { SRCH_TKT,      "search-tkt"      },
+     { SRCH_WIKI,     "search-wiki"     },
      { SRCH_TECHNOTE, "search-technote" },
-     { SRCH_FORUM,    "search-forum" },
+     { SRCH_FORUM,    "search-forum"    },
+     { SRCH_HELP,     "search-help"     },
   };
   int i;
   if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC|SRCH_TECHNOTE);
@@ -767,6 +890,7 @@ unsigned int search_restrict(unsigned int srchFlags){
       knownBad |= m;
     }
   }
+  if( bFlex ) knownBad &= ~SRCH_HELP;
   return srchFlags & ~knownBad;
 }
 
@@ -912,6 +1036,19 @@ LOCAL void search_fullscan(
       "         search_snippet()"
       "    FROM event JOIN blob on event.objid=blob.rid"
       "   WHERE search_match('',body('f',rid,NULL));"
+    );
+  }
+  if( (srchFlags & SRCH_HELP)!=0 ){
+    helptext_vtab_register(g.db);
+    db_multi_exec(
+      "INSERT INTO x(label,url,score,id,snip)"
+      "  SELECT format('Built-in help for the \"%%s\" %%s',name,type),"
+      "         '/help?cmd='||name,"
+      "         search_score(),"
+      "         'h'||rowid,"
+      "         search_snippet()"
+      "    FROM helptext"
+      "   WHERE search_match('',helptext.helptext);"
     );
   }
 }
@@ -1070,6 +1207,7 @@ LOCAL void search_indexed(
        { SRCH_WIKI,     'w' },
        { SRCH_TECHNOTE, 'e' },
        { SRCH_FORUM,    'f' },
+       { SRCH_HELP,     'h' },
     };
     int i;
     for(i=0; i<count(aMask); i++){
@@ -1159,7 +1297,7 @@ int search_run_and_output(
   if( P("searchlimit")!=0 ){
     nLimit = atoi(P("searchlimit"));
   }
-  srchFlags = search_restrict(srchFlags);
+  srchFlags = search_restrict(srchFlags, 1);
   if( srchFlags==0 ) return 0;
   search_sql_setup(g.db);
   add_content_sql_commands(g.db);
@@ -1171,6 +1309,9 @@ int search_run_and_output(
   }else{
     search_update_index(srchFlags);        /* Update the index, if necessary */
     search_indexed(zPattern, srchFlags);   /* Indexed search */
+    if( srchFlags & SRCH_HELP ){
+      search_fullscan(zPattern, SRCH_HELP);
+    }
   }
   db_prepare(&q, "SELECT url, snip, label, score, id, substr(date,1,10)"
                  "  FROM x"
@@ -1233,7 +1374,7 @@ int search_screen(unsigned srchFlags, int mFlags){
   const char *zPattern;
   int fDebug = PB("debug");
   int haveResult = 0;
-  srchFlags = search_restrict(srchFlags);
+  srchFlags = search_restrict(srchFlags, 0);
   switch( srchFlags ){
     case SRCH_CKIN:     zType = " Check-ins";  zClass = "Ckin"; break;
     case SRCH_DOC:      zType = " Docs";       zClass = "Doc";  break;
@@ -1241,6 +1382,7 @@ int search_screen(unsigned srchFlags, int mFlags){
     case SRCH_WIKI:     zType = " Wiki";       zClass = "Wiki"; break;
     case SRCH_TECHNOTE: zType = " Tech Notes"; zClass = "Note"; break;
     case SRCH_FORUM:    zType = " Forum";      zClass = "Frm";  break;
+    case SRCH_HELP:     zType = " Help";       zClass = "Hlp";  break;
   }
   if( srchFlags==0 ){
     if( mFlags & 0x02 ) return 0;
@@ -1268,6 +1410,7 @@ int search_screen(unsigned srchFlags, int mFlags){
        { "w",    "Wiki",       SRCH_WIKI     },
        { "e",    "Tech Notes", SRCH_TECHNOTE },
        { "f",    "Forum",      SRCH_FORUM    },
+       { "h",    "Help",       SRCH_HELP     },
     };
     const char *zY = PD("y","all");
     unsigned newFlags = srchFlags;
@@ -1323,6 +1466,7 @@ int search_screen(unsigned srchFlags, int mFlags){
 **                      w -> wiki
 **                      e -> tech notes
 **                      f -> forum
+**                      h -> built-in help
 **                    all -> everything
 */
 void search_page(void){
@@ -2102,7 +2246,7 @@ void search_rebuild_index(void){
   fflush(stdout);
   search_create_index();
   search_fill_index();
-  search_update_index(search_restrict(SRCH_ALL));
+  search_update_index(search_restrict(SRCH_ALL, 0));
   if( db_table_exists("repository","chat") ){
     chat_rebuild_index(1);
   }
@@ -2122,11 +2266,11 @@ void search_rebuild_index(void){
 **
 **     index (on|off)     Turn the search index on or off
 **
-**     enable cdtwef      Enable various kinds of search. c=Check-ins,
-**                        d=Documents, t=Tickets, w=Wiki, e=Tech Notes,
-**                        f=Forum.
+**     enable TYPE ..     Enable search for TYPE.  TYPE is one of:
+**                        check-in, document, ticket, wiki, technote, 
+**                        forum, help, or all
 **
-**     disable cdtwef     Disable various kinds of search
+**     disable TYPE ...   Disable search for TYPE
 **
 **     tokenizer VALUE    Select a tokenizer for indexed search. VALUE
 **                        may be one of (porter, on, off, trigram, unicode61),
@@ -2152,12 +2296,13 @@ void fts_config_cmd(void){
     const char *zName;
     const char *zSw;
   } aSetng[] = {
-     { "search-ci",       "check-in search:",  "c" },
-     { "search-doc",      "document search:",  "d" },
-     { "search-tkt",      "ticket search:",    "t" },
-     { "search-wiki",     "wiki search:",      "w" },
-     { "search-technote", "tech note search:", "e" },
-     { "search-forum",    "forum search:",     "f" },
+     { "search-ci",       "check-in search:",       "c" },
+     { "search-doc",      "document search:",       "d" },
+     { "search-tkt",      "ticket search:",         "t" },
+     { "search-wiki",     "wiki search:",           "w" },
+     { "search-technote", "technote search:",       "e" },
+     { "search-forum",    "forum search:",          "f" },
+     { "search-help",     "built-in help search:",  "h" },
   };
   char *zSubCmd = 0;
   int i, j, n;
@@ -2194,12 +2339,42 @@ void fts_config_cmd(void){
 
   /* Adjust search settings */
   if( iCmd==3 || iCmd==4 ){
+    int k;
     const char *zCtrl;
-    if( g.argc<4 ) usage(mprintf("%s STRING",zSubCmd));
-    zCtrl = g.argv[3];
-    for(j=0; j<count(aSetng); j++){
-      if( strchr(zCtrl, aSetng[j].zSw[0])!=0 ){
-        db_set_int(aSetng[j].zSetting/*works-like:"x"*/, iCmd-3, 0);
+    for(k=2; k<g.argc; k++){
+      if( k==2 ){
+        if( g.argc<4 ){
+          zCtrl = "all";
+        }else{
+          zCtrl = g.argv[3];
+          k++;
+        }
+      }else{
+        zCtrl = g.argv[k];
+      }
+      if( fossil_strcmp(zCtrl,"all")==0 ){
+        zCtrl = "cdtwefh";
+      }
+      if( strlen(zCtrl)>=4 ){
+        /* If the argument to "enable" or "disable" is a string of at least
+        ** 4 characters which matches part of any aSetng.zName, then use that
+        ** one aSetng value only. */
+        char *zGlob = mprintf("*%s*", zCtrl);
+        for(j=0; j<count(aSetng); j++){
+          if( sqlite3_strglob(zGlob, aSetng[j].zName)==0 ){
+            db_set_int(aSetng[j].zSetting/*works-like:"x"*/, iCmd-3, 0);
+            zCtrl = 0;
+            break;
+          }
+        }
+        fossil_free(zGlob);
+      }
+      if( zCtrl ){
+        for(j=0; j<count(aSetng); j++){
+          if( strchr(zCtrl, aSetng[j].zSw[0])!=0 ){
+            db_set_int(aSetng[j].zSetting/*works-like:"x"*/, iCmd-3, 0);
+          }
+        }
       }
     }
   }else if( iCmd==5 ){
@@ -2226,10 +2401,10 @@ void fts_config_cmd(void){
 
   /* Always show the status before ending */
   for(i=0; i<count(aSetng); i++){
-    fossil_print("%-17s %s\n", aSetng[i].zName,
+    fossil_print("%-21s %s\n", aSetng[i].zName,
        db_get_boolean(aSetng[i].zSetting,0) ? "on" : "off");
   }
-  fossil_print("%-17s %s\n", "tokenizer:",
+  fossil_print("%-21s %s\n", "tokenizer:",
        search_tokenizer_for_string(0));
   if( search_index_exists() ){
     int pgsz = db_int64(0, "PRAGMA repository.page_size;");
@@ -2238,14 +2413,14 @@ void fts_config_cmd(void){
                                " WHERE schema='repository'"
                                " AND name LIKE 'fts%%'")*pgsz;
     char zSize[50];
-    fossil_print("%-17s FTS%d\n", "full-text index:", search_index_type(1));
-    fossil_print("%-17s %d\n", "documents:",
+    fossil_print("%-21s FTS%d\n", "full-text index:", search_index_type(1));
+    fossil_print("%-21s %d\n", "documents:",
        db_int(0, "SELECT count(*) FROM ftsdocs"));
     approxSizeName(sizeof(zSize), zSize, nFts);
-    fossil_print("%-17s %s (%.1f%% of repository)\n", "space used",
+    fossil_print("%-21s %s (%.1f%% of repository)\n", "space used",
        zSize, 100.0*((double)nFts/(double)nTotal));
   }else{
-    fossil_print("%-17s disabled\n", "full-text index:");
+    fossil_print("%-21s disabled\n", "full-text index:");
   }
   db_end_transaction(0);
 }

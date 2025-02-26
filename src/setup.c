@@ -2253,6 +2253,8 @@ void page_srchsetup(){
   onoff_attribute("Search Tech Notes", "search-technote", "se", 0, 0);
   @ <br>
   onoff_attribute("Search Forum", "search-forum", "sf", 0, 0);
+  @ <br>
+  onoff_attribute("Search Built-in Help Text", "search-help", "sh", 0, 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
@@ -2264,7 +2266,7 @@ void page_srchsetup(){
     search_drop_index();
     search_create_index();
     search_fill_index();
-    search_update_index(search_restrict(SRCH_ALL));
+    search_update_index(search_restrict(SRCH_ALL,0));
   }
   if( search_index_exists() ){
     int pgsz = db_int64(0, "PRAGMA repository.page_size;");
