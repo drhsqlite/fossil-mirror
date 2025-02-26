@@ -742,9 +742,17 @@ void search_cmd(void){
   if( g.argc<3 ) return;
   login_set_capabilities("s", 0);
   if( search_restrict(srchFlags, 1)==0 ){
+    const char *zC1 = 0, *zPlural = "s";
+    if( srchFlags & SRCH_TECHNOTE ){  zC1 = "technote"; }
+    if( srchFlags & SRCH_TKT ){       zC1 = "ticket";   }
+    if( srchFlags & SRCH_FORUM ){     zC1 = "forum";    zPlural = ""; }
+    if( srchFlags & SRCH_DOC ){       zC1 = "document"; }
+    if( srchFlags & SRCH_WIKI ){      zC1 = "wiki";     zPlural = ""; }
+    if( srchFlags & SRCH_CKIN ){      zC1 = "check-in"; }
     fossil_print(
-      "Search is disabled on this repository.\n"
-      "Use the \"fossil fts-config\" command to enable.\n"
+      "Search of %s%s is disabled on this repository.\n"
+      "Enable using \"fossil fts-config enable %s\".\n",
+      zC1, zPlural, zC1
     );
     return;
   }
