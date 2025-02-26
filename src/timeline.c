@@ -3007,7 +3007,7 @@ void page_timeline(void){
     @ <pre>%h(blob_str(&allSql))</pre>
     blob_reset(&allSql);
   }
-  if( search_restrict(SRCH_CKIN, 0)!=0 ){
+  if( search_restrict(SRCH_CKIN)!=0 ){
     style_submenu_element("Search", "%R/search?y=c");
   }
   if( advancedMenu ){

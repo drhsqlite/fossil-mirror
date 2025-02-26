@@ -741,7 +741,7 @@ void search_cmd(void){
   verify_all_options();
   if( g.argc<3 ) return;
   login_set_capabilities("s", 0);
-  if( search_restrict(srchFlags, 1)==0 ){
+  if( search_restrict(srchFlags)==0 && (srchFlags & SRCH_HELP)==0 ){
     const char *zC1 = 0, *zPlural = "s";
     if( srchFlags & SRCH_TECHNOTE ){  zC1 = "technote"; }
     if( srchFlags & SRCH_TKT ){       zC1 = "ticket";   }
@@ -863,7 +863,7 @@ void search_cmd(void){
 ** If bFlex is true, that means allow through the SRCH_HELP option
 ** even if it is not explicitly enabled.
 */
-unsigned int search_restrict(unsigned int srchFlags, int bFlex){
+unsigned int search_restrict(unsigned int srchFlags){
   static unsigned int knownGood = 0;
   static unsigned int knownBad = 0;
   static const struct { unsigned m; const char *zKey; } aSetng[] = {
@@ -890,7 +890,6 @@ unsigned int search_restrict(unsigned int srchFlags, int bFlex){
       knownBad |= m;
     }
   }
-  if( bFlex ) knownBad &= ~SRCH_HELP;
   return srchFlags & ~knownBad;
 }
 
@@ -1298,7 +1297,7 @@ int search_run_and_output(
   if( P("searchlimit")!=0 ){
     nLimit = atoi(P("searchlimit"));
   }
-  srchFlags = search_restrict(srchFlags, 1);
+  srchFlags = search_restrict(srchFlags) | (srchFlags & SRCH_HELP);
   if( srchFlags==0 ) return 0;
   search_sql_setup(g.db);
   add_content_sql_commands(g.db);
@@ -1367,7 +1366,7 @@ int search_run_and_output(
 **
 ** Return true if there are search results.
 */
-int search_screen(unsigned srchFlags, int mFlags){
+int search_screen(unsigned srchAllowed, int mFlags){
   const char *zType = 0;
   const char *zClass = 0;
   const char *zDisable1;
@@ -1375,8 +1374,14 @@ int search_screen(unsigned srchFlags, int mFlags){
   const char *zPattern;
   int fDebug = PB("debug");
   int haveResult = 0;
-  srchFlags = search_restrict(srchFlags, 0);
-  switch( srchFlags ){
+  int srchThisTime;
+  const char *zY = PD("y","all");
+  if( zY[0]=='h' && zY[1]==0 ){
+    srchAllowed = search_restrict(srchAllowed) | (srchAllowed & SRCH_HELP);
+  }else{
+    srchAllowed = search_restrict(srchAllowed);
+  }
+  switch( srchAllowed ){
     case SRCH_CKIN:     zType = " Check-ins";  zClass = "Ckin"; break;
     case SRCH_DOC:      zType = " Docs";       zClass = "Doc";  break;
     case SRCH_TKT:      zType = " Tickets";    zClass = "Tkt";  break;
@@ -1385,7 +1390,7 @@ int search_screen(unsigned srchFlags, int mFlags){
     case SRCH_FORUM:    zType = " Forum";      zClass = "Frm";  break;
     case SRCH_HELP:     zType = " Help";       zClass = "Hlp";  break;
   }
-  if( srchFlags==0 ){
+  if( srchAllowed==0 ){
     if( mFlags & 0x02 ) return 0;
     zDisable1 = " disabled";
     zDisable2 = " disabled";
@@ -1402,8 +1407,13 @@ int search_screen(unsigned srchFlags, int mFlags){
     @ <div class='searchForm'>
   }
   @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable1)>
-  if( (mFlags & 0x01)!=0 && (srchFlags & (srchFlags-1))!=0 ){
-    static const struct { const char *z; const char *zNm; unsigned m; } aY[] = {
+  srchThisTime = srchAllowed;
+  if( (mFlags & 0x01)!=0 && (srchAllowed & (srchAllowed-1))!=0 ){
+    static const struct {
+      const char *z;
+      const char *zNm;
+      unsigned m;
+    } aY[] = {
        { "all",  "All",        SRCH_ALL      },
        { "c",    "Check-ins",  SRCH_CKIN     },
        { "d",    "Docs",       SRCH_DOC      },
@@ -1413,27 +1423,26 @@ int search_screen(unsigned srchFlags, int mFlags){
        { "f",    "Forum",      SRCH_FORUM    },
        { "h",    "Help",       SRCH_HELP     },
     };
-    const char *zY = PD("y","all");
-    unsigned newFlags = srchFlags;
     int i;
     @ <select size='1' name='y'>
     for(i=0; i<count(aY); i++){
-      if( (aY[i].m & srchFlags)==0 ) continue;
+      if( (aY[i].m & srchAllowed)==0 ) continue;
+      if( aY[i].m==SRCH_HELP && fossil_strcmp(zY,"h")!=0
+       && search_restrict(SRCH_HELP)==0 ) continue;
       cgi_printf("<option value='%s'", aY[i].z);
       if( fossil_strcmp(zY,aY[i].z)==0 ){
-        newFlags &= aY[i].m;
+        srchThisTime &= aY[i].m;
         cgi_printf(" selected");
       }
       cgi_printf(">%s</option>\n", aY[i].zNm);
     }
     @ </select>
-    srchFlags = newFlags;
   }
   if( fDebug ){
     @ <input type="hidden" name="debug" value="1">
   }
   @ <input type="submit" value="Search%s(zType)"%s(zDisable2)>
-  if( srchFlags==0 ){
+  if( srchAllowed==0 && srchThisTime==0 ){
     @ <p class="generalError">Search is disabled</p>
   }
   @ </div></form>
@@ -1444,7 +1453,7 @@ int search_screen(unsigned srchFlags, int mFlags){
     }else{
       @ <div class='searchResult'>
     }
-    if( search_run_and_output(zPattern, srchFlags, fDebug)==0 ){
+    if( search_run_and_output(zPattern, srchThisTime, fDebug)==0 ){
       @ <p class='searchEmpty'>No matches for: <span>%h(zPattern)</span></p>
     }
     @ </div>
@@ -2247,7 +2256,7 @@ void search_rebuild_index(void){
   fflush(stdout);
   search_create_index();
   search_fill_index();
-  search_update_index(search_restrict(SRCH_ALL, 0));
+  search_update_index(search_restrict(SRCH_ALL));
   if( db_table_exists("repository","chat") ){
     chat_rebuild_index(1);
   }

@@ -834,7 +834,7 @@ void help_page(void){
     style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%R/help");
-    if( search_restrict(SRCH_HELP,0)!=0 ){
+    if( search_restrict(SRCH_HELP)!=0 ){
       style_submenu_element("Search","%R/search?y=h");
     }
     rc = dispatch_name_search(zCmd, CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);

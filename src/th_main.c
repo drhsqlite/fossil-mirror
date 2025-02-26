@@ -917,7 +917,7 @@ static int searchableCmd(
   int *argl
 ){
   int rc = 1, i, j;
-  unsigned int searchCap = search_restrict(SRCH_ALL, 0);
+  unsigned int searchCap = search_restrict(SRCH_ALL);
   if( argc<2 ){
     return Th_WrongNumArgs(interp, "hascap STRING ...");
   }

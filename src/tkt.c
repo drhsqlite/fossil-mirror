@@ -1860,7 +1860,7 @@ void ticket_cmd(void){
 ** Add some standard submenu elements for ticket screens.
 */
 void ticket_standard_submenu(unsigned int ok){
-  if( (ok & T_SRCH)!=0 && search_restrict(SRCH_TKT, 0)!=0 ){
+  if( (ok & T_SRCH)!=0 && search_restrict(SRCH_TKT)!=0 ){
     style_submenu_element("Search", "%R/tktsrch");
   }
   if( (ok & T_REPLIST)!=0 ){
@@ -1880,7 +1880,7 @@ void ticket_standard_submenu(unsigned int ok){
 */
 void tkt_home_page(void){
   login_check_credentials();
-  if( search_restrict(SRCH_TKT, 0)!=0 ){
+  if( search_restrict(SRCH_TKT)!=0 ){
     tkt_srchpage();
   }else{
     view_list();

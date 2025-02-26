@@ -2267,7 +2267,7 @@ void page_srchsetup(){
     search_drop_index();
     search_create_index();
     search_fill_index();
-    search_update_index(search_restrict(SRCH_ALL,0));
+    search_update_index(search_restrict(SRCH_ALL));
   }
   if( search_index_exists() ){
     int pgsz = db_int64(0, "PRAGMA repository.page_size;");
