@@ -164,10 +164,10 @@ fossil help
 They are similar to commands that are available in other VCS programs such as
 subversion, git or mercurial.
 
-@menu
 " >> fossil.texi
 
 # begin menu for common keywords
+printf "@menu\n" >> fossil.texi
 
 # Slurp in Common keywords from fossil help
 # WARNING: tail count is brittle
@@ -284,7 +284,8 @@ tool, but are useful enough to be kept around. They are most definitely not
 supported, and the developers will expect to change these far more often. They
 are not stable, so do not depend upon their behavior, or even their existence.
 
-@menu" >> fossil.texi
+@menu
+" >> fossil.texi
 
 # Insert test commands in here
 echo "Grab test keywords for menu"
@@ -343,7 +344,8 @@ example below, that starts from the final / (in this case, /timeline?ms=glob):
 https://fossil.example.com/fossil/timeline?ms=glob
 @end example
 
-@menu" >> fossil.texi
+@menu
+" >> fossil.texi
 
 # Insert webpage keywords in here
 echo "Grab web keywords for menu"
@@ -449,3 +451,5 @@ echo "@bye" >> fossil.texi
 echo "Done ... for now. Please check fossil.texi file over for inconsistencies, and fill in descriptions."
 echo "Once everything's good, you can run your system's makeinfo command to turn"
 echo "your .texi file into a .info file to install where you need."
+
+
