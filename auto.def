@@ -377,64 +377,69 @@ proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto -lpthread}}} {
   }
 }
 
+#
 # Check for zlib, using the given location if specified
-set zlibpath [opt-val with-zlib]
-if {$zlibpath eq "tree"} {
-  set zlibdir [file dirname $autosetup(dir)]/compat/zlib
-  if {![file isdirectory $zlibdir]} {
-    user-error "The zlib in source tree directory does not exist"
-  } elseif { ([llength [glob -nocomplain -directory $zlibdir libz*]] == 0) } {
-    user-error "With --with-zlib=tree, $zlibdir must be configured and built first."
-  }
-  cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
-  define-append EXTRA_CFLAGS -I$zlibdir
-  define-append LIBS $zlibdir/libz.a
-  set ::zlib_lib $zlibdir/libz.a
-  msg-result "Using zlib in source tree"
-} else {
-  set cftry {""}
-  set ldtry {""}
-  if {$zlibpath ni {auto ""}} {
-    lappend cftry "-I$zlibpath"
-    lappend cftry "-I$zlibpath/include"
-    lappend ldtry "-L$zlibpath"
-    lappend ldtry "-L$zlibpath/lib"
-  }
+#
+proc handle-zlib {} {
+  set ::zlibpath [opt-val with-zlib]; # used by downstream tcl tests
+  if {$::zlibpath eq "tree"} {
+    set ::zlibdir [file dirname $::autosetup(dir)]/compat/zlib
+    if {![file isdirectory $::zlibdir]} {
+      user-error "The zlib in source tree directory does not exist"
+    } elseif { ([llength [glob -nocomplain -directory $::zlibdir libz*]] == 0) } {
+      user-error "With --with-zlib=tree, $::zlibdir must be configured and built first."
+    }
+    cc-with [list -cflags "-I$::zlibdir -L$::zlibdir"]
+    define-append EXTRA_CFLAGS -I$::zlibdir
+    define-append LIBS $::zlibdir/libz.a
+    set ::zlib_lib $::zlibdir/libz.a
+    msg-result "Using zlib in source tree"
+  } else {
+    set cftry {""}
+    set ldtry {""}
+    if {$::zlibpath ni {auto ""}} {
+      lappend cftry "-I$::zlibpath"
+      lappend cftry "-I$::zlibpath/include"
+      lappend ldtry "-L$::zlibpath"
+      lappend ldtry "-L$::zlibpath/lib"
+    }
 
-  # Reverse the list of tests so we check most-specific to least, else
-  # platform devel files will shadow local --with-zlib overrides.
-  foreach c [lreverse $cftry] {
-    if {[cc-with [list -cflags $c] {cc-check-includes zlib.h}]} {
-      if {$c eq ""} {
-        msg-result "Found zlib.h in default include path"
-      } else {
-        define-append EXTRA_CFLAGS "$c"
-        msg-result "Found zlib.h via $c"
+    # Reverse the list of tests so we check most-specific to least, else
+    # platform devel files will shadow local --with-zlib overrides.
+    foreach c [lreverse $cftry] {
+      if {[cc-with [list -cflags $c] {cc-check-includes zlib.h}]} {
+        if {$c eq ""} {
+          msg-result "Found zlib.h in default include path"
+        } else {
+          define-append EXTRA_CFLAGS "$c"
+          msg-result "Found zlib.h via $c"
+        }
+        set cfound $c
+        break
       }
-      set cfound $c
-      break
     }
-  }
-  if {![info exists cfound]} {
-    user-error "zlib.h not found; either install it or specify its location via --with-zlib"
-  }
-  foreach lcheck [lreverse $ldtry] {
-    if {[cc-with [list -cflags "$cfound $lcheck"] {check-function-in-lib inflateEnd z}]} {
-      if {$lcheck eq ""} {
-        msg-result "Linked to zlib via default library path"
-      } else {
-        define-append EXTRA_LDFLAGS "$lcheck"
-        msg-result "Linked to zlib via $lcheck"
-      }
-      if {![check-function-in-lib compressBound z]} {
-        puts "Notice: disabling zlib compression in the SQL shell"
-        define-append SQLITE_OPTIONS_EXT {-USQLITE_HAVE_ZLIB}
-      }
-      break
+    if {![info exists cfound]} {
+      user-error "zlib.h not found; either install it or specify its location via --with-zlib"
     }
+    foreach lcheck [lreverse $ldtry] {
+      if {[cc-with [list -cflags "$cfound $lcheck"] {check-function-in-lib inflateEnd z}]} {
+        if {$lcheck eq ""} {
+          msg-result "Linked to zlib via default library path"
+        } else {
+          define-append EXTRA_LDFLAGS "$lcheck"
+          msg-result "Linked to zlib via $lcheck"
+        }
+        if {![check-function-in-lib compressBound z]} {
+          puts "Notice: disabling zlib compression in the SQL shell"
+          define-append SQLITE_OPTIONS_EXT {-USQLITE_HAVE_ZLIB}
+        }
+        break
+      }
+    }
+    set ::zlib_lib -lz
   }
-  set ::zlib_lib -lz
-}
+}; # handle-zlib
+handle-zlib
 
 #
 # Handle the --with-openssl flag and, incidentally, update @LIBS@ for
@@ -450,7 +455,7 @@ proc handle-with-openssl {} {
   if {$ssldirs ne "none"} {
     set found 0
     if {$ssldirs eq "tree"} {
-      set ssldir [file dirname $autosetup(dir)]/compat/openssl
+      set ssldir [file dirname $::autosetup(dir)]/compat/openssl
       if {![file isdirectory $ssldir]} {
         user-error "The OpenSSL in source tree directory does not exist"
       }
@@ -462,6 +467,7 @@ proc handle-with-openssl {} {
     } else {
       if {$ssldirs in {auto ""}} {
         catch {
+          # TODO?: use autosetup's pkg-config support
           set cflags [exec pkg-config openssl --cflags-only-I]
           set ldflags [exec pkg-config openssl --libs-only-L]
           set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
@@ -540,82 +546,94 @@ proc handle-with-openssl {} {
   }
 }; # handle-with-openssl
 
+#
+# CFLAGS_INCLUDE is ONLY for -I... flags and their order is
+# significant so that --with-sqlite=PATH's header can shadow our
+# own. <s>One caveat with this is that we cannot point
+# --with-sqlite=PATH to the root of sqlite3's own build tree because
+# that dir has a config.h which ends up shadowing src/config.h,
+# breaking our build.</s> (That is no longer true: that that config.h
+# was renamed to sqlite_cfg.h at some point.)
+#
+define CFLAGS_INCLUDE {}
+
 ########################################################################
 # --with-sqlite=PATH checks for the first it finds of the following...
 # - PATH/sqlite3.c and PATH/sqlite3.h
 # - PATH/sqlite3.o (and assumes sqlite3.h is with it)
 # - PATH/lib/libsqlite3* and PATH/include/sqlite3.h
-define CFLAGS_INCLUDE {}
-# ^^^ CFLAGS_INCLUDE is ONLY for -I... flags and their order is
-# significant so that --with-sqlite=PATH's header can shadow our
-# own. One caveat with this is that we cannot point --with-sqlite=PATH
-# to the root of sqlite3's own build tree because that dir has a
-# config.h which ends up shadowing src/config.h, breaking our build.
-# (That is no longer true: that that config.h was renamed to
-# sqlite_cfg.h at some point.)
-set sq3path [opt-val with-sqlite]
-define SQLITE3_SRC.2 {}
-define SQLITE3_OBJ.2 {}
-define SQLITE3_SHELL_SRC.2 {$(SQLITE3_SHELL_SRC.0)}
-if {$sq3path in {tree ""}} {
-  msg-result "Using sqlite3.c from this source tree."
-} else {
-  # SQLITE3_ORIGIN:
-  #   0 = local source tree
-  #   1 = use external lib or sqlite3.o
-  #   2 = use external sqlite3.c and (if found) shell.c
-  define USE_SYSTEM_SQLITE 1
-  define SQLITE3_ORIGIN 2
-  if {$sq3path != "auto"} {
-    if {([file exists $sq3path/sqlite3.c]) &&
-        ([file exists $sq3path/sqlite3.h]) } {
-      # Prefer sqlite3.[ch] if found.
-      define SQLITE3_SRC.2 $sq3path/sqlite3.c
-      define SQLITE3_OBJ.2 {$(SQLITE3_OBJ.0)}
-      define USE_SYSTEM_SQLITE 2
-      define SQLITE3_ORIGIN 2
-      if {[file exists $sq3path/shell.c]} {
-        define SQLITE3_SHELL_SRC.2 $sq3path/shell.c
+proc handle-with-sqlite {} {
+  set sq3path [opt-val with-sqlite]
+  define SQLITE3_SRC.2 {}
+  define SQLITE3_OBJ.2 {}
+  define SQLITE3_SHELL_SRC.2 {$(SQLITE3_SHELL_SRC.0)}
+  if {$sq3path in {tree ""}} {
+    msg-result "Using sqlite3.c from this source tree."
+  } else {
+    # SQLITE3_ORIGIN:
+    #   0 = local source tree
+    #   1 = use external lib or sqlite3.o
+    #   2 = use external sqlite3.c and (if found) shell.c
+    define USE_SYSTEM_SQLITE 1
+    define SQLITE3_ORIGIN 2
+    if {$sq3path != "auto"} {
+      if {([file exists $sq3path/sqlite3.c]) &&
+          ([file exists $sq3path/sqlite3.h]) } {
+        # Prefer sqlite3.[ch] if found.
+        define SQLITE3_SRC.2 $sq3path/sqlite3.c
+        define SQLITE3_OBJ.2 {$(SQLITE3_OBJ.0)}
+        define USE_SYSTEM_SQLITE 2
+        define SQLITE3_ORIGIN 2
+        if {[file exists $sq3path/shell.c]} {
+          define SQLITE3_SHELL_SRC.2 $sq3path/shell.c
+        }
+        define-append CFLAGS_INCLUDE -I$sq3path
+        define-append EXTRA_LDFLAGS -lpthread
+        # ^^^ additional -lXXX flags are conservative estimates
+        msg-result "Using sqlite3.c and sqlite3.h from $sq3path"
+      } elseif {[file exists $sq3path/sqlite3.o]} {
+        # Use sqlite3.o if found.
+        define SQLITE3_OBJ.2 $sq3path/sqlite3.o
+        define-append CFLAGS_INCLUDE -I$sq3path
+        define-append EXTRA_LDFLAGS $sq3path/sqlite3.o -lpthread
+        # ^^^ additional -lXXX flags are conservative estimates
+        msg-result "Using sqlite3.o from $sq3path"
+      } elseif { ([llength [glob -nocomplain -directory $sq3path/lib libsqlite3*]] != 0) \
+                   && ([file exists $sq3path/include/sqlite3.h]) } {
+        # e.g. --with-sqlite=/usr/local. Try $sq3path/lib/libsqlite3*
+        # and $sq3path/include/sqlite3.h
+        define-append CFLAGS_INCLUDE -I$sq3path/include
+        define-append EXTRA_LDFLAGS -L$sq3path/lib -lsqlite3 -lpthread
+        # ^^^ additional -lXXX flags are conservative estimates
+        msg-result "Using -lsqlite3 from $sq3path"
+      } else {
+        # Assume $sq3path holds both the lib and header
+        cc-with [list -cflags "-I$sq3path -L$sq3path"]
+        define-append CFLAGS_INCLUDE -I$sq3path
+        define-append EXTRA_LDFLAGS -L$sq3path -lsqlite3 -lpthread
+        # ^^^ additional -lXXX flags are conservative estimates
+        msg-result "Using -lsqlite3 from $sq3path"
       }
-      define-append CFLAGS_INCLUDE -I$sq3path
-      define-append EXTRA_LDFLAGS -lpthread
-      # ^^^ additional -lXXX flags are conservative estimates
-      msg-result "Using sqlite3.c and sqlite3.h from $sq3path"
-    } elseif {[file exists $sq3path/sqlite3.o]} {
-      # Use sqlite3.o if found.
-      define SQLITE3_OBJ.2 $sq3path/sqlite3.o
-      define-append CFLAGS_INCLUDE -I$sq3path
-      define-append EXTRA_LDFLAGS $sq3path/sqlite3.o -lpthread
-      # ^^^ additional -lXXX flags are conservative estimates
-      msg-result "Using sqlite3.o from $sq3path"
-    } elseif { ([llength [glob -nocomplain -directory $sq3path/lib libsqlite3*]] != 0) \
-                 && ([file exists $sq3path/include/sqlite3.h]) } {
-      # e.g. --with-sqlite=/usr/local. Try $sq3path/lib/libsqlite3*
-      # and $sq3path/include/sqlite3.h
-      define-append CFLAGS_INCLUDE -I$sq3path/include
-      define-append EXTRA_LDFLAGS -L$sq3path/lib -lsqlite3 -lpthread
-      # ^^^ additional -lXXX flags are conservative estimates
-      msg-result "Using -lsqlite3 from $sq3path"
-    } else {
-      # Assume $sq3path holds both the lib and header
-      cc-with [list -cflags "-I$sq3path -L$sq3path"]
-      define-append CFLAGS_INCLUDE -I$sq3path
-      define-append EXTRA_LDFLAGS -L$sq3path -lsqlite3 -lpthread
-      # ^^^ additional -lXXX flags are conservative estimates
-      msg-result "Using -lsqlite3 from $sq3path"
+    } elseif {![cc-check-includes sqlite3.h] || ![check-function-in-lib sqlite3_open_v2 sqlite3]} {
+      user-error "libsqlite3 not found please install it or specify the location with --with-sqlite"
     }
-  } elseif {![cc-check-includes sqlite3.h] || ![check-function-in-lib sqlite3_open_v2 sqlite3]} {
-    user-error "libsqlite3 not found please install it or specify the location with --with-sqlite"
   }
-}
-define-append CFLAGS_INCLUDE {-I. -I$(SRCDIR) -I$(SRCDIR_extsrc)}
+}; # handle-with-sqlite
+handle-with-sqlite
+define-append CFLAGS_INCLUDE {-I. -I$(SRCDIR) -I$(SRCDIR_extsrc)}; # must be after handle-with-sqlite
 
-set tclpath [opt-val with-tcl]
-if {$tclpath ne ""} {
+#
+# Handle the --with-tcl flag.
+#
+proc handle-with-tcl {} {
+  set tclpath [opt-val with-tcl]
+  if {$tclpath eq ""} {
+    return
+  }
   set tclprivatestubs [opt-bool with-tcl-private-stubs]
   # Note parse-tclconfig-sh is in autosetup/local.tcl
   if {$tclpath eq "1"} {
-    set tcldir [file dirname $autosetup(dir)]/compat/tcl-8.6
+    set tcldir [file dirname $::autosetup(dir)]/compat/tcl-8.6
     if {$tclprivatestubs} {
       set tclconfig(TCL_INCLUDE_SPEC) -I$tcldir/generic
       set tclconfig(TCL_VERSION) {Private Stubs}
@@ -625,8 +643,8 @@ if {$tclpath ne ""} {
     } else {
       # Use the system Tcl. Look in some likely places.
       array set tclconfig [parse-tclconfig-sh \
-        $tcldir/unix $tcldir/win \
-        /usr /usr/local /usr/share /opt/local]
+                             $tcldir/unix $tcldir/win \
+                             /usr /usr/local /usr/share /opt/local]
       set msg "on your system"
     }
   } else {
@@ -713,23 +731,24 @@ if {$tclpath ne ""} {
   }
   define-append EXTRA_CFLAGS $cflags
   define-append CFLAGS $cflags
-  if {[info exists zlibpath] && $zlibpath eq "tree"} {
+  if {[info exists ::zlibpath] && $::zlibpath eq "tree"} {
     #
     # NOTE: When using zlib in the source tree, prevent Tcl from
     #       pulling in the system one.
     #
     set tclconfig(TCL_LD_FLAGS) [string map [list -lz ""] \
-        $tclconfig(TCL_LD_FLAGS)]
+                                   $tclconfig(TCL_LD_FLAGS)]
   }
   #
   # NOTE: Remove "-ldl" from the TCL_LD_FLAGS because it will be
   #       be checked for near the bottom of this file.
   #
   set tclconfig(TCL_LD_FLAGS) [string map [list -ldl ""] \
-      $tclconfig(TCL_LD_FLAGS)]
+                                 $tclconfig(TCL_LD_FLAGS)]
   define-append EXTRA_LDFLAGS $tclconfig(TCL_LD_FLAGS)
   define FOSSIL_ENABLE_TCL
-}
+}; # handle-with-tcl
+handle-with-tcl
 
 # Network functions require libraries on some systems
 cc-check-function-in-lib gethostbyname nsl
