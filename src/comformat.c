@@ -265,10 +265,12 @@ void char_info_utf8(
   if( c==0x1b && z[i]=='[' ){
     do{
       i++;
-    }while( fossil_isdigit(z[i]) || z[i]==';' );
-    *pCchUTF8 = i+1;
-    *pUtf32 = 0x301;  /* A zero-width character */
-    return;
+    }while( i<fossil_isdigit(z[i]) || z[i]==';' );
+    if( fossil_isalpha(z[i]) ){
+      *pCchUTF8 = i+1;
+      *pUtf32 = 0x301;  /* A zero-width character */
+      return;
+    }
   }
   if( (c&0x80)==0x00 ){                   /* 7-bit ASCII character. */
     *pCchUTF8 = 1;
