@@ -229,6 +229,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  [verifyCsrf](#verifyCsrf)
   *  [verifyLogin](#verifyLogin)
   *  [wiki](#wiki)
+  *  [wiki_assoc](#wiki_assoc)
 
 Each of the commands above is documented by a block comment above their
 implementation in the th\_main.c or th\_tcl.c source files.
@@ -273,7 +274,7 @@ be found.
 
   *  builtin_request_js NAME
 
-NAME must be the name of one of the 
+NAME must be the name of one of the
 [built-in javascript source files](/dir?ci=trunk&type=flat&name=src&re=js$).
 This command causes that javascript file to be appended to the delivered
 document.
@@ -286,7 +287,7 @@ document.
   *  capexpr CAPABILITY-EXPR
 
 The capability expression is a list. Each term of the list is a
-cluster of [capability letters](./caps/ref.html). 
+cluster of [capability letters](./caps/ref.html).
 The overall expression is true if any
 one term is true. A single term is true if all letters within that
 term are true. Or, if the term begins with "!", then the term is true
@@ -863,6 +864,15 @@ valid login for the repository.
   *  wiki STRING
 
 Renders STRING as wiki content.
+
+<a id="wiki_assoc"></a>TH1 wiki_assoc Command
+-----------------------------------
+
+  *  wiki_assoc STRING STRING
+
+Renders the special wiki. The first string refers to the namespace
+(checkin, branch, tag, ticket). The second string specifies the
+concrete wiki page to be rendered.
 
 Tcl Integration Commands
 ------------------------

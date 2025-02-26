@@ -700,6 +700,27 @@ static int wikiCmd(
 }
 
 /*
+** TH1 command: wiki_assoc STRING STRING
+**
+** Render an associated wiki page.  The first string is the namespace
+** (e.g. "checkin", "branch", "ticket"). The second is the ID of the
+** associated object. See wiki_render_associated().
+*/
+static int wikiAssocCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "wiki_assoc STRING STRING");
+  }
+  wiki_render_associated((char*)argv[1], (char*)argv[2], WIKIASSOC_FULL_TITLE);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: htmlize STRING
 **
 ** Escape all characters of STRING which have special meaning in HTML.
@@ -2376,6 +2397,7 @@ void Th_FossilInit(u32 flags){
     {"verifyCsrf",    verifyCsrfCmd,        0},
     {"verifyLogin",   verifyLoginCmd,       0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
+    {"wiki_assoc",    wikiAssocCmd,         0},
     {0, 0, 0}
   };
   if( g.thTrace ){

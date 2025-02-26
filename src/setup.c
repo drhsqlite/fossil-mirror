@@ -185,7 +185,7 @@ void setup_page(void){
 /*
 ** WEBPAGE: setup-logmenu
 **
-** Show a menu of available log renderings accessible to an administrator, 
+** Show a menu of available log renderings accessible to an administrator,
 ** together with a succinct explanation of each.
 **
 ** This page is only accessible by administrators.
@@ -954,7 +954,7 @@ void setup_login_group(void){
   @
   @ <li><p><b>project-name</b> &rarr;
   @ The human-readable name for the project.  The project-name can be
-  @ modified in the first entry on the 
+  @ modified in the first entry on the
   @ <a href="./setup_config">Setup/Configuration page</a>.
   @
   @ <li><p><b>peer-repo-<i>CODE</i></b> &rarr;
@@ -1430,17 +1430,18 @@ void setup_wiki(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  onoff_attribute("Associate Wiki Pages With Branches, Tags, or Checkins",
+  onoff_attribute("Associate Wiki Pages With Branches, Tags, Tickets, or Checkins",
                   "wiki-about", "wiki-about", 1, 0);
   @ <p>
-  @ Associate wiki pages with branches, tags, or checkins, based on
-  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/"
-  @ or "tag/" and which continue with the name of an existing branch, check-in
-  @ or tag are treated specially when this feature is enabled.
+  @ Associate wiki pages with branches, tags, tickets, or checkins, based on
+  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/",
+  @ "tag/" or "ticket" and which continue with the name of an existing branch,
+  @ check-in, tag or ticket are treated specially when this feature is enabled.
   @ <ul>
   @ <li> <b>branch/</b><i>branch-name</i>
   @ <li> <b>checkin/</b><i>full-check-in-hash</i>
   @ <li> <b>tag/</b><i>tag-name</i>
+  @ <li> <b>ticket/</b><i>full-ticket-hash</i>
   @ </ul>
   @ (Property: "wiki-about")</p>
   @ <hr>

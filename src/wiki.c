@@ -412,6 +412,7 @@ void wiki_srchpage(void){
 # define WIKITYPE_BRANCH     1
 # define WIKITYPE_CHECKIN    2
 # define WIKITYPE_TAG        3
+# define WIKITYPE_TICKET     4
 #endif
 
 /*
@@ -431,6 +432,9 @@ int wiki_page_type(const char *zPageName){
   }else
   if( sqlite3_strglob("tag/*", zPageName)==0 ){
     return WIKITYPE_TAG;
+  }else
+  if( sqlite3_strglob("ticket/*", zPageName)==0 ){
+    return WIKITYPE_TICKET;
   }
   return WIKITYPE_NORMAL;
 }
@@ -444,6 +448,7 @@ const char * wiki_page_type_name(const char *zPageName){
     case WIKITYPE_CHECKIN: return "checkin";
     case WIKITYPE_BRANCH: return "branch";
     case WIKITYPE_TAG: return "tag";
+    case WIKITYPE_TICKET: return "ticket";
     case WIKITYPE_NORMAL:
     default: return "normal";
   }
@@ -503,6 +508,16 @@ static int wiki_page_header(
       }
       break;
     }
+    case WIKITYPE_TICKET: {
+      zPageName += 7;
+      if( zExtra[0]==0 && !P("p") ){
+        cgi_redirectf("%R/tktview/%s",zPageName);
+      }else{
+        style_header("Notes About Ticket %h", zPageName);
+        style_submenu_element("Ticket","%R/tktview/%s",zPageName);
+      }
+      break;
+    }
   }
   return eType;
 }
@@ -518,11 +533,15 @@ static int wiki_special_permission(const char *zPageName){
   if( strncmp(zPageName,"branch/",7)!=0
    && strncmp(zPageName,"checkin/",8)!=0
    && strncmp(zPageName,"tag/",4)!=0
+   && strncmp(zPageName,"ticket/",7)!=0
   ){
     return 1;
   }
   if( db_get_boolean("wiki-about",1)==0 ){
     return 1;
+  }
+  if( strncmp(zPageName,"ticket/",7)==0 ){
+    return g.perm.WrTkt;
   }
   return g.perm.Write;
 }
@@ -2001,7 +2020,9 @@ void wcontent_page(void){
 
     if( !showCkBr &&
         (sqlite3_strglob("checkin/*", zWName)==0 ||
-         sqlite3_strglob("branch/*", zWName)==0) ){
+         sqlite3_strglob("branch/*", zWName)==0  ||
+         sqlite3_strglob("tag/*", zWName)==0     ||
+         sqlite3_strglob("ticket/*", zWName)==0) ){
       continue;
     }
     if( sqlite3_strglob("checkin/*", zWName)==0 ){
@@ -2553,13 +2574,26 @@ static void wiki_section_label(
 /*
 ** Add an "Wiki" button in a submenu that links to the read-wiki page.
 */
-static void wiki_submenu_to_edit_wiki(
+static void wiki_submenu_to_read_wiki(
   const char *zPrefix,   /* "branch", "tag", or "checkin" */
   const char *zName,     /* Name of the object */
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
   if( g.perm.RdWiki && (mFlags & WIKIASSOC_MENU_READ)!=0 ){
-    style_submenu_element("Wiki", "%R/wikiedit?name=%s/%t", zPrefix, zName);
+    style_submenu_element("Wiki", "%R/wiki?name=%s/%t", zPrefix, zName);
+  }
+}
+
+/*
+** Add an "Edit Wiki" button in a submenu that links to the edit-wiki page.
+*/
+static void wiki_submenu_to_edit_wiki(
+  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zName,     /* Name of the object */
+  unsigned int mFlags   /* Zero or more WIKIASSOC_* flags */
+){
+  if( g.perm.WrWiki && (mFlags & WIKIASSOC_MENU_WRITE)!=0 ){
+    style_submenu_element("Edit Wiki", "%R/wikiedit?name=%s/%t", zPrefix, zName);
   }
 }
 
@@ -2571,7 +2605,7 @@ static void wiki_submenu_to_edit_wiki(
 ** If there is no such wiki page, return false.
 */
 int wiki_render_associated(
-  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zPrefix,   /* "branch", "tag", "ticket", or "checkin" */
   const char *zName,     /* Name of the object */
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
@@ -2603,6 +2637,7 @@ int wiki_render_associated(
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
     }
+    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
     wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
     @ <div class="accordion_panel">
     safe_html_context(DOCSRC_WIKI);
