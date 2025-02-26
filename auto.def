@@ -436,100 +436,109 @@ if {$zlibpath eq "tree"} {
   set ::zlib_lib -lz
 }
 
-set ssldirs [opt-val with-openssl]
-if {$ssldirs ne "none"} {
-  set found 0
-  if {$ssldirs eq "tree"} {
-    set ssldir [file dirname $autosetup(dir)]/compat/openssl
-    if {![file isdirectory $ssldir]} {
-      user-error "The OpenSSL in source tree directory does not exist"
-    }
-    set msg "openssl in $ssldir"
-    set cflags "-I$ssldir/include"
-    set ldflags "-L$ssldir"
-    set ssllibs "$ssldir/libssl.a $ssldir/libcrypto.a -lpthread"
-    set found [check-for-openssl "openssl in source tree" "$cflags $ldflags" $ssllibs]
-  } else {
-    if {$ssldirs in {auto ""}} {
-      catch {
-        set cflags [exec pkg-config openssl --cflags-only-I]
-        set ldflags [exec pkg-config openssl --libs-only-L]
-        set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
-      } msg
-      if {!$found} {
-        set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl \
+#
+# Handle the --with-openssl flag and, incidentally, update @LIBS@ for
+# zlib if openssl is _not_ used (if it is, we get zlib via libssl).
+#
+# This function should be called as late as possible in the configure
+# script to avoid that its updates to @LIBS@ break tests which follow
+# it when a custom local build of openssl is used, as discussed in
+# <https://fossil-scm.org/forum/forumpost/15e3d9cdc137030c>.
+#
+proc handle-with-openssl {} {
+  set ssldirs [opt-val with-openssl]
+  if {$ssldirs ne "none"} {
+    set found 0
+    if {$ssldirs eq "tree"} {
+      set ssldir [file dirname $autosetup(dir)]/compat/openssl
+      if {![file isdirectory $ssldir]} {
+        user-error "The OpenSSL in source tree directory does not exist"
+      }
+      set msg "openssl in $ssldir"
+      set cflags "-I$ssldir/include"
+      set ldflags "-L$ssldir"
+      set ssllibs "$ssldir/libssl.a $ssldir/libcrypto.a -lpthread"
+      set found [check-for-openssl "openssl in source tree" "$cflags $ldflags" $ssllibs]
+    } else {
+      if {$ssldirs in {auto ""}} {
+        catch {
+          set cflags [exec pkg-config openssl --cflags-only-I]
+          set ldflags [exec pkg-config openssl --libs-only-L]
+          set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
+        } msg
+        if {!$found} {
+          set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl \
                              /usr/pkg /usr/local /usr /usr/local/opt/openssl \
                              /opt/homebrew/opt/openssl"
+        }
       }
-    }
-    if {!$found} {
-      foreach dir $ssldirs {
-        if {$dir eq ""} {
-          set msg "system openssl"
-          set cflags ""
-          set ldflags ""
-        } else {
-          set msg "openssl in $dir"
-          set cflags "-I$dir/include"
-          if {[file readable $dir/libssl.a]} {
-            set ldflags -L$dir
-          } elseif {[file readable $dir/lib/libssl.a]} {
-            set ldflags -L$dir/lib
-          } elseif {[file isdir $dir/lib]} {
-            set ldflags "-L$dir -L$dir/lib"
+      if {!$found} {
+        foreach dir $ssldirs {
+          if {$dir eq ""} {
+            set msg "system openssl"
+            set cflags ""
+            set ldflags ""
           } else {
-            set ldflags -L$dir
+            set msg "openssl in $dir"
+            set cflags "-I$dir/include"
+            if {[file readable $dir/libssl.a]} {
+              set ldflags -L$dir
+            } elseif {[file readable $dir/lib/libssl.a]} {
+              set ldflags -L$dir/lib
+            } elseif {[file isdir $dir/lib]} {
+              set ldflags "-L$dir -L$dir/lib"
+            } else {
+              set ldflags -L$dir
+            }
           }
-        }
-        if {[check-for-openssl $msg "$cflags $ldflags"]} {
-          incr found
-          break
-        }
-        if {$dir ne ""} {
-          set ldflags ""
-          set msg "static build of openssl in $dir"
-          set ssllibs "$dir/libssl.a $dir/libcrypto.a -lpthread"
-          if {[check-for-openssl $msg "$cflags $ldflags" $ssllibs]} {
+          if {[check-for-openssl $msg "$cflags $ldflags"]} {
             incr found
             break
           }
+          if {$dir ne ""} {
+            set ldflags ""
+            set msg "static build of openssl in $dir"
+            set ssllibs "$dir/libssl.a $dir/libcrypto.a -lpthread"
+            if {[check-for-openssl $msg "$cflags $ldflags" $ssllibs]} {
+              incr found
+              break
+            }
+          }
         }
       }
     }
-  }
-  if {$found} {
-    define FOSSIL_ENABLE_SSL
-    define-append EXTRA_CFLAGS $cflags
-    define-append EXTRA_LDFLAGS $ldflags
-    if {[info exists ssllibs]} {
-      define-append LIBS $ssllibs
+    if {$found} {
+      define FOSSIL_ENABLE_SSL
+      define-append EXTRA_CFLAGS $cflags
+      define-append EXTRA_LDFLAGS $ldflags
+      if {[info exists ssllibs]} {
+        define-append LIBS $ssllibs
+      } else {
+        define-append LIBS -lssl -lcrypto
+      }
+      if {[info exists ::zlib_lib]} {
+        define-append LIBS $::zlib_lib
+      }
+      if {[is_mingw]} {
+        define-append LIBS -lgdi32 -lwsock32 -lcrypt32
+      }
+      msg-result "HTTPS support enabled"
+
+      # Silence OpenSSL deprecation warnings on Mac OS X 10.7.
+      if {[string match *-darwin* [get-define host]]} {
+        if {[cctest -cflags {-Wdeprecated-declarations}]} {
+          define-append EXTRA_CFLAGS -Wdeprecated-declarations
+        }
+      }
     } else {
-      define-append LIBS -lssl -lcrypto
+      user-error "OpenSSL not found. Consider --with-openssl=none to disable HTTPS support"
     }
+  } else {
     if {[info exists ::zlib_lib]} {
       define-append LIBS $::zlib_lib
     }
-    if {[is_mingw]} {
-      define-append LIBS -lgdi32 -lwsock32 -lcrypt32
-    }
-    msg-result "HTTPS support enabled"
-
-    # Silence OpenSSL deprecation warnings on Mac OS X 10.7.
-    if {[string match *-darwin* [get-define host]]} {
-      if {[cctest -cflags {-Wdeprecated-declarations}]} {
-        define-append EXTRA_CFLAGS -Wdeprecated-declarations
-      }
-    }
-  } else {
-    user-error "OpenSSL not found. Consider --with-openssl=none to disable HTTPS support"
   }
-} else {
-  if {[info exists ::zlib_lib]} {
-    define-append LIBS $::zlib_lib
-  }
-}
-
-
+}; # handle-with-openssl
 
 ########################################################################
 # --with-sqlite=PATH checks for the first it finds of the following...
@@ -542,6 +551,8 @@ define CFLAGS_INCLUDE {}
 # own. One caveat with this is that we cannot point --with-sqlite=PATH
 # to the root of sqlite3's own build tree because that dir has a
 # config.h which ends up shadowing src/config.h, breaking our build.
+# (That is no longer true: that that config.h was renamed to
+# sqlite_cfg.h at some point.)
 set sq3path [opt-val with-sqlite]
 define SQLITE3_SRC.2 {}
 define SQLITE3_OBJ.2 {}
@@ -928,6 +939,8 @@ if {[proj-check-emsdk]} {
   define EMCC_OPT ""
   catch {exec rm -f tools/emcc.sh}
 }
+
+handle-with-openssl
 
 # Tag container builds with a prefix of the checkin ID of the version
 # of Fossil each one contains.  This not only allows multiple images
