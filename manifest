@@ -1,5 +1,5 @@
-C Merge\sthe\sticket-wiki\sbranch\sinto\strunk:\sadd\sthe\sability\sto\sassociate\sa\swiki\spage\swith\sa\sticket,\ssimilar\sto\show\scan\sbe\sdone\sfor\sa\sbranch\sor\scheck-in.
-D 2025-02-26T17:54:48.763
+C Enhance\sthe\scomment_print()\ssubroutien\sso\sthat\sit\sunderstands\sthat\sVT100\nescape\scodes\sare\szero-width\scharacters,\sand\sallocates\stext\sto\slines\saccordingly.
+D 2025-02-26T18:07:02.353
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -404,7 +404,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
 F src/clone.c 9e98d0e64d8f19456a345f20275f1094b3c2022e27b0acbe5d7cbb6b917b06f5
 F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
-F src/comformat.c dc2c4c667ddab67e2c8d5eb96837a104d0bb827a27ca643fdda52ce9f530a0f2
+F src/comformat.c 6de05a9ee14571a1dd314ea1392a8b597916290dc732cb5de378bd2b55458504
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 2792bba61c6fd0bf8adac377169513ef1a38286b603cc73ea78fe7ffd8d9f071
 F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
@@ -964,9 +964,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 55dd9896d7973e51d08984f55cbbc86d18cdea4db389811e6cc788e566925944 e824c5ec18c06912cfd0567ad5ecaf85525a07e3687037c25ae2fe909b93f5a5
-R caade9b2720b6138d815dc72b70b80ff
-T +closed e824c5ec18c06912cfd0567ad5ecaf85525a07e3687037c25ae2fe909b93f5a5 Closed\sby\sintegrate-merge.
-U stephan
-Z 6654d23a95025f36af7cd310080a1889
+P 25f43cc634e789d8c0ae7567a02d13cc26b9cfd03db1a1510cd68f80f45f3113
+R b50fc87f6b77b5de2c034767a6bc6294
+U drh
+Z 741a9d5d44f57e749e8d92c2a5fe69fc
 # Remove this line to create a well-formed Fossil manifest.

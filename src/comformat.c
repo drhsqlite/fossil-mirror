@@ -236,25 +236,40 @@ static int comment_next_space(
 }
 
 /*
-** Return information about the next (single- or multi-byte) character in the
-** specified UTF-8 string: The number of UTF-8 code units (in this case: bytes)
-** and the decoded UTF-32 code point. Incomplete, ill-formed and overlong
-** sequences are consumed together as one invalid code point. The invalid lead
-** bytes 0xC0 to 0xC1 and 0xF5 to 0xF7 are allowed to initiate (ill-formed) 2-
-** and 4-byte sequences, respectively, the other invalid lead bytes 0xF8 to 0xFF
-** are treated as invalid 1-byte sequences (as lone trail bytes), all resulting
-** in one invalid code point. Invalid UTF-8 sequences encoding a non-scalar code
-** point (UTF-16 surrogates U+D800 to U+DFFF) are allowed.
+** Return information about the next (single- or multi-byte) character in
+** z[0].  Two values are computed:
+**
+**     *   The number of bytes needed to represent the character.
+**     *   The UTF code point value.
+**
+** Incomplete, ill-formed and overlong sequences are consumed together as
+** one invalid code point. The invalid lead bytes 0xC0 to 0xC1 and 0xF5 to
+** 0xF7 are allowed to initiate (ill-formed) 2- and 4-byte sequences,
+** respectively, the other invalid lead bytes 0xF8 to 0xFF are treated
+** as invalid 1-byte sequences (as lone trail bytes), all resulting
+** in one invalid code point. Invalid UTF-8 sequences encoding a
+** non-scalar code point (UTF-16 surrogates U+D800 to U+DFFF) are allowed.
+**
+** ANSI escape sequences of the form "\033[...X" are interpreted as a
+** zero-width character.
 */
 void char_info_utf8(
-  const char *z,
-  int *pCchUTF8,
-  int *pUtf32
+  const char *z,       /* The character to be analyzed */
+  int *pCchUTF8,       /* OUT: The number of bytes used by this character */
+  int *pUtf32          /* OUT: The UTF8 code point (used to determine width) */
 ){
   int i = 0;                              /* Counted bytes. */
   int cchUTF8 = 1;                        /* Code units consumed. */
   int maxUTF8 = 1;                        /* Expected sequence length. */
   char c = z[i++];
+  if( c==0x1b && z[i]=='[' ){
+    do{
+      i++;
+    }while( fossil_isdigit(z[i]) || z[i]==';' );
+    *pCchUTF8 = i+1;
+    *pUtf32 = 0x301;  /* A zero-width character */
+    return;
+  }
   if( (c&0x80)==0x00 ){                   /* 7-bit ASCII character. */
     *pCchUTF8 = 1;
     *pUtf32 = (int)z[0];
