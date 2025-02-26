@@ -624,10 +624,10 @@ void search_snippet_to_plaintext(Blob *pSnip, int nTty){
         zSnip[k++] = '>';
         j += 3;
       }else if( memcmp(&zSnip[j],"&quot;",6)==0 ){
-        zSnip[k++] = '<';
+        zSnip[k++] = '"';
         j += 5;
       }else if( memcmp(&zSnip[j],"&amp;",5)==0 ){
-        zSnip[k++] = '<';
+        zSnip[k++] = '&';
         j += 4;
       }else{
         zSnip[k++] = c;
@@ -1048,7 +1048,8 @@ LOCAL void search_fullscan(
       "         'h'||rowid,"
       "         search_snippet()"
       "    FROM helptext"
-      "   WHERE search_match('',helptext.helptext);"
+      "   WHERE search_match(format('the \"%%s\" %%s',name,type),"
+      "                      helptext.helptext);"
     );
   }
 }
