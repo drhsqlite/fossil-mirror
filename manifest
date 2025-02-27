@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s"fossil\ssearch"\shelp\spage.\s\sDocument\sthe\s--highlight\noption.\s\sDisable\scolorization\sif\sthe\sNO_COLOR\senvironment\svariable\sexists.
-D 2025-02-27T16:29:21.900
+C Move\sauto.def\stests\swhich\sare\sspecifically\scommented\sas\s'must\sbe\slast'\sto\sthe\send\sof\sauto.def,\sbelow\sthe\snewly-moved\sopenssl\scheck.
+D 2025-02-27T22:23:27.555
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def 27d441b4f467ab91398412b6aa8cb0207ed682f7e5e313310fcbcfb89b13268c
+F auto.def 75641badbaab6dba325fe82ca1882bbc0d6a09d6d54f5c98386441a47bb9b569
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -964,8 +964,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 16d98b94bb58555bee7949f653dde63347c5ac9fb9fcf2efe3aa269a5ea64dd3
-R 3f4c6514f743c8b04fd17280332a4f02
-U drh
-Z 326fd0b627f24cb78b265b564a3b3528
+P eeec6c894ed9cfc16958a8f26dc6db93de1045a55b09ef1dae01b59e503b6cbf
+R 5f3093a2f80081be1d21acdd220c5294
+U stephan
+Z 958c10bc239587bacbccc92c1732f806
 # Remove this line to create a well-formed Fossil manifest.
