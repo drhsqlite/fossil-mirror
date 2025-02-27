@@ -705,20 +705,15 @@ static char *patch_find_patch_filename(const char *zCmdName){
 ** Resolves a patch-command remote system name, accounting for patch
 ** aliases.
 **
-** If a CONFIG table entry matching name='patch-alias:zKey' is found,
+** If a CONFIG table entry matching name='patch-alias:$zKey' is found,
 ** the corresponding value is returned, else a fossil_strdup() of zKey
 ** is returned.
 */
 static char * patch_resolve_remote(const char *zKey){
-  char * zAlias;
-
-  zAlias = db_text(0, "SELECT value FROM config "
-                   "WHERE name = 'patch-alias:' || %Q",
-                   zKey);
-  if( 0!=zAlias ){
-    return zAlias;
-  }
-  return fossil_strdup(zKey);
+  char * zAlias = db_text(0, "SELECT value FROM config "
+                          "WHERE name = 'patch-alias:' || %Q",
+                          zKey);
+  return zAlias ? zAlias : fossil_strdup(zKey);
 }
 
 /*
@@ -800,7 +795,7 @@ remote_command_error:
 ** by g.argv[3].
 */
 static void patch_toggle_ssh_needs_path(void){
-  char *zRemote = fossil_strdup(g.argv[3]);
+  char *zRemote = patch_resolve_remote(g.argv[3]);
   char *zDir = (char*)file_skip_userhost(zRemote);
   if( zDir ){
     *(char*)(zDir - 1) =  0;

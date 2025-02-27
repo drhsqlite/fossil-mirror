@@ -1,5 +1,5 @@
-C Add\sa\snote\sthat\spatch\salias\sare\slocal\sto\sa\sgiven\scheckout.
-D 2025-02-27T22:11:08.819
+C Add\sa\smissing\spatch_resolve_remote()\scall\sin\spatch_toggle_ssh_needs_path().\sSimplify\spatch_resolve_remote()\sa\sbit.
+D 2025-02-27T22:38:02.894
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -507,7 +507,7 @@ F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 26dc83bb01d2c4c96959dfc071ec6bb328779dce4ec611b9d9135ad8fca28212
-F src/patch.c ba55151554f2b0ae9ac9ae29cf235b0962d6cbce96b7ce502bbc1ae6d24ab22e
+F src/patch.c 8e8c32def347fa2ad84cff52b24b87610ac8db103379d0875b4b8acb9af16890
 F src/path.c 4d10169056b216a2237cac07dced34e642b5bdcf516f57390fec34717fe11d41
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a83c
@@ -964,8 +964,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6ef7ff1f8d1455f07a355fcedce5a85594733e9575a508a2ec0e2fb4baf96f2
-R bef479081df1ebc18ad4d70c54874a4f
+P b380310558b9157f28c202529840bcf2d90ca0da3bd4ca60f6814aee7313bd46
+R d3a2dbaf194b9ef3da8c8412a3cd41af
 U stephan
-Z 8d022d673ce56a69329e463901f27571
+Z 7acd4adb46bd8e5d85ce6ac1a9b895ac
 # Remove this line to create a well-formed Fossil manifest.
