@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\scomment_print()\sdiscovered\sby\sthe\sfuzzer\senhancement\sof\sthe\nprevious\scheck-in.\s\sThis\sbug\shas\sexisted\sfor\sa\slong\stime\sand\sis\snot\sthe\nresult\sof\srecent\schanges.
-D 2025-02-27T12:22:48.957
+C Update\sthe\sfuzz-testing\sdocumentation.
+D 2025-02-27T12:33:37.899
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -779,7 +779,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 0c13540506bfee2e10a015ee79769ce09e0c1fc1cc49fbd3f065b6ceb285f6f9
+F www/build.wiki e45cae07da090305e94bdc45d2041f3e42b945af32b0c018d6fb5f31a4bd3f93
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
@@ -964,8 +964,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8639f9b2d52aa4c79b7ac5ee35f6160e76ef04ca6bfe011d8683d57c2fa30029
-R 8763f8cf66db063fdab5d5e1b184374a
+P 8ccedde4c6b4bdd55cd2516ebb8c7fc9b7539545db69cd500dcee08b23042086
+R de04c1c02b7c4c70e912500d3a233300
 U drh
-Z ae170c90b900ada239d7888e8f90d31b
+Z aacc08ceb29cb8ba194d3378897067a5
 # Remove this line to create a well-formed Fossil manifest.
