@@ -222,6 +222,7 @@ static int comment_next_space(
 ){
   int cchUTF8, utf32, wcwidth = 0;
   int nextIndex = index;
+  if( zLine[index]==0 ) return index;
   for(;;){
     char_info_utf8(&zLine[nextIndex],&cchUTF8,&utf32);
     nextIndex += cchUTF8;
