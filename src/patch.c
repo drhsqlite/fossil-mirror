@@ -907,6 +907,19 @@ static void patch_diff(
   if( nErr ) fossil_fatal("abort due to prior errors");
 }
 
+#if 0 /*TODO*/
+static char * patch_resolve_remote(const char *zKey){
+  char * zAlias;
+
+  zAlias = db_text(0, "SELECT value FROM config "
+                   "WHERE name GLOB 'patch-alias:' || %Q",
+                   zKey);
+  if( 0!=zAlias ){
+    return zAlias;
+  }
+  return mprintf("%s", zKey);
+}
+#endif
 
 /*
 ** COMMAND: patch
@@ -998,10 +1011,76 @@ void patch_cmd(void){
   size_t n;
   if( g.argc<3 ){
     patch_usage:
-    usage("apply|create|diff|gdiff|pull|push|view");
+    usage("alias|apply|create|diff|gdiff|pull|push|view");
   }
   zCmd = g.argv[2];
   n = strlen(zCmd);
+  if( strncmp(zCmd, "alias", n)==0 ){
+    const char * zArg = g.argc>3 ? g.argv[3] : 0;
+    db_must_be_within_tree();
+    if( 0==zArg ){
+      goto usage_patch_alias;
+    }else if( 0==strcmp("ls",zArg) || 0==strcmp("list",zArg) ){
+      /* alias ls|list */
+      Stmt q;
+      int nAlias = 0;
+
+      verify_all_options();
+      db_prepare(&q, "SELECT substr(name,13), value FROM config "
+                 "WHERE name GLOB 'patch-alias:*' ORDER BY name");
+      while( SQLITE_ROW==db_step(&q) ){
+        const char *zName;
+        const char *zVal;
+        if( 0==nAlias++ ){
+          fossil_print("Local patch aliases:\n");
+        }
+        zName = db_column_text(&q, 0);
+        zVal = db_column_text(&q, 1);
+        fossil_print("%s = %s\n", zName, zVal);
+      }
+      db_finalize(&q);
+      if( 0==nAlias ){
+        fossil_print("No patch aliases defined\n");
+      }
+    }else if( 0==strcmp("add", zArg) ){
+      /* alias add localName remote */
+      verify_all_options();
+      if( 6!=g.argc ){
+        usage("alias add localName remote");
+      }
+      db_unprotect(PROTECT_CONFIG);
+      db_multi_exec("REPLACE INTO config (name, value, mtime) "
+                    "VALUES ('patch-alias:%q', %Q, unixepoch())",
+                    g.argv[4], g.argv[5]);
+      db_protect_pop();
+    }else if( 0==strcmp("rm", zArg) ){
+      /* alias rm */
+      const int fAll = 0!=find_option("all", 0, 0);
+      verify_all_options();
+      if( g.argc<5 ){
+        usage("alias rm [-all] [aliasGlob [...aliasGlobN]]");
+      }
+      db_unprotect(PROTECT_CONFIG);
+      if( 0!=fAll ){
+        db_multi_exec("DELETE FROM config WHERE name GLOB 'patch-alias:*'");
+      }else{
+        Stmt q;
+        int i;
+        db_prepare(&q, "DELETE FROM config WHERE name "
+                   "GLOB 'patch-alias:' || :pattern");
+        for(i = 4; i < g.argc; ++i){
+          db_bind_text(&q, ":pattern", g.argv[i]);
+          db_step(&q);
+          db_reset(&q);
+        }
+        db_finalize(&q);
+      }
+      db_protect_pop();
+    }else{
+    usage_patch_alias:
+      usage("alias ls|list|add|rm ...");
+    }
+  }else
   if( strncmp(zCmd, "apply", n)==0 ){
     char *zIn;
     unsigned flags = 0;
