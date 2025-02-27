@@ -1,5 +1,5 @@
-C Fix\sthe\scomment\sformatter\sso\sthat\sit\sdoes\snot\scrash\swith\sill-formatted\nVT100\sescapes.
-D 2025-02-26T21:03:37.702
+C Extend\sthe\sfuzzer\sto\shave\sthe\sability\sto\srun\scomment_print().
+D 2025-02-27T01:50:50.841
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -456,7 +456,7 @@ F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db23
 F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f02899313ec3b13584bf8697
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
-F src/fuzz.c 117f5322220553464af0153fd7335fdd1eceebf0775f8b5aa09258444abd0fc2
+F src/fuzz.c b31a20db3489603f88493ec408a56b905418dfb8fe106b108d77e3225ee5da13
 F src/glob.c 6415e69faa8a0714ed1d4e4457fe27accc839a674861064be31b49a7d7f80626
 F src/graph.c 084409ef9c0b5648278f26dbe751a73caf796d63868d8d3532945eb7544b4f30
 F src/graph.js 91271ed35b6f576c3527664d6c1a255f67af5b7fa9f667854ef47e6837404c37
@@ -964,8 +964,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e9e3695ae6f837e668e8398c34c9eed6c02ee6e091317d1c6dd7a87f7108ccd
-R cf909020d707c50afbf790de4d1fe749
+P 2aa79ed7521b6c6c732ccd2a95d8b320557e5732cd219fad437de5ee56fdfa3d
+R 3f021482472538c4b9fcbf700284a7d6
 U drh
-Z 5a238bf049852ff334d1608a7330f20a
+Z bafab4e289ff465272b7536ea1fae4c9
 # Remove this line to create a well-formed Fossil manifest.
