@@ -702,6 +702,26 @@ static char *patch_find_patch_filename(const char *zCmdName){
 }
 
 /*
+** Resolves a patch-command remote system name, accounting for patch
+** aliases.
+**
+** If a CONFIG table entry matching name='patch-alias:zKey' is found,
+** the corresponding value is returned, else a fossil_strdup() of zKey
+** is returned.
+*/
+static char * patch_resolve_remote(const char *zKey){
+  char * zAlias;
+
+  zAlias = db_text(0, "SELECT value FROM config "
+                   "WHERE name = 'patch-alias:' || %Q",
+                   zKey);
+  if( 0!=zAlias ){
+    return zAlias;
+  }
+  return fossil_strdup(zKey);
+}
+
+/*
 ** Create a FILE* that will execute the remote side of a push or pull
 ** using ssh (probably) or fossil for local pushes and pulls.  Return
 ** a FILE* obtained from popen() into which we write the patch, or from
@@ -731,7 +751,7 @@ static FILE *patch_remote_command(
   if( g.argc!=4 ){
     usage(mprintf("%s [USER@]HOST:DIRECTORY", zThisCmd));
   }
-  zRemote = fossil_strdup(g.argv[3]);
+  zRemote = patch_resolve_remote(g.argv[3]);
   zDir = (char*)file_skip_userhost(zRemote);
   if( zDir==0 ){
     if( isRetry ) goto remote_command_error;
@@ -907,20 +927,6 @@ static void patch_diff(
   if( nErr ) fossil_fatal("abort due to prior errors");
 }
 
-#if 0 /*TODO*/
-static char * patch_resolve_remote(const char *zKey){
-  char * zAlias;
-
-  zAlias = db_text(0, "SELECT value FROM config "
-                   "WHERE name GLOB 'patch-alias:' || %Q",
-                   zKey);
-  if( 0!=zAlias ){
-    return zAlias;
-  }
-  return mprintf("%s", zKey);
-}
-#endif
-
 /*
 ** COMMAND: patch
 **
@@ -1005,6 +1011,25 @@ static char * patch_resolve_remote(const char *zKey){
 **
 **           -v|--verbose       Show extra detail about the patch
 **
+** > fossil patch alias add|rm|ls|list ?ARGS?
+**
+**       Manage remote-name aliases, which act as short-form equivalents
+**       to REMOTE-CHECKOUT strings.
+**
+**       Subcommands:
+**
+**       > add local-name REMOTE-CHECKOUT
+**
+**       Add local-name as an alias for REMOTE-CHECKOUT.
+**
+**       > ls|list
+**
+**       List all local aliases.
+**
+**       > rm [-all]| local-name [...local-nameN]
+**
+**       Remove all aliases which match the given GLOB patterns, or
+**       all aliases if -all is specified.
 */
 void patch_cmd(void){
   const char *zCmd;
@@ -1029,13 +1054,9 @@ void patch_cmd(void){
       db_prepare(&q, "SELECT substr(name,13), value FROM config "
                  "WHERE name GLOB 'patch-alias:*' ORDER BY name");
       while( SQLITE_ROW==db_step(&q) ){
-        const char *zName;
-        const char *zVal;
-        if( 0==nAlias++ ){
-          fossil_print("Local patch aliases:\n");
-        }
-        zName = db_column_text(&q, 0);
-        zVal = db_column_text(&q, 1);
+        const char *zName = db_column_text(&q, 0);
+        const char *zVal = db_column_text(&q, 1);
+        ++nAlias;
         fossil_print("%s = %s\n", zName, zVal);
       }
       db_finalize(&q);
