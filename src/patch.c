@@ -1014,7 +1014,7 @@ static void patch_diff(
 ** > fossil patch alias add|rm|ls|list ?ARGS?
 **
 **       Manage remote-name aliases, which act as short-form equivalents
-**       to REMOTE-CHECKOUT strings.
+**       to REMOTE-CHECKOUT strings. Aliases are local to a given checkout.
 **
 **       Subcommands:
 **
