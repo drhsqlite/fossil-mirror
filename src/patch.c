@@ -707,7 +707,8 @@ static char *patch_find_patch_filename(const char *zCmdName){
 **
 ** If a CONFIG table entry matching name='patch-alias:$zKey' is found,
 ** the corresponding value is returned, else a fossil_strdup() of zKey
-** is returned.
+** is returned. The caller is responsible for passing the resulting
+** string to fossil_free().
 */
 static char *patch_resolve_remote(const char *zKey){
   char *zAlias = db_text(0, "SELECT value FROM config "
@@ -1065,10 +1066,10 @@ void patch_cmd(void){
     }else if( 0==strcmp("rm", zArg) ){
       /* alias rm */
       const int fAll = 0!=find_option("all", 0, 0);
-      verify_all_options();
-      if( g.argc<5 ){
+      if( fAll ? g.argc<4 : g.argc<5 ){
         usage("alias rm [-all] [aliasGlob [...aliasGlobN]]");
       }
+      verify_all_options();
       db_unprotect(PROTECT_CONFIG);
       if( 0!=fAll ){
         db_multi_exec("DELETE FROM config WHERE name GLOB 'patch-alias:*'");
