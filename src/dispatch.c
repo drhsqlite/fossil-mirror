@@ -527,6 +527,10 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
 static void help_to_text(const char *zHelp, Blob *pText){
   int i, x;
   char c;
+  if( zHelp[0]=='>' ){
+    blob_appendf(pText, "Usage:");
+    zHelp++;
+  }
   for(i=0; (c = zHelp[i])!=0; i++){
     if( c=='%' && strncmp(zHelp+i,"%fossil",7)==0 ){
       if( i>0 ) blob_append(pText, zHelp, i);
@@ -1062,6 +1066,76 @@ void test_all_help_page(void){
   style_finish_page();
 }
 
+/*
+** Input z[] is help text for zTopic.  If zTopic has sub-command zSub,
+** then cut out all portions of the original help text that do not
+** directly pertain to zSub and write the zSub-relevant parts into
+** pOut.
+**
+** Return the number of lines of z[] written into pOut.  A return of
+** zero means no simplification occurred.
+*/
+static int simplify_to_subtopic(
+  const char *z,            /* Full original help text */
+  Blob *pOut,               /* Write simplified help text here */
+  const char *zTopic,       /* TOPIC */
+  const char *zSubtopic     /* SUBTOPIC */
+){
+  Blob in, line;
+  int n = 0;
+  char *zGlob = mprintf("> fossil %s *%s*", zTopic, zSubtopic);
+
+  blob_init(&in, z, -1);
+  while( blob_line(&in, &line) ){
+    if( sqlite3_strglob(zGlob, blob_str(&line))==0 ){
+      blob_appendb(pOut, &line);
+      n++;
+      while( blob_line(&in, &line) && blob_str(&line)[0]!='>' ){
+        blob_appendb(pOut, &line);
+        n++;
+      }
+      break;
+    }
+  }
+  fossil_free(zGlob);
+  if( n ) blob_trim(pOut);
+  return n;
+  return 0;
+}
+
+/*
+** Input z[] is help text for a command zTopic.  Write into pOut all lines of
+** z[] that show the command-line syntax for that command.  Lines written
+** to pOut are lines that begin with out of:
+**
+**     Usage:
+**     or:
+**     > fossil TOPIC
+**
+** Return the number of lines written into pOut.
+*/
+static int simplify_to_usage(
+  const char *z,            /* Full original help text */
+  Blob *pOut,               /* Write simplified help text here */
+  const char *zTopic        /* The command for which z[] is full help text */
+){
+  ReCompiled *pRe = 0;
+  Blob in, line;
+  int n = 0;
+
+  re_compile(&pRe, "^(Usage: | *[Oo]r: +%fossi |> fossil )", 0);
+  blob_init(&in, z, -1);
+  while( blob_line(&in, &line) ){
+    if( re_match(pRe, (unsigned char*)blob_str(&line), blob_strlen(&line)) ){
+      blob_appendb(pOut, &line);
+      n++;
+    }
+  }
+  re_free(pRe);
+  if( n ) blob_trim(pOut);
+  return n;
+}
+
 static void multi_column_list(const char **azWord, int nWord){
   int i, j, len;
   int mxLen = 0;
@@ -1151,9 +1225,21 @@ static const char zOptions[] =
 ;
 
 /*
+** COMMAND: usage
+**
+** Usage: %fossil usage COMMAND [SUBCOMMAND]
+**
+** Show succinct usage instruction for a Fossil command.  Shorthand 
+** for "fossil help --usage COMMAND [SUBCOMMAND]"
+*/
+void usage_cmd(void){
+  help_cmd();
+}
+
+/*
 ** COMMAND: help
 **
-** Usage: %fossil help [OPTIONS] [TOPIC]
+** Usage: %fossil help [OPTIONS] [TOPIC] [SUBCOMMAND]
 **
 ** Display information on how to use TOPIC, which may be a command, webpage, or
 ** setting.  Webpage names begin with "/".  If TOPIC is omitted, a list of
@@ -1162,37 +1248,46 @@ static const char zOptions[] =
 ** The following options can be used when TOPIC is omitted:
 **
 **    -a|--all          List both common and auxiliary commands
+**    -e|--everything   List all help on all topics
+**    -f|--full         List full set of commands (including auxiliary
+**                      and unsupported "test" commands), options,
+**                      settings, and web pages
 **    -o|--options      List command-line options common to all commands
 **    -s|--setting      List setting names
 **    -t|--test         List unsupported "test" commands
 **    -v|--verbose      List both names and help text
 **    -x|--aux          List only auxiliary commands
 **    -w|--www          List all web pages
-**    -f|--full         List full set of commands (including auxiliary
-**                      and unsupported "test" commands), options,
-**                      settings, and web pages
-**    -e|--everything   List all help on all topics
 **
 ** These options can be used when TOPIC is present:
 **
-**    -h|--html         Format output as HTML rather than plain text
 **    -c|--commands     Restrict TOPIC search to commands
+**    -h|--html         Format output as HTML rather than plain text
+**    --raw             Output raw, unformatted help text
+**    -u|--usage        Show a succinct usage summary, not full help text
 */
 void help_cmd(void){
   int rc;
-  int mask = CMDFLAG_ANY;
-  int isPage = 0;
-  int verboseFlag = 0;
-  int commandsFlag = 0;
-  const char *z;
-  const char *zCmdOrPage;
-  const CmdOrPage *pCmd = 0;
-  int useHtml = 0;
-  const char *zTopic;
-  Blob txt;
+  int mask = CMDFLAG_ANY;        /* Mask of help topic types */
+  int isPage = 0;                /* True if TOPIC is a page */
+  int verboseFlag = 0;           /* -v option */
+  int commandsFlag = 0;          /* -c option */
+  const char *z;                 /* Original, untranslated help text */
+  const char *zCmdOrPage;        /* "command" or "page" or "setting" */
+  const CmdOrPage *pCmd = 0;     /* ptr to aCommand[] entry for TOPIC */
+  int useHtml = 0;               /* -h option */
+  int bUsage = g.zCmdName[0]=='u';  /* --usage or "fossil usage TOPIC" */
+  int bRaw;                      /* --raw option */
+  const char *zTopic;            /* TOPIC argument */
+  const char *zSubtopic = 0;     /* SUBTOPIC argument */
+  Blob subtext1, subtext2;       /* Subsets of z[] containing subtopic/usage */
+  Blob txt;                      /* Text after rendering */
+
   verboseFlag = find_option("verbose","v",0)!=0;
   commandsFlag = find_option("commands","c",0)!=0;
   useHtml = find_option("html","h",0)!=0;
+  bRaw = find_option("raw",0,0)!=0;
+  if( find_option("usage","u",0)!=0 ) bUsage = 1;
   if( find_option("options","o",0) ){
     fossil_print("%s", zOptions);
     return;
@@ -1251,6 +1346,7 @@ void help_cmd(void){
     return;
   }
   zTopic = g.argv[2];
+  zSubtopic = g.argc>=4 ? g.argv[3] : 0;
   isPage = ('/' == zTopic[0]) ? 1 : 0;
   if(isPage){
     zCmdOrPage = "page";
@@ -1275,18 +1371,33 @@ void help_cmd(void){
     for(i=0; i<n; i++){
       fossil_print("  *  %s\n", az[i]);
     }
-    fossil_print("Also consider using:\n");
+    fossil_print("Other commands to try:\n");
     fossil_print("   fossil search -h PATTERN  ;# search all help text\n");
     fossil_print("   fossil help -a            ;# show all commands\n");
     fossil_print("   fossil help -w            ;# show all web-pages\n");
     fossil_print("   fossil help -s            ;# show all settings\n");
     fossil_print("   fossil help -o            ;# show global options\n");
-    fossil_exit(1);
+    return;
   }
+  blob_init(&subtext1, 0, 0);
+  blob_init(&subtext2, 0, 0);
   z = pCmd->zHelp;
   if( z==0 ){
     fossil_fatal("no help available for the %s %s",
                  pCmd->zName, zCmdOrPage);
+  }
+  if( zSubtopic!=0 ){
+    if( simplify_to_subtopic(z, &subtext1, zTopic, zSubtopic) ){
+      z = blob_str(&subtext1);
+    }else{
+      fossil_print("No subtopic \"%s\" for \"%s\".\n", zTopic, zSubtopic);
+      if( strstr(z, "Usage:")!=0 || strstr(z, "\n> fossil")!=0 ){
+        bUsage = 1;
+      }
+    }
+  }
+  if( bUsage && simplify_to_usage(z, &subtext2, zTopic) ){
+    z = blob_str(&subtext2);
   }
   if( pCmd->eCmdFlags & CMDFLAG_SETTING ){
     const Setting *pSetting = db_find_setting(pCmd->zName, 0);
@@ -1301,13 +1412,17 @@ void help_cmd(void){
     fossil_free(zDflt);
   }
   blob_init(&txt, 0, 0);
-  if( useHtml ){
+  if( bRaw ){
+    blob_append(&txt, z, -1);
+  }else if( useHtml ){
     help_to_html(z, &txt);
   }else{
     help_to_text(z, &txt);
   }
   fossil_print("%s\n", blob_str(&txt));
   blob_reset(&txt);
+  blob_reset(&subtext1);
+  blob_reset(&subtext2);
 }
 
 /*
