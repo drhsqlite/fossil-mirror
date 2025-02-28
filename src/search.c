@@ -632,6 +632,10 @@ void search_snippet_to_plaintext(Blob *pSnip, int nTty){
       }else{
         zSnip[k++] = c;
       }
+    }else if( c=='%' && strncmp(&zSnip[j],"%fossil",7)==0 ){
+      /* no-op */
+    }else if( (c=='[' || c==']') && zSnip[j+1]==c ){
+      j++;
     }else{
       zSnip[k++] = c;
     }
@@ -1056,17 +1060,24 @@ LOCAL void search_fullscan(
     );
   }
   if( (srchFlags & SRCH_HELP)!=0 ){
+    const char *zPrefix;
     helptext_vtab_register(g.db);
+    if( srchFlags==SRCH_HELP ){
+      zPrefix = "The";
+    }else{
+      zPrefix = "Built-in help for the";
+    }
     db_multi_exec(
       "INSERT INTO x(label,url,score,id,snip)"
-      "  SELECT format('Built-in help for the \"%%s\" %%s',name,type),"
+      "  SELECT format('%q \"%%s\" %%s',name,type),"
       "         '/help?cmd='||name,"
       "         search_score(),"
       "         'h'||rowid,"
       "         search_snippet()"
       "    FROM helptext"
       "   WHERE search_match(format('the \"%%s\" %%s',name,type),"
-      "                      helptext.helptext);"
+      "                      helptext.helptext);",
+      zPrefix
     );
   }
 }
