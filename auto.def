@@ -342,6 +342,22 @@ cc-check-function-in-lib iconv iconv
 cc-check-function-in-lib sin m ;# must come before ssl check:
                                 # https://fossil-scm.org/forum/forumpost/afcd42b7fd
 
+#
+# Inclusion (or not) of -ldl interacts in mysterious ways with the libssl
+# detection. This is an attempt to work around that on systems which require
+# -ldl for dlopen().
+#
+set ldFlagsDL ""
+set hasLDL [cctest -link 1 -code "int foo(void){return 1;}" -libs -ldl]
+# ^^^ True if -ldl exists, independently of whether it's needed for dlopen()
+cc-with {} {
+  if {[cc-check-function-in-lib dlopen dl]} {
+    # Some platforms (*BSD) have the dl functions already in libc and no libdl.
+    # In such case we can link directly without -ldl.
+    set ldFlagsDL [get-define lib_dlopen]
+  }
+}
+
 # Helper for OpenSSL checking
 proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto -lpthread}}} {
   msg-checking "Checking for $msg..."
@@ -509,6 +525,8 @@ proc handle-with-openssl {} {
               incr found
               break
             }
+            # This test should arguably fail here if --with-openssl=X
+            # points to an invalid X.
           }
         }
       }
@@ -949,16 +967,33 @@ handle-with-openssl
 
 # Finally, append libraries that must be last. This matters more on some
 # OSes than others, but is most broadly required for static linking.
-if {[check-function-in-lib dlopen dl]} {
-  # Some platforms (*BSD) have the dl functions already in libc and no libdl.
-  # In such case we can link directly without -ldl.
-  define-append LIBS [get-define lib_dlopen]
-}
+define-append LIBS $ldFlagsDL
 if {[opt-bool static]} {
   # Linux can only infer the dependency on pthread from OpenSSL when
   # doing dynamic linkage.
   define-append LIBS -lpthread
 }
+
+apply {{} {
+  # A kludgy workaround for moving -ldl to the end of the linker
+  # flags, if it's set, or adding it to the end if -lcrypto is in LIBS
+  # and the system actually has -ldl. This is not a "solution," per
+  # se, but an interim workaround for getting the ordering of -ldl
+  # right in conjunction with openssl in some environments.
+  set libs [get-define LIBS]
+  #set libs "-ldl $libs -ldl"; # just for testing
+  regsub -all -- -ldl $libs "" sub
+  if {$sub ne $libs} {
+    # -ldl was in the list, so move it to the end.
+    set libs "$sub -ldl"
+  } elseif {$::hasLDL && [string first -lcrypto "$libs"] >= 0} {
+    # System has -ldl but doesn't need it. We'll add it as a
+    # workaround for the fact that -lcrypto needs it on _some_
+    # systems. This will be a no-op on builds which don't need -ldl.
+    set libs "$sub -ldl"
+  }
+  define LIBS $libs
+}}
 
 # Tag container builds with a prefix of the checkin ID of the version
 # of Fossil each one contains.  This not only allows multiple images
