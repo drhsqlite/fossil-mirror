@@ -1,5 +1,5 @@
-C Remove\stwo\sdefined(__CYGWIN__)\schecks,\sas\sreported/requested\soff-list\sby\sJan\sNijtmans.
-D 2025-02-28T22:38:29.744
+C Restore\sthe\supstream\spikchr.c\sfrom\s[b1b1770d]\s-\sit\sgot\smoved\sout\sof\sthe\sway\swhen\s[b1b1770d]\swas\smoved\soff\sof\strunk.
+D 2025-02-28T23:02:14.286
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -271,9 +271,9 @@ F extsrc/linenoise-win32.c 4edab5d16a9ba9e1561ba271f35a9f74c86ab5363f402840c7c3a
 F extsrc/linenoise.c 2ae333dd88a25281998e9463a99b5c50ad3eaf8fa885dcf8eedfb362ded1f86f
 F extsrc/linenoise.h 8f20fae1acd1ca76c4632c882249827410246f1045ebd800edeeea6b17905e00
 F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc36f71318c48
-F extsrc/pikchr.c 85e65b968651b342c46e6334f4772b45d6cbb4317c5cbaa95d207779a50c6709
+F extsrc/pikchr.c 53969edfdb0b46d6d238689b20c10455e286c3686e776f330742cb2217eef844
 F extsrc/pikchr.js e54b5e0652b986284893c5f9fc659b1f19947971302b6e8324e3d8dac520a836
-F extsrc/pikchr.wasm 72467ec9dbf272d429a1abc9979a2618b5305efefc805fd806c6c93d3b2d704c
+F extsrc/pikchr.wasm 1565d8d077a8ea41acfafc3566ce4fc3c101311809beb999b2bfe9f1b8cf8502
 F extsrc/shell.c f2637f6ce715d2023bf89f2c8a39bc75ee24349dacf28df7b2eecc3fd7d1851a
 F extsrc/sqlite3.c 05fe4dd947b5b014e4ad5bc0e5c5b3cd2724b7ae908917216825f129c9b0a2d6
 F extsrc/sqlite3.h 0e611a6906a207f4ec6fe4f1e472e8f842cba7456d8f64c5055081229694ead2
@@ -964,8 +964,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b6d02fe9648529c1db25d5ada360fe2b4ac72317d402044b606e8fafb2ce98d0
-R 5954b4022207e5387bcf35e468db941e
+P abbefbf13a64a861818807232f904e1d4ab440400bac488c0963c8e0a6934676
+R dc89e164ae68df661f10cf0ccd6fa5b5
 U stephan
-Z ea02d4d9561ba5dde0ae373cd30bde86
+Z 370c5d927ac879b4f90217e5e19ff6a5
 # Remove this line to create a well-formed Fossil manifest.
