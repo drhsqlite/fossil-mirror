@@ -1098,9 +1098,30 @@ static int simplify_to_subtopic(
     }
   }
   fossil_free(zGlob);
-  if( n ) blob_trim(pOut);
+  if( n ){
+    blob_trim(pOut);
+    blob_reset(&in);
+    return n;
+  }
+
+  /* If no subtop name zSubtopic if found, try again for any LIKE
+  ** pattern match of zSubtopic.
+  */
+  blob_rewind(&in);
+  if( zSubtopic[0]=='/' && zSubtopic[1]!=0 ) zSubtopic++;
+  zGlob = mprintf("%%%s%%", zSubtopic);
+  while( blob_line(&in, &line) ){
+    if( sqlite3_strlike(zGlob, blob_str(&line),0)==0 ){
+      blob_appendb(pOut, &line);
+      n++;
+    }
+  }
+  fossil_free(zGlob);
+  blob_reset(&in);
+  if( n ){
+    blob_trim(pOut);
+  }
   return n;
-  return 0;
 }
 
 /*
@@ -1239,11 +1260,16 @@ void usage_cmd(void){
 /*
 ** COMMAND: help
 **
-** Usage: %fossil help [OPTIONS] [TOPIC] [SUBCOMMAND]
+** Usage: %fossil help [OPTIONS] [TOPIC] [SUBCOMMAND|PATTERN]
 **
 ** Display information on how to use TOPIC, which may be a command, webpage, or
 ** setting.  Webpage names begin with "/".  If TOPIC is omitted, a list of
-** topics is returned.
+** topics is returned.  If there is an extra argument after TOPIC it is either
+** the name of a subcommand, in which case only the help text for that one
+** subcommand is show, or it is a LIKE pattern to search for, in which case all
+** lines of text that match that pattern are returned.  If the search pattern
+** starts with "-", prepend "/" so that it will not be interpreted as an
+** option to the help command itself.
 **
 ** The following options can be used when TOPIC is omitted:
 **
