@@ -1,5 +1,5 @@
-C Restore\sthe\supstream\spikchr.c\sfrom\s[b1b1770d]\s-\sit\sgot\smoved\sout\sof\sthe\sway\swhen\s[b1b1770d]\swas\smoved\soff\sof\strunk.
-D 2025-02-28T23:02:14.286
+C Do\snot\suse\sthe\smemmem()\sC-library\sfunction\sas\sit\sis\snot\savailable\son\sWindows.
+D 2025-02-28T23:26:30.639
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,7 +421,7 @@ F src/diff.c 0144a6dfefff72e2a0ca6da7a74703be4150feab1fd2d272f39565c3cf35c849
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
 F src/diffcmd.c cec6c9f65439be9591c1ba8e79911cde35b40ba827709a27240e1600880c9a0c
-F src/dispatch.c bb2a0c676141bb6f18a8f4c418c63b5e266625d362b56c1157c90042f5862d10
+F src/dispatch.c 74711180852591925f3b615b45f5d4010b0b60916d6cd329a81fe21b0a7c6058
 F src/doc.c d576f614d099399f5cd17db085743bd37fe73cadd136abb1a9db912c9e82a118
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
@@ -964,8 +964,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P abbefbf13a64a861818807232f904e1d4ab440400bac488c0963c8e0a6934676
-R dc89e164ae68df661f10cf0ccd6fa5b5
-U stephan
-Z 370c5d927ac879b4f90217e5e19ff6a5
+P c6285e1b5ecc1e9cbabe41033e966b1134bba8e85bb7f33de32fd201794774a6
+R 86beb1501e7214d6bf0878e52edab18c
+U drh
+Z ed0ab71699f5dd327f7cd7792cb91af7
 # Remove this line to create a well-formed Fossil manifest.

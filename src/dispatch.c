@@ -1083,7 +1083,6 @@ static int simplify_to_subtopic(
 ){
   Blob in, line, subsection;
   int n = 0;
-  size_t nSub;    /* Length of zSubtopic */
   char *zQTop = re_quote(zTopic);
   char *zQSub = re_quote(zSubtopic);
   char *zPattern = mprintf("> fossil %s .*\\b%s\\b", zQTop, zQSub);
@@ -1146,10 +1145,9 @@ static int simplify_to_subtopic(
   */
   blob_rewind(&in);
   blob_init(&subsection, 0, 0);
-  nSub = (int)strlen(zSubtopic);
   while( blob_line(&in, &line) ){
     size_t len = blob_strlen(&line);
-    if( memmem(blob_buffer(&line), len, zSubtopic, nSub)!=0 ){
+    if( strstr(blob_str(&line), zSubtopic)!=0 ){
       if( blob_strlen(&subsection) && blob_buffer(&line)[0]!='>' ){
         blob_appendb(pOut, &subsection);
         blob_reset(&subsection);
