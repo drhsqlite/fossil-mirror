@@ -55,6 +55,8 @@
      [/help?cmd=revert|fossil revert] operations that happened on individual
      files after a [/help?cmd=merge|fossil merge] to be omitted from the
      patch.
+  *  Added the [/help?cmd=patch|patch alias] command for managing aliases
+     for remote checkout names.
 
 <h2 id='v2_25'>Changes for version 2.25 (2024-11-06)</h2>
 
