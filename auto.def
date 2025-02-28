@@ -339,24 +339,8 @@ if {[opt-bool static]} {
 # Check for libraries that need to be sorted out early
 cc-check-function-in-lib iconv iconv
 
-cc-check-function-in-lib sin m ;# must come before ssl check:
-                                # https://fossil-scm.org/forum/forumpost/afcd42b7fd
-
-#
-# Inclusion (or not) of -ldl interacts in mysterious ways with the libssl
-# detection. This is an attempt to work around that on systems which require
-# -ldl for dlopen().
-#
-set ldFlagsDL ""
-set hasLDL [cctest -link 1 -code "int foo(void){return 1;}" -libs -ldl]
-# ^^^ True if -ldl exists, independently of whether it's needed for dlopen()
-cc-with {} {
-  if {[cc-check-function-in-lib dlopen dl]} {
-    # Some platforms (*BSD) have the dl functions already in libc and no libdl.
-    # In such case we can link directly without -ldl.
-    set ldFlagsDL [get-define lib_dlopen]
-  }
-}
+cc-check-function-in-lib sin m
+cc-check-function-in-lib dlopen dl
 
 # Helper for OpenSSL checking
 proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto -lpthread}}} {
@@ -967,7 +951,6 @@ handle-with-openssl
 
 # Finally, append libraries that must be last. This matters more on some
 # OSes than others, but is most broadly required for static linking.
-define-append LIBS $ldFlagsDL
 if {[opt-bool static]} {
   # Linux can only infer the dependency on pthread from OpenSSL when
   # doing dynamic linkage.
@@ -975,24 +958,29 @@ if {[opt-bool static]} {
 }
 
 apply {{} {
-  # A kludgy workaround for moving -ldl to the end of the linker
-  # flags, if it's set, or adding it to the end if -lcrypto is in LIBS
-  # and the system actually has -ldl. This is not a "solution," per
-  # se, but an interim workaround for getting the ordering of -ldl
-  # right in conjunction with openssl in some environments.
+  # This started out as a workaround for getting the ordering of -ldl
+  # correct in conjunction with openssl in some environments. Then it
+  # evolved into a more generic preemptive portability workaround to
+  # ensure that certain libraries are always appended to the global
+  # LIBS list if they exist on the system. Based on a /chat discussion
+  # on 2025-02-27 in the context of check-in [8d3b9bf4d4].
+  #
+  # Note that [move-lib-to-end] and [lib-actually-exists] are in
+  # autosetup/local.tcl.
   set libs [get-define LIBS]
-  #set libs "-ldl $libs -ldl"; # just for testing
-  regsub -all -- -ldl $libs "" sub
-  if {$sub ne $libs} {
-    # -ldl was in the list, so move it to the end.
-    set libs "$sub -ldl"
-  } elseif {$::hasLDL && [string first -lcrypto "$libs"] >= 0} {
-    # System has -ldl but doesn't need it. We'll add it as a
-    # workaround for the fact that -lcrypto needs it on _some_
-    # systems. This will be a no-op on builds which don't need -ldl.
-    set libs "$sub -ldl"
+  #puts "**** 1 LIBS: $libs"
+  foreach ll {-ldl -lpthread -lm} {
+    if {![move-lib-to-end $ll $libs libs]} {
+      # $ll was not in the list
+      if {[lib-actually-exists $ll]} {
+        # Add it to the list "just in case." This will be a no-op on
+        # systems where the lib is not actually used.
+        lappend libs $ll
+      }
+    }
   }
-  define LIBS $libs
+  #puts "**** 2 LIBS: $libs"
+  define LIBS [join $libs " "]
 }}
 
 # Tag container builds with a prefix of the checkin ID of the version
