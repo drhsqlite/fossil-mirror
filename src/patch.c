@@ -709,10 +709,10 @@ static char *patch_find_patch_filename(const char *zCmdName){
 ** the corresponding value is returned, else a fossil_strdup() of zKey
 ** is returned.
 */
-static char * patch_resolve_remote(const char *zKey){
-  char * zAlias = db_text(0, "SELECT value FROM config "
-                          "WHERE name = 'patch-alias:' || %Q",
-                          zKey);
+static char *patch_resolve_remote(const char *zKey){
+  char *zAlias = db_text(0, "SELECT value FROM config "
+                            "WHERE name = 'patch-alias:%q'",
+                            zKey);
   return zAlias ? zAlias : fossil_strdup(zKey);
 }
 
@@ -932,6 +932,18 @@ static void patch_diff(
 ** uncommitted changes of a check-out.  Use Fossil binary patches to transfer
 ** proposed or incomplete changes between machines for testing or analysis.
 **
+** > fossil patch alias add|rm|ls|list ?ARGS?
+**
+**       Manage remote-name aliases, which act as short-form
+**       equivalents to REMOTE-CHECKOUT strings. Aliases are local to
+**       a given repository and do not sync. Subcommands:
+**
+**         ... add ALIAS REMOTE-CHECKOUT       Add ALIAS as an alias
+**                                             for REMOTE-CHECKOUT.
+**         ... ls|list                         List all local aliases.
+**         ... rm ALIAS [ALIAS...]             Remove named aliases
+**         ... rm --all                        Remove all aliases
+**
 ** > fossil patch create [DIRECTORY] PATCHFILE
 **
 **       Create a new binary patch in PATCHFILE that captures all uncommitted
@@ -1006,26 +1018,6 @@ static void patch_diff(
 **
 **           -v|--verbose       Show extra detail about the patch
 **
-** > fossil patch alias add|rm|ls|list ?ARGS?
-**
-**       Manage remote-name aliases, which act as short-form
-**       equivalents to REMOTE-CHECKOUT strings. Aliases are local to
-**       a given repository and do not sync.
-**
-**       Subcommands:
-**
-**       > add local-name REMOTE-CHECKOUT
-**
-**       Add local-name as an alias for REMOTE-CHECKOUT.
-**
-**       > ls|list
-**
-**       List all local aliases.
-**
-**       > rm [-all]| local-name [...local-nameN]
-**
-**       Remove all aliases which match the given GLOB patterns, or
-**       all aliases if -all is specified.
 */
 void patch_cmd(void){
   const char *zCmd;
