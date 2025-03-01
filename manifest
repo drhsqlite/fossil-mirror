@@ -1,5 +1,5 @@
-C Improvements\sto\srendering\sin\sthe\s"fossil\shelp"\scommand,\sespecially\sin\ncombination\swith\sthe\s-u/--usage\sand\s-o/--options\scommand-line\soptions.
-D 2025-03-01T16:02:08.934
+C Remove\sthe\s"fossil\susage"\sand\s"fossil\soptions"\scommand.\s\sUse\sinstead\sthe\nthe\s--usage/-u\sor\s--options/-o\soptions\son\sthe\s"fossil\shelp"\scommand.\nOther\simprovements\sand\sfixes\sto\sthe\srecent\s"fossil\shelp"\senhancement.
+D 2025-03-01T20:31:20.147
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,12 +421,12 @@ F src/diff.c 0144a6dfefff72e2a0ca6da7a74703be4150feab1fd2d272f39565c3cf35c849
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
 F src/diffcmd.c cec6c9f65439be9591c1ba8e79911cde35b40ba827709a27240e1600880c9a0c
-F src/dispatch.c f8258b44cce1a0a380e1443d2dc5c56421d5fc9af3c7cec785069dbf59d82e86
+F src/dispatch.c 66d68144acfeddf5567fd85708b66a225c2cd67f2d29e49e97cabd34890d0a5b
 F src/doc.c d576f614d099399f5cd17db085743bd37fe73cadd136abb1a9db912c9e82a118
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c bbf9e79dfc96c597bab4f48ae290259a2dfa129a3d1c5878c13306ac46eb595c
-F src/export.c 8844be011427021c284a2cf8cdab061f9ffa48fd4c8e658468a0af5827c3cbd4
+F src/export.c 043e54a79fb73927cb63cff2950b976d5bd936cc08516e91e9ba8fb7e93930a6
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c 247e454a561c805565b18428f0b575517c6eed160fb9695624e7501b0fdc401f
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
@@ -966,8 +966,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 692a28394e25f9b36295d06aad1c9f7e13cad935d8d670ac353c0321a3291c68
-R 68273af3723e151640ab183612b7a812
+P 62cb8ea785506f04907265173071b98839757a8ab4712b701660fbee4d8d5cf8
+R 578c890b847a4e9e4e0bbb2b880911e4
 U drh
-Z 630e781b85bdd413951adcfb7c1a99cc
+Z bc88ac95ae4d7bc306437e209c0c9a92
 # Remove this line to create a well-formed Fossil manifest.

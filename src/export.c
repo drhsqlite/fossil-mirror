@@ -483,6 +483,8 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 /*
 ** COMMAND: export*
 **
+** Usage: %fossil export --git [REPOSITORY]
+**
 ** This command is deprecated.  Use "fossil git export" instead.
 */
 void export_cmd(void){
