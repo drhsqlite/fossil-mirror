@@ -1,5 +1,5 @@
-C Tiny\spikchr-internal\sdoc\supdates.\sNo\sfunctional\schanges.
-D 2025-03-01T00:04:50.887
+C add\swin/build{32,64}.bat,\sbased\son\s[/wiki/Release\sBuild\sHow-To].
+D 2025-03-01T00:50:25.627
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -754,6 +754,8 @@ F win/Makefile.dmc e10270289390d599260dbbf652aa5572f99d85de8b7798f391ab395aa6af3
 F win/Makefile.mingw ac9e9aa2539429c40ac0f82e5e0cd54d07468dd30fc0231c0d089b27073d4325
 F win/Makefile.mingw.mistachkin 781390cab203b926f21de517390b7323267513df67fe821ec789eebdc2ba733c
 F win/Makefile.msc d9c635f8d170be3f04c8d0a1f38e6c4b832a037426768add406f51d26ecbf942
+F win/build32.bat 59238cd3017799705054a2ec0fdc38ccc4f50edd41b7d05f06b94de1f7d7de6d
+F win/build64.bat 0eea4906007fc31d141c40918be368cda50d1f4bb7273c01672803af19328fad
 F win/buildmsvc.bat b5c945900619a63112b1483e01569241d3cb2a955099e4a46ee7eafcff9e8b6e x
 F win/fossil.exe.manifest 1f742a2524c7c4127f4d84f5029a02211912803c26ed383beebdf7ceeb397fcc
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -964,8 +966,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7d28ae44fe56e99a8dc479831c3d0c4c7196d06ea9e984586ed471b53dcec7e2
-R 41c76be87b8bfbd4f7b265ca5b0ff30a
+P 44e1c41986c43ebee83ae630590d5786f746a1bffebc03b1d3cdf83a1a51cbf5
+R 55d36c5875f9c05d126f2f697193106c
 U stephan
-Z 03ed07bcad1b3848282f2f435876bbb1
+Z ac9f158b7db65893f395438a412e7622
 # Remove this line to create a well-formed Fossil manifest.
