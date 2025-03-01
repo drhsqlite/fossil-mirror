@@ -1300,8 +1300,9 @@ void usage_cmd(void){
   help_cmd();
 }
 
+#if 0
 /*
-** COMMAND: apropos
+** off-COMMAND: apropos
 **
 ** Usage: %fossil apropos KEYWORD ...
 **
@@ -1320,6 +1321,7 @@ void usage_apropos(void){
   g.argv = azNewArgv;  
   search_cmd();
 }
+#endif
 
 /*
 ** COMMAND: help
@@ -1431,7 +1433,7 @@ void help_cmd(void){
       "   %s help help\n"
       "   %s help options\n"
       "   %s help -a\n"
-      "   %s apropos TOPIC\n\n"
+      "   %s search -h TOPIC\n\n"
       "Other common values for TOPIC:\n\n",
       z, z, z, z, z);
     command_list(CMDFLAG_1ST_TIER,verboseFlag,useHtml);
@@ -1469,11 +1471,11 @@ void help_cmd(void){
         fossil_print("  *  %s\n", az[i]);
       }
       fossil_print("Other commands to try:\n");
-      fossil_print("   fossil apropos PATTERN  ;# search all help text\n");
-      fossil_print("   fossil help -a          ;# show all commands\n");
-      fossil_print("   fossil help -w          ;# show all web-pages\n");
-      fossil_print("   fossil help -s          ;# show all settings\n");
-      fossil_print("   fossil help -o          ;# show global options\n");
+      fossil_print("   fossil search -h PATTERN  ;# search all help text\n");
+      fossil_print("   fossil help -a            ;# show all commands\n");
+      fossil_print("   fossil help -w            ;# show all web-pages\n");
+      fossil_print("   fossil help -s            ;# show all settings\n");
+      fossil_print("   fossil help -o            ;# show global options\n");
       return;
     }
     z = pCmd->zHelp;

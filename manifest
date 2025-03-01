@@ -1,5 +1,5 @@
-C add\swin/build{32,64}.bat,\sbased\son\s[/wiki/Release\sBuild\sHow-To].
-D 2025-03-01T00:50:25.627
+C Disable\sthe\snew\s"fossil\sapropos"\scommand.\s\sIt\sis\sof\slimited\susefulness.\nThe\s"fossil\ssearch\s-h"\scommand\sdoes\sexactly\sthe\ssame\sthing.\s\sAnd\sit\spollutes\nthe\scommand\snamespace.
+D 2025-03-01T10:07:19.650
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,7 +421,7 @@ F src/diff.c 0144a6dfefff72e2a0ca6da7a74703be4150feab1fd2d272f39565c3cf35c849
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
 F src/diffcmd.c cec6c9f65439be9591c1ba8e79911cde35b40ba827709a27240e1600880c9a0c
-F src/dispatch.c 74711180852591925f3b615b45f5d4010b0b60916d6cd329a81fe21b0a7c6058
+F src/dispatch.c 3342b68ce10e365ee28e5ee4ec4a7f805050f778d271a7e10f66cb80204583fe
 F src/doc.c d576f614d099399f5cd17db085743bd37fe73cadd136abb1a9db912c9e82a118
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
@@ -966,8 +966,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 44e1c41986c43ebee83ae630590d5786f746a1bffebc03b1d3cdf83a1a51cbf5
-R 55d36c5875f9c05d126f2f697193106c
-U stephan
-Z ac9f158b7db65893f395438a412e7622
+P a2db4285da55f516211643ecd8eac394cd27f4fe5da17737daaff4e10af67657
+R d43b951d95f8bca63c234eb656717a76
+U drh
+Z bb8123a8eec93cab55e838e1d76df17e
 # Remove this line to create a well-formed Fossil manifest.
