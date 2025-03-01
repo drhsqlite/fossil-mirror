@@ -1081,7 +1081,7 @@ static int simplify_to_subtopic(
   const char *zTopic,       /* TOPIC */
   const char *zSubtopic     /* SUBTOPIC */
 ){
-  Blob in, line, subsection;
+  Blob in, line; //, subsection;
   int n = 0;
   char *zQTop = re_quote(zTopic);
   char *zQSub = re_quote(zSubtopic);
@@ -1109,60 +1109,6 @@ static int simplify_to_subtopic(
   if( n ){
     blob_trim(pOut);
     blob_reset(&in);
-    return n;
-  }
-
-  /* No subtopic found.  If zSubtopic is "options", print all command-line
-  ** options in the help text.
-  */
-  if( fossil_strcmp("options",zSubtopic)==0 ){
-    blob_rewind(&in);
-    blob_init(&subsection, 0, 0);
-    re_compile(&pRe, "^ +-.*  ", 0);
-    while( blob_line(&in, &line) ){
-      size_t len = blob_strlen(&line);
-      if( re_match(pRe, (unsigned char*)blob_buffer(&line), (int)len) ){
-        if( blob_strlen(&subsection) && blob_buffer(&line)[0]!='>' ){
-          blob_appendb(pOut, &subsection);
-          blob_reset(&subsection);
-        }
-        blob_appendb(pOut, &line);
-        n++;
-      }else if( len>9 && strncmp(blob_buffer(&line),"> fossil ",9)==0 ){
-        subsection = line;
-      }
-    }
-    re_free(pRe);
-    if( n ){
-      blob_trim(pOut);
-      blob_reset(&in);
-      return n;
-    }
-  }
-
-
-  /* If no subtopic name zSubtopic if found, try to match any text.
-  */
-  blob_rewind(&in);
-  blob_init(&subsection, 0, 0);
-  while( blob_line(&in, &line) ){
-    size_t len = blob_strlen(&line);
-    if( strstr(blob_str(&line), zSubtopic)!=0 ){
-      if( blob_strlen(&subsection) && blob_buffer(&line)[0]!='>' ){
-        blob_appendb(pOut, &subsection);
-        blob_reset(&subsection);
-      }
-      blob_appendb(pOut, &line);
-      n++;
-    }else if( len>9 && strncmp(blob_buffer(&line),"> fossil ",9)==0 ){
-      subsection = line;
-    }
-  }
-  blob_reset(&in);
-  if( n ){
-    blob_trim(pOut);
-  }else{
-    blob_reset(pOut);
   }
   return n;
 }
@@ -1289,15 +1235,150 @@ static const char zOptions[] =
 ;
 
 /*
+** COMMAND: options
+**
+** Usage: %fossil options [COMMAND] [SUBCOMMAND]
+**
+** Show available command-line options
+**
+**    fossil options                  Show command-line options available
+**                                    on all commands.
+**
+**    fossil options COMMAND          Show options available on COMMAND
+**
+**    fossil options COMMAND SUBCMD   Show options specific to SUBCMD
+**
+** See also: [[help]], [[usage]]
+*/
+void options_cmd(void){
+  Blob s1, s2, txt, subsection, out, line;
+  const char *z;
+  ReCompiled *pRe = 0;
+
+  verify_all_options();
+  if( g.argc>4 ){
+    usage("[COMMAND] [SUBCOMMAND]");
+  }
+  blob_init(&s1, 0, 0);
+  if( g.argc==2 ){
+    fossil_print("%s", zOptions);
+    return;
+  }else{
+    int rc;
+    const char *zTopic = g.argv[2];
+    const char *zSubtopic = g.argc==4 ? g.argv[3] : 0;
+    const CmdOrPage *pCmd = 0;
+    rc = dispatch_name_search(zTopic, CMDFLAG_COMMAND|CMDFLAG_PREFIX, &pCmd);
+    if( rc ){
+      if( rc==1 ){
+        fossil_print("unknown command: %s\n", zTopic);
+      }else{
+        fossil_print("ambiguous command prefix: %s\n", zTopic);
+      }
+      return;
+    }
+    z = pCmd->zHelp;
+    if( z==0 ){
+      fossil_fatal("no help available for the %s", pCmd->zName);
+    }
+    if( zSubtopic ){
+      if( simplify_to_subtopic(z, &s1, zTopic, zSubtopic) ){
+        z = blob_str(&s1);
+      }else{
+        fossil_print("No subcommand \"%s\" for \"%s\".\n", zSubtopic, zTopic);
+      }
+    }
+  }
+  blob_init(&txt, z, -1);
+  blob_init(&subsection, 0, 0);
+  blob_init(&s2, 0, 0);
+  re_compile(&pRe, "^ +-.*  ", 0);
+  while( blob_line(&txt, &line) ){
+    size_t len = blob_strlen(&line);
+    if( re_match(pRe, (unsigned char*)blob_buffer(&line), (int)len) ){
+      if( blob_strlen(&subsection) && blob_buffer(&line)[0]!='>' ){
+        blob_appendb(&s2, &subsection);
+        blob_reset(&subsection);
+      }
+      blob_appendb(&s2, &line);
+    }else if( len>9 && strncmp(blob_buffer(&line),"> fossil ",9)==0 ){
+      subsection = line;
+    }
+  }
+  re_free(pRe);
+  blob_init(&out, 0, 0);
+  blob_trim(&s2);
+  help_to_text(blob_str(&s2), &out);
+  fossil_print("%s\n", blob_str(&out));
+  blob_reset(&out);
+  blob_reset(&s1);
+  blob_reset(&s2);
+  blob_reset(&line);
+  blob_reset(&txt);
+  blob_reset(&subsection);
+}
+
+/*
 ** COMMAND: usage
 **
 ** Usage: %fossil usage COMMAND [SUBCOMMAND]
 **
-** Show succinct usage instruction for a Fossil command.  Shorthand 
-** for "fossil help --usage COMMAND [SUBCOMMAND]"
+** Show succinct usage instructions for a Fossil command.
+**
+** See also:  [[help]], [[options]]
 */
 void usage_cmd(void){
-  help_cmd();
+  int rc;
+  const char *zTopic;
+  const char *zSubtopic;
+  const CmdOrPage *pCmd = 0;
+  Blob s1, s2, out;
+  const char *z;
+
+  verify_all_options();
+  if( g.argc<3 || g.argc>4 ){
+    usage("COMMAND [SUBCOMMAND]");
+  }
+  zTopic = g.argv[2];
+  zSubtopic = g.argc==4 ? g.argv[3] : 0;
+  rc = dispatch_name_search(zTopic, CMDFLAG_COMMAND|CMDFLAG_PREFIX, &pCmd);
+  if( rc ){
+    int i, n;
+    const char *az[5];
+    if( rc==1 ){
+      fossil_print("unknown command: %s\n", zTopic);
+    }else{
+      fossil_print("ambiguous command prefix: %s\n", zTopic);
+    }
+    fossil_print("Did you mean one of these TOPICs:\n");
+    n = dispatch_approx_match(zTopic, 5, az);
+    for(i=0; i<n; i++){
+      fossil_print("  *  %s\n", az[i]);
+    }
+    return;
+  }
+  z = pCmd->zHelp;
+  if( z==0 ){
+    fossil_fatal("no help available for the %s", pCmd->zName);
+  }
+  blob_init(&s1, 0, 0);
+  blob_init(&s2, 0, 0);
+  if( zSubtopic!=0 ){
+    if( simplify_to_subtopic(z, &s1, zTopic, zSubtopic) ){
+      z = blob_str(&s1);
+    }else{
+      fossil_print("No subcommand \"%s\" for \"%s\".\n", zSubtopic, zTopic);
+    }
+  }
+  if( simplify_to_usage(z, &s2, zTopic) ){
+    z = blob_str(&s2);
+  }
+  blob_init(&out, 0, 0);
+  help_to_text(z, &out);
+  fossil_print("%s\n", blob_str(&out));
+  blob_reset(&out);
+  blob_reset(&s1);
+  blob_reset(&s2);
 }
 
 #if 0
@@ -1326,15 +1407,13 @@ void usage_apropos(void){
 /*
 ** COMMAND: help
 **
-** Usage: %fossil help [OPTIONS] [TOPIC] [SUBCOMMAND|options|PATTERN]
+** Usage: %fossil help [OPTIONS] [TOPIC] [SUBCOMMAND]
 **
 ** Display information on how to use TOPIC, which may be a command, webpage, or
 ** setting.  Webpage names begin with "/".  If TOPIC is omitted, a list of
-** topics is returned.  If there is an extra argument after TOPIC it is either
+** topics is returned.  If there is an extra argument after TOPIC, it is
 ** the name of a subcommand, in which case only the help text for that one
-** subcommand is shown, or it is the keyword "options" which displays all
-** command-line options for TOPIC, or it is a text pattern which causes all
-** lines of the help text that match that pattern to be shown.
+** subcommand is shown.
 **
 ** The following options can be used when TOPIC is omitted:
 **
@@ -1356,6 +1435,8 @@ void usage_apropos(void){
 **    -h|--html         Format output as HTML rather than plain text
 **    --raw             Output raw, unformatted help text
 **    -u|--usage        Show a succinct usage summary, not full help text
+**
+** See also:  [[usage]], [[options]], [[search]] with the -h option
 */
 void help_cmd(void){
   int rc;
@@ -1379,10 +1460,6 @@ void help_cmd(void){
   useHtml = find_option("html","h",0)!=0;
   bRaw = find_option("raw",0,0)!=0;
   if( find_option("usage","u",0)!=0 ) bUsage = 1;
-  if( find_option("options","o",0) ){
-    fossil_print("%s", zOptions);
-    return;
-  }
   else if( find_option("all","a",0) ){
     command_list(CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER, verboseFlag, useHtml);
     return;
@@ -1451,38 +1528,33 @@ void help_cmd(void){
   }else{
     zCmdOrPage = "command or setting";
   }
-  if( fossil_strcmp(zTopic,"options")==0 ){
-    z = zOptions;
-    pCmd = 0;
-  }else{
-    rc = dispatch_name_search(g.argv[2], mask|CMDFLAG_PREFIX, &pCmd);
-    if( rc ){
-      int i, n;
-      const char *az[5];
-      if( rc==1 ){
-        fossil_print("unknown %s: %s\n", zCmdOrPage, g.argv[2]);
-      }else{
-        fossil_print("ambiguous %s prefix: %s\n",
-                   zCmdOrPage, g.argv[2]);
-      }
-      fossil_print("Did you mean one of these TOPICs:\n");
-      n = dispatch_approx_match(g.argv[2], 5, az);
-      for(i=0; i<n; i++){
-        fossil_print("  *  %s\n", az[i]);
-      }
-      fossil_print("Other commands to try:\n");
-      fossil_print("   fossil search -h PATTERN  ;# search all help text\n");
-      fossil_print("   fossil help -a            ;# show all commands\n");
-      fossil_print("   fossil help -w            ;# show all web-pages\n");
-      fossil_print("   fossil help -s            ;# show all settings\n");
-      fossil_print("   fossil help -o            ;# show global options\n");
-      return;
+  rc = dispatch_name_search(g.argv[2], mask|CMDFLAG_PREFIX, &pCmd);
+  if( rc ){
+    int i, n;
+    const char *az[5];
+    if( rc==1 ){
+      fossil_print("unknown %s: %s\n", zCmdOrPage, g.argv[2]);
+    }else{
+      fossil_print("ambiguous %s prefix: %s\n",
+                 zCmdOrPage, g.argv[2]);
     }
-    z = pCmd->zHelp;
-    if( z==0 ){
-      fossil_fatal("no help available for the %s %s",
-                   pCmd->zName, zCmdOrPage);
+    fossil_print("Did you mean one of these TOPICs:\n");
+    n = dispatch_approx_match(g.argv[2], 5, az);
+    for(i=0; i<n; i++){
+      fossil_print("  *  %s\n", az[i]);
     }
+    fossil_print("Other commands to try:\n");
+    fossil_print("   fossil search -h PATTERN  ;# search all help text\n");
+    fossil_print("   fossil help -a            ;# show all commands\n");
+    fossil_print("   fossil help -w            ;# show all web-pages\n");
+    fossil_print("   fossil help -s            ;# show all settings\n");
+    fossil_print("   fossil help -o            ;# show global options\n");
+    return;
+  }
+  z = pCmd->zHelp;
+  if( z==0 ){
+    fossil_fatal("no help available for the %s %s",
+                 pCmd->zName, zCmdOrPage);
   }
   blob_init(&subtext1, 0, 0);
   blob_init(&subtext2, 0, 0);
