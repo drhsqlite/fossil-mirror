@@ -2293,28 +2293,28 @@ void search_rebuild_index(void){
 }
 
 /*
-** COMMAND: fts-config*
+** COMMAND: fts-config*                    abbreviated-subcommands
 **
 ** Usage: fossil fts-config ?SUBCOMMAND? ?ARGUMENT?
 **
 ** The "fossil fts-config" command configures the full-text search capabilities
 ** of the repository.  Subcommands:
 **
-**     reindex            Rebuild the search index.  This is a no-op if
-**                        index search is disabled
+**    reindex            Rebuild the search index.  This is a no-op if
+**                       index search is disabled
 **
-**     index (on|off)     Turn the search index on or off
+**    index (on|off)     Turn the search index on or off
 **
-**     enable TYPE ..     Enable search for TYPE.  TYPE is one of:
-**                        check-in, document, ticket, wiki, technote, 
-**                        forum, help, or all
+**    enable TYPE ..     Enable search for TYPE.  TYPE is one of:
+**                       check-in, document, ticket, wiki, technote, 
+**                       forum, help, or all
 **
-**     disable TYPE ...   Disable search for TYPE
+**    disable TYPE ...   Disable search for TYPE
 **
-**     tokenizer VALUE    Select a tokenizer for indexed search. VALUE
-**                        may be one of (porter, on, off, trigram, unicode61),
-**                        and "on" is equivalent to "porter". Unindexed
-**                        search never uses tokenization or stemming.
+**    tokenizer VALUE    Select a tokenizer for indexed search. VALUE
+**                       may be one of (porter, on, off, trigram, unicode61),
+**                       and "on" is equivalent to "porter". Unindexed
+**                       search never uses tokenization or stemming.
 **
 ** The current search settings are displayed after any changes are applied.
 ** Run this command with no arguments to simply see the settings.

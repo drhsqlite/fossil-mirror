@@ -333,8 +333,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **        Query or set the default user.  The default user is the
 **        user for command-line interaction.
 **
-** > fossil user list
-** > fossil user ls
+** > fossil user list | ls
 **
 **        List all users known to the repository
 **

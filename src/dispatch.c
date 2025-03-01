@@ -56,6 +56,7 @@ struct CmdOrPage {
 #define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
 #define CMDFLAG_ALIAS        0x2000     /* Command aliases */
 #define CMDFLAG_KEEPEMPTY    0x4000     /* Do not unset empty settings */
+#define CMDFLAG_ABBREVSUBCMD 0x8000     /* Help text abbreviates subcommands */
 /**************************************************************************/
 
 /* Values for the 2nd parameter to dispatch_name_search() */
@@ -524,10 +525,10 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
 /*
 ** Format help text for TTY display.
 */
-static void help_to_text(const char *zHelp, Blob *pText){
+static void help_to_text(const char *zHelp, Blob *pText, int bUsage){
   int i, x;
   char c;
-  if( zHelp[0]=='>' ){
+  if( !bUsage && zHelp[0]=='>' ){
     blob_appendf(pText, "Usage:");
     zHelp++;
   }
@@ -609,7 +610,7 @@ static void display_all_help(int mask, int useHtml, int rawOut){
       }else{
           Blob txt;
           blob_init(&txt, 0, 0);
-          help_to_text(aCommand[i].zHelp, &txt);
+          help_to_text(aCommand[i].zHelp, &txt, 0);
           for(j=0; j<occHelp[aCommand[i].iHelp]; j++){
             fossil_print("# %s%s\n",
               aCommand[bktHelp[aCommand[i].iHelp][j]].zName,
@@ -861,7 +862,7 @@ void help_page(void){
       }else if( P("plaintext") ){
         Blob txt;
         blob_init(&txt, 0, 0);
-        help_to_text(pCmd->zHelp, &txt);
+        help_to_text(pCmd->zHelp, &txt, 0);
         @ <pre class="helpPage">
         @ %h(blob_str(&txt))
         @ </pre>
@@ -1067,6 +1068,24 @@ void test_all_help_page(void){
 }
 
 /*
+** Return true if p is the first line paste the end of
+** the previous subcommand.
+*/
+static int is_subcommand_end(Blob *p, int bAbbrevSubcmd, ReCompiled *pRe){
+  if( bAbbrevSubcmd ){
+    int i;
+    if( re_match(pRe, (unsigned char*)blob_buffer(p), blob_strlen(p)) ){
+      return 0;
+    }
+    if( blob_size(p)<4 ) return 1;
+    for(i=0; i<4 && blob_buffer(p)[i]==' '; i++){}
+    return i<4;
+  }else{
+    return blob_buffer(p)[0]=='>';
+  }
+}
+
+/*
 ** Input z[] is help text for zTopic.  If zTopic has sub-command zSub,
 ** then cut out all portions of the original help text that do not
 ** directly pertain to zSub and write the zSub-relevant parts into
@@ -1079,15 +1098,21 @@ static int simplify_to_subtopic(
   const char *z,            /* Full original help text */
   Blob *pOut,               /* Write simplified help text here */
   const char *zTopic,       /* TOPIC */
-  const char *zSubtopic     /* SUBTOPIC */
+  const char *zSubtopic,    /* SUBTOPIC */
+  int bAbbrevSubcmd         /* True if z[] contains abbreviated subcommands */
 ){
   Blob in, line; //, subsection;
   int n = 0;
   char *zQTop = re_quote(zTopic);
   char *zQSub = re_quote(zSubtopic);
-  char *zPattern = mprintf("> fossil %s .*\\b%s\\b", zQTop, zQSub);
+  char *zPattern;
   ReCompiled *pRe = 0;
 
+  if( bAbbrevSubcmd ){
+    zPattern = mprintf("   ([a-z]+ ?\\| ?)*%s\\b", zQSub);
+  }else{
+    zPattern = mprintf(">  ?fossil %s .*\\b%s\\b", zQTop, zQSub);
+  }
   fossil_free(zQTop);
   fossil_free(zQSub);
   re_compile(&pRe, zPattern, 0);
@@ -1097,11 +1122,13 @@ static int simplify_to_subtopic(
     if( re_match(pRe, (unsigned char*)blob_buffer(&line), blob_strlen(&line)) ){
       blob_appendb(pOut, &line);
       n++;
-      while( blob_line(&in, &line) && blob_buffer(&line)[0]!='>' ){
+      while( blob_line(&in, &line)
+          && !is_subcommand_end(&line,bAbbrevSubcmd,pRe)
+      ){
         blob_appendb(pOut, &line);
         n++;
       }
-      break;
+      if( !bAbbrevSubcmd ) break;
     }
   }
   blob_reset(&line);
@@ -1111,6 +1138,39 @@ static int simplify_to_subtopic(
     blob_reset(&in);
   }
   return n;
+}
+
+/*
+** Input p is a "Usage:" line or a subcommand line.  Simplify this line
+** for the --usage option and write it into pOut.
+*/
+static void simplify_usage_line(
+  Blob *p,
+  Blob *pOut,
+  int bAbbrevSubcmd,
+  const char *zCmd
+){
+  const char *z = blob_buffer(p);
+  int sz = blob_size(p);
+  int i = 0;
+  if( sz>6 && z[0]=='U' ){
+    for(i=1; i<sz && !fossil_isspace(z[i]); i++){}
+  }else if( sz>0 && z[0]=='>' ){
+    i = 1;
+  }else if( sz>4 && bAbbrevSubcmd
+         && memcmp(z,"   ",3)==0 && !fossil_isspace(z[3]) ){
+    int j;
+    for(j=3; j<sz-1 && (z[j]!=' ' || z[j+1]!=' '); j++){}
+    blob_appendf(pOut, "fossil %s %.*s\n", zCmd, j-3, &z[3]);
+    return;
+  }else{
+    while( i<sz && fossil_isspace(z[i]) ) i++;
+    if( i+2<sz && (z[i]=='o' || z[i]=='O') && z[i+1]=='r' ){
+      while( i<sz && !fossil_isspace(z[i]) ) i++;
+    }
+  }
+  while( i<sz && fossil_isspace(z[i]) ) i++;
+  blob_append(pOut, &z[i], sz-i);
 }
 
 /*
@@ -1127,17 +1187,22 @@ static int simplify_to_subtopic(
 static int simplify_to_usage(
   const char *z,            /* Full original help text */
   Blob *pOut,               /* Write simplified help text here */
-  const char *zTopic        /* The command for which z[] is full help text */
+  const char *zTopic,       /* The command for which z[] is full help text */
+  int bAbbrevSubcmd         /* z[] uses abbreviated subcommands */
 ){
   ReCompiled *pRe = 0;
   Blob in, line;
   int n = 0;
 
-  re_compile(&pRe, "^(Usage: | *[Oo]r: +%fossi |> fossil )", 0);
+  if( bAbbrevSubcmd ){
+    re_compile(&pRe, "^(Usage: |   [a-z][-a-z|]+ .*)", 0);
+  }else{
+    re_compile(&pRe, "^(Usage: | *[Oo]r: +%fossi |>  ?fossil )", 0);
+  }
   blob_init(&in, z, -1);
   while( blob_line(&in, &line) ){
     if( re_match(pRe, (unsigned char*)blob_buffer(&line), blob_strlen(&line)) ){
-      blob_appendb(pOut, &line);
+      simplify_usage_line(&line, pOut, bAbbrevSubcmd, zTopic);
       n++;
     }
   }
@@ -1152,25 +1217,40 @@ static int simplify_to_usage(
 */
 static int simplify_to_options(
   const char *z,            /* Full original help text */
-  Blob *pOut                /* Write simplified help text here */
+  Blob *pOut,               /* Write simplified help text here */
+  int bAbbrevSubcmd,        /* z[] uses abbreviated subcommands */
+  const char *zCmd          /* Name of the command that z[] describes */
 ){
   ReCompiled *pRe = 0;
   Blob txt, line, subsection;
   int n = 0;
+  int bSubsectionSeen = 0;
 
   blob_init(&txt, z, -1);
   blob_init(&subsection, 0, 0);
   re_compile(&pRe, "^ +-.*  ", 0);
   while( blob_line(&txt, &line) ){
-    size_t len = blob_strlen(&line);
-    if( re_match(pRe, (unsigned char*)blob_buffer(&line), (int)len) ){
-      if( blob_strlen(&subsection) && blob_buffer(&line)[0]!='>' ){
-        blob_appendb(pOut, &subsection);
+    int len = blob_size(&line);
+    unsigned char *zLine = (unsigned char *)blob_buffer(&line);
+    if( re_match(pRe, zLine, len) ){
+      if( blob_size(&subsection) ){
+        simplify_usage_line(&subsection, pOut, bAbbrevSubcmd, zCmd);
         blob_reset(&subsection);
       }
       blob_appendb(pOut, &line);
-    }else if( len>9 && strncmp(blob_buffer(&line),"> fossil ",9)==0 ){
+    }else if( len>7 && !fossil_isspace(zLine[0]) && bSubsectionSeen 
+           && sqlite3_strlike("%options:%",blob_str(&line),0)==0 ){
       subsection = line;
+    }else if( !bAbbrevSubcmd && len>9
+           && (memcmp(zLine,"> fossil ",9)==0 || memcmp(zLine,">  fossil",9)) ){
+      subsection = line;
+      bSubsectionSeen = 1;
+    }else if( bAbbrevSubcmd && len>5 && memcmp(zLine,"   ",3)==0
+           && fossil_isalpha(zLine[3]) ){
+      subsection = line;
+      bSubsectionSeen = 1;
+    }else if( len>1 && !fossil_isspace(zLine[0]) && bSubsectionSeen ){
+      blob_reset(&subsection);
     }
   }
   re_free(pRe);
@@ -1288,6 +1368,8 @@ static const char zOptions[] =
 void options_cmd(void){
   Blob s1, s2, out;
   const char *z;
+  const char *zTopic;
+  int bAbbrevSubcmd = 0;
 
   verify_all_options();
   if( g.argc>4 ){
@@ -1299,9 +1381,9 @@ void options_cmd(void){
     return;
   }else{
     int rc;
-    const char *zTopic = g.argv[2];
     const char *zSubtopic = g.argc==4 ? g.argv[3] : 0;
     const CmdOrPage *pCmd = 0;
+    zTopic = g.argv[2];
     rc = dispatch_name_search(zTopic, CMDFLAG_COMMAND|CMDFLAG_PREFIX, &pCmd);
     if( rc ){
       if( rc==1 ){
@@ -1315,8 +1397,9 @@ void options_cmd(void){
     if( z==0 ){
       fossil_fatal("no help available for the %s", pCmd->zName);
     }
+    bAbbrevSubcmd = (pCmd->eCmdFlags & CMDFLAG_ABBREVSUBCMD)!=0;
     if( zSubtopic ){
-      if( simplify_to_subtopic(z, &s1, zTopic, zSubtopic) ){
+      if( simplify_to_subtopic(z, &s1, zTopic, zSubtopic, bAbbrevSubcmd) ){
         z = blob_str(&s1);
       }else{
         fossil_print("No subcommand \"%s\" for \"%s\".\n", zSubtopic, zTopic);
@@ -1324,9 +1407,9 @@ void options_cmd(void){
     }
   }
   blob_init(&s2, 0, 0);
-  simplify_to_options(z, &s2);
+  simplify_to_options(z, &s2, bAbbrevSubcmd, zTopic);
   blob_init(&out, 0, 0);
-  help_to_text(blob_str(&s2), &out);
+  help_to_text(blob_str(&s2), &out, 1);
   fossil_print("%s\n", blob_str(&out));
   blob_reset(&out);
   blob_reset(&s1);
@@ -1349,6 +1432,7 @@ void usage_cmd(void){
   const CmdOrPage *pCmd = 0;
   Blob s1, s2, out;
   const char *z;
+  int bAbbrevSubcmd = 0;
 
   verify_all_options();
   if( g.argc<3 || g.argc>4 ){
@@ -1372,6 +1456,7 @@ void usage_cmd(void){
     }
     return;
   }
+  bAbbrevSubcmd = (pCmd->eCmdFlags & CMDFLAG_ABBREVSUBCMD)!=0;
   z = pCmd->zHelp;
   if( z==0 ){
     fossil_fatal("no help available for the %s", pCmd->zName);
@@ -1379,17 +1464,17 @@ void usage_cmd(void){
   blob_init(&s1, 0, 0);
   blob_init(&s2, 0, 0);
   if( zSubtopic!=0 ){
-    if( simplify_to_subtopic(z, &s1, zTopic, zSubtopic) ){
+    if( simplify_to_subtopic(z, &s1, zTopic, zSubtopic, bAbbrevSubcmd) ){
       z = blob_str(&s1);
     }else{
       fossil_print("No subcommand \"%s\" for \"%s\".\n", zSubtopic, zTopic);
     }
   }
-  if( simplify_to_usage(z, &s2, zTopic) ){
+  if( simplify_to_usage(z, &s2, zTopic, bAbbrevSubcmd) ){
     z = blob_str(&s2);
   }
   blob_init(&out, 0, 0);
-  help_to_text(z, &out);
+  help_to_text(z, &out, 1);
   fossil_print("%s\n", blob_str(&out));
   blob_reset(&out);
   blob_reset(&s1);
@@ -1448,6 +1533,7 @@ void help_cmd(void){
   const char *zSubtopic = 0;     /* SUBTOPIC argument */
   Blob subtext1, subtext2, s3;   /* Subsets of z[] containing subtopic/usage */
   Blob txt;                      /* Text after rendering */
+  int bAbbrevSubcmd = 0;         /* Help text uses abbreviated subcommands */
 
   verboseFlag = find_option("verbose","v",0)!=0;
   commandsFlag = find_option("commands","c",0)!=0;
@@ -1550,6 +1636,7 @@ void help_cmd(void){
     fossil_print("   fossil help -o            ;# show global options\n");
     return;
   }
+  bAbbrevSubcmd = (pCmd->eCmdFlags & CMDFLAG_ABBREVSUBCMD)!=0;
   z = pCmd->zHelp;
   if( z==0 ){
     fossil_fatal("no help available for the %s %s",
@@ -1559,20 +1646,24 @@ void help_cmd(void){
   blob_init(&subtext2, 0, 0);
   blob_init(&s3, 0, 0);
   if( zSubtopic!=0 ){
-    if( simplify_to_subtopic(z, &subtext1, zTopic, zSubtopic) ){
+    if( simplify_to_subtopic(z, &subtext1, zTopic, zSubtopic, bAbbrevSubcmd) ){
       z = blob_str(&subtext1);
     }else{
       fossil_print("No subtopic \"%s\" for \"%s\".\n", zTopic, zSubtopic);
-      if( strstr(z, "Usage:")!=0 || strstr(z, "\n> fossil")!=0 ){
+      if( strstr(z, "Usage:")!=0 || strstr(z, "\n>  ?fossil")!=0 ){
         bUsage = 1;
       }
     }
   }
-  if( bUsage && simplify_to_usage(z, &subtext2, zTopic) ){
-    z = blob_str(&subtext2);
+  if( bUsage ){
+    if( simplify_to_usage(z, &subtext2, zTopic, bAbbrevSubcmd) ){
+      z = blob_str(&subtext2);
+    }else{
+      bUsage = 0;
+    }
   }
   if( bOptions ){
-    simplify_to_options(z, &s3);
+    simplify_to_options(z, &s3, bAbbrevSubcmd, zTopic);
     z = blob_str(&s3);
   }
   if( pCmd && pCmd->eCmdFlags & CMDFLAG_SETTING ){
@@ -1593,9 +1684,9 @@ void help_cmd(void){
   }else if( useHtml ){
     help_to_html(z, &txt);
   }else{
-    help_to_text(z, &txt);
+    help_to_text(z, &txt, bUsage);
   }
-  fossil_print("%s\n", blob_str(&txt));
+  if( blob_strlen(&txt)>0 ) fossil_print("%s\n", blob_str(&txt));
   blob_reset(&txt);
   blob_reset(&subtext1);
   blob_reset(&subtext2);
@@ -1774,7 +1865,7 @@ static int helptextVtabColumn(
     case 4: { /* formatted */
       Blob txt;
       blob_init(&txt, 0, 0);
-      help_to_text(pPage->zHelp, &txt);
+      help_to_text(pPage->zHelp, &txt, 0);
       sqlite3_result_text(ctx, blob_str(&txt), -1, fossil_free);
       break;
     }

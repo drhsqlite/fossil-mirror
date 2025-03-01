@@ -102,6 +102,7 @@
 #define CMDFLAG_LDAVG_EXEMPT 0x1000     /* Exempt from load_control() */
 #define CMDFLAG_ALIAS        0x2000     /* Command aliases */
 #define CMDFLAG_KEEPEMPTY    0x4000     /* Do not unset empty settings */
+#define CMDFLAG_ABBREVSUBCMD 0x8000     /* Abbreviated subcmd in help text */
 /**************************************************************************/
 
 /*
@@ -282,6 +283,8 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
       aEntry[nUsed].eType |= CMDFLAG_HIDDEN;
     }else if( j==14 && strncmp(&zLine[i], "loadavg-exempt", 14)==0 ){
       aEntry[nUsed].eType |= CMDFLAG_LDAVG_EXEMPT;
+    }else if( j==23 && strncmp(&zLine[i], "abbreviated-subcommands", 23)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_ABBREVSUBCMD;
     }else{
       fprintf(stderr, "%s:%d: unknown option: '%.*s'\n",
               zFile, nLine, j, &zLine[i]);
