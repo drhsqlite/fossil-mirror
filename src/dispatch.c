@@ -1146,6 +1146,41 @@ static int simplify_to_usage(
   return n;
 }
 
+/*
+** Input z[] is help text.  Write into pOut all lines of z[] that show
+** command-line options.  Return the number of lines written.
+*/
+static int simplify_to_options(
+  const char *z,            /* Full original help text */
+  Blob *pOut                /* Write simplified help text here */
+){
+  ReCompiled *pRe = 0;
+  Blob txt, line, subsection;
+  int n = 0;
+
+  blob_init(&txt, z, -1);
+  blob_init(&subsection, 0, 0);
+  re_compile(&pRe, "^ +-.*  ", 0);
+  while( blob_line(&txt, &line) ){
+    size_t len = blob_strlen(&line);
+    if( re_match(pRe, (unsigned char*)blob_buffer(&line), (int)len) ){
+      if( blob_strlen(&subsection) && blob_buffer(&line)[0]!='>' ){
+        blob_appendb(pOut, &subsection);
+        blob_reset(&subsection);
+      }
+      blob_appendb(pOut, &line);
+    }else if( len>9 && strncmp(blob_buffer(&line),"> fossil ",9)==0 ){
+      subsection = line;
+    }
+  }
+  re_free(pRe);
+  blob_trim(pOut);
+  blob_reset(&subsection);
+  return n;
+}
+
+
+
 static void multi_column_list(const char **azWord, int nWord){
   int i, j, len;
   int mxLen = 0;
@@ -1251,9 +1286,8 @@ static const char zOptions[] =
 ** See also: [[help]], [[usage]]
 */
 void options_cmd(void){
-  Blob s1, s2, txt, subsection, out, line;
+  Blob s1, s2, out;
   const char *z;
-  ReCompiled *pRe = 0;
 
   verify_all_options();
   if( g.argc>4 ){
@@ -1289,33 +1323,14 @@ void options_cmd(void){
       }
     }
   }
-  blob_init(&txt, z, -1);
-  blob_init(&subsection, 0, 0);
   blob_init(&s2, 0, 0);
-  re_compile(&pRe, "^ +-.*  ", 0);
-  while( blob_line(&txt, &line) ){
-    size_t len = blob_strlen(&line);
-    if( re_match(pRe, (unsigned char*)blob_buffer(&line), (int)len) ){
-      if( blob_strlen(&subsection) && blob_buffer(&line)[0]!='>' ){
-        blob_appendb(&s2, &subsection);
-        blob_reset(&subsection);
-      }
-      blob_appendb(&s2, &line);
-    }else if( len>9 && strncmp(blob_buffer(&line),"> fossil ",9)==0 ){
-      subsection = line;
-    }
-  }
-  re_free(pRe);
+  simplify_to_options(z, &s2);
   blob_init(&out, 0, 0);
-  blob_trim(&s2);
   help_to_text(blob_str(&s2), &out);
   fossil_print("%s\n", blob_str(&out));
   blob_reset(&out);
   blob_reset(&s1);
   blob_reset(&s2);
-  blob_reset(&line);
-  blob_reset(&txt);
-  blob_reset(&subsection);
 }
 
 /*
@@ -1381,29 +1396,6 @@ void usage_cmd(void){
   blob_reset(&s2);
 }
 
-#if 0
-/*
-** off-COMMAND: apropos
-**
-** Usage: %fossil apropos KEYWORD ...
-**
-** Search the built-in help pages for Fossil for topics that
-** match the KEYWORD(s)
-*/
-void usage_apropos(void){
-  char **azNewArgv = fossil_malloc( (g.argc+2)*sizeof(char*) );
-  memcpy(azNewArgv, g.argv, g.argc);
-  azNewArgv[0] = g.argv[0];
-  azNewArgv[1] = "apropos";
-  azNewArgv[2] = "-h";
-  memcpy(&azNewArgv[3], &g.argv[2], (g.argc-2) * sizeof(char*));
-  g.argc++;
-  azNewArgv[g.argc] = 0;
-  g.argv = azNewArgv;  
-  search_cmd();
-}
-#endif
-
 /*
 ** COMMAND: help
 **
@@ -1433,6 +1425,7 @@ void usage_apropos(void){
 **
 **    -c|--commands     Restrict TOPIC search to commands
 **    -h|--html         Format output as HTML rather than plain text
+**    -o|--options      Show command-line options for TOPIC
 **    --raw             Output raw, unformatted help text
 **    -u|--usage        Show a succinct usage summary, not full help text
 **
@@ -1448,19 +1441,21 @@ void help_cmd(void){
   const char *zCmdOrPage;        /* "command" or "page" or "setting" */
   const CmdOrPage *pCmd = 0;     /* ptr to aCommand[] entry for TOPIC */
   int useHtml = 0;               /* -h option */
-  int bUsage = g.zCmdName[0]=='u';  /* --usage or "fossil usage TOPIC" */
+  int bUsage;                    /* --usage */
   int bRaw;                      /* --raw option */
+  int bOptions;                  /* --options */
   const char *zTopic;            /* TOPIC argument */
   const char *zSubtopic = 0;     /* SUBTOPIC argument */
-  Blob subtext1, subtext2;       /* Subsets of z[] containing subtopic/usage */
+  Blob subtext1, subtext2, s3;   /* Subsets of z[] containing subtopic/usage */
   Blob txt;                      /* Text after rendering */
 
   verboseFlag = find_option("verbose","v",0)!=0;
   commandsFlag = find_option("commands","c",0)!=0;
   useHtml = find_option("html","h",0)!=0;
   bRaw = find_option("raw",0,0)!=0;
-  if( find_option("usage","u",0)!=0 ) bUsage = 1;
-  else if( find_option("all","a",0) ){
+  bOptions = find_option("options","o",0)!=0;
+  bUsage = find_option("usage","u",0)!=0;
+  if( find_option("all","a",0) ){
     command_list(CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER, verboseFlag, useHtml);
     return;
   }
@@ -1503,6 +1498,10 @@ void help_cmd(void){
   }
   verify_all_options();
   if( g.argc<3 ){
+    if( bOptions ){
+      fossil_print("%s", zOptions);
+      return;
+    }
     z = g.argv[0];
     fossil_print(
       "Usage: %s help TOPIC\n"
@@ -1558,6 +1557,7 @@ void help_cmd(void){
   }
   blob_init(&subtext1, 0, 0);
   blob_init(&subtext2, 0, 0);
+  blob_init(&s3, 0, 0);
   if( zSubtopic!=0 ){
     if( simplify_to_subtopic(z, &subtext1, zTopic, zSubtopic) ){
       z = blob_str(&subtext1);
@@ -1570,6 +1570,10 @@ void help_cmd(void){
   }
   if( bUsage && simplify_to_usage(z, &subtext2, zTopic) ){
     z = blob_str(&subtext2);
+  }
+  if( bOptions ){
+    simplify_to_options(z, &s3);
+    z = blob_str(&s3);
   }
   if( pCmd && pCmd->eCmdFlags & CMDFLAG_SETTING ){
     const Setting *pSetting = db_find_setting(pCmd->zName, 0);
