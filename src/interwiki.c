@@ -163,11 +163,11 @@ static int interwiki_valid_name(const char *zName){
 ** Manage the "intermap" that defines the mapping from interwiki tags
 ** to complete URLs for interwiki links.
 **
-** >  fossil interwiki delete TAG ...
+** > fossil interwiki delete TAG ...
 **
 **        Delete one or more interwiki maps.
 **
-** >  fossil interwiki edit TAG --base URL --hash PATH --wiki PATH
+** > fossil interwiki edit TAG --base URL --hash PATH --wiki PATH
 **
 **        Create an interwiki referenced call TAG.  The base URL is
 **        the --base option, which is required.  The --hash and --wiki
@@ -175,7 +175,7 @@ static int interwiki_valid_name(const char *zName){
 **        and must be unique.  A new entry is created if it does not
 **        already exit.
 **
-** >  fossil interwiki list
+** > fossil interwiki list
 **
 **        Show all interwiki mappings.
 */

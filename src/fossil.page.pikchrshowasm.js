@@ -526,7 +526,7 @@
 
 
   /**
-     Predefined scripts. Each entry is an object:
+     Predefined example pikchr scripts. Each entry is an object:
 
      {
      name: required string,

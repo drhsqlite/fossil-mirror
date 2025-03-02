@@ -632,6 +632,10 @@ void search_snippet_to_plaintext(Blob *pSnip, int nTty){
       }else{
         zSnip[k++] = c;
       }
+    }else if( c=='%' && strncmp(&zSnip[j],"%fossil",7)==0 ){
+      /* no-op */
+    }else if( (c=='[' || c==']') && zSnip[j+1]==c ){
+      j++;
     }else{
       zSnip[k++] = c;
     }
@@ -647,19 +651,26 @@ void search_snippet_to_plaintext(Blob *pSnip, int nTty){
 **
 ** Usage: %fossil search [OPTIONS] PATTERN...
 **
-** Search the repository database for PATTERN and show matches.
-** The following elements of the repository can be searched:
+** Search the repository for PATTERN and show matches.  Depending on
+** options and how the administrator has search configured for the
+** repository, the search can cover:
 **
-**    *   check-in comments
-**    *   embedded documentation
-**    *   forum posts
-**    *   tickets
-**    *   tech notes
-**    *   wiki pages
-**    *   built-in fossil help text
+**    *   check-in comments (-c)
+**    *   embedded documentation (--docs)
+**    *   forum posts (--forum)
+**    *   tickets (--tickets)
+**    *   tech notes (--technotes)
+**    *   wiki pages (--wiki)
+**    *   built-in fossil help text (-h)
+**    *   all of the above (-a)
 **
-** Use options (listed below) to select the scope of the search.  The
-** default is check-in comments only.
+** Use options below to select the scope of the search.  The
+** default is check-in comments only (-c).
+**
+** Output is colorized if writing to a TTY and if the NO_COLOR environment
+** variable is not set.  Use the "--highlight 0" option to disable colorization
+** or use "--highlight 91" to force it on.  Change the argument to --highlight
+** to change the color.
 **
 ** Options:
 **     -a|--all          Search everything
@@ -667,6 +678,7 @@ void search_snippet_to_plaintext(Blob *pSnip, int nTty){
 **     --docs            Search embedded documentation
 **     --forum           Search forum posts
 **     -h|--bi-help      Search built-in help
+**     --highlight N     Used VT100 color N for matching text.  0 means "off".
 **     -n|--limit N      Limit output to N matches
 **     --technotes       Search tech notes
 **     --tickets         Search tickets
@@ -689,10 +701,20 @@ void search_cmd(void){
   int bDebug = find_option("debug",0,0)!=0;     /* Undocumented */
   int nLimit = zLimit ? atoi(zLimit) : -1000;
   int width;
-  int nTty = fossil_isatty(1) ? 91 : 0;
+  int nTty = 0;          /* VT100 highlight color for matching text */
+  const char *zHighlight = 0;
+
+  /* Only colorize the output if talking to a tty and NO_COLOR does not
+  ** exist or is false. */
+  if( fossil_isatty(1) ){
+    char *zNoColor = fossil_getenv("NO_COLOR");
+    if( zNoColor==0 || zNoColor[0]==0 || is_false(zNoColor) ){
+      nTty = 91;
+    }
+  }
 
   /* Undocumented option to change highlight color */
-  const char *zHighlight = find_option("highlight",0,1);
+  zHighlight = find_option("highlight",0,1);
   if( zHighlight ) nTty = atoi(zHighlight);
 
   /* Undocumented option (legacy) */
@@ -1038,17 +1060,24 @@ LOCAL void search_fullscan(
     );
   }
   if( (srchFlags & SRCH_HELP)!=0 ){
+    const char *zPrefix;
     helptext_vtab_register(g.db);
+    if( srchFlags==SRCH_HELP ){
+      zPrefix = "The";
+    }else{
+      zPrefix = "Built-in help for the";
+    }
     db_multi_exec(
       "INSERT INTO x(label,url,score,id,snip)"
-      "  SELECT format('Built-in help for the \"%%s\" %%s',name,type),"
+      "  SELECT format('%q \"%%s\" %%s',name,type),"
       "         '/help?cmd='||name,"
       "         search_score(),"
       "         'h'||rowid,"
       "         search_snippet()"
       "    FROM helptext"
       "   WHERE search_match(format('the \"%%s\" %%s',name,type),"
-      "                      helptext.helptext);"
+      "                      helptext.helptext);",
+      zPrefix
     );
   }
 }
@@ -2264,28 +2293,28 @@ void search_rebuild_index(void){
 }
 
 /*
-** COMMAND: fts-config*
+** COMMAND: fts-config*                    abbreviated-subcommands
 **
 ** Usage: fossil fts-config ?SUBCOMMAND? ?ARGUMENT?
 **
 ** The "fossil fts-config" command configures the full-text search capabilities
 ** of the repository.  Subcommands:
 **
-**     reindex            Rebuild the search index.  This is a no-op if
-**                        index search is disabled
+**    reindex            Rebuild the search index.  This is a no-op if
+**                       index search is disabled
 **
-**     index (on|off)     Turn the search index on or off
+**    index (on|off)     Turn the search index on or off
 **
-**     enable TYPE ..     Enable search for TYPE.  TYPE is one of:
-**                        check-in, document, ticket, wiki, technote, 
-**                        forum, help, or all
+**    enable TYPE ..     Enable search for TYPE.  TYPE is one of:
+**                       check-in, document, ticket, wiki, technote, 
+**                       forum, help, or all
 **
-**     disable TYPE ...   Disable search for TYPE
+**    disable TYPE ...   Disable search for TYPE
 **
-**     tokenizer VALUE    Select a tokenizer for indexed search. VALUE
-**                        may be one of (porter, on, off, trigram, unicode61),
-**                        and "on" is equivalent to "porter". Unindexed
-**                        search never uses tokenization or stemming.
+**    tokenizer VALUE    Select a tokenizer for indexed search. VALUE
+**                       may be one of (porter, on, off, trigram, unicode61),
+**                       and "on" is equivalent to "porter". Unindexed
+**                       search never uses tokenization or stemming.
 **
 ** The current search settings are displayed after any changes are applied.
 ** Run this command with no arguments to simply see the settings.

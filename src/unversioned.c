@@ -220,8 +220,8 @@ static int contains_whitespace(const char *zName){
 }
 
 /*
-** COMMAND: uv#
-** COMMAND: unversioned
+** COMMAND: uv#                           abbreviated-subcommands
+** COMMAND: unversioned                   abbreviated-subcommands
 **
 ** Usage: %fossil unversioned SUBCOMMAND ARGS...
 **    or: %fossil uv SUBCOMMAND ARGS..
