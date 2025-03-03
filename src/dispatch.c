@@ -1471,7 +1471,7 @@ void help_cmd(void){
     fossil_print("\nfossil test commands (unsupported):\n\n");
     command_list(CMDFLAG_TEST, verboseFlag, useHtml);
     if ( !verboseFlag ) {
-      fossil_print("\n***\n");
+      fossil_print("\n");
       version_cmd();
     }
     return;
