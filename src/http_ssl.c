@@ -249,7 +249,7 @@ static const char *ssl_asn1time_to_iso8601(ASN1_TIME *asn1_time,
 ** Call this routine once before any other use of the SSL interface.
 ** This routine does initial configuration of the SSL module.
 */
-static void ssl_global_init_client(int bDebug){
+static void ssl_global_init_client(void){
   const char *identityFile;
 
   if( sslIsInit==0 ){
@@ -303,26 +303,6 @@ static void ssl_global_init_client(int bDebug){
           break;
         }
       }
-      if( zFile ) break;
-    }
-    if( bDebug ){
-      fossil_print("case-0:  X509_get_default_cert_file_env = %s\n",
-                   X509_get_default_cert_file_env());
-      fossil_print("case-1:  X509_get_default_cert_dir_env = %s\n",
-                   X509_get_default_cert_dir_env());
-      fossil_print("case-2:  ssl-ca-location = %s\n",
-             g.repositoryOpen ? db_get("ssl-ca-location","(none)") : "(none)");
-      fossil_print("case-3:  X509_get_default_cert_file = %s\n",
-                   X509_get_default_cert_file());
-      fossil_print("case-4:  X509_get_default_cert_dir = %s\n",
-                   X509_get_default_cert_dir());
-      if( i>=5 ){
-        fossil_print("No trust store found.\n");
-      }else{
-        fossil_print("case-used    = %d\n"
-                     "zCaFile      = %s\n"
-                     "zCaDirectory = %s\n", i, zCaFile, zCaDirectory);
-      }
     }
     if( zFile==0 ){
       /* fossil_fatal("Cannot find a trust store"); */
@@ -355,17 +335,10 @@ static void ssl_global_init_client(int bDebug){
       identityFile = db_get("ssl-identity", 0);
     }
     if( identityFile!=0 && identityFile[0]!='\0' ){
-      if( bDebug ){
-        fossil_print("identifyFile = %s\n", identityFile);
-      }
       if( SSL_CTX_use_certificate_chain_file(sslCtx,identityFile)!=1
        || SSL_CTX_use_PrivateKey_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
       ){
         fossil_fatal("Could not load SSL identity from %s", identityFile);
-      }
-    }else{
-      if( bDebug ){
-        fossil_print("No identify file found.\n");
       }
     }
     /* Register a callback to tell the user what to do when the server asks
@@ -388,17 +361,6 @@ void ssl_global_shutdown(void){
     sslIsInit = 0;
   }
 }
-
-/*
-** COMMAND: test-trust-store
-**
-** Show the trust store that is used by OpenSSL. 
-*/
-void test_openssl_trust_store(void){
-  ssl_global_init_client(1);
-  ssl_global_shutdown();
-}
-
 
 /*
 ** Close the currently open client SSL connection.  If no connection is open,
@@ -486,7 +448,7 @@ int ssl_open_client(UrlData *pUrlData){
   X509 *cert;
   const char *zRemoteHost;
 
-  ssl_global_init_client(0);
+  ssl_global_init_client();
   if( pUrlData->useProxy ){
     int rc;
     char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);

@@ -1,5 +1,5 @@
-C Removal\sof\sbreadcrumb.\sSorry\sabout\sthat.
-D 2025-03-03T04:50:46.197
+C Undid\sthe\schanges\sfrom\ssrc/http_ssl.c\s[b591622016]\sbeing\smoved\sto\sa\sbranch.\sNot\snoticed\sfor\sfar\stoo\slong.
+D 2025-03-03T08:55:07.151
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -467,7 +467,7 @@ F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
 F src/http.c 23f2acacf9bc1d86ea251b02e40c56341d1bc6010635bd2762002daf393b9f58
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
-F src/http_ssl.c 633df7e1ae3b4805365ee116edbfb681f51cf3d2d16a0807ea1d6c5a86ac9bbc
+F src/http_ssl.c b0951dca518ecb2d7a15d070f12e9fcaa0cff4fa7187e1b6b4fd8e6baf5c9698
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
 F src/info.c 1a83f38c41a7e156d7b4d85b653cf88047e83149e6f3a0eddb2164667b69903b
@@ -967,8 +967,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 439d778c67ab1cbdfee6f87867f09d71d9ae9e74b7fb8ca54f906763c940bd1c
-R 2ec47622d3bd2c5d866991b17a50fa9e
+P 623c74d3a52acae7a3a49b052fe5914b6522ca63d2084c3f35bee7bc52eba0c3
+R 396aa1f9cad9f05d5745e359ff07a976
 U brickviking
-Z d5a90aa52ce011b52fdffeb56e20df16
+Z ed536c6ab85b3fe1d5dd93f7e902bc79
 # Remove this line to create a well-formed Fossil manifest.
