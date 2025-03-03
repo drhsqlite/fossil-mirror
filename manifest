@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scomment\stypo.
-D 2025-03-02T23:22:56.652
+C Removal\sof\sduplicate\sversion\sstring\sfor\s'fossil\shelp\s-f\s-v'.\sBorrowed\sfrom\sbv-infotool\sbranch.
+D 2025-03-03T09:16:57.921
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,7 +421,7 @@ F src/diff.c 0144a6dfefff72e2a0ca6da7a74703be4150feab1fd2d272f39565c3cf35c849
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
 F src/diffcmd.c cec6c9f65439be9591c1ba8e79911cde35b40ba827709a27240e1600880c9a0c
-F src/dispatch.c 66d68144acfeddf5567fd85708b66a225c2cd67f2d29e49e97cabd34890d0a5b
+F src/dispatch.c 084e754456eba4759c359a1ce8bfa6092d40121201a31a1bb69535ea2e71a86a
 F src/doc.c d576f614d099399f5cd17db085743bd37fe73cadd136abb1a9db912c9e82a118
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
@@ -966,8 +966,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 28436ab9d5a1d6691a85f5f10f59beeb660fd79b7d5aa11abea2cd1b6d964bce
-R 045f8cd3322868bc690aca0cd68989fe
-U drh
-Z 2f5c4a2406d62b8c0ea01d8a1d545606
+P a0d9093d8c826c71e3fb8cbfc7a2edf70e1043aa4dbe9dad89e0011aad60712f
+R 87eb201e46069dad54e37e40ce7dc0e9
+U brickviking
+Z 8eb789fb51a5a6fb311c81f23b1460d0
 # Remove this line to create a well-formed Fossil manifest.
