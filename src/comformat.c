@@ -731,55 +731,66 @@ int get_comment_format(){
 **
 ** COMMAND: test-comment-format
 **
-** Usage: %fossil test-comment-format ?OPTIONS? PREFIX TEXT ?ORIGTEXT?
+** Usage: %fossil test-comment-format [OPTIONS] TEXT [PREFIX] [ORIGTEXT]
 **
 ** Test comment formatting and printing.  Use for testing only.
 **
+** The default (canonical) formatting algorithm is:
+**
+**    *  Omit leading/trailing whitespace
+**    *  Collapse internal whitespace into a single space character.
+**    *  Attempt to break lines at whitespace or at a hyphen.
+**
+** Use --whitespace, --origbreak, --trimcrlf, --trimspace,
+** and/or --wordbreak to disable the canonical processing and do
+** the special processing specified by those other options.
+**
 ** Options:
-**   --canonical      Use the canonical comment printing algorithm:
-**                       *  Omit leading/trailing whitespace
-**                       *  Collapse internal whitespace into a single
-**                          space character.
-**                       *  Attempt to break lines at whitespace or at
-**                          a hyphen.
-**   --file           The comment text is really just a file name to
-**                    read it from
-**   --decode         Decode the text using the same method used when
-**                    handling the value of a C-card from a manifest.
-**   --indent         Number of spaces to indent (default (-1) is to
-**                    auto-detect).  Zero means no indent.
-**   --origbreak      Attempt to break when the original comment text
-**                    is detected
-**   --trimcrlf       Enable trimming of leading/trailing CR/LF
-**   --trimspace      Enable trimming of leading/trailing spaces
-**   --wordbreak      Attempt to break lines on word boundaries
-**   -W|--width NUM   Width of lines (default (-1) is to auto-detect).
-**                    Zero means no limit.
+**   --decode           Decode the text using the same method used when
+**                      handling the value of a C-card from a manifest.
+**   --file FILE        Omit the TEXT argument and read the comment text
+**                      from FILE.
+**   --indent           Number of spaces to indent (default (-1) is to
+**                      auto-detect).  Zero means no indent.
+**   --orig FILE        Take the value for the ORIGTEXT argumetn from FILE.
+**   --origbreak        Attempt to break when the original comment text
+**                      is detected.
+**   --trimcrlf         Enable trimming of leading/trailing CR/LF.
+**   --trimspace        Enable trimming of leading/trailing spaces.
+**   --whitespace       Keep all internal whitespace.
+**   --wordbreak        Attempt to break lines on word boundaries.
+**   -W|--width NUM     Width of lines (default (-1) is to auto-detect).
+**                      Zero means no limit.
 */
 void test_comment_format(void){
   const char *zWidth;
   const char *zIndent;
-  const char *zPrefix;
-  char *zText;
-  char *zOrigText;
+  const char *zPrefix = 0;
+  char *zText = 0;
+  char *zOrigText = 0;
   int indent, width;
-  int fromFile = find_option("file", 0, 0)!=0;
+  int i;
+  const char *fromFile = find_option("file", 0, 1);
   int decode = find_option("decode", 0, 0)!=0;
-  int flags = COMMENT_PRINT_NONE;
-  if( find_option("canonical",0,0) ){
-    flags |= COMMENT_PRINT_CANONICAL;
+  int flags = COMMENT_PRINT_CANONICAL;
+  const char *fromOrig = find_option("orig", 0, 1);
+  if( find_option("whitespace",0,0) ){
+    flags = 0;
   }
   if( find_option("trimcrlf", 0, 0) ){
-    flags |= COMMENT_PRINT_TRIM_CRLF;
+    flags = COMMENT_PRINT_TRIM_CRLF;
   }
   if( find_option("trimspace", 0, 0) ){
     flags |= COMMENT_PRINT_TRIM_SPACE;
+    flags &= COMMENT_PRINT_CANONICAL;
   }
   if( find_option("wordbreak", 0, 0) ){
     flags |= COMMENT_PRINT_WORD_BREAK;
+    flags &= COMMENT_PRINT_CANONICAL;
   }
   if( find_option("origbreak", 0, 0) ){
     flags |= COMMENT_PRINT_ORIG_BREAK;
+    flags &= COMMENT_PRINT_CANONICAL;
   }
   zWidth = find_option("width","W",1);
   if( zWidth ){
@@ -794,26 +805,33 @@ void test_comment_format(void){
     indent = -1; /* automatic */
   }
   verify_all_options();
-  if( g.argc!=4 && g.argc!=5 ){
-    usage("?OPTIONS? PREFIX TEXT ?ORIGTEXT?");
-  }
-  zPrefix = g.argv[2];
-  zText = g.argv[3];
-  if( g.argc==5 ){
-    zOrigText = g.argv[4];
-  }else{
-    zOrigText = 0;
-  }
+  zPrefix = zText = zOrigText = 0;
   if( fromFile ){
     Blob fileData;
-    blob_read_from_file(&fileData, zText, ExtFILE);
+    blob_read_from_file(&fileData, fromFile, ExtFILE);
     zText = mprintf("%s", blob_str(&fileData));
     blob_reset(&fileData);
-    if( zOrigText ){
-      blob_read_from_file(&fileData, zOrigText, ExtFILE);
-      zOrigText = mprintf("%s", blob_str(&fileData));
-      blob_reset(&fileData);
+  }
+  if( fromOrig ){
+    Blob fileData;
+    blob_read_from_file(&fileData, fromOrig, ExtFILE);
+    zOrigText = mprintf("%s", blob_str(&fileData));
+    blob_reset(&fileData);
+  }
+  for(i=2; i<g.argc; i++){
+    if( zText==0 ){
+      zText = g.argv[i];
+      continue;
     }
+    if( zPrefix==0 ){
+      zPrefix = g.argv[i];
+      continue;
+    }
+    if( zOrigText==0 ){
+      zOrigText = g.argv[i];
+      continue;
+    }
+    usage("[OPTIONS] TEXT [PREFIX] [ORIGTEXT]");
   }
   if( decode ){
     zText = mprintf(fromFile?"%z":"%s" /*works-like:"%s"*/, zText);
@@ -823,6 +841,7 @@ void test_comment_format(void){
       defossilize(zOrigText);
     }
   }
+  if( zPrefix==0 ) zPrefix = "00:00:00 ";
   if( indent<0 ){
     indent = strlen(zPrefix);
   }
@@ -831,6 +850,4 @@ void test_comment_format(void){
   }
   fossil_print("(%d lines output)\n",
                comment_print(zText, zOrigText, indent, width, flags));
-  if( zOrigText && zOrigText!=g.argv[4] ) fossil_free(zOrigText);
-  if( zText && zText!=g.argv[3] ) fossil_free(zText);
 }

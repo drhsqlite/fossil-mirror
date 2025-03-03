@@ -1,5 +1,5 @@
-C Fix\smisspelled\s"--canonical"\soption\son\s"fossil\stest-comment-format".
-D 2025-03-03T13:34:25.098
+C Rework\sthe\scommand-line\sarguments\sto\sthe\s"fossil\stest-comment-format"\scommand.
+D 2025-03-03T14:25:14.745
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -404,7 +404,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
 F src/clone.c 9e98d0e64d8f19456a345f20275f1094b3c2022e27b0acbe5d7cbb6b917b06f5
 F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
-F src/comformat.c ddb4c824cf251d305af0ee96d4408206979d52fe3b0e993ef718603d85424b2a
+F src/comformat.c 1a354d3e4fec20aac4f20001d7e76bf140dfbabe8576371151e96c5b5de1e66c
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 2792bba61c6fd0bf8adac377169513ef1a38286b603cc73ea78fe7ffd8d9f071
 F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
@@ -966,8 +966,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb42f59fc0336fd55329e82fb3a06367252f36aee3d80f02119b8fc232962050
-R 3d7f13ecde970e6817c3e5eaf238dc8b
+P 9813e6f85d5d51e48b0e30af7a3d7b6c613ea6a2a67519d7cc9d65a9d50a93ea
+R 7e846d7567727c4ab32b880e5929ac73
 U drh
-Z 592b08757ed6daf6a01c927ee5439327
+Z 5b2a864f09100cd127ef5e4502bf661b
 # Remove this line to create a well-formed Fossil manifest.
