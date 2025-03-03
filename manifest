@@ -1,5 +1,5 @@
-C Rework\sthe\scommand-line\sarguments\sto\sthe\s"fossil\stest-comment-format"\scommand.
-D 2025-03-03T14:25:14.745
+C Add\sthe\s--text\soption\sto\stest-wiki-render\sand\stest-markdown-render.
+D 2025-03-03T15:13:41.330
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -591,7 +591,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c 78e18d1cfeab72bcf31416ecdc5e9c0362dd1f2042021bb6c8391a6d2fc87714
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c c52f8244d7e9f691677fce8fafc9a428418ffb90b4de478b55b15b6e67ea82aa
+F src/wikiformat.c 3b15bd9b3b8747b8877b1cbd909bb8d1c453fb143b435ef5ed347cd096f7a9db
 F src/winfile.c c32dbdb03d30ab85becf46070fa05bd79af2e0b644b1e68c90a87eee121be50f
 F src/winhttp.c e30b6e4b63e0191a2f7b7c2db27b090fd4d7eca4a1468b9042b342d7f144a84f
 F src/xfer.c 4e6e873068cb207ba0cd483271fe4606fd3a59289ba7b0d8f15a3de071fcf87f
@@ -966,8 +966,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9813e6f85d5d51e48b0e30af7a3d7b6c613ea6a2a67519d7cc9d65a9d50a93ea
-R 7e846d7567727c4ab32b880e5929ac73
+P 2b2bc057f6a8ce7847e40d8213ed0586bbdff28d0370bf33dc66eb10875b2eeb
+R 4b0dc957db69009e66870da9a5029839
 U drh
-Z 5b2a864f09100cd127ef5e4502bf661b
+Z 2d5a9f3830a892087568e1d85f05eb11
 # Remove this line to create a well-formed Fossil manifest.

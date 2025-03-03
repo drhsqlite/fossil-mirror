@@ -1872,16 +1872,18 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **
 ** Options:
 **    --buttons        Set the WIKI_BUTTONS flag
+**    --dark-pikchr    Render pikchrs in dark mode
 **    --htmlonly       Set the WIKI_HTMLONLY flag
+**    --inline         Set the WIKI_INLINE flag
 **    --linksonly      Set the WIKI_LINKSONLY flag
 **    --nobadlinks     Set the WIKI_NOBADLINKS flag
-**    --inline         Set the WIKI_INLINE flag
 **    --noblock        Set the WIKI_NOBLOCK flag
-**    --dark-pikchr    Render pikchrs in dark mode
+**    --text            Run the output through html_to_plaintext().
 */
 void test_wiki_render(void){
   Blob in, out;
   int flags = 0;
+  int bText;
   if( find_option("buttons",0,0)!=0 ) flags |= WIKI_BUTTONS;
   if( find_option("htmlonly",0,0)!=0 ) flags |= WIKI_HTMLONLY;
   if( find_option("linksonly",0,0)!=0 ) flags |= WIKI_LINKSONLY;
@@ -1891,12 +1893,20 @@ void test_wiki_render(void){
   if( find_option("dark-pikchr",0,0)!=0 ){
     pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
   }
+  bText = find_option("text",0,0)!=0;
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
   blob_read_from_file(&in, g.argv[2], ExtFILE);
   wiki_convert(&in, &out, flags);
+  if( bText ){
+    Blob txt;
+    blob_init(&txt, 0, 0);
+    html_to_plaintext(blob_str(&out),&txt);
+    blob_reset(&out);
+    out = txt;
+  }
   blob_write_to_file(&out, "-");
 }
 
@@ -1908,20 +1918,22 @@ void test_wiki_render(void){
 ** Render markdown in FILE as HTML on stdout.
 ** Options:
 **
-**    --safe            Restrict the output to use only "safe" HTML
-**    --lint-footnotes  Print stats for footnotes-related issues
 **    --dark-pikchr     Render pikchrs in dark mode
+**    --lint-footnotes  Print stats for footnotes-related issues
+**    --safe            Restrict the output to use only "safe" HTML
+**    --text            Run the output through html_to_plaintext().
 */
 void test_markdown_render(void){
   Blob in, out;
   int i;
-  int bSafe = 0, bFnLint = 0;
+  int bSafe = 0, bFnLint = 0, bText = 0;
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   bSafe = find_option("safe",0,0)!=0;
   bFnLint = find_option("lint-footnotes",0,0)!=0;
   if( find_option("dark-pikchr",0,0)!=0 ){
     pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
   }
+  bText = find_option("text",0,0)!=0;
   verify_all_options();
   for(i=2; i<g.argc; i++){
     blob_zero(&out);
@@ -1932,6 +1944,13 @@ void test_markdown_render(void){
     markdown_to_html(&in, 0, &out);
     safe_html_context( bSafe ? DOCSRC_UNTRUSTED : DOCSRC_TRUSTED );
     safe_html(&out);
+    if( bText ){
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      html_to_plaintext(blob_str(&out), &txt);
+      blob_reset(&out);
+      out = txt;
+    }
     blob_write_to_file(&out, "-");
     blob_reset(&in);
     blob_reset(&out);
