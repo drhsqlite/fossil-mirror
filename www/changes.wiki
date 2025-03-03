@@ -21,6 +21,11 @@
      text that shows Fossil's suggested resolution to the conflict.
   *  Add the "Hide diffs/Show diffs" toggle to web-UI diff pages that show
      diffs of multiple files.
+  *  Remove the --comfmtflags and --comment-format global options, which
+     as far as I can tell are never used, but do add unnecessary complexity.
+     Alternative TTY comment formatting can still be specified using the
+     [/help?cmd=comment-format|comment-format setting], if desired.  The
+     default comment format is now called "canonical", not "legacy".
   *  Enhancements to the [/help?cmd=/timeline|/timeline page]:
      <ol type="a">
      <li> Added the "ml=" ("Merge-in List") query parameter that works
@@ -57,6 +62,14 @@
      patch.
   *  Added the [/help?cmd=patch|patch alias] command for managing aliases
      for remote checkout names.
+  *  Enhance the [/help?cmd=help|fossil help] command:
+     <ol type="a">
+     <li> Accepts an optional SUBCOMMAND argument following the
+          COMMAND argument and only shows results for the specified
+          subcommand, not the entire command.
+     <li> The -u (--usage) option shows only the command-line syntax
+     <li> The -o (--options) option shows only the command-line options
+     </ol>
 
 <h2 id='v2_25'>Changes for version 2.25 (2024-11-06)</h2>
 
