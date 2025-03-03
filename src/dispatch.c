@@ -1470,8 +1470,10 @@ void help_cmd(void){
     command_list(CMDFLAG_WEBPAGE, verboseFlag, useHtml);
     fossil_print("\nfossil test commands (unsupported):\n\n");
     command_list(CMDFLAG_TEST, verboseFlag, useHtml);
-    fossil_print("\n");
-    version_cmd();
+    if ( !verboseFlag ) {
+      fossil_print("\n***\n");
+      version_cmd();
+    }
     return;
   }
   else if( find_option("everything","e",0) ){
