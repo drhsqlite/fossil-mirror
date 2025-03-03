@@ -766,7 +766,7 @@ void test_comment_format(void){
   int fromFile = find_option("file", 0, 0)!=0;
   int decode = find_option("decode", 0, 0)!=0;
   int flags = COMMENT_PRINT_NONE;
-  if( find_option("original",0,0) ){
+  if( find_option("canonical",0,0) ){
     flags |= COMMENT_PRINT_CANONICAL;
   }
   if( find_option("trimcrlf", 0, 0) ){
