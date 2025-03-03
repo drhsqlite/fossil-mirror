@@ -23,14 +23,18 @@
 #include <assert.h>
 
 #if INTERFACE
-#define COMMENT_PRINT_NONE       ((u32)0x00000000) /* No flags = non-legacy. */
-#define COMMENT_PRINT_LEGACY     ((u32)0x00000001) /* Use legacy algorithm. */
+#define COMMENT_PRINT_NONE       ((u32)0x00000000) /* No flags */
+#define COMMENT_PRINT_CANONICAL  ((u32)0x00000001) /* Use canonical algorithm */
+#define COMMENT_PRINT_DEFAULT    COMMENT_PRINT_CANONICAL  /* Default */
+#define COMMENT_PRINT_UNSET      (-1)              /* Not initialized */
+
+/* The canonical comment printing algorithm is recommended.  We make
+** no promise of on-going support for any of the following flags:
+*/
 #define COMMENT_PRINT_TRIM_CRLF  ((u32)0x00000002) /* Trim leading CR/LF. */
 #define COMMENT_PRINT_TRIM_SPACE ((u32)0x00000004) /* Trim leading/trailing. */
 #define COMMENT_PRINT_WORD_BREAK ((u32)0x00000008) /* Break lines on words. */
 #define COMMENT_PRINT_ORIG_BREAK ((u32)0x00000010) /* Break before original. */
-#define COMMENT_PRINT_DEFAULT    (COMMENT_PRINT_LEGACY) /* Defaults. */
-#define COMMENT_PRINT_UNSET      (-1)              /* Not initialized. */
 #endif
 
 /********* Code copied from SQLite src/shell.c.in on 2024-09-30 **********/
@@ -485,17 +489,25 @@ static void comment_print_line(
 }
 
 /*
-** This is the legacy comment printing algorithm.  It is being retained
-** for backward compatibility.
+** This is the canonical comment printing algorithm.  This is the algorithm
+** that is recommended and that is used unless the administrator has made
+** special arrangements to use a customized algorithm.
 **
 ** Given a comment string, format that string for printing on a TTY.
-** Assume that the output cursors is indent spaces from the left margin
+** Assume that the output cursor is indent spaces from the left margin
 ** and that a single line can contain no more than 'width' characters.
 ** Indent all subsequent lines by 'indent'.
 **
+** Formatting features:
+**
+**   *  Leading whitespace is removed.
+**   *  Internal whitespace sequences are changed into a single space (0x20)
+**      character.
+**   *  Lines are broken at a space, or at a hyphen ("-") whenever possible.
+**
 ** Returns the number of new lines emitted.
 */
-static int comment_print_legacy(
+static int comment_print_canonical(
   const char *zText, /* The comment text to be printed. */
   int indent,        /* Number of spaces to indent each non-initial line. */
   int width          /* Maximum number of characters per line. */
@@ -584,9 +596,14 @@ static int comment_print_legacy(
 ** the comment string itself while honoring line width limitations.  There
 ** are several flags that modify the default behavior of this function:
 **
-**         COMMENT_PRINT_LEGACY: Forces use of the legacy comment printing
-**                               algorithm.  For backward compatibility,
-**                               this is the default.
+**      COMMENT_PRINT_CANONICAL: Use the canonical printing algorithm:
+**                                  *  Omit leading and trailing whitespace
+**                                  *  Collapse internal whitespace into a
+**                                     single space (0x20) character.
+**                                  *  Attempt to break lines at whitespace
+**                                     or hyphens.
+**                               This is the recommended algorithm and is
+**                               used in most cases.
 **
 **      COMMENT_PRINT_TRIM_CRLF: Trims leading and trailing carriage-returns
 **                               and line-feeds where they do not materially
@@ -633,52 +650,57 @@ int comment_print(
   int flags              /* Zero or more "COMMENT_PRINT_*" flags. */
 ){
   int maxChars = width - indent;
-  int legacy = flags & COMMENT_PRINT_LEGACY;
-  int trimCrLf = flags & COMMENT_PRINT_TRIM_CRLF;
-  int trimSpace = flags & COMMENT_PRINT_TRIM_SPACE;
-  int wordBreak = flags & COMMENT_PRINT_WORD_BREAK;
-  int origBreak = flags & COMMENT_PRINT_ORIG_BREAK;
-  int lineCnt = 0;
-  const char *zLine;
 
-  if( legacy ){
-    return comment_print_legacy(zText, indent, width);
-  }
-  if( width<0 ){
-    comment_set_maxchars(indent, &maxChars);
-  }
-  if( zText==0 ) zText = "(NULL)";
-  if( maxChars<=0 ){
-    maxChars = strlen(zText);
-  }
-  if( trimSpace ){
-    while( fossil_isspace(zText[0]) ){ zText++; }
-  }
-  if( zText[0]==0 ){
-    fossil_print("\n");
-    lineCnt++;
+  if( flags & COMMENT_PRINT_CANONICAL ){
+    /* Use the canonical algorithm.  This is what happens in almost
+    ** all cases. */
+    return comment_print_canonical(zText, indent, width);
+  }else{
+    /* The remaining is a more complex formatting algorithm that is very
+    ** seldom used and is considered deprecated.
+    */
+    int trimCrLf = flags & COMMENT_PRINT_TRIM_CRLF;
+    int trimSpace = flags & COMMENT_PRINT_TRIM_SPACE;
+    int wordBreak = flags & COMMENT_PRINT_WORD_BREAK;
+    int origBreak = flags & COMMENT_PRINT_ORIG_BREAK;
+    int lineCnt = 0;
+    const char *zLine;
+
+    if( width<0 ){
+      comment_set_maxchars(indent, &maxChars);
+    }
+    if( zText==0 ) zText = "(NULL)";
+    if( maxChars<=0 ){
+      maxChars = strlen(zText);
+    }
+    if( trimSpace ){
+      while( fossil_isspace(zText[0]) ){ zText++; }
+    }
+    if( zText[0]==0 ){
+      fossil_print("\n");
+      lineCnt++;
+      return lineCnt;
+    }
+    zLine = zText;
+    for(;;){
+      comment_print_line(zOrigText, zLine, indent, zLine>zText ? indent : 0,
+                         maxChars, trimCrLf, trimSpace, wordBreak, origBreak,
+                         &lineCnt, &zLine);
+      if( zLine==0 ) break;
+      while( fossil_isspace(zLine[0]) ) zLine++;
+      if( zLine[0]==0 ) break;
+    }
     return lineCnt;
   }
-  zLine = zText;
-  for(;;){
-    comment_print_line(zOrigText, zLine, indent, zLine>zText ? indent : 0,
-                       maxChars, trimCrLf, trimSpace, wordBreak, origBreak,
-                       &lineCnt, &zLine);
-    if( zLine==0 ) break;
-    while( fossil_isspace(zLine[0]) ) zLine++;
-    if( zLine[0]==0 ) break;
-  }
-  return lineCnt;
 }
 
 /*
 ** Return the "COMMENT_PRINT_*" flags specified by the following sources,
 ** evaluated in the following cascading order:
 **
-**    1. The global --comfmtflags (alias --comment-format) command-line option.
-**    2. The local (per-repository) "comment-format" setting.
-**    3. The global (all-repositories) "comment-format" setting.
-**    4. The default value COMMENT_PRINT_DEFAULT.
+**    1. The local (per-repository) "comment-format" setting.
+**    2. The global (all-repositories) "comment-format" setting.
+**    3. The default value COMMENT_PRINT_DEFAULT.
 */
 int get_comment_format(){
   int comFmtFlags;
@@ -714,18 +736,23 @@ int get_comment_format(){
 ** Test comment formatting and printing.  Use for testing only.
 **
 ** Options:
+**   --canonical      Use the canonical comment printing algorithm:
+**                       *  Omit leading/trailing whitespace
+**                       *  Collapse internal whitespace into a single
+**                          space character.
+**                       *  Attempt to break lines at whitespace or at
+**                          a hyphen.
 **   --file           The comment text is really just a file name to
 **                    read it from
 **   --decode         Decode the text using the same method used when
 **                    handling the value of a C-card from a manifest.
-**   --legacy         Use the legacy comment printing algorithm
+**   --indent         Number of spaces to indent (default (-1) is to
+**                    auto-detect).  Zero means no indent.
+**   --origbreak      Attempt to break when the original comment text
+**                    is detected
 **   --trimcrlf       Enable trimming of leading/trailing CR/LF
 **   --trimspace      Enable trimming of leading/trailing spaces
 **   --wordbreak      Attempt to break lines on word boundaries
-**   --origbreak      Attempt to break when the original comment text
-**                    is detected
-**   --indent         Number of spaces to indent (default (-1) is to
-**                    auto-detect).  Zero means no indent.
 **   -W|--width NUM   Width of lines (default (-1) is to auto-detect).
 **                    Zero means no limit.
 */
@@ -739,8 +766,8 @@ void test_comment_format(void){
   int fromFile = find_option("file", 0, 0)!=0;
   int decode = find_option("decode", 0, 0)!=0;
   int flags = COMMENT_PRINT_NONE;
-  if( find_option("legacy", 0, 0) ){
-    flags |= COMMENT_PRINT_LEGACY;
+  if( find_option("original",0,0) ){
+    flags |= COMMENT_PRINT_CANONICAL;
   }
   if( find_option("trimcrlf", 0, 0) ){
     flags |= COMMENT_PRINT_TRIM_CRLF;

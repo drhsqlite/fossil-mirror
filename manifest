@@ -1,5 +1,5 @@
-C Removal\sof\sduplicate\sversion\sstring\sfor\s'fossil\shelp\s-f\s-v'.\sBorrowed\sfrom\sbv-infotool\sbranch.
-D 2025-03-03T09:16:57.921
+C Change\sthe\s"legacy\scomment\sprinting\salgorithm"\sto\sthe\s"canonical\scomment\nprinting\salgorithm".\s\sOmit\sthe\s--comfmtflags\sand\s--comment-format\sglobal\sflags.\nSimplify\sthe\scomment\sprinting\scode.
+D 2025-03-03T12:07:10.230
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -404,14 +404,14 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
 F src/clone.c 9e98d0e64d8f19456a345f20275f1094b3c2022e27b0acbe5d7cbb6b917b06f5
 F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
-F src/comformat.c 2fc0384966c41750a431edb32c4b16fe9d3d955cdcdb6f5b5b08298facd7cd06
+F src/comformat.c dde639e5d0cd641e7ee57364dfb71def8c8677df285c19403afc75f23fc846ce
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 2792bba61c6fd0bf8adac377169513ef1a38286b603cc73ea78fe7ffd8d9f071
 F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c cf9d32bd87c9419dcc3683dd3906f18f56ce08eb298d2c656fd70cf96d3dd41d
+F src/db.c e7df87c2a8354237d5f434895e1aa15f82cb1a4c32b7443065b77c070ad9bdf4
 F src/default.css 4aad8d060e46796dd76486ded34e94bb42ddc23939f75738f5d0e46e853bb01b
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -421,7 +421,7 @@ F src/diff.c 0144a6dfefff72e2a0ca6da7a74703be4150feab1fd2d272f39565c3cf35c849
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
 F src/diffcmd.c cec6c9f65439be9591c1ba8e79911cde35b40ba827709a27240e1600880c9a0c
-F src/dispatch.c 084e754456eba4759c359a1ce8bfa6092d40121201a31a1bb69535ea2e71a86a
+F src/dispatch.c 0b7235eeb1f9d3053a04f4851d125e1cd2edab2f055e19f086938425e2eaccf6
 F src/doc.c d576f614d099399f5cd17db085743bd37fe73cadd136abb1a9db912c9e82a118
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
@@ -493,7 +493,7 @@ F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22
 F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 299cb6e72d74b3ab518b5e461b4448bc1b992968a006fb81c5468b94e26282bf
+F src/main.c 60d96e00e177491b29bc6e5f2b6fa5db2ce68dd976de941ddc24bca245620754
 F src/main.mk 52e295c6e0f6442491128409d7784a3a52a4b743664c510b31a3c4e8bdf3e0e7
 F src/manifest.c ff73bb76d7e994bbefbaf43cd96835affd252d9e700a0ccd3dce584f4f612a0d
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -966,8 +966,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0d9093d8c826c71e3fb8cbfc7a2edf70e1043aa4dbe9dad89e0011aad60712f
-R 87eb201e46069dad54e37e40ce7dc0e9
-U brickviking
-Z 8eb789fb51a5a6fb311c81f23b1460d0
+P 1ce93cbbfd432d9825b9165291364dca554e8710ca04feb6d8127f3b65bd1835
+R ea7d59e09ce9afcf06d1dd84ffd9c4ea
+U drh
+Z cf23c56bc3feb20c1241ea4afe269c82
 # Remove this line to create a well-formed Fossil manifest.
