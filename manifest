@@ -1,5 +1,5 @@
-C Add\sthe\stimeline-markdown-span\ssetting\sthat\scontrols\swhether\sor\snot\nmarkdown\sspan\smarkup\swill\sbe\sinterpreted\sin\scheck-in\scomments.\s\sAdd\sauto-links.\nSupport\sfor\semphasis\sand\scode\smarks\sis\spending.
-D 2025-03-04T12:21:20.835
+C Implement\sbackslash-escapes\sin\sWIKI_MARKDOWN_SPAN\smode.\s\sAdd\sthe\s--tokenize\noption\sto\sthe\stest-wiki-render\scommand.
+D 2025-03-04T14:01:21.851
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -591,7 +591,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c 78e18d1cfeab72bcf31416ecdc5e9c0362dd1f2042021bb6c8391a6d2fc87714
 F src/wiki.wiki 2f9b19614ecefaeae8f1a18cbd0746dcd280b9faeb9bd8d961751be9e1861ecc
-F src/wikiformat.c be3d69eb4fc865550ba2adafe9fc6a946ce1012dbacdcd479a869d1af681cbc3
+F src/wikiformat.c dea3c5000f7d8de3d1a9d3a4857947acd8d5ba996826a1a414e0d66078fff3a8
 F src/winfile.c c32dbdb03d30ab85becf46070fa05bd79af2e0b644b1e68c90a87eee121be50f
 F src/winhttp.c e30b6e4b63e0191a2f7b7c2db27b090fd4d7eca4a1468b9042b342d7f144a84f
 F src/xfer.c 4e6e873068cb207ba0cd483271fe4606fd3a59289ba7b0d8f15a3de071fcf87f
@@ -966,8 +966,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f80b89217883956d76b1cb22d7c26a2df15c0a8bf9521b6ea2b4aa42c6c72d91
-R 7cc5721886a6684b621ec9e3146732b2
+P 8f55b909c4d23d066ba49d67d5b1d8c38e6e27d4ecde14036f8e53747ebb48fa
+R e72ab971a3895d9131360c2a272de812
 U drh
-Z 1caf8db3171edfe856b15ddf1f284342
+Z fbe010cc6998f76d83aaaf51108a9028
 # Remove this line to create a well-formed Fossil manifest.

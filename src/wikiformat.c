@@ -438,7 +438,26 @@ static int findTag(const char *z){
 #define TOKEN_INDENT        9  /*  "   " */
 #define TOKEN_RAW           10 /* Output exactly (used when wiki-use-html==1) */
 #define TOKEN_AUTOLINK      11 /* <URL> */
-#define TOKEN_TEXT          12 /* None of the above */
+#define TOKEN_MDSPAN        12 /* Markdown span characters: * _ ` */
+#define TOKEN_BACKSLASH     13 /* A backslash-escape */
+#define TOKEN_TEXT          14 /* None of the above */
+
+static const char *wiki_token_names[] = { "",
+  "MARKUP",
+  "CHARACTER",
+  "LINK",
+  "PARAGRAPH",
+  "NEWLINE",
+  "BUL_LI",
+  "NUM_LI",
+  "ENUM",
+  "INDENT",
+  "RAW",
+  "AUTOLINK",
+  "MDSPAN",
+  "BACKSLASH",
+  "TEXT",
+};
 
 /*
 ** State flags.  Save the lower 16 bits for the WIKI_* flags.
@@ -547,16 +566,23 @@ static int paragraphBreakLength(const char *z){
 **      &
 **      \n
 **      [
+**      _ * ` \    <-- WIKI_MARKDOWN_SPAN only.
 **
 ** The "[" is only considered if flags contain ALLOW_LINKS or ALLOW_WIKI.
 ** The "\n" is only considered interesting if the flags constains ALLOW_WIKI.
+** The markdown span characters, _ * ` and \, are only considered if both
+** ALLOW_WIKI and WIKI_MARKDOWN_SPAN are set.
 */
 static int textLength(const char *z, int flags){
   const char *zReject;
   if( flags & ALLOW_WIKI ){
-    zReject = "<&[\n";
+    if( flags & WIKI_MARKDOWN_SPAN ){
+      zReject = "_*`\\\n[<&";
+    }else{
+      zReject = "\n[<&";
+    }
   }else if( flags & ALLOW_LINKS ){
-    zReject = "<&[";
+    zReject = "[<&";
   }else{
     zReject = "<&";
   }
@@ -677,6 +703,12 @@ static int linkLength(const char *z){
 **
 ** z points to the start of a token.  Return the number of
 ** characters in that token.  Write the token type into *pTokenType.
+**
+** Only wiki-style [target] links are recognized by this routine.
+** For markdown-style [display](target) links, though routine only
+** see the "[display]" part.  But the caller will recognize that
+** "(target)" follows immediately afterwards and deal with that, if
+** markdown-style hyperlinks are enabled.
 */
 static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
   int n;
@@ -687,6 +719,8 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
       return n;
     }
     if( z[1]=='h'
+     && !p->inVerbatim
+     && (p->state & (ALLOW_WIKI|ALLOW_LINKS))==(ALLOW_WIKI|ALLOW_LINKS)
      && (strncmp(z,"<https://",9)==0 || strncmp(z,"<http://",8)==0)
     ){
       for(n=8; z[n] && z[n]!='>'; n++){}
@@ -741,6 +775,18 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
       *pTokenType = TOKEN_LINK;
       return n;
     }
+    if( z[0]=='*' || z[0]=='_' || z[0]=='`' ){
+      *pTokenType = TOKEN_MDSPAN;
+      return 1 + (z[1]==z[0]);
+    }
+    if( z[0]=='\\' ){
+      if( z[1]==0 || fossil_isspace(z[1]) || (z[1]&0x80)!=0 ){
+        *pTokenType = TOKEN_TEXT;
+        return 1;
+      }
+      *pTokenType = TOKEN_BACKSLASH;
+      return 2;
+    }
   }else if( (p->state & ALLOW_LINKS)!=0 && z[0]=='[' && (n = linkLength(z))>0 ){
     *pTokenType = TOKEN_LINK;
     return n;
@@ -754,6 +800,15 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
 **
 ** z points to the start of a token.  Return the number of
 ** characters in that token. Write the token type into *pTokenType.
+**
+** Only wiki-style [target] links are recognized by this routine.
+** For markdown-style [display](target) links, though routine only
+** see the "[display]" part.  But the caller will recognize that
+** "(target)" follows immediately afterwards and deal with that, if
+** markdown-style hyperlinks are enabled.
+**
+** Auto-links ("<URL>") are not recognized at all, since they are
+** not back-referenced.
 */
 static int nextRawToken(const char *z, Renderer *p, int *pTokenType){
   int n;
@@ -1646,6 +1701,17 @@ static void wiki_render(Renderer *p, char *z){
         }
         break;
       }
+      case TOKEN_BACKSLASH: {
+        if( (p->state & WIKI_MARKDOWN_SPAN)==0 ){
+          /* Ignore backslashes in traditional Wiki */
+          blob_append_char(p->pOut, '\\');
+          n = 1;
+        }else{
+          blob_append_char(p->pOut, z[1]);
+        }
+        break;
+      }
+      case TOKEN_MDSPAN:
       case TOKEN_TEXT: {
         int i;
         for(i=0; i<n && fossil_isspace(z[i]); i++){}
@@ -1910,6 +1976,40 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 }
 
 /*
+** Output a tokenization of the input file.  Debugging use only.
+*/
+static void test_tokenize(Blob *pIn, Blob *pOut, int flags){
+  Renderer renderer;
+  int tokenType;
+  int n;
+  int wikiHtmlOnly = (flags & (WIKI_HTMLONLY | WIKI_LINKSONLY))!=0;
+  char *z = blob_str(pIn);
+
+  /* Make sure the attribute constants and names still align
+  ** following changes in the attribute list. */
+  assert( fossil_strcmp(aAttribute[ATTR_WIDTH].zName, "width")==0 );
+
+  memset(&renderer, 0, sizeof(renderer));
+  renderer.renderFlags = flags;
+  renderer.state = ALLOW_WIKI|flags;
+  while( z[0] ){
+    char cSave;
+    if( wikiHtmlOnly ){
+      n = nextRawToken(z, &renderer, &tokenType);
+    }else{
+      n = nextWikiToken(z, &renderer, &tokenType);
+    }
+    cSave = z[n];
+    z[n] = 0;
+    blob_appendf(pOut, "%-12s %z\n",
+       wiki_token_names[tokenType],
+       encode_json_string_literal(z, 1, 0));
+    z[n] = cSave;
+    z += n;
+  }
+}
+
+/*
 ** COMMAND: test-wiki-render
 **
 ** Usage: %fossil test-wiki-render FILE [OPTIONS]
@@ -1927,11 +2027,12 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **    --nobadlinks     Set the WIKI_NOBADLINKS flag
 **    --noblock        Set the WIKI_NOBLOCK flag
 **    --text           Run the output through html_to_plaintext().
+**    --tokenize       Output a tokenization of the input file
 */
 void test_wiki_render(void){
   Blob in, out;
   int flags = 0;
-  int bText;
+  int bText, bTokenize;
   if( find_option("buttons",0,0)!=0 ) flags |= WIKI_BUTTONS;
   if( find_option("htmlonly",0,0)!=0 ) flags |= WIKI_HTMLONLY;
   if( find_option("linksonly",0,0)!=0 ) flags |= WIKI_LINKSONLY;
@@ -1943,18 +2044,23 @@ void test_wiki_render(void){
     pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
   }
   bText = find_option("text",0,0)!=0;
+  bTokenize = find_option("tokenize",0,0)!=0;
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
   blob_read_from_file(&in, g.argv[2], ExtFILE);
-  wiki_convert(&in, &out, flags);
-  if( bText ){
-    Blob txt;
-    blob_init(&txt, 0, 0);
-    html_to_plaintext(blob_str(&out),&txt);
-    blob_reset(&out);
-    out = txt;
+  if( bTokenize ){
+    test_tokenize(&in, &out, flags);
+  }else{
+    wiki_convert(&in, &out, flags);
+    if( bText ){
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      html_to_plaintext(blob_str(&out),&txt);
+      blob_reset(&out);
+      out = txt;
+    }
   }
   blob_write_to_file(&out, "-");
 }
