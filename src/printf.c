@@ -260,14 +260,15 @@ static int wiki_convert_flags(int altForm2){
     }else{
       wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
     }
+    if( db_get_boolean("timeline-markdown-span", 0) ){
+      wikiFlags |= WIKI_MARKDOWN_SPAN;
+    }
     if( db_get_boolean("timeline-plaintext", 0) ){
       wikiFlags |= WIKI_LINKSONLY;
+      wikiFlags &= ~WIKI_MARKDOWN_SPAN;
     }
     if( db_get_boolean("timeline-hard-newlines", 0) ){
       wikiFlags |= WIKI_NEWLINE;
-    }
-    if( db_get_boolean("timeline-markdown-span", 1) ){
-      wikiFlags |= WIKI_MARKDOWN_SPAN;
     }
   }
   if( altForm2 ){

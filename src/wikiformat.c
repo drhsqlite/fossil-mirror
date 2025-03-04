@@ -1662,14 +1662,21 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_AUTOLINK: {
-        /* URL enclosed in <...> */
+        /* URL enclosed in <...>
+        **
+        ** Originally, Fossil-Wiki would just display this as literal
+        ** text, but as of 2025-03-04, it actually inserts an <a>..</a>
+        ** for the hyperlink.  The <...> delimiters are retained, however.
+        ** Except in markdown-span mode, the <...> delimiters are omitted.
+        */
         if( (p->state & WIKI_MARKDOWN_SPAN)==0 ){
           blob_append(p->pOut, "&lt;", 4);
-          n = 1;
-        }else{
-          z[n-1] = 0;
-          blob_appendf(p->pOut, "<a href=\"%h\">%h</a>", z+1, z+1);
-          z[n-1] = '>';
+        }
+        z[n-1] = 0;
+        blob_appendf(p->pOut, "<a href=\"%h\">%h</a>", z+1, z+1);
+        z[n-1] = '>';
+        if( (p->state & WIKI_MARKDOWN_SPAN)==0 ){
+          blob_append(p->pOut, "&gt;", 4);
         }
         break;
       }

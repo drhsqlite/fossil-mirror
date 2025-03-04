@@ -8,6 +8,7 @@
   #  Hyperlinks are contained within square brackets:
      <nowiki>"<b>[</b><i>target</i><b>]</b>"
      or "<b>[</b><i>target</i><b>|</b><i>label</i><b>]</b>"</nowiki>
+     or "<b>&lt;</b><i>URL</i><b>&gt;</b>"
   #  Most ordinary HTML works
   #  &lt;verbatim&gt; and &lt;nowiki&gt;
 
@@ -54,6 +55,12 @@ The last two rules are the HTML formatting rules.
       You can also link to internal anchor names using 
       <nowiki>[#anchor-name],</nowiki> providing you have added the necessary 
       "&lt;a name='anchor-name'&gt;&lt;/a&gt;" tag to your wiki page.
+      <p>
+      Support for "auto-link" hyperlinks consisting of a URL that begins
+      with "http://" or "https://" and that is enclosed in &lt;...&gt; was
+      added on 2025-03-04.  Formerly, such text would be displayed literally.
+      The change is that now the URL is rendered enclosed within
+      &lt;a&gt;...&lt;/a&gt; so that it actually functions as a hyperlink.
 
   6.  <b>HTML.</b>
       The following standard HTML elements may be used:

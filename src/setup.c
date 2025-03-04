@@ -1008,11 +1008,22 @@ void setup_timeline(void){
   @ (Property: "timeline-block-markup")</p>
 
   @ <hr>
+  onoff_attribute("Allow markdown style span-markup in timeline",
+                  "timeline-markdown-span", "tms", 0, 0);
+  @ <p>In timeline displays, intrepret <a href="%R/md_rules">markdown</a>
+  @ span markup (hyperlinks and emphasis marks such as "<tt>**bold**</tt>"
+  @ but not headers, paragraphs, tables, footnotes, etc.) in check-in
+  @ comments.  Without this option, only <a href="%R/wiki_rules">Fossil Wiki</a>
+  @ formatting is allowed.
+  @ (Property: "timeline-markdown-span")</p>
+
+  @ <hr>
   onoff_attribute("Plaintext comments on timelines",
                   "timeline-plaintext", "tpt", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed literally,
-  @ without any wiki or HTML interpretation.  Use CSS to change
-  @ display formatting features such as fonts and line-wrapping behavior.
+  @ without any wiki or HTML interpretation.  This setting takes priority
+  @ over the timeline-block-markup and timeline-markdown-span settings
+  @ above.
   @ (Property: "timeline-plaintext")</p>
 
   @ <hr>
