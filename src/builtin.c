@@ -54,6 +54,11 @@ static int builtin_file_index(const char *zFilename){
 
 /*
 ** Return a pointer to built-in content
+**
+** If the filename contains "-vNNNNNNNN" just before the final file
+** suffix, where each N is a random digit, then omit that part of the
+** filename before doing the lookup.  The extra -vNNNNNNNN was added
+** to defeat overly aggressive caching by web browsers.
 */
 const unsigned char *builtin_file(const char *zFilename, int *piSize){
   int i = builtin_file_index(zFilename);
@@ -61,6 +66,16 @@ const unsigned char *builtin_file(const char *zFilename, int *piSize){
     if( piSize ) *piSize = aBuiltinFiles[i].nByte;
     return aBuiltinFiles[i].pData;
   }else{
+    char *zV = strstr(zFilename, "-v");
+    if( zV!=0 ){
+      for(i=0; i<8 && fossil_isdigit(zV[i+2]); i++){}
+      if( i==8 && zV[10]=='.' ){
+        char *zNew = mprintf("%.*s%s", (int)(zV-zFilename), zFilename, zV+10);
+        const unsigned char *pRes = builtin_file(zNew, piSize);
+        fossil_free(zNew);
+        return pRes;
+      }
+    }
     if( piSize ) *piSize = 0;
     return 0;
   }

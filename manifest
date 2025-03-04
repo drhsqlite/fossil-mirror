@@ -1,5 +1,5 @@
-C Restore\sthe\s--comfmtflags\sand\s--comment-format\sglobal\scommand-line\soptions\nto\sprevent\sbreaking\slegacy\sscripts\sthat\suse\sthem.\s\sBut\sleave\sthem\sundocumented\nand\smarked\sas\sdecremented.\s\sOmit\sthe\s"comment.test"\stest\sfile,\ssince\sit\sno\nlonger\sworks\safter\ssyntax\simprovements\sin\sthe\stest-comment-format\scommand\nand\swas\snot\sactually\shelping\sto\smake\sthe\sproduct\sbetter.
-D 2025-03-04T10:58:17.205
+C Adjust\sthe\s/builtin\spage\ssuch\sthat\sif\sa\sfilename\scontains\s"-v12345689"\sas\spart\nof\sits\sname\sright\sbefore\sa\s".",\swhere\sthe\sdigits\scan\svary,\sthen\sthat\spart\sof\nthe\sname\sis\signored.\s\sWe\scan\sthus\sgive\ssemi-random\snames\sto\sbuilt-in\sresources\n(ex:\sextsrc/pikchr-v12345678.wasm)\sto\sdefeat\saggressive\sbrowser\scaches.\nThis\sis\sexperimental.
+D 2025-03-04T18:42:57.080
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -391,7 +391,7 @@ F src/bisect.c 8d57bdd86be60d160c825e1d5eb9aca311da7ac9317f1832b3c3a550a2e4c0d7
 F src/blob.c 2889e7025105da6d6712d91093f497304cb7d8d04658e1371df9f6d1beba06e2
 F src/branch.c 15d8bd1f624b9879187a76edbfbd5fc0e859414951352571b3c8287bcba6409d
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
-F src/builtin.c b89bc60148524e25e986deb7c71b08e04f2cf0e792595cac26d9bc5420b1d5fd
+F src/builtin.c 6e6a2b3ccd4c259da74a6a5abd57499bde96e71eb79e10ae984ef9bd3ff9444c
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 4d57c42e51e0e61cc864d0e9b4e29d5b83f91e9e30fcb00d2027ccc0a736b2ef
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
@@ -965,8 +965,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b7338a55af959598e412c4399fa6a491e287096c7f355587fa414e3c72cfc575
-R d112fcbabf4c0c9ec912caa4ff8de57c
+P 6382e25428ddca18e4f2b155c48aa4404fb851ce4c959bb029bfef39837373d3
+R d0d1b20cdab433288d51212776dadf05
+T *branch * wasm-cache-workaround
+T *sym-wasm-cache-workaround *
+T -sym-trunk *
 U drh
-Z 907f1a08b9c3e0dcff7a7da3b0860d0d
+Z a8f6f14d885bf23fce9f8308f0237169
 # Remove this line to create a well-formed Fossil manifest.
