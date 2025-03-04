@@ -817,7 +817,7 @@ static int html_link(
   }else{
     static const int flags =
        WIKI_NOBADLINKS |
-       WIKI_MARKDOWNLINKS
+       WIKI_MARKDOWN_URL
     ;
     wiki_resolve_hyperlink(ob, flags, zLink, zClose, sizeof(zClose), 0, zTitle);
   }

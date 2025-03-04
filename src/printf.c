@@ -266,6 +266,7 @@ static int wiki_convert_flags(int altForm2){
     if( db_get_boolean("timeline-hard-newlines", 0) ){
       wikiFlags |= WIKI_NEWLINE;
     }
+    wikiFlags |= WIKI_MARKDOWN_LINK;
   }
   if( altForm2 ){
     /* block markup (ex: <p>, <table>) allowed */

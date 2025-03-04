@@ -32,10 +32,11 @@
 #define WIKI_NOBADLINKS     0x010  /* Ignore broken hyperlinks */
 #define WIKI_LINKSONLY      0x020  /* No markup.  Only decorate links */
 #define WIKI_NEWLINE        0x040  /* Honor \n - break lines at each \n */
-#define WIKI_MARKDOWNLINKS  0x080  /* Resolve hyperlinks as in markdown */
+#define WIKI_MARKDOWN_URL   0x080  /* Hyperlink targets as in markdown */
 #define WIKI_SAFE           0x100  /* Make the result safe for embedding */
 #define WIKI_TARGET_BLANK   0x200  /* Hyperlinks go to a new window */
 #define WIKI_NOBRACKET      0x400  /* Omit extra [..] around hyperlinks */
+#define WIKI_MARKDOWN_LINK  0x800  /* Markdown link syntax: [display](URL) */
 #endif
 
 
@@ -1345,9 +1346,9 @@ void wiki_resolve_hyperlink(
     /* Dates or date-and-times in ISO8610 resolve to a link to the
     ** timeline for that date */
     blob_appendf(pOut, "<a href=\"%R/timeline?c=%T\"%s>", zTarget, zExtra);
-  }else if( mFlags & WIKI_MARKDOWNLINKS ){
-    /* If none of the above, and if rendering links for markdown, then
-    ** create a link to the literal text of the target */
+  }else if( mFlags & WIKI_MARKDOWN_URL ){
+    /* If none of the above, and if rendering link references for markdown,
+    ** then create a link to the literal text of the target */
     blob_appendf(pOut, "<a href=\"%h\"%s>", zTarget, zExtra);
   }else if( zOrig && zTarget>=&zOrig[2]
         && zTarget[-1]=='[' && !fossil_isspace(zTarget[-2]) ){
@@ -1576,6 +1577,7 @@ static void wiki_render(Renderer *p, char *z){
       case TOKEN_LINK: {
         char *zTarget;
         char *zDisplay = 0;
+        char *zEnd;
         int i, j;
         int savedState;
         char zClose[20];
@@ -1583,14 +1585,31 @@ static void wiki_render(Renderer *p, char *z){
         int iS1 = 0;
 
         startAutoParagraph(p);
-        zTarget = &z[1];
-        for(i=1; z[i] && z[i]!=']'; i++){
-          if( z[i]=='|' && zDisplay==0 ){
-            zDisplay = &z[i+1];
-            for(j=i; j>0 && fossil_isspace(z[j-1]); j--){}
-            iS1 = j;
-            cS1 = z[j];
-            z[j] = 0;
+        if( z[n]=='('
+         && (p->state & WIKI_MARKDOWN_LINK)!=0
+         && (zEnd = strchr(z+n+1,')'))!=0
+        ){
+          /* Markdown-style hyperlinks: [display-text](URL) or [](URL) */
+          if( n>2 ){
+            zDisplay = &z[1];
+            z[n] = 0;
+          }else{
+            zDisplay = 0;
+          }
+          zTarget = &z[n+1];
+          for(i=n+1; z[i] && z[i]!=')' && z[i]!=' '; i++){}
+          n = (int)(zEnd - z) + 1;
+        }else{
+          /* Wiki-style hyperlinks: [URL|display-text] or [URL] */
+          zTarget = &z[1];
+          for(i=1; z[i] && z[i]!=']'; i++){
+            if( z[i]=='|' && zDisplay==0 ){
+              zDisplay = &z[i+1];
+              for(j=i; j>0 && fossil_isspace(z[j-1]); j--){}
+              iS1 = j;
+              cS1 = z[j];
+              z[j] = 0;
+            }
           }
         }
         z[i] = 0;
@@ -1876,9 +1895,10 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **    --htmlonly       Set the WIKI_HTMLONLY flag
 **    --inline         Set the WIKI_INLINE flag
 **    --linksonly      Set the WIKI_LINKSONLY flag
+**    --md-links       Allow markdown link syntax
 **    --nobadlinks     Set the WIKI_NOBADLINKS flag
 **    --noblock        Set the WIKI_NOBLOCK flag
-**    --text            Run the output through html_to_plaintext().
+**    --text           Run the output through html_to_plaintext().
 */
 void test_wiki_render(void){
   Blob in, out;
@@ -1890,6 +1910,7 @@ void test_wiki_render(void){
   if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
   if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
   if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
+  if( find_option("md-links",0,0)!=0 ) flags |= WIKI_MARKDOWN_LINK;
   if( find_option("dark-pikchr",0,0)!=0 ){
     pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
   }
@@ -2043,12 +2064,24 @@ void wiki_extract_links(
     }
     switch( tokenType ){
       case TOKEN_LINK: {
-        char *zTarget;
+        char *zTarget, *zEnd;
         int i;
 
-        zTarget = &z[1];
-        for(i=0; zTarget[i] && zTarget[i]!='|' && zTarget[i]!=']'; i++){}
-        while(i>1 && zTarget[i-1]==' '){ i--; }
+        if( z[n]=='('
+         && (flags & WIKI_MARKDOWN_LINK)!=0
+         && (zEnd = strchr(z+n+1,')'))!=0
+        ){
+          /* Markdown-style hyperlinks: [display-text](URL) or [](URL) */
+          z += n+1;
+          zTarget = z;
+          for(i=1; z[i] && z[i]!=')' && z[i]!=' '; i++){}
+          n = (int)(zEnd - z) + 1;
+        }else{
+          /* Wiki-style hyperlinks: [URL|display-text] or [URL] */
+          zTarget = &z[1];
+          for(i=0; zTarget[i] && zTarget[i]!='|' && zTarget[i]!=']'; i++){}
+          while(i>1 && zTarget[i-1]==' '){ i--; }
+        }
         backlink_create(pBklnk, zTarget, i);
         break;
       }

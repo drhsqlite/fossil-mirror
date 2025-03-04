@@ -372,7 +372,13 @@ void backlink_extract(
   bklnk.srctype = srctype;
   bklnk.mtime = mtime;
   if( mimetype==MT_NONE || mimetype==MT_WIKI ){
-    wiki_extract_links(zSrc, &bklnk, srctype==BKLNK_COMMENT ? WIKI_INLINE : 0);
+    int flags;
+    if( srctype==BKLNK_COMMENT ){
+      flags = WIKI_INLINE | WIKI_MARKDOWN_LINK;
+    }else{
+      flags = 0;
+    }
+    wiki_extract_links(zSrc, &bklnk, flags);
   }else if( mimetype==MT_MARKDOWN ){
     markdown_extract_links(zSrc, &bklnk);
   }
