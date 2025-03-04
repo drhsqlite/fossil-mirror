@@ -438,9 +438,10 @@ static int findTag(const char *z){
 #define TOKEN_INDENT        9  /*  "   " */
 #define TOKEN_RAW           10 /* Output exactly (used when wiki-use-html==1) */
 #define TOKEN_AUTOLINK      11 /* <URL> */
-#define TOKEN_MDSPAN        12 /* Markdown span characters: * _ ` */
-#define TOKEN_BACKSLASH     13 /* A backslash-escape */
-#define TOKEN_TEXT          14 /* None of the above */
+#define TOKEN_MDSPAN        12 /* Markdown span characters: * ** _ or __ */
+#define TOKEN_MDCODE        13 /* Markdown code characters: ` or `` */
+#define TOKEN_BACKSLASH     14 /* A backslash-escape */
+#define TOKEN_TEXT          15 /* None of the above */
 
 static const char *wiki_token_names[] = { "",
   "MARKUP",
@@ -455,6 +456,7 @@ static const char *wiki_token_names[] = { "",
   "RAW",
   "AUTOLINK",
   "MDSPAN",
+  "MDCODE",
   "BACKSLASH",
   "TEXT",
 };
@@ -487,6 +489,9 @@ struct Renderer {
   const char *zVerbatimId;    /* The id= attribute of <verbatim> */
   int nStack;                 /* Number of elements on the stack */
   int nAlloc;                 /* Space allocated for aStack */
+  char inCode[2];             /* True if in `...` or ``...`` */
+  char inEmphS[2];            /* True if in *...* or **...** */
+  char inEmphU[2];            /* True if in _..._ or __***__ */
   struct sStack {
     short iCode;                 /* Markup code */
     short allowWiki;             /* ALLOW_WIKI if wiki allowed before tag */
@@ -775,8 +780,12 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
       *pTokenType = TOKEN_LINK;
       return n;
     }
-    if( z[0]=='*' || z[0]=='_' || z[0]=='`' ){
+    if( z[0]=='*' || z[0]=='_' ){
       *pTokenType = TOKEN_MDSPAN;
+      return 1 + (z[1]==z[0]);
+    }
+    if( z[0]=='`' ){
+      *pTokenType = TOKEN_MDCODE;
       return 1 + (z[1]==z[0]);
     }
     if( z[0]=='\\' ){
@@ -1508,6 +1517,24 @@ static int stackTopType(Renderer *p){
 }
 
 /*
+** z[] is the first character past the start of a `...`  literal
+** section of a markdown span.  Look ahead in z[] for the ` terminator
+** mark.  Return the offset into z[] of the terminator.
+** Or return zero if there is no terminator.
+*/
+static int verbatimLength(Renderer *p, char *z, int sz){
+  int i = 0, n;
+  int tokenType;
+  while( z[i] ){
+    n = nextWikiToken(&z[i], p, &tokenType);
+    if( tokenType==TOKEN_PARAGRAPH ) break;
+    if( tokenType==TOKEN_MDCODE && n>=sz ) return i;
+    i += n;
+  }
+  return 0;
+}
+
+/*
 ** Convert the wiki in z[] into html in the renderer p.  The
 ** renderer has already been initialized.
 **
@@ -1711,7 +1738,34 @@ static void wiki_render(Renderer *p, char *z){
         }
         break;
       }
-      case TOKEN_MDSPAN:
+      case TOKEN_MDCODE: {
+        if( (p->state & WIKI_MARKDOWN_SPAN)==0 ){
+          blob_append(p->pOut, z, n);
+        }else{
+          int x = verbatimLength(p, z+n, n);
+          if( x==0 ){
+            blob_append(p->pOut, z, n);
+          }else{
+            z[x+n] = 0;
+            blob_appendf(p->pOut, "<code>%h</code>", z+n);
+            z[x+n] = '`';
+            n += x + n;
+          }
+        }
+        break;
+      }
+      case TOKEN_MDSPAN: {
+#if 0
+        if( (z[n]==0 || isspace(z[n]))
+         && (z==zOrig || isspace(z[-1])) ){
+          /* markdown emphasis markup surrounded by whitespace is ignored */
+          blob_append(p->pOut, z, n);
+          break;
+        }
+#endif
+        blob_append(p->pOut, z, n);
+        break;
+      }
       case TOKEN_TEXT: {
         int i;
         for(i=0; i<n && fossil_isspace(z[i]); i++){}
