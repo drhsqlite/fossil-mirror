@@ -374,7 +374,7 @@ void backlink_extract(
   if( mimetype==MT_NONE || mimetype==MT_WIKI ){
     int flags;
     if( srctype==BKLNK_COMMENT ){
-      flags = WIKI_INLINE | WIKI_MARKDOWN_LINK;
+      flags = WIKI_INLINE | WIKI_MARKDOWN_SPAN;
     }else{
       flags = 0;
     }

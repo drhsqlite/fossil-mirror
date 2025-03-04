@@ -36,7 +36,7 @@
 #define WIKI_SAFE           0x100  /* Make the result safe for embedding */
 #define WIKI_TARGET_BLANK   0x200  /* Hyperlinks go to a new window */
 #define WIKI_NOBRACKET      0x400  /* Omit extra [..] around hyperlinks */
-#define WIKI_MARKDOWN_LINK  0x800  /* Markdown link syntax: [display](URL) */
+#define WIKI_MARKDOWN_SPAN  0x800  /* Interpret span elements of markdown */
 #endif
 
 
@@ -437,7 +437,8 @@ static int findTag(const char *z){
 #define TOKEN_ENUM          8  /*  "  \(?\d+[.)]?  " */
 #define TOKEN_INDENT        9  /*  "   " */
 #define TOKEN_RAW           10 /* Output exactly (used when wiki-use-html==1) */
-#define TOKEN_TEXT          11 /* None of the above */
+#define TOKEN_AUTOLINK      11 /* <URL> */
+#define TOKEN_TEXT          12 /* None of the above */
 
 /*
 ** State flags.  Save the lower 16 bits for the WIKI_* flags.
@@ -684,10 +685,18 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
     if( n>0 ){
       *pTokenType = TOKEN_MARKUP;
       return n;
-    }else{
-      *pTokenType = TOKEN_CHARACTER;
-      return 1;
     }
+    if( z[1]=='h'
+     && (strncmp(z,"<https://",9)==0 || strncmp(z,"<http://",8)==0)
+    ){
+      for(n=8; z[n] && z[n]!='>'; n++){}
+      if( z[n]=='>' ){
+        *pTokenType = TOKEN_AUTOLINK;
+        return n+1;
+      }
+    }
+    *pTokenType = TOKEN_CHARACTER;
+    return 1;
   }
   if( z[0]=='&' && (p->inVerbatim || !isElement(z)) ){
     *pTokenType = TOKEN_CHARACTER;
@@ -1586,7 +1595,7 @@ static void wiki_render(Renderer *p, char *z){
 
         startAutoParagraph(p);
         if( z[n]=='('
-         && (p->state & WIKI_MARKDOWN_LINK)!=0
+         && (p->state & WIKI_MARKDOWN_SPAN)!=0
          && (zEnd = strchr(z+n+1,')'))!=0
         ){
           /* Markdown-style hyperlinks: [display-text](URL) or [](URL) */
@@ -1649,6 +1658,18 @@ static void wiki_render(Renderer *p, char *z){
           htmlize_to_blob(p->pOut, z, n);
         }else{
           blob_append(p->pOut, z, n);
+        }
+        break;
+      }
+      case TOKEN_AUTOLINK: {
+        /* URL enclosed in <...> */
+        if( (p->state & WIKI_MARKDOWN_SPAN)==0 ){
+          blob_append(p->pOut, "&lt;", 4);
+          n = 1;
+        }else{
+          z[n-1] = 0;
+          blob_appendf(p->pOut, "<a href=\"%h\">%h</a>", z+1, z+1);
+          z[n-1] = '>';
         }
         break;
       }
@@ -1895,7 +1916,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **    --htmlonly       Set the WIKI_HTMLONLY flag
 **    --inline         Set the WIKI_INLINE flag
 **    --linksonly      Set the WIKI_LINKSONLY flag
-**    --md-links       Allow markdown link syntax
+**    --md-span        Allow markdown span syntax: links and emphasis marks
 **    --nobadlinks     Set the WIKI_NOBADLINKS flag
 **    --noblock        Set the WIKI_NOBLOCK flag
 **    --text           Run the output through html_to_plaintext().
@@ -1910,7 +1931,7 @@ void test_wiki_render(void){
   if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
   if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
   if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
-  if( find_option("md-links",0,0)!=0 ) flags |= WIKI_MARKDOWN_LINK;
+  if( find_option("md-span",0,0)!=0 ) flags |= WIKI_MARKDOWN_SPAN;
   if( find_option("dark-pikchr",0,0)!=0 ){
     pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
   }
@@ -2068,7 +2089,7 @@ void wiki_extract_links(
         int i;
 
         if( z[n]=='('
-         && (flags & WIKI_MARKDOWN_LINK)!=0
+         && (flags & WIKI_MARKDOWN_SPAN)!=0
          && (zEnd = strchr(z+n+1,')'))!=0
         ){
           /* Markdown-style hyperlinks: [display-text](URL) or [](URL) */
