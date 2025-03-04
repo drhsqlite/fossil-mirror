@@ -1,5 +1,5 @@
-C Update\sthe\sbuild\snotes\sabout\srebuilding\spikchr.wasm\sto\sinclude\san\sexplicit\srm\sof\sthe\sjs/wasm\sfiles\sbeforehand,\sas\sthey\smay\sotherwise\snot\salways\sbe\srebuilt.
-D 2025-03-04T04:41:54.088
+C Restore\sthe\s--comfmtflags\sand\s--comment-format\sglobal\scommand-line\soptions\nto\sprevent\sbreaking\slegacy\sscripts\sthat\suse\sthem.\s\sBut\sleave\sthem\sundocumented\nand\smarked\sas\sdecremented.\s\sOmit\sthe\s"comment.test"\stest\sfile,\ssince\sit\sno\nlonger\sworks\safter\ssyntax\simprovements\sin\sthe\stest-comment-format\scommand\nand\swas\snot\sactually\shelping\sto\smake\sthe\sproduct\sbetter.
+D 2025-03-04T10:58:17.205
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -493,7 +493,7 @@ F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22
 F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 60d96e00e177491b29bc6e5f2b6fa5db2ce68dd976de941ddc24bca245620754
+F src/main.c 6ad7e8a9e91ec990ac9238d16eb2e28a97527408d7fb68807377ae6ccc03cf36
 F src/main.mk 52e295c6e0f6442491128409d7784a3a52a4b743664c510b31a3c4e8bdf3e0e7
 F src/manifest.c ff73bb76d7e994bbefbaf43cd96835affd252d9e700a0ccd3dce584f4f612a0d
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -602,7 +602,6 @@ F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c1ea044297b09158caa5c800b2017bcf807d0138cc8c8901ba464bcb8798bafb
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
-F test/comment.test 72475d5367fe0952462cbde57e7e3f335fd12e5ffafb01b06c93c88d3f6b6bbe
 F test/commit-warning.test 77c7375437d510e306e55790d1de7e0f9dad8b36749e098716730393cb6f5f56
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
@@ -966,8 +965,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 316b0a689b16d198e193d6975f0f8be7b7e1a2cacbd084833212778d4df9f613
-R 279551100e63649965dd5e9ef0383cfa
-U stephan
-Z 13dfa84b42f6c1f0343957b24b1ded99
+P b7338a55af959598e412c4399fa6a491e287096c7f355587fa414e3c72cfc575
+R d112fcbabf4c0c9ec912caa4ff8de57c
+U drh
+Z 907f1a08b9c3e0dcff7a7da3b0860d0d
 # Remove this line to create a well-formed Fossil manifest.
