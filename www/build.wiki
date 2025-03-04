@@ -493,7 +493,9 @@ files <tt>pikchr.{js,wasm}</tt> will need to be recompiled to account
 for that. Running <tt>make wasm</tt> will, if the build is set up for
 the emsdk, recompile those:
 
-<pre><code>$ make wasm
+<pre><code>$ rm extsrc/pikchr.{js,wasm}
+# ^^^^ that rm has proven necessary in order to ensure rebuilds
+$ make wasm
 ./tools/emcc.sh -o extsrc/pikchr.js ...
 $ ls -la extsrc/pikchr.{js,wasm}
 -rw-rw-r-- 1 stephan stephan 17263 Jun  8 03:59 extsrc/pikchr.js

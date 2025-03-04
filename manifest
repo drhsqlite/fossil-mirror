@@ -1,5 +1,5 @@
-C Rebuild\spikchr\swasm/js.\sFor\sreasons\sbeyond\smy\sken,\sthe\s[c32f97e9e]\sbuild\swas\srendering\scorrectly\s(as\sper\sthat\sfix)\sin\slegacy\smode\sbut\snot\swasm\smode.
-D 2025-03-04T03:48:06.755
+C Update\sthe\sbuild\snotes\sabout\srebuilding\spikchr.wasm\sto\sinclude\san\sexplicit\srm\sof\sthe\sjs/wasm\sfiles\sbeforehand,\sas\sthey\smay\sotherwise\snot\salways\sbe\srebuilt.
+D 2025-03-04T04:41:54.088
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -781,7 +781,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki e45cae07da090305e94bdc45d2041f3e42b945af32b0c018d6fb5f31a4bd3f93
+F www/build.wiki ff799dbf92701fc3b7df460743ec3836621804b124a47f5d990e19d8d0ad9310
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d11fc09ead73d01051bfcc91cd57c13f8f1612f441e59e683cfb1239f9c5f053
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
@@ -966,8 +966,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P adbb0b9255e36fc0cfe0f9019bd4dac5d4da3b56c0b42348cd1d3d00d63ccd9c
-R c7af5231a250ebc8970a0f1903673cc4
+P 316b0a689b16d198e193d6975f0f8be7b7e1a2cacbd084833212778d4df9f613
+R 279551100e63649965dd5e9ef0383cfa
 U stephan
-Z 542ac4d70164652beaef40c6ebf8746b
+Z 13dfa84b42f6c1f0343957b24b1ded99
 # Remove this line to create a well-formed Fossil manifest.
