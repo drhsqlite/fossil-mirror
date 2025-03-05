@@ -122,7 +122,12 @@
     delete PS._config;
   }
 
-  PS.worker = new Worker('builtin/extsrc/pikchr-worker.js');
+  /* Randomize the name of the worker script so that it is never cached.
+  ** The Fossil /builtin method will automatically remove the "-v000000000"
+  ** part of the filename, resolving it to just "pikchr-worker.js". */
+  PS.worker = new Worker('builtin/extsrc/pikchr-worker-v'+
+                         (Math.floor(Math.random()*10000000000) + 1000000000)+
+                        '.js');
   PS.worker.onmessage = (ev)=>PS.runMsgHandlers(ev.data);
   PS.addMsgHandler('stdout', console.log.bind(console));
   PS.addMsgHandler('stderr', console.error.bind(console));

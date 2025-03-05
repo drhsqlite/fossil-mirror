@@ -2144,6 +2144,7 @@ $(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c $(MAKEFILE_LIST)
         -sMODULARIZE \
         -sEXPORT_NAME=initPikchrModule \
         --minify 0
+	$(TCLSH) $(TOPDIR)/tools/randomize-js-names.tcl $(SRCDIR_extsrc)
 	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
 wasm: $(SRCDIR_extsrc)/pikchr.js
 
