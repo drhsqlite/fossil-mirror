@@ -987,6 +987,12 @@ void setup_timeline(void){
       "3", "YYMMDD HH:MM",
       "4", "(off)"
   };
+  static const char *const azMarkdown[] = {
+      "0", "none",
+      "1", "hyperlinks only",
+      "2", "styling only",
+      "3", "links and styling",
+  };
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -1008,21 +1014,25 @@ void setup_timeline(void){
   @ (Property: "timeline-block-markup")</p>
 
   @ <hr>
-  onoff_attribute("Allow markdown style span-markup in timeline",
-                  "timeline-markdown-span", "tms", 0, 0);
-  @ <p>In timeline displays, intrepret <a href="%R/md_rules">markdown</a>
-  @ span markup (hyperlinks and emphasis marks such as "<tt>**bold**</tt>"
-  @ but not headers, paragraphs, tables, footnotes, etc.) in check-in
-  @ comments.  Without this option, only <a href="%R/wiki_rules">Fossil Wiki</a>
-  @ formatting is allowed.
-  @ (Property: "timeline-markdown-span")</p>
+  multiple_choice_attribute("Allow Markdown in timeline comments",
+                            "timeline-markdown", "tmkdn", "0",
+                            count(azMarkdown)/2, azMarkdown);
+  @ <p>Allow or disallow a limited amount of Markdown-style format marks
+  @ for check-in comments displayed in the timeline.  Normally check-in
+  @ comments use only <a href="%R/wiki_rules">Fossil Wiki</a>.  This option
+  @ allows some types of Markdown to be used as well:
+  @ <ul><li>hyperlinks: <b>(</b><i>display</i><b>)[</b><i>target</i><b>]</b> \
+  @ and <b>&lt;</b><i>URL</i><b>&gt;</b>.
+  @ <li>styling: *<i>emphasis</i>*, **<b>bold</b>**, `<tt>literal</tt>`, \
+  @ <b>\</b>-escapes</ul>
+  @ (Property: "timeline-markdown")</p>
 
   @ <hr>
   onoff_attribute("Plaintext comments on timelines",
                   "timeline-plaintext", "tpt", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed literally,
   @ without any wiki or HTML interpretation.  This setting takes priority
-  @ over the timeline-block-markup and timeline-markdown-span settings
+  @ over the timeline-block-markup and timeline-markdown settings
   @ above.
   @ (Property: "timeline-plaintext")</p>
 

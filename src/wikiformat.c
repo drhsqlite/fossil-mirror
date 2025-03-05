@@ -25,18 +25,20 @@
 /*
 ** Allowed wiki transformation operations
 */
-#define WIKI_HTMLONLY       0x001  /* HTML markup only.  No wiki */
-#define WIKI_INLINE         0x002  /* Do not surround with <p>..</p> */
-#define WIKI_NOBLOCK        0x004  /* No block markup of any kind */
-#define WIKI_BUTTONS        0x008  /* Allow sub-menu buttons */
-#define WIKI_NOBADLINKS     0x010  /* Ignore broken hyperlinks */
-#define WIKI_LINKSONLY      0x020  /* No markup.  Only decorate links */
-#define WIKI_NEWLINE        0x040  /* Honor \n - break lines at each \n */
-#define WIKI_MARKDOWN_URL   0x080  /* Hyperlink targets as in markdown */
-#define WIKI_SAFE           0x100  /* Make the result safe for embedding */
-#define WIKI_TARGET_BLANK   0x200  /* Hyperlinks go to a new window */
-#define WIKI_NOBRACKET      0x400  /* Omit extra [..] around hyperlinks */
-#define WIKI_MARKDOWN_SPAN  0x800  /* Interpret span elements of markdown */
+#define WIKI_HTMLONLY         0x0001  /* HTML markup only.  No wiki */
+#define WIKI_INLINE           0x0002  /* Do not surround with <p>..</p> */
+#define WIKI_NOBLOCK          0x0004  /* No block markup of any kind */
+#define WIKI_BUTTONS          0x0008  /* Allow sub-menu buttons */
+#define WIKI_NOBADLINKS       0x0010  /* Ignore broken hyperlinks */
+#define WIKI_LINKSONLY        0x0020  /* No markup.  Only decorate links */
+#define WIKI_NEWLINE          0x0040  /* Honor \n - break lines at each \n */
+#define WIKI_SAFE             0x0080  /* Make the result safe for embedding */
+#define WIKI_TARGET_BLANK     0x0100  /* Hyperlinks go to a new window */
+#define WIKI_NOBRACKET        0x0200  /* Omit extra [..] around hyperlinks */
+#define WIKI_MARKDOWN_URL     0x0400  /* Process link targets as in markdown */
+#define WIKI_MARKDOWN_FONT    0x0800  /* Accept markdown font/style markup */
+#define WIKI_MARKDOWN_LINK    0x1000  /* Accept markdown hyperlinks */
+#define WIKI_MARKDOWN_INLINE  0x1800  /* Combo of _FONT and _LINK */
 #endif
 
 
@@ -571,17 +573,17 @@ static int paragraphBreakLength(const char *z){
 **      &
 **      \n
 **      [
-**      _ * ` \    <-- WIKI_MARKDOWN_SPAN only.
+**      _ * ` \    <-- WIKI_MARKDOWN_FONT only.
 **
 ** The "[" is only considered if flags contain ALLOW_LINKS or ALLOW_WIKI.
 ** The "\n" is only considered interesting if the flags constains ALLOW_WIKI.
 ** The markdown span characters, _ * ` and \, are only considered if both
-** ALLOW_WIKI and WIKI_MARKDOWN_SPAN are set.
+** ALLOW_WIKI and WIKI_MARKDOWN_FONT are set.
 */
 static int textLength(const char *z, int flags){
   const char *zReject;
   if( flags & ALLOW_WIKI ){
-    if( flags & WIKI_MARKDOWN_SPAN ){
+    if( flags & WIKI_MARKDOWN_FONT ){
       zReject = "_*`\\\n[<&";
     }else{
       zReject = "\n[<&";
@@ -1677,7 +1679,7 @@ static void wiki_render(Renderer *p, char *z){
 
         startAutoParagraph(p);
         if( z[n]=='('
-         && (p->state & WIKI_MARKDOWN_SPAN)!=0
+         && (p->state & WIKI_MARKDOWN_LINK)!=0
          && (zEnd = strchr(z+n+1,')'))!=0
         ){
           /* Markdown-style hyperlinks: [display-text](URL) or [](URL) */
@@ -1729,7 +1731,7 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_BACKSLASH: {
-        if( (p->state & WIKI_MARKDOWN_SPAN)==0 ){
+        if( (p->state & WIKI_MARKDOWN_FONT)==0 ){
           /* Ignore backslashes in traditional Wiki */
           blob_append_char(p->pOut, '\\');
           n = 1;
@@ -1739,7 +1741,7 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_MDCODE: {
-        if( (p->state & WIKI_MARKDOWN_SPAN)==0 ){
+        if( (p->state & WIKI_MARKDOWN_FONT)==0 ){
           blob_append(p->pOut, z, n);
         }else{
           int x = verbatimLength(p, z+n, n);
@@ -1789,13 +1791,13 @@ static void wiki_render(Renderer *p, char *z){
         ** for the hyperlink.  The <...> delimiters are retained, however.
         ** Except in markdown-span mode, the <...> delimiters are omitted.
         */
-        if( (p->state & WIKI_MARKDOWN_SPAN)==0 ){
+        if( (p->state & WIKI_MARKDOWN_LINK)==0 ){
           blob_append(p->pOut, "&lt;", 4);
         }
         z[n-1] = 0;
         blob_appendf(p->pOut, "<a href=\"%h\">%h</a>", z+1, z+1);
         z[n-1] = '>';
-        if( (p->state & WIKI_MARKDOWN_SPAN)==0 ){
+        if( (p->state & WIKI_MARKDOWN_LINK)==0 ){
           blob_append(p->pOut, "&gt;", 4);
         }
         break;
@@ -2073,15 +2075,17 @@ static void test_tokenize(Blob *pIn, Blob *pOut, int flags){
 **
 ** Options:
 **    --buttons        Set the WIKI_BUTTONS flag
-**    --dark-pikchr    Render pikchrs in dark mode
-**    --htmlonly       Set the WIKI_HTMLONLY flag
-**    --inline         Set the WIKI_INLINE flag
-**    --linksonly      Set the WIKI_LINKSONLY flag
-**    --md-span        Allow markdown span syntax: links and emphasis marks
-**    --nobadlinks     Set the WIKI_NOBADLINKS flag
-**    --noblock        Set the WIKI_NOBLOCK flag
-**    --text           Run the output through html_to_plaintext().
-**    --tokenize       Output a tokenization of the input file
+**    --dark-pikchr      Render pikchrs in dark mode
+**    --htmlonly         Set the WIKI_HTMLONLY flag
+**    --inline           Set the WIKI_INLINE flag
+**    --linksonly         Set the WIKI_LINKSONLY flag
+**    --markdown         Allow all in-line markdown syntax
+**    --markdown-link    Allow markdown hyperlink syntax
+**    --markdown-style   Allow markdown font and style markup
+**    --nobadlinks       Set the WIKI_NOBADLINKS flag
+**    --noblock          Set the WIKI_NOBLOCK flag
+**    --text             Run the output through html_to_plaintext().
+**    --tokenize         Output a tokenization of the input file
 */
 void test_wiki_render(void){
   Blob in, out;
@@ -2093,7 +2097,9 @@ void test_wiki_render(void){
   if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
   if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
   if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
-  if( find_option("md-span",0,0)!=0 ) flags |= WIKI_MARKDOWN_SPAN;
+  if( find_option("markdown",0,0)!=0 ) flags |= WIKI_MARKDOWN_INLINE;
+  if( find_option("markdown-style",0,0)!=0 ) flags |= WIKI_MARKDOWN_FONT;
+  if( find_option("markdown-link",0,0)!=0 ) flags |= WIKI_MARKDOWN_LINK;
   if( find_option("dark-pikchr",0,0)!=0 ){
     pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
   }
@@ -2256,7 +2262,7 @@ void wiki_extract_links(
         int i;
 
         if( z[n]=='('
-         && (flags & WIKI_MARKDOWN_SPAN)!=0
+         && (flags & WIKI_MARKDOWN_LINK)!=0
          && (zEnd = strchr(z+n+1,')'))!=0
         ){
           /* Markdown-style hyperlinks: [display-text](URL) or [](URL) */
