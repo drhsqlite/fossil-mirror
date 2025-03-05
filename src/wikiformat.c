@@ -1685,7 +1685,7 @@ static void wiki_render(Renderer *p, char *z){
           /* Markdown-style hyperlinks: [display-text](URL) or [](URL) */
           if( n>2 ){
             zDisplay = &z[1];
-            z[n] = 0;
+            z[n-1] = 0;
           }else{
             zDisplay = 0;
           }
@@ -1735,8 +1735,10 @@ static void wiki_render(Renderer *p, char *z){
           /* Ignore backslashes in traditional Wiki */
           blob_append_char(p->pOut, '\\');
           n = 1;
-        }else{
+        }else if( (z[1]&0x80)!=0 ){
           blob_append_char(p->pOut, z[1]);
+        }else{
+          blob_appendf(p->pOut,"&#%d;", z[1]);
         }
         break;
       }
@@ -2089,7 +2091,7 @@ static void test_tokenize(Blob *pIn, Blob *pOut, int flags){
 */
 void test_wiki_render(void){
   Blob in, out;
-  int flags = 0;
+  int flags = ALLOW_LINKS;
   int bText, bTokenize;
   if( find_option("buttons",0,0)!=0 ) flags |= WIKI_BUTTONS;
   if( find_option("htmlonly",0,0)!=0 ) flags |= WIKI_HTMLONLY;
