@@ -1,5 +1,5 @@
-C Update\spikchr\sto\sthe\slatest\scheck-in.
-D 2025-03-05T12:11:08.521
+C Allow\s8\s*or\smore*\sdigits\sin\sthe\s"-v00000000"\sstring\sthat\scan\sbe\sadded\sto\nbuiltin\sfilenames.
+D 2025-03-05T12:15:05.968
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -391,7 +391,7 @@ F src/bisect.c 8d57bdd86be60d160c825e1d5eb9aca311da7ac9317f1832b3c3a550a2e4c0d7
 F src/blob.c 2889e7025105da6d6712d91093f497304cb7d8d04658e1371df9f6d1beba06e2
 F src/branch.c 15d8bd1f624b9879187a76edbfbd5fc0e859414951352571b3c8287bcba6409d
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
-F src/builtin.c 6e6a2b3ccd4c259da74a6a5abd57499bde96e71eb79e10ae984ef9bd3ff9444c
+F src/builtin.c 34d57215e767b0f4cd70d2a5a17c72fc47acfb0789772ecf88c1038bb52d1fbe
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 4d57c42e51e0e61cc864d0e9b4e29d5b83f91e9e30fcb00d2027ccc0a736b2ef
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
@@ -965,8 +965,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f3227f8f1a9359324a66ee224d11611f631d826dc22af797d015c1237897c0fc
-R 21bfca7b66df307d53bf1b30f532e956
+P 95b8022b0c810ef67673eb829d78e8356cf48dd3fec115f7f6de1f49cadf8ada
+R c9d89259aa69749cdd561266d861513c
 U drh
-Z 0dbdd7ce592db494651872a1bae4648f
+Z 7dd9749013fd6af325b8df372040614a
 # Remove this line to create a well-formed Fossil manifest.
