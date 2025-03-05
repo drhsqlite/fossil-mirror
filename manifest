@@ -1,5 +1,5 @@
-C Render\sthe\spikchr\sversion\sin\sthe\s/pikchrshow\sfooter/toolbar.\sUpdate\sto\slatest\supstream\spikchr.c\sto\swork\saround\san\sEmscripten\sissue\swhen\strying\sto\sexport\sinlined\sfunctions\s(pikchr_version()).\sRebuild\spikchr\swasm\spieces\swith\semscripten\s4.0.4\s(latest\sas\sof\sthis\swriting).
-D 2025-03-05T06:25:15.871
+C Update\spikchr\sto\sthe\slatest\scheck-in.
+D 2025-03-05T12:11:08.521
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -270,10 +270,10 @@ F extsrc/cson_amalgamation.h 3903869fccd066d54ce9716125e5d0fade48bc106b82a3c5f37
 F extsrc/linenoise-win32.c 4edab5d16a9ba9e1561ba271f35a9f74c86ab5363f402840c7c3a37647fb1a0b
 F extsrc/linenoise.c 2ae333dd88a25281998e9463a99b5c50ad3eaf8fa885dcf8eedfb362ded1f86f
 F extsrc/linenoise.h 8f20fae1acd1ca76c4632c882249827410246f1045ebd800edeeea6b17905e00
-F extsrc/pikchr-worker.js 83aa5a9349b986a480e11e0048b47a535081815f2cd79d155be50ca5a299adc4
-F extsrc/pikchr.c 5ac22a7751b7217bd77ecd500828222cea76b6a7add12fd1dbe95c73b4ab81e0
-F extsrc/pikchr.js 190095623c43325a963c0ddaf26c521b9de1cbff2fdec2c15f68ae2312a0cd69
-F extsrc/pikchr.wasm d882cc688bef2e1272f9ba74a05651885099fe58a7fe127d07ad09b9f4203707
+F extsrc/pikchr-worker.js 691102dc43bc9f3d3d4d26979f370de4f84b19ac427143df08c3db8920bbde37
+F extsrc/pikchr.c 430a5f8deb03e6801ec372ec4318306d46d5c647a92cb78f3f5bb78ddedf05ec
+F extsrc/pikchr.js 5e6137088e42c9c9698c16e6b0c37177c17b268adce6300637476f0c163cec31
+F extsrc/pikchr.wasm 1a94b1d1970ff73b5ade0a1efd6289a3ab389cafbeef60f731ab0ff3055cbd69
 F extsrc/shell.c f2637f6ce715d2023bf89f2c8a39bc75ee24349dacf28df7b2eecc3fd7d1851a
 F extsrc/sqlite3.c 05fe4dd947b5b014e4ad5bc0e5c5b3cd2724b7ae908917216825f129c9b0a2d6
 F extsrc/sqlite3.h 0e611a6906a207f4ec6fe4f1e472e8f842cba7456d8f64c5055081229694ead2
@@ -965,8 +965,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89e41f250b44eb4c9f0c27c62907cb1e0704365074d930d2a16e34ece8185e54
-R a9e6330ade1d5ff400a5288f2cd4861d
-U stephan
-Z d5d1f6fb57936b6a5ab78b68a33196e2
+P f3227f8f1a9359324a66ee224d11611f631d826dc22af797d015c1237897c0fc
+R 21bfca7b66df307d53bf1b30f532e956
+U drh
+Z 0dbdd7ce592db494651872a1bae4648f
 # Remove this line to create a well-formed Fossil manifest.

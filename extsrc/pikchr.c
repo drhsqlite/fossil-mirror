@@ -27,13 +27,13 @@
 */
 /************ Begin %include sections from the grammar ************************/
 #line 1 "VERSION.h"
-#define MANIFEST_UUID "8049a858f59d2d13957ba0bdc27f261e72e212368bfe7de119e39ada6f6e0d47"
-#define MANIFEST_VERSION "[8049a858f5]"
-#define MANIFEST_DATE "2025-03-05 00:34:20"
+#define MANIFEST_UUID "052f07296e76ab2312caf2a4bf6237e574b3e533c7a36ee8f34db833baa3efb4"
+#define MANIFEST_VERSION "[052f07296e]"
+#define MANIFEST_DATE "2025-03-05 10:54:16"
 #define MANIFEST_YEAR "2025"
-#define MANIFEST_ISODATE "20250305003420"
+#define MANIFEST_ISODATE "20250305105416"
 #define MANIFEST_NUMERIC_DATE 20250305
-#define MANIFEST_NUMERIC_TIME 3420
+#define MANIFEST_NUMERIC_TIME 105416
 #define RELEASE_VERSION "1.0"
 #define RELEASE_VERSION_NUMBER 10000
 #define RELEASE_RESOURCE_VERSION 1,0,0,0
@@ -7976,7 +7976,7 @@ const char *pikchr_version(void)
   /* Emscripten workaround, else it chokes on the inlined version */;
 
 const char *pikchr_version(void){
-  return RELEASE_VERSION " " MANIFEST_DATE;
+  return RELEASE_VERSION " " MANIFEST_ISODATE;
 }
 
 /*
