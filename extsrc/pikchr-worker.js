@@ -216,6 +216,7 @@
      emcc ... -sMODULARIZE=1 -sEXPORT_NAME=initPikchrModule
   */
   initPikchrModule(pikchrModule).then(function(thisModule){
-    wMsg('pikchr-ready');
+    //globalThis.M = pikchrModule; console.warn("pikchrModule=globalThis.M=",globalThis.M);
+    wMsg('pikchr-ready', pikchrModule.ccall('pikchr_version','string'));
   });
 })();

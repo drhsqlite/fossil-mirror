@@ -174,9 +174,9 @@
   /**
      The 'pikchr-ready' event is fired (with no payload) when the
      wasm module has finished loading. */
-  PS.addMsgHandler('pikchr-ready', function(){
+  PS.addMsgHandler('pikchr-ready', function(event){
     PS.clearMsgHandlers('pikchr-ready');
-    F.page.onPikchrshowLoaded();
+    F.page.onPikchrshowLoaded(event.data);
   });
 
   /**
@@ -184,7 +184,7 @@
      worker module is loaded. This function removes itself when it's
      called.
   */
-  F.page.onPikchrshowLoaded = function(){
+  F.page.onPikchrshowLoaded = function(pikchrVersion){
     delete this.onPikchrshowLoaded;
     // Unhide all elements which start out hidden
     EAll('.initially-hidden').forEach((e)=>e.classList.remove('initially-hidden'));
@@ -441,6 +441,9 @@
         window.sessionStorage.removeItem('pikchr-xfer');
       }
     }
+    D.append(E('fieldset.options > div'),
+             D.append(D.addClass(D.span(), 'labeled-input'),
+                      'pikchr v. '+pikchrVersion));
 
     PS.e.btnRender.click();
 
