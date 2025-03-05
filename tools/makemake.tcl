@@ -569,9 +569,9 @@ $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
 
-$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
+$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c $(MAKEFILE_LIST)
 	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry <<<NEXT_LINE>>>
-        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore <<<NEXT_LINE>>>
+        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackAlloc,stackRestore <<<NEXT_LINE>>>
         -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c <<<NEXT_LINE>>>
         -sENVIRONMENT=web <<<NEXT_LINE>>>
         -sMODULARIZE <<<NEXT_LINE>>>
