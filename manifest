@@ -1,5 +1,5 @@
-C Restore\sthe\s--comfmtflags\sand\s--comment-format\sglobal\scommand-line\soptions\nto\sprevent\sbreaking\slegacy\sscripts\sthat\suse\sthem.\s\sBut\sleave\sthem\sundocumented\nand\smarked\sas\sdecremented.\s\sOmit\sthe\s"comment.test"\stest\sfile,\ssince\sit\sno\nlonger\sworks\safter\ssyntax\simprovements\sin\sthe\stest-comment-format\scommand\nand\swas\snot\sactually\shelping\sto\smake\sthe\sproduct\sbetter.
-D 2025-03-04T10:58:17.205
+C Update\sthe\sEnvironment\sVariables\sand\sGlobal\sOptions\sdocument\sand\sthe\sChange\sLog\sto\sreflect\scurrent\sdevelopment.\s(Plus\san\sunrelated\sformatting\sfix\sin\sthe\sfirst\sdocument.)
+D 2025-03-05T15:52:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -788,7 +788,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 0d8ae1d55db302a98d95da41ac75de4dcc665b66262e1873b5a3e6bcabf213d0
-F www/changes.wiki 967ac6feb2bbb2879e83e8c91e13bf05a97b1807768fcc80f637bf72e50451ab
+F www/changes.wiki 20b6ef941d0241b04b29cf029c7f7a06ef308ffcf74e3328869d895c413e640d
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -825,7 +825,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki e97cbf256e11b913298031503eda9042295865ab1ee2f6c5ae558cb091300fd7
-F www/env-opts.md fe9163f03b4502e0290a01ad5c7d2e1a9328f560aa373e16184be7232ff33813
+F www/env-opts.md 459afd109a4f65db72b5f2a1a20e6e4a79bd9430e6558fd66e4d6128006eb59f
 F www/event.wiki b2b5694047176815ed3701face7910e89bda204b07af878a16c04d8c6b3e08ad
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
@@ -965,8 +965,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b7338a55af959598e412c4399fa6a491e287096c7f355587fa414e3c72cfc575
-R d112fcbabf4c0c9ec912caa4ff8de57c
-U drh
-Z 907f1a08b9c3e0dcff7a7da3b0860d0d
+P 6382e25428ddca18e4f2b155c48aa4404fb851ce4c959bb029bfef39837373d3
+R 5e09df5affe826ddf56e86dd52dbf976
+U florian
+Z ab2b682fd4887e574f4cca353de272a7
 # Remove this line to create a well-formed Fossil manifest.
