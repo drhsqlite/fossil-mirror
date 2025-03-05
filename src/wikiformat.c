@@ -1552,6 +1552,7 @@ static int has_mdfont_pair(Renderer *p, char *z, int sz){
      && z[i]==z[0]
      && !inCode
      && (!fossil_isspace(z[i+n]) || !fossil_isspace(z[i-1]))
+     && (!fossil_isalnum(z[i+n]) || !fossil_isalnum(z[i-1]))
     ){
       return 1;
     }
@@ -1791,6 +1792,10 @@ static void wiki_render(Renderer *p, char *z){
         if( fossil_isspace(z[n])
          && (z==zOrig || fossil_isspace(z[-1]))
         ){
+          blob_append(p->pOut, z, n);
+          break;
+        }
+        if( fossil_isalnum(z[n]) && z>zOrig && fossil_isalnum(z[-1]) ){
           blob_append(p->pOut, z, n);
           break;
         }

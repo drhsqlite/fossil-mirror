@@ -264,7 +264,7 @@ static int wiki_convert_flags(int altForm2){
       wikiFlags |= WIKI_LINKSONLY;
       wikiFlags &= ~WIKI_MARKDOWN_INLINE;
     }else{
-      int x = db_get_boolean("timeline-markdown", 0);
+      int x = db_get_int("timeline-markdown", 0);
       if( x & 1 ) wikiFlags |= WIKI_MARKDOWN_LINK;
       if( x & 2 ) wikiFlags |= WIKI_MARKDOWN_FONT;
     }
