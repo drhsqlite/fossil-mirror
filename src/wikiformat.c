@@ -440,7 +440,7 @@ static int findTag(const char *z){
 #define TOKEN_INDENT        9  /*  "   " */
 #define TOKEN_RAW           10 /* Output exactly (used when wiki-use-html==1) */
 #define TOKEN_AUTOLINK      11 /* <URL> */
-#define TOKEN_MDSPAN        12 /* Markdown span characters: * ** _ or __ */
+#define TOKEN_MDFONT        12 /* Markdown font: *, **, _, __ */
 #define TOKEN_MDCODE        13 /* Markdown code characters: ` or `` */
 #define TOKEN_BACKSLASH     14 /* A backslash-escape */
 #define TOKEN_TEXT          15 /* None of the above */
@@ -457,7 +457,7 @@ static const char *wiki_token_names[] = { "",
   "INDENT",
   "RAW",
   "AUTOLINK",
-  "MDSPAN",
+  "MDFONT",
   "MDCODE",
   "BACKSLASH",
   "TEXT",
@@ -491,7 +491,6 @@ struct Renderer {
   const char *zVerbatimId;    /* The id= attribute of <verbatim> */
   int nStack;                 /* Number of elements on the stack */
   int nAlloc;                 /* Space allocated for aStack */
-  char inCode[2];             /* True if in `...` or ``...`` */
   char inEmphS[2];            /* True if in *...* or **...** */
   char inEmphU[2];            /* True if in _..._ or __***__ */
   struct sStack {
@@ -783,7 +782,7 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
       return n;
     }
     if( z[0]=='*' || z[0]=='_' ){
-      *pTokenType = TOKEN_MDSPAN;
+      *pTokenType = TOKEN_MDFONT;
       return 1 + (z[1]==z[0]);
     }
     if( z[0]=='`' ){
@@ -1537,6 +1536,31 @@ static int verbatimLength(Renderer *p, char *z, int sz){
 }
 
 /*
+** z[] begins with a TOKEN_MDFONT.  Look ahead to see if there
+** is a corresponding closing pair.
+*/
+static int has_mdfont_pair(Renderer *p, char *z, int sz){
+  int i = sz;
+  int tokenType;
+  int inCode = 0;
+  while( z[i] ){
+    int n = nextWikiToken(&z[i], p, &tokenType);
+    if( tokenType==TOKEN_PARAGRAPH ) break;
+    if( tokenType==TOKEN_MDCODE ) inCode = !inCode;
+    if( tokenType==TOKEN_MDFONT
+     && n==sz
+     && z[i]==z[0]
+     && !inCode
+     && (!fossil_isspace(z[i+n]) || !fossil_isspace(z[i-1]))
+    ){
+      return 1;
+    }
+    i += n;
+  }
+  return 0;
+}
+
+/*
 ** Convert the wiki in z[] into html in the renderer p.  The
 ** renderer has already been initialized.
 **
@@ -1758,16 +1782,30 @@ static void wiki_render(Renderer *p, char *z){
         }
         break;
       }
-      case TOKEN_MDSPAN: {
-#if 0
-        if( (z[n]==0 || isspace(z[n]))
-         && (z==zOrig || isspace(z[-1])) ){
-          /* markdown emphasis markup surrounded by whitespace is ignored */
+      case TOKEN_MDFONT: {
+        char *inEmph;
+        if( (p->state & WIKI_MARKDOWN_FONT)==0 ){
           blob_append(p->pOut, z, n);
           break;
         }
-#endif
-        blob_append(p->pOut, z, n);
+        if( fossil_isspace(z[n])
+         && (z==zOrig || fossil_isspace(z[-1]))
+        ){
+          blob_append(p->pOut, z, n);
+          break;
+        }
+        inEmph = z[0]=='*' ? p->inEmphS : p->inEmphU;
+        if( inEmph[n] ){
+          blob_append(p->pOut, n==1 ? "</i>" : "</b>", 4);
+          inEmph[n] = 0;
+          break;
+        }
+        if( !has_mdfont_pair(p, z, n) ){
+          blob_append(p->pOut, z, n);
+          break;
+        }
+        blob_append(p->pOut, n==1 ? "<i>" : "<b>", 3);
+        inEmph[n] = 1;
         break;
       }
       case TOKEN_TEXT: {
