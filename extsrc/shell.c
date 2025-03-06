@@ -236,6 +236,8 @@ typedef unsigned char u8;
 #define IsSpace(X)  isspace((unsigned char)X)
 #define IsDigit(X)  isdigit((unsigned char)X)
 #define ToLower(X)  (char)tolower((unsigned char)X)
+#define IsAlnum(X)  isalnum((unsigned char)X)
+#define IsAlpha(X)  isalpha((unsigned char)X)
 
 #if defined(_WIN32) || defined(WIN32)
 #if SQLITE_OS_WINRT
@@ -1508,9 +1510,9 @@ static void appendText(ShellText *p, const char *zAppend, char quote){
 static char quoteChar(const char *zName){
   int i;
   if( zName==0 ) return '"';
-  if( !isalpha((unsigned char)zName[0]) && zName[0]!='_' ) return '"';
+  if( !IsAlpha(zName[0]) && zName[0]!='_' ) return '"';
   for(i=0; zName[i]; i++){
-    if( !isalnum((unsigned char)zName[i]) && zName[i]!='_' ) return '"';
+    if( !IsAlnum(zName[i]) && zName[i]!='_' ) return '"';
   }
   return sqlite3_keyword_check(zName, i) ? '"' : 0;
 }
@@ -2427,7 +2429,7 @@ int sqlite3PcacheTraceDeactivate(void){
 **
 **    typeof(Y)='blob'         The hash is taken over prefix "Bnnn:" followed
 **                             by the binary content of the blob.  The "nnn"
-**                             in the prefix is the mimimum-length decimal
+**                             in the prefix is the minimum-length decimal
 **                             representation of the byte-length of the blob.
 **
 ** According to the rules above, all of the following SELECT statements
@@ -3648,7 +3650,7 @@ int sqlite3_sha_init(
 ** of digits compare in numeric order.
 **
 **     *   Leading zeros are handled properly, in the sense that
-**         they do not mess of the maginitude comparison of embedded
+**         they do not mess of the magnitude comparison of embedded
 **         strings of digits.  "x00123y" is equal to "x123y".
 **
 **     *   Only unsigned integers are recognized.  Plus and minus
@@ -3754,6 +3756,9 @@ SQLITE_EXTENSION_INIT1
 # define UNUSED_PARAMETER(X)  (void)(X)
 #endif
 
+#ifndef IsSpace
+#define IsSpace(X)  isspace((unsigned char)X)
+#endif
 
 /* A decimal object */
 typedef struct Decimal Decimal;
@@ -3803,7 +3808,7 @@ static Decimal *decimalNewFromText(const char *zIn, int n){
   p->nFrac = 0;
   p->a = sqlite3_malloc64( n+1 );
   if( p->a==0 ) goto new_from_text_failed;
-  for(i=0; isspace(zIn[i]); i++){}
+  for(i=0; IsSpace(zIn[i]); i++){}
   if( zIn[i]=='-' ){
     p->sign = 1;
     i++;
@@ -4458,7 +4463,7 @@ static void decimalSubFunc(
   decimal_free(pB);
 }
 
-/* Aggregate funcion:   decimal_sum(X)
+/* Aggregate function:   decimal_sum(X)
 **
 ** Works like sum() except that it uses decimal arithmetic for unlimited
 ** precision.
@@ -4819,7 +4824,7 @@ static int percentBinarySearch(Percentile *p, double y, int bExact){
 /*
 ** Generate an error for a percentile function.
 **
-** The error format string must have exactly one occurrance of "%%s()"
+** The error format string must have exactly one occurrence of "%%s()"
 ** (with two '%' characters).  That substring will be replaced by the name
 ** of the function.
 */
@@ -5959,7 +5964,7 @@ int main(int na, char *av[]){
 **    WITH c(name,bin) AS (VALUES
 **       ('minimum positive value',        x'0000000000000001'),
 **       ('maximum subnormal value',       x'000fffffffffffff'),
-**       ('mininum positive nornal value', x'0010000000000000'),
+**       ('minimum positive normal value', x'0010000000000000'),
 **       ('maximum value',                 x'7fefffffffffffff'))
 **    SELECT c.name, decimal_mul(ieee754_mantissa(c.bin),pow2.v)
 **      FROM pow2, c WHERE pow2.x=ieee754_exponent(c.bin);
@@ -6346,7 +6351,7 @@ static sqlite3_int64 genSeqMember(
     smBase += (mxI64 - mxI64/2) * smStep;
   }
   /* Under UBSAN (or on 1's complement machines), must do this last term
-   * in steps to avoid the dreaded (and harmless) signed multiply overlow. */
+   * in steps to avoid the dreaded (and harmless) signed multiply overflow. */
   if( ix>=2 ){
     sqlite3_int64 ix2 = (sqlite3_int64)ix/2;
     smBase += ix2*smStep;
@@ -9027,6 +9032,11 @@ SQLITE_EXTENSION_INIT1
 
 #ifndef SQLITE_OMIT_VIRTUALTABLE
 
+#ifndef IsAlnum
+#define IsAlnum(X)  isalnum((unsigned char)X)
+#endif
+
+
 /* completion_vtab is a subclass of sqlite3_vtab which will
 ** serve as the underlying representation of a completion virtual table
 */
@@ -9363,7 +9373,7 @@ static int completionFilter(
   }
   if( pCur->zLine!=0 && pCur->zPrefix==0 ){
     int i = pCur->nLine;
-    while( i>0 && (isalnum(pCur->zLine[i-1]) || pCur->zLine[i-1]=='_') ){
+    while( i>0 && (IsAlnum(pCur->zLine[i-1]) || pCur->zLine[i-1]=='_') ){
       i--;
     }
     pCur->nPrefix = pCur->nLine - i;
@@ -14770,7 +14780,7 @@ sqlite3expert *sqlite3_expert_new(sqlite3 *db, char **pzErrmsg){
     sqlite3_set_authorizer(pNew->dbv, idxAuthCallback, (void*)pNew);
   }
 
-  /* If an error has occurred, free the new object and reutrn NULL. Otherwise,
+  /* If an error has occurred, free the new object and return NULL. Otherwise,
   ** return the new sqlite3expert handle.  */
   if( rc!=SQLITE_OK ){
     sqlite3_expert_destroy(pNew);
@@ -16292,7 +16302,7 @@ int sqlite3_stmtrand_init(
 **
 ** Individual APIs can be enabled or disabled by name, with or without
 ** the initial "x" character.  For example, to set up for tracing lock
-** primatives only:
+** primitives only:
 **
 **    PRAGMA vfstrace('-all, +Lock,Unlock,ShmLock');
 **
@@ -21243,37 +21253,53 @@ static void recoverUninstallWrapper(sqlite3_recover *p){
 static void recoverStep(sqlite3_recover *p){
   assert( p && p->errCode==SQLITE_OK );
   switch( p->eState ){
-    case RECOVER_STATE_INIT:
+    case RECOVER_STATE_INIT: {
+      int bUseWrapper = 1;
       /* This is the very first call to sqlite3_recover_step() on this object.
       */
       recoverSqlCallback(p, "BEGIN");
       recoverSqlCallback(p, "PRAGMA writable_schema = on");
+      recoverSqlCallback(p, "PRAGMA foreign_keys = off");
 
       recoverEnterMutex();
-      recoverInstallWrapper(p);
 
       /* Open the output database. And register required virtual tables and 
       ** user functions with the new handle. */
       recoverOpenOutput(p);
 
-      /* Open transactions on both the input and output databases. */
-      sqlite3_file_control(p->dbIn, p->zDb, SQLITE_FCNTL_RESET_CACHE, 0);
-      recoverExec(p, p->dbIn, "PRAGMA writable_schema = on");
-      recoverExec(p, p->dbIn, "BEGIN");
-      if( p->errCode==SQLITE_OK ) p->bCloseTransaction = 1;
-      recoverExec(p, p->dbIn, "SELECT 1 FROM sqlite_schema");
-      recoverTransferSettings(p);
-      recoverOpenRecovery(p);
-      recoverCacheSchema(p);
+      /* Attempt to open a transaction and read page 1 of the input database.
+      ** Two attempts may be made - one with a wrapper installed to ensure
+      ** that the database header is sane, and then if that attempt returns
+      ** SQLITE_NOTADB, then again with no wrapper. The second attempt is
+      ** required for encrypted databases.  */
+      if( p->errCode==SQLITE_OK ){
+        do{
+          p->errCode = SQLITE_OK;
+          if( bUseWrapper ) recoverInstallWrapper(p);
 
-      recoverUninstallWrapper(p);
+          /* Open a transaction on the input database. */
+          sqlite3_file_control(p->dbIn, p->zDb, SQLITE_FCNTL_RESET_CACHE, 0);
+          recoverExec(p, p->dbIn, "PRAGMA writable_schema = on");
+          recoverExec(p, p->dbIn, "BEGIN");
+          if( p->errCode==SQLITE_OK ) p->bCloseTransaction = 1;
+          recoverExec(p, p->dbIn, "SELECT 1 FROM sqlite_schema");
+          recoverTransferSettings(p);
+          recoverOpenRecovery(p);
+          recoverCacheSchema(p);
+
+          if( bUseWrapper ) recoverUninstallWrapper(p);
+        }while( p->errCode==SQLITE_NOTADB 
+             && (bUseWrapper--) 
+             && SQLITE_OK==sqlite3_exec(p->dbIn, "ROLLBACK", 0, 0, 0)
+        );
+      }
+
       recoverLeaveMutex();
-
       recoverExec(p, p->dbOut, "BEGIN");
-
       recoverWriteSchema1(p);
       p->eState = RECOVER_STATE_WRITING;
       break;
+    }
       
     case RECOVER_STATE_WRITING: {
       if( p->w1.pTbls==0 ){
@@ -21713,13 +21739,14 @@ static ShellState shellState;
                                    ** top-level SQL statement */
 #define SHELL_PROGRESS_ONCE  0x04  /* Cancel the --limit after firing once */
 
-/* Allowed values for ShellState.eEscMode
+/* Allowed values for ShellState.eEscMode.  The default value should
+** be 0, so to change the default, reorder the names.
 */
-#define SHELL_ESC_SYMBOL       0      /* Substitute U+2400 graphics */
-#define SHELL_ESC_ASCII        1      /* Substitute ^Y for X where Y=X+0x40 */
+#define SHELL_ESC_ASCII        0      /* Substitute ^Y for X where Y=X+0x40 */
+#define SHELL_ESC_SYMBOL       1      /* Substitute U+2400 graphics */
 #define SHELL_ESC_OFF          2      /* Send characters verbatim */
 
-static const char *shell_EscModeNames[] = { "symbol", "ascii", "off" };
+static const char *shell_EscModeNames[] = { "ascii", "symbol", "off" };
 
 /*
 ** These are the allowed shellFlgs values
@@ -22904,6 +22931,8 @@ static int shell_callback(
       char cEnd = 0;
       char c;
       int nLine = 0;
+      int isIndex;
+      int isWhere = 0;
       assert( nArg==1 );
       if( azArg[0]==0 ) break;
       if( sqlite3_strlike("CREATE VIEW%", azArg[0], 0)==0
@@ -22912,6 +22941,8 @@ static int shell_callback(
         sqlite3_fprintf(p->out, "%s;\n", azArg[0]);
         break;
       }
+      isIndex = sqlite3_strlike("CREATE INDEX%", azArg[0], 0)==0
+             || sqlite3_strlike("CREATE UNIQUE INDEX%", azArg[0], 0)==0;
       z = sqlite3_mprintf("%s", azArg[0]);
       shell_check_oom(z);
       j = 0;
@@ -22941,14 +22972,26 @@ static int shell_callback(
             nParen++;
           }else if( c==')' ){
             nParen--;
-            if( nLine>0 && nParen==0 && j>0 ){
+            if( nLine>0 && nParen==0 && j>0 && !isWhere ){
               printSchemaLineN(p->out, z, j, "\n");
               j = 0;
             }
+          }else if( (c=='w' || c=='W')
+                 && nParen==0 && isIndex
+                 && sqlite3_strnicmp("WHERE",&z[i],5)==0
+                 && !IsAlnum(z[i+5]) && z[i+5]!='_' ){
+            isWhere = 1;
+          }else if( isWhere && (c=='A' || c=='a')
+                 && nParen==0
+                 && sqlite3_strnicmp("AND",&z[i],3)==0
+                 && !IsAlnum(z[i+3]) && z[i+3]!='_' ){
+            printSchemaLineN(p->out, z, j, "\n    ");
+            j = 0;
           }
           z[j++] = c;
           if( nParen==1 && cEnd==0
            && (c=='(' || c=='\n' || (c==',' && !wsToEol(z+i+1)))
+           && !isWhere
           ){
             if( c=='\n' ) j--;
             printSchemaLineN(p->out, z, j, "\n  ");
@@ -24152,11 +24195,11 @@ static char *translateForDisplayAndDup(
   if( n>=mxWidth && bWordWrap  ){
     /* Perhaps try to back up to a better place to break the line */
     for(k=i; k>i/2; k--){
-      if( isspace(z[k-1]) ) break;
+      if( IsSpace(z[k-1]) ) break;
     }
     if( k<=i/2 ){
       for(k=i; k>i/2; k--){
-        if( isalnum(z[k-1])!=isalnum(z[k]) && (z[k]&0xc0)!=0x80 ) break;
+        if( IsAlnum(z[k-1])!=IsAlnum(z[k]) && (z[k]&0xc0)!=0x80 ) break;
       }
     }
     if( k<=i/2 ){
@@ -26090,7 +26133,7 @@ static void linenoise_completion(
 #endif
   if( nLine>(i64)sizeof(zBuf)-30 ) return;
   if( zLine[0]=='.' || zLine[0]=='#') return;
-  for(i=nLine-1; i>=0 && (isalnum(zLine[i]) || zLine[i]=='_'); i--){}
+  for(i=nLine-1; i>=0 && (IsAlnum(zLine[i]) || zLine[i]=='_'); i--){}
   if( i==nLine-1 ) return;
   iStart = i+1;
   memcpy(zBuf, zLine, iStart);
@@ -28330,6 +28373,7 @@ static int recoverDatabaseCmd(ShellState *pState, int nArg, char **azArg){
   sqlite3_recover_config(p, SQLITE_RECOVER_ROWIDS, (void*)&bRowids);
   sqlite3_recover_config(p, SQLITE_RECOVER_FREELIST_CORRUPT,(void*)&bFreelist);
 
+  sqlite3_fprintf(pState->out, ".dbconfig defensive off\n");
   sqlite3_recover_run(p);
   if( sqlite3_recover_errcode(p)!=SQLITE_OK ){
     const char *zErr = sqlite3_recover_errmsg(p);
@@ -32421,7 +32465,7 @@ static int line_is_command_terminator(char *zLine){
 ** out of the build if compiling with SQLITE_OMIT_COMPLETE.
 */
 #ifdef SQLITE_OMIT_COMPLETE
-# error the CLI application is imcompatable with SQLITE_OMIT_COMPLETE.
+# error the CLI application is incompatable with SQLITE_OMIT_COMPLETE.
 #endif
 
 /*
@@ -32600,7 +32644,7 @@ static char *one_input_line(FILE *in, char *zPrior, int isContinuation){
   if(!z || !*z){
     return 0;
   }
-  while(*z && isspace(*z)) ++z;
+  while(*z && IsSpace(*z)) ++z;
   zBegin = z;
   for(; *z && '\n'!=*z; ++nZ, ++z){}
   if(nZ>0 && '\r'==zBegin[nZ-1]){
