@@ -207,7 +207,6 @@ void www_print_timeline(
   int prevWasDivider = 0;     /* True if previous output row was <hr> */
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
-  static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current check-out version */
   int dateFormat = 0;         /* 0: HH:MM (default) */
@@ -245,10 +244,6 @@ void www_print_timeline(
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
   }
-  db_static_prepare(&qbranch,
-    "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
-    TAG_BRANCH
-  );
   if( (tmFlags & TIMELINE_CHPICK)!=0
    && !db_table_exists("repository","cherrypick")
   ){
@@ -268,7 +263,7 @@ void www_print_timeline(
     const char *zTagList = db_column_text(pQuery, 8);
     int tagid = db_column_int(pQuery, 9);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
-    const char *zBr = 0;      /* Branch */
+    char *zBr = 0;            /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
     char *zDateLink;          /* URL for the link on the timestamp */
@@ -414,13 +409,7 @@ void www_print_timeline(
     if( zType[0]=='c'
     && (pGraph || zBgClr==0 || (tmFlags & (TIMELINE_BRCOLOR|TIMELINE_DELTA))!=0)
     ){
-      db_reset(&qbranch);
-      db_bind_int(&qbranch, ":rid", rid);
-      if( db_step(&qbranch)==SQLITE_ROW ){
-        zBr = db_column_text(&qbranch, 0);
-      }else{
-        zBr = "trunk";
-      }
+      zBr = branch_of_rid(rid);
       if( zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0 ){
         if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
         }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
@@ -461,7 +450,6 @@ void www_print_timeline(
       gidx = graph_add_row(pGraph, rid, nParent, nCherrypick, aParent,
                            zBr, zBgClr, zUuid,
                            isLeaf ? isLeaf + 2 * has_closed_tag(rid) : 0);
-      db_reset(&qbranch);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }else if( zType[0]=='e' && pGraph && zBgClr && zBgClr[0] ){
       /* For technotes, make a graph node with nParent==(-1).  This will
@@ -470,6 +458,7 @@ void www_print_timeline(
       gidx = graph_add_row(pGraph, rid, -1, 0, 0, zBr, zBgClr, zUuid, 0);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }
+    fossil_free(zBr);
     @</td>
     if( !isSelectedOrCurrent ){
       @ <td class="timeline%s(zStyle)Cell%s(zExtraClass)" id='mc%d(gidx)'>

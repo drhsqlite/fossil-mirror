@@ -1,5 +1,5 @@
-C Work\saround\sissues\swith\saggressive\scaching\sof\spikchr.wasm\sthat\swere\smaking\nit\sdifficult\sto\supgrade.\s\s(1)\sOn\sthe\s/built-in\spage,\sallow\sfilenames\sto\shave\ntext\sof\sthe\sform\s-vNNNNNNNN\sbefore\sthe\sfile\ssuffix,\swhere\sN\sis\san\sarbitrary\ndigit\sand\sthere\sare\sat\sleast\s8\sof\sthem.\s\sThe\sextra\s-vNNNNNNNN\sis\sremoved\sbefore\nlooking\sup\sthe\sfile.\s\s(2)\s\sWhen\srunning\s"make\swasm"\smodify\sthe\sgenerated\nscripts\sto\sadd\srandom\s-vNNNNNNNN\svalues\sto\skey\sfilenames,\sso\sthat\sbrowsers\nwon't\stry\sto\suse\sthe\sold\snames\sstill\sin\scache.
-D 2025-03-06T11:01:19.911
+C Simplify\swww_print_timeline()\sso\sthat\sit\suses\sbranch_of_rid()\srather\sthan\ncomputing\sthe\sbranch\sname\sfor\sitself.
+D 2025-03-06T14:35:39.645
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -574,7 +574,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c 436d0ed409b3d07b8f4d4ae412f8f9fe7913b3888e69455542928a2600918f7a
+F src/timeline.c 3c9c8e5a3c453c18de0d1f276461945ac214b26c9e8ee2c522468bd8771d460d
 F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
 F src/tktsetup.c dee6358557178e83f24f09149f1aa241f331e2dde0084195156d34f012162e4e
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -966,9 +966,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4d34e18c213827effeafd3c7f05aa0ac1ca8ddb90b49f8453e503c54dd47aca4 369cb383159f68cebc504c126290d36d3c7610f9e956bd03fecfa568137dceb2
-R 7871744a7334c7ecdf660df2e328fedf
-T +closed 369cb383159f68cebc504c126290d36d3c7610f9e956bd03fecfa568137dceb2
+P dd20f34950e5b81051600543cf2bd81ef2e22e0195c051fe35dc8351b1633479
+R da66d620be237f26affd54de673861df
 U drh
-Z 7d83de41c91a9f94de5763bcfb0c342e
+Z 38a3924b8838edf46310997bea27b329
 # Remove this line to create a well-formed Fossil manifest.
