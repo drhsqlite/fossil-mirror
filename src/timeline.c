@@ -1719,6 +1719,7 @@ void page_timeline(void){
   int from_to_mode = 0;               /* 0: from,to. 1: from,ft 2: from,bt */
   int showSql = PB("showsql");        /* True to show the SQL */
   Blob allSql;                        /* Copy of all SQL text */
+  int bMin = P("min")!=0;             /* True if "min" query parameter used */
 
   login_check_credentials();
   url_initialize(&url, "timeline");
@@ -2112,10 +2113,26 @@ void page_timeline(void){
     );
     if( p ){
       int cnt = 4;
+      char *zPriorBr = 0, *zThisBr = 0, *zNextBr = 0;
       blob_init(&ins, 0, 0);
       blob_append_sql(&ins, "INSERT INTO pathnode(x) VALUES(%d)", p->rid);
-      p = p->u.pTo;
-      while( p ){
+      if( p->u.pTo==0 ) bMin = 0;
+      if( bMin ){
+        zThisBr = branch_of_rid(p->rid);
+        zNextBr = branch_of_rid(p->u.pTo->rid);
+      }
+      for(p=p->u.pTo; p; p=p->u.pTo){
+        if( bMin && p->u.pTo!=0 ){
+          fossil_free(zPriorBr);
+          zPriorBr = zThisBr;
+          zThisBr = zNextBr;
+          zNextBr = branch_of_rid(p->u.pTo->rid);
+          if( fossil_strcmp(zPriorBr,zThisBr)==0
+           && fossil_strcmp(zThisBr,zNextBr)==0
+          ){
+            continue;
+          }
+        }
         if( cnt==8 ){
           blob_append_sql(&ins, ",\n  (%d)", p->rid);
           cnt = 0;
@@ -2123,8 +2140,10 @@ void page_timeline(void){
           cnt++;
           blob_append_sql(&ins, ",(%d)", p->rid);
         }
-        p = p->u.pTo;
       }
+      fossil_free(zPriorBr);
+      fossil_free(zThisBr);
+      fossil_free(zNextBr);
     }
     path_reset();
     db_multi_exec("%s", blob_str(&ins)/*safe-for-%s*/);
