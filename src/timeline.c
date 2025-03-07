@@ -2075,16 +2075,17 @@ void page_timeline(void){
     int nNodeOnPath = 0;
     int commonAncs = 0;    /* Common ancestors of me_rid and you_rid. */
     int earlierRid = 0, laterRid = 0;
+    int cost = bMin ? 100 : 0;
 
     if( from_rid && to_rid ){
       if( from_to_mode==0 ){
-        p = path_shortest(from_rid, to_rid, noMerge, 0, 0);
+        p = path_shortest(from_rid, to_rid, noMerge, 0, 0, cost);
       }else if( from_to_mode==1 ){
-        p = path_shortest(from_rid, to_rid, 0, 1, 0);
+        p = path_shortest(from_rid, to_rid, 0, 1, 0, cost);
         earlierRid = commonAncs = from_rid;
         laterRid = to_rid;
       }else{
-        p = path_shortest(to_rid, from_rid, 0, 1, 0);
+        p = path_shortest(to_rid, from_rid, 0, 1, 0, cost);
         earlierRid = commonAncs = to_rid;
         laterRid = from_rid;
       }

@@ -29,6 +29,8 @@ struct PathNode {
   u8 fromIsParent;         /* True if pFrom is the parent of rid */
   u8 isPrim;               /* True if primary side of common ancestor */
   u8 isHidden;             /* Abbreviate output in "fossil bisect ls" */
+  u8 nDelay;               /* Delay this many steps before walking */
+  char *zBranch;           /* Branch name for this node.  Might be NULL */
   PathNode *pFrom;         /* Node we came from */
   union {
     PathNode *pPeer;       /* List of nodes of the same generation */
@@ -47,6 +49,7 @@ static struct {
   Bag seen;             /* Nodes seen before */
   int nStep;            /* Number of steps from first to last */
   int nNotHidden;       /* Number of steps not counting hidden nodes */
+  u8 brCost;            /* Extra cost for moving to a different branch */
   PathNode *pStart;     /* Earliest node */
   PathNode *pEnd;       /* Most recent */
 } path;
@@ -78,6 +81,12 @@ static PathNode *path_new_node(int rid, PathNode *pFrom, int isParent){
   p->rid = rid;
   p->fromIsParent = isParent;
   p->pFrom = pFrom;
+  if( path.brCost ){
+    p->zBranch = branch_of_rid(rid);
+    if( pFrom && fossil_strcmp(p->zBranch, pFrom->zBranch)!=0 ){
+      p->nDelay = path.brCost;
+    }
+  }
   p->u.pPeer = path.pCurrent;
   path.pCurrent = p;
   p->pAll = path.pAll;
@@ -94,6 +103,7 @@ void path_reset(void){
   while( path.pAll ){
     p = path.pAll;
     path.pAll = p->pAll;
+    fossil_free(p->zBranch);
     fossil_free(p);
   }
   bag_clear(&path.seen);
@@ -130,13 +140,16 @@ PathNode *path_shortest(
   int iTo,            /* Path ends here */
   int directOnly,     /* No merge links if true */
   int oneWayOnly,     /* Parent->child only if true */
-  Bag *pHidden        /* Hidden nodes */
+  Bag *pHidden,       /* Hidden nodes */
+  int branchCost      /* Add extra codes to changing branches */
 ){
   Stmt s;
   PathNode *pPrev;
   PathNode *p;
+  int nPriorPeer = 1;
 
   path_reset();
+  path.brCost = branchCost;
   path.pStart = path_new_node(iFrom, 0, 0);
   if( iTo==iFrom ){
     path.pEnd = path.pStart;
@@ -164,10 +177,20 @@ PathNode *path_shortest(
     );
   }
   while( path.pCurrent ){
-    path.nStep++;
+    if( nPriorPeer ) path.nStep++;
+    nPriorPeer = 0;
     pPrev = path.pCurrent;
     path.pCurrent = 0;
     while( pPrev ){
+      if( pPrev->nDelay>0 && (nPriorPeer>0 || pPrev->u.pPeer!=0) ){
+        PathNode *pThis = pPrev;
+        pPrev = pThis->u.pPeer;
+        pThis->u.pPeer = path.pCurrent;
+        path.pCurrent = pThis;
+        pThis->nDelay--;
+        continue;
+      }
+      nPriorPeer++;
       db_bind_int(&s, ":pid", pPrev->rid);
       while( db_step(&s)==SQLITE_ROW ){
         int cid = db_column_int(&s, 0);
@@ -240,7 +263,7 @@ void path_shortest_stored_in_ancestor_table(
   PathNode *pPath;
   int gen = 0;
   Stmt ins;
-  pPath = path_shortest(cid, origid, 1, 0, 0);
+  pPath = path_shortest(cid, origid, 1, 0, 0, 0);
   db_multi_exec(
     "CREATE TEMP TABLE IF NOT EXISTS ancestor("
     "  rid INT UNIQUE,"
@@ -275,14 +298,16 @@ void shortest_path_test_cmd(void){
   int n;
   int directOnly;
   int oneWay;
+  const char *zBrCost;
 
   db_find_and_open_repository(0,0);
   directOnly = find_option("no-merge",0,0)!=0;
   oneWay = find_option("one-way",0,0)!=0;
+  zBrCost = find_option("branch-cost",0,1);
   if( g.argc!=4 ) usage("VERSION1 VERSION2");
   iFrom = name_to_rid(g.argv[2]);
   iTo = name_to_rid(g.argv[3]);
-  p = path_shortest(iFrom, iTo, directOnly, oneWay, 0);
+  p = path_shortest(iFrom, iTo, directOnly, oneWay, 0, atoi(zBrCost));
   if( p==0 ){
     fossil_fatal("no path from %s to %s", g.argv[1], g.argv[2]);
   }
@@ -455,7 +480,7 @@ void find_filename_changes(
   }
   if( iFrom==iTo ) return;
   path_reset();
-  p = path_shortest(iFrom, iTo, 1, revOK==0, 0);
+  p = path_shortest(iFrom, iTo, 1, revOK==0, 0, 0);
   if( p==0 ) return;
   path_reverse_path();
   db_prepare(&q1,
