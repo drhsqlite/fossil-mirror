@@ -1607,6 +1607,8 @@ void timeline_test_endpoint(void){
 **                       to2=CHECKIN     ... backup name if to= doesn't resolve
 **                       shortest        ... show only the shortest path
 **                       rel             ... also show related checkins
+**                       min             ... only show key nodes of the path
+**                       abd             ... avoid branch detours
 **                       bt=PRIOR        ... path from CHECKIN back to PRIOR
 **                       ft=LATER        ... path from CHECKIN forward to LATER
 **    me=CHECKIN      Most direct path from...
@@ -2075,7 +2077,7 @@ void page_timeline(void){
     int nNodeOnPath = 0;
     int commonAncs = 0;    /* Common ancestors of me_rid and you_rid. */
     int earlierRid = 0, laterRid = 0;
-    int cost = bMin ? 100 : 0;
+    int cost = bMin || P("abd")!=0 ? 100 : 0;
 
     if( from_rid && to_rid ){
       if( from_to_mode==0 ){
@@ -2207,8 +2209,8 @@ void page_timeline(void){
     nNodeOnPath = db_int(0, "SELECT count(*) FROM temp.pathnode");
     if( nNodeOnPath==1 && from_to_mode>0 ){
       blob_appendf(&desc,"Check-in ");
-    }else if( from_to_mode>0 ){
-      blob_appendf(&desc, "%d check-ins on the shorted path from ",nNodeOnPath);
+    }else if( bMin ){
+      blob_appendf(&desc, "%d check-ins along the path from ", nNodeOnPath);
     }else{
       blob_appendf(&desc, "%d check-ins going from ", nNodeOnPath);
     }
