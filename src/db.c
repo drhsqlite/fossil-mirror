@@ -4183,6 +4183,7 @@ void db_record_repository_filename(const char *zName){
 **   --nested          Allow opening a repository inside an opened check-out
 **   --nosync          Do not auto-sync the repository prior to opening even
 **                     if the autosync setting is on.
+**   --proxy PROXY     Use PROXY as http proxy during sync operation
 **   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
 **                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side

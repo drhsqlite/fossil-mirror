@@ -131,6 +131,7 @@ void delete_private_content(void){
 **    --no-open                  Clone only.  Do not open a check-out.
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
+**    --proxy PROXY              Use the specified HTTP proxy
 **    --save-http-password       Remember the HTTP password without asking
 **    -c|--ssh-command SSH       Use SSH as the "ssh" command
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
