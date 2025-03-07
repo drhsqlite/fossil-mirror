@@ -1,5 +1,5 @@
-C Correctly\srender\sthe\stitle\sof\sembedded\sMarkdown\sdocuments\sthat\scontain\ncharacters\sthat\sare\sspecial\sto\sHTML:\s&gt;\s&quot;\s'\s&amp;\s&lt;
-D 2025-03-07T20:14:46.234
+C Add\sthe\s/test-title\swebpage.\s\sAccessible\sto\sadministrators\sonly.
+D 2025-03-07T20:26:49.828
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -559,7 +559,7 @@ F src/stash.c 63cef80d3740c54c448d60b992be69b9f8c8b9acb7b28241bcfd769efdc6ad22
 F src/stat.c 318d359a317da263f80db05dacd9c5ebbf69383945f9540a9a67fdfc4f6743b0
 F src/statrep.c 69e663e6cfa8a8acc8495bca4320f87b076aec6a68b4d53e330b5baa08907d62
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 759cd6a762a298768a8b8532616b3439efbb7f2a0bdcd1ac6ac24408c5d1c0b9
+F src/style.c 0106528e35c90cf06b6cb5e0ba1efb587da302af200807717497321dc3058b2a
 F src/style.chat.css 21306b3184bfe8687412c7ce2237344ae7963304dd0fc67899dbed063e7e5dde
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 29831c2b1602512a1befc938be84787d141a1746fdf2cdb2aca0b1eabf721f41
-R 5da89fd3d1f020488fccf96ac60e0ff7
+P 0b24a45f49f9abbad03c794f25cc52b85ee1c2daba5e749b509963a6479d28ee
+R 6807e9237001d8ab522e7660ee6726d2
 U drh
-Z cf3813bef783aab68779ba795120b273
+Z 78a0665eea01334e4ccebb6c5563ed6b
 # Remove this line to create a well-formed Fossil manifest.

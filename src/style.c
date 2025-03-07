@@ -1344,6 +1344,39 @@ static char *find_anon_capabilities(char *zCap){
 }
 
 /*
+** WEBPAGE: test-title
+**
+** Render a test page in which the page title is set by the "title"
+** query parameter.  This can be used to show that HTML or Javascript
+** content in the title does not leak through into generated page, resulting
+** in an XSS issue.
+**
+** Due to the potential for abuse, this webpage is only available to
+** administrators.
+*/
+void page_test_title(void){
+  const char *zTitle;
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(0);
+  }
+  zTitle = P("title");
+  if( zTitle==0 ){
+    zTitle = "(No Title)";
+  }
+  style_header("%s", zTitle);
+  @ <p>
+  @ This page sets its title to the value of the "title" query parameter.
+  @ The form below is a convenient way to set the title query parameter:
+  @
+  @ <form method="GET">
+  @ Title: <input type="text" size="50" name="title" value="%h(zTitle)">
+  @ <input type="submit" value="Submit">
+  @ </form>
+  style_finish_page();
+}
+
+/*
 ** WEBPAGE: test_env
 **
 ** Display CGI-variables and other aspects of the run-time
