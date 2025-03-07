@@ -840,26 +840,31 @@ void help_page(void){
     const CmdOrPage *pCmd = 0;
 
     style_set_current_feature("tkt");
-    style_header("Help: %s", zCmd);
-
-    style_submenu_element("Command-List", "%R/help");
+    style_submenu_element("Topic-List", "%R/help");
     if( search_restrict(SRCH_HELP)!=0 ){
       style_submenu_element("Search","%R/search?y=h");
     }
     rc = dispatch_name_search(zCmd, CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
-    if( *zCmd=='/' ){
+    if( pCmd ){
+      style_header("Help: %s", pCmd->zName);
+    }else{
+      style_header("Help");
+    }
+    if( pCmd==0 ){
+      /* No <h1> line in this case */
+    }else if( *zCmd=='/' ){
       /* Some of the webpages require query parameters in order to work.
       ** @ <h1>The "<a href='%R%s(zCmd)'>%s(zCmd)</a>" page:</h1> */
-      @ <h1>The "%h(zCmd)" page:</h1>
+      @ <h1>The "%h(pCmd->zName)" page:</h1>
     }else if( rc==0 && (pCmd->eCmdFlags & CMDFLAG_SETTING)!=0 ){
       @ <h1>The "%h(pCmd->zName)" setting:</h1>
     }else{
-      @ <h1>The "%h(zCmd)" command:</h1>
+      @ <h1>The "%h(pCmd->zName)" command:</h1>
     }
-    if( rc==1 ){
-      @ unknown command: %h(zCmd)
+    if( rc==1 || (rc==2 && zCmd[0]=='/') ){
+      @ Unknown topic: "%h(zCmd)"
     }else if( rc==2 ){
-      @ ambiguous command prefix: %h(zCmd)
+      @ Ambiguous prefix: "%h(zCmd)"
     }else{
       if( pCmd->zHelp[0]==0 ){
         @ No help available for "%h(pCmd->zName)"
