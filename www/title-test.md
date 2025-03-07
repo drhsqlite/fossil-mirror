@@ -1,6 +1,6 @@
-# Test Doc & " ' < Titles
+# Markdown Doc Title > & " ' < Test
 
-Test of unusual characters in document titles.
-The title should be:
+Test of unusual characters in the title of Markdown formatted documents.
+The title should read:
 
->  Test Doc & " ' < Titles
+>  Markdown Doc Title > & " ' < Test
