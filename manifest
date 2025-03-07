@@ -1,5 +1,5 @@
-C Cross-link\sthe\svarious\stitle-test\sdocuments.
-D 2025-03-07T20:01:33.738
+C Correctly\srender\sthe\stitle\sof\sembedded\sMarkdown\sdocuments\sthat\scontain\ncharacters\sthat\sare\sspecial\sto\sHTML:\s&gt;\s&quot;\s'\s&amp;\s&lt;
+D 2025-03-07T20:14:46.234
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -422,7 +422,7 @@ F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
 F src/diffcmd.c cec6c9f65439be9591c1ba8e79911cde35b40ba827709a27240e1600880c9a0c
 F src/dispatch.c a5e56d8936d2da411d3c597d4cb61e6f173cfd70234eaf041ce20d20778e5e4a
-F src/doc.c d576f614d099399f5cd17db085743bd37fe73cadd136abb1a9db912c9e82a118
+F src/doc.c f3dfc34c9023fbdf16488ea9de7622440881612145f92c934bf92122fc130907
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c bbf9e79dfc96c597bab4f48ae290259a2dfa129a3d1c5878c13306ac46eb595c
@@ -498,7 +498,7 @@ F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
 F src/manifest.c ff73bb76d7e994bbefbaf43cd96835affd252d9e700a0ccd3dce584f4f612a0d
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
-F src/markdown_html.c 1de7e0f5d36946394a8fd4195ddd5ac7944149abba8fb1f16cca61fca7d0b26e
+F src/markdown_html.c ad02712ac0be224b1c720b1fde49bcd30cf0eb89f3756390feda7d624d9b16eb
 F src/match.c 3fe696bc2df074431806817c5ebd95754ead9c26c700f92b8bc4cca192f44280
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c691b5c49ebd07fe1bdd88b0b1cf38cac47463425abdecd19a7152edc4a0a18
-R 602b3de5ec924c3d5c58caece64497b8
+P 29831c2b1602512a1befc938be84787d141a1746fdf2cdb2aca0b1eabf721f41
+R 5da89fd3d1f020488fccf96ac60e0ff7
 U drh
-Z 36a7f235b30f6f86e8f8a5ab6d559bf8
+Z cf3813bef783aab68779ba795120b273
 # Remove this line to create a well-formed Fossil manifest.

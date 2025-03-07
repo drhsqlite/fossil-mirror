@@ -809,6 +809,7 @@ void document_render(
     markdown_to_html(pBody, &title, &tail);
     if( !isPopup ){
       if( blob_size(&title)>0 ){
+        markdown_dehtmlize_blob(&title);
         style_header("%s", blob_str(&title));
       }else{
         style_header("%s", zDefaultTitle);
