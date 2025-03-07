@@ -1,5 +1,5 @@
-C Mention\sthe\s"--proxy\sPROXY"\soption\sin\sthe\shelp\stext\sfor\sall\scommand\sthat\nsupport\sit.
-D 2025-03-07T18:39:41.460
+C Add\sthe\stitle-test.md\sdocument\sfor\stesting\sFossil's\sability\sto\srender\ndocument\stitles\swith\sunusual\scharacters.
+D 2025-03-07T19:01:06.084
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -955,6 +955,7 @@ F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd0306
 F www/th1.md 4e90571b201ccdca3428e86402bbb040bea7fe0bd33681eefd8d1e3318e36c2e
 F www/theory1.wiki 23fe43903706feb8d6852c9e1174f20b10aa4a6a82aa716992b5e31f70745303
 F www/tickets.wiki d46ce2febd0160a67a7b804d9ee68ef0c8a5f482255247d157cb4ded882333ed
+F www/title-test.md 40ea799ed4e16daf62c3605a55da61fb134bbab2335b8a94d8823f547cf2e02c
 F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
 F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294c6
 F www/unvers.wiki 9299caef1613ccb370a28698bafd2900d4f05c8c8e06620807879052bdcb61b2
@@ -966,8 +967,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e28cc7373a6698f5bf6e303f602e97e695bc619beb200e4605c887f9153770e4
-R ece470627376abde6ea04ad6749acc00
-U mgagnon
-Z d511f039220536750fb07d6bdcd86cc1
+P 6d4cd32921494377cb00014a5502f358f466f761f8ffc4ec8f71a9b204e5ca5c
+R cd87f176a36eabd7884f32a0cbfcd750
+U drh
+Z 7be98181ba962e1d3d6d17b474d49bad
 # Remove this line to create a well-formed Fossil manifest.
