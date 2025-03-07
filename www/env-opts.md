@@ -41,7 +41,7 @@ individual bits in `NUMBER`, which must be specified in base 10:
 
   * _0_ &mdash; Uses the revised algorithm with no special handling.
 
-  * _1_ &mdash; Uses the legacy algorithm, other flags are ignored.
+  * _1_ &mdash; Uses the canonical algorithm, other flags are ignored.
 
   * _2_ &mdash; Trims leading and trailing carriage-returns and line-feeds
         where they do not materially impact pre-existing formatting
@@ -61,6 +61,11 @@ individual bits in `NUMBER`, which must be specified in base 10:
 
 
 `--comment-format NUMBER`: Alias for `--comfmtflags NUMBER`.
+
+
+> NOTE: As of Fossil version 2.26, use of the `--comfmtflags` and
+> `--comment-format` options is no longer recommended and they are
+> no longer documented, but retained for backwards compatibility.
 
 
 `--errorlog ERRLOG`: Name a file to which fossil will log panics,
@@ -212,6 +217,10 @@ used as the location of the `~/.fossil` file.
 `LOGNAME`: Name of the logged in user on many Unix-like platforms.
 Used as the fossil user name if `FOSSIL_USER` is not specified. See
 the discussion of Fossil Username below for a lot more detail.
+
+`NO_COLOR`: If defined and not set to a `false` value (i.e. "off", "no",
+"false", "0"), the `fossil search` command skips colorization of console
+output using ANSI escape codes (VT100).
 
 `PATH`: Used by most platforms to locate programs invoked without a
 fully qualified name. Explicitly used by `fossil ui` on certain platforms
@@ -466,8 +475,8 @@ will happen on all platforms.
 
 Occasionally, fossil wants to launch a web browser for the user, most
 obviously as part of the `fossil ui` command. In that specific case,
-the browser is launched pointing at the web server started by `fossil
-ui` listening on a private TCP port.
+the browser is launched pointing at the web server started by
+`fossil ui` listening on a private TCP port.
 
 On all platforms, if the local or global settings `web-browser` is
 set, that is the command used to open a URL.

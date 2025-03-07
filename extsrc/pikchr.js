@@ -302,7 +302,7 @@ var dataURIPrefix = "data:application/octet-stream;base64,";
 // include: runtime_exceptions.js
 // end include: runtime_exceptions.js
 function findWasmBinary() {
-  var f = "pikchr.wasm";
+  var f = "pikchr-v7583078860.wasm";
   if (!isDataURI(f)) {
     return locateFile(f);
   }
@@ -787,13 +787,15 @@ var wasmExports = createWasm();
 
 var ___wasm_call_ctors = () => (___wasm_call_ctors = wasmExports["e"])();
 
-var _pikchr = Module["_pikchr"] = (a0, a1, a2, a3, a4) => (_pikchr = Module["_pikchr"] = wasmExports["g"])(a0, a1, a2, a3, a4);
+var _pikchr_version = Module["_pikchr_version"] = () => (_pikchr_version = Module["_pikchr_version"] = wasmExports["g"])();
 
-var __emscripten_stack_restore = a0 => (__emscripten_stack_restore = wasmExports["h"])(a0);
+var _pikchr = Module["_pikchr"] = (a0, a1, a2, a3, a4) => (_pikchr = Module["_pikchr"] = wasmExports["h"])(a0, a1, a2, a3, a4);
 
-var __emscripten_stack_alloc = a0 => (__emscripten_stack_alloc = wasmExports["i"])(a0);
+var __emscripten_stack_restore = a0 => (__emscripten_stack_restore = wasmExports["i"])(a0);
 
-var _emscripten_stack_get_current = () => (_emscripten_stack_get_current = wasmExports["j"])();
+var __emscripten_stack_alloc = a0 => (__emscripten_stack_alloc = wasmExports["j"])(a0);
+
+var _emscripten_stack_get_current = () => (_emscripten_stack_get_current = wasmExports["k"])();
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===
@@ -802,6 +804,8 @@ Module["stackSave"] = stackSave;
 Module["stackRestore"] = stackRestore;
 
 Module["stackAlloc"] = stackAlloc;
+
+Module["ccall"] = ccall;
 
 Module["cwrap"] = cwrap;
 

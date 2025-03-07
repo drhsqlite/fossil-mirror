@@ -820,6 +820,8 @@ static void export_config(
 **         the remote repository at URL.
 **
 ** Options:
+**    --proxy PROXY              Use PROXY as http proxy during sync operation
+**                               (used by pull, push and sync subcommands)
 **    -R|--repository REPO       Affect repository REPO with changes
 **
 ** See also: [[settings]], [[unset]]

@@ -641,13 +641,22 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 }
 
 /*
-** This function attempts to find command line options known to contain
-** bitwise flags and initializes the associated global variables.  After
-** this function executes, all global variables (i.e. in the "g" struct)
-** containing option-settable bitwise flag fields must be initialized.
+** Initialize the g.comFmtFlags global variable.
+**
+** Global command-line options --comfmtflags or --comment-format can be
+** used for this.  However, those command-line options are undocumented
+** and deprecated.   They are here for backwards compatibility only.
 */
 static void fossil_init_flags_from_options(void){
-  g.comFmtFlags = COMMENT_PRINT_UNSET;   /* Use comment-format flag */
+  const char *zValue = find_option("comfmtflags", 0, 1);
+  if( zValue==0 ){
+    zValue = find_option("comment-format", 0, 1);
+  }
+  if( zValue ){
+    g.comFmtFlags = atoi(zValue);
+  }else{
+    g.comFmtFlags = COMMENT_PRINT_UNSET;   /* Command-line option not found. */
+  }
 }
 
 /*
