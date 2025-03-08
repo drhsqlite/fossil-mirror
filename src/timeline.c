@@ -1115,7 +1115,7 @@ double symbolic_name_to_mtime(const char *z, const char **pzDisplay){
   }
   rid = symbolic_name_to_rid(z, "*");
   if( rid ){
-    mtime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
+    mtime = mtime_of_rid(rid, 0.0);
   }else{
     mtime = db_double(-1.0,
         "SELECT max(event.mtime) FROM event, tag, tagxref"
@@ -2266,16 +2266,14 @@ void page_timeline(void){
       double rStopTime = 9e99;
       zFwdTo = P("ft");
       if( zFwdTo ){
-        double rStartDate = db_double(0.0,
-           "SELECT mtime FROM event WHERE objid=%d", d_rid);
+        double rStartDate = mtime_of_rid(d_rid, 0.0);
         ridFwdTo = first_checkin_with_tag_after_date(zFwdTo, rStartDate);
         if( ridFwdTo==0 ){
           ridFwdTo = name_to_typed_rid(zBackTo,"ci");
         }
         if( ridFwdTo ){
           if( !haveParameterN ) nEntry = 0;
-          rStopTime = db_double(9e99,
-            "SELECT mtime FROM event WHERE objid=%d", ridFwdTo);
+          rStopTime = mtime_of_rid(ridFwdTo, 9e99);
         }
       }
       if( rStopTime<9e99 ){
@@ -2304,8 +2302,7 @@ void page_timeline(void){
     if( p_rid ){
       zBackTo = P("bt");
       if( zBackTo ){
-        double rDateLimit = db_double(0.0,
-           "SELECT mtime FROM event WHERE objid=%d", p_rid);
+        double rDateLimit = mtime_of_rid(p_rid, 0.0);
         ridBackTo = last_checkin_with_tag_before_date(zBackTo, rDateLimit);
         if( ridBackTo==0 ){
           ridBackTo = name_to_typed_rid(zBackTo,"ci");

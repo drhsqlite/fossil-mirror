@@ -20,6 +20,7 @@
 #include "config.h"
 #include "path.h"
 #include <assert.h>
+#include <math.h>
 
 #if INTERFACE
 /* Nodes for the paths through the DAG.
@@ -29,14 +30,14 @@ struct PathNode {
   u8 fromIsParent;         /* True if pFrom is the parent of rid */
   u8 isPrim;               /* True if primary side of common ancestor */
   u8 isHidden;             /* Abbreviate output in "fossil bisect ls" */
-  u8 nDelay;               /* Delay this many steps before walking */
   char *zBranch;           /* Branch name for this node.  Might be NULL */
+  double mtime;            /* Date/time of this check-in */
   PathNode *pFrom;         /* Node we came from */
   union {
-    PathNode *pPeer;       /* List of nodes of the same generation */
+    double rCost;          /* Cost of getting to this node from pStart */
     PathNode *pTo;         /* Next on path from beginning to end */
   } u;
-  PathNode *pAll;        /* List of all nodes */
+  PathNode *pAll;          /* List of all nodes */
 };
 #endif
 
@@ -44,12 +45,12 @@ struct PathNode {
 ** Local variables for this module
 */
 static struct {
-  PathNode *pCurrent;   /* Current generation of nodes */
+  PQueue pending;       /* Nodes pending review for inclusion in the graph */
   PathNode *pAll;       /* All nodes */
-  Bag seen;             /* Nodes seen before */
   int nStep;            /* Number of steps from first to last */
   int nNotHidden;       /* Number of steps not counting hidden nodes */
-  u8 brCost;            /* Extra cost for moving to a different branch */
+  int brCost;           /* Extra cost for moving to a different branch */
+  int revCost;          /* Extra cost for changing directions */
   PathNode *pStart;     /* Earliest node */
   PathNode *pEnd;       /* Most recent */
 } path;
@@ -71,27 +72,36 @@ int path_length(void){ return path.nStep; }
 int path_length_not_hidden(void){ return path.nNotHidden; }
 
 /*
-** Create a new node
+** Create a new node and insert it into the path.pending queue.
 */
 static PathNode *path_new_node(int rid, PathNode *pFrom, int isParent){
   PathNode *p;
 
   p = fossil_malloc( sizeof(*p) );
   memset(p, 0, sizeof(*p));
+  p->pAll = path.pAll;
+  path.pAll = p;
   p->rid = rid;
   p->fromIsParent = isParent;
   p->pFrom = pFrom;
+  p->u.rCost = pFrom ? pFrom->u.rCost : 0.0;
   if( path.brCost ){
     p->zBranch = branch_of_rid(rid);
-    if( pFrom && fossil_strcmp(p->zBranch, pFrom->zBranch)!=0 ){
-      p->nDelay = path.brCost;
+    p->mtime = mtime_of_rid(rid, 0.0);
+    if( pFrom ){
+      p->u.rCost +=  fabs(pFrom->mtime - p->mtime);
+      if( fossil_strcmp(p->zBranch, pFrom->zBranch)!=0 ){
+        p->u.rCost += path.brCost;
+      }
     }
+  }else{
+    /* When brCost==0, we try to minimize the number of nodes
+    ** along the path.  The cost is just the number of nodes back
+    ** to the start.  We do not need to know the branch name nor
+    ** the mtime */
+    p->u.rCost += 1.0;
   }
-  p->u.pPeer = path.pCurrent;
-  path.pCurrent = p;
-  p->pAll = path.pAll;
-  path.pAll = p;
-  bag_insert(&path.seen, rid);
+  pqueuex_insert_ptr(&path.pending, (void*)p, p->u.rCost);
   return p;
 }
 
@@ -106,7 +116,7 @@ void path_reset(void){
     fossil_free(p->zBranch);
     fossil_free(p);
   }
-  bag_clear(&path.seen);
+  pqueuex_clear(&path.pending);
   memset(&path, 0, sizeof(path));
 }
 
@@ -144,9 +154,8 @@ PathNode *path_shortest(
   int branchCost      /* Add extra codes to changing branches */
 ){
   Stmt s;
-  PathNode *pPrev;
+  Bag seen;
   PathNode *p;
-  int nPriorPeer = 1;
 
   path_reset();
   path.brCost = branchCost;
@@ -176,41 +185,29 @@ PathNode *path_shortest(
         "SELECT pid, 0 FROM plink WHERE cid=:pid"
     );
   }
-  while( path.pCurrent ){
-    if( nPriorPeer ) path.nStep++;
-    nPriorPeer = 0;
-    pPrev = path.pCurrent;
-    path.pCurrent = 0;
-    while( pPrev ){
-      if( pPrev->nDelay>0 && (nPriorPeer>0 || pPrev->u.pPeer!=0) ){
-        PathNode *pThis = pPrev;
-        pPrev = pThis->u.pPeer;
-        pThis->u.pPeer = path.pCurrent;
-        path.pCurrent = pThis;
-        pThis->nDelay--;
-        continue;
+  bag_init(&seen);
+  while( (p = pqueuex_extract_ptr(&path.pending))!=0 ){
+    if( p->rid==iTo ){
+      db_finalize(&s);
+      path.pEnd = p;
+      path_reverse_path();
+      for(p=path.pStart->u.pTo; p; p=p->u.pTo ){
+        if( !p->isHidden ) path.nNotHidden++;
       }
-      nPriorPeer++;
-      db_bind_int(&s, ":pid", pPrev->rid);
-      while( db_step(&s)==SQLITE_ROW ){
-        int cid = db_column_int(&s, 0);
-        int isParent = db_column_int(&s, 1);
-        if( bag_find(&path.seen, cid) ) continue;
-        p = path_new_node(cid, pPrev, isParent);
-        if( pHidden && bag_find(pHidden,cid) ) p->isHidden = 1;
-        if( cid==iTo ){
-          db_finalize(&s);
-          path.pEnd = p;
-          path_reverse_path();
-          for(p=path.pStart->u.pTo; p; p=p->u.pTo ){
-            if( !p->isHidden ) path.nNotHidden++;
-          }
-          return path.pStart;
-        }
-      }
-      db_reset(&s);
-      pPrev = pPrev->u.pPeer;
+      return path.pStart;
     }
+    if( bag_find(&seen, p->rid) ) continue;
+    bag_insert(&seen, p->rid);
+    db_bind_int(&s, ":pid", p->rid);
+    while( db_step(&s)==SQLITE_ROW ){
+      int cid = db_column_int(&s, 0);
+      int isParent = db_column_int(&s, 1);
+      PathNode *pNew;
+      if( bag_find(&seen, cid) ) continue;
+      pNew = path_new_node(cid, p, isParent);
+      if( pHidden && bag_find(pHidden,cid) ) pNew->isHidden = 1;
+    }
+    db_reset(&s);
   }
   db_finalize(&s);
   path_reset();
@@ -335,7 +332,7 @@ void shortest_path_test_cmd(void){
 */
 int path_common_ancestor(int iMe, int iYou){
   Stmt s;
-  PathNode *pPrev;
+  PathNode *pThis;
   PathNode *p;
   Bag me, you;
 
@@ -350,41 +347,36 @@ int path_common_ancestor(int iMe, int iYou){
   bag_insert(&me, iMe);
   bag_init(&you);
   bag_insert(&you, iYou);
-  while( path.pCurrent ){
-    pPrev = path.pCurrent;
-    path.pCurrent = 0;
-    while( pPrev ){
-      db_bind_int(&s, ":cid", pPrev->rid);
-      while( db_step(&s)==SQLITE_ROW ){
-        int pid = db_column_int(&s, 0);
-        if( bag_find(pPrev->isPrim ? &you : &me, pid) ){
-          /* pid is the common ancestor */
-          PathNode *pNext;
-          for(p=path.pAll; p && p->rid!=pid; p=p->pAll){}
-          assert( p!=0 );
-          pNext = p;
-          while( pNext ){
-            pNext = p->pFrom;
-            p->pFrom = pPrev;
-            pPrev = p;
-            p = pNext;
-          }
-          if( pPrev==path.pStart ) path.pStart = path.pEnd;
-          path.pEnd = pPrev;
-          path_reverse_path();
-          db_finalize(&s);
-          return pid;
-        }else if( bag_find(&path.seen, pid) ){
-          /* pid is just an alternative path on one of the legs */
-          continue;
+  while( (pThis = pqueuex_extract_ptr(&path.pending))!=0 ){
+    db_bind_int(&s, ":cid", pThis->rid);
+    while( db_step(&s)==SQLITE_ROW ){
+      int pid = db_column_int(&s, 0);
+      if( bag_find(pThis->isPrim ? &you : &me, pid) ){
+        /* pid is the common ancestor */
+        PathNode *pNext;
+        for(p=path.pAll; p && p->rid!=pid; p=p->pAll){}
+        assert( p!=0 );
+        pNext = p;
+        while( pNext ){
+          pNext = p->pFrom;
+          p->pFrom = pThis;
+          pThis = p;
+          p = pNext;
         }
-        p = path_new_node(pid, pPrev, 0);
-        p->isPrim = pPrev->isPrim;
-        bag_insert(pPrev->isPrim ? &me : &you, pid);
+        if( pThis==path.pStart ) path.pStart = path.pEnd;
+        path.pEnd = pThis;
+        path_reverse_path();
+        db_finalize(&s);
+        return pid;
+      }else if( bag_find(pThis->isPrim ? &me : &you, pid) ){
+        /* pid is just an alternative path to a node we've already visited */
+        continue;
       }
-      db_reset(&s);
-      pPrev = pPrev->u.pPeer;
+      p = path_new_node(pid, pThis, 0);
+      p->isPrim = pThis->isPrim;
+      bag_insert(pThis->isPrim ? &me : &you, pid);
     }
+    db_reset(&s);
   }
   db_finalize(&s);
   path_reset();
