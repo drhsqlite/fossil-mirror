@@ -395,26 +395,26 @@ void user_edit(void){
   }else{
     /* We have all the information we need to make the change to the user */
     char c;
-    char zCap[70], zNm[4];
+    char aCap[70], zNm[4];
     zNm[0] = 'a';
     zNm[2] = 0;
     for(i=0, c='a'; c<='z'; c++){
       zNm[1] = c;
       a[c&0x7f] = ((c!='s' && c!='y') || g.perm.Setup) && P(zNm)!=0;
-      if( a[c&0x7f] ) zCap[i++] = c;
+      if( a[c&0x7f] ) aCap[i++] = c;
     }
     for(c='0'; c<='9'; c++){
       zNm[1] = c;
       a[c&0x7f] = P(zNm)!=0;
-      if( a[c&0x7f] ) zCap[i++] = c;
+      if( a[c&0x7f] ) aCap[i++] = c;
     }
     for(c='A'; c<='Z'; c++){
       zNm[1] = c;
       a[c&0x7f] = P(zNm)!=0;
-      if( a[c&0x7f] ) zCap[i++] = c;
+      if( a[c&0x7f] ) aCap[i++] = c;
     }
 
-    zCap[i] = 0;
+    aCap[i] = 0;
     zPw = P("pw");
     zLogin = P("login");
     if( strlen(zLogin)==0 ){
@@ -449,7 +449,7 @@ void user_edit(void){
     db_multi_exec(
        "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
        "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
-      uid, zLogin, P("info"), zPw, zCap
+      uid, zLogin, P("info"), zPw, &aCap[0]
     );
     if( zOldLogin && fossil_strcmp(zLogin, zOldLogin)!=0 ){
       if( alert_tables_exist() ){
@@ -463,7 +463,7 @@ void user_edit(void){
     db_protect_pop();
     setup_incr_cfgcnt();
     admin_log( "Updated user [%q] with capabilities [%q].",
-               zLogin, zCap );
+               zLogin, &aCap[0] );
     if( atoi(PD("all","0"))>0 ){
       Blob sql;
       char *zErr = 0;
@@ -498,7 +498,7 @@ void user_edit(void){
         "  cap=%Q,"
         "  mtime=now()"
         " WHERE login=%Q;",
-        zLogin, P("pw"), zLogin, P("info"), zCap,
+        zLogin, P("pw"), zLogin, P("info"), &aCap[0],
         zOldLogin
       );
       db_unprotect(PROTECT_USER);
@@ -507,7 +507,7 @@ void user_edit(void){
       blob_reset(&sql);
       admin_log( "Updated user [%q] in all login groups "
                  "with capabilities [%q].",
-                 zLogin, zCap );
+                 zLogin, &aCap[0] );
       if( zErr ){
         const char *zRef = cgi_referer("setup_ulist");
         style_header("User Change Error");
