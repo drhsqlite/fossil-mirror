@@ -495,7 +495,7 @@ void user_edit(void){
     }
 
     aCap[i] = 0;
-    bHasNewCaps = userHasNewCaps(zOldCaps, &aCap[0]);
+    bHasNewCaps = bIsNew || userHasNewCaps(zOldCaps, &aCap[0]);
     zPw = P("pw");
     zLogin = P("login");
     if( strlen(zLogin)==0 ){

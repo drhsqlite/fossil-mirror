@@ -1,5 +1,5 @@
-C Slight\ssimplification\sto\sthe\sprevious\scheck-in.
-D 2025-03-08T14:43:59.449
+C Send\sthe\salert\sfor\snew\susers\seven\sif\sthey\shave\sempty\spermissions.
+D 2025-03-08T14:47:42.001
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -527,7 +527,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c d80406f29f990a239f472688b0e7601d1c73707cbe639ea8e6b448f331b598d3
 F src/security_audit.c 88ccc26b105d86edac19ac863314234312aa647e208066679ee3468e1616711c
 F src/setup.c 21f7f13db4bfff33333a289caf6ede3a05ab92c5d04faabae30605c12fb25475
-F src/setupuser.c 2f620609ee3df2336e3dd84fdc3c56162dec888d17a776c7e973fc70f9df59ec
+F src/setupuser.c 674c2601c7952cdfefdf68d7511fa9d624303c2e2c41f11087c074cb1699b9be
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a2ad05a855e8a96fcd0597356288e239e48f9af0f90216ba66b48effc9ef3256
-R 42b2c884e5a8d393724314fc736f0f60
+P 28b4382e23ec262b461a67789499e6e135e39256381e7361371bf2550b2ec01c
+R 1ac285ece54e98e0b16fe2d495493513
 U stephan
-Z 7a4886ad20d4bec310819c7abe025a59
+Z a76614f43204ddc3f1ca2b683b1874fd
 # Remove this line to create a well-formed Fossil manifest.
