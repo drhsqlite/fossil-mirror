@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\strunk\senhancements\sinto\sthe\scomment-markdown-links\sbranch.
-D 2025-03-07T23:19:24.610
+C Improved\simplementation\sof\sthe\sPQueue\sobject,\swith\sthe\sadded\soption\sto\ncarry\san\sarbitrary\spointer\sas\scontent.
+D 2025-03-08T12:04:02.508
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -513,7 +513,7 @@ F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e2
 F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a83c
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
 F src/popen.c 1b97d68d5aa43c0d88af6c9324b32efc011920038a382f39097d6f204b2f3a4d
-F src/pqueue.c d92e2b6cb6b19f894dbd4245ee93df36ea160ecb6fecf6ea80f096a95251c88a
+F src/pqueue.c 4bc9471b252a8624435660be144d0031c40d8c10cb023321ab9234cda156eb02
 F src/printf.c 9d2a2e95522f59c6dda89a982cdfebabf5e2ac5bed1e818e8299f4baf083600e
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1029539757cb1ee369819f7ff3f5e648495029e25f523cff6f48c9079cfe507c af57f63dee2822ad784612f9d07b02fadb3e5812cc68e1db1776d0881378b980
-R 93ca49e26a71e7c8ea22aa3da2ddc0d4
+P 459499b0eac09ff1f718ee0cbaa749d93c59ef9ef527c388d88ed1bd569c4be1
+R b453aaa0a4a01814d4b9e4ddeba18b79
 U drh
-Z 6730542ef67f2ea20070e68f37c018b8
+Z 2f209cbb089d1c80d0d42dea0f2da379
 # Remove this line to create a well-formed Fossil manifest.
