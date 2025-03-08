@@ -306,6 +306,30 @@ static int isValidPwString(const char *zPw){
 }
 
 /*
+** Return 1 if user capability string zCaps contains the given
+** capability letter, else 0.
+*/
+static int userCapsContain(const char *zCaps, const char letter){
+  for( ; zCaps && *zCaps; ++zCaps ){
+    if( letter==*zCaps ) return 1;
+  }
+  return 0;
+}
+
+/*
+** Return 1 if user capability string zNew contains any capability
+** letter which is not in user capability string zOrig, else 0.
+*/
+static int userCapsAreElevated(const char *zOrig, const char *zNew){
+  for( ; zNew && *zNew; ++zNew ){
+    if( !userCapsContain(zOrig, *zNew) ){
+      return 1;
+    }
+  }
+  return 0;
+}
+
+/*
 ** WEBPAGE: setup_uedit
 **
 ** Edit information about a user or create a new user.
@@ -316,6 +340,7 @@ void user_edit(void){
   const char *zGroup;
   const char *zOldLogin;
   int uid, i;
+  char *zOldCaps = 0;        /* Capabilities before edit */
   char *zDeleteVerify = 0;   /* Delete user verification text */
   int higherUser = 0;  /* True if user being edited is SETUP and the */
                        /* user doing the editing is ADMIN.  Disallow editing */
@@ -333,10 +358,11 @@ void user_edit(void){
   */
   zId = PD("id", "0");
   uid = atoi(zId);
-  if( zId && !g.perm.Setup && uid>0 ){
-    char *zOldCaps;
+  if( uid>0 ){
     zOldCaps = db_text(0, "SELECT cap FROM user WHERE uid=%d",uid);
-    higherUser = zOldCaps && strchr(zOldCaps,'s');
+    if( zId && !g.perm.Setup ){
+      higherUser = zOldCaps && strchr(zOldCaps,'s');
+    }
   }
 
   if( P("can") ){
@@ -462,8 +488,11 @@ void user_edit(void){
     }
     db_protect_pop();
     setup_incr_cfgcnt();
-    admin_log( "Updated user [%q] with capabilities [%q].",
-               zLogin, &aCap[0] );
+    admin_log( "Updated user [%q] with%s capabilities [%q].",
+               zLogin,
+               userCapsAreElevated(zOldCaps, &aCap[0])
+               ? " elevated" : "",
+               &aCap[0] );
     if( atoi(PD("all","0"))>0 ){
       Blob sql;
       char *zErr = 0;
@@ -528,7 +557,7 @@ void user_edit(void){
   */
   zLogin = "";
   zInfo = "";
-  zCap = "";
+  zCap = zOldCaps;
   zPw = "";
   for(i='a'; i<='z'; i++) oa[i] = "";
   for(i='0'; i<='9'; i++) oa[i] = "";
