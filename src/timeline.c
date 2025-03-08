@@ -1574,10 +1574,10 @@ void timeline_test_endpoint(void){
 **    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
 **    bt=CHECKIN      "Back To".  Show ancenstors going back to CHECKIN
 **                       p=CX       ... from CX back to time of CHECKIN
-**                       from=CX    ... shortest path from CX back to CHECKIN
+**                       from=CX    ... path from CX back to CHECKIN
 **    ft=CHECKIN      "Forward To":  Show decendents forward to CHECKIN
 **                       d=CX       ... from CX up to the time of CHECKIN
-**                       from=CX    ... shortest path from CX up to CHECKIN
+**                       from=CX    ... path from CX up to CHECKIN
 **    t=TAG           Show only check-ins with the given TAG
 **    r=TAG           Same as 't=TAG&rel'.  Mnemonic: "Related"
 **    tl=TAGLIST      Same as 't=TAGLIST&ms=brlist'.  Mnemonic: "Tag List"
@@ -1602,17 +1602,17 @@ void timeline_test_endpoint(void){
 **    v               Show details of files changed
 **    vfx             Show complete text of forum messages
 **    f=CHECKIN       Family (immediate parents and children) of CHECKIN
-**    from=CHECKIN    Path through common ancestor from...
-**                       to=CHECKIN      ... to this
-**                       to2=CHECKIN     ... backup name if to= doesn't resolve
-**                       rel             ... also show related checkins
-**                       min             ... only show key nodes of the path
-**                       abd             ... avoid branch detours
-**                       bt=PRIOR        ... path from CHECKIN back to PRIOR
-**                       ft=LATER        ... path from CHECKIN forward to LATER
-**    me=CHECKIN      Most direct path from...
-**                       you=CHECKIN     ... to this
-**                       rel             ... also show related checkins
+**    from=CHECKIN    Path through common ancestor from CHECKIN...
+**                       to=CHECKIN   ... to this
+**                       to2=CHECKIN  ... backup name if to= doesn't resolve
+**                       shortest     ... pick path with least number of nodes
+**                       rel          ... also show related checkins
+**                       min          ... hide long sequences along same branch
+**                       bt=PRIOR     ... path from CHECKIN back to PRIOR
+**                       ft=LATER     ... path from CHECKIN forward to LATER
+**    me=CHECKIN      Most direct path from CHECKIN...
+**                       you=CHECKIN  ... to this
+**                       rel          ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
 **                    All qualifying check-ins are shown unless there is
 **                    also an n= or n1= query parameter.
@@ -1699,6 +1699,7 @@ void page_timeline(void){
   int from_rid = name_to_typed_rid(P("from"),"ci"); /* from= for paths */
   const char *zTo2 = 0;
   int to_rid = name_choice("to","to2",&zTo2);    /* to= for path timelines */
+  int bShort = P("shortest")!=0;                 /* shortest possible path */
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
   int pd_rid;
@@ -2075,7 +2076,7 @@ void page_timeline(void){
     int nNodeOnPath = 0;
     int commonAncs = 0;    /* Common ancestors of me_rid and you_rid. */
     int earlierRid = 0, laterRid = 0;
-    int cost = bMin || P("abd")!=0 ? 1 : 0;
+    int cost = bMin || !bShort ? 1 : 0;
 
     if( from_rid && to_rid ){
       if( from_to_mode==0 ){
