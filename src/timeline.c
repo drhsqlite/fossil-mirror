@@ -1605,7 +1605,6 @@ void timeline_test_endpoint(void){
 **    from=CHECKIN    Path through common ancestor from...
 **                       to=CHECKIN      ... to this
 **                       to2=CHECKIN     ... backup name if to= doesn't resolve
-**                       shortest        ... show only the shortest path
 **                       rel             ... also show related checkins
 **                       min             ... only show key nodes of the path
 **                       abd             ... avoid branch detours
@@ -1700,7 +1699,6 @@ void page_timeline(void){
   int from_rid = name_to_typed_rid(P("from"),"ci"); /* from= for paths */
   const char *zTo2 = 0;
   int to_rid = name_choice("to","to2",&zTo2);    /* to= for path timelines */
-  int noMerge = P("shortest")==0;           /* Follow merge links if shorter */
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
   int pd_rid;
@@ -2077,11 +2075,11 @@ void page_timeline(void){
     int nNodeOnPath = 0;
     int commonAncs = 0;    /* Common ancestors of me_rid and you_rid. */
     int earlierRid = 0, laterRid = 0;
-    int cost = bMin || P("abd")!=0 ? 100 : 0;
+    int cost = bMin || P("abd")!=0 ? 1 : 0;
 
     if( from_rid && to_rid ){
       if( from_to_mode==0 ){
-        p = path_shortest(from_rid, to_rid, noMerge, 0, 0, cost);
+        p = path_shortest(from_rid, to_rid, 0, 0, 0, cost);
       }else if( from_to_mode==1 ){
         p = path_shortest(from_rid, to_rid, 0, 1, 0, cost);
         earlierRid = commonAncs = from_rid;
@@ -2116,25 +2114,16 @@ void page_timeline(void){
     );
     if( p ){
       int cnt = 4;
-      char *zPriorBr = 0, *zThisBr = 0, *zNextBr = 0;
       blob_init(&ins, 0, 0);
       blob_append_sql(&ins, "INSERT INTO pathnode(x) VALUES(%d)", p->rid);
       if( p->u.pTo==0 ) bMin = 0;
-      if( bMin ){
-        zThisBr = branch_of_rid(p->rid);
-        zNextBr = branch_of_rid(p->u.pTo->rid);
-      }
       for(p=p->u.pTo; p; p=p->u.pTo){
-        if( bMin && p->u.pTo!=0 ){
-          fossil_free(zPriorBr);
-          zPriorBr = zThisBr;
-          zThisBr = zNextBr;
-          zNextBr = branch_of_rid(p->u.pTo->rid);
-          if( fossil_strcmp(zPriorBr,zThisBr)==0
-           && fossil_strcmp(zThisBr,zNextBr)==0
-          ){
-            continue;
-          }
+        if( bMin
+         && p->u.pTo!=0
+         && fossil_strcmp(p->pFrom->zBranch,p->zBranch)==0
+         && fossil_strcmp(p->zBranch,p->u.pTo->zBranch)==0
+        ){
+          continue;
         }
         if( cnt==8 ){
           blob_append_sql(&ins, ",\n  (%d)", p->rid);
@@ -2144,9 +2133,6 @@ void page_timeline(void){
           blob_append_sql(&ins, ",(%d)", p->rid);
         }
       }
-      fossil_free(zPriorBr);
-      fossil_free(zThisBr);
-      fossil_free(zNextBr);
     }
     path_reset();
     db_multi_exec("%s", blob_str(&ins)/*safe-for-%s*/);
