@@ -359,7 +359,7 @@ void user_edit(void){
   zId = PD("id", "0");
   uid = atoi(zId);
   if( uid>0 ){
-    zOldCaps = db_text(0, "SELECT cap FROM user WHERE uid=%d",uid);
+    zOldCaps = db_text("", "SELECT cap FROM user WHERE uid=%d",uid);
     if( zId && !g.perm.Setup ){
       higherUser = zOldCaps && strchr(zOldCaps,'s');
     }
@@ -563,9 +563,9 @@ void user_edit(void){
   for(i='0'; i<='9'; i++) oa[i] = "";
   for(i='A'; i<='Z'; i++) oa[i] = "";
   if( uid ){
+    assert( zCap );
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
-    zCap = db_text("", "SELECT cap FROM user WHERE uid=%d", uid);
     zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", uid);
     for(i=0; zCap[i]; i++){
       char c = zCap[i];

@@ -1,5 +1,5 @@
-C Initial\ssteps\stoward\smore\sprominently\srecording\swhen\sa\suser's\spermissions\sare\selevated.\sThis\scurrently\sonly\schanges\sthe\sadmin\slog\soutput\sbut\sthe\seventual\sintent\sis\sto\senable\soptional\semail\snotifications\swhen\sa\suser\saccount\sis\selevated.
-D 2025-03-08T11:31:17.994
+C Remove\sa\sduplicated\squery.
+D 2025-03-08T11:34:31.391
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -527,7 +527,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c d80406f29f990a239f472688b0e7601d1c73707cbe639ea8e6b448f331b598d3
 F src/security_audit.c 88ccc26b105d86edac19ac863314234312aa647e208066679ee3468e1616711c
 F src/setup.c 21f7f13db4bfff33333a289caf6ede3a05ab92c5d04faabae30605c12fb25475
-F src/setupuser.c c309a755aa57315acb7a72890a00f0d046bedc74dc4e984528507fced735931b
+F src/setupuser.c a43b2e63ae58847765e59e33be394b6f66356c00e587bcc99509d22ef416a054
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
@@ -968,11 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74b149f2e25916f0d0d491ce3fad438574026d4974f46a18ba090b4a5e78492c
-R 47fe6ed2ec6ac1cdff0a0b723acb7327
-T *branch * useredit-note-elevation
-T *sym-useredit-note-elevation *
-T -sym-trunk * Cancelled\sby\sbranch.
+P 22b648e9e5893ee22ab292de537996ac2ac7d2738502258aa0663e79cb37700e
+R c4abda3642eb2f7c4da9e148216827e9
 U stephan
-Z 66cb2ac6497d93c487f9f9d227906118
+Z 5c32bdeeb5f5ddbfc9cee1a619f3a4f7
 # Remove this line to create a well-formed Fossil manifest.
