@@ -552,13 +552,9 @@ void user_edit(void){
     }
     db_protect_pop();
     setup_incr_cfgcnt();
-    if( bIsNew ){
-      admin_log( "Added user [%q] with capabilities [%q].",
-                 zLogin, &aCap[0] );
-    }else {
-      admin_log( "Updated user [%q] with capabilities [%q].",
-                 zLogin, &aCap[0] );
-    }
+    admin_log( "%s user [%q] with capabilities [%q].",
+               bIsNew ? "Added" : "Updated",
+               zLogin, &aCap[0] );
     if( atoi(PD("all","0"))>0 ){
       Blob sql;
       char *zErr = 0;
