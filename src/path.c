@@ -54,6 +54,7 @@ static struct {
   PathNode *pStart;     /* Earliest node */
   PathNode *pEnd;       /* Most recent */
 } path;
+static int path_debug = 0;  /* Flag to enable debugging */
 
 /*
 ** Return the first (last) element of the computed path.
@@ -70,6 +71,34 @@ int path_length(void){ return path.nStep; }
 ** Return the number of non-hidden steps in the computed path.
 */
 int path_length_not_hidden(void){ return path.nNotHidden; }
+
+/*
+** Used for debugging only.
+**
+** Given a RID, return the ISO date/time string and branch for the
+** corresponding check-in.  Memory is held locally and is overwritten
+** with each call.
+*/
+char *path_rid_desc(int rid){
+  static Stmt q;
+  static char *zDesc = 0;
+  db_static_prepare(&q, 
+    "SELECT concat(strftime('%%Y%%m%%d%%H%%M',event.mtime),'/',value)"
+    "  FROM event, tagxref"
+    " WHERE event.objid=:rid"
+    "   AND tagxref.rid=:rid"
+    "   AND tagxref.tagid=%d"
+    "   AND tagxref.tagtype>0",
+    TAG_BRANCH
+  );
+  fossil_free(zDesc);
+  db_bind_int(&q, ":rid", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    zDesc = fossil_strdup(db_column_text(&q,0));
+  }
+  db_reset(&q);
+  return zDesc ? zDesc : "???";
+}
 
 /*
 ** Create a new node and insert it into the path.pending queue.
@@ -100,6 +129,9 @@ static PathNode *path_new_node(int rid, PathNode *pFrom, int isParent){
     ** to the start.  We do not need to know the branch name nor
     ** the mtime */
     p->u.rCost += 1.0;
+  }
+  if( path_debug ){
+    fossil_print("PUSH %-50s cost = %g\n", path_rid_desc(p->rid), p->u.rCost);
   }
   pqueuex_insert_ptr(&path.pending, (void*)p, p->u.rCost);
   return p;
@@ -176,17 +208,20 @@ PathNode *path_shortest(
     db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim "
         "UNION ALL "
-        "SELECT pid, 0 FROM plink WHERE cid=:pid AND isprim"
+        "SELECT pid, 0 FROM plink WHERE :back AND cid=:pid AND isprim"
     );
   }else{
     db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid "
         "UNION ALL "
-        "SELECT pid, 0 FROM plink WHERE cid=:pid"
+        "SELECT pid, 0 FROM plink WHERE :back AND cid=:pid"
     );
   }
   bag_init(&seen);
   while( (p = pqueuex_extract_ptr(&path.pending))!=0 ){
+    if( path_debug ){
+      printf("PULL %s %g\n", path_rid_desc(p->rid), p->u.rCost);
+    }
     if( p->rid==iTo ){
       db_finalize(&s);
       path.pEnd = p;
@@ -199,6 +234,7 @@ PathNode *path_shortest(
     if( bag_find(&seen, p->rid) ) continue;
     bag_insert(&seen, p->rid);
     db_bind_int(&s, ":pid", p->rid);
+    if( !oneWayOnly ) db_bind_int(&s, ":back", !p->fromIsParent);
     while( db_step(&s)==SQLITE_ROW ){
       int cid = db_column_int(&s, 0);
       int isParent = db_column_int(&s, 1);
@@ -283,10 +319,15 @@ void path_shortest_stored_in_ancestor_table(
 /*
 ** COMMAND: test-shortest-path
 **
-** Usage: %fossil test-shortest-path ?--no-merge? VERSION1 VERSION2
+** Usage: %fossil test-shortest-path [OPTIONS] VERSION1 VERSION2
 **
-** Report the shortest path between two check-ins.  If the --no-merge flag
-** is used, follow only direct parent-child paths and omit merge links.
+** Report the shortest path between two check-ins.  Options:
+**
+**    --branch-cost N    Additional cost N for changing branches
+**    --debug            Show debugging output
+**    --one-way          One-way forwards in time, parent->child only
+**    --no-merge         Follow only direct parent-child paths and omit
+**                       merge links.
 */
 void shortest_path_test_cmd(void){
   int iFrom;
@@ -301,29 +342,19 @@ void shortest_path_test_cmd(void){
   directOnly = find_option("no-merge",0,0)!=0;
   oneWay = find_option("one-way",0,0)!=0;
   zBrCost = find_option("branch-cost",0,1);
+  if( find_option("debug",0,0)!=0 ) path_debug = 1;
   if( g.argc!=4 ) usage("VERSION1 VERSION2");
   iFrom = name_to_rid(g.argv[2]);
   iTo = name_to_rid(g.argv[3]);
-  p = path_shortest(iFrom, iTo, directOnly, oneWay, 0, atoi(zBrCost));
+  p = path_shortest(iFrom, iTo, directOnly, oneWay, 0,
+                    zBrCost ? atoi(zBrCost) : 0);
   if( p==0 ){
     fossil_fatal("no path from %s to %s", g.argv[1], g.argv[2]);
   }
   for(n=1, p=path.pStart; p; p=p->u.pTo, n++){
-    char *z;
-    z = db_text(0,
-      "SELECT substr(uuid,1,12) || ' ' || datetime(mtime)"
-      "  FROM blob, event"
-      " WHERE blob.rid=%d AND event.objid=%d AND event.type='ci'",
-      p->rid, p->rid);
-    fossil_print("%4d: %5d %s", n, p->rid, z);
-    fossil_free(z);
-    if( p->u.pTo ){
-      fossil_print(" is a %s of\n",
-                   p->u.pTo->fromIsParent ? "parent" : "child");
-    }else{
-      fossil_print("\n");
-    }
+    fossil_print("%4d: %s\n", n, path_rid_desc(p->rid));
   }
+  path_debug = 0;
 }
 
 /*
