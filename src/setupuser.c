@@ -306,24 +306,15 @@ static int isValidPwString(const char *zPw){
 }
 
 /*
-** Return 1 if user capability string zCaps contains the given
-** capability letter, else 0.
+** Return true if user capability string zNew contains any capability
+** letter which is not in user capability string zOrig, else 0.  This
+** does not take inherited permissions into account. Either argument
+** may be NULL.
 */
-static int userCapsContain(const char *zCaps, const char letter){
-  for( ; zCaps && *zCaps; ++zCaps ){
-    if( letter==*zCaps ) return 1;
-  }
-  return 0;
-}
-
-/*
-** Return 1 if user capability string zNew contains any capability
-** letter which is not in user capability string zOrig, else 0.
-*/
-static int userCapsAreElevated(const char *zOrig, const char *zNew){
+static int userHasNewCaps(const char *zOrig, const char *zNew){
   for( ; zNew && *zNew; ++zNew ){
-    if( !userCapsContain(zOrig, *zNew) ){
-      return 1;
+    if( !zOrig || strchr(zOrig,*zNew)==0 ){
+      return *zNew;
     }
   }
   return 0;
@@ -488,10 +479,11 @@ void user_edit(void){
     }
     db_protect_pop();
     setup_incr_cfgcnt();
+    @ zOldCaps=%s(zOldCaps) aCap=%s(&aCap[0])<br>
     admin_log( "Updated user [%q] with%s capabilities [%q].",
                zLogin,
-               userCapsAreElevated(zOldCaps, &aCap[0])
-               ? " elevated" : "",
+               userHasNewCaps(zOldCaps, &aCap[0])
+               ? " new" : "",
                &aCap[0] );
     if( atoi(PD("all","0"))>0 ){
       Blob sql;

@@ -53,6 +53,7 @@ static const char zAlertInit[] =
 @ --     n - New forum threads
 @ --     r - Replies to my own forum posts
 @ --     t - Ticket changes
+@ --     u - Elevation of users' permissions (admins only)
 @ --     w - Wiki changes
 @ --     x - Edits to forum posts
 @ -- Probably different codes will be added in the future.  In the future
@@ -1565,6 +1566,7 @@ void subscribe_page(void){
     if( g.perm.RdForum && PB("sn") ) ssub[nsub++] = 'n';
     if( g.perm.RdForum && PB("sr") ) ssub[nsub++] = 'r';
     if( g.perm.RdTkt && PB("st") )   ssub[nsub++] = 't';
+    if( g.perm.Admin && PB("su") )   ssub[nsub++] = 'u';
     if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
     if( g.perm.RdForum && PB("sx") ) ssub[nsub++] = 'x';
     ssub[nsub] = 0;
@@ -1629,6 +1631,7 @@ void subscribe_page(void){
     if( g.perm.RdForum ) cgi_set_parameter_nocopy("sn","1",1);
     if( g.perm.RdForum ) cgi_set_parameter_nocopy("sr","1",1);
     if( g.perm.RdTkt )   cgi_set_parameter_nocopy("st","1",1);
+    if( g.perm.Admin )   cgi_set_parameter_nocopy("su","1",1);
     if( g.perm.RdWiki )  cgi_set_parameter_nocopy("sw","1",1);
   }
   @ <p>To receive email notifications for changes to this
@@ -1700,6 +1703,10 @@ void subscribe_page(void){
   if( g.perm.RdWiki ){
     @  <label><input type="checkbox" name="sw" %s(PCK("sw"))> \
     @  Wiki</label><br>
+  }
+  if( g.perm.Admin ){
+    @  <label><input type="checkbox" name="su" %s(PCK("su"))> \
+    @  User permission elevation</label>
   }
   di = PB("di");
   @ </td></tr>
@@ -1822,7 +1829,7 @@ static void alert_unsubscribe(int sid, int bTotal){
 void alert_page(void){
   const char *zName = 0;        /* Value of the name= query parameter */
   Stmt q;                       /* For querying the database */
-  int sa, sc, sf, st, sw, sx;   /* Types of notifications requested */
+  int sa, sc, sf, st, su, sw, sx; /* Types of notifications requested */
   int sn, sr;
   int sdigest = 0, sdonotcall = 0, sverified = 0;  /* Other fields */
   int isLogin;                  /* True if logged in as an individual */
@@ -1883,6 +1890,7 @@ void alert_page(void){
     if( g.perm.RdForum && PB("sn") ) newSsub[nsub++] = 'n';
     if( g.perm.RdForum && PB("sr") ) newSsub[nsub++] = 'r';
     if( g.perm.RdTkt && PB("st") )   newSsub[nsub++] = 't';
+    if( g.perm.Admin && PB("su") )   newSsub[nsub++] = 'u';
     if( g.perm.RdWiki && PB("sw") )  newSsub[nsub++] = 'w';
     if( g.perm.RdForum && PB("sx") ) newSsub[nsub++] = 'x';
     newSsub[nsub] = 0;
@@ -1981,6 +1989,7 @@ void alert_page(void){
   sn = strchr(ssub,'n')!=0;
   sr = strchr(ssub,'r')!=0;
   st = strchr(ssub,'t')!=0;
+  su = g.perm.Admin && strchr(ssub,'u')!=0;
   sw = strchr(ssub,'w')!=0;
   sx = strchr(ssub,'x')!=0;
   smip = db_column_text(&q, 5);
@@ -2099,7 +2108,11 @@ void alert_page(void){
   }
   if( g.perm.RdWiki ){
     @  <label><input type="checkbox" name="sw" %s(sw?"checked":"")>\
-    @  Wiki</label>
+    @  Wiki</label><br>
+  }
+  if( g.perm.Admin ){
+    @  <label><input type="checkbox" name="su" %s(su?"checked":"")>\
+    @  User permission elevation</label>
   }
   @ </td></tr>
   if( strchr(ssub,'k')!=0 ){
