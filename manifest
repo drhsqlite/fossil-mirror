@@ -1,5 +1,5 @@
-C In\s/setup_uedit,\srename\sthe\slocally-shadowed\szCap\sto\saCap\sto\savoid\sconfusion\sin\sa\spending\schange.\sNo\sfunctional\schanges.
-D 2025-03-08T11:17:21.052
+C Create\snew\sbranch\snamed\s"tktnew-template"
+D 2025-03-08T16:01:28.632
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -968,8 +968,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af57f63dee2822ad784612f9d07b02fadb3e5812cc68e1db1776d0881378b980
+P 74b149f2e25916f0d0d491ce3fad438574026d4974f46a18ba090b4a5e78492c
 R 08993fec78d72e2aac018e7876dab192
-U stephan
-Z a5e2802969912a620f1c005d2aa7fa86
+T *branch * tktnew-template
+T *sym-tktnew-template *
+T -sym-trunk *
+U jkosche
+Z 15b0721e86da78035c17b6f8f2fe33d5
 # Remove this line to create a well-formed Fossil manifest.
