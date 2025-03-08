@@ -326,24 +326,33 @@ static int userHasNewCaps(const char *zOrig, const char *zNew){
 */
 static void alert_user_elevation(const char *zLogin,   /*Affected user*/
                                  int uid,              /*[user].uid*/
+                                 int bIsNew,           /*true if new user*/
                                  const char *zOrigCaps,/*Old caps*/
                                  const char *zNewCaps  /*New caps*/){
   Blob hdr, body;
   Stmt q;
-  int nUsed;
+  int nBody;
   AlertSender *pSender;
   char *zSubname = db_get("email-subname", "[Fossil Repo]");
   char *zURL = db_get("email-url",0);
-  char * zSubject = mprintf("User [%q] permissions elevated", zLogin);
+  char * zSubject = bIsNew
+    ? mprintf("New user created: [%q]", zLogin)
+    : mprintf("User [%q] permissions elevated", zLogin);
   blob_init(&body, 0, 0);
   blob_init(&hdr, 0, 0);
-  blob_appendf(&body, "Permissions for user [%q] where elevated "
-               "from [%q] to [%q] by user [%q].\n",
-               zLogin, zOrigCaps, zNewCaps, g.zLogin);
-  if( zURL ){
-    blob_appendf(&body, "User editor: %s/setup_uedit?uid=%d\n", zURL, uid);
+  if( bIsNew ){
+    blob_appendf(&body, "User [%q] was created by with "
+                 "permissions [%q] by user [%q].\n",
+                 zLogin, zNewCaps, g.zLogin);
+  } else {
+    blob_appendf(&body, "Permissions for user [%q] where elevated "
+                 "from [%q] to [%q] by user [%q].\n",
+                 zLogin, zOrigCaps, zNewCaps, g.zLogin);
   }
-  nUsed = blob_size(&body);
+  if( zURL ){
+    blob_appendf(&body, "\nUser editor: %s/setup_uedit?uid=%d\n", zURL, uid);
+  }
+  nBody = blob_size(&body);
   pSender = alert_sender_new(0, 0);
   db_prepare(&q,
         "SELECT semail, hex(subscriberCode)"
@@ -359,6 +368,7 @@ static void alert_user_elevation(const char *zLogin,   /*Affected user*/
                  zTo, zSubname, zSubject);
     if( zURL ){
       const char *zCode = db_column_text(&q, 1);
+      blob_truncate(&body, nBody);
       blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
                    zURL, zCode);
     }
@@ -464,6 +474,7 @@ void user_edit(void){
     /* We have all the information we need to make the change to the user */
     char c;
     int bHasNewCaps = 0 /* 1 if user's permissions are increased */;
+    const int bIsNew = uid<=0;
     char aCap[70], zNm[4];
     zNm[0] = 'a';
     zNm[2] = 0;
@@ -516,11 +527,20 @@ void user_edit(void){
     }
     cgi_csrf_verify();
     db_unprotect(PROTECT_USER);
-    db_multi_exec(
-       "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
-       "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
-      uid, zLogin, P("info"), zPw, &aCap[0]
-    );
+    {
+      Stmt q;
+      db_prepare(&q,
+                 "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
+                 "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now()) "
+                 "RETURNING uid",
+                 uid, zLogin, P("info"), zPw, &aCap[0]);
+      if( SQLITE_ROW==db_step(&q) ){
+        uid = db_column_int(&q, 0);
+      }else{
+        fossil_fatal("Inserting new user failed");
+      }
+      db_finalize(&q);
+    }
     if( zOldLogin && fossil_strcmp(zLogin, zOldLogin)!=0 ){
       if( alert_tables_exist() ){
         /* Rename matching subscriber entry, else the user cannot
@@ -532,9 +552,13 @@ void user_edit(void){
     }
     db_protect_pop();
     setup_incr_cfgcnt();
-    admin_log( "Updated user [%q] with%s capabilities [%q].",
-               zLogin, bHasNewCaps ? " new" : "",
-               &aCap[0] );
+    if( bIsNew ){
+      admin_log( "Added user [%q] with capabilities [%q].",
+                 zLogin, &aCap[0] );
+    }else {
+      admin_log( "Updated user [%q] with capabilities [%q].",
+                 zLogin, &aCap[0] );
+    }
     if( atoi(PD("all","0"))>0 ){
       Blob sql;
       char *zErr = 0;
@@ -589,13 +613,13 @@ void user_edit(void){
         @ [Bummer]</a></p>
         style_finish_page();
         if( bHasNewCaps ){
-          alert_user_elevation(zLogin, uid, zOldCaps, &aCap[0]);
+          alert_user_elevation(zLogin, uid, bIsNew, zOldCaps, &aCap[0]);
         }
         return;
       }
     }
     if( bHasNewCaps ){
-      alert_user_elevation(zLogin, uid, zOldCaps, &aCap[0]);
+      alert_user_elevation(zLogin, uid, bIsNew, zOldCaps, &aCap[0]);
     }
     cgi_redirect(cgi_referer("setup_ulist"));
     return;

@@ -1,5 +1,5 @@
-C Send\snotifications\sto\ssubscribers\swith\sa\s'u'\ssubscription\swhen\ssetup_uedit\sadds\snew\spermissions\sto\sa\suser.
-D 2025-03-08T13:39:16.526
+C Distinguish\sbetween\snew\sand\sedited\susers\sin\sthe\sadmin\slog\sand\sthe\snew\salert.\sSelf-registered\susers\sdo\snot\strigger\san\salert.
+D 2025-03-08T14:41:19.988
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -527,7 +527,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c d80406f29f990a239f472688b0e7601d1c73707cbe639ea8e6b448f331b598d3
 F src/security_audit.c 88ccc26b105d86edac19ac863314234312aa647e208066679ee3468e1616711c
 F src/setup.c 21f7f13db4bfff33333a289caf6ede3a05ab92c5d04faabae30605c12fb25475
-F src/setupuser.c 661e4c39b86c86706fbd769eea5e151304fbb7fb36321f352bc49e591a88b6fd
+F src/setupuser.c ac1306c44f5c469599032c326d668029540d95bed0a56eb6a0c225ca12da964d
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 54db7c07a7e7d78a24c876eca72604db1fd4de8744e9463befdb9b8e4b999c93
-R d5dc3727cc123932c5af9a42082703e2
+P a69c933e0cddf1f9274e1ef8b170b3c59d34924c3bab98a9764912ecc18ce07d
+R dcc3ca7edda8a36b4aa44345cf50bd83
 U stephan
-Z dcc0805dad44066500db5f6fc6fbe27b
+Z ec58ed1bdecc7cf01096c98c116392ab
 # Remove this line to create a well-formed Fossil manifest.
