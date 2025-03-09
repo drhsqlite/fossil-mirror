@@ -322,7 +322,23 @@ static int userHasNewCaps(const char *zOrig, const char *zNew){
 
 /*
 ** Sends notification of user permission elevation changes to all
-** subscribers with a "u" subscription.
+** subscribers with a "u" subscription. This is a no-op if alerts are
+** not enabled.
+**
+** These subscriptions differ from most, in that:
+**
+** - The attempt is made to send them immediately, as opposed to
+**   handling them en masse via alert_send_alerts().
+**
+** - They do not honor digest mode.
+**
+** - They currently lack an "unsubscribe" link.
+**
+** - Only an admin can assign this subscription, but if a non-admin
+**   edits their subscriptions after an admin assigns them this one,
+**   this particular one will be lost.  "Feature or bug?" is unclear,
+**   but it would be odd for a non-admin to be assigned this
+**   capability.
 */
 static void alert_user_elevation(const char *zLogin,   /*Affected user*/
                                  int uid,              /*[user].uid*/
@@ -333,11 +349,16 @@ static void alert_user_elevation(const char *zLogin,   /*Affected user*/
   Stmt q;
   int nBody;
   AlertSender *pSender;
-  char *zSubname = db_get("email-subname", "[Fossil Repo]");
-  char *zURL = db_get("email-url",0);
-  char * zSubject = bIsNew
+  char *zSubname;
+  char *zURL;
+  char * zSubject;
+
+  if( !alert_enabled() ) return;
+  zSubject = bIsNew
     ? mprintf("New user created: [%q]", zLogin)
     : mprintf("User [%q] permissions elevated", zLogin);
+  zURL = db_get("email-url",0);
+  zSubname = db_get("email-subname", "[Fossil Repo]");
   blob_init(&body, 0, 0);
   blob_init(&hdr, 0, 0);
   if( bIsNew ){
@@ -359,9 +380,8 @@ static void alert_user_elevation(const char *zLogin,   /*Affected user*/
         "  FROM subscriber, user "
         " WHERE sverified AND NOT sdonotcall"
         "   AND suname=login"
-        "   AND fullcap(cap) GLOB '*a*'"
         "   AND ssub GLOB '*u*'");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( !pSender->zErr && db_step(&q)==SQLITE_ROW ){
     const char *zTo = db_column_text(&q, 0);
     blob_truncate(&hdr, 0);
     blob_appendf(&hdr, "To: <%s>\r\nSubject: %s %s\r\n",
@@ -527,20 +547,12 @@ void user_edit(void){
     }
     cgi_csrf_verify();
     db_unprotect(PROTECT_USER);
-    {
-      Stmt q;
-      db_prepare(&q,
+    uid = db_int(0,
                  "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
                  "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now()) "
                  "RETURNING uid",
                  uid, zLogin, P("info"), zPw, &aCap[0]);
-      if( SQLITE_ROW==db_step(&q) ){
-        uid = db_column_int(&q, 0);
-      }else{
-        fossil_fatal("Inserting new user failed");
-      }
-      db_finalize(&q);
-    }
+    assert( uid>0 );
     if( zOldLogin && fossil_strcmp(zLogin, zOldLogin)!=0 ){
       if( alert_tables_exist() ){
         /* Rename matching subscriber entry, else the user cannot

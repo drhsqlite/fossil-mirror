@@ -1989,7 +1989,7 @@ void alert_page(void){
   sn = strchr(ssub,'n')!=0;
   sr = strchr(ssub,'r')!=0;
   st = strchr(ssub,'t')!=0;
-  su = g.perm.Admin && strchr(ssub,'u')!=0;
+  su = strchr(ssub,'u')!=0;
   sw = strchr(ssub,'w')!=0;
   sx = strchr(ssub,'x')!=0;
   smip = db_column_text(&q, 5);
@@ -2111,6 +2111,10 @@ void alert_page(void){
     @  Wiki</label><br>
   }
   if( g.perm.Admin ){
+    /* Corner-case bug: if an admin assigns 'u' to a non-admin, that
+    ** subscription will get removed if the user later edits their
+    ** subscriptions, as non-admins are not permitted to add that
+    ** subscription. */
     @  <label><input type="checkbox" name="su" %s(su?"checked":"")>\
     @  User permission elevation</label>
   }
@@ -2544,11 +2548,12 @@ void subscriber_list_page(void){
 **      r       Replies to my forum posts
 **      x       An edit to a prior forum post
 **      t       A new ticket or a change to an existing ticket
+**      u       A user was added or received new permissions
 **      w       A change to a wiki page
 **      x       Edits to forum posts
 */
 struct EmailEvent {
-  int type;          /* 'c', 'f', 'n', 'r', 't', 'w', 'x' */
+  int type;          /* 'c', 'f', 'n', 'r', 't', 'u', 'w', 'x' */
   int needMod;       /* Pending moderator approval */
   Blob hdr;          /* Header content, for forum entries */
   Blob txt;          /* Text description to appear in an alert */
@@ -2947,6 +2952,7 @@ static void alert_renewal_msg(
   if( strchr(zSub, 'c') )  blob_appendf(pBody, "  *  Check-ins\n");
   if( strchr(zSub, 'f') )  blob_appendf(pBody, "  *  Forum posts\n");
   if( strchr(zSub, 't') )  blob_appendf(pBody, "  *  Ticket changes\n");
+  if( strchr(zSub, 'u') )  blob_appendf(pBody, "  *  User permission elevation\n");
   if( strchr(zSub, 'w') )  blob_appendf(pBody, "  *  Wiki changes\n");
   blob_appendf(pBody, "\n"
     "If you take no action, your subscription will expire and you will be\n"
@@ -3159,6 +3165,7 @@ int alert_send_alerts(u32 flags){
             case 'n': case 'r':  xType = '5';  break;
             case 't':            xType = 'q';  break;
             case 'w':            xType = 'l';  break;
+            /* Note: case 'u' is not handled here */
           }
           if( strchr(zCap,xType)==0 ) continue;
         }
@@ -3175,6 +3182,7 @@ int alert_send_alerts(u32 flags){
           case 'n': case 'r':  xType = '2';  break;
           case 't':            xType = 'r';  break;
           case 'w':            xType = 'j';  break;
+          /* Note: case 'u' is not handled here */
         }
         if( strchr(zCap,xType)==0 ) continue;
       }
