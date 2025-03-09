@@ -1,5 +1,5 @@
-C In\s/setup_uedit,\srename\sthe\slocally-shadowed\szCap\sto\saCap\sto\savoid\sconfusion\sin\sa\spending\schange.\sNo\sfunctional\schanges.
-D 2025-03-08T11:17:21.052
+C Add\ssupport\sfor\sticket/...\swiki\spages\sto\s/wikiedit.
+D 2025-03-09T10:04:43.076
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -448,7 +448,7 @@ F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a252
 F src/fossil.page.pikchrshow.js 354e405e2813de4bfeec16d12a4dbfb370b2fa89f25325f245c51c194115adbf
 F src/fossil.page.pikchrshowasm.js 55afa8889dd5758efa5c6f10df38bf9914dbe1d87291927fe58977d09fa19c1a
 F src/fossil.page.whistory.js 25d9059c9670337d0e2b9e22d791be209a3be77ebd5ff1a985dfaecef64d0e36
-F src/fossil.page.wikiedit.js 04d8173cd0e9453cf7c9cddf94a011ee235613d1ed0073f46a20ffbcf8921fc8
+F src/fossil.page.wikiedit.js 91f2b74aedadc89a2605864e858316ad08639337bee085da52eb63deb6880f65
 F src/fossil.pikchr.js a6ef755b6c878a43ee7f402dd3d27593897d901fa1e1f38a6ede83c600708ea3
 F src/fossil.popupwidget.js f91c1385bcbb45c9925f159926591e91df71a97e7ea111e3bc9d8a0ef7be3b96
 F src/fossil.storage.js 767a7eba00b6ffbed8aba7fab3b9b4a1eb3052cb9d0730b2bd96941baa7627a9
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af57f63dee2822ad784612f9d07b02fadb3e5812cc68e1db1776d0881378b980
-R 08993fec78d72e2aac018e7876dab192
+P 74b149f2e25916f0d0d491ce3fad438574026d4974f46a18ba090b4a5e78492c
+R 5230f9e80211291b9f0f355943f14316
 U stephan
-Z a5e2802969912a620f1c005d2aa7fa86
+Z f2d15cf9de1eb2113ad1eb8d170a6951
 # Remove this line to create a well-formed Fossil manifest.
