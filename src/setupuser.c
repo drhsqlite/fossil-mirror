@@ -327,11 +327,6 @@ static int userHasNewCaps(const char *zOrig, const char *zNew){
 **
 ** These subscriptions differ from most, in that:
 **
-** - The attempt is made to send them immediately, as opposed to
-**   handling them en masse via alert_send_alerts().
-**
-** - They do not honor digest mode.
-**
 ** - They currently lack an "unsubscribe" link.
 **
 ** - Only an admin can assign this subscription, but if a non-admin

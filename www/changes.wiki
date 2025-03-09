@@ -71,6 +71,11 @@
      <li> The -u (--usage) option shows only the command-line syntax
      <li> The -o (--options) option shows only the command-line options
      </ol>
+  *  Add a "user elevation" [/doc/trunk/www/alerts.md|subscription]
+     which alerts subscribers when an admin creates a new user or
+     adds new permissions to one.
+  *  Diverse minor fixes and additions.
+
 
 <h2 id='v2_25'>Changes for version 2.25 (2024-11-06)</h2>
 

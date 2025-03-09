@@ -1,5 +1,5 @@
-C Cleanups,\smostly\sdocs,\sin\sthe\suser\selevation\salerts.\sDocument\sthe\scurrently-known\sways\swhich\sthis\sparticular\salert\sdiffers\sfrom\sothers.\sThis\sneeds\smore\ssanding-down\sbut\sam\schecking\sthis\sin\sto\sgo\swork\son\sthe\sbroken\suser\sdeletion\s(which\spre-dates\sthis\sbranch\sbut\swas\sfirst\sdiscovered\shere).
-D 2025-03-09T07:12:20.586
+C Update\schange\slog.\sDoc\supdates\srelated\sto\sthe\suser\selevation\ssubscription.
+D 2025-03-09T07:39:25.826
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -527,7 +527,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c d80406f29f990a239f472688b0e7601d1c73707cbe639ea8e6b448f331b598d3
 F src/security_audit.c 88ccc26b105d86edac19ac863314234312aa647e208066679ee3468e1616711c
 F src/setup.c 21f7f13db4bfff33333a289caf6ede3a05ab92c5d04faabae30605c12fb25475
-F src/setupuser.c d3490f135d8ad18f3fbd1690b17761cf28bd3aa9d645501b70fedbe933ff25c7
+F src/setupuser.c b707636bb05076e31a4ce1dae949b7f24b8cc2fc553857b6217d89e3847ae853
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
@@ -765,7 +765,7 @@ F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d
 F www/aboutcgi.wiki 0595ce2176aba3a10e79c840ed0e662609f754749583032230b0ed0071c235e7
 F www/aboutdownload.wiki ffd8d3848e190c5aec758ed578e81857629d39376488151aeb09da2572fdcc49
 F www/adding_code.wiki 06de2a518a772ed1fa8fdb165ff3c53149b6e68f43ad114b80d6df158683158a
-F www/alerts.md a0ab0e8af2cb82e333961f1bb11d324db5dc93a5ceac92c4eb4ff9f37eb85a14
+F www/alerts.md 4eede98853747f09e3d5f57f299523ad700b587e8a4f79b7479619622f6987af
 F www/antibot.wiki 3c80ceb5d18462ba69f0ab7793652abec83f7292ad16cc57a70a8d4e78501615
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -789,7 +789,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 0d8ae1d55db302a98d95da41ac75de4dcc665b66262e1873b5a3e6bcabf213d0
-F www/changes.wiki 20b6ef941d0241b04b29cf029c7f7a06ef308ffcf74e3328869d895c413e640d
+F www/changes.wiki 8f336343a538b72e0d9d46b2edd93e18f2b58cb08e104fe286398ea1e85e561d
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5772d2f132c48c0272ef0c2d062fff55a71c9337d4795e3ca5178896f3ac76ff
-R 81bff45e8361dca8ce737be7e4953d60
+P d6c5c7f639bceeef2e8c60de96731d2138094fcf2f3f8aa7bec971937a9ba4a8
+R 264d070fe9d699fad4c30df070b63963
 U stephan
-Z 9a3710c97919fddd1330b6355da4a555
+Z 8b5bdb47db7c5cc7dfcd5799ddcef15a
 # Remove this line to create a well-formed Fossil manifest.
