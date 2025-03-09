@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\srecursive\sCTE\sused\sto\shelp\nimplement\sfrom=,bt=\swhich\swhich\smight\sresult\sin\san\sincorrect\sanswer.\s\sThe\noriginal\squery\swas\sput\sin\splace\sprior\sto\sthe\s"subquery-order-by-optimization"\npatch\sto\sSQLite\s([src:/info/20240816185146|2024-08-16])\sversion\s3.47.0.\nWithout\sthat\soptimization,\sthe\squery\sruns\sslowly.\s\sAlso:\sa\scomment\stypo\sfix.
-D 2025-03-09T17:55:54.528
+C Increase\sthe\sminimum\sSQLite\sversion\sto\s3.49.0.\s\sReally\swe\sonly\sneed\sto\sgo\nto\s3.47.0\s(due\sto\sthe\sprevious\scheck-in\son\sthis\sbranch)\sbut\s3.49.0\sis\sa\sbetter\nchoice\sso\slet's\sjust\srequire\sit.
+D 2025-03-09T18:03:19.012
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def fba4bdd95cef9df973afe73eb891fb4e87c7061c5bc67a9a2d4e32904133bf84
+F auto.def 4169d4399308f33e7a0ffb364b0a92d29aa0cf20d8edf9b031f0419a7e53a8b2
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -493,7 +493,7 @@ F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22
 F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c 6ad7e8a9e91ec990ac9238d16eb2e28a97527408d7fb68807377ae6ccc03cf36
+F src/main.c 3c2cd4681f5a0a2e28b74613537c1d2df8554de837f120d6f19b56437d9063d6
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
 F src/manifest.c ff73bb76d7e994bbefbaf43cd96835affd252d9e700a0ccd3dce584f4f612a0d
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2229b2f6f1bfe5adaf139a0d18d81dc9f596eadd4a541ddec2fcf52115cfd954
-R 5874d83ff7c0460a29c79c35f787de75
+P 29f946923eb9f739ac5622b72520a295ca0899213a745ca589a41a11b81f3638
+R b698a39511e1b46a8eac6f9ef014b5b1
 U drh
-Z 8998b64cbb67a4db494aad4ed547362c
+Z 93b8e8c0f2e39668a20735fe665ea879
 # Remove this line to create a well-formed Fossil manifest.
