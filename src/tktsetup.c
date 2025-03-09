@@ -351,6 +351,24 @@ static const char zDefaultNew[] =
 @ affect the operation of the product?</td>
 @ </tr>
 @
+@ <th1>
+@   if {[capexpr {w}]} {
+@      html {<tr><td class="tktDspLabel">Priority:</td><td>}
+@      combobox priority $priority_choices 1
+@      html {
+@        <td align="left">How important is the affected functionality?</td>
+@        </td></tr>
+@      }
+@
+@      html {<tr><td class="tktDspLabel">Subsystem:</td><td>}
+@      combobox subsystem $subsystem_choices 1
+@      html {
+@        <td align="left">Which subsystem is affected?</td>
+@        </td></tr>
+@      }
+@   }
+@ </th1>
+@
 @ <tr>
 @ <td align="right">EMail:</td>
 @ <td align="left">
