@@ -1410,7 +1410,8 @@ static int timeline_endpoint(
                                " AND event.objid=tagxref.rid)"
         "   ORDER BY plink.mtime)"
         "SELECT id FROM dx, tagxref"
-        " WHERE tagid=%d AND tagtype>0 AND rid=id LIMIT 1",
+        " WHERE tagid=%d AND tagtype>0 AND rid=id"
+        " ORDER BY dx.mtime LIMIT 1",
         iFrom, iFrom, tagId, tagId
       );
     }else{
@@ -1441,7 +1442,8 @@ static int timeline_endpoint(
                                " AND event.objid=tagxref.rid)"
         "   ORDER BY event.mtime DESC)"
         "SELECT id FROM dx, tagxref"
-        " WHERE tagid=%d AND tagtype>0 AND rid=id LIMIT 1",
+        " WHERE tagid=%d AND tagtype>0 AND rid=id"
+        " ORDER BY dx.mtime DESC LIMIT 1",
         iFrom, iFrom, tagId, tagId
       );
     }else{
