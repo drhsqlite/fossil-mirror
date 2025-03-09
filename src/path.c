@@ -183,7 +183,7 @@ PathNode *path_shortest(
   int directOnly,     /* No merge links if true */
   int oneWayOnly,     /* Parent->child only if true */
   Bag *pHidden,       /* Hidden nodes */
-  int branchCost      /* Add extra codes to changing branches */
+  int branchCost      /* Add extra cost to changing branches */
 ){
   Stmt s;
   Bag seen;

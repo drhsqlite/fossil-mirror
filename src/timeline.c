@@ -2077,6 +2077,7 @@ void page_timeline(void){
     int commonAncs = 0;    /* Common ancestors of me_rid and you_rid. */
     int earlierRid = 0, laterRid = 0;
     int cost = bShort ? 0 : 1;
+    int nSkip = 0;
 
     if( from_rid && to_rid ){
       if( from_to_mode==0 ){
@@ -2124,9 +2125,8 @@ void page_timeline(void){
          && fossil_strcmp(path_branch(p->pFrom),path_branch(p))==0
          && fossil_strcmp(path_branch(p),path_branch(p->u.pTo))==0
         ){
-          continue;
-        }
-        if( cnt==8 ){
+          nSkip++;
+        }else if( cnt==8 ){
           blob_append_sql(&ins, ",\n  (%d)", p->rid);
           cnt = 0;
         }else{
@@ -2197,7 +2197,8 @@ void page_timeline(void){
     if( nNodeOnPath==1 && from_to_mode>0 ){
       blob_appendf(&desc,"Check-in ");
     }else if( bMin ){
-      blob_appendf(&desc, "%d check-ins along the path from ", nNodeOnPath);
+      blob_appendf(&desc, "%d of %d check-ins along the path from ",
+                   nNodeOnPath, nNodeOnPath+nSkip);
     }else{
       blob_appendf(&desc, "%d check-ins going from ", nNodeOnPath);
     }
