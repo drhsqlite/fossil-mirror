@@ -39,9 +39,9 @@ void bisect_path(void){
   bisect.bad = db_lget_int("bisect-bad", 0);
   bisect.good = db_lget_int("bisect-good", 0);
   if( bisect.good>0 && bisect.bad==0 ){
-    path_shortest(bisect.good, bisect.good, 0, 0, 0);
+    path_shortest(bisect.good, bisect.good, 0, 0, 0, 0);
   }else if( bisect.bad>0 && bisect.good==0 ){
-    path_shortest(bisect.bad, bisect.bad, 0, 0, 0);
+    path_shortest(bisect.bad, bisect.bad, 0, 0, 0, 0);
   }else if( bisect.bad==0 && bisect.good==0 ){
     fossil_fatal("neither \"good\" nor \"bad\" versions have been identified");
   }else{
@@ -57,7 +57,7 @@ void bisect_path(void){
       }
     }
     blob_reset(&log);
-    p = path_shortest(bisect.good, bisect.bad, bDirect, 0, &skip);
+    p = path_shortest(bisect.good, bisect.bad, bDirect, 0, &skip, 0);
     bag_clear(&skip);
     if( p==0 ){
       char *zBad = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",bisect.bad);
@@ -294,7 +294,7 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc, int bDetail){
   }
   if( bDetail && lastGood>0 && lastBad>0 ){
     PathNode *p;
-    p = path_shortest(lastGood, lastBad, bisect_option("direct-only"),0, 0);
+    p = path_shortest(lastGood, lastBad, bisect_option("direct-only"),0, 0, 0);
     while( p ){
       bisect_log_append(&ins, ++cnt, 0, p->rid);
       p = p->u.pTo;
