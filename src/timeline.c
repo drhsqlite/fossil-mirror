@@ -2076,7 +2076,7 @@ void page_timeline(void){
     int nNodeOnPath = 0;
     int commonAncs = 0;    /* Common ancestors of me_rid and you_rid. */
     int earlierRid = 0, laterRid = 0;
-    int cost = bMin || !bShort ? 1 : 0;
+    int cost = bShort ? 0 : 1;
 
     if( from_rid && to_rid ){
       if( from_to_mode==0 ){
@@ -2121,8 +2121,8 @@ void page_timeline(void){
       for(p=p->u.pTo; p; p=p->u.pTo){
         if( bMin
          && p->u.pTo!=0
-         && fossil_strcmp(p->pFrom->zBranch,p->zBranch)==0
-         && fossil_strcmp(p->zBranch,p->u.pTo->zBranch)==0
+         && fossil_strcmp(path_branch(p->pFrom),path_branch(p))==0
+         && fossil_strcmp(path_branch(p),path_branch(p->u.pTo))==0
         ){
           continue;
         }

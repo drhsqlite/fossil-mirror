@@ -275,6 +275,18 @@ PathNode *path_next(void){
 }
 
 /*
+** Return the branch for a path node.
+**
+** Storage space is managed by the path subsystem.  The returned value
+** is valid until the path is reset.
+*/
+const char *path_branch(PathNode *p){
+  if( p==0 ) return 0;
+  if( p->zBranch==0 ) p->zBranch = branch_of_rid(p->rid);
+  return p->zBranch;
+}
+
+/*
 ** Return an estimate of the number of comparisons remaining in order
 ** to bisect path.  This is based on the log2() of path.nStep.
 */
