@@ -1705,7 +1705,7 @@ void page_timeline(void){
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
   int pd_rid;
-  const char *zDPName;                /* Value of p=, d=, or dp= params */
+  const char *zDPNameP, *zDPNameD;    /* Value of p=, d=, or dp= params */
   double rBefore, rAfter, rCirca;     /* Boundary times */
   const char *z;
   char *zOlderButton = 0;             /* URL for Older button at the bottom */
@@ -1772,8 +1772,8 @@ void page_timeline(void){
   }
 
   /* Query parameters d=, p=, and f= and variants */
-  p_rid = name_choice("p","p2", &zDPName);
-  d_rid = name_choice("d","d2", &zDPName);
+  p_rid = name_choice("p","p2", &zDPNameP);
+  d_rid = name_choice("d","d2", &zDPNameD);
   z = P("f");
   f_rid = z ? name_to_typed_rid(z,"ci") : 0;
   z = P("df");
@@ -1781,7 +1781,7 @@ void page_timeline(void){
     nEntry = 0;
     useDividers = 0;
     cgi_replace_query_parameter("d",fossil_strdup(z));
-    zDPName = z;
+    zDPNameD = zDPNameP = z;
   }
 
   /* Undocumented query parameter to set JS mode */
@@ -1805,9 +1805,10 @@ void page_timeline(void){
 
   /* To view the timeline, must have permission to read project data.
   */
-  pd_rid = name_choice("dp","dp2",&zDPName);
+  pd_rid = name_choice("dp","dp2",&zDPNameP);
   if( pd_rid ){
     p_rid = d_rid = pd_rid;
+    zDPNameD = zDPNameP;
   }
   if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum)
    || (bisectLocal && !g.perm.Setup)
@@ -2228,9 +2229,9 @@ void page_timeline(void){
     }
     addFileGlobDescription(zChng, &desc);
   }else if( (p_rid || d_rid) && g.perm.Read && zTagSql==0 ){
-    /* If p= or d= is present, ignore all other parameters other than n= */
-    char *zUuid;
-    const char *zCiName;
+    /* If either p= or d= or both are present, ignore all other parameters
+    ** other than n=, ft=, and bt= */
+    const char *zBaseName;
     int np = 0, nd;
     const char *zBackTo = 0;
     const char *zFwdTo = 0;
@@ -2238,25 +2239,33 @@ void page_timeline(void){
     int ridFwdTo = 0;
     int bBackAdded = 0;       /* True if the zBackTo node was added */
     int bFwdAdded = 0;        /* True if the zBackTo node was added */
+    int bSeparateDandP = 0;   /* p_rid & d_rid both exist and are distinct */
 
     tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
-    if( p_rid && d_rid ){
-      if( p_rid!=d_rid ) p_rid = d_rid;
-      if( !haveParameterN ) nEntry = 10;
+    if( p_rid && d_rid && p_rid!=d_rid ){
+      bSeparateDandP = 1;
+      db_multi_exec(
+        "CREATE TEMP TABLE IF NOT EXISTS ok_d(rid INTEGER PRIMARY KEY)"
+      );
+    }else{
+      zBaseName = p_rid ? zDPNameP : zDPNameD;
     }
     db_multi_exec(
-       "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
+      "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
     );
     add_extra_rids("ok", P("x"));
-    zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d",
-                         p_rid ? p_rid : d_rid);
-    zCiName = zDPName;
-    if( zCiName==0 ) zCiName = zUuid;
     blob_append_sql(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
       double rStopTime = 9e99;
       zFwdTo = P("ft");
+      if( zFwdTo && bSeparateDandP ){
+        if( zError==0 ){
+          zError = "Cannot use the ft= query parameter when both p= and d= "
+                   "are used and have distinct values.";
+        }
+        zFwdTo = 0;
+      }        
       if( zFwdTo ){
         double rStartDate = mtime_of_rid(d_rid, 0.0);
         ridFwdTo = first_checkin_with_tag_after_date(zFwdTo, rStartDate);
@@ -2267,6 +2276,9 @@ void page_timeline(void){
           if( !haveParameterN ) nEntry = 0;
           rStopTime = mtime_of_rid(ridFwdTo, 9e99);
         }
+      }else if( bSeparateDandP ){
+        rStopTime = mtime_of_rid(p_rid, 9e99);
+        nEntry = 0;
       }
       if( rStopTime<9e99 ){
         rStopTime += 5.8e-6;  /* Round up by 1/2 second */
@@ -2287,16 +2299,30 @@ void page_timeline(void){
         db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", ridFwdTo);
         bFwdAdded = 1;
       }
-      nd = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
-      if( nd>0 || p_rid==0 ){
-        blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
+      if( bSeparateDandP ){
+        db_multi_exec(
+           "INSERT INTO ok_d SELECT rid FROM ok;"
+           "DELETE FROM ok;"
+        );
+      }else{
+        nd = db_int(0, "SELECT count(*)-1 FROM ok");
+        if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
+        if( nd>0 || p_rid==0 ){
+          blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
+        }
+        if( useDividers && !selectedRid ) selectedRid = d_rid;
+        db_multi_exec("DELETE FROM ok");
       }
-      if( useDividers && !selectedRid ) selectedRid = d_rid;
-      db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
       zBackTo = P("bt");
+      if( zBackTo && bSeparateDandP ){
+        if( zError==0 ){
+          zError = "Cannot use the bt= query parameter when both p= and d= "
+                   "are used and have distinct values.";
+        }
+        zBackTo = 0;
+      }        
       if( zBackTo ){
         double rDateLimit = mtime_of_rid(p_rid, 0.0);
         ridBackTo = last_checkin_with_tag_before_date(zBackTo, rDateLimit);
@@ -2304,28 +2330,50 @@ void page_timeline(void){
           ridBackTo = name_to_typed_rid(zBackTo,"ci");
         }
         if( ridBackTo && !haveParameterN ) nEntry = 0;
+      }else if( bSeparateDandP ){
+        ridBackTo = d_rid;
+        nEntry = 0;
       }
       compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0, ridBackTo);
       if( ridBackTo && !db_exists("SELECT 1 FROM ok WHERE rid=%d",ridBackTo) ){
         db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", ridBackTo);
         bBackAdded = 1;
       }
-      np = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( np>0 || nd==0 ){
-        if( nd>0 ) blob_appendf(&desc, " and ");
-        blob_appendf(&desc, "%d ancestor%s", np, (1==np)?"":"s");
+      if( bSeparateDandP ){
+        db_multi_exec("DELETE FROM ok WHERE rid NOT IN ok_d;");
         db_multi_exec("%s", blob_sql_text(&sql));
+      }else{
+        np = db_int(0, "SELECT count(*)-1 FROM ok");
+        if( np>0 || nd==0 ){
+          if( nd>0 ) blob_appendf(&desc, " and ");
+          blob_appendf(&desc, "%d ancestor%s", np, (1==np)?"":"s");
+          db_multi_exec("%s", blob_sql_text(&sql));
+        }
+        if( useDividers && !selectedRid ) selectedRid = p_rid;
       }
-      if( useDividers && !selectedRid ) selectedRid = p_rid;
     }
-    blob_appendf(&desc, " of %z%h</a>",
-                   href("%R/info?name=%h", zCiName), zCiName);
+    if( bSeparateDandP ){
+      int n = db_int(0, "SELECT count(*) FROM ok");
+      blob_reset(&desc);
+      blob_appendf(&desc,
+          "%d check-ins that are both ancestors of %z%h</a>"
+          " and descendents of %z%h</a>",
+          n,
+          href("%R/info?name=%h",zDPNameP),zDPNameP,
+          href("%R/info/name=%h",zDPNameD),zDPNameD
+      );
+      ridBackTo = 0;
+      ridFwdTo = 0;
+    }else{
+      blob_appendf(&desc, " of %z%h</a>",
+                   href("%R/info?name=%h", zBaseName), zBaseName);
+    }
     if( ridBackTo ){
       if( np==0 ){
         blob_reset(&desc);
         blob_appendf(&desc,
                     "Check-in %z%h</a> only (%z%h</a> does not precede it)",
-                     href("%R/info?name=%h",zCiName), zCiName,
+                     href("%R/info?name=%h",zBaseName), zBaseName,
                      href("%R/info?name=%h",zBackTo), zBackTo);
       }else{
         blob_appendf(&desc, " back to %z%h</a>%s",
@@ -2342,18 +2390,12 @@ void page_timeline(void){
         blob_reset(&desc);
         blob_appendf(&desc,
                     "Check-in %z%h</a> only (%z%h</a> does not follow it)",
-                     href("%R/info?name=%h",zCiName), zCiName,
+                     href("%R/info?name=%h",zBaseName), zBaseName,
                      href("%R/info?name=%h",zFwdTo), zFwdTo);
       }else{
         blob_appendf(&desc, " up to %z%h</a>%s",
                      href("%R/info?name=%h",zFwdTo), zFwdTo,
                      bFwdAdded ? " (not a direct descendent)":"");
-      }
-    }
-    if( d_rid ){
-      if( p_rid ){
-        /* If both p= and d= are set, we don't have the uuid of d yet. */
-        zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
     if( advancedMenu ){
