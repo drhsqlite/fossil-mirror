@@ -233,7 +233,7 @@ int start_of_branch(int rid, int eType){
 ** we want to use the query identified below as Q1 - which searches
 ** the most recent EVENT table entries for the most recent with the tag.
 ** But if the tag is relatively scarce (anything other than "trunk", basically)
-** then we want to do the indexed search show below as Q2.
+** then we want to do the indexed search shown below as Q2.
 */
 static int most_recent_event_with_tag(const char *zTag, const char *zType){
   return db_int(0,

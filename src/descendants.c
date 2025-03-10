@@ -160,6 +160,23 @@ void compute_leaves(int iBase, int closeMode){
 }
 
 /*
+** If RID refers to a check-in, return the mtime of that check-in - the
+** julian day number of when the check-in occurred.
+*/
+double mtime_of_rid(int rid, double mtime){
+  static Stmt q;
+  db_static_prepare(&q,"SELECT mtime FROM event WHERE objid=:rid");
+  db_bind_int(&q, ":rid", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    mtime = db_column_double(&q,0);
+  }
+  db_reset(&q);
+  return mtime;
+}
+
+
+
+/*
 ** Load the record ID rid and up to |N|-1 closest ancestors into
 ** the "ok" table.  If N is zero, no limit.  If ridBackTo is not zero
 ** then stop the search upon reaching the ancestor with rid==ridBackTo.
@@ -199,9 +216,7 @@ void compute_ancestors(int rid, int N, int directOnly, int ridBackTo){
     */
     double rLimitMtime = 0.0;
     if( ridBackTo ){
-      rLimitMtime = db_double(0.0,
-         "SELECT mtime FROM event WHERE objid=%d",
-         ridBackTo);
+      rLimitMtime = mtime_of_rid(ridBackTo, 0.0);
     }
     db_multi_exec(
       "WITH RECURSIVE\n"

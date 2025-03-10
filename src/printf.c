@@ -255,7 +255,7 @@ static int StrNLen32(const char *z, int N){
 static int wiki_convert_flags(int altForm2){
   static int wikiFlags = 0;
   if( wikiFlags==0 ){
-    if( altForm2 || db_get_boolean("timeline-block-markup", 0) ){
+    if( db_get_boolean("timeline-block-markup", 0) ){
       wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
     }else{
       wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
@@ -267,7 +267,13 @@ static int wiki_convert_flags(int altForm2){
       wikiFlags |= WIKI_NEWLINE;
     }
   }
-  return wikiFlags;
+  if( altForm2 ){
+    /* block markup (ex: <p>, <table>) allowed */
+    return  wikiFlags & ~WIKI_NOBLOCK;
+  }else{
+    /* Do not allow any block format.  Everything in a <span> */
+    return wikiFlags;
+  }
 }
 
 

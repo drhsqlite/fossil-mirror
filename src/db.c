@@ -4183,6 +4183,7 @@ void db_record_repository_filename(const char *zName){
 **   --nested          Allow opening a repository inside an opened check-out
 **   --nosync          Do not auto-sync the repository prior to opening even
 **                     if the autosync setting is on.
+**   --proxy PROXY     Use PROXY as http proxy during sync operation
 **   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
 **                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side
@@ -4642,26 +4643,23 @@ struct Setting {
 */
 /*
 ** SETTING: comment-format  width=16 default=1
-** Set the default options for printing timeline comments to the console.
-**
-** The global --comfmtflags command-line option (or alias --comment-format)
-** overrides this setting.
+** Set the algorithm for printing timeline comments to the console.
 **
 ** Possible values are:
-**    1     Activate the legacy comment printing format (default).
+**    1     Use the original comment printing algorithm:
+**             *   Leading and trialing whitespace is removed
+**             *   Internal whitespace is converted into a single space (0x20)
+**             *   Line breaks occurs at whitespace or hyphens if possible
+**          This is the recommended value and the default.
 **
 ** Or a bitwise combination of the following flags:
-**    0     Activate the newer (non-legacy) comment printing format.
 **    2     Trim leading and trailing CR and LF characters.
 **    4     Trim leading and trailing white space characters.
 **    8     Attempt to break lines on word boundaries.
 **   16     Break lines before the original comment embedded in other text.
 **
-** Note: To preserve line breaks, activate the newer (non-legacy) comment
-** printing format (i.e. set to "0", or a combination not including "1").
-**
-** Note: The options for timeline comments displayed on the web UI can be
-** configured through the /setup_timeline web page.
+** Note: To preserve line breaks and/or other whitespace within comment text,
+** make this setting some integer value that omits the "1" bit.
 */
 /*
 ** SETTING: crlf-glob       width=40 versionable block-text

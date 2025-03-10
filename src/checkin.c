@@ -2378,6 +2378,7 @@ static int tagCmp(const void *a, const void *b){
 **    --nosync                   Do not auto-sync prior to committing
 **    --override-lock            Allow a check-in even though parent is locked
 **    --private                  Do not sync changes and their descendants
+**    --proxy PROXY              Use PROXY as http proxy during sync operation
 **    --tag TAG-NAME             Assign given tag TAG-NAME to the check-in
 **    --trace                    Debug tracing
 **    --user-override USER       USER to use instead of the current default

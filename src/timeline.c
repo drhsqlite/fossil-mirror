@@ -207,7 +207,6 @@ void www_print_timeline(
   int prevWasDivider = 0;     /* True if previous output row was <hr> */
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
-  static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current check-out version */
   int dateFormat = 0;         /* 0: HH:MM (default) */
@@ -245,10 +244,6 @@ void www_print_timeline(
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
   }
-  db_static_prepare(&qbranch,
-    "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
-    TAG_BRANCH
-  );
   if( (tmFlags & TIMELINE_CHPICK)!=0
    && !db_table_exists("repository","cherrypick")
   ){
@@ -268,7 +263,7 @@ void www_print_timeline(
     const char *zTagList = db_column_text(pQuery, 8);
     int tagid = db_column_int(pQuery, 9);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
-    const char *zBr = 0;      /* Branch */
+    char *zBr = 0;            /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
     char *zDateLink;          /* URL for the link on the timestamp */
@@ -414,13 +409,7 @@ void www_print_timeline(
     if( zType[0]=='c'
     && (pGraph || zBgClr==0 || (tmFlags & (TIMELINE_BRCOLOR|TIMELINE_DELTA))!=0)
     ){
-      db_reset(&qbranch);
-      db_bind_int(&qbranch, ":rid", rid);
-      if( db_step(&qbranch)==SQLITE_ROW ){
-        zBr = db_column_text(&qbranch, 0);
-      }else{
-        zBr = "trunk";
-      }
+      zBr = branch_of_rid(rid);
       if( zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0 ){
         if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
         }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
@@ -461,7 +450,6 @@ void www_print_timeline(
       gidx = graph_add_row(pGraph, rid, nParent, nCherrypick, aParent,
                            zBr, zBgClr, zUuid,
                            isLeaf ? isLeaf + 2 * has_closed_tag(rid) : 0);
-      db_reset(&qbranch);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }else if( zType[0]=='e' && pGraph && zBgClr && zBgClr[0] ){
       /* For technotes, make a graph node with nParent==(-1).  This will
@@ -470,6 +458,7 @@ void www_print_timeline(
       gidx = graph_add_row(pGraph, rid, -1, 0, 0, zBr, zBgClr, zUuid, 0);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }
+    fossil_free(zBr);
     @</td>
     if( !isSelectedOrCurrent ){
       @ <td class="timeline%s(zStyle)Cell%s(zExtraClass)" id='mc%d(gidx)'>
@@ -1126,7 +1115,7 @@ double symbolic_name_to_mtime(const char *z, const char **pzDisplay){
   }
   rid = symbolic_name_to_rid(z, "*");
   if( rid ){
-    mtime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
+    mtime = mtime_of_rid(rid, 0.0);
   }else{
     mtime = db_double(-1.0,
         "SELECT max(event.mtime) FROM event, tag, tagxref"
@@ -1421,7 +1410,8 @@ static int timeline_endpoint(
                                " AND event.objid=tagxref.rid)"
         "   ORDER BY plink.mtime)"
         "SELECT id FROM dx, tagxref"
-        " WHERE tagid=%d AND tagtype>0 AND rid=id LIMIT 1",
+        " WHERE tagid=%d AND tagtype>0 AND rid=id"
+        " ORDER BY dx.mtime LIMIT 1",
         iFrom, iFrom, tagId, tagId
       );
     }else{
@@ -1452,7 +1442,8 @@ static int timeline_endpoint(
                                " AND event.objid=tagxref.rid)"
         "   ORDER BY event.mtime DESC)"
         "SELECT id FROM dx, tagxref"
-        " WHERE tagid=%d AND tagtype>0 AND rid=id LIMIT 1",
+        " WHERE tagid=%d AND tagtype>0 AND rid=id"
+        " ORDER BY dx.mtime DESC LIMIT 1",
         iFrom, iFrom, tagId, tagId
       );
     }else{
@@ -1585,10 +1576,10 @@ void timeline_test_endpoint(void){
 **    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
 **    bt=CHECKIN      "Back To".  Show ancenstors going back to CHECKIN
 **                       p=CX       ... from CX back to time of CHECKIN
-**                       from=CX    ... shortest path from CX back to CHECKIN
+**                       from=CX    ... path from CX back to CHECKIN
 **    ft=CHECKIN      "Forward To":  Show decendents forward to CHECKIN
 **                       d=CX       ... from CX up to the time of CHECKIN
-**                       from=CX    ... shortest path from CX up to CHECKIN
+**                       from=CX    ... path from CX up to CHECKIN
 **    t=TAG           Show only check-ins with the given TAG
 **    r=TAG           Same as 't=TAG&rel'.  Mnemonic: "Related"
 **    tl=TAGLIST      Same as 't=TAGLIST&ms=brlist'.  Mnemonic: "Tag List"
@@ -1613,16 +1604,17 @@ void timeline_test_endpoint(void){
 **    v               Show details of files changed
 **    vfx             Show complete text of forum messages
 **    f=CHECKIN       Family (immediate parents and children) of CHECKIN
-**    from=CHECKIN    Path through common ancestor from...
-**                       to=CHECKIN      ... to this
-**                       to2=CHECKIN     ... backup name if to= doesn't resolve
-**                       shortest        ... show only the shortest path
-**                       rel             ... also show related checkins
-**                       bt=PRIOR        ... path from CHECKIN back to PRIOR
-**                       ft=LATER        ... path from CHECKIN forward to LATER
-**    me=CHECKIN      Most direct path from...
-**                       you=CHECKIN     ... to this
-**                       rel             ... also show related checkins
+**    from=CHECKIN    Path through common ancestor from CHECKIN...
+**                       to=CHECKIN   ... to this
+**                       to2=CHECKIN  ... backup name if to= doesn't resolve
+**                       shortest     ... pick path with least number of nodes
+**                       rel          ... also show related checkins
+**                       min          ... hide long sequences along same branch
+**                       bt=PRIOR     ... path from CHECKIN back to PRIOR
+**                       ft=LATER     ... path from CHECKIN forward to LATER
+**    me=CHECKIN      Most direct path from CHECKIN...
+**                       you=CHECKIN  ... to this
+**                       rel          ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
 **                    All qualifying check-ins are shown unless there is
 **                    also an n= or n1= query parameter.
@@ -1709,7 +1701,7 @@ void page_timeline(void){
   int from_rid = name_to_typed_rid(P("from"),"ci"); /* from= for paths */
   const char *zTo2 = 0;
   int to_rid = name_choice("to","to2",&zTo2);    /* to= for path timelines */
-  int noMerge = P("shortest")==0;           /* Follow merge links if shorter */
+  int bShort = P("shortest")!=0;                 /* shortest possible path */
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
   int pd_rid;
@@ -1730,6 +1722,7 @@ void page_timeline(void){
   int from_to_mode = 0;               /* 0: from,to. 1: from,ft 2: from,bt */
   int showSql = PB("showsql");        /* True to show the SQL */
   Blob allSql;                        /* Copy of all SQL text */
+  int bMin = P("min")!=0;             /* True if "min" query parameter used */
 
   login_check_credentials();
   url_initialize(&url, "timeline");
@@ -2085,16 +2078,18 @@ void page_timeline(void){
     int nNodeOnPath = 0;
     int commonAncs = 0;    /* Common ancestors of me_rid and you_rid. */
     int earlierRid = 0, laterRid = 0;
+    int cost = bShort ? 0 : 1;
+    int nSkip = 0;
 
     if( from_rid && to_rid ){
       if( from_to_mode==0 ){
-        p = path_shortest(from_rid, to_rid, noMerge, 0, 0);
+        p = path_shortest(from_rid, to_rid, 0, 0, 0, cost);
       }else if( from_to_mode==1 ){
-        p = path_shortest(from_rid, to_rid, 0, 1, 0);
+        p = path_shortest(from_rid, to_rid, 0, 1, 0, cost);
         earlierRid = commonAncs = from_rid;
         laterRid = to_rid;
       }else{
-        p = path_shortest(to_rid, from_rid, 0, 1, 0);
+        p = path_shortest(to_rid, from_rid, 0, 1, 0, cost);
         earlierRid = commonAncs = to_rid;
         laterRid = from_rid;
       }
@@ -2125,16 +2120,21 @@ void page_timeline(void){
       int cnt = 4;
       blob_init(&ins, 0, 0);
       blob_append_sql(&ins, "INSERT INTO pathnode(x) VALUES(%d)", p->rid);
-      p = p->u.pTo;
-      while( p ){
-        if( cnt==8 ){
+      if( p->u.pTo==0 ) bMin = 0;
+      for(p=p->u.pTo; p; p=p->u.pTo){
+        if( bMin
+         && p->u.pTo!=0
+         && fossil_strcmp(path_branch(p->pFrom),path_branch(p))==0
+         && fossil_strcmp(path_branch(p),path_branch(p->u.pTo))==0
+        ){
+          nSkip++;
+        }else if( cnt==8 ){
           blob_append_sql(&ins, ",\n  (%d)", p->rid);
           cnt = 0;
         }else{
           cnt++;
           blob_append_sql(&ins, ",(%d)", p->rid);
         }
-        p = p->u.pTo;
       }
     }
     path_reset();
@@ -2198,8 +2198,9 @@ void page_timeline(void){
     nNodeOnPath = db_int(0, "SELECT count(*) FROM temp.pathnode");
     if( nNodeOnPath==1 && from_to_mode>0 ){
       blob_appendf(&desc,"Check-in ");
-    }else if( from_to_mode>0 ){
-      blob_appendf(&desc, "%d check-ins on the shorted path from ",nNodeOnPath);
+    }else if( bMin ){
+      blob_appendf(&desc, "%d of %d check-ins along the path from ",
+                   nNodeOnPath, nNodeOnPath+nSkip);
     }else{
       blob_appendf(&desc, "%d check-ins going from ", nNodeOnPath);
     }
@@ -2255,16 +2256,14 @@ void page_timeline(void){
       double rStopTime = 9e99;
       zFwdTo = P("ft");
       if( zFwdTo ){
-        double rStartDate = db_double(0.0,
-           "SELECT mtime FROM event WHERE objid=%d", d_rid);
+        double rStartDate = mtime_of_rid(d_rid, 0.0);
         ridFwdTo = first_checkin_with_tag_after_date(zFwdTo, rStartDate);
         if( ridFwdTo==0 ){
           ridFwdTo = name_to_typed_rid(zBackTo,"ci");
         }
         if( ridFwdTo ){
           if( !haveParameterN ) nEntry = 0;
-          rStopTime = db_double(9e99,
-            "SELECT mtime FROM event WHERE objid=%d", ridFwdTo);
+          rStopTime = mtime_of_rid(ridFwdTo, 9e99);
         }
       }
       if( rStopTime<9e99 ){
@@ -2293,8 +2292,7 @@ void page_timeline(void){
     if( p_rid ){
       zBackTo = P("bt");
       if( zBackTo ){
-        double rDateLimit = db_double(0.0,
-           "SELECT mtime FROM event WHERE objid=%d", p_rid);
+        double rDateLimit = mtime_of_rid(p_rid, 0.0);
         ridBackTo = last_checkin_with_tag_before_date(zBackTo, rDateLimit);
         if( ridBackTo==0 ){
           ridBackTo = name_to_typed_rid(zBackTo,"ci");
