@@ -1,5 +1,5 @@
-C In\s/timeline\sallow\sp=\sand\sd=\sto\shave\sseparate\svalues,\sand\sthe\sresult\sis\nshowing\sall\scheck-ins\sthat\sare\sboth\sancenstors\sof\sp=\sand\sdescendents\sof\sd=.
-D 2025-03-10T14:14:20.358
+C The\s"fossil\scommit"\scommand\slooks\sfor\ssuspicious\sand/or\sbroken\shyperlinks\sin\ncomments\sand\sgives\sthe\suser\san\sopportunity\sto\scontinue\sediting\sthe\ncomment.
+D 2025-03-10T18:42:08.506
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c b3b12af06bf8d6bd49079e0841013491b3630a67b77ddc76f18cd3b764fa9969
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
-F src/checkin.c d4b85bae3b45e5763cc1cb436b075ab4c1d7b0a53d0415d4f81be4d30480beea
+F src/checkin.c 2e045431b427803821b52f9763f4e6783f351a32148a93afd27513e17168d059
 F src/checkout.c ff781ae83cd31549d2e1fa14449605eafed8ee71597410e96d1b4d506d549f39
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
@@ -591,7 +591,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c 78e18d1cfeab72bcf31416ecdc5e9c0362dd1f2042021bb6c8391a6d2fc87714
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c 3b15bd9b3b8747b8877b1cbd909bb8d1c453fb143b435ef5ed347cd096f7a9db
+F src/wikiformat.c 1b6f894593ee309aadc1e6714bb80413692d9818d5c7643ad77b0b57706b2850
 F src/winfile.c c32dbdb03d30ab85becf46070fa05bd79af2e0b644b1e68c90a87eee121be50f
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
 F src/xfer.c 4e6e873068cb207ba0cd483271fe4606fd3a59289ba7b0d8f15a3de071fcf87f
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2e57aa9735cbe6b6181d0e5630fdf23dd54b4e71421ede1e9aa8227923aea3c
-R 5a637f6f0401682be340207fff5a171d
+P d1d4cc7529eefa9e31f486c697030087940930f9d1ee60d1d656830fdad76500
+R 07f8cf4ed22c2953316df9f074e6f443
 U drh
-Z 56c0fa47cd027f9c6c814ba67aa13238
+Z 3d1e061dc42f31ed54ab4d2f66b91a47
 # Remove this line to create a well-formed Fossil manifest.

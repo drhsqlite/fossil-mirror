@@ -2285,6 +2285,60 @@ static int tagCmp(const void *a, const void *b){
 }
 
 /*
+** Check for possible formatting errors in the comment string pComment.
+** If found, write a description of the problem(s) into pSus and return
+** true.  If everything looks ok, return false.
+*/
+static int suspicious_comment(Blob *pComment, Blob *pSus){
+  char *zStart = blob_str(pComment);
+  char *z;
+  char *zEnd, *zEnd2;
+  char *zSep;
+  char cSave1;
+  int nIssue = 0;
+
+  z = zStart;
+  while( (z = strchr(z,'['))!=0 ){
+    zEnd = strchr(z,']');
+    if( zEnd==0 ){
+      blob_appendf(pSus,"\n (%d) ", ++nIssue);
+      blob_appendf(pSus, "Unterminated hyperlink \"%.12s...\"", z);
+      break;
+    }
+    if( zEnd[1]=='(' && (zEnd2 = strchr(zEnd,')'))!=0 ){
+      blob_appendf(pSus,"\n (%d) ", ++nIssue);
+      blob_appendf(pSus, "Markdown hyperlink syntax: %.*s",
+                   (int)(zEnd2+1-z), z);
+      z = zEnd2;
+      continue;
+    }
+    zSep = strchr(z+1,'|');
+    if( zSep==0 || zSep>zEnd ) zSep = zEnd;
+    cSave1 = zEnd[0];
+    zEnd[0] = 0;
+    if( !wiki_valid_link_target(z+1) ){
+      blob_appendf(pSus,"\n (%d) ", ++nIssue);
+      blob_appendf(pSus, "Broken hyperlink: [%s]", z+1);
+    }
+    zEnd[0] = cSave1;
+    z = zEnd;
+  }
+  if( nIssue ){
+    Blob tmp = *pSus;
+    blob_init(pSus, 0, 0);
+    blob_appendf(pSus,
+      "Possible comment formatting error%s:"
+      "%b\n"
+      "Edit, continue or abort (E/c/a)? ",
+      nIssue>1 ? "s" : "", &tmp);
+    blob_reset(&tmp);
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+/*
 ** COMMAND: ci#
 ** COMMAND: commit
 **
@@ -2803,18 +2857,39 @@ void commit_cmd(void){
       blob_read_from_file(&comment, zComFile, ExtFILE);
       blob_to_utf8_no_bom(&comment, 1);
     }else if( !noPrompt ){
-      char *zInit = db_text(0,"SELECT value FROM vvar WHERE name='ci-comment'");
-      prepare_commit_comment(&comment, zInit, &sCiInfo, vid, dryRunFlag);
-      if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
-        prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
-        cReply = blob_str(&ans)[0];
-        blob_reset(&ans);
-        if( cReply!='y' && cReply!='Y' ){
-          fossil_fatal("Commit aborted.");
+      while(  1/*exit-by-break*/ ){
+        char *zInit;
+        Blob sus;
+
+        zInit = db_text(0,"SELECT value FROM vvar WHERE name='ci-comment'");
+        prepare_commit_comment(&comment, zInit, &sCiInfo, vid, dryRunFlag);
+        db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
+        blob_init(&sus, 0, 0);
+        if( suspicious_comment(&comment,&sus) ){
+          prompt_user(blob_str(&sus), &ans);
+          cReply = blob_str(&ans)[0];
+          blob_reset(&ans);
+          blob_reset(&sus);
+          if( cReply=='e' || cReply=='E' ){
+            fossil_free(zInit);
+            continue;
+          }
+          if( cReply!='c' && cReply!='C' ){
+            fossil_fatal("Commit aborted.");
+          }
         }
+        if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
+          prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
+          cReply = blob_str(&ans)[0];
+          blob_reset(&ans);
+          if( cReply!='y' && cReply!='Y' ){
+            fossil_fatal("Commit aborted.");
+          }
+        }
+        fossil_free(zInit);
+        break;
       }
-      free(zInit);
-      db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
+
       db_end_transaction(0);
       db_begin_transaction();
       if( !g.markPrivate && vid!=0 && !allowFork && !forceFlag ){

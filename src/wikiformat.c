@@ -36,6 +36,7 @@
 #define WIKI_SAFE           0x100  /* Make the result safe for embedding */
 #define WIKI_TARGET_BLANK   0x200  /* Hyperlinks go to a new window */
 #define WIKI_NOBRACKET      0x400  /* Omit extra [..] around hyperlinks */
+#define WIKI_ADMIN          0x800  /* Ignore g.perm.Hyperlink */
 #endif
 
 
@@ -1322,7 +1323,7 @@ void wiki_resolve_hyperlink(
         blob_appendf(pOut, "<span class=\"brokenlink\">%s", zLB);
         zTerm = "]</span>";
       }
-    }else if( g.perm.Hyperlink ){
+    }else if( g.perm.Hyperlink || (mFlags & WIKI_ADMIN)!=0 ){
       blob_appendf(pOut, "%z%s",xhref(zExtraNS, "%R/info/%s", zTarget), zLB);
       zTerm = "]</a>";
     }else{
@@ -1365,6 +1366,20 @@ void wiki_resolve_hyperlink(
   if( zExtra ) fossil_free(zExtra);
   assert( (int)strlen(zTerm)<nClose );
   sqlite3_snprintf(nClose, zClose, "%s", zTerm);
+}
+
+/*
+** Check zTarget to see if it looks like a valid hyperlink target.
+** Return true if it does seem valid and false if not.
+*/
+int wiki_valid_link_target(char *zTarget){
+  char zClose[30];
+  Blob notUsed;
+  blob_init(&notUsed, 0, 0);
+  wiki_resolve_hyperlink(&notUsed, WIKI_NOBADLINKS|WIKI_ADMIN,
+       zTarget, zClose, sizeof(zClose)-1, 0, 0);
+  blob_reset(&notUsed);
+  return zClose[0]!=0;
 }
 
 /*
