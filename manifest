@@ -1,5 +1,5 @@
-C Teach\sthe\shelp\scommand\sand\s/help\spage\sto\sbe\sable\sto\sdistinguish\scompletely\sunknown\scommands\sfrom\scommands\swhich\sare\sonly\sconditionally\savailable\sdepending\son\stheir\splatform\sor\sbuild\sflags.\sBased\son\sa\s/chat\sdiscussion.
-D 2025-03-10T10:21:50.351
+C Make\sthe\s(help\splatform-specific-command-or-page)\soutput\smore\sgeneric\sso\sthat\sit\sapplies\sequally\sto\scommands,\ssettings,\sand\sweb\spages.
+D 2025-03-10T10:23:52.563
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,7 +421,7 @@ F src/diff.c 0144a6dfefff72e2a0ca6da7a74703be4150feab1fd2d272f39565c3cf35c849
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
 F src/diffcmd.c cec6c9f65439be9591c1ba8e79911cde35b40ba827709a27240e1600880c9a0c
-F src/dispatch.c 2d2e7c48cf31732532a873871d133169859656816d6c8654f58c31c78cc34107
+F src/dispatch.c ed3f8b39d19aad310c6252feb40610a0393a016116ac91f3c59fe57a0799ddb3
 F src/doc.c f3dfc34c9023fbdf16488ea9de7622440881612145f92c934bf92122fc130907
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2c161bafb2a2a05fc5cf081ce71ffdfa975602f1af30e45f69e54edcef2436e
-R 9356fbdf7df30b67e83d42ed43fe693a
+P e5ace41107d6312366f365cc1a70d1c1b96ea09935b9ff98d8b39b5d3981ee5b
+R a43d810587b9504ca35a57e5d46d9d92
 U stephan
-Z 2af9cced406f5e40a57c90fc712f4c1f
+Z 647efd3bbfc6ffd9c1c288b281cfa591
 # Remove this line to create a well-formed Fossil manifest.

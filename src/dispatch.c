@@ -1547,7 +1547,7 @@ void help_cmd(void){
     const char *az[5];
     if( rc==1 ){
       if( help_is_platform_command(g.argv[2]) ){
-        fossil_print("Command is not available in this build: %s\n", g.argv[2]);
+        fossil_print("Not available in this build: %s\n", g.argv[2]);
         return;
       }
       fossil_print("unknown %s: %s\n", zCmdOrPage, g.argv[2]);
