@@ -2236,6 +2236,8 @@ void page_timeline(void){
     const char *zFwdTo = 0;
     int ridBackTo = 0;
     int ridFwdTo = 0;
+    int bBackAdded = 0;       /* True if the zBackTo node was added */
+    int bFwdAdded = 0;        /* True if the zBackTo node was added */
 
     tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     if( p_rid && d_rid ){
@@ -2281,6 +2283,10 @@ void page_timeline(void){
         "INSERT OR IGNORE INTO ok SELECT rid FROM dx LIMIT %d",
         d_rid, rStopTime<8e99 ? 17 : 2, rStopTime, nEntry<=0 ? -1 : nEntry+1
       );
+      if( ridFwdTo && !db_exists("SELECT 1 FROM ok WHERE rid=%d",ridFwdTo) ){
+        db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", ridFwdTo);
+        bFwdAdded = 1;
+      }
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
       if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
       if( nd>0 || p_rid==0 ){
@@ -2300,6 +2306,10 @@ void page_timeline(void){
         if( ridBackTo && !haveParameterN ) nEntry = 0;
       }
       compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0, ridBackTo);
+      if( ridBackTo && !db_exists("SELECT 1 FROM ok WHERE rid=%d",ridBackTo) ){
+        db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", ridBackTo);
+        bBackAdded = 1;
+      }
       np = db_int(0, "SELECT count(*)-1 FROM ok");
       if( np>0 || nd==0 ){
         if( nd>0 ) blob_appendf(&desc, " and ");
@@ -2308,34 +2318,36 @@ void page_timeline(void){
       }
       if( useDividers && !selectedRid ) selectedRid = p_rid;
     }
-
     blob_appendf(&desc, " of %z%h</a>",
                    href("%R/info?name=%h", zCiName), zCiName);
     if( ridBackTo ){
       if( np==0 ){
         blob_reset(&desc);
         blob_appendf(&desc,
-                    "Check-in %z%h</a> only (%z%h</a> is not an ancestor)",
+                    "Check-in %z%h</a> only (%z%h</a> does not precede it)",
                      href("%R/info?name=%h",zCiName), zCiName,
                      href("%R/info?name=%h",zBackTo), zBackTo);
       }else{
-        blob_appendf(&desc, " back to %z%h</a>",
-                     href("%R/info?name=%h",zBackTo), zBackTo);
+        blob_appendf(&desc, " back to %z%h</a>%s",
+                     href("%R/info?name=%h",zBackTo), zBackTo,
+                     bBackAdded ? " (not a direct anscestor)" : "");
         if( ridFwdTo && zFwdTo ){
-          blob_appendf(&desc, " and up to %z%h</a>",
-                     href("%R/info?name=%h",zFwdTo), zFwdTo);
+          blob_appendf(&desc, " and up to %z%h</a>%s",
+                     href("%R/info?name=%h",zFwdTo), zFwdTo,
+                     bFwdAdded ? " (not a direct descendent)" : "");
         }
       }
     }else if( ridFwdTo ){
       if( nd==0 ){
         blob_reset(&desc);
         blob_appendf(&desc,
-                    "Check-in %z%h</a> only (%z%h</a> is not an descendant)",
+                    "Check-in %z%h</a> only (%z%h</a> does not follow it)",
                      href("%R/info?name=%h",zCiName), zCiName,
                      href("%R/info?name=%h",zFwdTo), zFwdTo);
       }else{
-        blob_appendf(&desc, " up to %z%h</a>",
-                     href("%R/info?name=%h",zFwdTo), zFwdTo);
+        blob_appendf(&desc, " up to %z%h</a>%s",
+                     href("%R/info?name=%h",zFwdTo), zFwdTo,
+                     bFwdAdded ? " (not a direct descendent)":"");
       }
     }
     if( d_rid ){
