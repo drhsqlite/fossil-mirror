@@ -813,6 +813,28 @@ void test_approx_match_command(void){
   }
 }
 
+
+/*
+** Returns 1 if the command or page name zName is known to be a
+** command/page which is only available in certain builds/platforms,
+** else returns 0.
+*/
+static int help_is_platform_command(const char *zName){
+  const char *aList[] = {
+    /* List of commands/pages which are known to only be available in
+    ** certain builds/platforms. */
+    "winsrv",
+    "json", "/json",
+    NULL /* end-of-list sentinel */
+  };
+  int i = 0;
+  const char *z;
+  for( z = aList[0]; z ; z = aList[++i] ){
+    if( 0==fossil_strcmp(zName, z) ) return 1;
+  }
+  return 0;
+}
+
 /*
 ** WEBPAGE: help
 ** URL: /help?name=CMD
@@ -862,7 +884,11 @@ void help_page(void){
       @ <h1>The "%h(pCmd->zName)" command:</h1>
     }
     if( rc==1 || (rc==2 && zCmd[0]=='/') ){
-      @ Unknown topic: "%h(zCmd)"
+      if( zCmd && help_is_platform_command(zCmd) ){
+        @ Not available in this build: "%h(zCmd)"
+      }else{
+        @ Unknown topic: "%h(zCmd)"
+      }
     }else if( rc==2 ){
       @ Ambiguous prefix: "%h(zCmd)"
     }else{
@@ -1520,6 +1546,10 @@ void help_cmd(void){
     int i, n;
     const char *az[5];
     if( rc==1 ){
+      if( help_is_platform_command(g.argv[2]) ){
+        fossil_print("Command is not available in this build: %s\n", g.argv[2]);
+        return;
+      }
       fossil_print("unknown %s: %s\n", zCmdOrPage, g.argv[2]);
     }else{
       fossil_print("ambiguous %s prefix: %s\n",
