@@ -728,10 +728,10 @@ int fossil_main(int argc, char **argv){
   /* When updating the minimum SQLite version, change the number here,
   ** and also MINIMUM_SQLITE_VERSION value set in ../auto.def.  Take
   ** care that both places agree! */
-  if( sqlite3_libversion_number()<3046000
-   || strncmp(sqlite3_sourceid(),"2024-08-16",10)<0
+  if( sqlite3_libversion_number()<3049000
+   || strncmp(sqlite3_sourceid(),"2025-02-06",10)<0
   ){
-    fossil_panic("Unsuitable SQLite version %s, must be at least 3.43.0",
+    fossil_panic("Unsuitable SQLite version %s, must be at least 3.49.0",
                  sqlite3_libversion());
   }
 
@@ -2401,7 +2401,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 ** so that any warnings from the database when opening the repository
 ** go to that log file.
 **
-** See also: [[http]], [[server]], [[winsrv]]
+** See also: [[http]], [[server]], [[winsrv]] [Windows only]
 */
 void cmd_cgi(void){
   const char *zNotFound = 0;
@@ -2860,7 +2860,7 @@ static void decode_ssl_options(void){
 **   --usepidkey         Use saved encryption key from parent process. This is
 **                       only necessary when using SEE on Windows or Linux.
 **
-** See also: [[cgi]], [[server]], [[winsrv]]
+** See also: [[cgi]], [[server]], [[winsrv]] [Windows only]
 */
 void cmd_http(void){
   const char *zIpAddr = 0;
@@ -3242,7 +3242,7 @@ void fossil_set_timeout(int N){
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows or Linux.
 **
-** See also: [[cgi]], [[http]], [[winsrv]]
+** See also: [[cgi]], [[http]], [[winsrv]] [Windows only]
 */
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */

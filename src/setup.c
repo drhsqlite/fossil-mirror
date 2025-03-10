@@ -272,6 +272,9 @@ void setup_logmenu_page(void){
   @ &mdash;&mdash;
   @ </td>  
 
+  setup_menu_entry("Error Summary", bErrLog ? "logsummary" : 0,
+    "Counts of the various message types seen in the Error Log.\n"
+  );
   setup_menu_entry("Panic Log", bErrLog ? "paniclog" : 0,
     "Only the most important messages in the Error Log:\n"
     "assertion faults, segmentation faults, and similar malfunctions.\n"
