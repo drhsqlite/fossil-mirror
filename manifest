@@ -1,5 +1,5 @@
-C Fix\stypo\sin\serror\smessage\sfrom\sthe\sprevious\scommit.
-D 2025-03-11T01:26:55.440
+C For\sthe\sconsole-based\stimeline,\srun\scomment\stext\sthrough\swiki_convert()\nand\sthen\sthrough\shtml_to_plaintext()\sbefore\sdisplay,\sin\sorder\sto\stranslate\nmarkup.
+D 2025-03-11T10:44:43.430
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -554,7 +554,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c c04649fb5d3e11341eaa3e1e4bf63712bcd57ec774f8998b04d06e2d0f1908f6
+F src/sqlcmd.c 42334a1297bb1ec6a34056f3be4068089e6d94e9e8077ed3d6778a50a1994a54
 F src/stash.c 63cef80d3740c54c448d60b992be69b9f8c8b9acb7b28241bcfd769efdc6ad22
 F src/stat.c 318d359a317da263f80db05dacd9c5ebbf69383945f9540a9a67fdfc4f6743b0
 F src/statrep.c 69e663e6cfa8a8acc8495bca4320f87b076aec6a68b4d53e330b5baa08907d62
@@ -574,7 +574,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c 8b4bd6707a7393f51383cd6eb1ff9c8a1e054cc7cb6c5430b459d95da9defa2a
+F src/timeline.c 9dc0752729a4644b3762f2d97d9ea080cc25d59fec706afea045c723924f4cbe
 F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
 F src/tktsetup.c dee6358557178e83f24f09149f1aa241f331e2dde0084195156d34f012162e4e
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -591,7 +591,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c 78e18d1cfeab72bcf31416ecdc5e9c0362dd1f2042021bb6c8391a6d2fc87714
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c 1b6f894593ee309aadc1e6714bb80413692d9818d5c7643ad77b0b57706b2850
+F src/wikiformat.c 6580e166abf4034eb0a75a70b8e036cde8ae2dcf68141a368d1ddc31e1b3c100
 F src/winfile.c c32dbdb03d30ab85becf46070fa05bd79af2e0b644b1e68c90a87eee121be50f
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
 F src/xfer.c 4e6e873068cb207ba0cd483271fe4606fd3a59289ba7b0d8f15a3de071fcf87f
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6a0e669f8e8b3e2ef0272eb838d7ec551bd7b302fb6d36e4659224c61387772
-R 868cf95ed3b53796cf9ade8fa9df92fe
+P 403a3aeb35519cd7e78bceefea5e92492bb80d18fb34d58607e383929ebd360f
+R 7eeb7d27fd35a28d7578811cfd685fe8
 U drh
-Z 46ee68cb83afd44c4abd95467e478cbe
+Z ffb4db7b216a2afbdbfc1e63500de9bb
 # Remove this line to create a well-formed Fossil manifest.

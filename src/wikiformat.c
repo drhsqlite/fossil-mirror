@@ -1893,7 +1893,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **    --linksonly      Set the WIKI_LINKSONLY flag
 **    --nobadlinks     Set the WIKI_NOBADLINKS flag
 **    --noblock        Set the WIKI_NOBLOCK flag
-**    --text            Run the output through html_to_plaintext().
+**    --text           Run the output through html_to_plaintext().
 */
 void test_wiki_render(void){
   Blob in, out;
