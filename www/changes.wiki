@@ -14,13 +14,21 @@
   *  Added the [/help?cmd=merge-info|fossil merge-info] command and especially
      the --tk option to that command, to provide analysis of the most recent
      merge or update operation.
-  *  Added the ability to sign check-ins with SSH keys.
-  *  Issue a warning if a user tries to commit on a check-in where the
-     branch has been changed.
   *  When a merge conflict occurs, a new section is added to the conflict
      text that shows Fossil's suggested resolution to the conflict.
   *  Add the "Hide diffs/Show diffs" toggle to web-UI diff pages that show
      diffs of multiple files.
+  *  Enhancements to [/help?cmd=commit|fossil commit]:
+     <ol type="a">
+     <li> If Fossil sees potential formatting mistakes (bad hyperlinks)
+          in the check-in comment, it will alert the developer and give
+          him or her the opportunity to edit the comment before continuing.
+     <li> The new "--if-changes" option causes the commit to become
+          a quiet no-op if there are no pending changes.
+     <li> Added the ability to sign check-ins with SSH keys.
+     <li> Issue a warning if a user tries to commit on a check-in where the
+          branch has been changed.
+     </ol>
   *  Deprecate the --comfmtflags and --comment-format global options and
      no longer list them in the built-in help, but keep them working for
      backwards compatibility.
@@ -51,10 +59,13 @@
           dates specified.
      <li> Accept the "Z" (Zulu-time) suffix on date arguments for the
           "ymd" and "yw" query parameters.
+     <li> The new "min" query parameter, when added to a from=,to= query,
+          collapses long runs of check-ins on the same branch into just
+          end-points.
+     <li> The p= and d= parameters an reference different check-ins, which
+          case the timeline shows those check-ins that are both ancestors
+          of p= and descendents of d=.
      </ol>
-  *  Add the "--if-changes" option to the [/help?cmd=commit|fossil commit]
-     command that causes the command to become a quiet no-op if there are
-     no pending changes.
   *  Added the [/help?cmd=/clusterlist|/clusterlist page] for analysis
      and debugging
   *  Fix a bug in [/help?cmd=patch|fossil patch create] that causes
@@ -63,8 +74,11 @@
      patch.
   *  Added the [/help?cmd=patch|patch alias] command for managing aliases
      for remote checkout names.
-  *  Enhance the [/help?cmd=help|fossil help] command:
+  *  Enhancements to on-line help and the [/help?cmd=help|fossil help] command:
      <ol type="a">
+     <li> Add the ability to search the help text, either in the UI
+          (on the [/help?cmd=/search|/search page]) or from the command-line
+          (using the "[/help?cmd=search|fossil search -h PATTERN]" command.)
      <li> Accepts an optional SUBCOMMAND argument following the
           COMMAND argument and only shows results for the specified
           subcommand, not the entire command.
