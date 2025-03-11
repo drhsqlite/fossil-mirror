@@ -267,7 +267,7 @@ void info_cmd(void){
     }
     show_common_info(rid, "hash:", 1, 1);
   }else{
-    fossil_fatal("Coult not find or open a Fossil repository");
+    fossil_fatal("Could not find or open a Fossil repository");
   }
 }
 
