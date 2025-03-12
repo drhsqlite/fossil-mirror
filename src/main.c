@@ -1851,6 +1851,11 @@ static void process_one_web_page(
       zCleanRepo = file_cleanup_fullpath(zRepo);
       if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
         szFile = file_size(zCleanRepo, ExtFILE);
+        if( szFile>0 && !file_isfile(zCleanRepo, ExtFILE) ){
+          /* Only let szFile be non-negative if zCleanRepo really is a file
+          ** and not a directory or some other filesystem object. */
+          szFile = -1;
+        }
         if( g.fHttpTrace ){
           sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", szFile);
           @ <!-- file_size(%h(zCleanRepo)) is %s(zBuf) -->

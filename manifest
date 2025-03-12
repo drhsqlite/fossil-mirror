@@ -1,5 +1,5 @@
-C add\smention\sof\sticket-wikis\sto\schangelog
-D 2025-03-12T18:50:54.469
+C When\ssearching\sfor\sa\srepository\sto\sopen\sbased\son\sthe\srequest\sURI,\sdo\snot\nmistake\sdirectories\swhose\snames\send\swith\s".fossil"\sas\srepositories.\nThis\sresolves\sthe\sissue\smentioned\sin\n[forum:/forumpost/3724e6175b7f6163|forum\spost\s3724e6175b].
+D 2025-03-12T19:37:48.438
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -493,7 +493,7 @@ F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22
 F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c f474cdf96965e0110ebf5d0876ddd15e8781661682782223cdcbb94459a59f0e
+F src/main.c 6dca66fb8a06133432c1246bd8f36b7df7b3cdf7734848b8585697dcae041da4
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
 F src/manifest.c ff73bb76d7e994bbefbaf43cd96835affd252d9e700a0ccd3dce584f4f612a0d
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eec84c1c2cff631c9e41e5c99529d45bdc672fccccdfad4fd6b4babfda8c0be6
-R cbeb01269ba5e05f186b9915d6139680
-U jkosche
-Z f61ed61292f41d93907a91a68da28327
+P c23741ac5de4298cd4d6ea6f42c480b4f43f7be228a3bb1147c90c585322fe77
+R d4a47cea5f456756d80d3a29a577c600
+U drh
+Z 9163bf293d2047ed564773aa6e34001d
 # Remove this line to create a well-formed Fossil manifest.
