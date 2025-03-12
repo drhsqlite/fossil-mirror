@@ -85,6 +85,8 @@
      <li> The -u (--usage) option shows only the command-line syntax
      <li> The -o (--options) option shows only the command-line options
      </ol>
+  *  Added the ability to attach wiki pages to a ticket for extended
+     descriptions.
 
 <h2 id='v2_25'>Changes for version 2.25 (2024-11-06)</h2>
 
