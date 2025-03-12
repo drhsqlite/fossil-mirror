@@ -1383,7 +1383,7 @@ static int timeline_is_datespan(const char *zDay){
 static int timeline_endpoint(
   int iFrom,         /* Starting point */
   const char *zEnd,  /* Tag we are searching for */   
-  int bForward       /* 1: forwards in time (descendents) 0: backwards */
+  int bForward       /* 1: forwards in time (descendants) 0: backwards */
 ){
   int tagId;
   int endId = 0;
@@ -1515,13 +1515,13 @@ static void add_extra_rids(const char *zTab, const char *zExtra){
 **
 ** Usage: fossil test-endpoint BASE TAG ?OPTIONS?
 **
-** Show the first check-in with TAG that is a descendent or ancestor
-** of BASE.  The first descendent checkin is shown by default.  Use
+** Show the first check-in with TAG that is a descendant or ancestor
+** of BASE.  The first descendant checkin is shown by default.  Use
 ** the --backto to see the first ancestor checkin.
 **
 ** Options:
 **
-**      --backto            Show ancestor.  Others defaults to descendents.
+**      --backto            Show ancestor.  Others defaults to descendants.
 */
 void timeline_test_endpoint(void){
   int bForward = find_option("backto",0,0)==0;
@@ -2357,7 +2357,7 @@ void page_timeline(void){
       blob_reset(&desc);
       blob_appendf(&desc,
           "%d check-ins that are both ancestors of %z%h</a>"
-          " and descendents of %z%h</a>",
+          " and descendants of %z%h</a>",
           n,
           href("%R/info?name=%h",zDPNameP),zDPNameP,
           href("%R/info?name=%h",zDPNameD),zDPNameD
@@ -2382,7 +2382,7 @@ void page_timeline(void){
         if( ridFwdTo && zFwdTo ){
           blob_appendf(&desc, " and up to %z%h</a>%s",
                      href("%R/info?name=%h",zFwdTo), zFwdTo,
-                     bFwdAdded ? " (not a direct descendent)" : "");
+                     bFwdAdded ? " (not a direct descendant)" : "");
         }
       }
     }else if( ridFwdTo ){
@@ -2395,7 +2395,7 @@ void page_timeline(void){
       }else{
         blob_appendf(&desc, " up to %z%h</a>%s",
                      href("%R/info?name=%h",zFwdTo), zFwdTo,
-                     bFwdAdded ? " (not a direct descendent)":"");
+                     bFwdAdded ? " (not a direct descendant)":"");
       }
     }
     if( advancedMenu ){

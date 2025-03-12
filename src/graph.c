@@ -86,7 +86,7 @@ struct GraphRow {
   GraphRow *pPrev;            /* Previous row */
 
   int idx;                    /* Row index.  Top row is smallest. */
-  int idxTop;                 /* Direct descendent highest up on the graph */
+  int idxTop;                 /* Direct descendant highest up on the graph */
   GraphRow *pChild;           /* Child immediately above this node */
   u8 isDup;                   /* True if this is duplicate of a prior entry */
   u8 isLeaf;                  /* True if this is a leaf node */
