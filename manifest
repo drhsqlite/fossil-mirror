@@ -1,9 +1,9 @@
-C Always\sputs\s"{...}"\saround\sthe\saction\sof\san\sif()\sstatement\swhen\sthe\saction\sis\non\sa\sseparate\sline.\s\sAdd\scolumn\slabels\son\sthe\soutput\sof\s"--numstat".
-D 2025-03-12T14:56:31.397
+C Add\s'win/build32.bat'\sand\s'win/build64.bat'\sto\sthe\s.fossil-settings/crlf-glob\sfor\sconsistency\swith\s[a2db4285da55].
+D 2025-03-12T18:05:41.910
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
-F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
+F .fossil-settings/crlf-glob 4fdc984bf5f731ec9289091c423c2db94f83f5c2b5b65c18700b9fb7beb895c7
 F .fossil-settings/encoding-glob fe9e7e2a183ce22d107976173b58d2a1255aeb0a
 F .fossil-settings/ignore-glob ec33bee0751eb55ec94623f8ef7cf569b06645c2d7ab08b2e511de7f99b34331
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37327906e7ddbe6ac12762343305200832f76e0a1a1bfc1542dbbb78fbd7847a
-R 5138d0f0cd4e805877464f619c26796d
-U drh
-Z b1c5e4a9eb00850dbf1670beb249d65e
+P 7bcd6626bd709b9b15affc3796d6d8d5c0818cc63c0d179a82cd7f0698270b19
+R b783bd211539dd7dcac3d3a3cffc73bf
+U george
+Z a8098d19668a85389f6b80d81ef16815
 # Remove this line to create a well-formed Fossil manifest.
