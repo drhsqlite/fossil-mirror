@@ -2360,7 +2360,7 @@ void page_timeline(void){
           " and descendents of %z%h</a>",
           n,
           href("%R/info?name=%h",zDPNameP),zDPNameP,
-          href("%R/info/name=%h",zDPNameD),zDPNameD
+          href("%R/info?name=%h",zDPNameD),zDPNameD
       );
       ridBackTo = 0;
       ridFwdTo = 0;
