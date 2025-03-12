@@ -598,8 +598,9 @@ void diff_file(
       text_diff(pFile1, &file2, &out, pCfg);
       if( blob_size(&out) ){
         if( pCfg->diffFlags & DIFF_NUMSTAT ){
-          if( !(pCfg->diffFlags & DIFF_BRIEF) )
+          if( !(pCfg->diffFlags & DIFF_BRIEF) ){
             blob_appendf(pOut, "%s %s\n", blob_str(&out), zName);
+          }
         }else{
           diff_print_filenames(zName, zName2, pCfg, pOut);
           blob_appendf(pOut, "%s\n", blob_str(&out));
@@ -705,8 +706,9 @@ void diff_file_mem(
     blob_zero(&out);
     text_diff(pFile1, pFile2, &out, pCfg);
     if( pCfg->diffFlags & DIFF_NUMSTAT ){
-      if( !(pCfg->diffFlags & DIFF_BRIEF) )
+      if( !(pCfg->diffFlags & DIFF_BRIEF) ){
         fossil_print("%s %s\n", blob_str(&out), zName);
+      }
     }else{
       diff_print_filenames(zName, zName, pCfg, 0);
       fossil_print("%s\n", blob_str(&out));
@@ -1439,7 +1441,10 @@ void diff_cmd(void){
       blob_reset(&fname);
     }
   }
-  if ( zCheckin!=0 ){
+  if( DCfg.diffFlags & DIFF_NUMSTAT ){
+    fossil_print("%10s %10s\n", "INSERTED", "DELETED");
+  }
+  if( zCheckin!=0 ){
     int ridTo = name_to_typed_rid(zCheckin, "ci");
     zTo = zCheckin;
     zFrom = db_text(0,
