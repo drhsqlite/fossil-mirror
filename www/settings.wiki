@@ -1,6 +1,6 @@
 <title>Fossil Settings</title>
 
-<h2>Using Fossil Settings</h2>
+<h1>Using Fossil Settings</h1>
 
 Settings control the behaviour of fossil. They are set with the
 <tt>fossil settings</tt> command, or through the web interface in
@@ -10,7 +10,7 @@ For a list of all settings, view the Settings page, or type
 <tt>fossil help settings</tt> from the command line.
 
 
-<h3 id="repo">Repository settings</h3>
+<h2 id="repo">1.0 Repository settings</h2>
 
 Settings are set on a per-repository basis. When you clone a repository,
 a subset of settings are copied to your local repository.
@@ -26,7 +26,7 @@ overridden explicitly in a particular repository. Global settings can be
 set by using the <tt>-global</tt> option on the <tt>fossil settings</tt>
 command.
 
-<h3 id="versionable">"Versionable" settings</h3>
+<h2 id="versionable">2.0 "Versionable" settings</h2>
 
 Most of the settings control the behaviour of fossil on your local
 machine, largely acting to reflect your preference on how you want to
@@ -37,7 +37,7 @@ However, for historical reasons, some settings affect how you work with
 versioned files. These are <tt>clean-glob</tt>, <tt>binary-glob</tt>,
 <tt>crlf-glob</tt> (and its alias <tt>crnl-glob</tt>), <tt>empty-dirs</tt>,
 <tt>encoding-glob</tt>, <tt>ignore-glob</tt>, <tt>keep-glob</tt>,
-<tt>manifest</tt>, and <tt>mimetypes</tt>. The most important is
+and <tt>mimetypes</tt>. The most important is
 <tt>ignore-glob</tt> which specifies which files should be ignored when
 looking for unmanaged files with the <tt>extras</tt> command.
 

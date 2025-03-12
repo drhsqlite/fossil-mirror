@@ -1,5 +1,5 @@
-C Add\s'win/build32.bat'\sand\s'win/build64.bat'\sto\sthe\s.fossil-settings/crlf-glob\sfor\sconsistency\swith\s[a2db4285da55].
-D 2025-03-12T18:05:41.910
+C Since\s[189bfc28e7a3a166]\s(2016-09-30)\sthe\s"manifest"\ssetting\shas\stechnically\nbeen\sa\sversioned\ssetting.\s\sHowever,\sever\ssince\ssix\sdays\safter\sthat\schange,\nstarting\sat\s[3604802d553e5029]\s(2016-10-05),\sthe\sversioned\spart\s"manifest"\nhas\sbeen\signored.\sSo\seven\sthough\s"manifest"\sis\scalled\s"versioned"\sit\sreally\nis\snot.\s\sThis\scheck-in\sends\sthat\sfiction\sby\sdesignating\s"manifest"\sas\san\nordinary,\sunversioned\ssetting.
+D 2025-03-12T18:22:57.873
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c c57b4223709649f621d846a6ccbe8af9ef4c6267335fa511406a79674668d404
+F src/db.c 3348b17190cafaa550b75316f53f34ec9d07dce317b7e91aef93f41453953a35
 F src/default.css 4aad8d060e46796dd76486ded34e94bb42ddc23939f75738f5d0e46e853bb01b
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -942,7 +942,7 @@ F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493
 F www/server/windows/service.md cf85475a76cc9f79c8025b888b84c02abf5c81e92fad3088159c777eaec6d974
 F www/server/windows/stunnel.md eb99980e32c075acd1dcd4c44bcebf2e67f3e0dba8419728beeefa2cdd8fbc3e
 F www/serverext.wiki 6ca97cde49057937831ef70adb207642e6befd1f5b18decb31ca1b35cd13b2f2
-F www/settings.wiki e8df2759821ed555cb47d068980f6904a374ad28ce3ba7cda695852e6ae07105
+F www/settings.wiki 72c6c32b0282e934598e12512d624bc7117e45bbc51b5054e33ad9b1799c9307
 F www/shunning.wiki 2945acf2d1865cd1301402b2085527d8b23f971c9f894c6d0511dc146a8df767
 F www/signing.md dcf5bb65b7be89fc48bf80834b48fa1623cdbb63da71d4114ce0777d4767912a
 F www/ssl-server.md fa016137cf6ef21b75b13eb13f376348dc5c20ce487a1eba8665ce70efa23b3c
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7bcd6626bd709b9b15affc3796d6d8d5c0818cc63c0d179a82cd7f0698270b19
-R b783bd211539dd7dcac3d3a3cffc73bf
-U george
-Z a8098d19668a85389f6b80d81ef16815
+P a1bda9eb6cad31069aa15ea322058337d99d2dd17a4f40e9d9888f597a4a8663
+R b756aaf7b4aa2882ebe95183c30f614c
+U drh
+Z 706d002c0dae7d3689fc70122c833c9c
 # Remove this line to create a well-formed Fossil manifest.
