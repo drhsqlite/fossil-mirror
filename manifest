@@ -1,5 +1,5 @@
-C Here\sis\sa\spossible\ssolution\sto\sthe\sversioned\s"manifest"\ssetting.\s\sNeeds\nlots\sof\stesting.
-D 2025-03-12T21:48:22.298
+C Simplifications\sto\sdb_get_manifest_setting().
+D 2025-03-12T23:58:15.823
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 3e011fd31b5bfbf7597c7734e40c7a83521c3cf4133dcf34b3295a694c1af6a8
+F src/db.c 19663feccb8f3e0729f1fbec130721a53c6df5f45ce16babc2516bac0e9ad83f
 F src/default.css 4aad8d060e46796dd76486ded34e94bb42ddc23939f75738f5d0e46e853bb01b
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -968,11 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e8dc1dfe0e9a164726896358b6c86e087fc7b4b791d6ed7725d8e35dc212f5b8
-R 65626942c2c448ddf77609cd8f8fd43b
-T *branch * versioned-manifest-setting
-T *sym-versioned-manifest-setting *
-T -sym-trunk *
+P eb41a9f3c4493eba64e5bd26ad9bd41a5e4b03852ca25bdf3a9a051b8795109b
+R 2a1d0f9805b0e91946c24f569d8d2d90
 U drh
-Z 60eb43e61267d64b1281fa5cb14699f0
+Z 6c5cc5f5f4c30ebfa4026fd47dd0c8de
 # Remove this line to create a well-formed Fossil manifest.

@@ -4089,26 +4089,14 @@ int db_get_manifest_setting(const char *zCkin){
 
   if( zVal==0 && g.repositoryOpen ){
     /* No versioned setting, look for the repository setting second */
-    static char *zCached = 0;
-    if( zCached ){
-      zVal = zCached;
-    }else{
-      zVal = db_text(0, "SELECT value FROM config WHERE name='manifest'");
-    }
+    zVal = db_text(0, "SELECT value FROM config WHERE name='manifest'");
     if( zVal==0 && g.zConfigDbName ){
       /* No repository setting either, look for a global setting */
-      static Stmt q2;
-      const char *zRes;
       db_swap_connections();
-      db_static_prepare(&q2, 
-          "SELECT value FROM global_config WHERE name='manifest'");
+      zVal = db_text(0, 
+                 "SELECT value FROM global_config WHERE name='manifest'");
       db_swap_connections();
-      if( db_step(&q2)==SQLITE_ROW && (zRes = db_column_text(&q2,0))!=0 ){
-        zVal = fossil_strdup(zRes);
-      }
-      db_reset(&q2);
     }
-    zCached = zVal;
   }
   if( zVal==0 || is_false(zVal) ){
     return 0;
