@@ -1,5 +1,5 @@
-C Rollback\sthe\schange\sthat\sconverted\sthe\s"manifest"\ssetting\sto\sunversioned,\nas\sStephan\spoints\sout\sthat\smaybe\sit\sdoes\swork\safter\sall.
-D 2025-03-12T19:45:10.727
+C Fix\spositioning\sof\s'show/hide'\scheckboxes\sfor\sthe\s/vinfo\spages.\sThis\samends\s[a11d24547826]
+D 2025-03-12T21:39:01.447
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -412,7 +412,7 @@ F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c c57b4223709649f621d846a6ccbe8af9ef4c6267335fa511406a79674668d404
-F src/default.css 4aad8d060e46796dd76486ded34e94bb42ddc23939f75738f5d0e46e853bb01b
+F src/default.css 94743facfa876f5c35f2974f9e356e8a47587e2292e98c41063785699d51ae4f
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -968,9 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc21949fa3091428bd852d6b5f59634d8ad6319fd3729468314fb4182567ee5e
-Q -eec84c1c2cff631c9e41e5c99529d45bdc672fccccdfad4fd6b4babfda8c0be6
-R 237fb9e0868991ead28d3e3eb7d1f6fc
-U drh
-Z 771b8372e2d7dd7e58834982e2b0fe39
+P e8dc1dfe0e9a164726896358b6c86e087fc7b4b791d6ed7725d8e35dc212f5b8
+R 48e4733871e617aa39ab23aac19ae636
+U george
+Z 22be08484bd49b1c2041a3abbd05c5ff
 # Remove this line to create a well-formed Fossil manifest.
