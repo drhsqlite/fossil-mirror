@@ -4857,7 +4857,7 @@ struct Setting {
 ** The value is the primary branch for the project.
 */
 /*
-** SETTING: manifest         width=5
+** SETTING: manifest         width=5 versionable
 ** If enabled, automatically create files "manifest" and "manifest.uuid"
 ** in every check-out.
 **
