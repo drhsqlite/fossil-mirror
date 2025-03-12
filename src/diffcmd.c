@@ -589,7 +589,7 @@ void diff_file(
     }
 
     /* Compute and output the differences */
-    if( pCfg->diffFlags & DIFF_BRIEF ){
+    if( (pCfg->diffFlags & DIFF_BRIEF) && !(pCfg->diffFlags & DIFF_NUMSTAT) ){
       if( blob_compare(pFile1, &file2) ){
         fossil_print("CHANGED  %s\n", zName);
       }
@@ -598,7 +598,8 @@ void diff_file(
       text_diff(pFile1, &file2, &out, pCfg);
       if( blob_size(&out) ){
         if( pCfg->diffFlags & DIFF_NUMSTAT ){
-          blob_appendf(pOut, "%s %s\n", blob_str(&out), zName);
+          if( !(pCfg->diffFlags & DIFF_BRIEF) )
+            blob_appendf(pOut, "%s %s\n", blob_str(&out), zName);
         }else{
           diff_print_filenames(zName, zName2, pCfg, pOut);
           blob_appendf(pOut, "%s\n", blob_str(&out));
@@ -695,14 +696,17 @@ void diff_file_mem(
   const char *zName,        /* Display name of the file */
   DiffConfig *pCfg          /* Diff flags */
 ){
-  if( pCfg->diffFlags & DIFF_BRIEF ) return;
+  if( (pCfg->diffFlags & DIFF_BRIEF) && !(pCfg->diffFlags & DIFF_NUMSTAT) ){
+    return;
+  }
   if( pCfg->zDiffCmd==0 ){
     Blob out;      /* Diff output text */
 
     blob_zero(&out);
     text_diff(pFile1, pFile2, &out, pCfg);
     if( pCfg->diffFlags & DIFF_NUMSTAT ){
-      fossil_print("%s %s\n", blob_str(&out), zName);
+      if( !(pCfg->diffFlags & DIFF_BRIEF) )
+        fossil_print("%s %s\n", blob_str(&out), zName);
     }else{
       diff_print_filenames(zName, zName, pCfg, 0);
       fossil_print("%s\n", blob_str(&out));
@@ -992,7 +996,9 @@ static void diff_manifest_entry(
   }else{
     zName = DIFF_NO_NAME;
   }
-  if( pCfg->diffFlags & DIFF_BRIEF ) return;
+  if( (pCfg->diffFlags & DIFF_BRIEF) && !(pCfg->diffFlags & DIFF_NUMSTAT) ){
+    return;
+  }
   diff_print_index(zName, pCfg, 0);
   if( pFrom ){
     rid = uuid_to_rid(pFrom->zUuid, 0);
@@ -1080,7 +1086,7 @@ static void diff_two_versions(
       pToFile = manifest_file_next(pTo,0);
     }else{
       if( file_dir_match(pFileDir, pToFile->zName) ){
-        if( pCfg->diffFlags & DIFF_BRIEF ){
+        if((pCfg->diffFlags & DIFF_BRIEF) && !(pCfg->diffFlags & DIFF_NUMSTAT)){
           fossil_print("CHANGED %s\n", pFromFile->zName);
         }else{
           diff_manifest_entry(pFromFile, pToFile, pCfg);
@@ -1339,7 +1345,9 @@ const char *diff_get_binary_glob(void){
 **   --json                      Output formatted as JSON
 **   -n|--linenum                Show line numbers
 **   -N|--new-file               Alias for --verbose
-**   --numstat                   Show only the number of added and deleted lines
+**   --numstat                   Show the number of added and deleted lines per
+**                               file, omitting the diff. When combined with
+**                                 --brief, show only the total row.
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
 **   --tcl                       Tcl-formatted output used internally by --tk
@@ -1471,8 +1479,8 @@ void diff_cmd(void){
   }
   diff_end(&DCfg, 0);
   if ( DCfg.diffFlags & DIFF_NUMSTAT ){
-    fossil_print("%10d %10d TOTAL over %d changed files\n",
-                 g.diffCnt[1], g.diffCnt[2], g.diffCnt[0]);
+    fossil_print("%10d %10d TOTAL over %d changed file%s\n",
+           g.diffCnt[1], g.diffCnt[2], g.diffCnt[0], g.diffCnt[0]!=1 ? "s": "");
   }
 }
 
