@@ -654,7 +654,7 @@ static void zip_of_checkin(
     int flg, eflg = 0;
     char *zName = 0;
     zip_set_timedate(pManifest->rDate);
-    flg = db_get_manifest_setting();
+    flg = db_get_manifest_setting(blob_str(&hash));
     if( flg ){
       /* eflg is the effective flags, taking include/exclude into account */
       if( (pInclude==0 || glob_match(pInclude, "manifest"))

@@ -2555,7 +2555,7 @@ void commit_cmd(void){
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);
   bIgnoreSkew = find_option("ignore-clock-skew",0,0)!=0;
-  outputManifest = db_get_manifest_setting();
+  outputManifest = db_get_manifest_setting(0);
   mxSize = db_large_file_size();
   if( find_option("ignore-oversize",0,0)!=0 ) mxSize = 0;
   verify_all_options();
