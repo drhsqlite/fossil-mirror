@@ -175,7 +175,7 @@ void manifest_to_disk(int vid){
   char *zManFile;
   int flg;
 
-  flg = db_get_manifest_setting();
+  flg = db_get_manifest_setting(0);
 
   if( flg & MFESTFLG_RAW ){
     Blob manifest = BLOB_INITIALIZER;

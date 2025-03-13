@@ -3649,8 +3649,19 @@ void db_swap_connections(void){
 ** non-versioned value for this setting.  If both a versioned and a
 ** non-versioned value exist and are not equal, then a warning message
 ** might be generated.
+**
+** zCkin is normally NULL.  In that case, the versioned setting is
+** take from the local check-out, if a local checkout exists, or from
+** checkin named by the g.zOpenRevision global variable.  If zCkin is
+** not NULL, then zCkin is the name of the specific checkin from which
+** versioned setting value is taken.  When zCkin is not NULL, the cache
+** is bypassed.
 */
-char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
+char *db_get_versioned(
+  const char *zName,
+  char *zNonVersionedSetting,
+  const char *zCkin
+){
   char *zVersionedSetting = 0;
   int noWarn = 0;
   int found = 0;
@@ -3660,51 +3671,53 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
 
-  if( !g.localOpen && g.zOpenRevision==0 ) return zNonVersionedSetting;
-  /* Look up name in cache */
-  cacheEntry = cache;
-  while( cacheEntry!=0 ){
-    if( fossil_strcmp(cacheEntry->zName, zName)==0 ){
-      zVersionedSetting = fossil_strdup(cacheEntry->zValue);
-      break;
-    }
-    cacheEntry = cacheEntry->next;
+  if( !g.localOpen && g.zOpenRevision==0 && zCkin==0 ){
+    return zNonVersionedSetting;
   }
+
+  /* Look up name in cache */
+  if( zCkin==0 ){
+    cacheEntry = cache;
+    while( cacheEntry!=0 ){
+      if( fossil_strcmp(cacheEntry->zName, zName)==0 ){
+        zVersionedSetting = fossil_strdup(cacheEntry->zValue);
+        break;
+      }
+      cacheEntry = cacheEntry->next;
+    }
+  }
+
   /* Attempt to read value from file in check-out if there wasn't a cache hit.*/
   if( cacheEntry==0 ){
     Blob versionedPathname;
     Blob setting;
-    blob_zero(&versionedPathname);
-    blob_zero(&setting);
-    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
-                 g.zLocalRoot, zName);
-    if( !g.localOpen ){
+    blob_init(&versionedPathname, 0, 0);
+    blob_init(&setting, 0, 0);
+    if( !g.localOpen || zCkin!=0 ){
       /* Repository is in the process of being opened, but files have not been
        * written to disk. Load from the database. */
-      Blob noWarnFile;
-      if( historical_blob(g.zOpenRevision, blob_str(&versionedPathname),
-          &setting, 0) ){
+      blob_appendf(&versionedPathname, ".fossil-settings/%s", zName);
+      if( historical_blob(zCkin ? zCkin : g.zOpenRevision,
+                          blob_str(&versionedPathname),
+                          &setting, 0)
+      ){
         found = 1;
       }
-      /* See if there's a no-warn flag */
-      blob_append(&versionedPathname, ".no-warn", -1);
-      blob_zero(&noWarnFile);
-      if( historical_blob(g.zOpenRevision, blob_str(&versionedPathname),
-          &noWarnFile, 0) ){
-        noWarn = 1;
-      }
-      blob_reset(&noWarnFile);
-    }else if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
-      /* File exists, and contains the value for this setting. Load from
-      ** the file. */
-      const char *zFile = blob_str(&versionedPathname);
-      if( blob_read_from_file(&setting, zFile, ExtFILE)>=0 ){
-        found = 1;
-      }
-      /* See if there's a no-warn flag */
-      blob_append(&versionedPathname, ".no-warn", -1);
+    }else{
+      blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
+                   g.zLocalRoot, zName);
       if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
-        noWarn = 1;
+        /* File exists, and contains the value for this setting. Load from
+        ** the file. */
+        const char *zFile = blob_str(&versionedPathname);
+        if( blob_read_from_file(&setting, zFile, ExtFILE)>=0 ){
+          found = 1;
+        }
+        /* See if there's a no-warn flag */
+        blob_append(&versionedPathname, ".no-warn", -1);
+        if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
+          noWarn = 1;
+        }
       }
     }
     blob_reset(&versionedPathname);
@@ -3715,16 +3728,23 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
       zVersionedSetting = fossil_strdup(blob_str(&setting));
     }
     blob_reset(&setting);
+
     /* Store result in cache, which can be the value or 0 if not found */
-    cacheEntry = (struct _cacheEntry*)fossil_malloc(sizeof(struct _cacheEntry));
-    cacheEntry->next = cache;
-    cacheEntry->zName = zName;
-    cacheEntry->zValue = fossil_strdup(zVersionedSetting);
-    cache = cacheEntry;
+    if( zCkin==0 ){
+      cacheEntry = (struct _cacheEntry*)fossil_malloc(sizeof(*cacheEntry));
+      cacheEntry->next = cache;
+      cacheEntry->zName = zName;
+      cacheEntry->zValue = fossil_strdup(zVersionedSetting);
+      cache = cacheEntry;
+    }
   }
+
   /* Display a warning? */
-  if( zVersionedSetting!=0 && zNonVersionedSetting!=0
-   && zNonVersionedSetting[0]!='\0' && !noWarn
+  if( zVersionedSetting!=0
+   && zNonVersionedSetting!=0
+   && zNonVersionedSetting[0]!='\0'
+   && zCkin==0
+   && !noWarn
   ){
     /* There's a versioned setting, and a non-versioned setting. Tell
     ** the user about the conflict */
@@ -3737,6 +3757,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
         g.zLocalRoot, zName, g.zLocalRoot, zName, zName
     );
   }
+
   /* Prefer the versioned setting */
   return ( zVersionedSetting!=0 ) ? zVersionedSetting : zNonVersionedSetting;
 }
@@ -3780,7 +3801,7 @@ char *db_get(const char *zName, const char *zDefault){
     /* This is a versionable setting, try and get the info from a
     ** checked-out file */
     char * zZ = z;
-    z = db_get_versioned(zName, z);
+    z = db_get_versioned(zName, z, 0);
     if(zZ != z){
       fossil_free(zZ);
     }
@@ -3921,7 +3942,7 @@ int db_get_boolean(const char *zName, int dflt){
   return dflt;
 }
 int db_get_versioned_boolean(const char *zName, int dflt){
-  char *zVal = db_get_versioned(zName, 0);
+  char *zVal = db_get_versioned(zName, 0, 0);
   if( zVal==0 ) return dflt;
   if( is_truth(zVal) ) return 1;
   if( is_false(zVal) ) return 0;
@@ -4050,10 +4071,26 @@ char *db_get_for_subsystem(const char *zName, const char *zSubsys){
 ** to enable a manifest type.  This system puts certain boundary conditions on
 ** which letters can be used to represent flags (any permutation of flags must
 ** not be able to fully form one of the boolean values).
+**
+** "manifest" is a versionable setting.  But we do not issue a warning
+** if there is a conflict.  Instead, the value returned is the value for
+** the versioned setting if the versioned setting exists, or the ordinary
+** setting otherwise.
+**
+** The argument zCkin is the specific check-in for which we want the
+** manifest setting.
 */
-int db_get_manifest_setting(void){
+int db_get_manifest_setting(const char *zCkin){
   int flg;
-  char *zVal = db_get("manifest", 0);
+  char *zVal;
+  
+  /* Look for the versioned setting first */
+  zVal = db_get_versioned("manifest", 0, zCkin);
+
+  if( zVal==0 && g.repositoryOpen ){
+    /* No versioned setting, look for the repository setting second */
+    zVal = db_text(0, "SELECT value FROM config WHERE name='manifest'");
+  }
   if( zVal==0 || is_false(zVal) ){
     return 0;
   }else if( is_truth(zVal) ){
@@ -4069,6 +4106,33 @@ int db_get_manifest_setting(void){
     zVal++;
   }
   return flg;
+}
+
+/*
+** COMMAND: test-manifest-setting
+**
+** Usage: %fossil test-manifest-setting VERSION VERSION ...
+**
+** Display the value for the "manifest" setting for various versions
+** of the repository.
+*/
+void test_manfest_setting_cmd(void){
+  int i;
+  db_find_and_open_repository(0, 0);
+  for(i=2; i<g.argc; i++){
+    int m = db_get_manifest_setting(g.argv[i]);
+    fossil_print("%s:\n", g.argv[i]);
+    fossil_print("   flags = 0x%02x\n", m);
+    if( m & MFESTFLG_RAW ){
+      fossil_print("   manifest\n");
+    }
+    if( m & MFESTFLG_UUID ){
+      fossil_print("   manifest.uuid\n");
+    }
+    if( m & MFESTFLG_TAGS ){
+      fossil_print("   manifest.tags\n");
+    }
+  }
 }
 
 
@@ -4393,7 +4457,7 @@ void print_setting(const Setting *pSetting, int valueOnly){
     blob_reset(&versionedPathname);
   }
   if( valueOnly && versioned ){
-    fossil_print("%s\n", db_get_versioned(pSetting->name, NULL));
+    fossil_print("%s\n", db_get_versioned(pSetting->name, NULL, NULL));
     return;
   }
   if( g.repositoryOpen ){

@@ -1159,7 +1159,7 @@ void setup_settings(void){
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width==0 ){
       int hasVersionableValue = pSet->versionable &&
-          (db_get_versioned(pSet->name, NULL)!=0);
+          (db_get_versioned(pSet->name, NULL, NULL)!=0);
       onoff_attribute("", pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       is_truth(pSet->def), hasVersionableValue);
@@ -1177,7 +1177,7 @@ void setup_settings(void){
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && !pSet->forceTextArea ){
       int hasVersionableValue = pSet->versionable &&
-          (db_get_versioned(pSet->name, NULL)!=0);
+          (db_get_versioned(pSet->name, NULL, NULL)!=0);
       @ <tr><td>
       @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
@@ -1196,7 +1196,7 @@ void setup_settings(void){
   @ </td><td style="width:50px;"></td><td valign="top">
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && pSet->forceTextArea ){
-      int hasVersionableValue = db_get_versioned(pSet->name, NULL)!=0;
+      int hasVersionableValue = db_get_versioned(pSet->name, NULL, NULL)!=0;
       @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>

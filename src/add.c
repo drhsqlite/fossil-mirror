@@ -80,7 +80,7 @@ const char *fossil_reserved_name(int N, int omitRepo){
   if( cachedManifest == -1 ){
     int i;
     Blob repo;
-    cachedManifest = db_get_manifest_setting();
+    cachedManifest = db_get_manifest_setting(0);
     numManifests = 0;
     for(i=0; i<count(aManifestflags); i++){
       if( cachedManifest&aManifestflags[i].flg ) {
