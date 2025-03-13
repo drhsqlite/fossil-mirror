@@ -4090,13 +4090,6 @@ int db_get_manifest_setting(const char *zCkin){
   if( zVal==0 && g.repositoryOpen ){
     /* No versioned setting, look for the repository setting second */
     zVal = db_text(0, "SELECT value FROM config WHERE name='manifest'");
-    if( zVal==0 && g.zConfigDbName ){
-      /* No repository setting either, look for a global setting */
-      db_swap_connections();
-      zVal = db_text(0, 
-                 "SELECT value FROM global_config WHERE name='manifest'");
-      db_swap_connections();
-    }
   }
   if( zVal==0 || is_false(zVal) ){
     return 0;
