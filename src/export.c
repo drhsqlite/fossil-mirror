@@ -1091,6 +1091,7 @@ static int gitmirror_send_checkin(
   char buf[24];
   char *zEmail;         /* Contact info for Git committer field */
   int fManifest;        /* Should the manifest files be included? */
+  int fPManifest = 0;   /* OR of the manifest files for all parents */
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
@@ -1217,6 +1218,7 @@ static int gitmirror_send_checkin(
   for(i=0; i<pMan->nParent; i++){
     char *zOther = gitmirror_find_mark(pMan->azParent[i],0,0);
     if( zOther==0 ) continue;
+    fPManifest |= db_get_manifest_setting(pMan->azParent[i]);
     if( iParent<0 ){
       iParent = i;
       fprintf(xCmd, "from %s\n", zOther);
@@ -1281,10 +1283,14 @@ static int gitmirror_send_checkin(
     fprintf(xCmd,"M 100644 inline manifest\ndata %d\n%s\n",
       blob_strlen(&manifest), blob_str(&manifest));
     blob_reset(&manifest);
+  }else if( fPManifest & MFESTFLG_RAW ){
+    fprintf(xCmd, "D manifest\n");
   }
   if( fManifest & MFESTFLG_UUID ){
     int n = (int)strlen(zUuid);
     fprintf(xCmd,"M 100644 inline manifest.uuid\ndata %d\n%s\n\n", n+1, zUuid);
+  }else if( fPManifest & MFESTFLG_UUID ){
+    fprintf(xCmd, "D manifest.uuid\n");
   }
   if( fManifest & MFESTFLG_TAGS ){
     Blob tagslist;
@@ -1293,6 +1299,8 @@ static int gitmirror_send_checkin(
     fprintf(xCmd,"M 100644 inline manifest.tags\ndata %d\n%s\n",
       blob_strlen(&tagslist), blob_str(&tagslist));
     blob_reset(&tagslist);
+  }else if( fPManifest & MFESTFLG_TAGS ){
+    fprintf(xCmd, "D manifest.tags\n");
   }
 
   /* The check-in is finished, so decrement the counter */

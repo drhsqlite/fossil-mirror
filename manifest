@@ -1,5 +1,5 @@
-C Further\ssimplification\sof\sdb_get_manifest_setting():\s\sNo\sneed\sto\scheck\sin\nglobal_config\sbecause\smanifest\scannot\sbe\sset\sglobally.
-D 2025-03-13T00:26:04.715
+C In\sgit-export,\swhen\sthe\sversioned\smanifest\ssetting\schanges,\sbe\ssure\sto\sdelete\nmanifest\sfiles\sthat\shave\sbecome\sobsolete.
+D 2025-03-13T00:43:30.954
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -426,7 +426,7 @@ F src/doc.c f3dfc34c9023fbdf16488ea9de7622440881612145f92c934bf92122fc130907
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c bbf9e79dfc96c597bab4f48ae290259a2dfa129a3d1c5878c13306ac46eb595c
-F src/export.c 34b3a53f25b1cab1414acd84e36f5604c2a1b33489bd49eb55899353a5fb7017
+F src/export.c 99dddcbffa040ee67cbee591a41de449db384b645ac150e22b452f0482a88d96
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c 247e454a561c805565b18428f0b575517c6eed160fb9695624e7501b0fdc401f
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ed6b0c0b5c65c8def8de5c9bf8f5ecf28f46768f6e53b20a42a6c1ff43bf40c8
-R 732904df37f24c1003c4b90c5063aa85
+P b89520f2276b00d42c58400e994b209c48f022b5414806598d0a3d8f579c1c2c
+R 8fe9962f71602f6349699ada11fbc566
 U drh
-Z d6fd7a8c05d700c65a9d64d583479d2a
+Z 72329a4c6c1d0fea52a851c91b234e97
 # Remove this line to create a well-formed Fossil manifest.
