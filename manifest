@@ -1,5 +1,5 @@
-C Fix\spositioning\sof\s'show/hide'\scheckboxes\sfor\sthe\s/vinfo\spages.\sThis\samends\s[a11d24547826]
-D 2025-03-12T21:39:01.447
+C A\scouple\sof\sminor\sfixes\sfor\s(not)\sshowing\sassociated\swikis.\sThis\samends\s[25f43cc634].
+D 2025-03-13T00:45:20.474
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -589,7 +589,7 @@ F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
 F src/util.c 9ae31611c5c1dcd15f996cc9ce30c374871a0848a1d25c97c4964387ea74fad3
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
-F src/wiki.c 78e18d1cfeab72bcf31416ecdc5e9c0362dd1f2042021bb6c8391a6d2fc87714
+F src/wiki.c 1359a2a0c7f88c5e2485fb16068ddce2f038a939d15a0be3cb2e992cda310f1c
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6580e166abf4034eb0a75a70b8e036cde8ae2dcf68141a368d1ddc31e1b3c100
 F src/winfile.c c32dbdb03d30ab85becf46070fa05bd79af2e0b644b1e68c90a87eee121be50f
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e8dc1dfe0e9a164726896358b6c86e087fc7b4b791d6ed7725d8e35dc212f5b8
-R 48e4733871e617aa39ab23aac19ae636
+P e21f096c61e12ec8489c033cdb0d93f5877e849a0ec663af68f79a1ef81d4f2c
+R 654325d9da9ca2e37596166a701839a2
 U george
-Z 22be08484bd49b1c2041a3abbd05c5ff
+Z 61c9b1ce8901eb72653860b9724c3e14
 # Remove this line to create a well-formed Fossil manifest.
