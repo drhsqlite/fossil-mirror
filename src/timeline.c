@@ -2231,7 +2231,7 @@ void page_timeline(void){
   }else if( (p_rid || d_rid) && g.perm.Read && zTagSql==0 ){
     /* If either p= or d= or both are present, ignore all other parameters
     ** other than n=, ft=, and bt= */
-    const char *zBaseName;
+    const char *zBaseName = 0;
     int np = 0, nd;
     const char *zBackTo = 0;
     const char *zFwdTo = 0;
