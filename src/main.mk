@@ -279,7 +279,7 @@ EXTRA_FILES = \
   $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
-  $(SRCDIR)/wiki.wiki
+  $(SRCDIR)/wiki-rules.txt
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \

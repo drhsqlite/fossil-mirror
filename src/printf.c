@@ -269,13 +269,12 @@ static int StrNLen32(const char *z, int N){
 
 /*
 ** Return an appropriate set of flags for wiki_convert() for displaying
-** comments on a timeline.  These flag settings are determined by
-** configuration parameters.
+** check-in comments on a timeline (%W) or for general display (%!W).
+** The flags are determined by settings.
 **
-** The altForm2 argument is true for "%!W" (with the "!" alternate-form-2
-** flags) and is false for plain "%W".  The ! indicates that the text is
-** to be rendered on a form rather than the timeline and that block markup
-** is acceptable even if the "timeline-block-markup" setting is false.
+** The altForm2 argument is true for "%!W" (indicating that the rendered
+** wiki text is for general display) and false for "%W" (indicating that
+** the text is being displayed in a timeline.
 */
 static int wiki_convert_flags(int altForm2){
   static int wikiFlags = 0;
@@ -286,12 +285,8 @@ static int wiki_convert_flags(int altForm2){
       wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
     }
     if( db_get_boolean("timeline-plaintext", 0) ){
-      wikiFlags |= WIKI_LINKSONLY;
+      wikiFlags |= WIKI_LINKSONLY | WIKI_OVERRIDE;
       wikiFlags &= ~WIKI_MARKDOWN_INLINE;
-    }else{
-      int x = db_get_int("timeline-markdown", 0);
-      if( x & 1 ) wikiFlags |= WIKI_MARKDOWN_LINK;
-      if( x & 2 ) wikiFlags |= WIKI_MARKDOWN_FONT;
     }
     if( db_get_boolean("timeline-hard-newlines", 0) ){
       wikiFlags |= WIKI_NEWLINE;

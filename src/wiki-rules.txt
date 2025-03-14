@@ -1,34 +1,42 @@
 <h2>Wiki Formatting Rule Summary</h2>
 
-  #  Blank lines are paragraph breaks
-  #  Bullets are "*" surrounded by two spaces at the beginning of a line
-  #  Enumeration items are "#" or a digit and a "." surrounded by two
-     spaces at the beginning of a line
-  #  Indented paragraphs begin with a tab or two spaces
-  #  Hyperlinks are contained within square brackets:
-     <nowiki>"<b>[</b><i>target</i><b>]</b>"
-     or "<b>[</b><i>target</i><b>|</b><i>label</i><b>]</b>"</nowiki>
-     or "<b>&lt;</b><i>URL</i><b>&gt;</b>"
-  #  Most ordinary HTML works
-  #  &lt;verbatim&gt; and &lt;nowiki&gt;
-
-We call the first five rules above the "wiki" formatting rules.
-The last two rules are the HTML formatting rules.
+<ol>
+<li>  Blank lines are paragraph breaks
+<li>  Bullets are "*" surrounded by two spaces at the beginning of a line
+<li>  Enumeration items are "#" or a digit and a "." surrounded by two
+      spaces at the beginning of a line
+<li>  Indented paragraphs begin with a tab or two spaces
+<li>  Hyperlinks in square brackets:
+      "<b>[</b><i>target</i><b>]</b>"
+      or "<b>[</b><i>target</i><b>|</b><i>label</i><b>]</b>"
+      or "<b>&lt;</b><i>URL</i><b>&gt;</b>"
++<li>  Hyperlinks in angle brackets: "<b>&lt;</b><i>URL</i><b>&gt;</b>"
++<li>  Markdown-style hyperlinks:
++      "<b>&#91;</b><i>label</i><b>&#93;(</b><i>target</i><b>)</b>"
+<li>  Most ordinary HTML works
++<li>  Fonts: "<b>*</b><i>italic</i><b>*</b>",
++      "<b>**</b><i>bold</i><b>**</b>",
++      "<b>`</b><i>teletype</i><b>`</b>".
++<li>  Backslash escapes: <b>\&lt;&ensp;\&#91&ensp;\*&ensp;\_&ensp;
++      \&gt;&ensp;\\</b>&ensp;<i>and so forth....</i>
+<li> &lt;verbatim&gt; and &lt;nowiki&gt;
+</ol>
 
 <h2>Formatting Rule Details</h2>
 
-  1.  <b>Paragraphs.</b>
+<ol>
+<li>  <p><b>Paragraphs.</b>
       Any sequence of one or more blank lines forms a paragraph break.
       Centered or right-justified paragraphs are not supported by wiki markup,
       but you can do these things if you need them using HTML.
 
-  2.  <b>Bullet Lists.</b>
+<li>  <p><b>Bullet Lists.</b>
       A bullet list item is a line that begins with a single "*" character
       surrounded on both sides by two or more spaces or by a tab.
       Only a single level of bullet list is supported by wiki.
       For nested lists, use HTML.
 
-  3.  <b>Enumeration Lists.</b>
+<li>  <p><b>Enumeration Lists.</b>
       An enumeration list item is a line that begins with a single "#"
       character surrounded on both sides by two or more spaces or by a tab.
       Or it can be a number and a "." (ex:  "5.") surrounded on both sides
@@ -37,14 +45,14 @@ The last two rules are the HTML formatting rules.
       For nested lists or for enumerations that count using letters or
       roman numerals, use HTML.
 
-  4.  <b>Indented Paragraphs.</b>
+<li>  <p><b>Indented Paragraphs.</b>
       Any paragraph that begins with two or more spaces or a tab and which
       is not a bullet or enumeration list item is rendered indented.
       Only a single level of indentation is supported by wiki.
       Use HTML for deeper indentation.
 
-  5.  <b>Hyperlinks.</b>
-      Text within square brackets <nowiki>("[...]")</nowiki> becomes a
+<li>  <p><b>Hyperlinks.</b>
+      Text within square brackets ("[...]") becomes a
       hyperlink. The target can be a wiki page name, the artifact ID of
       a check-in or ticket, the name of an image, a URL, or an
       [#intermap|interwiki link] of the form 
@@ -53,16 +61,21 @@ The last two rules are the HTML formatting rules.
       But you can specify alternative text after the target name
       separated by a "|" character.
       You can also link to internal anchor names using 
-      <nowiki>[#anchor-name],</nowiki> providing you have added the necessary 
+      [#anchor-name], providing you have added the necessary 
       "&lt;a name='anchor-name'&gt;&lt;/a&gt;" tag to your wiki page.
-      <p>
-      Support for "auto-link" hyperlinks consisting of a URL that begins
-      with "http://" or "https://" and that is enclosed in &lt;...&gt; was
-      added on 2025-03-04.  Formerly, such text would be displayed literally.
-      The change is that now the URL is rendered enclosed within
-      &lt;a&gt;...&lt;/a&gt; so that it actually functions as a hyperlink.
 
-  6.  <b>HTML.</b>
++<li>  <p><b>Auto-links</b>
++      A URL that begins with "http://" or "https://" and that is
++      enclosed in &lt;...&gt; functions as a hyperlink.
++
++
++<li>  <p><b>Markdown-style hyperlinks</b>
++      Links of the form 
++      "<b>[</b><i>display-text</i><b>](</b><i>target</i><b>)</b>"
++      show "<i>display-text</i>" on screen and make it a hyperlin
++      to "<i>target</i>".
+
+<li>  <p><b>HTML.</b>
       The following standard HTML elements may be used:
       &lt;a&gt; &lt;address&gt; &lt;article&gt; &lt;aside&gt; &lt;b&gt;
       &lt;big&gt; &lt;blockquote&gt; &lt;br&gt; &lt;center&gt; &lt;cite&gt;
@@ -83,7 +96,22 @@ The last two rules are the HTML formatting rules.
       allowed on each element. In particular, any attributes that specify
       javascript or CSS are elided.
 
-  7.  <b>Special Markup.</b>
++<li>  <p><b>Font Markup.</b>
++      Text enclosed within "<tt>*...*</tt>" or "<tt>_..._</tt>" is
++      emphasized (italic font).  Text within "<tt>**...**</tt>" or
++      "<tt>__...__</tt>" gets strong emphasis (bold font).
++      Text within "<tt>`...`</tt>" is rendered literally using a
++      constant-width font.  Special characters (ex: "&lt" or "[") within
++      "<tt>`...`</tt>" lose their special meaning and are rendered
++      literally.
++
++<li>  <p><b>Backslash escapes.</b>
++      A backslash followed by any other character is rendered as just
++      the other character.  The character that follows the backslash
++      loses any special meaning it might have had otherwise.  This is
++      useful for escaping markup for literal display.
+
+<li>  <p><b>Special Markup.</b>
       The &lt;nowiki&gt; tag disables all wiki formatting rules through
       the matching &lt;/nowiki&gt; element. The &lt;verbatim&gt; tag works
       like &lt;pre&gt; with the addition that it also disables all wiki
@@ -91,7 +119,7 @@ The last two rules are the HTML formatting rules.
       Text within 
       <tt>&lt;verbatim&nbsp;type="pikchr"&gt;...&lt;/verbatim&gt;</tt>
       is formatted using <a href="https://pikchr.org/home">Pikchr</a>.
-
+</ol>
 
 <a name="intermap"></a>
 <h2>Interwiki Tag [/intermap|Map]</h2>

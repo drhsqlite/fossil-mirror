@@ -990,12 +990,6 @@ void setup_timeline(void){
       "3", "YYMMDD HH:MM",
       "4", "(off)"
   };
-  static const char *const azMarkdown[] = {
-      "0", "none",
-      "1", "hyperlinks only",
-      "2", "styling only",
-      "3", "links and styling",
-  };
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -1015,20 +1009,6 @@ void setup_timeline(void){
   @ <p>In timeline displays, check-in comments can be displayed with or
   @ without block markup such as paragraphs, tables, etc.
   @ (Property: "timeline-block-markup")</p>
-
-  @ <hr>
-  multiple_choice_attribute("Allow Markdown in timeline comments",
-                            "timeline-markdown", "tmkdn", "0",
-                            count(azMarkdown)/2, azMarkdown);
-  @ <p>Allow or disallow a limited amount of Markdown-style format marks
-  @ for check-in comments displayed in the timeline.  Normally check-in
-  @ comments use only <a href="%R/wiki_rules">Fossil Wiki</a>.  This option
-  @ allows some types of Markdown to be used as well:
-  @ <ul><li>hyperlinks: <b>(</b><i>display</i><b>)[</b><i>target</i><b>]</b> \
-  @ and <b>&lt;</b><i>URL</i><b>&gt;</b>.
-  @ <li>styling: *<i>emphasis</i>*, **<b>bold</b>**, `<tt>literal</tt>`, \
-  @ <b>\</b>-escapes</ul>
-  @ (Property: "timeline-markdown")</p>
 
   @ <hr>
   onoff_attribute("Plaintext comments on timelines",
@@ -1454,8 +1434,8 @@ void setup_wiki(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  onoff_attribute("Associate Wiki Pages With Branches, Tags, Tickets, or Checkins",
-                  "wiki-about", "wiki-about", 1, 0);
+  onoff_attribute("Associate Wiki Pages With Branches, Tags, Tickets,"
+                  " or Checkins", "wiki-about", "wiki-about", 1, 0);
   @ <p>
   @ Associate wiki pages with branches, tags, tickets, or checkins, based on
   @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/",
@@ -1468,6 +1448,28 @@ void setup_wiki(void){
   @ <li> <b>ticket/</b><i>full-ticket-hash</i>
   @ </ul>
   @ (Property: "wiki-about")</p>
+  @ <hr>
+  onoff_attribute("Disable the 2025 enhancements to wiki formatting rules",
+    "wiki-classic", "wiki-classic", 0, 0);
+  @ <p>When enabled, only the original circa-2007 wiki formatting rules are
+  @ recognized.  The new formatting rules added in 2025 are ignored.  Enable
+  @ this setting if you are hosting an older repository that has preexisting
+  @ wiki content that is adversely affected by the new rules.
+  @ The enhanced wiki formatting rules added in 2025 are:
+  @ <ul>
+  @ <li> Markdown-style hyperlinks:&emsp;\
+  @      <tt>[display](URL)</tt>
+  @ <li> Angle-bracket hyperlinks:&emsp; <tt>&lt;URL&gt;</tt>
+  @ <li> Font changes:&emsp;
+  @      <tt>*italic*</tt> &emsp;\
+  @      <tt>**bold**</tt> &emsp;\
+  @      <tt>`teletype`</tt>
+  @ <li> Backslash escapes:&emsp;\
+  @      <tt>\&gt;</tt> &ensp; <tt>\[</tt> &ensp;  <tt>\*</tt> &ensp;
+  @      <tt>\_</tt> &ensp; <tt>\'</tt> &ensp; <tt>\\</tt> &emsp;
+  @      <i>and so forth...</i>
+  @ </ul>
+  @ (Property: "wiki-classic")
   @ <hr>
   entry_attribute("Allow Unsafe HTML In Markdown", 6,
                   "safe-html", "safe-html", "", 0);

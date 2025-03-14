@@ -502,6 +502,19 @@ struct Renderer {
   } *aStack;
 };
 
+
+/*
+** SETTING: wiki-use-html                         boolean default=off
+**
+** If enabled, recognize only HTML in Fossil Wiki text.  Other wiki markup
+** is ignored.  In other words, this setting make HTML the wiki markup
+** language.
+**
+** CAUTION: When enabled, this setting allows *all* HTML text through,
+** unsanitized.  Only use this setting in closed environments where all
+** inputs are from trusted users, as the ability to inject arbitrary
+** HTML can be misused by rapscallions.
+*/
 /*
 ** Return TRUE if HTML should be used as the sole markup language for wiki.
 **
@@ -512,6 +525,33 @@ struct Renderer {
 static int wikiUsesHtml(void){
   static int r = -1;
   if( r<0 ) r = db_get_boolean("wiki-use-html", 0);
+  return r;
+}
+
+/*
+** SETTING:  wiki-classic                     boolean default=off
+**
+** When enabled, this setting causes Fossil Wiki text to be rendered
+** in the original circa-2007 style which omits the enhancements added
+** in 2025.  Enable this setting if you have an older repository with
+** a lot of wiki-formatted text that does not render well using the
+** new enhancements.
+**
+** The specific wiki formatting enhancements that are disabled when
+** then setting is turned on are:
+**
+**    *    Markdown hyperlinks:   [display-text](URL)
+**    *    Bracket hyperlinks:    <URL>
+**    *    Font changes:          *italic*   **bold**   `teletype`
+**    *    Backslash escapes:     \\<  \\[  \\*  \\'  \\_  \\\\    and so forth
+*/
+/*
+** Return TRUE limit wiki formatting to the classic circa-2007 style
+** and omit the 2025 enhancements.
+*/
+static int wikiClassic(void){
+  static int r = -1;
+  if( r<0 ) r = db_get_boolean("wiki-classic", 0);
   return r;
 }
 
@@ -2068,6 +2108,13 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   memset(&renderer, 0, sizeof(renderer));
   renderer.renderFlags = flags;
   renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH|flags;
+  if( (flags & WIKI_OVERRIDE)==0 ){
+    if( wikiClassic() ){
+      renderer.state &= ~(WIKI_MARKDOWN_INLINE);
+    }else{
+      renderer.state |= WIKI_MARKDOWN_INLINE;
+    }
+  }
   if( flags & WIKI_INLINE ){
     renderer.wantAutoParagraph = 0;
   }else{
@@ -2135,8 +2182,10 @@ static void test_tokenize(Blob *pIn, Blob *pOut, int flags){
 ** the resulting HTML on standard output.
 **
 ** Options:
-**    --buttons        Set the WIKI_BUTTONS flag
+**    --buttons          Set the WIKI_BUTTONS flag
+**    --classic          Use only classic wiki rules
 **    --dark-pikchr      Render pikchrs in dark mode
+**    --enhanced         Use 2025 enhanced wiki rules
 **    --htmlonly         Set the WIKI_HTMLONLY flag
 **    --inline           Set the WIKI_INLINE flag
 **    --linksonly        Set the WIKI_LINKSONLY flag
@@ -2153,6 +2202,13 @@ void test_wiki_render(void){
   int flags = ALLOW_LINKS;
   int bText, bTokenize;
   if( find_option("buttons",0,0)!=0 ) flags |= WIKI_BUTTONS;
+  if( find_option("classic",0,0)!=0 ){
+    flags |= WIKI_OVERRIDE;
+    flags &= ~(WIKI_MARKDOWN_INLINE);
+  }
+  if( find_option("enhanced",0,0)!=0 ){
+    flags |= WIKI_OVERRIDE|WIKI_MARKDOWN_INLINE;
+  }
   if( find_option("htmlonly",0,0)!=0 ) flags |= WIKI_HTMLONLY;
   if( find_option("linksonly",0,0)!=0 ) flags |= WIKI_LINKSONLY;
   if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
@@ -2283,6 +2339,7 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
 **
 **       [target]
 **       [target|...]
+**       [display](target)
 **
 ** Where "target" can be either an artifact ID prefix or a wiki page
 ** name.  For each such hyperlink found, add an entry to the
@@ -2297,26 +2354,12 @@ void wiki_extract_links(
   int tokenType;
   ParsedMarkup markup;
   int n;
-  int inlineOnly;
-  int wikiHtmlOnly = 0;
 
   memset(&renderer, 0, sizeof(renderer));
-  renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH;
-  if( flags & WIKI_NOBLOCK ){
-    renderer.state |= INLINE_MARKUP_ONLY;
-  }
-  if( wikiUsesHtml() ){
-    renderer.state |= WIKI_HTMLONLY;
-    wikiHtmlOnly = 1;
-  }
-  inlineOnly = (renderer.state & INLINE_MARKUP_ONLY)!=0;
+  renderer.state = ALLOW_WIKI;
 
   while( z[0] ){
-    if( wikiHtmlOnly ){
-      n = nextRawToken(z, &renderer, &tokenType);
-    }else{
-      n = nextWikiToken(z, &renderer, &tokenType);
-    }
+    n = nextWikiToken(z, &renderer, &tokenType);
     switch( tokenType ){
       case TOKEN_LINK: {
         char *zTarget, *zEnd;
@@ -2404,7 +2447,7 @@ void wiki_extract_links(
 
         /* Ignore block markup for in-line rendering.
         */
-        if( inlineOnly && (markup.iType&MUTYPE_INLINE)==0 ){
+        if( (markup.iType & MUTYPE_INLINE)==0 ){
           /* Do nothing */
         }else
 

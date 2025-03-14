@@ -625,7 +625,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\style.wikiedit.css" \
         "$(SRCDIR)\tree.js" \
         "$(SRCDIR)\useredit.js" \
-        "$(SRCDIR)\wiki.wiki"
+        "$(SRCDIR)\wiki-rules.txt"
 
 OBJ   = "$(OX)\add$O" \
         "$(OX)\ajax$O" \
@@ -1258,7 +1258,7 @@ realclean: clean
 	echo "$(SRCDIR)\style.wikiedit.css" >> $@
 	echo "$(SRCDIR)\tree.js" >> $@
 	echo "$(SRCDIR)\useredit.js" >> $@
-	echo "$(SRCDIR)\wiki.wiki" >> $@
+	echo "$(SRCDIR)\wiki-rules.txt" >> $@
 
 "$(OX)\add$O" : "$(OX)\add_.c" "$(OX)\add.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\add_.c"

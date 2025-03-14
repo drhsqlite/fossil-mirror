@@ -266,22 +266,49 @@ void markdown_rules_page(void){
 ** Show a summary of the wiki formatting rules.
 */
 void wiki_rules_page(void){
-  Blob x;
-  int fTxt = P("txt")!=0;
+  Blob x, y, line;
+  int bClDflt = db_get_boolean("wiki-classic",0);
+  int bClassic;
+  if( P("classic")!=0 ){
+    bClassic = 1;
+  }else if( P("enhanced")!=0 ){
+    bClassic = 0;
+  }else{
+    bClassic = bClDflt;
+  }
   style_set_current_feature("wiki");
   style_header("Wiki Formatting Rules");
-  if( fTxt ){
-    style_submenu_element("Formatted", "%R/wiki_rules");
-  }else{
-    style_submenu_element("Plain-Text", "%R/wiki_rules?txt=1");
-  }
   style_submenu_element("Markdown","%R/md_rules");
-  blob_init(&x, builtin_text("wiki.wiki"), -1);
-  blob_materialize(&x);
-  interwiki_append_map_table(&x);
-  safe_html_context(DOCSRC_TRUSTED);
-  wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-fossil-wiki");
+  if( bClassic ){
+    style_submenu_element("Enhanced-Wiki","%R/wiki_rules?enhanced");
+  }else{
+    style_submenu_element("Classic-Wiki","%R/wiki_rules?classic");
+  }
+  if( bClassic && !bClDflt ){
+    @ <p>NOTE: This repository is set to render wiki text using the
+    @ <a href="%R/wiki_rules">Enhanced Wiki Rules</a>.  The following
+    @ describes the Classic Wiki Rules where are a subset of the
+    @ enhanced rules.
+  }else if( !bClassic && bClDflt ){
+    @ <p>NOTE: This repository is set to render wiki text using the
+    @ <a href="%R/wiki_rules">Classic Wiki Rules</a>.  The following
+    @ describes the Enhanced Wiki Rules where are a subset of the
+    @ classic rules.
+  }
+  blob_init(&x, builtin_text("wiki-rules.txt"), -1);
+  blob_init(&y, 0, 0);
+  while( blob_line(&x, &line) ){
+    if( blob_buffer(&line)[0]!='+' ){
+      blob_append(&y, blob_buffer(&line), blob_size(&line));
+    }else if( !bClassic ){
+      blob_append(&y, blob_buffer(&line)+1, blob_size(&line)-1);
+    }
+  }
   blob_reset(&x);
+  blob_reset(&line);
+  interwiki_append_map_table(&y);
+  cgi_append_content(blob_buffer(&y), blob_size(&y));
+  blob_reset(&y);
   style_finish_page();
 }
 

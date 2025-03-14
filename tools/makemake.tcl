@@ -214,7 +214,7 @@ set extra_files {
   diff.tcl
   merge.tcl
   markdown.md
-  wiki.wiki
+  wiki-rules.txt
   *.js
   default.css
   style.*.css
