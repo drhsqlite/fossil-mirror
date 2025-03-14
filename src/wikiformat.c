@@ -39,7 +39,8 @@
 #define WIKI_MARKDOWN_FONT    0x0800  /* Accept markdown font/style markup */
 #define WIKI_MARKDOWN_LINK    0x1000  /* Accept markdown hyperlinks */
 #define WIKI_MARKDOWN_INLINE  0x1800  /* Combo of _FONT and _LINK */
-#define WIKI_ADMIN          0x800  /* Ignore g.perm.Hyperlink */
+#define WIKI_ADMIN            0x2000  /* Ignore g.perm.Hyperlink */
+#define WIKI_OVERRIDE         0x4000  /* Ignore setting "wiki-version" */
 #endif
 
 

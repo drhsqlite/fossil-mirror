@@ -243,6 +243,31 @@ static int StrNLen32(const char *z, int N){
 #endif
 
 /*
+** SETTING: timeline-plaintext                 boolean default=off
+**
+** If enabled, no wiki-formatting is done for timeline comment messages.
+** Hyperlinks are activated, but they show up on screen using the 
+** complete input text, not just the display text.  No other formatting
+** is done.
+*/
+/*
+** SETTING: timeline-block-markup              boolean default=off
+**
+** If enabled, block markup (paragraph brakes, tables, lists, headings, etc)
+** is enabled while rendering check-in comment message on the timeline.
+** This is disabled by default, because the timeline works best if the
+** check-in comments are short and do not take up too much vertical space.
+*/
+/*
+** SETTING: timeline-hard-newlines              boolean default=off
+**
+** If enabled, the timeline honors newline characters in check-in comments.
+** In other words, newlines are coverted into <br> for HTML display.
+** The default behavior, when this setting is off, is that newlines are
+** treated like any other whitespace character.
+*/
+
+/*
 ** Return an appropriate set of flags for wiki_convert() for displaying
 ** comments on a timeline.  These flag settings are determined by
 ** configuration parameters.
