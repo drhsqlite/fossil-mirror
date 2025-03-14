@@ -2351,7 +2351,8 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
 ** file containing the comment using -M.  The editor defined in the
 ** "editor" fossil option (see %fossil help set) will be used, or from
 ** the "VISUAL" or "EDITOR" environment variables (in that order) if
-** no editor is set.
+** no editor is set. Commit message text is interpreted as fossil-wiki
+** format.
 **
 ** All files that have changed will be committed unless some subset of
 ** files is specified on the command line.
@@ -2362,13 +2363,15 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
 **
 ** Use the --branchcolor option followed by a color name (ex:
 ** '#ffc0c0') to specify the background color of entries in the new
-** branch when shown in the web timeline interface.  The use of
-** the --branchcolor option is not recommended.  Instead, let Fossil
-** choose the branch color automatically.
+** branch when shown in the web timeline interface.  The use of the
+** --branchcolor option is not recommended because user-selected
+** colors may not interact well with all site skins.  Instead, let
+** Fossil choose the branch color automatically.
 **
 ** The --bgcolor option works like --branchcolor but only sets the
-** background color for a single check-in.  Subsequent check-ins revert
-** to the default color.
+** background color for a single check-in.  Subsequent check-ins
+** revert to the default color. --bgcolor is not recommended for the
+** same reason that --branchcolor is not recommended.
 **
 ** A check-in is not permitted to fork unless the --allow-fork option
 ** appears.  An empty check-in (i.e. with nothing changed) is not
