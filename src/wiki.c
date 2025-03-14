@@ -23,6 +23,9 @@
 #include <ctype.h>
 #include "wiki.h"
 
+#define has_prefix(literal_prfx, zStr) \
+  (fossil_strncmp((zStr), "" literal_prfx, (sizeof literal_prfx)-1)==0)
+
 /*
 ** Return true if the input string is a well-formed wiki page name.
 **
@@ -422,18 +425,18 @@ int wiki_page_type(const char *zPageName){
   if( db_get_boolean("wiki-about",1)==0 ){
     return WIKITYPE_NORMAL;
   }else
-  if( sqlite3_strglob("checkin/*", zPageName)==0
+  if( has_prefix("checkin/", zPageName)
    && db_exists("SELECT 1 FROM blob WHERE uuid=%Q",zPageName+8)
   ){
     return WIKITYPE_CHECKIN;
   }else
-  if( sqlite3_strglob("branch/*", zPageName)==0 ){
+  if( has_prefix("branch/", zPageName) ){
     return WIKITYPE_BRANCH;
   }else
-  if( sqlite3_strglob("tag/*", zPageName)==0 ){
+  if( has_prefix("tag/", zPageName) ){
     return WIKITYPE_TAG;
   }else
-  if( sqlite3_strglob("ticket/*", zPageName)==0 ){
+  if( has_prefix("ticket/", zPageName) ){
     return WIKITYPE_TICKET;
   }
   return WIKITYPE_NORMAL;
@@ -1989,7 +1992,8 @@ void wcontent_page(void){
   cgi_check_for_malice();
   showCkBr = db_exists(
     "SELECT tag.tagname AS tn FROM tag JOIN tagxref USING(tagid) "
-    "WHERE ( tn GLOB 'wiki-checkin/*' OR tn GLOB 'wiki-branch/*' ) "
+    "WHERE ( tn GLOB 'wiki-checkin/*' OR tn GLOB 'wiki-branch/*' OR "
+    "        tn GLOB 'wiki-tag/*'     OR tn GLOB 'wiki-ticket/*' ) "
     "  AND TYPEOF(tagxref.value+0)='integer'" );
   if( showCkBr ){
     showCkBr = P("showckbr")!=0;
@@ -2019,16 +2023,16 @@ void wcontent_page(void){
     char *zWDisplayName;
 
     if( !showCkBr &&
-        (sqlite3_strglob("checkin/*", zWName)==0 ||
-         sqlite3_strglob("branch/*", zWName)==0  ||
-         sqlite3_strglob("tag/*", zWName)==0     ||
-         sqlite3_strglob("ticket/*", zWName)==0) ){
+        (has_prefix("checkin/", zWName) ||
+         has_prefix("branch/",  zWName) ||
+         has_prefix("tag/",     zWName) ||
+         has_prefix("ticket/",  zWName) )){
       continue;
     }
-    if( sqlite3_strglob("checkin/*", zWName)==0 ){
+    if( has_prefix("checkin/",zWName) || has_prefix("ticket/",zWName) ){
       zWDisplayName = mprintf("%.25s...", zWName);
     }else{
-      zWDisplayName = mprintf("%s", zWName);
+      zWDisplayName = fossil_strdup(zWName);
     }
     if( wrid==0 ){
       if( !showAll ) continue;
@@ -2524,8 +2528,10 @@ void wiki_cmd(void){
         continue;
       }
       if( !showCkBr &&
-          (sqlite3_strglob("checkin/*", zName)==0 ||
-           sqlite3_strglob("branch/*", zName)==0) ){
+          (has_prefix("checkin/", zName) ||
+           has_prefix("branch/",  zName) ||
+           has_prefix("tag/",     zName) ||
+           has_prefix("ticket/",  zName) ) ){
         continue;
       }
       if( showIds ){

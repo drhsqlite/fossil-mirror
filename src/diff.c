@@ -3177,7 +3177,9 @@ int *text_diff(
       g.diffCnt[2] += nDel;
       if( nIns+nDel ){
         g.diffCnt[0]++;
-        blob_appendf(pOut, "%10d %10d", nIns, nDel);
+        if( !(pCfg->diffFlags & DIFF_BRIEF) ){
+          blob_appendf(pOut, "%10d %10d", nIns, nDel);
+        }
       }
     }else if( pCfg->diffFlags & (DIFF_RAW|DIFF_BY_TOKEN) ){
       const int *R = c.aEdit;

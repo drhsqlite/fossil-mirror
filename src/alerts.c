@@ -53,6 +53,7 @@ static const char zAlertInit[] =
 @ --     n - New forum threads
 @ --     r - Replies to my own forum posts
 @ --     t - Ticket changes
+@ --     u - Elevation of users' permissions (admins only)
 @ --     w - Wiki changes
 @ --     x - Edits to forum posts
 @ -- Probably different codes will be added in the future.  In the future
@@ -1565,6 +1566,7 @@ void subscribe_page(void){
     if( g.perm.RdForum && PB("sn") ) ssub[nsub++] = 'n';
     if( g.perm.RdForum && PB("sr") ) ssub[nsub++] = 'r';
     if( g.perm.RdTkt && PB("st") )   ssub[nsub++] = 't';
+    if( g.perm.Admin && PB("su") )   ssub[nsub++] = 'u';
     if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
     if( g.perm.RdForum && PB("sx") ) ssub[nsub++] = 'x';
     ssub[nsub] = 0;
@@ -1629,6 +1631,7 @@ void subscribe_page(void){
     if( g.perm.RdForum ) cgi_set_parameter_nocopy("sn","1",1);
     if( g.perm.RdForum ) cgi_set_parameter_nocopy("sr","1",1);
     if( g.perm.RdTkt )   cgi_set_parameter_nocopy("st","1",1);
+    if( g.perm.Admin )   cgi_set_parameter_nocopy("su","1",1);
     if( g.perm.RdWiki )  cgi_set_parameter_nocopy("sw","1",1);
   }
   @ <p>To receive email notifications for changes to this
@@ -1700,6 +1703,10 @@ void subscribe_page(void){
   if( g.perm.RdWiki ){
     @  <label><input type="checkbox" name="sw" %s(PCK("sw"))> \
     @  Wiki</label><br>
+  }
+  if( g.perm.Admin ){
+    @  <label><input type="checkbox" name="su" %s(PCK("su"))> \
+    @  User permission elevation</label>
   }
   di = PB("di");
   @ </td></tr>
@@ -1822,7 +1829,7 @@ static void alert_unsubscribe(int sid, int bTotal){
 void alert_page(void){
   const char *zName = 0;        /* Value of the name= query parameter */
   Stmt q;                       /* For querying the database */
-  int sa, sc, sf, st, sw, sx;   /* Types of notifications requested */
+  int sa, sc, sf, st, su, sw, sx; /* Types of notifications requested */
   int sn, sr;
   int sdigest = 0, sdonotcall = 0, sverified = 0;  /* Other fields */
   int isLogin;                  /* True if logged in as an individual */
@@ -1883,6 +1890,7 @@ void alert_page(void){
     if( g.perm.RdForum && PB("sn") ) newSsub[nsub++] = 'n';
     if( g.perm.RdForum && PB("sr") ) newSsub[nsub++] = 'r';
     if( g.perm.RdTkt && PB("st") )   newSsub[nsub++] = 't';
+    if( g.perm.Admin && PB("su") )   newSsub[nsub++] = 'u';
     if( g.perm.RdWiki && PB("sw") )  newSsub[nsub++] = 'w';
     if( g.perm.RdForum && PB("sx") ) newSsub[nsub++] = 'x';
     newSsub[nsub] = 0;
@@ -1981,6 +1989,7 @@ void alert_page(void){
   sn = strchr(ssub,'n')!=0;
   sr = strchr(ssub,'r')!=0;
   st = strchr(ssub,'t')!=0;
+  su = strchr(ssub,'u')!=0;
   sw = strchr(ssub,'w')!=0;
   sx = strchr(ssub,'x')!=0;
   smip = db_column_text(&q, 5);
@@ -2099,7 +2108,15 @@ void alert_page(void){
   }
   if( g.perm.RdWiki ){
     @  <label><input type="checkbox" name="sw" %s(sw?"checked":"")>\
-    @  Wiki</label>
+    @  Wiki</label><br>
+  }
+  if( g.perm.Admin ){
+    /* Corner-case bug: if an admin assigns 'u' to a non-admin, that
+    ** subscription will get removed if the user later edits their
+    ** subscriptions, as non-admins are not permitted to add that
+    ** subscription. */
+    @  <label><input type="checkbox" name="su" %s(su?"checked":"")>\
+    @  User permission elevation</label>
   }
   @ </td></tr>
   if( strchr(ssub,'k')!=0 ){
@@ -2531,11 +2548,12 @@ void subscriber_list_page(void){
 **      r       Replies to my forum posts
 **      x       An edit to a prior forum post
 **      t       A new ticket or a change to an existing ticket
+**      u       A user was added or received new permissions
 **      w       A change to a wiki page
 **      x       Edits to forum posts
 */
 struct EmailEvent {
-  int type;          /* 'c', 'f', 'n', 'r', 't', 'w', 'x' */
+  int type;          /* 'c', 'f', 'n', 'r', 't', 'u', 'w', 'x' */
   int needMod;       /* Pending moderator approval */
   Blob hdr;          /* Header content, for forum entries */
   Blob txt;          /* Text description to appear in an alert */
@@ -2934,6 +2952,7 @@ static void alert_renewal_msg(
   if( strchr(zSub, 'c') )  blob_appendf(pBody, "  *  Check-ins\n");
   if( strchr(zSub, 'f') )  blob_appendf(pBody, "  *  Forum posts\n");
   if( strchr(zSub, 't') )  blob_appendf(pBody, "  *  Ticket changes\n");
+  if( strchr(zSub, 'u') )  blob_appendf(pBody, "  *  User permission elevation\n");
   if( strchr(zSub, 'w') )  blob_appendf(pBody, "  *  Wiki changes\n");
   blob_appendf(pBody, "\n"
     "If you take no action, your subscription will expire and you will be\n"
@@ -3146,6 +3165,7 @@ int alert_send_alerts(u32 flags){
             case 'n': case 'r':  xType = '5';  break;
             case 't':            xType = 'q';  break;
             case 'w':            xType = 'l';  break;
+            /* Note: case 'u' is not handled here */
           }
           if( strchr(zCap,xType)==0 ) continue;
         }
@@ -3162,6 +3182,7 @@ int alert_send_alerts(u32 flags){
           case 'n': case 'r':  xType = '2';  break;
           case 't':            xType = 'r';  break;
           case 'w':            xType = 'j';  break;
+          /* Note: case 'u' is not handled here */
         }
         if( strchr(zCap,xType)==0 ) continue;
       }

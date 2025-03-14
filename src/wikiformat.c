@@ -39,6 +39,7 @@
 #define WIKI_MARKDOWN_FONT    0x0800  /* Accept markdown font/style markup */
 #define WIKI_MARKDOWN_LINK    0x1000  /* Accept markdown hyperlinks */
 #define WIKI_MARKDOWN_INLINE  0x1800  /* Combo of _FONT and _LINK */
+#define WIKI_ADMIN          0x800  /* Ignore g.perm.Hyperlink */
 #endif
 
 
@@ -1397,7 +1398,7 @@ void wiki_resolve_hyperlink(
         blob_appendf(pOut, "<span class=\"brokenlink\">%s", zLB);
         zTerm = "]</span>";
       }
-    }else if( g.perm.Hyperlink ){
+    }else if( g.perm.Hyperlink || (mFlags & WIKI_ADMIN)!=0 ){
       blob_appendf(pOut, "%z%s",xhref(zExtraNS, "%R/info/%s", zTarget), zLB);
       zTerm = "]</a>";
     }else{
@@ -1440,6 +1441,20 @@ void wiki_resolve_hyperlink(
   if( zExtra ) fossil_free(zExtra);
   assert( (int)strlen(zTerm)<nClose );
   sqlite3_snprintf(nClose, zClose, "%s", zTerm);
+}
+
+/*
+** Check zTarget to see if it looks like a valid hyperlink target.
+** Return true if it does seem valid and false if not.
+*/
+int wiki_valid_link_target(char *zTarget){
+  char zClose[30];
+  Blob notUsed;
+  blob_init(&notUsed, 0, 0);
+  wiki_resolve_hyperlink(&notUsed, WIKI_NOBADLINKS|WIKI_ADMIN,
+       zTarget, zClose, sizeof(zClose)-1, 0, 0);
+  blob_reset(&notUsed);
+  return zClose[0]!=0;
 }
 
 /*
@@ -2123,7 +2138,7 @@ static void test_tokenize(Blob *pIn, Blob *pOut, int flags){
 **    --dark-pikchr      Render pikchrs in dark mode
 **    --htmlonly         Set the WIKI_HTMLONLY flag
 **    --inline           Set the WIKI_INLINE flag
-**    --linksonly         Set the WIKI_LINKSONLY flag
+**    --linksonly        Set the WIKI_LINKSONLY flag
 **    --markdown         Allow all in-line markdown syntax
 **    --markdown-link    Allow markdown hyperlink syntax
 **    --markdown-style   Allow markdown font and style markup

@@ -1076,8 +1076,7 @@ static int gitmirror_send_checkin(
   FILE *xCmd,           /* Write fast-import text on this pipe */
   int rid,              /* BLOB.RID for the check-in to export */
   const char *zUuid,    /* BLOB.UUID for the check-in to export */
-  int *pnLimit,         /* Stop when the counter reaches zero */
-  int fManifest         /* MFESTFLG_* values */
+  int *pnLimit          /* Stop when the counter reaches zero */
 ){
   Manifest *pMan;       /* The check-in to be output */
   int i;                /* Loop counter */
@@ -1091,6 +1090,8 @@ static int gitmirror_send_checkin(
   int bPhantomOk;       /* True if phantom files should be ignored */
   char buf[24];
   char *zEmail;         /* Contact info for Git committer field */
+  int fManifest;        /* Should the manifest files be included? */
+  int fPManifest = 0;   /* OR of the manifest files for all parents */
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
@@ -1108,7 +1109,7 @@ static int gitmirror_send_checkin(
       int prid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q",
                         pMan->azParent[i]);
       int rc = gitmirror_send_checkin(xCmd, prid, pMan->azParent[i],
-                                      pnLimit, fManifest);
+                                      pnLimit);
       if( rc || *pnLimit<=0 ){
         manifest_destroy(pMan);
         return 1;
@@ -1217,6 +1218,7 @@ static int gitmirror_send_checkin(
   for(i=0; i<pMan->nParent; i++){
     char *zOther = gitmirror_find_mark(pMan->azParent[i],0,0);
     if( zOther==0 ) continue;
+    fPManifest |= db_get_manifest_setting(pMan->azParent[i]);
     if( iParent<0 ){
       iParent = i;
       fprintf(xCmd, "from %s\n", zOther);
@@ -1273,6 +1275,7 @@ static int gitmirror_send_checkin(
   pMan = 0;
 
   /* Include Fossil-generated auxiliary files in the check-in */
+  fManifest = db_get_manifest_setting(zUuid);
   if( fManifest & MFESTFLG_RAW ){
     Blob manifest;
     content_get(rid, &manifest);
@@ -1280,10 +1283,14 @@ static int gitmirror_send_checkin(
     fprintf(xCmd,"M 100644 inline manifest\ndata %d\n%s\n",
       blob_strlen(&manifest), blob_str(&manifest));
     blob_reset(&manifest);
+  }else if( fPManifest & MFESTFLG_RAW ){
+    fprintf(xCmd, "D manifest\n");
   }
   if( fManifest & MFESTFLG_UUID ){
     int n = (int)strlen(zUuid);
     fprintf(xCmd,"M 100644 inline manifest.uuid\ndata %d\n%s\n\n", n+1, zUuid);
+  }else if( fPManifest & MFESTFLG_UUID ){
+    fprintf(xCmd, "D manifest.uuid\n");
   }
   if( fManifest & MFESTFLG_TAGS ){
     Blob tagslist;
@@ -1292,6 +1299,8 @@ static int gitmirror_send_checkin(
     fprintf(xCmd,"M 100644 inline manifest.tags\ndata %d\n%s\n",
       blob_strlen(&tagslist), blob_str(&tagslist));
     blob_reset(&tagslist);
+  }else if( fPManifest & MFESTFLG_TAGS ){
+    fprintf(xCmd, "D manifest.tags\n");
   }
 
   /* The check-in is finished, so decrement the counter */
@@ -1385,7 +1394,6 @@ void gitmirror_export_command(void){
   int rc;                         /* Result code */
   int bForce;                     /* Do the export and sync even if no changes*/
   int bNeedRepack = 0;            /* True if we should run repack at the end */
-  int fManifest;                  /* Current "manifest" setting */
   int bIfExists;                  /* The --if-mirrored flag */
   FILE *xCmd;                     /* Pipe to the "git fast-import" command */
   FILE *pMarks;                   /* Git mark files */
@@ -1523,9 +1531,6 @@ void gitmirror_export_command(void){
     return;
   }
 
-  /* Do we need to include manifest files in the clone? */
-  fManifest = db_get_manifest_setting();
-
   /* Change to the MIRROR directory so that the Git commands will work */
   rc = file_chdir(zMirror, 0);
   if( rc ) fossil_fatal("cannot change the working directory to \"%s\"",
@@ -1581,7 +1586,7 @@ void gitmirror_export_command(void){
     double rMTime = db_column_double(&q, 1);
     const char *zUuid = db_column_text(&q, 2);
     if( rMTime>rEnd ) rEnd = rMTime;
-    rc = gitmirror_send_checkin(xCmd, rid, zUuid, &nLimit, fManifest);
+    rc = gitmirror_send_checkin(xCmd, rid, zUuid, &nLimit);
     if( rc ) break;
     gitmirror_message(VERB_NORMAL,"%d/%d      \r", nTotal-nLimit, nTotal);
     fflush(stdout);

@@ -1383,7 +1383,7 @@ static int timeline_is_datespan(const char *zDay){
 static int timeline_endpoint(
   int iFrom,         /* Starting point */
   const char *zEnd,  /* Tag we are searching for */   
-  int bForward       /* 1: forwards in time (descendents) 0: backwards */
+  int bForward       /* 1: forwards in time (descendants) 0: backwards */
 ){
   int tagId;
   int endId = 0;
@@ -1515,13 +1515,13 @@ static void add_extra_rids(const char *zTab, const char *zExtra){
 **
 ** Usage: fossil test-endpoint BASE TAG ?OPTIONS?
 **
-** Show the first check-in with TAG that is a descendent or ancestor
-** of BASE.  The first descendent checkin is shown by default.  Use
+** Show the first check-in with TAG that is a descendant or ancestor
+** of BASE.  The first descendant checkin is shown by default.  Use
 ** the --backto to see the first ancestor checkin.
 **
 ** Options:
 **
-**      --backto            Show ancestor.  Others defaults to descendents.
+**      --backto            Show ancestor.  Others defaults to descendants.
 */
 void timeline_test_endpoint(void){
   int bForward = find_option("backto",0,0)==0;
@@ -2231,7 +2231,7 @@ void page_timeline(void){
   }else if( (p_rid || d_rid) && g.perm.Read && zTagSql==0 ){
     /* If either p= or d= or both are present, ignore all other parameters
     ** other than n=, ft=, and bt= */
-    const char *zBaseName;
+    const char *zBaseName = 0;
     int np = 0, nd;
     const char *zBackTo = 0;
     const char *zFwdTo = 0;
@@ -2357,10 +2357,10 @@ void page_timeline(void){
       blob_reset(&desc);
       blob_appendf(&desc,
           "%d check-ins that are both ancestors of %z%h</a>"
-          " and descendents of %z%h</a>",
+          " and descendants of %z%h</a>",
           n,
           href("%R/info?name=%h",zDPNameP),zDPNameP,
-          href("%R/info/name=%h",zDPNameD),zDPNameD
+          href("%R/info?name=%h",zDPNameD),zDPNameD
       );
       ridBackTo = 0;
       ridFwdTo = 0;
@@ -2382,7 +2382,7 @@ void page_timeline(void){
         if( ridFwdTo && zFwdTo ){
           blob_appendf(&desc, " and up to %z%h</a>%s",
                      href("%R/info?name=%h",zFwdTo), zFwdTo,
-                     bFwdAdded ? " (not a direct descendent)" : "");
+                     bFwdAdded ? " (not a direct descendant)" : "");
         }
       }
     }else if( ridFwdTo ){
@@ -2395,7 +2395,7 @@ void page_timeline(void){
       }else{
         blob_appendf(&desc, " up to %z%h</a>%s",
                      href("%R/info?name=%h",zFwdTo), zFwdTo,
-                     bFwdAdded ? " (not a direct descendent)":"");
+                     bFwdAdded ? " (not a direct descendant)":"");
       }
     }
     if( advancedMenu ){
@@ -3439,16 +3439,48 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat,
 }
 
 /*
+**    wiki_to_text(TEXT)
+**
+** Return a plain-text rendering of Fossil-Wiki TEXT.
+*/
+static void wiki_to_text_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zIn, *zOut;
+  int nIn, nOut;
+  Blob in, html, txt;
+  zIn = (const char*)sqlite3_value_text(argv[0]);
+  if( zIn==0 ) return;
+  nIn = sqlite3_value_bytes(argv[0]);
+  blob_init(&in, zIn, nIn);
+  blob_init(&html, 0, 0);
+  wiki_convert(&in, &html, WIKI_INLINE);
+  blob_reset(&in);
+  blob_init(&txt, 0, 0);
+  html_to_plaintext(blob_str(&html), &txt);
+  blob_reset(&html);
+  nOut = blob_size(&txt);
+  zOut = blob_str(&txt);
+  while( fossil_isspace(zOut[0]) ){ zOut++; nOut--; }
+  while( nOut>0 && fossil_isspace(zOut[nOut-1]) ){ nOut--; }
+  sqlite3_result_text(context, zOut, nOut, SQLITE_TRANSIENT);
+  blob_reset(&txt);
+}
+
+/*
 ** Return a pointer to a static string that forms the basis for
 ** a timeline query for display on a TTY.
 */
 const char *timeline_query_for_tty(void){
+  static int once = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS rid,
     @   uuid,
     @   datetime(event.mtime,toLocal()) AS mDateTime,
-    @   coalesce(ecomment,comment)
+    @   wiki_to_text(coalesce(ecomment,comment))
     @     || ' (user: ' || coalesce(euser,user,'?')
     @     || (SELECT case when length(x)>0 then ' tags: ' || x else '' end
     @           FROM (SELECT group_concat(substr(tagname,5), ', ') AS x
@@ -3476,6 +3508,11 @@ const char *timeline_query_for_tty(void){
     @ WHERE blob.rid=event.objid
     @   AND tag.tagname='branch'
   ;
+  if( !once && g.db ){
+    once = 1;
+    sqlite3_create_function(g.db, "wiki_to_text", 1, SQLITE_UTF8, 0,
+                            wiki_to_text_sqlfunc, 0, 0);
+  }
   return zBaseSql;
 }
 

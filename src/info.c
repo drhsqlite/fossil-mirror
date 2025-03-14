@@ -259,13 +259,15 @@ void info_cmd(void){
       fossil_print("version:      %s", z);
       blob_reset(&vx);
     }
-  }else{
+  }else if( g.repositoryOpen ){
     int rid;
     rid = name_to_rid(g.argv[2]);
     if( rid==0 ){
       fossil_fatal("no such object: %s", g.argv[2]);
     }
     show_common_info(rid, "hash:", 1, 1);
+  }else{
+    fossil_fatal("Could not find or open a Fossil repository");
   }
 }
 
