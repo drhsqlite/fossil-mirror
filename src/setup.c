@@ -1160,6 +1160,10 @@ void setup_settings(void){
     if( pSet->width==0 ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL, NULL)!=0);
+      if( pSet->bIfChng ){
+        const char *zVal = db_get(pSet->name, 0);
+        if( zVal==0 || fossil_strcmp(zVal,pSet->def)==0 ) continue;
+      }
       onoff_attribute("", pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       is_truth(pSet->def), hasVersionableValue);
