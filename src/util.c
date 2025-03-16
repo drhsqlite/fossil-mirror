@@ -672,24 +672,28 @@ int fossil_all_whitespace(const char *z){
 ** (2) The global "editor" setting
 ** (3) The VISUAL environment variable
 ** (4) The EDITOR environment variable
-** (5) (Windows only:) "notepad.exe"
+** (5) Any of the following programs that are available:
+**        notepad, nano, pico, edit, vi, vim, ed,
 */
 const char *fossil_text_editor(void){
   const char *zEditor = db_get("editor", 0);
+  const char *azStdEd[] = {
+    "notepad", "nano", "pico", "edit", "vi", "vim", "ed"
+  };
+  int i = 0;
   if( zEditor==0 ){
     zEditor = fossil_getenv("VISUAL");
   }
   if( zEditor==0 ){
     zEditor = fossil_getenv("EDITOR");
   }
-#if defined(_WIN32) || defined(__CYGWIN__)
-  if( zEditor==0 ){
-    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SYSTEMROOT"));
-#if defined(__CYGWIN__)
-    zEditor = fossil_utf8_to_path(zEditor, 0);
-#endif
+  while( zEditor==0 && i<count(azStdEd) ){
+    if( fossil_app_on_path(azStdEd[i],0) ){
+      zEditor = azStdEd[i];
+    }else{
+      i++;
+    }
   }
-#endif
   return zEditor;
 }
 
@@ -897,31 +901,72 @@ int fossil_num_digits(int n){
        : n<10000000 ? 7 : n<100000000 ? 8 : n<1000000000 ? 9 : 10;
 }
 
-#if !defined(_WIN32)
-#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
 /*
 ** Search for an executable on the PATH environment variable.
 ** Return true (1) if found and false (0) if not found.
+**
+** Print the full pathname of the first location if ePrint==1.  Print
+** all pathnames for the executable if ePrint==2 or more.
 */
-static int binaryOnPath(const char *zBinary){
+int fossil_app_on_path(const char *zBinary, int ePrint){
   const char *zPath = fossil_getenv("PATH");
   char *zFull;
   int i;
   int bExists;
+  int bFound = 0;
   while( zPath && zPath[0] ){
+#ifdef _WIN32
+    while( zPath[0]==';' ) zPath++;
+    for(i=0; zPath[i] && zPath[i]!=';'; i++){}
+    zFull = mprintf("%.*s\\%s.exe", i, zPath, zBinary);
+    bExists = file_access(zFull, R_OK);
+    if( bExists!=0 ){
+      fossil_free(zFull);
+      zFull = mprintf("%.*s\\%s.bat", i, zPath, zBinary);
+      bExists = file_access(zFull, R_OK);
+    }
+#else
     while( zPath[0]==':' ) zPath++;
     for(i=0; zPath[i] && zPath[i]!=':'; i++){}
     zFull = mprintf("%.*s/%s", i, zPath, zBinary);
     bExists = file_access(zFull, X_OK);
+#endif
+    if( bExists==0 && ePrint ){
+      fossil_print("%s\n", zFull);
+    }
     fossil_free(zFull);
-    if( bExists==0 ) return 1;
+    if( bExists==0 ){
+      if( ePrint<2 ) return 1;
+      bFound = 1;
+    }
     zPath += i;
   }
-  return 0;
+  return bFound;
 }
-#endif
-#endif
 
+/*
+** COMMAND: which*
+**
+** Usage: fossil which [-a] NAME ...
+**
+** For each NAME mentioned as an argument, print the first location on the
+** on PATH of the executable with that name.  Or, show all locations on PATH
+** for each argument if the -a option is used.
+**
+** This command is a substitute for the unix "which" command, which is not
+** always available, especially on Windows.
+*/
+void test_app_on_path(void){
+  int i;
+  int ePrint = 1;
+  if( find_option("all","a",0)!=0 ) ePrint = 2;
+  verify_all_options();
+  for(i=2; i<g.argc; i++){
+    if( fossil_app_on_path(g.argv[i], ePrint)==0 ){
+      fossil_print("NOT FOUND: %s\n", g.argv[i]);
+    }
+  }
+}
 
 /*
 ** Return the name of a command that will launch a web-browser.
@@ -940,7 +985,7 @@ const char *fossil_web_browser(void){
     int i;
     zBrowser = "echo";
     for(i=0; i<count(azBrowserProg); i++){
-      if( binaryOnPath(azBrowserProg[i]) ){
+      if( fossil_app_on_path(azBrowserProg[i],0) ){
         zBrowser = azBrowserProg[i];
         break;
       }
