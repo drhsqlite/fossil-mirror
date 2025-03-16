@@ -1574,6 +1574,13 @@ char *file_fullexename(const char *zCmd){
 **
 ** For each argument, search the PATH for the executable with the name
 ** and print its full pathname.
+**
+** See also the "which" command (without the "test-" prefix).  The plain
+** "which" command is more convenient to use since it provides the -a/-all
+** option, and because it is shorter.  The "fossil which" command without
+** the "test-" prefix is recommended for day-to-day use.  This command is
+** retained because it tests the internal file_fullexename() function
+** whereas plain "which" does not.
 */
 void test_which_cmd(void){
   int i;

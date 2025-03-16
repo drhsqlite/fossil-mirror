@@ -1,5 +1,5 @@
-C Honor\sthe\sshow-only-if-changed\sflag\sfor\sboolean\ssettings\son\sthe\n/setup_settings\spage\sin\saddition\sto\sin\sthe\s"settings"\scommand.
-D 2025-03-16T22:44:20.960
+C Improved\shelp\sfor\sthe\s"test-which"\scommand,\sexplaining\swhy\sit\sis\sretained\neven\sthough\swe\snow\shave\sa\s"which"\scommand\swithout\sthe\s"test-"\sprefix.
+D 2025-03-16T22:49:33.768
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -428,7 +428,7 @@ F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c bbf9e79dfc96c597bab4f48ae290259a2dfa129a3d1c5878c13306ac46eb595c
 F src/export.c 99dddcbffa040ee67cbee591a41de449db384b645ac150e22b452f0482a88d96
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
-F src/file.c 247e454a561c805565b18428f0b575517c6eed160fb9695624e7501b0fdc401f
+F src/file.c bad34406b69507906a1060c42265ffafd68ea598e7270e8f0d21d8d08fc1580a
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c f5ba1e0a0de9db4b01a1fd6455d3480f6b3be6b6c62205cd7217a12bbb0cb5e1
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8f4aedcf849a1a68eaab1d53c13d8400c1c6b0b78f1262700733fe8de4882042
-R 75728eb94309a13ba89b72df92880fe5
+P 3ba0763bfcbffba484e27446be63dfe618636f335287f99b6b48ee117d2deda5
+R 1a213badc098f26c0bceefaace937d36
 U drh
-Z 10d0a146de8bdf911a1fb40149318433
+Z 7eb0cfd8d4069e84e472462555db65c5
 # Remove this line to create a well-formed Fossil manifest.
