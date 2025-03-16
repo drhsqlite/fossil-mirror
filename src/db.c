@@ -4442,9 +4442,10 @@ void cmd_open(void){
 ** Print the current value of a setting identified by the pSetting
 ** pointer.
 */
-void print_setting(const Setting *pSetting, int valueOnly){
+void print_setting(const Setting *pSetting, int valueOnly, int bAlways){
   Stmt q;
   int versioned = 0;
+  if( !pSetting->bIfChng ) bAlways = 1;
   if( pSetting->versionable && g.localOpen ){
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
@@ -4457,7 +4458,12 @@ void print_setting(const Setting *pSetting, int valueOnly){
     blob_reset(&versionedPathname);
   }
   if( valueOnly && versioned ){
-    fossil_print("%s\n", db_get_versioned(pSetting->name, NULL, NULL));
+    const char *zVal = db_get_versioned(pSetting->name, NULL, NULL);
+    if( bAlways || (zVal!=0 && fossil_strcmp(zVal, pSetting->def)!=0) ){
+      fossil_print("%s\n", db_get_versioned(pSetting->name, NULL, NULL));
+    }else{
+      versioned = 0;
+    }
     return;
   }
   if( g.repositoryOpen ){
@@ -4474,12 +4480,17 @@ void print_setting(const Setting *pSetting, int valueOnly){
     );
   }
   if( db_step(&q)==SQLITE_ROW ){
-    if( valueOnly ){
+    const char *zVal = db_column_text(&q,1);
+    if( !bAlways && (zVal==0 || fossil_strcmp(zVal, pSetting->def)==0) ){
+      /* Don't display because the value is equal to the default */
+    }else if( valueOnly ){
       fossil_print("%s\n", db_column_text(&q, 1));
     }else{
       fossil_print("%-20s %-8s %s\n", pSetting->name, db_column_text(&q, 0),
           db_column_text(&q, 1));
     }
+  }else if( !bAlways ){
+    /* Display nothing */
   }else if( valueOnly ){
     fossil_print("\n");
   }else{
@@ -4518,8 +4529,10 @@ struct Setting {
   char versionable;     /* Is this setting versionable? */
   char forceTextArea;   /* Force using a text area for display? */
   char sensitive;       /* True if this a security-sensitive setting */
+  char bIfChng;         /* Only display if value differs from default */
   const char *def;      /* Default value */
 };
+
 #endif /* INTERFACE */
 
 /*
@@ -5218,9 +5231,11 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 ** on the local settings.  Use the --global option to change global settings.
 **
 ** Options:
+**   --exact    Only consider exact name matches
+**   --extra    When listing settings, show them all, even those that are
+**              normally only shown if there values are different from default
 **   --global   Set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only
-**   --exact    Only consider exact name matches
 **   --value    Only show the value of a given property (implies --exact)
 **
 ** See also: [[configuration]]
@@ -5229,6 +5244,7 @@ void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
+  int extraFlag = find_option("extra",0,0)!=0;
   int valueFlag = find_option("value",0,0)!=0;
   /* Undocumented "--test-for-subsystem SUBSYS" option used to test
   ** the db_get_for_subsystem() interface: */
@@ -5257,7 +5273,7 @@ void setting_cmd(void){
 
   if( g.argc==2 ){
     for(i=0; i<nSetting; i++){
-      print_setting(&aSetting[i], 0);
+      print_setting(&aSetting[i], 0, extraFlag);
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
@@ -5312,7 +5328,7 @@ void setting_cmd(void){
           }
           fossil_print("\n");
         }else{
-          print_setting(pSetting, valueFlag);
+          print_setting(pSetting, valueFlag, extraFlag);
         }
         pSetting++;
       }

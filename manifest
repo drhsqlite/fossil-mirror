@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\swhich"\scommand,\swhich\seven\sworks\son\sWindows.\s\sEnhance\sthe\nfossil_text_editor()\sfunction\sso\sthat\sit\slooks\sfor\scommon\stext\seditor\snames\nif\sit\sdoes\snot\sfind\sa\suser-specified\spreference.
-D 2025-03-16T19:15:02.472
+C New\ssetting\s"verify-comments"\sdefaults\sto\son,\sbut\scan\sbe\sturned\soff\sto\sprevent\ncheckin\scomment\ssanity\schecking.\s\sThis\ssetting\sdoes\snot\sappear\sin\sthe\n"fossil\ssettings"\slist\sunless\sit\sdiffers\sfrom\sthe\sdefault,\sor\sunless\sthe\n"--extra"\sargument\sis\sadded\sto\s"fossil\ssettings".
+D 2025-03-16T22:40:27.120
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -376,7 +376,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c bb7210c8247526eb8a41c410f7e9c8732231104bd60154dc8253f25591788917
 F src/ajax.c caf28a8fdda103acbe9048eeed84f6b2cb1fb3545c1c68f38da66ea44f576e01
-F src/alerts.c c29f4986b3667877b86e4234b5768d6d6360279263cabe09a644de1be324204c
+F src/alerts.c 7784922b9d379dccf93b7dd4113f05d8e98b4292116f2202c0a3e9c890622d9c
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -398,7 +398,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c b3b12af06bf8d6bd49079e0841013491b3630a67b77ddc76f18cd3b764fa9969
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
-F src/checkin.c 1502633256db88dded0ffbc631ee56d7a58533e71782d35213b5f20688cc5228
+F src/checkin.c 978060a0842e869993157cf678f751a8cfb8cf247f44ba50fe71c4b074fb54ff
 F src/checkout.c 65424a6ea916d3722c98f64da61b95a646ef2a0bc798ad075500d0e5acdab474
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
@@ -411,7 +411,7 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 6a971550e30fe8c8750f13b7bc8968cc7b690267e83038f5db69608dda1e8fef
+F src/db.c 25b29d79bd11378daa2c1c1bd233e6db44700fc97f810aa472224fa31c6ad026
 F src/default.css 94743facfa876f5c35f2974f9e356e8a47587e2292e98c41063785699d51ae4f
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -744,7 +744,7 @@ F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa760664
 F tools/makemake.tcl bb9e52c5da3022f52302e6511fcaedd9ca5df61368248aea8e226e865b17c85f x
 F tools/man_page_command_list.tcl 8f7f2c0717cb7e2ddece0a92bd10809bb16a1d8c3aa8bf6f77f6143b9282a099 x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
-F tools/mkindex.c ba206689a179bf7289bf85a9120515ce271e258c00be02479910c13e23158813
+F tools/mkindex.c baa78cc7866929ea9ba81f8e1d31a4fc13166d2dc6d745978d85f74f8e059ae3
 F tools/mkversion.c 50e3be4716625ffea38d0f8248051de7372b78282744f33dde201bed5dd977cb
 F tools/randomize-js-names.tcl f298b424ec278c1df2cd5333011b9cab77525ec21813e6160577810997f028b9
 F tools/skintxt2config.c b542d5e56db4aa69100e85061db820f6b1c9734cf292bda2d67445d364a5e154
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19fc9713fccfed79f7e6f97cdcea58ac37215c264bdbc7b9c06eb6f844414b7f
-R 88469a1adf4535c8a9a9c7b836cad38c
+P fc60e44417e8437ce3f07a7ffdae72bbdd6ab3c9af80a231a5b84e1c38c9e819
+R 9ed55fc5f3ac7d1018359c8cce8a7916
 U drh
-Z b0c30474ab81b342cd2977b3c5ac9023
+Z 898f450dcd46ba51e6f0bf4c1064962d
 # Remove this line to create a well-formed Fossil manifest.

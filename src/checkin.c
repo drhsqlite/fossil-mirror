@@ -2285,6 +2285,17 @@ static int tagCmp(const void *a, const void *b){
 }
 
 /*
+** SETTING: verify-comments            boolean default=on show-only-if-changed
+**
+** If enabled (the default) then the "fossil commit" command does sanity
+** checking on the checkin comment.  The sanity checks can be overridden
+** on a case by case basis using the --allow-suspect-comment option to
+** the "fossil commit" command.  If disabled, this setting makes every
+** "fossil commit" behave as if the --allow-suspect-comment option were
+** provided.
+*/
+
+/*
 ** Check for possible formatting errors in the comment string pComment.
 ** If found, write a description of the problem(s) into pSus and return
 ** true.  If everything looks ok, return false.
@@ -2297,6 +2308,7 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
   char cSave1;
   int nIssue = 0;
 
+  if( !db_get_boolean("verify-comments",1) ) return 0;
   z = zStart;
   blob_init(pSus, 0, 0);
   while( (z = strchr(z,'['))!=0 ){
