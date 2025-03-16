@@ -2329,7 +2329,7 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
     blob_appendf(pSus,
       "Possible comment formatting error%s:"
       "%b\n"
-      "Edit, continue or abort (E/c/a)? ",
+      "Edit, continue, or abort (E/c/a)? ",
       nIssue>1 ? "s" : "", &tmp);
     blob_reset(&tmp);
     return 1;
