@@ -6731,8 +6731,7 @@ static int seriesFilter(
         pCur->ss.iBase += ((d+szStep-1)/szStep)*szStep;
       }
       if( pCur->ss.iTerm>iMax ){
-        sqlite3_uint64 d = pCur->ss.iTerm - iMax;
-        pCur->ss.iTerm -= ((d+szStep-1)/szStep)*szStep;
+        pCur->ss.iTerm = iMax;
       }
     }else{
       sqlite3_int64 szStep = -pCur->ss.iStep;
@@ -6742,8 +6741,7 @@ static int seriesFilter(
         pCur->ss.iBase -= ((d+szStep-1)/szStep)*szStep;
       }
       if( pCur->ss.iTerm<iMin ){
-        sqlite3_uint64 d = iMin - pCur->ss.iTerm;
-        pCur->ss.iTerm += ((d+szStep-1)/szStep)*szStep;
+        pCur->ss.iTerm = iMin;
       }
     }
   }
@@ -18712,6 +18710,16 @@ int sqlite3_dbdata_init(sqlite3*, char**, const sqlite3_api_routines*);
 /* typedef unsigned char u8; */
 /* typedef sqlite3_int64 i64; */
 
+/*
+** Work around C99 "flex-array" syntax for pre-C99 compilers, so as
+** to avoid complaints from -fsanitize=strict-bounds.
+*/
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+# define FLEXARRAY
+#else
+# define FLEXARRAY 1
+#endif
+
 typedef struct RecoverTable RecoverTable;
 typedef struct RecoverColumn RecoverColumn;
 
@@ -18819,8 +18827,11 @@ struct RecoverColumn {
 typedef struct RecoverBitmap RecoverBitmap;
 struct RecoverBitmap {
   i64 nPg;                        /* Size of bitmap */
-  u32 aElem[1];                   /* Array of 32-bit bitmasks */
+  u32 aElem[FLEXARRAY];           /* Array of 32-bit bitmasks */
 };
+
+/* Size in bytes of a RecoverBitmap object sufficient to cover 32 pages */
+#define SZ_RECOVERBITMAP_32  (16)
 
 /*
 ** State variables (part of the sqlite3_recover structure) used while
@@ -19061,7 +19072,7 @@ static int recoverError(
 */
 static RecoverBitmap *recoverBitmapAlloc(sqlite3_recover *p, i64 nPg){
   int nElem = (nPg+1+31) / 32;
-  int nByte = sizeof(RecoverBitmap) + nElem*sizeof(u32);
+  int nByte = SZ_RECOVERBITMAP_32 + nElem*sizeof(u32);
   RecoverBitmap *pRet = (RecoverBitmap*)recoverMalloc(p, nByte);
 
   if( pRet ){
@@ -32465,7 +32476,7 @@ static int line_is_command_terminator(char *zLine){
 ** out of the build if compiling with SQLITE_OMIT_COMPLETE.
 */
 #ifdef SQLITE_OMIT_COMPLETE
-# error the CLI application is incompatable with SQLITE_OMIT_COMPLETE.
+# error the CLI application is incompatible with SQLITE_OMIT_COMPLETE.
 #endif
 
 /*
@@ -33665,6 +33676,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     ** the database filename.
     */
     for(i=0; i<nCmd; i++){
+      echo_group_input(&data, azCmd[i]);
       if( azCmd[i][0]=='.' ){
         rc = do_meta_command(azCmd[i], &data);
         if( rc ){
@@ -33673,7 +33685,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
         }
       }else{
         open_db(&data, 0);
-        echo_group_input(&data, azCmd[i]);
         rc = shell_exec(&data, azCmd[i], &zErrMsg);
         if( zErrMsg || rc ){
           if( zErrMsg!=0 ){
