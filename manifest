@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\stesting.
-D 2025-03-16T10:46:18.907
+C Verify\sthe\scheckin\scomment\sfor\s"fossil\scommit"\seven\sif\sprovide\sby\sthe\s-m\sor\nthe\s-M\soptions.\s\sAdd\sthe\s--allow-suspect-comment\sto\soverride\sthis\sstep.
+D 2025-03-16T18:06:31.919
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c b3b12af06bf8d6bd49079e0841013491b3630a67b77ddc76f18cd3b764fa9969
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
-F src/checkin.c 7f7f9e920645043e4a8c7f64f9f47008e4bc3fcc563664d6463eebaab431ba49
+F src/checkin.c 1502633256db88dded0ffbc631ee56d7a58533e71782d35213b5f20688cc5228
 F src/checkout.c 65424a6ea916d3722c98f64da61b95a646ef2a0bc798ad075500d0e5acdab474
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53b23ea28876e3d379988774d9a84f439cb42890c4ed2d5089a33ec639713b5e
-R d3b4108cf9042087d3ed80e95f971e94
+P 2a04c64f4733fcfa335da726bbc5da424dd1197a6f2217d43129eb475d9816ba
+R 22dc5264e3e52c9dc405a80968e75f78
 U drh
-Z 2d6cde1dd31534fc90ea88d34998dd1c
+Z 6e27818bdbd37a29a510af08ffb76b3d
 # Remove this line to create a well-formed Fossil manifest.

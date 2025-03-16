@@ -2298,6 +2298,7 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
   int nIssue = 0;
 
   z = zStart;
+  blob_init(pSus, 0, 0);
   while( (z = strchr(z,'['))!=0 ){
     zEnd = strchr(z,']');
     if( zEnd==0 ){
@@ -2327,9 +2328,7 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
     Blob tmp = *pSus;
     blob_init(pSus, 0, 0);
     blob_appendf(pSus,
-      "Possible comment formatting error%s:"
-      "%b\n"
-      "Edit, continue, or abort (E/c/a)? ",
+      "Possible comment formatting error%s:%b\n",
       nIssue>1 ? "s" : "", &tmp);
     blob_reset(&tmp);
     return 1;
@@ -2404,6 +2403,7 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
 **    --allow-empty              Allow a commit with no changes
 **    --allow-fork               Allow the commit to fork
 **    --allow-older              Allow a commit older than its ancestor
+**    --allow-suspect-comment    Allow checkin comments that might be misformed
 **    --baseline                 Use a baseline manifest in the commit process
 **    --bgcolor COLOR            Apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   Check in to this new branch
@@ -2474,6 +2474,7 @@ void commit_cmd(void){
   int onlyIfChanges = 0; /* No-op if there are no changes */
   int allowFork = 0;     /* Allow the commit to fork */
   int allowOlder = 0;    /* Allow a commit older than its ancestor */
+  int allowSusCom = 0;   /* Allow suspicious check-in comments */
   char *zManifestFile;   /* Name of the manifest file */
   int useCksum;          /* True if checksums should be computed and verified */
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
@@ -2529,6 +2530,7 @@ void commit_cmd(void){
   forceFlag = find_option("force", "f", 0)!=0;
   allowConflict = find_option("allow-conflict",0,0)!=0;
   allowEmpty = find_option("allow-empty",0,0)!=0;
+  allowSusCom = find_option("allow-suspect-comment",0,0)!=0;
   onlyIfChanges = find_option("if-changes",0,0)!=0;
   allowFork = find_option("allow-fork",0,0)!=0;
   if( find_option("override-lock",0,0)!=0 ) allowFork = 1;
@@ -2853,12 +2855,22 @@ void commit_cmd(void){
     ** to renew the check-in lock and repeat the checks for conflicts.
     */
     if( zComment ){
+      Blob sus;
       blob_zero(&comment);
       blob_append(&comment, zComment, -1);
+      if( !forceFlag && !allowSusCom && suspicious_comment(&comment, &sus) ){
+        fossil_fatal("%bCommit aborted; "
+                     "use --allow-suspect-comment to override", &sus);
+      }
     }else if( zComFile ){
+      Blob sus;
       blob_zero(&comment);
       blob_read_from_file(&comment, zComFile, ExtFILE);
       blob_to_utf8_no_bom(&comment, 1);
+      if( !forceFlag && !allowSusCom && suspicious_comment(&comment, &sus) ){
+        fossil_fatal("%bCommit aborted; "
+                     "use --allow-suspect-comment to override", &sus);
+      }
     }else if( !noPrompt ){
       while(  1/*exit-by-break*/ ){
         char *zInit;
@@ -2867,8 +2879,8 @@ void commit_cmd(void){
         zInit = db_text(0,"SELECT value FROM vvar WHERE name='ci-comment'");
         prepare_commit_comment(&comment, zInit, &sCiInfo, vid, dryRunFlag);
         db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
-        blob_init(&sus, 0, 0);
-        if( suspicious_comment(&comment,&sus) ){
+        if( !allowSusCom && suspicious_comment(&comment,&sus) ){
+          blob_appendf(&sus, "Edit, abort, or continue (E/a/c)? ");
           prompt_user(blob_str(&sus), &ans);
           cReply = blob_str(&ans)[0];
           blob_reset(&ans);
