@@ -1,5 +1,5 @@
-C Do\snot\sallow\sthe\s(undocumented)\s--debug\soption\sto\smess\sup\s--tk\soutput.
-D 2025-03-17T17:13:04.916
+C Add\sthe\s"Reload"\sbutton\sto\sthe\s--tk\sdiff\sviewer.
+D 2025-03-17T17:55:31.055
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -419,7 +419,7 @@ F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a6
 F src/descendants.c b89a755e53906d2ec2ea69573bd38a4c90baad7af2e48c13015a69b7637b03b2
 F src/diff.c 1f3a90edf3be51e052718b7f2f845ef1967df03874f6d82f47c58344f6cf6cf4
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
-F src/diff.tcl 13de57b40e6306411d06d62968f825b34f9ad0a2a59d2220d860e85a59212c51
+F src/diff.tcl f6e04df1bbaa41b1269e81b2ee410eacf0ed78cb8da3d3a51c40a2d1d44aacfa
 F src/diffcmd.c 293099fec0287409f4faed9324111391c460e79d657fb086198afe82549a8689
 F src/dispatch.c ed3f8b39d19aad310c6252feb40610a0393a016116ac91f3c59fe57a0799ddb3
 F src/doc.c f3dfc34c9023fbdf16488ea9de7622440881612145f92c934bf92122fc130907
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 721c43ba9268dfdcde5d439773a97e06895f3c0dcb3d38c5c43b5c83d0a7fe55
-R d897423ae14daafc39e4cdf2f6fb5240
+P d7cf189344086745e52dd1a33467bf602b3fe17d87239570009c5b4456ec2f12
+R ebfb251c2c1df031281390f2b34dd3e4
 U drh
-Z 1834fad0a41e80afd1cdad310a3433ef
+Z 807e1652b1503fb43387286712b04c94
 # Remove this line to create a well-formed Fossil manifest.
