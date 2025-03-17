@@ -694,6 +694,7 @@ const char *fossil_text_editor(void){
       i++;
     }
   }
+  if( zEditor && is_false(zEditor) ) zEditor = 0;
   return zEditor;
 }
 
