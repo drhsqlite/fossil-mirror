@@ -1,5 +1,5 @@
-C Make\ssure\sthe\sHTTP\sreally\swas\sa\sPOST\sbefore\slogging\sa\n"POST\sfrom\sdifferent\sorigin"\swarning.
-D 2025-03-17T18:40:58.400
+C Round\sISO\sdate/time\svalues\sthat\sare\snot\sspecified\sout\sto\sthe\slast\ssecond\sup\sto\nthe\slargest\svalue\sthat\sis\sstill\sconsistent\swith\sthe\ssupplied\sprefix,\sas\sthese\nvalues\sare\sused\sfor\ssearch\swith\s&lt;=.
+D 2025-03-17T21:37:51.481
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -506,7 +506,7 @@ F src/merge.c 1f8aadaa868b51906df6f7a2967abfe74b52e380dc00152ebfe194f5b2cef9bf
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c 495c8cb833cee1f3096f07f9044666870b635978ef72afd4ef1de28072165ff7
+F src/name.c 5042038531ee99ef004b8d98c46f9e437e38d35bfaf1e2c95f13146514498363
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 9c32dda651d83d15938ea17f11a19f3f36ebe0c1d6e37e5113cc11a492a74f77
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42d73f2aafeaf468e021eae2cb9f6fbc2ef7311b06fa0e055f98ac0651758235
-R 165068a33fc6c9e2d1b2f4ba10c72d8c
+P 2069259e583c533b7b63230c07bbae486b64ac3ea027aab6bfc15fb64ee608c7
+R 290902f5bac20745ca1fc29553f2efb3
 U drh
-Z 50646fa132ebeeb441571dec0fb515f7
+Z c3787396a49a15e22f0f657eccae39e2
 # Remove this line to create a well-formed Fossil manifest.

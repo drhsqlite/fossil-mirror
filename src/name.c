@@ -61,8 +61,14 @@ int fossil_isdate(const char *z){
 ** then return an alternative string (in static space) that is the same
 ** string with punctuation inserted.
 **
+** Assume the maximum allowed value for unspecified digits.  In other
+** words:  202503171234 -> 2025-03-17 12:34:59
+**                                          ^^---  Added seconds.
+** and: 20250317 -> 2025-03-17 23:59:59
+**                             ^^^^^^^^---  Added time.
+**
 ** If the bVerifyNotAHash flag is true, then a check is made to see if
-** the string is a hash prefix and NULL is returned if it is.  If the
+** the input string is a hash prefix and NULL is returned if it is.  If the
 ** bVerifyNotAHash flag is false, then the result is determined by syntax
 ** of the input string only, without reference to the artifact table.
 */
@@ -76,8 +82,8 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
   /* These forms are allowed:
   **
   **        123456789 1234           123456789 123456789
-  **   (1)  YYYYMMDD            =>   YYYY-MM-DD
-  **   (2)  YYYYMMDDHHMM        =>   YYYY-MM-DD HH:MM
+  **   (1)  YYYYMMDD            =>   YYYY-MM-DD 23:59:59
+  **   (2)  YYYYMMDDHHMM        =>   YYYY-MM-DD HH:MM:59
   **   (3)  YYYYMMDDHHMMSS      =>   YYYY-MM-DD HH:MM:SS
   **
   ** An optional "Z" zulu timezone designator is allowed at the end.
@@ -101,11 +107,14 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
     }
     zEDate[j++] = zIn[i];
   }
+  if( j==10 ){
+    memcpy(&zEDate[10], " 23:59:59", 9);
+    j += 9;
+  }else if( j==16 ){
+    memcpy(&zEDate[16], ":59",3);
+    j += 3;
+  }
   if( addZulu ){
-    if( j==10 ){
-      memcpy(&zEDate[10]," 00:00", 6);
-      j += 6;
-    }
     zEDate[j++] = 'Z';
   }
   zEDate[j] = 0;
