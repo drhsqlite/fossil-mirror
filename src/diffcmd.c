@@ -1167,21 +1167,29 @@ void diff_externbase_to_checkout(
 ** no external diff command is defined.
 */
 const char *diff_command_external(int guiDiff){
-  const char *zDefault;
+  const char *zResult;
   const char *zName;
 
-  if( guiDiff ){
+  zName = guiDiff ? "gdiff-command" : "diff-command";
+  zResult = db_get(zName, "");
+  if( zResult[0]==0 && guiDiff ){
+    static const char *azGuiDiff[] = {
 #if defined(_WIN32)
-    zDefault = "WinDiff.exe";
+      "winmergeu", "meld", "kdiff3", "bcompare", "vimdiff", "examdiff"
 #else
-    zDefault = 0;
+      "meld", "kdiff3"
 #endif
-    zName = "gdiff-command";
-  }else{
-    zDefault = 0;
-    zName = "diff-command";
+    };
+    int i;
+    zResult = 0;
+    for(i=0; i<count(azGuiDiff); i++){
+      if( fossil_app_on_path(azGuiDiff[i], 0) ){
+        zResult = azGuiDiff[i];
+        break;
+      }
+    }
   }
-  return db_get(zName, zDefault);
+  return zResult;
 }
 
 /*
