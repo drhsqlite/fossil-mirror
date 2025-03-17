@@ -1,5 +1,5 @@
-C Add\sthe\s"Reload"\sbutton\sto\sthe\s--tk\sdiff\sviewer.
-D 2025-03-17T17:55:31.055
+C Updates\sto\sthe\schange\slog.
+D 2025-03-17T18:30:11.275
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -789,7 +789,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 0d8ae1d55db302a98d95da41ac75de4dcc665b66262e1873b5a3e6bcabf213d0
-F www/changes.wiki 64c01fd3283c86323e751e1b298d9f73183175a1fdbbf3338ba0a0c3618ef56f
+F www/changes.wiki 2477730cb3f8ae550075bd2f03bfbe55c997937d3f5269c9f8cd1cc76cd0a482
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d7cf189344086745e52dd1a33467bf602b3fe17d87239570009c5b4456ec2f12
-R ebfb251c2c1df031281390f2b34dd3e4
+P 37407fe616ce198acb9cbbb54c34649138919e5bfbbb8a606c14a437e0fc300c
+R cfab0040bad7872bb533b8f6998485d8
 U drh
-Z 807e1652b1503fb43387286712b04c94
+Z 186f723cb17c670c3ef7f322b80f2e8e
 # Remove this line to create a well-formed Fossil manifest.

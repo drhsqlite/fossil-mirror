@@ -2,22 +2,32 @@
 
 <h2 id='v2_26'>Changes for version 2.26 (pending)</h2>
 
-  *  Enhanced the --from option on "[/help?cmd=diff|fossil diff]" so that
-     it optionally accepts a directory name as its argument, and uses files
-     under that directory as the baseline for the diff.
+  *  Enhancements to [/help?cmd=diff|fossil diff] and similar:
+     <ol type="a">
+     <li> The --from can optionally accepts a directory name as its argument,
+          and uses files under that directory as the baseline for the diff.
+     <li> For "gdiff", if no [/help?cmd=gdiff-command|gdiff-command setting]
+          is defined, Fossil tries to do a --tk diff if "tclsh" and "wish"
+          are available, or a --by diff if not.
+     <li> The "Reload" button is added to --tk diffs, to bring the displayed
+          diff up to date with the latest changes on disk.
+     <li> Add the "Hide diffs/Show diffs" toggle to web-UI diff pages that show
+          diffs of multiple files.
+     </ol>
   *  Added the [/help?cmd=/ckout|/ckout web page] to provide information
      about pending changes in a working check-out
   *  The [/help?cmd=ui|fossil ui] command defaults to using the
      [/help?cmd=/ckout|/ckout page] as its start page.  Or, if the
      "--from PATH" option is present, the default start page becomes
      "/ckout?exbase=PATH".
-  *  Added the [/help?cmd=merge-info|fossil merge-info] command and especially
-     the --tk option to that command, to provide analysis of the most recent
-     merge or update operation.
-  *  When a merge conflict occurs, a new section is added to the conflict
-     text that shows Fossil's suggested resolution to the conflict.
-  *  Add the "Hide diffs/Show diffs" toggle to web-UI diff pages that show
-     diffs of multiple files.
+  *  Enhancements to [/help?cmd=merge|fossil merge]:
+     <ol type="a">
+     <li> Added the [/help?cmd=merge-info|fossil merge-info] command and especially
+          the --tk option to that command, to provide analysis of the most recent
+          merge or update operation.
+     <li> When a merge conflict occurs, a new section is added to the conflict
+          text that shows Fossil's suggested resolution to the conflict.
+     </ol>
   *  Enhancements to [/help?cmd=commit|fossil commit]:
      <ol type="a">
      <li> If Fossil sees potential formatting mistakes (bad hyperlinks)
