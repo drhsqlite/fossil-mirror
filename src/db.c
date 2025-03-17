@@ -4846,7 +4846,8 @@ struct Setting {
 /*
 ** SETTING: gdiff-command    width=40 sensitive
 ** The value is an external command to run when performing a graphical
-** diff. If undefined, text diff will be used.
+** diff. If undefined, a --tk diff is done if commands "tclsh" and "wish"
+** are on PATH, or a --by diff is done if "tclsh" or "wish" are unavailable.
 */
 /*
 ** SETTING: gmerge-command   width=40 sensitive
