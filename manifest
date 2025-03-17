@@ -1,5 +1,5 @@
-C Write\sfailed\sattempts\sto\sPOST\sfrom\sa\sdifferent\sorigin\sinto\sthe\serror\slog.\nAdd\sa\snew\scategory\sto\sthe\serror\slog\sfilter\sfor\ssuch\smessages.
-D 2025-03-17T13:16:58.912
+C Fix\sthe\s"All\sMessages"\slink\son\sthe\ssummary\stable\sfor\sthe\s/errorlog\spage.
+D 2025-03-17T13:25:18.198
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -525,7 +525,7 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 99223dc1a49a6e8435925ae0ff15efe6e2c09dd171bc5239e69c3cbcb94d4a4d
-F src/security_audit.c 11f69dba32ceae07c67ec16a0266d98d59b38fe165d52e5384067318253311a2
+F src/security_audit.c 0823c9d9c9011a750485454675f40d77b945116dd6e30d0d635722b1cceebd53
 F src/setup.c c457307a81d927f4549e068c4cfaa6491144fea36d3f95eb818f3d18b366dc4d
 F src/setupuser.c b707636bb05076e31a4ce1dae949b7f24b8cc2fc553857b6217d89e3847ae853
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3046c5e9609b5a8810d067b2a795572d66442ab4f362ef42fa5ac8bfc5120063
-R 488fcee2ae062f5260d87339a14efa4f
+P 2269ac697f5b06117c94de896f0b6adf852485fd463af7e08c37ec3fd6751319
+R 0ee997012ec1689580c1e23ecdf2bc2c
 U drh
-Z 521312165e7b4c75edbe5bb52277287d
+Z aaa1e057b31a50d9317116bceff6d36d
 # Remove this line to create a well-formed Fossil manifest.

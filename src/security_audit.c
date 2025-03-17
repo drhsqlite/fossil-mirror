@@ -989,7 +989,7 @@ void errorlog_page(void){
     }
     @ <tr><td align="right">%d(nTotal)</td>
     if( nTotal>0 ){
-      @     <td><a href="./errorlog">All Messages</a></td>
+      @     <td><a href="./errorlog?y=255">All Messages</a></td>
     }else{
       @     <td>All Messages</td>
     }
