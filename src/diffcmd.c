@@ -1195,6 +1195,27 @@ const char *diff_command_external(int guiDiff){
 }
 
 /*
+** Return true if it reasonable to run "diff -tk" for "gdiff".
+**
+** Details: Return true if all of the following are true:
+**
+**     (1)   The isGDiff flags is true
+**     (2)   The "gdiff-command" setting is undefined
+**     (3)   There is a "tclsh" on PATH
+**     (4)   There is a "wish" on PATH
+*/
+int gdiff_using_tk(int isGdiff){
+  if( isGdiff
+   && db_get("gdiff-command","")[0]==0
+   && fossil_app_on_path("tclsh",0)
+   && fossil_app_on_path("wish",0)
+  ){
+    return 1;
+  }
+  return 0;
+}
+
+/*
 ** Show diff output in a Tcl/Tk window, in response to the --tk option
 ** to the diff command.
 **
@@ -1294,7 +1315,8 @@ const char *diff_get_binary_glob(void){
 ** Show the difference between the current version of each of the FILEs
 ** specified (as they exist on disk) and that same file as it was checked-
 ** out.  Or if the FILE arguments are omitted, show all unsaved changes
-** currently in the working check-out.
+** currently in the working check-out.  The "gdiff" variant means to
+** to use a GUI diff.
 **
 ** The default output format is a "unified patch" (the same as the
 ** output of "diff -u" on most unix systems).  Many alternative formats
@@ -1388,11 +1410,11 @@ void diff_cmd(void){
   DiffConfig DCfg;           /* Diff configuration object */
   int bFromIsDir = 0;        /* True if zFrom is a directory name */
 
-  if( find_option("tk",0,0)!=0 || has_option("tclsh") ){
+  isGDiff = g.argv[1][0]=='g';
+  if( find_option("tk",0,0)!=0|| has_option("tclsh") ){
     diff_tk("diff", 2);
     return;
   }
-  isGDiff = g.argv[1][0]=='g';
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
   zCheckin = find_option("checkin", "ci", 1);
@@ -1408,6 +1430,7 @@ void diff_cmd(void){
     }
     zTo = zBranch;
     zFrom = mprintf("root:%s", zBranch);
+    zBranch = 0;
   }
   if( zCheckin!=0 && (zFrom!=0 || zTo!=0) ){
     fossil_fatal("cannot use --checkin together with --from or --to");
@@ -1422,6 +1445,15 @@ void diff_cmd(void){
     }
   }else{
     db_find_and_open_repository(0, 0);
+  }
+  if( gdiff_using_tk(isGDiff) ){
+    restore_option("--from", zFrom, 1);
+    restore_option("--to", zTo, 1);
+    restore_option("--checkin", zCheckin, 1);
+    restore_option("--branch", zBranch, 1);
+    if( againstUndo ) restore_option("--undo", 0, 0);
+    diff_tk("diff", 2);
+    return;
   }
   determine_exec_relative_option(1);
   if( zFrom!=file_tail(zFrom)

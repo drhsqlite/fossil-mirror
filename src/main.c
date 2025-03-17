@@ -1000,11 +1000,8 @@ void usage(const char *zFormat){
 ** Remove n elements from g.argv beginning with the i-th element.
 */
 static void remove_from_argv(int i, int n){
-  int j;
-  for(j=i+n; j<g.argc; i++, j++){
-    g.argv[i] = g.argv[j];
-  }
-  g.argc = i;
+  memmove(&g.argv[i], &g.argv[i+n], sizeof(g.argv[i])*(g.argc-i-n));
+  g.argc -= n;
 }
 
 
@@ -1066,6 +1063,15 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
     }
   }
   return zReturn;
+}
+
+/*
+** Restore an option previously removed by find_option().
+*/
+void restore_option(const char *zName, const char *zValue, int hasOpt){
+  if( zValue==0 && hasOpt ) return;
+  g.argv[g.argc++] = (char*)zName;
+  if( hasOpt ) g.argv[g.argc++] = (char*)zValue;
 }
 
 /* Return true if zOption exists in the command-line arguments,

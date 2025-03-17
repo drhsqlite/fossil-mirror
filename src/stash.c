@@ -758,7 +758,7 @@ void stash_cmd(void){
     if( strstr(zCmd,"show")!=0 || strstr(zCmd,"cat")!=0 ){
       fBaseline = 1;
     }
-    if( find_option("tk",0,0)!=0 ){
+    if( find_option("tk",0,0)!=0 || gdiff_using_tk(zCmd[0]=='g') ){
       db_close(0);
       diff_tk(fBaseline ? "stash show" : "stash diff", 3);
       return;
