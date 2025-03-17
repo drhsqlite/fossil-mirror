@@ -824,7 +824,6 @@ void errorlog_page(void){
   i64 szFile;
   FILE *in;
   char *zLog;
-  int hasType = 0;
   const char *zType = P("y");
   static const int eAllTypes = 0x47;
   long eType = 0;
