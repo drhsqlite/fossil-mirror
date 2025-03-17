@@ -1,5 +1,5 @@
-C When\san\sexternal\sdiff\sfails\swith\snon-0\sfossil_system(),\semit\sa\swarning\swhich\sshows\sthe\sexternal\scommand\sit\stried\sto\sinvoke.\sThis\saddressed\s[forum:4bad60805bfb2397|forum\spost\s4bad60805bfb2397].
-D 2025-03-17T12:21:00.284
+C Fix\sthe\scgi_same_origin()\sroutine\sso\sthat\sit\sis\sable\sto\sdeal\swith\sHTTP-encoded\nREFERER\sstrings\sin\sthe\srequest\sheader.\s\sProbable\sfix\sfor\sthe\sproblem\nreported\sat\s[forum:/forumpost/dc5baee6085eb590|forum\spost\sdc5baee6085].
+D 2025-03-17T12:46:48.871
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 4d57c42e51e0e61cc864d0e9b4e29d5b83f91e9e30fcb00d2027ccc0a736b2ef
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c b3b12af06bf8d6bd49079e0841013491b3630a67b77ddc76f18cd3b764fa9969
+F src/cgi.c 06dbdddf35be57913c184504577f7ad5c5da1afae7aed7d3d415d10a1443aaaa
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
 F src/checkin.c 978060a0842e869993157cf678f751a8cfb8cf247f44ba50fe71c4b074fb54ff
 F src/checkout.c 65424a6ea916d3722c98f64da61b95a646ef2a0bc798ad075500d0e5acdab474
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c94da9d824b523b5cfaca90a48371dc27658dec1b73a142ba525672001434041
-R b226bfebbaa673945552534b95fe9196
-U stephan
-Z 77340c8a059067b6631a964872d22732
+P 45da184c1b7d6b6c968e1530779b94762dbdf21540e41189dc3e96f4350a7d65
+R 397c58ebbce5866f94ce20f601bbf836
+U drh
+Z 3624f8c1760087bdd8500296629291cd
 # Remove this line to create a well-formed Fossil manifest.

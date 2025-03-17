@@ -693,14 +693,27 @@ const char *cgi_referer(const char *zDefault){
 */
 int cgi_same_origin(void){
   const char *zRef;
+  char *zToFree = 0;
   int nBase;
+  int rc;
   if( g.zBaseURL==0 ) return 0;
   zRef = P("HTTP_REFERER");
   if( zRef==0 ) return 0;
+  if( strchr(zRef,'%')!=0 ){
+    zToFree = strdup(zRef);
+    dehttpize(zToFree);
+    zRef = zToFree;
+  }
   nBase = (int)strlen(g.zBaseURL);
-  if( fossil_strncmp(g.zBaseURL,zRef,nBase)!=0 ) return 0;
-  if( zRef[nBase]!=0 && zRef[nBase]!='/' ) return 0;
-  return 1;
+  if( fossil_strncmp(g.zBaseURL,zRef,nBase)!=0 ){
+    rc = 0;
+  }else if( zRef[nBase]!=0 && zRef[nBase]!='/' ){
+    rc = 0;
+  }else{
+    rc = 1;
+  }
+  fossil_free(zToFree);
+  return rc;
 }
 
 /*
