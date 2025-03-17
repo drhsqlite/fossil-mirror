@@ -815,6 +815,7 @@ static void no_error_log_available(void){
 **    y=0x01          Show only hack attempts
 **    y=0x02          Show only panics and assertion faults
 **    y=0x04          Show hung backoffice processes
+**    y=0x08          Show POST requests from a different origin
 **    y=0x40          Show other uncategorized messages
 **
 ** If y is omitted or is zero, a count of the various message types is
@@ -825,7 +826,7 @@ void errorlog_page(void){
   FILE *in;
   char *zLog;
   const char *zType = P("y");
-  static const int eAllTypes = 0x47;
+  static const int eAllTypes = 0x4f;
   long eType = 0;
   int bOutput = 0;
   int prevWasTime = 0;
@@ -833,6 +834,7 @@ void errorlog_page(void){
   int nPanic = 0;
   int nOther = 0;
   int nHang = 0;
+  int nXPost = 0;
   char z[10000];
   char zTime[10000];
 
@@ -903,6 +905,9 @@ void errorlog_page(void){
     if( eType & 0x04 ){
       @ <li>Hung backoffice processes
     }
+    if( eType & 0x08 ){
+      @ <li>POST requests from different origin
+    }
     if( eType & 0x40 ){
       @ <li>Other uncategorized messages
     }
@@ -925,7 +930,12 @@ void errorlog_page(void){
       if( sqlite3_strglob("warning: backoffice process * still *",z)==0 ){
         bOutput = (eType & 0x04)!=0;
         nHang++;
-      }else{
+      }else
+      if( sqlite3_strglob("warning: POST from different origin*",z)==0 ){
+        bOutput = (eType & 0x08)!=0;
+        nXPost++;
+      }else
+      {
         bOutput = (eType & 0x40)!=0;
         nOther++;
       }
@@ -950,36 +960,32 @@ void errorlog_page(void){
     @ </pre>
   }
   if( eType==0 ){
-    int nNonHack = nPanic+nHang+nOther;
-    int nTotal = nNonHack + nHack;
+    int nNonHack = nPanic + nHang + nOther;
+    int nTotal = nNonHack + nHack + nXPost;
     @ <p><table border="a" cellspacing="0" cellpadding="5">
-    @ <tr><td align="right">%d(nPanic)</td>
     if( nPanic>0 ){
+      @ <tr><td align="right">%d(nPanic)</td>
       @     <td><a href="./errorlog?y=2">Panics</a></td>
-    } else {
-      @     <td>Panics</td>
     }
-    @ <tr><td align="right">%d(nHack)</td>
     if( nHack>0 ){
+      @ <tr><td align="right">%d(nHack)</td>
       @     <td><a href="./errorlog?y=1">Hack Attempts</a></td>
-      if( nNonHack ){
-        @ <tr><td align="right">%d(nNonHack)</td>
-        @ <td><a href="%R/errorlog?y=70">Other than hack attempts</a></td>
-      }
-    }else{
-      @     <td>Hack Attempts</td>
     }
-    @ <tr><td align="right">%d(nHang)</td>
     if( nHang>0 ){
+      @ <tr><td align="right">%d(nHang)</td>
       @     <td><a href="./errorlog?y=4/">Hung Backoffice</a></td>
-    }else{
-      @     <td>Hung Backoffice</td>
     }
-    @ <tr><td align="right">%d(nHang)</td>
+    if( nXPost>0 ){
+      @ <tr><td align="right">%d(nXPost)</td>
+      @     <td><a href="./errorlog?y=8/">POSTs from different origin</a></td>
+    }
     if( nOther>0 ){
+      @ <tr><td align="right">%d(nOther)</td>
       @     <td><a href="./errorlog?y=64/">Other</a></td>
-    }else{
-      @     <td>Other</td>
+    }
+    if( nHack+nXPost>0 && nNonHack>0 ){
+      @ <tr><td align="right">%d(nNonHack)</td>
+      @ <td><a href="%R/errorlog?y=70">Other than hack attempts</a></td>
     }
     @ <tr><td align="right">%d(nTotal)</td>
     if( nTotal>0 ){

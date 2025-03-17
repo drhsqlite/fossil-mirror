@@ -2163,7 +2163,7 @@ static void process_one_web_page(
 #endif
     if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
       cgi_decode_post_parameters();
-      if( !cgi_same_origin() ){
+      if( !cgi_same_origin(0) ){
         isReadonly = 1;
         db_protect(PROTECT_READONLY);
       }
