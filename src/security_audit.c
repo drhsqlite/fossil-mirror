@@ -982,7 +982,11 @@ void errorlog_page(void){
       @     <td>Other</td>
     }
     @ <tr><td align="right">%d(nTotal)</td>
-    @     <td><a href="./errorlog">All Messages</a></td>
+    if( nTotal>0 ){
+      @     <td><a href="./errorlog">All Messages</a></td>
+    }else{
+      @     <td>All Messages</td>
+    }
     @ </table>
   }
   style_finish_page();

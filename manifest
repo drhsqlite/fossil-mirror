@@ -1,5 +1,5 @@
-C Remove\san\sunused\svariable\sin\sthe\sprevious\scheck-in.
-D 2025-03-17T11:40:02.162
+C Do\snot\shyperlink\sthe\s"All\sMessages"\sentry\sin\sthe\slog\ssummary\sif\sthere\sare\nno\serror\slog\smessages.
+D 2025-03-17T11:42:46.272
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -525,7 +525,7 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 99223dc1a49a6e8435925ae0ff15efe6e2c09dd171bc5239e69c3cbcb94d4a4d
-F src/security_audit.c 3d08dab5228b920338807cf34d45c4b72b74489d5900c377e1e5cdfe598edfeb
+F src/security_audit.c 69044cb0dcded83128d10a3a534ce830a4d519dbcc98f8fa260bbb281d56987f
 F src/setup.c c457307a81d927f4549e068c4cfaa6491144fea36d3f95eb818f3d18b366dc4d
 F src/setupuser.c b707636bb05076e31a4ce1dae949b7f24b8cc2fc553857b6217d89e3847ae853
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2304fb87ac93f4fc700f25722454e4d9dbebd56b78f61be2ea9b9dc35847e633
-R d0160188198b74118965a6e4594aa03e
+P d23912f089748de6dd4ac86b971c9f82c1eb86fb7df76154b18a34eacf768d15
+R 0026ce375318d7b80ea92c741f18987b
 U drh
-Z 10e77c5d6160df123699a7de576d4a74
+Z 5790d864fedab0dcbf665ac50ec55a55
 # Remove this line to create a well-formed Fossil manifest.
