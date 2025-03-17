@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.
-D 2025-03-17T18:30:11.275
+C Make\ssure\sthe\sHTTP\sreally\swas\sa\sPOST\sbefore\slogging\sa\n"POST\sfrom\sdifferent\sorigin"\swarning.
+D 2025-03-17T18:40:58.400
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 4d57c42e51e0e61cc864d0e9b4e29d5b83f91e9e30fcb00d2027ccc0a736b2ef
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c 2933fbfa0e6381997385afe053e9a17d1c8d86a4e917817056e70ae4c5eef81d
+F src/cgi.c 7cc9486dfa224c69e7cfe0b86c966f3a647dd1a617ec763fe810044b7430f0ed
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
 F src/checkin.c 978060a0842e869993157cf678f751a8cfb8cf247f44ba50fe71c4b074fb54ff
 F src/checkout.c 65424a6ea916d3722c98f64da61b95a646ef2a0bc798ad075500d0e5acdab474
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37407fe616ce198acb9cbbb54c34649138919e5bfbbb8a606c14a437e0fc300c
-R cfab0040bad7872bb533b8f6998485d8
+P 42d73f2aafeaf468e021eae2cb9f6fbc2ef7311b06fa0e055f98ac0651758235
+R 165068a33fc6c9e2d1b2f4ba10c72d8c
 U drh
-Z 186f723cb17c670c3ef7f322b80f2e8e
+Z 50646fa132ebeeb441571dec0fb515f7
 # Remove this line to create a well-formed Fossil manifest.

@@ -716,7 +716,7 @@ int cgi_same_origin(int bErrorLog){
   }else{
     rc = 1;
   }
-  if( rc==0 && bErrorLog ){
+  if( rc==0 && bErrorLog && fossil_strcmp(P("REQUST_METHOD"),"POST")==0 ){
     fossil_errorlog("warning: POST from different origin");
   }
   fossil_free(zToFree);
