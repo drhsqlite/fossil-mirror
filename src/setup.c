@@ -266,26 +266,6 @@ void setup_logmenu_page(void){
   setup_menu_entry("Error Log", bErrLog ? "errorlog" : 0, blob_str(&desc));
   blob_reset(&desc);
 
-  @ <tr><td><td><td>
-  @ &mdash;&mdash;
-  @ <i>The remaining links are subsets of the Error Log</i>
-  @ &mdash;&mdash;
-  @ </td>  
-
-  setup_menu_entry("Error Summary", bErrLog ? "logsummary" : 0,
-    "Counts of the various message types seen in the Error Log.\n"
-  );
-  setup_menu_entry("Panic Log", bErrLog ? "paniclog" : 0,
-    "Only the most important messages in the Error Log:\n"
-    "assertion faults, segmentation faults, and similar malfunctions.\n"
-  );
-  setup_menu_entry("Hack Log", bErrLog ? "hacklog" : 0,
-    "All code-418 hack attempts in the Error Log"
-  );
-  setup_menu_entry("Non-Hack Log", bErrLog ? "hacklog?not" : 0,
-    "All log messages that are not code-418 hack attempts"
-  );
-
   @ </table>
   style_finish_page();
 }
