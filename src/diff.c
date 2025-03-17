@@ -3339,6 +3339,10 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
       }else if( db_get_boolean("diff-binary", 1) ){
         diffFlags |= DIFF_INCBINARY;
       }
+    }else if( isGDiff) {
+      /* No external gdiff command found, using --by */
+      diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER
+                     |DIFF_SIDEBYSIDE;
     }
   }
   if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;

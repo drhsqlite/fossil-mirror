@@ -1,5 +1,5 @@
-C If\sthe\sgdiff-command\ssetting\sis\sundefined\sand\sif\s"tclsh"\sand\s"wish"\sare\son\nPATH,\sthen\sthe\svarious\s"gdiff"\scommands\salways\stry\sto\suse\s--tk\sas\sthe\ngraphical\sdiff,\srather\sthan\ssearching\sfor\san\sexternal\sdiff\sprogram.
-D 2025-03-17T16:31:15.241
+C Backout\sthe\sprior\schange\sthat\shunts\sfor\sthird-party\sapps\sto\suse\sfor\sgdiff\nif\sthe\sgdiff-command\ssetting\sis\sundefined.\s\sInstead,\sfirst\stry\sto\suse\sthe\s--tk\noption,\sand\sif\sthat\sdoesn't\swork\suse\sthe\s--by\soption.
+D 2025-03-17T16:41:31.672
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,16 +411,16 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 9d345b201429cc61ba66c10b46763bbd46b111880d97d2d8f9a6c8e082314b08
+F src/db.c 1f3d55e8135b599a568d8b2109703ce3ad217c856f268fb586abb699694ebf46
 F src/default.css 94743facfa876f5c35f2974f9e356e8a47587e2292e98c41063785699d51ae4f
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c b89a755e53906d2ec2ea69573bd38a4c90baad7af2e48c13015a69b7637b03b2
-F src/diff.c 5fd5395fce78609d66fe47447a314319d3818b3c93dc1b1f2732457f2827c989
+F src/diff.c 1f3a90edf3be51e052718b7f2f845ef1967df03874f6d82f47c58344f6cf6cf4
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
-F src/diffcmd.c a3e6e0a0a0c5eb353c39487a926152d7c35febed1488b6cd7e048fe6dcb842f0
+F src/diffcmd.c a265315e9d6a69e0ea7b34978caef675217d65f81ba0f64fc8900653939ababa
 F src/dispatch.c ed3f8b39d19aad310c6252feb40610a0393a016116ac91f3c59fe57a0799ddb3
 F src/doc.c f3dfc34c9023fbdf16488ea9de7622440881612145f92c934bf92122fc130907
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
@@ -968,8 +968,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 766380a9d6e6d29f2844f6d1b666585fb794fb19208c36a74ea0d4efe9123045
-R 235adb56fbe27008ce0f2747eba62832
+P 5bec7a698eb110ef490671d652c1953e0f07b7c77e0d84a3df5e759b78afde75
+Q -954fb421e16ea89e8cdd6154b8a2769a602bcefae9aa5fa876579c27c65d3431
+R 8968e466710129ef1bd3827547454cef
 U drh
-Z cde014025ba8c83979b9ba18403f4d69
+Z e50819f171058f3c3c388e452818a211
 # Remove this line to create a well-formed Fossil manifest.

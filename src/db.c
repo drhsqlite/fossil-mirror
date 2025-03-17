@@ -4844,7 +4844,7 @@ struct Setting {
 ** manifest.
 */
 /*
-** SETTING: gdiff-command    width=40 default=gdiff sensitive
+** SETTING: gdiff-command    width=40 sensitive
 ** The value is an external command to run when performing a graphical
 ** diff. If undefined, text diff will be used.
 */
