@@ -99,10 +99,15 @@ proc readDiffs {fossilcmd} {
       puts "# [list open $fossilcmd r]"
       flush stdout
     }
-    set in [open $fossilcmd r]
-    fconfigure $in -encoding utf-8
-    set difftxt [split [read $in] \n]
-    close $in
+    if {[catch {
+      set in [open $fossilcmd r]
+      fconfigure $in -encoding utf-8
+      set difftxt [split [read $in] \n]
+      close $in
+    } msg]} {
+      puts $msg
+      exit 1
+    }
   }
   set N [llength $difftxt]
   set ii 0

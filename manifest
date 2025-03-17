@@ -1,5 +1,5 @@
-C Backout\sthe\sprior\schange\sthat\shunts\sfor\sthird-party\sapps\sto\suse\sfor\sgdiff\nif\sthe\sgdiff-command\ssetting\sis\sundefined.\s\sInstead,\sfirst\stry\sto\suse\sthe\s--tk\noption,\sand\sif\sthat\sdoesn't\swork\suse\sthe\s--by\soption.
-D 2025-03-17T16:41:31.672
+C Improved\serror\smessage\swhen\s--tk\sfails.
+D 2025-03-17T16:53:17.953
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -419,7 +419,7 @@ F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a6
 F src/descendants.c b89a755e53906d2ec2ea69573bd38a4c90baad7af2e48c13015a69b7637b03b2
 F src/diff.c 1f3a90edf3be51e052718b7f2f845ef1967df03874f6d82f47c58344f6cf6cf4
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
-F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
+F src/diff.tcl 13de57b40e6306411d06d62968f825b34f9ad0a2a59d2220d860e85a59212c51
 F src/diffcmd.c a265315e9d6a69e0ea7b34978caef675217d65f81ba0f64fc8900653939ababa
 F src/dispatch.c ed3f8b39d19aad310c6252feb40610a0393a016116ac91f3c59fe57a0799ddb3
 F src/doc.c f3dfc34c9023fbdf16488ea9de7622440881612145f92c934bf92122fc130907
@@ -507,7 +507,7 @@ F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 495c8cb833cee1f3096f07f9044666870b635978ef72afd4ef1de28072165ff7
-F src/patch.c 15ec309eb8d297a24e1fabf327cee92e7498a08f0bf6db70f5c84138b8a8c4de
+F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 9c32dda651d83d15938ea17f11a19f3f36ebe0c1d6e37e5113cc11a492a74f77
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a83c
@@ -968,9 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5bec7a698eb110ef490671d652c1953e0f07b7c77e0d84a3df5e759b78afde75
-Q -954fb421e16ea89e8cdd6154b8a2769a602bcefae9aa5fa876579c27c65d3431
-R 8968e466710129ef1bd3827547454cef
+P 8c4c93b215df5c934e334da745f0f043347008b1ec755119bb5ed8cd6a73e8a5
+R abf480eb06bb3f98701076c465796e5f
 U drh
-Z e50819f171058f3c3c388e452818a211
+Z c8311a0b77c9a5b7f870ceb573342e07
 # Remove this line to create a well-formed Fossil manifest.

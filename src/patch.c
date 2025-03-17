@@ -1131,7 +1131,7 @@ void patch_cmd(void){
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     diff_options(&DCfg, zCmd[0]=='g', 0);
     verify_all_options();
-    zIn = patch_find_patch_filename("apply");
+    zIn = patch_find_patch_filename("diff");
     patch_attach(zIn, stdin, 0);
     patch_diff(flags, &DCfg);
     fossil_free(zIn);
