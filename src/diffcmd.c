@@ -1172,20 +1172,22 @@ const char *diff_command_external(int guiDiff){
 
   zName = guiDiff ? "gdiff-command" : "diff-command";
   zResult = db_get(zName, "");
-  if( zResult[0]==0 && guiDiff ){
-    static const char *azGuiDiff[] = {
-#if defined(_WIN32)
-      "winmergeu", "meld", "kdiff3", "bcompare", "vimdiff", "examdiff"
-#else
-      "meld", "kdiff3"
-#endif
-    };
-    int i;
+  if( zResult[0]==0 ){
     zResult = 0;
-    for(i=0; i<count(azGuiDiff); i++){
-      if( fossil_app_on_path(azGuiDiff[i], 0) ){
-        zResult = azGuiDiff[i];
-        break;
+    if( guiDiff ){
+      static const char *azGuiDiff[] = {
+#if defined(_WIN32)
+        "winmergeu", "meld", "kdiff3", "bcompare", "vimdiff", "examdiff"
+#else
+        "meld", "kdiff3"
+#endif
+      };
+      int i;
+      for(i=0; i<count(azGuiDiff); i++){
+        if( fossil_app_on_path(azGuiDiff[i], 0) ){
+          zResult = azGuiDiff[i];
+          break;
+        }
       }
     }
   }
