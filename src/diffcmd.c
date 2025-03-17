@@ -1212,6 +1212,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   const char *zTclsh;
   int bDebug = find_option("tkdebug",0,0)!=0;
   int bDarkMode = find_option("dark",0,0)!=0;
+  (void)find_option("debug",0,0);
   blob_zero(&script);
   /* Caution:  When this routine is called from the merge-info command,
   ** the --tcl argument requires an argument.  But merge-info does not
