@@ -4786,6 +4786,14 @@ struct Setting {
 ** SETTING: editor          width=32 sensitive
 ** The value is an external command that will launch the
 ** text editor command used for check-in comments.
+**
+** If this value is not set, then environment variables VISUAL and
+** EDITOR are consulted, in that order.  If neither of those are set,
+** then a search is made for common text editors, including
+** "notepad", "nano", "pico", "edit", "vi", "vim", and "ed".
+**
+** If this setting is false ("off", "no", "false", or "0") then no
+** text editor is used.
 */
 /*
 ** SETTING: empty-dirs      width=40 versionable block-text
