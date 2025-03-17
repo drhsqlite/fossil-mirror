@@ -1,5 +1,5 @@
-C Improved\shelp\stext\sfor\sthe\s"editor"\ssetting.
-D 2025-03-17T12:13:15.775
+C When\san\sexternal\sdiff\sfails\swith\snon-0\sfossil_system(),\semit\sa\swarning\swhich\sshows\sthe\sexternal\scommand\sit\stried\sto\sinvoke.\sThis\saddressed\s[forum:4bad60805bfb2397|forum\spost\s4bad60805bfb2397].
+D 2025-03-17T12:21:00.284
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -420,7 +420,7 @@ F src/descendants.c b89a755e53906d2ec2ea69573bd38a4c90baad7af2e48c13015a69b7637b
 F src/diff.c 5fd5395fce78609d66fe47447a314319d3818b3c93dc1b1f2732457f2827c989
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 6e03227bf01797418f1887e642096c47154988378d5210c85e6c5fac31b48445
-F src/diffcmd.c 321901d1ebc74b55882b64d2cbbef4bda82fa240340b9e4339f63c6923c40c96
+F src/diffcmd.c cef3a74f5cce36a0cc5b74b6568bb2b156daaa515e329d4d1c18fa64da4e6738
 F src/dispatch.c ed3f8b39d19aad310c6252feb40610a0393a016116ac91f3c59fe57a0799ddb3
 F src/doc.c f3dfc34c9023fbdf16488ea9de7622440881612145f92c934bf92122fc130907
 F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd03acbde25ad08c439c272c37b5712169990169782e6876405a5f0c718cd74c
-R df7fa6b2c41faaa59ce29a7d76da7e68
-U drh
-Z ac4f7ce7f759d1bb8a71b345fde6acc5
+P c94da9d824b523b5cfaca90a48371dc27658dec1b73a142ba525672001434041
+R b226bfebbaa673945552534b95fe9196
+U stephan
+Z 77340c8a059067b6631a964872d22732
 # Remove this line to create a well-formed Fossil manifest.
