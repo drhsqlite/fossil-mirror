@@ -2328,13 +2328,14 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
     }
     zSep = strchr(z+1,'|');
     if( zSep==0 || zSep>zEnd ) zSep = zEnd;
-    cSave1 = zEnd[0];
-    zEnd[0] = 0;
+    while( zSep>z && fossil_isspace(zSep[-1]) ) zSep--;
+    cSave1 = zSep[0];
+    zSep[0] = 0;
     if( !wiki_valid_link_target(z+1) ){
       blob_appendf(pSus,"\n (%d) ", ++nIssue);
       blob_appendf(pSus, "Broken hyperlink: [%s]", z+1);
     }
-    zEnd[0] = cSave1;
+    zSep[0] = cSave1;
     z = zEnd;
   }
   if( nIssue ){

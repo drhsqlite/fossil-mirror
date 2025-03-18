@@ -1,5 +1,5 @@
-C This\sis\san\sattempt\sto\sfix\sthe\sbug\sin\s[6d05c66f877888fb|the\sprevious\scheck-in]\nthat\scaused\sthe\scommit\smessage\sto\sget\struncated.
-D 2025-03-18T15:35:42.160
+C Omit\strailing\swhitespace\swhen\sevaluating\sa\shyperlink\sto\ssee\sif\sit\sis\svalid.
+D 2025-03-18T15:49:00.710
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c 7cc9486dfa224c69e7cfe0b86c966f3a647dd1a617ec763fe810044b7430f0ed
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
-F src/checkin.c 7f04e970c7de505ae4ab8798b1817f2b3c02a33a89109b39edece4587761e71a
+F src/checkin.c 18e714ba65cec330d532d09a9cfee7b0050f5f891da989843b0e9c291fcc5507
 F src/checkout.c 65424a6ea916d3722c98f64da61b95a646ef2a0bc798ad075500d0e5acdab474
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6d05c66f877888fb1b45f16e6c3609e78769c95a8c04bcb3e081afa9a809555c
-R 992fd786b2dde827ee7aaa34c3598985
+P 140c865551e52441187fee8d1f175fd45185996ae3b914b51867a65bd812b05f
+R 36b7849ec27275c9b4965373637a8399
 U drh
-Z aaa63938df2ce085f1a0861c11a9bd34
+Z b8fd2880fd2080046e49ebc602246d45
 # Remove this line to create a well-formed Fossil manifest.
