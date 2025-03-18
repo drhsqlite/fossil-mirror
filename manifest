@@ -1,5 +1,5 @@
-C Improvements\sto\sverify-comments:\s\s(1)\sthe\sverify-comments\ssetting\sis\snow\ntext\sthat\scan\stake\sfour\sdifferent\svalues\sfor\sdifferent\slevels\sof\nverification.\s(2)\sRecent\schanges\swork\sbetter\swith\s-M\sand\s-m.\n(3)\sImproved\suser\sinteraction.
-D 2025-03-18T19:16:16.139
+C Typo\sfixes.
+D 2025-03-18T20:24:06.778
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c 7cc9486dfa224c69e7cfe0b86c966f3a647dd1a617ec763fe810044b7430f0ed
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
-F src/checkin.c 65476bf2b5aba961ba7afa17a3c7f08130dec2f1003b6793065ba501bb87c6ce
+F src/checkin.c 552b45eb4a116f8a358ce5919e641562b5ea4e74edd6cad7b0739aa4dc33bb1d
 F src/checkout.c 65424a6ea916d3722c98f64da61b95a646ef2a0bc798ad075500d0e5acdab474
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 777d962ce5f037cf9bab76f515c2cbcb3e87cdaea2fbb1377305fc75405143ea
-R 977dfbf663f616a8a9b101beaefa0b44
-U drh
-Z 238fcb597de2bbadf4316774a8bafb08
+P 798b232ce729f9ce1b7e9f27f278f32167d7a8d24e770d0dbd6d65edfea5af1a
+R 4dd3d3f5553dfd06ca8cc83f1468606d
+U danield
+Z b14115562f79a5bf410092c9221f1666
 # Remove this line to create a well-formed Fossil manifest.

@@ -2287,28 +2287,28 @@ static int tagCmp(const void *a, const void *b){
 /*
 ** SETTING: verify-comments          width=8 default=on show-only-if-changed
 **
-** This setting determines much sanity checking, if any, the 
+** This setting determines how much sanity checking, if any, the 
 ** "fossil commit" and "fossil amend" commands do against check-in
 ** comments. Recognized values:
 **
 **     on             (Default) Check for bad syntax in check-in comments
 **                    and offer the user a chance to continue editing for
 **                    interactive sessions, or simply abort the commit if
-**                    commit was entered using using -m or -M
+**                    commit was entered using -m or -M
 **
-**     off            Do not syntax checking of any kind
+**     off            Do not do syntax checking of any kind
 **
 **     links          Similar to "on", except only check for bad hyperlinks
 **
 **     preview        Do all the same checks as "on" but also preview the
-**                    checkin comment to the user during interactive sessions
+**                    check-in comment to the user during interactive sessions
 **                    and provide an opportunity to accept or re-edit
 */
 
 #if INTERFACE
 #define COMCK_LINKS     0x01     /* Check for back hyperlinks */
 #define COMCK_MARKUP    0x02     /* Check markup */
-#define COMCK_PREVIEW   0x04     /* Always preview even if no issues found */
+#define COMCK_PREVIEW   0x04     /* Always preview, even if no issues found */
 #define COMCK_NOPREVIEW 0x08     /* Never preview, even for other errors */
 #endif /* INTERFACE */
 
@@ -2316,8 +2316,8 @@ static int tagCmp(const void *a, const void *b){
 ** Check for possible formatting errors in the comment string pComment.
 **
 ** If concerns are found, write a description of the problem(s) to
-** stdout return non-zero.  The return value is some combination of
-** of the COMCK_* flags depending on what went wrong.
+** stdout and return non-zero.  The return value is some combination
+** of the COMCK_* flags, depending on what went wrong.
 **
 ** If no issues are seen, do not output anything and return zero.
 */
@@ -2740,7 +2740,7 @@ void commit_cmd(void){
   /* So that older versions of Fossil (that do not understand delta-
   ** manifest) can continue to use this repository, and because
   ** delta manifests are usually a bad idea unless the repository
-  ** as a really large number of files, do not create a new
+  ** has a really large number of files, do not create a new
   ** delta-manifest unless this repository already contains one or more
   ** delta-manifests, or unless the delta-manifest is explicitly requested
   ** by the --delta option.
@@ -2751,7 +2751,7 @@ void commit_cmd(void){
   ** If the remote repository sent an avoid-delta-manifests pragma on
   ** the autosync above, then also forbid delta manifests, even if the
   ** --delta option is specified.  The remote repo will send the
-  ** avoid-delta-manifests pragma if it has its "forbid-delta-manifests"
+  ** avoid-delta-manifests pragma if its "forbid-delta-manifests"
   ** setting is enabled.
   */
   if( !(forceDelta || db_get_boolean("seen-delta-manifest",0))
