@@ -2417,9 +2417,7 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
 **    --allow-older              Allow a commit older than its ancestor
 **    --allow-suspect-comment    Allow checkin comments that might be misformed
 **    --baseline                 Use a baseline manifest in the commit process
-**    --bgcolor COLOR            Apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   Check in to this new branch
-**    --branchcolor COLOR        Apply given COLOR to the branch
 **    --close                    Close the branch being committed
 **    --date-override DATETIME   DATE to use instead of 'now'
 **    --delta                    Use a delta manifest in the commit process
@@ -2552,8 +2550,12 @@ void commit_cmd(void){
   noVerify = find_option("no-verify",0,0)!=0;
   bTrace = find_option("trace",0,0)!=0;
   sCiInfo.zBranch = find_option("branch","b",1);
-  sCiInfo.zColor = find_option("bgcolor",0,1);
-  sCiInfo.zBrClr = find_option("branchcolor",0,1);
+
+  /* NB: the --bgcolor and --branchcolor flags still work, but are
+  ** now undocumented, to discourage their use. */
+  sCiInfo.zColor = find_option("bgcolor",0,1);     /* Deprecated, undocumented*/
+  sCiInfo.zBrClr = find_option("branchcolor",0,1); /* Deprecated, undocumented*/
+
   sCiInfo.closeFlag = find_option("close",0,0)!=0;
   sCiInfo.integrateFlag = find_option("integrate",0,0)!=0;
   sCiInfo.zMimetype = find_option("mimetype",0,1);
@@ -2576,6 +2578,12 @@ void commit_cmd(void){
   mxSize = db_large_file_size();
   if( find_option("ignore-oversize",0,0)!=0 ) mxSize = 0;
   verify_all_options();
+
+  /* The --no-warnings flag and the --force flag each imply
+  ** the --allow-suspect-comment flag */
+  if( noWarningFlag || forceFlag ){
+    allowSusCom = 1;
+  }
 
   /* Get the ID of the parent manifest artifact */
   vid = db_lget_int("checkout", 0);
@@ -2870,7 +2878,7 @@ void commit_cmd(void){
       Blob sus;
       blob_zero(&comment);
       blob_append(&comment, zComment, -1);
-      if( !forceFlag && !allowSusCom && suspicious_comment(&comment, &sus) ){
+      if( !allowSusCom && suspicious_comment(&comment, &sus) ){
         fossil_fatal("%bCommit aborted; "
                      "use --allow-suspect-comment to override", &sus);
       }
@@ -2879,7 +2887,7 @@ void commit_cmd(void){
       blob_zero(&comment);
       blob_read_from_file(&comment, zComFile, ExtFILE);
       blob_to_utf8_no_bom(&comment, 1);
-      if( !forceFlag && !allowSusCom && suspicious_comment(&comment, &sus) ){
+      if( !allowSusCom && suspicious_comment(&comment, &sus) ){
         fossil_fatal("%bCommit aborted; "
                      "use --allow-suspect-comment to override", &sus);
       }
