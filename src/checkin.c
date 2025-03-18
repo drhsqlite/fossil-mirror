@@ -2909,17 +2909,19 @@ void commit_cmd(void){
         prepare_commit_comment(&comment, zInit, &sCiInfo, vid, dryRunFlag);
         db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
         if( !allowSusCom && suspicious_comment(&comment,&sus) ){
-          blob_appendf(&sus, "Edit, abort, or continue (E/a/c)? ");
+          blob_appendf(&sus, "Continue (y/n/E=edit)? ");
           prompt_user(blob_str(&sus), &ans);
           cReply = blob_str(&ans)[0];
           blob_reset(&ans);
           blob_reset(&sus);
-          if( cReply=='e' || cReply=='E' ){
+          if( cReply=='n' || cReply=='N' ){
+            fossil_fatal("Commit aborted.");
+          }
+          if( cReply!='y' && cReply!='Y' ){
+            /* "Edit" is the default in case the user enters anything that
+            ** does not start with Y or N - including just hitting return. */
             fossil_free(zInit);
             continue;
-          }
-          if( cReply!='c' && cReply!='C' ){
-            fossil_fatal("Commit aborted.");
           }
         }
         if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
