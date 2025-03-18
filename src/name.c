@@ -61,18 +61,25 @@ int fossil_isdate(const char *z){
 ** then return an alternative string (in static space) that is the same
 ** string with punctuation inserted.
 **
-** Assume the maximum allowed value for unspecified digits.  In other
-** words:  202503171234 -> 2025-03-17 12:34:59
-**                                          ^^---  Added seconds.
-** and: 20250317 -> 2025-03-17 23:59:59
-**                             ^^^^^^^^---  Added time.
+** If the bRoundUp parameter is true, then round the resulting date-time
+** up to the largest date/time that is consistent with the input value.
+** This is because the result will be used for an mtime<=julianday($DATE)
+** comparison.  In other words:
+**
+**     20250317123421 -> 2025-03-17 12:34:21.999
+**                                          ^^^^--- Added
+**
+**     202503171234   -> 2025-03-17 12:34:59.999
+**                                       ^^^^^^^--- Added
+**     20250317       -> 2025-03-17 23:59:59.999
+**                                  ^^^^^^^^^^^^--- Added
 **
 ** If the bVerifyNotAHash flag is true, then a check is made to see if
 ** the input string is a hash prefix and NULL is returned if it is.  If the
 ** bVerifyNotAHash flag is false, then the result is determined by syntax
 ** of the input string only, without reference to the artifact table.
 */
-char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
+char *fossil_expand_datetime(const char *zIn,int bVerifyNotAHash,int bRoundUp){
   static char zEDate[24];
   static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
   int n = (int)strlen(zIn);
@@ -81,10 +88,10 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
 
   /* These forms are allowed:
   **
-  **        123456789 1234           123456789 123456789
-  **   (1)  YYYYMMDD            =>   YYYY-MM-DD 23:59:59
-  **   (2)  YYYYMMDDHHMM        =>   YYYY-MM-DD HH:MM:59
-  **   (3)  YYYYMMDDHHMMSS      =>   YYYY-MM-DD HH:MM:SS
+  **        123456789 1234           123456789 123456789 1234
+  **   (1)  YYYYMMDD            =>   YYYY-MM-DD 23:59:59.999
+  **   (2)  YYYYMMDDHHMM        =>   YYYY-MM-DD HH:MM:59.999
+  **   (3)  YYYYMMDDHHMMSS      =>   YYYY-MM-DD HH:MM:SS.999
   **
   ** An optional "Z" zulu timezone designator is allowed at the end.
   */
@@ -107,12 +114,17 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
     }
     zEDate[j++] = zIn[i];
   }
-  if( j==10 ){
-    memcpy(&zEDate[10], " 23:59:59", 9);
-    j += 9;
-  }else if( j==16 ){
-    memcpy(&zEDate[16], ":59",3);
-    j += 3;
+  if( bRoundUp ){
+    if( j==10 ){
+      memcpy(&zEDate[10], " 23:59:59.999", 13);
+      j += 13;
+    }else if( j==16 ){
+      memcpy(&zEDate[16], ":59.999",7);
+      j += 7;
+    }else if( j==19 ){
+      memcpy(&zEDate[19], ".999", 4);
+      j += 4;
+    }
   }
   if( addZulu ){
     zEDate[j++] = 'Z';
@@ -490,7 +502,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
   /* Date and times */
   if( memcmp(zTag, "date:", 5)==0 ){
-    zDate = fossil_expand_datetime(&zTag[5],0);
+    zDate = fossil_expand_datetime(&zTag[5],0,1);
     if( zDate==0 ) zDate = &zTag[5];
     rid = db_int(0,
       "SELECT objid FROM event"
@@ -556,7 +568,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   nTag = strlen(zTag);
   for(i=0; i<nTag-8 && zTag[i]!=':'; i++){}
   if( zTag[i]==':'
-   && (fossil_isdate(&zTag[i+1]) || fossil_expand_datetime(&zTag[i+1],0)!=0)
+   && (fossil_isdate(&zTag[i+1]) || fossil_expand_datetime(&zTag[i+1],0,0)!=0)
   ){
     char *zDate = mprintf("%s", &zTag[i+1]);
     char *zTagBase = mprintf("%.*s", i, zTag);
@@ -566,7 +578,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       zDate[nDate-3] = 'z';
       zDate[nDate-2] = 0;
     }
-    zXDate = fossil_expand_datetime(zDate,0);
+    zXDate = fossil_expand_datetime(zDate,0,1);
     if( zXDate==0 ) zXDate = zDate;
     rid = db_int(0,
       "SELECT event.objid, max(event.mtime)"
@@ -642,7 +654,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   }
 
   /* Pure numeric date/time */
-  zDate = fossil_expand_datetime(zTag, 0);
+  zDate = fossil_expand_datetime(zTag, 0,1);
   if( zDate ){
     rid = db_int(0,
       "SELECT objid FROM event"

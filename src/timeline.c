@@ -1094,8 +1094,23 @@ const char *timeline_query_for_www(void){
 /*
 ** Convert a symbolic name used as an argument to the a=, b=, or c=
 ** query parameters of timeline into a julianday mtime value.
+**
+** If pzDisplay is not null, then display text for the symbolic name might
+** be written into *pzDisplay.  But that is not guaranteed.
+**
+** If bRoundUp is true and the symbolic name is a timestamp with less
+** than millisecond resolution, then the timestamp is rounding up to the
+** largest millisecond consistent with that timestamp.  If bRoundUp is
+** false, then the resulting time is obtained by extending the timestamp
+** with zeros (hence rounding down).  Use bRoundUp==1 if the result
+** will be used in mtime<=$RESULT and use bRoundUp==0 if the result
+** will be used in mtime>=$RESULT.
 */
-double symbolic_name_to_mtime(const char *z, const char **pzDisplay){
+double symbolic_name_to_mtime(
+  const char *z,              /* Input symbolic name */
+  const char **pzDisplay,     /* Perhaps write display text here, if not NULL */
+  int bRoundUp                /* Round up if true */
+){
   double mtime;
   int rid;
   const char *zDate;
@@ -1104,10 +1119,10 @@ double symbolic_name_to_mtime(const char *z, const char **pzDisplay){
     mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", z);
     if( mtime>0.0 ) return mtime;
   }
-  zDate = fossil_expand_datetime(z, 1);
+  zDate = fossil_expand_datetime(z, 1, bRoundUp);
   if( zDate!=0 ){
     mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())",
-                      fossil_roundup_date(zDate));
+                      bRoundUp ? fossil_roundup_date(zDate) : zDate);
     if( mtime>0.0 ){
       if( pzDisplay ) *pzDisplay = fossil_strdup(zDate);
       return mtime;
@@ -2869,9 +2884,9 @@ void page_timeline(void){
           zSearch, zSearch);
       }
     }
-    rBefore = symbolic_name_to_mtime(zBefore, &zBefore);
-    rAfter = symbolic_name_to_mtime(zAfter, &zAfter);
-    rCirca = symbolic_name_to_mtime(zCirca, &zCirca);
+    rBefore = symbolic_name_to_mtime(zBefore, &zBefore, 1);
+    rAfter = symbolic_name_to_mtime(zAfter, &zAfter, 0);
+    rCirca = symbolic_name_to_mtime(zCirca, &zCirca, 0);
     blob_append_sql(&sql, "%s", blob_sql_text(&cond));
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
@@ -3012,7 +3027,7 @@ void page_timeline(void){
         zDate = mprintf("%s", (zAfter ? zAfter : zBefore));
       }
       if( zDate ){
-        rDate = symbolic_name_to_mtime(zDate, 0);
+        rDate = symbolic_name_to_mtime(zDate, 0, 0);
         if( db_int(0,
             "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
             " WHERE blob.rid=event.objid AND mtime<=%.17g%s)",
@@ -3028,7 +3043,7 @@ void page_timeline(void){
         zDate = mprintf("%s", (zBefore ? zBefore : zAfter));
       }
       if( zDate ){
-        rDate = symbolic_name_to_mtime(zDate, 0);
+        rDate = symbolic_name_to_mtime(zDate, 0, 0);
         if( db_int(0,
             "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
             " WHERE blob.rid=event.objid AND mtime>=%.17g%s)",
@@ -3071,7 +3086,7 @@ void page_timeline(void){
   }
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){
-    double r = symbolic_name_to_mtime(zMark, 0);
+    double r = symbolic_name_to_mtime(zMark, 0, 0);
     if( r>0.0 && !selectedRid ) selectedRid = timeline_add_divider(r);
   }
   blob_zero(&sql);

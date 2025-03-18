@@ -129,12 +129,12 @@ void diff_print_versions(const char *zFrom, const char *zTo, DiffConfig *pCfg){
       zFrom[0]=='(' ? zFrom : mprintf("%S %s",
         rid_to_uuid(symbolic_name_to_rid(zFrom, "ci")),
         db_text("","SELECT datetime(%f)||' UTC'",
-          symbolic_name_to_mtime(zFrom, 0))));
+          symbolic_name_to_mtime(zFrom, 0, 0))));
     fossil_print("Fossil-Diff-To:    %s\n",
       zTo[0]=='(' ? zTo : mprintf("%S %s",
         rid_to_uuid(symbolic_name_to_rid(zTo, "ci")),
         db_text("","SELECT datetime(%f)||' UTC'",
-          symbolic_name_to_mtime(zTo, 0))));
+          symbolic_name_to_mtime(zTo, 0, 1))));
     fossil_print("%.66c\n", '-');
   }
 }
