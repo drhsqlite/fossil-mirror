@@ -62,7 +62,10 @@ int terminal_get_size(TerminalSize *t){
 #if defined(TIOCGSIZE)
   {
     struct ttysize ts;
-    if( ioctl(STDIN_FILENO, TIOCGSIZE, &ts)!=-1 ){
+    if( ioctl(STDIN_FILENO, TIOCGSIZE, &ts)>=0
+     || ioctl(STDOUT_FILENO, TIOCGSIZE, &ts)>=0
+     || ioctl(STDERR_FILENO, TIOCGSIZE, &ts)>=0
+    ){
       t->nColumns = ts.ts_cols;
       t->nLines = ts.ts_lines;
       return 1;
@@ -72,7 +75,10 @@ int terminal_get_size(TerminalSize *t){
 #elif defined(TIOCGWINSZ)
   {
     struct winsize ws;
-    if( ioctl(STDIN_FILENO, TIOCGWINSZ, &ws)!=-1 ){
+    if( ioctl(STDIN_FILENO, TIOCGWINSZ, &ws)>=0
+     || ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws)>=0
+     || ioctl(STDERR_FILENO, TIOCGWINSZ, &ws)>=0
+    ){
       t->nColumns = ws.ws_col;
       t->nLines = ws.ws_row;
       return 1;
@@ -82,7 +88,10 @@ int terminal_get_size(TerminalSize *t){
 #elif defined(_WIN32)
   {
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
+    if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)
+     || GetConsoleScreenBufferInfo(GetStdHandle(STD_ERROR_HANDLE), &csbi)
+     || GetConsoleScreenBufferInfo(GetStdHandle(STD_INPUT_HANDLE), &csbi)
+    ){
       t->nColumns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
       t->nLines = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
       return 1;
