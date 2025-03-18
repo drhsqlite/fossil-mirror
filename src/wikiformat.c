@@ -2491,16 +2491,17 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         }
       }
     }else if( zIn[0]=='&' ){
-      char c = '?';
+      u32 c = '?';
       if( zIn[1]=='#' ){
-        int x = atoi(&zIn[1]);
-        if( x>0 && x<=127 ) c = x;
+        c = atoi(&zIn[2]);
+        if( c==0 ) c = '?';
       }else{
-        static const struct { int n; char c; char *z; } aEntity[] = {
+        static const struct { int n; u32 c; char *z; } aEntity[] = {
            { 5, '&', "&amp;"   },
            { 4, '<', "&lt;"    },
            { 4, '>', "&gt;"    },
            { 6, ' ', "&nbsp;"  },
+           { 6, '"', "&quot;"  },
         };
         int jj;
         for(jj=0; jj<count(aEntity); jj++){
@@ -2518,7 +2519,21 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         if( !seenText && !inTitle ) blob_append_char(pOut, '\n');
         seenText = 1;
         nNL = nWS = 0;
-        blob_append_char(pOut, c);
+        if( c<0x00080 ){
+          blob_append_char(pOut, c & 0xff);
+        }else if( c<0x00800 ){
+          blob_append_char(pOut, 0xc0 + (u8)((c>>6)&0x1f));
+          blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
+        }else if( c<0x10000 ){
+          blob_append_char(pOut, 0xe0 + (u8)((c>>12)&0x0f));
+          blob_append_char(pOut, 0x80 + (u8)((c>>6)&0x3f));
+          blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
+        }else{
+          blob_append_char(pOut, 0xf0 + (u8)((c>>18)&0x07));
+          blob_append_char(pOut, 0x80 + (u8)((c>>12)&0x3f));
+          blob_append_char(pOut, 0x80 + (u8)((c>>6)&0x3f));
+          blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
+        }
       }
     }else{
       if( !seenText && !inTitle ) blob_append_char(pOut, '\n');
