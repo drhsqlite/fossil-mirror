@@ -929,8 +929,8 @@ void ci_page(void){
   );
   isLeaf = !db_exists("SELECT 1 FROM plink WHERE pid=%d", rid);
   db_prepare(&q1,
-     "SELECT uuid, datetime(mtime,toLocal()), user, comment,"
-     "       datetime(omtime,toLocal()), mtime"
+     "SELECT uuid, datetime(mtime,toLocal(),'subsec'), user, comment,"
+     "       datetime(omtime,toLocal(),'subsec'), mtime"
      "  FROM blob, event"
      " WHERE blob.rid=%d"
      "   AND event.objid=%d",

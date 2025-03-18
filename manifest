@@ -1,5 +1,5 @@
-C Remove\sobsolete\scode\s-\sunused\sand\scommented\sout\ssince\s2019.\s\sNo\sfunctional\schanges.
-D 2025-03-18T11:16:58.102
+C On\sthe\s/info\spage\sfor\scheck-ins,\sshould\sthe\scheck-in\stime\sto\smillisecond\nresolution.
+D 2025-03-18T11:39:47.795
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c b0951dca518ecb2d7a15d070f12e9fcaa0cff4fa7187e1b6b4fd8e6baf5c9698
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c f097dddc4ccec36b0bfacb0cfa1fd0be88111eede4f2cf4e23d2e8c6b8dcc791
+F src/info.c c250e73763440c468de78d526b772463f5a7ed4e054ace2f3b004df241037187
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 633ea7343f68c90745f7a6f2a44da3253bc4b1f83c4b985b2ca7d22aaf4f35ba
-R b3d26088d09e2361b5cfe6ea5f154e55
+P 7517845c7c4609aa8d13a3125cfb8811767c1211bab8992592dc64312467ee1c
+R ba8665ed66459d2c4e5c95473313a781
 U drh
-Z 874f3bfde2d0389c3bf20642a8fdf7a0
+Z 58054d24925cab653281e2db37eadd9d
 # Remove this line to create a well-formed Fossil manifest.
