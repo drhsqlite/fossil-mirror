@@ -2356,33 +2356,21 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
 ** Usage: %fossil commit ?OPTIONS? ?FILE...?
 **    or: %fossil ci ?OPTIONS? ?FILE...?
 **
-** Create a new version containing all of the changes in the current
-** check-out.  You will be prompted to enter a check-in comment unless
-** the comment has been specified on the command-line using "-m" or a
-** file containing the comment using -M.  The editor defined in the
-** "editor" fossil option (see %fossil help set) will be used, or from
-** the "VISUAL" or "EDITOR" environment variables (in that order) if
-** no editor is set. Commit message text is interpreted as fossil-wiki
-** format.
+** Create a new check-in containing all of the changes in the current
+** check-out.  All changes are committed unless some subset of files
+** is specified on the command line, in which case only the named files
+** become part of the new check-in.
 **
-** All files that have changed will be committed unless some subset of
-** files is specified on the command line.
+** You will be prompted to enter a check-in comment unless the comment
+** has been specified on the command-line using "-m" or "-M".  The
+** text editor used is determined by the "editor" setting, or by the
+** "VISUAL" or "EDITOR" environment variables.  Commit message text is
+** interpreted as fossil-wiki format.  Potentially misformatted check-in
+** comment text is detected and reported unless the --allow-suspect-comment
+** option is used.
 **
 ** The --branch option followed by a branch name causes the new
-** check-in to be placed in a newly-created branch with the name
-** passed to the --branch option.
-**
-** Use the --branchcolor option followed by a color name (ex:
-** '#ffc0c0') to specify the background color of entries in the new
-** branch when shown in the web timeline interface.  The use of the
-** --branchcolor option is not recommended because user-selected
-** colors may not interact well with all site skins.  Instead, let
-** Fossil choose the branch color automatically.
-**
-** The --bgcolor option works like --branchcolor but only sets the
-** background color for a single check-in.  Subsequent check-ins
-** revert to the default color. --bgcolor is not recommended for the
-** same reason that --branchcolor is not recommended.
+** check-in to be placed in a newly-created branch with name specified.
 **
 ** A check-in is not permitted to fork unless the --allow-fork option
 ** appears.  An empty check-in (i.e. with nothing changed) is not
@@ -2398,31 +2386,28 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
 ** reason, the --no-warnings option may be used.  A check-in is not
 ** allowed against a closed leaf.
 **
-** If a commit message is blank, you will be prompted:
-** ("continue (y/N)?") to confirm you really want to commit with a
-** blank commit message.  The default value is "N", do not commit.
-**
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.
 **
 ** The --tag option applies the symbolic tag name to the check-in.
-**
-** The --hash option detects edited files by computing each file's
-** artifact hash rather than just checking for changes to its size or mtime.
+** The --tag option can be repeated to assign multiple tags to a check-in.
+** For example: "... --tag release --tag version-1.2.3 ..."
 **
 ** Options:
 **    --allow-conflict           Allow unresolved merge conflicts
 **    --allow-empty              Allow a commit with no changes
 **    --allow-fork               Allow the commit to fork
 **    --allow-older              Allow a commit older than its ancestor
-**    --allow-suspect-comment    Allow checkin comments that might be misformed
+**    --allow-suspect-comment    Allow check-in comments that might be misformed
 **    --baseline                 Use a baseline manifest in the commit process
 **    --branch NEW-BRANCH-NAME   Check in to this new branch
 **    --close                    Close the branch being committed
-**    --date-override DATETIME   DATE to use instead of 'now'
+**    --date-override DATETIME   Make DATETIME the time of the check-in.
+**                               Useful when importing historical check-ins
+**                               from another version control system.
 **    --delta                    Use a delta manifest in the commit process
 **    --hash                     Verify file status using hashing rather
-**                               than relying on file mtimes
+**                               than relying on filesystem mtimes
 **    --if-changes               Make this command a silent no-op if there
 **                               are no changes
 **    --ignore-clock-skew        If a clock skew is detected, ignore it and
@@ -2431,10 +2416,10 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
 **                               the skew.
 **    --ignore-oversize          Do not warn the user about oversized files
 **    --integrate                Close all merged-in branches
-**    -m|--comment COMMENT-TEXT  Use COMMENT-TEXT as commit comment
-**    -M|--message-file FILE     Read the commit comment from given file
-**    --mimetype MIMETYPE        Mimetype of check-in comment
-**    -n|--dry-run               If given, display instead of run actions
+**    -m|--comment COMMENT-TEXT  Use COMMENT-TEXT as the check-in comment
+**    -M|--message-file FILE     Read the check-in comment from FILE
+**    -n|--dry-run               Do not actually create a new check-in. Just
+**                               show what would have happened. For debugging.
 **    -v|--verbose               Show a diff in the commit message prompt
 **    --no-prompt                This option disables prompting the user for
 **                               input and assumes an answer of 'No' for every
@@ -2444,17 +2429,13 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
 **    --nosign                   Do not attempt to sign this commit with gpg
 **    --nosync                   Do not auto-sync prior to committing
 **    --override-lock            Allow a check-in even though parent is locked
-**    --private                  Do not sync changes and their descendants
+**    --private                  Never sync the resulting check-in and make
+**                               all descendants private too.
 **    --proxy PROXY              Use PROXY as http proxy during sync operation
-**    --tag TAG-NAME             Assign given tag TAG-NAME to the check-in
+**    --tag TAG-NAME             Add TAG-NAME to the check-in. May be repeated.
 **    --trace                    Debug tracing
-**    --user-override USER       USER to use instead of the current default
-**
-** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
-** year-month-day form, it may be truncated, the "T" may be replaced by
-** a space, and it may also name a timezone offset from UTC as "-HH:MM"
-** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
-** means UTC.
+**    --user-override USER       Record USER as the login that created the
+**                               new check-in, rather that the current user.
 **
 ** See also: [[branch]], [[changes]], [[update]], [[extras]], [[sync]]
 */
@@ -2552,13 +2533,14 @@ void commit_cmd(void){
   sCiInfo.zBranch = find_option("branch","b",1);
 
   /* NB: the --bgcolor and --branchcolor flags still work, but are
-  ** now undocumented, to discourage their use. */
+  ** now undocumented, to discourage their use. --mimetype has never
+  ** been used for anything, so also leave it undocumented */
   sCiInfo.zColor = find_option("bgcolor",0,1);     /* Deprecated, undocumented*/
   sCiInfo.zBrClr = find_option("branchcolor",0,1); /* Deprecated, undocumented*/
+  sCiInfo.zMimetype = find_option("mimetype",0,1); /* Deprecated, undocumented*/
 
   sCiInfo.closeFlag = find_option("close",0,0)!=0;
   sCiInfo.integrateFlag = find_option("integrate",0,0)!=0;
-  sCiInfo.zMimetype = find_option("mimetype",0,1);
   sCiInfo.verboseFlag = find_option("verbose", "v", 0)!=0;
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;

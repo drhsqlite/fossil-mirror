@@ -1,5 +1,5 @@
-C Omit\sthe\s--bgcolor\sand\s--branchcolor\soptions\sfrom\sthe\sdocumentation\sof\n"fossil\scommit".\s\sThe\soptions\sstill\swork,\sbut\stheir\suse\sis\sdiscouraged.\nRemoving\sthem\sfrom\sthe\sofficial\sdocumentation\swill\sreduce\sthe\stemptation\nto\suse\sthem.\s\sAlso:\s\sThe\s--no-warnings\sflag\simplies\s--allow-suspect-comment.
-D 2025-03-18T12:31:05.792
+C Further\scleanup\sof\sthe\sdocumentation\sfor\s"fossil\scommit".\s\sDeprecate\sthe\n"--mimetype"\soption\sas\sit\sis\sunimplemented\s(on\sthe\sdisplay\sside).\sDeemphasize\nunimportant\sand\sseldom\sused\saspects\sof\sthe\scommit\scommand\sin\sorder\sto\sbring\nmore\sfocus\sonto\sthe\simportant\sand\soften\sused\sparts.
+D 2025-03-18T13:01:50.645
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c 7cc9486dfa224c69e7cfe0b86c966f3a647dd1a617ec763fe810044b7430f0ed
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
-F src/checkin.c 2c3255220a80d36db1f16e09b89597c6491abfbf6c96a4fbb072dc4a5b7cdde2
+F src/checkin.c 0df8030ed9c9435e9eec3e044481879d125d3abf056de868218e4c0cba928e81
 F src/checkout.c 65424a6ea916d3722c98f64da61b95a646ef2a0bc798ad075500d0e5acdab474
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
@@ -831,7 +831,7 @@ F www/event.wiki b2b5694047176815ed3701face7910e89bda204b07af878a16c04d8c6b3e08a
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
 F www/fileedit-page.md 4611d0f3f9520358c1cca55ff5f9b40fbf3c49ab7dd937bea56ee415516ec43b
-F www/fileformat.wiki 24e81a24ca0acf48aafa65e3b45eaf07140dd762064e22b0591e77057e1adcab
+F www/fileformat.wiki 2040fa3d854f388729b1bc935cf4d64f46b3332dd86e95f8ebefacd2fc2cd810
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
 F www/forum.wiki c7b63aaa760046ccab564f54bfda038b01eb1684c1ee4fbc0a16706b23c14a9a
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fcd4d049dd563a54a9725e37cd5d2f3caf516865aa416e5e241a38375a8d149b
-R 5439527a832b6ec7c4bdd9a52aca49a3
+P 5c8de3496dc8025fa06720b0a6b8d936bb68e17f74e58d45ae65d98885a9f81c
+R 5b04f8b6076b2f874475f89c31814f2b
 U drh
-Z 2c440e176f188dd7f4ee5f5b154b20e2
+Z b868006145b70534bff7eeb2ad197670
 # Remove this line to create a well-formed Fossil manifest.
