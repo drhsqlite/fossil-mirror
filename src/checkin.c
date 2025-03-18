@@ -2307,6 +2307,7 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
   char *zSep;
   char cSave1;
   int nIssue = 0;
+  static const char zSpecial[] = "\\&<*_`[";
 
   if( !db_get_boolean("verify-comments",1) ) return 0;
   z = zStart;
@@ -2327,13 +2328,14 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
     }
     zSep = strchr(z+1,'|');
     if( zSep==0 || zSep>zEnd ) zSep = zEnd;
-    cSave1 = zEnd[0];
-    zEnd[0] = 0;
+    while( zSep>z && fossil_isspace(zSep[-1]) ) zSep--;
+    cSave1 = zSep[0];
+    zSep[0] = 0;
     if( !wiki_valid_link_target(z+1) ){
       blob_appendf(pSus,"\n (%d) ", ++nIssue);
       blob_appendf(pSus, "Broken hyperlink: [%s]", z+1);
     }
-    zEnd[0] = cSave1;
+    zSep[0] = cSave1;
     z = zEnd;
   }
   if( nIssue ){
@@ -2343,6 +2345,29 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
       "Possible comment formatting error%s:%b\n",
       nIssue>1 ? "s" : "", &tmp);
     blob_reset(&tmp);
+    return 1;
+  }else if( strcspn(zStart,zSpecial)<strlen(zStart) ){
+    Blob in, html, txt;
+    char zGot[16];
+    int nGot = 0;
+    int i;
+    for(i=0; zSpecial[i]; i++){
+      if( strchr(zStart,zSpecial[i]) ) zGot[nGot++] = zSpecial[i];
+    }
+    zGot[nGot] = 0;
+    blob_init(&in, blob_str(pComment), -1);
+    blob_init(&html, 0, 0);
+    wiki_convert(&in, &html, WIKI_INLINE);
+    blob_reset(&in);
+    blob_init(&txt, 0, 0);
+    html_to_plaintext(blob_str(&html), &txt);
+    blob_reset(&html);
+    fossil_print("The comment uses special character%s \"%s\". "
+                 "Does it render as you expect?\n\n   ",
+                 nGot>1 ? "s" : "", zGot);
+    comment_print(blob_str(&txt), 0, 3, -1, get_comment_format());
+    blob_init(pSus, 0, 0);
+    blob_appendf(pSus, "\n");
     return 1;
   }else{
     return 0;
