@@ -2346,7 +2346,7 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
     blob_reset(&tmp);
     return 1;
   }else if( strcspn(zStart,zSpecial)<strlen(zStart) ){
-    Blob html, txt;
+    Blob in, html, txt;
     char zGot[16];
     int nGot = 0;
     int i;
@@ -2354,8 +2354,10 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
       if( strchr(zStart,zSpecial[i]) ) zGot[nGot++] = zSpecial[i];
     }
     zGot[nGot] = 0;
+    blob_init(&in, blob_str(pComment), -1);
     blob_init(&html, 0, 0);
-    wiki_convert(pComment, &html, WIKI_INLINE);
+    wiki_convert(&in, &html, WIKI_INLINE);
+    blob_reset(&in);
     blob_init(&txt, 0, 0);
     html_to_plaintext(blob_str(&html), &txt);
     blob_reset(&html);
