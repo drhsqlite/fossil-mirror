@@ -2670,29 +2670,31 @@ void commit_cmd(void){
   }
 
   /* So that older versions of Fossil (that do not understand delta-
-  ** manifest) can continue to use this repository, do not create a new
+  ** manifest) can continue to use this repository, and because
+  ** delta manifests are usually a bad idea unless the repository
+  ** as a really large number of files, do not create a new
   ** delta-manifest unless this repository already contains one or more
   ** delta-manifests, or unless the delta-manifest is explicitly requested
   ** by the --delta option.
   **
-  ** The forbid-delta-manifests setting prevents new delta manifests.
+  ** The forbid-delta-manifests setting prevents new delta manifests,
+  ** even if the --delta option is used.
   **
   ** If the remote repository sent an avoid-delta-manifests pragma on
-  ** the autosync above, then also try to avoid deltas, unless the
+  ** the autosync above, then also forbid delta manifests, even if the
   ** --delta option is specified.  The remote repo will send the
   ** avoid-delta-manifests pragma if it has its "forbid-delta-manifests"
-  ** setting enabled.
+  ** setting is enabled.
   */
-  if( !db_get_boolean("seen-delta-manifest",0)
+  if( !(forceDelta || db_get_boolean("seen-delta-manifest",0))
    || db_get_boolean("forbid-delta-manifests",0)
    || g.bAvoidDeltaManifests
   ){
-    if( !forceDelta ) forceBaseline = 1;
+    forceBaseline = 1;
   }
 
-
   /* Require confirmation to continue with the check-in if there is
-  ** clock skew
+  ** clock skew.  This helps to prevent timewarps.
   */
   if( g.clockSkewSeen ){
     if( bIgnoreSkew!=0 ){
