@@ -2285,93 +2285,135 @@ static int tagCmp(const void *a, const void *b){
 }
 
 /*
-** SETTING: verify-comments            boolean default=on show-only-if-changed
+** SETTING: verify-comments          width=8 default=on show-only-if-changed
 **
-** If enabled (the default) then the "fossil commit" command does sanity
-** checking on the checkin comment.  The sanity checks can be overridden
-** on a case by case basis using the --allow-suspect-comment option to
-** the "fossil commit" command.  If disabled, this setting makes every
-** "fossil commit" behave as if the --allow-suspect-comment option were
-** provided.
+** This setting determines much sanity checking, if any, the 
+** "fossil commit" and "fossil amend" commands do against check-in
+** comments. Recognized values:
+**
+**     on             (Default) Check for bad syntax in check-in comments
+**                    and offer the user a chance to continue editing for
+**                    interactive sessions, or simply abort the commit if
+**                    commit was entered using using -m or -M
+**
+**     off            Do not syntax checking of any kind
+**
+**     links          Similar to "on", except only check for bad hyperlinks
+**
+**     preview        Do all the same checks as "on" but also preview the
+**                    checkin comment to the user during interactive sessions
+**                    and provide an opportunity to accept or re-edit
 */
+
+#if INTERFACE
+#define COMCK_LINKS     0x01     /* Check for back hyperlinks */
+#define COMCK_MARKUP    0x02     /* Check markup */
+#define COMCK_PREVIEW   0x04     /* Always preview even if no issues found */
+#define COMCK_NOPREVIEW 0x08     /* Never preview, even for other errors */
+#endif /* INTERFACE */
 
 /*
 ** Check for possible formatting errors in the comment string pComment.
-** If found, write a description of the problem(s) into pSus and return
-** true.  If everything looks ok, return false.
+**
+** If concerns are found, write a description of the problem(s) to
+** stdout return non-zero.  The return value is some combination of
+** of the COMCK_* flags depending on what went wrong.
+**
+** If no issues are seen, do not output anything and return zero.
 */
-static int suspicious_comment(Blob *pComment, Blob *pSus){
+static int suspicious_comment(Blob *pComment, int mFlags){
   char *zStart = blob_str(pComment);
   char *z;
   char *zEnd, *zEnd2;
   char *zSep;
   char cSave1;
   int nIssue = 0;
+  int rc = mFlags & COMCK_PREVIEW;
+  Blob out;
   static const char zSpecial[] = "\\&<*_`[";
 
-  if( !db_get_boolean("verify-comments",1) ) return 0;
+  if( mFlags==0 ) return 0;
   z = zStart;
-  blob_init(pSus, 0, 0);
-  while( (z = strchr(z,'['))!=0 ){
-    zEnd = strchr(z,']');
-    if( zEnd==0 ){
-      blob_appendf(pSus,"\n (%d) ", ++nIssue);
-      blob_appendf(pSus, "Unterminated hyperlink \"%.12s...\"", z);
-      break;
+  blob_init(&out, 0, 0);
+  if( mFlags & COMCK_LINKS ){
+    while( (z = strchr(z,'['))!=0 ){
+      zEnd = strchr(z,']');
+      if( zEnd==0 ){
+        blob_appendf(&out,"\n (%d) ", ++nIssue);
+        blob_appendf(&out, "Unterminated hyperlink \"%.12s...\"", z);
+        break;
+      }
+      if( zEnd[1]=='(' && (zEnd2 = strchr(zEnd,')'))!=0 ){
+        blob_appendf(&out,"\n (%d) ", ++nIssue);
+        blob_appendf(&out, "Markdown hyperlink syntax: %.*s",
+                     (int)(zEnd2+1-z), z);
+        z = zEnd2;
+        continue;
+      }
+      zSep = strchr(z+1,'|');
+      if( zSep==0 || zSep>zEnd ) zSep = zEnd;
+      while( zSep>z && fossil_isspace(zSep[-1]) ) zSep--;
+      cSave1 = zSep[0];
+      zSep[0] = 0;
+      if( !wiki_valid_link_target(z+1) ){
+        blob_appendf(&out,"\n (%d) ", ++nIssue);
+        blob_appendf(&out, "Broken hyperlink: [%s]", z+1);
+      }
+      zSep[0] = cSave1;
+      z = zEnd;
     }
-    if( zEnd[1]=='(' && (zEnd2 = strchr(zEnd,')'))!=0 ){
-      blob_appendf(pSus,"\n (%d) ", ++nIssue);
-      blob_appendf(pSus, "Markdown hyperlink syntax: %.*s",
-                   (int)(zEnd2+1-z), z);
-      z = zEnd2;
-      continue;
-    }
-    zSep = strchr(z+1,'|');
-    if( zSep==0 || zSep>zEnd ) zSep = zEnd;
-    while( zSep>z && fossil_isspace(zSep[-1]) ) zSep--;
-    cSave1 = zSep[0];
-    zSep[0] = 0;
-    if( !wiki_valid_link_target(z+1) ){
-      blob_appendf(pSus,"\n (%d) ", ++nIssue);
-      blob_appendf(pSus, "Broken hyperlink: [%s]", z+1);
-    }
-    zSep[0] = cSave1;
-    z = zEnd;
   }
-  if( nIssue ){
-    Blob tmp = *pSus;
-    blob_init(pSus, 0, 0);
-    blob_appendf(pSus,
-      "Possible comment formatting error%s:%b\n",
-      nIssue>1 ? "s" : "", &tmp);
-    blob_reset(&tmp);
-    return 1;
-  }else if( strcspn(zStart,zSpecial)<strlen(zStart) ){
-    Blob in, html, txt;
+
+  if( nIssue>0
+   || (mFlags & COMCK_PREVIEW)!=0
+   || ((mFlags & COMCK_MARKUP)!=0 && strcspn(zStart,zSpecial)<strlen(zStart))
+  ){
     char zGot[16];
     int nGot = 0;
     int i;
-    for(i=0; zSpecial[i]; i++){
-      if( strchr(zStart,zSpecial[i]) ) zGot[nGot++] = zSpecial[i];
+    if( (mFlags & COMCK_MARKUP)!=0 ){
+      for(i=0; zSpecial[i]; i++){
+        if( strchr(zStart,zSpecial[i]) ) zGot[nGot++] = zSpecial[i];
+      }
     }
     zGot[nGot] = 0;
-    blob_init(&in, blob_str(pComment), -1);
-    blob_init(&html, 0, 0);
-    wiki_convert(&in, &html, WIKI_INLINE);
-    blob_reset(&in);
-    blob_init(&txt, 0, 0);
-    html_to_plaintext(blob_str(&html), &txt);
-    blob_reset(&html);
-    fossil_print("The comment uses special character%s \"%s\". "
-                 "Does it render as you expect?\n\n   ",
-                 nGot>1 ? "s" : "", zGot);
-    comment_print(blob_str(&txt), 0, 3, -1, get_comment_format());
-    blob_init(pSus, 0, 0);
-    blob_appendf(pSus, "\n");
-    return 1;
-  }else{
-    return 0;
+    if( nGot>0 ) rc |= COMCK_MARKUP;
+    if( nGot>0 && nIssue>0 ){
+      blob_appendf(&out,"\n (%d) Comment uses special character%s \"%s\"",
+                   ++nIssue, (nGot>1 ? "s" : ""), zGot);
+      nGot = 0;
+    }
+    if( nIssue ){
+      rc |= COMCK_LINKS;
+      fossil_print(
+        "Possible comment formatting error%s:%b\n",
+        nIssue>1 ? "s" : "", &out
+      );
+    }
+    if( (mFlags & COMCK_NOPREVIEW)==0 ){
+      Blob in, html, txt;
+      blob_init(&in, blob_str(pComment), -1);
+      blob_init(&html, 0, 0);
+      blob_init(&txt, 0, 0);
+      wiki_convert(&in, &html, WIKI_INLINE);
+      html_to_plaintext(blob_str(&html), &txt);
+      if( nGot>0 ){
+        fossil_print(
+          "The comment uses special character%s \"%s\". "
+          "Does it render as you expect?\n\n   ",
+          (nGot>1 ? "s" : ""), zGot
+        );
+      }else{
+        fossil_print("Preview of the check-in comment:\n\n   ");
+      }
+      comment_print(blob_str(&txt), 0, 3, -1, get_comment_format());
+      blob_reset(&in);
+      blob_reset(&html);
+      blob_reset(&txt);
+    }
   }
+  blob_reset(&out);
+  return rc;
 }
 
 /*
@@ -2391,7 +2433,7 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
 ** text editor used is determined by the "editor" setting, or by the
 ** "VISUAL" or "EDITOR" environment variables.  Commit message text is
 ** interpreted as fossil-wiki format.  Potentially misformatted check-in
-** comment text is detected and reported unless the --allow-suspect-comment
+** comment text is detected and reported unless the --no-verify-comment
 ** option is used.
 **
 ** The --branch option followed by a branch name causes the new
@@ -2423,7 +2465,6 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
 **    --allow-empty              Allow a commit with no changes
 **    --allow-fork               Allow the commit to fork
 **    --allow-older              Allow a commit older than its ancestor
-**    --allow-suspect-comment    Allow check-in comments that might be misformed
 **    --baseline                 Use a baseline manifest in the commit process
 **    --branch NEW-BRANCH-NAME   Check in to this new branch
 **    --close                    Close the branch being committed
@@ -2451,6 +2492,7 @@ static int suspicious_comment(Blob *pComment, Blob *pSus){
 **                               question.
 **    --no-warnings              Omit all warnings about file contents
 **    --no-verify                Do not run before-commit hooks
+**    --no-verify-comment        Do not validate the check-in comment
 **    --nosign                   Do not attempt to sign this commit with gpg
 **    --nosync                   Do not auto-sync prior to committing
 **    --override-lock            Allow a check-in even though parent is locked
@@ -2490,7 +2532,7 @@ void commit_cmd(void){
   int onlyIfChanges = 0; /* No-op if there are no changes */
   int allowFork = 0;     /* Allow the commit to fork */
   int allowOlder = 0;    /* Allow a commit older than its ancestor */
-  int allowSusCom = 0;   /* Allow suspicious check-in comments */
+  int noVerifyCom = 0;   /* Allow suspicious check-in comments */
   char *zManifestFile;   /* Name of the manifest file */
   int useCksum;          /* True if checksums should be computed and verified */
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
@@ -2516,6 +2558,7 @@ void commit_cmd(void){
   int mxSize;
   char *zCurBranch = 0;  /* The current branch name of checkout */
   char *zNewBranch = 0;  /* The branch name after update */
+  int ckComFlgs;         /* Flags passed to suspicious_comment() */
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
@@ -2546,7 +2589,7 @@ void commit_cmd(void){
   forceFlag = find_option("force", "f", 0)!=0;
   allowConflict = find_option("allow-conflict",0,0)!=0;
   allowEmpty = find_option("allow-empty",0,0)!=0;
-  allowSusCom = find_option("allow-suspect-comment",0,0)!=0;
+  noVerifyCom = find_option("no-verify-comment",0,0)!=0;
   onlyIfChanges = find_option("if-changes",0,0)!=0;
   allowFork = find_option("allow-fork",0,0)!=0;
   if( find_option("override-lock",0,0)!=0 ) allowFork = 1;
@@ -2587,9 +2630,9 @@ void commit_cmd(void){
   verify_all_options();
 
   /* The --no-warnings flag and the --force flag each imply
-  ** the --allow-suspect-comment flag */
+  ** the --no-verify-comment flag */
   if( noWarningFlag || forceFlag ){
-    allowSusCom = 1;
+    noVerifyCom = 1;
   }
 
   /* Get the ID of the parent manifest artifact */
@@ -2879,47 +2922,65 @@ void commit_cmd(void){
     if( bRecheck ) break;
 
 
+    /* Figure out how much comment verification is requested */
+    if( noVerifyCom ){
+      ckComFlgs = 0;
+    }else{
+      const char *zVerComs = db_get("verify-comments","on");
+      if( is_false(zVerComs) ){
+        ckComFlgs = 0;
+      }else if( strcmp(zVerComs,"preview")==0 ){
+        ckComFlgs = COMCK_PREVIEW | COMCK_LINKS | COMCK_MARKUP;
+      }else if( strcmp(zVerComs,"links")==0 ){
+        ckComFlgs = COMCK_LINKS;
+      }else{
+        ckComFlgs = COMCK_LINKS | COMCK_MARKUP;
+      }
+    }
+
     /* Get the check-in comment.  This might involve prompting the
     ** user for the check-in comment, in which case we should resync
     ** to renew the check-in lock and repeat the checks for conflicts.
     */
     if( zComment ){
-      Blob sus;
       blob_zero(&comment);
       blob_append(&comment, zComment, -1);
-      if( !allowSusCom && suspicious_comment(&comment, &sus) ){
-        fossil_fatal("%bCommit aborted; "
-                     "use --allow-suspect-comment to override", &sus);
+      ckComFlgs &= ~(COMCK_PREVIEW|COMCK_MARKUP);
+      ckComFlgs |= COMCK_NOPREVIEW;
+      if( suspicious_comment(&comment, ckComFlgs) ){
+        fossil_fatal("Commit aborted; "
+                     "use --no-verify-comment to override");
       }
     }else if( zComFile ){
-      Blob sus;
       blob_zero(&comment);
       blob_read_from_file(&comment, zComFile, ExtFILE);
       blob_to_utf8_no_bom(&comment, 1);
-      if( !allowSusCom && suspicious_comment(&comment, &sus) ){
-        fossil_fatal("%bCommit aborted; "
-                     "use --allow-suspect-comment to override", &sus);
+      ckComFlgs &= ~(COMCK_PREVIEW|COMCK_MARKUP);
+      ckComFlgs |= COMCK_NOPREVIEW;
+      if( suspicious_comment(&comment, ckComFlgs) ){
+        fossil_fatal("Commit aborted; "
+                     "use --no-verify-comment to override");
       }
     }else if( !noPrompt ){
       while(  1/*exit-by-break*/ ){
+        int rc;
         char *zInit;
-        Blob sus;
-
         zInit = db_text(0,"SELECT value FROM vvar WHERE name='ci-comment'");
         prepare_commit_comment(&comment, zInit, &sCiInfo, vid, dryRunFlag);
         db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
-        if( !allowSusCom && suspicious_comment(&comment,&sus) ){
-          blob_appendf(&sus, "Continue (y/n/E=edit)? ");
-          prompt_user(blob_str(&sus), &ans);
+        if( (rc = suspicious_comment(&comment, ckComFlgs))!=0 ){
+          if( rc==COMCK_PREVIEW ){
+            prompt_user("\nContinue (Y/n/e=edit)? ", &ans);
+          }else{
+            prompt_user("\nContinue (y/n/E=edit)? ", &ans);
+          }
           cReply = blob_str(&ans)[0];
+          cReply = fossil_tolower(cReply);
           blob_reset(&ans);
-          blob_reset(&sus);
-          if( cReply=='n' || cReply=='N' ){
+          if( cReply=='n' ){
             fossil_fatal("Commit aborted.");
           }
-          if( cReply!='y' && cReply!='Y' ){
-            /* "Edit" is the default in case the user enters anything that
-            ** does not start with Y or N - including just hitting return. */
+          if( cReply=='e' || (cReply!='y' && rc!=COMCK_PREVIEW) ){
             fossil_free(zInit);
             continue;
           }
