@@ -893,6 +893,7 @@ void configuration_cmd(void){
     if( g.url.protocol==0 ) fossil_fatal("no server URL specified");
     user_select();
     url_enable_proxy("via proxy: ");
+    g.zHttpAuth = get_httpauth();
     if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
       client_sync(0,0,(unsigned)mask,0,0);
