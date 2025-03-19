@@ -223,7 +223,24 @@ void www_print_timeline(
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
+  /*
+  ** SETTING: timeline-truncate-at-blank  boolean default=off show-only-if-changed
+  **
+  ** If enabled, check-in comments displayed on the timeline are truncated
+  ** at the first blank line of the comment text.  The comment text after
+  ** the first blank line is only seen in the /info or similar pages that
+  ** show details about the check-in.
+  */
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
+  /*
+  ** SETTING: timeline-tslink-info       boolean default=off show-only-if-changed
+  **
+  ** The hyperlink on the timestamp associated with each timeline entry,
+  ** on the far left-hand side of the screen, normally targets another
+  ** /timeline page that shows the entry in context.  However, if this
+  ** option is turned on, that hyperlink targets the /info page showing
+  ** the details of the entry.
+  */
   bTimestampLinksToInfo = db_get_boolean("timeline-tslink-info", 0);
   if( (tmFlags & TIMELINE_VIEWS)==0 ){
     tmFlags |= timeline_ss_cookie();

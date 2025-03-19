@@ -1,5 +1,5 @@
-C Add\s"jove"\sto\sthe\slist\sof\stext\seditors\sthat\sFossil\ssearches\sfor\sif\sthe\n"editor"\ssetting\sand\sthe\sVISUAL\sand\sEDITOR\senvironment\svariables\sare\snot\navailable.
-D 2025-03-19T11:08:47.241
+C Add\sdocumentation\sfor\svarious\ssettings\sthat\sinfluence\sthe\sdisplay\sof\ntimelines,\sbut\sonly\sdisplay\sthem\sif\stheir\svalues\sare\sdifferent\sfrom\sthe\ndefault.
+D 2025-03-19T11:21:44.062
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -514,7 +514,7 @@ F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
 F src/popen.c 1b97d68d5aa43c0d88af6c9324b32efc011920038a382f39097d6f204b2f3a4d
 F src/pqueue.c 4bc9471b252a8624435660be144d0031c40d8c10cb023321ab9234cda156eb02
-F src/printf.c dcaf7a6291f7f799a5d73319732381b3ed32027ece154b3c828b66fed845df56
+F src/printf.c d693b8b398b6819de94898b41ad3c57ca82db1237c602d6f6c53830a2e64a42a
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
@@ -574,7 +574,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c 9237446852114b8d4e9d94cd814c14245e7b920cbd9645dc7641c792695946fa
+F src/timeline.c d914a0b40da3cef16836ad2a4c8a5a64a5c3c0ec5e6e9ea2d4ec0792ff2a224e
 F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
 F src/tktsetup.c dee6358557178e83f24f09149f1aa241f331e2dde0084195156d34f012162e4e
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -968,8 +968,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 478a0fa79cacdd166f8c0ee26a7f66b1cdc8a28656cfc9517244e28b2ec76082
-R 6e3f497896f655bb5940e1ee0149c86e
+P 486f81b931dea1a3d131c1c6b5d8a592ca17563e6b9891c684601417bca64a9d
+Q +7d67724653de7f08b2799f4f25d2aa785f32ab41d507b1cb930721d4b58c613a
+R 2d9b35b7c979f69cf38eb7a85da48449
 U drh
-Z a492a930f6e8bbf25b86f22dff901d7f
+Z eb71f978701cfacc3d69dd4ff9e024d4
 # Remove this line to create a well-formed Fossil manifest.
