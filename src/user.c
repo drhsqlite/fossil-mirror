@@ -300,7 +300,7 @@ char *prompt_for_user_password(const char *zUser){
 void prompt_user(const char *zPrompt, Blob *pIn){
   char *z;
   char zLine[1000];
-  blob_zero(pIn);
+  blob_init(pIn, 0, 0);
   fossil_force_newline();
   fossil_print("%s", zPrompt);
   fflush(stdout);

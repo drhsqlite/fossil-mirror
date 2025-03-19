@@ -3883,21 +3883,22 @@ static void prepare_amend_comment(
 ** Amend the tags on check-in HASH to change how it displays in the timeline.
 **
 ** Options:
-**    --author USER           Make USER the author for check-in
-**    -m|--comment COMMENT    Make COMMENT the check-in comment
-**    -M|--message-file FILE  Read the amended comment from FILE
-**    -e|--edit-comment       Launch editor to revise comment
-**    --date DATETIME         Make DATETIME the check-in time
-**    --bgcolor COLOR         Apply COLOR to this check-in
-**    --branchcolor COLOR     Apply and propagate COLOR to the branch
-**    --tag TAG               Add new TAG to this check-in
-**    --cancel TAG            Cancel TAG from this check-in
-**    --branch NAME           Rename branch of check-in to NAME
-**    --hide                  Hide branch starting from this check-in
-**    --close                 Mark this "leaf" as closed
-**    -n|--dry-run            Print control artifact, but make no changes
-**    --date-override DATETIME  Set the change time on the control artifact
-**    --user-override USER      Set the user name on the control artifact
+**    --author USER              Make USER the author for check-in
+**    --bgcolor COLOR            Apply COLOR to this check-in
+**    --branch NAME              Rename branch of check-in to NAME
+**    --branchcolor COLOR        Apply and propagate COLOR to the branch
+**    --cancel TAG               Cancel TAG from this check-in
+**    --close                    Mark this "leaf" as closed
+**    --date DATETIME            Make DATETIME the check-in time
+**    --date-override DATETIME   Set the change time on the control artifact
+**    -e|--edit-comment          Launch editor to revise comment
+**    --hide                     Hide branch starting from this check-in
+**    -m|--comment COMMENT       Make COMMENT the check-in comment
+**    -M|--message-file FILE     Read the amended comment from FILE
+**    -n|--dry-run               Print control artifact, but make no changes
+**    --no-verify-comment        Do not validate the check-in comment
+**    --tag TAG                  Add new TAG to this check-in
+**    --user-override USER       Set the user name on the control artifact
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -3928,6 +3929,7 @@ void ci_amend_cmd(void){
   int fHasClosed = 0;           /* True if closed tag already set */
   int fEditComment;             /* True if editor to be used for comment */
   int fDryRun;                  /* Print control artifact, make no changes */
+  int noVerifyCom = 0;          /* Allow suspicious check-in comments */
   const char *zChngTime;        /* The change time on the control artifact */
   const char *zUserOvrd;        /* The user name on the control artifact */
   const char *zUuid;
@@ -3937,6 +3939,8 @@ void ci_amend_cmd(void){
   int nTags, nCancels;
   int i;
   Stmt q;
+  int ckComFlgs;                /* Flags passed to suspicious_comment() */
+
 
   fEditComment = find_option("edit-comment","e",0)!=0;
   zNewComment = find_option("comment","m",1);
@@ -3958,6 +3962,7 @@ void ci_amend_cmd(void){
   zChngTime = find_option("date-override",0,1);
   if( zChngTime==0 ) zChngTime = find_option("chngtime",0,1);
   zUserOvrd = find_option("user-override",0,1);
+  noVerifyCom = find_option("no-verify-comment",0,0)!=0;
   db_find_and_open_repository(0,0);
   user_select();
   verify_all_options();
@@ -4016,17 +4021,70 @@ void ci_amend_cmd(void){
   if( (zNewColor!=0 && zNewColor[0]==0) && (zColor && zColor[0] ) ){
     cancel_color();
   }
-  if( fEditComment ){
-    prepare_amend_comment(&comment, zComment, zUuid);
-    zNewComment = blob_str(&comment);
-  }else if( zComFile ){
-    blob_zero(&comment);
-    blob_read_from_file(&comment, zComFile, ExtFILE);
-    blob_to_utf8_no_bom(&comment, 1);
-    zNewComment = blob_str(&comment);
+  if( fEditComment || zNewComment || zComFile ){
+    blob_init(&comment, 0, 0);
+
+    /* Figure out how much comment verification is requested */
+    if( noVerifyCom ){
+      ckComFlgs = 0;
+    }else{
+      const char *zVerComs = db_get("verify-comments","on");
+      if( is_false(zVerComs) ){
+        ckComFlgs = 0;
+      }else if( strcmp(zVerComs,"preview")==0 ){
+        ckComFlgs = COMCK_PREVIEW | COMCK_LINKS | COMCK_MARKUP;
+      }else if( strcmp(zVerComs,"links")==0 ){
+        ckComFlgs = COMCK_LINKS;
+      }else{
+        ckComFlgs = COMCK_LINKS | COMCK_MARKUP;
+      }
+      if( zNewComment || zComFile ){
+        ckComFlgs = (ckComFlgs & COMCK_LINKS) | COMCK_NOPREVIEW;
+      }
+    }
+    if( fEditComment ){
+      prepare_amend_comment(&comment, zComment, zUuid);
+    }else if( zComFile ){
+      blob_read_from_file(&comment, zComFile, ExtFILE);
+      blob_to_utf8_no_bom(&comment, 1);
+    }else if( zNewComment ){
+      blob_init(&comment, zNewComment, -1);
+    }
+    if( blob_size(&comment)>0
+     && comment_compare(zComment, blob_str(&comment))==0
+    ){
+      int rc;
+      while( (rc = suspicious_comment(&comment, ckComFlgs))!=0 ){
+        char cReply;
+        Blob ans;
+        if( !fEditComment ){
+          fossil_fatal("Amend aborted; "
+                       "use --no-verify-comment to override");
+        }
+        if( rc==COMCK_PREVIEW ){
+          prompt_user("\nContinue (Y/n/e=edit)? ", &ans);
+        }else{
+          prompt_user("\nContinue (y/n/E=edit)? ", &ans);
+        }
+        cReply = blob_str(&ans)[0];
+        cReply = fossil_tolower(cReply);
+        blob_reset(&ans);
+        if( cReply=='n' ){
+          fossil_fatal("Amend aborted.");
+        }
+        if( cReply=='e' || (cReply!='y' && rc!=COMCK_PREVIEW) ){
+          char *zPrior = blob_materialize(&comment);
+          blob_init(&comment, 0, 0);
+          prepare_amend_comment(&comment, zPrior, zUuid);
+          fossil_free(zPrior);
+          continue;
+        }else{
+          break;
+        }
+      }
+    }
+    add_comment(blob_str(&comment));
   }
-  if( zNewComment && zNewComment[0]
-      && comment_compare(zComment,zNewComment)==0 ) add_comment(zNewComment);
   if( zNewDate && zNewDate[0] && fossil_strcmp(zDate,zNewDate)!=0 ){
     if( is_datetime(zNewDate) ){
       add_date(zNewDate);

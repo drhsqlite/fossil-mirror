@@ -2321,7 +2321,7 @@ static int tagCmp(const void *a, const void *b){
 **
 ** If no issues are seen, do not output anything and return zero.
 */
-static int suspicious_comment(Blob *pComment, int mFlags){
+int suspicious_comment(Blob *pComment, int mFlags){
   char *zStart = blob_str(pComment);
   char *z;
   char *zEnd, *zEnd2;
