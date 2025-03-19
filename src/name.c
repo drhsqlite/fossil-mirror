@@ -170,23 +170,36 @@ char *fossil_expand_datetime(const char *zIn,int bVerifyNotAHash,int bRoundUp){
 ** The returned string is held in a static buffer that is overwritten
 ** with each call, or else is just a copy of its input if there are
 ** no changes.
+**
+** For reference:
+**
+**        0123456789 123456789 1234
+**        YYYY-MM-DD HH:MM:SS.SSSz
 */
 const char *fossil_roundup_date(const char *zDate){
-  static char zUp[24];
+  static char zUp[28];
   int n = (int)strlen(zDate);
+  int addZ = 0;
+  if( n>10 && (zDate[n-1]=='z' || zDate[n-1]=='Z') ){
+    n--;
+    addZ = 1;
+  }
   if( n==19 ){  /* YYYY-MM-DD HH:MM:SS */
     memcpy(zUp, zDate, 19);
-    memcpy(zUp+19, ".999", 5);
+    memcpy(zUp+19, ".999z", 6);
+    if( !addZ ) zUp[23] = 0;
     return zUp;
   }
   if( n==16 ){ /* YYYY-MM-DD HH:MM */
     memcpy(zUp, zDate, 16);
-    memcpy(zUp+16, ":59.999", 8);
+    memcpy(zUp+16, ":59.999z", 8);
+    if( !addZ ) zUp[23] = 0;
     return zUp;
   }
   if( n==10 ){ /* YYYY-MM-DD */
     memcpy(zUp, zDate, 10);
-    memcpy(zUp+10, " 23:59:59.999", 14);
+    memcpy(zUp+10, " 23:59:59.999z", 14);
+    if( !addZ ) zUp[23] = 0;
     return zUp;
   }
   return zDate;
