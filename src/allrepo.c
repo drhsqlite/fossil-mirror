@@ -53,7 +53,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 }
 
 /*
-** COMMAND: all               abbreviated-subcommands
+** COMMAND: all               abbrv-subcom
 **
 ** Usage: %fossil all SUBCOMMAND ...
 **

@@ -2285,7 +2285,7 @@ static int tagCmp(const void *a, const void *b){
 }
 
 /*
-** SETTING: verify-comments          width=8 default=on show-only-if-changed
+** SETTING: verify-comments          width=8 default=on if-chng
 **
 ** This setting determines how much sanity checking, if any, the 
 ** "fossil commit" and "fossil amend" commands do against check-in

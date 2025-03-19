@@ -284,9 +284,11 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
       aEntry[nUsed].eType |= CMDFLAG_HIDDEN;
     }else if( j==14 && strncmp(&zLine[i], "loadavg-exempt", 14)==0 ){
       aEntry[nUsed].eType |= CMDFLAG_LDAVG_EXEMPT;
-    }else if( j==23 && strncmp(&zLine[i], "abbreviated-subcommands", 23)==0 ){
+    }else if( (j==23 && strncmp(&zLine[i], "abbreviated-subcommands", 23)==0)
+           || (j==12 && strncmp(&zLine[i], "abbrv-subcom", 12)==0) ){
       aEntry[nUsed].eType |= CMDFLAG_ABBREVSUBCMD;
-    }else if( j==20 && strncmp(&zLine[i], "show-only-if-changed", 20)==0 ){
+    }else if( (j==20 && strncmp(&zLine[i], "show-only-if-changed", 20)==0)
+           || (j==7  && strncmp(&zLine[i], "if-chng", 7)==0) ){
       aEntry[nUsed].eType |= CMDFLAG_IFCHNG;
     }else{
       fprintf(stderr, "%s:%d: unknown option: '%.*s'\n",

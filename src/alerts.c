@@ -1136,7 +1136,7 @@ void alert_send(
 
 
 /*
-** COMMAND: alerts*                     abbreviated-subcommands
+** COMMAND: alerts*                     abbrv-subcom
 **
 ** Usage: %fossil alerts SUBCOMMAND ARGS...
 **

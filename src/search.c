@@ -2293,7 +2293,7 @@ void search_rebuild_index(void){
 }
 
 /*
-** COMMAND: fts-config*                    abbreviated-subcommands
+** COMMAND: fts-config*                    abbrv-subcom
 **
 ** Usage: fossil fts-config ?SUBCOMMAND? ?ARGUMENT?
 **
