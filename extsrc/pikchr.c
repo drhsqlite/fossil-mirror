@@ -27,13 +27,13 @@
 */
 /************ Begin %include sections from the grammar ************************/
 #line 1 "VERSION.h"
-#define MANIFEST_UUID "052f07296e76ab2312caf2a4bf6237e574b3e533c7a36ee8f34db833baa3efb4"
-#define MANIFEST_VERSION "[052f07296e]"
-#define MANIFEST_DATE "2025-03-05 10:54:16"
+#define MANIFEST_UUID "9b9b3133644ff804f8312bb839ad4eb43d1eb1869558f7a3a50b788b2c4a706a"
+#define MANIFEST_VERSION "[9b9b313364]"
+#define MANIFEST_DATE "2025-03-19 12:41:21"
 #define MANIFEST_YEAR "2025"
-#define MANIFEST_ISODATE "20250305105416"
-#define MANIFEST_NUMERIC_DATE 20250305
-#define MANIFEST_NUMERIC_TIME 105416
+#define MANIFEST_ISODATE "20250319124121"
+#define MANIFEST_NUMERIC_DATE 20250319
+#define MANIFEST_NUMERIC_TIME 124121
 #define RELEASE_VERSION "1.0"
 #define RELEASE_VERSION_NUMBER 10000
 #define RELEASE_RESOURCE_VERSION 1,0,0,0
@@ -3689,11 +3689,11 @@ static void arcInit(Pik *p, PObj *pObj){
 ** mean based on available documentation.  (2) Arcs are rarely used,
 ** and so do not seem that important.
 */
-static PPoint arcControlPoint(int cw, PPoint f, PPoint t, PNum rScale){
+static PPoint arcControlPoint(int cw, PPoint f, PPoint t, PNum rScale, PNum rPct){
   PPoint m;
   PNum dx, dy;
-  m.x = 0.5*(f.x+t.x);
-  m.y = 0.5*(f.y+t.y);
+  m.x = rPct*(f.x+t.x);
+  m.y = rPct*(f.y+t.y);
   dx = t.x - f.x;
   dy = t.y - f.y;
   if( cw ){
@@ -3711,7 +3711,9 @@ static void arcCheck(Pik *p, PObj *pObj){
     pik_error(p, &pObj->errTok, "arc geometry error");
     return;
   }
-  m = arcControlPoint(pObj->cw, p->aTPath[0], p->aTPath[1], 0.5);
+  m = arcControlPoint(pObj->cw, p->aTPath[0], p->aTPath[1], 0.5, 0.25);
+  pik_bbox_add_xy(&pObj->bbox, m.x, m.y);
+  m = arcControlPoint(pObj->cw, p->aTPath[0], p->aTPath[1], 0.5, 0.75);
   pik_bbox_add_xy(&pObj->bbox, m.x, m.y);
 }
 static void arcRender(Pik *p, PObj *pObj){
@@ -3720,7 +3722,7 @@ static void arcRender(Pik *p, PObj *pObj){
   if( pObj->sw<0.0 ) return;
   f = pObj->aPath[0];
   t = pObj->aPath[1];
-  m = arcControlPoint(pObj->cw,f,t,1.0);
+  m = arcControlPoint(pObj->cw,f,t,1.0,0.5);
   if( pObj->larrow ){
     pik_draw_arrowhead(p,&m,&f,pObj);
   }
@@ -8317,4 +8319,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8320 "pikchr.c"
+#line 8322 "pikchr.c"

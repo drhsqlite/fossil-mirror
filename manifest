@@ -1,5 +1,5 @@
-C Optionally\sshow\sor\shide\sthe\s"if-chng"\ssettings\son\sthe\sSetup&#8594;Settings\npage.
-D 2025-03-19T11:50:04.806
+C Update\sthe\sbuilt-in\sPikchr\sto\sthe\slatest\sversion\sthat\sfixes\sthe\sissue\nwith\sbounding\sboxes\son\srotated\sarcs.
+D 2025-03-19T12:43:07.418
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -271,7 +271,7 @@ F extsrc/linenoise-win32.c 4edab5d16a9ba9e1561ba271f35a9f74c86ab5363f402840c7c3a
 F extsrc/linenoise.c 2ae333dd88a25281998e9463a99b5c50ad3eaf8fa885dcf8eedfb362ded1f86f
 F extsrc/linenoise.h 8f20fae1acd1ca76c4632c882249827410246f1045ebd800edeeea6b17905e00
 F extsrc/pikchr-worker.js d732ef358ce359fe0717f0e770d8e84b94bd5d48e4ab453b96a6a1951830adb8
-F extsrc/pikchr.c 430a5f8deb03e6801ec372ec4318306d46d5c647a92cb78f3f5bb78ddedf05ec
+F extsrc/pikchr.c d35a39f9cdd5668d5841589e11fd2a0a730df47e56721f1d6b8fd74d41e173a0
 F extsrc/pikchr.js 3019452f9d948673d40b2657aef2f8bcfe2b486f0035e6465c683f01687e8ed1
 F extsrc/pikchr.wasm a5c085dac76858f5f51e203aef36937d2815a477bd7bf71789b6a4768452a43a
 F extsrc/shell.c 59f9da84e960d02b0f8f68088967272cf500ed9b19dc962b8b6dc00e54072fd6
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3e7c7e227733b1004f694784f6eb24f3108227b365a43dc49a3888e9be9ece97
-R 78cebb95c59318ac5c4c9d97f7d33797
+P f60bd4a752ea539defdff5061a451fdffb2b309d0d9f57c4675663b83b7759d4
+R e05bb1b9d54e3a3b265ba5b562a8203f
 U drh
-Z 222b12ed611bdb81627e203f58fca7ba
+Z 4cc745f176142c614b0e5fee7dd7dd68
 # Remove this line to create a well-formed Fossil manifest.
