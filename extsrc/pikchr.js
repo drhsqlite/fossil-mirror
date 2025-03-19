@@ -302,7 +302,7 @@ var dataURIPrefix = "data:application/octet-stream;base64,";
 // include: runtime_exceptions.js
 // end include: runtime_exceptions.js
 function findWasmBinary() {
-  var f = "pikchr-v7583078860.wasm";
+  var f = "pikchr-v2813665466.wasm";
   if (!isDataURI(f)) {
     return locateFile(f);
   }

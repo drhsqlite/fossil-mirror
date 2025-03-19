@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sPikchr\sto\sthe\slatest\sversion\sthat\sfixes\sthe\sissue\nwith\sbounding\sboxes\son\srotated\sarcs.
-D 2025-03-19T12:43:07.418
+C Yet\sanother\supdate\sto\sPikchr\sto\sfix\sthe\sarc\sbounding\sbox\sproblem.
+D 2025-03-19T16:27:59.111
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -270,10 +270,10 @@ F extsrc/cson_amalgamation.h 3903869fccd066d54ce9716125e5d0fade48bc106b82a3c5f37
 F extsrc/linenoise-win32.c 4edab5d16a9ba9e1561ba271f35a9f74c86ab5363f402840c7c3a37647fb1a0b
 F extsrc/linenoise.c 2ae333dd88a25281998e9463a99b5c50ad3eaf8fa885dcf8eedfb362ded1f86f
 F extsrc/linenoise.h 8f20fae1acd1ca76c4632c882249827410246f1045ebd800edeeea6b17905e00
-F extsrc/pikchr-worker.js d732ef358ce359fe0717f0e770d8e84b94bd5d48e4ab453b96a6a1951830adb8
-F extsrc/pikchr.c d35a39f9cdd5668d5841589e11fd2a0a730df47e56721f1d6b8fd74d41e173a0
-F extsrc/pikchr.js 3019452f9d948673d40b2657aef2f8bcfe2b486f0035e6465c683f01687e8ed1
-F extsrc/pikchr.wasm a5c085dac76858f5f51e203aef36937d2815a477bd7bf71789b6a4768452a43a
+F extsrc/pikchr-worker.js f1c029d1f6ccf626373d79fe213bb5039cc8014925c3a6ef0f0d854d033d2cff
+F extsrc/pikchr.c e82d4b68867a01e1688fcae7c08439a328434fd390a3a8e23d1416fbd09dabaa
+F extsrc/pikchr.js 9db23c4d8b68d86686b903bd4b5e5a7bf8dd97f0b5157377f4ac2bc2448f4859
+F extsrc/pikchr.wasm 5dcce2f7eb59441fd8fcb62a57644b86a04d339cdafb662967ae195885f33d5b
 F extsrc/shell.c 59f9da84e960d02b0f8f68088967272cf500ed9b19dc962b8b6dc00e54072fd6
 F extsrc/sqlite3.c f4ed8aa46195fe380bf886dd315e20a8bacb9b0051cfdaa8051ac096be9d3960
 F extsrc/sqlite3.h 88842f4320de0dad5ef3c1f16e407962a7c09826190a513f84e3dc16a0f584bf
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f60bd4a752ea539defdff5061a451fdffb2b309d0d9f57c4675663b83b7759d4
-R e05bb1b9d54e3a3b265ba5b562a8203f
+P 91dabe4b35ac3066e0bd09d399023f89a2d825deebfe2828392e24cc55eb9b18
+R 05a9edc918d1ccdc7671b884979d77fe
 U drh
-Z 4cc745f176142c614b0e5fee7dd7dd68
+Z eb0b211c0f2641c5e9bf752a98041861
 # Remove this line to create a well-formed Fossil manifest.
