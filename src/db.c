@@ -4790,7 +4790,7 @@ struct Setting {
 ** If this value is not set, then environment variables VISUAL and
 ** EDITOR are consulted, in that order.  If neither of those are set,
 ** then a search is made for common text editors, including
-** "notepad", "nano", "pico", "edit", "vi", "vim", and "ed".
+** "notepad", "nano", "pico", "jove", "edit", "vi", "vim", and "ed".
 **
 ** If this setting is false ("off", "no", "false", or "0") then no
 ** text editor is used.

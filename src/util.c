@@ -673,12 +673,12 @@ int fossil_all_whitespace(const char *z){
 ** (3) The VISUAL environment variable
 ** (4) The EDITOR environment variable
 ** (5) Any of the following programs that are available:
-**        notepad, nano, pico, edit, vi, vim, ed,
+**        notepad, nano, pico, jove, edit, vi, vim, ed,
 */
 const char *fossil_text_editor(void){
   const char *zEditor = db_get("editor", 0);
   const char *azStdEd[] = {
-    "notepad", "nano", "pico", "edit", "vi", "vim", "ed"
+    "notepad", "nano", "pico", "jove", "edit", "vi", "vim", "ed"
   };
   int i = 0;
   if( zEditor==0 ){
