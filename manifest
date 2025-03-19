@@ -1,5 +1,5 @@
-C Simplify\sthe\scommand\sproperty\sof\s"abbreviated-subcommands"\sto\sjust\n"abbrv-subcom"\sand\sthe\ssetting\sproperty\sof\s"show-only-if-changed"\sto\njust\s"if-chng".
-D 2025-03-19T11:31:20.790
+C Optionally\sshow\sor\shide\sthe\s"if-chng"\ssettings\son\sthe\sSetup&#8594;Settings\npage.
+D 2025-03-19T11:50:04.806
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -526,7 +526,7 @@ F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 6d6ceb9be36fa464fdea8a55cfc6eef66006ee50456afa263838a57c4f04518c
 F src/security_audit.c 0823c9d9c9011a750485454675f40d77b945116dd6e30d0d635722b1cceebd53
-F src/setup.c c457307a81d927f4549e068c4cfaa6491144fea36d3f95eb818f3d18b366dc4d
+F src/setup.c 4a55a3fbbb6332b84b15e8c37fdad9cc86f1c2ddf8f9d9c3f78acd45f511f2c4
 F src/setupuser.c b707636bb05076e31a4ce1dae949b7f24b8cc2fc553857b6217d89e3847ae853
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f78e794d35e4e651b2fa3d5a5e11094f69a6a855f7828ae70b3cf82ee6f863b
-R 6873c96ebbd05f41515e4a0c4dbbbff9
+P 3e7c7e227733b1004f694784f6eb24f3108227b365a43dc49a3888e9be9ece97
+R 78cebb95c59318ac5c4c9d97f7d33797
 U drh
-Z 38bf2325ae877bd1fb5f7b0e1edcc740
+Z 222b12ed611bdb81627e203f58fca7ba
 # Remove this line to create a well-formed Fossil manifest.
