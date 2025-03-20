@@ -4492,8 +4492,10 @@ void print_setting(const Setting *pSetting, int valueOnly, int bIfChng){
       }
     }
     if( noShow ){
-      fossil_print("%-24s (versioned)\n", pSetting->name);
-      versioned = 0;
+      if( versioned ){
+        fossil_print("%-24s (versioned)\n", pSetting->name);
+        versioned = 0;
+      }
     }else if( valueOnly ){
       fossil_print("%s\n", db_column_text(&q, 1));
     }else{

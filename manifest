@@ -1,5 +1,5 @@
-C Change\sdefault\svalues\sof\svarious\ssettings:\s\sadmin-log=ON,\saccess-log=ON,\nauthsync=ON,\stimeline-plaintext=OFF.
-D 2025-03-20T17:34:46.955
+C Fix\sto\sa\sbug\sin\s"fossil\ssetting"\soutput\sfor\sversioned\ssettings,\nintroduced\sby\sthe\sprevious\scheck-in.
+D 2025-03-20T17:51:18.893
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c e6e02ce64925b846361d9d46074583cf2b8065e452afa0a7adb467c5dc57eac7
+F src/db.c 7c8ec7f4a97d79b0f3b02e6f9f597e4ea3ddd6b2b40222eb6a16bdd74d10e5e8
 F src/default.css 94743facfa876f5c35f2974f9e356e8a47587e2292e98c41063785699d51ae4f
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74a5e10b9b281f1724f3b96572b3234719d583d5543c2903792dffcffdffd54c
-R 283192b848e8c13600062d476a58e266
+P bdf12f44e64c02deb3cadf38d5ac54a4fab52a930766560fae5210c18729bd00
+R 37ebd9c83a371e39eb64c3cac4433019
 U drh
-Z b8c43ab35f0bed4c5bd5ebce3e54efa2
+Z 4379a751fff9d78565b21a04f81e2239
 # Remove this line to create a well-formed Fossil manifest.
