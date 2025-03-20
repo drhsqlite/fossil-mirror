@@ -243,7 +243,7 @@ static int StrNLen32(const char *z, int N){
 #endif
 
 /*
-** SETTING: timeline-plaintext         boolean default=off if-chng
+** SETTING: timeline-plaintext         boolean default=off
 **
 ** If enabled, no wiki-formatting is done for timeline comment messages.
 ** Hyperlinks are activated, but they show up on screen using the 
@@ -251,7 +251,7 @@ static int StrNLen32(const char *z, int N){
 ** is done.
 */
 /*
-** SETTING: timeline-block-markup      boolean default=off if-chng
+** SETTING: timeline-block-markup      boolean default=off
 **
 ** If enabled, block markup (paragraph brakes, tables, lists, headings, etc)
 ** is enabled while rendering check-in comment message on the timeline.
@@ -259,7 +259,7 @@ static int StrNLen32(const char *z, int N){
 ** check-in comments are short and do not take up too much vertical space.
 */
 /*
-** SETTING: timeline-hard-newlines     boolean default=off if-chng
+** SETTING: timeline-hard-newlines     boolean default=off
 **
 ** If enabled, the timeline honors newline characters in check-in comments.
 ** In other words, newlines are coverted into <br> for HTML display.

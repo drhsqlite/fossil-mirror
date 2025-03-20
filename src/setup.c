@@ -1111,7 +1111,7 @@ void setup_settings(void){
   int nSetting;
   int i;
   Setting const *pSet;
-  int bExtra = P("extra")!=0;
+  int bIfChng = P("all")==0;
   const Setting *aSetting = setting_info(&nSetting);
 
   login_check_credentials();
@@ -1128,6 +1128,10 @@ void setup_settings(void){
     db_open_local(0);
   }
   db_begin_transaction();
+  if( bIfChng ){
+    @ <p>Only settings whose value is different from the default are shown.
+    @ Click the "All" button above to set all settings.
+  }
   @ <p>Settings marked with (v) are "versionable" and will be overridden
   @ by the contents of managed files named
   @ "<tt>.fossil-settings/</tt><i>SETTING-NAME</i>".
@@ -1135,11 +1139,11 @@ void setup_settings(void){
   @ changed on this screen.</p><hr><p>
   @
   @ <form action="%R/setup_settings" method="post"><div>
-  if( bExtra ){
-    @ <input type="hidden" name="extra" value="1">
-    style_submenu_element("No-Extras", "%R/setup_settings");
+  if( bIfChng ){
+    style_submenu_element("All", "%R/setup_settings?all");
   }else{
-    style_submenu_element("Extras", "%R/setup_settings?extra");
+    @ <input type="hidden" name="all" value="1">
+    style_submenu_element("Changes-Only", "%R/setup_settings");
   }
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
@@ -1147,7 +1151,7 @@ void setup_settings(void){
     if( pSet->width==0 ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL, NULL)!=0);
-      if( pSet->bIfChng && !bExtra ){
+      if( bIfChng ){
         const char *zVal = db_get(pSet->name, 0);
         if( zVal==0 || is_false(zVal)==is_false(pSet->def) ) continue;
       }
@@ -1169,7 +1173,7 @@ void setup_settings(void){
     if( pSet->width>0 && !pSet->forceTextArea ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL, NULL)!=0);
-      if( pSet->bIfChng && !bExtra ){
+      if( bIfChng ){
         const char *zVal = db_get(pSet->name, 0);
         if( zVal==0 || fossil_strcmp(zVal,pSet->def)==0 ) continue;
       }
@@ -1192,7 +1196,7 @@ void setup_settings(void){
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && pSet->forceTextArea ){
       int hasVersionableValue = db_get_versioned(pSet->name, NULL, NULL)!=0;
-      if( pSet->bIfChng && !bExtra ){
+      if( bIfChng ){
         const char *zVal = db_get(pSet->name, 0);
         if( zVal==0 || fossil_strcmp(zVal,pSet->def)==0 ) continue;
       }

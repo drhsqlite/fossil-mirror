@@ -4441,11 +4441,15 @@ void cmd_open(void){
 /*
 ** Print the current value of a setting identified by the pSetting
 ** pointer.
+**
+** Only show the value, not the setting name, if valueOnly is true.
+**
+** Show nothing if bIfChng is true and the setting is not currently set
+** or is set to its default value.
 */
-void print_setting(const Setting *pSetting, int valueOnly, int bAlways){
+void print_setting(const Setting *pSetting, int valueOnly, int bIfChng){
   Stmt q;
   int versioned = 0;
-  if( !pSetting->bIfChng ) bAlways = 1;
   if( pSetting->versionable && g.localOpen ){
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
@@ -4459,7 +4463,7 @@ void print_setting(const Setting *pSetting, int valueOnly, int bAlways){
   }
   if( valueOnly && versioned ){
     const char *zVal = db_get_versioned(pSetting->name, NULL, NULL);
-    if( bAlways || (zVal!=0 && fossil_strcmp(zVal, pSetting->def)!=0) ){
+    if( !bIfChng || (zVal!=0 && fossil_strcmp(zVal, pSetting->def)!=0) ){
       fossil_print("%s\n", db_get_versioned(pSetting->name, NULL, NULL));
     }else{
       versioned = 0;
@@ -4481,20 +4485,53 @@ void print_setting(const Setting *pSetting, int valueOnly, int bAlways){
   }
   if( db_step(&q)==SQLITE_ROW ){
     const char *zVal = db_column_text(&q,1);
-    if( !bAlways && (zVal==0 || fossil_strcmp(zVal, pSetting->def)==0) ){
-      /* Don't display because the value is equal to the default */
+    int noShow = 0;
+    if( bIfChng ){
+      /* Don't display the value is equal to the default */
+      if( zVal==0 ){
+        noShow = 1;
+      }else if( pSetting->def ){
+        if( pSetting->width==0 ){
+          if( is_false(zVal) && is_false(pSetting->def) ) noShow = 1;
+        }else{
+          if( fossil_strcmp(zVal, pSetting->def)==0 ) noShow = 1;
+        }
+      }
+    }
+    if( noShow ){
+      fossil_print("%-24s (versioned)\n", pSetting->name);
+      versioned = 0;
     }else if( valueOnly ){
       fossil_print("%s\n", db_column_text(&q, 1));
     }else{
-      fossil_print("%-20s %-8s %s\n", pSetting->name, db_column_text(&q, 0),
-          db_column_text(&q, 1));
+      const char *zVal = (const char*)db_column_text(&q,1);
+      const char *zName = (const char*)db_column_text(&q,0);
+      if( zVal==0 ) zVal = "NULL";
+      if( strchr(zVal,'\n')==0 ){
+        fossil_print("%-24s %-11s %s\n", pSetting->name, zName, zVal);
+      }else{
+        fossil_print("%-24s %-11s\n", pSetting->name, zName);
+        while( zVal[0] ){
+          char *zNL = strchr(zVal, '\n');
+          if( zNL==0 ){
+            fossil_print("    %s\n", zVal);
+            break;
+          }else{
+            int n = (int)(zNL - zVal);
+            while( n>0 && fossil_isspace(zVal[n-1]) ){ n--; }
+            fossil_print("    %.*s\n", n, zVal);
+            zVal = zNL+1;
+          }
+        }
+      }
     }
-  }else if( !bAlways ){
+  }else if( bIfChng ){
     /* Display nothing */
+    versioned = 0;
   }else if( valueOnly ){
     fossil_print("\n");
   }else{
-    fossil_print("%-20s\n", pSetting->name);
+    fossil_print("%-24s\n", pSetting->name);
   }
   if( versioned ){
     fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
@@ -4529,7 +4566,6 @@ struct Setting {
   char versionable;     /* Is this setting versionable? */
   char forceTextArea;   /* Force using a text area for display? */
   char sensitive;       /* True if this a security-sensitive setting */
-  char bIfChng;         /* Only display if value differs from default */
   const char *def;      /* Default value */
 };
 
@@ -5240,9 +5276,8 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 ** on the local settings.  Use the --global option to change global settings.
 **
 ** Options:
+**   --changed  Only show settings if the value differs from the default
 **   --exact    Only consider exact name matches
-**   --extra    When listing settings, show them all, even those that are
-**              normally only shown if there values are different from default
 **   --global   Set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only
 **   --value    Only show the value of a given property (implies --exact)
@@ -5252,8 +5287,8 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
+  int bIfChng = find_option("changed",0,0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
-  int extraFlag = find_option("extra",0,0)!=0;
   int valueFlag = find_option("value",0,0)!=0;
   /* Undocumented "--test-for-subsystem SUBSYS" option used to test
   ** the db_get_for_subsystem() interface: */
@@ -5277,12 +5312,11 @@ void setting_cmd(void){
     if( g.argc!=3 ){
       fossil_fatal("--value is only supported when qurying a given property");
     }
-    exactFlag = 1;
   }
 
   if( g.argc==2 ){
     for(i=0; i<nSetting; i++){
-      print_setting(&aSetting[i], 0, extraFlag);
+      print_setting(&aSetting[i], 0, bIfChng);
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
@@ -5337,7 +5371,7 @@ void setting_cmd(void){
           }
           fossil_print("\n");
         }else{
-          print_setting(pSetting, valueFlag, extraFlag);
+          print_setting(pSetting, valueFlag, bIfChng);
         }
         pSetting++;
       }

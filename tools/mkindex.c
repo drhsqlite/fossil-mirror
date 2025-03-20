@@ -103,7 +103,6 @@
 #define CMDFLAG_ALIAS        0x02000    /* Command aliases */
 #define CMDFLAG_KEEPEMPTY    0x04000    /* Do not unset empty settings */
 #define CMDFLAG_ABBREVSUBCMD 0x08000    /* Abbreviated subcmd in help text */
-#define CMDFLAG_IFCHNG       0x10000    /* Show settting only if not default */ 
 /**************************************************************************/
 
 /*
@@ -287,9 +286,6 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
     }else if( (j==23 && strncmp(&zLine[i], "abbreviated-subcommands", 23)==0)
            || (j==12 && strncmp(&zLine[i], "abbrv-subcom", 12)==0) ){
       aEntry[nUsed].eType |= CMDFLAG_ABBREVSUBCMD;
-    }else if( (j==20 && strncmp(&zLine[i], "show-only-if-changed", 20)==0)
-           || (j==7  && strncmp(&zLine[i], "if-chng", 7)==0) ){
-      aEntry[nUsed].eType |= CMDFLAG_IFCHNG;
     }else{
       fprintf(stderr, "%s:%d: unknown option: '%.*s'\n",
               zFile, nLine, j, &zLine[i]);
@@ -522,19 +518,18 @@ void build_table(void){
     }else{
       printf(" 0,%*s", 16, "");
     }
-    printf(" %3d, %d, %d, %d, %d, \"%s\"%*s },\n",
+    printf(" %3d, %d, %d, %d, \"%s\"%*s },\n",
       aEntry[i].iWidth,
       (aEntry[i].eType & CMDFLAG_VERSIONABLE)!=0,
       (aEntry[i].eType & CMDFLAG_BLOCKTEXT)!=0,
       (aEntry[i].eType & CMDFLAG_SENSITIVE)!=0,
-      (aEntry[i].eType & CMDFLAG_IFCHNG)!=0,
       zDef, (int)(10-strlen(zDef)), ""
     );
     if( aEntry[i].zIf ){
       printf("#endif\n");
     }
   }
-  printf("{0,0,0,0,0,0,0,0}};\n");
+  printf("{0,0,0,0,0,0,0}};\n");
 
 }
 
