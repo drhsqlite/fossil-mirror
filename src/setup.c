@@ -1151,9 +1151,8 @@ void setup_settings(void){
     if( pSet->width==0 ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL, NULL)!=0);
-      if( bIfChng ){
-        const char *zVal = db_get(pSet->name, 0);
-        if( zVal==0 || is_false(zVal)==is_false(pSet->def) ) continue;
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
       }
       onoff_attribute("", pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
@@ -1173,9 +1172,8 @@ void setup_settings(void){
     if( pSet->width>0 && !pSet->forceTextArea ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL, NULL)!=0);
-      if( bIfChng ){
-        const char *zVal = db_get(pSet->name, 0);
-        if( zVal==0 || fossil_strcmp(zVal,pSet->def)==0 ) continue;
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
       }
       @ <tr><td>
       @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
@@ -1196,9 +1194,8 @@ void setup_settings(void){
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && pSet->forceTextArea ){
       int hasVersionableValue = db_get_versioned(pSet->name, NULL, NULL)!=0;
-      if( bIfChng ){
-        const char *zVal = db_get(pSet->name, 0);
-        if( zVal==0 || fossil_strcmp(zVal,pSet->def)==0 ) continue;
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
       }
       @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){

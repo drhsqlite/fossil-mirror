@@ -4432,6 +4432,22 @@ void cmd_open(void){
 }
 
 /*
+** Return true if pSetting has its default value assuming its
+** current value is zVal.
+*/
+int setting_has_default_value(const Setting *pSetting, const char *zVal){
+  if( zVal==0 ) return 1;
+  if( pSetting->def==0 ) return 0;
+  if( pSetting->width==0 ){
+    return is_false(pSetting->def)==is_false(zVal);
+  }
+  if( fossil_strcmp(pSetting->def, zVal)==0 ) return 1;
+  if( is_false(zVal) && is_false(pSetting->def) ) return 1;
+  if( is_truth(zVal) && is_truth(pSetting->def) ) return 1;
+  return 0;
+}
+
+/*
 ** Print the current value of a setting identified by the pSetting
 ** pointer.
 **
@@ -4478,20 +4494,7 @@ void print_setting(const Setting *pSetting, int valueOnly, int bIfChng){
   }
   if( db_step(&q)==SQLITE_ROW ){
     const char *zVal = db_column_text(&q,1);
-    int noShow = 0;
-    if( bIfChng ){
-      /* Don't display the value is equal to the default */
-      if( zVal==0 ){
-        noShow = 1;
-      }else if( pSetting->def ){
-        if( pSetting->width==0 ){
-          if( is_false(zVal) && is_false(pSetting->def) ) noShow = 1;
-        }else{
-          if( fossil_strcmp(zVal, pSetting->def)==0 ) noShow = 1;
-        }
-      }
-    }
-    if( noShow ){
+    if( bIfChng && setting_has_default_value(pSetting,zVal) ){
       if( versioned ){
         fossil_print("%-24s (versioned)\n", pSetting->name);
         versioned = 0;
