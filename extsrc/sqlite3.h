@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.50.0"
 #define SQLITE_VERSION_NUMBER 3050000
-#define SQLITE_SOURCE_ID      "2025-02-25 18:10:47 e6784af6d50f715338ae3218fc8ba1b894883c27d797f0b7fd2625cac17d9cd7"
+#define SQLITE_SOURCE_ID      "2025-03-16 00:13:29 18bda13e197e4b4ec7464b3e70012f71edc05f73d8b14bb48bad452f81c7e185"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5175,7 +5175,7 @@ SQLITE_API const void *sqlite3_column_decltype16(sqlite3_stmt*,int);
 ** other than [SQLITE_ROW] before any subsequent invocation of
 ** sqlite3_step().  Failure to reset the prepared statement using
 ** [sqlite3_reset()] would result in an [SQLITE_MISUSE] return from
-** sqlite3_step().  But after [version 3.6.23.1] ([dateof:3.6.23.1],
+** sqlite3_step().  But after [version 3.6.23.1] ([dateof:3.6.23.1]),
 ** sqlite3_step() began
 ** calling [sqlite3_reset()] automatically in this circumstance rather
 ** than returning [SQLITE_MISUSE].  This is not considered a compatibility
@@ -7071,6 +7071,8 @@ SQLITE_API int sqlite3_autovacuum_pages(
 **
 ** ^The second argument is a pointer to the function to invoke when a
 ** row is updated, inserted or deleted in a rowid table.
+** ^The update hook is disabled by invoking sqlite3_update_hook()
+** with a NULL pointer as the second parameter.
 ** ^The first argument to the callback is a copy of the third argument
 ** to sqlite3_update_hook().
 ** ^The second callback argument is one of [SQLITE_INSERT], [SQLITE_DELETE],

@@ -175,7 +175,10 @@ file is unchanged from its parent, then the 4th argument is omitted.
 
 A manifest has zero or one <b>N</b> cards.  The <b>N</b> card specifies the mimetype for the
 text in the comment of the <b>C</b> card.  If the <b>N</b> card is omitted, a default mimetype
-is used.
+is used. Note that the <b>N</b> card has never actually been used by
+any Fossil implementation.  The implementation has always interpreted
+check-in comments according to the [/wiki_rules|Fossil Wiki formatting rules].
+There are no current plans to ever change that.
 
 A manifest has zero or one <b>P</b> cards.  Most manifests have one <b>P</b> card.
 The <b>P</b> card has a varying number of arguments that

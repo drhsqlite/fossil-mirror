@@ -1499,14 +1499,14 @@ int search_screen(unsigned srchAllowed, int mFlags){
 **
 **    s=PATTERN       Specify the full-text pattern to search for
 **    y=TYPE          What to search.
-**                      c -> check-ins
-**                      d -> documentation
-**                      t -> tickets
-**                      w -> wiki
-**                      e -> tech notes
-**                      f -> forum
-**                      h -> built-in help
-**                    all -> everything
+**                      c -> check-ins,
+**                      d -> documentation,
+**                      t -> tickets,
+**                      w -> wiki,
+**                      e -> tech notes,
+**                      f -> forum,
+**                      h -> built-in help,
+**                    all -> everything.
 */
 void search_page(void){
   const int isSearch = P("s")!=0;
@@ -2293,7 +2293,7 @@ void search_rebuild_index(void){
 }
 
 /*
-** COMMAND: fts-config*                    abbreviated-subcommands
+** COMMAND: fts-config*                    abbrv-subcom
 **
 ** Usage: fossil fts-config ?SUBCOMMAND? ?ARGUMENT?
 **

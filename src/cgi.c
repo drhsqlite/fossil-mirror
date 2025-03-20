@@ -690,17 +690,37 @@ const char *cgi_referer(const char *zDefault){
 
 /*
 ** Return true if the current request is coming from the same origin.
+**
+** If the request comes from a different origin and bErrorLog is true, then
+** put a warning message on the error log as this was a possible hack
+** attempt.
 */
-int cgi_same_origin(void){
+int cgi_same_origin(int bErrorLog){
   const char *zRef;
+  char *zToFree = 0;
   int nBase;
+  int rc;
   if( g.zBaseURL==0 ) return 0;
   zRef = P("HTTP_REFERER");
   if( zRef==0 ) return 0;
+  if( strchr(zRef,'%')!=0 ){
+    zToFree = strdup(zRef);
+    dehttpize(zToFree);
+    zRef = zToFree;
+  }
   nBase = (int)strlen(g.zBaseURL);
-  if( fossil_strncmp(g.zBaseURL,zRef,nBase)!=0 ) return 0;
-  if( zRef[nBase]!=0 && zRef[nBase]!='/' ) return 0;
-  return 1;
+  if( fossil_strncmp(g.zBaseURL,zRef,nBase)!=0 ){
+    rc = 0;
+  }else if( zRef[nBase]!=0 && zRef[nBase]!='/' ){
+    rc = 0;
+  }else{
+    rc = 1;
+  }
+  if( rc==0 && bErrorLog && fossil_strcmp(P("REQUST_METHOD"),"POST")==0 ){
+    fossil_errorlog("warning: POST from different origin");
+  }
+  fossil_free(zToFree);
+  return rc;
 }
 
 /*
@@ -735,7 +755,7 @@ static int cgi_is_post_request(void){
 int cgi_csrf_safe(int securityLevel){
   if( g.okCsrf<0 ) return 0;
   if( g.okCsrf==0 ){
-    if( !cgi_same_origin() ){
+    if( !cgi_same_origin(1) ){
       g.okCsrf = -1;
     }else{
       g.okCsrf = 1;

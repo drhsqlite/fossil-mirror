@@ -1000,11 +1000,8 @@ void usage(const char *zFormat){
 ** Remove n elements from g.argv beginning with the i-th element.
 */
 static void remove_from_argv(int i, int n){
-  int j;
-  for(j=i+n; j<g.argc; i++, j++){
-    g.argv[i] = g.argv[j];
-  }
-  g.argc = i;
+  memmove(&g.argv[i], &g.argv[i+n], sizeof(g.argv[i])*(g.argc-i-n));
+  g.argc -= n;
 }
 
 
@@ -1066,6 +1063,15 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
     }
   }
   return zReturn;
+}
+
+/*
+** Restore an option previously removed by find_option().
+*/
+void restore_option(const char *zName, const char *zValue, int hasOpt){
+  if( zValue==0 && hasOpt ) return;
+  g.argv[g.argc++] = (char*)zName;
+  if( hasOpt ) g.argv[g.argc++] = (char*)zValue;
 }
 
 /* Return true if zOption exists in the command-line arguments,
@@ -1851,6 +1857,11 @@ static void process_one_web_page(
       zCleanRepo = file_cleanup_fullpath(zRepo);
       if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
         szFile = file_size(zCleanRepo, ExtFILE);
+        if( szFile>0 && !file_isfile(zCleanRepo, ExtFILE) ){
+          /* Only let szFile be non-negative if zCleanRepo really is a file
+          ** and not a directory or some other filesystem object. */
+          szFile = -1;
+        }
         if( g.fHttpTrace ){
           sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", szFile);
           @ <!-- file_size(%h(zCleanRepo)) is %s(zBuf) -->
@@ -2158,7 +2169,7 @@ static void process_one_web_page(
 #endif
     if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
       cgi_decode_post_parameters();
-      if( !cgi_same_origin() ){
+      if( !cgi_same_origin(0) ){
         isReadonly = 1;
         db_protect(PROTECT_READONLY);
       }

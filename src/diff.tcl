@@ -92,17 +92,36 @@ proc getLine {difftxt N iivar} {
   return $x
 }
 
-proc readDiffs {fossilcmd} {
+proc reloadDiff {} {
+  global fossilcmd difftxt
+  unset -nocomplain difftxt
+  set idx [.txtA index @0,0]
+  readDiffs $fossilcmd 1
+  update
+  viewDiff $idx
+}
+
+proc readDiffs {fossilcmd redo} {
   global difftxt debug
   if {![info exists difftxt]} {
     if {$debug} {
       puts "# [list open $fossilcmd r]"
       flush stdout
     }
-    set in [open $fossilcmd r]
-    fconfigure $in -encoding utf-8
-    set difftxt [split [read $in] \n]
-    close $in
+    if {[catch {
+      set in [open $fossilcmd r]
+      fconfigure $in -encoding utf-8
+      set difftxt [split [read $in] \n]
+      close $in
+    } msg]} {
+      if {$redo} {
+        tk_messageBox -type ok -title Error -message "Unable to refresh:\n$msg"
+        return 0
+      } else {
+        puts $msg
+        exit 1
+      }
+    }
   }
   set N [llength $difftxt]
   set ii 0
@@ -110,6 +129,15 @@ proc readDiffs {fossilcmd} {
   set n1 0
   set n2 0  
   array set widths {txt 3 ln 3 mkr 1}
+  if {$redo} {
+    foreach c [cols] {$c config -state normal}
+    .lnA delete 1.0 end
+    .txtA delete 1.0 end
+    .lnB delete 1.0 end
+    .txtB delete 1.0 end
+    .mkr delete 1.0 end
+    .wfiles.lb delete 0 end
+  }
   
   
   set fromIndex [lsearch -glob $fossilcmd *-from]
@@ -461,7 +489,7 @@ foreach c [cols] {
 ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
 frame .spacer
 
-if {[readDiffs $fossilcmd] == 0} {
+if {[readDiffs $fossilcmd 0] == 0} {
   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
   exit
 }
@@ -576,10 +604,11 @@ proc searchStep {direction incr start stop} {
   set ::search $w
 }
 ::ttk::button .bb.quit -text {Quit} -command exit
+::ttk::button .bb.reload -text {Reload} -command reloadDiff
 ::ttk::button .bb.invert -text {Invert} -command invertDiff
 ::ttk::button .bb.save -text {Save As...} -command saveDiff
 ::ttk::button .bb.search -text {Search} -command searchOnOff
-pack .bb.quit .bb.invert -side left
+pack .bb.quit .bb.reload .bb.invert -side left
 if {$fossilcmd!=""} {pack .bb.save -side left}
 pack .bb.files .bb.search -side left
 grid rowconfigure . 1 -weight 1

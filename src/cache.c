@@ -257,7 +257,7 @@ void cache_initialize(void){
 }
 
 /*
-** COMMAND: cache*                    abbreviated-subcommands
+** COMMAND: cache*                    abbrv-subcom
 **
 ** Usage: %fossil cache SUBCOMMAND
 **

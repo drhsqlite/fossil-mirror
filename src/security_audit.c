@@ -555,13 +555,13 @@ void secaudit0_page(void){
 
   /* Logging should be turned on
   */
-  if( db_get_boolean("access-log",0)==0 ){
+  if( db_get_boolean("access-log",1)==0 ){
     @ <li><p>
     @ The <a href="access_log">User Log</a> is disabled.  The user log
     @ keeps a record of successful and unsuccessful login attempts and is
     @ useful for security monitoring.
   }
-  if( db_get_boolean("admin-log",0)==0 ){
+  if( db_get_boolean("admin-log",1)==0 ){
     @ <li><p>
     @ The <a href="admin_log">Administrative Log</a> is disabled.
     @ The administrative log provides a record of configuration changes
@@ -807,32 +807,54 @@ static void no_error_log_available(void){
 }
 
 /*
-** The maximum number of bytes of the error log to show by default.
-*/
-#define MXSHOWLOG 500000
-
-/*
 ** WEBPAGE: errorlog
 **
 ** Show the content of the error log.  Only the administrator can view
 ** this page.
+**
+**    y=0x01          Show only hack attempts
+**    y=0x02          Show only panics and assertion faults
+**    y=0x04          Show hung backoffice processes
+**    y=0x08          Show POST requests from a different origin
+**    y=0x40          Show other uncategorized messages
+**
+** If y is omitted or is zero, a count of the various message types is
+** shown.
 */
 void errorlog_page(void){
   i64 szFile;
   FILE *in;
   char *zLog;
+  const char *zType = P("y");
+  static const int eAllTypes = 0x4f;
+  long eType = 0;
+  int bOutput = 0;
+  int prevWasTime = 0;
+  int nHack = 0;
+  int nPanic = 0;
+  int nOther = 0;
+  int nHang = 0;
+  int nXPost = 0;
   char z[10000];
+  char zTime[10000];
+
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
+  if( zType ){
+    eType = strtol(zType,0,0) & eAllTypes;
+  }
   style_header("Server Error Log");
   style_submenu_element("Test", "%R/test-warning");
   style_submenu_element("Refresh", "%R/errorlog");
+  style_submenu_element("Download", "%R/errorlog?download");
+  style_submenu_element("Truncate", "%R/errorlog?truncate");
   style_submenu_element("Log-Menu", "%R/setup-logmenu");
-  style_submenu_element("Panics", "%R/paniclog");
-  style_submenu_element("Non-Hacks", "%R/hacklog?not");
+  if( eType ){
+    style_submenu_element("Summary", "%R/errorlog");
+  }
 
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
     no_error_log_available();
@@ -863,79 +885,63 @@ void errorlog_page(void){
   zLog = file_canonical_name_dup(g.zErrlog);
   @ <p>The server error log at "%h(zLog)" is %,lld(szFile) bytes in size.
   fossil_free(zLog);
-  style_submenu_element("Download", "%R/errorlog?download");
-  style_submenu_element("Truncate", "%R/errorlog?truncate");
   in = fossil_fopen(g.zErrlog, "rb");
   if( in==0 ){
     @ <p class='generalError'>Unable to open that file for reading!</p>
     style_finish_page();
     return;
   }
-  if( szFile>MXSHOWLOG && P("all")==0 ){
-    @ <form action="%R/errorlog" method="POST">
-    @ <p>Only the last %,d(MXSHOWLOG) bytes are shown.
-    @ <input type="submit" name="all" value="Show All">
-    @ </form>
-    fseek(in, -MXSHOWLOG, SEEK_END);
+  if( eType==0 ){
+    /* will do a summary */
+  }else if( (eType&eAllTypes)!=eAllTypes ){
+    @ Only the following types of messages displayed:
+    @ <ul>
+    if( eType & 0x01 ){
+      @ <li>Hack attempts
+    }
+    if( eType & 0x02 ){
+      @ <li>Panics and assertion faults
+    }
+    if( eType & 0x04 ){
+      @ <li>Hung backoffice processes
+    }
+    if( eType & 0x08 ){
+      @ <li>POST requests from different origin
+    }
+    if( eType & 0x40 ){
+      @ <li>Other uncategorized messages
+    }
+    @ </ul>
   }
   @ <hr>
-  @ <pre>
+  if( eType ){
+    @ <pre>
+  }
   while( fgets(z, sizeof(z), in) ){
-    @ %h(z)\
-  }
-  fclose(in);
-  @ </pre>
-  style_finish_page();
-}
-
-/*
-** WEBPAGE: paniclog
-**
-** Scan the error log for panics.  Show all panic messages, ignoring all
-** other error log entries.
-*/
-void paniclog_page(void){
-  i64 szFile;
-  char *zLog;
-  FILE *in;
-  int bOutput = 0;
-  int prevWasTime = 0;
-  char z[10000];
-  char zTime[10000];
-
-  login_check_credentials();
-  if( !g.perm.Admin ){
-    login_needed(0);
-    return;
-  }
-  style_header("Server Panic Log");
-  style_submenu_element("Log-Menu", "%R/setup-logmenu");
-
-  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    no_error_log_available();
-    style_finish_page();
-    return;
-  }
-  in = fossil_fopen(g.zErrlog, "rb");
-  if( in==0 ){
-    @ <p class='generalError'>Unable to open that file for reading!</p>
-    style_finish_page();
-    return;
-  }
-  szFile = file_size(g.zErrlog, ExtFILE);
-  zLog = file_canonical_name_dup(g.zErrlog);
-  @ Panic messages contained within the %lld(szFile)-byte 
-  @ <a href="%R/errorlog?all">error log</a> found at
-  @ "%h(zLog)".
-  fossil_free(zLog);
-  @ <hr>
-  @ <pre>
-  while( fgets(z, sizeof(z), in) ){
-    if( prevWasTime
-     && (strncmp(z,"panic: ", 7)==0 || strstr(z," assertion fault ")!=0)
-    ){
-      @ %h(zTime)\
-      bOutput = 1;
+    if( prevWasTime ){
+      if( strncmp(z,"possible hack attempt - 418 ", 27)==0 ){
+        bOutput = (eType & 0x01)!=0;
+        nHack++;
+      }else
+      if( (strncmp(z,"panic: ", 7)==0 || strstr(z," assertion fault ")!=0) ){
+        bOutput = (eType & 0x02)!=0;
+        nPanic++;
+      }else
+      if( sqlite3_strglob("warning: backoffice process * still *",z)==0 ){
+        bOutput = (eType & 0x04)!=0;
+        nHang++;
+      }else
+      if( sqlite3_strglob("warning: POST from different origin*",z)==0 ){
+        bOutput = (eType & 0x08)!=0;
+        nXPost++;
+      }else
+      {
+        bOutput = (eType & 0x40)!=0;
+        nOther++;
+      }
+      if( bOutput ){
+        @ %h(zTime)\
+      }
     }
     if( strncmp(z, "--------", 8)==0 ){
       size_t n = strlen(z);
@@ -945,166 +951,49 @@ void paniclog_page(void){
     }else{
       prevWasTime = 0;
     }
-    if( bOutput ){
+    if( bOutput && eType ){
       @ %h(z)\
     }
   }
   fclose(in);
-  @ </pre>
-  style_finish_page();
-}
-
-/*
-** WEBPAGE: hacklog
-**
-** Scan the error log for "possible hack attempt" entries  Show hack
-** attempt messages only, omitting all others.  Or if the "not" query
-** parameter is present, show only messages that are not hack attempts.
-*/
-void hacklog_page(void){
-  i64 szFile;
-  char *zLog;
-  FILE *in;
-  int bOutput = 0;
-  int prevWasTime = 0;
-  int isNot = P("not")!=0;
-  char z[10000];
-  char zTime[10000];
-
-  login_check_credentials();
-  if( !g.perm.Admin ){
-    login_needed(0);
-    return;
+  if( eType ){
+    @ </pre>
   }
-  style_header("Server Hack Log");
-  style_submenu_element("Log-Menu", "%R/setup-logmenu");
-
-  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    no_error_log_available();
-    style_finish_page();
-    return;
-  }
-  in = fossil_fopen(g.zErrlog, "rb");
-  if( in==0 ){
-    @ <p class='generalError'>Unable to open that file for reading!</p>
-    style_finish_page();
-    return;
-  }
-  szFile = file_size(g.zErrlog, ExtFILE);
-  zLog = file_canonical_name_dup(g.zErrlog);
-  @ %s(isNot?"Non-hack":"Hack") messages contained within the %lld(szFile)-byte 
-  @ <a href="%R/errorlog?all">error log</a> found at
-  @ "%h(zLog)".
-  fossil_free(zLog);
-  @ <hr>
-  @ <pre>
-  while( fgets(z, sizeof(z), in) ){
-    if( prevWasTime 
-     && ((strncmp(z,"possible hack attempt - 418 ", 27)==0) ^ isNot)
-    ){
-      @ %h(zTime)\
-      bOutput = 1;
+  if( eType==0 ){
+    int nNonHack = nPanic + nHang + nOther;
+    int nTotal = nNonHack + nHack + nXPost;
+    @ <p><table border="a" cellspacing="0" cellpadding="5">
+    if( nPanic>0 ){
+      @ <tr><td align="right">%d(nPanic)</td>
+      @     <td><a href="./errorlog?y=2">Panics</a></td>
     }
-    if( strncmp(z, "--------", 8)==0 ){
-      size_t n = strlen(z);
-      memcpy(zTime, z, n+1);
-      prevWasTime = 1;
-      bOutput = 0;
+    if( nHack>0 ){
+      @ <tr><td align="right">%d(nHack)</td>
+      @     <td><a href="./errorlog?y=1">Hack Attempts</a></td>
+    }
+    if( nHang>0 ){
+      @ <tr><td align="right">%d(nHang)</td>
+      @     <td><a href="./errorlog?y=4/">Hung Backoffice</a></td>
+    }
+    if( nXPost>0 ){
+      @ <tr><td align="right">%d(nXPost)</td>
+      @     <td><a href="./errorlog?y=8/">POSTs from different origin</a></td>
+    }
+    if( nOther>0 ){
+      @ <tr><td align="right">%d(nOther)</td>
+      @     <td><a href="./errorlog?y=64/">Other</a></td>
+    }
+    if( nHack+nXPost>0 && nNonHack>0 ){
+      @ <tr><td align="right">%d(nNonHack)</td>
+      @ <td><a href="%R/errorlog?y=70">Other than hack attempts</a></td>
+    }
+    @ <tr><td align="right">%d(nTotal)</td>
+    if( nTotal>0 ){
+      @     <td><a href="./errorlog?y=255">All Messages</a></td>
     }else{
-      prevWasTime = 0;
+      @     <td>All Messages</td>
     }
-    if( bOutput ){
-      @ %h(z)\
-    }
+    @ </table>
   }
-  fclose(in);
-  @ </pre>
-  style_finish_page();
-}
-
-/*
-** WEBPAGE: logsummary
-**
-** Scan the error log and count the various kinds of entries.
-*/
-void logsummary_page(void){
-  i64 szFile;
-  char *zLog;
-  FILE *in;
-  int prevWasTime = 0;
-  int nHack = 0;
-  int nPanic = 0;
-  int nOther = 0;
-  int nTotal = 0;
-  char z[10000];
-
-  login_check_credentials();
-  if( !g.perm.Admin ){
-    login_needed(0);
-    return;
-  }
-  style_header("Server Hack Log");
-  style_submenu_element("Log-Menu", "%R/setup-logmenu");
-
-  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    no_error_log_available();
-    style_finish_page();
-    return;
-  }
-  in = fossil_fopen(g.zErrlog, "rb");
-  if( in==0 ){
-    @ <p class='generalError'>Unable to open that file for reading!</p>
-    style_finish_page();
-    return;
-  }
-  szFile = file_size(g.zErrlog, ExtFILE);
-  zLog = file_canonical_name_dup(g.zErrlog);
-  @ Summary of messages contained within the %lld(szFile)-byte 
-  @ <a href="%R/errorlog?all">error log</a> found at
-  @ "%h(zLog)".
-  fossil_free(zLog);
-  @ <hr>
-  while( fgets(z, sizeof(z), in) ){
-    if( prevWasTime 
-     && (strncmp(z,"possible hack attempt - 418 ", 27)==0)
-    ){
-      nHack++;
-      prevWasTime = 0;
-      continue;
-    }
-    if( prevWasTime
-     && (strncmp(z,"panic: ", 7)==0 || strstr(z," assertion fault ")!=0)
-    ){
-      nPanic++;
-      prevWasTime = 0;
-      continue;
-    }
-    if( prevWasTime ) nOther++;
-    if( strncmp(z, "--------", 8)==0 ){
-      nTotal++;
-      prevWasTime = 1;
-      continue;
-    }
-    prevWasTime = 0;
-  }
-  fclose(in);
-  @ <p><table border="a" cellspacing="0" cellpadding="5">
-  @ <tr><td align="right">%d(nPanic)</td>
-  if( nPanic>0 ){
-    @     <td><a href="./paniclog">Panics</a></td>
-  } else {
-    @     <td>Panics</td>
-  }
-  @ <tr><td align="right">%d(nHack)</td>
-  if( nHack>0 ){
-    @     <td><a href="./hacklog">Hack Attempts</a></td>
-  }else{
-    @     <td>Hack Attempts</td>
-  }
-  @ <tr><td align="right">%d(nOther)</td>
-  @     <td>Other</td>
-  @ <tr><td align="right">%d(nTotal)</td>
-  @     <td>Total Messages</td>
-  @ </table>
   style_finish_page();
 }

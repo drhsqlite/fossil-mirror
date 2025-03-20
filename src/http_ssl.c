@@ -912,8 +912,8 @@ static void trust_location_usable(const char *zPath, const char **pzStore){
 #endif /* FOSSIL_ENABLE_SSL */
 
 /*
-** COMMAND: tls-config*                       abbreviated-subcommands
-** COMMAND: ssl-config                        abbreviated-subcommands
+** COMMAND: tls-config*                       abbrv-subcom
+** COMMAND: ssl-config                        abbrv-subcom
 **
 ** Usage: %fossil ssl-config [SUBCOMMAND] [OPTIONS...] [ARGS...]
 **

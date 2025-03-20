@@ -53,7 +53,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 }
 
 /*
-** COMMAND: all               abbreviated-subcommands
+** COMMAND: all               abbrv-subcom
 **
 ** Usage: %fossil all SUBCOMMAND ...
 **
@@ -318,6 +318,7 @@ void all_cmd(void){
             || fossil_strcmp(zCmd, "setting")==0
             || fossil_strcmp(zCmd, "settings")==0 ){
     zCmd = "settings -R";
+    collect_argument(&extra, "changed", 0);
     collect_argv(&extra, 3);
   }else if( fossil_strcmp(zCmd, "unset")==0 ){
     zCmd = "unset -R";

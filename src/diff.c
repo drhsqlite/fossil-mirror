@@ -3177,7 +3177,9 @@ int *text_diff(
       g.diffCnt[2] += nDel;
       if( nIns+nDel ){
         g.diffCnt[0]++;
-        blob_appendf(pOut, "%10d %10d", nIns, nDel);
+        if( !(pCfg->diffFlags & DIFF_BRIEF) ){
+          blob_appendf(pOut, "%10d %10d", nIns, nDel);
+        }
       }
     }else if( pCfg->diffFlags & (DIFF_RAW|DIFF_BY_TOKEN) ){
       const int *R = c.aEdit;
@@ -3337,6 +3339,10 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
       }else if( db_get_boolean("diff-binary", 1) ){
         diffFlags |= DIFF_INCBINARY;
       }
+    }else if( isGDiff) {
+      /* No external gdiff command found, using --by */
+      diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER
+                     |DIFF_SIDEBYSIDE;
     }
   }
   if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;

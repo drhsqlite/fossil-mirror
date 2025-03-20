@@ -36,6 +36,7 @@
 #define WIKI_SAFE           0x100  /* Make the result safe for embedding */
 #define WIKI_TARGET_BLANK   0x200  /* Hyperlinks go to a new window */
 #define WIKI_NOBRACKET      0x400  /* Omit extra [..] around hyperlinks */
+#define WIKI_ADMIN          0x800  /* Ignore g.perm.Hyperlink */
 #endif
 
 
@@ -1322,7 +1323,7 @@ void wiki_resolve_hyperlink(
         blob_appendf(pOut, "<span class=\"brokenlink\">%s", zLB);
         zTerm = "]</span>";
       }
-    }else if( g.perm.Hyperlink ){
+    }else if( g.perm.Hyperlink || (mFlags & WIKI_ADMIN)!=0 ){
       blob_appendf(pOut, "%z%s",xhref(zExtraNS, "%R/info/%s", zTarget), zLB);
       zTerm = "]</a>";
     }else{
@@ -1365,6 +1366,20 @@ void wiki_resolve_hyperlink(
   if( zExtra ) fossil_free(zExtra);
   assert( (int)strlen(zTerm)<nClose );
   sqlite3_snprintf(nClose, zClose, "%s", zTerm);
+}
+
+/*
+** Check zTarget to see if it looks like a valid hyperlink target.
+** Return true if it does seem valid and false if not.
+*/
+int wiki_valid_link_target(char *zTarget){
+  char zClose[30];
+  Blob notUsed;
+  blob_init(&notUsed, 0, 0);
+  wiki_resolve_hyperlink(&notUsed, WIKI_NOBADLINKS|WIKI_ADMIN,
+       zTarget, zClose, sizeof(zClose)-1, 0, 0);
+  blob_reset(&notUsed);
+  return zClose[0]!=0;
 }
 
 /*
@@ -1878,7 +1893,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **    --linksonly      Set the WIKI_LINKSONLY flag
 **    --nobadlinks     Set the WIKI_NOBADLINKS flag
 **    --noblock        Set the WIKI_NOBLOCK flag
-**    --text            Run the output through html_to_plaintext().
+**    --text           Run the output through html_to_plaintext().
 */
 void test_wiki_render(void){
   Blob in, out;
@@ -2476,16 +2491,17 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         }
       }
     }else if( zIn[0]=='&' ){
-      char c = '?';
+      u32 c = '?';
       if( zIn[1]=='#' ){
-        int x = atoi(&zIn[1]);
-        if( x>0 && x<=127 ) c = x;
+        c = atoi(&zIn[2]);
+        if( c==0 ) c = '?';
       }else{
-        static const struct { int n; char c; char *z; } aEntity[] = {
+        static const struct { int n; u32 c; char *z; } aEntity[] = {
            { 5, '&', "&amp;"   },
            { 4, '<', "&lt;"    },
            { 4, '>', "&gt;"    },
            { 6, ' ', "&nbsp;"  },
+           { 6, '"', "&quot;"  },
         };
         int jj;
         for(jj=0; jj<count(aEntity); jj++){
@@ -2503,7 +2519,21 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         if( !seenText && !inTitle ) blob_append_char(pOut, '\n');
         seenText = 1;
         nNL = nWS = 0;
-        blob_append_char(pOut, c);
+        if( c<0x00080 ){
+          blob_append_char(pOut, c & 0xff);
+        }else if( c<0x00800 ){
+          blob_append_char(pOut, 0xc0 + (u8)((c>>6)&0x1f));
+          blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
+        }else if( c<0x10000 ){
+          blob_append_char(pOut, 0xe0 + (u8)((c>>12)&0x0f));
+          blob_append_char(pOut, 0x80 + (u8)((c>>6)&0x3f));
+          blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
+        }else{
+          blob_append_char(pOut, 0xf0 + (u8)((c>>18)&0x07));
+          blob_append_char(pOut, 0x80 + (u8)((c>>12)&0x3f));
+          blob_append_char(pOut, 0x80 + (u8)((c>>6)&0x3f));
+          blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
+        }
       }
     }else{
       if( !seenText && !inTitle ) blob_append_char(pOut, '\n');

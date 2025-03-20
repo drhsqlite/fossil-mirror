@@ -259,13 +259,15 @@ void info_cmd(void){
       fossil_print("version:      %s", z);
       blob_reset(&vx);
     }
-  }else{
+  }else if( g.repositoryOpen ){
     int rid;
     rid = name_to_rid(g.argv[2]);
     if( rid==0 ){
       fossil_fatal("no such object: %s", g.argv[2]);
     }
     show_common_info(rid, "hash:", 1, 1);
+  }else{
+    fossil_fatal("Could not find or open a Fossil repository");
   }
 }
 
@@ -927,8 +929,8 @@ void ci_page(void){
   );
   isLeaf = !db_exists("SELECT 1 FROM plink WHERE pid=%d", rid);
   db_prepare(&q1,
-     "SELECT uuid, datetime(mtime,toLocal()), user, comment,"
-     "       datetime(omtime,toLocal()), mtime"
+     "SELECT uuid, datetime(mtime,toLocal(),'subsec'), user, comment,"
+     "       datetime(omtime,toLocal(),'subsec'), mtime"
      "  FROM blob, event"
      " WHERE blob.rid=%d"
      "   AND event.objid=%d",
@@ -1368,68 +1370,6 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
   }
   return manifest_get(rid, CFTYPE_MANIFEST, 0);
 }
-
-#if 0 /* not used */
-/*
-** Output a description of a check-in
-*/
-static void checkin_description(int rid){
-  Stmt q;
-  db_prepare(&q,
-    "SELECT datetime(mtime), coalesce(euser,user),"
-    "       coalesce(ecomment,comment), uuid,"
-    "      (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
-    "        WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
-    "          AND tagxref.rid=blob.rid AND tagxref.tagtype>0)"
-    "  FROM event, blob"
-    " WHERE event.objid=%d AND type='ci'"
-    "   AND blob.rid=%d",
-    rid, rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 0);
-    const char *zUser = db_column_text(&q, 1);
-    const char *zUuid = db_column_text(&q, 3);
-    const char *zTagList = db_column_text(&q, 4);
-    Blob comment;
-    int wikiFlags = WIKI_INLINE|WIKI_NOBADLINKS;
-    if( db_get_boolean("timeline-block-markup", 0)==0 ){
-      wikiFlags |= WIKI_NOBLOCK;
-    }
-    hyperlink_to_version(zUuid);
-    blob_zero(&comment);
-    db_column_blob(&q, 2, &comment);
-    wiki_convert(&comment, 0, wikiFlags);
-    blob_reset(&comment);
-    @ (user:
-    hyperlink_to_user(zUser,zDate,",");
-    if( zTagList && zTagList[0] && g.perm.Hyperlink ){
-      int i;
-      const char *z = zTagList;
-      Blob links;
-      blob_zero(&links);
-      while( z && z[0] ){
-        for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
-        blob_appendf(&links,
-              "%z%#h</a>%.2s",
-              href("%R/timeline?r=%#t&nd&c=%t",i,z,zDate), i,z, &z[i]
-        );
-        if( z[i]==0 ) break;
-        z += i+2;
-      }
-      @ tags: %s(blob_str(&links)),
-      blob_reset(&links);
-    }else{
-      @ tags: %h(zTagList),
-    }
-    @ date:
-    hyperlink_to_date(zDate, ")");
-    tag_private_status(rid);
-  }
-  db_finalize(&q);
-}
-#endif /* not used */
-
 
 /*
 ** WEBPAGE: vdiff
@@ -3943,21 +3883,22 @@ static void prepare_amend_comment(
 ** Amend the tags on check-in HASH to change how it displays in the timeline.
 **
 ** Options:
-**    --author USER           Make USER the author for check-in
-**    -m|--comment COMMENT    Make COMMENT the check-in comment
-**    -M|--message-file FILE  Read the amended comment from FILE
-**    -e|--edit-comment       Launch editor to revise comment
-**    --date DATETIME         Make DATETIME the check-in time
-**    --bgcolor COLOR         Apply COLOR to this check-in
-**    --branchcolor COLOR     Apply and propagate COLOR to the branch
-**    --tag TAG               Add new TAG to this check-in
-**    --cancel TAG            Cancel TAG from this check-in
-**    --branch NAME           Rename branch of check-in to NAME
-**    --hide                  Hide branch starting from this check-in
-**    --close                 Mark this "leaf" as closed
-**    -n|--dry-run            Print control artifact, but make no changes
-**    --date-override DATETIME  Set the change time on the control artifact
-**    --user-override USER      Set the user name on the control artifact
+**    --author USER              Make USER the author for check-in
+**    --bgcolor COLOR            Apply COLOR to this check-in
+**    --branch NAME              Rename branch of check-in to NAME
+**    --branchcolor COLOR        Apply and propagate COLOR to the branch
+**    --cancel TAG               Cancel TAG from this check-in
+**    --close                    Mark this "leaf" as closed
+**    --date DATETIME            Make DATETIME the check-in time
+**    --date-override DATETIME   Set the change time on the control artifact
+**    -e|--edit-comment          Launch editor to revise comment
+**    --hide                     Hide branch starting from this check-in
+**    -m|--comment COMMENT       Make COMMENT the check-in comment
+**    -M|--message-file FILE     Read the amended comment from FILE
+**    -n|--dry-run               Print control artifact, but make no changes
+**    --no-verify-comment        Do not validate the check-in comment
+**    --tag TAG                  Add new TAG to this check-in
+**    --user-override USER       Set the user name on the control artifact
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -3988,6 +3929,7 @@ void ci_amend_cmd(void){
   int fHasClosed = 0;           /* True if closed tag already set */
   int fEditComment;             /* True if editor to be used for comment */
   int fDryRun;                  /* Print control artifact, make no changes */
+  int noVerifyCom = 0;          /* Allow suspicious check-in comments */
   const char *zChngTime;        /* The change time on the control artifact */
   const char *zUserOvrd;        /* The user name on the control artifact */
   const char *zUuid;
@@ -3997,6 +3939,8 @@ void ci_amend_cmd(void){
   int nTags, nCancels;
   int i;
   Stmt q;
+  int ckComFlgs;                /* Flags passed to suspicious_comment() */
+
 
   fEditComment = find_option("edit-comment","e",0)!=0;
   zNewComment = find_option("comment","m",1);
@@ -4018,6 +3962,7 @@ void ci_amend_cmd(void){
   zChngTime = find_option("date-override",0,1);
   if( zChngTime==0 ) zChngTime = find_option("chngtime",0,1);
   zUserOvrd = find_option("user-override",0,1);
+  noVerifyCom = find_option("no-verify-comment",0,0)!=0;
   db_find_and_open_repository(0,0);
   user_select();
   verify_all_options();
@@ -4076,17 +4021,70 @@ void ci_amend_cmd(void){
   if( (zNewColor!=0 && zNewColor[0]==0) && (zColor && zColor[0] ) ){
     cancel_color();
   }
-  if( fEditComment ){
-    prepare_amend_comment(&comment, zComment, zUuid);
-    zNewComment = blob_str(&comment);
-  }else if( zComFile ){
-    blob_zero(&comment);
-    blob_read_from_file(&comment, zComFile, ExtFILE);
-    blob_to_utf8_no_bom(&comment, 1);
-    zNewComment = blob_str(&comment);
+  if( fEditComment || zNewComment || zComFile ){
+    blob_init(&comment, 0, 0);
+
+    /* Figure out how much comment verification is requested */
+    if( noVerifyCom ){
+      ckComFlgs = 0;
+    }else{
+      const char *zVerComs = db_get("verify-comments","on");
+      if( is_false(zVerComs) ){
+        ckComFlgs = 0;
+      }else if( strcmp(zVerComs,"preview")==0 ){
+        ckComFlgs = COMCK_PREVIEW | COMCK_LINKS | COMCK_MARKUP;
+      }else if( strcmp(zVerComs,"links")==0 ){
+        ckComFlgs = COMCK_LINKS;
+      }else{
+        ckComFlgs = COMCK_LINKS | COMCK_MARKUP;
+      }
+      if( zNewComment || zComFile ){
+        ckComFlgs = (ckComFlgs & COMCK_LINKS) | COMCK_NOPREVIEW;
+      }
+    }
+    if( fEditComment ){
+      prepare_amend_comment(&comment, zComment, zUuid);
+    }else if( zComFile ){
+      blob_read_from_file(&comment, zComFile, ExtFILE);
+      blob_to_utf8_no_bom(&comment, 1);
+    }else if( zNewComment ){
+      blob_init(&comment, zNewComment, -1);
+    }
+    if( blob_size(&comment)>0
+     && comment_compare(zComment, blob_str(&comment))==0
+    ){
+      int rc;
+      while( (rc = suspicious_comment(&comment, ckComFlgs))!=0 ){
+        char cReply;
+        Blob ans;
+        if( !fEditComment ){
+          fossil_fatal("Amend aborted; "
+                       "use --no-verify-comment to override");
+        }
+        if( rc==COMCK_PREVIEW ){
+          prompt_user("\nContinue (Y/n/e=edit)? ", &ans);
+        }else{
+          prompt_user("\nContinue (y/n/E=edit)? ", &ans);
+        }
+        cReply = blob_str(&ans)[0];
+        cReply = fossil_tolower(cReply);
+        blob_reset(&ans);
+        if( cReply=='n' ){
+          fossil_fatal("Amend aborted.");
+        }
+        if( cReply=='e' || (cReply!='y' && rc!=COMCK_PREVIEW) ){
+          char *zPrior = blob_materialize(&comment);
+          blob_init(&comment, 0, 0);
+          prepare_amend_comment(&comment, zPrior, zUuid);
+          fossil_free(zPrior);
+          continue;
+        }else{
+          break;
+        }
+      }
+    }
+    add_comment(blob_str(&comment));
   }
-  if( zNewComment && zNewComment[0]
-      && comment_compare(zComment,zNewComment)==0 ) add_comment(zNewComment);
   if( zNewDate && zNewDate[0] && fossil_strcmp(zDate,zNewDate)!=0 ){
     if( is_datetime(zNewDate) ){
       add_date(zNewDate);

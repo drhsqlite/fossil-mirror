@@ -27,13 +27,13 @@
 */
 /************ Begin %include sections from the grammar ************************/
 #line 1 "VERSION.h"
-#define MANIFEST_UUID "052f07296e76ab2312caf2a4bf6237e574b3e533c7a36ee8f34db833baa3efb4"
-#define MANIFEST_VERSION "[052f07296e]"
-#define MANIFEST_DATE "2025-03-05 10:54:16"
+#define MANIFEST_UUID "8a43b020141f772a0ac45291a7fd73041d2efba5e3665c6bd2f334ad9b2e9845"
+#define MANIFEST_VERSION "[8a43b02014]"
+#define MANIFEST_DATE "2025-03-19 16:19:43"
 #define MANIFEST_YEAR "2025"
-#define MANIFEST_ISODATE "20250305105416"
-#define MANIFEST_NUMERIC_DATE 20250305
-#define MANIFEST_NUMERIC_TIME 105416
+#define MANIFEST_ISODATE "20250319161943"
+#define MANIFEST_NUMERIC_DATE 20250319
+#define MANIFEST_NUMERIC_TIME 161943
 #define RELEASE_VERSION "1.0"
 #define RELEASE_VERSION_NUMBER 10000
 #define RELEASE_RESOURCE_VERSION 1,0,0,0
@@ -3689,7 +3689,7 @@ static void arcInit(Pik *p, PObj *pObj){
 ** mean based on available documentation.  (2) Arcs are rarely used,
 ** and so do not seem that important.
 */
-static PPoint arcControlPoint(int cw, PPoint f, PPoint t, PNum rScale){
+static PPoint arcControlPoint(int cw, PPoint f, PPoint t){
   PPoint m;
   PNum dx, dy;
   m.x = 0.5*(f.x+t.x);
@@ -3697,22 +3697,37 @@ static PPoint arcControlPoint(int cw, PPoint f, PPoint t, PNum rScale){
   dx = t.x - f.x;
   dy = t.y - f.y;
   if( cw ){
-    m.x -= 0.5*rScale*dy;
-    m.y += 0.5*rScale*dx;
+    m.x -= 0.5*dy;
+    m.y += 0.5*dx;
   }else{
-    m.x += 0.5*rScale*dy;
-    m.y -= 0.5*rScale*dx;
+    m.x += 0.5*dy;
+    m.y -= 0.5*dx;
   }
   return m;
 }
 static void arcCheck(Pik *p, PObj *pObj){
-  PPoint m;
+  PPoint f, m, t;
+  PNum sw;
+  int i;
   if( p->nTPath>2 ){
     pik_error(p, &pObj->errTok, "arc geometry error");
     return;
   }
-  m = arcControlPoint(pObj->cw, p->aTPath[0], p->aTPath[1], 0.5);
-  pik_bbox_add_xy(&pObj->bbox, m.x, m.y);
+  f = p->aTPath[0];
+  t = p->aTPath[1];
+  m = arcControlPoint(pObj->cw, f, t);
+  sw = pObj->sw;
+  for(i=1; i<16; i++){
+    PNum t1, t2, a, b, c, x, y;
+    t1 = 0.0625*i;
+    t2 = 1.0 - t1;
+    a = t2*t2;
+    b = 2*t1*t2;
+    c = t1*t1;
+    x = a*f.x + b*m.x + c*t.x;
+    y = a*f.y + b*m.y + c*t.y;
+    pik_bbox_addellipse(&pObj->bbox, x, y, sw, sw);
+  }
 }
 static void arcRender(Pik *p, PObj *pObj){
   PPoint f, m, t;
@@ -3720,7 +3735,7 @@ static void arcRender(Pik *p, PObj *pObj){
   if( pObj->sw<0.0 ) return;
   f = pObj->aPath[0];
   t = pObj->aPath[1];
-  m = arcControlPoint(pObj->cw,f,t,1.0);
+  m = arcControlPoint(pObj->cw,f,t);
   if( pObj->larrow ){
     pik_draw_arrowhead(p,&m,&f,pObj);
   }
@@ -8317,4 +8332,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8320 "pikchr.c"
+#line 8335 "pikchr.c"
