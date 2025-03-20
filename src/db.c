@@ -3206,19 +3206,12 @@ void db_initial_setup(
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA_MAX, 0);
   db_set("rebuilt", get_version(), 0);
-  db_set("admin-log", "1", 0);
-  db_set("access-log", "1", 0);
   db_multi_exec(
       "INSERT INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))),now());"
       "INSERT INTO config(name,value,mtime)"
       " VALUES('project-code', lower(hex(randomblob(20))),now());"
   );
-  if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
-  if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
-  if( !db_is_global("timeline-plaintext") ){
-    db_set_int("timeline-plaintext", 1, 0);
-  }
   db_create_default_users(0, zDefaultUser);
   if( zDefaultUser ) g.zLogin = zDefaultUser;
   user_select();
@@ -4572,14 +4565,14 @@ struct Setting {
 #endif /* INTERFACE */
 
 /*
-** SETTING: access-log      boolean default=off
+** SETTING: access-log      boolean default=on
 **
 ** When the access-log setting is enabled, all login attempts (successful
 ** and unsuccessful) on the web interface are recorded in the "access" table
 ** of the repository.
 */
 /*
-** SETTING: admin-log       boolean default=off
+** SETTING: admin-log       boolean default=on
 **
 ** When the admin-log setting is enabled, configuration changes are recorded
 ** in the "admin_log" table of the repository.

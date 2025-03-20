@@ -555,13 +555,13 @@ void secaudit0_page(void){
 
   /* Logging should be turned on
   */
-  if( db_get_boolean("access-log",0)==0 ){
+  if( db_get_boolean("access-log",1)==0 ){
     @ <li><p>
     @ The <a href="access_log">User Log</a> is disabled.  The user log
     @ keeps a record of successful and unsuccessful login attempts and is
     @ useful for security monitoring.
   }
-  if( db_get_boolean("admin-log",0)==0 ){
+  if( db_get_boolean("admin-log",1)==0 ){
     @ <li><p>
     @ The <a href="admin_log">Administrative Log</a> is disabled.
     @ The administrative log provides a record of configuration changes

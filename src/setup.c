@@ -204,7 +204,7 @@ void setup_logmenu_page(void){
   style_header("Log Menu");
   @ <table border="0" cellspacing="3">
   
-  if( db_get_boolean("admin-log",0)==0 ){
+  if( db_get_boolean("admin-log",1)==0 ){
     blob_appendf(&desc,
       "The admin log records configuration changes to the repository.\n"
       "<b>Disabled</b>:  Turn on the "
@@ -222,7 +222,7 @@ void setup_logmenu_page(void){
     "The artifact log records when new content is added in the\n"
     "\"rcvfrom\" table.\n"
   );
-  if( db_get_boolean("access-log",0) ){
+  if( db_get_boolean("access-log",1) ){
     setup_menu_entry("User Log", "user_log",
       "Login attempts recorded in the \"accesslog\" table."
     );
@@ -2146,7 +2146,7 @@ void page_admin_log(){
   create_admin_log_table();
   limit = atoi(PD("n","200"));
   ofst = atoi(PD("x","0"));
-  fLogEnabled = db_get_boolean("admin-log", 0);
+  fLogEnabled = db_get_boolean("admin-log", 1);
   @ <div>Admin logging is %s(fLogEnabled?"on":"off").
   @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
 

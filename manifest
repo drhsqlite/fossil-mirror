@@ -1,5 +1,5 @@
-C Improvements\sto\ssettings:\s\s(1)\sadd\sthe\s--changed\soption\sto\sthe\n"fossil\ssettings"\scommand\sto\scause\sdisplay\sof\sonly\ssettings\swhose\svalue\ndiffers\sfrom\sthe\sdefault.\s\s(2)\somit\sthe\sidea\sof\ssettings\sthat\sare\sonly\nshown\sif\stheir\svalue\sis\snot\sthe\sdefault.\s\s(3)\sFor\ssettings\swith\smultiple\nlines\sof\stext,\sshow\sthem\sindented\safter\sthe\ssetting\sname\son\sthe\n"fossil\ssettings"\soutput.\s\s(4)\sThe\s/setup_settings\spage\sonly\sshows\schanged\nsettings\sby\sdefault,\swith\sa\ssubmenu\soption\sto\sshow\sall\ssettings.
-D 2025-03-20T17:20:23.903
+C Change\sdefault\svalues\sof\svarious\ssettings:\s\sadmin-log=ON,\saccess-log=ON,\nauthsync=ON,\stimeline-plaintext=OFF.
+D 2025-03-20T17:34:46.955
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 81b00a38f4f85265b7a760fa02986fdae4ee40830614f498a682595b738b39aa
+F src/db.c e6e02ce64925b846361d9d46074583cf2b8065e452afa0a7adb467c5dc57eac7
 F src/default.css 94743facfa876f5c35f2974f9e356e8a47587e2292e98c41063785699d51ae4f
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -525,8 +525,8 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 6d6ceb9be36fa464fdea8a55cfc6eef66006ee50456afa263838a57c4f04518c
-F src/security_audit.c 0823c9d9c9011a750485454675f40d77b945116dd6e30d0d635722b1cceebd53
-F src/setup.c 4f2777c3424185184666fa14d7ef17ad4a0574166279fcc63b88ed31e90d708f
+F src/security_audit.c 68155463fe9ae9ec0d459a0398dcff6afa82fb08901dbc3ff0f4054076712c7d
+F src/setup.c 8ce1e5012856122177ac6de89d3b50ca4eb9afe70c596f38ebd0d9607551bcce
 F src/setupuser.c b707636bb05076e31a4ce1dae949b7f24b8cc2fc553857b6217d89e3847ae853
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e588ee26b152d952501beb167a506f6f0a6b2eab757d5744c85982a9c72c863d
-R 679c84eea7bfd4e8f51532b847192276
+P 74a5e10b9b281f1724f3b96572b3234719d583d5543c2903792dffcffdffd54c
+R 283192b848e8c13600062d476a58e266
 U drh
-Z 73d32f38050703429fd6b3b2b09526e3
+Z b8c43ab35f0bed4c5bd5ebce3e54efa2
 # Remove this line to create a well-formed Fossil manifest.
