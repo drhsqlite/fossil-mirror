@@ -1,5 +1,5 @@
-C Enhance\sthe\shtml_to_plaintext()\sroutine\swith\sa\sflags\sargument\sso\sthat\sit\ncan\stake\sover\sthe\sjob\spreviously\sdone\sby\ssearch_snippet_to_plaintext().
-D 2025-03-21T18:31:40.211
+C Enhancements\sto\swiki_convert()\sthat\scan\soptionally\smark\squestionable\stext.
+D 2025-03-21T19:46:22.993
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -524,7 +524,7 @@ F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 78bde668b291927550abd9bc92e7918674999755a446ada2491616e5199a6d33
+F src/search.c 330023dada6a39c80b57274059ea80c3c30af5eeb3a51a146a8ed4491e828f0e
 F src/security_audit.c 68155463fe9ae9ec0d459a0398dcff6afa82fb08901dbc3ff0f4054076712c7d
 F src/setup.c 3311b09259feaa478411d65e5c060f44ea3b59aad0f2d080ea5a7cec89cd363c
 F src/setupuser.c b707636bb05076e31a4ce1dae949b7f24b8cc2fc553857b6217d89e3847ae853
@@ -568,7 +568,7 @@ F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f
 F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 750a31dff7d032e64ba971a2b9ca5a591c6a5b1ccedea758432f348510bbc996
 F src/tar.c dfb0c23bb6ef61b829b38a428dbc34699b62df6d07f14ed739d71b045ef78e12
-F src/terminal.c 0965d19da506e7076bc8c9ff7b347744d383902163a47a8ada2dc23692271862
+F src/terminal.c d350a8ac111b00bcd36f149b72eedced08dfe4a1f3786d72f9b0310f4d85b58d
 F src/th.c 7383ab45bd0fca16f607b30b60c6b71645d29f87bcb65d400350bdac06368cf5
 F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
@@ -591,7 +591,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c 1359a2a0c7f88c5e2485fb16068ddce2f038a939d15a0be3cb2e992cda310f1c
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c a6cd9ecc793a30d74ffcd37611c33443ff5a68574e20a090c7a1dc322d368476
+F src/wikiformat.c ae8551d084e8436023b66f222ff1674da26f2ee71766b47fde3c43515e2000dd
 F src/winfile.c c32dbdb03d30ab85becf46070fa05bd79af2e0b644b1e68c90a87eee121be50f
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
 F src/xfer.c 4e6e873068cb207ba0cd483271fe4606fd3a59289ba7b0d8f15a3de071fcf87f
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 47b3e9764d4a88dbfe6330ab4e8ae1f37bc352d8ea50fa74f8dd9f0694a99ebd
-R e99aa5a9d67f08c62ba1ea942c3548ac
+P fd59eb178bbc2b8338c6cdc43fe7856e98ad94a120443bd1e366f3b9f2e0703c
+R 455f7d0b11dfb83db058fdfb6dca8b87
 U drh
-Z 411291089c806c6525918f476791c90f
+Z ebd458df45fbdd7b905b23c21f3e238f
 # Remove this line to create a well-formed Fossil manifest.

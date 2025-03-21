@@ -621,14 +621,7 @@ void search_cmd(void){
   int nTty = 0;          /* VT100 highlight color for matching text */
   const char *zHighlight = 0;
 
-  /* Only colorize the output if talking to a tty and NO_COLOR does not
-  ** exist or is false. */
-  if( fossil_isatty(1) ){
-    char *zNoColor = fossil_getenv("NO_COLOR");
-    if( zNoColor==0 || zNoColor[0]==0 || is_false(zNoColor) ){
-      nTty = 91;
-    }
-  }
+  nTty =  terminal_is_vt100();
 
   /* Undocumented option to change highlight color */
   zHighlight = find_option("highlight",0,1);

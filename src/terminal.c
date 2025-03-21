@@ -140,3 +140,16 @@ void test_terminal_size_cmd(void){
   terminal_get_size(&ts);
   fossil_print("%d %d\n", ts.nColumns, ts.nLines);
 }
+
+/*
+** Return true if it is reasonable is emit VT100 escape codes.
+*/
+int terminal_is_vt100(void){
+  char *zNoColor;
+  if( !fossil_isatty(1) ) return 0;
+  zNoColor =fossil_getenv("NO_COLOR");
+  if( zNoColor==0 ) return 1;
+  if( zNoColor[0]==0 ) return 1;
+  if( is_false(zNoColor) ) return 1;
+  return 0;
+}
