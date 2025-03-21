@@ -577,6 +577,7 @@ int http_exchange(
                 fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
       int wasHttps;
+      int priorUrlFlags;
 
       if ( --maxRedirect == 0){
         fossil_warning("redirect limit exceeded");
@@ -601,6 +602,7 @@ int http_exchange(
         goto write_err;
       }
       wasHttps = g.url.isHttps;
+      priorUrlFlags = g.url.flags;
       url_parse(&zLine[i], 0);
       if( wasHttps && !g.url.isHttps ){
         fossil_warning("cannot redirect from HTTPS to HTTP");
@@ -615,7 +617,10 @@ int http_exchange(
       fSeenHttpAuth = 0;
       if( g.zHttpAuth ) free(g.zHttpAuth);
       g.zHttpAuth = get_httpauth();
-      if( rc==301 || rc==308 ) url_remember();
+      if( (rc==301 || rc==308) && (priorUrlFlags & URL_REMEMBER)!=0 ){
+        g.url.flags |= URL_REMEMBER;
+        url_remember();
+      }
       return http_exchange(pSend, pReply, mHttpFlags,
                            maxRedirect, zAltMimetype);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
