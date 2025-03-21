@@ -1977,7 +1977,7 @@ void test_wiki_render(void){
   if( bText ){
     Blob txt;
     blob_init(&txt, 0, 0);
-    html_to_plaintext(blob_str(&out),&txt);
+    html_to_plaintext(blob_str(&out),&txt, HTOT_VT100);
     blob_reset(&out);
     out = txt;
   }
@@ -2036,7 +2036,7 @@ void test_markdown_render(void){
     if( bText ){
       Blob txt;
       blob_init(&txt, 0, 0);
-      html_to_plaintext(blob_str(&out), &txt);
+      html_to_plaintext(blob_str(&out), &txt, HTOT_VT100);
       blob_reset(&out);
       out = txt;
     }
@@ -2507,6 +2507,15 @@ void test_html_tidy(void){
   }
 }
 
+#if INTERFACE
+/*
+** Allowed flag options for html_to_plaintext().
+*/
+#define HTOT_VT100   0x0001   /* <mark> becomes ^[[91m */
+#define HTOT_NO_WS   0x0002   /* Collapse whitespace to a single space */
+
+#endif /* INTERFACE */
+
 /*
 ** Remove all HTML markup from the input text.  The output written into
 ** pOut is pure text.
@@ -2514,14 +2523,17 @@ void test_html_tidy(void){
 ** Put the title on the first line, if there is any <title> markup.
 ** If there is no <title>, then create a blank first line.
 */
-void html_to_plaintext(const char *zIn, Blob *pOut){
+void html_to_plaintext(const char *zIn, Blob *pOut, int mFlags){
   int n;
   int i, j;
-  int inTitle = 0;          /* True between <title>...</title> */
+  int bNoWS = 0;            /* Transform WS into a single space */
   int seenText = 0;         /* True after first non-whitespace seen */
   int nNL = 0;              /* Number of \n characters at the end of pOut */
   int nWS = 0;              /* True if pOut ends with whitespace */
-  while( fossil_isspace(zIn[0]) ) zIn++;
+  int nMark = 0;            /* True if inside of <mark>..</mark> */
+
+  while( fossil_isspace(zIn[0]) ) zIn++;   /* Skip leading whitespace */
+  if( mFlags & HTOT_NO_WS ) bNoWS = 1;
   while( zIn[0] ){
     n = html_token_length(zIn);
     if( zIn[0]=='<' && n>1 ){
@@ -2546,8 +2558,25 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         if( zIn[0]=='<' ) zIn += n;
         continue;
       }
+      if( eTag==MARKUP_INVALID && strcmp(zTag,"mark")==0 ){
+        if( (mFlags & HTOT_VT100)!=0 ){
+          if( isCloseTag && nMark ){
+            blob_append(pOut, "\033[0m", 4);
+            nMark = 0;
+          }else if( !isCloseTag && !nMark ){
+            blob_append(pOut, "\033[91m", 5);
+            nMark = 1;
+          }
+        }
+        zIn += n;
+        continue;            
+      }
       if( eTag==MARKUP_TITLE ){
-        inTitle = !isCloseTag;
+        if( isCloseTag && (mFlags & HTOT_NO_WS)==0 ){
+          bNoWS = 0;
+        }else{
+          bNoWS = 1;
+        }
       }
       if( !isCloseTag && seenText && (eType & (MUTYPE_BLOCK|MUTYPE_TABLE))!=0 ){
         if( nNL==0 ){
@@ -2559,7 +2588,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
     }else if( fossil_isspace(zIn[0]) ){
       if( seenText ){
         nNL = 0;
-        if( !inTitle ){ /* '\n' -> ' ' within <title> */
+        if( !bNoWS ){ /* '\n' -> ' ' within <title> */
           for(i=0; i<n; i++) if( zIn[i]=='\n' ) nNL++;
         }
         if( !nWS ){
@@ -2593,7 +2622,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         nWS = 1;
         nNL = c=='\n';
       }else{
-        if( !seenText && !inTitle ) blob_append_char(pOut, '\n');
+        if( !seenText && !bNoWS ) blob_append_char(pOut, '\n');
         seenText = 1;
         nNL = nWS = 0;
         if( c<0x00080 ){
@@ -2613,20 +2642,21 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         }
       }
     }else{
-      if( !seenText && !inTitle ) blob_append_char(pOut, '\n');
+      if( !seenText && !bNoWS ) blob_append_char(pOut, '\n');
       seenText = 1;
       nNL = nWS = 0;
       blob_append(pOut, zIn, n);
     }
     zIn += n;
   }
+  if( nMark ) blob_append(pOut, "\033[0m", 4);
   if( nNL==0 ) blob_append_char(pOut, '\n');
 }
 
 /*
 ** COMMAND: test-html-to-text
 **
-** Usage: %fossil test-html-to-text FILE ...
+** Usage: %fossil test-html-to-text [OPTIONS] FILE ...
 **
 ** Read all files named on the command-line.  Convert the file
 ** content from HTML to text and write the results on standard
@@ -2634,15 +2664,22 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
 **
 ** This command is intended as a test and debug interface for
 ** the html_to_plaintext() routine.
+**
+** Options:
+**
+**     --vt100              Translate <mark> and </mark> into ANSI/VT100
+**                          escapes to highlight the contained text.
 */
 void test_html_to_text(void){
   Blob in, out;
   int i;
+  int mFlags = 0;
+  if( find_option("vt100",0,0)!=0 ) mFlags |= HTOT_VT100;
 
   for(i=2; i<g.argc; i++){
     blob_read_from_file(&in, g.argv[i], ExtFILE);
     blob_zero(&out);
-    html_to_plaintext(blob_str(&in), &out);
+    html_to_plaintext(blob_str(&in), &out, mFlags);
     blob_reset(&in);
     fossil_puts(blob_buffer(&out), 0, blob_size(&out));
     blob_reset(&out);

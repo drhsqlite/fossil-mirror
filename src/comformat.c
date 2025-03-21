@@ -268,10 +268,10 @@ void char_info_utf8(
   int maxUTF8 = 1;                        /* Expected sequence length. */
   char c = z[i++];
   if( c==0x1b && z[i]=='[' ){
-    do{
-      i++;
-    }while( i<fossil_isdigit(z[i]) || z[i]==';' );
-    if( fossil_isalpha(z[i]) ){
+    i++;
+    while( z[i]>=0x30 && z[i]<=0x3f ){ i++; }
+    while( z[i]>=0x20 && z[i]<=0x2f ){ i++; }
+    if( z[i]>=0x40 && z[i]<=0x7e ){
       *pCchUTF8 = i+1;
       *pUtf32 = 0x301;  /* A zero-width character */
       return;

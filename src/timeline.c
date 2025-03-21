@@ -3439,7 +3439,7 @@ static void wiki_to_text_sqlfunc(
   wiki_convert(&in, &html, WIKI_INLINE);
   blob_reset(&in);
   blob_init(&txt, 0, 0);
-  html_to_plaintext(blob_str(&html), &txt);
+  html_to_plaintext(blob_str(&html), &txt, 0);
   blob_reset(&html);
   nOut = blob_size(&txt);
   zOut = blob_str(&txt);

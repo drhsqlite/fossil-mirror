@@ -562,89 +562,6 @@ void search_sql_setup(sqlite3 *db){
 }
 
 /*
-** The pSnip input contains snippet text from a search formatted
-** as HTML.  Attempt to make that text more readable on a TTY.
-**
-** If nTty is positive, use ANSI escape codes "\e[Nm" where N is nTty
-** to highly marked text.
-*/
-void search_snippet_to_plaintext(Blob *pSnip, int nTty){
-  char *zSnip;
-  unsigned int j, k;
-
-  zSnip = pSnip->aData;
-  for(j=k=0; j<pSnip->nUsed; j++){
-    char c = zSnip[j];
-    if( c=='<' ){
-      if( memcmp(&zSnip[j],"<mark>",6)==0 ){
-        if( nTty ){
-          zSnip[k++] = 0x1b;
-          zSnip[k++] = '[';
-          if( nTty>=10 ) zSnip[k++] = (nTty/10)%10 + '0';
-          zSnip[k++] = nTty%10 + '0';
-          zSnip[k++] = 'm';
-        }
-        j += 5;
-      }else if( memcmp(&zSnip[j],"</mark>",7)==0 ){
-        if( nTty ){
-          zSnip[k++] = 0x1b;
-          zSnip[k++] = '[';
-          zSnip[k++] = '0';
-          zSnip[k++] = 'm';
-        }
-        j += 6;
-      }else{
-        zSnip[k++] = zSnip[j];
-      }
-    }else if( fossil_isspace(c) ){
-      zSnip[k++] = ' ';
-      while( fossil_isspace(zSnip[j+1]) ) j++;
-    }else if( c=='&' ){
-      if( zSnip[j+1]=='#' && fossil_isdigit(zSnip[j+2]) ){
-        int n = 3;
-        int x = zSnip[j+2] - '0';
-        if( fossil_isdigit(zSnip[j+3]) ){
-          x = x*10 + zSnip[j+3] - '0';
-          n++;
-          if( fossil_isdigit(zSnip[j+4]) ){
-            x = x*10 + zSnip[j+4] - '0';
-            n++;
-          }
-        }
-        if( zSnip[j+n]==';' ){
-          zSnip[k++] = (char)x;
-          j += n;
-        }else{
-          zSnip[k++] = c;
-        }
-      }else if( memcmp(&zSnip[j],"&lt;",4)==0 ){
-        zSnip[k++] = '<';
-        j += 3;
-      }else if( memcmp(&zSnip[j],"&gt;",4)==0 ){
-        zSnip[k++] = '>';
-        j += 3;
-      }else if( memcmp(&zSnip[j],"&quot;",6)==0 ){
-        zSnip[k++] = '"';
-        j += 5;
-      }else if( memcmp(&zSnip[j],"&amp;",5)==0 ){
-        zSnip[k++] = '&';
-        j += 4;
-      }else{
-        zSnip[k++] = c;
-      }
-    }else if( c=='%' && strncmp(&zSnip[j],"%fossil",7)==0 ){
-      /* no-op */
-    }else if( (c=='[' || c==']') && zSnip[j+1]==c ){
-      j++;
-    }else{
-      zSnip[k++] = c;
-    }
-  }
-  zSnip[k] = 0;
-  pSnip->nUsed = k;
-}
-
-/*
 ** Testing the search function.
 **
 ** COMMAND: search*
@@ -807,15 +724,19 @@ void search_cmd(void){
                    " ORDER BY score DESC, date DESC;");
     blob_init(&com, 0, 0);
     blob_init(&snip, 0, 0);
-    if( width<0 ) width = 80;
+    if( width<0 ) width = terminal_get_width(80);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zSnippet = db_column_text(&q, 0);
       const char *zLabel = db_column_text(&q, 1);
       const char *zDate = db_column_text(&q, 4);
       const char *zScore = db_column_text(&q, 2);
       const char *zId = db_column_text(&q, 3);
+      char *zOrig;
       blob_appendf(&snip, "%s", zSnippet);
-      search_snippet_to_plaintext(&snip, nTty);
+      zOrig = blob_materialize(&snip);
+      blob_init(&snip, 0, 0);
+      html_to_plaintext(zOrig, &snip, (nTty ? HTOT_VT100 : 0)|HTOT_NO_WS);
+      fossil_free(zOrig);
       blob_appendf(&com, "%s\n%s\n%s", zLabel, blob_str(&snip), zDate);
       if( bDebug ){
         blob_appendf(&com," score: %s id: %s", zScore, zId);
@@ -1559,7 +1480,7 @@ static void get_stext_by_mimetype(
         wiki_convert(pIn, &html, 0);
       }
     }
-    html_to_plaintext(blob_str(&html), pOut);
+    html_to_plaintext(blob_str(&html), pOut, 0);
   }else if( fossil_strcmp(zMimetype,"text/x-markdown")==0 ){
     markdown_to_html(pIn, blob_size(&title) ? NULL : &title, &html);
   }else if( fossil_strcmp(zMimetype,"text/html")==0 ){
@@ -1568,7 +1489,7 @@ static void get_stext_by_mimetype(
   }
   blob_appendf(pOut, "%s\n", blob_str(&title));
   if( blob_size(pHtml) ){
-    html_to_plaintext(blob_str(pHtml), pOut);
+    html_to_plaintext(blob_str(pHtml), pOut, 0);
   }else{
     blob_append(pOut, blob_buffer(pIn), blob_size(pIn));
   }

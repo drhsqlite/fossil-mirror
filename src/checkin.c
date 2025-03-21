@@ -2396,7 +2396,7 @@ int suspicious_comment(Blob *pComment, int mFlags){
       blob_init(&html, 0, 0);
       blob_init(&txt, 0, 0);
       wiki_convert(&in, &html, WIKI_INLINE);
-      html_to_plaintext(blob_str(&html), &txt);
+      html_to_plaintext(blob_str(&html), &txt, HTOT_VT100);
       if( nGot>0 ){
         fossil_print(
           "The comment uses special character%s \"%s\". "
