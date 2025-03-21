@@ -454,7 +454,11 @@ int ssl_open_client(UrlData *pUrlData){
     char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
     BIO *sBio = BIO_new_connect(connStr);
     if( g.fIPv4 ){
+#ifdef BIO_FAMILY_IPV4
       BIO_set_conn_ip_family(sBio, BIO_FAMILY_IPV4);
+#else
+      fossil_warning("The --ipv4 option is not supported in this build\n");
+#endif
     }
     fossil_free(connStr);
     if( BIO_do_connect(sBio)<=0 ){
@@ -510,7 +514,11 @@ int ssl_open_client(UrlData *pUrlData){
     BIO_set_conn_hostname(iBio, connStr);
     fossil_free(connStr);
     if( g.fIPv4 ){
+#ifdef BIO_FAMILY_IPV4
       BIO_set_conn_ip_family(iBio, BIO_FAMILY_IPV4);
+#else
+      fossil_warning("The --ipv4 option is not supported in this build\n");
+#endif
     }
     if( BIO_do_connect(iBio)<=0 ){
       ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
