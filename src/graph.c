@@ -61,7 +61,7 @@
 */
 typedef sqlite3_int64 GraphRowId;
 
-#define GR_MAX_RAIL   40      /* Max number of "rails" to display */
+#define GR_MAX_RAIL   60      /* Max number of "rails" to display */
 
 /* The graph appears vertically beside a timeline.  Each row in the
 ** timeline corresponds to a row in the graph.  GraphRow.idx is 0 for
