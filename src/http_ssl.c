@@ -453,7 +453,10 @@ int ssl_open_client(UrlData *pUrlData){
     int rc;
     char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
     BIO *sBio = BIO_new_connect(connStr);
-    free(connStr);
+    if( g.fIPv4 ){
+      BIO_set_conn_ip_family(sBio, BIO_FAMILY_IPV4);
+    }
+    fossil_free(connStr);
     if( BIO_do_connect(sBio)<=0 ){
       ssl_set_errmsg("SSL: cannot connect to proxy %s:%d (%s)",
             pUrlData->name, pUrlData->port,
@@ -505,7 +508,10 @@ int ssl_open_client(UrlData *pUrlData){
   if( !pUrlData->useProxy ){
     char *connStr = mprintf("%s:%d", pUrlData->name, pUrlData->port);
     BIO_set_conn_hostname(iBio, connStr);
-    free(connStr);
+    fossil_free(connStr);
+    if( g.fIPv4 ){
+      BIO_set_conn_ip_family(iBio, BIO_FAMILY_IPV4);
+    }
     if( BIO_do_connect(iBio)<=0 ){
       ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
          pUrlData->name, pUrlData->port,

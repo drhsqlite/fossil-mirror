@@ -1,5 +1,5 @@
-C Begin\simplementing\sa\sreturn\scode\son\swiki_convert()\sthat\scan\sinform\sthe\ncaller\sabout\swhat\smarkup\sis\scontained\swithin\sthe\srendered\swiki,\sand\swhat\nkinds\sof\serrors\swere\sseen.
-D 2025-03-21T11:12:23.300
+C Fix\sthe\sSSL\stransport\sso\sthat\sit\shonors\sthe\s--ipv4\sflag.\nSee\s[forum:/forumpost/ea4b2ec3fe577e79|forum\spost\sea4b2ec3f].\nTo\sfacilitate\stesting,\sadd\sthe\s--ipv4\sflag\sto\sthe\stest-httpmsg\ncommand\sand\sreport\sthe\sIP-address\swhen\sthe\s-v\sflag\sis\spresent.
+D 2025-03-21T13:50:06.220
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -465,9 +465,9 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 23f2acacf9bc1d86ea251b02e40c56341d1bc6010635bd2762002daf393b9f58
+F src/http.c 1727b7f76e7e5471cf5771b5eb59c820be56b2e8578a618268c407d718dbad83
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
-F src/http_ssl.c b06b61ff18aa819f59cf57cb77db1ea1511565a3a6ba6d959b8e3ea7e86d921d
+F src/http_ssl.c 8147c414a6446f275c7ef67c825d16408caf3c4b903d21db63f654fa999435ec
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
 F src/info.c 8702019bdda32be17f18f0922cfb4e03d6da2ef016407883fd59a11c6b8539f9
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bff93fc819b904d659192be643b6df2693348bdd8bb0f9724aa4b485f34ba760
-R 53b043e8333bc3deefe727b4e66eaac4
+P 53b080b24509ffaba5e65f20530829a5903b369bf745b46b5af0d6ff0f0bce33
+R f61fb4377be2e9a4922e5003f1282681
 U drh
-Z 0cb8086e56371ce47f396ef9c7df2f76
+Z 7bc22a68a8144710bb98b0241427dec1
 # Remove this line to create a well-formed Fossil manifest.

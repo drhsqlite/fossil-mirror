@@ -514,6 +514,9 @@ int http_exchange(
   blob_reset(&hdr);
   blob_reset(&payload);
   transport_flip(&g.url);
+  if( mHttpFlags & HTTP_VERBOSE ){
+    fossil_print("IP-Address: %s\n", g.zIpAddr);
+  }
 
   /*
   ** Read and interpret the server reply
@@ -795,6 +798,7 @@ void test_httpmsg_command(void){
     mHttpFlags |= HTTP_USE_LOGIN;
     mHttpFlags &= ~HTTP_GENERIC;
   }
+  if( find_option("ipv4",0,0) ) g.fIPv4 = 1;
   verify_all_options();
   if( g.argc<3 || g.argc>5 ){
     usage("URL ?PAYLOAD? ?OUTPUT?");
