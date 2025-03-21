@@ -1,5 +1,5 @@
-C Increase\sthe\smaximum\snumber\sof\srails\son\sa\stimeline\sgraph\sfrom\s40\sto\s60.
-D 2025-03-21T15:02:16.777
+C Move\sthe\ssymbolic_name_to_mtime()\sroutine\sfrom\stimeline.c\sover\sto\sname.c\nwhere\sit\sbelongs.\s\sFix\sthat\sroutine\sso\sthat\sthe\sdisplay\sname\somits\sthe\nrounded\sup\sextension\sto\sthe\sdate/time\svalue.
+D 2025-03-21T15:26:53.077
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -506,7 +506,7 @@ F src/merge.c 1f8aadaa868b51906df6f7a2967abfe74b52e380dc00152ebfe194f5b2cef9bf
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c a56fd4438c897aa2f67cfc8aec449378216d568900726da1320b705766943855
+F src/name.c f78065e8a8539f13a774642b3589edebc4d6fdf29b040bb5b5a0f09fd1c0cdc2
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 9c32dda651d83d15938ea17f11a19f3f36ebe0c1d6e37e5113cc11a492a74f77
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
@@ -574,7 +574,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c ecb13ef756ecd547c0774560dd7ac464628081ebd29319335552fe3a75f33cc5
+F src/timeline.c e1013f657e5c6454e37084056735bcebf713b1f71a5653136c613ba96823aaf1
 F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
 F src/tktsetup.c dee6358557178e83f24f09149f1aa241f331e2dde0084195156d34f012162e4e
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 754e2c1b6e8e56a5cadee8f779dc05c5f6ca932280dcc7bb53c13c5d348341df
-R 8b712e76864613d73e8f5cf22407296c
+P 45965933c288d08f52ccca26ba6f5e87d93cf3d47be78b0b4da14fd4ced8c808
+R 489fc816603f9b0d114f9d07b17a7e68
 U drh
-Z f82fd47260bacf26b802e8bbfcc75d5b
+Z 896ebd67f9ada0d2b557bdc1900c5ae2
 # Remove this line to create a well-formed Fossil manifest.
