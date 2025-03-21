@@ -25,19 +25,37 @@
 /*
 ** Allowed wiki transformation operations
 */
-#define WIKI_HTMLONLY       0x001  /* HTML markup only.  No wiki */
-#define WIKI_INLINE         0x002  /* Do not surround with <p>..</p> */
-#define WIKI_NOBLOCK        0x004  /* No block markup of any kind */
-#define WIKI_BUTTONS        0x008  /* Allow sub-menu buttons */
-#define WIKI_NOBADLINKS     0x010  /* Ignore broken hyperlinks */
-#define WIKI_LINKSONLY      0x020  /* No markup.  Only decorate links */
-#define WIKI_NEWLINE        0x040  /* Honor \n - break lines at each \n */
-#define WIKI_MARKDOWNLINKS  0x080  /* Resolve hyperlinks as in markdown */
-#define WIKI_SAFE           0x100  /* Make the result safe for embedding */
-#define WIKI_TARGET_BLANK   0x200  /* Hyperlinks go to a new window */
-#define WIKI_NOBRACKET      0x400  /* Omit extra [..] around hyperlinks */
-#define WIKI_ADMIN          0x800  /* Ignore g.perm.Hyperlink */
-#endif
+#define WIKI_HTMLONLY      0x0001  /* HTML markup only.  No wiki */
+#define WIKI_INLINE        0x0002  /* Do not surround with <p>..</p> */
+#define WIKI_NOBLOCK       0x0004  /* No block markup of any kind */
+#define WIKI_BUTTONS       0x0008  /* Allow sub-menu buttons */
+#define WIKI_NOBADLINKS    0x0010  /* Ignore broken hyperlinks */
+#define WIKI_LINKSONLY     0x0020  /* No markup.  Only decorate links */
+#define WIKI_NEWLINE       0x0040  /* Honor \n - break lines at each \n */
+#define WIKI_MARKDOWNLINKS 0x0080  /* Resolve hyperlinks as in markdown */
+#define WIKI_SAFE          0x0100  /* Make the result safe for embedding */
+#define WIKI_TARGET_BLANK  0x0200  /* Hyperlinks go to a new window */
+#define WIKI_NOBRACKET     0x0400  /* Omit extra [..] around hyperlinks */
+#define WIKI_ADMIN         0x0800  /* Ignore g.perm.Hyperlink */
+
+/*
+** Return values from wiki_convert
+*/
+#define RENDER_LINK       0x0001  /* One or more hyperlinks rendered */
+#define RENDER_ENTITY     0x0002  /* One or more HTML entities (ex: &lt;) */
+#define RENDER_TAG        0x0004  /* One or more HTML tags */
+#define RENDER_BLOCKTAG   0x0008  /* One or more HTML block tags (ex: <p>) */
+#define RENDER_BLOCK      0x0010  /* Block wiki (paragraphs, etc.) */
+#define RENDER_BADLINK    0x0100  /* Bad hyperlink syntax seen */
+#define RENDER_BADTARGET  0x0200  /* Bad hyperlink target */
+#define RENDER_BADTAG     0x0400  /* Bad HTML tag or tag syntax */
+#define RENDER_BADENTITY  0x0800  /* Bad HTML entity syntax */
+#define RENDER_BADHTML    0x1000  /* Bad HTML seen */
+#define RENDER_ERROR      0x8000  /* Some other kind of error */
+/* Composite values: */
+#define RENDER_ANYERROR   0x9f00  /* Mask for any kind of error */
+
+#endif /* INTERFACE */
 
 
 /*
@@ -457,6 +475,7 @@ typedef struct Renderer Renderer;
 struct Renderer {
   Blob *pOut;                 /* Output appended to this blob */
   int state;                  /* Flag that govern rendering */
+  int mRender;                /* Mask of RENDER_* values to return */
   unsigned renderFlags;       /* Flags from the client */
   int wikiList;               /* Current wiki list type */
   int inVerbatim;             /* True in <verbatim> mode */
@@ -682,16 +701,21 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
   if( z[0]=='<' ){
     n = html_tag_length(z);
     if( n>0 ){
+      p->mRender |= RENDER_TAG;
       *pTokenType = TOKEN_MARKUP;
       return n;
     }else{
+      p->mRender |= RENDER_BADTAG;
       *pTokenType = TOKEN_CHARACTER;
       return 1;
     }
   }
-  if( z[0]=='&' && (p->inVerbatim || !isElement(z)) ){
-    *pTokenType = TOKEN_CHARACTER;
-    return 1;
+  if( z[0]=='&' ){
+    p->mRender |= RENDER_ENTITY;
+    if( (p->inVerbatim || !isElement(z)) ){
+      *pTokenType = TOKEN_CHARACTER;
+      return 1;
+    }
   }
   if( (p->state & ALLOW_WIKI)!=0 ){
     if( z[0]=='\n' ){
@@ -728,13 +752,21 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
         return n;
       }
     }
-    if( z[0]=='[' && (n = linkLength(z))>0 ){
+    if( z[0]=='[' ){
+      if( (n = linkLength(z))>0 ){
+        *pTokenType = TOKEN_LINK;
+        return n;
+      }else{
+        p->mRender |= RENDER_BADLINK;
+      }
+    }
+  }else if( (p->state & ALLOW_LINKS)!=0 && z[0]=='[' ){
+    if( (n = linkLength(z))>0 ){
       *pTokenType = TOKEN_LINK;
       return n;
+    }else{
+      p->mRender |= RENDER_BADLINK;
     }
-  }else if( (p->state & ALLOW_LINKS)!=0 && z[0]=='[' && (n = linkLength(z))>0 ){
-    *pTokenType = TOKEN_LINK;
-    return n;
   }
   *pTokenType = TOKEN_TEXT;
   return 1 + textLength(z+1, p->state);
@@ -748,9 +780,13 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
 */
 static int nextRawToken(const char *z, Renderer *p, int *pTokenType){
   int n;
-  if( z[0]=='[' && (n = linkLength(z))>0 ){
-    *pTokenType = TOKEN_LINK;
-    return n;
+  if( z[0]=='[' ){
+    if( (n = linkLength(z))>0 ){
+      *pTokenType = TOKEN_LINK;
+      return n;
+    }else{
+      p->mRender |= RENDER_BADLINK;
+    }
   }
   *pTokenType = TOKEN_RAW;
   return 1 + textLength(z+1, p->state);
@@ -1251,8 +1287,12 @@ static const char *wiki_is_overridden(const char *zTarget){
 **    [2010-02-27 07:13]
 **
 **    [InterMap:Link]  ->  Interwiki link
+**
+** The return value is a mask of RENDER_* values indicating what happened.
+** Probably the return value is 0 on success and RENDER_BADTARGET or
+** RENDER_BADLINK if there are problems.
 */
-void wiki_resolve_hyperlink(
+int wiki_resolve_hyperlink(
   Blob *pOut,             /* Write the HTML output here */
   int mFlags,             /* Rendering option flags */
   const char *zTarget,    /* Hyperlink target; text within [...] */
@@ -1266,6 +1306,7 @@ void wiki_resolve_hyperlink(
   char *zExtra = 0;
   const char *zExtraNS = 0;
   char *zRemote = 0;
+  int rc = 0;
 
   if( zTitle ){
     zExtra = mprintf(" title='%h'", zTitle);
@@ -1323,6 +1364,7 @@ void wiki_resolve_hyperlink(
         blob_appendf(pOut, "<span class=\"brokenlink\">%s", zLB);
         zTerm = "]</span>";
       }
+      rc |= RENDER_BADTARGET;
     }else if( g.perm.Hyperlink || (mFlags & WIKI_ADMIN)!=0 ){
       blob_appendf(pOut, "%z%s",xhref(zExtraNS, "%R/info/%s", zTarget), zLB);
       zTerm = "]</a>";
@@ -1343,7 +1385,7 @@ void wiki_resolve_hyperlink(
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
-    /* Dates or date-and-times in ISO8610 resolve to a link to the
+    /* Dates or date-and-times in ISO8601 resolve to a link to the
     ** timeline for that date */
     blob_appendf(pOut, "<a href=\"%R/timeline?c=%T\"%s>", zTarget, zExtra);
   }else if( mFlags & WIKI_MARKDOWNLINKS ){
@@ -1359,13 +1401,16 @@ void wiki_resolve_hyperlink(
   }else if( (mFlags & (WIKI_NOBADLINKS|WIKI_LINKSONLY))!=0 ){
     /* Also ignore the link if various flags are set */
     zTerm = "";
+    rc |= RENDER_BADTARGET;
   }else{
     blob_appendf(pOut, "<span class=\"brokenlink\">[%h]", zTarget);
     zTerm = "</span>";
+    rc |= RENDER_BADTARGET;
   }
   if( zExtra ) fossil_free(zExtra);
   assert( (int)strlen(zTerm)<nClose );
   sqlite3_snprintf(nClose, zClose, "%s", zTerm);
+  return rc;
 }
 
 /*
@@ -1510,6 +1555,7 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_BUL_LI: {
+        p->mRender |= RENDER_BLOCK;
         if( inlineOnly ){
           blob_append_string(p->pOut, " &bull; ");
         }else{
@@ -1530,6 +1576,7 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_NUM_LI: {
+        p->mRender |= RENDER_BLOCK;
         if( inlineOnly ){
           blob_append_string(p->pOut, " # ");
         }else{
@@ -1550,6 +1597,7 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_ENUM: {
+        p->mRender |= RENDER_BLOCK;
         if( inlineOnly ){
           blob_appendf(p->pOut, " (%d) ", atoi(z));
         }else{
@@ -1570,6 +1618,7 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_INDENT: {
+        p->mRender |= RENDER_BLOCK;
         if( !inlineOnly ){
           assert( p->wikiList==0 );
           pushStack(p, MARKUP_BLOCKQUOTE);
@@ -1598,6 +1647,7 @@ static void wiki_render(Renderer *p, char *z){
         int iS1 = 0;
 
         startAutoParagraph(p);
+        p->mRender |= RENDER_LINK;
         zTarget = &z[1];
         for(i=1; z[i] && z[i]!=']'; i++){
           if( z[i]=='|' && zDisplay==0 ){
@@ -1614,7 +1664,7 @@ static void wiki_render(Renderer *p, char *z){
         }else{
           while( fossil_isspace(*zDisplay) ) zDisplay++;
         }
-        wiki_resolve_hyperlink(p->pOut, p->state,
+        p->mRender |= wiki_resolve_hyperlink(p->pOut, p->state,
                                zTarget, zClose, sizeof(zClose), zOrig, 0);
         if( linksOnly || zClose[0]==0 || p->inVerbatim ){
           if( cS1 ) z[iS1] = cS1;
@@ -1704,6 +1754,7 @@ static void wiki_render(Renderer *p, char *z){
         ** final output as plain text.
         */
         if( markup.iCode==MARKUP_INVALID ){
+          p->mRender |= RENDER_BADTAG;
           unparseMarkup(&markup);
           startAutoParagraph(p);
           blob_append_string(p->pOut, "&lt;");
@@ -1816,6 +1867,7 @@ static void wiki_render(Renderer *p, char *z){
           if( markup.iType==MUTYPE_FONT ){
             startAutoParagraph(p);
           }else if( markup.iType==MUTYPE_BLOCK || markup.iType==MUTYPE_LIST ){
+            p->mRender |= RENDER_BLOCKTAG;
             p->wantAutoParagraph = 0;
           }
           if(   markup.iCode==MARKUP_HR
@@ -1846,8 +1898,10 @@ static void wiki_render(Renderer *p, char *z){
 ** initialized.  The output is merely appended to pOut.
 ** If pOut is NULL, then the output is appended to the CGI
 ** reply.
+**
+** Return a mask of RENDER_ flags indicating what happened.
 */
-void wiki_convert(Blob *pIn, Blob *pOut, int flags){
+int wiki_convert(Blob *pIn, Blob *pOut, int flags){
   Renderer renderer;
 
   memset(&renderer, 0, sizeof(renderer));
@@ -1875,6 +1929,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   }
   blob_append_char(renderer.pOut, '\n');
   free(renderer.aStack);
+  return renderer.mRender;
 }
 
 /*
@@ -1894,11 +1949,14 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **    --nobadlinks     Set the WIKI_NOBADLINKS flag
 **    --noblock        Set the WIKI_NOBLOCK flag
 **    --text           Run the output through html_to_plaintext().
+**    --type           Break down the return code from wiki_convert().
 */
 void test_wiki_render(void){
   Blob in, out;
   int flags = 0;
   int bText;
+  int showType = 0;
+  int mType;
   if( find_option("buttons",0,0)!=0 ) flags |= WIKI_BUTTONS;
   if( find_option("htmlonly",0,0)!=0 ) flags |= WIKI_HTMLONLY;
   if( find_option("linksonly",0,0)!=0 ) flags |= WIKI_LINKSONLY;
@@ -1909,12 +1967,13 @@ void test_wiki_render(void){
     pikchr_to_html_add_flags( PIKCHR_PROCESS_DARK_MODE );
   }
   bText = find_option("text",0,0)!=0;
+  showType = find_option("type",0,0)!=0;
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
   blob_read_from_file(&in, g.argv[2], ExtFILE);
-  wiki_convert(&in, &out, flags);
+  mType = wiki_convert(&in, &out, flags);
   if( bText ){
     Blob txt;
     blob_init(&txt, 0, 0);
@@ -1923,6 +1982,21 @@ void test_wiki_render(void){
     out = txt;
   }
   blob_write_to_file(&out, "-");
+  if( showType ){
+    fossil_print("%.*c\nResult Codes:", terminal_get_width(80)-1, '*');
+    if( mType & RENDER_LINK )      fossil_print(" LINK");
+    if( mType & RENDER_ENTITY )    fossil_print(" ENTITY");
+    if( mType & RENDER_TAG )       fossil_print(" TAG");
+    if( mType & RENDER_BLOCKTAG )  fossil_print(" BLOCKTAG");
+    if( mType & RENDER_BLOCK )     fossil_print(" BLOCK");
+    if( mType & RENDER_BADLINK )   fossil_print(" BADLINK");
+    if( mType & RENDER_BADTARGET ) fossil_print(" BADTARGET");
+    if( mType & RENDER_BADTAG )    fossil_print(" BADTAG");
+    if( mType & RENDER_BADENTITY ) fossil_print(" BADENTITY");
+    if( mType & RENDER_BADHTML )   fossil_print(" BADHTML");
+    if( mType & RENDER_ERROR )     fossil_print(" ERROR");
+    fossil_print("\n");
+  }
 }
 
 /*
@@ -2026,8 +2100,10 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
 ** Where "target" can be either an artifact ID prefix or a wiki page
 ** name.  For each such hyperlink found, add an entry to the
 ** backlink table.
+**
+** The return value is a mask of RENDER_ flags.
 */
-void wiki_extract_links(
+int wiki_extract_links(
   char *z,           /* The wiki text from which to extract links */
   Backlink *pBklnk,  /* Backlink extraction context */
   int flags          /* wiki parsing flags */
@@ -2177,6 +2253,7 @@ void wiki_extract_links(
     z += n;
   }
   free(renderer.aStack);
+  return renderer.mRender;
 }
 
 /*
