@@ -278,9 +278,10 @@ void get_checkin_taglist(int rid, Blob *pOut){
 ** latest version in the repository.
 **
 ** Options:
-**    --force           Ignore edited files in the current check-out
-**    --keep            Only update the manifest file(s)
+**    -f|--force        Ignore edited files in the current check-out
+**    -k|--keep         Only update the manifest file(s)
 **    --force-missing   Force check-out even if content is missing
+**    --prompt          Prompt before overwritting when --force is used
 **    --setmtime        Set timestamps of all files to match their SCM-side
 **                      times (the timestamp of the last check-in which modified
 **                      them)
@@ -300,12 +301,17 @@ void checkout_cmd(void){
 
   db_must_be_within_tree();
   db_begin_transaction();
-  forceFlag = find_option("force","f",0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
-  keepFlag = find_option("keep",0,0)!=0;
+  keepFlag = find_option("keep","k",0)!=0;
+  forceFlag = find_option("force","f",0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
   promptFlag = find_option("prompt",0,0)!=0 || forceFlag==0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
+
+  if( keepFlag != 0 ){
+    /* After flag collection to explicitly don't affect promptFlag */
+    forceFlag=1;
+  }
 
   /* We should be done with options.. */
   verify_all_options();

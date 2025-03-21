@@ -1,5 +1,5 @@
-C Move\sthe\ssymbolic_name_to_mtime()\sroutine\sfrom\stimeline.c\sover\sto\sname.c\nwhere\sit\sbelongs.\s\sFix\sthat\sroutine\sso\sthat\sthe\sdisplay\sname\somits\sthe\nrounded\sup\sextension\sto\sthe\sdate/time\svalue.
-D 2025-03-21T15:26:53.077
+C Improvement\son\sthe\scheckout/co\scommand.\n\n"co\s--keep"\snow\simply\s"--force"\ssince\sit's\sguaranteed\sthat\sno\sfile\sfrom\sthe\ncheckout\swill\sbe\saffected.\sAdd\sshort\sflag\sversion\sof\s--keep\sand\s--force.\nDocument\sthe\sexistence\sof\sthe\s"--prompt"\sflag.
+D 2025-03-21T15:39:05.973
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -399,7 +399,7 @@ F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c 7cc9486dfa224c69e7cfe0b86c966f3a647dd1a617ec763fe810044b7430f0ed
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
 F src/checkin.c ec62224f0f25c5e73c016ccb319075c826bac255721326ee86f17cd648c98f3f
-F src/checkout.c 65424a6ea916d3722c98f64da61b95a646ef2a0bc798ad075500d0e5acdab474
+F src/checkout.c ee0a98d52a38765da48a7e966f8b033072f36283ffd2ccfe88079c558c530583
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
 F src/clone.c e392538aa4d05e2b561400d4c7b5ae60a536456d9184f0afcec3eccea473273c
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45965933c288d08f52ccca26ba6f5e87d93cf3d47be78b0b4da14fd4ced8c808
-R 489fc816603f9b0d114f9d07b17a7e68
-U drh
-Z 896ebd67f9ada0d2b557bdc1900c5ae2
+P 54cfac8c8452a3a06e259fc64452cb72d6cfaf9cf145f559d786f076272f28a3
+R 72fc403198f00984e0c927c0e5ddaeb9
+U mgagnon
+Z 58ee1c27031821189bd35424e9a6e4d0
 # Remove this line to create a well-formed Fossil manifest.
