@@ -1,5 +1,5 @@
-C Work\saround\smissing\sBIO_set_conn_ip_family()\sAPI\sin\sLibreSSL.\nThis\sfixes\s[forum:/forumpost/a52cbed8f228397e|forum\spost\sa52cbed8f],\nI'm\stold.
-D 2025-03-21T23:29:54.598
+C Simplify\sthe\sverify-comments\ssetting\sto\shave\sjust\s"on",\s"off",\sand\s"preview"\noptions.\s\sRename\sthe\sfunction\sthat\simplements\sthis\sfeature\sto\n"verify_comment()".\s\sReimplement\sthat\sfunction\sso\sthat\sit\suses\sthe\snew\nerror\sreporting\smechanism\sin\swiki_convert().
+D 2025-03-22T09:38:45.039
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c 7cc9486dfa224c69e7cfe0b86c966f3a647dd1a617ec763fe810044b7430f0ed
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
-F src/checkin.c f9e047d10f3741545d641dc24c872a2b8a58ff6454aa9b747b4c8863f562e92f
+F src/checkin.c 1cc734e45940e697ce0e27b53f696159bdc60c9b683e9ef1ac37c01778299c4a
 F src/checkout.c ee0a98d52a38765da48a7e966f8b033072f36283ffd2ccfe88079c558c530583
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
@@ -470,7 +470,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c b6e82531b75cc915dec31f0ecf9abca0a3a90a21bd1c87120bbc23ce408724d2
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c 8702019bdda32be17f18f0922cfb4e03d6da2ef016407883fd59a11c6b8539f9
+F src/info.c 697db59238e34ee7d8f6227cc9c70ca0cb567454496a61944f4e14fabbb07e58
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -514,7 +514,7 @@ F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
 F src/popen.c 1b97d68d5aa43c0d88af6c9324b32efc011920038a382f39097d6f204b2f3a4d
 F src/pqueue.c 4bc9471b252a8624435660be144d0031c40d8c10cb023321ab9234cda156eb02
-F src/printf.c 30d94a3cae22126c82d0c8ba87a558bbd0f418d01bfec1e7babd4fb1c89bb2c3
+F src/printf.c 057f44dbb82d28fedd2f030e265b56716c685d9b569a97bd0ef0089c9427b489
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f0d9fe2b0cd3cd60c32c91a5eeb6415f517b9a37b9314925ad3f2025ad6883bd
-R 30ff74e17c21be8cfa37ca1bdcd625b4
+P 50ff741f6ffb4f4f15e73dc43fc975e790ca2a63865ef9bedd0d49357418de14
+R 143f2f408ea4366f8b53d1783a321ada
 U drh
-Z 634029f1fe2e4509f7bce372b777558b
+Z 1d5d77bf0df1a765f59550c1aa2d27fc
 # Remove this line to create a well-formed Fossil manifest.

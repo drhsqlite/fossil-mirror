@@ -277,7 +277,7 @@ static int StrNLen32(const char *z, int N){
 ** to be rendered on a form rather than the timeline and that block markup
 ** is acceptable even if the "timeline-block-markup" setting is false.
 */
-static int wiki_convert_flags(int altForm2){
+int wiki_convert_flags(int altForm2){
   static int wikiFlags = 0;
   if( wikiFlags==0 ){
     if( db_get_boolean("timeline-block-markup", 0) ){

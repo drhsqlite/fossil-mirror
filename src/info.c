@@ -3939,7 +3939,7 @@ void ci_amend_cmd(void){
   int nTags, nCancels;
   int i;
   Stmt q;
-  int ckComFlgs;                /* Flags passed to suspicious_comment() */
+  int ckComFlgs;                /* Flags passed to verify_comment() */
 
 
   fEditComment = find_option("edit-comment","e",0)!=0;
@@ -4032,14 +4032,9 @@ void ci_amend_cmd(void){
       if( is_false(zVerComs) ){
         ckComFlgs = 0;
       }else if( strcmp(zVerComs,"preview")==0 ){
-        ckComFlgs = COMCK_PREVIEW | COMCK_LINKS | COMCK_MARKUP;
-      }else if( strcmp(zVerComs,"links")==0 ){
-        ckComFlgs = COMCK_LINKS;
+        ckComFlgs = COMCK_PREVIEW | COMCK_MARKUP;
       }else{
-        ckComFlgs = COMCK_LINKS | COMCK_MARKUP;
-      }
-      if( zNewComment || zComFile ){
-        ckComFlgs = (ckComFlgs & COMCK_LINKS) | COMCK_NOPREVIEW;
+        ckComFlgs = COMCK_MARKUP;
       }
     }
     if( fEditComment ){
@@ -4054,7 +4049,7 @@ void ci_amend_cmd(void){
      && comment_compare(zComment, blob_str(&comment))==0
     ){
       int rc;
-      while( (rc = suspicious_comment(&comment, ckComFlgs))!=0 ){
+      while( (rc = verify_comment(&comment, ckComFlgs))!=0 ){
         char cReply;
         Blob ans;
         if( !fEditComment ){
@@ -4062,17 +4057,17 @@ void ci_amend_cmd(void){
                        "use --no-verify-comment to override");
         }
         if( rc==COMCK_PREVIEW ){
-          prompt_user("\nContinue (Y/n/e=edit)? ", &ans);
+          prompt_user("Continue, abort, or edit (C/a/e)? ", &ans);
         }else{
-          prompt_user("\nContinue (y/n/E=edit)? ", &ans);
+          prompt_user("Edit, abort, or continue (E/a/c)? ", &ans);
         }
         cReply = blob_str(&ans)[0];
         cReply = fossil_tolower(cReply);
         blob_reset(&ans);
-        if( cReply=='n' ){
+        if( cReply=='a' ){
           fossil_fatal("Amend aborted.");
         }
-        if( cReply=='e' || (cReply!='y' && rc!=COMCK_PREVIEW) ){
+        if( cReply=='e' || (cReply!='c' && rc!=COMCK_PREVIEW) ){
           char *zPrior = blob_materialize(&comment);
           blob_init(&comment, 0, 0);
           prepare_amend_comment(&comment, zPrior, zUuid);
