@@ -791,7 +791,10 @@ static int nextRawToken(const char *z, Renderer *p, int *pTokenType){
     if( (n = linkLength(z))>0 ){
       *pTokenType = TOKEN_LINK;
       return n;
-    }else{
+   }else if( p->state & WIKI_MARK ){
+     blob_append_string(p->pOut, "<mark>");
+     p->mRender |= RENDER_BADLINK|RENDER_MARK;
+   }else{
       p->mRender |= RENDER_BADLINK;
     }
   }
@@ -1630,8 +1633,10 @@ static void wiki_render(Renderer *p, char *z){
           p->mRender |= RENDER_MARK;
         }
         if( z[0]=='<' ){
+          p->mRender |= RENDER_BADTAG;
           blob_append_string(p->pOut, "&lt;");
         }else if( z[0]=='&' ){
+          p->mRender |= RENDER_BADENTITY;
           blob_append_string(p->pOut, "&amp;");
         }
         if( p->state & WIKI_MARK ){
@@ -1956,6 +1961,7 @@ int wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **    --htmlonly       Set the WIKI_HTMLONLY flag
 **    --inline         Set the WIKI_INLINE flag
 **    --linksonly      Set the WIKI_LINKSONLY flag
+**    -m TEXT          Use TEXT in place of the content of FILE
 **    --mark           Add <mark>...</mark> around problems
 **    --nobadlinks     Set the WIKI_NOBADLINKS flag
 **    --text           Run the output through html_to_plaintext()
@@ -1968,6 +1974,7 @@ void test_wiki_render(void){
   int bFlow = 0;
   int showType = 0;
   int mType;
+  const char *zIn;
   if( find_option("buttons",0,0)!=0 ) flags |= WIKI_BUTTONS;
   if( find_option("htmlonly",0,0)!=0 ) flags |= WIKI_HTMLONLY;
   if( find_option("linksonly",0,0)!=0 ) flags |= WIKI_LINKSONLY;
@@ -1980,11 +1987,16 @@ void test_wiki_render(void){
   bText = find_option("text",0,0)!=0;
   bFlow = find_option("flow",0,0)!=0;
   showType = find_option("type",0,0)!=0;
+  zIn = find_option("msg","m",1);
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
-  if( g.argc!=3 ) usage("FILE");
+  if( (zIn==0 && g.argc!=3) || (zIn!=0 && g.argc!=2) ) usage("FILE");
   blob_zero(&out);
-  blob_read_from_file(&in, g.argv[2], ExtFILE);
+  if( zIn ){
+    blob_init(&in, zIn, -1);
+  }else{
+    blob_read_from_file(&in, g.argv[2], ExtFILE);
+  }
   mType = wiki_convert(&in, &out, flags);
   if( bText ){
     Blob txt;
