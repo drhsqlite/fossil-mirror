@@ -27,7 +27,7 @@
 */
 #define WIKI_HTMLONLY      0x0001  /* HTML markup only.  No wiki */
 #define WIKI_INLINE        0x0002  /* Do not surround with <p>..</p> */
-#define WIKI_NOBLOCK       0x0004  /* No block markup of any kind */
+/* avalable for reuse:     0x0004  ---  formerly WIKI_NOBLOCK */
 #define WIKI_BUTTONS       0x0008  /* Allow sub-menu buttons */
 #define WIKI_NOBADLINKS    0x0010  /* Ignore broken hyperlinks */
 #define WIKI_LINKSONLY     0x0020  /* No markup.  Only decorate links */
@@ -467,8 +467,7 @@ static int findTag(const char *z){
 #define ALLOW_WIKI          0x0040000  /* Allow wiki markup */
 #define ALLOW_LINKS         0x0080000  /* Allow [...] hyperlinks */
 #define FONT_MARKUP_ONLY    0x0100000  /* Only allow MUTYPE_FONT markup */
-#define INLINE_MARKUP_ONLY  0x0200000  /* Allow only "inline" markup */
-#define IN_LIST             0x0400000  /* Within wiki <ul> or <ol> */
+#define IN_LIST             0x0200000  /* Within wiki <ul> or <ol> */
 
 /*
 ** Current state of the rendering engine
@@ -1528,7 +1527,6 @@ static void wiki_render(Renderer *p, char *z){
   int tokenType;
   ParsedMarkup markup;
   int n;
-  int inlineOnly = (p->state & INLINE_MARKUP_ONLY)!=0;
   int wikiHtmlOnly = (p->state & (WIKI_HTMLONLY | WIKI_LINKSONLY))!=0;
   int linksOnly = (p->state & WIKI_LINKSONLY)!=0;
   char *zOrig = z;
@@ -1546,18 +1544,13 @@ static void wiki_render(Renderer *p, char *z){
     p->state &= ~(AT_NEWLINE|AT_PARAGRAPH);
     switch( tokenType ){
       case TOKEN_PARAGRAPH: {
-        if( inlineOnly ){
-          /* blob_append_string(p->pOut, " &para; "); */
-          blob_append_string(p->pOut, " &nbsp;&nbsp; ");
-        }else{
-          if( p->wikiList ){
-            popStackToTag(p, p->wikiList);
-            p->wikiList = 0;
-          }
-          endAutoParagraph(p);
-          blob_append_string(p->pOut, "\n\n");
-          p->wantAutoParagraph = 1;
+        if( p->wikiList ){
+          popStackToTag(p, p->wikiList);
+          p->wikiList = 0;
         }
+        endAutoParagraph(p);
+        blob_append_string(p->pOut, "\n\n");
+        p->wantAutoParagraph = 1;
         p->state |= AT_PARAGRAPH|AT_NEWLINE;
         break;
       }
@@ -1572,76 +1565,62 @@ static void wiki_render(Renderer *p, char *z){
       }
       case TOKEN_BUL_LI: {
         p->mRender |= RENDER_BLOCK;
-        if( inlineOnly ){
-          blob_append_string(p->pOut, " &bull; ");
-        }else{
-          if( p->wikiList!=MARKUP_UL ){
-            if( p->wikiList ){
-              popStackToTag(p, p->wikiList);
-            }
-            endAutoParagraph(p);
-            pushStack(p, MARKUP_UL);
-            blob_append_string(p->pOut, "<ul>");
-            p->wikiList = MARKUP_UL;
+        if( p->wikiList!=MARKUP_UL ){
+          if( p->wikiList ){
+            popStackToTag(p, p->wikiList);
           }
-          popStackToTag(p, MARKUP_LI);
-          startAutoParagraph(p);
-          pushStack(p, MARKUP_LI);
-          blob_append_string(p->pOut, "<li>");
+          endAutoParagraph(p);
+          pushStack(p, MARKUP_UL);
+          blob_append_string(p->pOut, "<ul>");
+          p->wikiList = MARKUP_UL;
         }
+        popStackToTag(p, MARKUP_LI);
+        startAutoParagraph(p);
+        pushStack(p, MARKUP_LI);
+        blob_append_string(p->pOut, "<li>");
         break;
       }
       case TOKEN_NUM_LI: {
         p->mRender |= RENDER_BLOCK;
-        if( inlineOnly ){
-          blob_append_string(p->pOut, " # ");
-        }else{
-          if( p->wikiList!=MARKUP_OL ){
-            if( p->wikiList ){
-              popStackToTag(p, p->wikiList);
-            }
-            endAutoParagraph(p);
-            pushStack(p, MARKUP_OL);
-            blob_append_string(p->pOut, "<ol>");
-            p->wikiList = MARKUP_OL;
+        if( p->wikiList!=MARKUP_OL ){
+          if( p->wikiList ){
+            popStackToTag(p, p->wikiList);
           }
-          popStackToTag(p, MARKUP_LI);
-          startAutoParagraph(p);
-          pushStack(p, MARKUP_LI);
-          blob_append_string(p->pOut, "<li>");
+          endAutoParagraph(p);
+          pushStack(p, MARKUP_OL);
+          blob_append_string(p->pOut, "<ol>");
+          p->wikiList = MARKUP_OL;
         }
+        popStackToTag(p, MARKUP_LI);
+        startAutoParagraph(p);
+        pushStack(p, MARKUP_LI);
+        blob_append_string(p->pOut, "<li>");
         break;
       }
       case TOKEN_ENUM: {
         p->mRender |= RENDER_BLOCK;
-        if( inlineOnly ){
-          blob_appendf(p->pOut, " (%d) ", atoi(z));
-        }else{
-          if( p->wikiList!=MARKUP_OL ){
-            if( p->wikiList ){
-              popStackToTag(p, p->wikiList);
-            }
-            endAutoParagraph(p);
-            pushStack(p, MARKUP_OL);
-            blob_append_string(p->pOut, "<ol>");
-            p->wikiList = MARKUP_OL;
+        if( p->wikiList!=MARKUP_OL ){
+          if( p->wikiList ){
+            popStackToTag(p, p->wikiList);
           }
-          popStackToTag(p, MARKUP_LI);
-          startAutoParagraph(p);
-          pushStack(p, MARKUP_LI);
-          blob_appendf(p->pOut, "<li value=\"%d\">", atoi(z));
+          endAutoParagraph(p);
+          pushStack(p, MARKUP_OL);
+          blob_append_string(p->pOut, "<ol>");
+          p->wikiList = MARKUP_OL;
         }
+        popStackToTag(p, MARKUP_LI);
+        startAutoParagraph(p);
+        pushStack(p, MARKUP_LI);
+        blob_appendf(p->pOut, "<li value=\"%d\">", atoi(z));
         break;
       }
       case TOKEN_INDENT: {
         p->mRender |= RENDER_BLOCK;
-        if( !inlineOnly ){
-          assert( p->wikiList==0 );
-          pushStack(p, MARKUP_BLOCKQUOTE);
-          blob_append_string(p->pOut, "<blockquote>");
-          p->wantAutoParagraph = 0;
-          p->wikiList = MARKUP_BLOCKQUOTE;
-        }
+        assert( p->wikiList==0 );
+        pushStack(p, MARKUP_BLOCKQUOTE);
+        blob_append_string(p->pOut, "<blockquote>");
+        p->wantAutoParagraph = 0;
+        p->wikiList = MARKUP_BLOCKQUOTE;
         break;
       }
       case TOKEN_CHARACTER: {
@@ -1810,12 +1789,6 @@ static void wiki_render(Renderer *p, char *z){
           }else{
             p->state &= ~ALLOW_WIKI;
           }
-        }else
-
-        /* Ignore block markup for in-line rendering.
-        */
-        if( inlineOnly && (markup.iType&MUTYPE_INLINE)==0 ){
-          /* Do nothing */
         }else
 
         /* Generate end-tags */
@@ -2161,19 +2134,14 @@ int wiki_extract_links(
   int tokenType;
   ParsedMarkup markup;
   int n;
-  int inlineOnly;
   int wikiHtmlOnly = 0;
 
   memset(&renderer, 0, sizeof(renderer));
   renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH;
-  if( flags & WIKI_NOBLOCK ){
-    renderer.state |= INLINE_MARKUP_ONLY;
-  }
   if( wikiUsesHtml() ){
     renderer.state |= WIKI_HTMLONLY;
     wikiHtmlOnly = 1;
   }
-  inlineOnly = (renderer.state & INLINE_MARKUP_ONLY)!=0;
 
   while( z[0] ){
     if( wikiHtmlOnly ){
@@ -2252,12 +2220,6 @@ int wiki_extract_links(
           }else{
             renderer.state &= ~ALLOW_WIKI;
           }
-        }else
-
-        /* Ignore block markup for in-line rendering.
-        */
-        if( inlineOnly && (markup.iType&MUTYPE_INLINE)==0 ){
-          /* Do nothing */
         }else
 
         /* Generate end-tags */

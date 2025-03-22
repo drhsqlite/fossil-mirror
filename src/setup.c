@@ -984,13 +984,6 @@ void setup_timeline(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
 
   @ <hr>
-  onoff_attribute("Allow block-markup in timeline",
-                  "timeline-block-markup", "tbm", 0, 0);
-  @ <p>In timeline displays, check-in comments can be displayed with or
-  @ without block markup such as paragraphs, tables, etc.
-  @ (Property: "timeline-block-markup")</p>
-
-  @ <hr>
   onoff_attribute("Plaintext comments on timelines",
                   "timeline-plaintext", "tpt", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed literally,

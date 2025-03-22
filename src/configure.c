@@ -102,7 +102,6 @@ static struct {
   { "background-image",       CONFIGSET_SKIN },
   { "icon-mimetype",          CONFIGSET_SKIN },
   { "icon-image",             CONFIGSET_SKIN },
-  { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-date-format",   CONFIGSET_SKIN },
   { "timeline-default-style", CONFIGSET_SKIN },
   { "timeline-dwelltime",     CONFIGSET_SKIN },
