@@ -1469,6 +1469,7 @@ static void prepare_commit_comment(
   int dryRunFlag
 ){
   Blob prompt;
+  int wikiFlags;
 #if defined(_WIN32) || defined(__CYGWIN__)
   int bomSize;
   const unsigned char *bom = get_utf8_bom(&bomSize);
@@ -1481,10 +1482,33 @@ static void prepare_commit_comment(
 #endif
   blob_append(&prompt,
     "\n"
-    "# Enter a commit message for this check-in."
-        " Lines beginning with # are ignored.\n"
-    "#\n", -1
+    "# Enter the commit message.  Formatting rules:\n"
+    "#   *  Lines beginning with # are ignored.\n",
+    -1
   );
+  wikiFlags = wiki_convert_flags(1);
+  if( wikiFlags & WIKI_LINKSONLY ){
+    blob_append(&prompt,"#   *  Hyperlinks inside of [...]\n", -1);
+    if( wikiFlags & WIKI_NEWLINE ){
+      blob_append(&prompt,
+        "#   *  Newlines are significant and are displayed as written\n", -1);
+    }else{
+      blob_append(&prompt,
+        "#   *  Newlines are interpreted as ordinary spaces\n",
+        -1
+      );
+    }
+    blob_append(&prompt,
+        "#   *  All other text will be displayed as written\n", -1);
+  }else{
+    blob_append(&prompt,
+       "#   *  Hyperlinks:   [target]   or   [target|display-text]\n"
+       "#   *  Blank lines cause a paragraph break\n"
+       "#   *  Other text rendered as if it where HTML\n", -1
+    );
+  }
+  blob_append(&prompt, "#\n", 2);
+
   if( dryRunFlag ){
     blob_appendf(&prompt, "# DRY-RUN:  This is a test commit.  No changes "
                           "will be made to the repository\n#\n");
@@ -2329,12 +2353,12 @@ int verify_comment(Blob *pComment, int mFlags){
   blob_init(&in, blob_str(pComment), -1);
   blob_init(&html, 0, 0);
   wFlags = wiki_convert_flags(0);
-  wFlags &= WIKI_NOBADLINKS;
+  wFlags &= ~WIKI_NOBADLINKS;
   wFlags |= WIKI_MARK;
   mResult = wiki_convert(&in, &html, wFlags);
   if( mResult & RENDER_ANYERROR ) rc |= COMCK_MARKUP;
   if( rc ){
-    int htot = HTOT_NO_WS;
+    int htot = ((wFlags & WIKI_NEWLINE)!=0 ? 0 : HTOT_FLOW)|HTOT_TRIM;
     Blob txt;
     if( terminal_is_vt100() ) htot |= HTOT_VT100;
     blob_init(&txt, 0, 0);
@@ -2344,7 +2368,17 @@ int verify_comment(Blob *pComment, int mFlags){
     }else{
       fossil_print("Preview of the check-in comment:\n\n   ");
     }
-    comment_print(blob_str(&txt), 0, 3, -1, get_comment_format());
+    if( wFlags & WIKI_NEWLINE ){
+      Blob line;
+      char *zIndent = "";
+      while( blob_line(&txt, &line) ){
+        fossil_print("%s%b", zIndent, &line);
+        zIndent = "   ";
+      }
+      fossil_print("\n");
+    }else{
+      comment_print(blob_str(&txt), 0, 3, -1, get_comment_format());
+    }
     fossil_print("\n");
     fflush(stdout);
     blob_reset(&txt);

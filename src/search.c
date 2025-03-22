@@ -728,7 +728,7 @@ void search_cmd(void){
       blob_appendf(&snip, "%s", zSnippet);
       zOrig = blob_materialize(&snip);
       blob_init(&snip, 0, 0);
-      html_to_plaintext(zOrig, &snip, (nTty ? HTOT_VT100 : 0)|HTOT_NO_WS);
+      html_to_plaintext(zOrig, &snip, (nTty?HTOT_VT100:0)|HTOT_FLOW|HTOT_TRIM);
       fossil_free(zOrig);
       blob_appendf(&com, "%s\n%s\n%s", zLabel, blob_str(&snip), zDate);
       if( bDebug ){

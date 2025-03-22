@@ -2000,9 +2000,9 @@ void test_wiki_render(void){
   mType = wiki_convert(&in, &out, flags);
   if( bText ){
     Blob txt;
-    int htot = 0;
+    int htot = HTOT_TRIM;
     if( terminal_is_vt100() ) htot |= HTOT_VT100;
-    if( bFlow ) htot |= HTOT_NO_WS;
+    if( bFlow ) htot |= HTOT_FLOW;
     blob_init(&txt, 0, 0);
     html_to_plaintext(blob_str(&out),&txt, htot);
     blob_reset(&out);
@@ -2534,8 +2534,9 @@ void test_html_tidy(void){
 /*
 ** Allowed flag options for html_to_plaintext().
 */
-#define HTOT_VT100   0x0001   /* <mark> becomes ^[[91m */
-#define HTOT_NO_WS   0x0002   /* Collapse whitespace to a single space */
+#define HTOT_VT100   0x01 /* <mark> becomes ^[[91m */
+#define HTOT_FLOW    0x02 /* Collapse internal whitespace to a single space */
+#define HTOT_TRIM    0x04 /* Trim off leading and trailing whitespace */
 
 #endif /* INTERFACE */
 
@@ -2561,14 +2562,16 @@ static void addMark(Blob *pOut, int mFlags, int isClose){
 void html_to_plaintext(const char *zIn, Blob *pOut, int mFlags){
   int n;
   int i, j;
-  int bNoWS = 0;            /* Transform WS into a single space */
-  int seenText = 0;         /* True after first non-whitespace seen */
-  int nNL = 0;              /* Number of \n characters at the end of pOut */
-  int nWS = 0;              /* True if pOut ends with whitespace */
-  int nMark = 0;            /* True if inside of <mark>..</mark> */
+  int bFlow = 0;          /* Transform internal WS into a single space */
+  int prevWS = 1;         /* Previous output was whitespace or start of msg */
+  int nMark = 0;          /* True if inside of <mark>..</mark> */
 
-  while( fossil_isspace(zIn[0]) ) zIn++;   /* Skip leading whitespace */
-  if( mFlags & HTOT_NO_WS ) bNoWS = 1;
+  for(i=0; fossil_isspace(zIn[i]); i++){}
+  if( i>0 && (mFlags & HTOT_TRIM)==0 ){
+    blob_append(pOut, zIn, i);
+  }
+  zIn += i;
+  if( mFlags & HTOT_FLOW ) bFlow = 1;
   while( zIn[0] ){
     n = html_token_length(zIn);
     if( zIn[0]=='<' && n>1 ){
@@ -2576,6 +2579,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut, int mFlags){
       int eTag;
       int eType;
       char zTag[32];
+      prevWS = 0;
       isCloseTag = zIn[1]=='/';
       for(i=0, j=1+isCloseTag; i<30 && fossil_isalnum(zIn[j]); i++, j++){
          zTag[i] = fossil_tolower(zIn[j]);
@@ -2605,32 +2609,28 @@ void html_to_plaintext(const char *zIn, Blob *pOut, int mFlags){
         continue;            
       }
       if( eTag==MARKUP_TITLE ){
-        if( isCloseTag && (mFlags & HTOT_NO_WS)==0 ){
-          bNoWS = 0;
+        if( isCloseTag && (mFlags & HTOT_FLOW)==0 ){
+          bFlow = 0;
         }else{
-          bNoWS = 1;
+          bFlow = 1;
         }
       }
-      if( !isCloseTag && seenText && (eType & (MUTYPE_BLOCK|MUTYPE_TABLE))!=0 ){
-        if( nNL==0 ){
-          blob_append_char(pOut, '\n');
-          nNL++;
-        }
-        nWS = 1;
+      if( !isCloseTag && (eType & (MUTYPE_BLOCK|MUTYPE_TABLE))!=0 ){
+        blob_append_char(pOut, '\n');
       }
     }else if( fossil_isspace(zIn[0]) ){
-      if( seenText ){
-        nNL = 0;
-        if( !bNoWS ){ /* '\n' -> ' ' within <title> */
-          for(i=0; i<n; i++) if( zIn[i]=='\n' ) nNL++;
-        }
-        if( !nWS ){
-          blob_append_char(pOut, nNL ? '\n' : ' ');
-          nWS = 1;
-        }
+      if( bFlow==0 ){
+        if( zIn[n]==0 && (mFlags & HTOT_TRIM) ) break;
+        blob_append(pOut, zIn, n);
+      }else if( !prevWS ){
+        prevWS = 1;
+        blob_append_char(pOut, ' ');
+        zIn += n;
+        n = 0;
       }
     }else if( zIn[0]=='&' ){
       u32 c = '?';
+      prevWS = 0;
       if( zIn[1]=='#' ){
         c = atoi(&zIn[2]);
         if( c==0 ) c = '?';
@@ -2650,40 +2650,30 @@ void html_to_plaintext(const char *zIn, Blob *pOut, int mFlags){
           }
         }
       }
-      if( fossil_isspace(c) ){
-        if( nWS==0 && seenText ) blob_append_char(pOut, c);
-        nWS = 1;
-        nNL = c=='\n';
+      if( c<0x00080 ){
+        blob_append_char(pOut, c & 0xff);
+      }else if( c<0x00800 ){
+        blob_append_char(pOut, 0xc0 + (u8)((c>>6)&0x1f));
+        blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
+      }else if( c<0x10000 ){
+        blob_append_char(pOut, 0xe0 + (u8)((c>>12)&0x0f));
+        blob_append_char(pOut, 0x80 + (u8)((c>>6)&0x3f));
+        blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
       }else{
-        if( !seenText && !bNoWS ) blob_append_char(pOut, '\n');
-        seenText = 1;
-        nNL = nWS = 0;
-        if( c<0x00080 ){
-          blob_append_char(pOut, c & 0xff);
-        }else if( c<0x00800 ){
-          blob_append_char(pOut, 0xc0 + (u8)((c>>6)&0x1f));
-          blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
-        }else if( c<0x10000 ){
-          blob_append_char(pOut, 0xe0 + (u8)((c>>12)&0x0f));
-          blob_append_char(pOut, 0x80 + (u8)((c>>6)&0x3f));
-          blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
-        }else{
-          blob_append_char(pOut, 0xf0 + (u8)((c>>18)&0x07));
-          blob_append_char(pOut, 0x80 + (u8)((c>>12)&0x3f));
-          blob_append_char(pOut, 0x80 + (u8)((c>>6)&0x3f));
-          blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
-        }
+        blob_append_char(pOut, 0xf0 + (u8)((c>>18)&0x07));
+        blob_append_char(pOut, 0x80 + (u8)((c>>12)&0x3f));
+        blob_append_char(pOut, 0x80 + (u8)((c>>6)&0x3f));
+        blob_append_char(pOut, 0x80 + (u8)(c&0x3f));
       }
     }else{
-      if( !seenText && !bNoWS ) blob_append_char(pOut, '\n');
-      seenText = 1;
-      nNL = nWS = 0;
+      prevWS = 0;
       blob_append(pOut, zIn, n);
     }
     zIn += n;
   }
-  if( nMark ) addMark(pOut, mFlags, 1);
-  if( nNL==0 ) blob_append_char(pOut, '\n');
+  if( nMark ){
+    addMark(pOut, mFlags, 1);
+  }
 }
 
 /*
