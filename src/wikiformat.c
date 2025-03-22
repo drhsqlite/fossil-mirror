@@ -2528,6 +2528,18 @@ void test_html_tidy(void){
 #endif /* INTERFACE */
 
 /*
+** Add <MARK> or </MARK> to the output, or similar VT-100 escape
+** codes.
+*/
+static void addMark(Blob *pOut, int mFlags, int isClose){
+  static const char *az[4] = { "<MARK>", "</MARK>", "\033[91m", "\033[0m" };
+  int i = 0;
+  if( isClose ) i++;
+  if( mFlags & HTOT_VT100 ) i += 2;
+  blob_append(pOut, az[i], -1);
+}
+
+/*
 ** Remove all HTML markup from the input text.  The output written into
 ** pOut is pure text.
 **
@@ -2570,14 +2582,12 @@ void html_to_plaintext(const char *zIn, Blob *pOut, int mFlags){
         continue;
       }
       if( eTag==MARKUP_INVALID && strcmp(zTag,"mark")==0 ){
-        if( (mFlags & HTOT_VT100)!=0 ){
-          if( isCloseTag && nMark ){
-            blob_append(pOut, "\033[0m", 4);
-            nMark = 0;
-          }else if( !isCloseTag && !nMark ){
-            blob_append(pOut, "\033[91m", 5);
-            nMark = 1;
-          }
+        if( isCloseTag && nMark ){
+          addMark(pOut, mFlags, 1);
+          nMark = 0;
+        }else if( !isCloseTag && !nMark ){
+          addMark(pOut, mFlags, 0);
+          nMark = 1;
         }
         zIn += n;
         continue;            
@@ -2660,7 +2670,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut, int mFlags){
     }
     zIn += n;
   }
-  if( nMark ) blob_append(pOut, "\033[0m", 4);
+  if( nMark ) addMark(pOut, mFlags, 1);
   if( nNL==0 ) blob_append_char(pOut, '\n');
 }
 
