@@ -318,16 +318,17 @@ int repo_list_page(void){
     style_table_sorter();
     style_finish_page();
   }else{
+    const char *zTitle = PD("FOSSIL_REPOLIST_TITLE","Repository List");
     /* If no repositories were found that had the "repolist_skin"
     ** property set, then use a default skin */
     @ <html>
     @ <head>
     @ <base href="%s(g.zBaseURL)/">
     @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @ <title>Repository List</title>
+    @ <title>%h(zTitle)</title>
     @ </head>
     @ <body>
-    @ <h1 align="center">Fossil Repositories</h1>
+    @ <h1 align="center">%h(zTitle)</h1>
     @ %s(blob_str(&html))
     @ <script>%s(builtin_text("sorttable.js"))</script>
     @ </body>
