@@ -742,7 +742,6 @@ void tktview_page(void){
   }
   if( g.anon.NewTkt ){
     style_submenu_element("New Ticket", "%R/tktnew");
-    style_submenu_element("Copy Ticket", "%R/tktnew/%T", PD("name",""));
   }
   if( g.anon.ApndTkt && g.anon.Attach ){
     style_submenu_element("Attach", "%R/attachadd?tkt=%T&from=%R/tktview/%t",

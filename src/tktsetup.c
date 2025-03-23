@@ -493,6 +493,10 @@ static const char zDefaultView[] =
 @     html "<td class='tktDspValue' colspan='3'>Deleted</td></tr>\n"
 @   }
 @ }
+@
+@ if {[capexpr {n}]} {
+@   submenu link "Copy Ticket" /tktnew/$tkt_uuid
+@ }
 @ </th1>
 @ <tr><td class="tktDspLabel">Title:</td>
 @ <td class="tktDspValue" colspan="3">
