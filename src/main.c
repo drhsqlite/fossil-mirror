@@ -2544,8 +2544,12 @@ void cmd_cgi(void){
       ** Sets environment variable NAME to VALUE.  If VALUE is omitted, then
       ** the environment variable is unset.
       */
-      blob_token(&line,&value2);
-      fossil_setenv(blob_str(&value), blob_str(&value2));
+      char *zValue;
+      blob_tail(&line,&value2);
+      blob_trim(&value2);
+      zValue = blob_str(&value2);
+      while( fossil_isspace(zValue[0]) ){ zValue++; }
+      fossil_setenv(blob_str(&value), zValue);
       blob_reset(&value);
       blob_reset(&value2);
       continue;
