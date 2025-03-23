@@ -3511,7 +3511,14 @@ void cmd_webserver(void){
       if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
       if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
       if( g.zCkoutAlias ) blob_appendf(&ssh," --ckout-alias %!$",g.zCkoutAlias);
-      if( g.zExtRoot ) blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
+      if( zExtPage ){
+        if( !file_is_absolute_path(zExtPage) ){
+          zExtPage = mprintf("%s/%s", g.argv[2], zExtPage);
+        }
+        blob_appendf(&ssh, " --extpage %$", zExtPage);
+      }else if( g.zExtRoot ){
+        blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
+      }
       if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
       if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
       if( fCreate ) blob_appendf(&ssh, " --create");

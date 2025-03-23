@@ -1,5 +1,5 @@
-C Add\sthe\s--extpage\soption\sto\sthe\s"fossil\sui"\scommand.
-D 2025-03-23T19:50:29.918
+C Further\senhance\sthe\s--extpage\soption\sso\sthat\sit\sworks\swith\s\n"fossil\sui\sremote:path".
+D 2025-03-23T20:17:57.093
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -493,7 +493,7 @@ F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22
 F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
-F src/main.c f1f45adee22763f9f9fb98e392209e80d54365fd92e64d2f752bfaadbcecd19b
+F src/main.c c6906e8d191f90323da809fdbb5588dc281edcf9571f7c9f2cf14c4ac2fe5090
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
 F src/manifest.c ff73bb76d7e994bbefbaf43cd96835affd252d9e700a0ccd3dce584f4f612a0d
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9443f619b3719aac6fe2584052bf61884d9d79e17cc69d80389592fb1bcfec1c
-R 85298f71f10c67bcc045b14b6afa1dc9
+P 36c798413cba759aabe6d6ea64aede01ec0704ff484a891c4dd92be013764b20
+R 3cb18bcd58bbab2d3b4ef2db53c7a7c4
 U drh
-Z a2b39346f3abdba915843773ade07de4
+Z 0dcb4688bd072b50749d791cdae23df9
 # Remove this line to create a well-formed Fossil manifest.
