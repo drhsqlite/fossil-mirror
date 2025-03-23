@@ -1,11 +1,11 @@
-C The\sCLI\stimeline\snow\stakes\sinto\saccount\stimeline\sformatting\ssettings,\ntimeline-plaintext\sand\stimeline-hard-newlines,\swhen\srendering.
-D 2025-03-23T10:29:31.766
+C add\sbld-dir\sto\signore-glob
+D 2025-03-23T12:43:52.279
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
 F .fossil-settings/crlf-glob 4fdc984bf5f731ec9289091c423c2db94f83f5c2b5b65c18700b9fb7beb895c7
 F .fossil-settings/encoding-glob fe9e7e2a183ce22d107976173b58d2a1255aeb0a
-F .fossil-settings/ignore-glob ec33bee0751eb55ec94623f8ef7cf569b06645c2d7ab08b2e511de7f99b34331
+F .fossil-settings/ignore-glob fbe408291c3a3caf7634a29e833a57fc023240c68465cf8187c7c303366665b1
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d62ca2b85f1eb7d98f58860736dfe52a2992f00828524bb91b850a7071f68e8c
-R fd86a9c60dc09fdc324215c91ddf7c51
-U drh
-Z 69898cbbbbdc4063101b028f9619ef84
+P 7e1c569b637d0eebec994323cc1d015aeeb1222c10f7bd67290aee0e21558bf0
+R 0da0fd20aac909472b401904b4a079cc
+U jkosche
+Z 10e8cf22ae35ac111834d845f2fbb5ca
 # Remove this line to create a well-formed Fossil manifest.
