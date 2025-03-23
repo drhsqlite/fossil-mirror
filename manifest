@@ -1,5 +1,5 @@
-C change\sthe\ssubmenu\sfor\scopy\sticket\sto\sdefault\sTH1,\sso\sthat\sadmins\scan\schange\sit
-D 2025-03-23T11:19:11.760
+C fix\spunctuation\sin\sbutton\sdescription
+D 2025-03-23T11:20:58.384
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -576,7 +576,7 @@ F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 3c9c8e5a3c453c18de0d1f276461945ac214b26c9e8ee2c522468bd8771d460d
 F src/tkt.c 5b6b4cb5f8fe3f2fb398c392c6f9fd28d151d266a378ec7bfebe4bbd9522117d
-F src/tktsetup.c 7f7f530b017d58dec844240ba5b020db53a66175ddc6045f1b4dfe8c99202191
+F src/tktsetup.c a5d74a536ad20387d7d561a594dbeadc4b684988857f0d9389e944900a4f1260
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e729e6b2028a4e5f93fbfb69806385f926f638063f20dc02e642f6990390714f
-R a42f8349ba398156e4c012cc9292770e
+P fd403302688547ea9c1bdf7f745e82861cf909315967a8c0d95d19969b430438
+R e9c410e15dea8f1a806dee5dc3964fb9
 U jkosche
-Z 2afeedcf163446b444dc5d67fcf80923
+Z d0ec380bf4f63bde54c07bace3d4834b
 # Remove this line to create a well-formed Fossil manifest.
