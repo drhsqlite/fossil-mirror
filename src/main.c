@@ -3206,6 +3206,9 @@ void fossil_set_timeout(int N){
 **                       /doc/ckout/...
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --errorlog FILE     Append HTTP error messages to FILE
+**   --extpage FILE      Shortcut for "--extroot DIR --page ext/TAIL" where
+**                       DIR is the directory holding FILE and TAIL is the
+**                       filename at the end of FILE.  Only works for "ui".
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --fossilcmd PATH    The pathname of the "fossil" executable on the remote
@@ -3284,6 +3287,7 @@ void cmd_webserver(void){
   const char *zJsMode;       /* The --jsmode parameter */
   const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
   const char *zFrom;         /* Value for --from */
+  const char *zExtPage = 0;  /* Argument to --extpage */
 
 
 #if USE_SEE
@@ -3325,8 +3329,16 @@ void cmd_webserver(void){
       fossil_fatal("the argument to --from must be a pathname for"
                    " the \"ui\" command");
     }
-    zInitPage = find_option("page", "p", 1);
-    if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
+    zExtPage = find_option("extpage",0,1);
+    if( zExtPage ){
+      char *zFullPath = file_canonical_name_dup(zExtPage);
+      g.zExtRoot = file_dirname(zFullPath);
+      zInitPage = mprintf("ext/%s",file_tail(zFullPath));
+      fossil_free(zFullPath);
+    }else{
+      zInitPage = find_option("page", "p", 1);
+      if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
+    }
     zFossilCmd = find_option("fossilcmd", 0, 1);
     if( zFrom && zInitPage==0 ){
       zInitPage = mprintf("ckout?exbase=%H", zFrom);
