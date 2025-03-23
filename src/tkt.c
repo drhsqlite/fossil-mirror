@@ -1048,7 +1048,11 @@ void tktnew_page(void){
                    (void*)&zNewUuid, 0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br>\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
-    cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
+    if( P("submitandnew") ){
+      cgi_redirect(mprintf("%R/tktnew/%s", zNewUuid));
+    }else{
+      cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
+    }
     return;
   }
   captcha_generate(0);
