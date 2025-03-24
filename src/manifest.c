@@ -2948,9 +2948,9 @@ void artifact_to_json(Manifest const *p, Blob *b){
   char *zUuid;
 
   blob_append_literal(b, "{");
-  blob_appendf(b, "\"rid\": %d", p->rid);
   zUuid = rid_to_uuid(p->rid);
-  blob_appendf(b, ", \"uuid\": %!j", zUuid);
+  blob_appendf(b, "\"uuid\": %!j", zUuid);
+  /*blob_appendf(b, ", \"rid\": %d", p->rid); not portable across repos*/
   blob_appendf(b, ", \"type\": %!j", artifact_type_to_name(p->type));
 #define ISA(TYPE) if( p->type==TYPE )
 #define CARD_LETTER(LETTER) \
