@@ -2913,3 +2913,61 @@ void test_crosslink_cmd(void){
   content_get(rid, &content);
   manifest_crosslink(rid, &content, MC_NONE);
 }
+
+void artifact_to_json(Manifest *p, Blob *pOut){
+  char * zTmp;
+  blob_reset(pOut);
+  blob_append_literal(pOut, "{");
+  blob_appendf(pOut, "\"rid\": %d, ", p->rid);
+  zTmp = rid_to_uuid(p->rid);
+  blob_appendf(pOut, "\"uuid\": %!j", zTmp);
+  fossil_free(zTmp);
+  blob_append_literal(pOut, "}");
+}
+
+/*
+** Convenience wrapper around artifact_to_json() which accepts any
+** artifact name which is legal for symbolic_name_to_rid(). On success
+** it returns the rid of the artifact. Returns 0 if no such artifact
+** exists and a negative value if the name is ambiguous.
+**
+** If it returns a valid rid, pOut will be cleared before emitting the
+** JSON to it.
+**
+*/
+int artifact_to_json_by_name(const char *zName, Blob *pOut){
+  int rid;
+
+  rid = symbolic_name_to_rid(zName, 0);
+  if( rid>0 ){
+    Manifest * const p = manifest_get(rid, CFTYPE_ANY, 0);
+    assert(p && "Is it possible to fail this if rid is a phantom?");
+    artifact_to_json(p, pOut);
+    manifest_destroy(p);
+  }
+  return rid;
+}
+
+/*
+** COMMAND: test-artifact-to-json
+**
+** Usage:  %fossil test-artifact-to-json symbolic-name [...names]
+**
+** Tests the artifact_to_json() and artifact_to_json_by_name() APIs.
+*/
+void test_manifest_to_json(void){
+  int i;
+  Blob b = empty_blob;
+
+  db_find_and_open_repository(0,0);
+  for( i=2; i<g.argc; ++i ){
+    char const *zName = g.argv[i];
+    const int rc = artifact_to_json_by_name(zName, &b);
+    if( rc<=0 ){
+      fossil_warning("Error reading artifact %Q\n", zName);
+    }else{
+      fossil_print("%b\n", &b);
+    }
+    blob_reset(&b);
+  }
+}
