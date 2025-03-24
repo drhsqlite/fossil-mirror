@@ -2951,23 +2951,32 @@ int artifact_to_json_by_name(const char *zName, Blob *pOut){
 /*
 ** COMMAND: test-artifact-to-json
 **
-** Usage:  %fossil test-artifact-to-json symbolic-name [...names]
+** Usage:  %fossil test-artifact-to-json ?-pretty? symbolic-name [...names]
 **
 ** Tests the artifact_to_json() and artifact_to_json_by_name() APIs.
 */
 void test_manifest_to_json(void){
   int i;
   Blob b = empty_blob;
+  Stmt q;
+  const int bPretty = find_option("pretty",0,0)!=0;
 
   db_find_and_open_repository(0,0);
+  db_prepare(&q, "select json_pretty(:json)");
   for( i=2; i<g.argc; ++i ){
     char const *zName = g.argv[i];
     const int rc = artifact_to_json_by_name(zName, &b);
     if( rc<=0 ){
       fossil_warning("Error reading artifact %Q\n", zName);
-    }else{
-      fossil_print("%b\n", &b);
+    }else if( bPretty ){
+      db_bind_blob(&q, ":json", &b);
+      b.nUsed = 0;
+      db_step(&q);
+      db_column_blob(&q, 0, &b);
+      db_reset(&q);
     }
+    fossil_print("%b\n", &b);
     blob_reset(&b);
   }
+  db_finalize(&q);
 }
