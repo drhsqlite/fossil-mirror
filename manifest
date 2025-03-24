@@ -1,5 +1,5 @@
-C Check\sif\sVT100\ssupport\sis\savailable\sto\srestore\scompatibility\sof\sconsole\soutput\swith\sLegacy\sConsoles\s(from\sWindows\sXP\sto\sWindows\s11).
-D 2025-03-24T07:16:00.000
+C Document\sthe\snew\sFOSSIL_REPOLIST_TITLE\senvironment\svariable.
+D 2025-03-24T07:18:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 13061ee70f2a2a252be88440f5c646ce611bfb1ac5502a67243ad982d5208221
+F src/db.c 4572474878c82c91b2d0ad2853c43c31a52af3f13847316895f4eafbbea46f56
 F src/default.css 94743facfa876f5c35f2974f9e356e8a47587e2292e98c41063785699d51ae4f
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -788,7 +788,7 @@ F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999
 F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f9020d8b
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
-F www/cgi.wiki 0d8ae1d55db302a98d95da41ac75de4dcc665b66262e1873b5a3e6bcabf213d0
+F www/cgi.wiki 080e44975a142db5bfd34ba9cbae57e26e2f3ca26aaf5a27537668802986f028
 F www/changes.wiki 2477730cb3f8ae550075bd2f03bfbe55c997937d3f5269c9f8cd1cc76cd0a482
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
@@ -826,7 +826,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki e97cbf256e11b913298031503eda9042295865ab1ee2f6c5ae558cb091300fd7
-F www/env-opts.md 459afd109a4f65db72b5f2a1a20e6e4a79bd9430e6558fd66e4d6128006eb59f
+F www/env-opts.md c3d94e09b573188224cb8211e0b8a46e9c1cf43bee01588ce9f48a1708fdc5c3
 F www/event.wiki b2b5694047176815ed3701face7910e89bda204b07af878a16c04d8c6b3e08ad
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 48eea5e3306bd2a363a07b8cdd8d44310bf5b5917119cef0fc82afbfba66a81d
-R d77c32e21d9457f43ddd1203156bbe66
+P 360abc5e827dd94bc640821989252ac4fe360c12525684e0e3061724acd815cc
+R 31cadf11fee9b6e89a2bfcb1a3f18c7f
 U florian
-Z bd7bd651b8308bffb484ce3c3c511f9b
+Z 12023cd786415ca5f904c8efeb5e90d1
 # Remove this line to create a well-formed Fossil manifest.

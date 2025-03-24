@@ -75,8 +75,12 @@ of available Fossil repositories.
 The "skin" of the reply is determined by the first
 repository in the list that has a non-zero
 [/help?cmd=repolist-skin|repolist-skin] setting.
+
 If no repository has such a non-zero repolist-skin setting, then
-the repository list is generic HTML without any decoration.
+the repository list is generic HTML without any decoration, with
+the page title taken from the <tt>FOSSIL_REPOLIST_TITLE</tt>
+environment variable. The variable can be defined in the CGI
+control file using the [#setenv|<tt>setenv:</tt>] statement.
 
 The repolist-generated page recurses into subdirectories and will list
 all <tt>*.fossil</tt> files found, with the following exceptions:
