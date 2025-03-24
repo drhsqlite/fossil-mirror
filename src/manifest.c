@@ -2916,7 +2916,10 @@ void test_crosslink_cmd(void){
 
 /*
 ** For a given CATYPE_... value, returns a human-friendly name, or
-** NULL if typeId is unknown or is CFTYPE_ANY.
+** NULL if typeId is unknown or is CFTYPE_ANY. The names returned by
+** this function are geared towards use with artifact_to_json(), and
+** may differ from some historical uses. e.g. CFTYPE_CONTROL artifacts
+** are called "tag" artifacts by this function.
 */
 const char * artifact_type_to_name(int typeId){
   switch(typeId){
@@ -2945,11 +2948,9 @@ const char * artifact_type_to_name(int typeId){
 */
 void artifact_to_json(Manifest const *p, Blob *b){
   int i;
-  char *zUuid;
 
   blob_append_literal(b, "{");
-  zUuid = rid_to_uuid(p->rid);
-  blob_appendf(b, "\"uuid\": %!j", zUuid);
+  blob_appendf(b, "\"uuid\": \"%z\"", rid_to_uuid(p->rid));
   /*blob_appendf(b, ", \"rid\": %d", p->rid); not portable across repos*/
   blob_appendf(b, ", \"type\": %!j", artifact_type_to_name(p->type));
 #define ISA(TYPE) if( p->type==TYPE )
@@ -2967,7 +2968,6 @@ void artifact_to_json(Manifest const *p, Blob *b){
   blob_appendf(b, "%!j: ", #KEY);   \
   STR_OR_NULL(VAL)
 
-  /* Noting that only 1 (at most) of the A-card pieces will be non-NULL... */
   ISA( CFTYPE_ATTACHMENT ){
     CARD_LETTER(A);
     blob_append_char(b, '{');
@@ -3078,7 +3078,6 @@ void artifact_to_json(Manifest const *p, Blob *b){
   }
   CARD_STR2(U, p->zUser);
   CARD_STR2(W, p->zWiki);
-  fossil_free(zUuid);
   blob_append_literal(b, "}");
 #undef CARD_FMT
 #undef CARD_LETTER

@@ -1,5 +1,5 @@
-C Note\sin\swww/fileformat.wiki\sthat\sControl\sartifacts\sare\salso\sreferred\sas\sTag\sartifacts,\sper\s/chat\sdiscussion.
-D 2025-03-24T18:14:11.215
+C Minor\scleanups\sin\sthe\snew\sartifact_to_json()\spieces.
+D 2025-03-24T18:43:39.385
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -495,7 +495,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c c6906e8d191f90323da809fdbb5588dc281edcf9571f7c9f2cf14c4ac2fe5090
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
-F src/manifest.c e041935702be230a1313a5d4741710a52830e421537c7ca1cd847954913f7eda
+F src/manifest.c 9106f0b86f0498647dffcc4b049276b6260164de07d91a360e67968b3ca28764
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
 F src/markdown_html.c ad02712ac0be224b1c720b1fde49bcd30cf0eb89f3756390feda7d624d9b16eb
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1e2d60287a002c69812d6ad2f03fec0df1f68d98c1aff89d247b9fb685a0d378
-R 4dad3d1778d64360b81420e1053fad85
+P 26a82dddfe696ddf769bd6aacd154fcd0007f124b57de4490a6e0949d2b6a188
+R f0b30cc7d33115c053c7da16bb3f8bae
 U stephan
-Z d70818e15f3db1261556e38a9e1e0725
+Z 981845e14d2dc6656c1c9f0a288f5325
 # Remove this line to create a well-formed Fossil manifest.
