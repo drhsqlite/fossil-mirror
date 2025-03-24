@@ -2922,7 +2922,7 @@ const char * artifact_type_to_name(int typeId){
   switch(typeId){
     case CFTYPE_MANIFEST: return "checkin";
     case CFTYPE_CLUSTER: return "cluster";
-    case CFTYPE_CONTROL: return "control";
+    case CFTYPE_CONTROL: return "tag";
     case CFTYPE_WIKI: return "wiki";
     case CFTYPE_TICKET: return "ticket";
     case CFTYPE_ATTACHMENT: return "attachment";
