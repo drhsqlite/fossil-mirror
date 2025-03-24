@@ -2933,7 +2933,10 @@ const char * artifact_type_to_name(int typeId){
 }
 
 /*
-** Creates a JSON representation of p, appending it to pOut.
+** Creates a JSON representation of p, appending it to b.
+**
+** b is not cleared before rendering, so the caller needs to do that
+** if it's important for their use case.
 **
 ** Pedantic note: this routine traverses p->aFile directly, rather than
 ** using manifest_file_next(), so that delta manifests are rendered as-is
@@ -2993,6 +2996,9 @@ void artifact_to_json(Manifest const *p, Blob *b){
       KVP_STR(1, oldName, pF->zPrior);
       blob_append_char(b, '}');
     }
+    /* Special case: model checkins with no F-card as having an empty
+    ** array, rather than no F-cards, to hypothetically simplify
+    ** handling in JSON queries. */
     blob_append_char(b, ']');
   }
   CARD_STR2(G, p->zThreadRoot);
@@ -3022,13 +3028,18 @@ void artifact_to_json(Manifest const *p, Blob *b){
     blob_append_char(b, ']');
   }
   CARD_STR2(N, p->zMimetype);
-  if( p->nParent ){
+  ISA( CFTYPE_MANIFEST ){
     CARD_LETTER(P);
     blob_append_char(b, '[');
-    for( i = 0; i < p->nParent; ++i ){
-      if( i>0 ) blob_append_char(b, ',');
-      blob_appendf(b, "%!j", p->azParent[i]);
+    if( p->nParent ){
+      for( i = 0; i < p->nParent; ++i ){
+        if( i>0 ) blob_append_char(b, ',');
+        blob_appendf(b, "%!j", p->azParent[i]);
+      }
     }
+    /* Special case: model checkins with no P-card as having
+    ** an empty array, rather than no P-card, to hypothetically
+    ** simplify handling in JSON queries. */
     blob_append_char(b, ']');
   }
   if( p->nCherrypick ){
@@ -3079,6 +3090,22 @@ void artifact_to_json(Manifest const *p, Blob *b){
 }
 
 /*
+** Convenience wrapper around artifact_to_json() which expects rid to
+** be the blob.rid of any artifact type. If it can load a Manifest
+** with that rid, it returns rid, else it returns 0.
+*/
+int artifact_to_json_by_rid(int rid, Blob *pOut){
+  Manifest * const p = manifest_get(rid, CFTYPE_ANY, 0);
+  if( p ){
+    artifact_to_json(p, pOut);
+    manifest_destroy(p);
+  }else{
+    rid = 0;
+  }
+  return rid;
+}
+
+/*
 ** Convenience wrapper around artifact_to_json() which accepts any
 ** artifact name which is legal for symbolic_name_to_rid(). On success
 ** it returns the rid of the artifact. Returns 0 if no such artifact
@@ -3088,17 +3115,59 @@ void artifact_to_json(Manifest const *p, Blob *b){
 ** that if it's important for their use case.
 */
 int artifact_to_json_by_name(const char *zName, Blob *pOut){
-  int rid;
-
-  rid = symbolic_name_to_rid(zName, 0);
-  if( rid>0 ){
-    Manifest * const p = manifest_get(rid, CFTYPE_ANY, 0);
-    assert(p && "Is it possible to fail this if rid is a phantom?");
-    artifact_to_json(p, pOut);
-    manifest_destroy(p);
-  }
-  return rid;
+  const int rid = symbolic_name_to_rid(zName, 0);
+  return rid>0
+    ? artifact_to_json_by_rid(rid, pOut)
+    : rid;
 }
+
+/*
+** SQLite UDF for artifact_to_json(). Its single argument should be
+** either an INTEGER (blob.rid value) or a TEXT symbolic artifact
+** name, as per symbolic_name_to_rid(). If an artifact is found then
+** the result of the UDF is that JSON as a string, else it evaluates
+** to NULL.
+*/
+void artifact_to_json_sql_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  int rid = 0;
+  Blob b = empty_blob;
+
+  if(1 != argc){
+    goto error_usage;
+  }
+  switch( sqlite3_value_type(argv[0]) ){
+    case SQLITE_INTEGER:
+      rid = artifact_to_json_by_rid(sqlite3_value_int(argv[0]), &b);
+      break;
+    case SQLITE_TEXT:{
+      const char * z = (const char *)sqlite3_value_text(argv[0]);
+      if( z ){
+        rid = artifact_to_json_by_name(z, &b);
+      }
+      break;
+    }
+    default:
+      goto error_usage;
+  }
+  if( rid>0 ){
+    sqlite3_result_text(context, blob_str(&b), blob_size(&b),
+                        SQLITE_TRANSIENT);
+    blob_reset(&b);
+  }else{
+    /* We should arguably error out if rid<0 (ambiguous name) */
+    sqlite3_result_null(context);
+  }
+  return;
+error_usage:
+  sqlite3_result_error(context, "Expecting one argument: blob.rid or "
+                       "artifact symbolic name", -1);
+}
+
+
 
 /*
 ** COMMAND: test-artifact-to-json

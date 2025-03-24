@@ -1,5 +1,5 @@
-C Re-do\sprevious\scheckin\s-\si\shad\sbeen\sediting\sthe\sgenerated\sbld/manifest_.c\sbecause\sof\sPEBKAC\scaused\sby\sfollowing\sa\scompilation\serror\sinto\sthat\sfile.
-D 2025-03-24T14:18:32.032
+C Add\sthe\sartifact_to_json(rid|symbolic-name)\sUDF.\sEmit\scheck-ins\swith\sno\sP-\sor\sF-card\sas\shaving\san\sempty\sarray\sfor\sthose\scards,\sin\sthe\shope\sof\ssimplifying\shost-language\straversal\sover\sthe\sresults\s(no\sneed\sto\scheck\sfor\sexistence\sof\sthe\scards\sbefore\straversal).
+D 2025-03-24T17:06:29.746
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 4572474878c82c91b2d0ad2853c43c31a52af3f13847316895f4eafbbea46f56
+F src/db.c be597cb1d975b0c67c668e23e49fb54388d0bc2947f5f9f0dca51c7f41904a68
 F src/default.css 94743facfa876f5c35f2974f9e356e8a47587e2292e98c41063785699d51ae4f
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -495,7 +495,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c c6906e8d191f90323da809fdbb5588dc281edcf9571f7c9f2cf14c4ac2fe5090
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
-F src/manifest.c 58022c8ccb6a4f0f20cd6c3efd37980c93fff7f6777076333d356d560060b86e
+F src/manifest.c c3b046e62e47aca0d8974b0ea34365384a32b05332127da45d42225343a7d883
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
 F src/markdown_html.c ad02712ac0be224b1c720b1fde49bcd30cf0eb89f3756390feda7d624d9b16eb
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e3e8fa351b9649b425e92bb96364d7f0903173767b83a31eea4f54ac364b77fa
-R be2ecb0d3fb8f96d6cf802fd652f630b
+P 069995d7eaf52c67b3b73cd176a30fc048940b5e039c0318e3d082bb7736f316
+R 500e301c7791827ac41a60fe5070298d
 U stephan
-Z c43a166b43f4c4de985bad4e6f8d02de
+Z 19ce05386c2cb560eab45cb07f8a3046
 # Remove this line to create a well-formed Fossil manifest.
