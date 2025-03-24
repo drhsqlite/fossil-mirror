@@ -2941,10 +2941,10 @@ const char * artifact_type_to_name(int typeId){
 ** b is not cleared before rendering, so the caller needs to do that
 ** if it's important for their use case.
 **
-** Pedantic note: this routine traverses p->aFile directly, rather than
-** using manifest_file_next(), so that delta manifests are rendered as-is
-** instead of having their derived files. If that policy is ever changed,
-** p will need to be non-const.
+** Pedantic note: this routine traverses p->aFile directly, rather
+** than using manifest_file_next(), so that delta manifests are
+** rendered as-is instead of containing their derived F-cards. If that
+** policy is ever changed, p will need to be non-const.
 */
 void artifact_to_json(Manifest const *p, Blob *b){
   int i;
@@ -3018,7 +3018,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
   }
   CARD_STR2(K, p->zTicketUuid);
   CARD_STR2(L, p->zWikiTitle);
-  ISA( CFTYPE_CLUSTER && p->nCChild>0 ){
+  ISA( CFTYPE_CLUSTER ){
     CARD_LETTER(M);
     blob_append_char(b, '[');
     for( int i = 0; i < p->nCChild; ++i ){
@@ -3037,9 +3037,8 @@ void artifact_to_json(Manifest const *p, Blob *b){
         blob_appendf(b, "%!j", p->azParent[i]);
       }
     }
-    /* Special case: model checkins with no P-card as having
-    ** an empty array, rather than no P-card, to hypothetically
-    ** simplify handling in JSON queries. */
+    /* Special case: model checkins with no P-card as having an empty
+    ** array, as per F-cards. */
     blob_append_char(b, ']');
   }
   if( p->nCherrypick ){
@@ -3064,13 +3063,9 @@ void artifact_to_json(Manifest const *p, Blob *b){
       if( i>0 ) blob_append_char(b, ',');
       blob_append_char(b, '{');
       blob_appendf(b, "\"type\": \"%c\"", *zName);
-      ++zName;
-      KVP_STR(1, name, zName);
+      KVP_STR(1, name, &zName[1]);
       KVP_STR(1, target, p->aTag[i].zUuid ? p->aTag[i].zUuid : "*")
-        /* We could arguably resolve this to null. Per /chat
-           discussion we don't want to resolve it to zUuid because
-           that would effectively add information to the rendered
-           manifest. */;
+        /* We could arguably resolve the "*" as null or p's uuid. */;
       KVP_STR(1, value, p->aTag[i].zValue);
       blob_append_char(b, '}');
     }
