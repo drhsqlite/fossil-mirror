@@ -1631,6 +1631,8 @@ void db_add_aux_functions(sqlite3 *db){
         chat_msg_from_event, 0, 0);
   sqlite3_create_function(db, "inode", 1, SQLITE_UTF8, 0,
                           file_inode_sql_func,0,0);
+  sqlite3_create_function(db, "artifact_to_json", 1, SQLITE_UTF8, 0,
+                          artifact_to_json_sql_func,0,0);
 
 }
 
