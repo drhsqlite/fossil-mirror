@@ -2915,31 +2915,167 @@ void test_crosslink_cmd(void){
 }
 
 /*
-** Creates a JSON representation of p, appending it to pOut.
+** For a given CATYPE_... value, returns a human-friendly name, or
+** NULL if typeId is unknown or is CFTYPE_ANY.
 */
-void artifact_to_json(Manifest *p, Blob *pOut){
-  char * zTmp;
-  blob_append_literal(pOut, "{");
-  blob_appendf(pOut, "\"rid\": %d", p->rid);
-  zTmp = rid_to_uuid(p->rid);
-  blob_appendf(pOut, ", \"uuid\": %!j", zTmp);
-  fossil_free(zTmp);
-#define CARD_FMT(LETTER, FMT, VAL)                                 \
-  blob_appendf(pOut, ",\"" #LETTER "\": " #FMT, VAL)
-#define CARD_STR(LETTER, VAL) \
-  assert( VAL ); CARD_FMT(LETTER, %!j, VAL)
-#define CARD_STR2(LETTER, VAL) \
-  if( VAL ) { CARD_FMT(LETTER, %!j, VAL); }
+const char * artifact_type_to_name(int typeId){
+  switch(typeId){
+    case CFTYPE_MANIFEST: return "checkin";
+    case CFTYPE_CLUSTER: return "cluster";
+    case CFTYPE_CONTROL: return "control";
+    case CFTYPE_WIKI: return "wiki";
+    case CFTYPE_TICKET: return "ticket";
+    case CFTYPE_ATTACHMENT: return "attachment";
+    case CFTYPE_EVENT: return "event";
+    case CFTYPE_FORUM: return "forumpost";
+  }
+  return NULL;
+}
 
+/*
+** Creates a JSON representation of p, appending it to pOut.
+**
+** Pedantic note: this routine traverses p->aFile directly, rather than
+** using manifest_file_next(), so that delta manifests are rendered as-is
+** instead of having their derived files. If that policy is ever changed,
+** p will need to be non-const.
+*/
+void artifact_to_json(Manifest const *p, Blob *b){
+  int i;
+  char *zUuid;
+
+  blob_append_literal(b, "{");
+  blob_appendf(b, "\"rid\": %d", p->rid);
+  zUuid = rid_to_uuid(p->rid);
+  blob_appendf(b, ", \"uuid\": %!j", zUuid);
+  blob_appendf(b, ", \"type\": %!j", artifact_type_to_name(p->type));
+#define ISA(TYPE) if( p->type==TYPE )
+#define CARD_LETTER(LETTER) \
+  blob_append_literal(b, ",\"" #LETTER "\": ")
+#define CARD_STR(LETTER, VAL) \
+  assert( VAL ); CARD_LETTER(LETTER); blob_appendf(b, "%!j", VAL)
+#define CARD_STR2(LETTER, VAL) \
+  if( VAL ) { CARD_STR(LETTER, VAL); } (void)0
+#define STR_OR_NULL(VAL)                 \
+  if( VAL ) blob_appendf(b, "%!j", VAL); \
+  else blob_append(b, "null", 4)
+#define KVP_STR(ADDCOMMA, KEY,VAL)  \
+  if(ADDCOMMA) blob_append_char(b, ','); \
+  blob_appendf(b, "%!j: ", #KEY);   \
+  STR_OR_NULL(VAL)
+
+  /* Noting that only 1 (at most) of the A-card pieces will be non-NULL... */
+  ISA( CFTYPE_ATTACHMENT ){
+    CARD_LETTER(A);
+    blob_append_char(b, '{');
+    KVP_STR(0, filename, p->zAttachName);
+    KVP_STR(1, target, p->zAttachTarget);
+    KVP_STR(1, source, p->zAttachSrc);
+    blob_append_char(b, '}');
+  }
   CARD_STR2(B, p->zBaseline);
   CARD_STR2(C, p->zComment);
-  CARD_FMT(D, %f, p->rDate);
-  CARD_STR2(W, p->zWiki);
+  CARD_LETTER(D); blob_appendf(b, "%f", p->rDate);
+  ISA( CFTYPE_EVENT ){
+    blob_appendf(b, ", \"E\": {\"time\": %f, \"id\": %!j}",
+                 p->rEventDate, p->zEventId);
+  }
+  ISA( CFTYPE_MANIFEST ){
+    CARD_LETTER(F);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nFile; ++i ){
+      ManifestFile const * const pF = &p->aFile[i];
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      KVP_STR(0, name, pF->zName);
+      KVP_STR(1, uuid, pF->zUuid);
+      KVP_STR(1, perm, pF->zPerm);
+      KVP_STR(1, oldName, pF->zPrior);
+      blob_append_char(b, '}');
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(G, p->zThreadRoot);
+  CARD_STR2(H, p->zThreadTitle);
+  CARD_STR2(I, p->zInReplyTo);
+  if( p->nField ){
+    CARD_LETTER(J);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nField; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      KVP_STR(0, name, p->aField[i].zName);
+      KVP_STR(1, value, p->aField[i].zValue);
+      blob_append_char(b, '}');
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(K, p->zTicketUuid);
+  CARD_STR2(L, p->zWikiTitle);
+  ISA( CFTYPE_CLUSTER && p->nCChild>0 ){
+    CARD_LETTER(M);
+    blob_append_char(b, '[');
+    for( int i = 0; i < p->nCChild; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_appendf(b, "%!j", p->azCChild[i]);
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(N, p->zMimetype);
+  if( p->nParent ){
+    CARD_LETTER(P);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nParent; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_appendf(b, "%!j", p->azParent[i]);
+    }
+    blob_append_char(b, ']');
+  }
+  if( p->nCherrypick ){
+    CARD_LETTER(Q);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nCherrypick; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      blob_appendf(b, "\"type\": \"%c\"", p->aCherrypick[i].zCPTarget[0]);
+      KVP_STR(1, target, &p->aCherrypick[i].zCPTarget[1]);
+      KVP_STR(1, base, p->aCherrypick[i].zCPBase);
+      blob_append_char(b, '}');
+    }
+    blob_append_char(b, ']');
+  }
   CARD_STR2(R, p->zRepoCksum);
-  blob_append_literal(pOut, "}");
+  if( p->nTag ){
+    CARD_LETTER(T);
+    blob_append_char(b, '[');
+    for( int i = 0; i < p->nTag; ++i ){
+      const char *zName = p->aTag[i].zName;
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      blob_appendf(b, "\"type\": \"%c\"", *zName);
+      ++zName;
+      KVP_STR(1, name, zName);
+      KVP_STR(1, target, p->aTag[i].zUuid ? p->aTag[i].zUuid : "*")
+        /* We could arguably resolve this to null. Per /chat
+           discussion we don't want to resolve it to zUuid because
+           that would effectively add information to the rendered
+           manifest. */;
+      KVP_STR(1, value, p->aTag[i].zValue);
+      blob_append_char(b, '}');
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(U, p->zUser);
+  CARD_STR2(W, p->zWiki);
+  fossil_free(zUuid);
+  blob_append_literal(b, "}");
+#undef CARD_FMT
+#undef CARD_LETTER
 #undef CARD_STR
 #undef CARD_STR2
-#undef CARD_FMT
+#undef ISA
+#undef KVP_STR
+#undef STR_OR_NULL
 }
 
 /*
