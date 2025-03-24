@@ -2914,15 +2914,32 @@ void test_crosslink_cmd(void){
   manifest_crosslink(rid, &content, MC_NONE);
 }
 
+/*
+** Creates a JSON representation of p, appending it to pOut.
+*/
 void artifact_to_json(Manifest *p, Blob *pOut){
   char * zTmp;
-  blob_reset(pOut);
   blob_append_literal(pOut, "{");
-  blob_appendf(pOut, "\"rid\": %d, ", p->rid);
+  blob_appendf(pOut, "\"rid\": %d", p->rid);
   zTmp = rid_to_uuid(p->rid);
-  blob_appendf(pOut, "\"uuid\": %!j", zTmp);
+  blob_appendf(pOut, ", \"uuid\": %!j", zTmp);
   fossil_free(zTmp);
+#define CARD_FMT(LETTER, FMT, VAL)                                 \
+  blob_appendf(pOut, ",\"" #LETTER "\": " #FMT, VAL)
+#define CARD_STR(LETTER, VAL) \
+  assert( VAL ); CARD_FMT(LETTER, %!j, VAL)
+#define CARD_STR2(LETTER, VAL) \
+  if( VAL ) { CARD_FMT(LETTER, %!j, VAL); }
+
+  CARD_STR2(B, p->zBaseline);
+  CARD_STR2(C, p->zComment);
+  CARD_FMT(D, %f, p->rDate);
+  CARD_STR2(W, p->zWiki);
+  CARD_STR2(R, p->zRepoCksum);
   blob_append_literal(pOut, "}");
+#undef CARD_STR
+#undef CARD_STR2
+#undef CARD_FMT
 }
 
 /*
@@ -2931,9 +2948,8 @@ void artifact_to_json(Manifest *p, Blob *pOut){
 ** it returns the rid of the artifact. Returns 0 if no such artifact
 ** exists and a negative value if the name is ambiguous.
 **
-** If it returns a valid rid, pOut will be cleared before emitting the
-** JSON to it.
-**
+** pOut is not cleared before rendering, so the caller needs to do
+** that if it's important for their use case.
 */
 int artifact_to_json_by_name(const char *zName, Blob *pOut){
   int rid;
@@ -2960,6 +2976,7 @@ void test_manifest_to_json(void){
   Blob b = empty_blob;
   Stmt q;
   const int bPretty = find_option("pretty",0,0)!=0;
+  int nErr = 0;
 
   db_find_and_open_repository(0,0);
   db_prepare(&q, "select json_pretty(:json)");
@@ -2967,7 +2984,9 @@ void test_manifest_to_json(void){
     char const *zName = g.argv[i];
     const int rc = artifact_to_json_by_name(zName, &b);
     if( rc<=0 ){
-      fossil_warning("Error reading artifact %Q\n", zName);
+      ++nErr;
+      fossil_warning("Error reading artifact %Q", zName);
+      continue;
     }else if( bPretty ){
       db_bind_blob(&q, ":json", &b);
       b.nUsed = 0;
@@ -2979,4 +2998,7 @@ void test_manifest_to_json(void){
     blob_reset(&b);
   }
   db_finalize(&q);
+  if( nErr ){
+    fossil_warning("Error count: %d", nErr);
+  }
 }
