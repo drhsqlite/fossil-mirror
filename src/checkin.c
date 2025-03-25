@@ -2438,7 +2438,9 @@ int verify_comment(Blob *pComment, int mFlags){
 **    --allow-fork               Allow the commit to fork
 **    --allow-older              Allow a commit older than its ancestor
 **    --baseline                 Use a baseline manifest in the commit process
+**    --bgcolor COLOR            Apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   Check in to this new branch
+**    --branchcolor COLOR        Apply given COLOR to the branch
 **    --close                    Close the branch being committed
 **    --date-override DATETIME   Make DATETIME the time of the check-in.
 **                               Useful when importing historical check-ins

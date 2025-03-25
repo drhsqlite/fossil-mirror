@@ -1,5 +1,5 @@
-C Remove\s+x\sbit\sfrom\sMakefile.in\s(not\ssure\swhen\sit\sgot\sadded).
-D 2025-03-25T18:13:00.511
+C Add\sa\snew\sroutine\s"reasonable_bg_color()"\sthat\stries\sto\stransform\sa\nuser-requested\sbackground\scolor\sfor\sa\scheck-in\sor\sbranch\sinto\sa\scolor\nthat\sis\sappropriate\sfor\sthe\scurrent\sskin.\s\sThe\s/test-bgcolor\sweb\spage\nwas\sadded\sfor\stesting\sthe\salgorithm.\s\sWith\sthis\senhancement,\sit\sis\sok\nto\sadd\sback\sthe\sthe\s--bgcolor\sand\s--branchcolor\soptions\sto\n"fossil\scommit".
+D 2025-03-25T23:57:25.552
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -389,7 +389,7 @@ F src/backoffice.c a00ad3df48e45af4de8f6064f8cc3cc8d2b09fa46d7882d5adfd2ed938b34
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 7009083bb6ba13dd7eac707f6237ad9330f3f4fa90fd8291bf2365c18ae8923d
 F src/blob.c 2889e7025105da6d6712d91093f497304cb7d8d04658e1371df9f6d1beba06e2
-F src/branch.c 15d8bd1f624b9879187a76edbfbd5fc0e859414951352571b3c8287bcba6409d
+F src/branch.c 2c5ec348606cc83055e9fea05d703e3c5f8442b9f309d4419f17de64e696bf79
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
 F src/builtin.c 34d57215e767b0f4cd70d2a5a17c72fc47acfb0789772ecf88c1038bb52d1fbe
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
@@ -398,12 +398,12 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c 7cc9486dfa224c69e7cfe0b86c966f3a647dd1a617ec763fe810044b7430f0ed
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
-F src/checkin.c 09cd91f979663464e1bff64dd9888cd0757300c7881b2b4bf6d46383f62e029c
+F src/checkin.c 8b372a4557a3a37f144b48b4d9d106b95cc2d6b1f5faf90b8331b386f94ab35f
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
 F src/clone.c e392538aa4d05e2b561400d4c7b5ae60a536456d9184f0afcec3eccea473273c
-F src/color.c 04fd4af58ec608894279a9c767fa1cd7c18ebaadd8b7622dde122fbbbd480b08
+F src/color.c 74718522d6ee6dba64d102db1ad15422ffa2df65cba04dd07c301fb0c601c2d1
 F src/comformat.c f21be09a545501a3b4ef51ed8c93bd687f7d4d96e145cadc773aec3e5b3e511d
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 06d5e5f2de738ef5e3733b5f3bd18d73d3f4e1a2f7cbe4fa6fe008e9d618f183
@@ -423,7 +423,7 @@ F src/diff.tcl f6e04df1bbaa41b1269e81b2ee410eacf0ed78cb8da3d3a51c40a2d1d44aacfa
 F src/diffcmd.c 30179ce21979fec53cdab3784805f19ab582543e758633281a6926047399cd9d
 F src/dispatch.c ed3f8b39d19aad310c6252feb40610a0393a016116ac91f3c59fe57a0799ddb3
 F src/doc.c 2af38a7104c3a6b29fb4479b0c5343aac850af7b44444c49e89d2473a90b33a5
-F src/encode.c a7749598a1e4cb5e6df8301ff3addc05a9ac6c1ed0a24f54224b4bfcfb12eb24
+F src/encode.c 595281a3d5209d1d05cf876c02c01edc8a4aab4b740cd56963bdc6884f795fdd
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c bbf9e79dfc96c597bab4f48ae290259a2dfa129a3d1c5878c13306ac46eb595c
 F src/export.c 99dddcbffa040ee67cbee591a41de449db384b645ac150e22b452f0482a88d96
@@ -574,7 +574,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c 9c15197221c024fa681430bc8e4398144174cf18dff806d884bf8b5d421e87c6
+F src/timeline.c a1d7fdc98d86e969f006e865ce8d7b393bac434092c585a131c66bb23fd55769
 F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
 F src/tktsetup.c dee6358557178e83f24f09149f1aa241f331e2dde0084195156d34f012162e4e
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f1847847e43385a13e60a2d0ad8efaeb3b19dd73722289c653b1b9a76d66cc5e
-R 916bbb92c0f3ee94a24271ae369a6b3b
-U stephan
-Z 388a59b4083e2804afbf244a58e5a60d
+P f75803fed67546ceb7c18150648d2d2dc5ea71f89cd94ae5f943da3cf0f59dcc
+R bdb4586caa2fe827e30affec8902c52e
+U drh
+Z 17c75d9d132c4f9556f15fdbba0b2c8b
 # Remove this line to create a well-formed Fossil manifest.

@@ -404,6 +404,8 @@ void www_print_timeline(
     @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
     if( tmFlags & (TIMELINE_UCOLOR|TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
+      /* Don't use the requested background color.  Use the background color
+      ** override from query parameters instead. */
       if( tmFlags & TIMELINE_UCOLOR ){
         zBgClr = zUser ? user_color(zUser) : 0;
       }else if( tmFlags & TIMELINE_NOCOLOR ){
@@ -422,12 +424,17 @@ void www_print_timeline(
         }
         db_reset(&qdelta);
       }
+    }else{
+      /* Make sure the user-specified background color is reasonable */
+      zBgClr = reasonable_bg_color(zBgClr);
     }
     if( zType[0]=='c'
     && (pGraph || zBgClr==0 || (tmFlags & (TIMELINE_BRCOLOR|TIMELINE_DELTA))!=0)
     ){
       zBr = branch_of_rid(rid);
       if( zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0 ){
+        /* If no background color is specified, use a color based on the
+        ** branch name */
         if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
         }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
           zBgClr = 0;
