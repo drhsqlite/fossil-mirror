@@ -3008,10 +3008,12 @@ void artifact_to_json(Manifest const *p, Blob *b){
     CARD_LETTER(J);
     blob_append_char(b, '[');
     for( i = 0; i < p->nField; ++i ){
+      const char * zName = p->aField[i].zName;
       if( i>0 ) blob_append_char(b, ',');
       blob_append_char(b, '{');
-      KVP_STR(0, name, p->aField[i].zName);
+      KVP_STR(0, name, '+'==*zName ? &zName[1] : zName);
       KVP_STR(1, value, p->aField[i].zValue);
+      blob_appendf(b, ", \"append\": %s", '+'==*zName ? "true" : "false");
       blob_append_char(b, '}');
     }
     blob_append_char(b, ']');
