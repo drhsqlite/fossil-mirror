@@ -34,7 +34,7 @@ If the Fossil server is itself run as
 [./cgi.wiki#extroot|CGI script file] that says:
 
 <pre>
-extroot: <i>DIRECTORY</i>
+    extroot: <i>DIRECTORY</i>
 </pre>
 
 Or, if the Fossil server is being run using the 
@@ -47,14 +47,17 @@ The <i>DIRECTORY</i> is the DOCUMENT_ROOT for the CGI.
 Files in the DOCUMENT_ROOT are accessed via URLs like this:
 
 <pre>
-https://example-project.org/ext/<i>FILENAME</i>
+    https://example-project.org/ext/<i>FILENAME</i>
 </pre>
 
 In other words, access files in DOCUMENT_ROOT by appending the filename
 relative to DOCUMENT_ROOT to the [/help?cmd=/ext|/ext]
 page of the Fossil server.
-Files that are readable but not executable are returned as static
-content.  Files that are executable are run as CGI.
+
+  *  Files that are readable but not executable are returned as static
+     content.
+
+  *  Files that are executable are run as CGI.
 
 <h3>2.1 Example #1</h3>
 
@@ -120,11 +123,36 @@ the user upload a file using a form, and then displays that file in the reply.
 There is a link on the page that causes the fileup1 script to return a copy
 of its own source-code, so you can see how it works.
 
+<h3>2.3 Example #3</h3>
+
+For Fossil versions dated 2025-03-23 and later, the "--extpage FILENAME"
+option to the [/help?cmd=ui|fossil ui] command is a short cut that treats
+FILENAME as a CGI extension.  When the ui command starts up a new web browser
+pages, it points that page to the FILENAME extension.  So if FILENAME is
+a static content file (such as an HTML file or 
+[/md_rules|Markdown] or [/wiki_rules|Wiki] document), then the
+rendered content of the file is displayed.  Meanwhile, the user can be
+editing the source text for that document in a separate window, and
+periodically pressing "Reload" on the web browser to instantly view the
+rendered results.
+
+For example, the author of this documentation page is running
+"<tt>fossil ui --extpage www/serverext.wiki</tt>" while editing this
+very paragraph, and presses Reload from time to time to view his
+edits.
+
+A same idea applies when developing new CGI applications using a script
+language (for example using [https://wapp.tcl.tk|Wapp]).  Run the
+command "<tt>fossil ui --extpage SCRIPT</tt>" where SCRIPT is the name
+of the application script, while editing that script in a separate
+window, then press Reload periodically on the web browser to test the
+script.
+
 <h2 id="cgi-inputs">3.0 CGI Inputs</h2>
 
 The /ext extension mechanism is an ordinary CGI interface.  Parameters
 are passed to the CGI program using environment variables.  The following
-standard CGI environment variables are supported:
+standard CGI environment variables are supplied:
 
   *  AUTH_TYPE
   *  AUTH_CONTENT

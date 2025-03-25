@@ -1,5 +1,5 @@
-C Add\stooltips\swith\sprojected\scounts\sin\sactivity\sreports\sviews,\swhere\sappropriate.
-D 2025-03-25T10:47:47.877
+C Updates\sto\sthe\swww/serverext.wiki\sdocument.
+D 2025-03-25T11:07:07.214
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -941,7 +941,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md cf85475a76cc9f79c8025b888b84c02abf5c81e92fad3088159c777eaec6d974
 F www/server/windows/stunnel.md eb99980e32c075acd1dcd4c44bcebf2e67f3e0dba8419728beeefa2cdd8fbc3e
-F www/serverext.wiki 6ca97cde49057937831ef70adb207642e6befd1f5b18decb31ca1b35cd13b2f2
+F www/serverext.wiki 0a299e9b1beb0f1647054a7b97a886ca507b8d09b18d0d35ed31d04661e45a43
 F www/settings.wiki 16c2717030e901586fd6849d07fc85394b0e8bfaecb1d7f291c356c16f3fd5e4
 F www/shunning.wiki 2945acf2d1865cd1301402b2085527d8b23f971c9f894c6d0511dc146a8df767
 F www/signing.md dcf5bb65b7be89fc48bf80834b48fa1623cdbb63da71d4114ce0777d4767912a
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e19439801bd6149bbcbbcb3ffbfb60d211c83ea589ab9450754b40920da408f0
-R 8041df03922082e33fad1e9c53270e74
-U danield
-Z 8f7cc1f925bd98b976db8d96b1775be6
+P 032cef1ded634a34d10c2293018528e743b3f16cfe8b55270214b56c437adc76
+R 75501605324a039218f351546f19ab21
+U drh
+Z 0e5b951399c3d0b92afc93cf39a899a8
 # Remove this line to create a well-formed Fossil manifest.
