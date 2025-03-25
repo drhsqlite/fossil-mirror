@@ -2993,7 +2993,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
       KVP_STR(0, name, pF->zName);
       KVP_STR(1, uuid, pF->zUuid);
       KVP_STR(1, perm, pF->zPerm);
-      KVP_STR(1, oldName, pF->zPrior);
+      KVP_STR(1, rename, pF->zPrior);
       blob_append_char(b, '}');
     }
     /* Special case: model checkins with no F-card as having an empty
@@ -3002,7 +3002,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
     blob_append_char(b, ']');
   }
   CARD_STR2(G, p->zThreadRoot);
-  if( CFTYPE_FORUM==p->type ){
+  ISA( CFTYPE_FORUM ){
     CARD_LETTER(H);
     STR_OR_NULL( (p->zThreadTitle && *p->zThreadTitle) ? p->zThreadTitle : NULL);
     CARD_STR2(I, p->zInReplyTo);
