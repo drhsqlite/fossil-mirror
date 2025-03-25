@@ -1226,14 +1226,32 @@ void rptview_page_content(
     }
     output_color_key(zClrKey, 1,
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
+    @ <input type="text" id="quickfilter" placeholder="filter ticket list..." style="display: none">
     @ <table border="1" cellpadding="2" cellspacing="0" class="report sortable"
-    @  data-column-types='' data-init-sort='0'>
+    @  id="ticketlist" data-column-types='' data-init-sort='0'>
     sState.rn = rn;
     sState.nCount = 0;
     report_restrict_sql(&zErr1);
     db_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
     report_unrestrict_sql();
     @ </tbody></table>
+    @
+    @ <script nonce="%h(style_nonce())">
+    @   const quickfilter = document.getElementById('quickfilter');
+    @   const ticketlist = document.querySelectorAll('#ticketlist tbody tr');
+    @
+    @   document.addEventListener('DOMContentLoaded', function(){
+    @     if (ticketlist.length > 5) quickfilter.style.display = '';
+    @   });
+    @
+    @   quickfilter.addEventListener('input', function (){
+    @     const filter = quickfilter.value.toLowerCase().trim();
+    @     ticketlist.forEach(function(row){
+    @       const rowText = row.textContent.toLowerCase().trim();
+    @       row.style.display = rowText.includes(filter) ? 'table-row' : 'none';
+    @     });
+    @   });
+    @ </script>
     if( zErr1 ){
       @ <p class="reportError">Error: %h(zErr1)</p>
     }else if( zErr2 ){
