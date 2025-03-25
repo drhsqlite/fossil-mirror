@@ -3002,8 +3002,11 @@ void artifact_to_json(Manifest const *p, Blob *b){
     blob_append_char(b, ']');
   }
   CARD_STR2(G, p->zThreadRoot);
-  CARD_STR2(H, p->zThreadTitle);
-  CARD_STR2(I, p->zInReplyTo);
+  if( CFTYPE_FORUM==p->type ){
+    CARD_LETTER(H);
+    STR_OR_NULL( (p->zThreadTitle && *p->zThreadTitle) ? p->zThreadTitle : NULL);
+    CARD_STR2(I, p->zInReplyTo);
+  }
   if( p->nField ){
     CARD_LETTER(J);
     blob_append_char(b, '[');
@@ -3033,11 +3036,9 @@ void artifact_to_json(Manifest const *p, Blob *b){
   ISA( CFTYPE_MANIFEST ){
     CARD_LETTER(P);
     blob_append_char(b, '[');
-    if( p->nParent ){
-      for( i = 0; i < p->nParent; ++i ){
-        if( i>0 ) blob_append_char(b, ',');
-        blob_appendf(b, "%!j", p->azParent[i]);
-      }
+    for( i = 0; i < p->nParent; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_appendf(b, "%!j", p->azParent[i]);
     }
     /* Special case: model checkins with no P-card as having an empty
     ** array, as per F-cards. */
@@ -3074,7 +3075,10 @@ void artifact_to_json(Manifest const *p, Blob *b){
     blob_append_char(b, ']');
   }
   CARD_STR2(U, p->zUser);
-  CARD_STR2(W, p->zWiki);
+  if( CFTYPE_WIKI==p->type || CFTYPE_FORUM==p->type ){
+    CARD_LETTER(W);
+    STR_OR_NULL((p->zWiki && *p->zWiki) ? p->zWiki : NULL);
+  }
   blob_append_literal(b, "}");
 #undef CARD_FMT
 #undef CARD_LETTER
