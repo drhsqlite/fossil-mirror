@@ -1,5 +1,5 @@
-C Typo\sfixes.
-D 2025-03-25T10:15:08.343
+C Add\stooltips\swith\sprojected\scounts\sin\sactivity\sreports\sviews,\swhere\sappropriate.
+D 2025-03-25T10:47:47.877
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -557,7 +557,7 @@ F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e80346
 F src/sqlcmd.c 42334a1297bb1ec6a34056f3be4068089e6d94e9e8077ed3d6778a50a1994a54
 F src/stash.c 30d159663eab76205a8b247428dd5c7fd17da6e02553d62df97b403c3f1bb801
 F src/stat.c 318d359a317da263f80db05dacd9c5ebbf69383945f9540a9a67fdfc4f6743b0
-F src/statrep.c 69e663e6cfa8a8acc8495bca4320f87b076aec6a68b4d53e330b5baa08907d62
+F src/statrep.c 6060c26da7ec589753c620cb4303db7b4875f6bf0d1309c084436a45a1f18006
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 0106528e35c90cf06b6cb5e0ba1efb587da302af200807717497321dc3058b2a
 F src/style.chat.css 21306b3184bfe8687412c7ce2237344ae7963304dd0fc67899dbed063e7e5dde
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9051aef2b88034a99899f8f3e3650c3eae6cfbf3bf3894d9a9a5be57824a459a
-R 65868971584d031f26a970b6cc2f2208
+P e19439801bd6149bbcbbcb3ffbfb60d211c83ea589ab9450754b40920da408f0
+R 8041df03922082e33fad1e9c53270e74
 U danield
-Z 7803089bbe77da8d28f8617905dbb6af
+Z 8f7cc1f925bd98b976db8d96b1775be6
 # Remove this line to create a well-formed Fossil manifest.

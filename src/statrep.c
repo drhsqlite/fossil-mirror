@@ -320,11 +320,12 @@ static void stats_report_by_month_year(
       /* If the timespan covered by this row contains "now", then project
       ** the number of changes until the completion of the timespan and
       ** show a dashed box of that projection. */
+      int nProj = (int)(((double)nCount)/rNowFraction);
       int nExtra = (int)(((double)nCount)/rNowFraction) - nCount;
       int nXSize = (100 * nExtra)/nMaxEvents;
       @ <span class='statistics-report-graph-line' \
       @  style='display:inline-block;min-width:%d(nSize)%%;'>&nbsp;</span>\
-      @ <span class='statistics-report-graph-extra' \
+      @ <span class='statistics-report-graph-extra' title='%d(nProj)' \
       @  style='display:inline-block;min-width:%d(nXSize)%%;'>&nbsp;</span>\
     }else{
       @ <div class='statistics-report-graph-line' \
@@ -749,14 +750,15 @@ static void stats_report_year_weeks(const char *zUserName){
       && rNowFraction>0.05
       && nMaxEvents>0
       ){
-        /* If the covered covered by this row contains "now", then project
+        /* If the timespan covered by this row contains "now", then project
         ** the number of changes until the completion of the week and
         ** show a dashed box of that projection. */
+        int nProj = (int)(((double)nCount)/rNowFraction);
         int nExtra = (int)(((double)nCount)/rNowFraction) - nCount;
         int nXSize = (100 * nExtra)/nMaxEvents;
         @ <span class='statistics-report-graph-line' \
         @  style='display:inline-block;min-width:%d(nSize)%%;'>&nbsp;</span>\
-        @ <span class='statistics-report-graph-extra' \
+        @ <span class='statistics-report-graph-extra' title='%d(nProj)' \
         @  style='display:inline-block;min-width:%d(nXSize)%%;'>&nbsp;</span>\
       }else{
         @ <div class='statistics-report-graph-line' \
