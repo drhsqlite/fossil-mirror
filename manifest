@@ -1,12 +1,9 @@
 B d62ca2b85f1eb7d98f58860736dfe52a2992f00828524bb91b850a7071f68e8c
-C Minimal\simplementation\sto\sreturn\sjust\sthe\shash\sof\sa\snamed\sartifact\svia\s/whatis.\nSee\sdiscussion\sin\s[forum:4b11cfc8fac93800|forum\spost\s4b11cfc8fac93800]\sfor\ndetails.
-D 2025-03-22T15:08:20.874
-F src/info.c a97c6b5a855fccc37cab409c21489866d6368d8ce2e4a1c54dfa673f7800ff2b
-P d62ca2b85f1eb7d98f58860736dfe52a2992f00828524bb91b850a7071f68e8c
-R a27dadfeae37ae66feeb1ad655219254
-T *branch * whatis-hashonly
-T *sym-whatis-hashonly *
-T -sym-trunk *
+C Restore\soriginal\sline\splacement\sfor\sassignment\spurely\sfor\scleaner\sdiff;\nintroduces\sno\sfunctional\schange.
+D 2025-03-25T01:51:13.595
+F src/info.c b841fc078c271a19fa9f8313f1ff4f879755a9fe1798e5377bfacdf83c379e37
+P 12ecd0ab38a94d4299a22681ff387c37b5bda4a9140a32ead805dd5d0ff91914
+R e1f5d46c7ebdd036a729f40b9ca5cc6a
 U andybradford
-Z c2c2431717075e38f4859bef14058fef
+Z 41691a675a5da87dcbdc8414159059f6
 # Remove this line to create a well-formed Fossil manifest.

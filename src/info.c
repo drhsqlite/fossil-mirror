@@ -2795,7 +2795,6 @@ void artifact_page(void){
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   etag_check(ETAG_HASH, zUuid);
 
-  asText = P("txt")!=0;
   if( descOnly && hashOnly ){
     blob_set(&uuid, zUuid);
     cgi_set_content_type("text/plain");
@@ -2803,6 +2802,7 @@ void artifact_page(void){
     return;
   }
 
+  asText = P("txt")!=0;
   if( isFile ){
     if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
       zCI = "tip";
