@@ -2645,6 +2645,7 @@ void cmd_test_line_numbers(void){
 **   ci=VERSION      - The specific check-in to use with "name=" to
 **                     identify the file.
 **   txt             - Force display of unformatted source text
+**   hash            - Output only the hash of the artifact
 **
 ** The /artifact page show the complete content of a file
 ** identified by HASH.  The /whatis page shows only a description
@@ -2667,6 +2668,7 @@ void artifact_page(void){
   Blob content;
   const char *zMime;
   Blob downloadName;
+  Blob uuid;
   int renderAsWiki = 0;
   int renderAsHtml = 0;
   int renderAsSvg = 0;
@@ -2675,6 +2677,7 @@ void artifact_page(void){
   const char *zUuid = 0;
   u32 objdescFlags = OBJDESC_BASE;
   int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
+  int hashOnly = P("hash")!=0;
   int isFile = fossil_strcmp(g.zPath,"file")==0;
   const char *zLn = P("ln");
   const char *zName = P("name");
@@ -2791,6 +2794,13 @@ void artifact_page(void){
   }
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   etag_check(ETAG_HASH, zUuid);
+
+  if( descOnly && hashOnly ){
+    blob_set(&uuid, zUuid);
+    cgi_set_content_type("text/plain");
+    cgi_set_content(&uuid);
+    return;
+  }
 
   asText = P("txt")!=0;
   if( isFile ){
