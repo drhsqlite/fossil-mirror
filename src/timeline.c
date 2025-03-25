@@ -3421,7 +3421,9 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat,
 /*
 **    wiki_to_text(TEXT)
 **
-** Return a plain-text rendering of Fossil-Wiki TEXT.
+** Return a text rendering of Fossil-Wiki TEXT, intended for display
+** on a timeline.  The timeline-plaintext and timeline-hard-newlines
+** settings are considered when doing this rendering.
 */
 static void wiki_to_text_sqlfunc(
   sqlite3_context *context,
@@ -3436,7 +3438,7 @@ static void wiki_to_text_sqlfunc(
   nIn = sqlite3_value_bytes(argv[0]);
   blob_init(&in, zIn, nIn);
   blob_init(&html, 0, 0);
-  wiki_convert(&in, &html, WIKI_INLINE);
+  wiki_convert(&in, &html, wiki_convert_flags(0));
   blob_reset(&in);
   blob_init(&txt, 0, 0);
   html_to_plaintext(blob_str(&html), &txt, 0);

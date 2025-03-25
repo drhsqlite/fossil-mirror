@@ -146,6 +146,9 @@ void test_terminal_size_cmd(void){
 */
 int terminal_is_vt100(void){
   char *zNoColor;
+#ifdef _WIN32
+  if( !win32_terminal_is_vt100(1) ) return 0;
+#endif /* _WIN32 */
   if( !fossil_isatty(1) ) return 0;
   zNoColor =fossil_getenv("NO_COLOR");
   if( zNoColor==0 ) return 1;
@@ -153,3 +156,39 @@ int terminal_is_vt100(void){
   if( is_false(zNoColor) ) return 1;
   return 0;
 }
+
+#ifdef _WIN32
+/*
+** Return true if the Windows console supports VT100 escape codes.
+**
+** Support for VT100 escape codes is enabled by default in Windows Terminal
+** on Windows 10 and Windows 11, and disabled by default in Legacy Consoles
+** and on older versions of Windows. Programs can turn on VT100 support for
+** Legacy Consoles using the ENABLE_VIRTUAL_TERMINAL_PROCESSING flag.
+**
+** NOTE: If this function needs to be called in more complex scenarios with
+** reassigned stdout and stderr streams, the following CRT calls are useful
+** to translate from CRT streams to file descriptors and to Win32 handles:
+**
+**    HANDLE hOutputHandle = (HANDLE)_get_osfhandle(_fileno(<FILE*>));
+*/
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
+int win32_terminal_is_vt100(int fd){
+  HANDLE hConsole = NULL;
+  DWORD dwConsoleMode;
+  switch( fd ){
+    case 1:
+      hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+      break;
+    case 2:
+      hConsole = GetStdHandle(STD_ERROR_HANDLE);
+      break;
+  }
+  if( GetConsoleMode(hConsole,&dwConsoleMode) ){
+    return (dwConsoleMode & ENABLE_VIRTUAL_TERMINAL_PROCESSING)!=0;
+  }
+  return 0;
+}
+#endif /* _WIN32 */
