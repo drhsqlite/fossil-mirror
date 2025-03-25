@@ -1,5 +1,5 @@
-C Updates\sto\sthe\swww/serverext.wiki\sdocument.
-D 2025-03-25T11:07:07.214
+C Create\snew\sbranch\snamed\s"quickfilter"
+D 2025-03-25T13:10:00.643
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -968,8 +968,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 032cef1ded634a34d10c2293018528e743b3f16cfe8b55270214b56c437adc76
+P 7f82b38088ca748e6959d8a1c016348b9bb2302c0fd5e541d5f625e98d215033
 R 75501605324a039218f351546f19ab21
-U drh
-Z 0e5b951399c3d0b92afc93cf39a899a8
+T *branch * quickfilter
+T *sym-quickfilter *
+T -sym-trunk *
+U jkosche
+Z 123bbd77031b198f9d6f92e0c208117f
 # Remove this line to create a well-formed Fossil manifest.
