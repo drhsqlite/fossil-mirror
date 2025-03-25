@@ -1,5 +1,5 @@
-C Add\s-p\sshort-form\sflag\sof\s--pretty\sto\stest-artifact-to-json.\sRestore\sthe\spart\sof\s[8af0d05c66e6]\swhich\sremoves\sextraneous\swhitespace\sfrom\sartifact_to_json().
-D 2025-03-25T18:06:27.365
+C Remove\s+x\sbit\sfrom\sMakefile.in\s(not\ssure\swhen\sit\sgot\sadded).
+D 2025-03-25T18:13:00.511
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -13,7 +13,7 @@ F BUILD.txt a92d9dc35ad8b4dfb7c1e35278362da66ccbc5a41ee6decdd8727e17fd4542e0
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 609deb40ad1d5fed540cab1ec0a99aedf9b5c9e75d877cea4da6ffdf02b6009c
 F Makefile.classic 25ea72b6fe8959b5bbd638363af82dec3ba475c09ea79918deda199eb15c3d3a
-F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f x
+F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
@@ -968,9 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d2db37a75296f5bdbbdb15468772c0c2d0ace4f4629afc8c32b9a6bba8f35fd6
-Q +3e0d7b0613789a70daa6995cd0dfa861c7aaee933221b67a9d6df2c2b290e7aa
+P f1847847e43385a13e60a2d0ad8efaeb3b19dd73722289c653b1b9a76d66cc5e
 R 916bbb92c0f3ee94a24271ae369a6b3b
 U stephan
-Z 46aa78c12a1459c00805dd14ed4e1d23
+Z 388a59b4083e2804afbf244a58e5a60d
 # Remove this line to create a well-formed Fossil manifest.
