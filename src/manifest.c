@@ -2929,7 +2929,7 @@ const char * artifact_type_to_name(int typeId){
     case CFTYPE_WIKI: return "wiki";
     case CFTYPE_TICKET: return "ticket";
     case CFTYPE_ATTACHMENT: return "attachment";
-    case CFTYPE_EVENT: return "event";
+    case CFTYPE_EVENT: return "technote";
     case CFTYPE_FORUM: return "forumpost";
   }
   return NULL;
