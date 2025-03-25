@@ -1,5 +1,5 @@
-C Rename\sartifact_to_json()'s\sF-card\s"oldName"\sproperty\sto\s"rename",\sper\s/chat\sdiscussion\s(it's\sshorter,\ssaving\sabout\s1kb\sof\soutput\swith\sthe\scurrent\strunk).
-D 2025-03-25T15:24:53.791
+C Add\s-p\sshort-form\sflag\sof\s--pretty\sto\stest-artifact-to-json.\sRestore\sthe\spart\sof\s[8af0d05c66e6]\swhich\sremoves\sextraneous\swhitespace\sfrom\sartifact_to_json().
+D 2025-03-25T18:06:27.365
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -495,7 +495,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c c6906e8d191f90323da809fdbb5588dc281edcf9571f7c9f2cf14c4ac2fe5090
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
-F src/manifest.c 21e96dd2cabad5c8ec584d9418669680de00ec5dd1c6746669a416592179926c
+F src/manifest.c a550e2f74a7cebdb498b88e41e34ff75c9d5212432b0b5ae68b41110333641d7
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
 F src/markdown_html.c ad02712ac0be224b1c720b1fde49bcd30cf0eb89f3756390feda7d624d9b16eb
@@ -968,8 +968,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 87bdf7d1b82d0dec3aa8d3dfd9ecdcfc6ae3686befd1eed207b71f2ab707d0fa
-R 4eff6cd3df8b3b8b23001103e542bcf9
+P d2db37a75296f5bdbbdb15468772c0c2d0ace4f4629afc8c32b9a6bba8f35fd6
+Q +3e0d7b0613789a70daa6995cd0dfa861c7aaee933221b67a9d6df2c2b290e7aa
+R 916bbb92c0f3ee94a24271ae369a6b3b
 U stephan
-Z a1fe55aae460bc87fdfe659c733c93b6
+Z 46aa78c12a1459c00805dd14ed4e1d23
 # Remove this line to create a well-formed Fossil manifest.

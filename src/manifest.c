@@ -2950,12 +2950,12 @@ void artifact_to_json(Manifest const *p, Blob *b){
   int i;
 
   blob_append_literal(b, "{");
-  blob_appendf(b, "\"uuid\": \"%z\"", rid_to_uuid(p->rid));
+  blob_appendf(b, "\"uuid\":\"%z\"", rid_to_uuid(p->rid));
   /*blob_appendf(b, ", \"rid\": %d", p->rid); not portable across repos*/
-  blob_appendf(b, ", \"type\": %!j", artifact_type_to_name(p->type));
+  blob_appendf(b, ",\"type\":%!j", artifact_type_to_name(p->type));
 #define ISA(TYPE) if( p->type==TYPE )
 #define CARD_LETTER(LETTER) \
-  blob_append_literal(b, ",\"" #LETTER "\": ")
+  blob_append_literal(b, ",\"" #LETTER "\":")
 #define CARD_STR(LETTER, VAL) \
   assert( VAL ); CARD_LETTER(LETTER); blob_appendf(b, "%!j", VAL)
 #define CARD_STR2(LETTER, VAL) \
@@ -2965,7 +2965,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
   else blob_append(b, "null", 4)
 #define KVP_STR(ADDCOMMA, KEY,VAL)  \
   if(ADDCOMMA) blob_append_char(b, ','); \
-  blob_appendf(b, "%!j: ", #KEY);   \
+  blob_appendf(b, "%!j:", #KEY);   \
   STR_OR_NULL(VAL)
 
   ISA( CFTYPE_ATTACHMENT ){
@@ -2980,7 +2980,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
   CARD_STR2(C, p->zComment);
   CARD_LETTER(D); blob_appendf(b, "%f", p->rDate);
   ISA( CFTYPE_EVENT ){
-    blob_appendf(b, ", \"E\": {\"time\": %f, \"id\": %!j}",
+    blob_appendf(b, ", \"E\":{\"time\":%f,\"id\":%!j}",
                  p->rEventDate, p->zEventId);
   }
   ISA( CFTYPE_MANIFEST ){
@@ -3016,7 +3016,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
       blob_append_char(b, '{');
       KVP_STR(0, name, '+'==*zName ? &zName[1] : zName);
       KVP_STR(1, value, p->aField[i].zValue);
-      blob_appendf(b, ", \"append\": %s", '+'==*zName ? "true" : "false");
+      blob_appendf(b, ",\"append\":%s", '+'==*zName ? "true" : "false");
       blob_append_char(b, '}');
     }
     blob_append_char(b, ']');
@@ -3050,7 +3050,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
     for( i = 0; i < p->nCherrypick; ++i ){
       if( i>0 ) blob_append_char(b, ',');
       blob_append_char(b, '{');
-      blob_appendf(b, "\"type\": \"%c\"", p->aCherrypick[i].zCPTarget[0]);
+      blob_appendf(b, "\"type\":\"%c\"", p->aCherrypick[i].zCPTarget[0]);
       KVP_STR(1, target, &p->aCherrypick[i].zCPTarget[1]);
       KVP_STR(1, base, p->aCherrypick[i].zCPBase);
       blob_append_char(b, '}');
@@ -3065,7 +3065,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
       const char *zName = p->aTag[i].zName;
       if( i>0 ) blob_append_char(b, ',');
       blob_append_char(b, '{');
-      blob_appendf(b, "\"type\": \"%c\"", *zName);
+      blob_appendf(b, "\"type\":\"%c\"", *zName);
       KVP_STR(1, name, &zName[1]);
       KVP_STR(1, target, p->aTag[i].zUuid ? p->aTag[i].zUuid : "*")
         /* We could arguably resolve the "*" as null or p's uuid. */;
@@ -3172,7 +3172,7 @@ error_usage:
 /*
 ** COMMAND: test-artifact-to-json
 **
-** Usage:  %fossil test-artifact-to-json ?-pretty? symbolic-name [...names]
+** Usage:  %fossil test-artifact-to-json ?-pretty|-p? symbolic-name [...names]
 **
 ** Tests the artifact_to_json() and artifact_to_json_by_name() APIs.
 */
@@ -3180,7 +3180,7 @@ void test_manifest_to_json(void){
   int i;
   Blob b = empty_blob;
   Stmt q;
-  const int bPretty = find_option("pretty",0,0)!=0;
+  const int bPretty = find_option("pretty","p",0)!=0;
   int nErr = 0;
 
   db_find_and_open_repository(0,0);
