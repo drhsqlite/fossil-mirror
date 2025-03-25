@@ -281,7 +281,7 @@ void get_checkin_taglist(int rid, Blob *pOut){
 **    -f|--force        Ignore edited files in the current check-out
 **    -k|--keep         Only update the manifest file(s)
 **    --force-missing   Force check-out even if content is missing
-**    --prompt          Prompt before overwritting when --force is used
+**    --prompt          Prompt before overwriting when --force is used
 **    --setmtime        Set timestamps of all files to match their SCM-side
 **                      times (the timestamp of the last check-in which modified
 **                      them)
@@ -309,7 +309,7 @@ void checkout_cmd(void){
   setmtimeFlag = find_option("setmtime",0,0)!=0;
 
   if( keepFlag != 0 ){
-    /* After flag collection to explicitly don't affect promptFlag */
+    /* After flag collection, in order not to affect promptFlag */
     forceFlag=1;
   }
 
