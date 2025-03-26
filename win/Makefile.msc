@@ -598,6 +598,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\markdown.md" \
         "$(SRCDIR)\menu.js" \
         "$(SRCDIR)\merge.tcl" \
+        "$(SRCDIR)\quickfilter.js" \
         "$(SRCDIR)\scroll.js" \
         "$(SRCDIR)\skin.js" \
         "$(SRCDIR)\sorttable.js" \
@@ -1231,6 +1232,7 @@ realclean: clean
 	echo "$(SRCDIR)\markdown.md" >> $@
 	echo "$(SRCDIR)\menu.js" >> $@
 	echo "$(SRCDIR)\merge.tcl" >> $@
+	echo "$(SRCDIR)\quickfilter.js" >> $@
 	echo "$(SRCDIR)\scroll.js" >> $@
 	echo "$(SRCDIR)\skin.js" >> $@
 	echo "$(SRCDIR)\sorttable.js" >> $@

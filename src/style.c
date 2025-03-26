@@ -881,6 +881,13 @@ void style_table_sorter(void){
 }
 
 /*
+** Indicate that the quickfilter javascript is needed.
+*/
+void style_quickfilter(void){
+  builtin_request_js("quickfilter.js");
+}
+
+/*
 ** Generate code to load all required javascript files.
 */
 static void style_load_all_js_files(void){

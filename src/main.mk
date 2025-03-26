@@ -252,6 +252,7 @@ EXTRA_FILES = \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
   $(SRCDIR)/merge.tcl \
+  $(SRCDIR)/quickfilter.js \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \
