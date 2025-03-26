@@ -187,7 +187,9 @@ int color_name_to_rgb(const char *zName){
       v = v*16 + fossil_hexvalue(zName[i]);
     }
     if( i==4 ){
-      for(v=0, i=1; i<4; i++) v = v*256 + fossil_hexvalue(zName[i]);
+      v = fossil_hexvalue(zName[1])*0x110000 +
+          fossil_hexvalue(zName[2])*0x1100 +
+          fossil_hexvalue(zName[3])*0x11;
       return v;
     }
     if( i==7 ){
@@ -236,13 +238,10 @@ int color_name_to_rgb(const char *zName){
 */
 const char *reasonable_bg_color(const char *zRequested, int iFgClr){
   int iRGB = color_name_to_rgb(zRequested);
-  int cc[3];
-  int lo, hi;
-  int r, g, b;
+  int r, g, b;               /* RGB components of requested color */
   static int systemFg = 0;   /* 1==black-foreground 2==white-foreground */
   int fg;                    /* Foreground color to actually use */
   static char zColor[10];    /* Return value */
-  int K = 70;                /* Tune for background color saturation */
 
   if( iFgClr ){
     fg = iFgClr;
@@ -258,29 +257,19 @@ const char *reasonable_bg_color(const char *zRequested, int iFgClr){
   if( fg>=3 ) return zRequested;
 
   if( iRGB<0 ) return 0;
-  if( fg==0 ) fg = skin_detail_boolean("white-foreground") ? 2 : 1;
-  cc[0] = (iRGB>>16) & 0xff;
-  cc[1] = (iRGB>>8) & 0xff;
-  cc[2] = iRGB & 0xff;
-  lo = cc[0]<cc[1] ? 0 : 1;
-  if( cc[2]<cc[lo] ) lo = 2;
-  hi = cc[0]>cc[1] ? 0 : 1;
-  if( cc[2]>cc[hi] ) hi = 2;
-  if( cc[lo]==cc[hi] ){
-    /* Requested color is some shade of gray */
-    r = (K*cc[0])/255;
-    if( fg==1 ) r += (255-K);
-    g = b = r;
+  r = (iRGB>>16) & 0xff;
+  g = (iRGB>>8) & 0xff;
+  b = iRGB & 0xff;
+  if( fg==1 ){
+    const int K = 70;
+    r = (K*r)/255 + (255-K);
+    g = (K*g)/255 + (255-K);
+    b = (K*b)/255 + (255-K);
   }else{
-    int d = cc[hi] - cc[lo];
-    r = (K*(cc[0] - cc[lo]))/d;
-    g = (K*(cc[1] - cc[lo]))/d;
-    b = (K*(cc[2] - cc[lo]))/d;
-    if( fg==1 ){
-      r += (255-K);
-      g += (255-K);
-      b += (255-K);
-    }
+    const int K = 90;
+    r = (K*r)/255;
+    g = (K*g)/255;
+    b = (K*b)/255;
   }
   sqlite3_snprintf(8, zColor, "#%02x%02x%02x", r,g,b);
   return zColor;
@@ -494,7 +483,7 @@ void test_bgcolor_page(void){
     r = (iClr>>16) & 0xff;
     g = (iClr>>8) & 0xff;
     b = iClr & 0xff;
-    if( 3*r + 6*g + b > 5*255 ){
+    if( 3*r + 7*g + b > 6*255 ){
       zFg = "black";
     }else{
       zFg = "white";
