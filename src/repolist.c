@@ -164,7 +164,7 @@ int repo_list_page(void){
     double rNow;
     blob_append_sql(&html,
       "<table border='0' class='sortable' data-init-sort='1'"
-      " data-column-types='txtxkxt'><thead>\n"
+      " data-column-types='txtxkxt' id=\"repolist\"><thead>\n"
       "<tr><th>Filename<th width='20'>"
       "<th>Project Name<th width='20'>"
       "<th>Last Modified<th width='20'>"
@@ -314,7 +314,24 @@ int repo_list_page(void){
     login_check_credentials();
     style_set_current_feature("repolist");
     style_header("Repository List");
+    @ <input type="text" id="quickfilter" placeholder="filter repository list..." style="display: none">
     @ %s(blob_str(&html))
+    @ <script nonce="%h(style_nonce())">
+    @   const quickfilter = document.getElementById('quickfilter');
+    @   const ticketlist = document.querySelectorAll('#repolist tbody tr');
+    @
+    @   document.addEventListener('DOMContentLoaded', function(){
+    @     if (ticketlist.length > 5) quickfilter.style.display = '';
+    @   });
+    @
+    @   quickfilter.addEventListener('input', function (){
+    @     const filter = quickfilter.value.toLowerCase().trim();
+    @     ticketlist.forEach(function(row){
+    @       const rowText = row.textContent.toLowerCase().trim();
+    @       row.style.display = rowText.includes(filter) ? 'table-row' : 'none';
+    @     });
+    @   });
+    @ </script>
     style_table_sorter();
     style_finish_page();
   }else{
@@ -329,8 +346,25 @@ int repo_list_page(void){
     @ </head>
     @ <body>
     @ <h1 align="center">%h(zTitle)</h1>
+    @ <input type="text" id="quickfilter" placeholder="filter repository list..." style="display: none">
     @ %s(blob_str(&html))
     @ <script>%s(builtin_text("sorttable.js"))</script>
+    @ <script>
+    @   const quickfilter = document.getElementById('quickfilter');
+    @   const ticketlist = document.querySelectorAll('#repolist tbody tr');
+    @
+    @   document.addEventListener('DOMContentLoaded', function(){
+    @     if (ticketlist.length > 5) quickfilter.style.display = '';
+    @   });
+    @
+    @   quickfilter.addEventListener('input', function (){
+    @     const filter = quickfilter.value.toLowerCase().trim();
+    @     ticketlist.forEach(function(row){
+    @       const rowText = row.textContent.toLowerCase().trim();
+    @       row.style.display = rowText.includes(filter) ? 'table-row' : 'none';
+    @     });
+    @   });
+    @ </script>
     @ </body>
     @ </html>
   }
