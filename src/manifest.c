@@ -3075,7 +3075,8 @@ void artifact_to_json(Manifest const *p, Blob *b){
     blob_append_char(b, ']');
   }
   CARD_STR2(U, p->zUser);
-  if( p->zWiki || CFTYPE_WIKI==p->type || CFTYPE_FORUM==p->type ){
+  if( p->zWiki || CFTYPE_WIKI==p->type || CFTYPE_FORUM==p->type
+      || CFTYPE_EVENT==p->type ){
     CARD_LETTER(W);
     STR_OR_NULL((p->zWiki && *p->zWiki) ? p->zWiki : NULL);
   }
