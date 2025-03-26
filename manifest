@@ -1,5 +1,5 @@
-C On\sthe\s/ci_edit\spage,\sin\spreview,\sshow\sthe\scorrect\sbackground\scolor\sas\ndetermined\sby\sreasonable_bg_color()\sor\shash_color(),\sas\sappropriate.
-D 2025-03-26T15:20:51.087
+C Fix\sbackground\scolor\srendering\son\sthe\s/finfo\stimeline.
+D 2025-03-26T17:54:10.862
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -430,7 +430,7 @@ F src/export.c 99dddcbffa040ee67cbee591a41de449db384b645ac150e22b452f0482a88d96
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c bad34406b69507906a1060c42265ffafd68ea598e7270e8f0d21d8d08fc1580a
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
-F src/finfo.c 67f67fd828518d5e45bd7c59c619b18bc16a32a50568e7c03634e09e4e38bfb6
+F src/finfo.c 6a245e0b89a55e5252eb67c5869cf89d3ea66f30c8288f9169b7c2f0113831f3
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c c50e347570a0b6d9d48a1fda9713f15180122442c26bb416a2eaf3a5585400b3
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d098711dfa3ee4109aa61788a4c4b4bda0ccb5b1ed547ba00055107911d55f65
-R c89980716533cd27cfa148047c20a57f
+P 8dbe5dd38ae54a189337cd26bf43511f89cae3d43b8f9c82af932635d1985b42
+R 58ccc9be09cd79e2074d6b09f3f85e6f
 U drh
-Z c2118bd05f3fea7f9ecaa1f42507a0e0
+Z 6c85a8e4c19e9315f9d4598abc00fa83
 # Remove this line to create a well-formed Fossil manifest.
