@@ -3033,7 +3033,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
     blob_append_char(b, ']');
   }
   CARD_STR2(N, p->zMimetype);
-  ISA( CFTYPE_MANIFEST ){
+  ISA( CFTYPE_MANIFEST || p->nParent>0 ){
     CARD_LETTER(P);
     blob_append_char(b, '[');
     for( i = 0; i < p->nParent; ++i ){
@@ -3075,7 +3075,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
     blob_append_char(b, ']');
   }
   CARD_STR2(U, p->zUser);
-  if( CFTYPE_WIKI==p->type || CFTYPE_FORUM==p->type ){
+  if( p->zWiki || CFTYPE_WIKI==p->type || CFTYPE_FORUM==p->type ){
     CARD_LETTER(W);
     STR_OR_NULL((p->zWiki && *p->zWiki) ? p->zWiki : NULL);
   }

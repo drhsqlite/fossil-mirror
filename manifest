@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sbackground\scolor-filter\salgorithm.
-D 2025-03-26T11:17:36.236
+C In\sartifact_to_json(),\sensure\sthat\sa\sP-card\sis\sadded,\sindependent\sof\sthe\sartifact\stype,\sif\sthe\sManifest\sobject\shas\sa\sP\scard.\sAlso\sensure\sthat\ssome\s"not\squite\scorrect"\sartifacts,\slike\s[45c52e842fc184]\s(a\stechnote\swith\sout-of-order\sP/N\scards),\sinclude\stheir\sW-card.\sProblems\sreported\sin\s[forum:/forumpost/259a1bdda9bc9ff3|forum\spost\s259a1bdda9bc9ff3].
+D 2025-03-26T12:30:09.618
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -495,7 +495,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c c6906e8d191f90323da809fdbb5588dc281edcf9571f7c9f2cf14c4ac2fe5090
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
-F src/manifest.c a550e2f74a7cebdb498b88e41e34ff75c9d5212432b0b5ae68b41110333641d7
+F src/manifest.c fa792bbdba6c6f95f93ad8623bfd55765496714e9030905b91aa0cd2ab58a76c
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
 F src/markdown_html.c ad02712ac0be224b1c720b1fde49bcd30cf0eb89f3756390feda7d624d9b16eb
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db4329ca1b0abdfbfe25683eef9b47bd7367d2864c313c5c9422fffbab791a13
-R e25e49cfea71194645c6bee57c5b5769
-U drh
-Z eec5489b05581f04edbed4b53039555c
+P fd2a718eb54e80af4d72e9b8fb77685f953d883cb54457d707cf36e06dc9a09d
+R 884db74a66c85dd232ef0e30f09430fc
+U stephan
+Z d93fe88a25e8efb9576ccdffa856c48e
 # Remove this line to create a well-formed Fossil manifest.
