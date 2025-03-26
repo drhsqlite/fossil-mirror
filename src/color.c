@@ -194,10 +194,6 @@ int color_name_to_rgb(const char *zName){
       return v;
     }
     return -1;
-  }else if( sqlite3_strlike("rgb%)", zName,0)==0 ){
-    return -1;
-  }else if( sqlite3_strlike("hsl%)",zName,0)==0 ){
-    return -1;
   }else{
     int iMin = 0;
     int iMax = count(aCssColors)-1;

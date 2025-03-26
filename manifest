@@ -1,5 +1,5 @@
-C Add\sthe\sbackground\scolor\stest\spage\sto\sthe\ssitemap.
-D 2025-03-26T10:30:46.826
+C In\sthe\sbackground\scolor\sfilter,\sthe\scolor\snames\s"rgv(N,N,N)"\sand\s"hsv(N,N,N)"\nwere\snever\ssupported.\s\sOmit\sall\spretense\sof\ssupporting\sthem.
+D 2025-03-26T10:52:47.204
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -403,7 +403,7 @@ F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb70
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
 F src/clone.c e392538aa4d05e2b561400d4c7b5ae60a536456d9184f0afcec3eccea473273c
-F src/color.c 00bb8d779d94866afd1748ba1d9952454071af812d833724b1989db9d7b45795
+F src/color.c 9a6d97b58a6e6293eb66d5819edab12d2dbfb0fe0d77119ad4bfa4ef57a6a687
 F src/comformat.c f21be09a545501a3b4ef51ed8c93bd687f7d4d96e145cadc773aec3e5b3e511d
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 06d5e5f2de738ef5e3733b5f3bd18d73d3f4e1a2f7cbe4fa6fe008e9d618f183
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f23d9ab878f2c4b66a003216f8291df97fbe2e238f471ae92a1725caa1e8efb8
-R 5a5d62b78da5d0670614d8683e732fcf
+P 7ee4e5ca74189be13b569e2e3a798caf0bc17a9ee1d1506450233453399bfbc2
+R a31b72683843dfdeebe9c0beef955baf
 U drh
-Z 3f127a5a6cae1910d65b9171e3c7060e
+Z 8d8c173c6359c397472f3243ad127d2a
 # Remove this line to create a well-formed Fossil manifest.
