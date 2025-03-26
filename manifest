@@ -1,5 +1,5 @@
-C Fix\sbackground\scolor\srendering\son\sthe\s/finfo\stimeline.
-D 2025-03-26T17:54:10.862
+C Updates\sto\sthe\schange\slog.
+D 2025-03-26T22:56:18.448
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -789,7 +789,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 080e44975a142db5bfd34ba9cbae57e26e2f3ca26aaf5a27537668802986f028
-F www/changes.wiki c261a12d285604c636ebf83b483187ef746df9befe2cd770963ebcd2f829d36f
+F www/changes.wiki 7385ad3aa8d01246bcbd50e200d6f9476c308bfb40cc54383b7a181ca2d23a3e
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8dbe5dd38ae54a189337cd26bf43511f89cae3d43b8f9c82af932635d1985b42
-R 58ccc9be09cd79e2074d6b09f3f85e6f
+P 40b144e1314d57d1275c48d1f5fdc21ca4228ccc6582bd4df696c3b0a1538596
+R a0c2f497de294495697ba8ba29734802
 U drh
-Z 6c85a8e4c19e9315f9d4598abc00fa83
+Z f1fc4119df8ded3c28676774f4df5a8c
 # Remove this line to create a well-formed Fossil manifest.
