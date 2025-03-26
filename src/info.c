@@ -2624,12 +2624,14 @@ void cmd_test_line_numbers(void){
 ** WEBPAGE: artifact
 ** WEBPAGE: file
 ** WEBPAGE: whatis
+** WEBPAGE: docfile
 **
 ** Typical usage:
 **
 **    /artifact/HASH
 **    /whatis/HASH
 **    /file/NAME
+**    /docfile/NAME
 **
 ** Additional query parameters:
 **
@@ -2638,6 +2640,8 @@ void cmd_test_line_numbers(void){
 **   ln=M-N          - highlight lines M through N inclusive
 **   ln=M-N+Y-Z      - highlight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
+**   brief           - show just the document, not the metadata.  The
+**                     /docfile page is an alias for /file?brief
 **   download        - redirect to the download (artifact page only)
 **   name=NAME       - filename or hash as a query parameter
 **   filename=NAME   - alternative spelling for "name="
@@ -2693,6 +2697,10 @@ void artifact_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   cgi_check_for_malice();
   style_set_current_feature("artifact");
+  if( fossil_strcmp(g.zPath, "docfile")==0 ){
+    isFile = 1;
+    docOnly = 1;
+  }
 
   /* Capture and normalize the name= and ci= query parameters */
   if( zName==0 ){
@@ -2829,13 +2837,15 @@ void artifact_page(void){
       }
       blob_reset(&path);
     }
-    style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
     zMime = mimetype_from_name(zName);
-    style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
-                          zName, zCI);
-    style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
-                          zName, zCI);
-    style_submenu_element("Doc", "%R/doc/%T/%T", zCI, zName);
+    if( !docOnly ){
+      style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
+      style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
+                            zName, zCI);
+      style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
+                            zName, zCI);
+      style_submenu_element("Doc", "%R/doc/%T/%T", zCI, zName);
+    }
     blob_init(&downloadName, zName, -1);
     objType = OBJTYPE_CONTENT;
   }else{
@@ -2858,7 +2868,7 @@ void artifact_page(void){
           file_tail(blob_str(&downloadName)));
     /*NOTREACHED*/
   }
-  if( g.perm.Admin ){
+  if( g.perm.Admin && !docOnly ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
       style_submenu_element("Unshun", "%R/shun?accept=%s&sub=1#accshun", zUuid);
@@ -2903,9 +2913,11 @@ void artifact_page(void){
     }
     db_finalize(&q);
   }
-  style_submenu_element("Download", "%R/raw/%s?at=%T", zUuid, file_tail(zName));
-  if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
-    style_submenu_element("Check-ins Using", "%R/timeline?uf=%s", zUuid);
+  if( !docOnly ){
+    style_submenu_element("Download", "%R/raw/%s?at=%T",zUuid,file_tail(zName));
+    if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
+      style_submenu_element("Check-ins Using", "%R/timeline?uf=%s", zUuid);
+    }
   }
   if( zMime ){
     if( fossil_strcmp(zMime, "text/html")==0 ){
@@ -2913,7 +2925,9 @@ void artifact_page(void){
         style_submenu_element("Html", "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsHtml = 1;
-        style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
+        if( !docOnly ){
+          style_submenu_element("Text", "%s", url_render(&url, "txt","1",0,0));
+        }
       }
     }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0
            || fossil_strcmp(zMime, "text/x-markdown")==0
@@ -2923,17 +2937,21 @@ void artifact_page(void){
                               "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsWiki = 1;
-        style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
+        if( !docOnly ){
+          style_submenu_element("Text", "%s", url_render(&url, "txt","1",0,0));
+        }
       }
     }else if( fossil_strcmp(zMime, "image/svg+xml")==0 ){
       if( asText ){
         style_submenu_element("Svg", "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsSvg = 1;
-        style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
+        if( !docOnly ){
+          style_submenu_element("Text", "%s", url_render(&url, "txt","1",0,0));
+        }
       }
     }
-    if( fileedit_is_editable(zName) ){
+    if( !docOnly && fileedit_is_editable(zName) ){
       style_submenu_element("Edit",
                             "%R/fileedit?filename=%T&checkin=%!S",
                             zName, zCI);
