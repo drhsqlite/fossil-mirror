@@ -216,6 +216,16 @@ int color_name_to_rgb(const char *zName){
 }
 
 /*
+** SETTING: raw-bgcolor                  boolean default=off
+**
+** Fossil usually tries to adjust user-specified background colors
+** for checkins so that the text is readable and so that the color
+** is not too garish. This setting disables that filter.  When
+** this setting is on, the user-selected background colors are shown
+** exactly as requested.
+*/
+
+/*
 ** Shift a color provided by the user so that it is suitable
 ** for use as a background color in the current skin.
 **
@@ -228,23 +238,28 @@ int color_name_to_rgb(const char *zName){
 ** The iFgClr parameter is normally 0.  But for testing purposes, set
 ** it to 1 for a black foregrounds and 2 for a white foreground.
 */
-char *reasonable_bg_color(const char *zRequested, int iFgClr){
+const char *reasonable_bg_color(const char *zRequested, int iFgClr){
   int iRGB = color_name_to_rgb(zRequested);
   int cc[3];
   int lo, hi;
   int r, g, b;
   static int systemFg = 0;   /* 1==black-foreground 2==white-foreground */
-  int fg;
-  static char zColor[10];
+  int fg;                    /* Foreground color to actually use */
+  static char zColor[10];    /* Return value */
   int K = 70;                /* Tune for background color saturation */
 
   if( iFgClr ){
     fg = iFgClr;
   }else if( systemFg==0 ){
-    fg = systemFg = skin_detail_boolean("white-foreground") ? 2 : 1;
+    if( db_get_boolean("raw-bgcolor",0) ){
+      fg = systemFg = 3;
+    }else{
+      fg = systemFg = skin_detail_boolean("white-foreground") ? 2 : 1;
+    }
   }else{
     fg = systemFg;
   }
+  if( fg>=3 ) return zRequested;
 
   if( iRGB<0 ) return 0;
   if( fg==0 ) fg = skin_detail_boolean("white-foreground") ? 2 : 1;

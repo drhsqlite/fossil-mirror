@@ -1,5 +1,5 @@
-C Improvements\sto\s/test-bgcolor\sto\sshow\sthe\srequested\scolor\sand\sboth\slight-mode\nand\sdark-mode\sbackground\scolors\sall\sat\sonce.\s\sAlso\sprepopulate\sthe\sentry\nboxes\swith\sa\sselection\sof\scolors.
-D 2025-03-26T09:54:52.176
+C Add\sthe\s"raw-bgcolor"\ssetting,\sdefaulting\sto\s"off"\sbut\sif\sturned\s"on"\ndisables\sthe\sbackground\scolor\sfilter.
+D 2025-03-26T10:22:58.986
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -403,7 +403,7 @@ F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb70
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
 F src/clone.c e392538aa4d05e2b561400d4c7b5ae60a536456d9184f0afcec3eccea473273c
-F src/color.c 8e2493937a1f259edfe46274df59f7e6574d164897fd7a278b3712a182bcb416
+F src/color.c 00bb8d779d94866afd1748ba1d9952454071af812d833724b1989db9d7b45795
 F src/comformat.c f21be09a545501a3b4ef51ed8c93bd687f7d4d96e145cadc773aec3e5b3e511d
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 06d5e5f2de738ef5e3733b5f3bd18d73d3f4e1a2f7cbe4fa6fe008e9d618f183
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7a18cfcafd18ddcb4b1940ea7f8099f0e8cb4cd35faf42ba45ec0abfec83913
-R 13d07593ff3761ef8eccce1fbac8851c
+P a390c6ba5a32d18a40a1d34dbf5fcbba60caf73812425d70d41fef4d2806df73
+R 1325320e4873676078ba3ded941696a0
 U drh
-Z 7341b461e09b65a1c0c798853040cf24
+Z 66b639448619958dce03f01cf418af1c
 # Remove this line to create a well-formed Fossil manifest.
