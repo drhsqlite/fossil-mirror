@@ -426,7 +426,7 @@ void www_print_timeline(
       }
     }else{
       /* Make sure the user-specified background color is reasonable */
-      zBgClr = reasonable_bg_color(zBgClr);
+      zBgClr = reasonable_bg_color(zBgClr, 0);
     }
     if( zType[0]=='c'
     && (pGraph || zBgClr==0 || (tmFlags & (TIMELINE_BRCOLOR|TIMELINE_DELTA))!=0)

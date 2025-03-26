@@ -1,5 +1,5 @@
-C Add\sa\snew\sroutine\s"reasonable_bg_color()"\sthat\stries\sto\stransform\sa\nuser-requested\sbackground\scolor\sfor\sa\scheck-in\sor\sbranch\sinto\sa\scolor\nthat\sis\sappropriate\sfor\sthe\scurrent\sskin.\s\sThe\s/test-bgcolor\sweb\spage\nwas\sadded\sfor\stesting\sthe\salgorithm.\s\sWith\sthis\senhancement,\sit\sis\sok\nto\sadd\sback\sthe\sthe\s--bgcolor\sand\s--branchcolor\soptions\sto\n"fossil\scommit".
-D 2025-03-25T23:57:25.552
+C Improvements\sto\s/test-bgcolor\sto\sshow\sthe\srequested\scolor\sand\sboth\slight-mode\nand\sdark-mode\sbackground\scolors\sall\sat\sonce.\s\sAlso\sprepopulate\sthe\sentry\nboxes\swith\sa\sselection\sof\scolors.
+D 2025-03-26T09:54:52.176
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -389,7 +389,7 @@ F src/backoffice.c a00ad3df48e45af4de8f6064f8cc3cc8d2b09fa46d7882d5adfd2ed938b34
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 7009083bb6ba13dd7eac707f6237ad9330f3f4fa90fd8291bf2365c18ae8923d
 F src/blob.c 2889e7025105da6d6712d91093f497304cb7d8d04658e1371df9f6d1beba06e2
-F src/branch.c 2c5ec348606cc83055e9fea05d703e3c5f8442b9f309d4419f17de64e696bf79
+F src/branch.c 34cfdd5eebbf07c37a20fbc440d135de4ab94548716bcfc1062c689b0a9ad1bf
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
 F src/builtin.c 34d57215e767b0f4cd70d2a5a17c72fc47acfb0789772ecf88c1038bb52d1fbe
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
@@ -403,7 +403,7 @@ F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb70
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
 F src/clone.c e392538aa4d05e2b561400d4c7b5ae60a536456d9184f0afcec3eccea473273c
-F src/color.c 74718522d6ee6dba64d102db1ad15422ffa2df65cba04dd07c301fb0c601c2d1
+F src/color.c 8e2493937a1f259edfe46274df59f7e6574d164897fd7a278b3712a182bcb416
 F src/comformat.c f21be09a545501a3b4ef51ed8c93bd687f7d4d96e145cadc773aec3e5b3e511d
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 06d5e5f2de738ef5e3733b5f3bd18d73d3f4e1a2f7cbe4fa6fe008e9d618f183
@@ -574,7 +574,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c a1d7fdc98d86e969f006e865ce8d7b393bac434092c585a131c66bb23fd55769
+F src/timeline.c 26249b937a69704f67e1e3737ec04910e95bac869abb8f6f984f864ce2092bca
 F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
 F src/tktsetup.c dee6358557178e83f24f09149f1aa241f331e2dde0084195156d34f012162e4e
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f75803fed67546ceb7c18150648d2d2dc5ea71f89cd94ae5f943da3cf0f59dcc
-R bdb4586caa2fe827e30affec8902c52e
+P f7a18cfcafd18ddcb4b1940ea7f8099f0e8cb4cd35faf42ba45ec0abfec83913
+R 13d07593ff3761ef8eccce1fbac8851c
 U drh
-Z 17c75d9d132c4f9556f15fdbba0b2c8b
+Z 7341b461e09b65a1c0c798853040cf24
 # Remove this line to create a well-formed Fossil manifest.

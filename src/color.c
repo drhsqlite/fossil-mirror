@@ -186,8 +186,14 @@ int color_name_to_rgb(const char *zName){
     for(i=1; i<=6 && fossil_isxdigit(zName[i]); i++){
       v = v*16 + fossil_hexvalue(zName[i]);
     }
-    if( i<7 ) return -1;
-    return v;
+    if( i==4 ){
+      for(v=0, i=1; i<4; i++) v = v*256 + fossil_hexvalue(zName[i]);
+      return v;
+    }
+    if( i==7 ){
+      return v;
+    }
+    return -1;
   }else if( sqlite3_strlike("rgb%)", zName,0)==0 ){
     return -1;
   }else if( sqlite3_strlike("hsl%)",zName,0)==0 ){
@@ -218,15 +224,27 @@ int color_name_to_rgb(const char *zName){
 **
 ** If we cannot make sense of the background color recommendation
 ** that is the input, then return NULL.
+**
+** The iFgClr parameter is normally 0.  But for testing purposes, set
+** it to 1 for a black foregrounds and 2 for a white foreground.
 */
-char *reasonable_bg_color(const char *zRequested){
+char *reasonable_bg_color(const char *zRequested, int iFgClr){
   int iRGB = color_name_to_rgb(zRequested);
   int cc[3];
   int lo, hi;
   int r, g, b;
-  static int fg = 0;         /* 1==black-foreground 2==white-foreground */
+  static int systemFg = 0;   /* 1==black-foreground 2==white-foreground */
+  int fg;
   static char zColor[10];
   int K = 70;                /* Tune for background color saturation */
+
+  if( iFgClr ){
+    fg = iFgClr;
+  }else if( systemFg==0 ){
+    fg = systemFg = skin_detail_boolean("white-foreground") ? 2 : 1;
+  }else{
+    fg = systemFg;
+  }
 
   if( iRGB<0 ) return 0;
   if( fg==0 ) fg = skin_detail_boolean("white-foreground") ? 2 : 1;
@@ -431,31 +449,63 @@ void test_hash_color_page(void){
 void test_bgcolor_page(void){
   const char *zReq;      /* Requested color name */
   const char *zBG;       /* Actual color provided */
+  const char *zBg1;
   char zNm[10];
-  int i, cnt;
+  static const char *azDflt[] = {
+    "red", "orange", "yellow", "green", "blue", "indigo", "violet",
+    "tan", "brown", "gray"
+  };
+  int i, cnt, iClr, r, g, b;
+  char *zFg;
   login_check_credentials();
   style_set_current_feature("test");
   style_header("Background Color Test");
   for(i=cnt=0; i<10; i++){
     sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
-    zReq = P(zNm);
+    zReq = PD(zNm,azDflt[i]);
     if( zReq==0 || zReq[0]==0 ) continue;
-    zBG = reasonable_bg_color(zReq);
+    if( cnt==0 ){
+      @ <table border="1" cellspacing="0" cellpadding="10">
+      @ <tr>
+      @ <th>Requested Background
+      @ <th>Light mode
+      @ <th>Dark mode
+      @ </tr>
+    }
+    cnt++;
+    zBG = reasonable_bg_color(zReq, 0);
     if( zBG==0 ){
-      @ <p>"%h(zReq)" is not a recognized color name</p>
-    }else if( zReq[0]!='#' ){
+      @ <tr><td colspan="3" align="center">\
+      @ "%h(zReq)" is not a recognized color name</td></tr>
+      continue;
+    }
+    iClr = color_name_to_rgb(zReq);
+    r = (iClr>>16) & 0xff;
+    g = (iClr>>8) & 0xff;
+    b = iClr & 0xff;
+    if( 3*r + 6*g + b > 5*255 ){
+      zFg = "black";
+    }else{
+      zFg = "white";
+    }
+    if( zReq[0]!='#' ){
       char zReqRGB[12];
       sqlite3_snprintf(sizeof(zReqRGB),zReqRGB,"#%06x",color_name_to_rgb(zReq));
-      @ <p style='border:1px solid;background-color:%s(zBG);'>
-      @ Requested: %h(zReq) (%h(zReqRGB)) &rarr; Actual: %h(zBG)</p>
-      cnt++;
+      @ <tr><td style='color:%h(zFg);background-color:%h(zReq);'>\
+      @ Requested color "%h(zReq)" (%h(zReqRGB))</td>
     }else{
-      @ <p style='border:1px solid;background-color:%s(zBG);'>
-      @ Requested: %h(zReq) &rarr; Actual: %h(zBG)</p>
-      cnt++;
+      @ <tr><td style='color:%h(zFg);background-color:%s(zReq);'>\
+      @ Requested color "%h(zReq)"</td>
     }
+    zBg1 = reasonable_bg_color(zReq,1);
+    @ <td style='color:black;background-color:%h(zBg1);'>\
+    @ Background color for dark text: %h(zBg1)</td>
+    zBg1 = reasonable_bg_color(zReq,2);
+    @ <td style='color:white;background-color:%h(zBg1);'>\
+    @ Background color for light text: %h(zBg1)</td></tr>
   }
   if( cnt ){
+    @ </table>
     @ <hr>
   }
   @ <form method="POST">
@@ -463,7 +513,8 @@ void test_bgcolor_page(void){
   @ background colors above.</p>
   for(i=0; i<10; i++){
     sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
-    @ <input type="text" size="30" name='%s(zNm)' value='%h(PD(zNm,""))'><br>
+    @ <input type="text" size="30" name='%s(zNm)' \
+    @ value='%h(PD(zNm,azDflt[i]))'><br>
   }
   @ <input type="submit" value="Submit">
   @ </form>
