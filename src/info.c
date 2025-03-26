@@ -3635,6 +3635,7 @@ void ci_edit_page(void){
   zNewTag = PDT("tagname","");
   zNewBrFlag = P("newbr") ? " checked" : "";
   zNewBranch = PDT("brname","");
+  zBranchName = branch_of_rid(rid);
   zCloseFlag = P("close") ? " checked" : "";
   zHideFlag = P("hide") ? " checked" : "";
   if( P("apply") && cgi_csrf_safe(2) ){
@@ -3682,13 +3683,21 @@ void ci_edit_page(void){
   if( P("preview") ){
     Blob suffix;
     int nTag = 0;
+    const char *zDplyBr;   /* Branch name used to determine BG color */
+    if( zNewBrFlag[0] && zNewBranch[0] ){
+      zDplyBr = zNewBranch;
+    }else{
+      zDplyBr = zBranchName;
+    }
     @ <b>Preview:</b>
     @ <blockquote>
     @ <table border=0>
     if( zNewColorFlag[0] && zNewColor && zNewColor[0] ){
-      @ <tr><td style="background-color: %h(zNewColor);">
+      @ <tr><td style="background-color:%h(reasonable_bg_color(zNewColor,0));">
     }else if( zColor[0] ){
-      @ <tr><td style="background-color: %h(zColor);">
+      @ <tr><td style="background-color:%h(reasonable_bg_color(zColor,0));">
+    }else if( zDplyBr && fossil_strcmp(zDplyBr,"trunk")!=0 ){
+      @ <tr><td style="background-color:%h(hash_color(zDplyBr));">
     }else{
       @ <tr><td>
     }
@@ -3773,9 +3782,6 @@ void ci_edit_page(void){
   @ <label><input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag)>
   @ Add the following new tag name to this check-in:</label>
   @ <input size="15" name="tagname" id="tagname" value="%h(zNewTag)">
-  zBranchName = db_text(0, "SELECT value FROM tagxref, tag"
-     " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
-     " AND tagxref.tagid=%d", rid, TAG_BRANCH);
   db_prepare(&q,
      "SELECT tag.tagid, tagname, tagxref.value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
