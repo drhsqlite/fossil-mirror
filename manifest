@@ -1,5 +1,5 @@
-C Include\stechnote\sartifacts\sin\sthe\salways-has-a-W-card-even-if-empty\scategory\sin\sartifact_to_json().
-D 2025-03-26T12:41:20.021
+C New\s"brief"\squery\sparameter\son\s/file\ssuppresses\sthe\sfile\smetadata\sat\sthe\ntop\sof\sthe\spage.
+D 2025-03-26T13:09:14.504
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c b6e82531b75cc915dec31f0ecf9abca0a3a90a21bd1c87120bbc23ce408724d2
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c b841fc078c271a19fa9f8313f1ff4f879755a9fe1798e5377bfacdf83c379e37
+F src/info.c 97b917298a9f3c3a029d1582a8df654e1e5af1d8b73b038d5850e029a4b76766
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0d8c913658cdf45196f19bee7d1eb807b522d21e04388ce95109b3108c045d74
-R 38b68991a23545b671ec4118d3534cee
-U stephan
-Z becb624012058ad1b170ee36821d5174
+P 655d6130b3ad90fe4a1a5756359c80dfb079f4de080edb2c356abc39b3cea8b9
+R 9ef293870e73a752db47ff9d94314362
+U drh
+Z fd7e6f6afaedb4347c1b5985bae0823b
 # Remove this line to create a well-formed Fossil manifest.

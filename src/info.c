@@ -2678,6 +2678,7 @@ void artifact_page(void){
   u32 objdescFlags = OBJDESC_BASE;
   int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
   int hashOnly = P("hash")!=0;
+  int docOnly = P("brief")!=0;
   int isFile = fossil_strcmp(g.zPath,"file")==0;
   const char *zLn = P("ln");
   const char *zName = P("name");
@@ -2804,7 +2805,9 @@ void artifact_page(void){
 
   asText = P("txt")!=0;
   if( isFile ){
-    if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
+    if( docOnly ){
+      /* No header */
+    }else if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
       zCI = "tip";
       @ <h2>File %z(href("%R/finfo?name=%T&m&ci=tip",zName))%h(zName)</a>
       @ from the %z(href("%R/info/tip"))latest check-in</a></h2>
@@ -2942,7 +2945,9 @@ void artifact_page(void){
   if( descOnly ){
     style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
-    @ <hr>
+    if( !docOnly || !isFile ){
+      @ <hr>
+    }
     content_get(rid, &content);
     if( renderAsWiki ){
       safe_html_context(DOCSRC_FILE);
