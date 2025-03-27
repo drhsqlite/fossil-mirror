@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.
-D 2025-03-26T22:56:18.448
+C Make\sdocumentation\sfor\stimeline-truncate-at-blank\sand\stimeline-tslink-info\svisible.
+D 2025-03-27T15:34:01.472
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -574,7 +574,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c 26249b937a69704f67e1e3737ec04910e95bac869abb8f6f984f864ce2092bca
+F src/timeline.c 54037c01cf6e7e1a5b12cfe2efe73558df548064a891101cf3d11ce021f0ca64
 F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
 F src/tktsetup.c dee6358557178e83f24f09149f1aa241f331e2dde0084195156d34f012162e4e
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 40b144e1314d57d1275c48d1f5fdc21ca4228ccc6582bd4df696c3b0a1538596
-R a0c2f497de294495697ba8ba29734802
-U drh
-Z f1fc4119df8ded3c28676774f4df5a8c
+P 0db5c15990a11a9a64bc702788b79a54d6f5d0fcb6d20f969548b43fef2a9bc5
+R 3420dadc746e0ea9262268df4bbee991
+U danield
+Z ba87302cd6904b0b49228e2a40d5ea7d
 # Remove this line to create a well-formed Fossil manifest.
