@@ -207,7 +207,6 @@ void www_print_timeline(
   int prevWasDivider = 0;     /* True if previous output row was <hr> */
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
-  static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current check-out version */
   int dateFormat = 0;         /* 0: HH:MM (default) */
@@ -224,7 +223,24 @@ void www_print_timeline(
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
+  /*
+  ** SETTING: timeline-truncate-at-blank  boolean default=off
+  **
+  ** If enabled, check-in comments displayed on the timeline are truncated
+  ** at the first blank line of the comment text.  The comment text after
+  ** the first blank line is only seen in the /info or similar pages that
+  ** show details about the check-in.
+  */
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
+  /*
+  ** SETTING: timeline-tslink-info       boolean default=off
+  **
+  ** The hyperlink on the timestamp associated with each timeline entry,
+  ** on the far left-hand side of the screen, normally targets another
+  ** /timeline page that shows the entry in context.  However, if this
+  ** option is turned on, that hyperlink targets the /info page showing
+  ** the details of the entry.
+  */
   bTimestampLinksToInfo = db_get_boolean("timeline-tslink-info", 0);
   if( (tmFlags & TIMELINE_VIEWS)==0 ){
     tmFlags |= timeline_ss_cookie();
@@ -245,10 +261,6 @@ void www_print_timeline(
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
   }
-  db_static_prepare(&qbranch,
-    "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
-    TAG_BRANCH
-  );
   if( (tmFlags & TIMELINE_CHPICK)!=0
    && !db_table_exists("repository","cherrypick")
   ){
@@ -268,7 +280,7 @@ void www_print_timeline(
     const char *zTagList = db_column_text(pQuery, 8);
     int tagid = db_column_int(pQuery, 9);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
-    const char *zBr = 0;      /* Branch */
+    char *zBr = 0;            /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
     char *zDateLink;          /* URL for the link on the timestamp */
@@ -392,6 +404,8 @@ void www_print_timeline(
     @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
     if( tmFlags & (TIMELINE_UCOLOR|TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
+      /* Don't use the requested background color.  Use the background color
+      ** override from query parameters instead. */
       if( tmFlags & TIMELINE_UCOLOR ){
         zBgClr = zUser ? user_color(zUser) : 0;
       }else if( tmFlags & TIMELINE_NOCOLOR ){
@@ -410,18 +424,17 @@ void www_print_timeline(
         }
         db_reset(&qdelta);
       }
+    }else{
+      /* Make sure the user-specified background color is reasonable */
+      zBgClr = reasonable_bg_color(zBgClr, 0);
     }
     if( zType[0]=='c'
     && (pGraph || zBgClr==0 || (tmFlags & (TIMELINE_BRCOLOR|TIMELINE_DELTA))!=0)
     ){
-      db_reset(&qbranch);
-      db_bind_int(&qbranch, ":rid", rid);
-      if( db_step(&qbranch)==SQLITE_ROW ){
-        zBr = db_column_text(&qbranch, 0);
-      }else{
-        zBr = "trunk";
-      }
+      zBr = branch_of_rid(rid);
       if( zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0 ){
+        /* If no background color is specified, use a color based on the
+        ** branch name */
         if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
         }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
           zBgClr = 0;
@@ -461,7 +474,6 @@ void www_print_timeline(
       gidx = graph_add_row(pGraph, rid, nParent, nCherrypick, aParent,
                            zBr, zBgClr, zUuid,
                            isLeaf ? isLeaf + 2 * has_closed_tag(rid) : 0);
-      db_reset(&qbranch);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }else if( zType[0]=='e' && pGraph && zBgClr && zBgClr[0] ){
       /* For technotes, make a graph node with nParent==(-1).  This will
@@ -470,6 +482,7 @@ void www_print_timeline(
       gidx = graph_add_row(pGraph, rid, -1, 0, 0, zBr, zBgClr, zUuid, 0);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }
+    fossil_free(zBr);
     @</td>
     if( !isSelectedOrCurrent ){
       @ <td class="timeline%s(zStyle)Cell%s(zExtraClass)" id='mc%d(gidx)'>
@@ -1103,43 +1116,6 @@ const char *timeline_query_for_www(void){
 }
 
 /*
-** Convert a symbolic name used as an argument to the a=, b=, or c=
-** query parameters of timeline into a julianday mtime value.
-*/
-double symbolic_name_to_mtime(const char *z, const char **pzDisplay){
-  double mtime;
-  int rid;
-  const char *zDate;
-  if( z==0 ) return -1.0;
-  if( fossil_isdate(z) ){
-    mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", z);
-    if( mtime>0.0 ) return mtime;
-  }
-  zDate = fossil_expand_datetime(z, 1);
-  if( zDate!=0 ){
-    mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())",
-                      fossil_roundup_date(zDate));
-    if( mtime>0.0 ){
-      if( pzDisplay ) *pzDisplay = fossil_strdup(zDate);
-      return mtime;
-    }
-  }
-  rid = symbolic_name_to_rid(z, "*");
-  if( rid ){
-    mtime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
-  }else{
-    mtime = db_double(-1.0,
-        "SELECT max(event.mtime) FROM event, tag, tagxref"
-        " WHERE tag.tagname GLOB 'event-%q*'"
-        "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype"
-        "   AND event.objid=tagxref.rid",
-        z
-    );
-  }
-  return mtime;
-}
-
-/*
 ** zDate is a localtime date.  Insert records into the
 ** "timeline" table to cause <hr> to be inserted on zDate.
 */
@@ -1394,7 +1370,7 @@ static int timeline_is_datespan(const char *zDay){
 static int timeline_endpoint(
   int iFrom,         /* Starting point */
   const char *zEnd,  /* Tag we are searching for */   
-  int bForward       /* 1: forwards in time (descendents) 0: backwards */
+  int bForward       /* 1: forwards in time (descendants) 0: backwards */
 ){
   int tagId;
   int endId = 0;
@@ -1421,7 +1397,8 @@ static int timeline_endpoint(
                                " AND event.objid=tagxref.rid)"
         "   ORDER BY plink.mtime)"
         "SELECT id FROM dx, tagxref"
-        " WHERE tagid=%d AND tagtype>0 AND rid=id LIMIT 1",
+        " WHERE tagid=%d AND tagtype>0 AND rid=id"
+        " ORDER BY dx.mtime LIMIT 1",
         iFrom, iFrom, tagId, tagId
       );
     }else{
@@ -1452,7 +1429,8 @@ static int timeline_endpoint(
                                " AND event.objid=tagxref.rid)"
         "   ORDER BY event.mtime DESC)"
         "SELECT id FROM dx, tagxref"
-        " WHERE tagid=%d AND tagtype>0 AND rid=id LIMIT 1",
+        " WHERE tagid=%d AND tagtype>0 AND rid=id"
+        " ORDER BY dx.mtime DESC LIMIT 1",
         iFrom, iFrom, tagId, tagId
       );
     }else{
@@ -1524,13 +1502,13 @@ static void add_extra_rids(const char *zTab, const char *zExtra){
 **
 ** Usage: fossil test-endpoint BASE TAG ?OPTIONS?
 **
-** Show the first check-in with TAG that is a descendent or ancestor
-** of BASE.  The first descendent checkin is shown by default.  Use
+** Show the first check-in with TAG that is a descendant or ancestor
+** of BASE.  The first descendant checkin is shown by default.  Use
 ** the --backto to see the first ancestor checkin.
 **
 ** Options:
 **
-**      --backto            Show ancestor.  Others defaults to descendents.
+**      --backto            Show ancestor.  Others defaults to descendants.
 */
 void timeline_test_endpoint(void){
   int bForward = find_option("backto",0,0)==0;
@@ -1585,10 +1563,10 @@ void timeline_test_endpoint(void){
 **    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
 **    bt=CHECKIN      "Back To".  Show ancenstors going back to CHECKIN
 **                       p=CX       ... from CX back to time of CHECKIN
-**                       from=CX    ... shortest path from CX back to CHECKIN
+**                       from=CX    ... path from CX back to CHECKIN
 **    ft=CHECKIN      "Forward To":  Show decendents forward to CHECKIN
 **                       d=CX       ... from CX up to the time of CHECKIN
-**                       from=CX    ... shortest path from CX up to CHECKIN
+**                       from=CX    ... path from CX up to CHECKIN
 **    t=TAG           Show only check-ins with the given TAG
 **    r=TAG           Same as 't=TAG&rel'.  Mnemonic: "Related"
 **    tl=TAGLIST      Same as 't=TAGLIST&ms=brlist'.  Mnemonic: "Tag List"
@@ -1613,16 +1591,17 @@ void timeline_test_endpoint(void){
 **    v               Show details of files changed
 **    vfx             Show complete text of forum messages
 **    f=CHECKIN       Family (immediate parents and children) of CHECKIN
-**    from=CHECKIN    Path through common ancestor from...
-**                       to=CHECKIN      ... to this
-**                       to2=CHECKIN     ... backup name if to= doesn't resolve
-**                       shortest        ... show only the shortest path
-**                       rel             ... also show related checkins
-**                       bt=PRIOR        ... path from CHECKIN back to PRIOR
-**                       ft=LATER        ... path from CHECKIN forward to LATER
-**    me=CHECKIN      Most direct path from...
-**                       you=CHECKIN     ... to this
-**                       rel             ... also show related checkins
+**    from=CHECKIN    Path through common ancestor from CHECKIN...
+**                       to=CHECKIN   ... to this
+**                       to2=CHECKIN  ... backup name if to= doesn't resolve
+**                       shortest     ... pick path with least number of nodes
+**                       rel          ... also show related checkins
+**                       min          ... hide long sequences along same branch
+**                       bt=PRIOR     ... path from CHECKIN back to PRIOR
+**                       ft=LATER     ... path from CHECKIN forward to LATER
+**    me=CHECKIN      Most direct path from CHECKIN...
+**                       you=CHECKIN  ... to this
+**                       rel          ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
 **                    All qualifying check-ins are shown unless there is
 **                    also an n= or n1= query parameter.
@@ -1709,11 +1688,11 @@ void page_timeline(void){
   int from_rid = name_to_typed_rid(P("from"),"ci"); /* from= for paths */
   const char *zTo2 = 0;
   int to_rid = name_choice("to","to2",&zTo2);    /* to= for path timelines */
-  int noMerge = P("shortest")==0;           /* Follow merge links if shorter */
+  int bShort = P("shortest")!=0;                 /* shortest possible path */
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
   int pd_rid;
-  const char *zDPName;                /* Value of p=, d=, or dp= params */
+  const char *zDPNameP, *zDPNameD;    /* Value of p=, d=, or dp= params */
   double rBefore, rAfter, rCirca;     /* Boundary times */
   const char *z;
   char *zOlderButton = 0;             /* URL for Older button at the bottom */
@@ -1730,6 +1709,7 @@ void page_timeline(void){
   int from_to_mode = 0;               /* 0: from,to. 1: from,ft 2: from,bt */
   int showSql = PB("showsql");        /* True to show the SQL */
   Blob allSql;                        /* Copy of all SQL text */
+  int bMin = P("min")!=0;             /* True if "min" query parameter used */
 
   login_check_credentials();
   url_initialize(&url, "timeline");
@@ -1779,8 +1759,8 @@ void page_timeline(void){
   }
 
   /* Query parameters d=, p=, and f= and variants */
-  p_rid = name_choice("p","p2", &zDPName);
-  d_rid = name_choice("d","d2", &zDPName);
+  p_rid = name_choice("p","p2", &zDPNameP);
+  d_rid = name_choice("d","d2", &zDPNameD);
   z = P("f");
   f_rid = z ? name_to_typed_rid(z,"ci") : 0;
   z = P("df");
@@ -1788,7 +1768,7 @@ void page_timeline(void){
     nEntry = 0;
     useDividers = 0;
     cgi_replace_query_parameter("d",fossil_strdup(z));
-    zDPName = z;
+    zDPNameD = zDPNameP = z;
   }
 
   /* Undocumented query parameter to set JS mode */
@@ -1812,9 +1792,10 @@ void page_timeline(void){
 
   /* To view the timeline, must have permission to read project data.
   */
-  pd_rid = name_choice("dp","dp2",&zDPName);
+  pd_rid = name_choice("dp","dp2",&zDPNameP);
   if( pd_rid ){
     p_rid = d_rid = pd_rid;
+    zDPNameD = zDPNameP;
   }
   if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum)
    || (bisectLocal && !g.perm.Setup)
@@ -2085,16 +2066,18 @@ void page_timeline(void){
     int nNodeOnPath = 0;
     int commonAncs = 0;    /* Common ancestors of me_rid and you_rid. */
     int earlierRid = 0, laterRid = 0;
+    int cost = bShort ? 0 : 1;
+    int nSkip = 0;
 
     if( from_rid && to_rid ){
       if( from_to_mode==0 ){
-        p = path_shortest(from_rid, to_rid, noMerge, 0, 0);
+        p = path_shortest(from_rid, to_rid, 0, 0, 0, cost);
       }else if( from_to_mode==1 ){
-        p = path_shortest(from_rid, to_rid, 0, 1, 0);
+        p = path_shortest(from_rid, to_rid, 0, 1, 0, cost);
         earlierRid = commonAncs = from_rid;
         laterRid = to_rid;
       }else{
-        p = path_shortest(to_rid, from_rid, 0, 1, 0);
+        p = path_shortest(to_rid, from_rid, 0, 1, 0, cost);
         earlierRid = commonAncs = to_rid;
         laterRid = from_rid;
       }
@@ -2125,16 +2108,21 @@ void page_timeline(void){
       int cnt = 4;
       blob_init(&ins, 0, 0);
       blob_append_sql(&ins, "INSERT INTO pathnode(x) VALUES(%d)", p->rid);
-      p = p->u.pTo;
-      while( p ){
-        if( cnt==8 ){
+      if( p->u.pTo==0 ) bMin = 0;
+      for(p=p->u.pTo; p; p=p->u.pTo){
+        if( bMin
+         && p->u.pTo!=0
+         && fossil_strcmp(path_branch(p->pFrom),path_branch(p))==0
+         && fossil_strcmp(path_branch(p),path_branch(p->u.pTo))==0
+        ){
+          nSkip++;
+        }else if( cnt==8 ){
           blob_append_sql(&ins, ",\n  (%d)", p->rid);
           cnt = 0;
         }else{
           cnt++;
           blob_append_sql(&ins, ",(%d)", p->rid);
         }
-        p = p->u.pTo;
       }
     }
     path_reset();
@@ -2198,8 +2186,9 @@ void page_timeline(void){
     nNodeOnPath = db_int(0, "SELECT count(*) FROM temp.pathnode");
     if( nNodeOnPath==1 && from_to_mode>0 ){
       blob_appendf(&desc,"Check-in ");
-    }else if( from_to_mode>0 ){
-      blob_appendf(&desc, "%d check-ins on the shorted path from ",nNodeOnPath);
+    }else if( bMin ){
+      blob_appendf(&desc, "%d of %d check-ins along the path from ",
+                   nNodeOnPath, nNodeOnPath+nSkip);
     }else{
       blob_appendf(&desc, "%d check-ins going from ", nNodeOnPath);
     }
@@ -2227,45 +2216,56 @@ void page_timeline(void){
     }
     addFileGlobDescription(zChng, &desc);
   }else if( (p_rid || d_rid) && g.perm.Read && zTagSql==0 ){
-    /* If p= or d= is present, ignore all other parameters other than n= */
-    char *zUuid;
-    const char *zCiName;
+    /* If either p= or d= or both are present, ignore all other parameters
+    ** other than n=, ft=, and bt= */
+    const char *zBaseName = 0;
     int np = 0, nd;
     const char *zBackTo = 0;
     const char *zFwdTo = 0;
     int ridBackTo = 0;
     int ridFwdTo = 0;
+    int bBackAdded = 0;       /* True if the zBackTo node was added */
+    int bFwdAdded = 0;        /* True if the zBackTo node was added */
+    int bSeparateDandP = 0;   /* p_rid & d_rid both exist and are distinct */
 
     tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
-    if( p_rid && d_rid ){
-      if( p_rid!=d_rid ) p_rid = d_rid;
-      if( !haveParameterN ) nEntry = 10;
+    if( p_rid && d_rid && p_rid!=d_rid ){
+      bSeparateDandP = 1;
+      db_multi_exec(
+        "CREATE TEMP TABLE IF NOT EXISTS ok_d(rid INTEGER PRIMARY KEY)"
+      );
+    }else{
+      zBaseName = p_rid ? zDPNameP : zDPNameD;
     }
     db_multi_exec(
-       "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
+      "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
     );
     add_extra_rids("ok", P("x"));
-    zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d",
-                         p_rid ? p_rid : d_rid);
-    zCiName = zDPName;
-    if( zCiName==0 ) zCiName = zUuid;
     blob_append_sql(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
       double rStopTime = 9e99;
       zFwdTo = P("ft");
+      if( zFwdTo && bSeparateDandP ){
+        if( zError==0 ){
+          zError = "Cannot use the ft= query parameter when both p= and d= "
+                   "are used and have distinct values.";
+        }
+        zFwdTo = 0;
+      }        
       if( zFwdTo ){
-        double rStartDate = db_double(0.0,
-           "SELECT mtime FROM event WHERE objid=%d", d_rid);
+        double rStartDate = mtime_of_rid(d_rid, 0.0);
         ridFwdTo = first_checkin_with_tag_after_date(zFwdTo, rStartDate);
         if( ridFwdTo==0 ){
           ridFwdTo = name_to_typed_rid(zBackTo,"ci");
         }
         if( ridFwdTo ){
           if( !haveParameterN ) nEntry = 0;
-          rStopTime = db_double(9e99,
-            "SELECT mtime FROM event WHERE objid=%d", ridFwdTo);
+          rStopTime = mtime_of_rid(ridFwdTo, 9e99);
         }
+      }else if( bSeparateDandP ){
+        rStopTime = mtime_of_rid(p_rid, 9e99);
+        nEntry = 0;
       }
       if( rStopTime<9e99 ){
         rStopTime += 5.8e-6;  /* Round up by 1/2 second */
@@ -2282,68 +2282,107 @@ void page_timeline(void){
         "INSERT OR IGNORE INTO ok SELECT rid FROM dx LIMIT %d",
         d_rid, rStopTime<8e99 ? 17 : 2, rStopTime, nEntry<=0 ? -1 : nEntry+1
       );
-      nd = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
-      if( nd>0 || p_rid==0 ){
-        blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
+      if( ridFwdTo && !db_exists("SELECT 1 FROM ok WHERE rid=%d",ridFwdTo) ){
+        db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", ridFwdTo);
+        bFwdAdded = 1;
       }
-      if( useDividers && !selectedRid ) selectedRid = d_rid;
-      db_multi_exec("DELETE FROM ok");
+      if( bSeparateDandP ){
+        db_multi_exec(
+           "INSERT INTO ok_d SELECT rid FROM ok;"
+           "DELETE FROM ok;"
+        );
+      }else{
+        nd = db_int(0, "SELECT count(*)-1 FROM ok");
+        if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
+        if( nd>0 || p_rid==0 ){
+          blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
+        }
+        if( useDividers && !selectedRid ) selectedRid = d_rid;
+        db_multi_exec("DELETE FROM ok");
+      }
     }
     if( p_rid ){
       zBackTo = P("bt");
+      if( zBackTo && bSeparateDandP ){
+        if( zError==0 ){
+          zError = "Cannot use the bt= query parameter when both p= and d= "
+                   "are used and have distinct values.";
+        }
+        zBackTo = 0;
+      }        
       if( zBackTo ){
-        double rDateLimit = db_double(0.0,
-           "SELECT mtime FROM event WHERE objid=%d", p_rid);
+        double rDateLimit = mtime_of_rid(p_rid, 0.0);
         ridBackTo = last_checkin_with_tag_before_date(zBackTo, rDateLimit);
         if( ridBackTo==0 ){
           ridBackTo = name_to_typed_rid(zBackTo,"ci");
         }
         if( ridBackTo && !haveParameterN ) nEntry = 0;
+      }else if( bSeparateDandP ){
+        ridBackTo = d_rid;
+        nEntry = 0;
       }
       compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0, ridBackTo);
-      np = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( np>0 || nd==0 ){
-        if( nd>0 ) blob_appendf(&desc, " and ");
-        blob_appendf(&desc, "%d ancestor%s", np, (1==np)?"":"s");
-        db_multi_exec("%s", blob_sql_text(&sql));
+      if( ridBackTo && !db_exists("SELECT 1 FROM ok WHERE rid=%d",ridBackTo) ){
+        db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", ridBackTo);
+        bBackAdded = 1;
       }
-      if( useDividers && !selectedRid ) selectedRid = p_rid;
+      if( bSeparateDandP ){
+        db_multi_exec("DELETE FROM ok WHERE rid NOT IN ok_d;");
+        db_multi_exec("%s", blob_sql_text(&sql));
+      }else{
+        np = db_int(0, "SELECT count(*)-1 FROM ok");
+        if( np>0 || nd==0 ){
+          if( nd>0 ) blob_appendf(&desc, " and ");
+          blob_appendf(&desc, "%d ancestor%s", np, (1==np)?"":"s");
+          db_multi_exec("%s", blob_sql_text(&sql));
+        }
+        if( useDividers && !selectedRid ) selectedRid = p_rid;
+      }
     }
-
-    blob_appendf(&desc, " of %z%h</a>",
-                   href("%R/info?name=%h", zCiName), zCiName);
+    if( bSeparateDandP ){
+      int n = db_int(0, "SELECT count(*) FROM ok");
+      blob_reset(&desc);
+      blob_appendf(&desc,
+          "%d check-ins that are both ancestors of %z%h</a>"
+          " and descendants of %z%h</a>",
+          n,
+          href("%R/info?name=%h",zDPNameP),zDPNameP,
+          href("%R/info?name=%h",zDPNameD),zDPNameD
+      );
+      ridBackTo = 0;
+      ridFwdTo = 0;
+    }else{
+      blob_appendf(&desc, " of %z%h</a>",
+                   href("%R/info?name=%h", zBaseName), zBaseName);
+    }
     if( ridBackTo ){
       if( np==0 ){
         blob_reset(&desc);
         blob_appendf(&desc,
-                    "Check-in %z%h</a> only (%z%h</a> is not an ancestor)",
-                     href("%R/info?name=%h",zCiName), zCiName,
+                    "Check-in %z%h</a> only (%z%h</a> does not precede it)",
+                     href("%R/info?name=%h",zBaseName), zBaseName,
                      href("%R/info?name=%h",zBackTo), zBackTo);
       }else{
-        blob_appendf(&desc, " back to %z%h</a>",
-                     href("%R/info?name=%h",zBackTo), zBackTo);
+        blob_appendf(&desc, " back to %z%h</a>%s",
+                     href("%R/info?name=%h",zBackTo), zBackTo,
+                     bBackAdded ? " (not a direct anscestor)" : "");
         if( ridFwdTo && zFwdTo ){
-          blob_appendf(&desc, " and up to %z%h</a>",
-                     href("%R/info?name=%h",zFwdTo), zFwdTo);
+          blob_appendf(&desc, " and up to %z%h</a>%s",
+                     href("%R/info?name=%h",zFwdTo), zFwdTo,
+                     bFwdAdded ? " (not a direct descendant)" : "");
         }
       }
     }else if( ridFwdTo ){
       if( nd==0 ){
         blob_reset(&desc);
         blob_appendf(&desc,
-                    "Check-in %z%h</a> only (%z%h</a> is not an descendant)",
-                     href("%R/info?name=%h",zCiName), zCiName,
+                    "Check-in %z%h</a> only (%z%h</a> does not follow it)",
+                     href("%R/info?name=%h",zBaseName), zBaseName,
                      href("%R/info?name=%h",zFwdTo), zFwdTo);
       }else{
-        blob_appendf(&desc, " up to %z%h</a>",
-                     href("%R/info?name=%h",zFwdTo), zFwdTo);
-      }
-    }
-    if( d_rid ){
-      if( p_rid ){
-        /* If both p= and d= are set, we don't have the uuid of d yet. */
-        zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
+        blob_appendf(&desc, " up to %z%h</a>%s",
+                     href("%R/info?name=%h",zFwdTo), zFwdTo,
+                     bFwdAdded ? " (not a direct descendant)":"");
       }
     }
     if( advancedMenu ){
@@ -2817,9 +2856,9 @@ void page_timeline(void){
           zSearch, zSearch);
       }
     }
-    rBefore = symbolic_name_to_mtime(zBefore, &zBefore);
-    rAfter = symbolic_name_to_mtime(zAfter, &zAfter);
-    rCirca = symbolic_name_to_mtime(zCirca, &zCirca);
+    rBefore = symbolic_name_to_mtime(zBefore, &zBefore, 1);
+    rAfter = symbolic_name_to_mtime(zAfter, &zAfter, 0);
+    rCirca = symbolic_name_to_mtime(zCirca, &zCirca, 0);
     blob_append_sql(&sql, "%s", blob_sql_text(&cond));
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
@@ -2960,7 +2999,7 @@ void page_timeline(void){
         zDate = mprintf("%s", (zAfter ? zAfter : zBefore));
       }
       if( zDate ){
-        rDate = symbolic_name_to_mtime(zDate, 0);
+        rDate = symbolic_name_to_mtime(zDate, 0, 0);
         if( db_int(0,
             "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
             " WHERE blob.rid=event.objid AND mtime<=%.17g%s)",
@@ -2976,7 +3015,7 @@ void page_timeline(void){
         zDate = mprintf("%s", (zBefore ? zBefore : zAfter));
       }
       if( zDate ){
-        rDate = symbolic_name_to_mtime(zDate, 0);
+        rDate = symbolic_name_to_mtime(zDate, 0, 0);
         if( db_int(0,
             "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
             " WHERE blob.rid=event.objid AND mtime>=%.17g%s)",
@@ -3019,7 +3058,7 @@ void page_timeline(void){
   }
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){
-    double r = symbolic_name_to_mtime(zMark, 0);
+    double r = symbolic_name_to_mtime(zMark, 0, 0);
     if( r>0.0 && !selectedRid ) selectedRid = timeline_add_divider(r);
   }
   blob_zero(&sql);
@@ -3387,16 +3426,50 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat,
 }
 
 /*
+**    wiki_to_text(TEXT)
+**
+** Return a text rendering of Fossil-Wiki TEXT, intended for display
+** on a timeline.  The timeline-plaintext and timeline-hard-newlines
+** settings are considered when doing this rendering.
+*/
+static void wiki_to_text_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zIn, *zOut;
+  int nIn, nOut;
+  Blob in, html, txt;
+  zIn = (const char*)sqlite3_value_text(argv[0]);
+  if( zIn==0 ) return;
+  nIn = sqlite3_value_bytes(argv[0]);
+  blob_init(&in, zIn, nIn);
+  blob_init(&html, 0, 0);
+  wiki_convert(&in, &html, wiki_convert_flags(0));
+  blob_reset(&in);
+  blob_init(&txt, 0, 0);
+  html_to_plaintext(blob_str(&html), &txt, 0);
+  blob_reset(&html);
+  nOut = blob_size(&txt);
+  zOut = blob_str(&txt);
+  while( fossil_isspace(zOut[0]) ){ zOut++; nOut--; }
+  while( nOut>0 && fossil_isspace(zOut[nOut-1]) ){ nOut--; }
+  sqlite3_result_text(context, zOut, nOut, SQLITE_TRANSIENT);
+  blob_reset(&txt);
+}
+
+/*
 ** Return a pointer to a static string that forms the basis for
 ** a timeline query for display on a TTY.
 */
 const char *timeline_query_for_tty(void){
+  static int once = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS rid,
     @   uuid,
     @   datetime(event.mtime,toLocal()) AS mDateTime,
-    @   coalesce(ecomment,comment)
+    @   wiki_to_text(coalesce(ecomment,comment))
     @     || ' (user: ' || coalesce(euser,user,'?')
     @     || (SELECT case when length(x)>0 then ' tags: ' || x else '' end
     @           FROM (SELECT group_concat(substr(tagname,5), ', ') AS x
@@ -3424,6 +3497,11 @@ const char *timeline_query_for_tty(void){
     @ WHERE blob.rid=event.objid
     @   AND tag.tagname='branch'
   ;
+  if( !once && g.db ){
+    once = 1;
+    sqlite3_create_function(g.db, "wiki_to_text", 1, SQLITE_UTF8, 0,
+                            wiki_to_text_sqlfunc, 0, 0);
+  }
   return zBaseSql;
 }
 

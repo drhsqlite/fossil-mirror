@@ -686,6 +686,45 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
 }
 
 /*
+** The input zIn is a string that we want to match exactly as part of
+** a regular expression.  Return a new string (in space obtained from
+** fossil_malloc() or the equivalent) that escapes all regexp syntax
+** characters in zIn.
+*/
+char *re_quote(const char *zIn){
+  Blob out;
+  blob_init(&out, 0, 0);
+  while( zIn[0] ){
+    switch( zIn[0] ){
+      case '.':
+      case '?':
+      case '*':
+      case '+':
+      case '\\':
+      case '(':
+      case ')':
+      case '[':
+      case ']':
+      case '|':
+      case '^':
+      case '$':
+      case '{':
+      case '}': {
+        blob_appendf(&out,"\\x%02x", (unsigned char)zIn[0]);
+        break;
+      }
+      default: {
+        blob_append_char(&out, zIn[0]);
+        break;
+      }
+    }
+    zIn++;
+  }
+  blob_materialize(&out);
+  return out.aData;
+}
+
+/*
 ** Implementation of the regexp() SQL function.  This function implements
 ** the build-in REGEXP operator.  The first argument to the function is the
 ** pattern and the second argument is the string.  So, the SQL statements:

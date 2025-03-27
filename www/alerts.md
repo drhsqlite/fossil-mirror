@@ -9,6 +9,7 @@ subscribers to alert them to changes in the repository:
   *  [Ticket](./tickets.wiki) changes
   *  [Wiki](./wikitheory.wiki) page changes
   *  New and edited [forum](./forum.wiki) posts
+  *  Users receiving [new permissions](./caps/index.md) (admins only)
   *  Announcements
 
 Subscribers can elect to receive emails as soon as these events happen,
@@ -517,6 +518,10 @@ with more information and functionality than normal users get:
    user, such as in the case where the verification email message got
    lost.  Unchecking this box does not cause another verification email
    to be sent.
+
+*  Admin users (only) may activate the "user elevation" subscription,
+   which sends a notification when a user is created or is explicitly
+   assigned permission they did not formerly have.
 
 This screen also allows a Fossil Admin user to perform other activities
 on behalf of a subscriber which they could do themselves, such as to

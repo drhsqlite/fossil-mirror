@@ -500,12 +500,12 @@ void finfo_page(void){
   );
   if( (zA = P("a"))!=0 ){
     blob_append_sql(&sql, "  AND event.mtime>=%.16g\n",
-         symbolic_name_to_mtime(zA,0));
+         symbolic_name_to_mtime(zA,0,0));
     url_add_parameter(&url, "a", zA);
   }
   if( (zB = P("b"))!=0 ){
     blob_append_sql(&sql, "  AND event.mtime<=%.16g\n",
-         symbolic_name_to_mtime(zB,0));
+         symbolic_name_to_mtime(zB,0,1));
     url_add_parameter(&url, "b", zB);
   }
   if( ridFrom ){
@@ -638,6 +638,8 @@ void finfo_page(void){
       zBgClr = user_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
+    }else if( zBgClr ){
+      zBgClr = reasonable_bg_color(zBgClr,0);
     }
     gidx = graph_add_row(pGraph,
                    frid>0 ? (GraphRowId)frid*(mxfnid+1)+fnid : fpid+1000000000,

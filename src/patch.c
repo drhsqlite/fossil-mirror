@@ -702,6 +702,22 @@ static char *patch_find_patch_filename(const char *zCmdName){
 }
 
 /*
+** Resolves a patch-command remote system name, accounting for patch
+** aliases.
+**
+** If a CONFIG table entry matching name='patch-alias:$zKey' is found,
+** the corresponding value is returned, else a fossil_strdup() of zKey
+** is returned. The caller is responsible for passing the resulting
+** string to fossil_free().
+*/
+static char *patch_resolve_remote(const char *zKey){
+  char *zAlias = db_text(0, "SELECT value FROM config "
+                            "WHERE name = 'patch-alias:%q'",
+                            zKey);
+  return zAlias ? zAlias : fossil_strdup(zKey);
+}
+
+/*
 ** Create a FILE* that will execute the remote side of a push or pull
 ** using ssh (probably) or fossil for local pushes and pulls.  Return
 ** a FILE* obtained from popen() into which we write the patch, or from
@@ -731,7 +747,7 @@ static FILE *patch_remote_command(
   if( g.argc!=4 ){
     usage(mprintf("%s [USER@]HOST:DIRECTORY", zThisCmd));
   }
-  zRemote = fossil_strdup(g.argv[3]);
+  zRemote = patch_resolve_remote(g.argv[3]);
   zDir = (char*)file_skip_userhost(zRemote);
   if( zDir==0 ){
     if( isRetry ) goto remote_command_error;
@@ -780,7 +796,7 @@ remote_command_error:
 ** by g.argv[3].
 */
 static void patch_toggle_ssh_needs_path(void){
-  char *zRemote = fossil_strdup(g.argv[3]);
+  char *zRemote = patch_resolve_remote(g.argv[3]);
   char *zDir = (char*)file_skip_userhost(zRemote);
   if( zDir ){
     *(char*)(zDir - 1) =  0;
@@ -907,7 +923,6 @@ static void patch_diff(
   if( nErr ) fossil_fatal("abort due to prior errors");
 }
 
-
 /*
 ** COMMAND: patch
 **
@@ -917,6 +932,18 @@ static void patch_diff(
 ** A Fossil binary patch is a single (binary) file that captures all of the
 ** uncommitted changes of a check-out.  Use Fossil binary patches to transfer
 ** proposed or incomplete changes between machines for testing or analysis.
+**
+** > fossil patch alias add|rm|ls|list ?ARGS?
+**
+**       Manage remote-name aliases, which act as short-form
+**       equivalents to REMOTE-CHECKOUT strings. Aliases are local to
+**       a given repository and do not sync. Subcommands:
+**
+**         ... add ALIAS REMOTE-CHECKOUT       Add ALIAS as an alias
+**                                             for REMOTE-CHECKOUT.
+**         ... ls|list                         List all local aliases.
+**         ... rm ALIAS [ALIAS...]             Remove named aliases
+**         ... rm --all                        Remove all aliases
 **
 ** > fossil patch create [DIRECTORY] PATCHFILE
 **
@@ -998,10 +1025,72 @@ void patch_cmd(void){
   size_t n;
   if( g.argc<3 ){
     patch_usage:
-    usage("apply|create|diff|gdiff|pull|push|view");
+    usage("alias|apply|create|diff|gdiff|pull|push|view");
   }
   zCmd = g.argv[2];
   n = strlen(zCmd);
+  if( strncmp(zCmd, "alias", n)==0 ){
+    const char * zArg = g.argc>3 ? g.argv[3] : 0;
+    db_must_be_within_tree();
+    if( 0==zArg ){
+      goto usage_patch_alias;
+    }else if( 0==strcmp("ls",zArg) || 0==strcmp("list",zArg) ){
+      /* alias ls|list */
+      Stmt q;
+      int nAlias = 0;
+
+      verify_all_options();
+      db_prepare(&q, "SELECT substr(name,13), value FROM config "
+                 "WHERE name GLOB 'patch-alias:*' ORDER BY name");
+      while( SQLITE_ROW==db_step(&q) ){
+        const char *zName = db_column_text(&q, 0);
+        const char *zVal = db_column_text(&q, 1);
+        ++nAlias;
+        fossil_print("%s = %s\n", zName, zVal);
+      }
+      db_finalize(&q);
+      if( 0==nAlias ){
+        fossil_print("No patch aliases defined\n");
+      }
+    }else if( 0==strcmp("add", zArg) ){
+      /* alias add localName remote */
+      verify_all_options();
+      if( 6!=g.argc ){
+        usage("alias add localName remote");
+      }
+      db_unprotect(PROTECT_CONFIG);
+      db_multi_exec("REPLACE INTO config (name, value, mtime) "
+                    "VALUES ('patch-alias:%q', %Q, unixepoch())",
+                    g.argv[4], g.argv[5]);
+      db_protect_pop();
+    }else if( 0==strcmp("rm", zArg) ){
+      /* alias rm */
+      const int fAll = 0!=find_option("all", 0, 0);
+      if( fAll ? g.argc<4 : g.argc<5 ){
+        usage("alias rm [-all] [aliasGlob [...aliasGlobN]]");
+      }
+      verify_all_options();
+      db_unprotect(PROTECT_CONFIG);
+      if( 0!=fAll ){
+        db_multi_exec("DELETE FROM config WHERE name GLOB 'patch-alias:*'");
+      }else{
+        Stmt q;
+        int i;
+        db_prepare(&q, "DELETE FROM config WHERE name "
+                   "GLOB 'patch-alias:' || :pattern");
+        for(i = 4; i < g.argc; ++i){
+          db_bind_text(&q, ":pattern", g.argv[i]);
+          db_step(&q);
+          db_reset(&q);
+        }
+        db_finalize(&q);
+      }
+      db_protect_pop();
+    }else{
+    usage_patch_alias:
+      usage("alias ls|list|add|rm ...");
+    }
+  }else
   if( strncmp(zCmd, "apply", n)==0 ){
     char *zIn;
     unsigned flags = 0;
@@ -1035,10 +1124,14 @@ void patch_cmd(void){
       return;
     }
     db_find_and_open_repository(0, 0);
+    if( gdiff_using_tk(zCmd[0]=='g') ){
+      diff_tk("patch diff", 3);
+      return;
+    }
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     diff_options(&DCfg, zCmd[0]=='g', 0);
     verify_all_options();
-    zIn = patch_find_patch_filename("apply");
+    zIn = patch_find_patch_filename("diff");
     patch_attach(zIn, stdin, 0);
     patch_diff(flags, &DCfg);
     fossil_free(zIn);

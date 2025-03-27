@@ -513,7 +513,7 @@ const char zRepositorySchema2[] =
 #if INTERFACE
 # define TAG_BGCOLOR    1     /* Set the background color for display */
 # define TAG_COMMENT    2     /* The check-in comment */
-# define TAG_USER       3     /* User who made a checking */
+# define TAG_USER       3     /* User who made a check-in */
 # define TAG_DATE       4     /* The date of a check-in */
 # define TAG_HIDDEN     5     /* Do not display in timeline */
 # define TAG_PRIVATE    6     /* Do not sync */

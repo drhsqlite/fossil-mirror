@@ -103,6 +103,7 @@ int update_to(int vid){
 **   --latest                Acceptable in place of VERSION, update to
 **                           latest version
 **   --nosync                Do not auto-sync prior to update
+**   --proxy PROXY           Use PROXY as http proxy during sync operation
 **   --setmtime              Set timestamps of all files to match their
 **                           SCM-side times (the timestamp of the last
 **                           check-in which modified them).
@@ -200,7 +201,7 @@ void update_cmd(void){
   }
 
   /* If no VERSION is specified on the command-line, then look for a
-  ** descendent of the current version.  If there are multiple descendants,
+  ** descendant of the current version.  If there are multiple descendants,
   ** look for one from the same branch as the current version.  If there
   ** are still multiple descendants, show them all and refuse to update
   ** until the user selects one.

@@ -342,44 +342,32 @@ command].
 
 Fuzzing requires:
 
-  *  Customizing the build of fossil a small bit.
   *  The clang C compiler.
   *  libfuzzer. On Ubuntu-derived systems, it can be installed with
      <tt>apt install libfuzzer-XYZ</tt>, where XYZ is a version number
      (several versions may be available on any given system)
 
 
-First, modify the top-level <tt>Makefile.in</tt>:
+Compile as follows:
 
-  *  Extend the <tt>TCCFLAGS</tt> variable with: <tt>-fsanitize=fuzzer
-   -DFOSSIL_FUZZ</tt> (and see [/finfo/src/fuzz.c | src/fuzz.c] for
-   more options).
-  *  Rename <tt>APPNAME</tt> from <tt>fossil</tt> to <tt>fossil-fuzz</tt>.
-
-Then rebuild:
-
-<pre></code>$ make clean
-$ ./configure CC=/path/to/clang
-$ make
+<pre><code>make clean
+make TCCFLAGS='-DFOSSIL_FUZZ -fsanitize=fuzzer,address,undefined -O0 -g' CC=clang
 </code></pre>
 
-If clang is your default compiler, the <tt>CC</tt> configure option is
-not required.
-
-The resulting <tt>fossil-fuzz</tt> binary differs from the standard
+The resulting <tt>fossil</tt> binary differs from the standard
 one primarily in that it runs the <tt>test-fuzz</tt> command by
 default. It needs to be told what to fuzz and needs to be given a
 directory of input files to seed the fuzzer with:
 
 
-<pre></code>$ mkdir cases
+<pre><code>$ mkdir cases
   # Copy input files into ./cases. e.g. when fuzzing the markdown
   # processor, copy any to-be-tested .md files into that directory.
   # Then start the fuzzer:
 $ ./fossil-fuzz --fuzztype markdown cases
 </code></pre>
 
-As it works, it writes its mutated test files into the test-input
+As it works, it writes its mutated test files into the "cases"
 directory, each one named in the form of a hash. When it finds a
 problem it will produce a stack trace for the offending code, will
 output the name of the file which triggered the crash (named
@@ -505,7 +493,9 @@ files <tt>pikchr.{js,wasm}</tt> will need to be recompiled to account
 for that. Running <tt>make wasm</tt> will, if the build is set up for
 the emsdk, recompile those:
 
-<pre><code>$ make wasm
+<pre><code>$ rm extsrc/pikchr.{js,wasm}
+# ^^^^ that rm has proven necessary in order to ensure rebuilds
+$ make wasm
 ./tools/emcc.sh -o extsrc/pikchr.js ...
 $ ls -la extsrc/pikchr.{js,wasm}
 -rw-rw-r-- 1 stephan stephan 17263 Jun  8 03:59 extsrc/pikchr.js

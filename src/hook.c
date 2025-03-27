@@ -200,18 +200,18 @@ void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
 **
 ** Commands include:
 **
-** >  fossil hook add --command COMMAND --type TYPE --sequence NUMBER
+** > fossil hook add --command COMMAND --type TYPE --sequence NUMBER
 **
 **        Create a new hook.  The --command and --type arguments are
 **        required.  --sequence is optional.
 **
-** >  fossil hook delete ID ...
+** > fossil hook delete ID ...
 **
 **        Delete one or more hooks by their IDs.  ID can be "all"
 **        to delete all hooks.  Caution:  There is no "undo" for
 **        this operation.  Deleted hooks are permanently lost.
 **
-** >  fossil hook edit --command COMMAND --type TYPE --sequence NUMBER ID ...
+** > fossil hook edit --command COMMAND --type TYPE --sequence NUMBER ID ...
 **
 **        Make changes to one or more existing hooks.  The ID argument
 **        is either a hook-id, or a list of hook-ids, or the keyword
@@ -219,16 +219,16 @@ void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
 **
 **            fossil hook edit --type disabled 2
 **
-** >  fossil hook list
+** > fossil hook list
 **
 **        Show all current hooks
 **
-** >  fossil hook status
+** > fossil hook status
 **
 **        Print the values of CONFIG table entries that are relevant to
 **        hook processing.  Used for debugging.
 **
-** >  fossil hook test [OPTIONS] ID
+** > fossil hook test [OPTIONS] ID
 **
 **        Run the hook script given by ID for testing purposes.
 **        Options:

@@ -569,14 +569,15 @@ $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
 
-$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
+$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c $(MAKEFILE_LIST)
 	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry <<<NEXT_LINE>>>
-        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore <<<NEXT_LINE>>>
-        -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c <<<NEXT_LINE>>>
+        -sEXPORTED_RUNTIME_METHODS=cwrap,ccall,setValue,getValue,stackSave,stackAlloc,stackRestore <<<NEXT_LINE>>>
+        -sEXPORTED_FUNCTIONS=_pikchr,_pikchr_version $(SRCDIR_extsrc)/pikchr.c <<<NEXT_LINE>>>
         -sENVIRONMENT=web <<<NEXT_LINE>>>
         -sMODULARIZE <<<NEXT_LINE>>>
         -sEXPORT_NAME=initPikchrModule <<<NEXT_LINE>>>
         --minify 0
+	$(TCLSH) $(TOPDIR)/tools/randomize-js-names.tcl $(SRCDIR_extsrc)
 	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
 wasm: $(SRCDIR_extsrc)/pikchr.js
 

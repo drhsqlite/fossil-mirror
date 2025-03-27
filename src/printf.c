@@ -243,23 +243,39 @@ static int StrNLen32(const char *z, int N){
 #endif
 
 /*
+** SETTING: timeline-plaintext         boolean default=off
+**
+** If enabled, no wiki-formatting is done for timeline comment messages.
+** Hyperlinks are activated, but they show up on screen using the 
+** complete input text, not just the display text.  No other formatting
+** is done.
+*/
+/*
+** SETTING: timeline-hard-newlines     boolean default=off
+**
+** If enabled, the timeline honors newline characters in check-in comments.
+** In other words, newlines are coverted into <br> for HTML display.
+** The default behavior, when this setting is off, is that newlines are
+** treated like any other whitespace character.
+*/
+
+/*
 ** Return an appropriate set of flags for wiki_convert() for displaying
 ** comments on a timeline.  These flag settings are determined by
 ** configuration parameters.
 **
 ** The altForm2 argument is true for "%!W" (with the "!" alternate-form-2
-** flags) and is false for plain "%W".  The ! indicates that the text is
-** to be rendered on a form rather than the timeline and that block markup
-** is acceptable even if the "timeline-block-markup" setting is false.
+** flags) and is false for plain "%W".  The ! flag indicates that the
+** formatting is for display of a check-in comment on the timeline.  Such
+** comments used to be renderedd differently, but ever since 2020, they
+** have been rendered identially, so the ! flag does not make any different
+** in the output any more.
 */
-static int wiki_convert_flags(int altForm2){
+int wiki_convert_flags(int altForm2){
   static int wikiFlags = 0;
+  (void)altForm2;
   if( wikiFlags==0 ){
-    if( altForm2 || db_get_boolean("timeline-block-markup", 0) ){
-      wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
-    }else{
-      wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
-    }
+    wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
     if( db_get_boolean("timeline-plaintext", 0) ){
       wikiFlags |= WIKI_LINKSONLY;
     }

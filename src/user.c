@@ -300,7 +300,7 @@ char *prompt_for_user_password(const char *zUser){
 void prompt_user(const char *zPrompt, Blob *pIn){
   char *z;
   char zLine[1000];
-  blob_zero(pIn);
+  blob_init(pIn, 0, 0);
   fossil_force_newline();
   fossil_print("%s", zPrompt);
   fflush(stdout);
@@ -333,8 +333,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **        Query or set the default user.  The default user is the
 **        user for command-line interaction.
 **
-** > fossil user list
-** > fossil user ls
+** > fossil user list | ls
 **
 **        List all users known to the repository
 **

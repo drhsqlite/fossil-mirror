@@ -641,10 +641,11 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 }
 
 /*
-** This function attempts to find command line options known to contain
-** bitwise flags and initializes the associated global variables.  After
-** this function executes, all global variables (i.e. in the "g" struct)
-** containing option-settable bitwise flag fields must be initialized.
+** Initialize the g.comFmtFlags global variable.
+**
+** Global command-line options --comfmtflags or --comment-format can be
+** used for this.  However, those command-line options are undocumented
+** and deprecated.   They are here for backwards compatibility only.
 */
 static void fossil_init_flags_from_options(void){
   const char *zValue = find_option("comfmtflags", 0, 1);
@@ -727,10 +728,10 @@ int fossil_main(int argc, char **argv){
   /* When updating the minimum SQLite version, change the number here,
   ** and also MINIMUM_SQLITE_VERSION value set in ../auto.def.  Take
   ** care that both places agree! */
-  if( sqlite3_libversion_number()<3046000
-   || strncmp(sqlite3_sourceid(),"2024-08-16",10)<0
+  if( sqlite3_libversion_number()<3049000
+   || strncmp(sqlite3_sourceid(),"2025-02-06",10)<0
   ){
-    fossil_panic("Unsuitable SQLite version %s, must be at least 3.43.0",
+    fossil_panic("Unsuitable SQLite version %s, must be at least 3.49.0",
                  sqlite3_libversion());
   }
 
@@ -999,11 +1000,8 @@ void usage(const char *zFormat){
 ** Remove n elements from g.argv beginning with the i-th element.
 */
 static void remove_from_argv(int i, int n){
-  int j;
-  for(j=i+n; j<g.argc; i++, j++){
-    g.argv[i] = g.argv[j];
-  }
-  g.argc = i;
+  memmove(&g.argv[i], &g.argv[i+n], sizeof(g.argv[i])*(g.argc-i-n));
+  g.argc -= n;
 }
 
 
@@ -1065,6 +1063,15 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
     }
   }
   return zReturn;
+}
+
+/*
+** Restore an option previously removed by find_option().
+*/
+void restore_option(const char *zName, const char *zValue, int hasOpt){
+  if( zValue==0 && hasOpt ) return;
+  g.argv[g.argc++] = (char*)zName;
+  if( hasOpt ) g.argv[g.argc++] = (char*)zValue;
 }
 
 /* Return true if zOption exists in the command-line arguments,
@@ -1850,6 +1857,11 @@ static void process_one_web_page(
       zCleanRepo = file_cleanup_fullpath(zRepo);
       if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
         szFile = file_size(zCleanRepo, ExtFILE);
+        if( szFile>0 && !file_isfile(zCleanRepo, ExtFILE) ){
+          /* Only let szFile be non-negative if zCleanRepo really is a file
+          ** and not a directory or some other filesystem object. */
+          szFile = -1;
+        }
         if( g.fHttpTrace ){
           sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", szFile);
           @ <!-- file_size(%h(zCleanRepo)) is %s(zBuf) -->
@@ -2157,7 +2169,7 @@ static void process_one_web_page(
 #endif
     if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
       cgi_decode_post_parameters();
-      if( !cgi_same_origin() ){
+      if( !cgi_same_origin(0) ){
         isReadonly = 1;
         db_protect(PROTECT_READONLY);
       }
@@ -2400,7 +2412,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 ** so that any warnings from the database when opening the repository
 ** go to that log file.
 **
-** See also: [[http]], [[server]], [[winsrv]]
+** See also: [[http]], [[server]], [[winsrv]] [Windows only]
 */
 void cmd_cgi(void){
   const char *zNotFound = 0;
@@ -2532,8 +2544,12 @@ void cmd_cgi(void){
       ** Sets environment variable NAME to VALUE.  If VALUE is omitted, then
       ** the environment variable is unset.
       */
-      blob_token(&line,&value2);
-      fossil_setenv(blob_str(&value), blob_str(&value2));
+      char *zValue;
+      blob_tail(&line,&value2);
+      blob_trim(&value2);
+      zValue = blob_str(&value2);
+      while( fossil_isspace(zValue[0]) ){ zValue++; }
+      fossil_setenv(blob_str(&value), zValue);
       blob_reset(&value);
       blob_reset(&value2);
       continue;
@@ -2859,7 +2875,7 @@ static void decode_ssl_options(void){
 **   --usepidkey         Use saved encryption key from parent process. This is
 **                       only necessary when using SEE on Windows or Linux.
 **
-** See also: [[cgi]], [[server]], [[winsrv]]
+** See also: [[cgi]], [[server]], [[winsrv]] [Windows only]
 */
 void cmd_http(void){
   const char *zIpAddr = 0;
@@ -3190,6 +3206,9 @@ void fossil_set_timeout(int N){
 **                       /doc/ckout/...
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --errorlog FILE     Append HTTP error messages to FILE
+**   --extpage FILE      Shortcut for "--extroot DIR --page ext/TAIL" where
+**                       DIR is the directory holding FILE and TAIL is the
+**                       filename at the end of FILE.  Only works for "ui".
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --fossilcmd PATH    The pathname of the "fossil" executable on the remote
@@ -3241,7 +3260,7 @@ void fossil_set_timeout(int N){
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows or Linux.
 **
-** See also: [[cgi]], [[http]], [[winsrv]]
+** See also: [[cgi]], [[http]], [[winsrv]] [Windows only]
 */
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */
@@ -3268,6 +3287,7 @@ void cmd_webserver(void){
   const char *zJsMode;       /* The --jsmode parameter */
   const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
   const char *zFrom;         /* Value for --from */
+  const char *zExtPage = 0;  /* Argument to --extpage */
 
 
 #if USE_SEE
@@ -3309,8 +3329,16 @@ void cmd_webserver(void){
       fossil_fatal("the argument to --from must be a pathname for"
                    " the \"ui\" command");
     }
-    zInitPage = find_option("page", "p", 1);
-    if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
+    zExtPage = find_option("extpage",0,1);
+    if( zExtPage ){
+      char *zFullPath = file_canonical_name_dup(zExtPage);
+      g.zExtRoot = file_dirname(zFullPath);
+      zInitPage = mprintf("ext/%s",file_tail(zFullPath));
+      fossil_free(zFullPath);
+    }else{
+      zInitPage = find_option("page", "p", 1);
+      if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
+    }
     zFossilCmd = find_option("fossilcmd", 0, 1);
     if( zFrom && zInitPage==0 ){
       zInitPage = mprintf("ckout?exbase=%H", zFrom);
@@ -3483,7 +3511,14 @@ void cmd_webserver(void){
       if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
       if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
       if( g.zCkoutAlias ) blob_appendf(&ssh," --ckout-alias %!$",g.zCkoutAlias);
-      if( g.zExtRoot ) blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
+      if( zExtPage ){
+        if( !file_is_absolute_path(zExtPage) ){
+          zExtPage = mprintf("%s/%s", g.argv[2], zExtPage);
+        }
+        blob_appendf(&ssh, " --extpage %$", zExtPage);
+      }else if( g.zExtRoot ){
+        blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
+      }
       if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
       if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
       if( fCreate ) blob_appendf(&ssh, " --create");
@@ -3601,11 +3636,10 @@ void cmd_webserver(void){
 #endif /* FOSSIL_ENABLE_SSL */
 
 #else /* WIN32 */
-  find_server_repository(2, 0);
+  /* Win32 implementation */
   if( fossil_strcmp(g.zRepositoryName,"/")==0 ){
     allowRepoList = 1;
   }
-  /* Win32 implementation */
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;
   }

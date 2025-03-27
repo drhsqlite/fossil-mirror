@@ -16,7 +16,7 @@
      {
        name: string,
        mimetype: mimetype string,
-       type: "normal" | "tag" | "checkin" | "branch" | "sandbox",
+       type: "normal" | "tag" | "checkin" | "branch" | "ticket" | "sandbox",
        version: UUID string or null for a sandbox page or new page,
        parent: parent UUID string or null if no parent,
        isEmpty: true if page has no content (is "deleted").
@@ -194,7 +194,7 @@
       record.mimetype = winfo.mimetype;
       record.type = winfo.type;
       record.parent = winfo.parent;
-      record.version = winfo.version;      
+      record.version = winfo.version;
       record.stashTime = new Date().getTime();
       record.isEmpty = !!winfo.isEmpty;
       record.attachments = winfo.attachments;
@@ -209,7 +209,7 @@
     /**
        Returns the stashed content, if any, for the given winfo
        object.
-    */       
+    */
     stashedContent: function(winfo){
       return F.storage.get(this.contentKey(this.indexKey(winfo)));
     },
@@ -272,7 +272,7 @@
   };
   $stash.prune.defaultMaxCount = P.config.defaultMaxStashSize || 10;
   P.$stash = $stash /* we have to expose this for the new-page case :/ */;
-  
+
   /**
      Internal workaround to select the current preview mode
      and fire a change event if the value actually changes
@@ -538,6 +538,7 @@
       var wtype = 'normal';
       if(0===name.indexOf('checkin/')) wtype = 'checkin';
       else if(0===name.indexOf('branch/')) wtype = 'branch';
+      else if(0===name.indexOf('ticket/')) wtype = 'ticket';
       else if(0===name.indexOf('tag/')) wtype = 'tag';
       /* ^^^ note that we're not validating that, e.g., checkin/XYZ
          has a full artifact ID after "checkin/". */
@@ -575,7 +576,7 @@
           of wiki pages... */
       const fsFilter = D.addClass(D.fieldset("Page types"),"page-types-list"),
             fsFilterBody = D.div(),
-            filters = ['normal', 'branch/...', 'tag/...', 'checkin/...']
+            filters = ['normal', 'branch/...', 'tag/...', 'checkin/...', 'ticket/...']
       ;
       D.append(fsFilter, fsFilterBody);
       D.addClass(fsFilterBody, 'flex-container', 'flex-column', 'stretch');
@@ -1047,7 +1048,7 @@
     }
 
     P.e.taEditor.addEventListener('change', ()=>P.notifyOfChange(), false);
-    
+
     P.selectMimetype(false, true);
     P.e.selectMimetype.addEventListener(
       'change',
@@ -1060,7 +1061,7 @@
       },
       false
     );
-    
+
     const selectFontSize = E('select[name=editor_font_size]');
     if(selectFontSize){
       selectFontSize.addEventListener(
@@ -1592,7 +1593,7 @@
     });
     return this;
   };
-  
+
   /**
      Updates P.winfo for certain state and stashes P.winfo, with the
      current content fetched via P.wikiContent().

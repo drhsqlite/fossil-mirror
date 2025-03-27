@@ -129,12 +129,12 @@ void diff_print_versions(const char *zFrom, const char *zTo, DiffConfig *pCfg){
       zFrom[0]=='(' ? zFrom : mprintf("%S %s",
         rid_to_uuid(symbolic_name_to_rid(zFrom, "ci")),
         db_text("","SELECT datetime(%f)||' UTC'",
-          symbolic_name_to_mtime(zFrom, 0))));
+          symbolic_name_to_mtime(zFrom, 0, 0))));
     fossil_print("Fossil-Diff-To:    %s\n",
       zTo[0]=='(' ? zTo : mprintf("%S %s",
         rid_to_uuid(symbolic_name_to_rid(zTo, "ci")),
         db_text("","SELECT datetime(%f)||' UTC'",
-          symbolic_name_to_mtime(zTo, 0))));
+          symbolic_name_to_mtime(zTo, 0, 1))));
     fossil_print("%.66c\n", '-');
   }
 }
@@ -608,7 +608,7 @@ void diff_file(
     }
 
     /* Compute and output the differences */
-    if( pCfg->diffFlags & DIFF_BRIEF ){
+    if( (pCfg->diffFlags & DIFF_BRIEF) && !(pCfg->diffFlags & DIFF_NUMSTAT) ){
       if( blob_compare(pFile1, &file2) ){
         fossil_print("CHANGED  %s\n", zName);
       }
@@ -617,7 +617,9 @@ void diff_file(
       text_diff(pFile1, &file2, &out, pCfg);
       if( blob_size(&out) ){
         if( pCfg->diffFlags & DIFF_NUMSTAT ){
-          blob_appendf(pOut, "%s %s\n", blob_str(&out), zName);
+          if( !(pCfg->diffFlags & DIFF_BRIEF) ){
+            blob_appendf(pOut, "%s %s\n", blob_str(&out), zName);
+          }
         }else{
           diff_print_filenames(zName, zName2, pCfg, pOut);
           blob_appendf(pOut, "%s\n", blob_str(&out));
@@ -686,7 +688,12 @@ void diff_file(
     }
 
     /* Run the external diff command */
-    fossil_system(blob_str(&cmd));
+    if( fossil_system(blob_str(&cmd)) ){
+#if !defined(_WIN32)
+      /* On Windows, exit codes are unreliable. */     
+      fossil_warning("External diff command failed: %b\n", &cmd);
+#endif                     
+    }
 
     /* Delete the temporary file and clean up memory used */
     if( useTempfile ) file_delete(blob_str(&nameFile1));
@@ -714,14 +721,18 @@ void diff_file_mem(
   const char *zName,        /* Display name of the file */
   DiffConfig *pCfg          /* Diff flags */
 ){
-  if( pCfg->diffFlags & DIFF_BRIEF ) return;
+  if( (pCfg->diffFlags & DIFF_BRIEF) && !(pCfg->diffFlags & DIFF_NUMSTAT) ){
+    return;
+  }
   if( pCfg->zDiffCmd==0 ){
     Blob out;      /* Diff output text */
 
     blob_zero(&out);
     text_diff(pFile1, pFile2, &out, pCfg);
     if( pCfg->diffFlags & DIFF_NUMSTAT ){
-      fossil_print("%s %s\n", blob_str(&out), zName);
+      if( !(pCfg->diffFlags & DIFF_BRIEF) ){
+        fossil_print("%s %s\n", blob_str(&out), zName);
+      }
     }else{
       diff_print_filenames(zName, zName, pCfg, 0);
       fossil_print("%s\n", blob_str(&out));
@@ -1011,7 +1022,9 @@ static void diff_manifest_entry(
   }else{
     zName = DIFF_NO_NAME;
   }
-  if( pCfg->diffFlags & DIFF_BRIEF ) return;
+  if( (pCfg->diffFlags & DIFF_BRIEF) && !(pCfg->diffFlags & DIFF_NUMSTAT) ){
+    return;
+  }
   diff_print_index(zName, pCfg, 0);
   if( pFrom ){
     rid = uuid_to_rid(pFrom->zUuid, 0);
@@ -1099,7 +1112,7 @@ static void diff_two_versions(
       pToFile = manifest_file_next(pTo,0);
     }else{
       if( file_dir_match(pFileDir, pToFile->zName) ){
-        if( pCfg->diffFlags & DIFF_BRIEF ){
+        if((pCfg->diffFlags & DIFF_BRIEF) && !(pCfg->diffFlags & DIFF_NUMSTAT)){
           fossil_print("CHANGED %s\n", pFromFile->zName);
         }else{
           diff_manifest_entry(pFromFile, pToFile, pCfg);
@@ -1175,21 +1188,30 @@ void diff_externbase_to_checkout(
 ** no external diff command is defined.
 */
 const char *diff_command_external(int guiDiff){
-  const char *zDefault;
   const char *zName;
+  zName = guiDiff ? "gdiff-command" : "diff-command";
+  return db_get(zName, 0);
+}
 
-  if( guiDiff ){
-#if defined(_WIN32)
-    zDefault = "WinDiff.exe";
-#else
-    zDefault = 0;
-#endif
-    zName = "gdiff-command";
-  }else{
-    zDefault = 0;
-    zName = "diff-command";
+/*
+** Return true if it reasonable to run "diff -tk" for "gdiff".
+**
+** Details: Return true if all of the following are true:
+**
+**     (1)   The isGDiff flags is true
+**     (2)   The "gdiff-command" setting is undefined
+**     (3)   There is a "tclsh" on PATH
+**     (4)   There is a "wish" on PATH
+*/
+int gdiff_using_tk(int isGdiff){
+  if( isGdiff
+   && db_get("gdiff-command","")[0]==0
+   && fossil_app_on_path("tclsh",0)
+   && fossil_app_on_path("wish",0)
+  ){
+    return 1;
   }
-  return db_get(zName, zDefault);
+  return 0;
 }
 
 /*
@@ -1211,6 +1233,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   const char *zTclsh;
   int bDebug = find_option("tkdebug",0,0)!=0;
   int bDarkMode = find_option("dark",0,0)!=0;
+  (void)find_option("debug",0,0);
   blob_zero(&script);
   /* Caution:  When this routine is called from the merge-info command,
   ** the --tcl argument requires an argument.  But merge-info does not
@@ -1292,7 +1315,8 @@ const char *diff_get_binary_glob(void){
 ** Show the difference between the current version of each of the FILEs
 ** specified (as they exist on disk) and that same file as it was checked-
 ** out.  Or if the FILE arguments are omitted, show all unsaved changes
-** currently in the working check-out.
+** currently in the working check-out.  The "gdiff" variant means to
+** to use a GUI diff.
 **
 ** The default output format is a "unified patch" (the same as the
 ** output of "diff -u" on most unix systems).  Many alternative formats
@@ -1358,7 +1382,9 @@ const char *diff_get_binary_glob(void){
 **   --json                      Output formatted as JSON
 **   -n|--linenum                Show line numbers
 **   -N|--new-file               Alias for --verbose
-**   --numstat                   Show only the number of added and deleted lines
+**   --numstat                   Show the number of added and deleted lines per
+**                               file, omitting the diff. When combined with
+**                                 --brief, show only the total row.
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
 **   --tcl                       Tcl-formatted output used internally by --tk
@@ -1384,11 +1410,11 @@ void diff_cmd(void){
   DiffConfig DCfg;           /* Diff configuration object */
   int bFromIsDir = 0;        /* True if zFrom is a directory name */
 
-  if( find_option("tk",0,0)!=0 || has_option("tclsh") ){
+  isGDiff = g.argv[1][0]=='g';
+  if( find_option("tk",0,0)!=0|| has_option("tclsh") ){
     diff_tk("diff", 2);
     return;
   }
-  isGDiff = g.argv[1][0]=='g';
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
   zCheckin = find_option("checkin", "ci", 1);
@@ -1404,6 +1430,7 @@ void diff_cmd(void){
     }
     zTo = zBranch;
     zFrom = mprintf("root:%s", zBranch);
+    zBranch = 0;
   }
   if( zCheckin!=0 && (zFrom!=0 || zTo!=0) ){
     fossil_fatal("cannot use --checkin together with --from or --to");
@@ -1418,6 +1445,15 @@ void diff_cmd(void){
     }
   }else{
     db_find_and_open_repository(0, 0);
+  }
+  if( gdiff_using_tk(isGDiff) ){
+    restore_option("--from", zFrom, 1);
+    restore_option("--to", zTo, 1);
+    restore_option("--checkin", zCheckin, 1);
+    restore_option("--branch", zBranch, 1);
+    if( againstUndo ) restore_option("--undo", 0, 0);
+    diff_tk("diff", 2);
+    return;
   }
   determine_exec_relative_option(1);
   if( zFrom!=file_tail(zFrom)
@@ -1450,7 +1486,10 @@ void diff_cmd(void){
       blob_reset(&fname);
     }
   }
-  if ( zCheckin!=0 ){
+  if( DCfg.diffFlags & DIFF_NUMSTAT ){
+    fossil_print("%10s %10s\n", "INSERTED", "DELETED");
+  }
+  if( zCheckin!=0 ){
     int ridTo = name_to_typed_rid(zCheckin, "ci");
     zTo = zCheckin;
     zFrom = db_text(0,
@@ -1490,8 +1529,8 @@ void diff_cmd(void){
   }
   diff_end(&DCfg, 0);
   if ( DCfg.diffFlags & DIFF_NUMSTAT ){
-    fossil_print("%10d %10d TOTAL over %d changed files\n",
-                 g.diffCnt[1], g.diffCnt[2], g.diffCnt[0]);
+    fossil_print("%10d %10d TOTAL over %d changed file%s\n",
+           g.diffCnt[1], g.diffCnt[2], g.diffCnt[0], g.diffCnt[0]!=1 ? "s": "");
   }
 }
 

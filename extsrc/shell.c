@@ -236,6 +236,8 @@ typedef unsigned char u8;
 #define IsSpace(X)  isspace((unsigned char)X)
 #define IsDigit(X)  isdigit((unsigned char)X)
 #define ToLower(X)  (char)tolower((unsigned char)X)
+#define IsAlnum(X)  isalnum((unsigned char)X)
+#define IsAlpha(X)  isalpha((unsigned char)X)
 
 #if defined(_WIN32) || defined(WIN32)
 #if SQLITE_OS_WINRT
@@ -851,7 +853,7 @@ static char *Argv0;
 ** Prompt strings. Initialized in main. Settable with
 **   .prompt main continue
 */
-#define PROMPT_LEN_MAX 20
+#define PROMPT_LEN_MAX 128
 /* First line prompt.   default: "sqlite> " */
 static char mainPrompt[PROMPT_LEN_MAX];
 /* Continuation prompt. default: "   ...> " */
@@ -1508,9 +1510,9 @@ static void appendText(ShellText *p, const char *zAppend, char quote){
 static char quoteChar(const char *zName){
   int i;
   if( zName==0 ) return '"';
-  if( !isalpha((unsigned char)zName[0]) && zName[0]!='_' ) return '"';
+  if( !IsAlpha(zName[0]) && zName[0]!='_' ) return '"';
   for(i=0; zName[i]; i++){
-    if( !isalnum((unsigned char)zName[i]) && zName[i]!='_' ) return '"';
+    if( !IsAlnum(zName[i]) && zName[i]!='_' ) return '"';
   }
   return sqlite3_keyword_check(zName, i) ? '"' : 0;
 }
@@ -2427,7 +2429,7 @@ int sqlite3PcacheTraceDeactivate(void){
 **
 **    typeof(Y)='blob'         The hash is taken over prefix "Bnnn:" followed
 **                             by the binary content of the blob.  The "nnn"
-**                             in the prefix is the mimimum-length decimal
+**                             in the prefix is the minimum-length decimal
 **                             representation of the byte-length of the blob.
 **
 ** According to the rules above, all of the following SELECT statements
@@ -3648,7 +3650,7 @@ int sqlite3_sha_init(
 ** of digits compare in numeric order.
 **
 **     *   Leading zeros are handled properly, in the sense that
-**         they do not mess of the maginitude comparison of embedded
+**         they do not mess of the magnitude comparison of embedded
 **         strings of digits.  "x00123y" is equal to "x123y".
 **
 **     *   Only unsigned integers are recognized.  Plus and minus
@@ -3754,6 +3756,9 @@ SQLITE_EXTENSION_INIT1
 # define UNUSED_PARAMETER(X)  (void)(X)
 #endif
 
+#ifndef IsSpace
+#define IsSpace(X)  isspace((unsigned char)X)
+#endif
 
 /* A decimal object */
 typedef struct Decimal Decimal;
@@ -3803,7 +3808,7 @@ static Decimal *decimalNewFromText(const char *zIn, int n){
   p->nFrac = 0;
   p->a = sqlite3_malloc64( n+1 );
   if( p->a==0 ) goto new_from_text_failed;
-  for(i=0; isspace(zIn[i]); i++){}
+  for(i=0; IsSpace(zIn[i]); i++){}
   if( zIn[i]=='-' ){
     p->sign = 1;
     i++;
@@ -4458,7 +4463,7 @@ static void decimalSubFunc(
   decimal_free(pB);
 }
 
-/* Aggregate funcion:   decimal_sum(X)
+/* Aggregate function:   decimal_sum(X)
 **
 ** Works like sum() except that it uses decimal arithmetic for unlimited
 ** precision.
@@ -4819,7 +4824,7 @@ static int percentBinarySearch(Percentile *p, double y, int bExact){
 /*
 ** Generate an error for a percentile function.
 **
-** The error format string must have exactly one occurrance of "%%s()"
+** The error format string must have exactly one occurrence of "%%s()"
 ** (with two '%' characters).  That substring will be replaced by the name
 ** of the function.
 */
@@ -5959,7 +5964,7 @@ int main(int na, char *av[]){
 **    WITH c(name,bin) AS (VALUES
 **       ('minimum positive value',        x'0000000000000001'),
 **       ('maximum subnormal value',       x'000fffffffffffff'),
-**       ('mininum positive nornal value', x'0010000000000000'),
+**       ('minimum positive normal value', x'0010000000000000'),
 **       ('maximum value',                 x'7fefffffffffffff'))
 **    SELECT c.name, decimal_mul(ieee754_mantissa(c.bin),pow2.v)
 **      FROM pow2, c WHERE pow2.x=ieee754_exponent(c.bin);
@@ -6346,7 +6351,7 @@ static sqlite3_int64 genSeqMember(
     smBase += (mxI64 - mxI64/2) * smStep;
   }
   /* Under UBSAN (or on 1's complement machines), must do this last term
-   * in steps to avoid the dreaded (and harmless) signed multiply overlow. */
+   * in steps to avoid the dreaded (and harmless) signed multiply overflow. */
   if( ix>=2 ){
     sqlite3_int64 ix2 = (sqlite3_int64)ix/2;
     smBase += ix2*smStep;
@@ -6726,8 +6731,7 @@ static int seriesFilter(
         pCur->ss.iBase += ((d+szStep-1)/szStep)*szStep;
       }
       if( pCur->ss.iTerm>iMax ){
-        sqlite3_uint64 d = pCur->ss.iTerm - iMax;
-        pCur->ss.iTerm -= ((d+szStep-1)/szStep)*szStep;
+        pCur->ss.iTerm = iMax;
       }
     }else{
       sqlite3_int64 szStep = -pCur->ss.iStep;
@@ -6737,8 +6741,7 @@ static int seriesFilter(
         pCur->ss.iBase -= ((d+szStep-1)/szStep)*szStep;
       }
       if( pCur->ss.iTerm<iMin ){
-        sqlite3_uint64 d = iMin - pCur->ss.iTerm;
-        pCur->ss.iTerm += ((d+szStep-1)/szStep)*szStep;
+        pCur->ss.iTerm = iMin;
       }
     }
   }
@@ -9027,6 +9030,11 @@ SQLITE_EXTENSION_INIT1
 
 #ifndef SQLITE_OMIT_VIRTUALTABLE
 
+#ifndef IsAlnum
+#define IsAlnum(X)  isalnum((unsigned char)X)
+#endif
+
+
 /* completion_vtab is a subclass of sqlite3_vtab which will
 ** serve as the underlying representation of a completion virtual table
 */
@@ -9363,7 +9371,7 @@ static int completionFilter(
   }
   if( pCur->zLine!=0 && pCur->zPrefix==0 ){
     int i = pCur->nLine;
-    while( i>0 && (isalnum(pCur->zLine[i-1]) || pCur->zLine[i-1]=='_') ){
+    while( i>0 && (IsAlnum(pCur->zLine[i-1]) || pCur->zLine[i-1]=='_') ){
       i--;
     }
     pCur->nPrefix = pCur->nLine - i;
@@ -14770,7 +14778,7 @@ sqlite3expert *sqlite3_expert_new(sqlite3 *db, char **pzErrmsg){
     sqlite3_set_authorizer(pNew->dbv, idxAuthCallback, (void*)pNew);
   }
 
-  /* If an error has occurred, free the new object and reutrn NULL. Otherwise,
+  /* If an error has occurred, free the new object and return NULL. Otherwise,
   ** return the new sqlite3expert handle.  */
   if( rc!=SQLITE_OK ){
     sqlite3_expert_destroy(pNew);
@@ -16292,7 +16300,7 @@ int sqlite3_stmtrand_init(
 **
 ** Individual APIs can be enabled or disabled by name, with or without
 ** the initial "x" character.  For example, to set up for tracing lock
-** primatives only:
+** primitives only:
 **
 **    PRAGMA vfstrace('-all, +Lock,Unlock,ShmLock');
 **
@@ -18702,6 +18710,16 @@ int sqlite3_dbdata_init(sqlite3*, char**, const sqlite3_api_routines*);
 /* typedef unsigned char u8; */
 /* typedef sqlite3_int64 i64; */
 
+/*
+** Work around C99 "flex-array" syntax for pre-C99 compilers, so as
+** to avoid complaints from -fsanitize=strict-bounds.
+*/
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+# define FLEXARRAY
+#else
+# define FLEXARRAY 1
+#endif
+
 typedef struct RecoverTable RecoverTable;
 typedef struct RecoverColumn RecoverColumn;
 
@@ -18809,8 +18827,11 @@ struct RecoverColumn {
 typedef struct RecoverBitmap RecoverBitmap;
 struct RecoverBitmap {
   i64 nPg;                        /* Size of bitmap */
-  u32 aElem[1];                   /* Array of 32-bit bitmasks */
+  u32 aElem[FLEXARRAY];           /* Array of 32-bit bitmasks */
 };
+
+/* Size in bytes of a RecoverBitmap object sufficient to cover 32 pages */
+#define SZ_RECOVERBITMAP_32  (16)
 
 /*
 ** State variables (part of the sqlite3_recover structure) used while
@@ -19051,7 +19072,7 @@ static int recoverError(
 */
 static RecoverBitmap *recoverBitmapAlloc(sqlite3_recover *p, i64 nPg){
   int nElem = (nPg+1+31) / 32;
-  int nByte = sizeof(RecoverBitmap) + nElem*sizeof(u32);
+  int nByte = SZ_RECOVERBITMAP_32 + nElem*sizeof(u32);
   RecoverBitmap *pRet = (RecoverBitmap*)recoverMalloc(p, nByte);
 
   if( pRet ){
@@ -21243,37 +21264,53 @@ static void recoverUninstallWrapper(sqlite3_recover *p){
 static void recoverStep(sqlite3_recover *p){
   assert( p && p->errCode==SQLITE_OK );
   switch( p->eState ){
-    case RECOVER_STATE_INIT:
+    case RECOVER_STATE_INIT: {
+      int bUseWrapper = 1;
       /* This is the very first call to sqlite3_recover_step() on this object.
       */
       recoverSqlCallback(p, "BEGIN");
       recoverSqlCallback(p, "PRAGMA writable_schema = on");
+      recoverSqlCallback(p, "PRAGMA foreign_keys = off");
 
       recoverEnterMutex();
-      recoverInstallWrapper(p);
 
       /* Open the output database. And register required virtual tables and 
       ** user functions with the new handle. */
       recoverOpenOutput(p);
 
-      /* Open transactions on both the input and output databases. */
-      sqlite3_file_control(p->dbIn, p->zDb, SQLITE_FCNTL_RESET_CACHE, 0);
-      recoverExec(p, p->dbIn, "PRAGMA writable_schema = on");
-      recoverExec(p, p->dbIn, "BEGIN");
-      if( p->errCode==SQLITE_OK ) p->bCloseTransaction = 1;
-      recoverExec(p, p->dbIn, "SELECT 1 FROM sqlite_schema");
-      recoverTransferSettings(p);
-      recoverOpenRecovery(p);
-      recoverCacheSchema(p);
+      /* Attempt to open a transaction and read page 1 of the input database.
+      ** Two attempts may be made - one with a wrapper installed to ensure
+      ** that the database header is sane, and then if that attempt returns
+      ** SQLITE_NOTADB, then again with no wrapper. The second attempt is
+      ** required for encrypted databases.  */
+      if( p->errCode==SQLITE_OK ){
+        do{
+          p->errCode = SQLITE_OK;
+          if( bUseWrapper ) recoverInstallWrapper(p);
 
-      recoverUninstallWrapper(p);
+          /* Open a transaction on the input database. */
+          sqlite3_file_control(p->dbIn, p->zDb, SQLITE_FCNTL_RESET_CACHE, 0);
+          recoverExec(p, p->dbIn, "PRAGMA writable_schema = on");
+          recoverExec(p, p->dbIn, "BEGIN");
+          if( p->errCode==SQLITE_OK ) p->bCloseTransaction = 1;
+          recoverExec(p, p->dbIn, "SELECT 1 FROM sqlite_schema");
+          recoverTransferSettings(p);
+          recoverOpenRecovery(p);
+          recoverCacheSchema(p);
+
+          if( bUseWrapper ) recoverUninstallWrapper(p);
+        }while( p->errCode==SQLITE_NOTADB 
+             && (bUseWrapper--) 
+             && SQLITE_OK==sqlite3_exec(p->dbIn, "ROLLBACK", 0, 0, 0)
+        );
+      }
+
       recoverLeaveMutex();
-
       recoverExec(p, p->dbOut, "BEGIN");
-
       recoverWriteSchema1(p);
       p->eState = RECOVER_STATE_WRITING;
       break;
+    }
       
     case RECOVER_STATE_WRITING: {
       if( p->w1.pTbls==0 ){
@@ -21612,6 +21649,7 @@ struct ShellState {
   u8 bSafeModePersist;   /* The long-term value of bSafeMode */
   u8 eRestoreState;      /* See comments above doAutoDetectRestore() */
   u8 crlfMode;           /* Do NL-to-CRLF translations when enabled (maybe) */
+  u8 eEscMode;           /* Escape mode for text output */
   ColModeOpts cmOpts;    /* Option values affecting columnar mode output */
   unsigned statsOn;      /* True to display memory stats before each finalize */
   unsigned mEqpLines;    /* Mask of vertical lines in the EQP output graph */
@@ -21711,6 +21749,15 @@ static ShellState shellState;
                                    ** callback limit is reached, and for each
                                    ** top-level SQL statement */
 #define SHELL_PROGRESS_ONCE  0x04  /* Cancel the --limit after firing once */
+
+/* Allowed values for ShellState.eEscMode.  The default value should
+** be 0, so to change the default, reorder the names.
+*/
+#define SHELL_ESC_ASCII        0      /* Substitute ^Y for X where Y=X+0x40 */
+#define SHELL_ESC_SYMBOL       1      /* Substitute U+2400 graphics */
+#define SHELL_ESC_OFF          2      /* Send characters verbatim */
+
+static const char *shell_EscModeNames[] = { "ascii", "symbol", "off" };
 
 /*
 ** These are the allowed shellFlgs values
@@ -22049,59 +22096,75 @@ static void output_hex_blob(FILE *out, const void *pBlob, int nBlob){
 }
 
 /*
-** Find a string that is not found anywhere in z[].  Return a pointer
-** to that string.
+** Output the given string as a quoted string using SQL quoting conventions:
 **
-** Try to use zA and zB first.  If both of those are already found in z[]
-** then make up some string and store it in the buffer zBuf.
-*/
-static const char *unused_string(
-  const char *z,                    /* Result must not appear anywhere in z */
-  const char *zA, const char *zB,   /* Try these first */
-  char *zBuf                        /* Space to store a generated string */
-){
-  unsigned i = 0;
-  if( strstr(z, zA)==0 ) return zA;
-  if( strstr(z, zB)==0 ) return zB;
-  do{
-    sqlite3_snprintf(20,zBuf,"(%s%u)", zA, i++);
-  }while( strstr(z,zBuf)!=0 );
-  return zBuf;
-}
-
-/*
-** Output the given string as a quoted string using SQL quoting conventions.
+**   (1)   Single quotes (') within the string are doubled
+**   (2)   The whle string is enclosed in '...'
+**   (3)   Control characters other than \n, \t, and \r\n are escaped
+**         using \u00XX notation and if such substitutions occur,
+**         the whole string is enclosed in unistr('...') instead of '...'.
+**         
+** Step (3) is omitted if the control-character escape mode is OFF.
 **
-** See also: output_quoted_escaped_string()
+** See also: output_quoted_escaped_string() which does the same except
+** that it does not make exceptions for \n, \t, and \r\n in step (3).
 */
-static void output_quoted_string(ShellState *p, const char *z){
+static void output_quoted_string(ShellState *p, const char *zInX){
   int i;
-  char c;
+  int needUnistr = 0;
+  int needDblQuote = 0;
+  const unsigned char *z = (const unsigned char*)zInX;
+  unsigned char c;
   FILE *out = p->out;
   sqlite3_fsetmode(out, _O_BINARY);
   if( z==0 ) return;
-  for(i=0; (c = z[i])!=0 && c!='\''; i++){}
-  if( c==0 ){
+  for(i=0; (c = z[i])!=0; i++){
+    if( c=='\'' ){ needDblQuote = 1; }
+    if( c>0x1f ) continue;
+    if( c=='\t' || c=='\n' ) continue;
+    if( c=='\r' && z[i+1]=='\n' ) continue;
+    needUnistr = 1;
+    break;
+  }
+  if( (needDblQuote==0 && needUnistr==0)
+   || (needDblQuote==0 && p->eEscMode==SHELL_ESC_OFF)
+  ){
     sqlite3_fprintf(out, "'%s'",z);
+  }else if( p->eEscMode==SHELL_ESC_OFF ){
+    char *zEncoded = sqlite3_mprintf("%Q", z);
+    sqlite3_fputs(zEncoded, out);
+    sqlite3_free(zEncoded);
   }else{
-    sqlite3_fputs("'", out);
+    if( needUnistr ){
+      sqlite3_fputs("unistr('", out);
+    }else{
+      sqlite3_fputs("'", out);
+    }
     while( *z ){
-      for(i=0; (c = z[i])!=0 && c!='\''; i++){}
-      if( c=='\'' ) i++;
+      for(i=0; (c = z[i])!=0; i++){
+        if( c=='\'' ) break;
+        if( c>0x1f ) continue;
+        if( c=='\t' || c=='\n' ) continue;
+        if( c=='\r' && z[i+1]=='\n' ) continue;
+        break;
+      }
       if( i ){
         sqlite3_fprintf(out, "%.*s", i, z);
         z += i;
       }
+      if( c==0 ) break;
       if( c=='\'' ){
-        sqlite3_fputs("'", out);
-        continue;
-      }
-      if( c==0 ){
-        break;
+        sqlite3_fputs("''", out);
+      }else{
+        sqlite3_fprintf(out, "\\u%04x", c);
       }
       z++;
     }
-    sqlite3_fputs("'", out);
+    if( needUnistr ){
+      sqlite3_fputs("')", out);
+    }else{
+      sqlite3_fputs("'", out);
+    }
   }
   setCrlfMode(p);
 }
@@ -22116,61 +22179,15 @@ static void output_quoted_string(ShellState *p, const char *z){
 ** escape mechanism.
 */
 static void output_quoted_escaped_string(ShellState *p, const char *z){
-  int i;
-  char c;
-  FILE *out = p->out;
-  sqlite3_fsetmode(out, _O_BINARY);
-  for(i=0; (c = z[i])!=0 && c!='\'' && c!='\n' && c!='\r'; i++){}
-  if( c==0 ){
-    sqlite3_fprintf(out, "'%s'",z);
+  char *zEscaped;
+  sqlite3_fsetmode(p->out, _O_BINARY);
+  if( p->eEscMode==SHELL_ESC_OFF ){
+    zEscaped = sqlite3_mprintf("%Q", z);
   }else{
-    const char *zNL = 0;
-    const char *zCR = 0;
-    int nNL = 0;
-    int nCR = 0;
-    char zBuf1[20], zBuf2[20];
-    for(i=0; z[i]; i++){
-      if( z[i]=='\n' ) nNL++;
-      if( z[i]=='\r' ) nCR++;
-    }
-    if( nNL ){
-      sqlite3_fputs("replace(", out);
-      zNL = unused_string(z, "\\n", "\\012", zBuf1);
-    }
-    if( nCR ){
-      sqlite3_fputs("replace(", out);
-      zCR = unused_string(z, "\\r", "\\015", zBuf2);
-    }
-    sqlite3_fputs("'", out);
-    while( *z ){
-      for(i=0; (c = z[i])!=0 && c!='\n' && c!='\r' && c!='\''; i++){}
-      if( c=='\'' ) i++;
-      if( i ){
-        sqlite3_fprintf(out, "%.*s", i, z);
-        z += i;
-      }
-      if( c=='\'' ){
-        sqlite3_fputs("'", out);
-        continue;
-      }
-      if( c==0 ){
-        break;
-      }
-      z++;
-      if( c=='\n' ){
-        sqlite3_fputs(zNL, out);
-        continue;
-      }
-      sqlite3_fputs(zCR, out);
-    }
-    sqlite3_fputs("'", out);
-    if( nCR ){
-      sqlite3_fprintf(out, ",'%s',char(13))", zCR);
-    }
-    if( nNL ){
-      sqlite3_fprintf(out, ",'%s',char(10))", zNL);
-    }
+    zEscaped = sqlite3_mprintf("%#Q", z);
   }
+  sqlite3_fputs(zEscaped, p->out);
+  sqlite3_free(zEscaped);
   setCrlfMode(p);
 }
 
@@ -22318,6 +22335,93 @@ static void output_json_string(FILE *out, const char *z, i64 n){
     }
   }
   sqlite3_fputs(zq, out);
+}
+
+/*
+** Escape the input string if it is needed and in accordance with
+** eEscMode.
+**
+** Escaping is needed if the string contains any control characters
+** other than \t, \n, and \r\n
+**
+** If no escaping is needed (the common case) then set *ppFree to NULL
+** and return the original string.  If escapingn is needed, write the
+** escaped string into memory obtained from sqlite3_malloc64() or the
+** equivalent, and return the new string and set *ppFree to the new string
+** as well.
+**
+** The caller is responsible for freeing *ppFree if it is non-NULL in order
+** to reclaim memory.
+*/
+static const char *escapeOutput(
+  ShellState *p,
+  const char *zInX,
+  char **ppFree
+){
+  i64 i, j;
+  i64 nCtrl = 0;
+  unsigned char *zIn;
+  unsigned char c;
+  unsigned char *zOut;
+
+
+  /* No escaping if disabled */
+  if( p->eEscMode==SHELL_ESC_OFF ){
+    *ppFree = 0;
+     return zInX;
+  }
+
+  /* Count the number of control characters in the string. */
+  zIn = (unsigned char*)zInX;
+  for(i=0; (c = zIn[i])!=0; i++){
+    if( c<=0x1f
+     && c!='\t'
+     && c!='\n'
+     && (c!='\r' || zIn[i+1]!='\n')
+    ){
+      nCtrl++;
+    }
+  }
+  if( nCtrl==0 ){
+    *ppFree = 0;
+    return zInX;
+  }
+  if( p->eEscMode==SHELL_ESC_SYMBOL ) nCtrl *= 2;
+  zOut = sqlite3_malloc64( i + nCtrl + 1 );
+  shell_check_oom(zOut);
+  for(i=j=0; (c = zIn[i])!=0; i++){
+    if( c>0x1f
+     || c=='\t'
+     || c=='\n'
+     || (c=='\r' && zIn[i+1]=='\n')
+    ){
+      continue;
+    }
+    if( i>0 ){
+      memcpy(&zOut[j], zIn, i);
+      j += i;
+    }
+    zIn += i+1;
+    i = -1;
+    switch( p->eEscMode ){
+      case SHELL_ESC_SYMBOL: 
+        zOut[j++] = 0xe2;
+        zOut[j++] = 0x90;
+        zOut[j++] = 0x80+c;
+        break;
+      case SHELL_ESC_ASCII:
+        zOut[j++] = '^';
+        zOut[j++] = 0x40+c;
+        break;
+    }
+  }
+  if( i>0 ){
+    memcpy(&zOut[j], zIn, i);
+    j += i;
+  }
+  zOut[j] = 0;
+  *ppFree = (char*)zOut;
+  return (char*)zOut;
 }
 
 /*
@@ -22763,8 +22867,12 @@ static int shell_callback(
       }
       if( p->cnt++>0 ) sqlite3_fputs(p->rowSeparator, p->out);
       for(i=0; i<nArg; i++){
+        char *pFree = 0;
+        const char *pDisplay;
+        pDisplay = escapeOutput(p, azArg[i] ? azArg[i] : p->nullValue, &pFree);
         sqlite3_fprintf(p->out, "%*s = %s%s", w, azCol[i],
-              azArg[i] ? azArg[i] : p->nullValue, p->rowSeparator);
+                        pDisplay, p->rowSeparator);
+        if( pFree ) sqlite3_free(pFree);
       }
       break;
     }
@@ -22834,6 +22942,8 @@ static int shell_callback(
       char cEnd = 0;
       char c;
       int nLine = 0;
+      int isIndex;
+      int isWhere = 0;
       assert( nArg==1 );
       if( azArg[0]==0 ) break;
       if( sqlite3_strlike("CREATE VIEW%", azArg[0], 0)==0
@@ -22842,6 +22952,8 @@ static int shell_callback(
         sqlite3_fprintf(p->out, "%s;\n", azArg[0]);
         break;
       }
+      isIndex = sqlite3_strlike("CREATE INDEX%", azArg[0], 0)==0
+             || sqlite3_strlike("CREATE UNIQUE INDEX%", azArg[0], 0)==0;
       z = sqlite3_mprintf("%s", azArg[0]);
       shell_check_oom(z);
       j = 0;
@@ -22871,14 +22983,26 @@ static int shell_callback(
             nParen++;
           }else if( c==')' ){
             nParen--;
-            if( nLine>0 && nParen==0 && j>0 ){
+            if( nLine>0 && nParen==0 && j>0 && !isWhere ){
               printSchemaLineN(p->out, z, j, "\n");
               j = 0;
             }
+          }else if( (c=='w' || c=='W')
+                 && nParen==0 && isIndex
+                 && sqlite3_strnicmp("WHERE",&z[i],5)==0
+                 && !IsAlnum(z[i+5]) && z[i+5]!='_' ){
+            isWhere = 1;
+          }else if( isWhere && (c=='A' || c=='a')
+                 && nParen==0
+                 && sqlite3_strnicmp("AND",&z[i],3)==0
+                 && !IsAlnum(z[i+3]) && z[i+3]!='_' ){
+            printSchemaLineN(p->out, z, j, "\n    ");
+            j = 0;
           }
           z[j++] = c;
           if( nParen==1 && cEnd==0
            && (c=='(' || c=='\n' || (c==',' && !wsToEol(z+i+1)))
+           && !isWhere
           ){
             if( c=='\n' ) j--;
             printSchemaLineN(p->out, z, j, "\n  ");
@@ -22896,15 +23020,23 @@ static int shell_callback(
     case MODE_List: {
       if( p->cnt++==0 && p->showHeader ){
         for(i=0; i<nArg; i++){
-          sqlite3_fprintf(p->out, "%s%s", azCol[i],
+          char *z = azCol[i];
+          char *pFree;
+          const char *zOut = escapeOutput(p, z, &pFree);
+          sqlite3_fprintf(p->out, "%s%s", zOut,
                           i==nArg-1 ? p->rowSeparator : p->colSeparator);
+          if( pFree ) sqlite3_free(pFree);
         }
       }
       if( azArg==0 ) break;
       for(i=0; i<nArg; i++){
         char *z = azArg[i];
+        char *pFree;
+        const char *zOut;
         if( z==0 ) z = p->nullValue;
-        sqlite3_fputs(z, p->out);
+        zOut = escapeOutput(p, z, &pFree);
+        sqlite3_fputs(zOut, p->out);
+        if( pFree ) sqlite3_free(pFree);
         sqlite3_fputs((i<nArg-1)? p->colSeparator : p->rowSeparator, p->out);
       }
       break;
@@ -24023,6 +24155,7 @@ static void print_box_row_separator(
 ** the last line, write a NULL into *pzTail. (*pzTail is not allocated.)
 */
 static char *translateForDisplayAndDup(
+  ShellState *p,                     /* To access current settings */
   const unsigned char *z,            /* Input text to be transformed */
   const unsigned char **pzTail,      /* OUT: Tail of the input for next line */
   int mxWidth,                       /* Max width.  0 means no limit */
@@ -24057,6 +24190,7 @@ static char *translateForDisplayAndDup(
       j++;
       continue;
     }
+    if( c==0 || c=='\n' || (c=='\r' && z[i+1]=='\n') ) break;
     if( c=='\t' ){
       do{
         n++;
@@ -24065,16 +24199,18 @@ static char *translateForDisplayAndDup(
       i++;
       continue;
     }
-    break;
+    n++;
+    j += 3;
+    i++;
   }
   if( n>=mxWidth && bWordWrap  ){
     /* Perhaps try to back up to a better place to break the line */
     for(k=i; k>i/2; k--){
-      if( isspace(z[k-1]) ) break;
+      if( IsSpace(z[k-1]) ) break;
     }
     if( k<=i/2 ){
       for(k=i; k>i/2; k--){
-        if( isalnum(z[k-1])!=isalnum(z[k]) && (z[k]&0xc0)!=0x80 ) break;
+        if( IsAlnum(z[k-1])!=IsAlnum(z[k]) && (z[k]&0xc0)!=0x80 ) break;
       }
     }
     if( k<=i/2 ){
@@ -24112,6 +24248,7 @@ static char *translateForDisplayAndDup(
       zOut[j++] = z[i++];
       continue;
     }
+    if( c==0 ) break;
     if( z[i]=='\t' ){
       do{
         n++;
@@ -24120,10 +24257,34 @@ static char *translateForDisplayAndDup(
       i++;
       continue;
     }
-    break;
+    switch( p->eEscMode ){
+      case SHELL_ESC_SYMBOL:
+        zOut[j++] = 0xe2;
+        zOut[j++] = 0x90;
+        zOut[j++] = 0x80 + c;
+        break;
+      case SHELL_ESC_ASCII:
+        zOut[j++] = '^';
+        zOut[j++] = 0x40 + c;
+        break;
+      case SHELL_ESC_OFF:
+        zOut[j++] = c;
+        break;
+    }
+    i++;
   }
   zOut[j] = 0;
   return (char*)zOut;
+}
+
+/* Return true if the text string z[] contains characters that need
+** unistr() escaping.
+*/
+static int needUnistr(const unsigned char *z){
+  unsigned char c;
+  if( z==0 ) return 0;
+  while( (c = *z)>0x1f || c=='\t' || c=='\n' || (c=='\r' && z[1]=='\n') ){ z++; }
+  return c!=0;
 }
 
 /* Extract the value of the i-th current column for pStmt as an SQL literal
@@ -24140,7 +24301,8 @@ static char *quoted_column(sqlite3_stmt *pStmt, int i){
       return sqlite3_mprintf("%s",sqlite3_column_text(pStmt,i));
     }
     case SQLITE_TEXT: {
-      return sqlite3_mprintf("%Q",sqlite3_column_text(pStmt,i));
+      const unsigned char *zText = sqlite3_column_text(pStmt,i);
+      return sqlite3_mprintf(needUnistr(zText)?"%#Q":"%Q",zText);
     }
     case SQLITE_BLOB: {
       int j;
@@ -24232,7 +24394,7 @@ static void exec_prepared_stmt_columnar(
     if( wx<0 ) wx = -wx;
     uz = (const unsigned char*)sqlite3_column_name(pStmt,i);
     if( uz==0 ) uz = (u8*)"";
-    azData[i] = translateForDisplayAndDup(uz, &zNotUsed, wx, bw);
+    azData[i] = translateForDisplayAndDup(p, uz, &zNotUsed, wx, bw);
   }
   do{
     int useNextLine = bNextLine;
@@ -24256,6 +24418,7 @@ static void exec_prepared_stmt_columnar(
         uz = azNextLine[i];
         if( uz==0 ) uz = (u8*)zEmpty;
       }else if( p->cmOpts.bQuote ){
+        assert( azQuoted!=0 );
         sqlite3_free(azQuoted[i]);
         azQuoted[i] = quoted_column(pStmt,i);
         uz = (const unsigned char*)azQuoted[i];
@@ -24264,7 +24427,7 @@ static void exec_prepared_stmt_columnar(
         if( uz==0 ) uz = (u8*)zShowNull;
       }
       azData[nRow*nColumn + i]
-        = translateForDisplayAndDup(uz, &azNextLine[i], wx, bw);
+        = translateForDisplayAndDup(p, uz, &azNextLine[i], wx, bw);
       if( azNextLine[i] ){
         bNextLine = 1;
         abRowDiv[nRow-1] = 0;
@@ -25187,7 +25350,7 @@ static const char *(azHelp[]) = {
 #else
   ".log on|off              Turn logging on or off.",
 #endif
-  ".mode MODE ?OPTIONS?     Set output mode",
+  ".mode ?MODE? ?OPTIONS?   Set output mode",
   "   MODE is one of:",
   "     ascii       Columns/rows delimited by 0x1F and 0x1E",
   "     box         Tables using unicode box-drawing characters",
@@ -25205,6 +25368,7 @@ static const char *(azHelp[]) = {
   "     tabs        Tab-separated values",
   "     tcl         TCL list elements",
   "   OPTIONS: (for columnar modes or insert mode):",
+  "     --escape T     ctrl-char escape; T is one of: symbol, ascii, off",
   "     --wrap N       Wrap output lines to no longer than N characters",
   "     --wordwrap B   Wrap or not at word boundaries per B (on/off)",
   "     --ww           Shorthand for \"--wordwrap 1\"",
@@ -25980,7 +26144,7 @@ static void linenoise_completion(
 #endif
   if( nLine>(i64)sizeof(zBuf)-30 ) return;
   if( zLine[0]=='.' || zLine[0]=='#') return;
-  for(i=nLine-1; i>=0 && (isalnum(zLine[i]) || zLine[i]=='_'); i--){}
+  for(i=nLine-1; i>=0 && (IsAlnum(zLine[i]) || zLine[i]=='_'); i--){}
   if( i==nLine-1 ) return;
   iStart = i+1;
   memcpy(zBuf, zLine, iStart);
@@ -28220,6 +28384,7 @@ static int recoverDatabaseCmd(ShellState *pState, int nArg, char **azArg){
   sqlite3_recover_config(p, SQLITE_RECOVER_ROWIDS, (void*)&bRowids);
   sqlite3_recover_config(p, SQLITE_RECOVER_FREELIST_CORRUPT,(void*)&bFreelist);
 
+  sqlite3_fprintf(pState->out, ".dbconfig defensive off\n");
   sqlite3_recover_run(p);
   if( sqlite3_recover_errcode(p)!=SQLITE_OK ){
     const char *zErr = sqlite3_recover_errmsg(p);
@@ -29945,24 +30110,52 @@ static int do_meta_command(char *zLine, ShellState *p){
     const char *zMode = 0;
     const char *zTabname = 0;
     int i, n2;
+    int chng = 0;       /* 0x01:  change to cmopts.  0x02:  Any other change */
     ColModeOpts cmOpts = ColModeOpts_default;
     for(i=1; i<nArg; i++){
       const char *z = azArg[i];
       if( optionMatch(z,"wrap") && i+1<nArg ){
         cmOpts.iWrap = integerValue(azArg[++i]);
+        chng |= 1;
       }else if( optionMatch(z,"ww") ){
         cmOpts.bWordWrap = 1;
+        chng |= 1;
       }else if( optionMatch(z,"wordwrap") && i+1<nArg ){
         cmOpts.bWordWrap = (u8)booleanValue(azArg[++i]);
+        chng |= 1;
       }else if( optionMatch(z,"quote") ){
         cmOpts.bQuote = 1;
+        chng |= 1;
       }else if( optionMatch(z,"noquote") ){
         cmOpts.bQuote = 0;
+        chng |= 1;
+      }else if( optionMatch(z,"escape") && i+1<nArg ){
+        /* See similar code at tag-20250224-1 */
+        const char *zEsc = azArg[++i];
+        int k;
+        for(k=0; k<ArraySize(shell_EscModeNames); k++){
+          if( sqlite3_stricmp(zEsc,shell_EscModeNames[k])==0 ){
+            p->eEscMode = k;
+            chng |= 2;
+            break;
+          }
+        }
+        if( k>=ArraySize(shell_EscModeNames) ){
+          sqlite3_fprintf(stderr, "unknown control character escape mode \"%s\""
+                                  " - choices:", zEsc);
+          for(k=0; k<ArraySize(shell_EscModeNames); k++){
+            sqlite3_fprintf(stderr, " %s", shell_EscModeNames[k]);
+          }
+          sqlite3_fprintf(stderr, "\n");
+          rc = 1;
+          goto meta_command_exit;
+        }
       }else if( zMode==0 ){
         zMode = z;
         /* Apply defaults for qbox pseudo-mode.  If that
          * overwrites already-set values, user was informed of this.
          */
+        chng |= 1;
         if( cli_strcmp(z, "qbox")==0 ){
           ColModeOpts cmo = ColModeOpts_default_qbox;
           zMode = "box";
@@ -29973,6 +30166,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       }else if( z[0]=='-' ){
         sqlite3_fprintf(stderr,"unknown option: %s\n", z);
         eputz("options:\n"
+              "  --escape MODE\n"
               "  --noquote\n"
               "  --quote\n"
               "  --wordwrap on/off\n"
@@ -29986,20 +30180,29 @@ static int do_meta_command(char *zLine, ShellState *p){
         goto meta_command_exit;
       }
     }
-    if( zMode==0 ){
+    if( !chng ){
       if( p->mode==MODE_Column
        || (p->mode>=MODE_Markdown && p->mode<=MODE_Box)
       ){
         sqlite3_fprintf(p->out,
-              "current output mode: %s --wrap %d --wordwrap %s --%squote\n",
+              "current output mode: %s --wrap %d --wordwrap %s "
+              "--%squote --escape %s\n",
               modeDescr[p->mode], p->cmOpts.iWrap,
               p->cmOpts.bWordWrap ? "on" : "off",
-              p->cmOpts.bQuote ? "" : "no");
+              p->cmOpts.bQuote ? "" : "no",
+              shell_EscModeNames[p->eEscMode]
+        );
       }else{
         sqlite3_fprintf(p->out,
-              "current output mode: %s\n", modeDescr[p->mode]);
+              "current output mode: %s --escape %s\n",
+              modeDescr[p->mode],
+              shell_EscModeNames[p->eEscMode]
+        );
       }
+    }
+    if( zMode==0 ){
       zMode = modeDescr[p->mode];
+      if( (chng&1)==0 ) cmOpts = p->cmOpts;
     }
     n2 = strlen30(zMode);
     if( cli_strncmp(zMode,"lines",n2)==0 ){
@@ -30032,6 +30235,11 @@ static int do_meta_command(char *zLine, ShellState *p){
     }else if( cli_strncmp(zMode,"insert",n2)==0 ){
       p->mode = MODE_Insert;
       set_table_name(p, zTabname ? zTabname : "table");
+      if( p->eEscMode==SHELL_ESC_OFF ){
+        ShellSetFlag(p, SHFLG_Newlines);
+      }else{
+        ShellClearFlag(p, SHFLG_Newlines);
+      }
     }else if( cli_strncmp(zMode,"quote",n2)==0 ){
       p->mode = MODE_Quote;
       sqlite3_snprintf(sizeof(p->colSeparator), p->colSeparator, SEP_Comma);
@@ -32268,7 +32476,7 @@ static int line_is_command_terminator(char *zLine){
 ** out of the build if compiling with SQLITE_OMIT_COMPLETE.
 */
 #ifdef SQLITE_OMIT_COMPLETE
-# error the CLI application is imcompatable with SQLITE_OMIT_COMPLETE.
+# error the CLI application is incompatible with SQLITE_OMIT_COMPLETE.
 #endif
 
 /*
@@ -32447,7 +32655,7 @@ static char *one_input_line(FILE *in, char *zPrior, int isContinuation){
   if(!z || !*z){
     return 0;
   }
-  while(*z && isspace(*z)) ++z;
+  while(*z && IsSpace(*z)) ++z;
   zBegin = z;
   for(; *z && '\n'!=*z; ++nZ, ++z){}
   if(nZ>0 && '\r'==zBegin[nZ-1]){
@@ -32752,6 +32960,7 @@ static const char zOptions[] =
   "   -deserialize         open the database using sqlite3_deserialize()\n"
 #endif
   "   -echo                print inputs before execution\n"
+  "   -escape T            ctrl-char escape; T is one of: symbol, ascii, off\n"
   "   -init FILENAME       read/process named file\n"
   "   -[no]header          turn headers on or off\n"
 #if defined(SQLITE_ENABLE_MEMSYS3) || defined(SQLITE_ENABLE_MEMSYS5)
@@ -32799,7 +33008,7 @@ static const char zOptions[] =
 #endif
 ;
 static void usage(int showDetail){
-  sqlite3_fprintf(stderr,"Usage: %s [OPTIONS] [FILENAME [SQL]]\n"
+  sqlite3_fprintf(stderr,"Usage: %s [OPTIONS] [FILENAME [SQL...]]\n"
        "FILENAME is the name of an SQLite database. A new database is created\n"
        "if the file does not previously exist. Defaults to :memory:.\n", Argv0);
   if( showDetail ){
@@ -33185,6 +33394,9 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       ShellSetFlag(&data,SHFLG_TestingMode);
     }else if( cli_strcmp(z,"-safe")==0 ){
       /* no-op - catch this on the second pass */
+    }else if( cli_strcmp(z,"-escape")==0 && i+1<argc ){
+      /* skip over the argument */
+      i++;
     }
   }
 #ifndef SQLITE_SHELL_FIDDLE
@@ -33284,6 +33496,25 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     }else if( cli_strcmp(z,"-csv")==0 ){
       data.mode = MODE_Csv;
       memcpy(data.colSeparator,",",2);
+    }else if( cli_strcmp(z,"-escape")==0 && i+1<argc ){
+      /* See similar code at tag-20250224-1 */
+      const char *zEsc = argv[++i];
+      int k;
+      for(k=0; k<ArraySize(shell_EscModeNames); k++){
+        if( sqlite3_stricmp(zEsc,shell_EscModeNames[k])==0 ){
+          data.eEscMode = k;
+          break;
+        }
+      }
+      if( k>=ArraySize(shell_EscModeNames) ){
+        sqlite3_fprintf(stderr, "unknown control character escape mode \"%s\""
+                                " - choices:", zEsc);
+        for(k=0; k<ArraySize(shell_EscModeNames); k++){
+          sqlite3_fprintf(stderr, " %s", shell_EscModeNames[k]);
+        }
+        sqlite3_fprintf(stderr, "\n");
+        exit(1);
+      }
 #ifdef SQLITE_HAVE_ZLIB
     }else if( cli_strcmp(z,"-zip")==0 ){
       data.openMode = SHELL_OPEN_ZIPFILE;
@@ -33445,6 +33676,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     ** the database filename.
     */
     for(i=0; i<nCmd; i++){
+      echo_group_input(&data, azCmd[i]);
       if( azCmd[i][0]=='.' ){
         rc = do_meta_command(azCmd[i], &data);
         if( rc ){
@@ -33453,7 +33685,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
         }
       }else{
         open_db(&data, 0);
-        echo_group_input(&data, azCmd[i]);
         rc = shell_exec(&data, azCmd[i], &zErrMsg);
         if( zErrMsg || rc ){
           if( zErrMsg!=0 ){

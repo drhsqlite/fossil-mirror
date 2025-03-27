@@ -1996,7 +1996,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_reset(pBlob);
     blob_set_dynamic(pBlob, zUtf8);
   }else if( useMbcs && invalid_utf8(pBlob) ){
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32)
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
     blob_reset(pBlob);
     blob_append(pBlob, zUtf8, -1);

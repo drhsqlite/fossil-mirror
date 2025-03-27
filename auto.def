@@ -38,13 +38,13 @@ options {
 # Update the minimum required SQLite version number here, and also
 # in src/main.c near the sqlite3_libversion_number() call.  Take care
 # that both places agree!
-define MINIMUM_SQLITE_VERSION "3.46.0"
+define MINIMUM_SQLITE_VERSION "3.49.0"
 
 # This is useful for people wanting Fossil to use an external SQLite library
 # to compare the one they have against the minimum required
 if {[opt-bool print-minimum-sqlite-version]} {
-    puts [get-define MINIMUM_SQLITE_VERSION]
-    exit 0
+  puts [get-define MINIMUM_SQLITE_VERSION]
+  exit 0
 }
 
 # Space characters have never been allowed in either the source
@@ -69,7 +69,7 @@ if {![file exists fossil.1]} {
 
 # sqlite wants these types if possible
 cc-with {-includes {stdint.h inttypes.h}} {
-    cc-check-types uint32_t uint16_t int16_t uint8_t
+  cc-check-types uint32_t uint16_t int16_t uint8_t
 }
 
 # Use pread/pwrite system calls in place of seek + read/write if possible
@@ -77,9 +77,9 @@ define USE_PREAD [cc-check-functions pread]
 
 # If we have cscope here, we'll use it in the "tags" target
 if {[cc-check-progs cscope]} {
-    define COLLECT_CSCOPE_DATA "cscope -bR $::autosetup(srcdir)/src/*.\[ch\]"
+  define COLLECT_CSCOPE_DATA "cscope -bR $::autosetup(srcdir)/src/*.\[ch\]"
 } else {
-    define COLLECT_CSCOPE_DATA ""
+  define COLLECT_CSCOPE_DATA ""
 }
 
 # Find tclsh for the test suite.
@@ -96,28 +96,28 @@ if {[cc-check-progs cscope]} {
 cc-check-progs tclsh
 set hbtd /usr/local/Cellar/tcl-tk
 if {[string equal false [get-define TCLSH]]} {
-    msg-result "WARNING: 'make test' will not run here."
+  msg-result "WARNING: 'make test' will not run here."
 } else {
-    set v [exec sh -c "echo 'puts \$tcl_version' | tclsh"]
-    if {[expr {$v >= 8.6}]} {
-        msg-result "Found Tclsh version $v in the PATH."
-        define TCLSH tclsh
-    } elseif {[file isdirectory $hbtd]} {
-        # This is a macOS system with the Homebrew version of Tcl/Tk
-        # installed.  Select the newest version.  It won't normally be
-        # in the PATH to avoid shadowing /usr/bin/tclsh, and even if it
-        # were in the PATH, it's bad practice to put /usr/local/bin (the
-        # Homebrew default) ahead of /usr/bin, especially given that
-        # it's user-writeable by default with Homebrew.  Thus, we can be
-        # pretty sure the only way to call it is with an absolute path.
-        set v [exec ls -tr $hbtd | tail -1]
-        set path "$hbtd/$v/bin/tclsh"
-        define TCLSH $path
-        msg-result "Using Homebrew Tcl/Tk version $path."
-    } else {
-        msg-result "WARNING: tclsh $v found; need >= 8.6 for 'make test'."
-        define TCLSH false     ;# force "make test" failure via /usr/bin/false
-    }
+  set v [exec sh -c "echo 'puts \$tcl_version' | tclsh"]
+  if {[expr {$v >= 8.6}]} {
+    msg-result "Found Tclsh version $v in the PATH."
+    define TCLSH tclsh
+  } elseif {[file isdirectory $hbtd]} {
+    # This is a macOS system with the Homebrew version of Tcl/Tk
+    # installed.  Select the newest version.  It won't normally be
+    # in the PATH to avoid shadowing /usr/bin/tclsh, and even if it
+    # were in the PATH, it's bad practice to put /usr/local/bin (the
+    # Homebrew default) ahead of /usr/bin, especially given that
+    # it's user-writeable by default with Homebrew.  Thus, we can be
+    # pretty sure the only way to call it is with an absolute path.
+    set v [exec ls -tr $hbtd | tail -1]
+    set path "$hbtd/$v/bin/tclsh"
+    define TCLSH $path
+    msg-result "Using Homebrew Tcl/Tk version $path."
+  } else {
+    msg-result "WARNING: tclsh $v found; need >= 8.6 for 'make test'."
+    define TCLSH false     ;# force "make test" failure via /usr/bin/false
+  }
 }
 
 define CFLAGS [get-env CFLAGS "-g -Os"]
@@ -135,7 +135,7 @@ define SQLITE_OPTIONS_EXT ""
 # Maintain the C89/C90-style order of variable declarations before statements.
 # Check if the compiler supports the respective warning flag.
 if {[cctest -cflags -Wdeclaration-after-statement]} {
-    define-append EXTRA_CFLAGS -Wdeclaration-after-statement
+  define-append EXTRA_CFLAGS -Wdeclaration-after-statement
 }
 
 
@@ -143,36 +143,36 @@ if {[cctest -cflags -Wdeclaration-after-statement]} {
 # that does not modify the LIBS variable.  Its use prevents prematurely
 # pulling in libraries that will be added later anyhow (e.g. "-ldl").
 proc check-function-in-lib {function libs {otherlibs {}}} {
-    if {[string length $otherlibs]} {
-        msg-checking "Checking for $function in $libs with $otherlibs..."
+  if {[string length $otherlibs]} {
+    msg-checking "Checking for $function in $libs with $otherlibs..."
+  } else {
+    msg-checking "Checking for $function in $libs..."
+  }
+  set found 0
+  cc-with [list -libs $otherlibs] {
+    if {[cctest_function $function]} {
+      msg-result "none needed"
+      define lib_$function ""
+      incr found
     } else {
-        msg-checking "Checking for $function in $libs..."
-    }
-    set found 0
-    cc-with [list -libs $otherlibs] {
-        if {[cctest_function $function]} {
-            msg-result "none needed"
-            define lib_$function ""
+      foreach lib $libs {
+        cc-with [list -libs -l$lib] {
+          if {[cctest_function $function]} {
+            msg-result -l$lib
+            define lib_$function -l$lib
             incr found
-        } else {
-            foreach lib $libs {
-                cc-with [list -libs -l$lib] {
-                    if {[cctest_function $function]} {
-                        msg-result -l$lib
-                        define lib_$function -l$lib
-                        incr found
-                        break
-                    }
-                }
-            }
+            break
+          }
         }
+      }
     }
-    if {$found} {
-        define [feature-define-name $function]
-    } else {
-        msg-result "no"
-    }
-    return $found
+  }
+  if {$found} {
+    define [feature-define-name $function]
+  } else {
+    msg-result "no"
+  }
+  return $found
 }
 
 if {![opt-bool internal-sqlite]} {
@@ -221,13 +221,13 @@ if {![opt-bool internal-sqlite]} {
     set ok 1
     set err [catch {exec-with-stderr {*}$cmdline} result errinfo]
     if {$err} {
-       configlog "Failed: [join $cmdline]"
-       if {[string length $result]>0} {configlog $result}
-       configlog "============"
-       set ok 0
+      configlog "Failed: [join $cmdline]"
+      if {[string length $result]>0} {configlog $result}
+      configlog "============"
+      set ok 0
     } elseif {$::autosetup(debug)} {
-       configlog "Compiled OK: [join $cmdline]"
-       configlog "============"
+      configlog "Compiled OK: [join $cmdline]"
+      configlog "============"
     }
     if {!$ok} {
       user-error "unable to compile SQLite compatibility test program"
@@ -253,73 +253,73 @@ proc is_mingw {} {
 }
 
 if {[is_mingw]} {
-    define-append EXTRA_CFLAGS -DBROKEN_MINGW_CMDLINE
-    define-append LIBS -lkernel32 -lws2_32
+  define-append EXTRA_CFLAGS -DBROKEN_MINGW_CMDLINE
+  define-append LIBS -lkernel32 -lws2_32
 } else {
-    #
-    # NOTE: All platforms except MinGW should use the linenoise
-    #       package.  It is currently unsupported on Win32.
-    #
-    define USE_LINENOISE 1
+  #
+  # NOTE: All platforms except MinGW should use the linenoise
+  #       package.  It is currently unsupported on Win32.
+  #
+  define USE_LINENOISE 1
 }
 
 if {[string match *-solaris* [get-define host]]} {
-    define-append EXTRA_CFLAGS {-D__EXTENSIONS__}
+  define-append EXTRA_CFLAGS {-D__EXTENSIONS__}
 }
 
 if {[opt-bool fossil-debug]} {
-    define CFLAGS {-g -O0 -Wall}
-    define-append CFLAGS -DFOSSIL_DEBUG
-    msg-result "Debugging support enabled"
+  define CFLAGS {-g -O0 -Wall}
+  define-append CFLAGS -DFOSSIL_DEBUG
+  msg-result "Debugging support enabled"
 }
 
 if {[opt-bool no-opt]} {
-    define CFLAGS {-g -O0 -Wall}
-    msg-result "Builting without compiler optimization"
-    if {[opt-bool fossil-debug]} {
-        define-append CFLAGS -DFOSSIL_DEBUG
-    }
+  define CFLAGS {-g -O0 -Wall}
+  msg-result "Builting without compiler optimization"
+  if {[opt-bool fossil-debug]} {
+    define-append CFLAGS -DFOSSIL_DEBUG
+  }
 }
 
 if {[opt-bool with-mman]} {
-    define-append EXTRA_CFLAGS -DUSE_MMAN_H
-    define USE_MMAN_H 1
-    msg-result "Enabling \"sys/mman.h\" support"
+  define-append EXTRA_CFLAGS -DUSE_MMAN_H
+  define USE_MMAN_H 1
+  msg-result "Enabling \"sys/mman.h\" support"
 }
 
 if {[opt-bool with-see]} {
-    define-append EXTRA_CFLAGS -DUSE_SEE
-    define USE_SEE 1
-    define SQLITE3_ORIGIN 1
-    msg-result "Enabling encryption support"
+  define-append EXTRA_CFLAGS -DUSE_SEE
+  define USE_SEE 1
+  define SQLITE3_ORIGIN 1
+  msg-result "Enabling encryption support"
 }
 
 if {[opt-bool json]} {
-    # Reminder/FIXME (stephan): FOSSIL_ENABLE_JSON
-    # is required in the CFLAGS because json*.c
-    # have #ifdef guards around the whole file without
-    # reading config.h first.
-    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
-    define FOSSIL_ENABLE_JSON
-    msg-result "JSON support enabled"
+  # Reminder/FIXME (stephan): FOSSIL_ENABLE_JSON
+  # is required in the CFLAGS because json*.c
+  # have #ifdef guards around the whole file without
+  # reading config.h first.
+  define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
+  define FOSSIL_ENABLE_JSON
+  msg-result "JSON support enabled"
 }
 
 if {[opt-bool with-exec-rel-paths]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_EXEC_REL_PATHS
-    define FOSSIL_ENABLE_EXEC_REL_PATHS
-    msg-result "Relative paths in external diff/gdiff enabled"
+  define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_EXEC_REL_PATHS
+  define FOSSIL_ENABLE_EXEC_REL_PATHS
+  msg-result "Relative paths in external diff/gdiff enabled"
 }
 
 if {[opt-bool with-th1-docs]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_TH1_DOCS
-    define FOSSIL_ENABLE_TH1_DOCS
-    msg-result "TH1 embedded documentation support enabled"
+  define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_TH1_DOCS
+  define FOSSIL_ENABLE_TH1_DOCS
+  msg-result "TH1 embedded documentation support enabled"
 }
 
 if {[opt-bool with-th1-hooks]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_TH1_HOOKS
-    define FOSSIL_ENABLE_TH1_HOOKS
-    msg-result "TH1 hooks support enabled"
+  define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_TH1_HOOKS
+  define FOSSIL_ENABLE_TH1_HOOKS
+  msg-result "TH1 hooks support enabled"
 }
 
 #if {[opt-bool markdown]} {
@@ -328,396 +328,437 @@ if {[opt-bool with-th1-hooks]} {
 #}
 
 if {[opt-bool static]} {
-    # XXX: This will not work on all systems.
-    define-append EXTRA_LDFLAGS -static
-    msg-result "Trying to link statically"
+  # XXX: This will not work on all systems.
+  define-append EXTRA_LDFLAGS -static
+  msg-result "Trying to link statically"
 } else {
-    define-append EXTRA_CFLAGS -DFOSSIL_DYNAMIC_BUILD=1
-    define FOSSIL_DYNAMIC_BUILD
+  define-append EXTRA_CFLAGS -DFOSSIL_DYNAMIC_BUILD=1
+  define FOSSIL_DYNAMIC_BUILD
 }
 
 # Check for libraries that need to be sorted out early
 cc-check-function-in-lib iconv iconv
 
+cc-check-function-in-lib sin m
+cc-check-function-in-lib dlopen dl
+
 # Helper for OpenSSL checking
 proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto -lpthread}}} {
-    msg-checking "Checking for $msg..."
-    set rc 0
-    if {[is_mingw]} {
-        lappend libs -lgdi32 -lwsock32 -lcrypt32
+  msg-checking "Checking for $msg..."
+  set rc 0
+  if {[is_mingw]} {
+    lappend libs -lgdi32 -lwsock32 -lcrypt32
+  }
+  if {[info exists ::zlib_lib]} {
+    lappend libs $::zlib_lib
+  }
+  msg-quiet cc-with [list -cflags $cflags -libs $libs] {
+    if {[cc-check-includes openssl/ssl.h] && \
+          [cc-check-functions SSL_new]} {
+      incr rc
     }
-    if {[info exists ::zlib_lib]} {
-        lappend libs $::zlib_lib
-    }
+  }
+  if {!$rc && ![is_mingw]} {
+    # On some systems, OpenSSL appears to require -ldl to link.
+    lappend libs -ldl
     msg-quiet cc-with [list -cflags $cflags -libs $libs] {
-        if {[cc-check-includes openssl/ssl.h] && \
-                [cc-check-functions SSL_new]} {
-            incr rc
-        }
+      if {[cc-check-includes openssl/ssl.h] && \
+            [cc-check-functions SSL_new]} {
+        incr rc
+      }
     }
-    if {!$rc && ![is_mingw]} {
-        # On some systems, OpenSSL appears to require -ldl to link.
-        lappend libs -ldl
-        msg-quiet cc-with [list -cflags $cflags -libs $libs] {
-            if {[cc-check-includes openssl/ssl.h] && \
-                    [cc-check-functions SSL_new]} {
-                incr rc
-            }
-        }
-    }
-    if {$rc} {
-        msg-result "ok"
-        return 1
-    } else {
-        msg-result "no"
-        return 0
-    }
+  }
+  if {$rc} {
+    msg-result "ok"
+    return 1
+  } else {
+    msg-result "no"
+    return 0
+  }
 }
 
+#
 # Check for zlib, using the given location if specified
-set zlibpath [opt-val with-zlib]
-if {$zlibpath eq "tree"} {
-  set zlibdir [file dirname $autosetup(dir)]/compat/zlib
-  if {![file isdirectory $zlibdir]} {
-    user-error "The zlib in source tree directory does not exist"
-  } elseif { ([llength [glob -nocomplain -directory $zlibdir libz*]] == 0) } {
-    user-error "With --with-zlib=tree, $zlibdir must be configured and built first."
-  }
-  cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
-  define-append EXTRA_CFLAGS -I$zlibdir
-  define-append LIBS $zlibdir/libz.a
-  set ::zlib_lib $zlibdir/libz.a
-  msg-result "Using zlib in source tree"
-} else {
-  set cftry {""}
-  set ldtry {""}
-  if {$zlibpath ni {auto ""}} {
-    lappend cftry "-I$zlibpath"
-    lappend cftry "-I$zlibpath/include"
-    lappend ldtry "-L$zlibpath"
-    lappend ldtry "-L$zlibpath/lib"
-  }
-
-  # Reverse the list of tests so we check most-specific to least, else
-  # platform devel files will shadow local --with-zlib overrides.
-  foreach c [lreverse $cftry] {
-    if {[cc-with [list -cflags $c] {cc-check-includes zlib.h}]} {
-      if {$c eq ""} {
-        msg-result "Found zlib.h in default include path"
-      } else {
-        define-append EXTRA_CFLAGS "$c"
-        msg-result "Found zlib.h via $c"
-      }
-      set cfound $c
-      break
+#
+proc handle-zlib {} {
+  set ::zlibpath [opt-val with-zlib]; # used by downstream tcl tests
+  if {$::zlibpath eq "tree"} {
+    set ::zlibdir [file dirname $::autosetup(dir)]/compat/zlib
+    if {![file isdirectory $::zlibdir]} {
+      user-error "The zlib in source tree directory does not exist"
+    } elseif { ([llength [glob -nocomplain -directory $::zlibdir libz*]] == 0) } {
+      user-error "With --with-zlib=tree, $::zlibdir must be configured and built first."
     }
-  }
-  if {![info exists cfound]} {
-    user-error "zlib.h not found; either install it or specify its location via --with-zlib"
-  }
-  foreach lcheck [lreverse $ldtry] {
-    if {[cc-with [list -cflags "$cfound $lcheck"] {check-function-in-lib inflateEnd z}]} {
-      if {$lcheck eq ""} {
-        msg-result "Linked to zlib via default library path"
-      } else {
-        define-append EXTRA_LDFLAGS "$lcheck"
-        msg-result "Linked to zlib via $lcheck"
-      }
-      if {![check-function-in-lib compressBound z]} {
-        puts "Notice: disabling zlib compression in the SQL shell"
-        define-append SQLITE_OPTIONS_EXT {-USQLITE_HAVE_ZLIB}
-      }
-      break
+    cc-with [list -cflags "-I$::zlibdir -L$::zlibdir"]
+    define-append EXTRA_CFLAGS -I$::zlibdir
+    define-append LIBS $::zlibdir/libz.a
+    set ::zlib_lib $::zlibdir/libz.a
+    msg-result "Using zlib in source tree"
+  } else {
+    set cftry {""}
+    set ldtry {""}
+    if {$::zlibpath ni {auto ""}} {
+      lappend cftry "-I$::zlibpath"
+      lappend cftry "-I$::zlibpath/include"
+      lappend ldtry "-L$::zlibpath"
+      lappend ldtry "-L$::zlibpath/lib"
     }
-  }
-  set ::zlib_lib -lz
-}
 
-set ssldirs [opt-val with-openssl]
-if {$ssldirs ne "none"} {
+    # Reverse the list of tests so we check most-specific to least, else
+    # platform devel files will shadow local --with-zlib overrides.
+    foreach c [lreverse $cftry] {
+      if {[cc-with [list -cflags $c] {cc-check-includes zlib.h}]} {
+        if {$c eq ""} {
+          msg-result "Found zlib.h in default include path"
+        } else {
+          define-append EXTRA_CFLAGS "$c"
+          msg-result "Found zlib.h via $c"
+        }
+        set cfound $c
+        break
+      }
+    }
+    if {![info exists cfound]} {
+      user-error "zlib.h not found; either install it or specify its location via --with-zlib"
+    }
+    foreach lcheck [lreverse $ldtry] {
+      if {[cc-with [list -cflags "$cfound $lcheck"] {check-function-in-lib inflateEnd z}]} {
+        if {$lcheck eq ""} {
+          msg-result "Linked to zlib via default library path"
+        } else {
+          define-append EXTRA_LDFLAGS "$lcheck"
+          msg-result "Linked to zlib via $lcheck"
+        }
+        if {![check-function-in-lib compressBound z]} {
+          puts "Notice: disabling zlib compression in the SQL shell"
+          define-append SQLITE_OPTIONS_EXT {-USQLITE_HAVE_ZLIB}
+        }
+        break
+      }
+    }
+    set ::zlib_lib -lz
+  }
+}; # handle-zlib
+handle-zlib
+
+#
+# Handle the --with-openssl flag and, incidentally, update @LIBS@ for
+# zlib if openssl is _not_ used (if it is, we get zlib via libssl).
+#
+# This function should be called as late as possible in the configure
+# script to avoid that its updates to @LIBS@ break tests which follow
+# it when a custom local build of openssl is used, as discussed in
+# <https://fossil-scm.org/forum/forumpost/15e3d9cdc137030c>.
+#
+proc handle-with-openssl {} {
+  set ssldirs [opt-val with-openssl]
+  if {$ssldirs ne "none"} {
     set found 0
     if {$ssldirs eq "tree"} {
-        set ssldir [file dirname $autosetup(dir)]/compat/openssl
-        if {![file isdirectory $ssldir]} {
-            user-error "The OpenSSL in source tree directory does not exist"
-        }
-        set msg "openssl in $ssldir"
-        set cflags "-I$ssldir/include"
-        set ldflags "-L$ssldir"
-        set ssllibs "$ssldir/libssl.a $ssldir/libcrypto.a -lpthread"
-        set found [check-for-openssl "openssl in source tree" "$cflags $ldflags" $ssllibs]
+      set ssldir [file dirname $::autosetup(dir)]/compat/openssl
+      if {![file isdirectory $ssldir]} {
+        user-error "The OpenSSL in source tree directory does not exist"
+      }
+      set msg "openssl in $ssldir"
+      set cflags "-I$ssldir/include"
+      set ldflags "-L$ssldir"
+      set ssllibs "$ssldir/libssl.a $ssldir/libcrypto.a -lpthread"
+      set found [check-for-openssl "openssl in source tree" "$cflags $ldflags" $ssllibs]
     } else {
-        if {$ssldirs in {auto ""}} {
-            catch {
-                set cflags [exec pkg-config openssl --cflags-only-I]
-                set ldflags [exec pkg-config openssl --libs-only-L]
-                set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
-            } msg
-            if {!$found} {
-                set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl \
+      if {$ssldirs in {auto ""}} {
+        catch {
+          # TODO?: use autosetup's pkg-config support
+          set cflags [exec pkg-config openssl --cflags-only-I]
+          set ldflags [exec pkg-config openssl --libs-only-L]
+          set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
+        } msg
+        if {!$found} {
+          set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl \
                              /usr/pkg /usr/local /usr /usr/local/opt/openssl \
                              /opt/homebrew/opt/openssl"
-            }
         }
-        if {!$found} {
-            foreach dir $ssldirs {
-                if {$dir eq ""} {
-                    set msg "system openssl"
-                    set cflags ""
-                    set ldflags ""
-                } else {
-                    set msg "openssl in $dir"
-                    set cflags "-I$dir/include"
-                    set ldflags "-L$dir/lib"
-                }
-                if {[check-for-openssl $msg "$cflags $ldflags"]} {
-                    incr found
-                    break
-                }
-                if {$dir ne ""} {
-                    set ldflags ""
-                    set msg "static build of openssl in $dir"
-                    set ssllibs "$dir/libssl.a $dir/libcrypto.a -lpthread"
-                    if {[check-for-openssl $msg "$cflags $ldflags" $ssllibs]} {
-                        incr found
-                        break
-                    }
-                }
+      }
+      if {!$found} {
+        foreach dir $ssldirs {
+          if {$dir eq ""} {
+            set msg "system openssl"
+            set cflags ""
+            set ldflags ""
+          } else {
+            set msg "openssl in $dir"
+            set cflags "-I$dir/include"
+            if {[file readable $dir/libssl.a]} {
+              set ldflags -L$dir
+            } elseif {[file readable $dir/lib/libssl.a]} {
+              set ldflags -L$dir/lib
+            } elseif {[file isdir $dir/lib]} {
+              set ldflags "-L$dir -L$dir/lib"
+            } else {
+              set ldflags -L$dir
             }
+          }
+          if {[check-for-openssl $msg "$cflags $ldflags"]} {
+            incr found
+            break
+          }
+          if {$dir ne ""} {
+            set ldflags ""
+            set msg "static build of openssl in $dir"
+            set ssllibs "$dir/libssl.a $dir/libcrypto.a -lpthread"
+            if {[check-for-openssl $msg "$cflags $ldflags" $ssllibs]} {
+              incr found
+              break
+            }
+            # This test should arguably fail here if --with-openssl=X
+            # points to an invalid X.
+          }
         }
+      }
     }
     if {$found} {
-        define FOSSIL_ENABLE_SSL
-        define-append EXTRA_CFLAGS $cflags
-        define-append EXTRA_LDFLAGS $ldflags
-        define-append CFLAGS $cflags
-        define-append LDFLAGS $ldflags
-        if {[info exists ssllibs]} {
-            define-append LIBS $ssllibs
-        } else {
-            define-append LIBS -lssl -lcrypto
-        }
-        if {[info exists ::zlib_lib]} {
-            define-append LIBS $::zlib_lib
-        }
-        if {[is_mingw]} {
-            define-append LIBS -lgdi32 -lwsock32 -lcrypt32
-        }
-        msg-result "HTTPS support enabled"
-
-        # Silence OpenSSL deprecation warnings on Mac OS X 10.7.
-        if {[string match *-darwin* [get-define host]]} {
-            if {[cctest -cflags {-Wdeprecated-declarations}]} {
-                define-append EXTRA_CFLAGS -Wdeprecated-declarations
-            }
-        }
-    } else {
-        user-error "OpenSSL not found. Consider --with-openssl=none to disable HTTPS support"
-    }
-} else {
-    if {[info exists ::zlib_lib]} {
+      define FOSSIL_ENABLE_SSL
+      define-append EXTRA_CFLAGS $cflags
+      define-append EXTRA_LDFLAGS $ldflags
+      if {[info exists ssllibs]} {
+        define-append LIBS $ssllibs
+      } else {
+        define-append LIBS -lssl -lcrypto
+      }
+      if {[info exists ::zlib_lib]} {
         define-append LIBS $::zlib_lib
+      }
+      if {[is_mingw]} {
+        define-append LIBS -lgdi32 -lwsock32 -lcrypt32
+      }
+      msg-result "HTTPS support enabled"
+
+      # Silence OpenSSL deprecation warnings on Mac OS X 10.7.
+      if {[string match *-darwin* [get-define host]]} {
+        if {[cctest -cflags {-Wdeprecated-declarations}]} {
+          define-append EXTRA_CFLAGS -Wdeprecated-declarations
+        }
+      }
+    } else {
+      user-error "OpenSSL not found. Consider --with-openssl=none to disable HTTPS support"
     }
-}
+  } else {
+    if {[info exists ::zlib_lib]} {
+      define-append LIBS $::zlib_lib
+    }
+  }
+}; # handle-with-openssl
 
-
+#
+# CFLAGS_INCLUDE is ONLY for -I... flags and their order is
+# significant so that --with-sqlite=PATH's header can shadow our
+# own. <s>One caveat with this is that we cannot point
+# --with-sqlite=PATH to the root of sqlite3's own build tree because
+# that dir has a config.h which ends up shadowing src/config.h,
+# breaking our build.</s> (That is no longer true: that that config.h
+# was renamed to sqlite_cfg.h at some point.)
+#
+define CFLAGS_INCLUDE {}
 
 ########################################################################
 # --with-sqlite=PATH checks for the first it finds of the following...
 # - PATH/sqlite3.c and PATH/sqlite3.h
 # - PATH/sqlite3.o (and assumes sqlite3.h is with it)
 # - PATH/lib/libsqlite3* and PATH/include/sqlite3.h
-define CFLAGS_INCLUDE {}
-# ^^^ CFLAGS_INCLUDE is ONLY for -I... flags and their order is
-# significant so that --with-sqlite=PATH's header can shadow our
-# own. One caveat with this is that we cannot point --with-sqlite=PATH
-# to the root of sqlite3's own build tree because that dir has a
-# config.h which ends up shadowing src/config.h, breaking our build.
-set sq3path [opt-val with-sqlite]
-define SQLITE3_SRC.2 {}
-define SQLITE3_OBJ.2 {}
-define SQLITE3_SHELL_SRC.2 {$(SQLITE3_SHELL_SRC.0)}
-if {$sq3path in {tree ""}} {
-  msg-result "Using sqlite3.c from this source tree."
-} else {
-  # SQLITE3_ORIGIN:
-  #   0 = local source tree
-  #   1 = use external lib or sqlite3.o
-  #   2 = use external sqlite3.c and (if found) shell.c
-  define USE_SYSTEM_SQLITE 1
-  define SQLITE3_ORIGIN 2
-  if {$sq3path != "auto"} {
-    if {([file exists $sq3path/sqlite3.c]) && \
-        ([file exists $sq3path/sqlite3.h]) } {
-      # Prefer sqlite3.[ch] if found.
-      define SQLITE3_SRC.2 $sq3path/sqlite3.c
-      define SQLITE3_OBJ.2 {$(SQLITE3_OBJ.0)}
-      define USE_SYSTEM_SQLITE 2
-      define SQLITE3_ORIGIN 2
-      if {[file exists $sq3path/shell.c]} {
-        define SQLITE3_SHELL_SRC.2 $sq3path/shell.c
+proc handle-with-sqlite {} {
+  set sq3path [opt-val with-sqlite]
+  define SQLITE3_SRC.2 {}
+  define SQLITE3_OBJ.2 {}
+  define SQLITE3_SHELL_SRC.2 {$(SQLITE3_SHELL_SRC.0)}
+  if {$sq3path in {tree ""}} {
+    msg-result "Using sqlite3.c from this source tree."
+  } else {
+    # SQLITE3_ORIGIN:
+    #   0 = local source tree
+    #   1 = use external lib or sqlite3.o
+    #   2 = use external sqlite3.c and (if found) shell.c
+    define USE_SYSTEM_SQLITE 1
+    define SQLITE3_ORIGIN 2
+    if {$sq3path != "auto"} {
+      if {([file exists $sq3path/sqlite3.c]) &&
+          ([file exists $sq3path/sqlite3.h]) } {
+        # Prefer sqlite3.[ch] if found.
+        define SQLITE3_SRC.2 $sq3path/sqlite3.c
+        define SQLITE3_OBJ.2 {$(SQLITE3_OBJ.0)}
+        define USE_SYSTEM_SQLITE 2
+        define SQLITE3_ORIGIN 2
+        if {[file exists $sq3path/shell.c]} {
+          define SQLITE3_SHELL_SRC.2 $sq3path/shell.c
+        }
+        define-append CFLAGS_INCLUDE -I$sq3path
+        define-append EXTRA_LDFLAGS -lpthread
+        # ^^^ additional -lXXX flags are conservative estimates
+        msg-result "Using sqlite3.c and sqlite3.h from $sq3path"
+      } elseif {[file exists $sq3path/sqlite3.o]} {
+        # Use sqlite3.o if found.
+        define SQLITE3_OBJ.2 $sq3path/sqlite3.o
+        define-append CFLAGS_INCLUDE -I$sq3path
+        define-append EXTRA_LDFLAGS $sq3path/sqlite3.o -lpthread
+        # ^^^ additional -lXXX flags are conservative estimates
+        msg-result "Using sqlite3.o from $sq3path"
+      } elseif { ([llength [glob -nocomplain -directory $sq3path/lib libsqlite3*]] != 0) \
+                   && ([file exists $sq3path/include/sqlite3.h]) } {
+        # e.g. --with-sqlite=/usr/local. Try $sq3path/lib/libsqlite3*
+        # and $sq3path/include/sqlite3.h
+        define-append CFLAGS_INCLUDE -I$sq3path/include
+        define-append EXTRA_LDFLAGS -L$sq3path/lib -lsqlite3 -lpthread
+        # ^^^ additional -lXXX flags are conservative estimates
+        msg-result "Using -lsqlite3 from $sq3path"
+      } else {
+        # Assume $sq3path holds both the lib and header
+        cc-with [list -cflags "-I$sq3path -L$sq3path"]
+        define-append CFLAGS_INCLUDE -I$sq3path
+        define-append EXTRA_LDFLAGS -L$sq3path -lsqlite3 -lpthread
+        # ^^^ additional -lXXX flags are conservative estimates
+        msg-result "Using -lsqlite3 from $sq3path"
       }
-      define-append CFLAGS_INCLUDE -I$sq3path
-      define-append EXTRA_LDFLAGS -lpthread
-      # ^^^ additional -lXXX flags are conservative estimates
-      msg-result "Using sqlite3.c and sqlite3.h from $sq3path"
-    } elseif {[file exists $sq3path/sqlite3.o]} {
-      # Use sqlite3.o if found.
-      define SQLITE3_OBJ.2 $sq3path/sqlite3.o
-      define-append CFLAGS_INCLUDE -I$sq3path
-      define-append EXTRA_LDFLAGS $sq3path/sqlite3.o -lpthread
-      # ^^^ additional -lXXX flags are conservative estimates
-      msg-result "Using sqlite3.o from $sq3path"
-    } elseif { ([llength [glob -nocomplain -directory $sq3path/lib libsqlite3*]] != 0) \
-                 && ([file exists $sq3path/include/sqlite3.h]) } {
-      # e.g. --with-sqlite=/usr/local. Try $sq3path/lib/libsqlite3*
-      # and $sq3path/include/sqlite3.h
-      define-append CFLAGS_INCLUDE -I$sq3path/include
-      define-append EXTRA_LDFLAGS -L$sq3path/lib -lsqlite3 -lpthread
-      # ^^^ additional -lXXX flags are conservative estimates
-      msg-result "Using -lsqlite3 from $sq3path"
-    } else {
-      # Assume $sq3path holds both the lib and header
-      cc-with [list -cflags "-I$sq3path -L$sq3path"]
-      define-append CFLAGS_INCLUDE -I$sq3path
-      define-append EXTRA_LDFLAGS -L$sq3path -lsqlite3 -lpthread
-      # ^^^ additional -lXXX flags are conservative estimates
-      msg-result "Using -lsqlite3 from $sq3path"
+    } elseif {![cc-check-includes sqlite3.h] || ![check-function-in-lib sqlite3_open_v2 sqlite3]} {
+      user-error "libsqlite3 not found please install it or specify the location with --with-sqlite"
     }
-  } elseif {![cc-check-includes sqlite3.h] || ![check-function-in-lib sqlite3_open_v2 sqlite3]} {
-    user-error "libsqlite3 not found please install it or specify the location with --with-sqlite"
   }
-}
-define-append CFLAGS_INCLUDE {-I. -I$(SRCDIR) -I$(SRCDIR_extsrc)}
+}; # handle-with-sqlite
+handle-with-sqlite
+define-append CFLAGS_INCLUDE {-I. -I$(SRCDIR) -I$(SRCDIR_extsrc)}; # must be after handle-with-sqlite
 
-set tclpath [opt-val with-tcl]
-if {$tclpath ne ""} {
-    set tclprivatestubs [opt-bool with-tcl-private-stubs]
-    # Note parse-tclconfig-sh is in autosetup/local.tcl
-    if {$tclpath eq "1"} {
-        set tcldir [file dirname $autosetup(dir)]/compat/tcl-8.6
-        if {$tclprivatestubs} {
-            set tclconfig(TCL_INCLUDE_SPEC) -I$tcldir/generic
-            set tclconfig(TCL_VERSION) {Private Stubs}
-            set tclconfig(TCL_PATCH_LEVEL) {}
-            set tclconfig(TCL_PREFIX) $tcldir
-            set tclconfig(TCL_LD_FLAGS) { }
-        } else {
-            # Use the system Tcl. Look in some likely places.
-            array set tclconfig [parse-tclconfig-sh \
-                $tcldir/unix $tcldir/win \
-                /usr /usr/local /usr/share /opt/local]
-            set msg "on your system"
-        }
-    } else {
-        array set tclconfig [parse-tclconfig-sh $tclpath]
-        set msg "at $tclpath"
-    }
-    if {[opt-bool static]} {
-        set tclconfig(TCL_LD_FLAGS) { }
-    }
-    if {![info exists tclconfig(TCL_INCLUDE_SPEC)]} {
-        user-error "Cannot find Tcl $msg"
-    }
-    set tclstubs [opt-bool with-tcl-stubs]
+#
+# Handle the --with-tcl flag.
+#
+proc handle-with-tcl {} {
+  set tclpath [opt-val with-tcl]
+  if {$tclpath eq ""} {
+    return
+  }
+  set tclprivatestubs [opt-bool with-tcl-private-stubs]
+  # Note parse-tclconfig-sh is in autosetup/local.tcl
+  if {$tclpath eq "1"} {
+    set tcldir [file dirname $::autosetup(dir)]/compat/tcl-8.6
     if {$tclprivatestubs} {
-        define FOSSIL_ENABLE_TCL_PRIVATE_STUBS
-        define USE_TCL_STUBS
-    } elseif {$tclstubs && $tclconfig(TCL_SUPPORTS_STUBS)} {
-        set libs "$tclconfig(TCL_STUB_LIB_SPEC)"
-        define FOSSIL_ENABLE_TCL_STUBS
-        define USE_TCL_STUBS
+      set tclconfig(TCL_INCLUDE_SPEC) -I$tcldir/generic
+      set tclconfig(TCL_VERSION) {Private Stubs}
+      set tclconfig(TCL_PATCH_LEVEL) {}
+      set tclconfig(TCL_PREFIX) $tcldir
+      set tclconfig(TCL_LD_FLAGS) { }
     } else {
-        set libs "$tclconfig(TCL_LIB_SPEC) $tclconfig(TCL_LIBS)"
+      # Use the system Tcl. Look in some likely places.
+      array set tclconfig [parse-tclconfig-sh \
+                             $tcldir/unix $tcldir/win \
+                             /usr /usr/local /usr/share /opt/local]
+      set msg "on your system"
     }
-    set cflags $tclconfig(TCL_INCLUDE_SPEC)
-    if {!$tclprivatestubs} {
-        set foundtcl 0; # Did we find a working Tcl library?
-        cc-with [list -cflags $cflags -libs $libs] {
-            if {$tclstubs} {
-                if {[cc-check-functions Tcl_InitStubs]} {
-                    set foundtcl 1
-                }
-            } else {
-                if {[cc-check-functions Tcl_CreateInterp]} {
-                    set foundtcl 1
-                }
-            }
+  } else {
+    array set tclconfig [parse-tclconfig-sh $tclpath]
+    set msg "at $tclpath"
+  }
+  if {[opt-bool static]} {
+    set tclconfig(TCL_LD_FLAGS) { }
+  }
+  if {![info exists tclconfig(TCL_INCLUDE_SPEC)]} {
+    user-error "Cannot find Tcl $msg"
+  }
+  set tclstubs [opt-bool with-tcl-stubs]
+  if {$tclprivatestubs} {
+    define FOSSIL_ENABLE_TCL_PRIVATE_STUBS
+    define USE_TCL_STUBS
+  } elseif {$tclstubs && $tclconfig(TCL_SUPPORTS_STUBS)} {
+    set libs "$tclconfig(TCL_STUB_LIB_SPEC)"
+    define FOSSIL_ENABLE_TCL_STUBS
+    define USE_TCL_STUBS
+  } else {
+    set libs "$tclconfig(TCL_LIB_SPEC) $tclconfig(TCL_LIBS)"
+  }
+  set cflags $tclconfig(TCL_INCLUDE_SPEC)
+  if {!$tclprivatestubs} {
+    set foundtcl 0; # Did we find a working Tcl library?
+    cc-with [list -cflags $cflags -libs $libs] {
+      if {$tclstubs} {
+        if {[cc-check-functions Tcl_InitStubs]} {
+          set foundtcl 1
         }
-        if {!$foundtcl && [string match *-lieee* $libs]} {
-            # On some systems, using "-lieee" from TCL_LIB_SPEC appears
-            # to cause issues.
-            msg-result "Removing \"-lieee\" and retrying for Tcl..."
-            set libs [string map [list -lieee ""] $libs]
-            cc-with [list -cflags $cflags -libs $libs] {
-                if {$tclstubs} {
-                    if {[cc-check-functions Tcl_InitStubs]} {
-                        set foundtcl 1
-                    }
-                } else {
-                    if {[cc-check-functions Tcl_CreateInterp]} {
-                        set foundtcl 1
-                    }
-                }
-            }
+      } else {
+        if {[cc-check-functions Tcl_CreateInterp]} {
+          set foundtcl 1
         }
-        if {!$foundtcl && ![string match *-lpthread* $libs]} {
-            # On some systems, TCL_LIB_SPEC appears to be missing
-            # "-lpthread".  Try adding it.
-            msg-result "Adding \"-lpthread\" and retrying for Tcl..."
-            set libs "$libs -lpthread"
-            cc-with [list -cflags $cflags -libs $libs] {
-                if {$tclstubs} {
-                    if {[cc-check-functions Tcl_InitStubs]} {
-                        set foundtcl 1
-                    }
-                } else {
-                    if {[cc-check-functions Tcl_CreateInterp]} {
-                        set foundtcl 1
-                    }
-                }
-            }
-        }
-        if {!$foundtcl} {
-            if {$tclstubs} {
-                user-error "Cannot find a usable Tcl stubs library $msg"
-            } else {
-                user-error "Cannot find a usable Tcl library $msg"
-            }
-        }
+      }
     }
-    set version $tclconfig(TCL_VERSION)$tclconfig(TCL_PATCH_LEVEL)
-    msg-result "Found Tcl $version at $tclconfig(TCL_PREFIX)"
-    if {!$tclprivatestubs} {
-        define-append LIBS $libs
+    if {!$foundtcl && [string match *-lieee* $libs]} {
+      # On some systems, using "-lieee" from TCL_LIB_SPEC appears
+      # to cause issues.
+      msg-result "Removing \"-lieee\" and retrying for Tcl..."
+      set libs [string map [list -lieee ""] $libs]
+      cc-with [list -cflags $cflags -libs $libs] {
+        if {$tclstubs} {
+          if {[cc-check-functions Tcl_InitStubs]} {
+            set foundtcl 1
+          }
+        } else {
+          if {[cc-check-functions Tcl_CreateInterp]} {
+            set foundtcl 1
+          }
+        }
+      }
     }
-    define-append EXTRA_CFLAGS $cflags
-    define-append CFLAGS $cflags
-    if {[info exists zlibpath] && $zlibpath eq "tree"} {
-      #
-      # NOTE: When using zlib in the source tree, prevent Tcl from
-      #       pulling in the system one.
-      #
-      set tclconfig(TCL_LD_FLAGS) [string map [list -lz ""] \
-          $tclconfig(TCL_LD_FLAGS)]
+    if {!$foundtcl && ![string match *-lpthread* $libs]} {
+      # On some systems, TCL_LIB_SPEC appears to be missing
+      # "-lpthread".  Try adding it.
+      msg-result "Adding \"-lpthread\" and retrying for Tcl..."
+      set libs "$libs -lpthread"
+      cc-with [list -cflags $cflags -libs $libs] {
+        if {$tclstubs} {
+          if {[cc-check-functions Tcl_InitStubs]} {
+            set foundtcl 1
+          }
+        } else {
+          if {[cc-check-functions Tcl_CreateInterp]} {
+            set foundtcl 1
+          }
+        }
+      }
     }
+    if {!$foundtcl} {
+      if {$tclstubs} {
+        user-error "Cannot find a usable Tcl stubs library $msg"
+      } else {
+        user-error "Cannot find a usable Tcl library $msg"
+      }
+    }
+  }
+  set version $tclconfig(TCL_VERSION)$tclconfig(TCL_PATCH_LEVEL)
+  msg-result "Found Tcl $version at $tclconfig(TCL_PREFIX)"
+  if {!$tclprivatestubs} {
+    define-append LIBS $libs
+  }
+  define-append EXTRA_CFLAGS $cflags
+  define-append CFLAGS $cflags
+  if {[info exists ::zlibpath] && $::zlibpath eq "tree"} {
     #
-    # NOTE: Remove "-ldl" from the TCL_LD_FLAGS because it will be
-    #       be checked for near the bottom of this file.
+    # NOTE: When using zlib in the source tree, prevent Tcl from
+    #       pulling in the system one.
     #
-    set tclconfig(TCL_LD_FLAGS) [string map [list -ldl ""] \
-        $tclconfig(TCL_LD_FLAGS)]
-    define-append EXTRA_LDFLAGS $tclconfig(TCL_LD_FLAGS)
-    define FOSSIL_ENABLE_TCL
-}
+    set tclconfig(TCL_LD_FLAGS) [string map [list -lz ""] \
+                                   $tclconfig(TCL_LD_FLAGS)]
+  }
+  #
+  # NOTE: Remove "-ldl" from the TCL_LD_FLAGS because it will be
+  #       be checked for near the bottom of this file.
+  #
+  set tclconfig(TCL_LD_FLAGS) [string map [list -ldl ""] \
+                                 $tclconfig(TCL_LD_FLAGS)]
+  define-append EXTRA_LDFLAGS $tclconfig(TCL_LD_FLAGS)
+  define FOSSIL_ENABLE_TCL
+}; # handle-with-tcl
+handle-with-tcl
 
 # Network functions require libraries on some systems
 cc-check-function-in-lib gethostbyname nsl
 if {![cc-check-function-in-lib socket {socket network}]} {
-    # Last resort, may be Windows
-    if {[is_mingw]} {
-        define-append LIBS -lwsock32
-    }
+  # Last resort, may be Windows
+  if {[is_mingw]} {
+    define-append LIBS -lwsock32
+  }
 }
 
 # Some systems (ex: SunOS) require -lrt in order to use nanosleep
@@ -736,7 +777,7 @@ if {    !(([cc-check-function-in-lib dn_expand resolv] ||
            [cc-check-function-in-lib __ns_parserr {bind resolv}]) &&
           ([cc-check-function-in-lib   res_query {bind resolv}] ||
            [cc-check-function-in-lib __res_query {bind resolv}]))} {
-    msg-result "WARNING: SMTP feature will not be able to look up local MX."
+  msg-result "WARNING: SMTP feature will not be able to look up local MX."
 }
 cc-check-function-in-lib res_9_ns_initparse resolv
 
@@ -751,8 +792,8 @@ cc-check-functions backtrace
 # guard against including it again; use cctest as cc-check-functions and
 # cctest_function check for "getpass()" with no args and fail
 if {[cctest -link 1 -includes {unistd.h} -code "getpass(0);"]} {
-    define FOSSIL_HAVE_GETPASS 1
-    msg-result "Found getpass() with unistd.h"
+  define FOSSIL_HAVE_GETPASS 1
+  msg-result "Found getpass() with unistd.h"
 }
 
 # Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
@@ -764,19 +805,18 @@ if {![cc-check-functions getloadavg] ||
 
 # Check for getpassphrase() for Solaris 10 where getpass() truncates to 10 chars
 if {![cc-check-functions getpassphrase]} {
-    # Haiku needs this
-    cc-check-function-in-lib getpass bsd
+  # Haiku needs this
+  cc-check-function-in-lib getpass bsd
 }
-cc-check-function-in-lib sin m
 
 # Check for the FuseFS library
 if {[opt-bool fusefs]} {
   if {[opt-bool static]} {
-     msg-result "FuseFS support disabled due to -static"
+    msg-result "FuseFS support disabled due to -static"
   } elseif {[cc-check-function-in-lib fuse_mount fuse]} {
-     define-append EXTRA_CFLAGS -DFOSSIL_HAVE_FUSEFS
-     define FOSSIL_HAVE_FUSEFS 1
-     msg-result "FuseFS support enabled"
+    define-append EXTRA_CFLAGS -DFOSSIL_HAVE_FUSEFS
+    define FOSSIL_HAVE_FUSEFS 1
+    msg-result "FuseFS support enabled"
   }
 }
 
@@ -786,18 +826,18 @@ if {[opt-bool fusefs]} {
 # Returns 1 if supported, else 0. Defines MAKE_COMPILATION_DB to "yes"
 # if supported, "no" if not.
 proc check-compile-commands {} {
-    msg-checking "compile_commands.json support... "
-    if {[cctest -lang c -cflags {/dev/null -MJ} -source {}]} {
-        # This test reportedly incorrectly succeeds on one of
-        # Martin G.'s older systems.
-        msg-result "compiler supports compile_commands.json"
-        define MAKE_COMPILATION_DB yes
-        return 1
-    } else {
-        msg-result "compiler does not support compile_commands.json"
-        define MAKE_COMPILATION_DB no
-        return 0
-    }
+  msg-checking "compile_commands.json support... "
+  if {[cctest -lang c -cflags {/dev/null -MJ} -source {}]} {
+    # This test reportedly incorrectly succeeds on one of
+    # Martin G.'s older systems.
+    msg-result "compiler supports compile_commands.json"
+    define MAKE_COMPILATION_DB yes
+    return 1
+  } else {
+    msg-result "compiler does not support compile_commands.json"
+    define MAKE_COMPILATION_DB no
+    return 0
+  }
 }
 
 define MAKE_COMPILATION_DB no
@@ -818,28 +858,14 @@ if {!$outOfTreeBuild} {
 # be pointless, it can actually break correct tests.
 set fsan [opt-val with-sanitizer]
 if {[string length $fsan]} {
-    define-append  EXTRA_CFLAGS -fsanitize=$fsan
-    define-append EXTRA_LDFLAGS -fsanitize=$fsan
-    if {[string first "undefined" $fsan] != -1} {
-        # We need to link with libubsan if we're compiling under
-        # GCC with -fsanitize=undefined.
-        cc-check-function-in-lib __ubsan_handle_add_overflow ubsan
-    }
+  define-append  EXTRA_CFLAGS -fsanitize=$fsan
+  define-append EXTRA_LDFLAGS -fsanitize=$fsan
+  if {[string first "undefined" $fsan] != -1} {
+    # We need to link with libubsan if we're compiling under
+    # GCC with -fsanitize=undefined.
+    cc-check-function-in-lib __ubsan_handle_add_overflow ubsan
+  }
 }
-
-# Finally, append libraries that must be last. This matters more on some
-# OSes than others, but is most broadly required for static linking.
-if {[check-function-in-lib dlopen dl]} {
-    # Some platforms (*BSD) have the dl functions already in libc and no libdl.
-    # In such case we can link directly without -ldl.
-    define-append LIBS [get-define lib_dlopen]
-}
-if {[opt-bool static]} {
-    # Linux can only infer the dependency on pthread from OpenSSL when
-    # doing dynamic linkage.
-    define-append LIBS -lpthread
-}
-
 
 ########################################################################
 # @proj-check-emsdk
@@ -920,6 +946,42 @@ if {[proj-check-emsdk]} {
   define EMCC_OPT ""
   catch {exec rm -f tools/emcc.sh}
 }
+
+handle-with-openssl
+
+# Finally, append libraries that must be last. This matters more on some
+# OSes than others, but is most broadly required for static linking.
+if {[opt-bool static]} {
+  # Linux can only infer the dependency on pthread from OpenSSL when
+  # doing dynamic linkage.
+  define-append LIBS -lpthread
+}
+
+apply {{} {
+  # This started out as a workaround for getting the ordering of -ldl
+  # correct in conjunction with openssl in some environments. Then it
+  # evolved into a more generic preemptive portability workaround to
+  # ensure that certain libraries are always appended to the global
+  # LIBS list if they exist on the system. Based on a /chat discussion
+  # on 2025-02-27 in the context of check-in [8d3b9bf4d4].
+  #
+  # Note that [move-lib-to-end] and [lib-actually-exists] are in
+  # autosetup/local.tcl.
+  set libs [get-define LIBS]
+  #puts "**** 1 LIBS: $libs"
+  foreach ll {-ldl -lpthread -lm} {
+    if {![move-lib-to-end $ll $libs libs]} {
+      # $ll was not in the list
+      if {[lib-actually-exists $ll]} {
+        # Add it to the list "just in case." This will be a no-op on
+        # systems where the lib is not actually used.
+        lappend libs $ll
+      }
+    }
+  }
+  #puts "**** 2 LIBS: $libs"
+  define LIBS [join $libs " "]
+}}
 
 # Tag container builds with a prefix of the checkin ID of the version
 # of Fossil each one contains.  This not only allows multiple images

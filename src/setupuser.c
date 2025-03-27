@@ -306,6 +306,97 @@ static int isValidPwString(const char *zPw){
 }
 
 /*
+** Return true if user capability string zNew contains any capability
+** letter which is not in user capability string zOrig, else 0.  This
+** does not take inherited permissions into account. Either argument
+** may be NULL.
+*/
+static int userHasNewCaps(const char *zOrig, const char *zNew){
+  for( ; zNew && *zNew; ++zNew ){
+    if( !zOrig || strchr(zOrig,*zNew)==0 ){
+      return *zNew;
+    }
+  }
+  return 0;
+}
+
+/*
+** Sends notification of user permission elevation changes to all
+** subscribers with a "u" subscription. This is a no-op if alerts are
+** not enabled.
+**
+** These subscriptions differ from most, in that:
+**
+** - They currently lack an "unsubscribe" link.
+**
+** - Only an admin can assign this subscription, but if a non-admin
+**   edits their subscriptions after an admin assigns them this one,
+**   this particular one will be lost.  "Feature or bug?" is unclear,
+**   but it would be odd for a non-admin to be assigned this
+**   capability.
+*/
+static void alert_user_elevation(const char *zLogin,   /*Affected user*/
+                                 int uid,              /*[user].uid*/
+                                 int bIsNew,           /*true if new user*/
+                                 const char *zOrigCaps,/*Old caps*/
+                                 const char *zNewCaps  /*New caps*/){
+  Blob hdr, body;
+  Stmt q;
+  int nBody;
+  AlertSender *pSender;
+  char *zSubname;
+  char *zURL;
+  char * zSubject;
+
+  if( !alert_enabled() ) return;
+  zSubject = bIsNew
+    ? mprintf("New user created: [%q]", zLogin)
+    : mprintf("User [%q] permissions elevated", zLogin);
+  zURL = db_get("email-url",0);
+  zSubname = db_get("email-subname", "[Fossil Repo]");
+  blob_init(&body, 0, 0);
+  blob_init(&hdr, 0, 0);
+  if( bIsNew ){
+    blob_appendf(&body, "User [%q] was created by with "
+                 "permissions [%q] by user [%q].\n",
+                 zLogin, zNewCaps, g.zLogin);
+  } else {
+    blob_appendf(&body, "Permissions for user [%q] where elevated "
+                 "from [%q] to [%q] by user [%q].\n",
+                 zLogin, zOrigCaps, zNewCaps, g.zLogin);
+  }
+  if( zURL ){
+    blob_appendf(&body, "\nUser editor: %s/setup_uedit?uid=%d\n", zURL, uid);
+  }
+  nBody = blob_size(&body);
+  pSender = alert_sender_new(0, 0);
+  db_prepare(&q,
+        "SELECT semail, hex(subscriberCode)"
+        "  FROM subscriber, user "
+        " WHERE sverified AND NOT sdonotcall"
+        "   AND suname=login"
+        "   AND ssub GLOB '*u*'");
+  while( !pSender->zErr && db_step(&q)==SQLITE_ROW ){
+    const char *zTo = db_column_text(&q, 0);
+    blob_truncate(&hdr, 0);
+    blob_appendf(&hdr, "To: <%s>\r\nSubject: %s %s\r\n",
+                 zTo, zSubname, zSubject);
+    if( zURL ){
+      const char *zCode = db_column_text(&q, 1);
+      blob_truncate(&body, nBody);
+      blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
+                   zURL, zCode);
+    }
+    alert_send(pSender, &hdr, &body, 0);
+  }
+  db_finalize(&q);
+  alert_sender_free(pSender);
+  fossil_free(zURL);
+  fossil_free(zSubname);
+  fossil_free(zSubject);
+}
+
+/*
 ** WEBPAGE: setup_uedit
 **
 ** Edit information about a user or create a new user.
@@ -316,6 +407,7 @@ void user_edit(void){
   const char *zGroup;
   const char *zOldLogin;
   int uid, i;
+  char *zOldCaps = 0;        /* Capabilities before edit */
   char *zDeleteVerify = 0;   /* Delete user verification text */
   int higherUser = 0;  /* True if user being edited is SETUP and the */
                        /* user doing the editing is ADMIN.  Disallow editing */
@@ -333,10 +425,11 @@ void user_edit(void){
   */
   zId = PD("id", "0");
   uid = atoi(zId);
-  if( zId && !g.perm.Setup && uid>0 ){
-    char *zOldCaps;
-    zOldCaps = db_text(0, "SELECT cap FROM user WHERE uid=%d",uid);
-    higherUser = zOldCaps && strchr(zOldCaps,'s');
+  if( uid>0 ){
+    zOldCaps = db_text("", "SELECT cap FROM user WHERE uid=%d",uid);
+    if( zId && !g.perm.Setup ){
+      higherUser = zOldCaps && strchr(zOldCaps,'s');
+    }
   }
 
   if( P("can") ){
@@ -395,26 +488,29 @@ void user_edit(void){
   }else{
     /* We have all the information we need to make the change to the user */
     char c;
-    char zCap[70], zNm[4];
+    int bHasNewCaps = 0 /* 1 if user's permissions are increased */;
+    const int bIsNew = uid<=0;
+    char aCap[70], zNm[4];
     zNm[0] = 'a';
     zNm[2] = 0;
     for(i=0, c='a'; c<='z'; c++){
       zNm[1] = c;
       a[c&0x7f] = ((c!='s' && c!='y') || g.perm.Setup) && P(zNm)!=0;
-      if( a[c&0x7f] ) zCap[i++] = c;
+      if( a[c&0x7f] ) aCap[i++] = c;
     }
     for(c='0'; c<='9'; c++){
       zNm[1] = c;
       a[c&0x7f] = P(zNm)!=0;
-      if( a[c&0x7f] ) zCap[i++] = c;
+      if( a[c&0x7f] ) aCap[i++] = c;
     }
     for(c='A'; c<='Z'; c++){
       zNm[1] = c;
       a[c&0x7f] = P(zNm)!=0;
-      if( a[c&0x7f] ) zCap[i++] = c;
+      if( a[c&0x7f] ) aCap[i++] = c;
     }
 
-    zCap[i] = 0;
+    aCap[i] = 0;
+    bHasNewCaps = bIsNew || userHasNewCaps(zOldCaps, &aCap[0]);
     zPw = P("pw");
     zLogin = P("login");
     if( strlen(zLogin)==0 ){
@@ -446,11 +542,12 @@ void user_edit(void){
     }
     cgi_csrf_verify();
     db_unprotect(PROTECT_USER);
-    db_multi_exec(
-       "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
-       "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
-      uid, zLogin, P("info"), zPw, zCap
-    );
+    uid = db_int(0,
+                 "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
+                 "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now()) "
+                 "RETURNING uid",
+                 uid, zLogin, P("info"), zPw, &aCap[0]);
+    assert( uid>0 );
     if( zOldLogin && fossil_strcmp(zLogin, zOldLogin)!=0 ){
       if( alert_tables_exist() ){
         /* Rename matching subscriber entry, else the user cannot
@@ -462,8 +559,9 @@ void user_edit(void){
     }
     db_protect_pop();
     setup_incr_cfgcnt();
-    admin_log( "Updated user [%q] with capabilities [%q].",
-               zLogin, zCap );
+    admin_log( "%s user [%q] with capabilities [%q].",
+               bIsNew ? "Added" : "Updated",
+               zLogin, &aCap[0] );
     if( atoi(PD("all","0"))>0 ){
       Blob sql;
       char *zErr = 0;
@@ -498,7 +596,7 @@ void user_edit(void){
         "  cap=%Q,"
         "  mtime=now()"
         " WHERE login=%Q;",
-        zLogin, P("pw"), zLogin, P("info"), zCap,
+        zLogin, P("pw"), zLogin, P("info"), &aCap[0],
         zOldLogin
       );
       db_unprotect(PROTECT_USER);
@@ -507,7 +605,7 @@ void user_edit(void){
       blob_reset(&sql);
       admin_log( "Updated user [%q] in all login groups "
                  "with capabilities [%q].",
-                 zLogin, zCap );
+                 zLogin, &aCap[0] );
       if( zErr ){
         const char *zRef = cgi_referer("setup_ulist");
         style_header("User Change Error");
@@ -517,8 +615,14 @@ void user_edit(void){
         @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(zRef)">
         @ [Bummer]</a></p>
         style_finish_page();
+        if( bHasNewCaps ){
+          alert_user_elevation(zLogin, uid, bIsNew, zOldCaps, &aCap[0]);
+        }
         return;
       }
+    }
+    if( bHasNewCaps ){
+      alert_user_elevation(zLogin, uid, bIsNew, zOldCaps, &aCap[0]);
     }
     cgi_redirect(cgi_referer("setup_ulist"));
     return;
@@ -528,15 +632,15 @@ void user_edit(void){
   */
   zLogin = "";
   zInfo = "";
-  zCap = "";
+  zCap = zOldCaps;
   zPw = "";
   for(i='a'; i<='z'; i++) oa[i] = "";
   for(i='0'; i<='9'; i++) oa[i] = "";
   for(i='A'; i<='Z'; i++) oa[i] = "";
   if( uid ){
+    assert( zCap );
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
-    zCap = db_text("", "SELECT cap FROM user WHERE uid=%d", uid);
     zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", uid);
     for(i=0; zCap[i]; i++){
       char c = zCap[i];

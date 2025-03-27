@@ -998,7 +998,7 @@ int win32_http_service(
 **
 **              Sets the display name of the service. This name is shown
 **              by graphical interface programs. By default, the display name
-**              equals to the service name.
+**              is equal to the service name.
 **
 **         -S|--start TYPE
 **
@@ -1021,7 +1021,7 @@ int win32_http_service(
 **              Password for the user account.
 **
 **         The following options are more or less the same as for the "server"
-**         command and influence the behaviour of the http server:
+**         command and influence the behavior of the http server:
 **
 **         --baseurl URL
 **

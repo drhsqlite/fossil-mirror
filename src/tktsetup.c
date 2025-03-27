@@ -507,7 +507,13 @@ static const char zDefaultView[] =
 @ <td colspan="3" valign="top" class="tktDspValue">
 @ $<foundin>
 @ </td></tr>
+@ </table>
 @
+@ <th1>
+@ wiki_assoc "ticket" $tkt_uuid
+@ </th1>
+@
+@ <table cellpadding="5" style="min-width:100%">
 @ <th1>
 @ if {[info exists comment]} {
 @   if {[string length $comment]>10} {
@@ -533,7 +539,7 @@ static const char zDefaultView[] =
 @   if {$seenRow} {
 @     html "<hr>\n"
 @   } else {
-@     html "<tr><td class='tktDspLabel'>User Comments:</td></tr>\n"
+@     html "<tr><td class='tktDspLabel' style='text-align:left'>User Comments:</td></tr>\n"
 @     html "<tr><td colspan='5' class='tktDspValue'>\n"
 @     set seenRow 1
 @   }

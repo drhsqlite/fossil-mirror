@@ -600,7 +600,7 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-** >  fossil branch close|reopen ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+** > fossil branch close|reopen ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
 **
 **       Adds or cancels the "closed" tag to one or more branches.
 **       It accepts arbitrary unambiguous symbolic names but
@@ -614,22 +614,22 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **         --date-override DATE  DATE to use instead of 'now'
 **         --user-override USER  USER to use instead of the current default
 **
-** >  fossil branch current
+** > fossil branch current
 **
 **        Print the name of the branch for the current check-out
 **
-** >  fossil branch hide|unhide ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+** > fossil branch hide|unhide ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
 **
 **       Adds or cancels the "hidden" tag for the specified branches or
 **       or check-in IDs. Accepts the same options as the close
 **       subcommand.
 **
-** >  fossil branch info BRANCH-NAME
+** > fossil branch info BRANCH-NAME
 **
 **        Print information about a branch
 **
-** >  fossil branch list|ls ?OPTIONS? ?GLOB?
-** >  fossil branch lsh ?OPTIONS? ?LIMIT?
+** > fossil branch list|ls ?OPTIONS? ?GLOB?
+** > fossil branch lsh ?OPTIONS? ?LIMIT?
 **
 **        List all branches.
 **
@@ -655,7 +655,7 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        but no GLOB argument.  All other options are supported, with -t being
 **        an implied no-op.
 **
-** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
+** > fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
 **
@@ -872,7 +872,8 @@ static void new_brlist_page(void){
     char *zAge = human_readable_age(rNow - rMtime);
     sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0);
     if( zMergeTo && zMergeTo[0]==0 ) zMergeTo = 0;
-    if( zBgClr == 0 ){
+    if( zBgClr ) zBgClr = reasonable_bg_color(zBgClr, 0);
+    if( zBgClr==0 ){
       if( zBranch==0 || strcmp(zBranch,"trunk")==0 ){
         zBgClr = 0;
       }else{

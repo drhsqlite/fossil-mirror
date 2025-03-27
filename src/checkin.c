@@ -1469,6 +1469,7 @@ static void prepare_commit_comment(
   int dryRunFlag
 ){
   Blob prompt;
+  int wikiFlags;
 #if defined(_WIN32) || defined(__CYGWIN__)
   int bomSize;
   const unsigned char *bom = get_utf8_bom(&bomSize);
@@ -1481,10 +1482,33 @@ static void prepare_commit_comment(
 #endif
   blob_append(&prompt,
     "\n"
-    "# Enter a commit message for this check-in."
-        " Lines beginning with # are ignored.\n"
-    "#\n", -1
+    "# Enter the commit message.  Formatting rules:\n"
+    "#   *  Lines beginning with # are ignored.\n",
+    -1
   );
+  wikiFlags = wiki_convert_flags(1);
+  if( wikiFlags & WIKI_LINKSONLY ){
+    blob_append(&prompt,"#   *  Hyperlinks inside of [...]\n", -1);
+    if( wikiFlags & WIKI_NEWLINE ){
+      blob_append(&prompt,
+        "#   *  Newlines are significant and are displayed as written\n", -1);
+    }else{
+      blob_append(&prompt,
+        "#   *  Newlines are interpreted as ordinary spaces\n",
+        -1
+      );
+    }
+    blob_append(&prompt,
+        "#   *  All other text will be displayed as written\n", -1);
+  }else{
+    blob_append(&prompt,
+       "#   *  Hyperlinks:   [target]   or   [target|display-text]\n"
+       "#   *  Blank lines cause a paragraph break\n"
+       "#   *  Other text rendered as if it where HTML\n", -1
+    );
+  }
+  blob_append(&prompt, "#\n", 2);
+
   if( dryRunFlag ){
     blob_appendf(&prompt, "# DRY-RUN:  This is a test commit.  No changes "
                           "will be made to the repository\n#\n");
@@ -2285,36 +2309,107 @@ static int tagCmp(const void *a, const void *b){
 }
 
 /*
+** SETTING: verify-comments                              width=8 default=on
+**
+** This setting determines how much sanity checking, if any, the 
+** "fossil commit" and "fossil amend" commands do against check-in
+** comments. Recognized values:
+**
+**     on         (Default) Check for bad syntax and/or broken hyperlinks
+**                in check-in comments and offer the user a chance to
+**                continue editing for interactive sessions, or simply
+**                abort the commit if the comment was entered using -m or -M
+**
+**     off        Do not do syntax checking of any kind
+**
+**     preview    Do all the same checks as "on" but also always preview the
+**                check-in comment to the user during interactive sessions
+**                even if no obvious errors are found, and provide an
+**                opportunity to accept or re-edit
+*/
+
+#if INTERFACE
+#define COMCK_MARKUP    0x01  /* Check for mistakes */
+#define COMCK_PREVIEW   0x02  /* Always preview, even if no issues found */
+#endif /* INTERFACE */
+
+/*
+** Check for possible formatting errors in the comment string pComment.
+**
+** If issues are found, write an appropriate error notice, probably also
+** including the complete text of the comment formatted to highlight the
+** problem, to stdout and return non-zero.  The return value is some
+** combination of the COMCK_* flags, depending on what went wrong.
+**
+** If no issues are seen, do not output anything and return zero.
+*/
+int verify_comment(Blob *pComment, int mFlags){
+  Blob in, html;
+  int mResult;
+  int rc = mFlags & COMCK_PREVIEW;
+  int wFlags;
+
+  if( mFlags==0 ) return 0;
+  blob_init(&in, blob_str(pComment), -1);
+  blob_init(&html, 0, 0);
+  wFlags = wiki_convert_flags(0);
+  wFlags &= ~WIKI_NOBADLINKS;
+  wFlags |= WIKI_MARK;
+  mResult = wiki_convert(&in, &html, wFlags);
+  if( mResult & RENDER_ANYERROR ) rc |= COMCK_MARKUP;
+  if( rc ){
+    int htot = ((wFlags & WIKI_NEWLINE)!=0 ? 0 : HTOT_FLOW)|HTOT_TRIM;
+    Blob txt;
+    if( terminal_is_vt100() ) htot |= HTOT_VT100;
+    blob_init(&txt, 0, 0);
+    html_to_plaintext(blob_str(&html), &txt, htot);
+    if( rc & COMCK_MARKUP ){
+      fossil_print("Possible format errors in the check-in comment:\n\n   ");
+    }else{
+      fossil_print("Preview of the check-in comment:\n\n   ");
+    }
+    if( wFlags & WIKI_NEWLINE ){
+      Blob line;
+      char *zIndent = "";
+      while( blob_line(&txt, &line) ){
+        fossil_print("%s%b", zIndent, &line);
+        zIndent = "   ";
+      }
+      fossil_print("\n");
+    }else{
+      comment_print(blob_str(&txt), 0, 3, -1, get_comment_format());
+    }
+    fossil_print("\n");
+    fflush(stdout);
+    blob_reset(&txt);
+  }
+  blob_reset(&html);
+  blob_reset(&in);
+  return rc;
+} 
+
+/*
 ** COMMAND: ci#
 ** COMMAND: commit
 **
 ** Usage: %fossil commit ?OPTIONS? ?FILE...?
 **    or: %fossil ci ?OPTIONS? ?FILE...?
 **
-** Create a new version containing all of the changes in the current
-** check-out.  You will be prompted to enter a check-in comment unless
-** the comment has been specified on the command-line using "-m" or a
-** file containing the comment using -M.  The editor defined in the
-** "editor" fossil option (see %fossil help set) will be used, or from
-** the "VISUAL" or "EDITOR" environment variables (in that order) if
-** no editor is set.
+** Create a new check-in containing all of the changes in the current
+** check-out.  All changes are committed unless some subset of files
+** is specified on the command line, in which case only the named files
+** become part of the new check-in.
 **
-** All files that have changed will be committed unless some subset of
-** files is specified on the command line.
+** You will be prompted to enter a check-in comment unless the comment
+** has been specified on the command-line using "-m" or "-M".  The
+** text editor used is determined by the "editor" setting, or by the
+** "VISUAL" or "EDITOR" environment variables.  Commit message text is
+** interpreted as fossil-wiki format.  Potentially misformatted check-in
+** comment text is detected and reported unless the --no-verify-comment
+** option is used.
 **
 ** The --branch option followed by a branch name causes the new
-** check-in to be placed in a newly-created branch with the name
-** passed to the --branch option.
-**
-** Use the --branchcolor option followed by a color name (ex:
-** '#ffc0c0') to specify the background color of entries in the new
-** branch when shown in the web timeline interface.  The use of
-** the --branchcolor option is not recommended.  Instead, let Fossil
-** choose the branch color automatically.
-**
-** The --bgcolor option works like --branchcolor but only sets the
-** background color for a single check-in.  Subsequent check-ins revert
-** to the default color.
+** check-in to be placed in a newly-created branch with name specified.
 **
 ** A check-in is not permitted to fork unless the --allow-fork option
 ** appears.  An empty check-in (i.e. with nothing changed) is not
@@ -2330,17 +2425,12 @@ static int tagCmp(const void *a, const void *b){
 ** reason, the --no-warnings option may be used.  A check-in is not
 ** allowed against a closed leaf.
 **
-** If a commit message is blank, you will be prompted:
-** ("continue (y/N)?") to confirm you really want to commit with a
-** blank commit message.  The default value is "N", do not commit.
-**
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.
 **
 ** The --tag option applies the symbolic tag name to the check-in.
-**
-** The --hash option detects edited files by computing each file's
-** artifact hash rather than just checking for changes to its size or mtime.
+** The --tag option can be repeated to assign multiple tags to a check-in.
+** For example: "... --tag release --tag version-1.2.3 ..."
 **
 ** Options:
 **    --allow-conflict           Allow unresolved merge conflicts
@@ -2352,10 +2442,12 @@ static int tagCmp(const void *a, const void *b){
 **    --branch NEW-BRANCH-NAME   Check in to this new branch
 **    --branchcolor COLOR        Apply given COLOR to the branch
 **    --close                    Close the branch being committed
-**    --date-override DATETIME   DATE to use instead of 'now'
+**    --date-override DATETIME   Make DATETIME the time of the check-in.
+**                               Useful when importing historical check-ins
+**                               from another version control system.
 **    --delta                    Use a delta manifest in the commit process
 **    --hash                     Verify file status using hashing rather
-**                               than relying on file mtimes
+**                               than relying on filesystem mtimes
 **    --if-changes               Make this command a silent no-op if there
 **                               are no changes
 **    --ignore-clock-skew        If a clock skew is detected, ignore it and
@@ -2364,29 +2456,27 @@ static int tagCmp(const void *a, const void *b){
 **                               the skew.
 **    --ignore-oversize          Do not warn the user about oversized files
 **    --integrate                Close all merged-in branches
-**    -m|--comment COMMENT-TEXT  Use COMMENT-TEXT as commit comment
-**    -M|--message-file FILE     Read the commit comment from given file
-**    --mimetype MIMETYPE        Mimetype of check-in comment
-**    -n|--dry-run               If given, display instead of run actions
+**    -m|--comment COMMENT-TEXT  Use COMMENT-TEXT as the check-in comment
+**    -M|--message-file FILE     Read the check-in comment from FILE
+**    -n|--dry-run               Do not actually create a new check-in. Just
+**                               show what would have happened. For debugging.
 **    -v|--verbose               Show a diff in the commit message prompt
 **    --no-prompt                This option disables prompting the user for
 **                               input and assumes an answer of 'No' for every
 **                               question.
 **    --no-warnings              Omit all warnings about file contents
 **    --no-verify                Do not run before-commit hooks
+**    --no-verify-comment        Do not validate the check-in comment
 **    --nosign                   Do not attempt to sign this commit with gpg
 **    --nosync                   Do not auto-sync prior to committing
 **    --override-lock            Allow a check-in even though parent is locked
-**    --private                  Do not sync changes and their descendants
-**    --tag TAG-NAME             Assign given tag TAG-NAME to the check-in
+**    --private                  Never sync the resulting check-in and make
+**                               all descendants private too.
+**    --proxy PROXY              Use PROXY as http proxy during sync operation
+**    --tag TAG-NAME             Add TAG-NAME to the check-in. May be repeated.
 **    --trace                    Debug tracing
-**    --user-override USER       USER to use instead of the current default
-**
-** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
-** year-month-day form, it may be truncated, the "T" may be replaced by
-** a space, and it may also name a timezone offset from UTC as "-HH:MM"
-** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
-** means UTC.
+**    --user-override USER       Record USER as the login that created the
+**                               new check-in, rather that the current user.
 **
 ** See also: [[branch]], [[changes]], [[update]], [[extras]], [[sync]]
 */
@@ -2416,6 +2506,7 @@ void commit_cmd(void){
   int onlyIfChanges = 0; /* No-op if there are no changes */
   int allowFork = 0;     /* Allow the commit to fork */
   int allowOlder = 0;    /* Allow a commit older than its ancestor */
+  int noVerifyCom = 0;   /* Allow suspicious check-in comments */
   char *zManifestFile;   /* Name of the manifest file */
   int useCksum;          /* True if checksums should be computed and verified */
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
@@ -2441,6 +2532,7 @@ void commit_cmd(void){
   int mxSize;
   char *zCurBranch = 0;  /* The current branch name of checkout */
   char *zNewBranch = 0;  /* The branch name after update */
+  int ckComFlgs;         /* Flags passed to verify_comment() */
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
@@ -2471,6 +2563,7 @@ void commit_cmd(void){
   forceFlag = find_option("force", "f", 0)!=0;
   allowConflict = find_option("allow-conflict",0,0)!=0;
   allowEmpty = find_option("allow-empty",0,0)!=0;
+  noVerifyCom = find_option("no-verify-comment",0,0)!=0;
   onlyIfChanges = find_option("if-changes",0,0)!=0;
   allowFork = find_option("allow-fork",0,0)!=0;
   if( find_option("override-lock",0,0)!=0 ) allowFork = 1;
@@ -2480,11 +2573,16 @@ void commit_cmd(void){
   noVerify = find_option("no-verify",0,0)!=0;
   bTrace = find_option("trace",0,0)!=0;
   sCiInfo.zBranch = find_option("branch","b",1);
-  sCiInfo.zColor = find_option("bgcolor",0,1);
-  sCiInfo.zBrClr = find_option("branchcolor",0,1);
+
+  /* NB: the --bgcolor and --branchcolor flags still work, but are
+  ** now undocumented, to discourage their use. --mimetype has never
+  ** been used for anything, so also leave it undocumented */
+  sCiInfo.zColor = find_option("bgcolor",0,1);     /* Deprecated, undocumented*/
+  sCiInfo.zBrClr = find_option("branchcolor",0,1); /* Deprecated, undocumented*/
+  sCiInfo.zMimetype = find_option("mimetype",0,1); /* Deprecated, undocumented*/
+
   sCiInfo.closeFlag = find_option("close",0,0)!=0;
   sCiInfo.integrateFlag = find_option("integrate",0,0)!=0;
-  sCiInfo.zMimetype = find_option("mimetype",0,1);
   sCiInfo.verboseFlag = find_option("verbose", "v", 0)!=0;
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
@@ -2500,10 +2598,16 @@ void commit_cmd(void){
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);
   bIgnoreSkew = find_option("ignore-clock-skew",0,0)!=0;
-  outputManifest = db_get_manifest_setting();
+  outputManifest = db_get_manifest_setting(0);
   mxSize = db_large_file_size();
   if( find_option("ignore-oversize",0,0)!=0 ) mxSize = 0;
   verify_all_options();
+
+  /* The --no-warnings flag and the --force flag each imply
+  ** the --no-verify-comment flag */
+  if( noWarningFlag || forceFlag ){
+    noVerifyCom = 1;
+  }
 
   /* Get the ID of the parent manifest artifact */
   vid = db_lget_int("checkout", 0);
@@ -2608,29 +2712,31 @@ void commit_cmd(void){
   }
 
   /* So that older versions of Fossil (that do not understand delta-
-  ** manifest) can continue to use this repository, do not create a new
+  ** manifest) can continue to use this repository, and because
+  ** delta manifests are usually a bad idea unless the repository
+  ** has a really large number of files, do not create a new
   ** delta-manifest unless this repository already contains one or more
   ** delta-manifests, or unless the delta-manifest is explicitly requested
   ** by the --delta option.
   **
-  ** The forbid-delta-manifests setting prevents new delta manifests.
+  ** The forbid-delta-manifests setting prevents new delta manifests,
+  ** even if the --delta option is used.
   **
   ** If the remote repository sent an avoid-delta-manifests pragma on
-  ** the autosync above, then also try to avoid deltas, unless the
+  ** the autosync above, then also forbid delta manifests, even if the
   ** --delta option is specified.  The remote repo will send the
-  ** avoid-delta-manifests pragma if it has its "forbid-delta-manifests"
-  ** setting enabled.
+  ** avoid-delta-manifests pragma if its "forbid-delta-manifests"
+  ** setting is enabled.
   */
-  if( !db_get_boolean("seen-delta-manifest",0)
+  if( !(forceDelta || db_get_boolean("seen-delta-manifest",0))
    || db_get_boolean("forbid-delta-manifests",0)
    || g.bAvoidDeltaManifests
   ){
-    if( !forceDelta ) forceBaseline = 1;
+    forceBaseline = 1;
   }
 
-
   /* Require confirmation to continue with the check-in if there is
-  ** clock skew
+  ** clock skew.  This helps to prevent timewarps.
   */
   if( g.clockSkewSeen ){
     if( bIgnoreSkew!=0 ){
@@ -2790,6 +2896,20 @@ void commit_cmd(void){
     if( bRecheck ) break;
 
 
+    /* Figure out how much comment verification is requested */
+    if( noVerifyCom ){
+      ckComFlgs = 0;
+    }else{
+      const char *zVerComs = db_get("verify-comments","on");
+      if( is_false(zVerComs) ){
+        ckComFlgs = 0;
+      }else if( strcmp(zVerComs,"preview")==0 ){
+        ckComFlgs = COMCK_PREVIEW | COMCK_MARKUP;
+      }else{
+        ckComFlgs = COMCK_MARKUP;
+      }
+    }
+
     /* Get the check-in comment.  This might involve prompting the
     ** user for the check-in comment, in which case we should resync
     ** to renew the check-in lock and repeat the checks for conflicts.
@@ -2797,23 +2917,56 @@ void commit_cmd(void){
     if( zComment ){
       blob_zero(&comment);
       blob_append(&comment, zComment, -1);
+      ckComFlgs &= ~COMCK_PREVIEW;
+      if( verify_comment(&comment, ckComFlgs) ){
+        fossil_fatal("Commit aborted; "
+                     "use --no-verify-comment to override");
+      }
     }else if( zComFile ){
       blob_zero(&comment);
       blob_read_from_file(&comment, zComFile, ExtFILE);
       blob_to_utf8_no_bom(&comment, 1);
-    }else if( !noPrompt ){
-      char *zInit = db_text(0,"SELECT value FROM vvar WHERE name='ci-comment'");
-      prepare_commit_comment(&comment, zInit, &sCiInfo, vid, dryRunFlag);
-      if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
-        prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
-        cReply = blob_str(&ans)[0];
-        blob_reset(&ans);
-        if( cReply!='y' && cReply!='Y' ){
-          fossil_fatal("Commit aborted.");
-        }
+      ckComFlgs &= ~COMCK_PREVIEW;
+      if( verify_comment(&comment, ckComFlgs) ){
+        fossil_fatal("Commit aborted; "
+                     "use --no-verify-comment to override");
       }
-      free(zInit);
-      db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
+    }else if( !noPrompt ){
+      while(  1/*exit-by-break*/ ){
+        int rc;
+        char *zInit;
+        zInit = db_text(0,"SELECT value FROM vvar WHERE name='ci-comment'");
+        prepare_commit_comment(&comment, zInit, &sCiInfo, vid, dryRunFlag);
+        db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
+        if( (rc = verify_comment(&comment, ckComFlgs))!=0 ){
+          if( rc==COMCK_PREVIEW ){
+            prompt_user("Continue, abort, or edit? (C/a/e)? ", &ans);
+          }else{
+            prompt_user("Edit, abort, or continue (E/a/c)? ", &ans);
+          }
+          cReply = blob_str(&ans)[0];
+          cReply = fossil_tolower(cReply);
+          blob_reset(&ans);
+          if( cReply=='a' ){
+            fossil_fatal("Commit aborted.");
+          }
+          if( cReply=='e' || (cReply!='c' && rc!=COMCK_PREVIEW) ){
+            fossil_free(zInit);
+            continue;
+          }
+        }
+        if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
+          prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
+          cReply = blob_str(&ans)[0];
+          blob_reset(&ans);
+          if( cReply!='y' && cReply!='Y' ){
+            fossil_fatal("Commit aborted.");
+          }
+        }
+        fossil_free(zInit);
+        break;
+      }
+
       db_end_transaction(0);
       db_begin_transaction();
       if( !g.markPrivate && vid!=0 && !allowFork && !forceFlag ){

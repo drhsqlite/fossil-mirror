@@ -641,7 +641,7 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
       char *zTitle = mprintf("%.*s", nValue, zValue);
       int i;
       for(i=0; fossil_isspace(zTitle[i]); i++){}
-      html_to_plaintext(zTitle+i, pTitle);
+      html_to_plaintext(zTitle+i, pTitle, 0);
       fossil_free(zTitle);
       seenTitle = 1;
       if( seenClass ) return 1;
@@ -809,6 +809,7 @@ void document_render(
     markdown_to_html(pBody, &title, &tail);
     if( !isPopup ){
       if( blob_size(&title)>0 ){
+        markdown_dehtmlize_blob(&title);
         style_header("%s", blob_str(&title));
       }else{
         style_header("%s", zDefaultTitle);

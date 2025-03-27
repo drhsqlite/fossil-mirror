@@ -2913,3 +2913,298 @@ void test_crosslink_cmd(void){
   content_get(rid, &content);
   manifest_crosslink(rid, &content, MC_NONE);
 }
+
+/*
+** For a given CATYPE_... value, returns a human-friendly name, or
+** NULL if typeId is unknown or is CFTYPE_ANY. The names returned by
+** this function are geared towards use with artifact_to_json(), and
+** may differ from some historical uses. e.g. CFTYPE_CONTROL artifacts
+** are called "tag" artifacts by this function.
+*/
+const char * artifact_type_to_name(int typeId){
+  switch(typeId){
+    case CFTYPE_MANIFEST: return "checkin";
+    case CFTYPE_CLUSTER: return "cluster";
+    case CFTYPE_CONTROL: return "tag";
+    case CFTYPE_WIKI: return "wiki";
+    case CFTYPE_TICKET: return "ticket";
+    case CFTYPE_ATTACHMENT: return "attachment";
+    case CFTYPE_EVENT: return "technote";
+    case CFTYPE_FORUM: return "forumpost";
+  }
+  return NULL;
+}
+
+/*
+** Creates a JSON representation of p, appending it to b.
+**
+** b is not cleared before rendering, so the caller needs to do that
+** if it's important for their use case.
+**
+** Pedantic note: this routine traverses p->aFile directly, rather
+** than using manifest_file_next(), so that delta manifests are
+** rendered as-is instead of containing their derived F-cards. If that
+** policy is ever changed, p will need to be non-const.
+*/
+void artifact_to_json(Manifest const *p, Blob *b){
+  int i;
+
+  blob_append_literal(b, "{");
+  blob_appendf(b, "\"uuid\":\"%z\"", rid_to_uuid(p->rid));
+  /*blob_appendf(b, ", \"rid\": %d", p->rid); not portable across repos*/
+  blob_appendf(b, ",\"type\":%!j", artifact_type_to_name(p->type));
+#define ISA(TYPE) if( p->type==TYPE )
+#define CARD_LETTER(LETTER) \
+  blob_append_literal(b, ",\"" #LETTER "\":")
+#define CARD_STR(LETTER, VAL) \
+  assert( VAL ); CARD_LETTER(LETTER); blob_appendf(b, "%!j", VAL)
+#define CARD_STR2(LETTER, VAL) \
+  if( VAL ) { CARD_STR(LETTER, VAL); } (void)0
+#define STR_OR_NULL(VAL)                 \
+  if( VAL ) blob_appendf(b, "%!j", VAL); \
+  else blob_append(b, "null", 4)
+#define KVP_STR(ADDCOMMA, KEY,VAL)  \
+  if(ADDCOMMA) blob_append_char(b, ','); \
+  blob_appendf(b, "%!j:", #KEY);   \
+  STR_OR_NULL(VAL)
+
+  ISA( CFTYPE_ATTACHMENT ){
+    CARD_LETTER(A);
+    blob_append_char(b, '{');
+    KVP_STR(0, filename, p->zAttachName);
+    KVP_STR(1, target, p->zAttachTarget);
+    KVP_STR(1, source, p->zAttachSrc);
+    blob_append_char(b, '}');
+  }
+  CARD_STR2(B, p->zBaseline);
+  CARD_STR2(C, p->zComment);
+  CARD_LETTER(D); blob_appendf(b, "%f", p->rDate);
+  ISA( CFTYPE_EVENT ){
+    blob_appendf(b, ", \"E\":{\"time\":%f,\"id\":%!j}",
+                 p->rEventDate, p->zEventId);
+  }
+  ISA( CFTYPE_MANIFEST ){
+    CARD_LETTER(F);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nFile; ++i ){
+      ManifestFile const * const pF = &p->aFile[i];
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      KVP_STR(0, name, pF->zName);
+      KVP_STR(1, uuid, pF->zUuid);
+      KVP_STR(1, perm, pF->zPerm);
+      KVP_STR(1, rename, pF->zPrior);
+      blob_append_char(b, '}');
+    }
+    /* Special case: model checkins with no F-card as having an empty
+    ** array, rather than no F-cards, to hypothetically simplify
+    ** handling in JSON queries. */
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(G, p->zThreadRoot);
+  ISA( CFTYPE_FORUM ){
+    CARD_LETTER(H);
+    STR_OR_NULL( (p->zThreadTitle && *p->zThreadTitle) ? p->zThreadTitle : NULL);
+    CARD_STR2(I, p->zInReplyTo);
+  }
+  if( p->nField ){
+    CARD_LETTER(J);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nField; ++i ){
+      const char * zName = p->aField[i].zName;
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      KVP_STR(0, name, '+'==*zName ? &zName[1] : zName);
+      KVP_STR(1, value, p->aField[i].zValue);
+      blob_appendf(b, ",\"append\":%s", '+'==*zName ? "true" : "false");
+      blob_append_char(b, '}');
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(K, p->zTicketUuid);
+  CARD_STR2(L, p->zWikiTitle);
+  ISA( CFTYPE_CLUSTER ){
+    CARD_LETTER(M);
+    blob_append_char(b, '[');
+    for( int i = 0; i < p->nCChild; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_appendf(b, "%!j", p->azCChild[i]);
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(N, p->zMimetype);
+  ISA( CFTYPE_MANIFEST || p->nParent>0 ){
+    CARD_LETTER(P);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nParent; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_appendf(b, "%!j", p->azParent[i]);
+    }
+    /* Special case: model checkins with no P-card as having an empty
+    ** array, as per F-cards. */
+    blob_append_char(b, ']');
+  }
+  if( p->nCherrypick ){
+    CARD_LETTER(Q);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nCherrypick; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      blob_appendf(b, "\"type\":\"%c\"", p->aCherrypick[i].zCPTarget[0]);
+      KVP_STR(1, target, &p->aCherrypick[i].zCPTarget[1]);
+      KVP_STR(1, base, p->aCherrypick[i].zCPBase);
+      blob_append_char(b, '}');
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(R, p->zRepoCksum);
+  if( p->nTag ){
+    CARD_LETTER(T);
+    blob_append_char(b, '[');
+    for( int i = 0; i < p->nTag; ++i ){
+      const char *zName = p->aTag[i].zName;
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      blob_appendf(b, "\"type\":\"%c\"", *zName);
+      KVP_STR(1, name, &zName[1]);
+      KVP_STR(1, target, p->aTag[i].zUuid ? p->aTag[i].zUuid : "*")
+        /* We could arguably resolve the "*" as null or p's uuid. */;
+      KVP_STR(1, value, p->aTag[i].zValue);
+      blob_append_char(b, '}');
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(U, p->zUser);
+  if( p->zWiki || CFTYPE_WIKI==p->type || CFTYPE_FORUM==p->type
+      || CFTYPE_EVENT==p->type ){
+    CARD_LETTER(W);
+    STR_OR_NULL((p->zWiki && *p->zWiki) ? p->zWiki : NULL);
+  }
+  blob_append_literal(b, "}");
+#undef CARD_FMT
+#undef CARD_LETTER
+#undef CARD_STR
+#undef CARD_STR2
+#undef ISA
+#undef KVP_STR
+#undef STR_OR_NULL
+}
+
+/*
+** Convenience wrapper around artifact_to_json() which expects rid to
+** be the blob.rid of any artifact type. If it can load a Manifest
+** with that rid, it returns rid, else it returns 0.
+*/
+int artifact_to_json_by_rid(int rid, Blob *pOut){
+  Manifest * const p = manifest_get(rid, CFTYPE_ANY, 0);
+  if( p ){
+    artifact_to_json(p, pOut);
+    manifest_destroy(p);
+  }else{
+    rid = 0;
+  }
+  return rid;
+}
+
+/*
+** Convenience wrapper around artifact_to_json() which accepts any
+** artifact name which is legal for symbolic_name_to_rid(). On success
+** it returns the rid of the artifact. Returns 0 if no such artifact
+** exists and a negative value if the name is ambiguous.
+**
+** pOut is not cleared before rendering, so the caller needs to do
+** that if it's important for their use case.
+*/
+int artifact_to_json_by_name(const char *zName, Blob *pOut){
+  const int rid = symbolic_name_to_rid(zName, 0);
+  return rid>0
+    ? artifact_to_json_by_rid(rid, pOut)
+    : rid;
+}
+
+/*
+** SQLite UDF for artifact_to_json(). Its single argument should be
+** either an INTEGER (blob.rid value) or a TEXT symbolic artifact
+** name, as per symbolic_name_to_rid(). If an artifact is found then
+** the result of the UDF is that JSON as a string, else it evaluates
+** to NULL.
+*/
+void artifact_to_json_sql_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  int rid = 0;
+  Blob b = empty_blob;
+
+  if(1 != argc){
+    goto error_usage;
+  }
+  switch( sqlite3_value_type(argv[0]) ){
+    case SQLITE_INTEGER:
+      rid = artifact_to_json_by_rid(sqlite3_value_int(argv[0]), &b);
+      break;
+    case SQLITE_TEXT:{
+      const char * z = (const char *)sqlite3_value_text(argv[0]);
+      if( z ){
+        rid = artifact_to_json_by_name(z, &b);
+      }
+      break;
+    }
+    default:
+      goto error_usage;
+  }
+  if( rid>0 ){
+    sqlite3_result_text(context, blob_str(&b), blob_size(&b),
+                        SQLITE_TRANSIENT);
+    blob_reset(&b);
+  }else{
+    /* We should arguably error out if rid<0 (ambiguous name) */
+    sqlite3_result_null(context);
+  }
+  return;
+error_usage:
+  sqlite3_result_error(context, "Expecting one argument: blob.rid or "
+                       "artifact symbolic name", -1);
+}
+
+
+
+/*
+** COMMAND: test-artifact-to-json
+**
+** Usage:  %fossil test-artifact-to-json ?-pretty|-p? symbolic-name [...names]
+**
+** Tests the artifact_to_json() and artifact_to_json_by_name() APIs.
+*/
+void test_manifest_to_json(void){
+  int i;
+  Blob b = empty_blob;
+  Stmt q;
+  const int bPretty = find_option("pretty","p",0)!=0;
+  int nErr = 0;
+
+  db_find_and_open_repository(0,0);
+  db_prepare(&q, "select json_pretty(:json)");
+  for( i=2; i<g.argc; ++i ){
+    char const *zName = g.argv[i];
+    const int rc = artifact_to_json_by_name(zName, &b);
+    if( rc<=0 ){
+      ++nErr;
+      fossil_warning("Error reading artifact %Q", zName);
+      continue;
+    }else if( bPretty ){
+      db_bind_blob(&q, ":json", &b);
+      b.nUsed = 0;
+      db_step(&q);
+      db_column_blob(&q, 0, &b);
+      db_reset(&q);
+    }
+    fossil_print("%b\n", &b);
+    blob_reset(&b);
+  }
+  db_finalize(&q);
+  if( nErr ){
+    fossil_warning("Error count: %d", nErr);
+  }
+}

@@ -259,13 +259,15 @@ void info_cmd(void){
       fossil_print("version:      %s", z);
       blob_reset(&vx);
     }
-  }else{
+  }else if( g.repositoryOpen ){
     int rid;
     rid = name_to_rid(g.argv[2]);
     if( rid==0 ){
       fossil_fatal("no such object: %s", g.argv[2]);
     }
     show_common_info(rid, "hash:", 1, 1);
+  }else{
+    fossil_fatal("Could not find or open a Fossil repository");
   }
 }
 
@@ -927,8 +929,8 @@ void ci_page(void){
   );
   isLeaf = !db_exists("SELECT 1 FROM plink WHERE pid=%d", rid);
   db_prepare(&q1,
-     "SELECT uuid, datetime(mtime,toLocal()), user, comment,"
-     "       datetime(omtime,toLocal()), mtime"
+     "SELECT uuid, datetime(mtime,toLocal(),'subsec'), user, comment,"
+     "       datetime(omtime,toLocal(),'subsec'), mtime"
      "  FROM blob, event"
      " WHERE blob.rid=%d"
      "   AND event.objid=%d",
@@ -1368,68 +1370,6 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
   }
   return manifest_get(rid, CFTYPE_MANIFEST, 0);
 }
-
-#if 0 /* not used */
-/*
-** Output a description of a check-in
-*/
-static void checkin_description(int rid){
-  Stmt q;
-  db_prepare(&q,
-    "SELECT datetime(mtime), coalesce(euser,user),"
-    "       coalesce(ecomment,comment), uuid,"
-    "      (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
-    "        WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
-    "          AND tagxref.rid=blob.rid AND tagxref.tagtype>0)"
-    "  FROM event, blob"
-    " WHERE event.objid=%d AND type='ci'"
-    "   AND blob.rid=%d",
-    rid, rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 0);
-    const char *zUser = db_column_text(&q, 1);
-    const char *zUuid = db_column_text(&q, 3);
-    const char *zTagList = db_column_text(&q, 4);
-    Blob comment;
-    int wikiFlags = WIKI_INLINE|WIKI_NOBADLINKS;
-    if( db_get_boolean("timeline-block-markup", 0)==0 ){
-      wikiFlags |= WIKI_NOBLOCK;
-    }
-    hyperlink_to_version(zUuid);
-    blob_zero(&comment);
-    db_column_blob(&q, 2, &comment);
-    wiki_convert(&comment, 0, wikiFlags);
-    blob_reset(&comment);
-    @ (user:
-    hyperlink_to_user(zUser,zDate,",");
-    if( zTagList && zTagList[0] && g.perm.Hyperlink ){
-      int i;
-      const char *z = zTagList;
-      Blob links;
-      blob_zero(&links);
-      while( z && z[0] ){
-        for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
-        blob_appendf(&links,
-              "%z%#h</a>%.2s",
-              href("%R/timeline?r=%#t&nd&c=%t",i,z,zDate), i,z, &z[i]
-        );
-        if( z[i]==0 ) break;
-        z += i+2;
-      }
-      @ tags: %s(blob_str(&links)),
-      blob_reset(&links);
-    }else{
-      @ tags: %h(zTagList),
-    }
-    @ date:
-    hyperlink_to_date(zDate, ")");
-    tag_private_status(rid);
-  }
-  db_finalize(&q);
-}
-#endif /* not used */
-
 
 /*
 ** WEBPAGE: vdiff
@@ -2684,12 +2624,14 @@ void cmd_test_line_numbers(void){
 ** WEBPAGE: artifact
 ** WEBPAGE: file
 ** WEBPAGE: whatis
+** WEBPAGE: docfile
 **
 ** Typical usage:
 **
 **    /artifact/HASH
 **    /whatis/HASH
 **    /file/NAME
+**    /docfile/NAME
 **
 ** Additional query parameters:
 **
@@ -2698,6 +2640,8 @@ void cmd_test_line_numbers(void){
 **   ln=M-N          - highlight lines M through N inclusive
 **   ln=M-N+Y-Z      - highlight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
+**   brief           - show just the document, not the metadata.  The
+**                     /docfile page is an alias for /file?brief
 **   download        - redirect to the download (artifact page only)
 **   name=NAME       - filename or hash as a query parameter
 **   filename=NAME   - alternative spelling for "name="
@@ -2705,6 +2649,7 @@ void cmd_test_line_numbers(void){
 **   ci=VERSION      - The specific check-in to use with "name=" to
 **                     identify the file.
 **   txt             - Force display of unformatted source text
+**   hash            - Output only the hash of the artifact
 **
 ** The /artifact page show the complete content of a file
 ** identified by HASH.  The /whatis page shows only a description
@@ -2727,6 +2672,7 @@ void artifact_page(void){
   Blob content;
   const char *zMime;
   Blob downloadName;
+  Blob uuid;
   int renderAsWiki = 0;
   int renderAsHtml = 0;
   int renderAsSvg = 0;
@@ -2735,6 +2681,8 @@ void artifact_page(void){
   const char *zUuid = 0;
   u32 objdescFlags = OBJDESC_BASE;
   int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
+  int hashOnly = P("hash")!=0;
+  int docOnly = P("brief")!=0;
   int isFile = fossil_strcmp(g.zPath,"file")==0;
   const char *zLn = P("ln");
   const char *zName = P("name");
@@ -2749,6 +2697,10 @@ void artifact_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   cgi_check_for_malice();
   style_set_current_feature("artifact");
+  if( fossil_strcmp(g.zPath, "docfile")==0 ){
+    isFile = 1;
+    docOnly = 1;
+  }
 
   /* Capture and normalize the name= and ci= query parameters */
   if( zName==0 ){
@@ -2852,9 +2804,18 @@ void artifact_page(void){
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   etag_check(ETAG_HASH, zUuid);
 
+  if( descOnly && hashOnly ){
+    blob_set(&uuid, zUuid);
+    cgi_set_content_type("text/plain");
+    cgi_set_content(&uuid);
+    return;
+  }
+
   asText = P("txt")!=0;
   if( isFile ){
-    if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
+    if( docOnly ){
+      /* No header */
+    }else if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
       zCI = "tip";
       @ <h2>File %z(href("%R/finfo?name=%T&m&ci=tip",zName))%h(zName)</a>
       @ from the %z(href("%R/info/tip"))latest check-in</a></h2>
@@ -2876,13 +2837,15 @@ void artifact_page(void){
       }
       blob_reset(&path);
     }
-    style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
     zMime = mimetype_from_name(zName);
-    style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
-                          zName, zCI);
-    style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
-                          zName, zCI);
-    style_submenu_element("Doc", "%R/doc/%T/%T", zCI, zName);
+    if( !docOnly ){
+      style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
+      style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
+                            zName, zCI);
+      style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
+                            zName, zCI);
+      style_submenu_element("Doc", "%R/doc/%T/%T", zCI, zName);
+    }
     blob_init(&downloadName, zName, -1);
     objType = OBJTYPE_CONTENT;
   }else{
@@ -2905,7 +2868,7 @@ void artifact_page(void){
           file_tail(blob_str(&downloadName)));
     /*NOTREACHED*/
   }
-  if( g.perm.Admin ){
+  if( g.perm.Admin && !docOnly ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
       style_submenu_element("Unshun", "%R/shun?accept=%s&sub=1#accshun", zUuid);
@@ -2950,9 +2913,11 @@ void artifact_page(void){
     }
     db_finalize(&q);
   }
-  style_submenu_element("Download", "%R/raw/%s?at=%T", zUuid, file_tail(zName));
-  if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
-    style_submenu_element("Check-ins Using", "%R/timeline?uf=%s", zUuid);
+  if( !docOnly ){
+    style_submenu_element("Download", "%R/raw/%s?at=%T",zUuid,file_tail(zName));
+    if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
+      style_submenu_element("Check-ins Using", "%R/timeline?uf=%s", zUuid);
+    }
   }
   if( zMime ){
     if( fossil_strcmp(zMime, "text/html")==0 ){
@@ -2960,7 +2925,9 @@ void artifact_page(void){
         style_submenu_element("Html", "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsHtml = 1;
-        style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
+        if( !docOnly ){
+          style_submenu_element("Text", "%s", url_render(&url, "txt","1",0,0));
+        }
       }
     }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0
            || fossil_strcmp(zMime, "text/x-markdown")==0
@@ -2970,17 +2937,21 @@ void artifact_page(void){
                               "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsWiki = 1;
-        style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
+        if( !docOnly ){
+          style_submenu_element("Text", "%s", url_render(&url, "txt","1",0,0));
+        }
       }
     }else if( fossil_strcmp(zMime, "image/svg+xml")==0 ){
       if( asText ){
         style_submenu_element("Svg", "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsSvg = 1;
-        style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
+        if( !docOnly ){
+          style_submenu_element("Text", "%s", url_render(&url, "txt","1",0,0));
+        }
       }
     }
-    if( fileedit_is_editable(zName) ){
+    if( !docOnly && fileedit_is_editable(zName) ){
       style_submenu_element("Edit",
                             "%R/fileedit?filename=%T&checkin=%!S",
                             zName, zCI);
@@ -2992,7 +2963,9 @@ void artifact_page(void){
   if( descOnly ){
     style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
-    @ <hr>
+    if( !docOnly || !isFile ){
+      @ <hr>
+    }
     content_get(rid, &content);
     if( renderAsWiki ){
       safe_html_context(DOCSRC_FILE);
@@ -3662,6 +3635,7 @@ void ci_edit_page(void){
   zNewTag = PDT("tagname","");
   zNewBrFlag = P("newbr") ? " checked" : "";
   zNewBranch = PDT("brname","");
+  zBranchName = branch_of_rid(rid);
   zCloseFlag = P("close") ? " checked" : "";
   zHideFlag = P("hide") ? " checked" : "";
   if( P("apply") && cgi_csrf_safe(2) ){
@@ -3709,13 +3683,21 @@ void ci_edit_page(void){
   if( P("preview") ){
     Blob suffix;
     int nTag = 0;
+    const char *zDplyBr;   /* Branch name used to determine BG color */
+    if( zNewBrFlag[0] && zNewBranch[0] ){
+      zDplyBr = zNewBranch;
+    }else{
+      zDplyBr = zBranchName;
+    }
     @ <b>Preview:</b>
     @ <blockquote>
     @ <table border=0>
     if( zNewColorFlag[0] && zNewColor && zNewColor[0] ){
-      @ <tr><td style="background-color: %h(zNewColor);">
+      @ <tr><td style="background-color:%h(reasonable_bg_color(zNewColor,0));">
     }else if( zColor[0] ){
-      @ <tr><td style="background-color: %h(zColor);">
+      @ <tr><td style="background-color:%h(reasonable_bg_color(zColor,0));">
+    }else if( zDplyBr && fossil_strcmp(zDplyBr,"trunk")!=0 ){
+      @ <tr><td style="background-color:%h(hash_color(zDplyBr));">
     }else{
       @ <tr><td>
     }
@@ -3800,9 +3782,6 @@ void ci_edit_page(void){
   @ <label><input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag)>
   @ Add the following new tag name to this check-in:</label>
   @ <input size="15" name="tagname" id="tagname" value="%h(zNewTag)">
-  zBranchName = db_text(0, "SELECT value FROM tagxref, tag"
-     " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
-     " AND tagxref.tagid=%d", rid, TAG_BRANCH);
   db_prepare(&q,
      "SELECT tag.tagid, tagname, tagxref.value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
@@ -3943,21 +3922,22 @@ static void prepare_amend_comment(
 ** Amend the tags on check-in HASH to change how it displays in the timeline.
 **
 ** Options:
-**    --author USER           Make USER the author for check-in
-**    -m|--comment COMMENT    Make COMMENT the check-in comment
-**    -M|--message-file FILE  Read the amended comment from FILE
-**    -e|--edit-comment       Launch editor to revise comment
-**    --date DATETIME         Make DATETIME the check-in time
-**    --bgcolor COLOR         Apply COLOR to this check-in
-**    --branchcolor COLOR     Apply and propagate COLOR to the branch
-**    --tag TAG               Add new TAG to this check-in
-**    --cancel TAG            Cancel TAG from this check-in
-**    --branch NAME           Rename branch of check-in to NAME
-**    --hide                  Hide branch starting from this check-in
-**    --close                 Mark this "leaf" as closed
-**    -n|--dry-run            Print control artifact, but make no changes
-**    --date-override DATETIME  Set the change time on the control artifact
-**    --user-override USER      Set the user name on the control artifact
+**    --author USER              Make USER the author for check-in
+**    --bgcolor COLOR            Apply COLOR to this check-in
+**    --branch NAME              Rename branch of check-in to NAME
+**    --branchcolor COLOR        Apply and propagate COLOR to the branch
+**    --cancel TAG               Cancel TAG from this check-in
+**    --close                    Mark this "leaf" as closed
+**    --date DATETIME            Make DATETIME the check-in time
+**    --date-override DATETIME   Set the change time on the control artifact
+**    -e|--edit-comment          Launch editor to revise comment
+**    --hide                     Hide branch starting from this check-in
+**    -m|--comment COMMENT       Make COMMENT the check-in comment
+**    -M|--message-file FILE     Read the amended comment from FILE
+**    -n|--dry-run               Print control artifact, but make no changes
+**    --no-verify-comment        Do not validate the check-in comment
+**    --tag TAG                  Add new TAG to this check-in
+**    --user-override USER       Set the user name on the control artifact
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -3988,6 +3968,7 @@ void ci_amend_cmd(void){
   int fHasClosed = 0;           /* True if closed tag already set */
   int fEditComment;             /* True if editor to be used for comment */
   int fDryRun;                  /* Print control artifact, make no changes */
+  int noVerifyCom = 0;          /* Allow suspicious check-in comments */
   const char *zChngTime;        /* The change time on the control artifact */
   const char *zUserOvrd;        /* The user name on the control artifact */
   const char *zUuid;
@@ -3997,6 +3978,8 @@ void ci_amend_cmd(void){
   int nTags, nCancels;
   int i;
   Stmt q;
+  int ckComFlgs;                /* Flags passed to verify_comment() */
+
 
   fEditComment = find_option("edit-comment","e",0)!=0;
   zNewComment = find_option("comment","m",1);
@@ -4018,6 +4001,7 @@ void ci_amend_cmd(void){
   zChngTime = find_option("date-override",0,1);
   if( zChngTime==0 ) zChngTime = find_option("chngtime",0,1);
   zUserOvrd = find_option("user-override",0,1);
+  noVerifyCom = find_option("no-verify-comment",0,0)!=0;
   db_find_and_open_repository(0,0);
   user_select();
   verify_all_options();
@@ -4076,17 +4060,65 @@ void ci_amend_cmd(void){
   if( (zNewColor!=0 && zNewColor[0]==0) && (zColor && zColor[0] ) ){
     cancel_color();
   }
-  if( fEditComment ){
-    prepare_amend_comment(&comment, zComment, zUuid);
-    zNewComment = blob_str(&comment);
-  }else if( zComFile ){
-    blob_zero(&comment);
-    blob_read_from_file(&comment, zComFile, ExtFILE);
-    blob_to_utf8_no_bom(&comment, 1);
-    zNewComment = blob_str(&comment);
+  if( fEditComment || zNewComment || zComFile ){
+    blob_init(&comment, 0, 0);
+
+    /* Figure out how much comment verification is requested */
+    if( noVerifyCom ){
+      ckComFlgs = 0;
+    }else{
+      const char *zVerComs = db_get("verify-comments","on");
+      if( is_false(zVerComs) ){
+        ckComFlgs = 0;
+      }else if( strcmp(zVerComs,"preview")==0 ){
+        ckComFlgs = COMCK_PREVIEW | COMCK_MARKUP;
+      }else{
+        ckComFlgs = COMCK_MARKUP;
+      }
+    }
+    if( fEditComment ){
+      prepare_amend_comment(&comment, zComment, zUuid);
+    }else if( zComFile ){
+      blob_read_from_file(&comment, zComFile, ExtFILE);
+      blob_to_utf8_no_bom(&comment, 1);
+    }else if( zNewComment ){
+      blob_init(&comment, zNewComment, -1);
+    }
+    if( blob_size(&comment)>0
+     && comment_compare(zComment, blob_str(&comment))==0
+    ){
+      int rc;
+      while( (rc = verify_comment(&comment, ckComFlgs))!=0 ){
+        char cReply;
+        Blob ans;
+        if( !fEditComment ){
+          fossil_fatal("Amend aborted; "
+                       "use --no-verify-comment to override");
+        }
+        if( rc==COMCK_PREVIEW ){
+          prompt_user("Continue, abort, or edit (C/a/e)? ", &ans);
+        }else{
+          prompt_user("Edit, abort, or continue (E/a/c)? ", &ans);
+        }
+        cReply = blob_str(&ans)[0];
+        cReply = fossil_tolower(cReply);
+        blob_reset(&ans);
+        if( cReply=='a' ){
+          fossil_fatal("Amend aborted.");
+        }
+        if( cReply=='e' || (cReply!='c' && rc!=COMCK_PREVIEW) ){
+          char *zPrior = blob_materialize(&comment);
+          blob_init(&comment, 0, 0);
+          prepare_amend_comment(&comment, zPrior, zUuid);
+          fossil_free(zPrior);
+          continue;
+        }else{
+          break;
+        }
+      }
+    }
+    add_comment(blob_str(&comment));
   }
-  if( zNewComment && zNewComment[0]
-      && comment_compare(zComment,zNewComment)==0 ) add_comment(zNewComment);
   if( zNewDate && zNewDate[0] && fossil_strcmp(zDate,zNewDate)!=0 ){
     if( is_datetime(zNewDate) ){
       add_date(zNewDate);

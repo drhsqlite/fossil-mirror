@@ -38,7 +38,7 @@
     cssClass: CSS class name to add to the SVG
   }
 
-  Workers-to-Main types
+  Workers-to-Main message types:
 
   - stdout, stderr: indicate stdout/stderr output from the wasm
   layer. The data property is the string of the output, noting
@@ -52,7 +52,7 @@
   about module loading status so that, e.g., the main thread can
   update a progress widget and DTRT when the module is finished
   loading and available for work. Status messages come in the form
-  
+
   {type:'module', data:{
   type:'status',
   data: {text:string|null, step:1-based-integer}
@@ -62,7 +62,7 @@
   the module loading is complete, a message with a text value of
   null is posted.
 
-  - pikchr: 
+  - pikchr:
 
   {type: 'pikchr',
     data:{
@@ -164,7 +164,7 @@
     };
     console.warn("Unknown pikchr-worker message type:",ev);
   };
-  
+
   /**
      emscripten module for use with build mode -sMODULARIZE.
   */
@@ -208,7 +208,7 @@
     }
   };
 
-  importScripts('pikchr.js');
+  importScripts('pikchr-v2813665466.js');
   /**
      initPikchrModule() is installed via pikchr.js due to
      building with:
@@ -216,6 +216,7 @@
      emcc ... -sMODULARIZE=1 -sEXPORT_NAME=initPikchrModule
   */
   initPikchrModule(pikchrModule).then(function(thisModule){
-    wMsg('pikchr-ready');
+    //globalThis.M = pikchrModule; console.warn("pikchrModule=globalThis.M=",globalThis.M);
+    wMsg('pikchr-ready', pikchrModule.ccall('pikchr_version','string'));
   });
 })();

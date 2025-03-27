@@ -185,7 +185,7 @@ void setup_page(void){
 /*
 ** WEBPAGE: setup-logmenu
 **
-** Show a menu of available log renderings accessible to an administrator, 
+** Show a menu of available log renderings accessible to an administrator,
 ** together with a succinct explanation of each.
 **
 ** This page is only accessible by administrators.
@@ -204,7 +204,7 @@ void setup_logmenu_page(void){
   style_header("Log Menu");
   @ <table border="0" cellspacing="3">
   
-  if( db_get_boolean("admin-log",0)==0 ){
+  if( db_get_boolean("admin-log",1)==0 ){
     blob_appendf(&desc,
       "The admin log records configuration changes to the repository.\n"
       "<b>Disabled</b>:  Turn on the "
@@ -222,7 +222,7 @@ void setup_logmenu_page(void){
     "The artifact log records when new content is added in the\n"
     "\"rcvfrom\" table.\n"
   );
-  if( db_get_boolean("access-log",0) ){
+  if( db_get_boolean("access-log",1) ){
     setup_menu_entry("User Log", "user_log",
       "Login attempts recorded in the \"accesslog\" table."
     );
@@ -265,23 +265,6 @@ void setup_logmenu_page(void){
   }
   setup_menu_entry("Error Log", bErrLog ? "errorlog" : 0, blob_str(&desc));
   blob_reset(&desc);
-
-  @ <tr><td><td><td>
-  @ &mdash;&mdash;
-  @ <i>The remaining links are subsets of the Error Log</i>
-  @ &mdash;&mdash;
-  @ </td>  
-
-  setup_menu_entry("Panic Log", bErrLog ? "paniclog" : 0,
-    "Only the most important messages in the Error Log:\n"
-    "assertion faults, segmentation faults, and similar malfunctions.\n"
-  );
-  setup_menu_entry("Hack Log", bErrLog ? "hacklog" : 0,
-    "All code-418 hack attempts in the Error Log"
-  );
-  setup_menu_entry("Non-Hack Log", bErrLog ? "hacklog?not" : 0,
-    "All log messages that are not code-418 hack attempts"
-  );
 
   @ </table>
   style_finish_page();
@@ -954,7 +937,7 @@ void setup_login_group(void){
   @
   @ <li><p><b>project-name</b> &rarr;
   @ The human-readable name for the project.  The project-name can be
-  @ modified in the first entry on the 
+  @ modified in the first entry on the
   @ <a href="./setup_config">Setup/Configuration page</a>.
   @
   @ <li><p><b>peer-repo-<i>CODE</i></b> &rarr;
@@ -999,13 +982,6 @@ void setup_timeline(void){
   @ <form action="%R/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
-
-  @ <hr>
-  onoff_attribute("Allow block-markup in timeline",
-                  "timeline-block-markup", "tbm", 0, 0);
-  @ <p>In timeline displays, check-in comments can be displayed with or
-  @ without block markup such as paragraphs, tables, etc.
-  @ (Property: "timeline-block-markup")</p>
 
   @ <hr>
   onoff_attribute("Plaintext comments on timelines",
@@ -1128,6 +1104,7 @@ void setup_settings(void){
   int nSetting;
   int i;
   Setting const *pSet;
+  int bIfChng = P("all")==0;
   const Setting *aSetting = setting_info(&nSetting);
 
   login_check_credentials();
@@ -1144,6 +1121,10 @@ void setup_settings(void){
     db_open_local(0);
   }
   db_begin_transaction();
+  if( bIfChng ){
+    @ <p>Only settings whose value is different from the default are shown.
+    @ Click the "All" button above to set all settings.
+  }
   @ <p>Settings marked with (v) are "versionable" and will be overridden
   @ by the contents of managed files named
   @ "<tt>.fossil-settings/</tt><i>SETTING-NAME</i>".
@@ -1151,12 +1132,21 @@ void setup_settings(void){
   @ changed on this screen.</p><hr><p>
   @
   @ <form action="%R/setup_settings" method="post"><div>
+  if( bIfChng ){
+    style_submenu_element("All", "%R/setup_settings?all");
+  }else{
+    @ <input type="hidden" name="all" value="1">
+    style_submenu_element("Changes-Only", "%R/setup_settings");
+  }
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width==0 ){
       int hasVersionableValue = pSet->versionable &&
-          (db_get_versioned(pSet->name, NULL)!=0);
+          (db_get_versioned(pSet->name, NULL, NULL)!=0);
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
+      }
       onoff_attribute("", pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       is_truth(pSet->def), hasVersionableValue);
@@ -1174,7 +1164,10 @@ void setup_settings(void){
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && !pSet->forceTextArea ){
       int hasVersionableValue = pSet->versionable &&
-          (db_get_versioned(pSet->name, NULL)!=0);
+          (db_get_versioned(pSet->name, NULL, NULL)!=0);
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
+      }
       @ <tr><td>
       @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
@@ -1193,7 +1186,10 @@ void setup_settings(void){
   @ </td><td style="width:50px;"></td><td valign="top">
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && pSet->forceTextArea ){
-      int hasVersionableValue = db_get_versioned(pSet->name, NULL)!=0;
+      int hasVersionableValue = db_get_versioned(pSet->name, NULL, NULL)!=0;
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
+      }
       @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
@@ -1430,17 +1426,18 @@ void setup_wiki(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  onoff_attribute("Associate Wiki Pages With Branches, Tags, or Checkins",
+  onoff_attribute("Associate Wiki Pages With Branches, Tags, Tickets, or Checkins",
                   "wiki-about", "wiki-about", 1, 0);
   @ <p>
-  @ Associate wiki pages with branches, tags, or checkins, based on
-  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/"
-  @ or "tag/" and which continue with the name of an existing branch, check-in
-  @ or tag are treated specially when this feature is enabled.
+  @ Associate wiki pages with branches, tags, tickets, or checkins, based on
+  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/",
+  @ "tag/" or "ticket" and which continue with the name of an existing branch,
+  @ check-in, tag or ticket are treated specially when this feature is enabled.
   @ <ul>
   @ <li> <b>branch/</b><i>branch-name</i>
   @ <li> <b>checkin/</b><i>full-check-in-hash</i>
   @ <li> <b>tag/</b><i>tag-name</i>
+  @ <li> <b>ticket/</b><i>full-ticket-hash</i>
   @ </ul>
   @ (Property: "wiki-about")</p>
   @ <hr>
@@ -2139,7 +2136,7 @@ void page_admin_log(){
   create_admin_log_table();
   limit = atoi(PD("n","200"));
   ofst = atoi(PD("x","0"));
-  fLogEnabled = db_get_boolean("admin-log", 0);
+  fLogEnabled = db_get_boolean("admin-log", 1);
   @ <div>Admin logging is %s(fLogEnabled?"on":"off").
   @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
 
@@ -2253,6 +2250,8 @@ void page_srchsetup(){
   onoff_attribute("Search Tech Notes", "search-technote", "se", 0, 0);
   @ <br>
   onoff_attribute("Search Forum", "search-forum", "sf", 0, 0);
+  @ <br>
+  onoff_attribute("Search Built-in Help Text", "search-help", "sh", 0, 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>

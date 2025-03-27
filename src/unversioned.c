@@ -220,8 +220,8 @@ static int contains_whitespace(const char *zName){
 }
 
 /*
-** COMMAND: uv#
-** COMMAND: unversioned
+** COMMAND: uv#                           abbrv-subcom
+** COMMAND: unversioned                   abbrv-subcom
 **
 ** Usage: %fossil unversioned SUBCOMMAND ARGS...
 **    or: %fossil uv SUBCOMMAND ARGS..
@@ -268,6 +268,7 @@ static int contains_whitespace(const char *zName){
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dry-run     Show what would have happened
+**                              --proxy PROXY    Use the specified HTTP proxy
 **
 **    remove|rm|delete FILE ...
 **                           Remove unversioned files from the local repository.
@@ -287,6 +288,7 @@ static int contains_whitespace(const char *zName){
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dry-run     Show what would have happened
+**                              --proxy PROXY    Use the specified HTTP proxy
 **
 **    touch FILE ...         Update the TIMESTAMP on all of the listed files
 **
