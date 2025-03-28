@@ -11,7 +11,6 @@
 **     "circleNodes": BOOLEAN,      // True for circle nodes. False for squares
 **     "showArrowheads": BOOLEAN,   // True for arrowheads. False to omit
 **     "iRailPitch": INTEGER,       // Spacing between vertical lines (px)
-**     "colorGraph": BOOLEAN,       // True to put color on graph lines
 **     "nomo": BOOLEAN,             // True to join merge lines with rails
 **     "iTopRow": INTEGER,          // Index of top-most row in the graph
 **     "omitDescenders": BOOLEAN,   // Omit ancestor lines off bottom of screen

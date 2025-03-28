@@ -507,10 +507,10 @@ char *win32_file_id(
     }
     if( zFileId==0 ){
       if( GetFileInformationByHandle(hFile,&fi) ){
-        ULARGE_INTEGER FileId = {
+        ULARGE_INTEGER FileId = {{
           /*.LowPart = */ fi.nFileIndexLow,
           /*.HighPart = */ fi.nFileIndexHigh
-        };
+        }};
         zFileId = mprintf(
                     "%08x/%016llx",
                     fi.dwVolumeSerialNumber,(u64)FileId.QuadPart);

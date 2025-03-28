@@ -261,15 +261,34 @@ const char *reasonable_bg_color(const char *zRequested, int iFgClr){
   g = (iRGB>>8) & 0xff;
   b = iRGB & 0xff;
   if( fg==1 ){
-    const int K = 70;
-    r = (K*r)/255 + (255-K);
-    g = (K*g)/255 + (255-K);
-    b = (K*b)/255 + (255-K);
+    /* Dark text on a light background.  Adjust so that
+    ** no color component is less than 255-K, resulting in
+    ** a pastel background color.  Color adjustment is quadratic
+    ** so that colors that are further out of range have a greater
+    ** adjustment. */
+    const int K = 79;
+    int k, x, m;
+    m = r<g ? r : g;
+    if( m>b ) m = b;
+    k = (m*m)/255 + K;
+    x = 255 - k;
+    r = (k*r)/255 + x;
+    g = (k*g)/255 + x;
+    b = (k*b)/255 + x;
   }else{
-    const int K = 90;
-    r = (K*r)/255;
-    g = (K*g)/255;
-    b = (K*b)/255;
+    /* Light text on a dark background.  Adjust so that 
+    ** no color component is greater than K, resulting in
+    ** a low-intensity, low-saturation background color.
+    ** The color adjustment is quadratic so that colors that
+    ** are further out of range have a greater adjustment. */
+    const int K = 112;
+    int k, m;
+    m = r>g ? r : g;
+    if( m<b ) m = b;
+    k = 255 - (255-K)*(m*m)/65025;
+    r = (k*r)/255;
+    g = (k*g)/255;
+    b = (k*b)/255;
   }
   sqlite3_snprintf(8, zColor, "#%02x%02x%02x", r,g,b);
   return zColor;
@@ -453,15 +472,16 @@ void test_bgcolor_page(void){
   char zNm[10];
   static const char *azDflt[] = {
     "red", "orange", "yellow", "green", "blue", "indigo", "violet",
-    "tan", "brown", "gray"
+    "tan", "brown", "gray",
   };
+  const int N = count(azDflt);
   int i, cnt, iClr, r, g, b;
   char *zFg;
   login_check_credentials();
   style_set_current_feature("test");
   style_header("Background Color Test");
-  for(i=cnt=0; i<10; i++){
-    sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
+  for(i=cnt=0; i<N; i++){
+    sqlite3_snprintf(sizeof(zNm),zNm,"b%c",'a'+i);
     zReq = PD(zNm,azDflt[i]);
     if( zReq==0 || zReq[0]==0 ) continue;
     if( cnt==0 ){
@@ -511,8 +531,8 @@ void test_bgcolor_page(void){
   @ <form method="POST">
   @ <p>Enter CSS color names below and see them shifted into corresponding
   @ background colors above.</p>
-  for(i=0; i<10; i++){
-    sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
+  for(i=0; i<N; i++){
+    sqlite3_snprintf(sizeof(zNm),zNm,"b%c",'a'+i);
     @ <input type="text" size="30" name='%s(zNm)' \
     @ value='%h(PD(zNm,azDflt[i]))'><br>
   }
