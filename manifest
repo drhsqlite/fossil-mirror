@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk.
-D 2025-03-28T10:11:06.720
+C Tweaks\sto\smakeinfo\sscript.
+D 2025-03-28T23:27:44.629
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -736,7 +736,7 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
-F tools/fossil-makeinfo 7c43ce7a282783bc39b9447d3e595fed9683a4007468044199abc9d04315a25c x
+F tools/fossil-makeinfo c28bc6f6fce0200e15b9913010d2bb67198c62863c691cd4a3803726648a7544 x
 F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3eac814daa37e7dc3c0521b00cc6bf8167d7a4cf1644b67b35b62dfed19928b8 bc8e936abf4c5fdabdaa6244e970cbc41b2d5eae8f92f2fc0fe9c6338d5e9238
-R 62351dcb040bc43e6807d1224c355c6d
+P f60a7ed29171903f0df24366c041997ae1475024632454b0fb83737a1234505f
+R 7e1f97b46723cf3205317a289ec182ee
 U brickviking
-Z 448ccd077c1913661012c428f8b43c47
+Z 897cfcb450554a4d1aa00987397b14bd
 # Remove this line to create a well-formed Fossil manifest.

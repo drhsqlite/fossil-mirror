@@ -173,7 +173,7 @@ printf "@menu\n" >> fossil.texi
 # Slurp in Common keywords from fossil help
 # WARNING: tail count is brittle
 echo "Grab common keywords for menu"
-for u in $(for t in $(fossil help | tail -n +4| sed '$d'); do echo "$t"; done | sort);  do echo "* ${u}::"; done >> fossil.texi
+for u in $(for t in $(fossil help | tail -n +11| sed '$d'); do echo "$t"; done | sort);  do echo "* ${u}::"; done >> fossil.texi
 
 # Add end menu, add some space too
 printf "@end menu
@@ -182,9 +182,9 @@ printf "@end menu
 
 # Add in the actual help for common commands
 # WARNING: tail count is brittle
-# tail command pops off the first six lines, sed commands remove the last two lines.
+# tail command pops off the first fourteen lines, sed commands remove the last two lines.
 echo "Fossil output common help to workfile"
-fossil help -v | tail -n +7 | sed '$d' | sed '$d' >workfile
+fossil help -v | tail -n +14 | sed '$d' | sed '$d' >workfile
 
 # swap out @ with @@ so texinfo doesn't barf
 echo "Doubling up the @'s"
@@ -205,8 +205,6 @@ else
     gsed -i -e 's/^##* \([a-z0-9-]\{1,\}\)/@node \1\n@section \1\n/' workfile
 fi
 
-# adds linebreak to texinfo output per option line. These start with four spaces.
-sed -i -e 's/^  /@*/' workfile
 # turns --switches into @option{--switches}
 sed -i -e 's/--\([[:alnum:]-]\{1,\}\)/@option\{--\1\}/g' workfile
 # now do the same for places where there's -f|--force
@@ -264,8 +262,6 @@ else
     gsed -i -e 's/^##* \([a-z0-9-]\{1,\}\)/@node \1\n@section \1\n/' workfile
 fi
 
-# adds linebreak to texinfo output per option line. These start with four spaces.
-sed -i -e 's/^    /@*/' workfile
 # turns --switches into @option{--switches}
 sed -i -e 's/--\([[:alnum:]-]\{1,\}\)/@option\{--\1\}/g' workfile
 
@@ -324,8 +320,6 @@ else
     gsed -i -e 's/^##* \([a-z0-9-]\{1,\}\)/@node \1\n@section \1\n/' workfile
 fi
 
-# adds linebreak to texinfo output per option line. These start with four spaces.
-sed -i -e 's/^    /@*/' workfile
 # turns --switches into @option{--switches}
 sed -i -e 's/--\([[:alnum:]-]\{1,\}\)/@option\{--\1\}/g' workfile
 
@@ -398,8 +392,6 @@ else
     gsed -i -e 's/\{/@\{/g' -e 's/\}/@\}/g' workfile
 fi
 
-# adds linebreak to texinfo output per option line. These start with four spaces.
-sed -i -e 's/^    /@*/' workfile
 echo "Swapping out --switches for @option{--switches}"
 # turns --switches into @option{--switches}
 if [[ ${MYOS} == "Linux" ]]; then
@@ -460,5 +452,3 @@ echo "@bye" >> fossil.texi
 echo "Done ... for now. Please check fossil.texi file over for inconsistencies, and fill in descriptions."
 echo "Once everything's good, you can run your system's makeinfo command to turn"
 echo "your .texi file into a .info file to install where you need."
-
-
