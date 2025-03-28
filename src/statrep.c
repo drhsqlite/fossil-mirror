@@ -861,6 +861,9 @@ static void stats_report_last_change(void){
 **                        * t   (ticket change)
 **                        * g   (tag added or removed)
 **                     Defaulting to all event types.
+**   from=DATETIME     Consider only events after this timestamp (requires to)
+**   to=DATETIME       Consider only events before this timestamp (requires from)
+**
 **
 ** The view-specific query parameters include:
 **
