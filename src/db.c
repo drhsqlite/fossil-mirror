@@ -675,6 +675,23 @@ void db_append_dml_to_blob(Blob *pBlob){
 }
 
 /*
+** This routine is a no-op on most builds.  But if Fossil is built using
+** the FOSSIL_PENTEST compile-time option, and if the argument to this routine
+** contains the text "BUG", then that indicates a potential SQL injection
+** vulnerability.  A panic is generated to bring this to the tester's
+** attention.
+*/
+void db_pentest(const char *zSql){
+#ifndef FOSSIL_PENTEST
+  (void)zSql;
+#else
+  if( strstr(zSql,"BUG")!=0 ){
+    fossil_panic("SQL Injection vulnerability!");
+  }
+#endif
+}
+
+/*
 ** Pause or unpause the DML log
 */
 void db_pause_dml_log(void){    db.pauseDmlLog++; }
@@ -700,6 +717,7 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
     prepFlags = SQLITE_PREPARE_PERSISTENT;
   }
   rc = sqlite3_prepare_v3(g.db, zSql, -1, prepFlags, &pStmt->pStmt, &zExtra);
+  if( rc!=0 ) db_pentest(zSql);
   if( rc!=0 && (flags & DB_PREPARE_IGNORE_ERROR)==0 ){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
   }else if( zExtra && !fossil_all_whitespace(zExtra) ){
@@ -762,6 +780,7 @@ int db_prepare_blob(Stmt *pStmt, Blob *pSql){
   db.nPrepare++;
   rc = sqlite3_prepare_v3(g.db, zSql, -1, 0, &pStmt->pStmt, 0);
   if( rc!=0 ){
+    db_pentest(zSql);
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
   }
   pStmt->pNext = pStmt->pPrev = 0;
@@ -1048,7 +1067,10 @@ int db_debug(const char *zSql, ...){
   while( rc==SQLITE_OK && z[0] ){
     pStmt = 0;
     rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
-    if( rc!=SQLITE_OK ) break;
+    if( rc!=SQLITE_OK ){
+      db_pentest(z);
+      break;
+    }
     if( pStmt ){
       int nRow = 0;
       db.nPrepare++;
@@ -1082,6 +1104,7 @@ int db_exec_sql(const char *z){
     pStmt = 0;
     rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
     if( rc ){
+      db_pentest(z);
       db_err("%s: {%s}", sqlite3_errmsg(g.db), z);
     }else if( pStmt ){
       db.nPrepare++;

@@ -324,6 +324,7 @@ char *verify_sql_statement(char *zSql){
   report_restrict_sql(&zErr);
   rc = sqlite3_prepare_v2(g.db, zSql, -1, &pStmt, &zTail);
   if( rc!=SQLITE_OK ){
+    db_pentest(zSql);
     zErr = mprintf("Syntax error: %s", sqlite3_errmsg(g.db));
   }
   if( !sqlite3_stmt_readonly(pStmt) ){
@@ -1051,6 +1052,7 @@ static int db_exec_readonly(
   rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, &zLeftover);
   assert( rc==SQLITE_OK || pStmt==0 );
   if( rc!=SQLITE_OK ){
+    db_pentest(zSql);
     return rc;
   }
   if( !pStmt ){

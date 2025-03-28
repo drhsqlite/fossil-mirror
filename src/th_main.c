@@ -1949,6 +1949,7 @@ static int queryCmd(
     g.dbIgnoreErrors--;
     report_unrestrict_sql();
     if( rc!=0 || zErr!=0 ){
+      db_pentest(argv[1]);
       if( noComplain ) return TH_OK;
       Th_ErrorMessage(interp, "SQL error: ",
                       zErr ? zErr : sqlite3_errmsg(g.db), -1);

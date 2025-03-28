@@ -1158,6 +1158,7 @@ static int login_transfer_credentials(
     );
     pStmt = 0;
     rc = sqlite3_prepare_v2(pOther, zSQL, -1, &pStmt, 0);
+    if( rc!=SQLITE_OK ) db_pentest(zSQL);
     if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
       db_unprotect(PROTECT_USER);
       db_multi_exec(

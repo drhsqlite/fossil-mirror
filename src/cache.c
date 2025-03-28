@@ -97,6 +97,7 @@ static sqlite3_stmt *cacheStmt(sqlite3 *db, const char *zSql){
 
   rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
   if( rc ){
+    db_pentest(zSql);
     sqlite3_finalize(pStmt);
     pStmt = 0;
   }

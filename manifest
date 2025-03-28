@@ -1,5 +1,5 @@
-C Document\sparameters\s'from'\sand\s'to'\sfor\s/reports.
-D 2025-03-28T16:47:05.972
+C If\scompiled\swith\s-DFOSSIL_PENTEST\sand\sif\s"&lt;BUG&gt;"\sappears\sanywhere\sin\nHTML\soutput,\sor\sif\s"BUG"\sappears\sanywhere\sin\sSQL,\sthen\sa\spanic\sis\sgenerated.
+D 2025-03-28T17:15:00.645
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -393,10 +393,10 @@ F src/branch.c 34cfdd5eebbf07c37a20fbc440d135de4ab94548716bcfc1062c689b0a9ad1bf
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
 F src/builtin.c 34d57215e767b0f4cd70d2a5a17c72fc47acfb0789772ecf88c1038bb52d1fbe
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
-F src/cache.c 50e166e55c5aac9f17d988ff18aba0b98762ea8bba382a795c4176817dae0760
+F src/cache.c 90ceff2ce1b71d8e8f4338d18cac88a89b0bc6b3e61545b6fce9fdaa8a07b7d9
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c 7cc9486dfa224c69e7cfe0b86c966f3a647dd1a617ec763fe810044b7430f0ed
+F src/cgi.c 40a1bae92b946052cc553d587d63d0ee241d04fc449cd4afafc5fa7400adeaf3
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
 F src/checkin.c 8b372a4557a3a37f144b48b4d9d106b95cc2d6b1f5faf90b8331b386f94ab35f
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -411,7 +411,7 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c be597cb1d975b0c67c668e23e49fb54388d0bc2947f5f9f0dca51c7f41904a68
+F src/db.c a74bc464c07d8d5eeb1422b64904f65e7532b8b93a7f6196f3a98d37e54480a0
 F src/default.css 94743facfa876f5c35f2974f9e356e8a47587e2292e98c41063785699d51ae4f
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -490,7 +490,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22a
-F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
+F src/login.c 6e43a6d89201c64c0d0adde5c93f63d055d05b8fa5e2b6070dadaeac82c76a92
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c c6906e8d191f90323da809fdbb5588dc281edcf9571f7c9f2cf14c4ac2fe5090
@@ -520,7 +520,7 @@ F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c a9aeacaa515f756f76b0d94c3971121093848145d0d109be511616e74372a50a
 F src/repolist.c c75340987f5223ae15058bb83a8b94d521aa8b32c7a5061b745199810e2ddc05
-F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
+F src/report.c 7472772a69f3d0a4e1643f6f58c10f77955bcb56cc61da541d34e085e4fa2432
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
@@ -572,7 +572,7 @@ F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd7
 F src/th.c 7383ab45bd0fca16f607b30b60c6b71645d29f87bcb65d400350bdac06368cf5
 F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
-F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
+F src/th_main.c f71f0985d5bad273d71363ac11e255dbf0bcb4afae97447802e012a158b06aa2
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 54037c01cf6e7e1a5b12cfe2efe73558df548064a891101cf3d11ce021f0ca64
 F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
@@ -968,8 +968,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f0adaa7fde34af80172ed6c8cc25dc1d990a79c69a8a40d3c64e60f3cadb1e1
-R 7725e518aafb7e764af5022d0941244c
-U danield
-Z d702eb3a9d39ee5a6576e1396c67185d
+P a584f75ff84ee9147746fbd5a4e348bc22fbeb29f88f82e68c7f8d59c288525c
+R 969eb6a5ac642b249fd41e8bcae6735c
+T *branch * pentest
+T *sym-pentest *
+T -sym-trunk *
+U drh
+Z 8a983be38d62786002bdde6e3e5869c1
 # Remove this line to create a well-formed Fossil manifest.

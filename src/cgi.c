@@ -478,6 +478,9 @@ static const char * content_type_charset(const char *zContentType){
 void cgi_reply(void){
   Blob hdr = BLOB_INITIALIZER;
   int total_size;
+#ifdef FOSSIL_PENTEST
+  int bHtml;     /* True if the output is HTML */
+#endif
   if( iReplyStatus<=0 ){
     iReplyStatus = 200;
     zReplyStatus = "OK";
@@ -573,6 +576,13 @@ void cgi_reply(void){
     total_size = 0;
   }
   blob_appendf(&hdr, "\r\n");
+#ifdef FOSSIL_PENTEST
+  bHtml = strstr(blob_str(&hdr), "text/html")!=0;
+  if( strstr(blob_str(&hdr), "<BUG>")!=0 ){
+    fossil_panic("Cross-site scripting vulnerability!");
+    abort();
+  }
+#endif
   cgi_fwrite(blob_buffer(&hdr), blob_size(&hdr));
   blob_reset(&hdr);
   if( total_size>0
@@ -581,6 +591,11 @@ void cgi_reply(void){
   ){
     int i, size;
     for(i=0; i<2; i++){
+#ifdef FOSSIL_PENTEST
+      if( bHtml && strstr(blob_str(&cgiContent[i]), "<BUG>")!=0 ){
+        fossil_panic("Cross-site scripting vulnerability!\n");
+      }
+#endif
       size = blob_size(&cgiContent[i]);
       if( size<=rangeStart ){
         rangeStart -= size;
