@@ -433,9 +433,9 @@ void test_backlinks_cmd(void){
 
 
 /*
-** COMMAND: test-wiki-relink
+** COMMAND: test-relink-wiki
 **
-** Usage: %fossil test-wiki-relink  WIKI-PAGE-NAME
+** Usage: %fossil test-relink-wiki  WIKI-PAGE-NAME
 **
 ** Run the backlink_wiki_refresh() procedure on the wiki page
 ** named.  WIKI-PAGE-NAME can be a glob pattern or a prefix

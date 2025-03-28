@@ -1631,6 +1631,8 @@ void db_add_aux_functions(sqlite3 *db){
         chat_msg_from_event, 0, 0);
   sqlite3_create_function(db, "inode", 1, SQLITE_UTF8, 0,
                           file_inode_sql_func,0,0);
+  sqlite3_create_function(db, "artifact_to_json", 1, SQLITE_UTF8, 0,
+                          artifact_to_json_sql_func,0,0);
 
 }
 
@@ -5069,7 +5071,8 @@ struct Setting {
 ** repository with a non-zero "repolist-skin" value is used as the skin
 ** for the repository list page.  If none of the repositories on the list
 ** have a non-zero "repolist-skin" setting then the repository list is
-** displayed using unadorned HTML ("skinless").
+** displayed using unadorned HTML ("skinless"), with the page title taken
+** from the FOSSIL_REPOLIST_TITLE environment variable.
 **
 ** If repolist-skin has a value of 2, then the repository is omitted from
 ** the list in use cases 1 through 4, but not for 5 and 6.

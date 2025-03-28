@@ -16,28 +16,39 @@
      </ol>
   *  Added the [/help?cmd=/ckout|/ckout web page] to provide information
      about pending changes in a working check-out
-  *  The [/help?cmd=ui|fossil ui] command defaults to using the
-     [/help?cmd=/ckout|/ckout page] as its start page.  Or, if the
-     "--from PATH" option is present, the default start page becomes
-     "/ckout?exbase=PATH".
+  *  Enhancements to the [/help?cmd=ui|fossil ui] command:
+     <ol type="a">
+     <li> Defaults to using the new [/help?cmd=/ckout|/ckout page] as its
+          start page.  Or, if the new "--from PATH" option is present, the
+          default start page becomes "/ckout?exbase=PATH".
+     <li> The new "--extpage FILENAME" option opens the named file as if it
+          where in a [./serverext.wiki|CGI extension].  Example usage: the
+          person editing this change log has 
+          "fossil ui --extpage www/changes.wiki" running and hence can
+          press "Reload" on the web browser to view edits.
+     </ol>
   *  Enhancements to [/help?cmd=merge|fossil merge]:
      <ol type="a">
-     <li> Added the [/help?cmd=merge-info|fossil merge-info] command and especially
-          the --tk option to that command, to provide analysis of the most recent
-          merge or update operation.
+     <li> Added the [/help?cmd=merge-info|fossil merge-info] command and
+          especially the --tk option to that command, to provide analysis
+          of the most recent merge or update operation.
      <li> When a merge conflict occurs, a new section is added to the conflict
           text that shows Fossil's suggested resolution to the conflict.
      </ol>
   *  Enhancements to [/help?cmd=commit|fossil commit]:
      <ol type="a">
-     <li> If Fossil sees potential formatting mistakes (bad hyperlinks)
+     <li> If Fossil sees potential formatting mistakes (ex: bad hyperlinks)
           in the check-in comment, it will alert the developer and give
           him or her the opportunity to edit the comment before continuing.
+          This feature is controllable by the
+          [/help?cmd=verify-comments|verify-comments setting].
      <li> The new "--if-changes" option causes the commit to become
           a quiet no-op if there are no pending changes.
      <li> Added the ability to sign check-ins with SSH keys.
      <li> Issue a warning if a user tries to commit on a check-in where the
           branch has been changed.
+     <li> The interactive checkin comment prompt shows the formatting rules
+          set for that repository.
      </ol>
   *  Deprecate the --comfmtflags and --comment-format global options and
      no longer list them in the built-in help, but keep them working for
@@ -75,15 +86,29 @@
      <li> The p= and d= parameters an reference different check-ins, which
           case the timeline shows those check-ins that are both ancestors
           of p= and descendants of d=.
+     <li> The saturation and intensity of user-specified checkin and branch
+          colors are automatically adjusted to keep the colors
+          compatible with the current skin, unless the
+          [/help?cmd=raw-bgcolor|raw-bgcolor setting] is turned on.  The
+          /test-bgcolor page was added to
+          test and visualize how these adjustments.
      </ol>
+  *  The [/help?cmd=/docfile|/docfile webpage] was added.  It works like
+     /doc but keeps the title of markdown documents with the document rather
+     that moving it up to the page title.
   *  Added the [/help?cmd=/clusterlist|/clusterlist page] for analysis
      and debugging
-  *  Fix a bug in [/help?cmd=patch|fossil patch create] that causes
-     [/help?cmd=revert|fossil revert] operations that happened on individual
-     files after a [/help?cmd=merge|fossil merge] to be omitted from the
-     patch.
-  *  Added the [/help?cmd=patch|patch alias] command for managing aliases
-     for remote checkout names.
+  *  Added the "artifact_to_json(NAME)" SQL function that returns a JSON
+     decoding of the artifact described by NAME.
+  *  Improvements to the [/help?cmd=patch|fossil patch] command:
+     <ol type="a">
+     <li> Fix a bug in "fossil patch create" that causes
+          [/help?cmd=revert|fossil revert] operations that happened
+          on individualfiles after a [/help?cmd=merge|fossil merge]
+          to be omitted from the patch.
+     <li>  Added the [/help?cmd=patch|patch alias] command for managing
+           aliases for remote checkout names.
+     </ol>
   *  Enhancements to on-line help and the [/help?cmd=help|fossil help] command:
      <ol type="a">
      <li> Add the ability to search the help text, either in the UI
@@ -97,6 +122,8 @@
      </ol>
   *  Added the ability to attach wiki pages to a ticket for extended
      descriptions.
+  *  Added the "hash" query parameter to the
+     [/help?cmd=/whatis|/whatis webpage].
   *  Add a "user elevation" [/doc/trunk/www/alerts.md|subscription]
      which alerts subscribers when an admin creates a new user or
      adds new permissions to one.

@@ -1469,6 +1469,7 @@ static void prepare_commit_comment(
   int dryRunFlag
 ){
   Blob prompt;
+  int wikiFlags;
 #if defined(_WIN32) || defined(__CYGWIN__)
   int bomSize;
   const unsigned char *bom = get_utf8_bom(&bomSize);
@@ -1481,10 +1482,33 @@ static void prepare_commit_comment(
 #endif
   blob_append(&prompt,
     "\n"
-    "# Enter a commit message for this check-in."
-        " Lines beginning with # are ignored.\n"
-    "#\n", -1
+    "# Enter the commit message.  Formatting rules:\n"
+    "#   *  Lines beginning with # are ignored.\n",
+    -1
   );
+  wikiFlags = wiki_convert_flags(1);
+  if( wikiFlags & WIKI_LINKSONLY ){
+    blob_append(&prompt,"#   *  Hyperlinks inside of [...]\n", -1);
+    if( wikiFlags & WIKI_NEWLINE ){
+      blob_append(&prompt,
+        "#   *  Newlines are significant and are displayed as written\n", -1);
+    }else{
+      blob_append(&prompt,
+        "#   *  Newlines are interpreted as ordinary spaces\n",
+        -1
+      );
+    }
+    blob_append(&prompt,
+        "#   *  All other text will be displayed as written\n", -1);
+  }else{
+    blob_append(&prompt,
+       "#   *  Hyperlinks:   [target]   or   [target|display-text]\n"
+       "#   *  Blank lines cause a paragraph break\n"
+       "#   *  Other text rendered as if it where HTML\n", -1
+    );
+  }
+  blob_append(&prompt, "#\n", 2);
+
   if( dryRunFlag ){
     blob_appendf(&prompt, "# DRY-RUN:  This is a test commit.  No changes "
                           "will be made to the repository\n#\n");
@@ -2291,130 +2315,78 @@ static int tagCmp(const void *a, const void *b){
 ** "fossil commit" and "fossil amend" commands do against check-in
 ** comments. Recognized values:
 **
-**     on             (Default) Check for bad syntax in check-in comments
-**                    and offer the user a chance to continue editing for
-**                    interactive sessions, or simply abort the commit if
-**                    commit was entered using -m or -M
+**     on         (Default) Check for bad syntax and/or broken hyperlinks
+**                in check-in comments and offer the user a chance to
+**                continue editing for interactive sessions, or simply
+**                abort the commit if the comment was entered using -m or -M
 **
-**     off            Do not do syntax checking of any kind
+**     off        Do not do syntax checking of any kind
 **
-**     links          Similar to "on", except only check for bad hyperlinks
-**
-**     preview        Do all the same checks as "on" but also preview the
-**                    check-in comment to the user during interactive sessions
-**                    and provide an opportunity to accept or re-edit
+**     preview    Do all the same checks as "on" but also always preview the
+**                check-in comment to the user during interactive sessions
+**                even if no obvious errors are found, and provide an
+**                opportunity to accept or re-edit
 */
 
 #if INTERFACE
-#define COMCK_LINKS     0x01     /* Check for back hyperlinks */
-#define COMCK_MARKUP    0x02     /* Check markup */
-#define COMCK_PREVIEW   0x04     /* Always preview, even if no issues found */
-#define COMCK_NOPREVIEW 0x08     /* Never preview, even for other errors */
+#define COMCK_MARKUP    0x01  /* Check for mistakes */
+#define COMCK_PREVIEW   0x02  /* Always preview, even if no issues found */
 #endif /* INTERFACE */
 
 /*
 ** Check for possible formatting errors in the comment string pComment.
 **
-** If concerns are found, write a description of the problem(s) to
-** stdout and return non-zero.  The return value is some combination
-** of the COMCK_* flags, depending on what went wrong.
+** If issues are found, write an appropriate error notice, probably also
+** including the complete text of the comment formatted to highlight the
+** problem, to stdout and return non-zero.  The return value is some
+** combination of the COMCK_* flags, depending on what went wrong.
 **
 ** If no issues are seen, do not output anything and return zero.
 */
-int suspicious_comment(Blob *pComment, int mFlags){
-  char *zStart = blob_str(pComment);
-  char *z;
-  char *zEnd, *zEnd2;
-  char *zSep;
-  char cSave1;
-  int nIssue = 0;
+int verify_comment(Blob *pComment, int mFlags){
+  Blob in, html;
+  int mResult;
   int rc = mFlags & COMCK_PREVIEW;
-  Blob out;
-  static const char zSpecial[] = "\\&<*_`[";
+  int wFlags;
 
   if( mFlags==0 ) return 0;
-  z = zStart;
-  blob_init(&out, 0, 0);
-  if( mFlags & COMCK_LINKS ){
-    while( (z = strchr(z,'['))!=0 ){
-      zEnd = strchr(z,']');
-      if( zEnd==0 ){
-        blob_appendf(&out,"\n (%d) ", ++nIssue);
-        blob_appendf(&out, "Unterminated hyperlink \"%.12s...\"", z);
-        break;
-      }
-      if( zEnd[1]=='(' && (zEnd2 = strchr(zEnd,')'))!=0 ){
-        blob_appendf(&out,"\n (%d) ", ++nIssue);
-        blob_appendf(&out, "Markdown hyperlink syntax: %.*s",
-                     (int)(zEnd2+1-z), z);
-        z = zEnd2;
-        continue;
-      }
-      zSep = strchr(z+1,'|');
-      if( zSep==0 || zSep>zEnd ) zSep = zEnd;
-      while( zSep>z && fossil_isspace(zSep[-1]) ) zSep--;
-      cSave1 = zSep[0];
-      zSep[0] = 0;
-      if( !wiki_valid_link_target(z+1) ){
-        blob_appendf(&out,"\n (%d) ", ++nIssue);
-        blob_appendf(&out, "Broken hyperlink: [%s]", z+1);
-      }
-      zSep[0] = cSave1;
-      z = zEnd;
+  blob_init(&in, blob_str(pComment), -1);
+  blob_init(&html, 0, 0);
+  wFlags = wiki_convert_flags(0);
+  wFlags &= ~WIKI_NOBADLINKS;
+  wFlags |= WIKI_MARK;
+  mResult = wiki_convert(&in, &html, wFlags);
+  if( mResult & RENDER_ANYERROR ) rc |= COMCK_MARKUP;
+  if( rc ){
+    int htot = ((wFlags & WIKI_NEWLINE)!=0 ? 0 : HTOT_FLOW)|HTOT_TRIM;
+    Blob txt;
+    if( terminal_is_vt100() ) htot |= HTOT_VT100;
+    blob_init(&txt, 0, 0);
+    html_to_plaintext(blob_str(&html), &txt, htot);
+    if( rc & COMCK_MARKUP ){
+      fossil_print("Possible format errors in the check-in comment:\n\n   ");
+    }else{
+      fossil_print("Preview of the check-in comment:\n\n   ");
     }
-  }
-
-  if( nIssue>0
-   || (mFlags & COMCK_PREVIEW)!=0
-   || ((mFlags & COMCK_MARKUP)!=0 && strcspn(zStart,zSpecial)<strlen(zStart))
-  ){
-    char zGot[16];
-    int nGot = 0;
-    int i;
-    if( (mFlags & COMCK_MARKUP)!=0 ){
-      for(i=0; zSpecial[i]; i++){
-        if( strchr(zStart,zSpecial[i]) ) zGot[nGot++] = zSpecial[i];
+    if( wFlags & WIKI_NEWLINE ){
+      Blob line;
+      char *zIndent = "";
+      while( blob_line(&txt, &line) ){
+        fossil_print("%s%b", zIndent, &line);
+        zIndent = "   ";
       }
-    }
-    zGot[nGot] = 0;
-    if( nGot>0 ) rc |= COMCK_MARKUP;
-    if( nGot>0 && nIssue>0 ){
-      blob_appendf(&out,"\n (%d) Comment uses special character%s \"%s\"",
-                   ++nIssue, (nGot>1 ? "s" : ""), zGot);
-      nGot = 0;
-    }
-    if( nIssue ){
-      rc |= COMCK_LINKS;
-      fossil_print(
-        "Possible comment formatting error%s:%b\n",
-        nIssue>1 ? "s" : "", &out
-      );
-    }
-    if( (mFlags & COMCK_NOPREVIEW)==0 ){
-      Blob in, html, txt;
-      blob_init(&in, blob_str(pComment), -1);
-      blob_init(&html, 0, 0);
-      blob_init(&txt, 0, 0);
-      wiki_convert(&in, &html, WIKI_INLINE);
-      html_to_plaintext(blob_str(&html), &txt);
-      if( nGot>0 ){
-        fossil_print(
-          "The comment uses special character%s \"%s\". "
-          "Does it render as you expect?\n\n   ",
-          (nGot>1 ? "s" : ""), zGot
-        );
-      }else{
-        fossil_print("Preview of the check-in comment:\n\n   ");
-      }
+      fossil_print("\n");
+    }else{
       comment_print(blob_str(&txt), 0, 3, -1, get_comment_format());
-      blob_reset(&in);
-      blob_reset(&html);
-      blob_reset(&txt);
     }
+    fossil_print("\n");
+    fflush(stdout);
+    blob_reset(&txt);
   }
-  blob_reset(&out);
+  blob_reset(&html);
+  blob_reset(&in);
   return rc;
-}
+} 
 
 /*
 ** COMMAND: ci#
@@ -2466,7 +2438,9 @@ int suspicious_comment(Blob *pComment, int mFlags){
 **    --allow-fork               Allow the commit to fork
 **    --allow-older              Allow a commit older than its ancestor
 **    --baseline                 Use a baseline manifest in the commit process
+**    --bgcolor COLOR            Apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   Check in to this new branch
+**    --branchcolor COLOR        Apply given COLOR to the branch
 **    --close                    Close the branch being committed
 **    --date-override DATETIME   Make DATETIME the time of the check-in.
 **                               Useful when importing historical check-ins
@@ -2558,7 +2532,7 @@ void commit_cmd(void){
   int mxSize;
   char *zCurBranch = 0;  /* The current branch name of checkout */
   char *zNewBranch = 0;  /* The branch name after update */
-  int ckComFlgs;         /* Flags passed to suspicious_comment() */
+  int ckComFlgs;         /* Flags passed to verify_comment() */
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
@@ -2930,11 +2904,9 @@ void commit_cmd(void){
       if( is_false(zVerComs) ){
         ckComFlgs = 0;
       }else if( strcmp(zVerComs,"preview")==0 ){
-        ckComFlgs = COMCK_PREVIEW | COMCK_LINKS | COMCK_MARKUP;
-      }else if( strcmp(zVerComs,"links")==0 ){
-        ckComFlgs = COMCK_LINKS;
+        ckComFlgs = COMCK_PREVIEW | COMCK_MARKUP;
       }else{
-        ckComFlgs = COMCK_LINKS | COMCK_MARKUP;
+        ckComFlgs = COMCK_MARKUP;
       }
     }
 
@@ -2945,9 +2917,8 @@ void commit_cmd(void){
     if( zComment ){
       blob_zero(&comment);
       blob_append(&comment, zComment, -1);
-      ckComFlgs &= ~(COMCK_PREVIEW|COMCK_MARKUP);
-      ckComFlgs |= COMCK_NOPREVIEW;
-      if( suspicious_comment(&comment, ckComFlgs) ){
+      ckComFlgs &= ~COMCK_PREVIEW;
+      if( verify_comment(&comment, ckComFlgs) ){
         fossil_fatal("Commit aborted; "
                      "use --no-verify-comment to override");
       }
@@ -2955,9 +2926,8 @@ void commit_cmd(void){
       blob_zero(&comment);
       blob_read_from_file(&comment, zComFile, ExtFILE);
       blob_to_utf8_no_bom(&comment, 1);
-      ckComFlgs &= ~(COMCK_PREVIEW|COMCK_MARKUP);
-      ckComFlgs |= COMCK_NOPREVIEW;
-      if( suspicious_comment(&comment, ckComFlgs) ){
+      ckComFlgs &= ~COMCK_PREVIEW;
+      if( verify_comment(&comment, ckComFlgs) ){
         fossil_fatal("Commit aborted; "
                      "use --no-verify-comment to override");
       }
@@ -2968,19 +2938,19 @@ void commit_cmd(void){
         zInit = db_text(0,"SELECT value FROM vvar WHERE name='ci-comment'");
         prepare_commit_comment(&comment, zInit, &sCiInfo, vid, dryRunFlag);
         db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
-        if( (rc = suspicious_comment(&comment, ckComFlgs))!=0 ){
+        if( (rc = verify_comment(&comment, ckComFlgs))!=0 ){
           if( rc==COMCK_PREVIEW ){
-            prompt_user("\nContinue (Y/n/e=edit)? ", &ans);
+            prompt_user("Continue, abort, or edit? (C/a/e)? ", &ans);
           }else{
-            prompt_user("\nContinue (y/n/E=edit)? ", &ans);
+            prompt_user("Edit, abort, or continue (E/a/c)? ", &ans);
           }
           cReply = blob_str(&ans)[0];
           cReply = fossil_tolower(cReply);
           blob_reset(&ans);
-          if( cReply=='n' ){
+          if( cReply=='a' ){
             fossil_fatal("Commit aborted.");
           }
-          if( cReply=='e' || (cReply!='y' && rc!=COMCK_PREVIEW) ){
+          if( cReply=='e' || (cReply!='c' && rc!=COMCK_PREVIEW) ){
             fossil_free(zInit);
             continue;
           }

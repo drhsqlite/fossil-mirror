@@ -251,14 +251,6 @@ static int StrNLen32(const char *z, int N){
 ** is done.
 */
 /*
-** SETTING: timeline-block-markup      boolean default=off
-**
-** If enabled, block markup (paragraph brakes, tables, lists, headings, etc)
-** is enabled while rendering check-in comment message on the timeline.
-** This is disabled by default, because the timeline works best if the
-** check-in comments are short and do not take up too much vertical space.
-*/
-/*
 ** SETTING: timeline-hard-newlines     boolean default=off
 **
 ** If enabled, the timeline honors newline characters in check-in comments.
@@ -273,18 +265,17 @@ static int StrNLen32(const char *z, int N){
 ** configuration parameters.
 **
 ** The altForm2 argument is true for "%!W" (with the "!" alternate-form-2
-** flags) and is false for plain "%W".  The ! indicates that the text is
-** to be rendered on a form rather than the timeline and that block markup
-** is acceptable even if the "timeline-block-markup" setting is false.
+** flags) and is false for plain "%W".  The ! flag indicates that the
+** formatting is for display of a check-in comment on the timeline.  Such
+** comments used to be renderedd differently, but ever since 2020, they
+** have been rendered identially, so the ! flag does not make any different
+** in the output any more.
 */
-static int wiki_convert_flags(int altForm2){
+int wiki_convert_flags(int altForm2){
   static int wikiFlags = 0;
+  (void)altForm2;
   if( wikiFlags==0 ){
-    if( db_get_boolean("timeline-block-markup", 0) ){
-      wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
-    }else{
-      wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
-    }
+    wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
     if( db_get_boolean("timeline-plaintext", 0) ){
       wikiFlags |= WIKI_LINKSONLY;
     }
@@ -292,13 +283,7 @@ static int wiki_convert_flags(int altForm2){
       wikiFlags |= WIKI_NEWLINE;
     }
   }
-  if( altForm2 ){
-    /* block markup (ex: <p>, <table>) allowed */
-    return  wikiFlags & ~WIKI_NOBLOCK;
-  }else{
-    /* Do not allow any block format.  Everything in a <span> */
-    return wikiFlags;
-  }
+  return wikiFlags;
 }
 
 

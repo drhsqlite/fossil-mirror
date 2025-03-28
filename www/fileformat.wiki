@@ -63,7 +63,7 @@ artifacts:
 <ul>
 <li> [#manifest | Manifests] </li>
 <li> [#cluster | Clusters] </li>
-<li> [#ctrl | Control Artifacts] </li>
+<li> [#ctrl | Control (a.k.a. Tag) Artifacts] </li>
 <li> [#wikichng | Wiki Pages] </li>
 <li> [#tktchng | Ticket Changes] </li>
 <li> [#attachment | Attachments] </li>
@@ -278,11 +278,11 @@ prior cards in the cluster.  The <b>Z</b> card is required.
 An example cluster from Fossil can be seen
 [/artifact/d03dbdd73a2a8 | here].
 
-<h3 id="ctrl">2.3 Control Artifacts</h3>
+<h3 id="ctrl">2.3 Control (a.k.a. Tag) Artifacts</h3>
 
 Control artifacts are used to assign properties to other artifacts
-within the repository.
-Allowed cards in a control artifact are as follows:
+within the repository.  Allowed cards in a control artifact are as
+follows:
 
 <div class="indent">
 <b>D</b> <i>time-and-date-stamp</i><br />
@@ -290,6 +290,10 @@ Allowed cards in a control artifact are as follows:
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i><br />
 </div>
+
+Control articles are also referred to as Tag artifacts, but tags can
+also be applied via other artifact types, as described in
+[#summary|the Card Summary table].
 
 A control artifact must have one <b>D</b> card, one <b>U</b> card, one <b>Z</b> card and
 one or more <b>T</b> cards.  No other cards or other text is

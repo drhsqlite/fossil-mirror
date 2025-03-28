@@ -61,7 +61,7 @@
 */
 typedef sqlite3_int64 GraphRowId;
 
-#define GR_MAX_RAIL   40      /* Max number of "rails" to display */
+#define GR_MAX_RAIL   64      /* Max number of "rails" to display */
 
 /* The graph appears vertically beside a timeline.  Each row in the
 ** timeline corresponds to a row in the graph.  GraphRow.idx is 0 for
@@ -120,6 +120,7 @@ struct GraphContext {
   int nHash;                 /* Number of slots in apHash[] */
   u8 hasOffsetMergeRiser;    /* Merge arrow from leaf goes up on a different
                              ** rail that the node */
+  u8 bOverfull;              /* Unable to allocate sufficient rails */
   u64 mergeRail;             /* Rails used for merge lines */
   GraphRow **apHash;         /* Hash table of GraphRow objects.  Key: rid */
   u8 aiRailMap[GR_MAX_RAIL]; /* Mapping of rails to actually columns */
@@ -338,7 +339,14 @@ static int findFreeRail(
       }
     }
   }
-  if( iBestDist>1000 ) p->nErr++;
+  if( iBestDist>1000 ){
+    p->bOverfull = 1;
+    iBest = GR_MAX_RAIL;
+  }
+  if( iBest>GR_MAX_RAIL ){
+    p->bOverfull = 1;
+    iBest = GR_MAX_RAIL;
+  }
   if( iBest>p->mxRail ) p->mxRail = iBest;
   if( bMergeRail ) p->mergeRail |= BIT(iBest);
   return iBest;
@@ -711,7 +719,7 @@ void graph_finish(
       if( pRow->nParent<0 ) continue;
       if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
         pRow->iRail = findFreeRail(p, pRow->idxTop, pRow->idx+riserMargin,0,0);
-        if( p->mxRail>=GR_MAX_RAIL ) return;
+        /* if( p->mxRail>=GR_MAX_RAIL ) return; */
         mask = BIT(pRow->iRail);
         if( !omitDescenders ){
           int n = RISER_MARGIN;
@@ -746,7 +754,10 @@ void graph_finish(
       pParent = hashFind(p, parentRid);
       if( pParent==0 ){
         pRow->iRail = ++p->mxRail;
-        if( p->mxRail>=GR_MAX_RAIL ) return;
+        if( p->mxRail>=GR_MAX_RAIL ){
+          pRow->iRail = p->mxRail = GR_MAX_RAIL;
+          p->bOverfull = 1;
+        }
         pRow->railInUse = BIT(pRow->iRail);
         continue;
       }
@@ -755,15 +766,22 @@ void graph_finish(
         ** parent in the timeline */
         pRow->iRail = findFreeRail(p, pRow->idxTop, pParent->idx,
                                    pParent->iRail, 0);
-        if( p->mxRail>=GR_MAX_RAIL ) return;
+        /* if( p->mxRail>=GR_MAX_RAIL ) return; */
         pParent->aiRiser[pRow->iRail] = pRow->idx;
       }else{
         /* Timewarp case:  Child occurs earlier in time than parent and
         ** appears below the parent in the timeline. */
         int iDownRail = ++p->mxRail;
         if( iDownRail<1 ) iDownRail = ++p->mxRail;
+        if( p->mxRail>GR_MAX_RAIL ){
+          iDownRail = p->mxRail = GR_MAX_RAIL;
+          p->bOverfull = 1;
+        }
         pRow->iRail = ++p->mxRail;
-        if( p->mxRail>=GR_MAX_RAIL ) return;
+        if( p->mxRail>=GR_MAX_RAIL ){
+          pRow->iRail = p->mxRail = GR_MAX_RAIL;
+          p->bOverfull = 1;
+        }
         pRow->railInUse = BIT(pRow->iRail);
         pParent->aiRiser[iDownRail] = pRow->idx;
         mask = BIT(iDownRail);
@@ -826,7 +844,7 @@ void graph_finish(
         }
         if( iMrail==-1 ){
           iMrail = findFreeRail(p, pRow->idx, p->pLast->idx, 0, 1);
-          if( p->mxRail>=GR_MAX_RAIL ) return;
+          /*if( p->mxRail>=GR_MAX_RAIL ) return;*/
           mergeRiserFrom[iMrail] = parentRid;
         }
         iReuseIdx = p->nRow+1;
@@ -858,7 +876,7 @@ void graph_finish(
         }else{
           /* Create a new merge for an on-screen node */
           createMergeRiser(p, pDesc, pRow, isCherrypick);
-          if( p->mxRail>=GR_MAX_RAIL ) return;
+          /* if( p->mxRail>=GR_MAX_RAIL ) return; */
           if( iReuseIdx<0
            && pDesc->nMergeChild==1
            && (pDesc->iRail!=pDesc->mergeOut || pDesc->isLeaf)
@@ -874,13 +892,13 @@ void graph_finish(
   /*
   ** Insert merge rails from primaries to duplicates.
   */
-  if( hasDup ){
+  if( hasDup && p->mxRail<GR_MAX_RAIL ){
     int dupRail;
     int mxRail;
     find_max_rail(p);
     mxRail = p->mxRail;
     dupRail = mxRail+1;
-    if( p->mxRail>=GR_MAX_RAIL ) return;
+    /* if( p->mxRail>=GR_MAX_RAIL ) return; */
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
       if( !pRow->isDup ) continue;
       pRow->iRail = dupRail;
@@ -895,7 +913,7 @@ void graph_finish(
         if( pRow->isDup ) pRow->iRail = dupRail;
       }
     }
-    if( mxRail>=GR_MAX_RAIL ) return;
+    /* if( mxRail>=GR_MAX_RAIL ) return; */
   }
 
   /*

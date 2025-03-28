@@ -2544,8 +2544,12 @@ void cmd_cgi(void){
       ** Sets environment variable NAME to VALUE.  If VALUE is omitted, then
       ** the environment variable is unset.
       */
-      blob_token(&line,&value2);
-      fossil_setenv(blob_str(&value), blob_str(&value2));
+      char *zValue;
+      blob_tail(&line,&value2);
+      blob_trim(&value2);
+      zValue = blob_str(&value2);
+      while( fossil_isspace(zValue[0]) ){ zValue++; }
+      fossil_setenv(blob_str(&value), zValue);
       blob_reset(&value);
       blob_reset(&value2);
       continue;
@@ -3202,6 +3206,9 @@ void fossil_set_timeout(int N){
 **                       /doc/ckout/...
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --errorlog FILE     Append HTTP error messages to FILE
+**   --extpage FILE      Shortcut for "--extroot DIR --page ext/TAIL" where
+**                       DIR is the directory holding FILE and TAIL is the
+**                       filename at the end of FILE.  Only works for "ui".
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --fossilcmd PATH    The pathname of the "fossil" executable on the remote
@@ -3280,6 +3287,7 @@ void cmd_webserver(void){
   const char *zJsMode;       /* The --jsmode parameter */
   const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
   const char *zFrom;         /* Value for --from */
+  const char *zExtPage = 0;  /* Argument to --extpage */
 
 
 #if USE_SEE
@@ -3321,8 +3329,16 @@ void cmd_webserver(void){
       fossil_fatal("the argument to --from must be a pathname for"
                    " the \"ui\" command");
     }
-    zInitPage = find_option("page", "p", 1);
-    if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
+    zExtPage = find_option("extpage",0,1);
+    if( zExtPage ){
+      char *zFullPath = file_canonical_name_dup(zExtPage);
+      g.zExtRoot = file_dirname(zFullPath);
+      zInitPage = mprintf("ext/%s",file_tail(zFullPath));
+      fossil_free(zFullPath);
+    }else{
+      zInitPage = find_option("page", "p", 1);
+      if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
+    }
     zFossilCmd = find_option("fossilcmd", 0, 1);
     if( zFrom && zInitPage==0 ){
       zInitPage = mprintf("ckout?exbase=%H", zFrom);
@@ -3495,7 +3511,14 @@ void cmd_webserver(void){
       if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
       if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
       if( g.zCkoutAlias ) blob_appendf(&ssh," --ckout-alias %!$",g.zCkoutAlias);
-      if( g.zExtRoot ) blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
+      if( zExtPage ){
+        if( !file_is_absolute_path(zExtPage) ){
+          zExtPage = mprintf("%s/%s", g.argv[2], zExtPage);
+        }
+        blob_appendf(&ssh, " --extpage %$", zExtPage);
+      }else if( g.zExtRoot ){
+        blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
+      }
       if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
       if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
       if( fCreate ) blob_appendf(&ssh, " --create");

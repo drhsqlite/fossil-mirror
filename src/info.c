@@ -2624,12 +2624,14 @@ void cmd_test_line_numbers(void){
 ** WEBPAGE: artifact
 ** WEBPAGE: file
 ** WEBPAGE: whatis
+** WEBPAGE: docfile
 **
 ** Typical usage:
 **
 **    /artifact/HASH
 **    /whatis/HASH
 **    /file/NAME
+**    /docfile/NAME
 **
 ** Additional query parameters:
 **
@@ -2638,6 +2640,8 @@ void cmd_test_line_numbers(void){
 **   ln=M-N          - highlight lines M through N inclusive
 **   ln=M-N+Y-Z      - highlight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
+**   brief           - show just the document, not the metadata.  The
+**                     /docfile page is an alias for /file?brief
 **   download        - redirect to the download (artifact page only)
 **   name=NAME       - filename or hash as a query parameter
 **   filename=NAME   - alternative spelling for "name="
@@ -2645,6 +2649,7 @@ void cmd_test_line_numbers(void){
 **   ci=VERSION      - The specific check-in to use with "name=" to
 **                     identify the file.
 **   txt             - Force display of unformatted source text
+**   hash            - Output only the hash of the artifact
 **
 ** The /artifact page show the complete content of a file
 ** identified by HASH.  The /whatis page shows only a description
@@ -2667,6 +2672,7 @@ void artifact_page(void){
   Blob content;
   const char *zMime;
   Blob downloadName;
+  Blob uuid;
   int renderAsWiki = 0;
   int renderAsHtml = 0;
   int renderAsSvg = 0;
@@ -2675,6 +2681,8 @@ void artifact_page(void){
   const char *zUuid = 0;
   u32 objdescFlags = OBJDESC_BASE;
   int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
+  int hashOnly = P("hash")!=0;
+  int docOnly = P("brief")!=0;
   int isFile = fossil_strcmp(g.zPath,"file")==0;
   const char *zLn = P("ln");
   const char *zName = P("name");
@@ -2689,6 +2697,10 @@ void artifact_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   cgi_check_for_malice();
   style_set_current_feature("artifact");
+  if( fossil_strcmp(g.zPath, "docfile")==0 ){
+    isFile = 1;
+    docOnly = 1;
+  }
 
   /* Capture and normalize the name= and ci= query parameters */
   if( zName==0 ){
@@ -2792,9 +2804,18 @@ void artifact_page(void){
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   etag_check(ETAG_HASH, zUuid);
 
+  if( descOnly && hashOnly ){
+    blob_set(&uuid, zUuid);
+    cgi_set_content_type("text/plain");
+    cgi_set_content(&uuid);
+    return;
+  }
+
   asText = P("txt")!=0;
   if( isFile ){
-    if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
+    if( docOnly ){
+      /* No header */
+    }else if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
       zCI = "tip";
       @ <h2>File %z(href("%R/finfo?name=%T&m&ci=tip",zName))%h(zName)</a>
       @ from the %z(href("%R/info/tip"))latest check-in</a></h2>
@@ -2816,13 +2837,15 @@ void artifact_page(void){
       }
       blob_reset(&path);
     }
-    style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
     zMime = mimetype_from_name(zName);
-    style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
-                          zName, zCI);
-    style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
-                          zName, zCI);
-    style_submenu_element("Doc", "%R/doc/%T/%T", zCI, zName);
+    if( !docOnly ){
+      style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
+      style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
+                            zName, zCI);
+      style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
+                            zName, zCI);
+      style_submenu_element("Doc", "%R/doc/%T/%T", zCI, zName);
+    }
     blob_init(&downloadName, zName, -1);
     objType = OBJTYPE_CONTENT;
   }else{
@@ -2845,7 +2868,7 @@ void artifact_page(void){
           file_tail(blob_str(&downloadName)));
     /*NOTREACHED*/
   }
-  if( g.perm.Admin ){
+  if( g.perm.Admin && !docOnly ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
       style_submenu_element("Unshun", "%R/shun?accept=%s&sub=1#accshun", zUuid);
@@ -2890,9 +2913,11 @@ void artifact_page(void){
     }
     db_finalize(&q);
   }
-  style_submenu_element("Download", "%R/raw/%s?at=%T", zUuid, file_tail(zName));
-  if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
-    style_submenu_element("Check-ins Using", "%R/timeline?uf=%s", zUuid);
+  if( !docOnly ){
+    style_submenu_element("Download", "%R/raw/%s?at=%T",zUuid,file_tail(zName));
+    if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
+      style_submenu_element("Check-ins Using", "%R/timeline?uf=%s", zUuid);
+    }
   }
   if( zMime ){
     if( fossil_strcmp(zMime, "text/html")==0 ){
@@ -2900,7 +2925,9 @@ void artifact_page(void){
         style_submenu_element("Html", "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsHtml = 1;
-        style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
+        if( !docOnly ){
+          style_submenu_element("Text", "%s", url_render(&url, "txt","1",0,0));
+        }
       }
     }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0
            || fossil_strcmp(zMime, "text/x-markdown")==0
@@ -2910,17 +2937,21 @@ void artifact_page(void){
                               "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsWiki = 1;
-        style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
+        if( !docOnly ){
+          style_submenu_element("Text", "%s", url_render(&url, "txt","1",0,0));
+        }
       }
     }else if( fossil_strcmp(zMime, "image/svg+xml")==0 ){
       if( asText ){
         style_submenu_element("Svg", "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsSvg = 1;
-        style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
+        if( !docOnly ){
+          style_submenu_element("Text", "%s", url_render(&url, "txt","1",0,0));
+        }
       }
     }
-    if( fileedit_is_editable(zName) ){
+    if( !docOnly && fileedit_is_editable(zName) ){
       style_submenu_element("Edit",
                             "%R/fileedit?filename=%T&checkin=%!S",
                             zName, zCI);
@@ -2932,7 +2963,9 @@ void artifact_page(void){
   if( descOnly ){
     style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
-    @ <hr>
+    if( !docOnly || !isFile ){
+      @ <hr>
+    }
     content_get(rid, &content);
     if( renderAsWiki ){
       safe_html_context(DOCSRC_FILE);
@@ -3602,6 +3635,7 @@ void ci_edit_page(void){
   zNewTag = PDT("tagname","");
   zNewBrFlag = P("newbr") ? " checked" : "";
   zNewBranch = PDT("brname","");
+  zBranchName = branch_of_rid(rid);
   zCloseFlag = P("close") ? " checked" : "";
   zHideFlag = P("hide") ? " checked" : "";
   if( P("apply") && cgi_csrf_safe(2) ){
@@ -3649,13 +3683,21 @@ void ci_edit_page(void){
   if( P("preview") ){
     Blob suffix;
     int nTag = 0;
+    const char *zDplyBr;   /* Branch name used to determine BG color */
+    if( zNewBrFlag[0] && zNewBranch[0] ){
+      zDplyBr = zNewBranch;
+    }else{
+      zDplyBr = zBranchName;
+    }
     @ <b>Preview:</b>
     @ <blockquote>
     @ <table border=0>
     if( zNewColorFlag[0] && zNewColor && zNewColor[0] ){
-      @ <tr><td style="background-color: %h(zNewColor);">
+      @ <tr><td style="background-color:%h(reasonable_bg_color(zNewColor,0));">
     }else if( zColor[0] ){
-      @ <tr><td style="background-color: %h(zColor);">
+      @ <tr><td style="background-color:%h(reasonable_bg_color(zColor,0));">
+    }else if( zDplyBr && fossil_strcmp(zDplyBr,"trunk")!=0 ){
+      @ <tr><td style="background-color:%h(hash_color(zDplyBr));">
     }else{
       @ <tr><td>
     }
@@ -3740,9 +3782,6 @@ void ci_edit_page(void){
   @ <label><input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag)>
   @ Add the following new tag name to this check-in:</label>
   @ <input size="15" name="tagname" id="tagname" value="%h(zNewTag)">
-  zBranchName = db_text(0, "SELECT value FROM tagxref, tag"
-     " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
-     " AND tagxref.tagid=%d", rid, TAG_BRANCH);
   db_prepare(&q,
      "SELECT tag.tagid, tagname, tagxref.value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
@@ -3939,7 +3978,7 @@ void ci_amend_cmd(void){
   int nTags, nCancels;
   int i;
   Stmt q;
-  int ckComFlgs;                /* Flags passed to suspicious_comment() */
+  int ckComFlgs;                /* Flags passed to verify_comment() */
 
 
   fEditComment = find_option("edit-comment","e",0)!=0;
@@ -4032,14 +4071,9 @@ void ci_amend_cmd(void){
       if( is_false(zVerComs) ){
         ckComFlgs = 0;
       }else if( strcmp(zVerComs,"preview")==0 ){
-        ckComFlgs = COMCK_PREVIEW | COMCK_LINKS | COMCK_MARKUP;
-      }else if( strcmp(zVerComs,"links")==0 ){
-        ckComFlgs = COMCK_LINKS;
+        ckComFlgs = COMCK_PREVIEW | COMCK_MARKUP;
       }else{
-        ckComFlgs = COMCK_LINKS | COMCK_MARKUP;
-      }
-      if( zNewComment || zComFile ){
-        ckComFlgs = (ckComFlgs & COMCK_LINKS) | COMCK_NOPREVIEW;
+        ckComFlgs = COMCK_MARKUP;
       }
     }
     if( fEditComment ){
@@ -4054,7 +4088,7 @@ void ci_amend_cmd(void){
      && comment_compare(zComment, blob_str(&comment))==0
     ){
       int rc;
-      while( (rc = suspicious_comment(&comment, ckComFlgs))!=0 ){
+      while( (rc = verify_comment(&comment, ckComFlgs))!=0 ){
         char cReply;
         Blob ans;
         if( !fEditComment ){
@@ -4062,17 +4096,17 @@ void ci_amend_cmd(void){
                        "use --no-verify-comment to override");
         }
         if( rc==COMCK_PREVIEW ){
-          prompt_user("\nContinue (Y/n/e=edit)? ", &ans);
+          prompt_user("Continue, abort, or edit (C/a/e)? ", &ans);
         }else{
-          prompt_user("\nContinue (y/n/E=edit)? ", &ans);
+          prompt_user("Edit, abort, or continue (E/a/c)? ", &ans);
         }
         cReply = blob_str(&ans)[0];
         cReply = fossil_tolower(cReply);
         blob_reset(&ans);
-        if( cReply=='n' ){
+        if( cReply=='a' ){
           fossil_fatal("Amend aborted.");
         }
-        if( cReply=='e' || (cReply!='y' && rc!=COMCK_PREVIEW) ){
+        if( cReply=='e' || (cReply!='c' && rc!=COMCK_PREVIEW) ){
           char *zPrior = blob_materialize(&comment);
           blob_init(&comment, 0, 0);
           prepare_amend_comment(&comment, zPrior, zUuid);

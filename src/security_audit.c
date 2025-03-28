@@ -816,6 +816,7 @@ static void no_error_log_available(void){
 **    y=0x02          Show only panics and assertion faults
 **    y=0x04          Show hung backoffice processes
 **    y=0x08          Show POST requests from a different origin
+**    y=0x10          Show SQLITE_AUTH and similar
 **    y=0x40          Show other uncategorized messages
 **
 ** If y is omitted or is zero, a count of the various message types is
@@ -826,7 +827,7 @@ void errorlog_page(void){
   FILE *in;
   char *zLog;
   const char *zType = P("y");
-  static const int eAllTypes = 0x4f;
+  static const int eAllTypes = 0x5f;
   long eType = 0;
   int bOutput = 0;
   int prevWasTime = 0;
@@ -835,6 +836,7 @@ void errorlog_page(void){
   int nOther = 0;
   int nHang = 0;
   int nXPost = 0;
+  int nAuth = 0;
   char z[10000];
   char zTime[10000];
 
@@ -908,6 +910,9 @@ void errorlog_page(void){
     if( eType & 0x08 ){
       @ <li>POST requests from different origin
     }
+    if( eType & 0x10 ){
+      @ <li>SQLITE_AUTH and similar errors
+    }
     if( eType & 0x40 ){
       @ <li>Other uncategorized messages
     }
@@ -935,6 +940,12 @@ void errorlog_page(void){
         bOutput = (eType & 0x08)!=0;
         nXPost++;
       }else
+      if( sqlite3_strglob("SECURITY: authorizer blocks*",z)==0
+       || sqlite3_strglob("warning: SQLITE_AUTH*",z)==0
+      ){
+        bOutput = (eType & 0x10)!=0;
+        nAuth++;
+      }else
       {
         bOutput = (eType & 0x40)!=0;
         nOther++;
@@ -960,7 +971,7 @@ void errorlog_page(void){
     @ </pre>
   }
   if( eType==0 ){
-    int nNonHack = nPanic + nHang + nOther;
+    int nNonHack = nPanic + nHang + nAuth + nOther;
     int nTotal = nNonHack + nHack + nXPost;
     @ <p><table border="a" cellspacing="0" cellpadding="5">
     if( nPanic>0 ){
@@ -973,19 +984,19 @@ void errorlog_page(void){
     }
     if( nHang>0 ){
       @ <tr><td align="right">%d(nHang)</td>
-      @     <td><a href="./errorlog?y=4/">Hung Backoffice</a></td>
+      @     <td><a href="./errorlog?y=4">Hung Backoffice</a></td>
     }
     if( nXPost>0 ){
       @ <tr><td align="right">%d(nXPost)</td>
-      @     <td><a href="./errorlog?y=8/">POSTs from different origin</a></td>
+      @     <td><a href="./errorlog?y=8">POSTs from different origin</a></td>
+    }
+    if( nAuth>0 ){
+      @ <tr><td align="right">%d(nAuth)</td>
+      @     <td><a href="./errorlog?y=16">SQLITE_AUTH and similar</a></td>
     }
     if( nOther>0 ){
       @ <tr><td align="right">%d(nOther)</td>
-      @     <td><a href="./errorlog?y=64/">Other</a></td>
-    }
-    if( nHack+nXPost>0 && nNonHack>0 ){
-      @ <tr><td align="right">%d(nNonHack)</td>
-      @ <td><a href="%R/errorlog?y=70">Other than hack attempts</a></td>
+      @     <td><a href="./errorlog?y=64">Other</a></td>
     }
     @ <tr><td align="right">%d(nTotal)</td>
     if( nTotal>0 ){

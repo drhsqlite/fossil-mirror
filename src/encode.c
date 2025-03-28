@@ -246,7 +246,7 @@ const char* escape_quotes(const char *zIn){
 /*
 ** Convert a single HEX digit to an integer
 */
-static int AsciiToHex(int c){
+int fossil_hexvalue(int c){
   if( c>='a' && c<='f' ){
     c += 10 - 'a';
   }else if( c>='A' && c<='F' ){
@@ -274,8 +274,8 @@ int dehttpize(char *z){
     switch( z[i] ){
       case '%':
         if( z[i+1] && z[i+2] ){
-          z[j] = AsciiToHex(z[i+1]) << 4;
-          z[j] |= AsciiToHex(z[i+2]);
+          z[j] = fossil_hexvalue(z[i+1]) << 4;
+          z[j] |= fossil_hexvalue(z[i+2]);
           i += 2;
         }
         break;

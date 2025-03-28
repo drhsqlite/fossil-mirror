@@ -638,6 +638,8 @@ void finfo_page(void){
       zBgClr = user_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
+    }else if( zBgClr ){
+      zBgClr = reasonable_bg_color(zBgClr,0);
     }
     gidx = graph_add_row(pGraph,
                    frid>0 ? (GraphRowId)frid*(mxfnid+1)+fnid : fpid+1000000000,

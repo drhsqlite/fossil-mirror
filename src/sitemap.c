@@ -295,6 +295,7 @@ void sitemap_test_page(void){
   @ <li>%z(href("%R/test-builtin-files"))List of built-in files</a></li>
   @ <li>%z(href("%R/mimetype_list"))List of MIME types</a></li>
   @ <li>%z(href("%R/hash-color-test"))Hash color test</a>
+  @ <li>%z(href("%R/test-bgcolor"))Background color test</a>
   if( g.perm.Admin ){
     @ <li>%z(href("%R/test-backlinks"))List of backlinks</a></li>
     @ <li>%z(href("%R/test-backlink-timeline"))Backlink timeline</a></li>

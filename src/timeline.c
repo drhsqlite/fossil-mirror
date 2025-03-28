@@ -223,24 +223,24 @@ void www_print_timeline(
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
-  /*
-  ** SETTING: timeline-truncate-at-blank  boolean default=off
-  **
-  ** If enabled, check-in comments displayed on the timeline are truncated
-  ** at the first blank line of the comment text.  The comment text after
-  ** the first blank line is only seen in the /info or similar pages that
-  ** show details about the check-in.
-  */
+/*
+** SETTING: timeline-truncate-at-blank  boolean default=off
+**
+** If enabled, check-in comments displayed on the timeline are truncated
+** at the first blank line of the comment text.  The comment text after
+** the first blank line is only seen in the /info or similar pages that
+** show details about the check-in.
+*/
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
-  /*
-  ** SETTING: timeline-tslink-info       boolean default=off
-  **
-  ** The hyperlink on the timestamp associated with each timeline entry,
-  ** on the far left-hand side of the screen, normally targets another
-  ** /timeline page that shows the entry in context.  However, if this
-  ** option is turned on, that hyperlink targets the /info page showing
-  ** the details of the entry.
-  */
+/*
+** SETTING: timeline-tslink-info       boolean default=off
+**
+** The hyperlink on the timestamp associated with each timeline entry,
+** on the far left-hand side of the screen, normally targets another
+** /timeline page that shows the entry in context.  However, if this
+** option is turned on, that hyperlink targets the /info page showing
+** the details of the entry.
+*/
   bTimestampLinksToInfo = db_get_boolean("timeline-tslink-info", 0);
   if( (tmFlags & TIMELINE_VIEWS)==0 ){
     tmFlags |= timeline_ss_cookie();
@@ -404,6 +404,8 @@ void www_print_timeline(
     @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
     if( tmFlags & (TIMELINE_UCOLOR|TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
+      /* Don't use the requested background color.  Use the background color
+      ** override from query parameters instead. */
       if( tmFlags & TIMELINE_UCOLOR ){
         zBgClr = zUser ? user_color(zUser) : 0;
       }else if( tmFlags & TIMELINE_NOCOLOR ){
@@ -422,12 +424,17 @@ void www_print_timeline(
         }
         db_reset(&qdelta);
       }
+    }else{
+      /* Make sure the user-specified background color is reasonable */
+      zBgClr = reasonable_bg_color(zBgClr, 0);
     }
     if( zType[0]=='c'
     && (pGraph || zBgClr==0 || (tmFlags & (TIMELINE_BRCOLOR|TIMELINE_DELTA))!=0)
     ){
       zBr = branch_of_rid(rid);
       if( zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0 ){
+        /* If no background color is specified, use a color based on the
+        ** branch name */
         if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
         }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
           zBgClr = 0;
@@ -1106,58 +1113,6 @@ const char *timeline_query_for_www(void){
     @ WHERE blob.rid=event.objid
   ;
   return zBase;
-}
-
-/*
-** Convert a symbolic name used as an argument to the a=, b=, or c=
-** query parameters of timeline into a julianday mtime value.
-**
-** If pzDisplay is not null, then display text for the symbolic name might
-** be written into *pzDisplay.  But that is not guaranteed.
-**
-** If bRoundUp is true and the symbolic name is a timestamp with less
-** than millisecond resolution, then the timestamp is rounding up to the
-** largest millisecond consistent with that timestamp.  If bRoundUp is
-** false, then the resulting time is obtained by extending the timestamp
-** with zeros (hence rounding down).  Use bRoundUp==1 if the result
-** will be used in mtime<=$RESULT and use bRoundUp==0 if the result
-** will be used in mtime>=$RESULT.
-*/
-double symbolic_name_to_mtime(
-  const char *z,              /* Input symbolic name */
-  const char **pzDisplay,     /* Perhaps write display text here, if not NULL */
-  int bRoundUp                /* Round up if true */
-){
-  double mtime;
-  int rid;
-  const char *zDate;
-  if( z==0 ) return -1.0;
-  if( fossil_isdate(z) ){
-    mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", z);
-    if( mtime>0.0 ) return mtime;
-  }
-  zDate = fossil_expand_datetime(z, 1, bRoundUp);
-  if( zDate!=0 ){
-    mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())",
-                      bRoundUp ? fossil_roundup_date(zDate) : zDate);
-    if( mtime>0.0 ){
-      if( pzDisplay ) *pzDisplay = fossil_strdup(zDate);
-      return mtime;
-    }
-  }
-  rid = symbolic_name_to_rid(z, "*");
-  if( rid ){
-    mtime = mtime_of_rid(rid, 0.0);
-  }else{
-    mtime = db_double(-1.0,
-        "SELECT max(event.mtime) FROM event, tag, tagxref"
-        " WHERE tag.tagname GLOB 'event-%q*'"
-        "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype"
-        "   AND event.objid=tagxref.rid",
-        z
-    );
-  }
-  return mtime;
 }
 
 /*
@@ -3473,7 +3428,9 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat,
 /*
 **    wiki_to_text(TEXT)
 **
-** Return a plain-text rendering of Fossil-Wiki TEXT.
+** Return a text rendering of Fossil-Wiki TEXT, intended for display
+** on a timeline.  The timeline-plaintext and timeline-hard-newlines
+** settings are considered when doing this rendering.
 */
 static void wiki_to_text_sqlfunc(
   sqlite3_context *context,
@@ -3488,10 +3445,10 @@ static void wiki_to_text_sqlfunc(
   nIn = sqlite3_value_bytes(argv[0]);
   blob_init(&in, zIn, nIn);
   blob_init(&html, 0, 0);
-  wiki_convert(&in, &html, WIKI_INLINE);
+  wiki_convert(&in, &html, wiki_convert_flags(0));
   blob_reset(&in);
   blob_init(&txt, 0, 0);
-  html_to_plaintext(blob_str(&html), &txt);
+  html_to_plaintext(blob_str(&html), &txt, 0);
   blob_reset(&html);
   nOut = blob_size(&txt);
   zOut = blob_str(&txt);

@@ -872,7 +872,8 @@ static void new_brlist_page(void){
     char *zAge = human_readable_age(rNow - rMtime);
     sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0);
     if( zMergeTo && zMergeTo[0]==0 ) zMergeTo = 0;
-    if( zBgClr == 0 ){
+    if( zBgClr ) zBgClr = reasonable_bg_color(zBgClr, 0);
+    if( zBgClr==0 ){
       if( zBranch==0 || strcmp(zBranch,"trunk")==0 ){
         zBgClr = 0;
       }else{

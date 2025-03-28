@@ -151,6 +151,11 @@ on the contents and status of wiki pages.
 See the [configuration database location][configloc] description
 for additional information.
 
+`FOSSIL_REPOLIST_TITLE`: The page title of the "Repository List" page
+loaded by the `fossil all ui` or `fossil ui /` commands. Only used if
+none of the listed repositories has the `repolist_skin` property set.
+Can be set from the [CGI control file][cgictlfile].
+
 `FOSSIL_USE_SEE_TEXTKEY`: If set, treat the encryption key string for
 SEE as text to be hashed into the actual encryption key.  This has no
 effect if Fossil was not compiled with SEE support enabled.
@@ -495,3 +500,4 @@ a URL in the user's configured default browser.
 
 [configdb]: ./tech_overview.wiki#configdb
 [configloc]: ./tech_overview.wiki#configloc
+[cgictlfile]: ./cgi.wiki

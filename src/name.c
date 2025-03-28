@@ -72,7 +72,7 @@ int fossil_isdate(const char *z){
 **     202503171234   -> 2025-03-17 12:34:59.999
 **                                       ^^^^^^^--- Added
 **     20250317       -> 2025-03-17 23:59:59.999
-**                                  ^^^^^^^^^^^^--- Added
+**                                 ^^^^^^^^^^^^^--- Added
 **
 ** If the bVerifyNotAHash flag is true, then a check is made to see if
 ** the input string is a hash prefix and NULL is returned if it is.  If the
@@ -719,6 +719,61 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     fossil_free(zNew);
   }
   return rid;
+}
+
+/*
+** Convert a symbolic name used as an argument to the a=, b=, or c=
+** query parameters of timeline into a julianday mtime value.
+**
+** If pzDisplay is not null, then display text for the symbolic name might
+** be written into *pzDisplay.  But that is not guaranteed.
+**
+** If bRoundUp is true and the symbolic name is a timestamp with less
+** than millisecond resolution, then the timestamp is rounding up to the
+** largest millisecond consistent with that timestamp.  If bRoundUp is
+** false, then the resulting time is obtained by extending the timestamp
+** with zeros (hence rounding down).  Use bRoundUp==1 if the result
+** will be used in mtime<=$RESULT and use bRoundUp==0 if the result
+** will be used in mtime>=$RESULT.
+*/
+double symbolic_name_to_mtime(
+  const char *z,              /* Input symbolic name */
+  const char **pzDisplay,     /* Perhaps write display text here, if not NULL */
+  int bRoundUp                /* Round up if true */
+){
+  double mtime;
+  int rid;
+  const char *zDate;
+  if( z==0 ) return -1.0;
+  if( fossil_isdate(z) ){
+    mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", z);
+    if( mtime>0.0 ) return mtime;
+  }
+  zDate = fossil_expand_datetime(z, 1, bRoundUp);
+  if( zDate!=0 ){
+    mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())",
+                      bRoundUp ? fossil_roundup_date(zDate) : zDate);
+    if( mtime>0.0 ){
+      if( pzDisplay ){
+        zDate = fossil_expand_datetime(z,0,0);
+        *pzDisplay = fossil_strdup(zDate);
+      }
+      return mtime;
+    }
+  }
+  rid = symbolic_name_to_rid(z, "*");
+  if( rid ){
+    mtime = mtime_of_rid(rid, 0.0);
+  }else{
+    mtime = db_double(-1.0,
+        "SELECT max(event.mtime) FROM event, tag, tagxref"
+        " WHERE tag.tagname GLOB 'event-%q*'"
+        "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype"
+        "   AND event.objid=tagxref.rid",
+        z
+    );
+  }
+  return mtime;
 }
 
 /*
