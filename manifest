@@ -1,5 +1,5 @@
-C Attempt\sto\sfix\sthe\sgraph\sCSS\sfor\sthe\sXekri\sskin.
-D 2025-03-28T12:56:02.019
+C Add\sa\scheckbox\sto\sthe\s/setup_timeline\spage\sto\scontrol\sthe\sraw-bgcolor\nsetting.
+D 2025-03-28T13:22:01.941
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -526,7 +526,7 @@ F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 6820d9ea7574cef4646e86481ec2823d3a2d1091b3d956be7afacc5d2566880a
 F src/security_audit.c 02d2f426bcf735ca90222374ea9e17bafc751669a4c7b76773059557d904df92
-F src/setup.c 0e254053881dcae2e23f1b548291c7cddfeb6efd1db23c1de462c5f0e7290e36
+F src/setup.c 76f7d67747f72993277617954291f3f72c51a707b273213a863dce69d79ee00a
 F src/setupuser.c b707636bb05076e31a4ce1dae949b7f24b8cc2fc553857b6217d89e3847ae853
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9d2e0d0802ed7e1252ef53c283a526618581b468a61a060d20f6516f712d55fd
-R 1889cf04a9dacf799de973ab5c27ef2d
+P d176fea43ef1b3fb15cb8716f8717f50d5d698b64d4722f0a4ecd471bb713cd7
+R 182d5dca9dee15fdf199851618e840e2
 U drh
-Z 1908ef6b881f962ff563a668ae21429b
+Z ed84298562811e6fbe67e266ac60f1f6
 # Remove this line to create a well-formed Fossil manifest.

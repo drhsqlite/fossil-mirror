@@ -1006,6 +1006,16 @@ void setup_timeline(void){
   @ (Property: "timeline-hard-newlines")</p>
 
   @ <hr>
+  onoff_attribute("Do not adjust user-selected background colors",
+                  "raw-bgcolor", "rbgc", 0, 0);
+  @ <p>Fossil normally attempts to adjust the saturation and intensity of
+  @ user-specified background colors on check-ins and branches so that the
+  @ foreground text is easily readable on all skins.  Enable this setting
+  @ to omit that adjustment and use exactly the background color specified
+  @ by users.
+  @ (Property: "raw-bgcolor")</p>
+
+  @ <hr>
   onoff_attribute("Use Universal Coordinated Time (UTC)",
                   "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
