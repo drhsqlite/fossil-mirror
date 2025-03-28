@@ -1,5 +1,5 @@
-C Add\sa\snew\scategory\sof\serror\slog\smessages:\sSQLITE_AUTH\sand\ssimilar.
-D 2025-03-28T00:17:25.553
+C Improve\sthe\sbackground\scolor\sadjustment\salgorithm\sso\sthat\scolors\sthat\nare\sfurther\sout\sof\srange\sreceive\sa\sproportionally\sgreater\sadjustment.\nAlso\sexpand\sthe\srange\sof\sallowed\scolors,\sslightly.
+D 2025-03-28T12:20:56.561
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -403,7 +403,7 @@ F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb70
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
 F src/clone.c e392538aa4d05e2b561400d4c7b5ae60a536456d9184f0afcec3eccea473273c
-F src/color.c 30cb24bd10c4d5366ab71adc4a45587a741cf47f1427aded3d6b913ccf96d987
+F src/color.c cbe8fb7c03c07735b13449a8384c466ddd93306af7bf63176414cf6fd1e144b9
 F src/comformat.c f21be09a545501a3b4ef51ed8c93bd687f7d4d96e145cadc773aec3e5b3e511d
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c 06d5e5f2de738ef5e3733b5f3bd18d73d3f4e1a2f7cbe4fa6fe008e9d618f183
@@ -968,8 +968,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P da34b906edbdf738a4d369066cff0c08549d16606bda208b604ddcf81a4a1e32
-R 71527d5f239e548c20818651d88df5c1
+P bc8e936abf4c5fdabdaa6244e970cbc41b2d5eae8f92f2fc0fe9c6338d5e9238
+R bd21039469f0ee09c08cd72021a6c2e2
 U drh
-Z ca3b9c856599688b8a92d9265694d755
+Z b25ef313334b845b730598fd9a3cc894
 # Remove this line to create a well-formed Fossil manifest.
