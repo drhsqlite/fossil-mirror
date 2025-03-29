@@ -5,9 +5,18 @@
 # such file found, in prints the name of the file and then prints the
 # file content, indented.
 #
-#     tclsh find-fossil-cgis.tcl $DIRECTORY
+#     tclsh find-fossil-cgis.tcl [OPTIONS] $DIRECTORY
 #
 # The argument is the directory from which to begin the search.
+#
+# OPTIONS can be zero or more of the following:
+#
+#    --has REGEXP               Only show the CGI if the body matches REGEXP.
+#                               May be repeated multiple times, in which case
+#                               all must match.
+#
+#    --hasnot REGEXP            Only show the CGI if it does NOT match the
+#                               REGEXP.
 #
 
 
@@ -15,6 +24,7 @@
 # scan subdirectories.
 #
 proc find_in_one_dir {dir} {
+  global HAS HASNOT
   foreach obj [lsort [glob -nocomplain -directory $dir *]] {
     if {[file isdir $obj]} {
       find_in_one_dir $obj
@@ -31,6 +41,15 @@ proc find_in_one_dir {dir} {
     if {![regexp {\nrepository: } $txt] &&
         ![regexp {\ndirectory: } $txt] &&
         ![regexp {\nredirect: } $txt]} continue
+    set ok 1
+    foreach re $HAS {
+      if {![regexp $re $txt]} {set ok 0; break;}
+    }
+    if {!$ok} continue
+    foreach re $HASNOT {
+      if {[regexp $re $txt]} {set ok 0; break;}
+    }
+    if {!$ok} continue
     # 
     # At this point assume we have found a CGI file.
     #
@@ -39,6 +58,20 @@ proc find_in_one_dir {dir} {
     puts "   $out"
   }
 }
-foreach dir $argv {
+set HAS [list]
+set HASNOT [list]
+set N [llength $argv]
+for {set i 0} {$i<$N} {incr i} {
+  set dir [lindex $argv $i]
+  if {($dir eq "-has" || $dir eq "--has") && $i<[expr {$N-1}]} {
+    incr i
+    lappend HAS [lindex $argv $i]
+    continue
+  }
+  if {($dir eq "-hasnot" || $dir eq "--hasnot") && $i<[expr {$N-1}]} {
+    incr i
+    lappend HASNOT [lindex $argv $i]
+    continue
+  }
   find_in_one_dir $dir
 }
