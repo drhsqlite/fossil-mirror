@@ -4,7 +4,7 @@
 
   *  Enhancements to [/help?cmd=diff|fossil diff] and similar:
      <ol type="a">
-     <li> The --from can optionally accepts a directory name as its argument,
+     <li> The --from can optionally accept a directory name as its argument,
           and uses files under that directory as the baseline for the diff.
      <li> For "gdiff", if no [/help?cmd=gdiff-command|gdiff-command setting]
           is defined, Fossil tries to do a --tk diff if "tclsh" and "wish"

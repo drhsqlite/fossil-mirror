@@ -1,5 +1,5 @@
-C Add\sthe\sutility\sscript\stools/find-fossil-cgis.tcl.
-D 2025-03-29T00:04:58.805
+C (Typo)\scorrection\sto\swww/changes.wiki.
+D 2025-03-29T00:15:32.174
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -790,7 +790,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 080e44975a142db5bfd34ba9cbae57e26e2f3ca26aaf5a27537668802986f028
-F www/changes.wiki 7385ad3aa8d01246bcbd50e200d6f9476c308bfb40cc54383b7a181ca2d23a3e
+F www/changes.wiki 608bb1bda5265a4f87b9ae3a2d72a226756b1e6d303e71123920c6854db42299
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a584f75ff84ee9147746fbd5a4e348bc22fbeb29f88f82e68c7f8d59c288525c
-R 510df0d53a38129af4a92b6b54d69ff2
-U drh
-Z 3d0c72aa8cf61b127dd3d2ed9a0dd830
+P f8fe5be2c3753afc650a7b4bbe08964947f28745372b142b89cc751dc9111839
+R b24cb75a7631733e95ec29fdad812e55
+U brickviking
+Z 6e8de5fbb45fbb55cecc186ee093ffc4
 # Remove this line to create a well-formed Fossil manifest.
