@@ -26,6 +26,26 @@
 #
 #    -v                         Show progress information for debugging
 #
+# EXAMPLE USE CASES:
+#
+# Find all CGIs that do not have the "errorlog:" property set
+#
+#    find-fossil-cgis.tcl *.website --has '\nrepository:' \
+#           --hasnot '\nerrorlog:'
+#
+# Add the errorlog: property to any CGI that does not have it:
+#
+#    find-fossil-cgis.tcl *.website --has '\nrepository:' \
+#           --hasnot '\nerrorlog:' | while read x
+#    do
+#      echo 'errorlog: /logs/errors.txt' >>$x
+#    done
+#
+# Find and print all CGIs that do redirects
+#
+#    find-fossil-cgis.tcl *.website --has '\nredirect:' --print
+#
+
 
 # Find the CGIs in directory $dir.  Invoke recursively to
 # scan subdirectories.

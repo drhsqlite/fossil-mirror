@@ -1,5 +1,5 @@
-C New\scommand-line\soptions\sfor\sfind-fossil-cgis.tcl:\s\s--print,\s--symlink,\nand\s-v.
-D 2025-03-29T10:44:12.160
+C Add\scomments\swith\susage\shints\sto\sthe\stools/find-fossil-cgis.tcl\sscript.
+D 2025-03-29T10:55:46.836
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -733,7 +733,7 @@ F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829aba
 F tools/email-sender.tcl 68217a0707268b570bd2f78e1799ae86c5cb0cc4e7eac321963fa24b6305c446 x
 F tools/emcc.sh.in 41a049468c8155433e37e656ba5bae063a000768b1d627025f277732c4e7c4a4
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
-F tools/find-fossil-cgis.tcl 90c0b503f58c40f82688212161b8c0bd5784a3b393d874f42cb7bb6ae77b6fe8 x
+F tools/find-fossil-cgis.tcl 02669fa4cb9c72cc2e6a1063bb2d7a5def86984e99d77cd7b04d97583cd7554e x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ccb7cc4ecd6ed7797b7c7125134192deba24e50e1a767b509b9f71ee8a5970f3
-R 53a1c6681264528370886ddcd1cbfadc
+P 609f885a02afc17c3573314255eccb9a94c37e94af7553ea6ae1b1bc711f0922
+R 8432d3a2719931bf6b71c6cd7e3bfd02
 U drh
-Z 86ed4e8d0c537bd43054b894b5073c06
+Z 8fef30d58c8ec6a9b29a909b5521e060
 # Remove this line to create a well-formed Fossil manifest.
