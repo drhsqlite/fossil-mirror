@@ -1,5 +1,5 @@
-C Change\sthe\sname\sof\sthe\s/test_env\spage\sto\s/test-env\sfor\sconsistency.\s\sThe\nold\sname\sis\sretained\sas\san\salias\sfor\sbackwards\scompatibility.
-D 2025-03-29T15:10:56.477
+C Initialize\sthe\s$title\sand\s$login\svariable\sfor\sTH1\sused\sduring\sheader/footer\ngeneration\sto\sa\ssimilar\sstring\sthat\shas\scharacters\sthat\sare\sspecial\sto\nHTML\sescaped\sto\ssimilar-looking\sunicode\scharacters.\s\sThis\sis\san\sdefense\nagainst\sXSS\sattacks\sthat\smight\sotherwise\sresult\sdue\sto\serrors\sin\sa\scustom\nskin\swhere\sthe\s$title\svariable\sis\smisused.
+D 2025-03-29T16:00:08.197
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -423,7 +423,7 @@ F src/diff.tcl f6e04df1bbaa41b1269e81b2ee410eacf0ed78cb8da3d3a51c40a2d1d44aacfa
 F src/diffcmd.c 30179ce21979fec53cdab3784805f19ab582543e758633281a6926047399cd9d
 F src/dispatch.c ed3f8b39d19aad310c6252feb40610a0393a016116ac91f3c59fe57a0799ddb3
 F src/doc.c 2af38a7104c3a6b29fb4479b0c5343aac850af7b44444c49e89d2473a90b33a5
-F src/encode.c 595281a3d5209d1d05cf876c02c01edc8a4aab4b740cd56963bdc6884f795fdd
+F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c bbf9e79dfc96c597bab4f48ae290259a2dfa129a3d1c5878c13306ac46eb595c
 F src/export.c 99dddcbffa040ee67cbee591a41de449db384b645ac150e22b452f0482a88d96
@@ -559,7 +559,7 @@ F src/stash.c 30d159663eab76205a8b247428dd5c7fd17da6e02553d62df97b403c3f1bb801
 F src/stat.c e25b4b93eb5bf7bb74e29b4ce44e6de9c5ea9921f780b79d1847e16848b9ac1f
 F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c e85161dba6501742ee592dc079a7e8f79db4b9ff3aec8a2ce899b16c80dd0444
+F src/style.c f2b8101700686d7715b48471a0c5e3de6198a632d84e2ec7f9adafb423cf9e5f
 F src/style.chat.css 21306b3184bfe8687412c7ce2237344ae7963304dd0fc67899dbed063e7e5dde
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e8f3f411a5794c31aa1e8b55f31a81044627c6ae974981d01620f1845366ec37
-R 27c3b7685e40606fa579b903181ea765
+P caf286d7480727d3341aceeb0c4a2f7b655af03e8c04df1c56ba08ac484bb56a
+R 23dee0e1593c81d96ef72b4f91713cab
 U drh
-Z 8e6bec226fe60257e6a1fbafa658a637
+Z 45084a6ac44d43d344085a4a34ef310e
 # Remove this line to create a well-formed Fossil manifest.

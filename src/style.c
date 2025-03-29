@@ -748,7 +748,7 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("nonce", zNonce);
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("project_description", db_get("project-description",""));
-  if( zTitle ) Th_Store("title", zTitle);
+  if( zTitle ) Th_Store("title", html_lookalike(zTitle,-1));
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("secureurl", fossil_wants_https(1)? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
@@ -774,7 +774,7 @@ static void style_init_th1_vars(const char *zTitle){
   image_url_var("logo");
   image_url_var("background");
   if( !login_is_nobody() ){
-    Th_Store("login", g.zLogin);
+    Th_Store("login", html_lookalike(g.zLogin,-1));
   }
   Th_MaybeStore("current_feature", feature_from_page_path(local_zCurrentPage) );
   if( g.ftntsIssues[0] || g.ftntsIssues[1] ||
