@@ -1,5 +1,5 @@
-C Document\sparameters\s'from'\sand\s'to'\sfor\s/reports.
-D 2025-03-28T16:47:05.972
+C Add\sthe\sutility\sscript\stools/find-fossil-cgis.tcl.
+D 2025-03-29T00:04:58.805
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -733,6 +733,7 @@ F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829aba
 F tools/email-sender.tcl 68217a0707268b570bd2f78e1799ae86c5cb0cc4e7eac321963fa24b6305c446 x
 F tools/emcc.sh.in 41a049468c8155433e37e656ba5bae063a000768b1d627025f277732c4e7c4a4
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
+F tools/find-fossil-cgis.tcl 7581d69a39d9b3976b4d01586f620aa094211dcb0e1115675a0e1854d2531a5b x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
@@ -968,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f0adaa7fde34af80172ed6c8cc25dc1d990a79c69a8a40d3c64e60f3cadb1e1
-R 7725e518aafb7e764af5022d0941244c
-U danield
-Z d702eb3a9d39ee5a6576e1396c67185d
+P a584f75ff84ee9147746fbd5a4e348bc22fbeb29f88f82e68c7f8d59c288525c
+R 510df0d53a38129af4a92b6b54d69ff2
+U drh
+Z 3d0c72aa8cf61b127dd3d2ed9a0dd830
 # Remove this line to create a well-formed Fossil manifest.
