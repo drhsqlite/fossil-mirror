@@ -1377,7 +1377,8 @@ void page_test_title(void){
 }
 
 /*
-** WEBPAGE: test_env
+** WEBPAGE: test-env
+** WEBPAGE: test_env  alias
 **
 ** Display CGI-variables and other aspects of the run-time
 ** environment, for debugging and trouble-shooting purposes.
@@ -1440,7 +1441,7 @@ void honeypot_page(void){
 ** details of the request environment are displayed.  Otherwise, just
 ** the error message is shown.
 **
-** If zFormat is an empty string, then this is the /test_env page.
+** If zFormat is an empty string, then this is the /test-env page.
 */
 void webpage_error(const char *zFormat, ...){
   int showAll = 0;
@@ -1540,7 +1541,7 @@ void webpage_error(const char *zFormat, ...){
     P("HTTP_USER_AGENT");
     P("SERVER_SOFTWARE");
     cgi_print_all(showAll, 0, 0);
-    @ <p><form method="POST" action="%R/test_env">
+    @ <p><form method="POST" action="%R/test-env">
     @ <input type="hidden" name="showall" value="%d(showAll)">
     @ <input type="submit" name="post-test-button" value="POST Test">
     @ </form>

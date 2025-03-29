@@ -464,7 +464,7 @@ static void addAutoHyperlinkSettings(void){
   @ Javascript").</p>
   @
   @ <p>To see if Javascript-base hyperlink enabling mechanism is working,
-  @ visit the <a href="%R/test_env">/test_env</a> page (from a separate
+  @ visit the <a href="%R/test-env">/test-env</a> page (from a separate
   @ web browser that is not logged in, even as "anonymous") and verify
   @ that the "g.jsHref" value is "1".</p>
   @ <p>(Properties: "auto-hyperlink", "auto-hyperlink-delay", and
@@ -606,7 +606,7 @@ void setup_access(void){
   @ (Property: "localauth")
   @
   @ <hr>
-  onoff_attribute("Enable /test_env",
+  onoff_attribute("Enable /test-env",
      "test_env_enable", "test_env_enable", 0, 0);
   @ <p>When enabled, the %h(g.zBaseURL)/test_env URL is available to all
   @ users.  When disabled (the default) only users Admin and Setup can visit

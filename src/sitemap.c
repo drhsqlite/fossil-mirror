@@ -287,7 +287,7 @@ void sitemap_test_page(void){
   }
   @ <ul id="sitemap" class="columns" style="column-width:20em">
   if( g.perm.Admin || db_get_boolean("test_env_enable",0) ){
-    @ <li>%z(href("%R/test_env"))CGI Environment Test</a></li>
+    @ <li>%z(href("%R/test-env"))CGI Environment Test</a></li>
   }
   if( g.perm.Read ){
     @ <li>%z(href("%R/test-rename-list"))List of file renames</a></li>
