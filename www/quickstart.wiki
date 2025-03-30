@@ -16,7 +16,7 @@ someplace on your $PATH.
 You can test that Fossil is present and working like this:
 
 <pre><b>fossil version
-This is fossil version 2.13 [309af345ab] 2020-09-28 04:02:55 UTC
+This is fossil version 2.25 [8f798279d5] 2024-11-06 12:59:09 UTC
 </b></pre>
 
 <h2 id="workflow" name="fslclone">General Work Flow</h2>
@@ -50,8 +50,34 @@ this way: ([/help/init | more info])
 </pre>
 
 You can name the database anything you like, and you can place it anywhere in the filesystem.
-The <tt>.fossil</tt> extension is traditional but only required if you are going to use the 
-<tt>[/help/server | fossil server DIRECTORY]</tt> feature.”
+The <tt>.fossil</tt> extension is traditional, but it is only required if you are going to use the 
+<tt>[/help/server | fossil server DIRECTORY]</tt> feature.
+
+Next, do something along the lines of:
+
+<pre>
+<b>mkdir -p ~/src/project/trunk</b>
+<b>cd ~/src/project/trunk</b>
+<b>fossil open</b> <i>repository-filename</i>
+<b>fossil add</b> foo.c bar.h qux.md
+<b>fossil commit</b>
+</pre>
+
+If your project directory already exists, obviating the <b>mkdir</b>
+step, you will instead need to add the <tt>--force</tt> flag to the
+<b>open</b> command to authorize Fossil to open the repo into a
+non-empty checkout directory. (This is to avoid accidental opens into,
+for example, your home directory.)
+
+The convention of naming your checkout directory after a long-lived
+branch name like "trunk" is in support of Fossil's ability to have as
+many open checkouts as you like. This author frequently has additional
+checkout directories named <tt>../release</tt>, <tt>../scratch</tt>,
+etc. The release directory is open to the branch of the same name, while
+the scratch directory is used when disturbing one of the other
+long-lived checkout directories is undesireable, as when performing a
+[/help/bisect | bisect] operation.
+
 
 <h2 id="clone">Cloning An Existing Repository</h2>
 
