@@ -127,7 +127,7 @@ static void tktsetup_generic(
     return;
   }
   style_set_current_feature("tktsetup");
-  if( PB("setup") ){
+  if( P("setup") ){
     cgi_redirect("tktsetup");
   }
   isSubmit = P("submit")!=0;
@@ -166,6 +166,7 @@ static void tktsetup_generic(
   @ <blockquote><pre>
   @ %h(zDfltValue)
   @ </pre></blockquote>
+  style_submenu_element("Back", "%R/tktsetup");
   style_finish_page();
 }
 
@@ -945,6 +946,7 @@ void tktsetup_timeline_page(void){
   @ </p>
   @ </div></form>
   db_end_transaction(0);
+  style_submenu_element("Back", "%R/tktsetup");
   style_finish_page();
 
 }

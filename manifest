@@ -1,5 +1,5 @@
-C Replaced\sthe\smention\sof\s"fossil\sbranch\snew"\sin\sthe\sQuick\sStart\sdoc\swith\na\slink\sto\sthe\ssection\sof\sthe\sgitusers\sdoc\swhich\sexplains\swhy\sthis\sis\snot\nthe\srecommended\sway\sof\sworking\swith\sFossil.\s\sBoth\soptions\sremain\ndocumented,\sbut\snow\swe\sbring\sGit\sexpats\sto\sthe\splace\swhere\smany\sof\ntheir\s_other_\squestions\sare\smost\slikely\sto\sbe\sanswered.
-D 2025-03-30T11:18:12.988
+C improve\snavigation\sof\stktsetup-subpages
+D 2025-03-30T15:54:48.616
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -576,7 +576,7 @@ F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 54037c01cf6e7e1a5b12cfe2efe73558df548064a891101cf3d11ce021f0ca64
 F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
-F src/tktsetup.c dee6358557178e83f24f09149f1aa241f331e2dde0084195156d34f012162e4e
+F src/tktsetup.c 87ed249ca26afee57da51229384fcc0b8e046c762c7a3c243b0372e596e66d5a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
@@ -969,8 +969,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4f42caee47ecea10111ee83fbbd1c1db9b4ae9ef41b3ea8681793d77b4a51314
-R dbad0878e69b73d3d0bf5cee2ea17452
-U wyoung
-Z 1f0b0699698a45a839f78be8c10eccad
+P f04b61f7e1a53491f86f7bdb34fa9dc13f449d11d9b4c0826e2f0ca23a07d5b7
+R 477a07584460d3682cc2bc80edec3cdc
+T *branch * tkt-improvements
+T *sym-tkt-improvements *
+T -sym-trunk *
+U jkosche
+Z c1a991466c1966b6cc3b8e9fd887bfe5
 # Remove this line to create a well-formed Fossil manifest.
