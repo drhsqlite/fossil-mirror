@@ -117,6 +117,7 @@ int repo_list_page(void){
   Blob html;           /* Html for the body of the repository list */
   char *zSkinRepo = 0; /* Name of the repository database used for skins */
   char *zSkinUrl = 0;  /* URL for the skin database */
+  int quickfilter = 0; /* Is quickfilter is enabled? */
 
   assert( g.db==0 );
   blob_init(&html, 0, 0);
@@ -306,6 +307,7 @@ int repo_list_page(void){
     fossil_free(zSkinRepo);
     fossil_free(zSkinUrl);
   }
+  quickfilter = is_quickfilter_enabled();
   if( g.repositoryOpen ){
     /* This case runs if remote_repo_info() found a repository
     ** that has the "repolist_skin" property set to non-zero and left
@@ -314,10 +316,14 @@ int repo_list_page(void){
     login_check_credentials();
     style_set_current_feature("repolist");
     style_header("Repository List");
-    @ <input type="text" id="quickfilter" placeholder="filter repository list..." style="display: none">
+    if( quickfilter ){
+      @ <input type="text" id="quickfilter" placeholder="filter repository list...">
+    }
     @ %s(blob_str(&html))
     style_table_sorter();
-    style_quickfilter();
+    if( quickfilter ){
+      style_quickfilter();
+    }
     style_finish_page();
   }else{
     const char *zTitle = PD("FOSSIL_REPOLIST_TITLE","Repository List");
@@ -331,10 +337,14 @@ int repo_list_page(void){
     @ </head>
     @ <body>
     @ <h1 align="center">%h(zTitle)</h1>
-    @ <input type="text" id="quickfilter" placeholder="filter repository list..." style="display: none">
+    if( quickfilter ){
+      @ <input type="text" id="quickfilter" placeholder="filter repository list...">
+    }
     @ %s(blob_str(&html))
     @ <script>%s(builtin_text("sorttable.js"))</script>
-    @ <script>%s(builtin_text("quickfilter.js"))</script>
+    if( quickfilter ){
+      @ <script>%s(builtin_text("quickfilter.js"))</script>
+    }
     @ </body>
     @ </html>
   }
@@ -359,4 +369,15 @@ void test_list_page(void){
   }
   g.httpOut = stdout;
   repo_list_page();
+}
+
+/*
+** Return true if quickfilter for repolist is enabled via FOSSIL_REPOLIST_QUICKFILTER.
+*/
+int is_quickfilter_enabled(void){
+  const char *zQuickFilter = P("FOSSIL_REPOLIST_TITLE");
+  if ( zQuickFilter==0 ) return 0;
+  if ( zQuickFilter[0]==0 ) return 0;
+  if( is_truth(zQuickFilter) ) return 1;
+  return 0;
 }
