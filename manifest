@@ -1,5 +1,5 @@
-C Initialize\sthe\s$title\sand\s$login\svariable\sfor\sTH1\sused\sduring\sheader/footer\ngeneration\sto\sa\ssimilar\sstring\sthat\shas\scharacters\sthat\sare\sspecial\sto\nHTML\sescaped\sto\ssimilar-looking\sunicode\scharacters.\s\sThis\sis\san\sdefense\nagainst\sXSS\sattacks\sthat\smight\sotherwise\sresult\sdue\sto\serrors\sin\sa\scustom\nskin\swhere\sthe\s$title\svariable\sis\smisused.
-D 2025-03-29T16:00:08.197
+C Update\sdocumentation\sfor\sthe\s/test_env\sto\s/test-env\schange.
+D 2025-03-30T09:51:59.135
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -616,7 +616,7 @@ F test/glob.test 3b2fbff1bd6cc3693251cd4357b482f982620985e57fac614a0134628a2e720
 F test/graph-test-1.wiki 005464d7086c690588eee46e29f551145178c0eed085f5063f647b0d1231197e
 F test/graph-test-2.md 4dc6143ec96d321846ee7814d762c71d01d76336069074307241bf02ee93546f
 F test/json.test 6328ffc6773d8a1bf26ef471b5913f7237e620abdd35e087c9bfa289e40c5b51
-F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
+F test/many-www.tcl a50f03578004a396d29041748aeb2cc9acbef0cc31e2975c93b563d378fae4e0
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
 F test/markdown-test3.md 70e697a5e9bab2f1a5bbb7bb4223a8d4b2d7f1a43973f7455e8c7eaebb0ae34a
@@ -737,7 +737,7 @@ F tools/find-fossil-cgis.tcl 02669fa4cb9c72cc2e6a1063bb2d7a5def86984e99d77cd7b04
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
-F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
+F tools/fossil-stress.tcl f8c75651b50d14aa619613438e0f1dedb53669a52239e3f274d2096c45e61b49 x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c 5f464a5a25ae45978e49e1cc230cc4c6f2fddc8f2f45a044fff02dc074a0bcf6
@@ -763,7 +763,7 @@ F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc b32be96215c0192ff0fbbe04e202806d004aef9594ffd29e6f06e52fdcb56690
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
-F www/aboutcgi.wiki 0595ce2176aba3a10e79c840ed0e662609f754749583032230b0ed0071c235e7
+F www/aboutcgi.wiki 96db7da3bfd6972a8760c286e828bd988ad1a41418a4dd630fdfa6ae81c49ef2
 F www/aboutdownload.wiki ffd8d3848e190c5aec758ed578e81857629d39376488151aeb09da2572fdcc49
 F www/adding_code.wiki 06de2a518a772ed1fa8fdb165ff3c53149b6e68f43ad114b80d6df158683158a
 F www/alerts.md 4eede98853747f09e3d5f57f299523ad700b587e8a4f79b7479619622f6987af
@@ -891,7 +891,7 @@ F www/json-api/hacking.md 169f33efda63f71829d1356b059de995dc184e6f90c9cfc0a749e0
 F www/json-api/index.md 1f06115e752536000e1a6aaca37f4e44671f4b9c89b4ce6b7024522224f142bc
 F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
-F www/loadmgmt.md 09ddb13024bd3fbbb85dd2eb11be279d478db3db5d0757299fd236ba28e92499
+F www/loadmgmt.md 249466ee0a2920b000f25bb97d0d1bff77357373890f72558d09c3b5b310f830
 F www/makefile.wiki 14f9da723eeea6f002a9d4067435e5f1239312e97ef1e46bcea173cc98e6fd73
 F www/mdtest/test1.md fcaaffd2e86feaa890814410d0c17f7873452f77f948164a2d29c9482c27ec99
 F www/mirrorlimitations.md 437121a6ddebd5f740407e4043afadd26a7d8704bbac50ff10d8968298c5ffb4
@@ -940,9 +940,9 @@ F www/server/windows/cgi.md 89c7bf1611509648df2362acfbcdd5bf275dda2fe8a1d64b3eed
 F www/server/windows/iis.md d842b0df8e3565f0b866ec1ce5152f93ad5b63cb14589d4194235e734f0e65d7
 F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3090199a5050f5e
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
-F www/server/windows/service.md cf85475a76cc9f79c8025b888b84c02abf5c81e92fad3088159c777eaec6d974
+F www/server/windows/service.md e7203c4af3e9488e9e6a8fdd9487d3dfcf68ad71c2967ac7f1ce94de38334a56
 F www/server/windows/stunnel.md eb99980e32c075acd1dcd4c44bcebf2e67f3e0dba8419728beeefa2cdd8fbc3e
-F www/serverext.wiki 0a299e9b1beb0f1647054a7b97a886ca507b8d09b18d0d35ed31d04661e45a43
+F www/serverext.wiki 120c070d0e355561859e7342887b21e815bdc4a947d5e580ef6d5818c2ce403c
 F www/settings.wiki 16c2717030e901586fd6849d07fc85394b0e8bfaecb1d7f291c356c16f3fd5e4
 F www/shunning.wiki 2945acf2d1865cd1301402b2085527d8b23f971c9f894c6d0511dc146a8df767
 F www/signing.md dcf5bb65b7be89fc48bf80834b48fa1623cdbb63da71d4114ce0777d4767912a
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P caf286d7480727d3341aceeb0c4a2f7b655af03e8c04df1c56ba08ac484bb56a
-R 23dee0e1593c81d96ef72b4f91713cab
+P 5ea6e15bf1fc942d67d53d085b4a67fedaafc13f45a6d1028a8bd637e9d513a3
+R 389adb851a453c38a44cfa691a3075d7
 U drh
-Z 45084a6ac44d43d344085a4a34ef310e
+Z 39254f767e2881372164672c258c3bcd
 # Remove this line to create a well-formed Fossil manifest.

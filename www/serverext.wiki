@@ -191,7 +191,7 @@ they are used.
 Live listings of the values of some or all of these environment variables
 can be found at links like these:
 
-  *  [https://fossil-scm.org/home/test_env]
+  *  [https://fossil-scm.org/home/test-env]
   *  [https://sqlite.org/src/ext/checklist/top/env]
 
 In addition to the standard CGI environment variables listed above, 
