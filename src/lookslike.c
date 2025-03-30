@@ -488,42 +488,55 @@ static int isWholeWord(const char *z, unsigned int i, const char *zWord, int n){
 */
 int looks_like_sql_injection(const char *zTxt){
   unsigned int i;
+  int rc = 0;
   if( zTxt==0 ) return 0;
   for(i=0; zTxt[i]; i++){
     switch( zTxt[i] ){
+      case '<':
+        if( sqlite3_strnicmp(zTxt+i, "<script>", 8)==0 ) rc = 1;
+        break;
       case ';':
       case '\'':
         return 1;
       case '/':             /* 0123456789 123456789 */
-        if( strncmp(zTxt+i+1, "/wp-content/plugins/", 20)==0 ) return 1;
-        if( strncmp(zTxt+i+1, "/wp-admin/admin-ajax", 20)==0 ) return 1;
+        if( strncmp(zTxt+i+1, "/wp-content/plugins/", 20)==0 ) rc = 1;
+        if( strncmp(zTxt+i+1, "/wp-admin/admin-ajax", 20)==0 ) rc = 1;
         break;
       case 'a':
       case 'A':
-        if( isWholeWord(zTxt, i, "and", 3) ) return 1;
+        if( isWholeWord(zTxt, i, "and", 3) ) rc = 1;
         break;
       case 'n':
       case 'N':
-        if( isWholeWord(zTxt, i, "null", 4) ) return 1;
+        if( isWholeWord(zTxt, i, "null", 4) ) rc = 1;
         break;
       case 'o':
       case 'O':
         if( isWholeWord(zTxt, i, "order", 5) && fossil_isspace(zTxt[i+5]) ){
-          return 1;
+          rc = 1;
         }
-        if( isWholeWord(zTxt, i, "or", 2) ) return 1;
+        if( isWholeWord(zTxt, i, "or", 2) ) rc = 1;
         break;
       case 's':
       case 'S':
-        if( isWholeWord(zTxt, i, "select", 6) ) return 1;
+        if( isWholeWord(zTxt, i, "select", 6) ) rc = 1;
         break;
       case 'w':
       case 'W':
-        if( isWholeWord(zTxt, i, "waitfor", 7) ) return 1;
+        if( isWholeWord(zTxt, i, "waitfor", 7) ) rc = 1;
         break;
     }
   }
-  return 0;
+  if( rc ){
+    /* The test/markdown-test3.md document which is part of the Fossil source
+    ** tree intentionally tries to fake an attack.  Do not report such
+    ** errors. */
+    const char *zPathInfo = P("PATH_INFO");
+    if( sqlite3_strglob("/doc/*/test/markdown-test3.md", zPathInfo)==0 ){
+      rc = 0;
+    }
+  }
+  return rc;
 }
 
 /*

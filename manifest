@@ -1,5 +1,5 @@
-C Clean\sup\sthe\sdescription\sof\sthe\sbackground\scolor\sadjustments\sin\sthe\nchange\slog.
-D 2025-03-30T21:04:27.660
+C Improved\sdetection\sof\sXSS\sand\sSQL\sinjection\sattacks.
+D 2025-03-30T22:28:13.626
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -492,7 +492,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22a
 F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
-F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
+F src/lookslike.c 9e3c672540a0dec81d8c43ed4d96744c1b20354b3c3675980a3a517f5ada19b7
 F src/main.c c6906e8d191f90323da809fdbb5588dc281edcf9571f7c9f2cf14c4ac2fe5090
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
 F src/manifest.c fd84c8658613a60d2f00f5a874dc6163c77e48e11d814c89321829ddb21cb67a
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1869b58580bc8ebcb8b2cab0030e2e18f5009500a288a592591733c90ff3e7a4
-R 93279f0633e00fe0e778e8ea63fc4809
+P 1c0f93e13f9509ccab350a64405d06171002efcf22d902da3ec62e40edd04e9c
+R 5bec6c995e96ac2fb103cf343cfa8f2e
 U drh
-Z f7846c61d095eee715c753699b22e538
+Z f3eab522ae5e2dbc48a12ab435d23d04
 # Remove this line to create a well-formed Fossil manifest.
