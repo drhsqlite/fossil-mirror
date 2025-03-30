@@ -480,21 +480,20 @@ static int isWholeWord(const char *z, unsigned int i, const char *zWord, int n){
 /*
 ** Returns true if the given text contains certain keywords or
 ** punctuation which indicate that it might be an SQL injection attempt
-** or some other kind of mischief.
+** or Cross-site scripting attempt or some other kind of mischief.
 **
-** This is not a defense against vulnerabilities in the Fossil code.
-** Rather, this is part of an effort to do early detection of malicious
-** spiders to avoid them using up too many CPU cycles.
+** This is not a primary defense against vulnerabilities in the Fossil 
+** code.  Rather, this is part of an effort to do early detection of malicious
+** spiders to avoid them using up too many CPU cycles.  Or, this routine
+** can also be thought of as a secondary layer of defense against attacks.
 */
-int looks_like_sql_injection(const char *zTxt){
+int looks_like_attack(const char *zTxt){
   unsigned int i;
   int rc = 0;
   if( zTxt==0 ) return 0;
   for(i=0; zTxt[i]; i++){
     switch( zTxt[i] ){
       case '<':
-        if( sqlite3_strnicmp(zTxt+i, "<script>", 8)==0 ) rc = 1;
-        break;
       case ';':
       case '\'':
         return 1;
@@ -549,7 +548,7 @@ int looks_like_sql_injection(const char *zTxt){
 ** Or if bInvert is true, then show the opposite - those lines that do NOT
 ** look like SQL injection.
 */
-static void show_sql_injection_lines(
+static void show_attack_lines(
   const char *zInFile,       /* Name of input file */
   int bInvert,               /* Invert the sense of the output (-v) */
   int bDeHttpize             /* De-httpize the inputs.  (-d) */
@@ -566,7 +565,7 @@ static void show_sql_injection_lines(
   }
   while( fgets(zLine, sizeof(zLine), in) ){
     dehttpize(zLine);
-    if( (looks_like_sql_injection(zLine)!=0) ^ bInvert ){
+    if( (looks_like_attack(zLine)!=0) ^ bInvert ){
       fossil_print("%s", zLine);
     }
   }
@@ -574,24 +573,24 @@ static void show_sql_injection_lines(
 }
 
 /*
-** COMMAND: test-looks-like-sql-injection
+** COMMAND: test-looks-like-attack
 **
 ** Read lines of input from files named as arguments (or from standard
 ** input if no arguments are provided) and print those that look like they
 ** might be part of an SQL injection attack.
 **
-** Used to test the looks_lide_sql_injection() utility subroutine, possibly
+** Used to test the looks_lile_attack() utility subroutine, possibly
 ** by piping in actual server log data.
 */
-void test_looks_like_sql_injection(void){
+void test_looks_like_attack(void){
   int i;
   int bInvert = find_option("invert","v",0)!=0;
   int bDeHttpize = find_option("dehttpize","d",0)!=0;
   verify_all_options();
   if( g.argc==2 ){
-    show_sql_injection_lines(0, bInvert, bDeHttpize);
+    show_attack_lines(0, bInvert, bDeHttpize);
   }
   for(i=2; i<g.argc; i++){
-    show_sql_injection_lines(g.argv[i], bInvert, bDeHttpize);
+    show_attack_lines(g.argv[i], bInvert, bDeHttpize);
   }
 }

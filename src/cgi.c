@@ -105,8 +105,8 @@
 #define PB(x)         cgi_parameter_boolean(x)
 #define PCK(x)        cgi_parameter_checked(x,1)
 #define PIF(x,y)      cgi_parameter_checked(x,y)
-#define P_NoBot(x)    cgi_parameter_nosql((x),0)
-#define PD_NoBot(x,y) cgi_parameter_nosql((x),(y))
+#define P_NoBot(x)    cgi_parameter_no_attack((x),0)
+#define PD_NoBot(x,y) cgi_parameter_no_attack((x),(y))
 
 /*
 ** Shortcut for the cgi_printf() routine.  Instead of using the
@@ -1622,23 +1622,25 @@ static void cgi_begone_spider(const char *zName){
 }
 
 /*
-** If looks_like_sql_injection() returns true for the given string, calls
+** If looks_like_attack() returns true for the given string, call
 ** cgi_begone_spider() and does not return, else this function has no
 ** side effects. The range of checks performed by this function may
 ** be extended in the future.
 **
 ** Checks are omitted for any logged-in user.
 **
-** This is NOT a defense against SQL injection.  Fossil should easily be
-** proof against SQL injection without this routine.  Rather, this is an
-** attempt to avoid denial-of-service caused by persistent spiders that hammer
-** the server with dozens or hundreds of SQL injection attempts per second
-** against pages (such as /vdiff) that are expensive to compute.  In other
+** This is the primary defense against attack.  Fossil should easily be
+** proof against SQL injection and XSS attacks even without without this
+** routine.  Rather, this is an attempt to avoid denial-of-service caused
+** by persistent spiders that hammer the server with dozens or hundreds of
+** probes per seconds as they look for vulnerabilities. In other
 ** words, this is an effort to reduce the CPU load imposed by malicious
-** spiders.  It is not an effect defense against SQL injection vulnerabilities.
+** spiders.  Though those routine might help make attacks harder, it is
+** not itself an impenetrably barrier against attack and should not be
+** relied upon as the only defense.
 */
 void cgi_value_spider_check(const char *zTxt, const char *zName){
-  if( g.zLogin==0 && looks_like_sql_injection(zTxt) ){
+  if( g.zLogin==0 && looks_like_attack(zTxt) ){
     cgi_begone_spider(zName);
   }
 }
@@ -1648,7 +1650,7 @@ void cgi_value_spider_check(const char *zTxt, const char *zName){
 ** cgi_parameter(zName,zDefault) returns a value other than zDefault
 ** then it passes that value to cgi_value_spider_check().
 */
-const char *cgi_parameter_nosql(const char *zName, const char *zDefault){
+const char *cgi_parameter_no_attack(const char *zName, const char *zDefault){
   const char *zTxt = cgi_parameter(zName, zDefault);
 
   if( zTxt!=zDefault ){
