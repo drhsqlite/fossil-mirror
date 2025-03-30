@@ -454,7 +454,8 @@ void view_edit(void){
   const char *zDesc;            /* Extra descriptive text about the report */
   const char *zMimetype;        /* Mimetype for zDesc */
   const char *zTag;             /* Symbolic name for this report */
-  int dflt = P("dflt") ? 1 : 0;
+  int dflt = P("dflt") ? 1 : 0; /* Is this the default report */
+  int quickfilter = P("quickfilter") ? 1 : 0; /* Show the quickfilter */
 
   login_check_credentials();
   if( !g.perm.TktFmt ){
@@ -523,15 +524,17 @@ void view_edit(void){
         db_multi_exec(
             "UPDATE reportfmt SET title=%Q, sqlcode=%Q,"
             " owner=%Q, cols=%Q, mtime=now(), "
-            " jx=json_patch(jx,json_object('desc',%Q,'descmt',%Q,'tag',%Q))"
+            " jx=json_patch(jx,json_object('desc',%Q,'descmt',%Q,'tag',%Q,"
+            " 'quickfilter',%d))"
             " WHERE rn=%d",
-           zTitle, zSQL, zOwner, zClrKey, zDesc, zMimetype, zTag, rn);
+           zTitle, zSQL, zOwner, zClrKey, zDesc, zMimetype, zTag, quickfilter, rn);
       }else{
         db_multi_exec(
            "INSERT INTO reportfmt(title,sqlcode,owner,cols,mtime,jx) "
            "VALUES(%Q,%Q,%Q,%Q,now(),"
-                  "json_object('desc',%Q,'descmt',%Q,'tag',%Q))",
-           zTitle, zSQL, zOwner, zClrKey, zDesc, zMimetype, zTag);
+                  "json_object('desc',%Q,'descmt',%Q,'tag',%Q,"
+                  "'quickfilter',%d))",
+           zTitle, zSQL, zOwner, zClrKey, zDesc, zMimetype, zTag, quickfilter);
         rn = db_last_insert_rowid();
       }
       if( dflt ){
@@ -568,12 +571,14 @@ void view_edit(void){
     }
     db_finalize(&q);
     if( hasJx ){
-      db_prepare(&q, "SELECT jx->>'desc', jx->>'descmt', jx->>'tag'"
+      db_prepare(&q, "SELECT jx->>'desc', jx->>'descmt', jx->>'tag',"
+                     "  jx->>'quickfilter'"
                      "  FROM reportfmt WHERE rn=%d", rn);
       if( db_step(&q)==SQLITE_ROW ){
         zDesc = db_column_malloc(&q, 0);
         zMimetype = db_column_malloc(&q, 1);
         zTag = db_column_malloc(&q, 2);
+        quickfilter = db_column_int(&q, 3);
       }
       db_finalize(&q);
     }
@@ -629,6 +634,10 @@ void view_edit(void){
 
   @ <p><label><input type="checkbox" name="dflt" %s(dflt?"checked":"")> \
   @ Make this the default report</label></p>
+
+  @ <p><label><input type="checkbox" name="quickfilter" %s(quickfilter?"checked":"")> \
+  @ Show the quickfilter for this report.</label></p>
+
   if( !g.perm.Admin && fossil_strcmp(zOwner,g.zLogin)!=0 ){
     @ <p>This report format is owned by %h(zOwner).  You are not allowed
     @ to change it.</p>
@@ -1124,7 +1133,7 @@ void rptview_page_content(
   char *zClrKey;
   char *zDesc;
   char *zMimetype;
-  int tabs;
+  int tabs, quickfilter;
   Stmt q;
   char *zErr1 = 0;
   char *zErr2 = 0;
@@ -1135,8 +1144,8 @@ void rptview_page_content(
   rn = report_number();
   tabs = P("tablist")!=0;
   db_prepare(&q,
-    "SELECT title, sqlcode, owner, cols, rn, jx->>'desc', jx->>'descmt'"
-    "  FROM reportfmt WHERE rn=%d", rn);
+    "SELECT title, sqlcode, owner, cols, rn, jx->>'desc', jx->>'descmt',"
+    "  jx->>'quickfilter' FROM reportfmt WHERE rn=%d", rn);
   rc = db_step(&q);
   if( rc!=SQLITE_ROW ){
     const char *titleSearch =
@@ -1144,8 +1153,8 @@ void rptview_page_content(
         P("title") : defaultTitleSearch;
     db_finalize(&q);
     db_prepare(&q,
-      "SELECT title, sqlcode, owner, cols, rn, jx->>'desc', jx->>'descmt'"
-      "  FROM reportfmt WHERE title GLOB %Q",
+      "SELECT title, sqlcode, owner, cols, rn, jx->>'desc', jx->>'descmt',"
+      "  jx->>'quickfilter' FROM reportfmt WHERE title GLOB %Q",
       titleSearch);
     rc = db_step(&q);
   }
@@ -1163,6 +1172,7 @@ void rptview_page_content(
   rn = db_column_int(&q,4);
   zDesc = db_column_malloc(&q, 5);
   zMimetype = db_column_malloc(&q, 6);
+  quickfilter = db_column_int(&q, 7);
   db_finalize(&q);
 
   if( P("order_by") ){
@@ -1226,7 +1236,9 @@ void rptview_page_content(
     }
     output_color_key(zClrKey, 1,
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
-    @ <input type="text" id="quickfilter" placeholder="filter ticket list..." style="display: none">
+    if( quickfilter ){
+      @ <input type="text" id="quickfilter" placeholder="filter ticket list...">
+    }
     @ <table border="1" cellpadding="2" cellspacing="0" class="report sortable filterlist"
     @  data-column-types='' data-init-sort='0'>
     sState.rn = rn;
@@ -1235,7 +1247,9 @@ void rptview_page_content(
     db_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
     report_unrestrict_sql();
     @ </tbody></table>
-    style_quickfilter();
+    if( quickfilter ){
+      style_quickfilter();
+    }
     if( zErr1 ){
       @ <p class="reportError">Error: %h(zErr1)</p>
     }else if( zErr2 ){

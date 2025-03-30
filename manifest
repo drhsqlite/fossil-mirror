@@ -1,5 +1,5 @@
-C move\squickfilter\sjavascript\sinto\sown\sjs-file
-D 2025-03-26T16:36:33.130
+C make\sthe\squickfilter\soptional\sfor\sreports\sby\sediting\sthe\sreport
+D 2025-03-30T10:39:16.691
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -521,7 +521,7 @@ F src/quickfilter.js 1ea1e82c04b6c19d0daf3ccbbff8c71734bd86616126182fb0d13ff15e7
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c a9aeacaa515f756f76b0d94c3971121093848145d0d109be511616e74372a50a
 F src/repolist.c b0dc17a0fd152cf674752ee0a020556e85a8277693c0dfbd9ff719164f06e871
-F src/report.c 9edb9c555b00bb7590cd3a439d462b585219fc646eae60a716445267abb5ef73
+F src/report.c 5cf854bdf5ce99ccb9ba0ac118fc1d9b74e88ca4b27513cbe6e08283fa797511
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8974b306ee63eaea0d4a9a9bc7b0d72bb2b94c824835427eeb15f70c5ee6c7f6
-R 7fc495b752e04e7b9107f796d042e81e
+P a6ac88cbb00938659deeaa80f34de1ab63fede763ef910bfe8c5bde3c628b7bc
+R 0f32d715a3670383cb28e730c73ff86b
 U jkosche
-Z 7f74d90a438daeeae05f0b4643b5537b
+Z f9f1e4f1e8c9a86a5ff4be74947cbc03
 # Remove this line to create a well-formed Fossil manifest.
