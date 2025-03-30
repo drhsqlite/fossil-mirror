@@ -122,7 +122,7 @@ Environment Variables
 ---------------------
 
 The location of the user's account-wide [configuration database][configdb]
-depends on the operating system and on the existence of various 
+depends on the operating system and on the existence of various
 environment variables and/or files.  See the discussion of the
 [configuration database location algorithm][configloc] for details.
 
@@ -154,6 +154,11 @@ for additional information.
 `FOSSIL_REPOLIST_TITLE`: The page title of the "Repository List" page
 loaded by the `fossil all ui` or `fossil ui /` commands. Only used if
 none of the listed repositories has the `repolist_skin` property set.
+Can be set from the [CGI control file][cgictlfile].
+
+`FOSSIL_REPOLIST_QUICKFILTER`: Enable or disable the quickfilter on
+repository listings, which allows for simple filtering of the listed
+repositories.
 Can be set from the [CGI control file][cgictlfile].
 
 `FOSSIL_USE_SEE_TEXTKEY`: If set, treat the encryption key string for
@@ -409,7 +414,7 @@ none of those are set, then the default user name is "root".
 ### Configuration Database Location
 
 Fossil keeps some information pertinent to each user in the user's
-[configuration database file][configdb]. 
+[configuration database file][configdb].
 The configuration database file includes the global settings
 and the list of repositories and checkouts used by `fossil all`.
 

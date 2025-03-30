@@ -1,5 +1,5 @@
-C no\smore\sneed\sto\sdisplay\sthe\squickfilter\sbased\son\selements,\sas\sit\sis\snow\sexplicitly\sactivated
-D 2025-03-30T12:20:23.018
+C document\snew\senvironment\svariable
+D 2025-03-30T12:30:45.113
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -827,7 +827,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki e97cbf256e11b913298031503eda9042295865ab1ee2f6c5ae558cb091300fd7
-F www/env-opts.md c3d94e09b573188224cb8211e0b8a46e9c1cf43bee01588ce9f48a1708fdc5c3
+F www/env-opts.md 2b9a9faa01c91e798cb1a849673b972083c6fed32a3fcef030ddafca7d234aa1
 F www/event.wiki b2b5694047176815ed3701face7910e89bda204b07af878a16c04d8c6b3e08ad
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a1d904a9633e061268f3d0f752a150626c35eb2bb3e1a51dce91b333999f60e6
-R 79cc7a43ebbf7fc675c627ae7fa9a687
+P 32d86c59ab1d73ed7bcd87a40b0f9587cdd58daffc40de018a310b5672cb513a
+R 1217c0290f9a423662364a6dac85db6f
 U jkosche
-Z 3f794d4ae24cf5acb9f4ee875f21ae0e
+Z bfbc07d732a6c7790202990bb522158e
 # Remove this line to create a well-formed Fossil manifest.
