@@ -412,12 +412,8 @@ flag is used.
 
 <h2 id="branch" name="merge">Branching And Merging</h2>
 
-Use the --branch option to the [/help/commit | commit] command
-to start a new branch.  Note that in Fossil, branches are normally
-created when you commit, not before you start editing.  You can
-use the [/help/branch | branch new] command to create a new branch
-before you start editing, if you want, but most people just wait
-until they are ready to commit.
+Use the --branch option to the [/help/commit | commit] command to start
+a new branch at the point of need. ([./gitusers.md#bneed | Contrast git].)
 
 To merge two branches back together, first
 [/help/update | update] to the branch you want to merge into.
