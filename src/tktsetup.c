@@ -714,6 +714,47 @@ static const char zDefaultEdit[] =
 @ <td>Abandon this edit</td>
 @ </tr>
 @
+@ <th1>
+@ set seenRow 0
+@ set alwaysPlaintext [info exists plaintext]
+@ query {SELECT datetime(tkt_mtime) AS xdate, login AS xlogin,
+@               mimetype as xmimetype, icomment AS xcomment,
+@               username AS xusername
+@          FROM ticketchng
+@         WHERE tkt_id=$tkt_id AND length(icomment)>0} {
+@   if {$seenRow} {
+@     html "<hr>\n"
+@   } else {
+@     html "<tr><td colspan='2'><hr></td></tr>"
+@     html "<tr><td colspan='2' class='tktDspLabel' style='text-align:left'>Previous User Comments:</td></tr>\n"
+@     html "<tr><td colspan='2' class='tktDspValue'>\n"
+@     set seenRow 1
+@   }
+@   html "<span class='tktDspCommenter'>"
+@   html "[htmlize $xlogin]"
+@   if {$xlogin ne $xusername && [string length $xusername]>0} {
+@     html " (claiming to be [htmlize $xusername])"
+@   }
+@   html " added on $xdate:"
+@   html "</span>\n"
+@   if {$alwaysPlaintext || $xmimetype eq "text/plain"} {
+@     set r [randhex]
+@     if {$xmimetype ne "text/plain"} {html "([htmlize $xmimetype])\n"}
+@     wiki "<verbatim-$r>[string trimright $xcomment]</verbatim-$r>\n"
+@   } elseif {$xmimetype eq "text/x-fossil-wiki"} {
+@     wiki "<p>\n[string trimright $xcomment]\n</p>\n"
+@   } elseif {$xmimetype eq "text/x-markdown"} {
+@     html [lindex [markdown $xcomment] 1]
+@   } elseif {$xmimetype eq "text/html"} {
+@     wiki "<p><nowiki>\n[string trimright $xcomment]\n</nowiki>\n"
+@   } else {
+@     set r [randhex]
+@     wiki "<verbatim-$r links>[string trimright $xcomment]</verbatim-$r>\n"
+@   }
+@ }
+@ if {$seenRow} {html "</td></tr>\n"}
+@ </th1>
+@
 @ </table>
 ;
 
