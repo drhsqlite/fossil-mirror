@@ -487,7 +487,7 @@ static void backoffice_thread(void){
 
   if( sqlite3_db_readonly(g.db, 0) ) return;
   if( db_is_protected(PROTECT_READONLY) ) return;
-  g.zPhase = "backoffice";
+  g.zPhase = "backoffice-pending";
   backoffice_error_check_one(&once);
   idSelf = backofficeProcessId();
   while(1){
@@ -516,6 +516,7 @@ static void backoffice_thread(void){
       db_end_transaction(0);
       backofficeTrace("/***** Begin Backoffice Processing %d *****/\n",
                       GETPID());
+      g.zPhase = "backoffice-work";
       backoffice_work();
       break;
     }
@@ -644,10 +645,13 @@ void backoffice_work(void){
   }
 
   /* Here is where the actual work of the backoffice happens */
+  g.zPhase = "backoffice-alerts";
   nThis = alert_backoffice(0);
   if( nThis ){ backoffice_log("%d alerts", nThis); nTotal += nThis; }
+  g.zPhase = "backoffice-hooks";
   nThis = hook_backoffice();
   if( nThis ){ backoffice_log("%d hooks", nThis); nTotal += nThis; }
+  g.zPhase = "backoffice-close";
 
   /* Close the log */
   if( backofficeFILE ){
