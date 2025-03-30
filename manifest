@@ -1,5 +1,5 @@
-C make\sthe\squickfilter\soptional\sfor\srepolist\sbased\son\sthe\svalue\sof\sFOSSIL_REPOLIST_QUICKFILTER
-D 2025-03-30T12:02:15.859
+C fix\senvironment\svariable
+D 2025-03-30T12:13:30.392
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -520,7 +520,7 @@ F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/quickfilter.js 1ea1e82c04b6c19d0daf3ccbbff8c71734bd86616126182fb0d13ff15e74792b
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c a9aeacaa515f756f76b0d94c3971121093848145d0d109be511616e74372a50a
-F src/repolist.c 2ea66f25a909e318179c59c50d0892680f835a03f83514ea02ef5bc6381c175d
+F src/repolist.c b8c15d382c6c1ac62b0c9072565f6b1b4a10c457c5d76c866f82165341d307c8
 F src/report.c 5cf854bdf5ce99ccb9ba0ac118fc1d9b74e88ca4b27513cbe6e08283fa797511
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7d20f5020762c71d70c589b49c8731ca0c46f30e58ee03f8a2449661e2865101
-R ccfe3ce3f3dd73dbbe047941c643f817
+P 79488503206c0b677c2164d6c00e0255c4f1bee54099dcb9e279de9411c795a8
+R eb31b88ead00c5ed591562cb9fe5661a
 U jkosche
-Z afde0b163c658ac01c88020b57102f94
+Z d5a72af9aaaf086e931b701a58b926b2
 # Remove this line to create a well-formed Fossil manifest.

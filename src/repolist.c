@@ -375,7 +375,7 @@ void test_list_page(void){
 ** Return true if quickfilter for repolist is enabled via FOSSIL_REPOLIST_QUICKFILTER.
 */
 int is_quickfilter_enabled(void){
-  const char *zQuickFilter = P("FOSSIL_REPOLIST_TITLE");
+  const char *zQuickFilter = P("FOSSIL_REPOLIST_QUICKFILTER");
   if ( zQuickFilter==0 ) return 0;
   if ( zQuickFilter[0]==0 ) return 0;
   if( is_truth(zQuickFilter) ) return 1;
