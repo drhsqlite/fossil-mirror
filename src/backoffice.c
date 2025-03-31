@@ -40,7 +40,7 @@
 ** will restart using the new binary automatically.
 **
 ** At any point in time there should be at most two backoffice processes.
-** There is a main process that is doing the actually work, and there is
+** There is a main process that is doing the actual work, and there is
 ** a second stand-by process that is waiting for the main process to finish
 ** and that will become the main process after a delay.
 **
@@ -55,7 +55,7 @@
 ** might be required, the run_if_needed() attempts to kick off a backoffice
 ** process.
 **
-** All work performance by the backoffice is in the backoffice_work()
+** All work performed by the backoffice is in the backoffice_work()
 ** routine.
 */
 #if defined(_WIN32)
@@ -512,11 +512,11 @@ static void backoffice_thread(void){
       x.tmCurrent = tmNow + BKOFCE_LEASE_TIME;
       x.idNext = 0;
       x.tmNext = 0;
+      g.zPhase = "backoffice-work";
       backofficeWriteLease(&x);
       db_end_transaction(0);
       backofficeTrace("/***** Begin Backoffice Processing %d *****/\n",
                       GETPID());
-      g.zPhase = "backoffice-work";
       backoffice_work();
       break;
     }
