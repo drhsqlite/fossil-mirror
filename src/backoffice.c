@@ -546,9 +546,17 @@ static void backoffice_thread(void){
       }
     }else{
       if( (sqlite3_uint64)(lastWarning+warningDelay) < tmNow ){
-        fossil_warning(
+        sqlite3_int64 runningFor = BKOFCE_LEASE_TIME + tmNow - x.tmCurrent;
+        if( warningDelay<=240 && runningFor>1800 ){
+          /* On a busy system with 15-bit process-id numbers, we can sometimes
+          ** wrap-around the process-id space causing backofficeProcessDone()
+          ** to return a false negative.  Try to prevent this from causing a
+          ** false-positive hung-backoffice warning. */
+        }else{
+          fossil_warning(
            "backoffice process %lld still running after %d seconds",
            x.idCurrent, (int)(BKOFCE_LEASE_TIME + tmNow - x.tmCurrent));
+        }
         lastWarning = tmNow;
         warningDelay *= 2;
       }

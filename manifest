@@ -1,5 +1,5 @@
-C Minor\stweaks\sto\sbackoffice\s-\smostly\scomment\stypo\sfixes.
-D 2025-03-31T12:28:01.240
+C Try\sto\savoid\sfalse-positive\shung\sbackoffice\swarnings\sfrom\sappearing\sin\sthe\nerror\slog.
+D 2025-03-31T18:49:50.818
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -385,7 +385,7 @@ F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3
 F src/allrepo.c 5cd83ce907fdadb49f6644225b5ab677f65422b767a50e9f42ddd7628440f2b4
 F src/attach.c 61506f3e69ff26c2f523b8f0c26e43e2f67cd78e01005c094c9665200fd61d8b
 F src/backlink.c 77f0ca62b908ed8dbb7073f35e5b9e72eda3944a5317cbb9b7e4303fe5b85b9d
-F src/backoffice.c 6f6834874f99625ee9f5a9f3656f1d7a54e9c69d2edb9426a536b5a09d9896e2
+F src/backoffice.c 95c8272e22342655e24258ccea192761780f3cdfae7b24e93b490cbec3faba2e
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 7009083bb6ba13dd7eac707f6237ad9330f3f4fa90fd8291bf2365c18ae8923d
 F src/blob.c 2889e7025105da6d6712d91093f497304cb7d8d04658e1371df9f6d1beba06e2
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd532394c6fa8eae731f70efb56bde5ccac65b74f424b8c1b8139d9656ef1e20
-R f5b805b588494be1ddb24992aca9b4f0
+P a46e128c3f607be11e105d201c541913e650117d9ee3c3256801e3bc702ad0b7
+R 8ff5755ca47bc7e10339667982b24a85
 U drh
-Z d3bc42e6440a43fd112a921e1c4771a2
+Z 4ad8d35b9374fcf4979d4e3b7fae6dcb
 # Remove this line to create a well-formed Fossil manifest.
