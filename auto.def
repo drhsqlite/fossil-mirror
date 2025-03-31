@@ -441,6 +441,12 @@ proc handle-zlib {} {
 }; # handle-zlib
 handle-zlib
 
+if {[cc-check-includes brotli/encode.h]} {
+  # ^^^ In C code, check for #ifdef HAVE_BROTLI_ENCODE_H
+  cc-check-function-in-lib BrotliEncoderCompress brotlienc
+  # ^^^ In C code, check for #ifdef HAVE_BROTLIENCODERCOMPRESS
+}
+
 #
 # Handle the --with-openssl flag and, incidentally, update @LIBS@ for
 # zlib if openssl is _not_ used (if it is, we get zlib via libssl).
@@ -968,7 +974,7 @@ apply {{} {
   # Note that [move-lib-to-end] and [lib-actually-exists] are in
   # autosetup/local.tcl.
   set libs [get-define LIBS]
-  #puts "**** 1 LIBS: $libs"
+  #puts "**** LIBS: $libs"
   foreach ll {-ldl -lpthread -lm} {
     if {![move-lib-to-end $ll $libs libs]} {
       # $ll was not in the list
@@ -979,8 +985,8 @@ apply {{} {
       }
     }
   }
-  #puts "**** 2 LIBS: $libs"
   define LIBS [join $libs " "]
+  #puts "LIBS = $libs"
 }}
 
 # Tag container builds with a prefix of the checkin ID of the version

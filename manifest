@@ -1,5 +1,5 @@
-C Try\sto\savoid\sfalse-positive\shung\sbackoffice\swarnings\sfrom\sappearing\sin\sthe\nerror\slog.
-D 2025-03-31T18:49:50.818
+C Add\sa\sbasic\sauto.def\scheck\sfor\sbrotli\scompression\ssupport.\sThe\seventual\sgoal\sof\sthis\sbranch\sis\sto\sadd\ssupport\sfor\sbrotli-compressed\shttp\sresponses.
+D 2025-03-31T20:26:20.761
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def 4169d4399308f33e7a0ffb364b0a92d29aa0cf20d8edf9b031f0419a7e53a8b2
+F auto.def 3008b5fa71ced6aea746c314da9a362a09f952ffdba3494efd10a13cb9910012
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -969,8 +969,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a46e128c3f607be11e105d201c541913e650117d9ee3c3256801e3bc702ad0b7
-R 8ff5755ca47bc7e10339667982b24a85
-U drh
-Z 4ad8d35b9374fcf4979d4e3b7fae6dcb
+P 6f1c7324b662f28f608c63a62d0111247ebd74299227ac88af687e55299f28df
+R ce6cc870a97bc5661c69a23725d7929b
+T *branch * brotli-compress
+T *sym-brotli-compress *
+T -sym-trunk * Cancelled\sby\sbranch.
+U stephan
+Z 424801c4de3c84517f7467b1040cab74
 # Remove this line to create a well-formed Fossil manifest.
