@@ -327,13 +327,31 @@ void cgi_set_cookie(
   }
 }
 
-
 /*
-** Return true if the response should be sent with Content-Encoding: gzip.
+** Values for use with is_compressible().
 */
-static int is_gzippable(void){
+#define COMPRESSIBLE_ZLIB 1
+#define COMPRESSIBLE_BROTLI 2
+/*
+** Return true if the response should be sent with Content-Encoding: X, where
+** X corresponds to the type argument (one of the COMPRESSIBLE_xyz macros).
+*/
+static int is_compressible(int type){
   if( g.fNoHttpCompress ) return 0;
-  if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
+  switch( type ){
+    case COMPRESSIBLE_ZLIB:
+      if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
+      break;
+    case COMPRESSIBLE_BROTLI:
+#ifdef HAVE_BROTLIENCODERCOMPRESS
+      if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "br")==0 ) return 0;
+      break;
+#else
+      return 0;
+#endif
+    default:
+      break;
+  }
   /* Maintenance note: this oddball structure is intended to make
   ** adding new mimetypes to this list less of a performance hit than
   ** doing a strcmp/glob over a growing set of compressible types. */
@@ -550,17 +568,24 @@ void cgi_reply(void){
       blob_compress(&cgiContent[0], &cgiContent[0]);
     }
 
-    if( is_gzippable() && iReplyStatus!=206 ){
-      int i;
-      gzip_begin(0);
-      for( i=0; i<2; i++ ){
-        int size = blob_size(&cgiContent[i]);
-        if( size>0 ) gzip_step(blob_buffer(&cgiContent[i]), size);
-        blob_reset(&cgiContent[i]);
+    if( iReplyStatus!=206 ){
+      if( is_compressible(COMPRESSIBLE_ZLIB) ){
+        int i;
+        gzip_begin(0);
+        for( i=0; i<2; i++ ){
+          int size = blob_size(&cgiContent[i]);
+          if( size>0 ) gzip_step(blob_buffer(&cgiContent[i]), size);
+          blob_reset(&cgiContent[i]);
+        }
+        gzip_finish(&cgiContent[0]);
+        blob_appendf(&hdr, "Content-Encoding: gzip\r\n");
+        blob_appendf(&hdr, "Vary: Accept-Encoding\r\n");
       }
-      gzip_finish(&cgiContent[0]);
-      blob_appendf(&hdr, "Content-Encoding: gzip\r\n");
-      blob_appendf(&hdr, "Vary: Accept-Encoding\r\n");
+#ifdef HAVE_BROTLIENCODERCOMPRESS
+      else if( is_compressible(COMPRESSIBLE_BROTLI) ){
+        /* TODO */
+      }
+#endif
     }
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
     if( iReplyStatus==206 ){

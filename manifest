@@ -1,5 +1,5 @@
-C Add\sa\sbasic\sauto.def\scheck\sfor\sbrotli\scompression\ssupport.\sThe\seventual\sgoal\sof\sthis\sbranch\sis\sto\sadd\ssupport\sfor\sbrotli-compressed\shttp\sresponses.
-D 2025-03-31T20:26:20.761
+C Replace\scgi.c:is_gzippable()\swith\sis_compressible()\sand\sadd\ssupport\sfor\sbrotli\scompression\sto\sits\sdecision-making\sprocess.\sThere's\sstill\sa\slot\sto\sdo\sbefore\swe\scan\sactually\semit\sbrotli\scompression.
+D 2025-03-31T21:04:04.831
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 50e166e55c5aac9f17d988ff18aba0b98762ea8bba382a795c4176817dae0760
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c 739833c93d4211ded16b93e71d48aaba28fa0245c59a033753e02a5aa67c3ff9
+F src/cgi.c 4bc388e2923764a259c2991384a29187c3c58ee643448781eb52d46b61148814
 F src/chat.c 9f59985a6517757bc91a6c2d17b1e26bc5e699029bc689daaba4a04ce984b6ed
 F src/checkin.c 8b372a4557a3a37f144b48b4d9d106b95cc2d6b1f5faf90b8331b386f94ab35f
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -969,11 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f1c7324b662f28f608c63a62d0111247ebd74299227ac88af687e55299f28df
-R ce6cc870a97bc5661c69a23725d7929b
-T *branch * brotli-compress
-T *sym-brotli-compress *
-T -sym-trunk * Cancelled\sby\sbranch.
+P a90221b3aef149a6d1fc9ffb9cda9cb0b3756782d25f67ff11dd5ab7f768d380
+R b45d370954b65d115f26f0a2cd19dedb
 U stephan
-Z 424801c4de3c84517f7467b1040cab74
+Z 5143e9729e791631ead61ded4dc81b06
 # Remove this line to create a well-formed Fossil manifest.
