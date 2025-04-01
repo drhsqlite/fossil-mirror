@@ -569,6 +569,11 @@ void cgi_reply(void){
     }
 
     if( iReplyStatus!=206 ){
+#ifdef HAVE_BROTLIENCODERCOMPRESS
+      if( 0 && is_compressible(COMPRESSIBLE_BROTLI) ){
+        /* TODO */
+      }else
+#endif
       if( is_compressible(COMPRESSIBLE_ZLIB) ){
         int i;
         gzip_begin(0);
@@ -581,11 +586,6 @@ void cgi_reply(void){
         blob_appendf(&hdr, "Content-Encoding: gzip\r\n");
         blob_appendf(&hdr, "Vary: Accept-Encoding\r\n");
       }
-#ifdef HAVE_BROTLIENCODERCOMPRESS
-      else if( is_compressible(COMPRESSIBLE_BROTLI) ){
-        /* TODO */
-      }
-#endif
     }
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
     if( iReplyStatus==206 ){

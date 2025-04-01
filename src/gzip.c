@@ -138,3 +138,65 @@ void test_gzip_cmd(void){
   blob_reset(&b);
   fossil_free(zOut);
 }
+
+#ifdef HAVE_BROTLIENCODERCOMPRESS
+#include <brotli/encode.h>
+
+void brotli_compress(Blob *pIn, Blob *pOut){
+  assert( pIn!=pOut );
+}
+
+/*
+** COMMAND: test-brotli
+**
+** Usage: %fossil test-brotli ?-quality N? ?-text? FILENAME
+**
+** Compress a file using brotli.
+**
+*/
+void test_brotli_compress(void){
+  Blob b = empty_blob;
+  Blob enc = empty_blob;
+  char *zOut;
+  size_t nMaxEnc;
+  int timerId;
+  sqlite3_uint64 nUsec;
+  int rc;
+  const char * zQuality = find_option("quality","q",1);
+  const int bTextMode = find_option("text","t",0)!=0;
+  const int iQuality = strtol(zQuality ? zQuality : "1", NULL, 10);
+  if( g.argc!=3 ) usage("FILENAME");
+  sqlite3_open(":memory:", &g.db);
+  blob_read_from_file(&b, g.argv[2], ExtFILE);
+  zOut = mprintf("%s.br", g.argv[2]);
+
+  nMaxEnc = BrotliEncoderMaxCompressedSize((unsigned)blob_size(&b));
+  fossil_print("Input size: %u bytes. ", (unsigned)blob_size(&b));
+  blob_reserve(&enc, (unsigned)nMaxEnc);
+  timerId = fossil_timer_start();
+  rc = BrotliEncoderCompress(
+    iQuality,
+    BROTLI_DEFAULT_WINDOW,
+    bTextMode ? BROTLI_MODE_TEXT : BROTLI_DEFAULT_MODE,
+    (size_t)blob_size(&b),
+    (const unsigned char*)blob_str(&b),
+    &nMaxEnc,
+    (unsigned char *)blob_str(&enc)
+  );
+  nUsec = fossil_timer_stop(timerId);
+  if( 0==rc ){
+    fossil_fatal("Compression failed for unknown reason");
+  }
+  fossil_print("BrotliEncoderCompress(q=%d, mode=%s) size=%u in %.2fms\n",
+               iQuality, bTextMode ? "text" : "default",
+               (unsigned)nMaxEnc,
+               (double)(nUsec / 1000.0));
+  if(0){
+    fossil_print("TODO: actually compress\n");
+    blob_write_to_file(&b, zOut);
+  }
+  blob_reset(&b);
+  blob_reset(&enc);
+  fossil_free(zOut);
+}
+#endif /* HAVE_BROTLIENCODERCOMPRESS */
