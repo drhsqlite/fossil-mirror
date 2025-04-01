@@ -1,5 +1,5 @@
-C Try\sto\savoid\sfalse-positive\shung\sbackoffice\swarnings\sfrom\sappearing\sin\sthe\nerror\slog.
-D 2025-03-31T18:49:50.818
+C Make\suse\sof\sthe\sAccept-Encoding\sheader\svalue\sto\shelp\sdistinguish\shumans\nfrom\srobots.
+D 2025-04-01T13:33:27.701
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -490,7 +490,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22a
-F src/login.c df6d3a59dd53aa0d2fbc3403002a2dd1f96205b83822f963af3c85ed40d73436
+F src/login.c bf9b18b74626c545b05eea0cf5191b523dd36187cc4a9d8a5c82f57a5a7045eb
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c c6906e8d191f90323da809fdbb5588dc281edcf9571f7c9f2cf14c4ac2fe5090
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a46e128c3f607be11e105d201c541913e650117d9ee3c3256801e3bc702ad0b7
-R 8ff5755ca47bc7e10339667982b24a85
+P 6f1c7324b662f28f608c63a62d0111247ebd74299227ac88af687e55299f28df
+R d86718af99332c38546dfa105ea1d329
 U drh
-Z 4ad8d35b9374fcf4979d4e3b7fae6dcb
+Z 258cc77b73e358c0a9c79e8aeba2520c
 # Remove this line to create a well-formed Fossil manifest.
