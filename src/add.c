@@ -566,26 +566,23 @@ static void process_files_to_remove(
 **
 ** Usage: %fossil rm|delete|forget FILE1 ?FILE2 ...?
 **
-** Remove one or more files or directories from the repository.
+** Remove one or more files or directories from the repository so that those
+** files are not captured as part of the next 'commit'.
 **
-** The 'rm' and 'delete' commands do NOT normally remove the files from
-** disk.  They just mark the files as no longer being part of the project.
-** In other words, future changes to the named files will not be versioned.
-** However, the default behavior of this command may be overridden via the
-** command line options listed below and/or the 'mv-rm-files' setting.
+** The 'rm' and 'delete' commands also remove the files from filesystem.
+** However, adding the --soft argument leaves the files on disk unchanged
+** and only marks the files as no longer under management.  The --soft
+** behavior can be made the default by turning off the 'mv-rm-files' setting.
 **
 ** The 'forget' command never removes files from disk, even when the command
 ** line options and/or the 'mv-rm-files' setting would otherwise require it
-** to do so.
-**
-** WARNING: If the "--hard" option is specified -OR- the "mv-rm-files"
-**          setting is non-zero, files WILL BE removed from disk as well.
-**          This does NOT apply to the 'forget' command.
+** to do so.  The 'forget' command only removes files from being under
+** configuration management, but does not remove any files on disk.
 **
 ** Options:
-**   --soft                  Skip removing files from the check-out.
-**                           This supersedes the --hard option.
-**   --hard                  Remove files from the check-out
+**   --soft                  Do not actually delete files, just make them
+**                           unmanaged.
+**   --hard                  Actually remove the files.
 **   --case-sensitive BOOL   Override the case-sensitive setting
 **   -n|--dry-run            If given, display instead of run actions.
 **   --reset                 Reset the DELETED state of a check-out, such
@@ -629,7 +626,7 @@ void delete_cmd(void){
   }else if( hardFlag ){
     removeFiles = 1;
   }else{
-    removeFiles = db_get_boolean("mv-rm-files",0);
+    removeFiles = db_get_boolean("mv-rm-files",1);
   }
   db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -1007,23 +1004,20 @@ static void process_files_to_move(
 ** Move or rename one or more files or directories within the repository tree.
 ** You can either rename a file or directory or move it to another subdirectory.
 **
-** The 'mv' command does NOT normally rename or move the files on disk.
-** This command merely records the fact that file names have changed so
-** that appropriate notations can be made at the next [[commit]].
-** However, the default behavior of this command may be overridden via
-** command line options listed below and/or the 'mv-rm-files' setting.
+** The 'mv' command also renames or moves the files in the filesystem, unless
+** the --soft option is specifed, or if the 'mv-rm-files' setting is set to
+** 'off', then the 'mv' command just records the new filename for use at the
+** next commit.
 **
-** The 'rename' command never renames or moves files on disk, even when the
-** command line options and/or the 'mv-rm-files' setting would otherwise
-** require it to do so.
-**
-** WARNING: If the "--hard" option is specified -OR- the "mv-rm-files"
-**          setting is non-zero, files WILL BE renamed or moved on disk
-**          as well.  This does NOT apply to the 'rename' command.
+** The 'rename' command is like 'mv' except that it has the --soft option
+** turned on by default.  Hence, 'rename' will (by default) record the new
+** filename for the next commit, but will not actually make any changes to the
+** filesystem, unless the --hard option is used.
 **
 ** Options:
-**   --soft                    Skip moving files within the check-out.
-**                             This supersedes the --hard option.
+**   --soft                    Do not make changes to files on disk.  Instead
+**                             just record a new name for the files to use
+**                             at the next check-in.
 **   --hard                    Move files within the check-out
 **   --case-sensitive BOOL     Override the case-sensitive setting
 **   -n|--dry-run              If given, display instead of run actions
@@ -1060,14 +1054,14 @@ void mv_cmd(void){
   }
   zDest = file_case_preferred_name(".",g.argv[g.argc-1]);
   db_begin_transaction();
-  if( g.argv[1][0]=='r' ){ /* i.e. "rename" */
+  if( hardFlag ){
+    moveFiles = 1;
+  }else if( g.argv[1][0]=='r' ){ /* i.e. "rename" */
     moveFiles = 0;
   }else if( softFlag ){
     moveFiles = 0;
-  }else if( hardFlag ){
-    moveFiles = 1;
   }else{
-    moveFiles = db_get_boolean("mv-rm-files",0);
+    moveFiles = db_get_boolean("mv-rm-files",1);
   }
   file_tree_name(zDest, &dest, 0, 1);
   db_multi_exec(

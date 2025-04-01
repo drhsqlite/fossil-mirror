@@ -5015,7 +5015,7 @@ struct Setting {
 ** projects.
 */
 /*
-** SETTING: mv-rm-files      boolean default=off
+** SETTING: mv-rm-files      boolean default=on
 ** If enabled, the "mv" and "rename" commands will also move
 ** the associated files within the check-out -AND- the "rm"
 ** and "delete" commands will also remove the associated
