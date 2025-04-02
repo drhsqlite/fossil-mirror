@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\stypo\sin\sa\scomment.
-D 2025-04-02T11:52:38.705
+C allow\sto\suse\stickets\sas\stemplates,\ssee\s[https://fossil-scm.org/forum/forumpost/c9982d733b94e1ac|this\sforum\spost]\sfor\sdetails
+D 2025-04-02T21:00:44.904
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -575,8 +575,8 @@ F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 54037c01cf6e7e1a5b12cfe2efe73558df548064a891101cf3d11ce021f0ca64
-F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
-F src/tktsetup.c dee6358557178e83f24f09149f1aa241f331e2dde0084195156d34f012162e4e
+F src/tkt.c 5b6b4cb5f8fe3f2fb398c392c6f9fd28d151d266a378ec7bfebe4bbd9522117d
+F src/tktsetup.c a5d74a536ad20387d7d561a594dbeadc4b684988857f0d9389e944900a4f1260
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c adb86202928394161ecfa194be5001fbd86254ba43c4df527d91c36857a0be90
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
@@ -790,7 +790,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 080e44975a142db5bfd34ba9cbae57e26e2f3ca26aaf5a27537668802986f028
-F www/changes.wiki c13826dac30a462a3591507803a22ec20b7fbdb2de3417d85df888b34e217d53
+F www/changes.wiki 6ccf6d1d8b57ced78e89637845a09e47bfd9afaab62096ee021a05670f69a858
 F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -969,8 +969,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31e75c3a413a7201d043500415c405f4602f24bf67c8235b450ff31725c013d6
-R e9c0f14265fb692702c4a4c2fdfbd24d
-U drh
-Z 0914fb4cb25c2831e67afff03aef7b26
+P 6e47e6b38b7fa756841811d029756463836e025a0b331da8f851e662a99b311c 2f29cbbc0ffccac91970247406cf0dd036c5d2f7f46acd4af44953e2a3c27f4b
+R 72aff0a7744ed5ea29a751e072b1d53e
+T +closed 2f29cbbc0ffccac91970247406cf0dd036c5d2f7f46acd4af44953e2a3c27f4b
+U jkosche
+Z 6570e7e5e449cabfc62491eb265643cd
 # Remove this line to create a well-formed Fossil manifest.

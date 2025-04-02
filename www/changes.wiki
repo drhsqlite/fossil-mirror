@@ -23,7 +23,7 @@
           default start page becomes "/ckout?exbase=PATH".
      <li> The new "--extpage FILENAME" option opens the named file as if it
           where in a [./serverext.wiki|CGI extension].  Example usage: the
-          person editing this change log has 
+          person editing this change log has
           "fossil ui --extpage www/changes.wiki" running and hence can
           press "Reload" on the web browser to view edits.
      </ol>
@@ -118,8 +118,15 @@
      <li> The -u (--usage) option shows only the command-line syntax
      <li> The -o (--options) option shows only the command-line options
      </ol>
-  *  Added the ability to attach wiki pages to a ticket for extended
-     descriptions.
+  *  Enhancements to the ticket system:
+     <ol type="a">
+     <li> Added the ability to attach wiki pages to a ticket for extended
+          descriptions.
+     <li> Added submenu to the 'View Ticket' page, to use it as
+          template for a new ticket.
+     <li> Added button 'Submit and New' to create multiple tickets
+          in a row.
+     </ol>
   *  Added the "hash" query parameter to the
      [/help?cmd=/whatis|/whatis webpage].
   *  Add a "user elevation" [/doc/trunk/www/alerts.md|subscription]
