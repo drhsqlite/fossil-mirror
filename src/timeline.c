@@ -3742,11 +3742,20 @@ void timeline_cmd(void){
 
   if( mode==TIMELINE_MODE_NONE ) mode = TIMELINE_MODE_BEFORE;
   blob_zero(&sql);
+  if( mode==TIMELINE_MODE_AFTER ){
+    /* Extra outer select to get older rows in reverse order */
+    blob_append(&sql, "SELECT *\nFROM (", -1);
+  }
   blob_append(&sql, timeline_query_for_tty(), -1);
   blob_append_sql(&sql, "\n  AND event.mtime %s %s",
      ( mode==TIMELINE_MODE_BEFORE ||
        mode==TIMELINE_MODE_PARENTS ) ? "<=" : ">=", zDate /*safe-for-%s*/
   );
+  if( mode==TIMELINE_MODE_AFTER ){
+    /* Complete the outer above outer select. */
+    blob_append_sql(&sql, 
+        "\nORDER BY event.mtime LIMIT %d) t ORDER BY t.mDateTime DESC;", n);
+  }
 
   /* When zFilePattern is specified, compute complete ancestry;
    * limit later at print_timeline() */
