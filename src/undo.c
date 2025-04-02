@@ -72,7 +72,7 @@ static void undo_one(const char *zPathname, int redoFlag){
       db_ephemeral_blob(&q, 0, &new);
     }
     if( file_unsafe_in_tree_path(zFullname) ){
-      /* do nothign with this unsafe file */
+      /* do nothing with this unsafe file */
     }else if( old_exists ){
       if( new_exists ){
         fossil_print("%s   %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
