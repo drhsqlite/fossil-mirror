@@ -1,5 +1,5 @@
-C Use\sthe\sabsolute\svalue\sof\sthe\s-n\sargument\sas\slimit\sof\sthe\sinitial\sselect\swhen\n"after"\sis\sused\sso\s"-n\sN"\swith\snegative\sN\scan\sbe\suse.\s(especially\ssince\sthe\ndefault\sis\s-20).
-D 2025-04-03T02:09:08.607
+C Make\swork\sthe\s"-t\sTYPE"\sflag\swith\s"after".\s\n\nnote:\s"-t\sTYPE"\swas\salready\snot\sworking\swith\s"children"\sand\s"parents"\sand\n"-p\sPATH"\sis\sstill\sto\sbe\sfixed\swith\s"after".
+D 2025-04-03T02:51:01.768
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -574,7 +574,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c 94939f69cbd1b0e507b233ce196379e192f43127975519160eb01b5701f3ccf6
+F src/timeline.c 1db3c81623f0b0fb257cb92166ad1ad19ea53899fb19e3a9b7dbb035358965fa
 F src/tkt.c 5b6b4cb5f8fe3f2fb398c392c6f9fd28d151d266a378ec7bfebe4bbd9522117d
 F src/tktsetup.c a5d74a536ad20387d7d561a594dbeadc4b684988857f0d9389e944900a4f1260
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eee36897b637ea8bac8923bfc63c78d04f874a5bd2fbc8f963d28deb3196c16b
-R bbcfb36221cf2ea17c1676803fa34bdb
+P 0d26e8a46fccb53a6c1c52bd704bd1fbcf08679e5cf5de9a99d0adfccd827f7c
+R cf77670420e65be48e9b3e29107afd72
 U mgagnon
-Z 29d6356c930ae948e30c0d3b35e95d87
+Z 435df27f3a1f163a2fc4eabb220740f0
 # Remove this line to create a well-formed Fossil manifest.

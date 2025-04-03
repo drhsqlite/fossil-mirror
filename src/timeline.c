@@ -3751,6 +3751,9 @@ void timeline_cmd(void){
      ( mode==TIMELINE_MODE_BEFORE ||
        mode==TIMELINE_MODE_PARENTS ) ? "<=" : ">=", zDate /*safe-for-%s*/
   );
+  if( zType && (zType[0]!='a') ){
+    blob_append_sql(&sql, "\n  AND event.type=%Q ", zType);
+  }
   if( mode==TIMELINE_MODE_AFTER ){
     /* Complete the outer above outer select. */
     blob_append_sql(&sql, 
@@ -3767,9 +3770,6 @@ void timeline_cmd(void){
       compute_ancestors(objid, (zFilePattern ? 0 : n), 0, 0);
     }
     blob_append_sql(&sql, "\n  AND blob.rid IN ok");
-  }
-  if( zType && (zType[0]!='a') ){
-    blob_append_sql(&sql, "\n  AND event.type=%Q ", zType);
   }
   if( zFilePattern ){
     blob_append(&sql,
