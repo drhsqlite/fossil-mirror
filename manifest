@@ -1,5 +1,5 @@
-C add\sa\sdescription\sto\sthe\srepolist\sas\ssuggested\sby\s[forum:fc7e81a9db]
-D 2025-04-03T11:49:21.983
+C fix\ssorting
+D 2025-04-03T21:34:14.613
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -519,7 +519,7 @@ F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c a9aeacaa515f756f76b0d94c3971121093848145d0d109be511616e74372a50a
-F src/repolist.c 045af4df87ba1975ea5cc061af494b41fb6d03f89b0f040231648b52c612d94a
+F src/repolist.c 9d2140f00b28f000583e085b28072117966d25991205f91000664e3371053b5b
 F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
@@ -969,11 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 271a6bd31d5087f29c4a89f36bff9dc74c734e164a96e4ce252c1dd29f94efeb
-R 43989e984806c01ea45642b6e69933fb
-T *branch * repolist-description
-T *sym-repolist-description *
-T -sym-trunk *
+P f4ebb610135a982a7c2dc9fcd213fc780e402a9ee6e6f7a0e3864da697fde55a
+R cd8e55239d649694733a7e261824f986
 U jkosche
-Z dc14658d6838dda3b9e9945956190650
+Z a0a3ea6e0ace0b92b24ba87de3e11cd0
 # Remove this line to create a well-formed Fossil manifest.

@@ -175,7 +175,7 @@ int repo_list_page(void){
     double rNow;
     blob_append_sql(&html,
       "<table border='0' class='sortable' data-init-sort='1'"
-      " data-column-types='txtxkxt'><thead>\n"
+      " data-column-types='txtxtxkxt'><thead>\n"
       "<tr><th>Filename<th width='20'>"
       "<th>Project Name<th width='20'>"
       "<th>Project Description<th width='20'>"
