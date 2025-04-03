@@ -3754,11 +3754,6 @@ void timeline_cmd(void){
   if( zType && (zType[0]!='a') ){
     blob_append_sql(&sql, "\n  AND event.type=%Q ", zType);
   }
-  if( mode==TIMELINE_MODE_AFTER ){
-    /* Complete the outer above outer select. */
-    blob_append_sql(&sql, 
-        "\nORDER BY event.mtime LIMIT abs(%d)) t ORDER BY t.mDateTime DESC;", n);
-  }
 
   /* When zFilePattern is specified, compute complete ancestry;
    * limit later at print_timeline() */
@@ -3812,7 +3807,14 @@ void timeline_cmd(void){
       "  AND (tagxref.value IS NULL OR tagxref.value='%q')",
       zBr, zBr, zBr, TAG_BRANCH, zBr, zBr);
   }
-  blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
+  
+  if( mode==TIMELINE_MODE_AFTER ){
+    /* Complete the above outer select. */
+    blob_append_sql(&sql, 
+        "\nORDER BY event.mtime LIMIT abs(%d)) t ORDER BY t.mDateTime DESC;", n);
+  }else{
+    blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
+  }
   if( iOffset>0 ){
     /* Don't handle LIMIT here, otherwise print_timeline()
      * will not determine the end-marker correctly! */
