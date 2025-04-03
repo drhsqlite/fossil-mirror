@@ -33,6 +33,7 @@ struct RepoInfo {
                         ** for the repository list.  2 means do use this
                         ** repository but do not display it in the list. */
   char *zProjName;      /* Project Name.  Memory from fossil_malloc() */
+  char *zProjDesc;      /* Project Description.  Memory from fossil_malloc() */
   char *zLoginGroup;    /* Name of login group, or NULL.  Malloced() */
   double rMTime;        /* Last update.  Julian day number */
 };
@@ -51,6 +52,7 @@ static void remote_repo_info(RepoInfo *pRepo){
   pRepo->isRepolistSkin = 0;
   pRepo->isValid = 0;
   pRepo->zProjName = 0;
+  pRepo->zProjDesc = 0;
   pRepo->zLoginGroup = 0;
   pRepo->rMTime = 0.0;
 
@@ -72,6 +74,15 @@ static void remote_repo_info(RepoInfo *pRepo){
   if( rc ) goto finish_repo_list;
   if( sqlite3_step(pStmt)==SQLITE_ROW ){
     pRepo->zProjName = fossil_strdup((char*)sqlite3_column_text(pStmt,0));
+  }
+  sqlite3_finalize(pStmt);
+  if( rc ) goto finish_repo_list;
+  rc = sqlite3_prepare_v2(db, "SELECT value FROM config"
+                              " WHERE name='project-description'",
+                          -1, &pStmt, 0);
+  if( rc ) goto finish_repo_list;
+  if( sqlite3_step(pStmt)==SQLITE_ROW ){
+    pRepo->zProjDesc = fossil_strdup((char*)sqlite3_column_text(pStmt,0));
   }
   sqlite3_finalize(pStmt);
   rc = sqlite3_prepare_v2(db, "SELECT value FROM config"
@@ -167,6 +178,7 @@ int repo_list_page(void){
       " data-column-types='txtxkxt'><thead>\n"
       "<tr><th>Filename<th width='20'>"
       "<th>Project Name<th width='20'>"
+      "<th>Project Description<th width='20'>"
       "<th>Last Modified<th width='20'>"
       "<th>Login Group</tr>\n"
       "</thead><tbody>\n");
@@ -280,6 +292,12 @@ int repo_list_page(void){
       if( x.zProjName ){
         blob_append_sql(&html, "<td></td><td>%h</td>\n", x.zProjName);
         fossil_free(x.zProjName);
+      }else{
+        blob_append_sql(&html, "<td></td><td></td>\n");
+      }
+      if( x.zProjDesc ){
+        blob_append_sql(&html, "<td></td><td>%h</td>\n", x.zProjDesc);
+        fossil_free(x.zProjDesc);
       }else{
         blob_append_sql(&html, "<td></td><td></td>\n");
       }
