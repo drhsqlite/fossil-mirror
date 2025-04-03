@@ -3754,7 +3754,7 @@ void timeline_cmd(void){
   if( mode==TIMELINE_MODE_AFTER ){
     /* Complete the outer above outer select. */
     blob_append_sql(&sql, 
-        "\nORDER BY event.mtime LIMIT %d) t ORDER BY t.mDateTime DESC;", n);
+        "\nORDER BY event.mtime LIMIT abs(%d)) t ORDER BY t.mDateTime DESC;", n);
   }
 
   /* When zFilePattern is specified, compute complete ancestry;
