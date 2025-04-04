@@ -203,7 +203,7 @@ void setup_logmenu_page(void){
   }
   style_header("Log Menu");
   @ <table border="0" cellspacing="3">
-  
+
   if( db_get_boolean("admin-log",1)==0 ){
     blob_appendf(&desc,
       "The admin log records configuration changes to the repository.\n"
@@ -1298,7 +1298,7 @@ void setup_config(void){
   textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "", 0);
   @ <p>Describe your project. This will be used in page headers for search
-  @ engines as well as a short RSS description.
+  @ engines, the repository listing and a short RSS description.
   @ (Property: "project-description")</p>
   @ <hr>
   entry_attribute("Canonical Server URL", 40, "email-url",

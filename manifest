@@ -1,5 +1,5 @@
-C fix\ssorting
-D 2025-04-03T21:34:14.613
+C add\stext\sindicating\sadditional\susage\sof\sproject\sdescription
+D 2025-04-04T10:28:03.951
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -526,7 +526,7 @@ F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 6820d9ea7574cef4646e86481ec2823d3a2d1091b3d956be7afacc5d2566880a
 F src/security_audit.c 02d2f426bcf735ca90222374ea9e17bafc751669a4c7b76773059557d904df92
-F src/setup.c b5bb12975f8037ab6f4dfb8b806bdd2abfc60a4425b7ee82f9f7f374f4f7db4a
+F src/setup.c d8e0a77c5042bd74ea60aaa086757fd489a37d60b4dfb812302ae95f5ec318f2
 F src/setupuser.c b707636bb05076e31a4ce1dae949b7f24b8cc2fc553857b6217d89e3847ae853
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f4ebb610135a982a7c2dc9fcd213fc780e402a9ee6e6f7a0e3864da697fde55a
-R cd8e55239d649694733a7e261824f986
+P 4dd3fa88745e1343c42957232a5ce5d2488cbbae527e98bfa91acac1e42ea6c1
+R 00f1e44e9ca37870f5d6ee0794bc4263
 U jkosche
-Z a0a3ea6e0ace0b92b24ba87de3e11cd0
+Z c7aac0577bb58ef80dbdbb59cc077ee8
 # Remove this line to create a well-formed Fossil manifest.
