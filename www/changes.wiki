@@ -132,6 +132,7 @@
   *  Add a "user elevation" [/doc/trunk/www/alerts.md|subscription]
      which alerts subscribers when an admin creates a new user or
      adds new permissions to one.
+  *  Show project description on repository list.
   *  Diverse minor fixes and additions.
 
 
