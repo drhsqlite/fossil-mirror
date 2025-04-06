@@ -11,7 +11,7 @@
 **   <table class='sortable' data-column-types='tnkx' data-init-sort='2'>
 **
 ** Column data types are determined by the data-column-types attribute of
-** the table.  The value of data-column-types is a string where each 
+** the table.  The value of data-column-types is a string where each
 ** character of the string represents a datatype for one column in the
 ** table.
 **
@@ -88,6 +88,8 @@ function SortableTable(tableEl){
   }
   this.sortText = function(a,b) {
     var i = thisObject.sortIndex;
+    if (a.cells.length<=i) return -1;
+    if (b.cells.length<=i) return 1;
     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
     if(aa<bb) return -1;
@@ -96,6 +98,8 @@ function SortableTable(tableEl){
   }
   this.sortReverseText = function(a,b) {
     var i = thisObject.sortIndex;
+    if (a.cells.length<=i) return 1;
+    if (b.cells.length<=i) return -1;
     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
     if(aa<bb) return +1;
