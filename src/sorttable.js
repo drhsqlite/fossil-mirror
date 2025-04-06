@@ -88,7 +88,7 @@ function SortableTable(tableEl){
   }
   this.sortText = function(a,b) {
     var i = thisObject.sortIndex;
-    if (a.cells.length<=i) return -1;
+    if (a.cells.length<=i) return -1; /* see ticket 59d699710b1ab5d4 */
     if (b.cells.length<=i) return 1;
     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
@@ -98,7 +98,7 @@ function SortableTable(tableEl){
   }
   this.sortReverseText = function(a,b) {
     var i = thisObject.sortIndex;
-    if (a.cells.length<=i) return 1;
+    if (a.cells.length<=i) return 1; /* see ticket 59d699710b1ab5d4 */
     if (b.cells.length<=i) return -1;
     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();

@@ -1,5 +1,5 @@
-C quickfix\sfor\s[59d699710b1ab5d4]
-D 2025-04-06T15:12:18.380
+C comment\sthe\sfix
+D 2025-04-06T15:26:43.644
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -536,7 +536,7 @@ F src/sitemap.c b82d0115da82a880c811104139b457afef60cdef974d65414dd36478b4103562
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c c2b66b723c0fa65c299277d12f99721136f2571aa6c0fe8df9c4d02877e653ca
 F src/smtp.c 595dd8e9a92adb32a47bae1112bfce5de3166feb1c97a2ec543bc8d909199861
-F src/sorttable.js 3c4ad5ba65ab62db6ad508b8fd38f46c4cc5c5a8262e30b65d372380d4025c67
+F src/sorttable.js 10c9fbb52abd126dd233f33e7f85a582bc8a02f94b59b3ace4af989e259a7665
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
 F src/sounds/1.wav aabf554293e105bf92a9ca9cee201bd2462490491f6c4e837a718c4cbc0fbbbc
 F src/sounds/2.wav 7481be1a3cf0c94cebb530315bd73da7ba1e61cae7c45e159a0fadfee4e97732
@@ -969,11 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2771beab20d5411559885c4b2b8a49ffd8335d3171083269a85ccfff3468aa08
-R b00bb6731687a5881dda6379d9401bb5
-T *branch * quickfix-sorttable-multirow
-T *sym-quickfix-sorttable-multirow *
-T -sym-trunk *
+P d82cd903d28f10de7d6e36ff6f81d49117ca1738e71828e2be3333c0b8289b76
+R 30e4bf6afbcf4863671fbfe0872a90cd
 U jkosche
-Z 4a893cca02a7734969ded75406253656
+Z 914d0438abb799e9e9a09941dad93729
 # Remove this line to create a well-formed Fossil manifest.
