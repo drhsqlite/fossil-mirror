@@ -297,10 +297,10 @@ void alert_submenu_common(void){
 void setup_notification(void){
   static const char *const azSendMethods[] = {
     "off",   "Disabled",
-    "pipe",  "Pipe to a command",
+    "relay", "SMTP relay",
     "db",    "Store in a database",
     "dir",   "Store in a directory",
-    "relay", "SMTP relay"
+    "pipe",  "Pipe to a command",
   };
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -313,7 +313,9 @@ void setup_notification(void){
   style_submenu_element("Send Announcement","%R/announce");
   style_set_current_feature("alerts");
   style_header("Email Notification Setup");
-  @ <h1>Status</h1>
+  @ <form action="%R/setup_notification" method="post"><div>
+  @ <h1>Status &ensp; <input type="submit"  name="submit" value="Refresh"></h1>
+  @ </form>
   @ <table class="label-value">
   if( alert_enabled() ){
     stats_for_email();
@@ -322,9 +324,10 @@ void setup_notification(void){
   }
   @ </table>
   @ <hr>
-  @ <h1> Configuration </h1>
   @ <form action="%R/setup_notification" method="post"><div>
-  @ <input type="submit"  name="submit" value="Apply Changes"><hr>
+  @ <h1> Configuration </h1>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
   login_insert_csrf_secret();
 
   entry_attribute("Canonical Server URL", 40, "email-url",
@@ -393,6 +396,19 @@ void setup_notification(void){
   @ to send test message to debug this setting.
   @ (Property: "email-send-method")</p>
   alert_schema(1);
+  entry_attribute("SMTP Relay Host", 60, "email-send-relayhost",
+                   "esrh", "localhost:25", 0);
+  @ <p>When the send method is "SMTP relay", each email message is
+  @ transmitted via the SMTP protocol (rfc5321) to a "Mail Submission
+  @ Agent" or "MSA" (rfc4409) at the hostname shown here.  Optionally
+  @ append a colon and TCP port number (ex: smtp.example.com:587).
+  @ The default TCP port number is 25.
+  @ (Property: "email-send-relayhost")</p>
+  entry_attribute("Store Emails In This Database", 60, "email-send-db",
+                   "esdb", "", 0);
+  @ <p>When the send method is "store in a database", each email message is
+  @ stored in an SQLite database file with the name given here.
+  @ (Property: "email-send-db")</p>
   entry_attribute("Pipe Email Text Into This Command", 60, "email-send-command",
                    "ecmd", "sendmail -ti", 0);
   @ <p>When the send method is "pipe to a command", this is the command
@@ -400,27 +416,12 @@ void setup_notification(void){
   @ command.  The command is expected to extract the sender address,
   @ recipient addresses, and subject from the header of the piped email
   @ text.  (Property: "email-send-command")</p>
-
-  entry_attribute("Store Emails In This Database", 60, "email-send-db",
-                   "esdb", "", 0);
-  @ <p>When the send method is "store in a database", each email message is
-  @ stored in an SQLite database file with the name given here.
-  @ (Property: "email-send-db")</p>
-
   entry_attribute("Store Emails In This Directory", 60, "email-send-dir",
                    "esdir", "", 0);
   @ <p>When the send method is "store in a directory", each email message is
   @ stored as a separate file in the directory shown here.
   @ (Property: "email-send-dir")</p>
 
-  entry_attribute("SMTP Relay Host", 60, "email-send-relayhost",
-                   "esrh", "", 0);
-  @ <p>When the send method is "SMTP relay", each email message is
-  @ transmitted via the SMTP protocol (rfc5321) to a "Mail Submission
-  @ Agent" or "MSA" (rfc4409) at the hostname shown here.  Optionally
-  @ append a colon and TCP port number (ex: smtp.example.com:587).
-  @ The default TCP port number is 25.
-  @ (Property: "email-send-relayhost")</p>
   @ <hr>
 
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
