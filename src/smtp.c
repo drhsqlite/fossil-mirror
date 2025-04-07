@@ -186,22 +186,19 @@ void smtp_session_free(SmtpSession *pSession){
 /*
 ** Allocate a new SmtpSession object.
 **
-** Both zFrom and zDest must be specified.
+** Both zFrom and zDest must be specified.  smtpFlags may not contain
+** either SMTP_TRACE_FILE or SMTP_TRACE_BLOB as those settings must be
+** added by a subsequent call to smtp_session_config().
 **
-** The ... arguments are in this order:
-**
-**    SMTP_PORT:            int
-**    SMTP_TRACE_FILE:      FILE*
-**    SMTP_TRACE_BLOB:      Blob*
+** The iPort option is ignored unless SMTP_PORT is set in smtpFlags
 */
 SmtpSession *smtp_session_new(
   const char *zFrom,    /* Domain for the client */
   const char *zDest,    /* Domain of the server */
   u32 smtpFlags,        /* Flags */
-  ...                   /* Arguments depending on the flags */
+  int iPort             /* TCP port if the SMTP_PORT flags is present */
 ){
   SmtpSession *p;
-  va_list ap;
   UrlData url;
 
   p = fossil_malloc( sizeof(*p) );
@@ -212,17 +209,9 @@ SmtpSession *smtp_session_new(
   memset(&url, 0, sizeof(url));
   url.port = 25;
   blob_init(&p->inbuf, 0, 0);
-  va_start(ap, smtpFlags);
   if( smtpFlags & SMTP_PORT ){
-    url.port = va_arg(ap, int);
+    url.port = iPort;
   }
-  if( smtpFlags & SMTP_TRACE_FILE ){
-    p->logFile = va_arg(ap, FILE*);
-  }
-  if( smtpFlags & SMTP_TRACE_BLOB ){
-    p->pTranscript = va_arg(ap, Blob*);
-  }
-  va_end(ap);
   if( (smtpFlags & SMTP_DIRECT)!=0 ){
     int i;
     p->zHostname = fossil_strdup(zDest);
@@ -247,6 +236,23 @@ SmtpSession *smtp_session_new(
     socket_close();
   }
   return p;
+}
+
+/*
+** Configure debugging options on SmtpSession.  Add all bits in
+** smtpFlags to the settings.  The following bits can be added:
+**
+**    SMTP_FLAG_FILE:     In which case pArg is the FILE* pointer to use
+**
+**    SMTP_FLAG_BLOB:     In which case pArg is the Blob* poitner to use.
+*/
+void smtp_session_config(SmtpSession *p, u32 smtpFlags, void *pArg){
+  p->smtpFlags = smtpFlags;
+  if( smtpFlags & SMTP_TRACE_FILE ){
+    p->logFile = (FILE*)pArg;
+  }else if( smtpFlags & SMTP_TRACE_BLOB ){
+    p->pTranscript = (Blob*)pArg;
+  }
 }
 
 /*

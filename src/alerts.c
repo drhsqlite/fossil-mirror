@@ -643,7 +643,7 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
       u32 smtpFlags = SMTP_DIRECT;
       if( mFlags & ALERT_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
       p->pSmtp = smtp_session_new(domain_of_addr(p->zFrom), zRelay,
-                                  smtpFlags);
+                                  smtpFlags, 0);
       smtp_client_startup(p->pSmtp);
     }
   }
