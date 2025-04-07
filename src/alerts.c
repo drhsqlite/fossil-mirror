@@ -636,14 +636,20 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
     emailerGetSetting(p, &p->zDir, "email-send-dir");
   }else if( fossil_strcmp(p->zDest, "blob")==0 ){
     blob_init(&p->out, 0, 0);
-  }else if( fossil_strcmp(p->zDest, "relay")==0 ){
+  }else if( fossil_strcmp(p->zDest, "relay")==0
+         || fossil_strcmp(p->zDest, "debug-relay")==0
+  ){
     const char *zRelay = 0;
     emailerGetSetting(p, &zRelay, "email-send-relayhost");
     if( zRelay ){
       u32 smtpFlags = SMTP_DIRECT;
       if( mFlags & ALERT_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
+      blob_init(&p->out, 0, 0);
       p->pSmtp = smtp_session_new(domain_of_addr(p->zFrom), zRelay,
                                   smtpFlags, 0);
+      if( p->zDest[0]=='d' ){
+        smtp_session_config(p->pSmtp, SMTP_TRACE_BLOB, &p->out);
+      }
       smtp_client_startup(p->pSmtp);
     }
   }
@@ -3442,12 +3448,24 @@ static char *alert_send_announcement(void){
   int bAA = PB("aa");
   int bMods = PB("mods");
   const char *zSub = db_get("email-subname", "[Fossil Repo]");
-  int bTest2 = fossil_strcmp(P("name"),"test2")==0;
+  const char *zName = P("name");    /* Debugging options */
+  const char *zDest = 0;            /* How to send the announcement */
+  int bTest = 0;
   Blob hdr, body;
+
+  if( fossil_strcmp(zName, "test2")==0 ){
+    bTest = 2;
+    zDest = "blob";
+  }else if( fossil_strcmp(zName, "test3")==0 ){
+    bTest = 3;
+    if( fossil_strcmp(db_get("email-send-method",""),"relay")==0 ){
+      zDest = "debug-relay";
+    }
+  }
   blob_init(&body, 0, 0);
   blob_init(&hdr, 0, 0);
   blob_appendf(&body, "%s", PT("msg")/*safe-for-%s*/);
-  pSender = alert_sender_new(bTest2 ? "blob" : 0, 0);
+  pSender = alert_sender_new(zDest, 0);
   if( zTo[0] ){
     blob_appendf(&hdr, "To: <%s>\r\nSubject: %s %s\r\n", zTo, zSub, zSubject);
     alert_send(pSender, &hdr, &body, 0);
@@ -3485,13 +3503,14 @@ static char *alert_send_announcement(void){
     }
     db_finalize(&q);
   }
-  if( bTest2 ){
+  if( bTest ){
     /* If the URL is /announce/test2 instead of just /announce, then no
     ** email is actually sent.  Instead, the text of the email that would
     ** have been sent is displayed in the result window. */
-    @ <pre style='border: 2px solid blue; padding: 1ex'>
+    @ <pre style='border: 2px solid blue; padding: 1ex;'>
     @ %h(blob_str(&pSender->out))
     @ </pre>
+    blob_reset(&pSender->out);
   }
   zErr = pSender->zErr;
   pSender->zErr = 0;
@@ -3511,20 +3530,27 @@ static char *alert_send_announcement(void){
 ** receive announcements.
 */
 void announce_page(void){
-  const char *zAction = "announce"
-    /* Maintenance reminder: we need an explicit action=THIS_PAGE on the
-    ** form element to avoid that a URL arg of to=... passed to this
-    ** page ends up overwriting the form-posted "to" value. This
-    ** action value differs for the test1 request path.
-    */;
-
+  const char *zAction = "announce";
+  const char *zName = PD("name","");
+  /*
+  ** Debugging Notes:
+  **
+  **    /announce/test1           ->   Shows query parameter values
+  **    /announce/test2           ->   Shows the formatted message but does
+  **                                   not send it.
+  **    /announce/test3           ->   Sends the message, but also shows
+  **                                   the SMTP transcript.
+  */
   login_check_credentials();
   if( !g.perm.Announce ){
     login_needed(0);
     return;
   }
+  if( !g.perm.Setup ){
+    zName = 0;   /* Disable debugging feature for non-admin users */
+  }
   style_set_current_feature("alerts");
-  if( fossil_strcmp(P("name"),"test1")==0 ){
+  if( fossil_strcmp(zName,"test1")==0 ){
     /* Visit the /announce/test1 page to see the CGI variables */
     zAction = "announce/test1";
     @ <p style='border: 1px solid black; padding: 1ex;'>
@@ -3555,6 +3581,11 @@ void announce_page(void){
 
   style_header("Send Announcement");
   alert_submenu_common();
+  if( fossil_strcmp(zName,"test2")==0 ){
+    zAction = "announce/test2";
+  }else if( fossil_strcmp(zName,"test3")==0 ){
+    zAction = "announce/test3";
+  }
   @ <form method="POST" action="%R/%s(zAction)">
   login_insert_csrf_secret();
   @ <table class="subscribe">
@@ -3591,7 +3622,7 @@ void announce_page(void){
   @ </tr>
   @ <tr>
   @   <td></td>
-  if( fossil_strcmp(P("name"),"test2")==0 ){
+  if( fossil_strcmp(zName,"test2")==0 ){
     @   <td><input type="submit" name="submit" value="Dry Run">
   }else{
     @   <td><input type="submit" name="submit" value="Send Message">
