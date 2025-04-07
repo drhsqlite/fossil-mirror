@@ -3644,5 +3644,18 @@ void announce_page(void){
   @ </tr>
   @ </table>
   @ </form>
+  if( g.perm.Setup ){
+    @ <hr>
+    @ <p>Trouble-shooting Options:</p>
+    @ <ol>
+    @ <li> <a href="%R/announce">Normal Processing</a>
+    @ <li> Only <a href="%R/announce/test1">show POST parameters</a>
+    @      - Do not send the announcement.
+    @ <li> <a href="%R/announce/test2">Show the email text</a> but do
+    @      not actually send it.
+    @ <li> Send the message and also <a href="%R/announce/test3">show the
+    @      SMTP traffic</a> when using "relay" mode.
+    @ </ol>
+  }
   style_finish_page();
 }
