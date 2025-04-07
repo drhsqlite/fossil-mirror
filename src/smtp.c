@@ -383,11 +383,13 @@ int smtp_client_quit(SmtpSession *p){
   int iCode = 0;
   int bMore = 0;
   char *zArg = 0;
-  smtp_send_line(p, "QUIT\r\n");
-  do{
-    smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
-  }while( bMore );
-  p->atEof = 1;
+  if( !p->atEof ){
+    smtp_send_line(p, "QUIT\r\n");
+    do{
+      smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
+    }while( bMore );
+    p->atEof = 1;
+  }
   socket_close();
   return 0;
 }
@@ -403,6 +405,7 @@ int smtp_client_startup(SmtpSession *p){
   int iCode = 0;
   int bMore = 0;
   char *zArg = 0;
+  if( p==0 || p->atEof ) return 1;
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );

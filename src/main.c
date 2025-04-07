@@ -3070,19 +3070,21 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** breaking legacy.
 **
 ** Options:
+**   --csrf-safe N       Set cgi_csrf_safe() to to return N
 **   --nobody            Pretend to be user "nobody"
 **   --test              Do not do special "sync" processing when operating
 **                       over an SSH link
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usercap   CAP     User capability string (Default: "sxy")
-**
 */
 void cmd_test_http(void){
   const char *zIpAddr;    /* IP address of remote client */
   const char *zUserCap;
   int bTest = 0;
+  const char *zCsrfSafe = find_option("csrf-safe",0,1);
 
   Th_InitTraceLog();
+  if( zCsrfSafe ) g.okCsrf = atoi(zCsrfSafe);
   zUserCap = find_option("usercap",0,1);
   if( !find_option("nobody",0,0) ){
     if( zUserCap==0 ){

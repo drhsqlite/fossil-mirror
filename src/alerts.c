@@ -647,7 +647,10 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
       blob_init(&p->out, 0, 0);
       p->pSmtp = smtp_session_new(domain_of_addr(p->zFrom), zRelay,
                                   smtpFlags, 0);
-      if( p->zDest[0]=='d' ){
+      if( p->pSmtp==0 || p->pSmtp->zErr ){
+        emailerError(p, "Could not start SMTP session: %s",
+                        p->pSmtp ? p->pSmtp->zErr : "reason unknown");
+      }else if( p->zDest[0]=='d' ){
         smtp_session_config(p->pSmtp, SMTP_TRACE_BLOB, &p->out);
       }
       smtp_client_startup(p->pSmtp);
@@ -3503,10 +3506,16 @@ static char *alert_send_announcement(void){
     }
     db_finalize(&q);
   }
-  if( bTest ){
-    /* If the URL is /announce/test2 instead of just /announce, then no
-    ** email is actually sent.  Instead, the text of the email that would
-    ** have been sent is displayed in the result window. */
+  if( bTest && blob_size(&pSender->out) ){
+    /* If the URL is "/announce/test2" then no email is actually sent.
+    ** Instead, the text of the email that would have been sent is
+    ** displayed in the result window.
+    **
+    ** If the URL is "/announce/test3" and the email-send-method is "relay"
+    ** then the announcement is sent as it normally would be, but a
+    ** transcript of the SMTP conversation with the MTA is shown here.
+    */
+    blob_trim(&pSender->out);
     @ <pre style='border: 2px solid blue; padding: 1ex;'>
     @ %h(blob_str(&pSender->out))
     @ </pre>
@@ -3560,8 +3569,9 @@ void announce_page(void){
     char *zErr = alert_send_announcement();
     style_header("Announcement Sent");
     if( zErr ){
-      @ <h1>Internal Error</h1>
-      @ <p>The following error was reported by the system:
+      @ <h1>Error</h1>
+      @ <p>The following error was reported by the
+      @ announcement-sending subsystem:
       @ <blockquote><pre>
       @ %h(zErr)
       @ </pre></blockquote>
