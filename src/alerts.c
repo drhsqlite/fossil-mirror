@@ -284,6 +284,9 @@ void alert_submenu_common(void){
     if( fossil_strcmp(g.zPath,"subscribe") ){
       style_submenu_element("Add New Subscriber","%R/subscribe");
     }
+    if( fossil_strcmp(g.zPath,"setup_notification") ){
+      style_submenu_element("Notification Setup","%R/setup_notification");
+    }
   }
 }
 
@@ -3551,6 +3554,7 @@ void announce_page(void){
   }
 
   style_header("Send Announcement");
+  alert_submenu_common();
   @ <form method="POST" action="%R/%s(zAction)">
   login_insert_csrf_secret();
   @ <table class="subscribe">
