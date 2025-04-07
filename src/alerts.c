@@ -406,7 +406,11 @@ void setup_notification(void){
   @ Agent" or "MSA" (rfc4409) at the hostname shown here.  Optionally
   @ append a colon and TCP port number (ex: smtp.example.com:587).
   @ The default TCP port number is 25.
+  @ Usage Hint:  If Fossil is running inside of a chroot jail, then it might
+  @ not be able to resolve hostnames.  Work around this by using a raw IP
+  @ address or create a "/etc/hosts" file inside the chroot jail.
   @ (Property: "email-send-relayhost")</p>
+  @ 
   entry_attribute("Store Emails In This Database", 60, "email-send-db",
                    "esdb", "", 0);
   @ <p>When the send method is "store in a database", each email message is
@@ -1140,7 +1144,7 @@ void alert_send(
 ** a "List-ID:" header that is added to all out-bound notification emails.
 */
 /*
-** SETTING: email-send-relayhost      width=40 sensitive default=localhost
+** SETTING: email-send-relayhost      width=40 sensitive default=127.0.0.1
 ** This is the hostname and TCP port to which output email messages
 ** are sent when email-send-method is "relay".  There should be an
 ** SMTP server configured as a Mail Submission Agent listening on the
