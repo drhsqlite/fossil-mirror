@@ -397,7 +397,7 @@ void setup_notification(void){
   @ (Property: "email-send-method")</p>
   alert_schema(1);
   entry_attribute("SMTP Relay Host", 60, "email-send-relayhost",
-                   "esrh", "localhost:25", 0);
+                   "esrh", "localhost", 0);
   @ <p>When the send method is "SMTP relay", each email message is
   @ transmitted via the SMTP protocol (rfc5321) to a "Mail Submission
   @ Agent" or "MSA" (rfc4409) at the hostname shown here.  Optionally
@@ -1128,7 +1128,7 @@ void alert_send(
 ** a "List-ID:" header that is added to all out-bound notification emails.
 */
 /*
-** SETTING: email-send-relayhost      width=40 sensitive
+** SETTING: email-send-relayhost      width=40 sensitive default=localhost
 ** This is the hostname and TCP port to which output email messages
 ** are sent when email-send-method is "relay".  There should be an
 ** SMTP server configured as a Mail Submission Agent listening on the
