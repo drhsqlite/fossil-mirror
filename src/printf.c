@@ -1102,7 +1102,7 @@ void fossil_errorlog(const char *zFormat, ...){
     zFormat++;
   }
   vfprintf(out, zFormat, ap);
-  fprintf(out, "\n");
+  fprintf(out, " (pid %d)\n", (int)getpid());
   va_end(ap);
   if( g.zPhase!=0 ) fprintf(out, "while in %s\n", g.zPhase);
   if( bDetail ){
