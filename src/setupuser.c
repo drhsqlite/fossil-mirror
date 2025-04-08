@@ -351,17 +351,17 @@ static void alert_user_elevation(const char *zLogin,   /*Affected user*/
   if( !alert_enabled() ) return;
   zSubject = bIsNew
     ? mprintf("New user created: [%q]", zLogin)
-    : mprintf("User [%q] permissions elevated", zLogin);
+    : mprintf("User [%q] capabilities changed", zLogin);
   zURL = db_get("email-url",0);
   zSubname = db_get("email-subname", "[Fossil Repo]");
   blob_init(&body, 0, 0);
   blob_init(&hdr, 0, 0);
   if( bIsNew ){
-    blob_appendf(&body, "User [%q] was created by with "
+    blob_appendf(&body, "User [%q] was created with "
                  "permissions [%q] by user [%q].\n",
                  zLogin, zNewCaps, g.zLogin);
   } else {
-    blob_appendf(&body, "Permissions for user [%q] where elevated "
+    blob_appendf(&body, "Permissions for user [%q] where changed "
                  "from [%q] to [%q] by user [%q].\n",
                  zLogin, zOrigCaps, zNewCaps, g.zLogin);
   }
