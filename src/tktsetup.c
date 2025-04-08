@@ -506,7 +506,18 @@ static const char zDefaultView[] =
 @ </tr>
 @ <tr><td class="tktDspLabel">Version&nbsp;Found&nbsp;In:</td>
 @ <td colspan="3" valign="top" class="tktDspValue">
-@ $<foundin>
+@ <th1>
+@ set versionlink ""
+@ query "SELECT count(*) AS match FROM tag WHERE tagname = 'sym-$foundin'" {
+@   if {$match} {set versionlink "/timeline?t=$foundin"}}
+@ query "SELECT count(*) AS match FROM blob WHERE uuid LIKE '$foundin%'" {
+@   if {$match} {set versionlink "/info/$foundin"}}
+@ if {$versionlink eq ""} {
+@   html "$foundin"
+@ } else {
+@   html "<a href=\"$versionlink\">$foundin</a>"
+@ }
+@ </th1>
 @ </td></tr>
 @ </table>
 @

@@ -1,5 +1,5 @@
-C make\sthe\sseparator\sin\smulti\srow\sticket\sreports\svisually\sclearer\sidentifiable\sas\sa\sseparator
-D 2025-04-06T16:21:44.983
+C make\sthe\sversion\sfield\sa\slink,\sif\sit\scontains\sa\svalid\scheckin\shash\sor\stagname,\ssee\sticket\s[04ba0f70b816cebe]
+D 2025-04-08T22:05:47.820
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -576,7 +576,7 @@ F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 54037c01cf6e7e1a5b12cfe2efe73558df548064a891101cf3d11ce021f0ca64
 F src/tkt.c a5813615030111377127aaaeb765fd8b1760c401d9bcf7176b2ae6b1486a62c7
-F src/tktsetup.c 714bfea27c5e1b475b2d21ada83364d3f318a7837e7d04f3947b5eafb8a577b4
+F src/tktsetup.c bf31d68877ed828a3bbc2684f060db6e0d4fd75b7e39caf87a91acd844d0edcf
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ff009a8f0e482a861ceb279ead1a97f97850370fe8b12d029c62d69b2869e291
-R 6afffde71ea9f2d5f89fed0d15bc95e6
+P 7b08586a41d11f19163caaaf1dfe1124c459c09819194ed84165d440effc873c
+R 4f868349d1a51576464f8ea11eec2ed9
 U jkosche
-Z a3de22ff9e043b448839de902032dacf
+Z 7ea99f0ed987fa0a3a8d0e3955e87897
 # Remove this line to create a well-formed Fossil manifest.
