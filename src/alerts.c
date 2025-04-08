@@ -53,7 +53,7 @@ static const char zAlertInit[] =
 @ --     n - New forum threads
 @ --     r - Replies to my own forum posts
 @ --     t - Ticket changes
-@ --     u - Potential elevation of users' permissions (admins only)
+@ --     u - Changes of users' permissions (admins only)
 @ --     w - Wiki changes
 @ --     x - Edits to forum posts
 @ -- Probably different codes will be added in the future.  In the future
@@ -1723,7 +1723,7 @@ void subscribe_page(void){
   }
   if( g.perm.Admin ){
     @  <label><input type="checkbox" name="su" %s(PCK("su"))> \
-    @  User permission additions</label>
+    @  User permission changes</label>
   }
   di = PB("di");
   @ </td></tr>
@@ -2133,7 +2133,7 @@ void alert_page(void){
     ** subscriptions, as non-admins are not permitted to add that
     ** subscription. */
     @  <label><input type="checkbox" name="su" %s(su?"checked":"")>\
-    @  User permission additions</label>
+    @  User permission changes</label>
   }
   @ </td></tr>
   if( strchr(ssub,'k')!=0 ){
