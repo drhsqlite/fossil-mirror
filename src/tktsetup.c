@@ -864,7 +864,8 @@ static char zDefaultReport[] =
 @        WHEN status='Deferred' THEN '#cacae5'
 @        ELSE '#c8c8c8' END AS 'bgcolor',
 @   substr(tkt_uuid,1,10) AS '#',
-@   datetime(tkt_mtime) AS 'mtime',
+@   datetime(tkt_ctime) AS 'created',
+@   datetime(tkt_mtime) AS 'modified',
 @   type,
 @   status,
 @   subsystem,
