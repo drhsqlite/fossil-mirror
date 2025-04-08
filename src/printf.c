@@ -1088,7 +1088,7 @@ void fossil_errorlog(const char *zFormat, ...){
   if( g.zErrlog[0]=='-' && g.zErrlog[1]==0 ){
     out = stderr;
   }else{
-    out = fossil_fopen(g.zErrlog, "a");
+    out = fossil_fopen(g.zErrlog, "ab");
     if( out==0 ) return;
   }
   now = time(0);

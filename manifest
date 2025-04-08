@@ -1,5 +1,5 @@
-C Change\sthe\smessage\sfor\sthe\s'user\selevation'\snotification\sto\shelp\sclarify\sthat\sit's\snot\snecessarily\san\selevation.\sHelp/message\stext\schanges\sonly\s-\sno\sfunctional\schanges.
-D 2025-04-08T12:43:17.879
+C Ensure\sthat\sALL\sfopen()\scalls\sinclude\s'b'\sin\stheir\smodes.\sThe\sgit\simport/export\sfopen()s\sdid\snot\shave\sthis,\swhich\smay\s(hypothetically,\sbut\sunproven)\slead\sto\sEOL\sconversion\son\sWindows.
+D 2025-04-08T12:49:11.122
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -385,7 +385,7 @@ F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3
 F src/allrepo.c 5cd83ce907fdadb49f6644225b5ab677f65422b767a50e9f42ddd7628440f2b4
 F src/attach.c 61506f3e69ff26c2f523b8f0c26e43e2f67cd78e01005c094c9665200fd61d8b
 F src/backlink.c 77f0ca62b908ed8dbb7073f35e5b9e72eda3944a5317cbb9b7e4303fe5b85b9d
-F src/backoffice.c 95c8272e22342655e24258ccea192761780f3cdfae7b24e93b490cbec3faba2e
+F src/backoffice.c 2af68c44b31d6e7dda0dce802cfdd2897a39f52ee829ea5e08d3b4ee33f72355
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 7009083bb6ba13dd7eac707f6237ad9330f3f4fa90fd8291bf2365c18ae8923d
 F src/blob.c 2889e7025105da6d6712d91093f497304cb7d8d04658e1371df9f6d1beba06e2
@@ -426,7 +426,7 @@ F src/doc.c 2af38a7104c3a6b29fb4479b0c5343aac850af7b44444c49e89d2473a90b33a5
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
 F src/event.c bbf9e79dfc96c597bab4f48ae290259a2dfa129a3d1c5878c13306ac46eb595c
-F src/export.c 99dddcbffa040ee67cbee591a41de449db384b645ac150e22b452f0482a88d96
+F src/export.c b847d7d69be3a6f9c6df6bc17468f0ac6c3bc925408b23cfac1510102128336a
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c bad34406b69507906a1060c42265ffafd68ea598e7270e8f0d21d8d08fc1580a
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
@@ -469,7 +469,7 @@ F src/http.c 67530619f1553625e96b79756c430227c8fe3b5c4883d08d8ae1162f1fab2eeb
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c b6e82531b75cc915dec31f0ecf9abca0a3a90a21bd1c87120bbc23ce408724d2
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
-F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
+F src/import.c e8baa37057df218f8f8c1229df0b9bb5ac2f6da2fdae15a5fd317f0572529217
 F src/info.c 9c51a07aae889bf3a83fd7ebbc215356c53062636c45812dd05794b0a90e91cc
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
@@ -514,7 +514,7 @@ F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
 F src/popen.c 1b97d68d5aa43c0d88af6c9324b32efc011920038a382f39097d6f204b2f3a4d
 F src/pqueue.c 4bc9471b252a8624435660be144d0031c40d8c10cb023321ab9234cda156eb02
-F src/printf.c 2f3277379553e86bfd03c2419d843f0d595a9c51e1d4e38359368f16287eca9a
+F src/printf.c 2a5d7a86a6f66e48e081f3629f0a5f9f2a0fce55c67d91a6f8d64e46e5618d9e
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
@@ -525,7 +525,7 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 4d22bea3e8701e96a710a2f89ff3ebe7f16681879d726c755f0ff828da310275
-F src/security_audit.c 02d2f426bcf735ca90222374ea9e17bafc751669a4c7b76773059557d904df92
+F src/security_audit.c 8b38c7b7d89dbd2ad561566df255d027812cf225aa8e0550b883c1655d15145b
 F src/setup.c d8e0a77c5042bd74ea60aaa086757fd489a37d60b4dfb812302ae95f5ec318f2
 F src/setupuser.c 6d1316a7703ae2b4e07c8a7bad6b01c747b5e24dfa0c4ca415e193f964e72254
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
@@ -969,8 +969,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c98eec22c29a4abc20fe3841b0a57b744c9f00eb462f8dec7edbf32527bca865
-R c1238550dc2d405f3911b759d8d79e36
+P eabccae174afdf0f344c1a6aefd2e7ce73e1a532982d08f4b96d74fad1810c79
+R f3c3b338981a219c4f10d1fc403a2b08
+T *branch * fopen-mode-b
+T *sym-fopen-mode-b *
+T -sym-trunk * Cancelled\sby\sbranch.
 U stephan
-Z bf84b411391c2a978a9235af87210b24
+Z ad65f1acf1e64374ec60c463a52b4c79
 # Remove this line to create a well-formed Fossil manifest.

@@ -610,7 +610,7 @@ void secaudit0_page(void){
       @ "%h(g.argv[0]) %h(g.zCmdName)" command that launched this server.
     }
   }else{
-    FILE *pTest = fossil_fopen(g.zErrlog,"a");
+    FILE *pTest = fossil_fopen(g.zErrlog,"ab");
     if( pTest==0 ){
       @ <li><p>
       @ <b>Error:</b>
@@ -864,7 +864,7 @@ void errorlog_page(void){
     return;
   }
   if( P("truncate1") && cgi_csrf_safe(2) ){
-    fclose(fopen(g.zErrlog,"w"));
+    fclose(fopen(g.zErrlog,"wb"));
   }
   if( P("download") ){
     Blob log;

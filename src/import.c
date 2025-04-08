@@ -1932,7 +1932,7 @@ void import_cmd(void){
     );
 
     if( markfile_in ){
-      FILE *f = fossil_fopen(markfile_in, "r");
+      FILE *f = fossil_fopen(markfile_in, "rb");
       if( !f ){
         fossil_fatal("cannot open %s for reading", markfile_in);
       }
@@ -1990,7 +1990,7 @@ void import_cmd(void){
         }
       }
       db_finalize(&q_marks);
-      f = fossil_fopen(markfile_out, "w");
+      f = fossil_fopen(markfile_out, "wb");
       if( !f ){
         fossil_fatal("cannot open %s for writing", markfile_out);
       }

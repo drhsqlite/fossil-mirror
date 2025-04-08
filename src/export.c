@@ -519,7 +519,7 @@ void export_cmd(void){
     FILE *f;
     int rid;
 
-    f = fossil_fopen(markfile_in, "r");
+    f = fossil_fopen(markfile_in, "rb");
     if( f==0 ){
       fossil_fatal("cannot open %s for reading", markfile_in);
     }
@@ -735,7 +735,7 @@ void export_cmd(void){
 
   if( markfile_out!=0 ){
     FILE *f;
-    f = fossil_fopen(markfile_out, "w");
+    f = fossil_fopen(markfile_out, "wb");
     if( f == 0 ){
       fossil_fatal("cannot open %s for writing", markfile_out);
     }

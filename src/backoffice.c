@@ -630,7 +630,7 @@ void backoffice_work(void){
   struct timeval sStart, sEnd;
 #endif
   if( zLog==0 ) zLog = db_get("backoffice-logfile",0);
-  if( zLog && zLog[0] && (backofficeFILE = fossil_fopen(zLog,"a"))!=0 ){
+  if( zLog && zLog[0] && (backofficeFILE = fossil_fopen(zLog,"ab"))!=0 ){
     int i;
     char *zName = db_get("project-name",0);
 #if !defined(_WIN32)
