@@ -585,9 +585,6 @@ void view_edit(void){
   }
   if( zOwner==0 ) zOwner = g.zLogin;
   style_submenu_element("Cancel", "%R/reportlist");
-  if( rn>0 ){
-    style_submenu_element("Delete", "%R/rptedit/%d?del1=1", rn);
-  }
   style_header("%s", rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
     @ <blockquote class="reportError">%h(zErr)</blockquote>
