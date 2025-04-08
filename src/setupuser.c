@@ -157,14 +157,15 @@ void setup_ulist(void){
     zWith = "";
   }
   db_prepare(&s,
-     "SELECT uid, login, cap, info, date(user.mtime,'unixepoch'),"
-     "       lower(login) AS sortkey, "
+     "SELECT uid, login, cap, info, date(user.mtime,'unixepoch')," /* 0..4 */
+     "       lower(login) AS sortkey, "  /* 5 */
      "       CASE WHEN info LIKE '%%expires 20%%'"
              "    THEN substr(info,instr(lower(info),'expires')+8,10)"
-             "    END AS exp,"
-             "atime,"
-     "       subscriber.ssub, subscriber.subscriberId,"
-     "       user.mtime AS sorttime"
+             "    END AS exp," /* 6 */
+             "atime," /* 7 */
+     "       subscriber.ssub, subscriber.subscriberId," /* 8, 9 */
+     "       user.mtime AS sorttime," /* 10 */
+     "       subscriber.semail"       /* 11 */
      "  FROM user LEFT JOIN lastAccess ON login=uname"
      "            LEFT JOIN subscriber ON login=suname"
      " WHERE login NOT IN ('anonymous','nobody','developer','reader') %s"
@@ -204,7 +205,9 @@ void setup_ulist(void){
     }else if( (zSub = db_column_text(&s,8))==0 || zSub[0]==0 ){
       @ <td><a href="%R/alerts?sid=%d(sid)"><i>off</i></a>
     }else{
-      @ <td><a href="%R/alerts?sid=%d(sid)">%h(zSub)</a>
+      const char *zEmail = db_column_text(&s, 11);
+      char * zAt = zEmail ? mprintf(" &rarr; %h", zEmail) : mprintf("");
+      @ <td><a href="%R/alerts?sid=%d(sid)">%h(zSub)</a>  %z(zAt)
     }
 
     @ </tr>

@@ -1,5 +1,5 @@
-C Change\sthe\smessage\sfor\sthe\s'user\selevation'\snotification\sto\shelp\sclarify\sthat\sit's\snot\snecessarily\san\selevation.\sHelp/message\stext\schanges\sonly\s-\sno\sfunctional\schanges.
-D 2025-04-08T12:43:17.879
+C In\s/setup_ulist,\sshow\sthe\semail\saddress\sin\sthe\sAlerts\scolumn\sso\sthat\saccounts\swhich\shave\smultiple\snotification\ssubscriptions\sunder\sdifferent\semail\saddresses\sto\snot\sappear\sas\svisually-indistinguishable\sduplicates\s(they're\sdistinguishable\sby\sthe\sparameters\sfor\stheir\ssubscription\sinfo\slink,\sbut\snot\sto\sthe\snaked\seye).
+D 2025-04-08T15:02:47.427
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -527,7 +527,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 4d22bea3e8701e96a710a2f89ff3ebe7f16681879d726c755f0ff828da310275
 F src/security_audit.c 02d2f426bcf735ca90222374ea9e17bafc751669a4c7b76773059557d904df92
 F src/setup.c d8e0a77c5042bd74ea60aaa086757fd489a37d60b4dfb812302ae95f5ec318f2
-F src/setupuser.c 6d1316a7703ae2b4e07c8a7bad6b01c747b5e24dfa0c4ca415e193f964e72254
+F src/setupuser.c af20c44d603688aae52e95bc561df2336b42fd2363248f220e35efe6f5978aa6
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c98eec22c29a4abc20fe3841b0a57b744c9f00eb462f8dec7edbf32527bca865
-R c1238550dc2d405f3911b759d8d79e36
+P eabccae174afdf0f344c1a6aefd2e7ce73e1a532982d08f4b96d74fad1810c79
+R e46cb0e193ac1176467eb4f91d6596e5
 U stephan
-Z bf84b411391c2a978a9235af87210b24
+Z b299374d7fca14e40c650a28e6322d87
 # Remove this line to create a well-formed Fossil manifest.
