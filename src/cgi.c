@@ -639,6 +639,9 @@ NORETURN void cgi_redirect_with_status(
   cgi_reply();
   fossil_exit(0);
 }
+NORETURN void cgi_redirect_perm(const char *zURL){
+  cgi_redirect_with_status(zURL, 301, "Moved Permanently");
+}
 NORETURN void cgi_redirect(const char *zURL){
   cgi_redirect_with_status(zURL, 302, "Moved Temporarily");
 }

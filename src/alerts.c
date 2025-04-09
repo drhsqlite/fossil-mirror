@@ -53,7 +53,7 @@ static const char zAlertInit[] =
 @ --     n - New forum threads
 @ --     r - Replies to my own forum posts
 @ --     t - Ticket changes
-@ --     u - Elevation of users' permissions (admins only)
+@ --     u - Changes of users' permissions (admins only)
 @ --     w - Wiki changes
 @ --     x - Edits to forum posts
 @ -- Probably different codes will be added in the future.  In the future
@@ -284,6 +284,9 @@ void alert_submenu_common(void){
     if( fossil_strcmp(g.zPath,"subscribe") ){
       style_submenu_element("Add New Subscriber","%R/subscribe");
     }
+    if( fossil_strcmp(g.zPath,"setup_notification") ){
+      style_submenu_element("Notification Setup","%R/setup_notification");
+    }
   }
 }
 
@@ -297,10 +300,10 @@ void alert_submenu_common(void){
 void setup_notification(void){
   static const char *const azSendMethods[] = {
     "off",   "Disabled",
-    "pipe",  "Pipe to a command",
+    "relay", "SMTP relay",
     "db",    "Store in a database",
     "dir",   "Store in a directory",
-    "relay", "SMTP relay"
+    "pipe",  "Pipe to a command",
   };
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -313,7 +316,9 @@ void setup_notification(void){
   style_submenu_element("Send Announcement","%R/announce");
   style_set_current_feature("alerts");
   style_header("Email Notification Setup");
-  @ <h1>Status</h1>
+  @ <form action="%R/setup_notification" method="post"><div>
+  @ <h1>Status &ensp; <input type="submit"  name="submit" value="Refresh"></h1>
+  @ </form>
   @ <table class="label-value">
   if( alert_enabled() ){
     stats_for_email();
@@ -322,9 +327,10 @@ void setup_notification(void){
   }
   @ </table>
   @ <hr>
-  @ <h1> Configuration </h1>
   @ <form action="%R/setup_notification" method="post"><div>
-  @ <input type="submit"  name="submit" value="Apply Changes"><hr>
+  @ <h1> Configuration </h1>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
   login_insert_csrf_secret();
 
   entry_attribute("Canonical Server URL", 40, "email-url",
@@ -393,6 +399,23 @@ void setup_notification(void){
   @ to send test message to debug this setting.
   @ (Property: "email-send-method")</p>
   alert_schema(1);
+  entry_attribute("SMTP Relay Host", 60, "email-send-relayhost",
+                   "esrh", "localhost", 0);
+  @ <p>When the send method is "SMTP relay", each email message is
+  @ transmitted via the SMTP protocol (rfc5321) to a "Mail Submission
+  @ Agent" or "MSA" (rfc4409) at the hostname shown here.  Optionally
+  @ append a colon and TCP port number (ex: smtp.example.com:587).
+  @ The default TCP port number is 25.
+  @ Usage Hint:  If Fossil is running inside of a chroot jail, then it might
+  @ not be able to resolve hostnames.  Work around this by using a raw IP
+  @ address or create a "/etc/hosts" file inside the chroot jail.
+  @ (Property: "email-send-relayhost")</p>
+  @ 
+  entry_attribute("Store Emails In This Database", 60, "email-send-db",
+                   "esdb", "", 0);
+  @ <p>When the send method is "store in a database", each email message is
+  @ stored in an SQLite database file with the name given here.
+  @ (Property: "email-send-db")</p>
   entry_attribute("Pipe Email Text Into This Command", 60, "email-send-command",
                    "ecmd", "sendmail -ti", 0);
   @ <p>When the send method is "pipe to a command", this is the command
@@ -400,27 +423,12 @@ void setup_notification(void){
   @ command.  The command is expected to extract the sender address,
   @ recipient addresses, and subject from the header of the piped email
   @ text.  (Property: "email-send-command")</p>
-
-  entry_attribute("Store Emails In This Database", 60, "email-send-db",
-                   "esdb", "", 0);
-  @ <p>When the send method is "store in a database", each email message is
-  @ stored in an SQLite database file with the name given here.
-  @ (Property: "email-send-db")</p>
-
   entry_attribute("Store Emails In This Directory", 60, "email-send-dir",
                    "esdir", "", 0);
   @ <p>When the send method is "store in a directory", each email message is
   @ stored as a separate file in the directory shown here.
   @ (Property: "email-send-dir")</p>
 
-  entry_attribute("SMTP Relay Host", 60, "email-send-relayhost",
-                   "esrh", "", 0);
-  @ <p>When the send method is "SMTP relay", each email message is
-  @ transmitted via the SMTP protocol (rfc5321) to a "Mail Submission
-  @ Agent" or "MSA" (rfc4409) at the hostname shown here.  Optionally
-  @ append a colon and TCP port number (ex: smtp.example.com:587).
-  @ The default TCP port number is 25.
-  @ (Property: "email-send-relayhost")</p>
   @ <hr>
 
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
@@ -632,14 +640,23 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
     emailerGetSetting(p, &p->zDir, "email-send-dir");
   }else if( fossil_strcmp(p->zDest, "blob")==0 ){
     blob_init(&p->out, 0, 0);
-  }else if( fossil_strcmp(p->zDest, "relay")==0 ){
+  }else if( fossil_strcmp(p->zDest, "relay")==0
+         || fossil_strcmp(p->zDest, "debug-relay")==0
+  ){
     const char *zRelay = 0;
     emailerGetSetting(p, &zRelay, "email-send-relayhost");
     if( zRelay ){
       u32 smtpFlags = SMTP_DIRECT;
       if( mFlags & ALERT_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
+      blob_init(&p->out, 0, 0);
       p->pSmtp = smtp_session_new(domain_of_addr(p->zFrom), zRelay,
-                                  smtpFlags);
+                                  smtpFlags, 0);
+      if( p->pSmtp==0 || p->pSmtp->zErr ){
+        emailerError(p, "Could not start SMTP session: %s",
+                        p->pSmtp ? p->pSmtp->zErr : "reason unknown");
+      }else if( p->zDest[0]=='d' ){
+        smtp_session_config(p->pSmtp, SMTP_TRACE_BLOB, &p->out);
+      }
       smtp_client_startup(p->pSmtp);
     }
   }
@@ -1127,7 +1144,7 @@ void alert_send(
 ** a "List-ID:" header that is added to all out-bound notification emails.
 */
 /*
-** SETTING: email-send-relayhost      width=40 sensitive
+** SETTING: email-send-relayhost      width=40 sensitive default=127.0.0.1
 ** This is the hostname and TCP port to which output email messages
 ** are sent when email-send-method is "relay".  There should be an
 ** SMTP server configured as a Mail Submission Agent listening on the
@@ -1706,7 +1723,7 @@ void subscribe_page(void){
   }
   if( g.perm.Admin ){
     @  <label><input type="checkbox" name="su" %s(PCK("su"))> \
-    @  User permission elevation</label>
+    @  User permission changes</label>
   }
   di = PB("di");
   @ </td></tr>
@@ -2116,7 +2133,7 @@ void alert_page(void){
     ** subscriptions, as non-admins are not permitted to add that
     ** subscription. */
     @  <label><input type="checkbox" name="su" %s(su?"checked":"")>\
-    @  User permission elevation</label>
+    @  User permission changes</label>
   }
   @ </td></tr>
   if( strchr(ssub,'k')!=0 ){
@@ -3438,12 +3455,24 @@ static char *alert_send_announcement(void){
   int bAA = PB("aa");
   int bMods = PB("mods");
   const char *zSub = db_get("email-subname", "[Fossil Repo]");
-  int bTest2 = fossil_strcmp(P("name"),"test2")==0;
+  const char *zName = P("name");    /* Debugging options */
+  const char *zDest = 0;            /* How to send the announcement */
+  int bTest = 0;
   Blob hdr, body;
+
+  if( fossil_strcmp(zName, "test2")==0 ){
+    bTest = 2;
+    zDest = "blob";
+  }else if( fossil_strcmp(zName, "test3")==0 ){
+    bTest = 3;
+    if( fossil_strcmp(db_get("email-send-method",""),"relay")==0 ){
+      zDest = "debug-relay";
+    }
+  }
   blob_init(&body, 0, 0);
   blob_init(&hdr, 0, 0);
   blob_appendf(&body, "%s", PT("msg")/*safe-for-%s*/);
-  pSender = alert_sender_new(bTest2 ? "blob" : 0, 0);
+  pSender = alert_sender_new(zDest, 0);
   if( zTo[0] ){
     blob_appendf(&hdr, "To: <%s>\r\nSubject: %s %s\r\n", zTo, zSub, zSubject);
     alert_send(pSender, &hdr, &body, 0);
@@ -3481,13 +3510,20 @@ static char *alert_send_announcement(void){
     }
     db_finalize(&q);
   }
-  if( bTest2 ){
-    /* If the URL is /announce/test2 instead of just /announce, then no
-    ** email is actually sent.  Instead, the text of the email that would
-    ** have been sent is displayed in the result window. */
-    @ <pre style='border: 2px solid blue; padding: 1ex'>
+  if( bTest && blob_size(&pSender->out) ){
+    /* If the URL is "/announce/test2" then no email is actually sent.
+    ** Instead, the text of the email that would have been sent is
+    ** displayed in the result window.
+    **
+    ** If the URL is "/announce/test3" and the email-send-method is "relay"
+    ** then the announcement is sent as it normally would be, but a
+    ** transcript of the SMTP conversation with the MTA is shown here.
+    */
+    blob_trim(&pSender->out);
+    @ <pre style='border: 2px solid blue; padding: 1ex;'>
     @ %h(blob_str(&pSender->out))
     @ </pre>
+    blob_reset(&pSender->out);
   }
   zErr = pSender->zErr;
   pSender->zErr = 0;
@@ -3507,20 +3543,27 @@ static char *alert_send_announcement(void){
 ** receive announcements.
 */
 void announce_page(void){
-  const char *zAction = "announce"
-    /* Maintenance reminder: we need an explicit action=THIS_PAGE on the
-    ** form element to avoid that a URL arg of to=... passed to this
-    ** page ends up overwriting the form-posted "to" value. This
-    ** action value differs for the test1 request path.
-    */;
-
+  const char *zAction = "announce";
+  const char *zName = PD("name","");
+  /*
+  ** Debugging Notes:
+  **
+  **    /announce/test1           ->   Shows query parameter values
+  **    /announce/test2           ->   Shows the formatted message but does
+  **                                   not send it.
+  **    /announce/test3           ->   Sends the message, but also shows
+  **                                   the SMTP transcript.
+  */
   login_check_credentials();
   if( !g.perm.Announce ){
     login_needed(0);
     return;
   }
+  if( !g.perm.Setup ){
+    zName = 0;   /* Disable debugging feature for non-admin users */
+  }
   style_set_current_feature("alerts");
-  if( fossil_strcmp(P("name"),"test1")==0 ){
+  if( fossil_strcmp(zName,"test1")==0 ){
     /* Visit the /announce/test1 page to see the CGI variables */
     zAction = "announce/test1";
     @ <p style='border: 1px solid black; padding: 1ex;'>
@@ -3530,8 +3573,9 @@ void announce_page(void){
     char *zErr = alert_send_announcement();
     style_header("Announcement Sent");
     if( zErr ){
-      @ <h1>Internal Error</h1>
-      @ <p>The following error was reported by the system:
+      @ <h1>Error</h1>
+      @ <p>The following error was reported by the
+      @ announcement-sending subsystem:
       @ <blockquote><pre>
       @ %h(zErr)
       @ </pre></blockquote>
@@ -3550,6 +3594,12 @@ void announce_page(void){
   }
 
   style_header("Send Announcement");
+  alert_submenu_common();
+  if( fossil_strcmp(zName,"test2")==0 ){
+    zAction = "announce/test2";
+  }else if( fossil_strcmp(zName,"test3")==0 ){
+    zAction = "announce/test3";
+  }
   @ <form method="POST" action="%R/%s(zAction)">
   login_insert_csrf_secret();
   @ <table class="subscribe">
@@ -3586,7 +3636,7 @@ void announce_page(void){
   @ </tr>
   @ <tr>
   @   <td></td>
-  if( fossil_strcmp(P("name"),"test2")==0 ){
+  if( fossil_strcmp(zName,"test2")==0 ){
     @   <td><input type="submit" name="submit" value="Dry Run">
   }else{
     @   <td><input type="submit" name="submit" value="Send Message">
@@ -3594,5 +3644,18 @@ void announce_page(void){
   @ </tr>
   @ </table>
   @ </form>
+  if( g.perm.Setup ){
+    @ <hr>
+    @ <p>Trouble-shooting Options:</p>
+    @ <ol>
+    @ <li> <a href="%R/announce">Normal Processing</a>
+    @ <li> Only <a href="%R/announce/test1">show POST parameters</a>
+    @      - Do not send the announcement.
+    @ <li> <a href="%R/announce/test2">Show the email text</a> but do
+    @      not actually send it.
+    @ <li> Send the message and also <a href="%R/announce/test3">show the
+    @      SMTP traffic</a> when using "relay" mode.
+    @ </ol>
+  }
   style_finish_page();
 }

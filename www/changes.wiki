@@ -129,9 +129,10 @@
      </ol>
   *  Added the "hash" query parameter to the
      [/help?cmd=/whatis|/whatis webpage].
-  *  Add a "user elevation" [/doc/trunk/www/alerts.md|subscription]
+  *  Add a "user permissions changes" [/doc/trunk/www/alerts.md|subscription]
      which alerts subscribers when an admin creates a new user or
-     adds new permissions to one.
+     when a user's permissions change.
+  *  Show project description on repository list.
   *  Diverse minor fixes and additions.
 
 

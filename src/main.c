@@ -2055,7 +2055,8 @@ static void process_one_web_page(
   if( fossil_redirect_to_https_if_needed(2) ) return;
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
-    /* Second special case: If the PATH_INFO is blank, issue a redirect:
+    /* Second special case: If the PATH_INFO is blank, issue a
+    ** temporary 302 redirect:
     **    (1) to "/ckout" if g.useLocalauth and g.localOpen are both set.
     **    (2) to the home page identified by the "index-page" setting
     **        in the repository CONFIG table
@@ -2269,6 +2270,17 @@ static void process_one_web_page(
 **          redirect: * https://fossil-scm.org/home
 **
 **      Thus requests to the .com website redirect to the .org website.
+**      This form uses a 301 Permanent redirect.
+**
+**      On a "*" redirect, the PATH_INFO and QUERY_STRING of the query
+**      that provoked the redirect are appended to the target.  So, for
+**      example, if the input URL for the redirect above were
+**      "http://www.fossil.com/index.html/timeline?c=20250404", then
+**      the redirect would be to:
+**
+**           https://fossil-scm.org/home/timeline?c=20250404
+**                                      ^^^^^^^^^^^^^^^^^^^^
+**                                      Copied from input URL
 */
 static void redirect_web_page(int nRedirect, char **azRedirect){
   int i;                             /* Loop counter */
@@ -2299,17 +2311,18 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
     Blob to;
     const char *z;
     if( strstr(zNotFound, "%s") ){
-      cgi_redirectf(zNotFound /*works-like:"%s"*/, zName);
+      char *zTarget = mprintf(zNotFound /*works-like:"%s"*/, zName);
+      cgi_redirect_perm(zTarget);
     }
     if( strchr(zNotFound, '?') ){
-      cgi_redirect(zNotFound);
+      cgi_redirect_perm(zNotFound);
     }
     blob_init(&to, zNotFound, -1);
     z = P("PATH_INFO");
     if( z && z[0]=='/' ) blob_append(&to, z, -1);
     z = P("QUERY_STRING");
     if( z && z[0]!=0 ) blob_appendf(&to, "?%s", z);
-    cgi_redirect(blob_str(&to));
+    cgi_redirect_perm(blob_str(&to));
   }else{
     @ <html>
     @ <head><title>No Such Object</title></head>
@@ -2396,6 +2409,9 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             can be multiple "redirect:" lines that are
 **                             processed in order.  If the REPO is "*", then
 **                             an unconditional redirect to URL is taken.
+**                             When "*" is used a 301 permanent redirect is
+**                             issued and the tail and query string from the
+**                             original query are appeneded onto URL.
 **
 **    jsmode: VALUE            Specifies the delivery mode for JavaScript
 **                             files. See the help text for the --jsmode
@@ -3054,19 +3070,21 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** breaking legacy.
 **
 ** Options:
+**   --csrf-safe N       Set cgi_csrf_safe() to to return N
 **   --nobody            Pretend to be user "nobody"
 **   --test              Do not do special "sync" processing when operating
 **                       over an SSH link
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usercap   CAP     User capability string (Default: "sxy")
-**
 */
 void cmd_test_http(void){
   const char *zIpAddr;    /* IP address of remote client */
   const char *zUserCap;
   int bTest = 0;
+  const char *zCsrfSafe = find_option("csrf-safe",0,1);
 
   Th_InitTraceLog();
+  if( zCsrfSafe ) g.okCsrf = atoi(zCsrfSafe);
   zUserCap = find_option("usercap",0,1);
   if( !find_option("nobody",0,0) ){
     if( zUserCap==0 ){
