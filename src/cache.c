@@ -420,6 +420,11 @@ void cache_page(void){
     @ </form>
   }else{
     char *zDbName = cacheName();
+    int nEntry = 0;
+    int mxEntry = 0;
+    if( P("clearcache")!=0 && cgi_csrf_safe(2) ){
+      sqlite3_exec(db, "DELETE FROM cache; DELETE FROM blob; VACUUM;",0,0,0);
+    }
     cache_register_sizename(db);
     pStmt = cacheStmt(db,
          "SELECT key, sz, nRef, datetime(tm,'unixepoch')"
@@ -440,22 +445,34 @@ void cache_page(void){
           fossil_free(zHash);
         }
         @ </p></li>
-
+        nEntry++;
       }
       sqlite3_finalize(pStmt);
       @ </ol>
     }
     zDbName = cacheName();
     bigSizeName(sizeof(zBuf), zBuf, file_size(zDbName, ExtFILE));
+    mxEntry = db_get_int("max-cache-entry",10);
     @ <p>
-    @ cache-file name: %h(zDbName)<br>
-    @ cache-file size: %s(zBuf)<br>
-    @ max-cache-entry: %d(db_get_int("max-cache-entry",10))
     @ </p>
+    @ <h2>About The Web-Cache</h2>
     @ <p>
-    @ Use the "<a href="%R/help?cmd=cache">fossil cache</a>" command
-    @ on the command-line to create and configure the web-cache.
-    @ </p>
+    @ The web-cache is a separate database file that holds cached copies
+    @ tarballs, ZIP archives, and other pages that are expensive to compute
+    @ and are likely to be reused.
+    @ <form method="post">
+    @ <ul>
+    @ <li> Filename of the cache database: <b>%h(zDbName)</b>
+    @ <li> Size of the cache database: %s(zBuf)
+    @ <li> Maximum number of entries: %d(mxEntry);
+    @ <li> Number of slots used: %d(nEntry)
+    @ <li> Change the max-cache-entry setting on the
+    @ <a href="%R/setup_settings">Settings</a> page to adjust the
+    @ maximum number of entries in the cache.
+    @ <li><input type="submit" name="clear" value="Clear the cache">
+    @ <li> Disable the cache by manually deleting the cache database file.
+    @ </ul>
+    @ </form>
     fossil_free(zDbName);
     sqlite3_close(db);
   }
