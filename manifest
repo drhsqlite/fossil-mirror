@@ -1,5 +1,5 @@
-C More\sadministrative\sfunctions\srelated\sto\sthe\sWeb\sCache\sare\snow\savailable\non\sthe\s/cachestat\spage.
-D 2025-04-09T12:25:43.704
+C Further\simprovements\sto\sthe\s/cachestat\spage.
+D 2025-04-09T13:07:49.063
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -393,7 +393,7 @@ F src/branch.c d8ecdbf2647ba33e04f501843016862164a985822fa7492f5a2bf2829d068ffb
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
 F src/builtin.c 34d57215e767b0f4cd70d2a5a17c72fc47acfb0789772ecf88c1038bb52d1fbe
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
-F src/cache.c ef2dcdc628df842f993c2d5e5adc13a07f2815bc07a104697633eeb9aa3bf344
+F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c 7e62d3c4c728dddbc603e85454245b55e8df4b2b6faf765354e244bdb5d14ba5
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7de57f400e2f64307961872338568af9f83bc0b7116cabeafa98e6933c1df106
-R bf01a52d442cc0cb33b59fe3f693e1f9
+P cfb716fb83c0e1c3797a7af0d94a8967212596ec3856de6d95d8d555f00e5b9e
+R e7e21669edf981e620d7429c50893c27
 U drh
-Z c42a038d5ce7aae713273d99eee80252
+Z 0e527c38101ca8bd26b9b3046002f295
 # Remove this line to create a well-formed Fossil manifest.

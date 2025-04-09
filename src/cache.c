@@ -404,25 +404,20 @@ void cache_page(void){
   sqlite3 *db = 0;
   sqlite3_stmt *pStmt;
   int doInit;
+  char *zDbName = cacheName();
+  int nEntry = 0;
+  int mxEntry = 0;
   char zBuf[100];
 
   login_check_credentials();
   if( !g.perm.Setup ){ login_needed(0); return; }
   style_set_current_feature("cache");
   style_header("Web Cache Status");
+  style_submenu_element("Refresh","%R/cachestat");
   doInit = P("init")!=0 && cgi_csrf_safe(2);
   db = cacheOpen(doInit);
-  if( db==0 ){
-    @ <form method="post">
-    login_insert_csrf_secret();
-    @ The web-page cache is disabled for this repository
-    @ <input type="submit" name="init" value="Enable">
-    @ </form>
-  }else{
-    char *zDbName = cacheName();
-    int nEntry = 0;
-    int mxEntry = 0;
-    if( P("clearcache")!=0 && cgi_csrf_safe(2) ){
+  if( db!=0 ){
+    if( P("clear")!=0 && cgi_csrf_safe(2) ){
       sqlite3_exec(db, "DELETE FROM cache; DELETE FROM blob; VACUUM;",0,0,0);
     }
     cache_register_sizename(db);
@@ -432,50 +427,58 @@ void cache_page(void){
          " ORDER BY (tm + 3600*min(nRef,48)) DESC"
     );
     if( pStmt ){
-      @ <ol>
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
         const unsigned char *zName = sqlite3_column_text(pStmt,0);
         char *zHash = cache_hash_of_key((const char*)zName);
+        if( nEntry==0 ){
+          @ <h2>Current Cache Entries:</h2>
+          @ <ol>
+        }
         @ <li><p>%z(href("%R/cacheget?key=%T",zName))%h(zName)</a><br>
-        @ size: %,lld(sqlite3_column_int64(pStmt,1))
-        @ hit-count: %d(sqlite3_column_int(pStmt,2))
-        @ last-access: %s(sqlite3_column_text(pStmt,3)) \
+        @ size: %,lld(sqlite3_column_int64(pStmt,1)),
+        @ hit-count: %d(sqlite3_column_int(pStmt,2)),
+        @ last-access: %s(sqlite3_column_text(pStmt,3))Z \
         if( zHash ){
-          @ %z(href("%R/timeline?c=%S",zHash))check-in</a>\
+          @ &rarr; %z(href("%R/timeline?c=%S",zHash))checkin info</a>\
           fossil_free(zHash);
         }
         @ </p></li>
         nEntry++;
       }
       sqlite3_finalize(pStmt);
-      @ </ol>
+      if( nEntry ){
+        @ </ol>
+      }
     }
-    zDbName = cacheName();
+  }
+  @ <h2>About The Web-Cache</h2>
+  @ <p>
+  @ The web-cache is a separate database file that holds cached copies
+  @ tarballs, ZIP archives, and other pages that are expensive to compute
+  @ and are likely to be reused.
+  @ <form method="post">
+  login_insert_csrf_secret();
+  @ <ul>
+  if( db==0 ){
+    @ <li> Web-cache is currently disabled.
+    @ <input type="submit" name="init" value="Enable">
+  }else{
     bigSizeName(sizeof(zBuf), zBuf, file_size(zDbName, ExtFILE));
     mxEntry = db_get_int("max-cache-entry",10);
-    @ <p>
-    @ </p>
-    @ <h2>About The Web-Cache</h2>
-    @ <p>
-    @ The web-cache is a separate database file that holds cached copies
-    @ tarballs, ZIP archives, and other pages that are expensive to compute
-    @ and are likely to be reused.
-    @ <form method="post">
-    @ <ul>
     @ <li> Filename of the cache database: <b>%h(zDbName)</b>
     @ <li> Size of the cache database: %s(zBuf)
-    @ <li> Maximum number of entries: %d(mxEntry);
-    @ <li> Number of slots used: %d(nEntry)
+    @ <li> Maximum number of entries: %d(mxEntry)
+    @ <li> Number of cache entries used: %d(nEntry)
     @ <li> Change the max-cache-entry setting on the
     @ <a href="%R/setup_settings">Settings</a> page to adjust the
     @ maximum number of entries in the cache.
     @ <li><input type="submit" name="clear" value="Clear the cache">
     @ <li> Disable the cache by manually deleting the cache database file.
-    @ </ul>
-    @ </form>
-    fossil_free(zDbName);
-    sqlite3_close(db);
   }
+  @ </ul>
+  @ </form>
+  fossil_free(zDbName);
+  if( db ) sqlite3_close(db);
   style_finish_page();
 }
 
