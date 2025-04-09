@@ -1,5 +1,5 @@
-C Do\snot\sallow\sinteger\sleft-shift\soverflow\sin\sTH1,\sbecause\sgcc\s14.2.0\shates\nthat.\s\s[forum:/info/6c1653220d4e12ec|Forum\spost\s6c1653220].
-D 2025-04-09T21:12:23.063
+C Remove\s'www.'\sprefix\sfrom\swww.fossil-scm.org\slinks\sin\sthe\sfooters\sof\sseveral\sskins.
+D 2025-04-09T22:56:45.406
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -329,7 +329,7 @@ F skins/blitz/css.txt 264e5899bbc577a4e8843d2569ecbc54b9229440184e9d69dd71a57b3a
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
-F skins/blitz/footer.txt 791ee647988e1050702390c35f6b552d933cbfca83809ed159e2bf23539dafa9
+F skins/blitz/footer.txt e7e0abea2fa7f6efecb3ba27bcdee2e5f2b55a0847a8d6cdf325ddd9d5058b5a
 F skins/blitz/fossil_100.png fa1dca72090a10f4caac3e6bbb6fe5ca6f776fc7
 F skins/blitz/fossil_80_reversed_darkcyan.png c053b47fc8bd5e525ecefc69307ce66b6316fb7e
 F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f081e1817a34
@@ -338,7 +338,7 @@ F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401d7fdd60446d9a13db
 F skins/darkmode/css.txt 22f204145704d2c2693d5929e473688745bdb1d6dbb87d7cc4d8b4486c428ec0
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
-F skins/darkmode/footer.txt f836de28bcd65e3101349141588c932f366e209255e4312ee054aad0ac01b526
+F skins/darkmode/footer.txt d909e2ffcadfd595707d7cb057d654888cf45de37910137bac508651c7f6f03f
 F skins/darkmode/header.txt 3fe4fb78b2a6f8d6c9a4c2c4dbba7d80a7302b166fe5e4cec86f05713ddf830b
 F skins/default/README.md 0542b429a020494e005378b95831e699df17ab7933ddb7ffa3ac878d2bad087a
 F skins/default/css.txt e4a6d3ea1f8d12511ef81bac4c1b8aae267a6decbca10b283438a4032b66afa2
@@ -348,7 +348,7 @@ F skins/default/header.txt d1e9025e8bcc2de8f6d83bc5b0279782ff0aaf2f9b23312bce4b9
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 6f6404f4dd736cd6ed4b9bcaf9a1ca8a89903854134f85ce9c32cee387dec93c
 F skins/eagle/details.txt a8c0f5e2241004045378a5f0ef484c58c0f66436e766000f8c62db2b74c5befe
-F skins/eagle/footer.txt e45fdd982bef772e32d2602ae4558c1f017478a48a82825fd9d13391e4a6d427
+F skins/eagle/footer.txt c060d3479bd74b3b650e24830ec55ba0a5fe69b9ca6795ac35fc86def3855246
 F skins/eagle/header.txt 3025c66c714e5609f2ff40c24f7938afe9c8530d79dac4bff095f5bcec64f794
 F skins/etienne/README.md 471470404bd2354b7975401208bd08b15f1a6db38280107863bf39fd82986d2a
 F skins/etienne/css.txt 585b81a571bec635fd814ac5e7954f71bb3fcc83ff2175b0390122c2007fd5fb
@@ -361,7 +361,7 @@ F skins/khaki/footer.txt 0c32f13f6ad5fa409b38e0093a897d71f407ede5fb3a99f62d152ce
 F skins/khaki/header.txt 1d39aef913ad4a63778068cc20ebbcfe01661ec7b5625a91abc3aede3239fead
 F skins/original/css.txt 13cedb008b8666a1d5f69f9b2af47b75750a6c13b98897dfd40094521ae65235
 F skins/original/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
-F skins/original/footer.txt e45fdd982bef772e32d2602ae4558c1f017478a48a82825fd9d13391e4a6d427
+F skins/original/footer.txt c060d3479bd74b3b650e24830ec55ba0a5fe69b9ca6795ac35fc86def3855246
 F skins/original/header.txt 4dfab2920d6d655e5b8f1e8371b572b6be293c409ec32b815c33b2b0d99746f4
 F skins/plain_gray/css.txt 172dfa03939f51e7a0a6afc29d8a03db30b33119ceedb7efacf0e2c3c5ff1604
 F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed0b4031f45aa745e
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3af3ffdf443e77e35b639f4d4dadbf26a7b0b8fef2409e98c0adc83afd34dbf2
-R 7cdba7745f2eddeb7cce0224cb49b254
-U drh
-Z 716bca1a70c4b1c7e0088165eec8f728
+P c66b19670f0250f48378bde6875868523eb1d4b4814db4f96ec86a5ed020955f
+R a678ae5a7251c64040dbe44c640efe69
+U stephan
+Z db0cf3f2b575f20f899e23b3cad4e888
 # Remove this line to create a well-formed Fossil manifest.
