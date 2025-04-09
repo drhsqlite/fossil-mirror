@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\s/cachestat\spage.
-D 2025-04-09T13:07:49.063
+C If\s/chat's\spoller\scannot\sconnect\sto\sthe\sserver,\sapply\sa\sback-off\stimer\sso\sthat\sit\sdoes\snot\skeep\shammering\sthe\sremote\severy\ssingle\ssecond.\sIt\sattempts\sto\sinform\sthe\suser\sabout\soutages\sand\swhen\sreconnection\shas\ssucceeded,\sbut\sit's\sdifficult\sto\stest\sthe\stiming\sof\sthe\sthe\sUI\selements\sthoroughly\swith\sa\ssingle\spair\sof\shands,\sso\sthis\sis\sbeing\schecked\sin\sfor\sdogfooding.
+D 2025-04-09T22:37:00.901
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -438,11 +438,11 @@ F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b66
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js b599db94ed00f23a54dacdded5a44116ef8301f882d0244660fcc5c67617344c
 F src/fossil.diff.js 3fa5b2821aff311d79db755dbb3db5faabcbd0e52da166cb4859761784c394c9
-F src/fossil.dom.js d5a89a29606c1056be6cbfd5c6cd7f06559c5b46fca523d5eed34605a3443288
+F src/fossil.dom.js 48d87607693233032dd7d4840cb9e75bb97ff2533680ae3567135546fe71eef1
 F src/fossil.fetch.js 79291600341f980b23bc20455e0415fae0db0a3a355aae4dffbc0e431f210cc8
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 79429e7e100d758cd734e63cd629799f950ecd214130ce20a970d645fada887c
+F src/fossil.page.chat.js fda30be86e98fff518d1889c5fa24e314038412de2432b71562ebcf180351519
 F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f230c108063bdcc5
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 354e405e2813de4bfeec16d12a4dbfb370b2fa89f25325f245c51c194115adbf
@@ -969,8 +969,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cfb716fb83c0e1c3797a7af0d94a8967212596ec3856de6d95d8d555f00e5b9e
-R e7e21669edf981e620d7429c50893c27
-U drh
-Z 0e527c38101ca8bd26b9b3046002f295
+P 3af3ffdf443e77e35b639f4d4dadbf26a7b0b8fef2409e98c0adc83afd34dbf2
+R 699f9fa53dc61af89a421f6fa1613146
+T *branch * chat-backoff-timer
+T *sym-chat-backoff-timer *
+T -sym-trunk * Cancelled\sby\sbranch.
+U stephan
+Z 017aa69cc48ea4528306a7b5646d9111
 # Remove this line to create a well-formed Fossil manifest.
