@@ -192,7 +192,8 @@ static void initializeVariablesFromDb(void){
   int i, n, size, j;
 
   zName = PD("name","-none-");
-  db_prepare(&q, "SELECT datetime(tkt_mtime,toLocal()) AS tkt_datetime, *"
+  db_prepare(&q, "SELECT datetime(tkt_mtime,toLocal()) AS tkt_datetime, "
+                 "datetime(tkt_ctime,toLocal()) AS tkt_datetime_creation, *"
                  "  FROM ticket WHERE tkt_uuid GLOB '%q*'",
                  zName);
   if( db_step(&q)==SQLITE_ROW ){

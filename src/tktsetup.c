@@ -498,12 +498,20 @@ static const char zDefaultView[] =
 @ }
 @ </th1>
 @ </td>
+@ <td class="tktDspLabel">Created:</td><td class="tktDspValue">
+@ <th1>
+@ if {[info exists tkt_datetime_creation]} {
+@   html $tkt_datetime_creation
+@ }
+@ </th1>
+@ </td></tr>
 @ <th1>enable_output [hascap e]</th1>
-@   <td class="tktDspLabel">Contact:</td><td class="tktDspValue">
+@   <tr>
+@   <td class="tktDspLabel">Contact:</td><td class="tktDspValue" colspan="3">
 @   $<private_contact>
 @   </td>
+@   </tr>
 @ <th1>enable_output 1</th1>
-@ </tr>
 @ <tr><td class="tktDspLabel">Version&nbsp;Found&nbsp;In:</td>
 @ <td colspan="3" valign="top" class="tktDspValue">
 @ <th1>
