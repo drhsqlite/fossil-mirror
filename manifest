@@ -1,5 +1,5 @@
-C Do\snot\swarn\sabout\shung\sbackoffice\sprocesses\sif\sthey\shave\sbeen\srunning\nfor\sonly\sa\slittle\smore\sthan\s60\sseconds.
-D 2025-04-08T18:02:02.161
+C Add\sthe\sability\sfor\san\sadmin\sto\screate\sa\sweb-cache\sfrom\sthe\sweb\sinterface.
+D 2025-04-09T11:23:28.302
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -393,7 +393,7 @@ F src/branch.c d8ecdbf2647ba33e04f501843016862164a985822fa7492f5a2bf2829d068ffb
 F src/browse.c 01237b7fde41e7ce06fbb595185b1ca06d2dc2be7f0a2d19c1678972ec289034
 F src/builtin.c 34d57215e767b0f4cd70d2a5a17c72fc47acfb0789772ecf88c1038bb52d1fbe
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
-F src/cache.c 50e166e55c5aac9f17d988ff18aba0b98762ea8bba382a795c4176817dae0760
+F src/cache.c 4a167be9cda2f7eebf286aa2df6887cd65d7cb14f8e67950d31d086fa0839cb2
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c 7e62d3c4c728dddbc603e85454245b55e8df4b2b6faf765354e244bdb5d14ba5
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 36f72c08727ddb74790e600632b2c481559e282d22181b744c0dc83aea8dd741
-R bbb2e1c37a73f73baa3d6c5aebe8831d
+P 7ed4d030cf815a9b83ac1bf0163c2f3e4f8e53e21e5d31539e0fb6c177124bee
+R 9718cf2d5d5ebbe4887186e33eaab453
 U drh
-Z 4f80da93dbb1eef1c500dad5c04ca425
+Z 3c80bc46dbf18994c3e5c92cc57fb181
 # Remove this line to create a well-formed Fossil manifest.

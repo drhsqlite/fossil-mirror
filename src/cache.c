@@ -401,17 +401,23 @@ static char *cache_hash_of_key(const char *zKey){
 ** Show information about the webpage cache.  Requires Setup privilege.
 */
 void cache_page(void){
-  sqlite3 *db;
+  sqlite3 *db = 0;
   sqlite3_stmt *pStmt;
+  int doInit;
   char zBuf[100];
 
   login_check_credentials();
   if( !g.perm.Setup ){ login_needed(0); return; }
   style_set_current_feature("cache");
   style_header("Web Cache Status");
-  db = cacheOpen(0);
+  doInit = P("init")!=0 && cgi_csrf_safe(2);
+  db = cacheOpen(doInit);
   if( db==0 ){
+    @ <form method="post">
+    login_insert_csrf_secret();
     @ The web-page cache is disabled for this repository
+    @ <input type="submit" name="init" value="Enable">
+    @ </form>
   }else{
     char *zDbName = cacheName();
     cache_register_sizename(db);
