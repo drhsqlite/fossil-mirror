@@ -2651,21 +2651,6 @@ window.fossil.onPageLoad(function(){
   };
   afterPollFetch.isFirstCall = true;
 
-  /**
-     FIXME: when polling fails because the remote server is
-     reachable but it's not accepting HTTP requests, we should back
-     off on polling for a while. e.g. if the remote web server process
-     is killed, the poll fails quickly and immediately retries,
-     hammering the remote server until the httpd is back up. That
-     happens often during development of this application.
-
-     XHR does not offer a direct way of distinguishing between
-     HTTP/connection errors, but we can hypothetically use the
-     xhrRequest.status value to do so, with status==0 being a
-     connection error. We do not currently have a clean way of passing
-     that info back to the fossil.fetch() client, so we'll need to
-     hammer on that API a bit to get this working.
-  */
   const poll = Chat.poll = async function f(){
     if(f.running) return;
     f.running = true;
