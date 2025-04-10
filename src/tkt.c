@@ -193,7 +193,8 @@ static void initializeVariablesFromDb(void){
 
   zName = PD("name","-none-");
   db_prepare(&q, "SELECT datetime(tkt_mtime,toLocal()) AS tkt_datetime, "
-                 "datetime(tkt_ctime,toLocal()) AS tkt_datetime_creation, *"
+                 "datetime(tkt_ctime,toLocal()) AS tkt_datetime_creation, "
+                 "julianday('now') - tkt_mtime, julianday('now') - tkt_ctime, *"
                  "  FROM ticket WHERE tkt_uuid GLOB '%q*'",
                  zName);
   if( db_step(&q)==SQLITE_ROW ){
@@ -214,6 +215,8 @@ static void initializeVariablesFromDb(void){
       }
       free(zRevealed);
     }
+    Th_Store("tkt_mage", human_readable_age(db_column_double(&q, 2)));
+    Th_Store("tkt_cage", human_readable_age(db_column_double(&q, 3)));
   }
   db_finalize(&q);
   for(i=0; i<nField; i++){

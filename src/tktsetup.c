@@ -496,12 +496,18 @@ static const char zDefaultView[] =
 @ if {[info exists tkt_datetime]} {
 @   html $tkt_datetime
 @ }
+@ if {[info exists tkt_mage]} {
+@   html "<br>$tkt_mage"
+@ }
 @ </th1>
 @ </td>
 @ <td class="tktDspLabel">Created:</td><td class="tktDspValue">
 @ <th1>
 @ if {[info exists tkt_datetime_creation]} {
 @   html $tkt_datetime_creation
+@ }
+@ if {[info exists tkt_cage]} {
+@   html "<br>$tkt_cage"
 @ }
 @ </th1>
 @ </td></tr>
