@@ -600,6 +600,15 @@ void www_print_timeline(
         cgi_printf("%W",blob_str(&comment));
       }
     }
+ 
+    if( zType[0]=='c' && strcmp(zUuid, MANIFEST_UUID)==0 ){
+      /* This will only ever happen when Fossil is drawing a timeline for
+      ** its own self-host repository.  If the timeline shows the specific
+      ** check-in corresponding to the current executable, then tag that
+      ** check-in with "This is me!". */
+      @ <b>&larr; This is me!</b>
+    }
+
     @ </span>
     blob_reset(&comment);
 

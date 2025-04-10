@@ -1,5 +1,5 @@
-C Fix\sTH1\sconversion\sof\sinteger\s0x80000000\sinto\sa\sstring\svalue.
-D 2025-04-10T16:49:40.046
+C Fossil\sself-identifies\sthe\scheck-in\sthat\sis\sthe\scurrent\sexecutable\swhen\nit\sis\sdisplaying\sa\stimeline\sof\sits\sown\ssource\srepository.
+D 2025-04-10T18:54:08.163
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -574,7 +574,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c 54037c01cf6e7e1a5b12cfe2efe73558df548064a891101cf3d11ce021f0ca64
+F src/timeline.c fa46d326e91bce5696df7711182e1985c06d7d0aed43bd44fa1fc4e77d574bf0
 F src/tkt.c 5b6b4cb5f8fe3f2fb398c392c6f9fd28d151d266a378ec7bfebe4bbd9522117d
 F src/tktsetup.c a5d74a536ad20387d7d561a594dbeadc4b684988857f0d9389e944900a4f1260
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c64fa26f3f51eeecd221180ef004286301fb23be284a1bf99dc10ca03d3a34e
-R ee25c7b62742dce7ba74a53e466cd698
+P 7d2e4ed653a53696ac4be41ffd696bb329fda17b4585808f10c7435d3ac2a13b
+R 3cd34bb0b0d9a785324748ce7f2bdc62
 U drh
-Z 941a90584c334968223ee45ed7078995
+Z a66b7afd5741a78d27c1a482481510ee
 # Remove this line to create a well-formed Fossil manifest.
