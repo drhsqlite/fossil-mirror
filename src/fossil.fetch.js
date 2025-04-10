@@ -36,7 +36,13 @@ const fossil = namespace;
    used solely for error reporting, not error recovery. Because
    onerror() may be called if onload() throws, it is up to the caller
    to ensure that their onerror() callback references only state which
-   is valid in such a case.
+   is valid in such a case. Special cases for the Error object: (1) If
+   the connection times out, the error object will have its
+   (.name='timeout') and its (.status=XHR.status) set. (2) If it gets
+   a non 2xx HTTP code then it will have
+   (.name='http',.status=XHR.status). (3) If it was proxied through a
+   JSON-format exception on the server, it will have
+   (.name='json',status=XHR.status).
 
    - method: 'POST' | 'GET' (default = 'GET'). CASE SENSITIVE!
 
@@ -168,7 +174,10 @@ fossil.fetch = function f(uri,opt){
   }
   x.ontimeout = function(){
     try{opt.aftersend()}catch(e){/*ignore*/}
-    opt.onerror(new Error("XHR timeout of "+x.timeout+"ms expired."));
+    const err = new Error("XHR timeout of "+x.timeout+"ms expired.");
+    err.status = x.status;
+    err.name = 'timeout';
+    opt.onerror(err);
   };
   x.onreadystatechange = function(){
     if(XMLHttpRequest.DONE !== x.readyState) return;
@@ -182,16 +191,28 @@ fossil.fetch = function f(uri,opt){
          (i.e. no requests/responses are missing). This is a silly
          workaround which may or may not bite us later. If so, it can
          be removed at the cost of an unsightly console error message
-         in FF. */
+         in FF.
+
+         2025-04-10: that behavior is now also in Chrome and enabling
+         this workaround causes our timeout errors to never arrive.
+      */
       return;
     }
     if(200!==x.status){
       let err;
       try{
         const j = JSON.parse(x.response);
-        if(j.error) err = new Error(j.error);
+        if(j.error){
+          err = new Error(j.error);
+          err.name = 'json.error';
+        }
       }catch(ex){/*ignore*/}
-      opt.onerror(err || new Error("HTTP response status "+x.status+"."));
+      if( !err ){
+        err = new Error("HTTP response status "+x.status+".")
+        err.name = 'http';
+      }
+      err.status = x.status;
+      opt.onerror(err);
       return;
     }
     const orh = opt.responseHeaders;
