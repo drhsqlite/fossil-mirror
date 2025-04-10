@@ -2683,8 +2683,8 @@ window.fossil.onPageLoad(function(){
     }
     let nErr = 0;
     F.fetch("chat-poll",{
-      timeout: //420 * 1000/*FIXME: get the value from the server*/,
-      15000,
+      timeout: 420 * 1000/*FIXME: get the value from the server*/,
+      //15000,
       urlParams:{
         name: Chat.mxMsg
       },
