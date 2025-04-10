@@ -2604,7 +2604,7 @@ window.fossil.onPageLoad(function(){
            UI message about the outage. */
         const delay = Chat.timer.incrDelay();
         //console.warn("afterPollFetch Chat.e.eMsgPollError",Chat.e.eMsgPollError);
-        const msg = "Connection error. Retrying in "+delay+ " ms.";
+        const msg = "Poller connection error. Retrying in "+delay+ " ms.";
         if( Chat.e.eMsgPollError ){
           /* Update the error message on the current error MessageWidget */
           Chat.e.eMsgPollError.e.content.innerText = msg;
