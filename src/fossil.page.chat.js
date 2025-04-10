@@ -131,8 +131,9 @@ window.fossil.onPageLoad(function(){
   fossil.FRK = ForceResizeKludge/*for debugging*/;
   const Chat = ForceResizeKludge.chat = (function(){
     const cs = { // the "Chat" object (result of this function)
-      verboseErrors: false /* if true then certain, mostly extraneous,
-                              error messages may be sent to the console. */,
+      beVerbose: false /* if true then certain, mostly extraneous,
+                          error messages and log messages may be sent
+                          to the console. */,
       playedBeep: false /* used for the beep-once setting */,
       e:{/*map of certain DOM elements.*/
         messageInjectPoint: E1('#message-inject-point'),
@@ -157,7 +158,8 @@ window.fossil.onPageLoad(function(){
         btnPreview: E1('#chat-button-preview'),
         views: document.querySelectorAll('.chat-view'),
         activeUserListWrapper: E1('#chat-user-list-wrapper'),
-        activeUserList: E1('#chat-user-list')
+        activeUserList: E1('#chat-user-list'),
+        eMsgPollError: undefined /* current connection error MessageMidget */
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -197,7 +199,7 @@ window.fossil.onPageLoad(function(){
         tidPoller: undefined /* poller timer */,
         $initialDelay: 1000 /* initial polling interval (ms) */,
         currentDelay: 1000 /* current polling interval */,
-        maxDelay: 60000 /* max interval when backing off for
+        maxDelay: 60000 * 5 /* max interval when backing off for
                               connection errors */,
         minDelay: 5000 /* minimum delay time */,
         tidReconnect: undefined /*timer id for reconnection determination*/,
@@ -207,9 +209,9 @@ window.fossil.onPageLoad(function(){
         incrDelay: function(){
           if( this.maxDelay > this.currentDelay ){
             if(this.currentDelay < this.minDelay){
-              this.currentDelay = this.minDelay + this.randomInterval(this.minDelay/2);
+              this.currentDelay = this.minDelay + this.randomInterval(this.minDelay);
             }else{
-              this.currentDelay = this.currentDelay*2 + this.randomInterval(this.currentDelay/2);
+              this.currentDelay = this.currentDelay*2 + this.randomInterval(this.currentDelay);
             }
           }
           return this.currentDelay;
@@ -218,7 +220,7 @@ window.fossil.onPageLoad(function(){
           return this.currentDelay = this.$initialDelay;
         },
         isDelayed: function(){
-          return this.currentDelay > this.$initialDelay;
+          return (this.currentDelay > this.$initialDelay) ? this.currentDelay : 0;
         }
       },
       /**
@@ -274,7 +276,6 @@ window.fossil.onPageLoad(function(){
         if(1===++this.ajaxInflight){
           this.enableAjaxComponents(false);
         }
-        setupConnectionReestablished();
       },
       /* Must be called after any ajax-related call for which
          ajaxStart() was called, regardless of success or failure. If
@@ -699,7 +700,7 @@ window.fossil.onPageLoad(function(){
       const args = argsToArray(arguments).map(function(v){
         return (v instanceof Error) ? v.message : v;
       });
-      if(Chat.verboseErrors){
+      if(Chat.beVerbose){
         console.error("chat error:",args);
       }
       const d = new Date().toISOString(),
@@ -735,6 +736,7 @@ window.fossil.onPageLoad(function(){
             });
       this.injectMessageElem(mw.e.body);
       mw.scrollIntoView();
+      //Chat.playNewMessageSound();// browser complains b/c this wasn't via human interaction
       return mw;
     };
 
@@ -844,7 +846,7 @@ window.fossil.onPageLoad(function(){
         urlParams:{ name: id, raw: true},
         responseType: 'json',
         onload: function(msg){
-          reportConnectionReestablished();
+          reportConnectionReestablished('chat-fetch-one');
           content.$elems[1] = D.append(D.pre(),msg.xmsg);
           content.$elems[1]._xmsgRaw = msg.xmsg/*used for copy-to-clipboard feature*/;
           self.toggleTextMode(e);
@@ -907,7 +909,7 @@ window.fossil.onPageLoad(function(){
         F.fetch("chat-delete/" + id, {
           responseType: 'json',
           onload:(r)=>{
-            reportConnectionReestablished();
+            reportConnectionReestablished('chat-delete');
             this.deleteMessageElem(r);
           },
           onerror:(err)=>this.reportErrorAsMessage(err)
@@ -1529,7 +1531,7 @@ window.fossil.onPageLoad(function(){
           },
           responseType: "json",
           onload:function(jx){
-            reportConnectionReestablished();
+            reportConnectionReestablished('chat-query.onload');
             if( bDown ) jx.msgs.reverse();
             jx.msgs.forEach((m) => {
               m.isSearchResult = true;
@@ -1698,44 +1700,48 @@ window.fossil.onPageLoad(function(){
     Chat.reportErrorAsMessage(w);
   };
 
-  const removeConnectionErrors = function() {
-      D.remove(Chat.e.viewMessages.querySelectorAll(
-        '.message-widget.error-connection'));
-  };
-
-  /* Assume the connection has been established, reset
-     the Chat.timer.tidReconnect, and alert the user
-     that the outage appears to be over. */
-  const reportConnectionReestablished = function(){
+  /* Assume the connection has been established, reset the
+     Chat.timer.tidReconnect, and (if showMsg and
+     !!Chat.e.eMsgPollError) alert the user that the outage appears to
+     be over. */
+  const reportConnectionReestablished = function(dbgContext, showMsg = true){
+    if(Chat.beVerbose){
+      console.warn("reportConnectionReestablished()",
+                   dbgContext, showMsg, Chat.timer.tidReconnect, Chat.e.eMsgPollError);
+    }
     if( Chat.timer.tidReconnect ){
       clearTimeout(Chat.timer.tidReconnect);
       Chat.timer.tidReconnect = 0;
     }
-    if( Chat.timer.isDelayed() ){
-      removeConnectionErrors();
-      Chat.timer.resetDelay();
-      Chat.reportReconnection(
-        "Connection restored after outage."
-      );
-      setTimeout( Chat.poll, 0 );
+    Chat.timer.resetDelay();
+    if( Chat.e.eMsgPollError ) {
+      Chat.e.eMsgPollError = undefined;
+      if( showMsg ){
+        Chat.reportReconnection(
+          "Poller connection restored."
+        );
+      }
     }
+    setTimeout( Chat.poll, 0 );
   };
 
-  /* To be called from F.fetch() beforesend() handlers.  If we're
-     currently in delayed-retry mode and a connection is start, try to
-     reset the delay after N time waiting on that connection. The fact
-     that the connection is waiting to respond, rather than outright
-     failing, is a good hint that the outage is over and we can reset
-     the back-off timer. */
-  const setupConnectionReestablished = function(){
+  /* To be called from F.fetch('chat-poll') beforesend() handlers.  If we're
+     currently in delayed-retry mode and a connection is started, try
+     to reset the delay after N time waiting on that connection. The
+     fact that the connection is waiting to respond, rather than
+     outright failing, is a good hint that the outage is over and we
+     can reset the back-off timer. */
+  const clearPollErrOnWait = function(){
     if( !Chat.timer.tidReconnect && Chat.timer.isDelayed() ){
       Chat.timer.tidReconnect = setTimeout(()=>{
         Chat.timer.tidReconnect = 0;
         if( poll.running ){
-          reportConnectionReestablished();
+          /* This chat-poll F.fetch() is still underway, so let's
+             assume the connection is back up until/unless it times
+             out or breaks again. */
+          reportConnectionReestablished('clearPollErrOnWait');
         }
-      }, Chat.timer.$initialDelay * 5 );
-      removeConnectionErrors();
+      }, Chat.timer.$initialDelay * 3 );
     }
   };
 
@@ -2584,28 +2590,30 @@ window.fossil.onPageLoad(function(){
         "Reload this page to reactivate it."
       );
       Chat.timer.tidPoller = undefined;
-      poll.running = false;
     } else {
-      poll.running = false;
-      if( !err ){
-        /* Restart the poller. */
-        Chat.timer.tidPoller = setTimeout(
-          poll, Chat.timer.resetDelay()
-        );
+      if( err && Chat.beVerbose ){
+        console.error("afterPollFetch:",err.name,err.status,err.message);
+      }
+      if( !err || 'timeout'===err.name/*(probably) long-poll expired*/ ){
+        /* Restart the poller immediately. */
+        reportConnectionReestablished('afterPollFetch '+err, false);
       }else{
         /* Delay a while before trying again, noting that other Chat
            APIs may try and succeed at connections before this timer
-           resolves. */
+           resolves, in which case they'll clear this timeout and the
+           UI message about the outage. */
         const delay = Chat.timer.incrDelay();
-        const msg = D.addClass(
-          Chat.reportErrorAsMessage(
-            "Connection error. Retrying in ",
-            delay, " ms."
-          ).e.body,
-          'error-connection'
-        );
+        //console.warn("afterPollFetch Chat.e.eMsgPollError",Chat.e.eMsgPollError);
+        const msg = "Connection error. Retrying in "+delay+ " ms.";
+        if( Chat.e.eMsgPollError ){
+          /* Update the error message on the current error MessageWidget */
+          Chat.e.eMsgPollError.e.content.innerText = msg;
+        }else {
+          /* Set current (new) error MessageWidget */
+          Chat.e.eMsgPollError = Chat.reportErrorAsMessage(msg);
+          //Chat.playNewMessageSound();// browser complains b/c this wasn't via human interaction
+        }
         Chat.timer.tidPoller = setTimeout(()=>{
-          D.remove(msg);
           poll();
         }, delay);
       }
@@ -2629,38 +2637,74 @@ window.fossil.onPageLoad(function(){
      that info back to the fossil.fetch() client, so we'll need to
      hammer on that API a bit to get this working.
   */
-  const poll = async function f(){
+  const poll = Chat.poll = async function f(){
     if(f.running) return;
     f.running = true;
     Chat._isBatchLoading = f.isFirstCall;
     if(true===f.isFirstCall){
       f.isFirstCall = false;
+      Chat.aPollErr = [];
       Chat.ajaxStart();
       Chat.e.viewMessages.classList.add('loading');
+      setInterval(
+        /*
+          We manager onerror() results in poll() using a
+          stack of error objects and we delay their handling by
+          a small amount, rather than immediately when the
+          exception arrives.
+
+          This level of indirection is to work around an
+          inexplicable behavior from the F.fetch() connections:
+          timeouts are always announced in pairs of an HTTP 0 and
+          something we can unambiguously identify as a timeout. When
+          that happens, we ignore the HTTP 0. If, however, an HTTP 0
+          is seen here without an immediately-following timeout, we
+          process it.
+
+          It's kinda like in the curses C API, where you to match
+          ALT-X by first getting an ALT event, then a separate X
+          event, but a lot less explicable.
+        */
+        ()=>{
+          if( Chat.aPollErr.length ){
+            if(Chat.aPollErr.length>1){
+              console.warn('aPollErr',Chat.aPollErr);
+              if(Chat.aPollErr[1].name='timeout'){
+                /* mysterious pairs of HTTP 0 followed immediately
+                   by timeout response; ignore the former in that case. */
+                Chat.aPollErr.shift();
+              }
+            }
+            afterPollFetch(Chat.aPollErr.shift());
+          }
+        },
+        1000
+      );
     }
+    let nErr = 0;
     F.fetch("chat-poll",{
-      timeout: 420 * 1000/*FIXME: get the value from the server*/,
-      //timeout: 8000,
+      timeout: //420 * 1000/*FIXME: get the value from the server*/,
+      15000,
       urlParams:{
         name: Chat.mxMsg
       },
       responseType: "json",
       // Disable the ajax start/end handling for this long-polling op:
       beforesend: function(){
-        setupConnectionReestablished();
+        clearPollErrOnWait();
       },
       aftersend: function(){
+        poll.running = false;
       },
       onerror:function(err){
         Chat._isBatchLoading = false;
-        if(Chat.verboseErrors) console.error("poll onerror:",err);
-        /* ^^^ we don't use Chat.reportError() here b/c the polling
-           fails exepectedly when it times out, but is then immediately
-           resumed, and reportError() produces a loud error message. */
-        afterPollFetch(err);
+        if(Chat.beVerbose){
+          console.error("poll.onerror:",err.name,err.status,JSON.stringify(err));
+        }
+        Chat.aPollErr.push(err);
       },
       onload:function(y){
-        reportConnectionReestablished();
+        reportConnectionReestablished('poll.onload', true);
         newcontent(y);
         if(Chat._isBatchLoading){
           Chat._isBatchLoading = false;
@@ -2671,7 +2715,6 @@ window.fossil.onPageLoad(function(){
     });
   };
   poll.isFirstCall = true;
-  Chat.poll = poll;
   Chat._gotServerError = poll.running = false;
   if( window.fossil.config.chat.fromcli ){
     Chat.chatOnlyMode(true);
