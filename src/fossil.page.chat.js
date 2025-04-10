@@ -844,9 +844,6 @@ window.fossil.onPageLoad(function(){
       F.fetch('chat-fetch-one',{
         urlParams:{ name: id, raw: true},
         responseType: 'json',
-        function(){
-          Chat.ajaxStart();
-        },
         onload: function(msg){
           reportConnectionReestablished();
           content.$elems[1] = D.append(D.pre(),msg.xmsg);
