@@ -201,17 +201,16 @@ window.fossil.onPageLoad(function(){
                               connection errors */,
         minDelay: 5000 /* minimum delay time */,
         tidReconnect: undefined /*timer id for reconnection determination*/,
-        randomInterval: function(){
-          return Math.floor(Math.random() * this.minDelay);
+        randomInterval: function(factor){
+          return Math.floor(Math.random() * factor);
         },
         incrDelay: function(){
           if( this.maxDelay > this.currentDelay ){
             if(this.currentDelay < this.minDelay){
-              this.currentDelay = this.minDelay;
+              this.currentDelay = this.minDelay + this.randomInterval(this.minDelay/2);
             }else{
-              this.currentDelay *= 2;
+              this.currentDelay = this.currentDelay*2 + this.randomInterval(this.currentDelay/2);
             }
-            this.currentDelay += this.randomInterval();
           }
           return this.currentDelay;
         },
