@@ -762,7 +762,6 @@ window.fossil.onPageLoad(function(){
     */
     cs.deleteMessageElem = function(id, silent){
       var e;
-      //console.warn("Chat.deleteMessageElem",id,silent);
       if(id instanceof HTMLElement){
         e = id;
         id = e.dataset.msgid;
@@ -772,12 +771,12 @@ window.fossil.onPageLoad(function(){
           delete e.dataset.alsoRemove;
           this.deleteMessageElem( xId );
         }
-      }else if(e instanceof Chat.MessageWidget) {
-        if( this.e.eMsgPollError === e.body ){
+      }else if(id instanceof Chat.MessageWidget) {
+        if( this.e.eMsgPollError === e ){
           this.e.eMsgPollError = undefined;
         }
-        if(e.e.body){
-          this.deleteMessageElem(e.e.body);
+        if(id.e?.body){
+          this.deleteMessageElem(id.e.body);
         }
         return;
       } else{
@@ -1746,6 +1745,9 @@ window.fossil.onPageLoad(function(){
       Chat.e.eMsgPollError = undefined;
       if( showMsg ){
         const m = Chat.reportReconnection("Poller connection restored.");
+        if( oldErrMsg ){
+          D.remove(oldErrMsg.e?.body.querySelector('button.retry-now'));
+        }
         m.e.body.dataset.alsoRemove = oldErrMsg?.e?.body?.dataset?.msgid;
         D.addClass(m.e.body,'poller-connection');
       }
@@ -2633,21 +2635,34 @@ window.fossil.onPageLoad(function(){
         const delay = Chat.timer.incrDelay();
         //console.warn("afterPollFetch Chat.e.eMsgPollError",Chat.e.eMsgPollError);
         const msg = "Poller connection error. Retrying in "+delay+ " ms.";
+        /* Replace the current/newest connection error widget. We could also
+           just update its body with the new message, but then its timestamp
+           never updates. OTOH, if we replace the message, we lose the
+           start time of the outage in the log. It seems more useful to
+           update the timestamp so that it doesn't look like it's hung. */
         if( Chat.e.eMsgPollError ){
-          /* Update the error message on the current error MessageWidget */
-          /* The disadvantage to doing this is that we don't update the timestamp. */
-          Chat.e.eMsgPollError.e.content.innerText = msg;
-        }else {
-          /* Set current (new) error MessageWidget */
-          Chat.e.eMsgPollError = Chat.reportErrorAsMessage(msg);
-          //Chat.playNewMessageSound();// browser complains b/c this wasn't via human interaction
-          D.addClass(Chat.e.eMsgPollError.e.body,'poller-connection');
+          Chat.deleteMessageElem(Chat.e.eMsgPollError, false);
         }
+        const theMsg = Chat.e.eMsgPollError = Chat.reportErrorAsMessage(msg);
+        D.addClass(Chat.e.eMsgPollError.e.body,'poller-connection');
+        /* Add a "retry now" button */
+        const btnDel = D.addClass(D.button("Retry now"), 'retry-now');
+        D.append(Chat.e.eMsgPollError.e.content, " ", btnDel);
+        btnDel.addEventListener('click', function(){
+          D.remove(btnDel);
+          Chat.timer.currentDelay =
+            Chat.timer.resetDelay() + 1  /*workaround for showing the "connection restored" message*/;
+          if( Chat.timer.tidPoller ){
+            clearTimeout(Chat.timer.tidPoller);
+            Chat.timer.tidPoller = 0;
+          }
+          poll();
+        });
+        //Chat.playNewMessageSound();// browser complains b/c this wasn't via human interaction
         Chat.timer.tidPoller = setTimeout(()=>{
           poll();
         }, delay);
       }
-      //console.log("isOkay =",isOkay,"currentDelay =",Chat.timer.currentDelay);
     }
   };
   afterPollFetch.isFirstCall = true;
