@@ -23,7 +23,7 @@
         e.forEach(
           (x)=>x.parentNode.removeChild(x)
         );
-      }else{
+      }else if(e.parentNode){
         e.parentNode.removeChild(e);
       }
       return e;
