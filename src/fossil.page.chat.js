@@ -2635,6 +2635,7 @@ window.fossil.onPageLoad(function(){
         const msg = "Poller connection error. Retrying in "+delay+ " ms.";
         if( Chat.e.eMsgPollError ){
           /* Update the error message on the current error MessageWidget */
+          /* The disadvantage to doing this is that we don't update the timestamp. */
           Chat.e.eMsgPollError.e.content.innerText = msg;
         }else {
           /* Set current (new) error MessageWidget */
@@ -2651,6 +2652,12 @@ window.fossil.onPageLoad(function(){
   };
   afterPollFetch.isFirstCall = true;
 
+  /**
+     Initiates, if it's not already running, a single long-poll
+     request to the /chat-poll endpoint. In the handling of that
+     response, it end up will psuedo-recursively calling itself via
+     the response-handling process.
+  */
   const poll = Chat.poll = async function f(){
     if(f.running) return;
     f.running = true;
@@ -2667,23 +2674,26 @@ window.fossil.onPageLoad(function(){
           a small amount, rather than immediately when the
           exception arrives.
 
-          This level of indirection is to work around an
-          inexplicable behavior from the F.fetch() connections:
-          timeouts are always announced in pairs of an HTTP 0 and
-          something we can unambiguously identify as a timeout. When
-          that happens, we ignore the HTTP 0. If, however, an HTTP 0
-          is seen here without an immediately-following timeout, we
-          process it.
+          This level of indirection is to work around an inexplicable
+          behavior from the F.fetch() connections: timeouts are always
+          announced in pairs of an HTTP 0 and something we can
+          unambiguously identify as a timeout. When that happens, we
+          ignore the HTTP 0. If, however, an HTTP 0 is seen here
+          without an immediately-following timeout, we process
+          it. Attempts to squelch the HTTP 0 response at their source,
+          in F.fetch(), have led to worse breakage.
 
           It's kinda like in the curses C API, where you to match
-          ALT-X by first getting an ALT event, then a separate X
-          event, but a lot less explicable.
+          ALT-X by first getting an ESC event, then an X event, but
+          this one is a lot less explicable. (It's almost certainly a
+          mis-handling bug in F.fetch(), but it has so far eluded my
+          eyes.)
         */
         ()=>{
           if( Chat.aPollErr.length ){
             if(Chat.aPollErr.length>1){
               //console.warn('aPollErr',Chat.aPollErr);
-              if(Chat.aPollErr[1].name='timeout'){
+              if(Chat.aPollErr[1].name==='timeout'){
                 /* mysterious pairs of HTTP 0 followed immediately
                    by timeout response; ignore the former in that case. */
                 Chat.aPollErr.shift();
