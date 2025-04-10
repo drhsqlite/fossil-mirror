@@ -1,5 +1,5 @@
-C Fossil\sself-identifies\sthe\scheck-in\sthat\sis\sthe\scurrent\sexecutable\swhen\nit\sis\sdisplaying\sa\stimeline\sof\sits\sown\ssource\srepository.
-D 2025-04-10T18:54:08.163
+C Avoid\sa\sslow\scase\son\sa\squery\sin\s/fdiff\swhen\sboth\sv1\sand\sv2\sevaluate\nto\szero.
+D 2025-04-10T22:42:05.711
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c b6e82531b75cc915dec31f0ecf9abca0a3a90a21bd1c87120bbc23ce408724d2
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c 9c51a07aae889bf3a83fd7ebbc215356c53062636c45812dd05794b0a90e91cc
+F src/info.c fb814e14596c622119b8ab659035ffbff627f283160d698c060796a25bcdb1d7
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7d2e4ed653a53696ac4be41ffd696bb329fda17b4585808f10c7435d3ac2a13b
-R 3cd34bb0b0d9a785324748ce7f2bdc62
+P 95c924411910f1d6eed0a5bd1ac095ddc233225b6d510e2f7338a73c6b80681e
+R 30713b96907a5c4afc484cfb30e9cb2f
 U drh
-Z a66b7afd5741a78d27c1a482481510ee
+Z 30ba7874ea0ab653bb9fcd2bf50dc6be
 # Remove this line to create a well-formed Fossil manifest.
