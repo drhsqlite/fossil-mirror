@@ -760,12 +760,27 @@ window.fossil.onPageLoad(function(){
        the .message-row element. Returns true if it removes an element,
        else false.
     */
-    cs.deleteMessageElem = function(id){
+    cs.deleteMessageElem = function(id, silent){
       var e;
+      //console.warn("Chat.deleteMessageElem",id,silent);
       if(id instanceof HTMLElement){
         e = id;
         id = e.dataset.msgid;
-      }else{
+        delete e.dataset.msgid;
+        if( e?.dataset?.alsoRemove ){
+          const xId = e.dataset.alsoRemove;
+          delete e.dataset.alsoRemove;
+          this.deleteMessageElem( xId );
+        }
+      }else if(e instanceof Chat.MessageWidget) {
+        if( this.e.eMsgPollError === e.body ){
+          this.e.eMsgPollError = undefined;
+        }
+        if(e.e.body){
+          this.deleteMessageElem(e.e.body);
+        }
+        return;
+      } else{
         e = this.getMessageElemById(id);
       }
       if(e && id){
@@ -773,7 +788,9 @@ window.fossil.onPageLoad(function(){
         if(e===this.e.newestMessage){
           this.fetchLastMessageElem();
         }
-        F.toast.message("Deleted message "+id+".");
+        if( !silent ){
+          F.toast.message("Deleted message "+id+".");
+        }
       }
       return !!e;
     };
@@ -1109,6 +1126,7 @@ window.fossil.onPageLoad(function(){
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
       },
+      //remove: function(silent){Chat.deleteMessageElem(this, silent);},
       setMessage: function(m){
         const ds = this.e.body.dataset;
         ds.timestamp = m.mtime;
@@ -1286,8 +1304,17 @@ window.fossil.onPageLoad(function(){
               const self = this;
               btnDeleteLocal.addEventListener('click', function(){
                 self.hide();
-                Chat.deleteMessageElem(eMsg);
+                Chat.deleteMessageElem(eMsg)
               });
+              if( eMsg.classList.contains('poller-connection') ){
+                const btnDeletePoll = D.button("Delete poller messages?");
+                D.append(toolbar, btnDeletePoll);
+                btnDeletePoll.addEventListener('click', function(){
+                  self.hide();
+                  Chat.e.viewMessages.querySelectorAll('.message-widget.poller-connection')
+                    .forEach(e=>Chat.deleteMessageElem(e, true));
+                });
+              }
               if(Chat.userMayDelete(eMsg)){
                 const btnDeleteGlobal = D.button("Delete globally");
                 D.append(toolbar, btnDeleteGlobal);
@@ -1715,11 +1742,12 @@ window.fossil.onPageLoad(function(){
     }
     Chat.timer.resetDelay();
     if( Chat.e.eMsgPollError ) {
+      const oldErrMsg = Chat.e.eMsgPollError;
       Chat.e.eMsgPollError = undefined;
       if( showMsg ){
-        Chat.reportReconnection(
-          "Poller connection restored."
-        );
+        const m = Chat.reportReconnection("Poller connection restored.");
+        m.e.body.dataset.alsoRemove = oldErrMsg?.e?.body?.dataset?.msgid;
+        D.addClass(m.e.body,'poller-connection');
       }
     }
     setTimeout( Chat.poll, 0 );
@@ -2612,6 +2640,7 @@ window.fossil.onPageLoad(function(){
           /* Set current (new) error MessageWidget */
           Chat.e.eMsgPollError = Chat.reportErrorAsMessage(msg);
           //Chat.playNewMessageSound();// browser complains b/c this wasn't via human interaction
+          D.addClass(Chat.e.eMsgPollError.e.body,'poller-connection');
         }
         Chat.timer.tidPoller = setTimeout(()=>{
           poll();
@@ -2683,9 +2712,10 @@ window.fossil.onPageLoad(function(){
     }
     let nErr = 0;
     F.fetch("chat-poll",{
-      timeout: 1
-        ? 420 * 1000/*FIXME: get the value from the server*/
-        : 15000,
+      timeout: window.location.hostname.match(
+        "localhost" /*presumably local dev mode*/
+      ) ? 15000
+        : 420 * 1000/*FIXME: get the value from the server*/,
       urlParams:{
         name: Chat.mxMsg
       },
