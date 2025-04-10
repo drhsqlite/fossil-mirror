@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\swith\sthe\slatest\strunk\scheck-in.
-D 2025-04-10T10:35:12.315
+C Improved\sspacing\slayout\son\sthe\srepolist\stable.
+D 2025-04-10T12:28:21.958
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -519,7 +519,7 @@ F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c a9aeacaa515f756f76b0d94c3971121093848145d0d109be511616e74372a50a
-F src/repolist.c 9d2140f00b28f000583e085b28072117966d25991205f91000664e3371053b5b
+F src/repolist.c 2e9dcd1986fde307799a897db88b3e53e27b1cfb0ac98880af762284f39e800d
 F src/report.c eca541161c4fd4a4012219286f9107ec7b2f6a80eff11477df8af79c574f173b
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d452c5cebc4df35ef5f92e2e3ac4b5f16d5013a06b7b272c9afa11ce934610ee
-R eabbcae08dbf8f224f3698057ddc4226
+P e69720eae3cf0b4cd5bd934b7e6f0d8702243605924c6c95aa4d7854b6b0bc7e
+R 4780a494694e4d77aea440cb40023b46
 U drh
-Z d45f206ec46cf5a8c5bd8f2556d071c6
+Z 8c8bad469c373f276e0eeb8e1203f2b8
 # Remove this line to create a well-formed Fossil manifest.
