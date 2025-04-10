@@ -2880,6 +2880,9 @@ int Th_SetResultInt(Th_Interp *interp, int iVal){
   char *z = &zBuf[32];
 
   if( iVal<0 ){
+    if( iVal==(-2147483648) ){
+      return Th_SetResult(interp, "-2147483648", -1);
+    }
     isNegative = 1;
     uVal = iVal * -1;
   }
