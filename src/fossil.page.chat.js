@@ -2668,7 +2668,7 @@ window.fossil.onPageLoad(function(){
         ()=>{
           if( Chat.aPollErr.length ){
             if(Chat.aPollErr.length>1){
-              console.warn('aPollErr',Chat.aPollErr);
+              //console.warn('aPollErr',Chat.aPollErr);
               if(Chat.aPollErr[1].name='timeout'){
                 /* mysterious pairs of HTTP 0 followed immediately
                    by timeout response; ignore the former in that case. */
@@ -2683,8 +2683,9 @@ window.fossil.onPageLoad(function(){
     }
     let nErr = 0;
     F.fetch("chat-poll",{
-      timeout: 420 * 1000/*FIXME: get the value from the server*/,
-      //15000,
+      timeout: 1
+        ? 420 * 1000/*FIXME: get the value from the server*/
+        : 15000,
       urlParams:{
         name: Chat.mxMsg
       },

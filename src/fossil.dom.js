@@ -19,12 +19,12 @@
       };
     },
     remove: function(e){
-      if(e.forEach){
+      if(e?.forEach){
         e.forEach(
-          (x)=>x.parentNode.removeChild(x)
+          (x)=>x?.parentNode?.removeChild(x)
         );
-      }else if(e.parentNode){
-        e.parentNode.removeChild(e);
+      }else{
+        e?.parentNode?.removeChild(e);
       }
       return e;
     },
