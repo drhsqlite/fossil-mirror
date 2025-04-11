@@ -1,5 +1,5 @@
-C Replace\san\sa\srecurrent\ssetInterval()\stimer\sin\s/chat's\spoll-connection\serror\shandler\swith\sa\ssingle-fire-as-needed\ssetTimeout().\sThis\ssaves\ssome\sCPU\sand\sallows\s/chat\sto\srespond\smore\squickly\sto\snon-timeout\sHTTP\serrors.
-D 2025-04-11T19:35:17.659
+C In\s/chat-generated\snotifications\s(typically\serror\smessages),\sadd\sa\sbutton\sto\sthe\sdrop-down\soptions\sto\sdelete\sall\snotifications.\sThat\sreplaces\sthe\s'delete\sall\spoller\snotifications'\sbutton\swhich\spreviously\sonly\sshowed\sup\sonly\son\sthose\smessage\stypes.\sAdd\sa\smention\sof\sthe\sbackoff\stimer\sto\schat.md.
+D 2025-04-11T20:29:53.951
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -442,7 +442,7 @@ F src/fossil.dom.js 1603342d43b9fc7a5049cf5812183dc3e1c138585126a470d5bb8eba45c0
 F src/fossil.fetch.js c47e36f47c7bd2bd6bf2542be050926f45b1157ff2fbff75e7ba1120a9a27595
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 29ee3a7a403c3fb103117890eb556106bbc19843d62ba93278da6ee9137eb062
+F src/fossil.page.chat.js 3ccf6d47eedb247fb381f0cab07e9f8b7e97bb6d185389524bb8f0a14cb78615
 F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f230c108063bdcc5
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 354e405e2813de4bfeec16d12a4dbfb370b2fa89f25325f245c51c194115adbf
@@ -791,7 +791,7 @@ F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfd
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 080e44975a142db5bfd34ba9cbae57e26e2f3ca26aaf5a27537668802986f028
 F www/changes.wiki 85fd4591e8653bcb1d48cd33ebf4d1312d706b5118093d383ae40ad81a1ce09f
-F www/chat.md 40c77ba496ff2ffdd4925ce00c5c0ba2c468d320f8dc3f97c7709e8cc859688e
+F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
 F www/childprojects.wiki 7ae960b153c84280c72de5ee172c1beb823f07b65ea00756a4a62f54bdec64f7
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e8bbaf924f97764e3effd88f4d16dd79b381dc855deba5ecc5bf454dbfad7c63
-R 5e4bc94cfb53855b4c6eecab810ff0d9
+P 1bfb06c7524b132a4458d014cc1dace02198873483f960e9b79f9f30ecbefe33
+R 9569201c68da5139f3fdd2ac3996fc5c
 U stephan
-Z 0ab9aceab5048369d8b76a492707a23c
+Z 423451152645604971d0c3dcf47663c9
 # Remove this line to create a well-formed Fossil manifest.

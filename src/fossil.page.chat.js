@@ -1328,13 +1328,14 @@ window.fossil.onPageLoad(function(){
                 self.hide();
                 Chat.deleteMessageElem(eMsg)
               });
-              if( eMsg.classList.contains('poller-connection') ){
-                const btnDeletePoll = D.button("Delete poller messages?");
+              if( eMsg.classList.contains('notification') ){
+                const btnDeletePoll = D.button("Delete /chat notifications?");
                 D.append(toolbar, btnDeletePoll);
                 btnDeletePoll.addEventListener('click', function(){
                   self.hide();
-                  Chat.e.viewMessages.querySelectorAll('.message-widget.poller-connection')
-                    .forEach(e=>Chat.deleteMessageElem(e, true));
+                  Chat.e.viewMessages.querySelectorAll(
+                    '.message-widget.notification:not(.resend-message)'
+                  ).forEach(e=>Chat.deleteMessageElem(e, true));
                 });
               }
               if(Chat.userMayDelete(eMsg)){
@@ -1648,7 +1649,7 @@ window.fossil.onPageLoad(function(){
       }
     };
     Chat.e.inputFile.addEventListener('change', function(ev){
-      updateDropZoneContent(this.files && this.files[0] ? this.files[0] : undefined)
+      updateDropZoneContent(this?.files[0])
     });
     /* Handle image paste from clipboard. TODO: figure out how we can
        paste non-image binary data as if it had been selected via the
@@ -1728,6 +1729,7 @@ window.fossil.onPageLoad(function(){
     if(state.msg){
       const ta = D.textarea();
       ta.value = state.msg;
+      ta.setAttribute('readonly','true');
       D.append(w,ta);
     }
     if(state.blob){
@@ -1746,7 +1748,7 @@ window.fossil.onPageLoad(function(){
       const theMsg = findMessageWidgetParent(w);
       if(theMsg) Chat.deleteMessageElem(theMsg);
     }));
-    Chat.reportErrorAsMessage(w);
+    D.addClass(Chat.reportErrorAsMessage(w).e.body, "resend-message");
   };
 
   /* Assume the connection has been established, reset the
@@ -1757,7 +1759,8 @@ window.fossil.onPageLoad(function(){
   const reportConnectionOkay = function(dbgContext, showMsg = true){
     if(Chat.beVerbose){
       console.warn('reportConnectionOkay', dbgContext,
-                   'Chat.e.pollErrorMarker =',Chat.e.pollErrorMarker,
+                   'Chat.e.pollErrorMarker classes =',
+                   Chat.e.pollErrorMarker.classList,
                    'Chat.timer.tidReconnect =',Chat.timer.tidReconnect,
                    'Chat.timer =',Chat.timer);
     }
