@@ -74,6 +74,7 @@
 # include <sys/socket.h>
 # include <sys/un.h>
 # include <netinet/in.h>
+# include <netdb.h>
 # include <arpa/inet.h>
 # include <sys/times.h>
 # include <sys/time.h>
@@ -2078,6 +2079,17 @@ static char *extract_token(char *zInput, char **zLeftOver){
 }
 
 /*
+** All possible forms of an IP address.  Needed to work around GCC strict
+** aliasing rules.
+*/
+typedef union {
+  struct sockaddr sa;              /* Abstract superclass */
+  struct sockaddr_in sa4;          /* IPv4 */
+  struct sockaddr_in6 sa6;         /* IPv6 */
+  struct sockaddr_storage sas;     /* Should be the maximum of the above 3 */
+} address;
+
+/*
 ** Determine the IP address on the other side of a connection.
 ** Return a pointer to a string.  Or return 0 if unable.
 **
@@ -2085,22 +2097,17 @@ static char *extract_token(char *zInput, char **zLeftOver){
 ** each call.
 */
 char *cgi_remote_ip(int fd){
-#if 0
-  static char zIp[100];
-  struct sockaddr_in6 addr;
-  socklen_t sz = sizeof(addr);
-  if( getpeername(fd, &addr, &sz) ) return 0;
-  zIp[0] = 0;
-  if( inet_ntop(AF_INET6, &addr, zIp, sizeof(zIp))==0 ){
+  address remoteAddr;
+  socklen_t size = sizeof(remoteAddr);
+  static char zHost[NI_MAXHOST];
+  if( getpeername(0, &remoteAddr.sa, &size) ){
     return 0;
   }
-  return zIp;
-#else
-  struct sockaddr_in remoteName;
-  socklen_t size = sizeof(struct sockaddr_in);
-  if( getpeername(fd, (struct sockaddr*)&remoteName, &size) ) return 0;
-  return inet_ntoa(remoteName.sin_addr);
-#endif
+  if( getnameinfo(&remoteAddr.sa, size, zHost, sizeof(zHost), 0, 0,
+                  NI_NUMERICHOST) ){
+    return 0;
+  }
+  return zHost;
 }
 
 /*
@@ -2544,7 +2551,7 @@ int cgi_http_server(
   int child;                   /* PID of the child process */
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
-  struct sockaddr_in inaddr;   /* The socket address */
+  struct sockaddr_in6 inaddr;  /* The socket address */
   struct sockaddr_un uxaddr;   /* The address for unix-domain sockets */
   int opt = 1;                 /* setsockopt flag */
   int rc;                      /* Result code from system calls */
@@ -2585,19 +2592,18 @@ int cgi_http_server(
     }else{
       /* Initialize a TCP/IP socket on port iPort */
       memset(&inaddr, 0, sizeof(inaddr));
-      inaddr.sin_family = AF_INET;
+      inaddr.sin6_family = AF_INET6;
       if( zIpAddr ){
-        inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
-        if( inaddr.sin_addr.s_addr == INADDR_NONE ){
+        if( inet_pton(AF_INET6, zIpAddr, &inaddr.sin6_addr)==0 ){
           fossil_fatal("not a valid IP address: %s", zIpAddr);
         }
       }else if( flags & HTTP_SERVER_LOCALHOST ){
-        inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        inaddr.sin6_addr = in6addr_loopback;
       }else{
-        inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        inaddr.sin6_addr = in6addr_any;
       }
-      inaddr.sin_port = htons(iPort);
-      listener = socket(AF_INET, SOCK_STREAM, 0);
+      inaddr.sin6_port = htons(iPort);
+      listener = socket(AF_INET6, SOCK_STREAM, 0);
       if( listener<0 ){
         iPort++;
         continue;
@@ -2707,6 +2713,7 @@ int cgi_http_server(
             if( fd!=2 ) nErr++;
           }
           close(connection);
+          close(listener);
           g.nPendingRequest = nchildren+1;
           g.nRequest = nRequest+1;
           return nErr;
