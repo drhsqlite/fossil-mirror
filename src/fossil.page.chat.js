@@ -2734,38 +2734,34 @@ window.fossil.onPageLoad(function(){
       Chat.pendingOnError = undefined;
       Chat.ajaxStart();
       Chat.e.viewMessages.classList.add('loading');
-      if(1) setInterval(
-        /*
-          We manager onerror() results in poll() using a
-          stack of error objects and we delay their handling by
-          a small amount, rather than immediately when the
-          exception arrives.
+      /*
+        We manager onerror() results in poll() in a roundabout
+        manner: when an onerror() arrives, we stash it aside
+        for a moment before processing it.
 
-          This level of indirection is necessary to be able to
-          unambiguously identify client-timeout-specific polling
-          errors from other errors. Timeouts are always announced in
-          pairs of an HTTP 0 and something we can unambiguously
-          identify as a timeout. When we receive an HTTP 0 we put it
-          into this queue. If an ontimeout() call arrives before this
-          error is handled, this error is removed from the stack.  If,
-          however, an HTTP 0 is seen in this stack without an
-          accompanying timeout, we handle it from here.
+        This level of indirection is necessary to be able to
+        unambiguously identify client-timeout-specific polling errors
+        from other errors. Timeouts are always announced in pairs of
+        an HTTP 0 and something we can unambiguously identify as a
+        timeout (in that order). When we receive an HTTP error we put
+        it into this queue.  If an ontimeout() call arrives before
+        this error is handled, this error is ignored.  If, however, an
+        HTTP error is seen without an accompanying timeout, we handle
+        it from here.
 
-          It's kinda like in the curses C API, where you to match
-          ALT-X by first getting an ESC event, then an X event, but
-          this one is a lot less explicable. (It's almost certainly a
-          mis-handling bug in F.fetch(), but it has so far eluded my
-          eyes.)
-        */
-        ()=>{
-          if( Chat.pendingOnError ){
-            const x = Chat.pendingOnError;
-            Chat.pendingOnError = undefined;
-            afterPollFetch(x);
-          }
-        },
-        1000
-      );
+        It's kinda like in the curses C API, where you to match
+        ALT-X by first getting an ESC event, then an X event, but
+        this one is a lot less explicable. (It's almost certainly a
+        mis-handling bug in F.fetch(), but it has so far eluded my
+        eyes.)
+      */
+      f.delayPendingOnError = function(err){
+        if( Chat.pendingOnError ){
+          const x = Chat.pendingOnError;
+          Chat.pendingOnError = undefined;
+          afterPollFetch(x);
+        }
+      };
     }
     let nErr = 0;
     F.fetch("chat-poll",{
@@ -2789,6 +2785,7 @@ window.fossil.onPageLoad(function(){
           console.error("poll.onerror:",err.name,err.status,JSON.stringify(err));
         }
         Chat.pendingOnError = err;
+        setTimeout(f.delayPendingOnError, 250);
       },
       onload:function(y){
         reportConnectionOkay('poll.onload', true);
