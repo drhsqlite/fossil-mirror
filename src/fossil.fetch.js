@@ -29,20 +29,33 @@ const fossil = namespace;
 
    - onerror: callback(Error object) (default = output error message
    to console.error() and fossil.error()). Triggered if the request
-   generates any response other than HTTP 200, suffers a connection
-   error or timeout while awaiting a response, or if the onload()
-   handler throws an exception. In the context of the callback, the
-   options object is "this". Note that this function is intended to be
-   used solely for error reporting, not error recovery. Because
-   onerror() may be called if onload() throws, it is up to the caller
-   to ensure that their onerror() callback references only state which
-   is valid in such a case. Special cases for the Error object: (1) If
-   the connection times out via XHR.ontimeout(), the error object will
-   have its (.name='timeout', .status=XHR.status) set. (2) Else if it
-   gets a non 2xx HTTP code then it will have
-   (.name='http',.status=XHR.status). (3) If it was proxied through a
-   JSON-format exception on the server, it will have
-   (.name='json',status=XHR.status).
+   generates any response other than HTTP 200, or if the beforesend()
+   or onload() handler throws an exception. In the context of the
+   callback, the options object is "this". This function is intended
+   to be used solely for error reporting, not error recovery. Special
+   cases for the Error object:
+
+       1. Timeouts unfortunately show up as a series of 2 events: an
+       HTTP 0 followed immediately by an XHR.ontimeout(). The former
+       cannot(?) be unambiguously identified as the trigger for the
+       pending timeout, so we have no option but to pass it on as-is
+       instead of flagging it as a timeout response. The latter will
+       trigger the client-provided ontimeout() if it's available (see
+       below), else it calls the onerror() callback. An error object
+       passed to ontimeout() by fetch() will have (.name='timeout',
+       .status=XHR.status).
+
+       2. Else if the response contains a JSON-format exception on the
+       server, it will have (.name='json-error',
+       status=XHR.status). Any JSON-format result object which has a
+       property named "error" is considered to be a server-generated
+       error.
+
+       3. Else if it gets a non 2xx HTTP code then it will have
+       (.name='http',.status=XHR.status).
+
+       4. If onerror() throws, the exception is suppressed but may
+       generate a console error message.
 
    - ontimeout: callback(Error object). If set, timeout errors are
    reported here, else they are reported through onerror().
@@ -50,11 +63,13 @@ const fossil = namespace;
    onreadystatechange() and an ontimeout(), in that order.  From the
    former, however, we cannot unambiguously identify the error as
    having been caused by a timeout, so clients which set ontimeout()
-   will get _two_ callback calls: one with noting HTTP 0 response
+   will get _two_ callback calls: one with with an HTTP error response
    followed immediately by an ontimeout() response. Error objects
-   thown passed to this will have (.name='timeout') and
-   (.status=xhr.HttpStatus).  In the context of the callback, the
-   options object is "this",
+   passed to this will have (.name='timeout', .status=xhr.HttpStatus).
+   In the context of the callback, the options object is "this", Like
+   onerror(), any exceptions thrown by the ontimeout() handler are
+   suppressed, but may generate a console error message. The onerror()
+   handler is _not_ called in this case.
 
    - method: 'POST' | 'GET' (default = 'GET'). CASE SENSITIVE!
 
@@ -66,7 +81,8 @@ const fossil = namespace;
    object/array is converted to JSON, the contentType option is
    automatically set to 'application/json', and if JSON.stringify() of
    that value fails then the exception is propagated to this
-   function's caller.
+   function's caller. (beforesend(), aftersend(), and onerror() are
+   NOT triggered in that case.)
 
    - contentType: Optional request content type when POSTing. Ignored
    if the method is not 'POST'.
@@ -78,6 +94,9 @@ const fossil = namespace;
    before passing it on to the onload() callback. If parsing of such
    an object fails, the onload callback is not called, and the
    onerror() callback is passed the exception from the parsing error.
+   If the parsed JSON object has an "error" property, it is assumed to
+   be an error string, which is used to populate a new Error object,
+   which will gets (.name="json") set on it.
 
    - urlParams: string|object. If a string, it is assumed to be a
    URI-encoded list of params in the form "key1=val1&key2=val2...",
@@ -93,7 +112,7 @@ const fossil = namespace;
    header values. When a map is passed on, all of its keys are
    lower-cased. When a given header is requested and that header is
    set multiple times, their values are (per the XHR docs)
-   concatenated together with ", " between them.
+   concatenated together with "," between them.
 
    - beforesend/aftersend: optional callbacks which are called
    without arguments immediately before the request is submitted
@@ -153,7 +172,7 @@ fossil.fetch = function f(uri,opt){
     };
   }
   if('/'===uri[0]) uri = uri.substr(1);
-  if(!opt) opt = {};
+  if(!opt) opt = {}/* should arguably be Object.create(null) */;
   else if('function'===typeof opt) opt={onload:opt};
   if(!opt.onload) opt.onload = f.onload;
   if(!opt.onerror) opt.onerror = f.onerror;
@@ -190,10 +209,24 @@ fossil.fetch = function f(uri,opt){
     err.status = x.status;
     err.name = 'timeout';
     //console.warn("fetch.ontimeout",ev);
-    (opt.ontimeout || opt.onerror)(err);
+    try{
+      (opt.ontimeout || opt.onerror)(err);
+    }catch(e){
+      /*ignore*/
+      console.error("fossil.fetch()'s ontimeout() handler threw",e);
+    }
+  };
+  /* Ensure that if onerror() throws, it's ignored. */
+  const origOnError = opt.onerror;
+  opt.onerror = (arg)=>{
+    try{ origOnError.call(this, arg) }
+    catch(e){
+      /*ignored*/
+      console.error("fossil.fetch()'s onerror() threw",e);
+    }
   };
   x.onreadystatechange = function(ev){
-    //console.warn("onreadystatechange", ev.target);
+    //console.warn("onreadystatechange", x.readyState, ev.target.responseText);
     if(XMLHttpRequest.DONE !== x.readyState) return;
     try{opt.aftersend()}catch(e){/*ignore*/}
     if(false && 0===x.status){
@@ -251,20 +284,19 @@ fossil.fetch = function f(uri,opt){
                     ? JSON.parse(x.response) : x.response];
       if(head) args.push(head);
       opt.onload.apply(opt, args);
-    }catch(e){
-      opt.onerror(e);
+    }catch(err){
+      opt.onerror(err);
     }
-  };
+  }/*onreadystatechange()*/;
   try{opt.beforesend()}
-  catch(e){
-    opt.onerror(e);
+  catch(err){
+    opt.onerror(err);
     return;
   }
   x.open(opt.method||'GET', url.join(''), true);
   if('POST'===opt.method && 'string'===typeof opt.contentType){
     x.setRequestHeader('Content-Type',opt.contentType);
   }
-  x.hasExplicitTimeout = !!(+opt.timeout);
   x.timeout = +opt.timeout || f.timeout;
   if(undefined!==payload) x.send(payload);
   else x.send();
