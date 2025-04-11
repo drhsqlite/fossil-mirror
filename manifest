@@ -1,5 +1,5 @@
-C In\s/chat-generated\snotifications\s(typically\serror\smessages),\sadd\sa\sbutton\sto\sthe\sdrop-down\soptions\sto\sdelete\sall\snotifications.\sThat\sreplaces\sthe\s'delete\sall\spoller\snotifications'\sbutton\swhich\spreviously\sonly\sshowed\sup\sonly\son\sthose\smessage\stypes.\sAdd\sa\smention\sof\sthe\sbackoff\stimer\sto\schat.md.
-D 2025-04-11T20:29:53.951
+C Fix\ssome\sissue\swith\sthe\stimeline\scommand\swhen\susing\sthe\s"after"\skeyword.
+D 2025-04-11T21:47:02.135
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -574,7 +574,7 @@ F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
 F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
-F src/timeline.c fa46d326e91bce5696df7711182e1985c06d7d0aed43bd44fa1fc4e77d574bf0
+F src/timeline.c 03dbf56d7a31cf77d8f1ff7eb277a9d747a5b5c61578dd94db005467da0b6122
 F src/tkt.c 5b6b4cb5f8fe3f2fb398c392c6f9fd28d151d266a378ec7bfebe4bbd9522117d
 F src/tktsetup.c a5d74a536ad20387d7d561a594dbeadc4b684988857f0d9389e944900a4f1260
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1bfb06c7524b132a4458d014cc1dace02198873483f960e9b79f9f30ecbefe33
-R 9569201c68da5139f3fdd2ac3996fc5c
-U stephan
-Z 423451152645604971d0c3dcf47663c9
+P da1c351b6ef56f36a6c43fd7f0bd8d32ae69e94e974635aef5ba2956401ec8d7 3144c3bea491c00ec0590f44cb1547302380b7cc58891cf1a4f49fe43e0a4051
+R e0efa878c8c4ffa6b2e544ebb36b50bf
+U mgagnon
+Z 4b678972ec45fda6e9cf740304210554
 # Remove this line to create a well-formed Fossil manifest.
