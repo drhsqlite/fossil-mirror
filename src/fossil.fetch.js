@@ -37,12 +37,24 @@ const fossil = namespace;
    onerror() may be called if onload() throws, it is up to the caller
    to ensure that their onerror() callback references only state which
    is valid in such a case. Special cases for the Error object: (1) If
-   the connection times out, the error object will have its
-   (.name='timeout') and its (.status=XHR.status) set. (2) If it gets
-   a non 2xx HTTP code then it will have
+   the connection times out via XHR.ontimeout(), the error object will
+   have its (.name='timeout', .status=XHR.status) set. (2) Else if it
+   gets a non 2xx HTTP code then it will have
    (.name='http',.status=XHR.status). (3) If it was proxied through a
    JSON-format exception on the server, it will have
    (.name='json',status=XHR.status).
+
+   - ontimeout: callback(Error object). If set, timeout errors are
+   reported here, else they are reported through onerror().
+   Unfortunately, XHR fires two events for a timeout: an
+   onreadystatechange() and an ontimeout(), in that order.  From the
+   former, however, we cannot unambiguously identify the error as
+   having been caused by a timeout, so clients which set ontimeout()
+   will get _two_ callback calls: one with noting HTTP 0 response
+   followed immediately by an ontimeout() response. Error objects
+   thown passed to this will have (.name='timeout') and
+   (.status=xhr.HttpStatus).  In the context of the callback, the
+   options object is "this",
 
    - method: 'POST' | 'GET' (default = 'GET'). CASE SENSITIVE!
 
@@ -172,14 +184,16 @@ fossil.fetch = function f(uri,opt){
   }else{
     x.responseType = opt.responseType||'text';
   }
-  x.ontimeout = function(){
+  x.ontimeout = function(ev){
     try{opt.aftersend()}catch(e){/*ignore*/}
     const err = new Error("XHR timeout of "+x.timeout+"ms expired.");
     err.status = x.status;
     err.name = 'timeout';
-    opt.onerror(err);
+    //console.warn("fetch.ontimeout",ev);
+    (opt.ontimeout || opt.onerror)(err);
   };
-  x.onreadystatechange = function(){
+  x.onreadystatechange = function(ev){
+    //console.warn("onreadystatechange", ev.target);
     if(XMLHttpRequest.DONE !== x.readyState) return;
     try{opt.aftersend()}catch(e){/*ignore*/}
     if(false && 0===x.status){
@@ -199,6 +213,7 @@ fossil.fetch = function f(uri,opt){
       return;
     }
     if(200!==x.status){
+      //console.warn("Error response",ev.target);
       let err;
       try{
         const j = JSON.parse(x.response);
@@ -208,6 +223,10 @@ fossil.fetch = function f(uri,opt){
         }
       }catch(ex){/*ignore*/}
       if( !err ){
+        /* We can't tell from here whether this was a timeout-capable
+           request which timed out on our end or was one which is a
+           genuine error. We also don't know whether the server timed
+           out the connection before we did. */
         err = new Error("HTTP response status "+x.status+".")
         err.name = 'http';
       }
@@ -245,6 +264,7 @@ fossil.fetch = function f(uri,opt){
   if('POST'===opt.method && 'string'===typeof opt.contentType){
     x.setRequestHeader('Content-Type',opt.contentType);
   }
+  x.hasExplicitTimeout = !!(+opt.timeout);
   x.timeout = +opt.timeout || f.timeout;
   if(undefined!==payload) x.send(payload);
   else x.send();
