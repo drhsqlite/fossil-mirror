@@ -215,8 +215,13 @@ body.chat #chat-messages-wrapper.loading > * {
   /* An attempt at reducing flicker when loading lots of messages. */
   visibility: hidden;
 }
-body.chat #chat-messages-wrapper.connection-error {
-  border-bottom: thin dotted red;
+
+/* Provide a visual cue when polling is offline. */
+body.chat.connection-error #chat-input-line-wrapper {
+  border-top: medium dotted red;
+}
+body.chat.fossil-dark-style.connection-error #chat-input-line-wrapper {
+  border-color: yellow;
 }
 
 body.chat div.content {

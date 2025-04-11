@@ -161,7 +161,7 @@ window.fossil.onPageLoad(function(){
         activeUserListWrapper: E1('#chat-user-list-wrapper'),
         activeUserList: E1('#chat-user-list'),
         eMsgPollError: undefined /* current connection error MessageMidget */,
-        pollErrorMarker: undefined /* element to toggle 'connection-error' CSS class on */
+        pollErrorMarker: document.body /* element to toggle 'connection-error' CSS class on */
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -208,8 +208,6 @@ window.fossil.onPageLoad(function(){
         errCount: 0 /* Current poller connection error count */,
         minErrForNotify: 4 /* Don't warn for connection errors until this
                               many have occurred */,
-        skipErrDelay: 3500 /* time to wait/retry for the first minErrForNotify'th
-                              connection errors. */,
         randomInterval: function(factor){
           return Math.floor(Math.random() * factor);
         },
@@ -678,7 +676,6 @@ window.fossil.onPageLoad(function(){
       cs.$browserHasPlaintextOnly = false;
       D.attr(cs.e.inputX,'contenteditable','true');
     }
-    cs.e.pollErrorMarker = cs.e.viewMessages;
     cs.animate.$disabled = true;
     F.fetch.beforesend = ()=>cs.ajaxStart();
     F.fetch.aftersend = ()=>cs.ajaxEnd();
@@ -2657,7 +2654,7 @@ window.fossil.onPageLoad(function(){
           if(Chat.beVerbose){
             console.warn("Ignoring polling error #", Chat.timer.errCount);
           }
-          delay = Chat.timer.resetDelay(Chat.timer.skipErrDelay);
+          delay = Chat.timer.resetDelay(Chat.timer.minDelay);
         } else {
           delay = Chat.timer.incrDelay();
           //console.warn("afterPollFetch Chat.e.eMsgPollError",Chat.e.eMsgPollError);
