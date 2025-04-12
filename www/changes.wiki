@@ -133,6 +133,9 @@
      which alerts subscribers when an admin creates a new user or
      when a user's permissions change.
   *  Show project description on repository list.
+  *  Make [/help?cmd=/chat|/chat] better-behaved during server outages, reducing
+     the frequency of reconnection attempts over time and providing feedback
+     to the user when the connection is down.
   *  Diverse minor fixes and additions.
 
 
