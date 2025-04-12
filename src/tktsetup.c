@@ -522,10 +522,14 @@ static const char zDefaultView[] =
 @ <td colspan="3" valign="top" class="tktDspValue">
 @ <th1>
 @ set versionlink ""
-@ query "SELECT count(*) AS match FROM tag WHERE tagname = 'sym-$foundin'" {
-@   if {$match} {set versionlink "/timeline?t=$foundin"}}
-@ query "SELECT count(*) AS match FROM blob WHERE uuid LIKE '$foundin%'" {
-@   if {$match} {set versionlink "/info/$foundin"}}
+@ query {SELECT count(*) AS match FROM tag
+@        WHERE tagname=concat('sym-',$foundin)} {
+@   if {$match} {set versionlink "/timeline?t=$foundin"}
+@ }
+@ set pattern $foundin%
+@ query {SELECT count(*) AS match FROM blob WHERE uuid GLOB $pattern} {
+@   if {$match} {set versionlink "/info/$foundin"}
+@ }
 @ if {$versionlink eq ""} {
 @   html "$foundin"
 @ } else {

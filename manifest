@@ -1,5 +1,5 @@
-C fix\slines\s>80\schars
-D 2025-04-12T13:41:18.588
+C Fix\sSQL\sInjection\svulnerability\sintroduced\sby\sthe\snew\scode\sin\sthis\nbranch.\s\sThere\sstill\sexists\sXSS\svulnerabilities,\sbut\sthis\sis\sa\sfirst\nstep.
+D 2025-04-12T13:53:39.668
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -576,7 +576,7 @@ F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 54037c01cf6e7e1a5b12cfe2efe73558df548064a891101cf3d11ce021f0ca64
 F src/tkt.c 64636281228605780180088d0d6962c47de37962accf16096f99971bb4eace93
-F src/tktsetup.c 12ce5cd6493efecdf8f1745ef231a0defa7c21022e3140f23fb4d4f33c4c3b5e
+F src/tktsetup.c cf5fa5e07f09c5b94870be0fb58060fdd72b40554a8e5e6d29ea4c63aea1487f
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b48a054edda1a17f69c17984c6f409ab0e6a4f3862697fc9048e0fb000080d6
-R 5c871532abe0368e0a589836fa89a3b1
-U jkosche
-Z b4a13928dfd50534194578ae0d7cd292
+P 7b41c73e678ca0c17cd013dcfb71e4ec1047d8abbf820d443b24bc2a1abe1263
+R 453489de394abd91c579de65c253b56b
+U drh
+Z 0c89dd4677e5b4d7f95a7c40bcae124b
 # Remove this line to create a well-formed Fossil manifest.
