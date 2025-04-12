@@ -1,5 +1,5 @@
-C url\squoting\sto\savoid\sXSS
-D 2025-04-12T14:54:26.523
+C only\sallow\sa\scertain\swhitelist\sof\scharacters\sfor\slinked\stags\sand\shashes\sto\sguard\sagainst\sinjection
+D 2025-04-12T16:31:22.334
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -576,7 +576,7 @@ F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 54037c01cf6e7e1a5b12cfe2efe73558df548064a891101cf3d11ce021f0ca64
 F src/tkt.c 64636281228605780180088d0d6962c47de37962accf16096f99971bb4eace93
-F src/tktsetup.c 7e0bec8773521e518a5930956804f73b93a1303a21fd5d1db3570df960a0c43d
+F src/tktsetup.c bd1c48b867b7dd6cb89ccd4272b79fa26ba7e0d9024d33ec270f694df044c303
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ffb5a4671577ec0747d9bc7c897b0acea813bd7f9fc07d683309cdd15fdb8645
-R 9594006b222efed8a52c791de75221c2
+P 27f6238ce7b753697ff0d531a0f1ea1590b1e6601484813cb5e855fe801d53ab
+R 2e6a9b9f3f3e66db68ecd33b74941314
 U jkosche
-Z 3238af59bb0571646c169de6cf3553a4
+Z 19e1cf0358d003ffc11e407fcd93f30d
 # Remove this line to create a well-formed Fossil manifest.
