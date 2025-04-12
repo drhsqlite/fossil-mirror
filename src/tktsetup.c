@@ -565,7 +565,8 @@ static const char zDefaultView[] =
 @   if {$seenRow} {
 @     html "<hr>\n"
 @   } else {
-@     html "<tr><td class='tktDspLabel' style='text-align:left'>User Comments:</td></tr>\n"
+@     html "<tr><td class='tktDspLabel' style='text-align:left'>\n"
+@     html "User Comments:</td></tr>\n"
 @     html "<tr><td colspan='5' class='tktDspValue'>\n"
 @     set seenRow 1
 @   }
@@ -750,8 +751,9 @@ static const char zDefaultEdit[] =
 @   if {$seenRow} {
 @     html "<hr>\n"
 @   } else {
-@     html "<tr><td colspan='2'><hr></td></tr>"
-@     html "<tr><td colspan='2' class='tktDspLabel' style='text-align:left'>Previous User Comments:</td></tr>\n"
+@     html "<tr><td colspan='2'><hr></td></tr>\n"
+@     html "<tr><td colspan='2' class='tktDspLabel' style='text-align:left'>\n"
+@     html "Previous User Comments:</td></tr>\n"
 @     html "<tr><td colspan='2' class='tktDspValue'>\n"
 @     set seenRow 1
 @   }
