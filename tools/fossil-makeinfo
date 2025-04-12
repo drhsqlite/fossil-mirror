@@ -389,7 +389,7 @@ echo "Swapping out {} for @{ @}"
 if [[ ${MYOS} == "Linux" ]]; then
     sed -i -e 's/{/@{/g' -e 's/}/@}/g' workfile
 else
-    gsed -i -e 's/\{/@\{/g' -e 's/\}/@\}/g' workfile
+    gsed -i -e 's/{/@{/g' -e 's/}/@}/g' workfile
 fi
 
 echo "Swapping out --switches for @option{--switches}"

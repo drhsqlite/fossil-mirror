@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk.
-D 2025-04-12T01:21:40.639
+C Corrected\sgsed\sswitches\sfor\sswapping\s{\sand\s}\swith\s@{\sand\s@}.
+D 2025-04-12T01:24:06.270
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -737,7 +737,7 @@ F tools/find-fossil-cgis.tcl 02669fa4cb9c72cc2e6a1063bb2d7a5def86984e99d77cd7b04
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
-F tools/fossil-makeinfo c28bc6f6fce0200e15b9913010d2bb67198c62863c691cd4a3803726648a7544 x
+F tools/fossil-makeinfo 32d2df49918d9b0cfb4abbeb9ecd92da7714d31fbf0fde78957110abe04c8ab1 x
 F tools/fossil-stress.tcl f8c75651b50d14aa619613438e0f1dedb53669a52239e3f274d2096c45e61b49 x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 13c9f74bc8af9b0033da44d0035a881f9c17e8aac8e412edd2d2a4c3164e2094 2827a38aca14c207803bea859365cbb1a276c33b4b490ebf09b5d59233f8702c
-R 19e8484e93433fc36e8676af492a6861
+P a241019fb5b0642f5002594595268d77aa5070eba9dc35e2bac4bc8bf4f5d84b
+R 444e0827137709212291e10622791ad3
 U brickviking
-Z 868c33c3b04efd2fd2fe11cb7aa3c03b
+Z cd3759c6eeb0003ee1d767989472a826
 # Remove this line to create a well-formed Fossil manifest.
