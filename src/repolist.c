@@ -33,6 +33,7 @@ struct RepoInfo {
                         ** for the repository list.  2 means do use this
                         ** repository but do not display it in the list. */
   char *zProjName;      /* Project Name.  Memory from fossil_malloc() */
+  char *zProjDesc;      /* Project Description.  Memory from fossil_malloc() */
   char *zLoginGroup;    /* Name of login group, or NULL.  Malloced() */
   double rMTime;        /* Last update.  Julian day number */
 };
@@ -51,6 +52,7 @@ static void remote_repo_info(RepoInfo *pRepo){
   pRepo->isRepolistSkin = 0;
   pRepo->isValid = 0;
   pRepo->zProjName = 0;
+  pRepo->zProjDesc = 0;
   pRepo->zLoginGroup = 0;
   pRepo->rMTime = 0.0;
 
@@ -72,6 +74,15 @@ static void remote_repo_info(RepoInfo *pRepo){
   if( rc ) goto finish_repo_list;
   if( sqlite3_step(pStmt)==SQLITE_ROW ){
     pRepo->zProjName = fossil_strdup((char*)sqlite3_column_text(pStmt,0));
+  }
+  sqlite3_finalize(pStmt);
+  if( rc ) goto finish_repo_list;
+  rc = sqlite3_prepare_v2(db, "SELECT value FROM config"
+                              " WHERE name='project-description'",
+                          -1, &pStmt, 0);
+  if( rc ) goto finish_repo_list;
+  if( sqlite3_step(pStmt)==SQLITE_ROW ){
+    pRepo->zProjDesc = fossil_strdup((char*)sqlite3_column_text(pStmt,0));
   }
   sqlite3_finalize(pStmt);
   rc = sqlite3_prepare_v2(db, "SELECT value FROM config"
@@ -164,11 +175,12 @@ int repo_list_page(void){
     double rNow;
     blob_append_sql(&html,
       "<table border='0' class='sortable' data-init-sort='1'"
-      " data-column-types='txtxkxt'><thead>\n"
-      "<tr><th>Filename<th width='20'>"
-      "<th>Project Name<th width='20'>"
-      "<th>Last Modified<th width='20'>"
-      "<th>Login Group</tr>\n"
+      " data-column-types='txtxtxkxt' cellspacing='0' cellpadding='0'><thead>\n"
+      "<tr><th>Filename<th width='7'>"
+      "<th width='25%%'>Project Name<th width='10'>"
+      "<th width='25%%'>Project Description<th width='5'>"
+      "<th><nobr>Last Modified</nobr><th width='1'>"
+      "<th><nobr>Login Group</nobr></tr>\n"
       "</thead><tbody>\n");
     db_prepare(&q, "SELECT pathname"
                    " FROM sfile ORDER BY pathname COLLATE nocase;");
@@ -232,7 +244,7 @@ int repo_list_page(void){
         ** Its age will still be maximum, so data-sortkey will work. */
         zAge = mprintf("unknown");
       }
-      blob_append_sql(&html, "<tr><td valign='top'>");
+      blob_append_sql(&html, "<tr><td valign='top'><nobr>");
       if( !file_ends_with_repository_extension(zName,0) ){
         /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
         ** do not work for repositories whose names do not end in ".fossil".
@@ -277,18 +289,30 @@ int repo_list_page(void){
           "<a href='%R/%T/home' target='_blank'>%h</a>\n",
           zUrl, zName);
       }
+      blob_append_sql(&html,"</nobr>");
       if( x.zProjName ){
-        blob_append_sql(&html, "<td></td><td>%h</td>\n", x.zProjName);
+        blob_append_sql(&html, "<td></td><td valign='top'>%h</td>\n",
+                        x.zProjName);
         fossil_free(x.zProjName);
       }else{
         blob_append_sql(&html, "<td></td><td></td>\n");
       }
+      if( x.zProjDesc ){
+        blob_append_sql(&html, "<td></td><td valign='top'>%h</td>\n",
+                        x.zProjDesc);
+        fossil_free(x.zProjDesc);
+      }else{
+        blob_append_sql(&html, "<td></td><td></td>\n");
+      }
       blob_append_sql(&html,
-        "<td></td><td data-sortkey='%08x'>%h</td>\n",
+        "<td></td><td data-sortkey='%08x' align='center' valign='top'>"
+        "<nobr>%h</nobr></td>\n",
         (int)iAge, zAge);
       fossil_free(zAge);
       if( x.zLoginGroup ){
-        blob_append_sql(&html, "<td></td><td>%h</td></tr>\n", x.zLoginGroup);
+        blob_append_sql(&html, "<td></td><td valign='top'>"
+                               "<nobr>%h</nobr></td></tr>\n",
+                        x.zLoginGroup);
         fossil_free(x.zLoginGroup);
       }else{
         blob_append_sql(&html, "<td></td><td></td></tr>\n");

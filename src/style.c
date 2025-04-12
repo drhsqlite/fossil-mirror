@@ -748,7 +748,7 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("nonce", zNonce);
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("project_description", db_get("project-description",""));
-  if( zTitle ) Th_Store("title", zTitle);
+  if( zTitle ) Th_Store("title", html_lookalike(zTitle,-1));
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("secureurl", fossil_wants_https(1)? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
@@ -774,7 +774,7 @@ static void style_init_th1_vars(const char *zTitle){
   image_url_var("logo");
   image_url_var("background");
   if( !login_is_nobody() ){
-    Th_Store("login", g.zLogin);
+    Th_Store("login", html_lookalike(g.zLogin,-1));
   }
   Th_MaybeStore("current_feature", feature_from_page_path(local_zCurrentPage) );
   if( g.ftntsIssues[0] || g.ftntsIssues[1] ||
@@ -1377,7 +1377,8 @@ void page_test_title(void){
 }
 
 /*
-** WEBPAGE: test_env
+** WEBPAGE: test-env
+** WEBPAGE: test_env  alias
 **
 ** Display CGI-variables and other aspects of the run-time
 ** environment, for debugging and trouble-shooting purposes.
@@ -1440,7 +1441,7 @@ void honeypot_page(void){
 ** details of the request environment are displayed.  Otherwise, just
 ** the error message is shown.
 **
-** If zFormat is an empty string, then this is the /test_env page.
+** If zFormat is an empty string, then this is the /test-env page.
 */
 void webpage_error(const char *zFormat, ...){
   int showAll = 0;
@@ -1540,7 +1541,7 @@ void webpage_error(const char *zFormat, ...){
     P("HTTP_USER_AGENT");
     P("SERVER_SOFTWARE");
     cgi_print_all(showAll, 0, 0);
-    @ <p><form method="POST" action="%R/test_env">
+    @ <p><form method="POST" action="%R/test-env">
     @ <input type="hidden" name="showall" value="%d(showAll)">
     @ <input type="submit" name="post-test-button" value="POST Test">
     @ </form>

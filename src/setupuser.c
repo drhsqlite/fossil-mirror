@@ -157,14 +157,15 @@ void setup_ulist(void){
     zWith = "";
   }
   db_prepare(&s,
-     "SELECT uid, login, cap, info, date(user.mtime,'unixepoch'),"
-     "       lower(login) AS sortkey, "
+     "SELECT uid, login, cap, info, date(user.mtime,'unixepoch')," /* 0..4 */
+     "       lower(login) AS sortkey, "  /* 5 */
      "       CASE WHEN info LIKE '%%expires 20%%'"
              "    THEN substr(info,instr(lower(info),'expires')+8,10)"
-             "    END AS exp,"
-             "atime,"
-     "       subscriber.ssub, subscriber.subscriberId,"
-     "       user.mtime AS sorttime"
+             "    END AS exp," /* 6 */
+             "atime," /* 7 */
+     "       subscriber.ssub, subscriber.subscriberId," /* 8, 9 */
+     "       user.mtime AS sorttime," /* 10 */
+     "       subscriber.semail"       /* 11 */
      "  FROM user LEFT JOIN lastAccess ON login=uname"
      "            LEFT JOIN subscriber ON login=suname"
      " WHERE login NOT IN ('anonymous','nobody','developer','reader') %s"
@@ -204,7 +205,9 @@ void setup_ulist(void){
     }else if( (zSub = db_column_text(&s,8))==0 || zSub[0]==0 ){
       @ <td><a href="%R/alerts?sid=%d(sid)"><i>off</i></a>
     }else{
-      @ <td><a href="%R/alerts?sid=%d(sid)">%h(zSub)</a>
+      const char *zEmail = db_column_text(&s, 11);
+      char * zAt = zEmail ? mprintf(" &rarr; %h", zEmail) : mprintf("");
+      @ <td><a href="%R/alerts?sid=%d(sid)">%h(zSub)</a>  %z(zAt)
     }
 
     @ </tr>
@@ -306,18 +309,55 @@ static int isValidPwString(const char *zPw){
 }
 
 /*
-** Return true if user capability string zNew contains any capability
-** letter which is not in user capability string zOrig, else 0.  This
-** does not take inherited permissions into account. Either argument
-** may be NULL.
+** Return true if user capability strings zOrig and zNew materially
+** differ, taking into account that they may be sorted in an arbitary
+** order. This does not take inherited permissions into
+** account. Either argument may be NULL. A NULL and an empty string
+** are considered equivalent here. e.g. "abc" and "cab" are equivalent
+** for this purpose, but "aCb" and "acb" are not.
 */
-static int userHasNewCaps(const char *zOrig, const char *zNew){
-  for( ; zNew && *zNew; ++zNew ){
-    if( !zOrig || strchr(zOrig,*zNew)==0 ){
-      return *zNew;
+static int userCapsChanged(const char *zOrig, const char *zNew){
+  if( !zOrig ){
+    return zNew ? (0!=*zNew) : 0;
+  }else if( !zNew ){
+    return 0!=*zOrig;
+  }else if( 0==fossil_strcmp(zOrig, zNew) ){
+    return 0;
+  }else{
+    /* We don't know that zOrig and zNew are sorted equivalently.  The
+    ** following steps will compare strings which contain all the same
+    ** capabilities letters as equivalent, regardless of the letters'
+    ** order in their strings. */
+    char aOrig[128]; /* table of zOrig bytes */
+    int nOrig = 0, nNew = 0;
+
+    memset( &aOrig[0], 0, sizeof(aOrig) );
+    for( ; *zOrig; ++zOrig, ++nOrig ){
+      if( 0==(*zOrig & 0x80) ){
+        aOrig[(int)*zOrig] = 1;
+      }
     }
+    for( ; *zNew; ++zNew, ++nNew ){
+      if( 0==(*zNew & 0x80) && !aOrig[(int)*zNew] ){
+        return 1;
+      }
+    }
+    return nOrig!=nNew;
   }
-  return 0;
+}
+
+/*
+** COMMAND: test-user-caps-changed
+**
+** Usage: %fossil test-user-caps-changed caps1 caps2
+**
+*/
+void test_user_caps_changed(void){
+
+  char const * zOld = g.argc>2 ? g.argv[2] : NULL;
+  char const * zNew = g.argc>3 ? g.argv[3] : NULL;
+  fossil_print("Has changes? = %d\n",
+               userCapsChanged( zOld, zNew ));
 }
 
 /*
@@ -335,7 +375,7 @@ static int userHasNewCaps(const char *zOrig, const char *zNew){
 **   but it would be odd for a non-admin to be assigned this
 **   capability.
 */
-static void alert_user_elevation(const char *zLogin,   /*Affected user*/
+static void alert_user_cap_change(const char *zLogin,   /*Affected user*/
                                  int uid,              /*[user].uid*/
                                  int bIsNew,           /*true if new user*/
                                  const char *zOrigCaps,/*Old caps*/
@@ -351,17 +391,17 @@ static void alert_user_elevation(const char *zLogin,   /*Affected user*/
   if( !alert_enabled() ) return;
   zSubject = bIsNew
     ? mprintf("New user created: [%q]", zLogin)
-    : mprintf("User [%q] permissions elevated", zLogin);
+    : mprintf("User [%q] capabilities changed", zLogin);
   zURL = db_get("email-url",0);
   zSubname = db_get("email-subname", "[Fossil Repo]");
   blob_init(&body, 0, 0);
   blob_init(&hdr, 0, 0);
   if( bIsNew ){
-    blob_appendf(&body, "User [%q] was created by with "
+    blob_appendf(&body, "User [%q] was created with "
                  "permissions [%q] by user [%q].\n",
                  zLogin, zNewCaps, g.zLogin);
   } else {
-    blob_appendf(&body, "Permissions for user [%q] where elevated "
+    blob_appendf(&body, "Permissions for user [%q] where changed "
                  "from [%q] to [%q] by user [%q].\n",
                  zLogin, zOrigCaps, zNewCaps, g.zLogin);
   }
@@ -488,7 +528,7 @@ void user_edit(void){
   }else{
     /* We have all the information we need to make the change to the user */
     char c;
-    int bHasNewCaps = 0 /* 1 if user's permissions are increased */;
+    int bCapsChanged = 0 /* 1 if user's permissions changed */;
     const int bIsNew = uid<=0;
     char aCap[70], zNm[4];
     zNm[0] = 'a';
@@ -510,7 +550,7 @@ void user_edit(void){
     }
 
     aCap[i] = 0;
-    bHasNewCaps = bIsNew || userHasNewCaps(zOldCaps, &aCap[0]);
+    bCapsChanged = bIsNew || userCapsChanged(zOldCaps, &aCap[0]);
     zPw = P("pw");
     zLogin = P("login");
     if( strlen(zLogin)==0 ){
@@ -615,14 +655,16 @@ void user_edit(void){
         @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(zRef)">
         @ [Bummer]</a></p>
         style_finish_page();
-        if( bHasNewCaps ){
-          alert_user_elevation(zLogin, uid, bIsNew, zOldCaps, &aCap[0]);
+        if( bCapsChanged ){
+          /* It's possible that caps were updated locally even if
+          ** login group updates failed. */
+          alert_user_cap_change(zLogin, uid, bIsNew, zOldCaps, &aCap[0]);
         }
         return;
       }
     }
-    if( bHasNewCaps ){
-      alert_user_elevation(zLogin, uid, bIsNew, zOldCaps, &aCap[0]);
+    if( bCapsChanged ){
+      alert_user_cap_change(zLogin, uid, bIsNew, zOldCaps, &aCap[0]);
     }
     cgi_redirect(cgi_referer("setup_ulist"));
     return;

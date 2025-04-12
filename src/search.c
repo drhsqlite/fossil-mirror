@@ -620,6 +620,7 @@ void search_cmd(void){
   int width;
   int nTty = 0;          /* VT100 highlight color for matching text */
   const char *zHighlight = 0;
+  int bFlags = 0;        /* DB open flags */
 
   nTty =  terminal_is_vt100();
 
@@ -668,8 +669,8 @@ void search_cmd(void){
   /* If no search objects are specified, default to "check-in comments" */
   if( srchFlags==0 ) srchFlags = SRCH_CKIN;
 
-
-  db_find_and_open_repository(0, 0);
+  if( srchFlags==SRCH_HELP ) bFlags = OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE;
+  db_find_and_open_repository(bFlags, 0);
   verify_all_options();
   if( g.argc<3 ) return;
   login_set_capabilities("s", 0);

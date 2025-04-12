@@ -4,7 +4,7 @@
 
   *  Enhancements to [/help?cmd=diff|fossil diff] and similar:
      <ol type="a">
-     <li> The --from can optionally accepts a directory name as its argument,
+     <li> The --from can optionally accept a directory name as its argument,
           and uses files under that directory as the baseline for the diff.
      <li> For "gdiff", if no [/help?cmd=gdiff-command|gdiff-command setting]
           is defined, Fossil tries to do a --tk diff if "tclsh" and "wish"
@@ -23,7 +23,7 @@
           default start page becomes "/ckout?exbase=PATH".
      <li> The new "--extpage FILENAME" option opens the named file as if it
           where in a [./serverext.wiki|CGI extension].  Example usage: the
-          person editing this change log has 
+          person editing this change log has
           "fossil ui --extpage www/changes.wiki" running and hence can
           press "Reload" on the web browser to view edits.
      </ol>
@@ -87,11 +87,9 @@
           case the timeline shows those check-ins that are both ancestors
           of p= and descendants of d=.
      <li> The saturation and intensity of user-specified checkin and branch
-          colors are automatically adjusted to keep the colors
+          background colors are automatically adjusted to keep the colors
           compatible with the current skin, unless the
-          [/help?cmd=raw-bgcolor|raw-bgcolor setting] is turned on.  The
-          /test-bgcolor page was added to
-          test and visualize how these adjustments.
+          [/help?cmd=raw-bgcolor|raw-bgcolor setting] is turned on.
      </ol>
   *  The [/help?cmd=/docfile|/docfile webpage] was added.  It works like
      /doc but keeps the title of markdown documents with the document rather
@@ -120,13 +118,21 @@
      <li> The -u (--usage) option shows only the command-line syntax
      <li> The -o (--options) option shows only the command-line options
      </ol>
-  *  Added the ability to attach wiki pages to a ticket for extended
-     descriptions.
+  *  Enhancements to the ticket system:
+     <ol type="a">
+     <li> Added the ability to attach wiki pages to a ticket for extended
+          descriptions.
+     <li> Added submenu to the 'View Ticket' page, to use it as
+          template for a new ticket.
+     <li> Added button 'Submit and New' to create multiple tickets
+          in a row.
+     </ol>
   *  Added the "hash" query parameter to the
      [/help?cmd=/whatis|/whatis webpage].
-  *  Add a "user elevation" [/doc/trunk/www/alerts.md|subscription]
+  *  Add a "user permissions changes" [/doc/trunk/www/alerts.md|subscription]
      which alerts subscribers when an admin creates a new user or
-     adds new permissions to one.
+     when a user's permissions change.
+  *  Show project description on repository list.
   *  Diverse minor fixes and additions.
 
 

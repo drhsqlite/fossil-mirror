@@ -6812,7 +6812,7 @@ static int seriesFilter(
   for(i=0; i<argc; i++){
     if( sqlite3_value_type(argv[i])==SQLITE_NULL ){
       /* If any of the constraints have a NULL value, then return no rows.
-      ** See ticket https://www.sqlite.org/src/info/fac496b61722daf2 */
+      ** See ticket https://sqlite.org/src/info/fac496b61722daf2 */
       returnNoRows = 1;
       break;
     }
@@ -25468,6 +25468,7 @@ static const char *(azHelp[]) = {
 #ifndef SQLITE_SHELL_FIDDLE
   ".output ?FILE?           Send output to FILE or stdout if FILE is omitted",
   "   If FILE begins with '|' then open it as a pipe.",
+  "   If FILE is 'off' then output is disabled.",
   "   Options:",
   "     --bom                 Prefix output with a UTF8 byte-order mark",
   "     -e                    Send output to the system text editor",
@@ -30463,9 +30464,9 @@ static int do_meta_command(char *zLine, ShellState *p){
   ){
     char *zFile = 0;
     int i;
-    int eMode = 0;
-    int bOnce = 0;            /* 0: .output, 1: .once, 2: .excel/.www */
-    int bPlain = 0;           /* --plain option */
+    int eMode = 0;          /* 0: .outout/.once, 'x'=.excel, 'w'=.www */
+    int bOnce = 0;          /* 0: .output, 1: .once, 2: .excel/.www */
+    int bPlain = 0;         /* --plain option */
     static const char *zBomUtf8 = "\357\273\277";
     const char *zBom = 0;
 
@@ -30494,14 +30495,22 @@ static int do_meta_command(char *zLine, ShellState *p){
         }else if( c=='o' && cli_strcmp(z,"-w")==0 ){
           eMode = 'w';  /* Web browser */
         }else{
-          sqlite3_fprintf(p->out, 
+          sqlite3_fprintf(p->out,
                           "ERROR: unknown option: \"%s\". Usage:\n", azArg[i]);
           showHelp(p->out, azArg[0]);
           rc = 1;
           goto meta_command_exit;
         }
       }else if( zFile==0 && eMode==0 ){
-        zFile = sqlite3_mprintf("%s", z);
+        if( cli_strcmp(z, "off")==0 ){
+#ifdef _WIN32
+          zFile = sqlite3_mprintf("nul");
+#else
+          zFile = sqlite3_mprintf("/dev/null");
+#endif
+        }else{
+          zFile = sqlite3_mprintf("%s", z);
+        }
         if( zFile && zFile[0]=='|' ){
           while( i+1<nArg ) zFile = sqlite3_mprintf("%z %s", zFile, azArg[++i]);
           break;

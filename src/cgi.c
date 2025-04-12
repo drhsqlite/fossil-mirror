@@ -74,6 +74,7 @@
 # include <sys/socket.h>
 # include <sys/un.h>
 # include <netinet/in.h>
+# include <netdb.h>
 # include <arpa/inet.h>
 # include <sys/times.h>
 # include <sys/time.h>
@@ -105,8 +106,8 @@
 #define PB(x)         cgi_parameter_boolean(x)
 #define PCK(x)        cgi_parameter_checked(x,1)
 #define PIF(x,y)      cgi_parameter_checked(x,y)
-#define P_NoBot(x)    cgi_parameter_nosql((x),0)
-#define PD_NoBot(x,y) cgi_parameter_nosql((x),(y))
+#define P_NoBot(x)    cgi_parameter_no_attack((x),0)
+#define PD_NoBot(x,y) cgi_parameter_no_attack((x),(y))
 
 /*
 ** Shortcut for the cgi_printf() routine.  Instead of using the
@@ -638,6 +639,9 @@ NORETURN void cgi_redirect_with_status(
   free(zLocation);
   cgi_reply();
   fossil_exit(0);
+}
+NORETURN void cgi_redirect_perm(const char *zURL){
+  cgi_redirect_with_status(zURL, 301, "Moved Permanently");
 }
 NORETURN void cgi_redirect(const char *zURL){
   cgi_redirect_with_status(zURL, 302, "Moved Temporarily");
@@ -1622,23 +1626,25 @@ static void cgi_begone_spider(const char *zName){
 }
 
 /*
-** If looks_like_sql_injection() returns true for the given string, calls
+** If looks_like_attack() returns true for the given string, call
 ** cgi_begone_spider() and does not return, else this function has no
 ** side effects. The range of checks performed by this function may
 ** be extended in the future.
 **
 ** Checks are omitted for any logged-in user.
 **
-** This is NOT a defense against SQL injection.  Fossil should easily be
-** proof against SQL injection without this routine.  Rather, this is an
-** attempt to avoid denial-of-service caused by persistent spiders that hammer
-** the server with dozens or hundreds of SQL injection attempts per second
-** against pages (such as /vdiff) that are expensive to compute.  In other
+** This is the primary defense against attack.  Fossil should easily be
+** proof against SQL injection and XSS attacks even without without this
+** routine.  Rather, this is an attempt to avoid denial-of-service caused
+** by persistent spiders that hammer the server with dozens or hundreds of
+** probes per seconds as they look for vulnerabilities. In other
 ** words, this is an effort to reduce the CPU load imposed by malicious
-** spiders.  It is not an effect defense against SQL injection vulnerabilities.
+** spiders.  Though those routine might help make attacks harder, it is
+** not itself an impenetrably barrier against attack and should not be
+** relied upon as the only defense.
 */
 void cgi_value_spider_check(const char *zTxt, const char *zName){
-  if( g.zLogin==0 && looks_like_sql_injection(zTxt) ){
+  if( g.zLogin==0 && looks_like_attack(zTxt) ){
     cgi_begone_spider(zName);
   }
 }
@@ -1648,7 +1654,7 @@ void cgi_value_spider_check(const char *zTxt, const char *zName){
 ** cgi_parameter(zName,zDefault) returns a value other than zDefault
 ** then it passes that value to cgi_value_spider_check().
 */
-const char *cgi_parameter_nosql(const char *zName, const char *zDefault){
+const char *cgi_parameter_no_attack(const char *zName, const char *zDefault){
   const char *zTxt = cgi_parameter(zName, zDefault);
 
   if( zTxt!=zDefault ){
@@ -2073,6 +2079,17 @@ static char *extract_token(char *zInput, char **zLeftOver){
 }
 
 /*
+** All possible forms of an IP address.  Needed to work around GCC strict
+** aliasing rules.
+*/
+typedef union {
+  struct sockaddr sa;              /* Abstract superclass */
+  struct sockaddr_in sa4;          /* IPv4 */
+  struct sockaddr_in6 sa6;         /* IPv6 */
+  struct sockaddr_storage sas;     /* Should be the maximum of the above 3 */
+} address;
+
+/*
 ** Determine the IP address on the other side of a connection.
 ** Return a pointer to a string.  Or return 0 if unable.
 **
@@ -2080,22 +2097,17 @@ static char *extract_token(char *zInput, char **zLeftOver){
 ** each call.
 */
 char *cgi_remote_ip(int fd){
-#if 0
-  static char zIp[100];
-  struct sockaddr_in6 addr;
-  socklen_t sz = sizeof(addr);
-  if( getpeername(fd, &addr, &sz) ) return 0;
-  zIp[0] = 0;
-  if( inet_ntop(AF_INET6, &addr, zIp, sizeof(zIp))==0 ){
+  address remoteAddr;
+  socklen_t size = sizeof(remoteAddr);
+  static char zHost[NI_MAXHOST];
+  if( getpeername(0, &remoteAddr.sa, &size) ){
     return 0;
   }
-  return zIp;
-#else
-  struct sockaddr_in remoteName;
-  socklen_t size = sizeof(struct sockaddr_in);
-  if( getpeername(fd, (struct sockaddr*)&remoteName, &size) ) return 0;
-  return inet_ntoa(remoteName.sin_addr);
-#endif
+  if( getnameinfo(&remoteAddr.sa, size, zHost, sizeof(zHost), 0, 0,
+                  NI_NUMERICHOST) ){
+    return 0;
+  }
+  return zHost;
 }
 
 /*
@@ -2539,7 +2551,7 @@ int cgi_http_server(
   int child;                   /* PID of the child process */
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
-  struct sockaddr_in inaddr;   /* The socket address */
+  struct sockaddr_in6 inaddr;  /* The socket address */
   struct sockaddr_un uxaddr;   /* The address for unix-domain sockets */
   int opt = 1;                 /* setsockopt flag */
   int rc;                      /* Result code from system calls */
@@ -2580,19 +2592,18 @@ int cgi_http_server(
     }else{
       /* Initialize a TCP/IP socket on port iPort */
       memset(&inaddr, 0, sizeof(inaddr));
-      inaddr.sin_family = AF_INET;
+      inaddr.sin6_family = AF_INET6;
       if( zIpAddr ){
-        inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
-        if( inaddr.sin_addr.s_addr == INADDR_NONE ){
+        if( inet_pton(AF_INET6, zIpAddr, &inaddr.sin6_addr)==0 ){
           fossil_fatal("not a valid IP address: %s", zIpAddr);
         }
       }else if( flags & HTTP_SERVER_LOCALHOST ){
-        inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        inaddr.sin6_addr = in6addr_loopback;
       }else{
-        inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        inaddr.sin6_addr = in6addr_any;
       }
-      inaddr.sin_port = htons(iPort);
-      listener = socket(AF_INET, SOCK_STREAM, 0);
+      inaddr.sin6_port = htons(iPort);
+      listener = socket(AF_INET6, SOCK_STREAM, 0);
       if( listener<0 ){
         iPort++;
         continue;
@@ -2702,6 +2713,7 @@ int cgi_http_server(
             if( fd!=2 ) nErr++;
           }
           close(connection);
+          close(listener);
           g.nPendingRequest = nchildren+1;
           g.nRequest = nRequest+1;
           return nErr;

@@ -303,7 +303,7 @@ void tktsetup_change_page(void){
 static const char zDefaultNew[] =
 @ <th1>
 @   if {![info exists mutype]} {set mutype Markdown}
-@   if {[info exists submit]} {
+@   if {[info exists submit] || [info exists submitandnew]} {
 @      set status Open
 @      if {$mutype eq "HTML"} {
 @        set mimetype "text/html"
@@ -350,6 +350,24 @@ static const char zDefaultNew[] =
 @ <td align="left">How debilitating is the problem?  How badly does the problem
 @ affect the operation of the product?</td>
 @ </tr>
+@
+@ <th1>
+@   if {[capexpr {w}]} {
+@      html {<tr><td class="tktDspLabel">Priority:</td><td>}
+@      combobox priority $priority_choices 1
+@      html {
+@        <td align="left">How important is the affected functionality?</td>
+@        </td></tr>
+@      }
+@
+@      html {<tr><td class="tktDspLabel">Subsystem:</td><td>}
+@      combobox subsystem $subsystem_choices 1
+@      html {
+@        <td align="left">Which subsystem is affected?</td>
+@        </td></tr>
+@      }
+@   }
+@ </th1>
 @
 @ <tr>
 @ <td align="right">EMail:</td>
@@ -407,7 +425,15 @@ static const char zDefaultNew[] =
 @ <input type="submit" name="submit" value="Submit">
 @ </td>
 @ <td align="left">After filling in the information above, press this
-@ button to create the new ticket</td>
+@ button to create the new ticket.</td>
+@ </tr>
+@
+@ <tr>
+@ <td><td align="left">
+@ <input type="submit" name="submitandnew" value="Submit and New">
+@ </td>
+@ <td align="left">Create the new ticket and start another
+@ ticket form with the inputs.</td>
 @ </tr>
 @ <th1>enable_output 1</th1>
 @
@@ -415,7 +441,7 @@ static const char zDefaultNew[] =
 @ <td><td align="left">
 @ <input type="submit" name="cancel" value="Cancel">
 @ </td>
-@ <td>Abandon and forget this ticket</td>
+@ <td>Abandon and forget this ticket.</td>
 @ </tr>
 @ </table>
 ;
@@ -466,6 +492,10 @@ static const char zDefaultView[] =
 @   } else {
 @     html "<td class='tktDspValue' colspan='3'>Deleted</td></tr>\n"
 @   }
+@ }
+@
+@ if {[capexpr {n}]} {
+@   submenu link "Copy Ticket" /tktnew/$tkt_uuid
 @ }
 @ </th1>
 @ <tr><td class="tktDspLabel">Title:</td>

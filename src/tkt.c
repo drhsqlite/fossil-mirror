@@ -1028,11 +1028,9 @@ void tktnew_page(void){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
   }
   zScript = ticket_newpage_code();
+  Th_Store("private_contact", "");
   if( g.zLogin && g.zLogin[0] ){
-    int nEmail = 0;
-    (void)Th_MaybeGetVar(g.interp, "private_contact", &nEmail);
-    uid = nEmail>0
-      ? 0 : db_int(0, "SELECT uid FROM user WHERE login=%Q", g.zLogin);
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.zLogin);
     if( uid ){
       char * zEmail =
         db_text(0, "SELECT find_emailaddr(info) FROM user WHERE uid=%d",
@@ -1049,7 +1047,11 @@ void tktnew_page(void){
                    (void*)&zNewUuid, 0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br>\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
-    cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
+    if( P("submitandnew") ){
+      cgi_redirect(mprintf("%R/tktnew/%s", zNewUuid));
+    }else{
+      cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
+    }
     return;
   }
   captcha_generate(0);

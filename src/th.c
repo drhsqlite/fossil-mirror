@@ -2162,8 +2162,11 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
           break;
         case OP_ADD:          iRes = iLeft+iRight;  break;
         case OP_SUBTRACT:     iRes = iLeft-iRight;  break;
-        case OP_LEFTSHIFT:    iRes = iLeft<<iRight; break;
-        case OP_RIGHTSHIFT:   iRes = iLeft>>iRight; break;
+        case OP_LEFTSHIFT: {
+          iRes = (int)(((unsigned int)iLeft)<<(iRight&0x1f));
+          break;
+        }
+        case OP_RIGHTSHIFT:   iRes = iLeft>>(iRight&0x1f); break;
         case OP_LT:           iRes = iLeft<iRight;  break;
         case OP_GT:           iRes = iLeft>iRight;  break;
         case OP_LE:           iRes = iLeft<=iRight; break;
@@ -2877,6 +2880,9 @@ int Th_SetResultInt(Th_Interp *interp, int iVal){
   char *z = &zBuf[32];
 
   if( iVal<0 ){
+    if( iVal==0x80000000 ){
+      return Th_SetResult(interp, "-2147483648", -1);
+    }
     isNegative = 1;
     uVal = iVal * -1;
   }

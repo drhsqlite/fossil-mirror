@@ -600,6 +600,15 @@ void www_print_timeline(
         cgi_printf("%W",blob_str(&comment));
       }
     }
+ 
+    if( zType[0]=='c' && strcmp(zUuid, MANIFEST_UUID)==0 ){
+      /* This will only ever happen when Fossil is drawing a timeline for
+      ** its own self-host repository.  If the timeline shows the specific
+      ** check-in corresponding to the current executable, then tag that
+      ** check-in with "This is me!". */
+      @ <b>&larr; This is me!</b>
+    }
+
     @ </span>
     blob_reset(&comment);
 
@@ -3742,11 +3751,18 @@ void timeline_cmd(void){
 
   if( mode==TIMELINE_MODE_NONE ) mode = TIMELINE_MODE_BEFORE;
   blob_zero(&sql);
+  if( mode==TIMELINE_MODE_AFTER ){
+    /* Extra outer select to get older rows in reverse order */
+    blob_append(&sql, "SELECT *\nFROM (", -1);
+  }
   blob_append(&sql, timeline_query_for_tty(), -1);
   blob_append_sql(&sql, "\n  AND event.mtime %s %s",
      ( mode==TIMELINE_MODE_BEFORE ||
        mode==TIMELINE_MODE_PARENTS ) ? "<=" : ">=", zDate /*safe-for-%s*/
   );
+  if( zType && (zType[0]!='a') ){
+    blob_append_sql(&sql, "\n  AND event.type=%Q ", zType);
+  }
 
   /* When zFilePattern is specified, compute complete ancestry;
    * limit later at print_timeline() */
@@ -3758,9 +3774,6 @@ void timeline_cmd(void){
       compute_ancestors(objid, (zFilePattern ? 0 : n), 0, 0);
     }
     blob_append_sql(&sql, "\n  AND blob.rid IN ok");
-  }
-  if( zType && (zType[0]!='a') ){
-    blob_append_sql(&sql, "\n  AND event.type=%Q ", zType);
   }
   if( zFilePattern ){
     blob_append(&sql,
@@ -3803,7 +3816,14 @@ void timeline_cmd(void){
       "  AND (tagxref.value IS NULL OR tagxref.value='%q')",
       zBr, zBr, zBr, TAG_BRANCH, zBr, zBr);
   }
-  blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
+  
+  if( mode==TIMELINE_MODE_AFTER ){
+    /* Complete the above outer select. */
+    blob_append_sql(&sql, 
+        "\nORDER BY event.mtime LIMIT abs(%d)) t ORDER BY t.mDateTime DESC;", n);
+  }else{
+    blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
+  }
   if( iOffset>0 ){
     /* Don't handle LIMIT here, otherwise print_timeline()
      * will not determine the end-marker correctly! */

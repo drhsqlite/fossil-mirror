@@ -1972,10 +1972,12 @@ void diff_page(void){
   if( P("from") && P("to") ){
     v1 = artifact_from_ci_and_filename("from");
     v2 = artifact_from_ci_and_filename("to");
+    if( v1==0 || v2==0 ) fossil_redirect_home();
   }else{
     Stmt q;
     v1 = name_to_rid_www("v1");
     v2 = name_to_rid_www("v2");
+    if( v1==0 || v2==0 ) fossil_redirect_home();
 
     /* If the two file versions being compared both have the same
     ** filename, then offer an "Annotate" link that constructs an
@@ -2005,7 +2007,6 @@ void diff_page(void){
     }
     db_finalize(&q);
   }
-  if( v1==0 || v2==0 ) fossil_redirect_home();
   zRe = P("regex");
   cgi_check_for_malice();
   if( zRe ) re_compile(&pRe, zRe, 0);

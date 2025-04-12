@@ -133,7 +133,7 @@ extern "C" {
 **
 ** Since [version 3.6.18] ([dateof:3.6.18]),
 ** SQLite source code has been stored in the
-** <a href="http://www.fossil-scm.org/">Fossil configuration management
+** <a href="http://fossil-scm.org/">Fossil configuration management
 ** system</a>.  ^The SQLITE_SOURCE_ID macro evaluates to
 ** a string which identifies a particular check-in of SQLite
 ** within its configuration management system.  ^The SQLITE_SOURCE_ID
@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.50.0"
 #define SQLITE_VERSION_NUMBER 3050000
-#define SQLITE_SOURCE_ID      "2025-03-27 23:29:25 121f4d97f9a855131859d342bc2ade5f8c34ba7732029ae156d02cec7cb6dd85"
+#define SQLITE_SOURCE_ID      "2025-04-10 10:18:07 20acd630b91609725794ce84f9eda01d5f3c898407f0948264830851d25ccaa6"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
