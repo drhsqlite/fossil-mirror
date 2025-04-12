@@ -529,7 +529,19 @@ raise a script error.
 
   *  html STRING
 
-Outputs the STRING escaped for HTML.
+Outputs the STRING literally.  It is assumed that STRING contains
+valid HTML, or that if it text then any characters that are
+significant to HTML (such as `<`, `>`, `'`, or `&`) have already
+been escaped, perhaps by the htmlize command.  Use the
+[puts](#puts) command to output text that might contain unescaped
+HTML markup.
+
+**Beware of XSS attacks!**  If the STRING value to the html command
+can be controlled by a hostile user, then he might be able to sneak
+in malicious HTML or Javascript which could result in a
+cross-site scripting (XSS) attack.  Be careful that all text that
+in STRING that might come from user input has been sanitized by the
+[htmlize](#htmlize) command or similar.
 
 <a id="htmlize"></a>TH1 htmlize Command
 -----------------------------------------
@@ -597,8 +609,10 @@ Returns the value of the cryptographic nonce for the request being processed.
 
   *  puts STRING
 
-Outputs the STRING unchanged, where "unchanged" might, depending on
-the context, mean "with some characters escaped for HTML."
+Outputs STRING.  Characters within STRING that have special meaning
+in HTML are escaped prior to being output.  Thus is it safe for STRING
+to be derived from user inputs.  See also the [html](#html) command
+which behaves similarly except does not escape HTML markup.
 
 <a id="query"></a>TH1 query Command
 -------------------------------------
@@ -611,6 +625,32 @@ set, run CODE.
 In SQL, parameters such as $var are filled in using the value of variable
 "var".  Result values are stored in variables with the column name prior
 to each invocation of CODE.
+
+**Beware of SQL injections in the `query` command!**
+The SQL argument to the query command should always be literal SQL
+text enclosed in {...}.  The SQL argument should never be a double-quoted
+string or the value of a \$variable, as those constructs can lead to
+an SQL Injection attack.  If you need to include the values of one or
+more TH1 variables as part of the SQL, then put \$variable inside the
+{...}.  The \$variable keyword will then get passed down into the SQLite
+parser which knows to look up the value of \$variable in the TH1 symbol
+table.  For example:
+
+~~~
+   query {SELECT res FROM tab1 WHERE key=$mykey} {...}
+~~~
+
+SQLite will see the \$mykey token in the SQL and will know to resolve it
+to the value of the "mykey" TH1 variable, safely and without the possibility
+of SQL injection.  The following is unsafe:
+
+~~~
+   query "SELECT res FROM tab1 WHERE key='$mykey'" {...}  ;# <-- UNSAFE!
+~~~
+
+In this second example, TH1 does the expansion of `$mykey` prior to passing
+the text down into SQLite.  So if `$mykey` contains a single-quote character,
+followed by additional hostile text, that will result in an SQL injection.
 
 <a id="randhex"></a>TH1 randhex Command
 -----------------------------------------
