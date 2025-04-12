@@ -522,18 +522,21 @@ static const char zDefaultView[] =
 @ <td colspan="3" valign="top" class="tktDspValue">
 @ <th1>
 @ set versionlink ""
+@ set urlfoundin [httpize $foundin]
 @ query {SELECT count(*) AS match FROM tag
 @        WHERE tagname=concat('sym-',$foundin)} {
-@   if {$match} {set versionlink "/timeline?t=$foundin"}
+@   if {$match} {set versionlink "/timeline?t=$urlfoundin"}
 @ }
 @ set pattern $foundin%
 @ query {SELECT count(*) AS match FROM blob WHERE uuid GLOB $pattern} {
-@   if {$match} {set versionlink "/info/$foundin"}
+@   if {$match} {set versionlink "/info/$urlfoundin"}
 @ }
 @ if {$versionlink eq ""} {
-@   html "$foundin"
+@   puts $foundin
 @ } else {
-@   html "<a href=\"$versionlink\">$foundin</a>"
+@   html "<a href=\"$versionlink\">"
+@   puts $foundin
+@   html "</a>"
 @ }
 @ </th1>
 @ </td></tr>
