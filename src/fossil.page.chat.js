@@ -978,7 +978,6 @@ window.fossil.onPageLoad(function(){
       }
       if(!(e instanceof HTMLElement)) return;
       if(this.userMayDelete(e)){
-        this.ajaxStart();
         F.fetch("chat-delete/" + id, {
           responseType: 'json',
           onload:(r)=>{

@@ -1,5 +1,5 @@
-C Maintainability\scleanups\sand\sdocs\sin\s/chat.\sNo\s(intended)\sfunctional\schanges.
-D 2025-04-12T00:07:25.579
+C Fix\san\sage-old\s/chat\sbug\swhich\scaused\s/chat-delete\sposts\sto\smisadjust\sthe\sajax-in-flight\scounter,\sleading\sto\svarious\sUI\swidgets\snot\sbeing\sdisabled\swhen\sthey\sshould\safter\sa\smessage\sis\sdeleted.
+D 2025-04-12T01:15:13.531
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -442,7 +442,7 @@ F src/fossil.dom.js 1603342d43b9fc7a5049cf5812183dc3e1c138585126a470d5bb8eba45c0
 F src/fossil.fetch.js 091c826ffff63922d0b545df252c5ca0eb1080f60b258f98bec1c5b5b5e09a33
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 55fadbaab9942962dbb763b99cb9a312952162dbbd699362ae2177da67e53228
+F src/fossil.page.chat.js d38a45717626c1383722d6cfb22b0f3d4ed46e7cbe58f70a5874a6d9c924dd52
 F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f230c108063bdcc5
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 354e405e2813de4bfeec16d12a4dbfb370b2fa89f25325f245c51c194115adbf
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d3db5050fead708460733621a9860dcdad8352ec987172dd9cf62485f1212d0
-R 4e37256c2c5075431a0df3ff670e5648
+P 084001c76dba674baa6bc4963e561ec4b500fb07f1122303704bfefd8f7b304c
+R 1a567229b76594887717a8e51d9fa370
 U stephan
-Z f1833188d333b7881a5eaa274df2a717
+Z aad0a71fa44615d926c0deac4a663dec
 # Remove this line to create a well-formed Fossil manifest.
