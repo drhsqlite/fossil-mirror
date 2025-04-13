@@ -523,7 +523,7 @@ static const char zDefaultView[] =
 @ <th1>
 @ set versionlink ""
 @ set urlfoundin [httpize $foundin]
-@ set tagpattern ^\[0-9A-Za-z_\\.\\x2d\]+\$
+@ set tagpattern ^\[-0-9A-Za-z_\\.\]+\$
 @ if [regexp $tagpattern $foundin] {
 @   query {SELECT count(*) AS match FROM tag
 @          WHERE tagname=concat('sym-',$foundin)} {
