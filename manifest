@@ -1,5 +1,5 @@
-C Improved\sdocumentation\son\sthe\s"html",\s"puts",\sand\s"query"\sTH1\scommands.
-D 2025-04-12T17:35:01.076
+C Enhance\sthe\stest-phantoms\scommand\sto\sprovide\sadditional\sinformation\nabout\sdelta-phantoms.
+D 2025-04-13T19:54:24.556
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -506,7 +506,7 @@ F src/merge.c 1f8aadaa868b51906df6f7a2967abfe74b52e380dc00152ebfe194f5b2cef9bf
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c f78065e8a8539f13a774642b3589edebc4d6fdf29b040bb5b5a0f09fd1c0cdc2
+F src/name.c 2b04ce159286bd352ab87fae35435ade6072d62705a2243717c8c14b66838f9d
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 9c32dda651d83d15938ea17f11a19f3f36ebe0c1d6e37e5113cc11a492a74f77
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a85c54bd5217b90017c3292ec9a8f49250c9ccf6be4aa98032b670cb582b53c
-R 3bab078340d6855e75c085415055c7bd
+P 41cd8d51ba7ce1a58637ab6c579e5264bc8a713d01d6d84ef5cc4b28e808aba7
+R 3567f58cfa4f54145383517fa0622107
 U drh
-Z 8b217db8c87f801c5763f6976f36d29c
+Z 3c070f0dc51f1a37654c8a14baed83c1
 # Remove this line to create a well-formed Fossil manifest.

@@ -2205,11 +2205,70 @@ void test_unclusterd_cmd(void){
 **
 ** Usage: %fossil test-phantoms
 **
-** Show all phantom artifacts
+** Show all phantom artifacts.  A phantom artifact is one for which there
+** is no content. Options:
+**
+**   --count            Show only a count of the number of phantoms.
+**   --delta            Show all delta-phantoms.  A delta-phantom is a
+**                      artifact for which there is a delta but the delta
+**                      source is a phantom.
+**   --list             Just list the phantoms.  Do not try to describe them.
 */
 void test_phatoms_cmd(void){
+  int bDelta;
+  int bList;
+  int bCount;
+  unsigned nPhantom = 0;
+  unsigned nDeltaPhantom = 0;
   db_find_and_open_repository(0,0);
-  describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
+  bDelta = find_option("delta", 0, 0)!=0;
+  bList = find_option("list", 0, 0)!=0;
+  bCount = find_option("count", 0, 0)!=0;
+  verify_all_options();
+  if( bList || bCount ){
+    Stmt q1, q2;
+    db_prepare(&q1, "SELECT rid, uuid FROM blob WHERE size<0");
+    while( db_step(&q1)==SQLITE_ROW ){
+      int rid = db_column_int(&q1, 0);
+      nPhantom++;
+      if( !bCount ){
+        fossil_print("%S (%d)\n", db_column_text(&q1,1), rid);
+      }
+      db_prepare(&q2,
+        "WITH RECURSIVE deltasof(rid) AS ("
+        "  SELECT rid FROM delta WHERE srcid=%d"
+        "  UNION"
+        "  SELECT delta.rid FROM deltasof, delta"
+        "    WHERE delta.srcid=deltasof.rid)"
+        "SELECT deltasof.rid, blob.uuid FROM deltasof LEFT JOIN blob"
+        "    ON blob.rid=deltasof.rid", rid
+      );
+      while( db_step(&q2)==SQLITE_ROW ){
+        nDeltaPhantom++;
+        if( !bCount ){
+          fossil_print("   %S (%d)\n", db_column_text(&q2,1),
+                                       db_column_int(&q2,0));
+        }
+      }
+      db_finalize(&q2);
+    }
+    db_finalize(&q1);
+    if( nPhantom ){
+      fossil_print("Phantoms: %u    Delta-phantoms: %u\n",
+                    nPhantom, nDeltaPhantom);
+    }
+  }else if( bDelta ){
+    describe_artifacts_to_stdout(
+       "IN (WITH RECURSIVE delta_phantom(rid) AS (\n"
+       "      SELECT delta.rid FROM blob, delta\n"
+       "       WHERE blob.size<0 AND delta.srcid=blob.rid\n"
+       "      UNION\n"
+       "      SELECT delta.rid FROM delta_phantom, delta\n"
+       "       WHERE delta.srcid=delta_phantom.rid)\n"
+       "    SELECT rid FROM delta_phantom)", 0);
+  }else{
+    describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
+  }
 }
 
 /* Maximum number of collision examples to remember */
