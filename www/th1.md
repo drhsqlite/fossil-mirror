@@ -681,6 +681,8 @@ Checks the string against the specified regular expression and returns
 non-zero if it matches.  If the regular expression is invalid or cannot
 be compiled, an error will be generated.
 
+See [fossil grep](./grep.md) for details on the regexp syntax.
+
 <a id="reinitialize"></a>TH1 reinitialize Command
 ---------------------------------------------------
 

@@ -1,5 +1,5 @@
-C Improved\sdocumentation\son\sthe\s"html",\s"puts",\sand\s"query"\sTH1\scommands.
-D 2025-04-12T17:35:01.076
+C doc\schange:\sadd\sa\slink\sto\sthe\sregexp\ssyntax\sfrom\sthe\sTH1\sregexp\scommand
+D 2025-04-13T11:32:33.766
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -953,7 +953,7 @@ F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c06
 F www/sync.wiki c5be63390d68e0cd6eba57fd1a00eb532945a64497a38aa5d3682a0602c837b0
 F www/tech_overview.wiki 6a30615418ebd01472646a2f6c3547a96bc400d710e432f226aebe42feed4324
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
-F www/th1.md b9227761e33668074aa97a11df579e286d0ebc4261bdf0216c34224d057dcf65
+F www/th1.md 7b9a7b44ccbf1f34cec3b092d939f2f5a6b8f8e3386645064c0c1de4070dc9e4
 F www/theory1.wiki 23fe43903706feb8d6852c9e1174f20b10aa4a6a82aa716992b5e31f70745303
 F www/tickets.wiki d46ce2febd0160a67a7b804d9ee68ef0c8a5f482255247d157cb4ded882333ed
 F www/title-test.md 5579cbcda122eff4f5d0343683cd48f365b92d1054131629a3d0be7af113275c
@@ -969,8 +969,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a85c54bd5217b90017c3292ec9a8f49250c9ccf6be4aa98032b670cb582b53c
-R 3bab078340d6855e75c085415055c7bd
-U drh
-Z 8b217db8c87f801c5763f6976f36d29c
+P 41cd8d51ba7ce1a58637ab6c579e5264bc8a713d01d6d84ef5cc4b28e808aba7
+R bde54a488c7aece686facb09aac2bd14
+T *branch * doc-th1-link-regexp
+T *sym-doc-th1-link-regexp *
+T -sym-trunk *
+U jkosche
+Z b8b074ed2d9f08c106775a35a46adc53
 # Remove this line to create a well-formed Fossil manifest.
