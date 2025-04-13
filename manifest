@@ -1,5 +1,5 @@
-C better\sregexp\sto\smatch\sthe\shyphen,\sthanks\sto\s[forum:/forumpost/81529972df]
-D 2025-04-13T12:15:11.622
+C better\squoting\sto\smake\sintent\sclearer,\sthanks\sto\s[forum:/forumpost/cf724a9bea]
+D 2025-04-13T12:39:41.386
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -576,7 +576,7 @@ F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 54037c01cf6e7e1a5b12cfe2efe73558df548064a891101cf3d11ce021f0ca64
 F src/tkt.c 64636281228605780180088d0d6962c47de37962accf16096f99971bb4eace93
-F src/tktsetup.c dda774fedf8821e76aa9b7ee8f3046ffe792d312182cefd93d1115149305659d
+F src/tktsetup.c af7db7d32907a948607bcef07ab9cfc275006a8783eb044f0e95364d490c7b82
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c effa6c4ae6f73e6aecf53c247dfa1dd3241bbbd97250fdf62b6bdae5e8551117
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e8a72ebbaf4d75cd57e393a5b39bd5a1a97481fdf41b61e0be45303df1d4f859
-R aff2f939428b9b38d44f51b6e854f263
+P ac848122fa4ee1a70a69c7d8d4bdd4235d401f18a6c431941c925143438debbd
+R d51a0968d2c193eb4100a394aabdf87a
 U jkosche
-Z 1c5464c513d700941bc15e6c4b197bd0
+Z 2f53de4f13b3233b6fb69b3c307b9ac0
 # Remove this line to create a well-formed Fossil manifest.

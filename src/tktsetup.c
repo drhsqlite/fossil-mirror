@@ -523,14 +523,14 @@ static const char zDefaultView[] =
 @ <th1>
 @ set versionlink ""
 @ set urlfoundin [httpize $foundin]
-@ set tagpattern ^\[-0-9A-Za-z_\\.\]+\$
+@ set tagpattern {^[-0-9A-Za-z_\\.]+$}
 @ if [regexp $tagpattern $foundin] {
 @   query {SELECT count(*) AS match FROM tag
 @          WHERE tagname=concat('sym-',$foundin)} {
 @     if {$match} {set versionlink "/timeline?t=$urlfoundin"}
 @   }
 @ }
-@ set hashpattern ^\[0-9a-f\]+\$
+@ set hashpattern {^[0-9a-f]+$}
 @ if [regexp $hashpattern $foundin] {
 @   set pattern $foundin*
 @   query {SELECT count(*) AS match FROM blob WHERE uuid GLOB $pattern} {
