@@ -540,7 +540,9 @@ static const char zDefaultView[] =
 @ if {$versionlink eq ""} {
 @   puts $foundin
 @ } else {
-@   html "<a href=\"$versionlink\">"
+@   html "<a href=\""
+@   puts $versionlink
+@   html "\">"
 @   puts $foundin
 @   html "</a>"
 @ }
