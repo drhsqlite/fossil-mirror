@@ -1,5 +1,5 @@
-C Enhance\sthe\stest-phantoms\scommand\sto\sprovide\sadditional\sinformation\nabout\sdelta-phantoms.
-D 2025-04-13T19:54:24.556
+C Improve\sthe\smessage\sshown\son\sa\sserver\sover-load\scondition\sby\sincluding\sthe\nURL\sthat\sencountered\sthe\soverload\sand\sthe\stimestamp\sfor\swhen\sthe\soverload\noccurred.
+D 2025-04-14T13:53:25.180
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -489,7 +489,7 @@ F src/json_timeline.c 2f906207f33e527a06888b570b6616d05d4df550fc5f7f3959faa2af01
 F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a9203
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
-F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22a
+F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf8
 F src/login.c bf9b18b74626c545b05eea0cf5191b523dd36187cc4a9d8a5c82f57a5a7045eb
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41cd8d51ba7ce1a58637ab6c579e5264bc8a713d01d6d84ef5cc4b28e808aba7
-R 3567f58cfa4f54145383517fa0622107
+P aac885a61981dfd5b5a7cd0d698bd553da4155729c5f9925c1ad599144090056
+R 51d38a951ecbe39be91790efe9452ca1
 U drh
-Z 3c070f0dc51f1a37654c8a14baed83c1
+Z b34756ee9d1127bccfacaccb6e569802
 # Remove this line to create a well-formed Fossil manifest.
