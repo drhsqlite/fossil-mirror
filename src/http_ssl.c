@@ -321,7 +321,9 @@ static void ssl_global_init_client(void){
 ** currently set these options when building OpenSSL for Windows. */
 #if defined(_WIN32)
 #if OPENSSL_VERSION_NUMBER >= 0x030200000
-    if( SSL_CTX_load_verify_store(sslCtx, "org.openssl.winstore:")==0 ){
+    if( SSLeay()!=0x30500000  /* Don't use for 3.5.0 due to a bug */
+     && SSL_CTX_load_verify_store(sslCtx, "org.openssl.winstore:")==0
+    ){
       fossil_print("NOTICE: Failed to load the Windows root certificates.\n");
     }
 #endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
@@ -1001,8 +1003,8 @@ void test_tlsconfig_info(void){
       );
     }
 #else
-    fossil_print("OpenSSL-version:      %s  (0x%09x)\n",
-         SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
+    fossil_print("OpenSSL-version:      %s  (0x%09llx)\n",
+         SSLeay_version(SSLEAY_VERSION), (unsigned long long)SSLeay());
     if( verbose ){
       fossil_print("\n"
          "  The version of the OpenSSL library being used\n"
@@ -1063,16 +1065,14 @@ void test_tlsconfig_info(void){
     }
 
 #if defined(_WIN32)
-#if OPENSSL_VERSION_NUMBER >= 0x030200000
-    fossil_print("  OpenSSL-winstore:   Yes\n");
-#else /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
-    fossil_print("  OpenSSL-winstore:   No\n");
-#endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
+    fossil_print("  OpenSSL-winstore:   %s\n",
+         (SSLeay()>=0x30200000 && SSLeay()!=0x30500000) ? "Yes" : "No");
     if( verbose ){
       fossil_print("\n"
-         "    OpenSSL 3.2.0, or newer, use the root certificates managed by\n"
-         "    the Windows operating system. The installed root certificates\n"
-         "    are listed by the command:\n\n"
+         "    OpenSSL 3.2.0, or newer, but not version 3.5.0 due to a bug,\n"
+         "    the root certificates are managed by the Windows operating\n"
+         "    system. The installed root certificates are listed by the\n"
+         "    command:\n\n"
          "        certutil -store \"ROOT\"\n\n"
       );
     }
@@ -1234,7 +1234,7 @@ wellknown_notfound:
 char *fossil_openssl_version(void){
 #if defined(FOSSIL_ENABLE_SSL)
   return mprintf("%s (0x%09x)\n",
-         SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
+         SSLeay_version(SSLEAY_VERSION), (sqlite3_uint64)SSLeay());
 #else
   return mprintf("none");
 #endif
