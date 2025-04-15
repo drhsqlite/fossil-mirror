@@ -164,15 +164,15 @@ void setup_ulist(void){
              "    THEN substr(info,instr(lower(info),'expires')+8,10)"
              "    END AS exp,"
       /* 7 */"atime,"
-      /*8,9*/"%s,"
-      /* 10*/"user.mtime AS sorttime,"
-      /* 11*/"%s"
+      /* 8 */"user.mtime AS sorttime,"
+      /*9-11*/"%s"
              " FROM user LEFT JOIN lastAccess ON login=uname"
              "            LEFT JOIN subscriber ON login=suname"
              " WHERE login NOT IN ('anonymous','nobody','developer','reader') %s"
              " ORDER BY sorttime DESC",
-             bHaveAlerts ? "subscriber.ssub, subscriber.subscriberId" : "null, null",
-             bHaveAlerts ? "subscriber.semail" : "null",
+             bHaveAlerts
+             ? "subscriber.ssub, subscriber.subscriberId, subscriber.semail"
+             : "null, null, null",
              zWith/*safe-for-%s*/
   );
   rNow = db_double(0.0, "SELECT julianday('now');");
@@ -187,8 +187,8 @@ void setup_ulist(void){
     double rATime = db_column_double(&s,7);
     char *zAge = 0;
     const char *zSub;
-    int sid = db_column_int(&s,9);
-    sqlite3_int64 sorttime = db_column_int64(&s, 10);
+    int sid = db_column_int(&s,10);
+    sqlite3_int64 sorttime = db_column_int64(&s, 8);
     if( rATime>0.0 ){
       zAge = human_readable_age(rNow - rATime);
     }
@@ -204,9 +204,9 @@ void setup_ulist(void){
     @ <td data-sortkey='%09llx(sorttime)'>%h(zDate?zDate:"")
     @ <td>%h(zExp?zExp:"")
     @ <td data-sortkey='%f(rATime)' style='white-space:nowrap'>%s(zAge?zAge:"")
-    if( db_column_type(&s,8)==SQLITE_NULL ){
+    if( db_column_type(&s,9)==SQLITE_NULL ){
       @ <td>
-    }else if( (zSub = db_column_text(&s,8))==0 || zSub[0]==0 ){
+    }else if( (zSub = db_column_text(&s,9))==0 || zSub[0]==0 ){
       @ <td><a href="%R/alerts?sid=%d(sid)"><i>off</i></a>
     }else{
       const char *zEmail = db_column_text(&s, 11);
