@@ -1818,7 +1818,7 @@ void bloblist_page(void){
     style_submenu_element("Unclustered","bloblist?unclustered");
   }
   if( g.perm.Admin ){
-    style_submenu_element("Artifact Log", "rcvfromlist");
+    style_submenu_element("Xfer Log", "rcvfromlist");
   }
   if( !phantomOnly ){
     style_submenu_element("Phantoms", "bloblist?phan");
@@ -2007,7 +2007,7 @@ void phantom_list_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Public Phantom Artifacts");
   if( g.perm.Admin ){
-    style_submenu_element("Artifact Log", "rcvfromlist");
+    style_submenu_element("Xfer Log", "rcvfromlist");
     style_submenu_element("Artifact List", "bloblist");
   }
   if( g.perm.Write ){
@@ -2032,7 +2032,7 @@ void bigbloblist_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( g.perm.Admin ){
-    style_submenu_element("Artifact Log", "rcvfromlist");
+    style_submenu_element("Xfer Log", "rcvfromlist");
   }
   if( g.perm.Write ){
     style_submenu_element("Artifact Stats", "artifact_stats");
@@ -2372,7 +2372,7 @@ void clusterlist_page(void){
   style_header("All Cluster Artifacts");
   style_submenu_element("All Artifactst", "bloblist");
   if( g.perm.Admin ){
-    style_submenu_element("Artifact Log", "rcvfromlist");
+    style_submenu_element("Xfer Log", "rcvfromlist");
   }
   style_submenu_element("Phantoms", "bloblist?phan");
   if( g.perm.Write ){
