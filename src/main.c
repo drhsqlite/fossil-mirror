@@ -3525,7 +3525,8 @@ void cmd_webserver(void){
       }else{
         blob_appendf(&ssh, " %$", zFossilCmd);
       }
-      blob_appendf(&ssh, " ui --nobrowser --localauth --port %d", iPort);
+      blob_appendf(&ssh, " ui --nobrowser --localauth --port 127.0.0.1:%d",
+                   iPort);
       if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
       if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
       if( g.zCkoutAlias ) blob_appendf(&ssh," --ckout-alias %!$",g.zCkoutAlias);

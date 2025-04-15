@@ -2612,7 +2612,7 @@ int cgi_http_server(
         if( inet_pton(AF_INET6, zIpAddr, &inaddr.sin6_addr)==0
          && (z4to6[0]==0 || inet_pton(AF_INET6, z4to6, &inaddr.sin6_addr)==0)
         ){
-          fossil_fatal("not a valid IP address: %s", z4to6);
+          fossil_fatal("not a valid IP address: %s", zIpAddr);
         }
       }else if( flags & HTTP_SERVER_LOCALHOST ){
         /* Bind to the loop-back IP address */
