@@ -1035,9 +1035,17 @@ void alert_send(
   }else if( p->pSmtp ){
     char **azTo = 0;
     int nTo = 0;
+    SmtpSession *pSmtp = p->pSmtp;
     email_header_to(pHdr, &nTo, &azTo);
-    if( nTo>0 ){
-      smtp_send_msg(p->pSmtp, p->zFrom, nTo, (const char**)azTo,blob_str(&all));
+    if( nTo>0 && !pSmtp->bFatal ){
+      smtp_send_msg(pSmtp,p->zFrom,nTo,(const char**)azTo,blob_str(&all));
+      if( pSmtp->zErr && !pSmtp->bFatal ){
+        smtp_send_msg(pSmtp,p->zFrom,nTo,(const char**)azTo,blob_str(&all));
+      }
+      if( pSmtp->zErr ){
+        fossil_errorlog("SMTP: (%s) %s", pSmtp->bFatal ? "fatal" : "retry",
+                        pSmtp->zErr);
+      }
       email_header_to_free(nTo, azTo);
     }
   }else if( strcmp(p->zDest, "stdout")==0 ){

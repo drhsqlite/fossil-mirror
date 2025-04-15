@@ -159,6 +159,7 @@ struct SmtpSession {
   FILE *logFile;            /* Write session transcript to this log file */
   Blob *pTranscript;        /* Record session transcript here */
   int atEof;                /* True after connection closes */
+  int bFatal;               /* Error is fatal.  Do not retry */
   char *zErr;               /* Error message */
   Blob inbuf;               /* Input buffer */
 };
@@ -181,6 +182,26 @@ void smtp_session_free(SmtpSession *pSession){
   fossil_free(pSession->zHostname);
   fossil_free(pSession->zErr);
   fossil_free(pSession);
+}
+
+/*
+** Set an error message on the SmtpSession
+*/
+static void smtp_set_error(
+  SmtpSession *p,             /* The SMTP context */
+  int bFatal,                 /* Fatal error.  Reset and retry is pointless */
+  const char *zFormat,        /* Error message. */
+  ...
+){
+  if( bFatal ) p->bFatal = 1;
+  if( p->zErr==0 ){
+    va_list ap;
+    va_start(ap, zFormat);
+    p->zErr = vmprintf(zFormat, ap);
+    va_end(ap);
+  }
+  socket_close();
+  p->atEof = 1;
 }
 
 /*
@@ -224,16 +245,13 @@ SmtpSession *smtp_session_new(
     p->zHostname = smtp_mx_host(zDest);
   }
   if( p->zHostname==0 ){
-    p->atEof = 1;
-    p->zErr = mprintf("cannot locate SMTP server for \"%s\"", zDest);
+    smtp_set_error(p, 1, "cannot locate SMTP server for \"%s\"", zDest);
     return p;
   }
   url.name = p->zHostname;
   socket_global_init();
   if( socket_open(&url) ){
-    p->atEof = 1;
-    p->zErr = socket_errmsg();
-    socket_close();
+    smtp_set_error(p, 1, "can't open socket: %z", socket_errmsg());
   }
   return p;
 }
@@ -322,9 +340,7 @@ static void smtp_recv_line(SmtpSession *p, Blob *in){
       nDelay++;
       if( nDelay>100 ){
         blob_init(in, 0, 0);
-        p->zErr = mprintf("timeout");
-        socket_close();
-        p->atEof = 1;
+        smtp_set_error(p, 1, "client times out waiting on server response");
         return;
       }else{
         sqlite3_sleep(100);
@@ -405,11 +421,14 @@ int smtp_client_startup(SmtpSession *p){
   int iCode = 0;
   int bMore = 0;
   char *zArg = 0;
-  if( p==0 || p->atEof ) return 1;
+  if( p==0 || p->bFatal ) return 1;
+  fossil_free(p->zErr);
+  p->zErr = 0;
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
   if( iCode!=220 ){
+    smtp_set_error(p, 1, "server opens conversation with: %b", &in);
     smtp_client_quit(p);
     return 1;
   }
@@ -418,6 +437,7 @@ int smtp_client_startup(SmtpSession *p){
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
   if( iCode!=250 ){
+    smtp_set_error(p, 1, "server responds to EHLO with: %b", &in);
     smtp_client_quit(p);
     return 1;
   }
@@ -552,23 +572,36 @@ int smtp_send_msg(
   char *zArg = 0;
   Blob in;
   blob_init(&in, 0, 0);
+  if( p->atEof && !p->bFatal ){
+    smtp_client_startup(p);
+    if( p->atEof ) return 1;
+  }
   smtp_send_line(p, "MAIL FROM:<%s>\r\n", zFrom);
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
-  if( iCode!=250 ) return 1;
+  if( iCode!=250 ){
+    smtp_set_error(p, 0, "server replies to MAIL FROM with: %b", &in);
+    return 1;
+  }
   for(i=0; i<nTo; i++){
     smtp_send_line(p, "RCPT TO:<%s>\r\n", azTo[i]);
     do{
       smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
     }while( bMore );
-    if( iCode!=250 ) return 1;
+    if( iCode!=250 ){
+      smtp_set_error(p, 0, "server replies to RCPT TO with: %b", &in);
+      return 1;
+    }
   }
   smtp_send_line(p, "DATA\r\n");
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
-  if( iCode!=354 ) return 1;
+  if( iCode!=354 ){
+    smtp_set_error(p, 0, "server replies to DATA with: %b", &in);
+    return 1;
+  }
   smtp_send_email_body(zMsg, socket_send, 0);
   if( p->smtpFlags & SMTP_TRACE_STDOUT ){
     fossil_print("C: # message content\nC: .\n");
@@ -582,7 +615,10 @@ int smtp_send_msg(
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
-  if( iCode!=250 ) return 1;
+  if( iCode!=250 ){
+    smtp_set_error(p, 0, "server replies to end-of-DATA with: %b", &in);
+    return 1;
+  }
   return 0;
 }
 
@@ -648,7 +684,9 @@ void test_smtp_send(void){
   }
   fossil_print("Connection to \"%s\"\n", p->zHostname);
   smtp_client_startup(p);
-  smtp_send_msg(p, zFrom, nTo, azTo, blob_str(&body));
+  if( !p->atEof ){
+    smtp_send_msg(p, zFrom, nTo, azTo, blob_str(&body));
+  }
   smtp_client_quit(p);
   if( p->zErr ){
     fossil_fatal("ERROR: %s\n", p->zErr);

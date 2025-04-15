@@ -1,5 +1,5 @@
-C Two\snew\ssettings\s"show-repolist-desc"\sand\s"show-repolist-lg"\scontrol\nwhether\sor\snot\sthe\sdescription\sand\sthe\slogin-group\sare\sshown\son\sthe\nrepolist,\srespectively.\s\sThese\ssettings\smust\sbe\sglobal\sto\sbe\seffective.\nThey\sdefault\sto\s"off".
-D 2025-04-15T15:56:06.171
+C Attempt\sto\sprovide\simproved\serror\smessage\soutputs\sfor\sfailures\swhile\strying\nto\ssend\snotification\svia\srelay\sto\san\sMTA.
+D 2025-04-15T23:34:25.954
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -376,7 +376,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c 7a251fa11377a871f047a943da2b4d624a7c160ff6984bd93882dc9c4fd0d1a1
 F src/ajax.c caf28a8fdda103acbe9048eeed84f6b2cb1fb3545c1c68f38da66ea44f576e01
-F src/alerts.c 97672370123236ab195a5df17370c038432d640023c74e38364b2dd006e94d90
+F src/alerts.c 6fbf289649400a4b6e5d5e6c4bd6f6871669bf3739e8905c54a260ae9b70bda9
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -514,7 +514,7 @@ F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
 F src/popen.c 1b97d68d5aa43c0d88af6c9324b32efc011920038a382f39097d6f204b2f3a4d
 F src/pqueue.c 4bc9471b252a8624435660be144d0031c40d8c10cb023321ab9234cda156eb02
-F src/printf.c 2f3277379553e86bfd03c2419d843f0d595a9c51e1d4e38359368f16287eca9a
+F src/printf.c b1826483373265df5ce27a18230bff96afa7fa28501d4c3d4224ff1083e5a10f
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
@@ -535,7 +535,7 @@ F src/shun.c 29c9cf679b993b96ef7d087743a6d83eb9eb57289e716270097d4e733f85e69b
 F src/sitemap.c b82d0115da82a880c811104139b457afef60cdef974d65414dd36478b4103562
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c c2b66b723c0fa65c299277d12f99721136f2571aa6c0fe8df9c4d02877e653ca
-F src/smtp.c a09aa85082123b4f0701f3a4039192da76322e4f2048df511c4f19041867164a
+F src/smtp.c d831576ddb485a05b682629032129e1dce4402fedac47c23d1d5ee827b8031c5
 F src/sorttable.js 10c9fbb52abd126dd233f33e7f85a582bc8a02f94b59b3ace4af989e259a7665
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
 F src/sounds/1.wav aabf554293e105bf92a9ca9cee201bd2462490491f6c4e837a718c4cbc0fbbbc
@@ -969,8 +969,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af78e282bb0a068f8f0d3254d41f0e414f6397f9cfc6c63e32b5df3b34a0e42e
-R 7842073899b003aa44454893357b7565
+P 1760fa2bf4ab1285ed606c52e77f6f1946a1e5b4560bfb1507d97d4dd84945bd
+R fb86e4319c5152f20bb4e6b85b70beac
 U drh
-Z 3cd9147d2ce94d4633fb387e9efa5188
+Z ca49d365a013ff081bfe07ee5b95d02f
 # Remove this line to create a well-formed Fossil manifest.
