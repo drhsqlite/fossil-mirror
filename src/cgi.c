@@ -2594,12 +2594,31 @@ int cgi_http_server(
       memset(&inaddr, 0, sizeof(inaddr));
       inaddr.sin6_family = AF_INET6;
       if( zIpAddr ){
-        if( inet_pton(AF_INET6, zIpAddr, &inaddr.sin6_addr)==0 ){
-          fossil_fatal("not a valid IP address: %s", zIpAddr);
+        /* Bind to the specific IP address given by zIpAddr[] */
+        size_t nAddr = strlen(zIpAddr);
+        char z4to6[30];
+        
+        if( nAddr<16 ){
+          /* The specified IP address might be in IPv4 notation (ex: 1.2.3.4)
+          ** which inet_pton() does not understand.  Convert in into a IPv6
+          ** mapping of an IPv4 address: (::FFFF:1.2.3.4) */
+          memcpy(z4to6,"::ffff:", 7);
+          memcpy(z4to6+7, zIpAddr, nAddr+2);
+        }else{
+          z4to6[0] = 0;
+        }
+
+        /* Convert the zIpAddr text string into an actual IPv6 address */
+        if( inet_pton(AF_INET6, zIpAddr, &inaddr.sin6_addr)==0
+         && (z4to6[0]==0 || inet_pton(AF_INET6, z4to6, &inaddr.sin6_addr)==0)
+        ){
+          fossil_fatal("not a valid IP address: %s", z4to6);
         }
       }else if( flags & HTTP_SERVER_LOCALHOST ){
+        /* Bind to the loop-back IP address */
         inaddr.sin6_addr = in6addr_loopback;
       }else{
+        /* Bind to any and all available IP addresses */
         inaddr.sin6_addr = in6addr_any;
       }
       inaddr.sin6_port = htons(iPort);
