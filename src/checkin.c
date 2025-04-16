@@ -2446,6 +2446,7 @@ int verify_comment(Blob *pComment, int mFlags){
 **                               Useful when importing historical check-ins
 **                               from another version control system.
 **    --delta                    Use a delta manifest in the commit process
+**    --editor NAME              Text editor to use for check-in comment.
 **    --hash                     Verify file status using hashing rather
 **                               than relying on filesystem mtimes
 **    --if-changes               Make this command a silent no-op if there
@@ -2601,6 +2602,7 @@ void commit_cmd(void){
   outputManifest = db_get_manifest_setting(0);
   mxSize = db_large_file_size();
   if( find_option("ignore-oversize",0,0)!=0 ) mxSize = 0;
+  (void)fossil_text_editor();
   verify_all_options();
 
   /* The --no-warnings flag and the --force flag each imply

@@ -668,19 +668,29 @@ int fossil_all_whitespace(const char *z){
 ** not found.
 **
 ** Search algorithm:
-** (1) The local "editor" setting
-** (2) The global "editor" setting
-** (3) The VISUAL environment variable
-** (4) The EDITOR environment variable
-** (5) Any of the following programs that are available:
+** (1) The value of the --editor command-line argument
+** (2) The local "editor" setting
+** (3) The global "editor" setting
+** (4) The VISUAL environment variable
+** (5) The EDITOR environment variable
+** (6) Any of the following programs that are available:
 **        notepad, nano, pico, jove, edit, vi, vim, ed,
+**
+** The search only occurs once, the first time this routine is called.
+** Second and subsequent invocations always return the same value.
 */
 const char *fossil_text_editor(void){
-  const char *zEditor = db_get("editor", 0);
+  static const char *zEditor = 0;
   const char *azStdEd[] = {
     "notepad", "nano", "pico", "jove", "edit", "vi", "vim", "ed"
   };
   int i = 0;
+  if( zEditor==0 ){
+    zEditor = find_option("editor",0,1);
+  }
+  if( zEditor==0 ){
+    zEditor = db_get("editor", 0);
+  }
   if( zEditor==0 ){
     zEditor = fossil_getenv("VISUAL");
   }
