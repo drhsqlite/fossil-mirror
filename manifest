@@ -1,5 +1,5 @@
-C Fix\s[0eeaa6224cdbdbda]\sso\sthat\sit\scompiles\son\sWindows.\n[forum:/forumpost/3fc7aad2a3|Forum\spost\s3fc7aad2a3].
-D 2025-04-16T14:31:04.473
+C Make\sthe\ssystemd\sunit\sfiles\sa\slittle\seasier\sto\sread\sin\sthe\nwww/server/debian/service.md\sdocument.
+D 2025-04-16T14:56:46.587
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -925,7 +925,7 @@ F www/server/any/stunnel.md aec77679087d174bcb58a82aac7c20e75398065055098b217ff3
 F www/server/any/xinetd.md e118c0709cc0cb9b351e2fa34a057bb1ac7320e5101a7adaffbe1c94f40c9d73
 F www/server/debian/index.md 4260e776efd327e5e5873271d5599b753f464b78c41b8cbfc4b094b53e6fb896
 F www/server/debian/nginx.md b54af66bc95606dd42c28dc00f154439e22ab4e3069024322226586eec07ebe7
-F www/server/debian/service.md 0e4aae893c82c395d9745facd3570a4b2c893b3f37876a128208848eefe3def4
+F www/server/debian/service.md 4e6ceec434181742f2d157f087df1dabd0386b4b352a23986cd224ef0e810afe
 F www/server/index.html 0ff54c3f63445b4d78cd4fed0cd84c6acc590631e1dc2c6919eb7222bf251ad9
 F www/server/macos/index.md bffa54bee41c93af0514d288f6a18debbf70b5cc0ce7f87da5c4707c9a16b000
 F www/server/macos/service.md 3ed197f29bef14f1b2bd34abb043021b024886d270942b757bfe423b4e06800e
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d14a7803d77e8d0ba27c9e96f43d4a1e1789e2c3b2a5c28b230b77c5880f22e7
-R 2e19c4acb82c901f15c7df3d1b14077c
+P ccb416861656ce88e6302c241625eeaafe9d71a456e70d665a41e21e080836a2
+R f2d3c0f777441583947b66fe4caa6ec7
 U drh
-Z 7a1c77b3a72f4e0b60d0c794087288b7
+Z be92f5acd491170f2db146e0b9c73429
 # Remove this line to create a well-formed Fossil manifest.
