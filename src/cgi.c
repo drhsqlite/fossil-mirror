@@ -2634,7 +2634,7 @@ int cgi_http_server(
         }
       }else if( flags & HTTP_SERVER_LOCALHOST ){
         /* Bind to the loop-back IP address */
-        inaddr.sin6_addr = in6addr_loopback;
+        inet_pton(AF_INET6, "::ffff.127.0.0.1", &inaddr.sin6_addr);
       }else{
         /* Bind to any and all available IP addresses */
         inaddr.sin6_addr = in6addr_any;
