@@ -2500,6 +2500,22 @@ void cgi_handle_scgi_request(void){
   cgi_init();
 }
 
+/*
+** Change the listening socket, if necessary, so that it will accept both IPv4
+** and IPv6
+*/
+static void allowBothIpV4andV6(int listener){
+#if defined(IPV6_V6ONLY)
+  int ipv6only = -1;
+  socklen_t ipv6only_size = sizeof(ipv6only);
+  getsockopt(listener, IPPROTO_IPV6, IPV6_V6ONLY, &ipv6only, &ipv6only_size);
+  if( ipv6only ){
+    ipv6only = 0;
+    setsockopt(listener, IPPROTO_IPV6, IPV6_V6ONLY, &ipv6only, ipv6only_size);
+  }
+#endif /* defined(IPV6_ONLY) */
+}
+
 
 #if INTERFACE
 /*
@@ -2627,6 +2643,7 @@ int cgi_http_server(
         iPort++;
         continue;
       }
+      allowBothIpV4andV6(listener);
     }
 
     /* if we can't terminate nicely, at least allow the socket to be reused */
