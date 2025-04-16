@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.50.0"
 #define SQLITE_VERSION_NUMBER 3050000
-#define SQLITE_SOURCE_ID      "2025-04-10 10:18:07 20acd630b91609725794ce84f9eda01d5f3c898407f0948264830851d25ccaa6"
+#define SQLITE_SOURCE_ID      "2025-04-15 21:59:38 d22475b81c4e26ccc50f3b5626d43b32f7a2de34e5a764539554665bdda735d5"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -11629,8 +11629,9 @@ SQLITE_API sqlite3_int64 sqlite3session_changeset_size(sqlite3_session *pSession
 ** database zFrom the contents of the two compatible tables would be
 ** identical.
 **
-** It an error if database zFrom does not exist or does not contain the
-** required compatible table.
+** Unless the call to this function is a no-op as described above, it is an
+** error if database zFrom does not exist or does not contain the required
+** compatible table.
 **
 ** If the operation is successful, SQLITE_OK is returned. Otherwise, an SQLite
 ** error code. In this case, if argument pzErrMsg is not NULL, *pzErrMsg
