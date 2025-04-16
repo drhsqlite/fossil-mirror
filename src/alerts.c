@@ -657,7 +657,6 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
       }else if( p->zDest[0]=='d' ){
         smtp_session_config(p->pSmtp, SMTP_TRACE_BLOB, &p->out);
       }
-      smtp_client_startup(p->pSmtp);
     }
   }
   return p;

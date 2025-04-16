@@ -158,10 +158,11 @@ struct SmtpSession {
   u32 smtpFlags;            /* Flags changing the operation */
   FILE *logFile;            /* Write session transcript to this log file */
   Blob *pTranscript;        /* Record session transcript here */
-  int atEof;                /* True after connection closes */
+  int bOpen;                /* True if connection is Open */
   int bFatal;               /* Error is fatal.  Do not retry */
   char *zErr;               /* Error message */
   Blob inbuf;               /* Input buffer */
+  UrlData url;              /* Address of the server */
 };
 
 /* Allowed values for SmtpSession.smtpFlags */
@@ -200,8 +201,10 @@ static void smtp_set_error(
     p->zErr = vmprintf(zFormat, ap);
     va_end(ap);
   }
-  socket_close();
-  p->atEof = 1;
+  if( p->bOpen ){
+    socket_close();
+    p->bOpen = 0;
+  }
 }
 
 /*
@@ -220,18 +223,16 @@ SmtpSession *smtp_session_new(
   int iPort             /* TCP port if the SMTP_PORT flags is present */
 ){
   SmtpSession *p;
-  UrlData url;
 
   p = fossil_malloc( sizeof(*p) );
   memset(p, 0, sizeof(*p));
   p->zFrom = zFrom;
   p->zDest = zDest;
   p->smtpFlags = smtpFlags;
-  memset(&url, 0, sizeof(url));
-  url.port = 25;
+  p->url.port = 25;
   blob_init(&p->inbuf, 0, 0);
   if( smtpFlags & SMTP_PORT ){
-    url.port = iPort;
+    p->url.port = iPort;
   }
   if( (smtpFlags & SMTP_DIRECT)!=0 ){
     int i;
@@ -239,7 +240,7 @@ SmtpSession *smtp_session_new(
     for(i=0; p->zHostname[i] && p->zHostname[i]!=':'; i++){}
     if( p->zHostname[i]==':' ){
       p->zHostname[i] = 0;
-      url.port = atoi(&p->zHostname[i+1]);
+      p->url.port = atoi(&p->zHostname[i+1]);
     }
   }else{
     p->zHostname = smtp_mx_host(zDest);
@@ -248,11 +249,9 @@ SmtpSession *smtp_session_new(
     smtp_set_error(p, 1, "cannot locate SMTP server for \"%s\"", zDest);
     return p;
   }
-  url.name = p->zHostname;
+  p->url.name = p->zHostname;
   socket_global_init();
-  if( socket_open(&url) ){
-    smtp_set_error(p, 1, "can't open socket: %z", socket_errmsg());
-  }
+  p->bOpen = 0;
   return p;
 }
 
@@ -281,7 +280,7 @@ static void smtp_send_line(SmtpSession *p, const char *zFormat, ...){
   va_list ap;
   char *z;
   int n;
-  if( p->atEof ) return;
+  if( !p->bOpen ) return;
   va_start(ap, zFormat);
   blob_vappendf(&b, zFormat, ap);
   va_end(ap);
@@ -317,7 +316,7 @@ static void smtp_recv_line(SmtpSession *p, Blob *in){
   int nDelay = 0;
   if( i<n && z[n-1]=='\n' ){
     blob_line(&p->inbuf, in);
-  }else if( p->atEof ){
+  }else if( !p->bOpen ){
     blob_init(in, 0, 0);
   }else{
     if( n>0 && i>=n ){
@@ -378,6 +377,7 @@ static void smtp_get_reply_from_server(
   char *z;
   blob_truncate(in, 0);
   smtp_recv_line(p, in);
+  blob_trim(in);
   z = blob_str(in);
   n = blob_size(in);
   if( z[0]=='#' ){
@@ -399,14 +399,14 @@ int smtp_client_quit(SmtpSession *p){
   int iCode = 0;
   int bMore = 0;
   char *zArg = 0;
-  if( !p->atEof ){
+  if( p->bOpen ){
     smtp_send_line(p, "QUIT\r\n");
     do{
       smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
     }while( bMore );
-    p->atEof = 1;
+    p->bOpen = 0;
+    socket_close();
   }
-  socket_close();
   return 0;
 }
 
@@ -416,19 +416,22 @@ int smtp_client_quit(SmtpSession *p){
 **
 ** Return 0 on success and non-zero for a failure.
 */
-int smtp_client_startup(SmtpSession *p){
+static int smtp_client_startup(SmtpSession *p){
   Blob in = BLOB_INITIALIZER;
   int iCode = 0;
   int bMore = 0;
   char *zArg = 0;
   if( p==0 || p->bFatal ) return 1;
-  fossil_free(p->zErr);
-  p->zErr = 0;
+  if( socket_open(&p->url) ){
+    smtp_set_error(p, 1, "can't open socket: %z", socket_errmsg());
+    return 1;
+  }
+  p->bOpen = 1;
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
   if( iCode!=220 ){
-    smtp_set_error(p, 1, "server opens conversation with: %b", &in);
+    smtp_set_error(p, 1, "conversation begins with: \"%d %s\"",iCode,zArg);
     smtp_client_quit(p);
     return 1;
   }
@@ -437,10 +440,12 @@ int smtp_client_startup(SmtpSession *p){
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
   if( iCode!=250 ){
-    smtp_set_error(p, 1, "server responds to EHLO with: %b", &in);
+    smtp_set_error(p, 1, "reply to EHLO with: \"%d %s\"",iCode, zArg);
     smtp_client_quit(p);
     return 1;
   }
+  fossil_free(p->zErr);
+  p->zErr = 0;
   return 0;
 }
 
@@ -572,16 +577,16 @@ int smtp_send_msg(
   char *zArg = 0;
   Blob in;
   blob_init(&in, 0, 0);
-  if( p->atEof && !p->bFatal ){
-    smtp_client_startup(p);
-    if( p->atEof ) return 1;
+  if( !p->bOpen ){
+    if( !p->bFatal ) smtp_client_startup(p);
+    if( !p->bOpen ) return 1;
   }
   smtp_send_line(p, "MAIL FROM:<%s>\r\n", zFrom);
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
   if( iCode!=250 ){
-    smtp_set_error(p, 0, "server replies to MAIL FROM with: %b", &in);
+    smtp_set_error(p, 0,"reply to MAIL FROM: \"%d %s\"",iCode,zArg);
     return 1;
   }
   for(i=0; i<nTo; i++){
@@ -590,7 +595,7 @@ int smtp_send_msg(
       smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
     }while( bMore );
     if( iCode!=250 ){
-      smtp_set_error(p, 0, "server replies to RCPT TO with: %b", &in);
+      smtp_set_error(p, 0,"reply to RCPT TO: \"%d %s\"",iCode,zArg);
       return 1;
     }
   }
@@ -599,7 +604,7 @@ int smtp_send_msg(
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
   if( iCode!=354 ){
-    smtp_set_error(p, 0, "server replies to DATA with: %b", &in);
+    smtp_set_error(p, 0, "reply to DATA with: \"%d %s\"",iCode,zArg);
     return 1;
   }
   smtp_send_email_body(zMsg, socket_send, 0);
@@ -616,7 +621,8 @@ int smtp_send_msg(
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
   if( iCode!=250 ){
-    smtp_set_error(p, 0, "server replies to end-of-DATA with: %b", &in);
+    smtp_set_error(p, 0, "reply to end-of-DATA with: \"%d %s\"",
+                   iCode, zArg);
     return 1;
   }
   return 0;
@@ -683,10 +689,7 @@ void test_smtp_send(void){
     fossil_fatal("%s", p->zErr);
   }
   fossil_print("Connection to \"%s\"\n", p->zHostname);
-  smtp_client_startup(p);
-  if( !p->atEof ){
-    smtp_send_msg(p, zFrom, nTo, azTo, blob_str(&body));
-  }
+  smtp_send_msg(p, zFrom, nTo, azTo, blob_str(&body));
   smtp_client_quit(p);
   if( p->zErr ){
     fossil_fatal("ERROR: %s\n", p->zErr);
