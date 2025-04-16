@@ -2500,6 +2500,7 @@ void cgi_handle_scgi_request(void){
   cgi_init();
 }
 
+#if !defined(_WIN32)
 /*
 ** Change the listening socket, if necessary, so that it will accept both IPv4
 ** and IPv6
@@ -2515,6 +2516,7 @@ static void allowBothIpV4andV6(int listener){
   }
 #endif /* defined(IPV6_ONLY) */
 }
+#endif /* !defined(_WIN32) */
 
 
 #if INTERFACE

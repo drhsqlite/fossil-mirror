@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion,\sfor\stesting.
-D 2025-04-16T12:02:40.004
+C Fix\s[0eeaa6224cdbdbda]\sso\sthat\sit\scompiles\son\sWindows.\n[forum:/forumpost/3fc7aad2a3|Forum\spost\s3fc7aad2a3].
+D 2025-04-16T14:31:04.473
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c 3bb56262388f289ef1f61f871e4637232aaceae5698acdb6bd33e83d5520243f
+F src/cgi.c 38b08eafdb8461766066dd13d54bfd45d66affa12c831718acf901f744b8388c
 F src/chat.c 6965e8292e4cdce5347e027a841adcf97da5ffc17cbfbf6b2971ac432dfe9c67
 F src/checkin.c 8b372a4557a3a37f144b48b4d9d106b95cc2d6b1f5faf90b8331b386f94ab35f
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f031f744f0e061c3708be33c51d9f63984b949928455559ca18bdcf1a40c6107
-R b89bba41994c6527cc66950979869a6a
+P d14a7803d77e8d0ba27c9e96f43d4a1e1789e2c3b2a5c28b230b77c5880f22e7
+R 2e19c4acb82c901f15c7df3d1b14077c
 U drh
-Z 82aec6e9106ced8998f4641db1a674fb
+Z 7a1c77b3a72f4e0b60d0c794087288b7
 # Remove this line to create a well-formed Fossil manifest.
