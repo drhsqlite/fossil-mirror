@@ -1,5 +1,5 @@
-C Enhance\sthe\ssocket\slistener\slogic\son\sunix\sso\sthat\sit\smakes\ssure\nthe\sIPV6_V6ONLY\ssocket\soption\sis\sdisabled,\sas\swe\sare\stold\sthat\sthis\noption\sis\senabled\sby\sdefault\son\sFreeBSD.
-D 2025-04-16T10:20:04.280
+C Add\sthe\stest/fake-smtpd.tcl\sscript\sused\sfor\stesting.\s\sIt\swill\slikely\ncome\sin\shandy\ssomeday.\s\sSee\sheader\scomments\son\sthe\sfile\sfor\sdetails.
+D 2025-04-16T11:40:12.970
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -733,6 +733,7 @@ F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829aba
 F tools/email-sender.tcl 68217a0707268b570bd2f78e1799ae86c5cb0cc4e7eac321963fa24b6305c446 x
 F tools/emcc.sh.in 41a049468c8155433e37e656ba5bae063a000768b1d627025f277732c4e7c4a4
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
+F tools/fake-smtpd.tcl b8dd0e8d82d9b1906c09ad3e1bf96969a5a944dbc04ad083efcb4e7876f68c34
 F tools/find-fossil-cgis.tcl 02669fa4cb9c72cc2e6a1063bb2d7a5def86984e99d77cd7b04d97583cd7554e x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
@@ -969,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2d3ace5a9fb4de5cd37ce2fdff0012cb438986ddeb3f866d172b7a3a3b453056
-R 9f0ffc8f598b6809723c5192b6cd47e0
+P 0eeaa6224cdbdbda632c5422d98aedd66603ec8bbbe1e11ea3f6b10f18f27e83
+R 6a64cfafec0c97892c4e9d054e5f564c
 U drh
-Z 85a25ca96838a0e8641ca841f76599d7
+Z c972479d136e4bd01cfd2804da183a9c
 # Remove this line to create a well-formed Fossil manifest.
