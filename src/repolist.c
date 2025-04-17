@@ -143,17 +143,22 @@ int repo_list_page(void){
   Blob html;           /* Html for the body of the repository list */
   char *zSkinRepo = 0; /* Name of the repository database used for skins */
   char *zSkinUrl = 0;  /* URL for the skin database */
+  const char *zShow;   /* Value of FOSSIL_REPOLIST_SHOW environment variable */
   int bShowDesc = 0;   /* True to show the description column */
   int bShowLg = 0;     /* True to show the login-group column */
 
   assert( g.db==0 );
-  if( db_open_config(1, 1)
-   && db_table_exists("configdb", "global_config")
+  zShow = P("FOSSIL_REPOLIST_SHOW");
+  if( zShow ){
+    bShowDesc = strstr(zShow,"description")!=0;
+    bShowLg = strstr(zShow,"login-group")!=0;
+  }else if( db_open_config(1, 1)
+     && db_table_exists("configdb", "global_config")
   ){
-    bShowDesc = (0!=db_int(0, "SELECT value FROM global_config"
-                              " WHERE name='show-repolist-desc'"));
-    bShowLg = (0!=db_int(0, "SELECT value FROM global_config"
-                            " WHERE name='show-repolist-lg'"));
+    bShowDesc = db_int(bShowDesc, "SELECT value FROM global_config"
+                                  " WHERE name='show-repolist-desc'");
+    bShowLg = db_int(bShowLg, "SELECT value FROM global_config"
+                              " WHERE name='show-repolist-lg'");
   }
   blob_init(&html, 0, 0);
   if( fossil_strcmp(g.zRepositoryName,"/")==0 && !g.fJail ){
