@@ -261,6 +261,7 @@ static int stash_create(void){
   int vid;                           /* Current check-out */
 
   zComment = find_option("comment", "m", 1);
+  (void)fossil_text_editor();
   verify_all_options();
   if( zComment==0 ){
     Blob prompt;                       /* Prompt for stash comment */
@@ -510,8 +511,8 @@ static int stash_get_id(const char *zStashId){
 ** Usage: %fossil stash SUBCOMMAND ARGS...
 **
 ** > fossil stash
-** > fossil stash save ?-m|--comment COMMENT? ?FILES...?
-** > fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
+** > fossil stash save ?FILES...?
+** > fossil stash snapshot ?FILES...?
 **
 **      Save the current changes in the working tree as a new stash.
 **      Then revert the changes back to the last check-in.  If FILES
@@ -519,6 +520,11 @@ static int stash_get_id(const char *zStashId){
 **      "save" verb can be omitted if and only if there are no other
 **      arguments.  The "snapshot" verb works the same as "save" but
 **      omits the revert, keeping the check-out unchanged.
+**
+**      Options:
+**         --editor NAME                  Use the NAME editor to enter comment
+**         -m|--comment COMMENT           Comment text for the new stash
+**
 **
 ** > fossil stash list|ls ?-v|--verbose? ?-W|--width NUM?
 **

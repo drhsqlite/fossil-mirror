@@ -49,6 +49,7 @@
           branch has been changed.
      <li> The interactive checkin comment prompt shows the formatting rules
           set for that repository.
+     <li> Add the "--editor" option.
      </ol>
   *  Deprecate the --comfmtflags and --comment-format global options and
      no longer list them in the built-in help, but keep them working for

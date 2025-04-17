@@ -1,5 +1,5 @@
-C different\simprovements\sto\sthe\sticket\ssystem\sas\sdescribed\sin\s[forum:/forumpost/4756d97a64|forum\spost\s4756d97a64]
-D 2025-04-17T11:00:05.267
+C Extend\ssupport\sfor\sthe\s--editor\soption\sto\s"fossil\sstash\ssave"\sand\n"fossil\sstash\ssnapshot".
+D 2025-04-17T13:43:37.395
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -555,7 +555,7 @@ F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616e
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 42334a1297bb1ec6a34056f3be4068089e6d94e9e8077ed3d6778a50a1994a54
-F src/stash.c 30d159663eab76205a8b247428dd5c7fd17da6e02553d62df97b403c3f1bb801
+F src/stash.c b5ce9703768b4b5decd6f0a5324b2204a59392592be10b341e3311914cfec9e4
 F src/stat.c e25b4b93eb5bf7bb74e29b4ce44e6de9c5ea9921f780b79d1847e16848b9ac1f
 F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
@@ -791,7 +791,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 080e44975a142db5bfd34ba9cbae57e26e2f3ca26aaf5a27537668802986f028
-F www/changes.wiki 1dbeffb4539e8249be7534bd3aba36fa1e596eb0741620452ea5021b2b0948e0
+F www/changes.wiki 34cf7caf5cd04222abfe6af02c47f5189bed7dbcbc69909c6b2df0523d88111a
 F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -970,9 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 264250d670234218799b82d26d810a24ec0037d65904270b919fb2d2b607f9f2 3e16be4e027be739428ceff4ef582b1811f859171656979e983e3a1245c37226
-R c5ffeab9486259740324522560c6e782
-T +closed 3e16be4e027be739428ceff4ef582b1811f859171656979e983e3a1245c37226
-U jkosche
-Z 49e7f7982ad0b6a20b4badb8e1c9cc16
+P fab9f0047720721ede37bdb7ee61745e37fab393594dcf9b65c0a71cd490bdf1
+R 1fcc23d757d5eb17203cfe4e636f0101
+U drh
+Z a07fe08011ef3064e057d7c5878feae1
 # Remove this line to create a well-formed Fossil manifest.
