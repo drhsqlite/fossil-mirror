@@ -82,6 +82,12 @@ the page title taken from the <tt>FOSSIL_REPOLIST_TITLE</tt>
 environment variable. The variable can be defined in the CGI
 control file using the [#setenv|<tt>setenv:</tt>] statement.
 
+The "Project Description" and "Login-Group" columns on the repolist page
+are optional.  They are hidden by default.  Show them by putting value "1"
+in the global settings "show-repolist-desc" and "show-repolist-lg", or
+by setting the <tt>FOSSIL_REPOLIST_SHOW</tt> environment variable to
+a string that contains substrings "description" and/or "login-group".
+
 The repolist-generated page recurses into subdirectories and will list
 all <tt>*.fossil</tt> files found, with the following exceptions:
 
