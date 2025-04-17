@@ -147,11 +147,14 @@ int repo_list_page(void){
   int bShowLg = 0;     /* True to show the login-group column */
 
   assert( g.db==0 );
-  db_open_config(1, 0);
-  bShowDesc = (0!=db_int(0, "SELECT value FROM global_config"
-                            " WHERE name='show-repolist-desc'"));
-  bShowLg = (0!=db_int(0, "SELECT value FROM global_config"
-                          " WHERE name='show-repolist-lg'"));
+  if( db_open_config(1, 1)
+   && db_table_exists("configdb", "global_config")
+  ){
+    bShowDesc = (0!=db_int(0, "SELECT value FROM global_config"
+                              " WHERE name='show-repolist-desc'"));
+    bShowLg = (0!=db_int(0, "SELECT value FROM global_config"
+                            " WHERE name='show-repolist-lg'"));
+  }
   blob_init(&html, 0, 0);
   if( fossil_strcmp(g.zRepositoryName,"/")==0 && !g.fJail ){
     /* For the special case of the "repository directory" being "/",
