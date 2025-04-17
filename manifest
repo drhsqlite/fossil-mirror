@@ -1,5 +1,5 @@
-C Extend\ssupport\sfor\sthe\s--editor\soption\sto\s"fossil\sstash\ssave"\sand\n"fossil\sstash\ssnapshot".
-D 2025-04-17T13:43:37.395
+C Rework\sserver\ssockets\sto\swork\saround\slimitations\sin\sOpenBSD's\ssocket\nimplementation.\s\sSee\s\n[forum:/forumpost/7f8d2afe4d8c0ad5|forum\sthread\s7f8d2afe4d8c0ad5].
+D 2025-04-17T15:08:47.659
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c 5b07ea3d0b69c600f9262b217e134e7a8e99f306c6011e3c1d0fe2d43481d762
+F src/cgi.c 03aeecd71fdcb51a6fb2b545900796fd45d8a801f5b3d483f98e7e2fff6718a3
 F src/chat.c 6965e8292e4cdce5347e027a841adcf97da5ffc17cbfbf6b2971ac432dfe9c67
 F src/checkin.c 17224d59bae25829aa6ff0cff8928b52dd655f24da3e315ffbcc0d31641cbac1
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fab9f0047720721ede37bdb7ee61745e37fab393594dcf9b65c0a71cd490bdf1
-R 1fcc23d757d5eb17203cfe4e636f0101
+P b9f569b2c906ce2899fe27a506f404503e42487a80c9edbfae6479236b0eb9ca
+R 0835952adc36e18eee8139c39afa5be7
 U drh
-Z a07fe08011ef3064e057d7c5878feae1
+Z cfb5380a52cc1f1eed6ae87fc5083cee
 # Remove this line to create a well-formed Fossil manifest.

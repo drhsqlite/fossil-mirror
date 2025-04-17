@@ -2570,10 +2570,12 @@ int cgi_http_server(
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
   struct sockaddr_in6 inaddr;  /* The socket address */
+  struct sockaddr_in inaddr4;  /* IPv4 address; needed by OpenBSD */
   struct sockaddr_un uxaddr;   /* The address for unix-domain sockets */
   int opt = 1;                 /* setsockopt flag */
   int rc;                      /* Result code from system calls */
   int iPort = mnPort;          /* Port to try to use */
+  int bIPv4 = 0;               /* Use IPv4 only; use inaddr4, not inaddr */
 
   while( iPort<=mxPort ){
     if( flags & HTTP_SERVER_UNIXSOCKET ){
@@ -2609,43 +2611,48 @@ int cgi_http_server(
       }
     }else{
       /* Initialize a TCP/IP socket on port iPort */
-      memset(&inaddr, 0, sizeof(inaddr));
-      inaddr.sin6_family = AF_INET6;
+      if( (flags & HTTP_SERVER_LOCALHOST)!=0 && zIpAddr==0 ){
+        /* Map all loopback to 127.0.0.1, since this is the easiest way
+        ** to support OpenBSD and its limitations without burdening
+        ** Linux and MacOS with lots of extra code and complication. */
+        zIpAddr = "127.0.0.1";
+      }
       if( zIpAddr ){
-        /* Bind to the specific IP address given by zIpAddr[] */
-        size_t nAddr = strlen(zIpAddr);
-        char z4to6[30];
-        
-        if( nAddr<16 ){
-          /* The specified IP address might be in IPv4 notation (ex: 1.2.3.4)
-          ** which inet_pton() does not understand.  Convert in into a IPv6
-          ** mapping of an IPv4 address: (::FFFF:1.2.3.4) */
-          memcpy(z4to6,"::ffff:", 7);
-          memcpy(z4to6+7, zIpAddr, nAddr+2);
+        if( strchr(zIpAddr,':') ){
+          memset(&inaddr, 0, sizeof(inaddr));
+          inaddr.sin6_family = AF_INET6;
+          bIPv4 = 0;
+          if( inet_pton(AF_INET6, zIpAddr, &inaddr.sin6_addr)==0 ){
+            fossil_fatal("not a valid IPv6 address: %s", zIpAddr);
+          }
         }else{
-          z4to6[0] = 0;
+          memset(&inaddr4, 0, sizeof(inaddr4));
+          inaddr4.sin_family = AF_INET;
+          bIPv4 = 1;
+          inaddr4.sin_addr.s_addr = inet_addr(zIpAddr);
+          if( inaddr4.sin_addr.s_addr == INADDR_NONE ){
+            fossil_fatal("not a valid IPv4 address: %s", zIpAddr);
+          }
         }
-
-        /* Convert the zIpAddr text string into an actual IPv6 address */
-        if( inet_pton(AF_INET6, zIpAddr, &inaddr.sin6_addr)==0
-         && (z4to6[0]==0 || inet_pton(AF_INET6, z4to6, &inaddr.sin6_addr)==0)
-        ){
-          fossil_fatal("not a valid IP address: %s", zIpAddr);
-        }
-      }else if( flags & HTTP_SERVER_LOCALHOST ){
-        /* Bind to the loop-back IP address */
-        inet_pton(AF_INET6, "::ffff.127.0.0.1", &inaddr.sin6_addr);
       }else{
         /* Bind to any and all available IP addresses */
+        memset(&inaddr, 0, sizeof(inaddr));
+        inaddr.sin6_family = AF_INET6;
         inaddr.sin6_addr = in6addr_any;
+        bIPv4 = 0;
       }
-      inaddr.sin6_port = htons(iPort);
-      listener = socket(AF_INET6, SOCK_STREAM, 0);
+      if( bIPv4 ){
+        inaddr4.sin_port = htons(iPort);
+        listener = socket(AF_INET, SOCK_STREAM, 0);
+      }else{
+        inaddr.sin6_port = htons(iPort);
+        listener = socket(AF_INET6, SOCK_STREAM, 0);
+        allowBothIpV4andV6(listener);
+      }
       if( listener<0 ){
         iPort++;
         continue;
       }
-      allowBothIpV4andV6(listener);
     }
 
     /* if we can't terminate nicely, at least allow the socket to be reused */
@@ -2660,6 +2667,8 @@ int cgi_http_server(
       if( g.zSockOwner ){
         file_set_owner(g.zSockName, listener, g.zSockOwner);
       }
+    }else if( bIPv4 ){
+      rc = bind(listener, (struct sockaddr*)&inaddr4, sizeof(inaddr4));
     }else{
       rc = bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr));
     }
