@@ -127,7 +127,7 @@ static void tktsetup_generic(
     return;
   }
   style_set_current_feature("tktsetup");
-  if( PB("setup") ){
+  if( P("setup") ){
     cgi_redirect("tktsetup");
   }
   isSubmit = P("submit")!=0;
@@ -166,6 +166,7 @@ static void tktsetup_generic(
   @ <blockquote><pre>
   @ %h(zDfltValue)
   @ </pre></blockquote>
+  style_submenu_element("Back", "%R/tktsetup");
   style_finish_page();
 }
 
@@ -525,17 +526,57 @@ static const char zDefaultView[] =
 @ if {[info exists tkt_datetime]} {
 @   html $tkt_datetime
 @ }
+@ if {[info exists tkt_mage]} {
+@   html "<br>$tkt_mage"
+@ }
 @ </th1>
 @ </td>
+@ <td class="tktDspLabel">Created:</td><td class="tktDspValue">
+@ <th1>
+@ if {[info exists tkt_datetime_creation]} {
+@   html $tkt_datetime_creation
+@ }
+@ if {[info exists tkt_cage]} {
+@   html "<br>$tkt_cage"
+@ }
+@ </th1>
+@ </td></tr>
 @ <th1>enable_output [hascap e]</th1>
-@   <td class="tktDspLabel">Contact:</td><td class="tktDspValue">
+@   <tr>
+@   <td class="tktDspLabel">Contact:</td><td class="tktDspValue" colspan="3">
 @   $<private_contact>
 @   </td>
+@   </tr>
 @ <th1>enable_output 1</th1>
-@ </tr>
 @ <tr><td class="tktDspLabel">Version&nbsp;Found&nbsp;In:</td>
 @ <td colspan="3" valign="top" class="tktDspValue">
-@ $<foundin>
+@ <th1>
+@ set versionlink ""
+@ set urlfoundin [httpize $foundin]
+@ set tagpattern {^[-0-9A-Za-z_\\.]+$}
+@ if [regexp $tagpattern $foundin] {
+@   query {SELECT count(*) AS match FROM tag
+@          WHERE tagname=concat('sym-',$foundin)} {
+@     if {$match} {set versionlink "/timeline?t=$urlfoundin"}
+@   }
+@ }
+@ set hashpattern {^[0-9a-f]+$}
+@ if [regexp $hashpattern $foundin] {
+@   set pattern $foundin*
+@   query {SELECT count(*) AS match FROM blob WHERE uuid GLOB $pattern} {
+@     if {$match} {set versionlink "/info/$urlfoundin"}
+@   }
+@ }
+@ if {$versionlink eq ""} {
+@   puts $foundin
+@ } else {
+@   html "<a href=\""
+@   puts $versionlink
+@   html "\">"
+@   puts $foundin
+@   html "</a>"
+@ }
+@ </th1>
 @ </td></tr>
 @ </table>
 @
@@ -569,7 +610,8 @@ static const char zDefaultView[] =
 @   if {$seenRow} {
 @     html "<hr>\n"
 @   } else {
-@     html "<tr><td class='tktDspLabel' style='text-align:left'>User Comments:</td></tr>\n"
+@     html "<tr><td class='tktDspLabel' style='text-align:left'>\n"
+@     html "User Comments:</td></tr>\n"
 @     html "<tr><td colspan='5' class='tktDspValue'>\n"
 @     set seenRow 1
 @   }
@@ -743,6 +785,48 @@ static const char zDefaultEdit[] =
 @ <td>Abandon this edit</td>
 @ </tr>
 @
+@ <th1>
+@ set seenRow 0
+@ set alwaysPlaintext [info exists plaintext]
+@ query {SELECT datetime(tkt_mtime) AS xdate, login AS xlogin,
+@               mimetype as xmimetype, icomment AS xcomment,
+@               username AS xusername
+@          FROM ticketchng
+@         WHERE tkt_id=$tkt_id AND length(icomment)>0} {
+@   if {$seenRow} {
+@     html "<hr>\n"
+@   } else {
+@     html "<tr><td colspan='2'><hr></td></tr>\n"
+@     html "<tr><td colspan='2' class='tktDspLabel' style='text-align:left'>\n"
+@     html "Previous User Comments:</td></tr>\n"
+@     html "<tr><td colspan='2' class='tktDspValue'>\n"
+@     set seenRow 1
+@   }
+@   html "<span class='tktDspCommenter'>"
+@   html "[htmlize $xlogin]"
+@   if {$xlogin ne $xusername && [string length $xusername]>0} {
+@     html " (claiming to be [htmlize $xusername])"
+@   }
+@   html " added on $xdate:"
+@   html "</span>\n"
+@   if {$alwaysPlaintext || $xmimetype eq "text/plain"} {
+@     set r [randhex]
+@     if {$xmimetype ne "text/plain"} {html "([htmlize $xmimetype])\n"}
+@     wiki "<verbatim-$r>[string trimright $xcomment]</verbatim-$r>\n"
+@   } elseif {$xmimetype eq "text/x-fossil-wiki"} {
+@     wiki "<p>\n[string trimright $xcomment]\n</p>\n"
+@   } elseif {$xmimetype eq "text/x-markdown"} {
+@     html [lindex [markdown $xcomment] 1]
+@   } elseif {$xmimetype eq "text/html"} {
+@     wiki "<p><nowiki>\n[string trimright $xcomment]\n</nowiki>\n"
+@   } else {
+@     set r [randhex]
+@     wiki "<verbatim-$r links>[string trimright $xcomment]</verbatim-$r>\n"
+@   }
+@ }
+@ if {$seenRow} {html "</td></tr>\n"}
+@ </th1>
+@
 @ </table>
 ;
 
@@ -841,7 +925,8 @@ static char zDefaultReport[] =
 @        WHEN status='Deferred' THEN '#cacae5'
 @        ELSE '#c8c8c8' END AS 'bgcolor',
 @   substr(tkt_uuid,1,10) AS '#',
-@   datetime(tkt_mtime) AS 'mtime',
+@   datetime(tkt_ctime) AS 'created',
+@   datetime(tkt_mtime) AS 'modified',
 @   type,
 @   status,
 @   subsystem,
@@ -975,6 +1060,7 @@ void tktsetup_timeline_page(void){
   @ </p>
   @ </div></form>
   db_end_transaction(0);
+  style_submenu_element("Back", "%R/tktsetup");
   style_finish_page();
 
 }

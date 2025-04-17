@@ -192,7 +192,10 @@ static void initializeVariablesFromDb(void){
   int i, n, size, j;
 
   zName = PD("name","-none-");
-  db_prepare(&q, "SELECT datetime(tkt_mtime,toLocal()) AS tkt_datetime, *"
+  db_prepare(&q, "SELECT datetime(tkt_mtime,toLocal()) AS tkt_datetime, "
+                 "datetime(tkt_ctime,toLocal()) AS tkt_datetime_creation, "
+                 "julianday('now') - tkt_mtime, "
+                 "julianday('now') - tkt_ctime, *"
                  "  FROM ticket WHERE tkt_uuid GLOB '%q*'",
                  zName);
   if( db_step(&q)==SQLITE_ROW ){
@@ -213,6 +216,8 @@ static void initializeVariablesFromDb(void){
       }
       free(zRevealed);
     }
+    Th_Store("tkt_mage", human_readable_age(db_column_double(&q, 2)));
+    Th_Store("tkt_cage", human_readable_age(db_column_double(&q, 3)));
   }
   db_finalize(&q);
   for(i=0; i<nField; i++){
@@ -771,7 +776,8 @@ void tktview_page(void){
        "SELECT tkt_uuid FROM ticket"
        " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( g.perm.WrWiki && g.perm.WrTkt ){
-    style_submenu_element("Edit Description", "%R/wikiedit?name=ticket/%T", zFullName);
+    style_submenu_element("Edit Description",
+                          "%R/wikiedit?name=ticket/%T", zFullName);
   }
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br>\n", -1);
   ticket_init();

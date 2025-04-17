@@ -126,6 +126,9 @@
           template for a new ticket.
      <li> Added button 'Submit and New' to create multiple tickets
           in a row.
+     <li> Link the version field in ticket view to a matching checkin or tag.
+     <li> Show creation time in report and ticket view.
+     <li> Show previous comments in edit ticket as reference.
      </ol>
   *  Added the "hash" query parameter to the
      [/help?cmd=/whatis|/whatis webpage].
