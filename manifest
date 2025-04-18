@@ -1,5 +1,5 @@
-C Show\sthe\sFORUMPOST\stable\scontent\sassociated\swith\sa\sforum\sthread\son\sthe\n/forumthreadhashlist\spage\s(accessible\sby\sadmins\sonly).
-D 2025-04-18T00:00:45.719
+C Amend\s[2b6ad00ea3]:\sMinor\swording\simprovements\sto\s`fossil\sssl-config\sshow\s-v'\soutput.
+D 2025-04-18T07:08:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -467,7 +467,7 @@ F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
 F src/http.c 67530619f1553625e96b79756c430227c8fe3b5c4883d08d8ae1162f1fab2eeb
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
-F src/http_ssl.c ced33faeae2bdf6c554c1483cae5a4148a88108f6a775eeea0d713743fc51665
+F src/http_ssl.c c378b9724a8be6f1b7959af8080b028cf500e5f7845ae098870cef3bb7aa8ebb
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
 F src/info.c fb814e14596c622119b8ab659035ffbff627f283160d698c060796a25bcdb1d7
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 923aa7534586349041dbff753293e637411b19cf1dfb37215f18d8d14947578d
-R 389a23bfd5cb6ca998e7e90195fca8b1
-U drh
-Z 3c6d0fa8dfdabdaaf2a8ff05d78f824e
+P 042a750aa60d2a643d8e1e22d787b8bbbed23c1f6302c05fbf375247b1bd5d32
+R bc095164da2cfb7febcc687b5df01b77
+U florian
+Z bb3f13fee040ea345d4aed5325f7311a
 # Remove this line to create a well-formed Fossil manifest.

@@ -1070,9 +1070,9 @@ void test_tlsconfig_info(void){
     if( verbose ){
       fossil_print("\n"
          "    OpenSSL 3.2.0, or newer, but not version 3.5.0 due to a bug,\n"
-         "    the root certificates are managed by the Windows operating\n"
-         "    system. The installed root certificates are listed by the\n"
-         "    command:\n\n"
+         "    are able to use the root certificates managed by the Windows\n"
+         "    operating system. The installed root certificates are listed\n"
+         "    by the command:\n\n"
          "        certutil -store \"ROOT\"\n\n"
       );
     }
