@@ -575,6 +575,7 @@ void forumthreadhashlist(void){
   ForumThread *pThread;
   ForumPost *p;
   char *fuuid;
+  Stmt q;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -609,6 +610,23 @@ void forumthreadhashlist(void){
   }
   forumthread_delete(pThread);
   @ </pre>
+  @ <hr>
+  @ <h2>Related FORUMPOST Table Content</h2>
+  @ <table border="1" cellpadding="4" cellspacing="0">
+  @ <tr><th>fpid<th>froot<th>fprev<th>firt<th>fmtime
+  db_prepare(&q, "SELECT fpid, froot, fprev, firt, datetime(fmtime)"
+                 "  FROM forumpost"
+                 " WHERE froot=%d"
+                 " ORDER BY fmtime", froot);
+  while( db_step(&q)==SQLITE_ROW ){
+    @ <tr><td>%d(db_column_int(&q,0))\
+    @ <td>%d(db_column_int(&q,1))\
+    @ <td>%d(db_column_int(&q,2))\
+    @ <td>%d(db_column_int(&q,3))\
+    @ <td>%h(db_column_text(&q,4))</tr>
+  }
+  @ </table>
+  db_finalize(&q);
   style_finish_page();
 }
 
