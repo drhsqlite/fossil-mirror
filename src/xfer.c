@@ -1125,7 +1125,7 @@ static void send_unversioned_catalog(Xfer *pXfer){
 ** information is available.
 */
 static char *whyNotAuth(void){
-  if( g.useLocalauth && db_get_int("localauth",0)!=0 ){
+  if( g.useLocalauth && db_get_boolean("localauth",0)!=0 ){
     return "\\sbecause\\sthe\\s'localauth'\\ssetting\\sis\\senabled";
   }
   return "";
