@@ -1,5 +1,5 @@
-C Use\sdb_get_boolean()\sinstead\sof\sdb_get_int()\sfor\sthe\slocalauth\nsetting,\ssince\slocalauth\sis\sa\sboolean\svalue.
-D 2025-04-18T15:32:14.634
+C fix\sbug\sin\s/tktview:\suse\srelative\sinstead\sof\sabsolute\slink\sfor\sversion
+D 2025-04-18T16:12:06.885
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -576,7 +576,7 @@ F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
 F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
 F src/timeline.c 03dbf56d7a31cf77d8f1ff7eb277a9d747a5b5c61578dd94db005467da0b6122
 F src/tkt.c 92c82e9f065ef6aeb3623f5738c009db9648308878bfba434325a3e80eb5fdd0
-F src/tktsetup.c f8f1cd5ef6b45f9e7a4c4ce49979cec6d041ed04dfe7b04c4538da3ebdd82245
+F src/tktsetup.c 1e049364b41572b5a851430e6b2669d7f8048329df4b7d4bd2d36171dd1c7017
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c adb86202928394161ecfa194be5001fbd86254ba43c4df527d91c36857a0be90
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2765f04694d36e6837cec9a800688e5b9403b881a1264f84dae5e8249760f1d1
-R c877bf69d69ed3141aa9d9a3c12295b2
-U drh
-Z 98db093fa02c0781a6bfdcf21df3653b
+P 00638d9a838324db83c2d3a98f077aaa00459842ac07f8a2db593c9605fd9d3c
+R 28442d0fe8289c3d2529529158c9ab94
+U jkosche
+Z 3a6d2cc299ffed62cfb8366ed1a7e387
 # Remove this line to create a well-formed Fossil manifest.
