@@ -1,5 +1,5 @@
-C Amend\s[2b6ad00ea3]:\sMinor\swording\simprovements\sto\s`fossil\sssl-config\sshow\s-v'\soutput.
-D 2025-04-18T07:08:00.000
+C Rework\sthe\scgi_http_server()\sroutine\sso\sthat\sit\suses\stwo\sseparate\ssockets,\none\seach\sfor\sIPv4\sand\sIPv6.
+D 2025-04-18T12:23:07.084
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c 03aeecd71fdcb51a6fb2b545900796fd45d8a801f5b3d483f98e7e2fff6718a3
+F src/cgi.c 29dcebc0e5c872f96914f0f249789ab442d862bba1e6d7dcf78b048f7c22b6db
 F src/chat.c 6965e8292e4cdce5347e027a841adcf97da5ffc17cbfbf6b2971ac432dfe9c67
 F src/checkin.c 17224d59bae25829aa6ff0cff8928b52dd655f24da3e315ffbcc0d31641cbac1
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 042a750aa60d2a643d8e1e22d787b8bbbed23c1f6302c05fbf375247b1bd5d32
-R bc095164da2cfb7febcc687b5df01b77
-U florian
-Z bb3f13fee040ea345d4aed5325f7311a
+P a9b075af835a9950f6bf78046098438f5ebc9a531d155ff689d6d66343001aa4
+R 5ea09267fc0164d61cd9b8c6113014b6
+U drh
+Z 9562c830bc35b8f5abf8bc5f46d09d79
 # Remove this line to create a well-formed Fossil manifest.
