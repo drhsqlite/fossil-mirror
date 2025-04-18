@@ -2534,7 +2534,7 @@ void test_html_tidy(void){
 /*
 ** Allowed flag options for html_to_plaintext().
 */
-#define HTOT_VT100   0x01 /* <mark> becomes ^[[91m */
+#define HTOT_VT100   0x01 /* <mark> becomes ^[[<g.cliColor>m */
 #define HTOT_FLOW    0x02 /* Collapse internal whitespace to a single space */
 #define HTOT_TRIM    0x04 /* Trim off leading and trailing whitespace */
 
@@ -2545,7 +2545,7 @@ void test_html_tidy(void){
 ** codes.
 */
 static void addMark(Blob *pOut, int mFlags, int isClose){
-  static const char *az[4] = { "<MARK>", "</MARK>", "\033[91m", "\033[0m" };
+  const char *az[4] = { "<MARK>", "</MARK>", g.cliColor, "\033[0m" };
   int i = 0;
   if( isClose ) i++;
   if( mFlags & HTOT_VT100 ) i += 2;

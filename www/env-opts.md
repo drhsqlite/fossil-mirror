@@ -147,6 +147,11 @@ environment variable.
 debugger to the Fossil process prior to any significant work being
 performed.
 
+`FOSSIL_COLOR`: Define the color VT escape to highlight CLI text. For
+example, if set to `1;4`, call-outs are bold and underlined. With the
+value `none`, colors are disabled, but note that the `--color=always`
+option takes precedence. The default is `91` (bright foreground red).
+
 `FOSSIL_FORCE_TICKET_MODERATION`: If set, *ALL* changes for tickets
 will be required to go through moderation (even those performed by the
 local interactive user via the command line).  This can be useful for

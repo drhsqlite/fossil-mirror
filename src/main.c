@@ -238,6 +238,7 @@ struct Global {
   int userUid;            /* Integer user id */
   int isHuman;            /* True if access by a human, not a spider or bot */
   int colorOutput;        /* Control output of color VT escapes to CLI */
+  const char *cliColor;   /* VT color code for CLI highlight; default: "91" */
   int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
                           ** accessed through get_comment_format(). */
   const char *zSockName;  /* Name of the unix-domain socket file */
@@ -643,6 +644,7 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 
 /*
 ** Initialize the g.comFmtFlags and g.colorOutput global variables.
+** Also read the environment variable FOSSIL_COLOR into g.cliColor.
 **
 ** The global command-line options --comfmtflags or --comment-format to
 ** set the comment format are undocumented and deprecated, and are only
@@ -685,6 +687,22 @@ static void fossil_init_flags_from_options(void){
       }
       fossil_path_free(zEnvVar);
     }
+  }
+  g.cliColor = "\033[91m";
+  zEnvVar = fossil_getenv("FOSSIL_COLOR");
+  if( zEnvVar ){
+    if( fossil_strcmp(zEnvVar,"none")==0 &&
+        g.colorOutput==COLOR_VT_UNSET ){
+      g.colorOutput = COLOR_VT_NEVER;
+    }else{
+      int i, fValid = 1;
+      /* Rudimentary sanity check: only allow digits and semicolon. */
+      for( i=0; zEnvVar[i]; i++ ){
+        if( !strchr("0123456789;",zEnvVar[i]) ) fValid = 0;
+      }
+      if( fValid ) g.cliColor = mprintf("\033[%sm",zEnvVar);
+    }
+    fossil_path_free(zEnvVar);
   }
 }
 

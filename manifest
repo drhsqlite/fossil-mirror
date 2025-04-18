@@ -1,5 +1,5 @@
-C Add\sthe\sglobal\s--color\soption\sto\scontrol\soutput\sof\scolor\sVT\sescapes\sto\sCLI,\ssimilar\sto\s`ls',\s`grep'\sand\sother\sutilities.\sUseful\swhen\spiping\s`fossil\ssearch'\sresults\sthrough\sa\spager\sutility.
-D 2025-04-18T07:16:00.000
+C Add\ssupport\sfor\sthe\sFOSSIL_COLOR\senvironment\svariable\sto\sdefine\sthe\scolor\sVT\sescape\sto\shighlight\sCLI\stext,\salso\ssimilar\sto\s`ls',\s`grep'\sand\sother\sutilities.
+D 2025-04-18T07:19:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -493,7 +493,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c bf9b18b74626c545b05eea0cf5191b523dd36187cc4a9d8a5c82f57a5a7045eb
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c c309f7516fa5101d001f06ef60723ba04234175e608ff4f5caa01a0c2d3f8a4c
+F src/main.c e8907f14c0debca5213e70cd4e7651093aa76150971988317853759dfc3516b1
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
 F src/manifest.c fd84c8658613a60d2f00f5a874dc6163c77e48e11d814c89321829ddb21cb67a
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -591,7 +591,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c 1359a2a0c7f88c5e2485fb16068ddce2f038a939d15a0be3cb2e992cda310f1c
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
+F src/wikiformat.c 67a670b020771911aae56f0c70f6c8f8fd66a1af33db811f831cb297c9b80291
 F src/winfile.c eaf26e6dedd30e7b82cf15bf2d7f29bb28677f93e122c84a8625f2b6cc223220
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
 F src/xfer.c 4e6e873068cb207ba0cd483271fe4606fd3a59289ba7b0d8f15a3de071fcf87f
@@ -828,7 +828,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki e97cbf256e11b913298031503eda9042295865ab1ee2f6c5ae558cb091300fd7
-F www/env-opts.md 1f69bcec3574b8e55fbb5892d656da21bff133a13f7e1ad19d1885efe65361ac
+F www/env-opts.md 802105a1a612e7ad47e519416032a0ad4e3bdf8acb71f80527e1f3dc8582f74b
 F www/event.wiki b2b5694047176815ed3701face7910e89bda204b07af878a16c04d8c6b3e08ad
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
@@ -970,11 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9b075af835a9950f6bf78046098438f5ebc9a531d155ff689d6d66343001aa4
-R 47183fc19c7d4854f06a90d48e97447d
-T *branch * standard-cli-colors
-T *sym-standard-cli-colors *
-T -sym-trunk *
+P 210b7d2fe0bd4ae9dd3da6607bb7e963cd1b156ecb2d9d983fbcb44c63f1e299
+R 3012b214a2b3cc178bc84eb908b80a24
 U florian
-Z a10f8ec9ea421c2d78a41e63d890ff9e
+Z 08dc25f6a21e71b50656736558dbc0b2
 # Remove this line to create a well-formed Fossil manifest.
