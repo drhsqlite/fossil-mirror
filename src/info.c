@@ -1184,10 +1184,10 @@ void ci_page(void){
   }
   if( diffType!=0 ){
     if( *zW ){
-      @ %z(chref("button","%R/%s/%T",zPage,zName))
+      @ %z(chref("button","%R/%s/%T?diff=%d",zPage,zName,diffType))
       @ Show&nbsp;Whitespace&nbsp;Changes</a>
     }else{
-      @ %z(chref("button","%R/%s/%T?w",zPage,zName))
+      @ %z(chref("button","%R/%s/%T?diff=%d&w",zPage,zName,diffType))
       @ Ignore&nbsp;Whitespace</a>
     }
   }
