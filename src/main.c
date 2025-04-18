@@ -237,6 +237,7 @@ struct Global {
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
   int isHuman;            /* True if access by a human, not a spider or bot */
+  int colorOutput;        /* Control output of color VT escapes to CLI */
   int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
                           ** accessed through get_comment_format(). */
   const char *zSockName;  /* Name of the unix-domain socket file */
@@ -641,13 +642,17 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 }
 
 /*
-** Initialize the g.comFmtFlags global variable.
+** Initialize the g.comFmtFlags and g.colorOutput global variables.
 **
-** Global command-line options --comfmtflags or --comment-format can be
-** used for this.  However, those command-line options are undocumented
-** and deprecated.   They are here for backwards compatibility only.
+** The global command-line options --comfmtflags or --comment-format to
+** set the comment format are undocumented and deprecated, and are only
+** for backwards compatibility.
+**
+** If the --color option isn't found, the NO_COLOR environment variable
+** may disable colored output (but is otherwise trumped by the option).
 */
 static void fossil_init_flags_from_options(void){
+  char *zEnvVar;
   const char *zValue = find_option("comfmtflags", 0, 1);
   if( zValue==0 ){
     zValue = find_option("comment-format", 0, 1);
@@ -656,6 +661,30 @@ static void fossil_init_flags_from_options(void){
     g.comFmtFlags = atoi(zValue);
   }else{
     g.comFmtFlags = COMMENT_PRINT_UNSET;   /* Command-line option not found. */
+  }
+  g.colorOutput = COLOR_VT_UNSET;
+  zValue = find_option("color", 0, 1);
+  if( zValue ){
+    if( fossil_strcmp(zValue,"never")==0 ){
+      g.colorOutput = COLOR_VT_NEVER;
+    }
+    else if( fossil_strcmp(zValue,"always")==0 ){
+      g.colorOutput = COLOR_VT_ALWAYS;
+    }
+    else if( fossil_strcmp(zValue,"auto")==0 ){
+      g.colorOutput = COLOR_VT_AUTO;
+    }else{
+      fossil_fatal("the --color option must be 'never', 'always', or 'auto'");
+    }
+  }
+  if( g.colorOutput==COLOR_VT_UNSET ){
+    zEnvVar = fossil_getenv("NO_COLOR");
+    if( zEnvVar ){
+      if( is_false(zEnvVar) ){
+        g.colorOutput = COLOR_VT_NEVER;
+      }
+      fossil_path_free(zEnvVar);
+    }
   }
 }
 

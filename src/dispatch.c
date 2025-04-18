@@ -1390,6 +1390,7 @@ static const char zOptions[] =
 @   --case-sensitive BOOL   Set case sensitivity for file names
 @   --cgitrace              Active CGI tracing
 @   --chdir PATH            Change to PATH before performing any operations
+@   --color WHEN            Emit VT color escapes: 'never', 'always', or 'auto'
 @   --errorlog FILENAME     Log errors to FILENAME
 @   --help                  Show help on the command rather than running it
 @   --httptrace             Trace outbound HTTP requests

@@ -35,6 +35,19 @@ most sensible condition.
 any commands.
 
 
+`--color WHEN`: Control output of color VT escapes to CLI (supersedes
+the `NO_COLOR` environment variable explained later in this document):
+
+  * _never_ &mdash; Never emit color VT escapes.
+
+  * _always_ &mdash; Always emit color VT escapes; useful when piping
+    Fossil command output through a pager utility.
+
+  * _auto_ &mdash; Only emit color VT escapes when output goes to a
+    terminal, and not if output is redirected to a pipe, a file, or any
+    other device.
+
+
 `--comfmtflags NUMBER`: Specify flags that control how check-in comments
 and certain other text outputs are formatted for display. The flags are
 individual bits in `NUMBER`, which must be specified in base 10:
@@ -232,6 +245,7 @@ the discussion of Fossil Username below for a lot more detail.
 `NO_COLOR`: If defined and not set to a `false` value (i.e. "off", "no",
 "false", "0"), the `fossil search` command skips colorization of console
 output using ANSI escape codes (VT100).
+Note the `--color` option takes precedence over the `NO_COLOR` variable.
 
 `PATH`: Used by most platforms to locate programs invoked without a
 fully qualified name. Explicitly used by `fossil ui` on certain platforms

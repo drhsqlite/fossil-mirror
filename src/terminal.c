@@ -42,6 +42,14 @@ struct TerminalSize {
   unsigned int nColumns;         /* Number of characters on a single line */
   unsigned int nLines;           /* Number of lines */
 };
+
+/*
+** Values of g.ColorOutput to control output of color VT escapes to CLI.
+*/
+#define COLOR_VT_UNSET   (-1)   /* Not initialized. */
+#define COLOR_VT_NEVER    (0)   /* Never emit color VT escapes. */
+#define COLOR_VT_ALWAYS   (1)   /* Always emit color VT escapes. */
+#define COLOR_VT_AUTO     (2)   /* Only emit color VT escapes on terminal. */
 #endif
 
 
@@ -145,15 +153,14 @@ void test_terminal_size_cmd(void){
 ** Return true if it is reasonable is emit VT100 escape codes.
 */
 int terminal_is_vt100(void){
-  char *zNoColor;
+  if( g.colorOutput==COLOR_VT_NEVER) return 0;
+  if( g.colorOutput==COLOR_VT_ALWAYS) return 1;
+  /* Check the terminal if g.colorOutput is COLOR_VT_UNSET or COLOR_VT_AUTO. */
 #ifdef _WIN32
-  if( !win32_terminal_is_vt100(1) ) return 0;
-#endif /* _WIN32 */
-  if( !fossil_isatty(1) ) return 0;
-  zNoColor =fossil_getenv("NO_COLOR");
-  if( zNoColor==0 ) return 1;
-  if( zNoColor[0]==0 ) return 1;
-  if( is_false(zNoColor) ) return 1;
+  return win32_terminal_is_vt100(1);
+#else /* !_WIN32 */
+  return fossil_isatty(1);
+#endif /* !_WIN32 */
   return 0;
 }
 

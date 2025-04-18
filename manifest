@@ -1,5 +1,5 @@
-C Amend\s[2b6ad00ea3]:\sMinor\swording\simprovements\sto\s`fossil\sssl-config\sshow\s-v'\soutput.
-D 2025-04-18T07:08:00.000
+C Add\sthe\sglobal\s--color\soption\sto\scontrol\soutput\sof\scolor\sVT\sescapes\sto\sCLI,\ssimilar\sto\s`ls',\s`grep'\sand\sother\sutilities.\sUseful\swhen\spiping\s`fossil\ssearch'\sresults\sthrough\sa\spager\sutility.
+D 2025-04-18T07:16:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,7 +421,7 @@ F src/diff.c 1f3a90edf3be51e052718b7f2f845ef1967df03874f6d82f47c58344f6cf6cf4
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl f6e04df1bbaa41b1269e81b2ee410eacf0ed78cb8da3d3a51c40a2d1d44aacfa
 F src/diffcmd.c 30179ce21979fec53cdab3784805f19ab582543e758633281a6926047399cd9d
-F src/dispatch.c ed3f8b39d19aad310c6252feb40610a0393a016116ac91f3c59fe57a0799ddb3
+F src/dispatch.c 8064c871dc59a1996060ea8b07110399a7e55ce6cc4e50a2b9bd3617e068863d
 F src/doc.c 2af38a7104c3a6b29fb4479b0c5343aac850af7b44444c49e89d2473a90b33a5
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c a43061691d6ca67775855c2158604806175efa2edd8dd5c0cc22a8d1338e3e3a
@@ -493,7 +493,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c bf9b18b74626c545b05eea0cf5191b523dd36187cc4a9d8a5c82f57a5a7045eb
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c 6400d7c08c99c97005f904cceb53404d65997d01ee166fcf8367ae681f206669
+F src/main.c c309f7516fa5101d001f06ef60723ba04234175e608ff4f5caa01a0c2d3f8a4c
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
 F src/manifest.c fd84c8658613a60d2f00f5a874dc6163c77e48e11d814c89321829ddb21cb67a
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -568,7 +568,7 @@ F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f
 F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 750a31dff7d032e64ba971a2b9ca5a591c6a5b1ccedea758432f348510bbc996
 F src/tar.c dfb0c23bb6ef61b829b38a428dbc34699b62df6d07f14ed739d71b045ef78e12
-F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
+F src/terminal.c e5f4ce84e5563da032d63bf60c20b9aaad2b645ebff6fbd1a0b85cd2476018c2
 F src/th.c 2fb864308a83f926c8fa892ae0bca9bd8df25b01bfafd966f0424b1514a0e75c
 F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
 F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
@@ -828,7 +828,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki e97cbf256e11b913298031503eda9042295865ab1ee2f6c5ae558cb091300fd7
-F www/env-opts.md 6247b866dd6245651077a73be31f604a379193ec4f5ba0c8228333cb58a806a4
+F www/env-opts.md 1f69bcec3574b8e55fbb5892d656da21bff133a13f7e1ad19d1885efe65361ac
 F www/event.wiki b2b5694047176815ed3701face7910e89bda204b07af878a16c04d8c6b3e08ad
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
@@ -970,8 +970,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 042a750aa60d2a643d8e1e22d787b8bbbed23c1f6302c05fbf375247b1bd5d32
-R bc095164da2cfb7febcc687b5df01b77
+P a9b075af835a9950f6bf78046098438f5ebc9a531d155ff689d6d66343001aa4
+R 47183fc19c7d4854f06a90d48e97447d
+T *branch * standard-cli-colors
+T *sym-standard-cli-colors *
+T -sym-trunk *
 U florian
-Z bb3f13fee040ea345d4aed5325f7311a
+Z a10f8ec9ea421c2d78a41e63d890ff9e
 # Remove this line to create a well-formed Fossil manifest.
