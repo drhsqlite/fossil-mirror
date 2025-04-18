@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sthe\sFOSSIL_COLOR\senvironment\svariable\sto\sdefine\sthe\scolor\sVT\sescape\sto\shighlight\sCLI\stext,\salso\ssimilar\sto\s`ls',\s`grep'\sand\sother\sutilities.
-D 2025-04-18T07:19:00.000
+C Remove\sdocumentation\sof\sthe\s--highlight\soption\sfor\sthe\ssearch\scommand.\sThe\soption\swas\sbroken,\sanyway,\sand\sis\snow\ssuperseded\sby\sthe\sglobal\s--color\soption\sand\sthe\sFOSSIL_COLOR\senvironment\svariable.
+D 2025-04-18T07:20:42.352
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -524,7 +524,7 @@ F src/report.c f423bfbd6a88753fdb5b9b91c2f3a787f0db955400f67e46d1630633af8bb758
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 4d22bea3e8701e96a710a2f89ff3ebe7f16681879d726c755f0ff828da310275
+F src/search.c 563bc181b7c10f28cd5c419c868c0406e8be60321b42be7b9a5e2c29c34169ca
 F src/security_audit.c 0b01337c706b762ce81e3d5849cc4413cd041bd2262f3087c555ba89872d60f4
 F src/setup.c 95b4459f0c8a485c5289acdcdcdc0fe9671f814d46eeb39b3e3eb396ea3b9c24
 F src/setupuser.c 86e28decbe38266a3ee45863968ad0d6f038c467d0620de22eb0622ffc83d79b
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 210b7d2fe0bd4ae9dd3da6607bb7e963cd1b156ecb2d9d983fbcb44c63f1e299
-R 3012b214a2b3cc178bc84eb908b80a24
+P 50e0931bc711da4acd9e9aae1978eeef0c5bd003e98903fd30e705c3a7467f10
+R 163ed5701a9a6c7d7bc05d4a141e597a
 U florian
-Z 08dc25f6a21e71b50656736558dbc0b2
+Z c2384dcfe59f2d21184a6b3450a266f8
 # Remove this line to create a well-formed Fossil manifest.

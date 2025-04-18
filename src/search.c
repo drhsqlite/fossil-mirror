@@ -584,10 +584,9 @@ void search_sql_setup(sqlite3 *db){
 ** Use options below to select the scope of the search.  The
 ** default is check-in comments only (-c).
 **
-** Output is colorized if writing to a TTY and if the NO_COLOR environment
-** variable is not set.  Use the "--highlight 0" option to disable colorization
-** or use "--highlight 91" to force it on.  Change the argument to --highlight
-** to change the color.
+** Output is colorized if writing to a TTY and neither the "--color"
+** option is set to "never", nor the "NO_COLOR" environment variable
+** is set to "1".
 **
 ** Options:
 **     -a|--all          Search everything
@@ -595,7 +594,6 @@ void search_sql_setup(sqlite3 *db){
 **     --docs            Search embedded documentation
 **     --forum           Search forum posts
 **     -h|--bi-help      Search built-in help
-**     --highlight N     Used VT100 color N for matching text.  0 means "off".
 **     -n|--limit N      Limit output to N matches
 **     --technotes       Search tech notes
 **     --tickets         Search tickets
