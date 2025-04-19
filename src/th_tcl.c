@@ -43,12 +43,12 @@
   Tcl_Obj **objv;          \
   int obji;
 
-#define COPY_ARGV_TO_OBJV()                                         \
-  objc = argc-1;                                                    \
-  objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *))); \
-  for(obji=1; obji<argc; obji++){                                   \
-    objv[obji-1] = Tcl_NewStringObj(argv[obji], argl[obji]);        \
-    Tcl_IncrRefCount(objv[obji-1]);                                 \
+#define COPY_ARGV_TO_OBJV()                                           \
+  objc = argc-1;                                                      \
+  objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *)));   \
+  for(obji=1; obji<argc; obji++){                                     \
+    objv[obji-1] = Tcl_NewStringObj(argv[obji], TH1_LEN(argl[obji])); \
+    Tcl_IncrRefCount(objv[obji-1]);                                   \
   }
 
 #define FREE_ARGV_TO_OBJV()         \
@@ -451,7 +451,7 @@ static int notifyPreOrPostEval(
   if( xNotifyProc ){
     rc = xNotifyProc(bIsPost ?
         tclContext->pPostContext : tclContext->pPreContext,
-        interp, ctx, argc, argv, argl, rc);
+        interp, ctx, argc, argv, TH1_LEN(argl), rc);
   }
   return rc;
 }
@@ -487,13 +487,13 @@ static int tclEval_command(
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
-  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
+  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, TH1_LEN(argl), rc);
   if( rc!=TH_OK ){
     return rc;
   }
   Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
-    objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+    objPtr = Tcl_NewStringObj(argv[1], TH1_LEN(argl[1]));
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_EvalObjEx(tclInterp, objPtr, 0);
     Tcl_DecrRefCount(objPtr); objPtr = 0;
@@ -509,7 +509,7 @@ static int tclEval_command(
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
+  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, TH1_LEN(argl),
                            getTh1ReturnCode(rc));
   return rc;
 }
@@ -547,13 +547,13 @@ static int tclExpr_command(
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
-  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
+  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, TH1_LEN(argl), rc);
   if( rc!=TH_OK ){
     return rc;
   }
   Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
-    objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+    objPtr = Tcl_NewStringObj(argv[1], TH1_LEN(argl[1]));
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_ExprObj(tclInterp, objPtr, &resultObjPtr);
     Tcl_DecrRefCount(objPtr); objPtr = 0;
@@ -576,7 +576,7 @@ static int tclExpr_command(
     Tcl_DecrRefCount(resultObjPtr); resultObjPtr = 0;
   }
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
+  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, TH1_LEN(argl),
                            getTh1ReturnCode(rc));
   return rc;
 }
@@ -612,7 +612,7 @@ static int tclInvoke_command(
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
-  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
+  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, TH1_LEN(argl), rc);
   if( rc!=TH_OK ){
     return rc;
   }
@@ -621,7 +621,7 @@ static int tclInvoke_command(
   if( GET_CTX_TCL_USEOBJPROC(ctx) ){
     Tcl_Command command;
     Tcl_CmdInfo cmdInfo;
-    Tcl_Obj *objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+    Tcl_Obj *objPtr = Tcl_NewStringObj(argv[1], TH1_LEN(argl[1]));
     Tcl_IncrRefCount(objPtr);
     command = Tcl_GetCommandFromObj(tclInterp, objPtr);
     if( !command || Tcl_GetCommandInfoFromToken(command, &cmdInfo)==0 ){
@@ -651,7 +651,7 @@ static int tclInvoke_command(
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
+  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, TH1_LEN(argl),
                            getTh1ReturnCode(rc));
   return rc;
 }

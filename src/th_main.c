@@ -264,7 +264,7 @@ static int httpizeCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "httpize STRING");
   }
-  zOut = httpize((char*)argv[1], argl[1]);
+  zOut = httpize((char*)argv[1], TH1_LEN(argl[1]));
   Th_SetResult(interp, zOut, -1);
   free(zOut);
   return TH_OK;
@@ -293,7 +293,8 @@ static int enableOutputCmd(
   }
   rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &enableOutput);
   if( g.thTrace ){
-    Th_Trace("enable_output {%.*s} -> %d<br>\n", argl[1],argv[1],enableOutput);
+    Th_Trace("enable_output {%.*s} -> %d<br>\n",
+             TH1_LEN(argl[1]),argv[1],enableOutput);
   }
   return rc;
 }
@@ -324,7 +325,7 @@ static int enableHtmlifyCmd(
   if(argc>1){
     if( g.thTrace ){
       Th_Trace("enable_htmlify {%.*s} -> %d<br>\n",
-               argl[1],argv[1],buul);
+               TH1_LEN(argl[1]),argv[1],buul);
     }
     rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &buul);
     if(!rc){
@@ -389,9 +390,16 @@ static void sendText(Blob * pOut, const char *z, int n, int encode){
   }
   if(TH_INIT_NO_ENCODE & g.th1Flags){
     encode = 0;
+    if( TH1_TAINTED(n) && Th_ReportTaint(0, "output string", z, n) ){
+      return;
+    }
   }
   if( enableOutput && n ){
-    if( n<0 ) n = strlen(z);
+    if( n<0 ){
+      n = strlen(z);
+    }else{
+      n = TH1_LEN(n);
+    }
     if( encode ){
       z = htmlize(z, n);
       n = strlen(z);
@@ -560,6 +568,11 @@ static int redirectCmd(
       return TH_ERROR;
     }
   }
+  if( TH1_TAINTED(argl[1])
+   && Th_ReportTaint(interp,"redirect URL",argv[1],argl[1])
+  ){
+    return TH_ERROR;
+  }
   if( withMethod ){
     cgi_redirect_with_method(argv[1]);
   }else{
@@ -662,7 +675,7 @@ static int markdownCmd(
     return Th_WrongNumArgs(interp, "markdown STRING");
   }
   blob_zero(&src);
-  blob_init(&src, (char*)argv[1], argl[1]);
+  blob_init(&src, (char*)argv[1], TH1_LEN(argl[1]));
   blob_zero(&title); blob_zero(&body);
   markdown_to_html(&src, &title, &body);
   Th_ListAppend(interp, &zValue, &nValue, blob_str(&title), blob_size(&title));
@@ -692,7 +705,7 @@ static int wikiCmd(
   }
   if( enableOutput ){
     Blob src;
-    blob_init(&src, (char*)argv[1], argl[1]);
+    blob_init(&src, (char*)argv[1], TH1_LEN(argl[1]));
     wiki_convert(&src, 0, flags);
     blob_reset(&src);
   }
@@ -737,7 +750,7 @@ static int htmlizeCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "htmlize STRING");
   }
-  zOut = htmlize((char*)argv[1], argl[1]);
+  zOut = htmlize((char*)argv[1], TH1_LEN(argl[1]));
   Th_SetResult(interp, zOut, -1);
   free(zOut);
   return TH_OK;
@@ -759,7 +772,7 @@ static int encode64Cmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "encode64 STRING");
   }
-  zOut = encode64((char*)argv[1], argl[1]);
+  zOut = encode64((char*)argv[1], TH1_LEN(argl[1]));
   Th_SetResult(interp, zOut, -1);
   free(zOut);
   return TH_OK;
@@ -780,7 +793,7 @@ static int dateCmd(
   int *argl
 ){
   char *zOut;
-  if( argc>=2 && argl[1]==6 && memcmp(argv[1],"-local",6)==0 ){
+  if( argc>=2 && TH1_LEN(argl[1])==6 && memcmp(argv[1],"-local",6)==0 ){
     zOut = db_text("??", "SELECT datetime('now',toLocal())");
   }else{
     zOut = db_text("??", "SELECT datetime('now')");
@@ -812,9 +825,9 @@ static int hascapCmd(
   }
   for(i=1; rc==1 && i<argc; i++){
     if( g.thTrace ){
-      Th_ListAppend(interp, &zCapList, &nCapList, argv[i], argl[i]);
+      Th_ListAppend(interp, &zCapList, &nCapList, argv[i], TH1_LEN(argl[i]));
     }
-    rc = login_has_capability((char*)argv[i],argl[i],*(int*)p);
+    rc = login_has_capability((char*)argv[i],TH1_LEN(argl[i]),*(int*)p);
   }
   if( g.thTrace ){
     Th_Trace("[%s %#h] => %d<br>\n", argv[0], nCapList, zCapList, rc);
@@ -860,7 +873,7 @@ int capexprCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "capexpr EXPR");
   }
-  rc = Th_SplitList(interp, argv[1], argl[1], &azCap, &anCap, &nCap);
+  rc = Th_SplitList(interp, argv[1], TH1_LEN(argl[1]), &azCap, &anCap, &nCap);
   if( rc ) return rc;
   rc = 0;
   for(i=0; i<nCap; i++){
@@ -923,7 +936,8 @@ static int searchableCmd(
   }
   for(i=1; i<argc && rc; i++){
     int match = 0;
-    for(j=0; j<argl[i]; j++){
+    int nn = TH1_LEN(argl[i]);
+    for(j=0; j<nn; j++){
       switch( argv[i][j] ){
         case 'c':  match |= searchCap & SRCH_CKIN;  break;
         case 'd':  match |= searchCap & SRCH_DOC;   break;
@@ -934,7 +948,7 @@ static int searchableCmd(
     if( !match ) rc = 0;
   }
   if( g.thTrace ){
-    Th_Trace("[searchable %#h] => %d<br>\n", argl[1], argv[1], rc);
+    Th_Trace("[searchable %#h] => %d<br>\n", TH1_LEN(argl[1]), argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -1053,7 +1067,7 @@ static int hasfeatureCmd(
     rc = 1;
   }
   if( g.thTrace ){
-    Th_Trace("[hasfeature %#h] => %d<br>\n", argl[1], zArg, rc);
+    Th_Trace("[hasfeature %#h] => %d<br>\n", TH1_LEN(argl[1]), zArg, rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -1106,14 +1120,16 @@ static int anycapCmd(
 ){
   int rc = 0;
   int i;
+  int nn;
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "anycap STRING");
   }
-  for(i=0; rc==0 && i<argl[1]; i++){
+  nn = TH1_LEN(argl[1]);
+  for(i=0; rc==0 && i<nn; i++){
     rc = login_has_capability((char*)&argv[1][i],1,0);
   }
   if( g.thTrace ){
-    Th_Trace("[anycap %#h] => %d<br>\n", argl[1], argv[1], rc);
+    Th_Trace("[anycap %#h] => %d<br>\n", TH1_LEN(argl[1]), argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -1151,8 +1167,8 @@ static int comboboxCmd(
     int i;
 
     if( Th_ToInt(interp, argv[3], argl[3], &height) ) return TH_ERROR;
-    Th_SplitList(interp, argv[2], argl[2], &azElem, &aszElem, &nElem);
-    blob_init(&name, (char*)argv[1], argl[1]);
+    Th_SplitList(interp, argv[2], TH1_LEN(argl[2]), &azElem, &aszElem, &nElem);
+    blob_init(&name, (char*)argv[1], TH1_LEN(argl[1]));
     zValue = Th_Fetch(blob_str(&name), &nValue);
     zH = htmlize(blob_buffer(&name), blob_size(&name));
     z = mprintf("<select id=\"%s\" name=\"%s\" size=\"%d\">", zH, zH, height);
@@ -1249,7 +1265,7 @@ static int linecntCmd(
   if( Th_ToInt(interp, argv[2], argl[2], &iMax) ) return TH_ERROR;
   if( Th_ToInt(interp, argv[3], argl[3], &iMin) ) return TH_ERROR;
   z = argv[1];
-  size = argl[1];
+  size = TH1_LEN(argl[1]);
   for(n=1, i=0; i<size; i++){
     if( z[i]=='\n' ){
       n++;
@@ -1409,7 +1425,8 @@ static int globalStateCmd(
     Th_SetResult(interp, g.zVfsName ? g.zVfsName : zDefault, -1);
     return TH_OK;
   }else{
-    Th_ErrorMessage(interp, "unsupported global state:", argv[1], argl[1]);
+    Th_ErrorMessage(interp, "unsupported global state:",
+                            argv[1], TH1_LEN(argl[1]));
     return TH_ERROR;
   }
 }
@@ -1941,11 +1958,15 @@ static int queryCmd(
   }
   zSql = argv[1];
   nSql = argl[1];
+  if( TH1_TAINTED(nSql) && Th_ReportTaint(interp,"query SQL",zSql,nSql) ){
+    return TH_ERROR;
+  }
+
   while( res==TH_OK && nSql>0 ){
     zErr = 0;
     report_restrict_sql(&zErr);
     g.dbIgnoreErrors++;
-    rc = sqlite3_prepare_v2(g.db, argv[1], argl[1], &pStmt, &zTail);
+    rc = sqlite3_prepare_v2(g.db, argv[1], TH1_LEN(argl[1]), &pStmt, &zTail);
     g.dbIgnoreErrors--;
     report_unrestrict_sql();
     if( rc!=0 || zErr!=0 ){
@@ -1976,12 +1997,12 @@ static int queryCmd(
         int szCol = th_strlen(zCol);
         const char *zVal = (const char*)sqlite3_column_text(pStmt, i);
         int szVal = sqlite3_column_bytes(pStmt, i);
-        Th_SetVar(interp, zCol, szCol, zVal, szVal);
+        Th_SetVar(interp, zCol, szCol, zVal, TH1_ADD_TAINT(szVal));
       }
       if( g.thTrace ){
-        Th_Trace("query_eval {<pre>%#h</pre>}<br>\n", argl[2], argv[2]);
+        Th_Trace("query_eval {<pre>%#h</pre>}<br>\n",TH1_LEN(argl[2]),argv[2]);
       }
-      res = Th_Eval(interp, 0, argv[2], argl[2]);
+      res = Th_Eval(interp, 0, argv[2], TH1_LEN(argl[2]));
       if( g.thTrace ){
         int nTrRes;
         char *zTrRes = (char*)Th_GetResult(g.interp, &nTrRes);
@@ -2040,7 +2061,7 @@ static int settingCmd(
   }
   if( g.thTrace ){
     Th_Trace("[setting %s%#h] => %d<br>\n", strict ? "strict " : "",
-             argl[nArg], argv[nArg], rc);
+             TH1_LEN(argl[nArg]), argv[nArg], rc);
   }
   return rc;
 }
@@ -2123,7 +2144,7 @@ static int regexpCmd(
   zErr = re_compile(&pRe, argv[nArg], noCase);
   if( !zErr ){
     Th_SetResultInt(interp, re_match(pRe,
-        (const unsigned char *)argv[nArg+1], argl[nArg+1]));
+        (const unsigned char *)argv[nArg+1], TH1_LEN(argl[nArg+1])));
     rc = TH_OK;
   }else{
     Th_SetResult(interp, zErr, -1);
@@ -2162,7 +2183,7 @@ static int httpCmd(
   if( argc<2 || argc>5 ){
     return Th_WrongNumArgs(interp, HTTP_WRONGNUMARGS);
   }
-  if( fossil_strnicmp(argv[nArg], "-asynchronous", argl[nArg])==0 ){
+  if( fossil_strnicmp(argv[nArg], "-asynchronous", TH1_LEN(argl[nArg]))==0 ){
     fAsynchronous = 1; nArg++;
   }
   if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
@@ -2191,7 +2212,7 @@ static int httpCmd(
   re_free(pRe);
   blob_zero(&payload);
   if( nArg+2==argc ){
-    blob_append(&payload, argv[nArg+1], argl[nArg+1]);
+    blob_append(&payload, argv[nArg+1], TH1_LEN(argl[nArg+1]));
     zType = "POST";
   }else{
     zType = "GET";
@@ -2270,7 +2291,7 @@ static int captureTh1Cmd(
   }
   pOrig = Th_SetOutputBlob(&out);
   zStr = argv[1];
-  nStr = argl[1];
+  nStr = TH1_LEN(argl[1]);
   rc = Th_Eval(g.interp, 0, zStr, nStr);
   Th_SetOutputBlob(pOrig);
   if(0==rc){

@@ -10,6 +10,12 @@
 #include <assert.h>
 
 /*
+** External routines
+*/
+void fossil_panic(const char*,...);
+void fossil_errorlog(const char*,...);
+
+/*
 ** Values used for element values in the tcl_platform array.
 */
 
@@ -199,6 +205,7 @@ struct Buffer {
   char *zBuf;
   int nBuf;
   int nBufAlloc;
+  int bTaint;
 };
 typedef struct Buffer Buffer;
 static void thBufferInit(Buffer *);
@@ -213,6 +220,14 @@ static void th_memcpy(void *dest, const void *src, size_t n){
 }
 
 /*
+** An oversized string has been encountered.  Do not try to recover.
+** Panic the process.
+*/
+void Th_OversizeString(void){
+  fossil_panic("string too large. maximum size 286MB.");
+}
+
+/*
 ** Append nAdd bytes of content copied from zAdd to the end of buffer
 ** pBuffer. If there is not enough space currently allocated, resize
 ** the allocation to make space.
@@ -221,36 +236,42 @@ static void thBufferWriteResize(
   Th_Interp *interp,
   Buffer *pBuffer,
   const char *zAdd,
-  int nAdd
+  int nAddX
 ){
+  int nAdd = TH1_LEN(nAddX);
   int nNew = (pBuffer->nBuf+nAdd)*2+32;
 #if defined(TH_MEMDEBUG)
   char *zNew = (char *)Th_Malloc(interp, nNew);
+  TH1_SIZECHECK(nNew);
   th_memcpy(zNew, pBuffer->zBuf, pBuffer->nBuf);
   Th_Free(interp, pBuffer->zBuf);
   pBuffer->zBuf = zNew;
 #else
   int nOld = pBuffer->nBufAlloc;
+  TH1_SIZECHECK(nNew);
   pBuffer->zBuf = Th_Realloc(interp, pBuffer->zBuf, nNew);
   memset(pBuffer->zBuf+nOld, 0, nNew-nOld);
 #endif
   pBuffer->nBufAlloc = nNew;
   th_memcpy(&pBuffer->zBuf[pBuffer->nBuf], zAdd, nAdd);
   pBuffer->nBuf += nAdd;
+  TH1_XFER_TAINT(pBuffer->bTaint, nAddX);
 }
 static void thBufferWriteFast(
   Th_Interp *interp,
   Buffer *pBuffer,
   const char *zAdd,
-  int nAdd
+  int nAddX
 ){
+  int nAdd = TH1_LEN(nAddX);
   if( pBuffer->nBuf+nAdd > pBuffer->nBufAlloc ){
-    thBufferWriteResize(interp, pBuffer, zAdd, nAdd);
+    thBufferWriteResize(interp, pBuffer, zAdd, nAddX);
   }else{
     if( pBuffer->zBuf ){
       memcpy(pBuffer->zBuf + pBuffer->nBuf, zAdd, nAdd);
     }
     pBuffer->nBuf += nAdd;
+    TH1_XFER_TAINT(pBuffer->bTaint, nAddX);
   }
 }
 #define thBufferWrite(a,b,c,d) thBufferWriteFast(a,b,(const char *)c,d)
@@ -706,20 +727,21 @@ static int thSubstWord(
   int rc = TH_OK;
   Buffer output;
   int i;
+  int nn = TH1_LEN(nWord);
 
   thBufferInit(&output);
 
-  if( nWord>1 && (zWord[0]=='{' && zWord[nWord-1]=='}') ){
-    thBufferWrite(interp, &output, &zWord[1], nWord-2);
+  if( nn>1 && (zWord[0]=='{' && zWord[nn-1]=='}') ){
+    thBufferWrite(interp, &output, &zWord[1], nn-2);
   }else{
 
     /* If the word is surrounded by double-quotes strip these away. */
-    if( nWord>1 && (zWord[0]=='"' && zWord[nWord-1]=='"') ){
+    if( nn>1 && (zWord[0]=='"' && zWord[nn-1]=='"') ){
       zWord++;
-      nWord -= 2;
+      nn -= 2;
     }
 
-    for(i=0; rc==TH_OK && i<nWord; i++){
+    for(i=0; rc==TH_OK && i<nn; i++){
       int nGet;
 
       int (*xGet)(Th_Interp *, const char*, int, int *) = 0;
@@ -745,7 +767,7 @@ static int thSubstWord(
         }
       }
 
-      rc = xGet(interp, &zWord[i], nWord-i, &nGet);
+      rc = xGet(interp, &zWord[i], nn-i, &nGet);
       if( rc==TH_OK ){
         rc = xSubst(interp, &zWord[i], nGet);
       }
@@ -828,7 +850,7 @@ static int thSplitList(
   int nCount = 0;
 
   const char *zInput = zList;
-  int nInput = nList;
+  int nInput = TH1_LEN(nList);
 
   thBufferInit(&strbuf);
   thBufferInit(&lenbuf);
@@ -890,6 +912,30 @@ static int thSplitList(
 }
 
 /*
+** Report misuse of a tainted string.
+**
+** In the current implementation, this routine issues a warning to the
+** error log and returns 0, causing processing to continue.  This is so
+** that the new taint detection will not disrupt legacy configurations.
+** However, if modified so that this routine returns non-zero, then it
+** will cause an error in the script.
+*/
+int Th_ReportTaint(
+  Th_Interp *interp,       /* Report error here, if an error is reported */
+  const char *zWhere,      /* Where the tainted string appears */
+  const char *zStr,        /* The tainted string */
+  int nStr                 /* Length of the tainted string */
+){
+  nStr = TH1_LEN(nStr);
+  if( nStr>0 ){
+    fossil_errorlog("warning: tainted %s: \"%.s\"", zWhere, nStr, zStr);
+  }else{
+    fossil_errorlog("warning: tainted %s", zWhere);
+  }
+  return 0;
+}
+
+/*
 ** Evaluate the th1 script contained in the string (zProgram, nProgram)
 ** in the current stack frame.
 */
@@ -898,6 +944,11 @@ static int thEvalLocal(Th_Interp *interp, const char *zProgram, int nProgram){
   const char *zInput = zProgram;
   int nInput = nProgram;
 
+  if( TH1_TAINTED(nProgram)
+   && Th_ReportTaint(interp, "script", zProgram, nProgram)
+  ){
+    return TH_ERROR;
+  }
   while( rc==TH_OK && nInput ){
     Th_HashEntry *pEntry;
     int nSpace;
@@ -951,9 +1002,9 @@ static int thEvalLocal(Th_Interp *interp, const char *zProgram, int nProgram){
     if( argc>0 ){
 
       /* Look up the command name in the command hash-table. */
-      pEntry = Th_HashFind(interp, interp->paCmd, argv[0], argl[0], 0);
+      pEntry = Th_HashFind(interp, interp->paCmd, argv[0], TH1_LEN(argl[0]),0);
       if( !pEntry ){
-        Th_ErrorMessage(interp, "no such command: ", argv[0], argl[0]);
+        Th_ErrorMessage(interp, "no such command: ", argv[0], TH1_LEN(argl[0]));
         rc = TH_ERROR;
       }
 
@@ -1097,6 +1148,8 @@ static int thAnalyseVarname(
 
   if( nVarname<0 ){
     nVarname = th_strlen(zVarname);
+  }else{
+    nVarname = TH1_LEN(nVarname);
   }
   nOuter = nVarname;
 
@@ -1274,27 +1327,6 @@ int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
 }
 
 /*
-** If interp has a variable with the given name, its value is returned
-** and its length is returned via *nOut if nOut is not NULL.  If
-** interp has no such var then NULL is returned without setting any
-** error state and *nOut, if not NULL, is set to -1. The returned value
-** is owned by the interpreter and may be invalidated the next time
-** the interpreter is modified.
-*/
-const char * Th_MaybeGetVar(Th_Interp *interp, const char *zVarName,
-                            int *nOut){
-  Th_Variable *pValue;
-
-  pValue = thFindValue(interp, zVarName, -1, 0, 0, 1, 0);
-  if( !pValue || !pValue->zData ){
-    if( nOut!=0 ) *nOut = -1;
-    return NULL;
-  }
-  if( nOut!=0 ) *nOut = pValue->nData;
-  return pValue->zData;
-}
-
-/*
 ** Return true if variable (zVar, nVar) exists.
 */
 int Th_ExistsVar(Th_Interp *interp, const char *zVar, int nVar){
@@ -1326,24 +1358,28 @@ int Th_SetVar(
   int nValue
 ){
   Th_Variable *pValue;
+  int nn;
 
+  nVar = TH1_LEN(nVar);
   pValue = thFindValue(interp, zVar, nVar, 1, 0, 0, 0);
   if( !pValue ){
     return TH_ERROR;
   }
 
   if( nValue<0 ){
-    nValue = th_strlen(zValue);
+    nn = th_strlen(zValue);
+  }else{
+    nn = TH1_LEN(nValue);
   }
   if( pValue->zData ){
     Th_Free(interp, pValue->zData);
     pValue->zData = 0;
   }
 
-  assert(zValue || nValue==0);
-  pValue->zData = Th_Malloc(interp, nValue+1);
-  pValue->zData[nValue] = '\0';
-  th_memcpy(pValue->zData, zValue, nValue);
+  assert(zValue || nn==0);
+  pValue->zData = Th_Malloc(interp, nn+1);
+  pValue->zData[nn] = '\0';
+  th_memcpy(pValue->zData, zValue, nn);
   pValue->nData = nValue;
 
   return TH_OK;
@@ -1460,6 +1496,8 @@ char *th_strdup(Th_Interp *interp, const char *z, int n){
   char *zRes;
   if( n<0 ){
     n = th_strlen(z);
+  }else{
+    n = TH1_LEN(n);
   }
   zRes = Th_Malloc(interp, n+1);
   th_memcpy(zRes, z, n);
@@ -1521,9 +1559,10 @@ int Th_SetResult(Th_Interp *pInterp, const char *z, int n){
 
   if( z && n>0 ){
     char *zResult;
-    zResult = Th_Malloc(pInterp, n+1);
-    th_memcpy(zResult, z, n);
-    zResult[n] = '\0';
+    int nn = TH1_LEN(n);
+    zResult = Th_Malloc(pInterp, nn+1);
+    th_memcpy(zResult, z, nn);
+    zResult[nn] = '\0';
     pInterp->zResult = zResult;
     pInterp->nResult = n;
   }
@@ -2458,6 +2497,8 @@ int Th_Expr(Th_Interp *interp, const char *zExpr, int nExpr){
 
   if( nExpr<0 ){
     nExpr = th_strlen(zExpr);
+  }else{
+    nExpr = TH1_LEN(nExpr);
   }
 
   /* Parse the expression to a list of tokens. */
@@ -2569,6 +2610,8 @@ Th_HashEntry *Th_HashFind(
 
   if( nKey<0 ){
     nKey = th_strlen(zKey);
+  }else{
+    nKey = TH1_LEN(nKey);
   }
 
   for(i=0; i<nKey; i++){
@@ -2802,6 +2845,8 @@ int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
 
   if( n<0 ){
     n = th_strlen(z);
+  }else{
+    n = TH1_LEN(n);
   }
 
   if( n>1 && (z[0]=='-' || z[0]=='+') ){
@@ -2861,7 +2906,7 @@ int Th_ToDouble(
   double *pfOut
 ){
   if( !sqlite3IsNumber((const char *)z, 0) ){
-    Th_ErrorMessage(interp, "expected number, got: \"", z, n);
+    Th_ErrorMessage(interp, "expected number, got: \"", z, TH1_LEN(n));
     return TH_ERROR;
   }
 

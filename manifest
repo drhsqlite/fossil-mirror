@@ -1,5 +1,5 @@
-C fix\sbug\sin\s/tktview:\suse\srelative\sinstead\sof\sabsolute\slink\sfor\sversion
-D 2025-04-18T16:12:06.885
+C Experimental\schanges\sto\sTH1\sto\stry\sto\smake\sit\sresistant\sto\scoding\nerrors\sthat\scould\slead\sto\sXSS\sor\sSQL\sinjection\sattacks.
+D 2025-04-19T16:55:15.052
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -569,11 +569,11 @@ F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 750a31dff7d032e64ba971a2b9ca5a591c6a5b1ccedea758432f348510bbc996
 F src/tar.c dfb0c23bb6ef61b829b38a428dbc34699b62df6d07f14ed739d71b045ef78e12
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
-F src/th.c 2fb864308a83f926c8fa892ae0bca9bd8df25b01bfafd966f0424b1514a0e75c
-F src/th.h e26d06c009d0665d3d55dc47eae37736e6a0efd3e920bf90a66396888b42891e
-F src/th_lang.c e9c9acc0cd11e3d33f82bb53541d6fa6c168f02faf5368ceaa10d523dfd947a6
-F src/th_main.c 63cbd7bc71ff51047c7735a4a0dba3f4c969e7709167e094b4171d0157d623ee
-F src/th_tcl.c f0fa97b174a7e42620d3ef708f3f73e6326b790a8f24ca2e9cdded2172e42720
+F src/th.c d73400eba1bec47c55abdc1e5f7d865fd87248ace34c97881b7788ba9bd85a18
+F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
+F src/th_lang.c 4d6583a1ef0d6d3f7e73da13211c908c6d194649b1c88b3fcd8957f8e5a55d4e
+F src/th_main.c 8875f32dff9090083977a40a26b6bcf556be458dbb157dff41fea38d241d6ca1
+F src/th_tcl.c 73671fcc901342addc6c7c6eda5187b06cd03851e34400f77115a2d946518612
 F src/timeline.c 03dbf56d7a31cf77d8f1ff7eb277a9d747a5b5c61578dd94db005467da0b6122
 F src/tkt.c 92c82e9f065ef6aeb3623f5738c009db9648308878bfba434325a3e80eb5fdd0
 F src/tktsetup.c 1e049364b41572b5a851430e6b2669d7f8048329df4b7d4bd2d36171dd1c7017
@@ -970,8 +970,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00638d9a838324db83c2d3a98f077aaa00459842ac07f8a2db593c9605fd9d3c
-R 28442d0fe8289c3d2529529158c9ab94
-U jkosche
-Z 3a6d2cc299ffed62cfb8366ed1a7e387
+P f1db9ead1d44290a0cb029f02987418b348685e178d8e2f5b459dbda6532648b
+R 74ba77813cc647361c74bf72b8b2d391
+T *branch * th1-taint
+T *sym-th1-taint *
+T -sym-trunk *
+U drh
+Z 7b4df68f0265d38e12e1890800cba6b3
 # Remove this line to create a well-formed Fossil manifest.
