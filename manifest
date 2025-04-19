@@ -1,5 +1,5 @@
-C fix\stainted\swarning\sin\sskin\sheaders
-D 2025-04-19T22:15:55.107
+C Fix\san\serror\sthat\soccurs\swhile\scommiting\sa\snew\sticket.
+D 2025-04-19T22:30:39.636
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -575,7 +575,7 @@ F src/th_lang.c 4d6583a1ef0d6d3f7e73da13211c908c6d194649b1c88b3fcd8957f8e5a55d4e
 F src/th_main.c e8758acc40f9dd13d52a6ef9378529080133b1e6b88db7bf807f73cd03bfc1dd
 F src/th_tcl.c 73671fcc901342addc6c7c6eda5187b06cd03851e34400f77115a2d946518612
 F src/timeline.c fd71459238ed36ffef99567843ac053f957ab9c5b2ef417191550a2e2968a132
-F src/tkt.c 436480616465a21814797563f85c27f677b4586671aa14d58bf8493cc334728c
+F src/tkt.c 29c4e7a83dffd5aa08ee676cdd387abf68785d3b8fc113e171983c13aea2018a
 F src/tktsetup.c 04d368c15ee407ae08120af51bef38ce52411a6bfa0e8076ae65ac3637b9991a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c adb86202928394161ecfa194be5001fbd86254ba43c4df527d91c36857a0be90
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d17ced68dabdda9c5905864e7cb6af9350c54b70dd319f8e3b6e009fc40603b
-R 9df63697a3f8f6cf89fafec1c76aba22
-U jkosche
-Z ff0698f5f9113ee465f355577d2cd1e7
+P de407148e9cb155540c74c62de32a7fe9e6866908b95c0ab72498f5b4bed69c0
+R 0d6f3801d21d0614255458569a9c1ebf
+U drh
+Z 6e1ef187e1fa68c725b966afc2a8a90e
 # Remove this line to create a well-formed Fossil manifest.
