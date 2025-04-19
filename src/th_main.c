@@ -1159,7 +1159,7 @@ static int comboboxCmd(
   if( enableOutput ){
     int height;
     Blob name;
-    int nValue;
+    int nValue = 0;
     const char *zValue;
     char *z, *zH;
     int nElem;
@@ -1171,6 +1171,7 @@ static int comboboxCmd(
     Th_SplitList(interp, argv[2], TH1_LEN(argl[2]), &azElem, &aszElem, &nElem);
     blob_init(&name, (char*)argv[1], TH1_LEN(argl[1]));
     zValue = Th_Fetch(blob_str(&name), &nValue);
+    nValue = TH1_LEN(nValue);
     zH = htmlize(blob_buffer(&name), blob_size(&name));
     z = mprintf("<select id=\"%s\" name=\"%s\" size=\"%d\">", zH, zH, height);
     free(zH);

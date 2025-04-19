@@ -940,7 +940,7 @@ static int submitTicketCmd(
     if( aField[i].zAppend ) continue;
     zValue = Th_Fetch(aField[i].zName, &nValue);
     if( zValue ){
-      int nValue = TH1_LEN(nValue);
+      nValue = TH1_LEN(nValue);
       while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
       if( ((aField[i].mUsed & USEDBY_TICKETCHNG)!=0 && nValue>0)
        || memcmp(zValue, aField[i].zValue, nValue)!=0
