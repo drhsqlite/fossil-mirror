@@ -1877,20 +1877,24 @@ int Th_StringAppend(
   int nElem                    /* Length of nElem */
 ){
   char *zNew;
-  int nNew;
+  long long int nNew;
+  int nn;
 
   if( nElem<0 ){
-    nElem = th_strlen(zElem);
+    nn = th_strlen(zElem);
+  }else{
+    nn = TH1_LEN(nElem);
   }
 
-  nNew = *pnStr + nElem;
+  nNew = TH1_LEN(*pnStr) + nn;
+  TH1_SIZECHECK(nNew);
   zNew = Th_Malloc(interp, nNew);
   th_memcpy(zNew, *pzStr, *pnStr);
-  th_memcpy(&zNew[*pnStr], zElem, nElem);
+  th_memcpy(&zNew[TH1_LEN(*pnStr)], zElem, nn);
 
   Th_Free(interp, *pzStr);
   *pzStr = zNew;
-  *pnStr = nNew;
+  *pnStr = (int)nNew;
 
   return TH_OK;
 }

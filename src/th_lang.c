@@ -364,9 +364,10 @@ static int lsearch_command(
 
   rc = Th_SplitList(interp, argv[1], argl[1], &azElem, &anElem, &nCount);
   if( rc==TH_OK ){
+    int nn = TH1_LEN(argl[2]);
     Th_SetResultInt(interp, -1);
     for(i=0; i<nCount; i++){
-      if( anElem[i]==argl[2] && 0==memcmp(azElem[i], argv[2], argl[2]) ){
+      if( TH1_LEN(anElem[i])==nn && 0==memcmp(azElem[i], argv[2], nn) ){
         Th_SetResultInt(interp, i);
         break;
       }

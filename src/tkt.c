@@ -820,11 +820,11 @@ static int appendRemarkCmd(
   }
   if( g.thTrace ){
     Th_Trace("append_field %#h {%#h}<br>\n",
-              argl[1], argv[1], argl[2], argv[2]);
+              TH1_LEN(argl[1]), argv[1], TH1_LEN(argl[2]), argv[2]);
   }
   for(idx=0; idx<nField; idx++){
-    if( memcmp(aField[idx].zName, argv[1], argl[1])==0
-        && aField[idx].zName[argl[1]]==0 ){
+    if( memcmp(aField[idx].zName, argv[1], TH1_LEN(argl[1]))==0
+        && aField[idx].zName[TH1_LEN(argl[1])]==0 ){
       break;
     }
   }
