@@ -384,21 +384,22 @@ Blob * Th_SetOutputBlob(Blob * pOut){
 ** If pOut is NULL and the global pThOut is not then that blob
 ** is used for output.
 */
-static void sendText(Blob * pOut, const char *z, int n, int encode){
+static void sendText(Blob *pOut, const char *z, int n, int encode){
   if(0==pOut && pThOut!=0){
     pOut = pThOut;
   }
   if(TH_INIT_NO_ENCODE & g.th1Flags){
     encode = 0;
-    if( TH1_TAINTED(n) && Th_ReportTaint(0, "output string", z, n) ){
+  }
+  if( encode==0 && n>0 && TH1_TAINTED(n) ){
+    if( Th_ReportTaint(0, "output string", z, n) ){
       return;
     }
+    n = TH1_LEN(n);
   }
   if( enableOutput && n ){
     if( n<0 ){
       n = strlen(z);
-    }else{
-      n = TH1_LEN(n);
     }
     if( encode ){
       z = htmlize(z, n);
@@ -1867,6 +1868,43 @@ static int stimeCmd(
   return TH_OK;
 }
 
+/*
+** TH1 command: taint STRING
+**
+** Return a copy of STRING that is marked as tainted.
+*/
+static int taintCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "STRING");
+  }
+  Th_SetResult(interp, argv[1], TH1_ADD_TAINT(argl[1]));
+  return TH_OK;
+}
+
+/*
+** TH1 command: untaint STRING
+**
+** Return a copy of STRING that is marked as untainted.
+*/
+static int untaintCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "STRING");
+  }
+  Th_SetResult(interp, argv[1], TH1_LEN(argl[1]));
+  return TH_OK;
+}
 
 /*
 ** TH1 command: randhex  N
@@ -1942,7 +1980,9 @@ static int queryCmd(
   char *zErr = 0;
   int noComplain = 0;
 
-  if( argc>3 && argl[1]==11 && strncmp(argv[1], "-nocomplain", 11)==0 ){
+  if( argc>3 && TH1_LEN(argl[1])==11
+   && strncmp(argv[1], "-nocomplain", 11)==0
+  ){
     argc--;
     argv++;
     argl++;
@@ -1958,8 +1998,11 @@ static int queryCmd(
   }
   zSql = argv[1];
   nSql = argl[1];
-  if( TH1_TAINTED(nSql) && Th_ReportTaint(interp,"query SQL",zSql,nSql) ){
-    return TH_ERROR;
+  if( TH1_TAINTED(nSql) ){
+    if( Th_ReportTaint(interp,"query SQL",zSql,nSql) ){
+      return TH_ERROR;
+    }
+    nSql = TH1_LEN(nSql);
   }
 
   while( res==TH_OK && nSql>0 ){
@@ -2410,9 +2453,11 @@ void Th_FossilInit(u32 flags){
     {"styleHeader",   styleHeaderCmd,       0},
     {"styleScript",   styleScriptCmd,       0},
     {"submenu",       submenuCmd,           0},
+    {"taint",         taintCmd,             0},
     {"tclReady",      tclReadyCmd,          0},
     {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},
+    {"untaint",       untaintCmd,           0},
     {"unversioned",   unversionedCmd,       0},
     {"utime",         utimeCmd,             0},
     {"verifyCsrf",    verifyCsrfCmd,        0},
@@ -3015,6 +3060,7 @@ void test_th_render(void){
     login_set_capabilities(zCap ? zCap : "sx", 0);
     g.useLocalauth = 1;
   }
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc<3 ){
     usage("FILE");
@@ -3067,6 +3113,7 @@ void test_th_eval(void){
     login_set_capabilities(zCap ? zCap : "sx", 0);
     g.useLocalauth = 1;
   }
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc!=3 ){
     usage("script");

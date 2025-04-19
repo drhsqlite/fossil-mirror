@@ -782,7 +782,7 @@ static int thSubstWord(
   }
 
   if( rc==TH_OK ){
-    Th_SetResult(interp, output.zBuf, output.nBuf);
+    Th_SetResult(interp, output.zBuf, output.nBuf|output.bTaint);
   }
   thBufferFree(interp, &output);
   return rc;
@@ -861,15 +861,15 @@ static int thSplitList(
 
     thNextSpace(interp, zInput, nInput, &nWord);
     zInput += nWord;
-    nInput = nList-(zInput-zList);
+    nInput = TH1_LEN(nList)-(zInput-zList);
 
     if( TH_OK!=(rc = thNextWord(interp, zInput, nInput, &nWord, 0))
      || TH_OK!=(rc = thSubstWord(interp, zInput, nWord))
     ){
       goto finish;
     }
-    zInput = &zInput[nWord];
-    nInput = nList-(zInput-zList);
+    zInput = &zInput[TH1_LEN(nWord)];
+    nInput = TH1_LEN(nList)-(zInput-zList);
     if( nWord>0 ){
       zWord = Th_GetResult(interp, &nWord);
       thBufferWrite(interp, &strbuf, zWord, nWord);
@@ -896,7 +896,7 @@ static int thSplitList(
     th_memcpy(zElem, strbuf.zBuf, strbuf.nBuf);
     for(i=0; i<nCount;i++){
       azElem[i] = zElem;
-      zElem += (anElem[i] + 1);
+      zElem += (TH1_LEN(anElem[i]) + 1);
     }
     *pazElem = azElem;
     *panElem = anElem;
@@ -928,7 +928,7 @@ int Th_ReportTaint(
 ){
   nStr = TH1_LEN(nStr);
   if( nStr>0 ){
-    fossil_errorlog("warning: tainted %s: \"%.s\"", zWhere, nStr, zStr);
+    fossil_errorlog("warning: tainted %s: \"%.*s\"", zWhere, nStr, zStr);
   }else{
     fossil_errorlog("warning: tainted %s", zWhere);
   }
@@ -942,7 +942,7 @@ int Th_ReportTaint(
 static int thEvalLocal(Th_Interp *interp, const char *zProgram, int nProgram){
   int rc = TH_OK;
   const char *zInput = zProgram;
-  int nInput = nProgram;
+  int nInput = TH1_LEN(nProgram);
 
   if( TH1_TAINTED(nProgram)
    && Th_ReportTaint(interp, "script", zProgram, nProgram)
@@ -1106,6 +1106,8 @@ int Th_Eval(Th_Interp *interp, int iFrame, const char *zProgram, int nProgram){
 
     if( nInput<0 ){
       nInput = th_strlen(zProgram);
+    }else{
+      nInput = TH1_LEN(nInput);
     }
     rc = thEvalLocal(interp, zProgram, nInput);
   }

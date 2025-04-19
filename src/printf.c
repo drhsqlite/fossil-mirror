@@ -1123,7 +1123,7 @@ void fossil_errorlog(const char *zFormat, ...){
       }
     }
   }
-  fclose(out);
+  if( out!=stderr ) fclose(out);
 }
 
 /*
