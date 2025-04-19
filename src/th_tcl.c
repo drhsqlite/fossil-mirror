@@ -784,7 +784,7 @@ static int Th1EvalObjCmd(
   arg = Tcl_GetStringFromObj(objv[1], &nArg);
   rc = Th_Eval(th1Interp, 0, arg, nArg);
   arg = Th_GetResult(th1Interp, &nArg);
-  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
+  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, TH1_LEN(nArg)));
   return getTclReturnCode(rc);
 }
 
@@ -817,7 +817,7 @@ static int Th1ExprObjCmd(
   arg = Tcl_GetStringFromObj(objv[1], &nArg);
   rc = Th_Expr(th1Interp, arg, nArg);
   arg = Th_GetResult(th1Interp, &nArg);
-  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
+  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, TH1_LEN(nArg)));
   return getTclReturnCode(rc);
 }
 

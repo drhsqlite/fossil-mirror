@@ -2051,7 +2051,7 @@ static int queryCmd(
         int nTrRes;
         char *zTrRes = (char*)Th_GetResult(g.interp, &nTrRes);
         Th_Trace("[query_eval] => %h {%#h}<br>\n",
-                 Th_ReturnCodeName(res, 0), nTrRes, zTrRes);
+                 Th_ReturnCodeName(res, 0), TH1_LEN(nTrRes), zTrRes);
       }
       if( res==TH_BREAK || res==TH_CONTINUE ) res = TH_OK;
     }
@@ -2765,6 +2765,7 @@ int Th_CommandHook(
     ** Make sure that the TH1 script error was not caused by a "missing"
     ** command hook handler as that is not actually an error condition.
     */
+    nResult = TH1_LEN(nResult);
     if( memcmp(zResult, NO_COMMAND_HOOK_ERROR, nResult)!=0 ){
       sendError(0,zResult, nResult, 0);
     }else{
@@ -2852,6 +2853,7 @@ int Th_WebpageHook(
     ** Make sure that the TH1 script error was not caused by a "missing"
     ** webpage hook handler as that is not actually an error condition.
     */
+    nResult = TH1_LEN(nResult);
     if( memcmp(zResult, NO_WEBPAGE_HOOK_ERROR, nResult)!=0 ){
       sendError(0,zResult, nResult, 1);
     }else{
@@ -2992,7 +2994,7 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
         int nTrRes;
         char *zTrRes = (char*)Th_GetResult(g.interp, &nTrRes);
         Th_Trace("[render_eval] => %h {%#h}<br>\n",
-                 Th_ReturnCodeName(rc, 0), nTrRes, zTrRes);
+                 Th_ReturnCodeName(rc, 0), TH1_LEN(nTrRes), zTrRes);
       }
       if( rc!=TH_OK ) break;
       z += i;
