@@ -1,5 +1,5 @@
-C Update\sthe\sdefault\sticket\sconfiguration\sto\savoid\ssending\sout\ntext\sthat\sseems\stainted.\s\sThere\sare\sno\sactual\sXSS\sissues\shere,\sbut\nthese\schanges\sdo\sadd\san\sextra\smargin\sof\ssafety.
-D 2025-04-19T19:18:38.931
+C fix\stainted\swarning\sin\sskin\sheaders
+D 2025-04-19T22:15:55.107
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -344,12 +344,12 @@ F skins/default/README.md 0542b429a020494e005378b95831e699df17ab7933ddb7ffa3ac87
 F skins/default/css.txt e4a6d3ea1f8d12511ef81bac4c1b8aae267a6decbca10b283438a4032b66afa2
 F skins/default/details.txt b8827752a356cf0073e493a6cf2afbbe7a82ff75eafd0b7549161e21de3cdaaa
 F skins/default/footer.txt 10f51aa013d1fc032703fe21281526b82ddbf6afa8b6d2bfb5eb0e694c2de877
-F skins/default/header.txt d1e9025e8bcc2de8f6d83bc5b0279782ff0aaf2f9b23312bce4b97206f3c9f24
+F skins/default/header.txt 0bd79a7a7ab1c7dad659114a9810d0c38bc9f34998f8685580edb58715118871
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 6f6404f4dd736cd6ed4b9bcaf9a1ca8a89903854134f85ce9c32cee387dec93c
 F skins/eagle/details.txt a8c0f5e2241004045378a5f0ef484c58c0f66436e766000f8c62db2b74c5befe
 F skins/eagle/footer.txt c060d3479bd74b3b650e24830ec55ba0a5fe69b9ca6795ac35fc86def3855246
-F skins/eagle/header.txt 3025c66c714e5609f2ff40c24f7938afe9c8530d79dac4bff095f5bcec64f794
+F skins/eagle/header.txt 928038ccf867349d1dfa88763f5d5612761b2080519f5b270f03a5083dbdbbfd
 F skins/etienne/README.md 471470404bd2354b7975401208bd08b15f1a6db38280107863bf39fd82986d2a
 F skins/etienne/css.txt 585b81a571bec635fd814ac5e7954f71bb3fcc83ff2175b0390122c2007fd5fb
 F skins/etienne/details.txt 916a4c696f0865d103980df3ae8425297d70af09
@@ -362,7 +362,7 @@ F skins/khaki/header.txt 1d39aef913ad4a63778068cc20ebbcfe01661ec7b5625a91abc3aed
 F skins/original/css.txt 13cedb008b8666a1d5f69f9b2af47b75750a6c13b98897dfd40094521ae65235
 F skins/original/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/original/footer.txt c060d3479bd74b3b650e24830ec55ba0a5fe69b9ca6795ac35fc86def3855246
-F skins/original/header.txt 4dfab2920d6d655e5b8f1e8371b572b6be293c409ec32b815c33b2b0d99746f4
+F skins/original/header.txt e1686c0cc15efbe3ca3bd7b254eec525ec151e44f725b62d4db63330114f255c
 F skins/plain_gray/css.txt 172dfa03939f51e7a0a6afc29d8a03db30b33119ceedb7efacf0e2c3c5ff1604
 F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed0b4031f45aa745e
 F skins/plain_gray/footer.txt 0c32f13f6ad5fa409b38e0093a897d71f407ede5fb3a99f62d152ce127c5fb19
@@ -371,7 +371,7 @@ F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
 F skins/xekri/css.txt 5accf71e62972181058b1937b0225426b32704fca881f456469ed67843d15e8c
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 00760bbee5f45decff089e54bc8a11600eeb4644d01f21d7b2a0af52a07312f8
-F skins/xekri/header.txt f518b8c6cfab016cb9d2e65b42c6f3463235199acf29a1e287226c979eb3dddf
+F skins/xekri/header.txt 8844006d55f16b4ea8f6388db44b5db74a91a366ac934fe081a107a53464dbb3
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c 7a251fa11377a871f047a943da2b4d624a7c160ff6984bd93882dc9c4fd0d1a1
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2742682720c692ca916c034da28baf694d239ed05f2f5e49af183e9b0b62e249
-R 4e57c2d5d2aa82e0027572a351a64f77
-U drh
-Z 6f950932409325166a19a3d942487da4
+P 5d17ced68dabdda9c5905864e7cb6af9350c54b70dd319f8e3b6e009fc40603b
+R 9df63697a3f8f6cf89fafec1c76aba22
+U jkosche
+Z ff0698f5f9113ee465f355577d2cd1e7
 # Remove this line to create a well-formed Fossil manifest.
