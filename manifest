@@ -1,5 +1,5 @@
-C Remove\sdocumentation\sof\sthe\s--highlight\soption\sfor\sthe\ssearch\scommand.\sThe\soption\swas\sbroken,\sanyway,\sand\sis\snow\ssuperseded\sby\sthe\sglobal\s--color\soption\sand\sthe\sFOSSIL_COLOR\senvironment\svariable.
-D 2025-04-18T07:20:42.352
+C Fix\sa\slogic\serror\sin\sprocessing\sof\sthe\sFOSSIL_COLOR\senvironment\svariable.
+D 2025-04-19T04:20:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -493,7 +493,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c bf9b18b74626c545b05eea0cf5191b523dd36187cc4a9d8a5c82f57a5a7045eb
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c e8907f14c0debca5213e70cd4e7651093aa76150971988317853759dfc3516b1
+F src/main.c 3f281dad880c7f0c4ba14f4c5c073815fe9d87ef49252a3f5a34d853500d2d34
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
 F src/manifest.c fd84c8658613a60d2f00f5a874dc6163c77e48e11d814c89321829ddb21cb67a
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 50e0931bc711da4acd9e9aae1978eeef0c5bd003e98903fd30e705c3a7467f10
-R 163ed5701a9a6c7d7bc05d4a141e597a
+P 5331dfed414a672810077dc3ed384f58c34bbabd35d293cb97a84ab4811e0b7f
+R f980a3d1b74ce7410b9446cc045ce78a
 U florian
-Z c2384dcfe59f2d21184a6b3450a266f8
+Z 9e954e4eb8219d1cd6be4b12f2129fd0
 # Remove this line to create a well-formed Fossil manifest.

@@ -691,9 +691,8 @@ static void fossil_init_flags_from_options(void){
   g.cliColor = "\033[91m";
   zEnvVar = fossil_getenv("FOSSIL_COLOR");
   if( zEnvVar ){
-    if( fossil_strcmp(zEnvVar,"none")==0 &&
-        g.colorOutput==COLOR_VT_UNSET ){
-      g.colorOutput = COLOR_VT_NEVER;
+    if( fossil_strcmp(zEnvVar,"none")==0 ){
+      if( g.colorOutput==COLOR_VT_UNSET ) g.colorOutput = COLOR_VT_NEVER;
     }else{
       int i, fValid = 1;
       /* Rudimentary sanity check: only allow digits and semicolon. */
