@@ -2030,7 +2030,7 @@ static int queryCmd(
        && Th_GetVar(interp, zVar+1, szVar-1)==TH_OK ){
         int nVal;
         const char *zVal = Th_GetResult(interp, &nVal);
-        sqlite3_bind_text(pStmt, i, zVal, nVal, SQLITE_TRANSIENT);
+        sqlite3_bind_text(pStmt, i, zVal, TH1_LEN(nVal), SQLITE_TRANSIENT);
       }
     }
     while( res==TH_OK && ignore_errors_step(pStmt)==SQLITE_ROW ){
@@ -2560,6 +2560,22 @@ void Th_Store(const char *zName, const char *zValue){
       Th_Trace("set %h {%h}<br>\n", zName, zValue);
     }
     Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
+  }
+}
+
+/*
+** Store a string value in a variable in the interpreter
+** with the "taint" marking, so that TH1 knows that this
+** variable contains content under the control of the remote
+** user and presents a risk of XSS or SQL-injection attacks.
+*/
+void Th_StoreUnsafe(const char *zName, const char *zValue){
+  Th_FossilInit(TH_INIT_DEFAULT);
+  if( zValue ){
+    if( g.thTrace ){
+      Th_Trace("set %h [taint {%h}]<br>\n", zName, zValue);
+    }
+    Th_SetVar(g.interp, zName, -1, zValue, TH1_ADD_TAINT(strlen(zValue)));
   }
 }
 
