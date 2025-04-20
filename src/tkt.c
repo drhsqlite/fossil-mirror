@@ -212,7 +212,7 @@ static void initializeVariablesFromDb(void){
       if( (j = fieldId(zName))>=0 ){
         aField[j].zValue = mprintf("%s", zVal);
       }else if( memcmp(zName, "tkt_", 4)==0 && Th_Fetch(zName, &size)==0 ){
-        Th_Store(zName, zVal);
+        Th_StoreUnsafe(zName, zVal);
       }
       free(zRevealed);
     }
@@ -222,7 +222,7 @@ static void initializeVariablesFromDb(void){
   db_finalize(&q);
   for(i=0; i<nField; i++){
     if( Th_Fetch(aField[i].zName, &size)==0 ){
-      Th_Store(aField[i].zName, aField[i].zValue);
+      Th_StoreUnsafe(aField[i].zName, aField[i].zValue);
     }
   }
 }
@@ -235,7 +235,7 @@ static void initializeVariablesFromCGI(void){
   const char *z;
 
   for(i=0; (z = cgi_parameter_name(i))!=0; i++){
-    Th_Store(z, P(z));
+    Th_StoreUnsafe(z, P(z));
   }
 }
 
@@ -820,11 +820,11 @@ static int appendRemarkCmd(
   }
   if( g.thTrace ){
     Th_Trace("append_field %#h {%#h}<br>\n",
-              argl[1], argv[1], argl[2], argv[2]);
+              TH1_LEN(argl[1]), argv[1], TH1_LEN(argl[2]), argv[2]);
   }
   for(idx=0; idx<nField; idx++){
-    if( memcmp(aField[idx].zName, argv[1], argl[1])==0
-        && aField[idx].zName[argl[1]]==0 ){
+    if( memcmp(aField[idx].zName, argv[1], TH1_LEN(argl[1]))==0
+        && aField[idx].zName[TH1_LEN(argl[1])]==0 ){
       break;
     }
   }
@@ -940,6 +940,7 @@ static int submitTicketCmd(
     if( aField[i].zAppend ) continue;
     zValue = Th_Fetch(aField[i].zName, &nValue);
     if( zValue ){
+      nValue = TH1_LEN(nValue);
       while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
       if( ((aField[i].mUsed & USEDBY_TICKETCHNG)!=0 && nValue>0)
        || memcmp(zValue, aField[i].zValue, nValue)!=0
@@ -1042,12 +1043,12 @@ void tktnew_page(void){
         db_text(0, "SELECT find_emailaddr(info) FROM user WHERE uid=%d",
                 uid);
       if( zEmail ){
-        Th_Store("private_contact", zEmail);
+        Th_StoreUnsafe("private_contact", zEmail);
         fossil_free(zEmail);
       }
     }
   }
-  Th_Store("login", login_name());
+  Th_StoreUnsafe("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
                    (void*)&zNewUuid, 0);
@@ -1122,7 +1123,7 @@ void tktedit_page(void){
   form_begin(0, "%R/%s", g.zPath);
   @ <input type="hidden" name="name" value="%s(zName)">
   zScript = ticket_editpage_code();
-  Th_Store("login", login_name());
+  Th_StoreUnsafe("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);

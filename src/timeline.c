@@ -1890,7 +1890,7 @@ void page_timeline(void){
     if( matchStyle==MS_EXACT ){
       /* For exact maching, inhibit links to the selected tag. */
       zThisTag = zTagName;
-      Th_Store("current_checkin", zTagName);
+      Th_StoreUnsafe("current_checkin", zTagName);
     }
 
     /* Display a checkbox to enable/disable display of related check-ins. */

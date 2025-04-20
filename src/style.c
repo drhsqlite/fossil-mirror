@@ -746,8 +746,9 @@ static void style_init_th1_vars(const char *zTitle){
   Th_MaybeStore("default_csp", zDfltCsp);
   fossil_free(zDfltCsp);
   Th_Store("nonce", zNonce);
-  Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
-  Th_Store("project_description", db_get("project-description",""));
+  Th_StoreUnsafe("project_name",
+                 db_get("project-name","Unnamed Fossil Project"));
+  Th_StoreUnsafe("project_description", db_get("project-description",""));
   if( zTitle ) Th_Store("title", html_lookalike(zTitle,-1));
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("secureurl", fossil_wants_https(1)? g.zHttpsURL: g.zBaseURL);

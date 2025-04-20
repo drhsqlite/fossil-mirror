@@ -1054,7 +1054,7 @@ void doc_page(void){
   if( zMime==0 ){
     zMime = mimetype_from_name(zName);
   }
-  Th_Store("doc_name", zName);
+  Th_StoreUnsafe("doc_name", zName);
   if( vid ){
     Th_Store("doc_version", db_text(0, "SELECT '[' || substr(uuid,1,10) || ']'"
                                        "  FROM blob WHERE rid=%d", vid));
