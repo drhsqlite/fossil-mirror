@@ -812,13 +812,14 @@ static void no_error_log_available(void){
 ** Show the content of the error log.  Only the administrator can view
 ** this page.
 **
-**    y=0x01          Show only hack attempts
-**    y=0x02          Show only panics and assertion faults
-**    y=0x04          Show hung backoffice processes
-**    y=0x08          Show POST requests from a different origin
-**    y=0x10          Show SQLITE_AUTH and similar
-**    y=0x20          Show SMTP error reports
-**    y=0x40          Show other uncategorized messages
+**    y=0x001          Show only hack attempts
+**    y=0x002          Show only panics and assertion faults
+**    y=0x004          Show hung backoffice processes
+**    y=0x008          Show POST requests from a different origin
+**    y=0x010          Show SQLITE_AUTH and similar
+**    y=0x020          Show SMTP error reports
+**    y=0x040          Show TH1 vulnerability reports
+**    y=0x800          Show other uncategorized messages
 **
 ** If y is omitted or is zero, a count of the various message types is
 ** shown.
@@ -828,7 +829,7 @@ void errorlog_page(void){
   FILE *in;
   char *zLog;
   const char *zType = P("y");
-  static const int eAllTypes = 0x7f;
+  static const int eAllTypes = 0x87f;
   long eType = 0;
   int bOutput = 0;
   int prevWasTime = 0;
@@ -839,6 +840,7 @@ void errorlog_page(void){
   int nXPost = 0;
   int nAuth = 0;
   int nSmtp = 0;
+  int nVuln = 0;
   char z[10000];
   char zTime[10000];
 
@@ -919,6 +921,9 @@ void errorlog_page(void){
       @ <li>SMTP malfunctions
     }
     if( eType & 0x40 ){
+      @ <li>TH1 vulnerabilities
+    }
+    if( eType & 0x800 ){
       @ <li>Other uncategorized messages
     }
     @ </ul>
@@ -955,8 +960,12 @@ void errorlog_page(void){
         bOutput = (eType & 0x10)!=0;
         nAuth++;
       }else
-      {
+      if( strncmp(z,"possible", 8)==0 && strstr(z,"tainted")!=0 ){
         bOutput = (eType & 0x40)!=0;
+        nVuln++;
+      }else
+      {
+        bOutput = (eType & 0x800)!=0;
         nOther++;
       }
       if( bOutput ){
@@ -980,12 +989,16 @@ void errorlog_page(void){
     @ </pre>
   }
   if( eType==0 ){
-    int nNonHack = nPanic + nHang + nAuth + nSmtp + nOther;
+    int nNonHack = nPanic + nHang + nAuth + nSmtp + nVuln + nOther;
     int nTotal = nNonHack + nHack + nXPost;
     @ <p><table border="a" cellspacing="0" cellpadding="5">
     if( nPanic>0 ){
       @ <tr><td align="right">%d(nPanic)</td>
       @     <td><a href="./errorlog?y=2">Panics</a></td>
+    }
+    if( nVuln>0 ){
+      @ <tr><td align="right">%d(nVuln)</td>
+      @     <td><a href="./errorlog?y=64">TH1 Vulnerabilities</a></td>
     }
     if( nHack>0 ){
       @ <tr><td align="right">%d(nHack)</td>
@@ -1009,11 +1022,11 @@ void errorlog_page(void){
     }
     if( nOther>0 ){
       @ <tr><td align="right">%d(nOther)</td>
-      @     <td><a href="./errorlog?y=64">Other</a></td>
+      @     <td><a href="./errorlog?y=2048">Other</a></td>
     }
     @ <tr><td align="right">%d(nTotal)</td>
     if( nTotal>0 ){
-      @     <td><a href="./errorlog?y=255">All Messages</a></td>
+      @     <td><a href="./errorlog?y=4095">All Messages</a></td>
     }else{
       @     <td>All Messages</td>
     }

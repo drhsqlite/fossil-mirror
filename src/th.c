@@ -912,30 +912,6 @@ static int thSplitList(
 }
 
 /*
-** Report misuse of a tainted string.
-**
-** In the current implementation, this routine issues a warning to the
-** error log and returns 0, causing processing to continue.  This is so
-** that the new taint detection will not disrupt legacy configurations.
-** However, if modified so that this routine returns non-zero, then it
-** will cause an error in the script.
-*/
-int Th_ReportTaint(
-  Th_Interp *interp,       /* Report error here, if an error is reported */
-  const char *zWhere,      /* Where the tainted string appears */
-  const char *zStr,        /* The tainted string */
-  int nStr                 /* Length of the tainted string */
-){
-  nStr = TH1_LEN(nStr);
-  if( nStr>0 ){
-    fossil_errorlog("warning: tainted %s: \"%.*s\"", zWhere, nStr, zStr);
-  }else{
-    fossil_errorlog("warning: tainted %s", zWhere);
-  }
-  return 0;
-}
-
-/*
 ** Evaluate the th1 script contained in the string (zProgram, nProgram)
 ** in the current stack frame.
 */

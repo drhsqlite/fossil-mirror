@@ -391,15 +391,11 @@ static void sendText(Blob *pOut, const char *z, int n, int encode){
   if(TH_INIT_NO_ENCODE & g.th1Flags){
     encode = 0;
   }
-  if( encode==0 && n>0 && TH1_TAINTED(n) ){
-    if( Th_ReportTaint(0, "output string", z, n) ){
-      return;
-    }
-    n = TH1_LEN(n);
-  }
   if( enableOutput && n ){
     if( n<0 ){
       n = strlen(z);
+    }else{
+      n = TH1_LEN(n);
     }
     if( encode ){
       z = htmlize(z, n);
@@ -536,10 +532,19 @@ static int putsCmd(
   const char **argv,
   int *argl
 ){
+  int encode = *(unsigned int*)pConvert;
+  int n;
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "puts STRING");
   }
-  sendText(0,(char*)argv[1], argl[1], *(unsigned int*)pConvert);
+  n = argl[1];
+  if( encode==0 && n>0 && TH1_TAINTED(n) ){
+    if( Th_ReportTaint(interp, "output string", argv[1], n) ){
+      return TH_ERROR;
+    }
+    n = TH1_LEN(n);
+  }
+  sendText(0,(char*)argv[1], n, encode);
   return TH_OK;
 }
 
@@ -3039,6 +3044,73 @@ int Th_Render(const char *z){
     ** recursive calls, so that, e.g., TH_INIT_NO_ENCODE does not get
     ** inadvertently toggled off by a recursive call.
     */;
+}
+
+/*
+** SETTING: vuln-report           width=8 default=log
+**
+** This setting controls Fossil's behavior when it encounters a potential
+** XSS or SQL-injection vulnerability due to misuse of TH1 configuration
+** scripts.  Choices are:
+**
+**    off            Do nothing.  Ignore the vulnerability.
+**
+**    log            Write a report of the problem into the error log.
+**
+**    block          Like "log" but also prevent the offending TH1 command
+**                   from running.
+**
+**    fatal          Render an error message page instead of the requested
+**                   page.
+*/
+
+/*
+** Report misuse of a tainted string in TH1.
+**
+** The behavior depends on the vuln-report setting.  If "off", this routine
+** is a no-op.  Otherwise, right a message into the error log.  If
+** vuln-report is "log", that is all that happens.  But for any other
+** value of vuln-report, a fatal error is raised.
+*/
+int Th_ReportTaint(
+  Th_Interp *interp,       /* Report error here, if an error is reported */
+  const char *zWhere,      /* Where the tainted string appears */
+  const char *zStr,        /* The tainted string */
+  int nStr                 /* Length of the tainted string */
+){
+  char *zDisp;             /* Dispensation */
+  const char *zVulnType;   /* Type of vulnerability */
+
+  zDisp = db_get("vuln-report","log");
+  if( is_false(zDisp) ) return 0;
+  if( strstr(zWhere,"SQL")!=0 ){
+    zVulnType = "SQL-injection";
+  }else{
+    zVulnType = "XSS";
+  }
+  nStr = TH1_LEN(nStr);
+  fossil_errorlog("possible %s vulnerability due to tainted TH1 %s: \"%.*s\"",
+                  zVulnType, zWhere, nStr, zStr);
+  if( strcmp(zDisp,"log")==0 ){
+    return 0;
+  }
+  if( strcmp(zDisp,"block")==0 ){
+    char *z = mprintf("tainted %s: \"", zWhere);
+    Th_ErrorMessage(interp, z, zStr, nStr);
+    fossil_free(z);
+  }else{
+    char *z = mprintf("%#h", nStr, zStr);
+    cgi_reset_content();
+    style_submenu_enable(0);
+    style_set_current_feature("error");
+    style_header("Configuration Error");
+    @ <p>Error in a TH1 configuration script: 
+    @ tainted %h(zWhere): "%z(z)"
+    style_finish_page();
+    cgi_reply();
+    fossil_exit(1);
+  }
+  return 1;
 }
 
 /*
