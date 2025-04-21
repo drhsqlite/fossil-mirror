@@ -1,5 +1,5 @@
-C Add\s"taint\smode"\sto\sTH1.\s\sAttempts\sto\soutput\svalues\sthat\sare\sderived\sfrom\nuser\sinput\sas\sunescaped\sHTML,\sor\sto\suse\ssuch\svalues\sunescaped\sin\sSQL,\sraises\nerrors.\s\sThe\sresolution\sof\sthese\serrors\sdepends\son\sthe\svalue\sof\sthe\snew\n"vuln-report"\ssetting.
-D 2025-04-20T16:54:38.344
+C TH1\svariables\sthat\sderive\sfrom\sTICKET\stable\scolumns\sthat\sbegin\swith\s"tkt_"\nare\suntainted.
+D 2025-04-21T12:23:44.799
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -575,7 +575,7 @@ F src/th_lang.c 3cd34f0cbd836fdcc0c64aad65e629f30103a30e06c101503e7ab207571ff8d1
 F src/th_main.c 659124a48a41d543f244c98dcbb5608b9856ce1582611e882c4732522d2570bd
 F src/th_tcl.c 92997e45f27cf51cfb1ba33fb908f5a23d7d4fcdc69400ff79cedd91564cbffd
 F src/timeline.c fd71459238ed36ffef99567843ac053f957ab9c5b2ef417191550a2e2968a132
-F src/tkt.c 77afda5d9cca74b8c231abe7a742b1c974ebca0c972ca6dec53a7880a92a5147
+F src/tkt.c fe620e642bd3dbed24697331d1a879d21a27d4b4a1ada82befd5ecb80f9beb70
 F src/tktsetup.c 04d368c15ee407ae08120af51bef38ce52411a6bfa0e8076ae65ac3637b9991a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c adb86202928394161ecfa194be5001fbd86254ba43c4df527d91c36857a0be90
@@ -970,9 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f1db9ead1d44290a0cb029f02987418b348685e178d8e2f5b459dbda6532648b 295b814a2722fff73e65c10b5247fbec4cbcf7178a706621eb743efa98bf30ff
-R a2c2bd8482673acb4391de0c3bee7207
-T +closed 295b814a2722fff73e65c10b5247fbec4cbcf7178a706621eb743efa98bf30ff
+P 2116238e80cc3dcb1c012c60df9915c525a3ed3e15f908570d1bb8ef939f1b36
+R 6a6389b41416c46c3dae35e94848183e
 U drh
-Z 0b5fb642a2ed949a1a7d608385c2708a
+Z 4b6d391110840ba29661937cf6e51f8a
 # Remove this line to create a well-formed Fossil manifest.

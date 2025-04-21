@@ -212,7 +212,8 @@ static void initializeVariablesFromDb(void){
       if( (j = fieldId(zName))>=0 ){
         aField[j].zValue = mprintf("%s", zVal);
       }else if( memcmp(zName, "tkt_", 4)==0 && Th_Fetch(zName, &size)==0 ){
-        Th_StoreUnsafe(zName, zVal);
+        /* TICKET table columns that begin with "tkt_" are always safe */
+        Th_Store(zName, zVal);
       }
       free(zRevealed);
     }
