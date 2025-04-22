@@ -1,5 +1,5 @@
-C Fix\s[fab9f0047720721e]\sso\sthat\sit\sworks\son\srepositories\sthat\sdo\snot\nhave\sthe\stkt_ctime\scolumn\sin\sthe\sTICKET\stable\sdefinition.
-D 2025-04-22T18:18:22.213
+C Fix\sanother\sproblem\swith\slappend\sand\staint.\s\sSee\n[forum:/forumpost/94b7485f464bd3a1|forum\spost\s94b7485f4]\sfor\sa\sdescription\nof\sthe\sproblem.
+D 2025-04-22T19:34:14.316
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -569,7 +569,7 @@ F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 750a31dff7d032e64ba971a2b9ca5a591c6a5b1ccedea758432f348510bbc996
 F src/tar.c dfb0c23bb6ef61b829b38a428dbc34699b62df6d07f14ed739d71b045ef78e12
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
-F src/th.c 80a5fcdde8035613f70848e9e9fcaa3921e22fb286a365b4b0b2890d22587adf
+F src/th.c 55cd6f83b36beba248c6ee39e3d5d3e88062264b7cef7eb5150d517a000c653b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c 540768dd112e7a02d88ff7070d3afe80e5aa998ef8ffda10e365c14b2b60fa0f
 F src/th_main.c 5c4f1143f06b9a52e93abb73e0e5e0718ae69389785746d5df8c08effdb1192e
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ded2126db663be15a58d9cb62ad9832dc9f2ea74ff5e45c40416ab1cc571719f
-R 81672c57c7b3c69d78dfa7c80ff7a674
+P 6476f287d381970040e56367c32a3083925a6a890c4bd1431b0b826cd411780d
+R b6e916773b1dad4a23e96ce0a184877c
 U drh
-Z 98433d241dc141738b205ee8cbc0e63a
+Z d7357980adb40bbaf14b4972d9740193
 # Remove this line to create a well-formed Fossil manifest.

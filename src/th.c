@@ -1796,8 +1796,10 @@ int Th_ListAppend(
   int nBrace = 0;
 
   output.zBuf = *pzList;
-  output.nBuf = *pnList;
+  output.nBuf = TH1_LEN(*pnList);
   output.nBufAlloc = output.nBuf;
+  output.bTaint = 0;
+  TH1_XFER_TAINT(output.bTaint, *pnList);
 
   if( nElem<0 ){
     nElem = th_strlen(zElem);
