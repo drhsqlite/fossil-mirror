@@ -26,6 +26,10 @@
 #include <zlib.h>
 #include "gzip.h"
 
+#ifdef __morphos__
+struct Library *ZBase;
+#endif
+
 /*
 ** State information for the GZIP file under construction.
 */

@@ -44,10 +44,15 @@
 #  include <arpa/inet.h>
 #  include <sys/socket.h>
 #  include <netdb.h>
+#  include <errno.h>
 #endif
 #include <assert.h>
 #include <sys/types.h>
 #include <signal.h>
+
+#if defined(__EMX__) || defined(__morphos__)
+  typedef int socklen_t;
+#endif
 
 /*
 ** There can only be a single socket connection open at a time.
@@ -146,14 +151,22 @@ void socket_close(void){
 */
 int socket_open(UrlData *pUrlData){
   int rc = 0;
+#ifdef AF_INET6
   struct addrinfo *ai = 0;
   struct addrinfo *p;
   struct addrinfo hints;
   char zPort[30];
   char zRemote[NI_MAXHOST];
+#else
+  struct hostent *hostent;
+  struct sockaddr_in sa;
+  socklen_t size = sizeof(sa);
+  int i;
+#endif
 
   socket_global_init();
   socket_close();
+#ifdef AF_INET6
   memset(&hints, 0, sizeof(struct addrinfo));
   hints.ai_family = g.fIPv4 ? AF_INET : AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
@@ -185,12 +198,41 @@ int socket_open(UrlData *pUrlData){
                       pUrlData->port);
     rc = 1;
   }
+#else
+  hostent = gethostbyname(pUrlData->name);
+  if ( !hostent ){
+    socket_set_errmsg("gethostbyname() failed: %s", strerror(errno));
+    goto end_socket_open;
+  }
+  iSocket = socket(AF_INET, SOCK_STREAM, 0);
+  if( iSocket< 0 ){
+    socket_set_errmsg("socket() failed: %s", strerror(errno));
+    goto end_socket_open;
+  }
+  memset(&sa, 0, sizeof(sa));
+  sa.sin_family = AF_INET;
+  for (i=0; hostent->h_addr_list[i]!=0; i++){
+    sa.sin_addr = *(struct in_addr *)hostent->h_addr_list[i];
+    if( connect(iSocket,(struct sockaddr *)&sa,size)<0 ){
+      sa.sin_addr.s_addr = 0;
+      continue;
+    }
+    g.zIpAddr = mprintf("%s", inet_ntoa(sa.sin_addr));
+  }
+  if( sa.sin_addr.s_addr==0 ){
+    socket_set_errmsg("cannot connect to host %s:%d", pUrlData->name,
+                      pUrlData->port);
+    rc = 1;
+  }
+#endif
 #if !defined(_WIN32)
   signal(SIGPIPE, SIG_IGN);
 #endif
 end_socket_open:
   if( rc && iSocket>=0 ) socket_close();
+#ifdef AF_INET6
   if( ai ) freeaddrinfo(ai);
+#endif
   return rc;
 }
 

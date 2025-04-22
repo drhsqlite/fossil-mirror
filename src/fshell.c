@@ -49,8 +49,10 @@
 ** It is non-functional on Windows.
 */
 void shell_cmd(void){
-#ifdef _WIN32
+#if defined(_WIN32)
   fossil_fatal("the 'shell' command is not supported on windows");
+#elif defined(__morphos__)
+  fossil_fatal("the 'shell' command is not supported on MorphOS");
 #else
   int nArg;
   int mxArg = 0;

@@ -82,7 +82,7 @@
 # include <sys/select.h>
 # include <errno.h>
 #endif
-#ifdef __EMX__
+#if defined(__EMX__) || defined(__morphos__)
   typedef int socklen_t;
 #endif
 #include <time.h>
@@ -2085,8 +2085,10 @@ static char *extract_token(char *zInput, char **zLeftOver){
 typedef union {
   struct sockaddr sa;              /* Abstract superclass */
   struct sockaddr_in sa4;          /* IPv4 */
+#ifdef AF_INET6
   struct sockaddr_in6 sa6;         /* IPv6 */
   struct sockaddr_storage sas;     /* Should be the maximum of the above 3 */
+#endif
 } address;
 
 /*
@@ -2099,15 +2101,21 @@ typedef union {
 char *cgi_remote_ip(int fd){
   address remoteAddr;
   socklen_t size = sizeof(remoteAddr);
+#ifdef AF_INET6
   static char zHost[NI_MAXHOST];
+#endif
   if( getpeername(0, &remoteAddr.sa, &size) ){
     return 0;
   }
+#ifdef AF_INET6
   if( getnameinfo(&remoteAddr.sa, size, zHost, sizeof(zHost), 0, 0,
                   NI_NUMERICHOST) ){
     return 0;
   }
   return zHost;
+#else
+  return inet_ntoa(((struct sockaddr_in *)&remoteAddr.sa)->sin_addr);
+#endif
 }
 
 /*
@@ -2552,7 +2560,9 @@ int cgi_http_server(
   int child;                   /* PID of the child process */
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
+#ifdef AF_INET6
   struct sockaddr_in6 inaddr6; /* Address for IPv6 */
+#endif
   struct sockaddr_in inaddr4;  /* Address for IPv4 */
   struct sockaddr_un uxaddr;   /* The address for unix-domain sockets */
   int opt = 1;                 /* setsockopt flag */
@@ -2617,6 +2627,7 @@ int cgi_http_server(
     fossil_print("Listening for %s requests on unix socket %s\n",
                  zRequestType, g.zSockName);
     fflush(stdout);
+#ifdef AF_INET6
   }else if( zIpAddr && strchr(zIpAddr,':')!=0 ){
     /* CASE 2: TCP on IPv6 IP address specified by zIpAddr and on port iPort.
     */
@@ -2646,6 +2657,7 @@ int cgi_http_server(
     fossil_print("Listening for %s requests on [%s]:%d\n",
                  zRequestType, zIpAddr, iPort);
     fflush(stdout);
+#endif
   }else if( zIpAddr && zIpAddr[0] ){
     /* CASE 3: TCP on IPv4 IP address specified by zIpAddr and on port iPort.
     */
@@ -2708,6 +2720,7 @@ int cgi_http_server(
       }
       mxListen = listen4;
 
+#ifdef AF_INET6
       /* If we get here, that means we found an open TCP port at iPort for
       ** IPv4.  Try to set up a corresponding IPv6 socket on the same port.
       */
@@ -2735,6 +2748,9 @@ int cgi_http_server(
         zProto = "IPv4 and IPv6";
         if( listen6>listen4 ) mxListen = listen6;
       }
+#else
+      zProto = "IPv4 only";
+#endif
 
       fossil_print("Listening for %s requests on TCP port %s%d, %s\n",
                    zRequestType, 
@@ -2792,18 +2808,24 @@ int cgi_http_server(
     if( listen4>0 && FD_ISSET(listen4, &readfds) ){
       lenaddr = sizeof(inaddr4);
       connection = accept(listen4, (struct sockaddr*)&inaddr4, &lenaddr);
+#ifdef AF_INET6
     }else if( listen6>0 && FD_ISSET(listen6, &readfds) ){
       lenaddr = sizeof(inaddr6);
       connection = accept(listen6, (struct sockaddr*)&inaddr6, &lenaddr);
+#endif
     }else{
       connection = -1;
     }
     if( connection>=0 ){
+#ifndef __morphos__
       if( flags & HTTP_SERVER_NOFORK ){
         child = 0;
       }else{
         child = fork();
       }
+#else
+      child = 0;
+#endif
       if( child!=0 ){
         if( child>0 ){
           nchildren++;
