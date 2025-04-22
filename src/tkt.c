@@ -190,13 +190,15 @@ static void initializeVariablesFromDb(void){
   const char *zName;
   Stmt q;
   int i, n, size, j;
+  const char *zCTimeColumn = haveTicketCTime ? "tkt_ctime" : "tkt_mtime";
 
   zName = PD("name","-none-");
   db_prepare(&q, "SELECT datetime(tkt_mtime,toLocal()) AS tkt_datetime, "
-                 "datetime(tkt_ctime,toLocal()) AS tkt_datetime_creation, "
+                 "datetime(%s,toLocal()) AS tkt_datetime_creation, "
                  "julianday('now') - tkt_mtime, "
-                 "julianday('now') - tkt_ctime, *"
+                 "julianday('now') - %s, *"
                  "  FROM ticket WHERE tkt_uuid GLOB '%q*'",
+                 zCTimeColumn/*safe-for-%s*/, zCTimeColumn/*safe-for-%s*/,
                  zName);
   if( db_step(&q)==SQLITE_ROW ){
     n = db_column_count(&q);

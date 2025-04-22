@@ -1,5 +1,5 @@
-C Improved\scode\ssaftey\sfor\sthe\sTH1-taint\simplementation,\safter\sa\scode\saudit.
-D 2025-04-22T17:40:24.030
+C Fix\s[fab9f0047720721e]\sso\sthat\sit\sworks\son\srepositories\sthat\sdo\snot\nhave\sthe\stkt_ctime\scolumn\sin\sthe\sTICKET\stable\sdefinition.
+D 2025-04-22T18:18:22.213
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -575,7 +575,7 @@ F src/th_lang.c 540768dd112e7a02d88ff7070d3afe80e5aa998ef8ffda10e365c14b2b60fa0f
 F src/th_main.c 5c4f1143f06b9a52e93abb73e0e5e0718ae69389785746d5df8c08effdb1192e
 F src/th_tcl.c e62b350e3581a57ee97b4e6abb28bbba3ac1c3bb9d45258b8ca4e05fe526d253
 F src/timeline.c fd71459238ed36ffef99567843ac053f957ab9c5b2ef417191550a2e2968a132
-F src/tkt.c fe620e642bd3dbed24697331d1a879d21a27d4b4a1ada82befd5ecb80f9beb70
+F src/tkt.c a3837e0ae8b7c69412254044548dd7859a5a1c3872b327288b8692b9848adebb
 F src/tktsetup.c 04d368c15ee407ae08120af51bef38ce52411a6bfa0e8076ae65ac3637b9991a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c adb86202928394161ecfa194be5001fbd86254ba43c4df527d91c36857a0be90
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 064d20ee382ec7778a0f796c80f5e77ec6eaaacbad557255c9a28920aa3df41a
-R 4dd10fe5353f991bf4d48a16f6a07f5a
+P ded2126db663be15a58d9cb62ad9832dc9f2ea74ff5e45c40416ab1cc571719f
+R 81672c57c7b3c69d78dfa7c80ff7a674
 U drh
-Z 82318ede8a85b7808e27c0a43bd4b7f0
+Z 98433d241dc141738b205ee8cbc0e63a
 # Remove this line to create a well-formed Fossil manifest.
