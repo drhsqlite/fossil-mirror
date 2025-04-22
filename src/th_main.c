@@ -542,9 +542,8 @@ static int putsCmd(
     if( Th_ReportTaint(interp, "output string", argv[1], n) ){
       return TH_ERROR;
     }
-    n = TH1_LEN(n);
   }
-  sendText(0,(char*)argv[1], n, encode);
+  sendText(0,(char*)argv[1], TH1_LEN(n), encode);
   return TH_OK;
 }
 

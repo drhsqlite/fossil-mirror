@@ -588,7 +588,9 @@ static int proc_command(
   ** entry in the ProcDefn.azParam[] or ProcDefn.azDefault[] arrays.
   */
   if( nParam>0 ){
-    if( anParam[nParam-1]==4 && 0==memcmp(azParam[nParam-1], "args", 4) ){
+    if( TH1_LEN(anParam[nParam-1])==4
+     && 0==memcmp(azParam[nParam-1], "args", 4)
+    ){
       p->hasArgs = 1;
       nParam--;
     }

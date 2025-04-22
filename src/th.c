@@ -1801,6 +1801,8 @@ int Th_ListAppend(
 
   if( nElem<0 ){
     nElem = th_strlen(zElem);
+  }else{
+    nElem = TH1_LEN(nElem);
   }
   if( output.nBuf>0 ){
     thBufferAddChar(interp, &output, ' ');
