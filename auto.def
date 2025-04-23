@@ -263,6 +263,14 @@ if {[is_mingw]} {
   define USE_LINENOISE 1
 }
 
+proc is_morphos {} {
+  return [string match *morphos* [get-define host]]
+}
+
+if ([is_morphos]) {
+  define-append EXTRA_CFLAGS -DHAVE_NANOSLEEP=0
+}
+
 if {[string match *-solaris* [get-define host]]} {
   define-append EXTRA_CFLAGS {-D__EXTENSIONS__}
 }

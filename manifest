@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-C Initial\sincomplete\sport\sto\sMorphOS.\sNeeds\ssome\smanual\soverrides\sto\ncompile\sand\shas\ssome\slocking\sissues\sin\sSQLite.
-D 2025-04-22T01:10:01.719
+C Set\sHAVE_NANOSLEEP=0\swhen\sbuilding\sfor\sMorphOS
+D 2025-04-23T07:37:29.567
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -20,7 +20,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def 4169d4399308f33e7a0ffb364b0a92d29aa0cf20d8edf9b031f0419a7e53a8b2
+F auto.def 828b197bce61f59494e4c974f4ee96667168ba9d0f3d977bf6ffe7ec184edc2c
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -973,18 +973,15 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d93344ec3887514a98dcf4c87155f955053fd74527d3ac3fea3660226ea438d2
-R 6a3166bfa20a01afa1866f74c6011966
-T *branch * morphos
-T *sym-morphos *
-T -sym-trunk *
+P 66f279e14332a4e592c7434e833d135e09b3100be622e58ccd80488742b981b2
+R 21c4341369df93ea6fcf299eba034370
 U js
-Z ee492376eeac6bb98742e8fdc962abd7
+Z 183020fb02c6bc966d413d2a7f069935
 # Remove this line to create a well-formed Fossil manifest.
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaAbsaQAKCRDGAe4hdz58
-j93EAP4hEf3keEvHlfTxIWhC6jYmozEX6L6slh9z2i34KQ4hXQD/X5aJq2bHFgIN
-3R8iGTlHRzhPinCDHIKk6w6wsk8Z4wY=
-=XNGC
+iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaAiYuQAKCRDGAe4hdz58
+jxZ2AQD2NRt2SKk0WAGjU5+TVh120WJFqq10W1daWXCGMPT1ZwD8Cujq4x6Xavzj
+tv07s7+6vyulGsP4ySkUVv4D1btJ/gk=
+=vYP7
 -----END PGP SIGNATURE-----
