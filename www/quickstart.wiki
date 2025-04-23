@@ -109,14 +109,14 @@ Extra delta compression...
 Vacuuming the database... 
 project-id: 94259BB9F186226D80E49D1FA2DB29F935CCA0333
 server-id:  016595e9043054038a9ea9bc526d7f33f7ac0e42
-admin-user: exampleuser (password is "yoWgDR42iv")>
+admin-user: exampleuser (intial remote-access password is "yoWgDR42iv")>
 </b></pre>
 
 This <i>exampleuser</i> will be used by Fossil as the author of commits when
 you checkin changes to the repository.  It is also used by Fossil when you
 make your repository available to others using the built-in server mode by
 running <tt>[/help/server | fossil server]</tt> and will also be used when
-running <tt>[/help/ui | fossil ui]</tt> to make view the repository through 
+running <tt>[/help/ui | fossil ui]</tt> to view the repository through 
 the Fossil UI.  See the quick start topic for setting up a
 <a href="#server">server</a> for more details.
 
