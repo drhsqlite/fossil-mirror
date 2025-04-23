@@ -1,5 +1,5 @@
-C When\semitting\sthe\sdefault\spassword\sas\spart\sof\sthe\s'new'\scommand,\sadd\sthe\sterm\s'remote-access'\sto\sit\sto\sclarify\sthat\sit's\sonly\sfor\sremote\suse.\sIndirectly\ssuggested\sby\s[forum:9dbd8e00ee|forum\spost\s9dbd8e00ee].
-D 2025-04-23T10:46:27.404
+C Fix\sstring\scomparison\sbetween\stainted\sand\suntainted\sstrings\sin\sTH1.\n[forum:/forumpost/6ab1c36a80|Forum\spost\s6ab1c36a80].
+D 2025-04-23T12:51:42.180
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -569,7 +569,7 @@ F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 750a31dff7d032e64ba971a2b9ca5a591c6a5b1ccedea758432f348510bbc996
 F src/tar.c dfb0c23bb6ef61b829b38a428dbc34699b62df6d07f14ed739d71b045ef78e12
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
-F src/th.c 55cd6f83b36beba248c6ee39e3d5d3e88062264b7cef7eb5150d517a000c653b
+F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c 540768dd112e7a02d88ff7070d3afe80e5aa998ef8ffda10e365c14b2b60fa0f
 F src/th_main.c 5c4f1143f06b9a52e93abb73e0e5e0718ae69389785746d5df8c08effdb1192e
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa66767bac78b2b007899f0d7ca0664ae1e05f232cc233bb977f47f669c5c3fa
-R dd83b11c69fb1cf4f31e1032345138be
-U stephan
-Z b2823dd5b2dc6e1ad9231115faedf800
+P 57276a518ad6449d415b7295b5f42b922123997b1f23b0a27185918aa4f8e6d7
+R f6983aaaed2578e9e97955a4df5231dd
+U drh
+Z d5f74da0b73b50c293d7d1ac1a641e4d
 # Remove this line to create a well-formed Fossil manifest.

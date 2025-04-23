@@ -2133,12 +2133,14 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
       rc = exprEval(interp, pExpr->pLeft);
       if( rc==TH_OK ){
         zLeft = Th_TakeResult(interp, &nLeft);
+        nLeft = TH1_LEN(nLeft);
       }
     }
     if( rc==TH_OK && pExpr->pRight ){
       rc = exprEval(interp, pExpr->pRight);
       if( rc==TH_OK ){
         zRight = Th_TakeResult(interp, &nRight);
+        nRight = TH1_LEN(nRight);
       }
     }
 
