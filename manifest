@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-C Set\sHAVE_NANOSLEEP=0\swhen\sbuilding\sfor\sMorphOS
-D 2025-04-23T07:37:29.567
+C Use\s-lz_shared\sfor\ssystem\szlib\son\sMorphOS
+D 2025-04-23T08:08:04.332
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -20,7 +20,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
-F auto.def 828b197bce61f59494e4c974f4ee96667168ba9d0f3d977bf6ffe7ec184edc2c
+F auto.def bf9642bdf911c126ed64eb250e71528345a2d12762c9a27ccb557c263cd85fb6
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -973,15 +973,15 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 66f279e14332a4e592c7434e833d135e09b3100be622e58ccd80488742b981b2
-R 21c4341369df93ea6fcf299eba034370
+P 1ff1a55d8cb8552e9554b608c8cc96406e036db3ca02158269a86948f2fbecd7
+R 5abed728746c1b6412fdb76826b24d0e
 U js
-Z 183020fb02c6bc966d413d2a7f069935
+Z ba5ef4b232b3f9dcc4b34718c16cf3b9
 # Remove this line to create a well-formed Fossil manifest.
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaAiYuQAKCRDGAe4hdz58
-jxZ2AQD2NRt2SKk0WAGjU5+TVh120WJFqq10W1daWXCGMPT1ZwD8Cujq4x6Xavzj
-tv07s7+6vyulGsP4ySkUVv4D1btJ/gk=
-=vYP7
+iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaAif5AAKCRDGAe4hdz58
+j7taAP9JPJ6CvZriKY/jq40WG4Ftr+1FUcZOjGK/0+VA79hiRAD9FOufLRN/dUV+
+17/rOEzUmeDGu9ACHK4HvVJFwAo3uQM=
+=YX1C
 -----END PGP SIGNATURE-----
