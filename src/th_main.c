@@ -2985,7 +2985,12 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
       z += i+1+n;
       i = 0;
       zResult = (char*)Th_GetResult(g.interp, &n);
-      sendText(pOut,(char*)zResult, n, encode);
+      if( !TH1_TAINTED(n)
+       || encode 
+       || Th_ReportTaint(g.interp, "inline variable", zVar, nVar)==TH_OK
+      ){
+        sendText(pOut,(char*)zResult, n, encode);
+      }
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
       sendText(pOut,z, i, 0);
       z += i+5;
@@ -3088,7 +3093,7 @@ int Th_ReportTaint(
     zVulnType = "XSS";
   }
   nStr = TH1_LEN(nStr);
-  fossil_errorlog("possible %s vulnerability due to tainted TH1 %s: \"%.*s\"",
+  fossil_errorlog("possible TH1 %s vulnerability due to tainted %s: \"%.*s\"",
                   zVulnType, zWhere, nStr, zStr);
   if( strcmp(zDisp,"log")==0 ){
     return 0;
