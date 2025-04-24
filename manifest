@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sthe\snew\svuln-report\sentry\son\sthe\ssecurity-audit\spage.
-D 2025-04-24T19:26:16.437
+C Block\san\sinfinite\sloop\sin\sTh_ReportTaint()\sthat\scan\soccur\swhen\sthe\nvuln-report\ssetting\sis\s"fatal"\sand\sthe\serror\shappens\sagain\swhile\ngenerating\sthe\sfatal\serror\spage.
+D 2025-04-24T19:42:56.029
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -572,7 +572,7 @@ F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd7
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c 55c0017cc570f73b80224a340a58a4e87929970f811546f2007f4eb401bc593d
-F src/th_main.c 649b908a15c9cfa98e71aa951e9a744e8286317cee7ed1aa8c95df49d11fa565
+F src/th_main.c 9add6dd222ebeaae0fa32d6a5a418bdbf200e97bbf2941dcc96bf88dce403435
 F src/th_tcl.c e62b350e3581a57ee97b4e6abb28bbba3ac1c3bb9d45258b8ca4e05fe526d253
 F src/timeline.c fd71459238ed36ffef99567843ac053f957ab9c5b2ef417191550a2e2968a132
 F src/tkt.c a3837e0ae8b7c69412254044548dd7859a5a1c3872b327288b8692b9848adebb
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6a0d51ded9d636d1d45ce4d8dd455383f9d80af3da883df66d982fe021900cdd
-R e7d301bddded50f9e3349a1b7e7bd0ab
+P 9d7b31552af7f8713c9dab0aa56deac6d0fc88d8cb52c6c0f0204ecc6ac0224c
+R f0efb155a60e0a60e142c117e52e4205
 U drh
-Z 21ea2a1906238e205fa69eb3899ffba0
+Z a274f44902b1234633ef4394e5bf19f3
 # Remove this line to create a well-formed Fossil manifest.

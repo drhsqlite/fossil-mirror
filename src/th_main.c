@@ -3086,10 +3086,10 @@ int Th_ReportTaint(
   const char *zStr,        /* The tainted string */
   int nStr                 /* Length of the tainted string */
 ){
-  char *zDisp;             /* Dispensation */
-  const char *zVulnType;   /* Type of vulnerability */
+  static const char *zDisp = 0;   /* Dispensation; what to do with the error */
+  const char *zVulnType;          /* Type of vulnerability */
 
-  zDisp = db_get("vuln-report","log");
+  if( zDisp==0 ) zDisp = db_get("vuln-report","log");
   if( is_false(zDisp) ) return 0;
   if( strstr(zWhere,"SQL")!=0 ){
     zVulnType = "SQL-injection";
@@ -3108,6 +3108,7 @@ int Th_ReportTaint(
     fossil_free(z);
   }else{
     char *z = mprintf("%#h", nStr, zStr);
+    zDisp = "off";
     cgi_reset_content();
     style_submenu_enable(0);
     style_set_current_feature("error");
