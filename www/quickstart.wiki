@@ -81,10 +81,10 @@ long-lived checkout directories is undesireable, as when performing a
 Most fossil operations interact with a repository that is on the
 local disk drive, not on a remote system.  Hence, before accessing
 a remote repository it is necessary to make a local copy of that
-repository.  Making a local copy of a remote repository is called
-"cloning".
+repository, a process called
+"[/help/clone | cloning]".
 
-Clone a remote repository as follows: ([/help/clone | more info])
+This is done as follows:
 
 <pre><b>fossil clone</b> <i>URL repository-filename</i>
 </pre>
@@ -160,12 +160,11 @@ Fossil can also import [https://subversion.apache.org/|Subversion projects] dire
 
 To work on a project in fossil, you need to check out a local
 copy of the source tree.  Create the directory you want to be
-the root of your tree and cd into that directory.  Then
-do this: ([/help/open | more info])
+the root of your tree, <tt>cd</tt> into that directory, and then:
 
 <pre><b>fossil open</b> <i>repository-filename</i></pre>
 
-for example:
+For example:
 
 <pre><b>fossil open ../myclone.fossil
     BUILD.txt
@@ -173,8 +172,6 @@ for example:
     README.md
       ︙
 </tt></b></pre>
-
-(or "fossil open ..\myclone.fossil" on Windows).
 
 This leaves you with the newest version of the tree
 checked out.
@@ -331,33 +328,35 @@ how timestamps can also be used.
 
 When you create a new repository, either by cloning an existing
 project or create a new project of your own, you usually want to do some
-local configuration.  This is easily accomplished using the web-server
-that is built into fossil.  Start the fossil web server like this:
-([/help/ui | more info])
+local configuration.  This is most easily accomplished using the web-server
+that is built into Fossil, like so:
 
 <pre>
 <b>fossil ui</b> <i>repository-filename</i>
 </pre>
 
-You can omit the <i>repository-filename</i> from the command above
+You can shorten that to just [/help/ui | <b>fossil ui</b>]
 if you are inside a checked-out local tree.
 
-This starts a web server then automatically launches your
-web browser and makes it point to this web server.  If your system
-has an unusual configuration, fossil might not be able to figure out
-how to start your web browser.  In that case, first tell fossil
-where to find your web browser using a command like this:
+After the internal web server starts, Fossil automatically launches your
+default web browser, pointed at itself. You may override that default so:
 
 <pre>
 <b>fossil setting web-browser</b> <i>path-to-web-browser</i>
 </pre>
 
-By default, fossil does not require a login for HTTP connections
-coming in from the IP loopback address 127.0.0.1.  You can, and perhaps
-should, change this after you create a few users.
+Fossil binds this web server to the IP loopback address (127.0.0.1)
+which it treats specially when launched this way, bypassing all user
+controls. Why is that a good idea, you ask? Because it is a safe
+presumption that only someone with direct file access to the repository
+database file could be using the resulting web interface. Anyone who can
+modify the repo DB directly could give themselves any and all access
+with a SQL query, or even by direct file manipulation; no amount of
+access control matters to such a user.
 
-When you are finished configuring, just press Control-C or use
-the <b>kill</b> command to shut down the mini-server.
+Once you are finished configuring Fossil, you may safely Control-C out
+of the <b>fossil&nbsp;ui</b> command to shut down this privileged
+built-in web server.
 
 <h2 id="sharing">Sharing Changes</h2>
 
