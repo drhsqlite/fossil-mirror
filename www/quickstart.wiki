@@ -324,12 +324,11 @@ This will get you started on identifying checkins. The
 <a href="./checkin_names.wiki">Checkin Names document</a> is a complete reference, including
 how timestamps can also be used.
 
-<h2 id="config">Configuring Your Local Repository</h2>
+<h2 id="config">Accessing Your Local Repository's Web User Interface</h2>
 
-When you create a new repository, either by cloning an existing
-project or create a new project of your own, you usually want to do some
-local configuration.  This is most easily accomplished using the web-server
-that is built into Fossil, like so:
+After you create a new repository, you usually want to do some local
+configuration.  This is most easily accomplished by firing up the Fossil
+UI:
 
 <pre>
 <b>fossil ui</b> <i>repository-filename</i>
@@ -338,16 +337,22 @@ that is built into Fossil, like so:
 You can shorten that to just [/help/ui | <b>fossil ui</b>]
 if you are inside a checked-out local tree.
 
-After the internal web server starts, Fossil automatically launches your
-default web browser, pointed at itself. You may override that default so:
+This command starts an internal web server, after which Fossil
+automatically launches your default browser, pointed at itself,
+presenting a special view of the repository, its web user interface.
+
+You may override Fossil's logic for selecting the default browser so:
 
 <pre>
 <b>fossil setting web-browser</b> <i>path-to-web-browser</i>
 </pre>
 
-Fossil binds this web server to the IP loopback address (127.0.0.1)
-which it treats specially when launched this way, bypassing all user
-controls. Why is that a good idea, you ask? Because it is a safe
+When launched this way, Fossil binds its internal web server to the IP
+loopback address, 127.0.0.1, which it treats specially, bypassing all
+user controls, effectively giving visitors the
+[./caps/admin-v-setup.md#apsu | all-powerful Setup capabliity].
+
+Why is that a good idea, you ask? Because it is a safe
 presumption that only someone with direct file access to the repository
 database file could be using the resulting web interface. Anyone who can
 modify the repo DB directly could give themselves any and all access
@@ -482,51 +487,40 @@ level of undo/redo.
 
 <h2 id="server">Setting Up A Server</h2>
 
-Fossil can act as a stand-alone web server using one of these
-commands:
+In addition to the inward-facing <b>fossil ui</b> mode covered [#config
+| above], Fossil can also act as an outward-facing web server:
 
 <pre>
 <b>[/help/server | fossil server]</b> <i>repository-filename</i>
-<b>[/help/ui | fossil ui]</b> <i>repository-filename</i>
 </pre>
 
-The <i>repository-filename</i> can be omitted when these commands
-are run from within an open check-out, which is a particularly useful
-shortcut with the <b>fossil ui</b> command.
+Just as with <b>fossil ui</b>, you may omit the
+<i>repository-filename</i> parameter when running this from within an open
+check-out.
 
-The <b>ui</b> command is intended for accessing the web user interface
-from a local desktop. (We sometimes call this mode "Fossil UI.")
-The <b>ui</b> command differs from the
-<b>server</b> command by binding to the loopback IP
-address only (thus making the web UI visible only on the
-local machine) and by automatically starting your default web browser,
-pointing it at the running UI
-server. The localhost restriction exists because it also gives anyone
-who can access the resulting web UI full control over the
-repository. (This is the [./caps/admin-v-setup.md#apsu | all-powerful
-Setup capabliity].)
+<i>Unlike</i> <b>fossil ui</b> mode, Fossil binds to all network
+interfaces by default in this mode, and it enforces the configured
+[./caps/ | role-based access controls]. Further, because it is meant to
+provide external web service, it doesn't try to launch a local web
+browser pointing to a "Fossil UI" presentation; external visitors see
+your repository's configured home page instead.
 
-For cross-machine collaboration, use the <b>server</b> command instead,
-which binds on all IP addresses, does not try to start a web browser,
-and enforces [./caps/ | Fossil's role-based access control system].
-
-Servers are also easily configured as:
+To serve varying needs, there are additional ways to serve a Fossil repo
+to external users:
 
 <ul>
+<li>[./server/any/cgi.md|CGI], as used by Fossil's [./selfhost.wiki |
+    self-hosting repositories]
+<li>[./server/any/scgi.md|SCGI]
 <li>[./server/any/inetd.md|inetd]
 <li>[./server/debian/service.md|systemd]
-<li>[./server/any/cgi.md|CGI]
-<li>[./server/any/scgi.md|SCGI]
 </ul>
 
 …along with [./server/#matrix | several other options].
 
-The [./selfhost.wiki | self-hosting fossil repositories] use
-CGI.
-
-You might <i>need</i> to set up a server, whether you know it yet or
-not.  See the [./server/whyuseaserver.wiki | Benefits of a Fossil Server]
-article for details.
+We recommend that you read the [./server/whyuseaserver.wiki | Benefits
+of a Fossil Server] article, because you might <i>need</i> to do this
+and not yet know it.
 
 <h2 id="proxy">HTTP Proxies</h2>
 
