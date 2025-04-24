@@ -182,16 +182,20 @@ static int foreach_command(
   int *anValue;
   int nValue;
   int ii, jj;
+  int bTaint = 0;
 
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "foreach varlist list script");
   }
   rc = Th_SplitList(interp, argv[1], argl[1], &azVar, &anVar, &nVar);
   if( rc ) return rc;
+  TH1_XFER_TAINT(bTaint, argl[2]);
   rc = Th_SplitList(interp, argv[2], argl[2], &azValue, &anValue, &nValue);
   for(ii=0; rc==TH_OK && ii<=nValue-nVar; ii+=nVar){
     for(jj=0; jj<nVar; jj++){
-      Th_SetVar(interp, azVar[jj], anVar[jj], azValue[ii+jj], anValue[ii+jj]);
+      int x = anValue[ii+jj];
+      TH1_XFER_TAINT(x, bTaint);
+      Th_SetVar(interp, azVar[jj], anVar[jj], azValue[ii+jj], x);
     }
     rc = eval_loopbody(interp, argv[3], argl[3]);
   }
@@ -259,6 +263,7 @@ static int lappend_command(
     zList = Th_TakeResult(interp, &nList);
   }
 
+  TH1_XFER_TAINT(bTaint, nList);
   for(i=2; i<argc; i++){
     TH1_XFER_TAINT(bTaint, argl[i]);
     Th_ListAppend(interp, &zList, &nList, argv[i], argl[i]);
@@ -291,6 +296,7 @@ static int lindex_command(
   char **azElem;
   int *anElem;
   int nCount;
+  int bTaint = 0;
 
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "lindex list index");
@@ -300,10 +306,13 @@ static int lindex_command(
     return TH_ERROR;
   }
 
+  TH1_XFER_TAINT(bTaint, argl[1]);
   rc = Th_SplitList(interp, argv[1], argl[1], &azElem, &anElem, &nCount);
   if( rc==TH_OK ){
     if( iElem<nCount && iElem>=0 ){
-      Th_SetResult(interp, azElem[iElem], anElem[iElem]);
+      int sz = anElem[iElem];
+      TH1_XFER_TAINT(sz, bTaint);
+      Th_SetResult(interp, azElem[iElem], sz);
     }else{
       Th_SetResult(interp, 0, 0);
     }
@@ -834,7 +843,9 @@ static int string_index_command(
   }
 
   if( iIndex>=0 && iIndex<TH1_LEN(argl[2]) ){
-    return Th_SetResult(interp, &argv[2][iIndex], 1);
+    int sz = 1;
+    TH1_XFER_TAINT(sz, argl[2]);
+    return Th_SetResult(interp, &argv[2][iIndex], sz);
   }else{
     return Th_SetResult(interp, 0, 0);
   }
@@ -972,6 +983,7 @@ static int string_range_command(
 ){
   int iStart;
   int iEnd;
+  int sz;
 
   if( argc!=5 ){
     return Th_WrongNumArgs(interp, "string range string first last");
@@ -991,8 +1003,10 @@ static int string_range_command(
   if( iStart<0 ) iStart = 0;
   if( iEnd>=TH1_LEN(argl[2]) ) iEnd = TH1_LEN(argl[2])-1;
   if( iStart>iEnd ) iEnd = iStart-1;
+  sz = iEnd - iStart + 1;
+  TH1_XFER_TAINT(sz, argl[2]);
 
-  return Th_SetResult(interp, &argv[2][iStart], iEnd-iStart+1);
+  return Th_SetResult(interp, &argv[2][iStart], sz);
 }
 
 /*
@@ -1056,6 +1070,7 @@ static int string_trim_command(
   if( TH1_LEN(argl[1])<5 || argv[1][4]=='r' ){
     while( n && th_isspace(z[n-1]) ){ n--; }
   }
+  TH1_XFER_TAINT(n, argl[2]);
   Th_SetResult(interp, z, n);
   return TH_OK;
 }

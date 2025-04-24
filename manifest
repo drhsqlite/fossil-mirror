@@ -1,5 +1,5 @@
-C Reworked\sthe\sdiscussion\sof\s"fossil\sserver"\sin\sthe\sQuick\sStart\sto\sremove\nredundant\sdiscussion\sof\s"fossil\sui"\smode,\spreviously\scovered.\sMoved\ssome\nthings\sup\sinto\sthat\ssection\sas\sa\sresult.\sThe\stwo\smodes\sare\snow\streated\nindependently,\son\spurpose;\sthe\sfact\sthat\sthey're\simplemented\sby\sa\slot\sof\nshared\scode\sis\san\sinternal\simplementation\sdetail,\snot\ssomething\swe\sneed\nto\smake\sa\spoint\sof\sin\sthe\sQuick\sStart\sdoc.
-D 2025-04-24T02:51:42.042
+C Preserve\staint\sacross\sTH1\scommands:\sforeach,\slappend,\slindex,\nstring\sindex,\sstring\srange,\sand\sstring\strim.\s\sAdd\stest\scases\sfor\ntaint.
+D 2025-04-24T11:18:02.455
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -571,7 +571,7 @@ F src/tar.c dfb0c23bb6ef61b829b38a428dbc34699b62df6d07f14ed739d71b045ef78e12
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
-F src/th_lang.c 540768dd112e7a02d88ff7070d3afe80e5aa998ef8ffda10e365c14b2b60fa0f
+F src/th_lang.c 55c0017cc570f73b80224a340a58a4e87929970f811546f2007f4eb401bc593d
 F src/th_main.c 5c4f1143f06b9a52e93abb73e0e5e0718ae69389785746d5df8c08effdb1192e
 F src/th_tcl.c e62b350e3581a57ee97b4e6abb28bbba3ac1c3bb9d45258b8ca4e05fe526d253
 F src/timeline.c fd71459238ed36ffef99567843ac053f957ab9c5b2ef417191550a2e2968a132
@@ -653,6 +653,7 @@ F test/th1-docs.test 17be4d6a571e59568261d7be7e18dbf92eca61dda2ab5c66d8b6853ad0f
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test db916ab0db05f63e275c16c1cf8b35bab49835c71ff66d91e4932631992dd44f
 F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
+F test/th1-taint.test 123b980eb91212c2d53955450b1e40bc0540ade5a35f4d619e52c77821327253
 F test/th1-tcl.test 72de4515795586e85cae72face9330b1d60343bc2512d89eec46a34353c09088
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
@@ -970,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c07d8a3a5cf06aeb408e670027a54d8927948f5e34add117c41aaa7569be9e1
-R 31590c1d3c697b4a121aceea45b2f6ac
-U wyoung
-Z 2a6b8e1d91aea93548aec4c71899d0f2
+P 6a2fee8fd4701601d52c05c21b57eed4197f2113a98c96b43022c883d230d2a5
+R 231251beab277961827c3e90b8a28b74
+U drh
+Z 6b68d239c58f0b9dd389a70ce441a05b
 # Remove this line to create a well-formed Fossil manifest.
