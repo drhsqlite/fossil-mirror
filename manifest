@@ -1,5 +1,5 @@
-C The\svalue\sreturned\sby\sTH1\scommand\sgetParameter\sshould\sbe\smarked\sas\stainted.
-D 2025-04-24T17:22:41.931
+C Fix\stest\scases\sso\sthat\s"../fossil/configure\s&amp;&amp;\smake\stest"\spasses.
+D 2025-04-24T18:11:40.779
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -647,7 +647,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 1ca2a95db55563fd16c4591037248a9fd7db36007cd4a0ea64c59051acac4e89
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 1e7db3b3ff3d0bb6d644711e8ad3b22c563e62800f303e6176286314b0e1c753
+F test/tester.tcl 39f0a0471b9849efaf32bea2614bb7e9f1cd05ec4167905b5aeba868b036aa96
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 17be4d6a571e59568261d7be7e18dbf92eca61dda2ab5c66d8b6853ad0fabb2d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -664,7 +664,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test e3361427060c0075dd26fe13be3b151182d6de392a85e80116d637e4383712d0
+F test/th1.test dc2284c1dd955a1e0cdd43fb3637fd5fb677d854c0edd33ac18e9e42a9f1e466
 F test/unversioned.test 2293bb58141d7d9030dcadaa4f1a47ce13de99e0008f186b9ec005e11f1d711a
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d259be4017e38a679dc76466782d224a6ae03a9908f5b52607b71d77539b44c7
-R 221173e17365d87f9d2280d0cf409c24
+P 6a6b85448c736142d0819021ce2c0100b93d6502819d85362e7f8c00427926c0
+R c3b3922cfcca9770ecf5c4139d02fbd8
 U drh
-Z 1594e9c6d4999094eb3b51f74ac31bd3
+Z 0d45244be160a15ce952bd26627955d4
 # Remove this line to create a well-formed Fossil manifest.
