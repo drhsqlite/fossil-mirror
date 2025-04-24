@@ -41,8 +41,7 @@ operations.
 
 <h2 id="new">Starting A New Project</h2>
 
-To start a new project with fossil create a new empty repository
-this way: ([/help/init | more info])
+To start a new project with Fossil, [/help/init | create a new empty repository]:
 
 <pre><b>fossil init</b> <i>repository-filename</i>
 </pre>
