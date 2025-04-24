@@ -1,5 +1,5 @@
-C Fix\stest\scases\sso\sthat\s"../fossil/configure\s&amp;&amp;\smake\stest"\spasses.
-D 2025-04-24T18:11:40.779
+C Put\sa\swarning\son\sthe\ssecurity-audit\spage\sif\sthe\svuln-report\ssetting\sis\nnot\seither\s"block"\sor\s"fatal".
+D 2025-04-24T18:59:04.461
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -525,7 +525,7 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 4d22bea3e8701e96a710a2f89ff3ebe7f16681879d726c755f0ff828da310275
-F src/security_audit.c 71670fc9b4807e8733ed5c93d0a16d6ac4e57427d9d2f8388e9ca0fc46327d4c
+F src/security_audit.c 37b8ebad82d3b6a32d8851cee2172d0234ea1576b25b2d20d532ff3e4cbfe83a
 F src/setup.c 95b4459f0c8a485c5289acdcdcdc0fe9671f814d46eeb39b3e3eb396ea3b9c24
 F src/setupuser.c 86e28decbe38266a3ee45863968ad0d6f038c467d0620de22eb0622ffc83d79b
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6a6b85448c736142d0819021ce2c0100b93d6502819d85362e7f8c00427926c0
-R c3b3922cfcca9770ecf5c4139d02fbd8
+P dcaedef9f1708799b67bca7cc3e0ef475659dab269ced6767034fe41883d2e1b
+R 6614437392dd941d6d91bddb918622a6
 U drh
-Z 0d45244be160a15ce952bd26627955d4
+Z 2380407762b73fb786ec2c0dec674871
 # Remove this line to create a well-formed Fossil manifest.

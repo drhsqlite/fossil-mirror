@@ -102,6 +102,7 @@ void secaudit0_page(void){
   const char *zSelfCap;      /* Capabilities of self-registered users */
   int hasSelfReg = 0;        /* True if able to self-register */
   const char *zPublicUrl;    /* Canonical access URL */
+  const char *zVulnReport;   /* The vuln-report setting */
   Blob cmd;
   char *z;
   int n, i;
@@ -363,6 +364,18 @@ void secaudit0_page(void){
     @ The "strict-manifest-syntax"  flag is off.  This is a security
     @ risk.  Turn this setting on (its default) to protect the users
     @ of this repository.
+  }
+
+  zVulnReport = db_get("vuln-report","log");
+  if( fossil_strcmp(zVulnReport,"block")!=0
+   && fossil_strcmp(zVulnReport,"fatal")!=0
+  ){
+    @ <li><p><b>WARNING:</b>
+    @ The <a href="%R/help?cmd=vuln-report">vuln-report setting</a>
+    @ has a value of "%h(zVulnReport)". Thisdisables defenses against
+    @ XSS or SQL-injection vulnerabilities caused by coding errors in
+    @ custom TH1 scripts.  For the best security, change
+    @ the value of the vuln-report setting to "block" or "fatal".
   }
 
   /* Obsolete:  */
