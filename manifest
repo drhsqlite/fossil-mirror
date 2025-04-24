@@ -1,5 +1,5 @@
-C Preserve\staint\sacross\sTH1\scommands:\sforeach,\slappend,\slindex,\nstring\sindex,\sstring\srange,\sand\sstring\strim.\s\sAdd\stest\scases\sfor\ntaint.
-D 2025-04-24T11:18:02.455
+C Add\sdocumentation\sregarding\stainted\sstrings\sin\sTH1.\s\sMention\sthe\nintroduction\sof\stainted\sstrings\sin\sthe\s2.25\schange\slog.
+D 2025-04-24T15:04:20.894
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -792,7 +792,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 8cfa152bf6d06d10c30163085f8eb815cf9556d6c84a7501c910fb148fb24a85
-F www/changes.wiki 34cf7caf5cd04222abfe6af02c47f5189bed7dbcbc69909c6b2df0523d88111a
+F www/changes.wiki 6fd5da4d30b2006be4423360347c1b8383ec0346178ac8ee94f166cbb6136fca
 F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -955,7 +955,7 @@ F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c06
 F www/sync.wiki c5be63390d68e0cd6eba57fd1a00eb532945a64497a38aa5d3682a0602c837b0
 F www/tech_overview.wiki 6a30615418ebd01472646a2f6c3547a96bc400d710e432f226aebe42feed4324
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
-F www/th1.md 7b9a7b44ccbf1f34cec3b092d939f2f5a6b8f8e3386645064c0c1de4070dc9e4
+F www/th1.md 5c381a1f63b8e02ef3e4c47837d1e9d9d60455d953be32d8fac6b1e786ec9741
 F www/theory1.wiki 23fe43903706feb8d6852c9e1174f20b10aa4a6a82aa716992b5e31f70745303
 F www/tickets.wiki d46ce2febd0160a67a7b804d9ee68ef0c8a5f482255247d157cb4ded882333ed
 F www/title-test.md 5579cbcda122eff4f5d0343683cd48f365b92d1054131629a3d0be7af113275c
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6a2fee8fd4701601d52c05c21b57eed4197f2113a98c96b43022c883d230d2a5
-R 231251beab277961827c3e90b8a28b74
+P 5291edac072416b1a9fda05d6fc73e20e99cb0076676d6627d1cb4530495b351
+R f65fb351cdd6f7c07b6d193b58fa7db3
 U drh
-Z 6b68d239c58f0b9dd389a70ce441a05b
+Z 457883076ead09272ed4f73fe8e9e7fc
 # Remove this line to create a well-formed Fossil manifest.

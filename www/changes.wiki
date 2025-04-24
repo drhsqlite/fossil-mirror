@@ -140,6 +140,13 @@
   *  Make [/help?cmd=/chat|/chat] better-behaved during server outages, reducing
      the frequency of reconnection attempts over time and providing feedback
      to the user when the connection is down.
+  *  The [/doc/trunk/www/th1.md|TH1 script language] now makes a distinction
+     between [/doc/trunk/www/th1.md#taint|tainted and untainted string values].
+     This is a security enhancement that makes it more difficult to write
+     custom TH1 scripts that contain XSS or SQL-injection bugs.  As part of
+     this enhancement, the [/help?cmd=vuln-report|vuln-report] setting was
+     added to control what Fossil does when it encounters a potential TH1
+     security problem.
   *  Diverse minor fixes and additions.
 
 
