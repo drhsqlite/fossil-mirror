@@ -366,7 +366,9 @@ world via HTTPS, a practice this author does engage in, with confidence.)
 
 Once you are finished configuring Fossil, you may safely Control-C out
 of the <b>fossil&nbsp;ui</b> command to shut down this privileged
-built-in web server.
+built-in web server. Moreover, you may by grace of SQLite do this <i>at
+any time</i>: all changes are either committed durably to the repo DB or
+rolled back, in their totality. This includes configuration changes.
 
 <h2 id="sharing">Sharing Changes</h2>
 

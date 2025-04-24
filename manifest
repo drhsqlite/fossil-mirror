@@ -1,5 +1,5 @@
-C Changed\sone\sof\sthe\sjust-added\slinks\sto\san\sexternal\sdoc\sto\sa\ssection\nfurther\sdown,\swhich\s_then_\slinks\sto\sthat\sdoc.
-D 2025-04-24T02:16:40.899
+C Tooting\sSQLite's\shorn\sin\sthe\s"you\smay\ssafely\sCtrl-C\sout\sof\sfossil\sui"\nbit\sin\sthe\sQuick\sStart.\s\sThe\struth\sof\sthis\sclaim\sis\sno\saccident.
+D 2025-04-24T02:24:15.757
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -906,7 +906,7 @@ F www/pikchr.md 231f484be5306b2280542c2a36e2147ceb7027a04218cf299e43d6fb7a3ba7c1
 F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
 F www/private.wiki 6c5a854ac8558b1420d9619b48bf36ac56df03d49421604c3e77dc6c3ff78bb0
 F www/qandc.wiki 256511da7ec09719877dbc2e8161c1caae85d8344ccc514e145fbb38810fb2be
-F www/quickstart.wiki 0171f146a2d3c807298bb872ec3b74b0de60c8bbe8d8a7640228f7a6a0b7beeb
+F www/quickstart.wiki 13674fcc62030c118c8d5cc023df6d3b4ab4fdc67fa3bf100c160f5c02a98280
 F www/quotes.wiki d4a684d0ac5838ddbc76688284b7043e561d4e52ecbeb4b0bf0ac3e10bc70d3c
 F www/rebaseharm.md eb99fadc7586e4215c05ff5d9fc76d2a1313f7f00ada33571f5a2ca7322c1d2b
 F www/relatedwork.md f099cea52511a1d914efe6fdbe2efb88f15f0345268212631ef42373b55d1898
@@ -970,8 +970,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P afb3db92001c15466f52ef60a89b2e4a40fb531cf70cc4a61732924de8fb13b6
-R 7b24db53c1b9400820836e1768f84108
+P e6c4176cd320da3cdb0a54dc45715e027718b46d14cb3f01af7d539aa9f1d10a
+R 6bf7ab3cfd3615d11b6e87b0e2ddb663
 U wyoung
-Z 93556ec254ba50f06fa8d17a88277b06
+Z 7374717e3da60a333bfd42092eff9568
 # Remove this line to create a well-formed Fossil manifest.
