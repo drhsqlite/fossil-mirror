@@ -354,7 +354,7 @@ modify the repo DB directly could give themselves any and all access
 with a SQL query, or even by direct file manipulation; no amount of
 access control matters to such a user.
 
-(Contrast the [./server/ | many <i>other</i> ways] of setting Fossil up
+(Contrast the [#server | many <i>other</i> ways] of setting Fossil up
 as an HTTP server, where the repo DB is on the other side of the HTTP
 server wall, inaccessible by all means other than Fossil's own
 mediation. For this reason, the "localhost bypasses access control"
