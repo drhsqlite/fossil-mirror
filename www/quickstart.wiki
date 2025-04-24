@@ -21,11 +21,9 @@ This is fossil version 2.25 [8f798279d5] 2024-11-06 12:59:09 UTC
 
 <h2 id="workflow" name="fslclone">General Work Flow</h2>
 
-Fossil works with repository files (a database in a single file with the project's
-complete history) and with checked-out local trees (the working directory
-you use to do your work). 
-(See [./glossary.md | the glossary] for more background.)
-The workflow looks like this:
+Fossil works with [./glossary.md#repository | repository files]
+and [./glossary.md#check-out | check-out directories] using a
+workflow like this:
 
 <ul>
     <li>Create or clone a repository file.  ([/help/init|fossil init] or
