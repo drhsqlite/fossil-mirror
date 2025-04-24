@@ -1,5 +1,5 @@
-C Fix\sthe\sversion\snumbers\sin\sthe\snew\sdocumentation\son\stainted\sstrings.
-D 2025-04-24T15:19:20.430
+C For\sversion\s2.26,\snumber\sthe\sentries\sin\sthe\schange\slog,\sas\sthere\sare\sso\nmany\sof\sthem.\s\sAdd\sitem\s3c\sabout\ssupporting\sboth\sIPv4\sand\sIPv6\sat\sthe\nsame\stime\son\sall\splatforms.
+D 2025-04-24T15:39:10.413
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -792,7 +792,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki 8cfa152bf6d06d10c30163085f8eb815cf9556d6c84a7501c910fb148fb24a85
-F www/changes.wiki 6fd5da4d30b2006be4423360347c1b8383ec0346178ac8ee94f166cbb6136fca
+F www/changes.wiki 20df65871f16cc41472fb6a6c8b53ebc0e2e802e2173f58e7b6896c0ba7763e6
 F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 90b63bc5d142d1eaa326e205bb8e15268681338dd7f5e0c7f570e4b72fda1de9
-R eeb017eb74dd77f61cbd51a3bc1f9917
+P 807b73e6b52bbc7fdf73482412aad9c51ee09f0eadb56a021ad36573e8b98158
+R 48aef2a11e1dc1a81686123950f19083
 U drh
-Z 298f382aadc64cca43b8b86e3223f5a1
+Z 9589c668dca15fa23d5d73af8bed3779
 # Remove this line to create a well-formed Fossil manifest.
