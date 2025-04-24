@@ -1,5 +1,5 @@
-C Put\sa\swarning\son\sthe\ssecurity-audit\spage\sif\sthe\svuln-report\ssetting\sis\nnot\seither\s"block"\sor\s"fatal".
-D 2025-04-24T18:59:04.461
+C Fix\sTH1\sdocumentation\stypo.
+D 2025-04-24T19:25:02.742
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -955,7 +955,7 @@ F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c06
 F www/sync.wiki c5be63390d68e0cd6eba57fd1a00eb532945a64497a38aa5d3682a0602c837b0
 F www/tech_overview.wiki 6a30615418ebd01472646a2f6c3547a96bc400d710e432f226aebe42feed4324
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
-F www/th1.md 65ecf783cf86c61315cd3708c07d8eb6ee5b72b60004f9e6586a25f33969796a
+F www/th1.md bc30da955598773a318306b7f4a4b3b2e2fff81f101ad545adc6972fed3e5ee6
 F www/theory1.wiki 23fe43903706feb8d6852c9e1174f20b10aa4a6a82aa716992b5e31f70745303
 F www/tickets.wiki d46ce2febd0160a67a7b804d9ee68ef0c8a5f482255247d157cb4ded882333ed
 F www/title-test.md 5579cbcda122eff4f5d0343683cd48f365b92d1054131629a3d0be7af113275c
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dcaedef9f1708799b67bca7cc3e0ef475659dab269ced6767034fe41883d2e1b
-R 6614437392dd941d6d91bddb918622a6
+P ef52cd3f5d97ade4262b508411000602075be856ac3e222169541a2f509c707d
+R cd3004563ccd91087d5bc372adf603db
 U drh
-Z 2380407762b73fb786ec2c0dec674871
+Z c630788994e6a7e2fc4388d3c5ac9bbc
 # Remove this line to create a well-formed Fossil manifest.
