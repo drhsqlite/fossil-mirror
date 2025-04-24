@@ -1451,13 +1451,17 @@ static int getParameterCmd(
   int *argl
 ){
   const char *zDefault = 0;
+  const char *zVal;
+  int sz;
   if( argc!=2 && argc!=3 ){
     return Th_WrongNumArgs(interp, "getParameter NAME ?DEFAULT?");
   }
   if( argc==3 ){
     zDefault = argv[2];
   }
-  Th_SetResult(interp, cgi_parameter(argv[1], zDefault), -1);
+  zVal = cgi_parameter(argv[1], zDefault);
+  sz = th_strlen(zVal);
+  Th_SetResult(interp, zVal, TH1_ADD_TAINT(sz));
   return TH_OK;
 }
 
