@@ -112,13 +112,13 @@ lines as a single command.
 <a id="taint"></a>Tainted And Untainted Strings
 -----------------------------------------------
 
-Beginning with Fossil version 2.25 (circa 2025), TH1 distinguishes between
+Beginning with Fossil version 2.26 (circa 2025), TH1 distinguishes between
 "tainted" and "untainted" strings.  Tainted strings are strings that are
 derived from user inputs that might contain text that is designed to subvert
 the script.  Untainted strings are known to come from secure sources and
 are assumed to contain no malicious content.
 
-Beginning with Fossil version 2.25, and depending on the value of the
+Beginning with Fossil version 2.26, and depending on the value of the
 [vuln-report setting](/help?cmd=vuln-report), TH1 will prevent tainted
 strings from being used in ways that might lead to XSS or SQL-injection
 attacks.  This feature helps to ensure that XSS and SQL-injection
@@ -132,7 +132,7 @@ security implications TH1 customizations they add to Fossil, and take
 appropriate precautions when writing custom TH1.  Peer review of TH1
 script changes is encouraged.
 
-In Fossil version 2.25, if the vuln-report setting is set to "block"
+In Fossil version 2.26, if the vuln-report setting is set to "block"
 or "fatal", the [html](#html) and [query](#query) TH1 commands will
 fail with an error if their argument is a tainted string.  This helps
 to prevent XSS and SQL-injection attacks, respectively.  Note that
