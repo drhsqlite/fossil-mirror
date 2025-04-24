@@ -372,7 +372,7 @@ void secaudit0_page(void){
   ){
     @ <li><p><b>WARNING:</b>
     @ The <a href="%R/help?cmd=vuln-report">vuln-report setting</a>
-    @ has a value of "%h(zVulnReport)". Thisdisables defenses against
+    @ has a value of "%h(zVulnReport)". This disables defenses against
     @ XSS or SQL-injection vulnerabilities caused by coding errors in
     @ custom TH1 scripts.  For the best security, change
     @ the value of the vuln-report setting to "block" or "fatal".
