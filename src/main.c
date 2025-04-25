@@ -697,7 +697,10 @@ static void fossil_init_flags_from_options(void){
       int i, fValid = 1;
       /* Rudimentary sanity check: only allow digits and semicolon. */
       for( i=0; zEnvVar[i]; i++ ){
-        if( !strchr("0123456789;",zEnvVar[i]) ) fValid = 0;
+        if( !strchr("0123456789;",zEnvVar[i]) ){
+          fValid = 0;
+          break;
+        }
       }
       if( fValid ) g.cliColor = mprintf("\033[%sm",zEnvVar);
     }
