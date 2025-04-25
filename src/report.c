@@ -1237,7 +1237,7 @@ void rptview_page_content(
     output_color_key(zClrKey, 1,
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
     if( quickfilter ){
-      @ <input type="text" id="quickfilter" placeholder="filter ticket list...">
+      @ <input type="search" id="quickfilter" placeholder="filter ticket list...">
     }
     @ <table border="1" cellpadding="2" cellspacing="0" class="report sortable filterlist"
     @  data-column-types='' data-init-sort='0'>

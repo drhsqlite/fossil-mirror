@@ -317,7 +317,7 @@ int repo_list_page(void){
     style_set_current_feature("repolist");
     style_header("Repository List");
     if( quickfilter ){
-      @ <input type="text" id="quickfilter" placeholder="filter repository list...">
+      @ <input type="search" id="quickfilter" placeholder="filter repository list...">
     }
     @ %s(blob_str(&html))
     style_table_sorter();
