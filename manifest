@@ -1,5 +1,5 @@
-C Sync\swith\strunk.
-D 2025-04-25T16:18:00.000
+C Fix\sa\slogic\serror\sin\sprocessing\sof\sthe\sNO_COLOR\senvironment\svariable.
+D 2025-04-25T16:19:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -493,7 +493,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c 61bcd0f5127a1672526bf5c92ddb1380393b37d673a72e270005bc233d3f314f
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c 629db3a0e96decd671d1c9f98cf371e0ada4cdb8e8098fd60d55bc13e46d33dd
+F src/main.c f2abb522bbe7f90f076cc198cb46e63a6108e6ef3a55aea4f2fe9ff75404ab6a
 F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
 F src/manifest.c fd84c8658613a60d2f00f5a874dc6163c77e48e11d814c89321829ddb21cb67a
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6cb7a7e28dfd13afd904710111c29d105ff8f2168a2b76c27cf722543f95050d d9bd156aadd696cec4fa9dab8c5f973cc8f94f444474b57df60dbc50e49da936 9164a5d1aab52d524bd1080241e33d0d1a8b4d384a0117410ba4588a45623682
-R 367224a1c043e5b75f943b6bcae4008d
+P 855076ce79275ccf2e206b5359371a900734dff9228aae0262547f5f99e90b53
+R 634aa749955645fb8a917d5fdf47d34f
 U florian
-Z 8871a4231126af1fa314dd3eb4655e11
+Z 4774a32a48fec4543796f77099de8ffc
 # Remove this line to create a well-formed Fossil manifest.

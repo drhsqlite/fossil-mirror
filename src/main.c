@@ -682,7 +682,7 @@ static void fossil_init_flags_from_options(void){
   if( g.colorOutput==COLOR_VT_UNSET ){
     zEnvVar = fossil_getenv("NO_COLOR");
     if( zEnvVar ){
-      if( is_false(zEnvVar) ){
+      if( !is_false(zEnvVar) ){
         g.colorOutput = COLOR_VT_NEVER;
       }
       fossil_path_free(zEnvVar);
