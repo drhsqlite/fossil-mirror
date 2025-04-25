@@ -483,7 +483,7 @@ static const char zDefaultView[] =
 @   html "<td class='tktDspValue' colspan='3'>"
 @   copybtn hash-tk 0 $tkt_uuid 2
 @   if {[hascap s]} {
-@     html " ($tkt_id)"
+@     puts " ($tkt_id)"
 @   }
 @   html "</td></tr>\n"
 @ } else {
@@ -524,20 +524,20 @@ static const char zDefaultView[] =
 @ <tr><td class="tktDspLabel">Last&nbsp;Modified:</td><td class="tktDspValue">
 @ <th1>
 @ if {[info exists tkt_datetime]} {
-@   html $tkt_datetime
+@   puts $tkt_datetime
 @ }
 @ if {[info exists tkt_mage]} {
-@   html "<br>$tkt_mage"
+@   html "<br>[htmlize $tkt_mage] ago"
 @ }
 @ </th1>
 @ </td>
 @ <td class="tktDspLabel">Created:</td><td class="tktDspValue">
 @ <th1>
 @ if {[info exists tkt_datetime_creation]} {
-@   html $tkt_datetime_creation
+@   puts $tkt_datetime_creation
 @ }
 @ if {[info exists tkt_cage]} {
-@   html "<br>$tkt_cage"
+@   html "<br>[htmlize $tkt_cage] ago"
 @ }
 @ </th1>
 @ </td></tr>
@@ -557,14 +557,14 @@ static const char zDefaultView[] =
 @ if [regexp $tagpattern $foundin] {
 @   query {SELECT count(*) AS match FROM tag
 @          WHERE tagname=concat('sym-',$foundin)} {
-@     if {$match} {set versionlink "/timeline?t=$urlfoundin"}
+@     if {$match} {set versionlink "timeline?t=$urlfoundin"}
 @   }
 @ }
 @ set hashpattern {^[0-9a-f]+$}
 @ if [regexp $hashpattern $foundin] {
 @   set pattern $foundin*
 @   query {SELECT count(*) AS match FROM blob WHERE uuid GLOB $pattern} {
-@     if {$match} {set versionlink "/info/$urlfoundin"}
+@     if {$match} {set versionlink "info/$urlfoundin"}
 @   }
 @ }
 @ if {$versionlink eq ""} {
@@ -616,15 +616,15 @@ static const char zDefaultView[] =
 @     set seenRow 1
 @   }
 @   html "<span class='tktDspCommenter'>"
-@   html "[htmlize $xlogin]"
+@   puts $xlogin
 @   if {$xlogin ne $xusername && [string length $xusername]>0} {
-@     html " (claiming to be [htmlize $xusername])"
+@     puts " (claiming to be $xusername)"
 @   }
-@   html " added on $xdate:"
+@   puts " added on $xdate:"
 @   html "</span>\n"
 @   if {$alwaysPlaintext || $xmimetype eq "text/plain"} {
 @     set r [randhex]
-@     if {$xmimetype ne "text/plain"} {html "([htmlize $xmimetype])\n"}
+@     if {$xmimetype ne "text/plain"} {puts "($xmimetype)\n"}
 @     wiki "<verbatim-$r>[string trimright $xcomment]</verbatim-$r>\n"
 @   } elseif {$xmimetype eq "text/x-fossil-wiki"} {
 @     wiki "<p>\n[string trimright $xcomment]\n</p>\n"
@@ -803,15 +803,15 @@ static const char zDefaultEdit[] =
 @     set seenRow 1
 @   }
 @   html "<span class='tktDspCommenter'>"
-@   html "[htmlize $xlogin]"
+@   puts $xlogin
 @   if {$xlogin ne $xusername && [string length $xusername]>0} {
-@     html " (claiming to be [htmlize $xusername])"
+@     puts " (claiming to be $xusername)"
 @   }
-@   html " added on $xdate:"
+@   puts " added on $xdate:"
 @   html "</span>\n"
 @   if {$alwaysPlaintext || $xmimetype eq "text/plain"} {
 @     set r [randhex]
-@     if {$xmimetype ne "text/plain"} {html "([htmlize $xmimetype])\n"}
+@     if {$xmimetype ne "text/plain"} {puts "($xmimetype)\n"}
 @     wiki "<verbatim-$r>[string trimright $xcomment]</verbatim-$r>\n"
 @   } elseif {$xmimetype eq "text/x-fossil-wiki"} {
 @     wiki "<p>\n[string trimright $xcomment]\n</p>\n"

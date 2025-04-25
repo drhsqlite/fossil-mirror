@@ -2500,25 +2500,6 @@ void cgi_handle_scgi_request(void){
   cgi_init();
 }
 
-#if !defined(_WIN32)
-/*
-** Change the listening socket, if necessary, so that it will accept both IPv4
-** and IPv6
-*/
-static void allowBothIpV4andV6(int listener){
-#if defined(IPV6_V6ONLY)
-  int ipv6only = -1;
-  socklen_t ipv6only_size = sizeof(ipv6only);
-  getsockopt(listener, IPPROTO_IPV6, IPV6_V6ONLY, &ipv6only, &ipv6only_size);
-  if( ipv6only ){
-    ipv6only = 0;
-    setsockopt(listener, IPPROTO_IPV6, IPV6_V6ONLY, &ipv6only, ipv6only_size);
-  }
-#endif /* defined(IPV6_ONLY) */
-}
-#endif /* !defined(_WIN32) */
-
-
 #if INTERFACE
 /*
 ** Bitmap values for the flags parameter to cgi_http_server().
@@ -2561,146 +2542,218 @@ int cgi_http_server(
   /* Use win32_http_server() instead */
   fossil_exit(1);
 #else
-  int listener = -1;           /* The server socket */
-  int connection;              /* A socket for each individual connection */
+  int listen4 = -1;            /* Main socket; IPv4 or unix-domain */
+  int listen6 = -1;            /* Aux socket for corresponding IPv6 */
+  int mxListen = -1;           /* Maximum of listen4 and listen6 */
+  int connection;              /* An incoming connection */
   int nRequest = 0;            /* Number of requests handled so far */
   fd_set readfds;              /* Set of file descriptors for select() */
   socklen_t lenaddr;           /* Length of the inaddr structure */
   int child;                   /* PID of the child process */
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
-  struct sockaddr_in6 inaddr;  /* The socket address */
-  struct sockaddr_in inaddr4;  /* IPv4 address; needed by OpenBSD */
+  struct sockaddr_in6 inaddr6; /* Address for IPv6 */
+  struct sockaddr_in inaddr4;  /* Address for IPv4 */
   struct sockaddr_un uxaddr;   /* The address for unix-domain sockets */
   int opt = 1;                 /* setsockopt flag */
   int rc;                      /* Result code from system calls */
   int iPort = mnPort;          /* Port to try to use */
-  int bIPv4 = 0;               /* Use IPv4 only; use inaddr4, not inaddr */
+  const char *zRequestType;    /* Type of requests to listen for */
 
-  while( iPort<=mxPort ){
-    if( flags & HTTP_SERVER_UNIXSOCKET ){
-      /* Initialize a Unix socket named g.zSockName */
-      assert( g.zSockName!=0 );
-      memset(&uxaddr, 0, sizeof(uxaddr));
-      if( strlen(g.zSockName)>sizeof(uxaddr.sun_path) ){
-        fossil_fatal("name of unix socket too big: %s\nmax size: %d\n",
-                     g.zSockName, (int)sizeof(uxaddr.sun_path));
-      }
-      if( file_isdir(g.zSockName, ExtFILE)!=0 ){
-        if( !file_issocket(g.zSockName) ){
-          fossil_fatal("cannot name socket \"%s\" because another object"
-                       " with that name already exists", g.zSockName);
-        }else{
-          unlink(g.zSockName);
-        }
-      }
-      uxaddr.sun_family = AF_UNIX;
-      strncpy(uxaddr.sun_path, g.zSockName, sizeof(uxaddr.sun_path)-1);
-      listener = socket(AF_UNIX, SOCK_STREAM, 0);
-      if( listener<0 ){
-        fossil_fatal("unable to create a unix socket named %s",
-                     g.zSockName);
-      }
-      /* Set the access permission for the new socket.  Default to 0660.
-      ** But use an alternative specified by --socket-mode if available.
-      ** Do this before bind() to avoid a race condition. */
-      if( g.zSockMode ){
-        file_set_mode(g.zSockName, listener, g.zSockMode, 0);
+
+  if( flags & HTTP_SERVER_SCGI ){
+    zRequestType = "SCGI";
+  }else if( g.httpUseSSL ){
+    zRequestType = "TLS-encrypted HTTPS";
+  }else{
+    zRequestType = "HTTP";
+  }
+
+  if( flags & HTTP_SERVER_UNIXSOCKET ){
+    /* CASE 1:  A unix socket named g.zSockName.  After creation, set the
+    **          permissions on the new socket to g.zSockMode and make the
+    **          owner of the socket be g.zSockOwner.
+    */
+    assert( g.zSockName!=0 );
+    memset(&uxaddr, 0, sizeof(uxaddr));
+    if( strlen(g.zSockName)>sizeof(uxaddr.sun_path) ){
+      fossil_fatal("name of unix socket too big: %s\nmax size: %d\n",
+                   g.zSockName, (int)sizeof(uxaddr.sun_path));
+    }
+    if( file_isdir(g.zSockName, ExtFILE)!=0 ){
+      if( !file_issocket(g.zSockName) ){
+        fossil_fatal("cannot name socket \"%s\" because another object"
+                     " with that name already exists", g.zSockName);
       }else{
-        file_set_mode(g.zSockName, listener, "0660", 1);
+        unlink(g.zSockName);
       }
+    }
+    uxaddr.sun_family = AF_UNIX;
+    strncpy(uxaddr.sun_path, g.zSockName, sizeof(uxaddr.sun_path)-1);
+    listen4 = socket(AF_UNIX, SOCK_STREAM, 0);
+    if( listen4<0 ){
+      fossil_fatal("unable to create a unix socket named %s",
+                   g.zSockName);
+    }
+    mxListen = listen4;
+    listen6 = -1;
+
+    /* Set the access permission for the new socket.  Default to 0660.
+    ** But use an alternative specified by --socket-mode if available.
+    ** Do this before bind() to avoid a race condition. */
+    if( g.zSockMode ){
+      file_set_mode(g.zSockName, listen4, g.zSockMode, 0);
     }else{
-      /* Initialize a TCP/IP socket on port iPort */
-      if( (flags & HTTP_SERVER_LOCALHOST)!=0 && zIpAddr==0 ){
-        /* Map all loopback to 127.0.0.1, since this is the easiest way
-        ** to support OpenBSD and its limitations without burdening
-        ** Linux and MacOS with lots of extra code and complication. */
-        zIpAddr = "127.0.0.1";
+      file_set_mode(g.zSockName, listen4, "0660", 1);
+    }
+    rc = bind(listen4, (struct sockaddr*)&uxaddr, sizeof(uxaddr));
+    /* Set the owner of the socket if requested by --socket-owner.  This
+    ** must wait until after bind(), after the filesystem object has been
+    ** created.  See https://lkml.org/lkml/2004/11/1/84 and
+    ** https://fossil-scm.org/forum/forumpost/7517680ef9684c57 */
+    if( g.zSockOwner ){
+      file_set_owner(g.zSockName, listen4, g.zSockOwner);
+    }
+    fossil_print("Listening for %s requests on unix socket %s\n",
+                 zRequestType, g.zSockName);
+    fflush(stdout);
+  }else if( zIpAddr && strchr(zIpAddr,':')!=0 ){
+    /* CASE 2: TCP on IPv6 IP address specified by zIpAddr and on port iPort.
+    */
+    assert( mnPort==mxPort );
+    memset(&inaddr6, 0, sizeof(inaddr6));
+    inaddr6.sin6_family = AF_INET6;
+    inaddr6.sin6_port = htons(iPort);
+    if( inet_pton(AF_INET6, zIpAddr, &inaddr6.sin6_addr)==0 ){
+      fossil_fatal("not a valid IPv6 address: %s", zIpAddr);
+    }
+    listen6 = socket(AF_INET6, SOCK_STREAM, 0);
+    if( listen6>0 ){
+      opt = 1;
+      setsockopt(listen6, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+      rc = bind(listen6, (struct sockaddr*)&inaddr6, sizeof(inaddr6));
+      if( rc<0 ){
+        close(listen6);
+        listen6 = -1;
       }
-      if( zIpAddr ){
-        if( strchr(zIpAddr,':') ){
-          memset(&inaddr, 0, sizeof(inaddr));
-          inaddr.sin6_family = AF_INET6;
-          bIPv4 = 0;
-          if( inet_pton(AF_INET6, zIpAddr, &inaddr.sin6_addr)==0 ){
-            fossil_fatal("not a valid IPv6 address: %s", zIpAddr);
-          }
-        }else{
-          memset(&inaddr4, 0, sizeof(inaddr4));
-          inaddr4.sin_family = AF_INET;
-          bIPv4 = 1;
-          inaddr4.sin_addr.s_addr = inet_addr(zIpAddr);
-          if( inaddr4.sin_addr.s_addr == INADDR_NONE ){
-            fossil_fatal("not a valid IPv4 address: %s", zIpAddr);
-          }
+    }
+    if( listen6<0 ){
+      fossil_fatal("cannot open a listening socket on [%s]:%d",
+                   zIpAddr, mnPort);
+    }
+    mxListen = listen6;
+    listen4 = -1;
+    fossil_print("Listening for %s requests on [%s]:%d\n",
+                 zRequestType, zIpAddr, iPort);
+    fflush(stdout);
+  }else if( zIpAddr && zIpAddr[0] ){
+    /* CASE 3: TCP on IPv4 IP address specified by zIpAddr and on port iPort.
+    */
+    assert( mnPort==mxPort );
+    memset(&inaddr4, 0, sizeof(inaddr4));
+    inaddr4.sin_family = AF_INET;
+    inaddr4.sin_port = htons(iPort);
+    if( strcmp(zIpAddr, "localhost")==0 ) zIpAddr = "127.0.0.1";
+    inaddr4.sin_addr.s_addr = inet_addr(zIpAddr);
+    if( inaddr4.sin_addr.s_addr == INADDR_NONE ){
+      fossil_fatal("not a valid IPv4 address: %s", zIpAddr);
+    }
+    listen4 = socket(AF_INET, SOCK_STREAM, 0);
+    if( listen4>0 ){
+      setsockopt(listen4, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+      rc = bind(listen4, (struct sockaddr*)&inaddr4, sizeof(inaddr4));
+      if( rc<0 ){
+        close(listen6);
+        listen4 = -1;
+      }
+    }
+    if( listen4<0 ){
+      fossil_fatal("cannot open a listening socket on %s:%d",
+                   zIpAddr, mnPort);
+    }
+    mxListen = listen4;
+    listen6 = -1;
+    fossil_print("Listening for %s requests on TCP port %s:%d\n",
+                 zRequestType, zIpAddr, iPort);
+    fflush(stdout);
+  }else{
+    /* CASE 4: Listen on all available IP addresses, or on only loopback
+    **         addresses (if HTTP_SERVER_LOCALHOST).  The TCP port is the
+    **         first available in the range of mnPort..mxPort.  Listen
+    **         on both IPv4 and IPv6, if possible.  The TCP port scan is done
+    **         on IPv4.
+    */
+    while( iPort<=mxPort ){
+      const char *zProto;
+      memset(&inaddr4, 0, sizeof(inaddr4));
+      inaddr4.sin_family = AF_INET;
+      inaddr4.sin_port = htons(iPort);
+      if( flags & HTTP_SERVER_LOCALHOST ){
+        inaddr4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+      }else{
+        inaddr4.sin_addr.s_addr = htonl(INADDR_ANY);
+      }
+      listen4 = socket(AF_INET, SOCK_STREAM, 0);
+      if( listen4>0 ){
+        setsockopt(listen4, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+        rc = bind(listen4, (struct sockaddr*)&inaddr4, sizeof(inaddr4));
+        if( rc<0 ){
+          close(listen4);
+          listen4 = -1;
         }
-      }else{
-        /* Bind to any and all available IP addresses */
-        memset(&inaddr, 0, sizeof(inaddr));
-        inaddr.sin6_family = AF_INET6;
-        inaddr.sin6_addr = in6addr_any;
-        bIPv4 = 0;
       }
-      if( bIPv4 ){
-        inaddr4.sin_port = htons(iPort);
-        listener = socket(AF_INET, SOCK_STREAM, 0);
-      }else{
-        inaddr.sin6_port = htons(iPort);
-        listener = socket(AF_INET6, SOCK_STREAM, 0);
-        allowBothIpV4andV6(listener);
-      }
-      if( listener<0 ){
+      if( listen4<0 ){
         iPort++;
         continue;
       }
-    }
+      mxListen = listen4;
 
-    /* if we can't terminate nicely, at least allow the socket to be reused */
-    setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
-  
-    if( flags & HTTP_SERVER_UNIXSOCKET ){
-      rc = bind(listener, (struct sockaddr*)&uxaddr, sizeof(uxaddr));
-      /* Set the owner of the socket if requested by --socket-owner.  This
-      ** must wait until after bind(), after the filesystem object has been
-      ** created.  See https://lkml.org/lkml/2004/11/1/84 and
-      ** https://fossil-scm.org/forum/forumpost/7517680ef9684c57 */
-      if( g.zSockOwner ){
-        file_set_owner(g.zSockName, listener, g.zSockOwner);
+      /* If we get here, that means we found an open TCP port at iPort for
+      ** IPv4.  Try to set up a corresponding IPv6 socket on the same port.
+      */
+      memset(&inaddr6, 0, sizeof(inaddr6));
+      inaddr6.sin6_family = AF_INET6;
+      inaddr6.sin6_port = htons(iPort);
+      if( flags & HTTP_SERVER_LOCALHOST ){
+        inaddr6.sin6_addr = in6addr_loopback;
+      }else{
+        inaddr6.sin6_addr = in6addr_any;
       }
-    }else if( bIPv4 ){
-      rc = bind(listener, (struct sockaddr*)&inaddr4, sizeof(inaddr4));
-    }else{
-      rc = bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr));
+      listen6 = socket(AF_INET6, SOCK_STREAM, 0);
+      if( listen6>0 ){
+        setsockopt(listen6, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+        setsockopt(listen6, IPPROTO_IPV6, IPV6_V6ONLY, &opt, sizeof(opt));
+        rc = bind(listen6, (struct sockaddr*)&inaddr6, sizeof(inaddr6));
+        if( rc<0 ){
+          close(listen6);
+          listen6 = -1;
+        }
+      }
+      if( listen6<0 ){
+        zProto = "IPv4 only";
+      }else{
+        zProto = "IPv4 and IPv6";
+        if( listen6>listen4 ) mxListen = listen6;
+      }
+
+      fossil_print("Listening for %s requests on TCP port %s%d, %s\n",
+                   zRequestType, 
+                   (flags & HTTP_SERVER_LOCALHOST)!=0 ? "localhost:" : "",
+                   iPort, zProto);
+      fflush(stdout);
+      break;
     }
-    if( rc<0 ){
-      close(listener);
-      iPort++;
-      continue;
-    }
-    break;
-  }
-  if( iPort>mxPort ){
-    if( flags & HTTP_SERVER_UNIXSOCKET ){
-      fossil_fatal("unable to listen on unix socket %s", zIpAddr);
-    }else if( mnPort==mxPort ){
-      fossil_fatal("unable to open listening socket on port %d", mnPort);
-    }else{
-      fossil_fatal("unable to open listening socket on any"
-                   " port in the range %d..%d", mnPort, mxPort);
+    if( iPort>mxPort ){
+      fossil_fatal("no available TCP ports in the range %d..%d",
+                   mnPort, mxPort);
     }
   }
-  if( iPort>mxPort ) return 1;
-  listen(listener,10);
-  if( flags & HTTP_SERVER_UNIXSOCKET ){
-    fossil_print("Listening for %s requests on unix socket %s\n",
-       (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
-          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  g.zSockName);
-  }else{
-    fossil_print("Listening for %s requests on TCP port %d\n",
-       (flags & HTTP_SERVER_SCGI)!=0 ? "SCGI" :
-          g.httpUseSSL?"TLS-encrypted HTTPS":"HTTP",  iPort);
-  }
-  fflush(stdout);
+
+  /* If we get to this point, that means there is at least one listening
+  ** socket on either listen4 or listen6 and perhaps on both. */
+  assert( listen4>0 || listen6>0 );
+  if( listen4>0 ) listen(listen4,10);
+  if( listen6>0 ) listen(listen6,10);
   if( zBrowser && (flags & HTTP_SERVER_UNIXSOCKET)==0 ){
     assert( strstr(zBrowser,"%d")!=0 );
     zBrowser = mprintf(zBrowser /*works-like:"%d"*/, iPort);
@@ -2718,6 +2771,11 @@ int cgi_http_server(
       fossil_warning("cannot start browser: %s\n", zBrowser);
     }
   }
+
+  /* What for incomming requests.  For each request, fork() a child process
+  ** to deal with that request.  The child process returns.  The parent
+  ** keeps on listening and never returns.
+  */
   while( 1 ){
 #if FOSSIL_MAX_CONNECTIONS>0
     while( nchildren>=FOSSIL_MAX_CONNECTIONS ){
@@ -2727,44 +2785,51 @@ int cgi_http_server(
     delay.tv_sec = 0;
     delay.tv_usec = 100000;
     FD_ZERO(&readfds);
-    assert( listener>=0 );
-    FD_SET( listener, &readfds);
-    select( listener+1, &readfds, 0, 0, &delay);
-    if( FD_ISSET(listener, &readfds) ){
-      lenaddr = sizeof(inaddr);
-      connection = accept(listener, (struct sockaddr*)&inaddr, &lenaddr);
-      if( connection>=0 ){
-        if( flags & HTTP_SERVER_NOFORK ){
-          child = 0;
-        }else{
-          child = fork();
+    assert( listen4>0 || listen6>0 );
+    if( listen4>0 ) FD_SET( listen4, &readfds);
+    if( listen6>0 ) FD_SET( listen6, &readfds);
+    select( mxListen+1, &readfds, 0, 0, &delay);
+    if( listen4>0 && FD_ISSET(listen4, &readfds) ){
+      lenaddr = sizeof(inaddr4);
+      connection = accept(listen4, (struct sockaddr*)&inaddr4, &lenaddr);
+    }else if( listen6>0 && FD_ISSET(listen6, &readfds) ){
+      lenaddr = sizeof(inaddr6);
+      connection = accept(listen6, (struct sockaddr*)&inaddr6, &lenaddr);
+    }else{
+      connection = -1;
+    }
+    if( connection>=0 ){
+      if( flags & HTTP_SERVER_NOFORK ){
+        child = 0;
+      }else{
+        child = fork();
+      }
+      if( child!=0 ){
+        if( child>0 ){
+          nchildren++;
+          nRequest++;
         }
-        if( child!=0 ){
-          if( child>0 ){
-            nchildren++;
-            nRequest++;
-          }
-          close(connection);
-        }else{
-          int nErr = 0, fd;
-          g.zSockName = 0 /* avoid deleting the socket via atexit() */;
-          close(0);
+        close(connection);
+      }else{
+        int nErr = 0, fd;
+        g.zSockName = 0 /* avoid deleting the socket via atexit() */;
+        close(0);
+        fd = dup(connection);
+        if( fd!=0 ) nErr++;
+        close(1);
+        fd = dup(connection);
+        if( fd!=1 ) nErr++;
+        if( 0 && !g.fAnyTrace ){
+          close(2);
           fd = dup(connection);
-          if( fd!=0 ) nErr++;
-          close(1);
-          fd = dup(connection);
-          if( fd!=1 ) nErr++;
-          if( 0 && !g.fAnyTrace ){
-            close(2);
-            fd = dup(connection);
-            if( fd!=2 ) nErr++;
-          }
-          close(connection);
-          close(listener);
-          g.nPendingRequest = nchildren+1;
-          g.nRequest = nRequest+1;
-          return nErr;
+          if( fd!=2 ) nErr++;
         }
+        close(connection);
+        if( listen4>0 ) close(listen4);
+        if( listen6>0 ) close(listen6);
+        g.nPendingRequest = nchildren+1;
+        g.nRequest = nRequest+1;
+        return nErr;
       }
     }
     /* Bury dead children */

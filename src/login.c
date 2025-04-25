@@ -1418,7 +1418,7 @@ void login_check_credentials(void){
   if( ( cgi_is_loopback(zIpAddr)
        || (g.fSshClient & CGI_SSH_CLIENT)!=0 )
    && g.useLocalauth
-   && db_get_int("localauth",0)==0
+   && db_get_boolean("localauth",0)==0
    && P("HTTPS")==0
   ){
     char *zSeed;

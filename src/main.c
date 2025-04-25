@@ -3766,6 +3766,9 @@ void test_echo_cmd(void){
 **     case=5           Call the segfault handler
 **     case=6           Call webpage_assert()
 **     case=7           Call webpage_error()
+**     case=8           Simulate a timeout
+**     case=9           Simulate a TH1 XSS vulnerability
+**     case=10          Simulate a TH1 SQL-injection vulnerability
 */
 void test_warning_page(void){
   int iCase = atoi(PD("case","0"));
@@ -3778,13 +3781,11 @@ void test_warning_page(void){
   style_set_current_feature("test");
   style_header("Warning Test Page");
   style_submenu_element("Error Log","%R/errorlog");
-  if( iCase<1 || iCase>4 ){
-    @ <p>Generate a message to the <a href="%R/errorlog">error log</a>
-    @ by clicking on one of the following cases:
-  }else{
-    @ <p>This is the test page for case=%d(iCase).  All possible cases:
-  }
-  for(i=1; i<=8; i++){
+  @ <p>This page will generate various kinds of errors to test Fossil's
+  @ reaction.  Depending on settings, a message might be written
+  @ into the <a href="%R/errorlog">error log</a>.  Click on
+  @ one of the following hyperlinks to generate a simulated error:
+  for(i=1; i<=10; i++){
     @ <a href='./test-warning?case=%d(i)'>[%d(i)]</a>
   }
   @ </p>
@@ -3817,16 +3818,35 @@ void test_warning_page(void){
   if( iCase==6 ){
     webpage_assert( 5==7 );
   }
-  @ <li value='7'> call webpage_error()"
+  @ <li value='7'> call webpage_error()
   if( iCase==7 ){
     cgi_reset_content();
     webpage_error("Case 7 from /test-warning");
   }
-  @ <li value='8'> simulated timeout"
+  @ <li value='8'> simulated timeout
   if( iCase==8 ){
     fossil_set_timeout(1);
     cgi_reset_content();
     sqlite3_sleep(1100);
+  }
+  @ <li value='9'> simulated TH1 XSS vulnerability
+  @ <li value='10'> simulated TH1 SQL-injection vulnerability
+  if( iCase==9 || iCase==10 ){
+    const char *zR;
+    int n, rc;
+    static const char *zTH1[] = {
+       /* case 9 */  "html [taint {<b>XSS</b>}]",
+       /* case 10 */ "query [taint {SELECT 'SQL-injection' AS msg}] {\n"
+                     "  html \"<b>[htmlize $msg]</b>\"\n"
+                     "}"
+    };
+    rc = Th_Eval(g.interp, 0, zTH1[iCase==10], -1);
+    zR = Th_GetResult(g.interp, &n);
+    if( rc==TH_OK ){
+      @ <pre class="th1result">%h(zR)</pre>
+    }else{
+      @ <pre class="th1error">%h(zR)</pre>
+    }
   }
   @ </ol>
   @ <p>End of test</p>

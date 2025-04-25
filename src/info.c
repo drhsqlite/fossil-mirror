@@ -953,7 +953,7 @@ void ci_page(void){
     Blob wiki_read_links = BLOB_INITIALIZER;
     Blob wiki_add_links = BLOB_INITIALIZER;
 
-    Th_Store("current_checkin", zName);
+    Th_StoreUnsafe("current_checkin", zName);
     style_header("Check-in [%S]", zUuid);
     login_anonymous_available();
     zEUser = db_text(0,
@@ -1184,10 +1184,10 @@ void ci_page(void){
   }
   if( diffType!=0 ){
     if( *zW ){
-      @ %z(chref("button","%R/%s/%T",zPage,zName))
+      @ %z(chref("button","%R/%s/%T?diff=%d",zPage,zName,diffType))
       @ Show&nbsp;Whitespace&nbsp;Changes</a>
     }else{
-      @ %z(chref("button","%R/%s/%T?w",zPage,zName))
+      @ %z(chref("button","%R/%s/%T?diff=%d&w",zPage,zName,diffType))
       @ Ignore&nbsp;Whitespace</a>
     }
   }

@@ -1120,11 +1120,23 @@ static void send_unversioned_catalog(Xfer *pXfer){
 }
 
 /*
+** Return a string that contains supplemental information about a
+** "not authorized" error.  The string might be empty if no additional
+** information is available.
+*/
+static char *whyNotAuth(void){
+  if( g.useLocalauth && db_get_boolean("localauth",0)!=0 ){
+    return "\\sbecause\\sthe\\s'localauth'\\ssetting\\sis\\senabled";
+  }
+  return "";
+}
+
+/*
 ** Called when there is an attempt to transfer private content to and
 ** from a server without authorization.
 */
 static void server_private_xfer_not_authorized(void){
-  @ error not\sauthorized\sto\ssync\sprivate\scontent
+  @ error not\sauthorized\sto\ssync\sprivate\scontent%s(whyNotAuth())
 }
 
 /*
@@ -1318,7 +1330,7 @@ void page_xfer(void){
     if( blob_eq(&xfer.aToken[0], "file") ){
       if( !isPush ){
         cgi_reset_content();
-        @ error not\sauthorized\sto\swrite
+        @ error not\sauthorized\sto\swrite%s(whyNotAuth())
         nErr++;
         break;
       }
@@ -1339,7 +1351,7 @@ void page_xfer(void){
     if( blob_eq(&xfer.aToken[0], "cfile") ){
       if( !isPush ){
         cgi_reset_content();
-        @ error not\sauthorized\sto\swrite
+        @ error not\sauthorized\sto\swrite%s(whyNotAuth())
         nErr++;
         break;
       }
@@ -1463,7 +1475,7 @@ void page_xfer(void){
       if( blob_eq(&xfer.aToken[0], "pull") ){
         if( !g.perm.Read ){
           cgi_reset_content();
-          @ error not\sauthorized\sto\sread
+          @ error not\sauthorized\sto\sread%s(whyNotAuth())
           nErr++;
           break;
         }
@@ -1472,10 +1484,10 @@ void page_xfer(void){
         if( !g.perm.Write ){
           if( !isPull ){
             cgi_reset_content();
-            @ error not\sauthorized\sto\swrite
+            @ error not\sauthorized\sto\swrite%s(whyNotAuth())
             nErr++;
           }else{
-            @ message pull\sonly\s-\snot\sauthorized\sto\spush
+            @ message pull\sonly\s-\snot\sauthorized\sto\spush%s(whyNotAuth())
           }
         }else{
           isPush = 1;
@@ -1493,7 +1505,7 @@ void page_xfer(void){
       if( !g.perm.Clone ){
         cgi_reset_content();
         @ push %s(db_get("server-code", "x")) %s(db_get("project-code", "x"))
-        @ error not\sauthorized\sto\sclone
+        @ error not\sauthorized\sto\sclone%s(whyNotAuth())
         nErr++;
         break;
       }
@@ -1594,7 +1606,7 @@ void page_xfer(void){
       blob_extract(xfer.pIn, size, &content);
       if( !g.perm.Admin ){
         cgi_reset_content();
-        @ error not\sauthorized\sto\spush\sconfiguration
+        @ error not\sauthorized\sto\spush\sconfiguration%s(whyNotAuth())
         nErr++;
         break;
       }
