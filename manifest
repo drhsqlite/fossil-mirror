@@ -1,5 +1,5 @@
-C Remove\sthe\sshow-repolist-desc\sand\sshow-repolist-lg\ssettings.\s\sControl\sof\nwhich\scolumns\sof\sa\srepository\slist\sto\sshow\sis\snow\sonly\sby\sthe\nFOSSIL_REPOLIST_SHOW\senvironment\svariable.
-D 2025-04-25T12:53:16.179
+C Omit\sthe\s--th\soption\sfrom\sthe\s"pikchr"\scommand\sand\sall\sof\sthe\scomplication\nthat\sflows\sout\sof\sthat\soption.\s\sThe\soption\sis\snot\sused\sby\sanyone,\sas\sfar\sas\nI\scan\stell.
+D 2025-04-25T15:45:23.731
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -498,7 +498,7 @@ F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
 F src/manifest.c fd84c8658613a60d2f00f5a874dc6163c77e48e11d814c89321829ddb21cb67a
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
-F src/markdown_html.c ad02712ac0be224b1c720b1fde49bcd30cf0eb89f3756390feda7d624d9b16eb
+F src/markdown_html.c 34eebf2d756b99d5aabcdeee35410091d5deffafad060a9752d373c4e0371839
 F src/match.c 3fe696bc2df074431806817c5ebd95754ead9c26c700f92b8bc4cca192f44280
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -510,7 +510,7 @@ F src/name.c d033be091390521d326f97659d75cf5b5d94ba414bbc8ba53d77bd762888fe1c
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 9c32dda651d83d15938ea17f11a19f3f36ebe0c1d6e37e5113cc11a492a74f77
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
-F src/pikchrshow.c be8c7290e1dfd647f46ec4b0edab1d2581a0c2c06cc77241c7fccb9c1e03a83c
+F src/pikchrshow.c f6a74743a997be6d8f9410b046925448134e4e42f630c298a89cdacbdce26195
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
 F src/popen.c 1b97d68d5aa43c0d88af6c9324b32efc011920038a382f39097d6f204b2f3a4d
 F src/pqueue.c 4bc9471b252a8624435660be144d0031c40d8c10cb023321ab9234cda156eb02
@@ -572,7 +572,7 @@ F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd7
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c 55c0017cc570f73b80224a340a58a4e87929970f811546f2007f4eb401bc593d
-F src/th_main.c 9add6dd222ebeaae0fa32d6a5a418bdbf200e97bbf2941dcc96bf88dce403435
+F src/th_main.c a582597f29a74122de649b7e769adb75a062eab93313800d2fee2aa86aabc484
 F src/th_tcl.c e62b350e3581a57ee97b4e6abb28bbba3ac1c3bb9d45258b8ca4e05fe526d253
 F src/timeline.c fd71459238ed36ffef99567843ac053f957ab9c5b2ef417191550a2e2968a132
 F src/tkt.c a3837e0ae8b7c69412254044548dd7859a5a1c3872b327288b8692b9848adebb
@@ -664,7 +664,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test dc2284c1dd955a1e0cdd43fb3637fd5fb677d854c0edd33ac18e9e42a9f1e466
+F test/th1.test e0498c083c2a511e561ba32042817678270e26d57014d3adc1afa92babd73ade
 F test/unversioned.test 2293bb58141d7d9030dcadaa4f1a47ce13de99e0008f186b9ec005e11f1d711a
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -955,7 +955,7 @@ F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c06
 F www/sync.wiki c5be63390d68e0cd6eba57fd1a00eb532945a64497a38aa5d3682a0602c837b0
 F www/tech_overview.wiki 6a30615418ebd01472646a2f6c3547a96bc400d710e432f226aebe42feed4324
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
-F www/th1.md bc30da955598773a318306b7f4a4b3b2e2fff81f101ad545adc6972fed3e5ee6
+F www/th1.md e79ee712c6d1016f24e26d87ccd33f4fcd34970044aa44c47e8c58ee4922cb1b
 F www/theory1.wiki 23fe43903706feb8d6852c9e1174f20b10aa4a6a82aa716992b5e31f70745303
 F www/tickets.wiki d46ce2febd0160a67a7b804d9ee68ef0c8a5f482255247d157cb4ded882333ed
 F www/title-test.md 5579cbcda122eff4f5d0343683cd48f365b92d1054131629a3d0be7af113275c
@@ -971,8 +971,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 76f1ddb6c2cf03af0791eb42fde43338e07e696bdeda02207022e66afc497c0f
-R 770575c5182746b79d8ef57109140d89
+P d9bd156aadd696cec4fa9dab8c5f973cc8f94f444474b57df60dbc50e49da936
+R 791f3dd418c180aae164743ec0370ad7
+T *branch * simplify-pikchr-cmd
+T *sym-simplify-pikchr-cmd *
+T -sym-trunk *
 U drh
-Z 550ed1b6a4b5abdff778572114a34720
+Z 2627f502ed7eb5eda39ae7e385c3aa4c
 # Remove this line to create a well-formed Fossil manifest.
