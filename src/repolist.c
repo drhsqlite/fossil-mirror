@@ -428,7 +428,7 @@ int repo_list_page(void){
     @ <body>
     @ <h1 align="center">%h(zTitle)</h1>
     if( quickfilter ){
-      @ <input type="text" id="quickfilter" placeholder="filter repository list...">
+      @ <input type="search" id="quickfilter" placeholder="filter repository list...">
     }
     @ %s(blob_str(&html))
     @ <script>%s(builtin_text("sorttable.js"))</script>
