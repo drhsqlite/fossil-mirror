@@ -1,5 +1,5 @@
-C Block\san\sinfinite\sloop\sin\sTh_ReportTaint()\sthat\scan\soccur\swhen\sthe\nvuln-report\ssetting\sis\s"fatal"\sand\sthe\serror\shappens\sagain\swhile\ngenerating\sthe\sfatal\serror\spage.
-D 2025-04-24T19:42:56.029
+C Remove\sthe\sshow-repolist-desc\sand\sshow-repolist-lg\ssettings.\s\sControl\sof\nwhich\scolumns\sof\sa\srepository\slist\sto\sshow\sis\snow\sonly\sby\sthe\nFOSSIL_REPOLIST_SHOW\senvironment\svariable.
+D 2025-04-25T12:53:16.179
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -519,7 +519,7 @@ F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c a9aeacaa515f756f76b0d94c3971121093848145d0d109be511616e74372a50a
-F src/repolist.c 1433a0486c4c43c097f85deb78800bf89772429cb44797c6acbdbfabe590018a
+F src/repolist.c f6ca413855625f1204f77ea5b1b63cc59e54178473f3511dee8971971c6ad42a
 F src/report.c f423bfbd6a88753fdb5b9b91c2f3a787f0db955400f67e46d1630633af8bb758
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
@@ -647,7 +647,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 1ca2a95db55563fd16c4591037248a9fd7db36007cd4a0ea64c59051acac4e89
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 39f0a0471b9849efaf32bea2614bb7e9f1cd05ec4167905b5aeba868b036aa96
+F test/tester.tcl eb9907d6b6b614b36c0f259ffe56829ea3db9ba2437b718525e51be1ce437ad3
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 17be4d6a571e59568261d7be7e18dbf92eca61dda2ab5c66d8b6853ad0fabb2d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -791,7 +791,7 @@ F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999
 F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f9020d8b
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
-F www/cgi.wiki 8cfa152bf6d06d10c30163085f8eb815cf9556d6c84a7501c910fb148fb24a85
+F www/cgi.wiki a78260ee3d362f11c3ebb52258091a99c4329a53d28f88416db922ada3a20929
 F www/changes.wiki 20df65871f16cc41472fb6a6c8b53ebc0e2e802e2173f58e7b6896c0ba7763e6
 F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9d7b31552af7f8713c9dab0aa56deac6d0fc88d8cb52c6c0f0204ecc6ac0224c
-R f0efb155a60e0a60e142c117e52e4205
+P 76f1ddb6c2cf03af0791eb42fde43338e07e696bdeda02207022e66afc497c0f
+R 770575c5182746b79d8ef57109140d89
 U drh
-Z a274f44902b1234633ef4394e5bf19f3
+Z 550ed1b6a4b5abdff778572114a34720
 # Remove this line to create a well-formed Fossil manifest.

@@ -368,8 +368,6 @@ proc get_all_settings {} {
       safe-html \
       self-pw-reset \
       self-register \
-      show-repolist-desc \
-      show-repolist-lg \
       sitemap-extra \
       ssh-command \
       ssl-ca-location \
