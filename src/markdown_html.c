@@ -698,7 +698,7 @@ void pikchr_to_html(
   }
   blob_append(&bSrc, zSrc, nSrc)
     /*have to dup input to ensure a NUL-terminated source string */;
-  pikchr_process(blob_str(&bSrc), pikFlags, 0, ob);
+  pikchr_process(blob_str(&bSrc), pikFlags, ob);
   blob_reset(&bSrc);
 }
 

@@ -33,9 +33,7 @@
 #define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH1 commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
 #define TH_INIT_NO_REPO     ((u32)0x00000010) /* Skip opening repository. */
-#define TH_INIT_NO_ENCODE   ((u32)0x00000020) /* Do not html-encode sendText()*/
-                                              /* output. */
-#define TH_INIT_MASK        ((u32)0x0000003F) /* All possible init flags. */
+#define TH_INIT_MASK        ((u32)0x0000001F) /* All possible init flags. */
 
 /*
 ** Useful and/or "well-known" combinations of flag values.
@@ -300,46 +298,6 @@ static int enableOutputCmd(
 }
 
 /*
-** TH1 command: enable_htmlify ?BOOLEAN?
-**
-** Enable or disable the HTML escaping done by all output which
-** originates from TH1 (via sendText()).
-**
-** If passed no arguments it instead returns 0 or 1 to indicate the
-** current state.
-*/
-static int enableHtmlifyCmd(
-  Th_Interp *interp,
-  void *p,
-  int argc,
-  const char **argv,
-  int *argl
-){
-  int rc = 0, buul;
-  if( argc>3 ){
-    return Th_WrongNumArgs(interp,
-                           "enable_htmlify [TRACE_LABEL] ?BOOLEAN?");
-  }
-  buul = (TH_INIT_NO_ENCODE & g.th1Flags) ? 0 : 1;
-  Th_SetResultInt(g.interp, buul);
-  if(argc>1){
-    if( g.thTrace ){
-      Th_Trace("enable_htmlify {%.*s} -> %d<br>\n",
-               TH1_LEN(argl[1]),argv[1],buul);
-    }
-    rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &buul);
-    if(!rc){
-      if(buul){
-        g.th1Flags &= ~TH_INIT_NO_ENCODE;
-      }else{
-        g.th1Flags |= TH_INIT_NO_ENCODE;
-      }
-    }
-  }
-  return rc;
-}
-
-/*
 ** Returns a name for a TH1 return code.
 */
 const char *Th_ReturnCodeName(int rc, int nullIfOk){
@@ -378,8 +336,7 @@ Blob * Th_SetOutputBlob(Blob * pOut){
 ** Send text to the appropriate output: If pOut is not NULL, it is
 ** appended there, else to the console or to the CGI reply buffer.
 ** Escape all characters with special meaning to HTML if the encode
-** parameter is true, with the exception that that flag is ignored if
-** g.th1Flags has the TH_INIT_NO_ENCODE flag.
+** parameter is true.
 **
 ** If pOut is NULL and the global pThOut is not then that blob
 ** is used for output.
@@ -387,9 +344,6 @@ Blob * Th_SetOutputBlob(Blob * pOut){
 static void sendText(Blob *pOut, const char *z, int n, int encode){
   if(0==pOut && pThOut!=0){
     pOut = pThOut;
-  }
-  if(TH_INIT_NO_ENCODE & g.th1Flags){
-    encode = 0;
   }
   if( enableOutput && n ){
     if( n<0 ){
@@ -2431,7 +2385,6 @@ void Th_FossilInit(u32 flags){
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"defHeader",     defHeaderCmd,         0},
     {"dir",           dirCmd,               0},
-    {"enable_htmlify",enableHtmlifyCmd,     0},
     {"enable_output", enableOutputCmd,      0},
     {"encode64",      encode64Cmd,          0},
     {"getParameter",  getParameterCmd,      0},
@@ -3049,8 +3002,7 @@ int Th_Render(const char *z){
     ** Th_SetOutputBlob() has been called. If it has not been called,
     ** pThOut will be 0, which will redirect the output to CGI/stdout,
     ** as appropriate. We need to pass on g.th1Flags for the case of
-    ** recursive calls, so that, e.g., TH_INIT_NO_ENCODE does not get
-    ** inadvertently toggled off by a recursive call.
+    ** recursive calls.
     */;
 }
 
