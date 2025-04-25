@@ -162,6 +162,11 @@ column appears on the repolist page.  If it contains the substring
 "login-group", then the Login-Group column appears on the repolist page.
 Can be set from the [CGI control file][cgictlfile].
 
+`FOSSIL_REPOLIST_QUICKFILTER`: Enable or disable the quickfilter on
+repository listings, which allows for simple filtering of the listed
+repositories.
+Can be set from the [CGI control file][cgictlfile].
+
 `FOSSIL_USE_SEE_TEXTKEY`: If set, treat the encryption key string for
 SEE as text to be hashed into the actual encryption key.  This has no
 effect if Fossil was not compiled with SEE support enabled.

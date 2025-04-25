@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\strunk\senhancements\sinto\sthe\squickfilter\sbranch.
-D 2025-04-25T11:01:39.497
+C readd\sdocumentation\sfor\sFOSSIL_REPOLIST_QUICKFILTER
+D 2025-04-25T11:50:06.834
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -830,7 +830,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki e97cbf256e11b913298031503eda9042295865ab1ee2f6c5ae558cb091300fd7
-F www/env-opts.md 080000a73cb8dd73e4d8110f7477ef20c87eef88c249e6cd2491c1ec8d080fd6
+F www/env-opts.md b5bf5f2aed8800a8ee797cdef18a97d5ade6738238599de67eb8b3c6415527fd
 F www/event.wiki b2b5694047176815ed3701face7910e89bda204b07af878a16c04d8c6b3e08ad
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
@@ -972,8 +972,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fa31d18bf49185ed1b03cfcd9d69dc71f8e4e864b2a7d4122e7989624b4506bb 76f1ddb6c2cf03af0791eb42fde43338e07e696bdeda02207022e66afc497c0f
-R 516d0820641a7b22b2b68ead8d984552
-U drh
-Z e691da51bc3c9f692bef8e3d940cd976
+P e14c75676c3eb42afc4af2408c8dce2594ec3e1a3032db611d57a11fd1f573f1
+R b1a56566b60259ef08a0508d1a5a1f91
+U jkosche
+Z b505859e8e2751204581595f7374ccbc
 # Remove this line to create a well-formed Fossil manifest.
