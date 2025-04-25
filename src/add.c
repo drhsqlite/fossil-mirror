@@ -898,7 +898,8 @@ static void mv_one_file(
   int vid,
   const char *zOrig,
   const char *zNew,
-  int dryRunFlag
+  int dryRunFlag,
+  int moveFiles
 ){
   int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
                          zNew, filename_collation());
@@ -913,6 +914,12 @@ static void mv_one_file(
     }else{
       fossil_fatal("cannot rename '%s' to '%s' since the delete of '%s' has "
                    "not yet been committed", zOrig, zNew, zNew);
+    }
+  }
+  if( moveFiles ){
+    if( file_size(zNew, ExtFILE) != -1 ){
+      fossil_fatal("cannot rename '%s' to '%s' on disk since another file"
+        " named '%s' already exists", zOrig, zNew, zNew);      
     }
   }
   fossil_print("RENAME %s %s\n", zOrig, zNew);
@@ -1137,7 +1144,7 @@ void mv_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFrom = db_column_text(&q, 0);
     const char *zTo = db_column_text(&q, 1);
-    mv_one_file(vid, zFrom, zTo, dryRunFlag);
+    mv_one_file(vid, zFrom, zTo, dryRunFlag, moveFiles);
     if( moveFiles ) add_file_to_move(zFrom, zTo);
   }
   db_finalize(&q);

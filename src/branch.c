@@ -659,6 +659,12 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
 **
+**        This command is available for people who want to create a branch
+**        in advance.  But  the use of this command is discouraged.  The
+**        preferred idiom in Fossil is to create new branches at the point
+**        of need, using the "--branch NAME" option to the "fossil commit"
+**        command.
+**
 **        Options:
 **          --private             Branch is private (i.e., remains local)
 **          --bgcolor COLOR       Use COLOR instead of automatic background
@@ -667,12 +673,6 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **          --nosync              Do not auto-sync prior to creating the branch
 **          --date-override DATE  DATE to use instead of 'now'
 **          --user-override USER  USER to use instead of the current default
-**
-**        DATE may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
-**        year-month-day form, it may be truncated, the "T" may be
-**        replaced by a space, and it may also name a timezone offset
-**        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
-**        Either no timezone suffix or "Z" means UTC.
 **
 ** Options:
 **    -R|--repository REPO       Run commands on repository REPO
@@ -872,7 +872,8 @@ static void new_brlist_page(void){
     char *zAge = human_readable_age(rNow - rMtime);
     sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0);
     if( zMergeTo && zMergeTo[0]==0 ) zMergeTo = 0;
-    if( zBgClr == 0 ){
+    if( zBgClr ) zBgClr = reasonable_bg_color(zBgClr, 0);
+    if( zBgClr==0 ){
       if( zBranch==0 || strcmp(zBranch,"trunk")==0 ){
         zBgClr = 0;
       }else{

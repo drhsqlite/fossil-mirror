@@ -223,24 +223,24 @@ void www_print_timeline(
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
-  /*
-  ** SETTING: timeline-truncate-at-blank  boolean default=off
-  **
-  ** If enabled, check-in comments displayed on the timeline are truncated
-  ** at the first blank line of the comment text.  The comment text after
-  ** the first blank line is only seen in the /info or similar pages that
-  ** show details about the check-in.
-  */
+/*
+** SETTING: timeline-truncate-at-blank  boolean default=off
+**
+** If enabled, check-in comments displayed on the timeline are truncated
+** at the first blank line of the comment text.  The comment text after
+** the first blank line is only seen in the /info or similar pages that
+** show details about the check-in.
+*/
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
-  /*
-  ** SETTING: timeline-tslink-info       boolean default=off
-  **
-  ** The hyperlink on the timestamp associated with each timeline entry,
-  ** on the far left-hand side of the screen, normally targets another
-  ** /timeline page that shows the entry in context.  However, if this
-  ** option is turned on, that hyperlink targets the /info page showing
-  ** the details of the entry.
-  */
+/*
+** SETTING: timeline-tslink-info       boolean default=off
+**
+** The hyperlink on the timestamp associated with each timeline entry,
+** on the far left-hand side of the screen, normally targets another
+** /timeline page that shows the entry in context.  However, if this
+** option is turned on, that hyperlink targets the /info page showing
+** the details of the entry.
+*/
   bTimestampLinksToInfo = db_get_boolean("timeline-tslink-info", 0);
   if( (tmFlags & TIMELINE_VIEWS)==0 ){
     tmFlags |= timeline_ss_cookie();
@@ -404,6 +404,8 @@ void www_print_timeline(
     @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
     if( tmFlags & (TIMELINE_UCOLOR|TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
+      /* Don't use the requested background color.  Use the background color
+      ** override from query parameters instead. */
       if( tmFlags & TIMELINE_UCOLOR ){
         zBgClr = zUser ? user_color(zUser) : 0;
       }else if( tmFlags & TIMELINE_NOCOLOR ){
@@ -422,12 +424,17 @@ void www_print_timeline(
         }
         db_reset(&qdelta);
       }
+    }else{
+      /* Make sure the user-specified background color is reasonable */
+      zBgClr = reasonable_bg_color(zBgClr, 0);
     }
     if( zType[0]=='c'
     && (pGraph || zBgClr==0 || (tmFlags & (TIMELINE_BRCOLOR|TIMELINE_DELTA))!=0)
     ){
       zBr = branch_of_rid(rid);
       if( zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0 ){
+        /* If no background color is specified, use a color based on the
+        ** branch name */
         if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
         }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
           zBgClr = 0;
@@ -593,6 +600,15 @@ void www_print_timeline(
         cgi_printf("%W",blob_str(&comment));
       }
     }
+ 
+    if( zType[0]=='c' && strcmp(zUuid, MANIFEST_UUID)==0 ){
+      /* This will only ever happen when Fossil is drawing a timeline for
+      ** its own self-host repository.  If the timeline shows the specific
+      ** check-in corresponding to the current executable, then tag that
+      ** check-in with "This is me!". */
+      @ <b>&larr; This is me!</b>
+    }
+
     @ </span>
     blob_reset(&comment);
 
@@ -1874,7 +1890,7 @@ void page_timeline(void){
     if( matchStyle==MS_EXACT ){
       /* For exact maching, inhibit links to the selected tag. */
       zThisTag = zTagName;
-      Th_Store("current_checkin", zTagName);
+      Th_StoreUnsafe("current_checkin", zTagName);
     }
 
     /* Display a checkbox to enable/disable display of related check-ins. */
@@ -3735,11 +3751,18 @@ void timeline_cmd(void){
 
   if( mode==TIMELINE_MODE_NONE ) mode = TIMELINE_MODE_BEFORE;
   blob_zero(&sql);
+  if( mode==TIMELINE_MODE_AFTER ){
+    /* Extra outer select to get older rows in reverse order */
+    blob_append(&sql, "SELECT *\nFROM (", -1);
+  }
   blob_append(&sql, timeline_query_for_tty(), -1);
   blob_append_sql(&sql, "\n  AND event.mtime %s %s",
      ( mode==TIMELINE_MODE_BEFORE ||
        mode==TIMELINE_MODE_PARENTS ) ? "<=" : ">=", zDate /*safe-for-%s*/
   );
+  if( zType && (zType[0]!='a') ){
+    blob_append_sql(&sql, "\n  AND event.type=%Q ", zType);
+  }
 
   /* When zFilePattern is specified, compute complete ancestry;
    * limit later at print_timeline() */
@@ -3751,9 +3774,6 @@ void timeline_cmd(void){
       compute_ancestors(objid, (zFilePattern ? 0 : n), 0, 0);
     }
     blob_append_sql(&sql, "\n  AND blob.rid IN ok");
-  }
-  if( zType && (zType[0]!='a') ){
-    blob_append_sql(&sql, "\n  AND event.type=%Q ", zType);
   }
   if( zFilePattern ){
     blob_append(&sql,
@@ -3796,7 +3816,14 @@ void timeline_cmd(void){
       "  AND (tagxref.value IS NULL OR tagxref.value='%q')",
       zBr, zBr, zBr, TAG_BRANCH, zBr, zBr);
   }
-  blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
+  
+  if( mode==TIMELINE_MODE_AFTER ){
+    /* Complete the above outer select. */
+    blob_append_sql(&sql, 
+        "\nORDER BY event.mtime LIMIT abs(%d)) t ORDER BY t.mDateTime DESC;", n);
+  }else{
+    blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
+  }
   if( iOffset>0 ){
     /* Don't handle LIMIT here, otherwise print_timeline()
      * will not determine the end-marker correctly! */

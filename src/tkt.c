@@ -190,10 +190,15 @@ static void initializeVariablesFromDb(void){
   const char *zName;
   Stmt q;
   int i, n, size, j;
+  const char *zCTimeColumn = haveTicketCTime ? "tkt_ctime" : "tkt_mtime";
 
   zName = PD("name","-none-");
-  db_prepare(&q, "SELECT datetime(tkt_mtime,toLocal()) AS tkt_datetime, *"
+  db_prepare(&q, "SELECT datetime(tkt_mtime,toLocal()) AS tkt_datetime, "
+                 "datetime(%s,toLocal()) AS tkt_datetime_creation, "
+                 "julianday('now') - tkt_mtime, "
+                 "julianday('now') - %s, *"
                  "  FROM ticket WHERE tkt_uuid GLOB '%q*'",
+                 zCTimeColumn/*safe-for-%s*/, zCTimeColumn/*safe-for-%s*/,
                  zName);
   if( db_step(&q)==SQLITE_ROW ){
     n = db_column_count(&q);
@@ -209,15 +214,18 @@ static void initializeVariablesFromDb(void){
       if( (j = fieldId(zName))>=0 ){
         aField[j].zValue = mprintf("%s", zVal);
       }else if( memcmp(zName, "tkt_", 4)==0 && Th_Fetch(zName, &size)==0 ){
+        /* TICKET table columns that begin with "tkt_" are always safe */
         Th_Store(zName, zVal);
       }
       free(zRevealed);
     }
+    Th_Store("tkt_mage", human_readable_age(db_column_double(&q, 2)));
+    Th_Store("tkt_cage", human_readable_age(db_column_double(&q, 3)));
   }
   db_finalize(&q);
   for(i=0; i<nField; i++){
     if( Th_Fetch(aField[i].zName, &size)==0 ){
-      Th_Store(aField[i].zName, aField[i].zValue);
+      Th_StoreUnsafe(aField[i].zName, aField[i].zValue);
     }
   }
 }
@@ -230,7 +238,7 @@ static void initializeVariablesFromCGI(void){
   const char *z;
 
   for(i=0; (z = cgi_parameter_name(i))!=0; i++){
-    Th_Store(z, P(z));
+    Th_StoreUnsafe(z, P(z));
   }
 }
 
@@ -771,7 +779,8 @@ void tktview_page(void){
        "SELECT tkt_uuid FROM ticket"
        " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( g.perm.WrWiki && g.perm.WrTkt ){
-    style_submenu_element("Edit Description", "%R/wikiedit?name=ticket/%T", zFullName);
+    style_submenu_element("Edit Description",
+                          "%R/wikiedit?name=ticket/%T", zFullName);
   }
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br>\n", -1);
   ticket_init();
@@ -814,11 +823,11 @@ static int appendRemarkCmd(
   }
   if( g.thTrace ){
     Th_Trace("append_field %#h {%#h}<br>\n",
-              argl[1], argv[1], argl[2], argv[2]);
+              TH1_LEN(argl[1]), argv[1], TH1_LEN(argl[2]), argv[2]);
   }
   for(idx=0; idx<nField; idx++){
-    if( memcmp(aField[idx].zName, argv[1], argl[1])==0
-        && aField[idx].zName[argl[1]]==0 ){
+    if( memcmp(aField[idx].zName, argv[1], TH1_LEN(argl[1]))==0
+        && aField[idx].zName[TH1_LEN(argl[1])]==0 ){
       break;
     }
   }
@@ -934,6 +943,7 @@ static int submitTicketCmd(
     if( aField[i].zAppend ) continue;
     zValue = Th_Fetch(aField[i].zName, &nValue);
     if( zValue ){
+      nValue = TH1_LEN(nValue);
       while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
       if( ((aField[i].mUsed & USEDBY_TICKETCHNG)!=0 && nValue>0)
        || memcmp(zValue, aField[i].zValue, nValue)!=0
@@ -1028,28 +1038,30 @@ void tktnew_page(void){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
   }
   zScript = ticket_newpage_code();
+  Th_Store("private_contact", "");
   if( g.zLogin && g.zLogin[0] ){
-    int nEmail = 0;
-    (void)Th_MaybeGetVar(g.interp, "private_contact", &nEmail);
-    uid = nEmail>0
-      ? 0 : db_int(0, "SELECT uid FROM user WHERE login=%Q", g.zLogin);
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.zLogin);
     if( uid ){
       char * zEmail =
         db_text(0, "SELECT find_emailaddr(info) FROM user WHERE uid=%d",
                 uid);
       if( zEmail ){
-        Th_Store("private_contact", zEmail);
+        Th_StoreUnsafe("private_contact", zEmail);
         fossil_free(zEmail);
       }
     }
   }
-  Th_Store("login", login_name());
+  Th_StoreUnsafe("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
                    (void*)&zNewUuid, 0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br>\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
-    cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
+    if( P("submitandnew") ){
+      cgi_redirect(mprintf("%R/tktnew/%s", zNewUuid));
+    }else{
+      cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
+    }
     return;
   }
   captcha_generate(0);
@@ -1114,7 +1126,7 @@ void tktedit_page(void){
   form_begin(0, "%R/%s", g.zPath);
   @ <input type="hidden" name="name" value="%s(zName)">
   zScript = ticket_editpage_code();
-  Th_Store("login", login_name());
+  Th_StoreUnsafe("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);

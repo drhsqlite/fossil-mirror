@@ -590,9 +590,6 @@ void view_edit(void){
   }
   if( zOwner==0 ) zOwner = g.zLogin;
   style_submenu_element("Cancel", "%R/reportlist");
-  if( rn>0 ){
-    style_submenu_element("Delete", "%R/rptedit/%d?del1=1", rn);
-  }
   style_header("%s", rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
     @ <blockquote class="reportError">%h(zErr)</blockquote>
@@ -908,7 +905,8 @@ static int generate_html(
   ** per database entry.
   */
   if( pState->iNewRow>=0 ){
-    @ <tr><td colspan=%d(pState->nCol)><font size=1>&nbsp;</font></td></tr>
+    @ <tr><td colspan="%d(pState->nCol)" style="padding:0px">
+    @ <hr style="margin:0px"></td></tr>
   }
 
   /* Output the data for this entry from the database

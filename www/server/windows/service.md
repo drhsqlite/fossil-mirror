@@ -57,7 +57,7 @@ will be a subdirectory named "fossil" in the temporary directory given
 by the Windows GetTempPath(...) API, [namely](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-gettemppathw#remarks)
 the value of the first existing environment variable from `%TMP%`, `%TEMP%`,
 `%USERPROFILE%`, and `%SystemRoot%`; you can look for their actual values in
-your system by accessing the `/test_env` webpage. 
+your system by accessing the `/test-env` webpage. 
 Excluding this subdirectory will avoid certain rare failures where the
 fossil.exe process is unable to use the directory normally during a scan.
 

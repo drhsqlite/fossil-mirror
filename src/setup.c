@@ -203,7 +203,7 @@ void setup_logmenu_page(void){
   }
   style_header("Log Menu");
   @ <table border="0" cellspacing="3">
-  
+
   if( db_get_boolean("admin-log",1)==0 ){
     blob_appendf(&desc,
       "The admin log records configuration changes to the repository.\n"
@@ -218,7 +218,7 @@ void setup_logmenu_page(void){
       "in the \"admin_log\" table.\n"
     );
   }
-  setup_menu_entry("Artifact Log", "rcvfromlist",
+  setup_menu_entry("Xfer Log", "rcvfromlist",
     "The artifact log records when new content is added in the\n"
     "\"rcvfrom\" table.\n"
   );
@@ -464,7 +464,7 @@ static void addAutoHyperlinkSettings(void){
   @ Javascript").</p>
   @
   @ <p>To see if Javascript-base hyperlink enabling mechanism is working,
-  @ visit the <a href="%R/test_env">/test_env</a> page (from a separate
+  @ visit the <a href="%R/test-env">/test-env</a> page (from a separate
   @ web browser that is not logged in, even as "anonymous") and verify
   @ that the "g.jsHref" value is "1".</p>
   @ <p>(Properties: "auto-hyperlink", "auto-hyperlink-delay", and
@@ -606,7 +606,7 @@ void setup_access(void){
   @ (Property: "localauth")
   @
   @ <hr>
-  onoff_attribute("Enable /test_env",
+  onoff_attribute("Enable /test-env",
      "test_env_enable", "test_env_enable", 0, 0);
   @ <p>When enabled, the %h(g.zBaseURL)/test_env URL is available to all
   @ users.  When disabled (the default) only users Admin and Setup can visit
@@ -1006,6 +1006,16 @@ void setup_timeline(void){
   @ (Property: "timeline-hard-newlines")</p>
 
   @ <hr>
+  onoff_attribute("Do not adjust user-selected background colors",
+                  "raw-bgcolor", "rbgc", 0, 0);
+  @ <p>Fossil normally attempts to adjust the saturation and intensity of
+  @ user-specified background colors on check-ins and branches so that the
+  @ foreground text is easily readable on all skins.  Enable this setting
+  @ to omit that adjustment and use exactly the background color specified
+  @ by users.
+  @ (Property: "raw-bgcolor")</p>
+
+  @ <hr>
   onoff_attribute("Use Universal Coordinated Time (UTC)",
                   "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
@@ -1288,7 +1298,7 @@ void setup_config(void){
   textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "", 0);
   @ <p>Describe your project. This will be used in page headers for search
-  @ engines as well as a short RSS description.
+  @ engines, the repository listing and a short RSS description.
   @ (Property: "project-description")</p>
   @ <hr>
   entry_attribute("Canonical Server URL", 40, "email-url",

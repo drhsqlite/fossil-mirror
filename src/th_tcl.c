@@ -43,12 +43,12 @@
   Tcl_Obj **objv;          \
   int obji;
 
-#define COPY_ARGV_TO_OBJV()                                         \
-  objc = argc-1;                                                    \
-  objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *))); \
-  for(obji=1; obji<argc; obji++){                                   \
-    objv[obji-1] = Tcl_NewStringObj(argv[obji], argl[obji]);        \
-    Tcl_IncrRefCount(objv[obji-1]);                                 \
+#define COPY_ARGV_TO_OBJV()                                           \
+  objc = argc-1;                                                      \
+  objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *)));   \
+  for(obji=1; obji<argc; obji++){                                     \
+    objv[obji-1] = Tcl_NewStringObj(argv[obji], TH1_LEN(argl[obji])); \
+    Tcl_IncrRefCount(objv[obji-1]);                                   \
   }
 
 #define FREE_ARGV_TO_OBJV()         \
@@ -185,7 +185,7 @@
 ** cleanup if the Tcl stubs initialization fails somehow, the Tcl_DeleteInterp
 ** and Tcl_Finalize function types are also required.
 */
-typedef void (tcl_FindExecutableProc) (const char *);
+typedef const char *(tcl_FindExecutableProc) (const char *);
 typedef Tcl_Interp *(tcl_CreateInterpProc) (void);
 typedef void (tcl_DeleteInterpProc) (Tcl_Interp *);
 typedef void (tcl_FinalizeProc) (void);
@@ -324,23 +324,6 @@ static int canUseTip285(){
 static int createTclInterp(Th_Interp *interp, void *pContext);
 
 /*
-** Returns the TH1 return code corresponding to the specified Tcl
-** return code.
-*/
-static int getTh1ReturnCode(
-  int rc /* The Tcl return code value to convert. */
-){
-  switch( rc ){
-    case /*0*/ TCL_OK:       return /*0*/ TH_OK;
-    case /*1*/ TCL_ERROR:    return /*1*/ TH_ERROR;
-    case /*2*/ TCL_RETURN:   return /*3*/ TH_RETURN;
-    case /*3*/ TCL_BREAK:    return /*2*/ TH_BREAK;
-    case /*4*/ TCL_CONTINUE: return /*4*/ TH_CONTINUE;
-    default /*?*/:           return /*?*/ rc;
-  }
-}
-
-/*
 ** Returns the Tcl return code corresponding to the specified TH1
 ** return code.
 */
@@ -389,6 +372,8 @@ static char *getTclResult(
   int *pN
 ){
   Tcl_Obj *resultPtr;
+  Tcl_Size n;
+  char *zRes;
 
   if( !pInterp ){ /* This should not happen. */
     if( pN ) *pN = 0;
@@ -399,7 +384,9 @@ static char *getTclResult(
     if( pN ) *pN = 0;
     return 0;
   }
-  return Tcl_GetStringFromObj(resultPtr, pN);
+  zRes = Tcl_GetStringFromObj(resultPtr, &n);
+  *pN = (int)n;
+  return zRes;
 }
 
 /*
@@ -418,43 +405,7 @@ struct TclContext {
   int useObjProc;     /* Non-zero if an objProc can be called directly. */
   int useTip285;      /* Non-zero if TIP #285 is available. */
   const char *setup;  /* The optional Tcl setup script. */
-  tcl_NotifyProc *xPreEval;  /* Optional, called before Tcl_Eval*(). */
-  void *pPreContext;         /* Optional, provided to xPreEval(). */
-  tcl_NotifyProc *xPostEval; /* Optional, called after Tcl_Eval*(). */
-  void *pPostContext;        /* Optional, provided to xPostEval(). */
 };
-
-/*
-** This function calls the configured xPreEval or xPostEval functions, if any.
-** May have arbitrary side-effects.  This function returns the result of the
-** called notification function or the value of the rc argument if there is no
-** notification function configured.
-*/
-static int notifyPreOrPostEval(
-  int bIsPost,
-  Th_Interp *interp,
-  void *ctx,
-  int argc,
-  const char **argv,
-  int *argl,
-  int rc
-){
-  struct TclContext *tclContext = (struct TclContext *)ctx;
-  tcl_NotifyProc *xNotifyProc;
-
-  if( !tclContext ){
-    Th_ErrorMessage(interp,
-        "invalid Tcl context", (const char *)"", 0);
-    return TH_ERROR;
-  }
-  xNotifyProc = bIsPost ? tclContext->xPostEval : tclContext->xPreEval;
-  if( xNotifyProc ){
-    rc = xNotifyProc(bIsPost ?
-        tclContext->pPostContext : tclContext->pPreContext,
-        interp, ctx, argc, argv, argl, rc);
-  }
-  return rc;
-}
 
 /*
 ** TH1 command: tclEval arg ?arg ...?
@@ -487,13 +438,9 @@ static int tclEval_command(
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
-  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
-  if( rc!=TH_OK ){
-    return rc;
-  }
   Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
-    objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+    objPtr = Tcl_NewStringObj(argv[1], TH1_LEN(argl[1]));
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_EvalObjEx(tclInterp, objPtr, 0);
     Tcl_DecrRefCount(objPtr); objPtr = 0;
@@ -509,8 +456,6 @@ static int tclEval_command(
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
-                           getTh1ReturnCode(rc));
   return rc;
 }
 
@@ -547,13 +492,9 @@ static int tclExpr_command(
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
-  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
-  if( rc!=TH_OK ){
-    return rc;
-  }
   Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
-    objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+    objPtr = Tcl_NewStringObj(argv[1], TH1_LEN(argl[1]));
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_ExprObj(tclInterp, objPtr, &resultObjPtr);
     Tcl_DecrRefCount(objPtr); objPtr = 0;
@@ -567,17 +508,17 @@ static int tclExpr_command(
     FREE_ARGV_TO_OBJV();
   }
   if( rc==TCL_OK ){
-    zResult = Tcl_GetStringFromObj(resultObjPtr, &nResult);
+    Tcl_Size szResult = 0;
+    zResult = Tcl_GetStringFromObj(resultObjPtr, &szResult);
+    nResult = (int)szResult;
   }else{
     zResult = getTclResult(tclInterp, &nResult);
   }
-  Th_SetResult(interp, zResult, nResult);
+  Th_SetResult(interp, zResult, (int)nResult);
   if( rc==TCL_OK ){
     Tcl_DecrRefCount(resultObjPtr); resultObjPtr = 0;
   }
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
-                           getTh1ReturnCode(rc));
   return rc;
 }
 
@@ -612,16 +553,12 @@ static int tclInvoke_command(
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
-  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
-  if( rc!=TH_OK ){
-    return rc;
-  }
   Tcl_Preserve((ClientData)tclInterp);
 #if !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV
   if( GET_CTX_TCL_USEOBJPROC(ctx) ){
     Tcl_Command command;
     Tcl_CmdInfo cmdInfo;
-    Tcl_Obj *objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+    Tcl_Obj *objPtr = Tcl_NewStringObj(argv[1], TH1_LEN(argl[1]));
     Tcl_IncrRefCount(objPtr);
     command = Tcl_GetCommandFromObj(tclInterp, objPtr);
     if( !command || Tcl_GetCommandInfoFromToken(command, &cmdInfo)==0 ){
@@ -651,8 +588,6 @@ static int tclInvoke_command(
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
-                           getTh1ReturnCode(rc));
   return rc;
 }
 
@@ -769,6 +704,7 @@ static int Th1EvalObjCmd(
 ){
   Th_Interp *th1Interp;
   int nArg;
+  Tcl_Size szArg;
   const char *arg;
   int rc;
 
@@ -781,10 +717,11 @@ static int Th1EvalObjCmd(
     Tcl_AppendResult(interp, "invalid TH1 interpreter", NULL);
     return TCL_ERROR;
   }
-  arg = Tcl_GetStringFromObj(objv[1], &nArg);
+  arg = Tcl_GetStringFromObj(objv[1], &szArg);
+  nArg = (int)szArg;
   rc = Th_Eval(th1Interp, 0, arg, nArg);
   arg = Th_GetResult(th1Interp, &nArg);
-  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
+  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, TH1_LEN(nArg)));
   return getTclReturnCode(rc);
 }
 
@@ -802,6 +739,7 @@ static int Th1ExprObjCmd(
 ){
   Th_Interp *th1Interp;
   int nArg;
+  Tcl_Size szArg;
   const char *arg;
   int rc;
 
@@ -814,10 +752,10 @@ static int Th1ExprObjCmd(
     Tcl_AppendResult(interp, "invalid TH1 interpreter", NULL);
     return TCL_ERROR;
   }
-  arg = Tcl_GetStringFromObj(objv[1], &nArg);
-  rc = Th_Expr(th1Interp, arg, nArg);
+  arg = Tcl_GetStringFromObj(objv[1], &szArg);
+  rc = Th_Expr(th1Interp, arg, (int)szArg);
   arg = Th_GetResult(th1Interp, &nArg);
-  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
+  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, TH1_LEN(nArg)));
   return getTclReturnCode(rc);
 }
 

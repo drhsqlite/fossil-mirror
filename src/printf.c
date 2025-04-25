@@ -1079,6 +1079,7 @@ void fossil_errorlog(const char *zFormat, ...){
   const char *z;
   int i;
   int bDetail = 0;
+  int bBrief = 0;
   va_list ap;
   static const char *const azEnv[] = { "HTTP_HOST", "HTTP_REFERER",
       "HTTP_USER_AGENT",
@@ -1100,12 +1101,16 @@ void fossil_errorlog(const char *zFormat, ...){
   if( zFormat[0]=='X' ){
     bDetail = 1;
     zFormat++;
+  }else if( strncmp(zFormat,"SMTP:",5)==0 ){
+    bBrief = 1;
   }
   vfprintf(out, zFormat, ap);
-  fprintf(out, "\n");
+  fprintf(out, " (pid %d)\n", (int)getpid());
   va_end(ap);
   if( g.zPhase!=0 ) fprintf(out, "while in %s\n", g.zPhase);
-  if( bDetail ){
+  if( bBrief ){
+    /* Say nothing more */
+  }else if( bDetail ){
     cgi_print_all(1,3,out);
   }else{
     for(i=0; i<count(azEnv); i++){
@@ -1118,7 +1123,7 @@ void fossil_errorlog(const char *zFormat, ...){
       }
     }
   }
-  fclose(out);
+  if( out!=stderr ) fclose(out);
 }
 
 /*

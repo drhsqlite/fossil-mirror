@@ -123,7 +123,7 @@ struct GraphContext {
   u8 bOverfull;              /* Unable to allocate sufficient rails */
   u64 mergeRail;             /* Rails used for merge lines */
   GraphRow **apHash;         /* Hash table of GraphRow objects.  Key: rid */
-  u8 aiRailMap[GR_MAX_RAIL]; /* Mapping of rails to actually columns */
+  u8 aiRailMap[GR_MAX_RAIL+1]; /* Mapping of rails to actually columns */
 };
 
 #endif

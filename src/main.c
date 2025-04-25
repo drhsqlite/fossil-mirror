@@ -2055,7 +2055,8 @@ static void process_one_web_page(
   if( fossil_redirect_to_https_if_needed(2) ) return;
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
-    /* Second special case: If the PATH_INFO is blank, issue a redirect:
+    /* Second special case: If the PATH_INFO is blank, issue a
+    ** temporary 302 redirect:
     **    (1) to "/ckout" if g.useLocalauth and g.localOpen are both set.
     **    (2) to the home page identified by the "index-page" setting
     **        in the repository CONFIG table
@@ -2269,6 +2270,17 @@ static void process_one_web_page(
 **          redirect: * https://fossil-scm.org/home
 **
 **      Thus requests to the .com website redirect to the .org website.
+**      This form uses a 301 Permanent redirect.
+**
+**      On a "*" redirect, the PATH_INFO and QUERY_STRING of the query
+**      that provoked the redirect are appended to the target.  So, for
+**      example, if the input URL for the redirect above were
+**      "http://www.fossil.com/index.html/timeline?c=20250404", then
+**      the redirect would be to:
+**
+**           https://fossil-scm.org/home/timeline?c=20250404
+**                                      ^^^^^^^^^^^^^^^^^^^^
+**                                      Copied from input URL
 */
 static void redirect_web_page(int nRedirect, char **azRedirect){
   int i;                             /* Loop counter */
@@ -2299,17 +2311,18 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
     Blob to;
     const char *z;
     if( strstr(zNotFound, "%s") ){
-      cgi_redirectf(zNotFound /*works-like:"%s"*/, zName);
+      char *zTarget = mprintf(zNotFound /*works-like:"%s"*/, zName);
+      cgi_redirect_perm(zTarget);
     }
     if( strchr(zNotFound, '?') ){
-      cgi_redirect(zNotFound);
+      cgi_redirect_perm(zNotFound);
     }
     blob_init(&to, zNotFound, -1);
     z = P("PATH_INFO");
     if( z && z[0]=='/' ) blob_append(&to, z, -1);
     z = P("QUERY_STRING");
     if( z && z[0]!=0 ) blob_appendf(&to, "?%s", z);
-    cgi_redirect(blob_str(&to));
+    cgi_redirect_perm(blob_str(&to));
   }else{
     @ <html>
     @ <head><title>No Such Object</title></head>
@@ -2354,7 +2367,14 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **
 **    repolist                 When in "directory:" mode, display a page
 **                             showing a list of available repositories if
-**                             the URL is "/".
+**                             the URL is "/".  Some control over the display
+**                             is accomplished using environment variables.
+**                             FOSSIL_REPOLIST_TITLE is the tital of the page.
+**                             FOSSIL_REPOLIST_SHOW cause the "Description"
+**                             column to display if it contains "description" as
+**                             as a substring, and causes the Login-Group column
+**                             to display if it contains the "login-group"
+**                             substring.
 **
 **    localauth                Grant administrator privileges to connections
 **                             from 127.0.0.1 or ::1.
@@ -2396,6 +2416,9 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             can be multiple "redirect:" lines that are
 **                             processed in order.  If the REPO is "*", then
 **                             an unconditional redirect to URL is taken.
+**                             When "*" is used a 301 permanent redirect is
+**                             issued and the tail and query string from the
+**                             original query are appeneded onto URL.
 **
 **    jsmode: VALUE            Specifies the delivery mode for JavaScript
 **                             files. See the help text for the --jsmode
@@ -3054,19 +3077,21 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** breaking legacy.
 **
 ** Options:
+**   --csrf-safe N       Set cgi_csrf_safe() to to return N
 **   --nobody            Pretend to be user "nobody"
 **   --test              Do not do special "sync" processing when operating
 **                       over an SSH link
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usercap   CAP     User capability string (Default: "sxy")
-**
 */
 void cmd_test_http(void){
   const char *zIpAddr;    /* IP address of remote client */
   const char *zUserCap;
   int bTest = 0;
+  const char *zCsrfSafe = find_option("csrf-safe",0,1);
 
   Th_InitTraceLog();
+  if( zCsrfSafe ) g.okCsrf = atoi(zCsrfSafe);
   zUserCap = find_option("usercap",0,1);
   if( !find_option("nobody",0,0) ){
     if( zUserCap==0 ){
@@ -3507,7 +3532,8 @@ void cmd_webserver(void){
       }else{
         blob_appendf(&ssh, " %$", zFossilCmd);
       }
-      blob_appendf(&ssh, " ui --nobrowser --localauth --port %d", iPort);
+      blob_appendf(&ssh, " ui --nobrowser --localauth --port 127.0.0.1:%d",
+                   iPort);
       if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
       if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
       if( g.zCkoutAlias ) blob_appendf(&ssh," --ckout-alias %!$",g.zCkoutAlias);
@@ -3694,6 +3720,9 @@ void test_echo_cmd(void){
 **     case=5           Call the segfault handler
 **     case=6           Call webpage_assert()
 **     case=7           Call webpage_error()
+**     case=8           Simulate a timeout
+**     case=9           Simulate a TH1 XSS vulnerability
+**     case=10          Simulate a TH1 SQL-injection vulnerability
 */
 void test_warning_page(void){
   int iCase = atoi(PD("case","0"));
@@ -3706,13 +3735,11 @@ void test_warning_page(void){
   style_set_current_feature("test");
   style_header("Warning Test Page");
   style_submenu_element("Error Log","%R/errorlog");
-  if( iCase<1 || iCase>4 ){
-    @ <p>Generate a message to the <a href="%R/errorlog">error log</a>
-    @ by clicking on one of the following cases:
-  }else{
-    @ <p>This is the test page for case=%d(iCase).  All possible cases:
-  }
-  for(i=1; i<=8; i++){
+  @ <p>This page will generate various kinds of errors to test Fossil's
+  @ reaction.  Depending on settings, a message might be written
+  @ into the <a href="%R/errorlog">error log</a>.  Click on
+  @ one of the following hyperlinks to generate a simulated error:
+  for(i=1; i<=10; i++){
     @ <a href='./test-warning?case=%d(i)'>[%d(i)]</a>
   }
   @ </p>
@@ -3745,16 +3772,35 @@ void test_warning_page(void){
   if( iCase==6 ){
     webpage_assert( 5==7 );
   }
-  @ <li value='7'> call webpage_error()"
+  @ <li value='7'> call webpage_error()
   if( iCase==7 ){
     cgi_reset_content();
     webpage_error("Case 7 from /test-warning");
   }
-  @ <li value='8'> simulated timeout"
+  @ <li value='8'> simulated timeout
   if( iCase==8 ){
     fossil_set_timeout(1);
     cgi_reset_content();
     sqlite3_sleep(1100);
+  }
+  @ <li value='9'> simulated TH1 XSS vulnerability
+  @ <li value='10'> simulated TH1 SQL-injection vulnerability
+  if( iCase==9 || iCase==10 ){
+    const char *zR;
+    int n, rc;
+    static const char *zTH1[] = {
+       /* case 9 */  "html [taint {<b>XSS</b>}]",
+       /* case 10 */ "query [taint {SELECT 'SQL-injection' AS msg}] {\n"
+                     "  html \"<b>[htmlize $msg]</b>\"\n"
+                     "}"
+    };
+    rc = Th_Eval(g.interp, 0, zTH1[iCase==10], -1);
+    zR = Th_GetResult(g.interp, &n);
+    if( rc==TH_OK ){
+      @ <pre class="th1result">%h(zR)</pre>
+    }else{
+      @ <pre class="th1error">%h(zR)</pre>
+    }
   }
   @ </ol>
   @ <p>End of test</p>

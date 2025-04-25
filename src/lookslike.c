@@ -480,50 +480,62 @@ static int isWholeWord(const char *z, unsigned int i, const char *zWord, int n){
 /*
 ** Returns true if the given text contains certain keywords or
 ** punctuation which indicate that it might be an SQL injection attempt
-** or some other kind of mischief.
+** or Cross-site scripting attempt or some other kind of mischief.
 **
-** This is not a defense against vulnerabilities in the Fossil code.
-** Rather, this is part of an effort to do early detection of malicious
-** spiders to avoid them using up too many CPU cycles.
+** This is not a primary defense against vulnerabilities in the Fossil 
+** code.  Rather, this is part of an effort to do early detection of malicious
+** spiders to avoid them using up too many CPU cycles.  Or, this routine
+** can also be thought of as a secondary layer of defense against attacks.
 */
-int looks_like_sql_injection(const char *zTxt){
+int looks_like_attack(const char *zTxt){
   unsigned int i;
+  int rc = 0;
   if( zTxt==0 ) return 0;
   for(i=0; zTxt[i]; i++){
     switch( zTxt[i] ){
+      case '<':
       case ';':
       case '\'':
         return 1;
       case '/':             /* 0123456789 123456789 */
-        if( strncmp(zTxt+i+1, "/wp-content/plugins/", 20)==0 ) return 1;
-        if( strncmp(zTxt+i+1, "/wp-admin/admin-ajax", 20)==0 ) return 1;
+        if( strncmp(zTxt+i+1, "/wp-content/plugins/", 20)==0 ) rc = 1;
+        if( strncmp(zTxt+i+1, "/wp-admin/admin-ajax", 20)==0 ) rc = 1;
         break;
       case 'a':
       case 'A':
-        if( isWholeWord(zTxt, i, "and", 3) ) return 1;
+        if( isWholeWord(zTxt, i, "and", 3) ) rc = 1;
         break;
       case 'n':
       case 'N':
-        if( isWholeWord(zTxt, i, "null", 4) ) return 1;
+        if( isWholeWord(zTxt, i, "null", 4) ) rc = 1;
         break;
       case 'o':
       case 'O':
         if( isWholeWord(zTxt, i, "order", 5) && fossil_isspace(zTxt[i+5]) ){
-          return 1;
+          rc = 1;
         }
-        if( isWholeWord(zTxt, i, "or", 2) ) return 1;
+        if( isWholeWord(zTxt, i, "or", 2) ) rc = 1;
         break;
       case 's':
       case 'S':
-        if( isWholeWord(zTxt, i, "select", 6) ) return 1;
+        if( isWholeWord(zTxt, i, "select", 6) ) rc = 1;
         break;
       case 'w':
       case 'W':
-        if( isWholeWord(zTxt, i, "waitfor", 7) ) return 1;
+        if( isWholeWord(zTxt, i, "waitfor", 7) ) rc = 1;
         break;
     }
   }
-  return 0;
+  if( rc ){
+    /* The test/markdown-test3.md document which is part of the Fossil source
+    ** tree intentionally tries to fake an attack.  Do not report such
+    ** errors. */
+    const char *zPathInfo = P("PATH_INFO");
+    if( sqlite3_strglob("/doc/*/test/markdown-test3.md", zPathInfo)==0 ){
+      rc = 0;
+    }
+  }
+  return rc;
 }
 
 /*
@@ -536,7 +548,7 @@ int looks_like_sql_injection(const char *zTxt){
 ** Or if bInvert is true, then show the opposite - those lines that do NOT
 ** look like SQL injection.
 */
-static void show_sql_injection_lines(
+static void show_attack_lines(
   const char *zInFile,       /* Name of input file */
   int bInvert,               /* Invert the sense of the output (-v) */
   int bDeHttpize             /* De-httpize the inputs.  (-d) */
@@ -553,7 +565,7 @@ static void show_sql_injection_lines(
   }
   while( fgets(zLine, sizeof(zLine), in) ){
     dehttpize(zLine);
-    if( (looks_like_sql_injection(zLine)!=0) ^ bInvert ){
+    if( (looks_like_attack(zLine)!=0) ^ bInvert ){
       fossil_print("%s", zLine);
     }
   }
@@ -561,24 +573,24 @@ static void show_sql_injection_lines(
 }
 
 /*
-** COMMAND: test-looks-like-sql-injection
+** COMMAND: test-looks-like-attack
 **
 ** Read lines of input from files named as arguments (or from standard
 ** input if no arguments are provided) and print those that look like they
 ** might be part of an SQL injection attack.
 **
-** Used to test the looks_lide_sql_injection() utility subroutine, possibly
+** Used to test the looks_lile_attack() utility subroutine, possibly
 ** by piping in actual server log data.
 */
-void test_looks_like_sql_injection(void){
+void test_looks_like_attack(void){
   int i;
   int bInvert = find_option("invert","v",0)!=0;
   int bDeHttpize = find_option("dehttpize","d",0)!=0;
   verify_all_options();
   if( g.argc==2 ){
-    show_sql_injection_lines(0, bInvert, bDeHttpize);
+    show_attack_lines(0, bInvert, bDeHttpize);
   }
   for(i=2; i<g.argc; i++){
-    show_sql_injection_lines(g.argv[i], bInvert, bDeHttpize);
+    show_attack_lines(g.argv[i], bInvert, bDeHttpize);
   }
 }

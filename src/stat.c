@@ -168,7 +168,7 @@ void stat_page(void){
     style_submenu_element("Table Sizes", "repo-tabsize");
   }
   if( g.perm.Admin || g.perm.Setup || db_get_boolean("test_env_enable",0) ){
-    style_submenu_element("Environment", "test_env");
+    style_submenu_element("Environment", "test-env");
   }
   @ <table class="label-value">
   fsize = file_size(g.zRepositoryName, ExtFILE);

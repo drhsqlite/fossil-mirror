@@ -158,9 +158,11 @@ struct SmtpSession {
   u32 smtpFlags;            /* Flags changing the operation */
   FILE *logFile;            /* Write session transcript to this log file */
   Blob *pTranscript;        /* Record session transcript here */
-  int atEof;                /* True after connection closes */
+  int bOpen;                /* True if connection is Open */
+  int bFatal;               /* Error is fatal.  Do not retry */
   char *zErr;               /* Error message */
   Blob inbuf;               /* Input buffer */
+  UrlData url;              /* Address of the server */
 };
 
 /* Allowed values for SmtpSession.smtpFlags */
@@ -184,69 +186,90 @@ void smtp_session_free(SmtpSession *pSession){
 }
 
 /*
+** Set an error message on the SmtpSession
+*/
+static void smtp_set_error(
+  SmtpSession *p,             /* The SMTP context */
+  int bFatal,                 /* Fatal error.  Reset and retry is pointless */
+  const char *zFormat,        /* Error message. */
+  ...
+){
+  if( bFatal ) p->bFatal = 1;
+  if( p->zErr==0 ){
+    va_list ap;
+    va_start(ap, zFormat);
+    p->zErr = vmprintf(zFormat, ap);
+    va_end(ap);
+  }
+  if( p->bOpen ){
+    socket_close();
+    p->bOpen = 0;
+  }
+}
+
+/*
 ** Allocate a new SmtpSession object.
 **
-** Both zFrom and zDest must be specified.
+** Both zFrom and zDest must be specified.  smtpFlags may not contain
+** either SMTP_TRACE_FILE or SMTP_TRACE_BLOB as those settings must be
+** added by a subsequent call to smtp_session_config().
 **
-** The ... arguments are in this order:
-**
-**    SMTP_PORT:            int
-**    SMTP_TRACE_FILE:      FILE*
-**    SMTP_TRACE_BLOB:      Blob*
+** The iPort option is ignored unless SMTP_PORT is set in smtpFlags
 */
 SmtpSession *smtp_session_new(
   const char *zFrom,    /* Domain for the client */
   const char *zDest,    /* Domain of the server */
   u32 smtpFlags,        /* Flags */
-  ...                   /* Arguments depending on the flags */
+  int iPort             /* TCP port if the SMTP_PORT flags is present */
 ){
   SmtpSession *p;
-  va_list ap;
-  UrlData url;
 
   p = fossil_malloc( sizeof(*p) );
   memset(p, 0, sizeof(*p));
   p->zFrom = zFrom;
   p->zDest = zDest;
   p->smtpFlags = smtpFlags;
-  memset(&url, 0, sizeof(url));
-  url.port = 25;
+  p->url.port = 25;
   blob_init(&p->inbuf, 0, 0);
-  va_start(ap, smtpFlags);
   if( smtpFlags & SMTP_PORT ){
-    url.port = va_arg(ap, int);
+    p->url.port = iPort;
   }
-  if( smtpFlags & SMTP_TRACE_FILE ){
-    p->logFile = va_arg(ap, FILE*);
-  }
-  if( smtpFlags & SMTP_TRACE_BLOB ){
-    p->pTranscript = va_arg(ap, Blob*);
-  }
-  va_end(ap);
   if( (smtpFlags & SMTP_DIRECT)!=0 ){
     int i;
     p->zHostname = fossil_strdup(zDest);
     for(i=0; p->zHostname[i] && p->zHostname[i]!=':'; i++){}
     if( p->zHostname[i]==':' ){
       p->zHostname[i] = 0;
-      url.port = atoi(&p->zHostname[i+1]);
+      p->url.port = atoi(&p->zHostname[i+1]);
     }
   }else{
     p->zHostname = smtp_mx_host(zDest);
   }
   if( p->zHostname==0 ){
-    p->atEof = 1;
-    p->zErr = mprintf("cannot locate SMTP server for \"%s\"", zDest);
+    smtp_set_error(p, 1, "cannot locate SMTP server for \"%s\"", zDest);
     return p;
   }
-  url.name = p->zHostname;
+  p->url.name = p->zHostname;
   socket_global_init();
-  if( socket_open(&url) ){
-    p->atEof = 1;
-    p->zErr = socket_errmsg();
-    socket_close();
-  }
+  p->bOpen = 0;
   return p;
+}
+
+/*
+** Configure debugging options on SmtpSession.  Add all bits in
+** smtpFlags to the settings.  The following bits can be added:
+**
+**    SMTP_FLAG_FILE:     In which case pArg is the FILE* pointer to use
+**
+**    SMTP_FLAG_BLOB:     In which case pArg is the Blob* poitner to use.
+*/
+void smtp_session_config(SmtpSession *p, u32 smtpFlags, void *pArg){
+  p->smtpFlags = smtpFlags;
+  if( smtpFlags & SMTP_TRACE_FILE ){
+    p->logFile = (FILE*)pArg;
+  }else if( smtpFlags & SMTP_TRACE_BLOB ){
+    p->pTranscript = (Blob*)pArg;
+  }
 }
 
 /*
@@ -257,7 +280,7 @@ static void smtp_send_line(SmtpSession *p, const char *zFormat, ...){
   va_list ap;
   char *z;
   int n;
-  if( p->atEof ) return;
+  if( !p->bOpen ) return;
   va_start(ap, zFormat);
   blob_vappendf(&b, zFormat, ap);
   va_end(ap);
@@ -293,7 +316,7 @@ static void smtp_recv_line(SmtpSession *p, Blob *in){
   int nDelay = 0;
   if( i<n && z[n-1]=='\n' ){
     blob_line(&p->inbuf, in);
-  }else if( p->atEof ){
+  }else if( !p->bOpen ){
     blob_init(in, 0, 0);
   }else{
     if( n>0 && i>=n ){
@@ -316,9 +339,7 @@ static void smtp_recv_line(SmtpSession *p, Blob *in){
       nDelay++;
       if( nDelay>100 ){
         blob_init(in, 0, 0);
-        p->zErr = mprintf("timeout");
-        socket_close();
-        p->atEof = 1;
+        smtp_set_error(p, 1, "client times out waiting on server response");
         return;
       }else{
         sqlite3_sleep(100);
@@ -356,6 +377,7 @@ static void smtp_get_reply_from_server(
   char *z;
   blob_truncate(in, 0);
   smtp_recv_line(p, in);
+  blob_trim(in);
   z = blob_str(in);
   n = blob_size(in);
   if( z[0]=='#' ){
@@ -377,12 +399,14 @@ int smtp_client_quit(SmtpSession *p){
   int iCode = 0;
   int bMore = 0;
   char *zArg = 0;
-  smtp_send_line(p, "QUIT\r\n");
-  do{
-    smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
-  }while( bMore );
-  p->atEof = 1;
-  socket_close();
+  if( p->bOpen ){
+    smtp_send_line(p, "QUIT\r\n");
+    do{
+      smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
+    }while( bMore );
+    p->bOpen = 0;
+    socket_close();
+  }
   return 0;
 }
 
@@ -392,15 +416,22 @@ int smtp_client_quit(SmtpSession *p){
 **
 ** Return 0 on success and non-zero for a failure.
 */
-int smtp_client_startup(SmtpSession *p){
+static int smtp_client_startup(SmtpSession *p){
   Blob in = BLOB_INITIALIZER;
   int iCode = 0;
   int bMore = 0;
   char *zArg = 0;
+  if( p==0 || p->bFatal ) return 1;
+  if( socket_open(&p->url) ){
+    smtp_set_error(p, 1, "can't open socket: %z", socket_errmsg());
+    return 1;
+  }
+  p->bOpen = 1;
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
   if( iCode!=220 ){
+    smtp_set_error(p, 1, "conversation begins with: \"%d %s\"",iCode,zArg);
     smtp_client_quit(p);
     return 1;
   }
@@ -409,9 +440,12 @@ int smtp_client_startup(SmtpSession *p){
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
   if( iCode!=250 ){
+    smtp_set_error(p, 1, "reply to EHLO with: \"%d %s\"",iCode, zArg);
     smtp_client_quit(p);
     return 1;
   }
+  fossil_free(p->zErr);
+  p->zErr = 0;
   return 0;
 }
 
@@ -543,23 +577,36 @@ int smtp_send_msg(
   char *zArg = 0;
   Blob in;
   blob_init(&in, 0, 0);
+  if( !p->bOpen ){
+    if( !p->bFatal ) smtp_client_startup(p);
+    if( !p->bOpen ) return 1;
+  }
   smtp_send_line(p, "MAIL FROM:<%s>\r\n", zFrom);
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
-  if( iCode!=250 ) return 1;
+  if( iCode!=250 ){
+    smtp_set_error(p, 0,"reply to MAIL FROM: \"%d %s\"",iCode,zArg);
+    return 1;
+  }
   for(i=0; i<nTo; i++){
     smtp_send_line(p, "RCPT TO:<%s>\r\n", azTo[i]);
     do{
       smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
     }while( bMore );
-    if( iCode!=250 ) return 1;
+    if( iCode!=250 ){
+      smtp_set_error(p, 0,"reply to RCPT TO: \"%d %s\"",iCode,zArg);
+      return 1;
+    }
   }
   smtp_send_line(p, "DATA\r\n");
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
-  if( iCode!=354 ) return 1;
+  if( iCode!=354 ){
+    smtp_set_error(p, 0, "reply to DATA with: \"%d %s\"",iCode,zArg);
+    return 1;
+  }
   smtp_send_email_body(zMsg, socket_send, 0);
   if( p->smtpFlags & SMTP_TRACE_STDOUT ){
     fossil_print("C: # message content\nC: .\n");
@@ -573,7 +620,11 @@ int smtp_send_msg(
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
-  if( iCode!=250 ) return 1;
+  if( iCode!=250 ){
+    smtp_set_error(p, 0, "reply to end-of-DATA with: \"%d %s\"",
+                   iCode, zArg);
+    return 1;
+  }
   return 0;
 }
 
@@ -638,7 +689,6 @@ void test_smtp_send(void){
     fossil_fatal("%s", p->zErr);
   }
   fossil_print("Connection to \"%s\"\n", p->zHostname);
-  smtp_client_startup(p);
   smtp_send_msg(p, zFrom, nTo, azTo, blob_str(&body));
   smtp_client_quit(p);
   if( p->zErr ){

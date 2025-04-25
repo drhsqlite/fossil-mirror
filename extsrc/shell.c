@@ -1166,6 +1166,23 @@ int cli_wcswidth(const char *z){
 #endif
 
 /*
+** Check to see if z[] is a valid VT100 escape.  If it is, then
+** return the number of bytes in the escape sequence.  Return 0 if
+** z[] is not a VT100 escape.
+**
+** This routine assumes that z[0] is \033 (ESC).
+*/
+static int isVt100(const unsigned char *z){
+  int i;
+  if( z[1]!='[' ) return 0;
+  i = 2;
+  while( z[i]>=0x30 && z[i]<=0x3f ){ i++; }
+  while( z[i]>=0x20 && z[i]<=0x2f ){ i++; }
+  if( z[i]<0x40 || z[i]>0x7e ) return 0;
+  return i+1;
+}
+
+/*
 ** Output string zUtf to stdout as w characters.  If w is negative,
 ** then right-justify the text.  W is the width in UTF-8 characters, not
 ** in bytes.  This is different from the %*.*s specification in printf
@@ -1180,6 +1197,7 @@ static void utf8_width_print(FILE *out, int w, const char *zUtf){
   unsigned char c;
   int i = 0;
   int n = 0;
+  int k;
   int aw = w<0 ? -w : w;
   if( zUtf==0 ) zUtf = "";
   while( (c = a[i])!=0 ){
@@ -1192,6 +1210,8 @@ static void utf8_width_print(FILE *out, int w, const char *zUtf){
       }
       i += len;
       n += x;
+    }else if( c==0x1b && (k = isVt100(&a[i]))>0 ){
+      i += k;       
     }else if( n>=aw ){
       break;
     }else{
@@ -6272,8 +6292,7 @@ int sqlite3_ieee_init(
 **       step HIDDEN
 **     );
 **
-** The virtual table also has a rowid, logically equivalent to n+1 where
-** "n" is the ascending integer in the aforesaid production definition.
+** The virtual table also has a rowid which is an alias for the value.
 **
 ** Function arguments in queries against this virtual table are translated
 ** into equality constraints against successive hidden columns.  In other
@@ -6328,6 +6347,7 @@ SQLITE_EXTENSION_INIT1
 #include <assert.h>
 #include <string.h>
 #include <limits.h>
+#include <math.h>
 
 #ifndef SQLITE_OMIT_VIRTUALTABLE
 /*
@@ -6488,6 +6508,7 @@ static int seriesConnect(
   int rc;
 
 /* Column numbers */
+#define SERIES_COLUMN_ROWID (-1)
 #define SERIES_COLUMN_VALUE 0
 #define SERIES_COLUMN_START 1
 #define SERIES_COLUMN_STOP  2
@@ -6575,13 +6596,11 @@ static int seriesColumn(
 #endif
 
 /*
-** Return the rowid for the current row, logically equivalent to n+1 where
-** "n" is the ascending integer in the aforesaid production definition.
+** The rowid is the same as the value.
 */
 static int seriesRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
   series_cursor *pCur = (series_cursor*)cur;
-  sqlite3_uint64 n = pCur->ss.uSeqIndexNow;
-  *pRowid = (sqlite3_int64)((n<LARGEST_UINT64)? n+1 : 0);
+  *pRowid = pCur->ss.iValueNow;
   return SQLITE_OK;
 }
 
@@ -6694,25 +6713,52 @@ static int seriesFilter(
     ** constraints on the "value" column.
     */
     if( idxNum & 0x0080 ){
-      iMin = iMax = sqlite3_value_int64(argv[i++]);
+      if( sqlite3_value_numeric_type(argv[i])==SQLITE_FLOAT ){
+        double r = sqlite3_value_double(argv[i++]);
+        if( r==ceil(r) ){
+          iMin = iMax = (sqlite3_int64)r;
+        }else{
+          returnNoRows = 1;
+        }
+      }else{
+        iMin = iMax = sqlite3_value_int64(argv[i++]);
+      }
     }else{
       if( idxNum & 0x0300 ){
-        iMin = sqlite3_value_int64(argv[i++]);
-        if( idxNum & 0x0200 ){
-          if( iMin==LARGEST_INT64 ){
-            returnNoRows = 1;
+        if( sqlite3_value_numeric_type(argv[i])==SQLITE_FLOAT ){
+          double r = sqlite3_value_double(argv[i++]);
+          if( idxNum & 0x0200 && r==ceil(r) ){
+            iMin = (sqlite3_int64)ceil(r+1.0);
           }else{
-            iMin++;
+            iMin = (sqlite3_int64)ceil(r);
+          }
+        }else{
+          iMin = sqlite3_value_int64(argv[i++]);
+          if( idxNum & 0x0200 ){
+            if( iMin==LARGEST_INT64 ){
+              returnNoRows = 1;
+            }else{
+              iMin++;
+            }
           }
         }
       }
       if( idxNum & 0x3000 ){
-        iMax = sqlite3_value_int64(argv[i++]);
-        if( idxNum & 0x2000 ){
-          if( iMax==SMALLEST_INT64 ){
-            returnNoRows = 1;
+        if( sqlite3_value_numeric_type(argv[i])==SQLITE_FLOAT ){
+          double r = sqlite3_value_double(argv[i++]);
+          if( (idxNum & 0x2000)!=0 && r==floor(r) ){
+            iMax = (sqlite3_int64)(r-1.0);
           }else{
-            iMax--;
+            iMax = (sqlite3_int64)floor(r);
+          }
+        }else{
+          iMax = sqlite3_value_int64(argv[i++]);
+          if( idxNum & 0x2000 ){
+            if( iMax==SMALLEST_INT64 ){
+              returnNoRows = 1;
+            }else{
+              iMax--;
+            }
           }
         }
       }
@@ -6766,7 +6812,7 @@ static int seriesFilter(
   for(i=0; i<argc; i++){
     if( sqlite3_value_type(argv[i])==SQLITE_NULL ){
       /* If any of the constraints have a NULL value, then return no rows.
-      ** See ticket https://www.sqlite.org/src/info/fac496b61722daf2 */
+      ** See ticket https://sqlite.org/src/info/fac496b61722daf2 */
       returnNoRows = 1;
       break;
     }
@@ -6869,7 +6915,10 @@ static int seriesBestIndex(
       continue;
     }
     if( pConstraint->iColumn<SERIES_COLUMN_START ){
-      if( pConstraint->iColumn==SERIES_COLUMN_VALUE && pConstraint->usable ){
+      if( (pConstraint->iColumn==SERIES_COLUMN_VALUE ||
+           pConstraint->iColumn==SERIES_COLUMN_ROWID)
+       && pConstraint->usable
+      ){
         switch( op ){
           case SQLITE_INDEX_CONSTRAINT_EQ:
           case SQLITE_INDEX_CONSTRAINT_IS: {
@@ -24199,9 +24248,14 @@ static char *translateForDisplayAndDup(
       i++;
       continue;
     }
-    n++;
-    j += 3;
-    i++;
+    if( c==0x1b && p->eEscMode==SHELL_ESC_OFF && (k = isVt100(&z[i]))>0 ){
+      i += k;
+      j += k;
+    }else{
+      n++;
+      j += 3;
+      i++;
+    }
   }
   if( n>=mxWidth && bWordWrap  ){
     /* Perhaps try to back up to a better place to break the line */
@@ -24267,9 +24321,17 @@ static char *translateForDisplayAndDup(
         zOut[j++] = '^';
         zOut[j++] = 0x40 + c;
         break;
-      case SHELL_ESC_OFF:
-        zOut[j++] = c;
+      case SHELL_ESC_OFF: {
+        int nn;
+        if( c==0x1b && (nn = isVt100(&z[i]))>0 ){
+          memcpy(&zOut[j], &z[i], nn);
+          j += nn;
+          i += nn - 1;
+        }else{
+          zOut[j++] = c;
+        }
         break;
+      }
     }
     i++;
   }
@@ -25406,6 +25468,7 @@ static const char *(azHelp[]) = {
 #ifndef SQLITE_SHELL_FIDDLE
   ".output ?FILE?           Send output to FILE or stdout if FILE is omitted",
   "   If FILE begins with '|' then open it as a pipe.",
+  "   If FILE is 'off' then output is disabled.",
   "   Options:",
   "     --bom                 Prefix output with a UTF8 byte-order mark",
   "     -e                    Send output to the system text editor",
@@ -27023,7 +27086,7 @@ static int shell_dbtotxt_command(ShellState *p, int nArg, char **azArg){
       for(j=0; j<16 && aLine[j]==0; j++){}
       if( j==16 ) continue;
       if( !seenPageLabel ){
-        sqlite3_fprintf(p->out, "| page %lld offset %lld\n", pgno, pgno*pgSz);
+        sqlite3_fprintf(p->out, "| page %lld offset %lld\n",pgno,(pgno-1)*pgSz);
         seenPageLabel = 1;
       }
       sqlite3_fprintf(p->out, "|  %5d:", i);
@@ -30401,9 +30464,9 @@ static int do_meta_command(char *zLine, ShellState *p){
   ){
     char *zFile = 0;
     int i;
-    int eMode = 0;
-    int bOnce = 0;            /* 0: .output, 1: .once, 2: .excel/.www */
-    int bPlain = 0;           /* --plain option */
+    int eMode = 0;          /* 0: .outout/.once, 'x'=.excel, 'w'=.www */
+    int bOnce = 0;          /* 0: .output, 1: .once, 2: .excel/.www */
+    int bPlain = 0;         /* --plain option */
     static const char *zBomUtf8 = "\357\273\277";
     const char *zBom = 0;
 
@@ -30432,14 +30495,22 @@ static int do_meta_command(char *zLine, ShellState *p){
         }else if( c=='o' && cli_strcmp(z,"-w")==0 ){
           eMode = 'w';  /* Web browser */
         }else{
-          sqlite3_fprintf(p->out, 
+          sqlite3_fprintf(p->out,
                           "ERROR: unknown option: \"%s\". Usage:\n", azArg[i]);
           showHelp(p->out, azArg[0]);
           rc = 1;
           goto meta_command_exit;
         }
       }else if( zFile==0 && eMode==0 ){
-        zFile = sqlite3_mprintf("%s", z);
+        if( cli_strcmp(z, "off")==0 ){
+#ifdef _WIN32
+          zFile = sqlite3_mprintf("nul");
+#else
+          zFile = sqlite3_mprintf("/dev/null");
+#endif
+        }else{
+          zFile = sqlite3_mprintf("%s", z);
+        }
         if( zFile && zFile[0]=='|' ){
           while( i+1<nArg ) zFile = sqlite3_mprintf("%z %s", zFile, azArg[++i]);
           break;

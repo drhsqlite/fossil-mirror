@@ -2438,12 +2438,15 @@ int verify_comment(Blob *pComment, int mFlags){
 **    --allow-fork               Allow the commit to fork
 **    --allow-older              Allow a commit older than its ancestor
 **    --baseline                 Use a baseline manifest in the commit process
+**    --bgcolor COLOR            Apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   Check in to this new branch
+**    --branchcolor COLOR        Apply given COLOR to the branch
 **    --close                    Close the branch being committed
 **    --date-override DATETIME   Make DATETIME the time of the check-in.
 **                               Useful when importing historical check-ins
 **                               from another version control system.
 **    --delta                    Use a delta manifest in the commit process
+**    --editor NAME              Text editor to use for check-in comment.
 **    --hash                     Verify file status using hashing rather
 **                               than relying on filesystem mtimes
 **    --if-changes               Make this command a silent no-op if there
@@ -2599,6 +2602,7 @@ void commit_cmd(void){
   outputManifest = db_get_manifest_setting(0);
   mxSize = db_large_file_size();
   if( find_option("ignore-oversize",0,0)!=0 ) mxSize = 0;
+  (void)fossil_text_editor();
   verify_all_options();
 
   /* The --no-warnings flag and the --force flag each imply

@@ -144,6 +144,78 @@ void htmlize_to_blob(Blob *p, const char *zIn, int n){
   if( j<i ) blob_append(p, zIn+j, i-j);
 }
 
+/*
+** Make the given string safe for HTML by converting syntax characters
+** into alternatives that do not have the special syntactic meaning.
+**
+**     <     -->     U+227a
+**     >     -->     U+227b
+**     &     -->     +
+**     "     -->     U+201d
+**     '     -->     U+2019
+**
+** Return a pointer to a new string obtained from fossil_malloc().
+*/
+char *html_lookalike(const char *z, int n){
+  unsigned char c;
+  int i = 0;
+  int count = 0;
+  unsigned char *zOut;
+  const unsigned char *zIn = (const unsigned char*)z;
+
+  if( n<0 ) n = strlen(z);
+  while( i<n ){
+    switch( zIn[i] ){
+      case '<':   count += 3;       break;
+      case '>':   count += 3;       break;
+      case '"':   count += 3;       break;
+      case '\'':  count += 3;       break;
+      case 0:     n = i;            break;
+    }
+    i++;
+  }
+  i = 0;
+  zOut = fossil_malloc( count+n+1 );
+  if( count==0 ){
+    memcpy(zOut, zIn, n);
+    zOut[n] = 0;
+    return (char*)zOut;
+  }
+  while( n-->0 ){
+    c = *(zIn++);
+    switch( c ){
+      case '<':
+        zOut[i++] = 0xe2;
+        zOut[i++] = 0x89;
+        zOut[i++] = 0xba;
+        break;
+      case '>':
+        zOut[i++] = 0xe2;
+        zOut[i++] = 0x89;
+        zOut[i++] = 0xbb;
+        break;
+      case '&':
+        zOut[i++] = '+';
+        break;
+      case '"':
+        zOut[i++] = 0xe2;
+        zOut[i++] = 0x80;
+        zOut[i++] = 0x9d;
+        break;
+      case '\'':
+        zOut[i++] = 0xe2;
+        zOut[i++] = 0x80;
+        zOut[i++] = 0x99;
+        break;
+      default:
+        zOut[i++] = c;
+        break;
+    }
+  }
+  zOut[i] = 0;
+  return (char*)zOut;
+}
+
 
 /*
 ** Encode a string for HTTP.  This means converting lots of
@@ -246,7 +318,7 @@ const char* escape_quotes(const char *zIn){
 /*
 ** Convert a single HEX digit to an integer
 */
-static int AsciiToHex(int c){
+int fossil_hexvalue(int c){
   if( c>='a' && c<='f' ){
     c += 10 - 'a';
   }else if( c>='A' && c<='F' ){
@@ -274,8 +346,8 @@ int dehttpize(char *z){
     switch( z[i] ){
       case '%':
         if( z[i+1] && z[i+2] ){
-          z[j] = AsciiToHex(z[i+1]) << 4;
-          z[j] |= AsciiToHex(z[i+2]);
+          z[j] = fossil_hexvalue(z[i+1]) << 4;
+          z[j] |= fossil_hexvalue(z[i+2]);
           i += 2;
         }
         break;

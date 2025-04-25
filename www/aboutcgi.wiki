@@ -69,7 +69,7 @@ environment variables with information useful to the CGI script:
 
 There are other CGI environment variables beyond those listed above.
 Many Fossil servers implement the
-[https://fossil-scm.org/home/test_env/two/three?abc=xyz|test_env]
+[https://fossil-scm.org/home/test-env/two/three?abc=xyz|test-env]
 webpage that shows some of the CGI environment
 variables that Fossil pays attention to.
 

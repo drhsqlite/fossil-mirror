@@ -2929,7 +2929,7 @@ const char * artifact_type_to_name(int typeId){
     case CFTYPE_WIKI: return "wiki";
     case CFTYPE_TICKET: return "ticket";
     case CFTYPE_ATTACHMENT: return "attachment";
-    case CFTYPE_EVENT: return "event";
+    case CFTYPE_EVENT: return "technote";
     case CFTYPE_FORUM: return "forumpost";
   }
   return NULL;
@@ -2950,12 +2950,12 @@ void artifact_to_json(Manifest const *p, Blob *b){
   int i;
 
   blob_append_literal(b, "{");
-  blob_appendf(b, "\"uuid\": \"%z\"", rid_to_uuid(p->rid));
+  blob_appendf(b, "\"uuid\":\"%z\"", rid_to_uuid(p->rid));
   /*blob_appendf(b, ", \"rid\": %d", p->rid); not portable across repos*/
-  blob_appendf(b, ", \"type\": %!j", artifact_type_to_name(p->type));
+  blob_appendf(b, ",\"type\":%!j", artifact_type_to_name(p->type));
 #define ISA(TYPE) if( p->type==TYPE )
 #define CARD_LETTER(LETTER) \
-  blob_append_literal(b, ",\"" #LETTER "\": ")
+  blob_append_literal(b, ",\"" #LETTER "\":")
 #define CARD_STR(LETTER, VAL) \
   assert( VAL ); CARD_LETTER(LETTER); blob_appendf(b, "%!j", VAL)
 #define CARD_STR2(LETTER, VAL) \
@@ -2965,7 +2965,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
   else blob_append(b, "null", 4)
 #define KVP_STR(ADDCOMMA, KEY,VAL)  \
   if(ADDCOMMA) blob_append_char(b, ','); \
-  blob_appendf(b, "%!j: ", #KEY);   \
+  blob_appendf(b, "%!j:", #KEY);   \
   STR_OR_NULL(VAL)
 
   ISA( CFTYPE_ATTACHMENT ){
@@ -2980,7 +2980,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
   CARD_STR2(C, p->zComment);
   CARD_LETTER(D); blob_appendf(b, "%f", p->rDate);
   ISA( CFTYPE_EVENT ){
-    blob_appendf(b, ", \"E\": {\"time\": %f, \"id\": %!j}",
+    blob_appendf(b, ", \"E\":{\"time\":%f,\"id\":%!j}",
                  p->rEventDate, p->zEventId);
   }
   ISA( CFTYPE_MANIFEST ){
@@ -2993,7 +2993,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
       KVP_STR(0, name, pF->zName);
       KVP_STR(1, uuid, pF->zUuid);
       KVP_STR(1, perm, pF->zPerm);
-      KVP_STR(1, oldName, pF->zPrior);
+      KVP_STR(1, rename, pF->zPrior);
       blob_append_char(b, '}');
     }
     /* Special case: model checkins with no F-card as having an empty
@@ -3002,16 +3002,21 @@ void artifact_to_json(Manifest const *p, Blob *b){
     blob_append_char(b, ']');
   }
   CARD_STR2(G, p->zThreadRoot);
-  CARD_STR2(H, p->zThreadTitle);
-  CARD_STR2(I, p->zInReplyTo);
+  ISA( CFTYPE_FORUM ){
+    CARD_LETTER(H);
+    STR_OR_NULL( (p->zThreadTitle && *p->zThreadTitle) ? p->zThreadTitle : NULL);
+    CARD_STR2(I, p->zInReplyTo);
+  }
   if( p->nField ){
     CARD_LETTER(J);
     blob_append_char(b, '[');
     for( i = 0; i < p->nField; ++i ){
+      const char * zName = p->aField[i].zName;
       if( i>0 ) blob_append_char(b, ',');
       blob_append_char(b, '{');
-      KVP_STR(0, name, p->aField[i].zName);
+      KVP_STR(0, name, '+'==*zName ? &zName[1] : zName);
       KVP_STR(1, value, p->aField[i].zValue);
+      blob_appendf(b, ",\"append\":%s", '+'==*zName ? "true" : "false");
       blob_append_char(b, '}');
     }
     blob_append_char(b, ']');
@@ -3028,14 +3033,12 @@ void artifact_to_json(Manifest const *p, Blob *b){
     blob_append_char(b, ']');
   }
   CARD_STR2(N, p->zMimetype);
-  ISA( CFTYPE_MANIFEST ){
+  ISA( CFTYPE_MANIFEST || p->nParent>0 ){
     CARD_LETTER(P);
     blob_append_char(b, '[');
-    if( p->nParent ){
-      for( i = 0; i < p->nParent; ++i ){
-        if( i>0 ) blob_append_char(b, ',');
-        blob_appendf(b, "%!j", p->azParent[i]);
-      }
+    for( i = 0; i < p->nParent; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_appendf(b, "%!j", p->azParent[i]);
     }
     /* Special case: model checkins with no P-card as having an empty
     ** array, as per F-cards. */
@@ -3047,7 +3050,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
     for( i = 0; i < p->nCherrypick; ++i ){
       if( i>0 ) blob_append_char(b, ',');
       blob_append_char(b, '{');
-      blob_appendf(b, "\"type\": \"%c\"", p->aCherrypick[i].zCPTarget[0]);
+      blob_appendf(b, "\"type\":\"%c\"", p->aCherrypick[i].zCPTarget[0]);
       KVP_STR(1, target, &p->aCherrypick[i].zCPTarget[1]);
       KVP_STR(1, base, p->aCherrypick[i].zCPBase);
       blob_append_char(b, '}');
@@ -3062,7 +3065,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
       const char *zName = p->aTag[i].zName;
       if( i>0 ) blob_append_char(b, ',');
       blob_append_char(b, '{');
-      blob_appendf(b, "\"type\": \"%c\"", *zName);
+      blob_appendf(b, "\"type\":\"%c\"", *zName);
       KVP_STR(1, name, &zName[1]);
       KVP_STR(1, target, p->aTag[i].zUuid ? p->aTag[i].zUuid : "*")
         /* We could arguably resolve the "*" as null or p's uuid. */;
@@ -3072,7 +3075,11 @@ void artifact_to_json(Manifest const *p, Blob *b){
     blob_append_char(b, ']');
   }
   CARD_STR2(U, p->zUser);
-  CARD_STR2(W, p->zWiki);
+  if( p->zWiki || CFTYPE_WIKI==p->type || CFTYPE_FORUM==p->type
+      || CFTYPE_EVENT==p->type ){
+    CARD_LETTER(W);
+    STR_OR_NULL((p->zWiki && *p->zWiki) ? p->zWiki : NULL);
+  }
   blob_append_literal(b, "}");
 #undef CARD_FMT
 #undef CARD_LETTER
@@ -3166,7 +3173,7 @@ error_usage:
 /*
 ** COMMAND: test-artifact-to-json
 **
-** Usage:  %fossil test-artifact-to-json ?-pretty? symbolic-name [...names]
+** Usage:  %fossil test-artifact-to-json ?-pretty|-p? symbolic-name [...names]
 **
 ** Tests the artifact_to_json() and artifact_to_json_by_name() APIs.
 */
@@ -3174,7 +3181,7 @@ void test_manifest_to_json(void){
   int i;
   Blob b = empty_blob;
   Stmt q;
-  const int bPretty = find_option("pretty",0,0)!=0;
+  const int bPretty = find_option("pretty","p",0)!=0;
   int nErr = 0;
 
   db_find_and_open_repository(0,0);
