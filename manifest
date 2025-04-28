@@ -1,5 +1,5 @@
-C Fix\sthe\snew\swiki-comments-on-ticket\sfieature\sso\sthat\sit\sis\scontrollable\nvia\sTH1.
-D 2025-04-28T11:14:28.273
+C Do\snot\sallow\scomputation\sand\sdownload\sof\sSQL-archives\sby\snon-humans.\nFor\ssome\sreason,\sSQL-archives\sare\slike\scatnip\sfor\sAI\srobots.
+D 2025-04-28T23:43:54.236
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -402,7 +402,7 @@ F src/checkin.c 17224d59bae25829aa6ff0cff8928b52dd655f24da3e315ffbcc0d31641cbac1
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
-F src/clone.c e392538aa4d05e2b561400d4c7b5ae60a536456d9184f0afcec3eccea473273c
+F src/clone.c 3c205c20160c6377092b9d35f7d8ff828a83efd67f5df78e247bc66940cdf68e
 F src/color.c cbe8fb7c03c07735b13449a8384c466ddd93306af7bf63176414cf6fd1e144b9
 F src/comformat.c f21be09a545501a3b4ef51ed8c93bd687f7d4d96e145cadc773aec3e5b3e511d
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
@@ -470,7 +470,7 @@ F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9
 F src/http_ssl.c c378b9724a8be6f1b7959af8080b028cf500e5f7845ae098870cef3bb7aa8ebb
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
-F src/info.c a888f0e40b7fcb7f30ed3a52601ae42f878ebe471f258def4065aa7242d79758
+F src/info.c cb4610d987e03b83bf6a8ca31b87e698af8b2fba92dc8dc449148b51e3d3e3f1
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 71cb677c86cf9d14def790f9061c6eaf14dc52acc728a1167e58b7272fc2f021
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -596,7 +596,7 @@ F src/winfile.c eaf26e6dedd30e7b82cf15bf2d7f29bb28677f93e122c84a8625f2b6cc223220
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
 F src/xfer.c ea44aedde5163c8673ff9dfff4319895238bb6f2c4fca29b0774eefab470ea4e
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/zip.c 93a2d15ab93562962ca04a640c21996ced62dcc3563228cd13f6706bcb6e7908
+F src/zip.c 9d985180dc978db75a512937fe2fe409eb4abd0daa0463110966abbb1d44b382
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c1ea044297b09158caa5c800b2017bcf807d0138cc8c8901ba464bcb8798bafb
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f36c889abd3644ba11adb2c0b85dcd53f9443eeb925f0275ea29423e8b41bcb
-R d817a8b87036c597adb64350ee8e591b
+P a884fbbd58ec9d626204d953700ca8bb0c991d4af7eae7517577952b6350fcee
+R e56c3fb5d5fa810cf71b0ca3696801b5
 U drh
-Z 07cd9d51de3a2cf9206fe8577fd815e4
+Z a5e2845e57aed64ecbf18889872abca6
 # Remove this line to create a well-formed Fossil manifest.

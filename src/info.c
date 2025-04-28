@@ -995,8 +995,10 @@ void ci_page(void){
       @ <tr><th>Downloads:</th><td>
       @ %z(href("%s",zUrl))Tarball</a>
       @ | %z(href("%R/zip/%S/%t-%S.zip",zUuid, zPJ,zUuid))ZIP archive</a>
-      @ | %z(href("%R/sqlar/%S/%t-%S.sqlar",zUuid,zPJ,zUuid))\
-      @ SQL archive</a></td></tr>
+      if( g.zLogin!=0 ){
+        @ | %z(href("%R/sqlar/%S/%t-%S.sqlar",zUuid,zPJ,zUuid))\
+        @ SQL archive</a></td></tr>
+      }
       fossil_free(zUrl);
       blob_reset(&projName);
     }
