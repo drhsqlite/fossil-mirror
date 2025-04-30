@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2 id='v2_26'>Changes for version 2.26 (pending)</h2><ol>
+<h2 id='v2_26'>Changes for version 2.26 (2025-04-30)</h2><ol>
  <li>Enhancements to [/help?cmd=diff|fossil diff] and similar:
      <ol type="a">
      <li> The argument to the --from option can be a directory name, causing
