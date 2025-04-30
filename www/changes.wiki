@@ -160,6 +160,10 @@
  <li>Make [/help?cmd=/chat|/chat] better-behaved during server outages, reducing
      the frequency of reconnection attempts over time and providing feedback
      to the user when the connection is down.
+ <li>The [/help?cmd=/sqlar|/sqlar] page does not work for users who are not logged
+     in, nor are links to that page displayed to users who are not logged in.  Being
+     logged in as "anonymous" is sufficient to overcome this restriction, assuming
+     that "anonymous" can download tarballs and ZIP archives.
  <li>Many other minor fixes and additions.
 </ol>
 
