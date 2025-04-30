@@ -280,7 +280,7 @@ static void html_table(
   void *opaque
 ){
   INTER_BLOCK(ob);
-  blob_append_literal(ob, "<table>\n");
+  blob_append_literal(ob, "<table class='md-table'>\n");
   if( head_row && blob_size(head_row)>0 ){
     blob_append_literal(ob, "<thead>\n");
     blob_appendb(ob, head_row);
