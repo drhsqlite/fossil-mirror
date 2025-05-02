@@ -1,5 +1,9 @@
 <title>Change Log</title>
 
+<h2 id='v2_27'>Changes for version 2.27 (pending)</h2>
+
+  *  <i>(pending)</i>
+
 <h2 id='v2_26'>Changes for version 2.26 (2025-04-30)</h2><ol>
  <li>Enhancements to [/help?cmd=diff|fossil diff] and similar:
      <ol type="a">

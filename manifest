@@ -1,5 +1,5 @@
-C Add\sparameters\sto\sdeclarations\sfor\sdynamically\sloaded\sfunctions,\sto\sfix\sbuilds\swith\slatest\sGCC\son\sWindows.\sReported\sin\s[forum:3b3b741661|forum\spost\s3b3b741661].
-D 2025-05-01T06:10:00.000
+C Increase\sthe\sversion\snumber\sto\s2.27\sfor\sthe\snext\srelease\scycle.\sAdd\sthe\s2_27\stag\sto\sthe\schange\slog.
+D 2025-05-02T10:30:57.603
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -16,7 +16,7 @@ F Makefile.classic 25ea72b6fe8959b5bbd638363af82dec3ba475c09ea79918deda199eb15c3
 F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION 801e8d89923e3c7adf62f7d6b88acbfa146a331d94727d58edf7adfa98a266f9
+F VERSION fff9db7187957b42c0b02b676d5212985f860d15ccf2554084915e2f63ac7534
 F auto.def 4169d4399308f33e7a0ffb364b0a92d29aa0cf20d8edf9b031f0419a7e53a8b2
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
@@ -792,7 +792,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki a78260ee3d362f11c3ebb52258091a99c4329a53d28f88416db922ada3a20929
-F www/changes.wiki fff0ea33452959840e5919177f89ea88c77baf30a87a2ca581a81e92aa3b3b25
+F www/changes.wiki d62bb1249e74b6152627c08fbf4862d7b0317a157137c554117e1fdb36a4daec
 F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1205ec86cb5508e94b90698db2900997fe5c9db62429c67ac6fdc03d59aa2782
-R 921abb19bd48fb8d1b6d7e011f0c6c3b
-U florian
-Z faa61e2084625400c6c36c9aba69e964
+P 51ac554e3577ec246fc8230efbe1b88a531f400cc81ccf0a5d492c19a4b9e019
+R a2e9426b118045e1659e101cfd956b92
+U danield
+Z 0dfe1bd9bd7f250a44c26644649471b6
 # Remove this line to create a well-formed Fossil manifest.
