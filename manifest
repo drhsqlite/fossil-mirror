@@ -1,5 +1,5 @@
-C Fix\s(likely\sunintentional)\svariable\sshadowing\sto\srestore\sANSI\sC-89\sconformance.
-D 2025-05-03T08:09:00.000
+C Typo\sfix\sin\s`fossil\shelp\scomment-format`\soutput
+D 2025-05-03T11:38:47.840
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 721eee937de46afd23fb2f499d8fe44b039b79dcd9a4f2ebba056c4bdedfe02d
+F src/db.c 735f037e05323de2d75d808ce4648b1ffec0a540037c2711b69cc330cd275bb1
 F src/default.css bb756df12b1759c08cde6144e3605e06acb3e751cfdb0da516722ffd0f4cb4bd
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 85067dc91967cef43ac73c789ad785325b6f486658c94f3eebe07c5ac87f53d0
-R e7c673b071a5a3679b8060af63e11393
-U florian
-Z bf11314c168285e245a3c4e24acf01f4
+P 2ce32f754634c7c5449ea678b54ae99d4ed41144fd5d340c37e120ab1d26032e
+R 76ba7d3ec52cc0980eb39b52fc270ea8
+U wyoung
+Z dc2179149e27fba05280204ee27adf07
 # Remove this line to create a well-formed Fossil manifest.
