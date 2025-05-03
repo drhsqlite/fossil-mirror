@@ -3849,7 +3849,7 @@ void timeline_cmd(void){
 **    today=DATE             Use DATE as today's date
 */
 void thisdayinhistory_page(void){
-  static int aYearsAgo[] = { 1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50, 75, 100 };
+  static int aYearsAgo[] = { 1,2,3,4,5,10,15,20,25,30,40,50,75,100 };
   const char *zToday;
   char *zStartOfProject;
   int i;
