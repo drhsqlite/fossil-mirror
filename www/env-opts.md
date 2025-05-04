@@ -156,6 +156,12 @@ loaded by the `fossil all ui` or `fossil ui /` commands. Only used if
 none of the listed repositories has the `repolist_skin` property set.
 Can be set from the [CGI control file][cgictlfile].
 
+`FOSSIL_REPOLIST_SHOW`: If this variable exists and has a text value
+that contains the substring "description", then the "Project Description"
+column appears on the repolist page.  If it contains the substring
+"login-group", then the Login-Group column appears on the repolist page.
+Can be set from the [CGI control file][cgictlfile].
+
 `FOSSIL_USE_SEE_TEXTKEY`: If set, treat the encryption key string for
 SEE as text to be hashed into the actual encryption key.  This has no
 effect if Fossil was not compiled with SEE support enabled.

@@ -128,8 +128,16 @@ int repo_list_page(void){
   Blob html;           /* Html for the body of the repository list */
   char *zSkinRepo = 0; /* Name of the repository database used for skins */
   char *zSkinUrl = 0;  /* URL for the skin database */
+  const char *zShow;   /* Value of FOSSIL_REPOLIST_SHOW environment variable */
+  int bShowDesc = 0;   /* True to show the description column */
+  int bShowLg = 0;     /* True to show the login-group column */
 
   assert( g.db==0 );
+  zShow = P("FOSSIL_REPOLIST_SHOW");
+  if( zShow ){
+    bShowDesc = strstr(zShow,"description")!=0;
+    bShowLg = strstr(zShow,"login-group")!=0;
+  }
   blob_init(&html, 0, 0);
   if( fossil_strcmp(g.zRepositoryName,"/")==0 && !g.fJail ){
     /* For the special case of the "repository directory" being "/",
@@ -152,6 +160,8 @@ int repo_list_page(void){
     ** directory.
     */
     blob_init(&base, g.zRepositoryName, -1);
+    db_close(0);
+    assert( g.db==0 );
     sqlite3_open(":memory:", &g.db);
     db_multi_exec("CREATE TABLE sfile(pathname TEXT);");
     db_multi_exec("CREATE TABLE vfile(pathname);");
@@ -173,15 +183,46 @@ int repo_list_page(void){
   }else{
     Stmt q;
     double rNow;
-    blob_append_sql(&html,
+    char zType[16];   /* Column type letters for class "sortable" */
+    int nType;
+    zType[0] = 't';  /* Repo name */
+    zType[1] = 'x';  /* Space between repo-name and project-name */
+    zType[2] = 't';  /* Project name */
+    nType = 3;
+    if( bShowDesc ){
+      zType[nType++] = 'x';  /* Space between name and description */
+      zType[nType++] = 't';  /* Project description */
+    }
+    zType[nType++] = 'x';    /* space before age */
+    zType[nType++] = 'k';    /* Project age */
+    if( bShowLg ){
+      zType[nType++] = 'x';  /* space before login-group */
+      zType[nType++] = 't';  /* Login Group */
+    }
+    zType[nType] = 0;
+    blob_appendf(&html,
       "<table border='0' class='sortable' data-init-sort='1'"
-      " data-column-types='txtxtxkxt' cellspacing='0' cellpadding='0'><thead>\n"
-      "<tr><th>Filename<th width='7'>"
-      "<th width='25%%'>Project Name<th width='10'>"
-      "<th width='25%%'>Project Description<th width='5'>"
-      "<th><nobr>Last Modified</nobr><th width='1'>"
-      "<th><nobr>Login Group</nobr></tr>\n"
-      "</thead><tbody>\n");
+      " data-column-types='%s' cellspacing='0' cellpadding='0'><thead>\n"
+      "<tr><th>Filename</th><th>&emsp;</th>\n"
+      "<th%s><nobr>Project Name</nobr></th>\n",
+      zType, (bShowDesc ? " width='25%'" : ""));
+    if( bShowDesc ){
+      blob_appendf(&html,
+        "<th>&emsp;</th>\n"
+        "<th width='25%%'><nobr>Project Description</nobr></th>\n"
+      );
+    }
+    blob_appendf(&html,
+      "<th>&emsp;</th>"
+      "<th><nobr>Last Modified</nobr></th>\n"
+    );
+    if( bShowLg ){
+      blob_appendf(&html,
+        "<th>&emsp;</th>"
+        "<th><nobr>Login Group</nobr></th></tr>\n"
+      );
+    }
+    blob_appendf(&html,"</thead><tbody>\n");
     db_prepare(&q, "SELECT pathname"
                    " FROM sfile ORDER BY pathname COLLATE nocase;");
     rNow = db_double(0, "SELECT julianday('now')");
@@ -244,17 +285,17 @@ int repo_list_page(void){
         ** Its age will still be maximum, so data-sortkey will work. */
         zAge = mprintf("unknown");
       }
-      blob_append_sql(&html, "<tr><td valign='top'><nobr>");
+      blob_appendf(&html, "<tr><td valign='top'><nobr>");
       if( !file_ends_with_repository_extension(zName,0) ){
         /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
         ** do not work for repositories whose names do not end in ".fossil".
         ** So do not hyperlink those cases. */
-        blob_append_sql(&html,"%h",zName);
+        blob_appendf(&html,"%h",zName);
       } else if( sqlite3_strglob("*/.*", zName)==0 ){
         /* Do not show hyperlinks for hidden repos */
-        blob_append_sql(&html, "%h (hidden)", zName);
+        blob_appendf(&html, "%h (hidden)", zName);
       } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
-        blob_append_sql(&html,
+        blob_appendf(&html,
           "<a href='%R/%T/home' target='_blank'>/%h</a>\n",
           zUrl, zName);
       }else if( file_ends_with_repository_extension(zName,1) ){
@@ -275,52 +316,56 @@ int repo_list_page(void){
                       , zDirPart
 #endif
         ) ){
-          blob_append_sql(&html,
+          blob_appendf(&html,
             "<s>%h</s> (directory/repo name collision)\n",
             zName);
         }else{
-          blob_append_sql(&html,
+          blob_appendf(&html,
             "<a href='%R/%T/home' target='_blank'>%h</a>\n",
             zUrl, zName);
         }
         fossil_free(zDirPart);
       }else{
-        blob_append_sql(&html,
+        blob_appendf(&html,
           "<a href='%R/%T/home' target='_blank'>%h</a>\n",
           zUrl, zName);
       }
-      blob_append_sql(&html,"</nobr>");
+      blob_appendf(&html,"</nobr></td>\n");
       if( x.zProjName ){
-        blob_append_sql(&html, "<td></td><td valign='top'>%h</td>\n",
-                        x.zProjName);
+        blob_appendf(&html, "<td>&emsp;</td><td valign='top'>%h</td>\n",
+                      x.zProjName);
         fossil_free(x.zProjName);
       }else{
-        blob_append_sql(&html, "<td></td><td></td>\n");
+        blob_appendf(&html, "<td>&emsp;</td><td></td>\n");
       }
-      if( x.zProjDesc ){
-        blob_append_sql(&html, "<td></td><td valign='top'>%h</td>\n",
+      if( !bShowDesc ){
+        /* Do nothing */
+      }else if( x.zProjDesc ){
+        blob_appendf(&html, "<td>&emsp;</td><td valign='top'>%h</td>\n",
                         x.zProjDesc);
         fossil_free(x.zProjDesc);
       }else{
-        blob_append_sql(&html, "<td></td><td></td>\n");
+        blob_appendf(&html, "<td>&emsp;</td><td></td>\n");
       }
-      blob_append_sql(&html,
-        "<td></td><td data-sortkey='%08x' align='center' valign='top'>"
+      blob_appendf(&html,
+        "<td>&emsp;</td><td data-sortkey='%08x' align='center' valign='top'>"
         "<nobr>%h</nobr></td>\n",
         (int)iAge, zAge);
       fossil_free(zAge);
-      if( x.zLoginGroup ){
-        blob_append_sql(&html, "<td></td><td valign='top'>"
+      if( !bShowLg ){
+        blob_appendf(&html, "</tr>\n");
+      }else if( x.zLoginGroup ){
+        blob_appendf(&html, "<td>&emsp;</td><td valign='top'>"
                                "<nobr>%h</nobr></td></tr>\n",
                         x.zLoginGroup);
         fossil_free(x.zLoginGroup);
       }else{
-        blob_append_sql(&html, "<td></td><td></td></tr>\n");
+        blob_appendf(&html, "<td>&emsp;</td><td></td></tr>\n");
       }
       sqlite3_free(zUrl);
     }
     db_finalize(&q);
-    blob_append_sql(&html,"</tbody></table>\n");
+    blob_appendf(&html,"</tbody></table>\n");
   }
   if( zSkinRepo ){
     char *zNewBase = mprintf("%s/%s", g.zBaseURL, zSkinUrl);

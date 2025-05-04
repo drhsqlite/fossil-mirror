@@ -1890,7 +1890,7 @@ void page_timeline(void){
     if( matchStyle==MS_EXACT ){
       /* For exact maching, inhibit links to the selected tag. */
       zThisTag = zTagName;
-      Th_Store("current_checkin", zTagName);
+      Th_StoreUnsafe("current_checkin", zTagName);
     }
 
     /* Display a checkbox to enable/disable display of related check-ins. */
@@ -3849,7 +3849,7 @@ void timeline_cmd(void){
 **    today=DATE             Use DATE as today's date
 */
 void thisdayinhistory_page(void){
-  static int aYearsAgo[] = { 1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50, 75, 100 };
+  static int aYearsAgo[] = { 1,2,3,4,5,10,15,20,25,30,40,50,75,100 };
   const char *zToday;
   char *zStartOfProject;
   int i;

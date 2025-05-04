@@ -218,7 +218,7 @@ void setup_logmenu_page(void){
       "in the \"admin_log\" table.\n"
     );
   }
-  setup_menu_entry("Artifact Log", "rcvfromlist",
+  setup_menu_entry("Xfer Log", "rcvfromlist",
     "The artifact log records when new content is added in the\n"
     "\"rcvfrom\" table.\n"
   );

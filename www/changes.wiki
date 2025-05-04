@@ -1,11 +1,14 @@
 <title>Change Log</title>
 
-<h2 id='v2_26'>Changes for version 2.26 (pending)</h2>
+<h2 id='v2_27'>Changes for version 2.27 (pending)</h2>
 
-  *  Enhancements to [/help?cmd=diff|fossil diff] and similar:
+  *  <i>(pending)</i>
+
+<h2 id='v2_26'>Changes for version 2.26 (2025-04-30)</h2><ol>
+ <li>Enhancements to [/help?cmd=diff|fossil diff] and similar:
      <ol type="a">
-     <li> The --from can optionally accept a directory name as its argument,
-          and uses files under that directory as the baseline for the diff.
+     <li> The argument to the --from option can be a directory name, causing
+          Fossil to use files under that directory as the baseline for the diff.
      <li> For "gdiff", if no [/help?cmd=gdiff-command|gdiff-command setting]
           is defined, Fossil tries to do a --tk diff if "tclsh" and "wish"
           are available, or a --by diff if not.
@@ -14,9 +17,9 @@
      <li> Add the "Hide diffs/Show diffs" toggle to web-UI diff pages that show
           diffs of multiple files.
      </ol>
-  *  Added the [/help?cmd=/ckout|/ckout web page] to provide information
+ <li>Added the [/help?cmd=/ckout|/ckout web page] to provide information
      about pending changes in a working check-out
-  *  Enhancements to the [/help?cmd=ui|fossil ui] command:
+ <li>Enhancements to the [/help?cmd=ui|fossil ui] command:
      <ol type="a">
      <li> Defaults to using the new [/help?cmd=/ckout|/ckout page] as its
           start page.  Or, if the new "--from PATH" option is present, the
@@ -26,8 +29,11 @@
           person editing this change log has
           "fossil ui --extpage www/changes.wiki" running and hence can
           press "Reload" on the web browser to view edits.
+     <li> Accept both IPv4 and IPv6 connections on all platforms, including
+          Windows and OpenBSD.  This also applies to the "fossil server"
+          command.
      </ol>
-  *  Enhancements to [/help?cmd=merge|fossil merge]:
+ <li>Enhancements to [/help?cmd=merge|fossil merge]:
      <ol type="a">
      <li> Added the [/help?cmd=merge-info|fossil merge-info] command and
           especially the --tk option to that command, to provide analysis
@@ -35,7 +41,7 @@
      <li> When a merge conflict occurs, a new section is added to the conflict
           text that shows Fossil's suggested resolution to the conflict.
      </ol>
-  *  Enhancements to [/help?cmd=commit|fossil commit]:
+ <li>Enhancements to [/help?cmd=commit|fossil commit]:
      <ol type="a">
      <li> If Fossil sees potential formatting mistakes (ex: bad hyperlinks)
           in the check-in comment, it will alert the developer and give
@@ -49,14 +55,15 @@
           branch has been changed.
      <li> The interactive checkin comment prompt shows the formatting rules
           set for that repository.
+     <li> Add the "--editor" option.
      </ol>
-  *  Deprecate the --comfmtflags and --comment-format global options and
+ <li>Deprecate the --comfmtflags and --comment-format global options and
      no longer list them in the built-in help, but keep them working for
      backwards compatibility.
      Alternative TTY comment formatting can still be specified using the
      [/help?cmd=comment-format|comment-format setting], if desired.  The
      default comment format is now called "canonical", not "legacy".
-  *  Enhancements to the [/help?cmd=/timeline|/timeline page]:
+ <li>Enhancements to the [/help?cmd=/timeline|/timeline page]:
      <ol type="a">
      <li> Added the "ml=" ("Merge-in List") query parameter that works
           like "rl=" ("Related List") but adds "mionly" style related
@@ -83,22 +90,22 @@
      <li> The new "min" query parameter, when added to a from=,to= query,
           collapses long runs of check-ins on the same branch into just
           end-points.
-     <li> The p= and d= parameters an reference different check-ins, which
-          case the timeline shows those check-ins that are both ancestors
-          of p= and descendants of d=.
+     <li> The p= and d= parameters can now reference different check-ins,
+          in which case the timeline shows those check-ins that are both
+          ancestors of p= and descendants of d=.
      <li> The saturation and intensity of user-specified checkin and branch
           background colors are automatically adjusted to keep the colors
           compatible with the current skin, unless the
           [/help?cmd=raw-bgcolor|raw-bgcolor setting] is turned on.
      </ol>
-  *  The [/help?cmd=/docfile|/docfile webpage] was added.  It works like
+ <li>The [/help?cmd=/docfile|/docfile webpage] was added.  It works like
      /doc but keeps the title of markdown documents with the document rather
      that moving it up to the page title.
-  *  Added the [/help?cmd=/clusterlist|/clusterlist page] for analysis
+ <li>Added the [/help?cmd=/clusterlist|/clusterlist page] for analysis
      and debugging
-  *  Added the "artifact_to_json(NAME)" SQL function that returns a JSON
+ <li>Added the "artifact_to_json(NAME)" SQL function that returns a JSON
      decoding of the artifact described by NAME.
-  *  Improvements to the [/help?cmd=patch|fossil patch] command:
+ <li>Improvements to the [/help?cmd=patch|fossil patch] command:
      <ol type="a">
      <li> Fix a bug in "fossil patch create" that causes
           [/help?cmd=revert|fossil revert] operations that happened
@@ -107,7 +114,7 @@
      <li>  Added the [/help?cmd=patch|patch alias] command for managing
            aliases for remote checkout names.
      </ol>
-  *  Enhancements to on-line help and the [/help?cmd=help|fossil help] command:
+ <li>Enhancements to on-line help and the [/help?cmd=help|fossil help] command:
      <ol type="a">
      <li> Add the ability to search the help text, either in the UI
           (on the [/help?cmd=/search|/search page]) or from the command-line
@@ -118,7 +125,7 @@
      <li> The -u (--usage) option shows only the command-line syntax
      <li> The -o (--options) option shows only the command-line options
      </ol>
-  *  Enhancements to the ticket system:
+ <li>Enhancements to the [./tickets.wiki|ticket system]:
      <ol type="a">
      <li> Added the ability to attach wiki pages to a ticket for extended
           descriptions.
@@ -126,15 +133,43 @@
           template for a new ticket.
      <li> Added button 'Submit and New' to create multiple tickets
           in a row.
+     <li> Link the version field in ticket view to a matching checkin or tag.
+     <li> Show creation time in report and ticket view.
+     <li> Show previous comments in edit ticket as reference.
      </ol>
-  *  Added the "hash" query parameter to the
+ <li>Added the "hash" query parameter to the
      [/help?cmd=/whatis|/whatis webpage].
-  *  Add a "user permissions changes" [/doc/trunk/www/alerts.md|subscription]
+ <li>Add a "user permissions changes" [/doc/trunk/www/alerts.md|subscription]
      which alerts subscribers when an admin creates a new user or
      when a user's permissions change.
-  *  Show project description on repository list.
-  *  Diverse minor fixes and additions.
-
+ <li>If the FOSSIL_REPOLIST_SHOW environment variable exists and contains
+     the substring "description", then the project description for each repository
+     is shown on the repository list page.  The login-group for each project is
+     now only shown if the FOSSIL_REPOLIST_SHOW environment variable exists and
+     contains the substring "login-group". ([./cgi.wiki#repolist|More information])
+ <li>The [/doc/trunk/www/th1.md|TH1 script language] is enhanced for improved
+     security:
+     <ol type="a">
+     <li> TH1 now makes a distinction between
+          [/doc/trunk/www/th1.md#taint|tainted and untainted string values].
+          This makes it more difficult to write custom TH1 scripts that
+          contain XSS or SQL-injection bugs.  The
+          [/help?cmd=vuln-report|vuln-report] setting was added to control
+          what Fossil does when it encounters a potential TH1
+          security problem.
+     <li> The "--th" option was removed from the [/help?cmd=pikchr|fossil pikchr]
+          command.
+     <li> The "enable_htmlify" TH1 command was removed.
+     </ol>
+ <li>Make [/help?cmd=/chat|/chat] better-behaved during server outages, reducing
+     the frequency of reconnection attempts over time and providing feedback
+     to the user when the connection is down.
+ <li>The [/help?cmd=/sqlar|/sqlar] page does not work for users who are not logged
+     in, nor are links to that page displayed to users who are not logged in.  Being
+     logged in as "anonymous" is sufficient to overcome this restriction, assuming
+     that "anonymous" can download tarballs and ZIP archives.
+ <li>Many other minor fixes and additions.
+</ol>
 
 <h2 id='v2_25'>Changes for version 2.25 (2024-11-06)</h2>
 

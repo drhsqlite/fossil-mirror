@@ -43,17 +43,18 @@ void setup_ulist(void){
   const char *zWith = P("with");
   int bUnusedOnly = P("unused")!=0;
   int bUbg = P("ubg")!=0;
+  int bHaveAlerts;
 
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
-
+  bHaveAlerts = alert_tables_exist();
   style_submenu_element("Add", "setup_uedit");
   style_submenu_element("Log", "access_log");
   style_submenu_element("Help", "setup_ulist_notes");
-  if( alert_tables_exist() ){
+  if( bHaveAlerts ){
     style_submenu_element("Subscribers", "subscribers");
   }
   style_set_current_feature("setup");
@@ -149,7 +150,7 @@ void setup_ulist(void){
         "SELECT user FROM event WHERE user NOT NULL "
         "UNION ALL SELECT euser FROM event WHERE euser NOT NULL%s)"
         " AND uid NOT IN (SELECT uid FROM rcvfrom)",
-        alert_tables_exist() ?
+        bHaveAlerts ?
           " UNION ALL SELECT suname FROM subscriber WHERE suname NOT NULL":"");
   }else if( zWith && zWith[0] ){
     zWith = mprintf(" AND fullcap(cap) GLOB '*[%q]*'", zWith);
@@ -157,19 +158,22 @@ void setup_ulist(void){
     zWith = "";
   }
   db_prepare(&s,
-     "SELECT uid, login, cap, info, date(user.mtime,'unixepoch')," /* 0..4 */
-     "       lower(login) AS sortkey, "  /* 5 */
-     "       CASE WHEN info LIKE '%%expires 20%%'"
+      /*0-4*/"SELECT uid, login, cap, info, date(user.mtime,'unixepoch'),"
+      /* 5 */"lower(login) AS sortkey, "
+      /* 6 */"CASE WHEN info LIKE '%%expires 20%%'"
              "    THEN substr(info,instr(lower(info),'expires')+8,10)"
-             "    END AS exp," /* 6 */
-             "atime," /* 7 */
-     "       subscriber.ssub, subscriber.subscriberId," /* 8, 9 */
-     "       user.mtime AS sorttime," /* 10 */
-     "       subscriber.semail"       /* 11 */
-     "  FROM user LEFT JOIN lastAccess ON login=uname"
-     "            LEFT JOIN subscriber ON login=suname"
-     " WHERE login NOT IN ('anonymous','nobody','developer','reader') %s"
-     " ORDER BY sorttime DESC", zWith/*safe-for-%s*/
+             "    END AS exp,"
+      /* 7 */"atime,"
+      /* 8 */"user.mtime AS sorttime,"
+      /*9-11*/"%s"
+             " FROM user LEFT JOIN lastAccess ON login=uname"
+             "            LEFT JOIN subscriber ON login=suname"
+             " WHERE login NOT IN ('anonymous','nobody','developer','reader') %s"
+             " ORDER BY sorttime DESC",
+             bHaveAlerts
+             ? "subscriber.ssub, subscriber.subscriberId, subscriber.semail"
+             : "null, null, null",
+             zWith/*safe-for-%s*/
   );
   rNow = db_double(0.0, "SELECT julianday('now');");
   while( db_step(&s)==SQLITE_ROW ){
@@ -183,8 +187,8 @@ void setup_ulist(void){
     double rATime = db_column_double(&s,7);
     char *zAge = 0;
     const char *zSub;
-    int sid = db_column_int(&s,9);
-    sqlite3_int64 sorttime = db_column_int64(&s, 10);
+    int sid = db_column_int(&s,10);
+    sqlite3_int64 sorttime = db_column_int64(&s, 8);
     if( rATime>0.0 ){
       zAge = human_readable_age(rNow - rATime);
     }
@@ -200,9 +204,9 @@ void setup_ulist(void){
     @ <td data-sortkey='%09llx(sorttime)'>%h(zDate?zDate:"")
     @ <td>%h(zExp?zExp:"")
     @ <td data-sortkey='%f(rATime)' style='white-space:nowrap'>%s(zAge?zAge:"")
-    if( db_column_type(&s,8)==SQLITE_NULL ){
+    if( db_column_type(&s,9)==SQLITE_NULL ){
       @ <td>
-    }else if( (zSub = db_column_text(&s,8))==0 || zSub[0]==0 ){
+    }else if( (zSub = db_column_text(&s,9))==0 || zSub[0]==0 ){
       @ <td><a href="%R/alerts?sid=%d(sid)"><i>off</i></a>
     }else{
       const char *zEmail = db_column_text(&s, 11);

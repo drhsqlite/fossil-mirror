@@ -33,9 +33,7 @@
 #define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH1 commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
 #define TH_INIT_NO_REPO     ((u32)0x00000010) /* Skip opening repository. */
-#define TH_INIT_NO_ENCODE   ((u32)0x00000020) /* Do not html-encode sendText()*/
-                                              /* output. */
-#define TH_INIT_MASK        ((u32)0x0000003F) /* All possible init flags. */
+#define TH_INIT_MASK        ((u32)0x0000001F) /* All possible init flags. */
 
 /*
 ** Useful and/or "well-known" combinations of flag values.
@@ -264,7 +262,7 @@ static int httpizeCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "httpize STRING");
   }
-  zOut = httpize((char*)argv[1], argl[1]);
+  zOut = httpize((char*)argv[1], TH1_LEN(argl[1]));
   Th_SetResult(interp, zOut, -1);
   free(zOut);
   return TH_OK;
@@ -293,47 +291,8 @@ static int enableOutputCmd(
   }
   rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &enableOutput);
   if( g.thTrace ){
-    Th_Trace("enable_output {%.*s} -> %d<br>\n", argl[1],argv[1],enableOutput);
-  }
-  return rc;
-}
-
-/*
-** TH1 command: enable_htmlify ?BOOLEAN?
-**
-** Enable or disable the HTML escaping done by all output which
-** originates from TH1 (via sendText()).
-**
-** If passed no arguments it instead returns 0 or 1 to indicate the
-** current state.
-*/
-static int enableHtmlifyCmd(
-  Th_Interp *interp,
-  void *p,
-  int argc,
-  const char **argv,
-  int *argl
-){
-  int rc = 0, buul;
-  if( argc>3 ){
-    return Th_WrongNumArgs(interp,
-                           "enable_htmlify [TRACE_LABEL] ?BOOLEAN?");
-  }
-  buul = (TH_INIT_NO_ENCODE & g.th1Flags) ? 0 : 1;
-  Th_SetResultInt(g.interp, buul);
-  if(argc>1){
-    if( g.thTrace ){
-      Th_Trace("enable_htmlify {%.*s} -> %d<br>\n",
-               argl[1],argv[1],buul);
-    }
-    rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &buul);
-    if(!rc){
-      if(buul){
-        g.th1Flags &= ~TH_INIT_NO_ENCODE;
-      }else{
-        g.th1Flags |= TH_INIT_NO_ENCODE;
-      }
-    }
+    Th_Trace("enable_output {%.*s} -> %d<br>\n",
+             TH1_LEN(argl[1]),argv[1],enableOutput);
   }
   return rc;
 }
@@ -377,21 +336,21 @@ Blob * Th_SetOutputBlob(Blob * pOut){
 ** Send text to the appropriate output: If pOut is not NULL, it is
 ** appended there, else to the console or to the CGI reply buffer.
 ** Escape all characters with special meaning to HTML if the encode
-** parameter is true, with the exception that that flag is ignored if
-** g.th1Flags has the TH_INIT_NO_ENCODE flag.
+** parameter is true.
 **
 ** If pOut is NULL and the global pThOut is not then that blob
 ** is used for output.
 */
-static void sendText(Blob * pOut, const char *z, int n, int encode){
+static void sendText(Blob *pOut, const char *z, int n, int encode){
   if(0==pOut && pThOut!=0){
     pOut = pThOut;
   }
-  if(TH_INIT_NO_ENCODE & g.th1Flags){
-    encode = 0;
-  }
   if( enableOutput && n ){
-    if( n<0 ) n = strlen(z);
+    if( n<0 ){
+      n = strlen(z);
+    }else{
+      n = TH1_LEN(n);
+    }
     if( encode ){
       z = htmlize(z, n);
       n = strlen(z);
@@ -527,10 +486,18 @@ static int putsCmd(
   const char **argv,
   int *argl
 ){
+  int encode = *(unsigned int*)pConvert;
+  int n;
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "puts STRING");
   }
-  sendText(0,(char*)argv[1], argl[1], *(unsigned int*)pConvert);
+  n = argl[1];
+  if( encode==0 && n>0 && TH1_TAINTED(n) ){
+    if( Th_ReportTaint(interp, "output string", argv[1], n) ){
+      return TH_ERROR;
+    }
+  }
+  sendText(0,(char*)argv[1], TH1_LEN(n), encode);
   return TH_OK;
 }
 
@@ -559,6 +526,11 @@ static int redirectCmd(
     if( Th_ToInt(interp, argv[2], argl[2], &withMethod) ){
       return TH_ERROR;
     }
+  }
+  if( TH1_TAINTED(argl[1])
+   && Th_ReportTaint(interp,"redirect URL",argv[1],argl[1])
+  ){
+    return TH_ERROR;
   }
   if( withMethod ){
     cgi_redirect_with_method(argv[1]);
@@ -662,7 +634,7 @@ static int markdownCmd(
     return Th_WrongNumArgs(interp, "markdown STRING");
   }
   blob_zero(&src);
-  blob_init(&src, (char*)argv[1], argl[1]);
+  blob_init(&src, (char*)argv[1], TH1_LEN(argl[1]));
   blob_zero(&title); blob_zero(&body);
   markdown_to_html(&src, &title, &body);
   Th_ListAppend(interp, &zValue, &nValue, blob_str(&title), blob_size(&title));
@@ -692,7 +664,7 @@ static int wikiCmd(
   }
   if( enableOutput ){
     Blob src;
-    blob_init(&src, (char*)argv[1], argl[1]);
+    blob_init(&src, (char*)argv[1], TH1_LEN(argl[1]));
     wiki_convert(&src, 0, flags);
     blob_reset(&src);
   }
@@ -737,7 +709,7 @@ static int htmlizeCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "htmlize STRING");
   }
-  zOut = htmlize((char*)argv[1], argl[1]);
+  zOut = htmlize((char*)argv[1], TH1_LEN(argl[1]));
   Th_SetResult(interp, zOut, -1);
   free(zOut);
   return TH_OK;
@@ -759,7 +731,7 @@ static int encode64Cmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "encode64 STRING");
   }
-  zOut = encode64((char*)argv[1], argl[1]);
+  zOut = encode64((char*)argv[1], TH1_LEN(argl[1]));
   Th_SetResult(interp, zOut, -1);
   free(zOut);
   return TH_OK;
@@ -780,7 +752,7 @@ static int dateCmd(
   int *argl
 ){
   char *zOut;
-  if( argc>=2 && argl[1]==6 && memcmp(argv[1],"-local",6)==0 ){
+  if( argc>=2 && TH1_LEN(argl[1])==6 && memcmp(argv[1],"-local",6)==0 ){
     zOut = db_text("??", "SELECT datetime('now',toLocal())");
   }else{
     zOut = db_text("??", "SELECT datetime('now')");
@@ -812,9 +784,9 @@ static int hascapCmd(
   }
   for(i=1; rc==1 && i<argc; i++){
     if( g.thTrace ){
-      Th_ListAppend(interp, &zCapList, &nCapList, argv[i], argl[i]);
+      Th_ListAppend(interp, &zCapList, &nCapList, argv[i], TH1_LEN(argl[i]));
     }
-    rc = login_has_capability((char*)argv[i],argl[i],*(int*)p);
+    rc = login_has_capability((char*)argv[i],TH1_LEN(argl[i]),*(int*)p);
   }
   if( g.thTrace ){
     Th_Trace("[%s %#h] => %d<br>\n", argv[0], nCapList, zCapList, rc);
@@ -860,7 +832,7 @@ int capexprCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "capexpr EXPR");
   }
-  rc = Th_SplitList(interp, argv[1], argl[1], &azCap, &anCap, &nCap);
+  rc = Th_SplitList(interp, argv[1], TH1_LEN(argl[1]), &azCap, &anCap, &nCap);
   if( rc ) return rc;
   rc = 0;
   for(i=0; i<nCap; i++){
@@ -923,7 +895,8 @@ static int searchableCmd(
   }
   for(i=1; i<argc && rc; i++){
     int match = 0;
-    for(j=0; j<argl[i]; j++){
+    int nn = TH1_LEN(argl[i]);
+    for(j=0; j<nn; j++){
       switch( argv[i][j] ){
         case 'c':  match |= searchCap & SRCH_CKIN;  break;
         case 'd':  match |= searchCap & SRCH_DOC;   break;
@@ -934,7 +907,7 @@ static int searchableCmd(
     if( !match ) rc = 0;
   }
   if( g.thTrace ){
-    Th_Trace("[searchable %#h] => %d<br>\n", argl[1], argv[1], rc);
+    Th_Trace("[searchable %#h] => %d<br>\n", TH1_LEN(argl[1]), argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -1053,7 +1026,7 @@ static int hasfeatureCmd(
     rc = 1;
   }
   if( g.thTrace ){
-    Th_Trace("[hasfeature %#h] => %d<br>\n", argl[1], zArg, rc);
+    Th_Trace("[hasfeature %#h] => %d<br>\n", TH1_LEN(argl[1]), zArg, rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -1106,14 +1079,16 @@ static int anycapCmd(
 ){
   int rc = 0;
   int i;
+  int nn;
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "anycap STRING");
   }
-  for(i=0; rc==0 && i<argl[1]; i++){
+  nn = TH1_LEN(argl[1]);
+  for(i=0; rc==0 && i<nn; i++){
     rc = login_has_capability((char*)&argv[1][i],1,0);
   }
   if( g.thTrace ){
-    Th_Trace("[anycap %#h] => %d<br>\n", argl[1], argv[1], rc);
+    Th_Trace("[anycap %#h] => %d<br>\n", TH1_LEN(argl[1]), argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -1142,7 +1117,7 @@ static int comboboxCmd(
   if( enableOutput ){
     int height;
     Blob name;
-    int nValue;
+    int nValue = 0;
     const char *zValue;
     char *z, *zH;
     int nElem;
@@ -1151,9 +1126,10 @@ static int comboboxCmd(
     int i;
 
     if( Th_ToInt(interp, argv[3], argl[3], &height) ) return TH_ERROR;
-    Th_SplitList(interp, argv[2], argl[2], &azElem, &aszElem, &nElem);
-    blob_init(&name, (char*)argv[1], argl[1]);
+    Th_SplitList(interp, argv[2], TH1_LEN(argl[2]), &azElem, &aszElem, &nElem);
+    blob_init(&name, (char*)argv[1], TH1_LEN(argl[1]));
     zValue = Th_Fetch(blob_str(&name), &nValue);
+    nValue = TH1_LEN(nValue);
     zH = htmlize(blob_buffer(&name), blob_size(&name));
     z = mprintf("<select id=\"%s\" name=\"%s\" size=\"%d\">", zH, zH, height);
     free(zH);
@@ -1249,7 +1225,7 @@ static int linecntCmd(
   if( Th_ToInt(interp, argv[2], argl[2], &iMax) ) return TH_ERROR;
   if( Th_ToInt(interp, argv[3], argl[3], &iMin) ) return TH_ERROR;
   z = argv[1];
-  size = argl[1];
+  size = TH1_LEN(argl[1]);
   for(n=1, i=0; i<size; i++){
     if( z[i]=='\n' ){
       n++;
@@ -1409,7 +1385,8 @@ static int globalStateCmd(
     Th_SetResult(interp, g.zVfsName ? g.zVfsName : zDefault, -1);
     return TH_OK;
   }else{
-    Th_ErrorMessage(interp, "unsupported global state:", argv[1], argl[1]);
+    Th_ErrorMessage(interp, "unsupported global state:",
+                            argv[1], TH1_LEN(argl[1]));
     return TH_ERROR;
   }
 }
@@ -1428,13 +1405,17 @@ static int getParameterCmd(
   int *argl
 ){
   const char *zDefault = 0;
+  const char *zVal;
+  int sz;
   if( argc!=2 && argc!=3 ){
     return Th_WrongNumArgs(interp, "getParameter NAME ?DEFAULT?");
   }
   if( argc==3 ){
     zDefault = argv[2];
   }
-  Th_SetResult(interp, cgi_parameter(argv[1], zDefault), -1);
+  zVal = cgi_parameter(argv[1], zDefault);
+  sz = th_strlen(zVal);
+  Th_SetResult(interp, zVal, TH1_ADD_TAINT(sz));
   return TH_OK;
 }
 
@@ -1850,6 +1831,43 @@ static int stimeCmd(
   return TH_OK;
 }
 
+/*
+** TH1 command: taint STRING
+**
+** Return a copy of STRING that is marked as tainted.
+*/
+static int taintCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "STRING");
+  }
+  Th_SetResult(interp, argv[1], TH1_ADD_TAINT(argl[1]));
+  return TH_OK;
+}
+
+/*
+** TH1 command: untaint STRING
+**
+** Return a copy of STRING that is marked as untainted.
+*/
+static int untaintCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "STRING");
+  }
+  Th_SetResult(interp, argv[1], TH1_LEN(argl[1]));
+  return TH_OK;
+}
 
 /*
 ** TH1 command: randhex  N
@@ -1925,7 +1943,9 @@ static int queryCmd(
   char *zErr = 0;
   int noComplain = 0;
 
-  if( argc>3 && argl[1]==11 && strncmp(argv[1], "-nocomplain", 11)==0 ){
+  if( argc>3 && TH1_LEN(argl[1])==11
+   && strncmp(argv[1], "-nocomplain", 11)==0
+  ){
     argc--;
     argv++;
     argl++;
@@ -1941,11 +1961,18 @@ static int queryCmd(
   }
   zSql = argv[1];
   nSql = argl[1];
+  if( TH1_TAINTED(nSql) ){
+    if( Th_ReportTaint(interp,"query SQL",zSql,nSql) ){
+      return TH_ERROR;
+    }
+    nSql = TH1_LEN(nSql);
+  }
+
   while( res==TH_OK && nSql>0 ){
     zErr = 0;
     report_restrict_sql(&zErr);
     g.dbIgnoreErrors++;
-    rc = sqlite3_prepare_v2(g.db, argv[1], argl[1], &pStmt, &zTail);
+    rc = sqlite3_prepare_v2(g.db, argv[1], TH1_LEN(argl[1]), &pStmt, &zTail);
     g.dbIgnoreErrors--;
     report_unrestrict_sql();
     if( rc!=0 || zErr!=0 ){
@@ -1966,7 +1993,7 @@ static int queryCmd(
        && Th_GetVar(interp, zVar+1, szVar-1)==TH_OK ){
         int nVal;
         const char *zVal = Th_GetResult(interp, &nVal);
-        sqlite3_bind_text(pStmt, i, zVal, nVal, SQLITE_TRANSIENT);
+        sqlite3_bind_text(pStmt, i, zVal, TH1_LEN(nVal), SQLITE_TRANSIENT);
       }
     }
     while( res==TH_OK && ignore_errors_step(pStmt)==SQLITE_ROW ){
@@ -1976,17 +2003,17 @@ static int queryCmd(
         int szCol = th_strlen(zCol);
         const char *zVal = (const char*)sqlite3_column_text(pStmt, i);
         int szVal = sqlite3_column_bytes(pStmt, i);
-        Th_SetVar(interp, zCol, szCol, zVal, szVal);
+        Th_SetVar(interp, zCol, szCol, zVal, TH1_ADD_TAINT(szVal));
       }
       if( g.thTrace ){
-        Th_Trace("query_eval {<pre>%#h</pre>}<br>\n", argl[2], argv[2]);
+        Th_Trace("query_eval {<pre>%#h</pre>}<br>\n",TH1_LEN(argl[2]),argv[2]);
       }
-      res = Th_Eval(interp, 0, argv[2], argl[2]);
+      res = Th_Eval(interp, 0, argv[2], TH1_LEN(argl[2]));
       if( g.thTrace ){
         int nTrRes;
         char *zTrRes = (char*)Th_GetResult(g.interp, &nTrRes);
         Th_Trace("[query_eval] => %h {%#h}<br>\n",
-                 Th_ReturnCodeName(res, 0), nTrRes, zTrRes);
+                 Th_ReturnCodeName(res, 0), TH1_LEN(nTrRes), zTrRes);
       }
       if( res==TH_BREAK || res==TH_CONTINUE ) res = TH_OK;
     }
@@ -2040,7 +2067,7 @@ static int settingCmd(
   }
   if( g.thTrace ){
     Th_Trace("[setting %s%#h] => %d<br>\n", strict ? "strict " : "",
-             argl[nArg], argv[nArg], rc);
+             TH1_LEN(argl[nArg]), argv[nArg], rc);
   }
   return rc;
 }
@@ -2123,7 +2150,7 @@ static int regexpCmd(
   zErr = re_compile(&pRe, argv[nArg], noCase);
   if( !zErr ){
     Th_SetResultInt(interp, re_match(pRe,
-        (const unsigned char *)argv[nArg+1], argl[nArg+1]));
+        (const unsigned char *)argv[nArg+1], TH1_LEN(argl[nArg+1])));
     rc = TH_OK;
   }else{
     Th_SetResult(interp, zErr, -1);
@@ -2162,7 +2189,7 @@ static int httpCmd(
   if( argc<2 || argc>5 ){
     return Th_WrongNumArgs(interp, HTTP_WRONGNUMARGS);
   }
-  if( fossil_strnicmp(argv[nArg], "-asynchronous", argl[nArg])==0 ){
+  if( fossil_strnicmp(argv[nArg], "-asynchronous", TH1_LEN(argl[nArg]))==0 ){
     fAsynchronous = 1; nArg++;
   }
   if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
@@ -2191,7 +2218,7 @@ static int httpCmd(
   re_free(pRe);
   blob_zero(&payload);
   if( nArg+2==argc ){
-    blob_append(&payload, argv[nArg+1], argl[nArg+1]);
+    blob_append(&payload, argv[nArg+1], TH1_LEN(argl[nArg+1]));
     zType = "POST";
   }else{
     zType = "GET";
@@ -2270,7 +2297,7 @@ static int captureTh1Cmd(
   }
   pOrig = Th_SetOutputBlob(&out);
   zStr = argv[1];
-  nStr = argl[1];
+  nStr = TH1_LEN(argl[1]);
   rc = Th_Eval(g.interp, 0, zStr, nStr);
   Th_SetOutputBlob(pOrig);
   if(0==rc){
@@ -2358,7 +2385,6 @@ void Th_FossilInit(u32 flags){
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"defHeader",     defHeaderCmd,         0},
     {"dir",           dirCmd,               0},
-    {"enable_htmlify",enableHtmlifyCmd,     0},
     {"enable_output", enableOutputCmd,      0},
     {"encode64",      encode64Cmd,          0},
     {"getParameter",  getParameterCmd,      0},
@@ -2389,9 +2415,11 @@ void Th_FossilInit(u32 flags){
     {"styleHeader",   styleHeaderCmd,       0},
     {"styleScript",   styleScriptCmd,       0},
     {"submenu",       submenuCmd,           0},
+    {"taint",         taintCmd,             0},
     {"tclReady",      tclReadyCmd,          0},
     {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},
+    {"untaint",       untaintCmd,           0},
     {"unversioned",   unversionedCmd,       0},
     {"utime",         utimeCmd,             0},
     {"verifyCsrf",    verifyCsrfCmd,        0},
@@ -2494,6 +2522,22 @@ void Th_Store(const char *zName, const char *zValue){
       Th_Trace("set %h {%h}<br>\n", zName, zValue);
     }
     Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
+  }
+}
+
+/*
+** Store a string value in a variable in the interpreter
+** with the "taint" marking, so that TH1 knows that this
+** variable contains content under the control of the remote
+** user and presents a risk of XSS or SQL-injection attacks.
+*/
+void Th_StoreUnsafe(const char *zName, const char *zValue){
+  Th_FossilInit(TH_INIT_DEFAULT);
+  if( zValue ){
+    if( g.thTrace ){
+      Th_Trace("set %h [taint {%h}]<br>\n", zName, zValue);
+    }
+    Th_SetVar(g.interp, zName, -1, zValue, TH1_ADD_TAINT(strlen(zValue)));
   }
 }
 
@@ -2682,6 +2726,7 @@ int Th_CommandHook(
     ** Make sure that the TH1 script error was not caused by a "missing"
     ** command hook handler as that is not actually an error condition.
     */
+    nResult = TH1_LEN(nResult);
     if( memcmp(zResult, NO_COMMAND_HOOK_ERROR, nResult)!=0 ){
       sendError(0,zResult, nResult, 0);
     }else{
@@ -2769,6 +2814,7 @@ int Th_WebpageHook(
     ** Make sure that the TH1 script error was not caused by a "missing"
     ** webpage hook handler as that is not actually an error condition.
     */
+    nResult = TH1_LEN(nResult);
     if( memcmp(zResult, NO_WEBPAGE_HOOK_ERROR, nResult)!=0 ){
       sendError(0,zResult, nResult, 1);
     }else{
@@ -2896,7 +2942,12 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
       z += i+1+n;
       i = 0;
       zResult = (char*)Th_GetResult(g.interp, &n);
-      sendText(pOut,(char*)zResult, n, encode);
+      if( !TH1_TAINTED(n)
+       || encode 
+       || Th_ReportTaint(g.interp, "inline variable", zVar, nVar)==TH_OK
+      ){
+        sendText(pOut,(char*)zResult, n, encode);
+      }
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
       sendText(pOut,z, i, 0);
       z += i+5;
@@ -2909,7 +2960,7 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
         int nTrRes;
         char *zTrRes = (char*)Th_GetResult(g.interp, &nTrRes);
         Th_Trace("[render_eval] => %h {%#h}<br>\n",
-                 Th_ReturnCodeName(rc, 0), nTrRes, zTrRes);
+                 Th_ReturnCodeName(rc, 0), TH1_LEN(nTrRes), zTrRes);
       }
       if( rc!=TH_OK ) break;
       z += i;
@@ -2951,9 +3002,76 @@ int Th_Render(const char *z){
     ** Th_SetOutputBlob() has been called. If it has not been called,
     ** pThOut will be 0, which will redirect the output to CGI/stdout,
     ** as appropriate. We need to pass on g.th1Flags for the case of
-    ** recursive calls, so that, e.g., TH_INIT_NO_ENCODE does not get
-    ** inadvertently toggled off by a recursive call.
+    ** recursive calls.
     */;
+}
+
+/*
+** SETTING: vuln-report           width=8 default=log
+**
+** This setting controls Fossil's behavior when it encounters a potential
+** XSS or SQL-injection vulnerability due to misuse of TH1 configuration
+** scripts.  Choices are:
+**
+**    off            Do nothing.  Ignore the vulnerability.
+**
+**    log            Write a report of the problem into the error log.
+**
+**    block          Like "log" but also prevent the offending TH1 command
+**                   from running.
+**
+**    fatal          Render an error message page instead of the requested
+**                   page.
+*/
+
+/*
+** Report misuse of a tainted string in TH1.
+**
+** The behavior depends on the vuln-report setting.  If "off", this routine
+** is a no-op.  Otherwise, right a message into the error log.  If
+** vuln-report is "log", that is all that happens.  But for any other
+** value of vuln-report, a fatal error is raised.
+*/
+int Th_ReportTaint(
+  Th_Interp *interp,       /* Report error here, if an error is reported */
+  const char *zWhere,      /* Where the tainted string appears */
+  const char *zStr,        /* The tainted string */
+  int nStr                 /* Length of the tainted string */
+){
+  static const char *zDisp = 0;   /* Dispensation; what to do with the error */
+  const char *zVulnType;          /* Type of vulnerability */
+
+  if( zDisp==0 ) zDisp = db_get("vuln-report","log");
+  if( is_false(zDisp) ) return 0;
+  if( strstr(zWhere,"SQL")!=0 ){
+    zVulnType = "SQL-injection";
+  }else{
+    zVulnType = "XSS";
+  }
+  nStr = TH1_LEN(nStr);
+  fossil_errorlog("possible TH1 %s vulnerability due to tainted %s: \"%.*s\"",
+                  zVulnType, zWhere, nStr, zStr);
+  if( strcmp(zDisp,"log")==0 ){
+    return 0;
+  }
+  if( strcmp(zDisp,"block")==0 ){
+    char *z = mprintf("tainted %s: \"", zWhere);
+    Th_ErrorMessage(interp, z, zStr, nStr);
+    fossil_free(z);
+  }else{
+    char *z = mprintf("%#h", nStr, zStr);
+    zDisp = "off";
+    cgi_reset_content();
+    style_submenu_enable(0);
+    style_set_current_feature("error");
+    style_header("Configuration Error");
+    @ <p>Error in a TH1 configuration script: 
+    @ tainted %h(zWhere): "%z(z)"
+    style_finish_page();
+    cgi_reply();
+    fossil_exit(1);
+  }
+  return 1;
 }
 
 /*
@@ -2994,6 +3112,7 @@ void test_th_render(void){
     login_set_capabilities(zCap ? zCap : "sx", 0);
     g.useLocalauth = 1;
   }
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc<3 ){
     usage("FILE");
@@ -3046,6 +3165,7 @@ void test_th_eval(void){
     login_set_capabilities(zCap ? zCap : "sx", 0);
     g.useLocalauth = 1;
   }
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc!=3 ){
     usage("script");

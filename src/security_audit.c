@@ -102,6 +102,7 @@ void secaudit0_page(void){
   const char *zSelfCap;      /* Capabilities of self-registered users */
   int hasSelfReg = 0;        /* True if able to self-register */
   const char *zPublicUrl;    /* Canonical access URL */
+  const char *zVulnReport;   /* The vuln-report setting */
   Blob cmd;
   char *z;
   int n, i;
@@ -363,6 +364,18 @@ void secaudit0_page(void){
     @ The "strict-manifest-syntax"  flag is off.  This is a security
     @ risk.  Turn this setting on (its default) to protect the users
     @ of this repository.
+  }
+
+  zVulnReport = db_get("vuln-report","log");
+  if( fossil_strcmp(zVulnReport,"block")!=0
+   && fossil_strcmp(zVulnReport,"fatal")!=0
+  ){
+    @ <li><p><b>WARNING:</b>
+    @ The <a href="%R/help?cmd=vuln-report">vuln-report setting</a>
+    @ has a value of "%h(zVulnReport)". This disables defenses against
+    @ XSS or SQL-injection vulnerabilities caused by coding errors in
+    @ custom TH1 scripts.  For the best security, change
+    @ the value of the vuln-report setting to "block" or "fatal".
   }
 
   /* Obsolete:  */
@@ -812,12 +825,14 @@ static void no_error_log_available(void){
 ** Show the content of the error log.  Only the administrator can view
 ** this page.
 **
-**    y=0x01          Show only hack attempts
-**    y=0x02          Show only panics and assertion faults
-**    y=0x04          Show hung backoffice processes
-**    y=0x08          Show POST requests from a different origin
-**    y=0x10          Show SQLITE_AUTH and similar
-**    y=0x40          Show other uncategorized messages
+**    y=0x001          Show only hack attempts
+**    y=0x002          Show only panics and assertion faults
+**    y=0x004          Show hung backoffice processes
+**    y=0x008          Show POST requests from a different origin
+**    y=0x010          Show SQLITE_AUTH and similar
+**    y=0x020          Show SMTP error reports
+**    y=0x040          Show TH1 vulnerability reports
+**    y=0x800          Show other uncategorized messages
 **
 ** If y is omitted or is zero, a count of the various message types is
 ** shown.
@@ -827,7 +842,7 @@ void errorlog_page(void){
   FILE *in;
   char *zLog;
   const char *zType = P("y");
-  static const int eAllTypes = 0x5f;
+  static const int eAllTypes = 0x87f;
   long eType = 0;
   int bOutput = 0;
   int prevWasTime = 0;
@@ -837,6 +852,8 @@ void errorlog_page(void){
   int nHang = 0;
   int nXPost = 0;
   int nAuth = 0;
+  int nSmtp = 0;
+  int nVuln = 0;
   char z[10000];
   char zTime[10000];
 
@@ -913,7 +930,13 @@ void errorlog_page(void){
     if( eType & 0x10 ){
       @ <li>SQLITE_AUTH and similar errors
     }
+    if( eType & 0x20 ){
+      @ <li>SMTP malfunctions
+    }
     if( eType & 0x40 ){
+      @ <li>TH1 vulnerabilities
+    }
+    if( eType & 0x800 ){
       @ <li>Other uncategorized messages
     }
     @ </ul>
@@ -932,6 +955,10 @@ void errorlog_page(void){
         bOutput = (eType & 0x02)!=0;
         nPanic++;
       }else
+      if( strncmp(z,"SMTP:", 5)==0 ){
+        bOutput = (eType & 0x20)!=0;
+        nSmtp++;
+      }else
       if( sqlite3_strglob("warning: backoffice process * still *",z)==0 ){
         bOutput = (eType & 0x04)!=0;
         nHang++;
@@ -946,8 +973,12 @@ void errorlog_page(void){
         bOutput = (eType & 0x10)!=0;
         nAuth++;
       }else
-      {
+      if( strncmp(z,"possible", 8)==0 && strstr(z,"tainted")!=0 ){
         bOutput = (eType & 0x40)!=0;
+        nVuln++;
+      }else
+      {
+        bOutput = (eType & 0x800)!=0;
         nOther++;
       }
       if( bOutput ){
@@ -971,12 +1002,16 @@ void errorlog_page(void){
     @ </pre>
   }
   if( eType==0 ){
-    int nNonHack = nPanic + nHang + nAuth + nOther;
+    int nNonHack = nPanic + nHang + nAuth + nSmtp + nVuln + nOther;
     int nTotal = nNonHack + nHack + nXPost;
     @ <p><table border="a" cellspacing="0" cellpadding="5">
     if( nPanic>0 ){
       @ <tr><td align="right">%d(nPanic)</td>
       @     <td><a href="./errorlog?y=2">Panics</a></td>
+    }
+    if( nVuln>0 ){
+      @ <tr><td align="right">%d(nVuln)</td>
+      @     <td><a href="./errorlog?y=64">TH1 Vulnerabilities</a></td>
     }
     if( nHack>0 ){
       @ <tr><td align="right">%d(nHack)</td>
@@ -994,13 +1029,17 @@ void errorlog_page(void){
       @ <tr><td align="right">%d(nAuth)</td>
       @     <td><a href="./errorlog?y=16">SQLITE_AUTH and similar</a></td>
     }
+    if( nSmtp>0 ){
+      @ <tr><td align="right">%d(nSmtp)</td>
+      @     <td><a href="./errorlog?y=32">SMTP faults</a></td>
+    }
     if( nOther>0 ){
       @ <tr><td align="right">%d(nOther)</td>
-      @     <td><a href="./errorlog?y=64">Other</a></td>
+      @     <td><a href="./errorlog?y=2048">Other</a></td>
     }
     @ <tr><td align="right">%d(nTotal)</td>
     if( nTotal>0 ){
-      @     <td><a href="./errorlog?y=255">All Messages</a></td>
+      @     <td><a href="./errorlog?y=4095">All Messages</a></td>
     }else{
       @     <td>All Messages</td>
     }

@@ -953,7 +953,7 @@ void ci_page(void){
     Blob wiki_read_links = BLOB_INITIALIZER;
     Blob wiki_add_links = BLOB_INITIALIZER;
 
-    Th_Store("current_checkin", zName);
+    Th_StoreUnsafe("current_checkin", zName);
     style_header("Check-in [%S]", zUuid);
     login_anonymous_available();
     zEUser = db_text(0,
@@ -995,8 +995,10 @@ void ci_page(void){
       @ <tr><th>Downloads:</th><td>
       @ %z(href("%s",zUrl))Tarball</a>
       @ | %z(href("%R/zip/%S/%t-%S.zip",zUuid, zPJ,zUuid))ZIP archive</a>
-      @ | %z(href("%R/sqlar/%S/%t-%S.sqlar",zUuid,zPJ,zUuid))\
-      @ SQL archive</a></td></tr>
+      if( g.zLogin!=0 ){
+        @ | %z(href("%R/sqlar/%S/%t-%S.sqlar",zUuid,zPJ,zUuid))\
+        @ SQL archive</a></td></tr>
+      }
       fossil_free(zUrl);
       blob_reset(&projName);
     }
@@ -1184,10 +1186,10 @@ void ci_page(void){
   }
   if( diffType!=0 ){
     if( *zW ){
-      @ %z(chref("button","%R/%s/%T",zPage,zName))
+      @ %z(chref("button","%R/%s/%T?diff=%d",zPage,zName,diffType))
       @ Show&nbsp;Whitespace&nbsp;Changes</a>
     }else{
-      @ %z(chref("button","%R/%s/%T?w",zPage,zName))
+      @ %z(chref("button","%R/%s/%T?diff=%d&w",zPage,zName,diffType))
       @ Ignore&nbsp;Whitespace</a>
     }
   }

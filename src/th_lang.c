@@ -41,7 +41,7 @@ static int catch_command(
   if( argc==3 ){
     int nResult;
     const char *zResult = Th_GetResult(interp, &nResult);
-    Th_SetVar(interp, argv[2], argl[2], zResult, nResult);
+    Th_SetVar(interp, argv[2], TH1_LEN(argl[2]), zResult, nResult);
   }
 
   Th_SetResultInt(interp, rc);
@@ -182,16 +182,20 @@ static int foreach_command(
   int *anValue;
   int nValue;
   int ii, jj;
+  int bTaint = 0;
 
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "foreach varlist list script");
   }
   rc = Th_SplitList(interp, argv[1], argl[1], &azVar, &anVar, &nVar);
   if( rc ) return rc;
+  TH1_XFER_TAINT(bTaint, argl[2]);
   rc = Th_SplitList(interp, argv[2], argl[2], &azValue, &anValue, &nValue);
   for(ii=0; rc==TH_OK && ii<=nValue-nVar; ii+=nVar){
     for(jj=0; jj<nVar; jj++){
-      Th_SetVar(interp, azVar[jj], anVar[jj], azValue[ii+jj], anValue[ii+jj]);
+      int x = anValue[ii+jj];
+      TH1_XFER_TAINT(x, bTaint);
+      Th_SetVar(interp, azVar[jj], anVar[jj], azValue[ii+jj], x);
     }
     rc = eval_loopbody(interp, argv[3], argl[3]);
   }
@@ -217,11 +221,14 @@ static int list_command(
   char *zList = 0;
   int nList = 0;
   int i;
+  int bTaint = 0;
 
   for(i=1; i<argc; i++){
+    TH1_XFER_TAINT(bTaint,argl[i]);
     Th_ListAppend(interp, &zList, &nList, argv[i], argl[i]);
   }
 
+  TH1_XFER_TAINT(nList, bTaint);
   Th_SetResult(interp, zList, nList);
   Th_Free(interp, zList);
 
@@ -246,6 +253,7 @@ static int lappend_command(
   char *zList = 0;
   int nList = 0;
   int i, rc;
+  int bTaint = 0;
 
   if( argc<2 ){
     return Th_WrongNumArgs(interp, "lappend var ...");
@@ -255,10 +263,13 @@ static int lappend_command(
     zList = Th_TakeResult(interp, &nList);
   }
 
+  TH1_XFER_TAINT(bTaint, nList);
   for(i=2; i<argc; i++){
+    TH1_XFER_TAINT(bTaint, argl[i]);
     Th_ListAppend(interp, &zList, &nList, argv[i], argl[i]);
   }
 
+  TH1_XFER_TAINT(nList, bTaint);
   Th_SetVar(interp, argv[1], argl[1], zList, nList);
   Th_SetResult(interp, zList, nList);
   Th_Free(interp, zList);
@@ -285,6 +296,7 @@ static int lindex_command(
   char **azElem;
   int *anElem;
   int nCount;
+  int bTaint = 0;
 
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "lindex list index");
@@ -294,10 +306,13 @@ static int lindex_command(
     return TH_ERROR;
   }
 
+  TH1_XFER_TAINT(bTaint, argl[1]);
   rc = Th_SplitList(interp, argv[1], argl[1], &azElem, &anElem, &nCount);
   if( rc==TH_OK ){
     if( iElem<nCount && iElem>=0 ){
-      Th_SetResult(interp, azElem[iElem], anElem[iElem]);
+      int sz = anElem[iElem];
+      TH1_XFER_TAINT(sz, bTaint);
+      Th_SetResult(interp, azElem[iElem], sz);
     }else{
       Th_SetResult(interp, 0, 0);
     }
@@ -358,9 +373,10 @@ static int lsearch_command(
 
   rc = Th_SplitList(interp, argv[1], argl[1], &azElem, &anElem, &nCount);
   if( rc==TH_OK ){
+    int nn = TH1_LEN(argl[2]);
     Th_SetResultInt(interp, -1);
     for(i=0; i<nCount; i++){
-      if( anElem[i]==argl[2] && 0==memcmp(azElem[i], argv[2], argl[2]) ){
+      if( TH1_LEN(anElem[i])==nn && 0==memcmp(azElem[i], argv[2], nn) ){
         Th_SetResultInt(interp, i);
         break;
       }
@@ -563,7 +579,8 @@ static int proc_command(
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "proc name arglist code");
   }
-  if( Th_SplitList(interp, argv[2], argl[2], &azParam, &anParam, &nParam) ){
+  if( Th_SplitList(interp, argv[2], TH1_LEN(argl[2]),
+                   &azParam, &anParam, &nParam) ){
     return TH_ERROR;
   }
 
@@ -571,8 +588,8 @@ static int proc_command(
   nByte = sizeof(ProcDefn) +                        /* ProcDefn structure */
       (sizeof(char *) + sizeof(int)) * nParam +     /* azParam, anParam */
       (sizeof(char *) + sizeof(int)) * nParam +     /* azDefault, anDefault */
-      argl[3] +                                     /* zProgram */
-      argl[2];    /* Space for copies of parameter names and default values */
+      TH1_LEN(argl[3]) +                            /* zProgram */
+      TH1_LEN(argl[2]);   /* Space for copies of param names and dflt values */
   p = (ProcDefn *)Th_Malloc(interp, nByte);
 
   /* If the last parameter in the parameter list is "args", then set the
@@ -580,7 +597,9 @@ static int proc_command(
   ** entry in the ProcDefn.azParam[] or ProcDefn.azDefault[] arrays.
   */
   if( nParam>0 ){
-    if( anParam[nParam-1]==4 && 0==memcmp(azParam[nParam-1], "args", 4) ){
+    if( TH1_LEN(anParam[nParam-1])==4
+     && 0==memcmp(azParam[nParam-1], "args", 4)
+    ){
       p->hasArgs = 1;
       nParam--;
     }
@@ -592,8 +611,8 @@ static int proc_command(
   p->azDefault = (char **)&p->anParam[nParam];
   p->anDefault = (int *)&p->azDefault[nParam];
   p->zProgram = (char *)&p->anDefault[nParam];
-  memcpy(p->zProgram, argv[3], argl[3]);
-  p->nProgram = argl[3];
+  memcpy(p->zProgram, argv[3], TH1_LEN(argl[3]));
+  p->nProgram = TH1_LEN(argl[3]);
   zSpace = &p->zProgram[p->nProgram];
 
   for(i=0; i<nParam; i++){
@@ -674,7 +693,8 @@ static int rename_command(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "rename oldcmd newcmd");
   }
-  return Th_RenameCommand(interp, argv[1], argl[1], argv[2], argl[2]);
+  return Th_RenameCommand(interp, argv[1], TH1_LEN(argl[1]),
+                          argv[2], TH1_LEN(argl[2]));
 }
 
 /*
@@ -748,9 +768,9 @@ static int string_compare_command(
   }
 
   zLeft = argv[2];
-  nLeft = argl[2];
+  nLeft = TH1_LEN(argl[2]);
   zRight = argv[3];
-  nRight = argl[3];
+  nRight = TH1_LEN(argl[3]);
 
   for(i=0; iRes==0 && i<nLeft && i<nRight; i++){
     iRes = zLeft[i]-zRight[i];
@@ -781,8 +801,8 @@ static int string_first_command(
     return Th_WrongNumArgs(interp, "string first needle haystack");
   }
 
-  nNeedle = argl[2];
-  nHaystack = argl[3];
+  nNeedle = TH1_LEN(argl[2]);
+  nHaystack = TH1_LEN(argl[3]);
 
   if( nNeedle && nHaystack && nNeedle<=nHaystack ){
     const char *zNeedle = argv[2];
@@ -814,16 +834,18 @@ static int string_index_command(
     return Th_WrongNumArgs(interp, "string index string index");
   }
 
-  if( argl[3]==3 && 0==memcmp("end", argv[3], 3) ){
-    iIndex = argl[2]-1;
+  if( TH1_LEN(argl[3])==3 && 0==memcmp("end", argv[3], 3) ){
+    iIndex = TH1_LEN(argl[2])-1;
   }else if( Th_ToInt(interp, argv[3], argl[3], &iIndex) ){
     Th_ErrorMessage(
         interp, "Expected \"end\" or integer, got:", argv[3], argl[3]);
     return TH_ERROR;
   }
 
-  if( iIndex>=0 && iIndex<argl[2] ){
-    return Th_SetResult(interp, &argv[2][iIndex], 1);
+  if( iIndex>=0 && iIndex<TH1_LEN(argl[2]) ){
+    int sz = 1;
+    TH1_XFER_TAINT(sz, argl[2]);
+    return Th_SetResult(interp, &argv[2][iIndex], sz);
   }else{
     return Th_SetResult(interp, 0, 0);
   }
@@ -840,37 +862,40 @@ static int string_is_command(
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "string is class string");
   }
-  if( argl[2]==5 && 0==memcmp(argv[2], "alnum", 5) ){
+  if( TH1_LEN(argl[2])==5 && 0==memcmp(argv[2], "alnum", 5) ){
     int i;
     int iRes = 1;
 
-    for(i=0; i<argl[3]; i++){
+    for(i=0; i<TH1_LEN(argl[3]); i++){
       if( !th_isalnum(argv[3][i]) ){
         iRes = 0;
       }
     }
 
     return Th_SetResultInt(interp, iRes);
-  }else if( argl[2]==6 && 0==memcmp(argv[2], "double", 6) ){
+  }else if( TH1_LEN(argl[2])==6 && 0==memcmp(argv[2], "double", 6) ){
     double fVal;
     if( Th_ToDouble(interp, argv[3], argl[3], &fVal)==TH_OK ){
       return Th_SetResultInt(interp, 1);
     }
     return Th_SetResultInt(interp, 0);
-  }else if( argl[2]==7 && 0==memcmp(argv[2], "integer", 7) ){
+  }else if( TH1_LEN(argl[2])==7 && 0==memcmp(argv[2], "integer", 7) ){
     int iVal;
     if( Th_ToInt(interp, argv[3], argl[3], &iVal)==TH_OK ){
       return Th_SetResultInt(interp, 1);
     }
     return Th_SetResultInt(interp, 0);
-  }else if( argl[2]==4 && 0==memcmp(argv[2], "list", 4) ){
+  }else if( TH1_LEN(argl[2])==4 && 0==memcmp(argv[2], "list", 4) ){
     if( Th_SplitList(interp, argv[3], argl[3], 0, 0, 0)==TH_OK ){
       return Th_SetResultInt(interp, 1);
     }
     return Th_SetResultInt(interp, 0);
+  }else if( TH1_LEN(argl[2])==7 && 0==memcmp(argv[2], "tainted", 7) ){
+    return Th_SetResultInt(interp, TH1_TAINTED(argl[3]));
   }else{
     Th_ErrorMessage(interp,
-        "Expected alnum, double, integer, or list, got:", argv[2], argl[2]);
+        "Expected alnum, double, integer, list, or tainted, got:",
+        argv[2], TH1_LEN(argl[2]));
     return TH_ERROR;
   }
 }
@@ -891,8 +916,8 @@ static int string_last_command(
     return Th_WrongNumArgs(interp, "string last needle haystack");
   }
 
-  nNeedle = argl[2];
-  nHaystack = argl[3];
+  nNeedle = TH1_LEN(argl[2]);
+  nHaystack = TH1_LEN(argl[3]);
 
   if( nNeedle && nHaystack && nNeedle<=nHaystack ){
     const char *zNeedle = argv[2];
@@ -921,7 +946,7 @@ static int string_length_command(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "string length string");
   }
-  return Th_SetResultInt(interp, argl[2]);
+  return Th_SetResultInt(interp, TH1_LEN(argl[2]));
 }
 
 /*
@@ -940,8 +965,8 @@ static int string_match_command(
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "string match pattern string");
   }
-  zPat = fossil_strndup(argv[2],argl[2]);
-  zStr = fossil_strndup(argv[3],argl[3]);
+  zPat = fossil_strndup(argv[2],TH1_LEN(argl[2]));
+  zStr = fossil_strndup(argv[3],TH1_LEN(argl[3]));
   rc = sqlite3_strglob(zPat,zStr);
   fossil_free(zPat);
   fossil_free(zStr);
@@ -958,16 +983,17 @@ static int string_range_command(
 ){
   int iStart;
   int iEnd;
+  int sz;
 
   if( argc!=5 ){
     return Th_WrongNumArgs(interp, "string range string first last");
   }
 
-  if( argl[4]==3 && 0==memcmp("end", argv[4], 3) ){
-    iEnd = argl[2];
+  if( TH1_LEN(argl[4])==3 && 0==memcmp("end", argv[4], 3) ){
+    iEnd = TH1_LEN(argl[2]);
   }else if( Th_ToInt(interp, argv[4], argl[4], &iEnd) ){
     Th_ErrorMessage(
-        interp, "Expected \"end\" or integer, got:", argv[4], argl[4]);
+        interp, "Expected \"end\" or integer, got:", argv[4], TH1_LEN(argl[4]));
     return TH_ERROR;
   }
   if( Th_ToInt(interp, argv[3], argl[3], &iStart) ){
@@ -975,10 +1001,12 @@ static int string_range_command(
   }
 
   if( iStart<0 ) iStart = 0;
-  if( iEnd>=argl[2] ) iEnd = argl[2]-1;
+  if( iEnd>=TH1_LEN(argl[2]) ) iEnd = TH1_LEN(argl[2])-1;
   if( iStart>iEnd ) iEnd = iStart-1;
+  sz = iEnd - iStart + 1;
+  TH1_XFER_TAINT(sz, argl[2]);
 
-  return Th_SetResult(interp, &argv[2][iStart], iEnd-iStart+1);
+  return Th_SetResult(interp, &argv[2][iStart], sz);
 }
 
 /*
@@ -991,7 +1019,8 @@ static int string_repeat_command(
 ){
   int n;
   int i;
-  int nByte;
+  int sz;
+  long long int nByte;
   char *zByte;
 
   if( argc!=4 ){
@@ -1001,13 +1030,18 @@ static int string_repeat_command(
     return TH_ERROR;
   }
 
-  nByte = argl[2] * n;
+  nByte = n;
+  sz = TH1_LEN(argl[2]);
+  nByte *= sz;
+  TH1_SIZECHECK(nByte+1);
   zByte = Th_Malloc(interp, nByte+1);
-  for(i=0; i<nByte; i+=argl[2]){
-    memcpy(&zByte[i], argv[2], argl[2]);
+  for(i=0; i<nByte; i+=sz){
+    memcpy(&zByte[i], argv[2], sz);
   }
 
-  Th_SetResult(interp, zByte, nByte);
+  n = nByte;
+  TH1_XFER_TAINT(n, argl[2]);
+  Th_SetResult(interp, zByte, n);
   Th_Free(interp, zByte);
   return TH_OK;
 }
@@ -1029,13 +1063,14 @@ static int string_trim_command(
     return Th_WrongNumArgs(interp, "string trim string");
   }
   z = argv[2];
-  n = argl[2];
-  if( argl[1]<5 || argv[1][4]=='l' ){
+  n = TH1_LEN(argl[2]);
+  if( TH1_LEN(argl[1])<5 || argv[1][4]=='l' ){
     while( n && th_isspace(z[0]) ){ z++; n--; }
   }
-  if( argl[1]<5 || argv[1][4]=='r' ){
+  if( TH1_LEN(argl[1])<5 || argv[1][4]=='r' ){
     while( n && th_isspace(z[n-1]) ){ n--; }
   }
+  TH1_XFER_TAINT(n, argl[2]);
   Th_SetResult(interp, z, n);
   return TH_OK;
 }
@@ -1053,7 +1088,7 @@ static int info_exists_command(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "info exists var");
   }
-  rc = Th_ExistsVar(interp, argv[2], argl[2]);
+  rc = Th_ExistsVar(interp, argv[2], TH1_LEN(argl[2]));
   Th_SetResultInt(interp, rc);
   return TH_OK;
 }
@@ -1119,7 +1154,7 @@ static int array_exists_command(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "array exists var");
   }
-  rc = Th_ExistsArrayVar(interp, argv[2], argl[2]);
+  rc = Th_ExistsArrayVar(interp, argv[2], TH1_LEN(argl[2]));
   Th_SetResultInt(interp, rc);
   return TH_OK;
 }
@@ -1139,7 +1174,7 @@ static int array_names_command(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "array names varname");
   }
-  rc = Th_ListAppendArray(interp, argv[2], argl[2], &zElem, &nElem);
+  rc = Th_ListAppendArray(interp, argv[2], TH1_LEN(argl[2]), &zElem, &nElem);
   if( rc!=TH_OK ){
     return rc;
   }
@@ -1163,7 +1198,7 @@ static int unset_command(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "unset var");
   }
-  return Th_UnsetVar(interp, argv[1], argl[1]);
+  return Th_UnsetVar(interp, argv[1], TH1_LEN(argl[1]));
 }
 
 int Th_CallSubCommand(
@@ -1178,15 +1213,18 @@ int Th_CallSubCommand(
     int i;
     for(i=0; aSub[i].zName; i++){
       const char *zName = aSub[i].zName;
-      if( th_strlen(zName)==argl[1] && 0==memcmp(zName, argv[1], argl[1]) ){
+      if( th_strlen(zName)==TH1_LEN(argl[1])
+       && 0==memcmp(zName, argv[1], TH1_LEN(argl[1])) ){
         return aSub[i].xProc(interp, ctx, argc, argv, argl);
       }
     }
   }
   if(argc<2){
-    Th_ErrorMessage(interp, "Expected sub-command for", argv[0], argl[0]);
+    Th_ErrorMessage(interp, "Expected sub-command for",
+                            argv[0], TH1_LEN(argl[0]));
   }else{
-    Th_ErrorMessage(interp, "Expected sub-command, got:", argv[1], argl[1]);
+    Th_ErrorMessage(interp, "Expected sub-command, got:",
+                             argv[1], TH1_LEN(argl[1]));
   }
   return TH_ERROR;
 }
@@ -1321,7 +1359,7 @@ static int uplevel_command(
   if( argc!=2 && argc!=3 ){
     return Th_WrongNumArgs(interp, "uplevel ?level? script...");
   }
-  if( argc==3 && TH_OK!=thToFrame(interp, argv[1], argl[1], &iFrame) ){
+  if( argc==3 && TH_OK!=thToFrame(interp, argv[1], TH1_LEN(argl[1]), &iFrame) ){
     return TH_ERROR;
   }
   return Th_Eval(interp, iFrame, argv[argc-1], -1);
@@ -1344,7 +1382,7 @@ static int upvar_command(
   int rc = TH_OK;
   int i;
 
-  if( TH_OK==thToFrame(0, argv[1], argl[1], &iFrame) ){
+  if( TH_OK==thToFrame(0, argv[1], TH1_LEN(argl[1]), &iFrame) ){
     iVar++;
   }
   if( argc==iVar || (argc-iVar)%2 ){
@@ -1352,7 +1390,8 @@ static int upvar_command(
         "upvar frame othervar myvar ?othervar myvar...?");
   }
   for(i=iVar; rc==TH_OK && i<argc; i=i+2){
-    rc = Th_LinkVar(interp, argv[i+1], argl[i+1], iFrame, argv[i], argl[i]);
+    rc = Th_LinkVar(interp, argv[i+1], TH1_LEN(argl[i+1]),
+                    iFrame, argv[i], TH1_LEN(argl[i]));
   }
   return rc;
 }

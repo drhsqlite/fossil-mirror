@@ -47,6 +47,26 @@ void loadavg_test_cmd(void){
 }
 
 /*
+** WEBPAGE:  test-overload
+**
+** Generate the response that would normally be shown only when
+** service is denied due to an overload condition.  This is for
+** testing of the overload warning page.
+*/
+void overload_page(void){
+  double mxLoad = atof(db_get("max-loadavg", "0.0"));
+  style_set_current_feature("test");
+  style_header("Server Overload");
+  @ <h2>The server load is currently too high.
+  @ Please try again later.</h2>
+  @ <p>Current load average: %f(load_average())<br>
+  @ Load average limit: %f(mxLoad)<br>
+  @ URL: %h(g.zBaseURL)%h(P("PATH_INFO"))<br>
+  @ Timestamp: %h(db_text("","SELECT datetime()"))Z</p>
+  style_finish_page();
+}
+
+/*
 ** Abort the current page request if the load average of the host
 ** computer is too high. Admin and Setup users are exempt from this
 ** restriction.
@@ -62,14 +82,7 @@ void load_control(void){
     return;
   }
 #endif
-
-  style_set_current_feature("test");
-  style_header("Server Overload");
-  @ <h2>The server load is currently too high.
-  @ Please try again later.</h2>
-  @ <p>Current load average: %f(load_average()).<br>
-  @ Load average limit: %f(mxLoad)</p>
-  style_finish_page();
+  overload_page();
   cgi_set_status(503,"Server Overload");
   cgi_reply();
   exit(0);

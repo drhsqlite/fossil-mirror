@@ -657,7 +657,6 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
       }else if( p->zDest[0]=='d' ){
         smtp_session_config(p->pSmtp, SMTP_TRACE_BLOB, &p->out);
       }
-      smtp_client_startup(p->pSmtp);
     }
   }
   return p;
@@ -987,9 +986,6 @@ void alert_send(
     blob_appendf(pOut, "From: <%s>\r\n", p->zFrom);
   }
   blob_appendf(pOut, "Date: %z\r\n", cgi_rfc822_datestamp(time(0)));
-  if( p->zListId  && p->zListId[0] ){
-    blob_appendf(pOut, "List-Id: %s\r\n", p->zListId);
-  }
   if( strstr(blob_str(pHdr), "\r\nMessage-Id:")==0 ){
     /* Message-id format:  "<$(date)x$(random)@$(from-host)>" where $(date) is
     ** the current unix-time in hex, $(random) is a 64-bit random number,
@@ -1035,9 +1031,17 @@ void alert_send(
   }else if( p->pSmtp ){
     char **azTo = 0;
     int nTo = 0;
+    SmtpSession *pSmtp = p->pSmtp;
     email_header_to(pHdr, &nTo, &azTo);
-    if( nTo>0 ){
-      smtp_send_msg(p->pSmtp, p->zFrom, nTo, (const char**)azTo,blob_str(&all));
+    if( nTo>0 && !pSmtp->bFatal ){
+      smtp_send_msg(pSmtp,p->zFrom,nTo,(const char**)azTo,blob_str(&all));
+      if( pSmtp->zErr && !pSmtp->bFatal ){
+        smtp_send_msg(pSmtp,p->zFrom,nTo,(const char**)azTo,blob_str(&all));
+      }
+      if( pSmtp->zErr ){
+        fossil_errorlog("SMTP: (%s) %s", pSmtp->bFatal ? "fatal" : "retry",
+                        pSmtp->zErr);
+      }
       email_header_to_free(nTo, azTo);
     }
   }else if( strcmp(p->zDest, "stdout")==0 ){
@@ -3210,14 +3214,17 @@ int alert_send_alerts(u32 flags){
         blob_appendf(&fhdr, "To: <%s>\r\n", zEmail);
         blob_append(&fhdr, blob_buffer(&p->hdr), blob_size(&p->hdr));
         blob_init(&fbody, blob_buffer(&p->txt), blob_size(&p->txt));
-        blob_appendf(&fhdr, "List-Unsubscribe: <%s/oneclickunsub/%s>\r\n",
-                     zUrl, zCode);
-        blob_appendf(&fhdr,
-                   "List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n");
-        blob_appendf(&fbody, "\n-- \nUnsubscribe: %s/unsubscribe/%s\n",
-           zUrl, zCode);
-        /* blob_appendf(&fbody, "Subscription settings: %s/alerts/%s\n",
-        **   zUrl, zCode); */
+        if( pSender->zListId  && pSender->zListId[0] ){
+           blob_appendf(&fhdr, "List-Id: %s\r\n", pSender->zListId);
+           blob_appendf(&fhdr, "List-Unsubscribe: <%s/oneclickunsub/%s>\r\n",
+                        zUrl, zCode);
+           blob_appendf(&fhdr,
+                       "List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n");
+           blob_appendf(&fbody, "\n-- \nUnsubscribe: %s/unsubscribe/%s\n",
+                        zUrl, zCode);
+           /* blob_appendf(&fbody, "Subscription settings: %s/alerts/%s\n",
+           **   zUrl, zCode); */
+        }
         alert_send(pSender,&fhdr,&fbody,p->zFromName);
         nSent++;
         blob_reset(&fhdr);
@@ -3240,11 +3247,15 @@ int alert_send_alerts(u32 flags){
       }
     }
     if( nHit==0 ) continue;
-    blob_appendf(&hdr, "List-Unsubscribe: <%s/oneclickunsub/%s>\r\n",
-         zUrl, zCode);
-    blob_appendf(&hdr, "List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n");
-    blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
-         zUrl, zCode);
+    if( pSender->zListId  && pSender->zListId[0] ){
+      blob_appendf(&hdr, "List-Id: %s\r\n", pSender->zListId);
+      blob_appendf(&hdr, "List-Unsubscribe: <%s/oneclickunsub/%s>\r\n",
+           zUrl, zCode);
+      blob_appendf(&hdr,
+            "List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n");
+      blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
+           zUrl, zCode);
+    }
     alert_send(pSender,&hdr,&body,0);
     nSent++;
     blob_truncate(&hdr, 0);
@@ -3290,14 +3301,24 @@ send_alert_expiration_warnings:
       );
       while( db_step(&q)==SQLITE_ROW ){
         Blob hdr, body;
+        const char *zCode = db_column_text(&q,0);
         blob_init(&hdr, 0, 0);
         blob_init(&body, 0, 0);
         alert_renewal_msg(&hdr, &body,
-           db_column_text(&q,0),
+           zCode,
            db_column_int(&q,1),
            db_column_text(&q,2),
            db_column_text(&q,3),
            zRepoName, zUrl);
+        if( pSender->zListId  && pSender->zListId[0] ){
+           blob_appendf(&hdr, "List-Id: %s\r\n", pSender->zListId);
+           blob_appendf(&hdr, "List-Unsubscribe: <%s/oneclickunsub/%s>\r\n",
+                        zUrl, zCode);
+           blob_appendf(&hdr,
+                       "List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n");
+           blob_appendf(&body, "\n-- \nUnsubscribe: %s/unsubscribe/%s\n",
+                        zUrl, zCode);
+        }
         alert_send(pSender,&hdr,&body,0);
         blob_reset(&hdr);
         blob_reset(&body);
