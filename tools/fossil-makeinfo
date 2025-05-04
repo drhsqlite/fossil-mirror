@@ -13,6 +13,7 @@
 # v0.12 Reworded section introductions.
 # v0.13 Added testing commands to texi output.
 # v0.14 Added web commands to texi output. Note added far later.
+# v0.15 Added Fossil settings.
 #        Builds a correct texinfo file (finally) on OpenBSD and NetBSD.
 #
 # Requires fossil, tail, GNU sed and makeinfo
@@ -75,8 +76,7 @@ This file documents version @value{VERSION} of Fossil.
 " >> fossil.texi
 
 printf "@node Top
-@chapter Top
-Fossil - a distributed version control system
+@chapter Fossil
 
 Fossil is a distributed version control system (DVCS) with built-in
 forum, wiki, ticket tracker, CGI/HTTP interface, and HTTP server.
@@ -84,12 +84,13 @@ This file documents version @value{VERSION} of Fossil.
 
 @c     @node menu
 @menu
-* Fossil::             Introduction and features listed from the website front page.
+* Introduction::               Introduction and features listed from the website front page.
 * Common commands::      These are the commands that are most likely to be used.
 * Uncommon commands::    These aren't used as often, but they're still there when needed.
 * Test commands::        These are definitely not recommended for production use.
+* Fossil settings::      These describe fossil settings. 
 * Web commands::         Available webpage help.
-* Common arguments::     arguments common to all commands.
+* Common arguments::     Arguments common to all commands.
 * License::              The license agreement of the fossil project.
 @end menu
 
@@ -105,8 +106,8 @@ help nodes from fossil into here, but it's vaguely possible I've missed some.
 " >> fossil.texi
 
 # Add in the Features from the front webpage
-printf "@node Fossil,Common commands,Top,Top
-@chapter Fossil
+printf "@node Introduction,Common commands,Top,Top
+@chapter Introduction
 
 Fossil is a distributed version control system (DVCS) with built-in
 forum, wiki, ticket tracker, CGI/HTTP interface, and HTTP server.
@@ -152,7 +153,7 @@ Free and Open-Source
 ###### Common commands
 echo "List common commands"
 
-printf "@node Common commands,Uncommon commands,Fossil,Top
+printf "@node Common commands,Uncommon commands,Introduction,Top
 @chapter Common commands
 
 These are the more commonly used commands for the average fossil user. They're
@@ -269,9 +270,9 @@ sed -i -e 's/--\([[:alnum:]-]\{1,\}\)/@option\{--\1\}/g' workfile
 cat workfile >> fossil.texi
 echo "" >> fossil.texi
 
-# Now the test commands. Here be dragons.
+##### Now the test commands. Here be dragons. #####
 echo "List test commands"
-echo "@node Test commands,Web commands,Uncommon commands,Top
+printf "@node Test commands,Fossil settings,Uncommon commands,Top
 @chapter Testing commands
 
 These are testing commands, listed by fossil when you run the command:
@@ -285,8 +286,7 @@ tool, but are useful enough to be kept around. They are most definitely not
 supported, and the developers will expect to change these far more often. They
 are not stable, so do not depend upon their behavior, or even their existence.
 
-@menu
-" >> fossil.texi
+@menu\n" >> fossil.texi
 
 # Insert test commands in here
 echo "Grab test keywords for menu"
@@ -327,9 +327,71 @@ sed -i -e 's/--\([[:alnum:]-]\{1,\}\)/@option\{--\1\}/g' workfile
 cat workfile >> fossil.texi
 echo "" >> fossil.texi
 
-# Now the webpage content. Here be wild wild web pages.
+##### Now, add in fossil settings #####
+# The usual wyvern warnings.
+echo "List settings"
+printf "@node Fossil settings,Web commands,Test commands,Top
+@chapter Fossil settings
+
+These are help pages for settings within fossil, shown when you run:
+@example
+fossil help -s
+@end example
+
+@menu\n" >> fossil.texi
+
+# Insert settings keywords in here
+echo "Grab settings keywords for menu"
+for u in $(for t in $(fossil help -s); do echo "$t"; done | sort); do echo "* ${u}::"; done >> fossil.texi
+
+# and finish the menu
+echo "@end menu
+
+" >> fossil.texi
+# Now add all the help from "fossil help -s -v"
+# WARNING: tail count is brittle
+# sed comands remove the last two lines.
+echo "Fossil output test help to workfile"
+fossil help -s -v | tail -n +4 | sed '$d' | sed '$d' >workfile
+
+# swap out @ with @@ so texinfo doesn't barf
+echo "Doubling up the @'s"
+sed -i -e 's/@/@@/g' workfile
+
+# This swaps out "# keyword" with 
+# @node keyword
+# @unnumbered keyword
+# breaks on *BSD's seds, needs gsed there
+echo "Swapping out # for @node ... \n@unnumbered ..."
+
+if [[ ${MYOS} == "Linux" ]]; then
+    sed -i -e 's/^##* \([a-z0-9-]\{1,\}\)/@node \1\n@section \1\n/' workfile
+else
+    # We'll assume we're on a BSD here, even though this won't always be true
+    gsed -i -e 's/^##* \([a-z0-9-]\{1,\}\)/@node \1\n@section \1\n/' workfile
+fi
+
+# This has to be done before swapping --switches because the next command
+# adds @option(--switches} and hence reuses the {}.
+echo "Swapping out {} for @{ @}"
+# swaps out {} for @{ @}
+if [[ ${MYOS} == "Linux" ]]; then
+    sed -i -e 's/{/@{/g' -e 's/}/@}/g' workfile
+else
+    gsed -i -e 's/{/@{/g' -e 's/}/@}/g' workfile
+fi
+
+# turns --switches into @option{--switches}
+sed -i -e 's/--\([[:alnum:]-]\{1,\}\)/@option\{--\1\}/g' workfile
+
+# ... and adds it to the output file with a spacer line
+cat workfile >> fossil.texi
+echo "" >> fossil.texi
+
+
+##### Now the webpage content. Here be wild wild web pages. #####
 echo "List web commands"
-echo "@node Web commands,Common arguments,Test commands,Top
+printf "@node Web commands,Common arguments,Fossil settings,Top
 @chapter Web commands
 
 These are help pages for the internal web pages, listed by fossil when you run the command:
@@ -345,8 +407,7 @@ example below, that starts from the final / (in this case, /timeline?ms=glob):
 https://fossil.example.com/fossil/timeline?ms=glob
 @end example
 
-@menu
-" >> fossil.texi
+@menu\n" >> fossil.texi
 
 # Insert webpage keywords in here
 echo "Grab web keywords for menu"
