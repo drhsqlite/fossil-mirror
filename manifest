@@ -1,5 +1,5 @@
-C Update\sthe\s/thisdayinhistory\spage\sto\sshow\schanges\sfrom\s25\syears\sago.
-D 2025-05-03T20:00:19.164
+C In\sthe\s--tk\sdiff\sGUI,\sfix\sthe\s"Save\sAs..."\sbutton\sso\sthat\sit\sworks\nagain.\s\sDo\snot\sshow\sthe\s"Reload"\sbutton\son\sa\sGUI\sbrought\sup\sfrom\sa\nSave\sAs.
+D 2025-05-06T11:26:38.945
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -419,7 +419,7 @@ F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a6
 F src/descendants.c b89a755e53906d2ec2ea69573bd38a4c90baad7af2e48c13015a69b7637b03b2
 F src/diff.c 1f3a90edf3be51e052718b7f2f845ef1967df03874f6d82f47c58344f6cf6cf4
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
-F src/diff.tcl f6e04df1bbaa41b1269e81b2ee410eacf0ed78cb8da3d3a51c40a2d1d44aacfa
+F src/diff.tcl 29f14870a8e9befd8bdc6682ed4fce4889a15296b611e3c140ab2afb00d095f3
 F src/diffcmd.c 30179ce21979fec53cdab3784805f19ab582543e758633281a6926047399cd9d
 F src/dispatch.c ed3f8b39d19aad310c6252feb40610a0393a016116ac91f3c59fe57a0799ddb3
 F src/doc.c a939e55f45961b95a8cc62c3c2e63f25aaa3bb73ae8e00a88803b0ed29d1988f
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7438f5b0ffa20f656975fb5d02556867ee7be735153f5a2b8be3a6f685bb0c94
-R 95c8c8559ad9f79aa2973d15e94e59d1
+P 99aeebadef2ddb7406f4bb8a64f7de309140dafd4065db4002f837ed55dc12cd
+R 11595963206b5f7f256b7049ee45c2d6
 U drh
-Z 398550dc9c8c2ef6a8dd09436b85e6e3
+Z 9affd6fe7c67d1130f7f71d6efb238b7
 # Remove this line to create a well-formed Fossil manifest.
