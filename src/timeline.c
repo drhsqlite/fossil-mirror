@@ -3818,9 +3818,15 @@ void timeline_cmd(void){
   }
   
   if( mode==TIMELINE_MODE_AFTER ){
+    int lim = n;
+    if( n == 0 ){
+      lim = -1; // 0 means no limit
+    }else if( n < 0 ){
+      lim = -n;
+    }
     /* Complete the above outer select. */
     blob_append_sql(&sql, 
-        "\nORDER BY event.mtime LIMIT abs(%d)) t ORDER BY t.mDateTime DESC;", n);
+        "\nORDER BY event.mtime LIMIT %d) t ORDER BY t.mDateTime DESC;", lim);
   }else{
     blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
   }
