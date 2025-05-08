@@ -672,7 +672,7 @@ affects the `--cap-drop` flags recommended above to:
 [pmwin]:  https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md
 [Podman]: https://podman.io/
 [rl]:     https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md
-[whatis]: https://podman.io/whatis.html
+[whatis]: https://docs.podman.io/en/latest/index.html
 
 
 ### 6.3 <a id="nspawn"></a>`systemd-container`

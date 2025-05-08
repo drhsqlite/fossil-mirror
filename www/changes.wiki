@@ -1190,8 +1190,7 @@
   *  Rework the skin editing process so that changes are implemented
      on one of nine /draft pages, evaluated, then merged back to the
      default.
-  *  Added the [https://fossil-scm.org/skins/ardoise/timeline|Ardoise]
-     skin.
+  *  Added the [/timeline?skin=ardoise&once|Ardoise] skin.
   *  Fix the "fossil server" command on Unix to be much more responsive
      to multiple simultaneous web requests.
   *  Use the IPv6 stack for the "fossil ui" and "fossil server"
