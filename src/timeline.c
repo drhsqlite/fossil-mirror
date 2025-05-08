@@ -3820,7 +3820,7 @@ void timeline_cmd(void){
   if( mode==TIMELINE_MODE_AFTER ){
     int lim = n;
     if( n == 0 ){
-      lim = -1; // 0 means no limit
+      lim = -1; /* 0 means no limit */
     }else if( n < 0 ){
       lim = -n;
     }
