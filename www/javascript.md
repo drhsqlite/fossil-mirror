@@ -187,7 +187,7 @@ ones we’ve heard before and give our stock answers to them here:
     affairs to continue.
 
 8.  <a id="stats"></a>“**A large number of users run without JavaScript enabled.**”
-  
+
     That’s not what web audience measurements say:
 
     * [What percentage of browsers with javascript disabled?][s1]
@@ -485,6 +485,12 @@ a client-side sort of the data on that column.
 
 _Potential Workaround:_ This feature could be enhanced to do the sort on
 the server side using a page re-load.
+
+
+### <a id="filter"></a>Quickfilter
+
+On some pages adding the ability to filter a table of items down to the
+rows matching the text typed in by the user.
 
 
 ### <a id="tree"></a>File Browser Tree View
