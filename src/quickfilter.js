@@ -2,7 +2,7 @@
 **
 ** Add an input field with the id 'quickfilter' as follows:
 **   <input type="text" id="quickfilter" placeholder="filter list...">
-** Mark the table with the filter items with the class 'filterlist'.
+** Mark the table with the filter items with the class 'filterable'.
 ** The table is expected to have a tbody around the rows that are
 ** filtered (to avoid filtering the header).
 **
@@ -11,9 +11,9 @@
 
 quickfilter.addEventListener('input', function(){
   const quickfilter = document.getElementById('quickfilter');
-  const filterlist = document.querySelectorAll('.filterlist tbody tr');
+  const filterrows = document.querySelectorAll('.filterable tbody tr');
   const filter = quickfilter.value.toLowerCase().trim();
-  for(row of filterlist){
+  for(row of filterrows){
     const orig = row.innerHTML;
     const cleaned = orig.replaceAll("<mark>", "").replaceAll("</mark>", "");
     if(filter===''){

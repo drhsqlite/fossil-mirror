@@ -223,7 +223,7 @@ int repo_list_page(void){
     }
     zType[nType] = 0;
     blob_appendf(&html,
-      "<table border='0' class='sortable filterlist' data-init-sort='1'"
+      "<table border='0' class='sortable filterable' data-init-sort='1'"
       " data-column-types='%s' cellspacing='0' cellpadding='0'><thead>\n"
       "<tr><th>Filename</th><th>&emsp;</th>\n"
       "<th%s><nobr>Project Name</nobr></th>\n",

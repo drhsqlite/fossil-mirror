@@ -1237,7 +1237,7 @@ void rptview_page_content(
     if( quickfilter ){
       @ <input type="search" id="quickfilter" placeholder="filter ticket list...">
     }
-    @ <table border="1" cellpadding="2" cellspacing="0" class="report sortable filterlist"
+    @ <table border="1" cellpadding="2" cellspacing="0" class="report sortable filterable"
     @  data-column-types='' data-init-sort='0'>
     sState.rn = rn;
     sState.nCount = 0;
