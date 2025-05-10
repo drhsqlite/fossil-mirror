@@ -9,8 +9,8 @@
 ** The user can type to filter the table for elements matching the typed text.
 */
 
+const quickfilter = document.getElementById('quickfilter');
 quickfilter.addEventListener('input', function(){
-  const quickfilter = document.getElementById('quickfilter');
   const filterrows = document.querySelectorAll('.filterable tbody tr');
   const filter = quickfilter.value.toLowerCase().trim();
   for(row of filterrows){
