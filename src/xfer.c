@@ -2384,12 +2384,12 @@ int client_sync(
     }
 
     /* Output current stats */
+    nRoundtrip++;
     if( syncFlags & SYNC_VERBOSE ){
       fossil_print(zValueFormat /*works-like:"%s%d%d%d%d"*/, "Sent:",
                    blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
                    xfer.nFileSent, xfer.nDeltaSent);
     }else{
-      nRoundtrip++;
       nArtifactSent += xfer.nFileSent + xfer.nDeltaSent;
       if( bOutIsTty!=0 ){
         fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,

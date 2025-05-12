@@ -1,5 +1,5 @@
-C Fix\stypo\sin\shelp\sfor\sthe\s"tag"\scommand.
-D 2025-05-12T10:54:42.213
+C Move\sthe\sincrement\sof\sthe\sround-trip\scounter\sfor\ssync.
+D 2025-05-12T12:05:33.786
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -594,7 +594,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
-F src/xfer.c ea44aedde5163c8673ff9dfff4319895238bb6f2c4fca29b0774eefab470ea4e
+F src/xfer.c 270783454e152ee2b06c9113e19a0ac8a42fc2779ff29d4fe503e6f0e6591543
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c 9d985180dc978db75a512937fe2fe409eb4abd0daa0463110966abbb1d44b382
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb3fbffefaab13a1ab33951a1de611d0b352652f551a21f354f72ba9bc0e5982
-R 285de9feda0cbe868505a8ae3fbaa0bd
+P d328168677deb0174c0b61c32b277f4de0ba05a541598cd4cf65d8ba54229d3a
+R 9eea522f5b6f7519ba6ed7d3c2d407d3
 U drh
-Z 578f7e7f68d327daf49e2e7c8c2d1aeb
+Z 257bdbd73532928afe711e600b1f676f
 # Remove this line to create a well-formed Fossil manifest.
