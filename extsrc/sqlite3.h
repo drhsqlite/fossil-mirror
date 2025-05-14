@@ -148,7 +148,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.50.0"
 #define SQLITE_VERSION_NUMBER 3050000
-#define SQLITE_SOURCE_ID      "2025-05-06 17:56:32 6eb2939a6093c0796910645172d80c53055559dd57c012f1dc815d89fbf84447"
+#define SQLITE_SOURCE_ID      "2025-05-14 16:40:05 e7dcf25efae364b7cdf9eb8265803c816c8b8557e4a7684da428badc6ffb3875"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -11767,7 +11767,7 @@ SQLITE_API int sqlite3changeset_start_v2(
 ** The following flags may passed via the 4th parameter to
 ** [sqlite3changeset_start_v2] and [sqlite3changeset_start_v2_strm]:
 **
-** <dt>SQLITE_CHANGESETAPPLY_INVERT <dd>
+** <dt>SQLITE_CHANGESETSTART_INVERT <dd>
 **   Invert the changeset while iterating through it. This is equivalent to
 **   inverting a changeset using sqlite3changeset_invert() before applying it.
 **   It is an error to specify this flag with a patchset.
