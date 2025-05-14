@@ -370,7 +370,7 @@ writeln [string map [list \
     <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "] \
     <<<PIKCHR_OPTIONS>>> [join $PIKCHR_OPTIONS " \\\n                "] \
     <<<NEXT_LINE>>> \\] {
-all:	$(OBJDIR) $(APPNAME)
+all:	$(APPNAME)
 
 install:	all
 	mkdir -p $(INSTALLDIR)
@@ -379,26 +379,28 @@ install:	all
 codecheck:	$(TRANS_SRC) $(OBJDIR)/codecheck1
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
 
-$(OBJDIR):
-	-mkdir $(OBJDIR)
-
 $(OBJDIR)/translate:	$(SRCDIR_tools)/translate.c
 	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR_tools)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR_tools)/makeheaders.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR_tools)/makeheaders.c
 
 $(OBJDIR)/mkindex:	$(SRCDIR_tools)/mkindex.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR_tools)/mkindex.c
 
 $(OBJDIR)/mkbuiltin:	$(SRCDIR_tools)/mkbuiltin.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR_tools)/mkbuiltin.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR_tools)/mkversion.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR_tools)/mkversion.c
 
 $(OBJDIR)/codecheck1:	$(SRCDIR_tools)/codecheck1.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR_tools)/codecheck1.c
 
 # Run the test suite.
@@ -414,7 +416,7 @@ $(OBJDIR)/codecheck1:	$(SRCDIR_tools)/codecheck1.c
 # TESTFLAGS can also include names of specific test files to limit
 # the run to just those test cases.
 #
-test:	$(OBJDIR) $(APPNAME)
+test:	$(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion $(OBJDIR)/phony.h
@@ -554,19 +556,22 @@ writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR_extsrc)/linenoise.c \$(SRCDIR_extsrc
 writeln "\t\$(XTCC) -c \$(SRCDIR_extsrc)/linenoise.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
+writeln "\t-mkdir -p \$(OBJDIR)\n"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
+writeln "\t-mkdir -p \$(OBJDIR)\n"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
+writeln "\t-mkdir -p \$(OBJDIR)\n"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 
 writeln [string map [list <<<NEXT_LINE>>> \\] {
-$(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
+$(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c $(OBJDIR)/mkversion
 	$(XTCC) $(PIKCHR_OPTIONS) -c $(SRCDIR_extsrc)/pikchr.c -o $@
 
-$(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
+$(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c $(OBJDIR)/mkversion
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
 
 $(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c $(MAKEFILE_LIST)

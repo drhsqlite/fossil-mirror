@@ -1,5 +1,5 @@
-C Another\scorrection\sto\sthe\sxfer\sstatus\scounters.
-D 2025-05-12T12:17:45.726
+C Update\sthe\sunix\smakefile\sto\scorrect\sa\sdependency\sproblem\sdiscovered\sby\n--shuffle=reverse\sin\sGnu\smake.
+D 2025-05-14T13:20:07.125
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -494,7 +494,7 @@ F src/login.c 61bcd0f5127a1672526bf5c92ddb1380393b37d673a72e270005bc233d3f314f
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c fda668ae6be5bab52fa1c430b3d4a43e7012d827661fd34e1c53714d83017360
-F src/main.mk 3f60abadc037e5432d1692e5209384c0c923abe4e5138102fd6e89ee3d6e05cc
+F src/main.mk 5fb0c96c6acb65d7cccda4325bcda231cbb3c02107b6826052bfe3e5d1b866da
 F src/manifest.c 699ddca0092dcd6cb552b664058d9d4e0da3d517544d76566051061cdd5e6845
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
 F src/markdown.md ff61bdc272e5cac07caf839fdafbe80425375b668a31773a07869310fd8ad227
@@ -744,7 +744,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c 5f464a5a25ae45978e49e1cc230cc4c6f2fddc8f2f45a044fff02dc074a0bcf6
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl bb9e52c5da3022f52302e6511fcaedd9ca5df61368248aea8e226e865b17c85f x
+F tools/makemake.tcl 9ae0a6effc0d655607c11ef80046071e2da03d92089ffa94887f4e8fad559ee8 x
 F tools/man_page_command_list.tcl 8f7f2c0717cb7e2ddece0a92bd10809bb16a1d8c3aa8bf6f77f6143b9282a099 x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c 3916faa7d2eb34c4376a504a0447a4faf7e23a76bbd59af8d164143c7e9ee585
@@ -971,8 +971,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dca483a80c126e2a5ff55e2bda1753571b5fdf313efd0f7b76f108bd68495e01
-R d45bff7c9ad5271eba329af626e500ce
+P 04b9b0136daec1bcb6b5e088e8f091203d7c84b17f26e76b696004630e973561 70464b40328c50f30ac4a43c1afbcce2f3fc950eacc8c8aada3aa57493f385cc
+R d3ea539aeb44f6119cd98cecb486fa81
+T +closed 70464b40328c50f30ac4a43c1afbcce2f3fc950eacc8c8aada3aa57493f385cc
 U drh
-Z b2014a7e769ec4e494e1ebd25af2e689
+Z b78b8a7cf2d6544bec4967f380ba2520
 # Remove this line to create a well-formed Fossil manifest.
