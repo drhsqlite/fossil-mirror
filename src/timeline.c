@@ -2352,11 +2352,11 @@ void page_timeline(void){
       int n = db_int(0, "SELECT count(*) FROM ok");
       blob_reset(&desc);
       blob_appendf(&desc,
-          "%d check-ins that are both ancestors of %z%h</a>"
-          " and descendants of %z%h</a>",
+          "%d check-ins that are derived from %z%h</a>"
+          " and contribute to %z%h</a>",
           n,
-          href("%R/info?name=%h",zDPNameP),zDPNameP,
-          href("%R/info?name=%h",zDPNameD),zDPNameD
+          href("%R/info?name=%h",zDPNameD),zDPNameD,
+          href("%R/info?name=%h",zDPNameP),zDPNameP
       );
       ridBackTo = 0;
       ridFwdTo = 0;
