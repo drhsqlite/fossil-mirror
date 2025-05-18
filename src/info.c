@@ -995,8 +995,10 @@ void ci_page(void){
       @ <tr><th>Downloads:</th><td>
       @ %z(href("%s",zUrl))Tarball</a>
       @ | %z(href("%R/zip/%S/%t-%S.zip",zUuid, zPJ,zUuid))ZIP archive</a>
-      @ | %z(href("%R/sqlar/%S/%t-%S.sqlar",zUuid,zPJ,zUuid))\
-      @ SQL archive</a></td></tr>
+      if( g.zLogin!=0 ){
+        @ | %z(href("%R/sqlar/%S/%t-%S.sqlar",zUuid,zPJ,zUuid))\
+        @ SQL archive</a></td></tr>
+      }
       fossil_free(zUrl);
       blob_reset(&projName);
     }
@@ -3932,6 +3934,7 @@ static void prepare_amend_comment(
 **    --date DATETIME            Make DATETIME the check-in time
 **    --date-override DATETIME   Set the change time on the control artifact
 **    -e|--edit-comment          Launch editor to revise comment
+**    --editor NAME              Text editor to use for check-in comment
 **    --hide                     Hide branch starting from this check-in
 **    -m|--comment COMMENT       Make COMMENT the check-in comment
 **    -M|--message-file FILE     Read the amended comment from FILE
@@ -4005,6 +4008,7 @@ void ci_amend_cmd(void){
   noVerifyCom = find_option("no-verify-comment",0,0)!=0;
   db_find_and_open_repository(0,0);
   user_select();
+  (void)fossil_text_editor();
   verify_all_options();
   if( g.argc<3 || g.argc>=4 ) usage(AMEND_USAGE_STMT);
   rid = name_to_typed_rid(g.argv[2], "ci");

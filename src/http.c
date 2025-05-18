@@ -54,7 +54,8 @@ static int traceCnt = 0;
 **       login LOGIN NONCE SIGNATURE
 **
 ** The LOGIN is the user id of the client.  NONCE is the sha1 checksum
-** of all payload that follows the login card.  SIGNATURE is the sha1
+** of all payload that follows the login card.  Randomness for the NONCE 
+** must be provided in the payload (in xfer.c).  SIGNATURE is the sha1
 ** checksum of the nonce followed by the user password.
 **
 ** Write the constructed login card into pLogin.  pLogin is initialized

@@ -3371,7 +3371,7 @@ void create_repository_cmd(void){
   fossil_print("project-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  fossil_print("admin-user: %s (initial password is \"%s\")\n",
+  fossil_print("admin-user: %s (initial remote-access password is \"%s\")\n",
                g.zLogin, zPassword);
   hash_user_password(g.zLogin);
 }
@@ -4760,7 +4760,7 @@ struct Setting {
 **
 ** Possible values are:
 **    1     Use the original comment printing algorithm:
-**             *   Leading and trialing whitespace is removed
+**             *   Leading and trailing whitespace is removed
 **             *   Internal whitespace is converted into a single space (0x20)
 **             *   Line breaks occurs at whitespace or hyphens if possible
 **          This is the recommended value and the default.

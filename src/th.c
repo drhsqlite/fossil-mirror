@@ -1796,11 +1796,15 @@ int Th_ListAppend(
   int nBrace = 0;
 
   output.zBuf = *pzList;
-  output.nBuf = *pnList;
+  output.nBuf = TH1_LEN(*pnList);
   output.nBufAlloc = output.nBuf;
+  output.bTaint = 0;
+  TH1_XFER_TAINT(output.bTaint, *pnList);
 
   if( nElem<0 ){
     nElem = th_strlen(zElem);
+  }else{
+    nElem = TH1_LEN(nElem);
   }
   if( output.nBuf>0 ){
     thBufferAddChar(interp, &output, ' ');
@@ -2129,12 +2133,14 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
       rc = exprEval(interp, pExpr->pLeft);
       if( rc==TH_OK ){
         zLeft = Th_TakeResult(interp, &nLeft);
+        nLeft = TH1_LEN(nLeft);
       }
     }
     if( rc==TH_OK && pExpr->pRight ){
       rc = exprEval(interp, pExpr->pRight);
       if( rc==TH_OK ){
         zRight = Th_TakeResult(interp, &nRight);
+        nRight = TH1_LEN(nRight);
       }
     }
 

@@ -26,6 +26,10 @@
 #include "th.h"
 #include "tcl.h"
 
+#if TCL_MAJOR_VERSION<9 && !defined(Tcl_Size)
+# define Tcl_Size int
+#endif
+
 /*
 ** This macro is used to verify that the header version of Tcl meets some
 ** minimum requirement.
@@ -185,7 +189,11 @@
 ** cleanup if the Tcl stubs initialization fails somehow, the Tcl_DeleteInterp
 ** and Tcl_Finalize function types are also required.
 */
+#if TCL_MAJOR_VERSION>=9
 typedef const char *(tcl_FindExecutableProc) (const char *);
+#else
+typedef void (tcl_FindExecutableProc) (const char *);
+#endif
 typedef Tcl_Interp *(tcl_CreateInterpProc) (void);
 typedef void (tcl_DeleteInterpProc) (Tcl_Interp *);
 typedef void (tcl_FinalizeProc) (void);

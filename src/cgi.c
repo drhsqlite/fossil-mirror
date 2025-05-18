@@ -2675,7 +2675,7 @@ int cgi_http_server(
       setsockopt(listen4, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
       rc = bind(listen4, (struct sockaddr*)&inaddr4, sizeof(inaddr4));
       if( rc<0 ){
-        close(listen6);
+        close(listen4);
         listen4 = -1;
       }
     }

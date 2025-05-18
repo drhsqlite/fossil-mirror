@@ -2352,11 +2352,11 @@ void page_timeline(void){
       int n = db_int(0, "SELECT count(*) FROM ok");
       blob_reset(&desc);
       blob_appendf(&desc,
-          "%d check-ins that are both ancestors of %z%h</a>"
-          " and descendants of %z%h</a>",
+          "%d check-ins that are derived from %z%h</a>"
+          " and contribute to %z%h</a>",
           n,
-          href("%R/info?name=%h",zDPNameP),zDPNameP,
-          href("%R/info?name=%h",zDPNameD),zDPNameD
+          href("%R/info?name=%h",zDPNameD),zDPNameD,
+          href("%R/info?name=%h",zDPNameP),zDPNameP
       );
       ridBackTo = 0;
       ridFwdTo = 0;
@@ -3818,9 +3818,15 @@ void timeline_cmd(void){
   }
   
   if( mode==TIMELINE_MODE_AFTER ){
+    int lim = n;
+    if( n == 0 ){
+      lim = -1; /* 0 means no limit */
+    }else if( n < 0 ){
+      lim = -n;
+    }
     /* Complete the above outer select. */
     blob_append_sql(&sql, 
-        "\nORDER BY event.mtime LIMIT abs(%d)) t ORDER BY t.mDateTime DESC;", n);
+        "\nORDER BY event.mtime LIMIT %d) t ORDER BY t.mDateTime DESC;", lim);
   }else{
     blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
   }
@@ -3849,7 +3855,7 @@ void timeline_cmd(void){
 **    today=DATE             Use DATE as today's date
 */
 void thisdayinhistory_page(void){
-  static int aYearsAgo[] = { 1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50, 75, 100 };
+  static int aYearsAgo[] = { 1,2,3,4,5,10,15,20,25,30,40,50,75,100 };
   const char *zToday;
   char *zStartOfProject;
   int i;
