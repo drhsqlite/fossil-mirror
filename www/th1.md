@@ -142,7 +142,7 @@ repository.  Note that the tainted/untainted distinction in strings does
 not make it impossible to introduce XSS and SQL-injections vulnerabilities
 using poorly-written TH1 scripts; it just makes it more difficult and
 less likely to happen by accident.  Developers must still consider the
-security implications TH1 customizations they add to Fossil, and take
+security implications of TH1 customizations they add to Fossil, and take
 appropriate precautions when writing custom TH1.  Peer review of TH1
 script changes is encouraged.
 
