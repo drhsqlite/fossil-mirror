@@ -1,5 +1,5 @@
-C Honor\sthe\schng=\squery\sparameter\sto\s/timeline\son\squeries\sthat\suse\sp=,\sd=,\nfrom=,\sand\ssimilar.
-D 2025-05-18T17:38:39.644
+C Update\sthe\schange\slog\sto\srecord\s/timeline\senhancements.
+D 2025-05-18T18:16:09.946
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -792,7 +792,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki a78260ee3d362f11c3ebb52258091a99c4329a53d28f88416db922ada3a20929
-F www/changes.wiki 74d366354576cd874429b666fa99a2650ce94cc4d6c188cc0a00bc0a5c79a006
+F www/changes.wiki 21ffc261471dcae8642d4a23538443870581e5d02852047725a445dc469424a0
 F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a28e91555a85b8f97a70dd492f2e957211f55c5130fff76826f3f39b563f860
-R f7156e88858f973a7a16d76bd556e1bb
+P 365a1ecc28b86e07e5a1bd4b7b80bf96735dadda412ad3e9ab14f7a34ca45da1
+R 723915e8f4d30c4c2d4bc669df4065b3
 U drh
-Z bd93abc4b23179757869083d0181af86
+Z f226d8a734ea40ecf10223a21573f045
 # Remove this line to create a well-formed Fossil manifest.

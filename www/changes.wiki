@@ -2,7 +2,8 @@
 
 <h2 id='v2_27'>Changes for version 2.27 (pending)</h2>
 
-  *  <i>(pending)</i>
+  *  Enhance the chng= query parameter on the [/help?cmd=/timeline|timeline page]
+     so that it work with other query parameters like p=, d=, from=, and to=.
 
 <h2 id='v2_26'>Changes for version 2.26 (2025-04-30)</h2><ol>
  <li>Enhancements to [/help?cmd=diff|fossil diff] and similar:
