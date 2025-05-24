@@ -104,21 +104,6 @@ finish_repo_list:
 }
 
 /*
-** SETTING: show-repolist-desc                  boolean default=off
-**
-** If the value of this setting is "1" globally, then the repository-list
-** page will show the description of each repository.  This setting only
-** has effect when it is in the global setting database.
-*/
-/*
-** SETTING: show-repolist-lg                    boolean default=off
-**
-** If the value of this setting is "1" globally, then the repository-list
-** page will show the login-group for each repository.  This setting only
-** has effect when it is in the global setting database.
-*/
-
-/*
 ** Generate a web-page that lists all repositories located under the
 ** g.zRepositoryName directory and return non-zero.
 **
@@ -153,13 +138,6 @@ int repo_list_page(void){
   if( zShow ){
     bShowDesc = strstr(zShow,"description")!=0;
     bShowLg = strstr(zShow,"login-group")!=0;
-  }else if( db_open_config(1, 1)
-     && db_table_exists("configdb", "global_config")
-  ){
-    bShowDesc = db_int(bShowDesc, "SELECT value FROM global_config"
-                                  " WHERE name='show-repolist-desc'");
-    bShowLg = db_int(bShowLg, "SELECT value FROM global_config"
-                              " WHERE name='show-repolist-lg'");
   }
   blob_init(&html, 0, 0);
   if( fossil_strcmp(g.zRepositoryName,"/")==0 && !g.fJail ){
@@ -171,6 +149,7 @@ int repo_list_page(void){
     ** or they can begin with a drive letter: "repo:C:/Users/...".  In either
     ** case, we want returned path to omit any initial "/".
     */
+    db_open_config(1, 0);
     db_multi_exec(
        "CREATE TEMP VIEW sfile AS"
        "  SELECT ltrim(substr(name,6),'/') AS 'pathname' FROM global_config"

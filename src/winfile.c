@@ -306,13 +306,25 @@ int win32_filenames_equal_nocase(
   const wchar_t *fn1,
   const wchar_t *fn2
 ){
-  static FARPROC fnCompareStringOrdinal;
-  static FARPROC fnRtlInitUnicodeString;
-  static FARPROC fnRtlEqualUnicodeString;
+  /* ---- Data types used by dynamically loaded API functions. -------------- */
+  typedef struct { /* UNICODE_STRING from <ntdef.h> */
+    USHORT Length;
+    USHORT MaximumLength;
+    PWSTR Buffer;
+  } MY_UNICODE_STRING;
+  /* ---- Prototypes for dynamically loaded API functions. ------------------ */
+  typedef int (WINAPI *FNCOMPARESTRINGORDINAL)(LPCWCH,int,LPCWCH,int,BOOL);
+  typedef VOID (NTAPI *FNRTLINITUNICODESTRING)(MY_UNICODE_STRING*,PCWSTR);
+  typedef BOOLEAN (NTAPI *FNRTLEQUALUNICODESTRING)
+    (MY_UNICODE_STRING*,MY_UNICODE_STRING*,BOOLEAN);
+  /* ------------------------------------------------------------------------ */
+  static FNCOMPARESTRINGORDINAL fnCompareStringOrdinal;
+  static FNRTLINITUNICODESTRING fnRtlInitUnicodeString;
+  static FNRTLEQUALUNICODESTRING fnRtlEqualUnicodeString;
   static int loaded_CompareStringOrdinal;
   static int loaded_RtlUnicodeStringAPIs;
   if( !loaded_CompareStringOrdinal ){
-    fnCompareStringOrdinal =
+    fnCompareStringOrdinal = (FNCOMPARESTRINGORDINAL)
       GetProcAddress(GetModuleHandleA("kernel32"),"CompareStringOrdinal");
     loaded_CompareStringOrdinal = 1;
   }
@@ -320,21 +332,17 @@ int win32_filenames_equal_nocase(
     return fnCompareStringOrdinal(fn1,-1,fn2,-1,1)-2==0;
   }
   if( !loaded_RtlUnicodeStringAPIs ){
-    fnRtlInitUnicodeString =
+    fnRtlInitUnicodeString = (FNRTLINITUNICODESTRING)
       GetProcAddress(GetModuleHandleA("ntdll"),"RtlInitUnicodeString");
-    fnRtlEqualUnicodeString =
+    fnRtlEqualUnicodeString = (FNRTLEQUALUNICODESTRING)
       GetProcAddress(GetModuleHandleA("ntdll"),"RtlEqualUnicodeString");
     loaded_RtlUnicodeStringAPIs = 1;
   }
   if( fnRtlInitUnicodeString && fnRtlEqualUnicodeString ){
-    struct { /* UNICODE_STRING from <ntdef.h> */
-      unsigned short Length;
-      unsigned short MaximumLength;
-      wchar_t *Buffer;
-    } u1, u2;
+    MY_UNICODE_STRING u1, u2;
     fnRtlInitUnicodeString(&u1,fn1);
     fnRtlInitUnicodeString(&u2,fn2);
-    return (unsigned char)fnRtlEqualUnicodeString(&u1,&u2,1);
+    return (BOOLEAN/*unsigned char*/)fnRtlEqualUnicodeString(&u1,&u2,1);
   }
   /* In what kind of strange parallel universe are we? */
   return lstrcmpiW(fn1,fn2)==0;
@@ -463,7 +471,16 @@ char *win32_file_case_preferred_name(
 char *win32_file_id(
   const char *zFileName
 ){
-  static FARPROC fnGetFileInformationByHandleEx;
+  /* ---- Data types used by dynamically loaded API functions. -------------- */
+  typedef struct { /* FILE_ID_INFO from <winbase.h> */
+    ULONGLONG VolumeSerialNumber;
+    BYTE FileId[16];
+  } MY_FILE_ID_INFO;
+  /* ---- Prototypes for dynamically loaded API functions. ------------------ */
+  typedef int (WINAPI *FNGETFILEINFORMATIONBYHANDLEEX)
+    (HANDLE,int/*enum*/,MY_FILE_ID_INFO*,DWORD);
+  /* ------------------------------------------------------------------------ */
+  static FNGETFILEINFORMATIONBYHANDLEEX fnGetFileInformationByHandleEx;
   static int loaded_fnGetFileInformationByHandleEx;
   wchar_t *wzFileName = fossil_utf8_to_path(zFileName,0);
   HANDLE hFile;
@@ -478,13 +495,11 @@ char *win32_file_id(
             NULL);
   if( hFile!=INVALID_HANDLE_VALUE ){
     BY_HANDLE_FILE_INFORMATION fi;
-    struct { /* FILE_ID_INFO from <winbase.h> */
-      u64 VolumeSerialNumber;
-      unsigned char FileId[16];
-    } fi2;
+    MY_FILE_ID_INFO fi2;
     if( !loaded_fnGetFileInformationByHandleEx ){
-      fnGetFileInformationByHandleEx = GetProcAddress(
-        GetModuleHandleA("kernel32"),"GetFileInformationByHandleEx");
+      fnGetFileInformationByHandleEx = (FNGETFILEINFORMATIONBYHANDLEEX)
+        GetProcAddress(
+          GetModuleHandleA("kernel32"),"GetFileInformationByHandleEx");
       loaded_fnGetFileInformationByHandleEx = 1;
     }
     if( fnGetFileInformationByHandleEx ){

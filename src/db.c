@@ -4760,7 +4760,7 @@ struct Setting {
 **
 ** Possible values are:
 **    1     Use the original comment printing algorithm:
-**             *   Leading and trialing whitespace is removed
+**             *   Leading and trailing whitespace is removed
 **             *   Internal whitespace is converted into a single space (0x20)
 **             *   Line breaks occurs at whitespace or hyphens if possible
 **          This is the recommended value and the default.

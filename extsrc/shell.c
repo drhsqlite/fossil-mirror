@@ -1624,30 +1624,6 @@ static void shellDtostr(
   sqlite3_result_text(pCtx, z, -1, SQLITE_TRANSIENT);
 }
 
-
-/*
-** SQL function:  shell_module_schema(X)
-**
-** Return a fake schema for the table-valued function or eponymous virtual
-** table X.
-*/
-static void shellModuleSchema(
-  sqlite3_context *pCtx,
-  int nVal,
-  sqlite3_value **apVal
-){
-  const char *zName;
-  char *zFake;
-  UNUSED_PARAMETER(nVal);
-  zName = (const char*)sqlite3_value_text(apVal[0]);
-  zFake = zName? shellFakeSchema(sqlite3_context_db_handle(pCtx), 0, zName) : 0;
-  if( zFake ){
-    sqlite3_result_text(pCtx, sqlite3_mprintf("/* %s */", zFake),
-                        -1, sqlite3_free);
-    free(zFake);
-  }
-}
-
 /*
 ** SQL function:  shell_add_schema(S,X)
 **
@@ -1822,6 +1798,7 @@ static void shellAddSchemaName(
 #  else
 #    define NAME_MAX (260)
 #  endif
+#  define DIRENT_NAME_MAX (NAME_MAX)
 #endif
 
 /*
@@ -1865,8 +1842,7 @@ struct DIR {
 /*
 ** Provide a macro, for use by the implementation, to determine if a
 ** particular directory entry should be skipped over when searching for
-** the next directory entry that should be returned by the readdir() or
-** readdir_r() functions.
+** the next directory entry that should be returned by the readdir().
 */
 
 #ifndef is_filtered
@@ -1882,12 +1858,11 @@ extern const char *windirent_getenv(const char *name);
 
 /*
 ** Finally, we can provide the function prototypes for the opendir(),
-** readdir(), readdir_r(), and closedir() POSIX functions.
+** readdir(), and closedir() POSIX functions.
 */
 
 extern LPDIR opendir(const char *dirname);
 extern LPDIRENT readdir(LPDIR dirp);
-extern INT readdir_r(LPDIR dirp, LPDIRENT entry, LPDIRENT *result);
 extern INT closedir(LPDIR dirp);
 
 #endif /* defined(WIN32) && defined(_MSC_VER) */
@@ -1944,11 +1919,13 @@ const char *windirent_getenv(
 ** Implementation of the POSIX opendir() function using the MSVCRT.
 */
 LPDIR opendir(
-  const char *dirname
+  const char *dirname  /* Directory name, UTF8 encoding */
 ){
-  struct _finddata_t data;
+  struct _wfinddata_t data;
   LPDIR dirp = (LPDIR)sqlite3_malloc(sizeof(DIR));
   SIZE_T namesize = sizeof(data.name) / sizeof(data.name[0]);
+  wchar_t *b1;
+  sqlite3_int64 sz;
 
   if( dirp==NULL ) return NULL;
   memset(dirp, 0, sizeof(DIR));
@@ -1958,9 +1935,25 @@ LPDIR opendir(
     dirname = windirent_getenv("SystemDrive");
   }
 
-  memset(&data, 0, sizeof(struct _finddata_t));
-  _snprintf(data.name, namesize, "%s\\*", dirname);
-  dirp->d_handle = _findfirst(data.name, &data);
+  memset(&data, 0, sizeof(data));
+  sz = strlen(dirname);
+  b1 = sqlite3_malloc64( (sz+3)*sizeof(b1[0]) );
+  if( b1==0 ){
+    closedir(dirp);
+    return NULL;
+  }
+  sz = MultiByteToWideChar(CP_UTF8, 0, dirname, sz, b1, sz);
+  b1[sz++] = '\\';
+  b1[sz++] = '*';
+  b1[sz] = 0;
+  if( sz+1>(sqlite3_int64)namesize ){
+    closedir(dirp);
+    sqlite3_free(b1);
+    return NULL;
+  }
+  memcpy(data.name, b1, (sz+1)*sizeof(b1[0]));
+  sqlite3_free(b1);
+  dirp->d_handle = _wfindfirst(data.name, &data);
 
   if( dirp->d_handle==BAD_INTPTR_T ){
     closedir(dirp);
@@ -1971,8 +1964,8 @@ LPDIR opendir(
   if( is_filtered(data) ){
 next:
 
-    memset(&data, 0, sizeof(struct _finddata_t));
-    if( _findnext(dirp->d_handle, &data)==-1 ){
+    memset(&data, 0, sizeof(data));
+    if( _wfindnext(dirp->d_handle, &data)==-1 ){
       closedir(dirp);
       return NULL;
     }
@@ -1982,9 +1975,8 @@ next:
   }
 
   dirp->d_first.d_attributes = data.attrib;
-  strncpy(dirp->d_first.d_name, data.name, NAME_MAX);
-  dirp->d_first.d_name[NAME_MAX] = '\0';
-
+  WideCharToMultiByte(CP_UTF8, 0, data.name, -1,
+                      dirp->d_first.d_name, DIRENT_NAME_MAX, 0, 0);
   return dirp;
 }
 
@@ -1994,7 +1986,7 @@ next:
 LPDIRENT readdir(
   LPDIR dirp
 ){
-  struct _finddata_t data;
+  struct _wfinddata_t data;
 
   if( dirp==NULL ) return NULL;
 
@@ -2007,63 +1999,17 @@ LPDIRENT readdir(
 
 next:
 
-  memset(&data, 0, sizeof(struct _finddata_t));
-  if( _findnext(dirp->d_handle, &data)==-1 ) return NULL;
+  memset(&data, 0, sizeof(data));
+  if( _wfindnext(dirp->d_handle, &data)==-1 ) return NULL;
 
   /* TODO: Remove this block to allow hidden and/or system files. */
   if( is_filtered(data) ) goto next;
 
   dirp->d_next.d_ino++;
   dirp->d_next.d_attributes = data.attrib;
-  strncpy(dirp->d_next.d_name, data.name, NAME_MAX);
-  dirp->d_next.d_name[NAME_MAX] = '\0';
-
+  WideCharToMultiByte(CP_UTF8, 0, data.name, -1,
+                      dirp->d_next.d_name, DIRENT_NAME_MAX, 0, 0);
   return &dirp->d_next;
-}
-
-/*
-** Implementation of the POSIX readdir_r() function using the MSVCRT.
-*/
-INT readdir_r(
-  LPDIR dirp,
-  LPDIRENT entry,
-  LPDIRENT *result
-){
-  struct _finddata_t data;
-
-  if( dirp==NULL ) return EBADF;
-
-  if( dirp->d_first.d_ino==0 ){
-    dirp->d_first.d_ino++;
-    dirp->d_next.d_ino++;
-
-    entry->d_ino = dirp->d_first.d_ino;
-    entry->d_attributes = dirp->d_first.d_attributes;
-    strncpy(entry->d_name, dirp->d_first.d_name, NAME_MAX);
-    entry->d_name[NAME_MAX] = '\0';
-
-    *result = entry;
-    return 0;
-  }
-
-next:
-
-  memset(&data, 0, sizeof(struct _finddata_t));
-  if( _findnext(dirp->d_handle, &data)==-1 ){
-    *result = NULL;
-    return ENOENT;
-  }
-
-  /* TODO: Remove this block to allow hidden and/or system files. */
-  if( is_filtered(data) ) goto next;
-
-  entry->d_ino = (ino_t)-1; /* not available */
-  entry->d_attributes = data.attrib;
-  strncpy(entry->d_name, data.name, NAME_MAX);
-  entry->d_name[NAME_MAX] = '\0';
-
-  *result = entry;
-  return 0;
 }
 
 /*
@@ -8087,14 +8033,9 @@ SQLITE_EXTENSION_INIT1
 #  include <direct.h>
 /* #  include "test_windirent.h" */
 #  define dirent DIRENT
-#  ifndef chmod
-#    define chmod _chmod
-#  endif
-#  ifndef stat
-#    define stat _stat
-#  endif
-#  define mkdir(path,mode) _mkdir(path)
-#  define lstat(path,buf) stat(path,buf)
+#  define stat _stat
+#  define chmod(path,mode) fileio_chmod(path,mode)
+#  define mkdir(path,mode) fileio_mkdir(path)
 #endif
 #include <time.h>
 #include <errno.h>
@@ -8118,6 +8059,40 @@ SQLITE_EXTENSION_INIT1
 #define FSDIR_COLUMN_DATA     3     /* File content */
 #define FSDIR_COLUMN_PATH     4     /* Path to top of search */
 #define FSDIR_COLUMN_DIR      5     /* Path is relative to this directory */
+
+/*
+** UTF8 chmod() function for Windows
+*/
+#if defined(_WIN32) || defined(WIN32)
+static int fileio_chmod(const char *zPath, int pmode){
+  sqlite3_int64 sz = strlen(zPath);
+  wchar_t *b1 = sqlite3_malloc64( (sz+1)*sizeof(b1[0]) );
+  int rc;
+  if( b1==0 ) return -1;
+  sz = MultiByteToWideChar(CP_UTF8, 0, zPath, sz, b1, sz);
+  b1[sz] = 0;
+  rc = _wchmod(b1, pmode);
+  sqlite3_free(b1);
+  return rc;
+}
+#endif
+
+/*
+** UTF8 mkdir() function for Windows
+*/
+#if defined(_WIN32) || defined(WIN32)
+static int fileio_mkdir(const char *zPath){
+  sqlite3_int64 sz = strlen(zPath);
+  wchar_t *b1 = sqlite3_malloc64( (sz+1)*sizeof(b1[0]) );
+  int rc;
+  if( b1==0 ) return -1;
+  sz = MultiByteToWideChar(CP_UTF8, 0, zPath, sz, b1, sz);
+  b1[sz] = 0;
+  rc = _wmkdir(b1);
+  sqlite3_free(b1);
+  return rc;
+}
+#endif
 
 
 /*
@@ -8280,7 +8255,13 @@ static int fileStat(
   struct stat *pStatBuf
 ){
 #if defined(_WIN32)
-  int rc = stat(zPath, pStatBuf);
+  sqlite3_int64 sz = strlen(zPath);
+  wchar_t *b1 = sqlite3_malloc64( (sz+1)*sizeof(b1[0]) );
+  int rc;
+  if( b1==0 ) return 1;
+  sz = MultiByteToWideChar(CP_UTF8, 0, zPath, sz, b1, sz);
+  b1[sz] = 0;
+  rc = _wstat(b1, pStatBuf);
   if( rc==0 ) statTimesToUtc(zPath, pStatBuf);
   return rc;
 #else
@@ -8298,9 +8279,7 @@ static int fileLinkStat(
   struct stat *pStatBuf
 ){
 #if defined(_WIN32)
-  int rc = lstat(zPath, pStatBuf);
-  if( rc==0 ) statTimesToUtc(zPath, pStatBuf);
-  return rc;
+  return fileStat(zPath, pStatBuf);
 #else
   return lstat(zPath, pStatBuf);
 #endif
@@ -16810,7 +16789,7 @@ static int vfstraceFileControl(sqlite3_file *pFile, int op, void *pArg){
       const char *const* a = (const char*const*)pArg;
       if( a[1] && strcmp(a[1],"vfstrace")==0 && a[2] ){
         const u8 *zArg = (const u8*)a[2];
-        if( zArg[0]>='0' && zArg[0]<=9 ){
+        if( zArg[0]>='0' && zArg[0]<='9' ){
           pInfo->mTrace = (sqlite3_uint64)strtoll(a[2], 0, 0);
         }else{
           static const struct {
@@ -18711,6 +18690,9 @@ static int sqlite3DbdataRegister(sqlite3 *db){
   return rc;
 }
 
+#ifdef _WIN32
+
+#endif
 int sqlite3_dbdata_init(
   sqlite3 *db, 
   char **pzErrMsg, 
@@ -25594,103 +25576,104 @@ static const char *(azHelp[]) = {
 };
 
 /*
-** Output help text.
+** Output help text for commands that match zPattern.
 **
-** zPattern describes the set of commands for which help text is provided.
-** If zPattern is NULL, then show all commands, but only give a one-line
-** description of each.
+**    *   If zPattern is NULL, then show all documented commands, but
+**        only give a one-line summary of each.
 **
-** Return the number of matches.
+**    *   If zPattern is "-a" or "-all" or "--all" then show all help text
+**        for all commands except undocumented commands.
+**
+**    *   If zPattern is "0" then show all help for undocumented commands.
+**        Undocumented commands begin with "," instead of "." in the azHelp[]
+**        array.
+**
+**    *   If zPattern is a prefix for one or more documented commands, then
+**        show help for those commands.  If only a single command matches the
+**        prefix, show the full text of the help.  If multiple commands match,
+**        Only show just the first line of each.
+**
+**    *   Otherwise, show the complete text of any documented command for which
+**        zPattern is a LIKE match for any text within that command help
+**        text.
+**
+** Return the number commands that match zPattern.
 */
 static int showHelp(FILE *out, const char *zPattern){
   int i = 0;
   int j = 0;
   int n = 0;
   char *zPat;
-  if( zPattern==0
-   || zPattern[0]=='0'
-   || cli_strcmp(zPattern,"-a")==0
-   || cli_strcmp(zPattern,"-all")==0
-   || cli_strcmp(zPattern,"--all")==0
+  if( zPattern==0 ){
+    /* Show just the first line for all help topics */
+    zPattern = "[a-z]";
+  }else if( cli_strcmp(zPattern,"-a")==0
+         || cli_strcmp(zPattern,"-all")==0
+         || cli_strcmp(zPattern,"--all")==0
   ){
-    enum HelpWanted { HW_NoCull = 0, HW_SummaryOnly = 1, HW_Undoc = 2 };
-    enum HelpHave { HH_Undoc = 2, HH_Summary = 1, HH_More = 0 };
-    /* Show all or most commands
-    ** *zPattern==0   => summary of documented commands only
-    ** *zPattern=='0' => whole help for undocumented commands
-    ** Otherwise      => whole help for documented commands
-    */
-    enum HelpWanted hw = HW_SummaryOnly;
-    enum HelpHave hh = HH_More;
-    if( zPattern!=0 ){
-      hw = (*zPattern=='0')? HW_NoCull|HW_Undoc : HW_NoCull;
-    }
+    /* Show everything except undocumented commands */
+    zPattern = ".";
+  }else if( cli_strcmp(zPattern,"0")==0 ){
+    /* Show complete help text of undocumented commands */
+    int show = 0;
     for(i=0; i<ArraySize(azHelp); i++){
-      switch( azHelp[i][0] ){
-      case ',':
-        hh = HH_Summary|HH_Undoc;
-        break;
-      case '.':
-        hh = HH_Summary;
-        break;
-      default:
-        hh &= ~HH_Summary;
-        break;
-      }
-      if( ((hw^hh)&HH_Undoc)==0 ){
-        if( (hh&HH_Summary)!=0 ){
-          sqlite3_fprintf(out, ".%s\n", azHelp[i]+1);
-          ++n;
-        }else if( (hw&HW_SummaryOnly)==0 ){
-          sqlite3_fprintf(out, "%s\n", azHelp[i]);
-        }
-      }
-    }
-  }else{
-    /* Seek documented commands for which zPattern is an exact prefix */
-    zPat = sqlite3_mprintf(".%s*", zPattern);
-    shell_check_oom(zPat);
-    for(i=0; i<ArraySize(azHelp); i++){
-      if( sqlite3_strglob(zPat, azHelp[i])==0 ){
+      if( azHelp[i][0]=='.' ){
+        show = 0;
+      }else if( azHelp[i][0]==',' ){
+        show = 1;
+        sqlite3_fprintf(out, ".%s\n", &azHelp[i][1]);
+        n++;
+      }else if( show ){
         sqlite3_fprintf(out, "%s\n", azHelp[i]);
-        j = i+1;
-        n++;
       }
     }
-    sqlite3_free(zPat);
-    if( n ){
-      if( n==1 ){
-        /* when zPattern is a prefix of exactly one command, then include
-        ** the details of that command, which should begin at offset j */
-        while( j<ArraySize(azHelp)-1 && azHelp[j][0]==' ' ){
-          sqlite3_fprintf(out, "%s\n", azHelp[j]);
-          j++;
-        }
-      }
-      return n;
-    }
-    /* Look for documented commands that contain zPattern anywhere.
-    ** Show complete text of all documented commands that match. */
-    zPat = sqlite3_mprintf("%%%s%%", zPattern);
-    shell_check_oom(zPat);
-    for(i=0; i<ArraySize(azHelp); i++){
-      if( azHelp[i][0]==',' ){
-        while( i<ArraySize(azHelp)-1 && azHelp[i+1][0]==' ' ) ++i;
-        continue;
-      }
-      if( azHelp[i][0]=='.' ) j = i;
-      if( sqlite3_strlike(zPat, azHelp[i], 0)==0 ){
-        sqlite3_fprintf(out, "%s\n", azHelp[j]);
-        while( j<ArraySize(azHelp)-1 && azHelp[j+1][0]==' ' ){
-          j++;
-          sqlite3_fprintf(out, "%s\n", azHelp[j]);
-        }
-        i = j;
-        n++;
-      }
-    }
-    sqlite3_free(zPat);
+    return n;
   }
+
+  /* Seek documented commands for which zPattern is an exact prefix */
+  zPat = sqlite3_mprintf(".%s*", zPattern);
+  shell_check_oom(zPat);
+  for(i=0; i<ArraySize(azHelp); i++){
+    if( sqlite3_strglob(zPat, azHelp[i])==0 ){
+      sqlite3_fprintf(out, "%s\n", azHelp[i]);
+      j = i+1;
+      n++;
+    }
+  }
+  sqlite3_free(zPat);
+  if( n ){
+    if( n==1 ){
+      /* when zPattern is a prefix of exactly one command, then include
+      ** the details of that command, which should begin at offset j */
+      while( j<ArraySize(azHelp)-1 && azHelp[j][0]==' ' ){
+        sqlite3_fprintf(out, "%s\n", azHelp[j]);
+        j++;
+      }
+    }
+    return n;
+  }
+
+  /* Look for documented commands that contain zPattern anywhere.
+  ** Show complete text of all documented commands that match. */
+  zPat = sqlite3_mprintf("%%%s%%", zPattern);
+  shell_check_oom(zPat);
+  for(i=0; i<ArraySize(azHelp); i++){
+    if( azHelp[i][0]==',' ){
+      while( i<ArraySize(azHelp)-1 && azHelp[i+1][0]==' ' ) ++i;
+      continue;
+    }
+    if( azHelp[i][0]=='.' ) j = i;
+    if( sqlite3_strlike(zPat, azHelp[i], 0)==0 ){
+      sqlite3_fprintf(out, "%s\n", azHelp[j]);
+      while( j<ArraySize(azHelp)-1 && azHelp[j+1][0]==' ' ){
+        j++;
+        sqlite3_fprintf(out, "%s\n", azHelp[j]);
+      }
+      i = j;
+      n++;
+    }
+  }
+  sqlite3_free(zPat);
   return n;
 }
 
@@ -25940,6 +25923,39 @@ static void shellUSleepFunc(
   sqlite3_result_int(context, sleep);
 }
 
+/*
+** SQL function:  shell_module_schema(X)
+**
+** Return a fake schema for the table-valued function or eponymous virtual
+** table X.
+*/
+static void shellModuleSchema(
+  sqlite3_context *pCtx,
+  int nVal,
+  sqlite3_value **apVal
+){
+  const char *zName;
+  char *zFake;
+  ShellState *p = (ShellState*)sqlite3_user_data(pCtx);
+  FILE *pSavedLog = p->pLog;
+  UNUSED_PARAMETER(nVal);
+  zName = (const char*)sqlite3_value_text(apVal[0]);
+
+  /* Temporarily disable the ".log" when calling shellFakeSchema() because
+  ** shellFakeSchema() might generate failures for some ephemeral virtual
+  ** tables due to missing arguments.  Example: fts4aux.
+  ** https://sqlite.org/forum/forumpost/42fe6520b803be51 */
+  p->pLog = 0;
+  zFake = zName? shellFakeSchema(sqlite3_context_db_handle(pCtx), 0, zName) : 0;
+  p->pLog = pSavedLog;
+
+  if( zFake ){
+    sqlite3_result_text(pCtx, sqlite3_mprintf("/* %s */", zFake),
+                        -1, sqlite3_free);
+    free(zFake);
+  }
+}
+
 /* Flags for open_db().
 **
 ** The default behavior of open_db() is to exit(1) if the database fails to
@@ -26083,7 +26099,7 @@ static void open_db(ShellState *p, int openFlags){
                             shellDtostr, 0, 0);
     sqlite3_create_function(p->db, "shell_add_schema", 3, SQLITE_UTF8, 0,
                             shellAddSchemaName, 0, 0);
-    sqlite3_create_function(p->db, "shell_module_schema", 1, SQLITE_UTF8, 0,
+    sqlite3_create_function(p->db, "shell_module_schema", 1, SQLITE_UTF8, p,
                             shellModuleSchema, 0, 0);
     sqlite3_create_function(p->db, "shell_putsnl", 1, SQLITE_UTF8, p,
                             shellPutsFunc, 0, 0);

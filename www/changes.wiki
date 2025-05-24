@@ -1,10 +1,15 @@
 <title>Change Log</title>
 
-<h2 id='v2_26'>Changes for version 2.26 (pending)</h2><ol>
+<h2 id='v2_27'>Changes for version 2.27 (pending)</h2>
+
+  *  Enhance the chng= query parameter on the [/help?cmd=/timeline|timeline page]
+     so that it work with other query parameters like p=, d=, from=, and to=.
+
+<h2 id='v2_26'>Changes for version 2.26 (2025-04-30)</h2><ol>
  <li>Enhancements to [/help?cmd=diff|fossil diff] and similar:
      <ol type="a">
-     <li> The --from can optionally accept a directory name as its argument,
-          and uses files under that directory as the baseline for the diff.
+     <li> The argument to the --from option can be a directory name, causing
+          Fossil to use files under that directory as the baseline for the diff.
      <li> For "gdiff", if no [/help?cmd=gdiff-command|gdiff-command setting]
           is defined, Fossil tries to do a --tk diff if "tclsh" and "wish"
           are available, or a --by diff if not.
@@ -86,9 +91,9 @@
      <li> The new "min" query parameter, when added to a from=,to= query,
           collapses long runs of check-ins on the same branch into just
           end-points.
-     <li> The p= and d= parameters an reference different check-ins, which
-          case the timeline shows those check-ins that are both ancestors
-          of p= and descendants of d=.
+     <li> The p= and d= parameters can now reference different check-ins,
+          in which case the timeline shows those check-ins that are both
+          ancestors of p= and descendants of d=.
      <li> The saturation and intensity of user-specified checkin and branch
           background colors are automatically adjusted to keep the colors
           compatible with the current skin, unless the
@@ -121,7 +126,7 @@
      <li> The -u (--usage) option shows only the command-line syntax
      <li> The -o (--options) option shows only the command-line options
      </ol>
- <li>Enhancements to the ticket system:
+ <li>Enhancements to the [./tickets.wiki|ticket system]:
      <ol type="a">
      <li> Added the ability to attach wiki pages to a ticket for extended
           descriptions.
@@ -138,18 +143,33 @@
  <li>Add a "user permissions changes" [/doc/trunk/www/alerts.md|subscription]
      which alerts subscribers when an admin creates a new user or
      when a user's permissions change.
- <li>Show project description on repository list.
+ <li>If the FOSSIL_REPOLIST_SHOW environment variable exists and contains
+     the substring "description", then the project description for each repository
+     is shown on the repository list page.  The login-group for each project is
+     now only shown if the FOSSIL_REPOLIST_SHOW environment variable exists and
+     contains the substring "login-group". ([./cgi.wiki#repolist|More information])
+ <li>The [/doc/trunk/www/th1.md|TH1 script language] is enhanced for improved
+     security:
+     <ol type="a">
+     <li> TH1 now makes a distinction between
+          [/doc/trunk/www/th1.md#taint|tainted and untainted string values].
+          This makes it more difficult to write custom TH1 scripts that
+          contain XSS or SQL-injection bugs.  The
+          [/help?cmd=vuln-report|vuln-report] setting was added to control
+          what Fossil does when it encounters a potential TH1
+          security problem.
+     <li> The "--th" option was removed from the [/help?cmd=pikchr|fossil pikchr]
+          command.
+     <li> The "enable_htmlify" TH1 command was removed.
+     </ol>
  <li>Make [/help?cmd=/chat|/chat] better-behaved during server outages, reducing
      the frequency of reconnection attempts over time and providing feedback
      to the user when the connection is down.
- <li>The [/doc/trunk/www/th1.md|TH1 script language] now makes a distinction
-     between [/doc/trunk/www/th1.md#taint|tainted and untainted string values].
-     This is a security enhancement that makes it more difficult to write
-     custom TH1 scripts that contain XSS or SQL-injection bugs.  As part of
-     this enhancement, the [/help?cmd=vuln-report|vuln-report] setting was
-     added to control what Fossil does when it encounters a potential TH1
-     security problem.
- <li>Diverse minor fixes and additions.
+ <li>The [/help?cmd=/sqlar|/sqlar] page does not work for users who are not logged
+     in, nor are links to that page displayed to users who are not logged in.  Being
+     logged in as "anonymous" is sufficient to overcome this restriction, assuming
+     that "anonymous" can download tarballs and ZIP archives.
+ <li>Many other minor fixes and additions.
 </ol>
 
 <h2 id='v2_25'>Changes for version 2.25 (2024-11-06)</h2>
@@ -1171,8 +1191,7 @@
   *  Rework the skin editing process so that changes are implemented
      on one of nine /draft pages, evaluated, then merged back to the
      default.
-  *  Added the [https://fossil-scm.org/skins/ardoise/timeline|Ardoise]
-     skin.
+  *  Added the [/timeline?skin=ardoise&once|Ardoise] skin.
   *  Fix the "fossil server" command on Unix to be much more responsive
      to multiple simultaneous web requests.
   *  Use the IPv6 stack for the "fossil ui" and "fossil server"
