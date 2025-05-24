@@ -492,6 +492,10 @@ the server side using a page re-load.
 On some pages adding the ability to filter a table of items down to the
 rows matching the text typed in by the user.
 
+_Graceful Fallback:_ The input field for typing your search does not
+appear when JS is unavailable, removing a feature that would be unusable
+without Javascript.
+
 
 ### <a id="tree"></a>File Browser Tree View
 

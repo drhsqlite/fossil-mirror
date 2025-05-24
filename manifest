@@ -1,5 +1,5 @@
-C fix\susage\sof\svariable\sbefore\sdeclaration,\sthis\sonly\sworks\sbecause\sbrowsers\sadd\ssome\sthings\sautomatic\sto\sthe\snamespace\s(which\smight\snot\swork\soutside\squirks\smode)
-D 2025-05-10T19:28:45.235
+C add\sgraceful\sfallback\sfor\susers\swithout\sJavascript
+D 2025-05-24T12:27:33.202
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -517,11 +517,11 @@ F src/pqueue.c 4bc9471b252a8624435660be144d0031c40d8c10cb023321ab9234cda156eb02
 F src/printf.c 49a54fb5ad9f59987dc5233f41ac02a284d5080c209a191de7795543f5f8634d
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
-F src/quickfilter.js 522dae80b652b8ffa04114c9eef73087c418c97bdb757e630d3dc5d2f2916481
+F src/quickfilter.js 6812f9e9b361b2e9b03abaf69895f3ba826b740924452f9b857848ab9e2d2d6e
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c a9aeacaa515f756f76b0d94c3971121093848145d0d109be511616e74372a50a
-F src/repolist.c 0ae91e9d334f08efe30c59ff4269f09ae19ebc3ed27858a1c9d017e07cfed4ec
-F src/report.c 0f8383a33bb448d23989f769d4e0c5a4b7b02674d3c33b55f099aa683f3dc86b
+F src/repolist.c fa347a568b3203583f72cde11923a6a61c7e3ac3f076f8850621de1be59c57f9
+F src/report.c 0fa218b7072ecef07581102a5fa50c9c86c7ad7d44741d66ea7d97fb62eb8e06
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
@@ -869,7 +869,7 @@ F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c21
 F www/index.wiki 4c127d19b8c07d9726d1091fb78f8e08b130fc6e2a40f7106e2706cbe864f4ae
 F www/inout.wiki 2c01d728e4f5fcc4292cff503b138114c81ddac2d1fa0d7fe0236e89abc58e6b
 F www/interwiki.md c1e8b87ed3dfe1ca09ce951e6ee15cbee50704986e2bdcf07fdd5bf55e17735b
-F www/javascript.md f123ccd61706b80a3bb30b75440b407be057a1541b3d03c6562e2d6c585e8050
+F www/javascript.md 68e77d0abfd8c62b624636ea9ac880db850792632d2aabe3934f1fd13bc762c8
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md af43330b231be3f29cc99d9c1a94749fea9647b9c16938c0f1a1fed5fbe45264
 F www/json-api/api-auth.md 31250c99255a7f2fb9f83565d084c88be5adfc3a962e78bc7c52fab6eea47e73
@@ -972,8 +972,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2f0cb4659374a98fb3f8fa88b34278dddef15c95f72dd3060b007966a73825bb
-R ad9aba55cac12c0d481a79fe00c7b423
+P 6206191a031e755d5ecf535d6441d60e1e5b1bc65d225b4d14c7e28faecbeba2
+R 901d777ca636edcd4b0c62db0a232f80
 U jkosche
-Z 28bfe27d71a868646c247ebc74ad809c
+Z c3cc05c2aa12ed22da3d00b7c18ab270
 # Remove this line to create a well-formed Fossil manifest.

@@ -10,6 +10,11 @@
 */
 
 const quickfilter = document.getElementById('quickfilter');
+
+document.addEventListener('DOMContentLoaded', function(){
+  quickfilter.style.display = '';
+});
+
 quickfilter.addEventListener('input', function(){
   const filterrows = document.querySelectorAll('.filterable tbody tr');
   const filter = quickfilter.value.toLowerCase().trim();
