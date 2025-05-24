@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', function(){
 quickfilter.addEventListener('input', function(){
   const filterrows = document.querySelectorAll('.filterable tbody tr');
   const filter = quickfilter.value.toLowerCase().trim();
+  let group = null;
+  let groupmatched = false;
   for(row of filterrows){
     const orig = row.innerHTML;
     const cleaned = orig.replaceAll("<mark>", "").replaceAll("</mark>", "");
@@ -26,8 +28,12 @@ quickfilter.addEventListener('input', function(){
       row.style.display = 'table-row';
       continue;
     }
+    if (row.classList.contains("separator")){
+      group = [];
+      groupmatched = false;
+    }
     let ind = cleaned.toLowerCase().lastIndexOf(filter);
-    if(ind<0){
+    if(ind<0 && !groupmatched){
       row.innerHTML = cleaned;
       row.style.display = 'none';
     }
@@ -41,7 +47,14 @@ quickfilter.addEventListener('input', function(){
       }
       ind = cleaned.toLowerCase().lastIndexOf(filter,ind-1);
     }while(ind>=0);
-    row.style.display = (marked===cleaned) ? 'none' : 'table-row';
+    row.style.display =
+      (marked===cleaned && !groupmatched) ? 'none' : 'table-row';
     row.innerHTML = marked;
+    if (marked!=cleaned && group){
+      if (!groupmatched)
+        for (grouprow of group) grouprow.style.display = 'table-row';
+      groupmatched = true;
+    }
+    if (group) group.push(row);
   };
 });

@@ -905,7 +905,8 @@ static int generate_html(
   ** per database entry.
   */
   if( pState->iNewRow>=0 ){
-    @ <tr><td colspan="%d(pState->nCol)" style="padding:0px">
+    @ <tr class="separator"><td colspan="%d(pState->nCol)"
+    @  style="padding:0px">
     @ <hr style="margin:0px"></td></tr>
   }
 
