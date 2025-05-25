@@ -1,7 +1,15 @@
 /* Javascript code that will enable quick filtering of items in tables.
 **
 ** Add an input field with the id 'quickfilter' as follows:
-**   <input type="text" id="quickfilter" placeholder="filter list...">
+**   <input type="search" id="quickfilter" style="display: none"
+**    placeholder="filter list...">
+** The id on the input-field is important for the script. The input type
+** can be text or search, with search some browsers add functionality to
+** clear the field. The display: none is added to hide it from users that
+** haven't enabled Javascript, as the script to make it visible is never
+** executed. This is because without Javascript this input-field would be
+** functionless.
+**
 ** Mark the table with the filter items with the class 'filterable'.
 ** The table is expected to have a tbody around the rows that are
 ** filtered (to avoid filtering the header).

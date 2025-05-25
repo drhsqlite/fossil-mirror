@@ -1,5 +1,5 @@
-C merge\scurrent\strunk
-D 2025-05-24T16:31:09.490
+C update\sthe\sdocumentation\sin\squickfilter.js
+D 2025-05-25T13:38:08.290
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -517,7 +517,7 @@ F src/pqueue.c 4bc9471b252a8624435660be144d0031c40d8c10cb023321ab9234cda156eb02
 F src/printf.c 49a54fb5ad9f59987dc5233f41ac02a284d5080c209a191de7795543f5f8634d
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
-F src/quickfilter.js 8e90850ac28fcd8a34113f9e304a688f7c1212dac82f583d4ba00faf3c6addab
+F src/quickfilter.js 80c68d5ca37f4e58ecaf1182e6dac0df27f25b981dbaa0eb60d27532a9061106
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c a9aeacaa515f756f76b0d94c3971121093848145d0d109be511616e74372a50a
 F src/repolist.c e2a8a1f028faac8f554ef31eeba00e80936ba8d90b1cba65c8bebc1789f9c3cc
@@ -972,8 +972,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a42c48797cf44588fa53a6c983a8921eb0f9df0d6b31f12225d3aa122fee054a 3ecef40695e5fece782c46c28dad358ca9f5bdd58ea66e5d3400ac8e344e76b6
-R 79519452593ddf02ef7ff10cacc86da6
+P 8cbcf36be3d7b7c62a2b27542fef4b4eea9bd7e48aa807b8c5cad2a1cdae7688
+R 7fca330d0726399df1e0d4dd12c34ed5
 U jkosche
-Z 6259e60ed605d9c52aab5bba807e3943
+Z cecfa64b2cbb2c9c3b6ad01ceb39d4fa
 # Remove this line to create a well-formed Fossil manifest.
