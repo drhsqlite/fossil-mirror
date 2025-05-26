@@ -767,7 +767,7 @@ write_err:
 ** Usage: %fossil test-httpmsg ?OPTIONS? URL ?PAYLOAD? ?OUTPUT?
 **
 ** Send an HTTP message to URL and get the reply. PAYLOAD is a file containing
-** the payload, or "-" to read payload from standard input.  a POST message
+** the payload, or "-" to read payload from standard input.  A POST message
 ** is sent if PAYLOAD is specified and is non-empty.  If PAYLOAD is omitted
 ** or is an empty file, then a GET message is sent.
 **

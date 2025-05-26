@@ -2140,7 +2140,7 @@ void cgi_handle_http_request(const char *zIpAddr){
    && fossil_strcmp(zToken,"POST")!=0
    && fossil_strcmp(zToken,"HEAD")!=0
   ){
-    malformed_request("unsupported HTTP method: \"%s\" - Fossil only supports"
+    malformed_request("unsupported HTTP method: \"%s\" - Fossil only supports "
                       "GET, POST, and HEAD", zToken);
   }
   cgi_setenv("GATEWAY_INTERFACE","CGI/1.0");
