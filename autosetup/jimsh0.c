@@ -51,7 +51,11 @@
 #else
 #define _GNU_SOURCE
 #endif
+#ifndef __ixemul__
 #define HAVE_FORK
+#else
+#define HAVE_VFORK
+#endif
 #define HAVE_WAITPID
 #define HAVE_ISATTY
 #define HAVE_MKSTEMP
@@ -4515,6 +4519,16 @@ static int mkdir_all(char *path)
 
             continue;
         }
+
+#if defined(__morphos__) && defined(__ixemul__)
+        /*
+         * MorphOS with ixemul returns ENOTDIR on SFS when the directory
+         * already exists, but on RAM: it returns the correct EEXIST.
+         */
+        if (errno == ENOTDIR) {
+                errno = EEXIST;
+        }
+#endif
 
         if (errno == EEXIST) {
             jim_stat_t sb;

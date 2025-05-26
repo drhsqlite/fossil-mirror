@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-C Port\sincluded\sSQLite\sto\sMorphOS\susing\sixemul
-D 2025-05-26T21:09:46.410
+C Make\sincluded\sjimsh\swork\son\sMorphOS\swith\sixemul
+D 2025-05-26T21:28:39.132
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -33,7 +33,7 @@ F autosetup/cc-lib.tcl 493c5935b5dd3bf9bd4eca89b07c8b1b1a9356d61783035144e21795f
 F autosetup/cc-shared.tcl 4f024e94a47f427ba61de1739f6381ef0080210f9fae89112d5c1de1e5460d78
 F autosetup/cc.tcl 7e2fe943ae9d45cf39e9f5b05b6230df8e719415edea5af06c30eb68680bde14
 F autosetup/default.auto f78163e478676728918cbb7360abddb9c830e882
-F autosetup/jimsh0.c 1b5fe91fffcddbc29f2b16acb80f1650632ea2edbe8336b8155ef7b4c66f6d8d
+F autosetup/jimsh0.c a3e80eea7cd50c3a8c3c1f0623fd063170a92282e40f9105b45315ad6bcd82c3
 F autosetup/local.tcl 880f333f665258fcff957d265d49a11040651325a14fd2470a703691db1602c7
 F autosetup/pkg-config.tcl 4e635bf39022ff65e0d5434339dd41503ea48fc53822c9c5bde88b02d3d952ba
 F autosetup/system.tcl 3a39d6e0b3bfba526fd39afe07c1d0d325e5a31925013a1ba7c671e1128e31bb
@@ -974,15 +974,15 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f993a870a130f4b58fdfdda465853ceb6de6206a109799e53940c50f091720ee
-R e45258d35ab9718e39ed49e72f3af9d0
+P b9998eb62537165e8b1429d08820f819d05e6b3f8f942f030e22e11cf45f27a1
+R 03ec0220b2d8359dccda6815b27431a6
 U js
-Z c3115ece58b0d896569d4d432f8afc0b
+Z e804684def0ef703f5918faaca71e113
 # Remove this line to create a well-formed Fossil manifest.
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaDTYqwAKCRDGAe4hdz58
-j1WmAQD1DhTDGZTu5ZsmJ05uH7DRO+cRfR2za0P7CpNG1NrnYQEAmpISYXpC4dfK
-7LYdt4tVRCvUorz3jdQ5DzDX1QE6ew4=
-=2Gz5
+iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaDTdBwAKCRDGAe4hdz58
+j0bHAQCy+EPNmv5JDut54D0TdaOSBlOti8TPLTdSwtfsO7dZsgD/Zv7DDQAX+Z3+
+G4J/zKMhNcn7dKlcdbFSHNmrTHq+UQM=
+=OaB7
 -----END PGP SIGNATURE-----
