@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-C Merge\strunk
-D 2025-05-18T02:50:09.216
+C Port\sincluded\sSQLite\sto\sMorphOS\susing\sixemul
+D 2025-05-26T21:09:46.410
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -278,7 +278,7 @@ F extsrc/pikchr.c e82d4b68867a01e1688fcae7c08439a328434fd390a3a8e23d1416fbd09dab
 F extsrc/pikchr.js 9db23c4d8b68d86686b903bd4b5e5a7bf8dd97f0b5157377f4ac2bc2448f4859
 F extsrc/pikchr.wasm 5dcce2f7eb59441fd8fcb62a57644b86a04d339cdafb662967ae195885f33d5b
 F extsrc/shell.c eec0247ca1323bd76712342fbc5e5f2a6a548731dc0c53fb6355189efa666f4a
-F extsrc/sqlite3.c 2b79697f1610e673fd76a5c0002080838f626f1def79f1b107ee377e2d4e375e
+F extsrc/sqlite3.c df7150d9b49e5020fc640f9fa4d551aeae95f0b3f7e67e78388002a39168766a
 F extsrc/sqlite3.h 584ee387026f5a11d3c2d9efd7325998999d1f1268b2e4a346f6eaaf5357c855
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
@@ -974,15 +974,15 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d913362cc492b60dc94f24a86f983bb6a8928c27019a3f9e3d9abef356e17203 5253f0cf027605034c39c65569dafdbf572102c3375354c30c508b1f0c68f6f4
-R 347ba41edc5181b7c7f949bd07e1b30c
+P f993a870a130f4b58fdfdda465853ceb6de6206a109799e53940c50f091720ee
+R e45258d35ab9718e39ed49e72f3af9d0
 U js
-Z b3ab2627ae0fc0bd964e357688cfd971
+Z c3115ece58b0d896569d4d432f8afc0b
 # Remove this line to create a well-formed Fossil manifest.
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaClK4QAKCRDGAe4hdz58
-j5rQAPwKIWQhKllc0/Q9G2Kld0z60Y07m1mWUxQ/3oNg5Aht1gEAv8HoA3V9ufJ7
-GdY/gmrY/boBzkLN73w5AfsATMd6YAk=
-=uHBd
+iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaDTYqwAKCRDGAe4hdz58
+j1WmAQD1DhTDGZTu5ZsmJ05uH7DRO+cRfR2za0P7CpNG1NrnYQEAmpISYXpC4dfK
+7LYdt4tVRCvUorz3jdQ5DzDX1QE6ew4=
+=2Gz5
 -----END PGP SIGNATURE-----
