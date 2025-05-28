@@ -1,5 +1,5 @@
-C Fix\sseveral\sminor\stypos\sin\sHTTP\serror\smessages\sand\sHTTP\stest\scommands.\sRemove\sthe\sunavailable\s--debug\soption\sfrom\sthe\stest-http\scommand\shelp\sscreen.
-D 2025-05-26T14:12:00.000
+C Improved\sdisplay\sof\s"Project\sAge"\son\sthe\s/stat\spage.
+D 2025-05-28T12:06:19.892
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -556,7 +556,7 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 42334a1297bb1ec6a34056f3be4068089e6d94e9e8077ed3d6778a50a1994a54
 F src/stash.c b5ce9703768b4b5decd6f0a5324b2204a59392592be10b341e3311914cfec9e4
-F src/stat.c e25b4b93eb5bf7bb74e29b4ce44e6de9c5ea9921f780b79d1847e16848b9ac1f
+F src/stat.c 68cb669d6e1304765fdf280e9ff18feb649ae424351c88cb19aa4012d0e3f5b3
 F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 21e86fed4b52938668c59eae1a7ebf8016320d55af19168a9c180d480999f93a
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 174091aa6fa5ed408fa8a37ce8f9491bfa75ea6e74a4f94eb7f9bfdd7d56e27a
-R f14257f65593bd0ec40278796ba119ad
-U florian
-Z 75b57e7dd7f01e0291a5601acfe88192
+P 9cabc138da779de36c33f0fdf7842f892f7bad94db63ab4116fdf92ab0e15965
+R 65f9811742bfd33f3010cceddab46914
+U drh
+Z 96a7e8fd69fcd4f0f46d70a943f08ee9
 # Remove this line to create a well-formed Fossil manifest.

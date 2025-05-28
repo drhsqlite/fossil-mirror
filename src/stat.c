@@ -270,12 +270,14 @@ void stat_page(void){
   z = db_text(0, "SELECT timediff('now',(SELECT min(mtime) FROM event));");
   sscanf(z, "+%d-%d-%d", &Y, &M, &D);
   if( Y>0 ){
-    @ %d(Y) years, \
+    @ %d(Y) year%s(Y==1?"":"s") \
   }
   if( M>0 ){
-    @ %d(M) months, \
+    @ %d(M) month%s(M==1?"":"s") \
   }
-  @ %d(D) days
+  if( D>0 || (Y==0 && M==0) ){
+    @ %d(D) day%s(D==1?"":"s")
+  }
   @ </td></tr>
   p = db_get("project-code", 0);
   if( p ){
