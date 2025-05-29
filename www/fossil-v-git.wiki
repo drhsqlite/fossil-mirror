@@ -276,7 +276,7 @@ easy to also see "what came after".
 
 Leaf check-ins in Git that lack a "ref" become "detached," making them
 difficult to locate and subject to garbage collection. This
-[http://gitfaq.org/1/01/what-is-a-detached-head/|detached head
+[https://stackoverflow.com/q/3965676 | detached head
 state] problem has caused grief for
 [https://www.google.com/search?q=git+detached+head+state | many
 Git users]. With

@@ -1,5 +1,5 @@
-C Tiny\schange\sto\swww/changes.wiki
-D 2025-05-29T08:33:35.967
+C Replace\sthe\sbroken\slink\sfor\sthe\s"detached\shead"\sentry\sin\sfossil-v-git.wiki,\sas\ssuggested\sin\s[forum:5c06018718|forum\spost\s5c06018718].
+D 2025-05-29T14:17:42.901
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -840,7 +840,7 @@ F www/forum.wiki c7b63aaa760046ccab564f54bfda038b01eb1684c1ee4fbc0a16706b23c14a9
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
-F www/fossil-v-git.wiki d24f7761cc694b6b500cb8e18634d15a63cd62cf82cd9bd8c393cb181d4e4733
+F www/fossil-v-git.wiki f4cde40989adb976263c065abdc782277d55a915572fd5ee1960b84bae30f0d2
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6594e003ab3b53717de2f73f2dfad77b3cf56a7905f4f372d3c8e9f56c1ef9c9
-R d6f61989db8ece75cd26ff1f4ca773af
-U brickviking
-Z e31664842bf0069c93c77a2f1b1af31d
+P 13df8244fd8ba1967cc0232daae9505d78a987946285af13996d52817f214e78
+R 3215d520a5fa13f6355f38fce4261275
+U stephan
+Z 2948c18d7d257dc9a613170b46f9f61a
 # Remove this line to create a well-formed Fossil manifest.
