@@ -507,7 +507,7 @@ void cgi_reply(void){
     /* Do not cache HTML replies as those will have been generated and
     ** will likely, therefore, contains a nonce and we want that nonce to
     ** be different every time. */
-    blob_appendf(&hdr, "ETag: %s\r\n", etag_tag());
+    blob_appendf(&hdr, "ETag: \"%s\"\r\n", etag_tag());
     blob_appendf(&hdr, "Cache-Control: max-age=%d\r\n", etag_maxage());
     if( etag_mtime()>0 ){
       blob_appendf(&hdr, "Last-Modified: %s\r\n",

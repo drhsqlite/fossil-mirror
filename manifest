@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.50.0\srelease.
-D 2025-05-29T14:21:55.464
+C Enclose\sETag\sheader\svalues\sin\sdouble\squotes.\sSuggested\sin\s[forum:/forumpost/70bacf5cf8|Forum\sPost\s70bacf5cf8].
+D 2025-05-30T04:27:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c a3f98318cf24199743140c1fd02b02ba0559b61633bf51918e0e5903f86666ee
+F src/cgi.c 56470ef734012637b97744ed6dc3d89f88ce96d3154304f4ed6531b399140702
 F src/chat.c 6965e8292e4cdce5347e027a841adcf97da5ffc17cbfbf6b2971ac432dfe9c67
 F src/checkin.c 17224d59bae25829aa6ff0cff8928b52dd655f24da3e315ffbcc0d31641cbac1
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 788db46a58f9332546381917cb90bc79343cc2e6642593721de4860d1e3a0b89
-R 10267bb1a2c4ccd3b08d9ea7a15de070
-U drh
-Z 2be34abc01e2c298942c6bacc0775ca5
+P ce65d09a56913e3b02ae1df71923e8901f47d32605c1df30dfebd00f6e7c464c
+R 17f2cceebf43ed90b91bab8d0a1250a6
+U florian
+Z 541c04711f640c5912477450e6b1e329
 # Remove this line to create a well-formed Fossil manifest.
