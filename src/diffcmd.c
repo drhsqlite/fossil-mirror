@@ -669,12 +669,7 @@ void diff_file(
     }
 
     /* Run the external diff command */
-    if( fossil_system(blob_str(&cmd)) ){
-#if !defined(_WIN32)
-      /* On Windows, exit codes are unreliable. */     
-      fossil_warning("External diff command failed: %b\n", &cmd);
-#endif                     
-    }
+    fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
     if( useTempfile ) file_delete(blob_str(&nameFile1));

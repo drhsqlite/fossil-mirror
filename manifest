@@ -1,5 +1,5 @@
-C Enclose\sETag\sheader\svalues\sin\sdouble\squotes.\sSuggested\sin\s[forum:/forumpost/70bacf5cf8|Forum\sPost\s70bacf5cf8].
-D 2025-05-30T04:27:00.000
+C Backout\srecent\schanges\swhich\swas\sreporting\serror\swhen\sexternal\sdiff\scommand\nexit\swith\snon\s0\svalue.\sIt's\scommon\sfor\scli\sdiff\sprograms\s(e.g.\s\sgnu-diff\sand\nbsd-diff)\sto\sreturn\s1\swhen\sfiles\sdiffer.\sLooking\sfor\sa\smore\s"generic"\nsolution.
+D 2025-05-31T15:08:24.528
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -420,7 +420,7 @@ F src/descendants.c b89a755e53906d2ec2ea69573bd38a4c90baad7af2e48c13015a69b7637b
 F src/diff.c 1f3a90edf3be51e052718b7f2f845ef1967df03874f6d82f47c58344f6cf6cf4
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 29f14870a8e9befd8bdc6682ed4fce4889a15296b611e3c140ab2afb00d095f3
-F src/diffcmd.c 30179ce21979fec53cdab3784805f19ab582543e758633281a6926047399cd9d
+F src/diffcmd.c c071d8b030d080d5b2b37cba90ad8cbb42c669662b3f79e356c7d409a7771125
 F src/dispatch.c ed3f8b39d19aad310c6252feb40610a0393a016116ac91f3c59fe57a0799ddb3
 F src/doc.c a939e55f45961b95a8cc62c3c2e63f25aaa3bb73ae8e00a88803b0ed29d1988f
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
@@ -971,8 +971,10 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce65d09a56913e3b02ae1df71923e8901f47d32605c1df30dfebd00f6e7c464c
-R 17f2cceebf43ed90b91bab8d0a1250a6
-U florian
-Z 541c04711f640c5912477450e6b1e329
+P ad51cc61c6d2ca07f4e3e885e559f219c5af3e01c39345df621177ecdccc5d9d
+Q -43ee0921ec3f3a92a87603e24e2f1c795342c567c09ad44f4b2a327569f782b3
+Q -45da184c1b7d6b6c968e1530779b94762dbdf21540e41189dc3e96f4350a7d65
+R 2081960066c59a03d24ff92d7c2f044c
+U mgagnon
+Z 1e2f9a321d63aebc0f5aadbe517c69e7
 # Remove this line to create a well-formed Fossil manifest.
