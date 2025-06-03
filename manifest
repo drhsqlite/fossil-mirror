@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-C Merge\strunk
-D 2025-06-03T20:25:09.886
+C Fix\sport\snot\sbeing\sset
+D 2025-06-03T20:26:36.568
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -469,7 +469,7 @@ F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
 F src/http.c 5a4752d3380f066181886d18b89c35253f181df91f64d6d450a5a257ed864abd
-F src/http_socket.c c18ff81ec1aca6b5e5a3c8040ba3c075bd3a9766e10ba59352d9a5d41bdbb2b5
+F src/http_socket.c 10f63477324700237d82f89ce013d4085fda964b0db4cc7e3d139f41a26853ef
 F src/http_ssl.c c378b9724a8be6f1b7959af8080b028cf500e5f7845ae098870cef3bb7aa8ebb
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
 F src/import.c 28a4e12b97171c572007b7bced18b878490bd048cab2df67673847e32f25ca18
@@ -974,15 +974,15 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 084f17dcd62788499fe77dae6c90c1897004eb3b5156e5d380a893200fe1c674 92cdafddbb402acaf858cad0e328ed05f1ccd05dee028d11fa0751b04beb9ec5
-R a087c2b2d9399a409ef57d4d0faf5f43
+P db4e4b46c39b2983a0c279ef41c5800b57e2654ee7ed0730c9441b82e0514cdd
+R e25c444fac137f2840383ca7d7dec0a2
 U js
-Z d3837c7555316d89082c68fe7aa9dd23
+Z 3e72504c765bb8d74a8202d5040a3195
 # Remove this line to create a well-formed Fossil manifest.
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaD9aJQAKCRDGAe4hdz58
-j0OHAP4s/o9MXiEVZnjdu8rplVO5M7r6Q89244ksmbJUTeqA5AD+LuK0wLHGmx/T
-tirGdfxjnLTPSJprAcjz7Q1KK1D+qAI=
-=HmlS
+iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaD9afAAKCRDGAe4hdz58
+j28qAQDVZqT7STQdCMbWMYgYbgoqlUJAw1vIdS29+1EcElRk7gEArXuS90/xk2T/
+9k1WUxQHN5xRM6qfam8peCJUlynZ7Aw=
+=GA37
 -----END PGP SIGNATURE-----

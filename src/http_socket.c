@@ -211,6 +211,7 @@ int socket_open(UrlData *pUrlData){
   }
   memset(&sa, 0, sizeof(sa));
   sa.sin_family = AF_INET;
+  sa.sin_port = htons(pUrlData->port);
   for (i=0; hostent->h_addr_list[i]!=0; i++){
     sa.sin_addr = *(struct in_addr *)hostent->h_addr_list[i];
     if( connect(iSocket,(struct sockaddr *)&sa,size)<0 ){
