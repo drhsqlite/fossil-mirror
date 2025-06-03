@@ -507,7 +507,7 @@ void cgi_reply(void){
     /* Do not cache HTML replies as those will have been generated and
     ** will likely, therefore, contains a nonce and we want that nonce to
     ** be different every time. */
-    blob_appendf(&hdr, "ETag: %s\r\n", etag_tag());
+    blob_appendf(&hdr, "ETag: \"%s\"\r\n", etag_tag());
     blob_appendf(&hdr, "Cache-Control: max-age=%d\r\n", etag_maxage());
     if( etag_mtime()>0 ){
       blob_appendf(&hdr, "Last-Modified: %s\r\n",
@@ -2148,7 +2148,7 @@ void cgi_handle_http_request(const char *zIpAddr){
    && fossil_strcmp(zToken,"POST")!=0
    && fossil_strcmp(zToken,"HEAD")!=0
   ){
-    malformed_request("unsupported HTTP method: \"%s\" - Fossil only supports"
+    malformed_request("unsupported HTTP method: \"%s\" - Fossil only supports "
                       "GET, POST, and HEAD", zToken);
   }
   cgi_setenv("GATEWAY_INTERFACE","CGI/1.0");

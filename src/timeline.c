@@ -1275,7 +1275,7 @@ static void addFileGlobExclusion(
   const char *zChng,        /* The filename GLOB list */
   Blob *pSql                /* The SELECT statement under construction */
 ){
-  if( zChng==0 || zChng[0]==0 ) return;
+  if( zChng==0 ) return;
   blob_append_sql(pSql," AND event.objid IN ("
       "SELECT mlink.mid FROM mlink, filename\n"
       " WHERE mlink.fnid=filename.fnid\n"
@@ -1286,9 +1286,28 @@ static void addFileGlobDescription(
   const char *zChng,        /* The filename GLOB list */
   Blob *pDescription        /* Result description */
 ){
-  if( zChng==0 || zChng[0]==0 ) return;
+  if( zChng==0 ) return;
   blob_appendf(pDescription, " that include changes to files matching '%h'",
                zChng);
+}
+
+/*
+** If zChng is not NULL, then use it as a comma-separated list of
+** glob patterns for filenames, and remove from the "ok" table any
+** check-ins that do not modify one or more of the files identified
+** by zChng.
+*/
+static void removeFileGlobFromOk(
+  const char *zChng         /* The filename GLOB list */
+){
+  if( zChng==0 ) return;
+  db_multi_exec(
+    "DELETE FROM ok WHERE rid NOT IN (\n"
+    "  SELECT mlink.mid FROM mlink, filename\n"
+    "   WHERE mlink.fnid=filename.fnid\n"
+    "     AND %z);\n",
+    glob_expr("filename.name", zChng)
+  );
 }
 
 /*
@@ -1779,6 +1798,7 @@ void page_timeline(void){
     cgi_replace_query_parameter("d",fossil_strdup(z));
     zDPNameD = zDPNameP = z;
   }
+  if( zChng && zChng[0]==0 ) zChng = 0;
 
   /* Undocumented query parameter to set JS mode */
   builtin_set_js_delivery_mode(P("jsmode"),1);
@@ -2176,8 +2196,10 @@ void page_timeline(void){
       db_multi_exec("INSERT OR IGNORE INTO pathnode SELECT x FROM related");
     }
     add_extra_rids("pathnode",P("x"));
+    add_extra_rids("pathnode",P("sel1"));
+    add_extra_rids("pathnode",P("sel2"));
     blob_append_sql(&sql, " AND event.objid IN pathnode");
-    if( zChng && zChng[0] ){
+    if( zChng ){
       db_multi_exec(
         "DELETE FROM pathnode\n"
         " WHERE NOT EXISTS(SELECT 1 FROM mlink, filename\n"
@@ -2250,6 +2272,8 @@ void page_timeline(void){
       "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
     );
     add_extra_rids("ok", P("x"));
+    add_extra_rids("ok", P("sel1"));
+    add_extra_rids("ok", P("sel2"));
     blob_append_sql(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
@@ -2301,10 +2325,12 @@ void page_timeline(void){
            "DELETE FROM ok;"
         );
       }else{
+        removeFileGlobFromOk(zChng);
         nd = db_int(0, "SELECT count(*)-1 FROM ok");
         if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
         if( nd>0 || p_rid==0 ){
-          blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
+          blob_appendf(&desc, "%d descendant%s",
+                       nd>=0 ? nd : 0,(1==nd)?"":"s");
         }
         if( useDividers && !selectedRid ) selectedRid = d_rid;
         db_multi_exec("DELETE FROM ok");
@@ -2337,17 +2363,21 @@ void page_timeline(void){
       }
       if( bSeparateDandP ){
         db_multi_exec("DELETE FROM ok WHERE rid NOT IN ok_d;");
+        removeFileGlobFromOk(zChng);
         db_multi_exec("%s", blob_sql_text(&sql));
       }else{
+        removeFileGlobFromOk(zChng);
         np = db_int(0, "SELECT count(*)-1 FROM ok");
         if( np>0 || nd==0 ){
           if( nd>0 ) blob_appendf(&desc, " and ");
-          blob_appendf(&desc, "%d ancestor%s", np, (1==np)?"":"s");
+          blob_appendf(&desc, "%d ancestor%s", 
+                       np>=0 ? np : 0, (1==np)?"":"s");
           db_multi_exec("%s", blob_sql_text(&sql));
         }
         if( useDividers && !selectedRid ) selectedRid = p_rid;
       }
     }
+
     if( bSeparateDandP ){
       int n = db_int(0, "SELECT count(*) FROM ok");
       blob_reset(&desc);
@@ -2393,6 +2423,10 @@ void page_timeline(void){
                      href("%R/info?name=%h",zFwdTo), zFwdTo,
                      bFwdAdded ? " (not a direct descendant)":"");
       }
+    }
+    if( zChng ){
+      if( strstr(blob_str(&desc)," that ") ) blob_appendf(&desc, " and");
+      blob_appendf(&desc, " that make changes to files matching \"%h\"", zChng);
     }
     if( advancedMenu ){
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
@@ -2732,6 +2766,8 @@ void page_timeline(void){
           "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridMark);
       }
       add_extra_rids("selected_nodes",P("x"));
+      add_extra_rids("selected_nodes",P("sel1"));
+      add_extra_rids("selected_nodes",P("sel2"));
       if( related==0 ){
         blob_append_sql(&cond, " AND blob.rid IN selected_nodes");
       }else{

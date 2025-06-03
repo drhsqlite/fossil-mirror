@@ -309,7 +309,7 @@ void ajax_route_preview_text(void){
 
   ajax_get_fnci_args( &zFilename, 0 );
 
-  if(!ajax_route_bootstrap(1,1)){
+  if(!ajax_route_bootstrap(0,1)){
     return;
   }
   if(zFilename==0){
