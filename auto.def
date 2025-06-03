@@ -430,22 +430,21 @@ proc handle-zlib {} {
       user-error "zlib.h not found; either install it or specify its location via --with-zlib"
     }
     foreach lcheck [lreverse $ldtry] {
-      if {[is_morphos] && $lcheck eq ""} {set lib z_shared} {set lib z}
-      if {[cc-with [list -cflags "$cfound $lcheck"] {check-function-in-lib inflateEnd $lib}]} {
+      if {[cc-with [list -cflags "$cfound $lcheck"] {check-function-in-lib inflateEnd z}]} {
         if {$lcheck eq ""} {
           msg-result "Linked to zlib via default library path"
         } else {
           define-append EXTRA_LDFLAGS "$lcheck"
           msg-result "Linked to zlib via $lcheck"
         }
-        if {![check-function-in-lib compressBound $lib]} {
+        if {![check-function-in-lib compressBound z]} {
           puts "Notice: disabling zlib compression in the SQL shell"
           define-append SQLITE_OPTIONS_EXT {-USQLITE_HAVE_ZLIB}
         }
         break
       }
     }
-    set ::zlib_lib "-l$lib"
+    set ::zlib_lib -lz
   }
 }; # handle-zlib
 handle-zlib

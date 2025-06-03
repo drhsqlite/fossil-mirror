@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-C Fix\sport\snot\sbeing\sset
-D 2025-06-03T20:26:36.568
+C Don't\suse\s-lz_shared\son\sMorphOS.\sIt\sis\snot\smeant\sto\sbe\sused\swith\sixemul\sand\scrashes.
+D 2025-06-03T21:02:48.475
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -20,7 +20,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION fff9db7187957b42c0b02b676d5212985f860d15ccf2554084915e2f63ac7534
-F auto.def bf9642bdf911c126ed64eb250e71528345a2d12762c9a27ccb557c263cd85fb6
+F auto.def 828b197bce61f59494e4c974f4ee96667168ba9d0f3d977bf6ffe7ec184edc2c
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -974,15 +974,16 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db4e4b46c39b2983a0c279ef41c5800b57e2654ee7ed0730c9441b82e0514cdd
-R e25c444fac137f2840383ca7d7dec0a2
+P 15619e620badba6e4b9fe870ba70427140c1cdaa289b6d9fe7216e140dadd2cc
+Q -d913362cc492b60dc94f24a86f983bb6a8928c27019a3f9e3d9abef356e17203
+R b649153136191b0d7d8804388af0c339
 U js
-Z 3e72504c765bb8d74a8202d5040a3195
+Z 9a2143f9054e9423339097dcc8ed0ce9
 # Remove this line to create a well-formed Fossil manifest.
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaD9afAAKCRDGAe4hdz58
-j28qAQDVZqT7STQdCMbWMYgYbgoqlUJAw1vIdS29+1EcElRk7gEArXuS90/xk2T/
-9k1WUxQHN5xRM6qfam8peCJUlynZ7Aw=
-=GA37
+iHUEARYKAB0WIQTcQxcba+k5eNCa2LLGAe4hdz58jwUCaD9i+AAKCRDGAe4hdz58
+j0f4AP9PWvQa+knJeL6m1KKVxdXngdDw+uma4OKZuHeHobl0zwD9G/T/ch5tKluO
+yM0uoZ5EhmS+Nur7SuNsF1UWHvxoZQ4=
+=ydMq
 -----END PGP SIGNATURE-----
