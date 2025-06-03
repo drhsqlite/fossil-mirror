@@ -2196,6 +2196,8 @@ void page_timeline(void){
       db_multi_exec("INSERT OR IGNORE INTO pathnode SELECT x FROM related");
     }
     add_extra_rids("pathnode",P("x"));
+    add_extra_rids("pathnode",P("sel1"));
+    add_extra_rids("pathnode",P("sel2"));
     blob_append_sql(&sql, " AND event.objid IN pathnode");
     if( zChng ){
       db_multi_exec(
@@ -2270,6 +2272,8 @@ void page_timeline(void){
       "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
     );
     add_extra_rids("ok", P("x"));
+    add_extra_rids("ok", P("sel1"));
+    add_extra_rids("ok", P("sel2"));
     blob_append_sql(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
@@ -2762,6 +2766,8 @@ void page_timeline(void){
           "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridMark);
       }
       add_extra_rids("selected_nodes",P("x"));
+      add_extra_rids("selected_nodes",P("sel1"));
+      add_extra_rids("selected_nodes",P("sel2"));
       if( related==0 ){
         blob_append_sql(&cond, " AND blob.rid IN selected_nodes");
       }else{
