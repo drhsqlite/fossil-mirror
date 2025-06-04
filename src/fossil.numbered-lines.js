@@ -23,10 +23,7 @@
       .replace(/&?\budc=[^&]*/,'') /* "update display prefs cookie" */
       .replace(/&?\bln=[^&]*/,'') /* inbound line number/range */
       .replace('?&','?');
-  var urlArgsDecoded = urlArgsRaw;
-  try{urlArgsDecoded = decodeURIComponent(urlArgsRaw);}
-  catch{}
-  const lineState = { urlArgs: urlArgsDecoded, start: 0, end: 0 };
+  const lineState = { urlArgs: urlArgsRaw, start: 0, end: 0 };
   const lineTip = new F.PopupWidget({
     style: {
       cursor: 'pointer'
