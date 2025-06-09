@@ -1,5 +1,5 @@
-C Add\sthe\s'open'\sattribute\sto\sthe\slist\sof\sallowed\sHTML\sattributes\sin\smarkdown.\sThis\sis\sto\saddress\s[https://pikchr.org/home/forumpost/997861ea481833fb|pikchr\sforum\spost\s997861ea48183],\sbut\s(A)\swhether\sit\s_should_\sbe\saddressed\sis\sdebatable\sand\s(B)\sit\sleaves\sis\swith\sonly\s1-2\sbit\sslots\sfor\sfurther\sattributes.\sThis\schange\swas\smore\sinvasive\sthan\sdesired\sbecause\sthe\sOPEN\sattribute\shad\sto\sbe\sinserted\sinto\sthe\smiddle\sof\sa\slong\slist\sof\ssequential\sbitmasks.
-D 2025-06-08T22:50:21.631
+C Add\sa\smissing\sbitmask\sreported\sin\sthe\supstream\sforum\spost.\sHow\sit\sworks\sat\sall\swithout\sthis\sis\snot\sclear\s-\sit\sapparently\sshouldn't.
+D 2025-06-09T07:57:12.988
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -591,7 +591,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c 1359a2a0c7f88c5e2485fb16068ddce2f038a939d15a0be3cb2e992cda310f1c
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c a8b8614538142b509588789ec4cc8f468ec1c9668d4509b586778b21f6e4944d
+F src/wikiformat.c 68785fe181f4ecdc2066ceb982b5872adcf7d280c21411c13f7bcbd2a66fee3d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
 F src/xfer.c 2449b8a58a71bd93aca6acc5c57ee48d74902836bb840e90ec3440b89d82f6be
@@ -971,11 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca5ecf2223e7b2e95ab68c3d7698934691e24e4b48382c17fb6738efe0804868
-R 453c87ad03c9c56f5cfe0c0297f51943
-T *branch * markdown-details-open
-T *sym-markdown-details-open *
-T -sym-trunk * Cancelled\sby\sbranch.
+P 64eb534c0902c01f4ec8fef523fb316a8905ed9f2736d40ff1d3e68bb70f3fc9
+R ad6d2a176eb3c97ec151718485f28584
 U stephan
-Z 8ab41ee24e4e2fb256c0c991b60863c2
+Z 9a9c7696e5258ca61b5afd60a7df999e
 # Remove this line to create a well-formed Fossil manifest.

@@ -331,7 +331,7 @@ static const struct AllowedMarkup {
  { "dd",            MARKUP_DD,           MUTYPE_LI,            AMSK_STYLE },
  { "del",           MARKUP_DEL,          MUTYPE_FONT,          AMSK_STYLE },
  { "details",       MARKUP_DETAILS,      MUTYPE_BLOCK,
-                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE|AMSK_OPEN },
  { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          AMSK_STYLE },
  { "div",           MARKUP_DIV,          MUTYPE_BLOCK,
                     AMSK_ID|AMSK_CLASS|AMSK_STYLE },
