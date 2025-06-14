@@ -1043,8 +1043,8 @@ Here are the key points of the synchronization protocol:
     <li> <b>clone_seqno</b> <i>sequence-number</i>
     <li> <b>file</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>
     <li> <b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
-    <li> <b>cfile</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>
-    <li> <b>cfile</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
+    <li> <b>cfile</b> <i>artifact-id usize size</i> <b>\n</b> <i>content</i>
+    <li> <b>cfile</b> <i>artifact-id delta-artifact-id usize size</i> <b>\n</b> <i>content</i>
     <li> <b>uvfile</b> <i>name mtime hash size flags</i> <b>\n</b> <i>content</i>
     <li> <b>private</b>
     <li> <b>igot</b> <i>artifact-id</i> ?<i>flag</i>?
