@@ -152,12 +152,12 @@ The client modifies the URL by appending the method name "<b>/xfer</b>"
 to the end.  For example, if the URL specified on the client command
 line is
 
-<pre>https://fossil-scm.org/fossil</pre>
+<pre>https://fossil-scm.org/home</pre>
 
 Then the URL that is really used to do the synchronization will
 be:
 
-<pre>https://fossil-scm.org/fossil/xfer</pre>
+<pre>https://fossil-scm.org/home/xfer</pre>
 
 <h3 id="req-format">2.2 HTTP Request Format</h3>
 
@@ -165,7 +165,7 @@ The client always sends a POST request to the server.  The
 general format of the POST request is as follows:
 
 <pre>
-POST /fossil/xfer HTTP/1.0
+POST /home/xfer HTTP/1.0
 Host: fossil-scm.hwaci.com:80
 Content-Type: application/x-fossil
 Content-Length: 4216
