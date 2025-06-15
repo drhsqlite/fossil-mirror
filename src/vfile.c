@@ -213,7 +213,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     if( chnged==0 && (isDeleted || rid==0) ){
       /* "fossil rm" or "fossil add" always change the file */
       chnged = 1;
-    }else if( !file_isfile_or_link(0) && currentSize>=0 ){
+    }else if( !file_isfile_or_link(0, RepoFILE) && currentSize>=0 ){
       if( cksigFlags & CKSIG_ENOTFILE ){
         fossil_warning("not an ordinary file: %s", zName);
         nErr++;
@@ -539,9 +539,9 @@ void vfile_scan(
         }
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
+          ? (file_isfile_or_link(zPath, eFType)) : (pEntry->d_type==DT_REG) ){
 #else
-      }else if( file_isfile_or_link(zPath) ){
+      }else if( file_isfile_or_link(zPath, eFType) ){
 #endif
         if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){
           db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
@@ -671,9 +671,9 @@ int vfile_dir_scan(
         }
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
+          ? (file_isfile_or_link(zPath, eFType)) : (pEntry->d_type==DT_REG) ){
 #else
-      }else if( file_isfile_or_link(zPath) ){
+      }else if( file_isfile_or_link(zPath, eFType) ){
 #endif
         db_bind_text(&upd, ":file", zOrigPath);
         db_step(&upd);

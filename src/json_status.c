@@ -117,7 +117,7 @@ cson_value * json_page_status(){
     }else if( isNew ){
       zStatus = "new" /* maintenance reminder: MUST come
                          BEFORE the isChnged checks. */;
-    }else if( !file_isfile_or_link(zFullName) ){
+    }else if( !file_isfile_or_link(zFullName, RepoFILE) ){
       if( file_access(zFullName, F_OK)==0 ){
         zStatus = "notAFile";
         ++nErr;
