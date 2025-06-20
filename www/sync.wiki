@@ -1040,7 +1040,7 @@ Here are the key points of the synchronization protocol:
     <li> <b>push</b> <i>servercode projectcode</i>
     <li> <b>pull</b> <i>servercode projectcode</i>
     <li> <b>clone</b>
-    <li> <b>clone_seqno</b> <i>sequence-number</i>
+    <li> <b>clone</b> <i>protocol-version sequence-number</i>
     <li> <b>file</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>
     <li> <b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
     <li> <b>cfile</b> <i>artifact-id usize size</i> <b>\n</b> <i>content</i>
