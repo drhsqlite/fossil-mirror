@@ -1,5 +1,5 @@
-C Minor\sdoc\sfix\sfor\scfile\scards\sin\ssync.wiki.
-D 2025-06-14T14:55:06.937
+C Minor\sinternal\sdoc\supdate.
+D 2025-06-20T12:23:28.535
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -406,7 +406,7 @@ F src/clone.c 3c205c20160c6377092b9d35f7d8ff828a83efd67f5df78e247bc66940cdf68e
 F src/color.c cbe8fb7c03c07735b13449a8384c466ddd93306af7bf63176414cf6fd1e144b9
 F src/comformat.c f21be09a545501a3b4ef51ed8c93bd687f7d4d96e145cadc773aec3e5b3e511d
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
-F src/configure.c 06d5e5f2de738ef5e3733b5f3bd18d73d3f4e1a2f7cbe4fa6fe008e9d618f183
+F src/configure.c c418b6863b884c89a669a82ab5e28ce8cea58fdc72261b171741fed972951004
 F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
@@ -971,8 +971,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5645824bd07658caf65d669380111ad8e83fd41b8466700198b3dc1dbbf1adff
-R 77a54bcd24f5408afd45b6271e46029c
+P d7d5cdd8c28ed6a4c0abdd949335723e35cfc43dc0a7e3365d2fc3b8f019a3de
+R 3fdd4dc78e4b56e54c9033abc15762fb
 U stephan
-Z 53613989e1f96982561e8e237076ae6c
+Z 515d047aa3147a96b07bb387541b9170
 # Remove this line to create a well-formed Fossil manifest.
