@@ -24,21 +24,29 @@ window.addEventListener("DOMContentLoaded", function(){
   });
 
   /*
-    Prepend the fossil instance's URL to each link so that this script
-    works when run from a non-localhost "fossil ui/server" instance.
-    We _assume_ that this script is run from /uv or /ext, with no
-    subsequent dirs after /uv or /ext. To run from deeper levels the
-    following logic needs to be adjusted to guess where the fossil
-    instance's CGI script is.
+    Prepend the fossil instance's URL to each link. We have to guess
+    which part of the URL is the fossil CGI/server instance.  The
+    following works when run (A) from under /uv or /ext and (B) from
+    /doc/branchname/test/link-tester.html.
   */
-  let top = (''+window.location).split('/');
-  top.pop(); // this file name
-  top.pop(); // parent dir
-  /* We're hopefully now at the top-most fossil-served
-     URL. */
-  top = top.join('/');
+  let urlTop;
+  let loc = (''+window.location);
+  let aLoc = loc.split('/')
+  aLoc.pop(); /* this file name */
+  const rxDoc = /.*\/doc\/[^/]+\/.*/;
+  //console.log(rxDoc, loc, aLoc);
+  if( loc.match(rxDoc) ){
+    /* We're hopefully now at the top-most fossil-served
+       URL. */
+    aLoc.pop(); aLoc.pop(); /* /doc/foo */
+    aLoc.pop(); /* current dir name */
+  }else{
+    aLoc.pop(); /* current dir name */
+  }
+  urlTop = aLoc.join('/');
+  //console.log(urlTop, aLoc);
   for( const o of eSelect.options ){
-    o.value = top + (o.value || o.innerText);
+    o.value = urlTop + (o.value || o.innerText);
   }
 
   const eBtnPrev = E('#btn-prev');
