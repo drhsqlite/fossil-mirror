@@ -95,11 +95,11 @@ window.addEventListener("DOMContentLoaded", function(){
   /**
      We have to adjust the iframe's size dynamically to account for
      other widgets around it. iframes don't simply like to fill up all
-     available space without some help. If #controls only contained
-     the one SELECT element, CSS would be sufficient, but once we add
-     text around it, #controls's size becomes unpredictable and we
-     need JS to calculate it. We do this every time the window size
-     changes.
+     available space without some help. If #controlWrapper only
+     contained the one SELECT element, CSS would be sufficient, but
+     once we add text around it, #controlWrapper's size becomes
+     unpredictable and we need JS to calculate it. We do this every
+     time the window size changes.
   */
   // Copied from fossil.dom.js
   const effectiveHeight = function f(e){

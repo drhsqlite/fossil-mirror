@@ -1,12 +1,15 @@
 [
   "Timelines",
-  ["Timeline", "/timeline"],
-  ["Timeline anonymous", "/timeline?u=anonymous&y=a"],
+  ["Default", "/timeline"],
+  ["anonymous", "/timeline?u=anonymous&y=a"],
 
   "Infos",
-  ["Tip info", "/info/tip"],
+  ["Info about the tip", "/info/tip"],
   ["/info/tip"],
 
   "Admin",
-  ["Users", "/setup_ulist"]
+  ["Users", "/setup_ulist"],
+
+  "Misc.",
+  ["/skins"]
 ]

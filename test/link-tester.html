@@ -24,18 +24,13 @@
   }
   #controlWrapper {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       z-index: 1;
       background: white /*do not bleed iframe through */;
       border-bottom: 2px dotted;
       padding-bottom: 0.5em;
   }
-  #controls {
-      display: flex;
-      flex-direction: row;
-      flex-grow: 0;
-  }
-  #controls > button {
+  #controlWrapper > button {
       flex-grow: 1;
       margin: 0.5em;
   }
@@ -73,17 +68,15 @@
     that frame.
   </header>
   <header id='controlWrapper'>
-    <div id='controls'>
-      <button id='btn-prev'>&larr;</button>
-      <div id='selectWrapper'>
-        <select id='selectPage'>
-          <option>/timeline</option>
-          <option>/dir</option>
-        </select>
-        <a target='_blank' id='currentUrl'></a>
-      </div>
-      <button id='btn-next'>&rarr;</button>
+    <button id='btn-prev'>&larr;</button>
+    <div id='selectWrapper'>
+      <select id='selectPage'>
+        <option>/timeline</option>
+        <option>/dir</option>
+      </select>
+      <a target='_blank' id='currentUrl'></a>
     </div>
+    <button id='btn-next'>&rarr;</button>
   </header>
   <iframe id='iframe'><!--populated via the UI--></iframe>
   <script src='link-tester.js'></script>
