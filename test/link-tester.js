@@ -45,9 +45,6 @@ window.addEventListener("DOMContentLoaded", function(){
     o.value = urlTop + (o.value || o.innerText);
   }
 
-  const eBtnPrev = E('#btn-prev');
-  const eBtnNext = E('#btn-next');
-
   const updateUrl = function(opt){
     if( opt ){
       let url = (opt.value || opt.innerText);
@@ -66,6 +63,7 @@ window.addEventListener("DOMContentLoaded", function(){
     }
   });
 
+  /** Select the entry at the given ndx and fire a change event. */
   const selectEntry = function(ndx){
     if( ndx>=0 ){
       eSelect.selectedIndex = ndx;
@@ -73,7 +71,9 @@ window.addEventListener("DOMContentLoaded", function(){
     }
   };
 
-  const cycleLink = function(dir){
+  /* Cycle to the next link in the list, accounting for separators and
+     wrapping around at either end. */
+  const cycleLink = function(dir/*<0 = prev, >0 = next*/){
     let n = eSelect.selectedIndex + dir;
     if( n < 0 ) n = eSelect.options.length-1;
     else if( n>=eSelect.options.length ){
@@ -89,8 +89,8 @@ window.addEventListener("DOMContentLoaded", function(){
     }
   };
 
-  eBtnPrev.addEventListener('click', ()=>cycleLink(-1), false);
-  eBtnNext.addEventListener('click', ()=>cycleLink(1), false);
+  E('#btn-prev').addEventListener('click', ()=>cycleLink(-1), false);
+  E('#btn-next').addEventListener('click', ()=>cycleLink(1), false);
 
   /**
      We have to adjust the iframe's size dynamically to account for
@@ -101,8 +101,8 @@ window.addEventListener("DOMContentLoaded", function(){
      unpredictable and we need JS to calculate it. We do this every
      time the window size changes.
   */
-  // Copied from fossil.dom.js
   const effectiveHeight = function f(e){
+    // Copied from fossil.dom.js
     if(!e) return 0;
     if(!f.measure){
       f.measure = function callee(e, depth){
@@ -128,8 +128,10 @@ window.addEventListener("DOMContentLoaded", function(){
     return f.extra;
   };
 
-  // Copied from fossil.bootstrap.js
+  /* Helper for the window-resized event handler below, to avoid
+     handling the resize until after it's finished. */
   const debounce = function f(func, waitMs, immediate) {
+    // Copied from fossil.bootstrap.js
     var timeoutId;
     if(!waitMs) waitMs = f.$defaultDelay;
     return function() {
@@ -145,6 +147,10 @@ window.addEventListener("DOMContentLoaded", function(){
     };
   };
 
+  /**
+     Resize eConstrained (the ifame element) so that it fits within
+     the page space not occupied by the list of elements eToAvoid.
+  */
   const ForceResizeKludge = (function(eToAvoid, eConstrained){
     const resized = function f(){
       if( f.$disabled ) return;
@@ -154,15 +160,9 @@ window.addEventListener("DOMContentLoaded", function(){
       eToAvoid.forEach((e)=>e ? extra += effectiveHeight(e) : false);
       ht = wh - extra;
       if( ht < 100 ) ht = 100;
-      eConstrained.style.top = 'calc('+extra+'px + 1.5em)';
+      eConstrained.style.top = 'calc('+extra+'px + 2em)';
       eConstrained.style.height =
-        eConstrained.style.maxHeight = [
-          "calc(", ht, "px",
-          " - 0.65em"/*fudge value*/,")"
-          /* ^^^^ hypothetically not needed, but both Chrome/FF on
-             Linux will force scrollbars on the body if this value is
-             too small; current value is empirically selected. */
-        ].join('');
+        eConstrained.style.maxHeight = "calc("+ ht+ "px - 2em)";
     };
     resized.$disabled = true/* gets deleted later */;
     window.addEventListener('resize', debounce(resized, 250), false);
