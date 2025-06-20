@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<head><!--
+   This file is intended to be loaded from a fossil
+   repository, either using:
+
+   fossil ui --extpage test/link-tester.html
+
+   or by adding test/link-tester.* to uv and then:
+
+   fossil ui -page uv/link-tester.html
+--></head>
+<style>
+  body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+  }
+  header {
+      margin: 0.5em 0.25em 0 0.25em;
+      padding: 0;
+  }
+  #controls {
+      display: flex;
+      flex-direction: row;
+      flex-grow: 0;
+      border-bottom: 2px dotted;
+      z-index: 1;
+      background: white /*don't bleed iframe through */;
+  }
+  #controls > button {
+      flex-grow: 1;
+      margin: 0.5em;
+  }
+  #selectPage {
+      flex-grow: 8;
+      margin: 1em;
+      padding: 1em;
+  }
+  #iframe {
+      flex-grow: 1; border: none; margin: 0; padding: 0;
+      display: block;
+      /* Absolute positioning is apparently the only way to get
+         the iframe to stretch to fill the page, but we have to
+         set its Y coordinate to something a bit below #controls. */
+      width: 100%;
+      height: calc(100% - 5em);
+      position: absolute;
+      top: 4em;
+  }
+</style>
+<body>
+  <header>
+    Fossil link test app. Select links from the list below to load
+    them. Use the arrow keys to cycle through the list. The fossil
+    instance is run within an iframe, so navigation within it
+    will stay within that frame.
+  </header>
+  <div id='controls'>
+    <button id='btn-prev'>&larr;</button>
+    <select id='selectPage'>
+      <option>/timeline</option>
+      <option>/dir</option>
+    </select>
+    <button id='btn-next'>&rarr;</button>
+  </div>
+  <iframe id='iframe'><!--populated via the UI--></iframe>
+  <script src='link-tester.js'></script>
+<body>
