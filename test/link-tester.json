@@ -1,0 +1,12 @@
+[
+  "Timelines",
+  ["Timeline", "/timeline"],
+  ["Timeline anonymous", "/timeline?u=anonymous&y=a"],
+
+  "Infos",
+  ["Tip info", "/info/tip"],
+  ["/info/tip"],
+
+  "Admin",
+  ["Users", "/setup_ulist"]
+]

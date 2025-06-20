@@ -22,22 +22,36 @@
       margin: 0.5em 0.25em 0 0.25em;
       padding: 0;
   }
+  #controlWrapper {
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
+      background: white /*do not bleed iframe through */;
+      border-bottom: 2px dotted;
+      padding-bottom: 0.5em;
+  }
   #controls {
       display: flex;
       flex-direction: row;
       flex-grow: 0;
-      border-bottom: 2px dotted;
-      z-index: 1;
-      background: white /*don't bleed iframe through */;
   }
   #controls > button {
       flex-grow: 1;
       margin: 0.5em;
   }
-  #selectPage {
+  #selectWrapper {
+      display: flex;
+      flex-direction: column;
       flex-grow: 8;
+  }
+  #selectPage {
+      flex-grow: 1;
       margin: 1em;
       padding: 1em;
+  }
+  #currentUrl {
+      font-family: monospace;
+      text-align: center;
   }
   #iframe {
       flex-grow: 1; border: none; margin: 0; padding: 0;
@@ -58,14 +72,19 @@
     instance is run within an iframe, so navigation within it
     will stay within that frame.
   </header>
-  <div id='controls'>
-    <button id='btn-prev'>&larr;</button>
-    <select id='selectPage'>
-      <option>/timeline</option>
-      <option>/dir</option>
-    </select>
-    <button id='btn-next'>&rarr;</button>
-  </div>
+  <header id='controlWrapper'>
+    <div id='controls'>
+      <button id='btn-prev'>&larr;</button>
+      <div id='selectWrapper'>
+        <select id='selectPage'>
+          <option>/timeline</option>
+          <option>/dir</option>
+        </select>
+        <a target='_blank' id='currentUrl'></a>
+      </div>
+      <button id='btn-next'>&rarr;</button>
+    </div>
+  </header>
   <iframe id='iframe'><!--populated via the UI--></iframe>
   <script src='link-tester.js'></script>
 <body>

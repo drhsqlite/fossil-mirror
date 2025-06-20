@@ -1,5 +1,5 @@
-C Teach\slink-tester.js\sto\sbe\sable\sto\srun\swhen\sinvoked\sfrom\s/doc/branchname/test.
-D 2025-06-20T12:48:01.973
+C Add\slink-tester.json,\sa\sset\sof\slinks\sfor\slink-tester.html\s(format\sis\sdescribed\snear\sthe\sbottom\sof\slink-tester.js).\sAdd\sa\slink\sto\slink-tester\swhich\sopens\sthe\scurrent\spage\sin\sa\snew\stab.
+D 2025-06-20T13:57:32.096
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -616,8 +616,9 @@ F test/glob.test 3b2fbff1bd6cc3693251cd4357b482f982620985e57fac614a0134628a2e720
 F test/graph-test-1.wiki 005464d7086c690588eee46e29f551145178c0eed085f5063f647b0d1231197e
 F test/graph-test-2.md 4dc6143ec96d321846ee7814d762c71d01d76336069074307241bf02ee93546f
 F test/json.test 6328ffc6773d8a1bf26ef471b5913f7237e620abdd35e087c9bfa289e40c5b51
-F test/link-tester.html 481bc4a77d693aef7b0a942a07059fe530a1648a62eee732951f2483826bd9a5
-F test/link-tester.js b6a41a1ebbda627db5a627d37eaba8842ae6b5748253f14b41d0a23fe855f005
+F test/link-tester.html 141a82e1b2f2f1a999d78d7955d4e6c9dc68a3ff1bfac4bf85d83bf38dbdf4f5
+F test/link-tester.js b133a0e5aeaf676efbd5e8c2d301564b66547122d79f5e9d0f31edda31009cad
+F test/link-tester.json 5cc9c0f63a347c526a463213fe0a559989aae1d30859abb5acff0af85819cdba
 F test/many-www.tcl a50f03578004a396d29041748aeb2cc9acbef0cc31e2975c93b563d378fae4e0
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
@@ -973,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3eef0e230dfbe986a382887a74f121762d5caeb8f0713f749d684f71e01e4754
-R e38c66d41f45369b86d9797d8f591443
+P 6ede23a1ab3d708bae252cae00a0d9056a350f4d016335d82ec8b56231655909
+R 6ce7efe3e9859e98c4d0a01e58521c9a
 U stephan
-Z 563ce03771a3a07a720725d1ec5b5430
+Z 20e25e94d376f13fef3852dd5e8d12c7
 # Remove this line to create a well-formed Fossil manifest.
