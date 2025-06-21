@@ -159,13 +159,16 @@ int repo_list_page(void){
     /* The default case:  All repositories under the g.zRepositoryName
     ** directory.
     */
+    Glob *pExclude;
     blob_init(&base, g.zRepositoryName, -1);
     db_close(0);
     assert( g.db==0 );
     sqlite3_open(":memory:", &g.db);
     db_multi_exec("CREATE TABLE sfile(pathname TEXT);");
     db_multi_exec("CREATE TABLE vfile(pathname);");
-    vfile_scan(&base, blob_size(&base), 0, 0, 0, ExtFILE);
+    pExclude = glob_create("*/proc,proc");
+    vfile_scan(&base, blob_size(&base), 0, pExclude, 0, ExtFILE);
+    glob_free(pExclude);
     db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'"
 #if USE_SEE
                   " AND pathname NOT GLOB '*[^/].efossil'"

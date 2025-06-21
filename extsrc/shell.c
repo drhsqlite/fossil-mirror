@@ -1715,10 +1715,9 @@ static void shellAddSchemaName(
 #define SQLITE_EXTENSION_INIT1
 #define SQLITE_EXTENSION_INIT2(X) (void)(X)
 
-#if defined(_WIN32) && defined(_MSC_VER)
-/************************* Begin test_windirent.h ******************/
+/************************* Begin ../ext/misc/windirent.h ******************/
 /*
-** 2015 November 30
+** 2025-06-05
 **
 ** The author disclaims copyright to this source code.  In place of
 ** a legal notice, here is a blessing:
@@ -1728,322 +1727,160 @@ static void shellAddSchemaName(
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** This file contains declarations for most of the opendir() family of
-** POSIX functions on Win32 using the MSVCRT.
+**
+** An implementation of opendir(), readdir(), and closedir() for Windows,
+** based on the FindFirstFile(), FindNextFile(), and FindClose() APIs
+** of Win32.
+**
+** #include this file inside any C-code module that needs to use
+** opendir()/readdir()/closedir().  This file is a no-op on non-Windows
+** machines.  On Windows, static functions are defined that implement
+** those standard interfaces.
 */
-
 #if defined(_WIN32) && defined(_MSC_VER) && !defined(SQLITE_WINDIRENT_H)
 #define SQLITE_WINDIRENT_H
-
-/*
-** We need several data types from the Windows SDK header.
-*/
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-
-#include "windows.h"
-
-/*
-** We need several support functions from the SQLite core.
-*/
-
-/* #include "sqlite3.h" */
-
-/*
-** We need several things from the ANSI and MSVCRT headers.
-*/
-
+#include <windows.h>
+#include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <io.h>
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
-/*
-** We may need several defines that should have been in "sys/stat.h".
-*/
-
+#include <string.h>
+#ifndef FILENAME_MAX
+# define FILENAME_MAX (260)
+#endif
 #ifndef S_ISREG
-#define S_ISREG(mode) (((mode) & S_IFMT) == S_IFREG)
+#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 #endif
-
 #ifndef S_ISDIR
-#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
-
 #ifndef S_ISLNK
-#define S_ISLNK(mode) (0)
+#define S_ISLNK(m) (0)
 #endif
+typedef unsigned short mode_t;
 
-/*
-** We may need to provide the "mode_t" type.
+/* The dirent object for Windows is abbreviated.  The only field really
+** usable by applications is d_name[].
 */
-
-#ifndef MODE_T_DEFINED
-  #define MODE_T_DEFINED
-  typedef unsigned short mode_t;
-#endif
-
-/*
-** We may need to provide the "ino_t" type.
-*/
-
-#ifndef INO_T_DEFINED
-  #define INO_T_DEFINED
-  typedef unsigned short ino_t;
-#endif
-
-/*
-** We need to define "NAME_MAX" if it was not present in "limits.h".
-*/
-
-#ifndef NAME_MAX
-#  ifdef FILENAME_MAX
-#    define NAME_MAX (FILENAME_MAX)
-#  else
-#    define NAME_MAX (260)
-#  endif
-#  define DIRENT_NAME_MAX (NAME_MAX)
-#endif
-
-/*
-** We need to define "NULL_INTPTR_T" and "BAD_INTPTR_T".
-*/
-
-#ifndef NULL_INTPTR_T
-#  define NULL_INTPTR_T ((intptr_t)(0))
-#endif
-
-#ifndef BAD_INTPTR_T
-#  define BAD_INTPTR_T ((intptr_t)(-1))
-#endif
-
-/*
-** We need to provide the necessary structures and related types.
-*/
-
-#ifndef DIRENT_DEFINED
-#define DIRENT_DEFINED
-typedef struct DIRENT DIRENT;
-typedef DIRENT *LPDIRENT;
-struct DIRENT {
-  ino_t d_ino;               /* Sequence number, do not use. */
-  unsigned d_attributes;     /* Win32 file attributes. */
-  char d_name[NAME_MAX + 1]; /* Name within the directory. */
+struct dirent {
+ int d_ino;                  /* Inode number (synthesized) */
+ unsigned d_attributes;      /* File attributes */
+ char d_name[FILENAME_MAX];  /* Null-terminated filename */
 };
-#endif
 
-#ifndef DIR_DEFINED
-#define DIR_DEFINED
+/* The internals of DIR are opaque according to standards.  So it
+** does not matter what we put here. */
 typedef struct DIR DIR;
-typedef DIR *LPDIR;
 struct DIR {
-  intptr_t d_handle; /* Value returned by "_findfirst". */
-  DIRENT d_first;    /* DIRENT constructed based on "_findfirst". */
-  DIRENT d_next;     /* DIRENT constructed based on "_findnext". */
+  intptr_t d_handle;         /* Handle for findfirst()/findnext() */
+  struct dirent cur;         /* Current entry */
 };
-#endif
+
+/* Ignore hidden and system files */
+#define WindowsFileToIgnore(a) \
+    ((((a).attrib)&_A_HIDDEN) || (((a).attrib)&_A_SYSTEM))
 
 /*
-** Provide a macro, for use by the implementation, to determine if a
-** particular directory entry should be skipped over when searching for
-** the next directory entry that should be returned by the readdir().
+** Close a previously opened directory
 */
-
-#ifndef is_filtered
-#  define is_filtered(a) ((((a).attrib)&_A_HIDDEN) || (((a).attrib)&_A_SYSTEM))
-#endif
-
-/*
-** Provide the function prototype for the POSIX compatible getenv()
-** function.  This function is not thread-safe.
-*/
-
-extern const char *windirent_getenv(const char *name);
-
-/*
-** Finally, we can provide the function prototypes for the opendir(),
-** readdir(), and closedir() POSIX functions.
-*/
-
-extern LPDIR opendir(const char *dirname);
-extern LPDIRENT readdir(LPDIR dirp);
-extern INT closedir(LPDIR dirp);
-
-#endif /* defined(WIN32) && defined(_MSC_VER) */
-
-/************************* End test_windirent.h ********************/
-/************************* Begin test_windirent.c ******************/
-/*
-** 2015 November 30
-**
-** The author disclaims copyright to this source code.  In place of
-** a legal notice, here is a blessing:
-**
-**    May you do good and not evil.
-**    May you find forgiveness for yourself and forgive others.
-**    May you share freely, never taking more than you give.
-**
-*************************************************************************
-** This file contains code to implement most of the opendir() family of
-** POSIX functions on Win32 using the MSVCRT.
-*/
-
-#if defined(_WIN32) && defined(_MSC_VER)
-/* #include "test_windirent.h" */
-
-/*
-** Implementation of the POSIX getenv() function using the Win32 API.
-** This function is not thread-safe.
-*/
-const char *windirent_getenv(
-  const char *name
-){
-  static char value[32768]; /* Maximum length, per MSDN */
-  DWORD dwSize = sizeof(value) / sizeof(char); /* Size in chars */
-  DWORD dwRet; /* Value returned by GetEnvironmentVariableA() */
-
-  memset(value, 0, sizeof(value));
-  dwRet = GetEnvironmentVariableA(name, value, dwSize);
-  if( dwRet==0 || dwRet>dwSize ){
-    /*
-    ** The function call to GetEnvironmentVariableA() failed -OR-
-    ** the buffer is not large enough.  Either way, return NULL.
-    */
-    return 0;
-  }else{
-    /*
-    ** The function call to GetEnvironmentVariableA() succeeded
-    ** -AND- the buffer contains the entire value.
-    */
-    return value;
+static int closedir(DIR *pDir){
+  int rc = 0;
+  if( pDir==0 ){
+    return EINVAL;
   }
+  if( pDir->d_handle!=0 && pDir->d_handle!=(-1) ){
+    rc = _findclose(pDir->d_handle);
+  }
+  sqlite3_free(pDir);
+  return rc;
 }
 
 /*
-** Implementation of the POSIX opendir() function using the MSVCRT.
+** Open a new directory.  The directory name should be UTF-8 encoded.
+** appropriate translations happen automatically.
 */
-LPDIR opendir(
-  const char *dirname  /* Directory name, UTF8 encoding */
-){
-  struct _wfinddata_t data;
-  LPDIR dirp = (LPDIR)sqlite3_malloc(sizeof(DIR));
-  SIZE_T namesize = sizeof(data.name) / sizeof(data.name[0]);
+static DIR *opendir(const char *zDirName){
+  DIR *pDir;
   wchar_t *b1;
   sqlite3_int64 sz;
+  struct _wfinddata_t data;
 
-  if( dirp==NULL ) return NULL;
-  memset(dirp, 0, sizeof(DIR));
-
-  /* TODO: Remove this if Unix-style root paths are not used. */
-  if( sqlite3_stricmp(dirname, "/")==0 ){
-    dirname = windirent_getenv("SystemDrive");
-  }
-
+  pDir = sqlite3_malloc64( sizeof(DIR) );
+  if( pDir==0 ) return 0;
+  memset(pDir, 0, sizeof(DIR));
   memset(&data, 0, sizeof(data));
-  sz = strlen(dirname);
+  sz = strlen(zDirName);
   b1 = sqlite3_malloc64( (sz+3)*sizeof(b1[0]) );
   if( b1==0 ){
-    closedir(dirp);
+    closedir(pDir);
     return NULL;
   }
-  sz = MultiByteToWideChar(CP_UTF8, 0, dirname, sz, b1, sz);
+  sz = MultiByteToWideChar(CP_UTF8, 0, zDirName, sz, b1, sz);
   b1[sz++] = '\\';
   b1[sz++] = '*';
   b1[sz] = 0;
-  if( sz+1>(sqlite3_int64)namesize ){
-    closedir(dirp);
+  if( sz+1>sizeof(data.name)/sizeof(data.name[0]) ){
+    closedir(pDir);
     sqlite3_free(b1);
     return NULL;
   }
   memcpy(data.name, b1, (sz+1)*sizeof(b1[0]));
   sqlite3_free(b1);
-  dirp->d_handle = _wfindfirst(data.name, &data);
-
-  if( dirp->d_handle==BAD_INTPTR_T ){
-    closedir(dirp);
+  pDir->d_handle = _wfindfirst(data.name, &data);
+  if( pDir->d_handle<0 ){
+    closedir(pDir);
     return NULL;
   }
-
-  /* TODO: Remove this block to allow hidden and/or system files. */
-  if( is_filtered(data) ){
-next:
-
+  while( WindowsFileToIgnore(data) ){
     memset(&data, 0, sizeof(data));
-    if( _wfindnext(dirp->d_handle, &data)==-1 ){
-      closedir(dirp);
+    if( _wfindnext(pDir->d_handle, &data)==-1 ){
+      closedir(pDir);
       return NULL;
     }
-
-    /* TODO: Remove this block to allow hidden and/or system files. */
-    if( is_filtered(data) ) goto next;
   }
-
-  dirp->d_first.d_attributes = data.attrib;
+  pDir->cur.d_ino = 0;
+  pDir->cur.d_attributes = data.attrib;
   WideCharToMultiByte(CP_UTF8, 0, data.name, -1,
-                      dirp->d_first.d_name, DIRENT_NAME_MAX, 0, 0);
-  return dirp;
+                      pDir->cur.d_name, FILENAME_MAX, 0, 0);
+  return pDir;
 }
 
 /*
-** Implementation of the POSIX readdir() function using the MSVCRT.
+** Read the next entry from a directory.
+**
+** The returned struct-dirent object is managed by DIR.  It is only
+** valid until the next readdir() or closedir() call.  Only the
+** d_name[] field is meaningful.  The d_name[] value has been
+** translated into UTF8.
 */
-LPDIRENT readdir(
-  LPDIR dirp
-){
+static struct dirent *readdir(DIR *pDir){
   struct _wfinddata_t data;
-
-  if( dirp==NULL ) return NULL;
-
-  if( dirp->d_first.d_ino==0 ){
-    dirp->d_first.d_ino++;
-    dirp->d_next.d_ino++;
-
-    return &dirp->d_first;
+  if( pDir==0 ) return 0;
+  if( (pDir->cur.d_ino++)==0 ){
+    return &pDir->cur;
   }
-
-next:
-
-  memset(&data, 0, sizeof(data));
-  if( _wfindnext(dirp->d_handle, &data)==-1 ) return NULL;
-
-  /* TODO: Remove this block to allow hidden and/or system files. */
-  if( is_filtered(data) ) goto next;
-
-  dirp->d_next.d_ino++;
-  dirp->d_next.d_attributes = data.attrib;
+  do{
+    memset(&data, 0, sizeof(data));
+    if( _wfindnext(pDir->d_handle, &data)==-1 ){
+      return NULL;
+    }
+  }while( WindowsFileToIgnore(data) );
+  pDir->cur.d_attributes = data.attrib;
   WideCharToMultiByte(CP_UTF8, 0, data.name, -1,
-                      dirp->d_next.d_name, DIRENT_NAME_MAX, 0, 0);
-  return &dirp->d_next;
+                      pDir->cur.d_name, FILENAME_MAX, 0, 0);
+  return &pDir->cur;
 }
 
-/*
-** Implementation of the POSIX closedir() function using the MSVCRT.
-*/
-INT closedir(
-  LPDIR dirp
-){
-  INT result = 0;
+#endif /* defined(_WIN32) && defined(_MSC_VER) */
 
-  if( dirp==NULL ) return EINVAL;
-
-  if( dirp->d_handle!=NULL_INTPTR_T && dirp->d_handle!=BAD_INTPTR_T ){
-    result = _findclose(dirp->d_handle);
-  }
-
-  sqlite3_free(dirp);
-  return result;
-}
-
-#endif /* defined(WIN32) && defined(_MSC_VER) */
-
-/************************* End test_windirent.c ********************/
-#define dirent DIRENT
-#endif
+/************************* End ../ext/misc/windirent.h ********************/
 /************************* Begin ../ext/misc/memtrace.c ******************/
 /*
 ** 2019-01-21
@@ -8011,6 +7848,7 @@ int sqlite3_regexp_init(
 **     data:  For a regular file, a blob containing the file data. For a
 **            symlink, a text value containing the text of the link. For a
 **            directory, NULL.
+**     level: Directory hierarchy level.  Topmost is 1.
 **
 **   If a non-NULL value is specified for the optional $dir parameter and
 **   $path is a relative path, then $path is interpreted relative to $dir. 
@@ -8036,13 +7874,11 @@ SQLITE_EXTENSION_INIT1
 #  include <dirent.h>
 #  include <utime.h>
 #  include <sys/time.h>
+#  define STRUCT_STAT struct stat
 #else
-#  include "windows.h"
-#  include <io.h>
+/* #  include "windirent.h" */
 #  include <direct.h>
-/* #  include "test_windirent.h" */
-#  define dirent DIRENT
-#  define stat _stat
+#  define STRUCT_STAT struct _stat
 #  define chmod(path,mode) fileio_chmod(path,mode)
 #  define mkdir(path,mode) fileio_mkdir(path)
 #endif
@@ -8060,14 +7896,16 @@ SQLITE_EXTENSION_INIT1
 /*
 ** Structure of the fsdir() table-valued function
 */
-                 /*    0    1    2     3    4           5             */
-#define FSDIR_SCHEMA "(name,mode,mtime,data,path HIDDEN,dir HIDDEN)"
+                 /*    0    1    2     3    4     5           6          */
+#define FSDIR_SCHEMA "(name,mode,mtime,data,level,path HIDDEN,dir HIDDEN)"
+
 #define FSDIR_COLUMN_NAME     0     /* Name of the file */
 #define FSDIR_COLUMN_MODE     1     /* Access mode */
 #define FSDIR_COLUMN_MTIME    2     /* Last modification time */
 #define FSDIR_COLUMN_DATA     3     /* File content */
-#define FSDIR_COLUMN_PATH     4     /* Path to top of search */
-#define FSDIR_COLUMN_DIR      5     /* Path is relative to this directory */
+#define FSDIR_COLUMN_LEVEL    4     /* Level.  Topmost is 1 */
+#define FSDIR_COLUMN_PATH     5     /* Path to top of search */
+#define FSDIR_COLUMN_DIR      6     /* Path is relative to this directory */
 
 /*
 ** UTF8 chmod() function for Windows
@@ -8233,7 +8071,7 @@ LPWSTR utf8_to_utf16(const char *z){
 */
 static void statTimesToUtc(
   const char *zPath,
-  struct stat *pStatBuf
+  STRUCT_STAT *pStatBuf
 ){
   HANDLE hFindFile;
   WIN32_FIND_DATAW fd;
@@ -8261,7 +8099,7 @@ static void statTimesToUtc(
 */
 static int fileStat(
   const char *zPath,
-  struct stat *pStatBuf
+  STRUCT_STAT *pStatBuf
 ){
 #if defined(_WIN32)
   sqlite3_int64 sz = strlen(zPath);
@@ -8285,7 +8123,7 @@ static int fileStat(
 */
 static int fileLinkStat(
   const char *zPath,
-  struct stat *pStatBuf
+  STRUCT_STAT *pStatBuf
 ){
 #if defined(_WIN32)
   return fileStat(zPath, pStatBuf);
@@ -8318,7 +8156,7 @@ static int makeDirectory(
     int i = 1;
 
     while( rc==SQLITE_OK ){
-      struct stat sStat;
+      STRUCT_STAT sStat;
       int rc2;
 
       for(; zCopy[i]!='/' && i<nCopy; i++);
@@ -8368,7 +8206,7 @@ static int writeFile(
         ** be an error though - if there is already a directory at the same
         ** path and either the permissions already match or can be changed
         ** to do so using chmod(), it is not an error.  */
-        struct stat sStat;
+        STRUCT_STAT sStat;
         if( errno!=EEXIST
          || 0!=fileStat(zFile, &sStat)
          || !S_ISDIR(sStat.st_mode)
@@ -8564,13 +8402,14 @@ struct fsdir_cursor {
   sqlite3_vtab_cursor base;  /* Base class - must be first */
 
   int nLvl;                  /* Number of entries in aLvl[] array */
+  int mxLvl;                 /* Maximum level */
   int iLvl;                  /* Index of current entry */
   FsdirLevel *aLvl;          /* Hierarchy of directories being traversed */
 
   const char *zBase;
   int nBase;
 
-  struct stat sStat;         /* Current lstat() results */
+  STRUCT_STAT sStat;         /* Current lstat() results */
   char *zPath;               /* Path to current entry */
   sqlite3_int64 iRowid;      /* Current rowid */
 };
@@ -8682,7 +8521,7 @@ static int fsdirNext(sqlite3_vtab_cursor *cur){
   mode_t m = pCur->sStat.st_mode;
 
   pCur->iRowid++;
-  if( S_ISDIR(m) ){
+  if( S_ISDIR(m) && pCur->iLvl+3<pCur->mxLvl ){
     /* Descend into this directory */
     int iNew = pCur->iLvl + 1;
     FsdirLevel *pLvl;
@@ -8790,7 +8629,11 @@ static int fsdirColumn(
       }else{
         readFileContents(ctx, pCur->zPath);
       }
+      break;
     }
+    case FSDIR_COLUMN_LEVEL:
+      sqlite3_result_int(ctx, pCur->iLvl+2);
+      break;
     case FSDIR_COLUMN_PATH:
     default: {
       /* The FSDIR_COLUMN_PATH and FSDIR_COLUMN_DIR are input parameters.
@@ -8824,8 +8667,11 @@ static int fsdirEof(sqlite3_vtab_cursor *cur){
 /*
 ** xFilter callback.
 **
-** idxNum==1   PATH parameter only
-** idxNum==2   Both PATH and DIR supplied
+** idxNum bit      Meaning
+**     0x01         PATH=N
+**     0x02         DIR=N
+**     0x04         LEVEL<N
+**     0x08         LEVEL<=N  
 */
 static int fsdirFilter(
   sqlite3_vtab_cursor *cur, 
@@ -8834,6 +8680,7 @@ static int fsdirFilter(
 ){
   const char *zDir = 0;
   fsdir_cursor *pCur = (fsdir_cursor*)cur;
+  int i;
   (void)idxStr;
   fsdirResetCursor(pCur);
 
@@ -8842,14 +8689,24 @@ static int fsdirFilter(
     return SQLITE_ERROR;
   }
 
-  assert( argc==idxNum && (argc==1 || argc==2) );
+  assert( (idxNum & 0x01)!=0 && argc>0 );
   zDir = (const char*)sqlite3_value_text(argv[0]);
   if( zDir==0 ){
     fsdirSetErrmsg(pCur, "table function fsdir requires a non-NULL argument");
     return SQLITE_ERROR;
   }
-  if( argc==2 ){
-    pCur->zBase = (const char*)sqlite3_value_text(argv[1]);
+  i = 1;
+  if( (idxNum & 0x02)!=0 ){
+    assert( argc>i );
+    pCur->zBase = (const char*)sqlite3_value_text(argv[i++]);
+  }
+  if( (idxNum & 0x0c)!=0 ){
+    assert( argc>i );
+    pCur->mxLvl = sqlite3_value_int(argv[i++]);
+    if( idxNum & 0x08 ) pCur->mxLvl++;
+    if( pCur->mxLvl<=0 ) pCur->mxLvl = 1000000000;
+  }else{
+    pCur->mxLvl = 1000000000;
   }
   if( pCur->zBase ){
     pCur->nBase = (int)strlen(pCur->zBase)+1;
@@ -8878,10 +8735,11 @@ static int fsdirFilter(
 ** In this implementation idxNum is used to represent the
 ** query plan.  idxStr is unused.
 **
-** The query plan is represented by values of idxNum:
+** The query plan is represented by bits in idxNum:
 **
-**  (1)  The path value is supplied by argv[0]
-**  (2)  Path is in argv[0] and dir is in argv[1]
+**  0x01  The path value is supplied by argv[0]
+**  0x02  dir is in argv[1]
+**  0x04  maxdepth is in argv[1] or [2]
 */
 static int fsdirBestIndex(
   sqlite3_vtab *tab,
@@ -8890,6 +8748,9 @@ static int fsdirBestIndex(
   int i;                 /* Loop over constraints */
   int idxPath = -1;      /* Index in pIdxInfo->aConstraint of PATH= */
   int idxDir = -1;       /* Index in pIdxInfo->aConstraint of DIR= */
+  int idxLevel = -1;     /* Index in pIdxInfo->aConstraint of LEVEL< or <= */
+  int idxLevelEQ = 0;    /* 0x08 for LEVEL<= or LEVEL=.  0x04 for LEVEL< */
+  int omitLevel = 0;     /* omit the LEVEL constraint */
   int seenPath = 0;      /* True if an unusable PATH= constraint is seen */
   int seenDir = 0;       /* True if an unusable DIR= constraint is seen */
   const struct sqlite3_index_constraint *pConstraint;
@@ -8897,25 +8758,48 @@ static int fsdirBestIndex(
   (void)tab;
   pConstraint = pIdxInfo->aConstraint;
   for(i=0; i<pIdxInfo->nConstraint; i++, pConstraint++){
-    if( pConstraint->op!=SQLITE_INDEX_CONSTRAINT_EQ ) continue;
-    switch( pConstraint->iColumn ){
-      case FSDIR_COLUMN_PATH: {
-        if( pConstraint->usable ){
-          idxPath = i;
-          seenPath = 0;
-        }else if( idxPath<0 ){
-          seenPath = 1;
+    if( pConstraint->op==SQLITE_INDEX_CONSTRAINT_EQ ){
+      switch( pConstraint->iColumn ){
+        case FSDIR_COLUMN_PATH: {
+          if( pConstraint->usable ){
+            idxPath = i;
+            seenPath = 0;
+          }else if( idxPath<0 ){
+            seenPath = 1;
+          }
+          break;
         }
-        break;
+        case FSDIR_COLUMN_DIR: {
+          if( pConstraint->usable ){
+            idxDir = i;
+            seenDir = 0;
+          }else if( idxDir<0 ){
+            seenDir = 1;
+          }
+          break;
+        }
+        case FSDIR_COLUMN_LEVEL: {
+          if( pConstraint->usable && idxLevel<0 ){
+            idxLevel = i;
+            idxLevelEQ = 0x08;
+            omitLevel = 0;
+          }
+          break;
+        }
       }
-      case FSDIR_COLUMN_DIR: {
-        if( pConstraint->usable ){
-          idxDir = i;
-          seenDir = 0;
-        }else if( idxDir<0 ){
-          seenDir = 1;
-        }
-        break;
+    }else
+    if( pConstraint->iColumn==FSDIR_COLUMN_LEVEL
+     && pConstraint->usable
+     && idxLevel<0
+    ){
+      if( pConstraint->op==SQLITE_INDEX_CONSTRAINT_LE ){
+        idxLevel = i;
+        idxLevelEQ = 0x08;
+        omitLevel = 1;
+      }else if( pConstraint->op==SQLITE_INDEX_CONSTRAINT_LT ){
+        idxLevel = i;
+        idxLevelEQ = 0x04;
+        omitLevel = 1;
       }
     } 
   }
@@ -8932,14 +8816,20 @@ static int fsdirBestIndex(
   }else{
     pIdxInfo->aConstraintUsage[idxPath].omit = 1;
     pIdxInfo->aConstraintUsage[idxPath].argvIndex = 1;
+    pIdxInfo->idxNum = 0x01;
+    pIdxInfo->estimatedCost = 1.0e9;
+    i = 2;
     if( idxDir>=0 ){
       pIdxInfo->aConstraintUsage[idxDir].omit = 1;
-      pIdxInfo->aConstraintUsage[idxDir].argvIndex = 2;
-      pIdxInfo->idxNum = 2;
-      pIdxInfo->estimatedCost = 10.0;
-    }else{
-      pIdxInfo->idxNum = 1;
-      pIdxInfo->estimatedCost = 100.0;
+      pIdxInfo->aConstraintUsage[idxDir].argvIndex = i++;
+      pIdxInfo->idxNum |= 0x02;
+      pIdxInfo->estimatedCost /= 1.0e4;
+    }
+    if( idxLevel>=0 ){
+      pIdxInfo->aConstraintUsage[idxLevel].omit = omitLevel;
+      pIdxInfo->aConstraintUsage[idxLevel].argvIndex = i++;
+      pIdxInfo->idxNum |= idxLevelEQ;
+      pIdxInfo->estimatedCost /= 1.0e4;
     }
   }
 
@@ -31830,7 +31720,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     {"always",             SQLITE_TESTCTRL_ALWAYS, 1,     "BOOLEAN"         },
     {"assert",             SQLITE_TESTCTRL_ASSERT, 1,     "BOOLEAN"         },
   /*{"benign_malloc_hooks",SQLITE_TESTCTRL_BENIGN_MALLOC_HOOKS,1, ""        },*/
-  /*{"bitvec_test",        SQLITE_TESTCTRL_BITVEC_TEST, 1,  ""              },*/
+    {"bitvec_test",        SQLITE_TESTCTRL_BITVEC_TEST, 1, "SIZE INT-ARRAY"},
     {"byteorder",          SQLITE_TESTCTRL_BYTEORDER, 0,  ""                },
     {"extra_schema_checks",SQLITE_TESTCTRL_EXTRA_SCHEMA_CHECKS,0,"BOOLEAN"  },
     {"fault_install",      SQLITE_TESTCTRL_FAULT_INSTALL, 1,"args..."       },
@@ -32168,6 +32058,49 @@ static int do_meta_command(char *zLine, ShellState *p){
           }
           sqlite3_test_control(testctrl, &rc2);
           break;
+        case SQLITE_TESTCTRL_BITVEC_TEST: {
+          /* Examples:
+          **   .testctrl bitvec_test 100   6,1       -- Show BITVEC constants
+          **   .testctrl bitvec_test 1000  1,12,7,3  -- Simple test
+          **                         ----  --------
+          **      size of Bitvec -----^        ^---  aOp array. 0 added at end.
+          **
+          ** See comments on sqlite3BitvecBuiltinTest() for more information
+          ** about the aOp[] array.
+          */
+          int iSize;
+          const char *zTestArg;
+          int nOp;
+          int ii, jj, x;
+          int *aOp;
+          if( nArg!=4 ){
+            sqlite3_fprintf(stderr,
+              "ERROR - should be:  \".testctrl bitvec_test SIZE  INT-ARRAY\"\n"
+            );
+            rc = 1;
+            goto meta_command_exit;
+          }
+          isOk = 3;
+          iSize = (int)integerValue(azArg[2]);
+          zTestArg = azArg[3];
+          nOp = (int)strlen(zTestArg)+1;
+          aOp = malloc( sizeof(int)*(nOp+1) );
+          shell_check_oom(aOp);
+          memset(aOp, 0, sizeof(int)*(nOp+1) );
+          for(ii = jj = x = 0; zTestArg[ii]!=0; ii++){
+            if( IsDigit(zTestArg[ii]) ){
+              x = x*10 + zTestArg[ii] - '0';
+            }else{
+              aOp[jj++] = x;
+              x = 0;
+            }
+          }
+          aOp[jj] = x;
+          x = sqlite3_test_control(testctrl, iSize, aOp);
+          sqlite3_fprintf(p->out, "result: %d\n", x);
+          free(aOp);
+          break;
+        }
         case SQLITE_TESTCTRL_FAULT_INSTALL: {
           int kk;
           int bShowHelp = nArg<=2;

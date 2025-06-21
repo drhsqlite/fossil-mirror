@@ -372,6 +372,10 @@ static int safeInt(const char *z){
 **    /reportfmt  $MTIME $TITLE owner $VALUE cols $VALUE sqlcode $VALUE jx $JSON
 **    /concealed  $MTIME $HASH content $VALUE
 **    /subscriber $SMTIME $SEMAIL suname $V ...
+**
+** NAME-specific notes:
+**
+**  - /reportftm's $MTIME is in Julian, not the Unix epoch.
 */
 void configure_receive(const char *zName, Blob *pContent, int groupMask){
   int checkMask;   /* Masks for which we must first check existance of tables */
