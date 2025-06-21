@@ -297,7 +297,7 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
       ** is modified, rm'd, then un-rm'd.
       */
       ++nReset;
-      if(!file_isfile_or_link(blob_str(&relName))){
+      if(!file_isfile_or_link(blob_str(&relName), RepoFILE)){
         if(bDryRun==0){
           vfile_to_disk(0, id, 0, 0);
           if(bVerbose){
@@ -872,7 +872,7 @@ void addremove_cmd(void){
 
     zFile = db_column_text(&q, 0);
     zPath = db_column_text(&q, 1);
-    if( !file_isfile_or_link(zPath) ){
+    if( !file_isfile_or_link(zPath, RepoFILE) ){
       if( !dryRunFlag ){
         db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zFile);
       }

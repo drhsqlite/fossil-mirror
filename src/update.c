@@ -450,7 +450,7 @@ void update_cmd(void){
       zErrMsg = "duplicate file";
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
-      if( file_isfile_or_link(zFullPath) ){
+      if( file_isfile_or_link(zFullPath, RepoFILE) ){
         /* Name of backup file with Original content */
         char *zOrig = file_newname(zFullPath, "original", 1);
         /* Backup previously unanaged file before to be overwritten */

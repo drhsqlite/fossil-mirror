@@ -1562,7 +1562,7 @@ merge_next_child:
     );
     zName = db_column_text(&q, 1);
     zFullName = mprintf("%s%s", g.zLocalRoot, zName);
-    if( file_isfile_or_link(zFullName)
+    if( file_isfile_or_link(zFullName, RepoFILE)
         && !db_exists("SELECT 1 FROM fv WHERE fn=%Q", zName) ){
       /* Name of backup file with Original content */
       char *zOrig = file_newname(zFullName, "original", 1);

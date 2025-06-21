@@ -220,7 +220,7 @@ static void status_report(
     int isRenamed = db_column_int(&q, 6);
     const char *zOrigName = 0;
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    int isMissing = !file_isfile_or_link(zFullName);
+    int isMissing = !file_isfile_or_link(zFullName, RepoFILE);
 
     /* Determine the file change classification, if any. */
     if( isDeleted ){
@@ -928,7 +928,7 @@ void ls_cmd(void){
         type = "ADDED      ";
       }else if( isDeleted ){
         type = "DELETED    ";
-      }else if( !file_isfile_or_link(zFullName) ){
+      }else if( !file_isfile_or_link(zFullName, RepoFILE) ){
         if( file_access(zFullName, F_OK)==0 ){
           type = "NOT_A_FILE ";
         }else{
