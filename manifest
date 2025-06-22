@@ -1,5 +1,5 @@
-C Resolve\stwo\s'db\stransaction\snever\scommits'\swarnings\sfrom\s/xfer\sin\scases\swhere\sit\sresponse\sto\sinvalid\sinputs\sfrom\sthe\sremote\s(found\svia\slibfossil\stesting).
-D 2025-06-22T09:32:07.028
+C (Grammar)\sCorrection\sfor\sdiffcmd\shelp\stext.
+D 2025-06-22T10:35:56.822
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -420,7 +420,7 @@ F src/descendants.c b89a755e53906d2ec2ea69573bd38a4c90baad7af2e48c13015a69b7637b
 F src/diff.c 1f3a90edf3be51e052718b7f2f845ef1967df03874f6d82f47c58344f6cf6cf4
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 29f14870a8e9befd8bdc6682ed4fce4889a15296b611e3c140ab2afb00d095f3
-F src/diffcmd.c c071d8b030d080d5b2b37cba90ad8cbb42c669662b3f79e356c7d409a7771125
+F src/diffcmd.c 387c4b714b5baf35d4384222a8ebb3baade07aa177d6ca1614f6c3c4bb598e05
 F src/dispatch.c ed3f8b39d19aad310c6252feb40610a0393a016116ac91f3c59fe57a0799ddb3
 F src/doc.c a939e55f45961b95a8cc62c3c2e63f25aaa3bb73ae8e00a88803b0ed29d1988f
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 96c0fc9e88892fceeff76518de935fbaa8bab04b7b29cb30ebd262ce0b7cccd1
-R 12c89598240edb42c2f7c4a7a20f4f10
-U stephan
-Z 1dbf7b2a8d33e28da5eba884dd9004fe
+P bb8604921caf24e83b7f42459cda3d58c26e5efe30b9b2c1862ee20892ef9b0f
+R de7a4e7b63714e07c2c896c9b5b3d87c
+U brickviking
+Z 226ad5f9c912df299fd5e059faa29be9
 # Remove this line to create a well-formed Fossil manifest.

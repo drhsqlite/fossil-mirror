@@ -1292,7 +1292,7 @@ const char *diff_get_binary_glob(void){
 ** specified (as they exist on disk) and that same file as it was checked-
 ** out.  Or if the FILE arguments are omitted, show all unsaved changes
 ** currently in the working check-out.  The "gdiff" variant means to
-** to use a GUI diff.
+** use a GUI diff.
 **
 ** The default output format is a "unified patch" (the same as the
 ** output of "diff -u" on most unix systems).  Many alternative formats
