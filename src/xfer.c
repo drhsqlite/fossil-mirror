@@ -1525,6 +1525,7 @@ void page_xfer(void){
         blob_is_int(&xfer.aToken[2], &seqno);
         if( seqno<=0 ){
           xfer_fatal_error("invalid clone sequence number");
+          db_rollback_transaction();
           return;
         }
         max = db_int(0, "SELECT max(rid) FROM blob");
@@ -1600,6 +1601,7 @@ void page_xfer(void){
       Blob content;
       if( size<0 ){
         xfer_fatal_error("invalid config record");
+        db_rollback_transaction();
         return;
       }
       blob_zero(&content);

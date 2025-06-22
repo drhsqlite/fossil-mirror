@@ -1,5 +1,5 @@
-C Add\snew\slink-tester\scases.
-D 2025-06-20T23:16:16.027
+C Resolve\stwo\s'db\stransaction\snever\scommits'\swarnings\sfrom\s/xfer\sin\scases\swhere\sit\sresponse\sto\sinvalid\sinputs\sfrom\sthe\sremote\s(found\svia\slibfossil\stesting).
+D 2025-06-22T09:32:07.028
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -594,7 +594,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
-F src/xfer.c 2449b8a58a71bd93aca6acc5c57ee48d74902836bb840e90ec3440b89d82f6be
+F src/xfer.c 7f024215c8038b9a98042c31652c658cb8511c30e1c5af7c3946a9d5981c98c0
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c 9d985180dc978db75a512937fe2fe409eb4abd0daa0463110966abbb1d44b382
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f15b634402d0c16bbedeaf7d9df66ae05158fbf4e1820fd62574dbb9cf2d3519
-R 678d4c192e01382146989bfc5b49e46b
-U drh
-Z f68444b59a3af3d74c678b3e7a75001a
+P 96c0fc9e88892fceeff76518de935fbaa8bab04b7b29cb30ebd262ce0b7cccd1
+R 12c89598240edb42c2f7c4a7a20f4f10
+U stephan
+Z 1dbf7b2a8d33e28da5eba884dd9004fe
 # Remove this line to create a well-formed Fossil manifest.
