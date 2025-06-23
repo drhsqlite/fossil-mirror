@@ -1,5 +1,5 @@
-C (Grammar)\sCorrection\sfor\sdiffcmd\shelp\stext.
-D 2025-06-22T10:35:56.822
+C Add\sSQL\serrors\sas\sa\snew\slogfile\smessage\scategory.
+D 2025-06-23T13:53:05.280
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -525,7 +525,7 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 4d22bea3e8701e96a710a2f89ff3ebe7f16681879d726c755f0ff828da310275
-F src/security_audit.c 864c2e9eea32d7c4a6d2f2f6515c174a726425ead5a9c22629cef8f7d8d3e5e6
+F src/security_audit.c dc78230601d1eb4a2cb1440f91d83c9a56d1efebc9cde3c41da2e220c5a712a8
 F src/setup.c 95b4459f0c8a485c5289acdcdcdc0fe9671f814d46eeb39b3e3eb396ea3b9c24
 F src/setupuser.c 86e28decbe38266a3ee45863968ad0d6f038c467d0620de22eb0622ffc83d79b
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb8604921caf24e83b7f42459cda3d58c26e5efe30b9b2c1862ee20892ef9b0f
-R de7a4e7b63714e07c2c896c9b5b3d87c
-U brickviking
-Z 226ad5f9c912df299fd5e059faa29be9
+P e879d1ef2c3f348f566d956d6e8ff8a15e5f319cdb0370b4c61d53d7adbc35a0
+R a30cccf204144c45197fcfe891dd800b
+U drh
+Z fd6d8430ae823d5c7b6f464f2c56969a
 # Remove this line to create a well-formed Fossil manifest.
