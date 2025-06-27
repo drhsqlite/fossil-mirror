@@ -1,5 +1,5 @@
-C Small\sadditions\sand\sa\sbroken\slink\sfix\sin\ssync.wiki.
-D 2025-06-25T10:25:59.371
+C Correct\sthe\sstarting\sclone_seqno\sin\ssync.wiki\s(1\sinstead\sof\s0).
+D 2025-06-27T10:11:21.264
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -955,7 +955,7 @@ F www/ssl-server.md fa016137cf6ef21b75b13eb13f376348dc5c20ce487a1eba8665ce70efa2
 F www/ssl.wiki d1fc950cf538f469424b7a2d67d465678cc5f5a53c01e4c9f5cbc4929bd1c65f
 F www/stats.wiki f2713acf5c005f1ccecbec63dc5f826499f5f842e8ad17ec3d34ab2f57790792
 F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c068
-F www/sync.wiki a060fa046d83919d0769a79a67ed16c834c5d11edad5d6a39ba6e63cf278c385
+F www/sync.wiki b13c63e10dc221e66b864e63cf94de6574b15aa03abcbcd3f854edcd631db85a
 F www/tech_overview.wiki 6a30615418ebd01472646a2f6c3547a96bc400d710e432f226aebe42feed4324
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md ce0531f24678b1339c0066eeec6dc16c63bb0e685773476f57e5df5cc90a5c38
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07a16b79331d8397c68ac73a19d595cb4c52fcae1f4721a84010c0e681073ef4
-R 9fc70d49d9b803d83575172e29e34a2d
+P 22191108aa91f0847db8202d86647e2c07b22d5262a58ae071bf5fcf04f5beca
+R 9ee6d2ca00c81730e01fa7661da75c8d
 U stephan
-Z 2329ebfebee2fafd22a1c7b7abbb6514
+Z d3d1c9ee919aef963f5e8f8a54639ca3
 # Remove this line to create a well-formed Fossil manifest.

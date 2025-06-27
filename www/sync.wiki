@@ -417,7 +417,7 @@ cards
 
 The sequence-number sent is the number
 of artifacts received so far.  For the first clone message, the
-sequence number is 0.  The server will respond by sending file
+sequence number is 1.  The server will respond by sending file
 cards for some number of artifacts up to the maximum message size.
 
 The server will also send a single "clone_seqno" card to the client
