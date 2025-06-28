@@ -1,5 +1,5 @@
-C Correct\sthe\sstarting\sclone_seqno\sin\ssync.wiki\s(1\sinstead\sof\s0).
-D 2025-06-27T10:11:21.264
+C Require\sat\sleast\san\s"anonymous"\slogin\sin\sorder\sto\saccess\sthe\s/blame\sand\nsimilar\spages.\s\sRationale:\s\sThose\spages\scan\sbe\sexpensive\sto\scompute,\ndepending\son\sparameters.\s\sAnd\slately\swe've\shad\smillions\sof\srobot\srequests\nto\s/blame.\s\sBy\srequiring\sat\sleast\san\s"anonymous"\slogin,\sthat\sshould\sreduce\nthe\snumber\sof\srobots.\s\sAny\snobody\sreally\sneeds\sto\ssee\s/blame\swith\sa\none-click.\s\sIf\sthey\sare\sinterested\sin\sthat\slevel\sof\sdetail,\sthey\scan\stake\nthe\stime\sto\slog\sin.
+D 2025-06-28T20:58:58.717
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -417,7 +417,7 @@ F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c b89a755e53906d2ec2ea69573bd38a4c90baad7af2e48c13015a69b7637b03b2
-F src/diff.c 1f3a90edf3be51e052718b7f2f845ef1967df03874f6d82f47c58344f6cf6cf4
+F src/diff.c a3948d2ae954d682c538d0e08c96848542fe40cb8f5ffc9c73319b1dda4ec1e8
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 29f14870a8e9befd8bdc6682ed4fce4889a15296b611e3c140ab2afb00d095f3
 F src/diffcmd.c 387c4b714b5baf35d4384222a8ebb3baade07aa177d6ca1614f6c3c4bb598e05
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22191108aa91f0847db8202d86647e2c07b22d5262a58ae071bf5fcf04f5beca
-R 9ee6d2ca00c81730e01fa7661da75c8d
-U stephan
-Z d3d1c9ee919aef963f5e8f8a54639ca3
+P bbc4b702755f7c00218f51cfd1362b067a7fa7e2909663df97f5eeca16841fbd
+R 5e5378c3620353d780ac078ba115522f
+U drh
+Z 78fba8bc78dd678590c2d01f67f716e9
 # Remove this line to create a well-formed Fossil manifest.
