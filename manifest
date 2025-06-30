@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion.
-D 2025-06-28T23:59:14.143
+C Merge\sthe\slatest\sSQLite\senhancements\sfrom\supstream,\sfor\stesting.
+D 2025-06-30T17:00:42.909
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -275,8 +275,8 @@ F extsrc/pikchr.c e82d4b68867a01e1688fcae7c08439a328434fd390a3a8e23d1416fbd09dab
 F extsrc/pikchr.js 9db23c4d8b68d86686b903bd4b5e5a7bf8dd97f0b5157377f4ac2bc2448f4859
 F extsrc/pikchr.wasm 5dcce2f7eb59441fd8fcb62a57644b86a04d339cdafb662967ae195885f33d5b
 F extsrc/shell.c 08481f13660f0b2b58c3cc000c8ab99efc23b5b131236e4354a0add62b895e22
-F extsrc/sqlite3.c 9b62b558d696944da63ebd8e34c9990bd272dca1b18e82f1ea519f33b677cfbc
-F extsrc/sqlite3.h a737b9a8734585e6e30c2f55f33a9c4dc36b9a31e739f3e19a2a3a2802e796e9
+F extsrc/sqlite3.c 520e4200af9ca36a439bbe1570217e863efafa7d61c5ef20419c711a6c7808d6
+F extsrc/sqlite3.h a6b1052beba29839c943c7d52bd593a725a548105bd933996f1321376a33342c
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f51e8d36cb436f186d7ef1d7b9bc0ebdb49d3489cc697627ad767b473a0a7d26
-R 01e5598ca80b9ff39704b559e6713923
+P cdaec3a4312662501ccc8d16396a34b69694fcbfd6073e48c008b8f0615fc737
+R 14df8225bdda2cb770b3e9bc91a3224c
 U drh
-Z 2cee0273e307122f0c70f18f3d60516e
+Z 13a85dfcab29165e039b79f0a1d89b6a
 # Remove this line to create a well-formed Fossil manifest.
