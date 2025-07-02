@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\sSQLite\senhancements\sfrom\supstream,\sfor\stesting.
-D 2025-06-30T17:00:42.909
+C Add\sa\sconfirmer\swrapper\saround\sthe\sforum\spost\sclose/reopen\sbutton\sto\shelp\savoid\saccidental\sclosing\sof\sposts\svia\smis-clicks,\sper\s/chat\sdiscussion.
+D 2025-07-02T10:55:11.904
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -432,7 +432,7 @@ F src/file.c bad34406b69507906a1060c42265ffafd68ea598e7270e8f0d21d8d08fc1580a
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
 F src/finfo.c 6a245e0b89a55e5252eb67c5869cf89d3ea66f30c8288f9169b7c2f0113831f3
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c 3178460b1bbd59b43539e517e44abc76bd869ef9b479d2ab65cb5ae2593abd1d
+F src/forum.c 772ee17d2cb113c963846da2d1bf784a0fe4c024d0279f50c8cd296bd7a7718a
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -444,7 +444,7 @@ F src/fossil.numbered-lines.js d96ba4a0645e80e4fe36d2f4eceb8cf77b0d979ca38a68097
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js d38a45717626c1383722d6cfb22b0f3d4ed46e7cbe58f70a5874a6d9c924dd52
 F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f230c108063bdcc5
-F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
+F src/fossil.page.forumpost.js 1404b0912941e2cd024a12f852e6ce2ced715a4f9f3efa6dc8113034688ef12e
 F src/fossil.page.pikchrshow.js 354e405e2813de4bfeec16d12a4dbfb370b2fa89f25325f245c51c194115adbf
 F src/fossil.page.pikchrshowasm.js 55afa8889dd5758efa5c6f10df38bf9914dbe1d87291927fe58977d09fa19c1a
 F src/fossil.page.whistory.js 25d9059c9670337d0e2b9e22d791be209a3be77ebd5ff1a985dfaecef64d0e36
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cdaec3a4312662501ccc8d16396a34b69694fcbfd6073e48c008b8f0615fc737
-R 14df8225bdda2cb770b3e9bc91a3224c
-U drh
-Z 13a85dfcab29165e039b79f0a1d89b6a
+P bcbf150dc26ed3a67252e069eeaa7e42802a93e1f6cfc08d8b43d6547ad96005
+R 75b4c72b9903cbc5b198e37d79968847
+U stephan
+Z 05fccd8556bb00821e8559e7fc7f31d4
 # Remove this line to create a well-formed Fossil manifest.
