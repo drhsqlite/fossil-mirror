@@ -1,5 +1,5 @@
-C Add\sa\sconfirmer\swrapper\saround\sthe\sforum\spost\sclose/reopen\sbutton\sto\shelp\savoid\saccidental\sclosing\sof\sposts\svia\smis-clicks,\sper\s/chat\sdiscussion.
-D 2025-07-02T10:55:11.904
+C Squished\sa\sstray\scharacter\saccidentally\sleft\sbehind\sby\s[[1fd407f61a]],\nnoted\s[https://fossil-scm.org/forum/forumpost/871da8539f\s|\son\sthe\sforum].
+D 2025-07-03T16:33:59.250
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -910,7 +910,7 @@ F www/pikchr.md 231f484be5306b2280542c2a36e2147ceb7027a04218cf299e43d6fb7a3ba7c1
 F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
 F www/private.wiki 6c5a854ac8558b1420d9619b48bf36ac56df03d49421604c3e77dc6c3ff78bb0
 F www/qandc.wiki 256511da7ec09719877dbc2e8161c1caae85d8344ccc514e145fbb38810fb2be
-F www/quickstart.wiki 0f8f9d9e24aa0a034c0f312ca5d348950543bdf79b4e059a4a644f5e19f1846f
+F www/quickstart.wiki 6f1a7a0dccb6b9a0d847256c3ace104317ec1c4eb5f22266d1b1efb616f5ed90
 F www/quotes.wiki d4a684d0ac5838ddbc76688284b7043e561d4e52ecbeb4b0bf0ac3e10bc70d3c
 F www/rebaseharm.md eb99fadc7586e4215c05ff5d9fc76d2a1313f7f00ada33571f5a2ca7322c1d2b
 F www/relatedwork.md f099cea52511a1d914efe6fdbe2efb88f15f0345268212631ef42373b55d1898
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bcbf150dc26ed3a67252e069eeaa7e42802a93e1f6cfc08d8b43d6547ad96005
-R 75b4c72b9903cbc5b198e37d79968847
-U stephan
-Z 05fccd8556bb00821e8559e7fc7f31d4
+P 751dbe28ceb6d1f5bd3e545a8f17dbd8106303e3931a8866238ef8054e889f2f
+R 2655da2fe086fe4a282ab0eea7e12b72
+U wyoung
+Z 8b0c72e7babd58b3bcdaaa0202c40771
 # Remove this line to create a well-formed Fossil manifest.
