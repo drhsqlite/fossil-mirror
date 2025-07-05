@@ -1,5 +1,5 @@
-C Squished\sa\sstray\scharacter\saccidentally\sleft\sbehind\sby\s[[1fd407f61a]],\nnoted\s[https://fossil-scm.org/forum/forumpost/871da8539f\s|\son\sthe\sforum].
-D 2025-07-03T16:33:59.250
+C On\sthe\s'user\scapabilities\schanged'\snotification,\scorrect\s/setup_uedit?uid=...\sto\s/setup_uedit?id=...
+D 2025-07-05T11:35:24.363
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -527,7 +527,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 4d22bea3e8701e96a710a2f89ff3ebe7f16681879d726c755f0ff828da310275
 F src/security_audit.c dc78230601d1eb4a2cb1440f91d83c9a56d1efebc9cde3c41da2e220c5a712a8
 F src/setup.c 95b4459f0c8a485c5289acdcdcdc0fe9671f814d46eeb39b3e3eb396ea3b9c24
-F src/setupuser.c 86e28decbe38266a3ee45863968ad0d6f038c467d0620de22eb0622ffc83d79b
+F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 751dbe28ceb6d1f5bd3e545a8f17dbd8106303e3931a8866238ef8054e889f2f
-R 2655da2fe086fe4a282ab0eea7e12b72
-U wyoung
-Z 8b0c72e7babd58b3bcdaaa0202c40771
+P 2b4a8b4c73d78307d267d32d2c5d49c5e8541db1ba47c0348288af3a70084c18
+R 9e4bb6662e0250af09de194178bdff48
+U stephan
+Z 45efff79304fc5bb54460513f9c91706
 # Remove this line to create a well-formed Fossil manifest.
