@@ -1,5 +1,5 @@
-C Add\sa\sfunction\sfor\sgenerating\sa\srandom\s(v4)\sUUID\sand\sa\stest\scommand\susing\sit.
-D 2025-07-07T15:11:23.058
+C PoC\sfor\sthe\sprevious\scheck-in:\suse\sUUIDs\sfor\sproject-code\sand\sserver-code.
+D 2025-07-07T15:16:43.030
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -402,7 +402,7 @@ F src/checkin.c 17224d59bae25829aa6ff0cff8928b52dd655f24da3e315ffbcc0d31641cbac1
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
-F src/clone.c 3c205c20160c6377092b9d35f7d8ff828a83efd67f5df78e247bc66940cdf68e
+F src/clone.c e833e563ab010067ce2cbda4be5c8c7581f3c29928dc080e3b2819579487f403
 F src/color.c cbe8fb7c03c07735b13449a8384c466ddd93306af7bf63176414cf6fd1e144b9
 F src/comformat.c f21be09a545501a3b4ef51ed8c93bd687f7d4d96e145cadc773aec3e5b3e511d
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
@@ -411,7 +411,7 @@ F src/content.c 9d7a46777a611e5b24d8cf17b4cf82d209a10b71e3b71487e135aab07b0a36c5
 F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 735f037e05323de2d75d808ce4648b1ffec0a540037c2711b69cc330cd275bb1
+F src/db.c 360d06b87be45bab213261cd2add3836516bf6a4327ee7aa3b3c3d9c8e723cd7
 F src/default.css bb756df12b1759c08cde6144e3605e06acb3e751cfdb0da516722ffd0f4cb4bd
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -517,7 +517,7 @@ F src/pqueue.c 4bc9471b252a8624435660be144d0031c40d8c10cb023321ab9234cda156eb02
 F src/printf.c 49a54fb5ad9f59987dc5233f41ac02a284d5080c209a191de7795543f5f8634d
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
-F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
+F src/rebuild.c 2ed0c36714efff59aa38ab4f8b4952fc5919727b711f74fe55c60cb753b63a26
 F src/regexp.c a9aeacaa515f756f76b0d94c3971121093848145d0d109be511616e74372a50a
 F src/repolist.c c70b129270c57708c61af2ac08a8bce85bdaec74aee30d0016a36c70eae7b401
 F src/report.c f423bfbd6a88753fdb5b9b91c2f3a787f0db955400f67e46d1630633af8bb758
@@ -974,11 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c786b19094f6a98f068f04a372b82d675ecb3aa620446e1ca3622781d92763ab
-R c80049ccc1200d9a6aceb2051ef3a4d1
-T *branch * gen-uuid
-T *sym-gen-uuid *
-T -sym-trunk *
+P 9472f708c99b4325bf4654b04f8c9a7abc08394277d921d02e3522deef2d5029
+R 4d2bafe5d2573a4e70325de4686d0c78
 U danield
-Z 66df6b849f065c70d99ef38f27788dea
+Z 6d2322f31b9569bec5d580ce478ed2e7
 # Remove this line to create a well-formed Fossil manifest.

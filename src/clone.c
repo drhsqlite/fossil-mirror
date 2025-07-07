@@ -257,8 +257,9 @@ void clone_cmd(void){
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "REPLACE INTO config(name,value,mtime)"
-      " VALUES('server-code', lower(hex(randomblob(20))), now());"
-      "DELETE FROM config WHERE name='project-code';"
+      " VALUES('server-code', %Q, now());"
+      "DELETE FROM config WHERE name='project-code';",
+      fossil_generate_uuid()
     );
     db_protect_pop();
     url_enable_proxy(0);

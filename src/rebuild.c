@@ -895,10 +895,11 @@ void test_detach_cmd(void){
     "  ('syncwith:*'),"
     "  ('ssl-*')"
     ") SELECT name FROM config, pattern WHERE name GLOB x);"
-    "UPDATE config SET value=lower(hex(randomblob(20)))"
+    "UPDATE config SET value=%Q"
     " WHERE name='project-code';"
     "UPDATE config SET value='detached-' || value"
-    " WHERE name='project-name' AND value NOT GLOB 'detached-*';"
+    " WHERE name='project-name' AND value NOT GLOB 'detached-*';",
+    fossil_generate_uuid()
   );
   db_protect_pop();
   db_end_transaction(0);

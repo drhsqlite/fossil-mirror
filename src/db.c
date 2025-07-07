@@ -3210,9 +3210,10 @@ void db_initial_setup(
   db_set("rebuilt", get_version(), 0);
   db_multi_exec(
       "INSERT INTO config(name,value,mtime)"
-      " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      " VALUES('server-code', %Q, now());"
       "INSERT INTO config(name,value,mtime)"
-      " VALUES('project-code', lower(hex(randomblob(20))),now());"
+      " VALUES('project-code', %Q, now());",
+      fossil_generate_uuid(), fossil_generate_uuid()
   );
   db_create_default_users(0, zDefaultUser);
   if( zDefaultUser ) g.zLogin = zDefaultUser;
