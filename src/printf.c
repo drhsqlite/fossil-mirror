@@ -776,6 +776,7 @@ int vxprintf(
         isnull = escarg==0;
         if( isnull ) escarg = (xtype==etSQLESCAPE2 ? "NULL" : "(NULL)");
         if( limit<0 ) limit = strlen(escarg);
+        if( precision>=0 && precision<limit ) limit = precision;
         for(i=n=0; i<limit; i++){
           if( escarg[i]==q )  n++;
         }
@@ -795,7 +796,6 @@ int vxprintf(
         if( needQuote ) bufpt[j++] = q;
         bufpt[j] = 0;
         length = j;
-        if( precision>=0 && precision<length ) length = precision;
         break;
       }
       case etHTMLIZE: {
