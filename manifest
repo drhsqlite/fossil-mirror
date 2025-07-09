@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sa\sversion\sthat\sfixes\sa\spossible\sUAF\sfollowing\sOOM.
-D 2025-07-09T13:52:53.503
+C Update\sthe\schange\slog\sfor\sversion\s2.27
+D 2025-07-09T14:16:49.800
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -795,7 +795,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki a78260ee3d362f11c3ebb52258091a99c4329a53d28f88416db922ada3a20929
-F www/changes.wiki 23b75d5845fac4182a10dfc42da332f776dee72934f6ba458046bd0ebf6784a1
+F www/changes.wiki f2505c3d786017c23b00e825c0b4e29d0ed0ba7817eca6a2db328287029fbcfc
 F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c66b038cae2a45d42b38cdd3e3a697999d1e0f7799ed088fecc644c981b6f53e
-R 35788f3a40796ac3a584fdc9562b0194
+P a6d506ecc424277827e7375fc0dc96bef8660703350f4d3ff99798c381dc4880
+R 9b5649cbc76f7f6e64121e153b0a1001
 U drh
-Z 896329729ae462fd6c42fed9bf123025
+Z 26185ce1bbda2428453354b975c6233e
 # Remove this line to create a well-formed Fossil manifest.

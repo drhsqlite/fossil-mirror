@@ -1,9 +1,22 @@
 <title>Change Log</title>
 
-<h2 id='v2_27'>Changes for version 2.27 (pending)</h2>
-
-  *  Enhance the chng= query parameter on the [/help?cmd=/timeline|timeline page]
-     so that it works with other query parameters like p=, d=, from=, and to=.
+<h2 id='v2_27'>Changes for version 2.27 (pending)</h2><ol>
+  <li> Fix a SQL injection on the [/help?cmd=/file|/file page].  Thanks to
+       additional defenses built into Fossil, as well as good luck, this injection
+       is not exploitable for either data exfiltration or privilege escalation.  The
+       only possible result of invoking the injection is a harmless SQL syntax error.
+       (The [https://en.wikipedia.org/wiki/Swiss_cheese_model|holes in the Swiss cheese]
+       did not line up!)
+  <li> Enhance the chng= query parameter on the [/help?cmd=/timeline|timeline page]
+       so that it works with other query parameters like p=, d=, from=, and to=.
+  <li> Always include nodes identify by sel1= and sel2= in the /timeline display.
+  <li> Enable the --editor option on the [/help?cmd=amend|fossil amend] command.
+  <li> Require at least an anonymous login to access the /blame page and similar,
+       to help prevent robots from soaking up excess CPU time on such pages.
+  <li> When walking the filesystem looking for Fossil repositories, avoid descending
+       into directories named "/proc".
+  </ol>
+     
 
 <h2 id='v2_26'>Changes for version 2.26 (2025-04-30)</h2><ol>
  <li>Enhancements to [/help?cmd=diff|fossil diff] and similar:
