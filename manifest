@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog\sfor\sversion\s2.27
-D 2025-07-09T14:16:49.800
+C improve\swhatis\soutput\swhen\slising\scheckins\scontain\ssome\sfile\sartifact\sby\nshowing\son\swhich\sbranch\sbelong\sthe\scheckin.\s(just\slike\sthe\s/whatis\swebpage)
+D 2025-07-09T21:54:20.325
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -506,7 +506,7 @@ F src/merge.c 1f8aadaa868b51906df6f7a2967abfe74b52e380dc00152ebfe194f5b2cef9bf
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c d033be091390521d326f97659d75cf5b5d94ba414bbc8ba53d77bd762888fe1c
+F src/name.c 06ca45c65be28c5c8d4fa7d8a4050288b0e4209218509d5c58639674d706ef83
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 9c32dda651d83d15938ea17f11a19f3f36ebe0c1d6e37e5113cc11a492a74f77
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a6d506ecc424277827e7375fc0dc96bef8660703350f4d3ff99798c381dc4880
-R 9b5649cbc76f7f6e64121e153b0a1001
-U drh
-Z 26185ce1bbda2428453354b975c6233e
+P a403e11b6fcaef07c53c175a21ba14c66d3963e76b4fbd0f4f15ca8877f7b849
+R 884b7eb16afdedc7a2ae61df3bfaf0d6
+U mgagnon
+Z 6624914d324c7da09d7935048dbc3a65
 # Remove this line to create a well-formed Fossil manifest.
