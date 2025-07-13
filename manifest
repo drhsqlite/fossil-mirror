@@ -1,5 +1,5 @@
-C improve\swhatis\soutput\swhen\slising\scheckins\scontain\ssome\sfile\sartifact\sby\nshowing\son\swhich\sbranch\sbelong\sthe\scheckin.\s(just\slike\sthe\s/whatis\swebpage)
-D 2025-07-09T21:54:20.325
+C Update\sthe\s(undocumented)\stest-filezip\scommand\sso\sthat\sthe\sZIP\sarchvie\sit\screates\nhas\scorrect\stimestamps.
+D 2025-07-13T20:57:22.804
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -596,7 +596,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
 F src/xfer.c 7f024215c8038b9a98042c31652c658cb8511c30e1c5af7c3946a9d5981c98c0
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/zip.c 9d985180dc978db75a512937fe2fe409eb4abd0daa0463110966abbb1d44b382
+F src/zip.c 5063e09d2537103acdbdf6ae6877ac9f8e62084914e14cc02346ba5d6f89419c
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c1ea044297b09158caa5c800b2017bcf807d0138cc8c8901ba464bcb8798bafb
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a403e11b6fcaef07c53c175a21ba14c66d3963e76b4fbd0f4f15ca8877f7b849
-R 884b7eb16afdedc7a2ae61df3bfaf0d6
-U mgagnon
-Z 6624914d324c7da09d7935048dbc3a65
+P d3896c2acd8fe71862bddafc301bd60f07af8c5627dc505b48e1b18250e97fd5
+R 823a5d7ef59ad9c5c666c351cea890bb
+U drh
+Z c80b1833e334f4db10344f0218d03381
 # Remove this line to create a well-formed Fossil manifest.

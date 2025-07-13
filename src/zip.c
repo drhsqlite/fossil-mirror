@@ -579,16 +579,22 @@ void filezip_cmd(void){
   memset(&sArchive, 0, sizeof(Archive));
   sArchive.eType = ARCHIVE_ZIP;
   sArchive.pBlob = &zip;
-  if( g.argc<3 ){
-    usage("ARCHIVE FILE....");
-  }
   if( find_option("dereference","h",0)!=0 ){
     eFType = ExtFILE;
   }
+  if( g.argc<3 ){
+    usage("ARCHIVE FILE....");
+  }
+  sqlite3_open(":memory:", &g.db);
   zip_open();
   for(i=3; i<g.argc; i++){
+    double rDate;
+    i64 iDate;
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i], eFType);
+    iDate = file_mtime(g.argv[i], eFType);
+    rDate = ((double)iDate)/86400.0 + 2440587.5;
+    zip_set_timedate(rDate);
     zip_add_file(&sArchive, g.argv[i], &file, file_perm(0,eFType));
     blob_reset(&file);
   }
