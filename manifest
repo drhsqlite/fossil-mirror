@@ -1,5 +1,5 @@
-C Add\sthe\s-l\sand\s-x\soptions\sto\sthe\stest-filezip\scommand.
-D 2025-07-14T13:13:44.888
+C Add\smentions\sin\schanges.wiki\sand\ssigning.md\sthat\sSSH-signed\sartifacts\sare\s"ignored"\sby\sfossil\sversions\sprior\sto\s2.26,\sas\ssuggested\sin\s[forum:9348885dd6\s|\sforum\spost\s9348885dd6].
+D 2025-07-14T17:31:49.833
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -795,7 +795,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki a78260ee3d362f11c3ebb52258091a99c4329a53d28f88416db922ada3a20929
-F www/changes.wiki f2505c3d786017c23b00e825c0b4e29d0ed0ba7817eca6a2db328287029fbcfc
+F www/changes.wiki 029d89f7b9c850e2f56182bf59a6aa85d7250efbc34a85951b1b665016339f6d
 F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -950,7 +950,7 @@ F www/server/windows/stunnel.md eb99980e32c075acd1dcd4c44bcebf2e67f3e0dba8419728
 F www/serverext.wiki 120c070d0e355561859e7342887b21e815bdc4a947d5e580ef6d5818c2ce403c
 F www/settings.wiki 16c2717030e901586fd6849d07fc85394b0e8bfaecb1d7f291c356c16f3fd5e4
 F www/shunning.wiki 2945acf2d1865cd1301402b2085527d8b23f971c9f894c6d0511dc146a8df767
-F www/signing.md dcf5bb65b7be89fc48bf80834b48fa1623cdbb63da71d4114ce0777d4767912a
+F www/signing.md 23845e739ea3b0ed50ba2d2e45da45114f4b92933f3af5e1a28f8bbf270f7271
 F www/ssl-server.md fa016137cf6ef21b75b13eb13f376348dc5c20ce487a1eba8665ce70efa23b3c
 F www/ssl.wiki d1fc950cf538f469424b7a2d67d465678cc5f5a53c01e4c9f5cbc4929bd1c65f
 F www/stats.wiki f2713acf5c005f1ccecbec63dc5f826499f5f842e8ad17ec3d34ab2f57790792
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6368fce2745038d3709f004afaa50fe6c49d45173cf3262cf03d6214eae356d9
-R 8a24e056505f94218b0a075b795dfa37
-U drh
-Z dffaa03eda27ca58bf3cc0e70f2f06b8
+P 932d351ea5619f5d92d763e4b7a116183d0d755eddacf94f8cb80ee6661c78b8
+R f1ce5d5a99626f9fe0ac7643d39fe857
+U stephan
+Z c1e8cdbb94590658afdda33f6f489178
 # Remove this line to create a well-formed Fossil manifest.

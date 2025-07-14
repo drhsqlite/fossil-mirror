@@ -16,7 +16,6 @@
   <li> When walking the filesystem looking for Fossil repositories, avoid descending
        into directories named "/proc".
   </ol>
-     
 
 <h2 id='v2_26'>Changes for version 2.26 (2025-04-30)</h2><ol>
  <li>Enhancements to [/help?cmd=diff|fossil diff] and similar:
@@ -64,7 +63,9 @@
           [/help?cmd=verify-comments|verify-comments setting].
      <li> The new "--if-changes" option causes the commit to become
           a quiet no-op if there are no pending changes.
-     <li> Added the ability to sign check-ins with SSH keys.
+     <li> Added the ability to sign check-ins with SSH keys. Artifacts signed
+          this way are ignored by all previous fossil versions, as if they
+          were plain-text file content instead of Fossil artifacts.
      <li> Issue a warning if a user tries to commit on a check-in where the
           branch has been changed.
      <li> The interactive checkin comment prompt shows the formatting rules
