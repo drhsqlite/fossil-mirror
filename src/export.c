@@ -309,16 +309,16 @@ int parse_mark(char *line, struct mark_t *mark){
   if( !cur_tok || strlen(cur_tok)<2 ){
     return -1;
   }
-  mark->rid = fast_uuid_to_rid(mark->uuid)
-    /* forum post bfb325108171eb8b: we want export to work
-    ** even if the RIDs get re-mapped, e.g. a different clone
-    ** is used. */;
   type_ = cur_tok[0];
   if( type_!='c' && type_!='b' ){
     /* This is probably a blob mark */
     mark->name = NULL;
     return 0;
   }
+  mark->rid = fast_uuid_to_rid(mark->uuid)
+    /* forum post bfb325108171eb8b: we want export to work
+    ** even if the RIDs get re-mapped, e.g. a different clone
+    ** is used. */;
   if( !mark->rid ){
     fossil_free(mark->name);
     fossil_trace("Non-existent SHA-1/SHA-3 in marks file: %s\n", mark->uuid);
