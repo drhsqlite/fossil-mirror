@@ -1,5 +1,5 @@
-C Add\smentions\sin\schanges.wiki\sand\ssigning.md\sthat\sSSH-signed\sartifacts\sare\s"ignored"\sby\sfossil\sversions\sprior\sto\s2.26,\sas\ssuggested\sin\s[forum:9348885dd6\s|\sforum\spost\s9348885dd6].
-D 2025-07-14T17:31:49.833
+C A\sproposed,\sbut\salso\sunproven,\spatch\sfor\sthe\sgit\sexport\sparse_mark()\sissues\sdiscussed\sin\s[forum:906c248f2f79de41\s|\sforum\sthread\s906c248f2f].
+D 2025-07-15T08:13:33.527
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -426,7 +426,7 @@ F src/doc.c a939e55f45961b95a8cc62c3c2e63f25aaa3bb73ae8e00a88803b0ed29d1988f
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
 F src/event.c bbf9e79dfc96c597bab4f48ae290259a2dfa129a3d1c5878c13306ac46eb595c
-F src/export.c 99dddcbffa040ee67cbee591a41de449db384b645ac150e22b452f0482a88d96
+F src/export.c 2dc24a2b7e627f1377022ce696d0ce59ef748cf9d2116cb3ef7ecb379767de40
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c bad34406b69507906a1060c42265ffafd68ea598e7270e8f0d21d8d08fc1580a
 F src/fileedit.c 9e040d72f6c903efbc6b0aa5b43dad738c05480aa1134743ad351f941282bcf3
@@ -974,8 +974,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 932d351ea5619f5d92d763e4b7a116183d0d755eddacf94f8cb80ee6661c78b8
-R f1ce5d5a99626f9fe0ac7643d39fe857
+P 3f8d014f99cf91d1672d83fc8984800184fd5de647c1d4f50f68d75489ca505d
+R 3e7fa863d88cddae43e69f33dec74a1b
+T *branch * git-parse-mark-fix
+T *sym-git-parse-mark-fix *
+T -sym-trunk * Cancelled\sby\sbranch.
 U stephan
-Z c1e8cdbb94590658afdda33f6f489178
+Z 82add37a29accfd27f7a788492cd8635
 # Remove this line to create a well-formed Fossil manifest.
