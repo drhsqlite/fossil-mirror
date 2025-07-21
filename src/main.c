@@ -85,7 +85,6 @@ struct FossilUserPerms {
   char Setup;            /* s: use Setup screens on web interface */
   char Admin;            /* a: administrative permission */
   char Password;         /* p: change password */
-  char Query;            /* q: create new reports */
   char Write;            /* i: xfer inbound. check-in */
   char Read;             /* o: xfer outbound. check-out */
   char Hyperlink;        /* h: enable the display of hyperlinks */
