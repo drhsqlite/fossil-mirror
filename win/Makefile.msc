@@ -313,10 +313,12 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_MAX_EXPR_DEPTH=0 \
                  /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 /DSQLITE_ENABLE_DBSTAT_VTAB \
                  /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  /DSQLITE_ENABLE_FTS4 \
-                 /DSQLITE_ENABLE_DBSTAT_VTAB \
                  /DSQLITE_ENABLE_FTS5 \
+                 /DSQLITE_ENABLE_MATH_FUNCTIONS \
+                 /DSQLITE_ENABLE_SETLK_TIMEOUT \
                  /DSQLITE_ENABLE_STMTVTAB \
                  /DSQLITE_HAVE_ZLIB \
                  /DSQLITE_ENABLE_DBPAGE_VTAB \
@@ -338,10 +340,12 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /DSQLITE_MAX_EXPR_DEPTH=0 \
                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                 /DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                /DSQLITE_ENABLE_DBSTAT_VTAB \
                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                 /DSQLITE_ENABLE_FTS4 \
-                /DSQLITE_ENABLE_DBSTAT_VTAB \
                 /DSQLITE_ENABLE_FTS5 \
+                /DSQLITE_ENABLE_MATH_FUNCTIONS \
+                /DSQLITE_ENABLE_SETLK_TIMEOUT \
                 /DSQLITE_ENABLE_STMTVTAB \
                 /DSQLITE_HAVE_ZLIB \
                 /DSQLITE_ENABLE_DBPAGE_VTAB \
@@ -445,6 +449,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\manifest_.c" \
         "$(OX)\markdown_.c" \
         "$(OX)\markdown_html_.c" \
+        "$(OX)\match_.c" \
         "$(OX)\md5_.c" \
         "$(OX)\merge_.c" \
         "$(OX)\merge3_.c" \
@@ -710,6 +715,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\manifest$O" \
         "$(OX)\markdown$O" \
         "$(OX)\markdown_html$O" \
+        "$(OX)\match$O" \
         "$(OX)\md5$O" \
         "$(OX)\merge$O" \
         "$(OX)\merge3$O" \
@@ -959,6 +965,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\manifest.obj" >> $@
 	echo "$(OX)\markdown.obj" >> $@
 	echo "$(OX)\markdown_html.obj" >> $@
+	echo "$(OX)\match.obj" >> $@
 	echo "$(OX)\md5.obj" >> $@
 	echo "$(OX)\merge.obj" >> $@
 	echo "$(OX)\merge3.obj" >> $@
@@ -1765,6 +1772,12 @@ realclean: clean
 "$(OX)\markdown_html_.c" : "$(SRCDIR)\markdown_html.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\match$O" : "$(OX)\match_.c" "$(OX)\match.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\match_.c"
+
+"$(OX)\match_.c" : "$(SRCDIR)\match.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\md5$O" : "$(OX)\md5_.c" "$(OX)\md5.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\md5_.c"
 
@@ -2226,6 +2239,7 @@ realclean: clean
 			"$(OX)\manifest_.c":"$(OX)\manifest.h" \
 			"$(OX)\markdown_.c":"$(OX)\markdown.h" \
 			"$(OX)\markdown_html_.c":"$(OX)\markdown_html.h" \
+			"$(OX)\match_.c":"$(OX)\match.h" \
 			"$(OX)\md5_.c":"$(OX)\md5.h" \
 			"$(OX)\merge_.c":"$(OX)\merge.h" \
 			"$(OX)\merge3_.c":"$(OX)\merge3.h" \

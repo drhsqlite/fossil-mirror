@@ -29,8 +29,6 @@
 #define PIKCHR_PROCESS_DARK_MODE         0x0002
 /* end of flags supported directly by pikchr() */
 #define PIKCHR_PROCESS_PASSTHROUGH       0x0003   /* Pass through these flags */
-#define PIKCHR_PROCESS_TH1               0x0004
-#define PIKCHR_PROCESS_TH1_NOSVG         0x0008
 #define PIKCHR_PROCESS_NONCE             0x0010
 #define PIKCHR_PROCESS_ERR_PRE           0x0020
 #define PIKCHR_PROCESS_SRC               0x0040
@@ -45,31 +43,15 @@
 #endif
 
 /*
-** Processes a pikchr script, optionally with embedded TH1, and
-** produces HTML code for it. zIn is the NUL-terminated input
+** Processes a pikchr script. zIn is the NUL-terminated input
 ** script. pikFlags may be a bitmask of any of the PIKCHR_PROCESS_xxx
-** flags documented below. thFlags may be a bitmask of any of the
-** TH_INIT_xxx and/or TH_R2B_xxx flags. Output is sent to pOut,
-** appending to it without modifying any prior contents.
+** flags documented below. Output is sent to pOut,
 **
-** Returns 0 on success, 1 if TH1 processing failed, or 2 if pikchr
-** processing failed. In either case, the error message (if any) from
-** TH1 or pikchr will be appended to pOut.
+** Returns 0 on success, or non-zero if pikchr processing failed.
+** In either case, the error message (if any) from pikchr will be
+** appended to pOut.
 **
 ** pikFlags flag descriptions:
-**
-** - PIKCHR_PROCESS_TH1 means to run zIn through TH1, using the TH1
-** init flags specified in the 3rd argument. If thFlags is non-0 then
-** this flag is assumed even if it is not specified.
-**
-** - PIKCHR_PROCESS_TH1_NOSVG means that processing stops after the
-** TH1 eval step, thus the output will be (presumably) a
-** TH1-generated/processed pikchr script (or whatever else the TH1
-** outputs). If this flag is set, PIKCHR_PROCESS_TH1 is assumed even
-** if it is not specified.
-**
-** All of the remaining flags listed below are ignored if
-** PIKCHR_PROCESS_TH1_NOSVG is specified!
 **
 ** - PIKCHR_PROCESS_DIV: if set, the SVG result is wrapped in a DIV
 ** element which specifies a max-width style value based on the SVG's
@@ -118,10 +100,10 @@
 ** error report is wrapped in a PRE element, else it is retained
 ** as-is (intended only for console output).
 */
-int pikchr_process(const char * zIn, int pikFlags, int thFlags,
-                   Blob * pOut){
-  Blob bIn = empty_blob;
+int pikchr_process(const char *zIn, int pikFlags, Blob * pOut){
   int isErr = 0;
+  int w = 0, h = 0;
+  char *zOut;
   const char *zNonce = (PIKCHR_PROCESS_NONCE & pikFlags)
     ? safe_html_nonce(1) : 0;
 
@@ -137,111 +119,83 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
          ) & pikFlags){
     pikFlags |= PIKCHR_PROCESS_DIV;
   }
-  if(!(PIKCHR_PROCESS_TH1 & pikFlags)
-     /* If any TH1_xxx flags are set, set TH1 */
-     && (PIKCHR_PROCESS_TH1_NOSVG & pikFlags || thFlags!=0)){
-    pikFlags |= PIKCHR_PROCESS_TH1;
-  }
   if(zNonce){
     blob_appendf(pOut, "%s\n", zNonce);
   }
-  if(PIKCHR_PROCESS_TH1 & pikFlags){
-    Blob out = empty_blob;
-    isErr = Th_RenderToBlob(zIn, &out, thFlags)
-      ? 1 : 0;
-    if(isErr){
-      blob_append(pOut, blob_str(&out), blob_size(&out));
-      blob_reset(&out);
-    }else{
-      bIn = out;
+  zOut = pikchr(zIn, "pikchr",
+                0x01 | (pikFlags&PIKCHR_PROCESS_PASSTHROUGH),
+                &w, &h);
+  if( w>0 && h>0 ){
+    const char * zClassToggle = "";
+    const char * zClassSource = "";
+    const char * zWrapperClass = "";
+    if(PIKCHR_PROCESS_DIV & pikFlags){
+      if(PIKCHR_PROCESS_DIV_CENTER & pikFlags){
+        zWrapperClass = " center";
+      }else if(PIKCHR_PROCESS_DIV_INDENT & pikFlags){
+        zWrapperClass = " indent";
+      }else if(PIKCHR_PROCESS_DIV_FLOAT_LEFT & pikFlags){
+        zWrapperClass = " float-left";
+      }else if(PIKCHR_PROCESS_DIV_FLOAT_RIGHT & pikFlags){
+        zWrapperClass = " float-right";
+      }
+      if(PIKCHR_PROCESS_DIV_TOGGLE & pikFlags){
+        zClassToggle = " toggle";
+      }
+      if(PIKCHR_PROCESS_DIV_SOURCE_INLINE & pikFlags){
+        if(PIKCHR_PROCESS_DIV_SOURCE & pikFlags){
+          zClassSource = " source source-inline";
+        }else{
+          zClassSource = " source-inline";
+        }
+        pikFlags |= PIKCHR_PROCESS_SRC;
+      }else if(PIKCHR_PROCESS_DIV_SOURCE & pikFlags){
+        zClassSource = " source";
+        pikFlags |= PIKCHR_PROCESS_SRC;
+      }
+      blob_appendf(pOut,"<div class='pikchr-wrapper"
+                   "%s%s%s'>"
+                   "<div class=\"pikchr-svg\" "
+                   "style=\"max-width:%dpx\">\n",
+                   zWrapperClass/*safe-for-%s*/,
+                   zClassToggle/*safe-for-%s*/,
+                   zClassSource/*safe-for-%s*/, w);
+    }
+    blob_append(pOut, zOut, -1);
+    if(PIKCHR_PROCESS_DIV & pikFlags){
+      blob_append(pOut, "</div>\n", 7);
+    }
+    if(PIKCHR_PROCESS_SRC & pikFlags){
+      static int counter = 0;
+      ++counter;
+      blob_appendf(pOut, "<div class='pikchr-src'>"
+                   "<pre id='pikchr-src-%d'>%h</pre>"
+                   "<span class='hidden'>"
+                   "<a href='%R/pikchrshow?fromSession' "
+                   "class='pikchr-src-pikchrshow' target='_new-%d' "
+                   "data-pikchrid='pikchr-src-%d' "
+                   "title='Open this pikchr in /pikchrshow'"
+                   ">&rarr; /pikchrshow</a></span>"
+                   "</div>\n",
+                   counter, zIn, counter, counter);
+    }
+    if(PIKCHR_PROCESS_DIV & pikFlags){
+      blob_append(pOut, "</div>\n", 7);
     }
   }else{
-    blob_init(&bIn, zIn, -1);
-  }
-  if(!isErr){
-    if(PIKCHR_PROCESS_TH1_NOSVG & pikFlags){
-      blob_append(pOut, blob_str(&bIn), blob_size(&bIn));
-    }else{
-      int w = 0, h = 0;
-      const char * zContent = blob_str(&bIn);
-      char *zOut;
-      zOut = pikchr(zContent, "pikchr",
-                    0x01 | (pikFlags&PIKCHR_PROCESS_PASSTHROUGH),
-                    &w, &h);
-      if( w>0 && h>0 ){
-        const char * zClassToggle = "";
-        const char * zClassSource = "";
-        const char * zWrapperClass = "";
-        if(PIKCHR_PROCESS_DIV & pikFlags){
-          if(PIKCHR_PROCESS_DIV_CENTER & pikFlags){
-            zWrapperClass = " center";
-          }else if(PIKCHR_PROCESS_DIV_INDENT & pikFlags){
-            zWrapperClass = " indent";
-          }else if(PIKCHR_PROCESS_DIV_FLOAT_LEFT & pikFlags){
-            zWrapperClass = " float-left";
-          }else if(PIKCHR_PROCESS_DIV_FLOAT_RIGHT & pikFlags){
-            zWrapperClass = " float-right";
-          }
-          if(PIKCHR_PROCESS_DIV_TOGGLE & pikFlags){
-            zClassToggle = " toggle";
-          }
-          if(PIKCHR_PROCESS_DIV_SOURCE_INLINE & pikFlags){
-            if(PIKCHR_PROCESS_DIV_SOURCE & pikFlags){
-              zClassSource = " source source-inline";
-            }else{
-              zClassSource = " source-inline";
-            }
-            pikFlags |= PIKCHR_PROCESS_SRC;
-          }else if(PIKCHR_PROCESS_DIV_SOURCE & pikFlags){
-            zClassSource = " source";
-            pikFlags |= PIKCHR_PROCESS_SRC;
-          }
-          blob_appendf(pOut,"<div class='pikchr-wrapper"
-                       "%s%s%s'>"
-                       "<div class=\"pikchr-svg\" "
-                       "style=\"max-width:%dpx\">\n",
-                       zWrapperClass/*safe-for-%s*/,
-                       zClassToggle/*safe-for-%s*/,
-                       zClassSource/*safe-for-%s*/, w);
-        }
-        blob_append(pOut, zOut, -1);
-        if(PIKCHR_PROCESS_DIV & pikFlags){
-          blob_append(pOut, "</div>\n", 7);
-        }
-        if(PIKCHR_PROCESS_SRC & pikFlags){
-          static int counter = 0;
-          ++counter;
-          blob_appendf(pOut, "<div class='pikchr-src'>"
-                       "<pre id='pikchr-src-%d'>%h</pre>"
-                       "<span class='hidden'>"
-                       "<a href='%R/pikchrshow?fromSession' "
-                       "class='pikchr-src-pikchrshow' target='_new-%d' "
-                       "data-pikchrid='pikchr-src-%d' "
-                       "title='Open this pikchr in /pikchrshow'"
-                       ">&rarr; /pikchrshow</a></span>"
-                       "</div>\n",
-                       counter, blob_str(&bIn), counter, counter);
-        }
-        if(PIKCHR_PROCESS_DIV & pikFlags){
-          blob_append(pOut, "</div>\n", 7);
-        }
-      }else{
-        isErr = 2;
-        if(PIKCHR_PROCESS_ERR_PRE & pikFlags){
-          blob_append(pOut, "<pre class='error'>\n", 20);
-        }
-        blob_appendf(pOut, "%h", zOut);
-        if(PIKCHR_PROCESS_ERR_PRE & pikFlags){
-          blob_append(pOut, "\n</pre>\n", 8);
-        }
-      }
-      fossil_free(zOut);
+    isErr = 2;
+    if(PIKCHR_PROCESS_ERR_PRE & pikFlags){
+      blob_append(pOut, "<pre class='error'>\n", 20);
+    }
+    blob_appendf(pOut, "%h", zOut);
+    if(PIKCHR_PROCESS_ERR_PRE & pikFlags){
+      blob_append(pOut, "\n</pre>\n", 8);
     }
   }
+  fossil_free(zOut);
   if(zNonce){
     blob_appendf(pOut, "%s\n", zNonce);
   }
-  blob_reset(&bIn);
   return isErr;
 }
 
@@ -281,7 +235,7 @@ void pikchrshowcs_page(void){
     if(zContent && *zContent){
       Blob out = empty_blob;
       const int isErr =
-        pikchr_process(zContent, pikFlags, 0, &out);
+        pikchr_process(zContent, pikFlags, &out);
       if(isErr){
         cgi_printf_header("x-pikchrshow-is-error: %d\r\n", isErr);
       }
@@ -386,7 +340,7 @@ void pikchrshowcs_page(void){
       CX("<div id='pikchrshow-output'>");
       if(*zContent){
         Blob out = empty_blob;
-        pikchr_process(zContent, pikFlags, 0, &out);
+        pikchr_process(zContent, pikFlags, &out);
         CX("%b", &out);
         blob_reset(&out);
       } CX("</div>"/*#pikchrshow-output*/);
@@ -563,56 +517,19 @@ void pikchrshow_page(void){
 **               a separate element adjacent to the SVG one. Implied
 **               by -div-source.
 **
-**
-**    -th        Process the input using TH1 before passing it to pikchr
-**
-**    -th-novar  Disable $var and $<var> TH1 processing. Use this if the
-**               pikchr script uses '$' for its own purposes and that
-**               causes issues. This only affects parsing of '$' outside
-**               of TH1 script blocks. Code in such blocks is unaffected.
-**
-**    -th-nosvg  When using -th, output the post-TH1'd script
-**               instead of the pikchr-rendered output
-**
-**    -th-trace  Trace TH1 execution (for debugging purposes)
-**
 **    -dark      Change pikchr colors to assume a dark-mode theme.
 **
 **
 ** The -div-indent/center/left/right flags may not be combined.
-**
-** TH1-related Notes and Caveats:
-**
-** If the -th flag is used, this command must open a fossil database
-** for certain functionality to work (via a check-out or the -R REPO
-** flag). If opening a db fails, execution will continue but any TH1
-** commands which require a db will trigger a fatal error.
-**
-** In Fossil skins, TH1 variables in the form $varName are expanded
-** as-is and those in the form $<varName> are htmlized in the
-** resulting output. This processor disables the htmlizing step, so $x
-** and $<x> are equivalent unless the TH1-processed pikchr script
-** invokes the TH1 command [enable_htmlify 1] to enable it. Normally
-** that option will interfere with pikchr output, however, e.g. by
-** HTML-encoding double-quotes.
-**
-** Many of the fossil-installed TH1 functions simply do not make any
-** sense for pikchr scripts.
 */
 void pikchr_cmd(void){
   Blob bIn = empty_blob;
   Blob bOut = empty_blob;
   const char * zInfile = "-";
   const char * zOutfile = "-";
-  const int fTh1 = find_option("th",0,0)!=0;
-  const int fNosvg = find_option("th-nosvg",0,0)!=0;
   int isErr = 0;
   int pikFlags = find_option("src",0,0)!=0
     ? PIKCHR_PROCESS_SRC : 0;
-  u32 fThFlags = TH_INIT_NO_ENCODE
-    | (find_option("th-novar",0,0)!=0 ? TH_R2B_NO_VARS : 0);
-
-  Th_InitTraceLog()/*processes -th-trace flag*/;
 
   if(find_option("div",0,0)!=0){
     pikFlags |= PIKCHR_PROCESS_DIV;
@@ -646,22 +563,12 @@ void pikchr_cmd(void){
     zOutfile = g.argv[3];
   }
   blob_read_from_file(&bIn, zInfile, ExtFILE);
-  if(fTh1){
-    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0)
-      /* ^^^ needed for certain TH1 functions to work */;
-    pikFlags |= PIKCHR_PROCESS_TH1;
-    if(fNosvg) pikFlags |= PIKCHR_PROCESS_TH1_NOSVG;
-  }
-  isErr = pikchr_process(blob_str(&bIn), pikFlags,
-                         fTh1 ? fThFlags : 0, &bOut);
+  isErr = pikchr_process(blob_str(&bIn), pikFlags, &bOut);
   if(isErr){
-    fossil_fatal("%s ERROR:%c%b", 1==isErr ? "TH1" : "pikchr",
-                 1==isErr ? ' ' : '\n',
-                 &bOut);
+    fossil_fatal("pikchr ERROR: %b", &bOut);
   }else{
     blob_write_to_file(&bOut, zOutfile);
   }
-  Th_PrintTraceLog();
   blob_reset(&bIn);
   blob_reset(&bOut);
 }

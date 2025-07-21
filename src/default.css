@@ -766,6 +766,8 @@ body.tkt div.content ol.tkt-changes > li:target > ol {
 }
 body.cpage-ckout .file-change-line,
 body.cpage-info .file-change-line,
+body.cpage-vinfo .file-change-line,
+body.cpage-ci .file-change-line,
 body.cpage-vdiff .file-change-line {
   margin-top: 16px;
   margin-bottom: 16px;

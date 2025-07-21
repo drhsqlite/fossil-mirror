@@ -173,19 +173,18 @@ void checkout_set_all_exe(int vid){
 */
 void manifest_to_disk(int vid){
   char *zManFile;
-  Blob manifest;
-  Blob taglist;
   int flg;
 
-  flg = db_get_manifest_setting();
+  flg = db_get_manifest_setting(0);
 
   if( flg & MFESTFLG_RAW ){
-    blob_zero(&manifest);
+    Blob manifest = BLOB_INITIALIZER;
     content_get(vid, &manifest);
     sterilize_manifest(&manifest, CFTYPE_MANIFEST);
     zManFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManFile);
     free(zManFile);
+    blob_reset(&manifest);
   }else{
     if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest'") ){
       zManFile = mprintf("%smanifest", g.zLocalRoot);
@@ -209,7 +208,7 @@ void manifest_to_disk(int vid){
     }
   }
   if( flg & MFESTFLG_TAGS ){
-    blob_zero(&taglist);
+    Blob taglist = BLOB_INITIALIZER;
     zManFile = mprintf("%smanifest.tags", g.zLocalRoot);
     get_checkin_taglist(vid, &taglist);
     blob_write_to_file(&taglist, zManFile);
@@ -279,9 +278,10 @@ void get_checkin_taglist(int rid, Blob *pOut){
 ** latest version in the repository.
 **
 ** Options:
-**    --force           Ignore edited files in the current check-out
-**    --keep            Only update the manifest file(s)
+**    -f|--force        Ignore edited files in the current check-out
+**    -k|--keep         Only update the manifest file(s)
 **    --force-missing   Force check-out even if content is missing
+**    --prompt          Prompt before overwriting when --force is used
 **    --setmtime        Set timestamps of all files to match their SCM-side
 **                      times (the timestamp of the last check-in which modified
 **                      them)
@@ -301,12 +301,17 @@ void checkout_cmd(void){
 
   db_must_be_within_tree();
   db_begin_transaction();
-  forceFlag = find_option("force","f",0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
-  keepFlag = find_option("keep",0,0)!=0;
+  keepFlag = find_option("keep","k",0)!=0;
+  forceFlag = find_option("force","f",0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
   promptFlag = find_option("prompt",0,0)!=0 || forceFlag==0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
+
+  if( keepFlag != 0 ){
+    /* After flag collection, in order not to affect promptFlag */
+    forceFlag=1;
+  }
 
   /* We should be done with options.. */
   verify_all_options();

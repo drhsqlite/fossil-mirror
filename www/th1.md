@@ -14,25 +14,39 @@ be easily compiled on the SymbianOS.  So TH1 was developed as a cut-down
 version of Tcl that would facilitate running the SQLite test scripts on
 SymbianOS.
 
-Fossil was first being designed at about the same time that TH1 was
-being developed for testing SQLite on SymbianOS.
+Fossil was first being designed at about the same time.
 Early prototypes of Fossil were written in pure Tcl.  But as the development
 shifted toward the use of C-code, the need arose to have a Tcl-like
 scripting language to help with code generation.  TH1 was small and
 light-weight and used minimal resources and seemed ideally suited for the
 task.
 
-The name "TH1" stands "Test Harness 1", since that was its original purpose.
+The name "TH1" stands for "Test Harness 1",
+since its original purpose was to serve as testing harness
+for SQLite.
 
-Overview
---------
+Where TH1 Is Used In Fossil
+---------------------------
+
+  *  In the header and footer for [skins](./customskin.md)
+     text within `<th1>...</th1>` is run as a TH1 script.
+     ([example](/builtin/skins/default/header.txt))
+
+  *  This display of [tickets](./bugtheory.wiki) is controlled by TH1
+     scripts, so that the ticket format can be customized for each
+     project.  Administrators can visit the <b>/tktsetup</b> page in
+     their repositories to view and customize these scripts.
+     ([example usage](./custom_ticket.wiki))
+
+Overview Of The Tcl/TH1 Language
+--------------------------------
 
 TH1 is a string-processing language.  All values are strings.  Any numerical
 operations are accomplished by converting from string to numeric, performing
 the computation, then converting the result back into a string.  (This might
 seem inefficient, but it is faster than people imagine, and numeric
 computations do not come up very often for the kinds of work that TH1 does,
-so it has never been a factor.)
+so it has never been an issue.)
 
 A TH1 script consists of a sequence of commands.
 Each command is terminated by the first *unescaped* newline or ";" character.
@@ -70,7 +84,7 @@ is the `puts "hello"`, with its whitespace and newlines.  The fourth token
 is `else` and the fifth and last token is `puts "world"`.
 
 The `if` command evaluates its first argument (the second token)
-as an expression, and if that expression is true, evaluates its
+as an expression, and if that expression is true, it evaluates its
 second argument (the third token) as a TH1 script.
 If the expression is false and the third argument is `else`, then
 the fourth argument is evaluated as a TH1 expression.
@@ -108,6 +122,45 @@ Fossil's test scripts:
 Those backslashes allow the command to wrap nicely within a standard
 terminal width while telling the interpreter to consider those three
 lines as a single command.
+
+<a id="taint"></a>Tainted And Untainted Strings
+-----------------------------------------------
+
+Beginning with Fossil version 2.26 (circa 2025), TH1 distinguishes between
+"tainted" and "untainted" strings.  Tainted strings are strings that are
+derived from user inputs that might contain text that is designed to subvert
+the script.  Untainted strings are known to come from secure sources and
+are assumed to contain no malicious content.
+
+Beginning with Fossil version 2.26, and depending on the value of the
+[vuln-report setting](/help?cmd=vuln-report), TH1 will prevent tainted
+strings from being used in ways that might lead to XSS or SQL-injection
+attacks.  This feature helps to ensure that XSS and SQL-injection
+vulnerabilities are not *accidentally* added to Fossil when
+custom TH1 scripts for headers or footers or tickets are added to a
+repository.  Note that the tainted/untainted distinction in strings does
+not make it impossible to introduce XSS and SQL-injections vulnerabilities
+using poorly-written TH1 scripts; it just makes it more difficult and
+less likely to happen by accident.  Developers must still consider the
+security implications of TH1 customizations they add to Fossil, and take
+appropriate precautions when writing custom TH1.  Peer review of TH1
+script changes is encouraged.
+
+In Fossil version 2.26, if the vuln-report setting is set to "block"
+or "fatal", the [html](#html) and [query](#query) TH1 commands will
+fail with an error if their argument is a tainted string.  This helps
+to prevent XSS and SQL-injection attacks, respectively.  Note that
+the default value of the vuln-report setting is "log", which allows those
+commands to continue working and only writes a warning message into the
+error log.  <b>Future versions of Fossil may change the default value
+of the vuln-report setting to "block" or "fatal".</b>  Fossil users
+with customized TH1 scripts are encouraged to audit their customizations
+and fix any potential vulnerabilities soon, so as to avoid breakage
+caused by future upgrades.  <b>Future versions of Fossil might also
+place additional restrictions on the use of tainted strings.</b>
+For example, it is likely that future versions of Fossil will disallow
+using tainted strings as script, for example as the body of a "for"
+loop or of a "proc".
 
 
 Summary of Core TH1 Commands
@@ -149,6 +202,9 @@ summarize the commands available in TH1:
   *  string length STRING
   *  string range STRING FIRST LAST
   *  string repeat STRING COUNT
+  *  string trim STRING
+  *  string trimleft STRING
+  *  string trimright STRING
   *  unset VARNAME
   *  uplevel ?LEVEL? SCRIPT
   *  upvar ?FRAME? OTHERVAR MYVAR ?OTHERVAR MYVAR?
@@ -184,7 +240,6 @@ features of Fossil.  The following is a summary of the extended commands:
   *  [decorate](#decorate)
   *  [defHeader](#defHeader)
   *  [dir](#dir)
-  *  [enable\_htmlify](#enable_htmlify)
   *  [enable\_output](#enable_output)
   *  [encode64](#encode64)
   *  [getParameter](#getParameter)
@@ -216,6 +271,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  [styleFooter](#styleFooter)
   *  [styleScript](#styleScript)
   *  [submenu](#submenu)
+  *  [taint](#taintCmd)
   *  [tclEval](#tclEval)
   *  [tclExpr](#tclExpr)
   *  [tclInvoke](#tclInvoke)
@@ -223,12 +279,14 @@ features of Fossil.  The following is a summary of the extended commands:
   *  [tclMakeSafe](#tclMakeSafe)
   *  [tclReady](#tclReady)
   *  [trace](#trace)
+  *  [untaint](#untaintCmd)
   *  [unversioned content](#unversioned_content)
   *  [unversioned list](#unversioned_list)
   *  [utime](#utime)
   *  [verifyCsrf](#verifyCsrf)
   *  [verifyLogin](#verifyLogin)
   *  [wiki](#wiki)
+  *  [wiki_assoc](#wiki_assoc)
 
 Each of the commands above is documented by a block comment above their
 implementation in the th\_main.c or th\_tcl.c source files.
@@ -273,7 +331,7 @@ be found.
 
   *  builtin_request_js NAME
 
-NAME must be the name of one of the 
+NAME must be the name of one of the
 [built-in javascript source files](/dir?ci=trunk&type=flat&name=src&re=js$).
 This command causes that javascript file to be appended to the delivered
 document.
@@ -286,7 +344,7 @@ document.
   *  capexpr CAPABILITY-EXPR
 
 The capability expression is a list. Each term of the list is a
-cluster of [capability letters](./caps/ref.html). 
+cluster of [capability letters](./caps/ref.html).
 The overall expression is true if any
 one term is true. A single term is true if all letters within that
 term are true. Or, if the term begins with "!", then the term is true
@@ -415,24 +473,6 @@ element containing at least three elements: the file name, the file
 size (in bytes), and the file last modification time (relative to the
 time zone configured for the repository).
 
-<a id="enable_htmlify"></a>TH1 enable\_htmlify Command
-------------------------------------------------------
-
-  *  enable\_htmlify
-  *  enable\_htmlify ?TRACE-LABEL? BOOLEAN
-
-By default, certain output from `puts` and similar commands is escaped
-for HTML. The first call form returns the current state of that
-feature: `1` for on and `0` for off. The second call form enables
-(non-0) or disables (0) that feature and returns the *pre-call* state
-of that feature (so that a second call can pass that value to restore
-it to its previous state). The optional `TRACE-LABEL` argument causes
-the TH1 tracing output (if enabled) to add a marker when the second
-form of this command is invoked, and includes that label and the
-boolean argument's value in the trace. If tracing is disabled, that
-argument has no effect.
-
-
 <a id="enable_output"></a>TH1 enable\_output Command
 ------------------------------------------------------
 
@@ -528,7 +568,21 @@ raise a script error.
 
   *  html STRING
 
-Outputs the STRING escaped for HTML.
+Outputs the STRING literally.  It is assumed that STRING contains
+valid HTML, or that if STRING contains any characters that are
+significant to HTML (such as `<`, `>`, `'`, or `&`) have already
+been escaped, perhaps by the [htmlize](#htmlize) command.  Use the
+[puts](#puts) command to output text that might contain unescaped
+HTML markup.
+
+**Beware of XSS attacks!**  If the STRING value to the html command
+can be controlled by a hostile user, then he might be able to sneak
+in malicious HTML or Javascript which could result in a
+cross-site scripting (XSS) attack.  Be careful that all text that
+in STRING that might come from user input has been sanitized by the
+[htmlize](#htmlize) command or similar.  In recent versions of Fossil,
+the STRING value must be [untainted](#taint) or else the "html" command 
+will fail.
 
 <a id="htmlize"></a>TH1 htmlize Command
 -----------------------------------------
@@ -596,8 +650,12 @@ Returns the value of the cryptographic nonce for the request being processed.
 
   *  puts STRING
 
-Outputs the STRING unchanged, where "unchanged" might, depending on
-the context, mean "with some characters escaped for HTML."
+Outputs STRING.  Characters within STRING that have special meaning
+in HTML are escaped prior to being output.  Thus is it safe for STRING
+to be derived from user inputs.  See also the [html](#html) command
+which behaves similarly except does not escape HTML markup.  This
+command ("puts") is safe to use on [tainted strings](#taint), but the "html"
+command is not.
 
 <a id="query"></a>TH1 query Command
 -------------------------------------
@@ -609,7 +667,40 @@ set, run CODE.
 
 In SQL, parameters such as $var are filled in using the value of variable
 "var".  Result values are stored in variables with the column name prior
-to each invocation of CODE.
+to each invocation of CODE.  The names of the variables in which results
+are stored can be controlled using "AS name" clauses in the SQL.  As
+the database will often contain content that originates from untrusted
+users, all result values are marked as [tainted](#taint).
+
+**Beware of SQL injections in the `query` command!**
+The SQL argument to the query command should always be literal SQL
+text enclosed in {...}.  The SQL argument should never be a double-quoted
+string or the value of a \$variable, as those constructs can lead to
+an SQL Injection attack.  If you need to include the values of one or
+more TH1 variables as part of the SQL, then put \$variable inside the
+{...}.  The \$variable keyword will then get passed down into the SQLite
+parser which knows to look up the value of \$variable in the TH1 symbol
+table.  For example:
+
+~~~
+   query {SELECT res FROM tab1 WHERE key=$mykey} {...}
+~~~
+
+SQLite will see the \$mykey token in the SQL and will know to resolve it
+to the value of the "mykey" TH1 variable, safely and without the possibility
+of SQL injection.  The following is unsafe:
+
+~~~
+   query "SELECT res FROM tab1 WHERE key='$mykey'" {...}  ;# <-- UNSAFE!
+~~~
+
+In this second example, TH1 does the expansion of `$mykey` prior to passing
+the text down into SQLite.  So if `$mykey` contains a single-quote character,
+followed by additional hostile text, that will result in an SQL injection.
+
+To help guard against SQL-injections, recent versions of Fossil require
+that the SQL argument be [untainted](#taint) or else the "query" command
+will fail.
 
 <a id="randhex"></a>TH1 randhex Command
 -----------------------------------------
@@ -639,6 +730,8 @@ method to GET.
 Checks the string against the specified regular expression and returns
 non-zero if it matches.  If the regular expression is invalid or cannot
 be compiled, an error will be generated.
+
+See [fossil grep](./grep.md) for details on the regexp syntax.
 
 <a id="reinitialize"></a>TH1 reinitialize Command
 ---------------------------------------------------
@@ -742,6 +835,20 @@ Render the configured JavaScript for the selected skin.
 
 Add hyperlink to the submenu of the current page.
 
+<a id="taintCmd"></a>TH1 taint Command
+-----------------------------------------
+
+  *  taint STRING
+
+This command returns a copy of STRING that has been marked as
+[tainted](#taint).  Tainted strings are strings which might be
+controlled by an attacker and might contain hostile inputs and
+are thus unsafe to use in certain contexts.  For example, tainted
+strings should not be output as part of a webpage as they might
+contain rogue HTML or Javascript that could lead to an XSS
+vulnerability.  Similarly, tainted strings should not be run as
+SQL since they might contain an SQL-injection vulerability.
+
 <a id="tclEval"></a>TH1 tclEval Command
 -----------------------------------------
 
@@ -813,6 +920,18 @@ is currently available for use by TH1 scripts.
 
 Generates a TH1 trace message if TH1 tracing is enabled.
 
+<a id="untaintCmd"></a>TH1 taint Command
+-----------------------------------------
+
+  *  untaint STRING
+
+This command returns a copy of STRING that has been marked as
+[untainted](#taint).  Untainted strings are strings which are
+believed to be free of potentially hostile content.  Use this
+command with caution, as it overwrites the tainted-string protection
+mechanisms that are built into TH1.  If you do not understand all
+the implications of executing this command, then do not use it.
+
 <a id="unversioned_content"></a>TH1 unversioned content Command
 -----------------------------------------------------------------
 
@@ -863,6 +982,15 @@ valid login for the repository.
   *  wiki STRING
 
 Renders STRING as wiki content.
+
+<a id="wiki_assoc"></a>TH1 wiki_assoc Command
+-----------------------------------
+
+  *  wiki_assoc STRING STRING
+
+Renders the special wiki. The first string refers to the namespace
+(checkin, branch, tag, ticket). The second string specifies the
+concrete wiki page to be rendered.
 
 Tcl Integration Commands
 ------------------------

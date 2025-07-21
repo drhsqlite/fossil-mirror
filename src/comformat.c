@@ -23,14 +23,18 @@
 #include <assert.h>
 
 #if INTERFACE
-#define COMMENT_PRINT_NONE       ((u32)0x00000000) /* No flags = non-legacy. */
-#define COMMENT_PRINT_LEGACY     ((u32)0x00000001) /* Use legacy algorithm. */
+#define COMMENT_PRINT_NONE       ((u32)0x00000000) /* No flags */
+#define COMMENT_PRINT_CANONICAL  ((u32)0x00000001) /* Use canonical algorithm */
+#define COMMENT_PRINT_DEFAULT    COMMENT_PRINT_CANONICAL  /* Default */
+#define COMMENT_PRINT_UNSET      (-1)              /* Not initialized */
+
+/* The canonical comment printing algorithm is recommended.  We make
+** no promise of on-going support for any of the following flags:
+*/
 #define COMMENT_PRINT_TRIM_CRLF  ((u32)0x00000002) /* Trim leading CR/LF. */
 #define COMMENT_PRINT_TRIM_SPACE ((u32)0x00000004) /* Trim leading/trailing. */
 #define COMMENT_PRINT_WORD_BREAK ((u32)0x00000008) /* Break lines on words. */
 #define COMMENT_PRINT_ORIG_BREAK ((u32)0x00000010) /* Break before original. */
-#define COMMENT_PRINT_DEFAULT    (COMMENT_PRINT_LEGACY) /* Defaults. */
-#define COMMENT_PRINT_UNSET      (-1)              /* Not initialized. */
 #endif
 
 /********* Code copied from SQLite src/shell.c.in on 2024-09-30 **********/
@@ -222,6 +226,7 @@ static int comment_next_space(
 ){
   int cchUTF8, utf32, wcwidth = 0;
   int nextIndex = index;
+  if( zLine[index]==0 ) return index;
   for(;;){
     char_info_utf8(&zLine[nextIndex],&cchUTF8,&utf32);
     nextIndex += cchUTF8;
@@ -236,25 +241,42 @@ static int comment_next_space(
 }
 
 /*
-** Return information about the next (single- or multi-byte) character in the
-** specified UTF-8 string: The number of UTF-8 code units (in this case: bytes)
-** and the decoded UTF-32 code point. Incomplete, ill-formed and overlong
-** sequences are consumed together as one invalid code point. The invalid lead
-** bytes 0xC0 to 0xC1 and 0xF5 to 0xF7 are allowed to initiate (ill-formed) 2-
-** and 4-byte sequences, respectively, the other invalid lead bytes 0xF8 to 0xFF
-** are treated as invalid 1-byte sequences (as lone trail bytes), all resulting
-** in one invalid code point. Invalid UTF-8 sequences encoding a non-scalar code
-** point (UTF-16 surrogates U+D800 to U+DFFF) are allowed.
+** Return information about the next (single- or multi-byte) character in
+** z[0].  Two values are computed:
+**
+**     *   The number of bytes needed to represent the character.
+**     *   The UTF code point value.
+**
+** Incomplete, ill-formed and overlong sequences are consumed together as
+** one invalid code point. The invalid lead bytes 0xC0 to 0xC1 and 0xF5 to
+** 0xF7 are allowed to initiate (ill-formed) 2- and 4-byte sequences,
+** respectively, the other invalid lead bytes 0xF8 to 0xFF are treated
+** as invalid 1-byte sequences (as lone trail bytes), all resulting
+** in one invalid code point. Invalid UTF-8 sequences encoding a
+** non-scalar code point (UTF-16 surrogates U+D800 to U+DFFF) are allowed.
+**
+** ANSI escape sequences of the form "\033[...X" are interpreted as a
+** zero-width character.
 */
 void char_info_utf8(
-  const char *z,
-  int *pCchUTF8,
-  int *pUtf32
+  const char *z,       /* The character to be analyzed */
+  int *pCchUTF8,       /* OUT: The number of bytes used by this character */
+  int *pUtf32          /* OUT: The UTF8 code point (used to determine width) */
 ){
   int i = 0;                              /* Counted bytes. */
   int cchUTF8 = 1;                        /* Code units consumed. */
   int maxUTF8 = 1;                        /* Expected sequence length. */
   char c = z[i++];
+  if( c==0x1b && z[i]=='[' ){
+    i++;
+    while( z[i]>=0x30 && z[i]<=0x3f ){ i++; }
+    while( z[i]>=0x20 && z[i]<=0x2f ){ i++; }
+    if( z[i]>=0x40 && z[i]<=0x7e ){
+      *pCchUTF8 = i+1;
+      *pUtf32 = 0x301;  /* A zero-width character */
+      return;
+    }
+  }
   if( (c&0x80)==0x00 ){                   /* 7-bit ASCII character. */
     *pCchUTF8 = 1;
     *pUtf32 = (int)z[0];
@@ -467,17 +489,25 @@ static void comment_print_line(
 }
 
 /*
-** This is the legacy comment printing algorithm.  It is being retained
-** for backward compatibility.
+** This is the canonical comment printing algorithm.  This is the algorithm
+** that is recommended and that is used unless the administrator has made
+** special arrangements to use a customized algorithm.
 **
 ** Given a comment string, format that string for printing on a TTY.
-** Assume that the output cursors is indent spaces from the left margin
+** Assume that the output cursor is indent spaces from the left margin
 ** and that a single line can contain no more than 'width' characters.
 ** Indent all subsequent lines by 'indent'.
 **
+** Formatting features:
+**
+**   *  Leading whitespace is removed.
+**   *  Internal whitespace sequences are changed into a single space (0x20)
+**      character.
+**   *  Lines are broken at a space, or at a hyphen ("-") whenever possible.
+**
 ** Returns the number of new lines emitted.
 */
-static int comment_print_legacy(
+static int comment_print_canonical(
   const char *zText, /* The comment text to be printed. */
   int indent,        /* Number of spaces to indent each non-initial line. */
   int width          /* Maximum number of characters per line. */
@@ -566,9 +596,14 @@ static int comment_print_legacy(
 ** the comment string itself while honoring line width limitations.  There
 ** are several flags that modify the default behavior of this function:
 **
-**         COMMENT_PRINT_LEGACY: Forces use of the legacy comment printing
-**                               algorithm.  For backward compatibility,
-**                               this is the default.
+**      COMMENT_PRINT_CANONICAL: Use the canonical printing algorithm:
+**                                  *  Omit leading and trailing whitespace
+**                                  *  Collapse internal whitespace into a
+**                                     single space (0x20) character.
+**                                  *  Attempt to break lines at whitespace
+**                                     or hyphens.
+**                               This is the recommended algorithm and is
+**                               used in most cases.
 **
 **      COMMENT_PRINT_TRIM_CRLF: Trims leading and trailing carriage-returns
 **                               and line-feeds where they do not materially
@@ -615,52 +650,57 @@ int comment_print(
   int flags              /* Zero or more "COMMENT_PRINT_*" flags. */
 ){
   int maxChars = width - indent;
-  int legacy = flags & COMMENT_PRINT_LEGACY;
-  int trimCrLf = flags & COMMENT_PRINT_TRIM_CRLF;
-  int trimSpace = flags & COMMENT_PRINT_TRIM_SPACE;
-  int wordBreak = flags & COMMENT_PRINT_WORD_BREAK;
-  int origBreak = flags & COMMENT_PRINT_ORIG_BREAK;
-  int lineCnt = 0;
-  const char *zLine;
 
-  if( legacy ){
-    return comment_print_legacy(zText, indent, width);
-  }
-  if( width<0 ){
-    comment_set_maxchars(indent, &maxChars);
-  }
-  if( zText==0 ) zText = "(NULL)";
-  if( maxChars<=0 ){
-    maxChars = strlen(zText);
-  }
-  if( trimSpace ){
-    while( fossil_isspace(zText[0]) ){ zText++; }
-  }
-  if( zText[0]==0 ){
-    fossil_print("\n");
-    lineCnt++;
+  if( flags & COMMENT_PRINT_CANONICAL ){
+    /* Use the canonical algorithm.  This is what happens in almost
+    ** all cases. */
+    return comment_print_canonical(zText, indent, width);
+  }else{
+    /* The remaining is a more complex formatting algorithm that is very
+    ** seldom used and is considered deprecated.
+    */
+    int trimCrLf = flags & COMMENT_PRINT_TRIM_CRLF;
+    int trimSpace = flags & COMMENT_PRINT_TRIM_SPACE;
+    int wordBreak = flags & COMMENT_PRINT_WORD_BREAK;
+    int origBreak = flags & COMMENT_PRINT_ORIG_BREAK;
+    int lineCnt = 0;
+    const char *zLine;
+
+    if( width<0 ){
+      comment_set_maxchars(indent, &maxChars);
+    }
+    if( zText==0 ) zText = "(NULL)";
+    if( maxChars<=0 ){
+      maxChars = strlen(zText);
+    }
+    if( trimSpace ){
+      while( fossil_isspace(zText[0]) ){ zText++; }
+    }
+    if( zText[0]==0 ){
+      fossil_print("\n");
+      lineCnt++;
+      return lineCnt;
+    }
+    zLine = zText;
+    for(;;){
+      comment_print_line(zOrigText, zLine, indent, zLine>zText ? indent : 0,
+                         maxChars, trimCrLf, trimSpace, wordBreak, origBreak,
+                         &lineCnt, &zLine);
+      if( zLine==0 ) break;
+      while( fossil_isspace(zLine[0]) ) zLine++;
+      if( zLine[0]==0 ) break;
+    }
     return lineCnt;
   }
-  zLine = zText;
-  for(;;){
-    comment_print_line(zOrigText, zLine, indent, zLine>zText ? indent : 0,
-                       maxChars, trimCrLf, trimSpace, wordBreak, origBreak,
-                       &lineCnt, &zLine);
-    if( zLine==0 ) break;
-    while( fossil_isspace(zLine[0]) ) zLine++;
-    if( zLine[0]==0 ) break;
-  }
-  return lineCnt;
 }
 
 /*
 ** Return the "COMMENT_PRINT_*" flags specified by the following sources,
 ** evaluated in the following cascading order:
 **
-**    1. The global --comfmtflags (alias --comment-format) command-line option.
-**    2. The local (per-repository) "comment-format" setting.
-**    3. The global (all-repositories) "comment-format" setting.
-**    4. The default value COMMENT_PRINT_DEFAULT.
+**    1. The local (per-repository) "comment-format" setting.
+**    2. The global (all-repositories) "comment-format" setting.
+**    3. The default value COMMENT_PRINT_DEFAULT.
 */
 int get_comment_format(){
   int comFmtFlags;
@@ -691,50 +731,66 @@ int get_comment_format(){
 **
 ** COMMAND: test-comment-format
 **
-** Usage: %fossil test-comment-format ?OPTIONS? PREFIX TEXT ?ORIGTEXT?
+** Usage: %fossil test-comment-format [OPTIONS] TEXT [PREFIX] [ORIGTEXT]
 **
 ** Test comment formatting and printing.  Use for testing only.
 **
+** The default (canonical) formatting algorithm is:
+**
+**    *  Omit leading/trailing whitespace
+**    *  Collapse internal whitespace into a single space character.
+**    *  Attempt to break lines at whitespace or at a hyphen.
+**
+** Use --whitespace, --origbreak, --trimcrlf, --trimspace,
+** and/or --wordbreak to disable the canonical processing and do
+** the special processing specified by those other options.
+**
 ** Options:
-**   --file           The comment text is really just a file name to
-**                    read it from
-**   --decode         Decode the text using the same method used when
-**                    handling the value of a C-card from a manifest.
-**   --legacy         Use the legacy comment printing algorithm
-**   --trimcrlf       Enable trimming of leading/trailing CR/LF
-**   --trimspace      Enable trimming of leading/trailing spaces
-**   --wordbreak      Attempt to break lines on word boundaries
-**   --origbreak      Attempt to break when the original comment text
-**                    is detected
-**   --indent         Number of spaces to indent (default (-1) is to
-**                    auto-detect).  Zero means no indent.
-**   -W|--width NUM   Width of lines (default (-1) is to auto-detect).
-**                    Zero means no limit.
+**   --decode           Decode the text using the same method used when
+**                      handling the value of a C-card from a manifest.
+**   --file FILE        Omit the TEXT argument and read the comment text
+**                      from FILE.
+**   --indent           Number of spaces to indent (default (-1) is to
+**                      auto-detect).  Zero means no indent.
+**   --orig FILE        Take the value for the ORIGTEXT argumetn from FILE.
+**   --origbreak        Attempt to break when the original comment text
+**                      is detected.
+**   --trimcrlf         Enable trimming of leading/trailing CR/LF.
+**   --trimspace        Enable trimming of leading/trailing spaces.
+**   --whitespace       Keep all internal whitespace.
+**   --wordbreak        Attempt to break lines on word boundaries.
+**   -W|--width NUM     Width of lines (default (-1) is to auto-detect).
+**                      Zero means no limit.
 */
 void test_comment_format(void){
   const char *zWidth;
   const char *zIndent;
-  const char *zPrefix;
-  char *zText;
-  char *zOrigText;
+  const char *zPrefix = 0;
+  char *zText = 0;
+  char *zOrigText = 0;
   int indent, width;
-  int fromFile = find_option("file", 0, 0)!=0;
+  int i;
+  const char *fromFile = find_option("file", 0, 1);
   int decode = find_option("decode", 0, 0)!=0;
-  int flags = COMMENT_PRINT_NONE;
-  if( find_option("legacy", 0, 0) ){
-    flags |= COMMENT_PRINT_LEGACY;
+  int flags = COMMENT_PRINT_CANONICAL;
+  const char *fromOrig = find_option("orig", 0, 1);
+  if( find_option("whitespace",0,0) ){
+    flags = 0;
   }
   if( find_option("trimcrlf", 0, 0) ){
-    flags |= COMMENT_PRINT_TRIM_CRLF;
+    flags = COMMENT_PRINT_TRIM_CRLF;
   }
   if( find_option("trimspace", 0, 0) ){
     flags |= COMMENT_PRINT_TRIM_SPACE;
+    flags &= COMMENT_PRINT_CANONICAL;
   }
   if( find_option("wordbreak", 0, 0) ){
     flags |= COMMENT_PRINT_WORD_BREAK;
+    flags &= COMMENT_PRINT_CANONICAL;
   }
   if( find_option("origbreak", 0, 0) ){
     flags |= COMMENT_PRINT_ORIG_BREAK;
+    flags &= COMMENT_PRINT_CANONICAL;
   }
   zWidth = find_option("width","W",1);
   if( zWidth ){
@@ -749,26 +805,33 @@ void test_comment_format(void){
     indent = -1; /* automatic */
   }
   verify_all_options();
-  if( g.argc!=4 && g.argc!=5 ){
-    usage("?OPTIONS? PREFIX TEXT ?ORIGTEXT?");
-  }
-  zPrefix = g.argv[2];
-  zText = g.argv[3];
-  if( g.argc==5 ){
-    zOrigText = g.argv[4];
-  }else{
-    zOrigText = 0;
-  }
+  zPrefix = zText = zOrigText = 0;
   if( fromFile ){
     Blob fileData;
-    blob_read_from_file(&fileData, zText, ExtFILE);
+    blob_read_from_file(&fileData, fromFile, ExtFILE);
     zText = mprintf("%s", blob_str(&fileData));
     blob_reset(&fileData);
-    if( zOrigText ){
-      blob_read_from_file(&fileData, zOrigText, ExtFILE);
-      zOrigText = mprintf("%s", blob_str(&fileData));
-      blob_reset(&fileData);
+  }
+  if( fromOrig ){
+    Blob fileData;
+    blob_read_from_file(&fileData, fromOrig, ExtFILE);
+    zOrigText = mprintf("%s", blob_str(&fileData));
+    blob_reset(&fileData);
+  }
+  for(i=2; i<g.argc; i++){
+    if( zText==0 ){
+      zText = g.argv[i];
+      continue;
     }
+    if( zPrefix==0 ){
+      zPrefix = g.argv[i];
+      continue;
+    }
+    if( zOrigText==0 ){
+      zOrigText = g.argv[i];
+      continue;
+    }
+    usage("[OPTIONS] TEXT [PREFIX] [ORIGTEXT]");
   }
   if( decode ){
     zText = mprintf(fromFile?"%z":"%s" /*works-like:"%s"*/, zText);
@@ -778,6 +841,7 @@ void test_comment_format(void){
       defossilize(zOrigText);
     }
   }
+  if( zPrefix==0 ) zPrefix = "00:00:00 ";
   if( indent<0 ){
     indent = strlen(zPrefix);
   }
@@ -786,6 +850,4 @@ void test_comment_format(void){
   }
   fossil_print("(%d lines output)\n",
                comment_print(zText, zOrigText, indent, width, flags));
-  if( zOrigText && zOrigText!=g.argv[4] ) fossil_free(zOrigText);
-  if( zText && zText!=g.argv[3] ) fossil_free(zText);
 }

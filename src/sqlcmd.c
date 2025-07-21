@@ -237,6 +237,7 @@ static int sqlcmd_autoinit(
     sqlite3_exec(db, zSql, 0, 0, 0);
     sqlite3_free(zSql);
   }
+  (void)timeline_query_for_tty();  /* Registers wiki_to_text() as side-effect */
   /* Arrange to trace close operations so that static prepared statements
   ** will get cleaned up when the shell closes the database connection */
   if( g.fSqlTrace ) mTrace |= SQLITE_TRACE_PROFILE;

@@ -30,6 +30,7 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
   int i;
   Blob script;
   const char *zTempFile = 0;
+  int bDebug;
   char *zCmd;
   const char *zTclsh;
   zTclsh = find_option("tclsh",0,1);
@@ -40,10 +41,12 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
   ** be written into the FILENAME instead of being run.  This is used
   ** for testing and debugging. */
   zTempFile = find_option("script",0,1);
+  bDebug = find_option("tkdebug",0,0)!=0;
   verify_all_options();
 
   blob_zero(&script);
   blob_appendf(&script, "set ncontext %d\n", nContext);
+  blob_appendf(&script, "set fossilexe {\"%/\"}\n", g.nameOfExe);
   blob_appendf(&script, "set fossilcmd {| \"%/\" merge-info}\n",
                g.nameOfExe);
   blob_appendf(&script, "set filelist [list");
@@ -95,6 +98,7 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
   }
   blob_appendf(&script, "]\n");
   blob_appendf(&script, "set darkmode %d\n", bDark!=0);
+  blob_appendf(&script, "set debug %d\n", bDebug!=0);
   blob_appendf(&script, "%s", builtin_file("merge.tcl", 0));
   if( zTempFile ){
     blob_write_to_file(&script, zTempFile);
@@ -116,6 +120,10 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
 #endif
     zTempFile = write_blob_to_temp_file(&script);
     zCmd = mprintf("%$ %$", zTclsh, zTempFile);
+    if( bDebug ){
+      fossil_print("%s\n", zCmd);
+      fflush(stdout);
+    }
     fossil_system(zCmd);
     file_delete(zTempFile);
     fossil_free(zCmd);
@@ -131,8 +139,15 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
 **
 ** When this routine is called, we know that the mergestat table
 ** exists, but we do not know if zFName is mentioned in that table.
+**
+** The diffMode variable has these values:
+**
+**     0       Standard 3-way diff
+**     12      2-way diff between baseline and local
+**     13      2-way diff between baseline and merge-in
+**     23      2-way diff between local and merge-in
 */
-static void merge_info_tcl(const char *zFName, int nContext){
+static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
   const char *zTreename;/* Name of the file in the tree */
   Stmt q;               /* To query the MERGESTAT table */
   MergeBuilder mb;      /* The merge builder object */
@@ -157,78 +172,113 @@ static void merge_info_tcl(const char *zFName, int nContext){
   mergebuilder_init_tcl(&mb);
   mb.nContext = nContext;
 
-  /* Set up the pivot */
-  zFN = db_column_text(&q, 0);
-  if( zFN==0 ){
-    /* No pivot because the file was added */
-    mb.zPivot = "(no baseline)";
-    blob_zero(&pivot);
-  }else{
-    mb.zPivot = mprintf("%s (baseline)", file_tail(zFN));
-    rid = db_column_int(&q, 1);
-    content_get(rid, &pivot);
-  }
-  mb.pPivot = &pivot;
-
-  /* Set up the merge-in as V2 */
-  zFN = db_column_text(&q, 5);
-  if( zFN==0 ){
-    /* File deleted in the merged-in branch */
-    mb.zV2 = "(deleted file)";
-    blob_zero(&v2);
-  }else{
-    mb.zV2 = mprintf("%s (merge-in)", file_tail(zFN));
-    rid = db_column_int(&q, 6);
-    content_get(rid, &v2);
-  }
-  mb.pV2 = &v2;
-
-  /* Set up the local content as V1 */
-  zFN = db_column_text(&q, 2);
-  if( zFN==0 ){
-    /* File added by merge */
-    mb.zV1 = "(no original)";
-    blob_zero(&v1);
-  }else{
-    mb.zV1 = mprintf("%s (local)", file_tail(zFN));
-    rid = db_column_int(&q, 3);
-    sz = db_column_int(&q, 4);
-    if( rid==0 && sz>0 ){
-      /* The origin file had been edited so we'll have to pull its
-      ** original content out of the undo buffer */
-      Stmt q2;
-      db_prepare(&q2, 
-        "SELECT content FROM undo"
-        " WHERE pathname=%Q AND octet_length(content)=%d",
-        zFN, sz
-      );
-      blob_zero(&v1);
-      if( db_step(&q2)==SQLITE_ROW ){
-        db_column_blob(&q2, 0, &v1);
-      }else{
-        mb.zV1 = "(local content missing)";
-      }
-      db_finalize(&q2);
+  blob_zero(&pivot);
+  if( diffMode!=23 ){
+    /* Set up the pivot or baseline */
+    zFN = db_column_text(&q, 0);
+    if( zFN==0 ){
+      /* No pivot because the file was added */
+      mb.zPivot = "(no baseline)";
     }else{
-      /* The origin file was unchanged when the merge first occurred */
-      content_get(rid, &v1);
+      mb.zPivot = mprintf("%s (baseline)", file_tail(zFN));
+      rid = db_column_int(&q, 1);
+      content_get(rid, &pivot);
     }
+    mb.pPivot = &pivot;
   }
-  mb.pV1 = &v1;
 
-  /* Set up the output */
-  zFN = db_column_text(&q, 7);
-  if( zFN==0 ){
-    mb.zOut = "(Merge Result)";
-  }else{
-    mb.zOut = mprintf("%s (after merge)", file_tail(zFN));
+  blob_zero(&v2);
+  if( diffMode!=12 ){
+    /* Set up the merge-in as V2 */
+    zFN = db_column_text(&q, 5);
+    if( zFN==0 ){
+      /* File deleted in the merged-in branch */
+      mb.zV2 = "(deleted file)";
+    }else{
+      mb.zV2 = mprintf("%s (merge-in)", file_tail(zFN));
+      rid = db_column_int(&q, 6);
+      content_get(rid, &v2);
+    }
+    mb.pV2 = &v2;
   }
+
+  blob_zero(&v1);
+  if( diffMode!=13 ){
+    /* Set up the local content as V1 */
+    zFN = db_column_text(&q, 2);
+    if( zFN==0 ){
+      /* File added by merge */
+      mb.zV1 = "(no original)";
+    }else{
+      mb.zV1 = mprintf("%s (local)", file_tail(zFN));
+      rid = db_column_int(&q, 3);
+      sz = db_column_int(&q, 4);
+      if( rid==0 && sz>0 ){
+        /* The origin file had been edited so we'll have to pull its
+        ** original content out of the undo buffer */
+        Stmt q2;
+        db_prepare(&q2, 
+          "SELECT content FROM undo"
+          " WHERE pathname=%Q AND octet_length(content)=%d",
+          zFN, sz
+        );
+        blob_zero(&v1);
+        if( db_step(&q2)==SQLITE_ROW ){
+          db_column_blob(&q2, 0, &v1);
+        }else{
+          mb.zV1 = "(local content missing)";
+        }
+        db_finalize(&q2);
+      }else{
+        /* The origin file was unchanged when the merge first occurred */
+        content_get(rid, &v1);
+      }
+    }
+    mb.pV1 = &v1;
+  }
+
   blob_zero(&out);
-  mb.pOut = &out;
+  if( diffMode==0 ){
+    /* Set up the output and do a 3-way diff */
+    zFN = db_column_text(&q, 7);
+    if( zFN==0 ){
+      mb.zOut = "(Merge Result)";
+    }else{
+      mb.zOut = mprintf("%s (after merge)", file_tail(zFN));
+    }
+    mb.pOut = &out;
+    merge_three_blobs(&mb);
+  }else{
+    /* Set up to do a two-way diff */
+    Blob *pLeft, *pRight;
+    const char *zTagLeft, *zTagRight;
+    DiffConfig cfg;
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.diffFlags = DIFF_TCL;
+    cfg.nContext = mb.nContext;
+    if( diffMode==12 || diffMode==13 ){
+      pLeft = &pivot;
+      zTagLeft = "baseline";
+    }else{
+      pLeft = &v1;
+      zTagLeft = "local";
+    }
+    if( diffMode==12 ){
+      pRight = &v1;
+      zTagRight = "local";
+    }else{
+      pRight = &v2;
+      zTagRight = "merge-in";
+    }
+    cfg.azLabel[0] = mprintf("%s (%s)", zFName, zTagLeft);
+    cfg.azLabel[1] = mprintf("%s (%s)", zFName, zTagRight);
+    diff_print_filenames("", "", &cfg, &out);
+    text_diff(pLeft, pRight, &out, &cfg);
+    fossil_free((char*)cfg.azLabel[0]);
+    fossil_free((char*)cfg.azLabel[1]);
+  }
 
-  merge_three_blobs(&mb);
   blob_write_to_file(&out, "-");
-
   mb.xDestroy(&mb);
   blob_reset(&pivot);
   blob_reset(&v1);
@@ -252,13 +302,22 @@ static void merge_info_tcl(const char *zFName, int nContext){
 **                        with negative N meaning show all content.  Only
 **                        meaningful in combination with --tcl or --tk.
 **   --dark               Use dark mode for the Tcl/Tk-based GUI
+**   --tk                 Bring up a Tcl/Tk GUI that shows the changes
+**                        associated with the most recent merge.
+**
+** Options used internally by --tk:
+**   --diff12 FILE        Bring up a separate --tk diff for just the baseline
+**                        and local variants of FILE.
+**   --diff13 FILE        Like --diff12 but for baseline versus merge-in
+**   --diff23 FILE        Like --diff12 but for local versus merge-in
 **   --tcl FILE           Generate (to stdout) a TCL list containing
 **                        information needed to display the changes to
 **                        FILE caused by the most recent merge.  FILE must
 **                        be a pathname relative to the root of the check-out.
-**   --tk                 Bring up a Tcl/Tk GUI that shows the changes
-**                        associated with the most recent merge.
 **
+** Debugging options available only when --tk is used:
+**   --tkdebug            Show sub-commands run to implement --tk
+**   --script FILE        Write script used to implement --tk into FILE
 */
 void merge_info_cmd(void){
   const char *zCnt;
@@ -270,19 +329,25 @@ void merge_info_cmd(void){
   Stmt q;
   const char *zWhere;
   int cnt = 0;
+  const char *zDiff2 = 0;
+  int diffMode = 0;
 
   db_must_be_within_tree();
-  zTcl = find_option("tcl", 0, 1);
   bTk = find_option("tk", 0, 0)!=0;
+  zTcl = find_option("tcl", 0, 1);
   zCnt = find_option("context", "c", 1);
   bDark = find_option("dark", 0, 0)!=0;
   bAll = find_option("all", "a", 0)!=0;
-  if( bTk==0 ){
-    verify_all_options();
-    if( g.argc>2 ){
-      usage("[OPTIONS]");
-    }
+  if( (zDiff2 = find_option("diff12", 0, 1))!=0 ){
+    diffMode = 12;
+  }else
+  if( (zDiff2 = find_option("diff13", 0, 1))!=0 ){
+    diffMode = 13;
+  }else
+  if( (zDiff2 = find_option("diff23", 0, 1))!=0 ){
+    diffMode = 23;
   }
+
   if( zCnt ){
     nContext = atoi(zCnt);
     if( nContext<0 ) nContext = 0xfffffff;
@@ -302,9 +367,24 @@ void merge_info_cmd(void){
     return;
   }
   if( zTcl ){
-    merge_info_tcl(zTcl, nContext);
+    if( diffMode ) zTcl = zDiff2;
+    merge_info_tcl(zTcl, nContext, diffMode);
     return;
   }
+  if( diffMode ){
+    char *zCmd;
+    zCmd = mprintf("merge-info --diff%d %!$ -c %d%s",
+                   diffMode, zDiff2, nContext, bDark ? " --dark" : "");
+    diff_tk(zCmd, g.argc);
+    fossil_free(zCmd);
+    return;
+  }
+
+  verify_all_options();
+  if( g.argc>2 ){
+    usage("[OPTIONS]");
+  }
+
   if( bAll ){
     zWhere = "";
   }else{

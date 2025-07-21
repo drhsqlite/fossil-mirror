@@ -334,6 +334,7 @@ proc get_all_settings {} {
       fileedit-glob \
       forbid-delta-manifests \
       forum-close-policy \
+      forum-title \
       gdiff-command \
       gmerge-command \
       hash-digits \
@@ -357,6 +358,7 @@ proc get_all_settings {} {
       pgp-command \
       preferred-diff-type \
       proxy \
+      raw-bgcolor \
       redirect-to-https \
       relative-paths \
       repo-cksum \
@@ -374,8 +376,15 @@ proc get_all_settings {} {
       th1-setup \
       th1-uri-regexp \
       ticket-default-report \
+      timeline-hard-newlines \
+      timeline-plaintext \
+      timeline-truncate-at-blank \
+      timeline-tslink-info \
+      timeline-utc \
       user-color-map \
+      verify-comments \
       uv-sync \
+      vuln-report \
       web-browser]
 
   fossil test-th-eval "hasfeature legacyMvRm"

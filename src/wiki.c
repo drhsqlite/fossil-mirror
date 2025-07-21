@@ -23,6 +23,9 @@
 #include <ctype.h>
 #include "wiki.h"
 
+#define has_prefix(literal_prfx, zStr) \
+  (fossil_strncmp((zStr), "" literal_prfx, (sizeof literal_prfx)-1)==0)
+
 /*
 ** Return true if the input string is a well-formed wiki page name.
 **
@@ -412,6 +415,7 @@ void wiki_srchpage(void){
 # define WIKITYPE_BRANCH     1
 # define WIKITYPE_CHECKIN    2
 # define WIKITYPE_TAG        3
+# define WIKITYPE_TICKET     4
 #endif
 
 /*
@@ -421,16 +425,19 @@ int wiki_page_type(const char *zPageName){
   if( db_get_boolean("wiki-about",1)==0 ){
     return WIKITYPE_NORMAL;
   }else
-  if( sqlite3_strglob("checkin/*", zPageName)==0
+  if( has_prefix("checkin/", zPageName)
    && db_exists("SELECT 1 FROM blob WHERE uuid=%Q",zPageName+8)
   ){
     return WIKITYPE_CHECKIN;
   }else
-  if( sqlite3_strglob("branch/*", zPageName)==0 ){
+  if( has_prefix("branch/", zPageName) ){
     return WIKITYPE_BRANCH;
   }else
-  if( sqlite3_strglob("tag/*", zPageName)==0 ){
+  if( has_prefix("tag/", zPageName) ){
     return WIKITYPE_TAG;
+  }else
+  if( has_prefix("ticket/", zPageName) ){
+    return WIKITYPE_TICKET;
   }
   return WIKITYPE_NORMAL;
 }
@@ -444,6 +451,7 @@ const char * wiki_page_type_name(const char *zPageName){
     case WIKITYPE_CHECKIN: return "checkin";
     case WIKITYPE_BRANCH: return "branch";
     case WIKITYPE_TAG: return "tag";
+    case WIKITYPE_TICKET: return "ticket";
     case WIKITYPE_NORMAL:
     default: return "normal";
   }
@@ -503,6 +511,16 @@ static int wiki_page_header(
       }
       break;
     }
+    case WIKITYPE_TICKET: {
+      zPageName += 7;
+      if( zExtra[0]==0 && !P("p") ){
+        cgi_redirectf("%R/tktview/%s",zPageName);
+      }else{
+        style_header("Notes About Ticket %h", zPageName);
+        style_submenu_element("Ticket","%R/tktview/%s",zPageName);
+      }
+      break;
+    }
   }
   return eType;
 }
@@ -518,11 +536,15 @@ static int wiki_special_permission(const char *zPageName){
   if( strncmp(zPageName,"branch/",7)!=0
    && strncmp(zPageName,"checkin/",8)!=0
    && strncmp(zPageName,"tag/",4)!=0
+   && strncmp(zPageName,"ticket/",7)!=0
   ){
     return 1;
   }
   if( db_get_boolean("wiki-about",1)==0 ){
     return 1;
+  }
+  if( strncmp(zPageName,"ticket/",7)==0 ){
+    return g.perm.WrTkt;
   }
   return g.perm.Write;
 }
@@ -1970,7 +1992,8 @@ void wcontent_page(void){
   cgi_check_for_malice();
   showCkBr = db_exists(
     "SELECT tag.tagname AS tn FROM tag JOIN tagxref USING(tagid) "
-    "WHERE ( tn GLOB 'wiki-checkin/*' OR tn GLOB 'wiki-branch/*' ) "
+    "WHERE ( tn GLOB 'wiki-checkin/*' OR tn GLOB 'wiki-branch/*' OR "
+    "        tn GLOB 'wiki-tag/*'     OR tn GLOB 'wiki-ticket/*' ) "
     "  AND TYPEOF(tagxref.value+0)='integer'" );
   if( showCkBr ){
     showCkBr = P("showckbr")!=0;
@@ -2000,14 +2023,16 @@ void wcontent_page(void){
     char *zWDisplayName;
 
     if( !showCkBr &&
-        (sqlite3_strglob("checkin/*", zWName)==0 ||
-         sqlite3_strglob("branch/*", zWName)==0) ){
+        (has_prefix("checkin/", zWName) ||
+         has_prefix("branch/",  zWName) ||
+         has_prefix("tag/",     zWName) ||
+         has_prefix("ticket/",  zWName) )){
       continue;
     }
-    if( sqlite3_strglob("checkin/*", zWName)==0 ){
+    if( has_prefix("checkin/",zWName) || has_prefix("ticket/",zWName) ){
       zWDisplayName = mprintf("%.25s...", zWName);
     }else{
-      zWDisplayName = mprintf("%s", zWName);
+      zWDisplayName = fossil_strdup(zWName);
     }
     if( wrid==0 ){
       if( !showAll ) continue;
@@ -2503,8 +2528,10 @@ void wiki_cmd(void){
         continue;
       }
       if( !showCkBr &&
-          (sqlite3_strglob("checkin/*", zName)==0 ||
-           sqlite3_strglob("branch/*", zName)==0) ){
+          (has_prefix("checkin/", zName) ||
+           has_prefix("branch/",  zName) ||
+           has_prefix("tag/",     zName) ||
+           has_prefix("ticket/",  zName) ) ){
         continue;
       }
       if( showIds ){
@@ -2553,13 +2580,29 @@ static void wiki_section_label(
 /*
 ** Add an "Wiki" button in a submenu that links to the read-wiki page.
 */
-static void wiki_submenu_to_edit_wiki(
+static void wiki_submenu_to_read_wiki(
   const char *zPrefix,   /* "branch", "tag", or "checkin" */
   const char *zName,     /* Name of the object */
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
-  if( g.perm.RdWiki && (mFlags & WIKIASSOC_MENU_READ)!=0 ){
-    style_submenu_element("Wiki", "%R/wikiedit?name=%s/%t", zPrefix, zName);
+  if( g.perm.RdWiki && (mFlags & WIKIASSOC_MENU_READ)!=0
+      && 0!=fossil_strcmp("branch", zPrefix)
+      /* ^^^ https://fossil-scm.org/forum/forumpost/ff453de2f30791dd */
+  ){
+    style_submenu_element("Wiki", "%R/wiki?name=%s/%t", zPrefix, zName);
+  }
+}
+
+/*
+** Add an "Edit Wiki" button in a submenu that links to the edit-wiki page.
+*/
+static void wiki_submenu_to_edit_wiki(
+  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zName,     /* Name of the object */
+  unsigned int mFlags   /* Zero or more WIKIASSOC_* flags */
+){
+  if( g.perm.WrWiki && (mFlags & WIKIASSOC_MENU_WRITE)!=0 ){
+    style_submenu_element("Edit Wiki", "%R/wikiedit?name=%s/%t", zPrefix, zName);
   }
 }
 
@@ -2571,7 +2614,7 @@ static void wiki_submenu_to_edit_wiki(
 ** If there is no such wiki page, return false.
 */
 int wiki_render_associated(
-  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zPrefix,   /* "branch", "tag", "ticket", or "checkin" */
   const char *zName,     /* Name of the object */
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
@@ -2603,6 +2646,7 @@ int wiki_render_associated(
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
     }
+    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
     wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
     @ <div class="accordion_panel">
     safe_html_context(DOCSRC_WIKI);

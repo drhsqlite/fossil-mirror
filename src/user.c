@@ -300,7 +300,7 @@ char *prompt_for_user_password(const char *zUser){
 void prompt_user(const char *zPrompt, Blob *pIn){
   char *z;
   char zLine[1000];
-  blob_zero(pIn);
+  blob_init(pIn, 0, 0);
   fossil_force_newline();
   fossil_print("%s", zPrompt);
   fflush(stdout);
@@ -328,13 +328,19 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **
 **        Query or set contact information for user USERNAME
 **
-** > fossil user default ?USERNAME?
+** > fossil user default ?OPTIONS? ?USERNAME?
 **
 **        Query or set the default user.  The default user is the
-**        user for command-line interaction.
+**        user for command-line interaction.  If USERNAME is an
+**        empty string, then the default user is unset from the
+**        repository and will subsequently be determined by the -U
+**        command-line option or by environment variables
+**        FOSSIL_USER, USER, LOGNAME, or USERNAME, in that order.
+**        OPTIONS:
 **
-** > fossil user list
-** > fossil user ls
+**            -v|--verbose        Show how the default user is computed
+**
+** > fossil user list | ls
 **
 **        List all users known to the repository
 **
@@ -388,17 +394,46 @@ void user_cmd(void){
     db_protect_pop();
     free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
-    if( g.argc==3 ){
-      user_select();
-      fossil_print("%s\n", g.zLogin);
-    }else{
-      if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.argv[3]) ){
-        fossil_fatal("no such user: %s", g.argv[3]);
-      }
-      if( g.localOpen ){
-        db_lset("default-user", g.argv[3]);
+    int eVerbose = find_option("verbose","v",0)!=0;
+    verify_all_options();
+    if( g.argc>3 ){
+      const char *zUser = g.argv[3];
+      if( fossil_strcmp(zUser,"")==0 || fossil_stricmp(zUser,"nobody")==0 ){
+        db_begin_transaction();
+        if( g.localOpen ){
+          db_multi_exec("DELETE FROM vvar WHERE name='default-user'");
+        }
+        db_unset("default-user",0);
+        db_commit_transaction();
       }else{
-        db_set("default-user", g.argv[3], 0);
+        if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.argv[3]) ){
+          fossil_fatal("no such user: %s", g.argv[3]);
+        }
+        if( g.localOpen ){
+          db_lset("default-user", g.argv[3]);
+        }else{
+          db_set("default-user", g.argv[3], 0);
+        }
+      }
+    }
+    if( g.argc==3 || eVerbose ){
+      int eHow = user_select();
+      const char *zHow = "???";
+      switch( eHow ){
+        case 1:  zHow = "-U option"; break;
+        case 2:  zHow = "previously set"; break;
+        case 3:  zHow = "local check-out"; break;
+        case 4:  zHow = "repository"; break;
+        case 5:  zHow = "FOSSIL_USER"; break;
+        case 6:  zHow = "USER"; break;
+        case 7:  zHow = "LOGNAME"; break;
+        case 8:  zHow = "USERNAME"; break;
+        case 9:  zHow = "URL"; break;
+      }
+      if( eVerbose ){
+        fossil_print("%s (determined by %s)\n", g.zLogin, zHow);
+      }else{
+        fossil_print("%s\n", g.zLogin);
       }
     }
   }else if(( n>=2 && strncmp(g.argv[2],"list",n)==0 ) ||
@@ -499,48 +534,50 @@ static int attempt_user(const char *zLogin){
 **
 **   (1)  Use the --user and -U command-line options.
 **
-**   (2)  If the local database is open, check in VVAR.
+**   (2)  The name used for login (if there was a login).
 **
-**   (3)  Check the default user in the repository
+**   (3)  If the local database is open, check in VVAR.
 **
-**   (4)  Try the FOSSIL_USER environment variable.
+**   (4)  Check the default-user in the repository
 **
-**   (5)  Try the USER environment variable.
+**   (5)  Try the FOSSIL_USER environment variable.
 **
-**   (6)  Try the LOGNAME environment variable.
+**   (6)  Try the USER environment variable.
 **
-**   (7)  Try the USERNAME environment variable.
+**   (7)  Try the LOGNAME environment variable.
 **
-**   (8)  Check if the user can be extracted from the remote URL.
+**   (8)  Try the USERNAME environment variable.
+**
+**   (9)  Check if the user can be extracted from the remote URL.
 **
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
-void user_select(void){
+int user_select(void){
   UrlData url;
-  if( g.userUid ) return;
+  if( g.userUid ) return 1;
   if( g.zLogin ){
     if( attempt_user(g.zLogin)==0 ){
       fossil_fatal("no such user: %s", g.zLogin);
     }else{
-      return;
+      return 2;
     }
   }
 
-  if( g.localOpen && attempt_user(db_lget("default-user",0)) ) return;
+  if( g.localOpen && attempt_user(db_lget("default-user",0)) ) return 3;
 
-  if( attempt_user(db_get("default-user", 0)) ) return;
+  if( attempt_user(db_get("default-user", 0)) ) return 4;
 
-  if( attempt_user(fossil_getenv("FOSSIL_USER")) ) return;
+  if( attempt_user(fossil_getenv("FOSSIL_USER")) ) return 5;
 
-  if( attempt_user(fossil_getenv("USER")) ) return;
+  if( attempt_user(fossil_getenv("USER")) ) return 6;
 
-  if( attempt_user(fossil_getenv("LOGNAME")) ) return;
+  if( attempt_user(fossil_getenv("LOGNAME")) ) return 7;
 
-  if( attempt_user(fossil_getenv("USERNAME")) ) return;
+  if( attempt_user(fossil_getenv("USERNAME")) ) return 8;
 
   memset(&url, 0, sizeof(url));
   url_parse_local(0, URL_USE_CONFIG, &url);
-  if( url.user && attempt_user(url.user) ) return;
+  if( url.user && attempt_user(url.user) ) return 9;
 
   fossil_print(
     "Cannot figure out who you are!  Consider using the --user\n"

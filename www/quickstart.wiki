@@ -16,16 +16,14 @@ someplace on your $PATH.
 You can test that Fossil is present and working like this:
 
 <pre><b>fossil version
-This is fossil version 2.13 [309af345ab] 2020-09-28 04:02:55 UTC
+This is fossil version 2.25 [8f798279d5] 2024-11-06 12:59:09 UTC
 </b></pre>
 
 <h2 id="workflow" name="fslclone">General Work Flow</h2>
 
-Fossil works with repository files (a database in a single file with the project's
-complete history) and with checked-out local trees (the working directory
-you use to do your work). 
-(See [./glossary.md | the glossary] for more background.)
-The workflow looks like this:
+Fossil works with [./glossary.md#repository | repository files]
+and [./glossary.md#check-out | check-out directories] using a
+workflow like this:
 
 <ul>
     <li>Create or clone a repository file.  ([/help/init|fossil init] or
@@ -43,25 +41,50 @@ operations.
 
 <h2 id="new">Starting A New Project</h2>
 
-To start a new project with fossil create a new empty repository
-this way: ([/help/init | more info])
+To start a new project with Fossil, [/help/init | create a new empty repository]:
 
 <pre><b>fossil init</b> <i>repository-filename</i>
 </pre>
 
 You can name the database anything you like, and you can place it anywhere in the filesystem.
-The <tt>.fossil</tt> extension is traditional but only required if you are going to use the 
-<tt>[/help/server | fossil server DIRECTORY]</tt> feature.”
+The <tt>.fossil</tt> extension is traditional, but it is only required if you are going to use the 
+<tt>[/help/server | fossil server DIRECTORY]</tt> feature.
+
+Next, do something along the lines of:
+
+<pre>
+<b>mkdir -p ~/src/project/trunk</b>
+<b>cd ~/src/project/trunk</b>
+<b>fossil open</b> <i>repository-filename</i>
+<b>fossil add</b> foo.c bar.h qux.md
+<b>fossil commit</b>
+</pre>
+
+If your project directory already exists, obviating the <b>mkdir</b>
+step, you will instead need to add the <tt>--force</tt> flag to the
+<b>open</b> command to authorize Fossil to open the repo into a
+non-empty checkout directory. (This is to avoid accidental opens into,
+for example, your home directory.)
+
+The convention of naming your checkout directory after a long-lived
+branch name like "trunk" is in support of Fossil's ability to have as
+many open checkouts as you like. This author frequently has additional
+checkout directories named <tt>../release</tt>, <tt>../scratch</tt>,
+etc. The release directory is open to the branch of the same name, while
+the scratch directory is used when disturbing one of the other
+long-lived checkout directories is undesireable, as when performing a
+[/help/bisect | bisect] operation.
+
 
 <h2 id="clone">Cloning An Existing Repository</h2>
 
 Most fossil operations interact with a repository that is on the
 local disk drive, not on a remote system.  Hence, before accessing
 a remote repository it is necessary to make a local copy of that
-repository.  Making a local copy of a remote repository is called
-"cloning".
+repository, a process called
+"[/help/clone | cloning]".
 
-Clone a remote repository as follows: ([/help/clone | more info])
+This is done as follows:
 
 <pre><b>fossil clone</b> <i>URL repository-filename</i>
 </pre>
@@ -83,8 +106,16 @@ Extra delta compression...
 Vacuuming the database... 
 project-id: 94259BB9F186226D80E49D1FA2DB29F935CCA0333
 server-id:  016595e9043054038a9ea9bc526d7f33f7ac0e42
-admin-user: exampleuser (password is "yoWgDR42iv")>
+admin-user: exampleuser (intial remote-access password is "yoWgDR42iv")>
 </b></pre>
+
+This <i>exampleuser</i> will be used by Fossil as the author of commits when
+you checkin changes to the repository.  It is also used by Fossil when you
+make your repository available to others using the built-in server mode by
+running <tt>[/help/server | fossil server]</tt> and will also be used when
+running <tt>[/help/ui | fossil ui]</tt> to view the repository through 
+the Fossil UI.  See the quick start topic for setting up a
+<a href="#server">server</a> for more details.
 
 If the remote repository requires a login, include a
 userid in the URL like this:
@@ -129,12 +160,11 @@ Fossil can also import [https://subversion.apache.org/|Subversion projects] dire
 
 To work on a project in fossil, you need to check out a local
 copy of the source tree.  Create the directory you want to be
-the root of your tree and cd into that directory.  Then
-do this: ([/help/open | more info])
+the root of your tree, <tt>cd</tt> into that directory, and then:
 
 <pre><b>fossil open</b> <i>repository-filename</i></pre>
 
-for example:
+For example:
 
 <pre><b>fossil open ../myclone.fossil
     BUILD.txt
@@ -142,8 +172,6 @@ for example:
     README.md
       ︙
 </tt></b></pre>
-
-(or "fossil open ..\myclone.fossil" on Windows).
 
 This leaves you with the newest version of the tree
 checked out.
@@ -170,7 +198,7 @@ for example, to do builds from multiple branches or versions at
 the same time without having to generate extra clones.
 
 To switch a checkout between different versions and branches,
-use:<
+use:
 
 <pre>
 <b>[/help/update | fossil update]</b>
@@ -296,37 +324,56 @@ This will get you started on identifying checkins. The
 <a href="./checkin_names.wiki">Checkin Names document</a> is a complete reference, including
 how timestamps can also be used.
 
-<h2 id="config">Configuring Your Local Repository</h2>
+<h2 id="config">Accessing Your Local Repository's Web User Interface</h2>
 
-When you create a new repository, either by cloning an existing
-project or create a new project of your own, you usually want to do some
-local configuration.  This is easily accomplished using the web-server
-that is built into fossil.  Start the fossil web server like this:
-([/help/ui | more info])
+After you create a new repository, you usually want to do some local
+configuration.  This is most easily accomplished by firing up the Fossil
+UI:
 
 <pre>
 <b>fossil ui</b> <i>repository-filename</i>
 </pre>
 
-You can omit the <i>repository-filename</i> from the command above
+You can shorten that to just [/help/ui | <b>fossil ui</b>]
 if you are inside a checked-out local tree.
 
-This starts a web server then automatically launches your
-web browser and makes it point to this web server.  If your system
-has an unusual configuration, fossil might not be able to figure out
-how to start your web browser.  In that case, first tell fossil
-where to find your web browser using a command like this:
+This command starts an internal web server, after which Fossil
+automatically launches your default browser, pointed at itself,
+presenting a special view of the repository, its web user interface.
+
+You may override Fossil's logic for selecting the default browser so:
 
 <pre>
 <b>fossil setting web-browser</b> <i>path-to-web-browser</i>
 </pre>
 
-By default, fossil does not require a login for HTTP connections
-coming in from the IP loopback address 127.0.0.1.  You can, and perhaps
-should, change this after you create a few users.
+When launched this way, Fossil binds its internal web server to the IP
+loopback address, 127.0.0.1, which it treats specially, bypassing all
+user controls, effectively giving visitors the
+[./caps/admin-v-setup.md#apsu | all-powerful Setup capabliity].
 
-When you are finished configuring, just press Control-C or use
-the <b>kill</b> command to shut down the mini-server.
+Why is that a good idea, you ask? Because it is a safe
+presumption that only someone with direct file access to the repository
+database file could be using the resulting web interface. Anyone who can
+modify the repo DB directly could give themselves any and all access
+with a SQL query, or even by direct file manipulation; no amount of
+access control matters to such a user.
+
+(Contrast the [#server | many <i>other</i> ways] of setting Fossil up
+as an HTTP server, where the repo DB is on the other side of the HTTP
+server wall, inaccessible by all means other than Fossil's own
+mediation. For this reason, the "localhost bypasses access control"
+policy does <i>not</i> apply to these other interfaces. That is a very
+good thing, since without this difference in policy, it would be unsafe
+to bind a [/help?cmd=server | <b>fossil server</b>] instance to
+localhost on a high-numbered port and then reverse-proxy it out to the
+world via HTTPS, a practice this author does engage in, with confidence.)
+
+Once you are finished configuring Fossil, you may safely Control-C out
+of the <b>fossil&nbsp;ui</b> command to shut down this privileged
+built-in web server. Moreover, you may by grace of SQLite do this <i>at
+any time</i>: all changes are either committed durably to the repo DB or
+rolled back, in their totality. This includes configuration changes.
 
 <h2 id="sharing">Sharing Changes</h2>
 
@@ -386,12 +433,8 @@ flag is used.
 
 <h2 id="branch" name="merge">Branching And Merging</h2>
 
-Use the --branch option to the [/help/commit | commit] command
-to start a new branch.  Note that in Fossil, branches are normally
-created when you commit, not before you start editing.  You can
-use the [/help/branch | branch new] command to create a new branch
-before you start editing, if you want, but most people just wait
-until they are ready to commit.
+Use the --branch option to the [/help/commit | commit] command to start
+a new branch at the point of need. ([./gitusers.md#bneed | Contrast git].)
 
 To merge two branches back together, first
 [/help/update | update] to the branch you want to merge into.
@@ -444,51 +487,40 @@ level of undo/redo.
 
 <h2 id="server">Setting Up A Server</h2>
 
-Fossil can act as a stand-alone web server using one of these
-commands:
+In addition to the inward-facing <b>fossil ui</b> mode covered [#config
+| above], Fossil can also act as an outward-facing web server:
 
 <pre>
 <b>[/help/server | fossil server]</b> <i>repository-filename</i>
-<b>[/help/ui | fossil ui]</b> <i>repository-filename</i>
 </pre>
 
-The <i>repository-filename</i> can be omitted when these commands
-are run from within an open check-out, which is a particularly useful
-shortcut with the <b>fossil ui</b> command.
+Just as with <b>fossil ui</b>, you may omit the
+<i>repository-filename</i> parameter when running this from within an open
+check-out.
 
-The <b>ui</b> command is intended for accessing the web user interface
-from a local desktop. (We sometimes call this mode "Fossil UI.")
-The <b>ui</b> command differs from the
-<b>server</b> command by binding to the loopback IP
-address only (thus making the web UI visible only on the
-local machine) and by automatically starting your default web browser,
-pointing it at the running UI
-server. The localhost restriction exists because it also gives anyone
-who can access the resulting web UI full control over the
-repository. (This is the [./caps/admin-v-setup.md#apsu | all-powerful
-Setup capabliity].)
+<i>Unlike</i> <b>fossil ui</b> mode, Fossil binds to all network
+interfaces by default in this mode, and it enforces the configured
+[./caps/ | role-based access controls]. Further, because it is meant to
+provide external web service, it doesn't try to launch a local web
+browser pointing to a "Fossil UI" presentation; external visitors see
+your repository's configured home page instead.
 
-For cross-machine collaboration, use the <b>server</b> command instead,
-which binds on all IP addresses, does not try to start a web browser,
-and enforces [./caps/ | Fossil's role-based access control system].
-
-Servers are also easily configured as:
+To serve varying needs, there are additional ways to serve a Fossil repo
+to external users:
 
 <ul>
+<li>[./server/any/cgi.md|CGI], as used by Fossil's [./selfhost.wiki |
+    self-hosting repositories]
+<li>[./server/any/scgi.md|SCGI]
 <li>[./server/any/inetd.md|inetd]
 <li>[./server/debian/service.md|systemd]
-<li>[./server/any/cgi.md|CGI]
-<li>[./server/any/scgi.md|SCGI]
 </ul>
 
 …along with [./server/#matrix | several other options].
 
-The [./selfhost.wiki | self-hosting fossil repositories] use
-CGI.
-
-You might <i>need</i> to set up a server, whether you know it yet or
-not.  See the [./server/whyuseaserver.wiki | Benefits of a Fossil Server]
-article for details.
+We recommend that you read the [./server/whyuseaserver.wiki | Benefits
+of a Fossil Server] article, because you might <i>need</i> to do this
+and not yet know it.
 
 <h2 id="proxy">HTTP Proxies</h2>
 

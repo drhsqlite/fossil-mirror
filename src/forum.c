@@ -61,6 +61,7 @@ struct ForumThread {
   ForumPost *pDisplay;   /* Entries in display order */
   ForumPost *pTail;      /* Last on the display list */
   int mxIndent;          /* Maximum indentation level */
+  int nArtifact;         /* Number of forum artifacts in this thread */
 };
 #endif /* INTERFACE */
 
@@ -111,8 +112,13 @@ static int forumpost_head_rid(int rid){
 ** If bCheckIrt is true then p's thread in-response-to parents are
 ** checked (recursively) for closure, else only p is checked.
 */
-static int forumpost_is_closed(ForumPost *p, int bCheckIrt){
-  while(p){
+static int forumpost_is_closed(
+  ForumThread *pThread,          /* Thread that the post is a member of */
+  ForumPost *p,                  /* the forum post */
+  int bCheckIrt                  /* True to check In-Reply-To posts */
+){
+  int mx = pThread->nArtifact+1;
+  while( p && (mx--)>0 ){
     if( p->pEditHead ) p = p->pEditHead;
     if( p->iClosed || !bCheckIrt ) return p->iClosed;
     p = p->pIrt;
@@ -411,6 +417,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
       pThread->pLast->pNext = pPost;
     }
     pThread->pLast = pPost;
+    pThread->nArtifact++;
 
     /* Find the in-reply-to post.  Default to the topic post if the replied-to
     ** post cannot be found. */
@@ -522,6 +529,7 @@ void forumthread_cmd(void){
   fossil_print("fpid  = %d\n", fpid);
   fossil_print("froot = %d\n", froot);
   pThread = forumthread_create(froot, 1);
+  fossil_print("count = %d\n", pThread->nArtifact);
   fossil_print("Chronological:\n");
   fossil_print(
 /* 0         1         2         3         4         5         6         7    */
@@ -567,6 +575,7 @@ void forumthreadhashlist(void){
   ForumThread *pThread;
   ForumPost *p;
   char *fuuid;
+  Stmt q;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -601,6 +610,23 @@ void forumthreadhashlist(void){
   }
   forumthread_delete(pThread);
   @ </pre>
+  @ <hr>
+  @ <h2>Related FORUMPOST Table Content</h2>
+  @ <table border="1" cellpadding="4" cellspacing="0">
+  @ <tr><th>fpid<th>froot<th>fprev<th>firt<th>fmtime
+  db_prepare(&q, "SELECT fpid, froot, fprev, firt, datetime(fmtime)"
+                 "  FROM forumpost"
+                 " WHERE froot=%d"
+                 " ORDER BY fmtime", froot);
+  while( db_step(&q)==SQLITE_ROW ){
+    @ <tr><td>%d(db_column_int(&q,0))\
+    @ <td>%d(db_column_int(&q,1))\
+    @ <td>%d(db_column_int(&q,2))\
+    @ <td>%d(db_column_int(&q,3))\
+    @ <td>%h(db_column_text(&q,4))</tr>
+  }
+  @ </table>
+  db_finalize(&q);
   style_finish_page();
 }
 
@@ -727,6 +753,7 @@ static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
 ** Display a single post in a forum thread.
 */
 static void forum_display_post(
+  ForumThread *pThread, /* The thread that this post is a member of */
   ForumPost *p,         /* Forum post to display */
   int iIndentScale,     /* Indent scale factor */
   int bRaw,             /* True to omit the border */
@@ -749,10 +776,10 @@ static void forum_display_post(
   /* Get the manifest for the post.  Abort if not found (e.g. shunned). */
   pManifest = manifest_get(p->fpid, CFTYPE_FORUM, 0);
   if( !pManifest ) return;
-  iClosed = forumpost_is_closed(p, 1);
+  iClosed = forumpost_is_closed(pThread, p, 1);
   /* When not in raw mode, create the border around the post. */
   if( !bRaw ){
-    /* Open the <div> enclosing the post.  Set the class string to mark the post
+    /* Open the <div> enclosing the post. Set the class string to mark the post
     ** as selected and/or obsolete. */
     iIndent = (p->pEditHead ? p->pEditHead->nIndent : p->nIndent)-1;
     @ <div id='forum%d(p->fpid)' class='forumTime\
@@ -908,7 +935,8 @@ static void forum_display_post(
         login_insert_csrf_secret();
         @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
         if( moderation_pending(p->fpid)==0 ){
-          @ <input type="submit" value='%s(iClosed ? "Re-open" : "Close")' />
+          @ <input type="button" value='%s(iClosed ? "Re-open" : "Close")' \
+          @  class='%s(iClosed ? "action-reopen" : "action-close")'/>
         }
         @ </form>
       }
@@ -1029,7 +1057,7 @@ static void forum_display_thread(
   /* Display the appropriate subset of posts in sequence. */
   while( p ){
     /* Display the post. */
-    forum_display_post(p, iIndentScale, mode==FD_RAW,
+    forum_display_post(pThread, p, iIndentScale, mode==FD_RAW,
         bUnf, bHist, p==pSelect, zQuery);
 
     /* Advance to the next post in the thread. */
@@ -1089,7 +1117,8 @@ static void forum_display_thread(
 ** code (e.g. "forum.js").
 */
 static void forum_emit_js(void){
-  builtin_fossil_js_bundle_or("copybutton", "pikchr", NULL);
+  builtin_fossil_js_bundle_or("copybutton", "pikchr", "confirmer",
+                              NULL);
   builtin_request_js("fossil.page.forumpost.js");
 }
 
@@ -1832,7 +1861,6 @@ void forum_setup(void){
       @ <p>No non-supervisor moderators
   }else{
     Stmt q = empty_Stmt;
-    int nRows = 0;
     db_prepare(&q, "SELECT uid, login, cap FROM user "
                "WHERE cap GLOB '*5*' AND cap NOT GLOB '*[as6]*'"
                " ORDER BY login");
@@ -1843,7 +1871,6 @@ void forum_setup(void){
       const int iUid = db_column_int(&q, 0);
       const char *zUser = db_column_text(&q, 1);
       const char *zCap = db_column_text(&q, 2);
-      ++nRows;
       @ <tr>
       @ <td><a href='%R/setup_uedit?id=%d(iUid)'>%h(zUser)</a></td>
       @ <td>(%h(zCap))</td>

@@ -3,17 +3,17 @@
 If you run Fossil as root in any mode that [serves data on the
 network][srv], and you're running it on Unix or a compatible OS, Fossil
 will drop itself into a [`chroot(2)` jail][cj] shortly after starting
-up, once it's done everything that requires root access. Most commonly,
-you run Fossil as root to allow it to bind to TCP port 80 for HTTP
-service, since normal users are restricted to ports 1024 and up on OSes
-where this behavior occurs.
+up. The usual reason for launching Fossil 
+as root to allow it to bind to TCP port 80 for HTTP
+service, since normal users are restricted to ports 1024 and higher.
 
 Fossil uses the owner of the Fossil repository file as its new user
-ID when dropping root privileges.
+ID when it drops root privileges.
 
-When this happens, Fossil needs to have all of its dependencies inside
-the chroot jail in order to continue work.  There are several things you
-typically need in order to make things work properly:
+When Fossil enters a chroot jail, it needs to have all of its dependencies
+inside the chroot jail in order to continue work.  There are several
+resources that need to be inside the chroot jail with Fossil in order for
+Fossil to work correctly:
 
 *   the repository file(s)
 
@@ -29,9 +29,12 @@ typically need in order to make things work properly:
 *   any shared libraries your `fossil` binary is linked to, unless you
     [configured Fossil with `--static`][bld] to avoid it
 
-Fossil does all of this in order to protect the host OS. You can make it
-bypass the jail part of this by passing <tt>--nojail</tt> to <tt>fossil server</tt>,
-but you cannot make it skip the dropping of root privileges, on purpose.
+Fossil does all of this as one of many layers of defense against
+hacks and exploits. You can prevent Fossil from entering the chroot
+jail using the <tt>--nojail</tt> option to the 
+[fossil server command](/help?cmd=server)
+but you cannot make Fossil hold onto root privileges.  Fossil always drops
+root privilege before accepting inputs, for security.
 
 
 [bld]: https://fossil-scm.org/home/doc/trunk/www/build.wiki

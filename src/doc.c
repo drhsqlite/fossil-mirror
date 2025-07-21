@@ -641,7 +641,7 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
       char *zTitle = mprintf("%.*s", nValue, zValue);
       int i;
       for(i=0; fossil_isspace(zTitle[i]); i++){}
-      html_to_plaintext(zTitle+i, pTitle);
+      html_to_plaintext(zTitle+i, pTitle, 0);
       fossil_free(zTitle);
       seenTitle = 1;
       if( seenClass ) return 1;
@@ -790,7 +790,7 @@ void document_render(
   int isPopup = P("popup")!=0;
   blob_init(&title,0,0);
   if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
-    Blob tail;
+    Blob tail = BLOB_INITIALIZER;
     style_adunit_config(ADUNIT_RIGHT_OK);
     if( wiki_find_title(pBody, &title, &tail) ){
       if( !isPopup ) style_header("%s", blob_str(&title));
@@ -803,11 +803,13 @@ void document_render(
       document_emit_js();
       style_finish_page();
     }
+    blob_reset(&tail);
   }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(pBody, &title, &tail);
     if( !isPopup ){
       if( blob_size(&title)>0 ){
+        markdown_dehtmlize_blob(&title);
         style_header("%s", blob_str(&title));
       }else{
         style_header("%s", zDefaultTitle);
@@ -818,6 +820,7 @@ void document_render(
       document_emit_js();
       style_finish_page();
     }
+    blob_reset(&tail);
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("%s", zDefaultTitle);
     @ <blockquote><pre>
@@ -951,6 +954,7 @@ void doc_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_set_current_feature("doc");
   blob_init(&title, 0, 0);
+  blob_init(&filebody, 0, 0);
   zDfltTitle = isUV ? "" : "Documentation";
   db_begin_transaction();
   while( rid==0 && (++nMiss)<=count(azSuffix) ){
@@ -1050,7 +1054,7 @@ void doc_page(void){
   if( zMime==0 ){
     zMime = mimetype_from_name(zName);
   }
-  Th_Store("doc_name", zName);
+  Th_StoreUnsafe("doc_name", zName);
   if( vid ){
     Th_Store("doc_version", db_text(0, "SELECT '[' || substr(uuid,1,10) || ']'"
                                        "  FROM blob WHERE rid=%d", vid));
@@ -1061,6 +1065,8 @@ void doc_page(void){
   document_render(&filebody, zMime, zDfltTitle, zName);
   if( nMiss>=count(azSuffix) ) cgi_set_status(404, "Not Found");
   db_end_transaction(0);
+  blob_reset(&title);
+  blob_reset(&filebody);
   return;
 
   /* Jump here when unable to locate the document */
@@ -1077,6 +1083,8 @@ doc_not_found:
     @ in %z(href("%R/tree?ci=%T",zCheckin))%h(zCheckin)</a>
   }
   style_finish_page();
+  blob_reset(&title);
+  blob_reset(&filebody);
   return;
 }
 

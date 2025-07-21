@@ -321,7 +321,9 @@ static void ssl_global_init_client(void){
 ** currently set these options when building OpenSSL for Windows. */
 #if defined(_WIN32)
 #if OPENSSL_VERSION_NUMBER >= 0x030200000
-    if( SSL_CTX_load_verify_store(sslCtx, "org.openssl.winstore:")==0 ){
+    if( SSLeay()!=0x30500000  /* Don't use for 3.5.0 due to a bug */
+     && SSL_CTX_load_verify_store(sslCtx, "org.openssl.winstore:")==0
+    ){
       fossil_print("NOTICE: Failed to load the Windows root certificates.\n");
     }
 #endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
@@ -453,7 +455,14 @@ int ssl_open_client(UrlData *pUrlData){
     int rc;
     char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
     BIO *sBio = BIO_new_connect(connStr);
-    free(connStr);
+    if( g.fIPv4 ){
+#ifdef BIO_FAMILY_IPV4
+      BIO_set_conn_ip_family(sBio, BIO_FAMILY_IPV4);
+#else
+      fossil_warning("The --ipv4 option is not supported in this build\n");
+#endif
+    }
+    fossil_free(connStr);
     if( BIO_do_connect(sBio)<=0 ){
       ssl_set_errmsg("SSL: cannot connect to proxy %s:%d (%s)",
             pUrlData->name, pUrlData->port,
@@ -505,7 +514,14 @@ int ssl_open_client(UrlData *pUrlData){
   if( !pUrlData->useProxy ){
     char *connStr = mprintf("%s:%d", pUrlData->name, pUrlData->port);
     BIO_set_conn_hostname(iBio, connStr);
-    free(connStr);
+    fossil_free(connStr);
+    if( g.fIPv4 ){
+#ifdef BIO_FAMILY_IPV4
+      BIO_set_conn_ip_family(iBio, BIO_FAMILY_IPV4);
+#else
+      fossil_warning("The --ipv4 option is not supported in this build\n");
+#endif
+    }
     if( BIO_do_connect(iBio)<=0 ){
       ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
          pUrlData->name, pUrlData->port,
@@ -912,8 +928,8 @@ static void trust_location_usable(const char *zPath, const char **pzStore){
 #endif /* FOSSIL_ENABLE_SSL */
 
 /*
-** COMMAND: tls-config*
-** COMMAND: ssl-config
+** COMMAND: tls-config*                       abbrv-subcom
+** COMMAND: ssl-config                        abbrv-subcom
 **
 ** Usage: %fossil ssl-config [SUBCOMMAND] [OPTIONS...] [ARGS...]
 **
@@ -923,16 +939,16 @@ static void trust_location_usable(const char *zPath, const char **pzStore){
 **
 ** Sub-commands:
 **
-**   remove-exception DOMAINS    Remove TLS cert exceptions for the domains
-**                               listed.  Or remove them all if the --all
-**                               option is specified.
+**    remove-exception DOMAINS    Remove TLS cert exceptions for the domains
+**                                listed.  Or remove them all if the --all
+**                                option is specified.
 **
-**   scrub ?--force?             Remove all SSL configuration data from the
-**                               repository. Use --force to omit the
-**                               confirmation.
+**    scrub ?--force?             Remove all SSL configuration data from the
+**                                repository. Use --force to omit the
+**                                confirmation.
 **
-**   show ?-v?                   Show the TLS configuration. Add -v to see
-**                               additional explanation
+**    show ?-v?                   Show the TLS configuration. Add -v to see
+**                                additional explanation
 */
 void test_tlsconfig_info(void){
   const char *zCmd;
@@ -987,8 +1003,8 @@ void test_tlsconfig_info(void){
       );
     }
 #else
-    fossil_print("OpenSSL-version:      %s  (0x%09x)\n",
-         SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
+    fossil_print("OpenSSL-version:      %s  (0x%09llx)\n",
+         SSLeay_version(SSLEAY_VERSION), (unsigned long long)SSLeay());
     if( verbose ){
       fossil_print("\n"
          "  The version of the OpenSSL library being used\n"
@@ -1049,16 +1065,14 @@ void test_tlsconfig_info(void){
     }
 
 #if defined(_WIN32)
-#if OPENSSL_VERSION_NUMBER >= 0x030200000
-    fossil_print("  OpenSSL-winstore:   Yes\n");
-#else /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
-    fossil_print("  OpenSSL-winstore:   No\n");
-#endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
+    fossil_print("  OpenSSL-winstore:   %s\n",
+         (SSLeay()>=0x30200000 && SSLeay()!=0x30500000) ? "Yes" : "No");
     if( verbose ){
       fossil_print("\n"
-         "    OpenSSL 3.2.0, or newer, use the root certificates managed by\n"
-         "    the Windows operating system. The installed root certificates\n"
-         "    are listed by the command:\n\n"
+         "    OpenSSL 3.2.0, or newer, but not version 3.5.0 due to a bug,\n"
+         "    are able to use the root certificates managed by the Windows\n"
+         "    operating system. The installed root certificates are listed\n"
+         "    by the command:\n\n"
          "        certutil -store \"ROOT\"\n\n"
       );
     }
@@ -1220,7 +1234,7 @@ wellknown_notfound:
 char *fossil_openssl_version(void){
 #if defined(FOSSIL_ENABLE_SSL)
   return mprintf("%s (0x%09x)\n",
-         SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
+         SSLeay_version(SSLEAY_VERSION), (sqlite3_uint64)SSLeay());
 #else
   return mprintf("none");
 #endif

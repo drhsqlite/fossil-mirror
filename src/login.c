@@ -1301,7 +1301,6 @@ static int login_basic_authentication(const char *zIpAddr){
 **                      an empty string.
 */
 void login_restrict_robot_access(void){
-  const char *zReferer;
   const char *zGlob;
   int isMatch = 1;
   int nQP;  /* Number of query parameters other than name= */
@@ -1309,8 +1308,25 @@ void login_restrict_robot_access(void){
   zGlob = db_get("robot-restrict",0);
   if( zGlob==0 || zGlob[0]==0 ) return;
   if( g.isHuman ){
+    const char *zReferer;
+    const char *zAccept;
+    const char *zBr;
     zReferer = P("HTTP_REFERER");
     if( zReferer && zReferer[0]!=0 ) return;
+
+    /* Robots typically do not accept the brotli encoding, at least not
+    ** at the time of this writing (2025-04-01), but standard web-browser
+    ** all generally do accept brotli.  So if brotli is accepted,
+    ** assume we are not talking to a robot.  We might want to revisit this
+    ** heuristic in the future...
+    */
+    if( (zAccept = P("HTTP_ACCEPT_ENCODING"))!=0
+     && (zBr = strstr(zAccept,"br"))!=0
+     && !fossil_isalnum(zBr[2])
+     && (zBr==zAccept || !fossil_isalnum(zBr[-1]))
+    ){
+      return;
+    }
   }
   nQP = cgi_qp_count();
   if( nQP<1 ) return;
@@ -1402,7 +1418,7 @@ void login_check_credentials(void){
   if( ( cgi_is_loopback(zIpAddr)
        || (g.fSshClient & CGI_SSH_CLIENT)!=0 )
    && g.useLocalauth
-   && db_get_int("localauth",0)==0
+   && db_get_boolean("localauth",0)==0
    && P("HTTPS")==0
   ){
     char *zSeed;

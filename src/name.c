@@ -61,34 +61,73 @@ int fossil_isdate(const char *z){
 ** then return an alternative string (in static space) that is the same
 ** string with punctuation inserted.
 **
+** If the bRoundUp parameter is true, then round the resulting date-time
+** up to the largest date/time that is consistent with the input value.
+** This is because the result will be used for an mtime<=julianday($DATE)
+** comparison.  In other words:
+**
+**     20250317123421 -> 2025-03-17 12:34:21.999
+**                                          ^^^^--- Added
+**
+**     202503171234   -> 2025-03-17 12:34:59.999
+**                                       ^^^^^^^--- Added
+**     20250317       -> 2025-03-17 23:59:59.999
+**                                 ^^^^^^^^^^^^^--- Added
+**
 ** If the bVerifyNotAHash flag is true, then a check is made to see if
-** the string is a hash prefix and NULL is returned if it is.  If the
+** the input string is a hash prefix and NULL is returned if it is.  If the
 ** bVerifyNotAHash flag is false, then the result is determined by syntax
 ** of the input string only, without reference to the artifact table.
 */
-char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
-  static char zEDate[20];
+char *fossil_expand_datetime(const char *zIn,int bVerifyNotAHash,int bRoundUp){
+  static char zEDate[24];
   static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
   int n = (int)strlen(zIn);
   int i, j;
+  int addZulu = 0;
 
-  /* Only three forms allowed:
-  **   (1)  YYYYMMDD
-  **   (2)  YYYYMMDDHHMM
-  **   (3)  YYYYMMDDHHMMSS
+  /* These forms are allowed:
+  **
+  **        123456789 1234           123456789 123456789 1234
+  **   (1)  YYYYMMDD            =>   YYYY-MM-DD 23:59:59.999
+  **   (2)  YYYYMMDDHHMM        =>   YYYY-MM-DD HH:MM:59.999
+  **   (3)  YYYYMMDDHHMMSS      =>   YYYY-MM-DD HH:MM:SS.999
+  **
+  ** An optional "Z" zulu timezone designator is allowed at the end.
   */
-  if( n!=8 && n!=12 && n!=14 ) return 0;
+  if( n>0 && (zIn[n-1]=='Z' || zIn[n-1]=='z') ){
+    n--;
+    addZulu = 1;
+  }
+  if( n!=8 && n!=12 && n!=14 ){
+    return 0;
+  }
 
   /* Every character must be a digit */
   for(i=0; fossil_isdigit(zIn[i]); i++){}
-  if( i!=n ) return 0;
+  if( i!=n && (!addZulu || i!=n+1) ) return 0;
 
   /* Expand the date */
-  for(i=j=0; zIn[i]; i++){
+  for(i=j=0; i<n; i++){
     if( i>=4 && (i%2)==0 ){
       zEDate[j++] = aPunct[i/2];
     }
     zEDate[j++] = zIn[i];
+  }
+  if( bRoundUp ){
+    if( j==10 ){
+      memcpy(&zEDate[10], " 23:59:59.999", 13);
+      j += 13;
+    }else if( j==16 ){
+      memcpy(&zEDate[16], ":59.999",7);
+      j += 7;
+    }else if( j==19 ){
+      memcpy(&zEDate[19], ".999", 4);
+      j += 4;
+    }
+  }
+  if( addZulu ){
+    zEDate[j++] = 'Z';
   }
   zEDate[j] = 0;
 
@@ -113,7 +152,7 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
   }
 
   /* The string is not also a hash prefix */
-  if( bVerifyNotAHash ){
+  if( bVerifyNotAHash && !addZulu ){
     if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'",zIn) ) return 0;
   }
 
@@ -131,23 +170,36 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
 ** The returned string is held in a static buffer that is overwritten
 ** with each call, or else is just a copy of its input if there are
 ** no changes.
+**
+** For reference:
+**
+**        0123456789 123456789 1234
+**        YYYY-MM-DD HH:MM:SS.SSSz
 */
 const char *fossil_roundup_date(const char *zDate){
-  static char zUp[24];
+  static char zUp[28];
   int n = (int)strlen(zDate);
+  int addZ = 0;
+  if( n>10 && (zDate[n-1]=='z' || zDate[n-1]=='Z') ){
+    n--;
+    addZ = 1;
+  }
   if( n==19 ){  /* YYYY-MM-DD HH:MM:SS */
     memcpy(zUp, zDate, 19);
-    memcpy(zUp+19, ".999", 5);
+    memcpy(zUp+19, ".999z", 6);
+    if( !addZ ) zUp[23] = 0;
     return zUp;
   }
   if( n==16 ){ /* YYYY-MM-DD HH:MM */
     memcpy(zUp, zDate, 16);
-    memcpy(zUp+16, ":59.999", 8);
+    memcpy(zUp+16, ":59.999z", 8);
+    if( !addZ ) zUp[23] = 0;
     return zUp;
   }
   if( n==10 ){ /* YYYY-MM-DD */
     memcpy(zUp, zDate, 10);
-    memcpy(zUp+10, " 23:59:59.999", 14);
+    memcpy(zUp+10, " 23:59:59.999z", 14);
+    if( !addZ ) zUp[23] = 0;
     return zUp;
   }
   return zDate;
@@ -215,7 +267,7 @@ int start_of_branch(int rid, int eType){
 ** we want to use the query identified below as Q1 - which searches
 ** the most recent EVENT table entries for the most recent with the tag.
 ** But if the tag is relatively scarce (anything other than "trunk", basically)
-** then we want to do the indexed search show below as Q2.
+** then we want to do the indexed search shown below as Q2.
 */
 static int most_recent_event_with_tag(const char *zTag, const char *zType){
   return db_int(0,
@@ -455,13 +507,15 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
                       "  ORDER BY isprim DESC, mtime DESC", ridCkout);
     }else if( isCheckin>1 && fossil_strcmp(zTag, "ckout")==0 ){
       rid = RID_CKOUT;
+      assert(ridCkout>0);
+      g.localOpen = ridCkout;
     }
     if( rid ) return rid;
   }
 
   /* Date and times */
   if( memcmp(zTag, "date:", 5)==0 ){
-    zDate = fossil_expand_datetime(&zTag[5],0);
+    zDate = fossil_expand_datetime(&zTag[5],0,1);
     if( zDate==0 ) zDate = &zTag[5];
     rid = db_int(0,
       "SELECT objid FROM event"
@@ -527,7 +581,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   nTag = strlen(zTag);
   for(i=0; i<nTag-8 && zTag[i]!=':'; i++){}
   if( zTag[i]==':'
-   && (fossil_isdate(&zTag[i+1]) || fossil_expand_datetime(&zTag[i+1],0)!=0)
+   && (fossil_isdate(&zTag[i+1]) || fossil_expand_datetime(&zTag[i+1],0,0)!=0)
   ){
     char *zDate = mprintf("%s", &zTag[i+1]);
     char *zTagBase = mprintf("%.*s", i, zTag);
@@ -537,7 +591,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       zDate[nDate-3] = 'z';
       zDate[nDate-2] = 0;
     }
-    zXDate = fossil_expand_datetime(zDate,0);
+    zXDate = fossil_expand_datetime(zDate,0,1);
     if( zXDate==0 ) zXDate = zDate;
     rid = db_int(0,
       "SELECT event.objid, max(event.mtime)"
@@ -613,7 +667,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   }
 
   /* Pure numeric date/time */
-  zDate = fossil_expand_datetime(zTag, 0);
+  zDate = fossil_expand_datetime(zTag, 0,1);
   if( zDate ){
     rid = db_int(0,
       "SELECT objid FROM event"
@@ -668,6 +722,61 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 }
 
 /*
+** Convert a symbolic name used as an argument to the a=, b=, or c=
+** query parameters of timeline into a julianday mtime value.
+**
+** If pzDisplay is not null, then display text for the symbolic name might
+** be written into *pzDisplay.  But that is not guaranteed.
+**
+** If bRoundUp is true and the symbolic name is a timestamp with less
+** than millisecond resolution, then the timestamp is rounding up to the
+** largest millisecond consistent with that timestamp.  If bRoundUp is
+** false, then the resulting time is obtained by extending the timestamp
+** with zeros (hence rounding down).  Use bRoundUp==1 if the result
+** will be used in mtime<=$RESULT and use bRoundUp==0 if the result
+** will be used in mtime>=$RESULT.
+*/
+double symbolic_name_to_mtime(
+  const char *z,              /* Input symbolic name */
+  const char **pzDisplay,     /* Perhaps write display text here, if not NULL */
+  int bRoundUp                /* Round up if true */
+){
+  double mtime;
+  int rid;
+  const char *zDate;
+  if( z==0 ) return -1.0;
+  if( fossil_isdate(z) ){
+    mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", z);
+    if( mtime>0.0 ) return mtime;
+  }
+  zDate = fossil_expand_datetime(z, 1, bRoundUp);
+  if( zDate!=0 ){
+    mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())",
+                      bRoundUp ? fossil_roundup_date(zDate) : zDate);
+    if( mtime>0.0 ){
+      if( pzDisplay ){
+        zDate = fossil_expand_datetime(z,0,0);
+        *pzDisplay = fossil_strdup(zDate);
+      }
+      return mtime;
+    }
+  }
+  rid = symbolic_name_to_rid(z, "*");
+  if( rid ){
+    mtime = mtime_of_rid(rid, 0.0);
+  }else{
+    mtime = db_double(-1.0,
+        "SELECT max(event.mtime) FROM event, tag, tagxref"
+        " WHERE tag.tagname GLOB 'event-%q*'"
+        "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype"
+        "   AND event.objid=tagxref.rid",
+        z
+    );
+  }
+  return mtime;
+}
+
+/*
 ** This routine takes a user-entered string and tries to convert it to
 ** an artifact hash.
 **
@@ -701,6 +810,9 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
     return 1;
   }else{
     blob_reset(pName);
+    if( RID_CKOUT==rid ) {
+      rid = g.localOpen;
+    }
     db_blob(pName, "SELECT uuid FROM blob WHERE rid=%d", rid);
     return 0;
   }
@@ -1113,22 +1225,25 @@ void whatis_rid(int rid, int flags){
   /* Check to see if this object is used as a file in a check-in */
   db_prepare(&q,
     "SELECT filename.name, blob.uuid, datetime(event.mtime,toLocal()),"
-    "       coalesce(euser,user), coalesce(ecomment,comment)"
+    "       coalesce(euser,user), coalesce(ecomment,comment),"
+    "       coalesce((SELECT value FROM tagxref"
+                  "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk')"
     "  FROM mlink, filename, blob, event"
     " WHERE mlink.fid=%d"
     "   AND filename.fnid=mlink.fnid"
     "   AND event.objid=mlink.mid"
     "   AND blob.rid=mlink.mid"
     " ORDER BY event.mtime %s /*sort*/",
-    rid,
+    TAG_BRANCH, rid,
     (flags & WHATIS_BRIEF) ? "LIMIT 1" : "DESC");
   while( db_step(&q)==SQLITE_ROW ){
     if( flags & WHATIS_BRIEF ){
       fossil_print("mtime:      %s\n", db_column_text(&q,2));
     }
     fossil_print("file:       %s\n", db_column_text(&q,0));
-    fossil_print("            part of [%S] by %s on %s\n",
+    fossil_print("            part of [%S] on branch %s by %s on %s\n",
       db_column_text(&q, 1),
+      db_column_text(&q, 5),
       db_column_text(&q, 3),
       db_column_text(&q, 2));
     fossil_print("            ");
@@ -1678,6 +1793,7 @@ void test_describe_artifacts_cmd(void){
 **   priv        Show only unpublished or private artifacts
 **   phan        Show only phantom artifacts
 **   hclr        Color code hash types (SHA1 vs SHA3)
+**   recent      Show the most recent N artifacts
 */
 void bloblist_page(void){
   Stmt q;
@@ -1687,6 +1803,8 @@ void bloblist_page(void){
   int privOnly = PB("priv");
   int phantomOnly = PB("phan");
   int hashClr = PB("hclr");
+  int bRecent = PB("recent");
+  int bUnclst = PB("unclustered");
   char *zRange;
   char *zSha1Bg;
   char *zSha3Bg;
@@ -1696,12 +1814,19 @@ void bloblist_page(void){
   cgi_check_for_malice();
   style_header("List Of Artifacts");
   style_submenu_element("250 Largest", "bigbloblist");
+  if( bRecent==0 || n!=250 ){
+    style_submenu_element("Recent","bloblist?n=250&recent");
+  }
+  if( bUnclst==0 ){
+    style_submenu_element("Unclustered","bloblist?unclustered");
+  }
   if( g.perm.Admin ){
-    style_submenu_element("Artifact Log", "rcvfromlist");
+    style_submenu_element("Xfer Log", "rcvfromlist");
   }
   if( !phantomOnly ){
     style_submenu_element("Phantoms", "bloblist?phan");
   }
+  style_submenu_element("Clusters","clusterlist");
   if( g.perm.Private || g.perm.Admin ){
     if( !privOnly ){
       style_submenu_element("Private", "bloblist?priv");
@@ -1712,7 +1837,7 @@ void bloblist_page(void){
   if( g.perm.Write ){
     style_submenu_element("Artifact Stats", "artifact_stats");
   }
-  if( !privOnly && !phantomOnly && mx>n && P("s")==0 ){
+  if( !privOnly && !phantomOnly && mx>n && P("s")==0 && !bRecent && !bUnclst ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
     @ <ul>
@@ -1720,6 +1845,8 @@ void bloblist_page(void){
       @ <li> %z(href("%R/bloblist?s=%d&n=%d",i,n))
       @ %d(i)..%d(i+n-1<mx?i+n-1:mx)</a>
     }
+    @ <li> %z(href("%R/bloblist?n=250&recent"))250 most recent</a>
+    @ <li> %z(href("%R/bloblist?unclustered"))All unclustered</a>
     @ </ul>
     style_finish_page();
     return;
@@ -1728,17 +1855,30 @@ void bloblist_page(void){
     style_submenu_element("Index", "bloblist");
   }
   if( privOnly ){
+    @ <h2>Private Artifacts</h2>
     zRange = mprintf("IN private");
   }else if( phantomOnly ){
+    @ <h2>Phantom Artifacts</h2>
     zRange = mprintf("IN phantom");
+  }else if( bUnclst ){
+    @ <h2>Unclustered Artifacts</h2>
+    zRange = mprintf("IN unclustered");
+  }else if( bRecent ){
+    @ <h2>%d(n) Most Recent Artifacts</h2>
+    zRange = mprintf(">=(SELECT rid FROM blob"
+                     " ORDER BY rid DESC LIMIT 1 OFFSET %d)",n);
   }else{
     zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
   }
   describe_artifacts(zRange);
   fossil_free(zRange);
   db_prepare(&q,
-    "SELECT rid, uuid, summary, isPrivate, type='phantom', rcvid, ref"
-    "  FROM description ORDER BY rid"
+         /*   0     1        2          3               4    5      6 */
+    "SELECT rid, uuid, summary, isPrivate, type='phantom', ref, rcvid, "
+    "  datetime(rcvfrom.mtime)"
+    "  FROM description LEFT JOIN rcvfrom USING(rcvid)"
+    " ORDER BY rid %s",
+    ((bRecent||bUnclst)?"DESC":"ASC")/*safe-for-%s*/
   );
   if( skin_detail_boolean("white-foreground") ){
     zSha1Bg = "#714417";
@@ -1748,18 +1888,15 @@ void bloblist_page(void){
     zSha3Bg = "#b0ffb0";
   }
   @ <table cellpadding="2" cellspacing="0" border="1">
-  if( g.perm.Admin ){
-    @ <tr><th>RID<th>Hash<th>Rcvid<th>Description<th>Ref<th>Remarks
-  }else{
-    @ <tr><th>RID<th>Hash<th>Description<th>Ref<th>Remarks
-  }
+  @ <tr><th>RID<th>Hash<th>Received<th>Description<th>Ref<th>Remarks
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zDesc = db_column_text(&q, 2);
     int isPriv = db_column_int(&q,3);
     int isPhantom = db_column_int(&q,4);
-    const char *zRef = db_column_text(&q,6);
+    const char *zRef = db_column_text(&q,5);
+    const char *zDate = db_column_text(&q,7);
     if( isPriv && !isPhantom && !g.perm.Private && !g.perm.Admin ){
       /* Don't show private artifacts to users without Private (x) permission */
       continue;
@@ -1772,12 +1909,10 @@ void bloblist_page(void){
     }
     @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
     if( g.perm.Admin ){
-      int rcvid = db_column_int(&q,5);
-      if( rcvid<=0 ){
-        @ <td>&nbsp;
-      }else{
-        @ <td><a href='%R/rcvfrom?rcvid=%d(rcvid)'>%d(rcvid)</a>
-      }
+      int rcvid = db_column_int(&q, 6);
+      @ <td><a href='%R/rcvfrom?rcvid=%d(rcvid)'>%h(zDate)</a>
+    }else{
+      @ <td>%h(zDate)
     }
     @ <td align="left">%h(zDesc)</td>
     if( zRef && zRef[0] ){
@@ -1875,7 +2010,7 @@ void phantom_list_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Public Phantom Artifacts");
   if( g.perm.Admin ){
-    style_submenu_element("Artifact Log", "rcvfromlist");
+    style_submenu_element("Xfer Log", "rcvfromlist");
     style_submenu_element("Artifact List", "bloblist");
   }
   if( g.perm.Write ){
@@ -1900,7 +2035,7 @@ void bigbloblist_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( g.perm.Admin ){
-    style_submenu_element("Artifact Log", "rcvfromlist");
+    style_submenu_element("Xfer Log", "rcvfromlist");
   }
   if( g.perm.Write ){
     style_submenu_element("Artifact Stats", "artifact_stats");
@@ -2073,11 +2208,70 @@ void test_unclusterd_cmd(void){
 **
 ** Usage: %fossil test-phantoms
 **
-** Show all phantom artifacts
+** Show all phantom artifacts.  A phantom artifact is one for which there
+** is no content. Options:
+**
+**   --count            Show only a count of the number of phantoms.
+**   --delta            Show all delta-phantoms.  A delta-phantom is a
+**                      artifact for which there is a delta but the delta
+**                      source is a phantom.
+**   --list             Just list the phantoms.  Do not try to describe them.
 */
 void test_phatoms_cmd(void){
+  int bDelta;
+  int bList;
+  int bCount;
+  unsigned nPhantom = 0;
+  unsigned nDeltaPhantom = 0;
   db_find_and_open_repository(0,0);
-  describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
+  bDelta = find_option("delta", 0, 0)!=0;
+  bList = find_option("list", 0, 0)!=0;
+  bCount = find_option("count", 0, 0)!=0;
+  verify_all_options();
+  if( bList || bCount ){
+    Stmt q1, q2;
+    db_prepare(&q1, "SELECT rid, uuid FROM blob WHERE size<0");
+    while( db_step(&q1)==SQLITE_ROW ){
+      int rid = db_column_int(&q1, 0);
+      nPhantom++;
+      if( !bCount ){
+        fossil_print("%S (%d)\n", db_column_text(&q1,1), rid);
+      }
+      db_prepare(&q2,
+        "WITH RECURSIVE deltasof(rid) AS ("
+        "  SELECT rid FROM delta WHERE srcid=%d"
+        "  UNION"
+        "  SELECT delta.rid FROM deltasof, delta"
+        "    WHERE delta.srcid=deltasof.rid)"
+        "SELECT deltasof.rid, blob.uuid FROM deltasof LEFT JOIN blob"
+        "    ON blob.rid=deltasof.rid", rid
+      );
+      while( db_step(&q2)==SQLITE_ROW ){
+        nDeltaPhantom++;
+        if( !bCount ){
+          fossil_print("   %S (%d)\n", db_column_text(&q2,1),
+                                       db_column_int(&q2,0));
+        }
+      }
+      db_finalize(&q2);
+    }
+    db_finalize(&q1);
+    if( nPhantom ){
+      fossil_print("Phantoms: %u    Delta-phantoms: %u\n",
+                    nPhantom, nDeltaPhantom);
+    }
+  }else if( bDelta ){
+    describe_artifacts_to_stdout(
+       "IN (WITH RECURSIVE delta_phantom(rid) AS (\n"
+       "      SELECT delta.rid FROM blob, delta\n"
+       "       WHERE blob.size<0 AND delta.srcid=blob.rid\n"
+       "      UNION\n"
+       "      SELECT delta.rid FROM delta_phantom, delta\n"
+       "       WHERE delta.srcid=delta_phantom.rid)\n"
+       "    SELECT rid FROM delta_phantom)", 0);
+  }else{
+    describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
+  }
 }
 
 /* Maximum number of collision examples to remember */
@@ -2163,5 +2357,89 @@ void hash_collisions_webpage(void){
                    " ORDER BY 1");
   @ <h1>Hash Prefix Collisions on All Artifacts</h1>
   collision_report("SELECT uuid FROM blob ORDER BY 1");
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: clusterlist
+**
+** Show information about all cluster artifacts in the database.
+*/
+void clusterlist_page(void){
+  Stmt q;
+  int cnt = 1;
+  sqlite3_int64 szTotal = 0;
+  sqlite3_int64 szCTotal = 0;
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_header("All Cluster Artifacts");
+  style_submenu_element("All Artifactst", "bloblist");
+  if( g.perm.Admin ){
+    style_submenu_element("Xfer Log", "rcvfromlist");
+  }
+  style_submenu_element("Phantoms", "bloblist?phan");
+  if( g.perm.Write ){
+    style_submenu_element("Artifact Stats", "artifact_stats");
+  }
+
+  db_prepare(&q,
+    "SELECT blob.uuid, "
+    "       blob.size, "
+    "       octet_length(blob.content), "
+    "       datetime(rcvfrom.mtime),"
+    "       user.login,"
+    "       rcvfrom.ipaddr"
+    "  FROM tagxref JOIN blob ON tagxref.rid=blob.rid"
+    "       LEFT JOIN rcvfrom ON blob.rcvid=rcvfrom.rcvid"
+    "       LEFT JOIN user ON user.uid=rcvfrom.uid"
+    " WHERE tagxref.tagid=%d"
+    " ORDER BY rcvfrom.mtime, blob.uuid",
+    TAG_CLUSTER
+  );
+  @ <table cellpadding="2" cellspacing="0" border="1">
+  @ <tr><th>&nbsp;
+  @ <th>Hash
+  @ <th>Date&nbsp;Received
+  @ <th>Size
+  @ <th>Compressed&nbsp;Size
+  if( g.perm.Admin ){
+    @ <th>User<th>IP-Address
+  }
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    sqlite3_int64 sz = db_column_int64(&q, 1);
+    sqlite3_int64 szC = db_column_int64(&q, 2);
+    const char *zDate = db_column_text(&q, 3);
+    const char *zUser = db_column_text(&q, 4);
+    const char *zIp = db_column_text(&q, 5);
+    szTotal += sz;
+    szCTotal += szC;
+    @ <tr><td align="right">%d(cnt++)
+    @ <td><a href="%R/info/%S(zUuid)">%S(zUuid)</a>
+    if( zDate ){
+      @ <td>%h(zDate)
+    }else{
+      @ <td>&nbsp;
+    }
+    @ <td align="right">%,lld(sz)
+    @ <td align="right">%,lld(szC)
+    if( g.perm.Admin ){
+      if( zUser ){
+        @ <td>%h(zUser)
+      }else{
+        @ <td>&nbsp;
+      }
+      if( zIp ){
+        @ <td>%h(zIp)
+      }else{
+        @ <td>&nbsp;
+      }
+    }
+    @ </tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  @ <p>Total size of all clusters: %,lld(szTotal) bytes,
+  @ %,lld(szCTotal) bytes compressed</p>
   style_finish_page();
 }

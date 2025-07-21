@@ -1416,7 +1416,7 @@ void reconstruct_cmd(void) {
 /*
 ** COMMAND: deconstruct*
 **
-** Usage %fossil deconstruct ?OPTIONS? DESTINATION
+** Usage: %fossil deconstruct ?OPTIONS? DESTINATION
 **
 ** This command exports all artifacts of a given repository and writes all
 ** artifacts to the file system.  The DESTINATION directory will be populated

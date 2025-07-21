@@ -61,7 +61,7 @@
 */
 typedef sqlite3_int64 GraphRowId;
 
-#define GR_MAX_RAIL   40      /* Max number of "rails" to display */
+#define GR_MAX_RAIL   64      /* Max number of "rails" to display */
 
 /* The graph appears vertically beside a timeline.  Each row in the
 ** timeline corresponds to a row in the graph.  GraphRow.idx is 0 for
@@ -86,7 +86,7 @@ struct GraphRow {
   GraphRow *pPrev;            /* Previous row */
 
   int idx;                    /* Row index.  Top row is smallest. */
-  int idxTop;                 /* Direct descendent highest up on the graph */
+  int idxTop;                 /* Direct descendant highest up on the graph */
   GraphRow *pChild;           /* Child immediately above this node */
   u8 isDup;                   /* True if this is duplicate of a prior entry */
   u8 isLeaf;                  /* True if this is a leaf node */
@@ -120,9 +120,10 @@ struct GraphContext {
   int nHash;                 /* Number of slots in apHash[] */
   u8 hasOffsetMergeRiser;    /* Merge arrow from leaf goes up on a different
                              ** rail that the node */
+  u8 bOverfull;              /* Unable to allocate sufficient rails */
   u64 mergeRail;             /* Rails used for merge lines */
   GraphRow **apHash;         /* Hash table of GraphRow objects.  Key: rid */
-  u8 aiRailMap[GR_MAX_RAIL]; /* Mapping of rails to actually columns */
+  u8 aiRailMap[GR_MAX_RAIL+1]; /* Mapping of rails to actually columns */
 };
 
 #endif
@@ -338,7 +339,14 @@ static int findFreeRail(
       }
     }
   }
-  if( iBestDist>1000 ) p->nErr++;
+  if( iBestDist>1000 ){
+    p->bOverfull = 1;
+    iBest = GR_MAX_RAIL;
+  }
+  if( iBest>GR_MAX_RAIL ){
+    p->bOverfull = 1;
+    iBest = GR_MAX_RAIL;
+  }
   if( iBest>p->mxRail ) p->mxRail = iBest;
   if( bMergeRail ) p->mergeRail |= BIT(iBest);
   return iBest;
@@ -497,7 +505,11 @@ static void riser_to_top(GraphRow *pRow){
 **       TIMELINE_FILLGAPS:    Use step-children
 **       TIMELINE_XMERGE:      Omit off-graph merge lines
 */
-void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
+void graph_finish(
+  GraphContext *p,                /* The graph to be laid out */
+  Matcher *pLeftBranch,           /* Compares true for left-most branch */
+  u32 tmFlags                     /* TIMELINE flags */
+){
   GraphRow *pRow, *pDesc, *pDup, *pLoop, *pParent;
   int i, j;
   u64 mask;
@@ -707,7 +719,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       if( pRow->nParent<0 ) continue;
       if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
         pRow->iRail = findFreeRail(p, pRow->idxTop, pRow->idx+riserMargin,0,0);
-        if( p->mxRail>=GR_MAX_RAIL ) return;
+        /* if( p->mxRail>=GR_MAX_RAIL ) return; */
         mask = BIT(pRow->iRail);
         if( !omitDescenders ){
           int n = RISER_MARGIN;
@@ -742,7 +754,10 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       pParent = hashFind(p, parentRid);
       if( pParent==0 ){
         pRow->iRail = ++p->mxRail;
-        if( p->mxRail>=GR_MAX_RAIL ) return;
+        if( p->mxRail>=GR_MAX_RAIL ){
+          pRow->iRail = p->mxRail = GR_MAX_RAIL;
+          p->bOverfull = 1;
+        }
         pRow->railInUse = BIT(pRow->iRail);
         continue;
       }
@@ -751,15 +766,22 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
         ** parent in the timeline */
         pRow->iRail = findFreeRail(p, pRow->idxTop, pParent->idx,
                                    pParent->iRail, 0);
-        if( p->mxRail>=GR_MAX_RAIL ) return;
+        /* if( p->mxRail>=GR_MAX_RAIL ) return; */
         pParent->aiRiser[pRow->iRail] = pRow->idx;
       }else{
         /* Timewarp case:  Child occurs earlier in time than parent and
         ** appears below the parent in the timeline. */
         int iDownRail = ++p->mxRail;
         if( iDownRail<1 ) iDownRail = ++p->mxRail;
+        if( p->mxRail>GR_MAX_RAIL ){
+          iDownRail = p->mxRail = GR_MAX_RAIL;
+          p->bOverfull = 1;
+        }
         pRow->iRail = ++p->mxRail;
-        if( p->mxRail>=GR_MAX_RAIL ) return;
+        if( p->mxRail>=GR_MAX_RAIL ){
+          pRow->iRail = p->mxRail = GR_MAX_RAIL;
+          p->bOverfull = 1;
+        }
         pRow->railInUse = BIT(pRow->iRail);
         pParent->aiRiser[iDownRail] = pRow->idx;
         mask = BIT(iDownRail);
@@ -822,7 +844,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
         }
         if( iMrail==-1 ){
           iMrail = findFreeRail(p, pRow->idx, p->pLast->idx, 0, 1);
-          if( p->mxRail>=GR_MAX_RAIL ) return;
+          /*if( p->mxRail>=GR_MAX_RAIL ) return;*/
           mergeRiserFrom[iMrail] = parentRid;
         }
         iReuseIdx = p->nRow+1;
@@ -854,7 +876,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
         }else{
           /* Create a new merge for an on-screen node */
           createMergeRiser(p, pDesc, pRow, isCherrypick);
-          if( p->mxRail>=GR_MAX_RAIL ) return;
+          /* if( p->mxRail>=GR_MAX_RAIL ) return; */
           if( iReuseIdx<0
            && pDesc->nMergeChild==1
            && (pDesc->iRail!=pDesc->mergeOut || pDesc->isLeaf)
@@ -870,13 +892,13 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   /*
   ** Insert merge rails from primaries to duplicates.
   */
-  if( hasDup ){
+  if( hasDup && p->mxRail<GR_MAX_RAIL ){
     int dupRail;
     int mxRail;
     find_max_rail(p);
     mxRail = p->mxRail;
     dupRail = mxRail+1;
-    if( p->mxRail>=GR_MAX_RAIL ) return;
+    /* if( p->mxRail>=GR_MAX_RAIL ) return; */
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
       if( !pRow->isDup ) continue;
       pRow->iRail = dupRail;
@@ -891,7 +913,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
         if( pRow->isDup ) pRow->iRail = dupRail;
       }
     }
-    if( mxRail>=GR_MAX_RAIL ) return;
+    /* if( mxRail>=GR_MAX_RAIL ) return; */
   }
 
   /*
@@ -965,8 +987,8 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
 
   /*
   ** Compute the rail mapping that tries to put the branch named
-  ** zLeftBranch at the left margin.  Other branches that merge
-  ** with zLeftBranch are to the right with merge rails in between.
+  ** pLeftBranch at the left margin.  Other branches that merge
+  ** with pLeftBranch are to the right with merge rails in between.
   **
   ** aMap[X]=Y means that the X-th rail is drawn as the Y-th rail.
   **
@@ -977,6 +999,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   aMap = p->aiRailMap;
   for(i=0; i<=p->mxRail; i++) aMap[i] = i; /* Set up a default mapping */
   if( nTimewarp==0 ){
+    int kk;
     /* Priority bits:
     **
     **    0x04      The preferred branch
@@ -988,13 +1011,16 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     **
     **    0x01      A rail that merges with the preferred branch
     */
-    u8 aPriority[GR_MAX_RAIL];
-    memset(aPriority, 0, p->mxRail+1);
-    if( zLeftBranch ){
-      char *zLeft = persistBranchName(p, zLeftBranch);
+    u16 aPriority[GR_MAX_RAIL];
+    int mxMatch = 0;
+    memset(aPriority, 0, (p->mxRail+1)*sizeof(aPriority[0]));
+    if( pLeftBranch ){
       for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-        if( pRow->zBranch==zLeft ){
-          aPriority[pRow->iRail] |= 4;
+        int iMatch = match_text(pLeftBranch, pRow->zBranch);
+        if( iMatch>0 ){
+          if( iMatch>10 ) iMatch = 10;
+          aPriority[pRow->iRail] |= 1<<(iMatch+1);
+          if( mxMatch<iMatch ) mxMatch = iMatch;
           for(i=0; i<=p->mxRail; i++){
             if( pRow->mergeIn[i] ) aPriority[i] |= 1;
           }
@@ -1009,6 +1035,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     }else{
       j = 1;
       aPriority[0] = 4;
+      mxMatch = 1;
       for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
         if( pRow->iRail==0 ){
           for(i=0; i<=p->mxRail; i++){
@@ -1022,13 +1049,20 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
 #if 0
     fprintf(stderr,"mergeRail: 0x%llx\n", p->mergeRail);
     fprintf(stderr,"Priority:");
-    for(i=0; i<=p->mxRail; i++) fprintf(stderr," %d", aPriority[i]);
+    for(i=0; i<=p->mxRail; i++){
+        fprintf(stderr," %x.%x",
+                aPriority[i]/4, aPriority[i]&3);
+    }
     fprintf(stderr,"\n");
 #endif
 
     j = 0;
-    for(i=0; i<=p->mxRail; i++){
-      if( aPriority[i]>=4 ) aMap[i] = j++;
+    for(kk=4; kk<=1<<(mxMatch+1); kk*=2){
+      for(i=0; i<=p->mxRail; i++){
+        if( aPriority[i]>=kk && aPriority[i]<kk*2 ){
+          aMap[i] = j++;
+        }
+      }
     }
     for(i=p->mxRail; i>=0; i--){
       if( aPriority[i]==3 ) aMap[i] = j++;

@@ -131,6 +131,7 @@ void delete_private_content(void){
 **    --no-open                  Clone only.  Do not open a check-out.
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
+**    --proxy PROXY              Use the specified HTTP proxy
 **    --save-http-password       Remember the HTTP password without asking
 **    -c|--ssh-command SSH       Use SSH as the "ssh" command
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
@@ -431,8 +432,10 @@ void download_page(void){
     @ <p>ZIP Archive: %z(zUrl)%h(zNm).zip</a>
     zUrl = href("%R/tarball/%t/%t.tar.gz", zDLTag, zNm);
     @ <p>Tarball: %z(zUrl)%h(zNm).tar.gz</a>
-    zUrl = href("%R/sqlar/%t/%t.sqlar", zDLTag, zNm);
-    @ <p>SQLite Archive: %z(zUrl)%h(zNm).sqlar</a>
+    if( g.zLogin!=0 ){
+      zUrl = href("%R/sqlar/%t/%t.sqlar", zDLTag, zNm);
+      @ <p>SQLite Archive: %z(zUrl)%h(zNm).sqlar</a>
+    }
   }
   if( !g.perm.Clone ){
     @ <p>You are not authorized to clone this repository.
