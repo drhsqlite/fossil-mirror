@@ -1,5 +1,5 @@
-C And\sthis\stime\scompile\sbefore\scommitting.
-D 2025-07-21T18:40:59.101
+C Replace\san\smprintf()\swith\sfossil_strdup().
+D 2025-07-21T18:42:45.693
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -465,7 +465,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 9c87616f33b0f46a83b0f0a7a032cb1217eca8e9cbfb512629542d3e250157e2
+F src/http.c d59b3bedf83f411f4ee746459e18105583d4d707ff82c3419e15229d69c378a1
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c c378b9724a8be6f1b7959af8080b028cf500e5f7845ae098870cef3bb7aa8ebb
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cfddded40e91f9c9b360134be0e61f5abb39e043d6059fe8021e42babaa2b599
-R 67550ef559fc9514382bb0536f8eef8a
+P a62ffc192289b90e1a08ff676c283f1f4df667cf46536e6caac23ccf365b6555
+R 58289b65719f674f356c768fbc070793
 U stephan
-Z 88fe8dcbb023af3fb5e9166f43dc906a
+Z fae88cd04b76cb9c68815f76d2029db0
 # Remove this line to create a well-formed Fossil manifest.
