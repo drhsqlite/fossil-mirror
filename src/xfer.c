@@ -1326,6 +1326,8 @@ void page_xfer(void){
         && blob_eq(&xfer.aToken[0], "login") ){
       goto handle_login_card;
     }
+    fossil_free( g.zLoginCard );
+    g.zLoginCard = 0;
   }
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
