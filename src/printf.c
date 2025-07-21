@@ -776,6 +776,7 @@ int vxprintf(
         isnull = escarg==0;
         if( isnull ) escarg = (xtype==etSQLESCAPE2 ? "NULL" : "(NULL)");
         if( limit<0 ) limit = strlen(escarg);
+        if( precision>=0 && precision<limit ) limit = precision;
         for(i=n=0; i<limit; i++){
           if( escarg[i]==q )  n++;
         }
@@ -795,7 +796,6 @@ int vxprintf(
         if( needQuote ) bufpt[j++] = q;
         bufpt[j] = 0;
         length = j;
-        if( precision>=0 && precision<length ) length = precision;
         break;
       }
       case etHTMLIZE: {
@@ -1160,11 +1160,19 @@ static int fossil_print_error(int rc, const char *z){
     g.cgiOutput = 2;
     cgi_reset_content();
     cgi_set_content_type("text/html");
-    style_set_current_feature("error");
+    if( g.zLogin!=0 ){
+      style_set_current_feature("error");
+    }
     style_header("Bad Request");
     etag_cancel();
-    @ <p class="generalError">%h(z)</p>
-    cgi_set_status(400, "Bad Request");
+    if( g.zLogin==0 ){
+      /* Do not give unnecessary clues about a malfunction to robots */
+      @ <p>Something did not work right.</p>
+      @ <p>%h(z)</p>
+    }else{
+      @ <p class="generalError">%h(z)</p>
+      cgi_set_status(400, "Bad Request");
+    }
     style_finish_page();
     cgi_reply();
   }else if( !g.fQuiet ){

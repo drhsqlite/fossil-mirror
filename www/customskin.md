@@ -313,6 +313,7 @@ read out of the directory named.  You can then edit the control
 files in the ./newskin folder using you favorite text editor, and
 press "Reload" on your browser to see the effects.
 
+
 ### Disabling The Web Browser Cache During Development
 
 Fossil is aggressive about asking the web browser to cache 
@@ -528,7 +529,42 @@ can serve as a starting point for future work:
    4.  Copy/paste the resulting css.txt, details.txt,
        header.txt, and footer.txt files
        into the CSS, details, header, and footer configuration screens
-       under the Admin/Skins menu.
+       under the Admin/Skins menu. Alternately, import them using the
+       process described below.
+
+An alternative to step 4 is to convert the skin files into a form
+which can be imported into a repository using `fossil config import`.
+It requires compiling [a small tool from the fossil source
+tree](/file/tools/skintxt2config.c):
+
+>
+```
+$ cc -o s2c /path/to/fossil/checkout/tools/skintxt2config.c
+```
+
+With that in place, the custom skin files can be converted with:
+
+>
+```
+$ ./s2c yourskin/*.txt > skin.config
+```
+
+It can be imported into an arbitrary fossil repository with:
+
+>
+```
+$ fossil config import skin.config
+```
+
+And it can be pushed to a remote repository with:
+
+>
+```
+$ fossil config push skin
+```
+
+That approach has proven to be an effective way to locally develop
+skin changes then push them to a "live" site.
 
 
 ## See Also

@@ -3115,7 +3115,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **
 ** Then run (in a debugger) a command like this:
 **
-**     fossil test-http --debug <request.txt
+**     fossil test-http <request.txt
 **
 ** This command is also used internally by the "ssh" sync protocol.  Some
 ** special processing to support sync happens when this command is run

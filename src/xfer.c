@@ -1525,6 +1525,7 @@ void page_xfer(void){
         blob_is_int(&xfer.aToken[2], &seqno);
         if( seqno<=0 ){
           xfer_fatal_error("invalid clone sequence number");
+          db_rollback_transaction();
           return;
         }
         max = db_int(0, "SELECT max(rid) FROM blob");
@@ -1600,6 +1601,7 @@ void page_xfer(void){
       Blob content;
       if( size<0 ){
         xfer_fatal_error("invalid config record");
+        db_rollback_transaction();
         return;
       }
       blob_zero(&content);
@@ -2384,13 +2386,13 @@ int client_sync(
     }
 
     /* Output current stats */
+    nRoundtrip++;
+    nArtifactSent += xfer.nFileSent + xfer.nDeltaSent;
     if( syncFlags & SYNC_VERBOSE ){
       fossil_print(zValueFormat /*works-like:"%s%d%d%d%d"*/, "Sent:",
                    blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
                    xfer.nFileSent, xfer.nDeltaSent);
     }else{
-      nRoundtrip++;
-      nArtifactSent += xfer.nFileSent + xfer.nDeltaSent;
       if( bOutIsTty!=0 ){
         fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
                      nRoundtrip, nArtifactSent, nArtifactRcvd);

@@ -198,7 +198,7 @@ for example, to do builds from multiple branches or versions at
 the same time without having to generate extra clones.
 
 To switch a checkout between different versions and branches,
-use:<
+use:
 
 <pre>
 <b>[/help/update | fossil update]</b>

@@ -14,25 +14,39 @@ be easily compiled on the SymbianOS.  So TH1 was developed as a cut-down
 version of Tcl that would facilitate running the SQLite test scripts on
 SymbianOS.
 
-Fossil was first being designed at about the same time that TH1 was
-being developed for testing SQLite on SymbianOS.
+Fossil was first being designed at about the same time.
 Early prototypes of Fossil were written in pure Tcl.  But as the development
 shifted toward the use of C-code, the need arose to have a Tcl-like
 scripting language to help with code generation.  TH1 was small and
 light-weight and used minimal resources and seemed ideally suited for the
 task.
 
-The name "TH1" stands "Test Harness 1", since that was its original purpose.
+The name "TH1" stands for "Test Harness 1",
+since its original purpose was to serve as testing harness
+for SQLite.
 
-Overview
---------
+Where TH1 Is Used In Fossil
+---------------------------
+
+  *  In the header and footer for [skins](./customskin.md)
+     text within `<th1>...</th1>` is run as a TH1 script.
+     ([example](/builtin/skins/default/header.txt))
+
+  *  This display of [tickets](./bugtheory.wiki) is controlled by TH1
+     scripts, so that the ticket format can be customized for each
+     project.  Administrators can visit the <b>/tktsetup</b> page in
+     their repositories to view and customize these scripts.
+     ([example usage](./custom_ticket.wiki))
+
+Overview Of The Tcl/TH1 Language
+--------------------------------
 
 TH1 is a string-processing language.  All values are strings.  Any numerical
 operations are accomplished by converting from string to numeric, performing
 the computation, then converting the result back into a string.  (This might
 seem inefficient, but it is faster than people imagine, and numeric
 computations do not come up very often for the kinds of work that TH1 does,
-so it has never been a factor.)
+so it has never been an issue.)
 
 A TH1 script consists of a sequence of commands.
 Each command is terminated by the first *unescaped* newline or ";" character.
@@ -128,7 +142,7 @@ repository.  Note that the tainted/untainted distinction in strings does
 not make it impossible to introduce XSS and SQL-injections vulnerabilities
 using poorly-written TH1 scripts; it just makes it more difficult and
 less likely to happen by accident.  Developers must still consider the
-security implications TH1 customizations they add to Fossil, and take
+security implications of TH1 customizations they add to Fossil, and take
 appropriate precautions when writing custom TH1.  Peer review of TH1
 script changes is encouraged.
 

@@ -832,6 +832,7 @@ static void no_error_log_available(void){
 **    y=0x010          Show SQLITE_AUTH and similar
 **    y=0x020          Show SMTP error reports
 **    y=0x040          Show TH1 vulnerability reports
+**    y=0x080          Show SQL errors
 **    y=0x800          Show other uncategorized messages
 **
 ** If y is omitted or is zero, a count of the various message types is
@@ -842,7 +843,7 @@ void errorlog_page(void){
   FILE *in;
   char *zLog;
   const char *zType = P("y");
-  static const int eAllTypes = 0x87f;
+  static const int eAllTypes = 0x8ff;
   long eType = 0;
   int bOutput = 0;
   int prevWasTime = 0;
@@ -854,6 +855,7 @@ void errorlog_page(void){
   int nAuth = 0;
   int nSmtp = 0;
   int nVuln = 0;
+  int nSqlErr = 0;
   char z[10000];
   char zTime[10000];
 
@@ -936,6 +938,9 @@ void errorlog_page(void){
     if( eType & 0x40 ){
       @ <li>TH1 vulnerabilities
     }
+    if( eType & 0x80 ){
+      @ <li>SQL errors
+    }
     if( eType & 0x800 ){
       @ <li>Other uncategorized messages
     }
@@ -977,6 +982,10 @@ void errorlog_page(void){
         bOutput = (eType & 0x40)!=0;
         nVuln++;
       }else
+      if( strstr(z,"statement aborts at ") ){
+        bOutput = (eType & 0x80)!=0;
+        nSqlErr++;
+      }else
       {
         bOutput = (eType & 0x800)!=0;
         nOther++;
@@ -1002,7 +1011,7 @@ void errorlog_page(void){
     @ </pre>
   }
   if( eType==0 ){
-    int nNonHack = nPanic + nHang + nAuth + nSmtp + nVuln + nOther;
+    int nNonHack = nPanic + nHang + nAuth + nSmtp + nVuln + nOther + nSqlErr;
     int nTotal = nNonHack + nHack + nXPost;
     @ <p><table border="a" cellspacing="0" cellpadding="5">
     if( nPanic>0 ){
@@ -1016,6 +1025,10 @@ void errorlog_page(void){
     if( nHack>0 ){
       @ <tr><td align="right">%d(nHack)</td>
       @     <td><a href="./errorlog?y=1">Hack Attempts</a></td>
+    }
+    if( nSqlErr>0 ){
+      @ <tr><td align="right">%d(nSqlErr)</td>
+      @     <td><a href="./errorlog?y=128">SQL Errors</a></td>
     }
     if( nHang>0 ){
       @ <tr><td align="right">%d(nHang)</td>

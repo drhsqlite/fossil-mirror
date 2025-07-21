@@ -564,36 +564,124 @@ static void zip_close(Archive *p){
   azDir = 0;
 }
 
+/* Functions found in shell.c */
+extern int sqlite3_fileio_init(sqlite3*,char**,const sqlite3_api_routines*);
+extern int sqlite3_zipfile_init(sqlite3*,char**,const sqlite3_api_routines*);
+
 /*
 ** COMMAND: test-filezip
 **
-** Generate a ZIP archive specified by the first argument that
-** contains files given in the second and subsequent arguments.
+** Usage: %fossil test-filezip [OPTIONS] ZIPFILE [FILENAME...]
+**
+** This command uses Fossil infrastructure or read or create a ZIP
+** archive named by the ZIPFILE argument.  With no options, a new
+** ZIP archive is created and there must be at least one FILENAME
+** argument. If the -l option is used, the contents of the named ZIP
+** archive are listed on standard output.  With the -x argument, the
+** contents of the ZIP archive are extracted.
+**
+** There are two purposes for this command:  (1) To server as a test
+** platform for the Fossil ZIP archive generator, and (2) to provide
+** rudimentary ZIP archive creation capabilities on platforms that do
+** not have the "zip" command installed.
+**
+** Options:
+**
+**    -h|--dereference    Follow symlinks
+**    -l|--list           List the contents of the ZIP archive
+**    -x|--extract        Extract files from a ZIP archive
 */
 void filezip_cmd(void){
-  int i;
-  Blob zip;
-  Blob file;
   int eFType = SymFILE;
-  Archive sArchive;
-  memset(&sArchive, 0, sizeof(Archive));
-  sArchive.eType = ARCHIVE_ZIP;
-  sArchive.pBlob = &zip;
-  if( g.argc<3 ){
-    usage("ARCHIVE FILE....");
-  }
+  int doList = 0;
+  int doExtract = 0;
+  char *zArchiveName;
   if( find_option("dereference","h",0)!=0 ){
     eFType = ExtFILE;
   }
-  zip_open();
-  for(i=3; i<g.argc; i++){
-    blob_zero(&file);
-    blob_read_from_file(&file, g.argv[i], eFType);
-    zip_add_file(&sArchive, g.argv[i], &file, file_perm(0,eFType));
-    blob_reset(&file);
+  if( find_option("list","l",0)!=0 ){
+    doList = 1;
   }
-  zip_close(&sArchive);
-  blob_write_to_file(&zip, g.argv[2]);
+  if( find_option("extract","x",0)!=0 ){
+    if( doList ){
+      fossil_fatal("incompatible options: -l and -x");
+    }
+    doExtract = 1;
+  }
+  if( g.argc<3 ){
+    usage("ARCHIVE FILES...");
+  }
+  zArchiveName = g.argv[2];
+  sqlite3_open(":memory:", &g.db);
+  if( doList ){
+    /* Do a content listing of a ZIP archive */
+    Stmt q;
+    int nRow = 0;
+    i64 szTotal = 0;
+    if( file_size(zArchiveName, eFType)<0 ){
+      fossil_fatal("No such ZIP archive: %s", zArchiveName);
+    }
+    if( g.argc>3 ){
+      fossil_fatal("extra arguments after \"fossil test-filezip -l ARCHIVE\"");
+    }
+    sqlite3_zipfile_init(g.db, 0, 0);
+    db_multi_exec("CREATE VIRTUAL TABLE z1 USING zipfile(%Q)", zArchiveName);
+    db_prepare(&q, "SELECT sz, datetime(mtime,'unixepoch'), name FROM z1");
+    while( db_step(&q)==SQLITE_ROW ){
+      int sz = db_column_int(&q, 0);
+      szTotal += sz;
+      if( nRow==0 ){
+        fossil_print("  Length      Date    Time    Name\n");
+        fossil_print("---------  ---------- -----   ----\n");
+      }
+      nRow++;
+      fossil_print("%9d  %.16s   %s\n", sz, db_column_text(&q,1),
+                   db_column_text(&q,2));
+    }
+    if( nRow ){
+      fossil_print("---------                     --------\n");
+      fossil_print("%9lld  %16s   %d files\n", szTotal, "", nRow);
+    }
+    db_finalize(&q);
+  }else if( doExtract ){
+    /* Extract files from an existing ZIP archive */
+    if( file_size(zArchiveName, eFType)<0 ){
+      fossil_fatal("No such ZIP archive: %s", zArchiveName);
+    }
+    if( g.argc>3 ){
+      fossil_fatal("extra arguments after \"fossil test-filezip -x ARCHIVE\"");
+    }
+    sqlite3_zipfile_init(g.db, 0, 0);
+    sqlite3_fileio_init(g.db, 0, 0);
+    db_multi_exec("CREATE VIRTUAL TABLE z1 USING zipfile(%Q)", zArchiveName);
+    db_multi_exec("SELECT writefile(name,data) FROM z1");
+  }else{
+    /* Without the -x or -l options, construct a new ZIP archive */
+    int i;
+    Blob zip;
+    Blob file;
+    Archive sArchive;
+    memset(&sArchive, 0, sizeof(Archive));
+    sArchive.eType = ARCHIVE_ZIP;
+    sArchive.pBlob = &zip;
+    if( file_size(zArchiveName, eFType)>0 ){
+      fossil_fatal("ZIP archive %s already exists", zArchiveName);
+    }
+    zip_open();
+    for(i=3; i<g.argc; i++){
+      double rDate;
+      i64 iDate;
+      blob_zero(&file);
+      blob_read_from_file(&file, g.argv[i], eFType);
+      iDate = file_mtime(g.argv[i], eFType);
+      rDate = ((double)iDate)/86400.0 + 2440587.5;
+      zip_set_timedate(rDate);
+      zip_add_file(&sArchive, g.argv[i], &file, file_perm(0,eFType));
+      blob_reset(&file);
+    }
+    zip_close(&sArchive);
+    blob_write_to_file(&zip, g.argv[2]);
+  }
 }
 
 /*
@@ -929,6 +1017,9 @@ void baseline_zip_page(void){
   if( fossil_strcmp(g.zPath, "sqlar")==0 ){
     eType = ARCHIVE_SQLAR;
     zType = "SQL";
+    /* For some reason, SQL-archives are like catnip for robots.  So
+    ** don't allow them to be downloaded by user "nobody" */
+    if( g.zLogin==0 ){ login_needed(g.anon.Zip); return; }
   }else{
     eType = ARCHIVE_ZIP;
     zType = "ZIP";

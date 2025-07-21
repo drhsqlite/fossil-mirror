@@ -53,11 +53,15 @@ used.
 The value for `-n` (the _namespace_) can be changed at will, but care has to be
 taken to use the same value when verifying the signature.
 
+Fossil versions prior to 2.26 do not understand SSH signatures and
+will treat artifacts signed this way as opaque blobs, not Fossil
+artifacts.
+
 
 ## Verifying a signature
 
 Fossil does not provide an internal method for verifying signatures and
-relies – like it does for signing – on external tools. 
+relies – like it does for signing – on external tools.
 
 ### GnuPG
 

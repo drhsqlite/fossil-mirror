@@ -935,7 +935,8 @@ static void forum_display_post(
         login_insert_csrf_secret();
         @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
         if( moderation_pending(p->fpid)==0 ){
-          @ <input type="submit" value='%s(iClosed ? "Re-open" : "Close")' />
+          @ <input type="button" value='%s(iClosed ? "Re-open" : "Close")' \
+          @  class='%s(iClosed ? "action-reopen" : "action-close")'/>
         }
         @ </form>
       }
@@ -1116,7 +1117,8 @@ static void forum_display_thread(
 ** code (e.g. "forum.js").
 */
 static void forum_emit_js(void){
-  builtin_fossil_js_bundle_or("copybutton", "pikchr", NULL);
+  builtin_fossil_js_bundle_or("copybutton", "pikchr", "confirmer",
+                              NULL);
   builtin_request_js("fossil.page.forumpost.js");
 }
 
