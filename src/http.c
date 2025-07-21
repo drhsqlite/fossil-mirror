@@ -637,6 +637,8 @@ int http_exchange(
           isError = 1;
         }
       }
+    }else if( fossil_strnicmp(zLine, "x-fossil-xfer-login: ", 21)==0 ){
+      g.zLoginCard = fsl_mprintf("%s", &line[21]);
     }
   }
   if( iHttpVersion<0 ){

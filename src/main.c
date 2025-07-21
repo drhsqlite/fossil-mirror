@@ -232,6 +232,7 @@ struct Global {
   const char *zPidKey;    /* Saved value of the --usepidkey option.  Only
                            * applicable when using SEE on Windows or Linux. */
 #endif
+  char *zLoginCard;       /* X-Fossil-Xfer-Login request header value */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */

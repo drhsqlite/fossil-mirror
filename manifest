@@ -1,5 +1,5 @@
-C Account\sfor\s[638b7e094b899a]\swhen\sbuilding\swith\s--json,\sas\sreported\sin\s[forum:9acc3d0022407bfe\s|\sforum\spost\s9acc3d0022].
-D 2025-07-21T17:16:29.137
+C Enable\san\s/xfer\slogin\scard\sto\sbe\sdelivered\svia\sthe\sX-Fossil-Xfer-Login\sHTTP\sheader,\swhich\sis\sexpected\sto\sbe\sin\sthe\ssame\sformat\sas\sthe\ssync\sprotocol's\slogin\scard.\sThe\spurpose\sof\sthis\sis\sto\ssimplify\sgeneration\sof\sthe\slogin\scard\sfrom\snon-fossil(1)\sclients,\snamely\slibfossil.\sThis\sis\suntested\suntil\slibfossil\scan\sgenerate\ssuch\scards\s(it's\sjust\smissing\sa\sbit\sof\sglue\sfor\sthat).
+D 2025-07-21T18:38:54.126
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -465,7 +465,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 5a4752d3380f066181886d18b89c35253f181df91f64d6d450a5a257ed864abd
+F src/http.c 92233069ca83f5cffcc8456a66cdd6f2af88f9fbfaf64f79050948b6b608a904
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c c378b9724a8be6f1b7959af8080b028cf500e5f7845ae098870cef3bb7aa8ebb
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
@@ -493,7 +493,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c 61bcd0f5127a1672526bf5c92ddb1380393b37d673a72e270005bc233d3f314f
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c 766fd24c6850c8be3ef83da27816fe2391fcb677f79f38a54626408d735c31e9
+F src/main.c 7f34ab2f78c874557fb8c96af924b4705f5f16adc47644b34d4e023f935f4393
 F src/main.mk 02890c4c98af4817973545eb91bfcd92c6a06d7662724e0d2cc0f28ffae42801
 F src/manifest.c 699ddca0092dcd6cb552b664058d9d4e0da3d517544d76566051061cdd5e6845
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -594,7 +594,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
-F src/xfer.c 7f024215c8038b9a98042c31652c658cb8511c30e1c5af7c3946a9d5981c98c0
+F src/xfer.c 3b271d6cd63735c101fe6ff51fd901894bd3c0a4543e5cd3b2cfcf789fc6538c
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c 9c1aef77501646117309bf489e95e1e62a87cdb3156bea2fb55533aabf588279
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -974,8 +974,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 638b7e094b899a5c87d4a3732cf57318893449e5791cd94f909e2d1014509eb3
-R df19b8b5829d589fa772aad7faeb9236
+P c6f0d7aecdfd6fbed682ac37c1e3a211834c09743f1eaf66d599bd11adc23522
+R f885b4c47be52d99422f57cb1c00ed5d
+T *branch * xfer-login-card
+T *sym-xfer-login-card *
+T -sym-trunk * Cancelled\sby\sbranch.
 U stephan
-Z 741fd382dbaede9383d62d2a55953f9e
+Z 300c9090806b69351cac768554f8fa8c
 # Remove this line to create a well-formed Fossil manifest.

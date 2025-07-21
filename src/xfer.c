@@ -1317,6 +1317,16 @@ void page_xfer(void){
     pzUuidList = &zUuidList;
     pnUuidList = &nUuidList;
   }
+  if( g.zLoginCard ){
+    /* Login card received via HTTP header X-Fossil-Xfer-Login */
+    blob_init(&xfer.line, g.zLoginCard, -1);
+    xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken,
+                                count(xfer.aToken));
+    if( xfer.nToken==4
+        && blob_eq(&xfer.aToken[0], "login") ){
+      goto handle_login_card;
+    }
+  }
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
     if( blob_size(&xfer.line)==0 ) continue;
@@ -1557,6 +1567,7 @@ void page_xfer(void){
     if( blob_eq(&xfer.aToken[0], "login")
      && xfer.nToken==4
     ){
+    handle_login_card:
       if( disableLogin ){
         g.perm.Read = g.perm.Write = g.perm.Private = g.perm.Admin = 1;
       }else{
