@@ -215,6 +215,15 @@ body.chat #chat-messages-wrapper.loading > * {
   /* An attempt at reducing flicker when loading lots of messages. */
   visibility: hidden;
 }
+
+/* Provide a visual cue when polling is offline. */
+body.chat.connection-error #chat-input-line-wrapper {
+  border-top: medium dotted red;
+}
+body.chat.fossil-dark-style.connection-error #chat-input-line-wrapper {
+  border-color: yellow;
+}
+
 body.chat div.content {
   margin: 0;
   padding: 0;
@@ -243,16 +252,17 @@ body.chat:not(.chat-only-mode) #chat-input-area{
      for FF/Chrome (and 2em is a *huge* waste of space for those). */
   margin-bottom: 0;
 }
-.chat-input-field {
+
+body.chat .chat-input-field {
   flex: 10 1 auto;
   margin: 0;
 }
-#chat-input-field-x,
-#chat-input-field-multi {
+body.chat #chat-input-field-x,
+body.chat #chat-input-field-multi {
   overflow: auto;
   resize: vertical;
 }
-#chat-input-field-x {
+body.chat #chat-input-field-x {
   display: inline-block/*supposed workaround for Chrome weirdness*/;
   padding: 0.2em;
   background-color: rgba(156,156,156,0.3);
@@ -263,16 +273,16 @@ body.chat:not(.chat-only-mode) #chat-input-area{
   /* ^^^ In some browsers the cursor may not change for a contenteditable
      element until it has focus, causing potential confusion. */
 }
-#chat-input-field-x:empty::before {
+body.chat #chat-input-field-x:empty::before {
   content: attr(data-placeholder);
   opacity: 0.6;
 }
-.chat-input-field:not(:focus){
+body.chat .chat-input-field:not(:focus){
   border-width: 1px;
   border-style: solid;
   border-radius: 0.25em;
 }
-.chat-input-field:focus{
+body.chat .chat-input-field:focus{
   /* This transparent border helps avoid the text shifting around
      when the contenteditable attribute causes a border (which we
      apparently cannot style) to be added. */

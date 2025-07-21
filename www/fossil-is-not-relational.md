@@ -96,7 +96,7 @@ Notably, the artifact file format <u>does not</u>...
   content. The file format refers to all such content solely by its
   unique hash value.
 
-- Specify any optimimizations such as storing file-level changes as
+- Specify any optimizations such as storing file-level changes as
   deltas between two versions of that content.
 
 Such aspects are all considered to be implementation details of

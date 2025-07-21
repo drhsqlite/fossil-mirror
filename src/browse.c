@@ -207,7 +207,7 @@ void page_dir(void){
       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI))!=0);
       isBranchCI = branch_includes_uuid(zCI, zUuid);
       if( bDocDir ) zCI = mprintf("%S", zUuid);
-      Th_Store("current_checkin", zCI);
+      Th_StoreUnsafe("current_checkin", zCI);
     }else{
       zCI = 0;
     }
@@ -773,7 +773,7 @@ void page_tree(void){
                          " FROM event WHERE objid=%d", rid);
       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI)) != 0);
       isBranchCI = branch_includes_uuid(zCI, zUuid);
-      Th_Store("current_checkin", zCI);
+      Th_StoreUnsafe("current_checkin", zCI);
     }else{
       zCI = 0;
     }

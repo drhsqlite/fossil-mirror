@@ -276,7 +276,7 @@ easy to also see "what came after".
 
 Leaf check-ins in Git that lack a "ref" become "detached," making them
 difficult to locate and subject to garbage collection. This
-[http://gitfaq.org/1/01/what-is-a-detached-head/|detached head
+[https://stackoverflow.com/q/3965676 | detached head
 state] problem has caused grief for
 [https://www.google.com/search?q=git+detached+head+state | many
 Git users]. With
@@ -344,7 +344,7 @@ uses JavaScript where
 necessary]. The server-side
 UI scripting uses a custom minimal
 [https://en.wikipedia.org/wiki/Tcl|Tcl] dialect called
-[https://fossil-scm.org/xfer/doc/trunk/www/th1.md|TH1], which is
+[./th1.md|TH1], which is
 embedded into Fossil itself. Fossil's build system and test suite are
 largely based on Tcl.⁵ All of this is quite portable.
 

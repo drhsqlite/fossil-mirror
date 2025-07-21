@@ -62,6 +62,7 @@
 #define FUZZ_MARKDOWN   1      /* The Markdown formatter */
 #define FUZZ_ARTIFACT   2      /* Fuzz the artifact parser */
 #define FUZZ_WIKI2      3      /* FOSSIL_WIKI and FOSSIL_MARKDOWN */
+#define FUZZ_COMFORMAT  4      /* comment_print() */
 #endif
 
 /* The type of fuzzing to do */
@@ -95,9 +96,16 @@ int LLVMFuzzerTestOneInput(const uint8_t *aData, size_t nByte){
       blob_reset(&title);
       break;
     }
-    case FUZZ_ARTIFACT:
+    case FUZZ_ARTIFACT: {
       fossil_fatal("FUZZ_ARTIFACT is not implemented.");
       break;
+    }
+    case FUZZ_COMFORMAT: {
+      if( nByte>=3 && aData[1]!=0 && memchr(&aData[1], 0, nByte-1)!=0 ){
+        int flags = (int)aData[0];
+        comment_print((const char*)&aData[1],0,15,80,flags);
+      }
+    }
   }
   blob_reset(&in);
   blob_reset(&out);
@@ -118,6 +126,8 @@ static void fuzzer_options(void){
     eFuzzType = FUZZ_MARKDOWN;
   }else if( fossil_strcmp(zType,"wiki2")==0 ){
     eFuzzType = FUZZ_WIKI2;
+  }else if( fossil_strcmp(zType,"comformat")==0 ){
+    eFuzzType = FUZZ_COMFORMAT;
   }else{
     fossil_fatal("unknown fuzz type: \"%s\"", zType);
   }
@@ -141,6 +151,7 @@ int LLVMFuzzerInitialize(int *pArgc, char ***pArgv){
 **
 ** Run a fuzz test using INPUTFILE as the test data.  TYPE can be one of:
 **
+**     comformat             Fuzz the comment_print() routine
 **     wiki                  Fuzz the Fossil-wiki translator
 **     markdown              Fuzz the markdown translator
 **     artifact              Fuzz the artifact parser

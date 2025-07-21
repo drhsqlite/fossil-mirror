@@ -1045,6 +1045,39 @@ static int send_unclustered(Xfer *pXfer){
 }
 
 /*
+** Send an igot message for every cluster artifact that is not a phantom,
+** is not shunned, is not private, and that is not in the UNCLUSTERED table.
+** Return the number of cards sent.
+*/
+static int send_all_clusters(Xfer *pXfer){
+  Stmt q;
+  int cnt = 0;
+  const char *zExtra;
+  if( db_table_exists("temp","onremote") ){
+    zExtra = " AND NOT EXISTS(SELECT 1 FROM onremote WHERE rid=blob.rid)";
+  }else{
+    zExtra = "";
+  }
+  db_prepare(&q,
+    "SELECT uuid"
+    "  FROM tagxref JOIN blob ON tagxref.rid=blob.rid AND tagxref.tagid=%d"
+    " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+    "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
+    "   AND NOT EXISTS(SELECT 1 FROM unclustered WHERE rid=blob.rid)"
+    "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)%s",
+    TAG_CLUSTER, zExtra /*safe-for-%s*/
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    if( cnt==0 ) blob_appendf(pXfer->pOut, "# sending-clusters\n");
+    blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
+    cnt++;
+  }
+  db_finalize(&q);
+  if( cnt ) blob_appendf(pXfer->pOut, "# end-of-clusters\n");
+  return cnt;
+}
+
+/*
 ** Send an igot message for every artifact.
 */
 static void send_all(Xfer *pXfer){
@@ -1087,11 +1120,23 @@ static void send_unversioned_catalog(Xfer *pXfer){
 }
 
 /*
+** Return a string that contains supplemental information about a
+** "not authorized" error.  The string might be empty if no additional
+** information is available.
+*/
+static char *whyNotAuth(void){
+  if( g.useLocalauth && db_get_boolean("localauth",0)!=0 ){
+    return "\\sbecause\\sthe\\s'localauth'\\ssetting\\sis\\senabled";
+  }
+  return "";
+}
+
+/*
 ** Called when there is an attempt to transfer private content to and
 ** from a server without authorization.
 */
 static void server_private_xfer_not_authorized(void){
-  @ error not\sauthorized\sto\ssync\sprivate\scontent
+  @ error not\sauthorized\sto\ssync\sprivate\scontent%s(whyNotAuth())
 }
 
 /*
@@ -1285,7 +1330,7 @@ void page_xfer(void){
     if( blob_eq(&xfer.aToken[0], "file") ){
       if( !isPush ){
         cgi_reset_content();
-        @ error not\sauthorized\sto\swrite
+        @ error not\sauthorized\sto\swrite%s(whyNotAuth())
         nErr++;
         break;
       }
@@ -1306,7 +1351,7 @@ void page_xfer(void){
     if( blob_eq(&xfer.aToken[0], "cfile") ){
       if( !isPush ){
         cgi_reset_content();
-        @ error not\sauthorized\sto\swrite
+        @ error not\sauthorized\sto\swrite%s(whyNotAuth())
         nErr++;
         break;
       }
@@ -1430,7 +1475,7 @@ void page_xfer(void){
       if( blob_eq(&xfer.aToken[0], "pull") ){
         if( !g.perm.Read ){
           cgi_reset_content();
-          @ error not\sauthorized\sto\sread
+          @ error not\sauthorized\sto\sread%s(whyNotAuth())
           nErr++;
           break;
         }
@@ -1439,10 +1484,10 @@ void page_xfer(void){
         if( !g.perm.Write ){
           if( !isPull ){
             cgi_reset_content();
-            @ error not\sauthorized\sto\swrite
+            @ error not\sauthorized\sto\swrite%s(whyNotAuth())
             nErr++;
           }else{
-            @ message pull\sonly\s-\snot\sauthorized\sto\spush
+            @ message pull\sonly\s-\snot\sauthorized\sto\spush%s(whyNotAuth())
           }
         }else{
           isPush = 1;
@@ -1460,7 +1505,7 @@ void page_xfer(void){
       if( !g.perm.Clone ){
         cgi_reset_content();
         @ push %s(db_get("server-code", "x")) %s(db_get("project-code", "x"))
-        @ error not\sauthorized\sto\sclone
+        @ error not\sauthorized\sto\sclone%s(whyNotAuth())
         nErr++;
         break;
       }
@@ -1480,6 +1525,7 @@ void page_xfer(void){
         blob_is_int(&xfer.aToken[2], &seqno);
         if( seqno<=0 ){
           xfer_fatal_error("invalid clone sequence number");
+          db_rollback_transaction();
           return;
         }
         max = db_int(0, "SELECT max(rid) FROM blob");
@@ -1555,13 +1601,14 @@ void page_xfer(void){
       Blob content;
       if( size<0 ){
         xfer_fatal_error("invalid config record");
+        db_rollback_transaction();
         return;
       }
       blob_zero(&content);
       blob_extract(xfer.pIn, size, &content);
       if( !g.perm.Admin ){
         cgi_reset_content();
-        @ error not\sauthorized\sto\spush\sconfiguration
+        @ error not\sauthorized\sto\spush\sconfiguration%s(whyNotAuth())
         nErr++;
         break;
       }
@@ -1783,6 +1830,15 @@ void page_xfer(void){
       */
       if( blob_eq(&xfer.aToken[1], "req-links") ){
         bSendLinks = 1;
+      }else
+
+      /*   pragma req-clusters
+      **
+      ** This pragma requests that the server send igot cards for every
+      ** cluster artifact that it knows about.
+      */
+      if( blob_eq(&xfer.aToken[1], "req-clusters") ){
+        send_all_clusters(&xfer);
       }
 
     }else
@@ -1983,7 +2039,7 @@ int client_sync(
   int nCycle = 0;         /* Number of round trips to the server */
   int size;               /* Size of a config value or uvfile */
   int origConfigRcvMask;  /* Original value of configRcvMask */
-  int nFileRecv;          /* Number of files received */
+  int nFileRecv = 0;      /* Number of files received */
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
   const char *zCookie;    /* Server cookie */
   i64 nUncSent, nUncRcvd; /* Bytes sent and received (before compression) */
@@ -2009,6 +2065,7 @@ int client_sync(
   int uvPullOnly = 0;     /* 1: pull-only.  2: pull-only warning issued */
   int nUvGimmeSent = 0;   /* Number of uvgimme cards sent on this cycle */
   int nUvFileRcvd = 0;    /* Number of uvfile cards received on this cycle */
+  int nGimmeRcvd = 0;     /* Number of gimme cards recevied on the prev cycle */
   sqlite3_int64 mtime;    /* Modification time on a UV file */
   int autopushFailed = 0; /* Autopush following commit failed if true */
   const char *zCkinLock;  /* Name of check-in to lock.  NULL for none */
@@ -2183,11 +2240,17 @@ int client_sync(
      || ((syncFlags & SYNC_CLONE)!=0 && cloneSeqno==1)
     ){
       request_phantoms(&xfer, mxPhantomReq);
+      if( xfer.nGimmeSent>0 && nCycle==2 && (syncFlags & SYNC_PULL)!=0 ){
+        blob_appendf(&send, "pragma req-clusters\n");
+      }
     }
     if( syncFlags & SYNC_PUSH ){
       send_unsent(&xfer);
       nCardSent += send_unclustered(&xfer);
       if( syncFlags & SYNC_PRIVATE ) send_private(&xfer);
+      if( nGimmeRcvd>0 && nCycle==2 ){
+        send_all_clusters(&xfer);
+      }
     }
 
     /* Client sends configuration parameter requests.  On a clone, delay sending
@@ -2323,13 +2386,13 @@ int client_sync(
     }
 
     /* Output current stats */
+    nRoundtrip++;
+    nArtifactSent += xfer.nFileSent + xfer.nDeltaSent;
     if( syncFlags & SYNC_VERBOSE ){
       fossil_print(zValueFormat /*works-like:"%s%d%d%d%d"*/, "Sent:",
                    blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
                    xfer.nFileSent, xfer.nDeltaSent);
     }else{
-      nRoundtrip++;
-      nArtifactSent += xfer.nFileSent + xfer.nDeltaSent;
       if( bOutIsTty!=0 ){
         fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
                      nRoundtrip, nArtifactSent, nArtifactRcvd);
@@ -2371,6 +2434,7 @@ int client_sync(
     go = 0;
     nUvGimmeSent = 0;
     nUvFileRcvd = 0;
+    nGimmeRcvd = 0;
     nPriorArtifact = nArtifactRcvd;
 
     /* Process the reply that came back from the server */
@@ -2451,7 +2515,10 @@ int client_sync(
         remote_unk(&xfer.aToken[1]);
         if( syncFlags & SYNC_PUSH ){
           int rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
-          if( rid ) send_file(&xfer, rid, &xfer.aToken[1], 0);
+          if( rid ){
+            send_file(&xfer, rid, &xfer.aToken[1], 0);
+            nGimmeRcvd++;
+          }
         }
       }else
 

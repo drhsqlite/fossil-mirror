@@ -42,14 +42,15 @@ and the BSDs, where everything <tt>git</tt> sends is consumed by
 <tt>fossil</tt> as soon as it can manage, with both programs working
 concurrently.
 
-For some reason, the current version of PowerShell included with Windows
-chokes on the conversion when the in-flight repository size exceeds
-available memory. We do not know why it buffers the entire stream
-emitted by "<tt>git fast-export</tt>" before sending it along to Fossil,
-but we've seen the problem recur on multiple machines.
+Historically, PowerShell indiscriminately sent objects — as opposed to raw
+bytes — through its pipes, and buffered standard input for external processes.
+This made it choke on the conversion when the in-flight repository size
+exceeded available memory. Starting with version 7.4 (2023-11-16), PowerShell
+supports byte stream piping between native commands and file redirection.
 
-While one workaround is to fall back to <tt>cmd.exe</tt> — which doesn't
-seem to be affected by this problem — we instead recommend using
+If you are stuck with an older version, one workaround is to fall back to
+<tt>cmd.exe</tt> — which doesn't seem to be affected by this problem.
+Nevertheless, we instead recommend using
 Microsoft's own [https://learn.microsoft.com/en-us/windows/wsl/ | Windows
 Subsystem for Linux] or either of the two popular "Git for Windows"
 distributions based on MSYS2. They handle pipes the POSIX way, avoiding

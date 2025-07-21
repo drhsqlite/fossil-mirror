@@ -119,6 +119,17 @@
     };
     document.querySelectorAll("form").forEach(function(form){
       form.addEventListener('submit',formSubmitted);
+      form
+        .querySelectorAll("input.action-close, input.action-reopen")
+        .forEach(function(e){
+          F.confirmer(e, {
+            confirmText: (e.classList.contains('action-reopen')
+                          ? "Confirm re-open"
+                          : "Confirm close"),
+            onconfirm: ()=>form.submit()
+          });
+        });
     });
+
   })/*F.onPageLoad callback*/;
 })(window.fossil);

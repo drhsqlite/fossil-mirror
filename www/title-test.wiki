@@ -1,0 +1,14 @@
+<title>Wiki Doc Title > & " ' < Test</title>
+
+Test of unusual characters in the title of Fossil-wiki formatted documents.
+The title should read:
+
+<big><b><verbatim>
+   Wiki Doc Title > & " ' < Test
+</verbatim></b></big>
+
+See also:
+
+  *  [/doc/trunk/www/title-test.md]
+  *  [/wiki?name=Test+Wiki+>+%26+%22+%27+%3c+Title&p]
+  *  [/forumpost/481ab1f9]

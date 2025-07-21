@@ -414,7 +414,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **
 **         The --date-override and --user-override options support
 **         importing history from other SCM systems. DATETIME has
-**         the form 'YYYY-MMM-DD HH:MM:SS'.
+**         the form 'YYYY-MM-DD HH:MM:SS'.
 **
 **         Note that fossil uses some tag prefixes internally and this
 **         command will reject tags with these prefixes to avoid

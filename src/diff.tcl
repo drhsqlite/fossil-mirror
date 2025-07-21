@@ -92,13 +92,36 @@ proc getLine {difftxt N iivar} {
   return $x
 }
 
-proc readDiffs {fossilcmd} {
-  global difftxt
+proc reloadDiff {} {
+  global fossilcmd difftxt
+  unset -nocomplain difftxt
+  set idx [.txtA index @0,0]
+  readDiffs $fossilcmd 1
+  update
+  viewDiff $idx
+}
+
+proc readDiffs {fossilcmd redo} {
+  global difftxt debug
   if {![info exists difftxt]} {
-    set in [open $fossilcmd r]
-    fconfigure $in -encoding utf-8
-    set difftxt [split [read $in] \n]
-    close $in
+    if {$debug} {
+      puts "# [list open $fossilcmd r]"
+      flush stdout
+    }
+    if {[catch {
+      set in [open $fossilcmd r]
+      fconfigure $in -encoding utf-8
+      set difftxt [split [read $in] \n]
+      close $in
+    } msg]} {
+      if {$redo} {
+        tk_messageBox -type ok -title Error -message "Unable to refresh:\n$msg"
+        return 0
+      } else {
+        puts $msg
+        exit 1
+      }
+    }
   }
   set N [llength $difftxt]
   set ii 0
@@ -106,23 +129,46 @@ proc readDiffs {fossilcmd} {
   set n1 0
   set n2 0  
   array set widths {txt 3 ln 3 mkr 1}
+  if {$redo} {
+    foreach c [cols] {$c config -state normal}
+    .lnA delete 1.0 end
+    .txtA delete 1.0 end
+    .lnB delete 1.0 end
+    .txtB delete 1.0 end
+    .mkr delete 1.0 end
+    .wfiles.lb delete 0 end
+  }
   
   
   set fromIndex [lsearch -glob $fossilcmd *-from]
   set toIndex [lsearch -glob $fossilcmd *-to]
   set branchIndex [lsearch -glob $fossilcmd *-branch]
   set checkinIndex [lsearch -glob $fossilcmd *-checkin]
-  if {[string match *?--external-baseline* $fossilcmd]} {
-    set fA {external baseline}
+  if {[lsearch -glob $fossilcmd *-label]>=0
+    || [lsearch {xdiff fdiff merge-info} [lindex $fossilcmd 2]]>=0
+  } {
+    set fA {}
+    set fB {}
   } else {
-    set fA {base check-in}
+    if {[string match *?--external-baseline* $fossilcmd]} {
+      set fA {external baseline}
+    } else {
+      set fA {base check-in}
+    }
+    set fB {current check-out}
+    if {$fromIndex > -1} {
+      set fA [lindex $fossilcmd $fromIndex+1]
+    }
+    if {$toIndex > -1} {
+      set fB [lindex $fossilcmd $toIndex+1]
+    }
+    if {$branchIndex > -1} {
+      set fA "branch point"; set fB "leaf of branch '[lindex $fossilcmd $branchIndex+1]'"
+    }
+    if {$checkinIndex > -1} {
+      set fA "primary parent"; set fB [lindex $fossilcmd $checkinIndex+1]
+    }
   }
-  set fB {current check-out}
-  if {$fromIndex > -1} {set fA [lindex $fossilcmd $fromIndex+1]}
-  if {$toIndex > -1} {set fB [lindex $fossilcmd $toIndex+1]}
-  if {$branchIndex > -1} {set fA "branch point"; set fB "leaf of branch '[lindex $fossilcmd $branchIndex+1]'"}
-  if {$checkinIndex > -1} {set fA "primary parent"; set fB [lindex $fossilcmd $checkinIndex+1]}
-  
   
   while {[set line [getLine $difftxt $N ii]] != -1} {
     switch -- [lindex $line 0] {
@@ -132,10 +178,18 @@ proc readDiffs {fossilcmd} {
           if {$wx>$widths(ln)} {set widths(ln) $wx}
         }
         .lnA insert end \n fn \n -
-        .txtA insert end "[lindex $line 1] ($fA)\n" fn \n -
+        if {$fA==""} {
+          .txtA insert end "[lindex $line 1]\n" fn \n -
+        } else {
+          .txtA insert end "[lindex $line 1] ($fA)\n" fn \n -
+        }
         .mkr insert end \n fn \n -
         .lnB insert end \n fn \n -
-        .txtB insert end "[lindex $line 2] ($fB)\n" fn \n -
+        if {$fB==""} {
+          .txtB insert end "[lindex $line 2]\n" fn \n -
+        } else {
+          .txtB insert end "[lindex $line 2] ($fB)\n" fn \n -
+        }
         .wfiles.lb insert end [lindex $line 2]
         set n1 0
         set n2 0
@@ -435,7 +489,7 @@ foreach c [cols] {
 ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
 frame .spacer
 
-if {[readDiffs $fossilcmd] == 0} {
+if {[readDiffs $fossilcmd 0] == 0} {
   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
   exit
 }
@@ -448,6 +502,8 @@ proc saveDiff {} {
   puts $out "#!/usr/bin/tclsh\n#\n# Run this script using 'tclsh' or 'wish'"
   puts $out "# to see the graphical diff.\n#"
   puts $out "set fossilcmd {}"
+  puts $out "set darkmode $::darkmode"
+  puts $out "set debug $::debug"
   puts $out "set prog [list $::prog]"
   puts $out "set difftxt \173"
   foreach e $::difftxt {puts $out [list $e]}
@@ -550,10 +606,15 @@ proc searchStep {direction incr start stop} {
   set ::search $w
 }
 ::ttk::button .bb.quit -text {Quit} -command exit
+::ttk::button .bb.reload -text {Reload} -command reloadDiff
 ::ttk::button .bb.invert -text {Invert} -command invertDiff
 ::ttk::button .bb.save -text {Save As...} -command saveDiff
 ::ttk::button .bb.search -text {Search} -command searchOnOff
-pack .bb.quit .bb.invert -side left
+pack .bb.quit -side left
+if {$fossilcmd ne ""} {
+  pack .bb.reload -side left
+}
+pack .bb.invert -side left
 if {$fossilcmd!=""} {pack .bb.save -side left}
 pack .bb.files .bb.search -side left
 grid rowconfigure . 1 -weight 1

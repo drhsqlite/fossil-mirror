@@ -160,6 +160,23 @@ void compute_leaves(int iBase, int closeMode){
 }
 
 /*
+** If RID refers to a check-in, return the mtime of that check-in - the
+** julian day number of when the check-in occurred.
+*/
+double mtime_of_rid(int rid, double mtime){
+  static Stmt q;
+  db_static_prepare(&q,"SELECT mtime FROM event WHERE objid=:rid");
+  db_bind_int(&q, ":rid", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    mtime = db_column_double(&q,0);
+  }
+  db_reset(&q);
+  return mtime;
+}
+
+
+
+/*
 ** Load the record ID rid and up to |N|-1 closest ancestors into
 ** the "ok" table.  If N is zero, no limit.  If ridBackTo is not zero
 ** then stop the search upon reaching the ancestor with rid==ridBackTo.
@@ -199,30 +216,27 @@ void compute_ancestors(int rid, int N, int directOnly, int ridBackTo){
     */
     double rLimitMtime = 0.0;
     if( ridBackTo ){
-      rLimitMtime = db_double(0.0,
-         "SELECT mtime FROM event WHERE objid=%d",
-         ridBackTo);
+      rLimitMtime = mtime_of_rid(ridBackTo, 0.0);
     }
     db_multi_exec(
-      "WITH RECURSIVE "
-      "  parent(pid,cid,isCP) AS ("
-      "    SELECT plink.pid, plink.cid, 0 AS xisCP FROM plink"
-      "    UNION ALL"
-      "    SELECT parentid, childid, 1 FROM cherrypick WHERE NOT isExclude"
-      "  ),"
-      "  ancestor(rid, mtime, isCP) AS ("
-      "    SELECT %d, mtime, 0 FROM event WHERE objid=%d "
-      "    UNION "
-      "    SELECT parent.pid, event.mtime, parent.isCP"
-      "      FROM ancestor, parent, event"
-      "     WHERE parent.cid=ancestor.rid"
-      "       AND event.objid=parent.pid"
-      "       AND NOT ancestor.isCP"
-      "       AND (event.mtime>=%.17g OR parent.pid=%d)"
-      "     ORDER BY mtime DESC LIMIT %d"
-      "  )"
-      "INSERT OR IGNORE INTO ok"
-      "  SELECT rid FROM ancestor;",
+      "WITH RECURSIVE\n"
+      "  parent(pid,cid,isCP) AS (\n"
+      "    SELECT plink.pid, plink.cid, 0 AS xisCP FROM plink\n"
+      "    UNION ALL\n"
+      "    SELECT parentid, childid, 1 FROM cherrypick WHERE NOT isExclude\n"
+      "  ),\n"
+      "  ancestor(rid, mtime, isCP) AS (\n"
+      "    SELECT %d, mtime, 0 FROM event WHERE objid=%d\n"
+      "    UNION\n"
+      "    SELECT parent.pid, event.mtime, parent.isCP\n"
+      "      FROM ancestor, parent, event\n"
+      "     WHERE parent.cid=ancestor.rid\n"
+      "       AND event.objid=parent.pid\n"
+      "       AND NOT ancestor.isCP\n"
+      "       AND (event.mtime>=%.17g OR parent.pid=%d)\n"
+      "     ORDER BY mtime DESC LIMIT %d\n"
+      "  )\n"
+      "INSERT OR IGNORE INTO ok SELECT rid FROM ancestor;",
       rid, rid, rLimitMtime, ridBackTo, N
     );
     if( ridBackTo && db_changes()>1 ){
@@ -324,14 +338,14 @@ void compute_descendants(int rid, int N){
      N = -N;
   }
   db_multi_exec(
-    "WITH RECURSIVE"
-    "  dx(rid,mtime) AS ("
-    "     SELECT %d, 0"
-    "     UNION"
-    "     SELECT plink.cid, plink.mtime FROM dx, plink"
-    "      WHERE plink.pid=dx.rid"
-    "      ORDER BY 2"
-    "  )"
+    "WITH RECURSIVE\n"
+    "  dx(rid,mtime) AS (\n"
+    "     SELECT %d, 0\n"
+    "     UNION\n"
+    "     SELECT plink.cid, plink.mtime FROM dx, plink\n"
+    "      WHERE plink.pid=dx.rid\n"
+    "      ORDER BY 2\n"
+    "  )\n"
     "INSERT OR IGNORE INTO ok SELECT rid FROM dx LIMIT %d",
     rid, N
   );
@@ -641,6 +655,21 @@ void leaves_page(void){
 
 #endif
 
+/*
+** Append a new VALUES term.
+*/
+static void uses_file_append_term(Blob *pSql, int *pnCnt, int rid){
+  if( *pnCnt==0 ){
+    blob_append_sql(pSql, "(%d)", rid);
+    *pnCnt = 4;
+  }else if( (*pnCnt)%10==9 ){
+    blob_append_sql(pSql, ",\n  (%d)", rid);
+  }else{
+    blob_append_sql(pSql, ",(%d)", rid);
+  }
+  ++*pnCnt;
+}
+
 
 /*
 ** Add to table zTab the record ID (rid) of every check-in that contains
@@ -649,21 +678,20 @@ void leaves_page(void){
 void compute_uses_file(const char *zTab, int fid, int usesFlags){
   Bag seen;
   Bag pending;
-  Stmt ins;
+  Blob ins = BLOB_INITIALIZER;
+  int nIns = 0;
   Stmt q;
   int rid;
 
   bag_init(&seen);
   bag_init(&pending);
-  db_prepare(&ins, "INSERT OR IGNORE INTO \"%w\" VALUES(:rid)", zTab);
+  blob_append_sql(&ins, "INSERT OR IGNORE INTO \"%w\" VALUES", zTab);
   db_prepare(&q, "SELECT mid FROM mlink WHERE fid=%d", fid);
   while( db_step(&q)==SQLITE_ROW ){
     int mid = db_column_int(&q, 0);
     bag_insert(&pending, mid);
     bag_insert(&seen, mid);
-    db_bind_int(&ins, ":rid", mid);
-    db_step(&ins);
-    db_reset(&ins);
+    uses_file_append_term(&ins, &nIns, mid);
   }
   db_finalize(&q);
 
@@ -672,9 +700,7 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
     int mid = db_column_int(&q, 0);
     bag_insert(&seen, mid);
     if( usesFlags & USESFILE_DELETE ){
-      db_bind_int(&ins, ":rid", mid);
-      db_step(&ins);
-      db_reset(&ins);
+      uses_file_append_term(&ins, &nIns, mid);
     }
   }
   db_finalize(&q);
@@ -688,14 +714,13 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
       if( bag_find(&seen, mid) ) continue;
       bag_insert(&seen, mid);
       bag_insert(&pending, mid);
-      db_bind_int(&ins, ":rid", mid);
-      db_step(&ins);
-      db_reset(&ins);
+      uses_file_append_term(&ins, &nIns, mid);
     }
     db_reset(&q);
   }
   db_finalize(&q);
-  db_finalize(&ins);
+  db_exec_sql(blob_str(&ins));
+  blob_reset(&ins);
   bag_clear(&seen);
   bag_clear(&pending);
 }
