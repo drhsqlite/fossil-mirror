@@ -1,5 +1,5 @@
-C Replace\san\smprintf()\swith\sfossil_strdup().
-D 2025-07-21T18:42:45.693
+C Do\snot\sallow\smore\sthan\sone\slogin\scard\sin\sthe\ssync\sprotocol.
+D 2025-07-21T19:39:13.740
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -594,7 +594,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
-F src/xfer.c dd59998a193cde33c787b7fcec2c692019fa7d02b0601f4c16f691c8a810c645
+F src/xfer.c ab607c2282b7b3df58b1fd3d1be688e06cf8b6a7e2feeb7f985e664ca8ad9a7c
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c 9c1aef77501646117309bf489e95e1e62a87cdb3156bea2fb55533aabf588279
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a62ffc192289b90e1a08ff676c283f1f4df667cf46536e6caac23ccf365b6555
-R 58289b65719f674f356c768fbc070793
-U stephan
-Z fae88cd04b76cb9c68815f76d2029db0
+P 73a2bd06b1ff70c94d6cf61f00ce80ae1f76bda4e5ae9826909adc24c6fd91e1
+R bc1f84596c5f5490965dc02f6156d11d
+U drh
+Z 7fd0e9f5a5f0f1a0f9199fc3d1593f89
 # Remove this line to create a well-formed Fossil manifest.

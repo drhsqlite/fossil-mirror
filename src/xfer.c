@@ -1275,6 +1275,7 @@ void page_xfer(void){
   int *pnUuidList = 0;
   int uvCatalogSent = 0;
   int bSendLinks = 0;
+  int nLogin = 0;
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -1564,14 +1565,24 @@ void page_xfer(void){
     **
     ** The client has sent login credentials to the server.
     ** Validate the login.  This has to happen before anything else.
-    ** The client can send multiple logins.  Permissions are cumulative.
+    **
+    ** For many years, Fossil would accept multiple login cards with
+    ** cumulative permissions.  But that feature was never used.  Hence
+    ** it is now prohibited.  Any login card after the first generates
+    ** a fatal error.
     */
     if( blob_eq(&xfer.aToken[0], "login")
      && xfer.nToken==4
     ){
     handle_login_card:
+      nLogin++;
       if( disableLogin ){
         g.perm.Read = g.perm.Write = g.perm.Private = g.perm.Admin = 1;
+      }else if( nLogin > 1 ){
+        cgi_reset_content();
+        @ error multiple\slogin\cards
+        nErr++;
+        break;
       }else{
         if( check_tail_hash(&xfer.aToken[2], xfer.pIn)
          || check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3])
