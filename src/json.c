@@ -1963,7 +1963,6 @@ cson_value * json_page_cap(void){
   ADD(Setup,"setup");
   ADD(Admin,"admin");
   ADD(Password,"password");
-  ADD(Query,"query"); /* don't think this one is actually used */
   ADD(Write,"checkin");
   ADD(Read,"checkout");
   ADD(Hyperlink,"history");
