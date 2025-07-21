@@ -70,10 +70,10 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 
   blob_zero(pLogin);
   if( g.url.user==0 || fossil_strcmp(g.url.user, "anonymous")==0 ){
-     return;  /* If no login card for users "nobody" and "anonymous" */
+     return;  /* No login card for users "nobody" and "anonymous" */
   }
   if( g.url.isSsh ){
-     return;  /* If no login card for SSH: */
+     return;  /* No login card for SSH: */
   }
   blob_zero(&nonce);
   blob_zero(&pw);
@@ -637,8 +637,6 @@ int http_exchange(
           isError = 1;
         }
       }
-    }else if( fossil_strnicmp(zLine, "x-fossil-xfer-login: ", 21)==0 ){
-      g.zLoginCard = fossil_strdup(&zLine[21]);
     }
   }
   if( iHttpVersion<0 ){

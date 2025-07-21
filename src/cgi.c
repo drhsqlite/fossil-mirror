@@ -2223,6 +2223,9 @@ void cgi_handle_http_request(const char *zIpAddr){
         rangeStart = x1;
         rangeEnd = x2+1;
       }
+    }else if( fossil_strcmp(zFieldName, "x-fossil-xfer-login:")==0 ){
+      g.zLoginCard = fossil_strdup(zVal);
+      /*fprintf(stderr, "X-Fossil-Xfer-Login: %s\n", g.zLoginCard);*/
     }
   }
   cgi_setenv("REQUEST_SCHEME",zScheme);

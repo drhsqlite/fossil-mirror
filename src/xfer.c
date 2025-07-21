@@ -1325,6 +1325,8 @@ void page_xfer(void){
                                 count(xfer.aToken));
     if( xfer.nToken==4
         && blob_eq(&xfer.aToken[0], "login") ){
+      /*fprintf(stderr,"g.zLoginCard=%s nToken=%d\n", g.zLoginCard,
+        xfer.nToken);*/
       goto handle_login_card;
     }
     fossil_free( g.zLoginCard );
