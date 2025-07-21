@@ -2,4 +2,6 @@ compat/zlib/*
 setup/fossil.iss
 test/th1-docs-input.txt
 test/th1-hooks-input.txt
+win/build32.bat
+win/build64.bat
 win/buildmsvc.bat

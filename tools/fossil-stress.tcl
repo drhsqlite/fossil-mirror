@@ -95,7 +95,7 @@ set pages {
   /tree
   /uvlist
   /stat
-  /test_env
+  /test-env
   /sitemap
   /hash-collisions
   /artifact_stats

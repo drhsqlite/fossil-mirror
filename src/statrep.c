@@ -292,8 +292,8 @@ static void stats_report_by_month_year(
    @ <td>
     if(includeMonth){
       cgi_printf("<a href='%R/timeline?"
-                 "ym=%t&n=%d&y=%s",
-                 zTimeframe, nCount,
+                 "ym=%t&y=%s",
+                 zTimeframe,
                  statsReportTimelineYFlag );
       /* Reminder: n=nCount is not actually correct for bymonth unless
          that was the only user who caused events.
@@ -320,11 +320,12 @@ static void stats_report_by_month_year(
       /* If the timespan covered by this row contains "now", then project
       ** the number of changes until the completion of the timespan and
       ** show a dashed box of that projection. */
+      int nProj = (int)(((double)nCount)/rNowFraction);
       int nExtra = (int)(((double)nCount)/rNowFraction) - nCount;
       int nXSize = (100 * nExtra)/nMaxEvents;
       @ <span class='statistics-report-graph-line' \
       @  style='display:inline-block;min-width:%d(nSize)%%;'>&nbsp;</span>\
-      @ <span class='statistics-report-graph-extra' \
+      @ <span class='statistics-report-graph-extra' title='%d(nProj)' \
       @  style='display:inline-block;min-width:%d(nXSize)%%;'>&nbsp;</span>\
     }else{
       @ <div class='statistics-report-graph-line' \
@@ -733,8 +734,8 @@ static void stats_report_year_weeks(const char *zUserName){
     if(!nSize) nSize = 1;
     total += nCount;
     cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
-    cgi_printf("<td><a href='%R/timeline?yw=%t-%s&n=%d&y=%s",
-               zYear, zWeek, nCount,
+    cgi_printf("<td><a href='%R/timeline?yw=%t%s&y=%s",
+               zYear, zWeek,
                statsReportTimelineYFlag);
     if( zUserName ){
       cgi_printf("&u=%t",zUserName);
@@ -749,14 +750,15 @@ static void stats_report_year_weeks(const char *zUserName){
       && rNowFraction>0.05
       && nMaxEvents>0
       ){
-        /* If the covered covered by this row contains "now", then project
+        /* If the timespan covered by this row contains "now", then project
         ** the number of changes until the completion of the week and
         ** show a dashed box of that projection. */
+        int nProj = (int)(((double)nCount)/rNowFraction);
         int nExtra = (int)(((double)nCount)/rNowFraction) - nCount;
         int nXSize = (100 * nExtra)/nMaxEvents;
         @ <span class='statistics-report-graph-line' \
         @  style='display:inline-block;min-width:%d(nSize)%%;'>&nbsp;</span>\
-        @ <span class='statistics-report-graph-extra' \
+        @ <span class='statistics-report-graph-extra' title='%d(nProj)' \
         @  style='display:inline-block;min-width:%d(nXSize)%%;'>&nbsp;</span>\
       }else{
         @ <div class='statistics-report-graph-line' \
@@ -859,6 +861,9 @@ static void stats_report_last_change(void){
 **                        * t   (ticket change)
 **                        * g   (tag added or removed)
 **                     Defaulting to all event types.
+**   from=DATETIME     Consider only events after this timestamp (requires to)
+**   to=DATETIME       Consider only events before this timestamp (requires from)
+**
 **
 ** The view-specific query parameters include:
 **

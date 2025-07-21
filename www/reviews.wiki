@@ -37,29 +37,27 @@ features. Also not having a misanthropic command line interface.
 <b>Stephan Beal writes on 2009-01-11:</b>
 
 <div class="indent">
-Sometime in late 2007 I came across a link to fossil on
-<a href="http://www.sqlite.org/">sqlite.org</a>. It
-was a good thing I bookmarked it, because I was never able to find the
-link again (it might have been in a bug report or something). The
-reasons I first took a close look at it were (A) it stemmed from the
-sqlite project, which I've held in high regards for years (e.g. I
-wrote JavaScript bindings for it:
-<a href="http://spiderape.sourceforge.net/plugins/sqlite/">
-http://spiderape.sourceforge.net/plugins/sqlite/</a>), and (B) it could
-run as a CGI. That second point might seem a bit archaic, but in
-practice CGI is the only way most hosted sites can set up a shared
-source repository with multiple user IDs. (i'm not about to give out
-my only account password or SSH key for my hosted sites, no matter how
-much I trust the other developers, and none of my hosters allow me to
-run standalone servers or add Apache modules.)
+Sometime in late 2007 I came across a link to fossil on <a
+href="https://sqlite.org/">sqlite.org</a>. It was a good thing I
+bookmarked it, because I was never able to find the link again (it
+might have been in a bug report or something). The reasons I first
+took a close look at it were (A) it stemmed from the sqlite project,
+which I've held in high regards for years (e.g. I wrote bindings for
+it for Mozilla's SpiderMonkey JavaScript engine), and (B) it could run
+as a CGI. That second point might seem a bit archaic, but in practice
+CGI is the only way most hosted sites can set up a shared source
+repository with multiple user IDs. (i'm not about to give out my only
+account password or SSH key for my hosted sites, no matter how much I
+trust the other developers, and none of my hosters allow me to run
+standalone servers or add Apache modules.)
 
 So I tried it out. The thing which bugged me most about it was having
 to type "commit" or "com" instead of "ci" for checking in (as is
 custom in all other systems I've used), despite the fact that fossil
 uses "ci" as a filter in things like the timeline view. Looking back
 now, I have used fossil for about about 95% of my work in the past
-year (<a href="http://blog.s11n.net/?p=71"><i>dead link</i></a>), in 
-over 15 source trees, and I now get tripped up when I have to use svn or cvs.
+year, in over 15 source trees, and I now get tripped up when I have to
+use svn or cvs.
 
 So, having got over typing "fossil com -m ...", here's why I love it so much...
 
@@ -72,7 +70,7 @@ code (because google code doesn't allow/recognize Public Domain as a
 license, and I refuse to relicense just to accommodate them), and for
 which SourceForge is overkill (and way too slow). With fossil I can
 create a new repo, have it installed on my hoster
-(http://fossil.wanderinghorse.net), and be commiting code to it within
+(https://fossil.wanderinghorse.net), and be commiting code to it within
 5 minutes.
 
 Point #2: Wiki

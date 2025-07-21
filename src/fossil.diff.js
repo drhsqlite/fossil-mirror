@@ -47,16 +47,26 @@ window.fossil.onPageLoad(function(){
     if(!sib) return;
     const lblToggle = D.label();
     D.append(lblToggle, ckbox, D.text(" show/hide "));
-    const wrapper = D.append(D.span(), lblToggle);
     allToggles.push(ckbox);
     ++checkedCount;
-    D.append(sib, D.append(wrapper, lblToggle));
+    /* Make all of the available empty space a click zone for the checkbox */
+    lblToggle.style.flexGrow = 1;
+    lblToggle.style.textAlign = 'right';
+    D.append(sib, lblToggle);
     ckbox.addEventListener('change', function(){
       diffElem.classList[this.checked ? 'remove' : 'add']('hidden');
       if(btnAll){
         checkedCount += (this.checked ? 1 : -1);
         btnAll.innerText = (checkedCount < allToggles.length)
           ? "Show diffs" : "Hide diffs";
+      }
+    }, false);
+    /* Extend the toggle click zone to all of the non-hyperlink
+       elements in the left of this area (filenames and hashes). */
+    sib.firstElementChild.addEventListener('click', (event)=>{
+      if( event.target===sib.firstElementChild ){
+        /* Don't respond to clicks bubbling via hyperlink children */
+        ckbox.click();;
       }
     }, false);
   };

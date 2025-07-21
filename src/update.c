@@ -103,6 +103,7 @@ int update_to(int vid){
 **   --latest                Acceptable in place of VERSION, update to
 **                           latest version
 **   --nosync                Do not auto-sync prior to update
+**   --proxy PROXY           Use PROXY as http proxy during sync operation
 **   --setmtime              Set timestamps of all files to match their
 **                           SCM-side times (the timestamp of the last
 **                           check-in which modified them).
@@ -200,7 +201,7 @@ void update_cmd(void){
   }
 
   /* If no VERSION is specified on the command-line, then look for a
-  ** descendent of the current version.  If there are multiple descendants,
+  ** descendant of the current version.  If there are multiple descendants,
   ** look for one from the same branch as the current version.  If there
   ** are still multiple descendants, show them all and refuse to update
   ** until the user selects one.
@@ -516,10 +517,6 @@ void update_cmd(void){
         }
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
-      /* Merge the changes in the current tree into the target version */
-      Blob r, t, v;
-      int rc;
-
       if( nameChng ){
         fossil_print("MERGE %s -> %s\n", zName, zNewName);
       }else{
@@ -530,6 +527,9 @@ void update_cmd(void){
         zOp = "CONFLICT";
         nConflict++;
       }else{
+        /* Merge the changes in the current tree into the target version */
+        Blob r, t, v;
+        int rc;
         unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
         if(keepMergeFlag!=0) mergeFlags |= MERGE_KEEP_FILES;
         if( !dryRunFlag && !internalUpdate ) undo_save(zName);
@@ -573,11 +573,11 @@ void update_cmd(void){
           zErrMsg = "cannot merge binary file";
           nc = 1;
         }
+        blob_reset(&v);
+        blob_reset(&t);
+        blob_reset(&r);
       }
       if( nameChng && !dryRunFlag ) file_delete(zFullPath);
-      blob_reset(&v);
-      blob_reset(&t);
-      blob_reset(&r);
     }else{
       nUpdate--;
       if( chnged ){

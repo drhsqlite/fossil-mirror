@@ -54,7 +54,7 @@ suitable for sharing a Fossil repo to a workgroup on a private LAN.
 To do this, write the following in
 `~/.local/share/systemd/user/fossil.service`:
 
-```dosini
+> ```dosini
 [Unit]
 Description=Fossil user server
 After=network-online.target
@@ -166,7 +166,7 @@ It’s more complicated, but it has some nice properties.
 We first need to define the privileged socket listener by writing
 `/etc/systemd/system/fossil.socket`:
 
-```dosini
+> ```dosini
 [Unit]
 Description=Fossil socket
 
@@ -191,7 +191,7 @@ documentation](../any/inetd.md).
 Next, create the service definition file in that same directory as
 `fossil@.service`:
 
-```dosini
+> ```dosini
 [Unit]
 Description=Fossil socket server
 After=network-online.target

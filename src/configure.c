@@ -102,7 +102,6 @@ static struct {
   { "background-image",       CONFIGSET_SKIN },
   { "icon-mimetype",          CONFIGSET_SKIN },
   { "icon-image",             CONFIGSET_SKIN },
-  { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-date-format",   CONFIGSET_SKIN },
   { "timeline-default-style", CONFIGSET_SKIN },
   { "timeline-dwelltime",     CONFIGSET_SKIN },
@@ -373,6 +372,10 @@ static int safeInt(const char *z){
 **    /reportfmt  $MTIME $TITLE owner $VALUE cols $VALUE sqlcode $VALUE jx $JSON
 **    /concealed  $MTIME $HASH content $VALUE
 **    /subscriber $SMTIME $SEMAIL suname $V ...
+**
+** NAME-specific notes:
+**
+**  - /reportftm's $MTIME is in Julian, not the Unix epoch.
 */
 void configure_receive(const char *zName, Blob *pContent, int groupMask){
   int checkMask;   /* Masks for which we must first check existance of tables */
@@ -819,6 +822,8 @@ static void export_config(
 **         the remote repository at URL.
 **
 ** Options:
+**    --proxy PROXY              Use PROXY as http proxy during sync operation
+**                               (used by pull, push and sync subcommands)
 **    -R|--repository REPO       Affect repository REPO with changes
 **
 ** See also: [[settings]], [[unset]]
@@ -891,6 +896,7 @@ void configuration_cmd(void){
     if( g.url.protocol==0 ) fossil_fatal("no server URL specified");
     user_select();
     url_enable_proxy("via proxy: ");
+    g.zHttpAuth = get_httpauth();
     if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
       client_sync(0,0,(unsigned)mask,0,0);

@@ -501,7 +501,7 @@ void tarball_of_checkin(
     int flg, eflg = 0;
     mTime = (unsigned)((pManifest->rDate - 2440587.5)*86400.0);
     if( pTar ) tar_begin(mTime);
-    flg = db_get_manifest_setting();
+    flg = db_get_manifest_setting(blob_str(&hash));
     if( flg ){
       /* eflg is the effective flags, taking include/exclude into account */
       if( (pInclude==0 || glob_match(pInclude, "manifest"))

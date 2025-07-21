@@ -415,21 +415,19 @@ static void win32_http_request(void *pAppData){
   ** is designed to allow the open check-out for the interactive user to work
   ** with the local Fossil server started via the "ui" command.
   */
-  zIp = SocketAddr_toString(&p->addr);
-  if( (p->flags & HTTP_SERVER_HAD_CHECKOUT)==0 ){
-    assert( g.zRepositoryName && g.zRepositoryName[0] );
-    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s--in %s\n--out %s\n--ipaddr %s\n%s",
-      get_utf8_bom(0), zRequestFName, zReplyFName, zIp, g.zRepositoryName
-    );
-  }else{
-    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s--in %s\n--out %s\n--ipaddr %s",
-      get_utf8_bom(0), zRequestFName, zReplyFName, zIp
-    );
-  }
-  fossil_free(zIp);
   aux = fossil_fopen(zCmdFName, "wb");
   if( aux==0 ) goto end_request;
-  fwrite(zCmd, 1, strlen(zCmd), aux);
+  fprintf(aux, "%s--in %s\n", get_utf8_bom(0), zRequestFName);
+  zIp = SocketAddr_toString(&p->addr);
+  fprintf(aux, "--out %s\n--ipaddr %s\n", zReplyFName, zIp);
+  fossil_free(zIp);
+  fprintf(aux, "--as %s\n", g.zCmdName);
+  if( g.zErrlog && g.zErrlog[0] ){
+    fprintf(aux,"--errorlog %s\n", g.zErrlog);
+  }
+  if( (p->flags & HTTP_SERVER_HAD_CHECKOUT)==0 ){
+    fprintf(aux,"%s",g.zRepositoryName);
+  }
 
   sqlite3_snprintf(sizeof(zCmd), zCmd,
     "\"%s\" http -args \"%s\"%s%s",
@@ -1000,7 +998,7 @@ int win32_http_service(
 **
 **              Sets the display name of the service. This name is shown
 **              by graphical interface programs. By default, the display name
-**              equals to the service name.
+**              is equal to the service name.
 **
 **         -S|--start TYPE
 **
@@ -1023,7 +1021,7 @@ int win32_http_service(
 **              Password for the user account.
 **
 **         The following options are more or less the same as for the "server"
-**         command and influence the behaviour of the http server:
+**         command and influence the behavior of the http server:
 **
 **         --baseurl URL
 **

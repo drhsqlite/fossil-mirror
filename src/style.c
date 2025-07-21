@@ -746,9 +746,10 @@ static void style_init_th1_vars(const char *zTitle){
   Th_MaybeStore("default_csp", zDfltCsp);
   fossil_free(zDfltCsp);
   Th_Store("nonce", zNonce);
-  Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
-  Th_Store("project_description", db_get("project-description",""));
-  if( zTitle ) Th_Store("title", zTitle);
+  Th_StoreUnsafe("project_name",
+                 db_get("project-name","Unnamed Fossil Project"));
+  Th_StoreUnsafe("project_description", db_get("project-description",""));
+  if( zTitle ) Th_Store("title", html_lookalike(zTitle,-1));
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("secureurl", fossil_wants_https(1)? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
@@ -774,7 +775,7 @@ static void style_init_th1_vars(const char *zTitle){
   image_url_var("logo");
   image_url_var("background");
   if( !login_is_nobody() ){
-    Th_Store("login", g.zLogin);
+    Th_Store("login", html_lookalike(g.zLogin,-1));
   }
   Th_MaybeStore("current_feature", feature_from_page_path(local_zCurrentPage) );
   if( g.ftntsIssues[0] || g.ftntsIssues[1] ||
@@ -823,6 +824,7 @@ void style_header(const char *zTitleFormat, ...){
     cgi_print_all(0, 0, 0);
     @ </div>
   }
+  fossil_free(zTitle);
 }
 
 #if INTERFACE
@@ -1302,6 +1304,7 @@ void page_style_css(void){
   image_url_var("logo");
   image_url_var("background");
   Th_Render(blob_str(&css));
+  blob_reset(&css);
 
   /* Tell CGI that the content returned by this page is considered cacheable */
   g.isConst = 1;
@@ -1342,7 +1345,41 @@ static char *find_anon_capabilities(char *zCap){
 }
 
 /*
-** WEBPAGE: test_env
+** WEBPAGE: test-title
+**
+** Render a test page in which the page title is set by the "title"
+** query parameter.  This can be used to show that HTML or Javascript
+** content in the title does not leak through into generated page, resulting
+** in an XSS issue.
+**
+** Due to the potential for abuse, this webpage is only available to
+** administrators.
+*/
+void page_test_title(void){
+  const char *zTitle;
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(0);
+  }
+  zTitle = P("title");
+  if( zTitle==0 ){
+    zTitle = "(No Title)";
+  }
+  style_header("%s", zTitle);
+  @ <p>
+  @ This page sets its title to the value of the "title" query parameter.
+  @ The form below is a convenient way to set the title query parameter:
+  @
+  @ <form method="GET">
+  @ Title: <input type="text" size="50" name="title" value="%h(zTitle)">
+  @ <input type="submit" value="Submit">
+  @ </form>
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: test-env
+** WEBPAGE: test_env  alias
 **
 ** Display CGI-variables and other aspects of the run-time
 ** environment, for debugging and trouble-shooting purposes.
@@ -1405,7 +1442,7 @@ void honeypot_page(void){
 ** details of the request environment are displayed.  Otherwise, just
 ** the error message is shown.
 **
-** If zFormat is an empty string, then this is the /test_env page.
+** If zFormat is an empty string, then this is the /test-env page.
 */
 void webpage_error(const char *zFormat, ...){
   int showAll = 0;
@@ -1505,7 +1542,7 @@ void webpage_error(const char *zFormat, ...){
     P("HTTP_USER_AGENT");
     P("SERVER_SOFTWARE");
     cgi_print_all(showAll, 0, 0);
-    @ <p><form method="POST" action="%R/test_env">
+    @ <p><form method="POST" action="%R/test-env">
     @ <input type="hidden" name="showall" value="%d(showAll)">
     @ <input type="submit" name="post-test-button" value="POST Test">
     @ </form>

@@ -149,32 +149,30 @@ system.</li>
 via the MinGW specific Makefile under a POSIX build of GNU make:
 "<b>make -f win/Makefile.mingw</b>".</li>
 
-There is limited support for building under MinGW's native Windows port
-of GNU Make instead by defining the <tt>USE_WINDOWS=1</tt> variable, but
-it's better to build under MSYS, Cygwin, or WSL on Windows since this
-mode doesn't take care of cases such as the "openssl" target, which
-depends on <tt>sed</tt>. We've gone as far down this path as is
-practical short of breaking cross-compilation under Linux, macOS, and so
-forth, as we'd have to do to make everything work under
-<tt>cmd.exe</tt>.
-
-Unless you're building under MSYS where commands like "<tt>gcc</tt>"
-give MinGW's GCC and not some other version, you will need to make minor
-edits to win/Makefile.mingw to configure the cross-compilation
-environment. It should suffice to switch to one of the predefined
-<tt>PREFIX</tt> values, causing the build to be done using
-"<tt>x86_64-w64-mingw32-gcc</tt>" for example, yielding a 64-bit native
-Windows binary.
-
 To enable the native [./th1.md#tclEval | Tcl integration feature], use a
 command line like the following (all on one line):
 
-<b>make -f win/Makefile.mingw FOSSIL_ENABLE_TCL=1 FOSSIL_ENABLE_TCL_STUBS=1 FOSSIL_ENABLE_TCL_PRIVATE_STUBS=1</b>
+<pre>make -f win/Makefile.mingw FOSSIL_ENABLE_TCL=1 FOSSIL_ENABLE_TCL_STUBS=1 FOSSIL_ENABLE_TCL_PRIVATE_STUBS=1</pre>
 
-Alternatively, running <b>./configure</b> under MSYS should give a
-suitable top-level Makefile. However, options passed to configure that are
-not applicable on Windows may cause the configuration or compilation to fail
-(e.g. fusefs, internal-sqlite, etc).
+<li><i>MSYS2 / Cygwin</i> → This is something of a hybrid between
+options "a" and "c" above: it configures and builds
+<code>fossil.exe</code> much as on Linux, but you get a native Windows
+executable out at the end. The primary downside is that this type of
+executable can become confused when attempting to interoperate with
+fully native Windows EXEs by making assumptions that only hold true when
+all elements are running under the Cygwin/MSYS environment. The MSVC and
+MinGW options do not have this limitation.
+
+Even so, there is value to Linux/Unix natives in having this hybrid
+while off in Windows-land. The simpler of the two paths is MSYS2, since
+it lets you install the necessary prerequisites in a single command
+after installing the base environment:
+
+<pre>pacman -sS gcc make openssl-devel zlib-devel</pre>
+
+The equivalent in Cygwin's <code>setup.exe</code> requires stepping
+through the GUI package chooser, and then if you miss one of the
+prereqs, going all the way back through it again until you get it right.
 
 <li><i>MSVC</i> → Use the MSVC makefile.</li>
 
@@ -344,44 +342,32 @@ command].
 
 Fuzzing requires:
 
-  *  Customizing the build of fossil a small bit.
   *  The clang C compiler.
   *  libfuzzer. On Ubuntu-derived systems, it can be installed with
      <tt>apt install libfuzzer-XYZ</tt>, where XYZ is a version number
      (several versions may be available on any given system)
 
 
-First, modify the top-level <tt>Makefile.in</tt>:
+Compile as follows:
 
-  *  Extend the <tt>TCCFLAGS</tt> variable with: <tt>-fsanitize=fuzzer
-   -DFOSSIL_FUZZ</tt> (and see [/finfo/src/fuzz.c | src/fuzz.c] for
-   more options).
-  *  Rename <tt>APPNAME</tt> from <tt>fossil</tt> to <tt>fossil-fuzz</tt>.
-
-Then rebuild:
-
-<pre></code>$ make clean
-$ ./configure CC=/path/to/clang
-$ make
+<pre><code>make clean
+make TCCFLAGS='-DFOSSIL_FUZZ -fsanitize=fuzzer,address,undefined -O0 -g' CC=clang
 </code></pre>
 
-If clang is your default compiler, the <tt>CC</tt> configure option is
-not required.
-
-The resulting <tt>fossil-fuzz</tt> binary differs from the standard
+The resulting <tt>fossil</tt> binary differs from the standard
 one primarily in that it runs the <tt>test-fuzz</tt> command by
 default. It needs to be told what to fuzz and needs to be given a
 directory of input files to seed the fuzzer with:
 
 
-<pre></code>$ mkdir cases
+<pre><code>$ mkdir cases
   # Copy input files into ./cases. e.g. when fuzzing the markdown
   # processor, copy any to-be-tested .md files into that directory.
   # Then start the fuzzer:
 $ ./fossil-fuzz --fuzztype markdown cases
 </code></pre>
 
-As it works, it writes its mutated test files into the test-input
+As it works, it writes its mutated test files into the "cases"
 directory, each one named in the form of a hash. When it finds a
 problem it will produce a stack trace for the offending code, will
 output the name of the file which triggered the crash (named
@@ -507,7 +493,9 @@ files <tt>pikchr.{js,wasm}</tt> will need to be recompiled to account
 for that. Running <tt>make wasm</tt> will, if the build is set up for
 the emsdk, recompile those:
 
-<pre><code>$ make wasm
+<pre><code>$ rm extsrc/pikchr.{js,wasm}
+# ^^^^ that rm has proven necessary in order to ensure rebuilds
+$ make wasm
 ./tools/emcc.sh -o extsrc/pikchr.js ...
 $ ls -la extsrc/pikchr.{js,wasm}
 -rw-rw-r-- 1 stephan stephan 17263 Jun  8 03:59 extsrc/pikchr.js

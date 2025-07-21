@@ -559,6 +559,24 @@ const char *file_tail(const char *z){
 }
 
 /*
+** Return the tail of a command: the basename of the putative executable (which
+** could be quoted when containing spaces) and the following arguments.
+*/
+const char *command_tail(const char *z){
+  const char *zTail = z;
+  char chQuote = 0;
+  if( !zTail ) return 0;
+  while( z[0] && (!fossil_isspace(z[0]) || chQuote) ){
+    if( z[0]=='"' || z[0]=='\'' ){
+      chQuote = (chQuote==z[0]) ? 0 : z[0];
+    }
+    if( fossil_isdirsep(z[0]) ) zTail = &z[1];
+    z++;
+  }
+  return zTail;
+}
+
+/*
 ** Return the directory of a file path name.  The directory is all components
 ** except the last one.  For example, the directory of "/a/b/c.d" is "/a/b".
 ** If there is no directory, NULL is returned; otherwise, the returned memory
@@ -568,6 +586,23 @@ char *file_dirname(const char *z){
   const char *zTail = file_tail(z);
   if( zTail && zTail!=z ){
     return mprintf("%.*s", (int)(zTail-z-1), z);
+  }else{
+    return 0;
+  }
+}
+
+/*
+** Return the basename of the putative executable in a command (w/o arguments).
+** The returned memory should be freed via fossil_free().
+*/
+char *command_basename(const char *z){
+  const char *zTail = command_tail(z);
+  const char *zEnd = zTail;
+  while( zEnd[0] && !fossil_isspace(zEnd[0]) && zEnd[0]!='"' && zEnd[0]!='\'' ){
+    zEnd++;
+  }
+  if( zEnd ){
+    return mprintf("%.*s", (int)(zEnd-zTail), zTail);
   }else{
     return 0;
   }
@@ -1539,6 +1574,13 @@ char *file_fullexename(const char *zCmd){
 **
 ** For each argument, search the PATH for the executable with the name
 ** and print its full pathname.
+**
+** See also the "which" command (without the "test-" prefix).  The plain
+** "which" command is more convenient to use since it provides the -a/-all
+** option, and because it is shorter.  The "fossil which" command without
+** the "test-" prefix is recommended for day-to-day use.  This command is
+** retained because it tests the internal file_fullexename() function
+** whereas plain "which" does not.
 */
 void test_which_cmd(void){
   int i;

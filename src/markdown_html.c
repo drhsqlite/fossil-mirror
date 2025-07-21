@@ -280,7 +280,7 @@ static void html_table(
   void *opaque
 ){
   INTER_BLOCK(ob);
-  blob_append_literal(ob, "<table>\n");
+  blob_append_literal(ob, "<table class='md-table'>\n");
   if( head_row && blob_size(head_row)>0 ){
     blob_append_literal(ob, "<thead>\n");
     blob_appendb(ob, head_row);
@@ -698,7 +698,7 @@ void pikchr_to_html(
   }
   blob_append(&bSrc, zSrc, nSrc)
     /*have to dup input to ensure a NUL-terminated source string */;
-  pikchr_process(blob_str(&bSrc), pikFlags, 0, ob);
+  pikchr_process(blob_str(&bSrc), pikFlags, ob);
   blob_reset(&bSrc);
 }
 
@@ -912,4 +912,61 @@ void markdown_to_html(
   if( output_title ) blob_reset(output_title);
   blob_reset(output_body);
   markdown(output_body, input_markdown, &html_renderer);
+}
+
+/*
+** Undo HTML escapes in Blob p.  In other words convert:
+**
+**     &amp;     ->     &
+**     &lt;      ->     <
+**     &gt;      ->     >
+**     &quot;    ->     "
+**     &#NNN;    ->     ascii character NNN
+*/
+void markdown_dehtmlize_blob(Blob *p){
+  char *z;
+  unsigned int j, k;
+
+  z = p->aData;
+  for(j=k=0; j<p->nUsed; j++){
+    char c = z[j];
+    if( c=='&' ){
+      if( z[j+1]=='#' && fossil_isdigit(z[j+2]) ){
+        int n = 3;
+        int x = z[j+2] - '0';
+        if( fossil_isdigit(z[j+3]) ){
+          x = x*10 + z[j+3] - '0';
+          n++;
+          if( fossil_isdigit(z[j+4]) ){
+            x = x*10 + z[j+4] - '0';
+            n++;
+          }
+        }
+        if( z[j+n]==';' ){
+          z[k++] = (char)x;
+          j += n;
+        }else{
+          z[k++] = c;
+        }
+      }else if( memcmp(&z[j],"&lt;",4)==0 ){
+        z[k++] = '<';
+        j += 3;
+      }else if( memcmp(&z[j],"&gt;",4)==0 ){
+        z[k++] = '>';
+        j += 3;
+      }else if( memcmp(&z[j],"&quot;",6)==0 ){
+        z[k++] = '"';
+        j += 5;
+      }else if( memcmp(&z[j],"&amp;",5)==0 ){
+        z[k++] = '&';
+        j += 4;
+      }else{
+        z[k++] = c;
+      }
+    }else{
+      z[k++] = c;
+    }
+  }
+  z[k] = 0;
+  p->nUsed = k;
 }

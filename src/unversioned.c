@@ -220,8 +220,8 @@ static int contains_whitespace(const char *zName){
 }
 
 /*
-** COMMAND: uv#
-** COMMAND: unversioned
+** COMMAND: uv#                           abbrv-subcom
+** COMMAND: unversioned                   abbrv-subcom
 **
 ** Usage: %fossil unversioned SUBCOMMAND ARGS...
 **    or: %fossil uv SUBCOMMAND ARGS..
@@ -248,6 +248,8 @@ static int contains_whitespace(const char *zName){
 **    cat FILE ...           Concatenate the content of FILEs to stdout.
 **
 **    edit FILE              Bring up FILE in a text editor for modification.
+**                           Options:
+**                             --editor NAME     Name of the text editor to use
 **
 **    export FILE OUTPUT     Write the content of FILE into OUTPUT on disk
 **
@@ -268,6 +270,7 @@ static int contains_whitespace(const char *zName){
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dry-run     Show what would have happened
+**                              --proxy PROXY    Use the specified HTTP proxy
 **
 **    remove|rm|delete FILE ...
 **                           Remove unversioned files from the local repository.
@@ -287,6 +290,7 @@ static int contains_whitespace(const char *zName){
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dry-run     Show what would have happened
+**                              --proxy PROXY    Use the specified HTTP proxy
 **
 **    touch FILE ...         Update the TIMESTAMP on all of the listed files
 **
@@ -361,13 +365,13 @@ void unversioned_cmd(void){
     char *zCmd;             /* Command to run the text editor */
     Blob content;           /* Content of the unversioned file */
 
-    verify_all_options();
-    if( g.argc!=4) usage("edit UVFILE");
-    zUVFile = g.argv[3];
     zEditor = fossil_text_editor();
     if( zEditor==0 ){
       fossil_fatal("no text editor - set the VISUAL env variable");
     }
+    verify_all_options();
+    if( g.argc!=4) usage("edit UVFILE");
+    zUVFile = g.argv[3];
     zTFile = fossil_temp_filename();
     if( zTFile==0 ) fossil_fatal("cannot find a temporary filename");
     db_begin_transaction();

@@ -54,7 +54,8 @@ static int traceCnt = 0;
 **       login LOGIN NONCE SIGNATURE
 **
 ** The LOGIN is the user id of the client.  NONCE is the sha1 checksum
-** of all payload that follows the login card.  SIGNATURE is the sha1
+** of all payload that follows the login card.  Randomness for the NONCE 
+** must be provided in the payload (in xfer.c).  SIGNATURE is the sha1
 ** checksum of the nonce followed by the user password.
 **
 ** Write the constructed login card into pLogin.  pLogin is initialized
@@ -514,6 +515,9 @@ int http_exchange(
   blob_reset(&hdr);
   blob_reset(&payload);
   transport_flip(&g.url);
+  if( mHttpFlags & HTTP_VERBOSE ){
+    fossil_print("IP-Address: %s\n", g.zIpAddr);
+  }
 
   /*
   ** Read and interpret the server reply
@@ -574,6 +578,7 @@ int http_exchange(
                 fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
       int wasHttps;
+      int priorUrlFlags;
 
       if ( --maxRedirect == 0){
         fossil_warning("redirect limit exceeded");
@@ -598,6 +603,7 @@ int http_exchange(
         goto write_err;
       }
       wasHttps = g.url.isHttps;
+      priorUrlFlags = g.url.flags;
       url_parse(&zLine[i], 0);
       if( wasHttps && !g.url.isHttps ){
         fossil_warning("cannot redirect from HTTPS to HTTP");
@@ -612,7 +618,10 @@ int http_exchange(
       fSeenHttpAuth = 0;
       if( g.zHttpAuth ) free(g.zHttpAuth);
       g.zHttpAuth = get_httpauth();
-      if( rc==301 || rc==308 ) url_remember();
+      if( (rc==301 || rc==308) && (priorUrlFlags & URL_REMEMBER)!=0 ){
+        g.url.flags |= URL_REMEMBER;
+        url_remember();
+      }
       return http_exchange(pSend, pReply, mHttpFlags,
                            maxRedirect, zAltMimetype);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
@@ -758,7 +767,7 @@ write_err:
 ** Usage: %fossil test-httpmsg ?OPTIONS? URL ?PAYLOAD? ?OUTPUT?
 **
 ** Send an HTTP message to URL and get the reply. PAYLOAD is a file containing
-** the payload, or "-" to read payload from standard input.  a POST message
+** the payload, or "-" to read payload from standard input.  A POST message
 ** is sent if PAYLOAD is specified and is non-empty.  If PAYLOAD is omitted
 ** or is an empty file, then a GET message is sent.
 **
@@ -795,6 +804,7 @@ void test_httpmsg_command(void){
     mHttpFlags |= HTTP_USE_LOGIN;
     mHttpFlags &= ~HTTP_GENERIC;
   }
+  if( find_option("ipv4",0,0) ) g.fIPv4 = 1;
   verify_all_options();
   if( g.argc<3 || g.argc>5 ){
     usage("URL ?PAYLOAD? ?OUTPUT?");

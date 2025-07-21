@@ -40,22 +40,22 @@ void setup_incr_cfgcnt(void){
 
 /*
 ** Output a single entry for a menu generated using an HTML table.
-** If zLink is not NULL or an empty string, then it is the page that
+** If zLink is neither NULL nor an empty string, then it is the page that
 ** the menu entry will hyperlink to.  If zLink is NULL or "", then
 ** the menu entry has no hyperlink - it is disabled.
 */
 void setup_menu_entry(
   const char *zTitle,
   const char *zLink,
-  const char *zDesc
+  const char *zDesc  /* Caution!  Rendered using %s.  May contain raw HTML. */
 ){
   @ <tr><td valign="top" align="right">
   if( zLink && zLink[0] ){
     @ <a href="%s(zLink)"><nobr>%h(zTitle)</nobr></a>
   }else{
-    @ %h(zTitle)
+    @ <nobr>%h(zTitle)</nobr>
   }
-  @ </td><td width="5"></td><td valign="top">%h(zDesc)</td></tr>
+  @ </td><td width="5"></td><td valign="top">%s(zDesc)</td></tr>
 }
 
 
@@ -185,13 +185,14 @@ void setup_page(void){
 /*
 ** WEBPAGE: setup-logmenu
 **
-** Show a menu of available log renderings accessible to an administrator, 
+** Show a menu of available log renderings accessible to an administrator,
 ** together with a succinct explanation of each.
 **
 ** This page is only accessible by administrators.
 */
 void setup_logmenu_page(void){
   Blob desc;
+  int bErrLog;                 /* True if Error Log enabled */
   blob_init(&desc, 0, 0);
 
   /* Administrator access only */
@@ -202,50 +203,68 @@ void setup_logmenu_page(void){
   }
   style_header("Log Menu");
   @ <table border="0" cellspacing="3">
-  setup_menu_entry("Admin Log", "admin_log",
-    "The admin log records configuration changes to the repository.\n"
-    "The admin log is stored in the \"admin_log\" table of the repository.\n"
+
+  if( db_get_boolean("admin-log",1)==0 ){
+    blob_appendf(&desc,
+      "The admin log records configuration changes to the repository.\n"
+      "<b>Disabled</b>:  Turn on the "
+      " <a href='%R/setup_settings'>admin-log setting</a> to enable."
+    );
+    setup_menu_entry("Admin Log", 0, blob_str(&desc));
+    blob_reset(&desc);
+  }else{
+    setup_menu_entry("Admin Log", "admin_log",
+      "The admin log records configuration changes to the repository\n"
+      "in the \"admin_log\" table.\n"
+    );
+  }
+  setup_menu_entry("Xfer Log", "rcvfromlist",
+    "The artifact log records when new content is added in the\n"
+    "\"rcvfrom\" table.\n"
   );
-  setup_menu_entry("Artifact Log", "rcvfromlist",
-    "The artifact log records when new content is added to the repository.\n"
-    "The time and date and origin of the new content is entered into the\n"
-    "Log.  The artifact log is always on and is stored in the \"rcvfrom\"\n"
-    "table of the repository.\n"
-  );
+  if( db_get_boolean("access-log",1) ){
+    setup_menu_entry("User Log", "user_log",
+      "Login attempts recorded in the \"accesslog\" table."
+    );
+  }else{
+    blob_appendf(&desc,
+      "Login attempts recorded in the \"accesslog\" table.\n"
+      "<b>Disabled</b>:  Turn on the "
+      "<a href='%R/setup_settings'>access-log setting</a> to enable."
+    );
+    setup_menu_entry("User Log", 0, blob_str(&desc));
+    blob_reset(&desc);
+  }
 
   blob_appendf(&desc,
-    "The error log is a separate text file to which warning and error\n"
+    "A separate text file to which warning and error\n"
     "messages are appended.  A single error log can and often is shared\n"
     "across multiple repositories.\n"
   );
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    blob_appendf(&desc,"The error log is disabled for this repository.");
+    blob_appendf(&desc,"<b>Disabled</b>: "
+                       "To enable the error log ");
+    if( fossil_strcmp(g.zCmdName, "cgi")==0 ){
+      blob_appendf(&desc,
+        "make an entry like \"errorlog: <i>FILENAME</i>\""
+        " in the CGI script at %h",
+        P("SCRIPT_FILENAME")
+      );
+    }else{
+      blob_appendf(&desc,
+        " add the \"--errorlog <i>FILENAME</i>\" option to the\n"
+        "\"%h %h\" command that launched the server.",
+        g.argv[0], g.zCmdName
+      );
+    }
+    bErrLog = 0;
   }else{
-    blob_appendf(&desc,"In this repository, the error log is in the file"
+    blob_appendf(&desc,"In this repository, the error log is the file "
        "named \"%s\".", g.zErrlog);
+    bErrLog = 1;
   }
-  setup_menu_entry("Error Log", "errorlog", blob_str(&desc));
+  setup_menu_entry("Error Log", bErrLog ? "errorlog" : 0, blob_str(&desc));
   blob_reset(&desc);
-
-  setup_menu_entry("Panic Log", "paniclog",
-    "The panic log is a filtering of the Error Log that shows only the\n"
-    "most important messages - assertion faults, segmentation faults, and\n"
-    "similar malfunctions."
-  );
-
-  setup_menu_entry("User Log", "user_log",
-    "The user log is a record of login attempts.  The user log is stored\n"
-    "in the \"accesslog\" table of the respository.\n"
-  );
-
-  setup_menu_entry("Hack Log", "hacklog",
-    "All 418 hack attempts"
-  );
-
-  setup_menu_entry("Non-Hack Log", "hacklog?not",
-    "All log messages that are not hack attempts"
-  );
-
 
   @ </table>
   style_finish_page();
@@ -445,7 +464,7 @@ static void addAutoHyperlinkSettings(void){
   @ Javascript").</p>
   @
   @ <p>To see if Javascript-base hyperlink enabling mechanism is working,
-  @ visit the <a href="%R/test_env">/test_env</a> page (from a separate
+  @ visit the <a href="%R/test-env">/test-env</a> page (from a separate
   @ web browser that is not logged in, even as "anonymous") and verify
   @ that the "g.jsHref" value is "1".</p>
   @ <p>(Properties: "auto-hyperlink", "auto-hyperlink-delay", and
@@ -587,7 +606,7 @@ void setup_access(void){
   @ (Property: "localauth")
   @
   @ <hr>
-  onoff_attribute("Enable /test_env",
+  onoff_attribute("Enable /test-env",
      "test_env_enable", "test_env_enable", 0, 0);
   @ <p>When enabled, the %h(g.zBaseURL)/test_env URL is available to all
   @ users.  When disabled (the default) only users Admin and Setup can visit
@@ -918,7 +937,7 @@ void setup_login_group(void){
   @
   @ <li><p><b>project-name</b> &rarr;
   @ The human-readable name for the project.  The project-name can be
-  @ modified in the first entry on the 
+  @ modified in the first entry on the
   @ <a href="./setup_config">Setup/Configuration page</a>.
   @
   @ <li><p><b>peer-repo-<i>CODE</i></b> &rarr;
@@ -965,13 +984,6 @@ void setup_timeline(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
 
   @ <hr>
-  onoff_attribute("Allow block-markup in timeline",
-                  "timeline-block-markup", "tbm", 0, 0);
-  @ <p>In timeline displays, check-in comments can be displayed with or
-  @ without block markup such as paragraphs, tables, etc.
-  @ (Property: "timeline-block-markup")</p>
-
-  @ <hr>
   onoff_attribute("Plaintext comments on timelines",
                   "timeline-plaintext", "tpt", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed literally,
@@ -992,6 +1004,16 @@ void setup_timeline(void){
   @ <p>In timeline displays, newline characters in check-in comments force
   @ a line break on the display.
   @ (Property: "timeline-hard-newlines")</p>
+
+  @ <hr>
+  onoff_attribute("Do not adjust user-selected background colors",
+                  "raw-bgcolor", "rbgc", 0, 0);
+  @ <p>Fossil normally attempts to adjust the saturation and intensity of
+  @ user-specified background colors on check-ins and branches so that the
+  @ foreground text is easily readable on all skins.  Enable this setting
+  @ to omit that adjustment and use exactly the background color specified
+  @ by users.
+  @ (Property: "raw-bgcolor")</p>
 
   @ <hr>
   onoff_attribute("Use Universal Coordinated Time (UTC)",
@@ -1092,6 +1114,7 @@ void setup_settings(void){
   int nSetting;
   int i;
   Setting const *pSet;
+  int bIfChng = P("all")==0;
   const Setting *aSetting = setting_info(&nSetting);
 
   login_check_credentials();
@@ -1108,6 +1131,10 @@ void setup_settings(void){
     db_open_local(0);
   }
   db_begin_transaction();
+  if( bIfChng ){
+    @ <p>Only settings whose value is different from the default are shown.
+    @ Click the "All" button above to set all settings.
+  }
   @ <p>Settings marked with (v) are "versionable" and will be overridden
   @ by the contents of managed files named
   @ "<tt>.fossil-settings/</tt><i>SETTING-NAME</i>".
@@ -1115,12 +1142,21 @@ void setup_settings(void){
   @ changed on this screen.</p><hr><p>
   @
   @ <form action="%R/setup_settings" method="post"><div>
+  if( bIfChng ){
+    style_submenu_element("All", "%R/setup_settings?all");
+  }else{
+    @ <input type="hidden" name="all" value="1">
+    style_submenu_element("Changes-Only", "%R/setup_settings");
+  }
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width==0 ){
       int hasVersionableValue = pSet->versionable &&
-          (db_get_versioned(pSet->name, NULL)!=0);
+          (db_get_versioned(pSet->name, NULL, NULL)!=0);
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
+      }
       onoff_attribute("", pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       is_truth(pSet->def), hasVersionableValue);
@@ -1138,7 +1174,10 @@ void setup_settings(void){
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && !pSet->forceTextArea ){
       int hasVersionableValue = pSet->versionable &&
-          (db_get_versioned(pSet->name, NULL)!=0);
+          (db_get_versioned(pSet->name, NULL, NULL)!=0);
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
+      }
       @ <tr><td>
       @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
@@ -1157,7 +1196,10 @@ void setup_settings(void){
   @ </td><td style="width:50px;"></td><td valign="top">
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && pSet->forceTextArea ){
-      int hasVersionableValue = db_get_versioned(pSet->name, NULL)!=0;
+      int hasVersionableValue = db_get_versioned(pSet->name, NULL, NULL)!=0;
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
+      }
       @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
@@ -1256,7 +1298,7 @@ void setup_config(void){
   textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "", 0);
   @ <p>Describe your project. This will be used in page headers for search
-  @ engines as well as a short RSS description.
+  @ engines, the repository listing and a short RSS description.
   @ (Property: "project-description")</p>
   @ <hr>
   entry_attribute("Canonical Server URL", 40, "email-url",
@@ -1394,17 +1436,18 @@ void setup_wiki(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  onoff_attribute("Associate Wiki Pages With Branches, Tags, or Checkins",
+  onoff_attribute("Associate Wiki Pages With Branches, Tags, Tickets, or Checkins",
                   "wiki-about", "wiki-about", 1, 0);
   @ <p>
-  @ Associate wiki pages with branches, tags, or checkins, based on
-  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/"
-  @ or "tag/" and which continue with the name of an existing branch, check-in
-  @ or tag are treated specially when this feature is enabled.
+  @ Associate wiki pages with branches, tags, tickets, or checkins, based on
+  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/",
+  @ "tag/" or "ticket" and which continue with the name of an existing branch,
+  @ check-in, tag or ticket are treated specially when this feature is enabled.
   @ <ul>
   @ <li> <b>branch/</b><i>branch-name</i>
   @ <li> <b>checkin/</b><i>full-check-in-hash</i>
   @ <li> <b>tag/</b><i>tag-name</i>
+  @ <li> <b>ticket/</b><i>full-ticket-hash</i>
   @ </ul>
   @ (Property: "wiki-about")</p>
   @ <hr>
@@ -2103,7 +2146,7 @@ void page_admin_log(){
   create_admin_log_table();
   limit = atoi(PD("n","200"));
   ofst = atoi(PD("x","0"));
-  fLogEnabled = db_get_boolean("admin-log", 0);
+  fLogEnabled = db_get_boolean("admin-log", 1);
   @ <div>Admin logging is %s(fLogEnabled?"on":"off").
   @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
 
@@ -2217,6 +2260,8 @@ void page_srchsetup(){
   onoff_attribute("Search Tech Notes", "search-technote", "se", 0, 0);
   @ <br>
   onoff_attribute("Search Forum", "search-forum", "sf", 0, 0);
+  @ <br>
+  onoff_attribute("Search Built-in Help Text", "search-help", "sh", 0, 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>

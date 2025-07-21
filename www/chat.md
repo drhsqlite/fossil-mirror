@@ -166,6 +166,24 @@ setting.
 This mechanism is similar to [email notification](./alerts.md) except that
 the notification is sent via chat instead of via email.
 
+## Quirks
+
+  - There is no message-editing capability. This is by design and
+    desire of `/chat`'s developers.
+
+  - When `/chat` has problems connecting to the message poller (see
+    the next section) it will provide a subtle visual indicator of the
+    connection problem - a dotted line along the top of the input
+    field.  If the connection recovers within a short time, that
+    indicator will go away, otherwise it will pop up a loud message
+    signifying that the connection to the poller is down and how long
+    it will wait to retry (progressively longer, up to some
+    maximum).  `/chat` will recover automatically when the server is
+    reachable.  Trying to send messages while the poller connection is
+    down is permitted, and the poller will attempt to recover
+    immediately if sending of a message succeeds. That applies to any
+    operations which send traffic, e.g. if the per-message "toggle
+    text mode" button is activated or a message is globally deleted.
 
 ## Implementation Details
 

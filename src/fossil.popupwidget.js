@@ -288,7 +288,7 @@
   F.toast = {
     config: {
       position: { x: 5, y: 5 /*viewport-relative, pixels*/ },
-      displayTimeMs: 3000
+      displayTimeMs: 5000
     },
     /**
        Convenience wrapper around a PopupWidget which pops up a shared

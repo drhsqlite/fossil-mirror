@@ -256,7 +256,8 @@ void chat_webpage(void){
   @   fromcli: %h(PB("cli")?"true":"false"),
   @   alertSound: "%h(zAlert)",
   @   initSize: %d(db_get_int("chat-initial-history",50)),
-  @   imagesInline: !!%d(db_get_boolean("chat-inline-images",1))
+  @   imagesInline: !!%d(db_get_boolean("chat-inline-images",1)),
+  @   pollTimeout: %d(db_get_int("chat-poll-timeout",420))
   @ };
   ajax_emit_js_preview_modes(0);
   chat_emit_alert_list();

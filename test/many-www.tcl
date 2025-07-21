@@ -26,7 +26,7 @@ foreach url {
   /wcontent
   /attachlist
   /taglist
-  /test_env
+  /test-env
   /stat
   /rcvfromlist
   /urllist

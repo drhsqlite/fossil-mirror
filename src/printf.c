@@ -107,6 +107,7 @@ int length_of_S_display(void){
                            See blob_append_escaped_arg() for details
                            "%$"  -> adds "./" prefix if necessary.
                            "%!$" -> omits the "./" prefix. */
+#define etHEX        27 /* Encode a string as hexadecimal */
 
 
 /*
@@ -144,7 +145,7 @@ typedef struct et_info {   /* Information about each format field */
 */
 static const char aDigits[] = "0123456789ABCDEF0123456789abcdef";
 static const char aPrefix[] = "-x0\000X0";
-static const char fmtchr[] = "dsgzqQbBWhRtTwFSjcouxXfeEGin%p/$";
+static const char fmtchr[] = "dsgzqQbBWhRtTwFSjcouxXfeEGin%p/$H";
 static const et_info fmtinfo[] = {
   {  'd', 10, 1, etRADIX,      0,  0 },
   {  's',  0, 4, etSTRING,     0,  0 },
@@ -178,6 +179,7 @@ static const et_info fmtinfo[] = {
   {  'p', 16, 0, etPOINTER,    0,  1 },
   {  '/',  0, 0, etPATH,       0,  0 },
   {  '$',  0, 0, etSHELLESC,   0,  0 },
+  {  'H',  0, 0, etHEX,        0,  0 },
   {  etERROR, 0,0,0,0,0}  /* Must be last */
 };
 #define etNINFO count(fmtinfo)
@@ -241,23 +243,39 @@ static int StrNLen32(const char *z, int N){
 #endif
 
 /*
+** SETTING: timeline-plaintext         boolean default=off
+**
+** If enabled, no wiki-formatting is done for timeline comment messages.
+** Hyperlinks are activated, but they show up on screen using the 
+** complete input text, not just the display text.  No other formatting
+** is done.
+*/
+/*
+** SETTING: timeline-hard-newlines     boolean default=off
+**
+** If enabled, the timeline honors newline characters in check-in comments.
+** In other words, newlines are coverted into <br> for HTML display.
+** The default behavior, when this setting is off, is that newlines are
+** treated like any other whitespace character.
+*/
+
+/*
 ** Return an appropriate set of flags for wiki_convert() for displaying
 ** comments on a timeline.  These flag settings are determined by
 ** configuration parameters.
 **
 ** The altForm2 argument is true for "%!W" (with the "!" alternate-form-2
-** flags) and is false for plain "%W".  The ! indicates that the text is
-** to be rendered on a form rather than the timeline and that block markup
-** is acceptable even if the "timeline-block-markup" setting is false.
+** flags) and is false for plain "%W".  The ! flag indicates that the
+** formatting is for display of a check-in comment on the timeline.  Such
+** comments used to be renderedd differently, but ever since 2020, they
+** have been rendered identially, so the ! flag does not make any different
+** in the output any more.
 */
-static int wiki_convert_flags(int altForm2){
+int wiki_convert_flags(int altForm2){
   static int wikiFlags = 0;
+  (void)altForm2;
   if( wikiFlags==0 ){
-    if( altForm2 || db_get_boolean("timeline-block-markup", 0) ){
-      wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
-    }else{
-      wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
-    }
+    wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
     if( db_get_boolean("timeline-plaintext", 0) ){
       wikiFlags |= WIKI_LINKSONLY;
     }
@@ -758,6 +776,7 @@ int vxprintf(
         isnull = escarg==0;
         if( isnull ) escarg = (xtype==etSQLESCAPE2 ? "NULL" : "(NULL)");
         if( limit<0 ) limit = strlen(escarg);
+        if( precision>=0 && precision<limit ) limit = precision;
         for(i=n=0; i<limit; i++){
           if( escarg[i]==q )  n++;
         }
@@ -777,7 +796,6 @@ int vxprintf(
         if( needQuote ) bufpt[j++] = q;
         bufpt[j] = 0;
         length = j;
-        if( precision>=0 && precision<length ) length = precision;
         break;
       }
       case etHTMLIZE: {
@@ -843,6 +861,17 @@ int vxprintf(
       case etSHELLESC: {
         char *zArg = va_arg(ap, char*);
         blob_append_escaped_arg(pBlob, zArg, !flag_altform2);
+        length = width = 0;
+        break;
+      }
+      case etHEX: {
+        char *zArg = va_arg(ap, char*);
+        int szArg = (int)strlen(zArg);
+        int szBlob = blob_size(pBlob);
+        u8 *aBuf;
+        blob_resize(pBlob, szBlob+szArg*2+1);
+        aBuf = (u8*)&blob_buffer(pBlob)[szBlob];
+        encode16((const u8*)zArg, aBuf, szArg);
         length = width = 0;
         break;
       }
@@ -1050,6 +1079,7 @@ void fossil_errorlog(const char *zFormat, ...){
   const char *z;
   int i;
   int bDetail = 0;
+  int bBrief = 0;
   va_list ap;
   static const char *const azEnv[] = { "HTTP_HOST", "HTTP_REFERER",
       "HTTP_USER_AGENT",
@@ -1071,12 +1101,16 @@ void fossil_errorlog(const char *zFormat, ...){
   if( zFormat[0]=='X' ){
     bDetail = 1;
     zFormat++;
+  }else if( strncmp(zFormat,"SMTP:",5)==0 ){
+    bBrief = 1;
   }
   vfprintf(out, zFormat, ap);
-  fprintf(out, "\n");
+  fprintf(out, " (pid %d)\n", (int)getpid());
   va_end(ap);
   if( g.zPhase!=0 ) fprintf(out, "while in %s\n", g.zPhase);
-  if( bDetail ){
+  if( bBrief ){
+    /* Say nothing more */
+  }else if( bDetail ){
     cgi_print_all(1,3,out);
   }else{
     for(i=0; i<count(azEnv); i++){
@@ -1089,7 +1123,7 @@ void fossil_errorlog(const char *zFormat, ...){
       }
     }
   }
-  fclose(out);
+  if( out!=stderr ) fclose(out);
 }
 
 /*
@@ -1126,11 +1160,19 @@ static int fossil_print_error(int rc, const char *z){
     g.cgiOutput = 2;
     cgi_reset_content();
     cgi_set_content_type("text/html");
-    style_set_current_feature("error");
+    if( g.zLogin!=0 ){
+      style_set_current_feature("error");
+    }
     style_header("Bad Request");
     etag_cancel();
-    @ <p class="generalError">%h(z)</p>
-    cgi_set_status(400, "Bad Request");
+    if( g.zLogin==0 ){
+      /* Do not give unnecessary clues about a malfunction to robots */
+      @ <p>Something did not work right.</p>
+      @ <p>%h(z)</p>
+    }else{
+      @ <p class="generalError">%h(z)</p>
+      cgi_set_status(400, "Bad Request");
+    }
     style_finish_page();
     cgi_reply();
   }else if( !g.fQuiet ){
