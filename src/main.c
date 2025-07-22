@@ -232,7 +232,6 @@ struct Global {
   const char *zPidKey;    /* Saved value of the --usepidkey option.  Only
                            * applicable when using SEE on Windows or Linux. */
 #endif
-  char *zLoginCard;       /* X-Fossil-Xfer-Login request header value */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
@@ -291,6 +290,11 @@ struct Global {
   int nPendingRequest;           /* # of HTTP requests in "fossil server" */
   int nRequest;                  /* Total # of HTTP request */
   int bAvoidDeltaManifests;      /* Avoid using delta manifests if true */
+  struct {
+    char *zLoginCard;       /* X-Fossil-Xfer-Login request header value */
+    int bLoginCardHeader;   /* If true, emit login cards as HTTP headers
+                            ** instead of as part of the payload */
+  } syncInfo;
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else
@@ -761,6 +765,11 @@ int fossil_main(int argc, char **argv){
 #endif
   g.mainTimerId = fossil_timer_start();
   capture_case_sensitive_option();
+  g.syncInfo.bLoginCardHeader =
+    /* This is only for facilitating development of the
+    ** xfer-login-card branch. It will be removed or re-imagined at
+    ** some point. */
+    !!find_option("login-card-header","lch", 0);
   g.zVfsName = find_option("vfs",0,1);
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");

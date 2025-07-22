@@ -54,14 +54,17 @@ static int traceCnt = 0;
 **       login LOGIN NONCE SIGNATURE
 **
 ** The LOGIN is the user id of the client.  NONCE is the sha1 checksum
-** of all payload that follows the login card.  Randomness for the NONCE 
-** must be provided in the payload (in xfer.c).  SIGNATURE is the sha1
-** checksum of the nonce followed by the user password.
+** of all payload that follows the login card.  Randomness for the
+** NONCE must be provided in the payload (in xfer.c) (e.g. by
+** appending a timestamp or random bytes as a comment line to the
+** payload).  SIGNATURE is the sha1 checksum of the nonce followed by
+** the fossil-hashed version of the user's password.
 **
-** Write the constructed login card into pLogin.  pLogin is initialized
-** by this routine.
+** Write the constructed login card into pLogin. The result does not
+** have an EOL added to it because which type of EOL it needs has to
+** be determined later.  pLogin is initialized by this routine.
 */
-static void http_build_login_card(Blob *pPayload, Blob *pLogin){
+static void http_build_login_card(Blob * const pPayload, Blob * const pLogin){
   Blob nonce;          /* The nonce */
   const char *zLogin;  /* The user login name */
   const char *zPw;     /* The user password */
@@ -130,12 +133,13 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 /*
 ** Construct an appropriate HTTP request header.  Write the header
 ** into pHdr.  This routine initializes the pHdr blob.  pPayload is
-** the complete payload (including the login card) already compressed.
+** the complete payload (including the login card if pLogin is NULL or
+** empty) already compressed.
 */
 static void http_build_header(
-  Blob *pLogin,                /* Login card or NULL */
   Blob *pPayload,              /* the payload that will be sent */
   Blob *pHdr,                  /* construct the header here */
+  Blob *pLogin,                /* Login card header value or NULL */
   const char *zAltMimetype     /* Alternative mimetype */
 ){
   int nPayload = pPayload ? blob_size(pPayload) : 0;
@@ -156,7 +160,7 @@ static void http_build_header(
   blob_appendf(pHdr, "Host: %s\r\n", g.url.hostname);
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
   if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
-  if( pLogin ){
+  if( pLogin && blob_size(pLogin) ){
     blob_appendf(pHdr, "X-Fossil-Xfer-Login: %b\r\n", pLogin);
   }
   if( nPayload ){
@@ -470,38 +474,45 @@ int http_exchange(
     blob_zero(&payload);
   }else{
     if( mHttpFlags & HTTP_USE_LOGIN ) http_build_login_card(pSend, &login);
-#define TEST_LOGIN_HEADER 0 /* temporary dev/test/debug crutch */
-#if TEST_LOGIN_HEADER
-    if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
-      /*blob_append(&payload, blob_buffer(pSend), blob_size(pSend));*/
-      blob_zero(&payload);
-      blob_swap(pSend, &payload);
-    }else{
-      blob_compress(pSend, &payload);
-    }
-#else
-    if( blob_size(&login) ){
-      blob_append_char(&login, '\n');
-    }
-    if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
-      payload = login;
-      login = empty_blob/*transfer ownership*/;
-      blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
-    }else{
-      blob_compress2(&login, pSend, &payload);
-      blob_reset(&login);
-    }
+#if 0
+    fprintf(stderr, "# g.syncInfo.bLoginCardHeader=%d login card=%s\n",
+            g.syncInfo.bLoginCardHeader,
+            blob_size(&login) ? blob_str(&login) : "<empty>");
 #endif
+    if( g.syncInfo.bLoginCardHeader ) {
+      /* Send the login card as an HTTP header. */
+      if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
+#if 1
+        /*blob_append(&payload, blob_buffer(pSend), blob_size(pSend));*/
+        blob_init(&payload, blob_buffer(pSend), blob_size(pSend));
+#else
+        /* This could save memory but looks like it would break in a
+        ** couple of cases in the loop below where pSend is referenced
+        ** for HTTP 401 and redirects. */
+        blob_zero(&payload);
+        blob_swap(pSend, &payload);
+#endif
+      }else{
+        blob_compress(pSend, &payload);
+      }
+    }else{
+      /* Prepend the login card (if set) to the payload */
+      if( blob_size(&login) ){
+        blob_append_char(&login, '\n');
+      }
+      if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
+        payload = login;
+        login = empty_blob/*transfer ownership*/;
+        blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
+      }else{
+        blob_compress2(&login, pSend, &payload);
+        blob_reset(&login);
+      }
+    }
   }
 
   /* Construct the HTTP request header */
-#if !TEST_LOGIN_HEADER
-  http_build_header(0, &payload, &hdr, zAltMimetype);
-#else
-  http_build_header(blob_size(&login) ? &login : 0,
-                    &payload, &hdr, zAltMimetype);
-  blob_reset(&login);
-#endif
+  http_build_header(&payload, &hdr, &login, zAltMimetype);
 
   /* When tracing, write the transmitted HTTP message both to standard
   ** output and into a file.  The file can then be used to drive the

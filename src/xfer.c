@@ -1332,22 +1332,23 @@ void page_xfer(void){
     pzUuidList = &zUuidList;
     pnUuidList = &nUuidList;
   }
-  if( g.zLoginCard ){
+  if( g.syncInfo.zLoginCard ){
     /* Login card received via HTTP header X-Fossil-Xfer-Login */
     blob_zero(&xfer.line);
-    blob_append(&xfer.line, g.zLoginCard, -1);
+    blob_append(&xfer.line, g.syncInfo.zLoginCard, -1);
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken,
                                 count(xfer.aToken));
 #if 0
-    fprintf(stderr,"%s:%d: g.zLoginCard=[%s]\nnToken=%d tok[0]=%s line=%s\n",
-            __FILE__, __LINE__, g.zLoginCard,
+    fprintf(stderr,"%s:%d: g.syncInfo.zLoginCard=[%s]\nnToken=%d tok[0]=%s line=%s\n",
+            __FILE__, __LINE__, g.syncInfo.zLoginCard,
             xfer.nToken, xfer.nToken ? blob_str(&xfer.aToken[0]) : "<NULL>",
             blob_str(&xfer.line));
 #endif
-    fossil_free( g.zLoginCard );
-    g.zLoginCard = 0;
+    fossil_free( g.syncInfo.zLoginCard );
+    g.syncInfo.zLoginCard = 0;
     if( xfer.nToken==4
         && blob_eq(&xfer.aToken[0], "login") ){
+      g.syncInfo.bLoginCardHeader = 1;
       goto handle_login_card;
     }
   }
@@ -1606,7 +1607,7 @@ void page_xfer(void){
         break;
       }else{
 #if 0
-        fprintf(stderr, "handle_login_card: aToken[2]=[%.*s]\n",
+        fprintf(stderr, "# handle_login_card: aToken[2]=[%.*s]\n",
                 blob_size(&xfer.aToken[2]),
                 blob_str(&xfer.aToken[2]));
 #endif
@@ -1618,6 +1619,11 @@ void page_xfer(void){
           nErr++;
           break;
         }
+#if 0
+        fprintf(stderr, "# logged in as [%.*s]\n",
+                blob_size(&xfer.aToken[1]),
+                blob_str(&xfer.aToken[1]));
+#endif
       }
     }else
 
@@ -1747,6 +1753,8 @@ void page_xfer(void){
       */
       if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
         xfer.remoteVersion = atoi(blob_str(&xfer.aToken[2]));
+        g.syncInfo.bLoginCardHeader =
+          xfer.remoteVersion>=RELEASE_VERSION_NUMBER;
         if( xfer.nToken>=5 ){
           xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
           xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));
