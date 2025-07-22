@@ -467,7 +467,6 @@ int http_exchange(
     fossil_warning("%s", transport_errmsg(&g.url));
     return 1;
   }
-
   /* Construct the login card and prepare the complete payload */
   blob_zero(&login);
   if( blob_size(pSend)==0 ){

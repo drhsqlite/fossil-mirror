@@ -881,6 +881,9 @@ static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       g.userUid = db_column_int(&q, 2);
       g.zLogin = mprintf("%b", pLogin);
       g.zNonce = mprintf("%b", pNonce);
+      if( g.perm.Debug ){
+        @ message g.zLogin=%F(g.zLogin)\szCap=%F(zCap)
+      }
     }
   }
   db_finalize(&q);
@@ -1328,6 +1331,7 @@ void page_xfer(void){
     g.syncInfo.zLoginCard = 0;
     if( xfer.nToken==4
         && blob_eq(&xfer.aToken[0], "login") ){
+      @ message got\slogin\scard\sheader
       goto handle_login_card;
     }
   }
@@ -1576,6 +1580,10 @@ void page_xfer(void){
      && xfer.nToken==4
     ){
     handle_login_card:
+      //fprintf(stderr, "%s:%d trying to log in: %s\n", __FILE__, __LINE__, blob_str(&xfer.line));
+      if( 1 || g.perm.Debug ){
+        @message inbound\slogin\scard:\s%F(blob_str(&xfer.line))
+      }
       nLogin++;
       if( disableLogin ){
         g.perm.Read = g.perm.Write = g.perm.Private = g.perm.Admin = 1;
@@ -2370,7 +2378,6 @@ int client_sync(
     }else if( zClientId ){
       blob_appendf(&send, "pragma ci-unlock %s\n", zClientId);
     }
-
     /* Append randomness to the end of the uplink message.  This makes all
     ** messages unique so that that the login-card nonce will always
     ** be unique.
@@ -2927,7 +2934,7 @@ int client_sync(
           nErr++;
           break;
         }
-        blob_appendf(&xfer.err, "unknown command: [%b]\n", &xfer.aToken[0]);
+        blob_appendf(&xfer.err, "unknown command: [%b]\n", &xfer.line);
       }
 
       if( blob_size(&xfer.err) ){

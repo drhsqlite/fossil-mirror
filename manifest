@@ -1,5 +1,5 @@
-C Remove\ssome\sdead\scode.\sAdd\ssome\sinternal\sdocs.\sAdd\sa\scouple\sof\sconst\squalifiers\sto\shelp\sme\sreason\sthrough\sthe\sxfer\spayload\sbuffer's\slifetime.
-D 2025-07-22T18:11:39.230
+C Add\ssome\sdebugging\s'message'\scards\sto\shelp\strace\show\sthe\sremote\sis\shandling\sthe\slogin.
+D 2025-07-22T22:53:49.107
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -465,7 +465,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c ef5db2e248cec58dd42620e896ed9d6656ad649712bb7d1d5063ad46d460c028
+F src/http.c ec95db57739eaa335446fb8f745c3b0823d64290cf8eb3413750df2e3932f8d2
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c c378b9724a8be6f1b7959af8080b028cf500e5f7845ae098870cef3bb7aa8ebb
 F src/http_transport.c 09ff9671f03fa82327545de531028a928dbf2e4e73fb4f0d52a56acc907fe85b
@@ -594,7 +594,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
-F src/xfer.c 1d82dfa388db52ca594d43088b836d6a5725ee4776d4e18ba1d990f339ea3ac6
+F src/xfer.c 8351767beb337bfcfd6fa957ec23e3f39215ec6303f01a8c8fd9b83bd8e8a9fe
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c 9c1aef77501646117309bf489e95e1e62a87cdb3156bea2fb55533aabf588279
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1078a123c1c2ddbd98875d04af278476414d50dda7024ecd59f8974f76f8f24c
-R 367b8a0bbb14dfe374d4504df6bb4149
+P 459d0cbbc777f0d02880131835036bf8f5859582538d990e4fee9ee11bfbec01
+R 905448aba79abeb7e2d5a1064563bb4b
 U stephan
-Z 739b25099eea0845895528bd35186f3c
+Z b36424884678d680fede5b0c2196db93
 # Remove this line to create a well-formed Fossil manifest.
