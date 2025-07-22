@@ -290,10 +290,16 @@ struct Global {
   int nPendingRequest;           /* # of HTTP requests in "fossil server" */
   int nRequest;                  /* Total # of HTTP request */
   int bAvoidDeltaManifests;      /* Avoid using delta manifests if true */
+
+  /* State for communicating specific details between the inbound HTTP
+  ** header parser (cgi.c), xfer.c, and http.c. */
   struct {
-    char *zLoginCard;       /* X-Fossil-Xfer-Login request header value */
-    int bLoginCardHeader;   /* If true, emit login cards as HTTP headers
-                            ** instead of as part of the payload */
+    char *zLoginCard;       /* Inbound X-Fossil-Xfer-Login request header */
+    int bLoginCardHeader;   /* If true, emit login cards in outbound
+                            ** requests as HTTP headers instead of as
+                            ** part of the payload. Gets activated
+                            ** on-demand based on xfer traffic
+                            ** contents. */
   } syncInfo;
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {

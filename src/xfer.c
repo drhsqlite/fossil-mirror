@@ -1348,7 +1348,6 @@ void page_xfer(void){
     g.syncInfo.zLoginCard = 0;
     if( xfer.nToken==4
         && blob_eq(&xfer.aToken[0], "login") ){
-      g.syncInfo.bLoginCardHeader = 1;
       goto handle_login_card;
     }
   }
