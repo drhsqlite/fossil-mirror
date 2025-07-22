@@ -1,5 +1,5 @@
-C Doc\stypo\sfixes.
-D 2025-07-22T15:53:15.032
+C Remove\slots\sof\sdebug\soutput.\sReplace\sa\scouple\sof\smprintf()\swith\sfossil_strdup()\sand\sa\scouple\sfree()\swith\sfossil_free().\sMilestone:\slibfossil\shas\ssuccessfully\slogged\sin\sto\sthis\sversion\sof\sfossil.
+D 2025-07-22T17:52:50.162
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c b91672d0eddb6d7dda1d8ddbfe4b4399b73279687bc604c8bcd8b5dab01bb765
+F src/cgi.c dccb23e04fbef37ff574c153b0df5c8cb82b10da09d0cf083bd99f3cf52e46e2
 F src/chat.c 6965e8292e4cdce5347e027a841adcf97da5ffc17cbfbf6b2971ac432dfe9c67
 F src/checkin.c 17224d59bae25829aa6ff0cff8928b52dd655f24da3e315ffbcc0d31641cbac1
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -465,7 +465,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 4891650b6b1a9295f744fb358fd7bdb2ab61092ee7bf2deebacfc40a22692074
+F src/http.c 94d7d8b3570ae1722a2a814fc003b1af8ae410306d656e5ce5a50c8bde3ed7de
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c c378b9724a8be6f1b7959af8080b028cf500e5f7845ae098870cef3bb7aa8ebb
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
@@ -528,7 +528,7 @@ F src/search.c 4d22bea3e8701e96a710a2f89ff3ebe7f16681879d726c755f0ff828da310275
 F src/security_audit.c dc78230601d1eb4a2cb1440f91d83c9a56d1efebc9cde3c41da2e220c5a712a8
 F src/setup.c 95b4459f0c8a485c5289acdcdcdc0fe9671f814d46eeb39b3e3eb396ea3b9c24
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
-F src/sha1.c f4fbc720c6a7c4213d4f7bcdcf3bdb58100d3fee9059cef527e7f2518f711023
+F src/sha1.c 8d6608e5b2805e717723dccfc55115944b374f59d1dee2268f1b01e69afaf09f
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 2ccb200296ddbafeace7caba6187977d0c53d60654d4cedc7967c514141dcd9e
 F src/shun.c 29c9cf679b993b96ef7d087743a6d83eb9eb57289e716270097d4e733f85e69b
@@ -594,7 +594,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
-F src/xfer.c b41a2a33dcae41e28ebe8190dd74e52c535b43e5c904dd96c664ab1a56ccabdf
+F src/xfer.c 1d82dfa388db52ca594d43088b836d6a5725ee4776d4e18ba1d990f339ea3ac6
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c 9c1aef77501646117309bf489e95e1e62a87cdb3156bea2fb55533aabf588279
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4fc13c5c8812f5632997dce75d956088116e889fb8dc56dbbcb40ae6210613ec
-R 67602e51ea7334272da3ad72f057e9d6
+P 2250a684cc1f5c688fef6c6764cd8e5777430a029c72622322c9dcc427340387
+R a65007b6d692a19ede0ba3b9bf0932c6
 U stephan
-Z eade05f3110ea7726867d220bf01f84e
+Z f6b9dc0329de9b23480f750c722f798d
 # Remove this line to create a well-formed Fossil manifest.

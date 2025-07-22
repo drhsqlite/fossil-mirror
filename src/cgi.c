@@ -2226,7 +2226,6 @@ void cgi_handle_http_request(const char *zIpAddr){
     }else if( fossil_strcmp(zFieldName, "x-fossil-xfer-login:")==0 ){
       g.syncInfo.zLoginCard = fossil_strdup(zVal);
       g.syncInfo.bLoginCardHeader = 1;
-      /*fprintf(stderr, "X-Fossil-Xfer-Login: %s\n", g.syncInfo.zLoginCard);*/
     }
   }
   cgi_setenv("REQUEST_SCHEME",zScheme);

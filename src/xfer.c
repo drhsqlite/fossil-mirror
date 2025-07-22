@@ -792,11 +792,6 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
   int rc;
   blob_tail(pMsg, &tail);
   rc = hname_verify_hash(&tail, blob_buffer(pHash), blob_size(pHash));
-#if 0
-  fprintf(stderr, "check tail=%d hash=[%.*s]\ntail=<<%.*s>>\n", rc,
-          blob_size(pHash), blob_str(pHash),
-          blob_size(&tail), blob_str(&tail));
-#endif
   blob_reset(&tail);
   return rc==HNAME_ERROR;
 }
@@ -861,15 +856,6 @@ static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     sha1sum_blob(&combined, &hash);
     assert( blob_size(&hash)==40 );
     rc = blob_constant_time_cmp(&hash, pSig);
-#if 0
-  fprintf(stderr,
-          "check login rc=%d nonce=[%.*s] pSig=[%.*s] .hash=[%.*s]\n",
-          rc,
-          blob_size(pNonce), blob_str(pNonce),
-          blob_size(pSig), blob_str(pSig),
-          blob_size(&hash), blob_str(&hash));
-
-#endif
     blob_reset(&hash);
     blob_reset(&combined);
     if( rc!=0 && szPw!=40 ){
@@ -882,9 +868,9 @@ static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       blob_zero(&combined);
       blob_copy(&combined, pNonce);
       blob_append(&combined, zSecret, -1);
-      free(zSecret);
       sha1sum_blob(&combined, &hash);
       rc = blob_constant_time_cmp(&hash, pSig);
+      fossil_free(zSecret);
       blob_reset(&hash);
       blob_reset(&combined);
     }
@@ -1338,12 +1324,6 @@ void page_xfer(void){
     blob_append(&xfer.line, g.syncInfo.zLoginCard, -1);
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken,
                                 count(xfer.aToken));
-#if 0
-    fprintf(stderr,"%s:%d: g.syncInfo.zLoginCard=[%s]\nnToken=%d tok[0]=%s line=%s\n",
-            __FILE__, __LINE__, g.syncInfo.zLoginCard,
-            xfer.nToken, xfer.nToken ? blob_str(&xfer.aToken[0]) : "<NULL>",
-            blob_str(&xfer.line));
-#endif
     fossil_free( g.syncInfo.zLoginCard );
     g.syncInfo.zLoginCard = 0;
     if( xfer.nToken==4
@@ -1605,11 +1585,6 @@ void page_xfer(void){
         nErr++;
         break;
       }else{
-#if 0
-        fprintf(stderr, "# handle_login_card: aToken[2]=[%.*s]\n",
-                blob_size(&xfer.aToken[2]),
-                blob_str(&xfer.aToken[2]));
-#endif
         if( check_tail_hash(&xfer.aToken[2], xfer.pIn)
          || check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3])
         ){
@@ -1618,11 +1593,6 @@ void page_xfer(void){
           nErr++;
           break;
         }
-#if 0
-        fprintf(stderr, "# logged in as [%.*s]\n",
-                blob_size(&xfer.aToken[1]),
-                blob_str(&xfer.aToken[1]));
-#endif
       }
     }else
 

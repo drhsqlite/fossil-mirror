@@ -474,11 +474,6 @@ int http_exchange(
     blob_zero(&payload);
   }else{
     if( mHttpFlags & HTTP_USE_LOGIN ) http_build_login_card(pSend, &login);
-#if 0
-    fprintf(stderr, "# g.syncInfo.bLoginCardHeader=%d login card=%s\n",
-            g.syncInfo.bLoginCardHeader,
-            blob_size(&login) ? blob_str(&login) : "<empty>");
-#endif
     if( g.syncInfo.bLoginCardHeader ) {
       /* Send the login card as an HTTP header. */
       if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
