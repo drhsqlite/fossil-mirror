@@ -1,5 +1,5 @@
-C Move\sthe\sX-Fossil-Xfer-Login\sheader\scheck\sto\sthe\scorrect\send\sof\sthe\sconnection.\sIt\sis\sreceiving\sthese\sfrom\slibfossil\stests\sbut\sis\sfailing\sto\svalidate\sthem,\sbut\sthat\smay\swell\sbe\sa\sbug\sin\sthat\sbrand\snew\sdownstream\scode.
-D 2025-07-21T23:45:08.057
+C For\stesting\spurposes\sonly,\sunconditionally\suse\sthe\sX-Fossil-Xfer-Login\sHTTP\sheader\sfor\ssync\srequests,\srather\sthan\sadd\sit\sto\sthe\spayload\s(which\sseems\sto\swork\sokay).\sThis\sis\sprimarily\sso\sthat\sapples-to-apples\scomparisons\scan\sbe\smade\sin\slibfossil's\stesting,\sand\swill\sbe\sreverted\s(or\sapplied\sconditionally)\sonce\sthe\slibfossil\sside\sis\sworking.
+D 2025-07-22T02:16:43.517
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -16,7 +16,7 @@ F Makefile.classic 25ea72b6fe8959b5bbd638363af82dec3ba475c09ea79918deda199eb15c3
 F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION fff9db7187957b42c0b02b676d5212985f860d15ccf2554084915e2f63ac7534
+F VERSION bf33b559109bdd392101fa45ea7a01c902956d207fdd03adb71a3bd11ac54433
 F auto.def 4169d4399308f33e7a0ffb364b0a92d29aa0cf20d8edf9b031f0419a7e53a8b2
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
@@ -465,7 +465,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 4734632b4990329d10edec8ca814e44a2ae51b550afb2b54b8a0a43f13f14464
+F src/http.c 79b4e29b24ecec3addfb0ca515761efd49fb8e4e11cbeffb0167e165797dfcda
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c c378b9724a8be6f1b7959af8080b028cf500e5f7845ae098870cef3bb7aa8ebb
 F src/http_transport.c be6abfc44ca6ebf0e387d79046993e559913df4462d3b978c35103981942a3c6
@@ -583,7 +583,7 @@ F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
 F src/unversioned.c 26aad606fb68f6fae854852799f082050b0b79cf3cd9014d7a03d97b089f9cd1
 F src/update.c 187d4f62b304cd91555af17952fc53756686ceacdec4840bfd209b83ded2c165
 F src/url.c 8e2dc63f5556d4e8581d80cc00eb979000018d090815231b5fd7011c430b81d9
-F src/user.c 9d82972306302357acbedb573a2bbc0e54d7a7dcd9e29fef8ed8abd9e4a38098
+F src/user.c 1eee6f30185d01b012ff8cfce1fa80b37863dbf60a1ae0bbdcfbe61c23118a1a
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
 F src/util.c 51d7aadf87c1e43581699c6ac681b9235ae27b9bf751b90124f1f6843eaef311
@@ -594,7 +594,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
-F src/xfer.c 233574e36e8f82f4f97bd4ee6476a61788796bb799935141de4333d52d4572c1
+F src/xfer.c c733688a3d9dcac07d450016254c37a831bac2e1b1942f8d625b4db6fab3a49b
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c 9c1aef77501646117309bf489e95e1e62a87cdb3156bea2fb55533aabf588279
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a4c5a2a9618bf458cad1dcf9c46670e30e9af4669560fd5a925568e4bfc0188d
-R 7ff581197f810fa6470bc1afd3b8f88d
+P b49c9b3685e392a20bcd75dfffd46622707c34b955bb9c2d44245ff704e142f5
+R fc05c368b80cae0ad24cb8090926bf1e
 U stephan
-Z 76d248b26d0e6bd473684605c2975738
+Z 0caabdf8bd9db4bed88fe6af80ca843e
 # Remove this line to create a well-formed Fossil manifest.

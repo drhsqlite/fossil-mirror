@@ -792,6 +792,11 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
   int rc;
   blob_tail(pMsg, &tail);
   rc = hname_verify_hash(&tail, blob_buffer(pHash), blob_size(pHash));
+#if 0
+  fprintf(stderr, "check tail=%d hash=[%.*s]\ntail=<<%.*s>>\n", rc,
+          blob_size(pHash), blob_str(pHash),
+          blob_size(&tail), blob_str(&tail));
+#endif
   blob_reset(&tail);
   return rc==HNAME_ERROR;
 }
@@ -829,7 +834,7 @@ static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   defossilize(zLogin);
 
   if( fossil_strcmp(zLogin, "nobody")==0
-   || fossil_strcmp(zLogin,"anonymous")==0
+   || fossil_strcmp(zLogin, "anonymous")==0
   ){
     return 0;   /* Anybody is allowed to sync as "nobody" or "anonymous" */
   }
@@ -856,6 +861,15 @@ static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     sha1sum_blob(&combined, &hash);
     assert( blob_size(&hash)==40 );
     rc = blob_constant_time_cmp(&hash, pSig);
+#if 0
+  fprintf(stderr,
+          "check login rc=%d nonce=[%.*s] pSig=[%.*s] .hash=[%.*s]\n",
+          rc,
+          blob_size(pNonce), blob_str(pNonce),
+          blob_size(pSig), blob_str(pSig),
+          blob_size(&hash), blob_str(&hash));
+
+#endif
     blob_reset(&hash);
     blob_reset(&combined);
     if( rc!=0 && szPw!=40 ){
@@ -1320,17 +1334,22 @@ void page_xfer(void){
   }
   if( g.zLoginCard ){
     /* Login card received via HTTP header X-Fossil-Xfer-Login */
-    blob_init(&xfer.line, g.zLoginCard, -1);
+    blob_zero(&xfer.line);
+    blob_append(&xfer.line, g.zLoginCard, -1);
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken,
                                 count(xfer.aToken));
-    if( xfer.nToken==4
-        && blob_eq(&xfer.aToken[0], "login") ){
-      /*fprintf(stderr,"g.zLoginCard=%s nToken=%d\n", g.zLoginCard,
-        xfer.nToken);*/
-      goto handle_login_card;
-    }
+#if 0
+    fprintf(stderr,"%s:%d: g.zLoginCard=[%s]\nnToken=%d tok[0]=%s line=%s\n",
+            __FILE__, __LINE__, g.zLoginCard,
+            xfer.nToken, xfer.nToken ? blob_str(&xfer.aToken[0]) : "<NULL>",
+            blob_str(&xfer.line));
+#endif
     fossil_free( g.zLoginCard );
     g.zLoginCard = 0;
+    if( xfer.nToken==4
+        && blob_eq(&xfer.aToken[0], "login") ){
+      goto handle_login_card;
+    }
   }
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
@@ -1586,6 +1605,11 @@ void page_xfer(void){
         nErr++;
         break;
       }else{
+#if 0
+        fprintf(stderr, "handle_login_card: aToken[2]=[%.*s]\n",
+                blob_size(&xfer.aToken[2]),
+                blob_str(&xfer.aToken[2]));
+#endif
         if( check_tail_hash(&xfer.aToken[2], xfer.pIn)
          || check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3])
         ){

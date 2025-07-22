@@ -121,7 +121,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 
   blob_append(&pw, zPw, -1);
   sha1sum_blob(&pw, &sig);
-  blob_appendf(pLogin, "login %F %b %b\n", zLogin, &nonce, &sig);
+  blob_appendf(pLogin, "login %F %b %b", zLogin, &nonce, &sig);
   blob_reset(&pw);
   blob_reset(&sig);
   blob_reset(&nonce);
@@ -133,6 +133,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 ** the complete payload (including the login card) already compressed.
 */
 static void http_build_header(
+  Blob *pLogin,                /* Login card or NULL */
   Blob *pPayload,              /* the payload that will be sent */
   Blob *pHdr,                  /* construct the header here */
   const char *zAltMimetype     /* Alternative mimetype */
@@ -155,6 +156,9 @@ static void http_build_header(
   blob_appendf(pHdr, "Host: %s\r\n", g.url.hostname);
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
   if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
+  if( pLogin ){
+    blob_appendf(pHdr, "X-Fossil-Xfer-Login: %b\r\n", pLogin);
+  }
   if( nPayload ){
     if( zAltMimetype ){
       blob_appendf(pHdr, "Content-Type: %s\r\n", zAltMimetype);
@@ -462,21 +466,40 @@ int http_exchange(
 
   /* Construct the login card and prepare the complete payload */
   if( blob_size(pSend)==0 ){
+    blob_zero(&login);
     blob_zero(&payload);
   }else{
     blob_zero(&login);
     if( mHttpFlags & HTTP_USE_LOGIN ) http_build_login_card(pSend, &login);
+#if RELEASE_VERSION_NUMBER >= 22701
     if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
+      /*blob_append(&payload, blob_buffer(pSend), blob_size(pSend));*/
+      blob_zero(&payload);
+      blob_swap(pSend, &payload);
+    }else{
+      blob_compress(pSend, &payload);
+    }
+#else
+    if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
+      if( blob_size(&login) ){
+        blob_append_char(&login, '\n');
+      }
       payload = login;
       blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
     }else{
+      if( blob_size(&login) ){
+        blob_append_char(&login, '\n');
+      }
       blob_compress2(&login, pSend, &payload);
       blob_reset(&login);
     }
+#endif
   }
 
   /* Construct the HTTP request header */
-  http_build_header(&payload, &hdr, zAltMimetype);
+  http_build_header(blob_size(&login) ? &login : 0,
+                    &payload, &hdr, zAltMimetype);
+  blob_reset(&login);
 
   /* When tracing, write the transmitted HTTP message both to standard
   ** output and into a file.  The file can then be used to drive the
