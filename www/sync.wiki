@@ -234,9 +234,9 @@ It then checks the signature hash to make sure the signature matches.
 If everything checks out, then the client is granted all privileges of
 the specified user.
 
-Only one login in card is permitted. A second login card will trigger
+Only one login card is permitted. A second login card will trigger
 a sync error. (Prior to 2025-07-21, the protocol permitted multiple
-logins, treating the login as the union of all privilges from all
+logins, treating the login as the union of all privileges from all
 login cards. That capability was never used and has been removed.)
 
 <h3 id="file">3.3 File Cards</h3>
