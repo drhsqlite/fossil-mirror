@@ -2818,6 +2818,8 @@ int client_sync(
         */
         if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "server-version") ){
           xfer.remoteVersion = atoi(blob_str(&xfer.aToken[2]));
+          g.syncInfo.bLoginCardHeader =
+            xfer.remoteVersion>=RELEASE_VERSION_NUMBER;
           if( xfer.nToken>=5 ){
             xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
             xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));
