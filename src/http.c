@@ -465,13 +465,13 @@ int http_exchange(
   }
 
   /* Construct the login card and prepare the complete payload */
+  blob_zero(&login);
   if( blob_size(pSend)==0 ){
-    blob_zero(&login);
     blob_zero(&payload);
   }else{
-    blob_zero(&login);
     if( mHttpFlags & HTTP_USE_LOGIN ) http_build_login_card(pSend, &login);
-#if RELEASE_VERSION_NUMBER >= 22701
+#define TEST_LOGIN_HEADER 0 /* temporary dev/test/debug crutch */
+#if TEST_LOGIN_HEADER
     if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
       /*blob_append(&payload, blob_buffer(pSend), blob_size(pSend));*/
       blob_zero(&payload);
@@ -480,16 +480,14 @@ int http_exchange(
       blob_compress(pSend, &payload);
     }
 #else
+    if( blob_size(&login) ){
+      blob_append_char(&login, '\n');
+    }
     if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
-      if( blob_size(&login) ){
-        blob_append_char(&login, '\n');
-      }
       payload = login;
+      login = empty_blob/*transfer ownership*/;
       blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
     }else{
-      if( blob_size(&login) ){
-        blob_append_char(&login, '\n');
-      }
       blob_compress2(&login, pSend, &payload);
       blob_reset(&login);
     }
@@ -497,9 +495,13 @@ int http_exchange(
   }
 
   /* Construct the HTTP request header */
+#if !TEST_LOGIN_HEADER
+  http_build_header(0, &payload, &hdr, zAltMimetype);
+#else
   http_build_header(blob_size(&login) ? &login : 0,
                     &payload, &hdr, zAltMimetype);
   blob_reset(&login);
+#endif
 
   /* When tracing, write the transmitted HTTP message both to standard
   ** output and into a file.  The file can then be used to drive the
