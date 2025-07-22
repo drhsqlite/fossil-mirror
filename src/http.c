@@ -477,16 +477,11 @@ int http_exchange(
     if( g.syncInfo.bLoginCardHeader ) {
       /* Send the login card as an HTTP header. */
       if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
-#if 1
-        /*blob_append(&payload, blob_buffer(pSend), blob_size(pSend));*/
+        /* Maintenance note: we cannot blob_swap(pSend,&payload) here
+        ** because the HTTP 401 and redirect response handling below
+        ** needs pSend unmodified. payload won't be modified after
+        ** this point, so we can make it a proxy for pSend. */
         blob_init(&payload, blob_buffer(pSend), blob_size(pSend));
-#else
-        /* This could save memory but looks like it would break in a
-        ** couple of cases in the loop below where pSend is referenced
-        ** for HTTP 401 and redirects. */
-        blob_zero(&payload);
-        blob_swap(pSend, &payload);
-#endif
       }else{
         blob_compress(pSend, &payload);
       }

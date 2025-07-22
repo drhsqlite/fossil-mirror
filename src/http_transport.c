@@ -247,7 +247,7 @@ void transport_close(UrlData *pUrlData){
 /*
 ** Send content over the wire.
 */
-void transport_send(UrlData *pUrlData, Blob *toSend){
+void transport_send(UrlData const *pUrlData, const Blob *toSend){
   char *z = blob_buffer(toSend);
   int n = blob_size(toSend);
   transport.nSent += n;
