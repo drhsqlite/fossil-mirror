@@ -928,7 +928,7 @@ char* fossil_generate_uuid() {
   }
   *p = 0;
 
-  return mprintf("%s", zStr);
+  return fossil_strdup(zStr);
 }
 
 /*

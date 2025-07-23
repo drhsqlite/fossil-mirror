@@ -1,5 +1,5 @@
-C PoC\sfor\sthe\sprevious\scheck-in:\suse\sUUIDs\sfor\sproject-code\sand\sserver-code.
-D 2025-07-07T15:16:43.030
+C Replace\sa\scall\sto\smprintf()\swith\sfossil_strdup().
+D 2025-07-23T16:01:31.392
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -586,7 +586,7 @@ F src/url.c 8e2dc63f5556d4e8581d80cc00eb979000018d090815231b5fd7011c430b81d9
 F src/user.c 9d82972306302357acbedb573a2bbc0e54d7a7dcd9e29fef8ed8abd9e4a38098
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
-F src/util.c 6d574311609da5b92d9a51ef56aa4db159357c410ea4a40360341bcc0d339bf1
+F src/util.c 93b628d56f31d2c1c689382d29e62857e453dc20ea857c51434ebc64067cc0ae
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c c7c422f4a37f57ae5c658f0f6cbc864656def140513469144a05d5c43e5df699
 F src/wiki.c a4eff8f67cb2b202c71dc5d003dd4cce565dcf4bf96726b20f97740dd1751eaa
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9472f708c99b4325bf4654b04f8c9a7abc08394277d921d02e3522deef2d5029
-R 4d2bafe5d2573a4e70325de4686d0c78
+P e38c068029173d4597eb66cf4a60853301ccd240d6ed814b3e892617a510735b
+R 84b4fd60a7b154cd0072996cf34d391e
 U danield
-Z 6d2322f31b9569bec5d580ce478ed2e7
+Z 523cb4310afca85ef7ac27339a58afef
 # Remove this line to create a well-formed Fossil manifest.
