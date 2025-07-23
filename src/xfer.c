@@ -1727,7 +1727,8 @@ void page_xfer(void){
       ** for the specific check-in of the client.
       */
       if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
-        xfer.remoteVersion = atoi(blob_str(&xfer.aToken[2]));
+        xfer.remoteVersion = g.syncInfo.remoteVersion =
+          atoi(blob_str(&xfer.aToken[2]));
         g.syncInfo.bLoginCardHeader =
           xfer.remoteVersion>=RELEASE_VERSION_NUMBER;
         if( xfer.nToken>=5 ){
@@ -2788,7 +2789,8 @@ int client_sync(
         ** for the specific check-in of the client.
         */
         if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "server-version") ){
-          xfer.remoteVersion = atoi(blob_str(&xfer.aToken[2]));
+          xfer.remoteVersion = g.syncInfo.remoteVersion =
+            atoi(blob_str(&xfer.aToken[2]));
           g.syncInfo.bLoginCardHeader =
             xfer.remoteVersion>=RELEASE_VERSION_NUMBER;
           if( xfer.nToken>=5 ){

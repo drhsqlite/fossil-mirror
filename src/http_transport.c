@@ -143,7 +143,7 @@ int transport_ssh_open(UrlData *pUrlData){
                  "the server.", pUrlData->fossil);
   }
   if( (pUrlData->flags & URL_SSH_EXE)==0
-   && (pUrlData->flags & URL_SSH_PATH)!=0 
+   && (pUrlData->flags & URL_SSH_PATH)!=0
   ){
     ssh_add_path_argument(&zCmd);
   }

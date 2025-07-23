@@ -229,13 +229,13 @@ void url_parse_local(
       pUrlData->hostname = pUrlData->name;
     }
     dehttpize(pUrlData->name);
-    pUrlData->path = mprintf("%s", &zUrl[i]);
+    pUrlData->path = fossil_strdup(&zUrl[i]);
     for(i=0; pUrlData->path[i] && pUrlData->path[i]!='?'; i++){}
     if( pUrlData->path[i] ){
       pUrlData->path[i] = 0;
       i++;
     }
-    zExe = mprintf("");
+    zExe = fossil_strdup("");
     while( pUrlData->path[i]!=0 ){
       char *zName, *zValue;
       zName = &pUrlData->path[i];

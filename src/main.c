@@ -294,12 +294,19 @@ struct Global {
   /* State for communicating specific details between the inbound HTTP
   ** header parser (cgi.c), xfer.c, and http.c. */
   struct {
-    char *zLoginCard;       /* Inbound X-Fossil-Xfer-Login request header */
-    int bLoginCardHeader;   /* If true, emit login cards in outbound
+    char *zLoginCard;       /* Inbound X-Fossil-Xfer-Login request header
+                            ** or x-f-x-l URL parameter. */
+    int bLoginCardHeader;   /* If non-0, emit login cards in outbound
                             ** requests as HTTP headers instead of as
                             ** part of the payload. Gets activated
                             ** on-demand based on xfer traffic
-                            ** contents. */
+                            ** contents. Values, for
+                            ** diagnostic/debuggin purposes: 1=set via
+                            ** CLI --flag. 2=set via inbound HTTP
+                            ** header. 3=set via query string
+                            ** arg. 4=set via http_build_header(). */
+    int remoteVersion;      /* Remote fossil version. Used for negotiating
+                            ** how to handle the login card. */
   } syncInfo;
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
@@ -1508,7 +1515,7 @@ NORETURN void fossil_redirect_home(void){
   ** that parameter gets lost during the redirect. We "could"
   ** pass the whole query string along instead, but that seems
   ** unnecessary. */
-  if(cgi_setup_query_string()>1){
+  if(cgi_setup_query_string() & 0x02){
     cookie_render();
   }
   cgi_redirectf("%R%s", db_get("index-page", "/index"));

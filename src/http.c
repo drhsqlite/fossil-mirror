@@ -131,6 +131,31 @@ static void http_build_login_card(Blob * const pPayload, Blob * const pLogin){
 }
 
 /*
+** If we're in "login card header" mode, append ?x-f-x-l=ABC to
+** g.url.path, replacing any "?..." part of g.url.path.  ABC = the
+** %T-encoded contents of pLogin.  This is workaround for feeding the
+** login card to CGI-hosted fossil instances, as those do not read the
+** HTTP headers so cannot see the X-Fossil-Xfer-Login (x-f-x-l)
+** header.
+*/
+static void url_append_login_card(Blob * const pLogin){
+  if( g.syncInfo.bLoginCardHeader ||
+      g.syncInfo.remoteVersion >= RELEASE_VERSION_NUMBER ){
+    char * x;
+    char * z = g.url.path;
+    while( z && *z && '?'!=*z ) ++z;
+    if( z && *z ) *z = 0;
+    x = mprintf("%s?x-f-x-l=%T", g.url.path ? g.url.path : "/",
+                blob_str(pLogin));
+    fossil_free(g.url.path);
+    g.url.path = x;
+    if( !g.syncInfo.bLoginCardHeader ){
+      g.syncInfo.bLoginCardHeader = 4;
+    }
+  }
+}
+
+/*
 ** Construct an appropriate HTTP request header.  Write the header
 ** into pHdr.  This routine initializes the pHdr blob.  pPayload is
 ** the complete payload (including the login card if pLogin is NULL or
@@ -145,9 +170,13 @@ static void http_build_header(
   int nPayload = pPayload ? blob_size(pPayload) : 0;
 
   blob_zero(pHdr);
-  blob_appendf(pHdr, "%s %s%s HTTP/1.0\r\n",
-               nPayload>0 ? "POST" : "GET", g.url.path,
-               g.url.path[0]==0 ? "/" : "");
+  if( nPayload>0 && pLogin && blob_size(pLogin)>0 ){
+    /* Add login card URL arg for POST requests */
+    url_append_login_card(pLogin);
+  }
+  blob_appendf(pHdr, "%s %s HTTP/1.0\r\n",
+               nPayload>0 ? "POST" : "GET",
+               (g.url.path && g.url.path[0]) ? g.url.path : "/");
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
   }
@@ -161,7 +190,8 @@ static void http_build_header(
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
   if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
   if( pLogin && blob_size(pLogin) ){
-    blob_appendf(pHdr, "X-Fossil-Xfer-Login: %b\r\n", pLogin);
+    blob_appendf(pHdr, "X-Fossil-Xfer-Login: %b\r\n", pLogin)
+      /* Noting that CGIs can't read headers */;
   }
   if( nPayload ){
     if( zAltMimetype ){
@@ -396,7 +426,7 @@ void test_ssh_needs_path(void){
 **      HOSTNAME.
 */
 void ssh_add_path_argument(Blob *pCmd){
-  blob_append_escaped_arg(pCmd, 
+  blob_append_escaped_arg(pCmd,
      "PATH=$HOME/bin:/usr/local/bin:/opt/homebrew/bin:$PATH", 1);
 }
 
@@ -473,13 +503,14 @@ int http_exchange(
     blob_zero(&payload);
   }else{
     if( mHttpFlags & HTTP_USE_LOGIN ) http_build_login_card(pSend, &login);
-    if( g.syncInfo.bLoginCardHeader ) {
-      /* Send the login card as an HTTP header. */
+    if( g.syncInfo.bLoginCardHeader>0 ){
+      /* The login card will be sent via an HTTP header and/or URL flag. */
       if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
         /* Maintenance note: we cannot blob_swap(pSend,&payload) here
         ** because the HTTP 401 and redirect response handling below
         ** needs pSend unmodified. payload won't be modified after
-        ** this point, so we can make it a proxy for pSend. */
+        ** this point, so we can make it a proxy for pSend for
+        ** zero heap memory. */
         blob_init(&payload, blob_buffer(pSend), blob_size(pSend));
       }else{
         blob_compress(pSend, &payload);
@@ -532,6 +563,7 @@ int http_exchange(
   */
   if( mHttpFlags & HTTP_VERBOSE ){
     fossil_print("URL: %s\n", g.url.canonical);
+    fossil_print("URL path: %s\n", g.url.path);
     fossil_print("Sending %d byte header and %d byte payload\n",
                   blob_size(&hdr), blob_size(&payload));
   }
@@ -663,7 +695,7 @@ int http_exchange(
         }
       }
     }else if( fossil_strnicmp(zLine, "x-fossil-xfer-login: ", 21)==0 ){
-      /*cgi_setenv("FOSSIL_LCH_http_exchange", &zLine[21]);*/
+      fossil_free( g.syncInfo.zLoginCard );
       g.syncInfo.zLoginCard = fossil_strdup(&zLine[21]);
       g.syncInfo.bLoginCardHeader = 1;
     }
