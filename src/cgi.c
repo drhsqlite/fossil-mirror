@@ -2127,6 +2127,8 @@ void cgi_handle_http_request(const char *zIpAddr){
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
   g.zReqType = "HTTP";
+
+  /*cgi_setenv("JUST_TESTING1", "cgi_handle_http_request()");*/
   if( cgi_fgets(zLine, sizeof(zLine))==0 ){
     malformed_request("missing header");
   }
@@ -2162,7 +2164,6 @@ void cgi_handle_http_request(const char *zIpAddr){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
     g.zIpAddr = fossil_strdup(zIpAddr);
   }
-
 
   /* Get all the optional fields that follow the first line.
   */
@@ -2224,6 +2225,7 @@ void cgi_handle_http_request(const char *zIpAddr){
         rangeEnd = x2+1;
       }
     }else if( fossil_strcmp(zFieldName, "x-fossil-xfer-login:")==0 ){
+      /*cgi_setenv("FOSSIL_LCH_cgi_handle_http_request", zVal);*/
       g.syncInfo.zLoginCard = fossil_strdup(zVal);
       g.syncInfo.bLoginCardHeader = 1;
     }

@@ -1812,18 +1812,18 @@ static void process_one_web_page(
 
       /* Restrictions on the URI for security:
       **
-      **    1.  Reject characters that are not ASCII alphanumerics, 
+      **    1.  Reject characters that are not ASCII alphanumerics,
       **        "-", "_", ".", "/", or unicode (above ASCII).
       **        In other words:  No ASCII punctuation or control characters
       **        other than "-", "_", "." and "/".
-      **    2.  Exception to rule 1: Allow /X:/ where X is any ASCII 
+      **    2.  Exception to rule 1: Allow /X:/ where X is any ASCII
       **        alphabetic character at the beginning of the name on windows.
       **    3.  "-" may not occur immediately after "/"
       **    4.  "." may not be adjacent to another "." or to "/"
       **
       ** Any character does not satisfy these constraints a Not Found
       ** error is returned.
-      */  
+      */
       szFile = 0;
       for(j=nBase+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
@@ -3528,7 +3528,7 @@ void cmd_webserver(void){
     FILE *sshIn;
     Blob ssh;
     int bRunning = 0;    /* True when fossil starts up on the remote */
-    int isRetry;         /* True if on the second attempt */        
+    int isRetry;         /* True if on the second attempt */
     char zLine[1000];
 
     blob_init(&ssh, 0, 0);
@@ -3567,7 +3567,7 @@ void cmd_webserver(void){
       if( isRetry ){
         fossil_print("First attempt to run \"fossil\" on %s failed\n"
                      "Retry: ", zRemote);
-      } 
+      }
       fossil_print("%s\n", blob_str(&ssh));
       sshIn = popen(blob_str(&ssh), "r");
       if( sshIn==0 ){

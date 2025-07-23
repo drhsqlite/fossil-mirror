@@ -881,11 +881,9 @@ static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       g.userUid = db_column_int(&q, 2);
       g.zLogin = mprintf("%b", pLogin);
       g.zNonce = mprintf("%b", pNonce);
-      if( g.perm.Debug ){
-        @ message g.zLogin=%F(g.zLogin)\szCap=%F(zCap)
-      }
     }
   }
+  @ message login\src=%d(rc)\sas\s%F(g.zLogin)
   db_finalize(&q);
   return rc;
 }
@@ -1323,6 +1321,8 @@ void page_xfer(void){
   }
   if( g.syncInfo.zLoginCard ){
     /* Login card received via HTTP header X-Fossil-Xfer-Login */
+    assert( g.syncInfo.bLoginCardHeader && "Set via HTTP header parser" );
+    @ message got\slogin\scard\sheader:\s%F(g.syncInfo.zLoginCard)
     blob_zero(&xfer.line);
     blob_append(&xfer.line, g.syncInfo.zLoginCard, -1);
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken,
@@ -1331,7 +1331,6 @@ void page_xfer(void){
     g.syncInfo.zLoginCard = 0;
     if( xfer.nToken==4
         && blob_eq(&xfer.aToken[0], "login") ){
-      @ message got\slogin\scard\sheader
       goto handle_login_card;
     }
   }
@@ -1685,7 +1684,6 @@ void page_xfer(void){
         xfer.nextIsPrivate = 1;
       }
     }else
-
 
     /*    pragma NAME VALUE...
     **
@@ -2384,7 +2382,7 @@ int client_sync(
     */
     zRandomness = db_text(0, "SELECT hex(randomblob(20))");
     blob_appendf(&send, "# %s\n", zRandomness);
-    free(zRandomness);
+    fossil_free(zRandomness);
 
     if( (syncFlags & SYNC_VERBOSE)!=0
      && (syncFlags & SYNC_XVERBOSE)==0
@@ -2761,9 +2759,6 @@ int client_sync(
       **
       ** A message is received from the server.  Print it.
       ** Similar to "error" but does not stop processing.
-      **
-      ** If the "login failed" message is seen, clear the sync password prior
-      ** to the next cycle.
       */
       if( blob_eq(&xfer.aToken[0],"message") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
@@ -3001,7 +2996,7 @@ int client_sync(
       content_enable_dephantomize(1);
     }
     db_end_transaction(0);
-  };
+  }; /* while(go) */
   transport_stats(&nSent, &nRcvd, 1);
   if( pnRcvd ) *pnRcvd = nArtifactRcvd;
   if( (rSkew*24.0*3600.0) > 10.0 ){
