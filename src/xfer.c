@@ -883,7 +883,7 @@ static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       g.zNonce = mprintf("%b", pNonce);
     }
   }
-  @ message login\src=%d(rc)\sas\s%F(g.zLogin)
+  /* @ message login\src=%d(rc)\sas\s%F(g.zLogin) */
   db_finalize(&q);
   return rc;
 }
@@ -1579,9 +1579,8 @@ void page_xfer(void){
      && xfer.nToken==4
     ){
     handle_login_card:
-      //fprintf(stderr, "%s:%d trying to log in: %s\n", __FILE__, __LINE__, blob_str(&xfer.line));
-      if( 1 || g.perm.Debug ){
-        @message inbound\slogin\scard:\s%F(blob_str(&xfer.line))
+      if( 0 && g.perm.Debug ){
+        @message login\scard:\s%F(blob_str(&xfer.line))
       }
       nLogin++;
       if( disableLogin ){

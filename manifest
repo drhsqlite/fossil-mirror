@@ -1,5 +1,5 @@
-C Account\sfor\sCGI-hosted\sfossil\sinstances\sby\ssending\sthe\sxfer\slogin\scard\sas\sa\sURL\sargument.\sThis\sis\ssomewhat\sinelegant\sbut\sworks\saround\stheir\sinability\sto\sread\sHTTP\sheaders.\sThis\sversion\sis\sstill\smore\sverbose\sthan\sit\sneeds\sto\sbe,\sand\srequires\smore\stesting\sfor\scompatibility\swith\strunk\sfossil\sversions.
-D 2025-07-23T20:56:04.049
+C Remove\ssome\sxfer\slogin\sprocess\sdebug\soutput.
+D 2025-07-23T23:31:31.250
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c 0470589576e98a224c485edd99711faf725db3af013da83adeff907249a3ecb3
+F src/cgi.c f672fa4e2257426d8f06a92985137c2e9f9d5c3c2c7cdf4771eeabcac9ed3a1e
 F src/chat.c 6965e8292e4cdce5347e027a841adcf97da5ffc17cbfbf6b2971ac432dfe9c67
 F src/checkin.c 17224d59bae25829aa6ff0cff8928b52dd655f24da3e315ffbcc0d31641cbac1
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -465,7 +465,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 6548d0e642a5f755ed58d42b7f52d8e8fa27d382216542311d9ca9b1c46e9cbe
+F src/http.c 3e4e933bacc5406c735a02d745c212d25c61139abeb5ec1bbb20c27269917b66
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c c378b9724a8be6f1b7959af8080b028cf500e5f7845ae098870cef3bb7aa8ebb
 F src/http_transport.c 7b6106657ff28a14b90c5f513bfaee41e0abeb50be607ea1165d9f3152b1bcb8
@@ -594,7 +594,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
-F src/xfer.c e4f916ca29230ee50799c4537494021c05347f7f5cf60d9694c936875e3d5f4d
+F src/xfer.c 5a44769da991543d984d01919c6fe205ae7a0c0da7081f31a19e700e91126b62
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c 9c1aef77501646117309bf489e95e1e62a87cdb3156bea2fb55533aabf588279
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c900645ea5765e26067f0032a312ed6941f1b843d324edf2eae54d04cff8052
-R 3124f55f961e7d354a11501eb4a8e112
+P 439af9348b5c1d05b8f338a991ce0699a67104385d9830d395e0c6bd5485efb3
+R 1bcc287b972372ea216fb740e0b25001
 U stephan
-Z efb81828eea7a38d85352f6c12d82026
+Z 1ad7bf57193e89a125559b164b48f6af
 # Remove this line to create a well-formed Fossil manifest.

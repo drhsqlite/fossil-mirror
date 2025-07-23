@@ -563,7 +563,6 @@ int http_exchange(
   */
   if( mHttpFlags & HTTP_VERBOSE ){
     fossil_print("URL: %s\n", g.url.canonical);
-    fossil_print("URL path: %s\n", g.url.path);
     fossil_print("Sending %d byte header and %d byte payload\n",
                   blob_size(&hdr), blob_size(&payload));
   }
