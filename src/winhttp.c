@@ -1156,7 +1156,7 @@ void cmd_win32_service(void){
     if( !zRepository ){
       db_must_be_within_tree();
     }else if( file_isdir(zRepository, ExtFILE)==1 ){
-      g.zRepositoryName = mprintf("%s", zRepository);
+      g.zRepositoryName = fossil_strdup(zRepository);
       file_simplify_name(g.zRepositoryName, -1, 0);
     }else{
       db_open_repository(zRepository);

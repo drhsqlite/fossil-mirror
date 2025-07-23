@@ -498,7 +498,7 @@ static void zip_add_folders(Archive *p, char *zName){
       if( j>=nDir ){
         nDir++;
         azDir = fossil_realloc(azDir, sizeof(azDir[0])*nDir);
-        azDir[j] = mprintf("%s", zName);
+        azDir[j] = fossil_strdup(zName);
         zip_add_file(p, zName, 0, 0);
       }
       zName[i+1] = c;

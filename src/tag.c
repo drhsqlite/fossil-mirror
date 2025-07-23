@@ -221,7 +221,7 @@ int tag_insert(
     db_multi_exec("UPDATE event SET \"%w\"=%Q WHERE objid=%d",
                   zCol, zValue, rid);
     if( tagid==TAG_COMMENT ){
-      char *zCopy = mprintf("%s", zValue);
+      char *zCopy = fossil_strdup(zValue);
       backlink_extract(zCopy, MT_NONE, rid, BKLNK_COMMENT, mtime, 1);
       free(zCopy);
     }

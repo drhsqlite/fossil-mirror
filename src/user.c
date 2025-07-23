@@ -523,7 +523,7 @@ static int attempt_user(const char *zLogin){
   uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zLogin);
   if( uid ){
     g.userUid = uid;
-    g.zLogin = mprintf("%s", zLogin);
+    g.zLogin = fossil_strdup(zLogin);
     return 1;
   }
   return 0;

@@ -123,7 +123,7 @@ int transport_ssh_open(UrlData *pUrlData){
   char *zHost;       /* The host name to contact */
 
   fossil_free(g.zIpAddr);
-  g.zIpAddr = mprintf("%s", pUrlData->name);
+  g.zIpAddr = fossil_strdup(pUrlData->name);
   transport_ssh_command(&zCmd);
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
     blob_appendf(&zCmd, " -p %d", pUrlData->port);

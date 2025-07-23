@@ -1645,7 +1645,7 @@ int json_set_err( int code, char const * fmt, ... ){
   fossil_free(g.zErrMsg);
   g.json.resultCode = code;
   if(!fmt || !*fmt){
-    g.zErrMsg = mprintf("%s", json_err_cstr(code));
+    g.zErrMsg = fossil_strdup(json_err_cstr(code));
   }else{
     va_list vargs;
     char * msg;

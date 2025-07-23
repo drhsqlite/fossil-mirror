@@ -2888,7 +2888,7 @@ void artifact_page(void){
       zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
       style_set_current_page("doc/%S/%T", zCIUuid, zName);
     }else{
-      zHeader = mprintf("%s", file_tail(zName));
+      zHeader = fossil_strdup(file_tail(zName));
       style_set_current_page("doc/tip/%T", zName);
     }
   }else if( descOnly ){
@@ -4242,7 +4242,7 @@ int describe_commit(
   }
 
   zUuid = rid_to_uuid(rid);
-  descr->zCommitHash = mprintf("%s", zUuid);
+  descr->zCommitHash = fossil_strdup(zUuid);
   descr->isDirty = unsaved_changes(0);
 
   db_multi_exec(
@@ -4291,7 +4291,7 @@ int describe_commit(
 
   if( db_step(&q)==SQLITE_ROW ){
     const char *lastTag = db_column_text(&q, 0);
-    descr->zRelTagname = mprintf("%s", lastTag);
+    descr->zRelTagname = fossil_strdup(lastTag);
     descr->nCommitsSince = db_column_int(&q, 1);
     nRet = 0;
   }else{

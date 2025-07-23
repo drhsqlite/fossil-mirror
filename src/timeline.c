@@ -3041,7 +3041,7 @@ void page_timeline(void){
       double rDate;
       zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
       if( (!zDate || !zDate[0]) && ( zAfter || zBefore ) ){
-        zDate = mprintf("%s", (zAfter ? zAfter : zBefore));
+        zDate = fossil_strdup((zAfter ? zAfter : zBefore));
       }
       if( zDate ){
         rDate = symbolic_name_to_mtime(zDate, 0, 0);
@@ -3057,7 +3057,7 @@ void page_timeline(void){
       }
       zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
       if( (!zDate || !zDate[0]) && ( zAfter || zBefore ) ){
-        zDate = mprintf("%s", (zBefore ? zBefore : zAfter));
+        zDate = fossil_strdup((zBefore ? zBefore : zAfter));
       }
       if( zDate ){
         rDate = symbolic_name_to_mtime(zDate, 0, 0);

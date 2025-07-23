@@ -350,7 +350,7 @@ void remember_or_get_http_auth(
   const char *zUrl        /* URL for which these credentials apply */
 ){
   if( zHttpAuth && zHttpAuth[0] ){
-    g.zHttpAuth = mprintf("%s", zHttpAuth);
+    g.zHttpAuth = fossil_strdup(zHttpAuth);
   }
   if( fRemember ){
     if( g.zHttpAuth && g.zHttpAuth[0] ){
@@ -390,7 +390,7 @@ void clone_ssh_find_options(void){
 
   zSshCmd = find_option("ssh-command","c",1);
   if( zSshCmd && zSshCmd[0] ){
-    g.zSshCmd = mprintf("%s", zSshCmd);
+    g.zSshCmd = fossil_strdup(zSshCmd);
   }
 }
 

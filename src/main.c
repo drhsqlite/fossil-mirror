@@ -1141,7 +1141,7 @@ const char *find_repository_option(){
   const char *zRepository = find_option("repository", "R", 1);
   if( zRepository ){
     if( g.zRepositoryOption ) fossil_free(g.zRepositoryOption);
-    g.zRepositoryOption = mprintf("%s", zRepository);
+    g.zRepositoryOption = fossil_strdup(zRepository);
   }
   return g.zRepositoryOption;
 }
@@ -1387,7 +1387,7 @@ void set_base_url(const char *zAltBase){
   if( g.zBaseURL!=0 ) return;
   if( zAltBase ){
     int i, n, c;
-    g.zTop = g.zBaseURL = mprintf("%s", zAltBase);
+    g.zTop = g.zBaseURL = fossil_strdup(zAltBase);
     i = (int)strlen(g.zBaseURL);
     while( i>3 && g.zBaseURL[i-1]=='/' ){ i--; }
     g.zBaseURL[i] = 0;
@@ -1396,7 +1396,7 @@ void set_base_url(const char *zAltBase){
       g.zHttpsURL = mprintf("https://%s", &g.zTop[7]);
     }else if( strncmp(g.zTop, "https://", 8)==0 ){
       /* it is already HTTPS, use it. */
-      g.zHttpsURL = mprintf("%s", g.zTop);
+      g.zHttpsURL = fossil_strdup(g.zTop);
     }else{
       fossil_fatal("argument to --baseurl should be 'http://host/path'"
                    " or 'https://host/path'");
@@ -2073,7 +2073,7 @@ static void process_one_web_page(
       fossil_redirect_home() /*does not return*/;
     }
   }else{
-    zPath = mprintf("%s", zPathInfo);
+    zPath = fossil_strdup(zPathInfo);
   }
 
   /* Make g.zPath point to the first element of the path.  Make
@@ -2484,7 +2484,7 @@ void cmd_cgi(void){
       ** in ".fossil") or a file in "files:".
       */
       db_close(1);
-      g.zRepositoryName = mprintf("%s", blob_str(&value));
+      g.zRepositoryName = fossil_strdup(blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2494,7 +2494,7 @@ void cmd_cgi(void){
       ** If using directory: and no suitable repository or file is found,
       ** then redirect to URL.
       */
-      zNotFound = mprintf("%s", blob_str(&value));
+      zNotFound = fossil_strdup(blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2538,8 +2538,8 @@ void cmd_cgi(void){
       ** above for details. */
       nRedirect++;
       azRedirect = fossil_realloc(azRedirect, 2*nRedirect*sizeof(char*));
-      azRedirect[nRedirect*2-2] = mprintf("%s", blob_str(&value));
-      azRedirect[nRedirect*2-1] = mprintf("%s", blob_str(&value2));
+      azRedirect[nRedirect*2-2] = fossil_strdup(blob_str(&value));
+      azRedirect[nRedirect*2-1] = fossil_strdup(blob_str(&value2));
       blob_reset(&value);
       blob_reset(&value2);
       continue;
@@ -2582,7 +2582,7 @@ void cmd_cgi(void){
       ** Causes messages from warnings, errors, and panics to be appended
       ** to FILENAME.
       */
-      g.zErrlog = mprintf("%s", blob_str(&value));
+      g.zErrlog = fossil_strdup(blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2591,7 +2591,7 @@ void cmd_cgi(void){
       **
       ** Enables the /ext webpage to use sub-cgi rooted at DIRECTORY
       */
-      g.zExtRoot = mprintf("%s", blob_str(&value));
+      g.zExtRoot = fossil_strdup(blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2652,7 +2652,7 @@ void cmd_cgi(void){
       ** "mainmenu" setting, overriding the contents (for this
       ** request) of the db-side setting or the hard-coded default.
       */
-      g.zMainMenuFile = mprintf("%s", blob_str(&value));
+      g.zMainMenuFile = fossil_strdup(blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2709,7 +2709,7 @@ static void find_server_repository(int arg, int fCreate){
     const char *zRepo = g.argv[arg];
     int isDir = file_isdir(zRepo, ExtFILE);
     if( isDir==1 ){
-      g.zRepositoryName = mprintf("%s", zRepo);
+      g.zRepositoryName = fossil_strdup(zRepo);
       file_simplify_name(g.zRepositoryName, -1, 0);
     }else{
       if( isDir==0 && fCreate ){
@@ -2921,7 +2921,7 @@ void cmd_http(void){
   */
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
-    char *z = mprintf("%s", zFileGlob);
+    char *z = fossil_strdup(zFileGlob);
     dehttpize(z);
     zFileGlob = z;
   }else{
@@ -3331,7 +3331,7 @@ void cmd_webserver(void){
   builtin_set_js_delivery_mode(zJsMode,0);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
-    char *z = mprintf("%s", zFileGlob);
+    char *z = fossil_strdup(zFileGlob);
     dehttpize(z);
     zFileGlob = z;
   }else{

@@ -1323,7 +1323,7 @@ void chat_command(void){
                        "\r\n%s\r\n%s", zMsg, zBoundary);
     }
     if( zFilename && blob_read_from_file(&fcontent, zFilename, ExtFILE)>0 ){
-      char *zFN = mprintf("%s", file_tail(zAs ? zAs : zFilename));
+      char *zFN = fossil_strdup(file_tail(zAs ? zAs : zFilename));
       int i;
       const char *zMime = mimetype_from_name(zFN);
       for(i=0; zFN[i]; i++){
