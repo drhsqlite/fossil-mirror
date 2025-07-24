@@ -222,11 +222,12 @@ cards.  Each login card has the following format:
 
 <pre><b>login</b>  <i>userid  nonce  signature</i></pre>
 
-The userid is the name of the user that is requesting service
-from the server.  The nonce is the SHA1 hash of the remainder of
-the message - all text that follows the newline character that
-terminates the login card.  The signature is the SHA1 hash of
-the concatenation of the nonce and the users password.
+The userid is the name of the user that is requesting service from the
+server, encoded in "fossilized" form (exactly as described for <a
+href="#error">the error card</a>).  The nonce is the SHA1 hash of the
+remainder of the message - all text that follows the newline character
+that terminates the login card.  The signature is the SHA1 hash of the
+concatenation of the nonce and the users password.
 
 When receving a login card, the server looks up the user and verifies
 that the nonce matches the SHA1 hash of the remainder of the message.
@@ -238,6 +239,21 @@ Only one login card is permitted. A second login card will trigger
 a sync error. (Prior to 2025-07-21, the protocol permitted multiple
 logins, treating the login as the union of all privileges from all
 login cards. That capability was never used and has been removed.)
+
+As of version 2.27, Fossil supports transfering of the login card
+outside of the payload body, in one of the following ways:
+
+<ul>
+<li> URL parameter named "x-f-x-l". The value must be URL-encoded.
+<li> An HTTP header named "X-Fossil-Xfer-Login". The caveat for the
+     header is that CGI-hosted fossils cannot see the headers. It
+     works for standalone severs and those running via fossil's
+     "test-http" mechanism. This approach is retained, despite the CGI
+     disadvantage, because the URL parameter approach cannot be used
+     to capture sync payload bodies for re-use with the "test-http"
+     mechanism, a capability useful in testing.
+</ul>
+
 
 <h3 id="file">3.3 File Cards</h3>
 

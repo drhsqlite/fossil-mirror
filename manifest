@@ -1,5 +1,5 @@
-C Doc\simprovements\sand\sinternal\sAPI\srenaming\sfor\sclarity.\sNo\sfunctional\schanges.
-D 2025-07-24T02:20:36.703
+C Update\sthe\schange\slog\sand\ssync.wiki\sfor\sthe\slogin\scard\sadditions.
+D 2025-07-24T02:41:35.171
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -594,7 +594,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c f1769b8cc4c409a35cfbe9e543555ffef7abbbac874b02b5cbe9d49789fdd5b4
-F src/xfer.c 4df25c46cfe9dd8336ad1c34088c62f7619e857764bd372ab6caa919208c58c7
+F src/xfer.c c2c7ec662f2c27bd1d7ade2f47b2b9357a3cfd3e77d7dc6f928a7ec4afe32172
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c 9c1aef77501646117309bf489e95e1e62a87cdb3156bea2fb55533aabf588279
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -795,7 +795,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki a78260ee3d362f11c3ebb52258091a99c4329a53d28f88416db922ada3a20929
-F www/changes.wiki 029d89f7b9c850e2f56182bf59a6aa85d7250efbc34a85951b1b665016339f6d
+F www/changes.wiki 46ee24a0f98a72a63bffce3373c643a6f1828073f78ef11a433e38bf6abef442
 F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -955,7 +955,7 @@ F www/ssl-server.md fa016137cf6ef21b75b13eb13f376348dc5c20ce487a1eba8665ce70efa2
 F www/ssl.wiki d1fc950cf538f469424b7a2d67d465678cc5f5a53c01e4c9f5cbc4929bd1c65f
 F www/stats.wiki f2713acf5c005f1ccecbec63dc5f826499f5f842e8ad17ec3d34ab2f57790792
 F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c068
-F www/sync.wiki 15d725c72a6f944bcc8c2e1b43dfc398fbcff071564d58f7465bfb07fb4a443b
+F www/sync.wiki 829d6aef16e9d0bc67c4ca0d67e0c603ad7f7372a465096a1e489c6b691884f2
 F www/tech_overview.wiki 6a30615418ebd01472646a2f6c3547a96bc400d710e432f226aebe42feed4324
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md ce0531f24678b1339c0066eeec6dc16c63bb0e685773476f57e5df5cc90a5c38
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d1b7be2ff8822c9dd731f8c31a31a156c82f4e005d48241f581fee708d8f5735
-R d6695f5e3a11cdf5e15e3a553a8afa80
+P 286110dec0d1b95f82743768b5c7572ec7a20c651fa3d499f60bbdd3c7581cb2
+R 43fc3e4244455c2598a6e8d2bbc910ba
 U stephan
-Z 176b29e9c6146ea7162621c85f103f9b
+Z 7dff8607b1758ae808adde0965b6f27b
 # Remove this line to create a well-formed Fossil manifest.

@@ -1319,9 +1319,9 @@ void page_xfer(void){
     pnUuidList = &nUuidList;
   }
   if( g.syncInfo.zLoginCard ){
-    /* Login card received via HTTP header X-Fossil-Xfer-Login or
-    ** x-f-x-l GET parameter. */
-    assert( g.syncInfo.bLoginCardHeader && "Set via HTTP header/GET arg" );
+    /* Login card received via HTTP header "X-Fossil-Xfer-Login" or
+    ** "x-f-x-l" URL parameter. */
+    assert( g.syncInfo.bLoginCardHeader && "Set via HTTP header/URL arg" );
     blob_zero(&xfer.line);
     blob_append(&xfer.line, g.syncInfo.zLoginCard, -1);
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken,
