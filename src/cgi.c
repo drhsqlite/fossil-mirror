@@ -1319,7 +1319,7 @@ int cgi_setup_query_string(void){
     ** the sync payload. */
     rc |= 0x04;
     g.syncInfo.zLoginCard = fossil_strdup(z);
-    g.syncInfo.fLoginCardMode |= 0x04;
+    g.syncInfo.fLoginCardMode |= 0x02;
     cgi_delete_parameter("x-f-x-l");
   }
   return rc;
@@ -2236,10 +2236,6 @@ void cgi_handle_http_request(const char *zIpAddr){
         rangeStart = x1;
         rangeEnd = x2+1;
       }
-    }else if( fossil_strcmp(zFieldName, "x-fossil-xfer-login:")==0 ){
-      fossil_free( g.syncInfo.zLoginCard );
-      g.syncInfo.zLoginCard = fossil_strdup(zVal);
-      g.syncInfo.fLoginCardMode |= 0x08;
     }
   }
   cgi_setenv("REQUEST_SCHEME",zScheme);

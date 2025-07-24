@@ -294,19 +294,16 @@ struct Global {
   /* State for communicating specific details between the inbound HTTP
   ** header parser (cgi.c), xfer.c, and http.c. */
   struct {
-    char *zLoginCard;       /* Inbound "X-Fossil-Xfer-Login" request
-                            ** header or "x-f-x-l" URL parameter. */
+    char *zLoginCard;       /* Inbound "x-f-x-l" Cookie header. */
     int fLoginCardMode;     /* If non-0, emit login cards in outbound
                             ** requests as a HTTP cookie instead of as
                             ** part of the payload. Gets activated
                             ** on-demand based on xfer traffic
                             ** contents. Values, for
                             ** diagnostic/debugging purposes: 0x01=CLI
-                            ** --flag, 0x02=http_exchange(),
-                            ** 0x04=cgi_setup_query_string(),
-                            ** 0x08=cgi_handle_cgi_request(),
-                            ** 0x20=page_xfer(),
-                            ** 0x40=client_sync(). */
+                            ** --flag, 0x02=cgi_setup_query_string(),
+                            ** 0x04=page_xfer(),
+                            ** 0x08=client_sync(). */
     int remoteVersion;      /* Remote fossil version. Used for negotiating
                             ** how to handle the login card. */
   } syncInfo;
