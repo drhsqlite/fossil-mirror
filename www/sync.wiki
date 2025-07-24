@@ -241,18 +241,20 @@ logins, treating the login as the union of all privileges from all
 login cards. That capability was never used and has been removed.)
 
 As of version 2.27, Fossil supports transfering of the login card
-outside of the payload body, in one of the following ways:
+externally to the request payload in one of the following ways:
 
 <ul>
-<li> URL parameter named "x-f-x-l". The value must be URL-encoded.
-<li> An HTTP header named "X-Fossil-Xfer-Login". The caveat for the
+<li> URL parameter named "x-f-x-l".
+<li> An HTTP header named "X-Fossil-Xfer-Login". The caveat for this
      header is that CGI-hosted fossils cannot see the headers. It
-     works for standalone severs and those running via fossil's
-     "test-http" mechanism. This approach is retained, despite the CGI
-     disadvantage, because the URL parameter approach cannot be used
-     to capture sync payload bodies for re-use with the "test-http"
-     mechanism, a capability useful in testing.
+     works for standalone severs and connections running via fossil's
+     "test-http" mechanism.
 </ul>
+
+It is legal to use both of those approaches together but it is not
+possible to use either of them with an in-body login card because
+including an in-body login card would change the login card's value
+for the header or URL parameter.
 
 
 <h3 id="file">3.3 File Cards</h3>

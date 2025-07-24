@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog\sand\ssync.wiki\sfor\sthe\slogin\scard\sadditions.
-D 2025-07-24T02:41:35.171
+C Doc\stouchups.
+D 2025-07-24T03:03:09.747
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -955,7 +955,7 @@ F www/ssl-server.md fa016137cf6ef21b75b13eb13f376348dc5c20ce487a1eba8665ce70efa2
 F www/ssl.wiki d1fc950cf538f469424b7a2d67d465678cc5f5a53c01e4c9f5cbc4929bd1c65f
 F www/stats.wiki f2713acf5c005f1ccecbec63dc5f826499f5f842e8ad17ec3d34ab2f57790792
 F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c068
-F www/sync.wiki 829d6aef16e9d0bc67c4ca0d67e0c603ad7f7372a465096a1e489c6b691884f2
+F www/sync.wiki af2be5d35a65229f9863b6a11babb57c59539fd57e1970a284ed39c18fc38417
 F www/tech_overview.wiki 6a30615418ebd01472646a2f6c3547a96bc400d710e432f226aebe42feed4324
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md ce0531f24678b1339c0066eeec6dc16c63bb0e685773476f57e5df5cc90a5c38
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 286110dec0d1b95f82743768b5c7572ec7a20c651fa3d499f60bbdd3c7581cb2
-R 43fc3e4244455c2598a6e8d2bbc910ba
+P edfa01d9d20400c1ef4fa63f225e9c071e93a907ccb66158157ed68b29bc96fb
+R c5a9957e7b8476879f7affd4502a165f
 U stephan
-Z 7dff8607b1758ae808adde0965b6f27b
+Z 3d0b6be7d358dd891ad7785d2dbfcd88
 # Remove this line to create a well-formed Fossil manifest.
