@@ -1,5 +1,5 @@
-C Previous\scheckin\sshould\snot\shave\scompiled\s-\sclean\srebuild\suncovered\sa\sstale\sdep.\sRe-map\sthe\sfLoginCardMode\sto\sa\sbitmask\sso\sthat\sit's\spossible\sto\stell\swhen\smultiple\spaths\stoggle\sthat\son,\sand\swhich\spaths\sthey\swere.
-D 2025-07-24T03:16:59.357
+C Use\sa\sCookie,\sinstead\sof\sa\scustom\sHTTP\sheader\sand/or\sURL\sparam,\sto\ssend\sthe\ssync\slogin\sheader,\sas\ssuggested\sin\s[forum:9959d2d9d9be22d2\s|\sforum\spost\s9959d2d9d9be22d2].\sThis\sis\ssimpler.
+D 2025-07-24T05:10:06.726
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c 14c563fa9e7dd1c7026416cde19ff9e2f3d31dfac17bf95b72a2498941c8c4ce
+F src/cgi.c 6adef4d7dc2e44855f7d8dac9b1e2a7057ef7a051561d0c5fee9fe8fc45e93f1
 F src/chat.c 6965e8292e4cdce5347e027a841adcf97da5ffc17cbfbf6b2971ac432dfe9c67
 F src/checkin.c 17224d59bae25829aa6ff0cff8928b52dd655f24da3e315ffbcc0d31641cbac1
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -465,7 +465,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 02ea9cde1c0e7caa3e1613d10224ed327ebe5ad4cf93cc6cb3b910eb5572b316
-F src/http.c 89b0e2e0f0ac98a8759f469e54f1f4abc5f3e26d2364eafb8fb157da5a9749f4
+F src/http.c b663843e716356faf824317774736a4bb72fd2b8328c316b64a85ef9a93476fa
 F src/http_socket.c b8ce752283047c6f3f0b159e34baf0a83cd31e42c65a0dd3f9e32f0e33f9f91c
 F src/http_ssl.c c378b9724a8be6f1b7959af8080b028cf500e5f7845ae098870cef3bb7aa8ebb
 F src/http_transport.c 7b6106657ff28a14b90c5f513bfaee41e0abeb50be607ea1165d9f3152b1bcb8
@@ -493,7 +493,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c 61bcd0f5127a1672526bf5c92ddb1380393b37d673a72e270005bc233d3f314f
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c f2c7d5b881a0e5a170b26c3f1c23733d261247447b0faa3e122ada2a52e44b0c
+F src/main.c 1eb887700a9569e568d9269304d733e37c05a12242fcebbd91c0c2f19378a67e
 F src/main.mk 02890c4c98af4817973545eb91bfcd92c6a06d7662724e0d2cc0f28ffae42801
 F src/manifest.c 699ddca0092dcd6cb552b664058d9d4e0da3d517544d76566051061cdd5e6845
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -955,7 +955,7 @@ F www/ssl-server.md fa016137cf6ef21b75b13eb13f376348dc5c20ce487a1eba8665ce70efa2
 F www/ssl.wiki d1fc950cf538f469424b7a2d67d465678cc5f5a53c01e4c9f5cbc4929bd1c65f
 F www/stats.wiki f2713acf5c005f1ccecbec63dc5f826499f5f842e8ad17ec3d34ab2f57790792
 F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c068
-F www/sync.wiki af2be5d35a65229f9863b6a11babb57c59539fd57e1970a284ed39c18fc38417
+F www/sync.wiki 436a76989dd534cdf32c02a354a96b900f6630e019d85544aa3b83ab884513e8
 F www/tech_overview.wiki 6a30615418ebd01472646a2f6c3547a96bc400d710e432f226aebe42feed4324
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md ce0531f24678b1339c0066eeec6dc16c63bb0e685773476f57e5df5cc90a5c38
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa36afc52c41a6a1c15e7fa8ec9fd97d928bd6140db8adc7931ee696fcdfe5c0
-R c0ed769f88914c7ddcb2e31636c13459
+P 780d3b2fe3234fa3031f7087219334e5a9d20f11f4e05e804be11317b3b784ce
+R 18f6f57caf7470ced709d0ef43c89a87
 U stephan
-Z 90260eb50cad638482d1888fa59483e8
+Z a28917fe6505307c1fb3fab1baaf03a2
 # Remove this line to create a well-formed Fossil manifest.

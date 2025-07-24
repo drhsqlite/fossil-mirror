@@ -131,29 +131,6 @@ static void http_build_login_card(Blob * const pPayload, Blob * const pLogin){
 }
 
 /*
-** If we're in "login card header" mode, append ?x-f-x-l=ABC to
-** g.url.path, replacing any "?..." part of g.url.path.  ABC = the
-** %T-encoded contents of pLogin.  This is workaround for feeding the
-** login card to CGI-hosted fossil instances, as those do not read the
-** HTTP headers so cannot see the X-Fossil-Xfer-Login (x-f-x-l)
-** header.
-*/
-static void url_append_login_card(Blob * const pLogin){
-  if( g.syncInfo.fLoginCardMode ||
-      g.syncInfo.remoteVersion >= RELEASE_VERSION_NUMBER ){
-    char * x;
-    char * z = g.url.path;
-    while( z && *z && '?'!=*z ) ++z;
-    if( z && *z ) *z = 0;
-    x = mprintf("%s?x-f-x-l=%T", g.url.path ? g.url.path : "/",
-                blob_str(pLogin));
-    fossil_free(g.url.path);
-    g.url.path = x;
-    g.syncInfo.fLoginCardMode |= 0x04;
-  }
-}
-
-/*
 ** Construct an appropriate HTTP request header.  Write the header
 ** into pHdr.  This routine initializes the pHdr blob.  pPayload is
 ** the complete payload (including the login card if pLogin is NULL or
@@ -168,10 +145,6 @@ static void http_build_header(
   int nPayload = pPayload ? blob_size(pPayload) : 0;
 
   blob_zero(pHdr);
-  if( nPayload>0 && pLogin && blob_size(pLogin)>0 ){
-    /* Add login card URL arg for POST requests */
-    url_append_login_card(pLogin);
-  }
   blob_appendf(pHdr, "%s %s HTTP/1.0\r\n",
                nPayload>0 ? "POST" : "GET",
                (g.url.path && g.url.path[0]) ? g.url.path : "/");
@@ -187,11 +160,9 @@ static void http_build_header(
   blob_appendf(pHdr, "Host: %s\r\n", g.url.hostname);
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
   if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
-  if( pLogin && blob_size(pLogin) ){
-    blob_appendf(pHdr, "X-Fossil-Xfer-Login: %b\r\n", pLogin)
-      /* Noting that CGIs can't read headers, but test-http can. If we
-      ** set this _only_ as a URL argument then we lose that info for
-      ** purposes of feeding it back through test-http. */;
+  if( nPayload>0 && pLogin && blob_size(pLogin) ){
+    /* Add login card via a transient cookie. */
+    blob_appendf(pHdr, "Cookie: x-f-x-l=%T\r\n", blob_str(pLogin));
   }
   if( nPayload ){
     if( zAltMimetype ){

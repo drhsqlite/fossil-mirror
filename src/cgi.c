@@ -1287,8 +1287,8 @@ static NORETURN void malformed_request(const char *zMsg, ...);
 ** 0 if no QUERY_STRING is set, else it returns a bitmask of:
 **
 ** 0x01 = QUERY_STRING was set up
-** 0x02 = "skin" GET arg was processed
-** 0x04 = "x-f-x-l" GET arg was processed.
+** 0x02 = "skin" URL param arg was processed
+** 0x04 = "x-f-x-l" cookie arg was processed.
 **
 *  In the case of the skin, the cookie may still need flushing
 ** by the page, via cookie_render().
@@ -1313,16 +1313,14 @@ int cgi_setup_query_string(void){
       }
       fossil_free(zErr);
     }
-    if( !g.syncInfo.zLoginCard && 0!=(z=(char*)P("x-f-x-l")) ){
-      /* CGI fossil instances do not read the HTTP headers, so
-      ** they cannot see the X-Fossil-Xfer-Login card. As a consolation
-      ** to them, we'll accept that via this query argument. */
-      rc |= 0x04;
-      fossil_free( g.syncInfo.zLoginCard );
-      g.syncInfo.zLoginCard = fossil_strdup(z);
-      g.syncInfo.fLoginCardMode |= 0x10;
-      cgi_delete_parameter("x-f-x-l");
-    }
+  }
+  if( !g.syncInfo.zLoginCard && 0!=(z=(char*)P("x-f-x-l")) ){
+    /* X-Fossil-Xfer-Login card transmitted via cookie instead of in
+    ** the sync payload. */
+    rc |= 0x04;
+    g.syncInfo.zLoginCard = fossil_strdup(z);
+    g.syncInfo.fLoginCardMode |= 0x04;
+    cgi_delete_parameter("x-f-x-l");
   }
   return rc;
 }
