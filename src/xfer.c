@@ -868,9 +868,9 @@ static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       blob_zero(&combined);
       blob_copy(&combined, pNonce);
       blob_append(&combined, zSecret, -1);
+      fossil_free(zSecret);
       sha1sum_blob(&combined, &hash);
       rc = blob_constant_time_cmp(&hash, pSig);
-      fossil_free(zSecret);
       blob_reset(&hash);
       blob_reset(&combined);
     }
@@ -883,7 +883,6 @@ static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       g.zNonce = mprintf("%b", pNonce);
     }
   }
-  /* @ message login\src=%d(rc)\sas\s%F(g.zLogin) */
   db_finalize(&q);
   return rc;
 }
@@ -1320,9 +1319,9 @@ void page_xfer(void){
     pnUuidList = &nUuidList;
   }
   if( g.syncInfo.zLoginCard ){
-    /* Login card received via HTTP header X-Fossil-Xfer-Login */
-    assert( g.syncInfo.bLoginCardHeader && "Set via HTTP header parser" );
-    @ message got\slogin\scard\sheader:\s%F(g.syncInfo.zLoginCard)
+    /* Login card received via HTTP header X-Fossil-Xfer-Login or
+    ** x-f-x-l GET parameter. */
+    assert( g.syncInfo.bLoginCardHeader && "Set via HTTP header/GET arg" );
     blob_zero(&xfer.line);
     blob_append(&xfer.line, g.syncInfo.zLoginCard, -1);
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken,
@@ -1579,9 +1578,6 @@ void page_xfer(void){
      && xfer.nToken==4
     ){
     handle_login_card:
-      if( 0 && g.perm.Debug ){
-        @message login\scard:\s%F(blob_str(&xfer.line))
-      }
       nLogin++;
       if( disableLogin ){
         g.perm.Read = g.perm.Write = g.perm.Private = g.perm.Admin = 1;
