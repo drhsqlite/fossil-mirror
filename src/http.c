@@ -139,7 +139,7 @@ static void http_build_login_card(Blob * const pPayload, Blob * const pLogin){
 ** header.
 */
 static void url_append_login_card(Blob * const pLogin){
-  if( g.syncInfo.bLoginCardHeader ||
+  if( g.syncInfo.fLoginCardMode ||
       g.syncInfo.remoteVersion >= RELEASE_VERSION_NUMBER ){
     char * x;
     char * z = g.url.path;
@@ -149,8 +149,8 @@ static void url_append_login_card(Blob * const pLogin){
                 blob_str(pLogin));
     fossil_free(g.url.path);
     g.url.path = x;
-    if( !g.syncInfo.bLoginCardHeader ){
-      g.syncInfo.bLoginCardHeader = 4;
+    if( !g.syncInfo.fLoginCardMode ){
+      g.syncInfo.fLoginCardMode = 4;
     }
   }
 }
@@ -191,7 +191,9 @@ static void http_build_header(
   if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
   if( pLogin && blob_size(pLogin) ){
     blob_appendf(pHdr, "X-Fossil-Xfer-Login: %b\r\n", pLogin)
-      /* Noting that CGIs can't read headers */;
+      /* Noting that CGIs can't read headers, but test-http can. If we
+      ** set this _only_ as a URL argument then we lose that info for
+      ** purposes of feeding it back through test-http. */;
   }
   if( nPayload ){
     if( zAltMimetype ){
@@ -503,7 +505,7 @@ int http_exchange(
     blob_zero(&payload);
   }else{
     if( mHttpFlags & HTTP_USE_LOGIN ) http_build_login_card(pSend, &login);
-    if( g.syncInfo.bLoginCardHeader>0 ){
+    if( g.syncInfo.fLoginCardMode>0 ){
       /* The login card will be sent via an HTTP header and/or URL flag. */
       if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
         /* Maintenance note: we cannot blob_swap(pSend,&payload) here
@@ -696,7 +698,7 @@ int http_exchange(
     }else if( fossil_strnicmp(zLine, "x-fossil-xfer-login: ", 21)==0 ){
       fossil_free( g.syncInfo.zLoginCard );
       g.syncInfo.zLoginCard = fossil_strdup(&zLine[21]);
-      g.syncInfo.bLoginCardHeader = 1;
+      g.syncInfo.fLoginCardMode = 1;
     }
   }
   if( iHttpVersion<0 ){

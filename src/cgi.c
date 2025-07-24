@@ -1286,9 +1286,9 @@ static NORETURN void malformed_request(const char *zMsg, ...);
 ** add_param_list() and, if found, applies its "skin" setting. Returns
 ** 0 if no QUERY_STRING is set, else it returns a bitmask of:
 **
-** 0x01 = QUERY_STRING was set.
-** 0x02 = "skin" argument was set and processed
-** 0x04 = "x-f-x-l" arg was processed.
+** 0x01 = QUERY_STRING was set up
+** 0x02 = "skin" GET arg was processed
+** 0x04 = "x-f-x-l" GET arg was processed.
 **
 *  In the case of the skin, the cookie may still need flushing
 ** by the page, via cookie_render().
@@ -1320,7 +1320,7 @@ int cgi_setup_query_string(void){
       rc |= 0x04;
       fossil_free( g.syncInfo.zLoginCard );
       g.syncInfo.zLoginCard = fossil_strdup(z);
-      g.syncInfo.bLoginCardHeader = 3;
+      g.syncInfo.fLoginCardMode = 3;
       cgi_delete_parameter("x-f-x-l");
     }
   }
@@ -2143,7 +2143,6 @@ void cgi_handle_http_request(const char *zIpAddr){
   g.fullHttpReply = 1;
   g.zReqType = "HTTP";
 
-  /*cgi_setenv("JUST_TESTING1", "cgi_handle_http_request()");*/
   if( cgi_fgets(zLine, sizeof(zLine))==0 ){
     malformed_request("missing header");
   }
@@ -2242,7 +2241,7 @@ void cgi_handle_http_request(const char *zIpAddr){
     }else if( fossil_strcmp(zFieldName, "x-fossil-xfer-login:")==0 ){
       fossil_free( g.syncInfo.zLoginCard );
       g.syncInfo.zLoginCard = fossil_strdup(zVal);
-      g.syncInfo.bLoginCardHeader = 1;
+      g.syncInfo.fLoginCardMode = 1;
     }
   }
   cgi_setenv("REQUEST_SCHEME",zScheme);

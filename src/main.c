@@ -294,17 +294,16 @@ struct Global {
   /* State for communicating specific details between the inbound HTTP
   ** header parser (cgi.c), xfer.c, and http.c. */
   struct {
-    char *zLoginCard;       /* Inbound X-Fossil-Xfer-Login request header
-                            ** or x-f-x-l URL parameter. */
-    int bLoginCardHeader;   /* If non-0, emit login cards in outbound
-                            ** requests as HTTP headers instead of as
-                            ** part of the payload. Gets activated
-                            ** on-demand based on xfer traffic
-                            ** contents. Values, for
-                            ** diagnostic/debuggin purposes: 1=set via
-                            ** CLI --flag. 2=set via inbound HTTP
-                            ** header. 3=set via query string
-                            ** arg. 4=set via http_build_header(). */
+    char *zLoginCard;       /* Inbound "X-Fossil-Xfer-Login" request
+                            ** header or "x-f-x-l" URL parameter. */
+    int fLoginCardMode;     /* If non-0, emit login cards in outbound
+                            ** requests as a HTTP header or URL
+                            ** parameter instead of as part of the
+                            ** payload. Gets activated on-demand based
+                            ** on xfer traffic contents. Values, for
+                            ** diagnostic/debugging purposes: 1=CLI
+                            ** --flag. 2=inbound HTTP header. 3=query
+                            ** string arg. 4=http_build_header(). */
     int remoteVersion;      /* Remote fossil version. Used for negotiating
                             ** how to handle the login card. */
   } syncInfo;
@@ -778,7 +777,7 @@ int fossil_main(int argc, char **argv){
 #endif
   g.mainTimerId = fossil_timer_start();
   capture_case_sensitive_option();
-  g.syncInfo.bLoginCardHeader =
+  g.syncInfo.fLoginCardMode =
     /* This is only for facilitating development of the
     ** xfer-login-card branch. It will be removed or re-imagined at
     ** some point. */
