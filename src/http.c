@@ -149,9 +149,7 @@ static void url_append_login_card(Blob * const pLogin){
                 blob_str(pLogin));
     fossil_free(g.url.path);
     g.url.path = x;
-    if( !g.syncInfo.fLoginCardMode ){
-      g.syncInfo.fLoginCardMode = 4;
-    }
+    g.syncInfo.fLoginCardMode |= 0x04;
   }
 }
 
@@ -505,7 +503,7 @@ int http_exchange(
     blob_zero(&payload);
   }else{
     if( mHttpFlags & HTTP_USE_LOGIN ) http_build_login_card(pSend, &login);
-    if( g.syncInfo.fLoginCardMode>0 ){
+    if( g.syncInfo.fLoginCardMode ){
       /* The login card will be sent via an HTTP header and/or URL flag. */
       if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
         /* Maintenance note: we cannot blob_swap(pSend,&payload) here
@@ -698,7 +696,7 @@ int http_exchange(
     }else if( fossil_strnicmp(zLine, "x-fossil-xfer-login: ", 21)==0 ){
       fossil_free( g.syncInfo.zLoginCard );
       g.syncInfo.zLoginCard = fossil_strdup(&zLine[21]);
-      g.syncInfo.fLoginCardMode = 1;
+      g.syncInfo.fLoginCardMode |= 0x02;
     }
   }
   if( iHttpVersion<0 ){

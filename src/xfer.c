@@ -1321,7 +1321,7 @@ void page_xfer(void){
   if( g.syncInfo.zLoginCard ){
     /* Login card received via HTTP header "X-Fossil-Xfer-Login" or
     ** "x-f-x-l" URL parameter. */
-    assert( g.syncInfo.bLoginCardHeader && "Set via HTTP header/URL arg" );
+    assert( g.syncInfo.fLoginCardMode && "Set via HTTP header/URL arg" );
     blob_zero(&xfer.line);
     blob_append(&xfer.line, g.syncInfo.zLoginCard, -1);
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken,
@@ -1724,8 +1724,9 @@ void page_xfer(void){
       if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
         xfer.remoteVersion = g.syncInfo.remoteVersion =
           atoi(blob_str(&xfer.aToken[2]));
-        g.syncInfo.bLoginCardHeader =
-          xfer.remoteVersion>=RELEASE_VERSION_NUMBER;
+        if( xfer.remoteVersion>=RELEASE_VERSION_NUMBER ){
+          g.syncInfo.fLoginCardMode |= 0x20;
+        }
         if( xfer.nToken>=5 ){
           xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
           xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));
@@ -2786,8 +2787,9 @@ int client_sync(
         if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "server-version") ){
           xfer.remoteVersion = g.syncInfo.remoteVersion =
             atoi(blob_str(&xfer.aToken[2]));
-          g.syncInfo.bLoginCardHeader =
-            xfer.remoteVersion>=RELEASE_VERSION_NUMBER;
+          if( xfer.remoteVersion>=RELEASE_VERSION_NUMBER ){
+            g.syncInfo.fLoginCardMode |= 0x40;
+          }
           if( xfer.nToken>=5 ){
             xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
             xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));

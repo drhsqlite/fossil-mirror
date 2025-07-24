@@ -301,9 +301,12 @@ struct Global {
                             ** parameter instead of as part of the
                             ** payload. Gets activated on-demand based
                             ** on xfer traffic contents. Values, for
-                            ** diagnostic/debugging purposes: 1=CLI
-                            ** --flag. 2=inbound HTTP header. 3=query
-                            ** string arg. 4=http_build_header(). */
+                            ** diagnostic/debugging purposes: 0x01=CLI
+                            ** --flag, 0x02=http_exchange(),
+                            ** 0x04=url_append_login_card(),
+                            ** 0x08=cgi_handle_cgi_request(),
+                            ** 0x10=cgi_setup_query_string(),
+                            ** 0x20=page_xfer(), 0x40=client_sync(). */
     int remoteVersion;      /* Remote fossil version. Used for negotiating
                             ** how to handle the login card. */
   } syncInfo;
@@ -781,7 +784,7 @@ int fossil_main(int argc, char **argv){
     /* This is only for facilitating development of the
     ** xfer-login-card branch. It will be removed or re-imagined at
     ** some point. */
-    !!find_option("login-card-header","lch", 0);
+    find_option("login-card-header","lch", 0) ? 0x01 : 0;
   g.zVfsName = find_option("vfs",0,1);
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
