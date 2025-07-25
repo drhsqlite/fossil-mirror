@@ -294,7 +294,7 @@ struct Global {
   /* State for communicating specific details between the inbound HTTP
   ** header parser (cgi.c), xfer.c, and http.c. */
   struct {
-    char *zLoginCard;       /* Inbound "x-f-x-l" Cookie header. */
+    char *zLoginCard;       /* Inbound "x-f-l-c" Cookie header. */
     int fLoginCardMode;     /* If non-0, emit login cards in outbound
                             ** requests as a HTTP cookie instead of as
                             ** part of the payload. Gets activated

@@ -160,9 +160,11 @@ static void http_build_header(
   blob_appendf(pHdr, "Host: %s\r\n", g.url.hostname);
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
   if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
-  if( nPayload>0 && pLogin && blob_size(pLogin) ){
-    /* Add login card via a transient cookie. */
-    blob_appendf(pHdr, "Cookie: x-f-x-l=%T\r\n", blob_str(pLogin));
+  if( g.syncInfo.fLoginCardMode>0
+      && nPayload>0 && pLogin && blob_size(pLogin) ){
+    /* Add sync login card via a transient cookie. We can only do this
+       if we know the remote supports it. */
+    blob_appendf(pHdr, "Cookie: x-f-l-c=%T\r\n", blob_str(pLogin));
   }
   if( nPayload ){
     if( zAltMimetype ){
