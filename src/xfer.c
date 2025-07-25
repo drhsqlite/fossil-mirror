@@ -1245,6 +1245,21 @@ static void xfer_syncwith(const char *zUrl, int bSyncFrom){
 static int disableLogin = 0;
 
 /*
+** Must be passed the version info from pragmas
+** client-version/server-version cards. If the version info is "new
+** enough" then the loginCardMode is ORd into the X-Fossil-Xfer-Login
+** card flag, else this is a no-op.
+*/
+static void xfer_xfxl_check(int iRemoteVersion, int iDate, int iTime,
+                            int fLoginCardMode){
+  if( iRemoteVersion>=22701/*needs to change back to 22700 if merged*/
+      && (iDate > 20250724
+          || (iDate == 20250724 && iTime >= 51006)) ){
+    g.syncInfo.fLoginCardMode |= fLoginCardMode;
+  }
+}
+
+/*
 ** The CGI/HTTP preprocessor always redirects requests with a content-type
 ** of application/x-fossil or application/x-fossil-debug to this page,
 ** regardless of what path was specified in the HTTP header.  This allows
@@ -1723,15 +1738,14 @@ void page_xfer(void){
       if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
         xfer.remoteVersion = g.syncInfo.remoteVersion =
           atoi(blob_str(&xfer.aToken[2]));
-        if( xfer.remoteVersion>=RELEASE_VERSION_NUMBER ){
-          g.syncInfo.fLoginCardMode |= 0x04;
-        }
         if( xfer.nToken>=5 ){
           xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
           xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));
           @ pragma server-version %d(RELEASE_VERSION_NUMBER) \
           @ %d(MANIFEST_NUMERIC_DATE) %d(MANIFEST_NUMERIC_TIME)
         }
+        xfer_xfxl_check( xfer.remoteVersion, xfer.remoteDate,
+                         xfer.remoteTime, 0x04 );
       }else
 
       /*   pragma uv-hash HASH
@@ -2786,13 +2800,12 @@ int client_sync(
         if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "server-version") ){
           xfer.remoteVersion = g.syncInfo.remoteVersion =
             atoi(blob_str(&xfer.aToken[2]));
-          if( xfer.remoteVersion>=RELEASE_VERSION_NUMBER ){
-            g.syncInfo.fLoginCardMode |= 0x08;
-          }
           if( xfer.nToken>=5 ){
             xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
             xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));
           }
+          xfer_xfxl_check( xfer.remoteVersion, xfer.remoteDate,
+                           xfer.remoteTime, 0x08 );
         }
 
         /*   pragma uv-pull-only
