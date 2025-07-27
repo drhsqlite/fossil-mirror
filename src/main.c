@@ -290,6 +290,23 @@ struct Global {
   int nPendingRequest;           /* # of HTTP requests in "fossil server" */
   int nRequest;                  /* Total # of HTTP request */
   int bAvoidDeltaManifests;      /* Avoid using delta manifests if true */
+
+  /* State for communicating specific details between the inbound HTTP
+  ** header parser (cgi.c), xfer.c, and http.c. */
+  struct {
+    char *zLoginCard;       /* Inbound "x-f-l-c" Cookie header. */
+    int fLoginCardMode;     /* If non-0, emit login cards in outbound
+                            ** requests as a HTTP cookie instead of as
+                            ** part of the payload. Gets activated
+                            ** on-demand based on xfer traffic
+                            ** contents. Values, for
+                            ** diagnostic/debugging purposes: 0x01=CLI
+                            ** --flag, 0x02=cgi_setup_query_string(),
+                            ** 0x04=page_xfer(),
+                            ** 0x08=client_sync(). */
+    int remoteVersion;      /* Remote fossil version. Used for negotiating
+                            ** how to handle the login card. */
+  } syncInfo;
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else
@@ -760,6 +777,13 @@ int fossil_main(int argc, char **argv){
 #endif
   g.mainTimerId = fossil_timer_start();
   capture_case_sensitive_option();
+  g.syncInfo.fLoginCardMode =
+    /* The undocumented/unsupported --login-card-header provides a way
+    ** to force use of the feature added by the xfer-login-card branch
+    ** in 2025-07, intended for assisting in debugging any related
+    ** issues. It can be removed once we reach the level of "implicit
+    ** trust" in that feature. */
+    find_option("login-card-header",0,0) ? 0x01 : 0;
   g.zVfsName = find_option("vfs",0,1);
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
@@ -1492,7 +1516,7 @@ NORETURN void fossil_redirect_home(void){
   ** that parameter gets lost during the redirect. We "could"
   ** pass the whole query string along instead, but that seems
   ** unnecessary. */
-  if(cgi_setup_query_string()>1){
+  if(cgi_setup_query_string() & 0x02){
     cookie_render();
   }
   cgi_redirectf("%R%s", db_get("index-page", "/index"));
@@ -1796,18 +1820,18 @@ static void process_one_web_page(
 
       /* Restrictions on the URI for security:
       **
-      **    1.  Reject characters that are not ASCII alphanumerics, 
+      **    1.  Reject characters that are not ASCII alphanumerics,
       **        "-", "_", ".", "/", or unicode (above ASCII).
       **        In other words:  No ASCII punctuation or control characters
       **        other than "-", "_", "." and "/".
-      **    2.  Exception to rule 1: Allow /X:/ where X is any ASCII 
+      **    2.  Exception to rule 1: Allow /X:/ where X is any ASCII
       **        alphabetic character at the beginning of the name on windows.
       **    3.  "-" may not occur immediately after "/"
       **    4.  "." may not be adjacent to another "." or to "/"
       **
       ** Any character does not satisfy these constraints a Not Found
       ** error is returned.
-      */  
+      */
       szFile = 0;
       for(j=nBase+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
@@ -3512,7 +3536,7 @@ void cmd_webserver(void){
     FILE *sshIn;
     Blob ssh;
     int bRunning = 0;    /* True when fossil starts up on the remote */
-    int isRetry;         /* True if on the second attempt */        
+    int isRetry;         /* True if on the second attempt */
     char zLine[1000];
 
     blob_init(&ssh, 0, 0);
@@ -3551,7 +3575,7 @@ void cmd_webserver(void){
       if( isRetry ){
         fossil_print("First attempt to run \"fossil\" on %s failed\n"
                      "Retry: ", zRemote);
-      } 
+      }
       fossil_print("%s\n", blob_str(&ssh));
       sshIn = popen(blob_str(&ssh), "r");
       if( sshIn==0 ){

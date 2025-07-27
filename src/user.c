@@ -467,7 +467,7 @@ void user_cmd(void){
       db_multi_exec("UPDATE user SET pw=%Q, mtime=now() WHERE uid=%d",
                     zSecret, uid);
       db_protect_pop();
-      free(zSecret);
+      fossil_free(zSecret);
     }
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
     int uid;

@@ -235,7 +235,7 @@ void url_parse_local(
       pUrlData->path[i] = 0;
       i++;
     }
-    zExe = mprintf("");
+    zExe = fossil_strdup("");
     while( pUrlData->path[i]!=0 ){
       char *zName, *zValue;
       zName = &pUrlData->path[i];

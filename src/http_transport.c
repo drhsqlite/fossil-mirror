@@ -143,7 +143,7 @@ int transport_ssh_open(UrlData *pUrlData){
                  "the server.", pUrlData->fossil);
   }
   if( (pUrlData->flags & URL_SSH_EXE)==0
-   && (pUrlData->flags & URL_SSH_PATH)!=0 
+   && (pUrlData->flags & URL_SSH_PATH)!=0
   ){
     ssh_add_path_argument(&zCmd);
   }
@@ -247,7 +247,7 @@ void transport_close(UrlData *pUrlData){
 /*
 ** Send content over the wire.
 */
-void transport_send(UrlData *pUrlData, Blob *toSend){
+void transport_send(UrlData const *pUrlData, const Blob *toSend){
   char *z = blob_buffer(toSend);
   int n = blob_size(toSend);
   transport.nSent += n;
