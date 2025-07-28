@@ -88,7 +88,7 @@ void cookie_parse(void){
   if( cookies.bIsInit ) return;
   z = (char*)P(DISPLAY_SETTINGS_COOKIE);
   if( z==0 ) z = "";
-  cookies.zCookieValue = z = mprintf("%s", z);
+  cookies.zCookieValue = z = fossil_strdup(z);
   cookies.bIsInit = 1;
   while( cookies.nParam<COOKIE_NPARAM ){
     while( fossil_isspace(z[0]) ) z++;

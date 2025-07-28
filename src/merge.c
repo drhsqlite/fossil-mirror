@@ -483,7 +483,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
     if( zTagList && zTagList[0] ){
       zCom = mprintf("%s (%s)", db_column_text(&q, 2), zTagList);
     }else{
-      zCom = mprintf("%s", db_column_text(&q,2));
+      zCom = fossil_strdup(db_column_text(&q,2));
     }
     fossil_print("%-*s [%S] by %s on %s\n%*s",
        indent-1, zLabel,

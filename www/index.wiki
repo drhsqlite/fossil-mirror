@@ -90,7 +90,7 @@ system with these advanced features:
 
   *  [/uv/download.html|Download]
   *  [./changes.wiki#v2_26|Change Summary]
-  *  [/timeline?p=version-2.26&bt=version-2.25&y=ci|Check-ins in version 2.26]
+  *  [/timeline?p=version-2.26&d=version-2.25&y=ci|Check-ins in version 2.26]
   *  [/timeline?df=version-2.26&y=ci|Check-ins derived from the 2.26 release]
   *  [/timeline?t=release|Timeline of all past releases]
 

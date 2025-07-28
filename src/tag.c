@@ -221,7 +221,7 @@ int tag_insert(
     db_multi_exec("UPDATE event SET \"%w\"=%Q WHERE objid=%d",
                   zCol, zValue, rid);
     if( tagid==TAG_COMMENT ){
-      char *zCopy = mprintf("%s", zValue);
+      char *zCopy = fossil_strdup(zValue);
       backlink_extract(zCopy, MT_NONE, rid, BKLNK_COMMENT, mtime, 1);
       free(zCopy);
     }
@@ -414,7 +414,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **
 **         The --date-override and --user-override options support
 **         importing history from other SCM systems. DATETIME has
-**         the form 'YYYY-MMM-DD HH:MM:SS'.
+**         the form 'YYYY-MM-DD HH:MM:SS'.
 **
 **         Note that fossil uses some tag prefixes internally and this
 **         command will reject tags with these prefixes to avoid

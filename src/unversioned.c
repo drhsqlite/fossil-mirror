@@ -149,6 +149,8 @@ static void unversioned_write(
     db_bind_blob(&ins, ":content", pContent);
   }
   db_step(&ins);
+  admin_log("Wrote unversioned file \"%w\" with hash %!S",
+            zUVFile, blob_str(&hash));
   blob_reset(&compressed);
   blob_reset(&hash);
   db_finalize(&ins);

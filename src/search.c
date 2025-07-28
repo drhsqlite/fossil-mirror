@@ -132,10 +132,10 @@ static Search *search_init(
     p = fossil_malloc(sizeof(*p));
     memset(p, 0, sizeof(*p));
   }
-  p->zPattern = z = mprintf("%s", zPattern);
-  p->zMarkBegin = mprintf("%s", zMarkBegin);
-  p->zMarkEnd = mprintf("%s", zMarkEnd);
-  p->zMarkGap = mprintf("%s", zMarkGap);
+  p->zPattern = z = fossil_strdup(zPattern);
+  p->zMarkBegin = fossil_strdup(zMarkBegin);
+  p->zMarkEnd = fossil_strdup(zMarkEnd);
+  p->zMarkGap = fossil_strdup(zMarkGap);
   p->fSrchFlg = fSrchFlg;
   blob_init(&p->snip, 0, 0);
   while( *z && p->nTerm<SEARCH_MAX_TERM ){
@@ -1078,7 +1078,7 @@ static void search_rank_sqlfunc(
 ** result to fossil_free().
 */
 char *search_simplify_pattern(const char * zPattern){
-  char *zPat = mprintf("%s",zPattern);
+  char *zPat = fossil_strdup(zPattern);
   int i;
   for(i=0; zPat[i]; i++){
     if( (zPat[i]&0x80)==0 && !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';

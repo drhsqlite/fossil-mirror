@@ -60,7 +60,7 @@ request.
 The server might be running as an independent server
 using the [/help?cmd=server|"fossil server" command], or it
 might be launched from inetd or xinetd using the
-["fossil http" command|/help?cmd=http].  Or the server might
+[/help?cmd=http|"fossil http" command].  Or the server might
 be [./server/any/cgi.md|launched from CGI] or from
 [./server/any/scgi.md|SCGI].
 (See "[./server/|How To Configure A Fossil Server]" for details.)
@@ -69,7 +69,7 @@ for incoming HTTP requests is immaterial to this protocol.
 The important point is that the server is listening for requests and
 the client is the issuer of the requests.
 
-A single [/help?cmd=push|push], 
+A single [/help?cmd=push|push],
 [/help?cmd=pull|pull], or [/help?cmd=sync|sync]
 might involve multiple HTTP requests.
 The client maintains state between all requests.  But on the server
@@ -152,12 +152,12 @@ The client modifies the URL by appending the method name "<b>/xfer</b>"
 to the end.  For example, if the URL specified on the client command
 line is
 
-<pre>https://fossil-scm.org/fossil</pre>
+<pre>https://fossil-scm.org/home</pre>
 
 Then the URL that is really used to do the synchronization will
 be:
 
-<pre>https://fossil-scm.org/fossil/xfer</pre>
+<pre>https://fossil-scm.org/home/xfer</pre>
 
 <h3 id="req-format">2.2 HTTP Request Format</h3>
 
@@ -165,7 +165,7 @@ The client always sends a POST request to the server.  The
 general format of the POST request is as follows:
 
 <pre>
-POST /fossil/xfer HTTP/1.0
+POST /home/xfer HTTP/1.0
 Host: fossil-scm.hwaci.com:80
 Content-Type: application/x-fossil
 Content-Length: 4216
@@ -222,22 +222,34 @@ cards.  Each login card has the following format:
 
 <pre><b>login</b>  <i>userid  nonce  signature</i></pre>
 
-The userid is the name of the user that is requesting service
-from the server.  The nonce is the SHA1 hash of the remainder of
-the message - all text that follows the newline character that
-terminates the login card.  The signature is the SHA1 hash of
-the concatenation of the nonce and the users password.
+The userid is the name of the user that is requesting service from the
+server, encoded in "fossilized" form (exactly as described for <a
+href="#error">the error card</a>).  The nonce is the SHA1 hash of the
+remainder of the message - all text that follows the newline character
+that terminates the login card.  The signature is the SHA1 hash of the
+concatenation of the nonce and the users password.
 
-For each login card, the server looks up the user and verifies
-that the nonce matches the SHA1 hash of the remainder of the
-message.  It then checks the signature hash to make sure the
-signature matches.  If everything
-checks out, then the client is granted all privileges of the
-specified user.
+When receving a login card, the server looks up the user and verifies
+that the nonce matches the SHA1 hash of the remainder of the message.
+It then checks the signature hash to make sure the signature matches.
+If everything checks out, then the client is granted all privileges of
+the specified user.
 
-Privileges are cumulative.  There can be multiple successful
-login cards.  The session privilege is the union of all
-privileges from all login cards.
+Only one login card is permitted. A second login card will trigger
+a sync error. (Prior to 2025-07-21, the protocol permitted multiple
+logins, treating the login as the union of all privileges from all
+login cards. That capability was never used and has been removed.)
+
+As of version 2.27, Fossil supports transfering of the login card
+externally to the request payload via a Cookie HTTP header:
+
+<verbatim>
+  Cookie: x-f-x-l=...
+</verbatim>
+
+Where "..." is the URL-encoded login cookie. <code>x-f-x-l</code> is
+short for X-Fossil-Xfer-Login.
+
 
 <h3 id="file">3.3 File Cards</h3>
 
@@ -252,7 +264,7 @@ The "uvfile" name is an abbreviation for "unversioned file".
 
 For sync protocols, artifacts are transferred using "file"
 cards.  File cards come in two different formats depending
-on whether the artifact is sent directly or as a 
+on whether the artifact is sent directly or as a
 [./delta_format.wiki|delta] from some
 other artifact.
 
@@ -275,7 +287,7 @@ The last argument of the file card is the number of bytes of
 payload that immediately follow the file card.  If the file
 card has only two arguments, that means the payload is the
 complete content of the artifact.  If the file card has three
-arguments, then the payload is a 
+arguments, then the payload is a
 [./delta_format.wiki|delta] and the second argument is
 the ID of another artifact that is the source of the delta.
 
@@ -288,8 +300,12 @@ and be able to apply them when their source arrives.
 
 A client that sends a clone protocol version "3" or greater will
 receive artifacts as "cfile" cards while cloning.  This card was
-introduced to improve the speed of the transfer of content by sending the
-compressed artifact directly from the server database to the client.
+introduced to improve the speed of the transfer of content by sending
+the compressed artifact directly from the server database to the
+client.  In this case, the containing response body is <em>not</em>
+compressed separately because the vast majority of the response is
+already compressed in cfile cards. In practice, version "3" is
+significantly faster than version "2".
 
 Compressed File cards are similar to File cards, sharing the same
 in-line "payload" data characteristics and also the same treatment of
@@ -413,7 +429,7 @@ cards
 
 The sequence-number sent is the number
 of artifacts received so far.  For the first clone message, the
-sequence number is 0.  The server will respond by sending file
+sequence number is 1.  The server will respond by sending file
 cards for some number of artifacts up to the maximum message size.
 
 The server will also send a single "clone_seqno" card to the client
@@ -1040,7 +1056,7 @@ Here are the key points of the synchronization protocol:
     <li> <b>push</b> <i>servercode projectcode</i>
     <li> <b>pull</b> <i>servercode projectcode</i>
     <li> <b>clone</b>
-    <li> <b>clone_seqno</b> <i>sequence-number</i>
+    <li> <b>clone</b> <i>protocol-version sequence-number</i>
     <li> <b>file</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>
     <li> <b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
     <li> <b>cfile</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>

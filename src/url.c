@@ -229,13 +229,13 @@ void url_parse_local(
       pUrlData->hostname = pUrlData->name;
     }
     dehttpize(pUrlData->name);
-    pUrlData->path = mprintf("%s", &zUrl[i]);
+    pUrlData->path = fossil_strdup(&zUrl[i]);
     for(i=0; pUrlData->path[i] && pUrlData->path[i]!='?'; i++){}
     if( pUrlData->path[i] ){
       pUrlData->path[i] = 0;
       i++;
     }
-    zExe = mprintf("");
+    zExe = fossil_strdup("");
     while( pUrlData->path[i]!=0 ){
       char *zName, *zValue;
       zName = &pUrlData->path[i];
@@ -277,7 +277,7 @@ void url_parse_local(
     }
     if( pUrlData->isSsh && pUrlData->path[1] ){
       char *zOld = pUrlData->path;
-      pUrlData->path = mprintf("%s", zOld+1);
+      pUrlData->path = fossil_strdup(zOld+1);
       fossil_free(zOld);
     }
     free(zLogin);
@@ -288,10 +288,10 @@ void url_parse_local(
     }else{
       i = 5;
     }
-    zFile = mprintf("%s", &zUrl[i]);
+    zFile = fossil_strdup(&zUrl[i]);
   }else if( file_isfile(zUrl, ExtFILE) ){
     pUrlData->isFile = 1;
-    zFile = mprintf("%s", zUrl);
+    zFile = fossil_strdup(zUrl);
   }else if( file_isdir(zUrl, ExtFILE)==1 ){
     zFile = mprintf("%s/FOSSIL", zUrl);
     if( file_isfile(zFile, ExtFILE) ){

@@ -2888,7 +2888,7 @@ void artifact_page(void){
       zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
       style_set_current_page("doc/%S/%T", zCIUuid, zName);
     }else{
-      zHeader = mprintf("%s", file_tail(zName));
+      zHeader = fossil_strdup(file_tail(zName));
       style_set_current_page("doc/tip/%T", zName);
     }
   }else if( descOnly ){
@@ -3934,6 +3934,7 @@ static void prepare_amend_comment(
 **    --date DATETIME            Make DATETIME the check-in time
 **    --date-override DATETIME   Set the change time on the control artifact
 **    -e|--edit-comment          Launch editor to revise comment
+**    --editor NAME              Text editor to use for check-in comment
 **    --hide                     Hide branch starting from this check-in
 **    -m|--comment COMMENT       Make COMMENT the check-in comment
 **    -M|--message-file FILE     Read the amended comment from FILE
@@ -4007,6 +4008,7 @@ void ci_amend_cmd(void){
   noVerifyCom = find_option("no-verify-comment",0,0)!=0;
   db_find_and_open_repository(0,0);
   user_select();
+  (void)fossil_text_editor();
   verify_all_options();
   if( g.argc<3 || g.argc>=4 ) usage(AMEND_USAGE_STMT);
   rid = name_to_typed_rid(g.argv[2], "ci");
@@ -4240,7 +4242,7 @@ int describe_commit(
   }
 
   zUuid = rid_to_uuid(rid);
-  descr->zCommitHash = mprintf("%s", zUuid);
+  descr->zCommitHash = fossil_strdup(zUuid);
   descr->isDirty = unsaved_changes(0);
 
   db_multi_exec(
@@ -4289,7 +4291,7 @@ int describe_commit(
 
   if( db_step(&q)==SQLITE_ROW ){
     const char *lastTag = db_column_text(&q, 0);
-    descr->zRelTagname = mprintf("%s", lastTag);
+    descr->zRelTagname = fossil_strdup(lastTag);
     descr->nCommitsSince = db_column_int(&q, 1);
     nRet = 0;
   }else{

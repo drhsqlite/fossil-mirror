@@ -576,7 +576,7 @@ void wiki_page(void){
   const char *zPageName;
   const char *zMimetype = 0;
   int isPopup = P("popup")!=0;
-  char *zBody = mprintf("%s","<i>Empty Page</i>");
+  char *zBody = fossil_strdup("<i>Empty Page</i>");
   int noSubmenu = P("nsm")!=0 || g.isHome;
 
   login_check_credentials();
@@ -2585,7 +2585,10 @@ static void wiki_submenu_to_read_wiki(
   const char *zName,     /* Name of the object */
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
-  if( g.perm.RdWiki && (mFlags & WIKIASSOC_MENU_READ)!=0 ){
+  if( g.perm.RdWiki && (mFlags & WIKIASSOC_MENU_READ)!=0
+      && 0!=fossil_strcmp("branch", zPrefix)
+      /* ^^^ https://fossil-scm.org/forum/forumpost/ff453de2f30791dd */
+  ){
     style_submenu_element("Wiki", "%R/wiki?name=%s/%t", zPrefix, zName);
   }
 }

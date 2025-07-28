@@ -410,7 +410,7 @@ static void alert_user_cap_change(const char *zLogin,   /*Affected user*/
                  zLogin, zOrigCaps, zNewCaps, g.zLogin);
   }
   if( zURL ){
-    blob_appendf(&body, "\nUser editor: %s/setup_uedit?uid=%d\n", zURL, uid);
+    blob_appendf(&body, "\nUser editor: %s/setup_uedit?id=%d\n", zURL, uid);
   }
   nBody = blob_size(&body);
   pSender = alert_sender_new(0, 0);

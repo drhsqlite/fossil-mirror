@@ -54,13 +54,17 @@ static int traceCnt = 0;
 **       login LOGIN NONCE SIGNATURE
 **
 ** The LOGIN is the user id of the client.  NONCE is the sha1 checksum
-** of all payload that follows the login card.  SIGNATURE is the sha1
-** checksum of the nonce followed by the user password.
+** of all payload that follows the login card.  Randomness for the
+** NONCE must be provided in the payload (in xfer.c) (e.g. by
+** appending a timestamp or random bytes as a comment line to the
+** payload).  SIGNATURE is the sha1 checksum of the nonce followed by
+** the fossil-hashed version of the user's password.
 **
-** Write the constructed login card into pLogin.  pLogin is initialized
-** by this routine.
+** Write the constructed login card into pLogin. The result does not
+** have an EOL added to it because which type of EOL it needs has to
+** be determined later.  pLogin is initialized by this routine.
 */
-static void http_build_login_card(Blob *pPayload, Blob *pLogin){
+static void http_build_login_card(Blob * const pPayload, Blob * const pLogin){
   Blob nonce;          /* The nonce */
   const char *zLogin;  /* The user login name */
   const char *zPw;     /* The user password */
@@ -69,10 +73,10 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 
   blob_zero(pLogin);
   if( g.url.user==0 || fossil_strcmp(g.url.user, "anonymous")==0 ){
-     return;  /* If no login card for users "nobody" and "anonymous" */
+     return;  /* No login card for users "nobody" and "anonymous" */
   }
   if( g.url.isSsh ){
-     return;  /* If no login card for SSH: */
+     return;  /* No login card for SSH: */
   }
   blob_zero(&nonce);
   blob_zero(&pw);
@@ -120,7 +124,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 
   blob_append(&pw, zPw, -1);
   sha1sum_blob(&pw, &sig);
-  blob_appendf(pLogin, "login %F %b %b\n", zLogin, &nonce, &sig);
+  blob_appendf(pLogin, "login %F %b %b", zLogin, &nonce, &sig);
   blob_reset(&pw);
   blob_reset(&sig);
   blob_reset(&nonce);
@@ -129,19 +133,21 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 /*
 ** Construct an appropriate HTTP request header.  Write the header
 ** into pHdr.  This routine initializes the pHdr blob.  pPayload is
-** the complete payload (including the login card) already compressed.
+** the complete payload (including the login card if pLogin is NULL or
+** empty) already compressed.
 */
 static void http_build_header(
   Blob *pPayload,              /* the payload that will be sent */
   Blob *pHdr,                  /* construct the header here */
+  Blob *pLogin,                /* Login card header value or NULL */
   const char *zAltMimetype     /* Alternative mimetype */
 ){
   int nPayload = pPayload ? blob_size(pPayload) : 0;
 
   blob_zero(pHdr);
-  blob_appendf(pHdr, "%s %s%s HTTP/1.0\r\n",
-               nPayload>0 ? "POST" : "GET", g.url.path,
-               g.url.path[0]==0 ? "/" : "");
+  blob_appendf(pHdr, "%s %s HTTP/1.0\r\n",
+               nPayload>0 ? "POST" : "GET",
+               (g.url.path && g.url.path[0]) ? g.url.path : "/");
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
   }
@@ -154,6 +160,12 @@ static void http_build_header(
   blob_appendf(pHdr, "Host: %s\r\n", g.url.hostname);
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
   if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
+  if( g.syncInfo.fLoginCardMode>0
+      && nPayload>0 && pLogin && blob_size(pLogin) ){
+    /* Add sync login card via a transient cookie. We can only do this
+       if we know the remote supports it. */
+    blob_appendf(pHdr, "Cookie: x-f-l-c=%T\r\n", blob_str(pLogin));
+  }
   if( nPayload ){
     if( zAltMimetype ){
       blob_appendf(pHdr, "Content-Type: %s\r\n", zAltMimetype);
@@ -387,7 +399,7 @@ void test_ssh_needs_path(void){
 **      HOSTNAME.
 */
 void ssh_add_path_argument(Blob *pCmd){
-  blob_append_escaped_arg(pCmd, 
+  blob_append_escaped_arg(pCmd,
      "PATH=$HOME/bin:/usr/local/bin:/opt/homebrew/bin:$PATH", 1);
 }
 
@@ -458,24 +470,42 @@ int http_exchange(
     fossil_warning("%s", transport_errmsg(&g.url));
     return 1;
   }
-
   /* Construct the login card and prepare the complete payload */
+  blob_zero(&login);
   if( blob_size(pSend)==0 ){
     blob_zero(&payload);
   }else{
-    blob_zero(&login);
     if( mHttpFlags & HTTP_USE_LOGIN ) http_build_login_card(pSend, &login);
-    if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
-      payload = login;
-      blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
+    if( g.syncInfo.fLoginCardMode ){
+      /* The login card will be sent via an HTTP header and/or URL flag. */
+      if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
+        /* Maintenance note: we cannot blob_swap(pSend,&payload) here
+        ** because the HTTP 401 and redirect response handling below
+        ** needs pSend unmodified. payload won't be modified after
+        ** this point, so we can make it a proxy for pSend for
+        ** zero heap memory. */
+        blob_init(&payload, blob_buffer(pSend), blob_size(pSend));
+      }else{
+        blob_compress(pSend, &payload);
+      }
     }else{
-      blob_compress2(&login, pSend, &payload);
-      blob_reset(&login);
+      /* Prepend the login card (if set) to the payload */
+      if( blob_size(&login) ){
+        blob_append_char(&login, '\n');
+      }
+      if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
+        payload = login;
+        login = empty_blob/*transfer ownership*/;
+        blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
+      }else{
+        blob_compress2(&login, pSend, &payload);
+        blob_reset(&login);
+      }
     }
   }
 
   /* Construct the HTTP request header */
-  http_build_header(&payload, &hdr, zAltMimetype);
+  http_build_header(&payload, &hdr, &login, zAltMimetype);
 
   /* When tracing, write the transmitted HTTP message both to standard
   ** output and into a file.  The file can then be used to drive the
@@ -766,7 +796,7 @@ write_err:
 ** Usage: %fossil test-httpmsg ?OPTIONS? URL ?PAYLOAD? ?OUTPUT?
 **
 ** Send an HTTP message to URL and get the reply. PAYLOAD is a file containing
-** the payload, or "-" to read payload from standard input.  a POST message
+** the payload, or "-" to read payload from standard input.  A POST message
 ** is sent if PAYLOAD is specified and is non-empty.  If PAYLOAD is omitted
 ** or is an empty file, then a GET message is sent.
 **

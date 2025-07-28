@@ -829,7 +829,7 @@ static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   defossilize(zLogin);
 
   if( fossil_strcmp(zLogin, "nobody")==0
-   || fossil_strcmp(zLogin,"anonymous")==0
+   || fossil_strcmp(zLogin, "anonymous")==0
   ){
     return 0;   /* Anybody is allowed to sync as "nobody" or "anonymous" */
   }
@@ -868,7 +868,7 @@ static int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       blob_zero(&combined);
       blob_copy(&combined, pNonce);
       blob_append(&combined, zSecret, -1);
-      free(zSecret);
+      fossil_free(zSecret);
       sha1sum_blob(&combined, &hash);
       rc = blob_constant_time_cmp(&hash, pSig);
       blob_reset(&hash);
@@ -1245,6 +1245,21 @@ static void xfer_syncwith(const char *zUrl, int bSyncFrom){
 static int disableLogin = 0;
 
 /*
+** Must be passed the version info from pragmas
+** client-version/server-version cards. If the version info is "new
+** enough" then the loginCardMode is ORd into the X-Fossil-Xfer-Login
+** card flag, else this is a no-op.
+*/
+static void xfer_xflc_check(int iRemoteVersion, int iDate, int iTime,
+                            int fLoginCardMode){
+  if( iRemoteVersion>=22700
+      && (iDate > 20250727
+          || (iDate == 20250727 && iTime >= 110500)) ){
+    g.syncInfo.fLoginCardMode |= fLoginCardMode;
+  }
+}
+
+/*
 ** The CGI/HTTP preprocessor always redirects requests with a content-type
 ** of application/x-fossil or application/x-fossil-debug to this page,
 ** regardless of what path was specified in the HTTP header.  This allows
@@ -1275,6 +1290,7 @@ void page_xfer(void){
   int *pnUuidList = 0;
   int uvCatalogSent = 0;
   int bSendLinks = 0;
+  int nLogin = 0;
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -1316,6 +1332,20 @@ void page_xfer(void){
   if( zScript ){ /* NOTE: Are TH1 transfer hooks enabled? */
     pzUuidList = &zUuidList;
     pnUuidList = &nUuidList;
+  }
+  if( g.syncInfo.zLoginCard ){
+    /* Login card received via HTTP Cookie header */
+    assert( g.syncInfo.fLoginCardMode && "Set via HTTP cookie" );
+    blob_zero(&xfer.line);
+    blob_append(&xfer.line, g.syncInfo.zLoginCard, -1);
+    xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken,
+                                count(xfer.aToken));
+    fossil_free( g.syncInfo.zLoginCard );
+    g.syncInfo.zLoginCard = 0;
+    if( xfer.nToken==4
+        && blob_eq(&xfer.aToken[0], "login") ){
+      goto handle_login_card;
+    }
   }
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
@@ -1525,6 +1555,7 @@ void page_xfer(void){
         blob_is_int(&xfer.aToken[2], &seqno);
         if( seqno<=0 ){
           xfer_fatal_error("invalid clone sequence number");
+          db_rollback_transaction();
           return;
         }
         max = db_int(0, "SELECT max(rid) FROM blob");
@@ -1551,13 +1582,24 @@ void page_xfer(void){
     **
     ** The client has sent login credentials to the server.
     ** Validate the login.  This has to happen before anything else.
-    ** The client can send multiple logins.  Permissions are cumulative.
+    **
+    ** For many years, Fossil would accept multiple login cards with
+    ** cumulative permissions.  But that feature was never used.  Hence
+    ** it is now prohibited.  Any login card after the first generates
+    ** a fatal error.
     */
     if( blob_eq(&xfer.aToken[0], "login")
      && xfer.nToken==4
     ){
+    handle_login_card:
+      nLogin++;
       if( disableLogin ){
         g.perm.Read = g.perm.Write = g.perm.Private = g.perm.Admin = 1;
+      }else if( nLogin > 1 ){
+        cgi_reset_content();
+        @ error multiple\slogin\cards
+        nErr++;
+        break;
       }else{
         if( check_tail_hash(&xfer.aToken[2], xfer.pIn)
          || check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3])
@@ -1600,6 +1642,7 @@ void page_xfer(void){
       Blob content;
       if( size<0 ){
         xfer_fatal_error("invalid config record");
+        db_rollback_transaction();
         return;
       }
       blob_zero(&content);
@@ -1651,7 +1694,6 @@ void page_xfer(void){
       }
     }else
 
-
     /*    pragma NAME VALUE...
     **
     ** The client issues pragmas to try to influence the behavior of the
@@ -1694,13 +1736,16 @@ void page_xfer(void){
       ** for the specific check-in of the client.
       */
       if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
-        xfer.remoteVersion = atoi(blob_str(&xfer.aToken[2]));
+        xfer.remoteVersion = g.syncInfo.remoteVersion =
+          atoi(blob_str(&xfer.aToken[2]));
         if( xfer.nToken>=5 ){
           xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
           xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));
           @ pragma server-version %d(RELEASE_VERSION_NUMBER) \
           @ %d(MANIFEST_NUMERIC_DATE) %d(MANIFEST_NUMERIC_TIME)
         }
+        xfer_xflc_check( xfer.remoteVersion, xfer.remoteDate,
+                         xfer.remoteTime, 0x04 );
       }else
 
       /*   pragma uv-hash HASH
@@ -2341,14 +2386,13 @@ int client_sync(
     }else if( zClientId ){
       blob_appendf(&send, "pragma ci-unlock %s\n", zClientId);
     }
-
     /* Append randomness to the end of the uplink message.  This makes all
     ** messages unique so that that the login-card nonce will always
     ** be unique.
     */
     zRandomness = db_text(0, "SELECT hex(randomblob(20))");
     blob_appendf(&send, "# %s\n", zRandomness);
-    free(zRandomness);
+    fossil_free(zRandomness);
 
     if( (syncFlags & SYNC_VERBOSE)!=0
      && (syncFlags & SYNC_XVERBOSE)==0
@@ -2384,13 +2428,13 @@ int client_sync(
     }
 
     /* Output current stats */
+    nRoundtrip++;
+    nArtifactSent += xfer.nFileSent + xfer.nDeltaSent;
     if( syncFlags & SYNC_VERBOSE ){
       fossil_print(zValueFormat /*works-like:"%s%d%d%d%d"*/, "Sent:",
                    blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
                    xfer.nFileSent, xfer.nDeltaSent);
     }else{
-      nRoundtrip++;
-      nArtifactSent += xfer.nFileSent + xfer.nDeltaSent;
       if( bOutIsTty!=0 ){
         fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
                      nRoundtrip, nArtifactSent, nArtifactRcvd);
@@ -2725,9 +2769,6 @@ int client_sync(
       **
       ** A message is received from the server.  Print it.
       ** Similar to "error" but does not stop processing.
-      **
-      ** If the "login failed" message is seen, clear the sync password prior
-      ** to the next cycle.
       */
       if( blob_eq(&xfer.aToken[0],"message") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
@@ -2757,11 +2798,14 @@ int client_sync(
         ** for the specific check-in of the client.
         */
         if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "server-version") ){
-          xfer.remoteVersion = atoi(blob_str(&xfer.aToken[2]));
+          xfer.remoteVersion = g.syncInfo.remoteVersion =
+            atoi(blob_str(&xfer.aToken[2]));
           if( xfer.nToken>=5 ){
             xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
             xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));
           }
+          xfer_xflc_check( xfer.remoteVersion, xfer.remoteDate,
+                           xfer.remoteTime, 0x08 );
         }
 
         /*   pragma uv-pull-only
@@ -2896,7 +2940,7 @@ int client_sync(
           nErr++;
           break;
         }
-        blob_appendf(&xfer.err, "unknown command: [%b]\n", &xfer.aToken[0]);
+        blob_appendf(&xfer.err, "unknown command: [%b]\n", &xfer.line);
       }
 
       if( blob_size(&xfer.err) ){
@@ -2963,7 +3007,7 @@ int client_sync(
       content_enable_dephantomize(1);
     }
     db_end_transaction(0);
-  };
+  }; /* while(go) */
   transport_stats(&nSent, &nRcvd, 1);
   if( pnRcvd ) *pnRcvd = nArtifactRcvd;
   if( (rSkew*24.0*3600.0) > 10.0 ){

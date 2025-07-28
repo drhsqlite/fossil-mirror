@@ -26,7 +26,7 @@ features to work on in the UI.
 Tasks for those interested in graphic/web design:
 
 * Add a quote button to the Forum, such as [discussed in this thread](https://fossil-scm.org/forum/forumpost/7ad03cd73d)
-* Improve the documentation history-browsing page to enable selection of 2 arbitrary versions to diff, similar to the [Mediawiki history feature enabled on Wikipedia](https://en.wikipedia.org/w/index.php?title=Fossil_(software)&action=history)
+* Improve the documentation history-browsing page to enable selection of 2 arbitrary versions to diff, similar to the [Mediawiki history feature enabled on Wikipedia](https://en.wikipedia.org/w/index.php?title=Fossil_\(software\)&action=history)
 * Allow diffing of Forum posts
 * General touch-ups in the existing skins. This may, depending on how deep one
   cares to dig, require digging into C code to find, and potentially modify, how

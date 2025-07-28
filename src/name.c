@@ -583,7 +583,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( zTag[i]==':'
    && (fossil_isdate(&zTag[i+1]) || fossil_expand_datetime(&zTag[i+1],0,0)!=0)
   ){
-    char *zDate = mprintf("%s", &zTag[i+1]);
+    char *zDate = fossil_strdup(&zTag[i+1]);
     char *zTagBase = mprintf("%.*s", i, zTag);
     char *zXDate;
     int nDate = strlen(zDate);
@@ -988,7 +988,7 @@ void ambiguous_page(void){
   @ <p>The artifact hash prefix <b>%h(zName)</b> is ambiguous and might
   @ mean any of the following:
   @ <ol>
-  z = mprintf("%s", zName);
+  z = fossil_strdup(zName);
   canonical16(z, strlen(z));
   db_prepare(&q, "SELECT uuid, rid FROM blob WHERE uuid GLOB '%q*'", z);
   while( db_step(&q)==SQLITE_ROW ){
@@ -1225,22 +1225,25 @@ void whatis_rid(int rid, int flags){
   /* Check to see if this object is used as a file in a check-in */
   db_prepare(&q,
     "SELECT filename.name, blob.uuid, datetime(event.mtime,toLocal()),"
-    "       coalesce(euser,user), coalesce(ecomment,comment)"
+    "       coalesce(euser,user), coalesce(ecomment,comment),"
+    "       coalesce((SELECT value FROM tagxref"
+                  "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk')"
     "  FROM mlink, filename, blob, event"
     " WHERE mlink.fid=%d"
     "   AND filename.fnid=mlink.fnid"
     "   AND event.objid=mlink.mid"
     "   AND blob.rid=mlink.mid"
     " ORDER BY event.mtime %s /*sort*/",
-    rid,
+    TAG_BRANCH, rid,
     (flags & WHATIS_BRIEF) ? "LIMIT 1" : "DESC");
   while( db_step(&q)==SQLITE_ROW ){
     if( flags & WHATIS_BRIEF ){
       fossil_print("mtime:      %s\n", db_column_text(&q,2));
     }
     fossil_print("file:       %s\n", db_column_text(&q,0));
-    fossil_print("            part of [%S] by %s on %s\n",
+    fossil_print("            part of [%S] on branch %s by %s on %s\n",
       db_column_text(&q, 1),
+      db_column_text(&q, 5),
       db_column_text(&q, 3),
       db_column_text(&q, 2));
     fossil_print("            ");

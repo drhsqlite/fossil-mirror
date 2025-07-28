@@ -1,8 +1,23 @@
 <title>Change Log</title>
 
-<h2 id='v2_27'>Changes for version 2.27 (pending)</h2>
-
-  *  <i>(pending)</i>
+<h2 id='v2_27'>Changes for version 2.27 (pending)</h2><ol>
+  <li> Fix a SQL injection on the [/help?cmd=/file|/file page].  Thanks to
+       additional defenses built into Fossil, as well as good luck, this injection
+       is not exploitable for either data exfiltration or privilege escalation.  The
+       only possible result of invoking the injection is a harmless SQL syntax error.
+       (The [https://en.wikipedia.org/wiki/Swiss_cheese_model|holes in the Swiss cheese]
+       did not line up!)
+  <li> Enhance the chng= query parameter on the [/help?cmd=/timeline|timeline page]
+       so that it works with other query parameters like p=, d=, from=, and to=.
+  <li> Always include nodes identify by sel1= and sel2= in the /timeline display.
+  <li> Enable the --editor option on the [/help?cmd=amend|fossil amend] command.
+  <li> Require at least an anonymous login to access the /blame page and similar,
+       to help prevent robots from soaking up excess CPU time on such pages.
+  <li> When walking the filesystem looking for Fossil repositories, avoid descending
+       into directories named "/proc".
+  <ll> Reduce memory requirements for sending authenticated sync protocol
+       messages.
+  </ol>
 
 <h2 id='v2_26'>Changes for version 2.26 (2025-04-30)</h2><ol>
  <li>Enhancements to [/help?cmd=diff|fossil diff] and similar:
@@ -50,7 +65,9 @@
           [/help?cmd=verify-comments|verify-comments setting].
      <li> The new "--if-changes" option causes the commit to become
           a quiet no-op if there are no pending changes.
-     <li> Added the ability to sign check-ins with SSH keys.
+     <li> Added the ability to sign check-ins with SSH keys. Artifacts signed
+          this way are ignored by all previous fossil versions, as if they
+          were plain-text file content instead of Fossil artifacts.
      <li> Issue a warning if a user tries to commit on a check-in where the
           branch has been changed.
      <li> The interactive checkin comment prompt shows the formatting rules
@@ -1190,8 +1207,7 @@
   *  Rework the skin editing process so that changes are implemented
      on one of nine /draft pages, evaluated, then merged back to the
      default.
-  *  Added the [https://fossil-scm.org/skins/ardoise/timeline|Ardoise]
-     skin.
+  *  Added the [/timeline?skin=ardoise&once|Ardoise] skin.
   *  Fix the "fossil server" command on Unix to be much more responsive
      to multiple simultaneous web requests.
   *  Use the IPv6 stack for the "fossil ui" and "fossil server"

@@ -1388,7 +1388,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
                       blob_str(&fname));
     }else{
       file_tempname(&fname, "ci-comment",0);
-      zFile = mprintf("%s", blob_str(&fname));
+      zFile = fossil_strdup(blob_str(&fname));
     }
     blob_reset(&fname);
   }

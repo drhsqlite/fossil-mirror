@@ -502,6 +502,8 @@ proc saveDiff {} {
   puts $out "#!/usr/bin/tclsh\n#\n# Run this script using 'tclsh' or 'wish'"
   puts $out "# to see the graphical diff.\n#"
   puts $out "set fossilcmd {}"
+  puts $out "set darkmode $::darkmode"
+  puts $out "set debug $::debug"
   puts $out "set prog [list $::prog]"
   puts $out "set difftxt \173"
   foreach e $::difftxt {puts $out [list $e]}
@@ -608,7 +610,11 @@ proc searchStep {direction incr start stop} {
 ::ttk::button .bb.invert -text {Invert} -command invertDiff
 ::ttk::button .bb.save -text {Save As...} -command saveDiff
 ::ttk::button .bb.search -text {Search} -command searchOnOff
-pack .bb.quit .bb.reload .bb.invert -side left
+pack .bb.quit -side left
+if {$fossilcmd ne ""} {
+  pack .bb.reload -side left
+}
+pack .bb.invert -side left
 if {$fossilcmd!=""} {pack .bb.save -side left}
 pack .bb.files .bb.search -side left
 grid rowconfigure . 1 -weight 1

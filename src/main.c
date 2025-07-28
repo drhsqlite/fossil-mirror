@@ -85,7 +85,6 @@ struct FossilUserPerms {
   char Setup;            /* s: use Setup screens on web interface */
   char Admin;            /* a: administrative permission */
   char Password;         /* p: change password */
-  char Query;            /* q: create new reports */
   char Write;            /* i: xfer inbound. check-in */
   char Read;             /* o: xfer outbound. check-out */
   char Hyperlink;        /* h: enable the display of hyperlinks */
@@ -291,6 +290,23 @@ struct Global {
   int nPendingRequest;           /* # of HTTP requests in "fossil server" */
   int nRequest;                  /* Total # of HTTP request */
   int bAvoidDeltaManifests;      /* Avoid using delta manifests if true */
+
+  /* State for communicating specific details between the inbound HTTP
+  ** header parser (cgi.c), xfer.c, and http.c. */
+  struct {
+    char *zLoginCard;       /* Inbound "x-f-l-c" Cookie header. */
+    int fLoginCardMode;     /* If non-0, emit login cards in outbound
+                            ** requests as a HTTP cookie instead of as
+                            ** part of the payload. Gets activated
+                            ** on-demand based on xfer traffic
+                            ** contents. Values, for
+                            ** diagnostic/debugging purposes: 0x01=CLI
+                            ** --flag, 0x02=cgi_setup_query_string(),
+                            ** 0x04=page_xfer(),
+                            ** 0x08=client_sync(). */
+    int remoteVersion;      /* Remote fossil version. Used for negotiating
+                            ** how to handle the login card. */
+  } syncInfo;
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else
@@ -761,6 +777,13 @@ int fossil_main(int argc, char **argv){
 #endif
   g.mainTimerId = fossil_timer_start();
   capture_case_sensitive_option();
+  g.syncInfo.fLoginCardMode =
+    /* The undocumented/unsupported --login-card-header provides a way
+    ** to force use of the feature added by the xfer-login-card branch
+    ** in 2025-07, intended for assisting in debugging any related
+    ** issues. It can be removed once we reach the level of "implicit
+    ** trust" in that feature. */
+    find_option("login-card-header",0,0) ? 0x01 : 0;
   g.zVfsName = find_option("vfs",0,1);
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
@@ -1142,7 +1165,7 @@ const char *find_repository_option(){
   const char *zRepository = find_option("repository", "R", 1);
   if( zRepository ){
     if( g.zRepositoryOption ) fossil_free(g.zRepositoryOption);
-    g.zRepositoryOption = mprintf("%s", zRepository);
+    g.zRepositoryOption = fossil_strdup(zRepository);
   }
   return g.zRepositoryOption;
 }
@@ -1388,7 +1411,7 @@ void set_base_url(const char *zAltBase){
   if( g.zBaseURL!=0 ) return;
   if( zAltBase ){
     int i, n, c;
-    g.zTop = g.zBaseURL = mprintf("%s", zAltBase);
+    g.zTop = g.zBaseURL = fossil_strdup(zAltBase);
     i = (int)strlen(g.zBaseURL);
     while( i>3 && g.zBaseURL[i-1]=='/' ){ i--; }
     g.zBaseURL[i] = 0;
@@ -1397,7 +1420,7 @@ void set_base_url(const char *zAltBase){
       g.zHttpsURL = mprintf("https://%s", &g.zTop[7]);
     }else if( strncmp(g.zTop, "https://", 8)==0 ){
       /* it is already HTTPS, use it. */
-      g.zHttpsURL = mprintf("%s", g.zTop);
+      g.zHttpsURL = fossil_strdup(g.zTop);
     }else{
       fossil_fatal("argument to --baseurl should be 'http://host/path'"
                    " or 'https://host/path'");
@@ -1493,7 +1516,7 @@ NORETURN void fossil_redirect_home(void){
   ** that parameter gets lost during the redirect. We "could"
   ** pass the whole query string along instead, but that seems
   ** unnecessary. */
-  if(cgi_setup_query_string()>1){
+  if(cgi_setup_query_string() & 0x02){
     cookie_render();
   }
   cgi_redirectf("%R%s", db_get("index-page", "/index"));
@@ -1797,18 +1820,18 @@ static void process_one_web_page(
 
       /* Restrictions on the URI for security:
       **
-      **    1.  Reject characters that are not ASCII alphanumerics, 
+      **    1.  Reject characters that are not ASCII alphanumerics,
       **        "-", "_", ".", "/", or unicode (above ASCII).
       **        In other words:  No ASCII punctuation or control characters
       **        other than "-", "_", "." and "/".
-      **    2.  Exception to rule 1: Allow /X:/ where X is any ASCII 
+      **    2.  Exception to rule 1: Allow /X:/ where X is any ASCII
       **        alphabetic character at the beginning of the name on windows.
       **    3.  "-" may not occur immediately after "/"
       **    4.  "." may not be adjacent to another "." or to "/"
       **
       ** Any character does not satisfy these constraints a Not Found
       ** error is returned.
-      */  
+      */
       szFile = 0;
       for(j=nBase+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
@@ -2074,7 +2097,7 @@ static void process_one_web_page(
       fossil_redirect_home() /*does not return*/;
     }
   }else{
-    zPath = mprintf("%s", zPathInfo);
+    zPath = fossil_strdup(zPathInfo);
   }
 
   /* Make g.zPath point to the first element of the path.  Make
@@ -2485,7 +2508,7 @@ void cmd_cgi(void){
       ** in ".fossil") or a file in "files:".
       */
       db_close(1);
-      g.zRepositoryName = mprintf("%s", blob_str(&value));
+      g.zRepositoryName = fossil_strdup(blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2495,7 +2518,7 @@ void cmd_cgi(void){
       ** If using directory: and no suitable repository or file is found,
       ** then redirect to URL.
       */
-      zNotFound = mprintf("%s", blob_str(&value));
+      zNotFound = fossil_strdup(blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2539,8 +2562,8 @@ void cmd_cgi(void){
       ** above for details. */
       nRedirect++;
       azRedirect = fossil_realloc(azRedirect, 2*nRedirect*sizeof(char*));
-      azRedirect[nRedirect*2-2] = mprintf("%s", blob_str(&value));
-      azRedirect[nRedirect*2-1] = mprintf("%s", blob_str(&value2));
+      azRedirect[nRedirect*2-2] = fossil_strdup(blob_str(&value));
+      azRedirect[nRedirect*2-1] = fossil_strdup(blob_str(&value2));
       blob_reset(&value);
       blob_reset(&value2);
       continue;
@@ -2583,7 +2606,7 @@ void cmd_cgi(void){
       ** Causes messages from warnings, errors, and panics to be appended
       ** to FILENAME.
       */
-      g.zErrlog = mprintf("%s", blob_str(&value));
+      g.zErrlog = fossil_strdup(blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2592,7 +2615,7 @@ void cmd_cgi(void){
       **
       ** Enables the /ext webpage to use sub-cgi rooted at DIRECTORY
       */
-      g.zExtRoot = mprintf("%s", blob_str(&value));
+      g.zExtRoot = fossil_strdup(blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2653,7 +2676,7 @@ void cmd_cgi(void){
       ** "mainmenu" setting, overriding the contents (for this
       ** request) of the db-side setting or the hard-coded default.
       */
-      g.zMainMenuFile = mprintf("%s", blob_str(&value));
+      g.zMainMenuFile = fossil_strdup(blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2710,7 +2733,7 @@ static void find_server_repository(int arg, int fCreate){
     const char *zRepo = g.argv[arg];
     int isDir = file_isdir(zRepo, ExtFILE);
     if( isDir==1 ){
-      g.zRepositoryName = mprintf("%s", zRepo);
+      g.zRepositoryName = fossil_strdup(zRepo);
       file_simplify_name(g.zRepositoryName, -1, 0);
     }else{
       if( isDir==0 && fCreate ){
@@ -2922,7 +2945,7 @@ void cmd_http(void){
   */
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
-    char *z = mprintf("%s", zFileGlob);
+    char *z = fossil_strdup(zFileGlob);
     dehttpize(z);
     zFileGlob = z;
   }else{
@@ -3066,7 +3089,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **
 ** Then run (in a debugger) a command like this:
 **
-**     fossil test-http --debug <request.txt
+**     fossil test-http <request.txt
 **
 ** This command is also used internally by the "ssh" sync protocol.  Some
 ** special processing to support sync happens when this command is run
@@ -3332,7 +3355,7 @@ void cmd_webserver(void){
   builtin_set_js_delivery_mode(zJsMode,0);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
-    char *z = mprintf("%s", zFileGlob);
+    char *z = fossil_strdup(zFileGlob);
     dehttpize(z);
     zFileGlob = z;
   }else{
@@ -3513,7 +3536,7 @@ void cmd_webserver(void){
     FILE *sshIn;
     Blob ssh;
     int bRunning = 0;    /* True when fossil starts up on the remote */
-    int isRetry;         /* True if on the second attempt */        
+    int isRetry;         /* True if on the second attempt */
     char zLine[1000];
 
     blob_init(&ssh, 0, 0);
@@ -3552,7 +3575,7 @@ void cmd_webserver(void){
       if( isRetry ){
         fossil_print("First attempt to run \"fossil\" on %s failed\n"
                      "Retry: ", zRemote);
-      } 
+      }
       fossil_print("%s\n", blob_str(&ssh));
       sshIn = popen(blob_str(&ssh), "r");
       if( sshIn==0 ){
