@@ -1169,11 +1169,12 @@ void ci_page(void){
        "<div class=\"section accordion\">References</div>\n");
   @ <div class="section accordion">Context</div><div class="accordion_panel">
   render_checkin_context(rid, 0, 0, 0);
-  @ </div><div class="section accordion">Changes</div>
+  @ </div><div class="section accordion" id="changes_section">Changes</div>
   @ <div class="accordion_panel">
   @ <div class="sectionmenu info-changes-menu">
   /* ^^^ .info-changes-menu is used by diff scroll sync */
   pCfg = construct_diff_flags(diffType, &DCfg);
+  DCfg.diffFlags |= DIFF_NUMSTAT; /* Show stats in the 'Changes' section */
   DCfg.pRe = pRe;
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=1 ){
@@ -1229,6 +1230,13 @@ void ci_page(void){
   }
   db_finalize(&q3);
   @ </div>
+  @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
+  @ function plu(n) {return (n===1 ? '' : 's')}
+  @ document.getElementById('changes_section').textContent =  'Changes ' +
+  @   '(%d(g.diffCnt[0]) file' + plu(%d(g.diffCnt[0])) + ': ' +
+  @   '%d(g.diffCnt[1]) addition' + plu(%d(g.diffCnt[1])) + ', ' +
+  @   '%d(g.diffCnt[2]) deletion' + plu(%d(g.diffCnt[2])) + ')'
+  @ </script>      
   append_diff_javascript(diffType);
   style_finish_page();
 }
