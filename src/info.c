@@ -1231,12 +1231,11 @@ void ci_page(void){
   db_finalize(&q3);
   @ </div>
   @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
-  @ function plu(n) {return (n===1 ? '' : 's')}
   @ document.getElementById('changes_section').textContent =  'Changes ' +
-  @   '(%d(g.diffCnt[0]) file' + plu(%d(g.diffCnt[0])) + ': ' +
-  @   '%d(g.diffCnt[1]) addition' + plu(%d(g.diffCnt[1])) + ', ' +
-  @   '%d(g.diffCnt[2]) deletion' + plu(%d(g.diffCnt[2])) + ')'
-  @ </script>      
+  @   '(%d(g.diffCnt[0]) file' + (%d(g.diffCnt[0])===1 ? '' : 's') + ': ' +
+  @   '+%d(g.diffCnt[1]) ' +
+  @   '−%d(g.diffCnt[2]))'
+  @ </script>
   append_diff_javascript(diffType);
   style_finish_page();
 }

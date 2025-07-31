@@ -1,5 +1,5 @@
-C Show\snumstat-style\sstatistics\sin\sthe\s'Changes'\ssection\sof\s/info\sand\sfriends.
-D 2025-07-30T17:26:45.272
+C Shorten\sline\sstatistics\stext\sfor\sthe\sbenefit\sof\sdevices\swith\slimited\sscreen\swidth.
+D 2025-07-31T12:50:19.625
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/http_socket.c db9603e27cbf4b41dae94d000acf3dbf1ecbb431ef0a24743aabd17e5467
 F src/http_ssl.c 5050cdd1441962f51762780cdd87b38c7281ecc6f4a65290acdaca318e9a4ca0
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 6997a6b6d9ca3d2cd5e79b2561aaad2582a78d7c6032c44a956c6bb611b59c34
-F src/info.c 9c8372278302bc6b45dd767974b14355b4eb5a07fee8199363f29208ee94d0f5
+F src/info.c 7b3adcab1719ef28ea51fa0fd36909d52bb7392090b5c8b22da581e5c8196ccd
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 8375e3d570e779ccd619c4e44b9977db7e9acfa2a1e244288759457101911520
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -974,11 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 062bb67c03f25c485ffd55d403c849c4833ac8ee99198f3db70caa2d160e2ea5
-R 87708913f619ff1c8518fbc739e7ae2a
-T *branch * gui-diff-numstat
-T *sym-gui-diff-numstat *
-T -sym-trunk *
+P 25e156c9b77726d552c7665f8088b66c22df58ae9ee8621aa08e3c2313f9b34e
+R 9fe27b12d57fb0afe66819ad2ace557b
 U danield
-Z 1524c4ed1a6722d7e076b10699d75154
+Z 63e77feb2dfbab7f925932bcaf16e083
 # Remove this line to create a well-formed Fossil manifest.
