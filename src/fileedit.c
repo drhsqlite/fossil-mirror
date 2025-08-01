@@ -579,7 +579,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
     */
     const int pseudoBinary = LOOK_LONG | LOOK_NUL;
     const int lookFlags = LOOK_CRLF | LOOK_LONE_LF | pseudoBinary;
-    const int lookNew = looks_like_utf8( &pCI->fileContent, lookFlags );
+    const int lookNew = looks_like_utf8( &pCI->fileContent, lookFlags, 0 );
     if(!(pseudoBinary & lookNew)){
       int rehash = 0;
       /*fossil_print("lookNew=%08x\n",lookNew);*/
@@ -587,7 +587,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
         Blob contentPrev = empty_blob;
         int lookOrig, nOrig;
         content_get(prevFRid, &contentPrev);
-        lookOrig = looks_like_utf8(&contentPrev, lookFlags);
+        lookOrig = looks_like_utf8(&contentPrev, lookFlags, 0);
         nOrig = blob_size(&contentPrev);
         blob_reset(&contentPrev);
         /*fossil_print("lookOrig=%08x\n",lookOrig);*/

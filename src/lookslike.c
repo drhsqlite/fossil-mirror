@@ -31,7 +31,7 @@
 ** data that MAY be binary in nature; otherwise, zero will be returned.
 */
 #define looks_like_binary(blob) \
-    ((looks_like_utf8((blob), LOOK_BINARY) & LOOK_BINARY) != LOOK_NONE)
+    ((looks_like_utf8((blob), LOOK_BINARY, 0) & LOOK_BINARY) != LOOK_NONE)
 
 /*
 ** Output flags for the looks_like_utf8() and looks_like_utf16() routines used
@@ -116,19 +116,23 @@ static const unsigned char lb_tab[] = {
 **
 ************************************ WARNING **********************************
 */
-int looks_like_utf8(const Blob *pContent, int stopFlags){
+int looks_like_utf8(const Blob *pContent, int stopFlags, int fVerbose){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c, flags = LOOK_NONE;  /* Assume UTF-8 text, prove otherwise */
+  int nLine = 1;
 
   if( n==0 ) return flags;  /* Empty file -> text */
   c = *z;
   if( c==0 ){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+    if( fVerbose ) fossil_print("NUL at start\n");
   }else if( c=='\r' ){
     flags |= LOOK_CR;
+    if( fVerbose ) fossil_print("CR at start\n");
     if( n<=1 || z[1]!='\n' ){
       flags |= LOOK_LONE_CR;  /* Not enough chars or next char not LF */
+      if( fVerbose ) fossil_print("Lone CR at start\n");
     }
   }
   j = (c!='\n');
@@ -137,21 +141,37 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
     int c2 = c;
     c = *++z; ++j;
     if( c==0 ){
+      if( fVerbose && !(flags&LOOK_NUL) ){
+        fossil_print("NUL on line %d\n", nLine);
+      }
       flags |= LOOK_NUL;  /* NUL character in a file -> binary */
     }else if( c=='\n' ){
       flags |= LOOK_LF;
       if( c2=='\r' ){
+        if( fVerbose && !(flags&LOOK_CRLF) ){
+          fossil_print("CRLF on line %d\n", nLine);
+        }
         flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
       }else{
+        if( fVerbose && !(flags&LOOK_LONE_LF) ){
+          fossil_print("Lone LF on line %d\n", nLine);
+        }
         flags |= LOOK_LONE_LF;
       }
       if( j>LENGTH_MASK ){
+        if( fVerbose && !(flags&LOOK_LONG) ){
+          fossil_print("Line %d is longer than %d bytes\n", nLine, j);
+        }
         flags |= LOOK_LONG;  /* Very long line -> binary */
       }
+      ++nLine;
       j = 0;
     }else if( c=='\r' ){
       flags |= LOOK_CR;
       if( n<=1 || z[1]!='\n' ){
+        if( fVerbose && !(flags&LOOK_LONE_CR) ){
+          fossil_print("Lone CR on line %d\n", nLine);
+        }
         flags |= LOOK_LONE_CR;  /* Not enough chars or next char not LF */
       }
     }
@@ -406,6 +426,7 @@ int could_be_utf16(const Blob *pContent, int *pbReverse){
 **                     performance measurement. Default = 1
 **    --utf8           Ignoring BOM and file size, force UTF-8 checking
 **    --utf16          Ignoring BOM and file size, force UTF-16 checking
+**    -v|--verbose     Report the line numbers where each flag is first set
 **
 ** FILENAME is the name of a file to check for textual content in the UTF-8
 ** and/or UTF-16 encodings.
@@ -420,6 +441,7 @@ void looks_like_utf_test_cmd(void){
   int fForceUtf8 = find_option("utf8",0,0)!=0;
   int fForceUtf16 = find_option("utf16",0,0)!=0;
   const char *zCount = find_option("limit","n",1);
+  int fVerbose = find_option("verbose","v",0)!=0;
   int nRepeat = 1;
 
   if( g.argc!=3 ) usage("FILENAME");
@@ -438,7 +460,7 @@ void looks_like_utf_test_cmd(void){
     if( fUnicode ){
       lookFlags = looks_like_utf16(&blob, bRevUtf16, 0);
     }else{
-      lookFlags = looks_like_utf8(&blob, 0) | invalid_utf8(&blob);
+      lookFlags = looks_like_utf8(&blob, 0, fVerbose) | invalid_utf8(&blob);
     }
   }
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));

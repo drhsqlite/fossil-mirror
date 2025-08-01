@@ -1,5 +1,5 @@
-C Fix\sa\scompiler\swarning\sin\sthe\sprevious\scheck-in.
-D 2025-07-30T17:48:54.956
+C Added\sthe\s--verbose|v\sflag\sto\sthe\stest-looks-like-utf8\scommand\sso\sthat\none\scan\sfind\sout\swhy\sa\scommand\slike\s"fossil\sci"\sis\sconsidering\san\sinput\nknown\sto\sbe\stext\sas\s"binary",\sthen\sfix\sit.
+D 2025-08-01T04:50:45.086
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c f634c8002006a19bcdc519911c056b011be69dd500b6f6b1ebf715dc2ad43fcb
 F src/chat.c cbbc84da0bffbf26964156c735c7fdae0c149795b254b4d003d8746073fa7333
-F src/checkin.c 99d0a55b145db997a6bdb65f233fd008327125df463e1d630a08a8545e9ee934
+F src/checkin.c 30ab29af6162d9591ae0efa061398c3abd01285297c45dc7300b767ba26f5b02
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
@@ -429,7 +429,7 @@ F src/event.c 0ebdcb072aa09cb323032406642285948b7256acdb9e8b97d25e18ff1061fabe
 F src/export.c 0be1388f2c88cfaa58bf264c97fe5fc2929ef6f3d4d1d7539547f9bc7d630de9
 F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
 F src/file.c f8d97a19cad764556c5818ea53611b96cdcbbaa9be573c25aa1c1643d428dd7e
-F src/fileedit.c 3d4a726208561ac659a989c969f76400eeda7e8a0bb682426022dadd4422c2ed
+F src/fileedit.c e86ff60ed8ddec2b826851ef3dfaaa441ebf868d7744acb1d1157975d6607b7a
 F src/finfo.c 6a245e0b89a55e5252eb67c5869cf89d3ea66f30c8288f9169b7c2f0113831f3
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c 772ee17d2cb113c963846da2d1bf784a0fe4c024d0279f50c8cd296bd7a7718a
@@ -492,7 +492,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf8
 F src/login.c 61bcd0f5127a1672526bf5c92ddb1380393b37d673a72e270005bc233d3f314f
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
-F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
+F src/lookslike.c bdefe97722de34963413b49d0523bbe18a241ce54b7e83762d695a6089d26332
 F src/main.c 8a08d7dbdc4ca4c0b6d8287e63f33f8918aaa39a90589c045141738c7c0e6782
 F src/main.mk 02890c4c98af4817973545eb91bfcd92c6a06d7662724e0d2cc0f28ffae42801
 F src/manifest.c 699ddca0092dcd6cb552b664058d9d4e0da3d517544d76566051061cdd5e6845
@@ -974,8 +974,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 062bb67c03f25c485ffd55d403c849c4833ac8ee99198f3db70caa2d160e2ea5
-R 3de15d36c68f3e8624a641171502b807
-U danield
-Z 14d1b796dd36d71ae793410822d4f09a
+P a8ef11b63c7d9c50f383dade22dabb75b2e6e93b68ce40eb0c8b0a020ecb7e53
+R 51dbdc423ff5b09cf4237a434531728f
+T *branch * verbose-looks-like
+T *sym-verbose-looks-like *
+T -sym-trunk *
+U wyoung
+Z 499d680c138663bb3c5167100426fb5c
 # Remove this line to create a well-formed Fossil manifest.

@@ -2098,7 +2098,7 @@ static int commit_warning(
     if( fUnicode ){
       lookFlags = looks_like_utf16(pContent, bReverse, LOOK_NUL);
     }else{
-      lookFlags = looks_like_utf8(pContent, LOOK_NUL);
+      lookFlags = looks_like_utf8(pContent, LOOK_NUL, 0);
       if( !(lookFlags & LOOK_BINARY) && invalid_utf8(pContent) ){
         fHasInvalidUtf8 = 1;
       }
