@@ -1,5 +1,5 @@
-C Fix\sa\scompiler\swarning\sin\sthe\sprevious\scheck-in.
-D 2025-07-30T17:48:54.956
+C Typo\sfix\sin\shelp\soutput,\snoted\s[forum:/forumpost/af1ee76f78\s|\son\sthe\sforum].
+D 2025-08-01T04:59:47.264
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
 F src/cgi.c f634c8002006a19bcdc519911c056b011be69dd500b6f6b1ebf715dc2ad43fcb
 F src/chat.c cbbc84da0bffbf26964156c735c7fdae0c149795b254b4d003d8746073fa7333
-F src/checkin.c 99d0a55b145db997a6bdb65f233fd008327125df463e1d630a08a8545e9ee934
+F src/checkin.c 8be7561beca6e096cc7975b054cda8cd7621df2faea7fe40459271e4eeb808ca
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 062bb67c03f25c485ffd55d403c849c4833ac8ee99198f3db70caa2d160e2ea5
-R 3de15d36c68f3e8624a641171502b807
-U danield
-Z 14d1b796dd36d71ae793410822d4f09a
+P a8ef11b63c7d9c50f383dade22dabb75b2e6e93b68ce40eb0c8b0a020ecb7e53
+R 6939f0caecadff24d0caada4ea8f074a
+U wyoung
+Z 31dbb79a05fde13d6d9b4bff2cc7dd6f
 # Remove this line to create a well-formed Fossil manifest.

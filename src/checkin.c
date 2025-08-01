@@ -1504,7 +1504,7 @@ static void prepare_commit_comment(
     blob_append(&prompt,
        "#   *  Hyperlinks:   [target]   or   [target|display-text]\n"
        "#   *  Blank lines cause a paragraph break\n"
-       "#   *  Other text rendered as if it where HTML\n", -1
+       "#   *  Other text rendered as if it were HTML\n", -1
     );
   }
   blob_append(&prompt, "#\n", 2);
