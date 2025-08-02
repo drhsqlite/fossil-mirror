@@ -505,9 +505,13 @@ void user_cmd(void){
       db_protect_pop();
     }
     fossil_print("%s\n", db_text(0, "SELECT info FROM user WHERE uid=%d", uid));
+  }else if( n==6 && strncmp(g.argv[2], "whoami", 6)==0 ){
+    db_find_and_open_repository(0,0);
+    user_select();
+    fossil_print("%s\n", g.zLogin);
   }else{
     fossil_fatal("user subcommand should be one of: "
-                 "capabilities contact default list new password");
+                 "capabilities contact default list new password whoami");
   }
 }
 
