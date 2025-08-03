@@ -111,6 +111,8 @@ void freepass(){
   if( !zPwdBuffer ) return;
   assert( nPwdBuffer>0 );
   fossil_secure_free_page(zPwdBuffer, nPwdBuffer);
+  zPwdBuffer = 0;
+  nPwdBuffer = 0;
 }
 #endif
 
@@ -288,9 +290,8 @@ char *prompt_for_user_password(const char *zUser){
   Blob x;
   fossil_force_newline();
   prompt_for_password(zPrompt, &x, 0);
-  free(zPrompt);
-  zPw = mprintf("%b", &x);
-  blob_reset(&x);
+  fossil_free(zPrompt);
+  zPw = blob_str(&x)/*transfer ownership*/;
   return zPw;
 }
 
