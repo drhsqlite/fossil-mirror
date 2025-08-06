@@ -1,5 +1,5 @@
-C Add\sa\sNULL\scheck\swhere\sa\schange\sfrom\s[4c3e1728e1b1a9cb]\sinadvertently\schanged\sthe\ssemantics\sfrom\sNULL==""\sto\sNULL==NULL,\striggering\sa\snull\spointer\sderef\svia\sbacklinks\sparsing.\sTriggered\sby\srebuild\swhen\sencountering\sa\stag\swith\sno\svalue.
-D 2025-08-04T23:58:09.515
+C Show\snumstat-style\sstatistics\sin\sthe\s'Changes'\ssection\sof\s/info\sand\sfriends.
+D 2025-08-06T10:30:24.510
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -417,7 +417,7 @@ F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c b89a755e53906d2ec2ea69573bd38a4c90baad7af2e48c13015a69b7637b03b2
-F src/diff.c a3948d2ae954d682c538d0e08c96848542fe40cb8f5ffc9c73319b1dda4ec1e8
+F src/diff.c 4b4c6483b4884ce00cc9a582ca2db6ab10aad7568647d353b1eae900cfdd1dc8
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
 F src/diffcmd.c 387c4b714b5baf35d4384222a8ebb3baade07aa177d6ca1614f6c3c4bb598e05
@@ -470,7 +470,7 @@ F src/http_socket.c db9603e27cbf4b41dae94d000acf3dbf1ecbb431ef0a24743aabd17e5467
 F src/http_ssl.c 5050cdd1441962f51762780cdd87b38c7281ecc6f4a65290acdaca318e9a4ca0
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 6997a6b6d9ca3d2cd5e79b2561aaad2582a78d7c6032c44a956c6bb611b59c34
-F src/info.c 70ebed630d46709ef2c8e319bc8af81477ff6eac90d0cee43ee0ff0341a83e16
+F src/info.c 7b3adcab1719ef28ea51fa0fd36909d52bb7392090b5c8b22da581e5c8196ccd
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 8375e3d570e779ccd619c4e44b9977db7e9acfa2a1e244288759457101911520
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -974,8 +974,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0ea8703b60c604d768efcdc27786cf470245f8ad04e1964fd5f5770aa5eb3b29
-R 6c62c306ec37139c3d69c0383c2fcd5d
-U stephan
-Z 022a3cf406303e4c24e496d3586434e1
+P 441264b759d9e07a78f3715be919b72fc64a4ddef9a94e920f3025c0be7d17ba 941f67a83e9263270c0f7ec2cbcaa58254baace55df8f5e2ae0d6f76040bf9b7
+R e124e8c57143540fa74315453a13370e
+T +closed 941f67a83e9263270c0f7ec2cbcaa58254baace55df8f5e2ae0d6f76040bf9b7
+U danield
+Z 3e02fe14fcf4f6f007d6237ec04b5adb
 # Remove this line to create a well-formed Fossil manifest.
