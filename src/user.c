@@ -353,12 +353,16 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 ** > fossil user password USERNAME ?PASSWORD?
 **
 **        Change the web access password for a user.
+**
+** > fossil user whoami
+**
+**        Detect what fossil thinks your username should be.
 */
 void user_cmd(void){
   int n;
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
-    usage("capabilities|contact|default|list|new|password ...");
+    usage("capabilities|contact|default|list|new|password|whoami ...");
   }
   n = strlen(g.argv[2]);
   if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
