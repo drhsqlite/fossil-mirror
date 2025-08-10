@@ -322,6 +322,9 @@ void unversioned_cmd(void){
     const char *zAs;
     Blob file;
     int i;
+    i64 mxSize = sqlite3_limit(g.db,SQLITE_LIMIT_LENGTH,-1) - 850;
+                   /* Extra space for other fields      ------^^^  */
+                   /* of the UNVESIONED table row.                 */
 
     zAs = find_option("as",0,1);
     verify_all_options();
@@ -338,9 +341,15 @@ void unversioned_cmd(void){
         zError = "contain complex paths";
       }else if( contains_whitespace(zIn) ){
         zError = "contain whitespace";
+      }else if( strlen(zIn)>500 ){
+        zError = "be more than 500 bytes long";
       }
       if( zError ){
         fossil_fatal("unversioned filenames may not %s: %Q", zError, zIn);
+      }
+      if( file_size(g.argv[i], ExtFILE)>mxSize ){
+        fossil_fatal("file \"%s\" is too big; max size: %,lld bytes",
+                     g.argv[i], mxSize);
       }
       blob_init(&file,0,0);
       blob_read_from_file(&file, g.argv[i], ExtFILE);
