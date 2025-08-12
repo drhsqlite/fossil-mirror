@@ -1138,20 +1138,27 @@ label {
 label[for] {
   cursor: pointer;
 }
-button.copy-button {
+button.copy-button,
+button.copy-button:hover,
+button.copy-button:focus,
+button.copy-button:active {
   width: 14px;
   height: 14px;
 /*Note: .24em is slightly smaller than the average width of a normal space.*/
   margin: -2px .24em 0 0;
   padding: 0;
   border: 0;
+  outline: 0;
   background: none;
   font-size: inherit; /* Required for horizontal spacing. */
   vertical-align: middle;
   user-select: none;
   cursor: pointer;
 }
-button.copy-button-flipped {
+button.copy-button-flipped,
+button.copy-button-flipped:hover,
+button.copy-button-flipped:focus,
+button.copy-button-flipped:active {
 /*Note: .16em is suitable for element grouping.*/
   margin: -2px 0 0 .16em;
 }

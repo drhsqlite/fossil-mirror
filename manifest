@@ -1,5 +1,5 @@
-C Revamp\sthe\sCopy\sButtons\sfor\sa\smore\sresponsive\suser\sexperience.\sSee\sthe\s[branch/copybtn.js-responsive\s|\swiki\spage\slinked\sto\sthis\sbranch]\sfor\smore\sdetails.
-D 2025-08-12T15:04:00.000
+C Add\ssome\shigher-specificity\sCSS\sdeclarations\sto\sprevent\sdark-mode\sskins\sfrom\soverriding\sthe\srelevant\sstyles\sof\sthe\sCopy\sButton\slayout,\sso\susers\sdon't\sneed\sto\ssync\stheir\sskin\scustomizations\swith\sthe\schanges\son\sthis\sbranch.
+D 2025-08-12T15:20:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -412,7 +412,7 @@ F src/cookies.c 4690f40acbac2f7196ad14514150350bfad632f60a52bd84408c091468dd26e7
 F src/copybtn.js a967fe355479c329f4e172c625b7a8403e1132be72fd3ebf9ad0afad249a679c
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 7baa3f7ec3b3d6aec893134ec6b02287ac47ac7a8237226e3c8b932d1242c0fa
-F src/default.css c21beb48f0a43894757bb6539e08d2c46555b8b194fd805fb16ae10ee91507fb
+F src/default.css f44516ec9b704abe0bb27b5cd0759cbb71cf1fe62f457a03626e37609c4e96ee
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -974,11 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6265bb3a7eb867d2a960594d2886ce7c65219d416a031be323482b5edf26c43
-R d27fdfc0ea4ed30166637820f31370d4
-T *branch * copybtn.js-responsive
-T *sym-copybtn.js-responsive *
-T -sym-trunk *
+P 32c3a210c80b33bcec0605fb082d7ed95316d2602037a0b31c49ff5dd1353ef2
+R 01e6a649e15419f8fa78683397ef5b1d
 U florian
-Z ac5ee472760ba95afef5b2fb22507096
+Z c62175c736bde1246ca591ee6cd4c171
 # Remove this line to create a well-formed Fossil manifest.
