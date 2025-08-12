@@ -1,5 +1,5 @@
-C Add\ssome\shigher-specificity\sCSS\sdeclarations\sto\sprevent\sdark-mode\sskins\sfrom\soverriding\sthe\srelevant\sstyles\sof\sthe\sCopy\sButton\slayout,\sso\susers\sdon't\sneed\sto\ssync\stheir\sskin\scustomizations\swith\sthe\schanges\son\sthis\sbranch.
-D 2025-08-12T15:20:00.000
+C Use\sequal\shorizontal\sspacing\sfor\snormal\sand\s"flipped"\sCopy\sButtons\s(where\sthe\slatter\sare\spositioned\safter\sthe\stext\sto\sbe\scopied).\sThe\sidea\sis\sfor\sthe\sbuttons\sto\sbe\stied\sto\s"their"\stext\swithout\sspaces\sin\sbetween,\sresulting\sin\sa\ssomewhat\snarrower\sspacing\sto\semphasize\sthe\sconnection,\sbut\sto\shave\snormal\sHTML\swhitespace\son\sthe\sother\sside.
+D 2025-08-12T15:27:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -412,7 +412,7 @@ F src/cookies.c 4690f40acbac2f7196ad14514150350bfad632f60a52bd84408c091468dd26e7
 F src/copybtn.js a967fe355479c329f4e172c625b7a8403e1132be72fd3ebf9ad0afad249a679c
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 7baa3f7ec3b3d6aec893134ec6b02287ac47ac7a8237226e3c8b932d1242c0fa
-F src/default.css f44516ec9b704abe0bb27b5cd0759cbb71cf1fe62f457a03626e37609c4e96ee
+F src/default.css 6bd927a6f0f268104e899e8df2c0013db9cd7691b4432dd712a0c8ae4c1d9051
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -448,7 +448,7 @@ F src/fossil.page.forumpost.js 1404b0912941e2cd024a12f852e6ce2ced715a4f9f3efa6dc
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.whistory.js 25d9059c9670337d0e2b9e22d791be209a3be77ebd5ff1a985dfaecef64d0e36
-F src/fossil.page.wikiedit.js 9f3baca3c4da7141913d0f98bbea25316cba9ea9a81c3da5177cdf975fabd922
+F src/fossil.page.wikiedit.js d38cbdcdff048d9c0e9eead9fa50ac96e4c9425f53c2bf9c5cf765fc5b3d769c
 F src/fossil.pikchr.js a6ef755b6c878a43ee7f402dd3d27593897d901fa1e1f38a6ede83c600708ea3
 F src/fossil.popupwidget.js d9268d911041e61cd9f9d2dde0c6479324836309a14a238ef32161b503b7d1e8
 F src/fossil.storage.js 767a7eba00b6ffbed8aba7fab3b9b4a1eb3052cb9d0730b2bd96941baa7627a9
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 32c3a210c80b33bcec0605fb082d7ed95316d2602037a0b31c49ff5dd1353ef2
-R 01e6a649e15419f8fa78683397ef5b1d
+P b7f2c9f329971d045495df744c625f9347d925111f25fd48ea3a367f44ba868d
+R 87381151d0c99101c363353d2a69a74f
 U florian
-Z c62175c736bde1246ca591ee6cd4c171
+Z 8adc2364cd82562dfbd39b824ce9edf5
 # Remove this line to create a well-formed Fossil manifest.

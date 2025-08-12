@@ -1159,8 +1159,7 @@ button.copy-button-flipped,
 button.copy-button-flipped:hover,
 button.copy-button-flipped:focus,
 button.copy-button-flipped:active {
-/*Note: .16em is suitable for element grouping.*/
-  margin: -2px 0 0 .16em;
+  margin: -2px 0 0 .24em;
 }
 button.copy-button span {
   display: block;
