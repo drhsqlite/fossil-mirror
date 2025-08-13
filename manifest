@@ -1,5 +1,5 @@
-C Raise\san\serror\swhen\strying\sto\sinsert\san\sunversioned\sfile\sif\sthe\sfile\ssize\nwould\scause\sthe\sdatabase\srow\sto\sexceed\sSQLITE_LIMIT_LENGTH.
-D 2025-08-10T10:28:08.209
+C Allow\sthe\smimetype\squery\sparameter\sfor\snon-CGI\scontent\sin\s/ext.
+D 2025-08-13T15:48:26.198
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
 F src/event.c 0ebdcb072aa09cb323032406642285948b7256acdb9e8b97d25e18ff1061fabe
 F src/export.c 0be1388f2c88cfaa58bf264c97fe5fc2929ef6f3d4d1d7539547f9bc7d630de9
-F src/extcgi.c 951195f6c016fcfef33eb85a4a6c49d57951b471bfd3c4c65f41dedddafde237
+F src/extcgi.c 4a7139156c32b705a75d9c63c4fc6f6cc867488f2a4d66b102b6b722085f251b
 F src/file.c f8d97a19cad764556c5818ea53611b96cdcbbaa9be573c25aa1c1643d428dd7e
 F src/fileedit.c 3d4a726208561ac659a989c969f76400eeda7e8a0bb682426022dadd4422c2ed
 F src/finfo.c 6a245e0b89a55e5252eb67c5869cf89d3ea66f30c8288f9169b7c2f0113831f3
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7d4af37f39acbdbe335203be809e5597d2d17fcaa584d595ae64eb7c9d8a9cbc
-R a386460095aaf0b2c1d553cb9eeb845c
+P c6265bb3a7eb867d2a960594d2886ce7c65219d416a031be323482b5edf26c43
+R b36fadd0b507f513891e8618160b138b
 U drh
-Z 0daa9d3a1f7f42358d8fbc4cecf8acd3
+Z 435b8b2d6ebf5b61e4d4d2bd2ed49d18
 # Remove this line to create a well-formed Fossil manifest.
