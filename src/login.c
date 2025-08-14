@@ -343,9 +343,10 @@ void login_set_user_cookie(
 
 /* Sets a cookie for an anonymous user login, which looks like this:
 **
-**    HASH/TIME/anonymous
+**    HASH/TIME:IPADDR/anonymous
 **
-** Where HASH is the sha1sum of TIME/SECRET, in which SECRET is captcha-secret.
+** Where HASH is the sha1sum of TIME:IPADDR/SECRET, in which SECRET
+** is captcha-secret.
 **
 ** If zCookieDest is not NULL then the generated cookie is assigned to
 ** *zCookieDest and the caller must eventually free() it.
@@ -355,16 +356,18 @@ void login_set_user_cookie(
 void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   char *zNow;                  /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
+  const char *zIpAddr;         /* IP Address */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
-  int expires = bSessionCookie ? 0 : 6*3600;
+  int expires = bSessionCookie ? 0 : 3600;  /* Valid for 60 minutes */
   zCookieName = login_cookie_name();
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
   blob_init(&b, zNow, -1);
-  blob_appendf(&b, "/%z", captcha_secret(0));
+  zIpAddr = PD("REMOTE_ADDR","nil");
+  blob_appendf(&b, ":%s/%z", zIpAddr, captcha_secret(0));
   sha1sum_blob(&b, &b);
-  zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
+  zCookie = mprintf("%s/%s:%s/anonymous", blob_buffer(&b), zNow, zIpAddr);
   blob_reset(&b);
   cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
   if( zCookieDest ){
@@ -1460,16 +1463,20 @@ void login_check_credentials(void){
     if( zUser==0 ){
       /* Invalid cookie */
     }else if( fossil_strcmp(zUser, "anonymous")==0 ){
-      /* Cookies of the form "HASH/TIME/anonymous".  The TIME must not be
-      ** too old and the sha1 hash of TIME/SECRET must match HASH.
-      ** SECRET is the "captcha-secret" value in the repository.
+      /* Cookies of the form "HASH/TIME:IPADDR/anonymous".  The TIME must
+      ** not be too old and the sha1 hash of TIME:IPADDR/SECRET must match
+      ** HASH.  SECRET is the "captcha-secret" value in the repository.
       */
       double rTime = atof(zArg);
+      const char *zCookieIP;
       Blob b;
       char *zSecret;
       int n = 0;
 
+      zCookieIP = strchr(zArg,':');
+      if( zCookieIP && strcmp(zCookieIP+1,zIpAddr)!=0 ) zCookieIP = 0;
       do{
+        if( zCookieIP==0 ) break;
         blob_zero(&b);
         zSecret = captcha_secret(n++);
         if( zSecret==0 ) break;
@@ -1480,7 +1487,7 @@ void login_check_credentials(void){
               "SELECT uid FROM user WHERE login='anonymous'"
               " AND octet_length(cap)>0"
               " AND octet_length(pw)>0"
-              " AND %.17g+0.25>julianday('now')",
+              " AND %.17g+0.0416667>julianday('now')",
               rTime
           );
         }
