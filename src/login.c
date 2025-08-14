@@ -592,7 +592,15 @@ void login_page(void){
                   constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
+
+  /* If the anonFlag is set, that means rework the web-page to make it
+  ** a more user-friendly captcha.  Extraneous text and boxes are omitted.
+  ** The user has just the captcha image and an entry box and a "Verify"
+  ** button.  Underneath is the same login page for user "anonymous", just
+  ** displayed in an easier to digest format for one-time visitors.
+  */
   anonFlag = g.zLogin==0 && PB("anon");
+
   /* Handle log-out requests */
   if( P("out") && cgi_csrf_safe(2) ){
     login_clear_login_data();
@@ -733,8 +741,8 @@ void login_page(void){
       @ <p>Use a different login with greater privilege than <b>%h(g.zLogin)</b>
       @ to access <b>%h(zAbbrev)</b>.
     }else if( anonFlag ){
-      @ <p>Login as <b>anonymous</b> or any named user
-      @ to access page <b>%h(zAbbrev)</b>.
+      @ <p><b>Verify that you are human by typing in the 8-character text
+      @ password shown below.</b></p>
     }else{
       @ <p>Login as a named user to access page <b>%h(zAbbrev)</b>.
     }
@@ -753,6 +761,7 @@ void login_page(void){
   }
   if( anonFlag ){
     @ <input type="hidden" name="anon" value="1">
+    @ <input type="hidden" name="u" value="anonymous">
   }
   if( g.zLogin ){
     @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
@@ -768,7 +777,7 @@ void login_page(void){
       zAnonPw = 0;
     }
     @ <table class="login_out">
-    if( P("HTTPS")==0 ){
+    if( P("HTTPS")==0 && !anonFlag ){
       @ <tr><td class="form_label">Warning:</td>
       @ <td><span class='securityWarning'>
       @ Login information, including the password,
@@ -779,37 +788,51 @@ void login_page(void){
       }
       @ </span></td></tr>
     }
-    @ <tr>
-    @   <td class="form_label" id="userlabel1">User ID:</td>
-    @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
-    @ size="30" value="%s(anonFlag?"anonymous":"")" autofocus></td>
-    @ </tr>
+    if( !anonFlag ){
+      @ <tr>
+      @   <td class="form_label" id="userlabel1">User ID:</td>
+      @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
+      @ size="30" value="" autofocus></td>
+      @ </tr>
+    }
     @ <tr>
     @  <td class="form_label" id="pswdlabel">Password:</td>
     @  <td><input aria-labelledby="pswdlabel" type="password" id="p" \
-    @ name="p" value="" size="30">\
-    if( zAnonPw && !noAnon ){
+    @ name="p" value="" size="30">
+    if( anonFlag ){
+      @ </td></tr>
+      @ <tr>
+      @  <td></td><td>\
+      captcha_speakit_button(uSeed, "Read the password out loud");
+    }else if( zAnonPw && !noAnon ){
       captcha_speakit_button(uSeed, "Speak password for \"anonymous\"");
     }
     @ </td>
     @ </tr>
-    @ <tr>
-    @   <td></td>
-    @   <td><input type="checkbox" name="remember" value="1" \
-    @ id="remember-me" %s(rememberMe ? "checked=\"checked\"" : "")>
-    @   <label for="remember-me">Remember me?</label></td>
-    @ </tr>
-    @ <tr>
-    @   <td></td>
-    @   <td><input type="submit" name="in" value="Login">
-    @ </tr>
-    if( !noAnon && login_self_register_available(0) ){
+    if( !anonFlag ){
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="checkbox" name="remember" value="1" \
+      @ id="remember-me" %s(rememberMe ? "checked=\"checked\"" : "")>
+      @   <label for="remember-me">Remember me?</label></td>
+      @ </tr>
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="submit" name="in" value="Login">
+      @ </tr>
+    }else{
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="submit" name="in" value="Verify that I am human">
+      @ </tr>
+    }
+    if( !anonFlag && !noAnon && login_self_register_available(0) ){
       @ <tr>
       @   <td></td>
       @   <td><input type="submit" name="self" value="Create A New Account">
       @ </tr>
     }
-    if( login_self_password_reset_available() ){
+    if( !anonFlag && login_self_password_reset_available() ){
       @ <tr>
       @   <td></td>
       @   <td><input type="submit" name="pwreset" value="Reset My Password">
@@ -822,13 +845,15 @@ void login_page(void){
       char *zCaptcha = captcha_render(zDecoded);
 
       @ <p><input type="hidden" name="cs" value="%u(uSeed)">
-      @ Visitors may enter <b>anonymous</b> as the user-ID with
-      @ the 8-character hexadecimal password shown below:</p>
+      if( !anonFlag ){
+        @ Visitors may enter <b>anonymous</b> as the user-ID with
+        @ the 8-character hexadecimal password shown below:</p>
+      }
       @ <div class="captcha"><table class="captcha"><tr><td>\
       @ <pre class="captcha">
       @ %h(zCaptcha)
       @ </pre></td></tr></table>
-      if( bAutoCaptcha ) {
+      if( bAutoCaptcha && !anonFlag ) {
          @ <input type="button" value="Fill out captcha" id='autofillButton' \
          @ data-af='%s(zDecoded)'>
          builtin_request_js("login.js");
@@ -838,7 +863,7 @@ void login_page(void){
     }
     @ </form>
   }
-  if( login_is_individual() ){
+  if( login_is_individual() && !anonFlag ){
     if( g.perm.EmailAlert && alert_enabled() ){
       @ <hr>
       @ <p>Configure <a href="%R/alerts">Email Alerts</a>
@@ -850,11 +875,13 @@ void login_page(void){
       @ post timeline</a> for user <b>%h(g.zLogin)</b></p>
     }
   }
-  @ <hr><p>
-  @ Select your preferred <a href="%R/skins">site skin</a>.
-  @ </p>
-  @ <hr><p>
-  @ Manage your <a href="%R/cookies">cookies</a>.</p>
+  if( !anonFlag ){
+    @ <hr><p>
+    @ Select your preferred <a href="%R/skins">site skin</a>.
+    @ </p>
+    @ <hr><p>
+    @ Manage your <a href="%R/cookies">cookies</a>.</p>
+  }
   if( login_is_individual() ){
     if( g.perm.Password ){
       char *zRPW = fossil_random_password(12);
