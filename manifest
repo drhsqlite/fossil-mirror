@@ -1,5 +1,5 @@
-C Improved\scaptcha\sscreen.\s\sLess\sclutter.\s\sEasier\sfor\sfirst-time\svisitors\sto\sdigest.
-D 2025-08-14T19:35:18.334
+C The\s"/login?anon=2"\spage\sdemonstrates\sthe\scaptcha\seven\sif\sthe\suser\sis\ncurrently\slogged\sin.
+D 2025-08-14T21:01:53.497
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -490,7 +490,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf8
-F src/login.c 3b9044193de9f7a5ac03c9a478f97bc4766670a94ce41c57d67d825bb0b10bb3
+F src/login.c a019ede72188c1d919c71f03806f999ffa7a4bab02e5d1e9ffaa7f579cfa01d3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c 8a08d7dbdc4ca4c0b6d8287e63f33f8918aaa39a90589c045141738c7c0e6782
@@ -974,8 +974,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60a9fac4e1dca5f43cbf68101adaf0f8ac7f7496b8686ded994ab742634dcd77
-R 67ee5e7d7c33a93c5fa8179211c81990
+P 6c8c93a5f7198d565b5e3e025b44c8c74bb0bf4017320d521200d6c14e04b4a2
+R 5d4c2af16401fe5701f4760b5d49534c
 U drh
-Z dfadfa8f779d6664001ea3e80c5bcb2b
+Z 8ce8d44c638b561b31c4c93784c7321f
 # Remove this line to create a well-formed Fossil manifest.

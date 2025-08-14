@@ -586,20 +586,30 @@ void login_page(void){
     login_reqpwreset_page();
     return;
   }
-  login_check_credentials();
+
+  /* If the "anon" query parameter is 1 or 2, that means rework the web-page
+  ** to make it a more user-friendly captcha.  Extraneous text and boxes
+  ** are omitted.  The user has just the captcha image and an entry box
+  ** and a "Verify" button.  Underneath is the same login page for user
+  ** "anonymous", just displayed in an easier to digest format for one-time
+  ** visitors.
+  **
+  ** anon=1 is advisory and only has effect if there is not some other login
+  ** cookie.  anon=2 means always show the captcha. 
+  */
+  anonFlag = atoi(PD("anon","0"));
+  if( anonFlag==2 ){
+    g.zLogin = 0;
+  }else{
+    login_check_credentials();
+    if( g.zLogin!=0 ) anonFlag = 0;
+  }
+
   fossil_redirect_to_https_if_needed(1);
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
-
-  /* If the anonFlag is set, that means rework the web-page to make it
-  ** a more user-friendly captcha.  Extraneous text and boxes are omitted.
-  ** The user has just the captcha image and an entry box and a "Verify"
-  ** button.  Underneath is the same login page for user "anonymous", just
-  ** displayed in an easier to digest format for one-time visitors.
-  */
-  anonFlag = g.zLogin==0 && PB("anon");
 
   /* Handle log-out requests */
   if( P("out") && cgi_csrf_safe(2) ){
@@ -730,6 +740,7 @@ void login_page(void){
   }
   style_set_current_feature("login");
   style_header("Login/Logout");
+  if( anonFlag==2 ) g.zLogin = 0;
   style_adunit_config(ADUNIT_OFF);
   @ %s(zErrMsg)
   if( zGoto && !noAnon ){
