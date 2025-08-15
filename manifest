@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\ssquelch\scaptcha.
-D 2025-08-15T18:47:59.425
+C Bug\sfix\sin\sthe\snew\scgi_is_qp()\sroutine\sof\sthe\sprevious\scheck-in.
+D 2025-08-15T18:49:34.175
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c e7c0586984587ed4fa9c85523da19e4079a048e22b19a1939852c8f746cc1940
-F src/cgi.c 3a38d22d5431bb263c6b665c2066e2e12a3deea9091b4830bb74a79461b056ca
+F src/cgi.c 023e3fcb4d471d83a2b0721d233f2c1c7326ed059e70b3928647402236e4dc5a
 F src/chat.c cbbc84da0bffbf26964156c735c7fdae0c149795b254b4d003d8746073fa7333
 F src/checkin.c 8be7561beca6e096cc7975b054cda8cd7621df2faea7fe40459271e4eeb808ca
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a10e785dfbdfe86bf625ff612de0765eff95ede53d9c6f60085c267705dfdfaa
-R 342c335535fb40b0886519e5a581075e
+P 055908da97cbc460a414712eca93bcbf40148344a605f2208697505b10db7d2c
+R 8f80c4ced233c1f34c94ec806e02d6ed
 U drh
-Z cb3978e7d0436e08ab34db842fc92a8b
+Z 3cd861506bfc34e69aa058c8991e0b86
 # Remove this line to create a well-formed Fossil manifest.

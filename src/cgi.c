@@ -1621,7 +1621,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 */
 int cgi_is_qp(const char *zName){
   int i;
-  if( zName==0 || fossil_isupper(zName) ) return 0;
+  if( zName==0 || fossil_isupper(zName[0]) ) return 0;
   for(i=0; i<nUsedQP; i++){
     if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
       return aParamQP[i].isQP;
