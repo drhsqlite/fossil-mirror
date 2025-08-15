@@ -22,6 +22,7 @@
 #include "config.h"
 #include "robot.h"
 #include <assert.h>
+#include <time.h>
 
 /*
 ** SETTING: robot-squelch                width=10 default=200
@@ -34,29 +35,48 @@
 */
 
 /*
-** Rewrite the current page with a robot squelch captcha.
+** Rewrite the current page with a robot squelch captcha and return 1.
+**
+** Or, if valid proof-of-work is present as either a query parameter or
+** as a cookie, then return 0.
 */
-static int robot_send_captcha(void){
-  unsigned h = 0;
+static int robot_proofofwork(void){
+  sqlite3_int64 tm;
+  unsigned h1, h2;
+  int k;
   const char *z;
+  const char *az[2];
 
   /* Construct a proof-of-work value based on the IP address of the
-  ** sender and the sender's user-agent string. */
-  z = P("REMOTE_ADDR");
-  if( z ){
-    while( *z ){ h = (h + *(unsigned char*)(z++))*0x9e3779b1; }
+  ** sender and the sender's user-agent string.  The current time also
+  ** affects the pow value, so actually compute two values, one for the
+  ** current 900-second interval and one for the previous.  Either can
+  ** match.  The pow-value is an integer between 100,000,000 and
+  ** 999,999,999. */
+  az[0] = P("REMOTE_ADDR");
+  az[1] = P("HTTP_USER_AGENT");
+  tm = time(0);
+  h1 = (unsigned)((tm&0xffffffff) / 900);
+  h2 = h1 - 1;
+  for(k=0; k<2; k++){
+    z = az[k];
+    if( z==0 ) continue;
+    while( *z ){
+      h1 = (h1 + *(unsigned char*)z)*0x9e3779b1;
+      h2 = (h2 + *(unsigned char*)z)*0x9e3779b1;
+      z++;
+    }
   }
-  z = P("HTTP_USER_AGENT");
-  if( z ){
-    while( *z ){ h = (h + *(unsigned char*)(z++))*0x9e3779b1; }
-  }
-  h %= 1000000000;
+  h1 = (h1 % 900000000) + 100000000;
+  h2 = (h2 % 900000000) + 100000000;
 
   /* If there is already a proof-of-work cookie with this value
   ** that means that the user agent has already authenticated.
   */
   z = P("fossil-proofofwork");
-  if( z && atoi(z)==h ){
+  if( z
+   && (atoi(z)==h1 || atoi(z)==h2) 
+   && !cgi_is_qp("fossil-proofofwork") ){
     return 0;
   }
 
@@ -65,7 +85,9 @@ static int robot_send_captcha(void){
   ** in addition to letting the request through.
   */
   z = P("proof");
-  if( z && atoi(z)==h ){
+  if( z
+   && (atoi(z)==h1 || atoi(z)==h2)
+  ){
     cgi_set_cookie("fossil-proofofwork",z,"/",900);
     return 0;
   }
@@ -83,12 +105,18 @@ static int robot_send_captcha(void){
   @ <input id="cx" type="submit" value="Wait..." disabled>
   @ </form>
   @ <script nonce='%s(style_nonce())'>
-  @ function enableHuman(){
-  @   document.getElementById("vx").value = %u(h);
-  @   document.getElementById("cx").value = "Ok";
-  @   document.getElementById("cx").disabled = false;
+  @ function Nhtot1520(x){return document.getElementById(x);}
+  @ function Aoxlxzajv(h){\
+  @ Nhtot1520("vx").value=h;\
+  @ Nhtot1520("cx").value="Ok";\
+  @ Nhtot1520("cx").disabled=false;\
   @ }
-  @ setTimeout(function(){enableHuman();}, 500);
+  @ function Vhcnyarsm(h,a){\
+  @ if(a>0){setTimeout(Vhcnyarsm,1,h+a,a-1);}else{Aoxlxzajv(h);}\
+  @ }
+  k = 200 + h2%99;
+  h2 = (k*k + k)/2;
+  @ setTimeout(function(){Vhcnyarsm(%u(h1-h2),%u(k));},10);
   @ </script>
   style_finish_page();
   return 1;
@@ -99,9 +127,12 @@ static int robot_send_captcha(void){
 ** WEBPAGE functions can invoke this routine with an argument
 ** that is between 0 and 1000.  Based on that argument, and on
 ** other factors, this routine decides whether or not to squelch
-** the request.  "Squelch" in this context, means paint a captcha
-** rather than complete the original request.  The idea here is to
-** prevent server overload due to excess robot traffic.
+** the request.  "Squelch" in this context, means to require the
+** client to show proof-of-work before the request is processed.
+** The idea here is to prevent server overload due to excess robot
+** traffic.  If a robot (or any client application really) wants us
+** to spend a lot of CPU computing some result for it, then it needs
+** to first demonstrate good faith by doing some make-work for us.
 **
 ** This routine returns true for a squelch and false if the original
 ** request should go through.
@@ -130,7 +161,7 @@ int robot_squelch(int n){
   }
   iSquelch = db_get_int("robot-squelch",200);
   if( iSquelch<=0 ) return 0;
-  if( n+iSquelch>=1000 && robot_send_captcha() ){
+  if( n+iSquelch>=1000 && robot_proofofwork() ){
     return 1;
   }
   return 0;
