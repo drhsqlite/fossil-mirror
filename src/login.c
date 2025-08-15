@@ -1306,94 +1306,6 @@ static int login_basic_authentication(const char *zIpAddr){
 }
 
 /*
-** SETTING: robot-restrict                width=40 block-text
-** The VALUE of this setting is a list of GLOB patterns that match
-** pages for which complex HTTP requests from robots should be disallowed.
-** The recommended value for this setting is:
-** 
-**      timeline,vdiff,fdiff,annotate,blame
-** 
-*/
-
-/*
-** Check to see if the current HTTP request is a complex request that
-** is coming from a robot and if access should restricted for such robots.
-** For the purposes of this module, a "complex request" is an HTTP
-** request with one or more query parameters other than "name".
-**
-** If this routine determines that robots should be restricted, then
-** this routine publishes a redirect to the honeypot and exits without
-** returning to the caller.
-**
-** This routine believes that this is a complex request is coming from
-** a robot if all of the following are true:
-**
-**    *   The user is "nobody".
-**    *   Either the REFERER field of the HTTP header is missing or empty,
-**        or the USERAGENT field of the HTTP header suggests that
-**        the request as coming from a robot.
-**    *   There are one or more query parameters other than "name".
-**
-** Robot restrictions are governed by settings.
-**
-**    robot-restrict    The value is a list of GLOB patterns for pages
-**                      that should restrict robot access.  No restrictions
-**                      are applied if this setting is undefined or is
-**                      an empty string.
-*/
-void login_restrict_robot_access(void){
-  const char *zGlob;
-  int isMatch = 1;
-  int nQP;  /* Number of query parameters other than name= */
-  if( g.zLogin!=0 ) return;
-  zGlob = db_get("robot-restrict",0);
-  if( zGlob==0 || zGlob[0]==0 ) return;
-  if( g.isHuman ){
-    const char *zReferer;
-    const char *zAccept;
-    const char *zBr;
-    zReferer = P("HTTP_REFERER");
-    if( zReferer && zReferer[0]!=0 ) return;
-
-    /* Robots typically do not accept the brotli encoding, at least not
-    ** at the time of this writing (2025-04-01), but standard web-browser
-    ** all generally do accept brotli.  So if brotli is accepted,
-    ** assume we are not talking to a robot.  We might want to revisit this
-    ** heuristic in the future...
-    */
-    if( (zAccept = P("HTTP_ACCEPT_ENCODING"))!=0
-     && (zBr = strstr(zAccept,"br"))!=0
-     && !fossil_isalnum(zBr[2])
-     && (zBr==zAccept || !fossil_isalnum(zBr[-1]))
-    ){
-      return;
-    }
-  }
-  nQP = cgi_qp_count();
-  if( nQP<1 ) return;
-  isMatch = glob_multi_match(zGlob, g.zPath);
-  if( !isMatch ) return;
-
-  /* Check for exceptions to the restriction on the number of query
-  ** parameters. */
-  zGlob = db_get("robot-restrict-qp",0);
-  if( zGlob && zGlob[0] ){
-    char *zPath = mprintf("%s/%d", g.zPath, nQP);
-    isMatch = glob_multi_match(zGlob, zPath);
-    fossil_free(zPath);
-    if( isMatch ) return;
-  }
-
-  /* If we reach this point, it means we have a situation where we
-  ** want to restrict the activity of a robot.
-  */
-  g.isHuman = 0;
-  (void)exclude_spiders(0);
-  cgi_reply();
-  fossil_exit(0);
-}
-
-/*
 ** When this routine is called, we know that the request does not
 ** have a login on the present repository.  This routine checks to
 ** see if their login cookie might be for another member of the
@@ -1606,8 +1518,11 @@ void login_check_credentials(void){
 
   login_set_uid(uid, zCap);
 
-  /* Maybe restrict access to robots */
-  login_restrict_robot_access();
+  /* Maybe restrict access by robots */
+  if( g.zLogin==0 && robot_restrict(g.zPath) ){
+    cgi_reply();
+    fossil_exit(0);
+  }
 }
 
 /*

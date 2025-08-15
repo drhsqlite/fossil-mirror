@@ -25,16 +25,6 @@
 #include <time.h>
 
 /*
-** SETTING: robot-squelch                width=10 default=200
-** The VALUE of is an integer between 0 and 1000 that determines how
-** readily Fossil will squelch requests from robots.  A value of 0
-** means "never squelch requests".  A value of 1000 means "always
-** squelch requests from user 'nobody'".  For values greater than 0
-** and less than 1000, the decision to squelch is based on a variety
-** of heuristics, but is more likely to occur the larger the number.
-*/
-
-/*
 ** Rewrite the current page with a robot squelch captcha and return 1.
 **
 ** Or, if valid proof-of-work is present as either a query parameter or
@@ -122,46 +112,54 @@ static int robot_proofofwork(void){
   return 1;
 }
 
+/*
+** SETTING: robot-restrict                width=40 block-text
+** The VALUE of this setting is a list of GLOB patterns that match
+** pages for which complex HTTP requests from unauthenicated clients
+** should be disallowed.  "Unauthenticated" means the user is "nobody".
+** The recommended value for this setting is:
+** 
+**     timeline,diff,annotate,zip,fileage,file
+**
+** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
+** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
+** also covers /tarball and /sqlar.  If a tag has an "X" character appended,
+** then it only applies if query parameters are such that the page is
+** particularly difficult to compute.
+**
+** In all other case, the tag should exactly match the page name.
+*/
 
 /*
-** WEBPAGE functions can invoke this routine with an argument
-** that is between 0 and 1000.  Based on that argument, and on
-** other factors, this routine decides whether or not to squelch
-** the request.  "Squelch" in this context, means to require the
-** client to show proof-of-work before the request is processed.
-** The idea here is to prevent server overload due to excess robot
-** traffic.  If a robot (or any client application really) wants us
-** to spend a lot of CPU computing some result for it, then it needs
-** to first demonstrate good faith by doing some make-work for us.
-**
-** This routine returns true for a squelch and false if the original
-** request should go through.
-**
-** The input parameter is an estimate of how much CPU time
-** and bandwidth is needed to compute a response.  The higher the
-** value of this parameter, the more likely this routine is to squelch
-** the page.  A value of zero means "never squelch".  A value of
-** 1000 means always squelch if the user is "nobody".
-**
-** Squelching only happens if the user is "nobody".  If the request
-** comes from any other user, including user "anonymous", the request
-** is never squelched.
+** Return the default restriction GLOB
 */
-int robot_squelch(int n){
+const char *robot_restrict_default(void){
+  return "timeline,diff,annotate,zip,fileage,file";
+}
+/*
+** Check to see if the page named in the argument is on the
+** robot-restrict list.  If it is on the list and if the user
+** is "nobody" then bring up a captcha to test to make sure that
+** client is not a robot.
+**
+** This routine returns true if a captcha was rendered and if subsequent
+** page generation should be aborted.  It returns false if the page
+** should not be restricted and should be rendered normally.
+*/
+int robot_restrict(const char *zPage){
+  const char *zGlob;
   const char *zToken;
-  int iSquelch;
-  assert( n>=0 && n<=1000 );
   if( g.zLogin ) return 0;   /* Logged in users always get through */
-  if( n==0 ) return 0;       /* Squelch is completely disabled */
+  zGlob = db_get("robot-restrict",robot_restrict_default());
+  if( zGlob==0 || zGlob[0]==0 ) return 0;
+  if( !glob_multi_match(zGlob, zPage) ) return 0;
   zToken = P("token");
   if( zToken!=0
    && db_exists("SELECT 1 FROM config WHERE name='token-%q'", zToken)
   ){
     return 0;                /* There is a valid token= query parameter */
   }
-  iSquelch = db_get_int("robot-squelch",200);
-  if( iSquelch<=0 ) return 0;
-  if( n+iSquelch>=1000 && robot_proofofwork() ){
+  if( robot_proofofwork() ){
     return 1;
   }
   return 0;
