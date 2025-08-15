@@ -1299,6 +1299,17 @@ void page_xfer(void){
   login_set_anon_nobody_capabilities();
   login_check_credentials();
   cgi_check_for_malice();
+#if 1
+  /*
+  ** 2025-08-15: temporary measure for
+  ** https://sqlite.org/forum/forumpost/7d3eb059f81ff694
+  ** specifically the response at
+  ** https://sqlite.org/forum/forumpost/e735c8c142.
+  */
+  if( g.perm.Clone || g.perm.Read || g.perm.Zip ){
+    g.perm.Read = g.perm.Clone = 1;
+  }
+#endif
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   cgi_set_content_type(g.zContentType);

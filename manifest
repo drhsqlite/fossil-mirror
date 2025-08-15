@@ -1,5 +1,5 @@
-C Update\s[6c8c93a5f7]\sto\sfix\sredirects\sto\sthe\scaptcha\sscreen\sand\sset\sthe\skeyboard\sfocus\sto\sthe\spassword\sinput\sfield\sif\sthere's\sno\suser\sID\sinput\sfield.
-D 2025-08-15T05:10:00.000
+C Allow\s/xfer\sto\sservice\sanonymous\sclones\sif\sthey\shave\sany\sof\sthe\sClone,\sZip,\sor\sRead\spermissions.\sThis\sis\sa\stemporary\smeasure,\sas\sdescribed\sin\sthe\scode's\scomments.
+D 2025-08-15T12:32:39.414
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -594,7 +594,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 6227a029e003a1c8f26e3687065e9d4a9c238d3f1d42d533cbcb8f642cbfa816
-F src/xfer.c e4fb0f859256e5c4b2f479914f2d70b491e12ec3eb2cfd3a49cb39a138596766
+F src/xfer.c 1642b100faec17a2ff3383de1439c1583f72fb878302c142178e8d6fa0ba0dad
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c d31108839607e973042ef159b98c909261151a8770aeae9448e0cc76a85f2158
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -974,8 +974,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 63712b631c7e1e0268860fcea2fc6db20ff3959d314d7fd41b96417b8f2e46aa
-R 6fc25de339514b3a50cefb1b29e60d03
-U florian
-Z 0d8f68d6f8985514b9a71200be4b2b34
+P b8731485b02898912d883087565ed920b6207fcb87a49e38715e48267c3f6462
+R 916e89f64baffefb5cd9f8358c5ee6be
+T *branch * relaxed-clone-permissions
+T *sym-relaxed-clone-permissions *
+T -sym-trunk *
+U stephan
+Z 979be7d55026040d810e591206897170
 # Remove this line to create a well-formed Fossil manifest.
