@@ -1014,6 +1014,7 @@ void baseline_zip_page(void){
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
+  if( robot_squelch(900) ) return;
   if( fossil_strcmp(g.zPath, "sqlar")==0 ){
     eType = ARCHIVE_SQLAR;
     zType = "SQL";
