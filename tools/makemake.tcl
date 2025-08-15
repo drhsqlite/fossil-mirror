@@ -154,6 +154,7 @@ set src {
   regexp
   repolist
   report
+  robot
   rss
   schema
   search

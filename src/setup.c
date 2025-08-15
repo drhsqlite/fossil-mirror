@@ -497,6 +497,18 @@ void setup_robots(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
+  entry_attribute("Robot Squelch", 6, "robot-squelch", "rsq", "200", 0);
+  @ <p>The "squelch" setting determines how aggressive Fossil is about
+  @ trying to weed out robots using captchas.  Squelch only applies to
+  @ expensive requests from user "nobody".  The higher the squelch setting,
+  @ the more likely the request is to generate a captcha instead of the
+  @ requested page.  Squelch can be any integer between 0 and 1000.
+  @ 0 means squelch is disabled and all requests go through without a
+  @ captcha.  1000 means every expensive request from user "nobody" gets
+  @ a captcha.
+  @ (Property: "robot-squelch")</p>
+
+  @ <hr>
   addAutoHyperlinkSettings();
 
   @ <hr>
