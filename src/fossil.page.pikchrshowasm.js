@@ -314,7 +314,6 @@
       }
     }.bind(PS));
     F.copyButton(PS.e.previewCopyButton, {copyFromElement: PS.e.outText});
-    PS.e.previewModeLabel.addEventListener('click', ()=>PS.e.previewCopyButton.click(), false);
 
     PS.addMsgHandler('working',function f(ev){
       switch(ev.data){

@@ -809,7 +809,7 @@ void login_page(void){
     @ <tr>
     @  <td class="form_label" id="pswdlabel">Password:</td>
     @  <td><input aria-labelledby="pswdlabel" type="password" id="p" \
-    @ name="p" value="" size="30">
+    @ name="p" value="" size="30"%s(anonFlag ? " autofocus" : "")>
     if( anonFlag ){
       @ </td></tr>
       @ <tr>
@@ -1974,7 +1974,7 @@ void login_needed(int anonOk){
     if( zQS && zQS[0] ){
       blob_appendf(&redir, "%%3f%T", zQS);
     }
-    if( anonOk ) blob_append(&redir, "&anon", 5);
+    if( anonOk ) blob_append(&redir, "&anon=1", 7);
     cgi_redirect(blob_str(&redir));
     /* NOTREACHED */
     assert(0);

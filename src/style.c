@@ -480,7 +480,7 @@ static void image_url_var(const char *zImageName){
 ** Javascript module, and generates HTML elements with the following IDs:
 **
 **    TARGETID:       The <span> wrapper around TEXT.
-**    copy-TARGETID:  The <span> for the copy button.
+**    copy-TARGETID:  The <button> for the copy button.
 **
 ** If the FLIPPED argument is non-zero, the copy button is displayed after TEXT.
 **
@@ -512,14 +512,16 @@ char *style_copy_button(
   if( !bFlipped ){
     const char *zBtnFmt =
       "<span class=\"nobr\">"
-      "<span "
-      "class=\"copy-button\" "
-      "id=\"copy-%h\" "
-      "data-copytarget=\"%h\" "
-      "data-copylength=\"%d\">"
-      "</span>"
+      "<button "
+          "class=\"copy-button\" "
+          "id=\"copy-%h\" "
+          "data-copytarget=\"%h\" "
+          "data-copylength=\"%d\">"
+        "<span>"
+        "</span>"
+      "</button>"
       "<span id=\"%h\">"
-      "%s"
+        "%s"
       "</span>"
       "</span>";
     if( bOutputCGI ){
@@ -535,14 +537,16 @@ char *style_copy_button(
     const char *zBtnFmt =
       "<span class=\"nobr\">"
       "<span id=\"%h\">"
-      "%s"
+        "%s"
       "</span>"
-      "<span "
-      "class=\"copy-button copy-button-flipped\" "
-      "id=\"copy-%h\" "
-      "data-copytarget=\"%h\" "
-      "data-copylength=\"%d\">"
-      "</span>"
+      "<button "
+          "class=\"copy-button copy-button-flipped\" "
+          "id=\"copy-%h\" "
+          "data-copytarget=\"%h\" "
+          "data-copylength=\"%d\">"
+        "<span>"
+        "</span>"
+      "</button>"
       "</span>";
     if( bOutputCGI ){
       cgi_printf(
