@@ -40,6 +40,8 @@ static int robot_send_captcha(void){
   unsigned h = 0;
   const char *z;
 
+  /* Construct a proof-of-work value based on the IP address of the
+  ** sender and the sender's user-agent string. */
   z = P("REMOTE_ADDR");
   if( z ){
     while( *z ){ h = (h + *(unsigned char*)(z++))*0x9e3779b1; }
@@ -49,10 +51,27 @@ static int robot_send_captcha(void){
     while( *z ){ h = (h + *(unsigned char*)(z++))*0x9e3779b1; }
   }
   h %= 1000000000;
+
+  /* If there is already a proof-of-work cookie with this value
+  ** that means that the user agent has already authenticated.
+  */
+  z = P("fossil-proofofwork");
+  if( z && atoi(z)==h ){
+    return 0;
+  }
+
+  /* Check for a proof query parameter.  If found, that means that
+  ** the captcha has just now passed, so set the proof-of-work cookie
+  ** in addition to letting the request through.
+  */
   z = P("proof");
-  if( z && atoi(z)==h ) return 0;
+  if( z && atoi(z)==h ){
+    cgi_set_cookie("fossil-proofofwork",z,"/",900);
+    return 0;
+  }
   cgi_tag_query_parameter("proof");
 
+  /* Ask the client to present proof-of-work */
   cgi_reset_content();
   cgi_set_content_type("text/html");
   style_header("Captcha");
@@ -60,9 +79,17 @@ static int robot_send_captcha(void){
   @ <form method="GET">
   @ <p>Press the button below</p><p>
   cgi_query_parameters_to_hidden();
-  @ <input type="hidden" name="proof" value="%u(h)">
-  @ <input type="submit" value="I Am Human">
+  @ <input id="vx" type="hidden" name="proof" value="0">
+  @ <input id="cx" type="submit" value="Wait..." disabled>
   @ </form>
+  @ <script nonce='%s(style_nonce())'>
+  @ function enableHuman(){
+  @   document.getElementById("vx").value = %u(h);
+  @   document.getElementById("cx").value = "Ok";
+  @   document.getElementById("cx").disabled = false;
+  @ }
+  @ setTimeout(function(){enableHuman();}, 500);
+  @ </script>
   style_finish_page();
   return 1;
 }
