@@ -1343,7 +1343,7 @@ int login_cookie_wellformed(void){
 **    g.zLogin       Database USER.LOGIN value.  NULL for user "nobody"
 **    g.perm         Permissions granted to this user
 **    g.anon         Permissions that would be available to anonymous
-**    g.isHuman      True if the user is human, not a spider or robot
+**    g.isRobot      True if the client is known to be a spider or robot
 **    g.perm         Populated based on user account's capabilities
 **
 */
@@ -1384,7 +1384,7 @@ void login_check_credentials(void){
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
     zCap = "sxy";
     g.noPswd = 1;
-    g.isHuman = 1;
+    g.isRobot = 0;
     zSeed = db_text("??", "SELECT uid||quote(login)||quote(pw)||quote(cookie)"
                           "  FROM user WHERE uid=%d", uid);
     login_create_csrf_secret(zSeed);
@@ -1561,11 +1561,11 @@ int login_set_uid(int uid, const char *zCap){
     g.zLogin = 0;
   }
   if( PB("isrobot") ){
-    g.isHuman = 0;
+    g.isRobot = 1;
   }else if( g.zLogin==0 ){
-    g.isHuman = isHuman(P("HTTP_USER_AGENT"));
+    g.isRobot = !isHuman(P("HTTP_USER_AGENT"));
   }else{
-    g.isHuman = 1;
+    g.isRobot = 0;
   }
 
   /* Set the capabilities */
@@ -1579,7 +1579,7 @@ int login_set_uid(int uid, const char *zCap){
   ** are (potentially) copied to the anonymous permission set; otherwise,
   ** those will be out-of-sync.
   */
-  if( zCap[0] && !g.perm.Hyperlink && g.isHuman ){
+  if( zCap[0] && !g.perm.Hyperlink && !g.isRobot ){
     int autoLink = db_get_int("auto-hyperlink",1);
     if( autoLink==1 ){
       g.jsHref = 1;

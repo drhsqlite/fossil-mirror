@@ -2418,11 +2418,11 @@ void hexdump_page(void){
                         zUuid, file_tail(blob_str(&downloadName)));
   @ <hr>
   content_get(rid, &content);
-  if( !g.isHuman ){
+  if( blob_size(&content)>100000 ){
     /* Prevent robots from running hexdump on megabyte-sized source files
     ** and there by eating up lots of CPU time and bandwidth.  There is
     ** no good reason for a robot to need a hexdump. */
-    @ <p>A hex dump of this file is not available.
+    @ <p>A hex dump of this file is not available because it is too large.
     @  Please download the raw binary file and generate a hex dump yourself.</p>
   }else{
     @ <blockquote><pre>
@@ -2704,7 +2704,6 @@ void artifact_page(void){
   int isSymbolicCI = 0;  /* ci= exists and is a symbolic name, not a hash */
   int isBranchCI = 0;    /* ci= refers to a branch name */
   char *zHeader = 0;
-  int iCost;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }

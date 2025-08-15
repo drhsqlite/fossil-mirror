@@ -235,7 +235,8 @@ struct Global {
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
-  int isHuman;            /* True if access by a human, not a spider or bot */
+  int isRobot;            /* True if the client is definitely a robot.  False
+                          ** negatives are common for this flag */
   int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
                           ** accessed through get_comment_format(). */
   const char *zSockName;  /* Name of the unix-domain socket file */
