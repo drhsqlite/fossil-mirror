@@ -36,11 +36,35 @@
 /*
 ** Rewrite the current page with a robot squelch captcha.
 */
-static void robot_send_captcha(void){
-  /* Actually, for now, redirect to /login?anon&g=...
-  ** We can work on a more efficient implementation later.
-  */
-  login_needed(1);
+static int robot_send_captcha(void){
+  unsigned h = 0;
+  const char *z;
+
+  z = P("REMOTE_ADDR");
+  if( z ){
+    while( *z ){ h = (h + *(unsigned char*)(z++))*0x9e3779b1; }
+  }
+  z = P("HTTP_USER_AGENT");
+  if( z ){
+    while( *z ){ h = (h + *(unsigned char*)(z++))*0x9e3779b1; }
+  }
+  h %= 1000000000;
+  z = P("proof");
+  if( z && atoi(z)==h ) return 0;
+  cgi_tag_query_parameter("proof");
+
+  cgi_reset_content();
+  cgi_set_content_type("text/html");
+  style_header("Captcha");
+  @ <h1>Prove That You Are Human</h1>
+  @ <form method="GET">
+  @ <p>Press the button below</p><p>
+  cgi_query_parameters_to_hidden();
+  @ <input type="hidden" name="proof" value="%u(h)">
+  @ <input type="submit" value="I Am Human">
+  @ </form>
+  style_finish_page();
+  return 1;
 }
 
 
@@ -79,8 +103,7 @@ int robot_squelch(int n){
   }
   iSquelch = db_get_int("robot-squelch",200);
   if( iSquelch<=0 ) return 0;
-  if( n+iSquelch>=1000 ){
-    robot_send_captcha();
+  if( n+iSquelch>=1000 && robot_send_captcha() ){
     return 1;
   }
   return 0;
