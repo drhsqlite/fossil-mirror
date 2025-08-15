@@ -1524,6 +1524,7 @@ void vpatch_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( zFrom==0 || zTo==0 ) fossil_redirect_home();
+  if( robot_squelch(800) ) return;
 
   fossil_nice_default();
   cgi_set_content_type("text/plain");

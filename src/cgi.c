@@ -1616,6 +1616,21 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 }
 
 /*
+** Return TRUE if the specific parameter exists and is a query parameter.
+** Return FALSE if the parameter is a cookie or environment variable.
+*/
+int cgi_is_qp(const char *zName){
+  int i;
+  if( zName==0 || fossil_isupper(zName[0]) ) return 0;
+  for(i=0; i<nUsedQP; i++){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
+      return aParamQP[i].isQP;
+    }
+  }
+  return 0;
+}
+
+/*
 ** Renders the "begone, spider" page and exits.
 */
 static void cgi_begone_spider(const char *zName){
