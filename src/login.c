@@ -891,7 +891,8 @@ void login_page(void){
     @ Select your preferred <a href="%R/skins">site skin</a>.
     @ </p>
     @ <hr><p>
-    @ Manage your <a href="%R/cookies">cookies</a>.</p>
+    @ Manage your <a href="%R/cookies">cookies</a> or your
+    @ <a href="%R/tokens">access tokens</a>.</p>
   }
   if( login_is_individual() ){
     if( g.perm.Password ){

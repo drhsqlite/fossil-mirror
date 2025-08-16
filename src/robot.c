@@ -172,7 +172,10 @@ int robot_restrict(const char *zPage){
   if( !glob_multi_match(zGlob, zPage) ) return 0;
   zToken = P("token");
   if( zToken!=0
-   && db_exists("SELECT 1 FROM config WHERE name='token-%q'", zToken)
+   && db_exists("SELECT 1 FROM config"
+                " WHERE name='token-%q'"
+                "   AND json_valid(value,6)"
+                "   AND value->>'user' IS NOT NULL", zToken)
   ){
     bKnownPass = 1;
     return 0;                /* There is a valid token= query parameter */
@@ -226,5 +229,110 @@ void robot_restrict_test_page(void){
   }
   @ </p>
   @ <p><a href="%R/test-robotck/%h(zName)">Retry</a>
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: tokens
+**
+** Allow users to create, delete, and view their access token.
+**
+** The access token is a string TOKEN which if included in a query
+** parameter like "token=TOKEN" authenticates a request as coming
+** from an authorized agent.  This can be used, for example, by
+** script to access content without running into problems with
+** robot defenses.
+*/
+void tokens_page(void){
+  char *zMyToken;
+
+  login_check_credentials();
+  style_set_current_feature("tokens");
+  style_header("Access Tokens");
+  if( g.zLogin==0 || fossil_strcmp(g.zLogin,"anonymous")==0 ){
+    @ User "%h(g.zLogin?g.zLogin:"anonymous")" is not allowed to
+    @ own or use access tokens.
+    style_finish_page();
+    return;
+  }
+  if( g.perm.Admin && P("del")!=0 ){
+    const char *zDel = P("del");
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec(
+      "DELETE FROM config WHERE name='token-%q'",
+      zDel);
+    db_protect_pop();
+  }
+  zMyToken = db_text(0,
+    "SELECT substr(name,7) FROM config"
+    " WHERE name GLOB 'token-*'"
+    "   AND json_valid(value,6)"
+    "   AND value->>'user' = %Q",
+    g.zLogin
+  );
+  if( zMyToken==0 && P("new") ){
+    sqlite3_uint64 r;
+    sqlite3_randomness(sizeof(r),&r);
+    zMyToken = mprintf("%016llx", r);
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec(
+      "INSERT INTO config(name,value,mtime)"
+      "VALUES('token-%q','{user:%!j}',now())",
+      zMyToken, g.zLogin
+    );
+    db_protect_pop();
+  }else if( zMyToken!=0 && P("selfdel")
+         && fossil_strcmp(zMyToken,P("selfdel"))==0 ){
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec(
+      "DELETE FROM config WHERE name='token-%q'",
+      zMyToken);
+    db_protect_pop();
+    zMyToken = 0;
+  }
+  if( zMyToken==0 ){
+    @ <p>You do not currently have an access token.
+    @ <a href="%R/tokens?new=true">Create one</a>
+  }else{
+    @ <p>Your access token is "%h(zMyToken)". 
+    @ <p>Use this token as the value of the token= query parameter
+    @ to bypass robot defenses on unauthenticated queries to this
+    @ server (%R).  Do not misuse your token.  Keep it confidential.
+    @ If you misuse your token, or if somebody else steals your token
+    @ and misuses, that can result in loss of access privileges to this
+    @ server.
+    @ <p><a href="%R/tokens?selfdel=%h(zMyToken)">Delete my token</a>
+  }
+  if( g.perm.Admin ){
+    int nTok = 0;
+    Stmt s;
+    db_prepare(&s, 
+      "SELECT substr(name,7), value->>'user', datetime(mtime,'unixepoch')"
+      "  FROM config"
+      " WHERE name GLOB 'token-*'"
+      "   AND json_valid(value,6)"
+    );
+    while( db_step(&s)==SQLITE_ROW ){
+      if( nTok==0 ){
+        @ <hr>
+        @ <p>All tokens</p>
+        @ <table border="1" cellpadding="5" cellspacing="0">
+        @ <tr><th>User <th>Token  <th>Date <th> &nbsp;</tr>
+      }
+      nTok++;
+      @ <tr><td>%h(db_column_text(&s,1))
+      @ <td>%h(db_column_text(&s,0))
+      @ <td>%h(db_column_text(&s,2))
+      @ <td><a href="%R/tokens?del=%h(db_column_text(&s,0))">delete</a>
+      @ </tr>
+    }
+    db_finalize(&s);
+    if( nTok==0 ){
+      @ <hr>
+      @ <p>There are access tokens defined for this repository.
+    }else{
+      @ </table>
+    }
+  }
   style_finish_page();
 }
