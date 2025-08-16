@@ -158,19 +158,25 @@ const char *robot_restrict_default(void){
 int robot_restrict(const char *zPage){
   const char *zGlob;
   const char *zToken;
-  if( g.zLogin ) return 0;   /* Logged in users always get through */
+  static int bKnownPass = 0;
+  if( g.zLogin ) return 0;    /* Logged in users always get through */
+  if( bKnownPass ) return 0;  /* Already known to pass robot restrictions */
   zGlob = db_get("robot-restrict",robot_restrict_default());
-  if( zGlob==0 || zGlob[0]==0 ) return 0;
+  if( zGlob==0 || zGlob[0]==0 ){ bKnownPass = 1;  return 0; }
   if( !glob_multi_match(zGlob, zPage) ) return 0;
   zToken = P("token");
   if( zToken!=0
    && db_exists("SELECT 1 FROM config WHERE name='token-%q'", zToken)
   ){
+    bKnownPass = 1;
     return 0;                /* There is a valid token= query parameter */
   }
   if( robot_proofofwork() ){
+    /* A captcha was generated.  Abort this page.  A redirect will occur
+    ** if the captcha passes. */
     return 1;
   }
+  bKnownPass = 1;
   return 0;
 }
 
