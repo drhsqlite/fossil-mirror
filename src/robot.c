@@ -24,6 +24,8 @@
 #include <assert.h>
 #include <time.h>
 
+#define POW_COOKIE  "fossil-proofofwork"
+
 /*
 ** Rewrite the current page with a robot squelch captcha and return 1.
 **
@@ -63,10 +65,10 @@ static int robot_proofofwork(void){
   /* If there is already a proof-of-work cookie with this value
   ** that means that the user agent has already authenticated.
   */
-  z = P("fossil-proofofwork");
+  z = P(POW_COOKIE);
   if( z
    && (atoi(z)==h1 || atoi(z)==h2) 
-   && !cgi_is_qp("fossil-proofofwork") ){
+   && !cgi_is_qp(POW_COOKIE) ){
     return 0;
   }
 
@@ -78,7 +80,7 @@ static int robot_proofofwork(void){
   if( z
    && (atoi(z)==h1 || atoi(z)==h2)
   ){
-    cgi_set_cookie("fossil-proofofwork",z,"/",900);
+    cgi_set_cookie(POW_COOKIE,z,"/",900);
     return 0;
   }
   cgi_tag_query_parameter("proof");
@@ -86,27 +88,33 @@ static int robot_proofofwork(void){
   /* Ask the client to present proof-of-work */
   cgi_reset_content();
   cgi_set_content_type("text/html");
-  style_header("Captcha");
-  @ <h1>Prove That You Are Human</h1>
+  style_header("Browser Verification");
+  @ <h1 id="x1">Checking to see if you are a robot<span id="x2"></span></h1>
   @ <form method="GET">
-  @ <p>Press the button below</p><p>
+  @ <p id="x3" style="visibility:hidden;">\
+  @ Press <input type="submit" id="x5" value="Ok" focus> to continue</p>
   cgi_query_parameters_to_hidden();
-  @ <input id="vx" type="hidden" name="proof" value="0">
-  @ <input id="cx" type="submit" value="Wait..." disabled>
+  @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
   @ <script nonce='%s(style_nonce())'>
-  @ function Nhtot1520(x){return document.getElementById(x);}
-  @ function Aoxlxzajv(h){\
-  @ Nhtot1520("vx").value=h;\
-  @ Nhtot1520("cx").value="Ok";\
-  @ Nhtot1520("cx").disabled=false;\
-  @ }
-  @ function Vhcnyarsm(h,a){\
-  @ if(a>0){setTimeout(Vhcnyarsm,1,h+a,a-1);}else{Aoxlxzajv(h);}\
-  @ }
-  k = 200 + h2%99;
+  @ function aaa(x){return document.getElementById(x);}
+  @ function bbb(h,a){
+  @   aaa("x4").value=h
+  @   if((a%%75)==0){
+  @     aaa("x2").textContent=aaa("x2").textContent+".";
+  @   }
+  @   if(a>0){
+  @     setTimeout(bbb,1,h+a,a-1);
+  @   }else{
+  @     aaa("x3").style.visibility="visible";
+  @     aaa("x2").textContent="";
+  @     aaa("x1").textContent="All clear";
+  @     aaa("x5").focus();
+  @   }
+  @ }   
+  k = 800 + h2%99;
   h2 = (k*k + k)/2;
-  @ setTimeout(function(){Vhcnyarsm(%u(h1-h2),%u(k));},10);
+  @ setTimeout(function(){bbb(%u(h1-h2),%u(k));},10);
   @ </script>
   style_finish_page();
   return 1;
@@ -163,4 +171,47 @@ int robot_restrict(const char *zPage){
     return 1;
   }
   return 0;
+}
+
+
+/*
+** WEBPAGE: test-robotck
+**
+** Run the robot_restrict() function using the value of the "name="
+** query parameter as an argument.  Used for testing the robot_restrict()
+** logic.
+**
+** Whenever this page is successfully rendered (when it doesn't go to
+** the captcha) it deletes the proof-of-work cookie.  So reloading the
+** page will reset the cookie and restart the verification.
+*/
+void robot_restrict_test_page(void){
+  const char *zName = P("name");
+  const char *zP1 = P("proof");
+  const char *zP2 = P(POW_COOKIE);
+  const char *z;
+  if( zName==0 || zName[0]==0 ) zName = g.zPath;
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(0); return; }
+  g.zLogin = 0;
+  if( robot_restrict(zName) ) return;
+  style_set_current_feature("test");
+  style_header("robot_restrict() test");
+  @ <h1>Captcha passed</h1>
+  @
+  @ <p>
+  if( zP1 && zP1[0] ){
+     @ proof=%h(zP1)<br>
+  }
+  if( zP2 && zP2[0] ){
+    @ fossil_proofofwork=%h(zP2)<br>
+    cgi_set_cookie(POW_COOKIE,"",0,-1);
+  }
+  z = db_get("robot-restrict",robot_restrict_default());
+  if( z && z[0] ){
+    @ robot-restrict=%h(z)</br>
+  }
+  @ </p>
+  @ <p><a href="%R/test-robotck/%h(zName)">Retry</a>
+  style_finish_page();
 }
