@@ -1423,7 +1423,7 @@ void vdiff_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( robot_squelch(950) ) return;
+  if( robot_restrict("diff") ) return;
   login_anonymous_available();
   fossil_nice_default();
   blob_init(&qp, 0, 0);
@@ -1977,7 +1977,7 @@ void diff_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( robot_squelch(800) ) return;
+  if( robot_restrict("diff") ) return;
   diff_config_init(&DCfg, 0);
   diffType = preferred_diff_type();
   if( P("from") && P("to") ){
@@ -2418,11 +2418,11 @@ void hexdump_page(void){
                         zUuid, file_tail(blob_str(&downloadName)));
   @ <hr>
   content_get(rid, &content);
-  if( !g.isHuman ){
+  if( blob_size(&content)>100000 ){
     /* Prevent robots from running hexdump on megabyte-sized source files
     ** and there by eating up lots of CPU time and bandwidth.  There is
     ** no good reason for a robot to need a hexdump. */
-    @ <p>A hex dump of this file is not available.
+    @ <p>A hex dump of this file is not available because it is too large.
     @  Please download the raw binary file and generate a hex dump yourself.</p>
   }else{
     @ <blockquote><pre>
@@ -2704,7 +2704,6 @@ void artifact_page(void){
   int isSymbolicCI = 0;  /* ci= exists and is a symbolic name, not a hash */
   int isBranchCI = 0;    /* ci= refers to a branch name */
   char *zHeader = 0;
-  int iCost;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -2714,10 +2713,6 @@ void artifact_page(void){
     isFile = 1;
     docOnly = 1;
   }
-  iCost = 200;
-  if( isFile ) iCost += 100;
-  if( zCI ) iCost += 100;
-  if( robot_squelch(iCost) ) return;
 
   /* Capture and normalize the name= and ci= query parameters */
   if( zName==0 ){

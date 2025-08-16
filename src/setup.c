@@ -497,16 +497,25 @@ void setup_robots(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  entry_attribute("Robot Squelch", 6, "robot-squelch", "rsq", "200", 0);
-  @ <p>The "squelch" setting determines how aggressive Fossil is about
-  @ trying to weed out robots using captchas.  Squelch only applies to
-  @ expensive requests from user "nobody".  The higher the squelch setting,
-  @ the more likely the request is to generate a captcha instead of the
-  @ requested page.  Squelch can be any integer between 0 and 1000.
-  @ 0 means squelch is disabled and all requests go through without a
-  @ captcha.  1000 means every expensive request from user "nobody" gets
-  @ a captcha.
-  @ (Property: "robot-squelch")</p>
+  @ <p><b>Do not allow robots access to these pages.</b>
+  @ <p> If the page name matches the GLOB pattern of this setting, and the
+  @ users is "nobody", and the client has not previously passed a captcha
+  @ test to show that it is not a robot, then the page is not displayed.
+  @ A captcha test is is rendered instead.
+  @ The recommended value for this setting is:
+  @ <p>
+  @ &emsp;&emsp;&emsp;<tt>%h(robot_restrict_default())</tt>
+  @ <p>
+  @ The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
+  @ /vpatch.  The "annotate" tag covers /annotate and also /blame and
+  @ /praise.  The "zip" covers itself and also /tarball and /sqlar. If a
+  @ tag has an "X" character appended, then it only applies if query
+  @ parameters are such that the page is particularly difficult to compute.
+  @ In all other case, the tag should exactly match the page name.
+  @ (Property: robot-restrict)
+  @ <br>
+  textarea_attribute("", 2, 80,
+      "robot-restrict", "rbrestrict", robot_restrict_default(), 0);
 
   @ <hr>
   addAutoHyperlinkSettings();
@@ -522,33 +531,7 @@ void setup_robots(void){
   @ access to the /proc virtual filesystem is required, which means this limit
   @ might not work inside a chroot() jail.
   @ (Property: "max-loadavg")</p>
-
-  @ <hr>
-  @ <p><b>Do not allow robots to make complex requests
-  @ against the following pages.</b>
-  @ <p> A "complex request" is an HTTP request that has one or more query
-  @ parameters. Some robots will spend hours juggling around query parameters
-  @ or even forging fake query parameters in an effort to discover new
-  @ behavior or to find an SQL injection opportunity or similar.  This can
-  @ waste hours of CPU time and gigabytes of bandwidth on the server.  A
-  @ suggested value for this setting is:
-  @ "<tt>timeline,*diff,vpatch,annotate,blame,praise,dir,tree</tt>".
-  @ (Property: robot-restrict)
-  @ <br>
-  textarea_attribute("", 2, 80,
-      "robot-restrict", "rbrestrict", "", 0);
-  @ <br> The following comma-separated GLOB pattern allows for exceptions
-  @ in the maximum number of query parameters before a request is considered
-  @ complex.  If this GLOB pattern exists and is non-empty and if it
-  @ matches against the pagename followed by "/" and the number of query
-  @ parameters, then the request is allowed through.  For example, the
-  @ suggested pattern of "timeline/[012]" allows the /timeline page to
-  @ pass with up to 2 query parameters besides "name".
-  @ (Property: robot-restrict-qp)
-  @ <br>
-  textarea_attribute("", 2, 80,
-      "robot-restrict-qp", "rbrestrictqp", "", 0);
-
+  @
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>

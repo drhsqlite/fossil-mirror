@@ -24,15 +24,7 @@
 #include <assert.h>
 #include <time.h>
 
-/*
-** SETTING: robot-squelch                width=10 default=200
-** The VALUE of is an integer between 0 and 1000 that determines how
-** readily Fossil will squelch requests from robots.  A value of 0
-** means "never squelch requests".  A value of 1000 means "always
-** squelch requests from user 'nobody'".  For values greater than 0
-** and less than 1000, the decision to squelch is based on a variety
-** of heuristics, but is more likely to occur the larger the number.
-*/
+#define POW_COOKIE  "fossil-proofofwork"
 
 /*
 ** Rewrite the current page with a robot squelch captcha and return 1.
@@ -73,10 +65,10 @@ static int robot_proofofwork(void){
   /* If there is already a proof-of-work cookie with this value
   ** that means that the user agent has already authenticated.
   */
-  z = P("fossil-proofofwork");
+  z = P(POW_COOKIE);
   if( z
    && (atoi(z)==h1 || atoi(z)==h2) 
-   && !cgi_is_qp("fossil-proofofwork") ){
+   && !cgi_is_qp(POW_COOKIE) ){
     return 0;
   }
 
@@ -88,7 +80,7 @@ static int robot_proofofwork(void){
   if( z
    && (atoi(z)==h1 || atoi(z)==h2)
   ){
-    cgi_set_cookie("fossil-proofofwork",z,"/",900);
+    cgi_set_cookie(POW_COOKIE,z,"/",900);
     return 0;
   }
   cgi_tag_query_parameter("proof");
@@ -96,73 +88,130 @@ static int robot_proofofwork(void){
   /* Ask the client to present proof-of-work */
   cgi_reset_content();
   cgi_set_content_type("text/html");
-  style_header("Captcha");
-  @ <h1>Prove That You Are Human</h1>
+  style_header("Browser Verification");
+  @ <h1 id="x1">Checking to see if you are a robot<span id="x2"></span></h1>
   @ <form method="GET">
-  @ <p>Press the button below</p><p>
+  @ <p id="x3" style="visibility:hidden;">\
+  @ Press <input type="submit" id="x5" value="Ok" focus> to continue</p>
   cgi_query_parameters_to_hidden();
-  @ <input id="vx" type="hidden" name="proof" value="0">
-  @ <input id="cx" type="submit" value="Wait..." disabled>
+  @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
   @ <script nonce='%s(style_nonce())'>
-  @ function Nhtot1520(x){return document.getElementById(x);}
-  @ function Aoxlxzajv(h){\
-  @ Nhtot1520("vx").value=h;\
-  @ Nhtot1520("cx").value="Ok";\
-  @ Nhtot1520("cx").disabled=false;\
-  @ }
-  @ function Vhcnyarsm(h,a){\
-  @ if(a>0){setTimeout(Vhcnyarsm,1,h+a,a-1);}else{Aoxlxzajv(h);}\
-  @ }
-  k = 200 + h2%99;
+  @ function aaa(x){return document.getElementById(x);}
+  @ function bbb(h,a){
+  @   aaa("x4").value=h
+  @   if((a%%75)==0){
+  @     aaa("x2").textContent=aaa("x2").textContent+".";
+  @   }
+  @   if(a>0){
+  @     setTimeout(bbb,1,h+a,a-1);
+  @   }else{
+  @     aaa("x3").style.visibility="visible";
+  @     aaa("x2").textContent="";
+  @     aaa("x1").textContent="All clear";
+  @     aaa("x5").focus();
+  @   }
+  @ }   
+  k = 800 + h2%99;
   h2 = (k*k + k)/2;
-  @ setTimeout(function(){Vhcnyarsm(%u(h1-h2),%u(k));},10);
+  @ setTimeout(function(){bbb(%u(h1-h2),%u(k));},10);
   @ </script>
   style_finish_page();
   return 1;
 }
 
+/*
+** SETTING: robot-restrict                width=40 block-text
+** The VALUE of this setting is a list of GLOB patterns that match
+** pages for which complex HTTP requests from unauthenicated clients
+** should be disallowed.  "Unauthenticated" means the user is "nobody".
+** The recommended value for this setting is:
+** 
+**     timelineX,diff,annotate,zip,fileage,file
+**
+** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
+** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
+** also covers /tarball and /sqlar.  If a tag has an "X" character appended,
+** then it only applies if query parameters are such that the page is
+** particularly difficult to compute.
+**
+** In all other case, the tag should exactly match the page name.
+*/
 
 /*
-** WEBPAGE functions can invoke this routine with an argument
-** that is between 0 and 1000.  Based on that argument, and on
-** other factors, this routine decides whether or not to squelch
-** the request.  "Squelch" in this context, means to require the
-** client to show proof-of-work before the request is processed.
-** The idea here is to prevent server overload due to excess robot
-** traffic.  If a robot (or any client application really) wants us
-** to spend a lot of CPU computing some result for it, then it needs
-** to first demonstrate good faith by doing some make-work for us.
-**
-** This routine returns true for a squelch and false if the original
-** request should go through.
-**
-** The input parameter is an estimate of how much CPU time
-** and bandwidth is needed to compute a response.  The higher the
-** value of this parameter, the more likely this routine is to squelch
-** the page.  A value of zero means "never squelch".  A value of
-** 1000 means always squelch if the user is "nobody".
-**
-** Squelching only happens if the user is "nobody".  If the request
-** comes from any other user, including user "anonymous", the request
-** is never squelched.
+** Return the default restriction GLOB
 */
-int robot_squelch(int n){
+const char *robot_restrict_default(void){
+  return "timelineX,diff,annotate,zip,fileage,file";
+}
+/*
+** Check to see if the page named in the argument is on the
+** robot-restrict list.  If it is on the list and if the user
+** is "nobody" then bring up a captcha to test to make sure that
+** client is not a robot.
+**
+** This routine returns true if a captcha was rendered and if subsequent
+** page generation should be aborted.  It returns false if the page
+** should not be restricted and should be rendered normally.
+*/
+int robot_restrict(const char *zPage){
+  const char *zGlob;
   const char *zToken;
-  int iSquelch;
-  assert( n>=0 && n<=1000 );
   if( g.zLogin ) return 0;   /* Logged in users always get through */
-  if( n==0 ) return 0;       /* Squelch is completely disabled */
+  zGlob = db_get("robot-restrict",robot_restrict_default());
+  if( zGlob==0 || zGlob[0]==0 ) return 0;
+  if( !glob_multi_match(zGlob, zPage) ) return 0;
   zToken = P("token");
   if( zToken!=0
    && db_exists("SELECT 1 FROM config WHERE name='token-%q'", zToken)
   ){
     return 0;                /* There is a valid token= query parameter */
   }
-  iSquelch = db_get_int("robot-squelch",200);
-  if( iSquelch<=0 ) return 0;
-  if( n+iSquelch>=1000 && robot_proofofwork() ){
+  if( robot_proofofwork() ){
     return 1;
   }
   return 0;
+}
+
+
+/*
+** WEBPAGE: test-robotck
+**
+** Run the robot_restrict() function using the value of the "name="
+** query parameter as an argument.  Used for testing the robot_restrict()
+** logic.
+**
+** Whenever this page is successfully rendered (when it doesn't go to
+** the captcha) it deletes the proof-of-work cookie.  So reloading the
+** page will reset the cookie and restart the verification.
+*/
+void robot_restrict_test_page(void){
+  const char *zName = P("name");
+  const char *zP1 = P("proof");
+  const char *zP2 = P(POW_COOKIE);
+  const char *z;
+  if( zName==0 || zName[0]==0 ) zName = g.zPath;
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(0); return; }
+  g.zLogin = 0;
+  if( robot_restrict(zName) ) return;
+  style_set_current_feature("test");
+  style_header("robot_restrict() test");
+  @ <h1>Captcha passed</h1>
+  @
+  @ <p>
+  if( zP1 && zP1[0] ){
+     @ proof=%h(zP1)<br>
+  }
+  if( zP2 && zP2[0] ){
+    @ fossil_proofofwork=%h(zP2)<br>
+    cgi_set_cookie(POW_COOKIE,"",0,-1);
+  }
+  z = db_get("robot-restrict",robot_restrict_default());
+  if( z && z[0] ){
+    @ robot-restrict=%h(z)</br>
+  }
+  @ </p>
+  @ <p><a href="%R/test-robotck/%h(zName)">Retry</a>
+  style_finish_page();
 }

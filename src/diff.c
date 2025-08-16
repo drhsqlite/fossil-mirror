@@ -3790,8 +3790,7 @@ void annotation_page(void){
   /* Gather query parameters */
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( exclude_spiders(0) ) return;
-  if( robot_squelch(990) ) return;
+  if( robot_restrict("annotate") ) return;
   fossil_nice_default();
   zFilename = P("filename");
   zRevision = PD("checkin",0);
