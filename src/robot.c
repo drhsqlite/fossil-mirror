@@ -90,7 +90,7 @@ static int robot_proofofwork(void){
   cgi_set_content_type("text/html");
   style_header("Browser Verification");
   @ <h1 id="x1">Checking to see if you are a robot<span id="x2"></span></h1>
-  @ <form method="GET">
+  @ <form method="GET" id="x6">
   @ <p id="x3" style="visibility:hidden;">\
   @ Press <input type="submit" id="x5" value="Ok" focus> to continue</p>
   cgi_query_parameters_to_hidden();
@@ -109,6 +109,7 @@ static int robot_proofofwork(void){
   @     aaa("x3").style.visibility="visible";
   @     aaa("x2").textContent="";
   @     aaa("x1").textContent="All clear";
+  @     aaa("x6").onsubmit=function(){aaa("x3").style.visibility="hidden";};
   @     aaa("x5").focus();
   @   }
   @ }   
@@ -192,7 +193,7 @@ void robot_restrict_test_page(void){
   const char *z;
   if( zName==0 || zName[0]==0 ) zName = g.zPath;
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(0); return; }
+  if( g.zLogin==0 ){ login_needed(1); return; }
   g.zLogin = 0;
   if( robot_restrict(zName) ) return;
   style_set_current_feature("test");
