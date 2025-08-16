@@ -119,7 +119,7 @@ static int robot_proofofwork(void){
 ** should be disallowed.  "Unauthenticated" means the user is "nobody".
 ** The recommended value for this setting is:
 ** 
-**     timeline,diff,annotate,zip,fileage,file
+**     timelineX,diff,annotate,zip,fileage,file
 **
 ** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
 ** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
@@ -134,7 +134,7 @@ static int robot_proofofwork(void){
 ** Return the default restriction GLOB
 */
 const char *robot_restrict_default(void){
-  return "timeline,diff,annotate,zip,fileage,file";
+  return "timelineX,diff,annotate,zip,fileage,file";
 }
 /*
 ** Check to see if the page named in the argument is on the

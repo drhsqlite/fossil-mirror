@@ -763,6 +763,14 @@ void captcha_test(void){
 }
 
 /*
+** WEBPAGE: honeypot
+** This page is a honeypot for spiders and bots.
+*/
+void honeypot_page(void){
+  (void)exclude_spiders(0);
+}
+
+/*
 ** Check to see if the current request is coming from an agent that 
 ** self-identifies as a spider.
 **
