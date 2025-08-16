@@ -1,5 +1,5 @@
-C Cache\sthe\sresults\sof\scalling\srobot_restrict()\sso\sthat\ssubsequent\ncalls\sare\svery\sfast.
-D 2025-08-16T14:44:50.397
+C Change\sthe\sname\sof\sthe\srobot-test\scookie\sto\sfossil-client-ok.\s\sDecode\nthat\scookie's\smeaning\son\sthe\s/cookies\spage.
+D 2025-08-16T15:54:16.290
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -408,7 +408,7 @@ F src/comformat.c cc02fc5b7ed26184ecb25b150d4fdf57df68cf7a852adacbeccd5e6dd07019
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c c418b6863b884c89a669a82ab5e28ce8cea58fdc72261b171741fed972951004
 F src/content.c 99ba1a2afd3421915052f7cf90ad3a9d8de6382e30c8f9ad4263e89687d0c855
-F src/cookies.c 4690f40acbac2f7196ad14514150350bfad632f60a52bd84408c091468dd26e7
+F src/cookies.c 99fb8cad1effaf9d0fc987dd1b05e7ef6e23a166415933b818e1dae9a604c867
 F src/copybtn.js a967fe355479c329f4e172c625b7a8403e1132be72fd3ebf9ad0afad249a679c
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 7baa3f7ec3b3d6aec893134ec6b02287ac47ac7a8237226e3c8b932d1242c0fa
@@ -521,7 +521,7 @@ F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c a9aeacaa515f756f76b0d94c3971121093848145d0d109be511616e74372a50a
 F src/repolist.c 3a3fb5895bbc6a43b3a379d7419bc6cbb3b826e921475c15c2624b1bb76157f1
 F src/report.c f423bfbd6a88753fdb5b9b91c2f3a787f0db955400f67e46d1630633af8bb758
-F src/robot.c 0289f35efe2380f43f7974fbd772605317981ec77f47fc323737151b362933b3
+F src/robot.c 00ff618059da639e0a243555d46a7e739d6b7846f7a8a4aeb2c40dcd8f61e74a
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 508d3cd98aa1c0754ce2fc925e4db78b73cdd40e4c180f6e7573db3b7c09bb3a
-R c36315529ac66ccdc9cd6b2ea1a16446
+P 1bdda5d01d7f4779e5beb6dd3d6442783d29d8921db7f1db9dd3fd5b8b2c5f00
+R d966f7e3c0c85026dd94267557b26ab9
 U drh
-Z 5ca2679b821a3bb57b405da334607191
+Z 3c9050167aae00289c846184171d0388
 # Remove this line to create a well-formed Fossil manifest.

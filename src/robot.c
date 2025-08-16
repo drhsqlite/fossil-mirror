@@ -24,7 +24,13 @@
 #include <assert.h>
 #include <time.h>
 
-#define POW_COOKIE  "fossil-proofofwork"
+/*
+** The name of the cookie used to demonstrate that the client has been
+** tested and is believed to be operated by a human, not by a robot.
+*/
+#if INTERFACE
+#define ROBOT_COOKIE  "fossil-client-ok"
+#endif
 
 /*
 ** Rewrite the current page with a robot squelch captcha and return 1.
@@ -65,10 +71,10 @@ static int robot_proofofwork(void){
   /* If there is already a proof-of-work cookie with this value
   ** that means that the user agent has already authenticated.
   */
-  z = P(POW_COOKIE);
+  z = P(ROBOT_COOKIE);
   if( z
    && (atoi(z)==h1 || atoi(z)==h2) 
-   && !cgi_is_qp(POW_COOKIE) ){
+   && !cgi_is_qp(ROBOT_COOKIE) ){
     return 0;
   }
 
@@ -80,7 +86,7 @@ static int robot_proofofwork(void){
   if( z
    && (atoi(z)==h1 || atoi(z)==h2)
   ){
-    cgi_set_cookie(POW_COOKIE,z,"/",900);
+    cgi_set_cookie(ROBOT_COOKIE,z,"/",900);
     return 0;
   }
   cgi_tag_query_parameter("proof");
@@ -195,7 +201,7 @@ int robot_restrict(const char *zPage){
 void robot_restrict_test_page(void){
   const char *zName = P("name");
   const char *zP1 = P("proof");
-  const char *zP2 = P(POW_COOKIE);
+  const char *zP2 = P(ROBOT_COOKIE);
   const char *z;
   if( zName==0 || zName[0]==0 ) zName = g.zPath;
   login_check_credentials();
@@ -211,8 +217,8 @@ void robot_restrict_test_page(void){
      @ proof=%h(zP1)<br>
   }
   if( zP2 && zP2[0] ){
-    @ fossil_proofofwork=%h(zP2)<br>
-    cgi_set_cookie(POW_COOKIE,"",0,-1);
+    @ %h(ROBOT_COOKIE)=%h(zP2)<br>
+    cgi_set_cookie(ROBOT_COOKIE,"",0,-1);
   }
   z = db_get("robot-restrict",robot_restrict_default());
   if( z && z[0] ){
