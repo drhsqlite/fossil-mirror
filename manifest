@@ -1,5 +1,5 @@
-C Add\s/zip\sand\s/tarball\spages\sto\sthe\srobot-squelch\smechanism.
-D 2025-08-15T19:58:23.861
+C Correct\sthe\ssignature\sof\san\sextern\sdecl\sof\sfossil_strndup(),\sas\sreported\sin\s[forum:21ac5f59a0\s|\sforum\spost\s21ac5f59a0].
+D 2025-08-16T10:10:15.174
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -572,7 +572,7 @@ F src/tar.c aea4b36c77ec543b17ad27ac6993150cfb466c6695369f61bb67a7d24379b059
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
-F src/th_lang.c 55c0017cc570f73b80224a340a58a4e87929970f811546f2007f4eb401bc593d
+F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 471b6d6607419feabe2603f6605d0ed0e50f2b3068ce83978a7b86a3bfdfe7ac
 F src/th_tcl.c 155a9da56128dce97714194089e81f08bf5628f8227e93fa9291197ae92ce9a4
 F src/timeline.c fd2ead078ba9ffc2bee187024f499cb9a850eb06680f3d12c15bf9fe3959dae3
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P de66eeaab7ab66448fdf6423b8878c9c45e5ef161f64782ed3936ca8d1698503
-R 3621d3055c84e4bd0a4d6dd4089a14fd
-U drh
-Z e06f02d6608721c3d53d18b595e5f27d
+P 661991aa62ad2dda327ec03ad9c5622af6bded754eb8b30ebe6605acff833b6b
+R cc244d6d6fcb205913df8088a38c28b5
+U stephan
+Z d167ddd55795248ba5fbc190a637f306
 # Remove this line to create a well-formed Fossil manifest.
