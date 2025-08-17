@@ -96,34 +96,35 @@ static int robot_proofofwork(void){
   cgi_set_content_type("text/html");
   style_header("Browser Verification");
   @ <h1 id="x1">Checking to see if you are a robot<span id="x2"></span></h1>
-  @ <form method="GET" id="x6">
-  @ <p id="x3" style="visibility:hidden;">\
-  @ Press <input type="submit" id="x5" value="Ok" focus> to continue</p>
-  @ <p id="x7" style="visibility:hidden;">You appear to be a robot.</p>
+  @ <form method="GET" id="x6"><p>
+  @ <span id="x3" style="visibility:hidden;">\
+  @ Press <input type="submit" id="x5" value="Ok" focus> to continue</span>
+  @ <span id="x7" style="visibility:hidden;">You appear to be a robot.</span></p>
   cgi_query_parameters_to_hidden();
   @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
   @ <script nonce='%s(style_nonce())'>
   @ function aaa(x){return document.getElementById(x);}
-  @ function bbb(h,a){
-  @   aaa("x4").value=h
-  @   if((a%%75)==0){
-  @     aaa("x2").textContent=aaa("x2").textContent+".";
-  @   }
-  @   if(a>0){
-  @     setTimeout(bbb,1,h+a,a-1);
-  @   }else if( window.getComputedStyle(document.body).zIndex==='0' ){
-  @     aaa("x3").style.visibility="visible";
-  @     aaa("x2").textContent="";
-  @     aaa("x1").textContent="All clear";
-  @     aaa("x6").onsubmit=function(){aaa("x3").style.visibility="hidden";};
-  @     aaa("x5").focus();
-  @   }else{
-  @     aaa("x7").style.visibility="visible";
-  @     aaa("x2").textContent="";
-  @     aaa("x1").textContent="Access Denied";
-  @   }
-  @ }   
+  @ function bbb(h,a){\
+  @ aaa("x4").value=h;\
+  @ if((a%%75)==0){\
+  @ aaa("x2").textContent=aaa("x2").textContent+".";\
+  @ }
+  @ if(a>0){\
+  @ setTimeout(bbb,1,h+a,a-1);\
+  @ }else if(window.getComputedStyle(document.body).zIndex==='0'){\
+  @ aaa("x3").style.visibility="visible";\
+  @ aaa("x2").textContent="";\
+  @ aaa("x1").textContent="All clear";\
+  @ aaa("x6").onsubmit=function(){aaa("x3").style.visibility="hidden";};\
+  @ aaa("x5").focus();\
+  @ }else{\
+  @ aaa("x7").style.visibility="visible";\
+  @ aaa("x2").textContent="";\
+  @ aaa("x3").style.display="none";\
+  @ aaa("x1").textContent="Access Denied";\
+  @ }\
+  @ }
   k = 400 + h2%299;
   h2 = (k*k + k)/2;
   @ setTimeout(function(){bbb(%u(h1-h2),%u(k));},10);
