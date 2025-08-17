@@ -99,32 +99,35 @@ static int robot_proofofwork(void){
   @ <form method="GET" id="x6">
   @ <p id="x3" style="visibility:hidden;">\
   @ Press <input type="submit" id="x5" value="Ok" focus> to continue</p>
+  @ <p id="x7" style="visibility:hidden;">You appear to be a robot.</p>
   cgi_query_parameters_to_hidden();
-  k = 800 + h2%99;
-  h2 = (k*k + k)/2;
   @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
   @ <script nonce='%s(style_nonce())'>
-  @ window.addEventListener('load',function(ev){
-  @    const E = (x)=>document.getElementById(x);
-  @    let h = %u(h1-h2);
-  @    let a = %u(k);
-  @    const x4 = E("x4");
-  @    for( ; a>0; --a ) {
-  @      h += a;
-  @    }
-  @    x4.value = h;
-  @    const gcs = window.getComputedStyle(document.body);
-  @    if( gcs.zIndex==='0' ) {
-  @     E("x3").style.visibility="visible";
-  @     E("x2").textContent="";
-  @     E("x1").textContent="Robot-check passed";
-  @     E("x6").onsubmit=function(){E("x3").style.visibility="hidden";};
-  @     E("x5").focus();
+  @ function aaa(x){return document.getElementById(x);}
+  @ function bbb(h,a){
+  @   aaa("x4").value=h
+  @   if((a%%75)==0){
+  @     aaa("x2").textContent=aaa("x2").textContent+".";
   @   }
-  @ },false);
+  @   if(a>0){
+  @     setTimeout(bbb,1,h+a,a-1);
+  @   }else if( window.getComputedStyle(document.body).zIndex==='0' ){
+  @     aaa("x3").style.visibility="visible";
+  @     aaa("x2").textContent="";
+  @     aaa("x1").textContent="All clear";
+  @     aaa("x6").onsubmit=function(){aaa("x3").style.visibility="hidden";};
+  @     aaa("x5").focus();
+  @   }else{
+  @     aaa("x7").style.visibility="visible";
+  @     aaa("x2").textContent="";
+  @     aaa("x1").textContent="Access Denied";
+  @   }
+  @ }   
+  k = 400 + h2%299;
+  h2 = (k*k + k)/2;
+  @ setTimeout(function(){bbb(%u(h1-h2),%u(k));},10);
   @ </script>
-  cgi_set_status(511, "OK for people");
   style_finish_page();
   return 1;
 }
