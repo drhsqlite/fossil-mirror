@@ -1162,7 +1162,7 @@ window.fossil.onPageLoad(function(){
             if the body has no explicit size set. On desktop systems
             the size is apparently being inherited in that case, but on mobile
             not. */
-        body.style.fontSize = window.getComputedStyle(msgObj.e.content);
+        body.style.fontSize = window.getComputedStyle(msgObj.e.content).fontSize;
       }
       if('' === iframe.style.maxHeight){
         /* Resize iframe height to fit the content. Workaround: if we
