@@ -829,6 +829,7 @@ void style_header(const char *zTitleFormat, ...){
     @ </div>
   }
   @ <style>body { z-index: 0 }</style>
+  /* ^^^^ part of robot.c:robot_proofofwork() */
   fossil_free(zTitle);
 }
 

@@ -73,7 +73,7 @@ static int robot_proofofwork(void){
   */
   z = P(ROBOT_COOKIE);
   if( z
-   && (atoi(z)==h1 || atoi(z)==h2) 
+   && (atoi(z)==h1 || atoi(z)==h2)
    && !cgi_is_qp(ROBOT_COOKIE) ){
     return 0;
   }
@@ -134,10 +134,10 @@ static int robot_proofofwork(void){
 ** pages for which complex HTTP requests from unauthenicated clients
 ** should be disallowed.  "Unauthenticated" means the user is "nobody".
 ** The recommended value for this setting is:
-** 
+**
 **     timelineX,diff,annotate,zip,fileage,file
 **
-** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
+** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and
 ** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
 ** also covers /tarball and /sqlar.  If a tag has an "X" character appended,
 ** then it only applies if query parameters are such that the page is
