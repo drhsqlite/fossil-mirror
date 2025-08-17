@@ -1,5 +1,5 @@
-C Add\sa\ssimple\sUI\sthat\sallows\sany\sregistered\suser\s(not\s"anonymous"\sor\s"nobody")\nto\screate\saccess\stokens.
-D 2025-08-16T16:48:34.506
+C Add\s(stash\srename)\ssubcommand\sto\schange\sthe\slabel\sassociated\swith\sa\sstash\sentry.
+D 2025-08-17T12:50:24.046
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -556,7 +556,7 @@ F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616e
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 42334a1297bb1ec6a34056f3be4068089e6d94e9e8077ed3d6778a50a1994a54
-F src/stash.c b5ce9703768b4b5decd6f0a5324b2204a59392592be10b341e3311914cfec9e4
+F src/stash.c 3178838b35e9502bbc8b1e5f31d8e790ce477b12449f588432539deadaa7ae74
 F src/stat.c 68cb669d6e1304765fdf280e9ff18feb649ae424351c88cb19aa4012d0e3f5b3
 F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc2232c6bd984e623b92236c748372c727a80ae1baf05544b889a2a43b0a9580
-R 9b723dce7dcd660155681631599c6a24
-U drh
-Z 6f27cde1a17368b6f6af58ba4168e806
+P 2a3d3031243efce483ffef1934080bb425d7e4d8521bb120afcdc98d2d2d0d93
+R 9ed0f8ef0e4e19fab0dbd064148cd8a6
+U stephan
+Z 86afc162a46e8977a834a70425af9e1e
 # Remove this line to create a well-formed Fossil manifest.
