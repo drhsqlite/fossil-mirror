@@ -104,6 +104,7 @@ static int robot_proofofwork(void){
   @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
   @ <script nonce='%s(style_nonce())'>
+  @ window.addEventListener('load',function(){
   @ function aaa(x){return document.getElementById(x);}
   @ function bbb(h,a){\
   @ aaa("x4").value=h;\
@@ -128,6 +129,7 @@ static int robot_proofofwork(void){
   k = 400 + h2%299;
   h2 = (k*k + k)/2;
   @ setTimeout(function(){bbb(%u(h1-h2),%u(k));},10);
+  @ }, false);
   @ </script>
   style_finish_page();
   return 1;
