@@ -103,25 +103,17 @@ static int robot_proofofwork(void){
   @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
   @ <script nonce='%s(style_nonce())'>
-  @ function aaa(x){return document.getElementById(x);}
-  @ function bbb(h,a){
-  @   aaa("x4").value=h
-  @   if((a%%75)==0){
-  @     aaa("x2").textContent=aaa("x2").textContent+".";
+  @ window.addEventListener('load',function(ev){
+  @    const E = (x)=>document.getElementById(x);
+  @    const gcs = window.getComputedStyle(document.body);
+  @    if( gcs.zIndex==='0' ) {
+  @     E("x3").style.visibility="visible";
+  @     E("x2").textContent="";
+  @     E("x1").textContent="All clear";
+  @     E("x6").onsubmit=function(){E("x3").style.visibility="hidden";};
+  @     E("x5").focus();
   @   }
-  @   if(a>0){
-  @     setTimeout(bbb,1,h+a,a-1);
-  @   }else{
-  @     aaa("x3").style.visibility="visible";
-  @     aaa("x2").textContent="";
-  @     aaa("x1").textContent="All clear";
-  @     aaa("x6").onsubmit=function(){aaa("x3").style.visibility="hidden";};
-  @     aaa("x5").focus();
-  @   }
-  @ }   
-  k = 800 + h2%99;
-  h2 = (k*k + k)/2;
-  @ setTimeout(function(){bbb(%u(h1-h2),%u(k));},10);
+  @ },false);
   @ </script>
   style_finish_page();
   return 1;

@@ -828,6 +828,7 @@ void style_header(const char *zTitleFormat, ...){
     cgi_print_all(0, 0, 0);
     @ </div>
   }
+  @ <style>body { z-index: 0 }</style>
   fossil_free(zTitle);
 }
 
