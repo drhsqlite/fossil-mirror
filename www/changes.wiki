@@ -15,8 +15,9 @@
        to help prevent robots from soaking up excess CPU time on such pages.
   <li> When walking the filesystem looking for Fossil repositories, avoid descending
        into directories named "/proc".
-  <ll> Reduce memory requirements for sending authenticated sync protocol
+  <li> Reduce memory requirements for sending authenticated sync protocol
        messages.
+  <li> Add the [/help?cmd=stash | stash rename] subcommand.
   </ol>
 
 <h2 id='v2_26'>Changes for version 2.26 (2025-04-30)</h2><ol>
