@@ -1737,10 +1737,6 @@ window.fossil.onPageLoad(function(){
     return bxs;
   })()/*drag/drop/paste*/;
 
-  const tzOffsetToString = function(off){
-    const hours = Math.round(off/60), min = Math.round(off % 30);
-    return ''+(hours + (min ? '.5' : ''));
-  };
   const localTime8601 = function(d){
     return [
       d.getYear()+1900, '-', pad2(d.getMonth()+1), '-', pad2(d.getDate()),
