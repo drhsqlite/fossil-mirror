@@ -124,6 +124,7 @@ static int robot_proofofwork(void){
   @   }
   @ },false);
   @ </script>
+  cgi_set_status(511, "OK for people");
   style_finish_page();
   return 1;
 }
