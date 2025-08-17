@@ -350,8 +350,8 @@ void login_set_user_cookie(
 **
 **    HASH/TIME/anonymous
 **
-** Where HASH is the sha1sum of TIME/IPADDR/SECRET, in which SECRET
-** is captcha-secret.
+** Where HASH is the sha1sum of TIME/USERAGENT/SECRET, in which SECRET
+** is captcha-secret and USERAGENT is the HTTP_USER_AGENT value.
 **
 ** If zCookieDest is not NULL then the generated cookie is assigned to
 ** *zCookieDest and the caller must eventually free() it.
@@ -363,7 +363,7 @@ void login_set_user_cookie(
 void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   char *zNow;                  /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
-  const char *zIpAddr;         /* IP Address */
+  const char *zUserAgent;      /* The user agent */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
   int expires = bSessionCookie ? 0 : ANONYMOUS_COOKIE_LIFESPAN;
@@ -371,8 +371,8 @@ void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
   blob_init(&b, zNow, -1);
-  zIpAddr = PD("REMOTE_ADDR","nil");
-  blob_appendf(&b, "/%s/%z", zIpAddr, captcha_secret(0));
+  zUserAgent = PD("HTTP_USER_AGENT","nil");
+  blob_appendf(&b, "/%s/%z", zUserAgent, captcha_secret(0));
   sha1sum_blob(&b, &b);
   zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
   blob_reset(&b);
@@ -1423,12 +1423,13 @@ void login_check_credentials(void){
     }else if( fossil_strcmp(zUser, "anonymous")==0 ){
       /* Cookies of the form "HASH/TIME/anonymous".  The TIME must
       ** not be more than ANONYMOUS_COOKIE_LIFESPAN seconds ago and
-      ** the sha1 hash of TIME/IPADDR/SECRET must match HASH.  IPADDR
-      ** is the remote address of the client and SECRET is the
+      ** the sha1 hash of TIME/USERAGENT/SECRET must match HASH. USERAGENT
+      ** is the HTTP_USER_AGENT of the client and SECRET is the
       ** "captcha-secret" value in the repository.  See tag-20250817a
       ** for the code the creates this cookie.
       */
       double rTime = atof(zArg);
+      const char *zUserAgent = PD("HTTP_USER_AGENT","nil");
       Blob b;
       char *zSecret;
       int n = 0;
@@ -1437,7 +1438,7 @@ void login_check_credentials(void){
         blob_zero(&b);
         zSecret = captcha_secret(n++);
         if( zSecret==0 ) break;
-        blob_appendf(&b, "%s/%s/%s", zArg, zIpAddr, zSecret);
+        blob_appendf(&b, "%s/%s/%s", zArg, zUserAgent, zSecret);
         sha1sum_blob(&b, &b);
         if( fossil_strcmp(zHash, blob_str(&b))==0 ){
           uid = db_int(0,

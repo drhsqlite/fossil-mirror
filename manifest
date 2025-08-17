@@ -1,5 +1,5 @@
-C Make\sanonymous\scookies\svalid\sfor\s8\shours.\s\sInclude\sthe\sclient\sIP\saddress\nas\spart\sof\sthe\scookie\shash,\sbut\sdo\snot\sdisplay\sthe\sclient\sIP\saddress\swithin\nthe\stext\sof\sthe\scookie.
-D 2025-08-17T17:16:24.713
+C Use\sthe\sUserAgent\svalue\sfrom\sthe\sHTTP\srequest\sheader,\srather\sthan\sthe\nclient\sIP\saddress,\sas\sthe\sadditional\sfactor\sin\sthe\sanonymous\slogin\scookie\nhash,\ssince\ssome\sclient\sare\son\snetworks\swhere\stheir\sIP\saddress\scan\sshift\nfrequently.
+D 2025-08-17T18:20:56.181
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -490,7 +490,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf8
-F src/login.c 0a9dd98c5a3e869b61bc16ae7ee765a8b7930969e62047cb948cc13e899f6765
+F src/login.c 46d4ee6735d011ee0f95633e998f272504ee140d41dc614b92bf112bfb53b5e0
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c 4409719bfc04b47ccdbd0922019afd282bd35236279ea6ad62521e02d8c7b85d
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 144c5dbe005354e7c26e775ac9f9139f70352d9376aaf7daf7d2c9625efa2d21
-R 436fc91695d368c8dd1365bab9dea432
+P 68da4784aa3d5f3efae6e549957c65d6c8cace01e0c52d7b43fa5c96ab97f29e
+R f8fe7c8628d8c661920c1501c565595d
 U drh
-Z 19d03b3dc3d3ed762414ca1c8617598a
+Z f5d16cc51bb0ac81378b8bd7cb5bab44
 # Remove this line to create a well-formed Fossil manifest.
