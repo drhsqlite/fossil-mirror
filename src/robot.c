@@ -100,11 +100,20 @@ static int robot_proofofwork(void){
   @ <p id="x3" style="visibility:hidden;">\
   @ Press <input type="submit" id="x5" value="Ok" focus> to continue</p>
   cgi_query_parameters_to_hidden();
+  k = 800 + h2%99;
+  h2 = (k*k + k)/2;
   @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
   @ <script nonce='%s(style_nonce())'>
   @ window.addEventListener('load',function(ev){
   @    const E = (x)=>document.getElementById(x);
+  @    let h = %u(h1-h2);
+  @    let a = %u(k);
+  @    const x4 = E("x4");
+  @    for( ; a>0; --a ) {
+  @      h += a;
+  @    }
+  @    x4.value = h;
   @    const gcs = window.getComputedStyle(document.body);
   @    if( gcs.zIndex==='0' ) {
   @     E("x3").style.visibility="visible";
