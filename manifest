@@ -1,5 +1,5 @@
-C Remove\ssome\sdead\scode\sfrom\s/chat.
-D 2025-08-17T15:00:50.368
+C Make\sanonymous\scookies\svalid\sfor\s8\shours.\s\sInclude\sthe\sclient\sIP\saddress\nas\spart\sof\sthe\scookie\shash,\sbut\sdo\snot\sdisplay\sthe\sclient\sIP\saddress\swithin\nthe\stext\sof\sthe\scookie.
+D 2025-08-17T17:16:24.713
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -490,7 +490,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf8
-F src/login.c 4e052afcbe48620084f9885244499c20417432efbda92249c52a9e1ce830f5ae
+F src/login.c 0a9dd98c5a3e869b61bc16ae7ee765a8b7930969e62047cb948cc13e899f6765
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c 4409719bfc04b47ccdbd0922019afd282bd35236279ea6ad62521e02d8c7b85d
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e3f0dcc325f2f79cb44c2eea70949df9e730553be14cf5aabc677f36a51e8827
-R 51eba06bd24642fe15d88240b7d2dbb5
-U stephan
-Z ae2adfba67e85d796d15d633e6e75033
+P 144c5dbe005354e7c26e775ac9f9139f70352d9376aaf7daf7d2c9625efa2d21
+R 436fc91695d368c8dd1365bab9dea432
+U drh
+Z 19d03b3dc3d3ed762414ca1c8617598a
 # Remove this line to create a well-formed Fossil manifest.

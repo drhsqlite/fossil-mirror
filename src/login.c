@@ -341,17 +341,24 @@ void login_set_user_cookie(
   }
 }
 
+/*
+** Lifetime of an anoymous cookie, in seconds.
+*/
+#define ANONYMOUS_COOKIE_LIFESPAN 28800   /* 28800 seconds  == 8 hours */
+
 /* Sets a cookie for an anonymous user login, which looks like this:
 **
-**    HASH/TIME:IPADDR/anonymous
+**    HASH/TIME/anonymous
 **
-** Where HASH is the sha1sum of TIME:IPADDR/SECRET, in which SECRET
+** Where HASH is the sha1sum of TIME/IPADDR/SECRET, in which SECRET
 ** is captcha-secret.
 **
 ** If zCookieDest is not NULL then the generated cookie is assigned to
 ** *zCookieDest and the caller must eventually free() it.
 **
 ** If bSessionCookie is true, the cookie will be a session cookie.
+**
+** Search for tag-20250817a to find the code that recognizes this cookie.
 */
 void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   char *zNow;                  /* Current time (julian day number) */
@@ -359,15 +366,15 @@ void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   const char *zIpAddr;         /* IP Address */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
-  int expires = bSessionCookie ? 0 : 3600;  /* Valid for 60 minutes */
+  int expires = bSessionCookie ? 0 : ANONYMOUS_COOKIE_LIFESPAN;
   zCookieName = login_cookie_name();
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
   blob_init(&b, zNow, -1);
   zIpAddr = PD("REMOTE_ADDR","nil");
-  blob_appendf(&b, ":%s/%z", zIpAddr, captcha_secret(0));
+  blob_appendf(&b, "/%s/%z", zIpAddr, captcha_secret(0));
   sha1sum_blob(&b, &b);
-  zCookie = mprintf("%s/%s:%s/anonymous", blob_buffer(&b), zNow, zIpAddr);
+  zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
   blob_reset(&b);
   cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
   if( zCookieDest ){
@@ -1414,32 +1421,31 @@ void login_check_credentials(void){
     if( zUser==0 ){
       /* Invalid cookie */
     }else if( fossil_strcmp(zUser, "anonymous")==0 ){
-      /* Cookies of the form "HASH/TIME:IPADDR/anonymous".  The TIME must
-      ** not be too old and the sha1 hash of TIME:IPADDR/SECRET must match
-      ** HASH.  SECRET is the "captcha-secret" value in the repository.
+      /* Cookies of the form "HASH/TIME/anonymous".  The TIME must
+      ** not be more than ANONYMOUS_COOKIE_LIFESPAN seconds ago and
+      ** the sha1 hash of TIME/IPADDR/SECRET must match HASH.  IPADDR
+      ** is the remote address of the client and SECRET is the
+      ** "captcha-secret" value in the repository.  See tag-20250817a
+      ** for the code the creates this cookie.
       */
       double rTime = atof(zArg);
-      const char *zCookieIP;
       Blob b;
       char *zSecret;
       int n = 0;
 
-      zCookieIP = strchr(zArg,':');
-      if( zCookieIP && strcmp(zCookieIP+1,zIpAddr)!=0 ) zCookieIP = 0;
       do{
-        if( zCookieIP==0 ) break;
         blob_zero(&b);
         zSecret = captcha_secret(n++);
         if( zSecret==0 ) break;
-        blob_appendf(&b, "%s/%s", zArg, zSecret);
+        blob_appendf(&b, "%s/%s/%s", zArg, zIpAddr, zSecret);
         sha1sum_blob(&b, &b);
         if( fossil_strcmp(zHash, blob_str(&b))==0 ){
           uid = db_int(0,
               "SELECT uid FROM user WHERE login='anonymous'"
               " AND octet_length(cap)>0"
               " AND octet_length(pw)>0"
-              " AND %.17g+0.0416667>julianday('now')",
-              rTime
+              " AND %.17g>julianday('now')",
+              rTime+ANONYMOUS_COOKIE_LIFESPAN/86400.0
           );
         }
       }while( uid==0 );
