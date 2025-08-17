@@ -1162,7 +1162,7 @@ window.fossil.onPageLoad(function(){
             if the body has no explicit size set. On desktop systems
             the size is apparently being inherited in that case, but on mobile
             not. */
-        body.style.fontSize = window.getComputedStyle(msgObj.e.content);
+        body.style.fontSize = window.getComputedStyle(msgObj.e.content).fontSize;
       }
       if('' === iframe.style.maxHeight){
         /* Resize iframe height to fit the content. Workaround: if we
@@ -1737,10 +1737,6 @@ window.fossil.onPageLoad(function(){
     return bxs;
   })()/*drag/drop/paste*/;
 
-  const tzOffsetToString = function(off){
-    const hours = Math.round(off/60), min = Math.round(off % 30);
-    return ''+(hours + (min ? '.5' : ''));
-  };
   const localTime8601 = function(d){
     return [
       d.getYear()+1900, '-', pad2(d.getMonth()+1), '-', pad2(d.getDate()),
