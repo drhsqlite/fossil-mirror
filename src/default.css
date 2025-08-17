@@ -3,6 +3,9 @@
    are emitted first, followed by (1) page-specific CSS (if any) and
    (2) skin-specific CSS.
 */
+body {
+  z-index: 0 /* part of robot.c:robot_proofofwork() */;
+}
 div.sidebox {
   float: right;
   background-color: white;

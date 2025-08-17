@@ -73,7 +73,7 @@ static int robot_proofofwork(void){
   */
   z = P(ROBOT_COOKIE);
   if( z
-   && (atoi(z)==h1 || atoi(z)==h2) 
+   && (atoi(z)==h1 || atoi(z)==h2)
    && !cgi_is_qp(ROBOT_COOKIE) ){
     return 0;
   }
@@ -96,30 +96,36 @@ static int robot_proofofwork(void){
   cgi_set_content_type("text/html");
   style_header("Browser Verification");
   @ <h1 id="x1">Checking to see if you are a robot<span id="x2"></span></h1>
-  @ <form method="GET" id="x6">
-  @ <p id="x3" style="visibility:hidden;">\
-  @ Press <input type="submit" id="x5" value="Ok" focus> to continue</p>
+  @ <form method="GET" id="x6"><p>
+  @ <span id="x3" style="visibility:hidden;">\
+  @ Press <input type="submit" id="x5" value="Ok" focus> to continue</span>
+  @ <span id="x7" style="visibility:hidden;">You appear to be a robot.</span></p>
   cgi_query_parameters_to_hidden();
   @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
   @ <script nonce='%s(style_nonce())'>
   @ function aaa(x){return document.getElementById(x);}
-  @ function bbb(h,a){
-  @   aaa("x4").value=h
-  @   if((a%%75)==0){
-  @     aaa("x2").textContent=aaa("x2").textContent+".";
-  @   }
-  @   if(a>0){
-  @     setTimeout(bbb,1,h+a,a-1);
-  @   }else{
-  @     aaa("x3").style.visibility="visible";
-  @     aaa("x2").textContent="";
-  @     aaa("x1").textContent="All clear";
-  @     aaa("x6").onsubmit=function(){aaa("x3").style.visibility="hidden";};
-  @     aaa("x5").focus();
-  @   }
-  @ }   
-  k = 800 + h2%99;
+  @ function bbb(h,a){\
+  @ aaa("x4").value=h;\
+  @ if((a%%75)==0){\
+  @ aaa("x2").textContent=aaa("x2").textContent+".";\
+  @ }
+  @ if(a>0){\
+  @ setTimeout(bbb,1,h+a,a-1);\
+  @ }else if(window.getComputedStyle(document.body).zIndex==='0'){\
+  @ aaa("x3").style.visibility="visible";\
+  @ aaa("x2").textContent="";\
+  @ aaa("x1").textContent="All clear";\
+  @ aaa("x6").onsubmit=function(){aaa("x3").style.visibility="hidden";};\
+  @ aaa("x5").focus();\
+  @ }else{\
+  @ aaa("x7").style.visibility="visible";\
+  @ aaa("x2").textContent="";\
+  @ aaa("x3").style.display="none";\
+  @ aaa("x1").textContent="Access Denied";\
+  @ }\
+  @ }
+  k = 400 + h2%299;
   h2 = (k*k + k)/2;
   @ setTimeout(function(){bbb(%u(h1-h2),%u(k));},10);
   @ </script>
@@ -133,10 +139,10 @@ static int robot_proofofwork(void){
 ** pages for which complex HTTP requests from unauthenicated clients
 ** should be disallowed.  "Unauthenticated" means the user is "nobody".
 ** The recommended value for this setting is:
-** 
+**
 **     timelineX,diff,annotate,zip,fileage,file
 **
-** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
+** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and
 ** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
 ** also covers /tarball and /sqlar.  If a tag has an "X" character appended,
 ** then it only applies if query parameters are such that the page is
