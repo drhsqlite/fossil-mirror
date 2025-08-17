@@ -118,7 +118,7 @@ static int robot_proofofwork(void){
   @    if( gcs.zIndex==='0' ) {
   @     E("x3").style.visibility="visible";
   @     E("x2").textContent="";
-  @     E("x1").textContent="All clear";
+  @     E("x1").textContent="Robot-check passed";
   @     E("x6").onsubmit=function(){E("x3").style.visibility="hidden";};
   @     E("x5").focus();
   @   }
