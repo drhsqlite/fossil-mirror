@@ -40,7 +40,7 @@
 */
 static int robot_proofofwork(void){
   sqlite3_int64 tm;
-  unsigned h1, h2;
+  unsigned h1, h2, p1, p2, p3, p4, p5, k2, k3;
   int k;
   const char *z;
   const char *az[2];
@@ -99,18 +99,18 @@ static int robot_proofofwork(void){
   @ <form method="GET" id="x6"><p>
   @ <span id="x3" style="visibility:hidden;">\
   @ Press <input type="submit" id="x5" value="Ok" focus> to continue</span>
-  @ <span id="x7" style="visibility:hidden;">You appear to be a robot.</span></p>
+  @ <span id="x7" style="visibility:hidden;">You appear to be a robot.</span>\
+  @ </p>
   cgi_query_parameters_to_hidden();
   @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
   @ <script nonce='%s(style_nonce())'>
-  @ window.addEventListener('load',function(){
-  @ function aaa(x){return document.getElementById(x);}
+  @ function aaa(x){return document.getElementById(x);}\
   @ function bbb(h,a){\
   @ aaa("x4").value=h;\
   @ if((a%%75)==0){\
   @ aaa("x2").textContent=aaa("x2").textContent+".";\
-  @ }
+  @ }\
   @ if(a>0){\
   @ setTimeout(bbb,1,h+a,a-1);\
   @ }else if(window.getComputedStyle(document.body).zIndex==='0'){\
@@ -125,11 +125,18 @@ static int robot_proofofwork(void){
   @ aaa("x3").style.display="none";\
   @ aaa("x1").textContent="Access Denied";\
   @ }\
-  @ }
+  @ }\
   k = 400 + h2%299;
-  h2 = (k*k + k)/2;
-  @ setTimeout(function(){bbb(%u(h1-h2),%u(k));},10);
-  @ }, false);
+  k2 = (h2/299)%99 + 973;
+  k3 = (h2/(299*99))%99 + 811;
+  p1 = (k*k + k)/2;
+  p2 = h1-p1;
+  p3 = p2%k2;
+  p4 = (p2/k2)%k3;
+  p5 = p2/(k2*k3);
+  @ function ccc(a,b,c){return (a*%u(k3)+b)*%u(k2)+c;}\
+  @ window.addEventListener('load',function(){\
+  @ bbb(ccc(%u(p5),%u(p4),%u(p3)),%u(k));},false);
   @ </script>
   style_finish_page();
   return 1;
