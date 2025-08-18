@@ -521,6 +521,13 @@ void setup_robots(void){
   addAutoHyperlinkSettings();
 
   @ <hr>
+  entry_attribute("Anonymous Login Validity", 11, "anon-cookie-lifespan",
+                  "anoncookls", "840", 0);
+  @ <p>The number of minutes for which an anonymous login cookie is valid.
+  @ Set to zero to disable anonymous login.
+  @ (property: anon-cookie-lifespan)
+
+  @ <hr>
   entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
                   "0.0", 0);
   @ <p>Some expensive operations (such as computing tarballs, zip archives,
@@ -770,6 +777,13 @@ void setup_access(void){
   @ This is less secure than forcing the user to do it manually, but is
   @ probably secure enough and it is certainly more convenient for
   @ anonymous users.  (Property: "auto-captcha")</p>
+
+  @ <hr>
+  entry_attribute("Anonymous Login Validity", 11, "anon-cookie-lifespan",
+                  "anoncookls", "840", 0);
+  @ <p>The number of minutes for which an anonymous login cookie is valid.
+  @ Set to zero to disable anonymous logins.
+  @ (property: anon-cookie-lifespan)
 
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>

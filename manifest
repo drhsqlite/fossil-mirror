@@ -1,5 +1,5 @@
-C Additional\sobfuscation\sof\sthe\sjavascript\sthat\sruns\sto\simplement\sthe\nanti-robot\sdefense.
-D 2025-08-18T11:45:38.662
+C New\ssetting\s"anon-cookie-lifespan"\ssets\sthe\slife\sspan\sof\san\sanonymous\nlogin\scookie.\s\sThe\sdefault\sis\s8\shours.\s\sSet\sto\szero\sto\sdisable\nanonymous\slogin.
+D 2025-08-18T15:49:32.450
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -490,7 +490,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf8
-F src/login.c 46d4ee6735d011ee0f95633e998f272504ee140d41dc614b92bf112bfb53b5e0
+F src/login.c d9d120a18c32675d1311a77fd982405d48c9ae0dd7d5f1e007e1e17cf7d819d3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c 4409719bfc04b47ccdbd0922019afd282bd35236279ea6ad62521e02d8c7b85d
@@ -527,7 +527,7 @@ F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 82719ea2ad921d257a766fd6767ac401a638e2f290bc678f912e75218ab188ec
 F src/security_audit.c dc78230601d1eb4a2cb1440f91d83c9a56d1efebc9cde3c41da2e220c5a712a8
-F src/setup.c 7fd94e59163e04a8b3be4d1c3c007bcb7261457dc98680291e7be1e6d509575c
+F src/setup.c 40fe331609d12717405f2400b074ac7d1d6705750b39d6eb3645ae0d948da111
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e5991efb681a88edb74a399d7bd6b92d7f8479a2e934136631e13d6eb24f9147
-R bb5cb94b9ba3fe0f6215f50633f8ff63
+P 4c4bce351d974e5b628b8305ddac18c705ab06a88568e4e42bd3fa4ba8ca1823
+R fc517a985278915b4de0be5ad30e57a5
 U drh
-Z 14f2c8d30a9db3c3f1a1f6b4e79da89d
+Z 5c28bfd199d7105b563b69f8d4ec51a2
 # Remove this line to create a well-formed Fossil manifest.

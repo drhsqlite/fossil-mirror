@@ -162,6 +162,7 @@ int login_is_valid_anonymous(
   else if( zPassword==0 ) return 0;
   else if( zCS==0 ) return 0;
   else if( fossil_strcmp(zUsername,"anonymous")!=0 ) return 0;
+  else if( anon_cookie_lifespan()==0 ) return 0;
   while( 1/*exit-by-break*/ ){
     zPw = captcha_decode((unsigned int)atoi(zCS), n);
     if( zPw==0 ) return 0;
@@ -342,9 +343,28 @@ void login_set_user_cookie(
 }
 
 /*
-** Lifetime of an anoymous cookie, in seconds.
+** SETTING: anon-cookie-lifespan      width=10 default=480
+** The number of minutes for which an anonymous login cookie is
+** valid.  Anonymous logins are prohibited if this value is zero.
 */
-#define ANONYMOUS_COOKIE_LIFESPAN 28800   /* 28800 seconds  == 8 hours */
+
+
+/*
+** The default lifetime of an anoymous cookie, in minutes.
+*/
+#define ANONYMOUS_COOKIE_LIFESPAN (8*60)
+
+/*
+** Return the lifetime of an anonymous cookie, in minutes.
+*/
+int anon_cookie_lifespan(void){
+  static int lifespan = -1;
+  if( lifespan<0 ){
+    lifespan = db_get_int("anon-cookie-lifespan", ANONYMOUS_COOKIE_LIFESPAN);
+    if( lifespan<0 ) lifespan = 0;
+  }
+  return lifespan;
+}
 
 /* Sets a cookie for an anonymous user login, which looks like this:
 **
@@ -366,7 +386,7 @@ void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   const char *zUserAgent;      /* The user agent */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
-  int expires = bSessionCookie ? 0 : ANONYMOUS_COOKIE_LIFESPAN;
+  int expires = bSessionCookie ? 0 : anon_cookie_lifespan();
   zCookieName = login_cookie_name();
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
@@ -604,7 +624,7 @@ void login_page(void){
   ** anon=1 is advisory and only has effect if there is not some other login
   ** cookie.  anon=2 means always show the captcha. 
   */
-  anonFlag = atoi(PD("anon","0"));
+  anonFlag = anon_cookie_lifespan()>0 ? atoi(PD("anon","0")) : 0;
   if( anonFlag==2 ){
     g.zLogin = 0;
   }else{
@@ -787,7 +807,7 @@ void login_page(void){
     @ </form>
   }else{
     unsigned int uSeed = captcha_seed();
-    if( g.zLogin==0 && (anonFlag || zGoto==0) ){
+    if( g.zLogin==0 && (anonFlag || zGoto==0) && anon_cookie_lifespan()>0 ){
       zAnonPw = db_text(0, "SELECT pw FROM user"
                            " WHERE login='anonymous'"
                            "   AND cap!=''");
@@ -1420,7 +1440,8 @@ void login_check_credentials(void){
     }
     if( zUser==0 ){
       /* Invalid cookie */
-    }else if( fossil_strcmp(zUser, "anonymous")==0 ){
+    }else if( fossil_strcmp(zUser, "anonymous")==0
+           && anon_cookie_lifespan()>0 ){
       /* Cookies of the form "HASH/TIME/anonymous".  The TIME must
       ** not be more than ANONYMOUS_COOKIE_LIFESPAN seconds ago and
       ** the sha1 hash of TIME/USERAGENT/SECRET must match HASH. USERAGENT
@@ -1446,7 +1467,7 @@ void login_check_credentials(void){
               " AND octet_length(cap)>0"
               " AND octet_length(pw)>0"
               " AND %.17g>julianday('now')",
-              rTime+ANONYMOUS_COOKIE_LIFESPAN/86400.0
+              rTime+anon_cookie_lifespan()/1440.0
           );
         }
       }while( uid==0 );
@@ -1911,7 +1932,7 @@ void login_needed(int anonOk){
 ** logging in as anonymous.
 */
 void login_anonymous_available(void){
-  if( !g.perm.Hyperlink && g.anon.Hyperlink ){
+  if( !g.perm.Hyperlink && g.anon.Hyperlink && anon_cookie_lifespan()>0 ){
     const char *zUrl = PD("PATH_INFO", "");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br>
     @ Use <a href="%R/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
