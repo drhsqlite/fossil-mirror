@@ -272,6 +272,23 @@ static void ask_for_proof_that_client_is_not_robot(void){
 const char *robot_restrict_default(void){
   return "timelineX,diff,annotate,zip,fileage,file";
 }
+
+/*
+** Return true if zTag matches one of the tags in the robot-restrict
+** setting.
+*/
+int robot_restrict_has_tag(const char *zTag){
+  static const char *zGlob = 0;
+  if( zGlob==0 ){
+    zGlob = db_get("robot-restrict",robot_restrict_default());
+    if( zGlob==0 ) zGlob = "";
+  }
+  if( zGlob[0]==0 || fossil_strcmp(zGlob, "off")==0 ){
+    return 0;
+  }
+  return glob_multi_match(zGlob,zTag);
+}
+
 /*
 ** Check to see if the page named in the argument is on the
 ** robot-restrict list.  If it is on the list and if the user
@@ -282,18 +299,9 @@ const char *robot_restrict_default(void){
 ** page generation should be aborted.  It returns false if the page
 ** should not be restricted and should be rendered normally.
 */
-int robot_restrict(const char *zPage){
-  const char *zGlob;
-  static int bKnownPass = 0;
-
+int robot_restrict(const char *zTag){
   if( robot.resultCache==KNOWN_NOT_ROBOT ) return 0;
-  if( bKnownPass ) return 0;
-  zGlob = db_get("robot-restrict",robot_restrict_default());
-  if( zGlob==0 || zGlob[0]==0 || fossil_strcmp(zGlob, "off")==0 ){
-    bKnownPass = 1;
-    return 0;   /* Robot restriction is turned off */
-  }
-  if( !glob_multi_match(zGlob, zPage) ) return 0;
+  if( !robot_restrict_has_tag(zTag) ) return 0;
   if( !client_might_be_a_robot() ) return 0;
 
   /* Generate the proof-of-work captcha */   
