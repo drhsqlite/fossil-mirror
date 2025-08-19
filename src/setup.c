@@ -513,7 +513,7 @@ void setup_robots(void){
   @ parameters are such that the page is particularly difficult to compute.
   @ In all other case, the tag should exactly match the page name.
   @
-  @ To disable robot restrictions, make this setting "none" or "off".
+  @ To disable robot restrictions, change this setting to "off".
   @ (Property: robot-restrict)
   @ <br>
   textarea_attribute("", 2, 80,

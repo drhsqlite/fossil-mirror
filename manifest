@@ -1,5 +1,5 @@
-C Documentation\supdate:\sMake\sthe\srobot-restrict\ssetting\s"none"\sor\s"off"\sto\ndisable\sall\srestrictions.
-D 2025-08-19T10:28:38.023
+C Make\s"off"\sthe\spreferred\sway\sto\sdiable\srobot-restrict
+D 2025-08-19T10:37:36.624
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -521,13 +521,13 @@ F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c a9aeacaa515f756f76b0d94c3971121093848145d0d109be511616e74372a50a
 F src/repolist.c 3a3fb5895bbc6a43b3a379d7419bc6cbb3b826e921475c15c2624b1bb76157f1
 F src/report.c f423bfbd6a88753fdb5b9b91c2f3a787f0db955400f67e46d1630633af8bb758
-F src/robot.c 445f984d8c74b3e56b9573b6d17770e784e557d66dcfe3028e37827fc94a67aa
+F src/robot.c f6aef12545bd08d3403c16475cd79c71d63de85530dc62e6d3cb55a405605e2b
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 82719ea2ad921d257a766fd6767ac401a638e2f290bc678f912e75218ab188ec
 F src/security_audit.c dc78230601d1eb4a2cb1440f91d83c9a56d1efebc9cde3c41da2e220c5a712a8
-F src/setup.c 962b5e5d61eeaeaf80629023c36d7c40211b3ac32fae824654c076363ecfe6c9
+F src/setup.c cb185153227faa9c132b6e4dc8f0e6f0b700121a76071e352174e039907a328a
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7d2b47a7c3f068ebf948e2545c996897d98d167c4dd021931f643f5a490bea78
-R fb156aae4707c2a084745b1ee0eb7bc4
+P 26a9b033363106853b846c005eeab6fd6f47db78b6b7c366a9d66fff13fcdfb5
+R 5ad584b648c0dbb78fdee2038dd802fe
 U drh
-Z 478e8b207ba44d2351160441db1fe814
+Z 40093361a7207ee6cf799bbb6c56ae21
 # Remove this line to create a well-formed Fossil manifest.

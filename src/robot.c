@@ -158,7 +158,7 @@ static int robot_proofofwork(void){
 ** particularly difficult to compute. In all other case, the tag should
 ** exactly match the page name.
 **
-** Make this setting "none" or "off" to disable all robot restrictions.
+** Change this setting "off" to disable all robot restrictions.
 */
 
 /*
@@ -184,7 +184,10 @@ int robot_restrict(const char *zPage){
   if( g.zLogin ) return 0;    /* Logged in users always get through */
   if( bKnownPass ) return 0;  /* Already known to pass robot restrictions */
   zGlob = db_get("robot-restrict",robot_restrict_default());
-  if( zGlob==0 || zGlob[0]==0 ){ bKnownPass = 1;  return 0; }
+  if( zGlob==0 || zGlob[0]==0 || fossil_strcmp(zGlob, "off")==0 ){
+    bKnownPass = 1;
+    return 0;   /* Robot restriction is turned off */
+  }
   if( !glob_multi_match(zGlob, zPage) ) return 0;
   zToken = P("token");
   if( zToken!=0
