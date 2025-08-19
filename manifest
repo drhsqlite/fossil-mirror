@@ -1,5 +1,5 @@
-C Refactor\sthe\scode\sin\srobot.c\sto\smake\sinterfaces\savailable\sto\sother\nparts\sof\sthe\ssystem.
-D 2025-08-19T15:42:13.327
+C Do\snot\sshow\sdiffs\son\sthe\s/vinfo\spage\sunless\swe\sknow\sthat\sthe\sclient\sis\nnot\sa\srobot.
+D 2025-08-19T16:02:27.112
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/http_socket.c db9603e27cbf4b41dae94d000acf3dbf1ecbb431ef0a24743aabd17e5467
 F src/http_ssl.c 5050cdd1441962f51762780cdd87b38c7281ecc6f4a65290acdaca318e9a4ca0
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 6997a6b6d9ca3d2cd5e79b2561aaad2582a78d7c6032c44a956c6bb611b59c34
-F src/info.c 189262a88c4ed0e97d6ae33c5f8d8288100bbdd426a7ef8ccd8bd0b5e711650b
+F src/info.c 17aaf5264ff584d678e4986da6ef07193a6b4ec29003a71758eff30c8ec77bbf
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 8375e3d570e779ccd619c4e44b9977db7e9acfa2a1e244288759457101911520
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3f6a6bdce421212ea8877e3692870b26e8813183700ac1cf3283f9cf4647a563
-R 33f66e4fe8e8d5eda38bea74ad19f81b
+P 4fa618faf1e70f8bca15e469a825f2a4a2ef0c5119a7ce76ed9f97ac11769cc1
+R 977a3ecf42f427bd17f0ee19abcd8df1
 U drh
-Z 0e2ba0ce8c4f53a84d00f07bf9f6727f
+Z 05e39d5aedbcaa2805704454e6996bcd
 # Remove this line to create a well-formed Fossil manifest.

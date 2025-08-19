@@ -1230,13 +1230,15 @@ void ci_page(void){
   }
   db_finalize(&q3);
   @ </div>
-  @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
-  @ document.getElementById('changes_section').textContent =  'Changes ' +
-  @   '(%d(g.diffCnt[0]) file' + (%d(g.diffCnt[0])===1 ? '' : 's') + ': ' +
-  @   '+%d(g.diffCnt[1]) ' +
-  @   '−%d(g.diffCnt[2]))'
-  @ </script>
-  append_diff_javascript(diffType);
+  if( diffType!=0 ){
+    @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
+    @ document.getElementById('changes_section').textContent =  'Changes ' +
+    @   '(%d(g.diffCnt[0]) file' + (%d(g.diffCnt[0])===1 ? '' : 's') + ': ' +
+    @   '+%d(g.diffCnt[1]) ' +
+    @   '−%d(g.diffCnt[2]))'
+    @ </script>
+    append_diff_javascript(diffType);
+  }
   style_finish_page();
 }
 
@@ -1928,14 +1930,27 @@ int object_description(
 */
 int preferred_diff_type(void){
   int dflt;
+  int res;
+  int isBot;
   static char zDflt[2]
     /*static b/c cookie_link_parameter() does not copy it!*/;
-  dflt = db_get_int("preferred-diff-type",-99);
-  if( dflt<=0 ) dflt = user_agent_is_likely_mobile() ? 1 : 2;
+  if( client_might_be_a_robot() ){
+    dflt = 0;
+    isBot = 1;
+  }else{
+    dflt = db_get_int("preferred-diff-type",-99);
+    if( dflt<=0 ) dflt = user_agent_is_likely_mobile() ? 1 : 2;
+    isBot = 0;
+  }
   zDflt[0] = dflt + '0';
   zDflt[1] = 0;
   cookie_link_parameter("diff","diff", zDflt);
-  return atoi(PD_NoBot("diff",zDflt));
+  res = atoi(PD_NoBot("diff",zDflt));
+  if( isBot && res>0 && robot_restrict("diff") ){
+    cgi_reply();
+    fossil_exit(0);
+  }
+  return res;
 }
 
 
