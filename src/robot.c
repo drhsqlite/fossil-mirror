@@ -33,28 +33,47 @@
 #endif
 
 /*
-** Rewrite the current page with a robot squelch captcha and return 1.
-**
-** Or, if valid proof-of-work is present as either a query parameter or
-** as a cookie, then return 0.
+** Values computed only once and then cached.
 */
-static int robot_proofofwork(void){
+static struct RobotCache {
+  unsigned int h1, h2;       /* Proof-of-work hash values */
+  unsigned int resultCache;  /* 0: unknown.  1: human  2: might-be-robot */
+} robot = { 0, 0, 0 };
+
+/*
+** Allowed values for robot.resultCache
+*/
+#define KNOWN_NOT_ROBOT  1
+#define MIGHT_BE_ROBOT   2
+
+/*
+** Compute two hashes, robot.h1 and robot.h2, that are used as
+** part of determining whether or not the HTTP client is a robot.
+** These hashes are based on current time, client IP address,
+** and User-Agent.  robot.h1 is for the current time slot and
+** robot.h2 is the previous.
+**
+** The hashes are integer values between 100,000,000 and 999,999,999
+** inclusive.
+*/
+static void robot_pow_hash(void){
+  const char *az[2], *z;
   sqlite3_int64 tm;
-  unsigned h1, h2, p1, p2, p3, p4, p5, k2, k3;
-  int k;
-  const char *z;
-  const char *az[2];
+  unsigned int h1, h2, k;
+
+  if( robot.h1 ) return;   /* Already computed */
 
   /* Construct a proof-of-work value based on the IP address of the
   ** sender and the sender's user-agent string.  The current time also
   ** affects the pow value, so actually compute two values, one for the
   ** current 900-second interval and one for the previous.  Either can
   ** match.  The pow-value is an integer between 100,000,000 and
-  ** 999,999,999. */
+  ** 999,999,999.
+  */
   az[0] = P("REMOTE_ADDR");
   az[1] = P("HTTP_USER_AGENT");
   tm = time(0);
-  h1 = (unsigned)((tm&0xffffffff) / 900);
+  h1 = (unsigned)(tm/900)&0xffffffff;
   h2 = h1 - 1;
   for(k=0; k<2; k++){
     z = az[k];
@@ -65,31 +84,117 @@ static int robot_proofofwork(void){
       z++;
     }
   }
-  h1 = (h1 % 900000000) + 100000000;
-  h2 = (h2 % 900000000) + 100000000;
+  robot.h1 = (h1 % 900000000) + 100000000;
+  robot.h2 = (h2 % 900000000) + 100000000;
+}
 
-  /* If there is already a proof-of-work cookie with this value
-  ** that means that the user agent has already authenticated.
+/*
+** Return true if the HTTP client has not demonstrated that it is
+** human interactive.  Return false is the HTTP client might be
+** a non-interactive robot.
+**
+** For this routine, any of the following is considered proof that
+** the HTTP client is not a robot:
+**
+**   1.   There is a valid login, including "anonymous".  User "nobody"
+**        is not a valid login, but every other user is.
+**
+**   2.   There exists a ROBOT_COOKIE with the correct proof-of-work
+**        value.
+**
+**   3.   There exists a proof=VALUE query parameter where VALUE is
+**        a correct proof-of-work value.
+**
+**   4.   There exists a valid token=VALUE query parameter.
+**
+** After being run once, this routine caches its findings and
+** returns very quickly on subsequent invocations.
+*/
+int client_might_be_a_robot(void){
+  const char *z;
+
+  /* Only do this computation once, then cache the results for future
+  ** use */
+  if( robot.resultCache ){
+    return robot.resultCache==MIGHT_BE_ROBOT;
+  }
+
+  /* Condition 1:  Is there a valid login?
+  */
+  if( g.userUid==0 ){
+    login_check_credentials();
+  }
+  if( g.zLogin!=0 ){
+    robot.resultCache = KNOWN_NOT_ROBOT;
+    return 0;
+  }
+
+  /* Condition 2:  If there is already a proof-of-work cookie
+  ** with a correct value, then the user agent has been authenticated.
   */
   z = P(ROBOT_COOKIE);
-  if( z
-   && (atoi(z)==h1 || atoi(z)==h2)
-   && !cgi_is_qp(ROBOT_COOKIE) ){
-    return 0;
+  if( z ){
+    unsigned h = atoi(z);
+    robot_pow_hash();
+    if( (h==robot.h1 || h==robot.h2) && !cgi_is_qp(ROBOT_COOKIE) ){
+      robot.resultCache = KNOWN_NOT_ROBOT;
+      return 0;
+    }
   }
 
-  /* Check for a proof query parameter.  If found, that means that
-  ** the captcha has just now passed, so set the proof-of-work cookie
-  ** in addition to letting the request through.
+  /* Condition 3:  There is a "proof=VALUE" query parameter with a valid
+  ** VALUE attached.  If this is the case, also set the robot cookie
+  ** so that future requests will hit condition 2 above.
   */
   z = P("proof");
-  if( z
-   && (atoi(z)==h1 || atoi(z)==h2)
-  ){
-    cgi_set_cookie(ROBOT_COOKIE,z,"/",900);
-    return 0;
+  if( z ){
+    unsigned h = atoi(z);
+    robot_pow_hash();
+    if( h==robot.h1 || h==robot.h2 ){
+      cgi_set_cookie(ROBOT_COOKIE,z,"/",900);
+      robot.resultCache = KNOWN_NOT_ROBOT;
+      return 0;
+    }
+    cgi_tag_query_parameter("proof");
   }
-  cgi_tag_query_parameter("proof");
+
+  /* Condition 4:  If there is a "token=VALUE" query parameter with a
+  ** valid VALUE argument, then assume that the request is coming from
+  ** either an interactive human session, or an authorized robot that we
+  ** want to treat as human.  All it through and also set the robot cookie.
+  */
+  z = P("token");
+  if( z!=0 ){
+    if( db_exists("SELECT 1 FROM config"
+                  " WHERE name='token-%q'"
+                  "   AND json_valid(value,6)"
+                  "   AND value->>'user' IS NOT NULL", z)
+    ){
+      char *zVal;
+      robot_pow_hash();
+      zVal = mprintf("%u", robot.h1);
+      cgi_set_cookie(ROBOT_COOKIE,zVal,"/",900);
+      fossil_free(zVal);
+      robot.resultCache = KNOWN_NOT_ROBOT;
+      return 0;                /* There is a valid token= query parameter */
+    }
+    cgi_tag_query_parameter("token");
+  }
+
+  /* We have no proof that the request is coming from an interactive
+  ** human session, so assume the request comes from a robot.
+  */
+  robot.resultCache = MIGHT_BE_ROBOT;
+  return 1;
+}
+
+/*
+** Rewrite the current page with content that attempts
+** to prove that the client is not a robot.
+*/
+static void ask_for_proof_that_client_is_not_robot(void){
+  unsigned p1, p2, p3, p4, p5, k2, k3;
+  int k;
 
   /* Ask the client to present proof-of-work */
   cgi_reset_content();
@@ -126,11 +231,12 @@ static int robot_proofofwork(void){
   @ aaa("x1").textContent="Access Denied";\
   @ }\
   @ }\
-  k = 400 + h2%299;
-  k2 = (h2/299)%99 + 973;
-  k3 = (h2/(299*99))%99 + 811;
+  robot_pow_hash();
+  k = 400 + robot.h2%299;
+  k2 = (robot.h2/299)%99 + 973;
+  k3 = (robot.h2/(299*99))%99 + 811;
   p1 = (k*k + k)/2;
-  p2 = h1-p1;
+  p2 = robot.h1-p1;
   p3 = p2%k2;
   p4 = (p2/k2)%k3;
   p5 = p2/(k2*k3);
@@ -139,7 +245,6 @@ static int robot_proofofwork(void){
   @ bbb(ccc(%u(p5),%u(p4),%u(p3)),%u(k));},false);
   @ </script>
   style_finish_page();
-  return 1;
 }
 
 /*
@@ -179,35 +284,22 @@ const char *robot_restrict_default(void){
 */
 int robot_restrict(const char *zPage){
   const char *zGlob;
-  const char *zToken;
   static int bKnownPass = 0;
-  if( g.zLogin ) return 0;    /* Logged in users always get through */
-  if( bKnownPass ) return 0;  /* Already known to pass robot restrictions */
+
+  if( robot.resultCache==KNOWN_NOT_ROBOT ) return 0;
+  if( bKnownPass ) return 0;
   zGlob = db_get("robot-restrict",robot_restrict_default());
   if( zGlob==0 || zGlob[0]==0 || fossil_strcmp(zGlob, "off")==0 ){
     bKnownPass = 1;
     return 0;   /* Robot restriction is turned off */
   }
   if( !glob_multi_match(zGlob, zPage) ) return 0;
-  zToken = P("token");
-  if( zToken!=0
-   && db_exists("SELECT 1 FROM config"
-                " WHERE name='token-%q'"
-                "   AND json_valid(value,6)"
-                "   AND value->>'user' IS NOT NULL", zToken)
-  ){
-    bKnownPass = 1;
-    return 0;                /* There is a valid token= query parameter */
-  }
-  if( robot_proofofwork() ){
-    /* A captcha was generated.  Abort this page.  A redirect will occur
-    ** if the captcha passes. */
-    return 1;
-  }
-  bKnownPass = 1;
-  return 0;
-}
+  if( !client_might_be_a_robot() ) return 0;
 
+  /* Generate the proof-of-work captcha */   
+  ask_for_proof_that_client_is_not_robot();
+  return 1;
+}
 
 /*
 ** WEBPAGE: test-robotck
@@ -242,9 +334,27 @@ void robot_restrict_test_page(void){
     @ %h(ROBOT_COOKIE)=%h(zP2)<br>
     cgi_set_cookie(ROBOT_COOKIE,"",0,-1);
   }
-  z = db_get("robot-restrict",robot_restrict_default());
-  if( z && z[0] ){
-    @ robot-restrict=%h(z)</br>
+  if( g.perm.Admin ){
+    z = db_get("robot-restrict",robot_restrict_default());
+    if( z && z[0] ){
+      @ robot-restrict=%h(z)</br>
+    }
+    @ robot.h1=%u(robot.h1)<br>
+    @ robot.h2=%u(robot.h2)<br>
+    switch( robot.resultCache ){
+      case MIGHT_BE_ROBOT: {
+        @ robot.resultCache=MIGHT_BE_ROBOT<br>
+        break;
+      }
+      case KNOWN_NOT_ROBOT: {
+        @ robot.resultCache=KNOWN_NOT_ROBOT<br>
+        break;
+      }
+      default: {
+        @ robot.resultCache=OTHER (%d(robot.resultCache))<br>
+        break;
+      }
+    }
   }
   @ </p>
   @ <p><a href="%R/test-robotck/%h(zName)">Retry</a>
