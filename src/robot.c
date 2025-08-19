@@ -215,10 +215,10 @@ static void ask_for_proof_that_client_is_not_robot(void){
   @ aaa("x4").value=h;\
   @ if((a%%75)==0){\
   @ aaa("x2").textContent=aaa("x2").textContent+".";\
-  @ }\
+  @ }var z;\
   @ if(a>0){\
   @ setTimeout(bbb,1,h+a,a-1);\
-  @ }else if(window.getComputedStyle(document.body).zIndex==='0'){\
+  @ }else if((z=window.getComputedStyle(document.body).zIndex)==='0'||z===0){\
   @ aaa("x3").style.visibility="visible";\
   @ aaa("x2").textContent="";\
   @ aaa("x1").textContent="All clear";\

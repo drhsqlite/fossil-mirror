@@ -20,7 +20,8 @@
 var antiRobot = 0;
 function antiRobotGo(){
   if( antiRobot!=3 ) return;
-  if( window.getComputedStyle(document.body).zIndex==='0' ){
+  var z = window.getComputedStyle(document.body).zIndex;
+  if( z==='0' || z===0 ){
     antiRobot = 7;
     var anchors = document.getElementsByTagName("a");
     for(var i=0; i<anchors.length; i++){
