@@ -4,7 +4,7 @@
    (2) skin-specific CSS.
 */
 body {
-  z-index: 0 /* part of robot.c:robot_proofofwork() */;
+  z-index: 0 /* Used by robot.c:robot_proofofwork() and href.js */;
 }
 div.sidebox {
   float: right;
