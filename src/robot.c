@@ -254,7 +254,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** should be disallowed.  "Unauthenticated" means the user is "nobody".
 ** The recommended value for this setting is:
 **
-**     timelineX,diff,annotate,zip,fileage,file
+**     timelineX,diff,annotate,zip,fileage,file,finfo
 **
 ** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and
 ** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
@@ -270,7 +270,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** Return the default restriction GLOB
 */
 const char *robot_restrict_default(void){
-  return "timelineX,diff,annotate,zip,fileage,file";
+  return "timelineX,diff,annotate,zip,fileage,file,finfo";
 }
 
 /*

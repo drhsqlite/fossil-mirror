@@ -1972,6 +1972,7 @@ void page_timeline(void){
   if( zUses!=0 ){
     int ufid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUses);
     if( ufid ){
+      if( robot_restrict("timelineX") ) return;
       zUses = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", ufid);
       db_multi_exec("CREATE TEMP TABLE usesfile(rid INTEGER PRIMARY KEY)");
       compute_uses_file("usesfile", ufid, 0);
