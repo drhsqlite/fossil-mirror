@@ -155,9 +155,10 @@ static int robot_proofofwork(void){
 ** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
 ** also covers /tarball and /sqlar.  If a tag has an "X" character appended,
 ** then it only applies if query parameters are such that the page is
-** particularly difficult to compute.
+** particularly difficult to compute. In all other case, the tag should
+** exactly match the page name.
 **
-** In all other case, the tag should exactly match the page name.
+** Make this setting "none" or "off" to disable all robot restrictions.
 */
 
 /*
