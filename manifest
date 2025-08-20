@@ -1,5 +1,5 @@
-C Performance\soptimization\sin\sTh_RenderToBlob().
-D 2025-08-20T00:03:06.576
+C When\sappending\sthe\sssh\ssignature,\suse\sa\smore\sdirect\sfunction\swith\sthe\ssame\sresult.
+D 2025-08-20T15:02:58.979
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -401,7 +401,7 @@ F src/chat.c cbbc84da0bffbf26964156c735c7fdae0c149795b254b4d003d8746073fa7333
 F src/checkin.c 8be7561beca6e096cc7975b054cda8cd7621df2faea7fe40459271e4eeb808ca
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
-F src/clearsign.c e347746a3c75810bc5b4b5dc7ca8eae4017ec8576ceefbe36377620174fbab6f
+F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
 F src/clone.c 34b09841124259f0446ea520c3e407df476552ebdbcbf003e143ed7ac152f911
 F src/color.c cbe8fb7c03c07735b13449a8384c466ddd93306af7bf63176414cf6fd1e144b9
 F src/comformat.c cc02fc5b7ed26184ecb25b150d4fdf57df68cf7a852adacbeccd5e6dd07019ab
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 118540fa8403265197c1b97cb04d12aa7a7eaf193c047d6f86967d0bd4161d58
-R a9abd7bb4ba7dee5124648a82c2105f8
-U drh
-Z f363964a841504f8199def3af17cd4d2
+P b853b5d47115b990d21ce3a5d3e3a47526c9dfe606369beeba472082a82dda16
+R 22aa4928dc03d2a1323050ee8b103b0a
+U danield
+Z ec7f0880ca3164db1129776b857317a5
 # Remove this line to create a well-formed Fossil manifest.
