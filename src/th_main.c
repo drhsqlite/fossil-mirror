@@ -2967,7 +2967,7 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
       if( z[0] ){ z += 6; }
       i = 0;
     }else{
-      i++;
+      i += strcspn(&z[i+1], "<$") + 1;
     }
   }
   if( rc==TH_ERROR ){

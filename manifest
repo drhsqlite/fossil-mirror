@@ -1,5 +1,5 @@
-C Do\snot\sduplicate\sthe\s"name"\squery\sparameter\sin\sthe\srobot.c\scaptcha.
-D 2025-08-19T22:55:50.986
+C Performance\soptimization\sin\sTh_RenderToBlob().
+D 2025-08-20T00:03:06.576
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -573,7 +573,7 @@ F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd7
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
-F src/th_main.c 471b6d6607419feabe2603f6605d0ed0e50f2b3068ce83978a7b86a3bfdfe7ac
+F src/th_main.c 2aed7eb334a85abb4de06a81c6865f898ad6f78aec175e01837e2d49af4779f4
 F src/th_tcl.c 155a9da56128dce97714194089e81f08bf5628f8227e93fa9291197ae92ce9a4
 F src/timeline.c 3c97a2fc5f647f98d200ffd4e0da0795ebb9a1a6009272930deaa1e808c03b8f
 F src/tkt.c 232d797230d961988a35410d90a9cf723fa84f64c9abdf51c0635944bee8558a
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4e73f314739095fe3aff4bd02d7510c578818b6b160177b2c909c0d298db0d28
-R f056c4574e92acbf064b8b704ea8b1ad
+P 118540fa8403265197c1b97cb04d12aa7a7eaf193c047d6f86967d0bd4161d58
+R a9abd7bb4ba7dee5124648a82c2105f8
 U drh
-Z bdca035bba40512ff1a0328ac4ed48c2
+Z f363964a841504f8199def3af17cd4d2
 # Remove this line to create a well-formed Fossil manifest.
