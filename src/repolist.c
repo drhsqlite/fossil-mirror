@@ -249,7 +249,7 @@ int repo_list_page(void){
           || sqlite3_strglob("[a-zA-Z]:/*", zName)==0
 #endif
       ){
-        zFull = mprintf("%s", zName);
+        zFull = fossil_strdup(zName);
       }else if ( allRepo ){
         zFull = mprintf("/%s", zName);
       }else{
@@ -259,8 +259,8 @@ int repo_list_page(void){
       remote_repo_info(&x);
       if( x.isRepolistSkin ){
         if( zSkinRepo==0 ){
-          zSkinRepo = mprintf("%s", x.zRepoName);
-          zSkinUrl = mprintf("%s", zUrl);
+          zSkinRepo = fossil_strdup(x.zRepoName);
+          zSkinUrl = fossil_strdup(zUrl);
         }
       }
       fossil_free(zFull);

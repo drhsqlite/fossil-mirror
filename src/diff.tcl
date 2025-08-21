@@ -283,8 +283,8 @@ proc readDiffs {fossilcmd redo} {
     }
     $c config -state disabled
   }
+  .wfiles.lb config -height $nDiffs
   if {$nDiffs <= [.wfiles.lb cget -height]} {
-    .wfiles.lb config -height $nDiffs
     grid remove .wfiles.sb
   }
 

@@ -228,7 +228,7 @@ static char *persistBranchName(GraphContext *p, const char *zBranch){
   }
   p->nBranch++;
   p->azBranch = fossil_realloc(p->azBranch, sizeof(char*)*p->nBranch);
-  p->azBranch[p->nBranch-1] = mprintf("%s", zBranch);
+  p->azBranch[p->nBranch-1] = fossil_strdup(zBranch);
   return p->azBranch[p->nBranch-1];
 }
 

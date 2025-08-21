@@ -966,7 +966,7 @@ void cgi_setenv(const char *zName, const char *zValue){
 **         environment variables always have uppercase names.
 **
 ** 2018-03-29:  Also ignore the entry if NAME that contains any characters
-** other than [a-zA-Z0-9_].  There are no known exploits involving unusual
+** other than [-a-zA-Z0-9_].  There are no known exploits involving unusual
 ** names that contain characters outside that set, but it never hurts to
 ** be extra cautious when sanitizing inputs.
 **
@@ -1282,23 +1282,28 @@ void cgi_trace(const char *z){
 static NORETURN void malformed_request(const char *zMsg, ...);
 
 /*
-** Checks the QUERY_STRING environment variable, sets it up
-** via add_param_list() and, if found, applies its "skin"
-** setting. Returns 0 if no QUERY_STRING is set, 1 if it is,
-** and 2 if it sets the skin (in which case the cookie may
-** still need flushing by the page, via cookie_render()).
+** Checks the QUERY_STRING environment variable, sets it up via
+** add_param_list() and, if found, applies its "skin" setting. Returns
+** 0 if no QUERY_STRING is set, else it returns a bitmask of:
+**
+** 0x01 = QUERY_STRING was set up
+** 0x02 = "skin" URL param arg was processed
+** 0x04 = "x-f-l-c" cookie arg was processed.
+**
+*  In the case of the skin, the cookie may still need flushing
+** by the page, via cookie_render().
 */
 int cgi_setup_query_string(void){
   int rc = 0;
   char * z = (char*)P("QUERY_STRING");
   if( z ){
-    ++rc;
+    rc = 0x01;
     z = fossil_strdup(z);
     add_param_list(z, '&');
     z = (char*)P("skin");
     if( z ){
       char *zErr = skin_use_alternative(z, 2, SKIN_FROM_QPARAM);
-      ++rc;
+      rc |= 0x02;
       if( !zErr && P("once")==0 ){
         cookie_write_parameter("skin","skin",z);
         /* Per /chat discussion, passing ?skin=... without "once"
@@ -1308,6 +1313,14 @@ int cgi_setup_query_string(void){
       }
       fossil_free(zErr);
     }
+  }
+  if( !g.syncInfo.zLoginCard && 0!=(z=(char*)P("x-f-l-c")) ){
+    /* x-f-l-c (X-Fossil-Login-Card card transmitted via cookie
+    ** instead of in the sync payload. */
+    rc |= 0x04;
+    g.syncInfo.zLoginCard = fossil_strdup(z);
+    g.syncInfo.fLoginCardMode |= 0x02;
+    cgi_delete_parameter("x-f-l-c");
   }
   return rc;
 }
@@ -1600,6 +1613,21 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   }
   CGIDEBUG(("no-match [%s]\n", zName));
   return zDefault;
+}
+
+/*
+** Return TRUE if the specific parameter exists and is a query parameter.
+** Return FALSE if the parameter is a cookie or environment variable.
+*/
+int cgi_is_qp(const char *zName){
+  int i;
+  if( zName==0 || fossil_isupper(zName[0]) ) return 0;
+  for(i=0; i<nUsedQP; i++){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
+      return aParamQP[i].isQP;
+    }
+  }
+  return 0;
 }
 
 /*
@@ -2127,6 +2155,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
   g.zReqType = "HTTP";
+
   if( cgi_fgets(zLine, sizeof(zLine))==0 ){
     malformed_request("missing header");
   }
@@ -2162,7 +2191,6 @@ void cgi_handle_http_request(const char *zIpAddr){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
     g.zIpAddr = fossil_strdup(zIpAddr);
   }
-
 
   /* Get all the optional fields that follow the first line.
   */

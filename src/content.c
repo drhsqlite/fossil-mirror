@@ -602,6 +602,7 @@ int content_put_ex(
     db_exec(&s1);
     rid = db_last_insert_rowid();
     if( !pBlob ){
+      assert(!"cannot happen: pBlob is always non-NULL");
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
   }

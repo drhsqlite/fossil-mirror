@@ -2972,6 +2972,7 @@ int *text_diff(
 ){
   int ignoreWs; /* Ignore whitespace */
   DContext c;
+  int nDel = 0, nIns = 0;
 
   if( pCfg->diffFlags & DIFF_INVERT ){
     Blob *pTemp = pA_Blob;
@@ -3051,17 +3052,22 @@ int *text_diff(
     }
   }
 
+  if( pCfg->diffFlags & DIFF_NUMSTAT ){
+    int i;
+    for(i=0; c.aEdit[i] || c.aEdit[i+1] || c.aEdit[i+2]; i+=3){
+      nDel += c.aEdit[i+1];
+      nIns += c.aEdit[i+2];
+    }
+    g.diffCnt[1] += nIns;
+    g.diffCnt[2] += nDel;
+    if( nIns+nDel ){
+      g.diffCnt[0]++;
+    }
+  }
+
   if( pOut ){
-    if( pCfg->diffFlags & DIFF_NUMSTAT ){
-      int nDel = 0, nIns = 0, i;
-      for(i=0; c.aEdit[i] || c.aEdit[i+1] || c.aEdit[i+2]; i+=3){
-        nDel += c.aEdit[i+1];
-        nIns += c.aEdit[i+2];
-      }
-      g.diffCnt[1] += nIns;
-      g.diffCnt[2] += nDel;
+    if( pCfg->diffFlags & DIFF_NUMSTAT && !(pCfg->diffFlags & DIFF_HTML)){
       if( nIns+nDel ){
-        g.diffCnt[0]++;
         if( !(pCfg->diffFlags & DIFF_BRIEF) ){
           blob_appendf(pOut, "%10d %10d", nIns, nDel);
         }
@@ -3668,8 +3674,8 @@ void annotation_page(void){
 
   /* Gather query parameters */
   login_check_credentials();
-  if( !g.perm.Read || g.zLogin==0 ){ login_needed(g.anon.Read); return; }
-  if( exclude_spiders(0) ) return;
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  if( robot_restrict("annotate") ) return;
   fossil_nice_default();
   zFilename = P("filename");
   zRevision = PD("checkin",0);

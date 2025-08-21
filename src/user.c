@@ -111,6 +111,8 @@ void freepass(){
   if( !zPwdBuffer ) return;
   assert( nPwdBuffer>0 );
   fossil_secure_free_page(zPwdBuffer, nPwdBuffer);
+  zPwdBuffer = 0;
+  nPwdBuffer = 0;
 }
 #endif
 
@@ -288,9 +290,8 @@ char *prompt_for_user_password(const char *zUser){
   Blob x;
   fossil_force_newline();
   prompt_for_password(zPrompt, &x, 0);
-  free(zPrompt);
-  zPw = mprintf("%b", &x);
-  blob_reset(&x);
+  fossil_free(zPrompt);
+  zPw = blob_str(&x)/*transfer ownership*/;
   return zPw;
 }
 
@@ -467,7 +468,7 @@ void user_cmd(void){
       db_multi_exec("UPDATE user SET pw=%Q, mtime=now() WHERE uid=%d",
                     zSecret, uid);
       db_protect_pop();
-      free(zSecret);
+      fossil_free(zSecret);
     }
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
     int uid;
@@ -523,7 +524,7 @@ static int attempt_user(const char *zLogin){
   uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zLogin);
   if( uid ){
     g.userUid = uid;
-    g.zLogin = mprintf("%s", zLogin);
+    g.zLogin = fossil_strdup(zLogin);
     return 1;
   }
   return 0;
