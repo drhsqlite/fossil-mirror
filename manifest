@@ -1,5 +1,5 @@
-C Add\s/reports\sto\sthe\sdefault\srobot-restrict\ssetting.
-D 2025-08-21T14:13:51.490
+C Avoid\sexcess\sbackslash\sexcaping\sin\stext\sin\sthe\snew\srobot-exception\ssetup.
+D 2025-08-21T14:16:43.746
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -527,7 +527,7 @@ F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 82719ea2ad921d257a766fd6767ac401a638e2f290bc678f912e75218ab188ec
 F src/security_audit.c dc78230601d1eb4a2cb1440f91d83c9a56d1efebc9cde3c41da2e220c5a712a8
-F src/setup.c 9cbe65714059b7b38dccc20886ce14f9176bd60b8e2bfc5561bd40512cde8b9f
+F src/setup.c 2d5dedf8752ffae46fed675e42b156d87fdb5590ec3a334d9c6c8a101101d31e
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86b6ef7fe3424284a38f9706482c58b4e65bd39d2f57ee0bdeb52065440e37a6
-R 5f04ca9a889b6cb77e735e24ae8fe8cb
-U stephan
-Z 685120a451eca0bfbee3bf0630ebb7a8
+P 12d871a00a39c81bf1555be15bf5fdfc0e4e069ebc05a1732efeaffe2b98cdc7
+R b8dc65bb5c072253dfe5b356d2793a5f
+U drh
+Z 5a1489523e639fae3ba5a52cb4ab0f06
 # Remove this line to create a well-formed Fossil manifest.
