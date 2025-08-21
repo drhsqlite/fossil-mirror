@@ -498,7 +498,7 @@ static void zip_add_folders(Archive *p, char *zName){
       if( j>=nDir ){
         nDir++;
         azDir = fossil_realloc(azDir, sizeof(azDir[0])*nDir);
-        azDir[j] = mprintf("%s", zName);
+        azDir[j] = fossil_strdup(zName);
         zip_add_file(p, zName, 0, 0);
       }
       zName[i+1] = c;
@@ -1014,6 +1014,7 @@ void baseline_zip_page(void){
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
+  if( robot_restrict("zip") ) return;
   if( fossil_strcmp(g.zPath, "sqlar")==0 ){
     eType = ARCHIVE_SQLAR;
     zType = "SQL";

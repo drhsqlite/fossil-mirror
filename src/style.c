@@ -480,7 +480,7 @@ static void image_url_var(const char *zImageName){
 ** Javascript module, and generates HTML elements with the following IDs:
 **
 **    TARGETID:       The <span> wrapper around TEXT.
-**    copy-TARGETID:  The <span> for the copy button.
+**    copy-TARGETID:  The <button> for the copy button.
 **
 ** If the FLIPPED argument is non-zero, the copy button is displayed after TEXT.
 **
@@ -512,14 +512,16 @@ char *style_copy_button(
   if( !bFlipped ){
     const char *zBtnFmt =
       "<span class=\"nobr\">"
-      "<span "
-      "class=\"copy-button\" "
-      "id=\"copy-%h\" "
-      "data-copytarget=\"%h\" "
-      "data-copylength=\"%d\">"
-      "</span>"
+      "<button "
+          "class=\"copy-button\" "
+          "id=\"copy-%h\" "
+          "data-copytarget=\"%h\" "
+          "data-copylength=\"%d\">"
+        "<span>"
+        "</span>"
+      "</button>"
       "<span id=\"%h\">"
-      "%s"
+        "%s"
       "</span>"
       "</span>";
     if( bOutputCGI ){
@@ -535,14 +537,16 @@ char *style_copy_button(
     const char *zBtnFmt =
       "<span class=\"nobr\">"
       "<span id=\"%h\">"
-      "%s"
+        "%s"
       "</span>"
-      "<span "
-      "class=\"copy-button copy-button-flipped\" "
-      "id=\"copy-%h\" "
-      "data-copytarget=\"%h\" "
-      "data-copylength=\"%d\">"
-      "</span>"
+      "<button "
+          "class=\"copy-button copy-button-flipped\" "
+          "id=\"copy-%h\" "
+          "data-copytarget=\"%h\" "
+          "data-copylength=\"%d\">"
+        "<span>"
+        "</span>"
+      "</button>"
       "</span>";
     if( bOutputCGI ){
       cgi_printf(
@@ -1389,51 +1393,6 @@ void page_test_env(void){
 }
 
 /*
-** WEBPAGE: honeypot
-** This page is a honeypot for spiders and bots.
-*/
-void honeypot_page(void){
-  unsigned int uSeed = captcha_seed();
-  const char *zDecoded = captcha_decode(uSeed, 0);
-  int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
-  char *zCaptcha = captcha_render(zDecoded);
-  style_header("I think you are a robot");
-  @ <p>You seem like a robot.</p>
-  @
-  @ <p>Is that incorrect?  Are you really human?
-  @ If so, please prove it by transcribing the captcha text
-  @ into the entry box below and pressing "Submit".
-  @ <form action="%R/login" method="post">
-  @ <input type="hidden" id="u" name="u" value="anonymous">
-  @ <p>
-  @ Captcha: <input type="text" id="p" name="p" value="">
-  @ <input type="submit" name="in" value="Submit">
-  @ 
-  @ <p>Alternatively, you can <a href="%R/login">log in</a> using an
-  @ existing userid.
-  @
-  @ <p><input type="hidden" name="cs" value="%u(uSeed)">
-  @ <div class="captcha"><table class="captcha"><tr><td>\
-  @ <pre class="captcha">
-  @ %h(zCaptcha)
-  @ </pre></td></tr></table>
-  if( bAutoCaptcha ) {
-     @ <input type="button" value="Fill out captcha" id='autofillButton' \
-     @ data-af='%s(zDecoded)'>
-     builtin_request_js("login.js");
-  }
-  @ </div>
-  free(zCaptcha);
-  @
-  @ <p>We regret this inconvenience. However, robots have become so
-  @ prolific and so aggressive that they will soak up too much CPU time
-  @ and network bandwidth on our servers if allowed to run unchecked.
-  @ Your cooperation in demonstrating that you are human is
-  @ appreciated.
-  style_finish_page();
-}
-
-/*
 ** Webpages that encounter an error due to missing or incorrect
 ** query parameters can jump to this routine to render an error
 ** message screen.
@@ -1485,7 +1444,7 @@ void webpage_error(const char *zFormat, ...){
     @ g.zPath = %h(g.zPath)<br>
     @ g.userUid = %d(g.userUid)<br>
     @ g.zLogin = %h(g.zLogin)<br>
-    @ g.isHuman = %d(g.isHuman)<br>
+    @ g.isRobot = %d(g.isRobot)<br>
     @ g.jsHref = %d(g.jsHref)<br>
     if( g.zLocalRoot ){
       @ g.zLocalRoot = %h(g.zLocalRoot)<br>

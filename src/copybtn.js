@@ -1,17 +1,17 @@
 /* Manage "Copy Buttons" linked to target elements, to copy the text (or, parts
 ** thereof) of the target elements to the clipboard.
 **
-** Newly created buttons are <span> elements with an SVG background icon,
-** defined by the "copy-button" class in the default CSS style sheet, and are
-** assigned the element ID "copy-<idTarget>".
-**
-** To simplify customization, the only properties modified for HTML-defined
-** buttons are the "onclick" handler, and the "transition" and "opacity" styles
-** (used for animation).
+** Newly created buttons are <button> elements plus a nested <span> element with
+** an SVG background icon, defined by the "copy-button" class in the default CSS
+** style sheet, and are assigned the element ID "copy-<idTarget>".
 **
 ** For HTML-defined buttons, either initCopyButtonById(), or initCopyButton(),
 ** needs to be called to attach the "onclick" handler (done automatically from
-** a handler attached to the "DOMContentLoaded" event).
+** a handler attached to the "DOMContentLoaded" event). These functions create
+** the nested <span> element if the <button> element has no child nodes. Using
+** static HTML for the <span> element ensures the buttons are visible if there
+** are script errors, which may be useful for Fossil JS hackers (as good parts
+** of the Fossil web UI come down on JS errors, anyway).
 **
 ** The initialization functions do not overwrite the "data-copytarget" and
 ** "data-copylength" attributes with empty or null values for <idTarget> and
@@ -20,11 +20,13 @@
 **
 ** HTML snippet for statically created buttons:
 **
-**    <span class="copy-button" id="copy-<idTarget>"
-**      data-copytarget="<idTarget>" data-copylength="<cchLength>"></span>
+**    <button class="copy-button" id="copy-<idTarget>"
+**        data-copytarget="<idTarget>" data-copylength="<cchLength>">
+**      <span></span>
+**    </button>
 */
 function makeCopyButton(idTarget,bFlipped,cchLength){
-  var elButton = document.createElement("span");
+  var elButton = document.createElement("button");
   elButton.className = "copy-button";
   if( bFlipped ) elButton.className += " copy-button-flipped";
   elButton.id = "copy-" + idTarget;
@@ -38,11 +40,14 @@ function initCopyButtonById(idButton,idTarget,cchLength){
   return elButton;
 }
 function initCopyButton(elButton,idTarget,cchLength){
-  elButton.style.transition = "";
-  elButton.style.opacity = 1;
   if( idTarget ) elButton.setAttribute("data-copytarget",idTarget);
   if( cchLength ) elButton.setAttribute("data-copylength",cchLength);
   elButton.onclick = clickCopyButton;
+  /* Make sure the <button> contains a single nested <span>. */
+  if( elButton.childElementCount!=1 || elButton.firstChild.tagName!="SPAN" ){
+    while( elButton.firstChild ) elButton.removeChild(elButton.lastChild);
+    elButton.appendChild(document.createElement("span"));
+  }
   return elButton;
 }
 setTimeout(function(){
@@ -55,10 +60,7 @@ setTimeout(function(){
 function clickCopyButton(e){
   e.preventDefault();   /* Mandatory for <a> and <button>. */
   e.stopPropagation();
-  if( this.getAttribute("data-copylocked") ) return;
-  this.setAttribute("data-copylocked","1");
-  this.style.transition = "opacity 400ms ease-in-out";
-  this.style.opacity = 0;
+  if( this.disabled ) return;   /* This check is probably redundant. */
   var idTarget = this.getAttribute("data-copytarget");
   var elTarget = document.getElementById(idTarget);
   if( elTarget ){
@@ -69,11 +71,6 @@ function clickCopyButton(e){
     }
     copyTextToClipboard(text);
   }
-  setTimeout(function(){
-    this.style.transition = "";
-    this.style.opacity = 1;
-    this.removeAttribute("data-copylocked");
-  }.bind(this),400);
 }
 /* Create a temporary <textarea> element and copy the contents to clipboard. */
 function copyTextToClipboard(text){

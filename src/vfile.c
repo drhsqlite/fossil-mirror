@@ -645,7 +645,7 @@ int vfile_dir_scan(
         if( pEntry->d_name[1]==0 ) continue;
         if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
       }
-      zOrigPath = mprintf("%s", blob_str(pPath));
+      zOrigPath = fossil_strdup(blob_str(pPath));
       zUtf8 = fossil_path_to_utf8(pEntry->d_name);
       blob_appendf(pPath, "/%s", zUtf8);
       zPath = blob_str(pPath);
@@ -659,7 +659,7 @@ int vfile_dir_scan(
       }else if( file_isdir(zPath, eFType)==1 ){
 #endif
         if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
-          char *zSavePath = mprintf("%s", zPath);
+          char *zSavePath = fossil_strdup(zPath);
           int count = vfile_dir_scan(pPath, nPrefix, scanFlags, pIgnore1,
                                      pIgnore2, eFType);
           db_bind_text(&ins, ":file", &zSavePath[nPrefix+1]);

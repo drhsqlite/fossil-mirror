@@ -903,6 +903,48 @@ void test_random_password(void){
 }
 
 /*
+** Generate a version 4 ("random"), variant 1 UUID (RFC 9562, Section 5.4).
+**
+** Format: xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx
+**           where  M=4  and  N=8, 9, a, or b    (this leaves 122 random bits)
+*/
+char* fossil_generate_uuid() {
+  static const char zDigits[] = "0123456789abcdef";
+  unsigned char aBlob[16];
+  unsigned char zStr[37];
+  unsigned char *p = zStr;
+  int i, k;
+
+  sqlite3_randomness(16, aBlob);
+  aBlob[6] = (aBlob[6]&0x0f) + 0x40; /* Version byte:  0100 xxxx */
+  aBlob[8] = (aBlob[8]&0x3f) + 0x80; /* Variant byte:  1000 xxxx */
+
+  for(i=0, k=0x550; i<16; i++, k=k>>1){
+    if( k&1 ){
+      *p++ = '-';                    /* Add a dash after byte 4, 6, 8, and 12 */
+    }
+    *p++ = zDigits[aBlob[i]>>4];
+    *p++ = zDigits[aBlob[i]&0xf];
+  }
+  *p = 0;
+
+  return fossil_strdup((char*)zStr);
+}
+
+/*
+** COMMAND: test-generate-uuid
+**
+** Usage: %fossil test-generate-uuid
+**
+** Generate a version 4 ("random"), variant 1 UUID (RFC 9562, Section 5.4):
+**
+**     xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx  - where  M=4  and  N=8, 9, a, or b
+*/
+void test_generate_uuid(void){
+  fossil_print("%s\n", fossil_generate_uuid());
+}
+
+/*
 ** Return the number of decimal digits in a nonnegative integer.  This is useful
 ** when formatting text.
 */

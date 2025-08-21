@@ -124,6 +124,9 @@ typedef sqlite3_uint64 u64;
 typedef unsigned char u8;
 #include <ctype.h>
 #include <stdarg.h>
+#ifndef _WIN32
+# include <sys/time.h>
+#endif
 
 #if !defined(_WIN32) && !defined(WIN32)
 # include <signal.h>
@@ -648,20 +651,23 @@ static int cli_strncmp(const char *a, const char *b, size_t n){
   return strncmp(a,b,n);
 }
 
-/* Return the current wall-clock time */
+/* Return the current wall-clock time in microseconds since the
+** Unix epoch (1970-01-01T00:00:00Z)
+*/
 static sqlite3_int64 timeOfDay(void){
-  static sqlite3_vfs *clockVfs = 0;
-  sqlite3_int64 t;
-  if( clockVfs==0 ) clockVfs = sqlite3_vfs_find(0);
-  if( clockVfs==0 ) return 0;  /* Never actually happens */
-  if( clockVfs->iVersion>=2 && clockVfs->xCurrentTimeInt64!=0 ){
-    clockVfs->xCurrentTimeInt64(clockVfs, &t);
-  }else{
-    double r;
-    clockVfs->xCurrentTime(clockVfs, &r);
-    t = (sqlite3_int64)(r*86400000.0);
-  }
+#if defined(_WIN32)
+  sqlite3_uint64 t;
+  FILETIME tm;
+  GetSystemTimePreciseAsFileTime(&tm);
+  t =  ((u64)tm.dwHighDateTime<<32) | (u64)tm.dwLowDateTime;
+  t += 116444736000000000LL;
+  t /= 10;
   return t;
+#else
+  struct timeval sNow;
+  (void)gettimeofday(&sNow,0);
+  return ((i64)sNow.tv_sec)*1000000 + sNow.tv_usec;
+#endif
 }
 
 #if !defined(_WIN32) && !defined(WIN32) && !defined(__minux)
@@ -706,8 +712,8 @@ static void endTimer(FILE *out){
     sqlite3_int64 iEnd = timeOfDay();
     struct rusage sEnd;
     getrusage(RUSAGE_SELF, &sEnd);
-    sqlite3_fprintf(out, "Run Time: real %.3f user %f sys %f\n",
-          (iEnd - iBegin)*0.001,
+    sqlite3_fprintf(out, "Run Time: real %.6f user %f sys %f\n",
+          (iEnd - iBegin)*0.000001,
           timeDiff(&sBegin.ru_utime, &sEnd.ru_utime),
           timeDiff(&sBegin.ru_stime, &sEnd.ru_stime));
   }
@@ -785,8 +791,8 @@ static void endTimer(FILE *out){
     FILETIME ftCreation, ftExit, ftKernelEnd, ftUserEnd;
     sqlite3_int64 ftWallEnd = timeOfDay();
     getProcessTimesAddr(hProcess,&ftCreation,&ftExit,&ftKernelEnd,&ftUserEnd);
-    sqlite3_fprintf(out, "Run Time: real %.3f user %f sys %f\n",
-          (ftWallEnd - ftWallBegin)*0.001,
+    sqlite3_fprintf(out, "Run Time: real %.6f user %f sys %f\n",
+          (ftWallEnd - ftWallBegin)*0.000001,
           timeDiff(&ftUserBegin, &ftUserEnd),
           timeDiff(&ftKernelBegin, &ftKernelEnd));
   }
@@ -32890,59 +32896,79 @@ static char *find_home_dir(int clearFlag){
 }
 
 /*
-** On non-Windows platforms, look for $XDG_CONFIG_HOME.
-** If ${XDG_CONFIG_HOME}/sqlite3/sqliterc is found, return
-** the path to it.  If there is no $(XDG_CONFIG_HOME) then
-** look for $(HOME)/.config/sqlite3/sqliterc and if found
-** return that.  If none of these are found, return 0.
+** On non-Windows platforms, look for:
 **
-** The string returned is obtained from sqlite3_malloc() and
-** should be freed by the caller.
+** - ${zEnvVar}/${zBaseName}
+** - ${HOME}/${zSubdir}/${zBaseName}
+**
+** $zEnvVar is intended to be the name of an XDG_... environment
+** variable, e.g. XDG_CONFIG_HOME or XDG_STATE_HOME.  If zEnvVar is
+** NULL or getenv(zEnvVar) is NULL then fall back to the second
+** option. If the selected option is not found in the filesystem,
+** return 0.
+**
+** zSubdir may be NULL or empty, in which case ${HOME}/${zBaseName}
+** becomes the fallback.
+**
+** Both zSubdir and zBaseName may contain subdirectory parts. zSubdir
+** will conventionally be ".config" or ".local/state", which, not
+** coincidentally, is the typical subdir of the corresponding XDG_...
+** var with the XDG var's $HOME prefix.
+**
+** The returned string is obtained from sqlite3_malloc() and should be
+** sqlite3_free()'d by the caller.
 */
-static char *find_xdg_config(void){
+static char *find_xdg_file(const char *zEnvVar, const char *zSubdir,
+                           const char *zBaseName){
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN32_WCE) \
      || defined(__RTP__) || defined(_WRS_KERNEL)
   return 0;
 #else
-  char *zConfig = 0;
-  const char *zXdgHome;
+  char *zConfigFile = 0;
+  const char *zXdgDir;
 
-  zXdgHome = getenv("XDG_CONFIG_HOME");
-  if( zXdgHome==0 ){
-    const char *zHome = getenv("HOME");
-    if( zHome==0 ) return 0;
-    zConfig = sqlite3_mprintf("%s/.config/sqlite3/sqliterc", zHome);
+  zXdgDir = zEnvVar ? getenv(zEnvVar) : 0;
+  if( zXdgDir ){
+    zConfigFile = sqlite3_mprintf("%s/%s", zXdgDir, zBaseName);
   }else{
-    zConfig = sqlite3_mprintf("%s/sqlite3/sqliterc", zXdgHome);
+    const char * zHome = find_home_dir(0);
+    if( zHome==0 ) return 0;
+    zConfigFile = (zSubdir && *zSubdir)
+      ? sqlite3_mprintf("%s/%s/%s", zHome, zSubdir, zBaseName)
+      : sqlite3_mprintf("%s/%s", zHome, zBaseName);
   }
-  shell_check_oom(zConfig);
-  if( access(zConfig,0)!=0 ){
-    sqlite3_free(zConfig);
-    zConfig = 0;
+  shell_check_oom(zConfigFile);
+  if( access(zConfigFile,0)!=0 ){
+    sqlite3_free(zConfigFile);
+    zConfigFile = 0;
   }
-  return zConfig;
+  return zConfigFile;
 #endif
 }
 
 /*
-** Read input from the file given by sqliterc_override.  Or if that
-** parameter is NULL, take input from the first of find_xdg_config()
-** or ~/.sqliterc which is found.
+** Read input from the file sqliterc_override.  If that parameter is
+** NULL, take it from find_xdg_file(), if found, or fall back to
+** ~/.sqliterc.
 **
-** Returns the number of errors.
+** Failure to read the config is only considered a failure if
+** sqliterc_override is not NULL, in which case this function may emit
+** a warning or, if ::bail_on_error is true, fail fatally if the file
+** named by sqliterc_override is not found.
 */
 static void process_sqliterc(
   ShellState *p,                  /* Configuration data */
   const char *sqliterc_override   /* Name of config file. NULL to use default */
 ){
   char *home_dir = NULL;
-  const char *sqliterc = sqliterc_override;
-  char *zBuf = 0;
+  char *sqliterc = (char*)sqliterc_override;
   FILE *inSaved = p->in;
   int savedLineno = p->lineno;
 
   if( sqliterc == NULL ){
-    sqliterc = zBuf = find_xdg_config();
+    sqliterc = find_xdg_file("XDG_CONFIG_HOME",
+                             ".config",
+                             "sqlite3/sqliterc");
   }
   if( sqliterc == NULL ){
     home_dir = find_home_dir(0);
@@ -32951,11 +32977,10 @@ static void process_sqliterc(
             " cannot read ~/.sqliterc\n");
       return;
     }
-    zBuf = sqlite3_mprintf("%s/.sqliterc",home_dir);
-    shell_check_oom(zBuf);
-    sqliterc = zBuf;
+    sqliterc = sqlite3_mprintf("%s/.sqliterc",home_dir);
+    shell_check_oom(sqliterc);
   }
-  p->in = sqlite3_fopen(sqliterc,"rb");
+  p->in = sqliterc ? sqlite3_fopen(sqliterc,"rb") : 0;
   if( p->in ){
     if( stdin_is_interactive ){
       sqlite3_fprintf(stderr,"-- Loading resources from %s\n", sqliterc);
@@ -32968,7 +32993,9 @@ static void process_sqliterc(
   }
   p->in = inSaved;
   p->lineno = savedLineno;
-  sqlite3_free(zBuf);
+  if( sqliterc != sqliterc_override ){
+    sqlite3_free(sqliterc);
+  }
 }
 
 /*
@@ -33736,7 +33763,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     if( stdin_is_interactive ){
       char *zHome;
       char *zHistory;
-      int nHistory;
       sqlite3_fprintf(stdout,
             "SQLite version %s %.19s\n" /*extra-version-info*/
             "Enter \".help\" for usage hints.\n",
@@ -33749,11 +33775,15 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       }
       zHistory = getenv("SQLITE_HISTORY");
       if( zHistory ){
-        zHistory = strdup(zHistory);
-      }else if( (zHome = find_home_dir(0))!=0 ){
-        nHistory = strlen30(zHome) + 20;
-        if( (zHistory = malloc(nHistory))!=0 ){
-          sqlite3_snprintf(nHistory, zHistory,"%s/.sqlite_history", zHome);
+        zHistory = sqlite3_mprintf("%s", zHistory);
+        shell_check_oom(zHistory);
+      }else{
+        zHistory = find_xdg_file("XDG_STATE_HOME",
+                                 ".local/state",
+                                 "sqlite_history");
+        if( 0==zHistory && (zHome = find_home_dir(0))!=0 ){
+          zHistory = sqlite3_mprintf("%s/.sqlite_history", zHome);
+          shell_check_oom(zHistory);
         }
       }
       if( zHistory ){ shell_read_history(zHistory); }
@@ -33769,7 +33799,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       if( zHistory ){
         shell_stifle_history(2000);
         shell_write_history(zHistory);
-        free(zHistory);
+        sqlite3_free(zHistory);
       }
     }else{
       data.in = stdin;

@@ -338,7 +338,7 @@ char *bisect_permalink(void){
     if( blob_size(&link)>0 ) blob_append(&link, "-", 1);
     blob_appendf(&link, "%c%.10s", cPrefix, zUuid);
   }
-  zResult = mprintf("%s", blob_str(&link));
+  zResult = fossil_strdup(blob_str(&link));
   blob_reset(&link);
   blob_reset(&log);
   blob_reset(&id);
