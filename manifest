@@ -1,5 +1,5 @@
-C When\sappending\sthe\sssh\ssignature,\suse\sa\smore\sdirect\sfunction\swith\sthe\ssame\sresult.
-D 2025-08-20T15:02:58.979
+C Rearrange\sfields\sin\sthe\sRobot\sDefense\ssetup\sto\smake\sit\seasier\sto\sunderstand.
+D 2025-08-21T10:51:54.059
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -527,7 +527,7 @@ F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 82719ea2ad921d257a766fd6767ac401a638e2f290bc678f912e75218ab188ec
 F src/security_audit.c dc78230601d1eb4a2cb1440f91d83c9a56d1efebc9cde3c41da2e220c5a712a8
-F src/setup.c cb185153227faa9c132b6e4dc8f0e6f0b700121a76071e352174e039907a328a
+F src/setup.c fcfbc03843c25b19b4a22de79dd171b165b5d5710e2e8324e8defc722db4acfe
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b853b5d47115b990d21ce3a5d3e3a47526c9dfe606369beeba472082a82dda16
-R 22aa4928dc03d2a1323050ee8b103b0a
-U danield
-Z ec7f0880ca3164db1129776b857317a5
+P 5d040f1ff00c552c90586e01632d1fefc69b6f0bbf64002c328c1b925e86a78f
+R 116f1b91865f81b05f83de6539614e7e
+U drh
+Z e135b3a0107ac4af9d4a1b61c1e39a53
 # Remove this line to create a well-formed Fossil manifest.

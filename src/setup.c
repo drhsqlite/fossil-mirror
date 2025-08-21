@@ -423,52 +423,34 @@ static void addAutoHyperlinkSettings(void){
      "Enable hyperlinks base on User-Agent and/or Javascript",
      "auto-hyperlink", "autohyperlink", "1",
      count(azDefenseOpts)/2, azDefenseOpts);
-  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
-  @ including user "nobody", as long as the User-Agent string in the
-  @ HTTP header indicates that the request is coming from an actual human
-  @ being.  If this setting is "UserAgent only" (2) then the
-  @ UserAgent string is the only factor considered.  If the value of this
-  @ setting is "UserAgent And Javascript" (1) then Javascript is added that
-  @ runs after the page loads and fills in the href= values of &lt;a&gt;
-  @ elements.  In either case, &lt;a&gt; tags are only generated if the
-  @ UserAgent string indicates that the request is coming from a human and
-  @ not a robot.
-  @
-  @ <p>This setting is designed to give easy access to humans while
-  @ keeping out robots.
-  @ You do not normally want a robot to walk your entire repository because
-  @ if it does, your server will end up computing diffs and annotations for
-  @ every historical version of every file and creating ZIPs and tarballs of
-  @ every historical check-in, which can use a lot of CPU and bandwidth
-  @ even for relatively small projects.</p>
-  @
-  @ <p>The "UserAgent and Javascript" value for this setting provides
-  @ superior protection from robots.  However, that setting also prevents
-  @ the visited/unvisited colors on hyperlinks from displaying correctly
-  @ on Safari-derived browsers.  (Chrome and Firefox work fine.)  Since
-  @ Safari is the underlying rendering engine on all iPhones and iPads,
-  @ this means that hyperlink visited/unvisited colors will not operate
-  @ on those platforms when "UserAgent and Javascript" is selected.</p>
-  @
-  @ <p>Additional parameters that control the behavior of Javascript:</p>
-  @ <blockquote>
+  @ <br>
   entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
                   "auto-hyperlink-delay", "ah-delay", "50", 0);
   @ <br>
   onoff_attribute("Also require a mouse event before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
-  @ </blockquote>
+  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
+  @ including user "nobody" if the request appears to be from a human.
+  @ Disabling hyperlinks helps prevent robots from walking your site and
+  @ soaking up all your CPU and bandwidth.
+  @ If this setting is "UserAgent only" (2) then the
+  @ UserAgent string is the only factor considered.  If the value of this
+  @ setting is "UserAgent And Javascript" (1) then Javascript is added that
+  @ runs after the page loads and fills in the href= values of &lt;a&gt;
+  @ elements.  In either case, &lt;a&gt; tags are not generated if the
+  @ UserAgent string indicates that the client is a robot.
+  @ (Property: "auto-hyperlink")</p>
+  @
   @ <p>For maximum robot defense, "Delay" should be at least 50 milliseconds
   @ and "require a mouse event" should be turned on.  These values only come
   @ into play when the main auto-hyperlink settings is 2 ("UserAgent and
-  @ Javascript").</p>
+  @ Javascript").
+  @ (Properties: "auto-hyperlink-delay" and "auto-hyperlink-mouseover")</p>
   @
   @ <p>To see if Javascript-base hyperlink enabling mechanism is working,
-  @ visit the <a href="%R/test-env">/test-env</a> page (from a separate
-  @ web browser that is not logged in, even as "anonymous") and verify
+  @ visit the <a href="%R/test-env">/test-env</a> page from a separate
+  @ web browser that is not logged in, even as "anonymous" and verify
   @ that the "g.jsHref" value is "1".</p>
-  @ <p>(Properties: "auto-hyperlink", "auto-hyperlink-delay", and
-  @ "auto-hyperlink-mouseover"")</p>
 }
 
 /*
