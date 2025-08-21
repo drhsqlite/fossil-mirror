@@ -645,6 +645,8 @@ static void ckout_normal_diff(int vid){
   }else{
     DCfg.diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
+  @ <div class="section" id="changes_section">Changes</div>
+  DCfg.diffFlags |= DIFF_NUMSTAT; /* Show stats in the 'Changes' section */
   @ <div class="sectionmenu info-changes-menu">
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=1 ){
@@ -720,6 +722,12 @@ static void ckout_normal_diff(int vid){
     }
   }
   db_finalize(&q);
+  @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
+  @ document.getElementById('changes_section').textContent =  'Changes ' +
+  @   '(%d(g.diffCnt[0]) file' + (%d(g.diffCnt[0])===1 ? '' : 's') + ': ' +
+  @   '+%d(g.diffCnt[1]) ' +
+  @   '−%d(g.diffCnt[2]))'
+  @ </script>
   append_diff_javascript(diffType);
 }
 
@@ -743,6 +751,8 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
   }else{
     DCfg.diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
+  @ <div class="section" id="changes_section">Changes</div>
+  DCfg.diffFlags |= DIFF_NUMSTAT; /* Show stats in the 'Changes' section */
   @ <div class="sectionmenu info-changes-menu">
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=1 ){
@@ -805,6 +815,12 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
     fossil_free(zRhs);
   }
   db_finalize(&q);
+  @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
+  @ document.getElementById('changes_section').textContent =  'Changes ' +
+  @   '(%d(g.diffCnt[0]) file' + (%d(g.diffCnt[0])===1 ? '' : 's') + ': ' +
+  @   '+%d(g.diffCnt[1]) ' +
+  @   '−%d(g.diffCnt[2]))'
+  @ </script>
   append_diff_javascript(diffType);
 }
 

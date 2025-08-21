@@ -1,5 +1,5 @@
-C Avoid\sexcess\sbackslash\sexcaping\sin\stext\sin\sthe\snew\srobot-exception\ssetup.
-D 2025-08-21T14:16:43.746
+C Show\snumstat-style\sstatistics\sin\sthe\s/ckout\spage\sas\swell.
+D 2025-08-21T15:40:16.172
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/http_socket.c db9603e27cbf4b41dae94d000acf3dbf1ecbb431ef0a24743aabd17e5467
 F src/http_ssl.c 5050cdd1441962f51762780cdd87b38c7281ecc6f4a65290acdaca318e9a4ca0
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 6997a6b6d9ca3d2cd5e79b2561aaad2582a78d7c6032c44a956c6bb611b59c34
-F src/info.c a557c0b8d9a3bd5b0f9edf894e5d5c8df32b465cd51d47611316b7b65cf9977e
+F src/info.c 7b2980a34ac7e67e53e2818b1d4fe0b6e8e2fa15aff0d5e4d1990e1ccb1ac1a3
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 8375e3d570e779ccd619c4e44b9977db7e9acfa2a1e244288759457101911520
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 12d871a00a39c81bf1555be15bf5fdfc0e4e069ebc05a1732efeaffe2b98cdc7
-R b8dc65bb5c072253dfe5b356d2793a5f
-U drh
-Z 5a1489523e639fae3ba5a52cb4ab0f06
+P 5dc9f9b97c0e0d7b6d5ff54a0a736711c5c1c6262784d84556515e8f94cdb638
+R 2497b9f8da5a15de511fe655fe8827c7
+U danield
+Z a409c979e71c978670ebfd04497dab53
 # Remove this line to create a well-formed Fossil manifest.
