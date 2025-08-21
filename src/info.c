@@ -1950,7 +1950,7 @@ int preferred_diff_type(void){
   int isBot;
   static char zDflt[2]
     /*static b/c cookie_link_parameter() does not copy it!*/;
-  if( client_might_be_a_robot() ){
+  if( client_might_be_a_robot() && robot_restrict_has_tag("diff") ){
     dflt = 0;
     isBot = 1;
   }else{
