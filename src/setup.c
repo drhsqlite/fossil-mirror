@@ -479,8 +479,8 @@ void setup_robots(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  @ <p><b>Do not allow robots access to these pages.</b>
-  @ <p> If the page name matches the GLOB pattern of this setting, and the
+  @ <p><b>Do not allow robots access to these pages.</b><br>
+  @ If the page name matches the GLOB pattern of this setting, and the
   @ users is "nobody", and the client has not previously passed a captcha
   @ test to show that it is not a robot, then the page is not displayed.
   @ A captcha test is is rendered instead.
@@ -500,6 +500,21 @@ void setup_robots(void){
   @ <br>
   textarea_attribute("", 2, 80,
       "robot-restrict", "rbrestrict", robot_restrict_default(), 0);
+
+  @ <hr>
+  @ <p><b>Exceptions to anti-robot restrictions</b><br>
+  @ The entry below is a list of regular expressions, one per line.
+  @ If any of these regular expressions match the input URL, then the
+  @ request is exempt from anti-robot defenses.  Use this, for example,
+  @ to allow scripts to download release tarballs using a pattern
+  @ like:</p>
+  @ <p>
+  @ &emsp;&emsp;<tt>^/tarball\\b*\\b(version-|release)\\b</tt>
+  @ <p>The pattern should match against the REQUEST_URI with the
+  @ SCRIPT_NAME prefix removed, and with QUERY_STRING appended following
+  @ a "?" if QUERY_STRING exists.  (Property: robot-exception)<br>
+  textarea_attribute("", 3, 80,
+      "robot-exception", "rbexcept", "", 0);
 
   @ <hr>
   addAutoHyperlinkSettings();

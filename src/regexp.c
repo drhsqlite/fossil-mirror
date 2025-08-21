@@ -852,21 +852,34 @@ static int grep_buffer(
 **
 ** Options:
 **   -i|--ignore-case    Ignore case
+**   --robot-exception   Use the robot-exception setting as the REGEXP
 */
 void re_test_grep(void){
   ReCompiled *pRe;
   const char *zErr;
+  int iFileList = 3;
   int ignoreCase = find_option("ignore-case","i",0)!=0;
-  if( g.argc<3 ){
-    usage("REGEXP [FILE...]");
+  int bRobot = find_option("robot-exception",0,0)!=0;
+  if( bRobot ){
+    const char *zRe;
+    db_find_and_open_repository(0,0);
+    verify_all_options();
+    zRe = db_get("robot-exception","^$");
+    zErr = re_compile(&pRe, zRe, ignoreCase);
+    iFileList = 2;
+  }else{
+    verify_all_options();
+    if( g.argc<3 ){
+      usage("REGEXP [FILE...]");
+    }
+    zErr = re_compile(&pRe, g.argv[2], ignoreCase);
   }
-  zErr = re_compile(&pRe, g.argv[2], ignoreCase);
   if( zErr ) fossil_fatal("%s", zErr);
-  if( g.argc==3 ){
+  if( g.argc==iFileList ){
     grep_file(pRe, "-", stdin);
   }else{
     int i;
-    for(i=3; i<g.argc; i++){
+    for(i=iFileList; i<g.argc; i++){
       FILE *in = fossil_fopen(g.argv[i], "rb");
       if( in==0 ){
         fossil_warning("cannot open \"%s\"", g.argv[i]);
