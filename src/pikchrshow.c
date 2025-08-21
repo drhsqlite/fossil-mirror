@@ -464,8 +464,8 @@ void pikchrshow_page(void){
         CX("<legend><div class='button-bar'>");
           CX("<button id='btn-render-mode'>Render Mode</button> ");
           CX("<span style='white-space:nowrap'>"
-             "<span id='preview-copy-button' "
-             "title='Tap to copy to clipboard.'></span>"
+             "<button id='preview-copy-button' "
+             "title='Tap to copy to clipboard.'><span></span></button>"
              "<label for='preview-copy-button' "
              "title='Tap to copy to clipboard.'></label>"
              "</span>");

@@ -1185,11 +1185,12 @@ void ci_page(void){
        "<div class=\"section accordion\">References</div>\n");
   @ <div class="section accordion">Context</div><div class="accordion_panel">
   render_checkin_context(rid, 0, 0, 0);
-  @ </div><div class="section accordion">Changes</div>
+  @ </div><div class="section accordion" id="changes_section">Changes</div>
   @ <div class="accordion_panel">
   @ <div class="sectionmenu info-changes-menu">
   /* ^^^ .info-changes-menu is used by diff scroll sync */
   pCfg = construct_diff_flags(diffType, &DCfg);
+  DCfg.diffFlags |= DIFF_NUMSTAT; /* Show stats in the 'Changes' section */
   DCfg.pRe = pRe;
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=0 ){
@@ -1255,6 +1256,14 @@ void ci_page(void){
   }
   db_finalize(&q3);
   @ </div>
+  if( diffType!=0 ){
+    @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
+    @ document.getElementById('changes_section').textContent =  'Changes ' +
+    @   '(%d(g.diffCnt[0]) file' + (%d(g.diffCnt[0])===1 ? '' : 's') + ': ' +
+    @   '+%d(g.diffCnt[1]) ' +
+    @   '−%d(g.diffCnt[2]))'
+    @ </script>
+  }
   append_diff_javascript(diffType);
   style_finish_page();
 }
@@ -1456,6 +1465,7 @@ void vdiff_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  if( robot_restrict("diff") ) return;
   login_anonymous_available();
   fossil_nice_default();
   blob_init(&qp, 0, 0);
@@ -1963,14 +1973,27 @@ int object_description(
 */
 int preferred_diff_type(void){
   int dflt;
+  int res;
+  int isBot;
   static char zDflt[2]
     /*static b/c cookie_link_parameter() does not copy it!*/;
-  dflt = db_get_int("preferred-diff-type",-99);
-  if( dflt<=0 ) dflt = user_agent_is_likely_mobile() ? 1 : 2;
+  if( client_might_be_a_robot() ){
+    dflt = 0;
+    isBot = 1;
+  }else{
+    dflt = db_get_int("preferred-diff-type",-99);
+    if( dflt<=0 ) dflt = user_agent_is_likely_mobile() ? 1 : 2;
+    isBot = 0;
+  }
   zDflt[0] = dflt + '0';
   zDflt[1] = 0;
   cookie_link_parameter("diff","diff", zDflt);
-  return atoi(PD_NoBot("diff",zDflt));
+  res = atoi(PD_NoBot("diff",zDflt));
+  if( isBot && res>0 && robot_restrict("diff") ){
+    cgi_reply();
+    fossil_exit(0);
+  }
+  return res;
 }
 
 
@@ -2015,6 +2038,7 @@ void diff_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  if( robot_restrict("diff") ) return;
   diff_config_init(&DCfg, 0);
   diffType = preferred_diff_type();
   if( P("from") && P("to") ){
@@ -2455,11 +2479,11 @@ void hexdump_page(void){
                         zUuid, file_tail(blob_str(&downloadName)));
   @ <hr>
   content_get(rid, &content);
-  if( !g.isHuman ){
+  if( blob_size(&content)>100000 ){
     /* Prevent robots from running hexdump on megabyte-sized source files
     ** and there by eating up lots of CPU time and bandwidth.  There is
     ** no good reason for a robot to need a hexdump. */
-    @ <p>A hex dump of this file is not available.
+    @ <p>A hex dump of this file is not available because it is too large.
     @  Please download the raw binary file and generate a hex dump yourself.</p>
   }else{
     @ <blockquote><pre>
@@ -2934,7 +2958,7 @@ void artifact_page(void){
       zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
       style_set_current_page("doc/%S/%T", zCIUuid, zName);
     }else{
-      zHeader = mprintf("%s", file_tail(zName));
+      zHeader = fossil_strdup(file_tail(zName));
       style_set_current_page("doc/tip/%T", zName);
     }
   }else if( descOnly ){
@@ -4291,7 +4315,7 @@ int describe_commit(
   }
 
   zUuid = rid_to_uuid(rid);
-  descr->zCommitHash = mprintf("%s", zUuid);
+  descr->zCommitHash = fossil_strdup(zUuid);
   descr->isDirty = unsaved_changes(0);
 
   db_multi_exec(
@@ -4340,7 +4364,7 @@ int describe_commit(
 
   if( db_step(&q)==SQLITE_ROW ){
     const char *lastTag = db_column_text(&q, 0);
-    descr->zRelTagname = mprintf("%s", lastTag);
+    descr->zRelTagname = fossil_strdup(lastTag);
     descr->nCommitsSince = db_column_int(&q, 1);
     nRet = 0;
   }else{

@@ -576,7 +576,7 @@ void wiki_page(void){
   const char *zPageName;
   const char *zMimetype = 0;
   int isPopup = P("popup")!=0;
-  char *zBody = mprintf("%s","<i>Empty Page</i>");
+  char *zBody = fossil_strdup("<i>Empty Page</i>");
   int noSubmenu = P("nsm")!=0 || g.isHome;
 
   login_check_credentials();

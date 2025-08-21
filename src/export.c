@@ -60,7 +60,7 @@ static void print_person(const char *zUser){
   db_bind_text(&q, ":user", zUser);
   if( db_step(&q)!=SQLITE_ROW ){
     db_reset(&q);
-    zName = mprintf("%s", zUser);
+    zName = fossil_strdup(zUser);
     for(i=j=0; zName[i]; i++){
       if( zName[i]!='<' && zName[i]!='>' && zName[i]!='"' ){
         zName[j++] = zName[i];
@@ -104,7 +104,7 @@ static void print_person(const char *zUser){
   }
   if( zContact[i]==0 ){
     /* No email address found. Take as user info if not empty */
-    zName = mprintf("%s", zContact[0] ? zContact : zUser);
+    zName = fossil_strdup(zContact[0] ? zContact : zUser);
     for(i=j=0; zName[i]; i++){
       if( zName[i]!='<' && zName[i]!='>' && zName[i]!='"' ){
         zName[j++] = zName[i];
@@ -151,7 +151,7 @@ static void print_person(const char *zUser){
      }
   }
 
-  if( zName==NULL ) zName = mprintf("%s", zUser);
+  if( zName==NULL ) zName = fossil_strdup(zUser);
   for(i=j=0; zName[i]; i++){
      if( zName[i]!='<' && zName[i]!='>' && zName[i]!='"' ){
          zName[j++] = zName[i];
@@ -174,7 +174,7 @@ static void print_person(const char *zUser){
 ** the branch or tag part of the reference.
 */
 static void print_ref(const char *zRef){
-  char *zEncoded = mprintf("%s", zRef);
+  char *zEncoded = fossil_strdup(zRef);
   int i, w;
   if (zEncoded[0]=='@' && zEncoded[1]=='\0'){
     putchar(REFREPLACEMENT);
@@ -1154,7 +1154,7 @@ static int gitmirror_send_checkin(
   if( fossil_strcmp(zBranch,"trunk")==0 ){
     assert( gitmirror_mainbranch!=0 );
     fossil_free(zBranch);
-    zBranch = mprintf("%s",gitmirror_mainbranch);
+    zBranch = fossil_strdup(gitmirror_mainbranch);
   }else if( zBranch==0 ){
     zBranch = mprintf("unknown");
   }else{

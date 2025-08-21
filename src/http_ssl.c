@@ -640,7 +640,7 @@ int ssl_open_client(UrlData *pUrlData){
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10100000L \
       && !defined(LIBRESSL_VERSION_NUMBER)
     char *ip = BIO_ADDR_hostname_string(BIO_get_conn_address(iBio),1);
-    g.zIpAddr = mprintf("%s", ip);
+    g.zIpAddr = fossil_strdup(ip);
     OPENSSL_free(ip);
 #else
     /* IPv4 only code */

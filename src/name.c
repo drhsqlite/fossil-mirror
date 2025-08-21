@@ -583,7 +583,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( zTag[i]==':'
    && (fossil_isdate(&zTag[i+1]) || fossil_expand_datetime(&zTag[i+1],0,0)!=0)
   ){
-    char *zDate = mprintf("%s", &zTag[i+1]);
+    char *zDate = fossil_strdup(&zTag[i+1]);
     char *zTagBase = mprintf("%.*s", i, zTag);
     char *zXDate;
     int nDate = strlen(zDate);
@@ -988,7 +988,7 @@ void ambiguous_page(void){
   @ <p>The artifact hash prefix <b>%h(zName)</b> is ambiguous and might
   @ mean any of the following:
   @ <ol>
-  z = mprintf("%s", zName);
+  z = fossil_strdup(zName);
   canonical16(z, strlen(z));
   db_prepare(&q, "SELECT uuid, rid FROM blob WHERE uuid GLOB '%q*'", z);
   while( db_step(&q)==SQLITE_ROW ){

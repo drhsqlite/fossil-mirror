@@ -1434,7 +1434,7 @@ static int setParameterCmd(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "setParameter NAME VALUE");
   }
-  cgi_replace_parameter(mprintf("%s", argv[1]), mprintf("%s", argv[2]));
+  cgi_replace_parameter(fossil_strdup(argv[1]), fossil_strdup(argv[2]));
   return TH_OK;
 }
 
@@ -2967,7 +2967,7 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
       if( z[0] ){ z += 6; }
       i = 0;
     }else{
-      i++;
+      i += strcspn(&z[i+1], "<$") + 1;
     }
   }
   if( rc==TH_ERROR ){

@@ -746,7 +746,7 @@ void captcha_test(void){
     @ to see how HEX would be rendered in the current captcha font.
     @ <h2>Debug/Testing Values:</h2>
     @ <ul>
-    @ <li> g.isHuman = %d(g.isHuman)
+    @ <li> g.isRobot = %d(g.isRobot)
     @ <li> g.zLogin = %h(g.zLogin)
     @ <li> login_cookie_welformed() = %d(login_cookie_wellformed())
     @ <li> captcha_is_correct(1) = %d(captcha_is_correct(1)).
@@ -760,6 +760,14 @@ void captcha_test(void){
     @ </pre>
     style_finish_page();
   }
+}
+
+/*
+** WEBPAGE: honeypot
+** This page is a honeypot for spiders and bots.
+*/
+void honeypot_page(void){
+  (void)exclude_spiders(0);
 }
 
 /*
@@ -778,7 +786,6 @@ void captcha_test(void){
 */
 int exclude_spiders(int bTest){
   if( !bTest ){
-    if( g.isHuman ) return 0;  /* This user has already proven human */
     if( g.zLogin!=0 ) return 0;  /* Logged in.  Consider them human */
     if( login_cookie_wellformed() ){
       /* Logged into another member of the login group */
@@ -788,13 +795,10 @@ int exclude_spiders(int bTest){
 
   /* This appears to be a spider.  Offer the captcha */
   style_set_current_feature("captcha");
-  style_header("I think you are a robot");
+  style_header("Captcha");
   style_submenu_enable(0);
   @ <form method='POST' action='%R/ityaar'>
-  @ <p>You seem like a robot.
-  @
-  @ <p>If you are human, you can prove that by solving the captcha below,
-  @ after which you will be allowed to proceed.
+  @ <h2>Prove that you are human:
   if( bTest ){
     @ <input type="hidden" name="istest" value="1">
   }
@@ -832,7 +836,7 @@ void captcha_callback(void){
     }
     login_redirect_to_g();
   }else{
-    g.isHuman = 0;
+    g.isRobot = 1;
     (void)exclude_spiders(bTest);
     if( bTest ){
       @ <hr><p>Wrong code.  Try again

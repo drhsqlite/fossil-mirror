@@ -162,6 +162,7 @@ int login_is_valid_anonymous(
   else if( zPassword==0 ) return 0;
   else if( zCS==0 ) return 0;
   else if( fossil_strcmp(zUsername,"anonymous")!=0 ) return 0;
+  else if( anon_cookie_lifespan()==0 ) return 0;
   while( 1/*exit-by-break*/ ){
     zPw = captcha_decode((unsigned int)atoi(zCS), n);
     if( zPw==0 ) return 0;
@@ -341,28 +342,57 @@ void login_set_user_cookie(
   }
 }
 
+/*
+** SETTING: anon-cookie-lifespan      width=10 default=480
+** The number of minutes for which an anonymous login cookie is
+** valid.  Anonymous logins are prohibited if this value is zero.
+*/
+
+
+/*
+** The default lifetime of an anoymous cookie, in minutes.
+*/
+#define ANONYMOUS_COOKIE_LIFESPAN (8*60)
+
+/*
+** Return the lifetime of an anonymous cookie, in minutes.
+*/
+int anon_cookie_lifespan(void){
+  static int lifespan = -1;
+  if( lifespan<0 ){
+    lifespan = db_get_int("anon-cookie-lifespan", ANONYMOUS_COOKIE_LIFESPAN);
+    if( lifespan<0 ) lifespan = 0;
+  }
+  return lifespan;
+}
+
 /* Sets a cookie for an anonymous user login, which looks like this:
 **
 **    HASH/TIME/anonymous
 **
-** Where HASH is the sha1sum of TIME/SECRET, in which SECRET is captcha-secret.
+** Where HASH is the sha1sum of TIME/USERAGENT/SECRET, in which SECRET
+** is captcha-secret and USERAGENT is the HTTP_USER_AGENT value.
 **
 ** If zCookieDest is not NULL then the generated cookie is assigned to
 ** *zCookieDest and the caller must eventually free() it.
 **
 ** If bSessionCookie is true, the cookie will be a session cookie.
+**
+** Search for tag-20250817a to find the code that recognizes this cookie.
 */
 void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
   char *zNow;                  /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
+  const char *zUserAgent;      /* The user agent */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
-  int expires = bSessionCookie ? 0 : 6*3600;
+  int expires = bSessionCookie ? 0 : anon_cookie_lifespan();
   zCookieName = login_cookie_name();
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
   blob_init(&b, zNow, -1);
-  blob_appendf(&b, "/%z", captcha_secret(0));
+  zUserAgent = PD("HTTP_USER_AGENT","nil");
+  blob_appendf(&b, "/%s/%z", zUserAgent, captcha_secret(0));
   sha1sum_blob(&b, &b);
   zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
   blob_reset(&b);
@@ -583,13 +613,31 @@ void login_page(void){
     login_reqpwreset_page();
     return;
   }
-  login_check_credentials();
+
+  /* If the "anon" query parameter is 1 or 2, that means rework the web-page
+  ** to make it a more user-friendly captcha.  Extraneous text and boxes
+  ** are omitted.  The user has just the captcha image and an entry box
+  ** and a "Verify" button.  Underneath is the same login page for user
+  ** "anonymous", just displayed in an easier to digest format for one-time
+  ** visitors.
+  **
+  ** anon=1 is advisory and only has effect if there is not some other login
+  ** cookie.  anon=2 means always show the captcha. 
+  */
+  anonFlag = anon_cookie_lifespan()>0 ? atoi(PD("anon","0")) : 0;
+  if( anonFlag==2 ){
+    g.zLogin = 0;
+  }else{
+    login_check_credentials();
+    if( g.zLogin!=0 ) anonFlag = 0;
+  }
+
   fossil_redirect_to_https_if_needed(1);
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
-  anonFlag = g.zLogin==0 && PB("anon");
+
   /* Handle log-out requests */
   if( P("out") && cgi_csrf_safe(2) ){
     login_clear_login_data();
@@ -719,6 +767,7 @@ void login_page(void){
   }
   style_set_current_feature("login");
   style_header("Login/Logout");
+  if( anonFlag==2 ) g.zLogin = 0;
   style_adunit_config(ADUNIT_OFF);
   @ %s(zErrMsg)
   if( zGoto && !noAnon ){
@@ -730,8 +779,8 @@ void login_page(void){
       @ <p>Use a different login with greater privilege than <b>%h(g.zLogin)</b>
       @ to access <b>%h(zAbbrev)</b>.
     }else if( anonFlag ){
-      @ <p>Login as <b>anonymous</b> or any named user
-      @ to access page <b>%h(zAbbrev)</b>.
+      @ <p><b>Verify that you are human by typing in the 8-character text
+      @ password shown below.</b></p>
     }else{
       @ <p>Login as a named user to access page <b>%h(zAbbrev)</b>.
     }
@@ -750,6 +799,7 @@ void login_page(void){
   }
   if( anonFlag ){
     @ <input type="hidden" name="anon" value="1">
+    @ <input type="hidden" name="u" value="anonymous">
   }
   if( g.zLogin ){
     @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
@@ -757,7 +807,7 @@ void login_page(void){
     @ </form>
   }else{
     unsigned int uSeed = captcha_seed();
-    if( g.zLogin==0 && (anonFlag || zGoto==0) ){
+    if( g.zLogin==0 && (anonFlag || zGoto==0) && anon_cookie_lifespan()>0 ){
       zAnonPw = db_text(0, "SELECT pw FROM user"
                            " WHERE login='anonymous'"
                            "   AND cap!=''");
@@ -765,7 +815,7 @@ void login_page(void){
       zAnonPw = 0;
     }
     @ <table class="login_out">
-    if( P("HTTPS")==0 ){
+    if( P("HTTPS")==0 && !anonFlag ){
       @ <tr><td class="form_label">Warning:</td>
       @ <td><span class='securityWarning'>
       @ Login information, including the password,
@@ -776,37 +826,51 @@ void login_page(void){
       }
       @ </span></td></tr>
     }
-    @ <tr>
-    @   <td class="form_label" id="userlabel1">User ID:</td>
-    @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
-    @ size="30" value="%s(anonFlag?"anonymous":"")" autofocus></td>
-    @ </tr>
+    if( !anonFlag ){
+      @ <tr>
+      @   <td class="form_label" id="userlabel1">User ID:</td>
+      @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
+      @ size="30" value="" autofocus></td>
+      @ </tr>
+    }
     @ <tr>
     @  <td class="form_label" id="pswdlabel">Password:</td>
     @  <td><input aria-labelledby="pswdlabel" type="password" id="p" \
-    @ name="p" value="" size="30">\
-    if( zAnonPw && !noAnon ){
+    @ name="p" value="" size="30"%s(anonFlag ? " autofocus" : "")>
+    if( anonFlag ){
+      @ </td></tr>
+      @ <tr>
+      @  <td></td><td>\
+      captcha_speakit_button(uSeed, "Read the password out loud");
+    }else if( zAnonPw && !noAnon ){
       captcha_speakit_button(uSeed, "Speak password for \"anonymous\"");
     }
     @ </td>
     @ </tr>
-    @ <tr>
-    @   <td></td>
-    @   <td><input type="checkbox" name="remember" value="1" \
-    @ id="remember-me" %s(rememberMe ? "checked=\"checked\"" : "")>
-    @   <label for="remember-me">Remember me?</label></td>
-    @ </tr>
-    @ <tr>
-    @   <td></td>
-    @   <td><input type="submit" name="in" value="Login">
-    @ </tr>
-    if( !noAnon && login_self_register_available(0) ){
+    if( !anonFlag ){
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="checkbox" name="remember" value="1" \
+      @ id="remember-me" %s(rememberMe ? "checked=\"checked\"" : "")>
+      @   <label for="remember-me">Remember me?</label></td>
+      @ </tr>
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="submit" name="in" value="Login">
+      @ </tr>
+    }else{
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="submit" name="in" value="Verify that I am human">
+      @ </tr>
+    }
+    if( !anonFlag && !noAnon && login_self_register_available(0) ){
       @ <tr>
       @   <td></td>
       @   <td><input type="submit" name="self" value="Create A New Account">
       @ </tr>
     }
-    if( login_self_password_reset_available() ){
+    if( !anonFlag && login_self_password_reset_available() ){
       @ <tr>
       @   <td></td>
       @   <td><input type="submit" name="pwreset" value="Reset My Password">
@@ -819,13 +883,15 @@ void login_page(void){
       char *zCaptcha = captcha_render(zDecoded);
 
       @ <p><input type="hidden" name="cs" value="%u(uSeed)">
-      @ Visitors may enter <b>anonymous</b> as the user-ID with
-      @ the 8-character hexadecimal password shown below:</p>
+      if( !anonFlag ){
+        @ Visitors may enter <b>anonymous</b> as the user-ID with
+        @ the 8-character hexadecimal password shown below:</p>
+      }
       @ <div class="captcha"><table class="captcha"><tr><td>\
       @ <pre class="captcha">
       @ %h(zCaptcha)
       @ </pre></td></tr></table>
-      if( bAutoCaptcha ) {
+      if( bAutoCaptcha && !anonFlag ) {
          @ <input type="button" value="Fill out captcha" id='autofillButton' \
          @ data-af='%s(zDecoded)'>
          builtin_request_js("login.js");
@@ -835,7 +901,7 @@ void login_page(void){
     }
     @ </form>
   }
-  if( login_is_individual() ){
+  if( login_is_individual() && !anonFlag ){
     if( g.perm.EmailAlert && alert_enabled() ){
       @ <hr>
       @ <p>Configure <a href="%R/alerts">Email Alerts</a>
@@ -847,11 +913,14 @@ void login_page(void){
       @ post timeline</a> for user <b>%h(g.zLogin)</b></p>
     }
   }
-  @ <hr><p>
-  @ Select your preferred <a href="%R/skins">site skin</a>.
-  @ </p>
-  @ <hr><p>
-  @ Manage your <a href="%R/cookies">cookies</a>.</p>
+  if( !anonFlag ){
+    @ <hr><p>
+    @ Select your preferred <a href="%R/skins">site skin</a>.
+    @ </p>
+    @ <hr><p>
+    @ Manage your <a href="%R/cookies">cookies</a> or your
+    @ <a href="%R/tokens">access tokens</a>.</p>
+  }
   if( login_is_individual() ){
     if( g.perm.Password ){
       char *zRPW = fossil_random_password(12);
@@ -1265,94 +1334,6 @@ static int login_basic_authentication(const char *zIpAddr){
 }
 
 /*
-** SETTING: robot-restrict                width=40 block-text
-** The VALUE of this setting is a list of GLOB patterns that match
-** pages for which complex HTTP requests from robots should be disallowed.
-** The recommended value for this setting is:
-** 
-**      timeline,vdiff,fdiff,annotate,blame
-** 
-*/
-
-/*
-** Check to see if the current HTTP request is a complex request that
-** is coming from a robot and if access should restricted for such robots.
-** For the purposes of this module, a "complex request" is an HTTP
-** request with one or more query parameters other than "name".
-**
-** If this routine determines that robots should be restricted, then
-** this routine publishes a redirect to the honeypot and exits without
-** returning to the caller.
-**
-** This routine believes that this is a complex request is coming from
-** a robot if all of the following are true:
-**
-**    *   The user is "nobody".
-**    *   Either the REFERER field of the HTTP header is missing or empty,
-**        or the USERAGENT field of the HTTP header suggests that
-**        the request as coming from a robot.
-**    *   There are one or more query parameters other than "name".
-**
-** Robot restrictions are governed by settings.
-**
-**    robot-restrict    The value is a list of GLOB patterns for pages
-**                      that should restrict robot access.  No restrictions
-**                      are applied if this setting is undefined or is
-**                      an empty string.
-*/
-void login_restrict_robot_access(void){
-  const char *zGlob;
-  int isMatch = 1;
-  int nQP;  /* Number of query parameters other than name= */
-  if( g.zLogin!=0 ) return;
-  zGlob = db_get("robot-restrict",0);
-  if( zGlob==0 || zGlob[0]==0 ) return;
-  if( g.isHuman ){
-    const char *zReferer;
-    const char *zAccept;
-    const char *zBr;
-    zReferer = P("HTTP_REFERER");
-    if( zReferer && zReferer[0]!=0 ) return;
-
-    /* Robots typically do not accept the brotli encoding, at least not
-    ** at the time of this writing (2025-04-01), but standard web-browser
-    ** all generally do accept brotli.  So if brotli is accepted,
-    ** assume we are not talking to a robot.  We might want to revisit this
-    ** heuristic in the future...
-    */
-    if( (zAccept = P("HTTP_ACCEPT_ENCODING"))!=0
-     && (zBr = strstr(zAccept,"br"))!=0
-     && !fossil_isalnum(zBr[2])
-     && (zBr==zAccept || !fossil_isalnum(zBr[-1]))
-    ){
-      return;
-    }
-  }
-  nQP = cgi_qp_count();
-  if( nQP<1 ) return;
-  isMatch = glob_multi_match(zGlob, g.zPath);
-  if( !isMatch ) return;
-
-  /* Check for exceptions to the restriction on the number of query
-  ** parameters. */
-  zGlob = db_get("robot-restrict-qp",0);
-  if( zGlob && zGlob[0] ){
-    char *zPath = mprintf("%s/%d", g.zPath, nQP);
-    isMatch = glob_multi_match(zGlob, zPath);
-    fossil_free(zPath);
-    if( isMatch ) return;
-  }
-
-  /* If we reach this point, it means we have a situation where we
-  ** want to restrict the activity of a robot.
-  */
-  g.isHuman = 0;
-  (void)exclude_spiders(0);
-  cgi_reply();
-  fossil_exit(0);
-}
-
-/*
 ** When this routine is called, we know that the request does not
 ** have a login on the present repository.  This routine checks to
 ** see if their login cookie might be for another member of the
@@ -1390,7 +1371,7 @@ int login_cookie_wellformed(void){
 **    g.zLogin       Database USER.LOGIN value.  NULL for user "nobody"
 **    g.perm         Permissions granted to this user
 **    g.anon         Permissions that would be available to anonymous
-**    g.isHuman      True if the user is human, not a spider or robot
+**    g.isRobot      True if the client is known to be a spider or robot
 **    g.perm         Populated based on user account's capabilities
 **
 */
@@ -1431,7 +1412,7 @@ void login_check_credentials(void){
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
     zCap = "sxy";
     g.noPswd = 1;
-    g.isHuman = 1;
+    g.isRobot = 0;
     zSeed = db_text("??", "SELECT uid||quote(login)||quote(pw)||quote(cookie)"
                           "  FROM user WHERE uid=%d", uid);
     login_create_csrf_secret(zSeed);
@@ -1459,12 +1440,17 @@ void login_check_credentials(void){
     }
     if( zUser==0 ){
       /* Invalid cookie */
-    }else if( fossil_strcmp(zUser, "anonymous")==0 ){
-      /* Cookies of the form "HASH/TIME/anonymous".  The TIME must not be
-      ** too old and the sha1 hash of TIME/SECRET must match HASH.
-      ** SECRET is the "captcha-secret" value in the repository.
+    }else if( fossil_strcmp(zUser, "anonymous")==0
+           && anon_cookie_lifespan()>0 ){
+      /* Cookies of the form "HASH/TIME/anonymous".  The TIME must
+      ** not be more than ANONYMOUS_COOKIE_LIFESPAN seconds ago and
+      ** the sha1 hash of TIME/USERAGENT/SECRET must match HASH. USERAGENT
+      ** is the HTTP_USER_AGENT of the client and SECRET is the
+      ** "captcha-secret" value in the repository.  See tag-20250817a
+      ** for the code the creates this cookie.
       */
       double rTime = atof(zArg);
+      const char *zUserAgent = PD("HTTP_USER_AGENT","nil");
       Blob b;
       char *zSecret;
       int n = 0;
@@ -1473,15 +1459,15 @@ void login_check_credentials(void){
         blob_zero(&b);
         zSecret = captcha_secret(n++);
         if( zSecret==0 ) break;
-        blob_appendf(&b, "%s/%s", zArg, zSecret);
+        blob_appendf(&b, "%s/%s/%s", zArg, zUserAgent, zSecret);
         sha1sum_blob(&b, &b);
         if( fossil_strcmp(zHash, blob_str(&b))==0 ){
           uid = db_int(0,
               "SELECT uid FROM user WHERE login='anonymous'"
               " AND octet_length(cap)>0"
               " AND octet_length(pw)>0"
-              " AND %.17g+0.25>julianday('now')",
-              rTime
+              " AND %.17g>julianday('now')",
+              rTime+anon_cookie_lifespan()/1440.0
           );
         }
       }while( uid==0 );
@@ -1561,8 +1547,11 @@ void login_check_credentials(void){
 
   login_set_uid(uid, zCap);
 
-  /* Maybe restrict access to robots */
-  login_restrict_robot_access();
+  /* Maybe restrict access by robots */
+  if( g.zLogin==0 && robot_restrict(g.zPath) ){
+    cgi_reply();
+    fossil_exit(0);
+  }
 }
 
 /*
@@ -1601,11 +1590,11 @@ int login_set_uid(int uid, const char *zCap){
     g.zLogin = 0;
   }
   if( PB("isrobot") ){
-    g.isHuman = 0;
+    g.isRobot = 1;
   }else if( g.zLogin==0 ){
-    g.isHuman = isHuman(P("HTTP_USER_AGENT"));
+    g.isRobot = !isHuman(P("HTTP_USER_AGENT"));
   }else{
-    g.isHuman = 1;
+    g.isRobot = 0;
   }
 
   /* Set the capabilities */
@@ -1619,7 +1608,7 @@ int login_set_uid(int uid, const char *zCap){
   ** are (potentially) copied to the anonymous permission set; otherwise,
   ** those will be out-of-sync.
   */
-  if( zCap[0] && !g.perm.Hyperlink && g.isHuman ){
+  if( zCap[0] && !g.perm.Hyperlink && !g.isRobot ){
     int autoLink = db_get_int("auto-hyperlink",1);
     if( autoLink==1 ){
       g.jsHref = 1;
@@ -1929,7 +1918,7 @@ void login_needed(int anonOk){
     if( zQS && zQS[0] ){
       blob_appendf(&redir, "%%3f%T", zQS);
     }
-    if( anonOk ) blob_append(&redir, "&anon", 5);
+    if( anonOk ) blob_append(&redir, "&anon=1", 7);
     cgi_redirect(blob_str(&redir));
     /* NOTREACHED */
     assert(0);
@@ -1943,7 +1932,7 @@ void login_needed(int anonOk){
 ** logging in as anonymous.
 */
 void login_anonymous_available(void){
-  if( !g.perm.Hyperlink && g.anon.Hyperlink ){
+  if( !g.perm.Hyperlink && g.anon.Hyperlink && anon_cookie_lifespan()>0 ){
     const char *zUrl = PD("PATH_INFO", "");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br>
     @ Use <a href="%R/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>

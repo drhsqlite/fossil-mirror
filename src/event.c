@@ -384,7 +384,7 @@ void eventedit_page(void){
   int isNew = 0;
 
   if( zBody ){
-    zBody = mprintf("%s", zBody);
+    zBody = fossil_strdup(zBody);
   }
   login_check_credentials();
   zId = P("name");
