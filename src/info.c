@@ -1237,8 +1237,8 @@ void ci_page(void){
     @   '+%d(g.diffCnt[1]) ' +
     @   '−%d(g.diffCnt[2]))'
     @ </script>
-    append_diff_javascript(diffType);
   }
+  append_diff_javascript(diffType);
   style_finish_page();
 }
 

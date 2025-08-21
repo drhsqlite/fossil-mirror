@@ -1,5 +1,5 @@
-C Rearrange\sfields\sin\sthe\sRobot\sDefense\ssetup\sto\smake\sit\seasier\sto\sunderstand.
-D 2025-08-21T10:51:54.059
+C Change\s[3710202914]\sto\scall\sthe\sfunction\sto\sload\sthe\sdiff-related\sJS\scode\seven\sfor\sblocked\sdiffs.\sBy\sdefault,\sthe\sloader\sfunction\sis\salready\sa\sno-op\sif\sdiffs\sare\sblocked,\sso\sthe\sbehavior\sintended\sby\s[3710202914]\sis\sretained.\sBut\sother\sbranches\sare\spatching\sthe\sloader\sfunction\sbecause\sthey\srely\son\sthe\sJS\scode\seven\sif\sthe\sdiffs\sare\shidden.
+D 2025-08-21T12:02:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/http_socket.c db9603e27cbf4b41dae94d000acf3dbf1ecbb431ef0a24743aabd17e5467
 F src/http_ssl.c 5050cdd1441962f51762780cdd87b38c7281ecc6f4a65290acdaca318e9a4ca0
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 6997a6b6d9ca3d2cd5e79b2561aaad2582a78d7c6032c44a956c6bb611b59c34
-F src/info.c 17aaf5264ff584d678e4986da6ef07193a6b4ec29003a71758eff30c8ec77bbf
+F src/info.c a557c0b8d9a3bd5b0f9edf894e5d5c8df32b465cd51d47611316b7b65cf9977e
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 8375e3d570e779ccd619c4e44b9977db7e9acfa2a1e244288759457101911520
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d040f1ff00c552c90586e01632d1fefc69b6f0bbf64002c328c1b925e86a78f
-R 116f1b91865f81b05f83de6539614e7e
-U drh
-Z e135b3a0107ac4af9d4a1b61c1e39a53
+P 58a48e3abe444fb675ece04d53d634ccbbfaf6551785e209083c889c0dbdb6ed
+R 0f0b3747af89a5ae1e5252ac9ea29b01
+U florian
+Z f66cd573a27fff3be76b5d21f12f26ca
 # Remove this line to create a well-formed Fossil manifest.
