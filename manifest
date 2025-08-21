@@ -1,5 +1,5 @@
-C Add\sthe\srobot-exception\ssetting.
-D 2025-08-21T14:08:29.274
+C Add\s/reports\sto\sthe\sdefault\srobot-restrict\ssetting.
+D 2025-08-21T14:13:51.490
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -521,7 +521,7 @@ F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c c3824c0d44caa76a4dd18ca13eaea5f7139b82b4cb66cbcf0f746d9e7abda846
 F src/repolist.c 3a3fb5895bbc6a43b3a379d7419bc6cbb3b826e921475c15c2624b1bb76157f1
 F src/report.c f423bfbd6a88753fdb5b9b91c2f3a787f0db955400f67e46d1630633af8bb758
-F src/robot.c 8a76d90ae76e706254de6015fe9a3ac9fac2dca3d2ffd6b59786fe951518a40e
+F src/robot.c 306f26715d912d24db253443bfbf97af6c2b55b9107c3d06c8cc566d089f209b
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 171127fd14cf63becab03d50c294c5285691321969e2a92ab07660a3085f74ce
-R 464cacfdc9f2a3b903584e619fb3e296
-U drh
-Z 9934427a948ce6c29e2d621225128feb
+P 86b6ef7fe3424284a38f9706482c58b4e65bd39d2f57ee0bdeb52065440e37a6
+R 5f04ca9a889b6cb77e735e24ae8fe8cb
+U stephan
+Z 685120a451eca0bfbee3bf0630ebb7a8
 # Remove this line to create a well-formed Fossil manifest.
