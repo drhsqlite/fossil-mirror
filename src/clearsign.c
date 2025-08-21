@@ -67,7 +67,7 @@ int clearsign(Blob *pIn, Blob *pOut){
         blob_zero(&tmpBlob);
         blob_read_from_file(&tmpBlob, zIn, ExtFILE);
         /* Add signature - already armored by SSH */
-        blob_appendf(pOut, "%s", blob_str(&tmpBlob));
+        blob_appendb(pOut, &tmpBlob);
     }else{
       /* Assume that the external command creates non-detached signatures */
       blob_read_from_file(pOut, zIn, ExtFILE);

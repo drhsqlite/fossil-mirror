@@ -123,7 +123,7 @@ int transport_ssh_open(UrlData *pUrlData){
   char *zHost;       /* The host name to contact */
 
   fossil_free(g.zIpAddr);
-  g.zIpAddr = mprintf("%s", pUrlData->name);
+  g.zIpAddr = fossil_strdup(pUrlData->name);
   transport_ssh_command(&zCmd);
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
     blob_appendf(&zCmd, " -p %d", pUrlData->port);
@@ -143,7 +143,7 @@ int transport_ssh_open(UrlData *pUrlData){
                  "the server.", pUrlData->fossil);
   }
   if( (pUrlData->flags & URL_SSH_EXE)==0
-   && (pUrlData->flags & URL_SSH_PATH)!=0 
+   && (pUrlData->flags & URL_SSH_PATH)!=0
   ){
     ssh_add_path_argument(&zCmd);
   }
@@ -247,7 +247,7 @@ void transport_close(UrlData *pUrlData){
 /*
 ** Send content over the wire.
 */
-void transport_send(UrlData *pUrlData, Blob *toSend){
+void transport_send(UrlData const *pUrlData, const Blob *toSend){
   char *z = blob_buffer(toSend);
   int n = blob_size(toSend);
   transport.nSent += n;

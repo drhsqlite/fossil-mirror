@@ -423,52 +423,34 @@ static void addAutoHyperlinkSettings(void){
      "Enable hyperlinks base on User-Agent and/or Javascript",
      "auto-hyperlink", "autohyperlink", "1",
      count(azDefenseOpts)/2, azDefenseOpts);
-  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
-  @ including user "nobody", as long as the User-Agent string in the
-  @ HTTP header indicates that the request is coming from an actual human
-  @ being.  If this setting is "UserAgent only" (2) then the
-  @ UserAgent string is the only factor considered.  If the value of this
-  @ setting is "UserAgent And Javascript" (1) then Javascript is added that
-  @ runs after the page loads and fills in the href= values of &lt;a&gt;
-  @ elements.  In either case, &lt;a&gt; tags are only generated if the
-  @ UserAgent string indicates that the request is coming from a human and
-  @ not a robot.
-  @
-  @ <p>This setting is designed to give easy access to humans while
-  @ keeping out robots.
-  @ You do not normally want a robot to walk your entire repository because
-  @ if it does, your server will end up computing diffs and annotations for
-  @ every historical version of every file and creating ZIPs and tarballs of
-  @ every historical check-in, which can use a lot of CPU and bandwidth
-  @ even for relatively small projects.</p>
-  @
-  @ <p>The "UserAgent and Javascript" value for this setting provides
-  @ superior protection from robots.  However, that setting also prevents
-  @ the visited/unvisited colors on hyperlinks from displaying correctly
-  @ on Safari-derived browsers.  (Chrome and Firefox work fine.)  Since
-  @ Safari is the underlying rendering engine on all iPhones and iPads,
-  @ this means that hyperlink visited/unvisited colors will not operate
-  @ on those platforms when "UserAgent and Javascript" is selected.</p>
-  @
-  @ <p>Additional parameters that control the behavior of Javascript:</p>
-  @ <blockquote>
+  @ <br>
   entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
                   "auto-hyperlink-delay", "ah-delay", "50", 0);
   @ <br>
   onoff_attribute("Also require a mouse event before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
-  @ </blockquote>
+  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
+  @ including user "nobody" if the request appears to be from a human.
+  @ Disabling hyperlinks helps prevent robots from walking your site and
+  @ soaking up all your CPU and bandwidth.
+  @ If this setting is "UserAgent only" (2) then the
+  @ UserAgent string is the only factor considered.  If the value of this
+  @ setting is "UserAgent And Javascript" (1) then Javascript is added that
+  @ runs after the page loads and fills in the href= values of &lt;a&gt;
+  @ elements.  In either case, &lt;a&gt; tags are not generated if the
+  @ UserAgent string indicates that the client is a robot.
+  @ (Property: "auto-hyperlink")</p>
+  @
   @ <p>For maximum robot defense, "Delay" should be at least 50 milliseconds
   @ and "require a mouse event" should be turned on.  These values only come
   @ into play when the main auto-hyperlink settings is 2 ("UserAgent and
-  @ Javascript").</p>
+  @ Javascript").
+  @ (Properties: "auto-hyperlink-delay" and "auto-hyperlink-mouseover")</p>
   @
   @ <p>To see if Javascript-base hyperlink enabling mechanism is working,
-  @ visit the <a href="%R/test-env">/test-env</a> page (from a separate
-  @ web browser that is not logged in, even as "anonymous") and verify
+  @ visit the <a href="%R/test-env">/test-env</a> page from a separate
+  @ web browser that is not logged in, even as "anonymous" and verify
   @ that the "g.jsHref" value is "1".</p>
-  @ <p>(Properties: "auto-hyperlink", "auto-hyperlink-delay", and
-  @ "auto-hyperlink-mouseover"")</p>
 }
 
 /*
@@ -497,7 +479,37 @@ void setup_robots(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
+  @ <p><b>Do not allow robots access to these pages.</b>
+  @ <p> If the page name matches the GLOB pattern of this setting, and the
+  @ users is "nobody", and the client has not previously passed a captcha
+  @ test to show that it is not a robot, then the page is not displayed.
+  @ A captcha test is is rendered instead.
+  @ The recommended value for this setting is:
+  @ <p>
+  @ &emsp;&emsp;&emsp;<tt>%h(robot_restrict_default())</tt>
+  @ <p>
+  @ The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
+  @ /vpatch.  The "annotate" tag covers /annotate and also /blame and
+  @ /praise.  The "zip" covers itself and also /tarball and /sqlar. If a
+  @ tag has an "X" character appended, then it only applies if query
+  @ parameters are such that the page is particularly difficult to compute.
+  @ In all other case, the tag should exactly match the page name.
+  @
+  @ To disable robot restrictions, change this setting to "off".
+  @ (Property: robot-restrict)
+  @ <br>
+  textarea_attribute("", 2, 80,
+      "robot-restrict", "rbrestrict", robot_restrict_default(), 0);
+
+  @ <hr>
   addAutoHyperlinkSettings();
+
+  @ <hr>
+  entry_attribute("Anonymous Login Validity", 11, "anon-cookie-lifespan",
+                  "anoncookls", "840", 0);
+  @ <p>The number of minutes for which an anonymous login cookie is valid.
+  @ Set to zero to disable anonymous login.
+  @ (property: anon-cookie-lifespan)
 
   @ <hr>
   entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
@@ -510,33 +522,7 @@ void setup_robots(void){
   @ access to the /proc virtual filesystem is required, which means this limit
   @ might not work inside a chroot() jail.
   @ (Property: "max-loadavg")</p>
-
-  @ <hr>
-  @ <p><b>Do not allow robots to make complex requests
-  @ against the following pages.</b>
-  @ <p> A "complex request" is an HTTP request that has one or more query
-  @ parameters. Some robots will spend hours juggling around query parameters
-  @ or even forging fake query parameters in an effort to discover new
-  @ behavior or to find an SQL injection opportunity or similar.  This can
-  @ waste hours of CPU time and gigabytes of bandwidth on the server.  A
-  @ suggested value for this setting is:
-  @ "<tt>timeline,*diff,vpatch,annotate,blame,praise,dir,tree</tt>".
-  @ (Property: robot-restrict)
-  @ <br>
-  textarea_attribute("", 2, 80,
-      "robot-restrict", "rbrestrict", "", 0);
-  @ <br> The following comma-separated GLOB pattern allows for exceptions
-  @ in the maximum number of query parameters before a request is considered
-  @ complex.  If this GLOB pattern exists and is non-empty and if it
-  @ matches against the pagename followed by "/" and the number of query
-  @ parameters, then the request is allowed through.  For example, the
-  @ suggested pattern of "timeline/[012]" allows the /timeline page to
-  @ pass with up to 2 query parameters besides "name".
-  @ (Property: robot-restrict-qp)
-  @ <br>
-  textarea_attribute("", 2, 80,
-      "robot-restrict-qp", "rbrestrictqp", "", 0);
-
+  @
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
@@ -775,6 +761,13 @@ void setup_access(void){
   @ This is less secure than forcing the user to do it manually, but is
   @ probably secure enough and it is certainly more convenient for
   @ anonymous users.  (Property: "auto-captcha")</p>
+
+  @ <hr>
+  entry_attribute("Anonymous Login Validity", 11, "anon-cookie-lifespan",
+                  "anoncookls", "840", 0);
+  @ <p>The number of minutes for which an anonymous login cookie is valid.
+  @ Set to zero to disable anonymous logins.
+  @ (property: anon-cookie-lifespan)
 
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>

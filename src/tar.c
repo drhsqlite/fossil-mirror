@@ -762,6 +762,7 @@ void tarball_page(void){
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
+  if( robot_restrict("zip") ) return;
   fossil_nice_default();
   zName = fossil_strdup(PD("name",""));
   z = P("r");

@@ -564,6 +564,10 @@ static int stash_get_id(const char *zStashId){
 **      Show diffs of the current working directory and what that
 **      directory would be if STASHID were applied. With gdiff,
 **      gdiff-command is used instead of internal diff logic.
+**
+** > fossil stash rename STASHID NEW-NAME
+**
+**      Change the description of the given STASHID entry to NEW-NAME.
 */
 void stash_cmd(void){
   const char *zCmd;
@@ -773,7 +777,13 @@ void stash_cmd(void){
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     stash_diff(stashid, fBaseline, &DCfg);
   }else
-  if( strncmp(zCmd, "help", nCmd)==0 ){
+  if( strncmp(zCmd, "rename", nCmd)==0 ){
+    if( g.argc!=5 ) usage("rename STASHID NAME");
+    stashid = stash_get_id(g.argv[3]);
+    db_multi_exec("UPDATE STASH SET COMMENT=%Q WHERE stashid=%d",
+                  g.argv[4], stashid);
+  }
+  else if( strncmp(zCmd, "help", nCmd)==0 ){
     g.argv[1] = "help";
     g.argv[2] = "stash";
     g.argc = 3;

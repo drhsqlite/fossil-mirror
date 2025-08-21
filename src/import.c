@@ -897,7 +897,7 @@ static int svn_read_headers(FILE *pIn, SvnRecord *rec){
     rec->nHeaders += 1;
     rec->aHeaders = fossil_realloc(rec->aHeaders,
       sizeof(rec->aHeaders[0])*rec->nHeaders);
-    rec->aHeaders[rec->nHeaders-1].zKey = mprintf("%s", zLine);
+    rec->aHeaders[rec->nHeaders-1].zKey = fossil_strdup(zLine);
     sep = strchr(rec->aHeaders[rec->nHeaders-1].zKey, ':');
     if( !sep ){
       trim_newline(zLine);
@@ -1428,8 +1428,8 @@ static void svn_dump_import(FILE *pIn){
       }
       /* start new revision */
       gsvn.rev = atoi(zTemp);
-      gsvn.zUser = mprintf("%s", svn_find_prop(rec, "svn:author"));
-      gsvn.zComment = mprintf("%s", svn_find_prop(rec, "svn:log"));
+      gsvn.zUser = fossil_strdup(svn_find_prop(rec, "svn:author"));
+      gsvn.zComment = fossil_strdup(svn_find_prop(rec, "svn:log"));
       zDate = svn_find_prop(rec, "svn:date");
       if( zDate ){
         gsvn.zDate = date_in_standard_format(zDate);

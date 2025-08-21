@@ -1388,7 +1388,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
                       blob_str(&fname));
     }else{
       file_tempname(&fname, "ci-comment",0);
-      zFile = mprintf("%s", blob_str(&fname));
+      zFile = fossil_strdup(blob_str(&fname));
     }
     blob_reset(&fname);
   }
@@ -1504,7 +1504,7 @@ static void prepare_commit_comment(
     blob_append(&prompt,
        "#   *  Hyperlinks:   [target]   or   [target|display-text]\n"
        "#   *  Blank lines cause a paragraph break\n"
-       "#   *  Other text rendered as if it where HTML\n", -1
+       "#   *  Other text rendered as if it were HTML\n", -1
     );
   }
   blob_append(&prompt, "#\n", 2);

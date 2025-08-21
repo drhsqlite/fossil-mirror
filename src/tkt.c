@@ -104,7 +104,7 @@ static void getAllTicketFields(void){
       aField = fossil_realloc(aField, sizeof(aField[0])*(nField+10) );
     }
     aField[nField].zBsln = 0;
-    aField[nField].zName = mprintf("%s", zFieldName);
+    aField[nField].zName = fossil_strdup(zFieldName);
     aField[nField].mUsed = USEDBY_TICKET;
     nField++;
   }
@@ -147,7 +147,7 @@ static void getAllTicketFields(void){
       aField = fossil_realloc(aField, sizeof(aField[0])*(nField+10) );
     }
     aField[nField].zBsln = 0;
-    aField[nField].zName = mprintf("%s", zFieldName);
+    aField[nField].zName = fossil_strdup(zFieldName);
     aField[nField].mUsed = USEDBY_TICKETCHNG;
     nField++;
   }
@@ -212,7 +212,7 @@ static void initializeVariablesFromDb(void){
         zVal = zRevealed = db_reveal(zVal);
       }
       if( (j = fieldId(zName))>=0 ){
-        aField[j].zValue = mprintf("%s", zVal);
+        aField[j].zValue = fossil_strdup(zVal);
       }else if( memcmp(zName, "tkt_", 4)==0 && Th_Fetch(zName, &size)==0 ){
         /* TICKET table columns that begin with "tkt_" are always safe */
         Th_Store(zName, zVal);
@@ -1789,7 +1789,7 @@ void ticket_cmd(void){
         }
         zFValue = g.argv[i++];
         if( tktEncoding == tktFossilize ){
-          zFValue=mprintf("%s",zFValue);
+          zFValue=fossil_strdup(zFValue);
           defossilize(zFValue);
         }
         append = (zFName[0] == '+');

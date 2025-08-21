@@ -605,7 +605,7 @@ static const char zDefaultView[] =
 @ }
 @ set seenRow 0
 @ set alwaysPlaintext [info exists plaintext]
-@ query {SELECT datetime(tkt_mtime) AS xdate, login AS xlogin,
+@ query {SELECT datetime(tkt_mtime,toLocal()) AS xdate, login AS xlogin,
 @               mimetype as xmimetype, icomment AS xcomment,
 @               username AS xusername
 @          FROM ticketchng
@@ -791,7 +791,7 @@ static const char zDefaultEdit[] =
 @ <th1>
 @ set seenRow 0
 @ set alwaysPlaintext [info exists plaintext]
-@ query {SELECT datetime(tkt_mtime) AS xdate, login AS xlogin,
+@ query {SELECT datetime(tkt_mtime,toLocal()) AS xdate, login AS xlogin,
 @               mimetype as xmimetype, icomment AS xcomment,
 @               username AS xusername
 @          FROM ticketchng
@@ -928,8 +928,8 @@ static char zDefaultReport[] =
 @        WHEN status='Deferred' THEN '#cacae5'
 @        ELSE '#c8c8c8' END AS 'bgcolor',
 @   substr(tkt_uuid,1,10) AS '#',
-@   datetime(tkt_ctime) AS 'created',
-@   datetime(tkt_mtime) AS 'modified',
+@   datetime(tkt_ctime,toLocal()) AS 'created',
+@   datetime(tkt_mtime,toLocal()) AS 'modified',
 @   type,
 @   status,
 @   subsystem,

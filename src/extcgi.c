@@ -231,7 +231,8 @@ void ext_page(void){
   }
   assert( nScript>=nRoot+1 );
   style_set_current_page("ext/%s", &zScript[nRoot+1]);
-  zMime = mimetype_from_name(zScript);
+  zMime = P("mimetype");
+  if( zMime==0 ) zMime = mimetype_from_name(zScript);
   if( zMime==0 ) zMime = "application/octet-stream";
   if( !file_isexe(zScript, ExtFILE) ){
     /* File is not executable.  Must be a regular file.  In that case,

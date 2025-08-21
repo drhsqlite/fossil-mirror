@@ -262,7 +262,7 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
 
     nName = strlen(zLinkFile);
     if( nName>=(int)sizeof(zBuf) ){
-      zName = mprintf("%s", zLinkFile);
+      zName = fossil_strdup(zLinkFile);
     }else{
       zName = zBuf;
       memcpy(zName, zLinkFile, nName+1);
@@ -427,7 +427,7 @@ int file_isdir(const char *zFilename, int eFType){
   int rc;
   char *zFN;
 
-  zFN = mprintf("%s", zFilename);
+  zFN = fossil_strdup(zFilename);
   file_simplify_name(zFN, -1, 0);
   rc = getStat(zFN, eFType);
   if( rc ){
@@ -906,7 +906,7 @@ int file_mkfolder(
   char *zName;
 
   nName = strlen(zFilename);
-  zName = mprintf("%s", zFilename);
+  zName = fossil_strdup(zFilename);
   nName = file_simplify_name(zName, nName, 0);
   while( nName>0 && zName[nName-1]!='/' ){ nName--; }
   if( nName>1 ){
@@ -1279,9 +1279,9 @@ void cmd_test_simplify_name(void){
     zTail = file_skip_userhost(g.argv[i]);
     if( zTail ){
       fossil_print("... ON REMOTE: %.*s\n", (int)(zTail-g.argv[i]), g.argv[i]);
-      z = mprintf("%s", zTail);
+      z = fossil_strdup(zTail);
     }else{
-      z = mprintf("%s", g.argv[i]);
+      z = fossil_strdup(g.argv[i]);
     }
     fossil_print("[%s] -> ", z);
     file_simplify_name(z, -1, 0);

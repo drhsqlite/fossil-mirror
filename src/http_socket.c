@@ -177,7 +177,7 @@ int socket_open(UrlData *pUrlData){
       socket_set_errmsg("getnameinfo() failed: %s", gai_strerror(rc));
       goto end_socket_open;
     }
-    g.zIpAddr = mprintf("%s", zRemote);
+    g.zIpAddr = fossil_strdup(zRemote);
     break;
   }
   if( p==0 ){
