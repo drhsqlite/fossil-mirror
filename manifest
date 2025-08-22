@@ -1,5 +1,5 @@
-C Add\sthe\s/re_rules\spage.
-D 2025-08-22T13:59:28.897
+C When\sdeleting\scookies\svia\s/cookies,\suse\sa\spath\sof\s"/"\sfor\sROBOT_COOKIE.\sThe\salternative\swould\sbe\sto\sset\sthat\scookie\sto\sbe\srepo-local\s(i.e.\sset\sits\spath\sto\sg.zTop),\swhich\swould\sbe\sunfortunate\sfor\sservers\swhich\shost\smany\sfossils.
+D 2025-08-22T15:49:22.494
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -408,7 +408,7 @@ F src/comformat.c cc02fc5b7ed26184ecb25b150d4fdf57df68cf7a852adacbeccd5e6dd07019
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c c418b6863b884c89a669a82ab5e28ce8cea58fdc72261b171741fed972951004
 F src/content.c 99ba1a2afd3421915052f7cf90ad3a9d8de6382e30c8f9ad4263e89687d0c855
-F src/cookies.c 99fb8cad1effaf9d0fc987dd1b05e7ef6e23a166415933b818e1dae9a604c867
+F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js a967fe355479c329f4e172c625b7a8403e1132be72fd3ebf9ad0afad249a679c
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 7baa3f7ec3b3d6aec893134ec6b02287ac47ac7a8237226e3c8b932d1242c0fa
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31b09807efdd82219ff43317b5569ccadc5e56d0ad3251157ad3a7ccf0a7413a
-R 7c4d982246150d5a6a1c3e9c0b2266e1
-U drh
-Z 1b10c12bed6d6679763445d6e15ec1ca
+P 8779bd0b3a60ee2c4e8fc5cac72da1c1a54024a3f32e713588806d01c2cbce8d
+R 1dec5c9ffeccbca051c56f05169127b8
+U stephan
+Z b8349319347002095c1b8849974c4162
 # Remove this line to create a well-formed Fossil manifest.
