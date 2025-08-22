@@ -509,7 +509,7 @@ void setup_robots(void){
   @ to allow scripts to download release tarballs using a pattern
   @ like:</p>
   @ <p>
-  @ &emsp;&emsp;<tt>^/tarball\b*\b(version-|release)\b</tt>
+  @ &emsp;&emsp;<tt>^/tarball\b.*\b(version-|release)\b</tt>
   @ <p>The pattern should match against the REQUEST_URI with the
   @ SCRIPT_NAME prefix removed, and with QUERY_STRING appended following
   @ a "?" if QUERY_STRING exists.  (Property: robot-exception)<br>

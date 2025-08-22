@@ -1,5 +1,5 @@
-C Activate\sthe\srobot-restrict\s"timelineX"\sflag\sif\sthe\sc=\squery\sparameter\sis\sused.
-D 2025-08-21T19:10:16.263
+C Fix\sa\stypo\sin\sthe\sregular\sexpression\sexample\sfor\srobot-exception
+D 2025-08-22T01:51:20.789
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -527,7 +527,7 @@ F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 82719ea2ad921d257a766fd6767ac401a638e2f290bc678f912e75218ab188ec
 F src/security_audit.c dc78230601d1eb4a2cb1440f91d83c9a56d1efebc9cde3c41da2e220c5a712a8
-F src/setup.c 2d5dedf8752ffae46fed675e42b156d87fdb5590ec3a334d9c6c8a101101d31e
+F src/setup.c 973abeac20e0020f2c30f88a0d263ccc39a7ee22848e93dc9935921d4f07902e
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 879deeda66191d9d4a81a5ea791bacd0f87972362d305f18632e8ebd771aad71
-R 7180dc999b6e0649674e38217b5610a1
+P 59ae0e0b18c6aea802950d4e54a40e5cc23b47ad248d9af13d414ce4aa421ca7
+R 30f41dd141d289fc7c82f08348c6bd0f
 U drh
-Z f2af5cdd1eb2d18c0aa0069dda1d9295
+Z 899c0dedc2c2d19df524f608293c62bb
 # Remove this line to create a well-formed Fossil manifest.
