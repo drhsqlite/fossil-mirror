@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sthe\sregular\sexpression\sexample\sfor\srobot-exception
-D 2025-08-22T01:51:20.789
+C Add\sthe\s/re_rules\spage.
+D 2025-08-22T13:59:28.897
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -518,7 +518,7 @@ F src/printf.c 9130f41b213a8a90fe0792a4b25dc6f6eea1cd6c25c30be6be30499ca9ce64ab
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
-F src/regexp.c c3824c0d44caa76a4dd18ca13eaea5f7139b82b4cb66cbcf0f746d9e7abda846
+F src/regexp.c 0b26726b6dcfa83cae216be6e1a1fd84f6ae51420e8998ac024c737395d726af
 F src/repolist.c 3a3fb5895bbc6a43b3a379d7419bc6cbb3b826e921475c15c2624b1bb76157f1
 F src/report.c f423bfbd6a88753fdb5b9b91c2f3a787f0db955400f67e46d1630633af8bb758
 F src/robot.c 306f26715d912d24db253443bfbf97af6c2b55b9107c3d06c8cc566d089f209b
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 59ae0e0b18c6aea802950d4e54a40e5cc23b47ad248d9af13d414ce4aa421ca7
-R 30f41dd141d289fc7c82f08348c6bd0f
+P 31b09807efdd82219ff43317b5569ccadc5e56d0ad3251157ad3a7ccf0a7413a
+R 7c4d982246150d5a6a1c3e9c0b2266e1
 U drh
-Z 899c0dedc2c2d19df524f608293c62bb
+Z 1b10c12bed6d6679763445d6e15ec1ca
 # Remove this line to create a well-formed Fossil manifest.
