@@ -950,6 +950,16 @@ void cgi_setenv(const char *zName, const char *zValue){
 }
 
 /*
+** Returns true if NUL-terminated z contains any non-NUL
+** control characters (<0x20, 32d).
+*/
+static int contains_ctrl(const char *z){
+  assert(z);
+  for( ; *z>=0x20; ++z ){}
+  return 0!=*z;
+}
+
+/*
 ** Add a list of query parameters or cookies to the parameter set.
 **
 ** Each parameter is of the form NAME=VALUE.  Both the NAME and the
@@ -978,8 +988,12 @@ void cgi_setenv(const char *zName, const char *zValue){
 ** The input string "z" is modified but no copies is made.  "z"
 ** should not be deallocated or changed again after this routine
 ** returns or it will corrupt the parameter table.
+**
+** If bPermitCtrl is false and the decoded value of any entry in z
+** contains control characters (<0x20, 32d) then that key/value pair
+** are skipped.
 */
-static void add_param_list(char *z, int terminator){
+static void add_param_list(char *z, int terminator, int bPermitCtrl){
   int isQP = terminator=='&';
   while( *z ){
     char *zName;
@@ -1002,7 +1016,10 @@ static void add_param_list(char *z, int terminator){
       zValue = "";
     }
     if( zName[0] && fossil_no_strange_characters(zName+1) ){
-      if( fossil_islower(zName[0]) ){
+      if( 0==bPermitCtrl && contains_ctrl(zValue) ){
+        continue /* Reject it. An argument could be made
+                 ** for break instead of continue. */;
+      }else if( fossil_islower(zName[0]) ){
         cgi_set_parameter_nocopy(zName, zValue, isQP);
       }else if( fossil_isupper(zName[0]) ){
         cgi_set_parameter_nocopy_tolower(zName, zValue, isQP);
@@ -1301,7 +1318,7 @@ int cgi_setup_query_string(void){
   if( z ){
     rc = 0x01;
     z = fossil_strdup(z);
-    add_param_list(z, '&');
+    add_param_list(z, '&', 0);
     z = (char*)P("skin");
     if( z ){
       char *zErr = skin_use_alternative(z, 2, SKIN_FROM_QPARAM);
@@ -1461,7 +1478,7 @@ void cgi_init(void){
   z = (char*)P("HTTP_COOKIE");
   if( z ){
     z = fossil_strdup(z);
-    add_param_list(z, ';');
+    add_param_list(z, ';', 0);
     z = (char*)cookie_value("skin",0);
     if(z){
       skin_use_alternative(z, 2, SKIN_FROM_COOKIE);
@@ -1524,7 +1541,7 @@ void cgi_decode_post_parameters(void){
     char *z = blob_str(&g.cgiIn);
     cgi_trace(z);
     if( g.zContentType[0]=='a' ){
-      add_param_list(z, '&');
+      add_param_list(z, '&', 1);
     }else{
       process_multipart_form_data(z, len);
     }
