@@ -393,6 +393,21 @@ static void chat_emit_permissions_error(int fAsMessageList){
 }
 
 /*
+** Like chat_emit_permissions_error() but emits a single
+** /chat-message-format JSON object
+*/
+static void chat_emit_csrf_error(void){
+  char * zTime = cgi_iso8601_datestamp();
+  cgi_set_content_type("application/json");
+  CX("{");
+  CX("\"isError\": true, \"xfrom\": null,");
+  CX("\"mtime\": %!j, \"lmtime\": %!j,", zTime, zTime);
+  CX("\"xmsg\": \"CSRF validation failure.\"");
+  CX("}");
+  fossil_free(zTime);
+}
+
+/*
 ** WEBPAGE: chat-send hidden loadavg-exempt
 **
 ** This page receives (via XHR) a new chat-message and/or a new file
@@ -423,6 +438,9 @@ void chat_send_webpage(void){
   login_check_credentials();
   if( 0==g.perm.Chat ) {
     chat_emit_permissions_error(0);
+    return;
+  }else if( 0==cgi_csrf_safe(1) ){
+    chat_emit_csrf_error();
     return;
   }
   zUserName = (g.zLogin && g.zLogin[0]) ? g.zLogin : "nobody";

@@ -1,5 +1,5 @@
-C Reject\sall\sGET/COOKIE\svars\sin\swhich\sthe\svalues\scontain\scontrol\scharacters.
-D 2025-09-01T15:37:28.820
+C Add\sa\sCSRF\scheck\sto\s/chat-send.
+D 2025-09-01T16:58:45.651
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -397,7 +397,7 @@ F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 3ca4bf560b53b19c0f059c23a7246a9ddbf2ade45a34ed36b806edb9ca291d12
 F src/cgi.c 20da6a35a0f64bbdb79f44ccfde5d6d5a7b657cccaf7278b67bd635ac121cc0a
-F src/chat.c cbbc84da0bffbf26964156c735c7fdae0c149795b254b4d003d8746073fa7333
+F src/chat.c 875bbecf078fc0a0f659c2d4662196f1c28a1cbdf10586316dde0e446f5801f7
 F src/checkin.c 8be7561beca6e096cc7975b054cda8cd7621df2faea7fe40459271e4eeb808ca
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -438,7 +438,7 @@ F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b66
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 57ad69acea5741a54cdec843db7aecfa82234932ec5a2ae5ba6c2a67e2077e88
 F src/fossil.diff.js 3fa5b2821aff311d79db755dbb3db5faabcbd0e52da166cb4859761784c394c9
-F src/fossil.dom.js 1603342d43b9fc7a5049cf5812183dc3e1c138585126a470d5bb8eba45c0a547
+F src/fossil.dom.js 62ee7bbb761b26473a3366e1663dfbf5ccbbb17623b537636059d51a03d52d25
 F src/fossil.fetch.js 091c826ffff63922d0b545df252c5ca0eb1080f60b258f98bec1c5b5b5e09a33
 F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cefb981de12143285d
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
@@ -975,9 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ae8fc0e0b5e6f4c3b17ef74f8f660c0b709150940c8a9be4321cb632ce8c351f c61ae84cabe665acd7dd2a062bd9da2a1af94b6808324701112fa3530517809b
-R 023b204df4d95e05b8e3f09a0f150b40
-T +closed c61ae84cabe665acd7dd2a062bd9da2a1af94b6808324701112fa3530517809b Closed\sby\sintegrate-merge.
+P 0c1419a466f2152bdf31bc3a8985349df6b45e749a93226330a5840a5b469c65
+R c6f6a616b0abc74a9728eec39f1be81c
 U stephan
-Z 86bef0987b9d9a1b99354ed4d62363ad
+Z b0f2f9f25212da8af734ce67de7ab1a8
 # Remove this line to create a well-formed Fossil manifest.
