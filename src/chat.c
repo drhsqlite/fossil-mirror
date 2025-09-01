@@ -394,7 +394,7 @@ static void chat_emit_permissions_error(int fAsMessageList){
 
 /*
 ** Like chat_emit_permissions_error() but emits a single
-** /chat-message-format JSON object
+** /chat-message-format JSON object about a CSRF violation.
 */
 static void chat_emit_csrf_error(void){
   char * zTime = cgi_iso8601_datestamp();
