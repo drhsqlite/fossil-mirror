@@ -243,7 +243,7 @@ char *cgi_extract_content(void){
 /*
 ** Additional information used to form the HTTP reply
 */
-static const char *zContentType = "text/html";   /* Content type of the reply */
+static const char *zReplyMimeType = "text/html"; /* Content type of the reply */
 static const char *zReplyStatus = "OK";          /* Reply status description */
 static int iReplyStatus = 200;               /* Reply status code */
 static Blob extraHeader = BLOB_INITIALIZER;  /* Extra header text */
@@ -258,7 +258,9 @@ static int rangeEnd = 0;                     /* End of Range: plus 1 */
 ** other content type is being returned.
 */
 void cgi_set_content_type(const char *zType){
-  zContentType = fossil_strdup(zType);
+  int i;
+  for(i=0; zType[i]>='-' && zType[i]<='z'; i++){}
+  zReplyMimeType = fossil_strndup(zType, i);
 }
 
 /*
@@ -338,10 +340,10 @@ static int is_gzippable(void){
   /* Maintenance note: this oddball structure is intended to make
   ** adding new mimetypes to this list less of a performance hit than
   ** doing a strcmp/glob over a growing set of compressible types. */
-  switch(zContentType ? *zContentType : 0){
+  switch(zReplyMimeType ? *zReplyMimeType : 0){
     case (int)'a':
-      if(0==fossil_strncmp("application/",zContentType,12)){
-        const char * z = &zContentType[12];
+      if(0==fossil_strncmp("application/",zReplyMimeType,12)){
+        const char * z = &zReplyMimeType[12];
         switch(*z){
           case (int)'j':
             return fossil_strcmp("javascript", z)==0
@@ -356,10 +358,10 @@ static int is_gzippable(void){
       }
       break;
     case (int)'i':
-      return fossil_strcmp(zContentType, "image/svg+xml")==0
-        || fossil_strcmp(zContentType, "image/vnd.microsoft.icon")==0;
+      return fossil_strcmp(zReplyMimeType, "image/svg+xml")==0
+        || fossil_strcmp(zReplyMimeType, "image/vnd.microsoft.icon")==0;
     case (int)'t':
-      return fossil_strncmp(zContentType, "text/", 5)==0;
+      return fossil_strncmp(zReplyMimeType, "text/", 5)==0;
   }
   return 0;
 }
@@ -451,7 +453,7 @@ static void cgi_fflush(void){
 /*
 ** Given a Content-Type value, returns a string suitable for appending
 ** to the Content-Type header for adding (or not) the "; charset=..."
-** part. It returns an empty string for most types or if zContentType
+** part. It returns an empty string for most types or if zReplyMimeType
 ** is NULL.
 **
 ** See forum post f60dece061c364d1 for the discussions which lead to
@@ -461,8 +463,8 @@ static void cgi_fflush(void){
 ** most types (and not required for many others which may ostensibly
 ** benefit from one, as detailed in that forum post).
 */
-static const char * content_type_charset(const char *zContentType){
-  if(0==fossil_strncmp(zContentType,"text/",5)){
+static const char * content_type_charset(const char *zReplyMimeType){
+  if(0==fossil_strncmp(zReplyMimeType,"text/",5)){
     return "; charset=utf-8";
   }
   return "";
@@ -502,7 +504,7 @@ void cgi_reply(void){
   }
   if( etag_tag()[0]!=0
    && iReplyStatus==200
-   && strcmp(zContentType,"text/html")!=0
+   && strcmp(zReplyMimeType,"text/html")!=0
   ){
     /* Do not cache HTML replies as those will have been generated and
     ** will likely, therefore, contains a nonce and we want that nonce to
@@ -544,9 +546,9 @@ void cgi_reply(void){
   */
 
   if( iReplyStatus!=304 ) {
-    blob_appendf(&hdr, "Content-Type: %s%s\r\n", zContentType,
-                 content_type_charset(zContentType));
-    if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
+    blob_appendf(&hdr, "Content-Type: %s%s\r\n", zReplyMimeType,
+                 content_type_charset(zReplyMimeType));
+    if( fossil_strcmp(zReplyMimeType,"application/x-fossil")==0 ){
       cgi_combine_header_and_body();
       blob_compress(&cgiContent[0], &cgiContent[0]);
     }
@@ -2023,7 +2025,7 @@ static NORETURN void malformed_request(const char *zMsg, ...){
   z = vmprintf(zMsg, ap);
   va_end(ap);
   cgi_set_status(400, "Bad Request");
-  zContentType = "text/plain";
+  zReplyMimeType = "text/plain";
   if( g.zReqType==0 ) g.zReqType = "WWW";
   if( g.zReqType[0]=='C' && PD("SERVER_SOFTWARE",0)!=0 ){
     const char *zServer = PD("SERVER_SOFTWARE","");

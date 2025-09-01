@@ -1,5 +1,5 @@
-C When\sdeleting\scookies\svia\s/cookies,\suse\sa\spath\sof\s"/"\sfor\sROBOT_COOKIE.\sThe\salternative\swould\sbe\sto\sset\sthat\scookie\sto\sbe\srepo-local\s(i.e.\sset\sits\spath\sto\sg.zTop),\swhich\swould\sbe\sunfortunate\sfor\sservers\swhich\shost\smany\sfossils.
-D 2025-08-22T15:49:22.494
+C Primative\svalidation\sof\srequest-supplied\smime-types.
+D 2025-09-01T14:15:58.632
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 3ca4bf560b53b19c0f059c23a7246a9ddbf2ade45a34ed36b806edb9ca291d12
-F src/cgi.c 023e3fcb4d471d83a2b0721d233f2c1c7326ed059e70b3928647402236e4dc5a
+F src/cgi.c 8fbaa71bf07fa96b2910663c9ba64a162d9bb127d744295347f2a08d27fd6d14
 F src/chat.c cbbc84da0bffbf26964156c735c7fdae0c149795b254b4d003d8746073fa7333
 F src/checkin.c 8be7561beca6e096cc7975b054cda8cd7621df2faea7fe40459271e4eeb808ca
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8779bd0b3a60ee2c4e8fc5cac72da1c1a54024a3f32e713588806d01c2cbce8d
-R 1dec5c9ffeccbca051c56f05169127b8
-U stephan
-Z b8349319347002095c1b8849974c4162
+P 55c972103ffc130670ec3c33a6cd8e1808a59bbdd5527fc978474b47f45ce49d
+R 6e286bf408ed9dfa3d08eb7101f3c8a8
+U drh
+Z d5638413485e6daa2df420f594c91c07
 # Remove this line to create a well-formed Fossil manifest.
