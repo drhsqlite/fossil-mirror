@@ -1,5 +1,5 @@
-C Finish\swriting\sa\sdoc\ssentence\sstarted\sin\sthe\sprevious\scheckin.
-D 2025-09-01T17:17:15.889
+C Change\sthe\slink\sto\sfnc\sto\suse\sits\snew\scanonical\shome,\sfnc.sh,\sas\spointed\sout\sby\sFlorian\sin\sthe\sforum.
+D 2025-09-02T12:51:47.894
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -914,7 +914,7 @@ F www/qandc.wiki 256511da7ec09719877dbc2e8161c1caae85d8344ccc514e145fbb38810fb2b
 F www/quickstart.wiki 6f1a7a0dccb6b9a0d847256c3ace104317ec1c4eb5f22266d1b1efb616f5ed90
 F www/quotes.wiki d4a684d0ac5838ddbc76688284b7043e561d4e52ecbeb4b0bf0ac3e10bc70d3c
 F www/rebaseharm.md eb99fadc7586e4215c05ff5d9fc76d2a1313f7f00ada33571f5a2ca7322c1d2b
-F www/relatedwork.md f099cea52511a1d914efe6fdbe2efb88f15f0345268212631ef42373b55d1898
+F www/relatedwork.md 29516a196c7f37fb383cfeb70ef609532f590c206f8b06b76afdd5f9b3507301
 F www/reviews.wiki 3580e243337cdf328c839ad47862f3e2008d60cbe4b92db341f045aad043d0f6
 F www/scgi.wiki 8a0f5e5ba635f40fc9e2e8d9afc5eaa6df854152ab9413ebacd2809866e104b7
 F www/selfcheck.wiki bdadf16dc00fe01497186397287d311b4eeb3a578d8afc56b279a1bd65da1b2c
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4caa8cb9ff819f7eee8536f7f4892fca803fdf7072ed25d76a6ac4bd19992b7e
-R 1d493f5f6a237241812bf1fa01e092a9
+P 7a3d6d70577365d41f43df88c87b5f836cad5ecd01f7f76b9968593e4a8327ee
+R 84c3aa95900f95ab223b04b8baefe33c
 U stephan
-Z b280384a5e790b467ec2692c68ab63cf
+Z 0c89312251ed2661f38b01e27aa5acbc
 # Remove this line to create a well-formed Fossil manifest.
