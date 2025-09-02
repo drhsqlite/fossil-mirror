@@ -1,5 +1,5 @@
-C Change\sthe\slink\sto\sfnc\sto\suse\sits\snew\scanonical\shome,\sfnc.sh,\sas\spointed\sout\sby\sFlorian\sin\sthe\sforum.
-D 2025-09-02T12:51:47.894
+C Minor\sinternal\sdoc\supdates.\sNo\scode\schanges.
+D 2025-09-02T12:52:19.838
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -438,7 +438,7 @@ F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b66
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 57ad69acea5741a54cdec843db7aecfa82234932ec5a2ae5ba6c2a67e2077e88
 F src/fossil.diff.js 3fa5b2821aff311d79db755dbb3db5faabcbd0e52da166cb4859761784c394c9
-F src/fossil.dom.js 62ee7bbb761b26473a3366e1663dfbf5ccbbb17623b537636059d51a03d52d25
+F src/fossil.dom.js eb2d34ff73a0e183713b673a7b714c6f21275ff310449d829cdcdcce73e49f91
 F src/fossil.fetch.js 091c826ffff63922d0b545df252c5ca0eb1080f60b258f98bec1c5b5b5e09a33
 F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cefb981de12143285d
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a3d6d70577365d41f43df88c87b5f836cad5ecd01f7f76b9968593e4a8327ee
-R 84c3aa95900f95ab223b04b8baefe33c
+P accce714ccd9c9c5d586aae87dad131cebc4d791aa6a1e311f3c6b9ee4e06bfd
+R 606b5009af0a55d50a4e7bfd060d475a
 U stephan
-Z 0c89312251ed2661f38b01e27aa5acbc
+Z 1ba9eb8e5e94a608d5757938519dab23
 # Remove this line to create a well-formed Fossil manifest.
