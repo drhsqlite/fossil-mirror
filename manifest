@@ -1,5 +1,5 @@
-C Minor\sinternal\sdoc\supdates.\sNo\scode\schanges.
-D 2025-09-02T12:52:19.838
+C Allow\sthe\splus\ssign\sin\sMIME\stypes\sagain,\sneeded\sfor\sexample\sin\s'application/rss+xml'.
+D 2025-09-02T22:10:30.186
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 3ca4bf560b53b19c0f059c23a7246a9ddbf2ade45a34ed36b806edb9ca291d12
-F src/cgi.c 20da6a35a0f64bbdb79f44ccfde5d6d5a7b657cccaf7278b67bd635ac121cc0a
+F src/cgi.c 12390f1715660b3ee23525b014170829cc5cbb9276ad30be4ecd71f836d72429
 F src/chat.c 9290b92848d30cff142122b049c5082cf8f682ee954f567f5ab84fbcd50c8664
 F src/checkin.c 8be7561beca6e096cc7975b054cda8cd7621df2faea7fe40459271e4eeb808ca
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P accce714ccd9c9c5d586aae87dad131cebc4d791aa6a1e311f3c6b9ee4e06bfd
-R 606b5009af0a55d50a4e7bfd060d475a
-U stephan
-Z 1ba9eb8e5e94a608d5757938519dab23
+P 65448438e85fa092587b6859b7e085922cef7ecdf15116a30427d7c28c53005f
+R bf042e9143fab153b52326af9e1f3d71
+U danield
+Z 37c918ba41febadcee92aa45e714f3c5
 # Remove this line to create a well-formed Fossil manifest.

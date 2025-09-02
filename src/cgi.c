@@ -259,7 +259,7 @@ static int rangeEnd = 0;                     /* End of Range: plus 1 */
 */
 void cgi_set_content_type(const char *zType){
   int i;
-  for(i=0; zType[i]>='-' && zType[i]<='z'; i++){}
+  for(i=0; zType[i]=='+' || zType[i]>='-' && zType[i]<='z'; i++){}
   zReplyMimeType = fossil_strndup(zType, i);
 }
 
