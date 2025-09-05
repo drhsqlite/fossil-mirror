@@ -1,5 +1,5 @@
-C Fix\scompiler\swarning\sand\simprove\sperformance\sin\sprevious\scheck-in.
-D 2025-09-04T12:00:37.116
+C Fix\sthe\serror\slog\sparsing\sso\sthat\stimeouts\sdo\snot\sappear\sas\spanics.
+D 2025-09-05T15:20:08.527
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -526,7 +526,7 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 82719ea2ad921d257a766fd6767ac401a638e2f290bc678f912e75218ab188ec
-F src/security_audit.c dc78230601d1eb4a2cb1440f91d83c9a56d1efebc9cde3c41da2e220c5a712a8
+F src/security_audit.c 8bd3be3188fb26a470bb5631e92b22d89bb25642efaf2604eeddfd96932211ad
 F src/setup.c 973abeac20e0020f2c30f88a0d263ccc39a7ee22848e93dc9935921d4f07902e
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 639c040474d6bae3e7b1253885364b410d1802e04596883d9b532a211077eb90
-R 40bce1da7a3c2f651282497fd5232186
+P 9d7c15d40919626ebbe21fed91101515f91efa936cab2e30c77c2c1a5e8a51b0
+R 8a4eeeaea3e4a0d6d071da0f11e2b791
 U drh
-Z b4ada3b236fdd69e277bb0920df5df96
+Z 5ade8a2bbe9639bf9bd3c625793e2544
 # Remove this line to create a well-formed Fossil manifest.
