@@ -2406,7 +2406,7 @@ void page_timeline(void){
       }else{
         blob_appendf(&desc, " back to %z%h</a>%s",
                      href("%R/info?name=%h",zBackTo), zBackTo,
-                     bBackAdded ? " (not a direct anscestor)" : "");
+                     bBackAdded ? " (not a direct ancestor)" : "");
         if( ridFwdTo && zFwdTo ){
           blob_appendf(&desc, " and up to %z%h</a>%s",
                      href("%R/info?name=%h",zFwdTo), zFwdTo,
