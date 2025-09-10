@@ -1331,7 +1331,7 @@ static FILE * openChrSource(const char *zFile){
 ** This routine reads a line of text from FILE in, stores
 ** the text in memory obtained from malloc() and returns a pointer
 ** to the text.  NULL is returned at end of file, or if malloc()
-** fails.
+** fails, or if the length of the line is longer than about a gigabyte.
 **
 ** If zLine is not NULL then it is a malloced buffer returned from
 ** a previous call to this routine that may be reused.
@@ -1342,6 +1342,10 @@ static char *local_getline(char *zLine, FILE *in){
 
   while( 1 ){
     if( n+100>nLine ){
+      if( nLine>=1073741773 ){
+        free(zLine);
+        return 0;
+      }
       nLine = nLine*2 + 100;
       zLine = realloc(zLine, nLine);
       shell_check_oom(zLine);
@@ -10225,6 +10229,7 @@ static const char ZIPFILE_SCHEMA[] =
 
 #define ZIPFILE_F_COLUMN_IDX 7    /* Index of column "file" in the above */
 #define ZIPFILE_BUFFER_SIZE (64*1024)
+#define ZIPFILE_MX_NAME (250)     /* Windows limitation on filename size */
 
 
 /*
@@ -10781,6 +10786,7 @@ static int zipfileReadLFH(
     pLFH->szUncompressed = zipfileRead32(aRead);
     pLFH->nFile = zipfileRead16(aRead);
     pLFH->nExtra = zipfileRead16(aRead);
+    if( pLFH->nFile>ZIPFILE_MX_NAME ) rc = SQLITE_ERROR;
   }
   return rc;
 }
@@ -10994,8 +11000,12 @@ static int zipfileGetEntry(
         pNew->iDataOff =  pNew->cds.iOffset + ZIPFILE_LFH_FIXED_SZ;
         pNew->iDataOff += lfh.nFile + lfh.nExtra;
         if( aBlob && pNew->cds.szCompressed ){
-          pNew->aData = &pNew->aExtra[nExtra];
-          memcpy(pNew->aData, &aBlob[pNew->iDataOff], pNew->cds.szCompressed);
+          if( pNew->iDataOff + pNew->cds.szCompressed > nBlob ){
+            rc = SQLITE_CORRUPT;
+          }else{
+            pNew->aData = &pNew->aExtra[nExtra];
+            memcpy(pNew->aData, &aBlob[pNew->iDataOff], pNew->cds.szCompressed);
+          }
         }
       }else{
         *pzErr = sqlite3_mprintf("failed to read LFH at offset %d", 
@@ -11782,6 +11792,11 @@ static int zipfileUpdate(
       zPath = (const char*)sqlite3_value_text(apVal[2]);
       if( zPath==0 ) zPath = "";
       nPath = (int)strlen(zPath);
+      if( nPath>ZIPFILE_MX_NAME ){
+        zipfileTableErr(pTab, "filename too long; max: %d bytes",
+                        ZIPFILE_MX_NAME);
+        rc = SQLITE_CONSTRAINT;
+      }
       mTime = zipfileGetTime(apVal[4]);
     }
 
@@ -12140,6 +12155,13 @@ static void zipfileStep(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal){
   nName = sqlite3_value_bytes(pName);
   if( zName==0 ){
     zErr = sqlite3_mprintf("first argument to zipfile() must be non-NULL");
+    rc = SQLITE_ERROR;
+    goto zipfile_step_out;
+  }
+  if( nName>ZIPFILE_MX_NAME ){
+    zErr = sqlite3_mprintf(
+               "filename argument to zipfile() too big; max: %d bytes",
+               ZIPFILE_MX_NAME);
     rc = SQLITE_ERROR;
     goto zipfile_step_out;
   }
@@ -22035,7 +22057,7 @@ static void output_hex_blob(FILE *out, const void *pBlob, int nBlob){
 ** Output the given string as a quoted string using SQL quoting conventions:
 **
 **   (1)   Single quotes (') within the string are doubled
-**   (2)   The whle string is enclosed in '...'
+**   (2)   The while string is enclosed in '...'
 **   (3)   Control characters other than \n, \t, and \r\n are escaped
 **         using \u00XX notation and if such substitutions occur,
 **         the whole string is enclosed in unistr('...') instead of '...'.
@@ -22281,7 +22303,7 @@ static void output_json_string(FILE *out, const char *z, i64 n){
 ** other than \t, \n, and \r\n
 **
 ** If no escaping is needed (the common case) then set *ppFree to NULL
-** and return the original string.  If escapingn is needed, write the
+** and return the original string.  If escaping is needed, write the
 ** escaped string into memory obtained from sqlite3_malloc64() or the
 ** equivalent, and return the new string and set *ppFree to the new string
 ** as well.
@@ -33370,11 +33392,19 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     }else if( cli_strcmp(z,"-pagecache")==0 ){
       sqlite3_int64 n, sz;
       sz = integerValue(cmdline_option_value(argc,argv,++i));
-      if( sz>70000 ) sz = 70000;
+      if( sz>65536 ) sz = 65536;
       if( sz<0 ) sz = 0;
       n = integerValue(cmdline_option_value(argc,argv,++i));
       if( sz>0 && n>0 && 0xffffffffffffLL/sz<n ){
         n = 0xffffffffffffLL/sz;
+      }
+      if( sz>0 && (sz & (sz-1))==0 ){
+        /* If SIZE is a power of two, round it up by the PCACHE_HDRSZ */
+        int szHdr = 0;
+        sqlite3_config(SQLITE_CONFIG_PCACHE_HDRSZ, &szHdr);
+        sz += szHdr;
+        sqlite3_fprintf(stdout, "Page cache size increased to %d to accommodate"
+                        " the %d-byte headers\n", (int)sz, szHdr);
       }
       verify_uninitialized();
       sqlite3_config(SQLITE_CONFIG_PAGECACHE,
