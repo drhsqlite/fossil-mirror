@@ -406,6 +406,8 @@ size_t cgi_fread(void *ptr, size_t nmemb){
   return ssl_read_server(g.httpSSLConn, ptr, nmemb, 1);
 #else
   fossil_fatal("SSL not available");
+  /* NOT REACHED */
+  return 0;
 #endif
 }
 

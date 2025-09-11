@@ -1,5 +1,5 @@
-C Update\sto\sa\snewer\sSQLite\sthat\sfixes\sa\sbug\sin\sthe\sSQLite\sCLI\sso\sthat\sit\nwill\sonce\sagain\scompile\son\s32-bit\swindows.
-D 2025-09-10T14:29:32.192
+C Add\sa\smissing\sreturn\sin\scgi_fread()\sfor\sbuilds\swithout\sFOSSIL_ENABLE_SSL.
+D 2025-09-11T10:17:11.556
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 3ca4bf560b53b19c0f059c23a7246a9ddbf2ade45a34ed36b806edb9ca291d12
-F src/cgi.c 0263f04537509f1c67ec65c69e84be9e91fc137f399d993250c0ab6be6a74d5d
+F src/cgi.c 6919bd51d208b78ade075434c2c635a9555582f84fb00bc698c1b70a90e67ba1
 F src/chat.c 9290b92848d30cff142122b049c5082cf8f682ee954f567f5ab84fbcd50c8664
 F src/checkin.c 8be7561beca6e096cc7975b054cda8cd7621df2faea7fe40459271e4eeb808ca
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1042d645388bbfc71cd937c1fdbfe8b9777d2c686c592b9d43b422252021f905
-R ea5b9ce15a9bb12fb6bfd4015cdf264b
-U drh
-Z 361c80444282cc8a3dbeb60e16050409
+P fb8697872ba335827e71a55aa6c168bd2e2ba330cf032b04f4a019f86e090f34
+R ff9b67ea2e16d1da187070da1d4e3c29
+U stephan
+Z 142da9945499cfd1eac81b0bed71f38e
 # Remove this line to create a well-formed Fossil manifest.
