@@ -403,30 +403,32 @@ static void append_file_change_line(
       append_diff(zOld, zNew, pCfg);
     }
   }else{
+    const char *zCkin2 =
+      mprintf(validate16(zCkin, -1) ? "%!S" : "%T"/*works-like:"%s"*/, zCkin);
     if( zOld && zNew ){
       if( fossil_strcmp(zOld, zNew)!=0 ){
         if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
           @ Renamed and modified
-          @ %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zOldName,zOld,zCkin))\
+          @ %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zOldName,zOld,zCkin2))\
           @ %h(zOldName)</a>
           @ %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
-          @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+          @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
           @ %h(zName)</a>
           @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
         }else{
-          @ Modified %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+          @ Modified %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
           @ %h(zName)</a>
           @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
           @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
         }
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
         @ Name change
-        @ from %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zOldName,zOld,zCkin))\
+        @ from %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zOldName,zOld,zCkin2))\
         @ %h(zOldName)</a>
-        @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+        @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
         @ %h(zName)</a>.
       }else{
-        @ %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+        @ %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
         @ %h(zName)</a> became
         if( mperm==PERM_EXE ){
           @ executable with contents
@@ -438,10 +440,10 @@ static void append_file_change_line(
         @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }
     }else if( zOld ){
-      @ Deleted %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zOld,zCkin))\
+      @ Deleted %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zOld,zCkin2))\
       @ %h(zName)</a> version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
     }else{
-      @ Added %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+      @ Added %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
       @ %h(zName)</a> version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
     if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
