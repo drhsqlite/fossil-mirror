@@ -1,5 +1,5 @@
-C Fix\slinks\swith\struncated\ssymbolic\snames\sin\s/vdiff,\sas\sreported\sin\sforum\spost\s690436f85e.
-D 2025-09-11T15:43:11.731
+C Fix\sthe\s"Download"\ssubmenu\sitem\son\sthe\s/artifact\spage\ssuch\sthat\sthe\nat=\squery\sparameter\sis\sthe\sactual\sbasename\sof\sthe\sfile\sbeing\sdownloaded,\nwhen\savailable.
+D 2025-09-11T21:44:13.515
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/http_socket.c db9603e27cbf4b41dae94d000acf3dbf1ecbb431ef0a24743aabd17e5467
 F src/http_ssl.c 5050cdd1441962f51762780cdd87b38c7281ecc6f4a65290acdaca318e9a4ca0
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 6997a6b6d9ca3d2cd5e79b2561aaad2582a78d7c6032c44a956c6bb611b59c34
-F src/info.c 326eeae623a694cfbcbe7126389e9fad40dcd55feabd52eb2c48eff7f60c7519
+F src/info.c ceed9226821dfe5b46be61b20b26df2588d24a5ea733c3bd575959b8088c3f01
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 8375e3d570e779ccd619c4e44b9977db7e9acfa2a1e244288759457101911520
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1cd81630456dde642d15809c65e4d41c8614423782dac5c9667e66561aaca000
-R 5948a654c725ddbddf131ee65d64177a
-U danield
-Z 4e2e65c1ba733583e319d56599dfa4ff
+P 2871b39a62f311a16036febaf2538f3511dd41ff95d8e680bc9ce5fbabcb6a55
+R 007e230d2e35f5b6bf28c564f1011a94
+U drh
+Z 04532e1d156291efe63a8254ee953d2a
 # Remove this line to create a well-formed Fossil manifest.

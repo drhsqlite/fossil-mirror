@@ -2959,7 +2959,8 @@ void artifact_page(void){
     db_finalize(&q);
   }
   if( !docOnly ){
-    style_submenu_element("Download", "%R/raw/%s?at=%T",zUuid,file_tail(zName));
+    style_submenu_element("Download", "%R/raw/%s?at=%T",
+                zUuid, file_tail(blob_str(&downloadName)));
     if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
       style_submenu_element("Check-ins Using", "%R/timeline?uf=%s", zUuid);
     }
