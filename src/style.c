@@ -1281,11 +1281,20 @@ static void page_style_css_append_page_style(Blob *pOut){
 void page_style_css(void){
   Blob css = empty_blob;
   int i;
-  const char * zDefaults;
+  const char *zDefaults;
   const char *zSkin;
-
+  const char *zRequestUri = P("REQUEST_URI");
+  const char *zScriptName = P("SCRIPT_NAME");
+  const char *zKey = 0;
   cgi_set_content_type("text/css");
   etag_check(0, 0);
+  if( zRequestUri && zScriptName && strlen(zScriptName)<strlen(zRequestUri) ){
+    zKey = zRequestUri + strlen(zScriptName);
+  }
+  if( zKey && cache_read(cgi_output_blob(), zKey) ){
+    g.isConst = 1;
+    return;
+  }
   /* Emit all default rules... */
   zDefaults = (const char*)builtin_file("default.css", &i);
   blob_append(&css, zDefaults, i);
@@ -1308,6 +1317,7 @@ void page_style_css(void){
   image_url_var("logo");
   image_url_var("background");
   Th_Render(blob_str(&css));
+  if( zKey ) cache_write(cgi_output_blob(), zKey);
   blob_reset(&css);
 
   /* Tell CGI that the content returned by this page is considered cacheable */
