@@ -1,5 +1,5 @@
-C Fix\sthe\s"Download"\ssubmenu\sitem\son\sthe\s/artifact\spage\ssuch\sthat\sthe\nat=\squery\sparameter\sis\sthe\sactual\sbasename\sof\sthe\sfile\sbeing\sdownloaded,\nwhen\savailable.
-D 2025-09-11T21:44:13.515
+C Fix\san\sout-of-bounds\sarray\saccess\sin\sthe\sfunction\sto\sdecode\sa\sUTF-8\ssequence\s(similar\sto\sa\sproblem\sreported\son\sthe\sSQLite\sForum:\shttps://sqlite.org/forum/forumpost/184b372388).
+D 2025-09-21T04:16:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -404,7 +404,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
 F src/clone.c 34b09841124259f0446ea520c3e407df476552ebdbcbf003e143ed7ac152f911
 F src/color.c cbe8fb7c03c07735b13449a8384c466ddd93306af7bf63176414cf6fd1e144b9
-F src/comformat.c cc02fc5b7ed26184ecb25b150d4fdf57df68cf7a852adacbeccd5e6dd07019ab
+F src/comformat.c 71069fe975ea6173e0f5b78f186e4a6d88eeef46d0a1f5d7b879a0dc923dd31f
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
 F src/configure.c c418b6863b884c89a669a82ab5e28ce8cea58fdc72261b171741fed972951004
 F src/content.c 99ba1a2afd3421915052f7cf90ad3a9d8de6382e30c8f9ad4263e89687d0c855
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2871b39a62f311a16036febaf2538f3511dd41ff95d8e680bc9ce5fbabcb6a55
-R 007e230d2e35f5b6bf28c564f1011a94
-U drh
-Z 04532e1d156291efe63a8254ee953d2a
+P b1e811c3e70543221c47bf5bab91923e2dd7c9e02e2988b5d1d8f915d3384d21
+R 5587a010986e1fb48512f6a6b512f940
+U florian
+Z 647efed4b12a7eaeace2f6e4de6ed420
 # Remove this line to create a well-formed Fossil manifest.
