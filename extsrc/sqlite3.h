@@ -148,10 +148,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.51.0"
 #define SQLITE_VERSION_NUMBER 3051000
-#define SQLITE_SOURCE_ID      "2025-09-10 14:28:07 61d9e204c5801a94811fdb0afe2c04f9814e08f2e141afa6dbda0fa45f026f70"
+#define SQLITE_SOURCE_ID      "2025-09-24 19:10:58 821cc0e421bc14a68ebaee507e38a900e0c84ff6ba7ee95bf796cad387755232"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2025-09-10T14:28:07.926Z"
+#define SQLITE_SCM_DATETIME   "2025-09-24T19:10:58.215Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4205,6 +4205,34 @@ SQLITE_API const char *sqlite3_errmsg(sqlite3*);
 SQLITE_API const void *sqlite3_errmsg16(sqlite3*);
 SQLITE_API const char *sqlite3_errstr(int);
 SQLITE_API int sqlite3_error_offset(sqlite3 *db);
+
+/*
+** CAPI3REF: Set Error Codes And Message
+** METHOD: sqlite3
+**
+** Set the error code of the database handle passed as the first argument
+** to errcode, and the error message to a copy of nul-terminated string
+** zErrMsg. If zErrMsg is passed NULL, then the error message is set to
+** the default message associated with the supplied error code.  Subsequent
+** calls to [sqlite3_errcode()] and [sqlite3_errmsg()] and similar will
+** return the values set by this routine in place of what was previously
+** set by SQLite itself.
+**
+** This function returns SQLITE_OK if the error code and error message are
+** successfully set, SQLITE_NOMEM if an OOM occurs, and SQLITE_MISUSE if
+** the database handle is NULL or invalid.
+**
+** The error code and message set by this routine remains in effect until
+** they are changed, either by another call to this routine or until they are
+** changed to by SQLite itself to reflect the result of some subsquent
+** API call.
+**
+** This function is intended for use by SQLite extensions or wrappers.  The
+** idea is that an extension or wrapper can use this routine to set error
+** messages and error codes and thus behave more like a core SQLite
+** feature from the point of view of an application.
+*/
+SQLITE_API int sqlite3_set_errmsg(sqlite3 *db, int errcode, const char *zErrMsg);
 
 /*
 ** CAPI3REF: Prepared Statement Object
@@ -12346,6 +12374,15 @@ SQLITE_API void sqlite3changegroup_delete(sqlite3_changegroup*);
 ** update the "main" database attached to handle db with the changes found in
 ** the changeset passed via the second and third arguments.
 **
+** All changes made by these functions are enclosed in a savepoint transaction.
+** If any other error (aside from a constraint failure when attempting to
+** write to the target database) occurs, then the savepoint transaction is
+** rolled back, restoring the target database to its original state, and an
+** SQLite error code returned. Additionally, starting with version 3.51.0,
+** an error code and error message that may be accessed using the
+** [sqlite3_errcode()] and [sqlite3_errmsg()] APIs are left in the database
+** handle.
+**
 ** The fourth argument (xFilter) passed to these functions is the "filter
 ** callback". This may be passed NULL, in which case all changes in the
 ** changeset are applied to the database. For sqlite3changeset_apply() and
@@ -12482,12 +12519,6 @@ SQLITE_API void sqlite3changegroup_delete(sqlite3_changegroup*);
 ** table that the callback related to, from within the xConflict callback.
 ** This can be used to further customize the application's conflict
 ** resolution strategy.
-**
-** All changes made by these functions are enclosed in a savepoint transaction.
-** If any other error (aside from a constraint failure when attempting to
-** write to the target database) occurs, then the savepoint transaction is
-** rolled back, restoring the target database to its original state, and an
-** SQLite error code returned.
 **
 ** If the output parameters (ppRebase) and (pnRebase) are non-NULL and
 ** the input is a changeset (not a patchset), then sqlite3changeset_apply_v2()
