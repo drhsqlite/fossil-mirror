@@ -244,6 +244,12 @@ static void ask_for_proof_that_client_is_not_robot(void){
   @ function ccc(a,b,c){return (a*%u(k3)+b)*%u(k2)+c;}\
   @ window.addEventListener('load',function(){\
   @ bbb(ccc(%u(p5),%u(p4),%u(p3)),%u(k));},false);
+  /* Prevent successfully completed robot checks from reappearing and force
+  ** incomplete checks to start over when navigating back and forward. More
+  ** information: <https://stackoverflow.com/a/43043658>. */
+  @ window.addEventListener('pageshow',function(e){if(e.persisted||\
+    @ (window.performance&&window.performance.navigation.type==2))\
+    @ window.location.reload();});
   @ </script>
   style_finish_page();
 }
