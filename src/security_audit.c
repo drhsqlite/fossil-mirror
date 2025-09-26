@@ -956,7 +956,9 @@ void errorlog_page(void){
         bOutput = (eType & 0x01)!=0;
         nHack++;
       }else
-      if( (strncmp(z,"panic: ", 7)==0 || strstr(z," assertion fault ")!=0) ){
+      if( (strncmp(z,"panic: ", 7)==0 && strncmp(z+7,"Timeout",7)!=0)
+       || strstr(z," assertion fault ")!=0
+      ){
         bOutput = (eType & 0x02)!=0;
         nPanic++;
       }else

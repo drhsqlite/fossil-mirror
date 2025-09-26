@@ -244,6 +244,11 @@ static void ask_for_proof_that_client_is_not_robot(void){
   @ function ccc(a,b,c){return (a*%u(k3)+b)*%u(k2)+c;}\
   @ window.addEventListener('load',function(){\
   @ bbb(ccc(%u(p5),%u(p4),%u(p3)),%u(k));},false);
+  /* Prevent successfully completed robot checks from reappearing and force
+  ** incomplete checks to start over when navigating back and forward. More
+  ** information: <https://stackoverflow.com/a/43043658>. */
+  @ window.addEventListener('pageshow',function(e){if(e.persisted)\
+    @ window.location.reload();});
   @ </script>
   style_finish_page();
 }
@@ -255,7 +260,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** should be disallowed.  "Unauthenticated" means the user is "nobody".
 ** The recommended value for this setting is:
 **
-**     timelineX,diff,annotate,zip,fileage,file,finfo
+**     timelineX,diff,annotate,zip,fileage,file,finfo,reports
 **
 ** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and
 ** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
@@ -266,12 +271,30 @@ static void ask_for_proof_that_client_is_not_robot(void){
 **
 ** Change this setting "off" to disable all robot restrictions.
 */
+/*
+** SETTING: robot-exception              width=40 block-text
+**
+** The value of this setting should be a regular expression.
+** If it matches the REQUEST_URI without the SCRIPT_NAME prefix
+** matches this regular expression, then the request is an exception
+** to anti-robot defenses and should be allowed through.  For
+** example, to allow robots to download tarballs or ZIP archives
+** for named versions and releases, you could use an expression like
+** this:
+**
+**     ^/(tarball|zip)\\b*\\b(version-|release)\\b
+**
+** This setting can hold multiple regular expressions, one
+** regular expression per line.  The input URL is exempted from
+** anti-robot defenses if any of the multiple regular expressions
+** matches.
+*/
 
 /*
 ** Return the default restriction GLOB
 */
 const char *robot_restrict_default(void){
-  return "timelineX,diff,annotate,zip,fileage,file,finfo";
+  return "timelineX,diff,annotate,zip,fileage,file,finfo,reports";
 }
 
 /*
@@ -291,6 +314,77 @@ int robot_restrict_has_tag(const char *zTag){
 }
 
 /*
+** Check the request URI to see if it matches one of the URI
+** exceptions listed in the robot-exception setting.  Return true
+** if it does.  Return false if it does not.
+**
+** For the purposes of this routine, the "request URI" means
+** the REQUEST_URI value with the SCRIPT_NAME prefix removed and
+** with QUERY_STRING appended with a "?" separator if QUERY_STRING
+** is not empty.
+**
+** If the robot-exception setting does not exist or is an empty
+** string, then return false.
+*/
+int robot_exception(void){
+  const char *zRE = db_get("robot-exception",0);
+  const char *zQS;    /* QUERY_STRING */
+  const char *zURI;   /* REQUEST_URI */
+  const char *zSN;    /* SCRIPT_NAME */
+  const char *zNL;    /* Next newline character */
+  char *zRequest;     /* REQUEST_URL w/o SCRIPT_NAME prefix + QUERY_STRING */
+  int nRequest;       /* Length of zRequest in bytes */
+  size_t nURI, nSN;   /* Length of zURI and zSN */
+  int bMatch = 0;     /* True if there is a match */
+
+  if( zRE==0 ) return 0;
+  if( zRE[0]==0 ) return 0;
+  zURI = PD("REQUEST_URI","");
+  nURI = strlen(zURI);
+  zSN = PD("SCRIPT_NAME","");
+  nSN = strlen(zSN);
+  if( nSN<=nURI ) zURI += nSN;
+  zQS = P("QUERY_STRING");
+  if( zQS && zQS[0] ){
+    zRequest = mprintf("%s?%s", zURI, zQS);
+  }else{
+    zRequest = fossil_strdup(zURI);
+  }
+  nRequest = (int)strlen(zRequest);
+  while( zRE[0] && bMatch==0 ){
+    char *z;
+    const char *zErr;
+    size_t n;
+    ReCompiled *pRe;
+    zNL = strchr(zRE,'\n');
+    if( zNL ){
+      n = (size_t)(zNL - zRE)+1;
+      while( zNL>zRE && fossil_isspace(zNL[0]) ) zNL--;
+      if( zNL==zRE ){
+        zRE += n;
+        continue;
+      }
+    }else{
+      n = strlen(zRE);
+    }
+    z = mprintf("%.*s", (int)(zNL - zRE)+1, zRE);
+    zRE += n;
+    zErr = re_compile(&pRe, z, 0);
+    if( zErr ){
+      fossil_warning("robot-exception error \"%s\" in expression \"%s\"\n",
+                     zErr, z);
+      fossil_free(z);
+      continue;
+    }
+    fossil_free(z);
+    bMatch = re_match(pRe, (const unsigned char*)zRequest, nRequest);
+    re_free(pRe);
+  }
+  fossil_free(zRequest);
+  return bMatch;
+}
+
+/*
 ** Check to see if the page named in the argument is on the
 ** robot-restrict list.  If it is on the list and if the user
 ** is "nobody" then bring up a captcha to test to make sure that
@@ -304,8 +398,12 @@ int robot_restrict(const char *zTag){
   if( robot.resultCache==KNOWN_NOT_ROBOT ) return 0;
   if( !robot_restrict_has_tag(zTag) ) return 0;
   if( !client_might_be_a_robot() ) return 0;
+  if( robot_exception() ){
+    robot.resultCache = KNOWN_NOT_ROBOT;
+    return 0;
+  }
 
-  /* Generate the proof-of-work captcha */   
+  /* Generate the proof-of-work captcha */
   ask_for_proof_that_client_is_not_robot();
   return 1;
 }
