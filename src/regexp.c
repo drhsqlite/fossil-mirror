@@ -26,7 +26,7 @@
 **     X*      zero or more occurrences of X
 **     X+      one or more occurrences of X
 **     X?      zero or one occurrences of X
-**     X{p,q}  between p and q occurrences of X
+**     X{p,q}  between p and q occurrences of X,    0 <= p,q <= 999
 **     (X)     match X
 **     X|Y     X or Y
 **     ^X      X occurring at the beginning of the string
@@ -55,12 +55,20 @@
 ** to p copies of X following by q-p copies of X? and that the size of the
 ** regular expression in the O(N*M) performance bound is computed after
 ** this expansion.
+**
+** To help prevent DoS attacks, the values of p and q in the "{p,q}" syntax
+** are limited to SQLITE_MAX_REGEXP_REPEAT, default 999.
 */
 #include "config.h"
 #include "regexp.h"
 
+#ifndef SQLITE_MAX_REGEXP_REPEAT
+# define SQLITE_MAX_REGEXP_REPEAT 999
+#endif
+
 /* The end-of-input character */
 #define RE_EOF            0    /* End of input */
+#define RE_START  0xfffffff    /* Start of input - larger than an UTF-8 */
 
 /* The NFA is implemented as sequence of opcodes taken from the following
 ** set.  Each opcode has a single integer argument.
@@ -82,6 +90,7 @@
 #define RE_OP_SPACE      15    /* space:  [ \t\n\r\v\f] */
 #define RE_OP_NOTSPACE   16    /* Not a digit */
 #define RE_OP_BOUNDARY   17    /* Boundary between word and non-word */
+#define RE_OP_ATSTART    18    /* Currently at the start of the string */
 
 /* Each opcode is a "state" in the NFA */
 typedef unsigned short ReStateNumber;
@@ -187,7 +196,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   ReStateNumber *pToFree;
   unsigned int i = 0;
   unsigned int iSwap = 0;
-  int c = RE_EOF+1;
+  int c = RE_START;
   int cPrev = 0;
   int rc = 0;
   ReInput in;
@@ -206,6 +215,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
       in.i++;
     }
     if( in.i+pRe->nInit>in.mx ) return 0;
+    c = RE_START-1;
   }
 
   if( pRe->nState<=(sizeof(aSpace)/(sizeof(aSpace[0])*2)) ){
@@ -232,6 +242,10 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
       switch( pRe->aOp[x] ){
         case RE_OP_MATCH: {
           if( pRe->aArg[x]==c ) re_add_state(pNext, x+1);
+          break;
+        }
+        case RE_OP_ATSTART: {
+          if( cPrev==RE_START ) re_add_state(pThis, x+1);
           break;
         }
         case RE_OP_ANY: {
@@ -315,7 +329,9 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
     }
   }
   for(i=0; i<pNext->nState; i++){
-    if( pRe->aOp[pNext->aState[i]]==RE_OP_ACCEPT ){ rc = 1; break; }
+    int x = pNext->aState[i];
+    while( pRe->aOp[x]==RE_OP_GOTO ) x += pRe->aArg[x];
+    if( pRe->aOp[x]==RE_OP_ACCEPT ){ rc = 1; break; }
   }
 re_match_end:
   fossil_free(pToFree);
@@ -470,7 +486,6 @@ static const char *re_subcompile_string(ReCompiled *p){
     iStart = p->nState;
     switch( c ){
       case '|':
-      case '$':
       case ')': {
         p->sIn.i--;
         return 0;
@@ -507,16 +522,32 @@ static const char *re_subcompile_string(ReCompiled *p){
         re_insert(p, iPrev, RE_OP_FORK, p->nState - iPrev+1);
         break;
       }
+      case '$': {
+        re_append(p, RE_OP_MATCH, RE_EOF);
+        break;
+      }
+      case '^': {
+        re_append(p, RE_OP_ATSTART, 0);
+        break;
+      }
       case '{': {
-        int m = 0, n = 0;
-        int sz, j;
+        unsigned int m = 0, n = 0;
+        unsigned int sz, j;
         if( iPrev<0 ) return "'{m,n}' without operand";
-        while( (c=rePeek(p))>='0' && c<='9' ){ m = m*10 + c - '0'; p->sIn.i++; }
+        while( (c=rePeek(p))>='0' && c<='9' ){
+          m = m*10 + c - '0';
+          if( m>SQLITE_MAX_REGEXP_REPEAT ) return "integer too large";
+          p->sIn.i++;
+        }
         n = m;
         if( c==',' ){
           p->sIn.i++;
           n = 0;
-          while( (c=rePeek(p))>='0' && c<='9' ){ n = n*10 + c-'0'; p->sIn.i++; }
+          while( (c=rePeek(p))>='0' && c<='9' ){
+            n = n*10 + c-'0';
+            if( n>SQLITE_MAX_REGEXP_REPEAT ) return "integer too large";
+            p->sIn.i++;
+          }
         }
         if( c!='}' ) return "unmatched '{'";
         if( n>0 && n<m ) return "n less than m in '{m,n}'";
@@ -525,6 +556,7 @@ static const char *re_subcompile_string(ReCompiled *p){
         if( m==0 ){
           if( n==0 ) return "both m and n are zero in '{m,n}'";
           re_insert(p, iPrev, RE_OP_FORK, sz+1);
+          iPrev++;
           n--;
         }else{
           for(j=1; j<m; j++) re_copy(p, iPrev, sz);
@@ -539,7 +571,7 @@ static const char *re_subcompile_string(ReCompiled *p){
         break;
       }
       case '[': {
-        int iFirst = p->nState;
+        unsigned int iFirst = p->nState;
         if( rePeek(p)=='^' ){
           re_append(p, RE_OP_CC_EXC, 0);
           p->sIn.i++;
@@ -563,7 +595,7 @@ static const char *re_subcompile_string(ReCompiled *p){
           if( rePeek(p)==']' ){ p->sIn.i++; break; }
         }
         if( c==0 ) return "unclosed '['";
-        p->aArg[iFirst] = p->nState - iFirst;
+        if( p->nState>iFirst ) p->aArg[iFirst] = p->nState - iFirst;
         break;
       }
       case '\\': {
@@ -643,11 +675,7 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
     re_free(pRe);
     return zErr;
   }
-  if( rePeek(pRe)=='$' && pRe->sIn.i+1>=pRe->sIn.mx ){
-    re_append(pRe, RE_OP_MATCH, RE_EOF);
-    re_append(pRe, RE_OP_ACCEPT, 0);
-    *ppRe = pRe;
-  }else if( pRe->sIn.i>=pRe->sIn.mx ){
+  if( pRe->sIn.i>=pRe->sIn.mx ){
     re_append(pRe, RE_OP_ACCEPT, 0);
     *ppRe = pRe;
   }else{
@@ -660,19 +688,19 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   ** one or more matching characters, enter those matching characters into
   ** zInit[].  The re_match() routine can then search ahead in the input
   ** string looking for the initial match without having to run the whole
-  ** regex engine over the string.  Do not worry able trying to match
+  ** regex engine over the string.  Do not worry about trying to match
   ** unicode characters beyond plane 0 - those are very rare and this is
   ** just an optimization. */
   if( pRe->aOp[0]==RE_OP_ANYSTAR && !noCase ){
     for(j=0, i=1; j<(int)sizeof(pRe->zInit)-2 && pRe->aOp[i]==RE_OP_MATCH; i++){
       unsigned x = pRe->aArg[i];
-      if( x<=127 ){
+      if( x<=0x7f ){
         pRe->zInit[j++] = (unsigned char)x;
-      }else if( x<=0xfff ){
+      }else if( x<=0x7ff ){
         pRe->zInit[j++] = (unsigned char)(0xc0 | (x>>6));
         pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else if( x<=0xffff ){
-        pRe->zInit[j++] = (unsigned char)(0xd0 | (x>>12));
+        pRe->zInit[j++] = (unsigned char)(0xe0 | (x>>12));
         pRe->zInit[j++] = 0x80 | ((x>>6)&0x3f);
         pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else{
