@@ -1854,7 +1854,7 @@ void page_timeline(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
-  if( zBefore && robot_restrict("timelineX") ) return;
+  if( (zBefore || zCirca) && robot_restrict("timelineX") ) return;
   if( !bisectLocal ){
     etag_check(ETAG_QUERY|ETAG_COOKIE|ETAG_DATA|ETAG_CONFIG, 0);
   }
@@ -2428,7 +2428,7 @@ void page_timeline(void){
       }else{
         blob_appendf(&desc, " back to %z%h</a>%s",
                      href("%R/info?name=%h",zBackTo), zBackTo,
-                     bBackAdded ? " (not a direct anscestor)" : "");
+                     bBackAdded ? " (not a direct ancestor)" : "");
         if( ridFwdTo && zFwdTo ){
           blob_appendf(&desc, " and up to %z%h</a>%s",
                      href("%R/info?name=%h",zFwdTo), zFwdTo,

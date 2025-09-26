@@ -1040,7 +1040,8 @@ static const char zComputeFileAgeSetup[] =
 @   fid INTEGER,
 @   mid INTEGER,
 @   mtime DATETIME,
-@   pathname TEXT
+@   pathname TEXT,
+@   uuid TEXT
 @ );
 @ CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;
 ;
@@ -1052,8 +1053,9 @@ static const char zComputeFileAgeRun[] =
 @              SELECT plink.pid
 @                FROM ckin, plink
 @               WHERE plink.cid=ckin.x)
-@ INSERT OR IGNORE INTO fileage(fnid, fid, mid, mtime, pathname)
-@   SELECT filename.fnid, mlink.fid, mlink.mid, event.mtime, filename.name
+@ INSERT OR IGNORE INTO fileage(fnid, fid, mid, mtime, pathname, uuid)
+@   SELECT filename.fnid, mlink.fid, mlink.mid, event.mtime, filename.name,
+@          foci.uuid
 @     FROM foci, filename, blob, mlink, event
 @    WHERE foci.checkinID=:ckin
 @      AND foci.filename GLOB :glob

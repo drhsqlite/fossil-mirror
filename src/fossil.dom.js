@@ -250,7 +250,7 @@
       return e;
     };
   };
-  
+
   dom.table = dom.createElemFactory('table');
   dom.thead = dom.createElemFactoryWithOptionalParent('thead');
   dom.tbody = dom.createElemFactoryWithOptionalParent('tbody');
@@ -383,8 +383,8 @@
       f.rxSPlus = /\s+/;
       f.applyAction = function(e,a,v){
         if(!e || !v
-           /*silently skip empty strings/flasy
-             values, for user convenience*/) return;
+           /*silently skip empty strings/falsy
+             values, for usage convenience*/) return;
         else if(e.forEach){
           e.forEach((E)=>E.classList[a](v));
         }else{
@@ -586,6 +586,7 @@
     return e;
   };
 
+  /* Impl for dom.enable() and dom.disable(). */
   const enableDisable = function f(enable){
     var i = 1, n = arguments.length;
     for( ; i < n; ++i ){
@@ -845,8 +846,8 @@
 
      Usages:
 
-     Array (htmlString)
-     DOMElement (DOMElement target, htmlString)
+     Array parseHtml(htmlString)
+     DOMElement parseHtml(DOMElement target, htmlString)
 
      The first form parses the string as HTML and returns an Array of
      all elements parsed from it. If string is falsy then it returns

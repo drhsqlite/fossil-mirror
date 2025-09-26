@@ -576,6 +576,7 @@ table.diff {
   border-spacing: 0;
   border-radius: 5px;
   border: 1px solid black;
+  overflow: hidden; /* Prevent background from overlapping rounded borders. */
   font-size: 80%;
 }
 table.diff td.diffln{
