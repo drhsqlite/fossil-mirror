@@ -1,5 +1,5 @@
-C Add\sthe\s-h\soption\sto\sthe\s"ls"\scommand\sto\sdisplay\sfile\shashes\sfor\sa\sspecific\scheck-in\swhen\sin\sverbose\smode.
-D 2025-09-26T11:58:30.341
+C Prevent\sthe\scell\sbackground\scolors\sfrom\sextending\sbeyond\sthe\souter\srounded\sborders\sof\sthe\sdiff\stable\sin\sWebKit-based\sbrowsers.
+D 2025-09-26T12:48:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -412,7 +412,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js a967fe355479c329f4e172c625b7a8403e1132be72fd3ebf9ad0afad249a679c
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 7baa3f7ec3b3d6aec893134ec6b02287ac47ac7a8237226e3c8b932d1242c0fa
-F src/default.css 30af4e4dd74a69335c4d498b15e66853df2cf281a07e8f5e19be69e81454ba02
+F src/default.css a0855c59e40270f03bd39bbe95c83ce0133d3b1205c81689ead7f31096af9bcb
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b12e52aaf7b5096d910c20523356e9b148cfe2d6cb17f215e8e15eca8a5188b4
-R 985563f2ffd14b055cc2cc8f82c2995c
-U danield
-Z 9fce3d5a2d95b70e08fa47c86b495941
+P 4c0ff6ed62b1e3696eaf6d43b071314757ffbbba86f9fa71a4c755d1b3aabc5f
+R fb45eb50ae014f818bfff893ebc5c2f7
+U florian
+Z c22a8ab5705117e7176f1e15225ab2e0
 # Remove this line to create a well-formed Fossil manifest.
