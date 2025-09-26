@@ -31,7 +31,9 @@
        messages.
   <li> Show numstat-style change statistics in the /info and /ckout pages.
   <li> Add the [/help?cmd=stash | stash rename] subcommand.
-  </ol>
+  <li> Add the "-h" option to the "[/help?cmd=ls|ls]" command to display
+       file hashes for a specific check-in when in verbose mode.
+   </ol>
 
 <h2 id='v2_26'>Changes for version 2.26 (2025-04-30)</h2><ol>
  <li>Enhancements to [/help?cmd=diff|fossil diff] and similar:

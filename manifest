@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog.
-D 2025-09-26T14:12:20.450
+C Updates\sto\sthe\schangelog.
+D 2025-09-26T14:23:03.387
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -796,7 +796,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki a78260ee3d362f11c3ebb52258091a99c4329a53d28f88416db922ada3a20929
-F www/changes.wiki dfa311e67176ff6f96236157c8947ae7fcf6cc29a0c9fe3d4ac63c1a48b5790a
+F www/changes.wiki c08ccf6c737c84a2de0beee92e3af78daa7e9b7c8c9f3c7dee92f9bdf4eb7402
 F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9642cde38468682b797d1138102c23bd3d25d259303f322e7502c9cd53956a94
-R 233167721c3e0bdff076b0a362a071ee
-U drh
-Z 23436f0846fe218df98ee93c11d2f19b
+P 3a0dfc892071357d96dbeabc46aef28e6f73e1a5e6b9afabee7746acf35a1490
+R cf927ab3727d36daf16f1c101d1a34ff
+U danield
+Z 7f03d074f9218a4e842a8e5fb6a6c70e
 # Remove this line to create a well-formed Fossil manifest.
