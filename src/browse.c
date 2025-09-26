@@ -749,7 +749,7 @@ void page_tree(void){
   /* If a regular expression is specified, compile it */
   zRE = P("re");
   if( zRE ){
-    re_compile(&pRE, zRE, 0);
+    fossil_re_compile(&pRE, zRE, 0);
     zREx = mprintf("&re=%T", zRE);
   }
   cgi_check_for_malice();

@@ -938,7 +938,7 @@ void ci_page(void){
     return;
   }
   zRe = P("regex");
-  if( zRe ) re_compile(&pRe, zRe, 0);
+  if( zRe ) fossil_re_compile(&pRe, zRe, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zParent = db_text(0,
     "SELECT uuid FROM plink, blob"
@@ -1450,7 +1450,7 @@ void vdiff_page(void){
   blob_init(&qpGlob, 0, 0);
   diffType = preferred_diff_type();
   zRe = P("regex");
-  if( zRe ) re_compile(&pRe, zRe, 0);
+  if( zRe ) fossil_re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
   if( zBranch && zBranch[0]==0 ) zBranch = 0;
   if( zBranch ){
@@ -2053,7 +2053,7 @@ void diff_page(void){
   }
   zRe = P("regex");
   cgi_check_for_malice();
-  if( zRe ) re_compile(&pRe, zRe, 0);
+  if( zRe ) fossil_re_compile(&pRe, zRe, 0);
   if( verbose ) objdescFlags |= OBJDESC_DETAIL;
   if( isPatch ){
     Blob c1, c2, *pOut;

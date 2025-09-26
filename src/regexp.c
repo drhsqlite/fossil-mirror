@@ -26,7 +26,7 @@
 **     X*      zero or more occurrences of X
 **     X+      one or more occurrences of X
 **     X?      zero or one occurrences of X
-**     X{p,q}  between p and q occurrences of X,    0 <= p,q <= 999
+**     X{p,q}  between p and q occurrences of X
 **     (X)     match X
 **     X|Y     X or Y
 **     ^X      X occurring at the beginning of the string
@@ -55,9 +55,6 @@
 ** to p copies of X following by q-p copies of X? and that the size of the
 ** regular expression in the O(N*M) performance bound is computed after
 ** this expansion.
-**
-** To help prevent DoS attacks, the values of p and q in the "{p,q}" syntax
-** are limited to SQLITE_MAX_REGEXP_REPEAT, default 999.
 */
 #include "config.h"
 #include "regexp.h"
@@ -127,6 +124,7 @@ struct ReCompiled {
   int nInit;                  /* Number of characters in zInit */
   unsigned nState;            /* Number of entries in aOp[] and aArg[] */
   unsigned nAlloc;            /* Slots allocated for aOp[] and aArg[] */
+  unsigned mxAlloc;           /* Complexity limit */
 };
 #endif
 
@@ -343,11 +341,12 @@ re_match_end:
 static int re_resize(ReCompiled *p, int N){
   char *aOp;
   int *aArg;
+  if( N>p->mxAlloc ){ p->zErr = "REGEXP pattern too big"; return 1; }
   aOp = fossil_realloc(p->aOp, N*sizeof(p->aOp[0]));
-  if( aOp==0 ) return 1;
+  if( aOp==0 ){ p->zErr = "out of memory"; return 1; }
   p->aOp = aOp;
   aArg = fossil_realloc(p->aArg, N*sizeof(p->aArg[0]));
-  if( aArg==0 ) return 1;
+  if( aArg==0 ){ p->zErr = "out of memory"; return 1; }
   p->aArg = aArg;
   p->nAlloc = N;
   return 0;
@@ -536,7 +535,7 @@ static const char *re_subcompile_string(ReCompiled *p){
         if( iPrev<0 ) return "'{m,n}' without operand";
         while( (c=rePeek(p))>='0' && c<='9' ){
           m = m*10 + c - '0';
-          if( m>SQLITE_MAX_REGEXP_REPEAT ) return "integer too large";
+          if( m*2>p->mxAlloc ) return "REGEXP pattern too big";
           p->sIn.i++;
         }
         n = m;
@@ -545,7 +544,7 @@ static const char *re_subcompile_string(ReCompiled *p){
           n = 0;
           while( (c=rePeek(p))>='0' && c<='9' ){
             n = n*10 + c-'0';
-            if( n>SQLITE_MAX_REGEXP_REPEAT ) return "integer too large";
+            if( n*2>p->mxAlloc ) return "REGEXP pattern too big";
             p->sIn.i++;
           }
         }
@@ -566,7 +565,7 @@ static const char *re_subcompile_string(ReCompiled *p){
           re_copy(p, iPrev, sz);
         }
         if( n==0 && m>0 ){
-          re_append(p, RE_OP_FORK, -sz);
+          re_append(p, RE_OP_FORK, -(int)sz);
         }
         break;
       }
@@ -646,7 +645,12 @@ void re_free(ReCompiled *pRe){
 ** compiled regular expression in *ppRe.  Return NULL on success or an
 ** error message if something goes wrong.
 */
-const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
+const char *re_compile(
+  ReCompiled **ppRe,      /* OUT: write compiled NFA here */
+  const char *zIn,        /* Input regular expression */
+  int mxRe,               /* Complexity limit */
+  int noCase              /* True for caseless comparisons */
+){
   ReCompiled *pRe;
   const char *zErr;
   int i, j;
@@ -658,9 +662,11 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   }
   memset(pRe, 0, sizeof(*pRe));
   pRe->xNextChar = noCase ? re_next_char_nocase : re_next_char;
+  pRe->mxAlloc = mxRe;
   if( re_resize(pRe, 30) ){
+    zErr = pRe->zErr;
     re_free(pRe);
-    return "out of memory";
+    return zErr;
   }
   if( zIn[0]=='^' ){
     zIn++;
@@ -753,6 +759,32 @@ char *re_quote(const char *zIn){
 }
 
 /*
+** SETTING:  regexp-limit                  width=8 default=1000
+**
+** Limit the size of the bytecode used to implement a regular expression
+** to this many steps.  It is important to limit this to avoid possible
+** DoS attacks.
+*/
+
+/*
+** Compute a reasonable limit on the length of the REGEXP NFA.
+*/
+int re_maxlen(void){
+  return g.db ? db_get_int("regexp-limit", 1000) : 1000;
+}
+
+/*
+** Compile an RE using re_maxlen().
+*/
+const char *fossil_re_compile(
+  ReCompiled **ppRe,      /* OUT: write compiled NFA here */
+  const char *zIn,        /* Input regular expression */
+  int noCase              /* True for caseless comparisons */
+){
+  return re_compile(ppRe, zIn, re_maxlen(), noCase);
+}
+
+/*
 ** Implementation of the regexp() SQL function.  This function implements
 ** the build-in REGEXP operator.  The first argument to the function is the
 ** pattern and the second argument is the string.  So, the SQL statements:
@@ -777,7 +809,7 @@ static void re_sql_func(
   if( pRe==0 ){
     zPattern = (const char*)sqlite3_value_text(argv[0]);
     if( zPattern==0 ) return;
-    zErr = re_compile(&pRe, zPattern, sqlite3_user_data(context)!=0);
+    zErr = fossil_re_compile(&pRe, zPattern, sqlite3_user_data(context)!=0);
     if( zErr ){
       re_free(pRe);
       sqlite3_result_int(context, 0);
@@ -805,12 +837,14 @@ static void re_sql_func(
 */
 int re_add_sql_func(sqlite3 *db){
   int rc;
-  rc = sqlite3_create_function(db, "regexp", 2, SQLITE_UTF8|SQLITE_INNOCUOUS,
+  rc = sqlite3_create_function(db, "regexp", 2,
+                           SQLITE_UTF8|SQLITE_INNOCUOUS|SQLITE_DETERMINISTIC,
                                0, re_sql_func, 0, 0);
   if( rc==SQLITE_OK ){
     /* The regexpi(PATTERN,STRING) function is a case-insensitive version
     ** of regexp(PATTERN,STRING). */
-    rc = sqlite3_create_function(db, "regexpi", 2, SQLITE_UTF8|SQLITE_INNOCUOUS,
+    rc = sqlite3_create_function(db, "regexpi", 2,
+                           SQLITE_UTF8|SQLITE_INNOCUOUS|SQLITE_DETERMINISTIC,
                                  (void*)db, re_sql_func, 0, 0);
   }
   return rc;
@@ -893,14 +927,14 @@ void re_test_grep(void){
     db_find_and_open_repository(0,0);
     verify_all_options();
     zRe = db_get("robot-exception","^$");
-    zErr = re_compile(&pRe, zRe, ignoreCase);
+    zErr = fossil_re_compile(&pRe, zRe, ignoreCase);
     iFileList = 2;
   }else{
     verify_all_options();
     if( g.argc<3 ){
       usage("REGEXP [FILE...]");
     }
-    zErr = re_compile(&pRe, g.argv[2], ignoreCase);
+    zErr = fossil_re_compile(&pRe, g.argv[2], ignoreCase);
   }
   if( zErr ) fossil_fatal("%s", zErr);
   if( g.argc==iFileList ){
@@ -982,7 +1016,7 @@ void re_grep_cmd(void){
   if( g.argc<4 ){
     usage("REGEXP FILENAME ...");
   }
-  zErr = re_compile(&pRe, g.argv[2], ignoreCase);
+  zErr = fossil_re_compile(&pRe, g.argv[2], ignoreCase);
   if( zErr ) fossil_fatal("%s", zErr);
 
   add_content_sql_commands(g.db);

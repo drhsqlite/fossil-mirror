@@ -1157,7 +1157,7 @@ static int simplify_to_subtopic(
   }
   fossil_free(zQTop);
   fossil_free(zQSub);
-  re_compile(&pRe, zPattern, 0);
+  fossil_re_compile(&pRe, zPattern, 0);
   fossil_free(zPattern);
   blob_init(&in, z, -1);
   while( blob_line(&in, &line) ){
@@ -1254,9 +1254,9 @@ static int simplify_to_usage(
   int n = 0;
 
   if( bAbbrevSubcmd ){
-    re_compile(&pRe, "^(Usage: |   [a-z][-a-z|]+ .*)", 0);
+    fossil_re_compile(&pRe, "^(Usage: |   [a-z][-a-z|]+ .*)", 0);
   }else{
-    re_compile(&pRe, "^(Usage: | *[Oo]r: +%fossi |>  ?fossil )", 0);
+    fossil_re_compile(&pRe, "^(Usage: | *[Oo]r: +%fossi |>  ?fossil )", 0);
   }
   blob_init(&in, z, -1);
   while( blob_line(&in, &line) ){
@@ -1287,7 +1287,7 @@ static int simplify_to_options(
 
   blob_init(&txt, z, -1);
   blob_init(&subsection, 0, 0);
-  re_compile(&pRe, "^ +-.*  ", 0);
+  fossil_re_compile(&pRe, "^ +-.*  ", 0);
   while( blob_line(&txt, &line) ){
     int len = blob_size(&line);
     unsigned char *zLine = (unsigned char *)blob_buffer(&line);

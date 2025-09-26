@@ -369,7 +369,7 @@ int robot_exception(void){
     }
     z = mprintf("%.*s", (int)(zNL - zRE)+1, zRE);
     zRE += n;
-    zErr = re_compile(&pRe, z, 0);
+    zErr = fossil_re_compile(&pRe, z, 0);
     if( zErr ){
       fossil_warning("robot-exception error \"%s\" in expression \"%s\"\n",
                      zErr, z);

@@ -3388,7 +3388,7 @@ void xdiff_cmd(void){
   diff_options(&DCfg, 0, 0);
   zRe = find_option("regexp","e",1);
   if( zRe ){
-    const char *zErr = re_compile(&DCfg.pRe, zRe, 0);
+    const char *zErr = fossil_re_compile(&DCfg.pRe, zRe, 0);
     if( zErr ) fossil_fatal("regex error: %s", zErr);
   }
   verify_all_options();
@@ -3431,7 +3431,7 @@ void fdiff_cmd(void){
   diff_options(&DCfg, 0, 0);
   zRe = find_option("regexp","e",1);
   if( zRe ){
-    const char *zErr = re_compile(&DCfg.pRe, zRe, 0);
+    const char *zErr = fossil_re_compile(&DCfg.pRe, zRe, 0);
     if( zErr ) fossil_fatal("regex error: %s", zErr);
   }
   db_find_and_open_repository(0, 0);

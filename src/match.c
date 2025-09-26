@@ -144,7 +144,7 @@ Matcher *match_create(MatchStyle style, const char *zPat){
     /* Check for regular expression syntax errors. */
     if( style==MS_REGEXP ){
       ReCompiled *regexp;
-      const char *zFail = re_compile(&regexp, zOne, 0);
+      const char *zFail = fossil_re_compile(&regexp, zOne, 0);
       if( zFail ){
         re_free(regexp);
         continue;
@@ -377,7 +377,7 @@ const char *match_tag_sqlexpr(
     if( matchStyle==MS_REGEXP ){
       ReCompiled *regexp;
       char *zTagDup = fossil_strndup(zTag, i);
-      zFail = re_compile(&regexp, zTagDup, 0);
+      zFail = fossil_re_compile(&regexp, zTagDup, 0);
       re_free(regexp);
       fossil_free(zTagDup);
     }
