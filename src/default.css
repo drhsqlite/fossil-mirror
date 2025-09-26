@@ -562,6 +562,7 @@ table.diff {
   border-spacing: 0;
   border-radius: 5px;
   border: 1px solid black;
+  overflow: hidden; /* Prevent background from overlapping rounded borders. */
 }
 table.diff td {
   vertical-align: top;

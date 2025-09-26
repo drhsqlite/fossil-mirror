@@ -7,16 +7,29 @@
        only possible result of invoking the injection is a harmless SQL syntax error.
        (The [https://en.wikipedia.org/wiki/Swiss_cheese_model|holes in the Swiss cheese]
        did not line up!)
-  <li> Enhance the chng= query parameter on the [/help?cmd=/timeline|timeline page]
-       so that it works with other query parameters like p=, d=, from=, and to=.
-  <li> Always include nodes identify by sel1= and sel2= in the /timeline display.
+  <li> Strengthen robot defenses to help prevent public-facing servers from being
+       overwhelmed by the latest generation of AI spiders.
+  <ol type="a">
+    <li> New javascript captcha used to restrict access by user "nobody" to pages
+         listed in the [/help?cmd=robot-restrict|robot-restrict setting].
+    <li> The [/help?cmd=robot-exception|robot-exception setting] is available to allow
+         access to pages that match a regular expression.  Use this, for example, to
+         allow curl scripts and similar to download release tarballs.
+    <li> Require at least an anonymous login to access the /blame page and similar.
+  </ol>
+  <li> [/help?cmd=/timeline|Timeline] enhancements:
+  <ol type="a">
+    <li> The chng= query parameter on the [/help?cmd=/timeline|timeline page]
+         so that it works with other query parameters like p=, d=, from=, and to=.
+    <li> Always include nodes identify by sel1= and sel2= in the /timeline display.
+    <li> Improved title when p= and d= are different.
+  </ol>
   <li> Enable the --editor option on the [/help?cmd=amend|fossil amend] command.
-  <li> Require at least an anonymous login to access the /blame page and similar,
-       to help prevent robots from soaking up excess CPU time on such pages.
   <li> When walking the filesystem looking for Fossil repositories, avoid descending
        into directories named "/proc".
   <li> Reduce memory requirements for sending authenticated sync protocol
        messages.
+  <li> Show numstat-style change statistics in the /info and /ckout pages.
   <li> Add the [/help?cmd=stash | stash rename] subcommand.
   </ol>
 

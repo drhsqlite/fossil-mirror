@@ -258,7 +258,9 @@ void cookie_page(void){
     if( bFDSonly && strcmp(zName, "fossil_display_settings")!=0 ) continue;
     zDel = mprintf("del%s",zName);
     if( P(zDel)!=0 ){
-      cgi_set_cookie(zName, "", 0, -1);
+      const char *zPath = fossil_strcmp(ROBOT_COOKIE,zName)==0
+        ? "/" : 0;
+      cgi_set_cookie(zName, "", zPath, -1);
       cgi_redirect(g.zPath);
     }
     nCookie++;

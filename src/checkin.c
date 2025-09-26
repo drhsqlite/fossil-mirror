@@ -720,6 +720,7 @@ static void ls_cmd_rev(
   const char *zRev,  /* Revision string given */
   int verboseFlag,   /* Verbose flag given */
   int showAge,       /* Age flag given */
+  int showHash,      /* Show hash flag given */
   int timeOrder,     /* Order by time flag given */
   int treeFmt        /* Show output in the tree format */
 ){
@@ -765,7 +766,7 @@ static void ls_cmd_rev(
   compute_fileage(rid,0);
   db_prepare(&q,
     "SELECT datetime(fileage.mtime, toLocal()), fileage.pathname,\n"
-    "       blob.size\n"
+    "       blob.size, fileage.uuid\n"
     "  FROM fileage, blob\n"
     " WHERE blob.rid=fileage.fid %s\n"
     " ORDER BY %s;", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
@@ -780,7 +781,8 @@ static void ls_cmd_rev(
     if( treeFmt ){
       blob_appendf(&out, "%s\n", zFile);
     }else if( verboseFlag ){
-      fossil_print("%s  %7d  %s\n", zTime, size, zFile);
+      const char *zUuid = mprintf("[%S]  ", db_column_text(&q,3));
+      fossil_print("%s  %7d  %s%s\n", zTime, size, showHash ? zUuid :"", zFile);
     }else if( showAge ){
       fossil_print("%s  %s\n", zTime, zFile);
     }else{
@@ -813,7 +815,8 @@ static void ls_cmd_rev(
 **
 ** The -v option provides extra information about each file.  Without -r,
 ** -v displays the change status, in the manner of the changes command.
-** With -r, -v shows the commit time and size of the checked-in files.
+** With -r, -v shows the commit time and size of the checked-in files; in
+** this combination, it additionally shows file hashes with -h.
 **
 ** The -t option changes the sort order.  Without -t, files are sorted by
 ** path and name (case insensitive sort if -r).  If neither --age nor -r
@@ -821,6 +824,7 @@ static void ls_cmd_rev(
 **
 ** Options:
 **   --age                 Show when each file was committed
+**   -h                    With -v and -r, show file hashes
 **   --hash                With -v, verify file status using hashing
 **                         rather than relying on file sizes and mtimes
 **   -r VERSION            The specific check-in to list
@@ -842,6 +846,7 @@ void ls_cmd(void){
   Blob where;
   int i;
   int useHash = 0;
+  int showHash = 0;
   const char *zName;
   const char *zRev;
 
@@ -854,6 +859,7 @@ void ls_cmd(void){
   timeOrder = find_option("t","t",0)!=0;
   if( verboseFlag ){
     useHash = find_option("hash",0,0)!=0;
+    showHash = find_option("h","h",0)!=0;
   }
   treeFmt = find_option("tree",0,0)!=0;
   if( treeFmt ){
@@ -863,7 +869,7 @@ void ls_cmd(void){
   if( zRev!=0 ){
     db_find_and_open_repository(0, 0);
     verify_all_options();
-    ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder,treeFmt);
+    ls_cmd_rev(zRev,verboseFlag,showAge,showHash,timeOrder,treeFmt);
     return;
   }else if( find_option("R",0,1)!=0 ){
     fossil_fatal("the -r is required in addition to -R");
@@ -986,7 +992,7 @@ void tree_cmd(void){
   if( zRev==0 ) zRev = "current";
   db_find_and_open_repository(0, 0);
   verify_all_options();
-  ls_cmd_rev(zRev,0,0,0,1);
+  ls_cmd_rev(zRev,0,0,0,0,1);
 }
 
 /*
