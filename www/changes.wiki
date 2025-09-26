@@ -1,12 +1,12 @@
 <title>Change Log</title>
 
 <h2 id='v2_27'>Changes for version 2.27 (pending)</h2><ol>
+  <li> Close a potential Denial-of-Service attack against any public-facing Fossil
+       server involving exponential behavior in Fossil's regexp implementation.
   <li> Fix a SQL injection on the [/help?cmd=/file|/file page].  Thanks to
        additional defenses built into Fossil, as well as good luck, this injection
        is not exploitable for either data exfiltration or privilege escalation.  The
        only possible result of invoking the injection is a harmless SQL syntax error.
-       (The [https://en.wikipedia.org/wiki/Swiss_cheese_model|holes in the Swiss cheese]
-       did not line up!)
   <li> Strengthen robot defenses to help prevent public-facing servers from being
        overwhelmed by the latest generation of AI spiders.
   <ol type="a">
