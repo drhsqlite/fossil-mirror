@@ -403,30 +403,32 @@ static void append_file_change_line(
       append_diff(zOld, zNew, pCfg);
     }
   }else{
+    const char *zCkin2 =
+      mprintf(validate16(zCkin, -1) ? "%!S" : "%T"/*works-like:"%s"*/, zCkin);
     if( zOld && zNew ){
       if( fossil_strcmp(zOld, zNew)!=0 ){
         if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
           @ Renamed and modified
-          @ %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zOldName,zOld,zCkin))\
+          @ %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zOldName,zOld,zCkin2))\
           @ %h(zOldName)</a>
           @ %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
-          @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+          @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
           @ %h(zName)</a>
           @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
         }else{
-          @ Modified %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+          @ Modified %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
           @ %h(zName)</a>
           @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
           @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
         }
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
         @ Name change
-        @ from %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zOldName,zOld,zCkin))\
+        @ from %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zOldName,zOld,zCkin2))\
         @ %h(zOldName)</a>
-        @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+        @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
         @ %h(zName)</a>.
       }else{
-        @ %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+        @ %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
         @ %h(zName)</a> became
         if( mperm==PERM_EXE ){
           @ executable with contents
@@ -438,10 +440,10 @@ static void append_file_change_line(
         @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }
     }else if( zOld ){
-      @ Deleted %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zOld,zCkin))\
+      @ Deleted %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zOld,zCkin2))\
       @ %h(zName)</a> version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
     }else{
-      @ Added %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+      @ Added %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
       @ %h(zName)</a> version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
     if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
@@ -645,6 +647,8 @@ static void ckout_normal_diff(int vid){
   }else{
     DCfg.diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
+  @ <div class="section" id="changes_section">Changes</div>
+  DCfg.diffFlags |= DIFF_NUMSTAT; /* Show stats in the 'Changes' section */
   @ <div class="sectionmenu info-changes-menu">
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=0 ){
@@ -729,6 +733,12 @@ static void ckout_normal_diff(int vid){
     }
   }
   db_finalize(&q);
+  @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
+  @ document.getElementById('changes_section').textContent =  'Changes ' +
+  @   '(%d(g.diffCnt[0]) file' + (%d(g.diffCnt[0])===1 ? '' : 's') + ': ' +
+  @   '+%d(g.diffCnt[1]) ' +
+  @   '−%d(g.diffCnt[2]))'
+  @ </script>
   append_diff_javascript(diffType);
 }
 
@@ -752,6 +762,8 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
   }else{
     DCfg.diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
+  @ <div class="section" id="changes_section">Changes</div>
+  DCfg.diffFlags |= DIFF_NUMSTAT; /* Show stats in the 'Changes' section */
   @ <div class="sectionmenu info-changes-menu">
   zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=1 ){
@@ -814,6 +826,12 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
     fossil_free(zRhs);
   }
   db_finalize(&q);
+  @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
+  @ document.getElementById('changes_section').textContent =  'Changes ' +
+  @   '(%d(g.diffCnt[0]) file' + (%d(g.diffCnt[0])===1 ? '' : 's') + ': ' +
+  @   '+%d(g.diffCnt[1]) ' +
+  @   '−%d(g.diffCnt[2]))'
+  @ </script>
   append_diff_javascript(diffType);
 }
 
@@ -1977,7 +1995,7 @@ int preferred_diff_type(void){
   int isBot;
   static char zDflt[2]
     /*static b/c cookie_link_parameter() does not copy it!*/;
-  if( client_might_be_a_robot() ){
+  if( client_might_be_a_robot() && robot_restrict_has_tag("diff") ){
     dflt = 0;
     isBot = 1;
   }else{
@@ -2987,7 +3005,8 @@ void artifact_page(void){
     db_finalize(&q);
   }
   if( !docOnly ){
-    style_submenu_element("Download", "%R/raw/%s?at=%T",zUuid,file_tail(zName));
+    style_submenu_element("Download", "%R/raw/%s?at=%T",
+                zUuid, file_tail(blob_str(&downloadName)));
     if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
       style_submenu_element("Check-ins Using", "%R/timeline?uf=%s", zUuid);
     }
