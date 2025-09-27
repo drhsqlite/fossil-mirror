@@ -781,8 +781,12 @@ static void ls_cmd_rev(
     if( treeFmt ){
       blob_appendf(&out, "%s\n", zFile);
     }else if( verboseFlag ){
-      const char *zUuid = mprintf("[%S]  ", db_column_text(&q,3));
-      fossil_print("%s  %7d  %s%s\n", zTime, size, showHash ? zUuid :"", zFile);
+      if( showHash ){
+        const char *zUuid = db_column_text(&q,3);
+        fossil_print("%s  %7d  [%S]  %s\n", zTime, size, zUuid, zFile);
+      }else{
+        fossil_print("%s  %7d  %s\n", zTime, size, zFile);
+      }
     }else if( showAge ){
       fossil_print("%s  %s\n", zTime, zFile);
     }else{

@@ -1,5 +1,5 @@
-C Further\sreduce\sdivergence\sbetween\sthe\sSQLite\sand\sFossil\simplementations\sof\nregexp.c.\s\sFix\scompiler\swarnings\sfor\sMSVC.
-D 2025-09-27T11:57:33.491
+C Avoid\san\sunnecessary\smprintf().
+D 2025-09-27T15:05:17.635
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c 3ca4bf560b53b19c0f059c23a7246a9ddbf2ade45a34ed36b806edb9ca291d12
 F src/cgi.c 6919bd51d208b78ade075434c2c635a9555582f84fb00bc698c1b70a90e67ba1
 F src/chat.c 9290b92848d30cff142122b049c5082cf8f682ee954f567f5ab84fbcd50c8664
-F src/checkin.c 239d22288ad78829ca248b9cc9d0f3199d6088a3b8dc6b879304f1aad792d2e9
+F src/checkin.c 0ff14c07fd7584bb065772c7fea0814439bce3bc788f627b8b5f633c05620a19
 F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 702a56d116a3d3b836cbe471f1d4b3c415a694c7bfcabe46658e4abc4f9fc651
-R ba0f086dea9af55ee64ada5bea2e8a0a
-U drh
-Z f310d43cbb8a0da5bf5d02af04eb8889
+P a18dab4184501635bcf038e5370c060a09800aa1bb0848c5e37188f5df39235c
+R 32ec5fa34f226adaf1b99b896e6481bb
+U danield
+Z e00a5916e617cc293eb468057439208f
 # Remove this line to create a well-formed Fossil manifest.
