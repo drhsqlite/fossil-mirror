@@ -275,6 +275,7 @@ void www_print_timeline(
     int isLeaf = db_column_int(pQuery, 5);
     const char *zBgClr = db_column_text(pQuery, 6);
     const char *zDate = db_column_text(pQuery, 2);
+    const char *zBrDate = datetime_of_rid(start_of_branch(rid,1));
     const char *zType = db_column_text(pQuery, 7);
     const char *zUser = db_column_text(pQuery, 4);
     const char *zTagList = db_column_text(pQuery, 8);
@@ -439,7 +440,7 @@ void www_print_timeline(
         }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
           zBgClr = 0;
         }else{
-          zBgClr = hash_color(zBr);
+          zBgClr = hash_color(zBrDate);
         }
       }
     }

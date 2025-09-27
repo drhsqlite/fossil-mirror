@@ -205,6 +205,14 @@ const char *fossil_roundup_date(const char *zDate){
   return zDate;
 }
 
+/*
+** Return the datetime of a given "rid"
+*/
+char *datetime_of_rid(int rid){
+  return db_text(0,
+    "SELECT datetime(mtime,toLocal()) FROM event"
+    " WHERE objid=%d", rid);
+}
 
 /*
 ** Return the RID that is the "root" of the branch that contains

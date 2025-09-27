@@ -702,9 +702,7 @@ void branch_cmd(void){
         fossil_print("%s: not an open branch\n", zBrName);
       }else{
         const char *zUuid = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
-        const char *zDate = db_text(0,
-          "SELECT datetime(mtime,toLocal()) FROM event"
-          " WHERE objid=%d", rid);
+        const char *zDate = datetime_of_rid(rid);
         fossil_print("%s: open as of %s on %.16s\n", zBrName, zDate, zUuid);
       }
     }
