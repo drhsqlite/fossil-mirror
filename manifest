@@ -1,14 +1,13 @@
 B 82888a0d35a80944460eff38b34a25d942e141b1778af1e56451d7029361660c
-C Use\sthe\sdatetime\sof\sthe\sstart\sof\sthe\sbranch\sas\sthe\sinput\sfor\sthe\scolor\shash.\nSee\ssuggestion\smade\sby\sStephan\sBeal\sin\s[forum:/forumpost/a9a92d73c4a172f9|forum\spost\sa9a92d73c4a172f9].
-D 2025-09-27T00:47:16.820
-F src/branch.c b58af70b430215b450f45eddf488c986e78ba0c753289408f82d06448cc508f8
+C Switch\sto\stime\sbased\scolor\shash\sgeneration\sfor\sother\spages\s(brlist,\sfinfo,\sand\sinfo).
+D 2025-09-27T16:26:16.798
+F src/branch.c 1a04644c405579d7cbd4baeb9c9a140475fde4d3dff88ae38b23e498da200d35
+F src/finfo.c e7adc227d971312cf58814fce2b7d7104fdb45c2943b0b95acaff600b8fd7fe9
+F src/info.c f38da71d17215e93e74fa7d17577dd5fef23469b1dfab003351db85be04ed6a5
 F src/name.c 0012a134ef82264c8b8212be59db9fa1c82aa4e17223d911e9d93e12c1924755
 F src/timeline.c 74a5ee616824572002255a8a6a270c5a4f7b9af516ff76d671401391a105731c
-P 82888a0d35a80944460eff38b34a25d942e141b1778af1e56451d7029361660c
-R dbc96e5be4ab78f11ae05fc6ce1a8280
-T *branch * datetime-color-hash
-T *sym-datetime-color-hash *
-T -sym-trunk *
+P 1851b26d2b7894f51b69ea50d8a8facb51105cc67758e87fabefe337f6eac178
+R 7d4bbdc2a9b6b3842f2de985a9114414
 U andybradford
-Z 4f6bfc05c6efa198e332725cb20c3ce8
+Z da7e892cfd04de030b68776a17ff060d
 # Remove this line to create a well-formed Fossil manifest.

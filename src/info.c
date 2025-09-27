@@ -3730,6 +3730,7 @@ void ci_edit_page(void){
     Blob suffix;
     int nTag = 0;
     const char *zDplyBr;   /* Branch name used to determine BG color */
+    const char *zBrDate = datetime_of_rid(start_of_branch(rid,1));
     if( zNewBrFlag[0] && zNewBranch[0] ){
       zDplyBr = zNewBranch;
     }else{
@@ -3743,7 +3744,7 @@ void ci_edit_page(void){
     }else if( zColor[0] ){
       @ <tr><td style="background-color:%h(reasonable_bg_color(zColor,0));">
     }else if( zDplyBr && fossil_strcmp(zDplyBr,"trunk")!=0 ){
-      @ <tr><td style="background-color:%h(hash_color(zDplyBr));">
+      @ <tr><td style="background-color:%h(hash_color(zBrDate));">
     }else{
       @ <tr><td>
     }

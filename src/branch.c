@@ -228,6 +228,7 @@ void branch_new(void){
 **      ckin           Hash of the last check-in on this branch
 **      isprivate      True if the branch is private
 **      bgclr          Background color for this branch
+**      rid            RID of the last check-in on this branch
 */
 static const char createBrlistQuery[] =
 @ CREATE TEMP TABLE IF NOT EXISTS tmp_brlist AS
@@ -247,7 +248,8 @@ static const char createBrlistQuery[] =
 @   count(*) AS nckin,
 @   (SELECT uuid FROM blob WHERE rid=tagxref.rid) AS ckin,
 @   event.bgcolor AS bgclr,
-@   EXISTS(SELECT 1 FROM private WHERE rid=tagxref.rid) AS isprivate
+@   EXISTS(SELECT 1 FROM private WHERE rid=tagxref.rid) AS isprivate,
+@   event.objid AS rid
 @  FROM tagxref, tag, event
 @ WHERE tagxref.tagid=tag.tagid
 @   AND tagxref.tagtype>0
@@ -867,6 +869,8 @@ static void new_brlist_page(void){
     int nCkin = db_column_int(&q, 4);
     const char *zLastCkin = db_column_text(&q, 5);
     const char *zBgClr = db_column_text(&q, 6);
+    int rid = db_column_int(&q, 8);
+    const char *zBrDate = datetime_of_rid(start_of_branch(rid,1));
     char *zAge = human_readable_age(rNow - rMtime);
     sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0);
     if( zMergeTo && zMergeTo[0]==0 ) zMergeTo = 0;
@@ -875,7 +879,7 @@ static void new_brlist_page(void){
       if( zBranch==0 || strcmp(zBranch,"trunk")==0 ){
         zBgClr = 0;
       }else{
-        zBgClr = hash_color(zBranch);
+        zBgClr = hash_color(zBrDate);
       }
     }
     if( zBgClr && zBgClr[0] && show_colors ){

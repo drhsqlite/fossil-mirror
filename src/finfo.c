@@ -490,7 +490,8 @@ void finfo_page(void){
     "  mlink.pfnid,\n"                                  /* Previous filename */
     "  blob.size,\n"                                    /* File size */
     "  mlink.fnid,\n"                                   /* Current filename */
-    "  filename.name\n"                                 /* Current filename */
+    "  filename.name,\n"                                /* Current filename */
+    "  event.objid AS rid\n"                            /* RID for event */
     "FROM clade CROSS JOIN mlink, event"
     " LEFT JOIN blob ON blob.rid=clade.fid"
     " LEFT JOIN filename ON filename.fnid=clade.fnid\n"
@@ -619,6 +620,8 @@ void finfo_page(void){
     int szFile = db_column_int(&q, 12);
     int fnid = db_column_int(&q, 13);
     const char *zFName = db_column_text(&q,14);
+    int rid = db_column_int(&q, 15);
+    const char *zBrDate = datetime_of_rid(start_of_branch(rid,1));
     int gidx;
     char zTime[10];
     int nParent = 0;
@@ -637,7 +640,7 @@ void finfo_page(void){
     if( uBg ){
       zBgClr = user_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
-      zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
+      zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBrDate);
     }else if( zBgClr ){
       zBgClr = reasonable_bg_color(zBgClr,0);
     }
