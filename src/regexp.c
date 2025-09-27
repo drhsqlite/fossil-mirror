@@ -55,13 +55,11 @@
 ** to p copies of X following by q-p copies of X? and that the size of the
 ** regular expression in the O(N*M) performance bound is computed after
 ** this expansion.
+**
+** To help prevent DoS attacks, the maximum size of the NFA is restricted.
 */
 #include "config.h"
 #include "regexp.h"
-
-#ifndef SQLITE_MAX_REGEXP_REPEAT
-# define SQLITE_MAX_REGEXP_REPEAT 999
-#endif
 
 /* The end-of-input character */
 #define RE_EOF            0    /* End of input */
@@ -121,7 +119,7 @@ struct ReCompiled {
   int *aArg;                  /* Arguments to each operator */
   unsigned (*xNextChar)(ReInput*);  /* Next character function */
   unsigned char zInit[12];    /* Initial text to match */
-  int nInit;                  /* Number of characters in zInit */
+  int nInit;                  /* Number of bytes in zInit */
   unsigned nState;            /* Number of entries in aOp[] and aArg[] */
   unsigned nAlloc;            /* Slots allocated for aOp[] and aArg[] */
   unsigned mxAlloc;           /* Complexity limit */
@@ -153,7 +151,7 @@ static unsigned re_next_char(ReInput *p){
       c = (c&0x0f)<<12 | ((p->z[p->i]&0x3f)<<6) | (p->z[p->i+1]&0x3f);
       p->i += 2;
       if( c<=0x7ff || (c>=0xd800 && c<=0xdfff) ) c = 0xfffd;
-    }else if( (c&0xf8)==0xf0 && p->i+3<p->mx && (p->z[p->i]&0xc0)==0x80
+    }else if( (c&0xf8)==0xf0 && p->i+2<p->mx && (p->z[p->i]&0xc0)==0x80
            && (p->z[p->i+1]&0xc0)==0x80 && (p->z[p->i+2]&0xc0)==0x80 ){
       c = (c&0x07)<<18 | ((p->z[p->i]&0x3f)<<12) | ((p->z[p->i+1]&0x3f)<<6)
                        | (p->z[p->i+2]&0x3f);
@@ -298,9 +296,9 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
         }
         case RE_OP_CC_EXC: {
           if( c==0 ) break;
-          /* fall-through */
+          /* fall-through */ goto re_op_cc_inc;
         }
-        case RE_OP_CC_INC: {
+        case RE_OP_CC_INC: re_op_cc_inc: {
           int j = 1;
           int n = pRe->aArg[x];
           int hit = 0;
@@ -549,7 +547,7 @@ static const char *re_subcompile_string(ReCompiled *p){
           }
         }
         if( c!='}' ) return "unmatched '{'";
-        if( n>0 && n<m ) return "n less than m in '{m,n}'";
+        if( n<m ) return "n less than m in '{m,n}'";
         p->sIn.i++;
         sz = p->nState - iPrev;
         if( m==0 ){
@@ -645,7 +643,7 @@ void re_free(ReCompiled *pRe){
 ** compiled regular expression in *ppRe.  Return NULL on success or an
 ** error message if something goes wrong.
 */
-const char *re_compile(
+static const char *re_compile(
   ReCompiled **ppRe,      /* OUT: write compiled NFA here */
   const char *zIn,        /* Input regular expression */
   int mxRe,               /* Complexity limit */
@@ -720,6 +718,75 @@ const char *re_compile(
 }
 
 /*
+** Implementation of the regexp() SQL function.  This function implements
+** the build-in REGEXP operator.  The first argument to the function is the
+** pattern and the second argument is the string.  So, the SQL statements:
+**
+**       A REGEXP B
+**
+** is implemented as regexp(B,A).
+*/
+static void re_sql_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  ReCompiled *pRe;          /* Compiled regular expression */
+  const char *zPattern;     /* The regular expression */
+  const unsigned char *zStr;/* String being searched */
+  const char *zErr;         /* Compile error message */
+  int setAux = 0;           /* True to invoke sqlite3_set_auxdata() */
+
+  (void)argc;  /* Unused */
+  pRe = sqlite3_get_auxdata(context, 0);
+  if( pRe==0 ){
+    zPattern = (const char*)sqlite3_value_text(argv[0]);
+    if( zPattern==0 ) return;
+    zErr = fossil_re_compile(&pRe, zPattern, sqlite3_user_data(context)!=0);
+    if( zErr ){
+      re_free(pRe);
+      /* The original SQLite function from which this code was copied raises
+      ** an error if the REGEXP contained a syntax error.  This variant
+      ** silently fails to match, as that works better for Fossil.
+      ** sqlite3_result_error(context, zErr, -1); */
+      sqlite3_result_int(context, 0);
+      return;
+    }
+    if( pRe==0 ){
+      sqlite3_result_error_nomem(context);
+      return;
+    }
+    setAux = 1;
+  }
+  zStr = (const unsigned char*)sqlite3_value_text(argv[1]);
+  if( zStr!=0 ){
+    sqlite3_result_int(context, re_match(pRe, zStr, -1));
+  }
+  if( setAux ){
+    sqlite3_set_auxdata(context, 0, pRe, (void(*)(void*))re_free);
+  }
+}
+
+/*
+** Invoke this routine to register the regexp() function with the
+** SQLite database connection.
+*/
+int re_add_sql_func(sqlite3 *db){
+  int rc;
+  rc = sqlite3_create_function(db, "regexp", 2,
+                           SQLITE_UTF8|SQLITE_INNOCUOUS|SQLITE_DETERMINISTIC,
+                               0, re_sql_func, 0, 0);
+  if( rc==SQLITE_OK ){
+    /* The regexpi(PATTERN,STRING) function is a case-insensitive version
+    ** of regexp(PATTERN,STRING). */
+    rc = sqlite3_create_function(db, "regexpi", 2,
+                           SQLITE_UTF8|SQLITE_INNOCUOUS|SQLITE_DETERMINISTIC,
+                                 (void*)db, re_sql_func, 0, 0);
+  }
+  return rc;
+}
+
+/*
 ** The input zIn is a string that we want to match exactly as part of
 ** a regular expression.  Return a new string (in space obtained from
 ** fossil_malloc() or the equivalent) that escapes all regexp syntax
@@ -767,13 +834,6 @@ char *re_quote(const char *zIn){
 */
 
 /*
-** Compute a reasonable limit on the length of the REGEXP NFA.
-*/
-int re_maxlen(void){
-  return g.db ? db_get_int("regexp-limit", 1000) : 1000;
-}
-
-/*
 ** Compile an RE using re_maxlen().
 */
 const char *fossil_re_compile(
@@ -781,73 +841,8 @@ const char *fossil_re_compile(
   const char *zIn,        /* Input regular expression */
   int noCase              /* True for caseless comparisons */
 ){
-  return re_compile(ppRe, zIn, re_maxlen(), noCase);
-}
-
-/*
-** Implementation of the regexp() SQL function.  This function implements
-** the build-in REGEXP operator.  The first argument to the function is the
-** pattern and the second argument is the string.  So, the SQL statements:
-**
-**       A REGEXP B
-**
-** is implemented as regexp(B,A).
-*/
-static void re_sql_func(
-  sqlite3_context *context,
-  int argc,
-  sqlite3_value **argv
-){
-  ReCompiled *pRe;          /* Compiled regular expression */
-  const char *zPattern;     /* The regular expression */
-  const unsigned char *zStr;/* String being searched */
-  const char *zErr;         /* Compile error message */
-  int setAux = 0;           /* True to invoke sqlite3_set_auxdata() */
-
-  (void)argc;  /* Unused */
-  pRe = sqlite3_get_auxdata(context, 0);
-  if( pRe==0 ){
-    zPattern = (const char*)sqlite3_value_text(argv[0]);
-    if( zPattern==0 ) return;
-    zErr = fossil_re_compile(&pRe, zPattern, sqlite3_user_data(context)!=0);
-    if( zErr ){
-      re_free(pRe);
-      sqlite3_result_int(context, 0);
-      /* sqlite3_result_error(context, zErr, -1); */
-      return;
-    }
-    if( pRe==0 ){
-      sqlite3_result_error_nomem(context);
-      return;
-    }
-    setAux = 1;
-  }
-  zStr = (const unsigned char*)sqlite3_value_text(argv[1]);
-  if( zStr!=0 ){
-    sqlite3_result_int(context, re_match(pRe, zStr, -1));
-  }
-  if( setAux ){
-    sqlite3_set_auxdata(context, 0, pRe, (void(*)(void*))re_free);
-  }
-}
-
-/*
-** Invoke this routine to register the regexp() function with the
-** SQLite database connection.
-*/
-int re_add_sql_func(sqlite3 *db){
-  int rc;
-  rc = sqlite3_create_function(db, "regexp", 2,
-                           SQLITE_UTF8|SQLITE_INNOCUOUS|SQLITE_DETERMINISTIC,
-                               0, re_sql_func, 0, 0);
-  if( rc==SQLITE_OK ){
-    /* The regexpi(PATTERN,STRING) function is a case-insensitive version
-    ** of regexp(PATTERN,STRING). */
-    rc = sqlite3_create_function(db, "regexpi", 2,
-                           SQLITE_UTF8|SQLITE_INNOCUOUS|SQLITE_DETERMINISTIC,
-                                 (void*)db, re_sql_func, 0, 0);
-  }
-  return rc;
+  int mxLen = g.db ? db_get_int("regexp-limit",1000) : 1000;
+  return re_compile(ppRe, zIn, mxLen, noCase);
 }
 
 /*

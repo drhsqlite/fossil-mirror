@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sso\sthat\sit\swill\ncompile\swithout\swarnings\son\sWindows.
-D 2025-09-27T11:10:20.683
+C Further\sreduce\sdivergence\sbetween\sthe\sSQLite\sand\sFossil\simplementations\sof\nregexp.c.\s\sFix\scompiler\swarnings\sfor\sMSVC.
+D 2025-09-27T11:57:33.491
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -274,9 +274,9 @@ F extsrc/pikchr-worker.js f1c029d1f6ccf626373d79fe213bb5039cc8014925c3a6ef0f0d85
 F extsrc/pikchr.c e82d4b68867a01e1688fcae7c08439a328434fd390a3a8e23d1416fbd09dabaa
 F extsrc/pikchr.js 9db23c4d8b68d86686b903bd4b5e5a7bf8dd97f0b5157377f4ac2bc2448f4859
 F extsrc/pikchr.wasm 5dcce2f7eb59441fd8fcb62a57644b86a04d339cdafb662967ae195885f33d5b
-F extsrc/shell.c 8ab876ca225948499048048b4fa7e1899d3a491f3421bd9eb694aa02990c4304
-F extsrc/sqlite3.c 4de26fd66b9570552ff2100a64272ebb2698ffa154835de81f13d79837d120bd
-F extsrc/sqlite3.h 5cb1b37d9c54aa93bdb23797cca4f2f91238e387ff950588e73ec8755b1d8edd
+F extsrc/shell.c 99cc2b078f10a79243ffebb204173d94b29ee42ae87cd71e1fac535e784324a1
+F extsrc/sqlite3.c ccfb7d3e461d6b9f0b7960922b1d992bafa6509d6cbb216d5697b949faf63012
+F extsrc/sqlite3.h 220e5205d28f2e4cd13ed7ed38b25c460f15ab44402915921e46d3b1755ad897
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -518,7 +518,7 @@ F src/printf.c 9130f41b213a8a90fe0792a4b25dc6f6eea1cd6c25c30be6be30499ca9ce64ab
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 70d48843dc44a4420e57f931ce31e74ede11464e2df994b7eca3059e3cd99b35
 F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
-F src/regexp.c 6db4281932620d082a5b86074ed42a28cbe1595c6bc80b1bf984ad13187fd149
+F src/regexp.c 3e7e6f98530060e27232be7d2638b1d7b953f6bc6339d45bc02c5c206c77a911
 F src/repolist.c 3a3fb5895bbc6a43b3a379d7419bc6cbb3b826e921475c15c2624b1bb76157f1
 F src/report.c f423bfbd6a88753fdb5b9b91c2f3a787f0db955400f67e46d1630633af8bb758
 F src/robot.c 8cc72e4e4dd1c7d9491e97f0484c6c303edef30a24ef1be01e84f4d7e26e9c07
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82888a0d35a80944460eff38b34a25d942e141b1778af1e56451d7029361660c
-R 8e2f184355790c440c2b4899f83eca70
+P 702a56d116a3d3b836cbe471f1d4b3c415a694c7bfcabe46658e4abc4f9fc651
+R ba0f086dea9af55ee64ada5bea2e8a0a
 U drh
-Z edbb194d822d69874cf6fc335a39084c
+Z f310d43cbb8a0da5bf5d02af04eb8889
 # Remove this line to create a well-formed Fossil manifest.
