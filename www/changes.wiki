@@ -1,5 +1,9 @@
 <title>Change Log</title>
 
+<h2 id='v2_28'>Changes for version 2.28 (pending)</h2><ol>
+  <li> <i>pending</i>
+</ol>
+
 <h2 id='v2_27'>Changes for version 2.27 (2025-09-30)</h2><ol>
   <li> Close a potential Denial-of-Service attack against any public-facing Fossil
        server involving exponential behavior in Fossil's regexp implementation.
