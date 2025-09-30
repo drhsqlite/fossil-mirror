@@ -300,8 +300,12 @@ const char *reasonable_bg_color(const char *zRequested, int iFgClr){
 static unsigned int hash_of_name(const char *z){
   unsigned int h = 0;
   int i;
-  for(i=0; z[i]; i++ ){
-    h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
+  const char *zHash;
+  md5sum_init();
+  md5sum_step_text(z, -1);
+  zHash = md5sum_finish(0);
+  for( i=0; zHash[i]; i++ ){
+    h += zHash[i] << i;
   }
   return h;
 }
