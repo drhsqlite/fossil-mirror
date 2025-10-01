@@ -1,12 +1,9 @@
 B bd4cec12403c65a43b142fb3dccc784a1b4e38b074fe0e2a5d4b7a76a12c7049
-C Use\sMD5\sto\sgenerate\sthe\scolor\shash\sas\sit's\sa\srandom\sfunction.
-D 2025-09-30T05:17:15.570
-F src/color.c 9cc0e08203adb74725540be38c60e84155a853a136ba0e6844ae4a1e73c5a2b7
-P bd4cec12403c65a43b142fb3dccc784a1b4e38b074fe0e2a5d4b7a76a12c7049
-R e7a51159fa363ce7d48544d1b84a9e9d
-T *branch * md5-color-hash
-T *sym-md5-color-hash *
-T -sym-trunk *
+C Attempt\sto\spreserve\smore\sof\sthe\srandomness\sgenerated\sby\sMD5.
+D 2025-10-01T05:33:55.726
+F src/color.c 33ff8ba92d1cd409011b4778d61896a3fd9a56dc89802d5931f690bdc0978fdb
+P d4caf785e39715bacf89a86bb83fd0156a9cbbae069aa685b2cee352814487cc
+R f5f3d13d24eea855415cf03108bb22f4
 U andybradford
-Z 1da2447797e8d12f67fcb3543adb8db1
+Z e2c343aa8bc5f2577f48f88e15b7b956
 # Remove this line to create a well-formed Fossil manifest.
