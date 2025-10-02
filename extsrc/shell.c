@@ -1497,8 +1497,8 @@ static sqlite3_int64 integerValue(const char *zArg){
     }
   }else{
     while( IsDigit(zArg[0]) ){
-      if( v>=922337203685477580 ){
-        if( v>922337203685477580 || zArg[0]>='8' ) goto integer_overflow;
+      if( v>=922337203685477580LL ){
+        if( v>922337203685477580LL || zArg[0]>='8' ) goto integer_overflow;
       }
       v = v*10 + (zArg[0] - '0');
       zArg++;
@@ -6127,19 +6127,20 @@ int sqlite3_ieee_init(
 **      SELECT * FROM generate_series(0,100,5);
 **
 ** The query above returns integers from 0 through 100 counting by steps
-** of 5.
+** of 5.  In other words, 0, 5, 10, 15, ..., 90, 95, 100.  There are a total
+** of 21 rows.
 **
 **      SELECT * FROM generate_series(0,100);
 **
-** Integers from 0 through 100 with a step size of 1.
+** Integers from 0 through 100 with a step size of 1.  101 rows.
 **
 **      SELECT * FROM generate_series(20) LIMIT 10;
 **
-** Integers 20 through 29.
+** Integers 20 through 29.  10 rows.
 **
 **      SELECT * FROM generate_series(0,-100,-5);
 **
-** Integers 0 -5 -10 ... -100.
+** Integers 0 -5 -10 ... -100.  21 rows.
 **
 **      SELECT * FROM generate_series(0,-1);
 **
@@ -6215,139 +6216,88 @@ SQLITE_EXTENSION_INIT1
 #include <math.h>
 
 #ifndef SQLITE_OMIT_VIRTUALTABLE
-/*
-** Return that member of a generate_series(...) sequence whose 0-based
-** index is ix. The 0th member is given by smBase. The sequence members
-** progress per ix increment by smStep.
-*/
-static sqlite3_int64 genSeqMember(
-  sqlite3_int64 smBase,
-  sqlite3_int64 smStep,
-  sqlite3_uint64 ix
-){
-  static const sqlite3_uint64 mxI64 =
-      ((sqlite3_uint64)0x7fffffff)<<32 | 0xffffffff;
-  if( ix>=mxI64 ){
-    /* Get ix into signed i64 range. */
-    ix -= mxI64;
-    /* With 2's complement ALU, this next can be 1 step, but is split into
-     * 2 for UBSAN's satisfaction (and hypothetical 1's complement ALUs.) */
-    smBase += (mxI64/2) * smStep;
-    smBase += (mxI64 - mxI64/2) * smStep;
-  }
-  /* Under UBSAN (or on 1's complement machines), must do this last term
-   * in steps to avoid the dreaded (and harmless) signed multiply overflow. */
-  if( ix>=2 ){
-    sqlite3_int64 ix2 = (sqlite3_int64)ix/2;
-    smBase += ix2*smStep;
-    ix -= ix2;
-  }
-  return smBase + ((sqlite3_int64)ix)*smStep;
-}
-
-/* typedef unsigned char u8; */
-
-typedef struct SequenceSpec {
-  sqlite3_int64 iOBase;        /* Original starting value ("start") */
-  sqlite3_int64 iOTerm;        /* Original terminal value ("stop") */
-  sqlite3_int64 iBase;         /* Starting value to actually use */
-  sqlite3_int64 iTerm;         /* Terminal value to actually use */
-  sqlite3_int64 iStep;         /* Increment ("step") */
-  sqlite3_uint64 uSeqIndexMax; /* maximum sequence index (aka "n") */
-  sqlite3_uint64 uSeqIndexNow; /* Current index during generation */
-  sqlite3_int64 iValueNow;     /* Current value during generation */
-  u8 isNotEOF;                 /* Sequence generation not exhausted */
-  u8 isReversing;              /* Sequence is being reverse generated */
-} SequenceSpec;
-
-/*
-** Prepare a SequenceSpec for use in generating an integer series
-** given initialized iBase, iTerm and iStep values. Sequence is
-** initialized per given isReversing. Other members are computed.
-*/
-static void setupSequence( SequenceSpec *pss ){
-  int bSameSigns;
-  pss->uSeqIndexMax = 0;
-  pss->isNotEOF = 0;
-  bSameSigns = (pss->iBase < 0)==(pss->iTerm < 0);
-  if( pss->iTerm < pss->iBase ){
-    sqlite3_uint64 nuspan = 0;
-    if( bSameSigns ){
-      nuspan = (sqlite3_uint64)(pss->iBase - pss->iTerm);
-    }else{
-      /* Under UBSAN (or on 1's complement machines), must do this in steps.
-       * In this clause, iBase>=0 and iTerm<0 . */
-      nuspan = 1;
-      nuspan += pss->iBase;
-      nuspan += -(pss->iTerm+1);
-    }
-    if( pss->iStep<0 ){
-      pss->isNotEOF = 1;
-      if( nuspan==ULONG_MAX ){
-        pss->uSeqIndexMax = ( pss->iStep>LLONG_MIN )? nuspan/-pss->iStep : 1;
-      }else if( pss->iStep>LLONG_MIN ){
-        pss->uSeqIndexMax = nuspan/-pss->iStep;
-      }
-    }
-  }else if( pss->iTerm > pss->iBase ){
-    sqlite3_uint64 puspan = 0;
-    if( bSameSigns ){
-      puspan = (sqlite3_uint64)(pss->iTerm - pss->iBase);
-    }else{
-      /* Under UBSAN (or on 1's complement machines), must do this in steps.
-       * In this clause, iTerm>=0 and iBase<0 . */
-      puspan = 1;
-      puspan += pss->iTerm;
-      puspan += -(pss->iBase+1);
-    }
-    if( pss->iStep>0 ){
-      pss->isNotEOF = 1;
-      pss->uSeqIndexMax = puspan/pss->iStep;
-    }
-  }else if( pss->iTerm == pss->iBase ){
-      pss->isNotEOF = 1;
-      pss->uSeqIndexMax = 0;
-  }
-  pss->uSeqIndexNow = (pss->isReversing)? pss->uSeqIndexMax : 0;
-  pss->iValueNow = (pss->isReversing)
-    ? genSeqMember(pss->iBase, pss->iStep, pss->uSeqIndexMax)
-    : pss->iBase;
-}
-
-/*
-** Progress sequence generator to yield next value, if any.
-** Leave its state to either yield next value or be at EOF.
-** Return whether there is a next value, or 0 at EOF.
-*/
-static int progressSequence( SequenceSpec *pss ){
-  if( !pss->isNotEOF ) return 0;
-  if( pss->isReversing ){
-    if( pss->uSeqIndexNow > 0 ){
-      pss->uSeqIndexNow--;
-      pss->iValueNow -= pss->iStep;
-    }else{
-      pss->isNotEOF = 0;
-    }
-  }else{
-    if( pss->uSeqIndexNow < pss->uSeqIndexMax ){
-      pss->uSeqIndexNow++;
-      pss->iValueNow += pss->iStep;
-    }else{
-      pss->isNotEOF = 0;
-    }
-  }
-  return pss->isNotEOF;
-}
 
 /* series_cursor is a subclass of sqlite3_vtab_cursor which will
 ** serve as the underlying representation of a cursor that scans
-** over rows of the result
+** over rows of the result.
+**
+** iOBase, iOTerm, and iOStep are the original values of the
+** start=, stop=, and step= constraints on the query.  These are
+** the values reported by the start, stop, and step columns of the
+** virtual table.
+**
+** iBase, iTerm, iStep, and bDescp are the actual values used to generate
+** the sequence.  These might be different from the iOxxxx values.
+** For example in
+**
+**   SELECT value FROM generate_series(1,11,2)
+**    WHERE value BETWEEN 4 AND 8;
+**
+** The iOBase is 1, but the iBase is 5.  iOTerm is 11 but iTerm is 7.
+** Another example:
+**
+**   SELECT value FROM generate_series(1,15,3) ORDER BY value DESC;
+**
+** The cursor initialization for the above query is:
+**
+**   iOBase = 1        iBase = 13
+**   iOTerm = 15       iTerm = 1
+**   iOStep = 3        iStep = 3      bDesc = 1
+**
+** The actual step size is unsigned so that can have a value of
+** +9223372036854775808 which is needed for querys like this:
+**
+**   SELECT value
+**     FROM generate_series(9223372036854775807,
+**                          -9223372036854775808,
+**                          -9223372036854775808)
+**    ORDER BY value ASC;
+**
+** The setup for the previous query will be:
+**
+**   iOBase = 9223372036854775807    iBase = -1
+**   iOTerm = -9223372036854775808   iTerm = 9223372036854775807
+**   iOStep = -9223372036854775808   iStep = 9223372036854775808  bDesc = 0
 */
+/* typedef unsigned char u8; */
 typedef struct series_cursor series_cursor;
 struct series_cursor {
   sqlite3_vtab_cursor base;  /* Base class - must be first */
-  SequenceSpec ss;           /* (this) Derived class data */
+  sqlite3_int64 iOBase;      /* Original starting value ("start") */
+  sqlite3_int64 iOTerm;      /* Original terminal value ("stop") */
+  sqlite3_int64 iOStep;      /* Original step value */
+  sqlite3_int64 iBase;       /* Starting value to actually use */
+  sqlite3_int64 iTerm;       /* Terminal value to actually use */
+  sqlite3_uint64 iStep;      /* The step size */
+  sqlite3_int64 iValue;      /* Current value */
+  u8 bDesc;                  /* iStep is really negative */
+  u8 bDone;                  /* True if stepped past last element */
 };
+
+/*
+** Computed the difference between two 64-bit signed integers using a
+** convoluted computation designed to work around the silly restriction
+** against signed integer overflow in C.
+*/
+static sqlite3_uint64 span64(sqlite3_int64 a, sqlite3_int64 b){
+  assert( a>=b );
+  return (*(sqlite3_uint64*)&a) - (*(sqlite3_uint64*)&b);
+}  
+
+/*
+** Add or substract an unsigned 64-bit integer from a signed 64-bit integer
+** and return the new signed 64-bit integer.
+*/
+static sqlite3_int64 add64(sqlite3_int64 a, sqlite3_uint64 b){
+  sqlite3_uint64 x = *(sqlite3_uint64*)&a;
+  x += b;
+  return *(sqlite3_int64*)&x;
+}
+static sqlite3_int64 sub64(sqlite3_int64 a, sqlite3_uint64 b){
+  sqlite3_uint64 x = *(sqlite3_uint64*)&a;
+  x -= b;
+  return *(sqlite3_int64*)&x;
+}
 
 /*
 ** The seriesConnect() method is invoked to create a new
@@ -6429,7 +6379,15 @@ static int seriesClose(sqlite3_vtab_cursor *cur){
 */
 static int seriesNext(sqlite3_vtab_cursor *cur){
   series_cursor *pCur = (series_cursor*)cur;
-  progressSequence( & pCur->ss );
+  if( pCur->iValue==pCur->iTerm ){
+    pCur->bDone = 1;
+  }else if( pCur->bDesc ){
+    pCur->iValue = sub64(pCur->iValue, pCur->iStep);
+    assert( pCur->iValue>=pCur->iTerm );
+  }else{
+    pCur->iValue = add64(pCur->iValue, pCur->iStep);
+    assert( pCur->iValue<=pCur->iTerm );
+  }
   return SQLITE_OK;
 }
 
@@ -6445,19 +6403,19 @@ static int seriesColumn(
   series_cursor *pCur = (series_cursor*)cur;
   sqlite3_int64 x = 0;
   switch( i ){
-    case SERIES_COLUMN_START:  x = pCur->ss.iOBase;     break;
-    case SERIES_COLUMN_STOP:   x = pCur->ss.iOTerm;     break;
-    case SERIES_COLUMN_STEP:   x = pCur->ss.iStep;      break;
-    default:                   x = pCur->ss.iValueNow;  break;
+    case SERIES_COLUMN_START:  x = pCur->iOBase;     break;
+    case SERIES_COLUMN_STOP:   x = pCur->iOTerm;     break;
+    case SERIES_COLUMN_STEP:   x = pCur->iOStep;     break;
+    default:                   x = pCur->iValue;     break;
   }
   sqlite3_result_int64(ctx, x);
   return SQLITE_OK;
 }
 
 #ifndef LARGEST_UINT64
-#define LARGEST_INT64  (0xffffffff|(((sqlite3_int64)0x7fffffff)<<32))
-#define LARGEST_UINT64 (0xffffffff|(((sqlite3_uint64)0xffffffff)<<32))
-#define SMALLEST_INT64 (((sqlite3_int64)-1) - LARGEST_INT64)
+#define LARGEST_INT64  ((sqlite3_int64)0x7fffffffffffffffLL)
+#define LARGEST_UINT64 ((sqlite3_uint64)0xffffffffffffffffULL)
+#define SMALLEST_INT64 ((sqlite3_int64)0x8000000000000000LL)
 #endif
 
 /*
@@ -6465,7 +6423,7 @@ static int seriesColumn(
 */
 static int seriesRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
   series_cursor *pCur = (series_cursor*)cur;
-  *pRowid = pCur->ss.iValueNow;
+  *pRowid = pCur->iValue;
   return SQLITE_OK;
 }
 
@@ -6475,7 +6433,7 @@ static int seriesRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
 */
 static int seriesEof(sqlite3_vtab_cursor *cur){
   series_cursor *pCur = (series_cursor*)cur;
-  return !pCur->ss.isNotEOF;
+  return pCur->bDone;
 }
 
 /* True to cause run-time checking of the start=, stop=, and/or step=
@@ -6485,6 +6443,20 @@ static int seriesEof(sqlite3_vtab_cursor *cur){
 #ifndef SQLITE_SERIES_CONSTRAINT_VERIFY
 # define SQLITE_SERIES_CONSTRAINT_VERIFY 0
 #endif
+
+/*
+** Return the number of steps between pCur->iBase and pCur->iTerm if
+** the step width is pCur->iStep.
+*/
+static sqlite3_uint64 seriesSteps(series_cursor *pCur){
+  if( pCur->bDesc ){
+    assert( pCur->iBase >= pCur->iTerm );
+    return span64(pCur->iBase, pCur->iTerm)/pCur->iStep;
+  }else{
+    assert( pCur->iBase <= pCur->iTerm );
+    return span64(pCur->iTerm, pCur->iBase)/pCur->iStep;
+  }
+}
 
 /*
 ** This method is called to "rewind" the series_cursor object back
@@ -6519,33 +6491,42 @@ static int seriesFilter(
   int argc, sqlite3_value **argv
 ){
   series_cursor *pCur = (series_cursor *)pVtabCursor;
-  int i = 0;
-  int returnNoRows = 0;
-  sqlite3_int64 iMin = SMALLEST_INT64;
-  sqlite3_int64 iMax = LARGEST_INT64;
-  sqlite3_int64 iLimit = 0;
-  sqlite3_int64 iOffset = 0;
+  int iArg = 0;                         /* Arguments used so far */
+  int i;                                /* Loop counter */
+  sqlite3_int64 iMin = SMALLEST_INT64;  /* Smallest allowed output value */
+  sqlite3_int64 iMax = LARGEST_INT64;   /* Largest allowed output value */
+  sqlite3_int64 iLimit = 0;             /* if >0, the value of the LIMIT */
+  sqlite3_int64 iOffset = 0;            /* if >0, the value of the OFFSET */
 
   (void)idxStrUnused;
+
+  /* If any constraints have a NULL value, then return no rows.
+  ** See ticket https://sqlite.org/src/info/fac496b61722daf2
+  */
+  for(i=0; i<argc; i++){
+    if( sqlite3_value_type(argv[i])==SQLITE_NULL ){
+      goto series_no_rows;
+    }
+  }
+
+  /* Capture the three HIDDEN parameters to the virtual table and insert
+  ** default values for any parameters that are omitted.
+  */
   if( idxNum & 0x01 ){
-    pCur->ss.iBase = sqlite3_value_int64(argv[i++]);
+    pCur->iOBase = sqlite3_value_int64(argv[iArg++]);
   }else{
-    pCur->ss.iBase = 0;
+    pCur->iOBase = 0;
   }
   if( idxNum & 0x02 ){
-    pCur->ss.iTerm = sqlite3_value_int64(argv[i++]);
+    pCur->iOTerm = sqlite3_value_int64(argv[iArg++]);
   }else{
-    pCur->ss.iTerm = 0xffffffff;
+    pCur->iOTerm = 0xffffffff;
   }
   if( idxNum & 0x04 ){
-    pCur->ss.iStep = sqlite3_value_int64(argv[i++]);
-    if( pCur->ss.iStep==0 ){
-      pCur->ss.iStep = 1;
-    }else if( pCur->ss.iStep<0 ){
-      if( (idxNum & 0x10)==0 ) idxNum |= 0x08;
-    }
+    pCur->iOStep = sqlite3_value_int64(argv[iArg++]);
+    if( pCur->iOStep==0 ) pCur->iOStep = 1;
   }else{
-    pCur->ss.iStep = 1;
+    pCur->iOStep = 1;
   }
 
   /* If there are constraints on the value column but there are
@@ -6555,72 +6536,94 @@ static int seriesFilter(
   ** further below.
   */
   if( (idxNum & 0x05)==0 && (idxNum & 0x0380)!=0 ){
-    pCur->ss.iBase = SMALLEST_INT64;
+    pCur->iOBase = SMALLEST_INT64;
   }
   if( (idxNum & 0x06)==0 && (idxNum & 0x3080)!=0 ){
-    pCur->ss.iTerm = LARGEST_INT64;
+    pCur->iOTerm = LARGEST_INT64;
   }
-  pCur->ss.iOBase = pCur->ss.iBase;
-  pCur->ss.iOTerm = pCur->ss.iTerm;
+  pCur->iBase = pCur->iOBase;
+  pCur->iTerm = pCur->iOTerm;
+  if( pCur->iOStep>0 ){  
+    pCur->iStep = pCur->iOStep;
+  }else if( pCur->iOStep>SMALLEST_INT64 ){
+    pCur->iStep = -pCur->iOStep;
+  }else{
+    pCur->iStep = LARGEST_INT64;
+    pCur->iStep++;
+  }
+  pCur->bDesc = pCur->iOStep<0;
+  if( pCur->bDesc==0 && pCur->iBase>pCur->iTerm ){
+    goto series_no_rows;
+  }
+  if( pCur->bDesc!=0 && pCur->iBase<pCur->iTerm ){
+    goto series_no_rows;
+  }
 
   /* Extract the LIMIT and OFFSET values, but do not apply them yet.
   ** The range must first be constrained by the limits on value.
   */
   if( idxNum & 0x20 ){
-    iLimit = sqlite3_value_int64(argv[i++]);
+    iLimit = sqlite3_value_int64(argv[iArg++]);
     if( idxNum & 0x40 ){
-      iOffset = sqlite3_value_int64(argv[i++]);
+      iOffset = sqlite3_value_int64(argv[iArg++]);
     }
   }
 
+  /* Narrow the range of iMin and iMax (the minimum and maximum outputs)
+  ** based on equality and inequality constraints on the "value" column.
+  */
   if( idxNum & 0x3380 ){
-    /* Extract the maximum range of output values determined by
-    ** constraints on the "value" column.
-    */
-    if( idxNum & 0x0080 ){
-      if( sqlite3_value_numeric_type(argv[i])==SQLITE_FLOAT ){
-        double r = sqlite3_value_double(argv[i++]);
-        if( r==ceil(r) ){
+    if( idxNum & 0x0080 ){    /* value=X */
+      if( sqlite3_value_numeric_type(argv[iArg])==SQLITE_FLOAT ){
+        double r = sqlite3_value_double(argv[iArg++]);
+        if( r==ceil(r)
+         && r>=(double)SMALLEST_INT64
+         && r<=(double)LARGEST_INT64
+        ){
           iMin = iMax = (sqlite3_int64)r;
         }else{
-          returnNoRows = 1;
+          goto series_no_rows;
         }
       }else{
-        iMin = iMax = sqlite3_value_int64(argv[i++]);
+        iMin = iMax = sqlite3_value_int64(argv[iArg++]);
       }
     }else{
-      if( idxNum & 0x0300 ){
-        if( sqlite3_value_numeric_type(argv[i])==SQLITE_FLOAT ){
-          double r = sqlite3_value_double(argv[i++]);
-          if( idxNum & 0x0200 && r==ceil(r) ){
+      if( idxNum & 0x0300 ){  /* value>X or value>=X */
+        if( sqlite3_value_numeric_type(argv[iArg])==SQLITE_FLOAT ){
+          double r = sqlite3_value_double(argv[iArg++]);
+          if( r<(double)SMALLEST_INT64 ){
+            iMin = SMALLEST_INT64;
+          }else if( (idxNum & 0x0200)!=0 && r==ceil(r) ){
             iMin = (sqlite3_int64)ceil(r+1.0);
           }else{
             iMin = (sqlite3_int64)ceil(r);
           }
         }else{
-          iMin = sqlite3_value_int64(argv[i++]);
-          if( idxNum & 0x0200 ){
+          iMin = sqlite3_value_int64(argv[iArg++]);
+          if( (idxNum & 0x0200)!=0 ){
             if( iMin==LARGEST_INT64 ){
-              returnNoRows = 1;
+              goto series_no_rows;
             }else{
               iMin++;
             }
           }
         }
       }
-      if( idxNum & 0x3000 ){
-        if( sqlite3_value_numeric_type(argv[i])==SQLITE_FLOAT ){
-          double r = sqlite3_value_double(argv[i++]);
-          if( (idxNum & 0x2000)!=0 && r==floor(r) ){
+      if( idxNum & 0x3000 ){   /* value<X or value<=X */
+        if( sqlite3_value_numeric_type(argv[iArg])==SQLITE_FLOAT ){
+          double r = sqlite3_value_double(argv[iArg++]);
+          if( r>(double)LARGEST_INT64 ){
+            iMax = LARGEST_INT64;
+          }else if( (idxNum & 0x2000)!=0 && r==floor(r) ){
             iMax = (sqlite3_int64)(r-1.0);
           }else{
             iMax = (sqlite3_int64)floor(r);
           }
         }else{
-          iMax = sqlite3_value_int64(argv[i++]);
+          iMax = sqlite3_value_int64(argv[iArg++]);
           if( idxNum & 0x2000 ){
             if( iMax==SMALLEST_INT64 ){
-              returnNoRows = 1;
+              goto series_no_rows;
             }else{
               iMax--;
             }
@@ -6628,76 +6631,100 @@ static int seriesFilter(
         }
       }
       if( iMin>iMax ){
-        returnNoRows = 1;
+        goto series_no_rows;
       }
     }
 
     /* Try to reduce the range of values to be generated based on
     ** constraints on the "value" column.
     */
-    if( pCur->ss.iStep>0 ){
-      sqlite3_int64 szStep = pCur->ss.iStep;
-      if( pCur->ss.iBase<iMin ){
-        sqlite3_uint64 d = iMin - pCur->ss.iBase;
-        pCur->ss.iBase += ((d+szStep-1)/szStep)*szStep;
+    if( pCur->bDesc==0 ){
+      if( pCur->iBase<iMin ){
+        sqlite3_uint64 span = span64(iMin,pCur->iBase);
+        pCur->iBase = add64(pCur->iBase, (span/pCur->iStep)*pCur->iStep);
+        if( pCur->iBase<iMin ){
+          if( pCur->iBase > sub64(LARGEST_INT64, pCur->iStep) ){
+            goto series_no_rows;
+          }
+          pCur->iBase = add64(pCur->iBase, pCur->iStep);
+        }
       }
-      if( pCur->ss.iTerm>iMax ){
-        pCur->ss.iTerm = iMax;
+      if( pCur->iTerm>iMax ){
+        pCur->iTerm = iMax;
       }
     }else{
-      sqlite3_int64 szStep = -pCur->ss.iStep;
-      assert( szStep>0 );
-      if( pCur->ss.iBase>iMax ){
-        sqlite3_uint64 d = pCur->ss.iBase - iMax;
-        pCur->ss.iBase -= ((d+szStep-1)/szStep)*szStep;
+      if( pCur->iBase>iMax ){
+        sqlite3_uint64 span = span64(pCur->iBase,iMax);
+        pCur->iBase = sub64(pCur->iBase, (span/pCur->iStep)*pCur->iStep);
+        if( pCur->iBase>iMax ){
+          if( pCur->iBase < add64(SMALLEST_INT64, pCur->iStep) ){
+            goto series_no_rows;
+          }
+          pCur->iBase = sub64(pCur->iBase, pCur->iStep);
+        }
       }
-      if( pCur->ss.iTerm<iMin ){
-        pCur->ss.iTerm = iMin;
+      if( pCur->iTerm<iMin ){
+        pCur->iTerm = iMin;
       }
     }
+  }
+
+  /* Adjust iTerm so that it is exactly the last value of the series.
+  */
+  if( pCur->bDesc==0 ){
+    if( pCur->iBase>pCur->iTerm ){
+      goto series_no_rows;
+    }
+    pCur->iTerm = sub64(pCur->iTerm,
+                        span64(pCur->iTerm,pCur->iBase) % pCur->iStep);
+  }else{
+    if( pCur->iBase<pCur->iTerm ){
+      goto series_no_rows;
+    }
+    pCur->iTerm = add64(pCur->iTerm,
+                        span64(pCur->iBase,pCur->iTerm) % pCur->iStep);
+  }
+
+  /* Transform the series generator to output values in the requested
+  ** order.
+  */
+  if( ((idxNum & 0x0008)!=0 && pCur->bDesc==0)
+   || ((idxNum & 0x0010)!=0 && pCur->bDesc!=0)
+  ){
+    sqlite3_int64 tmp = pCur->iBase;
+    pCur->iBase = pCur->iTerm;
+    pCur->iTerm = tmp;
+    pCur->bDesc = !pCur->bDesc;
   }
 
   /* Apply LIMIT and OFFSET constraints, if any */
+  assert( pCur->iStep!=0 );
   if( idxNum & 0x20 ){
+    sqlite3_uint64 nStep;
     if( iOffset>0 ){
-      pCur->ss.iBase += pCur->ss.iStep*iOffset;
-    }
-    if( iLimit>=0 ){
-      sqlite3_int64 iTerm;
-      sqlite3_int64 mxLimit;
-      assert( pCur->ss.iStep>0 );
-      mxLimit = (LARGEST_INT64 - pCur->ss.iBase)/pCur->ss.iStep;
-      if( iLimit>mxLimit ) iLimit = mxLimit;
-      iTerm = pCur->ss.iBase + (iLimit - 1)*pCur->ss.iStep;
-      if( pCur->ss.iStep<0 ){
-        if( iTerm>pCur->ss.iTerm ) pCur->ss.iTerm = iTerm;
+      if( seriesSteps(pCur) < (sqlite3_uint64)iOffset ){
+        goto series_no_rows;
+      }else if( pCur->bDesc ){
+        pCur->iBase = sub64(pCur->iBase, pCur->iStep*iOffset);
       }else{
-        if( iTerm<pCur->ss.iTerm ) pCur->ss.iTerm = iTerm;
+        pCur->iBase = add64(pCur->iBase, pCur->iStep*iOffset);
       }
     }
-  }
-
-
-  for(i=0; i<argc; i++){
-    if( sqlite3_value_type(argv[i])==SQLITE_NULL ){
-      /* If any of the constraints have a NULL value, then return no rows.
-      ** See ticket https://sqlite.org/src/info/fac496b61722daf2 */
-      returnNoRows = 1;
-      break;
+    if( iLimit>=0 && (nStep = seriesSteps(pCur)) > (sqlite3_uint64)iLimit ){
+      pCur->iTerm = add64(pCur->iBase, (iLimit - 1)*pCur->iStep);
     }
   }
-  if( returnNoRows ){
-    pCur->ss.iBase = 1;
-    pCur->ss.iTerm = 0;
-    pCur->ss.iStep = 1;
-  }
-  if( idxNum & 0x08 ){
-    pCur->ss.isReversing = pCur->ss.iStep > 0;
-  }else{
-    pCur->ss.isReversing = pCur->ss.iStep < 0;
-  }
-  setupSequence( &pCur->ss );
+  pCur->iValue = pCur->iBase;
+  pCur->bDone = 0;
   return SQLITE_OK;
+
+series_no_rows:
+  pCur->iBase = 0;
+  pCur->iTerm = 0;
+  pCur->iStep = 1;
+  pCur->bDesc = 0;
+  pCur->bDone = 1;
+  return SQLITE_OK;  
 }
 
 /*
@@ -9386,6 +9413,7 @@ static int completionFilter(
     if( pCur->nPrefix>0 ){
       pCur->zPrefix = sqlite3_mprintf("%s", sqlite3_value_text(argv[iArg]));
       if( pCur->zPrefix==0 ) return SQLITE_NOMEM;
+      pCur->nPrefix = (int)strlen(pCur->zPrefix);
     }
     iArg = 1;
   }
@@ -9394,6 +9422,7 @@ static int completionFilter(
     if( pCur->nLine>0 ){
       pCur->zLine = sqlite3_mprintf("%s", sqlite3_value_text(argv[iArg]));
       if( pCur->zLine==0 ) return SQLITE_NOMEM;
+      pCur->nLine = (int)strlen(pCur->zLine);
     }
   }
   if( pCur->zLine!=0 && pCur->zPrefix==0 ){
@@ -9405,6 +9434,7 @@ static int completionFilter(
     if( pCur->nPrefix>0 ){
       pCur->zPrefix = sqlite3_mprintf("%.*s", pCur->nPrefix, pCur->zLine + i);
       if( pCur->zPrefix==0 ) return SQLITE_NOMEM;
+      pCur->nPrefix = (int)strlen(pCur->zPrefix);
     }
   }
   pCur->iRowid = 0;
@@ -10318,8 +10348,13 @@ static const char ZIPFILE_SCHEMA[] =
   ") WITHOUT ROWID;";
 
 #define ZIPFILE_F_COLUMN_IDX 7    /* Index of column "file" in the above */
-#define ZIPFILE_BUFFER_SIZE (64*1024)
 #define ZIPFILE_MX_NAME (250)     /* Windows limitation on filename size */
+
+/*
+** The buffer should be large enough to contain 3 65536 byte strings - the
+** filename, the extra field and the file comment.
+*/
+#define ZIPFILE_BUFFER_SIZE (200*1024)
 
 
 /*
@@ -11004,6 +11039,15 @@ static void zipfileMtimeToDos(ZipfileCDS *pCds, u32 mUnixTime){
 }
 
 /*
+** Set (*pzErr) to point to a buffer from sqlite3_malloc() containing a 
+** generic corruption message and return SQLITE_CORRUPT;
+*/
+static int zipfileCorrupt(char **pzErr){
+  *pzErr = sqlite3_mprintf("zip archive is corrupt");
+  return SQLITE_CORRUPT;
+}
+
+/*
 ** If aBlob is not NULL, then it is a pointer to a buffer (nBlob bytes in
 ** size) containing an entire zip archive image. Or, if aBlob is NULL,
 ** then pFile is a file-handle open on a zip file. In either case, this
@@ -11025,12 +11069,15 @@ static int zipfileGetEntry(
   u8 *aRead;
   char **pzErr = &pTab->base.zErrMsg;
   int rc = SQLITE_OK;
-  (void)nBlob;
 
   if( aBlob==0 ){
     aRead = pTab->aBuffer;
     rc = zipfileReadData(pFile, aRead, ZIPFILE_CDS_FIXED_SZ, iOff, pzErr);
   }else{
+    if( (iOff+ZIPFILE_CDS_FIXED_SZ)>nBlob ){
+      /* Not enough data for the CDS structure. Corruption. */
+      return zipfileCorrupt(pzErr);
+    }
     aRead = (u8*)&aBlob[iOff];
   }
 
@@ -11061,6 +11108,9 @@ static int zipfileGetEntry(
         );
       }else{
         aRead = (u8*)&aBlob[iOff + ZIPFILE_CDS_FIXED_SZ];
+        if( (iOff + ZIPFILE_LFH_FIXED_SZ + nFile + nExtra)>nBlob ){
+          rc = zipfileCorrupt(pzErr);
+        }
       }
     }
 
@@ -11083,6 +11133,9 @@ static int zipfileGetEntry(
         rc = zipfileReadData(pFile, aRead, szFix, pNew->cds.iOffset, pzErr);
       }else{
         aRead = (u8*)&aBlob[pNew->cds.iOffset];
+        if( (pNew->cds.iOffset + ZIPFILE_LFH_FIXED_SZ)>nBlob ){
+          rc = zipfileCorrupt(pzErr);
+        }
       }
 
       if( rc==SQLITE_OK ) rc = zipfileReadLFH(aRead, &lfh);
@@ -11091,7 +11144,7 @@ static int zipfileGetEntry(
         pNew->iDataOff += lfh.nFile + lfh.nExtra;
         if( aBlob && pNew->cds.szCompressed ){
           if( pNew->iDataOff + pNew->cds.szCompressed > nBlob ){
-            rc = SQLITE_CORRUPT;
+            rc = zipfileCorrupt(pzErr);
           }else{
             pNew->aData = &pNew->aExtra[nExtra];
             memcpy(pNew->aData, &aBlob[pNew->iDataOff], pNew->cds.szCompressed);
@@ -12597,6 +12650,7 @@ int sqlite3_sqlar_init(
 
 /************************* End ../ext/misc/sqlar.c ********************/
 #endif
+#if !defined(SQLITE_OMIT_VIRTUALTABLE) && !defined(SQLITE_OMIT_AUTHORIZATION)
 /************************* Begin ../ext/expert/sqlite3expert.h ******************/
 /*
 ** 2017 April 07
@@ -15005,6 +15059,7 @@ void sqlite3_expert_destroy(sqlite3expert *p){
 #endif /* ifndef SQLITE_OMIT_VIRTUALTABLE */
 
 /************************* End ../ext/expert/sqlite3expert.c ********************/
+#endif
 /************************* Begin ../ext/intck/sqlite3intck.h ******************/
 /*
 ** 2024-02-08
@@ -21645,11 +21700,13 @@ struct OpenSession {
 };
 #endif
 
+#if !defined(SQLITE_OMIT_VIRTUALTABLE) && !defined(SQLITE_OMIT_AUTHORIZATION)
 typedef struct ExpertInfo ExpertInfo;
 struct ExpertInfo {
   sqlite3expert *pExpert;
   int bVerbose;
 };
+#endif
 
 /* A single line in the EQP output */
 typedef struct EQPGraphRow EQPGraphRow;
@@ -21753,7 +21810,9 @@ struct ShellState {
   int iIndent;           /* Index of current op in aiIndent[] */
   char *zNonce;          /* Nonce for temporary safe-mode escapes */
   EQPGraph sGraph;       /* Information for the graphical EXPLAIN QUERY PLAN */
+#if !defined(SQLITE_OMIT_VIRTUALTABLE) && !defined(SQLITE_OMIT_AUTHORIZATION)
   ExpertInfo expert;     /* Valid if previous command was ".expert OPT..." */
+#endif
 #ifdef SQLITE_SHELL_FIDDLE
   struct {
     const char * zInput; /* Input string from wasm/JS proxy */
@@ -21781,9 +21840,8 @@ static ShellState shellState;
 #define SHELL_OPEN_NORMAL      1      /* Normal database file */
 #define SHELL_OPEN_APPENDVFS   2      /* Use appendvfs */
 #define SHELL_OPEN_ZIPFILE     3      /* Use the zipfile virtual table */
-#define SHELL_OPEN_READONLY    4      /* Open a normal database read-only */
-#define SHELL_OPEN_DESERIALIZE 5      /* Open using sqlite3_deserialize() */
-#define SHELL_OPEN_HEXDB       6      /* Use "dbtotxt" output as data source */
+#define SHELL_OPEN_DESERIALIZE 4      /* Open using sqlite3_deserialize() */
+#define SHELL_OPEN_HEXDB       5      /* Use "dbtotxt" output as data source */
 
 /* Allowed values for ShellState.eTraceType
 */
@@ -24690,7 +24748,7 @@ static void exec_prepared_stmt(
   }
 }
 
-#ifndef SQLITE_OMIT_VIRTUALTABLE
+#if !defined(SQLITE_OMIT_VIRTUALTABLE) && !defined(SQLITE_OMIT_AUTHORIZATION)
 /*
 ** This function is called to process SQL if the previous shell command
 ** was ".expert". It passes the SQL in the second argument directly to
@@ -24822,7 +24880,7 @@ static int expertDotCommand(
 
   return rc;
 }
-#endif /* ifndef SQLITE_OMIT_VIRTUALTABLE */
+#endif /* !SQLITE_OMIT_VIRTUALTABLE && !SQLITE_OMIT_AUTHORIZATION */
 
 /*
 ** Execute a statement or set of statements.  Print
@@ -24848,7 +24906,7 @@ static int shell_exec(
     *pzErrMsg = NULL;
   }
 
-#ifndef SQLITE_OMIT_VIRTUALTABLE
+#if !defined(SQLITE_OMIT_VIRTUALTABLE) && !defined(SQLITE_OMIT_AUTHORIZATION)
   if( pArg->expert.pExpert ){
     rc = expertHandleSQL(pArg, zSql, pzErrMsg);
     return expertFinish(pArg, (rc!=SQLITE_OK), pzErrMsg);
@@ -25010,7 +25068,7 @@ static char **tableColumnList(ShellState *p, const char *zTab){
   sqlite3_stmt *pStmt;
   char *zSql;
   int nCol = 0;
-  int nAlloc = 0;
+  i64 nAlloc = 0;
   int nPK = 0;       /* Number of PRIMARY KEY columns seen */
   int isIPK = 0;     /* True if one PRIMARY KEY column of type INTEGER */
   int preserveRowid = ShellHasFlag(p, SHFLG_PreserveRowid);
@@ -25024,7 +25082,7 @@ static char **tableColumnList(ShellState *p, const char *zTab){
   while( sqlite3_step(pStmt)==SQLITE_ROW ){
     if( nCol>=nAlloc-2 ){
       nAlloc = nAlloc*2 + nCol + 10;
-      azCol = sqlite3_realloc(azCol, nAlloc*sizeof(azCol[0]));
+      azCol = sqlite3_realloc64(azCol, nAlloc*sizeof(azCol[0]));
       shell_check_oom(azCol);
     }
     azCol[++nCol] = sqlite3_mprintf("%s", sqlite3_column_text(pStmt, 1));
@@ -25354,7 +25412,9 @@ static const char *(azHelp[]) = {
 #ifndef SQLITE_SHELL_FIDDLE
   ".exit ?CODE?             Exit this program with return-code CODE",
 #endif
+#if !defined(SQLITE_OMIT_VIRTUALTABLE) && !defined(SQLITE_OMIT_AUTHORIZATION)
   ".expert                  EXPERIMENTAL. Suggest indexes for queries",
+#endif
   ".explain ?on|off|auto?   Change the EXPLAIN formatting mode.  Default: auto",
   ".filectrl CMD ...        Run various sqlite3_file_control() operations",
   "   --schema SCHEMA         Use SCHEMA instead of \"main\"",
@@ -25446,7 +25506,13 @@ static const char *(azHelp[]) = {
 #endif
 #ifndef SQLITE_OMIT_DESERIALIZE
   "        --deserialize   Load into memory using sqlite3_deserialize()",
+#endif
+/*"        --exclusive     Set the SQLITE_OPEN_EXCLUSIVE flag", UNDOCUMENTED */
+#ifndef SQLITE_OMIT_DESERIALIZE
   "        --hexdb         Load the output of \"dbtotxt\" as an in-memory db",
+#endif
+  "        --ifexist       Only open if FILE already exists",
+#ifndef SQLITE_OMIT_DESERIALIZE
   "        --maxsize N     Maximum size for --hexdb or --deserialized database",
 #endif
   "        --new           Initialize FILE to an empty database",
@@ -25867,7 +25933,7 @@ static unsigned char *readHexDb(ShellState *p, int *pnData){
     goto readHexDb_error;
   }
   sz = ((i64)n+pgsz-1)&~(pgsz-1); /* Round up to nearest multiple of pgsz */
-  a = sqlite3_malloc( sz ? sz : 1 );
+  a = sqlite3_malloc64( sz ? sz : 1 );
   shell_check_oom(a);
   memset(a, 0, sz);
   for(nLine++; sqlite3_fgets(zLine, sizeof(zLine), in)!=0; nLine++){
@@ -25991,10 +26057,13 @@ static void open_db(ShellState *p, int openFlags){
                              (openFlags & OPEN_DB_ZIPFILE)!=0);
       }
     }
+    if( (p->openFlags & (SQLITE_OPEN_READONLY|SQLITE_OPEN_READWRITE))==0 ){
+      if( p->openFlags==0 ) p->openFlags = SQLITE_OPEN_CREATE;
+      p->openFlags |= SQLITE_OPEN_READWRITE;
+    }
     switch( p->openMode ){
       case SHELL_OPEN_APPENDVFS: {
-        sqlite3_open_v2(zDbFilename, &p->db,
-           SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|p->openFlags, "apndvfs");
+        sqlite3_open_v2(zDbFilename, &p->db, p->openFlags, "apndvfs");
         break;
       }
       case SHELL_OPEN_HEXDB:
@@ -26006,15 +26075,9 @@ static void open_db(ShellState *p, int openFlags){
         sqlite3_open(":memory:", &p->db);
         break;
       }
-      case SHELL_OPEN_READONLY: {
-        sqlite3_open_v2(zDbFilename, &p->db,
-            SQLITE_OPEN_READONLY|p->openFlags, 0);
-        break;
-      }
       case SHELL_OPEN_UNSPEC:
       case SHELL_OPEN_NORMAL: {
-        sqlite3_open_v2(zDbFilename, &p->db,
-           SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|p->openFlags, 0);
+        sqlite3_open_v2(zDbFilename, &p->db, p->openFlags, 0);
         break;
       }
     }
@@ -26153,9 +26216,11 @@ static void open_db(ShellState *p, int openFlags){
 #endif
   }
   if( p->db!=0 ){
+#ifndef SQLITE_OMIT_AUTHORIZATION
     if( p->bSafeModePersist ){
       sqlite3_set_authorizer(p->db, safeModeAuth, p);
     }
+#endif
     sqlite3_db_config(
         p->db, SQLITE_DBCONFIG_STMT_SCANSTATUS, p->scanstatsOn, (int*)0
     );
@@ -26468,8 +26533,8 @@ struct ImportCtx {
   FILE *in;           /* Read the CSV text from this input stream */
   int (SQLITE_CDECL *xCloser)(FILE*);      /* Func to close in */
   char *z;            /* Accumulated text for a field */
-  int n;              /* Number of bytes in z */
-  int nAlloc;         /* Space allocated for z[] */
+  i64 n;              /* Number of bytes in z */
+  i64 nAlloc;         /* Space allocated for z[] */
   int nLine;          /* Current line number */
   int nRow;           /* Number of rows imported */
   int nErr;           /* Number of errors encountered */
@@ -27093,7 +27158,11 @@ static int shell_dbtotxt_command(ShellState *p, int nArg, char **azArg){
 #if defined(_WIN32)
     if( zTail==0 ) zTail = strrchr(zFilename, '\\');
 #endif
-    if( zTail && zTail[1]!=0 ) zTail++;
+    if( zTail==0 ){
+      zTail = zFilename;
+    }else if( zTail[1]!=0 ){
+      zTail++;
+    }
   }
   zName = strdup(zTail);
   shell_check_oom(zName);
@@ -28818,7 +28887,7 @@ static int do_meta_command(char *zLine, ShellState *p){
   int rc = 0;
   char *azArg[52];
 
-#ifndef SQLITE_OMIT_VIRTUALTABLE
+#if !defined(SQLITE_OMIT_VIRTUALTABLE) && !defined(SQLITE_OMIT_AUTHORIZATION)
   if( p->expert.pExpert ){
     expertFinish(p, 1, 0);
   }
@@ -29119,7 +29188,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         const char *zSchema = (const char *)sqlite3_column_text(pStmt,1);
         const char *zFile = (const char*)sqlite3_column_text(pStmt,2);
         if( zSchema==0 || zFile==0 ) continue;
-        azName = sqlite3_realloc(azName, (nName+1)*2*sizeof(char*));
+        azName = sqlite3_realloc64(azName, (nName+1)*2*sizeof(char*));
         shell_check_oom(azName);
         azName[nName*2] = strdup(zSchema);
         azName[nName*2+1] = strdup(zFile);
@@ -29387,7 +29456,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
   }else
 
-#ifndef SQLITE_OMIT_VIRTUALTABLE
+#if !defined(SQLITE_OMIT_VIRTUALTABLE) && !defined(SQLITE_OMIT_AUTHORIZATION)
   if( c=='e' && cli_strncmp(azArg[0], "expert", n)==0 ){
     if( p->bSafeMode ){
       sqlite3_fprintf(stderr,
@@ -30387,6 +30456,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     int iName = 1;           /* Index in azArg[] of the filename */
     int newFlag = 0;         /* True to delete file before opening */
     int openMode = SHELL_OPEN_UNSPEC;
+    int openFlags = SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE;
 
     /* Check for command-line arguments */
     for(iName=1; iName<nArg; iName++){
@@ -30401,9 +30471,14 @@ static int do_meta_command(char *zLine, ShellState *p){
       }else if( optionMatch(z, "append") ){
         openMode = SHELL_OPEN_APPENDVFS;
       }else if( optionMatch(z, "readonly") ){
-        openMode = SHELL_OPEN_READONLY;
+        openFlags &= ~(SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE);
+        openFlags |= SQLITE_OPEN_READONLY;
+      }else if( optionMatch(z, "exclusive") ){
+        openFlags |= SQLITE_OPEN_EXCLUSIVE;
+      }else if( optionMatch(z, "ifexists") ){
+        openFlags &= ~(SQLITE_OPEN_CREATE);
       }else if( optionMatch(z, "nofollow") ){
-        p->openFlags |= SQLITE_OPEN_NOFOLLOW;
+        openFlags |= SQLITE_OPEN_NOFOLLOW;
 #ifndef SQLITE_OMIT_DESERIALIZE
       }else if( optionMatch(z, "deserialize") ){
         openMode = SHELL_OPEN_DESERIALIZE;
@@ -30435,7 +30510,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     sqlite3_free(p->pAuxDb->zFreeOnClose);
     p->pAuxDb->zFreeOnClose = 0;
     p->openMode = openMode;
-    p->openFlags = 0;
+    p->openFlags = openFlags;
     p->szMax = 0;
 
     /* If a filename is specified, try to open it first */
@@ -31177,7 +31252,8 @@ static int do_meta_command(char *zLine, ShellState *p){
     ** Set a list of GLOB patterns of table names to be excluded.
     */
     if( cli_strcmp(azCmd[0], "filter")==0 ){
-      int ii, nByte;
+      int ii;
+      i64 nByte;
       if( nCmd<2 ) goto session_syntax_error;
       if( pAuxDb->nSession ){
         for(ii=0; ii<pSession->nFilter; ii++){
@@ -31185,7 +31261,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         }
         sqlite3_free(pSession->azFilter);
         nByte = sizeof(pSession->azFilter[0])*(nCmd-1);
-        pSession->azFilter = sqlite3_malloc( nByte );
+        pSession->azFilter = sqlite3_malloc64( nByte );
         shell_check_oom( pSession->azFilter );
         for(ii=1; ii<nCmd; ii++){
           char *x = pSession->azFilter[ii-1] = sqlite3_mprintf("%s", azCmd[ii]);
@@ -33123,6 +33199,7 @@ static const char zOptions[] =
 #endif
   "   -help                show this message\n"
   "   -html                set output mode to HTML\n"
+  "   -ifexists            only open if database already exists\n"
   "   -interactive         force interactive I/O\n"
   "   -json                set output mode to 'json'\n"
   "   -line                set output mode to 'line'\n"
@@ -33535,9 +33612,15 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       data.szMax = integerValue(argv[++i]);
 #endif
     }else if( cli_strcmp(z,"-readonly")==0 ){
-      data.openMode = SHELL_OPEN_READONLY;
+      data.openFlags &= ~(SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE);
+      data.openFlags |= SQLITE_OPEN_READONLY;
     }else if( cli_strcmp(z,"-nofollow")==0 ){
-      data.openFlags = SQLITE_OPEN_NOFOLLOW;
+      data.openFlags |= SQLITE_OPEN_NOFOLLOW;
+    }else if( cli_strcmp(z,"-exclusive")==0 ){  /* UNDOCUMENTED */
+      data.openFlags |= SQLITE_OPEN_EXCLUSIVE;
+    }else if( cli_strcmp(z,"-ifexists")==0 ){
+      data.openFlags &= ~(SQLITE_OPEN_CREATE);
+      if( data.openFlags==0 ) data.openFlags = SQLITE_OPEN_READWRITE;
 #if !defined(SQLITE_OMIT_VIRTUALTABLE) && defined(SQLITE_HAVE_ZLIB)
     }else if( cli_strncmp(z, "-A",2)==0 ){
       /* All remaining command-line arguments are passed to the ".archive"
@@ -33691,9 +33774,15 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       data.szMax = integerValue(argv[++i]);
 #endif
     }else if( cli_strcmp(z,"-readonly")==0 ){
-      data.openMode = SHELL_OPEN_READONLY;
+      data.openFlags &= ~(SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE);
+      data.openFlags |= SQLITE_OPEN_READONLY;
     }else if( cli_strcmp(z,"-nofollow")==0 ){
       data.openFlags |= SQLITE_OPEN_NOFOLLOW;
+    }else if( cli_strcmp(z,"-exclusive")==0 ){  /* UNDOCUMENTED */
+      data.openFlags |= SQLITE_OPEN_EXCLUSIVE;
+    }else if( cli_strcmp(z,"-ifexists")==0 ){
+      data.openFlags &= ~(SQLITE_OPEN_CREATE);
+      if( data.openFlags==0 ) data.openFlags = SQLITE_OPEN_READWRITE;
     }else if( cli_strcmp(z,"-ascii")==0 ){
       data.mode = MODE_Ascii;
       sqlite3_snprintf(sizeof(data.colSeparator), data.colSeparator,SEP_Unit);
@@ -33914,7 +34003,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
 #ifndef SQLITE_SHELL_FIDDLE
   /* In WASM mode we have to leave the db state in place so that
   ** client code can "push" SQL into it after this call returns. */
-#ifndef SQLITE_OMIT_VIRTUALTABLE
+#if !defined(SQLITE_OMIT_VIRTUALTABLE) && !defined(SQLITE_OMIT_AUTHORIZATION)
   if( data.expert.pExpert ){
     expertFinish(&data, 1, 0);
   }
