@@ -1,9 +1,9 @@
 B bd4cec12403c65a43b142fb3dccc784a1b4e38b074fe0e2a5d4b7a76a12c7049
-C Attempt\sto\spreserve\smore\sof\sthe\srandomness\sgenerated\sby\sMD5.
-D 2025-10-01T05:33:55.726
-F src/color.c 33ff8ba92d1cd409011b4778d61896a3fd9a56dc89802d5931f690bdc0978fdb
-P d4caf785e39715bacf89a86bb83fd0156a9cbbae069aa685b2cee352814487cc
-R f5f3d13d24eea855415cf03108bb22f4
+C Correct\ssome\sof\sthe\scalculations\sand\sreduce\scode\sby\sreusing\sexisting\sdecoder.
+D 2025-10-02T01:48:38.963
+F src/color.c d89a46c7746318508699f1bcbf2a7f63e8216291410d025939290acb2a89b3e2
+P f9d361804e3ced90832bb46e6aedb5f8a7d0389fbb211a4abc6873986c41fac7
+R b1d3591d8ccd5913ea68ad2e466d7372
 U andybradford
-Z e2c343aa8bc5f2577f48f88e15b7b956
+Z bddd4e0577426b04f80516d52c0fe95e
 # Remove this line to create a well-formed Fossil manifest.

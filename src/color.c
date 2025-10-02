@@ -299,21 +299,17 @@ const char *reasonable_bg_color(const char *zRequested, int iFgClr){
 */
 static unsigned int hash_of_name(const char *z){
   unsigned int h = 0;
-  unsigned char c;
+  unsigned char digest[16];
   int l = 0;
   int i;
   const char *zHash;
   md5sum_init();
   md5sum_step_text(z, -1);
   zHash = md5sum_finish(0);
-  for( i=0; zHash[i]; i++ ){
-    c = (i%2)==0 ? zHash[i] << 4 : zHash[i];
-    if( ((i/8)%2)==0 ) {
-      h += c << (24 - (l * 8));
-    }else{
-      h ^= c << (24 - (l * 8));
-    }
-    l = (l + 1) % 4;
+  decode16(zHash, (unsigned char*)digest, strlen(zHash));
+  for( i=0; i<4; i++ ){
+    l = i % 4;
+    h += digest[i] << (24 - (l * 8));
   }
   return h;
 }
