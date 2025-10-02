@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\scheck-in\sfor\sbeta\stesting.
-D 2025-10-02T14:14:53.838
+C Align\sthe\sdelta_parse()\sdebug\sfunction\swith\sthe\sSQLite\ssources.
+D 2025-10-02T19:36:38.025
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -415,7 +415,7 @@ F src/db.c 7baa3f7ec3b3d6aec893134ec6b02287ac47ac7a8237226e3c8b932d1242c0fa
 F src/default.css a0855c59e40270f03bd39bbe95c83ce0133d3b1205c81689ead7f31096af9bcb
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
-F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
+F src/deltafunc.c f08accd177876a9d41ad36de0559e5bdc07e7f368ac58790634c2dcd75c30d9f
 F src/descendants.c b89a755e53906d2ec2ea69573bd38a4c90baad7af2e48c13015a69b7637b03b2
 F src/diff.c 304afb4e916fd9ba47af62a0dc13e9e1ad6d10f98a07a61dc8070cb1e9a40a72
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8fcc9714ee99c3449af810f9db250943dc52d09ef843488b20aada993a51376
-R 07dd32299e09b195c41f62d7cfc8d844
+P 3ca3a6a667cf23765ec527e00a2898bc94a8d93b95e25add39138d65b485d446
+R 73c11170c5e9ee7ee17243235e709420
 U drh
-Z 57d904d5b28b75b12739faef9fb1ee7f
+Z 2034befd62ef1c904d4265bfd7cbefae
 # Remove this line to create a well-formed Fossil manifest.
