@@ -503,13 +503,14 @@ void setup_robots(void){
 
   @ <hr>
   @ <p><b>Exceptions to anti-robot restrictions</b><br>
-  @ The entry below is a list of regular expressions, one per line.
+  @ The entry below is a list of 
+  @ <a href="%R/re_rules">regular expressions</a>, one per line.
   @ If any of these regular expressions match the input URL, then the
   @ request is exempt from anti-robot defenses.  Use this, for example,
   @ to allow scripts to download release tarballs using a pattern
   @ like:</p>
   @ <p>
-  @ &emsp;&emsp;<tt>^/tarball\b.*\b(version-|release)\b</tt>
+  @ &emsp;&emsp;<tt>^/tarball/(version-[0-9.]+|release)/</tt>
   @ <p>The pattern should match against the REQUEST_URI with the
   @ SCRIPT_NAME prefix removed, and with QUERY_STRING appended following
   @ a "?" if QUERY_STRING exists.  (Property: robot-exception)<br>
