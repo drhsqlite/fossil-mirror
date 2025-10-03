@@ -256,7 +256,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
 /*
 ** SETTING: robot-restrict                width=40 block-text
 ** The VALUE of this setting is a list of GLOB patterns that match
-** pages for which complex HTTP requests from unauthenicated clients
+** pages for which complex HTTP requests from unauthenticated clients
 ** should be disallowed.  "Unauthenticated" means the user is "nobody".
 ** The recommended value for this setting is:
 **

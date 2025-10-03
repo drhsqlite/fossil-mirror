@@ -298,7 +298,7 @@ repository, you give the same command, but the results are different.
 Fossil defaults to [./concepts.wiki#workflow|autosync] mode, a
 single-stage commit that sends all changes committed to the local
 repository immediately on to the remote parent repository. This only
-works if you have write permission to the remote respository.
+works if you have write permission to the remote repository.
 
 <h2 id="naming">Naming of Files, Checkins, and Branches</h2>
 

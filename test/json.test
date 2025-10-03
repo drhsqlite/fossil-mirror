@@ -178,7 +178,7 @@ proc test_json_payload {testname okfields badfields} {
 
 #### VERSION AKA HAI
 
-# The JSON API generally assumes we have a respository, so let it have one.
+# The JSON API generally assumes we have a repository, so let it have one.
 
 # Set FOSSIL_USER to ensure consistent results in "json user list"
 set _fossil_user ""

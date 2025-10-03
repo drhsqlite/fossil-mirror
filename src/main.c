@@ -2442,7 +2442,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             an unconditional redirect to URL is taken.
 **                             When "*" is used a 301 permanent redirect is
 **                             issued and the tail and query string from the
-**                             original query are appeneded onto URL.
+**                             original query are appended onto URL.
 **
 **    jsmode: VALUE            Specifies the delivery mode for JavaScript
 **                             files. See the help text for the --jsmode
