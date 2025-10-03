@@ -677,41 +677,108 @@ void tarball_cmd(void){
 }
 
 /*
-** Check to see if the input string is of the form:
+** Check to see if the input string is of one of the following
+** two the forms:
 **
-**        check-in-name/filename.ext
+**        check-in-name/filename.ext                       (1)
+**        tag-name/check-in-name/filename.txt              (2)
 **
-** In other words, check to see if the input contains a single '/'
-** character that separates a valid check-in name from a filename.
+** In other words, check to see if the input string contains either
+** a check-in name or a tag-name and a check-in name separated by
+** a slash.  There must be either 1 or 2 "/" characters.  In the
+** second form, tag-name must be an individual tag (not a branch-tag)
+** that is found on the check-in identified by the check-in-name.
 **
-** If the condition is true, return the check-in name and set the
-** input string to be the filename.
+** If the condition is true, then:
 **
-** If the condition is false, return NULL
+**   *  Make *pzName point to the fielname suffix only
+**   *  return a copy of the check-in name in memory from mprintf().
+**
+** If the condition is false, leave *pzName unchanged and return either
+** NULL or an empty string.  Normally NULL is returned, however an
+** empty string is returned for format (2) if check-in-name does not
+** match tag-name.
+**
+** Format (2) is specifically designed to allow URLs like this:
+**
+**      /tarball/release/UUID/PROJECT.tar.gz
+**
+** Such URLs will pass through most anti-robot filters because of the
+** "/tarball/release" prefix will match the suggested "robot-exception"
+** pattern and can still refer to an historic release rather than just
+** the most recent release.
 */
 char *tar_uuid_from_name(char **pzName){
-  char *zName = *pzName;
-  int i, n;
-  for(i=n=0; zName[i]; i++){
+  char *zName = *pzName;      /* Original input */
+  int n1 = 0;                 /* Bytes in first prefix (tag-name) */
+  int n2 = 0;                 /* Bytes in second prefix (check-in-name) */
+  int n = 0;                  /* max(n1,n2) */
+  int i;                      /* Loop counter */
+  for(i=n1=n2=0; zName[i]; i++){
     if( zName[i]=='/' ){
-      if( n==0 ) n = i;
-      else return 0;
+      if( n1==0 ){
+        n = n1 = i;
+      }else if( n2==0 ){
+        n = n2 = i;
+      }else{
+        return 0;   /* More than two "/" characters seen */
+      }
     }
   }
-  if( n==0 ) return 0;
-  if( zName[n+1]==0 ) return 0;
-  zName[n] = 0;
-  *pzName = fossil_strdup(&zName[n+1]);
-  return zName;
+  if( n1==0 ){
+    return 0;    /* No prefix of any kind */
+  }
+  if( zName[n+1]==0 ){
+    return 0;    /* No filename suffix */
+  }
+  if( n2==0 ){
+    /* Format (1): check-in name only.  The check-in-name is not verified */
+    zName[n1] = 0;
+    *pzName = fossil_strdup(&zName[n1+1]);
+    return zName;
+  }else if( n2>n1+1 ){
+    /* Format (2): tag-name/check-in-name.  Verify that check-in-name is real
+    ** and that the check-in has the tag named by tag-name.
+    */
+    char *zCkin = mprintf("%.*s", n2-n1-1, &zName[n1+1]);
+    char *zTag;
+    int rid = symbolic_name_to_rid(zCkin,"ci");
+    int hasTag;
+    if( rid<=0 ){
+      fossil_free(zCkin);
+      return fossil_strdup("");
+    }
+    zTag = mprintf("%.*s", n1, zName);
+    hasTag = db_exists(
+      "SELECT 1 FROM tagxref, tag"
+      " WHERE tagxref.rid=%d"
+      "   AND tag.tagid=tagxref.tagid"
+      "   AND tagxref.tagtype=1"
+      "   AND tag.tagname='sym-%q'",
+      rid, zTag
+    );
+    fossil_free(zTag);
+    if( !hasTag ){
+      fossil_free(zCkin);
+      return fossil_strdup("");
+    }
+    *pzName = fossil_strdup(&zName[n2+1]);
+    return zCkin;             
+  }else{
+    return 0;
+  }
 }
 
 /*
 ** WEBPAGE: tarball
-** URL: /tarball/[VERSION/]NAME.tar.gz
+** URL: /tarball/NAME.tar.gz
+**  or: /tarball/VERSION/NAME.tar.gz
+**  or: /tarball/TAG/VERSION/NAME.tar.gz
 **
 ** Generate a compressed tarball for the check-in specified by VERSION.
 ** The tarball is called NAME.tar.gz and has a top-level directory called
-** NAME.
+** NAME.  If TAG is provided, then VERSION must hold TAG or else an error
+** is returned.
 **
 ** The optional VERSION element defaults to "trunk" per the r= rules below.
 ** All of the following URLs are equivalent:
