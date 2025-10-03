@@ -1,5 +1,5 @@
-C Disable\sthe\s"settings"\stest\smodule,\swhich\sdoesn't\swork\sfor\sunknown\nreasons,\sand\sbecause\sit\sdoes\snot\sseem\sto\saccomplish\svery\smuch\sfor\sall\nthe\sTCL\scomplication\sthat\sit\sadds.
-D 2025-10-03T14:09:48.130
+C Remove\sa\spointless\ssource\scode\stest\sfrom\s"make\stest"
+D 2025-10-03T14:36:17.730
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -603,7 +603,7 @@ F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c1ea044297b09158caa5c800b2017bcf807d0138cc8c8901ba464bcb8798bafb
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
-F test/commit-warning.test 77c7375437d510e306e55790d1de7e0f9dad8b36749e098716730393cb6f5f56
+F test/commit-warning.test 5a6417e95c35cf8819348a4bbddbd3be2940193b22f51aa769ba6ffe48735faa
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
 F test/delta1.test 201f7f46d5c0d5a7bd7af565e5484d64f5af60a2aa8ce712c7c68c90e8b2ed7e
@@ -642,7 +642,7 @@ F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
 F test/set-manifest.test 0f7a5f05fef7b4a3995ce7384feecde313e542d197c3d2d8c5324ef8177f791c
 F test/settings-repo.test 26de9519938c46bcfbe263a55bbef7e0921b28ac53bcb14dde0b7f18f08fd41f
-F test/settings.test.off c2a59ad1b2d0fdd61ec9accd84d1f58fb1bf78577e47cec6d79d865655b8cbf3 w test/settings.test
+F test/settings.test.off c2a59ad1b2d0fdd61ec9accd84d1f58fb1bf78577e47cec6d79d865655b8cbf3
 F test/stash.test cc97b53b3e9460505091cf591dc68392a2a379831181914069353488219b6131
 F test/subdir\swith\sspaces/filename\swith\sspaces.txt 4c1f053a9aa422cde7f33113511a70ca3a9f77ddebff4458fbf776752fc3a006
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8dbbac969e19bd87455080c3b83921979af3579beec06cda18d0ba0b2725b55
-R ec4200d5a65408658ea2d7313f2b5595
+P 4619d2efab946460060b538e146ad422b429684a7e493d97ddcc2591763a99a9
+R ecaccf6c3bfae1e17b98dd87cf521b03
 U drh
-Z 8b5214dea7e2faa61c11de959b31a974
+Z 12e05a98fe6bf1f7c3c6aaff19d034fc
 # Remove this line to create a well-formed Fossil manifest.
