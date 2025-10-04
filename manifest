@@ -1,5 +1,5 @@
-C Fix\sspelling\serrors\sfound\sby\sthe\sDebian\sQA\stools.
-D 2025-10-03T17:31:39.693
+C Simplified\sa\scommand\spair\sto\sa\sone-liner\sin\sthe\scontainers\sdoc\ssection\nabout\ssetting\sup\semail\salerts.
+D 2025-10-04T19:22:38.836
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -808,7 +808,7 @@ F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b
 F www/colordiff.md 6f16b0907fb766bf6de861f65727b7ac314f39c903fab72f1cb83f48f4fafce1
 F www/concepts.wiki adfd20e1b92857bb4a100ed041cd94ca2bd6b3ebc4e6129675aa36fb1c19cbe9
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/containers.md 67f01657b3599951e0d8b376796c9b594408a3546b7c03edbeacee26fb1064e7
+F www/containers.md e14e5b1d2b33188386ef2b9b533bf1e55a04c886775ccba59df460dbf2fe41b1
 F www/contribute.wiki fe38a7aae20f715e722d2764c94f699c7f53c8a374ac7ba25698637c2b385b89
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3bbd18a284c8bd6a8c1d46a6faa7ee33142e5fec53bb64792aab53d3c84e57fd
-R 6ec6bae5b32b388c8d515d429f407f5f
-U danield
-Z 6a7a15443bded7173f1333b82e47a747
+P 7db623e5ebbf917b1c6e9166c0a3be84f76e257020c2e8e36dabc78c16f8f343
+R 5824c320fd8ed7ef0efe7726828f7dc3
+U wyoung
+Z 0018d33b6d50351c8be2a719dc5293eb
 # Remove this line to create a well-formed Fossil manifest.
