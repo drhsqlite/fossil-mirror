@@ -282,7 +282,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** for named versions and releases, you could use an expression like
 ** this:
 **
-**     ^/(tarball|zip)\\b*\\b(version-|release)\\b
+**     ^/tarball/(version-[0-9.]+|release)/
 **
 ** This setting can hold multiple regular expressions, one
 ** regular expression per line.  The input URL is exempted from
