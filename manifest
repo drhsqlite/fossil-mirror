@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\santi-robot\sdocumentation\spage.
-D 2025-10-06T19:08:47.909
+C Small\scorrection\sto\sthe\shelp\stext\sfor\sthe\s'mv'\scommand,\sas\sper\sforum\spost\s25e2d7024b.
+D 2025-10-07T19:29:03.696
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -374,7 +374,7 @@ F skins/xekri/footer.txt 00760bbee5f45decff089e54bc8a11600eeb4644d01f21d7b2a0af5
 F skins/xekri/header.txt 8844006d55f16b4ea8f6388db44b5db74a91a366ac934fe081a107a53464dbb3
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
-F src/add.c 7a251fa11377a871f047a943da2b4d624a7c160ff6984bd93882dc9c4fd0d1a1
+F src/add.c 5797fa76189ae9a190e34d431884144273255f8cfded71e3b09a51d2acff2025
 F src/ajax.c 61b9a5a3301823a21f90d4efd388e6e95e154e8d657323a24c365633911f6565
 F src/alerts.c 568618c2e10a4fe298291e0c97d05bb5407a69839274772625b9392295634820
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 819da69d7b6d37d6deef79150e1b611588e2b1fbf8d3ab7def7626cdfb629ca9
-R 5bd069dda8e40091b995d10657deedf7
-U drh
-Z b42147c9a42368a026c687ef65d3b507
+P 8d3281267d9a38fc9d8f8a44b837cbdc8120898b9b573cdd08f9bd0af6271cd2
+R 1b0ef21b6594c56a57ce67d392a902d7
+U danield
+Z 1ac6b014307332867c95a03d3a615ade
 # Remove this line to create a well-formed Fossil manifest.
