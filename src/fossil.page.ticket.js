@@ -25,7 +25,6 @@ window.addEventListener( 'load', function() {
     const cbReverseIt = ()=>{
       e.classList[cbReverse.checked ? 'add' : 'remove']('reverse');
       F.storage.set(cbReverseKey, cbReverse.checked ? 1 : 0);
-      console.debug("stored",cbReverseKey,'=',F.storage.get(cbReverseKey));
     };
     cbReverse.addEventListener('change', cbReverseIt, true);
     cbReverse.checked = !!(+F.storage.get(cbReverseKey, 0));

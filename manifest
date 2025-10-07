@@ -1,5 +1,5 @@
-C Experimentally\sadd\sa\sJS\stoggle\sto\sthe\s/tktview\scomment\slist\sto\sshow\sthe\scomment\shistory\sin\sreverse\sorder\s(newest\sfirst).\sThis\stoggle\sonly\sappears\sif\sJS\sis\savailable\sand\sis\spersistent\son\sthe\sclient.\sIt\swas\sadded\sper\san\soff-list\srequest\sfrom\sSteve\sLanders.
-D 2025-10-07T19:46:21.424
+C Remove\ssome\sdebug\soutput.
+D 2025-10-07T20:04:26.167
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -447,7 +447,7 @@ F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f2
 F src/fossil.page.forumpost.js 1404b0912941e2cd024a12f852e6ce2ced715a4f9f3efa6dc8113034688ef12e
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
-F src/fossil.page.ticket.js f796bb486df424f2c1525b5bbfc6e8fce06c6d3c8492041a0ded0731a5a0ee63
+F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
 F src/fossil.page.whistory.js 25d9059c9670337d0e2b9e22d791be209a3be77ebd5ff1a985dfaecef64d0e36
 F src/fossil.page.wikiedit.js d38cbdcdff048d9c0e9eead9fa50ac96e4c9425f53c2bf9c5cf765fc5b3d769c
 F src/fossil.pikchr.js a6ef755b6c878a43ee7f402dd3d27593897d901fa1e1f38a6ede83c600708ea3
@@ -976,11 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8d3281267d9a38fc9d8f8a44b837cbdc8120898b9b573cdd08f9bd0af6271cd2
-R 3507aa5a2efc397db8b4c07f504c9d68
-T *branch * tktview-newest-first
-T *sym-tktview-newest-first *
-T -sym-trunk * Cancelled\sby\sbranch.
+P 531668f5b153cd99e5e28595c44da73e85f26e8e39303178aac2ddb53507b2f6
+R bd173bca5780afd23d3dc899f6e77973
 U stephan
-Z e482fff8224435b91fc0486dfc856b56
+Z 55dfa5616454133fcc9eeca6914b9a66
 # Remove this line to create a well-formed Fossil manifest.
