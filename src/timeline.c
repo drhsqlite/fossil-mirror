@@ -3864,7 +3864,7 @@ void timeline_cmd(void){
     }
     /* Complete the above outer select. */
     blob_append_sql(&sql, 
-        "\nORDER BY event.mtime LIMIT %d) t ORDER BY t.mDateTime DESC;", lim);
+        "\nORDER BY event.mtime LIMIT %d) t ORDER BY t.mDateTime DESC", lim);
   }else{
     blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
   }
