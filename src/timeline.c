@@ -600,7 +600,7 @@ void www_print_timeline(
         cgi_printf("%W",blob_str(&comment));
       }
     }
- 
+
     if( zType[0]=='c' && strcmp(zUuid, MANIFEST_UUID)==0 ){
       /* This will only ever happen when Fossil is drawing a timeline for
       ** its own self-host repository.  If the timeline shows the specific
@@ -1365,7 +1365,7 @@ const char *timeline_expand_datetime(const char *zIn, int *pbZulu){
 static int timeline_is_datespan(const char *zDay){
   size_t n = strlen(zDay);
   int i, d, m;
-  
+
   if( n<17 || n>18 ) return 0;
   if( n==18 ){
     if( zDay[17]!='Z' && zDay[17]!='z' ) return 0;
@@ -1397,7 +1397,7 @@ static int timeline_is_datespan(const char *zDay){
 */
 static int timeline_endpoint(
   int iFrom,         /* Starting point */
-  const char *zEnd,  /* Tag we are searching for */   
+  const char *zEnd,  /* Tag we are searching for */
   int bForward       /* 1: forwards in time (descendants) 0: backwards */
 ){
   int tagId;
@@ -2287,7 +2287,7 @@ void page_timeline(void){
                    "are used and have distinct values.";
         }
         zFwdTo = 0;
-      }        
+      }
       if( zFwdTo ){
         double rStartDate = mtime_of_rid(d_rid, 0.0);
         ridFwdTo = first_checkin_with_tag_after_date(zFwdTo, rStartDate);
@@ -2346,7 +2346,7 @@ void page_timeline(void){
                    "are used and have distinct values.";
         }
         zBackTo = 0;
-      }        
+      }
       if( zBackTo ){
         double rDateLimit = mtime_of_rid(p_rid, 0.0);
         ridBackTo = last_checkin_with_tag_before_date(zBackTo, rDateLimit);
@@ -2372,7 +2372,7 @@ void page_timeline(void){
         np = db_int(0, "SELECT count(*)-1 FROM ok");
         if( np>0 || nd==0 ){
           if( nd>0 ) blob_appendf(&desc, " and ");
-          blob_appendf(&desc, "%d ancestor%s", 
+          blob_appendf(&desc, "%d ancestor%s",
                        np>=0 ? np : 0, (1==np)?"":"s");
           db_multi_exec("%s", blob_sql_text(&sql));
         }
@@ -2655,7 +2655,7 @@ void page_timeline(void){
         " AND event.mtime<julianday(%Q,%Q,'+1 day')\n",
         zStart, zTZMod, zEnd, zTZMod);
       nEntry = -1;
-      
+
       if( fossil_ui_localtime() && bZulu ){
         zDay = mprintf("%d days between %zZ and %zZ", nDay, zStart, zEnd);
       }else{
@@ -3624,6 +3624,7 @@ static int fossil_is_julianday(const char *zDate){
 **   --offset P           Skip P changes
 **   -p|--path PATH       Output items affecting PATH only.
 **                        PATH can be a file or a sub directory.
+**   -r|--reverse         Show items in chronological order.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current check-out's repository.
 **   --sql                Show the SQL used to generate the timeline
@@ -3654,7 +3655,8 @@ void timeline_cmd(void){
   int objid = 0;
   Blob uuid;
   int mode = TIMELINE_MODE_NONE;
-  int verboseFlag = 0 ;
+  int verboseFlag = 0;
+  int reverseFlag = 0;
   int iOffset;
   const char *zFilePattern = 0;
   const char *zFormat = 0;
@@ -3711,6 +3713,7 @@ void timeline_cmd(void){
   }
   zOffset = find_option("offset",0,1);
   iOffset = zOffset ? atoi(zOffset) : 0;
+  reverseFlag = find_option("reverse","r",0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -3731,7 +3734,7 @@ void timeline_cmd(void){
       mode = TIMELINE_MODE_PARENTS;
     }else if(!zType && !zLimit){
       usage("?WHEN? ?CHECKIN|DATETIME? ?-n|--limit #? ?-t|--type TYPE? "
-            "?-W|--width WIDTH? ?-p|--path PATH?");
+            "?-W|--width WIDTH? ?-p|--path PATH? ?-r|--reverse?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];
@@ -3854,7 +3857,7 @@ void timeline_cmd(void){
       "  AND (tagxref.value IS NULL OR tagxref.value='%q')",
       zBr, zBr, zBr, TAG_BRANCH, zBr, zBr);
   }
-  
+
   if( mode==TIMELINE_MODE_AFTER ){
     int lim = n;
     if( n == 0 ){
@@ -3863,10 +3866,12 @@ void timeline_cmd(void){
       lim = -n;
     }
     /* Complete the above outer select. */
-    blob_append_sql(&sql, 
-        "\nORDER BY event.mtime LIMIT %d) t ORDER BY t.mDateTime DESC", lim);
+    blob_append_sql(&sql,
+        "\nORDER BY event.mtime LIMIT %d) t ORDER BY t.mDateTime %s",
+          lim, reverseFlag ? "" : "DESC");
   }else{
-    blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
+    blob_append_sql(&sql,
+         "\nORDER BY event.mtime %s", reverseFlag ? "" : "DESC");
   }
   if( iOffset>0 ){
     /* Don't handle LIMIT here, otherwise print_timeline()
