@@ -3145,7 +3145,7 @@ void page_timeline(void){
     @ <p class="generalError">%h(zError)</p>
   }
    
-  // Swap zNewer and zOlder buttons if we display oldestfirst
+  /* Swap zNewer and zOlder buttons if we display oldestfirst */
   if( PB("oldestfirst") ){
     char *zSwap = zNewerButton;
     char *zSwapLabel = zNewerButtonLabel;
