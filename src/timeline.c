@@ -3111,6 +3111,7 @@ void page_timeline(void){
   blob_zero(&sql);
   if( PB("oldestfirst") ){
     db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby ASC /*scan*/");
+    tmFlags &= ~(TIMELINE_GRAPH|TIMELINE_CHPICK);
   }else{
     db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
   }
