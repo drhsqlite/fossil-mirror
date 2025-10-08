@@ -3634,6 +3634,7 @@ static int fossil_is_julianday(const char *zDate){
 **                            f  = forum posts only
 **                            t  = tickets only
 **                            w  = wiki commits only
+**   -u|--user USER       Only show items associated with USER
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the check-in comment.
@@ -3649,6 +3650,7 @@ void timeline_cmd(void){
   const char *zWidth;
   const char *zOffset;
   const char *zType;
+  const char *zUser;
   char *zOrigin;
   char *zDate;
   Blob sql;
@@ -3672,6 +3674,7 @@ void timeline_cmd(void){
   zLimit = find_option("limit","n",1);
   zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
+  zUser = find_option("user","u",1);
   zFilePattern = find_option("path","p",1);
   zFormat = find_option("format","F",1);
   zBr = find_option("branch","b",1);
@@ -3803,6 +3806,9 @@ void timeline_cmd(void){
   );
   if( zType && (zType[0]!='a') ){
     blob_append_sql(&sql, "\n  AND event.type=%Q ", zType);
+  }
+  if( zUser && (zUser[0]!='\0') ){
+    blob_append_sql(&sql, "\n  AND user0=%Q ", zUser);
   }
 
   /* When zFilePattern is specified, compute complete ancestry;
