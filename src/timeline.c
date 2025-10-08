@@ -3144,6 +3144,16 @@ void page_timeline(void){
   if( zError ){
     @ <p class="generalError">%h(zError)</p>
   }
+   
+  // Swap zNewer and zOlder buttons if we display oldestfirst
+  if( PB("oldestfirst") ){
+    char *zSwap = zNewerButton;
+    char *zSwapLabel = zNewerButtonLabel;
+    zNewerButton = zOlderButton;
+    zNewerButtonLabel = zOlderButtonLabel;
+    zOlderButton = zSwap;
+    zOlderButtonLabel = zSwapLabel;
+  }
 
   if( zNewerButton ){
     @ %z(chref("button","%s",zNewerButton))%h(zNewerButtonLabel)\
