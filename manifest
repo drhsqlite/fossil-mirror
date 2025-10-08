@@ -1,5 +1,5 @@
-C Disable\sthe\sgraph\sif\sthe\s"oldestfirst"\squery\sparameter\sis\sused\son\na\stimeline.
-D 2025-10-08T14:28:40.059
+C Fix\sa\sharmless\sUBSAN\swarning\sin\smakeheaders.c
+D 2025-10-08T14:40:16.396
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -746,7 +746,7 @@ F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3
 F tools/fossil-stress.tcl f8c75651b50d14aa619613438e0f1dedb53669a52239e3f274d2096c45e61b49 x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
-F tools/makeheaders.c 5f464a5a25ae45978e49e1cc230cc4c6f2fddc8f2f45a044fff02dc074a0bcf6
+F tools/makeheaders.c 2d4ffaf9812b93c894010ef9071b08af0d1df2e0d947d8d35a192d24ea16bf0b
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
 F tools/makemake.tcl 024d3f0c717b076a98aab7a7742f36b8aa978a7f8592b549c08099edbf4789ed x
 F tools/man_page_command_list.tcl 8f7f2c0717cb7e2ddece0a92bd10809bb16a1d8c3aa8bf6f77f6143b9282a099 x
@@ -975,8 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 80c5e6791ce5dbf78e610db7bbfd32ab60cd23aed891aeb1a6cff68950955ad9
-R 71c93ab6a024aa0649c45b8c8ccea40a
+P 39262f69b28492be030b3f55cfad0db2a8ad0eda30ebc81396242b3cbdb42a1e
+R 672ecd2425cafeea9f96d9609d23d994
 U drh
-Z 6dbfb19109b6e2999e592c12a53c93cd
+Z 4b88d09b6f60114c598ca45841cfdd27
 # Remove this line to create a well-formed Fossil manifest.

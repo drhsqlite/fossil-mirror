@@ -488,14 +488,14 @@ static void StringAppend(String *pStr, const char *zText, int nByte){
 ** value between 0 and 2**31 - 1
 */
 static int Hash(const char *z, int n){
-  int h = 0;
+  unsigned int h = 0;
   if( n<=0 ){
     n = strlen(z);
   }
   while( n-- ){
     h = h ^ (h<<5) ^ *z++;
   }
-  return h & 0x7fffffff;
+  return (int)(h & 0x7fffffff);
 }
 
 /*
