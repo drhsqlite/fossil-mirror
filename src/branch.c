@@ -1092,3 +1092,47 @@ void brtimeline_page(void){
   db_finalize(&q);
   style_finish_page();
 }
+
+/*
+** Generate a multichoice submenu for the few recent active branches. zName is
+** the query parameter used to select the current checkin. zCI is optional and
+** represent the currently selected checkin, so if it is a checkin hash
+** instead of a branch, it can be part of the multichoice menu.
+*/
+void generate_branch_submenu_multichoice(
+    const char* zName,    /* Query parameter name */
+    const char* zCI       /* Current checkin */
+){
+  Stmt q;
+  const int brFlags = BRL_ORDERBY_MTIME | BRL_OPEN_ONLY;
+  static const char *zBranchMenuList[32*2]; /* 2 per entries */
+  const int nLimit = count(zBranchMenuList)/2;
+  int i = 0;
+
+  if( zName == 0 ) zName = "ci";
+
+  branch_prepare_list_query(&q, brFlags, 0, nLimit, 0);
+  zBranchMenuList[i++] = "";
+  zBranchMenuList[i++] = "All Checkins";
+
+  if( zCI ){
+    zCI = fossil_strdup(zCI);
+    zBranchMenuList[i++] = zCI;
+    zBranchMenuList[i++] = zCI;
+  }
+  /* If current checkin is not "tip", add it to the list */
+  if( zCI==0 || strcmp(zCI, "tip") ){
+    zBranchMenuList[i++] = "tip";
+    zBranchMenuList[i++] = "tip";
+  }
+  while( i/2 < nLimit && db_step(&q)==SQLITE_ROW ){
+    const char* zBr = fossil_strdup(db_column_text(&q, 0));
+    /* zCI is already in the list, don't add it twice */
+    if( zCI==0 || strcmp(zBr, zCI) ){
+      zBranchMenuList[i++] = zBr;
+      zBranchMenuList[i++] = zBr;
+    }
+  }
+  db_finalize(&q);
+  style_submenu_multichoice(zName, i/2, zBranchMenuList, 0);
+}

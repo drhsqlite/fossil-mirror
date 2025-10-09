@@ -173,8 +173,6 @@ void page_dir(void){
   char *zUuid = 0;
   Manifest *pM = 0;
   const char *zSubdirLink;
-  int linkTrunk = 1;
-  int linkTip = 1;
   HQuery sURI;
   int isSymbolicCI = 0;   /* ci= is symbolic name, not a hash prefix */
   int isBranchCI = 0;     /* True if ci= refers to a branch name */
@@ -200,9 +198,6 @@ void page_dir(void){
   if( zCI ){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
-      int trunkRid = symbolic_name_to_rid("tag:trunk", "ci");
-      linkTrunk = trunkRid && rid != trunkRid;
-      linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI))!=0);
       isBranchCI = branch_includes_uuid(zCI, zUuid);
@@ -285,20 +280,17 @@ void page_dir(void){
     @ in any check-in</h2>
     zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
   }
-  if( linkTrunk && !bDocDir ){
-    style_submenu_element("Trunk", "%s",
-                          url_render(&sURI, "ci", "trunk", 0, 0));
-  }
-  if( linkTip && !bDocDir ){
-    style_submenu_element("Tip", "%s", url_render(&sURI, "ci", "tip", 0, 0));
-  }
   if( zD && !bDocDir ){
     style_submenu_element("History","%R/timeline?chng=%T/*", zD);
   }
   if( !bDocDir ){
-    style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
     style_submenu_element("Tree-View", "%s",
                           url_render(&sURI, "type", "tree", 0, 0));
+  }
+
+  if( !bDocDir ){
+    /* Generate the Branch list submenu */
+    generate_branch_submenu_multichoice("ci", zCI);
   }
 
   /* Compute the temporary table "localfiles" containing the names
@@ -707,8 +699,6 @@ void page_tree(void){
   char *zNow = 0;
   int useMtime = atoi(PD("mtime","0"));
   int sortOrder = atoi(PD("sort",useMtime?"1":"0"));
-  int linkTrunk = 1;       /* include link to "trunk" */
-  int linkTip = 1;         /* include link to "tip" */
   const char *zRE;         /* the value for the re=REGEXP query parameter */
   const char *zObjType;    /* "files" by default or "folders" for "nofiles" */
   char *zREx = "";         /* Extra parameters for path hyperlinks */
@@ -764,9 +754,6 @@ void page_tree(void){
   if( zCI ){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
-      int trunkRid = symbolic_name_to_rid("tag:trunk", "ci");
-      linkTrunk = trunkRid && rid != trunkRid;
-      linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       rNow = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
       zNow = db_text("", "SELECT datetime(mtime,toLocal())"
@@ -782,6 +769,9 @@ void page_tree(void){
     rNow = db_double(0.0, "SELECT max(mtime) FROM event");
     zNow = db_text("", "SELECT datetime(max(mtime),toLocal()) FROM event");
   }
+
+  /* Generate the Branch list submenu */
+  generate_branch_submenu_multichoice("ci", zCI);
 
   assert( isSymbolicCI==0 || (zCI!=0 && zCI[0]!=0) );
   if( zD==0 ){
@@ -820,17 +810,9 @@ void page_tree(void){
     style_submenu_multichoice("sort", 3, sort_orders, 0);
   }
   if( zCI ){
-    style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
     if( nD==0 && !showDirOnly ){
       style_submenu_element("File Ages", "%R/fileage?name=%T", zCI);
     }
-  }
-  if( linkTrunk ){
-    style_submenu_element("Trunk", "%s",
-                          url_render(&sURI, "ci", "trunk", 0, 0));
-  }
-  if( linkTip ){
-    style_submenu_element("Tip", "%s", url_render(&sURI, "ci", "tip", 0, 0));
   }
   style_submenu_element("Flat-View", "%s",
                         url_render(&sURI, "type", "flat", 0, 0));
@@ -1178,6 +1160,10 @@ void fileage_page(void){
   zNow = db_text("", "SELECT datetime(mtime,toLocal()) FROM event"
                      " WHERE objid=%d", rid);
   style_submenu_element("Tree-View", "%R/tree?ci=%T&mtime=1&type=tree", zName);
+
+  /* Generate the Branch list submenu */
+  generate_branch_submenu_multichoice("name", zName);
+
   style_header("File Ages");
   zGlob = P("glob");
   cgi_check_for_malice();

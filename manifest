@@ -1,5 +1,5 @@
-C stash\sdrop\shelp\stweak\ssuggested\sin\s[forum:d5c5c0f980|forum\spost\sd5c5c0f980].
-D 2025-10-09T18:22:42.168
+C Replace\sthe\scircumstantial\s"Trunk",\s"All"\sand\s"Tip"\slink\sthe\s/dir|/tree|/file\nsubmenu\ssection\sby\s1\smulti-choice\selement\sin\sthe\srecent\sopen\sbranches\s+\s"All\nCheckins"\sand\s"tip"\sspecial\sentries.
+D 2025-10-09T23:11:32.914
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -389,8 +389,8 @@ F src/backoffice.c 623ceefa8f76beb96b936378c45e4e2e30cd8c886625a1467072fd4bc0cfc
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 8f97de5c3a052b81d17c678c0ce5ae6668a03816aa523ed0aa4217013b537793
 F src/blob.c 2889e7025105da6d6712d91093f497304cb7d8d04658e1371df9f6d1beba06e2
-F src/branch.c d8ecdbf2647ba33e04f501843016862164a985822fa7492f5a2bf2829d068ffb
-F src/browse.c c0daab263802963979739906ac40d0efe529ae83eec8be739ba16572a10fb4c5
+F src/branch.c c9c094f19d59d85de73041f5073d01a6f88c460fc2fcbe6a3abc816fdb75ef5e
+F src/browse.c b7f47064d1c10e1335362a1e7d4c0b9202c88665543fad9bac3ed73b7a289e16
 F src/builtin.c 34d57215e767b0f4cd70d2a5a17c72fc47acfb0789772ecf88c1038bb52d1fbe
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
@@ -975,8 +975,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 14e23927cea4e56aea3ec50e7de9251bd80530bea902cad175405fc66f246efd
-R 38767e777f93061535abb6adcab4f87d
-U stephan
-Z 931dfcab0ae4fd22035dfe529273fc7a
+P e2783d0789447c3ab6a73128108bb0f031b1f849d7ae41f6ce2ba4add2bcbd6d
+R df6604d639e4827e02eca549f78cf932
+T *branch * dir_page_recent_branch_menu
+T *sym-dir_page_recent_branch_menu *
+T -sym-trunk *
+U mgagnon
+Z 6fdaa9456a3db2ad58da6a7dcda811ed
 # Remove this line to create a well-formed Fossil manifest.
