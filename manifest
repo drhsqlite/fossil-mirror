@@ -1,5 +1,5 @@
-C In\sthe\stimeline,\sreplace\sa\shard-coded\s'trunk'\swith\sa\sdb_get('main-branch'),\sas\ssuggested\sin\s[forum:61450a0395|forum\spost\s61450a0395]\s(this\stime\sin\sthe\scorrect\sbranch).
-D 2025-10-09T09:34:04.886
+C Omit\s"zip"\sfrom\sthe\sdefault\srobot-restrict\ssettings.
+D 2025-10-09T10:29:36.011
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -521,7 +521,7 @@ F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c 3e7e6f98530060e27232be7d2638b1d7b953f6bc6339d45bc02c5c206c77a911
 F src/repolist.c 3a3fb5895bbc6a43b3a379d7419bc6cbb3b826e921475c15c2624b1bb76157f1
 F src/report.c f423bfbd6a88753fdb5b9b91c2f3a787f0db955400f67e46d1630633af8bb758
-F src/robot.c ea54733312915692ec79af10901fbc4a5de9af1cfac157e4c68d3c230460a891
+F src/robot.c 48b49b0c66a666a7fb9e71ad574979a202634a68eb9909ff3b55589e12096de1
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
@@ -975,9 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ee5db2133841ee4241605aadd30251e34d8b8c9eb7ef0915ea26b7f09d749a9c
-Q +263c51941ac8e3bb2760782247c41f2e20a23c54366e36d8db4bd488634559e1
-R 587b4772ef52451347646beefc99a043
-U stephan
-Z 276abcb37ccc3e74d8816c3871cd3fb3
+P cc5ffebb51bc823984b9467707eff32fa1c95dce477febbbd152f869f0a5ed36
+R 8bc3659fedf8fc853cd067d4d26fb733
+U drh
+Z cacad5366049ad7611a046ac67b14646
 # Remove this line to create a well-formed Fossil manifest.
