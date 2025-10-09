@@ -1,5 +1,5 @@
-C New\ssettings\sto\sallow\srobots\sto\sdownload\starballs\sbut\sonly\sif\sthe\ncorresponding\scheck-in\sis\sa\sleaf\sor\sif\sit\shas\sa\stag\slike\s"release"\sor\n"allow-robots".\s\sNew\ssettings\scontrol\sall\sof\sthe\sabove.
-D 2025-10-09T12:55:03.446
+C Updates\sto\sthe\santibot.wiki\spage,\sto\sdiscuss\sthe\slatest\senhancements\sto\nrobot\sdefenses.
+D 2025-10-09T13:35:20.340
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -773,7 +773,7 @@ F www/aboutcgi.wiki 96db7da3bfd6972a8760c286e828bd988ad1a41418a4dd630fdfa6ae81c4
 F www/aboutdownload.wiki ffd8d3848e190c5aec758ed578e81857629d39376488151aeb09da2572fdcc49
 F www/adding_code.wiki 06de2a518a772ed1fa8fdb165ff3c53149b6e68f43ad114b80d6df158683158a
 F www/alerts.md 4eede98853747f09e3d5f57f299523ad700b587e8a4f79b7479619622f6987af
-F www/antibot.wiki e72b939a93ca3598c60a9f7120a36d56b867278447c72fab3a914e90c2735fd7
+F www/antibot.wiki d024749b1f21c04577faf1a434c5f08eee55033fc5bad43054d5036378f4a0d2
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 4d0f11a2ec4d099442bebfbf44afbbda1277f7b7a100a2b4c1f15e82e1ed7267
@@ -975,9 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a199b74fa8a810514968d0fd9ccd0e74ea686701d8a3b3515b93a149dee07211 7f846263708c7766f9bff1c7f72c53e43491bf2c39423b23e31155fd91a18ad1
-R bcd53b0932aa092ad5b725ee80a40c34
-T +closed 7f846263708c7766f9bff1c7f72c53e43491bf2c39423b23e31155fd91a18ad1
+P 4d198d0e1270ac3fb44aa3b0041d613435912dd69b0fffd6c5b521a949f4f543
+R fd289a633f588016f2eca01fe4d0a678
 U drh
-Z 080c14ab85dab84bb03bd266b5ccdb3d
+Z 2cef3ccfba6728d5b14c50fa9fca4af8
 # Remove this line to create a well-formed Fossil manifest.
