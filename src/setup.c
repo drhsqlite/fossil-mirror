@@ -472,8 +472,8 @@ void setup_robots(void){
   @ might be expensive to compute. A robot that tries to walk the entire
   @ website can present a crippling CPU and bandwidth load.
   @
-  @ <p>The settings on this page are intended to help site administrators
-  @ defend the site against robots.
+  @ <p>The settings on this page are intended to help administrators
+  @ defend against abusive robots.
   @
   @ <form action="%R/setup_robot" method="post"><div>
   login_insert_csrf_secret();
@@ -484,7 +484,7 @@ void setup_robots(void){
   @ users is "nobody", and the client has not previously passed a captcha
   @ test to show that it is not a robot, then the page is not displayed.
   @ A captcha test is is rendered instead.
-  @ The recommended value for this setting is:
+  @ The default value for this setting is:
   @ <p>
   @ &emsp;&emsp;&emsp;<tt>%h(robot_restrict_default())</tt>
   @ <p>
@@ -492,7 +492,7 @@ void setup_robots(void){
   @ /vpatch.  The "annotate" tag covers /annotate and also /blame and
   @ /praise.  The "zip" covers itself and also /tarball and /sqlar. If a
   @ tag has an "X" character appended, then it only applies if query
-  @ parameters are such that the page is particularly difficult to compute.
+  @ parameters are such that the page is expensive and/or unusual.
   @ In all other case, the tag should exactly match the page name.
   @
   @ To disable robot restrictions, change this setting to "off".
@@ -501,22 +501,30 @@ void setup_robots(void){
   textarea_attribute("", 2, 80,
       "robot-restrict", "rbrestrict", robot_restrict_default(), 0);
 
-  @ <hr>
-  @ <p><b>Exceptions to anti-robot restrictions</b><br>
-  @ The entry below is a list of 
-  @ <a href="%R/re_rules">regular expressions</a>, one per line.
-  @ If any of these regular expressions match the input URL, then the
-  @ request is exempt from anti-robot defenses.  Use this, for example,
-  @ to allow scripts to download release tarballs using a pattern
-  @ like:</p>
-  @ <p>
-  @ &emsp;&emsp;<tt>^/tarball/(version-[0-9.]+|release)/</tt>
-  @ <p>The pattern should match against the REQUEST_URI with the
+  @ <p><b>Exception #1</b><br>
+  @ If "zipX" appears in the robot-restrict list above, then tarballs,
+  @ ZIP-archives, and SQL-archives may be downloaded by robots if
+  @ the check-in is a leaf (robot-zip-leaf):<br>
+  onoff_attribute("Allow tarballs for leaf check-ins",
+        "robot-zip-leaf", "rzleaf", 0, 0);
+
+  @ <p><b>Exception #2</b><br>
+  @ If "zipX" appears in the robot-restrict list above, then tarballs,
+  @ ZIP-archives, and SQL-archives may be downloaded by robots if
+  @ the check-in has one or more tags that match the following
+  @ list of GLOB patterns:  (robot-zip-tag)<br>
+  textarea_attribute("", 2, 80,
+      "robot-zip-tag", "rztag", "", 0);
+
+  @ <p><b>Exception #3</b><br>
+  @ If the request URI matches any of the following
+  @ <a href="%R/re_rules">regular expressions</a> (one per line), then the
+  @ request is exempt from anti-robot defenses.
+  @ The regular expression is matched against the REQUEST_URI with the
   @ SCRIPT_NAME prefix removed, and with QUERY_STRING appended following
   @ a "?" if QUERY_STRING exists.  (Property: robot-exception)<br>
   textarea_attribute("", 3, 80,
       "robot-exception", "rbexcept", "", 0);
-
   @ <hr>
   addAutoHyperlinkSettings();
 
