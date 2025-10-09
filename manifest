@@ -1,5 +1,5 @@
-C Work\stoward\simproving\sthe\sdefense\sagainst\sabusive\srobots\sdownloading\ntarballs.
-D 2025-10-09T12:19:26.619
+C Updates\sto\sthe\sRobot\sDefense\sSettings\spage\sto\smake\sit\seasier\sto\sconfigure\nthe\slatest\sdefensive\soptions.
+D 2025-10-09T12:51:05.817
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -527,7 +527,7 @@ F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 82719ea2ad921d257a766fd6767ac401a638e2f290bc678f912e75218ab188ec
 F src/security_audit.c 8bd3be3188fb26a470bb5631e92b22d89bb25642efaf2604eeddfd96932211ad
-F src/setup.c f8798f26c2c0a4595e994a1ca185e86e2cd392bb33279c911a73eca30ac7ec32
+F src/setup.c d1ab793a761c9c53fad140a4b340383ca1ecb768e972cef191d0af15fedfcf85
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -975,11 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a199b74fa8a810514968d0fd9ccd0e74ea686701d8a3b3515b93a149dee07211
-R 495a1e4b559693874c4daec50b7f7723
-T *branch * tarball-robot-defense
-T *sym-tarball-robot-defense *
-T -sym-trunk *
+P da43fd9f06275e65168a27d0b5a62b25ac383c9d8629fe1b61b8482cbf5aeee4
+R bcd53b0932aa092ad5b725ee80a40c34
 U drh
-Z 1120c084778973d07b58da7b3dc22ebf
+Z 72314997b2b7f8a7942d0f1cfc18d06a
 # Remove this line to create a well-formed Fossil manifest.
