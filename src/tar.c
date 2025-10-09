@@ -814,6 +814,21 @@ char *tar_uuid_from_name(char **pzName){
 **                       comma-separated list of GLOB patterns, where each
 **                       pattern can optionally be quoted using ".." or '..'.
 **                       Any file matching both ex= and in= is excluded.
+**
+** Robot Defenses:
+**
+**   *    If "zip" appears in the robot-restrict setting, then robots are
+**        not allowed to access this page.  Suspected robots will be
+**        presented with a captcha.
+**
+**   *    If "zipX" appears in the robot-restrict setting, then robots are
+**        restricted in the same way as with "zip", but with exceptions.
+**        If the check-in for which an archive is requested is a leaf check-in
+**        and if the robot-zip-leaf setting is true, then the request is
+**        allowed.  Or if the check-in has a tag that matches any of the
+**        GLOB patterns on the list in the robot-zip-tag setting, then the
+**        request is allowed.  Otherwise, the usual robot defenses are
+**        activated.
 */
 void tarball_page(void){
   int rid;
@@ -866,6 +881,7 @@ void tarball_page(void){
     @ Not found
     return;
   }
+  if( robot_restrict_zip(rid) ) return;
   if( nRid==0 && nName>10 ) zName[10] = 0;
 
   /* Compute a unique key for the cache entry based on query parameters */
