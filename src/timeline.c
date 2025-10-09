@@ -289,6 +289,7 @@ void www_print_timeline(
     int isSelectedOrCurrent = 0;  /* True if current row is selected */
     const char *zExtraClass = "";
     char zTime[20];
+    char *zMainBranch       = db_get("main-branch","trunk");
 
     if( zDate==0 ){
       zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
@@ -436,7 +437,7 @@ void www_print_timeline(
         /* If no background color is specified, use a color based on the
         ** branch name */
         if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
-        }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
+        }else if( zBr==0 || strcmp(zBr,zMainBranch)==0 ){
           zBgClr = 0;
         }else{
           zBgClr = hash_color(zBr);
