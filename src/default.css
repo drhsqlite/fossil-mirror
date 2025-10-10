@@ -754,6 +754,18 @@ body.tkt div.content ol.tkt-changes > li:target > p > span {
 body.tkt div.content ol.tkt-changes > li:target > ol {
   border-left: 1px solid gold;
 }
+body.tkt .tktCommentArea {
+  display: flex;
+  flex-direction: column;
+}
+body.tkt .newest-first-controls {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+body.tkt .tktCommentArea.reverse {
+  flex-direction: column-reverse;
+}
 body.cpage-ckout .file-change-line,
 body.cpage-info .file-change-line,
 body.cpage-vinfo .file-change-line,

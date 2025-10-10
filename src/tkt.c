@@ -794,6 +794,10 @@ void tktview_page(void){
     attachment_list(zFullName, "<h2>Attachments:</h2>", 1);
   }
 
+  builtin_fossil_js_bundle_or("dom", "storage", NULL);
+  builtin_request_js("fossil.page.ticket.js");
+  builtin_fulfill_js_requests();
+
   style_finish_page();
 }
 

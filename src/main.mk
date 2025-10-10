@@ -239,6 +239,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
   $(SRCDIR)/fossil.page.pikchrshowasm.js \
+  $(SRCDIR)/fossil.page.ticket.js \
   $(SRCDIR)/fossil.page.whistory.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
   $(SRCDIR)/fossil.pikchr.js \

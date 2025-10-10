@@ -587,6 +587,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\fossil.page.forumpost.js" \
         "$(SRCDIR)\fossil.page.pikchrshow.js" \
         "$(SRCDIR)\fossil.page.pikchrshowasm.js" \
+        "$(SRCDIR)\fossil.page.ticket.js" \
         "$(SRCDIR)\fossil.page.whistory.js" \
         "$(SRCDIR)\fossil.page.wikiedit.js" \
         "$(SRCDIR)\fossil.pikchr.js" \
@@ -1222,6 +1223,7 @@ realclean: clean
 	echo "$(SRCDIR)\fossil.page.forumpost.js" >> $@
 	echo "$(SRCDIR)\fossil.page.pikchrshow.js" >> $@
 	echo "$(SRCDIR)\fossil.page.pikchrshowasm.js" >> $@
+	echo "$(SRCDIR)\fossil.page.ticket.js" >> $@
 	echo "$(SRCDIR)\fossil.page.whistory.js" >> $@
 	echo "$(SRCDIR)\fossil.page.wikiedit.js" >> $@
 	echo "$(SRCDIR)\fossil.pikchr.js" >> $@
