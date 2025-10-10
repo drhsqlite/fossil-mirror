@@ -1,7 +1,17 @@
 <title>Change Log</title>
 
 <h2 id='v2_28'>Changes for version 2.28 (pending)</h2><ol>
-  <li> <i>pending</i>
+  <li> Improvements to [./antibot.wiki|anti-robot defenses]:<ol type="a">
+      <li> The default configuration now allows robots to download any tarball
+           or similar, to better support of automated build systems.
+      <li> No special tag "zipX" for the [/help?cmd=robot-restrict|robot-restrict]
+           setting blocks robot access to tarballs, but with exceptions to support
+           automated build systems.
+      </ol>
+  <li> A drop-down menu of recent branches is now possible for the submenu, and
+       is used in the code browser.
+  <li> The [/help?cmd=timeline|timeline command] is enhanced with the new
+       "<tt>-u|--for-user</tt>" option.
 </ol>
 
 <h2 id='v2_27'>Changes for version 2.27 (2025-09-30)</h2><ol>

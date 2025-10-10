@@ -1,5 +1,5 @@
-C Add\ssupport\sthe\sbranch\sname\sselection\sbox\sin\sthe\ssubmenu.
-D 2025-10-10T16:32:04.464
+C Update\sthe\schange\slog.
+D 2025-10-10T16:41:34.102
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -796,7 +796,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md 256da2be240d96116e4a347a1389b4e36667f448aa1727b77fcfdfec3864213c
 F www/caps/ref.html cad0ecff07b59c33fd15262577384daa681aecaebd9cf41a139ed1befdd0e30b
 F www/cgi.wiki a78260ee3d362f11c3ebb52258091a99c4329a53d28f88416db922ada3a20929
-F www/changes.wiki 96b3c79d25a122ee87f1f1dabe36e12f88df58e37503eaa111bc490bb4fd45f0
+F www/changes.wiki 7f672f612dfb61c9b2ceab747e063a00124146ff5768750820f4b741e937e665
 F www/chat.md 64b0f3722c03a3211d93ceea789b21f711d55ea78fef67133ebc86aae1875463
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -975,9 +975,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 70539eee003535c1a5b5d92272eb87ab50089f3a02e5e5cfb3150436832c8b7f 5a3f0386aea3b961a8e48d3636ee52bf77c12f8b5e52b21b1ee989946c467f9d
-R ac798ef0c481559dbd04e97c7ce34e90
-T +closed 5a3f0386aea3b961a8e48d3636ee52bf77c12f8b5e52b21b1ee989946c467f9d
+P 5f158ae84cc3ccf4b637e3be5a9576ca28cd6a11985f181f496e30938efabb14
+R d284127e7306e96673e3442a74aa2ade
 U drh
-Z c03e42127f79ac62ac513bd011110ba0
+Z 06c6a19e4622bee3239e3fe28a71c5ba
 # Remove this line to create a well-formed Fossil manifest.
