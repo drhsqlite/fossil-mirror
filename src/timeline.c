@@ -3646,7 +3646,7 @@ static int fossil_is_julianday(const char *zDate){
 **                            f  = forum posts only
 **                            t  = tickets only
 **                            w  = wiki commits only
-**   -u|--user USER       Only show items associated with USER
+**   -u|--for-user USER   Only show items associated with USER
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the check-in comment.
@@ -3686,7 +3686,7 @@ void timeline_cmd(void){
   zLimit = find_option("limit","n",1);
   zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
-  zUser = find_option("user","u",1);
+  zUser = find_option("for-user","u",1);
   zFilePattern = find_option("path","p",1);
   zFormat = find_option("format","F",1);
   zBr = find_option("branch","b",1);
