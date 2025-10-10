@@ -2047,7 +2047,7 @@ void page_timeline(void){
 
   style_header("Timeline");
   if( advancedMenu ){
-    style_submenu_element("Help", "%R/help?cmd=/timeline");
+    style_submenu_element("Help", "%R/help/www/timeline");
   }
   login_anonymous_available();
   timeline_temp_table();

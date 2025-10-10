@@ -148,7 +148,7 @@ problem areas...
     some sort of codec like Base64, for which there is no provision in
     the current JSON API. You will therefore find no JSON API for
     committing changes to a file in the repository, for example. Other
-    Fossil APIs such as [`/raw`](/help?cmd=/raw) or
+    Fossil APIs such as [`/raw`](/help/www/raw) or
     [`/fileedit`](../fileedit-page.md) may serve you better.
 -   **64-bit integers:** The JSON standard does not specify integer precision,
     because it targets many different platforms, and not all of

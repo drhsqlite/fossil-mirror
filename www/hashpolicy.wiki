@@ -160,7 +160,7 @@ When a new repository is created by cloning, the hash policy is copied
 from the parent.
 
 For new repositories created using the
-[/help?cmd=new|fossil new] command the default hash policy is "sha3".
+[/help/new|fossil new] command the default hash policy is "sha3".
 That means new repositories
 will normally hold nothing except SHA3 hashes.  The hash policy for new
 repositories can be overridden using the "--sha1" option to the

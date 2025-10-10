@@ -107,7 +107,7 @@ an integrated [./wikitheory.wiki | wiki],
 [./event.wiki | technical notes], a [./forum.wiki | web forum],
 and a [./chat.md | chat service],
 all within a single nicely-designed [./customskin.md|skinnable] web
-[/help?cmd=ui|UI],
+[/help/ui|UI],
 protected by [./caps/ | a fine-grained role-based
 access control system].
 These additional capabilities are available for Git as 3rd-party
@@ -132,8 +132,8 @@ that you forgot to commit prior to the end of your working day, across
 all repos.
 
 Whenever Fossil is told to modify the local checkout in some destructive
-way ([/help?cmd=rm|fossil rm], [/help?cmd=update|fossil update],
-[/help?cmd=revert|fossil revert], etc.) Fossil remembers the prior state
+way ([/help/rm|fossil rm], [/help/update|fossil update],
+[/help/revert|fossil revert], etc.) Fossil remembers the prior state
 and is able to return the check-out directory to that state with a
 <tt>fossil undo</tt> command. While you cannot undo a commit in Fossil
 — [#history | on purpose!] — as long as the change remains confined to
@@ -445,7 +445,7 @@ development model:
      a low-friction path to accepting
      [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
      contributions]. Fossil's closest equivalents are its unique
-     [/help?cmd=bundle|bundle] and [/help?cmd=patch|patch] features, which require higher engagement
+     [/help/bundle|bundle] and [/help/patch|patch] features, which require higher engagement
      than firing off a PR.⁷ This difference comes directly from the
      initial designed purpose for each tool: the SQLite project doesn't
      accept outside contributions from previously-unknown developers, but
@@ -458,7 +458,7 @@ development model:
  
   *  <b>Sync over push:</b> Explicit pushes are uncommon in
      Fossil-based projects: the default is to rely on
-     [/help?cmd=autosync|autosync mode] instead, in which each commit
+     [/help/autosync|autosync mode] instead, in which each commit
      syncs immediately to its parent repository. This is a mode so you
      can turn it off temporarily when needed, such as when working
      offline. Fossil is still a truly distributed version control system;
@@ -600,7 +600,7 @@ single work/repo tree, even when that's a shortsighted way of working.
 
 Fossil doesn't work that way. A Fossil repository is an SQLite database
 file which is normally stored outside the working checkout directory. You can
-[/help?cmd=open | open] a Fossil repository any number of times into
+[/help/open | open] a Fossil repository any number of times into
 any number of working directories. A common usage pattern is to have one
 working directory per active working branch, so that switching branches
 is done with a <tt>cd</tt> command rather than by checking out the
@@ -684,7 +684,7 @@ is that this makes the history "accurate."  In actual practice, the
 superior reporting tools available in Fossil mean that this incidental mess
 is not a factor.
 
-Like Git, Fossil has an [/help?cmd=amend|amend command] for modifying
+Like Git, Fossil has an [/help/amend|amend command] for modifying
 prior commits, but unlike in Git, this works not by replacing data in
 the repository, but by adding a correction record to the repository that
 affects how later Fossil operations present the corrected data. The old
@@ -714,7 +714,7 @@ everyday bad commits, it's for dealing with extreme situations: public
 commits of secret material, ticket/wiki/forum spam, law enforcement
 takedown demands, etc.
 
-There is also the experimental [/help?cmd=purge | <tt>purge</tt>
+There is also the experimental [/help/purge | <tt>purge</tt>
 command], which differs from shunning in ways that aren't especially
 important in the context of this document. At a 30000 foot level, you
 can think of purging as useful only when you've turned off Fossil's
@@ -823,7 +823,7 @@ concepts to keep track of in your mental model of Fossil's internal
 operation.
 
 Fossil's implementation of the feature is also simpler to describe. The
-brief online help for <tt>[/help?cmd=merge | fossil merge]</tt> is
+brief online help for <tt>[/help/merge | fossil merge]</tt> is
 currently 41 lines long, to which you want to add the 600 lines of
 [./branching.wiki | the branching document]. The equivalent
 documentation in Git is the aggregation of the man pages for the above

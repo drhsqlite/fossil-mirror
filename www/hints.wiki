@@ -5,7 +5,7 @@ A collection of useful hints and tricks in no particular order:
   1.  Click on two nodes of any timeline graph in succession
       to see a diff between the two versions.
 
-  2.  Add the "--tk" option to "[/help?cmd=diff | fossil diff]" commands
+  2.  Add the "--tk" option to "[/help/diff | fossil diff]" commands
       to get a pop-up
       window containing a complete side-by-side diff.  (NB:  The pop-up
       window is run as a separate Tcl/Tk process, so you will need to
@@ -19,9 +19,9 @@ A collection of useful hints and tricks in no particular order:
       not set. WARNING: make sure you did a "fossil add" for all source-files
       you plan to commit, otherwise those files will be deleted without warning.
 
-  4.  Use "[/help?cmd=all | fossil all changes]" to look for any uncommitted
+  4.  Use "[/help/all | fossil all changes]" to look for any uncommitted
       edits in any of your Fossil projects.  Use
-      "[/help?cmd=all | fossil all pull]" on your laptop
+      "[/help/all | fossil all pull]" on your laptop
       prior to going off network (for example, on a long plane ride)
       to make sure you have all the latest content locally.  Then run
       "[/help/all|fossil all push]" when you get back online to upload
@@ -39,9 +39,9 @@ A collection of useful hints and tricks in no particular order:
 
   7.  Further to the previous two hints, there are lots of query parameters
       that you can add to timeline pages.  The available query parameters
-      are tersely documented [/help?cmd=/timeline | here].
+      are tersely documented [/help/www/timeline | here].
 
-  8.  You can run "[/help?cmd=xdiff | fossil xdiff --tk $file1 $file2]"
+  8.  You can run "[/help/xdiff | fossil xdiff --tk $file1 $file2]"
       to get a Tk pop-up window with side-by-side diffs of two files, even if
       neither of the two files is part of any Fossil repository.  Note that
       this command is "xdiff", not "diff".  Change <nobr>--tk</nobr> to
@@ -63,12 +63,12 @@ A collection of useful hints and tricks in no particular order:
        "ckout" branch name in the "doc" URL while running "fossil ui".
        See the [./embeddeddoc.wiki | embedded documentation] for details.
 
-  11.  Use the "[/help?cmd=ui|fossil ui /]" command to bring up a menu of
+  11.  Use the "[/help/ui|fossil ui /]" command to bring up a menu of
        all of your local Fossil repositories in your web browser.
 
   12.  If you have a bunch of Fossil repositories living on a remote machine
        that you are able to access using ssh using a command like
        "ssh login@remote", then you can bring up a user interface for all
        those remote repositories using the command:
-       "[/help?cmd=ui|fossil ui login@remote:/]".  This works by tunneling
+       "[/help/ui|fossil ui login@remote:/]".  This works by tunneling
        all HTTP traffic through SSH to the remote machine.

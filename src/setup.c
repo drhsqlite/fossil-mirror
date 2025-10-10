@@ -1177,7 +1177,7 @@ void setup_settings(void){
       onoff_attribute("", pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       is_truth(pSet->def), hasVersionableValue);
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      @ <a href='%R/help/%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
       } else {
@@ -1196,7 +1196,7 @@ void setup_settings(void){
         continue;
       }
       @ <tr><td>
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      @ <a href='%R/help/%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)
       } else {
@@ -1217,7 +1217,7 @@ void setup_settings(void){
       if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
         continue;
       }
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
+      @ <a href='%R/help/%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
       } else {

@@ -337,7 +337,7 @@ been seen to work on x86/64 and ARM.
 
 Fossil has builtin support for processing specific features using
 <tt>libfuzzer</tt>. The features which can be tested this way are
-found in the help text for the [/help?cmd=test-fuzz|test-fuzz
+found in the help text for the [/help/test-fuzz|test-fuzz
 command].
 
 Fuzzing requires:
@@ -512,7 +512,7 @@ work.</div>
 
 After that succeeds, we need to run the normal build so that those
 generated files can be compiled in to the fossil binary, accessible
-via the [/help?cmd=/builtin|/builtin page]:
+via the [/help/www/builtin|/builtin page]:
 
 <pre><code>$ make</code></pre>
 

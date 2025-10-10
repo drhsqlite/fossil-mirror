@@ -985,7 +985,7 @@ LOCAL void search_fullscan(
     db_multi_exec(
       "INSERT INTO x(label,url,score,id,snip)"
       "  SELECT format('%q \"%%s\" %%s',name,type),"
-      "         '/help?cmd='||name,"
+      "         '/help/'||name,"
       "         search_score(),"
       "         'h'||rowid,"
       "         search_snippet()"

@@ -87,7 +87,7 @@ about the fact that they are a robot.  And so the UserAgent string
 provides a good first-guess about whether or not a request originates
 from a human or a robot.
 
-The [/help?cmd=auto-hyperlink|auto-hyperlink] setting, shown as
+The [/help/auto-hyperlink|auto-hyperlink] setting, shown as
 "<b>Enable hyperlinks based on User-Agent and/or Javascript</b>" on
 the Robot Defense Settings page, 
 can be set to "UserAgent only" or "UserAgent and Javascript" or "off".
@@ -112,7 +112,7 @@ so to the robot the empty anchor tag will be useless.  But all modern
 web browsers implement JavaScript, so hyperlinks will show up
 normally for human users.
 
-If the [/help?cmd=auto-hyperlink|"auto-hyperlink"] setting is (2)
+If the [/help/auto-hyperlink|"auto-hyperlink"] setting is (2)
 "<b>Enable hyperlinks using User-Agent and/or Javascript</b>",
 then there are now two additional sub-settings that control when
 hyperlinks are enabled.
@@ -136,7 +136,7 @@ load.
 
 <h2>Do Not Allow Robot Access To Certain Pages</h2>
 
-The [/help?cmd=robot-restrict|robot-restrict setting] is a comma-separated
+The [/help/robot-restrict|robot-restrict setting] is a comma-separated
 list of GLOB patterns for pages for which robot access is prohibited.
 The default value is:
 
@@ -170,12 +170,12 @@ Some path elements have special meanings:
   *  <b>zipX &rarr;</b>
      This is like "zip" in that it restricts access to "/zip/", "/tarball"/
      and "/sqlar/" but with exceptions:<ol type="a">
-     <li><p> If the [/help?cmd=robot-zip-leaf|robot-zip-leaf] setting is
+     <li><p> If the [/help/robot-zip-leaf|robot-zip-leaf] setting is
              true, then tarballs of leaf check-ins are allowed.  This permits
              URLs that attempt to download the latest check-in on trunk or
              from a named branch, for example.
      <li><p> If a check-in has a tag that matches the GLOB list in
-             [/help?cmd=robot-zip-tag|robot-zip-tag], then tarballs of that
+             [/help/robot-zip-tag|robot-zip-tag], then tarballs of that
              check-in are allowed.  This allow check-ins tagged with
              "release" or "allow-robots" (for example) to be downloaded
              without restriction.
@@ -193,14 +193,14 @@ Some path elements have special meanings:
 
 Other special keywords may be added in the future.
 
-The default [/help?cmd=robot-restrict|robot-restrict]
+The default [/help/robot-restrict|robot-restrict]
 setting has been shown in practice to do a good job of keeping 
 robots from consuming all available CPU and bandwidth while will
 still allowing humans access to the full power of the site without
 having to be logged in.
 
 One possible enhancement is to add "zipX" to the 
-[/help?cmd=robot-restrict|robot-restrict] setting,
+[/help/robot-restrict|robot-restrict] setting,
 and enable [help?cmd=robot-zip-leaf|robot-zip-leaf]
 and configure [help?cmd=robot-zip-tag|robot-zip-tag].
 Do this if you find that robots downloading lots of
@@ -208,7 +208,7 @@ obscure tarballs is causing load issues on your site.
 
 <h2>Anti-robot Exception RegExps</h2>
 
-The [/help?cmd=robot-exception|robot-exception setting] under the name
+The [/help/robot-exception|robot-exception setting] under the name
 of <b>Exceptions to anti-robot restrictions</b> is a list of
 [/re_rules|regular expressions], one per line, that match
 URIs that will bypass the captcha and allow robots full access.  The

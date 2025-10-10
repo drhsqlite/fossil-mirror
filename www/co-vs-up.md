@@ -26,6 +26,6 @@ In summary, these are two separate commands; neither is an alias for the
 other. They overlap enough that they can be used interchangeably for
 some use cases, but `update` is more powerful and more broadly useful.
 
-[co]:    /help?cmd=checkout
+[co]:    /help/checkout
 [cvsmu]: http://web.mit.edu/gnu/doc/html/cvs_7.html#SEC37
-[up]:    /help?cmd=update
+[up]:    /help/update

@@ -57,7 +57,7 @@ from the repository database.
 ## <a id="usage"></a>Usage
 
 For users with appropriate permissions, simply browse to the
-[/chat](/help?cmd=/chat) to start up a chat session.  The default
+[/chat](/help/www/chat) to start up a chat session.  The default
 skin includes a "Chat" entry on the menu bar on wide screens for
 people with chat privilege.  There is also a "Chat" option on
 the [Sitemap page](/sitemap), which means that chat will appear
@@ -124,15 +124,15 @@ remove the filter.
 
 ### <a id="cli"></a> The `fossil chat` Command
 
-Type [fossil chat](/help?cmd=chat) from within any open check-out
+Type [fossil chat](/help/chat) from within any open check-out
 to bring up a chatroom for the project that is in that checkout.
 The new chat window will attempt to connect to the default sync
 target for that check-out (the server whose URL is shown by the
-[fossil remote](/help?cmd=remote) command).
+[fossil remote](/help/remote) command).
 
 ### <a id="robots"></a> Chat Messages From Robots
 
-The [fossil chat send](/help?cmd=chat) can be used by project-specific
+The [fossil chat send](/help/chat) can be used by project-specific
 robots to send notifications to the chatroom.  For example, on the
 [SQLite project](https://sqlite.org/) (for which the Fossil chatroom
 feature, and indeed all of Fossil, was invented) there are long-running
@@ -157,7 +157,7 @@ name and password, message text and file attachment, of course.
 
 ### <a id="chat-robot"></a> Chat Messages For Timeline Events
 
-If the [chat-timeline-user setting](/help?cmd=chat-timeline-user) is not an
+If the [chat-timeline-user setting](/help/chat-timeline-user) is not an
 empty string, then any change to the repository that would normally result
 in a new timeline entry is announced in the chatroom.  The announcement
 appears to come from a user whose name is given by the chat-timeline-user
@@ -191,7 +191,7 @@ the notification is sent via chat instead of via email.
 But many developers prefer to know how their tools work.
 This section is provided for the benefit of those curious developers.*
 
-The [/chat](/help?cmd=/chat) webpage downloads a small amount of HTML
+The [/chat](/help/www/chat) webpage downloads a small amount of HTML
 and a small amount of javascript to run the chat session.  The
 javascript uses XMLHttpRequest (XHR) to download chat content, post
 new content, or delete historical messages.  The following web
@@ -248,12 +248,12 @@ CREATE TABLE repository.chat(
 The CHAT table is not cross-linked with any other tables in the repository
 schema.  An administrator can "DROP TABLE chat;" at any time, without
 harm (apart from deleting all chat history, of course).  The CHAT table
-is dropped when running [fossil scrub --verily](/help?cmd=scrub).
+is dropped when running [fossil scrub --verily](/help/scrub).
 
 On the server-side, message text is stored exactly as entered by the
 users.  The /chat-poll page queries the CHAT table and constructs a
 JSON reply described in the [/chat-poll
-documentation](/help?cmd=/chat-poll).  The message text is translated
+documentation](/help/www/chat-poll).  The message text is translated
 into HTML before being converted to JSON so that the text can be
 safely added to the display using assignment to `innerHTML`. Though
 `innerHTML` assignment is generally considered unsafe, it is only so

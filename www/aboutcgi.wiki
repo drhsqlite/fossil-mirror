@@ -133,7 +133,7 @@ Usually, the webpage being requested is the first term of the
 PATH_INFO environment variable.  (Exceptions to this rule are noted
 in the sequel.)  For our example, the first term of PATH_INFO
 is "timeline", which means that Fossil will generate
-the [/help?cmd=/timeline|/timeline] webpage.
+the [/help/www/timeline|/timeline] webpage.
 
 With Fossil, terms of PATH_INFO beyond the webpage name are converted into
 the "name" query parameter.  Hence, the following two URLs mean
@@ -145,7 +145,7 @@ exactly the same thing to Fossil:
 
 In both cases, the CGI script is called "/fossil".  For case (A),
 the PATH_INFO variable will be "info/c14ecc43" and so the
-"[/help?cmd=/info|/info]" webpage will be generated and the suffix of
+"[/help/www/info|/info]" webpage will be generated and the suffix of
 PATH_INFO will be converted into the "name" query parameter, which
 identifies the artifact about which information is requested.
 In case (B), the PATH_INFO is just "info", but the same "name"
@@ -284,7 +284,7 @@ Fossil does not care where the value of each property comes from (POST
 content, cookies, or query parameters) only that the property exists
 and has a value.</p></li>
 <li><p>
-The "[/help?cmd=ui|fossil ui]" and "[/help?cmd=server|fossil server]" commands
+The "[/help/ui|fossil ui]" and "[/help/server|fossil server]" commands
 are implemented using a simple built-in web server that accepts incoming HTTP
 requests, translates each request into a CGI invocation, then creates a
 separate child Fossil process to handle each request.  In other words, CGI

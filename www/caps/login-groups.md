@@ -119,7 +119,7 @@ you into both A and B, within the restrictions set out above.
 Changes are transitive in the same way, provided you check that “apply
 to all” box on the user edit screen.
 
-[lg]: /help?cmd=login-group
+[lg]: /help/login-group
 [sh]: ../server/any/http-over-ssh.md
 [wo]: ./index.md#webonly
 

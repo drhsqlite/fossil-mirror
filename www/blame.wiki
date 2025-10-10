@@ -2,12 +2,12 @@
 
 <h2>1.0 Introduction</h2>
 
-The [/help?cmd=annotate|fossil annotate],
-[/help?cmd=blame|fossil blame], and
-[/help?cmd=praise|fossil praise] commands, and the
-[/help?cmd=/annotate|/annotate],
-[/help?cmd=/blame|/blame], and
-[/help?cmd=/praise|/praise] web pages are all used to show the most
+The [/help/annotate|fossil annotate],
+[/help/blame|fossil blame], and
+[/help/praise|fossil praise] commands, and the
+[/help/www/annotate|/annotate],
+[/help/www/blame|/blame], and
+[/help/www/praise|/praise] web pages are all used to show the most
 recent check-in that modified each line of a particular file.
 This article overviews the algorithm used to compute the annotation
 for a file in Fossil.
@@ -47,7 +47,7 @@ The time-consuming part of this algorithm is step 6b - computing the
 diff from all historical versions of the file to the version of the file
 under analysis.  For a large file that has many historical changes, this
 can take several seconds.  For this reason, the default
-[/help?cmd=/annotate|/annotate] webpage only shows those lines that were
+[/help/www/annotate|/annotate] webpage only shows those lines that were
 changed by the 20 most recent modifications to the file.  This allows
 the loop on step 6 to terminate after only 19 diffs instead of the hundreds
 or thousands of diffs that might be required for a frequently modified file.
