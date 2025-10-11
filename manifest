@@ -1,5 +1,5 @@
-C Make\suse\sof\sthe\simproved\s/help/CMD\ssyntax\severywhere,\sin\splace\sof\sthe\nlegacy\s/help?cmd=CMD\ssyntax.
-D 2025-10-10T17:20:25.652
+C Squish\smultiple\scomment\stypos
+D 2025-10-11T16:06:21.965
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,7 +421,7 @@ F src/diff.c 304afb4e916fd9ba47af62a0dc13e9e1ad6d10f98a07a61dc8070cb1e9a40a72
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
 F src/diffcmd.c 97270991bd39d18322a564906dfc7c8411a4af6b7932b7155d7e544c819e7896
-F src/dispatch.c c6e8d97c64242f428c917f5753b0aac0e55e8de38aab849b858f261db60f760a
+F src/dispatch.c 586d74b9917d1342e41b683006e3d748852985176485f1f77f61a58bc63255bd
 F src/doc.c 85a8ea5014ac5665b815a19cf8ad6ef0ec62cc60b81ed57e8e915a5d89cab37b
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc09064f5c2e79ecfacf129acaf42b1dcd48fa2281889d6a3071bdb392bf8097
-R d3ed3336614d0ed964ab236388e30b77
-U drh
-Z bd03c1353551b490ed397bde1882208d
+P c64f28d26c7fd701c7ab1a2e06bbfedf6662c118fa92e6303d64673e5d3d792c
+R 5b4942d11eeac363e5d1c184da4dcacc
+U wyoung
+Z 0991534610dbffeeebcb0077ab8a2ccf
 # Remove this line to create a well-formed Fossil manifest.

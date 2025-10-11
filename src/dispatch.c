@@ -61,7 +61,7 @@ struct CmdOrPage {
 
 /* Values for the 2nd parameter to dispatch_name_search() */
 #define CMDFLAG_ANY         0x0038      /* Match anything */
-#define CMDFLAG_PREFIX      0x0200      /* Prefix match is ok */
+#define CMDFLAG_PREFIX      0x0200      /* Prefix match is OK */
 
 #endif /* INTERFACE */
 
@@ -852,7 +852,7 @@ static int help_is_platform_command(const char *zName){
 **
 **    name=www/PAGE   Show help for web page PAGE.
 **
-**    name=/PAGE      The initial "www/" on web-page help can be abbreiated as
+**    name=/PAGE      The initial "www/" on web-page help can be abbreviated as
 **                    just "/"
 **
 **    plaintext       Show the help within <pre>...</pre>, as if it were
@@ -877,7 +877,7 @@ void help_page(void){
     }
     if( strncmp(zCmd,"www/",4)==0 && zCmd[4]!=0 ){
       /* Use https://domain/fossil/help/www/timeline or similar with the "www"
-      ** intermediate tag to view web-page documention. */
+      ** intermediate tag to view web-page documentation. */
       zCmd += 3;
     }
     rc = dispatch_name_search(zCmd, CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
