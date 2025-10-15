@@ -1,6 +1,6 @@
-C Add\sthe\ssubpath\sfield\sto\sthe\sUrlData\sobject.\s\sIf\sthat\sfield\sis\snon-NULL,\nthen\sthe\shttp_exchange()\sroutine\swill\sbuild\sthe\srequest\sheader\susing\ssubpath\nrather\sthan\spath.\s\sThis\sallows\sthe\spath\sfor\sssh:\sand\sfile:\sto\sbe\sdistinct\nfrom\sthe\sHTTP\srequest\spath.\s\sEnhance\sthe\stest-httpmsg\scommand\sto\swork\nwith\sfile:\sand\sssh:\sURLs\sas\slong\sas\sthe\snew\s--subpath\soption\sis\sprovided.
-D 2025-10-15T15:53:20.928
-F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
+C Implement\sthe\s"fossil\sget"\scommand.
+D 2025-10-15T17:15:23.454
+F .editorconfig 950381e0f72321e4695a00259998d6a145e1c161d2b09646d1df692ac9e05fe8
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
 F .fossil-settings/crlf-glob 4fdc984bf5f731ec9289091c423c2db94f83f5c2b5b65c18700b9fb7beb895c7
@@ -16,7 +16,7 @@ F Makefile.classic 25ea72b6fe8959b5bbd638363af82dec3ba475c09ea79918deda199eb15c3
 F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION 3b0f155d2d0b8b24d67a58111a30ac3920964ec5c4a245b4c405c03da01d2b29
+F VERSION 7959c969e092f2a5a8604e2287807ac5b1b384ad
 F auto.def 4169d4399308f33e7a0ffb364b0a92d29aa0cf20d8edf9b031f0419a7e53a8b2
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
@@ -399,7 +399,7 @@ F src/captcha.c 3ca4bf560b53b19c0f059c23a7246a9ddbf2ade45a34ed36b806edb9ca291d12
 F src/cgi.c 6919bd51d208b78ade075434c2c635a9555582f84fb00bc698c1b70a90e67ba1
 F src/chat.c 9290b92848d30cff142122b049c5082cf8f682ee954f567f5ab84fbcd50c8664
 F src/checkin.c 0ff14c07fd7584bb065772c7fea0814439bce3bc788f627b8b5f633c05620a19
-F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
+F src/checkout.c 6a9112dbc35b73f19f1ae02a29ab8e4c8f9c9a889c6d638de68b1c8d37b839a9
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
 F src/clone.c 34b09841124259f0446ea520c3e407df476552ebdbcbf003e143ed7ac152f911
@@ -598,7 +598,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 6227a029e003a1c8f26e3687065e9d4a9c238d3f1d42d533cbcb8f642cbfa816
 F src/xfer.c e4fb0f859256e5c4b2f479914f2d70b491e12ec3eb2cfd3a49cb39a138596766
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/zip.c 5bfc8480d12bf45c2a853bb676257eb5cf6d44a206354beb00fee5e46453e0a7
+F src/zip.c e516ec9ab3c941697bcb009166c75a0aa6c4d88e075bc5741640f498d5fbc907
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c1ea044297b09158caa5c800b2017bcf807d0138cc8c8901ba464bcb8798bafb
@@ -976,11 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3c639f742096eea432d96964551dee48334bf7e96f2834d832f0153596fbac3b
-R 5eab96439b9b10abf147755b4c5c4228
-T *branch * get-command
-T *sym-get-command *
-T -sym-trunk *
+P 9abda297348385e9f6f7e389e4a418e16bb63db2f4e0147b880a0f26e362e16e
+R 174e52038e98125f3fe57532b3a6eae8
 U drh
-Z 40b10901073080533edf1f23b8787a84
+Z 6a17fa2ddd015c7c331aa4a504469f4c
 # Remove this line to create a well-formed Fossil manifest.

@@ -408,12 +408,12 @@ static void zip_add_file_to_sqlar(
         "PRAGMA journal_mode = off;"
         "PRAGMA cache_spill = off;"
         "BEGIN;"
-        "CREATE TABLE sqlar("
-          "name TEXT PRIMARY KEY,  -- name of the file\n"
-          "mode INT,               -- access permissions\n"
-          "mtime INT,              -- last modification time\n"
-          "sz INT,                 -- original file size\n"
-          "data BLOB               -- compressed content\n"
+        "CREATE TABLE sqlar(\n"
+          "  name TEXT PRIMARY KEY,  -- name of the file\n"
+          "  mode INT,               -- access permissions\n"
+          "  mtime INT,              -- last modification time\n"
+          "  sz INT,                 -- original file size\n"
+          "  data BLOB               -- compressed content\n"
         ");", 0, 0, 0
     );
     sqlite3_prepare(p->db,
