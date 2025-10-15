@@ -1033,9 +1033,6 @@ void baseline_zip_page(void){
   if( fossil_strcmp(g.zPath, "sqlar")==0 ){
     eType = ARCHIVE_SQLAR;
     zType = "SQL";
-    /* For some reason, SQL-archives are like catnip for robots.  So
-    ** don't allow them to be downloaded by user "nobody" */
-    if( g.zLogin==0 ){ login_needed(g.anon.Zip); return; }
   }else{
     eType = ARCHIVE_ZIP;
     zType = "ZIP";

@@ -1,5 +1,5 @@
-C Improved\scomments\sand\sextra\sabuse\sdefense.
-D 2025-10-15T21:58:11.047
+C Back\sout\sthe\srestriction\s(added\sby\s[b9a9e2b9af6ce203])\sthat\sprevents\sSQL\nArchives\sfrom\sbeing\sdownloaded\sby\suser\snobody.
+D 2025-10-15T22:51:13.322
 F .editorconfig 950381e0f72321e4695a00259998d6a145e1c161d2b09646d1df692ac9e05fe8
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -598,7 +598,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 6227a029e003a1c8f26e3687065e9d4a9c238d3f1d42d533cbcb8f642cbfa816
 F src/xfer.c e4fb0f859256e5c4b2f479914f2d70b491e12ec3eb2cfd3a49cb39a138596766
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/zip.c e516ec9ab3c941697bcb009166c75a0aa6c4d88e075bc5741640f498d5fbc907
+F src/zip.c 881d838d23d36c3bf6aa72b739d53a4fff2491f674a2f8e714553676fb670d27
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c1ea044297b09158caa5c800b2017bcf807d0138cc8c8901ba464bcb8798bafb
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a767601780a07700db90595857d5f48bf444b6241d1b9bf629a76f2f12b8147
-R 37f2654331eedbd16609ce40274dee72
+P a1f420c6c6f8087ff0db093278e3bd6979739c3fee7aa1364b803ff6aff3a13c
+R cd77ae2b4e3eb6ff2bec454745963d5a
 U drh
-Z a3fa49007c335603c5a20c00708ccccb
+Z c728b9f1434972fe909980b334de20c8
 # Remove this line to create a well-formed Fossil manifest.
