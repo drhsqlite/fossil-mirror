@@ -468,7 +468,9 @@ void close_cmd(void){
 void get_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;
   int bVerbose = find_option("verbose","v",0)!=0;
+  int bQuiet = find_option("quiet","q",0)!=0;
   int bDebug = find_option("debug",0,0)!=0;
+  int bList = find_option("list",0,0)!=0;
   const char *zSqlArchive = find_option("sqlar",0,1);
   const char *z;
   char *zDest = 0;        /* Where to store results */
@@ -480,6 +482,9 @@ void get_cmd(void){
   sqlite3 *db;            /* Database containing downloaded sqlar */
   sqlite3_stmt *pStmt;    /* Statement for querying the database */
   int rc;                 /* Result of subroutine calls */
+  int nFile = 0;          /* Number of files written */
+  int nDir = 0;           /* Number of directories written */
+  i64 nByte = 0;          /* Number of bytes written */
 
   z = find_option("dest",0,1);
   if( z ) zDest = fossil_strdup(z);
@@ -538,7 +543,7 @@ void get_cmd(void){
 
   /* Construct a subpath on the URL if necessary */
   if( g.url.isSsh || g.url.isFile ){
-    g.url.subpath = mprintf("/sqlar?name=%t&r=%t", zDest, zVers);
+    g.url.subpath = mprintf("/sqlar/%t/%t.sqlar", zVers, zDest);
   }
 
   if( bDebug ){
@@ -549,6 +554,7 @@ void get_cmd(void){
   blob_init(&in, 0, 0);
   blob_init(&out, 0, 0);
   if( bDebug ) mHttpFlags |= HTTP_VERBOSE;
+  if( bQuiet ) mHttpFlags |= HTTP_QUIET;
   http_exchange(&in, &out, mHttpFlags, 4, 0);
 
   if( zSqlArchive ){
@@ -578,14 +584,19 @@ void get_cmd(void){
     const char *zFilename = (const char*)sqlite3_column_text(pStmt, 0);
     int mode = sqlite3_column_int(pStmt, 1);
     int sz = sqlite3_column_int(pStmt, 2);
-    if( mode & 0x4000 ){
+    if( bList ){
+      fossil_print("%s\n", zFilename);
+    }else if( mode & 0x4000 ){
       /* A directory name */
+      nDir++;
       file_mkdir(zFilename, ExtFILE, 1);
     }else{
       /* A file */
       unsigned char *inBuf = (unsigned char*)sqlite3_column_blob(pStmt,3);
       unsigned int nIn = (unsigned int)sqlite3_column_bytes(pStmt,3);
       unsigned long int nOut2 = (unsigned long int)sz;
+      nFile++;
+      nByte += sz;
       blob_resize(&file, sz);
       if( nIn<sz ){
         rc = uncompress((unsigned char*)blob_buffer(&file), &nOut2,
@@ -609,4 +620,13 @@ void get_cmd(void){
   sqlite3_finalize(pStmt);
   sqlite3_close(db);
   blob_zero(&out);
+  if( !bVerbose && !bQuiet && nFile>0 && zDest ){
+    fossil_print("%d files (%,lld bytes) written into %s",
+                 nFile, nByte, zDest);
+    if( nDir>1 ){
+      fossil_print(" and %d subdirectories\n", nDir-1);
+    }else{
+      fossil_print("\n");
+    }
+  }
 }

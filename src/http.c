@@ -688,12 +688,14 @@ int http_exchange(
     ){
       /* Retry after flipping the SSH_PATH setting */
       transport_close(&g.url);
-      fossil_print(
-        "First attempt to run fossil on %s using SSH failed.\n"
-        "Retrying %s the PATH= argument.\n",
-        g.url.hostname,
-        (g.url.flags & URL_SSH_PATH)!=0 ? "without" : "with"
-      );
+      if( (mHttpFlags & HTTP_QUIET)==0 ){
+        fossil_print(
+          "First attempt to run fossil on %s using SSH failed.\n"
+          "Retrying %s the PATH= argument.\n",
+          g.url.hostname,
+          (g.url.flags & URL_SSH_PATH)!=0 ? "without" : "with"
+        );
+      }
       g.url.flags ^= URL_SSH_PATH|URL_SSH_RETRY;
       rc = http_exchange(pSend,pReply,mHttpFlags,0,zAltMimetype);
       if( rc==0 && g.db!=0 ){
