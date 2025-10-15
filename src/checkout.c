@@ -474,6 +474,7 @@ void get_cmd(void){
   const char *zSqlArchive = find_option("sqlar",0,1);
   const char *z;
   char *zDest = 0;        /* Where to store results */
+  char *zSql;             /* SQL used to query the results */
   const char *zUrl;       /* Url to get */
   const char *zVers;      /* Version name to get */
   unsigned int mHttpFlags = HTTP_GENERIC|HTTP_NOCOMPRESS;
@@ -543,7 +544,7 @@ void get_cmd(void){
 
   /* Construct a subpath on the URL if necessary */
   if( g.url.isSsh || g.url.isFile ){
-    g.url.subpath = mprintf("/sqlar/%t/%t.sqlar", zVers, zDest);
+    g.url.subpath = mprintf("/sqlar?r=%t&name=%t.sqlar", zVers, zDest);
   }
 
   if( bDebug ){
@@ -573,9 +574,10 @@ void get_cmd(void){
     fossil_fatal("Cannot create an in-memory database: %s",
                  sqlite3_errmsg(db));
   }
-  rc = sqlite3_prepare_v2(db,
-     "SELECT name, mode, sz, data"
-     "  FROM sqlar", -1, &pStmt, 0);
+  zSql = mprintf("SELECT name, mode, sz, data FROM sqlar"
+                 " WHERE name GLOB '%q*'", zDest);
+  rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
+  fossil_free(zSql);
   if( rc!=0 ){
     fossil_fatal("SQL error: %s\n", sqlite3_errmsg(db));
   }
@@ -586,7 +588,7 @@ void get_cmd(void){
     int sz = sqlite3_column_int(pStmt, 2);
     if( bList ){
       fossil_print("%s\n", zFilename);
-    }else if( mode & 0x4000 ){
+    }else  if( mode & 0x4000 ){
       /* A directory name */
       nDir++;
       file_mkdir(zFilename, ExtFILE, 1);

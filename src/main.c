@@ -3103,6 +3103,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** Options:
 **   --csrf-safe N       Set cgi_csrf_safe() to to return N
 **   --nobody            Pretend to be user "nobody"
+**   --ssh-sim           Pretend to be over an SSH connection
 **   --test              Do not do special "sync" processing when operating
 **                       over an SSH link
 **   --th-trace          Trace TH1 execution (for debugging purposes)
@@ -3114,6 +3115,9 @@ void cmd_test_http(void){
   int bTest = 0;
   const char *zCsrfSafe = find_option("csrf-safe",0,1);
 
+  if( find_option("ssh-sim",0,0)!=0 ){
+    putenv("SSH_CONNECTION=127.0.0.1 12345 127.0.0.2 23456");
+  }
   Th_InitTraceLog();
   if( zCsrfSafe ) g.okCsrf = atoi(zCsrfSafe);
   zUserCap = find_option("usercap",0,1);
