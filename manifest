@@ -1,6 +1,6 @@
-C Add\sthe\scorrect\ssuffix\sto\sthe\sURL\sfor\shttp\srequests\son\s"fossil\sget".\nBetter\sdetection\sof\serror\sreturns.
-D 2025-10-15T23:11:02.149
-F .editorconfig 950381e0f72321e4695a00259998d6a145e1c161d2b09646d1df692ac9e05fe8
+C Back\sout\serroneous\soverwrites\sof\sthe\sVERSION\sand\s.editorconfig\sfiles.
+D 2025-10-15T23:22:29.463
+F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
 F .fossil-settings/crlf-glob 4fdc984bf5f731ec9289091c423c2db94f83f5c2b5b65c18700b9fb7beb895c7
@@ -16,7 +16,7 @@ F Makefile.classic 25ea72b6fe8959b5bbd638363af82dec3ba475c09ea79918deda199eb15c3
 F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION 7959c969e092f2a5a8604e2287807ac5b1b384ad
+F VERSION 3b0f155d2d0b8b24d67a58111a30ac3920964ec5c4a245b4c405c03da01d2b29
 F auto.def 4169d4399308f33e7a0ffb364b0a92d29aa0cf20d8edf9b031f0419a7e53a8b2
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
@@ -976,8 +976,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 489b262674279427dad17b8a14138b3bb56c5c75dfea626bb421e0ec4a6798a8
-R fe312f3c2c44803be7a654c3f44b24b6
+P cfb5a8613af3ff7142932c40579cc83e5f113e66f0d54a87726c22e20708f032
+Q -552eee775ac6ad7ebaa9ccbe125c08e283ad17587172ac85693afbbf5ad4ca42
+R e3eba72b3a20418f473edfb25abe6969
 U drh
-Z 921aee82c4e7fb9956e54e8af11bb382
+Z 42dfc4ee76fb9fbd33f6c2b28e30c62f
 # Remove this line to create a well-formed Fossil manifest.

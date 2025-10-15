@@ -1,5 +1,7 @@
-# EditorConfig (https://editorconfig.com) configuration suitable for
-# "drh projects": fossil, althttpd, and their kin.
+# EditorConfig (https://editorconfig.com) Configuration for Fossil
+#
+# Following https://fossil-scm.org/fossil/doc/trunk/www/style.wiki
+#
 
 # Defaults for all files
 [*]
@@ -8,5 +10,5 @@ insert_final_newline = true
 indent_style = space
 indent_size = 2
 
-[{Makefile,Makefile.*,*.make,*.make.in}]
+[{Makefile,Makefile.*,*.mk}]
 indent_style = tab
