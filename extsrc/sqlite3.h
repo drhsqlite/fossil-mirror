@@ -144,14 +144,14 @@ extern "C" {
 **
 ** See also: [sqlite3_libversion()],
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
-** [sqlite_version()] and [sqlite_sourceid()].
+** [sqlite_version()] and [sqlite_source_id()].
 */
 #define SQLITE_VERSION        "3.51.0"
 #define SQLITE_VERSION_NUMBER 3051000
-#define SQLITE_SOURCE_ID      "2025-10-10 14:31:46 4966d7a1ce42af8b1c50fdd40e651e80d0eeb8cb62dd882950cab275f98aba88"
+#define SQLITE_SOURCE_ID      "2025-10-15 10:52:45 5cbccab499bc3983aac1f57355552db607dee6c7ef4eb00d794dbee89c18db70"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2025-10-10T14:31:46.035Z"
+#define SQLITE_SCM_DATETIME   "2025-10-15T10:52:45.276Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -183,7 +183,7 @@ extern "C" {
 ** using an edited copy of [the amalgamation], then the last four characters
 ** of the hash might be different from [SQLITE_SOURCE_ID].)^
 **
-** See also: [sqlite_version()] and [sqlite_sourceid()].
+** See also: [sqlite_version()] and [sqlite_source_id()].
 */
 SQLITE_API SQLITE_EXTERN const char sqlite3_version[];
 SQLITE_API const char *sqlite3_libversion(void);
@@ -8921,9 +8921,18 @@ SQLITE_API int sqlite3_status64(
 ** ^The sqlite3_db_status() routine returns SQLITE_OK on success and a
 ** non-zero [error code] on failure.
 **
+** ^The sqlite3_db_status64(D,O,C,H,R) routine works exactly the same
+** way as sqlite3_db_status(D,O,C,H,R) routine except that the C and H
+** parameters are pointer to 64-bit integers (type: sqlite3_int64) instead
+** of pointers to 32-bit integers, which allows larger status values
+** to be returned.  If a status value exceeds 2,147,483,647 then
+** sqlite3_db_status() will truncate the value whereas sqlite3_db_status64()
+** will return the full value.
+**
 ** See also: [sqlite3_status()] and [sqlite3_stmt_status()].
 */
 SQLITE_API int sqlite3_db_status(sqlite3*, int op, int *pCur, int *pHiwtr, int resetFlg);
+SQLITE_API int sqlite3_db_status64(sqlite3*,int,sqlite3_int64*,sqlite3_int64*,int);
 
 /*
 ** CAPI3REF: Status Parameters for database connections
@@ -9020,6 +9029,10 @@ SQLITE_API int sqlite3_db_status(sqlite3*, int op, int *pCur, int *pHiwtr, int r
 ** If an IO or other error occurs while writing a page to disk, the effect
 ** on subsequent SQLITE_DBSTATUS_CACHE_WRITE requests is undefined.)^ ^The
 ** highwater mark associated with SQLITE_DBSTATUS_CACHE_WRITE is always 0.
+** <p>
+** ^(There is overlap between the quantities measured by this parameter
+** (SQLITE_DBSTATUS_CACHE_WRITE) and SQLITE_DBSTATUS_TEMPBUF_SPILL.
+** Resetting one will reduce the other.)^
 ** </dd>
 **
 ** [[SQLITE_DBSTATUS_CACHE_SPILL]] ^(<dt>SQLITE_DBSTATUS_CACHE_SPILL</dt>
@@ -9035,6 +9048,18 @@ SQLITE_API int sqlite3_db_status(sqlite3*, int op, int *pCur, int *pHiwtr, int r
 ** <dd>This parameter returns zero for the current value if and only if
 ** all foreign key constraints (deferred or immediate) have been
 ** resolved.)^  ^The highwater mark is always 0.
+**
+** [[SQLITE_DBSTATUS_TEMPBUF_SPILL] ^(<dt>SQLITE_DBSTATUS_TEMPBUF_SPILL</dt>
+** <dd>^(This parameter returns the number of bytes written to temporary
+** files on disk that could have been kept in memory had sufficient memory
+** been available.  This value includes writes to intermediate tables that
+** are part of complex queries, external sorts that spill to disk, and
+** writes to TEMP tables.)^
+** ^The highwater mark is always 0.
+** <p>
+** ^(There is overlap between the quantities measured by this parameter
+** (SQLITE_DBSTATUS_TEMPBUF_SPILL) and SQLITE_DBSTATUS_CACHE_WRITE.
+** Resetting one will reduce the other.)^
 ** </dd>
 ** </dl>
 */
@@ -9051,7 +9076,8 @@ SQLITE_API int sqlite3_db_status(sqlite3*, int op, int *pCur, int *pHiwtr, int r
 #define SQLITE_DBSTATUS_DEFERRED_FKS        10
 #define SQLITE_DBSTATUS_CACHE_USED_SHARED   11
 #define SQLITE_DBSTATUS_CACHE_SPILL         12
-#define SQLITE_DBSTATUS_MAX                 12   /* Largest defined DBSTATUS */
+#define SQLITE_DBSTATUS_TEMPBUF_SPILL       13
+#define SQLITE_DBSTATUS_MAX                 13   /* Largest defined DBSTATUS */
 
 
 /*
