@@ -460,6 +460,10 @@ void close_cmd(void){
 **
 **   -f|--force               Overwrite existing files
 **
+**   --list                   List all the files that would have been checked
+**                            out but do not actually write anything to the
+**                            filesystem.
+**
 **   --sqlar ARCHIVE          Store the check-out in an SQL-archive rather
 **                            than unpacking them into separate files.
 **
@@ -526,6 +530,17 @@ void get_cmd(void){
   }
 
   /* Error checking */
+  if( zDest!=file_tail(zDest) ){
+    fossil_fatal("--dest must be a simple directory name, not a path");
+  }
+  if( zVers!=file_tail(zVers) ){
+    fossil_fatal("The \"fossil get\" command does not current work with"
+                 " version names that contain \"/\". This will be fixed in"
+                 " a future release.");
+  }
+  /* To relax the restrictions above, change the subpath URL formula below
+  ** to use query parameters.  Ex:  /sqlar?r=%t&name=%t */
+
   if( !forceFlag ){
     if( zSqlArchive ){
       if( file_isdir(zSqlArchive, ExtFILE)>0 ){
@@ -544,7 +559,7 @@ void get_cmd(void){
 
   /* Construct a subpath on the URL if necessary */
   if( g.url.isSsh || g.url.isFile ){
-    g.url.subpath = mprintf("/sqlar?r=%t&name=%t.sqlar", zVers, zDest);
+    g.url.subpath = mprintf("/sqlar/%t/%t.sqlar", zVers, zDest);
   }
 
   if( bDebug ){
