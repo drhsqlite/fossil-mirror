@@ -1,5 +1,5 @@
-C Back\sout\sthe\srestriction\s(added\sby\s[b9a9e2b9af6ce203])\sthat\sprevents\sSQL\nArchives\sfrom\sbeing\sdownloaded\sby\suser\snobody.
-D 2025-10-15T22:51:13.322
+C Add\sthe\scorrect\ssuffix\sto\sthe\sURL\sfor\shttp\srequests\son\s"fossil\sget".\nBetter\sdetection\sof\serror\sreturns.
+D 2025-10-15T23:11:02.149
 F .editorconfig 950381e0f72321e4695a00259998d6a145e1c161d2b09646d1df692ac9e05fe8
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -399,7 +399,7 @@ F src/captcha.c 3ca4bf560b53b19c0f059c23a7246a9ddbf2ade45a34ed36b806edb9ca291d12
 F src/cgi.c ca79ae8a50bc79de6736fd01b30022ca5e7e9b98ea804730f2a58a2890943847
 F src/chat.c 9290b92848d30cff142122b049c5082cf8f682ee954f567f5ab84fbcd50c8664
 F src/checkin.c 0ff14c07fd7584bb065772c7fea0814439bce3bc788f627b8b5f633c05620a19
-F src/checkout.c 5a8332dc1ae3da0ea16670df41ca2a699a82746d5619199f8581e80be1fb89cd
+F src/checkout.c d283d56d286ee7462675b3f4010c273c9ca2490e0e90a65106bfc8beb5a8beb9
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
 F src/clone.c 34b09841124259f0446ea520c3e407df476552ebdbcbf003e143ed7ac152f911
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a1f420c6c6f8087ff0db093278e3bd6979739c3fee7aa1364b803ff6aff3a13c
-R cd77ae2b4e3eb6ff2bec454745963d5a
+P 489b262674279427dad17b8a14138b3bb56c5c75dfea626bb421e0ec4a6798a8
+R fe312f3c2c44803be7a654c3f44b24b6
 U drh
-Z c728b9f1434972fe909980b334de20c8
+Z 921aee82c4e7fb9956e54e8af11bb382
 # Remove this line to create a well-formed Fossil manifest.

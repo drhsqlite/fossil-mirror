@@ -560,6 +560,8 @@ void get_cmd(void){
   /* Construct a subpath on the URL if necessary */
   if( g.url.isSsh || g.url.isFile ){
     g.url.subpath = mprintf("/sqlar/%t/%t.sqlar", zVers, zDest);
+  }else{
+    g.url.subpath = mprintf("%s/sqlar/%t/%t.sqlar", g.url.path, zVers, zDest);
   }
 
   if( bDebug ){
@@ -571,7 +573,14 @@ void get_cmd(void){
   blob_init(&out, 0, 0);
   if( bDebug ) mHttpFlags |= HTTP_VERBOSE;
   if( bQuiet ) mHttpFlags |= HTTP_QUIET;
-  http_exchange(&in, &out, mHttpFlags, 4, 0);
+  rc = http_exchange(&in, &out, mHttpFlags, 4, 0);
+  if( rc 
+   || out.nUsed<512
+   || (out.nUsed%512)!=0
+   || memcmp(out.aData,"SQLite format 3",16)!=0
+  ){
+    fossil_fatal("Server did not return the requested check-in.");
+  }
 
   if( zSqlArchive ){
     blob_write_to_file(&out, zSqlArchive);
