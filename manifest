@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\scheck-in\sfor\sbeta\stesting\nof\sSQLite.
-D 2025-10-15T11:52:01.441
+C Add\sthe\s"fossil\sget"\scommand.\s\sThis\scommand\sis\sstill\sexperimental.\s\sIts\sname\nmight\schange.\s\sIt\smight\sgo\saway\scompletely.\s\sTo\sremove\sthe\snew\scommand,\sjust\nremove\sthe\s"get_cmd()"\sfunction\sin\scheckout.c.\s\sAll\sthe\sother\schanges\sin\sthis\nmerge\sare\sinfrastructure\simprovements\sand\sfixes\sthat\sought\sto\sstay\seven\sif\nwe\sdecide\sto\sforego\sthe\s"fossil\sget"\scommand.
+D 2025-10-15T23:34:28.191
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,10 +396,10 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 3ca4bf560b53b19c0f059c23a7246a9ddbf2ade45a34ed36b806edb9ca291d12
-F src/cgi.c 6919bd51d208b78ade075434c2c635a9555582f84fb00bc698c1b70a90e67ba1
+F src/cgi.c ca79ae8a50bc79de6736fd01b30022ca5e7e9b98ea804730f2a58a2890943847
 F src/chat.c 9290b92848d30cff142122b049c5082cf8f682ee954f567f5ab84fbcd50c8664
 F src/checkin.c 0ff14c07fd7584bb065772c7fea0814439bce3bc788f627b8b5f633c05620a19
-F src/checkout.c d0f20d19f781ac93e72ad422dde0a245e32fc9b17553c599a7646dd45f6eb705
+F src/checkout.c d283d56d286ee7462675b3f4010c273c9ca2490e0e90a65106bfc8beb5a8beb9
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
 F src/clone.c 34b09841124259f0446ea520c3e407df476552ebdbcbf003e143ed7ac152f911
@@ -466,7 +466,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 97641963c7127a0c000c5a90ad2e2b3b2d216614b6f552737b552aa68feb0f21
-F src/http.c 03400bcfd79d429b19b725be9647dc5abc7a3480758be46e5edfee15b9ea53d1
+F src/http.c ae189b460516113f4ebc43c7d97db8a7237cd421563a7fa0772e96843c8b87de
 F src/http_socket.c db9603e27cbf4b41dae94d000acf3dbf1ecbb431ef0a24743aabd17e5467b323
 F src/http_ssl.c 5050cdd1441962f51762780cdd87b38c7281ecc6f4a65290acdaca318e9a4ca0
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
@@ -494,7 +494,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c d9d120a18c32675d1311a77fd982405d48c9ae0dd7d5f1e007e1e17cf7d819d3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c 73254b80f1566122b2ea15a8eeff1ec8f9e4cfb2345ddbaea24b25353f03ae11
+F src/main.c aa0b93731a634ad48e671873168828db22dd59b00dbd79d29e57116a7bb2026f
 F src/main.mk 38b180c0ba9fc24e5fe4f82da7f2f21426d444ea5b6e6573c71840cb16998497
 F src/manifest.c f2b9b6ec54292eed9dda07a528bbd107df47c9032883e38dd175d6dc10f1b645
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -584,7 +584,7 @@ F src/undo.c adb86202928394161ecfa194be5001fbd86254ba43c4df527d91c36857a0be90
 F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
 F src/unversioned.c d39361fa12c51ed05b506b4efa5ef049b614f906fdb7ebd133c587d00b88746c
 F src/update.c 187d4f62b304cd91555af17952fc53756686ceacdec4840bfd209b83ded2c165
-F src/url.c 79829c649ede2418606602d7bade2b50ea9fdd340c6e54b5ffa63d0fee5bd1dc
+F src/url.c 431525f55f1720147811229d1d7f7e1754ca6721f0d94e37f7fef66854d53f5d
 F src/user.c 04e4b90450007b11c47078ffec0da4417dc3c98b36731f78f98e56567d03f653
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
@@ -598,7 +598,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 6227a029e003a1c8f26e3687065e9d4a9c238d3f1d42d533cbcb8f642cbfa816
 F src/xfer.c e4fb0f859256e5c4b2f479914f2d70b491e12ec3eb2cfd3a49cb39a138596766
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/zip.c 5bfc8480d12bf45c2a853bb676257eb5cf6d44a206354beb00fee5e46453e0a7
+F src/zip.c 881d838d23d36c3bf6aa72b739d53a4fff2491f674a2f8e714553676fb670d27
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c1ea044297b09158caa5c800b2017bcf807d0138cc8c8901ba464bcb8798bafb
@@ -976,8 +976,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8af686481ec7b1aebf346a2925f5b9185193133d85e65205368f885ccdd859e5
-R 2a469513a4acffd53655033907292608
+P 3c639f742096eea432d96964551dee48334bf7e96f2834d832f0153596fbac3b fa522a07a02953cc771c21073831c5b0ec847740df0ec3176b33c2e25c230147
+R e3eba72b3a20418f473edfb25abe6969
+T +closed fa522a07a02953cc771c21073831c5b0ec847740df0ec3176b33c2e25c230147
 U drh
-Z fa181a0a9d3980434fe2dbb7b0d6c65a
+Z 594f70391d6a3f55d107a92a95e17231
 # Remove this line to create a well-formed Fossil manifest.

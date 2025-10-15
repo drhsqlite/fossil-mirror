@@ -2365,8 +2365,10 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   if( zToken[i] ) zToken[i++] = 0;
   if( nCycles==0 ){
     cgi_setenv("PATH_INFO", zToken);
+    cgi_setenv("QUERY_STRING",&zToken[i]);
   }else{
     cgi_replace_parameter("PATH_INFO", fossil_strdup(zToken));
+    cgi_replace_parameter("QUERY_STRING",fossil_strdup(&zToken[i]));
   }
 
   /* Get all the optional fields that follow the first line.
@@ -2430,6 +2432,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
       blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
     }
   }
+  cgi_init();
   cgi_trace(0);
   nCycles++;
 }
