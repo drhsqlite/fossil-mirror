@@ -1032,7 +1032,7 @@ void timeline_output_graph_javascript(
       cgi_printf("{\"id\":%d,",     pRow->idx);
       cgi_printf("\"bg\":\"%s\",",  pRow->zBgClr);
       if( bNoGraph ){
-        cgi_printf("\"r\":-1,");
+        cgi_printf("\"r\":0,");  /* Chng to ":-1" to omit node circles */
       }else{
         cgi_printf("\"r\":%d,",       pRow->iRail>=0 ? aiMap[pRow->iRail] : -1);
       }
@@ -1048,7 +1048,7 @@ void timeline_output_graph_javascript(
         }
       }
       if( bNoGraph ){
-        cgi_printf("\"u\":0,");
+        cgi_printf("\"u\":-1,");
       }else if( pRow->isStepParent ){
         cgi_printf("\"sb\":%d,",      pRow->aiRiser[pRow->iRail]);
       }else{
