@@ -945,7 +945,9 @@ void timeline_output_graph_javascript(
     int dwellTimeout;    /* Milliseconds to wait for tooltips to show */
     int closeTimeout;    /* Milliseconds to wait for tooltips to close */
     u8 *aiMap;           /* The rail map */
+    u8 bNoGraph;         /* True to show a minimal graph */
 
+    bNoGraph = (tmFlags & TIMELINE_GRAPH)==0;
     iRailPitch = atoi(PD("railpitch","0"));
     showArrowheads = skin_detail_boolean("timeline-arrowheads");
     circleNodes = skin_detail_boolean("timeline-circle-nodes");
@@ -967,7 +969,7 @@ void timeline_output_graph_javascript(
     @   "omitDescenders": %d(omitDescenders),
     @   "fileDiff": %d(fileDiff),
     @   "scrollToSelect": %d(scrollToSelect),
-    @   "nrail": %d(pGraph->mxRail+1),
+    @   "nrail": %d(bNoGraph?1:pGraph->mxRail+1),
     @   "baseUrl": "%R",
     @   "dwellTimeout": %d(dwellTimeout),
     @   "closeTimeout": %d(closeTimeout),
@@ -1029,8 +1031,12 @@ void timeline_output_graph_javascript(
       int k = 0;
       cgi_printf("{\"id\":%d,",     pRow->idx);
       cgi_printf("\"bg\":\"%s\",",  pRow->zBgClr);
-      cgi_printf("\"r\":%d,",       pRow->iRail>=0 ? aiMap[pRow->iRail] : -1);
-      if( pRow->bDescender ){
+      if( bNoGraph ){
+        cgi_printf("\"r\":-1,");
+      }else{
+        cgi_printf("\"r\":%d,",       pRow->iRail>=0 ? aiMap[pRow->iRail] : -1);
+      }
+      if( pRow->bDescender && !bNoGraph ){
         cgi_printf("\"d\":%d,",       pRow->bDescender);
       }
       if( pRow->mergeOut>=0 ){
@@ -1041,7 +1047,9 @@ void timeline_output_graph_javascript(
           cgi_printf("\"cu\":%d,",    pRow->cherrypickUpto);
         }
       }
-      if( pRow->isStepParent ){
+      if( bNoGraph ){
+        cgi_printf("\"u\":0,");
+      }else if( pRow->isStepParent ){
         cgi_printf("\"sb\":%d,",      pRow->aiRiser[pRow->iRail]);
       }else{
         cgi_printf("\"u\":%d,",       pRow->aiRiser[pRow->iRail]);
