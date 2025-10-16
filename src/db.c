@@ -3601,12 +3601,12 @@ char *db_reveal(const char *zKey){
 ** Return true if the string zVal represents "true" (or "false").
 */
 int is_truth(const char *zVal){
-  static const char *const azOn[] = { "on", "yes", "true", "1" };
+  static const char *const azOn[] = { "on", "yes", "true" };
   int i;
   for(i=0; i<count(azOn); i++){
     if( fossil_stricmp(zVal,azOn[i])==0 ) return 1;
   }
-  return 0;
+  return atoi(zVal);
 }
 int is_false(const char *zVal){
   static const char *const azOff[] = { "off", "no", "false", "0" };

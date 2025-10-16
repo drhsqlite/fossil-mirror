@@ -933,3 +933,142 @@ void tarball_page(void){
   cgi_set_content(&tarball);
   cgi_set_content_type("application/x-compressed");
 }
+
+/*
+** This routine is called for each check-in on the /tarlist page to
+** construct the "extra" information after the description.
+*/
+static void tarlist_extra(
+  Stmt *pQuery,               /* Current row of the timeline query */
+  int tmFlags,                /* Flags to www_print_timeline() */
+  const char *zThisUser,      /* Suppress links to this user */
+  const char *zThisTag        /* Suppress links to this tag */
+){
+  int rid = db_column_int(pQuery, 0);
+  const char *zUuid = db_column_text(pQuery, 1);
+  const char *zDate = db_column_text(pQuery, 2);
+  char *zBrName = branch_of_rid(rid);
+  static const char *zProject = 0;
+  int nProject;
+  char *zNm;
+
+  if( zProject==0 ) zProject = db_get("project-name","unnamed");
+  zNm = mprintf("%s-%sZ-%.8s", zProject, zDate, zUuid);
+  nProject = (int)strlen(zProject);
+  zNm[nProject+11] = 'T';
+  @ <strong>%h(zBrName)</strong><br>\
+  @ %z(href("%R/timeline?c=%!S&y=ci&n=11",zUuid))<button>Context</button></a>
+  @ %z(href("%R/tarball/%!S/%t.tar.gz",zUuid,zNm))\
+  @    <button>Tarball</button></a>
+  @  %z(href("%R/zip/%!S/%t.zip",zUuid,zNm))\
+  @    <button>ZIP&nbsp;Archive</button></a>
+  fossil_free(zBrName);
+  fossil_free(zNm);
+}
+
+/*
+** SETTING: suggested-tarlist               width=70  block-text
+**
+** This setting controls the suggested tarball/ZIP downloads on the
+** [[/tarlist]] page.  The value is a TCL list.  Each pair of items
+** defines a set of check-ins to be added to the suggestion list.
+** The first item of each pair is an integer count (N) and second
+** item is a tag GLOB pattern (PATTERN). For each pair, the most
+** recent N check-ins that have a tag matching PATTERN are added
+** to the list.  The special pattern "OPEN-LEAF" matches any open
+** leaf check-in.
+**
+** Example:
+**
+**        3 OPEN-LEAF 3 release 1 trunk
+**
+** The value causes the /tarlist page to show the union of the 3
+** most recent open leaves, the three most recent check-ins marked
+** "release", and the single most recent trunk check-in.
+*/
+
+/*
+** WEBPAGE: /tarlist
+**
+** Show a special no-graph timeline of recent important check-ins with
+** an opportunity to pull tarballs and ZIPs.
+*/
+void tarlist_page(void){
+  Stmt q;                       /* The actual timeline query */
+  const char *zTarlistCfg;      /* Configuration string */
+  char **azItem;                /* Decomposed elements of zTarlistCfg */
+  int *anItem;                  /* Bytes in each term of azItem[] */
+  int nItem;                    /* Number of terms in azItem[] */
+  int i;                        /* Loop counter */
+  int tmFlags;                  /* Timeline display flags */
+  int n;                        /* Number of suggested downloads */
+
+  login_check_credentials();
+  if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
+
+  style_set_current_feature("timeline");
+  style_header("Suggested Tarballs And ZIP Archives");
+
+  zTarlistCfg = db_get("suggested-tarlist","5 OPEN-LEAF");
+  db_multi_exec(
+    "CREATE TEMP TABLE tarlist(rid INTEGER PRIMARY KEY);"
+  );
+  if( !g.interp ) Th_FossilInit(0);
+  Th_SplitList(g.interp, zTarlistCfg, (int)strlen(zTarlistCfg),
+                   &azItem, &anItem, &nItem);
+  for(i=0; i<nItem-1; i+=2){
+    int cnt;
+    char *zLabel;
+    if( anItem[i]==1 && azItem[i][0]=='*' ){
+      cnt = -1;
+    }else if( anItem[i]<1 ){
+      cnt = 0;
+    }else{
+      cnt = atoi(azItem[i]);
+    }
+    if( cnt==0 ) continue;
+    zLabel = fossil_strndup(azItem[i+1],anItem[i+1]);
+    if( fossil_strcmp("OPEN-LEAF",zLabel)==0 ){
+      db_multi_exec(
+        "INSERT OR IGNORE INTO tarlist(rid)"
+         " SELECT leaf.rid FROM leaf, event"
+          " WHERE event.objid=leaf.rid"
+            " AND NOT EXISTS(SELECT 1 FROM tagxref"
+                            " WHERE tagxref.rid=leaf.rid"
+                              " AND tagid=%d AND tagtype>0)"
+          " ORDER BY event.mtime DESC LIMIT %d", TAG_CLOSED, cnt
+      );
+    }else{
+      db_multi_exec(
+        "WITH taglist(tid) AS"
+            " (SELECT tagid FROM tag WHERE tagname GLOB 'sym-%q')"
+        "INSERT OR IGNORE INTO tarlist(rid)"
+        " SELECT event.objid FROM event CROSS JOIN tagxref"
+        "  WHERE event.type='ci'"
+        "    AND tagxref.tagid IN taglist"
+        "    AND tagtype>0"
+        "    AND tagxref.rid=event.objid"
+        "  ORDER BY event.mtime DESC LIMIT %d", zLabel, cnt
+      );
+    }
+    fossil_free(zLabel);
+  }
+  Th_Free(g.interp, azItem);
+
+  n = db_int(0, "SELECT count(*) FROM tarlist");
+  if( n==0 ){
+    @ <h2>No tarball/ZIP suggestions are available at this time</h2>
+  }else{
+    @ <h2>%d(n) Tarball/ZIP Download Suggestions:</h2>
+    db_prepare(&q,
+      "%s AND blob.rid IN tarlist ORDER BY event.mtime DESC",
+      timeline_query_for_www()
+    );
+
+    tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL | TIMELINE_COLUMNAR
+            | TIMELINE_BRCOLOR;
+    www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, tarlist_extra);
+    db_finalize(&q);
+  }
+  style_finish_page();
+}

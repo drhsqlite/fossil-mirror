@@ -1428,6 +1428,27 @@ void setup_config(void){
   textarea_attribute("Custom Sitemap Entries", 8, 80,
       "sitemap-extra", "smextra", "", 0);
   @ <hr>
+  @ <p>Configuration for the <a href="%R/tarlist">/tarlist</a> page.
+  @ The value is a TCL list divided into pairs.
+  @ <ol>
+  @ <li> The first term of each pair is an integer (N).
+  @ <li> The second term of each pair is a glob pattern (PATTERN).
+  @ </ol>
+  @ For each pair, the most recent N check-ins that have a tag that
+  @ matches PATTERN are included in on the /tarlist page.  The special
+  @ pattern of "OPEN-LEAF" matches all open leaf check-ins.  Example:
+  @ <blockquote><tt>1 trunk 3 release 5 OPEN-LEAF</tt></blockquote>
+  @ The example pattern above shows the union of the most recent trunk
+  @ check-in, the 5 most recent open leaf check-ins, and the 3 most
+  @ recent check-ins tagged with "release".  
+  @ <p>
+  @ The /tarlist page is omitted from the <a href="%R/sitemap">/sitemap</a>
+  @ if the first token is "0".  The default value is "5 OPEN-LEAF".
+  @ (Property: suggested-tarlist)
+  @ <p>
+  textarea_attribute("Check-ins To Show On /tarlist", 2, 80,
+      "suggested-tarlist", "sgtrlst", "", 0);
+  @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
