@@ -200,6 +200,7 @@ static void defaultExtra(
     cgi_printf("(");
   }
 
+#if 0
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='c' ){
       if( isLeaf ){
@@ -222,6 +223,7 @@ static void defaultExtra(
             || zType[0]=='n' || zType[0]=='f'){
     cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
   }
+#endif
 
   if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
     char *zLink;
@@ -280,6 +282,10 @@ static void defaultExtra(
   if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
     cgi_printf(")");
   }
+
+  cgi_printf("&emsp;%z<button>details</button></a>",
+             href("%R/info/%!S", zUuid));
+
   if( tmFlags & TIMELINE_COMPACT ){
     @ </span></span>
   }else{
