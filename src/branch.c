@@ -1021,7 +1021,13 @@ void brlist_page(void){
 ** the timeline of a "brlist" page.  Add some additional hyperlinks
 ** to the end of the line.
 */
-static void brtimeline_extra(int rid){
+static void brtimeline_extra(
+  Stmt *pQuery,               /* Current row of the timeline query */
+  int tmFlags,                /* Flags to www_print_timeline() */
+  const char *zThisUser,      /* Suppress links to this user */
+  const char *zThisTag        /* Suppress links to this tag */
+){
+  int rid = db_column_int(pQuery, 0);
   Stmt q;
   if( !g.perm.Hyperlink ) return;
   db_prepare(&q,
@@ -1034,7 +1040,7 @@ static void brtimeline_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    @  %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
+    @  %z(href("%R/timeline?r=%T",zTagName))<button>timeline</button></a>
   }
   db_finalize(&q);
 }
@@ -1085,9 +1091,13 @@ void brtimeline_page(void){
   /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
   ** many descenders to (off-screen) parents. */
   tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
+#if 1
   if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
   if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
   if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+#else
+  tmFlags |= TIMELINE_BRCOLOR | TIMELINE_GRAPH;
+#endif
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_finish_page();

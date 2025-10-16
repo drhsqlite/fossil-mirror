@@ -171,6 +171,141 @@ static void forum_post_content_function(
   }
 }
 
+/*
+** This routine generates the default "extra" text after the description
+** in a timeline.
+**
+** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
+**
+** This routine is used if no xExtra argument is supplied to
+** www_print_timeline().
+*/
+static void defaultExtra(
+  Stmt *pQuery,               /* Current row of the timeline query */
+  int tmFlags,                /* Flags to www_print_timeline() */
+  const char *zThisUser,      /* Suppress links to this user */
+  const char *zThisTag        /* Suppress links to this tag */
+){
+  int rid = db_column_int(pQuery, 0);
+  const char *zUuid = db_column_text(pQuery, 1);
+  int isLeaf = db_column_int(pQuery, 5);
+  const char *zDate = db_column_text(pQuery, 2);
+  const char *zType = db_column_text(pQuery, 7);
+  const char *zUser = db_column_text(pQuery, 4);
+  const char *zTagList = db_column_text(pQuery, 8);
+  int tagid = db_column_int(pQuery, 9);
+  const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
+
+  if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+    cgi_printf("(");
+  }
+
+  if( (tmFlags & TIMELINE_CLASSIC)==0 ){
+    if( zType[0]=='c' ){
+      if( isLeaf ){
+        if( has_closed_tag(rid) ){
+          @ <span class='timelineLeaf'>Closed-Leaf</span>
+        }else{
+          @ <span class='timelineLeaf'>Leaf</span>
+        }
+      }
+      cgi_printf("check-in:&nbsp;%z%S</a> ",
+                  href("%R/info/%!S",zUuid),zUuid);
+    }else if( zType[0]=='e' && tagid ){
+      cgi_printf("technote:&nbsp;");
+      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
+    }else{
+      cgi_printf("artifact:&nbsp;%z%S</a> ",
+                 href("%R/info/%!S",zUuid),zUuid);
+    }
+  }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t'
+            || zType[0]=='n' || zType[0]=='f'){
+    cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
+  }
+
+  if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
+    char *zLink;
+    if( zType[0]!='f' || (tmFlags & TIMELINE_FORUMTXT)==0 ){
+      zLink = mprintf("%R/timeline?u=%h&c=%t&y=a", zDispUser, zDate);
+    }else{
+      zLink = mprintf("%R/timeline?u=%h&c=%t&y=a&vfx", zDispUser, zDate);
+    }
+    cgi_printf("user:&nbsp;%z%h</a>", href("%z",zLink), zDispUser);
+  }else{
+    cgi_printf("user:&nbsp;%h", zDispUser);
+  }
+
+  /* Generate the "tags: TAGLIST" at the end of the comment, together
+  ** with hyperlinks to the tag list.
+  */
+  if( zTagList && zTagList[0]==0 ) zTagList = 0;
+  if( zTagList ){
+    if( g.perm.Hyperlink ){
+      int i;
+      const char *z = zTagList;
+      Blob links;
+      blob_zero(&links);
+      while( z && z[0] ){
+        for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
+        if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
+          blob_appendf(&links,
+                "%z%#h</a>%.2s",
+                href("%R/timeline?r=%#t&c=%t",i,z,zDate), i,z, &z[i]
+          );
+        }else{
+          blob_appendf(&links, "%#h", i+2, z);
+        }
+        if( z[i]==0 ) break;
+        z += i+2;
+      }
+      cgi_printf(" tags:&nbsp;%s", blob_str(&links));
+      blob_reset(&links);
+    }else{
+      cgi_printf(" tags:&nbsp;%h", zTagList);
+    }
+  }
+
+  if( tmFlags & TIMELINE_SHOWRID ){
+    int srcId = delta_source_rid(rid);
+    if( srcId ){
+      cgi_printf(" id:&nbsp;%z%d&larr;%d</a>",
+                 href("%R/deltachain/%d",rid), rid, srcId);
+    }else{
+      cgi_printf(" id:&nbsp;%z%d</a>",
+                 href("%R/deltachain/%d",rid), rid);
+    }
+  }
+  tag_private_status(rid);
+  /* End timelineDetail */
+  if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+    cgi_printf(")");
+  }
+  if( tmFlags & TIMELINE_COMPACT ){
+    @ </span></span>
+  }else{
+    @ </span>
+  }
+}
+
+
+/*
+** SETTING: timeline-truncate-at-blank  boolean default=off
+**
+** If enabled, check-in comments displayed on the timeline are truncated
+** at the first blank line of the comment text.  The comment text after
+** the first blank line is only seen in the /info or similar pages that
+** show details about the check-in.
+*/
+/*
+** SETTING: timeline-tslink-info       boolean default=off
+**
+** The hyperlink on the timestamp associated with each timeline entry,
+** on the far left-hand side of the screen, normally targets another
+** /timeline page that shows the entry in context.  However, if this
+** option is turned on, that hyperlink targets the /info page showing
+** the details of the entry.
+*/
+
 
 /*
 ** Output a timeline in the web format given a query.  The query
@@ -196,7 +331,7 @@ void www_print_timeline(
   Matcher *pLeftBranch,    /* Comparison function to use for zLeftBranch */
   int selectedRid,         /* Highlight the line with this RID value or zero */
   int secondRid,           /* Secondary highlight (or zero) */
-  void (*xExtra)(int)      /* Routine to call on each line of display */
+  void (*xExtra)(Stmt*,int,const char*,const char*)  /* generate "extra" text */
 ){
   int mxWikiLen;
   Blob comment;
@@ -220,27 +355,11 @@ void www_print_timeline(
   if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
+  if( xExtra==0 ) xExtra = defaultExtra;
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
-/*
-** SETTING: timeline-truncate-at-blank  boolean default=off
-**
-** If enabled, check-in comments displayed on the timeline are truncated
-** at the first blank line of the comment text.  The comment text after
-** the first blank line is only seen in the /info or similar pages that
-** show details about the check-in.
-*/
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
-/*
-** SETTING: timeline-tslink-info       boolean default=off
-**
-** The hyperlink on the timestamp associated with each timeline entry,
-** on the far left-hand side of the screen, normally targets another
-** /timeline page that shows the entry in context.  However, if this
-** option is turned on, that hyperlink targets the /info page showing
-** the details of the entry.
-*/
   bTimestampLinksToInfo = db_get_boolean("timeline-tslink-info", 0);
   if( (tmFlags & TIMELINE_VIEWS)==0 ){
     tmFlags |= timeline_ss_cookie();
@@ -277,9 +396,7 @@ void www_print_timeline(
     const char *zDate = db_column_text(pQuery, 2);
     const char *zType = db_column_text(pQuery, 7);
     const char *zUser = db_column_text(pQuery, 4);
-    const char *zTagList = db_column_text(pQuery, 8);
     int tagid = db_column_int(pQuery, 9);
-    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     char *zBr = 0;            /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
@@ -613,7 +730,7 @@ void www_print_timeline(
     @ </span>
     blob_reset(&comment);
 
-    /* Generate extra information and hyperlinks to follow the comment.
+    /* Generate extra information and hyperlinks that follow the comment.
     ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
     if( drawDetailEllipsis ){
@@ -631,97 +748,13 @@ void www_print_timeline(
       cgi_printf("<span class='clutter' id='detail-%d'>",rid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
-    if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
-      cgi_printf("(");
-    }
-
-    if( (tmFlags & TIMELINE_CLASSIC)==0 ){
-      if( zType[0]=='c' ){
-        if( isLeaf ){
-          if( has_closed_tag(rid) ){
-            @ <span class='timelineLeaf'>Closed-Leaf</span>
-          }else{
-            @ <span class='timelineLeaf'>Leaf</span>
-          }
-        }
-        cgi_printf("check-in:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
-      }else if( zType[0]=='e' && tagid ){
-        cgi_printf("technote:&nbsp;");
-        hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
-      }else{
-        cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
-      }
-    }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t'
-              || zType[0]=='n' || zType[0]=='f'){
-      cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
-    }
-
-    if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
-      char *zLink;
-      if( zType[0]!='f' || (tmFlags & TIMELINE_FORUMTXT)==0 ){
-        zLink = mprintf("%R/timeline?u=%h&c=%t&y=a", zDispUser, zDate);
-      }else{
-        zLink = mprintf("%R/timeline?u=%h&c=%t&y=a&vfx", zDispUser, zDate);
-      }
-      cgi_printf("user:&nbsp;%z%h</a>", href("%z",zLink), zDispUser);
-    }else{
-      cgi_printf("user:&nbsp;%h", zDispUser);
-    }
-
-    /* Generate the "tags: TAGLIST" at the end of the comment, together
-    ** with hyperlinks to the tag list.
-    */
-    if( zTagList && zTagList[0]==0 ) zTagList = 0;
-    if( zTagList ){
-      if( g.perm.Hyperlink ){
-        int i;
-        const char *z = zTagList;
-        Blob links;
-        blob_zero(&links);
-        while( z && z[0] ){
-          for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
-          if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
-            blob_appendf(&links,
-                  "%z%#h</a>%.2s",
-                  href("%R/timeline?r=%#t&c=%t",i,z,zDate), i,z, &z[i]
-            );
-          }else{
-            blob_appendf(&links, "%#h", i+2, z);
-          }
-          if( z[i]==0 ) break;
-          z += i+2;
-        }
-        cgi_printf(" tags:&nbsp;%s", blob_str(&links));
-        blob_reset(&links);
-      }else{
-        cgi_printf(" tags:&nbsp;%h", zTagList);
-      }
-    }
-
-    if( tmFlags & TIMELINE_SHOWRID ){
-      int srcId = delta_source_rid(rid);
-      if( srcId ){
-        cgi_printf(" id:&nbsp;%z%d&larr;%d</a>",
-                   href("%R/deltachain/%d",rid), rid, srcId);
-      }else{
-        cgi_printf(" id:&nbsp;%z%d</a>",
-                   href("%R/deltachain/%d",rid), rid);
-      }
-    }
-    tag_private_status(rid);
-    if( xExtra ){
-      xExtra(rid);
-    }
-    /* End timelineDetail */
-    if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
-      cgi_printf(")");
-    }
+    xExtra(pQuery, tmFlags, zThisUser, zThisTag);
     if( tmFlags & TIMELINE_COMPACT ){
       @ </span></span>
     }else{
       @ </span>
     }
-
+  
     /* Generate the file-change list if requested */
     if( (tmFlags & (TIMELINE_FCHANGES|TIMELINE_FRENAMES))!=0
      && zType[0]=='c' && g.perm.Hyperlink
