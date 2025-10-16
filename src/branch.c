@@ -1040,7 +1040,10 @@ static void brtimeline_extra(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
+    const char *zBrName = branch_of_rid(rid);
+    @  branch:&nbsp;<b>%h(zBrName)</b>
     @  %z(href("%R/timeline?r=%T",zTagName))<button>timeline</button></a>
+    fossil_free(zBrName);
   }
   db_finalize(&q);
 }
