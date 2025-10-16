@@ -1,9 +1,10 @@
 B 2f9920a151c7986defc7005787f7ad2dbb91b0987a134679bfff02724c76f386
-C Fix\susage\sstatement\sfor\snew\s"fossil\sget"\scommand\sas\smentioned\sin\s[forum:/forumpost/7b3e0e0582525d3b|forum\spost\s7b3e0e0582525d3b].
-D 2025-10-16T00:14:42.839
+C Additional\scleanup\sof\sthe\sCGI\shandling\swhen\susing\sSSH.\s\sSpecifically\sthe\suse\nof\scgi_init()\sintroduced\ssome\sside-effects\sthat\scaused\sFossil\sto\sreturn\serrors\nwhen\susing\sForceCommand\sto\srequire\s"fossil\shttp"\sinterface.
+D 2025-10-16T06:07:18.795
+F src/cgi.c 3f602b6431646a88fd9d9b0007dc5d484a8f9abc5d7d8ad14102c0cbad1693b6
 F src/checkout.c de8421892b5aeb112c8c11146f328b9bc4ace2d7cd7449b7a8056102c78dcc24
-P 2f9920a151c7986defc7005787f7ad2dbb91b0987a134679bfff02724c76f386
-R fbaf9e6e6ef8618642b7ed9c14f42653
+P 788e68b080b5c3a1b5456b8e473ed272e87e8937f2e838c573f3de9b549a3cca
+R 04fc241f254dc0c12e0603dba76890f5
 U andybradford
-Z 4719ed4148e1a7bb39305dd6e655fe78
+Z be57683651bfdae41bf1020d78536226
 # Remove this line to create a well-formed Fossil manifest.

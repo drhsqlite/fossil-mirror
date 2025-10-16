@@ -2292,8 +2292,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   static int nCycles = 0;
   static char *zCmd = 0;
   char *z, *zToken;
-  const char *zType = 0;
-  int i, content_length = 0;
+  int i;
   char zLine[2000];     /* A single line of input. */
 
   assert( !g.httpUseSSL );
@@ -2388,9 +2387,15 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
       zFieldName[i] = fossil_tolower(zFieldName[i]);
     }
     if( fossil_strcmp(zFieldName,"content-length:")==0 ){
-      content_length = atoi(zVal);
+      if( nCycles==0 ){
+	cgi_setenv("CONTENT_LENGTH", zVal);
+      }else{
+	cgi_replace_parameter("CONTENT_LENGTH", zVal);
+      }
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
-      g.zContentType = zType = fossil_strdup(zVal);
+      if( nCycles==0 ){
+	cgi_setenv("CONTENT_TYPE", zVal);
+      }
     }else if( fossil_strcmp(zFieldName,"host:")==0 ){
       if( nCycles==0 ){
         cgi_setenv("HTTP_HOST", zVal);
@@ -2421,17 +2426,6 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   cgi_reset_content();
   cgi_destination(CGI_BODY);
 
-  if( content_length>0 && zType ){
-    blob_zero(&g.cgiIn);
-    if( fossil_strcmp(zType, "application/x-fossil")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
-      blob_uncompress(&g.cgiIn, &g.cgiIn);
-    }else if( fossil_strcmp(zType, "application/x-fossil-debug")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
-    }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
-    }
-  }
   cgi_init();
   cgi_trace(0);
   nCycles++;
