@@ -1443,7 +1443,7 @@ void setup_config(void){
   @ recent check-ins tagged with "release".  
   @ <p>
   @ The /tarlist page is omitted from the <a href="%R/sitemap">/sitemap</a>
-  @ if the first token is "0".  The default value is "5 OPEN-LEAF".
+  @ if the first token is "0".  The default value is "1 trunk".
   @ (Property: suggested-tarlist)
   @ <p>
   textarea_attribute("Check-ins To Show On /tarlist", 2, 80,

@@ -1009,7 +1009,7 @@ void tarlist_page(void){
   style_set_current_feature("timeline");
   style_header("Suggested Tarballs And ZIP Archives");
 
-  zTarlistCfg = db_get("suggested-tarlist","5 OPEN-LEAF");
+  zTarlistCfg = db_get("suggested-tarlist","1 trunk");
   db_multi_exec(
     "CREATE TEMP TABLE tarlist(rid INTEGER PRIMARY KEY);"
   );

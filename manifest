@@ -1,5 +1,5 @@
-C Remove\sthe\sbutton\sfrom\sthe\stimeline\sextra\stext,\sthus\sundoing\spart\sof\ncheck-in\s[ba434ab46095ca57].\s\sBut\skeep\sthe\shash\sat\sthe\send\sof\sthe\slist,\nonly\sshow\sit\swhen\snot\sin\s"Classic"\smode,\sand\scontinue\sto\somit\sthe\s"Leaf"\nmarker,\swhich\sseemed\spointless.
-D 2025-10-16T23:29:43.789
+C Change\sthe\sdefault\svalue\sof\sthe\ssuggested-tarlist\ssetting\sto\s"1\strunk".
+D 2025-10-16T23:54:21.381
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -528,7 +528,7 @@ F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c e65778f849aaedd55c91cf1e79d8267f025df9e9c1c637ec84f58a9813f98d14
 F src/security_audit.c 3bdcbbd0232d25d222154c29a5616ec25ecb29facb8c69dd40f5d6ad257274f6
-F src/setup.c d9528424c870530b3e3a7f4d51c8d21be13caf7f0ba23ac04f2558f12785f469
+F src/setup.c 2404dd08f156ecce43c96858f95f62f212963bee93833ecbb1b886508c590b6a
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -569,7 +569,7 @@ F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f1
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 3bbb805fbc3e6a10a1945f1b9d17ed9d5c69eaa4928341cb33c2d0059ef4bbb1
-F src/tar.c 57a2b249308c79d2d6e7bc54c2188d6a04e1fbed2e575f7aa2ad7a1c26842075
+F src/tar.c a000a85e85533d6febab941e888f24f6bc0d0f82c0bd0468ce6998e1305ac963
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2c6d015c008a268d77e42228fd267fd53fa47f05f7fb03a1fc04f8fbc15a3c1a
-R e1026ca279f55e58ca610b5766f832c2
+P ece92e22bc4eaed8732b088241dd9f3a272bfd2ad93d4787a47e49eeddf46d60
+R 494816c7ba89255cc7ae18cb1da55957
 U drh
-Z 1c95f6be666dbcdb6e7218e3254337b6
+Z 46994b3a45f75ad49aabb5beb00d18c5
 # Remove this line to create a well-formed Fossil manifest.
