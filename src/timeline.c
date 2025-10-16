@@ -188,12 +188,12 @@ static void defaultExtra(
 ){
   int rid = db_column_int(pQuery, 0);
   const char *zUuid = db_column_text(pQuery, 1);
-  int isLeaf = db_column_int(pQuery, 5);
+  /*  int isLeaf = db_column_int(pQuery, 5); // not used */
   const char *zDate = db_column_text(pQuery, 2);
   const char *zType = db_column_text(pQuery, 7);
   const char *zUser = db_column_text(pQuery, 4);
   const char *zTagList = db_column_text(pQuery, 8);
-  int tagid = db_column_int(pQuery, 9);
+  /*  int tagid = db_column_int(pQuery, 9); // not used */
   const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
 
   if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
