@@ -278,13 +278,15 @@ static void defaultExtra(
     }
   }
   tag_private_status(rid);
+
+  if( (tmFlags & TIMELINE_CLASSIC)==0 ){
+    cgi_printf(" hash:&nbsp;%z%S</a>", href("%R/info/%!S", zUuid), zUuid);
+  }
+
   /* End timelineDetail */
   if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
     cgi_printf(")");
   }
-
-  cgi_printf("&emsp;%z<button>details</button></a>",
-             href("%R/info/%!S", zUuid));
 
   if( tmFlags & TIMELINE_COMPACT ){
     @ </span></span>
