@@ -1040,8 +1040,8 @@ static void brtimeline_extra(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    const char *zBrName = branch_of_rid(rid);
-    @  branch:&nbsp;<b>%h(zBrName)</b>
+    char *zBrName = branch_of_rid(rid);
+    @  <strong>%h(zBrName)</strong><br>\
     @  %z(href("%R/timeline?r=%T",zTagName))<button>timeline</button></a>
     fossil_free(zBrName);
   }
@@ -1051,15 +1051,8 @@ static void brtimeline_extra(
 /*
 ** WEBPAGE: brtimeline
 **
-** Show a timeline of all branches
-**
-** Query parameters:
-**
-**     ng            No graph
-**     nohidden      Hide check-ins with "hidden" tag
-**     onlyhidden    Show only check-ins with "hidden" tag
-**     brbg          Background color by branch name
-**     ubg           Background color by user name
+** List the first check of every branch, starting with the most recent
+** and going backwards in time.
 */
 void brtimeline_page(void){
   Blob sql = empty_blob;
@@ -1073,11 +1066,12 @@ void brtimeline_page(void){
 
   style_set_current_feature("branch");
   style_header("Branches");
-  style_submenu_element("List", "brlist");
+  style_submenu_element("Branch List", "brlist");
   login_anonymous_available();
-  timeline_ss_submenu();
+  /* timeline_ss_submenu(); */
   cgi_check_for_malice();
-  @ <h2>The initial check-in for each branch:</h2>
+  @ <h2>First check-in for every branch, starting with the most recent
+  @ and going backwards in time.</h2>
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql,
     "AND blob.rid IN (SELECT rid FROM tagxref"
@@ -1093,14 +1087,8 @@ void brtimeline_page(void){
   blob_reset(&sql);
   /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
   ** many descenders to (off-screen) parents. */
-  tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
-#if 1
-  if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
-  if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
-  if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
-#else
-  tmFlags |= TIMELINE_BRCOLOR | TIMELINE_GRAPH;
-#endif
+  tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL | TIMELINE_COLUMNAR
+          | TIMELINE_BRCOLOR;
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_finish_page();

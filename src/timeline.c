@@ -379,9 +379,7 @@ void www_print_timeline(
   }
   zDateFmt = P("datefmt");
   if( zDateFmt ) dateFormat = atoi(zDateFmt);
-  if( tmFlags & TIMELINE_GRAPH ){
-    pGraph = graph_init();
-  }
+  pGraph = graph_init();
   if( (tmFlags & TIMELINE_CHPICK)!=0
    && !db_table_exists("repository","cherrypick")
   ){
@@ -567,28 +565,30 @@ void www_print_timeline(
       int nCherrypick = 0;
       GraphRowId aParent[GR_MAX_RAIL];
       static Stmt qparent;
-      db_static_prepare(&qparent,
-        "SELECT pid FROM plink"
-        " WHERE cid=:rid AND pid NOT IN phantom"
-        " ORDER BY isprim DESC /*sort*/"
-      );
-      db_bind_int(&qparent, ":rid", rid);
-      while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
-        aParent[nParent++] = db_column_int(&qparent, 0);
-      }
-      db_reset(&qparent);
-      if( (tmFlags & TIMELINE_CHPICK)!=0 && nParent>0 ){
-        static Stmt qcherrypick;
-        db_static_prepare(&qcherrypick,
-          "SELECT parentid FROM cherrypick"
-          " WHERE childid=:rid AND parentid NOT IN phantom"
+      if( tmFlags & TIMELINE_GRAPH ){
+        db_static_prepare(&qparent,
+          "SELECT pid FROM plink"
+          " WHERE cid=:rid AND pid NOT IN phantom"
+          " ORDER BY isprim DESC /*sort*/"
         );
-        db_bind_int(&qcherrypick, ":rid", rid);
-        while( db_step(&qcherrypick)==SQLITE_ROW && nParent<count(aParent) ){
-          aParent[nParent++] = db_column_int(&qcherrypick, 0);
-          nCherrypick++;
+        db_bind_int(&qparent, ":rid", rid);
+        while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
+          aParent[nParent++] = db_column_int(&qparent, 0);
         }
-        db_reset(&qcherrypick);
+        db_reset(&qparent);
+        if( (tmFlags & TIMELINE_CHPICK)!=0 && nParent>0 ){
+          static Stmt qcherrypick;
+          db_static_prepare(&qcherrypick,
+            "SELECT parentid FROM cherrypick"
+            " WHERE childid=:rid AND parentid NOT IN phantom"
+          );
+          db_bind_int(&qcherrypick, ":rid", rid);
+          while( db_step(&qcherrypick)==SQLITE_ROW && nParent<count(aParent) ){
+            aParent[nParent++] = db_column_int(&qcherrypick, 0);
+            nCherrypick++;
+          }
+          db_reset(&qcherrypick);
+        }
       }
       gidx = graph_add_row(pGraph, rid, nParent, nCherrypick, aParent,
                            zBr, zBgClr, zUuid,
