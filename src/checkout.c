@@ -495,7 +495,7 @@ void get_cmd(void){
   if( z ) zDest = fossil_strdup(z);
   verify_all_options();
   if( g.argc<3 || g.argc>4 ){
-    usage("get URL ?VERSION? ?OPTIONS?");
+    usage("URL ?VERSION? ?OPTIONS?");
   }
   zUrl = g.argv[2];
   zVers = g.argc==4 ? g.argv[3] : "trunk";
