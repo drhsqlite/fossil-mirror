@@ -351,6 +351,8 @@ void www_print_timeline(
   int iTableId = timeline_tableid();
   int bTimestampLinksToInfo;  /* True if timestamp hyperlinks go to the /info
                               ** page rather than the /timeline page */
+  char *zMainBranch = db_get("main-branch","trunk");
+
 
   if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
@@ -406,7 +408,6 @@ void www_print_timeline(
     int isSelectedOrCurrent = 0;  /* True if current row is selected */
     const char *zExtraClass = "";
     char zTime[20];
-    char *zMainBranch       = db_get("main-branch","trunk");
 
     if( zDate==0 ){
       zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
