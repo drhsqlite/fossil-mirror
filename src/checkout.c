@@ -534,7 +534,7 @@ void get_cmd(void){
     fossil_fatal("--dest must be a simple directory name, not a path");
   }
   if( zVers!=file_tail(zVers) ){
-    fossil_fatal("The \"fossil get\" command does not current work with"
+    fossil_fatal("The \"fossil get\" command does not currently work with"
                  " version names that contain \"/\". This will be fixed in"
                  " a future release.");
   }
