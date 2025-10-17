@@ -2292,6 +2292,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   static int nCycles = 0;
   static char *zCmd = 0;
   char *z, *zToken;
+  char *zMethod;
   int i;
   size_t n;
   char zLine[2000];     /* A single line of input. */
@@ -2342,6 +2343,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
     }
   }
 
+  zMethod = fossil_strdup(zToken);
   if( fossil_strcmp(zToken,"GET")!=0 && fossil_strcmp(zToken,"POST")!=0
       && fossil_strcmp(zToken,"HEAD")!=0 ){
     malformed_request("unsupported HTTP method");
@@ -2359,6 +2361,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   n = strlen(g.zRepositoryName);
   if( fossil_strncmp(g.zRepositoryName, zToken, n)==0 
    && (zToken[n]=='/' || zToken[n]==0)
+   && fossil_strcmp(zMethod,"GET")==0
   ){
     zToken += n;
   }
