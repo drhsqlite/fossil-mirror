@@ -956,8 +956,12 @@ static void tarlist_extra(
   zNm = mprintf("%s-%sZ-%.8s", zProject, zDate, zUuid);
   nProject = (int)strlen(zProject);
   zNm[nProject+11] = 'T';
-  @ <strong>%h(zBrName)</strong><br>\
-  @ %z(href("%R/timeline?c=%!S&y=ci&n=11",zUuid))<button>Context</button></a>
+  @ <strong><nobr>check-in: \
+  @   %z(href("%R/info/%!S",zUuid))%S(zUuid)</a></nobr></strong><br>
+  if( fossil_strcmp(zBrName,"trunk")!=0 ){
+    @ <nobr>branch:&nbsp;\
+    @   %z(href("%R/timeline?r=%t",zBrName))%h(zBrName)</a></nobr><br>\
+  }
   @ %z(href("%R/tarball/%!S/%t.tar.gz",zUuid,zNm))\
   @    <button>Tarball</button></a>
   @  %z(href("%R/zip/%!S/%t.zip",zUuid,zNm))\

@@ -1,5 +1,5 @@
-C OLD_STYLE\smacro\srestores\slegacy\sdisplay\sof\s/brtimeline
-D 2025-10-17T11:14:56.067
+C Improvements\sto\sthe\s/tarlist\spage.
+D 2025-10-17T12:05:16.774
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -569,7 +569,7 @@ F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f1
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 3bbb805fbc3e6a10a1945f1b9d17ed9d5c69eaa4928341cb33c2d0059ef4bbb1
-F src/tar.c a000a85e85533d6febab941e888f24f6bc0d0f82c0bd0468ce6998e1305ac963
+F src/tar.c 83a004676ecf4c0d3bad34759a8ecdbed05b9a8d237591c689cbabd4fed2390d
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4da636fe350cda95f245b3b9ba1a7b4993b2b2d348773cbe75c2dc9909ed42a2
-R 5cf86f0042a0f605c01f28d5313933d6
+P 2d94dadceb73bc91eab11329be24f04dd87681cab58163e37ad1b51891f89071
+R 853e3d526e377ba2cb07347120076fab
 U drh
-Z a322bbf7e59a10468769d4fcd4bf39d1
+Z 98665203d35c4a368f7ce3916be28d8e
 # Remove this line to create a well-formed Fossil manifest.
