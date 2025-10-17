@@ -200,8 +200,14 @@ void timeline_extra(
     cgi_printf("(");
   }
 
-/* Set to 0 for historical appearance.  Set to 1 or more for new looks */
-#define EXTRA_FORMAT 2
+  /* The EXTRA_FORMAT macro is an integer that controls various experiments
+  ** in the layout of the extra text.
+  **
+  **   0   Legacy appearance.
+  **   1   Deemphasize "Leaf" and "Closed-Leaf".  Highlight check-in hash.
+  **   2   Omit "Leaf"/"Closed-Leaf".  But check-in hash at the end.
+  */    
+#define EXTRA_FORMAT 1
 #if EXTRA_FORMAT==0
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='c' ){
@@ -227,7 +233,7 @@ void timeline_extra(
     cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
   }
 #endif /* EXTRA_FORMAT==0 */
-#if EXTRA_FORMAT==2
+#if EXTRA_FORMAT==1
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='c' ){
       int isLeaf = db_column_int(pQuery, 5);
@@ -251,7 +257,7 @@ void timeline_extra(
             || zType[0]=='n' || zType[0]=='f'){
     cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
   }
-#endif /* EXTRA_FORMAT==0 */
+#endif /* EXTRA_FORMAT==1 */
 
   if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
     char *zLink;
@@ -307,28 +313,29 @@ void timeline_extra(
   }
   tag_private_status(rid);
 
-#if EXTRA_FORMAT==1
+#if EXTRA_FORMAT==2
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
-    if( zType[0]=='e' && tagid ){
-      char *zId = db_text(0,
-          "SELECT substr(tagname,7) FROM tag WHERE tagid=abs(%d)", tagid);
-      cgi_printf(" technote:&nbsp;%z%S</a>",
-                 href("%R/technote/%t",zId), zId);
+    if( zType[0]=='c' ){
+      cgi_printf(" check-in:&nbsp;%z<span class='timelineHash'>"
+                 "%S</span></a>",
+                  href("%R/info/%!S",zUuid),zUuid);
+    }else if( zType[0]=='e' && tagid ){
+      cgi_printf(" technote:&nbsp;");
+      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
     }else{
-      cgi_printf(" hash:&nbsp;%z%S</a>", href("%R/info/%!S", zUuid), zUuid);
+      cgi_printf(" artifact:&nbsp;%z%S</a>",
+                 href("%R/info/%!S",zUuid),zUuid);
     }
+  }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t'
+            || zType[0]=='n' || zType[0]=='f'){
+    cgi_printf(" artifact:&nbsp;%z%S</a>",href("%R/info/%!S",zUuid),zUuid);
   }
-#endif /* EXTRA_FORMAT==1 */
+#endif /* EXTRA_FORMAT==2 */
+
 
   /* End timelineDetail */
   if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
     cgi_printf(")");
-  }
-
-  if( tmFlags & TIMELINE_COMPACT ){
-    @ </span></span>
-  }else{
-    @ </span>
   }
 }
 

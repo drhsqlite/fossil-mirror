@@ -1027,30 +1027,26 @@ static void brtimeline_extra(
   const char *zThisUser,      /* Suppress links to this user */
   const char *zThisTag        /* Suppress links to this tag */
 ){
-  int rid = db_column_int(pQuery, 0);
-  Stmt q;
-  if( !g.perm.Hyperlink ) return;
-  db_prepare(&q,
-    "SELECT substr(tagname,5) FROM tagxref, tag"
-    " WHERE tagxref.rid=%d"
-    "   AND tagxref.tagid=tag.tagid"
-    "   AND tagxref.tagtype>0"
-    "   AND tag.tagname GLOB 'sym-*'",
-    rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zTagName = db_column_text(&q, 0);
-#define OLD_STYLE 1
-#if OLD_STYLE
-    @  %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
-#else
-    char *zBrName = branch_of_rid(rid);
-    @  <strong>%h(zBrName)</strong><br>\
-    @  %z(href("%R/timeline?r=%T",zTagName))<button>timeline</button></a>
-    fossil_free(zBrName);
-#endif
+  int rid;
+  int tmFlagsNew;
+  char *zBrName;
+
+  if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+    tmFlagsNew = (tmFlags & ~TIMELINE_VIEWS) | TIMELINE_MODERN;
+    cgi_printf("(");
+  }else{
+    tmFlagsNew = tmFlags;
   }
-  db_finalize(&q);
+  timeline_extra(pQuery,tmFlagsNew,zThisUser,zThisTag);
+
+  if( !g.perm.Hyperlink ) return;
+  rid = db_column_int(pQuery,0);
+  zBrName = branch_of_rid(rid);
+  @  branch:&nbsp;<span class='timelineHash'>\
+  @ %z(href("%R/timeline?r=%T",zBrName))%h(zBrName)</a></span>
+  if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+    cgi_printf(")");
+  }
 }
 
 /*
@@ -1077,9 +1073,7 @@ void brtimeline_page(void){
   style_header("Branches");
   style_submenu_element("Branch List", "brlist");
   login_anonymous_available();
-#if OLD_STYLE
   timeline_ss_submenu();
-#endif
   cgi_check_for_malice();
   @ <h2>First check-in for every branch, starting with the most recent
   @ and going backwards in time.</h2>
@@ -1099,9 +1093,6 @@ void brtimeline_page(void){
   /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
   ** many descenders to (off-screen) parents. */
   tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
-#if !OLD_STYLE
-  tmFlags |= TIMELINE_COLUMNAR;
-#endif
   if( PB("ubg")!=0 ){
     tmFlags |= TIMELINE_UCOLOR;
   }else{
