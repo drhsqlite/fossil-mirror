@@ -171,6 +171,7 @@ static void forum_post_content_function(
   }
 }
 
+
 /*
 ** This routine generates the default "extra" text after the description
 ** in a timeline.
@@ -188,7 +189,6 @@ static void defaultExtra(
 ){
   int rid = db_column_int(pQuery, 0);
   const char *zUuid = db_column_text(pQuery, 1);
-  /*  int isLeaf = db_column_int(pQuery, 5); // not used */
   const char *zDate = db_column_text(pQuery, 2);
   const char *zType = db_column_text(pQuery, 7);
   const char *zUser = db_column_text(pQuery, 4);
@@ -200,9 +200,12 @@ static void defaultExtra(
     cgi_printf("(");
   }
 
-#if 0
+/* Set to 1 for historical appearance.  Set to 0 for new experimental look */
+#define OLD_STYLE 1
+#if OLD_STYLE
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='c' ){
+      int isLeaf = db_column_int(pQuery, 5);
       if( isLeaf ){
         if( has_closed_tag(rid) ){
           @ <span class='timelineLeaf'>Closed-Leaf</span>
@@ -223,7 +226,7 @@ static void defaultExtra(
             || zType[0]=='n' || zType[0]=='f'){
     cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
   }
-#endif
+#endif /* OLD_STYLE */
 
   if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
     char *zLink;
@@ -279,6 +282,7 @@ static void defaultExtra(
   }
   tag_private_status(rid);
 
+#if !OLD_STYLE
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='e' && tagid ){
       char *zId = db_text(0,
@@ -289,6 +293,7 @@ static void defaultExtra(
       cgi_printf(" hash:&nbsp;%z%S</a>", href("%R/info/%!S", zUuid), zUuid);
     }
   }
+#endif /* !OLD_STYLE */
 
   /* End timelineDetail */
   if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
