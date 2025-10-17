@@ -558,7 +558,7 @@ void get_cmd(void){
   }
 
   /* Construct a subpath on the URL if necessary */
-  if( g.url.isSsh || g.url.isFile ){
+  if( g.url.isFile ){
     g.url.subpath = mprintf("/sqlar/%t/%t.sqlar", zVers, zDest);
   }else{
     g.url.subpath = mprintf("%s/sqlar/%t/%t.sqlar", g.url.path, zVers, zDest);
