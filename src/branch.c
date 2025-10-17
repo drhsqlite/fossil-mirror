@@ -1021,7 +1021,13 @@ void brlist_page(void){
 ** the timeline of a "brlist" page.  Add some additional hyperlinks
 ** to the end of the line.
 */
-static void brtimeline_extra(int rid){
+static void brtimeline_extra(
+  Stmt *pQuery,               /* Current row of the timeline query */
+  int tmFlags,                /* Flags to www_print_timeline() */
+  const char *zThisUser,      /* Suppress links to this user */
+  const char *zThisTag        /* Suppress links to this tag */
+){
+  int rid = db_column_int(pQuery, 0);
   Stmt q;
   if( !g.perm.Hyperlink ) return;
   db_prepare(&q,
@@ -1034,7 +1040,15 @@ static void brtimeline_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
+#define OLD_STYLE 1
+#if OLD_STYLE
     @  %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
+#else
+    char *zBrName = branch_of_rid(rid);
+    @  <strong>%h(zBrName)</strong><br>\
+    @  %z(href("%R/timeline?r=%T",zTagName))<button>timeline</button></a>
+    fossil_free(zBrName);
+#endif
   }
   db_finalize(&q);
 }
@@ -1042,15 +1056,12 @@ static void brtimeline_extra(int rid){
 /*
 ** WEBPAGE: brtimeline
 **
-** Show a timeline of all branches
+** List the first check of every branch, starting with the most recent
+** and going backwards in time.
 **
 ** Query parameters:
 **
-**     ng            No graph
-**     nohidden      Hide check-ins with "hidden" tag
-**     onlyhidden    Show only check-ins with "hidden" tag
-**     brbg          Background color by branch name
-**     ubg           Background color by user name
+**    ubg            Color the graph by user, not by branch.
 */
 void brtimeline_page(void){
   Blob sql = empty_blob;
@@ -1064,11 +1075,14 @@ void brtimeline_page(void){
 
   style_set_current_feature("branch");
   style_header("Branches");
-  style_submenu_element("List", "brlist");
+  style_submenu_element("Branch List", "brlist");
   login_anonymous_available();
+#if OLD_STYLE
   timeline_ss_submenu();
+#endif
   cgi_check_for_malice();
-  @ <h2>The initial check-in for each branch:</h2>
+  @ <h2>First check-in for every branch, starting with the most recent
+  @ and going backwards in time.</h2>
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql,
     "AND blob.rid IN (SELECT rid FROM tagxref"
@@ -1085,9 +1099,14 @@ void brtimeline_page(void){
   /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
   ** many descenders to (off-screen) parents. */
   tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
-  if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
-  if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
-  if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+#if !OLD_STYLE
+  tmFlags |= TIMELINE_COLUMNAR;
+#endif
+  if( PB("ubg")!=0 ){
+    tmFlags |= TIMELINE_UCOLOR;
+  }else{
+    tmFlags |= TIMELINE_BRCOLOR;
+  }
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_finish_page();

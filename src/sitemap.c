@@ -135,6 +135,9 @@ void sitemap_page(void){
     }
     @ </ul>
   }
+  if( g.perm.Zip && db_get_boolean("suggested-tarlist",1)!=0 ){
+    @ <li>%z(href("%R/tarlist"))Tarballs and ZIPs</a>
+  }
   if( g.perm.Read ){
     @ <li>%z(href("%R/timeline"))Project Timeline</a>
     @ <ul>
