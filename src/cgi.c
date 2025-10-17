@@ -2292,7 +2292,8 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   static int nCycles = 0;
   static char *zCmd = 0;
   char *z, *zToken;
-  int i, n;
+  int i;
+  size_t n;
   char zLine[2000];     /* A single line of input. */
 
   assert( !g.httpUseSSL );
@@ -2356,7 +2357,9 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
     malformed_request("malformed URL in HTTP header");
   }
   n = strlen(g.zRepositoryName);
-  if( fossil_strncmp(g.zRepositoryName, zToken, n)==0 ){
+  if( fossil_strncmp(g.zRepositoryName, zToken, n)==0 
+   && (zToken[n]=='/' || zToken[n]==0)
+  ){
     zToken += n;
   }
   if( zToken && strlen(zToken)==0 ){
