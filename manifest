@@ -1,5 +1,5 @@
-C Add\s#define\sto\senable\sthe\snew\sformatting\sof\sthe\s"extra"\stail\son\stimeline\nentries.\s\sCurrently\sset\sfor\slegacy.
-D 2025-10-17T11:05:38.314
+C OLD_STYLE\smacro\srestores\slegacy\sdisplay\sof\s/brtimeline
+D 2025-10-17T11:14:56.067
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -389,7 +389,7 @@ F src/backoffice.c 623ceefa8f76beb96b936378c45e4e2e30cd8c886625a1467072fd4bc0cfc
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 8f97de5c3a052b81d17c678c0ce5ae6668a03816aa523ed0aa4217013b537793
 F src/blob.c 2889e7025105da6d6712d91093f497304cb7d8d04658e1371df9f6d1beba06e2
-F src/branch.c 81c015ebfcdb42840da64909071cc1e4af2367ee7c3d876b534680647fce718b
+F src/branch.c 033cc5be81088877101250cc5e8c9827c6a16827baa407b53b0537f0215a348d
 F src/browse.c b7f47064d1c10e1335362a1e7d4c0b9202c88665543fad9bac3ed73b7a289e16
 F src/builtin.c 34d57215e767b0f4cd70d2a5a17c72fc47acfb0789772ecf88c1038bb52d1fbe
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f181c88a71b1200feee95893f3f462150ea6181fdc113bf4b36210b52dda6732
-R 4750b18efe8c0f77fafef21c5d52ff84
+P 4da636fe350cda95f245b3b9ba1a7b4993b2b2d348773cbe75c2dc9909ed42a2
+R 5cf86f0042a0f605c01f28d5313933d6
 U drh
-Z dc749e61161614f260d41956e12b2392
+Z a322bbf7e59a10468769d4fcd4bf39d1
 # Remove this line to create a well-formed Fossil manifest.

@@ -1040,10 +1040,15 @@ static void brtimeline_extra(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
+#define OLD_STYLE 1
+#if OLD_STYLE
+    @  %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
+#else
     char *zBrName = branch_of_rid(rid);
     @  <strong>%h(zBrName)</strong><br>\
     @  %z(href("%R/timeline?r=%T",zTagName))<button>timeline</button></a>
     fossil_free(zBrName);
+#endif
   }
   db_finalize(&q);
 }
@@ -1053,6 +1058,10 @@ static void brtimeline_extra(
 **
 ** List the first check of every branch, starting with the most recent
 ** and going backwards in time.
+**
+** Query parameters:
+**
+**    ubg            Color the graph by user, not by branch.
 */
 void brtimeline_page(void){
   Blob sql = empty_blob;
@@ -1068,7 +1077,9 @@ void brtimeline_page(void){
   style_header("Branches");
   style_submenu_element("Branch List", "brlist");
   login_anonymous_available();
-  /* timeline_ss_submenu(); */
+#if OLD_STYLE
+  timeline_ss_submenu();
+#endif
   cgi_check_for_malice();
   @ <h2>First check-in for every branch, starting with the most recent
   @ and going backwards in time.</h2>
@@ -1087,8 +1098,15 @@ void brtimeline_page(void){
   blob_reset(&sql);
   /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
   ** many descenders to (off-screen) parents. */
-  tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL | TIMELINE_COLUMNAR
-          | TIMELINE_BRCOLOR;
+  tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
+#if !OLD_STYLE
+  tmFlags |= TIMELINE_COLUMNAR;
+#endif
+  if( PB("ubg")!=0 ){
+    tmFlags |= TIMELINE_UCOLOR;
+  }else{
+    tmFlags |= TIMELINE_BRCOLOR;
+  }
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_finish_page();
