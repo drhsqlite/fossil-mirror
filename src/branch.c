@@ -845,6 +845,7 @@ static void new_brlist_page(void){
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_checkbox("colors", "Use Branch Colors", 0, 0);
+
   login_anonymous_available();
 
   brlist_create_temp_table();
@@ -1068,6 +1069,7 @@ void brtimeline_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  if( robot_restrict("timelineX") ) return;
 
   style_set_current_feature("branch");
   style_header("Branches");
@@ -1075,8 +1077,7 @@ void brtimeline_page(void){
   login_anonymous_available();
   timeline_ss_submenu();
   cgi_check_for_malice();
-  @ <h2>First check-in for every branch, starting with the most recent
-  @ and going backwards in time.</h2>
+  @ <h2>The initial check-in for each branch:</h2>
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql,
     "AND blob.rid IN (SELECT rid FROM tagxref"

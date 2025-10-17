@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sdisplay\sof\s/brtimeline.
-D 2025-10-17T15:49:24.737
+C Change\sthe\stitle\sof\sthe\s/brtimeline\spage\sback\sto\sthe\sway\sit\swas.\s\sAdd\nthe\stimelineX\srestriction\sto\s/brtimeline.
+D 2025-10-17T16:38:09.216
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -389,7 +389,7 @@ F src/backoffice.c 623ceefa8f76beb96b936378c45e4e2e30cd8c886625a1467072fd4bc0cfc
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 8f97de5c3a052b81d17c678c0ce5ae6668a03816aa523ed0aa4217013b537793
 F src/blob.c 2889e7025105da6d6712d91093f497304cb7d8d04658e1371df9f6d1beba06e2
-F src/branch.c 4f58b30dca247dea03d560b84d621bf70ff1dc169f956c88f8404e6d5614e37b
+F src/branch.c 124560503bf51899585f9bfef6d4c22f5c76cebdb52c2453d192a31adb893264
 F src/browse.c b7f47064d1c10e1335362a1e7d4c0b9202c88665543fad9bac3ed73b7a289e16
 F src/builtin.c 34d57215e767b0f4cd70d2a5a17c72fc47acfb0789772ecf88c1038bb52d1fbe
 F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6950c14829deb2341298ccdc46f0e737b45aeaf2d6512e4d93ee1c537f2d5468
-R 60697fbbdc870b4ea29994c1ff685c7e
+P 8b00a97140e55d955fc8d9e046b1a07ddba6a36b61d1d16eae94bdbbfdad9b87
+R 11064e9ce48190aa9f18978f0b1992d8
 U drh
-Z 742324c863e67eaa7b9113a8efb62ff4
+Z 72911d07eda882dd0ac28e191795f50e
 # Remove this line to create a well-formed Fossil manifest.
