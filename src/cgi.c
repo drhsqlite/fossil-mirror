@@ -2364,9 +2364,9 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
    && fossil_strcmp(zMethod,"GET")==0
   ){
     zToken += n;
-  }
-  if( zToken && strlen(zToken)==0 ){
-    malformed_request("malformed URL in HTTP header");
+    if( zToken && strlen(zToken)==0 ){
+      malformed_request("malformed URL in HTTP header");
+    }
   }
   if( nCycles==0 ){
     cgi_setenv("REQUEST_URI", zToken);

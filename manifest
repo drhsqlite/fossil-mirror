@@ -1,9 +1,9 @@
 B 1ff0d0b0cf8c4b5699e370465d05a8a62180ad947dadeef3f30416be17a0eaac
-C When\shandling\sHTTP\sover\sSSH\sonly\sstrip\sthe\sfilename\sfrom\sthe\sPATH\sfor\sGET\smethod\sas\sPOST\shas\sa\sdifferent\smechanism\sfor\shandling\sit.
-D 2025-10-17T14:31:06.886
-F src/cgi.c fc7a9b5fe3104dc2532d364e2b5dba6e3f0312e35a145f53b05146aa5d9b84c2
-P 1ff0d0b0cf8c4b5699e370465d05a8a62180ad947dadeef3f30416be17a0eaac
-R 851582939e31eb68e348de55259cc9ee
+C Only\scheck\sthe\spath\sagain\sif\sthe\sprevious\sconditions\sare\smet.
+D 2025-10-17T14:49:55.086
+F src/cgi.c 06ec39178e80f54e317ba157be902b9a17adff8f968f3cb23fd3ecebf7653829
+P 7531b9452ee4e26e03626981e1d0fddb1b6c9f87304b016a7b0f35a97abd4c20
+R 803108332a6d82b25ed0e363e6e8e25a
 U andybradford
-Z e9401fae91067e703278764c3e88c2de
+Z e2a3c0fde9d6a89c5270155dcde7074a
 # Remove this line to create a well-formed Fossil manifest.
