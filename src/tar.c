@@ -962,16 +962,17 @@ void tarlist_extra(
     nProject = (int)strlen(zProject);
     zNm[nProject+11] = 'T';
     if( tmFlags & TIMELINE_COLUMNAR ){
-      @ <strong><nobr>check-in: \
-      @   %z(href("%R/info/%!S",zUuid))%S(zUuid)</a></nobr></strong><br>
+      @ <nobr>check-in:&nbsp;\
+      @   %z(href("%R/info/%!S",zUuid))<span class='timelineHash'>\
+      @   %S(zUuid)</span></a></nobr><br>
       if( fossil_strcmp(zBrName,"trunk")!=0 ){
         @ <nobr>branch:&nbsp;\
         @   %z(href("%R/timeline?r=%t",zBrName))%h(zBrName)</a></nobr><br>\
       }
     }else{
       if( (tmFlags & TIMELINE_CLASSIC)==0 ){
-        @ <strong>check-in: \
-        @   %z(href("%R/info/%!S",zUuid))%S(zUuid)</a></strong>
+        @ check-in:&nbsp;%z(href("%R/info/%!S",zUuid))\
+        @ <span class='timelineHash'>%S(zUuid)</span></a>
       }
       if( (tmFlags & TIMELINE_GRAPH)==0 && fossil_strcmp(zBrName,"trunk")!=0 ){
         @ branch:&nbsp;\

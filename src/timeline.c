@@ -237,7 +237,8 @@ void timeline_extra(
       }else{
         zPrefix = "";
       }
-      cgi_printf("%scheck-in:&nbsp;%z<strong>%S</strong></a> ",
+      cgi_printf("%scheck-in:&nbsp;%z<span class='timelineHash'>"
+                 "%S</span></a> ",
                   zPrefix, href("%R/info/%!S",zUuid),zUuid);
     }else if( zType[0]=='e' && tagid ){
       cgi_printf("technote:&nbsp;");

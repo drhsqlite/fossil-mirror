@@ -1,5 +1,5 @@
-C Deemphasize\s"leaf"\sand\s"closed-leaf"\son\sthe\stimeline.\s\sBut\sadd\semphasis\sto\nthe\scheck-in\shash,\sas\sthat\spart\sis\sfar\smore\simportant.
-D 2025-10-17T13:55:10.796
+C Use\sCSS\sinstead\sof\s&lt;string&gt;\smarkup\sto\sadd\semphasis\sto\sthe\scheck-in\shash.
+D 2025-10-17T14:18:44.641
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -412,7 +412,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js a967fe355479c329f4e172c625b7a8403e1132be72fd3ebf9ad0afad249a679c
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c f54f86fe0489fed02098af1a0b524907f65d1762f2de0a1ae4050ecf4afd5620
-F src/default.css c107b4f801b608f5d9d15b8d9271cf3dac5f070012c586d8e94c80ce14d5cadd
+F src/default.css a9ed3842aa7367c1672c8f667fb5fdc793c7d54d68bd64a6c6c54cf1ca5f5c71
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c f08accd177876a9d41ad36de0559e5bdc07e7f368ac58790634c2dcd75c30d9f
@@ -569,14 +569,14 @@ F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f1
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 3bbb805fbc3e6a10a1945f1b9d17ed9d5c69eaa4928341cb33c2d0059ef4bbb1
-F src/tar.c 335e49c3964d807eaf2758487a26a0be1eb80070a4f892222a1c8cdfb18b3347
+F src/tar.c 0bc36031e32efd4d8335b185345d22cd3ab724de2f3b57d23fe44fbb7552f85f
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 4f43878167d8f716236dc028d072d0b08de7e6eb8c6e9803779fbd4062237a29
 F src/th_tcl.c 155a9da56128dce97714194089e81f08bf5628f8227e93fa9291197ae92ce9a4
-F src/timeline.c cdffea8fdf5d71d25aa9e9596d59dbac7e43d1d021d71112cddfe447819c5837
+F src/timeline.c 285d906a0b4eead0f48b36721517975675b7e42cdf49d4b486a30ac15c2755f2
 F src/tkt.c f85e6dd4040aefd4cbb8df662b8e20661e7b09caacb4a16644a04bcd7cae49af
 F src/tktsetup.c 38e6ef6950958a6175bd51403644a16fa77d918f6b6c99651e84e9dab8f03cdc
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 36f17b0c910deaee02d2c7e319b187f459c87f0a9683106e370f363b0ff080cf
-R 036a3048df98cd60d702d2753f32b89f
+P 33de43f0f12c1e0a19164c74a47a7975d1fd2e6ba4b1e314e6200f660070da74
+R 2a79933026cdfa3bd7999bea50a801d8
 U drh
-Z 09817356f5fbbeba20d061e1172471ae
+Z ee11006fa4e379aa3b47f5f93867bd62
 # Remove this line to create a well-formed Fossil manifest.
