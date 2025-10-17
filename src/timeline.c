@@ -193,7 +193,7 @@ static void defaultExtra(
   const char *zType = db_column_text(pQuery, 7);
   const char *zUser = db_column_text(pQuery, 4);
   const char *zTagList = db_column_text(pQuery, 8);
-  /*  int tagid = db_column_int(pQuery, 9); // not used */
+  int tagid = db_column_int(pQuery, 9);
   const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
 
   if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
@@ -280,7 +280,14 @@ static void defaultExtra(
   tag_private_status(rid);
 
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
-    cgi_printf(" hash:&nbsp;%z%S</a>", href("%R/info/%!S", zUuid), zUuid);
+    if( zType[0]=='e' && tagid ){
+      char *zId = db_text(0,
+          "SELECT substr(tagname,7) FROM tag WHERE tagid=abs(%d)", tagid);
+      cgi_printf(" technote:&nbsp;%z%S</a>",
+                 href("%R/technote/%t",zId), zId);
+    }else{
+      cgi_printf(" hash:&nbsp;%z%S</a>", href("%R/info/%!S", zUuid), zUuid);
+    }
   }
 
   /* End timelineDetail */
