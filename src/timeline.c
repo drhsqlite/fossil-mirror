@@ -1896,7 +1896,9 @@ void page_timeline(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
-  if( (zBefore || zCirca) && robot_restrict("timelineX") ) return;
+  if( zBefore || zCirca || PB("tarzip") ){
+    if( robot_restrict("timelineX") ) return;
+  }
   if( !bisectLocal ){
     etag_check(ETAG_QUERY|ETAG_COOKIE|ETAG_DATA|ETAG_CONFIG, 0);
   }
