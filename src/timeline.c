@@ -200,9 +200,9 @@ void timeline_extra(
     cgi_printf("(");
   }
 
-/* Set to 1 for historical appearance.  Set to 0 for new experimental look */
-#define OLD_STYLE 1
-#if OLD_STYLE
+/* Set to 0 for historical appearance.  Set to 1 or more for new looks */
+#define EXTRA_FORMAT 2
+#if EXTRA_FORMAT==0
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='c' ){
       int isLeaf = db_column_int(pQuery, 5);
@@ -226,7 +226,31 @@ void timeline_extra(
             || zType[0]=='n' || zType[0]=='f'){
     cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
   }
-#endif /* OLD_STYLE */
+#endif /* EXTRA_FORMAT==0 */
+#if EXTRA_FORMAT==2
+  if( (tmFlags & TIMELINE_CLASSIC)==0 ){
+    if( zType[0]=='c' ){
+      int isLeaf = db_column_int(pQuery, 5);
+      const char *zPrefix;
+      if( isLeaf ){
+        zPrefix = has_closed_tag(rid) ? "closed&nbsp;" : "leaf&nbsp;";
+      }else{
+        zPrefix = "";
+      }
+      cgi_printf("%scheck-in:&nbsp;%z<strong>%S</strong></a> ",
+                  zPrefix, href("%R/info/%!S",zUuid),zUuid);
+    }else if( zType[0]=='e' && tagid ){
+      cgi_printf("technote:&nbsp;");
+      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
+    }else{
+      cgi_printf("artifact:&nbsp;%z%S</a> ",
+                 href("%R/info/%!S",zUuid),zUuid);
+    }
+  }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t'
+            || zType[0]=='n' || zType[0]=='f'){
+    cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
+  }
+#endif /* EXTRA_FORMAT==0 */
 
   if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
     char *zLink;
@@ -282,7 +306,7 @@ void timeline_extra(
   }
   tag_private_status(rid);
 
-#if !OLD_STYLE
+#if EXTRA_FORMAT==1
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='e' && tagid ){
       char *zId = db_text(0,
@@ -293,7 +317,7 @@ void timeline_extra(
       cgi_printf(" hash:&nbsp;%z%S</a>", href("%R/info/%!S", zUuid), zUuid);
     }
   }
-#endif /* !OLD_STYLE */
+#endif /* EXTRA_FORMAT==1 */
 
   /* End timelineDetail */
   if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
