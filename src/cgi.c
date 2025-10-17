@@ -2359,7 +2359,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   if( fossil_strncmp(g.zRepositoryName, zToken, n)==0 ){
     zToken += n;
   }
-  if( zToken==0 ){
+  if( zToken && strlen(zToken)==0 ){
     malformed_request("malformed URL in HTTP header");
   }
   if( nCycles==0 ){

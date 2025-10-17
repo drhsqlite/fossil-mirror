@@ -1,13 +1,10 @@
 B 2f9920a151c7986defc7005787f7ad2dbb91b0987a134679bfff02724c76f386
-C Have\sthe\snew\s"fossil\sget"\scommand\swork\smore\slike\sother\sSSH\soperations\s(e.g.\nsync,\sclone)\sby\ssending\sthe\scomplete\sURI.\s\sThis\senables\s"fossil\sget"\sto\swork\nwith\sSSH\sservers\swith\sforce\sthe\scommand\sto\s"fossil\stest-http\s/path"\sto\nrestrict\saccess\sto\sjust\sFossil\srepositories\sfrom\sa\sspecific\sdirectory,\swithout\nwich\sFossil\sreturns\s404.\s\sSee\sproblem\sdiscussion\sin\n[forum:/forumpost/7b3e0e0582525d3b|forum\spost\s7b3e0e0582525d]\sfor\smore\ndetails.
-D 2025-10-17T03:41:14.362
-F src/cgi.c 4dbfd1596499cb1828e87f7a6331b30a41600a85252e4fe85d05256a5d637719
+C Correctly\scheck\sfor\sthe\send\sof\sthe\sURI\sstring\sand\sreturn\san\serror\sif\sthere\sis\sno\smore.
+D 2025-10-17T04:53:56.707
+F src/cgi.c 61fbf27e9e39f65c8f818ca9fd5b09cd890d48e56146d0a172f40ea6f23fdae4
 F src/checkout.c 1d4780a97f7ba012c29513359e4aadca1565e0c69f2ec24185ff06f3884bcf32
-P 196cb7722377ef1374d828cdd83a5b3151b486393514185cdc9bca5d66472ead
-R 939d338b357180a392a9d56c3c5f9989
-T *branch * get-command-directory
-T *sym-get-command-directory *
-T -sym-trunk *
+P 6fc687402673e884ba2b47aa45d44b859428909bdd1eb75561bff6aca0ade331
+R 70b906f81452195cda806a0f5b4519d0
 U andybradford
-Z 99b8f6dc01ad9d184712cd0bbfd05f4c
+Z 24b12cd2ddf88a7ae019f73ed28d5820
 # Remove this line to create a well-formed Fossil manifest.
