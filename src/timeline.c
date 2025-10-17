@@ -181,7 +181,7 @@ static void forum_post_content_function(
 ** This routine is used if no xExtra argument is supplied to
 ** www_print_timeline().
 */
-static void defaultExtra(
+void timeline_extra(
   Stmt *pQuery,               /* Current row of the timeline query */
   int tmFlags,                /* Flags to www_print_timeline() */
   const char *zThisUser,      /* Suppress links to this user */
@@ -377,7 +377,7 @@ void www_print_timeline(
   if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
-  if( xExtra==0 ) xExtra = defaultExtra;
+  if( xExtra==0 ) xExtra = timeline_extra;
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
@@ -1672,7 +1672,8 @@ void timeline_test_endpoint(void){
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact", v: "Verbose", m: "Modern", j: "Columnar",
-*                     x: "Classic".
+**                    x: "Classic".
+**    tarzip          Show "Tarball" and "ZIP" buttons on check-ins.
 **    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
 **    ncp             Omit cherrypick merges
@@ -3226,6 +3227,7 @@ void page_timeline(void){
   {
     Matcher *pLeftBranch;
     const char *zPattern = P("sl");
+    void (*xExtra)(Stmt*,int,const char*,const char*) = 0;
     if( zPattern!=0 ){
       MatchStyle ms;
       if( zMatchStyle!=0 ){
@@ -3237,8 +3239,15 @@ void page_timeline(void){
     }else{
       pLeftBranch = match_create(matchStyle, zBrName?zBrName:zTagName);
     }
+    if( PB("tarzip") ){
+      if( tmFlags & TIMELINE_COMPACT ){
+        tmFlags &= ~TIMELINE_COMPACT;
+        tmFlags |= TIMELINE_VERBOSE;
+      }
+      xExtra = tarlist_extra;
+    }
     www_print_timeline(&q, tmFlags, zThisUser, zThisTag, pLeftBranch,
-                       selectedRid, secondaryRid, 0);
+                       selectedRid, secondaryRid, xExtra);
     match_free(pLeftBranch);
   }
   db_finalize(&q);

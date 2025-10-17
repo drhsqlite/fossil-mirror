@@ -938,36 +938,53 @@ void tarball_page(void){
 ** This routine is called for each check-in on the /tarlist page to
 ** construct the "extra" information after the description.
 */
-static void tarlist_extra(
+void tarlist_extra(
   Stmt *pQuery,               /* Current row of the timeline query */
   int tmFlags,                /* Flags to www_print_timeline() */
   const char *zThisUser,      /* Suppress links to this user */
   const char *zThisTag        /* Suppress links to this tag */
 ){
-  int rid = db_column_int(pQuery, 0);
-  const char *zUuid = db_column_text(pQuery, 1);
-  const char *zDate = db_column_text(pQuery, 2);
-  char *zBrName = branch_of_rid(rid);
-  static const char *zProject = 0;
-  int nProject;
-  char *zNm;
+  const char *zType = db_column_text(pQuery, 7);
+  assert( zType!=0 );
+  if( zType[0]!='c' ){
+    timeline_extra(pQuery, tmFlags, zThisUser, zThisTag);
+  }else{    
+    int rid = db_column_int(pQuery, 0);
+    const char *zUuid = db_column_text(pQuery, 1);
+    const char *zDate = db_column_text(pQuery, 2);
+    char *zBrName = branch_of_rid(rid);
+    static const char *zProject = 0;
+    int nProject;
+    char *zNm;
 
-  if( zProject==0 ) zProject = db_get("project-name","unnamed");
-  zNm = mprintf("%s-%sZ-%.8s", zProject, zDate, zUuid);
-  nProject = (int)strlen(zProject);
-  zNm[nProject+11] = 'T';
-  @ <strong><nobr>check-in: \
-  @   %z(href("%R/info/%!S",zUuid))%S(zUuid)</a></nobr></strong><br>
-  if( fossil_strcmp(zBrName,"trunk")!=0 ){
-    @ <nobr>branch:&nbsp;\
-    @   %z(href("%R/timeline?r=%t",zBrName))%h(zBrName)</a></nobr><br>\
+    if( zProject==0 ) zProject = db_get("project-name","unnamed");
+    zNm = mprintf("%s-%sZ-%.8s", zProject, zDate, zUuid);
+    nProject = (int)strlen(zProject);
+    zNm[nProject+11] = 'T';
+    if( tmFlags & TIMELINE_COLUMNAR ){
+      @ <strong><nobr>check-in: \
+      @   %z(href("%R/info/%!S",zUuid))%S(zUuid)</a></nobr></strong><br>
+      if( fossil_strcmp(zBrName,"trunk")!=0 ){
+        @ <nobr>branch:&nbsp;\
+        @   %z(href("%R/timeline?r=%t",zBrName))%h(zBrName)</a></nobr><br>\
+      }
+    }else{
+      if( (tmFlags & TIMELINE_CLASSIC)==0 ){
+        @ <strong>check-in: \
+        @   %z(href("%R/info/%!S",zUuid))%S(zUuid)</a></strong>
+      }
+      if( (tmFlags & TIMELINE_GRAPH)==0 && fossil_strcmp(zBrName,"trunk")!=0 ){
+        @ branch:&nbsp;\
+        @   %z(href("%R/timeline?r=%t",zBrName))%h(zBrName)</a>
+      }
+    }
+    @ %z(href("%R/tarball/%!S/%t.tar.gz",zUuid,zNm))\
+    @    <button>Tarball</button></a>
+    @  %z(href("%R/zip/%!S/%t.zip",zUuid,zNm))\
+    @    <button>ZIP&nbsp;Archive</button></a>
+    fossil_free(zBrName);
+    fossil_free(zNm);
   }
-  @ %z(href("%R/tarball/%!S/%t.tar.gz",zUuid,zNm))\
-  @    <button>Tarball</button></a>
-  @  %z(href("%R/zip/%!S/%t.zip",zUuid,zNm))\
-  @    <button>ZIP&nbsp;Archive</button></a>
-  fossil_free(zBrName);
-  fossil_free(zNm);
 }
 
 /*
