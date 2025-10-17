@@ -815,7 +815,10 @@ void finfo_page(void){
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph, TIMELINE_FILEDIFF, iTableId);
+  {
+    int tmFlags = TIMELINE_GRAPH | TIMELINE_FILEDIFF;
+    timeline_output_graph_javascript(pGraph, tmFlags, iTableId);
+  }
   style_finish_page();
 }
 
