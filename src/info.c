@@ -995,30 +995,15 @@ void ci_page(void){
 
     /* The Download: line */
     if( g.perm.Zip  ){
-      char *zPJ = db_get("short-project-name", 0);
-      char *zUrl;
-      Blob projName;
-      int jj;
-      if( zPJ==0 ) zPJ = db_get("project-name", "unnamed");
-      blob_zero(&projName);
-      blob_append(&projName, zPJ, -1);
-      blob_trim(&projName);
-      zPJ = blob_str(&projName);
-      for(jj=0; zPJ[jj]; jj++){
-        if( (zPJ[jj]>0 && zPJ[jj]<' ') || strchr("\"*/:<>?\\|", zPJ[jj]) ){
-          zPJ[jj] = '_';
-        }
-      }
-      zUrl = mprintf("%R/tarball/%S/%t-%S.tar.gz", zUuid, zPJ, zUuid);
+      char *zBase = archive_base_name(rid);
       @ <tr><th>Downloads:</th><td>
-      @ %z(href("%s",zUrl))Tarball</a>
-      @ | %z(href("%R/zip/%S/%t-%S.zip",zUuid, zPJ,zUuid))ZIP archive</a>
+      @ %z(href("%R/tarball/%S/%s.tar.gz",zUuid,zBase))Tarball</a>
+      @ | %z(href("%R/zip/%S/%s.zip",zUuid,zBase))ZIP archive</a>
       if( g.zLogin!=0 ){
-        @ | %z(href("%R/sqlar/%S/%t-%S.sqlar",zUuid,zPJ,zUuid))\
+        @ | %z(href("%R/sqlar/%S/%s.sqlar",zUuid,zBase))\
         @ SQL archive</a></td></tr>
       }
-      fossil_free(zUrl);
-      blob_reset(&projName);
+      fossil_free(zBase);
     }
 
     @ <tr><th>Timelines:</th><td>

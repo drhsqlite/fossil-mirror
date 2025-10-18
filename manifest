@@ -1,5 +1,5 @@
-C Add\sthe\s"ziplink"\srobot-restrict\stag.\s\sImprovements\sto\sthe\s/rchvdwnld\spage.
-D 2025-10-18T11:55:18.009
+C Consistent\snaming\sof\starball\slinks.
+D 2025-10-18T12:37:23.420
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -471,7 +471,7 @@ F src/http_socket.c db9603e27cbf4b41dae94d000acf3dbf1ecbb431ef0a24743aabd17e5467
 F src/http_ssl.c 5050cdd1441962f51762780cdd87b38c7281ecc6f4a65290acdaca318e9a4ca0
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 6997a6b6d9ca3d2cd5e79b2561aaad2582a78d7c6032c44a956c6bb611b59c34
-F src/info.c cd354d541102f73821ed8dffdc2ffe9566d5cec82fac08c6dbd8c2240b89b8ca
+F src/info.c 581f13946fec4aa4f9af9cf9f43b989de64497cc251e62dedf47df302a9bc0f1
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 3e2cd3fd2dc263628dc92aa5624fb3c7050237db7223fbd293760bd423c7636d
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 38567e2f3e48b2b2797c6188e1ae124a9cfb44b8f1c5eac703e26483d5bcc984
-R 4e2ea7ecd8432605bc440d059ed855f6
+P 58a99696748c0ea885e6353ab41558d7835d65cc37757354aee34e431ed3002a
+R b63382f2981cd876071b2ec72bbd7988
 U drh
-Z 187e50869b67779c2e667e2615231ed3
+Z 3c259c32ac9d949382638575d31c6cb1
 # Remove this line to create a well-formed Fossil manifest.
