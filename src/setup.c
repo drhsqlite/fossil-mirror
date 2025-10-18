@@ -1443,11 +1443,11 @@ void setup_config(void){
   @ recent check-ins tagged with "release".  
   @ <p>
   @ The /tarlist page is omitted from the <a href="%R/sitemap">/sitemap</a>
-  @ if the first token is "0".  The default value is "1 trunk".
+  @ if the first token is "0" or "off" or "no".  The default value is "off".
   @ (Property: suggested-tarlist)
   @ <p>
   textarea_attribute("Check-ins To Show On /tarlist", 2, 80,
-      "suggested-tarlist", "sgtrlst", "", 0);
+      "suggested-tarlist", "sgtrlst", "off", 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>

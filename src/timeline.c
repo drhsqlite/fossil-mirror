@@ -1705,7 +1705,6 @@ void timeline_test_endpoint(void){
 **    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact", v: "Verbose", m: "Modern", j: "Columnar",
 **                    x: "Classic".
-**    tarzip          Show "Tarball" and "ZIP" buttons on check-ins.
 **    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
 **    ncp             Omit cherrypick merges
@@ -1928,7 +1927,7 @@ void page_timeline(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
-  if( zBefore || zCirca || PB("tarzip") ){
+  if( zBefore || zCirca ){
     if( robot_restrict("timelineX") ) return;
   }
   if( !bisectLocal ){
@@ -3261,7 +3260,6 @@ void page_timeline(void){
   {
     Matcher *pLeftBranch;
     const char *zPattern = P("sl");
-    void (*xExtra)(Stmt*,int,const char*,const char*) = 0;
     if( zPattern!=0 ){
       MatchStyle ms;
       if( zMatchStyle!=0 ){
@@ -3273,15 +3271,8 @@ void page_timeline(void){
     }else{
       pLeftBranch = match_create(matchStyle, zBrName?zBrName:zTagName);
     }
-    if( PB("tarzip") ){
-      if( tmFlags & TIMELINE_COMPACT ){
-        tmFlags &= ~TIMELINE_COMPACT;
-        tmFlags |= TIMELINE_VERBOSE;
-      }
-      xExtra = tarlist_extra;
-    }
     www_print_timeline(&q, tmFlags, zThisUser, zThisTag, pLeftBranch,
-                       selectedRid, secondaryRid, xExtra);
+                       selectedRid, secondaryRid, 0);
     match_free(pLeftBranch);
   }
   db_finalize(&q);

@@ -982,16 +982,9 @@ void tarlist_extra(
   }else{    
     int rid = db_column_int(pQuery, 0);
     const char *zUuid = db_column_text(pQuery, 1);
-    const char *zDate = db_column_text(pQuery, 2);
     char *zBrName = branch_of_rid(rid);
-    static const char *zProject = 0;
-    int nProject;
     char *zNm;
 
-    if( zProject==0 ) zProject = db_get("project-name","unnamed");
-    zNm = mprintf("%s-%sZ-%.8s", zProject, zDate, zUuid);
-    nProject = (int)strlen(zProject);
-    zNm[nProject+11] = 'T';
     if( tmFlags & TIMELINE_COLUMNAR ){
       @ <nobr>check-in:&nbsp;\
       @   %z(href("%R/info/%!S",zUuid))<span class='timelineHash'>\
@@ -1010,9 +1003,10 @@ void tarlist_extra(
         @   %z(href("%R/timeline?r=%t",zBrName))%h(zBrName)</a>
       }
     }
-    @ %z(href("%R/tarball/%!S/%t.tar.gz",zUuid,zNm))\
+    zNm = archive_base_name(rid);
+    @ %z(href("%R/tarball/%!S/%s.tar.gz",zUuid,zNm))\
     @    <button>Tarball</button></a>
-    @  %z(href("%R/zip/%!S/%t.zip",zUuid,zNm))\
+    @  %z(href("%R/zip/%!S/%s.zip",zUuid,zNm))\
     @    <button>ZIP&nbsp;Archive</button></a>
     fossil_free(zBrName);
     fossil_free(zNm);
@@ -1062,7 +1056,7 @@ void tarlist_page(void){
   style_set_current_feature("timeline");
   style_header("Suggested Tarballs And ZIP Archives");
 
-  zTarlistCfg = db_get("suggested-tarlist","1 trunk");
+  zTarlistCfg = db_get("suggested-tarlist","off");
   db_multi_exec(
     "CREATE TEMP TABLE tarlist(rid INTEGER PRIMARY KEY);"
   );
