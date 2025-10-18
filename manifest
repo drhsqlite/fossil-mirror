@@ -1,5 +1,5 @@
-C Consistent\snaming\sof\starball\slinks.
-D 2025-10-18T12:37:23.420
+C Remove\sthe\s(unlinked\sand\sforgotten)\s/download\spage.\s\sConvert\sit\sinto\sa\snew\npage\snamed\s/howtoclone\swhich\ssimply\sprovides\sguidance\sfor\sthe\scorrect\ncommand-line\sused\sto\sclone\sthe\srepository.
+D 2025-10-18T12:52:23.137
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -402,7 +402,7 @@ F src/checkin.c 0ff14c07fd7584bb065772c7fea0814439bce3bc788f627b8b5f633c05620a19
 F src/checkout.c 1d4780a97f7ba012c29513359e4aadca1565e0c69f2ec24185ff06f3884bcf32
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
-F src/clone.c 34b09841124259f0446ea520c3e407df476552ebdbcbf003e143ed7ac152f911
+F src/clone.c 1b14e1fe42556ec080492e77c94f50dbb047952f40ba41bd4ca1d0a154d13e15
 F src/color.c cbe8fb7c03c07735b13449a8384c466ddd93306af7bf63176414cf6fd1e144b9
 F src/comformat.c 71069fe975ea6173e0f5b78f186e4a6d88eeef46d0a1f5d7b879a0dc923dd31f
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 58a99696748c0ea885e6353ab41558d7835d65cc37757354aee34e431ed3002a
-R b63382f2981cd876071b2ec72bbd7988
+P 3d63613a7e7afac5d517cb0ff048f4d6d6b5397a1622a6ab821d6ea6b13ad73d
+R cd47218bbe8615c7bf0ad9c12e6e41ab
 U drh
-Z 3c259c32ac9d949382638575d31c6cb1
+Z 33a94b95410db7b6a14333048bbf044e
 # Remove this line to create a well-formed Fossil manifest.
