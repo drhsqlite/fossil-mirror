@@ -1078,9 +1078,9 @@ void download_extra(
 ** This setting controls the suggested tarball/ZIP downloads on the
 ** [[/download]] page.  The value is a TCL list.  Each set of four items
 ** defines a set of check-ins to be added to the suggestion list.
-** The items are:
+** The items in each group are:
 **
-**       COUNT   TAG    MAX_AGE    COMMENT
+** |    COUNT   TAG   MAX_AGE    COMMENT
 **
 ** COUNT is the number of check-ins to match, starting with the most
 ** recent and working bacwards in time.  Check-ins match if they contain
@@ -1102,9 +1102,9 @@ void download_extra(
 **
 ** Example:
 **
-**        1   trunk     {}         {Lastest Trunk Check-in}
-**        5   OPEN-LEAF {3 months} {Open Leaf}
-**        999 release   {1 year}   {}
+** |       1   trunk     {}         {Lastest Trunk Check-in}
+** |       5   OPEN-LEAF {1 month}  {Active Branch}
+** |       999 release   {1 year}   {Official Release}
 **
 ** The value causes the /download page to show the union of the most
 ** recent trunk check-in of any age, the three most recent
