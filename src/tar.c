@@ -34,6 +34,23 @@ static struct tarball_t {
 } tball;
 
 /*
+** Convert a string so that it contains only lower-case ASCII, digits,
+** "_" and "-".  Changes are made in-place.
+*/
+static void sanitize_name(char *zName){
+  int i;
+  char c;
+  for(i=0; (c = zName[i])!=0; i++){
+    if( fossil_isupper(c) ){
+      zName[i] = fossil_tolower(c);
+    }else if( !fossil_isalnum(c) && c!='_' && c!='-' ){
+              /*  123456789 123456789 123456  */
+      zName[i] = "abcdefghijklmnopqrstuvwxyz"[(unsigned)c%26];
+    }
+  }
+}
+
+/*
 ** Compute a sensible base-name for an archive file (tarball, ZIP, or SQLAR)
 ** based on the rid of the check-in contained in that file.
 **
@@ -49,8 +66,6 @@ static struct tarball_t {
 */
 char *archive_base_name(int rid){
   char *zName;
-  int i;
-  char c;
   zName = db_text(0,
     "SELECT coalesce(config.value,'unnamed')||"
           " strftime('-%%Y%%m%%d%%H%%M%%S-',event.mtime)||"
@@ -60,14 +75,7 @@ char *archive_base_name(int rid){
       " AND event.objid=%d"
       " AND config.name='project-name'",
     rid, rid);
-  for(i=0; (c = zName[i])!=0; i++){
-    if( fossil_isupper(c) ){
-      zName[i] = fossil_tolower(c);
-    }else if( !fossil_isalnum(c) && c!='_' && c!='-' ){
-              /*  123456789 123456789 123456  */
-      zName[i] = "abcdefghijklmnopqrstuvwxyz"[(unsigned)c%26];
-    }
-  }
+  sanitize_name(zName);
   return zName;
 }
 
@@ -1243,21 +1251,22 @@ void download_page(void){
     db_finalize(&q);
   }
   if( g.perm.Clone ){
-    const char *zNm = db_get("short-project-name","clone");
+    char *zNm = fossil_strdup(db_get("project-name","clone"));
+    sanitize_name(zNm);    
     @ <hr>
     @ <h2>You Can Clone This Repository</h2>
-    @ <p>A clone gives you local access to all historical content.
-    @ Cloning is a bandwidth- and CPU-efficient alternative to extracting
-    @ multiple tarballs and ZIP archives for users who need access to many
-    @ different check-ins.
     @
-    @ <p>Clone this repository by running a command like the following:
+    @ <p>Clone this repository by running a command similar to the following:
     @ <blockquote><pre>
     @ fossil  clone  %s(g.zBaseURL)  %h(zNm).fossil
     @ </pre></blockquote>
-    @ <p>Do a web search for "fossil clone" or similar to find additional
+    @ <p>A clone gives you local access to all historical content.
+    @ Cloning is a bandwidth- and CPU-efficient alternative to extracting
+    @ multiple tarballs and ZIPs.
+    @ Do a web search for "fossil clone" or similar to find additional
     @ information about using a cloned Fossil repository.  Or ask your
     @ favorite AI how to extract content from a Fossil clone.
+    fossil_free(zNm);
   }
 
   style_finish_page();
