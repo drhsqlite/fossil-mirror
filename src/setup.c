@@ -490,8 +490,7 @@ void setup_robots(void){
   @ <p>
   @ The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
   @ /vpatch.  The "annotate" tag covers /annotate and also /blame and
-  @ /praise.  The "zip" covers itself and also /tarball and /sqlar. The
-  @ "ziplink" page means any page that contains hyperlinks to a "zip" page.
+  @ /praise.  The "zip" covers itself and also /tarball and /sqlar.
   @ If a tag has an "X" character appended (ex: "timelineX") then it only
   @ applies if query parameters are such that the page is expensive
   @ and/or unusual. In all other case, the tag should exactly match
@@ -1430,26 +1429,26 @@ void setup_config(void){
   textarea_attribute("Custom Sitemap Entries", 8, 80,
       "sitemap-extra", "smextra", "", 0);
   @ <hr>
-  @ <p>Configuration for the <a href="%R/tarlist">/tarlist</a> page.
+  @ <p>Configuration for the <a href="%R/download">/download</a> page.
   @ The value is a TCL list divided into pairs.
   @ <ol>
   @ <li> The first term of each pair is an integer (N).
   @ <li> The second term of each pair is a glob pattern (PATTERN).
   @ </ol>
   @ For each pair, the most recent N check-ins that have a tag that
-  @ matches PATTERN are included in on the /tarlist page.  The special
+  @ matches PATTERN are included in on the /download page.  The special
   @ pattern of "OPEN-LEAF" matches all open leaf check-ins.  Example:
   @ <blockquote><tt>1 trunk 3 release 5 OPEN-LEAF</tt></blockquote>
   @ The example pattern above shows the union of the most recent trunk
   @ check-in, the 5 most recent open leaf check-ins, and the 3 most
   @ recent check-ins tagged with "release".  
   @ <p>
-  @ The /tarlist page is omitted from the <a href="%R/sitemap">/sitemap</a>
+  @ The /download page is omitted from the <a href="%R/sitemap">/sitemap</a>
   @ if the first token is "0" or "off" or "no".  The default value is "off".
-  @ (Property: suggested-tarlist)
+  @ (Property: <a href="%R/help/suggested-downloads">suggested-downloads</a>)
   @ <p>
-  textarea_attribute("Check-ins To Show On /tarlist", 2, 80,
-      "suggested-tarlist", "sgtrlst", "off", 0);
+  textarea_attribute("Suggested Downloads", 2, 80,
+      "suggested-downloads", "sgtrlst", "off", 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>

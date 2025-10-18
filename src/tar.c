@@ -966,10 +966,10 @@ void tarball_page(void){
 }
 
 /*
-** This routine is called for each check-in on the /tarlist page to
+** This routine is called for each check-in on the /download page to
 ** construct the "extra" information after the description.
 */
-void tarlist_extra(
+void download_extra(
   Stmt *pQuery,               /* Current row of the timeline query */
   int tmFlags,                /* Flags to www_print_timeline() */
   const char *zThisUser,      /* Suppress links to this user */
@@ -1014,10 +1014,10 @@ void tarlist_extra(
 }
 
 /*
-** SETTING: suggested-tarlist               width=70  block-text
+** SETTING: suggested-downloads               width=70  block-text
 **
 ** This setting controls the suggested tarball/ZIP downloads on the
-** [[/tarlist]] page.  The value is a TCL list.  Each pair of items
+** [[/download]] page.  The value is a TCL list.  Each pair of items
 ** defines a set of check-ins to be added to the suggestion list.
 ** The first item of each pair is an integer count (N) and second
 ** item is a tag GLOB pattern (PATTERN). For each pair, the most
@@ -1029,18 +1029,18 @@ void tarlist_extra(
 **
 **        3 OPEN-LEAF 3 release 1 trunk
 **
-** The value causes the /tarlist page to show the union of the 3
+** The value causes the /download page to show the union of the 3
 ** most recent open leaves, the three most recent check-ins marked
 ** "release", and the single most recent trunk check-in.
 */
 
 /*
-** WEBPAGE: /tarlist
+** WEBPAGE: /download
 **
 ** Show a special no-graph timeline of recent important check-ins with
 ** an opportunity to pull tarballs and ZIPs.
 */
-void tarlist_page(void){
+void download_page(void){
   Stmt q;                       /* The actual timeline query */
   const char *zTarlistCfg;      /* Configuration string */
   char **azItem;                /* Decomposed elements of zTarlistCfg */
@@ -1052,12 +1052,11 @@ void tarlist_page(void){
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
-  robot_restrict("ziplink");
 
   style_set_current_feature("timeline");
-  style_header("Suggested Tarballs And ZIP Archives");
+  style_header("Suggested Downloads");
 
-  zTarlistCfg = db_get("suggested-tarlist","off");
+  zTarlistCfg = db_get("suggested-downloads","off");
   db_multi_exec(
     "CREATE TEMP TABLE tarlist(rid INTEGER PRIMARY KEY);"
   );
@@ -1107,7 +1106,7 @@ void tarlist_page(void){
   if( n==0 ){
     @ <h2>No tarball/ZIP suggestions are available at this time</h2>
   }else{
-    @ <h2>%d(n) Tarball/ZIP Download Suggestions:</h2>
+    @ <h2>%d(n) Tarball/ZIP Download Suggestion%s(n>1?"s":""):</h2>
     db_prepare(&q,
       "%s AND blob.rid IN tarlist ORDER BY event.mtime DESC",
       timeline_query_for_www()
@@ -1115,9 +1114,27 @@ void tarlist_page(void){
 
     tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL | TIMELINE_COLUMNAR
             | TIMELINE_BRCOLOR;
-    www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, tarlist_extra);
+    www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, download_extra);
     db_finalize(&q);
   }
+  if( g.perm.Clone ){
+    const char *zNm = db_get("short-project-name","clone");
+    @ <hr>
+    @ <h2>You Can Clone This Repository</h2>
+    @ <p>A clone gives you local access to all historical content.
+    @ Cloning is a bandwidth- and CPU-efficient alternative to extracting
+    @ multiple tarballs and ZIP archives for users who need access to many
+    @ different check-ins.
+    @
+    @ <p>Clone this repository by running a command like the following:
+    @ <blockquote><pre>
+    @ fossil  clone  %s(g.zBaseURL)  %h(zNm).fossil
+    @ </pre></blockquote>
+    @ <p>Do a web search for "fossil clone" or similar to find additional
+    @ information about using a cloned Fossil repository.  Or ask your
+    @ favorite AI how to extract content from a Fossil clone.
+  }
+
   style_finish_page();
 }
 
@@ -1142,7 +1159,7 @@ void rchvdwnld_page(void){
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
   robot_restrict("zip");
-  robot_restrict("ziplink");
+  robot_restrict("download");
 
   zUuid = P("name");
   if( zUuid==0
