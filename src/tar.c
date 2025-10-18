@@ -1119,3 +1119,54 @@ void tarlist_page(void){
   }
   style_finish_page();
 }
+
+/*
+** WEBPAGE: rchvdwnld
+**
+** Short for "archive download".  This page should have a single name=
+** query parameter that is a check-in hash.  It present a menu of possible
+** download options for that check-in, including tarball, ZIP, or SQLAR.
+**
+** This is a utility page.  The /dir and /tree pages sometimes have a
+** "Download" option in their submenu which redirects here.  Those pages
+** used to have separate "Tarball" and "ZIP" submenu entries, but as
+** submenu entries appear in alphabetical order, that caused the two
+** submenu entries to be separated from one another, which is distracting.
+*/
+void rchvdwnld_page(void){
+  const char *zUuid;
+  char *zBase;
+  int nUuid;
+  int rid;
+  login_check_credentials();
+  if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
+  robot_restrict("zip");
+
+  zUuid = P("name");
+  if( zUuid==0
+   || (nUuid = (int)strlen(zUuid))<6
+   || !validate16(zUuid,-1)
+   || (rid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUuid))==0
+   || !db_exists("SELECT 1 from event WHERE type='ci' AND objid=%d",rid)
+  ){
+    fossil_redirect_home();
+  }
+  zUuid = db_text(zUuid, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  style_header("Downloads For Check-in %!S", zUuid);
+  zBase = archive_base_name(rid);
+  @ <ul>
+  @ <li><p>
+  @ Tarball: %z(href("%R/tarball/%!S/%s.tar.gz",zUuid,zBase))\
+  @ %s(g.zBaseURL)%R/tarball/%!S(zUuid)/%s(zBase).tar.gz</a>
+  @
+  @ <li><p>
+  @ ZIP: %z(href("%R/zip/%!S/%s.zip",zUuid,zBase))\
+  @ %s(g.zBaseURL)%R/zip/%!S(zUuid)/%s(zBase).zip</a>
+  @
+  @ <li><p>
+  @ SQLAR: %z(href("%R/sqlar/%!S/%s.sqlar",zUuid,zBase))\
+  @ %s(g.zBaseURL)%R/sqlar/%!S(zUuid)/%s(zBase).sqlar</a>
+  @ </ul>
+  fossil_free(zBase);
+  style_finish_page();
+}
