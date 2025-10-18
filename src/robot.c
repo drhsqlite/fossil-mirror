@@ -265,16 +265,18 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** should be disallowed.  "Unauthenticated" means the user is "nobody".
 ** The recommended value for this setting is:
 **
-**     timelineX,diff,annotate,fileage,file,finfo,reports
+**   timelineX,diff,annotate,fileage,file,finfo,reports,tree,ziplink,hexdump
 **
 ** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and
 ** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
-** also covers /tarball and /sqlar.  If a tag has an "X" character appended,
-** then it only applies if query parameters are such that the page is
-** particularly difficult to compute. In all other case, the tag should
-** exactly match the page name.  Useful "X" tags include "timelineX"
-** and "zipX".  See the robot-zip-leaf and robot-zip-tag settings
-** for additional controls associated with the "zipX" restriction.
+** also covers /tarball and /sqlar.  The special "ziplink" tag covers any
+** page that contains a lot of hyperlinks to a "zip" page.  If a tag has
+** an "X" character appended then it only applies if query parameters are
+** such that the page is particularly difficult to compute. In all other
+** case, the tag should exactly match the page name.  Useful "X" tags
+** include "timelineX" and "zipX".  See the [[robot-zip-leaf]] and
+** [[robot-zip-tag]] settings for additional controls associated with
+** the "zipX" restriction.
 **
 ** Change this setting "off" to disable all robot restrictions.
 */
@@ -301,7 +303,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
 **
 ** If this setting is true, the robots are allowed to download tarballs,
 ** ZIP-archives, and SQL-archives even though "zipX" is found in
-** the robot-restrict setting as long as the specific check-in being
+** the [[robot-restrict]] setting as long as the specific check-in being
 ** downloaded is a leaf check-in.
 */
 /*
@@ -309,7 +311,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
 **
 ** If this setting is a list of GLOB patterns matching tags,
 ** then robots are allowed to download tarballs, ZIP-archives, and
-** SQL-archives even though "zipX" appears in robot-restrict, as long as
+** SQL-archives even though "zipX" appears in [[robot-restrict]], as long as
 ** the specific check-in being downloaded has a tags that matches
 ** the GLOB list of this setting.  Recommended value:  
 ** "release,robot-access".
@@ -319,7 +321,8 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** Return the default restriction GLOB
 */
 const char *robot_restrict_default(void){
-  return "timelineX,diff,annotate,fileage,file,finfo,reports";
+  return "timelineX,diff,annotate,fileage,file,finfo,reports,"
+         "tree,hexdump,ziplink";
 }
 
 /*

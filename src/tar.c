@@ -1052,6 +1052,7 @@ void tarlist_page(void){
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
+  robot_restrict("ziplink");
 
   style_set_current_feature("timeline");
   style_header("Suggested Tarballs And ZIP Archives");
@@ -1141,6 +1142,7 @@ void rchvdwnld_page(void){
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
   robot_restrict("zip");
+  robot_restrict("ziplink");
 
   zUuid = P("name");
   if( zUuid==0
@@ -1153,20 +1155,28 @@ void rchvdwnld_page(void){
   }
   zUuid = db_text(zUuid, "SELECT uuid FROM blob WHERE rid=%d", rid);
   style_header("Downloads For Check-in %!S", zUuid);
+  style_submenu_element("Info","%R/info/%!S",zUuid);
+  style_submenu_element("Context","%R/timeline?c=%!S&y=ci&n=11",zUuid);
   zBase = archive_base_name(rid);
-  @ <ul>
-  @ <li><p>
-  @ Tarball: %z(href("%R/tarball/%!S/%s.tar.gz",zUuid,zBase))\
-  @ %s(g.zBaseURL)/tarball/%!S(zUuid)/%s(zBase).tar.gz</a>
+  @ <table class="label-value">
+  @ <tr>
+  @ <th>Tarball:</th>
+  @ <td>%z(href("%R/tarball/%!S/%s.tar.gz",zUuid,zBase))\
+  @ %s(g.zBaseURL)/tarball/%!S(zUuid)/%s(zBase).tar.gz</a></td>
+  @ </tr>
   @
-  @ <li><p>
-  @ ZIP: %z(href("%R/zip/%!S/%s.zip",zUuid,zBase))\
-  @ %s(g.zBaseURL)/zip/%!S(zUuid)/%s(zBase).zip</a>
+  @ <tr>
+  @ <th>ZIP:</th>
+  @ <td>%z(href("%R/zip/%!S/%s.zip",zUuid,zBase))\
+  @ %s(g.zBaseURL)/zip/%!S(zUuid)/%s(zBase).zip</a></td>
+  @ </tr>
   @
-  @ <li><p>
-  @ SQLAR: %z(href("%R/sqlar/%!S/%s.sqlar",zUuid,zBase))\
-  @ %s(g.zBaseURL)/sqlar/%!S(zUuid)/%s(zBase).sqlar</a>
-  @ </ul>
+  @ <tr>
+  @ <th>SQLAR:</th>
+  @ <td>%z(href("%R/sqlar/%!S/%s.sqlar",zUuid,zBase))\
+  @ %s(g.zBaseURL)/sqlar/%!S(zUuid)/%s(zBase).sqlar</a></td>
+  @ </tr>
+  @ </table>
   fossil_free(zBase);
   style_finish_page();
 }

@@ -490,10 +490,12 @@ void setup_robots(void){
   @ <p>
   @ The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
   @ /vpatch.  The "annotate" tag covers /annotate and also /blame and
-  @ /praise.  The "zip" covers itself and also /tarball and /sqlar. If a
-  @ tag has an "X" character appended, then it only applies if query
-  @ parameters are such that the page is expensive and/or unusual.
-  @ In all other case, the tag should exactly match the page name.
+  @ /praise.  The "zip" covers itself and also /tarball and /sqlar. The
+  @ "ziplink" page means any page that contains hyperlinks to a "zip" page.
+  @ If a tag has an "X" character appended (ex: "timelineX") then it only
+  @ applies if query parameters are such that the page is expensive
+  @ and/or unusual. In all other case, the tag should exactly match
+  @ the page name.
   @
   @ To disable robot restrictions, change this setting to "off".
   @ (Property: robot-restrict)
