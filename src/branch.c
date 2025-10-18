@@ -1032,7 +1032,7 @@ static void brtimeline_extra(
   int tmFlagsNew;
   char *zBrName;
 
-  if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
     tmFlagsNew = (tmFlags & ~TIMELINE_VIEWS) | TIMELINE_MODERN;
     cgi_printf("(");
   }else{
@@ -1045,7 +1045,7 @@ static void brtimeline_extra(
   zBrName = branch_of_rid(rid);
   @  branch:&nbsp;<span class='timelineHash'>\
   @ %z(href("%R/timeline?r=%T",zBrName))%h(zBrName)</a></span>
-  if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
     cgi_printf(")");
   }
 }

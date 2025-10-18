@@ -117,7 +117,9 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_MODERN   0x0004000 /* Use the "modern" view style */
 #define TIMELINE_COLUMNAR 0x0008000 /* Use the "columns" view style */
 #define TIMELINE_CLASSIC  0x0010000 /* Use the "classic" view style */
-#define TIMELINE_VIEWS    0x001f000 /* Mask for all of the view styles */
+#define TIMELINE_SIMPLE   0x0020000 /* Use the "simple" view style */
+#define TIMELINE_INLINE   0x0033000 /* Mask for views with in-line display */
+#define TIMELINE_VIEWS    0x003f000 /* Mask for all of the view styles */
 #define TIMELINE_NOSCROLL 0x0100000 /* Don't scroll to the selection */
 #define TIMELINE_FILEDIFF 0x0200000 /* Show File differences, not ckin diffs */
 #define TIMELINE_CHPICK   0x0400000 /* Show cherrypick merges */
@@ -196,7 +198,7 @@ void timeline_extra(
   int tagid = db_column_int(pQuery, 9);
   const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
 
-  if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
     cgi_printf("(");
   }
 
@@ -236,12 +238,16 @@ void timeline_extra(
 #if EXTRA_FORMAT==1
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='c' ){
-      int isLeaf = db_column_int(pQuery, 5);
       const char *zPrefix;
-      if( isLeaf ){
-        zPrefix = has_closed_tag(rid) ? "closed&nbsp;" : "leaf&nbsp;";
-      }else{
+      if( tmFlags & TIMELINE_SIMPLE ){
         zPrefix = "";
+      }else{
+        int isLeaf = db_column_int(pQuery, 5);
+        if( isLeaf ){
+          zPrefix = has_closed_tag(rid) ? "closed&nbsp;" : "leaf&nbsp;";
+        }else{
+          zPrefix = "";
+        }
       }
       cgi_printf("%scheck-in:&nbsp;%z<span class='timelineHash'>"
                  "%S</span></a> ",
@@ -258,6 +264,12 @@ void timeline_extra(
     cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
   }
 #endif /* EXTRA_FORMAT==1 */
+
+  if( (tmFlags & TIMELINE_SIMPLE)!=0 ){
+    @ <span class='timelineEllipsis' id='ellipsis-%d(rid)' \
+    @ data-id='%d(rid)'>...</span>
+    @ <span class='clutter' id='detail-%d(rid)'>
+  }
 
   if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
     char *zLink;
@@ -313,6 +325,10 @@ void timeline_extra(
   }
   tag_private_status(rid);
 
+  if( (tmFlags & TIMELINE_SIMPLE)!=0 ){
+    cgi_printf("</span>");  /* End of the declutter span */
+  }
+
 #if EXTRA_FORMAT==2
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='c' ){
@@ -334,7 +350,7 @@ void timeline_extra(
 
 
   /* End timelineDetail */
-  if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
     cgi_printf(")");
   }
 }
@@ -422,6 +438,8 @@ void www_print_timeline(
     zStyle = "Columnar";
   }else if( tmFlags & TIMELINE_COMPACT ){
     zStyle = "Compact";
+  }else if( tmFlags & TIMELINE_SIMPLE ){
+    zStyle = "Simple";
   }else if( tmFlags & TIMELINE_VERBOSE ){
     zStyle = "Verbose";
   }else if( tmFlags & TIMELINE_CLASSIC ){
@@ -1327,6 +1345,7 @@ int timeline_ss_cookie(void){
     case 'v':  tmFlags = TIMELINE_VERBOSE;  break;
     case 'j':  tmFlags = TIMELINE_COLUMNAR; break;
     case 'x':  tmFlags = TIMELINE_CLASSIC;  break;
+    case 's':  tmFlags = TIMELINE_SIMPLE;   break;
     default:   tmFlags = TIMELINE_MODERN;   break;
   }
   return tmFlags;
@@ -1339,11 +1358,12 @@ const char *const timeline_view_styles[] = {
   "m", "Modern View",
   "j", "Columnar View",
   "c", "Compact View",
+  "s", "Simple View",
   "v", "Verbose View",
   "x", "Classic View",
 };
 #if INTERFACE
-# define N_TIMELINE_VIEW_STYLE 5
+# define N_TIMELINE_VIEW_STYLE 6
 #endif
 
 /*
