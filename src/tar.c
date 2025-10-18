@@ -1076,21 +1076,41 @@ void download_extra(
 ** SETTING: suggested-downloads               width=70  block-text
 **
 ** This setting controls the suggested tarball/ZIP downloads on the
-** [[/download]] page.  The value is a TCL list.  Each pair of items
+** [[/download]] page.  The value is a TCL list.  Each set of four items
 ** defines a set of check-ins to be added to the suggestion list.
-** The first item of each pair is an integer count (N) and second
-** item is a tag GLOB pattern (PATTERN). For each pair, the most
-** recent N check-ins that have a tag matching PATTERN are added
-** to the list.  The special pattern "OPEN-LEAF" matches any open
-** leaf check-in.
+** The items are:
+**
+**       COUNT   TAG    MAX_AGE    COMMENT
+**
+** COUNT is the number of check-ins to match, starting with the most
+** recent and working bacwards in time.  Check-ins match if they contain
+** the tag TAG.  If MAX_AGE is not an empty string, then it specifies
+** the maximum age of any matching check-in.  COMMENT is an optional
+** comment for each match.
+**
+** The special value of "OPEN-LEAF" for TAG matches any check-in that
+** is an open leaf.
+**
+** MAX_AGE is of the form "{AMT UNITS}"  where AMT is a floating point
+** value and UNITS is one of "seconds", "hours", "days", "weeks", "months",
+** or "years".  If MAX_AGE is an empty string then there is no age limit.
+**
+** If COMMENT is not an empty string, the it is an additional comment
+** added to the output description of suggested download.  The idea of
+** COMMENT is to explain to the reader why a check-in is a suggested
+** download.  
 **
 ** Example:
 **
-**        3 OPEN-LEAF 3 release 1 trunk
+**        1   trunk     {}         {Lastest Trunk Check-in}
+**        5   OPEN-LEAF {3 months} {Open Leaf}
+**        999 release   {1 year}   {}
 **
-** The value causes the /download page to show the union of the 3
-** most recent open leaves, the three most recent check-ins marked
-** "release", and the single most recent trunk check-in.
+** The value causes the /download page to show the union of the most
+** recent trunk check-in of any age, the three most recent
+** open leaves within the the past three months, and essentually
+** all releases within the past year.  If the same check-in matches more
+** than one rule, the COMMENT of the first match is used.
 */
 
 /*
@@ -1108,6 +1128,7 @@ void download_page(void){
   int i;                        /* Loop counter */
   int tmFlags;                  /* Timeline display flags */
   int n;                        /* Number of suggested downloads */
+  double rNow;                  /* Current time.  Julian day number */
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
@@ -1117,14 +1138,17 @@ void download_page(void){
 
   zTarlistCfg = db_get("suggested-downloads","off");
   db_multi_exec(
-    "CREATE TEMP TABLE tarlist(rid INTEGER PRIMARY KEY);"
+    "CREATE TEMP TABLE tarlist(rid INTEGER PRIMARY KEY, com TEXT);"
   );
+  rNow = db_double(0.0,"SELECT julianday()");
   if( !g.interp ) Th_FossilInit(0);
   Th_SplitList(g.interp, zTarlistCfg, (int)strlen(zTarlistCfg),
                    &azItem, &anItem, &nItem);
-  for(i=0; i<nItem-1; i+=2){
-    int cnt;
-    char *zLabel;
+  for(i=0; i<nItem-3; i+=4){
+    int cnt;             /* The number of instances of zLabel to use */
+    char *zLabel;        /* The label to match */
+    double rStart;       /* Starting time, julian day number */
+    char *zComment = 0;  /* Comment to apply */
     if( anItem[i]==1 && azItem[i][0]=='*' ){
       cnt = -1;
     }else if( anItem[i]<1 ){
@@ -1134,30 +1158,67 @@ void download_page(void){
     }
     if( cnt==0 ) continue;
     zLabel = fossil_strndup(azItem[i+1],anItem[i+1]);
+    if( anItem[i+2]==0 ){
+      rStart = 0.0;
+    }else{
+      char *zMax = fossil_strndup(azItem[i+2], anItem[i+2]);
+      double r = atof(zMax);
+      if( strstr(zMax,"sec") ){
+        rStart = rNow - r/86400.0;
+      }else
+      if( strstr(zMax,"hou") ){
+        rStart = rNow - r/24.0;
+      }else
+      if( strstr(zMax,"da") ){
+        rStart = rNow - r;
+      }else
+      if( strstr(zMax,"wee") ){
+        rStart = rNow - r*7.0;
+      }else
+      if( strstr(zMax,"mon") ){
+        rStart = rNow - r*30.44;
+      }else
+      if( strstr(zMax,"yea") ){
+        rStart = rNow - r*365.24;
+      }else
+      { /* Default to seconds */
+        rStart = rNow - r/86400.0;
+      }
+    }
+    if( anItem[i+3]==0 ){
+      zComment = fossil_strdup("");
+    }else{
+      zComment = fossil_strndup(azItem[i+3],anItem[i+3]);
+    }
     if( fossil_strcmp("OPEN-LEAF",zLabel)==0 ){
       db_multi_exec(
-        "INSERT OR IGNORE INTO tarlist(rid)"
-         " SELECT leaf.rid FROM leaf, event"
+        "INSERT OR IGNORE INTO tarlist(rid,com)"
+         " SELECT leaf.rid, %Q FROM leaf, event"
           " WHERE event.objid=leaf.rid"
+            " AND event.mtime>=%.6f"
             " AND NOT EXISTS(SELECT 1 FROM tagxref"
                             " WHERE tagxref.rid=leaf.rid"
                               " AND tagid=%d AND tagtype>0)"
-          " ORDER BY event.mtime DESC LIMIT %d", TAG_CLOSED, cnt
+          " ORDER BY event.mtime DESC LIMIT %d",
+          zComment, rStart, TAG_CLOSED, cnt
       );
     }else{
       db_multi_exec(
         "WITH taglist(tid) AS"
             " (SELECT tagid FROM tag WHERE tagname GLOB 'sym-%q')"
-        "INSERT OR IGNORE INTO tarlist(rid)"
-        " SELECT event.objid FROM event CROSS JOIN tagxref"
+        "INSERT OR IGNORE INTO tarlist(rid,com)"
+        " SELECT event.objid, %Q FROM event CROSS JOIN tagxref"
         "  WHERE event.type='ci'"
+        "    AND event.mtime>=%.6f"
         "    AND tagxref.tagid IN taglist"
         "    AND tagtype>0"
         "    AND tagxref.rid=event.objid"
-        "  ORDER BY event.mtime DESC LIMIT %d", zLabel, cnt
+        "  ORDER BY event.mtime DESC LIMIT %d",
+        zLabel, zComment, rStart, cnt
       );
     }
     fossil_free(zLabel);
+    fossil_free(zComment);
   }
   Th_Free(g.interp, azItem);
 
@@ -1167,7 +1228,12 @@ void download_page(void){
   }else{
     @ <h2>%d(n) Tarball/ZIP Download Suggestion%s(n>1?"s":""):</h2>
     db_prepare(&q,
-      "%s AND blob.rid IN tarlist ORDER BY event.mtime DESC",
+      "WITH matches AS (%s AND blob.rid IN (SELECT rid FROM tarlist))\n"
+      "SELECT blobRid, uuid, timestamp,"
+            " if(length(com)>0,'<b>'||com||'</b><p>','')||comment,"
+            " user, leaf, bgColor, eventType, tags, tagid, brief, mtime"
+      "  FROM matches JOIN tarlist ON tarlist.rid=blobRid"
+      " ORDER BY matches.mtime DESC",
       timeline_query_for_www()
     );
 

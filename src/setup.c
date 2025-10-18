@@ -1430,24 +1430,23 @@ void setup_config(void){
       "sitemap-extra", "smextra", "", 0);
   @ <hr>
   @ <p>Configuration for the <a href="%R/download">/download</a> page.
-  @ The value is a TCL list divided into pairs.
+  @ The value is a TCL list divided into groups of four:
   @ <ol>
-  @ <li> The first term of each pair is an integer (N).
-  @ <li> The second term of each pair is a glob pattern (PATTERN).
+  @ <li> Maximum number of matches (COUNT).
+  @ <li> Tag to match using glob (TAG).
+  @ <li> Maximum age of check-ins to match (MAX_AGE).
+  @ <li> Comment to apply to matches (COMMENT).
   @ </ol>
-  @ For each pair, the most recent N check-ins that have a tag that
-  @ matches PATTERN are included in on the /download page.  The special
-  @ pattern of "OPEN-LEAF" matches all open leaf check-ins.  Example:
-  @ <blockquote><tt>1 trunk 3 release 5 OPEN-LEAF</tt></blockquote>
-  @ The example pattern above shows the union of the most recent trunk
-  @ check-in, the 5 most recent open leaf check-ins, and the 3 most
-  @ recent check-ins tagged with "release".  
+  @ The /download display is the union of all groups of four.
+  @ See the <a href="%R/help/suggested-downloads">suggested-downloads</a>
+  @ setting documentation for further detail.
   @ <p>
   @ The /download page is omitted from the <a href="%R/sitemap">/sitemap</a>
-  @ if the first token is "0" or "off" or "no".  The default value is "off".
+  @ if the first token is "0" or "off" or "no".  The default value 
+  @ for this setting is "off".
   @ (Property: <a href="%R/help/suggested-downloads">suggested-downloads</a>)
   @ <p>
-  textarea_attribute("Suggested Downloads", 2, 80,
+  textarea_attribute("Suggested Downloads", 4, 80,
       "suggested-downloads", "sgtrlst", "off", 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
