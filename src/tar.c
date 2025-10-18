@@ -1157,15 +1157,15 @@ void rchvdwnld_page(void){
   @ <ul>
   @ <li><p>
   @ Tarball: %z(href("%R/tarball/%!S/%s.tar.gz",zUuid,zBase))\
-  @ %s(g.zBaseURL)%R/tarball/%!S(zUuid)/%s(zBase).tar.gz</a>
+  @ %s(g.zBaseURL)/tarball/%!S(zUuid)/%s(zBase).tar.gz</a>
   @
   @ <li><p>
   @ ZIP: %z(href("%R/zip/%!S/%s.zip",zUuid,zBase))\
-  @ %s(g.zBaseURL)%R/zip/%!S(zUuid)/%s(zBase).zip</a>
+  @ %s(g.zBaseURL)/zip/%!S(zUuid)/%s(zBase).zip</a>
   @
   @ <li><p>
   @ SQLAR: %z(href("%R/sqlar/%!S/%s.sqlar",zUuid,zBase))\
-  @ %s(g.zBaseURL)%R/sqlar/%!S(zUuid)/%s(zBase).sqlar</a>
+  @ %s(g.zBaseURL)/sqlar/%!S(zUuid)/%s(zBase).sqlar</a>
   @ </ul>
   fossil_free(zBase);
   style_finish_page();
