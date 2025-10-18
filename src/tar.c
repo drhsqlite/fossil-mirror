@@ -1137,6 +1137,7 @@ void download_page(void){
   int tmFlags;                  /* Timeline display flags */
   int n;                        /* Number of suggested downloads */
   double rNow;                  /* Current time.  Julian day number */
+  int bPlainTextCom;            /* Use plain-text comments */
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
@@ -1152,6 +1153,7 @@ void download_page(void){
   if( !g.interp ) Th_FossilInit(0);
   Th_SplitList(g.interp, zTarlistCfg, (int)strlen(zTarlistCfg),
                    &azItem, &anItem, &nItem);
+  bPlainTextCom = db_get_boolean("timeline-plaintext",0);
   for(i=0; i<nItem-3; i+=4){
     int cnt;             /* The number of instances of zLabel to use */
     char *zLabel;        /* The label to match */
@@ -1195,8 +1197,10 @@ void download_page(void){
     }
     if( anItem[i+3]==0 ){
       zComment = fossil_strdup("");
+    }else if( bPlainTextCom ){
+      zComment = mprintf("** %.*s ** ", anItem[i+3], azItem[i+3]);
     }else{
-      zComment = fossil_strndup(azItem[i+3],anItem[i+3]);
+      zComment = mprintf("<b>%.*s</b>\n<p>", anItem[i+3], azItem[i+3]);
     }
     if( fossil_strcmp("OPEN-LEAF",zLabel)==0 ){
       db_multi_exec(
@@ -1238,7 +1242,7 @@ void download_page(void){
     db_prepare(&q,
       "WITH matches AS (%s AND blob.rid IN (SELECT rid FROM tarlist))\n"
       "SELECT blobRid, uuid, timestamp,"
-            " if(length(com)>0,'<b>'||com||'</b><p>','')||comment,"
+            " com||comment,"
             " user, leaf, bgColor, eventType, tags, tagid, brief, mtime"
       "  FROM matches JOIN tarlist ON tarlist.rid=blobRid"
       " ORDER BY matches.mtime DESC",
