@@ -1171,9 +1171,10 @@ void rchvdwnld_page(void){
   }
   zUuid = db_text(zUuid, "SELECT uuid FROM blob WHERE rid=%d", rid);
   style_header("Downloads For Check-in %!S", zUuid);
-  style_submenu_element("Info","%R/info/%!S",zUuid);
-  style_submenu_element("Context","%R/timeline?c=%!S&y=ci&n=11",zUuid);
   zBase = archive_base_name(rid);
+  @ <div class="section accordion">Downloads for check-in \
+  @ %z(href("%R/info/%!S",zUuid))%S(zUuid)</a></div>
+  @ <div class="accordion_panel">
   @ <table class="label-value">
   @ <tr>
   @ <th>Tarball:</th>
@@ -1192,7 +1193,10 @@ void rchvdwnld_page(void){
   @ <td>%z(href("%R/sqlar/%!S/%s.sqlar",zUuid,zBase))\
   @ %s(g.zBaseURL)/sqlar/%!S(zUuid)/%s(zBase).sqlar</a></td>
   @ </tr>
-  @ </table>
+  @ </table></div>
   fossil_free(zBase);
+  @ <div class="section accordion">Context</div><div class="accordion_panel">
+  render_checkin_context(rid, 0, 0, 0);
+  @ </div>
   style_finish_page();
 }
