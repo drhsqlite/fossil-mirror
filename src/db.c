@@ -1230,8 +1230,8 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 /*
 ** Execute a query.  Return the first column of the first row
 ** of the result set as a string.  Space to hold the string is
-** obtained from malloc().  If the result set is empty, return
-** zDefault instead.
+** obtained from fossil_strdup() and should be freed using fossil_free().
+** If the result set is empty, return a copy of zDefault instead.
 */
 char *db_text(const char *zDefault, const char *zSql, ...){
   va_list ap;

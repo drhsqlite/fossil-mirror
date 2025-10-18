@@ -231,6 +231,14 @@ void page_dir(void){
   }
   style_header("%s", zHeader);
   fossil_free(zHeader);
+  if( rid && zD==0 && zMatch[0]==0 && g.perm.Zip ){
+    char *zBase = archive_base_name(rid);
+    style_submenu_element("Tarball","%R/tarball/%!S/%s.tar.gz",
+                          zUuid, zBase);
+    style_submenu_element("ZIP","%R/zip/%!S/%s.zip",
+                          zUuid, zBase);
+    fossil_free(zBase);
+  }
   style_adunit_config(ADUNIT_RIGHT_OK);
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
@@ -816,6 +824,14 @@ void page_tree(void){
   }
   style_submenu_element("Flat-View", "%s",
                         url_render(&sURI, "type", "flat", 0, 0));
+  if( rid && zD==0 && zRE==0 && !showDirOnly && g.perm.Zip ){
+    char *zBase = archive_base_name(rid);
+    style_submenu_element("Tarball","%R/tarball/%!S/%s.tar.gz",
+                          zUuid, zBase);
+    style_submenu_element("ZIP","%R/zip/%!S/%s.zip",
+                          zUuid, zBase);
+    fossil_free(zBase);
+  }
 
   /* Compute the file hierarchy.
   */

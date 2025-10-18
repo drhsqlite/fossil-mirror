@@ -866,15 +866,7 @@ static void archive_cmd(int eType){
   }
 
   if( zName==0 ){
-    zName = db_text("default-name",
-       "SELECT replace(%Q,' ','_') "
-          " || strftime('_%%Y-%%m-%%d_%%H%%M%%S_', event.mtime) "
-          " || substr(blob.uuid, 1, 10)"
-       "  FROM event, blob"
-       " WHERE event.objid=%d"
-       "   AND blob.rid=%d",
-       db_get("project-name", "unnamed"), rid, rid
-    );
+    zName = archive_base_name(rid);
   }
   zip_of_checkin(eType, rid, zOut ? &zip : 0,
                  zName, pInclude, pExclude, listFlag);

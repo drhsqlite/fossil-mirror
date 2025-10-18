@@ -33,6 +33,45 @@ static struct tarball_t {
   Blob pax;                 /* PAX data */
 } tball;
 
+/*
+** Compute a sensible base-name for an archive file (tarball, ZIP, or SQLAR)
+** based on the rid of the check-in contained in that file.
+**
+**      PROJECTNAME-DATETIME-HASHPREFIX
+**
+** So that the name will be safe to use as a URL or a filename on any system,
+** the name is only allowed to contain lower-case ASCII alphabetics,
+** digits, '_' and '-'.  Upper-case ASCII is converted to lower-case.  All
+** other bytes are mapped into a lower-case alphabetic.
+**
+** The value returned is obtained from mprintf() or fossil_strdup() and should
+** be released by the caller using fossil_free().
+*/
+char *archive_base_name(int rid){
+  char *zName;
+  int i;
+  char c;
+  zName = db_text(0,
+    "SELECT coalesce(config.value,'unnamed')||"
+          " strftime('-%%Y%%m%%d%%H%%M%%S-',event.mtime)||"
+          " substr(blob.uuid,1,10)"
+     " FROM blob, event LEFT JOIN config"
+    " WHERE blob.rid=%d"
+      " AND event.objid=%d"
+      " AND config.name='project-name'",
+    rid, rid);
+  for(i=0; (c = zName[i])!=0; i++){
+    if( fossil_isupper(c) ){
+      zName[i] = fossil_tolower(c);
+    }else if( !fossil_isalnum(c) && c!='_' && c!='-' ){
+              /*  123456789 123456789 123456  */
+      zName[i] = "abcdefghijklmnopqrstuvwxyz"[(unsigned)c%26];
+    }
+  }
+  return zName;
+}
+
+
 
 /*
 ** field lengths of 'ustar' name and prefix fields.
@@ -655,15 +694,7 @@ void tarball_cmd(void){
   }
 
   if( zName==0 ){
-    zName = db_text("default-name",
-       "SELECT replace(%Q,' ','_') "
-          " || strftime('_%%Y-%%m-%%d_%%H%%M%%S_', event.mtime) "
-          " || substr(blob.uuid, 1, 10)"
-       "  FROM event, blob"
-       " WHERE event.objid=%d"
-       "   AND blob.rid=%d",
-       db_get("project-name", "unnamed"), rid, rid
-    );
+    zName = archive_base_name(rid);
   }
   tarball_of_checkin(rid, zOut ? &tarball : 0,
                      zName, pInclude, pExclude, listFlag);
