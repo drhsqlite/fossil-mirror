@@ -1,5 +1,5 @@
-C The\snew\s"Simple"\sview\sfor\stimelines\sattempts\sto\sdeclutter\sthe\stimeline\nwithout\sbeing\sas\sextreme\sas\sthe\s"Compact"\sview.\s\sThe\scheck-in:\sor\sartifact:\ndetail\sis\sstill\sshown,\sbut\sother\sdetails\sare\somitted,\sthough\sthey\scan\nbe\srecalled\sby\sclicking\son\sthe\sellipsis.\s\sThe\s"left"\sor\s"closed"\sprefix\nto\sthe\s"check-in:"\sdetail\sis\salso\somitted.\s\s"Simple"\sattempts\sto\sbe\sa\ncompromise\sbetween\s"Compact"\sand\s"Verbose".
-D 2025-10-18T17:18:37.997
+C Do\snot\sgenerate\starball\shyperlinks\sunless\swe\sare\ssure\sthe\sclient\sis\nnot\sa\sspider.
+D 2025-10-18T19:28:40.309
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -471,7 +471,7 @@ F src/http_socket.c db9603e27cbf4b41dae94d000acf3dbf1ecbb431ef0a24743aabd17e5467
 F src/http_ssl.c 5050cdd1441962f51762780cdd87b38c7281ecc6f4a65290acdaca318e9a4ca0
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 6997a6b6d9ca3d2cd5e79b2561aaad2582a78d7c6032c44a956c6bb611b59c34
-F src/info.c 581f13946fec4aa4f9af9cf9f43b989de64497cc251e62dedf47df302a9bc0f1
+F src/info.c 88ac1878fb97899ad9fd86dfae5bc308723e034726eafbfbeaf9eb328b7f4180
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 3e2cd3fd2dc263628dc92aa5624fb3c7050237db7223fbd293760bd423c7636d
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -522,7 +522,7 @@ F src/rebuild.c ff94a6ed18cf7ce2a4cae3fd1862a11c53a6f08a9277f753e497978c3c8aead6
 F src/regexp.c 3e7e6f98530060e27232be7d2638b1d7b953f6bc6339d45bc02c5c206c77a911
 F src/repolist.c 3a3fb5895bbc6a43b3a379d7419bc6cbb3b826e921475c15c2624b1bb76157f1
 F src/report.c f423bfbd6a88753fdb5b9b91c2f3a787f0db955400f67e46d1630633af8bb758
-F src/robot.c 1d036ae9a56aead4c4d9deb6b5c3fc7ce7c3c367a8d93cbf1b8dfc48feefe37b
+F src/robot.c c80a01fe1c369aa85540a2fd058a9bb5fb649726b3c735c068363682f0281191
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
@@ -569,7 +569,7 @@ F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f1
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 3bbb805fbc3e6a10a1945f1b9d17ed9d5c69eaa4928341cb33c2d0059ef4bbb1
-F src/tar.c 8c72cc90837e772f625a1472ff01795b2bdc1f17649317847477179d7d7a1c54
+F src/tar.c 310874f419d0c7e57bcbcb63e16015f83facbf065bf9024ce6992d863965a9cc
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 717fbdc297f72b30ec637b6f9ac5f3b80373de85c5a4e798d70977c0c9f4ec33
-R 449e3cdad06a6cd3672ea883362da7d1
+P 07a43dd39adb93452684bef5dcdc91293af3f598a627e031e3c9d9093693eb10
+R db6f2248f4c2896b6fc1cb1a88b230da
 U drh
-Z 2b349bbcd3680ced727b59b258c58db3
+Z 8fe12c01e8c280501c39eb6c2915e284
 # Remove this line to create a well-formed Fossil manifest.

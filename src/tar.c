@@ -1158,8 +1158,7 @@ void rchvdwnld_page(void){
   int rid;
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
-  robot_restrict("zip");
-  robot_restrict("download");
+  if( robot_restrict("zip") || robot_restrict("download") ) return;
 
   zUuid = P("name");
   if( zUuid==0

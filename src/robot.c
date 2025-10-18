@@ -327,7 +327,7 @@ const char *robot_restrict_default(void){
 ** Return true if zTag matches one of the tags in the robot-restrict
 ** setting.
 */
-int robot_restrict_has_tag(const char *zTag){
+static int robot_restrict_has_tag(const char *zTag){
   static const char *zGlob = 0;
   if( zGlob==0 ){
     zGlob = db_get("robot-restrict",robot_restrict_default());
@@ -411,16 +411,27 @@ int robot_exception(void){
 }
 
 /*
-** Check to see if the page named in the argument is on the
-** robot-restrict list.  If it is on the list and if the user
-** is "nobody" then bring up a captcha to test to make sure that
-** client is not a robot.
+** Return true if one or more of the conditions below are true.
+** Return false if all of the following are false:
 **
-** This routine returns true if a captcha was rendered and if subsequent
-** page generation should be aborted.  It returns false if the page
-** should not be restricted and should be rendered normally.
+**   *  The zTag is on the robot-restrict list
+**
+**   *  The client that submitted the HTTP request might be
+**      a robot
+**
+**   *  The Request URI does not match any of the exceptions
+**      in the robot-exception setting.
+**
+** In other words, return true if a call to robot_restrict() would
+** return true and false if a call to robot_restrict() would return
+** false.
+**
+** The difference between this routine an robot_restrict() is that
+** this routine does not generate a proof-of-work captcha.  This
+** routine does not change the HTTP reply in any way.  It simply
+** returns true or false.
 */
-int robot_restrict(const char *zTag){
+int robot_would_be_restricted(const char *zTag){
   if( robot.resultCache==KNOWN_NOT_ROBOT ) return 0;
   if( !robot_restrict_has_tag(zTag) ) return 0;
   if( !client_might_be_a_robot() ) return 0;
@@ -428,10 +439,27 @@ int robot_restrict(const char *zTag){
     robot.resultCache = KNOWN_NOT_ROBOT;
     return 0;
   }
-
-  /* Generate the proof-of-work captcha */
-  ask_for_proof_that_client_is_not_robot();
   return 1;
+}
+
+/*
+** Check to see if the page named in the argument is on the
+** robot-restrict list.  If it is on the list and if the user
+** is might be a robot, then bring up a captcha to test to make
+** sure that client is not a robot.
+**
+** This routine returns true if a captcha was rendered and if subsequent
+** page generation should be aborted.  It returns false if the page
+** should not be restricted and should be rendered normally.
+*/
+int robot_restrict(const char *zTag){
+  if( robot_would_be_restricted(zTag) ){
+    /* Generate the proof-of-work captcha */
+    ask_for_proof_that_client_is_not_robot();
+    return 1;
+  }else{
+    return 0;
+  }
 }
 
 /*

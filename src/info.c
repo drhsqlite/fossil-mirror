@@ -995,15 +995,19 @@ void ci_page(void){
 
     /* The Download: line */
     if( g.perm.Zip  ){
-      char *zBase = archive_base_name(rid);
       @ <tr><th>Downloads:</th><td>
-      @ %z(href("%R/tarball/%S/%s.tar.gz",zUuid,zBase))Tarball</a>
-      @ | %z(href("%R/zip/%S/%s.zip",zUuid,zBase))ZIP archive</a>
-      if( g.zLogin!=0 ){
-        @ | %z(href("%R/sqlar/%S/%s.sqlar",zUuid,zBase))\
-        @ SQL archive</a></td></tr>
+      if( robot_would_be_restricted("download") ){
+        @ See separate %z(href("%R/rchvdwnld/%!S",zUuid))download page</a>
+      }else{
+        char *zBase = archive_base_name(rid);
+        @ %z(href("%R/tarball/%S/%s.tar.gz",zUuid,zBase))Tarball</a>
+        @ | %z(href("%R/zip/%S/%s.zip",zUuid,zBase))ZIP archive</a>
+        if( g.zLogin!=0 ){
+          @ | %z(href("%R/sqlar/%S/%s.sqlar",zUuid,zBase))\
+          @ SQL archive</a></td></tr>
+        }
+        fossil_free(zBase);
       }
-      fossil_free(zBase);
     }
 
     @ <tr><th>Timelines:</th><td>
@@ -1937,7 +1941,7 @@ int preferred_diff_type(void){
   int isBot;
   static char zDflt[2]
     /*static b/c cookie_link_parameter() does not copy it!*/;
-  if( client_might_be_a_robot() && robot_restrict_has_tag("diff") ){
+  if( robot_would_be_restricted("diff") ){
     dflt = 0;
     isBot = 1;
   }else{
