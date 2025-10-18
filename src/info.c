@@ -1000,10 +1000,10 @@ void ci_page(void){
         @ See separate %z(href("%R/rchvdwnld/%!S",zUuid))download page</a>
       }else{
         char *zBase = archive_base_name(rid);
-        @ %z(href("%R/tarball/%S/%s.tar.gz",zUuid,zBase))Tarball</a>
-        @ | %z(href("%R/zip/%S/%s.zip",zUuid,zBase))ZIP archive</a>
+        @ %z(href("%R/tarball/%s.tar.gz",zBase))Tarball</a>
+        @ | %z(href("%R/zip/%s.zip",zBase))ZIP archive</a>
         if( g.zLogin!=0 ){
-          @ | %z(href("%R/sqlar/%S/%s.sqlar",zUuid,zBase))\
+          @ | %z(href("%R/sqlar/%s.sqlar",zBase))\
           @ SQL archive</a></td></tr>
         }
         fossil_free(zBase);

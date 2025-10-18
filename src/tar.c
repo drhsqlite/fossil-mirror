@@ -708,21 +708,70 @@ void tarball_cmd(void){
 }
 
 /*
+** This is a helper routine for tar_uuid_from_name().  It handles
+** the case where *pzName contains no "/" character.  Check for
+** format (3).  Return the hash if the name matches format (3),
+** or return NULL if it does not.
+*/
+static char *format_three_parser(const char *zName){
+  int iDot = 0;    /* Index in zName[] of the first '.' */
+  int iDash1 = 0;  /* Index in zName[] of the '-' before the timestamp */
+  int iDash2 = 0;  /* Index in zName[] of the '-' between timestamp and hash */
+  int nHash;       /* Size of the hash */
+  char *zHash;     /* A copy of the hash value */
+  char *zDate;     /* Copy of the timestamp */
+  char *zUuid;     /* Final result */
+  int i;           /* Loop query */
+  Stmt q;          /* Query to verify that hash and timestamp agree */
+
+  for(i=0; zName[i]; i++){
+    char c = zName[i];
+    if( c=='.' ){ iDot = i;  break; }
+    if( c=='-' ){ iDash1 = iDash2; iDash2 = i; }
+    if( !fossil_isalnum(c) && c!='_' && c!='-' ){ break; }
+  }
+  if( iDot==0 ) return 0;
+  if( iDash1==0 ) return 0;
+  nHash = iDot - iDash2 - 1;
+  if( nHash<8 ) return 0;                /* HASH value too short */  
+  if( (iDash2 - iDash1)!=15 ) return 0;  /* Wrong timestamp size */
+  zHash = fossil_strndup(&zName[iDash2+1], nHash);
+  zDate = fossil_strndup(&zName[iDash1+1], 14);
+  db_prepare(&q, 
+    "SELECT blob.uuid"
+    "  FROM blob JOIN event ON event.objid=blob.rid"
+    " WHERE blob.uuid GLOB '%q*'"
+    "   AND strftime('%%Y%%m%%d%%H%%M%%S',event.mtime)='%q'", 
+    zHash, zDate
+  );
+  fossil_free(zHash);
+  fossil_free(zDate);
+  if( db_step(&q)==SQLITE_ROW ){
+    zUuid = fossil_strdup(db_column_text(&q,0));
+  }else{
+    zUuid = 0;
+  }
+  db_finalize(&q);
+  return zUuid;
+}
+
+/*
 ** Check to see if the input string is of one of the following
 ** two the forms:
 **
 **        check-in-name/filename.ext                       (1)
-**        tag-name/check-in-name/filename.txt              (2)
+**        tag-name/check-in-name/filename.ext              (2)
+**        project-datetime-hash.ext                        (3)
 **
 ** In other words, check to see if the input string contains either
 ** a check-in name or a tag-name and a check-in name separated by
-** a slash.  There must be either 1 or 2 "/" characters.  In the
+** a slash.  There must be between 0 or 2 "/" characters.  In the
 ** second form, tag-name must be an individual tag (not a branch-tag)
 ** that is found on the check-in identified by the check-in-name.
 **
 ** If the condition is true, then:
 **
-**   *  Make *pzName point to the fielname suffix only
+**   *  Make *pzName point to the filename suffix only
 **   *  return a copy of the check-in name in memory from mprintf().
 **
 ** If the condition is false, leave *pzName unchanged and return either
@@ -738,6 +787,15 @@ void tarball_cmd(void){
 ** "/tarball/release" prefix will match the suggested "robot-exception"
 ** pattern and can still refer to an historic release rather than just
 ** the most recent release.
+**
+** Format (3) is designed to allow URLs like this:
+**
+**     /tarball/fossil-20251018193920-d6c9aee97df.tar.gz
+**
+** In other words, filename itself contains sufficient information to
+** uniquely identify the check-in, including a timestamp of the form
+** YYYYMMDDHHMMSS and a prefix of the check-in hash.  The timestamp
+** and hash must immediately preceed the first "." in the name.
 */
 char *tar_uuid_from_name(char **pzName){
   char *zName = *pzName;      /* Original input */
@@ -757,7 +815,8 @@ char *tar_uuid_from_name(char **pzName){
     }
   }
   if( n1==0 ){
-    return 0;    /* No prefix of any kind */
+    /* Check for format (3) */
+    return format_three_parser(*pzName);
   }
   if( zName[n+1]==0 ){
     return 0;    /* No filename suffix */
@@ -1004,9 +1063,9 @@ void download_extra(
       }
     }
     zNm = archive_base_name(rid);
-    @ %z(href("%R/tarball/%!S/%s.tar.gz",zUuid,zNm))\
+    @ %z(href("%R/tarball/%s.tar.gz",zNm))\
     @    <button>Tarball</button></a>
-    @  %z(href("%R/zip/%!S/%s.zip",zUuid,zNm))\
+    @  %z(href("%R/zip/%s.zip",zNm))\
     @    <button>ZIP&nbsp;Archive</button></a>
     fossil_free(zBrName);
     fossil_free(zNm);
@@ -1178,20 +1237,20 @@ void rchvdwnld_page(void){
   @ <table class="label-value">
   @ <tr>
   @ <th>Tarball:</th>
-  @ <td>%z(href("%R/tarball/%!S/%s.tar.gz",zUuid,zBase))\
-  @ %s(g.zBaseURL)/tarball/%!S(zUuid)/%s(zBase).tar.gz</a></td>
+  @ <td>%z(href("%R/tarball/%s.tar.gz",zBase))\
+  @ %s(g.zBaseURL)/tarball/%s(zBase).tar.gz</a></td>
   @ </tr>
   @
   @ <tr>
   @ <th>ZIP:</th>
-  @ <td>%z(href("%R/zip/%!S/%s.zip",zUuid,zBase))\
-  @ %s(g.zBaseURL)/zip/%!S(zUuid)/%s(zBase).zip</a></td>
+  @ <td>%z(href("%R/zip/%s.zip",zBase))\
+  @ %s(g.zBaseURL)/zip/%s(zBase).zip</a></td>
   @ </tr>
   @
   @ <tr>
   @ <th>SQLAR:</th>
-  @ <td>%z(href("%R/sqlar/%!S/%s.sqlar",zUuid,zBase))\
-  @ %s(g.zBaseURL)/sqlar/%!S(zUuid)/%s(zBase).sqlar</a></td>
+  @ <td>%z(href("%R/sqlar/%s.sqlar",zBase))\
+  @ %s(g.zBaseURL)/sqlar/%s(zBase).sqlar</a></td>
   @ </tr>
   @ </table></div>
   fossil_free(zBase);
