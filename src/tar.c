@@ -44,8 +44,12 @@ static void sanitize_name(char *zName){
     if( fossil_isupper(c) ){
       zName[i] = fossil_tolower(c);
     }else if( !fossil_isalnum(c) && c!='_' && c!='-' ){
-              /*  123456789 123456789 123456  */
-      zName[i] = "abcdefghijklmnopqrstuvwxyz"[(unsigned)c%26];
+      if( c<=0x7f ){
+        zName[i] = '_';
+      }else{
+                /*  123456789 123456789 123456  */
+        zName[i] = "abcdefghijklmnopqrstuvwxyz"[(unsigned)c%26];
+      }
     }
   }
 }

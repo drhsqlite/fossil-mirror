@@ -1,5 +1,5 @@
-C When\sexpanding\sthe\sdetails\son\sthe\s/timeline\sin\sthe\sCompact\sor\sSimple\sview,\nchange\sthe\s"..."\sinto\s"←"\sand\skeep\sit\svisible,\sso\sthat\sthe\sexpanded\sdetails\ncan\sbe\stoggled\sback\soff.
-D 2025-10-19T17:03:09.661
+C Improved\starball\sfilename\snormalization.
+D 2025-10-19T17:57:36.116
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -569,7 +569,7 @@ F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f1
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 3bbb805fbc3e6a10a1945f1b9d17ed9d5c69eaa4928341cb33c2d0059ef4bbb1
-F src/tar.c 6dfcb4d10e04d70421834ee5f0923ade0ddb5f27ad27c9f38b5ce74f4265379a
+F src/tar.c 52fee027d06b2ac425744dfc075b3c430a6c58a55ddecdcdc214cae65bbaffc6
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c9c17a81a9e95d4b5fb261995a6abda876ee979140ad49d727ddfb1fd9b77fb0
-R aefb06d62eb0b2095c7b7525ac81e55f
+P 2d89ae650ea94e0c1e7be9ca2b42678563c2fac9caa47b271c9ce4f8ee3cf0ce
+R 70d17197f78ea74605c892c960f3372d
 U drh
-Z ba43c463821b0caa03f11afdcdae4893
+Z 72b973334b60013cfa8af839f1de112a
 # Remove this line to create a well-formed Fossil manifest.
