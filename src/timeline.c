@@ -202,57 +202,27 @@ void timeline_extra(
     cgi_printf("(");
   }
 
-  /* The EXTRA_FORMAT macro is an integer that controls various experiments
-  ** in the layout of the extra text.
-  **
-  **   0   Legacy appearance.
-  **   1   Deemphasize "Leaf" and "Closed-Leaf".  Highlight check-in hash.
-  **   2   Omit "Leaf"/"Closed-Leaf".  But check-in hash at the end.
-  */    
-#define EXTRA_FORMAT 1
-#if EXTRA_FORMAT==0
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='c' ){
-      int isLeaf = db_column_int(pQuery, 5);
-      if( isLeaf ){
-        if( has_closed_tag(rid) ){
-          @ <span class='timelineLeaf'>Closed-Leaf</span>
-        }else{
-          @ <span class='timelineLeaf'>Leaf</span>
-        }
+      const char *zPrefix = 0;
+      static int markLeaves = -1;
+      if( markLeaves<0 ){
+        markLeaves = db_get_int("timeline-mark-leaves",1);
+        if( markLeaves<0 ) markLeaves = 1;
       }
-      cgi_printf("check-in:&nbsp;%z%S</a> ",
-                  href("%R/info/%!S",zUuid),zUuid);
-    }else if( zType[0]=='e' && tagid ){
-      cgi_printf("technote:&nbsp;");
-      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
-    }else{
-      cgi_printf("artifact:&nbsp;%z%S</a> ",
-                 href("%R/info/%!S",zUuid),zUuid);
-    }
-  }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t'
-            || zType[0]=='n' || zType[0]=='f'){
-    cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
-  }
-#endif /* EXTRA_FORMAT==0 */
-#if EXTRA_FORMAT==1
-  if( (tmFlags & TIMELINE_CLASSIC)==0 ){
-    if( zType[0]=='c' ){
-      const char *zPrefix;
       if( strcmp(zUuid, MANIFEST_UUID)==0 ){
         /* This will only ever happen when Fossil is drawing a timeline for
         ** its own self-host repository.  If the timeline shows the specific
         ** check-in corresponding to the current executable, then tag that
         ** check-in with "自" (Simplified Chinese for "self"). */
         zPrefix = "自&nbsp;";
-      }else if( tmFlags & TIMELINE_SIMPLE ){
-        zPrefix = "";
-      }else{
-        int isLeaf = db_column_int(pQuery, 5);
-        if( isLeaf ){
+      }else if( markLeaves && db_column_int(pQuery,5) ){
+        if( markLeaves==1 ){
           zPrefix = has_closed_tag(rid) ? "closed&nbsp;" : "leaf&nbsp;";
         }else{
-          zPrefix = "";
+          zPrefix = has_closed_tag(rid) ?
+               "<span class='timelineLeaf'>Closed-Leaf</span>\n" :
+               "<span class='timelineLeaf'>Leaf</span>\n";
         }
       }
       cgi_printf("%scheck-in:&nbsp;%z<span class='timelineHash'>"
@@ -269,7 +239,6 @@ void timeline_extra(
             || zType[0]=='n' || zType[0]=='f'){
     cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
   }
-#endif /* EXTRA_FORMAT==1 */
 
   if( (tmFlags & TIMELINE_SIMPLE)!=0 ){
     @ <span class='timelineEllipsis' id='ellipsis-%d(rid)' \
@@ -335,26 +304,6 @@ void timeline_extra(
     cgi_printf("</span>");  /* End of the declutter span */
   }
 
-#if EXTRA_FORMAT==2
-  if( (tmFlags & TIMELINE_CLASSIC)==0 ){
-    if( zType[0]=='c' ){
-      cgi_printf(" check-in:&nbsp;%z<span class='timelineHash'>"
-                 "%S</span></a>",
-                  href("%R/info/%!S",zUuid),zUuid);
-    }else if( zType[0]=='e' && tagid ){
-      cgi_printf(" technote:&nbsp;");
-      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
-    }else{
-      cgi_printf(" artifact:&nbsp;%z%S</a>",
-                 href("%R/info/%!S",zUuid),zUuid);
-    }
-  }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t'
-            || zType[0]=='n' || zType[0]=='f'){
-    cgi_printf(" artifact:&nbsp;%z%S</a>",href("%R/info/%!S",zUuid),zUuid);
-  }
-#endif /* EXTRA_FORMAT==2 */
-
-
   /* End timelineDetail */
   if( (tmFlags & TIMELINE_INLINE)!=0 ){
     cgi_printf(")");
@@ -379,7 +328,23 @@ void timeline_extra(
 ** option is turned on, that hyperlink targets the /info page showing
 ** the details of the entry.
 */
-
+/*
+** SETTING: timeline-mark-leaves       width=5 default=1
+**
+** Determine whether or not leaf check-ins are marked as such in the
+** details section of the timeline.  The value is an integer between 0
+** and 2:
+**
+**    0   Do not show any special marking for leaf check-ins.
+** 
+**    1   Show just "leaf" or "closed"
+**
+**    2   Show "Leaf" or "Closed-Leaf" with emphasis
+**
+** The default is currently 1.  Prior to 2025-10-19, the default was 2.
+** This setting has no effect on the "Classic" view, which always behaves
+** as if the setting were 2.
+*/
 
 /*
 ** Output a timeline in the web format given a query.  The query

@@ -990,6 +990,11 @@ void setup_timeline(void){
       "3", "YYMMDD HH:MM",
       "4", "(off)"
   };
+  static const char *const azLeafMark[] = {
+      "0", "No",
+      "1", "Yes",
+      "2", "Yes - with emphasis",
+  };
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -1077,6 +1082,12 @@ void setup_timeline(void){
   @ changes.  With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats,
   @ the complete date and time is shown on every timeline entry using the
   @ CSS class "timelineTime". (Property: "timeline-date-format")</p>
+
+  @ <hr>
+  multiple_choice_attribute("Leaf Markings", "timeline-mark-leaves",
+            "tml", "1", count(azLeafMark)/2, azLeafMark);
+  @ <p>Should timeline entries for leaf check-ins be identified in the
+  @ detail section.  (Property: "timeline-mark-leaves")</p>
 
   @ <hr>
   entry_attribute("Max timeline comment length", 6,
