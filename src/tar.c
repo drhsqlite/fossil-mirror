@@ -1111,20 +1111,20 @@ void download_extra(
 ** value and UNITS is one of "seconds", "hours", "days", "weeks", "months",
 ** or "years".  If MAX_AGE is an empty string then there is no age limit.
 **
-** If COMMENT is not an empty string, the it is an additional comment
-** added to the output description of suggested download.  The idea of
+** If COMMENT is not an empty string, then it is an additional comment
+** added to the output description of the suggested download.  The idea of
 ** COMMENT is to explain to the reader why a check-in is a suggested
 ** download.  
 **
 ** Example:
 **
-** |       1   trunk     {}         {Lastest Trunk Check-in}
+** |       1   trunk     {}         {Latest Trunk Check-in}
 ** |       5   OPEN-LEAF {1 month}  {Active Branch}
 ** |       999 release   {1 year}   {Official Release}
 **
 ** The value causes the /download page to show the union of the most
-** recent trunk check-in of any age, the three most recent
-** open leaves within the the past three months, and essentually
+** recent trunk check-in of any age, the five most recent
+** open leaves within the past month, and essentially
 ** all releases within the past year.  If the same check-in matches more
 ** than one rule, the COMMENT of the first match is used.
 */
