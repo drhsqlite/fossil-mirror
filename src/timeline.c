@@ -1320,6 +1320,22 @@ static void timeline_y_submenu(int isDisabled){
 }
 
 /*
+** SETTING: timeline-default-style            width=5 default=m
+**
+** This setting determines the default "view style" for timelines.
+** The setting should be a single character, one of the following:
+**
+**    c     Compact
+**    j     Columnar
+**    m     Modern
+**    s     Simple
+**    v     Verbose
+**    x     Classic
+**
+** The default value is m (Modern).
+*/
+
+/*
 ** Return the default value for the "ss" cookie or query parameter.
 ** The "ss" cookie determines the graph style.  See the
 ** timeline_view_styles[] global constant for a list of choices.

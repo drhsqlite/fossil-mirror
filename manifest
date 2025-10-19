@@ -1,5 +1,5 @@
-C Replace\sthe\s"<b>&larr;\sThis\sis\sme</b>"\snotation\sat\sthe\send\sof\sthe\scheck-in\ncomment\swith\sa\s"自"\s(self)\sright\sbefore\sthe\s"check-in:"\sdetail.
-D 2025-10-19T00:13:04.176
+C Document\sthe\stimeline-default-style\ssetting\sso\sthat\sit\scan\sbe\sviewed\sand\nchanged\son\sthe\s/setup_settings\spage\sand\sby\sthe\s"fossil\ssetting"\scommand.
+D 2025-10-19T10:33:22.569
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -576,7 +576,7 @@ F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 4f43878167d8f716236dc028d072d0b08de7e6eb8c6e9803779fbd4062237a29
 F src/th_tcl.c 155a9da56128dce97714194089e81f08bf5628f8227e93fa9291197ae92ce9a4
-F src/timeline.c c63cb5fe74aa94ae8fb780cd7289196ef775f701cfdd8b8fd0944002c60d7961
+F src/timeline.c dc65acb032706a8ed721314588e04065e91eb8d065e3d74548762b1b64dc0a8a
 F src/tkt.c f85e6dd4040aefd4cbb8df662b8e20661e7b09caacb4a16644a04bcd7cae49af
 F src/tktsetup.c 38e6ef6950958a6175bd51403644a16fa77d918f6b6c99651e84e9dab8f03cdc
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a7a38baf50ada768db47fbafab410197d2ffd46ac0a3b159526335ba0a6f7f0
-R 94ea51d8ead3e570ea8b86c244dc2dac
+P 80d2beabe571925687c405c75a45db40613c4a95d7c8fc8ba09652b26c52e7f5
+R 6b0468ce5ce3e000d01641925c853e26
 U drh
-Z 8e8cb9e27ba3dcfdc0b4afa88d2ca84d
+Z 7bc165163ee786226f9ecfba68e0f706
 # Remove this line to create a well-formed Fossil manifest.
