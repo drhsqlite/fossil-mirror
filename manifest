@@ -1,5 +1,5 @@
-C Document\sthe\stimeline-default-style\ssetting\sso\sthat\sit\scan\sbe\sviewed\sand\nchanged\son\sthe\s/setup_settings\spage\sand\sby\sthe\s"fossil\ssetting"\scommand.
-D 2025-10-19T10:33:22.569
+C When\sexpanding\sthe\sdetails\son\sthe\s/timeline\sin\sthe\sCompact\sor\sSimple\sview,\nchange\sthe\s"..."\sinto\s"←"\sand\skeep\sit\svisible,\sso\sthat\sthe\sexpanded\sdetails\ncan\sbe\stoggled\sback\soff.
+D 2025-10-19T17:03:09.661
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -460,7 +460,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c b31a20db3489603f88493ec408a56b905418dfb8fe106b108d77e3225ee5da13
 F src/glob.c 6415e69faa8a0714ed1d4e4457fe27accc839a674861064be31b49a7d7f80626
 F src/graph.c e75bba3b6e757bf01d1207dd35827fafb3e2899d37d3cc43982c82c3ccd67c3a
-F src/graph.js 189b45095f9b8d7c8ad183f2970467c1e497cc20e48e38a8e99d8b76a832f82c
+F src/graph.js f25b1a107f3b7e34d0d5a066e4d2d3b5679f2327279f43d6c578a3bc7ee3f30e
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 80d2beabe571925687c405c75a45db40613c4a95d7c8fc8ba09652b26c52e7f5
-R 6b0468ce5ce3e000d01641925c853e26
+P c9c17a81a9e95d4b5fb261995a6abda876ee979140ad49d727ddfb1fd9b77fb0
+R aefb06d62eb0b2095c7b7525ac81e55f
 U drh
-Z 7bc165163ee786226f9ecfba68e0f706
+Z ba43c463821b0caa03f11afdcdae4893
 # Remove this line to create a well-formed Fossil manifest.
