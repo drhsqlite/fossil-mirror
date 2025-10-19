@@ -29,6 +29,9 @@
             and "Compact" that shows only the check-in hash rather than the full
             detail section.  There is an ellipsis that one can click on to see the
             full detail text.
+       <li> The artifact hash in the detail section of each timeline entry is now
+            emphasized (controlled by CSS) to make it easier to locate amid all
+            the other text and links.
        <li> When clicking on the ellipsis in "Compact" or "Simple" views, the ellipsis
             is replaced by a left arrow ("←") which can be clicked to hide the extra
             detail again.
