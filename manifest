@@ -1,5 +1,5 @@
-C Improved\starball\sfilename\snormalization.
-D 2025-10-19T17:57:36.116
+C Disable\sthe\s"Transfers"\ssetup\smenu,\sas\sI\sare\sunsure\swhat\sit\sdoes\sor\sif\nit\sworks.\s\sThe\s"transfer\ssystem"\sseems\slike\san\sexperiment\sthat\swas\sstarted\nand\snever\scompleted\sor\sdebugged.
+D 2025-10-19T18:13:25.719
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -528,7 +528,7 @@ F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c e65778f849aaedd55c91cf1e79d8267f025df9e9c1c637ec84f58a9813f98d14
 F src/security_audit.c 3bdcbbd0232d25d222154c29a5616ec25ecb29facb8c69dd40f5d6ad257274f6
-F src/setup.c dab1ab21892608f61f0141d33b1ba346db608becc9e970c626f5e96cda982107
+F src/setup.c 4f752603cf83a9c80b0613eba7214cccddcb2d1a4e5fc06bc83a4f2dec4b275b
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2d89ae650ea94e0c1e7be9ca2b42678563c2fac9caa47b271c9ce4f8ee3cf0ce
-R 70d17197f78ea74605c892c960f3372d
+P 1d44e89013f779856ee62495ac423b25d5f625cde5d594aee2436bf82172bbf5
+R 8dba38ce801c557b102f24d8a5d559af
 U drh
-Z 72b973334b60013cfa8af839f1de112a
+Z 0b3e7ed1c913d1f69ca069b7fa59e8db
 # Remove this line to create a well-formed Fossil manifest.

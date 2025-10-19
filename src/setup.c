@@ -142,8 +142,10 @@ void setup_page(void){
   if( setup_user ){
     setup_menu_entry("Notification", "setup_notification",
       "Automatic notifications of changes via outbound email");
+#if 0  /* Disabled for now.  Does this even work? */
     setup_menu_entry("Transfers", "xfersetup",
       "Configure the transfer system for this repository");
+#endif
   }
   setup_menu_entry("Skins", "setup_skin_admin",
     "Select and/or modify the web interface \"skins\"");
