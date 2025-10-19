@@ -69,21 +69,25 @@ static void sanitize_name(char *zName){
 ** be released by the caller using fossil_free().
 */
 char *archive_base_name(int rid){
+  char *zPrefix;
   char *zName;
+  zPrefix = db_get("short-project-name",0);
+  if( zPrefix==0 || zPrefix[0]==0 ){
+    zPrefix = db_get("project-name","unnamed");
+  }
   zName = db_text(0,
-    "SELECT coalesce(config.value,'unnamed')||"
+    "SELECT %Q||"
           " strftime('-%%Y%%m%%d%%H%%M%%S-',event.mtime)||"
           " substr(blob.uuid,1,10)"
      " FROM blob, event LEFT JOIN config"
     " WHERE blob.rid=%d"
       " AND event.objid=%d"
       " AND config.name='project-name'",
-    rid, rid);
+    zPrefix, rid, rid);
+  fossil_free(zPrefix);
   sanitize_name(zName);
   return zName;
 }
-
-
 
 /*
 ** field lengths of 'ustar' name and prefix fields.

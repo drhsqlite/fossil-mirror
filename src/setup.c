@@ -120,6 +120,8 @@ void setup_page(void){
   }
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
+  setup_menu_entry("Tarballs and ZIPs", "setup_download",
+    "Preferences for auto-generated tarballs and ZIP files");
   if( setup_user ){
     setup_menu_entry("Login-Group", "setup_login_group",
       "Manage single sign-on between this repository and others"
@@ -1343,24 +1345,6 @@ void setup_config(void){
   @ Suggested value: "%h(g.zBaseURL)"
   @ (Property: "email-url")</p>
   @ <hr>
-  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name",
-                  "spn", "", 0);
-  @ <p>This is used as a prefix on the names of generated tarballs and
-  @ ZIP archive. For best results, keep this prefix brief and avoid special
-  @ characters such as "/" and "\".
-  @ If no tarball prefix is specified, then the full Project Name above is used.
-  @ (Property: "short-project-name")
-  @ </p>
-  @ <hr>
-  entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
-  @ <p>The <a href='%R/download'>/download</a> page is designed to provide
-  @ a convenient place for newbies
-  @ to download a ZIP archive or a tarball of the project.  By default,
-  @ the latest trunk check-in is downloaded.  Change this tag to something
-  @ else (ex: release) to alter the behavior of the /download page.
-  @ (Property: "download-tag")
-  @ </p>
-  @ <hr>
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home", 0);
   @ <p>Enter the pathname of the page to display when the "Home" menu
   @ option is selected and when no pathname is
@@ -1442,15 +1426,51 @@ void setup_config(void){
   textarea_attribute("Custom Sitemap Entries", 8, 80,
       "sitemap-extra", "smextra", "", 0);
   @ <hr>
-  @ <p>Configuration for the <a href="%R/download">/download</a> page.
-  @ The value is a TCL list divided into groups of four:
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: setup_download
+**
+** The "Admin/Download" page.  Requires Setup privilege.
+*/
+void setup_download(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_set_current_feature("setup");
+  style_header("Tarball and ZIP Downloads");
+  db_begin_transaction();
+  @ <form action="%R/setup_download" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
+  entry_attribute("Tarball and ZIP Name Prefix", 20, "short-project-name",
+                  "spn", "", 0);
+  @ <p>This is used as a prefix for the names of generated tarballs and
+  @ ZIP archive. Keep this prefix brief and use only lower-case ASCII
+  @ characters, digits, "_", "-" in the name. If this setting is blank,
+  @ then the full <a href='%R/help/project-name'>project-name</a> setting
+  @ is used instead.
+  @ (Property: "short-project-name")
+  @ </p>
+  @ <hr>
+  @ <p><b>Configuration for the <a href="%R/download">/download</a> page.</b>
+  @ <p>The value is a TCL list divided into groups of four tokens:
   @ <ol>
   @ <li> Maximum number of matches (COUNT).
   @ <li> Tag to match using glob (TAG).
   @ <li> Maximum age of check-ins to match (MAX_AGE).
   @ <li> Comment to apply to matches (COMMENT).
   @ </ol>
-  @ The /download display is the union of all groups of four.
+  @ Each 4-tuple will match zero or more check-ins.  The /download page
+  @ displays the union of matches from all 4-tuples.
   @ See the <a href="%R/help/suggested-downloads">suggested-downloads</a>
   @ setting documentation for further detail.
   @ <p>
@@ -1459,7 +1479,7 @@ void setup_config(void){
   @ for this setting is "off".
   @ (Property: <a href="%R/help/suggested-downloads">suggested-downloads</a>)
   @ <p>
-  textarea_attribute("Suggested Downloads", 4, 80,
+  textarea_attribute("", 4, 80,
       "suggested-downloads", "sgtrlst", "off", 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
