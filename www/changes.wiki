@@ -4,12 +4,41 @@
   <li> Improvements to [./antibot.wiki|anti-robot defenses]:<ol type="a">
       <li> The default configuration now allows robots to download any tarball
            or similar, to better support of automated build systems.
-      <li> No special tag "zipX" for the [/help/robot-restrict|robot-restrict]
+      <li> New special tag "zipX" for the [/help/robot-restrict|robot-restrict]
            setting blocks robot access to tarballs, but with exceptions to support
            automated build systems.
+      <li> Enhancements to the default value for the 
+           [/help/robot-restrict|robot-restrict setting].
       </ol>
   <li> A drop-down menu of recent branches is now possible for the submenu, and
-       is used in the code browser.
+       is used in the [/dir?ci=trunk|code browser].
+  <li> Easier access to generated tarballs and ZIPs:<ol type="a">
+       <li> When in the [/dir?ci=trunk|code browser] at the top-level,
+            a new "Download" submenu option is available to take the
+            user to a page where he can download a tarball or ZIP archive.
+       <li> New [/help/www/download|/download page] is available. When
+            configured using the new
+            [/help/suggested-downloads|suggested-downloads setting], a
+            link to [/download] named "Tarballs and ZIPs" appears in the
+            [/sitemap] and thus on the hamburger menu.
+       <li> The filenames for tarballs and ZIPs are now standardized to
+            include a timestamp and a hash prefix.
+       </ol>
+  <li> Timeline enhancements:<ol type="a">
+       <li> A new "Simple" view is available.  This is compromise between "Verbose"
+            and "Compact" that shows only the check-in hash rather than the full
+            detail section.  There is an ellipsis that one can click on to see the
+            full detail text.
+       <li> When clicking on the ellipsis in "Compact" or "Simple" views, the ellipsis
+            is replaced by a left arrow ("←") which can be clicked to hide the extra
+            detail again.
+       <li> New setting [/help/timeline-mark-leaves|timeline-mark-leaves] controls
+            whether or not leaf check-ins are marked in the timeline.
+       <li> "No-graph" timelines (using the "ng" query parameter) now show
+            branch colors and bare check-in circles on the left.  The check-in
+            circles appear, but no lines connecting them.
+            ([/timeline?ng|example]).
+       </ol>
   <li> The [/help/timeline|timeline command] is enhanced with the new
        "<tt>-u|--for-user</tt>" option.
 </ol>
