@@ -239,7 +239,13 @@ void timeline_extra(
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='c' ){
       const char *zPrefix;
-      if( tmFlags & TIMELINE_SIMPLE ){
+      if( strcmp(zUuid, MANIFEST_UUID)==0 ){
+        /* This will only ever happen when Fossil is drawing a timeline for
+        ** its own self-host repository.  If the timeline shows the specific
+        ** check-in corresponding to the current executable, then tag that
+        ** check-in with "自" (Simplified Chinese for "self"). */
+        zPrefix = "自&nbsp;";
+      }else if( tmFlags & TIMELINE_SIMPLE ){
         zPrefix = "";
       }else{
         int isLeaf = db_column_int(pQuery, 5);
@@ -788,14 +794,6 @@ void www_print_timeline(
       }else{
         cgi_printf("%W",blob_str(&comment));
       }
-    }
-
-    if( zType[0]=='c' && strcmp(zUuid, MANIFEST_UUID)==0 ){
-      /* This will only ever happen when Fossil is drawing a timeline for
-      ** its own self-host repository.  If the timeline shows the specific
-      ** check-in corresponding to the current executable, then tag that
-      ** check-in with "This is me!". */
-      @ <b>&larr; This is me!</b>
     }
 
     @ </span>
