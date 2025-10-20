@@ -59,6 +59,9 @@ tr.timelineCurrent td {
 span.timelineLeaf {
   font-weight: bold;
 }
+span.timelineHash {
+  font-weight: bold;
+}
 span.timelineHistDsp {
   font-weight: bold;
 }

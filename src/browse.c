@@ -231,6 +231,9 @@ void page_dir(void){
   }
   style_header("%s", zHeader);
   fossil_free(zHeader);
+  if( rid && zD==0 && zMatch[0]==0 && g.perm.Zip ){
+    style_submenu_element("Download","%R/rchvdwnld/%!S",zUuid);
+  }
   style_adunit_config(ADUNIT_RIGHT_OK);
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
@@ -816,6 +819,9 @@ void page_tree(void){
   }
   style_submenu_element("Flat-View", "%s",
                         url_render(&sURI, "type", "flat", 0, 0));
+  if( rid && zD==0 && zRE==0 && !showDirOnly && g.perm.Zip ){
+    style_submenu_element("Download","%R/rchvdwnld/%!S", zUuid);
+  }
 
   /* Compute the file hierarchy.
   */

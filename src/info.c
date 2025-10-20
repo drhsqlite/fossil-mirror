@@ -995,30 +995,19 @@ void ci_page(void){
 
     /* The Download: line */
     if( g.perm.Zip  ){
-      char *zPJ = db_get("short-project-name", 0);
-      char *zUrl;
-      Blob projName;
-      int jj;
-      if( zPJ==0 ) zPJ = db_get("project-name", "unnamed");
-      blob_zero(&projName);
-      blob_append(&projName, zPJ, -1);
-      blob_trim(&projName);
-      zPJ = blob_str(&projName);
-      for(jj=0; zPJ[jj]; jj++){
-        if( (zPJ[jj]>0 && zPJ[jj]<' ') || strchr("\"*/:<>?\\|", zPJ[jj]) ){
-          zPJ[jj] = '_';
-        }
-      }
-      zUrl = mprintf("%R/tarball/%S/%t-%S.tar.gz", zUuid, zPJ, zUuid);
       @ <tr><th>Downloads:</th><td>
-      @ %z(href("%s",zUrl))Tarball</a>
-      @ | %z(href("%R/zip/%S/%t-%S.zip",zUuid, zPJ,zUuid))ZIP archive</a>
-      if( g.zLogin!=0 ){
-        @ | %z(href("%R/sqlar/%S/%t-%S.sqlar",zUuid,zPJ,zUuid))\
-        @ SQL archive</a></td></tr>
+      if( robot_would_be_restricted("download") ){
+        @ See separate %z(href("%R/rchvdwnld/%!S",zUuid))download page</a>
+      }else{
+        char *zBase = archive_base_name(rid);
+        @ %z(href("%R/tarball/%s.tar.gz",zBase))Tarball</a>
+        @ | %z(href("%R/zip/%s.zip",zBase))ZIP archive</a>
+        if( g.zLogin!=0 ){
+          @ | %z(href("%R/sqlar/%s.sqlar",zBase))\
+          @ SQL archive</a></td></tr>
+        }
+        fossil_free(zBase);
       }
-      fossil_free(zUrl);
-      blob_reset(&projName);
     }
 
     @ <tr><th>Timelines:</th><td>
@@ -1952,7 +1941,7 @@ int preferred_diff_type(void){
   int isBot;
   static char zDflt[2]
     /*static b/c cookie_link_parameter() does not copy it!*/;
-  if( client_might_be_a_robot() && robot_restrict_has_tag("diff") ){
+  if( robot_would_be_restricted("diff") ){
     dflt = 0;
     isBot = 1;
   }else{

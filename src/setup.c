@@ -120,6 +120,8 @@ void setup_page(void){
   }
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
+  setup_menu_entry("Tarballs and ZIPs", "setup_download",
+    "Preferences for auto-generated tarballs and ZIP files");
   if( setup_user ){
     setup_menu_entry("Login-Group", "setup_login_group",
       "Manage single sign-on between this repository and others"
@@ -142,8 +144,10 @@ void setup_page(void){
   if( setup_user ){
     setup_menu_entry("Notification", "setup_notification",
       "Automatic notifications of changes via outbound email");
+#if 0  /* Disabled for now.  Does this even work? */
     setup_menu_entry("Transfers", "xfersetup",
       "Configure the transfer system for this repository");
+#endif
   }
   setup_menu_entry("Skins", "setup_skin_admin",
     "Select and/or modify the web interface \"skins\"");
@@ -490,10 +494,11 @@ void setup_robots(void){
   @ <p>
   @ The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
   @ /vpatch.  The "annotate" tag covers /annotate and also /blame and
-  @ /praise.  The "zip" covers itself and also /tarball and /sqlar. If a
-  @ tag has an "X" character appended, then it only applies if query
-  @ parameters are such that the page is expensive and/or unusual.
-  @ In all other case, the tag should exactly match the page name.
+  @ /praise.  The "zip" covers itself and also /tarball and /sqlar.
+  @ If a tag has an "X" character appended (ex: "timelineX") then it only
+  @ applies if query parameters are such that the page is expensive
+  @ and/or unusual. In all other case, the tag should exactly match
+  @ the page name.
   @
   @ To disable robot restrictions, change this setting to "off".
   @ (Property: robot-restrict)
@@ -987,6 +992,11 @@ void setup_timeline(void){
       "3", "YYMMDD HH:MM",
       "4", "(off)"
   };
+  static const char *const azLeafMark[] = {
+      "0", "No",
+      "1", "Yes",
+      "2", "Yes - with emphasis",
+  };
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -1074,6 +1084,12 @@ void setup_timeline(void){
   @ changes.  With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats,
   @ the complete date and time is shown on every timeline entry using the
   @ CSS class "timelineTime". (Property: "timeline-date-format")</p>
+
+  @ <hr>
+  multiple_choice_attribute("Leaf Markings", "timeline-mark-leaves",
+            "tml", "1", count(azLeafMark)/2, azLeafMark);
+  @ <p>Should timeline entries for leaf check-ins be identified in the
+  @ detail section.  (Property: "timeline-mark-leaves")</p>
 
   @ <hr>
   entry_attribute("Max timeline comment length", 6,
@@ -1329,24 +1345,6 @@ void setup_config(void){
   @ Suggested value: "%h(g.zBaseURL)"
   @ (Property: "email-url")</p>
   @ <hr>
-  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name",
-                  "spn", "", 0);
-  @ <p>This is used as a prefix on the names of generated tarballs and
-  @ ZIP archive. For best results, keep this prefix brief and avoid special
-  @ characters such as "/" and "\".
-  @ If no tarball prefix is specified, then the full Project Name above is used.
-  @ (Property: "short-project-name")
-  @ </p>
-  @ <hr>
-  entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
-  @ <p>The <a href='%R/download'>/download</a> page is designed to provide
-  @ a convenient place for newbies
-  @ to download a ZIP archive or a tarball of the project.  By default,
-  @ the latest trunk check-in is downloaded.  Change this tag to something
-  @ else (ex: release) to alter the behavior of the /download page.
-  @ (Property: "download-tag")
-  @ </p>
-  @ <hr>
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home", 0);
   @ <p>Enter the pathname of the page to display when the "Home" menu
   @ option is selected and when no pathname is
@@ -1428,26 +1426,61 @@ void setup_config(void){
   textarea_attribute("Custom Sitemap Entries", 8, 80,
       "sitemap-extra", "smextra", "", 0);
   @ <hr>
-  @ <p>Configuration for the <a href="%R/tarlist">/tarlist</a> page.
-  @ The value is a TCL list divided into pairs.
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: setup_download
+**
+** The "Admin/Download" page.  Requires Setup privilege.
+*/
+void setup_download(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_set_current_feature("setup");
+  style_header("Tarball and ZIP Downloads");
+  db_begin_transaction();
+  @ <form action="%R/setup_download" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
+  entry_attribute("Tarball and ZIP Name Prefix", 20, "short-project-name",
+                  "spn", "", 0);
+  @ <p>This is used as a prefix for the names of generated tarballs and
+  @ ZIP archive. Keep this prefix brief and use only lower-case ASCII
+  @ characters, digits, "_", "-" in the name. If this setting is blank,
+  @ then the full <a href='%R/help/project-name'>project-name</a> setting
+  @ is used instead.
+  @ (Property: "short-project-name")
+  @ </p>
+  @ <hr>
+  @ <p><b>Configuration for the <a href="%R/download">/download</a> page.</b>
+  @ <p>The value is a TCL list divided into groups of four tokens:
   @ <ol>
-  @ <li> The first term of each pair is an integer (N).
-  @ <li> The second term of each pair is a glob pattern (PATTERN).
+  @ <li> Maximum number of matches (COUNT).
+  @ <li> Tag to match using glob (TAG).
+  @ <li> Maximum age of check-ins to match (MAX_AGE).
+  @ <li> Comment to apply to matches (COMMENT).
   @ </ol>
-  @ For each pair, the most recent N check-ins that have a tag that
-  @ matches PATTERN are included in on the /tarlist page.  The special
-  @ pattern of "OPEN-LEAF" matches all open leaf check-ins.  Example:
-  @ <blockquote><tt>1 trunk 3 release 5 OPEN-LEAF</tt></blockquote>
-  @ The example pattern above shows the union of the most recent trunk
-  @ check-in, the 5 most recent open leaf check-ins, and the 3 most
-  @ recent check-ins tagged with "release".  
+  @ Each 4-tuple will match zero or more check-ins.  The /download page
+  @ displays the union of matches from all 4-tuples.
+  @ See the <a href="%R/help/suggested-downloads">suggested-downloads</a>
+  @ setting documentation for further detail.
   @ <p>
-  @ The /tarlist page is omitted from the <a href="%R/sitemap">/sitemap</a>
-  @ if the first token is "0".  The default value is "1 trunk".
-  @ (Property: suggested-tarlist)
+  @ The /download page is omitted from the <a href="%R/sitemap">/sitemap</a>
+  @ if the first token is "0" or "off" or "no".  The default value 
+  @ for this setting is "off".
+  @ (Property: <a href="%R/help/suggested-downloads">suggested-downloads</a>)
   @ <p>
-  textarea_attribute("Check-ins To Show On /tarlist", 2, 80,
-      "suggested-tarlist", "sgtrlst", "", 0);
+  textarea_attribute("", 4, 80,
+      "suggested-downloads", "sgtrlst", "off", 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>

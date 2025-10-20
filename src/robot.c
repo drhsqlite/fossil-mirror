@@ -265,15 +265,15 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** should be disallowed.  "Unauthenticated" means the user is "nobody".
 ** The recommended value for this setting is:
 **
-**     timelineX,diff,annotate,fileage,file,finfo,reports
+**   timelineX,diff,annotate,fileage,file,finfo,reports,tree,download,hexdump
 **
 ** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and
 ** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
-** also covers /tarball and /sqlar.  If a tag has an "X" character appended,
+** also covers /tarball and /sqlar.  If a tag has an "X" character appended
 ** then it only applies if query parameters are such that the page is
 ** particularly difficult to compute. In all other case, the tag should
-** exactly match the page name.  Useful "X" tags include "timelineX"
-** and "zipX".  See the robot-zip-leaf and robot-zip-tag settings
+** exactly match the page name.  Useful "X" tags include "timelineX" and
+** "zipX".  See the [[robot-zip-leaf]] and [[robot-zip-tag]] settings
 ** for additional controls associated with the "zipX" restriction.
 **
 ** Change this setting "off" to disable all robot restrictions.
@@ -301,7 +301,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
 **
 ** If this setting is true, the robots are allowed to download tarballs,
 ** ZIP-archives, and SQL-archives even though "zipX" is found in
-** the robot-restrict setting as long as the specific check-in being
+** the [[robot-restrict]] setting as long as the specific check-in being
 ** downloaded is a leaf check-in.
 */
 /*
@@ -309,7 +309,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
 **
 ** If this setting is a list of GLOB patterns matching tags,
 ** then robots are allowed to download tarballs, ZIP-archives, and
-** SQL-archives even though "zipX" appears in robot-restrict, as long as
+** SQL-archives even though "zipX" appears in [[robot-restrict]], as long as
 ** the specific check-in being downloaded has a tags that matches
 ** the GLOB list of this setting.  Recommended value:  
 ** "release,robot-access".
@@ -319,14 +319,15 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** Return the default restriction GLOB
 */
 const char *robot_restrict_default(void){
-  return "timelineX,diff,annotate,fileage,file,finfo,reports";
+  return "timelineX,diff,annotate,fileage,file,finfo,reports,"
+         "tree,hexdump,download";
 }
 
 /*
 ** Return true if zTag matches one of the tags in the robot-restrict
 ** setting.
 */
-int robot_restrict_has_tag(const char *zTag){
+static int robot_restrict_has_tag(const char *zTag){
   static const char *zGlob = 0;
   if( zGlob==0 ){
     zGlob = db_get("robot-restrict",robot_restrict_default());
@@ -410,16 +411,27 @@ int robot_exception(void){
 }
 
 /*
-** Check to see if the page named in the argument is on the
-** robot-restrict list.  If it is on the list and if the user
-** is "nobody" then bring up a captcha to test to make sure that
-** client is not a robot.
+** Return true if one or more of the conditions below are true.
+** Return false if all of the following are false:
 **
-** This routine returns true if a captcha was rendered and if subsequent
-** page generation should be aborted.  It returns false if the page
-** should not be restricted and should be rendered normally.
+**   *  The zTag is on the robot-restrict list
+**
+**   *  The client that submitted the HTTP request might be
+**      a robot
+**
+**   *  The Request URI does not match any of the exceptions
+**      in the robot-exception setting.
+**
+** In other words, return true if a call to robot_restrict() would
+** return true and false if a call to robot_restrict() would return
+** false.
+**
+** The difference between this routine an robot_restrict() is that
+** this routine does not generate a proof-of-work captcha.  This
+** routine does not change the HTTP reply in any way.  It simply
+** returns true or false.
 */
-int robot_restrict(const char *zTag){
+int robot_would_be_restricted(const char *zTag){
   if( robot.resultCache==KNOWN_NOT_ROBOT ) return 0;
   if( !robot_restrict_has_tag(zTag) ) return 0;
   if( !client_might_be_a_robot() ) return 0;
@@ -427,10 +439,27 @@ int robot_restrict(const char *zTag){
     robot.resultCache = KNOWN_NOT_ROBOT;
     return 0;
   }
-
-  /* Generate the proof-of-work captcha */
-  ask_for_proof_that_client_is_not_robot();
   return 1;
+}
+
+/*
+** Check to see if the page named in the argument is on the
+** robot-restrict list.  If it is on the list and if the user
+** is might be a robot, then bring up a captcha to test to make
+** sure that client is not a robot.
+**
+** This routine returns true if a captcha was rendered and if subsequent
+** page generation should be aborted.  It returns false if the page
+** should not be restricted and should be rendered normally.
+*/
+int robot_restrict(const char *zTag){
+  if( robot_would_be_restricted(zTag) ){
+    /* Generate the proof-of-work captcha */
+    ask_for_proof_that_client_is_not_robot();
+    return 1;
+  }else{
+    return 0;
+  }
 }
 
 /*

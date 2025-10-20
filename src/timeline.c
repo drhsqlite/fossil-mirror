@@ -117,7 +117,9 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_MODERN   0x0004000 /* Use the "modern" view style */
 #define TIMELINE_COLUMNAR 0x0008000 /* Use the "columns" view style */
 #define TIMELINE_CLASSIC  0x0010000 /* Use the "classic" view style */
-#define TIMELINE_VIEWS    0x001f000 /* Mask for all of the view styles */
+#define TIMELINE_SIMPLE   0x0020000 /* Use the "simple" view style */
+#define TIMELINE_INLINE   0x0033000 /* Mask for views with in-line display */
+#define TIMELINE_VIEWS    0x003f000 /* Mask for all of the view styles */
 #define TIMELINE_NOSCROLL 0x0100000 /* Don't scroll to the selection */
 #define TIMELINE_FILEDIFF 0x0200000 /* Show File differences, not ckin diffs */
 #define TIMELINE_CHPICK   0x0400000 /* Show cherrypick merges */
@@ -181,7 +183,7 @@ static void forum_post_content_function(
 ** This routine is used if no xExtra argument is supplied to
 ** www_print_timeline().
 */
-static void defaultExtra(
+void timeline_extra(
   Stmt *pQuery,               /* Current row of the timeline query */
   int tmFlags,                /* Flags to www_print_timeline() */
   const char *zThisUser,      /* Suppress links to this user */
@@ -196,25 +198,36 @@ static void defaultExtra(
   int tagid = db_column_int(pQuery, 9);
   const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
 
-  if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
     cgi_printf("(");
   }
 
-/* Set to 1 for historical appearance.  Set to 0 for new experimental look */
-#define OLD_STYLE 1
-#if OLD_STYLE
   if( (tmFlags & TIMELINE_CLASSIC)==0 ){
     if( zType[0]=='c' ){
-      int isLeaf = db_column_int(pQuery, 5);
-      if( isLeaf ){
-        if( has_closed_tag(rid) ){
-          @ <span class='timelineLeaf'>Closed-Leaf</span>
+      const char *zPrefix = 0;
+      static int markLeaves = -1;
+      if( markLeaves<0 ){
+        markLeaves = db_get_int("timeline-mark-leaves",1);
+        if( markLeaves<0 ) markLeaves = 1;
+      }
+      if( strcmp(zUuid, MANIFEST_UUID)==0 ){
+        /* This will only ever happen when Fossil is drawing a timeline for
+        ** its own self-host repository.  If the timeline shows the specific
+        ** check-in corresponding to the current executable, then tag that
+        ** check-in with "self" */
+        zPrefix = "self&nbsp;";
+      }else if( markLeaves && db_column_int(pQuery,5) ){
+        if( markLeaves==1 ){
+          zPrefix = has_closed_tag(rid) ? "closed&nbsp;" : "leaf&nbsp;";
         }else{
-          @ <span class='timelineLeaf'>Leaf</span>
+          zPrefix = has_closed_tag(rid) ?
+               "<span class='timelineLeaf'>Closed-Leaf</span>\n" :
+               "<span class='timelineLeaf'>Leaf</span>\n";
         }
       }
-      cgi_printf("check-in:&nbsp;%z%S</a> ",
-                  href("%R/info/%!S",zUuid),zUuid);
+      cgi_printf("%scheck-in:&nbsp;%z<span class='timelineHash'>"
+                 "%S</span></a> ",
+                  zPrefix, href("%R/info/%!S",zUuid),zUuid);
     }else if( zType[0]=='e' && tagid ){
       cgi_printf("technote:&nbsp;");
       hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
@@ -226,7 +239,12 @@ static void defaultExtra(
             || zType[0]=='n' || zType[0]=='f'){
     cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
   }
-#endif /* OLD_STYLE */
+
+  if( (tmFlags & TIMELINE_SIMPLE)!=0 ){
+    @ <span class='timelineEllipsis' id='ellipsis-%d(rid)' \
+    @ data-id='%d(rid)'>...</span>
+    @ <span class='clutter' id='detail-%d(rid)'>
+  }
 
   if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
     char *zLink;
@@ -282,28 +300,13 @@ static void defaultExtra(
   }
   tag_private_status(rid);
 
-#if !OLD_STYLE
-  if( (tmFlags & TIMELINE_CLASSIC)==0 ){
-    if( zType[0]=='e' && tagid ){
-      char *zId = db_text(0,
-          "SELECT substr(tagname,7) FROM tag WHERE tagid=abs(%d)", tagid);
-      cgi_printf(" technote:&nbsp;%z%S</a>",
-                 href("%R/technote/%t",zId), zId);
-    }else{
-      cgi_printf(" hash:&nbsp;%z%S</a>", href("%R/info/%!S", zUuid), zUuid);
-    }
+  if( (tmFlags & TIMELINE_SIMPLE)!=0 ){
+    cgi_printf("</span>");  /* End of the declutter span */
   }
-#endif /* !OLD_STYLE */
 
   /* End timelineDetail */
-  if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
     cgi_printf(")");
-  }
-
-  if( tmFlags & TIMELINE_COMPACT ){
-    @ </span></span>
-  }else{
-    @ </span>
   }
 }
 
@@ -325,7 +328,23 @@ static void defaultExtra(
 ** option is turned on, that hyperlink targets the /info page showing
 ** the details of the entry.
 */
-
+/*
+** SETTING: timeline-mark-leaves       width=5 default=1
+**
+** Determine whether or not leaf check-ins are marked as such in the
+** details section of the timeline.  The value is an integer between 0
+** and 2:
+**
+**    0   Do not show any special marking for leaf check-ins.
+** 
+**    1   Show just "leaf" or "closed"
+**
+**    2   Show "Leaf" or "Closed-Leaf" with emphasis
+**
+** The default is currently 1.  Prior to 2025-10-19, the default was 2.
+** This setting has no effect on the "Classic" view, which always behaves
+** as if the setting were 2.
+*/
 
 /*
 ** Output a timeline in the web format given a query.  The query
@@ -377,7 +396,7 @@ void www_print_timeline(
   if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
-  if( xExtra==0 ) xExtra = defaultExtra;
+  if( xExtra==0 ) xExtra = timeline_extra;
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
@@ -390,6 +409,8 @@ void www_print_timeline(
     zStyle = "Columnar";
   }else if( tmFlags & TIMELINE_COMPACT ){
     zStyle = "Compact";
+  }else if( tmFlags & TIMELINE_SIMPLE ){
+    zStyle = "Simple";
   }else if( tmFlags & TIMELINE_VERBOSE ){
     zStyle = "Verbose";
   }else if( tmFlags & TIMELINE_CLASSIC ){
@@ -738,14 +759,6 @@ void www_print_timeline(
       }else{
         cgi_printf("%W",blob_str(&comment));
       }
-    }
-
-    if( zType[0]=='c' && strcmp(zUuid, MANIFEST_UUID)==0 ){
-      /* This will only ever happen when Fossil is drawing a timeline for
-      ** its own self-host repository.  If the timeline shows the specific
-      ** check-in corresponding to the current executable, then tag that
-      ** check-in with "This is me!". */
-      @ <b>&larr; This is me!</b>
     }
 
     @ </span>
@@ -1272,6 +1285,22 @@ static void timeline_y_submenu(int isDisabled){
 }
 
 /*
+** SETTING: timeline-default-style            width=5 default=m
+**
+** This setting determines the default "view style" for timelines.
+** The setting should be a single character, one of the following:
+**
+**    c     Compact
+**    j     Columnar
+**    m     Modern
+**    s     Simple
+**    v     Verbose
+**    x     Classic
+**
+** The default value is m (Modern).
+*/
+
+/*
 ** Return the default value for the "ss" cookie or query parameter.
 ** The "ss" cookie determines the graph style.  See the
 ** timeline_view_styles[] global constant for a list of choices.
@@ -1295,6 +1324,7 @@ int timeline_ss_cookie(void){
     case 'v':  tmFlags = TIMELINE_VERBOSE;  break;
     case 'j':  tmFlags = TIMELINE_COLUMNAR; break;
     case 'x':  tmFlags = TIMELINE_CLASSIC;  break;
+    case 's':  tmFlags = TIMELINE_SIMPLE;   break;
     default:   tmFlags = TIMELINE_MODERN;   break;
   }
   return tmFlags;
@@ -1307,11 +1337,12 @@ const char *const timeline_view_styles[] = {
   "m", "Modern View",
   "j", "Columnar View",
   "c", "Compact View",
+  "s", "Simple View",
   "v", "Verbose View",
   "x", "Classic View",
 };
 #if INTERFACE
-# define N_TIMELINE_VIEW_STYLE 5
+# define N_TIMELINE_VIEW_STYLE 6
 #endif
 
 /*
@@ -1672,7 +1703,7 @@ void timeline_test_endpoint(void){
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact", v: "Verbose", m: "Modern", j: "Columnar",
-*                     x: "Classic".
+**                    x: "Classic".
 **    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
 **    ncp             Omit cherrypick merges
@@ -1895,7 +1926,9 @@ void page_timeline(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
-  if( (zBefore || zCirca) && robot_restrict("timelineX") ) return;
+  if( zBefore || zCirca ){
+    if( robot_restrict("timelineX") ) return;
+  }
   if( !bisectLocal ){
     etag_check(ETAG_QUERY|ETAG_COOKIE|ETAG_DATA|ETAG_CONFIG, 0);
   }
