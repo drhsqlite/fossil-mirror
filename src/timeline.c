@@ -214,8 +214,8 @@ void timeline_extra(
         /* This will only ever happen when Fossil is drawing a timeline for
         ** its own self-host repository.  If the timeline shows the specific
         ** check-in corresponding to the current executable, then tag that
-        ** check-in with "自" (Simplified Chinese for "self"). */
-        zPrefix = "自&nbsp;";
+        ** check-in with "self" */
+        zPrefix = "self&nbsp;";
       }else if( markLeaves && db_column_int(pQuery,5) ){
         if( markLeaves==1 ){
           zPrefix = has_closed_tag(rid) ? "closed&nbsp;" : "leaf&nbsp;";
