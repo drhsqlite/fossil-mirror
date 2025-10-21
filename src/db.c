@@ -4262,6 +4262,9 @@ void db_record_repository_filename(const char *zName){
 **                     operation, otherwise it has no effect
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
 **                     directory is created if it does not exist.
+**   --reopen REPOFILE Changes the repository file used by the current checkout
+**                     to REPOFILE. Use this after moving a checkout's
+**                     repository. This may lose stash and bisect history.
 **
 ** See also: [[close]], [[clone]]
 */
@@ -4276,10 +4279,19 @@ void cmd_open(void){
   const char *zWorkDir;          /* --workdir value */
   const char *zRepo = 0;         /* Name of the repository file */
   const char *zRepoDir = 0;      /* --repodir value */
+  const char *zReopen = 0;       /* --reopen REPOFILE */
   char *zPwd;                    /* Initial working directory */
   int isUri = 0;                 /* True if REPOSITORY is a URI */
   int nLocal;                    /* Number of preexisting files in cwd */
   int bVerbose = 0;              /* --verbose option for clone */
+
+  zReopen = find_option("reopen",0,1);
+  if( 0!=zReopen ){
+    g.argc = 3;
+    g.argv[2] = (char*)zReopen;
+    move_repo_cmd();
+    return;
+  }
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;

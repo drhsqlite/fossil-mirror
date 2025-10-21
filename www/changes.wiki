@@ -44,6 +44,8 @@
        </ol>
   <li> The [/help/timeline|timeline command] is enhanced with the new
        "<tt>-u|--for-user</tt>" option.
+  <li> The [/help/open|the open command]'s new "<tt>--reopen REPOFILE</tt>" flag
+       can be used to fix a checkout after moving its repository file.
 </ol>
 
 <h2 id='v2_27'>Changes for version 2.27 (2025-09-30)</h2><ol>
