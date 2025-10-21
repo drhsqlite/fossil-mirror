@@ -1,5 +1,5 @@
-C Land\sthe\stimeline-enhance-2025\sbranch.\s\sThe\s"Simple"\stimeline\sview.\sImproved\naccess\sto\starballs\sand\sZIPs.\sSee\sitems\s3\sand\s4\sin\sthe\smerged\n[/doc/7b7cbd325350/www/changes.wiki|www/changes.wiki]\sfor\smore\sdetail.
-D 2025-10-20T17:52:13.669
+C Remove\sa\sbogus\sassert\swhich\scould\strigger\son\san\sanonymous\sclone.
+D 2025-10-21T13:06:29.955
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -596,7 +596,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 6941a5c27079b038f51f349763c8e797ea14f58fd45aac62679109868ed45a0d
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 6227a029e003a1c8f26e3687065e9d4a9c238d3f1d42d533cbcb8f642cbfa816
-F src/xfer.c e4fb0f859256e5c4b2f479914f2d70b491e12ec3eb2cfd3a49cb39a138596766
+F src/xfer.c 9b64a30d65f9ec48cb073f009d241d0fb5207ed072245fed75b452a7c1eec819
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/zip.c 8da7bab86b5b5242169f8db1ccdb76d6924a09b64cdf88a378866f11a9e4d385
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -976,9 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ee445feef78a265a3d3eac8668d3a82c47626ae04f14def4f603bef480a398fc ff94437a7cac7e71940bd16df5ec3e7ddd93271b48f67cf8386b506a40b2538d
-R 45d6d19baa64091dd77cab5d641112da
-T +closed ff94437a7cac7e71940bd16df5ec3e7ddd93271b48f67cf8386b506a40b2538d
-U drh
-Z 26c5e5641a16c912d7a722f696e330c1
+P 6ce705b8dcfeca4f83c95a0a0a566e8912449d32a64abd2cec0ee83ba1c51a2f
+R 14d6d9ce7e6f2f2c464826b9df3d9dec
+U stephan
+Z eadfc46cbf69bcf9d3c8a3af664d328e
 # Remove this line to create a well-formed Fossil manifest.
