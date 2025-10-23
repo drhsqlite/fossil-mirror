@@ -5,7 +5,7 @@
 # to /usr/sbin/sendmail.
 #
 set POLLING_INTERVAL 10000   ;# milliseconds
-set DBFILE /home/www/fossil/emailqueue.db
+set DBFILE /home/www/data/emailqueue.db
 set PIPE "/usr/sbin/sendmail -ti"
 
 package require sqlite3
@@ -20,9 +20,10 @@ db eval {
   );
 }
 while {1} {
+  set n 0
   db transaction immediate {
-    set n 0
-    db eval {SELECT msg FROM email} {
+    set emailid 0
+    db eval {SELECT emailid, msg FROM email LIMIT 1} {
       set pipe $PIPE
       if {[regexp {\nFrom:[^\n]*<([^>]+)>} $msg all addr]} {
         append pipe " -f $addr"
@@ -34,8 +35,10 @@ while {1} {
       incr n
     }
     if {$n>0} {
-      db eval {DELETE FROM email}
+      db eval {DELETE FROM email WHERE emailid=$emailid}
     }
   }
-  after $POLLING_INTERVAL
+  if {$n==0} {
+    after $POLLING_INTERVAL
+  }
 }

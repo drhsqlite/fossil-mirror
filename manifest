@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\spath.c\sreported\sby\n[forum:/forumpost/658487ff8e|forum\spost\s658487ff8e].
-D 2025-10-23T10:17:49.766
+C Updates\sto\sthe\semail-sender.tcl\sscript.
+D 2025-10-23T11:24:40.933
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -736,7 +736,7 @@ F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/decode-email.c f5bd72404f2a4ebbded49b2a8cdc0b6b7a8acba5f5221c4d1bf65ff03a313cb7
 F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829abaaaefae4073 x
-F tools/email-sender.tcl 68217a0707268b570bd2f78e1799ae86c5cb0cc4e7eac321963fa24b6305c446 x
+F tools/email-sender.tcl 5119fb3e09c511046a9bf80272933abca757234d42ddd4558e5c4d2db87b3ff2 x
 F tools/emcc.sh.in 41a049468c8155433e37e656ba5bae063a000768b1d627025f277732c4e7c4a4
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fake-smtpd.tcl b8dd0e8d82d9b1906c09ad3e1bf96969a5a944dbc04ad083efcb4e7876f68c34
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ff040c4387e1c59182121373b7e2b04cae6b08b1b5f2ecfcb15d38ad15fad6b
-R 3175a8ad62c9b9fd5b1bea819308a163
+P da9aa4abf726a3e6e97e5a67e4e3bf0f8c77685cb1333ba16e445edfe4683ad6
+R 0a7eb36102a3c8aae08d49b8927644ff
 U drh
-Z 366b7d154684897e97ecf6ccdb487361
+Z 5720c064f38db593fdd23d6b70f57c3d
 # Remove this line to create a well-formed Fossil manifest.
