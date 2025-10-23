@@ -194,6 +194,7 @@ PathNode *path_shortest(
   path.pStart = path_new_node(iFrom, 0, 0);
   if( iTo==iFrom ){
     path.pEnd = path.pStart;
+    path.pEnd->u.pTo = 0;
     return path.pStart;
   }
   if( oneWayOnly && directOnly ){

@@ -1,5 +1,5 @@
-C Small\sgrammar\schange\sin\sthe\schanges.wiki\spage.
-D 2025-10-23T07:57:36.748
+C Fix\sa\sbug\sin\spath.c\sreported\sby\n[forum:/forumpost/658487ff8e|forum\spost\s658487ff8e].
+D 2025-10-23T10:17:49.766
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -509,7 +509,7 @@ F src/merge3.c 49ebde3d3eea202a6d41342871132a92c39e6a2e9b4cc7f5ca44e7350a323256
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 3b717468e3317b33d4f38537a4fdabad27ecb73931f15ad650d0fe1624ad38a3
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
-F src/path.c 9c32dda651d83d15938ea17f11a19f3f36ebe0c1d6e37e5113cc11a492a74f77
+F src/path.c 1adf1a85457de922c45d649cbd77e1a483d892e5049a2b812c89a45c22948dec
 F src/piechart.c 409c3c1b594d2b982b6d871797f5a8f3bfcdc37786d9443a639bcdebddd83e24
 F src/pikchrshow.c 2d7c947dd9e4b4548c1e6077fcaa617104cb503712f53e65922241ea166d3a41
 F src/pivot.c 8d2906da54cb28697fa6516082e1ede033fe1400cfc3f2a153f7642e0ad86e9f
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ae8a45c7a7feba799e889de25da5f2a6683d1f89f5b07dd8964ca1b2bd685516
-R 89c9160ddc63ea0fdaa92636cf832d8c
-U brickviking
-Z a28cb11a7b19711db09a9cfcd30f8567
+P 2ff040c4387e1c59182121373b7e2b04cae6b08b1b5f2ecfcb15d38ad15fad6b
+R 3175a8ad62c9b9fd5b1bea819308a163
+U drh
+Z 366b7d154684897e97ecf6ccdb487361
 # Remove this line to create a well-formed Fossil manifest.
