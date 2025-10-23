@@ -1,5 +1,5 @@
-C Fix\sthe\sarchive_base_name()\sroutine\sso\sthat\sit\sworks\seven\sif\sno\sproject\nname\sis\sdefined.\s\sHarden\sthe\ssanitize_name()\sroutine\sso\sthat\sit\sworks\seven\nif\sthe\sargument\sis\sa\sNULL\spointer.\s\sFix\sfor\sthe\sproblem\sreported\sin\n[forum:/forumpost/31e880a7ea79fb40|forum\spost\s31e880a7e].
-D 2025-10-23T11:33:47.169
+C Update\sthe\semail\snotification\stransfer\sdaemon\sscript.
+D 2025-10-23T13:16:00.833
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -736,7 +736,7 @@ F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/decode-email.c f5bd72404f2a4ebbded49b2a8cdc0b6b7a8acba5f5221c4d1bf65ff03a313cb7
 F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829abaaaefae4073 x
-F tools/email-sender.tcl 5119fb3e09c511046a9bf80272933abca757234d42ddd4558e5c4d2db87b3ff2 x
+F tools/email-sender.tcl 28818c708ff7e8bbf9c7f9184369aed3f1369260baf7971efbc9240b4a5a4132 x
 F tools/emcc.sh.in 41a049468c8155433e37e656ba5bae063a000768b1d627025f277732c4e7c4a4
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fake-smtpd.tcl b8dd0e8d82d9b1906c09ad3e1bf96969a5a944dbc04ad083efcb4e7876f68c34
@@ -773,7 +773,7 @@ F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d
 F www/aboutcgi.wiki 8e36a43aa22f42a565aeaca59bcb2e8272cc2f444bd7cf20357e992148ba436c
 F www/aboutdownload.wiki dccb233a942a1f870490a471cdc0dbe934315d1828b0a8dd99b589cbd1768259
 F www/adding_code.wiki 06de2a518a772ed1fa8fdb165ff3c53149b6e68f43ad114b80d6df158683158a
-F www/alerts.md d405f460c1d754797b9dd76613a8decebd8cf5b49d699359912e75717eb1cf4a
+F www/alerts.md 20fac72b2258f0db019db2e80f8520f112bbcec61c71c226d1a2c6484e1c02c5
 F www/antibot.wiki 5f9f2f58a1744922d9d534551657550433b78121bb58c75b15a419a2c257c781
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 334f7f4267193721d3037d8a9d5626e6dcb11ad73ea1f5aa704bde41e9b86a6b
-R ac1318455c535c1f3218c10eac5cd511
+P 2f27f4b09640acfc8158da4ffd4275abc7d4ce52b8af10e95b2579b68aa1adc7
+R 5b8e454da7324b8dac36ebe5fb955dec
 U drh
-Z be958bcde224e878eba7387ff2dd05aa
+Z 48a9c1cf5889786861e59054a38fe9ab
 # Remove this line to create a well-formed Fossil manifest.
