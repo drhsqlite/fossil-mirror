@@ -602,6 +602,7 @@ int content_put_ex(
     db_exec(&s1);
     rid = db_last_insert_rowid();
     if( !pBlob ){
+      assert(!"cannot happen: pBlob is always non-NULL");
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
   }
@@ -865,7 +866,7 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
     if( content_is_private(srcid) && !content_is_private(rid) ) continue;
 
     /* Compute all ancestors of srcid and make sure rid is not one of them.
-    ** If rid is an ancestor of srcid, then making rid a decendent of srcid
+    ** If rid is an ancestor of srcid, then making rid a descendent of srcid
     ** would create a delta loop. */
     s = srcid;
     while( (s = delta_source_rid(s))>0 ){

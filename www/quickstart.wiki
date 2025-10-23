@@ -256,8 +256,8 @@ To see the most recent changes made to the repository by other users, use "fossi
 find out the most recent commit, and then "fossil diff" between that commit and the
 current tree:
 
-<pre><b>fossil timeline
-=== 2021-03-28 === 
+<pre><b><verbatim>fossil timeline
+=== 2021-03-28 ===
 03:18:54 [ad75dfa4a0] *CURRENT* Added details to frobnicate command (user: user-one tags: trunk) 
 === 2021-03-27 === 
 23:58:05 [ab975c6632] Update README.md. (user: user-two tags: trunk) 
@@ -271,7 +271,7 @@ Index: frobnicate.c
 @@ -1,10 +1,11 @@
 +/* made a change to the source file */
 # Original text
-</b></pre>
+</verbatim></b></pre>
 
 "current" is an alias for the checkout version, so the command
 "fossil diff --from ad75dfa4a0 --to ab975c6632" gives identical results.
@@ -298,7 +298,7 @@ repository, you give the same command, but the results are different.
 Fossil defaults to [./concepts.wiki#workflow|autosync] mode, a
 single-stage commit that sends all changes committed to the local
 repository immediately on to the remote parent repository. This only
-works if you have write permission to the remote respository.
+works if you have write permission to the remote repository.
 
 <h2 id="naming">Naming of Files, Checkins, and Branches</h2>
 
@@ -365,7 +365,7 @@ server wall, inaccessible by all means other than Fossil's own
 mediation. For this reason, the "localhost bypasses access control"
 policy does <i>not</i> apply to these other interfaces. That is a very
 good thing, since without this difference in policy, it would be unsafe
-to bind a [/help?cmd=server | <b>fossil server</b>] instance to
+to bind a [/help/server | <b>fossil server</b>] instance to
 localhost on a high-numbered port and then reverse-proxy it out to the
 world via HTTPS, a practice this author does engage in, with confidence.)
 

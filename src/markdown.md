@@ -190,7 +190,7 @@ oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
 
 > *   In-line images are made using **\!\[alt-text\]\(image-URL\)**.
 > *   Use HTML for advanced formatting such as forms, noting that certain
->     tags are [disallowed in some contexts](/help?cmd=safe-html).
+>     tags are [disallowed in some contexts](/help/safe-html).
 > *   **\<!--** HTML-style comments **-->** are supported.
 > *   Escape special characters (ex: **\[** **\(** **\|** **\***)
 >     using backslash (ex: **\\\[** **\\\(** **\\\|** **\\\***).

@@ -728,11 +728,11 @@ function TimelineGraph(tx){
     var x = document.getElementById("detail-"+id);
     if( x.style.display=="inline" ){
       x.style.display="none";
-      changeDisplayById("ellipsis-"+id,"inline");
+      document.getElementById("ellipsis-"+id).textContent = "...";
       changeDisplayById("links-"+id,"none");
     }else{
       x.style.display="inline";
-      changeDisplayById("ellipsis-"+id,"none");
+      document.getElementById("ellipsis-"+id).textContent = "←";
       changeDisplayById("links-"+id,"inline");
     }
     checkHeight();
@@ -766,8 +766,8 @@ function TimelineGraph(tx){
     scrollToSelected();
   }
 
-  /* Set the onclick= attributes for elements of the "Compact" display
-  ** mode so that clicking turns the details on and off.
+  /* Set the onclick= attributes for elements of the "Compact" and
+  ** "Simple" views so that clicking turns the details on and off.
   */
   var lx = topObj.getElementsByClassName('timelineEllipsis');
   var i;

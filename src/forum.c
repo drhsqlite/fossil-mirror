@@ -1914,14 +1914,14 @@ void forum_setup(void){
       if( pSetting->width==0 ){
         /* Boolean setting */
         @ <tr><td align="right">
-        @ <a href='%R/help?cmd=%h(pSetting->name)'>%h(pSetting->name)</a>:
+        @ <a href='%R/help/%h(pSetting->name)'>%h(pSetting->name)</a>:
         @ </td><td>
         onoff_attribute("", zQP, pSetting->name/*works-like:"x"*/, 0, 0);
         @ </td></tr>
       }else{
         /* Text value setting */
         @ <tr><td align="right">
-        @ <a href='%R/help?cmd=%h(pSetting->name)'>%h(pSetting->name)</a>:
+        @ <a href='%R/help/%h(pSetting->name)'>%h(pSetting->name)</a>:
         @ </td><td>
         entry_attribute("", 25, pSetting->name, zQP/*works-like:""*/,
                         pSetting->def, 0);

@@ -55,12 +55,15 @@
 ** to p copies of X following by q-p copies of X? and that the size of the
 ** regular expression in the O(N*M) performance bound is computed after
 ** this expansion.
+**
+** To help prevent DoS attacks, the maximum size of the NFA is restricted.
 */
 #include "config.h"
 #include "regexp.h"
 
 /* The end-of-input character */
 #define RE_EOF            0    /* End of input */
+#define RE_START  0xfffffff    /* Start of input - larger than an UTF-8 */
 
 /* The NFA is implemented as sequence of opcodes taken from the following
 ** set.  Each opcode has a single integer argument.
@@ -82,6 +85,7 @@
 #define RE_OP_SPACE      15    /* space:  [ \t\n\r\v\f] */
 #define RE_OP_NOTSPACE   16    /* Not a digit */
 #define RE_OP_BOUNDARY   17    /* Boundary between word and non-word */
+#define RE_OP_ATSTART    18    /* Currently at the start of the string */
 
 /* Each opcode is a "state" in the NFA */
 typedef unsigned short ReStateNumber;
@@ -115,9 +119,10 @@ struct ReCompiled {
   int *aArg;                  /* Arguments to each operator */
   unsigned (*xNextChar)(ReInput*);  /* Next character function */
   unsigned char zInit[12];    /* Initial text to match */
-  int nInit;                  /* Number of characters in zInit */
+  int nInit;                  /* Number of bytes in zInit */
   unsigned nState;            /* Number of entries in aOp[] and aArg[] */
   unsigned nAlloc;            /* Slots allocated for aOp[] and aArg[] */
+  unsigned mxAlloc;           /* Complexity limit */
 };
 #endif
 
@@ -146,7 +151,7 @@ static unsigned re_next_char(ReInput *p){
       c = (c&0x0f)<<12 | ((p->z[p->i]&0x3f)<<6) | (p->z[p->i+1]&0x3f);
       p->i += 2;
       if( c<=0x7ff || (c>=0xd800 && c<=0xdfff) ) c = 0xfffd;
-    }else if( (c&0xf8)==0xf0 && p->i+3<p->mx && (p->z[p->i]&0xc0)==0x80
+    }else if( (c&0xf8)==0xf0 && p->i+2<p->mx && (p->z[p->i]&0xc0)==0x80
            && (p->z[p->i+1]&0xc0)==0x80 && (p->z[p->i+2]&0xc0)==0x80 ){
       c = (c&0x07)<<18 | ((p->z[p->i]&0x3f)<<12) | ((p->z[p->i+1]&0x3f)<<6)
                        | (p->z[p->i+2]&0x3f);
@@ -187,7 +192,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   ReStateNumber *pToFree;
   unsigned int i = 0;
   unsigned int iSwap = 0;
-  int c = RE_EOF+1;
+  int c = RE_START;
   int cPrev = 0;
   int rc = 0;
   ReInput in;
@@ -206,6 +211,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
       in.i++;
     }
     if( in.i+pRe->nInit>in.mx ) return 0;
+    c = RE_START-1;
   }
 
   if( pRe->nState<=(sizeof(aSpace)/(sizeof(aSpace[0])*2)) ){
@@ -232,6 +238,10 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
       switch( pRe->aOp[x] ){
         case RE_OP_MATCH: {
           if( pRe->aArg[x]==c ) re_add_state(pNext, x+1);
+          break;
+        }
+        case RE_OP_ATSTART: {
+          if( cPrev==RE_START ) re_add_state(pThis, x+1);
           break;
         }
         case RE_OP_ANY: {
@@ -286,9 +296,9 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
         }
         case RE_OP_CC_EXC: {
           if( c==0 ) break;
-          /* fall-through */
+          /* fall-through */ goto re_op_cc_inc;
         }
-        case RE_OP_CC_INC: {
+        case RE_OP_CC_INC: re_op_cc_inc: {
           int j = 1;
           int n = pRe->aArg[x];
           int hit = 0;
@@ -315,7 +325,9 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
     }
   }
   for(i=0; i<pNext->nState; i++){
-    if( pRe->aOp[pNext->aState[i]]==RE_OP_ACCEPT ){ rc = 1; break; }
+    int x = pNext->aState[i];
+    while( pRe->aOp[x]==RE_OP_GOTO ) x += pRe->aArg[x];
+    if( pRe->aOp[x]==RE_OP_ACCEPT ){ rc = 1; break; }
   }
 re_match_end:
   fossil_free(pToFree);
@@ -327,11 +339,12 @@ re_match_end:
 static int re_resize(ReCompiled *p, int N){
   char *aOp;
   int *aArg;
+  if( N>p->mxAlloc ){ p->zErr = "REGEXP pattern too big"; return 1; }
   aOp = fossil_realloc(p->aOp, N*sizeof(p->aOp[0]));
-  if( aOp==0 ) return 1;
+  if( aOp==0 ){ p->zErr = "out of memory"; return 1; }
   p->aOp = aOp;
   aArg = fossil_realloc(p->aArg, N*sizeof(p->aArg[0]));
-  if( aArg==0 ) return 1;
+  if( aArg==0 ){ p->zErr = "out of memory"; return 1; }
   p->aArg = aArg;
   p->nAlloc = N;
   return 0;
@@ -470,7 +483,6 @@ static const char *re_subcompile_string(ReCompiled *p){
     iStart = p->nState;
     switch( c ){
       case '|':
-      case '$':
       case ')': {
         p->sIn.i--;
         return 0;
@@ -507,24 +519,41 @@ static const char *re_subcompile_string(ReCompiled *p){
         re_insert(p, iPrev, RE_OP_FORK, p->nState - iPrev+1);
         break;
       }
+      case '$': {
+        re_append(p, RE_OP_MATCH, RE_EOF);
+        break;
+      }
+      case '^': {
+        re_append(p, RE_OP_ATSTART, 0);
+        break;
+      }
       case '{': {
-        int m = 0, n = 0;
-        int sz, j;
+        unsigned int m = 0, n = 0;
+        unsigned int sz, j;
         if( iPrev<0 ) return "'{m,n}' without operand";
-        while( (c=rePeek(p))>='0' && c<='9' ){ m = m*10 + c - '0'; p->sIn.i++; }
+        while( (c=rePeek(p))>='0' && c<='9' ){
+          m = m*10 + c - '0';
+          if( m*2>p->mxAlloc ) return "REGEXP pattern too big";
+          p->sIn.i++;
+        }
         n = m;
         if( c==',' ){
           p->sIn.i++;
           n = 0;
-          while( (c=rePeek(p))>='0' && c<='9' ){ n = n*10 + c-'0'; p->sIn.i++; }
+          while( (c=rePeek(p))>='0' && c<='9' ){
+            n = n*10 + c-'0';
+            if( n*2>p->mxAlloc ) return "REGEXP pattern too big";
+            p->sIn.i++;
+          }
         }
         if( c!='}' ) return "unmatched '{'";
-        if( n>0 && n<m ) return "n less than m in '{m,n}'";
+        if( n<m ) return "n less than m in '{m,n}'";
         p->sIn.i++;
         sz = p->nState - iPrev;
         if( m==0 ){
           if( n==0 ) return "both m and n are zero in '{m,n}'";
           re_insert(p, iPrev, RE_OP_FORK, sz+1);
+          iPrev++;
           n--;
         }else{
           for(j=1; j<m; j++) re_copy(p, iPrev, sz);
@@ -534,12 +563,12 @@ static const char *re_subcompile_string(ReCompiled *p){
           re_copy(p, iPrev, sz);
         }
         if( n==0 && m>0 ){
-          re_append(p, RE_OP_FORK, -sz);
+          re_append(p, RE_OP_FORK, -(int)sz);
         }
         break;
       }
       case '[': {
-        int iFirst = p->nState;
+        unsigned int iFirst = p->nState;
         if( rePeek(p)=='^' ){
           re_append(p, RE_OP_CC_EXC, 0);
           p->sIn.i++;
@@ -563,7 +592,7 @@ static const char *re_subcompile_string(ReCompiled *p){
           if( rePeek(p)==']' ){ p->sIn.i++; break; }
         }
         if( c==0 ) return "unclosed '['";
-        p->aArg[iFirst] = p->nState - iFirst;
+        if( p->nState>iFirst ) p->aArg[iFirst] = p->nState - iFirst;
         break;
       }
       case '\\': {
@@ -614,7 +643,12 @@ void re_free(ReCompiled *pRe){
 ** compiled regular expression in *ppRe.  Return NULL on success or an
 ** error message if something goes wrong.
 */
-const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
+static const char *re_compile(
+  ReCompiled **ppRe,      /* OUT: write compiled NFA here */
+  const char *zIn,        /* Input regular expression */
+  int mxRe,               /* Complexity limit */
+  int noCase              /* True for caseless comparisons */
+){
   ReCompiled *pRe;
   const char *zErr;
   int i, j;
@@ -626,9 +660,11 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   }
   memset(pRe, 0, sizeof(*pRe));
   pRe->xNextChar = noCase ? re_next_char_nocase : re_next_char;
+  pRe->mxAlloc = mxRe;
   if( re_resize(pRe, 30) ){
+    zErr = pRe->zErr;
     re_free(pRe);
-    return "out of memory";
+    return zErr;
   }
   if( zIn[0]=='^' ){
     zIn++;
@@ -643,11 +679,7 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
     re_free(pRe);
     return zErr;
   }
-  if( rePeek(pRe)=='$' && pRe->sIn.i+1>=pRe->sIn.mx ){
-    re_append(pRe, RE_OP_MATCH, RE_EOF);
-    re_append(pRe, RE_OP_ACCEPT, 0);
-    *ppRe = pRe;
-  }else if( pRe->sIn.i>=pRe->sIn.mx ){
+  if( pRe->sIn.i>=pRe->sIn.mx ){
     re_append(pRe, RE_OP_ACCEPT, 0);
     *ppRe = pRe;
   }else{
@@ -660,19 +692,19 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   ** one or more matching characters, enter those matching characters into
   ** zInit[].  The re_match() routine can then search ahead in the input
   ** string looking for the initial match without having to run the whole
-  ** regex engine over the string.  Do not worry able trying to match
+  ** regex engine over the string.  Do not worry about trying to match
   ** unicode characters beyond plane 0 - those are very rare and this is
   ** just an optimization. */
   if( pRe->aOp[0]==RE_OP_ANYSTAR && !noCase ){
     for(j=0, i=1; j<(int)sizeof(pRe->zInit)-2 && pRe->aOp[i]==RE_OP_MATCH; i++){
       unsigned x = pRe->aArg[i];
-      if( x<=127 ){
+      if( x<=0x7f ){
         pRe->zInit[j++] = (unsigned char)x;
-      }else if( x<=0xfff ){
+      }else if( x<=0x7ff ){
         pRe->zInit[j++] = (unsigned char)(0xc0 | (x>>6));
         pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else if( x<=0xffff ){
-        pRe->zInit[j++] = (unsigned char)(0xd0 | (x>>12));
+        pRe->zInit[j++] = (unsigned char)(0xe0 | (x>>12));
         pRe->zInit[j++] = 0x80 | ((x>>6)&0x3f);
         pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else{
@@ -683,6 +715,75 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
     pRe->nInit = j;
   }
   return pRe->zErr;
+}
+
+/*
+** Implementation of the regexp() SQL function.  This function implements
+** the build-in REGEXP operator.  The first argument to the function is the
+** pattern and the second argument is the string.  So, the SQL statements:
+**
+**       A REGEXP B
+**
+** is implemented as regexp(B,A).
+*/
+static void re_sql_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  ReCompiled *pRe;          /* Compiled regular expression */
+  const char *zPattern;     /* The regular expression */
+  const unsigned char *zStr;/* String being searched */
+  const char *zErr;         /* Compile error message */
+  int setAux = 0;           /* True to invoke sqlite3_set_auxdata() */
+
+  (void)argc;  /* Unused */
+  pRe = sqlite3_get_auxdata(context, 0);
+  if( pRe==0 ){
+    zPattern = (const char*)sqlite3_value_text(argv[0]);
+    if( zPattern==0 ) return;
+    zErr = fossil_re_compile(&pRe, zPattern, sqlite3_user_data(context)!=0);
+    if( zErr ){
+      re_free(pRe);
+      /* The original SQLite function from which this code was copied raises
+      ** an error if the REGEXP contained a syntax error.  This variant
+      ** silently fails to match, as that works better for Fossil.
+      ** sqlite3_result_error(context, zErr, -1); */
+      sqlite3_result_int(context, 0);
+      return;
+    }
+    if( pRe==0 ){
+      sqlite3_result_error_nomem(context);
+      return;
+    }
+    setAux = 1;
+  }
+  zStr = (const unsigned char*)sqlite3_value_text(argv[1]);
+  if( zStr!=0 ){
+    sqlite3_result_int(context, re_match(pRe, zStr, -1));
+  }
+  if( setAux ){
+    sqlite3_set_auxdata(context, 0, pRe, (void(*)(void*))re_free);
+  }
+}
+
+/*
+** Invoke this routine to register the regexp() function with the
+** SQLite database connection.
+*/
+int re_add_sql_func(sqlite3 *db){
+  int rc;
+  rc = sqlite3_create_function(db, "regexp", 2,
+                           SQLITE_UTF8|SQLITE_INNOCUOUS|SQLITE_DETERMINISTIC,
+                               0, re_sql_func, 0, 0);
+  if( rc==SQLITE_OK ){
+    /* The regexpi(PATTERN,STRING) function is a case-insensitive version
+    ** of regexp(PATTERN,STRING). */
+    rc = sqlite3_create_function(db, "regexpi", 2,
+                           SQLITE_UTF8|SQLITE_INNOCUOUS|SQLITE_DETERMINISTIC,
+                                 (void*)db, re_sql_func, 0, 0);
+  }
+  return rc;
 }
 
 /*
@@ -725,67 +826,23 @@ char *re_quote(const char *zIn){
 }
 
 /*
-** Implementation of the regexp() SQL function.  This function implements
-** the build-in REGEXP operator.  The first argument to the function is the
-** pattern and the second argument is the string.  So, the SQL statements:
+** SETTING:  regexp-limit                  width=8 default=1000
 **
-**       A REGEXP B
-**
-** is implemented as regexp(B,A).
+** Limit the size of the bytecode used to implement a regular expression
+** to this many steps.  It is important to limit this to avoid possible
+** DoS attacks.
 */
-static void re_sql_func(
-  sqlite3_context *context,
-  int argc,
-  sqlite3_value **argv
-){
-  ReCompiled *pRe;          /* Compiled regular expression */
-  const char *zPattern;     /* The regular expression */
-  const unsigned char *zStr;/* String being searched */
-  const char *zErr;         /* Compile error message */
-  int setAux = 0;           /* True to invoke sqlite3_set_auxdata() */
-
-  (void)argc;  /* Unused */
-  pRe = sqlite3_get_auxdata(context, 0);
-  if( pRe==0 ){
-    zPattern = (const char*)sqlite3_value_text(argv[0]);
-    if( zPattern==0 ) return;
-    zErr = re_compile(&pRe, zPattern, sqlite3_user_data(context)!=0);
-    if( zErr ){
-      re_free(pRe);
-      sqlite3_result_int(context, 0);
-      /* sqlite3_result_error(context, zErr, -1); */
-      return;
-    }
-    if( pRe==0 ){
-      sqlite3_result_error_nomem(context);
-      return;
-    }
-    setAux = 1;
-  }
-  zStr = (const unsigned char*)sqlite3_value_text(argv[1]);
-  if( zStr!=0 ){
-    sqlite3_result_int(context, re_match(pRe, zStr, -1));
-  }
-  if( setAux ){
-    sqlite3_set_auxdata(context, 0, pRe, (void(*)(void*))re_free);
-  }
-}
 
 /*
-** Invoke this routine to register the regexp() function with the
-** SQLite database connection.
+** Compile an RE using re_maxlen().
 */
-int re_add_sql_func(sqlite3 *db){
-  int rc;
-  rc = sqlite3_create_function(db, "regexp", 2, SQLITE_UTF8|SQLITE_INNOCUOUS,
-                               0, re_sql_func, 0, 0);
-  if( rc==SQLITE_OK ){
-    /* The regexpi(PATTERN,STRING) function is a case-insensitive version
-    ** of regexp(PATTERN,STRING). */
-    rc = sqlite3_create_function(db, "regexpi", 2, SQLITE_UTF8|SQLITE_INNOCUOUS,
-                                 (void*)db, re_sql_func, 0, 0);
-  }
-  return rc;
+const char *fossil_re_compile(
+  ReCompiled **ppRe,      /* OUT: write compiled NFA here */
+  const char *zIn,        /* Input regular expression */
+  int noCase              /* True for caseless comparisons */
+){
+  int mxLen = g.db ? db_get_int("regexp-limit",1000) : 1000;
+  return re_compile(ppRe, zIn, mxLen, noCase);
 }
 
 /*
@@ -852,21 +909,34 @@ static int grep_buffer(
 **
 ** Options:
 **   -i|--ignore-case    Ignore case
+**   --robot-exception   Use the robot-exception setting as the REGEXP
 */
 void re_test_grep(void){
   ReCompiled *pRe;
   const char *zErr;
+  int iFileList = 3;
   int ignoreCase = find_option("ignore-case","i",0)!=0;
-  if( g.argc<3 ){
-    usage("REGEXP [FILE...]");
+  int bRobot = find_option("robot-exception",0,0)!=0;
+  if( bRobot ){
+    const char *zRe;
+    db_find_and_open_repository(0,0);
+    verify_all_options();
+    zRe = db_get("robot-exception","^$");
+    zErr = fossil_re_compile(&pRe, zRe, ignoreCase);
+    iFileList = 2;
+  }else{
+    verify_all_options();
+    if( g.argc<3 ){
+      usage("REGEXP [FILE...]");
+    }
+    zErr = fossil_re_compile(&pRe, g.argv[2], ignoreCase);
   }
-  zErr = re_compile(&pRe, g.argv[2], ignoreCase);
   if( zErr ) fossil_fatal("%s", zErr);
-  if( g.argc==3 ){
+  if( g.argc==iFileList ){
     grep_file(pRe, "-", stdin);
   }else{
     int i;
-    for(i=3; i<g.argc; i++){
+    for(i=iFileList; i<g.argc; i++){
       FILE *in = fossil_fopen(g.argv[i], "rb");
       if( in==0 ){
         fossil_warning("cannot open \"%s\"", g.argv[i]);
@@ -941,7 +1011,7 @@ void re_grep_cmd(void){
   if( g.argc<4 ){
     usage("REGEXP FILENAME ...");
   }
-  zErr = re_compile(&pRe, g.argv[2], ignoreCase);
+  zErr = fossil_re_compile(&pRe, g.argv[2], ignoreCase);
   if( zErr ) fossil_fatal("%s", zErr);
 
   add_content_sql_commands(g.db);
@@ -1017,4 +1087,85 @@ void re_grep_cmd(void){
       fossil_print("%d\n", nMatch);
     }
   }
+}
+
+/*
+** WEBPAGE: re_rules
+**
+** Show a summary of the regular expression matching rules for Fossil.
+*/
+void re_rules_page(void){
+  style_set_current_feature("wiki");
+  style_header("Regular Expression Syntax");
+  @ <p>Syntax rules for regular expression matching in Fossil:</p>
+  @ 
+  @ <table border="0" cellpadding="0" cellspacing="0">
+  @ <tr><th>&emsp;&emsp;&emsp;<th>Pattern
+  @     <th>&emsp;&emsp;&emsp;<th align="left">Match
+  @ <tr><td><td><i>X</i><b>*</b>
+  @     <td><td>Zero or more occurrences of <i>X</i>
+  @ <tr><td><td><i>X</i><b>+</b>
+  @     <td><td>One or more occurrences of <i>X</i>
+  @ <tr><td><td><i>X</i><b>?</b>
+  @     <td><td>Zero or one occurrences of <i>X</i>
+  @ <tr><td><td><i>X</i><b>{</b><i>P</i><b>,</b><i>Q</i><b>}</b>
+  @     <td><td>Between P and Q occurrences of <i>X</i>
+  @ <tr><td><td><b>(</b><i>X</i><b>)</b>
+  @     <td><td><i>X</i>
+  @ <tr><td><td><i>X</i><b>|</b><i>Y</i>
+  @     <td><td><i>X</i> or <i>Y</i>
+  @ <tr><td><td><b>^</b><i>X</i>
+  @     <td><td><i>X</i> at the beginning of the string
+  @ <tr><td><td><i>X</i><b>$</b>
+  @     <td><td><i>X</i> at the end of the string
+  @ <tr><td><td><b>.</b>
+  @     <td><td>Any single character
+  @ <tr><td><td><b>\</b><i>C</i>
+  @     <td><td>Character <i>C</i> if <i>C</i> is one of: <b>\{}()[]|*+?</b>
+  @ <tr><td><td><b>\</b><i>C</i>
+  @     <td><td>C-language escapes if <i>C</i> is one of: <b>afnrtv</b>
+  @ <tr><td><td><b>\u</b><i>HHHH</i>
+  @     <td><td>Unicode character U+HHHH where <i>HHHH</i> is four hex digits
+  @ <tr><td><td><b>\</b><i>HH</i>
+  @     <td><td>Unicode character U+00HH where <i>HH</i> is two hex digits
+  @ <tr><td><td><b>[</b><i>abc</i><b>]</b>
+  @     <td><td>Any single character from <i>abc</i>
+  @ <tr><td><td><b>[^</b><i>abc</i><b>]</b>
+  @     <td><td>Any single character not in <i>abc</i>
+  @ <tr><td><td><b>[</b><i>a-z</i><b>]</b>
+  @     <td><td>Any single character between <i>a</i> and <i>z</i>, inclusive
+  @ <tr><td><td><b>[^</b><i>a-z</i><b>]</b>
+  @     <td><td>Any single character not between <i>a</i> and <i>z</i>
+  @ <tr><td><td><b>\b</b>
+  @     <td><td>Word boundary
+  @ <tr><td><td><b>\w</b>
+  @     <td><td>A word character: a-zA-Z0-9 or _
+  @ <tr><td><td><b>\W</b>
+  @     <td><td>A non-word character
+  @ <tr><td><td><b>\d</b>
+  @     <td><td>A digit.  0-9
+  @ <tr><td><td><b>\D</b>
+  @     <td><td>A non-digit character
+  @ <tr><td><td><b>\s</b>
+  @     <td><td>A whitespace character
+  @ <tr><td><td><b>\S</b>
+  @     <td><td>A non-whitespace character
+  @ </table>
+  @ 
+  @ <p>In the "Pattern" column of the table above:</p>
+  @ <ul>
+  @ <li> "<i>X</i>" and "<i>Y</i>" mean any subpattern
+  @ <li> "<i>P</i>" and "<i>Q</i>" mean integers
+  @ <li> "<i>C</i>" means a single character
+  @ <li> "<i>H</i>" means a hexadecimal digit
+  @ <li> "<i>abc</i>" means any sequences of one or more characters
+  @ <li> "<i>a-z</i>" means any single character, a single "<b>-</b>"
+  @      character, and then one additional character.
+  @ <li> All other symbols in the patterns are literal text
+  @ </ul>
+  @ 
+  @ <p>The "<i>X</i><b>|</b><i>Y</i>" pattern has lower precedence
+  @ than the others.  Use "<b>(</b>...<b>)</b>" for grouping, as
+  @ necessary.
+  style_finish_page();
 }

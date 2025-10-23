@@ -1,6 +1,6 @@
 # Limitations On Git Mirrors
 
-The "<tt>[fossil git export](/help?cmd=git)</tt>" command can be used to
+The "<tt>[fossil git export](/help/git)</tt>" command can be used to
 mirror a Fossil repository to Git.
 ([Setup instructions](./mirrortogithub.md) and an
 [example](https://github.com/drhsqlite/fossil-mirror).)

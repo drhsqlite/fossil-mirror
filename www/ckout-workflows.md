@@ -137,6 +137,6 @@ The `/repo` addition is the key: whatever comes after is used as the
 repository name. [See the docs][clone] for more details.
 
 [caod]:  https://fossil-scm.org/forum/forumpost/3f143cec74
-[clone]: /help?cmd=clone
+[clone]: /help/clone
 
 <div style="height:50em" id="this-space-intentionally-left-blank"></div>

@@ -958,7 +958,7 @@ static int string_length_command(
 static int string_match_command(
   Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
-  extern char *fossil_strndup(const char*,int);
+  extern char *fossil_strndup(const char*,ssize_t);
   extern void fossil_free(void*);
   char *zPat, *zStr;
   int rc;

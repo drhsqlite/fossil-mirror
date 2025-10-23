@@ -173,8 +173,6 @@ void page_dir(void){
   char *zUuid = 0;
   Manifest *pM = 0;
   const char *zSubdirLink;
-  int linkTrunk = 1;
-  int linkTip = 1;
   HQuery sURI;
   int isSymbolicCI = 0;   /* ci= is symbolic name, not a hash prefix */
   int isBranchCI = 0;     /* True if ci= refers to a branch name */
@@ -200,9 +198,6 @@ void page_dir(void){
   if( zCI ){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
-      int trunkRid = symbolic_name_to_rid("tag:trunk", "ci");
-      linkTrunk = trunkRid && rid != trunkRid;
-      linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI))!=0);
       isBranchCI = branch_includes_uuid(zCI, zUuid);
@@ -236,6 +231,9 @@ void page_dir(void){
   }
   style_header("%s", zHeader);
   fossil_free(zHeader);
+  if( rid && zD==0 && zMatch[0]==0 && g.perm.Zip ){
+    style_submenu_element("Download","%R/rchvdwnld/%!S",zUuid);
+  }
   style_adunit_config(ADUNIT_RIGHT_OK);
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
@@ -285,20 +283,17 @@ void page_dir(void){
     @ in any check-in</h2>
     zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
   }
-  if( linkTrunk && !bDocDir ){
-    style_submenu_element("Trunk", "%s",
-                          url_render(&sURI, "ci", "trunk", 0, 0));
-  }
-  if( linkTip && !bDocDir ){
-    style_submenu_element("Tip", "%s", url_render(&sURI, "ci", "tip", 0, 0));
-  }
   if( zD && !bDocDir ){
     style_submenu_element("History","%R/timeline?chng=%T/*", zD);
   }
   if( !bDocDir ){
-    style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
     style_submenu_element("Tree-View", "%s",
                           url_render(&sURI, "type", "tree", 0, 0));
+  }
+
+  if( !bDocDir ){
+    /* Generate the Branch list submenu */
+    generate_branch_submenu_multichoice("ci", zCI);
   }
 
   /* Compute the temporary table "localfiles" containing the names
@@ -707,8 +702,6 @@ void page_tree(void){
   char *zNow = 0;
   int useMtime = atoi(PD("mtime","0"));
   int sortOrder = atoi(PD("sort",useMtime?"1":"0"));
-  int linkTrunk = 1;       /* include link to "trunk" */
-  int linkTip = 1;         /* include link to "tip" */
   const char *zRE;         /* the value for the re=REGEXP query parameter */
   const char *zObjType;    /* "files" by default or "folders" for "nofiles" */
   char *zREx = "";         /* Extra parameters for path hyperlinks */
@@ -749,7 +742,7 @@ void page_tree(void){
   /* If a regular expression is specified, compile it */
   zRE = P("re");
   if( zRE ){
-    re_compile(&pRE, zRE, 0);
+    fossil_re_compile(&pRE, zRE, 0);
     zREx = mprintf("&re=%T", zRE);
   }
   cgi_check_for_malice();
@@ -764,9 +757,6 @@ void page_tree(void){
   if( zCI ){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
-      int trunkRid = symbolic_name_to_rid("tag:trunk", "ci");
-      linkTrunk = trunkRid && rid != trunkRid;
-      linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       rNow = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
       zNow = db_text("", "SELECT datetime(mtime,toLocal())"
@@ -782,6 +772,9 @@ void page_tree(void){
     rNow = db_double(0.0, "SELECT max(mtime) FROM event");
     zNow = db_text("", "SELECT datetime(max(mtime),toLocal()) FROM event");
   }
+
+  /* Generate the Branch list submenu */
+  generate_branch_submenu_multichoice("ci", zCI);
 
   assert( isSymbolicCI==0 || (zCI!=0 && zCI[0]!=0) );
   if( zD==0 ){
@@ -820,20 +813,15 @@ void page_tree(void){
     style_submenu_multichoice("sort", 3, sort_orders, 0);
   }
   if( zCI ){
-    style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
     if( nD==0 && !showDirOnly ){
       style_submenu_element("File Ages", "%R/fileage?name=%T", zCI);
     }
   }
-  if( linkTrunk ){
-    style_submenu_element("Trunk", "%s",
-                          url_render(&sURI, "ci", "trunk", 0, 0));
-  }
-  if( linkTip ){
-    style_submenu_element("Tip", "%s", url_render(&sURI, "ci", "tip", 0, 0));
-  }
   style_submenu_element("Flat-View", "%s",
                         url_render(&sURI, "type", "flat", 0, 0));
+  if( rid && zD==0 && zRE==0 && !showDirOnly && g.perm.Zip ){
+    style_submenu_element("Download","%R/rchvdwnld/%!S", zUuid);
+  }
 
   /* Compute the file hierarchy.
   */
@@ -1040,7 +1028,8 @@ static const char zComputeFileAgeSetup[] =
 @   fid INTEGER,
 @   mid INTEGER,
 @   mtime DATETIME,
-@   pathname TEXT
+@   pathname TEXT,
+@   uuid TEXT
 @ );
 @ CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;
 ;
@@ -1052,8 +1041,9 @@ static const char zComputeFileAgeRun[] =
 @              SELECT plink.pid
 @                FROM ckin, plink
 @               WHERE plink.cid=ckin.x)
-@ INSERT OR IGNORE INTO fileage(fnid, fid, mid, mtime, pathname)
-@   SELECT filename.fnid, mlink.fid, mlink.mid, event.mtime, filename.name
+@ INSERT OR IGNORE INTO fileage(fnid, fid, mid, mtime, pathname, uuid)
+@   SELECT filename.fnid, mlink.fid, mlink.mid, event.mtime, filename.name,
+@          foci.uuid
 @     FROM foci, filename, blob, mlink, event
 @    WHERE foci.checkinID=:ckin
 @      AND foci.filename GLOB :glob
@@ -1164,7 +1154,6 @@ void fileage_page(void){
   double baseTime;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( exclude_spiders(0) ) return;
   zName = P("name");
   if( zName==0 ) zName = "tip";
   rid = symbolic_name_to_rid(zName, "ci");
@@ -1177,6 +1166,10 @@ void fileage_page(void){
   zNow = db_text("", "SELECT datetime(mtime,toLocal()) FROM event"
                      " WHERE objid=%d", rid);
   style_submenu_element("Tree-View", "%R/tree?ci=%T&mtime=1&type=tree", zName);
+
+  /* Generate the Branch list submenu */
+  generate_branch_submenu_multichoice("name", zName);
+
   style_header("File Ages");
   zGlob = P("glob");
   cgi_check_for_malice();

@@ -1236,9 +1236,9 @@
         "raw/"+a.src
       ].forEach(function(url){
         const imgUrl = D.append(D.addClass(D.span(), 'monospace'), url);
-        const urlCopy = D.span();
+        const urlCopy = D.button();
         const li = D.li(ul);
-        D.append(li, urlCopy, " ", imgUrl);
+        D.append(li, urlCopy, imgUrl);
         F.copyButton(urlCopy, {copyFromElement: imgUrl});
       });
     });

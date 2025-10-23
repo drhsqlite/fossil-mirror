@@ -605,7 +605,7 @@ static const char zDefaultView[] =
 @ }
 @ set seenRow 0
 @ set alwaysPlaintext [info exists plaintext]
-@ query {SELECT datetime(tkt_mtime) AS xdate, login AS xlogin,
+@ query {SELECT datetime(tkt_mtime,toLocal()) AS xdate, login AS xlogin,
 @               mimetype as xmimetype, icomment AS xcomment,
 @               username AS xusername
 @          FROM ticketchng
@@ -615,9 +615,10 @@ static const char zDefaultView[] =
 @   } else {
 @     html "<tr><td class='tktDspLabel' style='text-align:left'>\n"
 @     html "User Comments:</td></tr>\n"
-@     html "<tr><td colspan='5' class='tktDspValue'>\n"
+@     html "<tr><td colspan='5' class='tktDspValue'><div class='tktCommentArea'>\n"
 @     set seenRow 1
 @   }
+@   html "<div class='tktCommentEntry'>"
 @   html "<span class='tktDspCommenter'>"
 @   puts $xlogin
 @   if {$xlogin ne $xusername && [string length $xusername]>0} {
@@ -639,8 +640,9 @@ static const char zDefaultView[] =
 @     set r [randhex]
 @     wiki "<verbatim-$r links>[string trimright $xcomment]</verbatim-$r>\n"
 @   }
+@   html "</div>"; # .tktCommentEntry
 @ }
-@ if {$seenRow} {html "</td></tr>\n"}
+@ if {$seenRow} {html "</div></td></tr>\n"}
 @ </th1>
 @ </table>
 ;
@@ -791,7 +793,7 @@ static const char zDefaultEdit[] =
 @ <th1>
 @ set seenRow 0
 @ set alwaysPlaintext [info exists plaintext]
-@ query {SELECT datetime(tkt_mtime) AS xdate, login AS xlogin,
+@ query {SELECT datetime(tkt_mtime,toLocal()) AS xdate, login AS xlogin,
 @               mimetype as xmimetype, icomment AS xcomment,
 @               username AS xusername
 @          FROM ticketchng
@@ -802,9 +804,10 @@ static const char zDefaultEdit[] =
 @     html "<tr><td colspan='2'><hr></td></tr>\n"
 @     html "<tr><td colspan='2' class='tktDspLabel' style='text-align:left'>\n"
 @     html "Previous User Comments:</td></tr>\n"
-@     html "<tr><td colspan='2' class='tktDspValue'>\n"
+@     html "<tr><td colspan='2' class='tktDspValue'><div class='tktCommentArea'>\n"
 @     set seenRow 1
 @   }
+@   html "<div class='tktCommentEntry'>"
 @   html "<span class='tktDspCommenter'>"
 @   puts $xlogin
 @   if {$xlogin ne $xusername && [string length $xusername]>0} {
@@ -826,8 +829,9 @@ static const char zDefaultEdit[] =
 @     set r [randhex]
 @     wiki "<verbatim-$r links>[string trimright $xcomment]</verbatim-$r>\n"
 @   }
+@   html "</div>"; # .tktCommentEntry
 @ }
-@ if {$seenRow} {html "</td></tr>\n"}
+@ if {$seenRow} {html "</div></td></tr>\n"}
 @ </th1>
 @
 @ </table>
@@ -928,8 +932,8 @@ static char zDefaultReport[] =
 @        WHEN status='Deferred' THEN '#cacae5'
 @        ELSE '#c8c8c8' END AS 'bgcolor',
 @   substr(tkt_uuid,1,10) AS '#',
-@   datetime(tkt_ctime) AS 'created',
-@   datetime(tkt_mtime) AS 'modified',
+@   datetime(tkt_ctime,toLocal()) AS 'created',
+@   datetime(tkt_mtime,toLocal()) AS 'modified',
 @   type,
 @   status,
 @   subsystem,

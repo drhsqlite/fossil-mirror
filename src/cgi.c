@@ -243,7 +243,7 @@ char *cgi_extract_content(void){
 /*
 ** Additional information used to form the HTTP reply
 */
-static const char *zContentType = "text/html";   /* Content type of the reply */
+static const char *zReplyMimeType = "text/html"; /* Content type of the reply */
 static const char *zReplyStatus = "OK";          /* Reply status description */
 static int iReplyStatus = 200;               /* Reply status code */
 static Blob extraHeader = BLOB_INITIALIZER;  /* Extra header text */
@@ -258,7 +258,9 @@ static int rangeEnd = 0;                     /* End of Range: plus 1 */
 ** other content type is being returned.
 */
 void cgi_set_content_type(const char *zType){
-  zContentType = fossil_strdup(zType);
+  int i;
+  for(i=0; zType[i]>='+' && zType[i]<='z'; i++){}
+  zReplyMimeType = fossil_strndup(zType, i);
 }
 
 /*
@@ -338,10 +340,10 @@ static int is_gzippable(void){
   /* Maintenance note: this oddball structure is intended to make
   ** adding new mimetypes to this list less of a performance hit than
   ** doing a strcmp/glob over a growing set of compressible types. */
-  switch(zContentType ? *zContentType : 0){
+  switch(zReplyMimeType ? *zReplyMimeType : 0){
     case (int)'a':
-      if(0==fossil_strncmp("application/",zContentType,12)){
-        const char * z = &zContentType[12];
+      if(0==fossil_strncmp("application/",zReplyMimeType,12)){
+        const char * z = &zReplyMimeType[12];
         switch(*z){
           case (int)'j':
             return fossil_strcmp("javascript", z)==0
@@ -356,10 +358,10 @@ static int is_gzippable(void){
       }
       break;
     case (int)'i':
-      return fossil_strcmp(zContentType, "image/svg+xml")==0
-        || fossil_strcmp(zContentType, "image/vnd.microsoft.icon")==0;
+      return fossil_strcmp(zReplyMimeType, "image/svg+xml")==0
+        || fossil_strcmp(zReplyMimeType, "image/vnd.microsoft.icon")==0;
     case (int)'t':
-      return fossil_strncmp(zContentType, "text/", 5)==0;
+      return fossil_strncmp(zReplyMimeType, "text/", 5)==0;
   }
   return 0;
 }
@@ -404,6 +406,8 @@ size_t cgi_fread(void *ptr, size_t nmemb){
   return ssl_read_server(g.httpSSLConn, ptr, nmemb, 1);
 #else
   fossil_fatal("SSL not available");
+  /* NOT REACHED */
+  return 0;
 #endif
 }
 
@@ -451,7 +455,7 @@ static void cgi_fflush(void){
 /*
 ** Given a Content-Type value, returns a string suitable for appending
 ** to the Content-Type header for adding (or not) the "; charset=..."
-** part. It returns an empty string for most types or if zContentType
+** part. It returns an empty string for most types or if zReplyMimeType
 ** is NULL.
 **
 ** See forum post f60dece061c364d1 for the discussions which lead to
@@ -461,8 +465,8 @@ static void cgi_fflush(void){
 ** most types (and not required for many others which may ostensibly
 ** benefit from one, as detailed in that forum post).
 */
-static const char * content_type_charset(const char *zContentType){
-  if(0==fossil_strncmp(zContentType,"text/",5)){
+static const char * content_type_charset(const char *zReplyMimeType){
+  if(0==fossil_strncmp(zReplyMimeType,"text/",5)){
     return "; charset=utf-8";
   }
   return "";
@@ -502,7 +506,7 @@ void cgi_reply(void){
   }
   if( etag_tag()[0]!=0
    && iReplyStatus==200
-   && strcmp(zContentType,"text/html")!=0
+   && strcmp(zReplyMimeType,"text/html")!=0
   ){
     /* Do not cache HTML replies as those will have been generated and
     ** will likely, therefore, contains a nonce and we want that nonce to
@@ -544,9 +548,9 @@ void cgi_reply(void){
   */
 
   if( iReplyStatus!=304 ) {
-    blob_appendf(&hdr, "Content-Type: %s%s\r\n", zContentType,
-                 content_type_charset(zContentType));
-    if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
+    blob_appendf(&hdr, "Content-Type: %s%s\r\n", zReplyMimeType,
+                 content_type_charset(zReplyMimeType));
+    if( fossil_strcmp(zReplyMimeType,"application/x-fossil")==0 ){
       cgi_combine_header_and_body();
       blob_compress(&cgiContent[0], &cgiContent[0]);
     }
@@ -948,6 +952,16 @@ void cgi_setenv(const char *zName, const char *zValue){
 }
 
 /*
+** Returns true if NUL-terminated z contains any non-NUL
+** control characters (<0x20, 32d).
+*/
+static int contains_ctrl(const char *z){
+  assert(z);
+  for( ; *z>=0x20; ++z ){}
+  return 0!=*z;
+}
+
+/*
 ** Add a list of query parameters or cookies to the parameter set.
 **
 ** Each parameter is of the form NAME=VALUE.  Both the NAME and the
@@ -976,8 +990,12 @@ void cgi_setenv(const char *zName, const char *zValue){
 ** The input string "z" is modified but no copies is made.  "z"
 ** should not be deallocated or changed again after this routine
 ** returns or it will corrupt the parameter table.
+**
+** If bPermitCtrl is false and the decoded value of any entry in z
+** contains control characters (<0x20, 32d) then that key/value pair
+** are skipped.
 */
-static void add_param_list(char *z, int terminator){
+static void add_param_list(char *z, int terminator, int bPermitCtrl){
   int isQP = terminator=='&';
   while( *z ){
     char *zName;
@@ -1000,7 +1018,10 @@ static void add_param_list(char *z, int terminator){
       zValue = "";
     }
     if( zName[0] && fossil_no_strange_characters(zName+1) ){
-      if( fossil_islower(zName[0]) ){
+      if( 0==bPermitCtrl && contains_ctrl(zValue) ){
+        continue /* Reject it. An argument could be made
+                 ** for break instead of continue. */;
+      }else if( fossil_islower(zName[0]) ){
         cgi_set_parameter_nocopy(zName, zValue, isQP);
       }else if( fossil_isupper(zName[0]) ){
         cgi_set_parameter_nocopy_tolower(zName, zValue, isQP);
@@ -1299,7 +1320,7 @@ int cgi_setup_query_string(void){
   if( z ){
     rc = 0x01;
     z = fossil_strdup(z);
-    add_param_list(z, '&');
+    add_param_list(z, '&', 0);
     z = (char*)P("skin");
     if( z ){
       char *zErr = skin_use_alternative(z, 2, SKIN_FROM_QPARAM);
@@ -1459,7 +1480,7 @@ void cgi_init(void){
   z = (char*)P("HTTP_COOKIE");
   if( z ){
     z = fossil_strdup(z);
-    add_param_list(z, ';');
+    add_param_list(z, ';', 0);
     z = (char*)cookie_value("skin",0);
     if(z){
       skin_use_alternative(z, 2, SKIN_FROM_COOKIE);
@@ -1522,7 +1543,7 @@ void cgi_decode_post_parameters(void){
     char *z = blob_str(&g.cgiIn);
     cgi_trace(z);
     if( g.zContentType[0]=='a' ){
-      add_param_list(z, '&');
+      add_param_list(z, '&', 1);
     }else{
       process_multipart_form_data(z, len);
     }
@@ -1613,6 +1634,21 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   }
   CGIDEBUG(("no-match [%s]\n", zName));
   return zDefault;
+}
+
+/*
+** Return TRUE if the specific parameter exists and is a query parameter.
+** Return FALSE if the parameter is a cookie or environment variable.
+*/
+int cgi_is_qp(const char *zName){
+  int i;
+  if( zName==0 || fossil_isupper(zName[0]) ) return 0;
+  for(i=0; i<nUsedQP; i++){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
+      return aParamQP[i].isQP;
+    }
+  }
+  return 0;
 }
 
 /*
@@ -2008,7 +2044,7 @@ static NORETURN void malformed_request(const char *zMsg, ...){
   z = vmprintf(zMsg, ap);
   va_end(ap);
   cgi_set_status(400, "Bad Request");
-  zContentType = "text/plain";
+  zReplyMimeType = "text/plain";
   if( g.zReqType==0 ) g.zReqType = "WWW";
   if( g.zReqType[0]=='C' && PD("SERVER_SOFTWARE",0)!=0 ){
     const char *zServer = PD("SERVER_SOFTWARE","");
@@ -2256,8 +2292,9 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   static int nCycles = 0;
   static char *zCmd = 0;
   char *z, *zToken;
-  const char *zType = 0;
-  int i, content_length = 0;
+  char *zMethod;
+  int i;
+  size_t n;
   char zLine[2000];     /* A single line of input. */
 
   assert( !g.httpUseSSL );
@@ -2306,6 +2343,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
     }
   }
 
+  zMethod = fossil_strdup(zToken);
   if( fossil_strcmp(zToken,"GET")!=0 && fossil_strcmp(zToken,"POST")!=0
       && fossil_strcmp(zToken,"HEAD")!=0 ){
     malformed_request("unsupported HTTP method");
@@ -2320,6 +2358,16 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   if( zToken==0 ){
     malformed_request("malformed URL in HTTP header");
   }
+  n = strlen(g.zRepositoryName);
+  if( fossil_strncmp(g.zRepositoryName, zToken, n)==0 
+   && (zToken[n]=='/' || zToken[n]==0)
+   && fossil_strcmp(zMethod,"GET")==0
+  ){
+    zToken += n;
+    if( zToken && strlen(zToken)==0 ){
+      malformed_request("malformed URL in HTTP header");
+    }
+  }
   if( nCycles==0 ){
     cgi_setenv("REQUEST_URI", zToken);
     cgi_setenv("SCRIPT_NAME", "");
@@ -2329,8 +2377,10 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   if( zToken[i] ) zToken[i++] = 0;
   if( nCycles==0 ){
     cgi_setenv("PATH_INFO", zToken);
+    cgi_setenv("QUERY_STRING",&zToken[i]);
   }else{
     cgi_replace_parameter("PATH_INFO", fossil_strdup(zToken));
+    cgi_replace_parameter("QUERY_STRING",fossil_strdup(&zToken[i]));
   }
 
   /* Get all the optional fields that follow the first line.
@@ -2350,9 +2400,15 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
       zFieldName[i] = fossil_tolower(zFieldName[i]);
     }
     if( fossil_strcmp(zFieldName,"content-length:")==0 ){
-      content_length = atoi(zVal);
+      if( nCycles==0 ){
+	cgi_setenv("CONTENT_LENGTH", zVal);
+      }else{
+	cgi_replace_parameter("CONTENT_LENGTH", zVal);
+      }
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
-      g.zContentType = zType = fossil_strdup(zVal);
+      if( nCycles==0 ){
+	cgi_setenv("CONTENT_TYPE", zVal);
+      }
     }else if( fossil_strcmp(zFieldName,"host:")==0 ){
       if( nCycles==0 ){
         cgi_setenv("HTTP_HOST", zVal);
@@ -2383,17 +2439,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   cgi_reset_content();
   cgi_destination(CGI_BODY);
 
-  if( content_length>0 && zType ){
-    blob_zero(&g.cgiIn);
-    if( fossil_strcmp(zType, "application/x-fossil")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
-      blob_uncompress(&g.cgiIn, &g.cgiIn);
-    }else if( fossil_strcmp(zType, "application/x-fossil-debug")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
-    }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
-    }
-  }
+  cgi_init();
   cgi_trace(0);
   nCycles++;
 }

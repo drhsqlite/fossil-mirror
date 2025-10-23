@@ -33,7 +33,7 @@ for HTML documents.)
 
   *   Timeline:  [](/timeline)
 
-  *   Help: [](/help?cmd=help)
+  *   Help: [](/help/help)
 
   *   Site-map:  [](/sitemap)
 

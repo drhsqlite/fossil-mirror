@@ -49,7 +49,7 @@ The child project and the parent project will not normally be able to sync
 with one another, since they are now separate projects with distinct
 project codes.  However, if the
 "--from-parent-project" command-line option is provided to the
-"[/help?cmd=pull|fossil pull]" command in the child, and the URL of
+"[/help/pull|fossil pull]" command in the child, and the URL of
 parent repository is also provided on the command-line, then updates to
 the parent project that occurred after the child was created will be added
 to the child repository.  Thus, by periodically doing a

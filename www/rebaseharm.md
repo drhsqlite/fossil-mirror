@@ -375,7 +375,7 @@ beautiful wish, but there's a sharp limit to how far you can carry it.
 Eventually you hit the limits of human brilliance.
 
 When the operation of some bit of code is not obvious, both Fossil and
-Git let you run a [`blame`](/help?cmd=blame) on the code file to get
+Git let you run a [`blame`](/help/blame) on the code file to get
 information about each line of code, and from that which check-in last
 touched a given line of code. If you squash the check-ins on a branch
 down to a single check-in, you throw away the information leading up to

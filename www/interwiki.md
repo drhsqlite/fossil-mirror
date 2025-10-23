@@ -66,7 +66,7 @@ The intermap defines a mapping from interwiki Tags to full URLs.  The
 Intermap can be viewed and managed using the [fossil interwiki][iwiki]
 command or the [/intermap][imap] webpage.
 
-[iwiki]: /help?cmd=interwiki
+[iwiki]: /help/interwiki
 [imap]: /intermap
 
 The current intermap for a server is seen on the [/intermap][imap] page
@@ -102,7 +102,7 @@ extensions are provided in the intermap.
      running on the target has no way of scanning the source text and
      hence has no way of knowing that it is a target of a link from the source.
 
-[fcfg]: /help?cmd=config
+[fcfg]: /help/config
 
 ## Intermap Storage Details
 

@@ -396,6 +396,8 @@ void finfo_page(void){
     zStyle = "Columnar";
   }else if( tmFlags & TIMELINE_COMPACT ){
     zStyle = "Compact";
+  }else if( tmFlags & TIMELINE_SIMPLE ){
+    zStyle = "Simple";
   }else if( tmFlags & TIMELINE_VERBOSE ){
     zStyle = "Verbose";
   }else if( tmFlags & TIMELINE_CLASSIC ){
@@ -733,10 +735,10 @@ void finfo_page(void){
       cgi_printf("<span class='clutter' id='detail-%d'>",frid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
-    if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ) cgi_printf("(");
+    if( tmFlags & TIMELINE_INLINE ) cgi_printf("(");
     if( zUuid && (tmFlags & TIMELINE_VERBOSE)==0 ){
       @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFName,zCkin))\
-      @ [%S(zUuid)]</a>
+      @ %S(zUuid)</a>
       if( fShowId ){
         int srcId = delta_source_rid(frid);
         if( srcId>0 ){
@@ -747,6 +749,11 @@ void finfo_page(void){
         }
       }
     }
+    if( tmFlags & TIMELINE_SIMPLE ){
+      @ <span class='timelineEllipsis' data-id='%d(frid)' \
+      @ id='ellipsis-%d(frid)'>...</span>
+      @ <span class='clutter' id='detail-%d(frid)'>
+    }
     @ check-in:&nbsp;\
     hyperlink_to_version(zCkin);
     if( fShowId ){
@@ -755,8 +762,8 @@ void finfo_page(void){
     @ user:&nbsp;\
     hyperlink_to_user(zUser, zDate, ",");
     @ branch:&nbsp;%z(href("%R/timeline?t=%T",zBr))%h(zBr)</a>,
-    if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ){
-      @ size:&nbsp;%d(szFile))
+    if( tmFlags & TIMELINE_INLINE ){
+      @ size:&nbsp;%d(szFile)
     }else{
       @ size:&nbsp;%d(szFile)
     }
@@ -795,10 +802,10 @@ void finfo_page(void){
     }
     tag_private_status(frid);
     /* End timelineDetail */
-    if( tmFlags & TIMELINE_COMPACT ){
-      @ </span></span>
+    if( tmFlags & (TIMELINE_COMPACT|TIMELINE_SIMPLE) ){
+      @ </span>)</span>
     }else{
-      @ </span>
+      @ )</span>
     }
     @ </td></tr>
   }
@@ -815,7 +822,10 @@ void finfo_page(void){
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph, TIMELINE_FILEDIFF, iTableId);
+  {
+    int tmFlags = TIMELINE_GRAPH | TIMELINE_FILEDIFF;
+    timeline_output_graph_javascript(pGraph, tmFlags, iTableId);
+  }
   style_finish_page();
 }
 

@@ -408,12 +408,12 @@ static void zip_add_file_to_sqlar(
         "PRAGMA journal_mode = off;"
         "PRAGMA cache_spill = off;"
         "BEGIN;"
-        "CREATE TABLE sqlar("
-          "name TEXT PRIMARY KEY,  -- name of the file\n"
-          "mode INT,               -- access permissions\n"
-          "mtime INT,              -- last modification time\n"
-          "sz INT,                 -- original file size\n"
-          "data BLOB               -- compressed content\n"
+        "CREATE TABLE sqlar(\n"
+          "  name TEXT PRIMARY KEY,  -- name of the file\n"
+          "  mode INT,               -- access permissions\n"
+          "  mtime INT,              -- last modification time\n"
+          "  sz INT,                 -- original file size\n"
+          "  data BLOB               -- compressed content\n"
         ");", 0, 0, 0
     );
     sqlite3_prepare(p->db,
@@ -866,15 +866,7 @@ static void archive_cmd(int eType){
   }
 
   if( zName==0 ){
-    zName = db_text("default-name",
-       "SELECT replace(%Q,' ','_') "
-          " || strftime('_%%Y-%%m-%%d_%%H%%M%%S_', event.mtime) "
-          " || substr(blob.uuid, 1, 10)"
-       "  FROM event, blob"
-       " WHERE event.objid=%d"
-       "   AND blob.rid=%d",
-       db_get("project-name", "unnamed"), rid, rid
-    );
+    zName = archive_base_name(rid);
   }
   zip_of_checkin(eType, rid, zOut ? &zip : 0,
                  zName, pInclude, pExclude, listFlag);
@@ -997,6 +989,21 @@ void sqlar_cmd(void){
 **                       comma-separated list of GLOB patterns, where each
 **                       pattern can optionally be quoted using ".." or '..'.
 **                       Any file matching both ex= and in= is excluded.
+**
+** Robot Defenses:
+**
+**   *    If "zip" appears in the robot-restrict setting, then robots are
+**        not allowed to access this page.  Suspected robots will be
+**        presented with a captcha.
+**
+**   *    If "zipX" appears in the robot-restrict setting, then robots are
+**        restricted in the same way as with "zip", but with exceptions.
+**        If the check-in for which an archive is requested is a leaf check-in
+**        and if the robot-zip-leaf setting is true, then the request is
+**        allowed.  Or if the check-in has a tag that matches any of the
+**        GLOB patterns on the list in the robot-zip-tag setting, then the
+**        request is allowed.  Otherwise, the usual robot defenses are
+**        activated.
 */
 void baseline_zip_page(void){
   int rid;
@@ -1014,12 +1021,10 @@ void baseline_zip_page(void){
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
+  if( robot_restrict("zip") ) return;
   if( fossil_strcmp(g.zPath, "sqlar")==0 ){
     eType = ARCHIVE_SQLAR;
     zType = "SQL";
-    /* For some reason, SQL-archives are like catnip for robots.  So
-    ** don't allow them to be downloaded by user "nobody" */
-    if( g.zLogin==0 ){ login_needed(g.anon.Zip); return; }
   }else{
     eType = ARCHIVE_ZIP;
     zType = "ZIP";
@@ -1070,6 +1075,7 @@ void baseline_zip_page(void){
     @ Not found
     return;
   }
+  if( robot_restrict_zip(rid) ) return;
   if( nRid==0 && nName>10 ) zName[10] = 0;
 
   /* Compute a unique key for the cache entry based on query parameters */

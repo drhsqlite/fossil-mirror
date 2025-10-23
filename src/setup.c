@@ -120,6 +120,8 @@ void setup_page(void){
   }
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
+  setup_menu_entry("Tarballs and ZIPs", "setup_download",
+    "Preferences for auto-generated tarballs and ZIP files");
   if( setup_user ){
     setup_menu_entry("Login-Group", "setup_login_group",
       "Manage single sign-on between this repository and others"
@@ -142,8 +144,10 @@ void setup_page(void){
   if( setup_user ){
     setup_menu_entry("Notification", "setup_notification",
       "Automatic notifications of changes via outbound email");
+#if 0  /* Disabled for now.  Does this even work? */
     setup_menu_entry("Transfers", "xfersetup",
       "Configure the transfer system for this repository");
+#endif
   }
   setup_menu_entry("Skins", "setup_skin_admin",
     "Select and/or modify the web interface \"skins\"");
@@ -423,52 +427,34 @@ static void addAutoHyperlinkSettings(void){
      "Enable hyperlinks base on User-Agent and/or Javascript",
      "auto-hyperlink", "autohyperlink", "1",
      count(azDefenseOpts)/2, azDefenseOpts);
-  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
-  @ including user "nobody", as long as the User-Agent string in the
-  @ HTTP header indicates that the request is coming from an actual human
-  @ being.  If this setting is "UserAgent only" (2) then the
-  @ UserAgent string is the only factor considered.  If the value of this
-  @ setting is "UserAgent And Javascript" (1) then Javascript is added that
-  @ runs after the page loads and fills in the href= values of &lt;a&gt;
-  @ elements.  In either case, &lt;a&gt; tags are only generated if the
-  @ UserAgent string indicates that the request is coming from a human and
-  @ not a robot.
-  @
-  @ <p>This setting is designed to give easy access to humans while
-  @ keeping out robots.
-  @ You do not normally want a robot to walk your entire repository because
-  @ if it does, your server will end up computing diffs and annotations for
-  @ every historical version of every file and creating ZIPs and tarballs of
-  @ every historical check-in, which can use a lot of CPU and bandwidth
-  @ even for relatively small projects.</p>
-  @
-  @ <p>The "UserAgent and Javascript" value for this setting provides
-  @ superior protection from robots.  However, that setting also prevents
-  @ the visited/unvisited colors on hyperlinks from displaying correctly
-  @ on Safari-derived browsers.  (Chrome and Firefox work fine.)  Since
-  @ Safari is the underlying rendering engine on all iPhones and iPads,
-  @ this means that hyperlink visited/unvisited colors will not operate
-  @ on those platforms when "UserAgent and Javascript" is selected.</p>
-  @
-  @ <p>Additional parameters that control the behavior of Javascript:</p>
-  @ <blockquote>
+  @ <br>
   entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
                   "auto-hyperlink-delay", "ah-delay", "50", 0);
   @ <br>
   onoff_attribute("Also require a mouse event before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
-  @ </blockquote>
+  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
+  @ including user "nobody" if the request appears to be from a human.
+  @ Disabling hyperlinks helps prevent robots from walking your site and
+  @ soaking up all your CPU and bandwidth.
+  @ If this setting is "UserAgent only" (2) then the
+  @ UserAgent string is the only factor considered.  If the value of this
+  @ setting is "UserAgent And Javascript" (1) then Javascript is added that
+  @ runs after the page loads and fills in the href= values of &lt;a&gt;
+  @ elements.  In either case, &lt;a&gt; tags are not generated if the
+  @ UserAgent string indicates that the client is a robot.
+  @ (Property: "auto-hyperlink")</p>
+  @
   @ <p>For maximum robot defense, "Delay" should be at least 50 milliseconds
   @ and "require a mouse event" should be turned on.  These values only come
   @ into play when the main auto-hyperlink settings is 2 ("UserAgent and
-  @ Javascript").</p>
+  @ Javascript").
+  @ (Properties: "auto-hyperlink-delay" and "auto-hyperlink-mouseover")</p>
   @
   @ <p>To see if Javascript-base hyperlink enabling mechanism is working,
-  @ visit the <a href="%R/test-env">/test-env</a> page (from a separate
-  @ web browser that is not logged in, even as "anonymous") and verify
+  @ visit the <a href="%R/test-env">/test-env</a> page from a separate
+  @ web browser that is not logged in, even as "anonymous" and verify
   @ that the "g.jsHref" value is "1".</p>
-  @ <p>(Properties: "auto-hyperlink", "auto-hyperlink-delay", and
-  @ "auto-hyperlink-mouseover"")</p>
 }
 
 /*
@@ -490,14 +476,69 @@ void setup_robots(void){
   @ might be expensive to compute. A robot that tries to walk the entire
   @ website can present a crippling CPU and bandwidth load.
   @
-  @ <p>The settings on this page are intended to help site administrators
-  @ defend the site against robots.
+  @ <p>The settings on this page are intended to help administrators
+  @ defend against abusive robots.
   @
   @ <form action="%R/setup_robot" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
+  @ <p><b>Do not allow robots access to these pages.</b><br>
+  @ If the page name matches the GLOB pattern of this setting, and the
+  @ users is "nobody", and the client has not previously passed a captcha
+  @ test to show that it is not a robot, then the page is not displayed.
+  @ A captcha test is is rendered instead.
+  @ The default value for this setting is:
+  @ <p>
+  @ &emsp;&emsp;&emsp;<tt>%h(robot_restrict_default())</tt>
+  @ <p>
+  @ The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
+  @ /vpatch.  The "annotate" tag covers /annotate and also /blame and
+  @ /praise.  The "zip" covers itself and also /tarball and /sqlar.
+  @ If a tag has an "X" character appended (ex: "timelineX") then it only
+  @ applies if query parameters are such that the page is expensive
+  @ and/or unusual. In all other case, the tag should exactly match
+  @ the page name.
+  @
+  @ To disable robot restrictions, change this setting to "off".
+  @ (Property: robot-restrict)
+  @ <br>
+  textarea_attribute("", 2, 80,
+      "robot-restrict", "rbrestrict", robot_restrict_default(), 0);
+
+  @ <p><b>Exception #1</b><br>
+  @ If "zipX" appears in the robot-restrict list above, then tarballs,
+  @ ZIP-archives, and SQL-archives may be downloaded by robots if
+  @ the check-in is a leaf (robot-zip-leaf):<br>
+  onoff_attribute("Allow tarballs for leaf check-ins",
+        "robot-zip-leaf", "rzleaf", 0, 0);
+
+  @ <p><b>Exception #2</b><br>
+  @ If "zipX" appears in the robot-restrict list above, then tarballs,
+  @ ZIP-archives, and SQL-archives may be downloaded by robots if
+  @ the check-in has one or more tags that match the following
+  @ list of GLOB patterns:  (robot-zip-tag)<br>
+  textarea_attribute("", 2, 80,
+      "robot-zip-tag", "rztag", "", 0);
+
+  @ <p><b>Exception #3</b><br>
+  @ If the request URI matches any of the following
+  @ <a href="%R/re_rules">regular expressions</a> (one per line), then the
+  @ request is exempt from anti-robot defenses.
+  @ The regular expression is matched against the REQUEST_URI with the
+  @ SCRIPT_NAME prefix removed, and with QUERY_STRING appended following
+  @ a "?" if QUERY_STRING exists.  (Property: robot-exception)<br>
+  textarea_attribute("", 3, 80,
+      "robot-exception", "rbexcept", "", 0);
+  @ <hr>
   addAutoHyperlinkSettings();
+
+  @ <hr>
+  entry_attribute("Anonymous Login Validity", 11, "anon-cookie-lifespan",
+                  "anoncookls", "840", 0);
+  @ <p>The number of minutes for which an anonymous login cookie is valid.
+  @ Set to zero to disable anonymous login.
+  @ (property: anon-cookie-lifespan)
 
   @ <hr>
   entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
@@ -510,33 +551,7 @@ void setup_robots(void){
   @ access to the /proc virtual filesystem is required, which means this limit
   @ might not work inside a chroot() jail.
   @ (Property: "max-loadavg")</p>
-
-  @ <hr>
-  @ <p><b>Do not allow robots to make complex requests
-  @ against the following pages.</b>
-  @ <p> A "complex request" is an HTTP request that has one or more query
-  @ parameters. Some robots will spend hours juggling around query parameters
-  @ or even forging fake query parameters in an effort to discover new
-  @ behavior or to find an SQL injection opportunity or similar.  This can
-  @ waste hours of CPU time and gigabytes of bandwidth on the server.  A
-  @ suggested value for this setting is:
-  @ "<tt>timeline,*diff,vpatch,annotate,blame,praise,dir,tree</tt>".
-  @ (Property: robot-restrict)
-  @ <br>
-  textarea_attribute("", 2, 80,
-      "robot-restrict", "rbrestrict", "", 0);
-  @ <br> The following comma-separated GLOB pattern allows for exceptions
-  @ in the maximum number of query parameters before a request is considered
-  @ complex.  If this GLOB pattern exists and is non-empty and if it
-  @ matches against the pagename followed by "/" and the number of query
-  @ parameters, then the request is allowed through.  For example, the
-  @ suggested pattern of "timeline/[012]" allows the /timeline page to
-  @ pass with up to 2 query parameters besides "name".
-  @ (Property: robot-restrict-qp)
-  @ <br>
-  textarea_attribute("", 2, 80,
-      "robot-restrict-qp", "rbrestrictqp", "", 0);
-
+  @
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
@@ -777,6 +792,13 @@ void setup_access(void){
   @ anonymous users.  (Property: "auto-captcha")</p>
 
   @ <hr>
+  entry_attribute("Anonymous Login Validity", 11, "anon-cookie-lifespan",
+                  "anoncookls", "840", 0);
+  @ <p>The number of minutes for which an anonymous login cookie is valid.
+  @ Set to zero to disable anonymous logins.
+  @ (property: anon-cookie-lifespan)
+
+  @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
@@ -970,6 +992,11 @@ void setup_timeline(void){
       "3", "YYMMDD HH:MM",
       "4", "(off)"
   };
+  static const char *const azLeafMark[] = {
+      "0", "No",
+      "1", "Yes",
+      "2", "Yes - with emphasis",
+  };
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -1057,6 +1084,12 @@ void setup_timeline(void){
   @ changes.  With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats,
   @ the complete date and time is shown on every timeline entry using the
   @ CSS class "timelineTime". (Property: "timeline-date-format")</p>
+
+  @ <hr>
+  multiple_choice_attribute("Leaf Markings", "timeline-mark-leaves",
+            "tml", "1", count(azLeafMark)/2, azLeafMark);
+  @ <p>Should timeline entries for leaf check-ins be identified in the
+  @ detail section.  (Property: "timeline-mark-leaves")</p>
 
   @ <hr>
   entry_attribute("Max timeline comment length", 6,
@@ -1160,7 +1193,7 @@ void setup_settings(void){
       onoff_attribute("", pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       is_truth(pSet->def), hasVersionableValue);
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      @ <a href='%R/help/%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
       } else {
@@ -1179,7 +1212,7 @@ void setup_settings(void){
         continue;
       }
       @ <tr><td>
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      @ <a href='%R/help/%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)
       } else {
@@ -1200,7 +1233,7 @@ void setup_settings(void){
       if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
         continue;
       }
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
+      @ <a href='%R/help/%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
       } else {
@@ -1312,24 +1345,6 @@ void setup_config(void){
   @ Suggested value: "%h(g.zBaseURL)"
   @ (Property: "email-url")</p>
   @ <hr>
-  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name",
-                  "spn", "", 0);
-  @ <p>This is used as a prefix on the names of generated tarballs and
-  @ ZIP archive. For best results, keep this prefix brief and avoid special
-  @ characters such as "/" and "\".
-  @ If no tarball prefix is specified, then the full Project Name above is used.
-  @ (Property: "short-project-name")
-  @ </p>
-  @ <hr>
-  entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
-  @ <p>The <a href='%R/download'>/download</a> page is designed to provide
-  @ a convenient place for newbies
-  @ to download a ZIP archive or a tarball of the project.  By default,
-  @ the latest trunk check-in is downloaded.  Change this tag to something
-  @ else (ex: release) to alter the behavior of the /download page.
-  @ (Property: "download-tag")
-  @ </p>
-  @ <hr>
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home", 0);
   @ <p>Enter the pathname of the page to display when the "Home" menu
   @ option is selected and when no pathname is
@@ -1410,6 +1425,62 @@ void setup_config(void){
   @ <p>
   textarea_attribute("Custom Sitemap Entries", 8, 80,
       "sitemap-extra", "smextra", "", 0);
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: setup_download
+**
+** The "Admin/Download" page.  Requires Setup privilege.
+*/
+void setup_download(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_set_current_feature("setup");
+  style_header("Tarball and ZIP Downloads");
+  db_begin_transaction();
+  @ <form action="%R/setup_download" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
+  entry_attribute("Tarball and ZIP Name Prefix", 20, "short-project-name",
+                  "spn", "", 0);
+  @ <p>This is used as a prefix for the names of generated tarballs and
+  @ ZIP archive. Keep this prefix brief and use only lower-case ASCII
+  @ characters, digits, "_", "-" in the name. If this setting is blank,
+  @ then the full <a href='%R/help/project-name'>project-name</a> setting
+  @ is used instead.
+  @ (Property: "short-project-name")
+  @ </p>
+  @ <hr>
+  @ <p><b>Configuration for the <a href="%R/download">/download</a> page.</b>
+  @ <p>The value is a TCL list divided into groups of four tokens:
+  @ <ol>
+  @ <li> Maximum number of matches (COUNT).
+  @ <li> Tag to match using glob (TAG).
+  @ <li> Maximum age of check-ins to match (MAX_AGE).
+  @ <li> Comment to apply to matches (COMMENT).
+  @ </ol>
+  @ Each 4-tuple will match zero or more check-ins.  The /download page
+  @ displays the union of matches from all 4-tuples.
+  @ See the <a href="%R/help/suggested-downloads">suggested-downloads</a>
+  @ setting documentation for further detail.
+  @ <p>
+  @ The /download page is omitted from the <a href="%R/sitemap">/sitemap</a>
+  @ if the first token is "0" or "off" or "no".  The default value 
+  @ for this setting is "off".
+  @ (Property: <a href="%R/help/suggested-downloads">suggested-downloads</a>)
+  @ <p>
+  textarea_attribute("", 4, 80,
+      "suggested-downloads", "sgtrlst", "off", 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>

@@ -371,7 +371,7 @@ void secaudit0_page(void){
    && fossil_strcmp(zVulnReport,"fatal")!=0
   ){
     @ <li><p><b>WARNING:</b>
-    @ The <a href="%R/help?cmd=vuln-report">vuln-report setting</a>
+    @ The <a href="%R/help/vuln-report">vuln-report setting</a>
     @ has a value of "%h(zVulnReport)". This disables defenses against
     @ XSS or SQL-injection vulnerabilities caused by coding errors in
     @ custom TH1 scripts.  For the best security, change
@@ -956,7 +956,9 @@ void errorlog_page(void){
         bOutput = (eType & 0x01)!=0;
         nHack++;
       }else
-      if( (strncmp(z,"panic: ", 7)==0 || strstr(z," assertion fault ")!=0) ){
+      if( (strncmp(z,"panic: ", 7)==0 && strncmp(z+7,"Timeout",7)!=0)
+       || strstr(z," assertion fault ")!=0
+      ){
         bOutput = (eType & 0x02)!=0;
         nPanic++;
       }else

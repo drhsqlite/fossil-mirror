@@ -235,7 +235,8 @@ struct Global {
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
-  int isHuman;            /* True if access by a human, not a spider or bot */
+  int isRobot;            /* True if the client is definitely a robot.  False
+                          ** negatives are common for this flag */
   int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
                           ** accessed through get_comment_format(). */
   const char *zSockName;  /* Name of the unix-domain socket file */
@@ -2441,7 +2442,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             an unconditional redirect to URL is taken.
 **                             When "*" is used a 301 permanent redirect is
 **                             issued and the tail and query string from the
-**                             original query are appeneded onto URL.
+**                             original query are appended onto URL.
 **
 **    jsmode: VALUE            Specifies the delivery mode for JavaScript
 **                             files. See the help text for the --jsmode
@@ -3102,6 +3103,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** Options:
 **   --csrf-safe N       Set cgi_csrf_safe() to to return N
 **   --nobody            Pretend to be user "nobody"
+**   --ssh-sim           Pretend to be over an SSH connection
 **   --test              Do not do special "sync" processing when operating
 **                       over an SSH link
 **   --th-trace          Trace TH1 execution (for debugging purposes)
@@ -3113,6 +3115,9 @@ void cmd_test_http(void){
   int bTest = 0;
   const char *zCsrfSafe = find_option("csrf-safe",0,1);
 
+  if( find_option("ssh-sim",0,0)!=0 ){
+    putenv("SSH_CONNECTION=127.0.0.1 12345 127.0.0.2 23456");
+  }
   Th_InitTraceLog();
   if( zCsrfSafe ) g.okCsrf = atoi(zCsrfSafe);
   zUserCap = find_option("usercap",0,1);

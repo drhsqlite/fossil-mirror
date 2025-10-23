@@ -543,8 +543,7 @@ I was then able to enable email alert forwarding for select repositories
 after configuring them per [the docs](./alerts.md) by saying:
 
     $ systemctl --user daemon-reload
-    $ systemctl --user enable alert-sender@myproject
-    $ systemctl --user start  alert-sender@myproject
+    $ systemctl --user enable --now alert-sender@myproject
 
 Because this is a parameterized script and we’ve set our repository
 paths predictably, you can do this for as many repositories as you need

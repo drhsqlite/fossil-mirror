@@ -121,6 +121,7 @@ SRC = \
   $(SRCDIR)/regexp.c \
   $(SRCDIR)/repolist.c \
   $(SRCDIR)/report.c \
+  $(SRCDIR)/robot.c \
   $(SRCDIR)/rss.c \
   $(SRCDIR)/schema.c \
   $(SRCDIR)/search.c \
@@ -238,6 +239,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
   $(SRCDIR)/fossil.page.pikchrshowasm.js \
+  $(SRCDIR)/fossil.page.ticket.js \
   $(SRCDIR)/fossil.page.whistory.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
   $(SRCDIR)/fossil.pikchr.js \
@@ -387,6 +389,7 @@ TRANS_SRC = \
   $(OBJDIR)/regexp_.c \
   $(OBJDIR)/repolist_.c \
   $(OBJDIR)/report_.c \
+  $(OBJDIR)/robot_.c \
   $(OBJDIR)/rss_.c \
   $(OBJDIR)/schema_.c \
   $(OBJDIR)/search_.c \
@@ -537,6 +540,7 @@ OBJ = \
  $(OBJDIR)/regexp.o \
  $(OBJDIR)/repolist.o \
  $(OBJDIR)/report.o \
+ $(OBJDIR)/robot.o \
  $(OBJDIR)/rss.o \
  $(OBJDIR)/schema.o \
  $(OBJDIR)/search.o \
@@ -880,6 +884,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/regexp_.c:$(OBJDIR)/regexp.h \
 	$(OBJDIR)/repolist_.c:$(OBJDIR)/repolist.h \
 	$(OBJDIR)/report_.c:$(OBJDIR)/report.h \
+	$(OBJDIR)/robot_.c:$(OBJDIR)/robot.h \
 	$(OBJDIR)/rss_.c:$(OBJDIR)/rss.h \
 	$(OBJDIR)/schema_.c:$(OBJDIR)/schema.h \
 	$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
@@ -1770,6 +1775,14 @@ $(OBJDIR)/report.o:	$(OBJDIR)/report_.c $(OBJDIR)/report.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/report.o -c $(OBJDIR)/report_.c
 
 $(OBJDIR)/report.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/robot_.c:	$(SRCDIR)/robot.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/robot.c >$@
+
+$(OBJDIR)/robot.o:	$(OBJDIR)/robot_.c $(OBJDIR)/robot.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/robot.o -c $(OBJDIR)/robot_.c
+
+$(OBJDIR)/robot.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/rss_.c:	$(SRCDIR)/rss.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/rss.c >$@
