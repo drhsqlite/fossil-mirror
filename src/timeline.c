@@ -594,7 +594,7 @@ void www_print_timeline(
         /* If no background color is specified, use a color based on the
         ** branch name */
         if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
-        }else if( zBr==0 || strcmp(zBr,zMainBranch)==0 ){
+        }else if( zBr==0 || strcmp(zBr, zMainBranch)==0 ){
           zBgClr = 0;
         }else{
           zBgClr = hash_color(zBr);
@@ -642,6 +642,7 @@ void www_print_timeline(
       gidx = graph_add_row(pGraph, rid, -1, 0, 0, zBr, zBgClr, zUuid, 0);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }
+    fossil_free(zMainBranch);
     fossil_free(zBr);
     @</td>
     if( !isSelectedOrCurrent ){

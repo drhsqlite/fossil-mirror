@@ -839,6 +839,7 @@ static void new_brlist_page(void){
   Stmt q;
   double rNow;
   int show_colors = PB("colors");
+  char *zMainBranch;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_set_current_feature("branch");
@@ -847,6 +848,7 @@ static void new_brlist_page(void){
   style_submenu_checkbox("colors", "Use Branch Colors", 0, 0);
 
   login_anonymous_available();
+  zMainBranch = db_get("main-branch", 0);
 
   brlist_create_temp_table();
   db_prepare(&q, "SELECT * FROM tmp_brlist ORDER BY mtime DESC");
@@ -875,7 +877,7 @@ static void new_brlist_page(void){
     if( zMergeTo && zMergeTo[0]==0 ) zMergeTo = 0;
     if( zBgClr ) zBgClr = reasonable_bg_color(zBgClr, 0);
     if( zBgClr==0 ){
-      if( zBranch==0 || strcmp(zBranch,"trunk")==0 ){
+      if( zBranch==0 || strcmp(zBranch, zMainBranch)==0 ){
         zBgClr = 0;
       }else{
         zBgClr = hash_color(zBranch);
@@ -901,6 +903,7 @@ static void new_brlist_page(void){
     @ </tr>
   }
   @ </tbody></table></div>
+  fossil_free(zMainBranch);
   db_finalize(&q);
   builtin_request_js("fossil.page.brlist.js");
   style_table_sorter();

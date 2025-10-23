@@ -2284,6 +2284,7 @@ static void select_fts_tokenizer(void){
 ** Configure the search engine.  Requires Admin privilege.
 */
 void page_srchsetup(){
+  char *zMainBranch;
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -2314,9 +2315,11 @@ void page_srchsetup(){
   @ <td>Search nothing. (Disables document search).</tr>
   @ </table>
   @ <hr>
-  entry_attribute("Document Branches", 20, "doc-branch", "db", "trunk", 0);
+  zMainBranch = db_get("main-branch", 0);
+  entry_attribute("Document Branches", 20, "doc-branch", "db", zMainBranch, 0);
   @ <p>When searching documents, use the versions of the files found at the
-  @ type of the "Document Branches" branch.  Recommended value: "trunk".
+  @ type of the "Document Branches" branch.  Recommended value: the name of
+  @ the main branch (usually "trunk").
   @ Document search is disabled if blank. It may be a list of branch names
   @ separated by spaces and/or commas.
   @ <hr>
@@ -2370,6 +2373,7 @@ void page_srchsetup(){
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>
+  fossil_free(zMainBranch);
   style_finish_page();
 }
 

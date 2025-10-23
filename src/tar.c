@@ -886,7 +886,8 @@ char *tar_uuid_from_name(char **pzName){
 ** NAME.  If TAG is provided, then VERSION must hold TAG or else an error
 ** is returned.
 **
-** The optional VERSION element defaults to "trunk" per the r= rules below.
+** The optional VERSION element defaults to the name of the main branch
+** (usually "trunk") per the r= rules below.
 ** All of the following URLs are equivalent:
 **
 **      /tarball/release/xyz.tar.gz
@@ -899,19 +900,22 @@ char *tar_uuid_from_name(char **pzName){
 **   name=[CKIN/]NAME    The optional CKIN component of the name= parameter
 **                       identifies the check-in from which the tarball is
 **                       constructed.  If CKIN is omitted and there is no
-**                       r= query parameter, then use "trunk".  NAME is the
+**                       r= query parameter, then use the name of the main
+**                       branch (usually "trunk").  NAME is the
 **                       name of the download file.  The top-level directory
 **                       in the generated tarball is called by NAME with the
 **                       file extension removed.
 **
 **   r=TAG               TAG identifies the check-in that is turned into a
-**                       compressed tarball.  The default value is "trunk".
+**                       compressed tarball.  The default value is the name of
+**                       the main branch (usually "trunk").
 **                       If r= is omitted and if the name= query parameter
 **                       contains one "/" character then the of part the
 **                       name= value before the / becomes the TAG and the
 **                       part of the name= value  after the / is the download
 **                       filename.  If no check-in is specified by either
-**                       name= or r=, then "trunk" is used.
+**                       name= or r=, then the name of the main branch
+**                       (usually "trunk") is used.
 **
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=
@@ -947,6 +951,7 @@ void tarball_page(void){
   Glob *pExclude = 0;           /* The compiled ex= glob pattern */
   Blob tarball;                 /* Tarball accumulated here */
   const char *z;
+  char *zMainBranch = db_get("main-branch", 0);
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
@@ -956,7 +961,7 @@ void tarball_page(void){
   z = P("r");
   if( z==0 ) z = P("uuid");
   if( z==0 ) z = tar_uuid_from_name(&zName);
-  if( z==0 ) z = "trunk";
+  if( z==0 ) z = fossil_strdup(zMainBranch);
   g.zOpenRevision = zRid = fossil_strdup(z);
   nRid = strlen(zRid);
   zInclude = P("in");
@@ -1032,6 +1037,7 @@ void tarball_page(void){
   }
   glob_free(pInclude);
   glob_free(pExclude);
+  fossil_free(zMainBranch);
   fossil_free(zName);
   fossil_free(zRid);
   g.zOpenRevision = 0;

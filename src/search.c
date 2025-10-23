@@ -854,7 +854,8 @@ LOCAL void search_fullscan(
           SRCHFLG_STATIC|SRCHFLG_HTML);
   if( (srchFlags & SRCH_DOC)!=0 ){
     char *zDocGlob = db_get("doc-glob","");
-    char *zDocBr = db_get("doc-branch","trunk");
+    char *zMainBranch = db_get("main-branch", 0);
+    char *zDocBr = db_get("doc-branch", zMainBranch);
     if( zDocGlob && zDocGlob[0] && zDocBr && zDocBr[0] ){
       Glob * pGlob = glob_create(zDocBr)
         /* We're misusing a Glob as a list of comma-/space-delimited
@@ -885,6 +886,7 @@ LOCAL void search_fullscan(
       }
       glob_free(pGlob);
     }
+    fossil_free(zMainBranch);
     fossil_free(zDocGlob);
     fossil_free(zDocBr);
   }
@@ -1988,7 +1990,8 @@ void search_doc_touch(char cType, int rid, const char *zName){
 ** changed.
 */
 static void search_update_doc_index(void){
-  const char *zDocBranches = db_get("doc-branch","trunk");
+  char *zMainBranch = db_get("main-branch", 0);
+  const char *zDocBranches = db_get("doc-branch", zMainBranch);
   int i;
   Glob * pGlob = glob_create(zDocBranches)
     /* We're misusing a Glob as a list of comma-/space-delimited
@@ -2045,6 +2048,7 @@ static void search_update_doc_index(void){
       " WHERE type='d' AND NOT idxed"
     );
   }
+  fossil_free(zMainBranch);
   glob_free(pGlob);
 }
 

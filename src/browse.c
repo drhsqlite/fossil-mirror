@@ -194,7 +194,7 @@ void page_dir(void){
   ** specific check-in does not exist, clear zCI.  zCI==0 will cause all
   ** files from all check-ins to be displayed.
   */
-  if( bDocDir && zCI==0 ) zCI = "trunk";
+  if( bDocDir && zCI==0 ) zCI = db_get("main-branch", 0);
   if( zCI ){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
