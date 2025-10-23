@@ -40,6 +40,7 @@ static struct tarball_t {
 static void sanitize_name(char *zName){
   int i;
   char c;
+  if( zName==0 ) return;
   for(i=0; (c = zName[i])!=0; i++){
     if( fossil_isupper(c) ){
       zName[i] = fossil_tolower(c);
@@ -79,10 +80,9 @@ char *archive_base_name(int rid){
     "SELECT %Q||"
           " strftime('-%%Y%%m%%d%%H%%M%%S-',event.mtime)||"
           " substr(blob.uuid,1,10)"
-     " FROM blob, event LEFT JOIN config"
+     " FROM blob, event"
     " WHERE blob.rid=%d"
-      " AND event.objid=%d"
-      " AND config.name='project-name'",
+      " AND event.objid=%d",
     zPrefix, rid, rid);
   fossil_free(zPrefix);
   sanitize_name(zName);
