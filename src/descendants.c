@@ -537,6 +537,7 @@ void leaves_cmd(void){
     fossil_free(z);
     fossil_free(zBranchPoint);
   }
+  fossil_free(zMainBranch);
   fossil_free(zLastBr);
   db_finalize(&q);
 }

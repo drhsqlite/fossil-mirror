@@ -1,5 +1,5 @@
-C Remove\ssome\sfossil_free()\scalls\sadded\sby\sthe\sprevious\scheck-in.
-D 2025-10-25T13:48:33.462
+C Put\sback\sa\scouple\sof\soverzealously\sdeleted\slines.
+D 2025-10-25T17:38:34.134
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/default.css a9ed3842aa7367c1672c8f667fb5fdc793c7d54d68bd64a6c6c54cf1ca5f5c
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c f08accd177876a9d41ad36de0559e5bdc07e7f368ac58790634c2dcd75c30d9f
-F src/descendants.c 26827aab4a61aa6bfd8f65558fbd4cd3c2678cd4aebc785d0e1d04d51a133e67
+F src/descendants.c 6d4ea95e9b9c04a461e249264d802e31916a097e1a2b85f6eb714555d9b4aaec
 F src/diff.c 9e5a9824165fc7730208156f3c5af45a76b53d8b9ca91ee5f6b4cf4f56210ee6
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
@@ -475,7 +475,7 @@ F src/info.c b1818d9de9d6eacf50e47de2d412d837bb9e4ed9f438acb169e6ce352ab593e5
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 3e2cd3fd2dc263628dc92aa5624fb3c7050237db7223fbd293760bd423c7636d
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
-F src/json_branch.c 4750655eef8b1d223223f8da33262f00558de8e89586577ea02e97090fc0bdf3
+F src/json_branch.c 4752467662a428e74975d5e6bde7117d32ca62fcf240a21fee516e12bf186442
 F src/json_config.c 3e3482dede149c473cf0ab4bee6d1e4c000023b382ddc3bde6d280c4830a95b3
 F src/json_detail.h d48c61ce1de7b5dc696384aaaa7b4761ae7e39b4b3d65602e122590d2184bad1
 F src/json_diff.c fc9d84cc28fcba644c6edb7203d200fa64de54369ef1fd4de449864670536b67
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd8995bbdd9e33287d259b706bd98b57e935b8264abe056d7e68ac32027cac12
-R 15c260ac6d2237639d33b5c8d95ee9fb
+P 6a617d004fb8c24dce022990e0fdd065272549bd1c3aae032ef41cd133e18d52
+R fc1cec61030c19a195e526080089e2c3
 U danield
-Z 567f0c8c67278a7b61aadeb04cb42c62
+Z 4b4fa1ab448e2229c4e4eacb924ed7bd
 # Remove this line to create a well-formed Fossil manifest.
