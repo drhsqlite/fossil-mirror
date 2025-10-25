@@ -1676,7 +1676,6 @@ static char *prepare_commit_description_file(
                         g.zLocalRoot, r[0], r[1]);
     blob_write_to_file(pDesc, zFilename);
   }
-  fossil_free(zMainBranch);
   blob_reset(pDesc);
   return zFilename;
 }

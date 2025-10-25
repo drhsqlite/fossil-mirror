@@ -903,7 +903,6 @@ static void new_brlist_page(void){
     @ </tr>
   }
   @ </tbody></table></div>
-  fossil_free(zMainBranch);
   db_finalize(&q);
   builtin_request_js("fossil.page.brlist.js");
   style_table_sorter();

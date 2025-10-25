@@ -642,7 +642,6 @@ void www_print_timeline(
       gidx = graph_add_row(pGraph, rid, -1, 0, 0, zBr, zBgClr, zUuid, 0);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }
-    fossil_free(zMainBranch);
     fossil_free(zBr);
     @</td>
     if( !isSelectedOrCurrent ){

@@ -886,7 +886,6 @@ LOCAL void search_fullscan(
       }
       glob_free(pGlob);
     }
-    fossil_free(zMainBranch);
     fossil_free(zDocGlob);
     fossil_free(zDocBr);
   }
@@ -2048,7 +2047,6 @@ static void search_update_doc_index(void){
       " WHERE type='d' AND NOT idxed"
     );
   }
-  fossil_free(zMainBranch);
   glob_free(pGlob);
 }
 

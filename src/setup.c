@@ -2373,7 +2373,6 @@ void page_srchsetup(){
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>
-  fossil_free(zMainBranch);
   style_finish_page();
 }
 

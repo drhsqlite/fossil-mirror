@@ -1321,7 +1321,6 @@ static int svn_parse_path(char *zPath, char **zFile, int *type){
       branchId = db_last_insert_rowid();
     }
   }
-  fossil_free(zMainBranch);
   return branchId;
 }
 
@@ -2029,5 +2028,4 @@ void import_cmd(void){
     fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
     hash_user_password(g.zLogin);
   }
-  fossil_free(zMainBranch);
 }

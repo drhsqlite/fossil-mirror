@@ -369,8 +369,6 @@ static cson_value * json_branch_create(void){
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   cson_object_set(pay,"uuid", json_new_string(zUuid));
   cson_object_set(pay, "isPrivate", cson_value_new_bool(opt.isPrivate));
-  fossil_free(zMainBranch);
-  fossil_free(zUuid);
   if(opt.zColor){
     cson_object_set(pay,"bgColor",json_new_string(opt.zColor));
   }

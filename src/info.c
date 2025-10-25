@@ -1159,7 +1159,6 @@ void ci_page(void){
       }
       @   </td>
       @ </tr>
-      fossil_free(zMainBranch);
     }
     @ </table>
     blob_reset(&wiki_read_links);
@@ -3765,7 +3764,6 @@ void ci_edit_page(void){
     }
     @ </blockquote>
     @ <hr>
-    fossil_free(zMainBranch);
     blob_reset(&suffix);
   }
   @ <p>Make changes to attributes of check-in

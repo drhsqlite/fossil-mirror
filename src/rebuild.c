@@ -368,7 +368,6 @@ static void rebuild_tag_trunk(void){
   if( zUuid==0 ) return;
   tag_add_artifact("sym-", zMainBranch, zUuid, 0, 2, 0, 0);
   tag_add_artifact("", "branch", zUuid, zMainBranch, 2, 0, 0);
-  fossil_free(zMainBranch);
 }
 
 /*

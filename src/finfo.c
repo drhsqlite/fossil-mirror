@@ -260,7 +260,6 @@ void finfo_cmd(void){
         comment_print(blob_str(&line), zCom, 0, iWidth, get_comment_format());
       }
     }
-    fossil_free(zMainBranch);
     db_finalize(&q);
     blob_reset(&fname);
   }
@@ -812,7 +811,6 @@ void finfo_page(void){
     }
     @ </td></tr>
   }
-  fossil_free(zMainBranch);
   db_finalize(&q);
   db_finalize(&qparent);
   if( pGraph ){

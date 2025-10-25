@@ -713,7 +713,6 @@ void graph_finish(
   */
   zMainBranch = db_get("main-branch", 0);
   zTrunk = persistBranchName(p, zMainBranch);
-  fossil_free(zMainBranch);
   for(i=0; i<2; i++){
     for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
       if( i==0 && pRow->zBranch!=zTrunk ) continue;

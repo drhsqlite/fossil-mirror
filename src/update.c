@@ -760,7 +760,6 @@ Manifest *historical_manifest(
     vid = name_to_typed_rid(zRevision, "ci");
   }else if( !g.localOpen ){
     vid = name_to_typed_rid(zMainBranch, "ci");
-    fossil_free(zMainBranch);
   }else{
     vid = db_lget_int("checkout", 0);
     if( !is_a_version(vid) ){

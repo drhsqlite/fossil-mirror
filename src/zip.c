@@ -1126,7 +1126,6 @@ void baseline_zip_page(void){
   }
   glob_free(pInclude);
   glob_free(pExclude);
-  fossil_free(zMainBranch);
   fossil_free(zName);
   fossil_free(zRid);
   g.zOpenRevision = 0;

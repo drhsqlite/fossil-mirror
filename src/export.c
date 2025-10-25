@@ -545,7 +545,6 @@ void export_cmd(void){
         db_reset(&qc);
       }while((rid = bag_next(&vers, rid))!=0);
     }
-    fossil_free(zMainBranch);
     db_finalize(&qb);
     db_finalize(&qc);
     fclose(f);
@@ -701,7 +700,6 @@ void export_cmd(void){
     db_finalize(&q3);
     printf("\n");
   }
-  fossil_free(zMainBranch);
   db_finalize(&q2);
   db_finalize(&q);
   manifest_cache_clear();
@@ -1310,7 +1308,6 @@ static int gitmirror_send_checkin(
 
   /* The check-in is finished, so decrement the counter */
   (*pnLimit)--;
-  fossil_free(zMainBranch);
   return 0;
 }
 
