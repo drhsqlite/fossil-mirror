@@ -178,7 +178,7 @@ void finfo_cmd(void){
     const char *zWidth;
     const char *zOffset;
     int iLimit, iOffset, iBrief, iWidth;
-    char *zMainBranch = db_get("main-branch", 0);
+    const char *zMainBranch;
 
     if( find_option("log","l",0) ){
       /* this is the default, no-op */
@@ -234,6 +234,7 @@ void finfo_cmd(void){
     if( iBrief == 0 ){
       fossil_print("History for %s\n", blob_str(&fname));
     }
+    zMainBranch = db_main_branch();
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFileUuid = db_column_text(&q, 0);
       const char *zCiUuid = db_column_text(&q,1);
@@ -379,7 +380,7 @@ void finfo_page(void){
   const char *zMark;          /* Mark this version of the file */
   int selRid = 0;             /* RID of the marked file version */
   int mxfnid;                 /* Maximum filename.fnid value */
-  char *zMainBranch = db_get("main-branch", 0);
+  const char *zMainBranch;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -637,6 +638,7 @@ void finfo_page(void){
       nParent++;
     }
     db_reset(&qparent);
+    zMainBranch = db_main_branch();
     if( zBr==0 ) zBr = fossil_strdup(zMainBranch);
     if( uBg ){
       zBgClr = user_color(zUser);

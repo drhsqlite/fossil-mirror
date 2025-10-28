@@ -230,7 +230,7 @@ int leaf_ambiguity_warning(int rid, int currentCkout){
   Blob msg;
   const char *zMainBranch;
   if( leaf_ambiguity(rid)==0 ) return 0;
-  zMainBranch = db_get("main-branch", 0);
+  zMainBranch = db_main_branch();
   zBr = db_text(0, "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                 TAG_BRANCH, rid);
   if( zBr==0 ) zBr = fossil_strdup(zMainBranch);

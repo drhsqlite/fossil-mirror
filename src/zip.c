@@ -1022,7 +1022,6 @@ void baseline_zip_page(void){
   Blob zip;                     /* ZIP archive accumulated here */
   int eType = ARCHIVE_ZIP;      /* Type of archive to generate */
   char *zType;                  /* Human-readable archive type */
-  char *zMainBranch = db_get("main-branch", 0);
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
@@ -1039,7 +1038,7 @@ void baseline_zip_page(void){
   z = P("r");
   if( z==0 ) z = P("uuid");
   if( z==0 ) z = tar_uuid_from_name(&zName);
-  if( z==0 ) z = fossil_strdup(zMainBranch);
+  if( z==0 ) z = fossil_strdup(db_main_branch());
   nName = strlen(zName);
   g.zOpenRevision = zRid = fossil_strdup(z);
   nRid = strlen(zRid);

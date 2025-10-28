@@ -1143,7 +1143,7 @@ void ci_page(void){
     }
 
     if( g.perm.Hyperlink ){
-      char *zMainBranch = db_get("main-branch", 0);
+      const char *zMainBranch = db_main_branch();
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
       if( fossil_strcmp(zBrName, zMainBranch)!=0 ){
@@ -3720,7 +3720,7 @@ void ci_edit_page(void){
     Blob suffix;
     int nTag = 0;
     const char *zDplyBr;   /* Branch name used to determine BG color */
-    char *zMainBranch = db_get("main-branch", 0);
+    const char *zMainBranch = db_main_branch();
     if( zNewBrFlag[0] && zNewBranch[0] ){
       zDplyBr = zNewBranch;
     }else{
@@ -3859,7 +3859,7 @@ void ci_edit_page(void){
   @ </td></tr>
 
   if( !zBranchName ){
-    zBranchName = db_get("main-branch", 0);
+    zBranchName = fossil_strdup(db_main_branch());
   }
   if( !zNewBranch || !zNewBranch[0]){
     zNewBranch = zBranchName;

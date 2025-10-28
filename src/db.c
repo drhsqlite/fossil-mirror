@@ -4405,7 +4405,7 @@ void cmd_open(void){
     if( g.argc==4 ){
       g.zOpenRevision = g.argv[3];
     }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-      g.zOpenRevision = db_get("main-branch", 0);
+      g.zOpenRevision = fossil_strdup(db_main_branch());
     }
     if( autosync_loop(SYNC_PULL, !bForce, "open") && !bForce ){
       fossil_fatal("unable to auto-sync the repository");

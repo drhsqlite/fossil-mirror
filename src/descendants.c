@@ -439,7 +439,7 @@ void leaves_cmd(void){
   char *zLastBr = 0;
   int n, width;
   char zLineNo[10];
-  char *zMainBranch = db_get("main-branch", 0);
+  const char *zMainBranch = db_main_branch();
 
   if( multipleFlag ) byBranch = 1;
   if( zWidth ){
@@ -537,7 +537,6 @@ void leaves_cmd(void){
     fossil_free(z);
     fossil_free(zBranchPoint);
   }
-  fossil_free(zMainBranch);
   fossil_free(zLastBr);
   db_finalize(&q);
 }

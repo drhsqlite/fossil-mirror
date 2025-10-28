@@ -2284,7 +2284,7 @@ static void select_fts_tokenizer(void){
 ** Configure the search engine.  Requires Admin privilege.
 */
 void page_srchsetup(){
-  char *zMainBranch;
+  const char *zMainBranch;
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -2315,7 +2315,7 @@ void page_srchsetup(){
   @ <td>Search nothing. (Disables document search).</tr>
   @ </table>
   @ <hr>
-  zMainBranch = db_get("main-branch", 0);
+  zMainBranch = db_main_branch();
   entry_attribute("Document Branches", 20, "doc-branch", "db", zMainBranch, 0);
   @ <p>When searching documents, use the versions of the files found at the
   @ type of the "Document Branches" branch.  Recommended value: the name of

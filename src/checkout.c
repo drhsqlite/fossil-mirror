@@ -498,7 +498,7 @@ void get_cmd(void){
     usage("URL ?VERSION? ?OPTIONS?");
   }
   zUrl = g.argv[2];
-  zVers = g.argc==4 ? g.argv[3] : db_get("main-branch", 0);
+  zVers = g.argc==4 ? g.argv[3] : db_main_branch();
 
   /* Parse the URL of the repository */
   url_parse(zUrl, 0);

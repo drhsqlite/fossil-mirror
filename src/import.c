@@ -1265,7 +1265,7 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
 static int svn_parse_path(char *zPath, char **zFile, int *type){
   char *zBranch = 0;
   int branchId = 0;
-  char *zMainBranch = db_get("main-branch", 0);
+  const char *zMainBranch;
   if( gsvn.azIgnTree ){
     const char **pzIgnTree;
     unsigned nPath = strlen(zPath);
@@ -1280,6 +1280,7 @@ static int svn_parse_path(char *zPath, char **zFile, int *type){
   }
   *type = SVN_UNKNOWN;
   *zFile = 0;
+  zMainBranch = db_main_branch();
   if( gsvn.lenTrunk==0 ){
     zBranch = fossil_strdup(zMainBranch);
     *zFile = zPath;
@@ -1730,7 +1731,6 @@ void import_cmd(void){
   int omitRebuild = find_option("no-rebuild",0,0)!=0;
   int omitVacuum = find_option("no-vacuum",0,0)!=0;
   const char *zDefaultUser = find_option("admin-user","A",1);
-  char *zMainBranch = db_get("main-branch", 0);
 
   /* Options common to all input formats */
   int incrFlag = find_option("incremental", "i", 0)!=0;
@@ -1774,7 +1774,7 @@ void import_cmd(void){
     }
   }
   if( !(gimport.zTrunkName = find_option("rename-trunk", 0, 1)) ){
-    gimport.zTrunkName = fossil_strdup(zMainBranch);
+    gimport.zTrunkName = fossil_strdup(db_main_branch());
   }
 
   if( svnFlag ){

@@ -493,7 +493,7 @@ void export_cmd(void){
   unsigned int unused_mark = 1;
   const char *markfile_in;
   const char *markfile_out;
-  char *zMainBranch = db_get("main-branch", 0);
+  const char *zMainBranch = db_main_branch();
 
   bag_init(&blobs);
   bag_init(&vers);
@@ -1093,7 +1093,7 @@ static int gitmirror_send_checkin(
   char *zEmail;         /* Contact info for Git committer field */
   int fManifest;        /* Should the manifest files be included? */
   int fPManifest = 0;   /* OR of the manifest files for all parents */
-  char *zMainBranch;
+  const char *zMainBranch;
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
@@ -1153,7 +1153,7 @@ static int gitmirror_send_checkin(
     "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=%d",
     TAG_BRANCH, rid
   );
-  zMainBranch = db_get("main-branch", 0);
+  zMainBranch = db_main_branch();
   if( fossil_strcmp(zBranch, zMainBranch)==0 ){
     assert( gitmirror_mainbranch!=0 );
     fossil_free(zBranch);

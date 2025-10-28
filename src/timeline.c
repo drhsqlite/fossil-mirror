@@ -390,7 +390,7 @@ void www_print_timeline(
   int iTableId = timeline_tableid();
   int bTimestampLinksToInfo;  /* True if timestamp hyperlinks go to the /info
                               ** page rather than the /timeline page */
-  char *zMainBranch = db_get("main-branch","trunk");
+  const char *zMainBranch = db_main_branch();
 
 
   if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){

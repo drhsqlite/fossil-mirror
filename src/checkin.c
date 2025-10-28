@@ -1629,7 +1629,7 @@ static char *prepare_commit_description_file(
   Blob *pDesc;
   char *zTags;
   char *zFilename;
-  char *zMainBranch = db_get("main-branch", 0);
+  const char *zMainBranch = db_main_branch();
   Blob desc;
   blob_init(&desc, 0, 0);
   pDesc = &desc;
@@ -2627,7 +2627,7 @@ void commit_cmd(void){
   if( vid==0 ){
     useCksum = 1;
     if( privateFlag==0 && sCiInfo.zBranch==0 ) {
-      sCiInfo.zBranch=db_get("main-branch", 0);
+      sCiInfo.zBranch = db_main_branch();
     }
   }else{
     privateParent = content_is_private(vid);

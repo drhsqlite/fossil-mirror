@@ -854,7 +854,7 @@ LOCAL void search_fullscan(
           SRCHFLG_STATIC|SRCHFLG_HTML);
   if( (srchFlags & SRCH_DOC)!=0 ){
     char *zDocGlob = db_get("doc-glob","");
-    char *zMainBranch = db_get("main-branch", 0);
+    const char *zMainBranch = db_main_branch();
     char *zDocBr = db_get("doc-branch", zMainBranch);
     if( zDocGlob && zDocGlob[0] && zDocBr && zDocBr[0] ){
       Glob * pGlob = glob_create(zDocBr)
@@ -1989,7 +1989,7 @@ void search_doc_touch(char cType, int rid, const char *zName){
 ** changed.
 */
 static void search_update_doc_index(void){
-  char *zMainBranch = db_get("main-branch", 0);
+  const char *zMainBranch = db_main_branch();
   const char *zDocBranches = db_get("doc-branch", zMainBranch);
   int i;
   Glob * pGlob = glob_create(zDocBranches)

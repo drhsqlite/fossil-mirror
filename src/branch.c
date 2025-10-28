@@ -22,6 +22,18 @@
 #include <assert.h>
 
 /*
+** Return the name of the main branch.  Cache the result.
+**
+** This is the current value of the "main-branch" setting, or its default
+** value (historically, and as of 2025-10-28: "trunk") if not set.
+*/
+const char *db_main_branch(void){
+  static char *zMainBranch = 0;
+  if( zMainBranch==0 ) zMainBranch = db_get("main-branch", 0);
+  return zMainBranch;
+}
+
+/*
 ** Return true if zBr is the branch name associated with check-in with
 ** blob.uuid value of zUuid
 */
@@ -55,9 +67,7 @@ char *branch_of_rid(int rid){
   }
   db_reset(&q);
   if( zBr==0 ){
-    static char *zMain = 0;
-    if( zMain==0 ) zMain = db_get("main-branch",0);
-    zBr = fossil_strdup(zMain);
+    zBr = fossil_strdup(db_main_branch());
   }
   return zBr;
 }
@@ -839,7 +849,7 @@ static void new_brlist_page(void){
   Stmt q;
   double rNow;
   int show_colors = PB("colors");
-  char *zMainBranch;
+  const char *zMainBranch;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_set_current_feature("branch");
@@ -848,7 +858,7 @@ static void new_brlist_page(void){
   style_submenu_checkbox("colors", "Use Branch Colors", 0, 0);
 
   login_anonymous_available();
-  zMainBranch = db_get("main-branch", 0);
+  zMainBranch = db_main_branch();
 
   brlist_create_temp_table();
   db_prepare(&q, "SELECT * FROM tmp_brlist ORDER BY mtime DESC");

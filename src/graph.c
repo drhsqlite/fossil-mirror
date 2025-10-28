@@ -515,7 +515,7 @@ void graph_finish(
   u64 mask;
   int hasDup = 0;      /* True if one or more isDup entries */
   const char *zTrunk;
-  char *zMainBranch;
+  const char *zMainBranch;
   u8 *aMap;            /* Copy of p->aiRailMap */
   int omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
   int nTimewarp = 0;
@@ -711,7 +711,7 @@ void graph_finish(
   **
   ** Strive to put the main branch (usually "trunk") on far left.
   */
-  zMainBranch = db_get("main-branch", 0);
+  zMainBranch = db_main_branch();
   zTrunk = persistBranchName(p, zMainBranch);
   for(i=0; i<2; i++){
     for(pRow=p->pLast; pRow; pRow=pRow->pPrev){

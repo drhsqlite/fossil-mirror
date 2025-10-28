@@ -353,7 +353,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
 ** and attach it to the very first check-in.
 */
 static void rebuild_tag_trunk(void){
-  char *zMainBranch = db_get("main-branch", 0);
+  const char *zMainBranch = db_main_branch();
   int tagid = db_int(0, "SELECT 1 FROM tag WHERE tagname='sym-%q'",zMainBranch);
   int rid;
   char *zUuid;
