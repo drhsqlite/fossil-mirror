@@ -753,12 +753,13 @@ Manifest *historical_manifest(
 ){
   int vid;
   Manifest *pManifest;
+  char *zMainBranch = db_get("main-branch", 0);
 
   /* Determine the check-in manifest artifact ID.  Panic on failure. */
   if( zRevision ){
     vid = name_to_typed_rid(zRevision, "ci");
   }else if( !g.localOpen ){
-    vid = name_to_typed_rid(db_get("main-branch", 0), "ci");
+    vid = name_to_typed_rid(zMainBranch, "ci");
   }else{
     vid = db_lget_int("checkout", 0);
     if( !is_a_version(vid) ){

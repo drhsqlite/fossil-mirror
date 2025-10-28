@@ -1143,9 +1143,10 @@ void ci_page(void){
     }
 
     if( g.perm.Hyperlink ){
+      char *zMainBranch = db_get("main-branch", 0);
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      if( fossil_strcmp(zBrName, db_get("main-branch",0))!=0 ){
+      if( fossil_strcmp(zBrName, zMainBranch)!=0 ){
         @ %z(href("%R/vdiff?branch=%!S", zUuid))branch diff</a> |
       }
       @ %z(href("%R/artifact/%!S",zUuid))manifest</a>
@@ -3719,6 +3720,7 @@ void ci_edit_page(void){
     Blob suffix;
     int nTag = 0;
     const char *zDplyBr;   /* Branch name used to determine BG color */
+    char *zMainBranch = db_get("main-branch", 0);
     if( zNewBrFlag[0] && zNewBranch[0] ){
       zDplyBr = zNewBranch;
     }else{
@@ -3731,7 +3733,7 @@ void ci_edit_page(void){
       @ <tr><td style="background-color:%h(reasonable_bg_color(zNewColor,0));">
     }else if( zColor[0] ){
       @ <tr><td style="background-color:%h(reasonable_bg_color(zColor,0));">
-    }else if( zDplyBr && fossil_strcmp(zDplyBr,"trunk")!=0 ){
+    }else if( zDplyBr && fossil_strcmp(zDplyBr, zMainBranch)!=0 ){
       @ <tr><td style="background-color:%h(hash_color(zDplyBr));">
     }else{
       @ <tr><td>

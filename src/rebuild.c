@@ -353,7 +353,8 @@ static void rebuild_step(int rid, int size, Blob *pBase){
 ** and attach it to the very first check-in.
 */
 static void rebuild_tag_trunk(void){
-  int tagid = db_int(0, "SELECT 1 FROM tag WHERE tagname='sym-trunk'");
+  char *zMainBranch = db_get("main-branch", 0);
+  int tagid = db_int(0, "SELECT 1 FROM tag WHERE tagname='sym-%q'",zMainBranch);
   int rid;
   char *zUuid;
 
@@ -365,8 +366,8 @@ static void rebuild_tag_trunk(void){
   /* Add the trunk tag to the root of the whole tree */
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( zUuid==0 ) return;
-  tag_add_artifact("sym-", "trunk", zUuid, 0, 2, 0, 0);
-  tag_add_artifact("", "branch", zUuid, "trunk", 2, 0, 0);
+  tag_add_artifact("sym-", zMainBranch, zUuid, 0, 2, 0, 0);
+  tag_add_artifact("", "branch", zUuid, zMainBranch, 2, 0, 0);
 }
 
 /*

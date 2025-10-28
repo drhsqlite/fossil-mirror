@@ -955,7 +955,8 @@ void sqlar_cmd(void){
 ** VERSION.  The archive is called NAME.zip or NAME.sqlar and has a top-level
 ** directory called NAME.
 **
-** The optional VERSION element defaults to "trunk" per the r= rules below.
+** The optional VERSION element defaults to the name of the main branch
+** (usually "trunk") per the r= rules below.
 ** All of the following URLs are equivalent:
 **
 **      /zip/release/xyz.zip
@@ -968,19 +969,22 @@ void sqlar_cmd(void){
 **   name=[CKIN/]NAME    The optional CKIN component of the name= parameter
 **                       identifies the check-in from which the archive is
 **                       constructed.  If CKIN is omitted and there is no
-**                       r= query parameter, then use "trunk".  NAME is the
+**                       r= query parameter, then use the name of the main
+**                       branch (usually "trunk").  NAME is the
 **                       name of the download file.  The top-level directory
 **                       in the generated archive is called by NAME with the
 **                       file extension removed.
 **
 **   r=TAG               TAG identifies the check-in that is turned into an
-**                       SQL or ZIP archive.  The default value is "trunk".
+**                       SQL or ZIP archive.  The default value is the name
+**                       of the main branch (usually "trunk").
 **                       If r= is omitted and if the name= query parameter
 **                       contains one "/" character then the of part the
 **                       name= value before the / becomes the TAG and the
 **                       part of the name= value  after the / is the download
 **                       filename.  If no check-in is specified by either
-**                       name= or r=, then "trunk" is used.
+**                       name= or r=, then the name of the main branch
+**                       (usually "trunk") is used.
 **
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=
@@ -1018,6 +1022,7 @@ void baseline_zip_page(void){
   Blob zip;                     /* ZIP archive accumulated here */
   int eType = ARCHIVE_ZIP;      /* Type of archive to generate */
   char *zType;                  /* Human-readable archive type */
+  char *zMainBranch = db_get("main-branch", 0);
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
@@ -1034,7 +1039,7 @@ void baseline_zip_page(void){
   z = P("r");
   if( z==0 ) z = P("uuid");
   if( z==0 ) z = tar_uuid_from_name(&zName);
-  if( z==0 ) z = "trunk";
+  if( z==0 ) z = fossil_strdup(zMainBranch);
   nName = strlen(zName);
   g.zOpenRevision = zRid = fossil_strdup(z);
   nRid = strlen(zRid);

@@ -3951,7 +3951,8 @@ void annotation_page(void){
 **                                 Xs     As much as possible in X seconds
 **                                 none   No limit
 **   -o|--origin VERSION         The origin check-in. By default this is the
-**                               root of the repository. Set to "trunk" or
+**                               root of the repository. Set to the name of
+**                               the main branch (usually "trunk") or
 **                               similar for a reverse annotation.
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end

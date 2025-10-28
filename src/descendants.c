@@ -439,7 +439,7 @@ void leaves_cmd(void){
   char *zLastBr = 0;
   int n, width;
   char zLineNo[10];
-  char * const zMainBranch = db_get("main-branch","trunk");
+  char *zMainBranch = db_get("main-branch", 0);
 
   if( multipleFlag ) byBranch = 1;
   if( zWidth ){

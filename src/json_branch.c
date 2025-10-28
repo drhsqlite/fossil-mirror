@@ -315,6 +315,7 @@ static cson_value * json_branch_create(void){
   int rc = 0;
   BranchCreateOptions opt;
   char * zUuid = NULL;
+  char *zMainBranch = db_get("main-branch", 0);
   int rid = 0;
   if( !g.perm.Write ){
     json_set_err(FSL_JSON_E_DENIED,
@@ -342,7 +343,7 @@ static cson_value * json_branch_create(void){
     opt.zBasis = json_command_arg(g.json.dispatchDepth+2);
   }
   if(!opt.zBasis){
-    opt.zBasis = "trunk";
+    opt.zBasis = fossil_strdup(zMainBranch);
   }
   opt.isPrivate = json_find_option_bool("private",NULL,NULL,-1);
   if(-1==opt.isPrivate){
