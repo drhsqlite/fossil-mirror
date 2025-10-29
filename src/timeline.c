@@ -390,7 +390,7 @@ void www_print_timeline(
   int iTableId = timeline_tableid();
   int bTimestampLinksToInfo;  /* True if timestamp hyperlinks go to the /info
                               ** page rather than the /timeline page */
-  char *zMainBranch = db_get("main-branch","trunk");
+  const char *zMainBranch = db_main_branch();
 
 
   if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
@@ -594,7 +594,7 @@ void www_print_timeline(
         /* If no background color is specified, use a color based on the
         ** branch name */
         if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
-        }else if( zBr==0 || strcmp(zBr,zMainBranch)==0 ){
+        }else if( zBr==0 || strcmp(zBr, zMainBranch)==0 ){
           zBgClr = 0;
         }else{
           zBgClr = hash_color(zBr);

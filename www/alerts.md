@@ -392,9 +392,8 @@ When you configure a Fossil server this way, it adds outgoing email
 messages to an SQLite database file.  A separate daemon process can then
 extract those messages for further disposition.
 
-Fossil includes a copy of [the daemon](/file/tools/email-sender.tcl)
-used on `fossil-scm.org`: it is just a short Tcl script that
-continuously monitors this database for new messages and hands any that
+Fossil uses a short TCL script (seen at [](/file/tools/email-sender.tcl))
+that continuously monitors this database for new messages and hands any that
 it finds off to a local MTA using the same [pipe to MTA protocol](#pipe)
 as above.
 

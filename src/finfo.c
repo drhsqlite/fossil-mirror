@@ -178,6 +178,7 @@ void finfo_cmd(void){
     const char *zWidth;
     const char *zOffset;
     int iLimit, iOffset, iBrief, iWidth;
+    const char *zMainBranch;
 
     if( find_option("log","l",0) ){
       /* this is the default, no-op */
@@ -233,6 +234,7 @@ void finfo_cmd(void){
     if( iBrief == 0 ){
       fossil_print("History for %s\n", blob_str(&fname));
     }
+    zMainBranch = db_main_branch();
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFileUuid = db_column_text(&q, 0);
       const char *zCiUuid = db_column_text(&q,1);
@@ -241,7 +243,7 @@ void finfo_cmd(void){
       const char *zUser = db_column_text(&q, 4);
       const char *zBr = db_column_text(&q, 5);
       char *zOut;
-      if( zBr==0 ) zBr = "trunk";
+      if( zBr==0 ) zBr = fossil_strdup(zMainBranch);
       if( iBrief == 0 ){
         fossil_print("%s ", zDate);
         zOut = mprintf(
@@ -378,6 +380,7 @@ void finfo_page(void){
   const char *zMark;          /* Mark this version of the file */
   int selRid = 0;             /* RID of the marked file version */
   int mxfnid;                 /* Maximum filename.fnid value */
+  const char *zMainBranch;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -635,11 +638,12 @@ void finfo_page(void){
       nParent++;
     }
     db_reset(&qparent);
-    if( zBr==0 ) zBr = "trunk";
+    zMainBranch = db_main_branch();
+    if( zBr==0 ) zBr = fossil_strdup(zMainBranch);
     if( uBg ){
       zBgClr = user_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
-      zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
+      zBgClr = strcmp(zBr, zMainBranch)==0 ? "" : hash_color(zBr);
     }else if( zBgClr ){
       zBgClr = reasonable_bg_color(zBgClr,0);
     }

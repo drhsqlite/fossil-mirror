@@ -1629,6 +1629,7 @@ static char *prepare_commit_description_file(
   Blob *pDesc;
   char *zTags;
   char *zFilename;
+  const char *zMainBranch = db_main_branch();
   Blob desc;
   blob_init(&desc, 0, 0);
   pDesc = &desc;
@@ -1637,7 +1638,7 @@ static char *prepare_commit_description_file(
   blob_appendf(pDesc, "user %s\n",
                p->zUserOvrd ? p->zUserOvrd : login_name());
   blob_appendf(pDesc, "branch %s\n",
-    (p->zBranch && p->zBranch[0]) ? p->zBranch : "trunk");
+    (p->zBranch && p->zBranch[0]) ? p->zBranch : zMainBranch);
   zTags = info_tags_of_checkin(parent_rid, 1);
   if( zTags || p->azTag ){
     blob_append(pDesc, "tags ", -1);
@@ -2626,7 +2627,7 @@ void commit_cmd(void){
   if( vid==0 ){
     useCksum = 1;
     if( privateFlag==0 && sCiInfo.zBranch==0 ) {
-      sCiInfo.zBranch=db_get("main-branch", 0);
+      sCiInfo.zBranch = db_main_branch();
     }
   }else{
     privateParent = content_is_private(vid);

@@ -129,7 +129,7 @@ void hyperlinked_path(
 **        depending on mimetype) rather than to /file (which always shows
 **        the file embedded in a standard Fossil page frame).
 **
-**    *   The submenu and the page title is now show.  The page is plain.
+**    *   The submenu and the page title is not shown.  The page is plain.
 **
 ** The /docdir page is a shorthand for /dir with the "dx" query parameter.
 **
@@ -194,7 +194,7 @@ void page_dir(void){
   ** specific check-in does not exist, clear zCI.  zCI==0 will cause all
   ** files from all check-ins to be displayed.
   */
-  if( bDocDir && zCI==0 ) zCI = "trunk";
+  if( bDocDir && zCI==0 ) zCI = db_main_branch();
   if( zCI ){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
