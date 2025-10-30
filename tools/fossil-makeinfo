@@ -185,6 +185,13 @@ printf "@end menu
 # WARNING: tail count is brittle
 # tail command pops off the first fourteen lines, sed commands remove the last two lines.
 echo "Fossil output common help to workfile"
+
+# I'd like if this could start at where the "Options:" is, and finish at the next
+# pair of blank lines.
+#printf "@table @option
+#
+#" >> fossil.texi
+
 fossil help -v | tail -n +14 | sed '$d' | sed '$d' >workfile
 
 # swap out @ with @@ so texinfo doesn't barf
