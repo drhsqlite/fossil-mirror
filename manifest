@@ -1,5 +1,5 @@
-C Cache\sthe\sname\sof\sthe\smain\sbranch.
-D 2025-10-28T15:05:15.024
+C Allow\ssymbolic\snames\sfor\sthe\sname=\squery\sparameter\sto\sthe\s/rchvdwnld.
+D 2025-10-31T13:29:18.497
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -569,7 +569,7 @@ F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f1
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 3bbb805fbc3e6a10a1945f1b9d17ed9d5c69eaa4928341cb33c2d0059ef4bbb1
-F src/tar.c 0ab9a411de626d2260e5e25a32ff3928c2433bb73e88845499de114687a1eb9c
+F src/tar.c 10f7101e6fcabe04c95fb3f6696b26342dc07ce8da6245f1b32408116de478da
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3a6dd83947287de02d6ee1de5a9849c65b06860700a4e346797faefcbec314c8
-R 9ba9c9815fa5d406f4bb1049ba1f9b3f
-U danield
-Z 0e24803a24bd0d0350dd389e4a21a4a2
+P ca0d66b2e4e74eab6bee5d1229b4461077f44aa3e9c4749fcb21be28d59a0f5c
+R d4c42fc1f5d10ed6b5d7cd7de41698ab
+U drh
+Z a139731e6e43564bcab19d1d62351192
 # Remove this line to create a well-formed Fossil manifest.

@@ -1292,14 +1292,21 @@ void download_page(void){
 ** WEBPAGE: rchvdwnld
 **
 ** Short for "archive download".  This page should have a single name=
-** query parameter that is a check-in hash.  It present a menu of possible
-** download options for that check-in, including tarball, ZIP, or SQLAR.
+** query parameter that is a check-in hash or symbolic name.  The resulting
+** page offers a menu of possible download options for that check-in,
+** including tarball, ZIP, or SQLAR.
 **
 ** This is a utility page.  The /dir and /tree pages sometimes have a
 ** "Download" option in their submenu which redirects here.  Those pages
 ** used to have separate "Tarball" and "ZIP" submenu entries, but as
 ** submenu entries appear in alphabetical order, that caused the two
 ** submenu entries to be separated from one another, which is distracting.
+**
+** If the name= does not have a unique resolution, no error is generated.
+** Instead, a redirect to the home page for the repository is made.
+**
+** Robots are excluded from this page if either of the keywords
+** "zip" or "download" appear in the [[robot-restrict]] setting.
 */
 void rchvdwnld_page(void){
   const char *zUuid;
@@ -1317,7 +1324,10 @@ void rchvdwnld_page(void){
    || (rid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUuid))==0
    || !db_exists("SELECT 1 from event WHERE type='ci' AND objid=%d",rid)
   ){
-    fossil_redirect_home();
+    rid = symbolic_name_to_rid(zUuid, "ci");
+    if( rid<=0 ){
+      fossil_redirect_home();
+    }
   }
   zUuid = db_text(zUuid, "SELECT uuid FROM blob WHERE rid=%d", rid);
   style_header("Downloads For Check-in %!S", zUuid);
