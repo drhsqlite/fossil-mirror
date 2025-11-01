@@ -84,16 +84,24 @@ static void xsystem_ls_insert(
   int nList;
   int i;
   const char *zPrefix;
-  if( file_isdir(zName, ExtFILE)==1 ){
-    azList = 0;
-    nList = file_directory_list(zName, 0, (mFlags & 0x08)==0, 0, &azList);
-    zPrefix = fossil_strcmp(zName,".") ? zName : 0;
-  }else{
-    aList[0] = (char*)zName;
-    aList[1] = 0;
-    azList = aList;
-    nList = 1;
-    zPrefix = 0;
+  switch( file_isdir(zName, ExtFILE) ){
+    case 1: {  /* A directory */
+      azList = 0;
+      nList = file_directory_list(zName, 0, (mFlags & 0x08)==0, 0, &azList);
+      zPrefix = fossil_strcmp(zName,".") ? zName : 0;
+      break;
+    }
+    case 2: {  /* A file */
+      aList[0] = (char*)zName;
+      aList[1] = 0;
+      azList = aList;
+      nList = 1;
+      zPrefix = 0;
+      break;
+    }
+    default: {  /* Does not exist */
+      return;
+    }
   }
   for(i=0; i<nList; i++){
     char *zFile = zPrefix ? mprintf("%s/%s",zPrefix,azList[i]) : azList[i];
@@ -123,7 +131,7 @@ static void xsystem_ls_render(
   sqlite3_stmt *pStmt;
   int bDesc = (mFlags & 0x02)!=0;
   if( mFlags & 0x04 ) bDesc = !bDesc;
-  if( 1 ){
+  if( (mFlags & 0x01)!=0 ){
     /* Long mode */
     char *zSql;
     zSql = mprintf(
@@ -164,6 +172,48 @@ static void xsystem_ls_render(
          sqlite3_column_text(pStmt, 2),
          zName);
     }
+    sqlite3_finalize(pStmt);
+  }else{
+    /* Column mode with just filenames */
+    int nCol, mxWidth, iRow, nSp, nRow;
+    char *zSql;
+    char *zOrderBy;
+    sqlite3_prepare_v2(db, "SELECT max(length(fn)),count(*) FROM ls",-1,
+                           &pStmt,0);
+    if( sqlite3_step(pStmt)==SQLITE_ROW ){
+      mxWidth = sqlite3_column_int(pStmt,0);
+      nCol = (terminal_get_width(80)+1)/(mxWidth+2);
+      if( nCol<1 ) nCol = 1;
+      nRow = (sqlite3_column_int(pStmt,1)+nCol-1)/nCol;
+    }else{
+      nCol = 1;
+      mxWidth = 100;
+      nRow = 2000000;
+    }
+    sqlite3_finalize(pStmt);
+    zOrderBy = mprintf("%s %s", (mFlags & 0x04)!=0 ? "mtime": "fn",
+                                         bDesc ? "DESC" : "ASC");
+    zSql = mprintf("WITH sfn(ii,fn,mtime) AS "
+                   "(SELECT row_number()OVER(ORDER BY %s)-1,fn,mtime FROM ls)"
+                   "SELECT ii/%d,ii%%%d, fn FROM sfn ORDER BY 2,1",
+                   zOrderBy, nRow, nRow);
+    fossil_free(zOrderBy);
+    sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
+    nSp = 0;
+    iRow = -1;
+    while( sqlite3_step(pStmt)==SQLITE_ROW ){
+      const char *zFN = (const char*)sqlite3_column_text(pStmt, 2);
+      int thisRow = sqlite3_column_int(pStmt,1);
+      if( iRow!=thisRow ){
+        if( iRow>=0 ) fossil_print("\n");
+        iRow = thisRow;
+      }else{
+        if( nSp ) fossil_print("%*s",nSp,"");
+      }
+      fossil_print("%s", zFN);
+      nSp = mxWidth - (int)strlen(zFN) + 2;
+    }
+    fossil_print("\n");
     sqlite3_finalize(pStmt);
   }
   sqlite3_exec(db, "DELETE FROM ls;", 0, 0, 0);

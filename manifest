@@ -1,5 +1,5 @@
-C Add\sthe\snew\s"fossil\ssystem"\scommand\s(expected\sto\sabbreviate\sto\s"fossil\ssys"\nwith\scommands\sthat\sare\suseful\son\sunprovisioned\sWindows\smachines,\ssuch\sas\n"ls".\s\sThe\s"fossil\swhich"\scommand\sis\schange\sto\s"fossil\ssys\swhich".\s\sStill\na\swork\sin\sprogress.
-D 2025-11-01T21:13:27.315
+C Improvements\sto\sthe\s"fossil\ssys\sls"\scommand.
+D 2025-11-01T23:15:29.296
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -598,7 +598,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 6227a029e003a1c8f26e3687065e9d4a9c238d3f1d42d533cbcb8f642cbfa816
 F src/xfer.c 9b64a30d65f9ec48cb073f009d241d0fb5207ed072245fed75b452a7c1eec819
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/xsystem.c f004180c66dc6460829de9d80e1b4c41bee784c50b8002f34115cd1dd6ac8c4e w src/system.c
+F src/xsystem.c 6d9b645048e8312e9ae0e8b3ff6c9e9da81fa782fa8d5b0ec36efcd6ba9aac65
 F src/zip.c 61fa5a4f5f4318e3fb9ded95949df6dfc9ef3bcf55a706aa0199c72365c70cf0
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -977,11 +977,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fb173ae1a86bc712d440b74900e1a91d83ca4864197c722fe8c87a6b61339d47
-R 9fa5d3572e3dbfdab75ef9ca1e110f04
-T *branch * system-cmd
-T *sym-system-cmd *
-T -sym-trunk *
+P 27baef45ca87c48a7cb5174031e731592a8bca3a4f8ab2965c83a112cf70351c
+R 91a25b1144bdefda179c4911bba3e5dd
 U drh
-Z 856154c6ad0718e3f577194c34015322
+Z 6c823681ca59aa6092726a1bc89932e1
 # Remove this line to create a well-formed Fossil manifest.
