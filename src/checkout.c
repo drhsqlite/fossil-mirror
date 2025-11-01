@@ -548,7 +548,7 @@ void get_cmd(void){
       }
     }else if( file_isdir(zDest, ExtFILE)>0 ){
       if( fossil_strcmp(zDest,".")==0 ){
-        if( file_directory_size(zDest,0,1) ){
+        if( file_directory_list(zDest,0,1,1,0) ){
           fossil_fatal("current directory is not empty");
         }
       }else{

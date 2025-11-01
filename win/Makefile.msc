@@ -512,6 +512,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\winhttp_.c" \
         "$(OX)\xfer_.c" \
         "$(OX)\xfersetup_.c" \
+        "$(OX)\xsystem_.c" \
         "$(OX)\zip_.c" \
         "$(SRCDIR_extsrc)\pikchr.c"
 
@@ -786,6 +787,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\winhttp$O" \
         "$(OX)\xfer$O" \
         "$(OX)\xfersetup$O" \
+        "$(OX)\xsystem$O" \
         "$(OX)\zip$O" \
         "$(OX)\fossil.res"
 
@@ -1037,6 +1039,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\winhttp.obj" >> $@
 	echo "$(OX)\xfer.obj" >> $@
 	echo "$(OX)\xfersetup.obj" >> $@
+	echo "$(OX)\xsystem.obj" >> $@
 	echo "$(OX)\zip.obj" >> $@
 	echo $(LIBS) >> $@
 
@@ -2155,6 +2158,12 @@ realclean: clean
 "$(OX)\xfersetup_.c" : "$(SRCDIR)\xfersetup.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\xsystem$O" : "$(OX)\xsystem_.c" "$(OX)\xsystem.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\xsystem_.c"
+
+"$(OX)\xsystem_.c" : "$(SRCDIR)\xsystem.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\zip$O" : "$(OX)\zip_.c" "$(OX)\zip.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\zip_.c"
 
@@ -2313,6 +2322,7 @@ realclean: clean
 			"$(OX)\winhttp_.c":"$(OX)\winhttp.h" \
 			"$(OX)\xfer_.c":"$(OX)\xfer.h" \
 			"$(OX)\xfersetup_.c":"$(OX)\xfersetup.h" \
+			"$(OX)\xsystem_.c":"$(OX)\xsystem.h" \
 			"$(OX)\zip_.c":"$(OX)\zip.h" \
 			"$(SRCDIR_extsrc)\pikchr.c":"$(OX)\pikchr.h" \
 			"$(SRCDIR_extsrc)\sqlite3.h" \

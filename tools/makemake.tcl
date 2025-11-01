@@ -197,6 +197,7 @@ set src {
   winhttp
   xfer
   xfersetup
+  xsystem
   zip
   http_ssl
 }
