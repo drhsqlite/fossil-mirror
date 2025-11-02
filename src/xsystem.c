@@ -68,6 +68,17 @@ void xsystem_which(int argc, char **argv){
   }
 }
 
+/*
+** Bit values for the mFlags paramater to "ls"
+*/
+#define LS_LONG         0x001   /* -l  Long format - one object per line */
+#define LS_REVERSE      0x002   /* -r  Reverse the sort order */
+#define LS_MTIME        0x004   /* -t  Sort by mtime, newest first */
+#define LS_SIZE         0x008   /* -S  Sort by size, largest first */
+#define LS_COMMA        0x010   /* -m  Comma-separated list */
+#define LS_DIRONLY      0x020   /* -d  Show just directory name, not content */
+#define LS_ALL          0x040   /* -a  Show all entries */
+
 /* Helper function for xsystem_ls():  Make entries in the LS table
 ** for every file or directory zName.
 **
@@ -86,10 +97,12 @@ static void xsystem_ls_insert(
   const char *zPrefix;
   switch( file_isdir(zName, ExtFILE) ){
     case 1: {  /* A directory */
-      azList = 0;
-      nList = file_directory_list(zName, 0, (mFlags & 0x08)==0, 0, &azList);
-      zPrefix = fossil_strcmp(zName,".") ? zName : 0;
-      break;
+      if( (mFlags & LS_DIRONLY)==0 ){
+        azList = 0;
+        nList = file_directory_list(zName, 0, (mFlags & LS_ALL)==0, 0, &azList);
+        zPrefix = fossil_strcmp(zName,".") ? zName : 0;
+        break;
+      }
     }
     case 2: {  /* A file */
       aList[0] = (char*)zName;
@@ -112,6 +125,8 @@ static void xsystem_ls_insert(
     sqlite3_bind_int64(pStmt, 2, mtime);
     sqlite3_bind_int64(pStmt, 3, sz);
     sqlite3_bind_int(pStmt, 4, mode);
+    sqlite3_bind_int64(pStmt, 5, strlen(zFile));
+        /* TODO:  wcwidth()------^^^^^^ */
     sqlite3_step(pStmt);
     sqlite3_reset(pStmt);
     if( zPrefix ) fossil_free(zFile);
@@ -122,6 +137,25 @@ static void xsystem_ls_insert(
 }
 
 /*
+** Return arguments to ORDER BY that will correctly sort the entires.
+*/
+static const char *xsystem_ls_orderby(int mFlags){
+  static const char *zSortTypes[] = {
+    "fn COLLATE NOCASE",
+    "mtime DESC",
+    "size DESC",
+    "fn COLLATE NOCASE DESC",
+    "mtime",
+    "size"
+  };
+  int i = 0;
+  if( mFlags & LS_MTIME ) i = 1;
+  if( mFlags & LS_SIZE )  i = 2;
+  if( mFlags & LS_REVERSE ) i += 3;
+  return zSortTypes[i];
+}
+
+/*
 ** Show ls output information for content in the LS table
 */
 static void xsystem_ls_render(
@@ -129,17 +163,14 @@ static void xsystem_ls_render(
   int mFlags
 ){
   sqlite3_stmt *pStmt;
-  int bDesc = (mFlags & 0x02)!=0;
-  if( mFlags & 0x04 ) bDesc = !bDesc;
-  if( (mFlags & 0x01)!=0 ){
+  if( (mFlags & LS_LONG)!=0 ){
     /* Long mode */
     char *zSql;
     zSql = mprintf(
          "SELECT mode, size, strftime('%%Y-%%m-%%d %%H:%%M',"
                 "mtime,'unixepoch'), fn"
-         " FROM ls ORDER BY %s %s",
-         (mFlags & 0x04)!=0 ? "mtime" : "fn",
-         bDesc ? "DESC" : "ASC");
+         " FROM ls ORDER BY %s",
+         xsystem_ls_orderby(mFlags));
     sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
     while( sqlite3_step(pStmt)==SQLITE_ROW ){
       char zMode[12];
@@ -173,12 +204,36 @@ static void xsystem_ls_render(
          zName);
     }
     sqlite3_finalize(pStmt);
+  }else if( (mFlags & LS_COMMA)!=0 ){
+    /* Comma-separate list */
+    int mx = terminal_get_width(80);
+    int sumW = 0;
+    char *zSql;
+    zSql = mprintf("SELECT fn, dlen FROM ls ORDER BY %s",
+                   xsystem_ls_orderby(mFlags));
+    sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
+    while( sqlite3_step(pStmt)==SQLITE_ROW ){
+      const char *z = (const char*)sqlite3_column_text(pStmt, 0);
+      int w = sqlite3_column_int(pStmt, 1);
+      if( sumW==0 ){
+        fossil_print("%s", z);
+        sumW = w;
+      }else if( sumW + w + 2 >= mx ){
+        fossil_print("\n%s", z);
+        sumW = w;
+      }else{
+        fossil_print(", %s", z);
+        sumW += w+2;
+      }
+    }
+    fossil_free(zSql);
+    sqlite3_finalize(pStmt);
+    if( sumW>0 ) fossil_print("\n");
   }else{
     /* Column mode with just filenames */
     int nCol, mxWidth, iRow, nSp, nRow;
     char *zSql;
-    char *zOrderBy;
-    sqlite3_prepare_v2(db, "SELECT max(length(fn)),count(*) FROM ls",-1,
+    sqlite3_prepare_v2(db, "SELECT max(dlen),count(*) FROM ls",-1,
                            &pStmt,0);
     if( sqlite3_step(pStmt)==SQLITE_ROW ){
       mxWidth = sqlite3_column_int(pStmt,0);
@@ -191,13 +246,10 @@ static void xsystem_ls_render(
       nRow = 2000000;
     }
     sqlite3_finalize(pStmt);
-    zOrderBy = mprintf("%s %s", (mFlags & 0x04)!=0 ? "mtime": "fn",
-                                         bDesc ? "DESC" : "ASC");
     zSql = mprintf("WITH sfn(ii,fn,mtime) AS "
                    "(SELECT row_number()OVER(ORDER BY %s)-1,fn,mtime FROM ls)"
                    "SELECT ii/%d,ii%%%d, fn FROM sfn ORDER BY 2,1",
-                   zOrderBy, nRow, nRow);
-    fossil_free(zOrderBy);
+                   xsystem_ls_orderby(mFlags), nRow, nRow);
     sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
     nSp = 0;
     iRow = -1;
@@ -223,9 +275,12 @@ static void xsystem_ls_render(
 ** Options:
 **
 **    -a            Show files that begin with "."
+**    -d            Show just directory names, not content
 **    -l            Long listing
+**    -m            Comma-separated list
 **    -r            Reverse sort
-**    -t            Sort by mtime
+**    -S            Sort by size, largest first
+**    -t            Sort by mtime, newest first
 */
 void xsystem_ls(int argc, char **argv){
   int i, rc;
@@ -239,8 +294,8 @@ void xsystem_ls(int argc, char **argv){
   if( rc || db==0 ){
     fossil_fatal("Cannot open in-memory database");
   }
-  sqlite3_exec(db, "CREATE TABLE ls(fn,mtime,size,mode);", 0,0,0);
-  rc = sqlite3_prepare_v2(db, "INSERT INTO ls VALUES(?1,?2,?3,?4)",
+  sqlite3_exec(db, "CREATE TABLE ls(fn,mtime,size,mode,dlen);", 0,0,0);
+  rc = sqlite3_prepare_v2(db, "INSERT INTO ls VALUES(?1,?2,?3,?4,?5)",
                           -1, &pStmt, 0);
   if( rc || db==0 ){
     fossil_fatal("Cannot prepare INSERT statement");
@@ -250,20 +305,21 @@ void xsystem_ls(int argc, char **argv){
     if( z[0]=='-' ){
       int k;
       for(k=1; z[k]; k++){
-        if( z[k]=='l' ){
-          mFlags |= 0x01;
-        }else if( z[k]=='r' ){
-          mFlags |= 0x02;
-        }else if( z[k]=='t' ){
-          mFlags |= 0x04;
-        }else if( z[k]=='a' ){
-          mFlags |= 0x08;
-        }else{
-          fossil_fatal("unknown option: -%c", z[k]);
+        switch( z[k] ){
+          case 'a':   mFlags |= LS_ALL;      break;
+          case 'd':   mFlags |= LS_DIRONLY;  break;
+          case 'l':   mFlags |= LS_LONG;     break;
+          case 'm':   mFlags |= LS_COMMA;    break;
+          case 'r':   mFlags |= LS_REVERSE;  break;
+          case 'S':   mFlags |= LS_SIZE;     break;
+          case 't':   mFlags |= LS_MTIME;    break;
+          default: {
+            fossil_fatal("unknown option: -%c", z[k]);
+          }
         }
       }
     }else{
-      if( file_isdir(z, ExtFILE)==1 ){
+      if( (mFlags & LS_DIRONLY)==0 && file_isdir(z, ExtFILE)==1 ){
         nDir++;
       }else{
         nFile++;
@@ -312,9 +368,13 @@ static struct XSysCmd {
   { "ls", xsystem_ls,
     "[OPTIONS] [PATH] ...\n"
     "Options:\n"
-    "  -l     Long format\n"
-    "  -r     Reverse sort order\n"
-    "  -t     Sort by mtime\n"
+    "   -a   Show files that begin with '.'\n"
+    "   -d   Show just directory names, not content\n"
+    "   -l   Long listing\n"
+    "   -m   Comma-separated list\n"
+    "   -r   Reverse sort order\n"
+    "   -S   Sort by size, largest first\n"
+    "   -t   Sort by mtime, newest first\n"
   },
   { "pwd", xsystem_pwd,
     "\n"
