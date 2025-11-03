@@ -4341,7 +4341,7 @@ void cmd_open(void){
   }
   if( keepFlag==0
    && bForce==0
-   && (nLocal = file_directory_size(".", 0, 1))>0
+   && (nLocal = file_directory_list(".", 0, 1, 2, 0))>0
    && (nLocal>1 || isUri || !file_in_cwd(zRepo))
   ){
     fossil_fatal("directory %s is not empty\n"

@@ -96,7 +96,7 @@ void stats_for_email(void){
    && (zDir = db_get("email-send-dir",0))!=0
   ){
     @ Written to files in "%h(zDir)"
-    @ (%,d(file_directory_size(zDir,0,1)) messages)
+    @ (%,d(file_directory_list(zDir,0,1,0,0)) messages)
   }else
   if( fossil_strcmp(zDest,"relay")==0
    && (zRelay = db_get("email-send-relayhost",0))!=0

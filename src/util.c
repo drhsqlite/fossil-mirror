@@ -998,30 +998,6 @@ int fossil_app_on_path(const char *zBinary, int ePrint){
 }
 
 /*
-** COMMAND: which*
-**
-** Usage: fossil which [-a] NAME ...
-**
-** For each NAME mentioned as an argument, print the first location on the
-** on PATH of the executable with that name.  Or, show all locations on PATH
-** for each argument if the -a option is used.
-**
-** This command is a substitute for the unix "which" command, which is not
-** always available, especially on Windows.
-*/
-void test_app_on_path(void){
-  int i;
-  int ePrint = 1;
-  if( find_option("all","a",0)!=0 ) ePrint = 2;
-  verify_all_options();
-  for(i=2; i<g.argc; i++){
-    if( fossil_app_on_path(g.argv[i], ePrint)==0 ){
-      fossil_print("NOT FOUND: %s\n", g.argv[i]);
-    }
-  }
-}
-
-/*
 ** Return the name of a command that will launch a web-browser.
 */
 const char *fossil_web_browser(void){

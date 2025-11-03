@@ -2965,16 +2965,6 @@ char *cgi_iso8601_datestamp(void){
 }
 
 /*
-** COMMAND: test-date
-**
-** Show the current date and time in both RFC822 and ISO8601.
-*/
-void test_date(void){
-  fossil_print("%z = ", cgi_iso8601_datestamp());
-  fossil_print("%z\n", cgi_rfc822_datestamp(time(0)));
-}
-
-/*
 ** Parse an RFC822-formatted timestamp as we'd expect from HTTP and return
 ** a Unix epoch time. <= zero is returned on failure.
 **
