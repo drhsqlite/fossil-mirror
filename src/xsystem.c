@@ -166,9 +166,15 @@ static void xsystem_ls_render(
   if( (mFlags & LS_LONG)!=0 ){
     /* Long mode */
     char *zSql;
+    int szSz = 8;
+    sqlite3_prepare_v2(db, "SELECT length(max(size)) FROM ls", -1, &pStmt, 0);
+    if( sqlite3_step(pStmt)==SQLITE_ROW ){
+      szSz = sqlite3_column_int(pStmt, 0);
+    }
+    sqlite3_finalize(pStmt);
+    pStmt = 0;
     zSql = mprintf(
-         "SELECT mode, size, strftime('%%Y-%%m-%%d %%H:%%M',"
-                "mtime,'unixepoch'), fn"
+         "SELECT mode, size, datetime(mtime,'unixepoch'), fn"
          " FROM ls ORDER BY %s",
          xsystem_ls_orderby(mFlags));
     sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
@@ -197,8 +203,9 @@ static void xsystem_ls_render(
       if( mode & 0002 ) zMode[8] = 'w';
       if( mode & 0001 ) zMode[9] = 'x';
 #endif
-      fossil_print("%s %12lld %s %s\n",
+      fossil_print("%s %*lld %s %s\n",
          zMode,
+         szSz,
          sqlite3_column_int64(pStmt, 1),
          sqlite3_column_text(pStmt, 2),
          zName);
