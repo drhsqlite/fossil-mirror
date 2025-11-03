@@ -679,7 +679,13 @@ void secaudit0_page(void){
   fossil_free(azCSP);
 
   if( alert_enabled() ){
+    char * zListId = db_get("email-listid", 0);
     @ <li><p> Email alert configuration summary:
+    if( !zListId || !zListId[0] ){
+      @ <br><strong>WARNING:</strong> <code>email-listid</code> is not set,
+      @ so notifications will not include unsubscribe links.
+    }
+    fossil_free(zListId);
     @ <table class="label-value">
     stats_for_email();
     @ </table>

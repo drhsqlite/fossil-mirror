@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sagain,\sthis\stime\sto\sbeta-test\sthe\srecent\sfix\nto\sambiguous\scolumn\sname\sdetection.
-D 2025-10-31T17:22:38.310
+C Add\sa\snote\sto\sthe\semail-listid\ssetting\shelp\stext\sand\seditor\sentry\sthat\sthis\svalue\sis\srequired\sfor\sunsubscribe\slinks\sto\swork.\sIn\s/secaudit0,\semit\sa\swarning\sif\snotifications\sare\senabled\sbut\semail-listid\sis\sempty.\sThis\sis\sin\sresponse\sto\s[forum\spost\s1245b69c](forum:1245b69cfa09c26e).
+D 2025-11-03T20:39:42.645
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -376,7 +376,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
 F src/add.c 5797fa76189ae9a190e34d431884144273255f8cfded71e3b09a51d2acff2025
 F src/ajax.c 61b9a5a3301823a21f90d4efd388e6e95e154e8d657323a24c365633911f6565
-F src/alerts.c 568618c2e10a4fe298291e0c97d05bb5407a69839274772625b9392295634820
+F src/alerts.c 28f21c449a2ec2624d7121ab540e48907ebb44ba40d94e2b76d173509283dfb7
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -527,7 +527,7 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 31d8c0094037b24ed235e3341dbf9601d3afd739f634d2882ad45688e01ead8c
-F src/security_audit.c 3bdcbbd0232d25d222154c29a5616ec25ecb29facb8c69dd40f5d6ad257274f6
+F src/security_audit.c b1deba7f3ee7afa61e02e0cfe193aaf23a1b0a7ab10a235129e844e17abc831c
 F src/setup.c 170d29c2ab862194738a237488245041abd271e988869874963a6471ceeacce2
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
@@ -976,8 +976,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8690598e51c639466d3e0baaa6e54f38c6f71d88d93817b3ef665b78fcc73017
-R f177a4fc4d0198badaddf17e34e666b4
-U drh
-Z 5ecb292fbe506401146cb197b0bce3da
+P fb173ae1a86bc712d440b74900e1a91d83ca4864197c722fe8c87a6b61339d47
+R 03675d5ef6a904d1befa34f1439de1eb
+U stephan
+Z ad99c4d027a4189df2c3a606d65cf3c2
 # Remove this line to create a well-formed Fossil manifest.
