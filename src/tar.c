@@ -1358,5 +1358,6 @@ void rchvdwnld_page(void){
   @ <div class="section accordion">Context</div><div class="accordion_panel">
   render_checkin_context(rid, 0, 0, 0);
   @ </div>
+  builtin_request_js("accordion.js");
   style_finish_page();
 }

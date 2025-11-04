@@ -1,5 +1,5 @@
-C Merge\sin\sthe\snew\s"system"\scommand.\s\sIt\sis\snot\scomplete,\sbut\sit\sis\sharmless\nand\sout\sof\sthe\sway\sso\swe\smight\sas\swell\scontinue\sdevelopment\son\strunk.
-D 2025-11-03T20:42:36.714
+C Fix\sthe\saccordion\ssection\sheader\son\sthe\s/rchvdwnld\sweb\sUI\spage,\sand\shave\sthe\saccordion\sclick-handler\signore\sclicks\sto\shyperlinks\sinside\ssection\sheaders\s(so\sthat\sthe\saccordion\ssection\sdoes\snot\sexpand\sor\scontract\simmediately\sbefore\snavigating\sto\sthe\slinked\spage).
+D 2025-11-04T16:08:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -373,7 +373,7 @@ F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae
 F skins/xekri/footer.txt 00760bbee5f45decff089e54bc8a11600eeb4644d01f21d7b2a0af52a07312f8
 F skins/xekri/header.txt 8844006d55f16b4ea8f6388db44b5db74a91a366ac934fe081a107a53464dbb3
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/accordion.js dd59c33c003b7bc1dd90d3c64ba0ee4fefb7350d519814b624c22dc0703c14d1
+F src/accordion.js a659d4fd23bfee95ef447a28653bc09b8002bfc4960bcbb0a5a1f0c1dd9dfdf7
 F src/add.c 5797fa76189ae9a190e34d431884144273255f8cfded71e3b09a51d2acff2025
 F src/ajax.c 61b9a5a3301823a21f90d4efd388e6e95e154e8d657323a24c365633911f6565
 F src/alerts.c 28f21c449a2ec2624d7121ab540e48907ebb44ba40d94e2b76d173509283dfb7
@@ -569,7 +569,7 @@ F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f1
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 3bbb805fbc3e6a10a1945f1b9d17ed9d5c69eaa4928341cb33c2d0059ef4bbb1
-F src/tar.c 10f7101e6fcabe04c95fb3f6696b26342dc07ce8da6245f1b32408116de478da
+F src/tar.c 49d171762ad23c2f5d3237da98385a2215834992920e32de355e2192f3ea1b1f
 F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
@@ -977,9 +977,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 015101838341ce1f50b9d4a785312085ee5db5cf3f2d687925ee8b03a46a147a 2c855a53480ae2cd2c3fd1a3f5f28b508662a0542504149b7071f0d76eca645b
-R 098612ad29d62f1d70574960d632be2a
-T +closed 2c855a53480ae2cd2c3fd1a3f5f28b508662a0542504149b7071f0d76eca645b
-U drh
-Z 956a1da295489a9cfe66690bf6308631
+P ff7fe39421d96488b156d1bb7c5ebad0f285b8c8bf54ecf642f1635f1f9c276c
+R 849475e0b854c0c1bf94becfc3bb5a4f
+U florian
+Z 35706883b71d00f3adad339f28c64753
 # Remove this line to create a well-formed Fossil manifest.
