@@ -723,7 +723,11 @@ function TimelineGraph(tx){
     var x = document.getElementById(id);
     if(x) x.style.display=value;
   }
-  function toggleDetail(){
+  function toggleDetail(evt){
+    /* Ignore clicks to hyperlinks in check-in comments. This click-handler is
+    ** attached to <SPAN> elements with the CSS class names "timelineEllipsis"
+    ** and "timelineCompactComment" (for the "Compact" and "Simple" views). */
+    if( evt.target.tagName=='A' ) return;
     var id = parseInt(this.getAttribute('data-id'))
     var x = document.getElementById("detail-"+id);
     if( x.style.display=="inline" ){
@@ -772,11 +776,15 @@ function TimelineGraph(tx){
   var lx = topObj.getElementsByClassName('timelineEllipsis');
   var i;
   for(i=0; i<lx.length; i++){
-    if( lx[i].hasAttribute('data-id') ) lx[i].onclick = toggleDetail;
+    if( lx[i].hasAttribute('data-id') ){
+      lx[i].addEventListener('click',toggleDetail);
+    }
   }
   lx = topObj.getElementsByClassName('timelineCompactComment');
   for(i=0; i<lx.length; i++){
-    if( lx[i].hasAttribute('data-id') ) lx[i].onclick = toggleDetail;
+    if( lx[i].hasAttribute('data-id') ){
+      lx[i].addEventListener('click',toggleDetail);
+    }
   }
   if( window.innerWidth<400 ){
     /* On narrow displays, shift the date from the first column to the
