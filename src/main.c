@@ -130,6 +130,9 @@ struct TclContext {
   char **argv;           /* Full copy of the original (expanded) arguments. */
   void *hLibrary;        /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
+#if TCL_MAJOR_VERSION>=9
+  void *xZipfsAppHook;   /* See TclZipfsAppHookProc in th_tcl.c. */
+#endif
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
   void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
   void *xFinalize;       /* See tcl_FinalizeProc in th_tcl.c. */

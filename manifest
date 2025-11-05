@@ -1,5 +1,5 @@
-C Fix\sthe\s"Compact"\sand\s"Simple"\stimeline\sview\smodes\sso\sthat\sclicks\sto\shyperlinks\sin\scheck-in\scomments\sdo\snot\sturn\sthe\sdetails\son\sand\soff\simmediately\sbefore\snavigating\sto\sthe\slinked\spage.
-D 2025-11-04T16:10:00.000
+C Make\stestcases\swork\swith\sTcl\s9.\sPrepare\sfossil\sto\smake\sit\swork\swith\sTcl\s9
+D 2025-11-05T14:03:29.385
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -39,6 +39,8 @@ F autosetup/tmake.tcl a275793ec1b6f8708179af0acef1f6f10d46c2920739743f7a8720c6d7
 F compat/tcl-8.6/generic/tcl.h 3e49f8e5404fd60181c69b6d0ad075e12c4fbd4d
 F compat/tcl-8.6/generic/tclDecls.h 9f431aa5c9a819efa078fadecf3fb1214137455d
 F compat/tcl-8.6/generic/tclPlatDecls.h 05f8965cb99af1c9bb78ff437e991f49a598f7b7
+F compat/tcl-9.0/generic/tcl.h f2f7c0773564558935818d25758508c2b54b46d483a51a203dd8fddf277787fa
+F compat/tcl-9.0/generic/tclDecls.h 1b6211f269164d9f4b68494a0d7370ed49464f02a90b1f5caf46e94f131477c8
 F compat/zlib/CMakeLists.txt 1862901c83a5baae872f22f29c62bf574af97ea47351b0a080d938b0952fad94
 F compat/zlib/ChangeLog c1ffd493d37a562dfff7f03f78eaf07acf74153963b80bcf863ab4d43aaf30aa
 F compat/zlib/FAQ 806233697dee2450ad1cfcd565714c93bc1e3296ca26adf5f16601fca5c621f9
@@ -271,7 +273,7 @@ F extsrc/linenoise-win32.c 4edab5d16a9ba9e1561ba271f35a9f74c86ab5363f402840c7c3a
 F extsrc/linenoise.c 2ae333dd88a25281998e9463a99b5c50ad3eaf8fa885dcf8eedfb362ded1f86f
 F extsrc/linenoise.h 8f20fae1acd1ca76c4632c882249827410246f1045ebd800edeeea6b17905e00
 F extsrc/pikchr-worker.js f1c029d1f6ccf626373d79fe213bb5039cc8014925c3a6ef0f0d854d033d2cff
-F extsrc/pikchr.c e82d4b68867a01e1688fcae7c08439a328434fd390a3a8e23d1416fbd09dabaa
+F extsrc/pikchr.c 4b92b8d54ac4d523be034f8da8ffee92d2ecca18690b0b3f54fab4d748155313
 F extsrc/pikchr.js 9db23c4d8b68d86686b903bd4b5e5a7bf8dd97f0b5157377f4ac2bc2448f4859
 F extsrc/pikchr.wasm 5dcce2f7eb59441fd8fcb62a57644b86a04d339cdafb662967ae195885f33d5b
 F extsrc/shell.c 6b99153e000fb48ca7e667afdbd6f0fac04e87509435f2af5dcb61bd172bc694
@@ -494,7 +496,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c d9d120a18c32675d1311a77fd982405d48c9ae0dd7d5f1e007e1e17cf7d819d3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c aa0b93731a634ad48e671873168828db22dd59b00dbd79d29e57116a7bb2026f
+F src/main.c aabb30b386ea375dbdf7b66985ec3d1e8b37e3ee626777b86051488852764b38
 F src/main.mk d09a6841e98e1e23ac4e1d94f93a81aa6d2f426478401ab28fb4206621e55765
 F src/manifest.c f2b9b6ec54292eed9dda07a528bbd107df47c9032883e38dd175d6dc10f1b645
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -575,7 +577,7 @@ F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 4f43878167d8f716236dc028d072d0b08de7e6eb8c6e9803779fbd4062237a29
-F src/th_tcl.c 155a9da56128dce97714194089e81f08bf5628f8227e93fa9291197ae92ce9a4
+F src/th_tcl.c f64c581ed6f3d63352446eee6e88d21fb72f3027976d840869b340c7d3d5b6ad
 F src/timeline.c 0834ee3fb52920ef999a85608bb2aa2b45fe54b788111974a014a43f6374468f
 F src/tkt.c f85e6dd4040aefd4cbb8df662b8e20661e7b09caacb4a16644a04bcd7cae49af
 F src/tktsetup.c 38e6ef6950958a6175bd51403644a16fa77d918f6b6c99651e84e9dab8f03cdc
@@ -653,7 +655,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 1ca2a95db55563fd16c4591037248a9fd7db36007cd4a0ea64c59051acac4e89
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl eb9907d6b6b614b36c0f259ffe56829ea3db9ba2437b718525e51be1ce437ad3
+F test/tester.tcl 3e8eb3c69d3474c3e42baf6fb31cb233efd14640f5a242684d9a2f38a1f08c81
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 17be4d6a571e59568261d7be7e18dbf92eca61dda2ab5c66d8b6853ad0fabb2d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -977,8 +979,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6b31bcfc1b4f55450c5611a9ccdda8f0d286c7c75ff169aebfcc9f51b007feb4
-R 9a84868a6d5fd02d2ba1f60755dfda3c
-U florian
-Z 15104de114bbc7bd6aaa5b79094133cd
+P 9a4985950477fa7c4bf9417b54d0d185f01d2d996b204cfd7f3186e1aae11fc2
+R fbf06968f407193378e74cece9760b7e
+U jan.nijtmans
+Z 6efe1a68de672277c16d90ef1350a124
 # Remove this line to create a well-formed Fossil manifest.

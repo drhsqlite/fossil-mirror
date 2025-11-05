@@ -8286,7 +8286,7 @@ static int pik_tcl_command(
   ClientData clientData, /* Not Used */
   Tcl_Interp *interp,    /* The TCL interpreter that invoked this command */
   int objc,              /* Number of arguments */
-  Tcl_Obj *CONST objv[]  /* Command arguments */
+  Tcl_Obj *const objv[]  /* Command arguments */
 ){
   int w, h;              /* Width and height of the pikchr */
   const char *zIn;       /* Source text input */
