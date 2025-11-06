@@ -1462,7 +1462,7 @@ void diff_cmd(void){
       blob_reset(&fname);
     }
   }
-  if( DCfg.diffFlags & DIFF_NUMSTAT ){
+  if( (DCfg.diffFlags & DIFF_NUMSTAT) && !(DCfg.diffFlags & DIFF_BRIEF) ){
     fossil_print("%10s %10s\n", "INSERTED", "DELETED");
   }
   if( zCheckin!=0 ){
