@@ -211,7 +211,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
   @ Press <input type="submit" id="x5" value="Ok" focus> to continue</span>
   @ <span id="x7" style="visibility:hidden;">You appear to be a robot.</span>\
   @ </p>
-  cgi_tag_query_parameter("name");
+  if( g.zExtra && g.zExtra[0] ) cgi_tag_query_parameter("name");
   cgi_query_parameters_to_hidden();
   @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
