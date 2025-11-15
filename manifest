@@ -1,5 +1,5 @@
-C Document\sthe\snew\s-?\salias\sfor\s--help.
-D 2025-11-15T12:32:58.485
+C Fix\sredundant\sclosing\sbrackets\sappearing\safter\sthe\stimeline\sdetails\son\sthe\s/finfo\spage.
+D 2025-11-15T14:02:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -432,7 +432,7 @@ F src/export.c c71355944272ea5f4598cee6c914ebd4c4a295603113ffb46145cd0c10fb81d4
 F src/extcgi.c 4a7139156c32b705a75d9c63c4fc6f6cc867488f2a4d66b102b6b722085f251b
 F src/file.c c16b59b313bf9d8f051fd72a70b61fa8ff60b524b49842ca09326207d05f8c1d
 F src/fileedit.c 0ab7f117c30a21252fd87d2c60bfb3ead372b49fe0a5c4328293d59e7ce20c16
-F src/finfo.c c3358a09507b701d53d2f86e367e6f50bcf3d0cefc93489ef8d9f3241eb3d2e9
+F src/finfo.c ae0e196f6efdd704d722db6ddef83a3a48b82474dfae8bbd88bc4d3b5b51e756
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c e4784bf8f2ea92c74a1be2028823a1ab37d0fd8503c25036d8399070ba04869d
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -979,8 +979,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 30eb891227b43816c0b96f00bab02d803458dd75dff7cd4560defd872d0f5b63
-R 36c192f8da265102119c93a55250fefd
-U danield
-Z 057a11084a2eeef94b208bfbfb5e304c
+P ce13c6735e9b3ccacb24c8e7018c9da9ac0ab9390f815f2cadff631c0ecc3dc3
+R 529e227f5324d5207d6e664e98ee5b3c
+U florian
+Z 3191c1b08fca2bfe140172563687e705
 # Remove this line to create a well-formed Fossil manifest.

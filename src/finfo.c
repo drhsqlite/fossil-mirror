@@ -806,10 +806,10 @@ void finfo_page(void){
     }
     tag_private_status(frid);
     /* End timelineDetail */
-    if( tmFlags & (TIMELINE_COMPACT|TIMELINE_SIMPLE) ){
+    if( tmFlags & TIMELINE_INLINE ){
       @ </span>)</span>
     }else{
-      @ )</span>
+      @ </span>
     }
     @ </td></tr>
   }
