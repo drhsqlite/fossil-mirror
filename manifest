@@ -1,5 +1,5 @@
-C Make\s-?\san\salias\sfor\s-help.\sTo\sthe\sbest\sof\smine\sand\sgrep's\sknowledge,\sthis\sdoes\snot\scollide\swith\sa\s-?\sflag\sin\sany\scommands.
-D 2025-11-15T07:51:23.876
+C Document\sthe\snew\s-?\salias\sfor\s--help.
+D 2025-11-15T12:32:58.485
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -423,7 +423,7 @@ F src/diff.c 9f507c188640383517ad6a4526aaffdc8b96582cf4376676102eac5bfe5f409e
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
 F src/diffcmd.c a50c8f74736b1ff751798d25d64f7bd2f9bd3f2b1a07d440ce3e346ec2991599
-F src/dispatch.c 586d74b9917d1342e41b683006e3d748852985176485f1f77f61a58bc63255bd
+F src/dispatch.c 113e845f6a2fb1d08aff7ff740d02b4890c98cbb0ffa8b9ab2473325089a98bb
 F src/doc.c 85a8ea5014ac5665b815a19cf8ad6ef0ec62cc60b81ed57e8e915a5d89cab37b
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
@@ -745,7 +745,7 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fake-smtpd.tcl b8dd0e8d82d9b1906c09ad3e1bf96969a5a944dbc04ad083efcb4e7876f68c34
 F tools/find-fossil-cgis.tcl 02669fa4cb9c72cc2e6a1063bb2d7a5def86984e99d77cd7b04d97583cd7554e x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
-F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
+F tools/fossil-autocomplete.zsh 733bfcc6eb9bbb69d1b8670eaa133166dcaac1a4b8988b73a767220bf15d0b1b x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
 F tools/fossil-stress.tcl f8c75651b50d14aa619613438e0f1dedb53669a52239e3f274d2096c45e61b49 x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
@@ -979,8 +979,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 96fab06a2237c5ef901114ea828b4d2754301cec7c470fcf543566d8ce28da13
-R 2c86182ac02e478b38021b218f8bcacd
-U stephan
-Z dca36b31de9c9f6bbfd31738fd50b546
+P 30eb891227b43816c0b96f00bab02d803458dd75dff7cd4560defd872d0f5b63
+R 36c192f8da265102119c93a55250fefd
+U danield
+Z 057a11084a2eeef94b208bfbfb5e304c
 # Remove this line to create a well-formed Fossil manifest.

@@ -1405,7 +1405,7 @@ static const char zOptions[] =
 @   --cgitrace              Active CGI tracing
 @   --chdir PATH            Change to PATH before performing any operations
 @   --errorlog FILENAME     Log errors to FILENAME
-@   --help                  Show help on the command rather than running it
+@   -?|--help               Show help on the command rather than running it
 @   --httptrace             Trace outbound HTTP requests
 @   --localtime             Display times using the local timezone
 @   --nocgi                 Do not act as CGI
