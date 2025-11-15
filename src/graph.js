@@ -724,10 +724,12 @@ function TimelineGraph(tx){
     if(x) x.style.display=value;
   }
   function toggleDetail(evt){
-    /* Ignore clicks to hyperlinks in check-in comments. This click-handler is
-    ** attached to <SPAN> elements with the CSS class names "timelineEllipsis"
-    ** and "timelineCompactComment" (for the "Compact" and "Simple" views). */
-    if( evt.target.tagName=='A' ) return;
+    /* Ignore clicks to hyperlinks and other "click-responsive" HTML elements.
+    ** This click-handler is set for <SPAN> elements with the CSS class names
+    ** "timelineEllipsis" and "timelineCompactComment", which are part of the
+    ** "Compact" and "Simple" views. */
+    var xClickyHTML = /^(?:A|AREA|BUTTON|INPUT|LABEL|SELECT|TEXTAREA|DETAILS)$/;
+    if( xClickyHTML.test(evt.target.tagName) ) return;
     var id = parseInt(this.getAttribute('data-id'))
     var x = document.getElementById("detail-"+id);
     if( x.style.display=="inline" ){

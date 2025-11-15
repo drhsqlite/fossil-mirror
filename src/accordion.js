@@ -44,9 +44,11 @@ for(var i=0; i<a.length; i++){
   img.className = "accordion_btn accordion_btn_minus";
   a[i].insertBefore(img,a[i].firstChild);
   a[i].addEventListener("click",function(evt){
-    /* Ignore clicks to hyperlinks and form controls inside ".accordion" buttons
-    ** (for which Fossil uses <DIV> elements that represent section headers). */
-    if( evt.target.tagName in { 'INPUT':1, 'SELECT':1, 'A':1 } ) return;
+    /* Ignore clicks to hyperlinks and other "click-responsive" HTML elements in
+    ** ".accordion" headers (for which Fossil uses <DIV> elements that represent
+    ** section headers). */
+    var xClickyHTML = /^(?:A|AREA|BUTTON|INPUT|LABEL|SELECT|TEXTAREA|DETAILS)$/;
+    if( xClickyHTML.test(evt.target.tagName) ) return;
     var x = this.nextElementSibling;
     if( this.classList.contains("accordion_closed") ){
       x.style.maxHeight = x.scrollHeight + "px";
