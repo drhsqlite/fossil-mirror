@@ -856,7 +856,7 @@ int fossil_main(int argc, char **argv){
 #if USE_SEE
     db_maybe_handle_saved_encryption_key_for_process(SEE_KEY_READ);
 #endif
-    if( find_option("help",0,0)!=0 ){
+    if( find_option("help","?",0)!=0 ){
       /* If --help is found anywhere on the command line, translate the command
        * to "fossil help cmdname" where "cmdname" is the first argument that
        * does not begin with a "-" character.  If all arguments start with "-",
