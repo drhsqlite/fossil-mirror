@@ -7,7 +7,7 @@
       <li> New special tag "zipX" for the [/help/robot-restrict|robot-restrict]
            setting blocks robot access to tarballs, but with exceptions to support
            automated build systems.
-      <li> Enhancements to the default value for the 
+      <li> Enhancements to the default value for the
            [/help/robot-restrict|robot-restrict setting].
       </ol>
   <li> A drop-down menu of recent branches is now possible for the submenu, and
@@ -46,6 +46,8 @@
        "<tt>-u|--for-user</tt>" option.
   <li> The [/help/open|open command]'s new "<tt>--reopen REPOFILE</tt>" flag
        can be used to fix a checkout after moving its repository file.
+  <li> Update internal Unicode character tables, used in regular expression
+       handling, from version 13 to 17.
 </ol>
 
 <h2 id='v2_27'>Changes for version 2.27 (2025-09-30)</h2><ol>
