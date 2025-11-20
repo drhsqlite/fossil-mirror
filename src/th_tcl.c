@@ -846,6 +846,7 @@ static int loadTcl(
         "invalid Tcl loader argument(s)", (const char *)"", 0);
     return TH_ERROR;
   }
+#if defined(USE_TCL_STUBS)
 #if TCL_MAJOR_VERSION<9
 #if defined(_WIN32) || defined(__FreeBSD__)
   aFileName[TCL_MINOR_OFFSET-1] = '0' + TCL_MAJOR_VERSION;
@@ -854,7 +855,6 @@ static int loadTcl(
 #endif
   aFileName[TCL_MINOR_OFFSET] = '0' + TCL_MINOR_VERSION;
 #endif
-#if defined(USE_TCL_STUBS)
   do {
     char *zFileName;
     void *hLibrary;

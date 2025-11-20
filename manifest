@@ -1,5 +1,5 @@
-C Update\schange\slog
-D 2025-11-20T10:37:33.589
+C Fix\sif\sdefined(USE_TCL_STUBS)\sposition,\swas\sin\swrong\sline
+D 2025-11-20T15:08:53.689
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -577,7 +577,7 @@ F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 4f43878167d8f716236dc028d072d0b08de7e6eb8c6e9803779fbd4062237a29
-F src/th_tcl.c f64c581ed6f3d63352446eee6e88d21fb72f3027976d840869b340c7d3d5b6ad
+F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
 F src/timeline.c 0834ee3fb52920ef999a85608bb2aa2b45fe54b788111974a014a43f6374468f
 F src/tkt.c f85e6dd4040aefd4cbb8df662b8e20661e7b09caacb4a16644a04bcd7cae49af
 F src/tktsetup.c 38e6ef6950958a6175bd51403644a16fa77d918f6b6c99651e84e9dab8f03cdc
@@ -979,8 +979,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2984310f0914ccc000249041cd952f03cf35f4c5f9a24dc7c48d8d6953d9bcfe
-R d615abdb4816409754a18bff8bf8c937
+P 7756b9c037ed1a70a2fd9709bb7ce93ac428f7adbc097ca944908dc3f05acbd3
+R e2731ae1f8297435c680f8fe5e5a86f4
 U jan.nijtmans
-Z 2dc4dc89b3d8e64881a41e30df0853df
+Z 22776b0ebbaa610c32843b8e66cb8510
 # Remove this line to create a well-formed Fossil manifest.
