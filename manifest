@@ -1,5 +1,5 @@
-C Update\sto\sa\snewer\sSQLite\sthat\sfixes\sharmless\scompiler\swarnings\sin\sshell.c
-D 2025-11-19T19:40:51.731
+C Update\sthe\swww/fossil_prompt.sh\sdemonstration\sscript\sto\sthe\slatest\sversion\nused\sby\sthe\slead\sSQLite\sdeveloper.
+D 2025-11-20T00:40:42.682
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -857,7 +857,7 @@ F www/fossil3.gif 520055c793a5b53ef923ebcc69876c85e6e079a7fe5f28bb0ff4b42e84c7f5
 F www/fossil_logo_small.gif 02f9b89eb0726d67bbbb6a6532a3a427ad8e1e83
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/fossil_prompt.sh ce050fb58701487c8d271bb575ba7cd3169310fef8987a5c0fe33838f916ae5a
+F www/fossil_prompt.sh a19d50edded1cf7d088e5741aa16f4b0c91a50673669a1f816477c4771deea3d
 F www/fossil_prompt.wiki 1aa5ff0096c0d861d15472d58bb27427c0e44ce86316edcd0fd58cc1cb24b346
 F www/gitusers.md e939aa1121097815a20bd84ea0aa049409eb012033d2d91b8a5fe5b5d35be125
 F www/globs.md 175382629ad5c9a69e951583b63bae9940c925cd186a21b834ca207fc806aeaa
@@ -979,8 +979,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4f7645916adf5c133ef9e4c83ca0d536d3e1802e91cd16b0109a3e8ddde23fbd
-R 44b0e5d8591e38fb5ee32b85ed799345
+P 0276100da6d2972f1f9a2d12d7eea56940d1e1686502bfd3383d8e7223cb80ad
+R 68598b196fe649d61fc9eec9caf53e9c
 U drh
-Z d7725e555710f7a913042a3cdf3733ad
+Z 02fa78b9b323562d2081a52a6c7485be
 # Remove this line to create a well-formed Fossil manifest.
