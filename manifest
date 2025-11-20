@@ -1,5 +1,5 @@
-C Update\sthe\swww/fossil_prompt.sh\sdemonstration\sscript\sto\sthe\slatest\sversion\nused\sby\sthe\slead\sSQLite\sdeveloper.
-D 2025-11-20T00:40:42.682
+C Update\stables\sto\sUnicode\s17
+D 2025-11-20T10:25:42.301
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -583,7 +583,7 @@ F src/tkt.c f85e6dd4040aefd4cbb8df662b8e20661e7b09caacb4a16644a04bcd7cae49af
 F src/tktsetup.c 38e6ef6950958a6175bd51403644a16fa77d918f6b6c99651e84e9dab8f03cdc
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c adb86202928394161ecfa194be5001fbd86254ba43c4df527d91c36857a0be90
-F src/unicode.c b8d31170288f7bbbc8f4409b59537abdc819979cd519649af566a4cacaf4fa13
+F src/unicode.c ba446d2099a2cd431d40c26e1d5ae923580a399b0f08fc73f7fe60714d6e1f1c
 F src/unversioned.c d39361fa12c51ed05b506b4efa5ef049b614f906fdb7ebd133c587d00b88746c
 F src/update.c 3b61b4a29bebfb9db27943562c21c8ab82b36ee33940615179a22dacbcb2f470
 F src/url.c 431525f55f1720147811229d1d7f7e1754ca6721f0d94e37f7fef66854d53f5d
@@ -979,8 +979,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0276100da6d2972f1f9a2d12d7eea56940d1e1686502bfd3383d8e7223cb80ad
-R 68598b196fe649d61fc9eec9caf53e9c
-U drh
-Z 02fa78b9b323562d2081a52a6c7485be
+P 077430469f6bc2ca4dadd6440f90bfb1cb712e7b1eb6ebfff5d890bf91f072f8
+R f1aa5a1c5139a8765c1c5b498cff9de9
+U jan.nijtmans
+Z 3d4ce0d2c5a900447a6163eef1689d1a
 # Remove this line to create a well-formed Fossil manifest.
