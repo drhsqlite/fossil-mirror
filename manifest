@@ -1,5 +1,5 @@
-C Fix\sif\sdefined(USE_TCL_STUBS)\sposition,\swas\sin\swrong\sline
-D 2025-11-20T15:08:53.689
+C Fix\sauto.def,\ssuch\sthat\sit\sworks\swith\sTcl\s9\sas\swell
+D 2025-11-20T15:10:34.508
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 3b0f155d2d0b8b24d67a58111a30ac3920964ec5c4a245b4c405c03da01d2b29
-F auto.def 4169d4399308f33e7a0ffb364b0a92d29aa0cf20d8edf9b031f0419a7e53a8b2
+F auto.def 829a7782d4bfc39d69adb559e9147f952f3265d3089995d4cb9945a5cd1e92ee
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -979,8 +979,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7756b9c037ed1a70a2fd9709bb7ce93ac428f7adbc097ca944908dc3f05acbd3
-R e2731ae1f8297435c680f8fe5e5a86f4
+P 3eda24a5fe59ab9b804a7d25504a7c1413614eb97817877d4c725a4e04b1553c
+R c57db2366bf835e3b49dad86e3ec427b
 U jan.nijtmans
-Z 22776b0ebbaa610c32843b8e66cb8510
+Z a88157fc39267faa6c0f7cf3b82da19f
 # Remove this line to create a well-formed Fossil manifest.
