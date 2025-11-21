@@ -3242,13 +3242,17 @@ static void qrfFinalize(Qrf *p){
       break;
     }
     case QRF_STYLE_Json: {
-      sqlite3_str_append(p->pOut, "}]\n", 3);
-      qrfWrite(p);
+      if( p->nRow>0 ){
+        sqlite3_str_append(p->pOut, "}]\n", 3);
+        qrfWrite(p);
+      }
       break;
     }
     case QRF_STYLE_JObject: {
-      sqlite3_str_append(p->pOut, "}\n", 2);
-      qrfWrite(p);
+      if( p->nRow>0 ){
+        sqlite3_str_append(p->pOut, "}\n", 2);
+        qrfWrite(p);
+      }
       break;
     }
     case QRF_STYLE_Line: {
@@ -24043,6 +24047,7 @@ static const ModeInfo aModeInfo[] = {
 ** contains.
 */
 static void modeFree(Mode *p){
+  u8 autoExplain = p->autoExplain;
   free(p->spec.aWidth);
   free(p->spec.aAlign);
   free(p->spec.zColumnSep);
@@ -24051,6 +24056,7 @@ static void modeFree(Mode *p){
   free(p->spec.zNull);
   memset(p, 0, sizeof(*p));
   p->spec.iVersion = 1;
+  p->autoExplain = autoExplain;
 }
 
 /*
@@ -32713,7 +32719,7 @@ static int do_meta_command(const char *zLine, ShellState *p){
             bIndent);
       }else{
         sqlite3_str_appendf(pSql,
-            "SELECT shell_format_schema(shell_add_schema(sql,%Q,name),%d))",
+            "SELECT shell_format_schema(shell_add_schema(sql,%Q,name),%d)",
             zDb, bIndent);
       }
       sqlite3_str_appendf(pSql,
