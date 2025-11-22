@@ -1,5 +1,5 @@
-C Enhance\sthe\srobot-restrict\ssetting\swith\sthe\sability\sto\sblock\srobots\sfrom\nspecific\sextensions.
-D 2025-11-22T20:53:21.643
+C Documentation\supdates\sfor\sthe\srobot-restrict\schanges\sof\sthe\sprevious\ncheck-in.
+D 2025-11-22T21:16:01.027
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -800,7 +800,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md b578bfee7063fe0a3fef310b79d0b9ca23e084b17aa3044d57f5a4b94b180b4d
 F www/caps/ref.html 80f46f8229fa89f4cd1d1a1ff6bd1700905d64e65fd2201ad315b652b292ae4b
 F www/cgi.wiki b9c5bcae4ac589ed274f8f4b2a64dc854f14c78883f4f0200504ec7e3cdf2b56
-F www/changes.wiki 8ed4c3f451a7c31fb997e91c37e6e86d349fb25253494e7adbe57d934475726b
+F www/changes.wiki 1ea6b2aead7a26b71ce9f09cecb85ceb2bfbb05178802eced39c064de321e35a
 F www/chat.md d0d9ed26c0ba1d51e90aa3a30dc56dd90e8b3a782bef9ed0f65284e5eb807fef
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -952,7 +952,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md d1722594f35dd00b3a51968b45c9c14cffc29816b4957daa2c2cefdfbe78ae75
 F www/server/windows/stunnel.md eb99980e32c075acd1dcd4c44bcebf2e67f3e0dba8419728beeefa2cdd8fbc3e
-F www/serverext.wiki e9e05148678134a19996c808528fa17d250bcc0eb24e900671ef21fe0d79891c
+F www/serverext.wiki 9f87715c2da7ff72e4ccda6661e98de7d0e7003548196638c3a17c15ba4c6e0a
 F www/settings.wiki 16c2717030e901586fd6849d07fc85394b0e8bfaecb1d7f291c356c16f3fd5e4
 F www/shunning.wiki 2945acf2d1865cd1301402b2085527d8b23f971c9f894c6d0511dc146a8df767
 F www/signing.md 23845e739ea3b0ed50ba2d2e45da45114f4b92933f3af5e1a28f8bbf270f7271
@@ -979,8 +979,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bee49c13f82e7f1fdb448f60bbbb6b82da1dfdd4476526388a14741bd3342025
-R 00e509830f074d82aa8860f4363fdc80
+P 423159860cc5a1907ac1ef53de5e25ce5c2bdf557089da6c1ccc9bf9cf26ad54
+R a470a08a094f984f1463df4c6131383b
 U drh
-Z 171976572143ef82e31d5871f70c1d98
+Z 7e31245854669f6d5873bab6f76f7444
 # Remove this line to create a well-formed Fossil manifest.
