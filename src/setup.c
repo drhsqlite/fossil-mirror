@@ -492,16 +492,21 @@ void setup_robots(void){
   @ <p>
   @ &emsp;&emsp;&emsp;<tt>%h(robot_restrict_default())</tt>
   @ <p>
-  @ The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
-  @ /vpatch.  The "annotate" tag covers /annotate and also /blame and
-  @ /praise.  The "zip" covers itself and also /tarball and /sqlar.
-  @ If a tag has an "X" character appended (ex: "timelineX") then it only
-  @ applies if query parameters are such that the page is expensive
-  @ and/or unusual. In all other case, the tag should exactly match
-  @ the page name.
-  @
+  @ Usually the tag should exactly match the page name. Exceptions:
+  @ <ul>
+  @ <li>  The "diff" tag covers all diffing pages such as /vdiff,
+  @       /fdiff, and /vpatch.
+  @ <li>  The "annotate" tag covers /annotate and also /blame and
+  @       /praise.
+  @ <li>  The "zip" covers itself and also /tarball and /sqlar.
+  @ <li>  If a tag has an "X" character appended (ex: "timelineX")
+  @       then it only applies if query parameters are such that
+  @       the page is expensive and/or unusual.
+  @ <li>  The "ext" tag covers all extensions, but a tag like
+  @       "ext/PATH" only covers the specific extension at PATH.
+  @ </ul>
   @ To disable robot restrictions, change this setting to "off".
-  @ (Property: robot-restrict)
+  @ (Property: <a href="%R/help/robot-restrict">robot-restrict</a>)
   @ <br>
   textarea_attribute("", 2, 80,
       "robot-restrict", "rbrestrict", robot_restrict_default(), 0);

@@ -173,6 +173,7 @@ void ext_page(void){
   int rc;                         /* Reply code from subroutine call */
   int nContent = -1;              /* Content length */
   const char *zPathInfo;          /* Original PATH_INFO value */
+  char *zRestrictTag;             /* Tag to restrict specific documents */
   Blob reply;                     /* The reply */
   char zLine[1000];               /* One line of the CGI reply */
   const char *zSrvSw;             /* SERVER_SOFTWARE */
@@ -231,6 +232,9 @@ void ext_page(void){
   }
   assert( nScript>=nRoot+1 );
   style_set_current_page("ext/%s", &zScript[nRoot+1]);
+  zRestrictTag = mprintf("ext/%s", &zScript[nRoot+1]);
+  if( robot_restrict(zRestrictTag) ) return;
+  fossil_free(zRestrictTag);
   zMime = P("mimetype");
   if( zMime==0 ) zMime = mimetype_from_name(zScript);
   if( zMime==0 ) zMime = "application/octet-stream";
