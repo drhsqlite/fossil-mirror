@@ -1313,6 +1313,7 @@ void rchvdwnld_page(void){
   char *zBase;
   int nUuid;
   int rid;
+  char *zTags;
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
   if( robot_restrict("zip") || robot_restrict("download") ) return;
@@ -1330,10 +1331,20 @@ void rchvdwnld_page(void){
     }
   }
   zUuid = db_text(zUuid, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  zTags = db_text(0,
+    "SELECT if(cnt,' ('||tags||')','') FROM ("
+      "SELECT group_concat(substr(tagname,5),', ') AS tags, count(*) AS cnt"
+      "  FROM tag JOIN tagxref USING(tagid)"
+      " WHERE rid=%d"
+      "   AND tagtype=1"
+      "   AND tagname GLOB 'sym-*'"
+    ")",
+    rid
+  );
   style_header("Downloads For Check-in %!S", zUuid);
   zBase = archive_base_name(rid);
   @ <div class="section accordion">Downloads for check-in \
-  @ %z(href("%R/info/%!S",zUuid))%S(zUuid)</a></div>
+  @ %z(href("%R/info/%!S",zUuid))%S(zUuid)</a>%h(zTags)</div>
   @ <div class="accordion_panel">
   @ <table class="label-value">
   @ <tr>
