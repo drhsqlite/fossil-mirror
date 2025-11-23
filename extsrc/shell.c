@@ -683,6 +683,9 @@ void sqlite3_fsetmode(FILE *fp, int mode){
 */
 #ifndef SQLITE_QRF_H
 #define SQLITE_QRF_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdlib.h>
 /* #include "sqlite3.h" */
 
@@ -703,6 +706,7 @@ struct sqlite3_qrf_spec {
   unsigned char bTextNull;    /* Apply eText encoding to zNull[] */
   unsigned char eDfltAlign;   /* Default alignment, no covered by aAlignment */
   unsigned char eTitleAlign;  /* Alignment for column headers */
+  unsigned char bSplitColumn; /* Wrap single-column output into many columns */
   short int nWrap;            /* Wrap columns wider than this */
   short int nScreenWidth;     /* Maximum overall table width */
   short int nLineLimit;       /* Maximum number of lines for any row */
@@ -848,8 +852,9 @@ int sqlite3_format_query_result(
 int sqlite3_qrf_wcwidth(int c);
 
 
-
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* !defined(SQLITE_QRF_H) */
 
 /************************* End ext/qrf/qrf.h ********************/
@@ -1898,6 +1903,17 @@ static void qrfRenderValue(Qrf *p, sqlite3_str *pOut, int iCol){
 #endif
 }
 
+/* Trim spaces of the end if pOut
+*/
+static void qrfRTrim(sqlite3_str *pOut){
+#if SQLITE_VERSION_NUMBER>=3052000
+  int nByte = sqlite3_str_length(pOut);
+  const char *zOut = sqlite3_str_value(pOut);
+  while( nByte>0 && zOut[nByte-1]==' ' ){ nByte--; }
+  sqlite3_str_truncate(pOut, nByte);
+#endif
+}
+
 /*
 ** Store string zUtf to pOut as w characters.  If w is negative,
 ** then right-justify the text.  W is the width in display characters, not
@@ -2309,6 +2325,131 @@ static void qrfLoadAlignment(qrfColData *pData, Qrf *p){
 }
 
 /*
+** If the single column in pData->a[] with pData->n entries can be
+** laid out as nCol columns with a 2-space gap between each such
+** that all columns fit within nSW, then return a pointer to an array
+** of integers which is the width of each column from left to right.
+**
+** If the layout is not possible, return a NULL pointer.
+**
+** Space to hold the returned array is from sqlite_malloc64().
+*/
+static int *qrfValidLayout(
+  qrfColData *pData,   /* Collected query results */
+  Qrf *p,              /* On which to report an OOM */
+  int nCol,            /* Attempt this many columns */
+  int nSW              /* Screen width */
+){
+  int i;        /* Loop counter */
+  int nr;       /* Number of rows */
+  int w = 0;    /* Width of the current column */
+  int t;        /* Total width of all columns */
+  int *aw;      /* Array of individual column widths */
+
+  aw = sqlite3_malloc64( sizeof(int)*nCol );
+  if( aw==0 ){
+    qrfOom(p);
+    return 0;
+  }
+  nr = (pData->n + nCol - 1)/nCol;
+  for(i=0; i<pData->n; i++){
+    if( (i%nr)==0 ){
+      if( i>0 ) aw[i/nr-1] = w;
+      w = pData->aiWth[i];
+    }else if( pData->aiWth[i]>w ){
+      w = pData->aiWth[i];
+    }
+  }
+  aw[nCol-1] = w;
+  for(t=i=0; i<nCol; i++) t += aw[i];
+  t += 2*(nCol-1);
+  if( t>nSW ){
+    sqlite3_free(aw);
+    return 0;
+  }
+  return aw;
+}
+
+/*
+** The output is single-column and the bSplitColumn flag is set.
+** Check to see if the single-column output can be split into multiple
+** columns that appear side-by-side.  Adjust pData appropriately.
+*/
+static void qrfSplitColumn(qrfColData *pData, Qrf *p){
+  int nCol = 1;
+  int *aw = 0;
+  char **az = 0;
+  int *aiWth = 0;
+  int nColNext = 2;
+  int w;
+  struct qrfPerCol *a = 0;
+  sqlite3_int64 nRow = 1;
+  sqlite3_int64 i;
+  while( 1/*exit-by-break*/ ){
+    int *awNew = qrfValidLayout(pData, p, nColNext, p->spec.nScreenWidth);
+    if( awNew==0 ) break;
+    sqlite3_free(aw);
+    aw = awNew;
+    nCol = nColNext;
+    nRow = (pData->n + nCol - 1)/nCol;
+    if( nRow==1 ) break;
+    nColNext++;
+    while( (pData->n + nColNext - 1)/nColNext == nRow ) nColNext++;
+  }
+  if( nCol==1 ){
+    sqlite3_free(aw);
+    return;  /* Cannot do better than 1 column */
+  }
+  az = sqlite3_malloc64( nRow*nCol*sizeof(char*) );
+  if( az==0 ){
+    qrfOom(p);
+    return;
+  }
+  aiWth = sqlite3_malloc64( nRow*nCol*sizeof(int) );
+  if( aiWth==0 ){
+    sqlite3_free(az);
+    qrfOom(p);
+    return;
+  }
+  a = sqlite3_malloc64( nCol*sizeof(struct qrfPerCol) );
+  if( a==0 ){
+    sqlite3_free(az);
+    sqlite3_free(aiWth);
+    qrfOom(p);
+    return;
+  }
+  for(i=0; i<pData->n; i++){
+    sqlite3_int64 j = (i%nRow)*nCol + (i/nRow);
+    az[j] = pData->az[i];
+    pData->az[i] = 0;
+    aiWth[j] = pData->aiWth[i];
+  }
+  while( i<nRow*nCol ){
+    sqlite3_int64 j = (i%nRow)*nCol + (i/nRow);
+    az[j] = sqlite3_mprintf("");
+    if( az[j]==0 ) qrfOom(p);
+    aiWth[j] = 0;
+    i++;
+  }
+  for(i=0; i<nCol; i++){
+    a[i].fx = a[i].mxW = a[i].w = aw[i];
+    a[i].e = pData->a[0].e;
+  }
+  sqlite3_free(pData->az);
+  sqlite3_free(pData->aiWth);
+  sqlite3_free(pData->a);
+  sqlite3_free(aw);
+  pData->az = az;
+  pData->aiWth = aiWth;
+  pData->a = a;
+  pData->nCol = nCol;
+  pData->n = pData->nAlloc = nRow*nCol;
+  for(i=w=0; i<nCol; i++) w += a[i].w;
+  pData->nMargin = (p->spec.nScreenWidth - w)/(nCol - 1);
+  if( pData->nMargin>5 ) pData->nMargin = 5;
+}
+
+/*
 ** Adjust the layout for the screen width restriction
 */
 static void qrfRestrictScreenWidth(qrfColData *pData, Qrf *p){
@@ -2397,6 +2538,7 @@ static void qrfColumnar(Qrf *p){
   int bWW;                                /* True to do word-wrap */
   sqlite3_str *pStr;                      /* Temporary rendering */
   qrfColData data;                        /* Columnar layout data */
+  int bRTrim;                             /* Trim trailing space */
 
   rc = sqlite3_step(p->pStmt);
   if( rc!=SQLITE_ROW || nColumn==0 ){
@@ -2506,8 +2648,22 @@ static void qrfColumnar(Qrf *p){
     data.a[i].w = w;
   }
 
-  /* Adjust the column widths due to screen width restrictions */
-  qrfRestrictScreenWidth(&data, p);
+  if( nColumn==1
+   && data.n>1
+   && p->spec.bSplitColumn==QRF_Yes
+   && p->spec.eStyle==QRF_STYLE_Column
+   && p->spec.bTitles==QRF_No
+   && p->spec.nScreenWidth>data.a[0].w+3
+  ){
+    /* Attempt to convert single-column tables into multi-column by
+    ** verticle wrapping, if the screen is wide enough and if the
+    ** bSplitColumn flag is set. */
+    qrfSplitColumn(&data, p);
+    nColumn = data.nCol;
+  }else{
+    /* Adjust the column widths due to screen width restrictions */
+    qrfRestrictScreenWidth(&data, p);
+  }
 
   /* Draw the line across the top of the table.  Also initialize
   ** the row boundary and column separator texts. */
@@ -2538,7 +2694,13 @@ static void qrfColumnar(Qrf *p){
       break;
     case QRF_STYLE_Column:
       rowStart = "";
-      colSep = data.nMargin ? "  " : " ";
+      if( data.nMargin<2 ){
+        colSep = " ";
+      }else if( data.nMargin<=5 ){
+        colSep = "     " + (5-data.nMargin);
+      }else{
+        colSep = "     ";
+      }
       rowSep = "\n";
       break;
     default:  /*case QRF_STYLE_Markdown:*/
@@ -2558,6 +2720,7 @@ static void qrfColumnar(Qrf *p){
   szColSep = (int)strlen(colSep);
 
   bWW = (p->spec.bWordWrap==QRF_Yes && data.bMultiRow);
+  bRTrim = (p->spec.eStyle==QRF_STYLE_Column);
   for(i=0; i<data.n; i+=nColumn){
     int bMore;
     int nRow = 0;
@@ -2579,10 +2742,13 @@ static void qrfColumnar(Qrf *p){
         nWS = data.a[j].w - nWide;
         qrfPrintAligned(p->pOut, data.a[j].z, nThis, nWS, data.a[j].e);
         data.a[j].z += iNext;
-        if( data.a[j].z[0]!=0 ) bMore = 1;
+        if( data.a[j].z[0]!=0 ){
+          bMore = 1;
+        }
         if( j<nColumn-1 ){
           sqlite3_str_append(p->pOut, colSep, szColSep);
         }else{
+          if( bRTrim ) qrfRTrim(p->pOut);
           sqlite3_str_append(p->pOut, rowSep, szRowSep);
         }
       }
@@ -2601,6 +2767,7 @@ static void qrfColumnar(Qrf *p){
         if( j<nColumn-1 ){
           sqlite3_str_append(p->pOut, colSep, szColSep);
         }else{
+          if( bRTrim ) qrfRTrim(p->pOut);
           sqlite3_str_append(p->pOut, rowSep, szRowSep);
         }
       }
@@ -2641,10 +2808,12 @@ static void qrfColumnar(Qrf *p){
               if( j<nColumn-1 ){
                 sqlite3_str_append(p->pOut, colSep, szColSep);
               }else{
+                qrfRTrim(p->pOut);
                 sqlite3_str_append(p->pOut, rowSep, szRowSep);
               }
             }
           }else if( data.bMultiRow ){
+            qrfRTrim(p->pOut);
             sqlite3_str_append(p->pOut, "\n", 1);
           }
           break;
@@ -23948,12 +24117,13 @@ static const char *qrfQuoteNames[] =
 #define MODE_Off      14  /* No query output shown */
 #define MODE_QBox     15  /* BOX with SQL-quoted content */
 #define MODE_Quote    16  /* Quote values as for SQL */
-#define MODE_Table    17  /* MySQL-style table formatting */
-#define MODE_Tabs     18  /* Tab-separated values */
-#define MODE_Tcl      19  /* Space-separated list of TCL strings */
-#define MODE_Www      20  /* Full web-page output */
+#define MODE_Split    17  /* Split-column mode */
+#define MODE_Table    18  /* MySQL-style table formatting */
+#define MODE_Tabs     19  /* Tab-separated values */
+#define MODE_Tcl      20  /* Space-separated list of TCL strings */
+#define MODE_Www      21  /* Full web-page output */
 
-#define MODE_BUILTIN  20  /* Maximum built-in mode */
+#define MODE_BUILTIN  21  /* Maximum built-in mode */
 #define MODE_BATCH    50  /* Default mode for batch processing */
 #define MODE_TTY      51  /* Default mode for interactive processing */
 #define MODE_USER     75  /* First user-defined mode */
@@ -24002,6 +24172,7 @@ static const ModeInfo aModeInfo[] = {
   { "off",      0,     0,    0,    0,    0,    0,   0,   14,    0 },
   { "qbox",     0,     0,    9,    2,    1,    2,   2,   1,     2 },
   { "quote",    4,     1,    10,   2,    2,    2,   1,   12,    0 },
+  { "split",    0,     0,    9,    1,    1,    1,   1,   2,     2 },
   { "table",    0,     0,    9,    1,    1,    1,   2,   19,    2 },
   { "tabs",     8,     1,    9,    3,    3,    1,   1,   12,    0 },
   { "tcl",      3,     1,    12,   5,    5,    4,   1,   12,    0 },
@@ -24130,6 +24301,12 @@ static void modeChange(ShellState *p, unsigned char eMode){
     pM->spec.eBlob = pI->eBlob;
     pM->spec.bTitles = pI->bHdr;
     pM->spec.eTitle = pI->eHdr;
+    if( eMode==MODE_Split ){
+      pM->spec.bSplitColumn = QRF_Yes;
+      pM->bAutoScreenWidth = 1;
+    }else{
+      pM->spec.bSplitColumn = QRF_No;
+    }
   }else if( eMode>=MODE_USER && eMode-MODE_USER<p->nSavedModes ){
     modeFree(&p->mode);
     modeDup(&p->mode, &p->aSavedModes[eMode-MODE_USER].mode);
@@ -26443,6 +26620,8 @@ static const struct {
 "                           truncated. Zero means \"no limit\". Only works\n"
 "                           in \"line\" mode and in columnar modes.\n"
 "  --list                   List available modes\n"
+"  --no-limits              Shorthand to turn off --linelimit, --charlimit,\n"
+"                           and --screenwidth.\n"
 "  --null STRING            Render SQL NULL values as the given string\n"
 "  --once                   Setting changes to the right are reverted after\n"
 "                           the next SQL command.\n"
@@ -30322,6 +30501,8 @@ static int modeTitleDsply(ShellState *p, int bAll){
 **                            truncated. Zero means "no limit". Only works
 **                            in "line" mode and in columnar modes.
 **   --list                   List available modes
+**   --no-limits              Shorthand to turn off --linelimit, --charlimit,
+**                            and --screenwidth.
 **   --null STRING            Render SQL NULL values as the given string
 **   --once                   Setting changes to the right are reverted after
 **                            the next SQL command.
@@ -30467,6 +30648,21 @@ static int dotCmdMode(ShellState *p){
         cli_printf(p->out, " %s", p->aSavedModes[ii].zTag);
       }
       cli_puts(" batch tty\n", p->out);
+    }else if( optionMatch(z,"once") ){
+      p->nPopMode = 0;
+      modePush(p);
+      p->nPopMode = 1;
+    }else if( optionMatch(z,"noquote") ){
+      /* (undocumented legacy) --noquote always turns quoting off */
+      p->mode.spec.eText = QRF_TEXT_Plain;
+      p->mode.spec.eBlob = QRF_BLOB_Text;
+      chng = 1;
+    }else if( optionMatch(z,"no-limits") ){
+      p->mode.spec.nLineLimit = 0;
+      p->mode.spec.nCharLimit = 0;
+      p->mode.spec.nScreenWidth = 0;
+      p->mode.bAutoScreenWidth = 0;
+      chng = 1;
     }else if( optionMatch(z,"quote") ){
       if( i+1<nArg
        && azArg[i+1][0]!='-'
@@ -30518,15 +30714,6 @@ static int dotCmdMode(ShellState *p){
           p->mode.spec.eBlob = QRF_BLOB_Text;
           break;
       }
-      chng = 1;
-    }else if( optionMatch(z,"once") ){
-      p->nPopMode = 0;
-      modePush(p);
-      p->nPopMode = 1;
-    }else if( optionMatch(z,"noquote") ){
-      /* (undocumented legacy) --noquote always turns quoting off */
-      p->mode.spec.eText = QRF_TEXT_Plain;
-      p->mode.spec.eBlob = QRF_BLOB_Text;
       chng = 1;
     }else if( optionMatch(z,"reset") ){
       int saved_eMode = p->mode.eMode;
@@ -31079,9 +31266,10 @@ dotCmdOutput_error:
   sqlite3_free(zFile);
   return 1;
 }
+
 /*
-** Parse input line zLine up into individual arguments.  Retain the
-** parse in the p->dot substructure.
+** Enlarge the space allocated in p->dot so that it can hold more
+** than nArg parsed command-line arguments.
 */
 static void parseDotRealloc(ShellState *p, int nArg){
   p->dot.nAlloc = nArg+22;
@@ -31092,15 +31280,29 @@ static void parseDotRealloc(ShellState *p, int nArg){
   p->dot.abQuot = realloc(p->dot.abQuot,p->dot.nAlloc);
   shell_check_oom(p->dot.abQuot);
 }
+
+
+/*
+** Parse input line zLine up into individual arguments.  Retain the
+** parse in the p->dot substructure.
+*/
 static void parseDotCmdArgs(const char *zLine, ShellState *p){
   char *z;
   int h = 1;
   int nArg = 0;
+  size_t szLine;
 
   p->dot.zOrig = zLine;
   free(p->dot.zCopy);
   z = p->dot.zCopy = strdup(zLine);
   shell_check_oom(z);
+  szLine = strlen(z);
+  while( szLine>0 && IsSpace(z[szLine-1]) ) szLine--;
+  if( szLine>0 && z[szLine-1]==';' && p->iCompat>=20251115 ){
+    szLine--;
+    while( szLine>0 && IsSpace(z[szLine-1]) ) szLine--;
+  }
+  z[szLine] = 0;
   parseDotRealloc(p, 2);
   while( z[h] ){
     while( IsSpace(z[h]) ){ h++; }
@@ -33408,12 +33610,11 @@ static int do_meta_command(const char *zLine, ShellState *p){
    || (c=='i' && (cli_strncmp(azArg[0], "indices", n)==0
                  || cli_strncmp(azArg[0], "indexes", n)==0) )
   ){
-    sqlite3_stmt *pStmt;
-    char **azResult;
-    int nRow, nAlloc;
     int ii;
-    ShellText s;
-    initText(&s);
+    sqlite3_stmt *pStmt;
+    sqlite3_str *pSql;
+    const char *zPattern = nArg>1 ? azArg[1] : 0;
+
     open_db(p, 0);
     rc = sqlite3_prepare_v2(p->db, "PRAGMA database_list", -1, &pStmt, 0);
     if( rc ){
@@ -33430,86 +33631,46 @@ static int do_meta_command(const char *zLine, ShellState *p){
       sqlite3_finalize(pStmt);
       goto meta_command_exit;
     }
+    pSql = sqlite3_str_new(p->db);
     for(ii=0; sqlite3_step(pStmt)==SQLITE_ROW; ii++){
       const char *zDbName = (const char*)sqlite3_column_text(pStmt, 1);
       if( zDbName==0 ) continue;
-      if( s.zTxt && s.zTxt[0] ) appendText(&s, " UNION ALL ", 0);
-      if( sqlite3_stricmp(zDbName, "main")==0 ){
-        appendText(&s, "SELECT name FROM ", 0);
-      }else{
-        appendText(&s, "SELECT ", 0);
-        appendText(&s, zDbName, '\'');
-        appendText(&s, "||'.'||name FROM ", 0);
+      if( sqlite3_str_length(pSql) ){
+        sqlite3_str_appendall(pSql, " UNION ALL ");
       }
-      appendText(&s, zDbName, '"');
-      appendText(&s, ".sqlite_schema ", 0);
-      if( c=='t' ){
-        appendText(&s," WHERE type IN ('table','view')"
-                      "   AND name NOT LIKE 'sqlite__%' ESCAPE '_'"
-                      "   AND name LIKE ?1", 0);
+      if( sqlite3_stricmp(zDbName, "main")==0 ){
+        sqlite3_str_appendall(pSql, "SELECT name FROM ");
       }else{
-        appendText(&s," WHERE type='index'"
-                      "   AND tbl_name LIKE ?1", 0);
+        sqlite3_str_appendf(pSql, "SELECT %Q||'.'||name FROM ", zDbName);
+      }
+      sqlite3_str_appendf(pSql, "\"%w\".sqlite_schema", zDbName);
+      if( c=='t' ){
+        sqlite3_str_appendf(pSql,
+            " WHERE type IN ('table','view')"
+            "   AND name NOT LIKE 'sqlite__%%' ESCAPE '_'"
+        );
+        if( zPattern ){
+          sqlite3_str_appendf(pSql," AND name LIKE %Q", zPattern);
+        }
+      }else{
+        sqlite3_str_appendf(pSql, " WHERE type='index'");
+        if( zPattern ){
+          sqlite3_str_appendf(pSql," AND tbl_name LIKE %Q", zPattern);
+        }
       }
     }
     rc = sqlite3_finalize(pStmt);
     if( rc==SQLITE_OK ){
-      appendText(&s, " ORDER BY 1", 0);
-      rc = sqlite3_prepare_v2(p->db, s.zTxt, -1, &pStmt, 0);
+      sqlite3_str_appendall(pSql, " ORDER BY 1");
     }
-    freeText(&s);
+
+    /* Run the SQL statement in "split" mode. */
+    modePush(p);
+    modeChange(p, MODE_Split);
+    shell_exec(p, sqlite3_str_value(pSql), 0);
+    sqlite3_str_free(pSql);
+    modePop(p);
     if( rc ) return shellDatabaseError(p->db);
-
-    /* Run the SQL statement prepared by the above block. Store the results
-    ** as an array of nul-terminated strings in azResult[].  */
-    nRow = nAlloc = 0;
-    azResult = 0;
-    if( nArg>1 ){
-      sqlite3_bind_text(pStmt, 1, azArg[1], -1, SQLITE_TRANSIENT);
-    }else{
-      sqlite3_bind_text(pStmt, 1, "%", -1, SQLITE_STATIC);
-    }
-    while( sqlite3_step(pStmt)==SQLITE_ROW ){
-      if( nRow>=nAlloc ){
-        char **azNew;
-        sqlite3_int64 n2 = 2*(sqlite3_int64)nAlloc + 10;
-        azNew = sqlite3_realloc64(azResult, sizeof(azResult[0])*n2);
-        shell_check_oom(azNew);
-        nAlloc = (int)n2;
-        azResult = azNew;
-      }
-      azResult[nRow] = sqlite3_mprintf("%s", sqlite3_column_text(pStmt, 0));
-      shell_check_oom(azResult[nRow]);
-      nRow++;
-    }
-    if( sqlite3_finalize(pStmt)!=SQLITE_OK ){
-      rc = shellDatabaseError(p->db);
-    }
-
-    /* Pretty-print the contents of array azResult[] to the output */
-    if( rc==0 && nRow>0 ){
-      int len, maxlen = 0;
-      int i, j;
-      int nPrintCol, nPrintRow;
-      for(i=0; i<nRow; i++){
-        len = strlen30(azResult[i]);
-        if( len>maxlen ) maxlen = len;
-      }
-      nPrintCol = shellScreenWidth()/(maxlen+2);
-      if( nPrintCol<1 ) nPrintCol = 1;
-      nPrintRow = (nRow + nPrintCol - 1)/nPrintCol;
-      for(i=0; i<nPrintRow; i++){
-        for(j=i; j<nRow; j+=nPrintRow){
-          char *zSp = j<nPrintRow ? "" : "  ";
-          cli_printf(p->out,
-               "%s%-*s", zSp, maxlen, azResult[j] ? azResult[j]:"");
-        }
-        cli_puts("\n", p->out);
-      }
-    }
-
-    for(ii=0; ii<nRow; ii++) sqlite3_free(azResult[ii]);
-    sqlite3_free(azResult);
   }else
 
 #ifndef SQLITE_SHELL_FIDDLE
@@ -35637,6 +35798,16 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
           if( rc==0 ) rc = 1;
           goto shell_main_exit;
         }
+        if( data.nPopMode ){
+          modePop(&data);
+          data.nPopMode = 0;
+        }
+      }
+      if( data.nPopOutput ){
+        output_reset(&data);
+        data.nPopOutput = 0;
+      }else{
+        clearTempFile(&data);
       }
     }
   }else{
