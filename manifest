@@ -1,5 +1,5 @@
-C Documentation\supdates\sfor\sthe\srobot-restrict\schanges\sof\sthe\sprevious\ncheck-in.
-D 2025-11-22T21:16:01.027
+C Reduced\sthe\sspace\saround\sfloated\sleft/right\sPikchr\selements\sin\sthe\ndefault\sCSS,\sapplied\sas\spart\sof\s[947c039073].\sIt\swas\sgiving\seach\s4em\sall\nthe\sway\saround,\sbut\sit\snow\sgives\s2em\sto\sthe\ssides\sand\s1em\stop\sand\nbottom,\swhich\sseems\splenty\sin\sall\sconceivable\scontexts.
+D 2025-11-23T02:06:52.741
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -414,7 +414,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js a967fe355479c329f4e172c625b7a8403e1132be72fd3ebf9ad0afad249a679c
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 3ac90b10ea945a4e5d69ce1bd868798c37ef1c9d0ac9edfdf883d43ed97ecadd
-F src/default.css a9ed3842aa7367c1672c8f667fb5fdc793c7d54d68bd64a6c6c54cf1ca5f5c71
+F src/default.css 2cc5a0f1957778b8453d55ed1d566c12fb5f122d6d7ea94ed9e4d49d3ff617ee
 F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c f08accd177876a9d41ad36de0559e5bdc07e7f368ac58790634c2dcd75c30d9f
@@ -979,8 +979,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 423159860cc5a1907ac1ef53de5e25ce5c2bdf557089da6c1ccc9bf9cf26ad54
-R a470a08a094f984f1463df4c6131383b
-U drh
-Z 7e31245854669f6d5873bab6f76f7444
+P 3481761e6c287237f1f38a5d18585de4ab1d97524d15952f5d41b91adb9588b2
+R ce5a1249f1778a1ca79c192f8877b189
+U wyoung
+Z eb9a0f1d66de455d476d1c67088b862a
 # Remove this line to create a well-formed Fossil manifest.
