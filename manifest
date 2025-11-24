@@ -1,5 +1,5 @@
-C Add\ssome\stext\sto\s/chat\sconfig\swhich\ssuggests\senabling\sall\sof\sthe\sEditing\soptions\sinsofar\sas\sthey\sdon't\smisinteract\swith\sthe\suser's\sspecific\sbrowser\sor\ssoftware\skeyboard.
-D 2025-11-24T13:39:50.366
+C Add\ssome\schange\sstatuses\smissing\sfrom\s/json/status,\sas\sreported\sin\s[forum:1e835e6a79|forum\spost\s1e835e6a79].\sUpdate\sthe\svfile.chnged\sdocs\sto\sreflect\svalues\sadded\ssince\sthey\swere\slast\supdated.
+D 2025-11-24T16:53:19.278
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -486,7 +486,7 @@ F src/json_finfo.c 6a2acfb47c4414d186ae6e9be53b8f6225934fca8c00d8e5189df1b5d6ed5
 F src/json_login.c 819ecd10c202b55d014b344e5d2129dfb1935c4f96f1404b4d141f2e894a0822
 F src/json_query.c 8389173e1d2cf5429e39ecbeed2742e3907d84842961e2843805a62ba7aaae4b
 F src/json_report.c 6a7eb56686e5ebdcf2eb14f9beddb3033e55ea3606cb14d16d3bec9b87d15ba3
-F src/json_status.c 6b0b99247c64db4073fae83da552c2f1f90859824a70c50e36fbd03f2985d94f
+F src/json_status.c 1ce505088aed98286ed2fb3cac093b0937c13788a19559e43546f329c41089fa
 F src/json_tag.c b9fdc20ffb6f8f0e46544e64c2a96bc6552a6151499f0aa3141b0331ee7afc78
 F src/json_timeline.c 2f906207f33e527a06888b570b6616d05d4df550fc5f7f3959faa2af01e211ff
 F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a9203
@@ -526,7 +526,7 @@ F src/repolist.c 3a3fb5895bbc6a43b3a379d7419bc6cbb3b826e921475c15c2624b1bb76157f
 F src/report.c f423bfbd6a88753fdb5b9b91c2f3a787f0db955400f67e46d1630633af8bb758
 F src/robot.c 1a2befdf9c8f87f6bdc85a06183a985c8120e1db100a854083841d7dc4d4f4e0
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
-F src/schema.c bf3ce6becb2f19a166b5deaa4b32ee63c3c4c7cc1e2a8fad2db0d4fcbb203255
+F src/schema.c 3393216d68e19eead492c047bfd1c9081a4ca546c2a9129ecef35acc6b576f66
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 31d8c0094037b24ed235e3341dbf9601d3afd739f634d2882ad45688e01ead8c
 F src/security_audit.c b1deba7f3ee7afa61e02e0cfe193aaf23a1b0a7ab10a235129e844e17abc831c
@@ -979,8 +979,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9aee493cf3b97fe878d370eefe2c4331c74414171626cdcd431b9d415875502b
-R 2a9e52c87f582e8d5f61224b58c556fc
+P 54272f72a18df02121c5854058944352d93040a5d55905e85c4213636fe20431
+R 00cf7a612eca2b96df082002c8b93839
 U stephan
-Z fdfe9bfcfcfdb7ef3197c778d1d587b5
+Z a946164107fd33e9e0f40e38c6531922
 # Remove this line to create a well-formed Fossil manifest.

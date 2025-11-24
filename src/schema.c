@@ -562,7 +562,9 @@ const char zLocalSchema[] =
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked-out file
 @   vid INTEGER REFERENCES blob,      -- The check-in this file is part of.
-@   chnged INT DEFAULT 0,  -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng 5:i-add
+@   chnged INT DEFAULT 0,
+@   -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng
+@   -- 5:i-add 6:+exec 7:+symlink 8:-exec 9:unlink
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted
 @   isexe BOOLEAN,                    -- True if file should be executable
 @   islink BOOLEAN,                   -- True if file should be symlink
