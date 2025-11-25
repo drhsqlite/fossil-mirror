@@ -119,8 +119,9 @@ static void xsystem_ls_insert(
   switch( file_isdir(zName, ExtFILE) ){
     case 1: {  /* A directory */
       if( (mFlags & LS_DIRONLY)==0 ){
+        int omitDots = (mFlags & LS_ALL)!=0 ? 2 : 1;
         azList = 0;
-        nList = file_directory_list(zName, 0, (mFlags & LS_ALL)==0, 0, &azList);
+        nList = file_directory_list(zName, 0, omitDots, 0, &azList);
         zPrefix = fossil_strcmp(zName,".") ? zName : 0;
         break;
       }
@@ -142,6 +143,17 @@ static void xsystem_ls_insert(
     int mode = file_mode(zFile, ExtFILE);
     sqlite3_int64 sz = file_size(zFile, ExtFILE);
     sqlite3_int64 mtime = file_mtime(zFile, ExtFILE);
+#ifdef _WIN32
+    if( (mFlags & LS_ALL)==0 ){
+      wchar_t *zMbcs = fossil_utf8_to_path(zFile, 1);
+      DWORD attr = GetFileAttributesW(zMbcs);
+      fossil_path_free(zMbcs);
+      if( attr & FILE_ATTRIBUTE_HIDDEN ){
+        if( zPrefix ) fossil_free(zFile);
+        continue;
+      }
+    }
+#endif
     sqlite3_bind_text(pStmt, 1, azList[i], -1, SQLITE_TRANSIENT);
     sqlite3_bind_int64(pStmt, 2, mtime);
     sqlite3_bind_int64(pStmt, 3, sz);

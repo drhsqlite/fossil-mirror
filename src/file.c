@@ -2562,7 +2562,7 @@ const char *file_cleanup_fullpath(const char *z){
 int file_directory_list(
   const char *zDir,    /* Directory to get a listing of */
   const char *zGlob,   /* Only list objects matching this pattern */
-  int omitDotFiles,    /* Omit files that begin with "." if true */
+  int omitDotFiles,    /* 0: skip "." and "..", 1: no .-files, 2: keep all */
   int nLimit,          /* Find at most this many files.  0 means "all" */
   char ***pazList      /* OUT:  Write the list here, if not NULL */
 ){
@@ -2579,11 +2579,14 @@ int file_directory_list(
     while( (pEntry=readdir(d))!=0 ){
       char *zUtf8 = 0;
       if( pEntry->d_name[0]==0 ) continue;
-      if( pEntry->d_name[0]=='.' &&
-          (omitDotFiles
-           /* Skip the special "." and ".." entries. */
+      if( pEntry->d_name[0]=='.'
+       && omitDotFiles<2
+       && (omitDotFiles==1
+           /* Skip the special "." and ".." entries unless omitDotFiles>=2 */
            || pEntry->d_name[1]==0
-           || (pEntry->d_name[1]=='.' && pEntry->d_name[2]==0))){
+           || (pEntry->d_name[1]=='.' && pEntry->d_name[2]==0)
+          )
+      ){
         continue;
       }
       if( zGlob ){
