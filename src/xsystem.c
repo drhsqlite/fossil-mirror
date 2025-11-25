@@ -175,6 +175,39 @@ static const char *xsystem_ls_orderby(int mFlags){
 }
 
 /*
+** colorize_fn(fn,mode)
+**
+** SQL function to colorize a filename based on its mode.
+*/
+static void colorNameFunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zName = (const char*)sqlite3_value_text(argv[0]);
+  int iMode = sqlite3_value_int(argv[1]);
+  sqlite3_str *pOut;
+  if( zName==0 ) return;
+  pOut = sqlite3_str_new(0);
+#ifdef _WIN32
+  if( sqlite3_strlike("%.exe",zName,0)==0 ) iMode |= 0111;
+#endif
+  if( iMode & 040000 ){
+    /* A directory */
+    sqlite3_str_appendall(pOut, "\033[1;34m");
+  }else if( iMode & 0100 ){
+    /* Executable */
+    sqlite3_str_appendall(pOut, "\033[1;32m");
+  }
+  sqlite3_str_appendall(pOut, zName);
+  if( (iMode & 040100)!=0 ){
+    sqlite3_str_appendall(pOut, "\033[0m");
+  }
+  sqlite3_result_text(context, sqlite3_str_finish(pOut), -1, sqlite3_free);
+}
+
+
+/*
 ** Show ls output information for content in the LS table
 */
 static void xsystem_ls_render(
@@ -182,6 +215,7 @@ static void xsystem_ls_render(
   int mFlags
 ){
   sqlite3_stmt *pStmt;
+  sqlite3_create_function(db, "color", 2, SQLITE_UTF8, 0, colorNameFunc,0,0);
   if( (mFlags & LS_LONG)!=0 ){
     /* Long mode */
     char *zSql;
@@ -193,7 +227,7 @@ static void xsystem_ls_render(
     sqlite3_finalize(pStmt);
     pStmt = 0;
     zSql = mprintf(
-         "SELECT mode, size, datetime(mtime,'unixepoch'), fn"
+         "SELECT mode, size, datetime(mtime,'unixepoch'), color(fn,mode)"
          " FROM ls ORDER BY %s",
          xsystem_ls_orderby(mFlags));
     sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
@@ -235,7 +269,7 @@ static void xsystem_ls_render(
     int mx = terminal_get_width(80);
     int sumW = 0;
     char *zSql;
-    zSql = mprintf("SELECT fn, dlen FROM ls ORDER BY %s",
+    zSql = mprintf("SELECT color(fn,mode), dlen FROM ls ORDER BY %s",
                    xsystem_ls_orderby(mFlags));
     sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
     while( sqlite3_step(pStmt)==SQLITE_ROW ){
@@ -265,8 +299,10 @@ static void xsystem_ls_render(
     spec.eStyle = QRF_STYLE_Column;
     spec.bSplitColumn = QRF_Yes;
     spec.bTitles = QRF_No;
+    spec.eEsc = QRF_No;
     spec.nScreenWidth = terminal_get_width(80);
-    zSql = mprintf("SELECT fn FROM ls ORDER BY %s", xsystem_ls_orderby(mFlags));
+    zSql = mprintf("SELECT color(fn,mode) FROM ls ORDER BY %s",
+                   xsystem_ls_orderby(mFlags));
     sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
     fossil_free(zSql);
     sqlite3_format_query_result(pStmt, &spec, 0);
