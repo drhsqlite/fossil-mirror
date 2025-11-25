@@ -31,6 +31,7 @@
 */
 #include "config.h"
 #include "xsystem.h"
+#include "qrf.h"
 #include <time.h>
 
 
@@ -78,6 +79,13 @@ void xsystem_which(int argc, char **argv){
 #define LS_COMMA        0x010   /* -m  Comma-separated list */
 #define LS_DIRONLY      0x020   /* -d  Show just directory name, not content */
 #define LS_ALL          0x040   /* -a  Show all entries */
+
+/* xWrite() callback from QRF
+*/
+static int xsystem_write(void *NotUsed, const char *zText, sqlite3_int64 n){
+  fossil_puts(zText, 0, (int)n);
+  return SQLITE_OK;
+}
 
 /* Helper function for xsystem_ls():  Make entries in the LS table
 ** for every file or directory zName.
@@ -238,41 +246,19 @@ static void xsystem_ls_render(
     if( sumW>0 ) fossil_print("\n");
   }else{
     /* Column mode with just filenames */
-    int nCol, mxWidth, iRow, nSp, nRow;
+    sqlite3_qrf_spec spec;
     char *zSql;
-    sqlite3_prepare_v2(db, "SELECT max(dlen),count(*) FROM ls",-1,
-                           &pStmt,0);
-    if( sqlite3_step(pStmt)==SQLITE_ROW ){
-      mxWidth = sqlite3_column_int(pStmt,0);
-      nCol = (terminal_get_width(80)+1)/(mxWidth+2);
-      if( nCol<1 ) nCol = 1;
-      nRow = (sqlite3_column_int(pStmt,1)+nCol-1)/nCol;
-    }else{
-      nCol = 1;
-      mxWidth = 100;
-      nRow = 2000000;
-    }
-    sqlite3_finalize(pStmt);
-    zSql = mprintf("WITH sfn(ii,fn,mtime) AS "
-                   "(SELECT row_number()OVER(ORDER BY %s)-1,fn,mtime FROM ls)"
-                   "SELECT ii/%d,ii%%%d, fn FROM sfn ORDER BY 2,1",
-                   xsystem_ls_orderby(mFlags), nRow, nRow);
+    memset(&spec, 0, sizeof(spec));
+    spec.iVersion = 1;
+    spec.xWrite = xsystem_write;
+    spec.eStyle = QRF_STYLE_Column;
+    spec.bSplitColumn = QRF_Yes;
+    spec.bTitles = QRF_No;
+    spec.nScreenWidth = terminal_get_width(80);
+    zSql = mprintf("SELECT fn FROM ls ORDER BY %s", xsystem_ls_orderby(mFlags));
     sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
-    nSp = 0;
-    iRow = -1;
-    while( sqlite3_step(pStmt)==SQLITE_ROW ){
-      const char *zFN = (const char*)sqlite3_column_text(pStmt, 2);
-      int thisRow = sqlite3_column_int(pStmt,1);
-      if( iRow!=thisRow ){
-        if( iRow>=0 ) fossil_print("\n");
-        iRow = thisRow;
-      }else{
-        if( nSp ) fossil_print("%*s",nSp,"");
-      }
-      fossil_print("%s", zFN);
-      nSp = mxWidth - (int)strlen(zFN) + 2;
-    }
-    fossil_print("\n");
+    fossil_free(zSql);
+    sqlite3_format_query_result(pStmt, &spec, 0);
     sqlite3_finalize(pStmt);
   }
   sqlite3_exec(db, "DELETE FROM ls;", 0, 0, 0);

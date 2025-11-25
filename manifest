@@ -1,5 +1,5 @@
-C Add\ssome\schange\sstatuses\smissing\sfrom\s/json/status,\sas\sreported\sin\s[forum:1e835e6a79|forum\spost\s1e835e6a79].\sUpdate\sthe\svfile.chnged\sdocs\sto\sreflect\svalues\sadded\ssince\sthey\swere\slast\supdated.
-D 2025-11-24T16:53:19.278
+C Update\sto\sthe\slatest\sSQLite\sfor\stesting.\s\sReimplement\s"fossil\ssys\sls"\susing\nthe\snew\ssplit-column\smode\sof\sQRF.
+D 2025-11-25T14:03:32.530
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -276,9 +276,10 @@ F extsrc/pikchr-worker.js f1c029d1f6ccf626373d79fe213bb5039cc8014925c3a6ef0f0d85
 F extsrc/pikchr.c 4b92b8d54ac4d523be034f8da8ffee92d2ecca18690b0b3f54fab4d748155313
 F extsrc/pikchr.js 9db23c4d8b68d86686b903bd4b5e5a7bf8dd97f0b5157377f4ac2bc2448f4859
 F extsrc/pikchr.wasm 5dcce2f7eb59441fd8fcb62a57644b86a04d339cdafb662967ae195885f33d5b
-F extsrc/shell.c 63883c8ad2e0c1ebf7c847e5c87b7591abfa4d0ec438ea30d863653a35735653
-F extsrc/sqlite3.c d7d7661c46706a00a3cf13695f341d9fe99325fbba0f2a34dd64dc61283a65e3
-F extsrc/sqlite3.h bb22d1e6c4a04ca53a0f85de5c61eac4d64045726912e24d8a6d7ca17d12ac72
+F extsrc/qrf.h fe677b8564dd8feaff6d2876a0e06c2e1d8ceaa6f00acd179da92a9e87c2955a
+F extsrc/shell.c ca4323a2e7a5c96f3a665a3b4f76708fbdc0fb25ffa809762d0f9ac14cfe4909
+F extsrc/sqlite3.c eb61d6218294eda1ca1acedb287e27b6bd7812d668d82bc09fe98165c2615ce2
+F extsrc/sqlite3.h 944db5568faac2a167857830a04241907a7765512054f05fb654052467424f47
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -600,7 +601,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 6227a029e003a1c8f26e3687065e9d4a9c238d3f1d42d533cbcb8f642cbfa816
 F src/xfer.c 9b64a30d65f9ec48cb073f009d241d0fb5207ed072245fed75b452a7c1eec819
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/xsystem.c 717b55b7fc3070319a032ef5a23f84f8f669e2649ba6f1c6c0b7934752487414
+F src/xsystem.c 5183bc159d93530230b6635b6edf3e1a707239425bf20e44a2da1af98e6b925b
 F src/zip.c 61fa5a4f5f4318e3fb9ded95949df6dfc9ef3bcf55a706aa0199c72365c70cf0
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -979,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 54272f72a18df02121c5854058944352d93040a5d55905e85c4213636fe20431
-R 00cf7a612eca2b96df082002c8b93839
-U stephan
-Z a946164107fd33e9e0f40e38c6531922
+P 6112d901069b73f3d8c3f260693272a733ed66a7e946c9cc19d832e7269c2cf6
+R 254b8ba896f810b09f2457427c9b6a44
+U drh
+Z 138607a3124f29f6eeb39989cdf0f9a9
 # Remove this line to create a well-formed Fossil manifest.
