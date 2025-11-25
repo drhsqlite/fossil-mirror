@@ -1,5 +1,5 @@
-C Implement\s"fossil\ssys\sstty\ssize"
-D 2025-11-25T15:50:16.251
+C Remove\sthe\stest-terminal-size\scommand\sas\snow\swe\shave\s"sys\sstty\ssize"
+D 2025-11-25T16:15:14.079
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -573,7 +573,7 @@ F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f
 F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c 3bbb805fbc3e6a10a1945f1b9d17ed9d5c69eaa4928341cb33c2d0059ef4bbb1
 F src/tar.c 68f059dece5544f17efb1b5649eda4121817bd8a33f7972d53f9feca546bde4b
-F src/terminal.c f4dafa018410c231529e4549b9494a509420cbc622c1e8c76478561d007bdd76
+F src/terminal.c 4b7d60f12ff0ddb73dc76619254ce2ca29502079cf74762793554401ff9460a8
 F src/th.c 62a84e60d97d56e7a47f6e9029c80b73f2db5d736804846ed40d7c4ab195e60b
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45de97fa3ecb1558270b965455a37dbe53e16389431035a85092324b9069b631
-R c5811a186240d59a3bfaf128cb53ab9e
+P 4dd0affa175ee691f88f9ae2d7fd9baa9c2d915acd3e1080eb72142d4a4aa110
+R 950f2ede7218b6a3fd4bc1b88ae6a83e
 U drh
-Z f19136bd6661ea1a6ed81d55c53ba629
+Z 3be4ca830a6ffc9b01797401c934d7e7
 # Remove this line to create a well-formed Fossil manifest.
