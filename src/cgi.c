@@ -2401,13 +2401,13 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
     }
     if( fossil_strcmp(zFieldName,"content-length:")==0 ){
       if( nCycles==0 ){
-	cgi_setenv("CONTENT_LENGTH", zVal);
+        cgi_setenv("CONTENT_LENGTH", zVal);
       }else{
-	cgi_replace_parameter("CONTENT_LENGTH", zVal);
+        cgi_replace_parameter("CONTENT_LENGTH", zVal);
       }
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
       if( nCycles==0 ){
-	cgi_setenv("CONTENT_TYPE", zVal);
+        cgi_setenv("CONTENT_TYPE", zVal);
       }
     }else if( fossil_strcmp(zFieldName,"host:")==0 ){
       if( nCycles==0 ){
