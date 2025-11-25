@@ -589,17 +589,19 @@ void tag_cmd(void){
     const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
     const char *zType = find_option("type","t",1);
     Blob sql = empty_blob;
+    const char *zTag;
     if( zType==0 || zType[0]==0 ) zType = "*";
     if( g.argc!=4 ){
       usage("find ?--raw? ?-t|--type TYPE? ?-n|--limit #? TAGNAME");
     }
+    zTag = g.argv[3];
     if( fRaw ){
       blob_append_sql(&sql,
         "SELECT blob.uuid FROM tagxref, blob"
         " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
         "   AND tagxref.tagtype>0"
         "   AND blob.rid=tagxref.rid",
-        g.argv[3]
+        zTag
       );
       if( nFindLimit>0 ){
         blob_append_sql(&sql, " LIMIT %d", nFindLimit);
@@ -611,27 +613,23 @@ void tag_cmd(void){
       }
       db_finalize(&q);
     }else{
-      int tagid = db_int(0, "SELECT tagid FROM tag "
-                         "WHERE tagname='%s%q'",
-                         (zType && 'c'==zType[0])
-                         ? "sym-" : ""/*safe-for-%s*/,
-                         g.argv[3]);
-      if( tagid>0 ){
-        blob_append_sql(&sql,
-          "%s"
-          "  AND event.type GLOB '%q'"
-          "  AND blob.rid IN ("
-                    " SELECT rid FROM tagxref"
-                    "  WHERE tagtype>0 AND tagid=%d"
-                    ")"
-          " ORDER BY event.mtime DESC /*sort*/",
-          timeline_query_for_tty(), zType, tagid
-        );
-        db_prepare(&q, "%s", blob_sql_text(&sql));
-        blob_reset(&sql);
-        print_timeline(&q, nFindLimit, 79, 0, 0);
-        db_finalize(&q);
-      }
+      blob_append_sql(&sql,
+        "%s"
+        "  AND event.type GLOB '%q'"
+        "  AND blob.rid IN ("
+                  " SELECT rid FROM tagxref"
+                  "  WHERE tagtype>0 AND tagid IN ("
+                  "    SELECT tagid FROM tag WHERE tagname IN "
+                  "    ('%q','sym-%q','wiki-%q','tkt-%q','event-%q')"
+                  "  )"
+                  ")"
+        " ORDER BY event.mtime DESC /*sort*/",
+        timeline_query_for_tty(), zType, zTag, zTag, zTag, zTag, zTag
+      );
+      db_prepare(&q, "%s", blob_sql_text(&sql));
+      blob_reset(&sql);
+      print_timeline(&q, nFindLimit, 79, 0, 0);
+      db_finalize(&q);
     }
   }else
 
