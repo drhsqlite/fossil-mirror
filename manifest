@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\sSQLite\sfor\stesting.\s\sReimplement\s"fossil\ssys\sls"\susing\nthe\snew\ssplit-column\smode\sof\sQRF.
-D 2025-11-25T14:03:32.530
+C Implement\s"fossil\ssys\sstty\ssize"
+D 2025-11-25T15:50:16.251
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -601,7 +601,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 6227a029e003a1c8f26e3687065e9d4a9c238d3f1d42d533cbcb8f642cbfa816
 F src/xfer.c 9b64a30d65f9ec48cb073f009d241d0fb5207ed072245fed75b452a7c1eec819
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/xsystem.c 5183bc159d93530230b6635b6edf3e1a707239425bf20e44a2da1af98e6b925b
+F src/xsystem.c e59bd697821b1cc8a053d6300d1bc9ce624747ede93f7ff4c64ba96287a47bfd
 F src/zip.c 61fa5a4f5f4318e3fb9ded95949df6dfc9ef3bcf55a706aa0199c72365c70cf0
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6112d901069b73f3d8c3f260693272a733ed66a7e946c9cc19d832e7269c2cf6
-R 254b8ba896f810b09f2457427c9b6a44
+P 45de97fa3ecb1558270b965455a37dbe53e16389431035a85092324b9069b631
+R c5811a186240d59a3bfaf128cb53ab9e
 U drh
-Z 138607a3124f29f6eeb39989cdf0f9a9
+Z f19136bd6661ea1a6ed81d55c53ba629
 # Remove this line to create a well-formed Fossil manifest.

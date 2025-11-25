@@ -49,6 +49,17 @@ void xsystem_pwd(int argc, char **argv){
   fossil_print("%z\n", zPwd);
 }
 
+/* Implement "stty size" */
+void xsystem_stty(int argc, char **argv){
+  TerminalSize ts;
+  if( argc!=2 || strcmp(argv[1],"size")!=0 ){
+    fossil_print("ERROR: only \"stty size\" is supported\n");
+  }else{
+    terminal_get_size(&ts);
+    fossil_print("%d %d\n", ts.nLines, ts.nColumns);
+  }
+}
+
 /* Show where an executable is located on PATH */
 void xsystem_which(int argc, char **argv){
   int ePrint = 1;
@@ -372,6 +383,10 @@ static struct XSysCmd {
   { "pwd", xsystem_pwd,
     "\n"
     "Show the Present Working Directory name\n"
+  },
+  { "stty", xsystem_stty,
+    "\n"
+    "Show the size of the TTY\n"
   },
   { "which", xsystem_which,
     "EXE ...\n"
