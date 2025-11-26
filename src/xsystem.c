@@ -358,10 +358,9 @@ void xsystem_ls(int argc, char **argv){
   int i, rc;
   sqlite3 *db;
   sqlite3_stmt *pStmt = 0;
-  int mFlags = 0;
+  int mFlags = terminal_is_vt100() ? LS_COLOR : 0;
   int nFile = 0;
   int nDir = 0;
-  int bAutoColor = 1;
   int needBlankLine = 0;
   rc = sqlite3_open(":memory:", &db);
   if( rc || db==0 ){
@@ -376,31 +375,19 @@ void xsystem_ls(int argc, char **argv){
   for(i=1; i<argc; i++){
     const char *z = argv[i];
     if( z[0]=='-' ){
-      if( z[1]=='-' ){
-        if( strncmp(z,"--color",7)==0 ){
-          if( z[7]==0 || strcmp(&z[7],"=always")==0 ){
-            mFlags |= LS_COLOR;
-          }else if( strcmp(&z[7],"=never")==0 ){
-            bAutoColor = 0;
-          }
-        }else{
-          fossil_fatal("unknown option: %s", z);
-        }
-      }else{
-        int k;
-        for(k=1; z[k]; k++){
-          switch( z[k] ){
-            case 'a':   mFlags |= LS_ALL;      break;
-            case 'd':   mFlags |= LS_DIRONLY;  break;
-            case 'l':   mFlags |= LS_LONG;     break;
-            case 'm':   mFlags |= LS_COMMA;    break;
-            case 'r':   mFlags |= LS_REVERSE;  break;
-            case 'S':   mFlags |= LS_SIZE;     break;
-            case 't':   mFlags |= LS_MTIME;    break;
-            case 'C':   mFlags |= LS_COLUMNS;  break;
-            default: {
-              fossil_fatal("unknown option: -%c", z[k]);
-            }
+      int k;
+      for(k=1; z[k]; k++){
+        switch( z[k] ){
+          case 'a':   mFlags |= LS_ALL;      break;
+          case 'd':   mFlags |= LS_DIRONLY;  break;
+          case 'l':   mFlags |= LS_LONG;     break;
+          case 'm':   mFlags |= LS_COMMA;    break;
+          case 'r':   mFlags |= LS_REVERSE;  break;
+          case 'S':   mFlags |= LS_SIZE;     break;
+          case 't':   mFlags |= LS_MTIME;    break;
+          case 'C':   mFlags |= LS_COLUMNS;  break;
+          default: {
+            fossil_fatal("unknown option: -%c", z[k]);
           }
         }
       }
@@ -414,7 +401,6 @@ void xsystem_ls(int argc, char **argv){
     }
   }
   if( fossil_isatty(1) ){
-    if( bAutoColor ) mFlags |= LS_COLOR;
     mFlags |= LS_COLUMNS;
   }
   if( nFile>0 ){

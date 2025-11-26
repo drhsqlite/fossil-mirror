@@ -1,5 +1,5 @@
-C Sync\swith\strunk.
-D 2025-11-26T14:12:00.000
+C Change\sthe\s`fossil\ssystem\sls'\scommand\sto\swork\swith\sthe\sglobal\s`--color'\soption.\sLike\sthis,\scolored\soutput\son\sWindows\sfor\s`--color=auto'\s(the\sdefault\sif\sthe\soption\sis\somitted)\sis\sonly\senabled\sif\sthe\sterminal\ssupports\sVT100\sescape\scodes.\sAdditionally,\sthe\s`NO_COLOR'\senvironment\svariable\sallows\sturning\soff\sall\scolored\soutput.
+D 2025-11-26T14:16:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -601,7 +601,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 6227a029e003a1c8f26e3687065e9d4a9c238d3f1d42d533cbcb8f642cbfa816
 F src/xfer.c 9b64a30d65f9ec48cb073f009d241d0fb5207ed072245fed75b452a7c1eec819
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/xsystem.c 9348cd45b13e468de0d49329c2c8c37c34e109f9a6169375c8114076ffbbb5f4
+F src/xsystem.c bd1826bd9929cee2f6f5da280f73c26f76990f24bf0cfb71fe9ca607bbc6c320
 F src/zip.c 61fa5a4f5f4318e3fb9ded95949df6dfc9ef3bcf55a706aa0199c72365c70cf0
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -647,7 +647,7 @@ F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
 F test/set-manifest.test 3f1484cb26e6bb85cf8e18b1c2d538b88a24ac338b565de60157d7494bda945b
 F test/settings-repo.test 26de9519938c46bcfbe263a55bbef7e0921b28ac53bcb14dde0b7f18f08fd41f
-F test/settings.test.off c2a59ad1b2d0fdd61ec9accd84d1f58fb1bf78577e47cec6d79d865655b8cbf3 w test/settings.test
+F test/settings.test.off c2a59ad1b2d0fdd61ec9accd84d1f58fb1bf78577e47cec6d79d865655b8cbf3
 F test/stash.test cc97b53b3e9460505091cf591dc68392a2a379831181914069353488219b6131
 F test/subdir\swith\sspaces/filename\swith\sspaces.txt 4c1f053a9aa422cde7f33113511a70ca3a9f77ddebff4458fbf776752fc3a006
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c321b7e49075072da260150e55d24f5d5066971fcadceccc726c82952b179a34 f0a30252d6940c1cb20c12795359b57636334654078596d01c0b07aecc67c947
-R b67f7ac2cdbb5ab8d2cc5e9015ae758d
+P b81b4c6c3c099ad9afb04d75f3769c0fdd9665014afe2592bafd965d85568d61
+R ccbc737ad4c08a2581f3f32d27698815
 U florian
-Z 410924ebf9c25e820bab37261ef1928e
+Z 1a451c22c6113e39ed02324834dec7db
 # Remove this line to create a well-formed Fossil manifest.
