@@ -835,7 +835,7 @@ void test_ci_mini_cmd(void){
     if(g.localOpen/*check-out*/){
       zRevision = db_lget("checkout-hash", 0)/*leak*/;
     }else{
-      zRevision = "trunk";
+      zRevision = db_main_branch();
     }
   }
   name_to_uuid2(zRevision, "ci", &cimi.zParentUuid);

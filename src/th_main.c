@@ -2147,7 +2147,7 @@ static int regexpCmd(
   if( nArg+2!=argc ){
     return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
   }
-  zErr = re_compile(&pRe, argv[nArg], noCase);
+  zErr = fossil_re_compile(&pRe, argv[nArg], noCase);
   if( !zErr ){
     Th_SetResultInt(interp, re_match(pRe,
         (const unsigned char *)argv[nArg+1], TH1_LEN(argl[nArg+1])));
@@ -2204,7 +2204,7 @@ static int httpCmd(
   }
   zRegexp = db_get("th1-uri-regexp", 0);
   if( zRegexp && zRegexp[0] ){
-    const char *zErr = re_compile(&pRe, zRegexp, 0);
+    const char *zErr = fossil_re_compile(&pRe, zRegexp, 0);
     if( zErr ){
       Th_SetResult(interp, zErr, -1);
       return TH_ERROR;

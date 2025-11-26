@@ -522,16 +522,16 @@ void mimetype_list_page(void){
                             ** setting */
   mimetype_verify();
   style_header("Mimetype List");
-  @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
+  @ <p>The Fossil <a href="%R/help/www/doc">/doc</a> page uses filename
   @ suffixes and the following tables to guess at the appropriate mimetype
   @ for each document. Mimetypes may be customized and overridden using
-  @ <a href="%R/help?cmd=mimetypes">the mimetypes config setting</a>.</p>
+  @ <a href="%R/help/mimetypes">the mimetypes config setting</a>.</p>
   zCustomList = db_get("mimetypes",0);
   if( zCustomList!=0 ){
     Blob list, entry, key, val;
     @ <h1>Repository-specific mimetypes</h1>
     @ <p>The following extension-to-mimetype mappings are defined via
-    @ the <a href="%R/help?cmd=mimetypes">mimetypes setting</a>.</p>
+    @ the <a href="%R/help/mimetypes">mimetypes setting</a>.</p>
     @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
     @ data-column-types='tt' data-init-sort='0'>
     @ <thead>

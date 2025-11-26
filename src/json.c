@@ -80,7 +80,7 @@ int json_request_is_json_api(const char * zPathInfo){
     ** https://fossil-scm.org/forum/forumpost/e4953666d6
     */
     ReCompiled * pReg = 0;
-    const char * zErr = re_compile(&pReg, "^/[^/]+/json(/.*)?", 0);
+    const char * zErr = fossil_re_compile(&pReg, "^/[^/]+/json(/.*)?", 0);
     assert(zErr==0 && "Regex compilation failed?");
     if(zErr==0 &&
          re_match(pReg, (const unsigned char *)zPathInfo, -1)){

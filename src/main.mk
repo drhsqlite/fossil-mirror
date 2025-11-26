@@ -164,6 +164,7 @@ SRC = \
   $(SRCDIR)/winhttp.c \
   $(SRCDIR)/xfer.c \
   $(SRCDIR)/xfersetup.c \
+  $(SRCDIR)/xsystem.c \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
@@ -239,6 +240,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
   $(SRCDIR)/fossil.page.pikchrshowasm.js \
+  $(SRCDIR)/fossil.page.ticket.js \
   $(SRCDIR)/fossil.page.whistory.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
   $(SRCDIR)/fossil.pikchr.js \
@@ -431,6 +433,7 @@ TRANS_SRC = \
   $(OBJDIR)/winhttp_.c \
   $(OBJDIR)/xfer_.c \
   $(OBJDIR)/xfersetup_.c \
+  $(OBJDIR)/xsystem_.c \
   $(OBJDIR)/zip_.c
 
 OBJ = \
@@ -582,6 +585,7 @@ OBJ = \
  $(OBJDIR)/winhttp.o \
  $(OBJDIR)/xfer.o \
  $(OBJDIR)/xfersetup.o \
+ $(OBJDIR)/xsystem.o \
  $(OBJDIR)/zip.o
 all:	$(APPNAME)
 
@@ -926,6 +930,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h \
 	$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
 	$(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h \
+	$(OBJDIR)/xsystem_.c:$(OBJDIR)/xsystem.h \
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
 	$(SRCDIR_extsrc)/pikchr.c:$(OBJDIR)/pikchr.h \
 	$(SRCDIR_extsrc)/sqlite3.h \
@@ -2118,6 +2123,14 @@ $(OBJDIR)/xfersetup.o:	$(OBJDIR)/xfersetup_.c $(OBJDIR)/xfersetup.h $(SRCDIR)/co
 	$(XTCC) -o $(OBJDIR)/xfersetup.o -c $(OBJDIR)/xfersetup_.c
 
 $(OBJDIR)/xfersetup.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/xsystem_.c:	$(SRCDIR)/xsystem.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/xsystem.c >$@
+
+$(OBJDIR)/xsystem.o:	$(OBJDIR)/xsystem_.c $(OBJDIR)/xsystem.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/xsystem.o -c $(OBJDIR)/xsystem_.c
+
+$(OBJDIR)/xsystem.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/zip_.c:	$(SRCDIR)/zip.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/zip.c >$@

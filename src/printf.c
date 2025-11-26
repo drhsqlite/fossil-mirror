@@ -254,7 +254,7 @@ static int StrNLen32(const char *z, int N){
 ** SETTING: timeline-hard-newlines     boolean default=off
 **
 ** If enabled, the timeline honors newline characters in check-in comments.
-** In other words, newlines are coverted into <br> for HTML display.
+** In other words, newlines are converted into <br> for HTML display.
 ** The default behavior, when this setting is off, is that newlines are
 ** treated like any other whitespace character.
 */

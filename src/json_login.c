@@ -108,7 +108,7 @@ cson_value * json_page_login(void){
     if(jseed){
       if( cson_value_is_number(jseed) ){
         sqlite3_snprintf((int)SeedBufLen, seedBuffer, "%"CSON_INT_T_PFMT,
-			 cson_value_get_integer(jseed));
+                         cson_value_get_integer(jseed));
         anonSeed = seedBuffer;
       }else if( cson_value_is_string(jseed) ){
         anonSeed = cson_string_cstr(cson_value_get_string(jseed));

@@ -21,6 +21,7 @@
 #include "config.h"
 #include "checkout.h"
 #include <assert.h>
+#include <zlib.h>
 
 /*
 ** Check to see if there is an existing check-out that has been
@@ -430,4 +431,228 @@ void close_cmd(void){
   unlink_local_database(1);
   db_close(1);
   unlink_local_database(0);
+}
+
+
+/*
+** COMMAND: get
+**
+** Usage: %fossil get URL ?VERSION? ?OPTIONS?
+**
+** Download a single check-in from a remote repository named URL and
+** unpack all of the files locally. The check-in is identified by VERSION.
+**
+** URL can be a traditional URL like one of:
+**
+**    *   https://domain.com/project
+**    *   ssh://my-server/project.fossil
+**    *   file:/home/user/Fossils/project.fossil
+**
+** Or URL can be just the name of a local repository without the "file:"
+** prefix.
+**
+** This command works by downloading an SQL archive of the requested
+** check-in and then extracting all the files from the archive.
+**
+** Options:
+**   --dest DIRECTORY         Extract files into DIRECTORY.  Use "--dest ."
+**                            to extract into the local directory.
+**
+**   -f|--force               Overwrite existing files
+**
+**   --list                   List all the files that would have been checked
+**                            out but do not actually write anything to the
+**                            filesystem.
+**
+**   --sqlar ARCHIVE          Store the check-out in an SQL-archive rather
+**                            than unpacking them into separate files.
+**
+**   -v|--verbose             Show all files as they are extracted
+*/
+void get_cmd(void){
+  int forceFlag = find_option("force","f",0)!=0;
+  int bVerbose = find_option("verbose","v",0)!=0;
+  int bQuiet = find_option("quiet","q",0)!=0;
+  int bDebug = find_option("debug",0,0)!=0;
+  int bList = find_option("list",0,0)!=0;
+  const char *zSqlArchive = find_option("sqlar",0,1);
+  const char *z;
+  char *zDest = 0;        /* Where to store results */
+  char *zSql;             /* SQL used to query the results */
+  const char *zUrl;       /* Url to get */
+  const char *zVers;      /* Version name to get */
+  unsigned int mHttpFlags = HTTP_GENERIC|HTTP_NOCOMPRESS;
+  Blob in, out;           /* I/O for the HTTP request */
+  Blob file;              /* A file to extract */
+  sqlite3 *db;            /* Database containing downloaded sqlar */
+  sqlite3_stmt *pStmt;    /* Statement for querying the database */
+  int rc;                 /* Result of subroutine calls */
+  int nFile = 0;          /* Number of files written */
+  int nDir = 0;           /* Number of directories written */
+  i64 nByte = 0;          /* Number of bytes written */
+
+  z = find_option("dest",0,1);
+  if( z ) zDest = fossil_strdup(z);
+  verify_all_options();
+  if( g.argc<3 || g.argc>4 ){
+    usage("URL ?VERSION? ?OPTIONS?");
+  }
+  zUrl = g.argv[2];
+  zVers = g.argc==4 ? g.argv[3] : db_main_branch();
+
+  /* Parse the URL of the repository */
+  url_parse(zUrl, 0);
+
+  /* Construct an appropriate name for the destination directory */
+  if( zDest==0 ){
+    int i;
+    const char *zTail;
+    const char *zDot;
+    int n;
+    if( g.url.isFile ){
+      zTail = file_tail(g.url.name);
+    }else{
+      zTail = file_tail(g.url.path);
+    }
+    zDot = strchr(zTail,'.');
+    if( zDot==0 ) zDot = zTail+strlen(zTail);
+    n = (int)(zDot - zTail);
+    zDest = mprintf("%.*s-%s", n, zTail, zVers);
+    for(i=0; zDest[i]; i++){
+      char c = zDest[i];
+      if( !fossil_isalnum(c) && c!='-' && c!='^' && c!='~' && c!='_' ){
+        zDest[i] = '-';
+      }
+    }
+  }
+  if( bDebug ){
+    fossil_print("dest            = %s\n", zDest);
+  }
+
+  /* Error checking */
+  if( zDest!=file_tail(zDest) ){
+    fossil_fatal("--dest must be a simple directory name, not a path");
+  }
+  if( zVers!=file_tail(zVers) ){
+    fossil_fatal("The \"fossil get\" command does not currently work with"
+                 " version names that contain \"/\". This will be fixed in"
+                 " a future release.");
+  }
+  /* To relax the restrictions above, change the subpath URL formula below
+  ** to use query parameters.  Ex:  /sqlar?r=%t&name=%t */
+
+  if( !forceFlag ){
+    if( zSqlArchive ){
+      if( file_isdir(zSqlArchive, ExtFILE)>0 ){
+        fossil_fatal("file already exists: \"%s\"", zSqlArchive);
+      }
+    }else if( file_isdir(zDest, ExtFILE)>0 ){
+      if( fossil_strcmp(zDest,".")==0 ){
+        if( file_directory_list(zDest,0,1,1,0) ){
+          fossil_fatal("current directory is not empty");
+        }
+      }else{
+        fossil_fatal("\"%s\" already exists", zDest);
+      }
+    }
+  }
+
+  /* Construct a subpath on the URL if necessary */
+  if( g.url.isFile ){
+    g.url.subpath = mprintf("/sqlar/%t/%t.sqlar", zVers, zDest);
+  }else{
+    g.url.subpath = mprintf("%s/sqlar/%t/%t.sqlar", g.url.path, zVers, zDest);
+  }
+
+  if( bDebug ){
+    urlparse_print(0);
+  }
+
+  /* Fetch the ZIP archive for the requested check-in */
+  blob_init(&in, 0, 0);
+  blob_init(&out, 0, 0);
+  if( bDebug ) mHttpFlags |= HTTP_VERBOSE;
+  if( bQuiet ) mHttpFlags |= HTTP_QUIET;
+  rc = http_exchange(&in, &out, mHttpFlags, 4, 0);
+  if( rc 
+   || out.nUsed<512
+   || (out.nUsed%512)!=0
+   || memcmp(out.aData,"SQLite format 3",16)!=0
+  ){
+    fossil_fatal("Server did not return the requested check-in.");
+  }
+
+  if( zSqlArchive ){
+    blob_write_to_file(&out, zSqlArchive);
+    if( bVerbose ) fossil_print("%s\n", zSqlArchive);
+    return;
+  }
+
+  rc = sqlite3_open(":memory:", &db);
+  if( rc==SQLITE_OK ){
+    int sz = blob_size(&out);
+    rc = sqlite3_deserialize(db, 0, (unsigned char*)blob_buffer(&out), sz, sz,
+                             SQLITE_DESERIALIZE_READONLY);
+  }
+  if( rc!=SQLITE_OK ){
+    fossil_fatal("Cannot create an in-memory database: %s",
+                 sqlite3_errmsg(db));
+  }
+  zSql = mprintf("SELECT name, mode, sz, data FROM sqlar"
+                 " WHERE name GLOB '%q*'", zDest);
+  rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
+  fossil_free(zSql);
+  if( rc!=0 ){
+    fossil_fatal("SQL error: %s\n", sqlite3_errmsg(db));
+  }
+  blob_init(&file, 0, 0);
+  while( sqlite3_step(pStmt)==SQLITE_ROW ){
+    const char *zFilename = (const char*)sqlite3_column_text(pStmt, 0);
+    int mode = sqlite3_column_int(pStmt, 1);
+    int sz = sqlite3_column_int(pStmt, 2);
+    if( bList ){
+      fossil_print("%s\n", zFilename);
+    }else  if( mode & 0x4000 ){
+      /* A directory name */
+      nDir++;
+      file_mkdir(zFilename, ExtFILE, 1);
+    }else{
+      /* A file */
+      unsigned char *inBuf = (unsigned char*)sqlite3_column_blob(pStmt,3);
+      unsigned int nIn = (unsigned int)sqlite3_column_bytes(pStmt,3);
+      unsigned long int nOut2 = (unsigned long int)sz;
+      nFile++;
+      nByte += sz;
+      blob_resize(&file, sz);
+      if( nIn<sz ){
+        rc = uncompress((unsigned char*)blob_buffer(&file), &nOut2,
+                        inBuf, nIn);
+        if( rc!=Z_OK ){
+          fossil_fatal("Failed to uncompress file %s", zFilename);
+        }
+      }else{
+        memcpy(blob_buffer(&file), inBuf, sz);
+      }
+      blob_write_to_file(&file, zFilename);
+      if( mode & 0x40 ){
+        file_setexe(zFilename, 1);
+      }
+      blob_zero(&file);
+      if( bVerbose ){
+        fossil_print("%s\n", zFilename);
+      }
+    }
+  }
+  sqlite3_finalize(pStmt);
+  sqlite3_close(db);
+  blob_zero(&out);
+  if( !bVerbose && !bQuiet && nFile>0 && zDest ){
+    fossil_print("%d files (%,lld bytes) written into %s",
+                 nFile, nByte, zDest);
+    if( nDir>1 ){
+      fossil_print(" and %d subdirectories\n", nDir-1);
+    }else{
+      fossil_print("\n");
+    }
+  }
 }

@@ -22,6 +22,18 @@
 #include <assert.h>
 
 /*
+** Return the name of the main branch.  Cache the result.
+**
+** This is the current value of the "main-branch" setting, or its default
+** value (historically, and as of 2025-10-28: "trunk") if not set.
+*/
+const char *db_main_branch(void){
+  static char *zMainBranch = 0;
+  if( zMainBranch==0 ) zMainBranch = db_get("main-branch", 0);
+  return zMainBranch;
+}
+
+/*
 ** Return true if zBr is the branch name associated with check-in with
 ** blob.uuid value of zUuid
 */
@@ -55,9 +67,7 @@ char *branch_of_rid(int rid){
   }
   db_reset(&q);
   if( zBr==0 ){
-    static char *zMain = 0;
-    if( zMain==0 ) zMain = db_get("main-branch",0);
-    zBr = fossil_strdup(zMain);
+    zBr = fossil_strdup(db_main_branch());
   }
   return zBr;
 }
@@ -839,13 +849,16 @@ static void new_brlist_page(void){
   Stmt q;
   double rNow;
   int show_colors = PB("colors");
+  const char *zMainBranch;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_set_current_feature("branch");
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_checkbox("colors", "Use Branch Colors", 0, 0);
+
   login_anonymous_available();
+  zMainBranch = db_main_branch();
 
   brlist_create_temp_table();
   db_prepare(&q, "SELECT * FROM tmp_brlist ORDER BY mtime DESC");
@@ -874,7 +887,7 @@ static void new_brlist_page(void){
     if( zMergeTo && zMergeTo[0]==0 ) zMergeTo = 0;
     if( zBgClr ) zBgClr = reasonable_bg_color(zBgClr, 0);
     if( zBgClr==0 ){
-      if( zBranch==0 || strcmp(zBranch,"trunk")==0 ){
+      if( zBranch==0 || strcmp(zBranch, zMainBranch)==0 ){
         zBgClr = 0;
       }else{
         zBgClr = hash_color(zBranch);
@@ -1021,36 +1034,43 @@ void brlist_page(void){
 ** the timeline of a "brlist" page.  Add some additional hyperlinks
 ** to the end of the line.
 */
-static void brtimeline_extra(int rid){
-  Stmt q;
-  if( !g.perm.Hyperlink ) return;
-  db_prepare(&q,
-    "SELECT substr(tagname,5) FROM tagxref, tag"
-    " WHERE tagxref.rid=%d"
-    "   AND tagxref.tagid=tag.tagid"
-    "   AND tagxref.tagtype>0"
-    "   AND tag.tagname GLOB 'sym-*'",
-    rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zTagName = db_column_text(&q, 0);
-    @  %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
+static void brtimeline_extra(
+  Stmt *pQuery,               /* Current row of the timeline query */
+  int tmFlags,                /* Flags to www_print_timeline() */
+  const char *zThisUser,      /* Suppress links to this user */
+  const char *zThisTag        /* Suppress links to this tag */
+){
+  int rid;
+  int tmFlagsNew;
+  char *zBrName;
+
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
+    tmFlagsNew = (tmFlags & ~TIMELINE_VIEWS) | TIMELINE_MODERN;
+    cgi_printf("(");
+  }else{
+    tmFlagsNew = tmFlags;
   }
-  db_finalize(&q);
+  timeline_extra(pQuery,tmFlagsNew,zThisUser,zThisTag);
+
+  if( !g.perm.Hyperlink ) return;
+  rid = db_column_int(pQuery,0);
+  zBrName = branch_of_rid(rid);
+  @  branch:&nbsp;<span class='timelineHash'>\
+  @ %z(href("%R/timeline?r=%T",zBrName))%h(zBrName)</a></span>
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
+    cgi_printf(")");
+  }
 }
 
 /*
 ** WEBPAGE: brtimeline
 **
-** Show a timeline of all branches
+** List the first check of every branch, starting with the most recent
+** and going backwards in time.
 **
 ** Query parameters:
 **
-**     ng            No graph
-**     nohidden      Hide check-ins with "hidden" tag
-**     onlyhidden    Show only check-ins with "hidden" tag
-**     brbg          Background color by branch name
-**     ubg           Background color by user name
+**    ubg            Color the graph by user, not by branch.
 */
 void brtimeline_page(void){
   Blob sql = empty_blob;
@@ -1061,10 +1081,11 @@ void brtimeline_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  if( robot_restrict("timelineX") ) return;
 
   style_set_current_feature("branch");
   style_header("Branches");
-  style_submenu_element("List", "brlist");
+  style_submenu_element("Branch List", "brlist");
   login_anonymous_available();
   timeline_ss_submenu();
   cgi_check_for_malice();
@@ -1085,10 +1106,56 @@ void brtimeline_page(void){
   /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
   ** many descenders to (off-screen) parents. */
   tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
-  if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
-  if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
-  if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+  if( PB("ubg")!=0 ){
+    tmFlags |= TIMELINE_UCOLOR;
+  }else{
+    tmFlags |= TIMELINE_BRCOLOR;
+  }
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_finish_page();
+}
+
+/*
+** Generate a multichoice submenu for the few recent active branches. zName is
+** the query parameter used to select the current checkin. zCI is optional and
+** represent the currently selected checkin, so if it is a checkin hash
+** instead of a branch, it can be part of the multichoice menu.
+*/
+void generate_branch_submenu_multichoice(
+    const char* zName,    /* Query parameter name */
+    const char* zCI       /* Current checkin */
+){
+  Stmt q;
+  const int brFlags = BRL_ORDERBY_MTIME | BRL_OPEN_ONLY;
+  static const char *zBranchMenuList[32*2]; /* 2 per entries */
+  const int nLimit = count(zBranchMenuList)/2;
+  int i = 0;
+
+  if( zName == 0 ) zName = "ci";
+
+  branch_prepare_list_query(&q, brFlags, 0, nLimit, 0);
+  zBranchMenuList[i++] = "";
+  zBranchMenuList[i++] = "All Checkins";
+
+  if( zCI ){
+    zCI = fossil_strdup(zCI);
+    zBranchMenuList[i++] = zCI;
+    zBranchMenuList[i++] = zCI;
+  }
+  /* If current checkin is not "tip", add it to the list */
+  if( zCI==0 || strcmp(zCI, "tip") ){
+    zBranchMenuList[i++] = "tip";
+    zBranchMenuList[i++] = "tip";
+  }
+  while( i/2 < nLimit && db_step(&q)==SQLITE_ROW ){
+    const char* zBr = fossil_strdup(db_column_text(&q, 0));
+    /* zCI is already in the list, don't add it twice */
+    if( zCI==0 || strcmp(zBr, zCI) ){
+      zBranchMenuList[i++] = zBr;
+      zBranchMenuList[i++] = zBr;
+    }
+  }
+  db_finalize(&q);
+  style_submenu_multichoice(zName, i/2, zBranchMenuList, 0);
 }

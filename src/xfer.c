@@ -1335,7 +1335,6 @@ void page_xfer(void){
   }
   if( g.syncInfo.zLoginCard ){
     /* Login card received via HTTP Cookie header */
-    assert( g.syncInfo.fLoginCardMode && "Set via HTTP cookie" );
     blob_zero(&xfer.line);
     blob_append(&xfer.line, g.syncInfo.zLoginCard, -1);
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken,

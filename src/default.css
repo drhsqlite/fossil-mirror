@@ -59,6 +59,9 @@ tr.timelineCurrent td {
 span.timelineLeaf {
   font-weight: bold;
 }
+span.timelineHash {
+  font-weight: bold;
+}
 span.timelineHistDsp {
   font-weight: bold;
 }
@@ -753,6 +756,18 @@ body.tkt div.content ol.tkt-changes > li:target > p > span {
 }
 body.tkt div.content ol.tkt-changes > li:target > ol {
   border-left: 1px solid gold;
+}
+body.tkt .tktCommentArea {
+  display: flex;
+  flex-direction: column;
+}
+body.tkt .newest-first-controls {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+body.tkt .tktCommentArea.reverse {
+  flex-direction: column-reverse;
 }
 body.cpage-ckout .file-change-line,
 body.cpage-info .file-change-line,
@@ -1793,12 +1808,12 @@ div.pikchr-wrapper.indent.source.source-inline{
 div.pikchr-wrapper.float-left:not(.source),
 div.pikchr-wrapper.float-left.source.source-inline {
   float: left;
-  padding: 4em;
+  padding: 1em 2em;
 }
 div.pikchr-wrapper.float-right:not(.source),
 div.pikchr-wrapper.float-right.source.source-inline{
   float: right;
-  padding: 4em;
+  padding: 1em 2em;
 }
 
 /* For pikchr-wrapper.source mode, toggle pre.pikchr-src and

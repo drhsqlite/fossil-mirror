@@ -97,9 +97,10 @@ cc-check-progs tclsh
 set hbtd /usr/local/Cellar/tcl-tk
 if {[string equal false [get-define TCLSH]]} {
   msg-result "WARNING: 'make test' will not run here."
+  set v 8.6
 } else {
   set v [exec sh -c "echo 'puts \$tcl_version' | tclsh"]
-  if {[expr {$v >= 8.6}]} {
+  if {$v >= 8.6} {
     msg-result "Found Tclsh version $v in the PATH."
     define TCLSH tclsh
   } elseif {[file isdirectory $hbtd]} {
@@ -628,6 +629,7 @@ define-append CFLAGS_INCLUDE {-I. -I$(SRCDIR) -I$(SRCDIR_extsrc)}; # must be aft
 # Handle the --with-tcl flag.
 #
 proc handle-with-tcl {} {
+  global v
   set tclpath [opt-val with-tcl]
   if {$tclpath eq ""} {
     return
@@ -635,7 +637,11 @@ proc handle-with-tcl {} {
   set tclprivatestubs [opt-bool with-tcl-private-stubs]
   # Note parse-tclconfig-sh is in autosetup/local.tcl
   if {$tclpath eq "1"} {
-    set tcldir [file dirname $::autosetup(dir)]/compat/tcl-8.6
+    if {$v >= 9.0} {
+      set tcldir [file dirname $::autosetup(dir)]/compat/tcl-9.0
+    } else {
+      set tcldir [file dirname $::autosetup(dir)]/compat/tcl-8.6
+    }
     if {$tclprivatestubs} {
       set tclconfig(TCL_INCLUDE_SPEC) -I$tcldir/generic
       set tclconfig(TCL_VERSION) {Private Stubs}

@@ -130,6 +130,9 @@ struct TclContext {
   char **argv;           /* Full copy of the original (expanded) arguments. */
   void *hLibrary;        /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
+#if TCL_MAJOR_VERSION>=9
+  void *xZipfsAppHook;   /* See TclZipfsAppHookProc in th_tcl.c. */
+#endif
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
   void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
   void *xFinalize;       /* See tcl_FinalizeProc in th_tcl.c. */
@@ -902,7 +905,7 @@ int fossil_main(int argc, char **argv){
 #if USE_SEE
     db_maybe_handle_saved_encryption_key_for_process(SEE_KEY_READ);
 #endif
-    if( find_option("help",0,0)!=0 ){
+    if( find_option("help","?",0)!=0 ){
       /* If --help is found anywhere on the command line, translate the command
        * to "fossil help cmdname" where "cmdname" is the first argument that
        * does not begin with a "-" character.  If all arguments start with "-",
@@ -2491,7 +2494,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             an unconditional redirect to URL is taken.
 **                             When "*" is used a 301 permanent redirect is
 **                             issued and the tail and query string from the
-**                             original query are appeneded onto URL.
+**                             original query are appended onto URL.
 **
 **    jsmode: VALUE            Specifies the delivery mode for JavaScript
 **                             files. See the help text for the --jsmode
@@ -3152,6 +3155,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** Options:
 **   --csrf-safe N       Set cgi_csrf_safe() to to return N
 **   --nobody            Pretend to be user "nobody"
+**   --ssh-sim           Pretend to be over an SSH connection
 **   --test              Do not do special "sync" processing when operating
 **                       over an SSH link
 **   --th-trace          Trace TH1 execution (for debugging purposes)
@@ -3163,6 +3167,9 @@ void cmd_test_http(void){
   int bTest = 0;
   const char *zCsrfSafe = find_option("csrf-safe",0,1);
 
+  if( find_option("ssh-sim",0,0)!=0 ){
+    putenv("SSH_CONNECTION=127.0.0.1 12345 127.0.0.2 23456");
+  }
   Th_InitTraceLog();
   if( zCsrfSafe ) g.okCsrf = atoi(zCsrfSafe);
   zUserCap = find_option("usercap",0,1);

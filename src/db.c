@@ -1230,8 +1230,8 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 /*
 ** Execute a query.  Return the first column of the first row
 ** of the result set as a string.  Space to hold the string is
-** obtained from malloc().  If the result set is empty, return
-** zDefault instead.
+** obtained from fossil_strdup() and should be freed using fossil_free().
+** If the result set is empty, return a copy of zDefault instead.
 */
 char *db_text(const char *zDefault, const char *zSql, ...){
   va_list ap;
@@ -3601,12 +3601,12 @@ char *db_reveal(const char *zKey){
 ** Return true if the string zVal represents "true" (or "false").
 */
 int is_truth(const char *zVal){
-  static const char *const azOn[] = { "on", "yes", "true", "1" };
+  static const char *const azOn[] = { "on", "yes", "true" };
   int i;
   for(i=0; i<count(azOn); i++){
     if( fossil_stricmp(zVal,azOn[i])==0 ) return 1;
   }
-  return 0;
+  return atoi(zVal);
 }
 int is_false(const char *zVal){
   static const char *const azOff[] = { "off", "no", "false", "0" };
@@ -4262,6 +4262,9 @@ void db_record_repository_filename(const char *zName){
 **                     operation, otherwise it has no effect
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
 **                     directory is created if it does not exist.
+**   --reopen REPOFILE Changes the repository file used by the current checkout
+**                     to REPOFILE. Use this after moving a checkout's
+**                     repository. This may lose stash and bisect history.
 **
 ** See also: [[close]], [[clone]]
 */
@@ -4276,10 +4279,19 @@ void cmd_open(void){
   const char *zWorkDir;          /* --workdir value */
   const char *zRepo = 0;         /* Name of the repository file */
   const char *zRepoDir = 0;      /* --repodir value */
+  const char *zReopen = 0;       /* --reopen REPOFILE */
   char *zPwd;                    /* Initial working directory */
   int isUri = 0;                 /* True if REPOSITORY is a URI */
   int nLocal;                    /* Number of preexisting files in cwd */
   int bVerbose = 0;              /* --verbose option for clone */
+
+  zReopen = find_option("reopen",0,1);
+  if( 0!=zReopen ){
+    g.argc = 3;
+    g.argv[2] = (char*)zReopen;
+    move_repo_cmd();
+    return;
+  }
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -4329,7 +4341,7 @@ void cmd_open(void){
   }
   if( keepFlag==0
    && bForce==0
-   && (nLocal = file_directory_size(".", 0, 1))>0
+   && (nLocal = file_directory_list(".", 0, 1, 2, 0))>0
    && (nLocal>1 || isUri || !file_in_cwd(zRepo))
   ){
     fossil_fatal("directory %s is not empty\n"
@@ -4393,7 +4405,7 @@ void cmd_open(void){
     if( g.argc==4 ){
       g.zOpenRevision = g.argv[3];
     }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-      g.zOpenRevision = db_get("main-branch", 0);
+      g.zOpenRevision = fossil_strdup(db_main_branch());
     }
     if( autosync_loop(SYNC_PULL, !bForce, "open") && !bForce ){
       fossil_fatal("unable to auto-sync the repository");

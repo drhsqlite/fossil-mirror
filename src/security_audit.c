@@ -371,7 +371,7 @@ void secaudit0_page(void){
    && fossil_strcmp(zVulnReport,"fatal")!=0
   ){
     @ <li><p><b>WARNING:</b>
-    @ The <a href="%R/help?cmd=vuln-report">vuln-report setting</a>
+    @ The <a href="%R/help/vuln-report">vuln-report setting</a>
     @ has a value of "%h(zVulnReport)". This disables defenses against
     @ XSS or SQL-injection vulnerabilities caused by coding errors in
     @ custom TH1 scripts.  For the best security, change
@@ -679,7 +679,13 @@ void secaudit0_page(void){
   fossil_free(azCSP);
 
   if( alert_enabled() ){
+    char * zListId = db_get("email-listid", 0);
     @ <li><p> Email alert configuration summary:
+    if( !zListId || !zListId[0] ){
+      @ <br><strong>WARNING:</strong> <code>email-listid</code> is not set,
+      @ so notifications will not include unsubscribe links.
+    }
+    fossil_free(zListId);
     @ <table class="label-value">
     stats_for_email();
     @ </table>

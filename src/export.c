@@ -493,6 +493,7 @@ void export_cmd(void){
   unsigned int unused_mark = 1;
   const char *markfile_in;
   const char *markfile_out;
+  const char *zMainBranch = db_main_branch();
 
   bag_init(&blobs);
   bag_init(&vers);
@@ -502,7 +503,7 @@ void export_cmd(void){
   markfile_out = find_option("export-marks", 0, 1);
 
   if( !(gexport.zTrunkName = find_option("rename-trunk", 0, 1)) ){
-    gexport.zTrunkName = "trunk";
+    gexport.zTrunkName = fossil_strdup(zMainBranch);
   }
 
   db_find_and_open_repository(0, 2);
@@ -631,7 +632,7 @@ void export_cmd(void){
     db_bind_int(&q2, ":rid", ckinId);
     db_step(&q2);
     db_reset(&q2);
-    if( zBranch==0 || fossil_strcmp(zBranch, "trunk")==0 ){
+    if( zBranch==0 || fossil_strcmp(zBranch, zMainBranch)==0 ){
       zBranch = gexport.zTrunkName;
     }
     zMark = mark_name_from_rid(ckinId, &unused_mark);
@@ -859,8 +860,8 @@ void test_topological_sort(void){
 #define VERB_EXTRA  3
 static int gitmirror_verbosity = VERB_NORMAL;
 
-/* The main branch in the Git repository.  The "trunk" branch of
-** Fossil is renamed to be this branch name.
+/* The main branch in the Git repository.  The main branch of the
+** Fossil repository (usually "trunk") is renamed to be this branch name.
 */
 static const char *gitmirror_mainbranch = 0;
 
@@ -1092,6 +1093,7 @@ static int gitmirror_send_checkin(
   char *zEmail;         /* Contact info for Git committer field */
   int fManifest;        /* Should the manifest files be included? */
   int fPManifest = 0;   /* OR of the manifest files for all parents */
+  const char *zMainBranch;
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
@@ -1151,7 +1153,8 @@ static int gitmirror_send_checkin(
     "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=%d",
     TAG_BRANCH, rid
   );
-  if( fossil_strcmp(zBranch,"trunk")==0 ){
+  zMainBranch = db_main_branch();
+  if( fossil_strcmp(zBranch, zMainBranch)==0 ){
     assert( gitmirror_mainbranch!=0 );
     fossil_free(zBranch);
     zBranch = fossil_strdup(gitmirror_mainbranch);

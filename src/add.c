@@ -1008,8 +1008,8 @@ static void process_files_to_move(
 ** COMMAND: mv
 ** COMMAND: rename*
 **
-** Usage: %fossil mv|rename OLDNAME NEWNAME
-**    or: %fossil mv|rename OLDNAME... DIR
+** Usage: %fossil mv|rename ?OPTIONS? OLDNAME NEWNAME
+**    or: %fossil mv|rename ?OPTIONS? OLDNAME... DIR
 **
 ** Move or rename one or more files or directories within the repository tree.
 ** You can either rename a file or directory or move it to another subdirectory.

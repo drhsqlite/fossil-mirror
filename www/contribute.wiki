@@ -42,7 +42,7 @@ it is written against. It's best to make patches against tip-of-trunk
 rather than against past releases.
 
 If your change is more complicated than a patch can properly encode, you
-may submit [/help?cmd=bundle | a Fossil bundle] instead. Unlike patches,
+may submit [/help/bundle | a Fossil bundle] instead. Unlike patches,
 bundles can contain multiple commits, check-in comments, file renames,
 file deletions, branching decisions, and more which <tt>patch(1)</tt>
 files cannot. It's best to make a bundle of a new branch so the change

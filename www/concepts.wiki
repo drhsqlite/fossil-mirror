@@ -437,20 +437,20 @@ knowledge.  Fossil is designed to avoid this frustration.  Setting up
 a server with Fossil is ridiculously easy.  You have four options:
 
   #  <b>Stand-alone server.</b>
-     Simply run the [/help?cmd=server|fossil server] or
-     [/help?cmd=ui|fossil ui] command from the command-line.
+     Simply run the [/help/server|fossil server] or
+     [/help/ui|fossil ui] command from the command-line.
      <br><br>
   #  <b>CGI.</b>
      Install a 2-line CGI script on a CGI-enabled web-server like Apache.
      <br><br>
   #  <b>SCGI.</b>
      Start an SCGI server using the
-     [/help?cmd=server| fossil server --scgi] command for handling
+     [/help/server| fossil server --scgi] command for handling
      SCGI requests from web-servers like Nginx.
      <br><br>
   #  <b>Inetd or Stunnel.</b>
      Configure programs like inetd, xinetd, or stunnel to hand off HTTP requests
-     directly to the [/help?cmd=http|fossil http] command.
+     directly to the [/help/http|fossil http] command.
 
 See the [./server/ | How To Configure A Fossil Server] document
 for details.

@@ -2292,8 +2292,9 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   static int nCycles = 0;
   static char *zCmd = 0;
   char *z, *zToken;
-  const char *zType = 0;
-  int i, content_length = 0;
+  char *zMethod;
+  int i;
+  size_t n;
   char zLine[2000];     /* A single line of input. */
 
   assert( !g.httpUseSSL );
@@ -2342,6 +2343,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
     }
   }
 
+  zMethod = fossil_strdup(zToken);
   if( fossil_strcmp(zToken,"GET")!=0 && fossil_strcmp(zToken,"POST")!=0
       && fossil_strcmp(zToken,"HEAD")!=0 ){
     malformed_request("unsupported HTTP method");
@@ -2356,6 +2358,16 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   if( zToken==0 ){
     malformed_request("malformed URL in HTTP header");
   }
+  n = strlen(g.zRepositoryName);
+  if( fossil_strncmp(g.zRepositoryName, zToken, n)==0 
+   && (zToken[n]=='/' || zToken[n]==0)
+   && fossil_strcmp(zMethod,"GET")==0
+  ){
+    zToken += n;
+    if( zToken && strlen(zToken)==0 ){
+      malformed_request("malformed URL in HTTP header");
+    }
+  }
   if( nCycles==0 ){
     cgi_setenv("REQUEST_URI", zToken);
     cgi_setenv("SCRIPT_NAME", "");
@@ -2365,8 +2377,10 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   if( zToken[i] ) zToken[i++] = 0;
   if( nCycles==0 ){
     cgi_setenv("PATH_INFO", zToken);
+    cgi_setenv("QUERY_STRING",&zToken[i]);
   }else{
     cgi_replace_parameter("PATH_INFO", fossil_strdup(zToken));
+    cgi_replace_parameter("QUERY_STRING",fossil_strdup(&zToken[i]));
   }
 
   /* Get all the optional fields that follow the first line.
@@ -2386,9 +2400,15 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
       zFieldName[i] = fossil_tolower(zFieldName[i]);
     }
     if( fossil_strcmp(zFieldName,"content-length:")==0 ){
-      content_length = atoi(zVal);
+      if( nCycles==0 ){
+        cgi_setenv("CONTENT_LENGTH", zVal);
+      }else{
+        cgi_replace_parameter("CONTENT_LENGTH", zVal);
+      }
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
-      g.zContentType = zType = fossil_strdup(zVal);
+      if( nCycles==0 ){
+        cgi_setenv("CONTENT_TYPE", zVal);
+      }
     }else if( fossil_strcmp(zFieldName,"host:")==0 ){
       if( nCycles==0 ){
         cgi_setenv("HTTP_HOST", zVal);
@@ -2419,17 +2439,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   cgi_reset_content();
   cgi_destination(CGI_BODY);
 
-  if( content_length>0 && zType ){
-    blob_zero(&g.cgiIn);
-    if( fossil_strcmp(zType, "application/x-fossil")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
-      blob_uncompress(&g.cgiIn, &g.cgiIn);
-    }else if( fossil_strcmp(zType, "application/x-fossil-debug")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
-    }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
-    }
-  }
+  cgi_init();
   cgi_trace(0);
   nCycles++;
 }
@@ -2952,16 +2962,6 @@ char *cgi_iso8601_datestamp(void){
                    pTm->tm_year+1900, pTm->tm_mon+1, pTm->tm_mday,
                    pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
   }
-}
-
-/*
-** COMMAND: test-date
-**
-** Show the current date and time in both RFC822 and ISO8601.
-*/
-void test_date(void){
-  fossil_print("%z = ", cgi_iso8601_datestamp());
-  fossil_print("%z\n", cgi_rfc822_datestamp(time(0)));
 }
 
 /*

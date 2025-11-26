@@ -43,7 +43,7 @@ the same name in the
 standard [http://www.sqlite.org/amalgamation.html | amalgamation].
 The sqlite3.c file implements the database engine.  The shell.c file
 implements the command-line shell, which is accessed in fossil using
-the [/help?cmd=sqlite3 | fossil sql] command.
+the [/help/sqlite3 | fossil sql] command.
 
 The shell.c command-line shell uses the [https://github.com/antirez/linenoise |
 linenoise] library to implement line editing.  linenoise comprises two
@@ -74,7 +74,7 @@ resource files using a small program called:
   12   [/file/tools/mkbuiltin.c | mkbuiltin.c]
 
 Examples of built-in resources include the [/file/src/diff.tcl | diff.tcl]
-script used to implement the --tk option to [/help?cmd=diff| fossil diff],
+script used to implement the --tk option to [/help/diff| fossil diff],
 the [/file/src/markdown.md | markdown documentation], and the various
 CSS scripts, headers, and footers used to implement built-in skins.  New
 resources files are added to the "extra_files" variable in
@@ -267,11 +267,11 @@ When compiling sqlite.c, the following macros are recommended:
 
 The first three symbol definitions above are required; the others are merely
 recommended.  Extension loading is omitted as a security measure. The dbstat
-virtual table is needed for the [/help?cmd=/repo-tabsize|/repo-tabsize] page.
+virtual table is needed for the [/help/www/repo-tabsize|/repo-tabsize] page.
 FTS4 is needed for the search feature.  Fossil is single-threaded so mutexing
 is disabled in SQLite as a performance enhancement.  The
 SQLITE_ENABLE_EXPLAIN_COMMENTS option makes the output of "EXPLAIN" queries
-in the  "[/help?cmd=sqlite3|fossil sql]" command much more readable.
+in the  "[/help/sqlite3|fossil sql]" command much more readable.
 
 When compiling the shell.c source file, these macros are required:
 

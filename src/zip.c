@@ -408,12 +408,12 @@ static void zip_add_file_to_sqlar(
         "PRAGMA journal_mode = off;"
         "PRAGMA cache_spill = off;"
         "BEGIN;"
-        "CREATE TABLE sqlar("
-          "name TEXT PRIMARY KEY,  -- name of the file\n"
-          "mode INT,               -- access permissions\n"
-          "mtime INT,              -- last modification time\n"
-          "sz INT,                 -- original file size\n"
-          "data BLOB               -- compressed content\n"
+        "CREATE TABLE sqlar(\n"
+          "  name TEXT PRIMARY KEY,  -- name of the file\n"
+          "  mode INT,               -- access permissions\n"
+          "  mtime INT,              -- last modification time\n"
+          "  sz INT,                 -- original file size\n"
+          "  data BLOB               -- compressed content\n"
         ");", 0, 0, 0
     );
     sqlite3_prepare(p->db,
@@ -866,15 +866,7 @@ static void archive_cmd(int eType){
   }
 
   if( zName==0 ){
-    zName = db_text("default-name",
-       "SELECT replace(%Q,' ','_') "
-          " || strftime('_%%Y-%%m-%%d_%%H%%M%%S_', event.mtime) "
-          " || substr(blob.uuid, 1, 10)"
-       "  FROM event, blob"
-       " WHERE event.objid=%d"
-       "   AND blob.rid=%d",
-       db_get("project-name", "unnamed"), rid, rid
-    );
+    zName = archive_base_name(rid);
   }
   zip_of_checkin(eType, rid, zOut ? &zip : 0,
                  zName, pInclude, pExclude, listFlag);
@@ -963,7 +955,8 @@ void sqlar_cmd(void){
 ** VERSION.  The archive is called NAME.zip or NAME.sqlar and has a top-level
 ** directory called NAME.
 **
-** The optional VERSION element defaults to "trunk" per the r= rules below.
+** The optional VERSION element defaults to the name of the main branch
+** (usually "trunk") per the r= rules below.
 ** All of the following URLs are equivalent:
 **
 **      /zip/release/xyz.zip
@@ -976,19 +969,22 @@ void sqlar_cmd(void){
 **   name=[CKIN/]NAME    The optional CKIN component of the name= parameter
 **                       identifies the check-in from which the archive is
 **                       constructed.  If CKIN is omitted and there is no
-**                       r= query parameter, then use "trunk".  NAME is the
+**                       r= query parameter, then use the name of the main
+**                       branch (usually "trunk").  NAME is the
 **                       name of the download file.  The top-level directory
 **                       in the generated archive is called by NAME with the
 **                       file extension removed.
 **
 **   r=TAG               TAG identifies the check-in that is turned into an
-**                       SQL or ZIP archive.  The default value is "trunk".
+**                       SQL or ZIP archive.  The default value is the name
+**                       of the main branch (usually "trunk").
 **                       If r= is omitted and if the name= query parameter
 **                       contains one "/" character then the of part the
 **                       name= value before the / becomes the TAG and the
 **                       part of the name= value  after the / is the download
 **                       filename.  If no check-in is specified by either
-**                       name= or r=, then "trunk" is used.
+**                       name= or r=, then the name of the main branch
+**                       (usually "trunk") is used.
 **
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=
@@ -997,6 +993,21 @@ void sqlar_cmd(void){
 **                       comma-separated list of GLOB patterns, where each
 **                       pattern can optionally be quoted using ".." or '..'.
 **                       Any file matching both ex= and in= is excluded.
+**
+** Robot Defenses:
+**
+**   *    If "zip" appears in the robot-restrict setting, then robots are
+**        not allowed to access this page.  Suspected robots will be
+**        presented with a captcha.
+**
+**   *    If "zipX" appears in the robot-restrict setting, then robots are
+**        restricted in the same way as with "zip", but with exceptions.
+**        If the check-in for which an archive is requested is a leaf check-in
+**        and if the robot-zip-leaf setting is true, then the request is
+**        allowed.  Or if the check-in has a tag that matches any of the
+**        GLOB patterns on the list in the robot-zip-tag setting, then the
+**        request is allowed.  Otherwise, the usual robot defenses are
+**        activated.
 */
 void baseline_zip_page(void){
   int rid;
@@ -1018,9 +1029,6 @@ void baseline_zip_page(void){
   if( fossil_strcmp(g.zPath, "sqlar")==0 ){
     eType = ARCHIVE_SQLAR;
     zType = "SQL";
-    /* For some reason, SQL-archives are like catnip for robots.  So
-    ** don't allow them to be downloaded by user "nobody" */
-    if( g.zLogin==0 ){ login_needed(g.anon.Zip); return; }
   }else{
     eType = ARCHIVE_ZIP;
     zType = "ZIP";
@@ -1030,7 +1038,7 @@ void baseline_zip_page(void){
   z = P("r");
   if( z==0 ) z = P("uuid");
   if( z==0 ) z = tar_uuid_from_name(&zName);
-  if( z==0 ) z = "trunk";
+  if( z==0 ) z = fossil_strdup(db_main_branch());
   nName = strlen(zName);
   g.zOpenRevision = zRid = fossil_strdup(z);
   nRid = strlen(zRid);
@@ -1071,6 +1079,7 @@ void baseline_zip_page(void){
     @ Not found
     return;
   }
+  if( robot_restrict_zip(rid) ) return;
   if( nRid==0 && nName>10 ) zName[10] = 0;
 
   /* Compute a unique key for the cache entry based on query parameters */

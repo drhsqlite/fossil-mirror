@@ -147,8 +147,8 @@ rename the file.
 [japi]: ./json-api/
 [jart]: ./json-api/api-artifact.md
 [jtim]: ./json-api/api-timeline.md
-[mset]: /help?cmd=manifest
+[mset]: /help/manifest
 [th1]:  ./th1.md
-[trss]: /help?cmd=/timeline.rss
+[trss]: /help/www/timeline.rss
 [tvb]:  ./branching.wiki
 [uuid]: https://en.wikipedia.org/wiki/Universally_unique_identifier

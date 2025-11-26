@@ -265,13 +265,13 @@ ones we’ve heard before and give our stock answers to them here:
 [dcsp]:   ./defcsp.md
 [es2015]: https://ecma-international.org/ecma-262/6.0/
 [es6dep]: https://caniuse.com/#feat=es6
-[fcgi]:   /help?cmd=cgi
+[fcgi]:   /help/cgi
 [ffor]:   https://fossil-scm.org/forum/
 [flic]:   /doc/trunk/COPYRIGHT-BSD2.txt
 [fshome]: /doc/trunk/www/server/
 [fslpl]:  /doc/trunk/www/fossil-v-git.wiki#portable
 [fsrc]:   https://fossil-scm.org/home/file/src
-[fsrv]:   /help?cmd=server
+[fsrv]:   /help/server
 [hljs]:   https://fossil-scm.org/forum/forumpost/9150bc22ca
 [ie11x]:  https://techcommunity.microsoft.com/t5/microsoft-365-blog/microsoft-365-apps-say-farewell-to-internet-explorer-11-and/ba-p/1591666
 [ns]:     https://noscript.net/
@@ -392,7 +392,7 @@ $ vi                                     # work sans named file today
 Extending this concept to other text editors is an exercise left to the
 reader.
 
-[fwc]: /help?cmd=wiki
+[fwc]: /help/wiki
 [fwt]: ./wikitheory.wiki
 
 
@@ -432,7 +432,7 @@ cases. ([Example][mainc].) Toggling them on and off is currently handled
 in JavaScript, rather than forcing a page-reload via a button click.
 
 _Workaround:_ Manually edit the URL to give the “`ln`” query parameter
-per [the `/file` docs](/help?cmd=/file).
+per [the `/file` docs](/help/www/file).
 
 _Potential Better Workaround:_ Someone sufficiently interested could
 [provide a patch][cg] to add a `<noscript>` wrapped HTML button that

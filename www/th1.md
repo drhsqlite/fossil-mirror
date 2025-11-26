@@ -133,7 +133,7 @@ the script.  Untainted strings are known to come from secure sources and
 are assumed to contain no malicious content.
 
 Beginning with Fossil version 2.26, and depending on the value of the
-[vuln-report setting](/help?cmd=vuln-report), TH1 will prevent tainted
+[vuln-report setting](/help/vuln-report), TH1 will prevent tainted
 strings from being used in ways that might lead to XSS or SQL-injection
 attacks.  This feature helps to ensure that XSS and SQL-injection
 vulnerabilities are not *accidentally* added to Fossil when

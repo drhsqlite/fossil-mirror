@@ -102,6 +102,11 @@ POSIX compatible regular expression engine. Among them are:
 *   There is currently no support for POSIX character classes such as
     `[:lower:]`.
 
+*   The values of `p` and `q` in the "`{p,q}`" syntax can be no greater
+    than 999.  This is because the NFA that is used for regular expression
+    matching is proportional in size to the largest p or q value, and hence
+    allowing arbitrarily large values could result in a DoS attack.
+
 *   Fossil `grep` does not currently attempt to take your operating
     system's locale settings into account when doing this match.  Since
     Fossil has no way to mark a given file as having a particular

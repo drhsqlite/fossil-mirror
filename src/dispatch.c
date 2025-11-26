@@ -61,7 +61,7 @@ struct CmdOrPage {
 
 /* Values for the 2nd parameter to dispatch_name_search() */
 #define CMDFLAG_ANY         0x0038      /* Match anything */
-#define CMDFLAG_PREFIX      0x0200      /* Prefix match is ok */
+#define CMDFLAG_PREFIX      0x0200      /* Prefix match is OK */
 
 #endif /* INTERFACE */
 
@@ -277,7 +277,7 @@ static void appendLinked(Blob *pOut, const char *z, int n){
       if( i ) blob_append(pOut, z, i);
       z += i+2;
       n -= i+2;
-      blob_appendf(pOut, "<a href='%R/help?cmd=%.*s'>%.*s</a>",
+      blob_appendf(pOut, "<a href='%R/help/%.*s'>%.*s</a>",
          j-3, z, j-3, z);
       z += j-1;
       n -= j-1;
@@ -837,14 +837,23 @@ static int help_is_platform_command(const char *zName){
 
 /*
 ** WEBPAGE: help
-** URL: /help?name=CMD
+** URL: /help/CMD or  /help/www/PAGE
 **
-** Show the built-in help text for CMD.  CMD can be a command-line interface
-** command or a page name from the web interface or a setting.
+** Show the built-in help text for CMD or PAGE.  CMD can be a command-line
+** interface command or a setting name.  PAGE is the name of a
+** web interface.  /help//PAGE also works if the double-/ makes it through
+** the main web server.
+**
 ** Query parameters:
 **
 **    name=CMD        Show help for CMD where CMD is a command name or
-**                    webpage name or setting name.
+**                    or setting name.  If CMD beings with "/" it is
+**                    interpreted as a PAGE name.
+**
+**    name=www/PAGE   Show help for web page PAGE.
+**
+**    name=/PAGE      The initial "www/" on web-page help can be abbreviated as
+**                    just "/"
 **
 **    plaintext       Show the help within <pre>...</pre>, as if it were
 **                    displayed using the "fossil help" command.
@@ -865,6 +874,11 @@ void help_page(void){
     style_submenu_element("Topic-List", "%R/help");
     if( search_restrict(SRCH_HELP)!=0 ){
       style_submenu_element("Search","%R/search?y=h");
+    }
+    if( strncmp(zCmd,"www/",4)==0 && zCmd[4]!=0 ){
+      /* Use https://domain/fossil/help/www/timeline or similar with the "www"
+      ** intermediate tag to view web-page documentation. */
+      zCmd += 3;
     }
     rc = dispatch_name_search(zCmd, CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
     if( pCmd ){
@@ -937,7 +951,7 @@ void help_page(void){
       if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)!=0 ) continue;
       else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
       else if( (aCommand[i].eCmdFlags & CMDFLAG_ALIAS)!=0 ) continue;
-      @ <li><a href="%R/help?cmd=%s(z)">%s(zBoldOn)%s(z)%s(zBoldOff)</a>
+      @ <li><a href="%R/help/%s(z)">%s(zBoldOn)%s(z)%s(zBoldOff)</a>
       /* Output aliases */
       if( occHelp[aCommand[i].iHelp] > 1 ){
         int j;
@@ -954,7 +968,7 @@ void help_page(void){
           int k;
           @(\
           for(k=0; k<nAliases; k++){
-            @<a href="%R/help?cmd=%s(aCommand[aliases[k]].zName)">\
+            @<a href="%R/help/%s(aCommand[aliases[k]].zName)">\
             @%s(aCommand[aliases[k]].zName)</a>%s((k<nAliases-1)?", ":"")\
           }
           @)\
@@ -974,7 +988,7 @@ void help_page(void){
       if( '/'!=*z ) continue;
       else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
       if( aCommand[i].zHelp[0] ){
-        @ <li><a href="%R/help?cmd=%s(z)">%s(z+1)</a></li>
+        @ <li><a href="%R/help/www%s(z)">%s(z+1)</a></li>
       }else{
         @ <li>%s(z+1)</li>
       }
@@ -990,7 +1004,7 @@ void help_page(void){
       if( strncmp(z,"test",4)!=0 ) continue;
       else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
       if( aCommand[i].zHelp[0] ){
-        @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
+        @ <li><a href="%R/help/%s(z)">%s(z)</a></li>
       }else{
         @ <li>%s(z)</li>
       }
@@ -1006,7 +1020,7 @@ void help_page(void){
       if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)==0 ) continue;
       else if( (aCommand[i].eCmdFlags & CMDFLAG_HIDDEN)!=0 ) continue;
       if( aCommand[i].zHelp[0] ){
-        @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
+        @ <li><a href="%R/help/%s(z)">%s(z)</a></li>
       }else{
         @ <li>%s(z)</li>
       }
@@ -1157,7 +1171,7 @@ static int simplify_to_subtopic(
   }
   fossil_free(zQTop);
   fossil_free(zQSub);
-  re_compile(&pRe, zPattern, 0);
+  fossil_re_compile(&pRe, zPattern, 0);
   fossil_free(zPattern);
   blob_init(&in, z, -1);
   while( blob_line(&in, &line) ){
@@ -1254,9 +1268,9 @@ static int simplify_to_usage(
   int n = 0;
 
   if( bAbbrevSubcmd ){
-    re_compile(&pRe, "^(Usage: |   [a-z][-a-z|]+ .*)", 0);
+    fossil_re_compile(&pRe, "^(Usage: |   [a-z][-a-z|]+ .*)", 0);
   }else{
-    re_compile(&pRe, "^(Usage: | *[Oo]r: +%fossi |>  ?fossil )", 0);
+    fossil_re_compile(&pRe, "^(Usage: | *[Oo]r: +%fossi |>  ?fossil )", 0);
   }
   blob_init(&in, z, -1);
   while( blob_line(&in, &line) ){
@@ -1287,7 +1301,7 @@ static int simplify_to_options(
 
   blob_init(&txt, z, -1);
   blob_init(&subsection, 0, 0);
-  re_compile(&pRe, "^ +-.*  ", 0);
+  fossil_re_compile(&pRe, "^ +-.*  ", 0);
   while( blob_line(&txt, &line) ){
     int len = blob_size(&line);
     unsigned char *zLine = (unsigned char *)blob_buffer(&line);
@@ -1392,7 +1406,7 @@ static const char zOptions[] =
 @   --chdir PATH            Change to PATH before performing any operations
 @   --color WHEN            Emit VT color escapes: 'never', 'always', or 'auto'
 @   --errorlog FILENAME     Log errors to FILENAME
-@   --help                  Show help on the command rather than running it
+@   -?|--help               Show help on the command rather than running it
 @   --httptrace             Trace outbound HTTP requests
 @   --localtime             Display times using the local timezone
 @   --nocgi                 Do not act as CGI

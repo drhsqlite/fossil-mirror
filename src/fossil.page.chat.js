@@ -2058,6 +2058,10 @@ window.fossil.onPageLoad(function(){
            F.storage.storageHelpDescription()].join('')
     },{
       label: "Editing Options...",
+      hint: ["These options are all recommended but some misinteract",
+             "with specific browsers or software keyboards so they",
+             "are not enabled by default."
+            ].join(' '),
       children:[{
         label: "Chat-only mode",
         hint: "Toggle the page between normal fossil view and chat-only view.",

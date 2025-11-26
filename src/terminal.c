@@ -136,20 +136,6 @@ unsigned int terminal_get_height(unsigned int nDefault){
 }
 
 /*
-** COMMAND: test-terminal-size
-**
-** Show the size of the terminal window from which the command is launched
-** as two integers, the width in characters and the height in lines.
-**
-** If the size cannot be determined, two zeros are shown.
-*/
-void test_terminal_size_cmd(void){
-  TerminalSize ts;
-  terminal_get_size(&ts);
-  fossil_print("%d %d\n", ts.nColumns, ts.nLines);
-}
-
-/*
 ** Return true if it is reasonable is emit VT100 escape codes.
 */
 int terminal_is_vt100(void){

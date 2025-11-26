@@ -51,7 +51,7 @@ Files in the DOCUMENT_ROOT are accessed via URLs like this:
 </pre>
 
 In other words, access files in DOCUMENT_ROOT by appending the filename
-relative to DOCUMENT_ROOT to the [/help?cmd=/ext|/ext]
+relative to DOCUMENT_ROOT to the [/help/www/ext|/ext]
 page of the Fossil server.
 
   *  Files that are readable but not executable are returned as static
@@ -126,7 +126,7 @@ of its own source-code, so you can see how it works.
 <h3>2.3 Example #3</h3>
 
 For Fossil versions dated 2025-03-23 and later, the "--extpage FILENAME"
-option to the [/help?cmd=ui|fossil ui] command is a short cut that treats
+option to the [/help/ui|fossil ui] command is a short cut that treats
 FILENAME as a CGI extension.  When the ui command starts up a new web browser
 pages, it points that page to the FILENAME extension.  So if FILENAME is
 a static content file (such as an HTML file or 
@@ -340,6 +340,13 @@ can examine the FOSSIL_CAPABILITIES and/or FOSSIL_USER environment variables.
 In other words, access control is the responsibility of the individual
 extension programs.
 
+<h3>6.1 Restricting Robot Access To Extensions</h3>
+
+If the "ext" tag is found in the [/help/robot-restrict|robot-restrict setting]
+then clients are tested to see if they are robots before granting
+access to any extension.  If the "ext" tag is omitted but a tag
+of the form "ext/PATH" is found on the robot-restrict setting, then
+robots are restricted from the particular extension at PATH.
 
 <h2>7.0 Trouble-Shooting Hints</h2>
 
