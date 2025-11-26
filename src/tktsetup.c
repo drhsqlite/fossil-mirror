@@ -496,10 +496,10 @@ static const char zDefaultView[] =
 @ }
 @
 @ if {[capexpr {n}]} {
-@   submenu link "Copy Ticket" /tktnew/$tkt_uuid
+@   submenu link "Copy Ticket" $baseurl/tktnew/$tkt_uuid
 @ }
 @ if {[capexpr {nk}]} {
-@   submenu link "Edit Wiki" /wikiedit?name=ticket/$tkt_uuid
+@   submenu link "Edit Wiki" $baseurl/wikiedit?name=ticket/$tkt_uuid
 @ }
 @ </th1>
 @ <tr><td class="tktDspLabel">Title:</td>
