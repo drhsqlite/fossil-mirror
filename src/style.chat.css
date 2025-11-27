@@ -464,7 +464,8 @@ body.chat .chat-view {
 }
 body.chat #chat-config,
 body.chat #chat-search,
-body.chat #chat-preview {
+body.chat #chat-preview,
+body.chat #chat-zoom {
   /* /chat configuration widget */
   display: flex;
   flex-direction: column;
@@ -473,6 +474,19 @@ body.chat #chat-preview {
   margin: 0;
   align-items: stretch;
   min-height: 6em;
+}
+body.chat #chat-zoom {
+  justify-content: space-between;
+}
+body.chat #chat-zoom-content {
+  display: flex;
+  overflow: auto;
+}
+body.chat #chat-zoom-content > .message-widget {
+  flex-grow: 1;
+}
+body.chat #chat-zoom-content > .message-widget .message-widget-content {
+  width: 100%;
 }
 body.chat #chat-config #chat-config-options {
   /* /chat config options go here */

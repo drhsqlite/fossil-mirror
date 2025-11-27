@@ -240,6 +240,11 @@ void chat_webpage(void){
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
   @ </div>
+  @ <div id='chat-zoom' class='hidden chat-view'>
+  @  <div id='chat-zoom-content'></div>
+  @  <div class='button-bar'><button class='action-close'>Close Zoom</button></div>
+  @ </div>
+  @ <span id='chat-zoom-marker' class='hidden'><!-- placeholder marker for zoomed msg --></span>
   fossil_free(zProjectName);
   fossil_free(zInputPlaceholder0);
   builtin_fossil_js_bundle_or("popupwidget", "storage", "fetch",
