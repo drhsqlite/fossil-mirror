@@ -485,7 +485,7 @@ body.chat #chat-zoom-content {
 body.chat #chat-zoom-content > .message-widget {
   flex-grow: 1;
 }
-body.chat #chat-zoom-content > .message-widget .message-widget-content {
+body.chat #chat-zoom-content > .message-widget > .message-widget-content {
   width: 100%;
 }
 body.chat #chat-config #chat-config-options {

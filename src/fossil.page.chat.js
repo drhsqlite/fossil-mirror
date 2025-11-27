@@ -611,7 +611,7 @@ window.fossil.onPageLoad(function(){
       */
       zoomMessage: function(eMsg){
         const marker = this.e.zoomMarker;
-        if( !eMsg ){
+        if( !eMsg || eMsg===this.e.zoomedMsg ){
           if( this.e.zoomedMsg ){
             marker.parentNode.insertBefore(this.e.zoomedMsg, marker);
             delete this.e.zoomedMsg;
@@ -620,9 +620,6 @@ window.fossil.onPageLoad(function(){
           return;
         }
         console.log("zoom message",eMsg);
-        if( eMsg===this.e.zoomedMsg ){
-          return;
-        }
         if( this.e.zoomedMsg ){
           marker.parentNode.insertBefore(this.e.zoomedMsg, marker);
         }
