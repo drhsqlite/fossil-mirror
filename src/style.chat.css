@@ -488,6 +488,14 @@ body.chat #chat-zoom-content > .message-widget {
 body.chat #chat-zoom-content > .message-widget > .message-widget-content {
   width: 100%;
 }
+body.chat #chat-zoom-content > .message-widget .toolbar.hide-in-zoom {
+  /* The various Delete buttons misinteract with zoom mode's moving-around
+     of message widgets, so hide them in zoom mode. */
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  display: none !important;
+}
 body.chat #chat-config #chat-config-options {
   /* /chat config options go here */
   flex: 1 1 auto;

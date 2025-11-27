@@ -1377,7 +1377,7 @@ window.fossil.onPageLoad(function(){
                 // Date doesn't work, so dumb it down...
                 D.append(this.e, D.append(D.span(), eMsg.dataset.timestamp," zulu"));
               }
-              const toolbar = D.addClass(D.div(), 'toolbar');
+              const toolbar = D.addClass(D.div(), 'toolbar', 'hide-in-zoom');
               D.append(this.e, toolbar);
               const self = this;
 
@@ -1410,7 +1410,7 @@ window.fossil.onPageLoad(function(){
                   }
                 });
               }
-              const toolbar3 = D.addClass(D.div(), 'toolbar');
+              const toolbar3 = D.addClass(D.div(), 'toolbar', 'hide-in-zoom');
               D.append(this.e, toolbar3);
               D.append(toolbar3, D.button(
                 "Locally remove all previous messages",
