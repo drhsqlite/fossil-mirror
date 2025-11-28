@@ -1,5 +1,5 @@
-C The\svarious\s/chat\sDelete\sbuttons\smisinteract\swith\szoom\smode's\smoving-around\sof\sthe\smessage\swidget\swithin\sthe\sDOM,\sso\shide\sthose\sbuttons\sin\szoom\smode.
-D 2025-11-27T14:11:14.863
+C Small\stypo\sin\shelp\stext\sfor\s`fossil\ssystem`
+D 2025-11-28T01:06:59.284
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -601,7 +601,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 6227a029e003a1c8f26e3687065e9d4a9c238d3f1d42d533cbcb8f642cbfa816
 F src/xfer.c 9b64a30d65f9ec48cb073f009d241d0fb5207ed072245fed75b452a7c1eec819
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/xsystem.c 9348cd45b13e468de0d49329c2c8c37c34e109f9a6169375c8114076ffbbb5f4
+F src/xsystem.c 197063f054f02c9beee1bbc303e24ee65c3b84e6e339d6796d80b2df2dab9a32
 F src/zip.c 61fa5a4f5f4318e3fb9ded95949df6dfc9ef3bcf55a706aa0199c72365c70cf0
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 24e050a0be0e07c0bb22c042cd77f93109fa3315c4abba4caf995455e8af4f6b
-R 3c0bcab8d14970bba20b15df55131cd9
-U stephan
-Z 183dd876ef60383774decd87d7672b55
+P 1c750076278c945c5790460a41b0f61cd1da4ea999ef6daad455a1f822704d5a
+R 2ff01096b2a6d0f8462bb6e0e02e3ea7
+U brickviking
+Z 72395d80122f2f1b9027c40ab702d152
 # Remove this line to create a well-formed Fossil manifest.

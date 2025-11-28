@@ -489,7 +489,7 @@ static struct XSysCmd {
 **
 ** Usage: %fossil system COMMAND ARGS...
 **
-** Often abbreviated as just "fossil sys", this command provides primative,
+** Often abbreviated as just "fossil sys", this command provides primitive,
 ** low-level unix-like commands for use on systems that lack those commands
 ** natively.
 **
