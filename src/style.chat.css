@@ -486,7 +486,7 @@ body.chat #chat-zoom-content > .message-widget {
   flex-grow: 1;
 }
 body.chat #chat-zoom-content > .message-widget > .message-widget-content {
-  width: 100%;
+  width: 99%;
 }
 body.chat #chat-zoom-content > .message-widget .toolbar.hide-in-zoom {
   /* The various Delete buttons misinteract with zoom mode's moving-around

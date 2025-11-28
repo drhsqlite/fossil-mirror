@@ -596,6 +596,10 @@ window.fossil.onPageLoad(function(){
         if(e===this.e.currentView){
           return e;
         }
+        if( e!==this.e.viewZoom && this.e.zoomedMsg ){
+          this.zoomMessage(null, e);
+          return this.e.currentView;
+        }
         this.e.views.forEach(function(E){
           if(e!==E) D.addClass(E,'hidden');
         });
@@ -609,14 +613,14 @@ window.fossil.onPageLoad(function(){
       /**
          Makes message element eMsg the content of this.e.viewZoom.
       */
-      zoomMessage: function(eMsg){
+      zoomMessage: function(eMsg,nextView){
         const marker = this.e.zoomMarker;
         if( !eMsg || eMsg===this.e.zoomedMsg ){
           if( this.e.zoomedMsg ){
             marker.parentNode.insertBefore(this.e.zoomedMsg, marker);
             delete this.e.zoomedMsg;
           }
-          this.setCurrentView(this.e.viewMessages);
+          this.setCurrentView(nextView || this.e.viewMessages);
           return;
         }
         console.log("zoom message",eMsg);
