@@ -90,6 +90,8 @@ void xsystem_which(int argc, char **argv){
 #define LS_COMMA        0x010   /* -m  Comma-separated list */
 #define LS_DIRONLY      0x020   /* -d  Show just directory name, not content */
 #define LS_ALL          0x040   /* -a  Show all entries */
+#define LS_COLOR        0x080   /*     Colorize the output */
+#define LS_COLUMNS      0x100   /* -C  Split column output */
 
 /* xWrite() callback from QRF
 */
@@ -117,8 +119,9 @@ static void xsystem_ls_insert(
   switch( file_isdir(zName, ExtFILE) ){
     case 1: {  /* A directory */
       if( (mFlags & LS_DIRONLY)==0 ){
+        int omitDots = (mFlags & LS_ALL)!=0 ? 2 : 1;
         azList = 0;
-        nList = file_directory_list(zName, 0, (mFlags & LS_ALL)==0, 0, &azList);
+        nList = file_directory_list(zName, 0, omitDots, 0, &azList);
         zPrefix = fossil_strcmp(zName,".") ? zName : 0;
         break;
       }
@@ -140,7 +143,18 @@ static void xsystem_ls_insert(
     int mode = file_mode(zFile, ExtFILE);
     sqlite3_int64 sz = file_size(zFile, ExtFILE);
     sqlite3_int64 mtime = file_mtime(zFile, ExtFILE);
-    sqlite3_bind_text(pStmt, 1, zFile, -1, SQLITE_TRANSIENT);
+#ifdef _WIN32
+    if( (mFlags & LS_ALL)==0 ){
+      wchar_t *zMbcs = fossil_utf8_to_path(zFile, 1);
+      DWORD attr = GetFileAttributesW(zMbcs);
+      fossil_path_free(zMbcs);
+      if( attr & FILE_ATTRIBUTE_HIDDEN ){
+        if( zPrefix ) fossil_free(zFile);
+        continue;
+      }
+    }
+#endif
+    sqlite3_bind_text(pStmt, 1, azList[i], -1, SQLITE_TRANSIENT);
     sqlite3_bind_int64(pStmt, 2, mtime);
     sqlite3_bind_int64(pStmt, 3, sz);
     sqlite3_bind_int(pStmt, 4, mode);
@@ -175,7 +189,7 @@ static const char *xsystem_ls_orderby(int mFlags){
 }
 
 /*
-** colorize_fn(fn,mode)
+** color(fn,mode)
 **
 ** SQL function to colorize a filename based on its mode.
 */
@@ -203,8 +217,18 @@ static void colorNameFunc(
   if( (iMode & 040100)!=0 ){
     sqlite3_str_appendall(pOut, "\033[0m");
   }
-  sqlite3_result_text(context, sqlite3_str_finish(pOut), -1, sqlite3_free);
+  sqlite3_result_text(context, sqlite3_str_value(pOut), -1, SQLITE_TRANSIENT);
+  sqlite3_str_free(pOut);
 }
+/* Alternative implementation that does *not* introduce color */
+static void nocolorNameFunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  sqlite3_result_value(context, argv[0]);
+}
+
 
 
 /*
@@ -215,7 +239,11 @@ static void xsystem_ls_render(
   int mFlags
 ){
   sqlite3_stmt *pStmt;
-  sqlite3_create_function(db, "color", 2, SQLITE_UTF8, 0, colorNameFunc,0,0);
+  if( mFlags & LS_COLOR ){
+    sqlite3_create_function(db, "color",2,SQLITE_UTF8,0,colorNameFunc,0,0);
+  }else{
+    sqlite3_create_function(db, "color",2,SQLITE_UTF8,0,nocolorNameFunc,0,0);
+  }
   if( (mFlags & LS_LONG)!=0 ){
     /* Long mode */
     char *zSql;
@@ -297,10 +325,12 @@ static void xsystem_ls_render(
     spec.iVersion = 1;
     spec.xWrite = xsystem_write;
     spec.eStyle = QRF_STYLE_Column;
-    spec.bSplitColumn = QRF_Yes;
     spec.bTitles = QRF_No;
     spec.eEsc = QRF_No;
-    spec.nScreenWidth = terminal_get_width(80);
+    if( mFlags & LS_COLUMNS ){
+      spec.nScreenWidth = terminal_get_width(80);
+      spec.bSplitColumn = QRF_Yes;
+    }
     zSql = mprintf("SELECT color(fn,mode) FROM ls ORDER BY %s",
                    xsystem_ls_orderby(mFlags));
     sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
@@ -315,6 +345,8 @@ static void xsystem_ls_render(
 ** Options:
 **
 **    -a            Show files that begin with "."
+**    -C            List by colums
+**    --color=WHEN  Colorize output?
 **    -d            Show just directory names, not content
 **    -l            Long listing
 **    -m            Comma-separated list
@@ -329,6 +361,7 @@ void xsystem_ls(int argc, char **argv){
   int mFlags = 0;
   int nFile = 0;
   int nDir = 0;
+  int bAutoColor = 1;
   int needBlankLine = 0;
   rc = sqlite3_open(":memory:", &db);
   if( rc || db==0 ){
@@ -343,18 +376,31 @@ void xsystem_ls(int argc, char **argv){
   for(i=1; i<argc; i++){
     const char *z = argv[i];
     if( z[0]=='-' ){
-      int k;
-      for(k=1; z[k]; k++){
-        switch( z[k] ){
-          case 'a':   mFlags |= LS_ALL;      break;
-          case 'd':   mFlags |= LS_DIRONLY;  break;
-          case 'l':   mFlags |= LS_LONG;     break;
-          case 'm':   mFlags |= LS_COMMA;    break;
-          case 'r':   mFlags |= LS_REVERSE;  break;
-          case 'S':   mFlags |= LS_SIZE;     break;
-          case 't':   mFlags |= LS_MTIME;    break;
-          default: {
-            fossil_fatal("unknown option: -%c", z[k]);
+      if( z[1]=='-' ){
+        if( strncmp(z,"--color",7)==0 ){
+          if( z[7]==0 || strcmp(&z[7],"=always")==0 ){
+            mFlags |= LS_COLOR;
+          }else if( strcmp(&z[7],"=never")==0 ){
+            bAutoColor = 0;
+          }
+        }else{
+          fossil_fatal("unknown option: %s", z);
+        }
+      }else{
+        int k;
+        for(k=1; z[k]; k++){
+          switch( z[k] ){
+            case 'a':   mFlags |= LS_ALL;      break;
+            case 'd':   mFlags |= LS_DIRONLY;  break;
+            case 'l':   mFlags |= LS_LONG;     break;
+            case 'm':   mFlags |= LS_COMMA;    break;
+            case 'r':   mFlags |= LS_REVERSE;  break;
+            case 'S':   mFlags |= LS_SIZE;     break;
+            case 't':   mFlags |= LS_MTIME;    break;
+            case 'C':   mFlags |= LS_COLUMNS;  break;
+            default: {
+              fossil_fatal("unknown option: -%c", z[k]);
+            }
           }
         }
       }
@@ -366,6 +412,10 @@ void xsystem_ls(int argc, char **argv){
         xsystem_ls_insert(pStmt, z, mFlags);
       }
     }
+  }
+  if( fossil_isatty(1) ){
+    if( bAutoColor ) mFlags |= LS_COLOR;
+    mFlags |= LS_COLUMNS;
   }
   if( nFile>0 ){
     xsystem_ls_render(db, mFlags);
@@ -409,12 +459,14 @@ static struct XSysCmd {
     "[OPTIONS] [PATH] ...\n"
     "Options:\n"
     "   -a   Show files that begin with '.'\n"
+    "   -C   Split columns\n"
     "   -d   Show just directory names, not content\n"
     "   -l   Long listing\n"
     "   -m   Comma-separated list\n"
     "   -r   Reverse sort order\n"
     "   -S   Sort by size, largest first\n"
     "   -t   Sort by mtime, newest first\n"
+    "   --color[=WHEN]  Colorize output?\n"
   },
   { "pwd", xsystem_pwd,
     "\n"
@@ -437,7 +489,7 @@ static struct XSysCmd {
 **
 ** Usage: %fossil system COMMAND ARGS...
 **
-** Often abbreviated as just "fossil sys", this command provides primative,
+** Often abbreviated as just "fossil sys", this command provides primitive,
 ** low-level unix-like commands for use on systems that lack those commands
 ** natively.
 **

@@ -464,7 +464,8 @@ body.chat .chat-view {
 }
 body.chat #chat-config,
 body.chat #chat-search,
-body.chat #chat-preview {
+body.chat #chat-preview,
+body.chat #chat-zoom {
   /* /chat configuration widget */
   display: flex;
   flex-direction: column;
@@ -473,6 +474,27 @@ body.chat #chat-preview {
   margin: 0;
   align-items: stretch;
   min-height: 6em;
+}
+body.chat #chat-zoom {
+  justify-content: space-between;
+}
+body.chat #chat-zoom-content {
+  display: flex;
+  overflow: auto;
+}
+body.chat #chat-zoom-content > .message-widget {
+  flex-grow: 1;
+}
+body.chat #chat-zoom-content > .message-widget > .message-widget-content {
+  width: 99%;
+}
+body.chat #chat-zoom-content > .message-widget .toolbar.hide-in-zoom {
+  /* The various Delete buttons misinteract with zoom mode's moving-around
+     of message widgets, so hide them in zoom mode. */
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  display: none !important;
 }
 body.chat #chat-config #chat-config-options {
   /* /chat config options go here */

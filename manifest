@@ -1,14 +1,23 @@
 B b91ec5ad0e2b227da9fe5f5a3aa98132832b7e8b553fd295403a84fec7810997
-C Enable\s"fossil\stag\sfind"\sto\sfind\sall\soccurrences\sof\sa\sgiven\stag\sname\swhether\scheck-in,\sevent,\swiki\spage,\sor\sticket,\sas\sthe\shelp\ssuggests\sis\sthe\sdefault,\swhile\sleaving\sthe\s"raw"\sbehavior\sunchanged.
-D 2025-11-25T17:06:34.424
+C Latest\schanges\sfrom\strunk\sin\spreparation\sfor\smerging.
+D 2025-12-04T15:22:18.291
+F extsrc/qrf.h 322d48537a5aa39c206c2ec0764a7938ea7662a8c25be1c4e9d742789609ba1e
+F extsrc/shell.c 7529ca4afa879347c1fe63b0dd801e53e076870436b3cfa60a4197e43e051e1a
+F extsrc/sqlite3.c 73cd848a9c71cfd4f937d61e0732b37c24cc60f3df5b0e05a3ed153620c56704
+F extsrc/sqlite3.h 4657bc88b44d489e5ffa0e69426d233edf7084e8cb112dde7bb570bc3eb90d97
 F src/cgi.c 2428c9a9443331d183cd06e103c9a25d0338ccbfb929cd5498ef126acc67aeff
+F src/chat.c 27eb37cf49123d845f749f3fbf1e1834518e30ef1b83ffa6f92bea131939a77a
+F src/default.css b53dfed2ef9b70a883984c188ca2fc5c2be17a63984611b26776ebb016445d99
+F src/file.c 03266449bb36ddaf6c53c20fe3d2a30c216cf59fa8bff315e685d9fe1c55c91f
+F src/fossil.page.chat.js f7cce790d48b6a7f1cdb3c99ef90a515a75e1464765661a6c11f7095b08c4063
 F src/json_login.c d0f3a1ca82e14cb9f396204670198b0d5a3c736cc8f714db5bed683b014f6906
+F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
 F src/tag.c d23e936e6add38245e258a002504bbd2dcb7990091d4f2e0fb395c605876c823
-P 524a3fec657d8324f96620faa19351b6c6f60a52137ed24a3cb7859e9e2f9312
-R 78a3dc2893894abf43dde7f1cbc35193
-T *branch * cmd-tag-find
-T *sym-cmd-tag-find *
-T -sym-trunk *
+F src/tktsetup.c 08792f36566425b0a834eb14dfd0d6ac198267893eadcd34dd2dd3236e0b36a2
+F src/xsystem.c 197063f054f02c9beee1bbc303e24ee65c3b84e6e339d6796d80b2df2dab9a32
+F www/changes.wiki 3744d4b257e107f5027f569cddad98a1b402be4f431b31a403e564e15e9440bc
+P 378f0a5bb54d3a176102e6a666178123c82b388cc1fa29c9b38edc84eab18c55 c17764f0f1c1bb6ac7d5a4602f4f9f5c100c6d97bc4fe743f79d3f724c8d62df
+R 457715dc7efbceb4ab9fbe13e978a36e
 U andybradford
-Z 68d9aec102e1b73c90a7373b0f126e3c
+Z 6c2cb64a297fbff5c25977e34a2ac202
 # Remove this line to create a well-formed Fossil manifest.

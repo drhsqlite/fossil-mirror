@@ -50,6 +50,8 @@
        can be used to fix a checkout after moving its repository file.
   <li> Update internal Unicode character tables, used in regular expression
        handling, from version 13 to 17.
+  <li> Add a zoom-message option to [/help/www/chat|/chat] to better support
+       pikchr diagrams.
 </ol>
 
 <h2 id='v2_27'>Changes for version 2.27 (2025-09-30)</h2><ol>
