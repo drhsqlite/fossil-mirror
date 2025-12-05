@@ -845,12 +845,20 @@ int sqlite3_format_query_result(
 ** character c.  For normal characters, the answer is always 1.  But the
 ** estimate might be 0 or 2 for zero-width and double-width characters.
 **
-** Different display devices display unicode using different widths.  So
+** Different devices display unicode using different widths.  So
 ** it is impossible to know that true display width with 100% accuracy.
 ** Inaccuracies in the width estimates might cause columns to be misaligned.
 ** Unfortunately, there is nothing we can do about that.
 */
 int sqlite3_qrf_wcwidth(int c);
+
+/*
+** Return an estimate of the number of display columns used by the
+** string in the argument.  The width of individual characters is
+** determined as for sqlite3_qrf_wcwidth().  VT100 escape code sequences
+** are assigned a width of zero.
+*/
+size_t sqlite3_qrf_wcswidth(const char*);
 
 
 #ifdef __cplusplus
@@ -1290,7 +1298,7 @@ static const struct {
   {1, 0x00f7f},  {0, 0x00f80},  {1, 0x00f85},  {0, 0x00f86},  {1, 0x00f88},
   {0, 0x00f90},  {1, 0x00f98},  {0, 0x00f99},  {1, 0x00fbd},  {0, 0x00fc6},
   {1, 0x00fc7},  {0, 0x0102d},  {1, 0x01031},  {0, 0x01032},  {1, 0x01033},
-  {0, 0x01036},  {1, 0x01038},  {0, 0x01039},  {1, 0x0103a},  {0, 0x01058},
+  {0, 0x01036},  {1, 0x0103b},  {0, 0x01058},
   {1, 0x0105a},  {2, 0x01100},  {0, 0x01160},  {1, 0x01200},  {0, 0x0135f},
   {1, 0x01360},  {0, 0x01712},  {1, 0x01715},  {0, 0x01732},  {1, 0x01735},
   {0, 0x01752},  {1, 0x01754},  {0, 0x01772},  {1, 0x01774},  {0, 0x017b4},
@@ -1333,7 +1341,7 @@ int sqlite3_qrf_wcwidth(int c){
   int iFirst, iLast;
 
   /* Fast path for common characters */
-  if( c<=0x300 ) return 1;
+  if( c<0x300 ) return 1;
 
   /* The general case */
   iFirst = 0;
@@ -1399,13 +1407,20 @@ static int qrfIsVt100(const unsigned char *z){
 
 /*
 ** Return the length of a string in display characters.
-** Multibyte UTF8 characters count as a single character
-** for single-width characters, or as two characters for
-** double-width characters.
+**
+** Most characters of the input string count as 1, including
+** multi-byte UTF8 characters.  However, zero-width unicode
+** characters and VT100 escape sequences count as zero, and
+** double-width characters count as two.
+**
+** The definition of "zero-width" and "double-width" characters
+** is not precise.  It depends on the output device, to some extent,
+** and it varies according to the Unicode version.  This routine
+** makes the best guess that it can.
 */
-static int qrfDisplayLength(const char *zIn){
+size_t sqlite3_qrf_wcswidth(const char *zIn){
   const unsigned char *z = (const unsigned char*)zIn;
-  int n = 0;
+  size_t n = 0;
   while( *z ){
     if( z[0]<' ' ){
       int k;
@@ -1439,11 +1454,14 @@ static int qrfDisplayLength(const char *zIn){
 ** it will need to be split.
 */
 static int qrfDisplayWidth(const char *zIn, sqlite3_int64 nByte, int *pnNL){
-  const unsigned char *z = (const unsigned char*)zIn;
-  const unsigned char *zEnd = &z[nByte];
+  const unsigned char *z;
+  const unsigned char *zEnd;
   int mx = 0;
   int n = 0;
   int nNL = 0;
+  if( zIn==0 ) zIn = "";
+  z = (const unsigned char*)zIn;
+  zEnd = &z[nByte];
   while( z<zEnd ){
     if( z[0]<' ' ){
       int k;
@@ -2796,6 +2814,7 @@ static void qrfColumnar(Qrf *p){
     */
     for(j=0; j<nColumn; j++){
       data.a[j].z = data.az[i+j];
+      if( data.a[j].z==0 ) data.a[j].z = "";
       data.a[j].bNum = data.abNum[i+j];
     }
     do{
@@ -3056,7 +3075,7 @@ static void qrfExplain(Qrf *p){
         int len;
         if( i==nArg-1 ) w = 0;
         if( zVal==0 ) zVal = "";
-        len = qrfDisplayLength(zVal);
+        len = (int)sqlite3_qrf_wcswidth(zVal);
         if( len>w ){
           w = len;
           zSep = " ";
@@ -3246,7 +3265,7 @@ static void qrfOneSimpleRow(Qrf *p){
           int sz;
           p->u.sLine.azCol[i] = sqlite3_column_name(p->pStmt, i);
           if( p->u.sLine.azCol[i]==0 ) p->u.sLine.azCol[i] = "unknown";
-          sz = qrfDisplayLength(p->u.sLine.azCol[i]);
+          sz = (int)sqlite3_qrf_wcswidth(p->u.sLine.azCol[i]);
           if( sz > p->u.sLine.mxColWth ) p->u.sLine.mxColWth = sz;
         }
       }
@@ -13434,11 +13453,12 @@ static int zipfileGetEntry(
         rc = zipfileReadData(pFile, aRead, szFix, pNew->cds.iOffset, pzErr);
       }else{
         aRead = (u8*)&aBlob[pNew->cds.iOffset];
-        if( (pNew->cds.iOffset + ZIPFILE_LFH_FIXED_SZ)>nBlob ){
+        if( (pNew->cds.iOffset + ZIPFILE_LFH_FIXED_SZ)>(unsigned)nBlob ){
           rc = zipfileCorrupt(pzErr);
         }
       }
 
+      memset(&lfh, 0, sizeof(lfh));
       if( rc==SQLITE_OK ) rc = zipfileReadLFH(aRead, &lfh);
       if( rc==SQLITE_OK ){
         pNew->iDataOff =  pNew->cds.iOffset + ZIPFILE_LFH_FIXED_SZ;
@@ -25155,6 +25175,8 @@ static void shellFormatSchema(
     for(i=j=0; (c = z[i])!=0; i++){ /* Copy from z[i] back to z[j] */
       if( c==cEnd ){
         cEnd = 0;
+      }else if( cEnd!=0){
+        /* No-op */
       }else if( c=='"' || c=='\'' || c=='`' ){
         cEnd = c;
       }else if( c=='[' ){
@@ -25982,7 +26004,7 @@ static int shell_exec(
   }
 #endif
 
-  while( zSql[0] && (SQLITE_OK == rc) ){
+  while( zSql && zSql[0] && (SQLITE_OK == rc) ){
     static const char *zStmtSql;
     rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, &zLeftover);
     if( SQLITE_OK != rc ){
@@ -29802,7 +29824,9 @@ static int recoverDatabaseCmd(ShellState *pState, int nArg, char **azArg){
       pState->db, "main", recoverSqlCb, (void*)pState
   );
 
-  sqlite3_recover_config(p, 789, (void*)zRecoveryDb);  /* Debug use only */
+  if( !pState->bSafeMode ){
+    sqlite3_recover_config(p, 789, (void*)zRecoveryDb);  /* Debug use only */
+  }
   sqlite3_recover_config(p, SQLITE_RECOVER_LOST_AND_FOUND, (void*)zLAF);
   sqlite3_recover_config(p, SQLITE_RECOVER_ROWIDS, (void*)&bRowids);
   sqlite3_recover_config(p, SQLITE_RECOVER_FREELIST_CORRUPT,(void*)&bFreelist);
@@ -32591,6 +32615,8 @@ static int do_meta_command(const char *zLine, ShellState *p){
     int openMode = SHELL_OPEN_UNSPEC;
     int openFlags = SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE;
 
+    if( p->bSafeMode ) openFlags = SQLITE_OPEN_READONLY;
+
     /* Check for command-line arguments */
     for(iName=1; iName<nArg; iName++){
       const char *z = azArg[iName];
@@ -32598,10 +32624,10 @@ static int do_meta_command(const char *zLine, ShellState *p){
       if( optionMatch(z,"new") ){
         newFlag = 1;
 #ifdef SQLITE_HAVE_ZLIB
-      }else if( optionMatch(z, "zip") ){
+      }else if( optionMatch(z, "zip") && !p->bSafeMode ){
         openMode = SHELL_OPEN_ZIPFILE;
 #endif
-      }else if( optionMatch(z, "append") ){
+      }else if( optionMatch(z, "append") && !p->bSafeMode ){
         openMode = SHELL_OPEN_APPENDVFS;
       }else if( optionMatch(z, "readonly") ){
         openFlags &= ~(SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE);
