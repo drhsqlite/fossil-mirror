@@ -222,11 +222,14 @@ static const char *ssl_asn1time_to_iso8601(ASN1_TIME *asn1_time,
   }else{
     char res[20];
     char *pr = res;
-    const char *pt = (char *)asn1_time->data;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    #define ASN1_STRING_get0_data ASN1_STRING_data
+#endif
+    const char *pt = (const char *)ASN1_STRING_get0_data(asn1_time);
     /*                   0123456789 1234
     **  UTCTime:         YYMMDDHHMMSSZ      (YY >= 50 ? 19YY : 20YY)
     **  GeneralizedTime: YYYYMMDDHHMMSSZ */
-    if( asn1_time->length < 15 ){
+    if( ASN1_STRING_length(asn1_time) < 15 ){
       /* UTCTime, fill out century digits */
       *pr++ = pt[0]>='5' ? '1' : '2';
       *pr++ = pt[0]>='5' ? '9' : '0';

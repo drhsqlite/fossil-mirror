@@ -1,5 +1,5 @@
-C Import\sthe\srecent\schanges\sto\sthe\ssqlite3_qrf_wcwidth()\sfunction\sfrom\sSQLite\scheck-in\s[https://sqlite.org/src/info/35f39f7cb1|35f39f7cb1]\sto\scli_wcwidth()\sfor\sfeature\sparity.
-D 2025-12-05T15:35:00.000
+C Update\sOpenSSL\susage\sto\savoid\sdeprecated\sAPIs.
+D 2025-12-05T16:04:43.968
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -471,7 +471,7 @@ F src/hook.c d72a37780ea85b3ed195dc101640e71b15f8f8ae0eefb9b00969f50c65c2201f
 F src/href.js 97641963c7127a0c000c5a90ad2e2b3b2d216614b6f552737b552aa68feb0f21
 F src/http.c ae189b460516113f4ebc43c7d97db8a7237cd421563a7fa0772e96843c8b87de
 F src/http_socket.c db9603e27cbf4b41dae94d000acf3dbf1ecbb431ef0a24743aabd17e5467b323
-F src/http_ssl.c 5050cdd1441962f51762780cdd87b38c7281ecc6f4a65290acdaca318e9a4ca0
+F src/http_ssl.c 2ad69a84940d2e23c767e892bdaecf46a906cad9a4450740d2e6a900e5c4e7ce
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 1ee4f154daf3e687e8e8304777448b2bbd877adb279d6c9e7ff7952a02982b7f
 F src/info.c f7a74f52fa59bac43a7f8dded0151bd3cb86713085ad053154d39362adc4badd
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fbe5269b7f53baa446d73898775484795b1bb2be189e64c4550f3bcfb4d9f0c7
-R 89bf6038d184f2401f5163d6e727be3a
-U florian
-Z b3c1c3d81deea7b2557959bd100c1009
+P 98287b7b05d1b5ff452466487f2f927c6afb74d3b9e4c7e9494416bcd8de432c
+R 28bec471ef20ca2f9ced29d858432bff
+U drh
+Z a89ce2c000a9d8dc81f3a1afe41c6b81
 # Remove this line to create a well-formed Fossil manifest.
