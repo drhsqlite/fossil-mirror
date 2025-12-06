@@ -2560,6 +2560,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_FTS4 \
                  -DSQLITE_ENABLE_FTS5 \
                  -DSQLITE_ENABLE_MATH_FUNCTIONS \
+                 -DSQLITE_ENABLE_PERCENTILE \
                  -DSQLITE_ENABLE_SETLK_TIMEOUT \
                  -DSQLITE_ENABLE_STMTVTAB \
                  -DSQLITE_HAVE_ZLIB \
@@ -2590,6 +2591,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_FTS4 \
                  -DSQLITE_ENABLE_FTS5 \
                  -DSQLITE_ENABLE_MATH_FUNCTIONS \
+                 -DSQLITE_ENABLE_PERCENTILE \
                  -DSQLITE_ENABLE_SETLK_TIMEOUT \
                  -DSQLITE_ENABLE_STMTVTAB \
                  -DSQLITE_HAVE_ZLIB \

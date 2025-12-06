@@ -778,6 +778,7 @@ int sqlite3_format_query_result(
 #define QRF_TEXT_Html    4 /* HTML-style quoting */
 #define QRF_TEXT_Tcl     5 /* C/Tcl quoting */
 #define QRF_TEXT_Json    6 /* JSON quoting */
+#define QRF_TEXT_Relaxed 7 /* Relaxed SQL quoting */
 
 /*
 ** Quoting styles for BLOBs
@@ -971,6 +972,15 @@ static const char qrfCType[] = {
 #define qrfDigit(x) ((qrfCType[(unsigned char)x]&2)!=0)
 #define qrfAlpha(x) ((qrfCType[(unsigned char)x]&4)!=0)
 #define qrfAlnum(x) ((qrfCType[(unsigned char)x]&6)!=0)
+
+#ifndef deliberate_fall_through
+/* Quiet some compilers about some of our intentional code. */
+# if defined(GCC_VERSION) && GCC_VERSION>=7000000
+#  define deliberate_fall_through __attribute__((fallthrough));
+# else
+#  define deliberate_fall_through
+# endif
+#endif
 
 /*
 ** Set an error code and error message.
@@ -1574,6 +1584,45 @@ static void qrfEscape(
 }
 
 /*
+** Determine if the string z[] can be shown as plain text.  Return true
+** if z[] is unambiguously text.  Return false if z[] needs to be
+** quoted.
+**
+** All of the following must be true in order for z[] to be relaxable:
+**
+**    (1) z[] does not begin or end with ' or whitespace
+**    (2) z[] is not the same as the NULL rendering
+**    (3) z[] does not looks like a numeric literal
+*/
+static int qrfRelaxable(Qrf *p, const char *z){
+  size_t i, n;
+  if( z[0]=='\'' || qrfSpace(z[0]) ) return 0;
+  if( z[0]==0 && (p->spec.zNull==0 || p->spec.zNull[0]==0) ) return 0;
+  n = strlen(z);
+  if( z[n-1]=='\'' || qrfSpace(z[n-1]) ) return 0;
+  if( p->spec.zNull && strcmp(p->spec.zNull,z)==0 ) return 0;
+  i = (z[0]=='-' || z[0]=='+');
+  if( strcmp(z+i,"Inf")==0 ) return 0;
+  if( !qrfDigit(z[i]) ) return 1;
+  i++;
+  while( qrfDigit(z[i]) ){ i++; }
+  if( z[i]==0 ) return 0;
+  if( z[i]=='.' ){
+    i++;
+    while( qrfDigit(z[i]) ){ i++; }
+    if( z[i]==0 ) return 0;
+  }
+  if( z[i]=='e' || z[i]=='E' ){
+    i++;
+    if( z[i]=='+' || z[i]=='-' ){ i++; }
+    if( !qrfDigit(z[i]) ) return 1;
+    i++;
+    while( qrfDigit(z[i]) ){ i++; }
+  }
+  return z[i]!=0;
+}
+
+/*
 ** If a field contains any character identified by a 1 in the following
 ** array, then the string must be quoted for CSV.
 */
@@ -1602,6 +1651,12 @@ static const char qrfCsvQuote[] = {
 static void qrfEncodeText(Qrf *p, sqlite3_str *pOut, const char *zTxt){
   int iStart = sqlite3_str_length(pOut);
   switch( p->spec.eText ){
+    case QRF_TEXT_Relaxed:
+      if( qrfRelaxable(p, zTxt) ){
+        sqlite3_str_appendall(pOut, zTxt);
+        break;
+      }
+      deliberate_fall_through; /* FALLTHRU */
     case QRF_TEXT_Sql: {
       if( p->spec.eEsc==QRF_ESC_Off ){
         sqlite3_str_appendf(pOut, "%Q", zTxt);
@@ -2302,20 +2357,33 @@ static void qrfRowSeparator(sqlite3_str *pOut, qrfColData *p, char cSep){
 #define BOX_124  "\342\224\264"  /* U+2534 -'- */
 #define BOX_1234 "\342\224\274"  /* U+253c -|- */
 
+/* Rounded corners: */
+#define BOX_R12  "\342\225\260"  /* U+2570  '- */
+#define BOX_R23  "\342\225\255"  /* U+256d  ,- */
+#define BOX_R34  "\342\225\256"  /* U+256e -,  */
+#define BOX_R14  "\342\225\257"  /* U+256f -'  */
+
+/* Doubled horizontal lines: */
+#define DBL_24   "\342\225\220"  /* U+2550 === */
+#define DBL_123  "\342\225\236"  /* U+255e  |= */
+#define DBL_134  "\342\225\241"  /* U+2561 =|  */
+#define DBL_1234 "\342\225\252"  /* U+256a =|= */
+
 /* Draw horizontal line N characters long using unicode box
 ** characters
 */
-static void qrfBoxLine(sqlite3_str *pOut, int N){
-  const char zDash[] =
-      BOX_24 BOX_24 BOX_24 BOX_24 BOX_24 BOX_24 BOX_24 BOX_24 BOX_24 BOX_24
-      BOX_24 BOX_24 BOX_24 BOX_24 BOX_24 BOX_24 BOX_24 BOX_24 BOX_24 BOX_24;
-  const int nDash = sizeof(zDash) - 1;
+static void qrfBoxLine(sqlite3_str *pOut, int N, int bDbl){
+  const char *azDash[2] = {
+      BOX_24 BOX_24 BOX_24 BOX_24 BOX_24   BOX_24 BOX_24 BOX_24 BOX_24 BOX_24,
+      DBL_24 DBL_24 DBL_24 DBL_24 DBL_24   DBL_24 DBL_24 DBL_24 DBL_24 DBL_24
+  };/*  0       1      2     3      4        5      6      7      8      9   */
+  const int nDash = 30;
   N *= 3;
   while( N>nDash ){
-    sqlite3_str_append(pOut, zDash, nDash);
+    sqlite3_str_append(pOut, azDash[bDbl], nDash);
     N -= nDash;
   }
-  sqlite3_str_append(pOut, zDash, N);
+  sqlite3_str_append(pOut, azDash[bDbl], N);
 }
 
 /*
@@ -2326,7 +2394,8 @@ static void qrfBoxSeparator(
   qrfColData *p,
   const char *zSep1,
   const char *zSep2,
-  const char *zSep3
+  const char *zSep3,
+  int bDbl
 ){
   int i;
   if( p->nCol>0 ){
@@ -2334,10 +2403,10 @@ static void qrfBoxSeparator(
     if( useBorder ){
       sqlite3_str_appendall(pOut, zSep1);
     }
-    qrfBoxLine(pOut, p->a[0].w+p->nMargin);
+    qrfBoxLine(pOut, p->a[0].w+p->nMargin, bDbl);
     for(i=1; i<p->nCol; i++){
       sqlite3_str_appendall(pOut, zSep2);
-      qrfBoxLine(pOut, p->a[i].w+p->nMargin);
+      qrfBoxLine(pOut, p->a[i].w+p->nMargin, bDbl);
     }
     if( useBorder ){
       sqlite3_str_appendall(pOut, zSep3);
@@ -2745,7 +2814,7 @@ static void qrfColumnar(Qrf *p){
         rowStart += 3;
         rowSep = "\n";
       }else{
-        qrfBoxSeparator(p->pOut, &data, BOX_23, BOX_234, BOX_34);
+        qrfBoxSeparator(p->pOut, &data, BOX_R23, BOX_234, BOX_R34, 0);
       }
       break;
     case QRF_STYLE_Table:
@@ -2878,8 +2947,10 @@ static void qrfColumnar(Qrf *p){
           break;
         }
         case QRF_STYLE_Box: {
-          if( isTitleDataSeparator || data.bMultiRow ){
-            qrfBoxSeparator(p->pOut, &data, BOX_123, BOX_1234, BOX_134);
+          if( isTitleDataSeparator ){
+            qrfBoxSeparator(p->pOut, &data, DBL_123, DBL_1234, DBL_134, 1);
+          }else if( data.bMultiRow ){
+            qrfBoxSeparator(p->pOut, &data, BOX_123, BOX_1234, BOX_134, 0);
           }
           break;
         }
@@ -2914,7 +2985,7 @@ static void qrfColumnar(Qrf *p){
   if( p->spec.bBorder!=QRF_No ){
     switch( p->spec.eStyle ){
       case QRF_STYLE_Box:
-        qrfBoxSeparator(p->pOut, &data, BOX_12, BOX_124, BOX_14);
+        qrfBoxSeparator(p->pOut, &data, BOX_R12, BOX_124, BOX_R14, 0);
         break;
       case QRF_STYLE_Table:
         qrfRowSeparator(p->pOut, &data, '+');
@@ -3371,8 +3442,8 @@ static void qrfInitialize(
   if( p->mxHeight<=0 ) p->mxHeight = 2147483647;
   if( p->spec.eStyle>QRF_STYLE_Table ) p->spec.eStyle = QRF_Auto;
   if( p->spec.eEsc>QRF_ESC_Symbol ) p->spec.eEsc = QRF_Auto;
-  if( p->spec.eText>QRF_TEXT_Json ) p->spec.eText = QRF_Auto;
-  if( p->spec.eTitle>QRF_TEXT_Json ) p->spec.eTitle = QRF_Auto;
+  if( p->spec.eText>QRF_TEXT_Relaxed ) p->spec.eText = QRF_Auto;
+  if( p->spec.eTitle>QRF_TEXT_Relaxed ) p->spec.eTitle = QRF_Auto;
   if( p->spec.eBlob>QRF_BLOB_Size ) p->spec.eBlob = QRF_Auto;
 qrf_reinit:
   switch( p->spec.eStyle ){
@@ -10565,6 +10636,7 @@ static int fileStat(
   b1[sz] = 0;
   rc = _wstat(b1, pStatBuf);
   if( rc==0 ) statTimesToUtc(zPath, pStatBuf);
+  sqlite3_free(b1);
   return rc;
 #else
   return stat(zPath, pStatBuf);
@@ -24170,7 +24242,7 @@ static ShellState shellState;
 */
 static const char *qrfEscNames[] = { "auto", "off", "ascii", "symbol" };
 static const char *qrfQuoteNames[] = 
-      { "off","off","sql","hex","csv","tcl","json"};
+      { "off","off","sql","hex","csv","tcl","json","relaxed"};
 
 /*
 ** These are the allowed shellFlgs values
@@ -24426,6 +24498,7 @@ static void modeChange(ShellState *p, unsigned char eMode){
     modeFree(&p->mode);
     modeChange(p, MODE_QBox);
     p->mode.bAutoScreenWidth = 1;
+    p->mode.spec.eText = QRF_TEXT_Relaxed;
     p->mode.spec.nCharLimit = 300;
     p->mode.spec.nLineLimit = 5;
     p->mode.spec.bTextJsonb = QRF_Yes;
@@ -25991,6 +26064,7 @@ static int shell_exec(
   }
   if( spec.eBlob==QRF_BLOB_Auto ){
     switch( spec.eText ){
+      case QRF_TEXT_Relaxed: /* fall through */
       case QRF_TEXT_Sql:  spec.eBlob = QRF_BLOB_Sql;   break;
       case QRF_TEXT_Json: spec.eBlob = QRF_BLOB_Json;  break;
       default:            spec.eBlob = QRF_BLOB_Text;  break;
@@ -26746,8 +26820,8 @@ static const struct {
 "  --once                   Setting changes to the right are reverted after\n"
 "                           the next SQL command.\n"
 "  --quote ARG              Enable/disable quoting of text. ARG can be\n"
-"                           \"off\", \"on\", \"sql\", \"csv\", \"html\", \"tcl\",\n"
-"                           or \"json\".  \"off\" means show the text as-is.\n"
+"                           \"off\", \"on\", \"sql\", \"relaxed\", \"csv\", \"html\",\n"
+"                           \"tcl\", or \"json\". \"off\" means show the text as-is.\n"
 "                           \"on\" is an alias for \"sql\".\n"
 "  --reset                  Changes all mode settings back to their default.\n"
 "  --rowsep STRING          Use STRING as the row separator\n"
@@ -30632,8 +30706,8 @@ static int modeTitleDsply(ShellState *p, int bAll){
 **   --once                   Setting changes to the right are reverted after
 **                            the next SQL command.
 **   --quote ARG              Enable/disable quoting of text. ARG can be
-**                            "off", "on", "sql", "csv", "html", "tcl",
-**                            or "json".  "off" means show the text as-is.
+**                            "off", "on", "sql", "relaxed", "csv", "html",
+**                            "tcl", or "json". "off" means show the text as-is.
 **                            "on" is an alias for "sql".
 **   --reset                  Changes all mode settings back to their default.
 **   --rowsep STRING          Use STRING as the row separator
@@ -30842,9 +30916,10 @@ static int dotCmdMode(ShellState *p){
         if( (k = pickStr(azArg[i],0,"no","yes","0","1",""))>=0 ){
           k &= 1;   /* 0 for "off".  1 for "on". */
         }else{
-          char *zErr = 0;         /*  0     1    2     3     4      5     6 */
-          k = pickStr(azArg[i],&zErr,"off","on","sql","csv","html","tcl","json",
-                                     "");
+          char *zErr = 0;
+          k = pickStr(azArg[i],&zErr,
+                 "off","on","sql","csv","html","tcl","json","relaxed","");
+              /*  0     1    2     3     4      5     6      7   */
           if( k<0 ){
             dotCmdError(p, i, "unknown", "%z", zErr);
             return 1;
@@ -30872,6 +30947,9 @@ static int dotCmdMode(ShellState *p){
           break;
         case 6:  /* json */
           p->mode.spec.eText = QRF_TEXT_Json;
+          break;
+        case 7:  /* relaxed */
+          p->mode.spec.eText = QRF_TEXT_Relaxed;
           break;
         default: /* off */
           p->mode.spec.eText = QRF_TEXT_Plain;
