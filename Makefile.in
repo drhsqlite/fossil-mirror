@@ -77,7 +77,7 @@ APPNAME = fossil
 # may be more appropriate for fuzzing.
 
 #### Emscripten stuff for optionally doing in-tree builds
-# of any WASM components. We store precompiled WASM in the the SCM, so
+# of any WASM components. We store precompiled WASM in the SCM, so
 # this is only useful for people who actively work on WASM
 # components. EMSDK_ENV refers to the "environment" script which comes
 # with the Emscripten SDK package:
@@ -116,7 +116,7 @@ tags:
 # feature in autosetup (GH 0a71e3c3b7) which rewrites *.in outputs only
 # if doing so will write different contents; otherwise, it leaves them
 # alone so the mtime doesn't change.  This means that if you change one
-# our depdendencies besides Makefile.in, we'll reconfigure but Makefile
+# of our dependencies besides Makefile.in, we'll reconfigure but Makefile
 # won't change, so this rule will remain out of date, so we'll reconfig
 # but Makefile won't change, so we'll reconfig but... endlessly.
 #

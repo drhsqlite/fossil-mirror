@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\sSQLite\sthat\sincludes\srecent\sCLI\senhancements,\sfor\ntesting\sof\sthose\senhancements\susing\sthe\s"fossil\ssql"\scommand.\s\sEnable\npercentile\sSQL\sfunctions,\salso\sfor\stesting.
-D 2025-12-06T14:01:19.090
+C Small\sMakefile.in\scomment\stidyups.
+D 2025-12-07T05:36:41.371
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -13,7 +13,7 @@ F BUILD.txt a92d9dc35ad8b4dfb7c1e35278362da66ccbc5a41ee6decdd8727e17fd4542e0
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 609deb40ad1d5fed540cab1ec0a99aedf9b5c9e75d877cea4da6ffdf02b6009c
 F Makefile.classic 25ea72b6fe8959b5bbd638363af82dec3ba475c09ea79918deda199eb15c3d3a
-F Makefile.in 6b80e22f5e70b9a47d4f1491547b1d68c294c12cdf21be39311bc6fdc143618f
+F Makefile.in 4c7578bdf3b161564ed3e59674a73054e02af72b03a6dfb27fe75602db6d462a
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 3b0f155d2d0b8b24d67a58111a30ac3920964ec5c4a245b4c405c03da01d2b29
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0d239b52b0db10be0e8f6d8ac8a6ce76c658a580fe47fa688520f0a010bdccf3
-R 6350ad2d53c682ab51a81fcb3ace3b38
-U drh
-Z 8b0b5452f67e55454a2f463ecbde7df4
+P 709b566431af6b2609f3b0d076b8200cbec193ea803b13c3934144e84b149a78
+R 5029a181ca2c0dbf36ad572f48daa966
+U brickviking
+Z 0ce4958682bc9f882f7509bfadfcc5f0
 # Remove this line to create a well-formed Fossil manifest.
