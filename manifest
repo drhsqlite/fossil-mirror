@@ -1,5 +1,5 @@
-C The\s/errorlog\spage\s(Admin\saccess\sonly)\snow\srecognizes\stimeouts\sand\sWAL\nrecovery\snotifications\sas\sseparate\serror\scategories.
-D 2025-12-08T11:23:53.892
+C The\saccess-log\sshould\sdefault\sto\sON,\sin\sall\scases.\n[forum:/forumpost/a16a4e1556|Forum\spost\sa16a4e1556].
+D 2025-12-09T12:41:14.633
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -494,7 +494,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c 789448a0ef976023396b50b1671797188e12bfa795fdf751daa44fc2b5edc97f
 F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf8
-F src/login.c d9d120a18c32675d1311a77fd982405d48c9ae0dd7d5f1e007e1e17cf7d819d3
+F src/login.c 5a7dac77529ad24bf6763d6a7aace9a998ff7d956d6f26d3bd6d1e973be09f1a
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c c1994e631c98a155eb3f00d9813cb77ca89dded928da91969f34b8cce71b3fa1
@@ -588,7 +588,7 @@ F src/unicode.c ba446d2099a2cd431d40c26e1d5ae923580a399b0f08fc73f7fe60714d6e1f1c
 F src/unversioned.c d39361fa12c51ed05b506b4efa5ef049b614f906fdb7ebd133c587d00b88746c
 F src/update.c 3b61b4a29bebfb9db27943562c21c8ab82b36ee33940615179a22dacbcb2f470
 F src/url.c 431525f55f1720147811229d1d7f7e1754ca6721f0d94e37f7fef66854d53f5d
-F src/user.c 04e4b90450007b11c47078ffec0da4417dc3c98b36731f78f98e56567d03f653
+F src/user.c 8ed24fbe9586c0a633a91037d9947d1772dfda3562750f5a0c52b0d7f0b4c408
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
 F src/util.c 76b679f29504d8c376f133c09fdb816e7c86b01463b45aef7f06a14925ac7d66
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86787eadb7b1403827e4dc7fd118c71aaf445d63a1115f5e19a8da4ee6ef1452
-R ab4dcf92aaf9ea22f3e0b6131e31164a
+P 9225f7d3e001d542922dd195d8fc196c86f2720b3df4061471e0e2f90bf5c0cf
+R a3153d796ed2b7b227867ccaa4b1bb50
 U drh
-Z 5d7eca9eb088ff63bc34f8bbaee7d2b9
+Z 6d8f0d93ff5343bf59e82c3db19a2f2e
 # Remove this line to create a well-formed Fossil manifest.

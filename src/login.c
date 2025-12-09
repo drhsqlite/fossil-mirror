@@ -201,7 +201,7 @@ static void record_login_attempt(
   int bSuccess               /* True if the attempt was a success */
 ){
   db_unprotect(PROTECT_READONLY);
-  if( db_get_boolean("access-log", 0) ){
+  if( db_get_boolean("access-log", 1) ){
     create_accesslog_table();
     db_multi_exec(
       "INSERT INTO accesslog(uname,ipaddr,success,mtime)"
