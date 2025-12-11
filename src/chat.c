@@ -298,6 +298,7 @@ static const char zChatSchema1[] =
 ** exist.
 */
 void chat_rebuild_index(int bForce){
+  if( !db_table_exists("repository","chat") ) return;
   if( bForce!=0 ){
     db_multi_exec("DROP TABLE IF EXISTS chatfts1");
   }
@@ -1247,6 +1248,15 @@ void chat_msg_from_event(
 **
 **      Show the default URL used to access the chat server.
 **
+** > fossil chat purge
+**
+**      Remove chat messages that are older than chat-keep-days and
+**      which are not one of the most recent chat-keep-count message.
+**
+** > fossil chat reindex
+**
+**      Rebuild the full-text search index for chat
+**
 ** Additional subcommands may be added in the future.
 */
 void chat_command(void){
@@ -1454,9 +1464,14 @@ void chat_command(void){
     /* Show the URL to access chat. */
     fossil_print("%s/chat\n", zUrl);
   }else if( strcmp(g.argv[2],"purge")==0 ){
-    /* Undocumented debugging command that calls chat_purge() */
+    /* clear out expired chat messages:  chat messages that are older then
+    ** chat-keep-days and that are not one or the most recent chat-keep-count
+    ** messages. */
     chat_create_tables();
     chat_purge();
+  }else if( strcmp(g.argv[2],"reindex")==0 ){
+    /* Rebuild the FTS5 index on chat content */
+    chat_rebuild_index(1);
   }else{
     fossil_fatal("no such subcommand \"%s\".  Use --help for help", g.argv[2]);
   }

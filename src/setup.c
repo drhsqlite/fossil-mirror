@@ -1593,6 +1593,9 @@ void setup_chat(void){
   style_set_current_feature("setup");
   style_header("Chat Configuration");
   db_begin_transaction();
+  if( P("rbldchatidx") && cgi_csrf_safe(2) ){
+    chat_rebuild_index(1);
+  }
   @ <form action="%R/setup_chat" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
@@ -1645,8 +1648,11 @@ void setup_chat(void){
   @ <p>The sound used in the client-side chat to indicate that a new
   @ chat message has arrived.
   @ (Property: "chat-alert-sound")</p>
+
   @ <hr/>
-  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <p><input type="submit"  name="submit" value="Apply Changes">
+  @ <input type="submit" name="rbldchatidx"\
+  @  value="Rebuild Full-Text Search Index"></p>
   @ </div></form>
   db_end_transaction(0);
   @ <script nonce="%h(style_nonce())">
@@ -2344,15 +2350,20 @@ void page_srchsetup(){
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  if( P("fts0") ){
-    search_drop_index();
-  }else if( P("fts1") ){
-    const char *zTokenizer = PD("ftstok","off");
-    search_set_tokenizer(zTokenizer);
-    search_drop_index();
-    search_create_index();
-    search_fill_index();
-    search_update_index(search_restrict(SRCH_ALL));
+  if( cgi_csrf_safe(2) ){
+    if( P("fts0") ){
+      search_drop_index();
+    }else if( P("fts1") ){
+      const char *zTokenizer = PD("ftstok","off");
+      search_set_tokenizer(zTokenizer);
+      search_drop_index();
+      search_create_index();
+      search_fill_index();
+      search_update_index(search_restrict(SRCH_ALL));
+    }
+    if( P("rbldchatidx") ){
+      chat_rebuild_index(1);
+    }
   }
   if( search_index_exists() ){
     int pgsz = db_int64(0, "PRAGMA repository.page_size;");
@@ -2369,6 +2380,10 @@ void page_srchsetup(){
     select_fts_tokenizer();
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
+    if( db_table_exists("repository","chat") ){
+      @ <input type="submit" name="rbldchatidx" \
+      @ value="Rebuild The Chat FTS Index">
+    }
     style_submenu_element("FTS Index Debugging","%R/test-ftsdocs");
   }else{
     @ <p>The SQLite search index is disabled.  All searching will be
