@@ -1654,6 +1654,23 @@ void setup_chat(void){
   @ <input type="submit" name="rbldchatidx"\
   @  value="Rebuild Full-Text Search Index"></p>
   @ </div></form>
+
+  /* Validate the chat FTS search index */
+  if( db_table_exists("repository","chatfts1") ){
+    char *zMissing;
+    zMissing = db_text(0,
+      "SELECT group_concat(rowid,', ') FROM chat"
+      " WHERE rowid NOT IN (SELECT rowid FROM chatfts1_docsize)"
+    );
+    if( zMissing && zMissing[0] ){
+      @ <p><b>WARNING:</b> The following chat messages are missing
+      @ from the full-text index.  Press the "Rebuild Full-Text Search Index"
+      @ button above to fix this.</p>
+      @ <p>%h(zMissing)</p>
+    }
+    fossil_free(zMissing);
+  }
+
   db_end_transaction(0);
   @ <script nonce="%h(style_nonce())">
   @ (function(){

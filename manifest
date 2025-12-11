@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\schat\sreindex"\scommand.\s\sAdd\sbuttons\sin\sthe\s/srchsetup\nand\s/setup_chat\spages\sthat\swill\srebuild\sthe\schat\sFTS\sindex.
-D 2025-12-11T12:40:36.520
+C Put\sa\swarning\sat\sthe\sbottom\sof\sthe\s/setup_chat\spage\sif\sFTS\sentries\sfor\nchat\sare\smissing.
+D 2025-12-11T12:51:22.609
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -531,7 +531,7 @@ F src/schema.c 3393216d68e19eead492c047bfd1c9081a4ca546c2a9129ecef35acc6b576f66
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 31d8c0094037b24ed235e3341dbf9601d3afd739f634d2882ad45688e01ead8c
 F src/security_audit.c 0cd533080995b6a81262a6d2ca3b366bca1e67e6f0cb4000aeaffa12b4f835b2
-F src/setup.c ae190d21728455cce784202a0d956b9e28d76ffba88e6793dbe9cda445873b9e
+F src/setup.c 3b243156a6a2f4ba4a50a87d9b71f991703ab73b4c42094d64ae9b341c751b1c
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3fe805acb6fd374fa4b1854023c0d9ff8fa167992d7f08de10401ff59d654bad
-R 50598eef6ddb467cefd228ad1096adf5
+P 43af043bd7e33e5a517129c797ff18edb1e66ceefd3e28a329a3aea0912bbc4a
+R 32eef420f326edb9e9895972a9715ca8
 U drh
-Z dde55c748ce11d8a0fa6c15c8158d454
+Z 318dc5f48594a6686e35ea05ac0f8454
 # Remove this line to create a well-formed Fossil manifest.
