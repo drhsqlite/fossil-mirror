@@ -161,6 +161,7 @@ static int alert_process_deferred_triggers(void){
   ){
     const char *zChatUser = db_get("chat-timeline-user", 0);
     if( zChatUser && zChatUser[0] ){
+      chat_create_tables(); /* Make sure TEMP TRIGGERs for FTS exist */
       db_multi_exec(
         "INSERT INTO chat(mtime,lmtime,xfrom,xmsg)"
         " SELECT julianday(), "

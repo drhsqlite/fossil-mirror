@@ -325,7 +325,7 @@ void chat_rebuild_index(int bForce){
 ** them if they do not. Set up TEMP triggers (if needed) to update the
 ** chatfts1 table as the chat table is updated.
 */
-static void chat_create_tables(void){
+void chat_create_tables(void){
   if( !db_table_exists("repository","chat") ){
     db_multi_exec(zChatSchema1/*works-like:""*/);
   }else if( !db_table_has_column("repository","chat","lmtime") ){
