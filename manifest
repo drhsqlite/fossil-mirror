@@ -1,5 +1,5 @@
-C The\saccess-log\sshould\sdefault\sto\sON,\sin\sall\scases.\n[forum:/forumpost/a16a4e1556|Forum\spost\sa16a4e1556].
-D 2025-12-09T12:41:14.633
+C Add\sthe\s(undocumented)\s"fossil\schat\spurge"\scommand,\sfor\sdebugging.
+D 2025-12-11T11:24:25.582
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -400,7 +400,7 @@ F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 3ca4bf560b53b19c0f059c23a7246a9ddbf2ade45a34ed36b806edb9ca291d12
 F src/cgi.c 2428c9a9443331d183cd06e103c9a25d0338ccbfb929cd5498ef126acc67aeff
-F src/chat.c 27eb37cf49123d845f749f3fbf1e1834518e30ef1b83ffa6f92bea131939a77a
+F src/chat.c c5e269eaaadcf61624b421b0f5bc14ccc807d10422db7f3d8988a87021002af6
 F src/checkin.c 6eaff1ee22eeaac6d50a4547aaf7856f863770697abb561ad4af21833307ef3a
 F src/checkout.c 98af6eee06ef17926655361db5d30465fa0bb5e87199a37c206d16f38f33c938
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9225f7d3e001d542922dd195d8fc196c86f2720b3df4061471e0e2f90bf5c0cf
-R a3153d796ed2b7b227867ccaa4b1bb50
+P fc79c57c591759dc351281a7159b4a97bbbf6b546fbda8c63d721529dec5ecd7
+R 6ffe90b4f11f20144401011b87ae4b88
 U drh
-Z 6d8f0d93ff5343bf59e82c3db19a2f2e
+Z 2627684a752c2aa1461c05a24bf0a996
 # Remove this line to create a well-formed Fossil manifest.

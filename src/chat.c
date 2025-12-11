@@ -1453,6 +1453,10 @@ void chat_command(void){
   }else if( strcmp(g.argv[2],"url")==0 ){
     /* Show the URL to access chat. */
     fossil_print("%s/chat\n", zUrl);
+  }else if( strcmp(g.argv[2],"purge")==0 ){
+    /* Undocumented debugging command that calls chat_purge() */
+    chat_create_tables();
+    chat_purge();
   }else{
     fossil_fatal("no such subcommand \"%s\".  Use --help for help", g.argv[2]);
   }
