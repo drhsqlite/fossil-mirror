@@ -1,5 +1,5 @@
-C Re-scope\sa\svar\sin\s/chat,\snoticed\swhile\slooking\sup\sthe\sanswer\sto\san\soff-list\squestion\sabout\sits\skeystroke\shandling.\sNo\sfunctional\schange.
-D 2025-12-11T20:11:17.694
+C Pervent\sinteger\soverflow\scaused\sby\sa\smalicious\sdelta.
+D 2025-12-11T23:24:39.570
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/copybtn.js a967fe355479c329f4e172c625b7a8403e1132be72fd3ebf9ad0afad249a679
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 3ac90b10ea945a4e5d69ce1bd868798c37ef1c9d0ac9edfdf883d43ed97ecadd
 F src/default.css b53dfed2ef9b70a883984c188ca2fc5c2be17a63984611b26776ebb016445d99
-F src/delta.c 124c6204b9fdde1dc1ccf0afcaa2aed0aebac8cba0c1a9657e1aaefffd2db5e8
+F src/delta.c 5dda23c609b100d419be0c0ed54732c4e1e994cd3486235ed90d6428cf49895a
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c f08accd177876a9d41ad36de0559e5bdc07e7f368ac58790634c2dcd75c30d9f
 F src/descendants.c 9a1a5bbec5378009355b2744fd573721221c4a8dfb529ea499d5e081113142d9
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 614b3f755984bdaa79549ac25282a0934b79e56ebbf5705c30114655b26c6db5
-R 70ecd9c318a0e4a9d69eb027a12249d5
-U stephan
-Z b4b74fc4a35ac78fc39699724beca978
+P 9c2741ec927bc58926ed3abc572512f0f835320210aa823fa2096a342987282a
+R 5aef520ad377174a8837de1310b9fb69
+U drh
+Z 2b3ce28b536e5ee66974e0df916da9a5
 # Remove this line to create a well-formed Fossil manifest.
