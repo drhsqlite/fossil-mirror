@@ -74,14 +74,6 @@ typedef unsigned short int u16;
 #endif
 
 /*
-** Determine if we are dealing with WinRT, which provides only a subset of
-** the full Win32 API.
-*/
-#if !defined(SQLITE_OS_WINRT)
-# define SQLITE_OS_WINRT 0
-#endif
-
-/*
 ** If SQLITE_SHELL_FIDDLE is defined then the shell is modified
 ** somewhat for use as a WASM module in a web browser. This flag
 ** should only be used when building the "fiddle" web application, as
@@ -220,9 +212,6 @@ typedef unsigned char u8;
 #endif
 
 #if defined(_WIN32) || defined(WIN32)
-# if SQLITE_OS_WINRT
-#  define SQLITE_OMIT_POPEN 1
-# else
 #  include <io.h>
 #  include <fcntl.h>
 #  define isatty(h) _isatty(h)
@@ -237,7 +226,6 @@ typedef unsigned char u8;
 #  endif
 #  undef pclose
 #  define pclose _pclose
-# endif
 #else
  /* Make sure isatty() has a prototype. */
  extern int isatty(int);
@@ -268,9 +256,6 @@ typedef unsigned char u8;
 #define IsAlpha(X)  isalpha((unsigned char)X)
 
 #if defined(_WIN32) || defined(WIN32)
-#if SQLITE_OS_WINRT
-#include <intrin.h>
-#endif
 #undef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -710,6 +695,7 @@ struct sqlite3_qrf_spec {
   short int nWrap;            /* Wrap columns wider than this */
   short int nScreenWidth;     /* Maximum overall table width */
   short int nLineLimit;       /* Maximum number of lines for any row */
+  short int nTitleLimit;      /* Maximum number of characters in a title */
   int nCharLimit;             /* Maximum number of characters in a cell */
   int nWidth;                 /* Number of entries in aWidth[] */
   int nAlign;                 /* Number of entries in aAlignment[] */
@@ -927,7 +913,7 @@ struct Qrf {
   union {
     struct {                  /* Content for QRF_STYLE_Line */
       int mxColWth;             /* Maximum display width of any column */
-      const char **azCol;       /* Names of output columns (MODE_Line) */
+      char **azCol;             /* Names of output columns (MODE_Line) */
     } sLine;
     qrfEQPGraph *pGraph;      /* EQP graph (Eqp, Stats, and StatsEst) */
     struct {                  /* Content for QRF_STYLE_Explain */
@@ -1817,6 +1803,53 @@ static const char *qrfJsonbToJson(Qrf *p, int iCol){
 }
 
 /*
+** Adjust the input string zIn[] such that it is no more than N display
+** characters wide.  If it is wider than that, then truncate and add
+** ellipsis.  Or if zIn[] contains a \r or \n, truncate at that point,
+** adding ellipsis.  Embedded tabs in zIn[] are converted into ordinary
+** spaces.
+**
+** Return this display width of the modified title string.
+*/
+static int qrfTitleLimit(char *zIn, int N){
+  unsigned char *z = (unsigned char*)zIn;
+  int n = 0;
+  unsigned char *zEllipsis = 0;
+  while( 1 /*exit-by-break*/ ){
+    if( z[0]<' ' ){
+      int k;
+      if( z[0]==0 ){
+        zEllipsis = 0;
+        break;
+      }else if( z[0]=='\033' && (k = qrfIsVt100(z))>0 ){
+        z += k;
+      }else if( z[0]=='\t' ){
+        z[0] = ' ';
+      }else if( z[0]=='\n' || z[0]=='\r' ){
+        z[0] = ' ';
+      }else{
+        z++;
+      }
+    }else if( (0x80&z[0])==0 ){
+      if( n>=(N-3) && zEllipsis==0 ) zEllipsis = z;
+      if( n==N ){ z[0] = 0; break; }
+      n++;
+      z++;
+    }else{
+      int u = 0;
+      int len = sqlite3_qrf_decode_utf8(z, &u);
+      if( n+len>(N-3) && zEllipsis==0 ) zEllipsis = z;
+      if( n+len>N ){ z[0] = 0; break; }
+      z += len;
+      n += sqlite3_qrf_wcwidth(u);
+    }
+  }
+  if( zEllipsis && N>=3 ) memcpy(zEllipsis,"...",4);
+  return n;
+}
+
+
+/*
 ** Render value pVal into pOut
 */
 static void qrfRenderValue(Qrf *p, sqlite3_str *pOut, int iCol){
@@ -2699,7 +2732,13 @@ static void qrfColumnar(Qrf *p){
       qrfEncodeText(p, pStr, z ? z : "");
       n = sqlite3_str_length(pStr);
       z = data.az[data.n] = sqlite3_str_finish(pStr);
-      data.aiWth[data.n] = w = qrfDisplayWidth(z, n, &nNL);
+      if( p->spec.nTitleLimit ){
+        nNL = 0;
+        data.aiWth[data.n] = w = qrfTitleLimit(data.az[data.n],
+                                               p->spec.nTitleLimit );
+      }else{
+        data.aiWth[data.n] = w = qrfDisplayWidth(z, n, &nNL);
+      }
       data.n++;
       if( w>data.a[i].mxW ) data.a[i].mxW = w;
       if( nNL ) data.bMultiRow = 1;
@@ -3325,6 +3364,7 @@ static void qrfOneSimpleRow(Qrf *p){
       sqlite3_str *pVal;
       int mxW;
       int bWW;
+      int nSep;
       if( p->u.sLine.azCol==0 ){
         p->u.sLine.azCol = sqlite3_malloc64( p->nCol*sizeof(char*) );
         if( p->u.sLine.azCol==0 ){
@@ -3334,21 +3374,26 @@ static void qrfOneSimpleRow(Qrf *p){
         p->u.sLine.mxColWth = 0;
         for(i=0; i<p->nCol; i++){
           int sz;
-          p->u.sLine.azCol[i] = sqlite3_column_name(p->pStmt, i);
-          if( p->u.sLine.azCol[i]==0 ) p->u.sLine.azCol[i] = "unknown";
+          const char *zCName = sqlite3_column_name(p->pStmt, i);
+          if( zCName==0 ) zCName = "unknown";
+          p->u.sLine.azCol[i] = sqlite3_mprintf("%s", zCName);
+          if( p->spec.nTitleLimit>0 ){
+            (void)qrfTitleLimit(p->u.sLine.azCol[i], p->spec.nTitleLimit);
+          }
           sz = (int)sqlite3_qrf_wcswidth(p->u.sLine.azCol[i]);
           if( sz > p->u.sLine.mxColWth ) p->u.sLine.mxColWth = sz;
         }
       }
       if( p->nRow ) sqlite3_str_append(p->pOut, "\n", 1);
       pVal = sqlite3_str_new(p->db);
-      mxW = p->mxWidth - (3 + p->u.sLine.mxColWth);
+      nSep = (int)strlen(p->spec.zColumnSep);
+      mxW = p->mxWidth - (nSep + p->u.sLine.mxColWth);
       bWW = p->spec.bWordWrap==QRF_Yes;
       for(i=0; i<p->nCol; i++){
         const char *zVal;
         int cnt = 0;
         qrfWidthPrint(p, p->pOut, -p->u.sLine.mxColWth, p->u.sLine.azCol[i]);
-        sqlite3_str_append(p->pOut, " = ", 3);
+        sqlite3_str_append(p->pOut, p->spec.zColumnSep, nSep);
         qrfRenderValue(p, pVal, i);
         zVal = sqlite3_str_value(pVal);
         if( zVal==0 ) zVal = "";
@@ -3479,6 +3524,12 @@ qrf_reinit:
       }
       break;
     }
+    case QRF_STYLE_Line: {
+      if( p->spec.zColumnSep==0 ){
+        p->spec.zColumnSep = ": ";
+      }
+      break;
+    }
     case QRF_STYLE_Csv: {
       p->spec.eStyle = QRF_STYLE_List;
       p->spec.eText = QRF_TEXT_Csv;
@@ -3587,7 +3638,11 @@ static void qrfFinalize(Qrf *p){
       break;
     }
     case QRF_STYLE_Line: {
-      if( p->u.sLine.azCol ) sqlite3_free(p->u.sLine.azCol);
+      if( p->u.sLine.azCol ){
+        int i;
+        for(i=0; i<p->nCol; i++) sqlite3_free(p->u.sLine.azCol[i]);
+        sqlite3_free(p->u.sLine.azCol);
+      }
       break;
     }
     case QRF_STYLE_Stats:
@@ -3881,7 +3936,6 @@ static int hasTimer(void){
   if( getProcessTimesAddr ){
     return 1;
   } else {
-#if !SQLITE_OS_WINRT
     /* GetProcessTimes() isn't supported in WIN95 and some other Windows
     ** versions. See if the version we are running on has it, and if it
     ** does, save off a pointer to it and the current process handle.
@@ -3898,7 +3952,6 @@ static int hasTimer(void){
         FreeLibrary(hinstLib);
       }
     }
-#endif
   }
   return 0;
 }
@@ -10767,7 +10820,6 @@ static int writeFile(
 
   if( mtime>=0 ){
 #if defined(_WIN32)
-#if !SQLITE_OS_WINRT
     /* Windows */
     FILETIME lastAccess;
     FILETIME lastWrite;
@@ -10798,7 +10850,6 @@ static int writeFile(
     }else{
       return 1;
     }
-#endif
 #elif defined(AT_FDCWD) && 0 /* utimensat() is not universally available */
     /* Recent unix */
     struct timespec times[2];
@@ -13634,7 +13685,7 @@ static void zipfileInflate(
       if( err!=Z_STREAM_END ){
         zipfileCtxErrorMsg(pCtx, "inflate() failed (%d)", err);
       }else{
-        sqlite3_result_blob(pCtx, aRes, nOut, zipfileFree);
+        sqlite3_result_blob(pCtx, aRes, (int)str.total_out, zipfileFree);
         aRes = 0;
       }
     }
@@ -24321,8 +24372,8 @@ struct ModeInfo {
 static const char *aModeStr[] = 
   /* 0    1       2       3       4     5        6        7        8    */
    { 0,   "\n",   "|",    " ",    ",",  "\r\n",  "\036",  "\037",  "\t",
-     "",  "NULL", "null", "\"\""                                         };
-  /* 9    10      11      12                                            */
+     "",  "NULL", "null", "\"\"", ": ",                                   };
+  /* 9    10      11      12      13                                    */
 
 static const ModeInfo aModeInfo[] = {
 /*   zName      eCSep  eRSep eNull eText eHdr eBlob bHdr eStyle eCx mFlg */
@@ -24337,7 +24388,7 @@ static const ModeInfo aModeInfo[] = {
   { "jatom",    4,     1,    11,   6,    6,    0,   1,   12,    0,  0 },
   { "jobject",  0,     1,    11,   6,    6,    0,   0,   10,    0,  0 },
   { "json",     0,     0,    11,   6,    6,    0,   0,   9,     0,  0 },
-  { "line",     0,     1,    9,    1,    1,    0,   0,   11,    1,  0 },
+  { "line",     13,    1,    9,    1,    1,    0,   0,   11,    1,  0 },
   { "list",     2,     1,    9,    1,    1,    0,   1,   12,    0,  0 },
   { "markdown", 0,     0,    9,    1,    1,    0,   2,   13,    2,  0 },
   { "off",      0,     0,    0,    0,    0,    0,   0,   14,    0,  0 },
@@ -24378,6 +24429,19 @@ static const ModeInfo aModeInfo[] = {
 #define SEP_CrLf      "\r\n"
 #define SEP_Unit      "\x1F"
 #define SEP_Record    "\x1E"
+
+/*
+** Default values for the various QRF limits
+*/
+#ifndef DFLT_CHAR_LIMIT
+# define DFLT_CHAR_LIMIT  300
+#endif
+#ifndef DFLT_LINE_LIMIT
+# define DFLT_LINE_LIMIT  5
+#endif
+#ifndef DFLT_TITLE_LIMIT
+# define DFLT_TITLE_LIMIT 20
+#endif
 
 /*
 ** Limit input nesting via .read or any other input redirect.
@@ -24499,9 +24563,10 @@ static void modeChange(ShellState *p, unsigned char eMode){
     modeChange(p, MODE_QBox);
     p->mode.bAutoScreenWidth = 1;
     p->mode.spec.eText = QRF_TEXT_Relaxed;
-    p->mode.spec.nCharLimit = 300;
-    p->mode.spec.nLineLimit = 5;
+    p->mode.spec.nCharLimit = DFLT_CHAR_LIMIT;
+    p->mode.spec.nLineLimit = DFLT_LINE_LIMIT;
     p->mode.spec.bTextJsonb = QRF_Yes;
+    p->mode.spec.nTitleLimit = DFLT_TITLE_LIMIT;
     p->mode.mFlags = mFlags;
   }
 }
@@ -26813,8 +26878,11 @@ static const struct {
 "                           any single SQL value to N. Longer values are\n"
 "                           truncated. Zero means \"no limit\". Only works\n"
 "                           in \"line\" mode and in columnar modes.\n"
-"  --limits L,C             Shorthand for \"--linelimit L --charlimit C\".\n"
-"                           Or \"off\" to mean \"0,0\".  Or \"on\" for \"5,300\".\n"
+"  --limits L,C,T           Shorthand for \"--linelimit L --charlimit C\n"
+"                           --titlelimit T\". The \",T\" can be omitted in which\n"
+"                           case the --titlelimit is unchanged.  The argument\n"
+"                           can also be \"off\" to mean \"0,0,0\" or \"on\" to\n"
+"                           mean \"5,300,20\".\n"
 "  --list                   List available modes\n"
 "  --null STRING            Render SQL NULL values as the given string\n"
 "  --once                   Setting changes to the right are reverted after\n"
@@ -26836,6 +26904,7 @@ static const struct {
 "  --title ARG              Whether or not to show column headers, and if so\n"
 "                           how to encode them.  ARG can be \"off\", \"on\",\n"
 "                           \"sql\", \"csv\", \"html\", \"tcl\", or \"json\".\n"
+"  --titlelimit N           Limit the length of column titles to N characters.\n"
 "  -v|--verbose             Verbose output\n"
 "  --widths LIST            Set the columns widths for columnar modes. The\n"
 "                           argument is a list of integers, one for each\n"
@@ -30699,8 +30768,11 @@ static int modeTitleDsply(ShellState *p, int bAll){
 **                            any single SQL value to N. Longer values are
 **                            truncated. Zero means "no limit". Only works
 **                            in "line" mode and in columnar modes.
-**   --limits L,C             Shorthand for "--linelimit L --charlimit C".
-**                            Or "off" to mean "0,0".  Or "on" for "5,300".
+**   --limits L,C,T           Shorthand for "--linelimit L --charlimit C
+**                            --titlelimit T". The ",T" can be omitted in which
+**                            case the --titlelimit is unchanged.  The argument
+**                            can also be "off" to mean "0,0,0" or "on" to
+**                            mean "5,300,20".
 **   --list                   List available modes
 **   --null STRING            Render SQL NULL values as the given string
 **   --once                   Setting changes to the right are reverted after
@@ -30722,6 +30794,7 @@ static int modeTitleDsply(ShellState *p, int bAll){
 **   --title ARG              Whether or not to show column headers, and if so
 **                            how to encode them.  ARG can be "off", "on",
 **                            "sql", "csv", "html", "tcl", or "json".
+**   --titlelimit N           Limit the length of column titles to N characters.
 **   -v|--verbose             Verbose output
 **   --widths LIST            Set the columns widths for columnar modes. The
 **                            argument is a list of integers, one for each
@@ -30816,17 +30889,17 @@ static int dotCmdMode(ShellState *p){
         p->mode.spec.bBorder = k & 0x3;
       }
       chng = 1;
-    }else if( 0<=(k=pickStr(z,0,"-charlimit","-linelimit","")) ){
+    }else if( 0<=(k=pickStr(z,0,"-charlimit","-linelimit","-titlelimit","")) ){
       int w;                /*   0            1  */
       if( i+1>=nArg ){
         dotCmdError(p, i, "missing argument", 0);
         return 1;
       }
       w = integerValue(azArg[++i]);
-      if( k==0 ){
-        p->mode.spec.nCharLimit = w;
-      }else{
-        p->mode.spec.nLineLimit = w;
+      switch( k ){
+        case 0:   p->mode.spec.nCharLimit = w;   break;
+        case 1:   p->mode.spec.nLineLimit = w;   break;
+        default:  p->mode.spec.nTitleLimit = w;  break;
       }
       chng = 1;
     }else if( 0<=(k=pickStr(z,0,"-tablename","-rowsep","-colsep","-null","")) ){
@@ -30865,21 +30938,24 @@ static int dotCmdMode(ShellState *p){
       }
       k = pickStr(azArg[i],0,"on","off","");
       if( k==0 ){
-        p->mode.spec.nLineLimit = 5;
-        p->mode.spec.nCharLimit = 300;
+        p->mode.spec.nLineLimit = DFLT_LINE_LIMIT;
+        p->mode.spec.nCharLimit = DFLT_CHAR_LIMIT;
+        p->mode.spec.nTitleLimit = DFLT_TITLE_LIMIT;
       }else if( k==1 ){
         p->mode.spec.nLineLimit = 0;
         p->mode.spec.nCharLimit = 0;
+        p->mode.spec.nTitleLimit = 0;
       }else{
-        int L, C;
-        int nNum = sscanf(azArg[i], "%d,%d", &L, &C);
-        if( nNum!=2 || L<0 || C<0 ){
-          dotCmdError(p, i, "bad argument", "Should be \"L,C\" where L and C"
-                            " are unsigned integers");
+        int L, C, T = 0;
+        int nNum = sscanf(azArg[i], "%d,%d,%d", &L, &C, &T);
+        if( nNum<2 || L<0 || C<0 || T<0){
+          dotCmdError(p, i, "bad argument", "Should be \"L,C,T\" where L, C"
+                            " and T are unsigned integers");
           return 1;
         }        
         p->mode.spec.nLineLimit = L;
         p->mode.spec.nCharLimit = C;
+        if( nNum==3 ) p->mode.spec.nTitleLimit = T;
       }
       chng = 1;
     }else if( optionMatch(z,"list") ){
@@ -31136,9 +31212,6 @@ static int dotCmdMode(ShellState *p){
       u8 e = p->mode.spec.eBlob;
       sqlite3_str_appendf(pDesc, " --blob-quote %s", azBQuote[e]);
     }
-    if( !bAll && p->mode.spec.nLineLimit==0 && p->mode.spec.nCharLimit>0 ){
-      sqlite3_str_appendf(pDesc, " --charlimit %d",p->mode.spec.nCharLimit);
-    }
     zSetting = aModeStr[pI->eCSep];
     if( bAll || (zSetting && cli_strcmp(zSetting,p->mode.spec.zColumnSep)!=0) ){
       sqlite3_str_appendf(pDesc, " --colsep ");
@@ -31147,16 +31220,26 @@ static int dotCmdMode(ShellState *p){
     if( bAll || p->mode.spec.eEsc!=QRF_Auto ){
       sqlite3_str_appendf(pDesc, " --escape %s",qrfEscNames[p->mode.spec.eEsc]);
     }
-    if( bAll || (p->mode.spec.nLineLimit>0 && p->mode.spec.nCharLimit>0) ){
-      if( p->mode.spec.nLineLimit==0 && p->mode.spec.nCharLimit==0 ){
+    if( bAll
+     || (p->mode.spec.nLineLimit>0 && pI->eCx>0)
+     || p->mode.spec.nCharLimit>0
+     || (p->mode.spec.nTitleLimit>0 && pI->eCx>0)
+    ){
+      if( p->mode.spec.nLineLimit==0
+       && p->mode.spec.nCharLimit==0
+       && p->mode.spec.nTitleLimit==0
+      ){
         sqlite3_str_appendf(pDesc, " --limits off");
+      }else if( p->mode.spec.nLineLimit==DFLT_LINE_LIMIT
+       && p->mode.spec.nCharLimit==DFLT_CHAR_LIMIT
+       && p->mode.spec.nTitleLimit==DFLT_TITLE_LIMIT
+      ){
+        sqlite3_str_appendf(pDesc, " --limits on");
       }else{
-        sqlite3_str_appendf(pDesc, " --limits %d,%d",
-           p->mode.spec.nLineLimit, p->mode.spec.nCharLimit);
+        sqlite3_str_appendf(pDesc, " --limits %d,%d,%d",
+           p->mode.spec.nLineLimit, p->mode.spec.nCharLimit,
+           p->mode.spec.nTitleLimit);
       }
-    }else 
-    if( p->mode.spec.nCharLimit==0 && p->mode.spec.nLineLimit>0 && pI->eCx>0 ){
-      sqlite3_str_appendf(pDesc, " --linelimit %d",p->mode.spec.nLineLimit);
     }
     zSetting = aModeStr[pI->eNull];
     if( bAll || (zSetting && cli_strcmp(zSetting,p->mode.spec.zNull)!=0) ){
@@ -31177,9 +31260,9 @@ static int dotCmdMode(ShellState *p){
      || (pI->eCx && (p->mode.spec.nScreenWidth>0 || p->mode.bAutoScreenWidth))
     ){
       if( p->mode.bAutoScreenWidth ){
-        sqlite3_str_appendall(pDesc, " --screenwidth auto");
+        sqlite3_str_appendall(pDesc, " --sw auto");
       }else{
-        sqlite3_str_appendf(pDesc," --screenwidth %d",
+        sqlite3_str_appendf(pDesc," --sw %d",
                             p->mode.spec.nScreenWidth);
       }
     }
@@ -31223,7 +31306,7 @@ static int dotCmdMode(ShellState *p){
       if( !bAll ) sqlite3_str_append(pDesc, " --ww", 5);
     }
     zDesc = sqlite3_str_finish(pDesc);
-    cli_printf(p->out, "current output mode: %s\n", zDesc);
+    cli_printf(p->out, ".mode %s\n", zDesc);
     fflush(p->out);
     sqlite3_free(zDesc);
   }
@@ -35376,18 +35459,14 @@ static void main_init(ShellState *p) {
 */
 #if defined(_WIN32) || defined(WIN32)
 static void printBold(const char *zText){
-#if !SQLITE_OS_WINRT
   HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
   CONSOLE_SCREEN_BUFFER_INFO defaultScreenInfo;
   GetConsoleScreenBufferInfo(out, &defaultScreenInfo);
   SetConsoleTextAttribute(out,
          FOREGROUND_RED|FOREGROUND_INTENSITY
   );
-#endif
   sputz(stdout, zText);
-#if !SQLITE_OS_WINRT
   SetConsoleTextAttribute(out, defaultScreenInfo.wAttributes);
-#endif
 }
 #else
 static void printBold(const char *zText){
@@ -35493,11 +35572,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       }
     }else{
 #if defined(_WIN32) || defined(WIN32)
-#if SQLITE_OS_WINRT
-      __debugbreak();
-#else
       DebugBreak();
-#endif
 #elif defined(SIGTRAP)
       raise(SIGTRAP);
 #endif
