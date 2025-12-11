@@ -1942,7 +1942,6 @@ window.fossil.onPageLoad(function(){
     const ctrlMode = Chat.settings.getBool('edit-ctrl-send', false);
     //console.debug("Enter key event:", ctrlMode, ev.ctrlKey, ev.shiftKey, ev);
     if(ev.shiftKey){
-      const compactMode = Chat.settings.getBool('edit-compact-mode', false);
       ev.preventDefault();
       ev.stopPropagation();
       /* Shift-enter will run preview mode UNLESS the input field is empty
@@ -1953,6 +1952,7 @@ window.fossil.onPageLoad(function(){
           | Chat.e.currentView===Chat.e.viewSearch)){
         Chat.setCurrentView(Chat.e.viewMessages);
       }else if(!text){
+        const compactMode = Chat.settings.getBool('edit-compact-mode', false);
         f.$toggleCompact(compactMode);
       }else if(Chat.settings.getBool('edit-shift-enter-preview', true)){
         Chat.e.btnPreview.click();
