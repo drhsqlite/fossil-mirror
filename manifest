@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.52.0\salpha\sfor\stesting.
-D 2025-12-11T23:27:51.580
+C Fix\sa\stypo\sin\sdifferentiating\stimeouts\sfrom\sother\spanics\sin\sthe\serror\slog.
+D 2025-12-15T21:49:50.198
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -530,7 +530,7 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c 3393216d68e19eead492c047bfd1c9081a4ca546c2a9129ecef35acc6b576f66
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 31d8c0094037b24ed235e3341dbf9601d3afd739f634d2882ad45688e01ead8c
-F src/security_audit.c 0cd533080995b6a81262a6d2ca3b366bca1e67e6f0cb4000aeaffa12b4f835b2
+F src/security_audit.c e7606f08b4abb06d90e185b27c66bcfaa18eabbe10b3edfd15fee2a402d16cd1
 F src/setup.c 3b243156a6a2f4ba4a50a87d9b71f991703ab73b4c42094d64ae9b341c751b1c
 F src/setupuser.c 910baefbf519ad66cfe740258834136b00136256d2b9daa1f97dd2566c0cd06a
 F src/sha1.c ec370567307827918da6cb39e330930b67b76d4869b2d7bb4a25f11f0c16204f
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2b660bd17402689777da04b4984fdf24cfd71048ade72a92e1b3a9f814f07a8b
-R ad4400c5ddbc9ce21c1d9a928b4b8c5e
+P ae7e3f0485e46e63a1b8eaa454929c8b8529a94730510f55409adef71d8c7b08
+R 5112da1ca69bd5c5533f416cee2bc61c
 U drh
-Z 08eff0cb5b979109761d4f0d39e23f3e
+Z e238ce930949108a7de220c2a8523500
 # Remove this line to create a well-formed Fossil manifest.

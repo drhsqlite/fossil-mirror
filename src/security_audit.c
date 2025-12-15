@@ -973,7 +973,7 @@ void errorlog_page(void){
         nHack++;
       }else
       if( strncmp(z,"panic: ", 7)==0 ){
-        if( strncmp(z+7,"Timeout",7) ){
+        if( strncmp(z+7,"Timeout",7)==0 ){
           bOutput = (eType & 0x100)!=0;
           nTimeout++;
         }else{
