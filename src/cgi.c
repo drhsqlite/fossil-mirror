@@ -2555,7 +2555,7 @@ void cgi_handle_scgi_request(void){
     nHdr -= m+1;
   }
   fossil_free(zToFree);
-  fgetc(g.httpIn);  /* Read past the "," separating header from content */
+  (void)fgetc(g.httpIn); /* Read past the "," separating header from content */
   cgi_init();
 }
 

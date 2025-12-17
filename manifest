@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sdifferentiating\stimeouts\sfrom\sother\spanics\sin\sthe\serror\slog.
-D 2025-12-15T21:49:50.198
+C Squelch\ssome\sharmless\swarnings\sfrom\san\soverzealous\sclang\son\stermux.
+D 2025-12-17T16:06:56.941
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -399,7 +399,7 @@ F src/bundle.c f58d9b69c7e1d43321e670e2141192599b444fd9d817ad94cbe731dfe22c465f
 F src/cache.c 2f67072fab3a27c4c4a95f7eddfec46fd0fcca9f75a9e22b56e43f934f6771b7
 F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a632f2b5
 F src/captcha.c 3ca4bf560b53b19c0f059c23a7246a9ddbf2ade45a34ed36b806edb9ca291d12
-F src/cgi.c 2428c9a9443331d183cd06e103c9a25d0338ccbfb929cd5498ef126acc67aeff
+F src/cgi.c ba75bce3691c08b9a3ffc20f74ef1124b0a7f092530a729852be5daec1d2e844
 F src/chat.c 11edeb3ffdb4207a644a28cb0c3860d26311c26d90c8d3d7a1041112c6a9c0ff
 F src/checkin.c 6eaff1ee22eeaac6d50a4547aaf7856f863770697abb561ad4af21833307ef3a
 F src/checkout.c 98af6eee06ef17926655361db5d30465fa0bb5e87199a37c206d16f38f33c938
@@ -497,7 +497,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c 5a7dac77529ad24bf6763d6a7aace9a998ff7d956d6f26d3bd6d1e973be09f1a
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c c1994e631c98a155eb3f00d9813cb77ca89dded928da91969f34b8cce71b3fa1
+F src/main.c 1a6d3fe38af8996452b02fec594bb92d6ba77a32b1732b8d5fefea8c6399f947
 F src/main.mk d3123763f11935150e0e08a7763aa4b2a72d8fe7768bd44b55d143dcf083ab13
 F src/manifest.c f2b9b6ec54292eed9dda07a528bbd107df47c9032883e38dd175d6dc10f1b645
 F src/markdown.c bea2fc4861d6904a9cecd1b828753c249636d00185f415b09ecb1cdb3d9b0552
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ae7e3f0485e46e63a1b8eaa454929c8b8529a94730510f55409adef71d8c7b08
-R 5112da1ca69bd5c5533f416cee2bc61c
-U drh
-Z e238ce930949108a7de220c2a8523500
+P 11bd17cb33abd51dc1886290edc382e12293a0043cdd9b3823375dfec432aa64
+R 7e30d5680e145d3d5a4cde9ffe43ce3a
+U danield
+Z a7f1300f9b0e7a0628f2d72a2105785d
 # Remove this line to create a well-formed Fossil manifest.

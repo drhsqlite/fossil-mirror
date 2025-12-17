@@ -731,7 +731,7 @@ int fossil_main(int argc, char **argv){
       fprintf(stderr,
           "attach debugger to process %d and press any key to continue.\n",
           GETPID());
-      fgetc(stdin);
+      (void)fgetc(stdin);
     }else{
 #if defined(_WIN32) || defined(WIN32)
       DebugBreak();
@@ -1690,7 +1690,7 @@ int fossil_wants_https(int iLevel){
 int fossil_redirect_to_https_if_needed(int iLevel){
   if( fossil_wants_https(iLevel) ){
     const char *zQS = P("QUERY_STRING");
-    char *zURL;
+    char *zURL = 0;
     if( zQS==0 || zQS[0]==0 ){
       zURL = mprintf("%s%T", g.zHttpsURL, P("PATH_INFO"));
     }else if( zQS[0]!=0 ){
