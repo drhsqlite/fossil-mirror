@@ -44,8 +44,9 @@
             circles appear, but no lines connecting them.
             ([/timeline?ng|example]).
        </ol>
-  <li> The [/help/timeline|timeline command] is enhanced with the new
-       "<tt>-u|--for-user</tt>" option.
+  <li> The [/help/timeline|timeline command] is enhanced with the new options
+       "<tt>-u|--for-user</tt>" to filter by user, and "<tt>-r</tt>" to display
+       entries in chronological order.
   <li> The [/help/open|open command]'s new "<tt>--reopen REPOFILE</tt>" flag
        can be used to fix a checkout after moving its repository file.
   <li> Update internal Unicode character tables, used in regular expression

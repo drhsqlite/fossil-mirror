@@ -1,5 +1,5 @@
-C Squelch\ssome\sharmless\swarnings\sfrom\san\soverzealous\sclang\son\stermux.
-D 2025-12-17T16:06:56.941
+C Updates\sto\sthe\schange\slog.
+D 2025-12-18T09:04:43.027
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -801,7 +801,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md b578bfee7063fe0a3fef310b79d0b9ca23e084b17aa3044d57f5a4b94b180b4d
 F www/caps/ref.html 80f46f8229fa89f4cd1d1a1ff6bd1700905d64e65fd2201ad315b652b292ae4b
 F www/cgi.wiki b9c5bcae4ac589ed274f8f4b2a64dc854f14c78883f4f0200504ec7e3cdf2b56
-F www/changes.wiki 3744d4b257e107f5027f569cddad98a1b402be4f431b31a403e564e15e9440bc
+F www/changes.wiki 33db26b72de88c977035f830a58b78f94aeb909312a71e19e729a66758327443
 F www/chat.md d0d9ed26c0ba1d51e90aa3a30dc56dd90e8b3a782bef9ed0f65284e5eb807fef
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 11bd17cb33abd51dc1886290edc382e12293a0043cdd9b3823375dfec432aa64
-R 7e30d5680e145d3d5a4cde9ffe43ce3a
+P 6b2cc46d25b17f862ceec0f93351fb1fb3dd83890d9d855c417269f01104fd7c
+R da4cbac299d73be1baae6de00d0ab1b1
 U danield
-Z a7f1300f9b0e7a0628f2d72a2105785d
+Z 2587aea79d8819fad12a215f16c2c123
 # Remove this line to create a well-formed Fossil manifest.
