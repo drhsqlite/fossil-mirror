@@ -957,7 +957,7 @@ void cgi_setenv(const char *zName, const char *zValue){
 */
 static int contains_ctrl(const char *z){
   assert(z);
-  for( ; *z>=0x20; ++z ){}
+  for( ; *z>=0x20 || *z<0; ++z ){}
   return 0!=*z;
 }
 
