@@ -1,5 +1,5 @@
-C Add\sdocumentation\sfor\snetwork\scontrol\scommand-line\soptions,\ssuch\sas\s--ipv4.
-D 2025-12-19T13:01:53.179
+C Add\sthe\s-H\soption\sto\sthe\s'ls'\scommand\sfor\sdisplaying\scheck-in\shashes\s(similar\sto\sthe\scurrent\s-h\soption\sfor\sfile\shashes).
+D 2025-12-19T17:14:58.284
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -401,7 +401,7 @@ F src/capabilities.c 4121d0847c2827efb38da6e64c655b42f23975bcae406397e70d6c66a63
 F src/captcha.c 3ca4bf560b53b19c0f059c23a7246a9ddbf2ade45a34ed36b806edb9ca291d12
 F src/cgi.c 5647111f9dbc5a9097b9c90099d3dec0457ca0a78ddff2ba0f1afdf90f450eb9
 F src/chat.c 11edeb3ffdb4207a644a28cb0c3860d26311c26d90c8d3d7a1041112c6a9c0ff
-F src/checkin.c 6eaff1ee22eeaac6d50a4547aaf7856f863770697abb561ad4af21833307ef3a
+F src/checkin.c 123f1714ac1aeb011bddf8d111cf29b0ff7cc8b7f883b4786c47bddf37bfffc3
 F src/checkout.c 98af6eee06ef17926655361db5d30465fa0bb5e87199a37c206d16f38f33c938
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f55dbd00bb21c1bb619ad0b5b9ce8a079584545bd9489746c40ddd58231e6b2
-R 25cdeb042391cbd6d38f1bf04bb17195
-U drh
-Z c73197b800a5b41f5123ba2a196fe58a
+P 5ef8ac82c302073a995ca360b533c4d4b946e486d1c7980bdfe23804bf63e0c3
+R 5fd0c45359db73e016e3bfb98d7374cf
+U danield
+Z 3c81ef6c9decb36312dcdd1d03ba9747
 # Remove this line to create a well-formed Fossil manifest.
