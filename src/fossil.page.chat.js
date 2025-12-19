@@ -144,6 +144,9 @@ window.fossil.onPageLoad(function(){
         inputLineWrapper: E1('#chat-input-line-wrapper'),
         fileSelectWrapper: E1('#chat-input-file-area'),
         viewMessages: E1('#chat-messages-wrapper'),
+        viewZoom: E1('#chat-zoom'),
+        zoomContent: E1('#chat-zoom-content'),
+        zoomMarker: E1('#chat-zoom-marker'),
         btnSubmit: E1('#chat-button-submit'),
         btnAttach: E1('#chat-button-attach'),
         inputX: E1('#chat-input-field-x'),
@@ -593,6 +596,10 @@ window.fossil.onPageLoad(function(){
         if(e===this.e.currentView){
           return e;
         }
+        if( e!==this.e.viewZoom && this.e.zoomedMsg ){
+          this.zoomMessage(null, e);
+          return this.e.currentView;
+        }
         this.e.views.forEach(function(E){
           if(e!==E) D.addClass(E,'hidden');
         });
@@ -601,6 +608,29 @@ window.fossil.onPageLoad(function(){
         D.removeClass(e,'hidden');
         this.animate(this.e.currentView, 'anim-fade-in-fast');
         return this.e.currentView;
+      },
+
+      /**
+         Makes message element eMsg the content of this.e.viewZoom.
+      */
+      zoomMessage: function(eMsg,nextView){
+        const marker = this.e.zoomMarker;
+        if( !eMsg || eMsg===this.e.zoomedMsg ){
+          if( this.e.zoomedMsg ){
+            marker.parentNode.insertBefore(this.e.zoomedMsg, marker);
+            delete this.e.zoomedMsg;
+          }
+          this.setCurrentView(nextView || this.e.viewMessages);
+          return;
+        }
+        console.log("zoom message",eMsg);
+        if( this.e.zoomedMsg ){
+          marker.parentNode.insertBefore(this.e.zoomedMsg, marker);
+        }
+        this.e.viewMessages.insertBefore(marker, eMsg);
+        this.e.zoomContent.appendChild(eMsg);
+        this.e.zoomedMsg = eMsg;
+        this.setCurrentView(this.e.viewZoom);
       },
       /**
          Updates the "active user list" view if we are not currently
@@ -725,7 +755,8 @@ window.fossil.onPageLoad(function(){
     if(D.attr(cs.e.inputX,'contenteditable','plaintext-only').isContentEditable){
       cs.$browserHasPlaintextOnly = true;
     }else{
-      /* Only the Chrome family supports contenteditable=plaintext-only */
+      /* contenteditable="plaintext-only" is a latecomer, not
+         supported in FF until version 136. */
       cs.$browserHasPlaintextOnly = false;
       D.attr(cs.e.inputX,'contenteditable','true');
     }
@@ -1351,11 +1382,12 @@ window.fossil.onPageLoad(function(){
                 // Date doesn't work, so dumb it down...
                 D.append(this.e, D.append(D.span(), eMsg.dataset.timestamp," zulu"));
               }
-              const toolbar = D.addClass(D.div(), 'toolbar');
+              const toolbar = D.addClass(D.div(), 'toolbar', 'hide-in-zoom');
               D.append(this.e, toolbar);
+              const self = this;
+
               const btnDeleteLocal = D.button("Delete locally");
               D.append(toolbar, btnDeleteLocal);
-              const self = this;
               btnDeleteLocal.addEventListener('click', function(){
                 self.hide();
                 Chat.deleteMessageElem(eMsg)
@@ -1383,7 +1415,7 @@ window.fossil.onPageLoad(function(){
                   }
                 });
               }
-              const toolbar3 = D.addClass(D.div(), 'toolbar');
+              const toolbar3 = D.addClass(D.div(), 'toolbar', 'hide-in-zoom');
               D.append(this.e, toolbar3);
               D.append(toolbar3, D.button(
                 "Locally remove all previous messages",
@@ -1446,6 +1478,11 @@ window.fossil.onPageLoad(function(){
                   );
                 }/*jump-to button*/
               }
+              const btnZoom = D.button("Zoom");
+              D.append(toolbar2, btnZoom);
+              btnZoom.addEventListener('click', function(){
+                Chat.zoomMessage(eMsg);
+              });
               const tab = eMsg.querySelector('.message-widget-tab');
               D.append(tab, this.e);
               D.removeClass(this.e, 'hidden');
@@ -1906,7 +1943,6 @@ window.fossil.onPageLoad(function(){
     const ctrlMode = Chat.settings.getBool('edit-ctrl-send', false);
     //console.debug("Enter key event:", ctrlMode, ev.ctrlKey, ev.shiftKey, ev);
     if(ev.shiftKey){
-      const compactMode = Chat.settings.getBool('edit-compact-mode', false);
       ev.preventDefault();
       ev.stopPropagation();
       /* Shift-enter will run preview mode UNLESS the input field is empty
@@ -1917,6 +1953,7 @@ window.fossil.onPageLoad(function(){
           | Chat.e.currentView===Chat.e.viewSearch)){
         Chat.setCurrentView(Chat.e.viewMessages);
       }else if(!text){
+        const compactMode = Chat.settings.getBool('edit-compact-mode', false);
         f.$toggleCompact(compactMode);
       }else if(Chat.settings.getBool('edit-shift-enter-preview', true)){
         Chat.e.btnPreview.click();
@@ -2058,6 +2095,10 @@ window.fossil.onPageLoad(function(){
            F.storage.storageHelpDescription()].join('')
     },{
       label: "Editing Options...",
+      hint: ["These options are all recommended but some misinteract",
+             "with specific browsers or software keyboards so they",
+             "are not enabled by default."
+            ].join(' '),
       children:[{
         label: "Chat-only mode",
         hint: "Toggle the page between normal fossil view and chat-only view.",
@@ -2431,6 +2472,15 @@ window.fossil.onPageLoad(function(){
       return false;
     }, false);
   })()/*search view setup*/;
+
+  (function(){/*Set up the zoom view */
+    Chat.e.viewZoom.querySelector('button.action-close').addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      Chat.zoomMessage(null);
+      return false;
+    }, false);
+  })()/*zoom view setup*/;
 
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is

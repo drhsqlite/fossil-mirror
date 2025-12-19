@@ -161,6 +161,7 @@ static int alert_process_deferred_triggers(void){
   ){
     const char *zChatUser = db_get("chat-timeline-user", 0);
     if( zChatUser && zChatUser[0] ){
+      chat_create_tables(); /* Make sure TEMP TRIGGERs for FTS exist */
       db_multi_exec(
         "INSERT INTO chat(mtime,lmtime,xfrom,xmsg)"
         " SELECT julianday(), "
@@ -365,7 +366,8 @@ void setup_notification(void){
                    "elistid", "", 0);
   @ <p>
   @ If this is not an empty string, then it becomes the argument to
-  @ a "List-ID:" header on all out-bound notification emails.
+  @ a "List-ID:" header on all out-bound notification emails. A list ID
+  @ is required for the generation of unsubscribe links in notifications.
   @ (Property: "email-listid")</p>
   @ <hr>
 
@@ -1146,6 +1148,8 @@ void alert_send(
 ** SETTING: email-listid             width=40
 ** If this setting is not an empty string, then it becomes the argument to
 ** a "List-ID:" header that is added to all out-bound notification emails.
+** A list ID is required for the generation of unsubscribe links in
+** notifications.
 */
 /*
 ** SETTING: email-send-relayhost      width=40 sensitive default=127.0.0.1

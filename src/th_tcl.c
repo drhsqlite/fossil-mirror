@@ -104,7 +104,7 @@
 #      define TCL_DIRECTORY_SEP '\\'
 #    endif
 #    ifndef TCL_LIBRARY_NAME
-#      define TCL_LIBRARY_NAME "tcl87.dll\0"
+#      define TCL_LIBRARY_NAME "tcl91.dll\0"
 #    endif
 #    ifndef TCL_MINOR_OFFSET
 #      define TCL_MINOR_OFFSET (4)
@@ -123,30 +123,30 @@
 #    ifndef TCL_DIRECTORY_SEP
 #      define TCL_DIRECTORY_SEP '/'
 #    endif
-#    if defined(__CYGWIN__)
+#    if defined(__CYGWIN__) && (TCL_MAJOR_VERSION > 8)
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.7.dll\0"
+#        define TCL_LIBRARY_NAME "cygtcl9.1.dll\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
 #      endif
 #    elif defined(__APPLE__)
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.7.dylib\0"
+#        define TCL_LIBRARY_NAME "libtcl9.1.dylib\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
 #      endif
 #    elif defined(__FreeBSD__)
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl87.so\0"
+#        define TCL_LIBRARY_NAME "libtcl91.so\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (7)
 #      endif
 #    else
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.7.so\0"
+#        define TCL_LIBRARY_NAME "libtcl9.1.so\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
@@ -155,6 +155,9 @@
 #  endif /* defined(_WIN32) */
 #  ifndef TCL_FINDEXECUTABLE_NAME
 #    define TCL_FINDEXECUTABLE_NAME "_Tcl_FindExecutable\0"
+#  endif
+#  ifndef TCL_ZIPFSAPPHOOK_NAME
+#    define TCL_ZIPFSAPPHOOK_NAME "_TclZipfs_AppHook\0"
 #  endif
 #  ifndef TCL_CREATEINTERP_NAME
 #    define TCL_CREATEINTERP_NAME "_Tcl_CreateInterp\0"
@@ -191,6 +194,7 @@
 */
 #if TCL_MAJOR_VERSION>=9
 typedef const char *(tcl_FindExecutableProc) (const char *);
+typedef const char *(tcl_ZipfsAppHookProc) (int *, char ***);
 #else
 typedef void (tcl_FindExecutableProc) (const char *);
 #endif
@@ -262,7 +266,7 @@ static int initTclStubs(
     return TH_ERROR;
   }
   /* NOTE: At this point, the Tcl API functions should be available. */
-  if( Tcl_PkgRequireEx(tclInterp, "Tcl", "8.4", 0, (void *)&tclStubsPtr)==0 ){
+  if( Tcl_PkgRequireEx(tclInterp, "Tcl", "8.5-", 0, (void *)&tclStubsPtr)==0 ){
     Th_ErrorMessage(interp,
         "could not initialize Tcl stubs: incompatible version",
         (const char *)"", 0);
@@ -406,6 +410,9 @@ struct TclContext {
   char **argv;        /* Full copy of the original arguments. */
   void *hLibrary;     /* The Tcl library module handle. */
   tcl_FindExecutableProc *xFindExecutable; /* Tcl_FindExecutable() pointer. */
+#if TCL_MAJOR_VERSION>=9
+  tcl_ZipfsAppHookProc  *xZipfsAppHook;    /* TclZipfsAppHook() pointer. */
+#endif
   tcl_CreateInterpProc *xCreateInterp;     /* Tcl_CreateInterp() pointer. */
   tcl_DeleteInterpProc *xDeleteInterp;     /* Tcl_DeleteInterp() pointer. */
   tcl_FinalizeProc *xFinalize;             /* Tcl_Finalize() pointer. */
@@ -821,6 +828,9 @@ static int loadTcl(
   Th_Interp *interp,
   void **phLibrary,
   tcl_FindExecutableProc **pxFindExecutable,
+#if TCL_MAJOR_VERSION>=9
+  tcl_ZipfsAppHookProc **pxZipfsAppHook,
+#endif
   tcl_CreateInterpProc **pxCreateInterp,
   tcl_DeleteInterpProc **pxDeleteInterp,
   tcl_FinalizeProc **pxFinalize
@@ -837,6 +847,14 @@ static int loadTcl(
     return TH_ERROR;
   }
 #if defined(USE_TCL_STUBS)
+#if TCL_MAJOR_VERSION<9
+#if defined(_WIN32) || defined(__FreeBSD__)
+  aFileName[TCL_MINOR_OFFSET-1] = '0' + TCL_MAJOR_VERSION;
+#else
+  aFileName[TCL_MINOR_OFFSET-2] = '0' + TCL_MAJOR_VERSION;
+#endif
+  aFileName[TCL_MINOR_OFFSET] = '0' + TCL_MINOR_VERSION;
+#endif
   do {
     char *zFileName;
     void *hLibrary;
@@ -872,6 +890,9 @@ static int loadTcl(
     }
     if( hLibrary ){
       tcl_FindExecutableProc *xFindExecutable;
+#if TCL_MAJOR_VERSION>=9
+      tcl_ZipfsAppHookProc *xZipfsAppHook;
+#endif
       tcl_CreateInterpProc *xCreateInterp;
       tcl_DeleteInterpProc *xDeleteInterp;
       tcl_FinalizeProc *xFinalize;
@@ -886,6 +907,13 @@ static int loadTcl(
         dlclose(hLibrary); hLibrary = 0;
         return TH_ERROR;
       }
+#if TCL_MAJOR_VERSION>=9
+      procName = TCL_ZIPFSAPPHOOK_NAME;
+      xZipfsAppHook = (tcl_ZipfsAppHookProc *)dlsym(hLibrary, procName+1);
+      if( !xZipfsAppHook ){
+        xZipfsAppHook = (tcl_ZipfsAppHookProc *)dlsym(hLibrary, procName);
+      }
+#endif
       procName = TCL_CREATEINTERP_NAME;
       xCreateInterp = (tcl_CreateInterpProc *)dlsym(hLibrary, procName+1);
       if( !xCreateInterp ){
@@ -921,20 +949,26 @@ static int loadTcl(
       }
       *phLibrary = hLibrary;
       *pxFindExecutable = xFindExecutable;
+#if TCL_MAJOR_VERSION>=9
+      *pxZipfsAppHook = xZipfsAppHook;
+#endif
       *pxCreateInterp = xCreateInterp;
       *pxDeleteInterp = xDeleteInterp;
       *pxFinalize = xFinalize;
       return TH_OK;
     }
-  } while( --aFileName[TCL_MINOR_OFFSET]>'3' ); /* Tcl 8.4+ */
+  } while( --aFileName[TCL_MINOR_OFFSET]!='6' && aFileName[TCL_MINOR_OFFSET]>='0'); /* Tcl 8.6+ */
   aFileName[TCL_MINOR_OFFSET] = 'x';
   Th_ErrorMessage(interp,
-      "could not load any supported Tcl 8.x shared library \"",
+      "could not load any supported Tcl shared library \"",
       aFileName, -1);
   return TH_ERROR;
 #else
   *phLibrary = 0;
   *pxFindExecutable = Tcl_FindExecutable;
+#if TCL_MAJOR_VERSION>=9
+  *pxZipfsAppHook = (tcl_ZipfsAppHookProc *)(void *)TclZipfs_AppHook;
+#endif
   *pxCreateInterp = Tcl_CreateInterp;
   *pxDeleteInterp = Tcl_DeleteInterp;
   *pxFinalize = Tcl_Finalize;
@@ -1078,6 +1112,9 @@ static int createTclInterp(
     return TH_OK;
   }
   if( loadTcl(interp, &tclContext->hLibrary, &tclContext->xFindExecutable,
+  #if TCL_MAJOR_VERSION >= 9
+              &tclContext->xZipfsAppHook,
+  #endif
               &tclContext->xCreateInterp, &tclContext->xDeleteInterp,
               &tclContext->xFinalize)!=TH_OK ){
     return TH_ERROR;
@@ -1087,6 +1124,11 @@ static int createTclInterp(
   if( argc>0 && argv ){
     argv0 = argv[0];
   }
+#if TCL_MAJOR_VERSION>=9
+  if (tclContext->xZipfsAppHook) {
+    tclContext->xZipfsAppHook(&tclContext->argc, &tclContext->argv);
+  }
+#endif
   tclContext->xFindExecutable(argv0);
   tclInterp = tclContext->xCreateInterp();
   if( !tclInterp ){
@@ -1102,7 +1144,7 @@ static int createTclInterp(
     return TH_ERROR;
   }
 #else
-  if( !Tcl_InitStubs(tclInterp, "8.4", 0) ){
+  if( !Tcl_InitStubs(tclInterp, "8.5-", 0) ){
     Th_ErrorMessage(interp,
         "could not initialize Tcl stubs", (const char *)"", 0);
     tclContext->xDeleteInterp(tclInterp);

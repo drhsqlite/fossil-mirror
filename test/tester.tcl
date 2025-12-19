@@ -30,7 +30,7 @@
 
 # We use some things introduced in 8.6 such as lmap.  auto.def should
 # have found us a suitable Tcl installation.
-package require Tcl 8.6
+package require Tcl 8.6-
 
 set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]

@@ -166,7 +166,7 @@ int client_might_be_a_robot(void){
   /* Condition 4:  If there is a "token=VALUE" query parameter with a
   ** valid VALUE argument, then assume that the request is coming from
   ** either an interactive human session, or an authorized robot that we
-  ** want to treat as human.  All it through and also set the robot cookie.
+  ** want to treat as human.  Allow it through and also set the robot cookie.
   */
   z = P("token");
   if( z!=0 ){
@@ -211,7 +211,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
   @ Press <input type="submit" id="x5" value="Ok" focus> to continue</span>
   @ <span id="x7" style="visibility:hidden;">You appear to be a robot.</span>\
   @ </p>
-  cgi_tag_query_parameter("name");
+  if( g.zExtra && g.zExtra[0] ) cgi_tag_query_parameter("name");
   cgi_query_parameters_to_hidden();
   @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
@@ -267,13 +267,16 @@ static void ask_for_proof_that_client_is_not_robot(void){
 **
 **   timelineX,diff,annotate,fileage,file,finfo,reports,tree,download,hexdump
 **
-** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and
-** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
-** also covers /tarball and /sqlar.  If a tag has an "X" character appended
-** then it only applies if query parameters are such that the page is
-** particularly difficult to compute. In all other case, the tag should
-** exactly match the page name.  Useful "X" tags include "timelineX" and
-** "zipX".  See the [[robot-zip-leaf]] and [[robot-zip-tag]] settings
+** Usually the tag should exactly match the page name.  The "diff" tag
+** covers all diffing pages such as /vdiff, /fdiff, and /vpatch.  The
+** "annotate" tag also covers /blame and /praise.  "zip" also covers
+** /tarball and /sqlar.  If a tag has an "X" character appended then it
+** only applies if query parameters are such that the page is particularly
+** difficult to compute.  Useful "X" tags include "timelineX" and "zipX".
+** The "ext" tag matches all extension, but a tag of the form "ext/PATH"
+** only matches the extension at PATH.
+**
+** See the [[robot-zip-leaf]] and [[robot-zip-tag]] settings
 ** for additional controls associated with the "zipX" restriction.
 **
 ** Change this setting "off" to disable all robot restrictions.
@@ -326,6 +329,8 @@ const char *robot_restrict_default(void){
 /*
 ** Return true if zTag matches one of the tags in the robot-restrict
 ** setting.
+**
+** A zTag of "*" matches anything.
 */
 static int robot_restrict_has_tag(const char *zTag){
   static const char *zGlob = 0;
@@ -335,6 +340,9 @@ static int robot_restrict_has_tag(const char *zTag){
   }
   if( zGlob[0]==0 || fossil_strcmp(zGlob, "off")==0 ){
     return 0;
+  }
+  if( zTag==0 || (zTag[0]=='*' && zTag[1]==0) ){
+    return 1;
   }
   return glob_multi_match(zGlob,zTag);
 }

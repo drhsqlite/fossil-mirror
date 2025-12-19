@@ -3251,7 +3251,7 @@ int *text_diff(
 **   -n|--linenum                 Show line numbers          DIFF_LINENO
 **   -N|--new-file                Alias for --verbose
 **   --noopt                      Disable optimization       DIFF_NOOPT
-**   --numstat                    Show change counts         DIFF_NUMSTAT
+**   -s|--numstat                 Show change counts         DIFF_NUMSTAT
 **   --strip-trailing-cr          Strip trailing CR          DIFF_STRIP_EOLCR
 **   --tcl                        Tcl-formatted output used internally by --tk
 **   --unified                    Unified diff.              ~DIFF_SIDEBYSIDE
@@ -3326,7 +3326,7 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   }
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
-  if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
+  if( find_option("numstat","s",0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("versions","h",0)!=0 ) diffFlags |= DIFF_SHOW_VERS;
   if( find_option("dark",0,0)!=0 ) diffFlags |= DIFF_DARKMODE;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;

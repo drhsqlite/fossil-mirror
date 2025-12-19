@@ -1292,20 +1292,28 @@ void download_page(void){
 ** WEBPAGE: rchvdwnld
 **
 ** Short for "archive download".  This page should have a single name=
-** query parameter that is a check-in hash.  It present a menu of possible
-** download options for that check-in, including tarball, ZIP, or SQLAR.
+** query parameter that is a check-in hash or symbolic name.  The resulting
+** page offers a menu of possible download options for that check-in,
+** including tarball, ZIP, or SQLAR.
 **
 ** This is a utility page.  The /dir and /tree pages sometimes have a
 ** "Download" option in their submenu which redirects here.  Those pages
 ** used to have separate "Tarball" and "ZIP" submenu entries, but as
 ** submenu entries appear in alphabetical order, that caused the two
 ** submenu entries to be separated from one another, which is distracting.
+**
+** If the name= does not have a unique resolution, no error is generated.
+** Instead, a redirect to the home page for the repository is made.
+**
+** Robots are excluded from this page if either of the keywords
+** "zip" or "download" appear in the [[robot-restrict]] setting.
 */
 void rchvdwnld_page(void){
   const char *zUuid;
   char *zBase;
   int nUuid;
   int rid;
+  char *zTags;
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
   if( robot_restrict("zip") || robot_restrict("download") ) return;
@@ -1317,13 +1325,26 @@ void rchvdwnld_page(void){
    || (rid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUuid))==0
    || !db_exists("SELECT 1 from event WHERE type='ci' AND objid=%d",rid)
   ){
-    fossil_redirect_home();
+    rid = symbolic_name_to_rid(zUuid, "ci");
+    if( rid<=0 ){
+      fossil_redirect_home();
+    }
   }
   zUuid = db_text(zUuid, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  zTags = db_text(0,
+    "SELECT if(cnt,' ('||tags||')','') FROM ("
+      "SELECT group_concat(substr(tagname,5),', ') AS tags, count(*) AS cnt"
+      "  FROM tag JOIN tagxref USING(tagid)"
+      " WHERE rid=%d"
+      "   AND tagtype=1"
+      "   AND tagname GLOB 'sym-*'"
+    ")",
+    rid
+  );
   style_header("Downloads For Check-in %!S", zUuid);
   zBase = archive_base_name(rid);
   @ <div class="section accordion">Downloads for check-in \
-  @ %z(href("%R/info/%!S",zUuid))%S(zUuid)</a></div>
+  @ %z(href("%R/info/%!S",zUuid))%S(zUuid)</a>%h(zTags)</div>
   @ <div class="accordion_panel">
   @ <table class="label-value">
   @ <tr>
@@ -1348,5 +1369,6 @@ void rchvdwnld_page(void){
   @ <div class="section accordion">Context</div><div class="accordion_panel">
   render_checkin_context(rid, 0, 0, 0);
   @ </div>
+  builtin_request_js("accordion.js");
   style_finish_page();
 }

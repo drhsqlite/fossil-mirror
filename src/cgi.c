@@ -955,7 +955,8 @@ void cgi_setenv(const char *zName, const char *zValue){
 ** Returns true if NUL-terminated z contains any non-NUL
 ** control characters (<0x20, 32d).
 */
-static int contains_ctrl(const char *z){
+static int contains_ctrl(const char *zIn){
+  const unsigned char *z = (const unsigned char*)zIn;
   assert(z);
   for( ; *z>=0x20; ++z ){}
   return 0!=*z;
@@ -2401,13 +2402,13 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
     }
     if( fossil_strcmp(zFieldName,"content-length:")==0 ){
       if( nCycles==0 ){
-	cgi_setenv("CONTENT_LENGTH", zVal);
+        cgi_setenv("CONTENT_LENGTH", zVal);
       }else{
-	cgi_replace_parameter("CONTENT_LENGTH", zVal);
+        cgi_replace_parameter("CONTENT_LENGTH", zVal);
       }
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
       if( nCycles==0 ){
-	cgi_setenv("CONTENT_TYPE", zVal);
+        cgi_setenv("CONTENT_TYPE", zVal);
       }
     }else if( fossil_strcmp(zFieldName,"host:")==0 ){
       if( nCycles==0 ){
@@ -2555,7 +2556,7 @@ void cgi_handle_scgi_request(void){
     nHdr -= m+1;
   }
   fossil_free(zToFree);
-  fgetc(g.httpIn);  /* Read past the "," separating header from content */
+  (void)fgetc(g.httpIn); /* Read past the "," separating header from content */
   cgi_init();
 }
 
@@ -2962,16 +2963,6 @@ char *cgi_iso8601_datestamp(void){
                    pTm->tm_year+1900, pTm->tm_mon+1, pTm->tm_mday,
                    pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
   }
-}
-
-/*
-** COMMAND: test-date
-**
-** Show the current date and time in both RFC822 and ISO8601.
-*/
-void test_date(void){
-  fossil_print("%z = ", cgi_iso8601_datestamp());
-  fossil_print("%z\n", cgi_rfc822_datestamp(time(0)));
 }
 
 /*

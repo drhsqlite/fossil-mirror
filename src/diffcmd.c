@@ -1358,7 +1358,7 @@ const char *diff_get_binary_glob(void){
 **   --json                      Output formatted as JSON
 **   -n|--linenum                Show line numbers
 **   -N|--new-file               Alias for --verbose
-**   --numstat                   Show the number of added and deleted lines per
+**   -s|--numstat                Show the number of added and deleted lines per
 **                               file, omitting the diff. When combined with
 **                                 --brief, show only the total row.
 **   -y|--side-by-side           Side-by-side diff
@@ -1462,7 +1462,7 @@ void diff_cmd(void){
       blob_reset(&fname);
     }
   }
-  if( DCfg.diffFlags & DIFF_NUMSTAT ){
+  if( (DCfg.diffFlags & DIFF_NUMSTAT) && !(DCfg.diffFlags & DIFF_BRIEF) ){
     fossil_print("%10s %10s\n", "INSERTED", "DELETED");
   }
   if( zCheckin!=0 ){

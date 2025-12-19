@@ -130,6 +130,9 @@ struct TclContext {
   char **argv;           /* Full copy of the original (expanded) arguments. */
   void *hLibrary;        /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
+#if TCL_MAJOR_VERSION>=9
+  void *xZipfsAppHook;   /* See TclZipfsAppHookProc in th_tcl.c. */
+#endif
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
   void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
   void *xFinalize;       /* See tcl_FinalizeProc in th_tcl.c. */
@@ -187,7 +190,7 @@ struct Global {
   char *zSshCmd;          /* SSH command string */
   const char *zHttpCmd;   /* External program to do HTTP requests */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
-  int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
+  int eIPvers;            /* 0: any   1: ipv4-only  2: ipv6-only */
   char *zPath;            /* Name of webpage being served (may be NULL) */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
@@ -728,7 +731,7 @@ int fossil_main(int argc, char **argv){
       fprintf(stderr,
           "attach debugger to process %d and press any key to continue.\n",
           GETPID());
-      fgetc(stdin);
+      (void)fgetc(stdin);
     }else{
 #if defined(_WIN32) || defined(WIN32)
       DebugBreak();
@@ -853,7 +856,7 @@ int fossil_main(int argc, char **argv){
 #if USE_SEE
     db_maybe_handle_saved_encryption_key_for_process(SEE_KEY_READ);
 #endif
-    if( find_option("help",0,0)!=0 ){
+    if( find_option("help","?",0)!=0 ){
       /* If --help is found anywhere on the command line, translate the command
        * to "fossil help cmdname" where "cmdname" is the first argument that
        * does not begin with a "-" character.  If all arguments start with "-",
@@ -1687,7 +1690,7 @@ int fossil_wants_https(int iLevel){
 int fossil_redirect_to_https_if_needed(int iLevel){
   if( fossil_wants_https(iLevel) ){
     const char *zQS = P("QUERY_STRING");
-    char *zURL;
+    char *zURL = 0;
     if( zQS==0 || zQS[0]==0 ){
       zURL = mprintf("%s%T", g.zHttpsURL, P("PATH_INFO"));
     }else if( zQS[0]!=0 ){

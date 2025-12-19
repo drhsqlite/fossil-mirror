@@ -492,16 +492,21 @@ void setup_robots(void){
   @ <p>
   @ &emsp;&emsp;&emsp;<tt>%h(robot_restrict_default())</tt>
   @ <p>
-  @ The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
-  @ /vpatch.  The "annotate" tag covers /annotate and also /blame and
-  @ /praise.  The "zip" covers itself and also /tarball and /sqlar.
-  @ If a tag has an "X" character appended (ex: "timelineX") then it only
-  @ applies if query parameters are such that the page is expensive
-  @ and/or unusual. In all other case, the tag should exactly match
-  @ the page name.
-  @
+  @ Usually the tag should exactly match the page name. Exceptions:
+  @ <ul>
+  @ <li>  The "diff" tag covers all diffing pages such as /vdiff,
+  @       /fdiff, and /vpatch.
+  @ <li>  The "annotate" tag covers /annotate and also /blame and
+  @       /praise.
+  @ <li>  The "zip" covers itself and also /tarball and /sqlar.
+  @ <li>  If a tag has an "X" character appended (ex: "timelineX")
+  @       then it only applies if query parameters are such that
+  @       the page is expensive and/or unusual.
+  @ <li>  The "ext" tag covers all extensions, but a tag like
+  @       "ext/PATH" only covers the specific extension at PATH.
+  @ </ul>
   @ To disable robot restrictions, change this setting to "off".
-  @ (Property: robot-restrict)
+  @ (Property: <a href="%R/help/robot-restrict">robot-restrict</a>)
   @ <br>
   textarea_attribute("", 2, 80,
       "robot-restrict", "rbrestrict", robot_restrict_default(), 0);
@@ -1588,6 +1593,9 @@ void setup_chat(void){
   style_set_current_feature("setup");
   style_header("Chat Configuration");
   db_begin_transaction();
+  if( P("rbldchatidx") && cgi_csrf_safe(2) ){
+    chat_rebuild_index(1);
+  }
   @ <form action="%R/setup_chat" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
@@ -1640,9 +1648,29 @@ void setup_chat(void){
   @ <p>The sound used in the client-side chat to indicate that a new
   @ chat message has arrived.
   @ (Property: "chat-alert-sound")</p>
+
   @ <hr/>
-  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <p><input type="submit"  name="submit" value="Apply Changes">
+  @ <input type="submit" name="rbldchatidx"\
+  @  value="Rebuild Full-Text Search Index"></p>
   @ </div></form>
+
+  /* Validate the chat FTS search index */
+  if( db_table_exists("repository","chatfts1") ){
+    char *zMissing;
+    zMissing = db_text(0,
+      "SELECT group_concat(rowid,', ') FROM chat"
+      " WHERE rowid NOT IN (SELECT rowid FROM chatfts1_docsize)"
+    );
+    if( zMissing && zMissing[0] ){
+      @ <p><b>WARNING:</b> The following chat messages are missing
+      @ from the full-text index.  Press the "Rebuild Full-Text Search Index"
+      @ button above to fix this.</p>
+      @ <p>%h(zMissing)</p>
+    }
+    fossil_free(zMissing);
+  }
+
   db_end_transaction(0);
   @ <script nonce="%h(style_nonce())">
   @ (function(){
@@ -2339,15 +2367,20 @@ void page_srchsetup(){
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  if( P("fts0") ){
-    search_drop_index();
-  }else if( P("fts1") ){
-    const char *zTokenizer = PD("ftstok","off");
-    search_set_tokenizer(zTokenizer);
-    search_drop_index();
-    search_create_index();
-    search_fill_index();
-    search_update_index(search_restrict(SRCH_ALL));
+  if( cgi_csrf_safe(2) ){
+    if( P("fts0") ){
+      search_drop_index();
+    }else if( P("fts1") ){
+      const char *zTokenizer = PD("ftstok","off");
+      search_set_tokenizer(zTokenizer);
+      search_drop_index();
+      search_create_index();
+      search_fill_index();
+      search_update_index(search_restrict(SRCH_ALL));
+    }
+    if( P("rbldchatidx") ){
+      chat_rebuild_index(1);
+    }
   }
   if( search_index_exists() ){
     int pgsz = db_int64(0, "PRAGMA repository.page_size;");
@@ -2364,6 +2397,10 @@ void page_srchsetup(){
     select_fts_tokenizer();
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
+    if( db_table_exists("repository","chat") ){
+      @ <input type="submit" name="rbldchatidx" \
+      @ value="Rebuild The Chat FTS Index">
+    }
     style_submenu_element("FTS Index Debugging","%R/test-ftsdocs");
   }else{
     @ <p>The SQLite search index is disabled.  All searching will be

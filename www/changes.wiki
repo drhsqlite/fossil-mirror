@@ -7,7 +7,9 @@
       <li> New special tag "zipX" for the [/help/robot-restrict|robot-restrict]
            setting blocks robot access to tarballs, but with exceptions to support
            automated build systems.
-      <li> Enhancements to the default value for the 
+      <li> Tags of the form "ext/PATH" in the robot-restrict setting block access
+           by robots to specific [./serverext.wiki|CGI extension] at PATH.
+      <li> Enhancements to the default value for the
            [/help/robot-restrict|robot-restrict setting].
       </ol>
   <li> A drop-down menu of recent branches is now possible for the submenu, and
@@ -32,9 +34,9 @@
        <li> The artifact hash in the detail section of each timeline entry is now
             emphasized (controlled by CSS) to make it easier to locate amid all
             the other text and links.
-       <li> When clicking on the ellipsis in "Compact" or "Simple" views, the ellipsis
-            is replaced by a left arrow ("←") which can be clicked to hide the extra
-            detail again.
+       <li> When clicking on the ellipsis in "Compact" or "Simple" views, the
+            ellipsis is replaced by a left arrow ("←") which can be clicked to
+            hide the extra detail again.
        <li> New setting [/help/timeline-mark-leaves|timeline-mark-leaves] controls
             whether or not leaf check-ins are marked in the timeline.
        <li> "No-graph" timelines (using the "ng" query parameter) now show
@@ -42,10 +44,15 @@
             circles appear, but no lines connecting them.
             ([/timeline?ng|example]).
        </ol>
-  <li> The [/help/timeline|timeline command] is enhanced with the new
-       "<tt>-u|--for-user</tt>" option.
+  <li> The [/help/timeline|timeline command] is enhanced with the new options
+       "<tt>-u|--for-user</tt>" to filter by user, and "<tt>-r</tt>" to display
+       entries in chronological order.
   <li> The [/help/open|open command]'s new "<tt>--reopen REPOFILE</tt>" flag
        can be used to fix a checkout after moving its repository file.
+  <li> Update internal Unicode character tables, used in regular expression
+       handling, from version 13 to 17.
+  <li> Add a zoom-message option to [/help/www/chat|/chat] to better support
+       pikchr diagrams.
 </ol>
 
 <h2 id='v2_27'>Changes for version 2.27 (2025-09-30)</h2><ol>

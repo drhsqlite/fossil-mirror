@@ -1405,7 +1405,7 @@ static const char zOptions[] =
 @   --cgitrace              Active CGI tracing
 @   --chdir PATH            Change to PATH before performing any operations
 @   --errorlog FILENAME     Log errors to FILENAME
-@   --help                  Show help on the command rather than running it
+@   -?|--help               Show help on the command rather than running it
 @   --httptrace             Trace outbound HTTP requests
 @   --localtime             Display times using the local timezone
 @   --nocgi                 Do not act as CGI
@@ -1419,6 +1419,16 @@ static const char zOptions[] =
 @   -U|--user USER          Make the default user be USER
 @   --utc                   Display times using UTC
 @   --vfs NAME              Cause SQLite to use the NAME VFS
+@
+@ Additional options available on most commands that use network I/O:
+@
+@   --accept-any-cert       Disable server SSL cdert validation. Accept any SSL
+@                           cert that the server provides.  WARNING: Unsafe!
+@                           Testing and debugging use only!
+@   --ipv4                  Use only IPv4.  Disable IPv6 support.
+@   --ipv6                  Use only IPv6.  Disable IPv4 support.
+@   --nosync                Disable autosync for the current command.
+@   --proxy URL             Specify the HTTP proxy to use.  URL can be "off".
 ;
 
 /*
