@@ -1,5 +1,5 @@
-C Add\sthe\s--ipv6\soption\sto\s"fossil\sclone"\sto\sforce\sthe\suse\sof\sIPv6.
-D 2025-12-19T12:17:57.297
+C Add\sdocumentation\sfor\snetwork\scontrol\scommand-line\soptions,\ssuch\sas\s--ipv4.
+D 2025-12-19T13:01:53.179
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -424,7 +424,7 @@ F src/diff.c 9f507c188640383517ad6a4526aaffdc8b96582cf4376676102eac5bfe5f409e
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
 F src/diffcmd.c a50c8f74736b1ff751798d25d64f7bd2f9bd3f2b1a07d440ce3e346ec2991599
-F src/dispatch.c 113e845f6a2fb1d08aff7ff740d02b4890c98cbb0ffa8b9ab2473325089a98bb
+F src/dispatch.c df3ccbe61a77b557c4f71b7af3f8c240fa7789a63eebd183287f893abc4a6169
 F src/doc.c 85a8ea5014ac5665b815a19cf8ad6ef0ec62cc60b81ed57e8e915a5d89cab37b
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 654fe05f4f3e658ad07256ec4032bbe0b731db588b54168437a733edbba9d90c
-R 4c00df16dc7a457076640b227fc2b2b2
+P 6f55dbd00bb21c1bb619ad0b5b9ce8a079584545bd9489746c40ddd58231e6b2
+R 25cdeb042391cbd6d38f1bf04bb17195
 U drh
-Z e2614e17970486abbe55df3a7f310da6
+Z c73197b800a5b41f5123ba2a196fe58a
 # Remove this line to create a well-formed Fossil manifest.
