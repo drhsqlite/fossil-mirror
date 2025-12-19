@@ -458,12 +458,23 @@ int ssl_open_client(UrlData *pUrlData){
     int rc;
     char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
     BIO *sBio = BIO_new_connect(connStr);
-    if( g.fIPv4 ){
+    switch( g.eIPvers ){
+      default:   /* Any available protocol */
+         break;
+      case 1:   /* IPv4 only */
 #ifdef BIO_FAMILY_IPV4
-      BIO_set_conn_ip_family(sBio, BIO_FAMILY_IPV4);
+        BIO_set_conn_ip_family(sBio, BIO_FAMILY_IPV4);
 #else
-      fossil_warning("The --ipv4 option is not supported in this build\n");
+        fossil_warning("The --ipv4 option is not supported in this build\n");
 #endif
+        break;
+      case 2:   /* IPv6 only */
+#ifdef BIO_FAMILY_IPV6
+        BIO_set_conn_ip_family(sBio, BIO_FAMILY_IPV6);
+#else
+        fossil_warning("The --ipv6 option is not supported in this build\n");
+#endif
+        break;
     }
     fossil_free(connStr);
     if( BIO_do_connect(sBio)<=0 ){
@@ -518,12 +529,23 @@ int ssl_open_client(UrlData *pUrlData){
     char *connStr = mprintf("%s:%d", pUrlData->name, pUrlData->port);
     BIO_set_conn_hostname(iBio, connStr);
     fossil_free(connStr);
-    if( g.fIPv4 ){
+    switch( g.eIPvers ){
+      default:   /* Any available protocol */
+         break;
+      case 1:   /* IPv4 only */
 #ifdef BIO_FAMILY_IPV4
-      BIO_set_conn_ip_family(iBio, BIO_FAMILY_IPV4);
+        BIO_set_conn_ip_family(iBio, BIO_FAMILY_IPV4);
 #else
-      fossil_warning("The --ipv4 option is not supported in this build\n");
+        fossil_warning("The --ipv4 option is not supported in this build\n");
 #endif
+        break;
+      case 2:   /* IPv6 only */
+#ifdef BIO_FAMILY_IPV6
+        BIO_set_conn_ip_family(iBio, BIO_FAMILY_IPV6);
+#else
+        fossil_warning("The --ipv6 option is not supported in this build\n");
+#endif
+        break;
     }
     if( BIO_do_connect(iBio)<=0 ){
       ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",

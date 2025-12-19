@@ -190,7 +190,7 @@ struct Global {
   char *zSshCmd;          /* SSH command string */
   const char *zHttpCmd;   /* External program to do HTTP requests */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
-  int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
+  int eIPvers;            /* 0: any   1: ipv4-only  2: ipv6-only */
   char *zPath;            /* Name of webpage being served (may be NULL) */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */

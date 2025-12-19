@@ -550,6 +550,8 @@ static const char *zProxyOpt = 0;
 **
 **    --ipv4               Disallow IPv6.  Use only IPv4.
 **
+**    --ipv6               Disallow IPv4.  Use only IPv6.
+**
 **    --accept-any-cert    Disable server SSL cert validation. Accept
 **                         any SSL cert that the server provides.
 **                         WARNING: this option opens you up to
@@ -558,7 +560,8 @@ static const char *zProxyOpt = 0;
 void url_proxy_options(void){
   zProxyOpt = find_option("proxy", 0, 1);
   if( find_option("nosync",0,0) ) g.fNoSync = 1;
-  if( find_option("ipv4",0,0) ) g.fIPv4 = 1;
+  if( find_option("ipv4",0,0) ) g.eIPvers = 1;
+  if( find_option("ipv6",0,0) ) g.eIPvers = 2;
 #ifdef FOSSIL_ENABLE_SSL
   if( find_option("accept-any-cert",0,0) ){
     ssl_disable_cert_verification();

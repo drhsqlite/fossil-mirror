@@ -845,7 +845,8 @@ void test_httpmsg_command(void){
     mHttpFlags |= HTTP_USE_LOGIN;
     mHttpFlags &= ~HTTP_GENERIC;
   }
-  if( find_option("ipv4",0,0) ) g.fIPv4 = 1;
+  if( find_option("ipv4",0,0) ) g.eIPvers = 1;
+  if( find_option("ipv6",0,0) ) g.eIPvers = 2;
   zSubpath = find_option("subpath",0,1);
   verify_all_options();
   if( g.argc<3 || g.argc>5 ){

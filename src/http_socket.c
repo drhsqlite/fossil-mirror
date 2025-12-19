@@ -155,7 +155,11 @@ int socket_open(UrlData *pUrlData){
   socket_global_init();
   socket_close();
   memset(&hints, 0, sizeof(struct addrinfo));
-  hints.ai_family = g.fIPv4 ? AF_INET : AF_UNSPEC;
+  switch( g.eIPvers ){
+    default:  hints.ai_family = AF_UNSPEC;    break;
+    case 1:   hints.ai_family = AF_INET;      break;
+    case 2:   hints.ai_family = AF_INET6;     break;
+  }
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;
   sqlite3_snprintf(sizeof(zPort),zPort,"%d", pUrlData->port);
