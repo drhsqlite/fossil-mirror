@@ -755,7 +755,8 @@ window.fossil.onPageLoad(function(){
     if(D.attr(cs.e.inputX,'contenteditable','plaintext-only').isContentEditable){
       cs.$browserHasPlaintextOnly = true;
     }else{
-      /* Only the Chrome family supports contenteditable=plaintext-only */
+      /* contenteditable="plaintext-only" is a latecomer, not
+         supported in FF until version 136. */
       cs.$browserHasPlaintextOnly = false;
       D.attr(cs.e.inputX,'contenteditable','true');
     }
