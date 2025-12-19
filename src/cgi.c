@@ -955,9 +955,10 @@ void cgi_setenv(const char *zName, const char *zValue){
 ** Returns true if NUL-terminated z contains any non-NUL
 ** control characters (<0x20, 32d).
 */
-static int contains_ctrl(const char *z){
+static int contains_ctrl(const char *zIn){
+  const unsigned char *z = (const unsigned char*)zIn;
   assert(z);
-  for( ; *z>=0x20 || *z<0; ++z ){}
+  for( ; *z>=0x20; ++z ){}
   return 0!=*z;
 }
 
