@@ -91,6 +91,14 @@ char *socket_errmsg(void){
 }
 
 /*
+** Return the socket to the caller.
+** This can be used when setting up SSL on the socket.
+*/
+int get_socket(){
+  return iSocket;
+}
+
+/*
 ** Call this routine once before any other use of the socket interface.
 ** This routine does initial configuration of the socket module.
 */
