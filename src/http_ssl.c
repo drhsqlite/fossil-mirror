@@ -37,15 +37,6 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
-#if defined(_WIN32)
-#  include <winsock2.h>
-#  include <ws2tcpip.h>
-#else
-#  include <netinet/in.h>
-#  include <arpa/inet.h>
-#  include <sys/socket.h>
-#  include <netdb.h>
-#endif
 
 #include <assert.h>
 #include <sys/types.h>

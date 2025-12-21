@@ -1,13 +1,10 @@
 B 1f8d7b7a5e5308adf033cb248706a698372c229cffdab1ddf2da4cc3df7ad586
-C When\shandling\sHTTPS\surls,\sopen\sa\ssocket\sand\sthen\supgrade\sthe\ssocket\sto\suse\sTLS.\s\sSee\sdiscussion\sstarting\swith\s[forum:/forumpost/3726ae4219|forum\spost\s3726ae4219].
-D 2025-12-20T23:46:25.389
+C Remove\sextraneous\sincludes\sthat\swere\sleft\sovers\sfrom\salternative\sapproach.
+D 2025-12-21T00:38:19.433
 F src/http_socket.c 93cf020060f19143d522c0e471f7ba581c67f60b2fc5680480a80521b2298e97
-F src/http_ssl.c a7f589b053a13a643ab63e3ee6a5a8a0fd870a2eed77ddc380e3ebb2bc2f8149
-P 1f8d7b7a5e5308adf033cb248706a698372c229cffdab1ddf2da4cc3df7ad586
-R 7ae24087af3bd9f15e06d5f7c68bb468
-T *branch * ssl-with-socket
-T *sym-ssl-with-socket *
-T -sym-trunk *
+F src/http_ssl.c 8d48f7184d4564d02b4e05700c878db6975b9dd2e964ac9b69fcd960467249b4
+P 61b3f488a6f045f2ff1ef19eae990280e43bd4f0ec8f656690154490fc1dbc43
+R 5b0241a1efc0392d435a5d3b05bc3be5
 U andybradford
-Z c90fb3f3882222aa4d88c2e9151ffbd8
+Z e95ab7cf412e46f45721e12ec3a64c1c
 # Remove this line to create a well-formed Fossil manifest.
