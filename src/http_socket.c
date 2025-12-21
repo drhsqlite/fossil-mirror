@@ -91,10 +91,9 @@ char *socket_errmsg(void){
 }
 
 /*
-** Return the socket to the caller.
-** This can be used when setting up SSL on the socket.
+** Return the file descriptor for the open socket.
 */
-int get_socket(){
+int socket_get_fd(){
   return iSocket;
 }
 

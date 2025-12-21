@@ -461,7 +461,7 @@ int ssl_open_client(UrlData *pUrlData){
     ssl_set_errmsg("SSL: cannot open socket (%s)", socket_errmsg());
     return 1;
   }
-  sBio = BIO_new_socket(get_socket(), 0);
+  sBio = BIO_new_socket(socket_get_fd(), 0);
   if( pUrlData->useProxy ){
     int rc = establish_proxy_tunnel(pUrlData, sBio);
     if( rc<200||rc>299 ){
