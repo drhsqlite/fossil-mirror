@@ -365,6 +365,7 @@ void ssl_global_shutdown(void){
     ssl_clear_errmsg();
     sslIsInit = 0;
   }
+  socket_global_shutdown();
 }
 
 /*
@@ -377,6 +378,7 @@ void ssl_close_client(void){
     BIO_free_all(iBio);
     iBio = NULL;
   }
+  socket_close();
 }
 
 /* See RFC2817 for details */
@@ -452,59 +454,31 @@ void ssl_disable_cert_verification(void){
 int ssl_open_client(UrlData *pUrlData){
   X509 *cert;
   const char *zRemoteHost;
+  BIO *sBio;
 
   ssl_global_init_client();
+  if( socket_open(pUrlData) ){
+    ssl_set_errmsg("SSL: cannot open socket (%s)", socket_errmsg());
+    return 1;
+  }
+  sBio = BIO_new_socket(socket_get_fd(), 0);
   if( pUrlData->useProxy ){
-    int rc;
-    char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
-    BIO *sBio = BIO_new_connect(connStr);
-    switch( g.eIPvers ){
-      default:   /* Any available protocol */
-         break;
-      case 1:   /* IPv4 only */
-#ifdef BIO_FAMILY_IPV4
-        BIO_set_conn_ip_family(sBio, BIO_FAMILY_IPV4);
-#else
-        fossil_warning("The --ipv4 option is not supported in this build\n");
-#endif
-        break;
-      case 2:   /* IPv6 only */
-#ifdef BIO_FAMILY_IPV6
-        BIO_set_conn_ip_family(sBio, BIO_FAMILY_IPV6);
-#else
-        fossil_warning("The --ipv6 option is not supported in this build\n");
-#endif
-        break;
-    }
-    fossil_free(connStr);
-    if( BIO_do_connect(sBio)<=0 ){
-      ssl_set_errmsg("SSL: cannot connect to proxy %s:%d (%s)",
-            pUrlData->name, pUrlData->port,
-            ERR_reason_error_string(ERR_get_error()));
-      ssl_close_client();
-      return 1;
-    }
-    rc = establish_proxy_tunnel(pUrlData, sBio);
+    int rc = establish_proxy_tunnel(pUrlData, sBio);
     if( rc<200||rc>299 ){
       ssl_set_errmsg("SSL: proxy connect failed with HTTP status code %d", rc);
+      ssl_close_client();
       return 1;
     }
 
     pUrlData->path = pUrlData->proxyUrlPath;
-
-    iBio = BIO_new_ssl(sslCtx, 1);
-    BIO_push(iBio, sBio);
-    zRemoteHost = pUrlData->hostname;
-  }else{
-    iBio = BIO_new_ssl_connect(sslCtx);
-    zRemoteHost = pUrlData->name;
   }
-  if( iBio==NULL ) {
-    ssl_set_errmsg("SSL: cannot open SSL (%s)",
-                    ERR_reason_error_string(ERR_get_error()));
-    return 1;
-  }
+  iBio = BIO_new_ssl(sslCtx, 1);
+  BIO_push(iBio, sBio);
+  BIO_set_ssl(sBio, ssl, BIO_NOCLOSE);
+  BIO_set_ssl_mode(iBio, 1);
   BIO_get_ssl(iBio, &ssl);
+
+  zRemoteHost = pUrlData->useProxy ? pUrlData->hostname : pUrlData->name;
 
 #if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
   if( !SSL_set_tlsext_host_name(ssl, zRemoteHost)){
@@ -525,41 +499,10 @@ int ssl_open_client(UrlData *pUrlData){
   }
 #endif
 
-  if( !pUrlData->useProxy ){
-    char *connStr = mprintf("%s:%d", pUrlData->name, pUrlData->port);
-    BIO_set_conn_hostname(iBio, connStr);
-    fossil_free(connStr);
-    switch( g.eIPvers ){
-      default:   /* Any available protocol */
-         break;
-      case 1:   /* IPv4 only */
-#ifdef BIO_FAMILY_IPV4
-        BIO_set_conn_ip_family(iBio, BIO_FAMILY_IPV4);
-#else
-        fossil_warning("The --ipv4 option is not supported in this build\n");
-#endif
-        break;
-      case 2:   /* IPv6 only */
-#ifdef BIO_FAMILY_IPV6
-        BIO_set_conn_ip_family(iBio, BIO_FAMILY_IPV6);
-#else
-        fossil_warning("The --ipv6 option is not supported in this build\n");
-#endif
-        break;
-    }
-    if( BIO_do_connect(iBio)<=0 ){
-      ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
-         pUrlData->name, pUrlData->port,
-         ERR_reason_error_string(ERR_get_error()));
-      ssl_close_client();
-      return 1;
-    }
-  }
-
-  if( BIO_do_handshake(iBio)<=0 ) {
+  if( BIO_do_handshake(iBio)<=0 ){
     ssl_set_errmsg("Error establishing SSL connection %s:%d (%s)",
-        pUrlData->useProxy?pUrlData->hostname:pUrlData->name,
-        pUrlData->useProxy?pUrlData->proxyOrigPort:pUrlData->port,
+        zRemoteHost,
+        pUrlData->useProxy ? pUrlData->proxyOrigPort : pUrlData->port,
         ERR_reason_error_string(ERR_get_error()));
     ssl_close_client();
     return 1;
@@ -651,28 +594,6 @@ int ssl_open_client(UrlData *pUrlData){
       }
       blob_reset(&ans);
     }
-  }
-
-  /* Set the Global.zIpAddr variable to the server we are talking to.
-  ** This is used to populate the ipaddr column of the rcvfrom table,
-  ** if any files are received from the server.
-  */
-  {
-  /* As soon as libressl implements
-  ** BIO_ADDR_hostname_string/BIO_get_conn_address.
-  ** check here for the correct LIBRESSL_VERSION_NUMBER too. For now: disable
-  */
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10100000L \
-      && !defined(LIBRESSL_VERSION_NUMBER)
-    char *ip = BIO_ADDR_hostname_string(BIO_get_conn_address(iBio),1);
-    g.zIpAddr = fossil_strdup(ip);
-    OPENSSL_free(ip);
-#else
-    /* IPv4 only code */
-    const unsigned char *ip;
-    ip = (const unsigned char*)BIO_ptr_ctrl(iBio,BIO_C_GET_CONNECT,2);
-    g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-#endif
   }
 
   X509_free(cert);
