@@ -1583,9 +1583,11 @@ static void qrfEscape(
 static int qrfRelaxable(Qrf *p, const char *z){
   size_t i, n;
   if( z[0]=='\'' || qrfSpace(z[0]) ) return 0;
-  if( z[0]==0 && (p->spec.zNull==0 || p->spec.zNull[0]==0) ) return 0;
+  if( z[0]==0 ){
+    return (p->spec.zNull!=0 && p->spec.zNull[0]!=0);
+  }
   n = strlen(z);
-  if( z[n-1]=='\'' || qrfSpace(z[n-1]) ) return 0;
+  if( n==0 || z[n-1]=='\'' || qrfSpace(z[n-1]) ) return 0;
   if( p->spec.zNull && strcmp(p->spec.zNull,z)==0 ) return 0;
   i = (z[0]=='-' || z[0]=='+');
   if( strcmp(z+i,"Inf")==0 ) return 0;
@@ -10182,11 +10184,18 @@ static const char *re_compile(
 }
 
 /*
-** Compute a reasonable limit on the length of the REGEXP NFA.
+** The value of LIMIT_MAX_PATTERN_LENGTH.
 */
 static int re_maxlen(sqlite3_context *context){
   sqlite3 *db = sqlite3_context_db_handle(context);
-  return 75 + sqlite3_limit(db, SQLITE_LIMIT_LIKE_PATTERN_LENGTH,-1)/2;
+  return sqlite3_limit(db, SQLITE_LIMIT_LIKE_PATTERN_LENGTH,-1);
+}
+
+/*
+** Maximum NFA size given a maximum pattern length.
+*/
+static int re_maxnfa(int mxlen){
+  return 75+mxlen/2;
 }
 
 /*
@@ -10212,10 +10221,17 @@ static void re_sql_func(
   (void)argc;  /* Unused */
   pRe = sqlite3_get_auxdata(context, 0);
   if( pRe==0 ){
+    int mxLen = re_maxlen(context);
+    int nPattern;
     zPattern = (const char*)sqlite3_value_text(argv[0]);
     if( zPattern==0 ) return;
-    zErr = re_compile(&pRe, zPattern, re_maxlen(context),
-                      sqlite3_user_data(context)!=0);
+    nPattern = sqlite3_value_bytes(argv[0]);
+    if( nPattern>mxLen ){
+      zErr = "REGEXP pattern too big";
+    }else{
+      zErr = re_compile(&pRe, zPattern, re_maxnfa(mxLen),
+                        sqlite3_user_data(context)!=0);
+    }
     if( zErr ){
       re_free(pRe);
       sqlite3_result_error(context, zErr, -1);
@@ -10281,7 +10297,7 @@ static void re_bytecode_func(
 
   zPattern = (const char*)sqlite3_value_text(argv[0]);
   if( zPattern==0 ) return;
-  zErr = re_compile(&pRe, zPattern, re_maxlen(context),
+  zErr = re_compile(&pRe, zPattern, re_maxnfa(re_maxlen(context)),
                     sqlite3_user_data(context)!=0);
   if( zErr ){
     re_free(pRe);
@@ -24180,7 +24196,6 @@ typedef struct Mode {
 typedef struct ShellState ShellState;
 struct ShellState {
   sqlite3 *db;           /* The database */
-  int iCompat;           /* Compatibility date YYYYMMDD */
   u8 openMode;           /* SHELL_OPEN_NORMAL, _APPENDVFS, or _ZIPFILE */
   u8 doXdgOpen;          /* Invoke start/open/xdg-open in output_reset() */
   u8 nEqpLevel;          /* Depth of the EQP output graph */
@@ -24572,14 +24587,13 @@ static void modeChange(ShellState *p, unsigned char eMode){
 }
 
 /*
-** Set the mode to the default according to p->iCompat.  It assumed
-** that the mode has already been freed and zeroed prior to calling
-** this routine.
+** Set the mode to the default.  It assumed that the mode has
+** already been freed and zeroed prior to calling this routine.
 */
 static void modeDefault(ShellState *p){
   p->mode.spec.iVersion = 1;
   p->mode.autoExplain = 1;
-  if( p->iCompat>=20251115 && (stdin_is_interactive || stdout_is_console) ){
+  if( stdin_is_interactive || stdout_is_console ){
     modeChange(p, MODE_TTY);
   }else{
     modeChange(p, MODE_BATCH);
@@ -26606,8 +26620,8 @@ static const char *(azHelp[]) = {
   ".cd DIRECTORY            Change the working directory to DIRECTORY",
 #endif
   ".changes on|off          Show number of rows changed by SQL",
+  ".check OPTIONS ...       Verify the results of a .testcase",
 #ifndef SQLITE_SHELL_FIDDLE
-  ".check GLOB              Fail if output since .testcase does not match",
   ".clone NEWDB             Clone data into NEWDB from the existing database",
 #endif
   ".connection [close] [#]  Open or close an auxiliary database connection",
@@ -26787,9 +26801,7 @@ static const char *(azHelp[]) = {
   ".system CMD ARGS...      Run CMD ARGS... in a system shell",
 #endif
   ".tables ?TABLE?          List names of tables matching LIKE pattern TABLE",
-#ifndef SQLITE_SHELL_FIDDLE
-  ",testcase NAME           Begin redirecting output to 'testcase-out.txt'",
-#endif
+  ".testcase NAME           Begin a test case.",
   ",testctrl CMD ...        Run various sqlite3_test_control() operations",
   "                           Run \".testctrl\" with no arguments for details",
   ".timeout MS              Try opening locked tables for MS milliseconds",
@@ -26932,19 +26944,13 @@ static const struct {
 "                    launch a text editor when the redirection ends.\n"
 "  --error-prefix X  Use X as the left-margin prefix for error messages.\n"
 "                    Set to an empty string to restore the default.\n"
-"  --glob GLOB       Raise an error if the memory buffer does not match\n"
-"                    the GLOB pattern.\n"
-"  --keep            Continue using the same \"memory\" buffer.  Do not\n"
-"                    reset it or delete it.  Useful in combination with\n"
-"                    --glob, --not-glob, and/or --verify.\n"
-"  ---notglob GLOB   Raise an error if the memory buffer does not match\n"
-"                    the GLOB pattern.\n"
+"  --keep            Keep redirecting output to its current destination.\n"
+"                    Use this option in combination with --show or\n"
+"                    with --error-prefix when you do not want to stop\n"
+"                    a current redirection.\n"
 "  --plain           Use plain text rather than HTML tables with -w\n"
-"  --show            Write the memory buffer to the screen, for debugging.\n"
-"  --verify ENDMARK  Read subsequent lines of text until the first line\n"
-"                    that matches ENDMARK.  Discard the ENDMARK.  Compare\n"
-"                    the text against the accumulated output in memory and\n"
-"                    raise an error if there are any differences.\n"
+"  --show            Show output text captured by .testcase or by\n"
+"                    redirecting to \"memory\".\n"
 "  -w                Show the output in a web browser.  Output is\n"
 "                    written into a temporary HTML file until the\n"
 "                    redirect ends, then the web browser is launched.\n"
@@ -26971,6 +26977,36 @@ static const struct {
 "  -x                Show the output in a spreadsheet.  Output is\n"
 "                    written to a temp file as CSV then the spreadsheet\n"
 "                    is launched when\n"
+  },
+  { ".check",
+"USAGE: .check [OPTIONS] PATTERN\n"
+"\n"
+"Verify results of commands since the most recent .testcase command.\n"
+"Restore output to the console, unless --keep is used.\n"
+"\n"
+"If PATTERN starts with \"<<ENDMARK\" then the actual pattern is taken from\n"
+"subsequent lines of text up to the first line that begins with ENDMARK.\n"
+"All pattern lines and the ENDMARK are discarded.\n"
+"\n"
+"Options:\n"
+"  --error-prefix TEXT    Change error message prefix text to TEXT\n"
+"  --exact                Do an exact comparison including leading and\n"
+"                         trailing whitespace.\n"
+"  --glob                 Treat PATTERN as a GLOB\n"
+"  --keep                 Do not reset the testcase.  More .check commands\n"
+"                         will follow.\n"
+"  --notglob              Output should not match PATTERN\n"
+"  --show                 Write testcase output to the screen, for debugging.\n"
+  },
+  { ".testcase",
+"USAGE: .testcase [OPTIONS] NAME\n"
+"\n"
+"Start a new test case identified by NAME.  All output\n"
+"through the next \".check\" command is captured for comparison. See the\n"
+"\".check\" commandn for additional informatioon.\n"
+"\n"
+"Options:\n"
+"  --error-prefix TEXT       Change error message prefix text to TEXT\n"
   },
 };
 
@@ -27197,6 +27233,52 @@ static int session_filter(void *pCtx, const char *zTab){
 #endif
 
 /*
+** Return the size of the named file in bytes.  Or return a negative
+** number if the file does not exist.
+*/
+static sqlite3_int64 fileSize(const char *zFile){
+#if defined(_WIN32) || defined(WIN32)
+  struct _stat64 x;
+  if( _stat64(zFile, &x)!=0 ) return -1;
+  return (sqlite3_int64)x.st_size;
+#else
+  struct stat x;
+  if( stat(zFile, &x)!=0 ) return -1;
+  return (sqlite3_int64)x.st_size;
+#endif
+}
+
+/*
+** Return true if zFile is an SQLite database.
+**
+** Algorithm:
+**    * If the file does not exist -> return false
+**    * If the size of the file is not a multiple of 512 -> return false
+**    * If sqlite3_open() fails -> return false
+**    * if sqlite3_prepare() or sqlite3_step() fails -> return false
+**    * Otherwise -> return true
+*/
+static int isDatabaseFile(const char *zFile, int openFlags){
+  sqlite3 *db = 0;
+  sqlite3_stmt *pStmt = 0;
+  int rc;
+  sqlite3_int64 sz = fileSize(zFile);
+  if( sz<512 || (sz%512)!=0 ) return 0;
+  if( sqlite3_open_v2(zFile, &db, openFlags, 0)==SQLITE_OK
+   && sqlite3_prepare_v2(db,"SELECT count(*) FROM sqlite_schema",-1,&pStmt,0)
+           ==SQLITE_OK
+   && sqlite3_step(pStmt)==SQLITE_ROW
+  ){
+    rc = 1;
+  }else{
+    rc = 0;
+  }
+  sqlite3_finalize(pStmt);
+  sqlite3_close(db);
+  return rc;
+}
+
+/*
 ** Try to deduce the type of file for zName based on its content.  Return
 ** one of the SHELL_OPEN_* constants.
 **
@@ -27208,20 +27290,12 @@ static int session_filter(void *pCtx, const char *zTab){
 int deduceDatabaseType(const char *zName, int dfltZip, int openFlags){
   FILE *f;
   size_t n;
-  sqlite3 *db = 0;
-  sqlite3_stmt *pStmt = 0;
   int rc = SHELL_OPEN_UNSPEC;
   char zBuf[100];
   if( access(zName,0)!=0 ) goto database_type_by_name;
-  if( sqlite3_open_v2(zName, &db, openFlags, 0)==SQLITE_OK
-   && sqlite3_prepare_v2(db,"SELECT count(*) FROM sqlite_schema",-1,&pStmt,0)
-           ==SQLITE_OK
-   && sqlite3_step(pStmt)==SQLITE_ROW
-  ){
+  if( isDatabaseFile(zName, openFlags) ){
     rc = SHELL_OPEN_NORMAL;
   }
-  sqlite3_finalize(pStmt);
-  sqlite3_close(db);
   if( rc==SHELL_OPEN_NORMAL ) return SHELL_OPEN_NORMAL;
   f = sqlite3_fopen(zName, "rb");
   if( f==0 ) goto database_type_by_name;
@@ -27254,6 +27328,33 @@ database_type_by_name:
     rc = SHELL_OPEN_NORMAL;
   }
   return rc;
+}
+
+/*
+** If the text in z[] is the name of a readable file and that file appears
+** to contain SQL text and/or dot-commands, then return true.  If z[] is
+** not a file, or if the file is unreadable, or if the file is a database
+** or anything else that is not SQL text and dot-commands, then return false.
+**
+** If the bLeaveUninit flag is set, then be sure to leave SQLite in an
+** uninitialized state.  This means invoking sqlite3_shutdown() after any
+** SQLite API is used.
+**
+** Some amount of guesswork is involved in this decision.
+*/
+static int isScriptFile(const char *z, int bLeaveUninit){
+  sqlite3_int64 sz = fileSize(z);
+  if( sz<=0 ) return 0;
+  if( (sz%512)==0 ){
+    int rc = isDatabaseFile(z, SQLITE_OPEN_READONLY);
+    if( bLeaveUninit ){
+      sqlite3_shutdown();
+    }
+    if( rc ) return 0;  /* Is a database */
+  }
+  if( sqlite3_strlike("%.sql",z,0)==0 ) return 1;
+  if( sqlite3_strlike("%.txt",z,0)==0 ) return 1;
+  return 0;
 }
 
 #ifndef SQLITE_OMIT_DESERIALIZE
@@ -31330,19 +31431,13 @@ static int dotCmdMode(ShellState *p){
 **                     launch a text editor when the redirection ends.
 **   --error-prefix X  Use X as the left-margin prefix for error messages.
 **                     Set to an empty string to restore the default.
-**   --glob GLOB       Raise an error if the memory buffer does not match
-**                     the GLOB pattern.
-**   --keep            Continue using the same "memory" buffer.  Do not
-**                     reset it or delete it.  Useful in combination with
-**                     --glob, --not-glob, and/or --verify.
-**   ---notglob GLOB   Raise an error if the memory buffer does not match
-**                     the GLOB pattern.
+**   --keep            Keep redirecting output to its current destination.
+**                     Use this option in combination with --show or
+**                     with --error-prefix when you do not want to stop
+**                     a current redirection.
 **   --plain           Use plain text rather than HTML tables with -w
-**   --show            Write the memory buffer to the screen, for debugging.
-**   --verify ENDMARK  Read subsequent lines of text until the first line
-**                     that matches ENDMARK.  Discard the ENDMARK.  Compare
-**                     the text against the accumulated output in memory and
-**                     raise an error if there are any differences.
+**   --show            Show output text captured by .testcase or by
+**                     redirecting to "memory".
 **   -w                Show the output in a web browser.  Output is
 **                     written into a temporary HTML file until the
 **                     redirect ends, then the web browser is launched.
@@ -31384,9 +31479,7 @@ static int dotCmdOutput(ShellState *p){
   int eMode = 0;          /* 0: .outout/.once, 'x'=.excel, 'w'=.www */
   int bOnce = 0;          /* 0: .output, 1: .once, 2: .excel/.www */
   int bPlain = 0;         /* --plain option */
-  int bKeep = 0;          /* --keep option */
-  char *zCheck = 0;       /* Argument to --glob, --notglob, --verify */
-  int eCheck = 0;         /* 1: --glob,  2: --notglob,  3: --verify */
+  int bKeep = 0;          /* Keep redirecting */
   static const char *zBomUtf8 = "\357\273\277";
   const char *zBom = 0;
   char c = azArg[0][0];
@@ -31412,32 +31505,17 @@ static int dotCmdOutput(ShellState *p){
         bPlain = 1;
       }else if( c=='o' && z[0]=='1' && z[1]!=0 && z[2]==0
              && (z[1]=='x' || z[1]=='e' || z[1]=='w') ){
-        if( bKeep || eMode || eCheck ){
+        if( bKeep || eMode ){
           dotCmdError(p, i, "incompatible with prior options",0);
           goto dotCmdOutput_error;
         }
         eMode = z[1];
-      }else if( cli_strcmp(z,"-keep")==0 ){
-        bKeep = 1;
       }else if( cli_strcmp(z,"-show")==0 ){
         if( cli_output_capture ){
           sqlite3_fprintf(stdout, "%s", sqlite3_str_value(cli_output_capture));
         }
+      }else if( cli_strcmp(z,"-keep")==0 ){
         bKeep = 1;
-      }else if( cli_strcmp(z,"-glob")==0
-             || cli_strcmp(z,"-notglob")==0
-             || cli_strcmp(z,"-verify")==0
-      ){
-        if( eCheck || eMode ){
-          dotCmdError(p, i, "incompatible with prior options",0);
-          goto dotCmdOutput_error;
-        }
-        if( i+1>=nArg ){
-          dotCmdError(p, i, "missing argument", 0);
-          goto dotCmdOutput_error;
-        }
-        zCheck = azArg[++i];
-        eCheck = z[1]=='g' ? 1 : z[1]=='n' ? 2 : 3;
       }else if( optionMatch(z,"error-prefix") ){
         if( i+1>=nArg ){
           dotCmdError(p, i, "missing argument", 0);
@@ -31452,7 +31530,7 @@ static int dotCmdOutput(ShellState *p){
         return 1;
       }
     }else if( zFile==0 && eMode==0 ){
-      if( bKeep || eCheck ){
+      if( bKeep ){
         dotCmdError(p, i, "incompatible with prior options",0);
         goto dotCmdOutput_error;
       }
@@ -31487,49 +31565,6 @@ static int dotCmdOutput(ShellState *p){
     p->nPopOutput = 2;
   }else{
     p->nPopOutput = 0;
-  }
-  if( eCheck ){
-    char *zTest;
-    if( cli_output_capture ){
-      zTest = sqlite3_str_value(cli_output_capture);
-    }else{
-      zTest = "";
-    }
-    p->nTestRun++;
-    if( eCheck==3 ){
-      int nCheck = strlen30(zCheck);
-      sqlite3_str *pPattern = sqlite3_str_new(p->db);
-      char *zPattern;
-      sqlite3_int64 iStart = p->lineno;
-      char zLine[2000];
-      while( sqlite3_fgets(zLine,sizeof(zLine),p->in) ){
-        if( strchr(zLine,'\n') ) p->lineno++;
-        if( cli_strncmp(zCheck,zLine,nCheck)==0 ) break;
-        sqlite3_str_appendall(pPattern, zLine);
-      }
-      zPattern = sqlite3_str_finish(pPattern);
-      if( cli_strcmp(zPattern,zTest)!=0 ){
-        sqlite3_fprintf(stderr,
-            "%s:%lld: --verify does matches prior output\n",
-          p->zInFile, iStart);
-        p->nTestErr++;
-      }
-      sqlite3_free(zPattern);
-    }else{
-      char *zGlob = sqlite3_mprintf("*%s*", zCheck);
-      if( eCheck==1 && sqlite3_strglob(zGlob, zTest)!=0 ){
-        sqlite3_fprintf(stderr,
-            "%s:%lld: --glob \"%s\" does not match prior output\n",
-            p->zInFile, p->lineno, zCheck);
-        p->nTestErr++;       
-      }else if( eCheck==2 && sqlite3_strglob(zGlob, zTest)==0 ){
-        sqlite3_fprintf(stderr,
-            "%s:%lld: --notglob \"%s\" matches prior output\n",
-            p->zInFile, p->lineno, zCheck);
-        p->nTestErr++;       
-      }
-      sqlite3_free(zGlob);
-    }
   }
   if( !bKeep ) output_reset(p);
 #ifndef SQLITE_NOHAVE_SYSTEM
@@ -31613,6 +31648,196 @@ dotCmdOutput_error:
 }
 
 /*
+** DOT-COMMAND: .check
+** USAGE: .check [OPTIONS] PATTERN
+**
+** Verify results of commands since the most recent .testcase command.
+** Restore output to the console, unless --keep is used.
+**
+** If PATTERN starts with "<<ENDMARK" then the actual pattern is taken from
+** subsequent lines of text up to the first line that begins with ENDMARK.
+** All pattern lines and the ENDMARK are discarded.
+**
+** Options:
+**   --error-prefix TEXT    Change error message prefix text to TEXT
+**   --exact                Do an exact comparison including leading and
+**                          trailing whitespace.
+**   --glob                 Treat PATTERN as a GLOB
+**   --keep                 Do not reset the testcase.  More .check commands
+**                          will follow.
+**   --notglob              Output should not match PATTERN
+**   --show                 Write testcase output to the screen, for debugging.
+*/
+static int dotCmdCheck(ShellState *p){
+  int nArg = p->dot.nArg;            /* Number of arguments */
+  char **azArg = p->dot.azArg;       /* Text of the arguments */
+  int i;                             /* Loop counter */
+  int k;                             /* Result of pickStr() */
+  char *zTest;                       /* Textcase result */
+  int bKeep = 0;                     /* --keep option */
+  char *zCheck = 0;                  /* PATTERN argument */
+  char *zPattern = 0;                /* Actual test pattern */
+  int eCheck = 0;                    /* 1: --glob,  2: --notglob,  3: --exact */
+  int isOk;                          /* True if results are OK */
+  sqlite3_int64 iStart = p->lineno;  /* Line number of .check statement */
+
+  if( p->zTestcase[0]==0 ){
+    dotCmdError(p, 0, "no .testcase is active", 0);
+    return 1;
+  }
+  for(i=1; i<nArg; i++){
+    char *z = azArg[i];
+    if( z[0]=='-' && z[1]=='-' && z[2]!=0 ) z++;
+    if( cli_strcmp(z,"-keep")==0 ){
+      bKeep = 1;
+    }else if( cli_strcmp(z,"-show")==0 ){
+      if( cli_output_capture ){
+        sqlite3_fprintf(stdout, "%s", sqlite3_str_value(cli_output_capture));
+      }
+      bKeep = 1;
+    }else if( z[0]=='-'
+          && (k = pickStr(&z[1],0,"glob","notglob","exact",""))>=0
+    ){
+      if( eCheck && eCheck!=k+1 ){
+        dotCmdError(p, i, "incompatible with prior options",0);
+        return 1;
+      }
+      eCheck = k+1;
+    }else if( zCheck ){
+      dotCmdError(p, i, "unknown option", 0);
+      return 1;
+    }else{
+      zCheck = azArg[i];
+    }
+  }
+  if( zCheck==0 ){
+    dotCmdError(p, 0, "no PATTERN specified", 0);
+    return 1;
+  }
+  if( cli_output_capture ){
+    zTest = sqlite3_str_value(cli_output_capture);
+    shell_check_oom(zTest);
+  }else{
+    zTest = "";
+  }
+  p->nTestRun++;
+  if( zCheck[0]=='<' && zCheck[1]=='<' && zCheck[2]!=0 ){
+    int nCheck = strlen30(zCheck);
+    sqlite3_str *pPattern = sqlite3_str_new(p->db);
+    char zLine[2000];
+    while( sqlite3_fgets(zLine,sizeof(zLine),p->in) ){
+      if( strchr(zLine,'\n') ) p->lineno++;
+      if( cli_strncmp(&zCheck[2],zLine,nCheck-2)==0 ) break;
+      sqlite3_str_appendall(pPattern, zLine);
+    }
+    zPattern = sqlite3_str_finish(pPattern);
+    if( zPattern==0 ){
+      zPattern = sqlite3_mprintf("");
+    }
+  }else{
+    zPattern = zCheck;
+  }
+  shell_check_oom(zPattern);
+  switch( eCheck ){
+    case 1: {
+      char *zGlob = sqlite3_mprintf("*%s*", zPattern);
+      isOk = testcase_glob(zGlob, zTest)!=0;
+      sqlite3_free(zGlob);
+      break;
+    }
+    case 2: {
+      char *zGlob = sqlite3_mprintf("*%s*", zPattern);
+      isOk = testcase_glob(zGlob, zTest)==0;
+      sqlite3_free(zGlob);
+      break;
+    }
+    case 3: {
+      isOk = cli_strcmp(zTest,zPattern)==0;
+      break;
+    }
+    default: {
+      /* Skip leading and trailing \n and \r on both pattern and test output */
+      const char *z1 = zPattern;
+      const char *z2 = zTest;
+      size_t n1, n2;
+      while( z1[0]=='\n' || z1[0]=='\r' ) z1++;
+      n1 = strlen(z1);
+      while( n1>0 && (z1[n1-1]=='\n' || z1[n1-1]=='\r') ) n1--;
+      while( z2[0]=='\n' || z2[0]=='\r' ) z2++;
+      n2 = strlen(z2);
+      while( n2>0 && (z2[n2-1]=='\n' || z2[n2-1]=='\r') ) n2--;
+      isOk = n1==n2 && memcmp(z1,z2,n1)==0;
+      break;
+    }
+  }
+  if( !isOk ){
+    sqlite3_fprintf(stderr,
+          "%s:%lld: .check failed for testcase %s\n",
+        p->zInFile, iStart, p->zTestcase);
+    p->nTestErr++;
+    sqlite3_fprintf(stderr, "Expected: [%s]\n", zPattern);
+    sqlite3_fprintf(stderr, "Got:      [%s]\n", zTest);
+  }
+  if( zPattern!=zCheck ){
+    sqlite3_free(zPattern);
+  }
+  if( !bKeep ){
+    output_reset(p);
+    p->zTestcase[0] = 0;
+  }
+  return 0;
+}
+
+/*
+** DOT-COMMAND: .testcase
+** USAGE: .testcase [OPTIONS] NAME
+**
+** Start a new test case identified by NAME.  All output
+** through the next ".check" command is captured for comparison. See the
+** ".check" commandn for additional informatioon.
+**
+** Options:
+**   --error-prefix TEXT       Change error message prefix text to TEXT
+*/
+static int dotCmdTestcase(ShellState *p){
+  int nArg = p->dot.nArg;        /* Number of arguments */
+  char **azArg = p->dot.azArg;   /* Text of the arguments */
+  int i;                         /* Loop counter */
+  const char *zName = 0;         /* Testcase name */
+
+  for(i=1; i<nArg; i++){
+    char *z = azArg[i];
+    if( z[0]=='-' && z[1]=='-' && z[2]!=0 ) z++;
+    if( optionMatch(z,"error-prefix") ){
+      if( i+1>=nArg ){
+        dotCmdError(p, i, "missing argument", 0);
+        return 1;
+      }
+      free(p->zErrPrefix);
+      i++;
+      p->zErrPrefix = azArg[i][0]==0 ? 0 : strdup(azArg[i]);
+    }else if( zName ){
+      dotCmdError(p, i, "unknown option", 0);
+      return 1;
+    }else{
+      zName = azArg[i];
+    }
+  }
+  output_reset(p);
+  if( cli_output_capture ){
+    sqlite3_str_free(cli_output_capture);
+  }
+  cli_output_capture = sqlite3_str_new(0);
+  if( zName ){
+    sqlite3_snprintf(sizeof(p->zTestcase), p->zTestcase, "%s", zName);
+  }else{
+    sqlite3_snprintf(sizeof(p->zTestcase), p->zTestcase, "%s:%lld",
+                     p->zInFile, p->lineno);
+  }
+  return 0;
+}
+
+/*
 ** Enlarge the space allocated in p->dot so that it can hold more
 ** than nArg parsed command-line arguments.
 */
@@ -31643,7 +31868,7 @@ static void parseDotCmdArgs(const char *zLine, ShellState *p){
   shell_check_oom(z);
   szLine = strlen(z);
   while( szLine>0 && IsSpace(z[szLine-1]) ) szLine--;
-  if( szLine>0 && z[szLine-1]==';' && p->iCompat>=20251115 ){
+  if( szLine>0 && z[szLine-1]==';' ){
     szLine--;
     while( szLine>0 && IsSpace(z[szLine-1]) ) szLine--;
   }
@@ -31863,31 +32088,13 @@ static int do_meta_command(const char *zLine, ShellState *p){
     }
   }else
 
-#ifndef SQLITE_SHELL_FIDDLE
   /* Cancel output redirection, if it is currently set (by .testcase)
   ** Then read the content of the testcase-out.txt file and compare against
   ** azArg[1].  If there are differences, report an error and exit.
   */
   if( c=='c' && n>=3 && cli_strncmp(azArg[0], "check", n)==0 ){
-    char *zRes = 0;
-    output_reset(p);
-    if( nArg!=2 ){
-      eputz("Usage: .check GLOB-PATTERN\n");
-      rc = 2;
-    }else if( (zRes = readFile("testcase-out.txt", 0))==0 ){
-      rc = 2;
-    }else if( testcase_glob(azArg[1],zRes)==0 ){
-      cli_printf(stderr,
-            "testcase-%s FAILED\n Expected: [%s]\n      Got: [%s]\n",
-            p->zTestcase, azArg[1], zRes);
-      rc = 1;
-    }else{
-      cli_printf(p->out, "testcase-%s ok\n", p->zTestcase);
-      p->nCheck++;
-    }
-    sqlite3_free(zRes);
+    rc = dotCmdCheck(p);
   }else
-#endif /* !defined(SQLITE_SHELL_FIDDLE) */
 
 #ifndef SQLITE_SHELL_FIDDLE
   if( c=='c' && cli_strncmp(azArg[0], "clone", n)==0 ){
@@ -32523,10 +32730,10 @@ static int do_meta_command(const char *zLine, ShellState *p){
     }
     zSql = sqlite3_mprintf(
       "SELECT rootpage, 0 FROM sqlite_schema"
-      " WHERE name='%q' AND type='index'"
+      " WHERE type='index' AND lower(name)=lower('%q')"
       "UNION ALL "
       "SELECT rootpage, 1 FROM sqlite_schema"
-      " WHERE name='%q' AND type='table'"
+      " WHERE type='table' AND lower(name)=lower('%q')"
       "   AND sql LIKE '%%without%%rowid%%'",
       azArg[1], azArg[1]
     );
@@ -32684,9 +32891,10 @@ static int do_meta_command(const char *zLine, ShellState *p){
       if( nArg==3 ){
         sqlite3_limit(p->db, aLimit[iLimit].limitCode,
                       (int)integerValue(azArg[2]));
+      }else{
+        cli_printf(stdout, "%20s %d\n", aLimit[iLimit].zLimitName,
+              sqlite3_limit(p->db, aLimit[iLimit].limitCode, -1));
       }
-      cli_printf(stdout, "%20s %d\n", aLimit[iLimit].zLimitName,
-            sqlite3_limit(p->db, aLimit[iLimit].limitCode, -1));
     }
   }else
 
@@ -34019,21 +34227,11 @@ static int do_meta_command(const char *zLine, ShellState *p){
     if( rc ) return shellDatabaseError(p->db);
   }else
 
-#ifndef SQLITE_SHELL_FIDDLE
-  /* Begin redirecting output to the file "testcase-out.txt" */
+  /* Set the p->zTestcase name and begin redirecting output into
+  ** the cli_output_capture sqlite3_str */
   if( c=='t' && cli_strcmp(azArg[0],"testcase")==0 ){
-    output_reset(p);
-    p->out = output_file_open(p, "testcase-out.txt");
-    if( p->out==0 ){
-      eputz("Error: cannot open 'testcase-out.txt'\n");
-    }
-    if( nArg>=2 ){
-      sqlite3_snprintf(sizeof(p->zTestcase), p->zTestcase, "%s", azArg[1]);
-    }else{
-      sqlite3_snprintf(sizeof(p->zTestcase), p->zTestcase, "?");
-    }
+    rc = dotCmdTestcase(p);
   }else
-#endif /* !defined(SQLITE_SHELL_FIDDLE) */
 
 #ifndef SQLITE_UNTESTABLE
   if( c=='t' && n>=8 && cli_strncmp(azArg[0], "testctrl", n)==0 ){
@@ -35353,7 +35551,6 @@ static const char zOptions[] =
   "   -box                 set output mode to 'box'\n"
   "   -cmd COMMAND         run \"COMMAND\" before reading stdin\n"
   "   -column              set output mode to 'column'\n"
-  "   -compat YYYYMMDD     set default options for date YYYYMMDD\n"
   "   -csv                 set output mode to 'csv'\n"
 #if !defined(SQLITE_OMIT_DESERIALIZE)
   "   -deserialize         open the database using sqlite3_deserialize()\n"
@@ -35437,11 +35634,6 @@ static void verify_uninitialized(void){
 */
 static void main_init(ShellState *p) {
   memset(p, 0, sizeof(*p));
-#if defined(COMPATIBILITY_DATE)
-  p->iCompat = COMPATIBILITY_DATE;
-#else
-  p->iCompat = 20251116;
-#endif
   p->pAuxDb = &p->aAuxDb[0];
   p->shellFlgs = SHFLG_Lookaside;
   sqlite3_config(SQLITE_CONFIG_LOG, shellLog, p);
@@ -35639,7 +35831,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   }
 #endif
 
-  /* Do an initial pass through the command-line argument to locate
+  /* Do an initial pass through the command-line arguments to locate
   ** the name of the database file, the name of the initialization file,
   ** the size of the alternative malloc heap, options affecting commands
   ** or SQL run from the command line, and the first command to execute.
@@ -35651,7 +35843,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     char *z;
     z = argv[i];
     if( z[0]!='-' || i>nOptsEnd ){
-      if( data.aAuxDb->zDbFilename==0 ){
+      if( data.aAuxDb->zDbFilename==0 && !isScriptFile(z,1) ){
         data.aAuxDb->zDbFilename = z;
       }else{
         /* Excess arguments are interpreted as SQL (or dot-commands) and
@@ -35696,11 +35888,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
         exit(1);
       }
       stdout_tty_width = n;
-    }else if( cli_strcmp(z,"-compat")==0 ){
-      data.iCompat = atoi(cmdline_option_value(argc, argv, ++i));
-      modeFree(&data.mode);
-      memset(&data.mode, 0, sizeof(data.mode));
-      modeDefault(&data);
     }else if( cli_strcmp(z,"-utf8")==0 ){
     }else if( cli_strcmp(z,"-no-utf8")==0 ){
     }else if( cli_strcmp(z,"-no-rowid-in-view")==0 ){
@@ -35891,7 +36078,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   */
   if( !noInit ) process_sqliterc(&data,zInitFile);
 
-  /* Make a second pass through the command-line argument and set
+  /* Make a second pass through the command-line arguments and set
   ** options.  This second pass is delayed until after the initialization
   ** file is processed so that the command-line arguments will override
   ** settings in the initialization file.
@@ -36017,8 +36204,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       /* already handled */
     }else if( cli_strcmp(z,"-screenwidth")==0 ){
       i++;      
-    }else if( cli_strcmp(z,"-compat")==0 ){
-      i++;      
     }else if( cli_strcmp(z,"-utf8")==0 ){
       /* already handled */
     }else if( cli_strcmp(z,"-no-utf8")==0 ){
@@ -36118,7 +36303,18 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     */
     for(i=0; i<nCmd; i++){
       echo_group_input(&data, azCmd[i]);
-      if( azCmd[i][0]=='.' ){
+      if( isScriptFile(azCmd[i],0) ){
+        FILE *inSaved = data.in;
+        i64 savedLineno = data.lineno;
+        int res = 1;
+        if( (data.in = openChrSource(azCmd[i]))!=0 ){
+          res = process_input(&data, azCmd[i]);
+          fclose(data.in);
+        }
+        data.in = inSaved;
+        data.lineno = savedLineno;
+        if( res ) i = nCmd;
+      }else if( azCmd[i][0]=='.' ){
         char *zErrCtx = malloc( 64 );
         shell_check_oom(zErrCtx);
         sqlite3_snprintf(64,zErrCtx,"argv[%i]:",aiCmd[i]);
