@@ -272,7 +272,7 @@ static void ssl_global_init_client(void){
     zFile = 0;
     for(i=0; zFile==0 && i<5; i++){
       switch( i ){
-        case 0: /* First priority is environmentn variables */
+        case 0: /* First priority is environment variables */
           zFile = fossil_getenv(X509_get_default_cert_file_env());
           break;
         case 1:

@@ -318,7 +318,7 @@ static unsigned int checksum(const char *zIn, size_t N){
 **
 **     NNN;
 **
-** In this case, NNN is a 32-bit bigendian checksum of the output file
+** In this case, NNN is a 32-bit big endian checksum of the output file
 ** that can be used to verify that the delta applied correctly.  All
 ** numbers are in base-64.
 **

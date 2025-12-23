@@ -1157,7 +1157,7 @@ static int simplify_to_subtopic(
   const char *zSubtopic,    /* SUBTOPIC */
   int bAbbrevSubcmd         /* True if z[] contains abbreviated subcommands */
 ){
-  Blob in, line; //, subsection;
+  Blob in, line;/*, subsection;*/
   int n = 0;
   char *zQTop = re_quote(zTopic);
   char *zQSub = re_quote(zSubtopic);

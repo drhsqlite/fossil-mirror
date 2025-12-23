@@ -232,7 +232,7 @@ void zip_set_timedate_from_str(const char *zDate){
 }
 
 /*
-** Set the date and time from a julian day number.
+** Set the date and time from a Julian day number.
 */
 void zip_set_timedate(double rDate){
   char *zDate = db_text(0, "SELECT datetime(%.17g)", rDate);
@@ -269,7 +269,7 @@ static void zip_add_file_to_zip(
   char zBuf[100];
   char zOutBuf[100000];
 
-  /* Fill in as much of the header as we know.
+  /* Fill inasmuch of the header as we know.
   */
   nameLen = (int)strlen(zName);
   if( nameLen==0 ) return;

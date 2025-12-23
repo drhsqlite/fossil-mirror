@@ -64,7 +64,7 @@ static const char zPurgeInit[] =
 #endif
 
 /*
-** This routine purges multiple artifacts from the repository, transfering
+** This routine purges multiple artifacts from the repository, transferring
 ** those artifacts into the PURGEITEM table.
 **
 ** Prior to invoking this routine, the caller must create a (TEMP) table
@@ -258,7 +258,7 @@ int purge_baseline_out_from_under_delta(const char *zTab){
 ** not in the set.
 **
 ** The "fossil publish" command with the (undocumented) --test and
-** --exclusive options can be used for interactiving testing of this
+** --exclusive options can be used for interactive testing of this
 ** function.
 */
 void find_checkin_associates(const char *zTab, int bExclusive){

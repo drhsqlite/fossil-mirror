@@ -295,7 +295,7 @@ char *login_gen_user_cookie_value(const char *zUsername, const char *zHash){
 ** and user.cexpire fields for the given user.
 **
 ** If zDest is not NULL then the generated cookie is copied to
-** *zDdest and ownership is transfered to the caller (who should
+** *zDdest and ownership is transferred to the caller (who should
 ** eventually pass it to free()).
 **
 ** If bSessionCookie is true, the cookie will be a session cookie,
@@ -381,7 +381,7 @@ int anon_cookie_lifespan(void){
 ** Search for tag-20250817a to find the code that recognizes this cookie.
 */
 void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
-  char *zNow;                  /* Current time (julian day number) */
+  char *zNow;                  /* Current time (Julian day number) */
   char *zCookie;               /* The login cookie */
   const char *zUserAgent;      /* The user agent */
   const char *zCookieName;     /* Name of the login cookie */
@@ -1933,7 +1933,7 @@ void login_needed(int anonOk){
 
 /*
 ** Call this routine if the user lacks g.perm.Hyperlink permission.  If
-** the anonymous user has Hyperlink permission, then paint a mesage
+** the anonymous user has Hyperlink permission, then paint a message
 ** to inform the user that much more information is available by
 ** logging in as anonymous.
 */
@@ -1957,7 +1957,7 @@ void login_insert_csrf_secret(void){
 /*
 ** Check to see if the candidate username zUserID is already used.
 ** Return 1 if it is already in use.  Return 0 if the name is
-** available for a self-registeration.
+** available for a self-registration.
 */
 static int login_self_choosen_userid_already_exists(const char *zUserID){
   int rc = db_exists(
@@ -2214,7 +2214,7 @@ void register_page(void){
                     "  AND sverified", zEAddr) ){
         /* This the case where the user was formerly a verified subscriber
         ** and here they have also registered as a user as well.  It is
-        ** not necessary to repeat the verfication step */
+        ** not necessary to repeat the verification step */
         login_redirect_to_g();
       }
       /* A verification email */
@@ -2385,7 +2385,7 @@ void login_reqpwreset_page(void){
   }
   zEAddr = PDT("ea","");
 
-  /* Verify user imputs */
+  /* Verify user inputs */
   if( !cgi_csrf_safe(1) || P("reqpwreset")==0 ){
     /* This is the initial display of the form.  No processing or error
     ** checking is to be done. Fall through into the form display

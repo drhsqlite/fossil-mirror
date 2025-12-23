@@ -784,7 +784,7 @@ int blob_tell(Blob *p){
 ** The cursor of pFrom is left pointing at the first byte past the
 ** \n that terminated the line.
 **
-** pTo will be an ephermeral blob.  If pFrom changes, it might alter
+** pTo will be an ephemeral blob.  If pFrom changes, it might alter
 ** pTo as well.
 */
 int blob_line(Blob *pFrom, Blob *pTo){
@@ -827,7 +827,7 @@ int blob_trim(Blob *p){
 ** The cursor of pFrom is left pointing at the first character past
 ** the end of the token.
 **
-** pTo will be an ephermeral blob.  If pFrom changes, it might alter
+** pTo will be an ephemeral blob.  If pFrom changes, it might alter
 ** pTo as well.
 */
 int blob_token(Blob *pFrom, Blob *pTo){
@@ -855,7 +855,7 @@ int blob_token(Blob *pFrom, Blob *pTo){
 ** The cursor of pFrom is left pointing at the first character past
 ** the end of the token.
 **
-** pTo will be an ephermeral blob.  If pFrom changes, it might alter
+** pTo will be an ephemeral blob.  If pFrom changes, it might alter
 ** pTo as well.
 */
 int blob_sqltoken(Blob *pFrom, Blob *pTo){
@@ -883,7 +883,7 @@ int blob_sqltoken(Blob *pFrom, Blob *pTo){
 
 /*
 ** Extract everything from the current cursor to the end of the blob
-** into a new blob.  The new blob is an ephemerial reference to the
+** into a new blob.  The new blob is an ephemeral reference to the
 ** original blob.  The cursor of the original blob is unchanged.
 */
 int blob_tail(Blob *pFrom, Blob *pTo){
@@ -978,7 +978,7 @@ void blob_strip_comment_lines(Blob *pIn, Blob *pOut){
 **   -W|--width N         Width of lines in side-by-side diff
 */
 void test_strip_comment_lines_cmd(void){
-  Blob f, h;   /* unitialized */
+  Blob f, h;   /* uninitialized */
   Blob out;
   DiffConfig dCfg;
   int sbs = 0;

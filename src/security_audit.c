@@ -391,7 +391,7 @@ void secaudit0_page(void){
   }
 
   /* If anonymous users are allowed to create new Wiki, then
-  ** wiki moderation should be activated to pervent spam.
+  ** wiki moderation should be activated to prevent spam.
   */
   if( hasAnyCap(zAnonCap, "fk") ){
     if( db_get_boolean("modreq-wiki",0)==0 ){

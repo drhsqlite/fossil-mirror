@@ -752,7 +752,7 @@ int get_comment_format(){
 **                      from FILE.
 **   --indent           Number of spaces to indent (default (-1) is to
 **                      auto-detect).  Zero means no indent.
-**   --orig FILE        Take the value for the ORIGTEXT argumetn from FILE.
+**   --orig FILE        Take the value for the ORIGTEXT argument from FILE.
 **   --origbreak        Attempt to break when the original comment text
 **                      is detected.
 **   --trimcrlf         Enable trimming of leading/trailing CR/LF.

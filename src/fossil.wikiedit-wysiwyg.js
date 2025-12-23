@@ -451,7 +451,7 @@ img.intLink { border: 0; }
 
   ////////////////////////////////////////////////////////////////////////
   // A hook which can be activated via a site skin to plug this editor
-  // in to the wikiedit page.
+  // into the wikiedit page.
   F.page.wysiwyg = {
     // only for debugging: oDoc: oDoc,
     /*

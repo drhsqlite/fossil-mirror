@@ -164,7 +164,7 @@ static struct SkinDetail {
 **    skin then that will update the display cookie. If the skin name is
 **    illegal it is silently ignored.
 **
-** 3) The built-in skin identfied by the "default-skin" setting, if such
+** 3) The built-in skin identified by the "default-skin" setting, if such
 **    a setting exists and matches one of the built-in skin names.
 **
 ** 4) Skin properties (settings "css", "details", "footer", "header",

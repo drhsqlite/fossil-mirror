@@ -50,7 +50,7 @@ struct CheckinMiniInfo {
   char *zUser;         /* User name */
   char *zDate;         /* Optionally force this date string (anything
                           supported by date_in_standard_format()).
-                          Maybe be NULL. */
+                          May be NULL. */
   Blob *pMfOut;        /* If not NULL, checkin_mini() will write a
                           copy of the generated manifest here. This
                           memory is NOT owned by CheckinMiniInfo. */
@@ -125,7 +125,7 @@ CIMINI_PREFER_DELTA = 1<<8,
 /*
 ** A "stronger hint" to checkin_mini() to prefer creation of a delta
 ** manifest if it at all can. It will decide not to only if creation
-** of a delta is not a realistic option or if it's forbitted by the
+** of a delta is not a realistic option or if it's forbidden by the
 ** forbid-delta-manifests repo config option. For this to work, it
 ** must be set together with the CIMINI_PREFER_DELTA flag, but the two
 ** cannot be combined in this enum.

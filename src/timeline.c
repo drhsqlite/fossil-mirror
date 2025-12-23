@@ -24,7 +24,7 @@
 #include "timeline.h"
 
 /*
-** The value of one second in julianday notation
+** The value of one second in Julian day notation
 */
 #define ONE_SECOND (1.0/86400.0)
 
@@ -1047,7 +1047,7 @@ void timeline_output_graph_javascript(
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
     **        is the rail on which the riser should run and the second integer
-    **        is the id of the node upto which the riser should run. If there
+    **        is the id of the node up to which the riser should run. If there
     **        are no risers, this array does not exist.
     **   mi:  "merge-in".  An array of integer rail positions from which
     **        merge arrows should be drawn into this node.  If the value is
@@ -1625,8 +1625,8 @@ static void add_extra_rids(const char *zTab, const char *zExtra){
 ** Usage: fossil test-endpoint BASE TAG ?OPTIONS?
 **
 ** Show the first check-in with TAG that is a descendant or ancestor
-** of BASE.  The first descendant checkin is shown by default.  Use
-** the --backto to see the first ancestor checkin.
+** of BASE.  The first descendant check-in is shown by default.  Use
+** the --backto to see the first ancestor check-in.
 **
 ** Options:
 **
@@ -1802,7 +1802,7 @@ void page_timeline(void){
   int forkOnly = PB("forks");        /* Show only forks and their children */
   int bisectLocal = PB("bisect");    /* Show the check-ins of the bisect */
   const char *zBisect = P("bid");    /* Bisect description */
-  int cpOnly = PB("cherrypicks");    /* Show all cherrypick checkins */
+  int cpOnly = PB("cherrypicks");    /* Show all cherrypick check-ins */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
@@ -2005,7 +2005,7 @@ void page_timeline(void){
   if( zTagName ){
     zType = "ci";
     if( matchStyle==MS_EXACT ){
-      /* For exact maching, inhibit links to the selected tag. */
+      /* For exact matching, inhibit links to the selected tag. */
       zThisTag = zTagName;
       Th_StoreUnsafe("current_checkin", zTagName);
     }
@@ -3672,7 +3672,7 @@ static int isIsoDate(const char *z){
 }
 
 /*
-** Return true if the input string can be converted to a julianday.
+** Return true if the input string can be converted to a Julian day.
 */
 static int fossil_is_julianday(const char *zDate){
   return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd"

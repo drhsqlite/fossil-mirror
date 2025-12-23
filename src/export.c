@@ -30,7 +30,7 @@ static struct {
 
 #if INTERFACE
 /*
-** Each line in a git-fast-export "marK" file is an instance of
+** Each line in a git-fast-export "mark" file is an instance of
 ** this object.
 */
 struct mark_t {
@@ -761,7 +761,7 @@ void export_cmd(void){
 ** order.  "Topological order" means that every parent check-in comes
 ** before all of its children.  Topological order is *almost* the same
 ** thing as "ORDER BY event.mtime".  Differences only arise when there
-** are timewarps.  In as much as Git hates timewarps, we have to compute
+** are timewarps.  Inasmuch as Git hates timewarps, we have to compute
 ** a correct topological order when doing an export.
 **
 ** Since mtime is a usually already nearly in topological order, the

@@ -367,7 +367,7 @@ const char zRepositorySchema2[] =
 @ --
 @ -- Wiki pages are tagged with "wiki-NAME" where NAME is the name of
 @ -- the wiki page.  Tickets changes are tagged with "ticket-HASH" where
-@ -- HASH is the indentifier of the ticket.  Tags used to assign symbolic
+@ -- HASH is the identifier of the ticket.  Tags used to assign symbolic
 @ -- names to baselines are branches are of the form "sym-NAME" where
 @ -- NAME is the symbolic name.
 @ --
@@ -502,7 +502,7 @@ const char zRepositorySchema2[] =
 #if INTERFACE
 # define MT_NONE       0   /* unspecified */
 # define MT_WIKI       1   /* Wiki */
-# define MT_MARKDOWN   2   /* Markdonw */
+# define MT_MARKDOWN   2   /* Markdown */
 # define MT_UNKNOWN    3   /* unknown  */
 # define ValidMTC(X)  ((X)>=0 && (X)<=3)  /* True if MIMEtype code is valid */
 #endif

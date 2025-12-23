@@ -815,7 +815,7 @@ void diff_version_to_checkout(
   int vid;
   Blob sql;
   Stmt q;
-  int asNewFile;            /* Treat non-existant files as empty files */
+  int asNewFile;            /* Treat non-existent files as empty files */
   int isNumStat;            /* True for --numstat */
 
   asNewFile = (pCfg->diffFlags & (DIFF_VERBOSE|DIFF_NUMSTAT|DIFF_HTML))!=0;

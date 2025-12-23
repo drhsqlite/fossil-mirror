@@ -31,7 +31,7 @@
 **
 **    Result:     "(x GLOB '*.o' OR x GLOB '*.obj')"
 **
-** Commas and whitespace are considered to be element delimters.  Each
+** Commas and whitespace are considered to be element delimiters.  Each
 ** element of the GLOB list may optionally be enclosed in either '...' or
 ** "...".  This allows commas and/or whitespace to be used in the elements
 ** themselves.
@@ -59,7 +59,7 @@ char *glob_expr(const char *zVal, const char *zGlobList){
     }else{
       cTerm = ',';
     }
-    /* Find the next delimter (or the end of the string). */
+    /* Find the next delimiter (or the end of the string). */
     for(i=0; zGlobList[i] && zGlobList[i]!=cTerm; i++){
       if( cTerm!=',' ) continue; /* If quoted, keep going. */
       if( fossil_isspace(zGlobList[i]) ) break; /* If space, stop. */

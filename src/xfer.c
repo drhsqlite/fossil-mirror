@@ -54,7 +54,7 @@ struct Xfer {
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
   u32 remoteVersion;  /* Version of fossil running on the other side */
   u32 remoteDate;     /* Date for specific client software edition */
-  u32 remoteTime;     /* Time of date correspoding on remoteDate */
+  u32 remoteTime;     /* Time of date corresponding on remoteDate */
   time_t maxTime;     /* Time when this transfer should be finished */
 };
 
@@ -1218,7 +1218,7 @@ int xfer_run_common_script(void){
 
 /*
 ** This routine makes a "syncwith:URL" entry in the CONFIG table to
-** indicate that a sync is occuring with zUrl.
+** indicate that a sync is occurring with zUrl.
 **
 ** Add a "syncfrom:URL" entry instead of "syncwith:URL" if bSyncFrom is true.
 */

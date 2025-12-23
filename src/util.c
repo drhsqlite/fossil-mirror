@@ -236,7 +236,7 @@ static int safeCmdStrTest = 0;
 ** Check the input string to ensure that it is safe to pass into system().
 ** A string is unsafe for system() on unix if it contains any of the following:
 **
-**   *  Any occurrance of '$' or '`' except single-quoted or after \
+**   *  Any occurrence of '$' or '`' except single-quoted or after \
 **   *  Any of the following characters, unquoted:  ;|& or \n except
 **      these characters are allowed as the very last character in the
 **      string.

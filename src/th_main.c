@@ -76,7 +76,7 @@
 /*
 ** Global variable counting the number of outstanding calls to malloc()
 ** made by the th1 implementation. This is used to catch memory leaks
-** in the interpreter. Obviously, it also means th1 is not threadsafe.
+** in the interpreter. Obviously, it also means th1 is not thread-safe.
 */
 static int nOutstandingMalloc = 0;
 

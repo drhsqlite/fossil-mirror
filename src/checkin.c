@@ -486,7 +486,7 @@ void status_cmd(void){
 
   Blob report = BLOB_INITIALIZER;
   enum {CHANGES, STATUS} command = *g.argv[1]=='s' ? STATUS : CHANGES;
-  /* --sha1sum is an undocumented alias for --hash for backwards compatiblity */
+  /* --sha1sum is an undocumented alias for --hash for backwards compatibility */
   int useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
   int showHdr = command==CHANGES && find_option("header", 0, 0);
   int verboseFlag = command==CHANGES && find_option("verbose", "v", 0);
@@ -2564,7 +2564,7 @@ void commit_cmd(void){
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
-  /* --sha1sum is an undocumented alias for --hash for backwards compatiblity */
+  /* --sha1sum is an undocumented alias for --hash for backwards compatibility */
   useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
   noSign = find_option("nosign",0,0)!=0;
   if( find_option("nosync",0,0) ) g.fNoSync = 1;

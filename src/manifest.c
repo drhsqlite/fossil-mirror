@@ -2996,7 +2996,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
       KVP_STR(1, rename, pF->zPrior);
       blob_append_char(b, '}');
     }
-    /* Special case: model checkins with no F-card as having an empty
+    /* Special case: model check-ins with no F-card as having an empty
     ** array, rather than no F-cards, to hypothetically simplify
     ** handling in JSON queries. */
     blob_append_char(b, ']');
@@ -3040,7 +3040,7 @@ void artifact_to_json(Manifest const *p, Blob *b){
       if( i>0 ) blob_append_char(b, ',');
       blob_appendf(b, "%!j", p->azParent[i]);
     }
-    /* Special case: model checkins with no P-card as having an empty
+    /* Special case: model check-ins with no P-card as having an empty
     ** array, as per F-cards. */
     blob_append_char(b, ']');
   }

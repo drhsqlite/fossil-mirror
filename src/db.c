@@ -1720,7 +1720,7 @@ void db_setup_for_saved_encryption_key(){
 
 /*
 ** This function arranges for the database encryption key to be securely
-** saved in non-pagable memory (on platforms where this is possible).
+** saved in non-pageable memory (on platforms where this is possible).
 */
 static void db_save_encryption_key(
   Blob *pKey
@@ -2533,7 +2533,7 @@ static int isValidLocalDb(const char *zDbName){
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
 
-  /* Check to see if the check-out database has the lastest schema changes.
+  /* Check to see if the check-out database has the latest schema changes.
   ** The most recent schema change (2019-01-19) is the addition of the
   ** vmerge.mhash and vfile.mhash fields.  If the schema has the vmerge.mhash
   ** column, assume everything else is up-to-date.
@@ -2786,7 +2786,7 @@ void db_open_repository(const char *zDbName){
   if( g.localOpen ){
 
     /* If the repository database that was just opened has been
-    ** eplaced by a clone of the same project, with different RID
+    ** replaced by a clone of the same project, with different RID
     ** values, then renumber the RID values stored in various tables
     ** of the check-out database, so that the repository and check-out
     ** databases align.
@@ -3657,8 +3657,8 @@ void db_swap_connections(void){
 **
 ** zCkin is normally NULL.  In that case, the versioned setting is
 ** take from the local check-out, if a local checkout exists, or from
-** checkin named by the g.zOpenRevision global variable.  If zCkin is
-** not NULL, then zCkin is the name of the specific checkin from which
+** check-in named by the g.zOpenRevision global variable.  If zCkin is
+** not NULL, then zCkin is the name of the specific check-in from which
 ** versioned setting value is taken.  When zCkin is not NULL, the cache
 ** is bypassed.
 */
@@ -4857,7 +4857,7 @@ struct Setting {
 ** SETTING: empty-dirs      width=40 versionable block-text
 ** The value is a list of pathnames parsed according to the same rules as
 ** the *-glob settings.  On update and checkout commands, if no directory
-** exists with that name, an empty directory will be be created, even if
+** exists with that name, an empty directory will be created, even if
 ** it must create one or more parent directories.
 */
 /*

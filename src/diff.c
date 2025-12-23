@@ -1047,7 +1047,7 @@ struct DiffBuilder {
 /* This version of DiffBuilder is used for debugging the diff and diff
 ** diff formatter logic.  It is accessed using the (undocumented) --debug
 ** option to the diff command.  The output is human-readable text that
-** describes the various method calls that are invoked agains the DiffBuilder
+** describes the various method calls that are invoked against the DiffBuilder
 ** object.
 */
 static void dfdebugSkip(DiffBuilder *p, unsigned int n, int isFinal){

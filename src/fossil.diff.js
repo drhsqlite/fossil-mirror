@@ -108,7 +108,7 @@ window.fossil.onPageLoad(function(){
         /*per /chat discussion*/
       ) || 20,
       chunkFetch: {
-        /* Default callack handlers for Diff.fetchArtifactChunk(),
+        /* Default callback handlers for Diff.fetchArtifactChunk(),
            unless overridden by options passeed to that function. */
         beforesend: function(){},
         aftersend: function(){},

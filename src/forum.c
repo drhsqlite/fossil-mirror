@@ -135,7 +135,7 @@ static int forumpost_is_closed(
 **
 ** Note that this function checks _exactly_ the given rid, whereas
 ** forum post closure/re-opening is always applied to the head of an
-** edit chain so that we get consistent implied locking beheavior for
+** edit chain so that we get consistent implied locking behavior for
 ** later versions and responses to arbitrary versions in the
 ** chain. Even so, the "closed" tag is applied as a propagating tag
 ** so will apply to all edits in a given chain.

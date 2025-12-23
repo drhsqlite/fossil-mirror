@@ -1530,7 +1530,7 @@ void ticket_output_change_artifact(
 **     using TAB as separator. The separator can be changed using
 **     the -l or --limit option.
 **
-**     If TICKETFILTER is given on the commandline, the query is
+**     If TICKETFILTER is given on the command line, the query is
 **     limited with a new WHERE-condition.
 **       example:  Report lists a column # with the uuid
 **                 TICKETFILTER may be [#]='uuuuuuuuu'
@@ -1569,7 +1569,7 @@ void ticket_output_change_artifact(
 **     or substituted in customized installations.
 **
 **     If you use +FIELD, the VALUE is appended to the field FIELD.  You
-**     can use more than one field/value pair on the commandline.  Using
+**     can use more than one field/value pair on the command line.  Using
 **     --quote enables the special character decoding as in "ticket
 **     show", which allows setting multiline text or text with special
 **     characters.

@@ -309,7 +309,7 @@ static void process_sync_args(
   ** REPLY is a temporary filename in which COMMAND should write the
   ** content of the reply from the server.
   **
-  ** CMD is reponsible for HTTP redirects.  The following Fossil command
+  ** CMD is responsible for HTTP redirects.  The following Fossil command
   ** can be used for CMD to achieve a working sync:
   **
   **      fossil test-httpmsg --xfer

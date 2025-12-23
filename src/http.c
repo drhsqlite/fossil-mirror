@@ -355,7 +355,7 @@ void test_ssh_needs_path(void){
   }
 }
 
-/* Add an approprate PATH= argument to the SSH command under construction
+/* Add an appropriate PATH= argument to the SSH command under construction
 ** in pCmd.
 **
 ** About This Feature

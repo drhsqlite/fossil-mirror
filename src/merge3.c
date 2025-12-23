@@ -177,7 +177,7 @@ struct MergeBuilder {
 ** implementations of MergeBuilder.
 */
 
-/* xStart() and xEnd() are called to generate header and fotter information
+/* xStart() and xEnd() are called to generate header and footer information
 ** in the output.  This is a no-op in the generic implementation.
 */
 static void dbgStartEnd(MergeBuilder *p){  (void)p; }
@@ -718,7 +718,7 @@ static int skip_conflict(
   int *aC,             /* Array of integer triples describing the edit */
   int i,               /* Index in aC[] of current location */
   int sz,              /* Lines of A that have been skipped */
-  unsigned int *pLn    /* OUT: Lines of B to skip to keep aligment with A */
+  unsigned int *pLn    /* OUT: Lines of B to skip to keep alignment with A */
 ){
   *pLn = 0;
   while( sz>0 ){

@@ -65,7 +65,7 @@ typedef pid_t PID_T;
 #endif
 
 /*
-** Default length of a timeout for serving an HTTP request.  Changable
+** Default length of a timeout for serving an HTTP request.  Changeable
 ** using the "--timeout N" command-line option or via "timeout: N" in the
 ** CGI script.
 */
@@ -1192,7 +1192,7 @@ const char *find_repository_option(){
 ** enable passing-in of filenames which start with a dash).
 **
 ** This function must normally only be called one time per app
-** invokation. The exception is commands which process their
+** invocation. The exception is commands which process their
 ** arguments, call this to confirm that there are no extraneous flags,
 ** then modify the arguments list for forwarding to another
 ** (sub)command (which itself will call this to confirm its own
@@ -1404,7 +1404,7 @@ void test_version_page(void){
 
 
 /*
-** Set the g.zBaseURL value to the full URL for the toplevel of
+** Set the g.zBaseURL value to the full URL for the top level of
 ** the fossil tree.  Set g.zTop to g.zBaseURL without the
 ** leading "http://" and the host and port.
 **

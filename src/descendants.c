@@ -161,7 +161,7 @@ void compute_leaves(int iBase, int closeMode){
 
 /*
 ** If RID refers to a check-in, return the mtime of that check-in - the
-** julian day number of when the check-in occurred.
+** Julian day number of when the check-in occurred.
 */
 double mtime_of_rid(int rid, double mtime){
   static Stmt q;

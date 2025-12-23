@@ -498,7 +498,7 @@ void content_rcvid_init(const char *zSrc){
 ** and zUuid is zero then the correct zUuid is computed from pBlob.
 **
 ** If the record already exists but is a phantom, the pBlob content
-** is inserted and the phatom becomes a real record.
+** is inserted and the phantom becomes a real record.
 **
 ** The original content of pBlob is not disturbed.  The caller continues
 ** to be responsible for pBlob.  This routine does *not* take over
@@ -795,7 +795,7 @@ void content_make_private(int rid){
 /*
 ** Try to change the storage of rid so that it is a delta from one
 ** of the artifacts given in aSrc[0]..aSrc[nSrc-1].  The aSrc[*] that
-** gives the smallest delta is choosen.
+** gives the smallest delta is chosen.
 **
 ** If rid is already a delta from some other place then no
 ** conversion occurs and this is a no-op unless force==1.  If force==1,

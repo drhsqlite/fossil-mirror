@@ -532,8 +532,8 @@ static void parse_inline(
 
 /*
 ** data[*pI] should be a "`" character that introduces a code-span.
-** The code-span boundry mark can be any number of one or more "`"
-** characters.  We do not know the size of the boundry marker, only
+** The code-span boundary mark can be any number of one or more "`"
+** characters.  We do not know the size of the boundary marker, only
 ** that there is at least one "`" at data[*pI].
 **
 ** This routine increases *pI to move it past the code-span, including
@@ -636,7 +636,7 @@ static size_t find_emph_char(char *data, size_t size, char c){
 **    alnum   punct     a*(           no             yes
 **    alnum   alnum     a*x          yes             yes
 **
-** The following routines determine whether a delimitor is left
+** The following routines determine whether a delimiter is left
 ** or right flanking.
 */
 static int left_flanking(char before, char after){
@@ -2535,7 +2535,7 @@ static int is_footnote(
   if( beg+5>=end ) return 0;
   i = beg;
 
-  /* footnote definition must start at the begining of a line */
+  /* footnote definition must start at the beginning of a line */
   if( data[i]!='[' ) return 0;
   i++;
   if( data[i]!='^' ) return 0;

@@ -43,7 +43,7 @@ void xsystem_date(int argc, char **argv){
   fossil_print("%z\n", cgi_rfc822_datestamp(time(0)));
 }
 
-/* Present working diretory */
+/* Present working directory */
 void xsystem_pwd(int argc, char **argv){
   char *zPwd = file_getcwd(0, 0);
   fossil_print("%z\n", zPwd);
@@ -170,7 +170,7 @@ static void xsystem_ls_insert(
 }
 
 /*
-** Return arguments to ORDER BY that will correctly sort the entires.
+** Return arguments to ORDER BY that will correctly sort the entries.
 */
 static const char *xsystem_ls_orderby(int mFlags){
   static const char *zSortTypes[] = {
@@ -345,7 +345,7 @@ static void xsystem_ls_render(
 ** Options:
 **
 **    -a            Show files that begin with "."
-**    -C            List by colums
+**    -C            List by columns
 **    --color=WHEN  Colorize output?
 **    -d            Show just directory names, not content
 **    -l            Long listing
