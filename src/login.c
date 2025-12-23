@@ -1959,7 +1959,7 @@ void login_insert_csrf_secret(void){
 ** Return 1 if it is already in use.  Return 0 if the name is
 ** available for a self-registration.
 */
-static int login_self_choosen_userid_already_exists(const char *zUserID){
+static int login_self_chosen_userid_already_exists(const char *zUserID){
   int rc = db_exists(
     "SELECT 1 FROM user WHERE login=%Q "
     "UNION ALL "
@@ -2148,7 +2148,7 @@ void register_page(void){
   }else if( (uid = email_address_in_use(zEAddr))!=0 ){
     iErrLine = 3;
     zErr = "This email address is already associated with a user";
-  }else if( login_self_choosen_userid_already_exists(zUserID) ){
+  }else if( login_self_chosen_userid_already_exists(zUserID) ){
     iErrLine = 1;
     zErr = "This User ID is already taken. Choose something different.";
   }else{
