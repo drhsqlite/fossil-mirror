@@ -153,9 +153,9 @@ void Th_PrintTraceLog(){
 }
 
 /*
-** - adopted from ls_cmd_rev in checkin.c
-** - adopted commands/error handling for usage within th1
-** - interface adopted to allow result creation as TH1 List
+** - adapted from ls_cmd_rev in checkin.c
+** - adapted commands/error handling for usage within th1
+** - interface adapted to allow result creation as TH1 List
 **
 ** Takes a check-in identifier in zRev and an optiona glob pattern in zGLOB
 ** as parameter returns a TH list in pzList,pnList with filenames matching

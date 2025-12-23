@@ -1,5 +1,5 @@
-C Fix\stypos\sin\stwo\sfunction\snames.\sNo\sfunctional\schanges.
-D 2025-12-23T16:07:52.527
+C Some\slast\ssly\stypos\swhich\shad\sbeen\ssupposedly\sfixed.
+D 2025-12-23T19:53:13.449
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -577,7 +577,7 @@ F src/terminal.c 1f497ac2f122d3fc856aac9386c064c10e10bf148467986ef73c7562f937987
 F src/th.c b09f277fb687cb594f69215e91ee4a3fd86a245eec45985da4b824e969bfbeb5
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
-F src/th_main.c c0f55f4cb4df1e6ca064ce44e71a2a61d49c10859203155847534b7c260bddbe
+F src/th_main.c 160ff2f558b67b49c3ea09c18847048f3782beb72948f03504505e763ac956e8
 F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
 F src/timeline.c 06e32fd6526c4fa23c80e577587fdedc37088ab81705b7dc6b40f0d339f5c9c5
 F src/tkt.c e44d1f4d8e07ae3a75a71ef2438a4ee2f7fc6702ce0c6188cd322effbb5e2f25
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2bdc10572c51069ebd63951d082c65d995838924bad2bad94fd5bcfe53c88e8
-R bced1544213c317285213ce098342b90
+P d425d2394fe9956c5b1e0fbc1581b982f779e84fc0eb8335e277e20bcd3ef340
+R d112212d968a3276c2ae16c8b11cf7b8
 U danield
-Z b5e400df1ab15977704a87733c951cb2
+Z 87fdd390a47e4c2f6226b91ffb985869
 # Remove this line to create a well-formed Fossil manifest.
