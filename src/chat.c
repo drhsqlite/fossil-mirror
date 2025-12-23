@@ -445,7 +445,7 @@ void chat_send_webpage(void){
   if( 0==g.perm.Chat ) {
     chat_emit_permissions_error(0);
     return;
-  }else if( 0==cgi_csrf_safe(1) ){
+  }else if( g.eAuthMethod==AUTH_COOKIE && 0==cgi_csrf_safe(1) ){
     chat_emit_csrf_error();
     return;
   }

@@ -1444,6 +1444,11 @@ void webpage_error(const char *zFormat, ...){
     @ g.zPath = %h(g.zPath)<br>
     @ g.userUid = %d(g.userUid)<br>
     @ g.zLogin = %h(g.zLogin)<br>
+    if( g.eAuthMethod!=AUTH_NONE ){
+      const char *zMethod[] = { "COOKIE", "LOCAL", "PW", "ENV", "HTTP" };
+      @ g.eAuthMethod = %d(g.eAuthMethod) (%h(zMethod[g.eAuthMethod-1]))\
+      @ <br>
+    }
     @ g.isRobot = %d(g.isRobot)<br>
     @ g.jsHref = %d(g.jsHref)<br>
     if( g.zLocalRoot ){

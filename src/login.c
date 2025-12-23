@@ -1373,6 +1373,7 @@ int login_cookie_wellformed(void){
 **    g.anon         Permissions that would be available to anonymous
 **    g.isRobot      True if the client is known to be a spider or robot
 **    g.perm         Populated based on user account's capabilities
+**    g.eAuthMethod  The mechanism used for authentication
 **
 */
 void login_check_credentials(void){
@@ -1413,6 +1414,7 @@ void login_check_credentials(void){
     zCap = "sxy";
     g.noPswd = 1;
     g.isRobot = 0;
+    g.eAuthMethod = AUTH_LOCAL;
     zSeed = db_text("??", "SELECT uid||quote(login)||quote(pw)||quote(cookie)"
                           "  FROM user WHERE uid=%d", uid);
     login_create_csrf_secret(zSeed);
@@ -1492,6 +1494,7 @@ void login_check_credentials(void){
         }
       }
     }
+    if( uid ) g.eAuthMethod = AUTH_COOKIE;
     login_create_csrf_secret(zHash);
   }
 
@@ -1504,6 +1507,7 @@ void login_check_credentials(void){
       uid = db_int(0, "SELECT uid FROM user WHERE login=%Q"
                       " AND octet_length(cap)>0 AND octet_length(pw)>0",
                       zRemoteUser);
+      if( uid ) g.eAuthMethod = AUTH_ENV;
     }
   }
 
@@ -1513,6 +1517,7 @@ void login_check_credentials(void){
   */
   if( uid==0 && db_get_boolean("http_authentication_ok",0) ){
     uid = login_basic_authentication(zIpAddr);
+    if( uid ) g.eAuthMethod = AUTH_HTTP;
   }
 
   /* Check for magic query parameters "resid" (for the username) and
@@ -1531,6 +1536,7 @@ void login_check_credentials(void){
                       "      OR constant_time_cmp(pw,%Q)=0)",
                       zUsr, zSha1Pw, zPW);
       fossil_free(zSha1Pw);
+      if( uid ) g.eAuthMethod = AUTH_PW;
     }
   }
 

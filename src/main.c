@@ -238,6 +238,13 @@ struct Global {
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
+  int eAuthMethod;        /* How the user authenticated to us */
+# define AUTH_NONE   0    /* Not authenticated */
+# define AUTH_COOKIE 1    /* Authentication by cookie */
+# define AUTH_LOCAL  2    /* Uses loopback */
+# define AUTH_PW     3    /* Authentication by password */
+# define AUTH_ENV    4    /* Authenticated by REMOTE_USER environment var */
+# define AUTH_HTTP   5    /* HTTP Basic Authentication */
   int isRobot;            /* True if the client is definitely a robot.  False
                           ** negatives are common for this flag */
   int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
