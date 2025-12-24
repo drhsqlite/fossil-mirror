@@ -1,5 +1,5 @@
-C Some\slast\ssly\stypos\swhich\shad\sbeen\ssupposedly\sfixed.
-D 2025-12-23T19:53:13.449
+C One\smore\stypo\sfix\sin\sa\scode\scomment.\sNo\sfunctional\schanges.
+D 2025-12-24T14:30:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -440,7 +440,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 57ad69acea5741a54cdec843db7aecfa82234932ec5a2ae5ba6c2a67e2077e88
-F src/fossil.diff.js f8228eb17d600eca27a6f15f2a6804ede68f7f76b5fe4cbe0329495e6d733232
+F src/fossil.diff.js 13a7d1124553ebe303750056222673cb58249d788cf046d9a6b81c335f102fc8
 F src/fossil.dom.js eb2d34ff73a0e183713b673a7b714c6f21275ff310449d829cdcdcce73e49f91
 F src/fossil.fetch.js 091c826ffff63922d0b545df252c5ca0eb1080f60b258f98bec1c5b5b5e09a33
 F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cefb981de12143285d
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d425d2394fe9956c5b1e0fbc1581b982f779e84fc0eb8335e277e20bcd3ef340
-R d112212d968a3276c2ae16c8b11cf7b8
-U danield
-Z 87fdd390a47e4c2f6226b91ffb985869
+P f677d53eac0c4261866a06ec97158d3d07742a9d8dd1f11951706ff728ffb86f
+R 5e58203819ae40aa2aad4d852123a333
+U florian
+Z e506fbafb3f7da695084f04995378f2c
 # Remove this line to create a well-formed Fossil manifest.

@@ -370,7 +370,7 @@ window.fossil.onPageLoad(function(){
     },
 
     /**
-       Callack for /jchunk responses.
+       Callback for /jchunk responses.
     */
     injectResponse: function f(fetchType/*as for fetchChunk()*/,
                                urlParam/*from fetchChunk()*/,
