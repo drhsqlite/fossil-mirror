@@ -33,6 +33,9 @@
 #include "xsystem.h"
 #include "qrf.h"
 #include <time.h>
+#ifdef _WIN32
+# include <windows.h>
+#endif
 
 
 /* Date and time */
