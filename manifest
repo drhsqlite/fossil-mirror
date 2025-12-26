@@ -1,5 +1,5 @@
-C One\smore\stypo\sfix\sin\sa\scode\scomment.\sNo\sfunctional\schanges.
-D 2025-12-24T14:30:00.000
+C Merge\smingw-build-error
+D 2025-12-26T23:30:51.101
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -601,7 +601,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
 F src/xfer.c 4f6184e8f43cbbb3dca07beaf83eeade87acda8a5284136a37dedc826c939122
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/xsystem.c 652b187b378666f30ed98134c2694f8cecedd0e3b74a0815e0327728292b24b0
+F src/xsystem.c dd30acb9f320addeeac8dcdc995dee69c0833ef9bef7ec5f2c0b91aae5664a74
 F src/zip.c 6d00549f31cf86931908919a66597981ce438a57b9076dc1e57ffaf661ee7681
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -980,8 +980,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f677d53eac0c4261866a06ec97158d3d07742a9d8dd1f11951706ff728ffb86f
-R 5e58203819ae40aa2aad4d852123a333
-U florian
-Z e506fbafb3f7da695084f04995378f2c
+P 4d575dc84e07ad513f022936fb78187d25e0a56ffca558361abd2e76e1b0285f 0e280751bd375e0d58ac4a52d8e307feb2daf7f3fedafc982d12452b93d82bb2
+R f22d8abce63e15c58cca553778cbe650
+T +closed 0e280751bd375e0d58ac4a52d8e307feb2daf7f3fedafc982d12452b93d82bb2
+U andygoth
+Z 4298777c91df91b94513751197f79f44
 # Remove this line to create a well-formed Fossil manifest.
