@@ -1,5 +1,5 @@
-C Spelling\sfixes\sin\sdocs/comments.
-D 2025-12-27T12:21:10.309
+C Add\sa\snew\scategory\sof\shelp:\s\shelp-topics.\s\sThere\sis\sinitially\sjust\sone\nnamed\s"options"\swhich\sexplains\sthe\scommand-line\soptions\savailable\sfor\sall\ncommands.\s\sOther\stopics\scan\snow\sbe\seasily\sadded\ssimply\sby\sinserting\sthe\nappropriate\s"TOPIC:"\scomments\sinto\sthe\scode.
+D 2025-12-27T14:42:07.137
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -424,7 +424,7 @@ F src/diff.c cf35169562daa6bcb2db461c122be118f5497e39e249fb0ba8a6d91d51689483
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
 F src/diffcmd.c 4f775c00cedae0908031d2666a6c3d8e87fefab8f78bf50ec7c2c95721b8f950
-F src/dispatch.c 4a74dab916ac7f3c68878dbf93c0f1ce51a50e2cccfe245539158725f5c7db5d
+F src/dispatch.c 5223fd7e1e140ff75d6bca9aeac29cf82ddb7116021a9313351b93890cd7c858
 F src/doc.c 85a8ea5014ac5665b815a19cf8ad6ef0ec62cc60b81ed57e8e915a5d89cab37b
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
@@ -756,7 +756,7 @@ F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa760664
 F tools/makemake.tcl 39470cee25aae590abf9f94d394edfed3844fa2925ad8a59bb031e53e5995bc5 x
 F tools/man_page_command_list.tcl 8f7f2c0717cb7e2ddece0a92bd10809bb16a1d8c3aa8bf6f77f6143b9282a099 x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
-F tools/mkindex.c 3916faa7d2eb34c4376a504a0447a4faf7e23a76bbd59af8d164143c7e9ee585
+F tools/mkindex.c ab9760d4ab795e9e04e1e730866320f9f9def3493fb1b84379c39cbf6463aba2
 F tools/mkversion.c 50e3be4716625ffea38d0f8248051de7372b78282744f33dde201bed5dd977cb
 F tools/randomize-js-names.tcl f298b424ec278c1df2cd5333011b9cab77525ec21813e6160577810997f028b9
 F tools/skintxt2config.c b542d5e56db4aa69100e85061db820f6b1c9734cf292bda2d67445d364a5e154
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ee4c762d0d27fa9e6d8a39967576ce61c22d293bebc0c40ff17b8622a6153374
-R e2ad055dfc741f810be46d1c5e9b3224
-U km
-Z f4ab6dbff9bf8fb630894b4fed84b3dd
+P 33d3bf3edb8330e823dfb2aa46c650cd52d259bbedd3cb0c286da82a72dc5e14
+R 8c1fb43482b3f7f6c374a6411fdda3c5
+U drh
+Z 28cafa22a630912885d7b44c2fec8514
 # Remove this line to create a well-formed Fossil manifest.

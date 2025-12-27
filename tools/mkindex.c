@@ -19,11 +19,34 @@
 ** formatted comments and generates C source code for constant tables
 ** that define the behavior of commands, webpages, and settings.
 **
+** USAGE:
+**
+**     mkindex *.c >page_index.h
+**
+** Run this command with arguments that are all input source files to
+** scan.  Generated C code appears on standard output.  The generated
+** C code includes structures that:
+**
+**    *   Map command names to the C-language functions that implement
+**        those command.
+**
+**    *   Map webpage names to the C-language functions that implement
+**        those web pages.
+**
+**    *   Map settings into attributes, such as they default value for
+**        each setting, and the kind of value (boolean, multi-line, etc).
+**
+**    *   Provide help text for commands, webpages, settings, and other
+**        miscellanous help topics.
+**
+** COMMENT TEXT THAT THIS PROGRAM LOOKS FOR:
+**
 ** The source code is scanned for comment lines of the form:
 **
 **       WEBPAGE:  /abc/xyz
 **       COMMAND:  cmdname
 **       SETTING:  access-log
+**       TOPIC:    help-topic
 **
 ** The WEBPAGE and COMMAND comments should be followed by a function that
 ** implements the webpage or command.  The form of this function is:
@@ -77,6 +100,18 @@
 **
 ** If no default is supplied, the default is assumed to be an empty string
 ** or "off" in the case of a boolean.
+**
+** A TOPIC: is followed by help text for the named topic.
+**
+** OUTPUTS:
+**
+** The output is C-language text to define and initialize a constant
+** array of CmdOrPage objects named "aCommand[]".  That array is a global
+** variable.  The dispatch.c source file defines the CmdOrPage object and
+** deals with the aCommand[] global variable.
+**
+** The output also contains a constant array of Setting objects named
+** aSetting[].  The Setting object is defined in db.c.  
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,22 +122,23 @@
 ** These macros must match similar macros in dispatch.c.
 **
 ** Allowed values for CmdOrPage.eCmdFlags. */
-#define CMDFLAG_1ST_TIER     0x00001    /* Most important commands */
-#define CMDFLAG_2ND_TIER     0x00002    /* Obscure and seldom used commands */
-#define CMDFLAG_TEST         0x00004    /* Commands for testing only */
-#define CMDFLAG_WEBPAGE      0x00008    /* Web pages */
-#define CMDFLAG_COMMAND      0x00010    /* A command */
-#define CMDFLAG_SETTING      0x00020    /* A setting */
-#define CMDFLAG_VERSIONABLE  0x00040    /* A versionable setting */
-#define CMDFLAG_BLOCKTEXT    0x00080    /* Multi-line text setting */
-#define CMDFLAG_BOOLEAN      0x00100    /* A boolean setting */
-#define CMDFLAG_RAWCONTENT   0x00200    /* Do not interpret webpage content */
-#define CMDFLAG_SENSITIVE    0x00400    /* Security-sensitive setting */
-#define CMDFLAG_HIDDEN       0x00800    /* Elide from most listings */
-#define CMDFLAG_LDAVG_EXEMPT 0x01000    /* Exempt from load_control() */
-#define CMDFLAG_ALIAS        0x02000    /* Command aliases */
-#define CMDFLAG_KEEPEMPTY    0x04000    /* Do not unset empty settings */
-#define CMDFLAG_ABBREVSUBCMD 0x08000    /* Abbreviated subcmd in help text */
+#define CMDFLAG_1ST_TIER     0x000001    /* Most important commands */
+#define CMDFLAG_2ND_TIER     0x000002    /* Obscure and seldom used commands */
+#define CMDFLAG_TEST         0x000004    /* Commands for testing only */
+#define CMDFLAG_WEBPAGE      0x000008    /* Web pages */
+#define CMDFLAG_COMMAND      0x000010    /* A command */
+#define CMDFLAG_SETTING      0x000020    /* A setting */
+#define CMDFLAG_VERSIONABLE  0x000040    /* A versionable setting */
+#define CMDFLAG_BLOCKTEXT    0x000080    /* Multi-line text setting */
+#define CMDFLAG_BOOLEAN      0x000100    /* A boolean setting */
+#define CMDFLAG_RAWCONTENT   0x000200    /* Do not interpret webpage content */
+#define CMDFLAG_SENSITIVE    0x000400    /* Security-sensitive setting */
+#define CMDFLAG_HIDDEN       0x000800    /* Elide from most listings */
+#define CMDFLAG_LDAVG_EXEMPT 0x001000    /* Exempt from load_control() */
+#define CMDFLAG_ALIAS        0x002000    /* Command aliases */
+#define CMDFLAG_KEEPEMPTY    0x004000    /* Do not unset empty settings */
+#define CMDFLAG_ABBREVSUBCMD 0x008000    /* Abbreviated subcmd in help text */
+#define CMDFLAG_TOPIC        0x010000    /* A help topic */
 /**************************************************************************/
 
 /*
@@ -345,7 +381,7 @@ static void local_strcpy(char *dest, const char *src){
 void scan_for_func(char *zLine){
   int i,j,k;
   char *z;
-  int isSetting;
+  int hasFunc;
   if( nUsed<=nFixed ) return;
   if( strncmp(zLine, "**", 2)==0
    && fossil_isspace(zLine[2])
@@ -355,6 +391,7 @@ void scan_for_func(char *zLine){
    && strncmp(zLine,"** WEBPAGE:",11)!=0
    && strncmp(zLine,"** SETTING:",11)!=0
    && strncmp(zLine,"** DEFAULT:",11)!=0
+   && strncmp(zLine,"** TOPIC:",9)!=0
   ){
     if( zLine[2]=='\n' ){
       zHelp[nHelp++] = '\n';
@@ -367,8 +404,8 @@ void scan_for_func(char *zLine){
   }
   for(i=0; fossil_isspace(zLine[i]); i++){}
   if( zLine[i]==0 ) return;
-  isSetting = (aEntry[nFixed].eType & CMDFLAG_SETTING)!=0;
-  if( !isSetting ){
+  hasFunc = (aEntry[nFixed].eType & (CMDFLAG_SETTING|CMDFLAG_TOPIC))==0;
+  if( hasFunc ){
     if( strncmp(&zLine[i],"void",4)!=0 ){
       if( zLine[i]!='*' ) goto page_skip;
       return;
@@ -392,12 +429,12 @@ void scan_for_func(char *zLine){
   }
   for(k=nFixed; k<nUsed; k++){
     aEntry[k].zIf = zIf[0] ? string_dup(zIf, -1) : 0;
-    aEntry[k].zFunc = isSetting ? "0" : string_dup(&zLine[i], j);
+    aEntry[k].zFunc = hasFunc ? string_dup(&zLine[i], j) : "0";
     aEntry[k].zHelp = z;
     z = 0;
     aEntry[k].iHelp = nFixed;
   }
-  if( !isSetting ){
+  if( hasFunc ){
     i+=j;
     while( fossil_isspace(zLine[i]) ){ i++; }
     if( zLine[i]!='(' ) goto page_skip;
@@ -444,7 +481,7 @@ void build_table(void){
 
   /* Output declarations for all the action functions */
   for(i=0; i<nFixed; i++){
-    if( aEntry[i].eType & CMDFLAG_SETTING ) continue;
+    if( aEntry[i].eType & (CMDFLAG_SETTING|CMDFLAG_TOPIC) ) continue;
     if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
     printf("extern void %s(void);\n", aEntry[i].zFunc);
     if( aEntry[i].zIf ) printf("#endif\n");
@@ -481,7 +518,7 @@ void build_table(void){
     }else if( (aEntry[i].eType & CMDFLAG_WEBPAGE)!=0 ){
       nWeb++;
     }
-    printf("  { \"%.*s\",%*s%s,%*szHelp%03d, %3d, 0x%03x },\n",
+    printf("  { \"%.*s\",%*s%s,%*szHelp%03d, %3d, 0x%05x },\n",
       n, z,
       25-n, "",
       aEntry[i].zFunc,
@@ -552,6 +589,7 @@ void process_file(void){
     scan_for_func(zLine);
     scan_for_label("SETTING:",zLine,CMDFLAG_SETTING);
     scan_for_default(zLine);
+    scan_for_label("TOPIC:",zLine,CMDFLAG_TOPIC);
   }
   fclose(in);
   nUsed = nFixed;
