@@ -1568,6 +1568,7 @@ void help_cmd(void){
     return;
   }
   verify_all_options();
+  zCmdOrPage = "help topic";
   if( g.argc<3 ){
     if( bOptions ){
       zTopic = "options";
@@ -1596,10 +1597,8 @@ void help_cmd(void){
   if( isPage ){
     zCmdOrPage = "page";
   }else if( commandsFlag ){
-    mask = CMDFLAG_COMMAND|CMDFLAG_TOPIC;
+    mask = CMDFLAG_COMMAND;
     zCmdOrPage = "command";
-  }else{
-    zCmdOrPage = "command or setting";
   }
 find_and_show_help:
   rc = dispatch_name_search(zTopic, mask|CMDFLAG_PREFIX, &pCmd);
