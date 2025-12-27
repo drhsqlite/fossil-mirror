@@ -2261,7 +2261,7 @@ static const char zUnsubMsg[] =
 ** If a valid subscriber code is supplied in the name= query parameter,
 ** then that subscriber is delisted.
 **
-** Otherwise, If the users is logged in, then they are redirected
+** Otherwise, if the users are logged in, then they are redirected
 ** to the /alerts page where they have an unsubscribe button.
 **
 ** Non-logged-in users with no name= query parameter are invited to enter
@@ -2608,7 +2608,7 @@ void alert_free_eventlist(EmailEvent *p){
 ** for a particular forum post.
 **
 ** This string is an encode list of sender names and rids for all ancestors
-** of the fpdi post - the post that fpid answer, the post that that parent
+** of the fpid post - the post that fpid answers, the post that parent
 ** post answers, and so forth back up to the root post. Duplicates sender
 ** names are omitted.
 **

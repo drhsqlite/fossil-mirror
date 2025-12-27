@@ -917,7 +917,7 @@ char *tar_uuid_from_name(char **pzName){
 **                       name= or r=, then the name of the main branch
 **                       (usually "trunk") is used.
 **
-**   in=PATTERN          Only include files that match the comma-separate
+**   in=PATTERN          Only include files that match the comma-separated
 **                       list of GLOB patterns in PATTERN, as with ex=
 **
 **   ex=PATTERN          Omit any file that match PATTERN.  PATTERN is a

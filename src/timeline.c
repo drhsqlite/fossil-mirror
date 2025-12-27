@@ -1728,7 +1728,7 @@ void timeline_test_endpoint(void){
 **                    All qualifying check-ins are shown unless there is
 **                    also an n= or n1= query parameter.
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
-**                    name matches one of the comma-separate GLOBLIST
+**                    name matches one of the comma-separated GLOBLIST
 **    brbg            Background color determined by branch name
 **    ubg             Background color determined by user
 **    deltabg         Background color red for delta manifests or green
@@ -3730,7 +3730,7 @@ static int fossil_is_julianday(const char *zDate){
 **                        zero, no limit.  Default is -20 meaning 20 lines.
 **   --offset P           Skip P changes
 **   -p|--path PATH       Output items affecting PATH only.
-**                        PATH can be a file or a sub directory.
+**                        PATH can be a file or a subdirectory.
 **   -r|--reverse         Show items in chronological order.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current check-out's repository.

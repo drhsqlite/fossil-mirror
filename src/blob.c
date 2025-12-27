@@ -1808,7 +1808,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
 **    --compare HEX ASCII       Verify that argument ASCII is identical to
 **                              to decoded HEX.
 **
-**    --fuzz N                  Run N fuzz cases.  Each cases is a call
+**    --fuzz N                  Run N fuzz cases.  Each case is a call
 **                              to "fossil test-escaped-arg --compare HEX ARG"
 **                              where HEX and ARG are the same argument.
 **                              The argument is chosen at random.

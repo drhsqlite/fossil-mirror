@@ -248,7 +248,7 @@ char *prompt_for_httpauth_creds(void){
 }
 
 /*
-** Send content pSend to the the server identified by g.url using the
+** Send content pSend to the server identified by g.url using the
 ** external program given by g.zHttpCmd.  Capture the reply from that
 ** program and load it into pReply.
 **

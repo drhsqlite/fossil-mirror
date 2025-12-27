@@ -122,7 +122,7 @@ int purge_artifact_list(
 
   /* Make sure we are not removing a manifest that is the baseline of some
   ** manifest that is being left behind.  This step is not strictly necessary.
-  ** is is just a safety check. */
+  ** It is just a safety check. */
   if( purge_baseline_out_from_under_delta(zTab) ){
     fossil_panic("attempt to purge a baseline manifest without also purging "
                  "all of its deltas");

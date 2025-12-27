@@ -128,7 +128,7 @@ cson_value * json_page_status(){
       }
     }else if( isChnged ){
       switch( isChnged ){
-        /* These numbers from from checkin.c: status_report() */
+        /* These numbers from checkin.c: status_report() */
         case 1:
           if( file_contains_merge_marker(zFullName) ){
             zStatus = "conflict";

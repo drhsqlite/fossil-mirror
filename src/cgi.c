@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** This file began as a set of C functions and procedures used intepret
+** This file began as a set of C functions and procedures used to interpret
 ** CGI environment variables for Fossil web pages that were invoked by
 ** CGI.  That's where the file name comes from.  But over the years it
 ** has grown to incorporate lots of related functionality, including:
@@ -944,8 +944,8 @@ int cgi_qp_count(void){
 }
 
 /*
-** Add an environment varaible value to the parameter set.  The zName
-** portion is fixed but a copy is be made of zValue.
+** Add an environment variable value to the parameter set.  The zName
+** portion is fixed but a copy is made of zValue.
 */
 void cgi_setenv(const char *zName, const char *zValue){
   cgi_set_parameter_nocopy(zName, fossil_strdup(zValue), 0);
@@ -970,7 +970,7 @@ static int contains_ctrl(const char *zIn){
 ** characters).  But this routine assumes that NAME contains no
 ** special character and therefore does not decode it.
 **
-** If NAME begins with another other than a lower-case letter then
+** If NAME begins with something other than a lower-case letter then
 ** the entire NAME=VALUE term is ignored.  Hence:
 **
 **      *  cookies and query parameters that have uppercase names

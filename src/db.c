@@ -4571,7 +4571,7 @@ void print_setting(const Setting *pSetting, int valueOnly, int bIfChng){
 ** If var is 0, the settings name is used.
 **
 ** width is the length for the edit field on the behavior page, 0 is
-** used for on/off checkboxes. A negative value indicates that that
+** used for on/off checkboxes. A negative value indicates that the
 ** page should not render this setting. Such values may be rendered
 ** separately/manually on another page, e.g., /setup_access, and are
 ** exposed via the CLI settings command.
@@ -5578,13 +5578,13 @@ void test_database_name_cmd(void){
 
 /*
 ** Compute a "fingerprint" on the repository.  A fingerprint is used
-** to verify that that the repository has not been replaced by a clone
+** to verify that the repository has not been replaced by a clone
 ** of the same repository.  More precisely, a fingerprint is used to
 ** verify that the mapping between SHA3 hashes and RID values is unchanged.
 **
 ** The check-out database ("localdb") stores RID values.  When associating
 ** a check-out database against a repository database, it is useful to verify
-** the fingerprint so that we know tha the RID values in the check-out
+** the fingerprint so that we know that the RID values in the check-out
 ** database still correspond to the correct entries in the BLOB table of
 ** the repository.
 **

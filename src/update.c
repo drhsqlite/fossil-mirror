@@ -90,7 +90,7 @@ int update_to(int vid){
 ** any changes to the current check-out or the repository.
 **
 ** The -v or --verbose option prints status information about
-** unchanged files in addition to those file that actually do change.
+** unchanged files in addition to those files that actually do change.
 **
 ** Options:
 **   --case-sensitive BOOL   Override case-sensitive setting

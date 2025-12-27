@@ -487,7 +487,7 @@ void setup_robots(void){
   @ If the page name matches the GLOB pattern of this setting, and the
   @ users is "nobody", and the client has not previously passed a captcha
   @ test to show that it is not a robot, then the page is not displayed.
-  @ A captcha test is is rendered instead.
+  @ A captcha test is rendered instead.
   @ The default value for this setting is:
   @ <p>
   @ &emsp;&emsp;&emsp;<tt>%h(robot_restrict_default())</tt>

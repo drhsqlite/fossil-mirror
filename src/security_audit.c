@@ -353,7 +353,7 @@ void secaudit0_page(void){
                 " AND length(value)>0") ){
     @ <li><p><b>WARNING:</b>
     @ TH1 scripts might be configured to run on any sync, push, pull, or
-    @ clone operation.  See the the <a href="%R/xfersetup">/xfersetup</a>
+    @ clone operation.  See the <a href="%R/xfersetup">/xfersetup</a>
     @ page for more information.  These TH1 scripts are a potential
     @ security concern and so should be carefully audited by a human.
   }

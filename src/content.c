@@ -653,7 +653,7 @@ int content_put_ex(
 **
 ** The original content of pBlob is not disturbed.  The caller continues
 ** to be responsible for pBlob.  This routine does *not* take over
-** responsiblity for freeing pBlob.
+** responsibility for freeing pBlob.
 */
 int content_put(Blob *pBlob){
   return content_put_ex(pBlob, 0, 0, 0, 0);

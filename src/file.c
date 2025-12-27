@@ -53,7 +53,7 @@
 **
 **   ExtFILE      Symbolic links always refer to the object to which the
 **                link points.  Symlinks are never recognized as symlinks but
-**                instead always appear to the the target object.
+**                instead always appear to be the target object.
 **
 **   SymFILE      Symbolic links always appear to be files whose name is
 **                the target pathname of the symbolic link.

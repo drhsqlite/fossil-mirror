@@ -948,8 +948,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** Create or cancel a tag or property.  The tagname is fossil-encoded.
       ** The first character of the name must be either "+" to create a
       ** singleton tag, "*" to create a propagating tag, or "-" to create
-      ** anti-tag that undoes a prior "+" or blocks propagation of of
-      ** a "*".
+      ** anti-tag that undoes a prior "+" or blocks propagation of a "*".
       **
       ** The tag is applied to <uuid>.  If <uuid> is "*" then the tag is
       ** applied to the current manifest.  If <value> is provided then

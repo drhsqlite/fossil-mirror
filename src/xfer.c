@@ -2386,7 +2386,7 @@ int client_sync(
       blob_appendf(&send, "pragma ci-unlock %s\n", zClientId);
     }
     /* Append randomness to the end of the uplink message.  This makes all
-    ** messages unique so that that the login-card nonce will always
+    ** messages unique so that the login-card nonce will always
     ** be unique.
     */
     zRandomness = db_text(0, "SELECT hex(randomblob(20))");

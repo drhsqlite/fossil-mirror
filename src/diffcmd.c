@@ -1331,7 +1331,7 @@ const char *diff_get_binary_glob(void){
 ** as binary when considering if they should be used with the external diff
 ** program.  This option overrides the "binary-glob" setting.
 **
-** These command show differences between managed files. Use the "fossil xdiff"
+** These commands show differences between managed files. Use the "fossil xdiff"
 ** command to see differences in unmanaged files.
 **
 ** Options:

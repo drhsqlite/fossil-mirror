@@ -2878,7 +2878,7 @@ static void decode_ssl_options(void){
 ** alphanumerics, "_", "/", "-" and "." and no "-" may occur after a "/"
 ** and every "." must be surrounded on both sides by alphanumerics or else
 ** a 404 error is returned.  Static content files in the directory are
-** returned if they match comma-separate GLOB pattern specified by --files
+** returned if they match comma-separated GLOB pattern specified by --files
 ** and do not match "*.fossil*" and have a well-known suffix.
 **
 ** Options:
@@ -2890,7 +2890,7 @@ static void decode_ssl_options(void){
 **   --ckout-alias N     Treat URIs of the form /doc/N/... as if they were
 **                          /doc/ckout/...
 **   --extroot DIR       Document root for the /ext extension mechanism
-**   --files GLOB        Comma-separate glob patterns for static file to serve
+**   --files GLOB        Comma-separated glob patterns for static files to serve
 **   --host NAME         DNS Hostname of the server
 **   --https             The HTTP request originated from https but has already
 **                       been decoded by a reverse proxy.  Hence, URLs created
@@ -3111,7 +3111,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** breaking legacy.
 **
 ** Options:
-**   --csrf-safe N       Set cgi_csrf_safe() to to return N
+**   --csrf-safe N       Set cgi_csrf_safe() to return N
 **   --nobody            Pretend to be user "nobody"
 **   --ssh-sim           Pretend to be over an SSH connection
 **   --test              Do not do special "sync" processing when operating

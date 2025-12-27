@@ -2159,7 +2159,7 @@ void register_page(void){
     char *zPass = sha1_shared_secret(zPasswd, zUserID, 0);
     const char *zStartPerms = zPerms;
     if( db_get_boolean("selfreg-verify",0) ){
-      /* If email verification is required for self-registration, initalize
+      /* If email verification is required for self-registration, initialize
       ** the new user capabilities to just "7" (Sign up for email).  The
       ** full "default-perms" permissions will be added when they click
       ** the verification link on the email they are sent. */
