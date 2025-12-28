@@ -261,7 +261,7 @@ const char zRepositorySchema2[] =
 @ --
 @ -- pid==0    if the file is added by check-in mid.
 @ -- pid==(-1) if the file exists in a merge parents but not in the primary
-@  --          parent.  In other words, if the file file was added by merge.
+@  --          parent.  In other words, if the file was added by merge.
 @ -- fid==0    if the file is removed by check-in mid.
 @ --
 @ CREATE TABLE mlink(

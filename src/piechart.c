@@ -28,7 +28,7 @@
 
 /*
 ** Return an RGB color name given HSV values.  The HSV values
-** must each be between between 0 and 255.  The string
+** must each be between 0 and 255.  The string
 ** returned is held in a static buffer and is overwritten
 ** on each call.
 */

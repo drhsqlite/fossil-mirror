@@ -461,7 +461,7 @@ img.intLink { border: 0; }
       Must either be called via an onPageLoad handler via the site
       skin's footer or else it can be called manually from the dev
       tools console. Calling it too early (e.g. in the page footer
-      outside of an an onPageLoad handler) will crash because wikiedit
+      outside of an onPageLoad handler) will crash because wikiedit
       has not been initialized.
     */
     init: function(){

@@ -458,7 +458,7 @@ int vxprintf(
     **   flag_zeropad                TRUE if the width began with 0.
     **   flag_long                   TRUE if the letter 'l' (ell) prefixed
     **                               the conversion character.
-    **   flag_longlong               TRUE if the letter 'll' (ell ell) prefixed
+    **   flag_longlong               TRUE if the letters 'll' (ell ell) prefixed
     **                               the conversion character.
     **   flag_blanksign              TRUE if a ' ' is present.
     **   width                       The specified field width.  This is

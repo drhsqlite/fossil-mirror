@@ -1067,7 +1067,7 @@ static int tclReadyCmd(
 /*
 ** TH1 command: anycap STRING
 **
-** Return true if the current user user
+** Return true if the current user
 ** has any one of the capabilities listed in STRING.
 */
 static int anycapCmd(

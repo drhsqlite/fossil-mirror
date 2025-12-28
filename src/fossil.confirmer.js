@@ -170,7 +170,7 @@ Terse Change history:
         }
         const formatCountdown = (txt, number) => txt + " ["+number+"]";
         if(opt.pinSize && opt.confirmText){
-          /* Try to pin the element's width the the greater of its
+          /* Try to pin the element's width to the greater of its
              current width or its waiting-on-confirmation width
              to avoid layout reflow when it's activated. */
           const digits = (''+(opt.timeout/1000 || opt.ticks)).length;

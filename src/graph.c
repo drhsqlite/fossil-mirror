@@ -53,7 +53,7 @@
 ** The type of integer identifiers for rows of the graph.
 **
 ** For a normal /timeline graph, the identifiers are never that big
-** an an ordinary 32-bit int will work fine.  But for the /finfo page,
+** an ordinary 32-bit int will work fine.  But for the /finfo page,
 ** the identifier is a combination of the BLOB.RID and the FILENAME.FNID
 ** values, and so it can become quite large for repos that have both many
 ** check-ins and many files.  For this reason, we make the identifier

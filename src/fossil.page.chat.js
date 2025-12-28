@@ -359,7 +359,7 @@ window.fossil.onPageLoad(function(){
           the scroll until the image is loaded, at which point it will
           scroll to either the newest message, if one is set or to
           eMsg (the liklihood is good, at least on initial page load,
-          that the the image won't be loaded until other messages have
+          that the image won't be loaded until other messages have
           been injected). */
       scheduleScrollOfMsg: function(eMsg){
         if(1===+eMsg.dataset.hasImage){

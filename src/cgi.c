@@ -1684,7 +1684,7 @@ static void cgi_begone_spider(const char *zName){
 ** Checks are omitted for any logged-in user.
 **
 ** This is the primary defense against attack.  Fossil should easily be
-** proof against SQL injection and XSS attacks even without without this
+** proof against SQL injection and XSS attacks even without this
 ** routine.  Rather, this is an attempt to avoid denial-of-service caused
 ** by persistent spiders that hammer the server with dozens or hundreds of
 ** probes per seconds as they look for vulnerabilities. In other

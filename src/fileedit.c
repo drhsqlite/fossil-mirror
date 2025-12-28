@@ -402,7 +402,7 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 ** save a manifest for that change. Ownership of pCI and its contents
 ** are unchanged.
 **
-** This function may may modify pCI as follows:
+** This function may modify pCI as follows:
 **
 ** - If one of Manifest pCI->pParent or pCI->zParentUuid are NULL,
 **   then the other will be assigned based on its counterpart. Both
