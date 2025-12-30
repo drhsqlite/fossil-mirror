@@ -37,7 +37,7 @@
 **
 ** To modify this program, get a copy of the canonical SQLite source tree,
 ** edit the src/shell.c.in file and/or some of the other files that are
-** listed above, then rerun the rerun "make shell.c".
+** listed above, then rerun the command "make shell.c".
 */
 /************************* Begin src/shell.c.in ******************/
 /*
@@ -51,7 +51,7 @@
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** This file contains code to implement the "sqlite" command line
+** This file contains code to implement the "sqlite3" command line
 ** utility for accessing SQLite databases.
 */
 #if (defined(_WIN32) || defined(WIN32)) && !defined(_CRT_SECURE_NO_WARNINGS)
@@ -4073,6 +4073,14 @@ static char mainPrompt[PROMPT_LEN_MAX];
 /* Continuation prompt. default: "   ...> " */
 static char continuePrompt[PROMPT_LEN_MAX];
 
+/*
+** Write I/O traces to the following stream.
+*/
+#ifdef SQLITE_ENABLE_IOTRACE
+static FILE *iotrace = 0;
+#endif
+
+
 /* This is variant of the standard-library strncpy() routine with the
 ** one change that the destination string is always zero-terminated, even
 ** if there is no zero-terminator in the first n-1 characters of the source
@@ -4191,13 +4199,6 @@ static void shell_out_of_memory(void){
 static void shell_check_oom(const void *p){
   if( p==0 ) shell_out_of_memory();
 }
-
-/*
-** Write I/O traces to the following stream.
-*/
-#ifdef SQLITE_ENABLE_IOTRACE
-static FILE *iotrace = 0;
-#endif
 
 /*
 ** This routine works like printf in that its first argument is a
@@ -8353,9 +8354,9 @@ static void ieee754func(
     }
 
     if( m<0 ){
+      if( m<(-9223372036854775807LL) ) return;
       isNeg = 1;
       m = -m;
-      if( m<0 ) return;
     }else if( m==0 && e>-1000 && e<1000 ){
       sqlite3_result_double(context, 0.0);
       return;
@@ -26850,15 +26851,27 @@ static const struct {
 "Import CSV or similar text from FILE into TABLE.  If TABLE does\n"
 "not exist, it is created using the first row of FILE as the column\n"
 "names.  If FILE begins with \"|\" then it is a command that is run\n"
-"and the output from the command is used as the input data.\n"
+"and the output from the command is used as the input data.  If\n"
+"FILE begins with \"<<\" followed by a label, then content is read from\n"
+"the script until the first line that matches the label.\n"
 "\n"
-"FILE is assumed to be in a CSV format, unless the current mode\n"
-"is \"ascii\" or \"tabs\" or unless one of the options below specify\n"
-"an alternative.\n"
+"The content of FILE is interpreted using RFC-4180 (\"CSV\") quoting\n"
+"rules unless the current mode is \"ascii\" or \"tabs\" or unless one\n"
+"the --ascii option is used.\n"
+"\n"
+"The column and row separators must be single ASCII characters.  If\n"
+"multiple characters or a Unicode character are specified for the\n"
+"separators, then only the first byte of the separator is used.  Except,\n"
+"if the row separator is \\n and the mode is not --ascii, then \\r\\n is\n"
+"understood as a row separator too.\n"
 "\n"
 "Options:\n"
-"  --ascii         Use \\037 and \\036 as column and row separators on input\n"
+"  --ascii         Do not use RFC-4180 quoting.  Use \\037 and \\036\n"
+"                  as column and row separators on input, unless other\n"
+"                  delimiters are specified using --colsep and/or --rowsep\n"
+"  --colsep CHAR   Use CHAR as the column separator.\n"
 "  --csv           Input is standard RFC-4180 CSV.\n"
+"  --rowsep CHAR   Use CHAR as the row separator.\n"
 "  --schema S      When creating TABLE, put it in schema S\n"
 "  --skip N        Ignore the first N rows of input\n"
 "  -v              Verbose mode\n"
@@ -26989,7 +27002,6 @@ static const struct {
 "All pattern lines and the ENDMARK are discarded.\n"
 "\n"
 "Options:\n"
-"  --error-prefix TEXT    Change error message prefix text to TEXT\n"
 "  --exact                Do an exact comparison including leading and\n"
 "                         trailing whitespace.\n"
 "  --glob                 Treat PATTERN as a GLOB\n"
@@ -28002,7 +28014,9 @@ struct ImportCtx {
   const char *zFile;  /* Name of the input file */
   FILE *in;           /* Read the CSV text from this input stream */
   int (SQLITE_CDECL *xCloser)(FILE*);      /* Func to close in */
+  char *zIn;          /* Input text */
   char *z;            /* Accumulated text for a field */
+  i64 nUsed;          /* Bytes of zIn[] used so far */
   i64 n;              /* Number of bytes in z */
   i64 nAlloc;         /* Space allocated for z[] */
   int nLine;          /* Current line number */
@@ -28022,9 +28036,28 @@ static void import_cleanup(ImportCtx *p){
   }
   sqlite3_free(p->z);
   p->z = 0;
+  if( p->zIn ){
+    sqlite3_free(p->zIn);
+    p->zIn = 0;
+  }
 }
 
-/* Append a single byte to z[] */
+/* Read a single character of the .import input text.  Return EOF
+** at end-of-file.
+*/
+static int import_getc(ImportCtx *p){
+  if( p->in ){
+    return fgetc(p->in);
+  }else if( p->zIn && p->zIn[p->nUsed]!=0 ){
+    return p->zIn[p->nUsed++];
+  }else{
+    return EOF;
+  }
+}
+
+/* Append a single byte to the field value begin constructed
+** in the p->z[] buffer
+*/
 static void import_append_char(ImportCtx *p, int c){
   if( p->n+1>=p->nAlloc ){
     p->nAlloc += p->nAlloc + 100;
@@ -28040,8 +28073,8 @@ static void import_append_char(ImportCtx *p, int c){
 **   +  Input comes from p->in.
 **   +  Store results in p->z of length p->n.  Space to hold p->z comes
 **      from sqlite3_malloc64().
-**   +  Use p->cSep as the column separator.  The default is ",".
-**   +  Use p->rSep as the row separator.  The default is "\n".
+**   +  Use p->cColSep as the column separator.  The default is ",".
+**   +  Use p->cRowSep as the row separator.  The default is "\n".
 **   +  Keep track of the line number in p->nLine.
 **   +  Store the character that terminates the field in p->cTerm.  Store
 **      EOF on end-of-file.
@@ -28052,7 +28085,7 @@ static char *SQLITE_CDECL csv_read_one_field(ImportCtx *p){
   int cSep = (u8)p->cColSep;
   int rSep = (u8)p->cRowSep;
   p->n = 0;
-  c = fgetc(p->in);
+  c = import_getc(p);
   if( c==EOF || seenInterrupt ){
     p->cTerm = EOF;
     return 0;
@@ -28063,7 +28096,7 @@ static char *SQLITE_CDECL csv_read_one_field(ImportCtx *p){
     int cQuote = c;
     pc = ppc = 0;
     while( 1 ){
-      c = fgetc(p->in);
+      c = import_getc(p);
       if( c==rSep ) p->nLine++;
       if( c==cQuote ){
         if( pc==cQuote ){
@@ -28099,10 +28132,10 @@ static char *SQLITE_CDECL csv_read_one_field(ImportCtx *p){
     ** UTF-8 BOM  (0xEF BB BF) then skip the BOM */
     if( (c&0xff)==0xef && p->bNotFirst==0 ){
       import_append_char(p, c);
-      c = fgetc(p->in);
+      c = import_getc(p);
       if( (c&0xff)==0xbb ){
         import_append_char(p, c);
-        c = fgetc(p->in);
+        c = import_getc(p);
         if( (c&0xff)==0xbf ){
           p->bNotFirst = 1;
           p->n = 0;
@@ -28112,7 +28145,7 @@ static char *SQLITE_CDECL csv_read_one_field(ImportCtx *p){
     }
     while( c!=EOF && c!=cSep && c!=rSep ){
       import_append_char(p, c);
-      c = fgetc(p->in);
+      c = import_getc(p);
     }
     if( c==rSep ){
       p->nLine++;
@@ -28130,8 +28163,8 @@ static char *SQLITE_CDECL csv_read_one_field(ImportCtx *p){
 **   +  Input comes from p->in.
 **   +  Store results in p->z of length p->n.  Space to hold p->z comes
 **      from sqlite3_malloc64().
-**   +  Use p->cSep as the column separator.  The default is "\x1F".
-**   +  Use p->rSep as the row separator.  The default is "\x1E".
+**   +  Use p->cColSep as the column separator.  The default is "\x1F".
+**   +  Use p->cRowSep as the row separator.  The default is "\x1E".
 **   +  Keep track of the row number in p->nLine.
 **   +  Store the character that terminates the field in p->cTerm.  Store
 **      EOF on end-of-file.
@@ -28142,14 +28175,14 @@ static char *SQLITE_CDECL ascii_read_one_field(ImportCtx *p){
   int cSep = (u8)p->cColSep;
   int rSep = (u8)p->cRowSep;
   p->n = 0;
-  c = fgetc(p->in);
+  c = import_getc(p);
   if( c==EOF || seenInterrupt ){
     p->cTerm = EOF;
     return 0;
   }
   while( c!=EOF && c!=cSep && c!=rSep ){
     import_append_char(p, c);
-    c = fgetc(p->in);
+    c = import_getc(p);
   }
   if( c==rSep ){
     p->nLine++;
@@ -30454,15 +30487,27 @@ static int pickStr(const char *zArg, char **pzErr, ...){
 ** Import CSV or similar text from FILE into TABLE.  If TABLE does
 ** not exist, it is created using the first row of FILE as the column
 ** names.  If FILE begins with "|" then it is a command that is run
-** and the output from the command is used as the input data.
+** and the output from the command is used as the input data.  If
+** FILE begins with "<<" followed by a label, then content is read from
+** the script until the first line that matches the label.
 **
-** FILE is assumed to be in a CSV format, unless the current mode
-** is "ascii" or "tabs" or unless one of the options below specify
-** an alternative.
+** The content of FILE is interpreted using RFC-4180 ("CSV") quoting
+** rules unless the current mode is "ascii" or "tabs" or unless one
+** the --ascii option is used.
+**
+** The column and row separators must be single ASCII characters.  If
+** multiple characters or a Unicode character are specified for the
+** separators, then only the first byte of the separator is used.  Except,
+** if the row separator is \n and the mode is not --ascii, then \r\n is
+** understood as a row separator too.
 **
 ** Options:
-**   --ascii         Use \037 and \036 as column and row separators on input
+**   --ascii         Do not use RFC-4180 quoting.  Use \037 and \036
+**                   as column and row separators on input, unless other
+**                   delimiters are specified using --colsep and/or --rowsep
+**   --colsep CHAR   Use CHAR as the column separator.
 **   --csv           Input is standard RFC-4180 CSV.
+**   --rowsep CHAR   Use CHAR as the row separator.
 **   --schema S      When creating TABLE, put it in schema S
 **   --skip N        Ignore the first N rows of input
 **   -v              Verbose mode
@@ -30478,13 +30523,12 @@ static int dotCmdImport(ShellState *p){
   i64 nByte;                  /* Number of bytes in an SQL string */
   int i, j;                   /* Loop counters */
   int needCommit;             /* True to COMMIT or ROLLBACK at end */
-  int nSep;                   /* Number of bytes in spec.zColumnSep */
   char *zSql = 0;             /* An SQL statement */
   ImportCtx sCtx;             /* Reader context */
   char *(SQLITE_CDECL *xRead)(ImportCtx*); /* Func to read one value */
   int eVerbose = 0;           /* Larger for more console output */
   i64 nSkip = 0;              /* Initial lines to skip */
-  int useOutputMode = 1;      /* Use output mode to determine separators */
+  i64 iLineOffset = 0;        /* Offset to the first line of input */
   char *zCreate = 0;          /* CREATE TABLE statement text */
   int rc;                     /* Result code */
 
@@ -30514,66 +30558,63 @@ static int dotCmdImport(ShellState *p){
     }else if( cli_strcmp(z,"-skip")==0 && i<nArg-1 ){
       nSkip = integerValue(azArg[++i]);
     }else if( cli_strcmp(z,"-ascii")==0 ){
-      sCtx.cColSep = SEP_Unit[0];
-      sCtx.cRowSep = SEP_Record[0];
+      if( sCtx.cColSep==0 ) sCtx.cColSep = SEP_Unit[0];
+      if( sCtx.cRowSep==0 ) sCtx.cRowSep = SEP_Record[0];
       xRead = ascii_read_one_field;
-      useOutputMode = 0;
     }else if( cli_strcmp(z,"-csv")==0 ){
-      sCtx.cColSep = ',';
-      sCtx.cRowSep = '\n';
+      if( sCtx.cColSep==0 ) sCtx.cColSep = ',';
+      if( sCtx.cRowSep==0 ) sCtx.cRowSep = '\n';
       xRead = csv_read_one_field;
-      useOutputMode = 0;
+    }else if( cli_strcmp(z,"-colsep")==0 ){
+      if( i==nArg-1 ){
+        dotCmdError(p, i, "missing argument", 0);
+        return 1;
+      }
+      i++;
+      sCtx.cColSep = azArg[i][0];
+    }else if( cli_strcmp(z,"-rowsep")==0 ){
+      if( i==nArg-1 ){
+        dotCmdError(p, i, "missing argument", 0);
+        return 1;
+      }
+      i++;
+      sCtx.cRowSep = azArg[i][0];
     }else{
       dotCmdError(p, i, "unknown option", 0);
       return 1;
     }
   }
   if( zTable==0 ){
-    cli_printf(p->out, "ERROR: missing %s argument\n",
+    dotCmdError(p, nArg, 0, "Missing %s argument\n",
           zFile==0 ? "FILE" : "TABLE");
     return 1;
   }
   seenInterrupt = 0;
   open_db(p, 0);
-  if( useOutputMode ){
-    /* If neither the --csv or --ascii options are specified, then set
-    ** the column and row separator characters from the output mode. */
-    if( p->mode.spec.zColumnSep==0 ){
-      modeSetStr(&p->mode.spec.zColumnSep, ",");
-      nSep = 1;
-    }else if( (nSep = strlen30(p->mode.spec.zColumnSep))==0 ){
-      eputz("Error: non-null column separator required for import\n");
-      return 1;
+  if( sCtx.cColSep==0 ){
+    if( p->mode.spec.zColumnSep && p->mode.spec.zColumnSep[0]!=0 ){
+      sCtx.cColSep = p->mode.spec.zColumnSep[0];
+    }else{
+      sCtx.cColSep = ',';
     }
-    if( nSep>1 ){
-      eputz("Error: multi-character column separators not allowed"
-            " for import\n");
-      return 1;
+  }
+  if( (sCtx.cColSep & 0x80)!=0 ){
+    eputz("Error: .import column separator must be ASCII\n");
+    return 1;
+  }
+  if( sCtx.cRowSep==0 ){
+    if( p->mode.spec.zRowSep && p->mode.spec.zRowSep[0]!=0 ){
+      sCtx.cRowSep = p->mode.spec.zRowSep[0];
+    }else{
+      sCtx.cRowSep = '\n';
     }
-    if( p->mode.spec.zRowSep==0 ){
-      modeSetStr(&p->mode.spec.zRowSep, "\n");
-      nSep = 1;
-    }else if( (nSep = strlen30(p->mode.spec.zRowSep))==0 ){
-      eputz("Error: non-null row separator required for import\n");
-      return 1;
-    }
-    if( nSep==2 && p->mode.eMode==MODE_Csv
-     && cli_strcmp(p->mode.spec.zRowSep,SEP_CrLf)==0
-    ){
-      /* When importing CSV (only), if the row separator is set to the
-      ** default output row separator, change it to the default input
-      ** row separator.  This avoids having to maintain different input
-      ** and output row separators. */
-      modeSetStr(&p->mode.spec.zRowSep, SEP_Row);
-      nSep = strlen30(p->mode.spec.zRowSep);
-    }
-    if( nSep>1 ){
-      eputz("Error: multi-character row separators not allowed"
-            " for import\n");
-      return 1;
-    }
-    sCtx.cColSep = (u8)p->mode.spec.zColumnSep[0];
-    sCtx.cRowSep = (u8)p->mode.spec.zRowSep[0];
+  }
+  if( sCtx.cRowSep=='\r' && xRead!=ascii_read_one_field ){
+    sCtx.cRowSep = '\n';
+  }
+  if( (sCtx.cRowSep & 0x80)!=0 ){
+    eputz("Error: .import row separator must be ASCII\n");
+    return 1;
   }
   sCtx.zFile = zFile;
   sCtx.nLine = 1;
@@ -30586,15 +30627,54 @@ static int dotCmdImport(ShellState *p){
     sCtx.zFile = "<pipe>";
     sCtx.xCloser = pclose;
 #endif
+  }else if( sCtx.zFile[0]=='<' && sCtx.zFile[1]=='<' && sCtx.zFile[2]!=0 ){
+    /* Input text comes from subsequent lines of script until the zFile
+    ** delimiter */
+    int nEndMark = strlen30(zFile)-2;
+    char *zEndMark = &zFile[2];
+    sqlite3_str *pContent = sqlite3_str_new(p->db);
+    int ckEnd = 1;
+    i64 iStart = p->lineno;
+    char zLine[2000];
+    sCtx.zFile = p->zInFile;
+    sCtx.nLine = p->lineno+1;
+    iLineOffset = p->lineno;
+    while( sqlite3_fgets(zLine,sizeof(zLine),p->in) ){
+      if( ckEnd && cli_strncmp(zLine,zEndMark,nEndMark)==0 ){
+        ckEnd = 2;
+        if( strchr(zLine,'\n') ) p->lineno++;
+        break;
+      }
+      if( strchr(zLine,'\n') ){
+        p->lineno++;
+        ckEnd = 1;
+      }else{
+        ckEnd = 0;
+      }
+      sqlite3_str_appendall(pContent, zLine);
+    }
+    sCtx.zIn = sqlite3_str_finish(pContent);
+    if( sCtx.zIn==0 ){
+      sCtx.zIn = sqlite3_mprintf("");
+    }
+    if( ckEnd<2 ){
+      i64 savedLn = p->lineno;
+      p->lineno = iStart;
+      dotCmdError(p, 0, 0,"Content terminator \"%s\" not found.",zEndMark);
+      p->lineno = savedLn;
+      import_cleanup(&sCtx);
+      return 1;
+    }
   }else{
     sCtx.in = sqlite3_fopen(sCtx.zFile, "rb");
     sCtx.xCloser = fclose;
   }
-  if( sCtx.in==0 ){
-    cli_printf(stderr,"Error: cannot open \"%s\"\n", zFile);
+  if( sCtx.in==0 && sCtx.zIn==0 ){
+    dotCmdError(p, 0, 0, "cannot open \"%s\"", zFile);
+    import_cleanup(&sCtx);
     return 1;
   }
-  if( eVerbose>=2 || (eVerbose>=1 && useOutputMode) ){
+  if( eVerbose>=1 ){
     char zSep[2];
     zSep[1] = 0;
     zSep[0] = sCtx.cColSep;
@@ -30751,6 +30831,10 @@ static int dotCmdImport(ShellState *p){
       }
       sqlite3_bind_text(pStmt, i+1, z, -1, SQLITE_TRANSIENT);
       if( i<nCol-1 && sCtx.cTerm!=sCtx.cColSep ){
+        if( i==0 && (strcmp(z,"\n")==0 || strcmp(z,"\r\n")==0) ){
+          /* Ignore trailing \n or \r\n when some other row separator */
+          break;
+        }
         cli_printf(stderr,"%s:%d: expected %d columns but found %d"
               " - filling the rest with NULL\n",
               sCtx.zFile, startLine, nCol, i+1);
@@ -30774,6 +30858,7 @@ static int dotCmdImport(ShellState *p){
         cli_printf(stderr,"%s:%d: INSERT failed: %s\n",
               sCtx.zFile, startLine, sqlite3_errmsg(p->db));
         sCtx.nErr++;
+        if( bail_on_error ) break;
       }else{
         sCtx.nRow++;
       }
@@ -30786,9 +30871,9 @@ static int dotCmdImport(ShellState *p){
   if( eVerbose>0 ){
     cli_printf(p->out,
           "Added %d rows with %d errors using %d lines of input\n",
-          sCtx.nRow, sCtx.nErr, sCtx.nLine-1);
+          sCtx.nRow, sCtx.nErr, sCtx.nLine-1-iLineOffset);
   }
-  return 0;
+  return sCtx.nErr ? 1 : 0;
 }
 
 
@@ -31659,7 +31744,6 @@ dotCmdOutput_error:
 ** All pattern lines and the ENDMARK are discarded.
 **
 ** Options:
-**   --error-prefix TEXT    Change error message prefix text to TEXT
 **   --exact                Do an exact comparison including leading and
 **                          trailing whitespace.
 **   --glob                 Treat PATTERN as a GLOB
@@ -31714,7 +31798,7 @@ static int dotCmdCheck(ShellState *p){
     dotCmdError(p, 0, "no PATTERN specified", 0);
     return 1;
   }
-  if( cli_output_capture ){
+  if( cli_output_capture && sqlite3_str_length(cli_output_capture) ){
     zTest = sqlite3_str_value(cli_output_capture);
     shell_check_oom(zTest);
   }else{
@@ -33452,8 +33536,7 @@ static int do_meta_command(const char *zLine, ShellState *p){
                       ");\n", zName);
       }
     }
-    rc = sqlite3_prepare_v2(p->db, "SELECT name FROM pragma_database_list",
-                            -1, &pStmt, 0);
+    rc = sqlite3_prepare_v2(p->db, "PRAGMA database_list", -1, &pStmt, 0);
     if( rc ){
       shellDatabaseError(p->db);
       sqlite3_finalize(pStmt);
@@ -33465,7 +33548,7 @@ static int do_meta_command(const char *zLine, ShellState *p){
     sqlite3_str_appendf(pSql, "SELECT sql FROM", 0);
     iSchema = 0;
     while( sqlite3_step(pStmt)==SQLITE_ROW ){
-      const char *zDb = (const char*)sqlite3_column_text(pStmt, 0);
+      const char *zDb = (const char*)sqlite3_column_text(pStmt, 1);
       char zScNum[30];
       sqlite3_snprintf(sizeof(zScNum), zScNum, "%d", ++iSchema);
       sqlite3_str_appendall(pSql, zDiv);
@@ -33485,7 +33568,8 @@ static int do_meta_command(const char *zLine, ShellState *p){
       sqlite3_str_appendf(pSql," FROM \"%w\".sqlite_schema", zDb);
     }
     sqlite3_finalize(pStmt);
-#ifndef SQLITE_OMIT_INTROSPECTION_PRAGMAS
+#if !defined(SQLITE_OMIT_INTROSPECTION_PRAGMAS) \
+ && !defined(SQLITE_OMIT_VIRTUALTABLE)
     if( zName ){
       sqlite3_str_appendall(pSql,
          " UNION ALL SELECT shell_module_schema(name),"
@@ -35692,25 +35776,61 @@ static int vfstraceOut(const char *z, void *pArg){
   return 1;
 }
 
-#ifndef SQLITE_SHELL_IS_UTF8
-#  if (defined(_WIN32) || defined(WIN32)) \
-   && (defined(_MSC_VER) || (defined(UNICODE) && defined(__GNUC__)))
-#    define SQLITE_SHELL_IS_UTF8          (0)
-#  else
-#    define SQLITE_SHELL_IS_UTF8          (1)
-#  endif
-#endif
-
+/* Alternative name to the entry point for Fiddle */
 #ifdef SQLITE_SHELL_FIDDLE
 #  define main fiddle_main
 #endif
 
-#if SQLITE_SHELL_IS_UTF8
-int SQLITE_CDECL main(int argc, char **argv){
-#else
+/* Use the wmain() entry point on Windows.  Translate arguments to
+** UTF8, then invoke the traditional main() entry point which is
+** renamed using a #define to utf8_main() .
+*/
+#if defined(_WIN32) && !defined(main)
+#  define main utf8_main                 /* Rename entry point to utf_main() */
+int SQLITE_CDECL utf8_main(int,char**);  /* Forward declaration */  
 int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
-  char **argv;
-#endif
+  int rc, i;
+  char **argv = malloc( sizeof(char*) * (argc+1) );
+  char **orig = argv;
+  if( argv==0 ){
+    fprintf(stderr, "malloc failed\n");
+    exit(1);
+  }
+  for(i=0; i<argc; i++){
+    int nByte = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, 0, 0, 0, 0);
+    if( nByte==0 ){
+      argv[i] = 0;
+    }else{
+      argv[i] = malloc( nByte );
+      if( argv[i]==0 ){
+        fprintf(stderr, "malloc failed\n");
+        exit(1);
+      }
+      nByte = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, argv[i],nByte,0,0);
+      if( nByte==0 ){
+        free(argv[i]);
+        argv[i] = 0;
+      }
+    }
+  }
+  argv[argc] = 0;
+  rc = utf8_main(argc, argv);
+  for(i=0; i<argc; i++) free(orig[i]);
+  free(argv);
+  return rc;
+}
+#endif /* WIN32 */
+
+/*
+** This is the main entry point for the process.  Everything starts here.
+**
+** The "main" identifier may have been #defined to something else:
+**
+**     utf8_main            On Windows
+**     fiddle_main          In Fiddle
+**     sqlite3_shell        Other projects that use shell.c as a subroutine
+*/
+int SQLITE_CDECL main(int argc, char **argv){
 #ifdef SQLITE_DEBUG
   sqlite3_int64 mem_main_enter = 0;
 #endif
@@ -35732,10 +35852,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   char **azCmd = 0;
   int *aiCmd = 0;
   const char *zVfs = 0;           /* Value of -vfs command-line option */
-#if !SQLITE_SHELL_IS_UTF8
-  char **argvToFree = 0;
-  int argcToFree = 0;
-#endif
   setvbuf(stderr, 0, _IONBF, 0); /* Make sure stderr is unbuffered */
 
 #ifdef SQLITE_SHELL_FIDDLE
@@ -35789,32 +35905,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   }
 #endif
   main_init(&data);
-
-  /* On Windows, we must translate command-line arguments into UTF-8.
-  ** The SQLite memory allocator subsystem has to be enabled in order to
-  ** do this.  But we want to run an sqlite3_shutdown() afterwards so that
-  ** subsequent sqlite3_config() calls will work.  So copy all results into
-  ** memory that does not come from the SQLite memory allocator.
-  */
-#if !SQLITE_SHELL_IS_UTF8
-  sqlite3_initialize();
-  argvToFree = malloc(sizeof(argv[0])*argc*2);
-  shell_check_oom(argvToFree);
-  argcToFree = argc;
-  argv = argvToFree + argc;
-  for(i=0; i<argc; i++){
-    char *z = sqlite3_win32_unicode_to_utf8(wargv[i]);
-    i64 n;
-    shell_check_oom(z);
-    n = strlen(z);
-    argv[i] = malloc( n+1 );
-    shell_check_oom(argv[i]);
-    memcpy(argv[i], z, n+1);
-    argvToFree[i] = argv[i];
-    sqlite3_free(z);
-  }
-  sqlite3_shutdown();
-#endif
 
   assert( argc>=1 && argv && argv[0] );
   Argv0 = argv[0];
@@ -36011,6 +36101,16 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     }else if( cli_strcmp(z,"-escape")==0 && i+1<argc ){
       /* skip over the argument */
       i++;
+    }else if( cli_strcmp(z,"-test-argv")==0 ){
+      /* Undocumented test option.  Print the values in argv[] and exit.
+      ** Use this to verify that any translation of the argv[], for example
+      ** on Windows that receives wargv[] from the OS and must convert
+      ** to UTF8 prior to calling this routine. */
+      int kk;
+      for(kk=0; kk<argc; kk++){
+        sqlite3_fprintf(stdout,"argv[%d] = \"%s\"\n", kk, argv[kk]);
+      }
+      return 0;
     }
   }
 #ifndef SQLITE_SHELL_FIDDLE
@@ -36429,10 +36529,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   output_reset(&data);
   data.doXdgOpen = 0;
   clearTempFile(&data);
-#if !SQLITE_SHELL_IS_UTF8
-  for(i=0; i<argcToFree; i++) free(argvToFree[i]);
-  free(argvToFree);
-#endif
   modeFree(&data.mode);
   if( data.nSavedModes ){
     int ii;

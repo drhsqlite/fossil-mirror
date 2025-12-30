@@ -148,10 +148,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.52.0"
 #define SQLITE_VERSION_NUMBER 3052000
-#define SQLITE_SOURCE_ID      "2025-12-22 11:28:16 eb2c020481dd591f459cf7191d18c2499aeec210fc3fc27bb35e5abc0d9cb6d8"
+#define SQLITE_SOURCE_ID      "2025-12-30 13:10:10 39e15ce3d6c42b13d0c1164a161e7b5d5d8382050c2729961733ddef695c9116"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2025-12-22T11:28:16.789Z"
+#define SQLITE_SCM_DATETIME   "2025-12-30T13:10:10.143Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4433,12 +4433,28 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** fails, the sqlite3_prepare_v3() call returns the same error indications
 ** with or without this flag; it just omits the call to [sqlite3_log()] that
 ** logs the error.
+**
+** [[SQLITE_PREPARE_FROM_DDL]] <dt>SQLITE_PREPARE_FROM_DDL</dt>
+** <dd>The SQLITE_PREPARE_FROM_DDL flag causes the SQL compiler to behave as if
+** the SQL statement is part of a database schema. This makes a difference
+** when the [SQLITE_DBCONFIG_TRUSTED_SCHEMA] option is set to off.
+** When this option is used and SQLITE_DBCONFIG_TRUSTED_SCHEMA is off,
+** SQL functions may not be called unless they are tagged with
+** [SQLITE_INNOCUOUS] and virtual tables may not be used unless tagged
+** with [SQLITE_VTAB_INNOCUOUS].  Use the SQLITE_PREPARE_FROM_DDL option
+** when preparing SQL that is derived from parts of the database
+** schema. In particular, virtual table implementations that
+** run SQL statements based on the arguments to their CREATE VIRTUAL
+** TABLE statement should use [sqlite3_prepare_v3()] and set the
+** SQLITE_PREPARE_FROM_DLL flag to prevent bypass of the
+** [SQLITE_DBCONFIG_TRUSTED_SCHEMA] security checks.
 ** </dl>
 */
 #define SQLITE_PREPARE_PERSISTENT              0x01
 #define SQLITE_PREPARE_NORMALIZE               0x02
 #define SQLITE_PREPARE_NO_VTAB                 0x04
 #define SQLITE_PREPARE_DONT_LOG                0x10
+#define SQLITE_PREPARE_FROM_DDL                0x20
 
 /*
 ** CAPI3REF: Compiling An SQL Statement
@@ -4452,8 +4468,9 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 **
 ** The preferred routine to use is [sqlite3_prepare_v2()].  The
 ** [sqlite3_prepare()] interface is legacy and should be avoided.
-** [sqlite3_prepare_v3()] has an extra "prepFlags" option that is used
-** for special purposes.
+** [sqlite3_prepare_v3()] has an extra
+** [SQLITE_PREPARE_FROM_DDL|"prepFlags" option] that is some times
+** needed for special purpose or to pass along security restrictions.
 **
 ** The use of the UTF-8 interfaces is preferred, as SQLite currently
 ** does all parsing using UTF-8.  The UTF-16 interfaces are provided
