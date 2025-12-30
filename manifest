@@ -1,5 +1,5 @@
-C Fix\s"fossil\ssync"\sso\sthat\sit\sreturns\snon-zero\sif\sthe\ssync\sfails.\s\sAdd\sthe\n--ping\sand\s--quiet\soptions\sto\s"fossil\ssync".
-D 2025-12-30T20:11:45.432
+C Fix\sa\stypo\sin\sthe\sprevious\scheck-in
+D 2025-12-30T20:16:30.110
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -599,7 +599,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c f0ac6b30f6cfac423b9f03c32b41a7c053d085f506544101106f9a937b098bd7
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
-F src/xfer.c e298aa3de56327aacdef97841f79ca6fe6c957c2aacc17397eb65b07c7e3d702
+F src/xfer.c 2d2983a0ce3a6ec28db702cbd87ebd21bc670699259e44bb043b094b784e227a
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/xsystem.c dd30acb9f320addeeac8dcdc995dee69c0833ef9bef7ec5f2c0b91aae5664a74
 F src/zip.c f0d24b70e800598d6c921b1e7bc68af891bbd99075c778e3c060ac448d929a7c
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b9ecacf4a1623baee8470990b5a68f1626e2ea6b7a19c6b6cfc852783a4f21cd
-R d491d22f05f2e00764d9bf7df656038b
+P 8fa8fe8e1d150fb8bbb556e8b832d25f8d2d826619a26f89df1e17ad11d23c76
+R c5bcf9511c997b2da91f99c174d7e412
 U drh
-Z aedcb5337924f76ecac0b4d40d76f586
+Z 248896143f479a1070f12d422bec8e35
 # Remove this line to create a well-formed Fossil manifest.

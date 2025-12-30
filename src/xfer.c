@@ -2964,7 +2964,7 @@ int client_sync(
       fossil_print(zValueFormat /*works-like:"%s%d%d%d%d"*/, "Received:",
                    blob_size(&recv), nCardRcvd,
                    xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);
-    }else if( syncFlags && SYNC_QUIET ){
+    }else if( syncFlags & SYNC_QUIET ){
       /* No-op */
     }else{
       if( bOutIsTty!=0 ){
