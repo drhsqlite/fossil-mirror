@@ -155,6 +155,7 @@ struct Global {
   const char *zPhase;     /* Phase of operation, for use by the error log
                           ** and for deriving $canonical_page TH1 variable */
   int isConst;            /* True if the output is unchanging & cacheable */
+  int iResultCode;        /* Process reply code for commands */
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
@@ -1018,7 +1019,7 @@ int fossil_main(int argc, char **argv){
     }
   }
 #endif
-  fossil_exit(0);
+  fossil_exit(g.iResultCode);
   /*NOT_REACHED*/
   return 0;
 }

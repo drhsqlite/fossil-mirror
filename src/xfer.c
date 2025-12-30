@@ -2051,6 +2051,8 @@ static const char zBriefFormat[] =
 #define SYNC_ALLURL         0x08000    /* The --all flag - sync to all URLs */
 #define SYNC_SHARE_LINKS    0x10000    /* Request alternate repo links */
 #define SYNC_XVERBOSE       0x20000    /* Extra verbose.  Network traffic */
+#define SYNC_PING           0x40000    /* Verify server is alive */
+#define SYNC_QUIET          0x80000    /* No output */
 #endif
 
 /*
@@ -2117,7 +2119,8 @@ int client_sync(
 
   if( pnRcvd ) *pnRcvd = 0;
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
-  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
+  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED|SYNC_PING))
+            ==0
      && configRcvMask==0
      && configSendMask==0
   ){
@@ -2412,6 +2415,9 @@ int client_sync(
     if( syncFlags & SYNC_XVERBOSE ){
       mHttpFlags |= HTTP_VERBOSE;
     }
+    if( syncFlags & SYNC_QUIET ){
+      mHttpFlags |= HTTP_QUIET;
+    }
 
     /* Do the round-trip to the server */
     if( http_exchange(&send, &recv, mHttpFlags, MAX_REDIRECTS, 0) ){
@@ -2433,6 +2439,8 @@ int client_sync(
       fossil_print(zValueFormat /*works-like:"%s%d%d%d%d"*/, "Sent:",
                    blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
                    xfer.nFileSent, xfer.nDeltaSent);
+    }else if( syncFlags & SYNC_QUIET ){
+      /* No-op */
     }else{
       if( bOutIsTty!=0 ){
         fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
@@ -2956,6 +2964,8 @@ int client_sync(
       fossil_print(zValueFormat /*works-like:"%s%d%d%d%d"*/, "Received:",
                    blob_size(&recv), nCardRcvd,
                    xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);
+    }else if( syncFlags && SYNC_QUIET ){
+      /* No-op */
     }else{
       if( bOutIsTty!=0 ){
         fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
@@ -3018,14 +3028,16 @@ int client_sync(
                     db_timespan_name(-rSkew));
      g.clockSkewSeen = 1;
   }
-  if( bOutIsTty==0 ){
+  if( bOutIsTty==0 && (syncFlags & SYNC_QUIET)==0 ){
     fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
                  nRoundtrip, nArtifactSent, nArtifactRcvd);
     fossil_force_newline();
   }
   fossil_force_newline();
   if( g.zHttpCmd==0 ){
-    if( syncFlags & SYNC_VERBOSE ){
+    if( syncFlags & SYNC_QUIET ){
+      /* no-op */
+    }else if( syncFlags & SYNC_VERBOSE ){
       fossil_print(
         "%s done, wire bytes sent: %lld  received: %lld  remote: %s%s\n",
         zOpType, nSent, nRcvd,

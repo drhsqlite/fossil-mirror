@@ -332,6 +332,8 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "unversioned","u");
     collect_argument(&extra, "all",0);
+    collect_argument(&extra, "quiet","q");
+    collect_argument(&extra, "ping",0);
   }else if( fossil_strcmp(zCmd, "test-integrity")==0 ){
     collect_argument(&extra, "db-only", "d");
     collect_argument(&extra, "parse", 0);
