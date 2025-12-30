@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sthe\sprevious\scheck-in
-D 2025-12-30T20:16:30.110
+C Add\s-s\sand\s--stop\sas\saliases\sfor\s--stop-on-error\sin\sthe\s"fossil\sall"\scommand.
+D 2025-12-30T20:41:33.769
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -385,7 +385,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c 1514674eab08cce0a74ec7db4666ddc45d31d96ff82ec87a52d72671ee227340
+F src/allrepo.c 2f9277833f935ee753870a75995bac25fe7a48758b30745ad8275fa613898b3c
 F src/attach.c 61506f3e69ff26c2f523b8f0c26e43e2f67cd78e01005c094c9665200fd61d8b
 F src/backlink.c dc8bf6cce3db4fa07c9b4428096891add7f3b2413c075e73e7b20583c937f381
 F src/backoffice.c 623ceefa8f76beb96b936378c45e4e2e30cd8c886625a1467072fd4bc0cfc0a5
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8fa8fe8e1d150fb8bbb556e8b832d25f8d2d826619a26f89df1e17ad11d23c76
-R c5bcf9511c997b2da91f99c174d7e412
+P 8e6c55aca1dd227ce0d39a38440bcd1ce57d954a031c12a4622769a0eec60521
+R 96652cb3050ec04b6996ec7251575e2f
 U drh
-Z 248896143f479a1070f12d422bec8e35
+Z 1bb9b39450c92f23883ccf24e3c65bf1
 # Remove this line to create a well-formed Fossil manifest.

@@ -159,9 +159,10 @@ static void collect_argv(Blob *pExtra, int iStart){
 ** are added back to the list of repositories by these commands.
 **
 ** Options:
-**   --dry-run         If given, display instead of run actions
+**   --dry-run         Just display commands that would have run
 **   --showfile        Show the repository or check-out being operated upon
 **   --stop-on-error   Halt immediately if any subprocess fails
+**   -s|--stop         Shorthand for "--stop-on-error"
 */
 void all_cmd(void){
   Stmt q;
@@ -178,6 +179,7 @@ void all_cmd(void){
 
   (void)find_option("dontstop",0,0);   /* Legacy.  Now the default */
   stopOnError = find_option("stop-on-error",0,0)!=0;
+  if( find_option("stop","s",0)!=0 ) stopOnError = 1;
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
