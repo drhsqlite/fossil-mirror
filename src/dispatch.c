@@ -464,7 +464,11 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
         aIndent[iLevel] = nIndent;
         azEnd[iLevel] = zEndDL;
         wantP = 0;
-        blob_append(pHtml, "<blockquote><dl>\n", -1);
+        if( isDT ){
+          blob_append(pHtml, "<blockquote><dl>\n", -1);
+        }else{
+          blob_append(pHtml, "<blockquote><dl class=\"helpOptions\">\n", -1);
+        }
       }else if( azEnd[iLevel]==zEndDL ){
         iLevel++;
         aIndent[iLevel] = nIndent;
