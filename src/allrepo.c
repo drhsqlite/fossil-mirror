@@ -169,6 +169,8 @@ void all_cmd(void){
   const char *zCmd;
   char *zSyscmd;
   Blob extra;
+  int bHalted = 0;
+  int rc = 0;
   int useCheckouts = 0;
   int quiet = 0;
   int dryRunFlag = 0;
@@ -471,7 +473,6 @@ void all_cmd(void){
   }
   db_prepare(&q,"SELECT name, tag, inode FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
-    int rc;
     const char *zFilename = db_column_text(&q, 0);
     const char *zInode = db_column_text(&q,2);
 #if !USE_SEE
@@ -508,14 +509,17 @@ void all_cmd(void){
       fflush(stdout);
     }
     rc = dryRunFlag ? 0 : fossil_system(zSyscmd);
-    free(zSyscmd);
     if( rc ){
-      if( stopOnError ) break;
+      if( stopOnError ){
+        bHalted = 1;
+        break;
+      }
       /* If there is an error, pause briefly, but do not stop.  The brief
       ** pause is so that if the prior command failed with Ctrl-C then there
       ** will be time to stop the whole thing with a second Ctrl-C. */
       sqlite3_sleep(330);
     }
+    fossil_free(zSyscmd);
   }
   db_finalize(&q);
 
@@ -534,4 +538,9 @@ void all_cmd(void){
       db_protect_pop();
     }
   }
+
+  if( stopOnError && bHalted ){
+    fossil_fatal("STOPPED: non-zero result code (%d) from\nSTOPPED: %s",
+                     rc, zSyscmd);
+  }    
 }
