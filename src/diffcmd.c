@@ -214,7 +214,7 @@ void diff_print_filenames(
                          (w-n2)/2, '=', n2, zRight, (w-n2+1)/2, '=');
     }
   }else{
-    blob_appendf(pOut, "--- %s\n+++ %s\n", zLeft, zRight);
+    blob_appendf(pOut, "--- %s\t\n+++ %s\t\n", zLeft, zRight);
   }
 }
 
