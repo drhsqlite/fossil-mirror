@@ -167,7 +167,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 void all_cmd(void){
   Stmt q;
   const char *zCmd;
-  char *zSyscmd;
+  char *zSyscmd = 0;
   Blob extra;
   int bHalted = 0;
   int rc = 0;
