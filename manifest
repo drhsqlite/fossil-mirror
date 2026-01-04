@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning\sin\sthe\sprevious\scheck-in.
-D 2026-01-03T21:31:28.368
+C Fix\sminor\sformatting\sproblem\sin\sthe\sgdiff\sdocumentation.
+D 2026-01-04T10:59:03.002
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -423,7 +423,7 @@ F src/descendants.c 3858bbe661fec7e3226ba55cdfa3f513c178a8f95966a995296ec646c15d
 F src/diff.c cf35169562daa6bcb2db461c122be118f5497e39e249fb0ba8a6d91d51689483
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
-F src/diffcmd.c 9282bd0571152585e31bb4ebb217a1a7b9f4f51c76c402929827f1b0ba786523
+F src/diffcmd.c f529b1130c87c6bf5562d241bad922274893cf0156bf26f0e420652c4a1ea685
 F src/dispatch.c 3e583cbced7e57f6a00fbe3a59f28847ddae70b463091ed8972a666f376c41a1
 F src/doc.c 85a8ea5014ac5665b815a19cf8ad6ef0ec62cc60b81ed57e8e915a5d89cab37b
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b582c87727d98003b8a38d10180bf78afb46d0cbd46f48c3878441d46039df2a
-R 927dc255da9949bc7fc05eb4174a11f1
+P ab72c29d82f78823335e542a21bf22b41944391beeefbc35ea0e445487d6cd12
+R a5f49f94a4d49f6bec934e36a12a97a6
 U drh
-Z 075f94092f7aef583918a6fa8cd502a3
+Z 5ba0323ae6f968f7ad2e95f8beecbfef
 # Remove this line to create a well-formed Fossil manifest.

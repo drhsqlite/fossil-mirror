@@ -1359,8 +1359,8 @@ const char *diff_get_binary_glob(void){
 **   -n|--linenum                Show line numbers
 **   -N|--new-file               Alias for --verbose
 **   -s|--numstat                Show the number of added and deleted lines per
-**                               file, omitting the diff. When combined with
-**                                 --brief, show only the total row.
+**                               file, omitting the diff. When combined
+**                               with --brief, show only the total row.
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
 **   --tcl                       Tcl-formatted output used internally by --tk
