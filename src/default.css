@@ -1992,6 +1992,9 @@ dl.helpOptions > dd {
   grid-column: 2;
   margin: 0;
 }
+div.helpPage blockquote {
+  margin-left: 0.2em;
+}
 
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {

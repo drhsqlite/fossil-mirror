@@ -1,5 +1,5 @@
-C Fix\sminor\sformatting\sproblem\sin\sthe\sgdiff\sdocumentation.
-D 2026-01-04T10:59:03.002
+C Reduce\sthe\samount\sof\sindentation\son\soption-lists\sin\sthe\sone-line\shelp.
+D 2026-01-04T19:45:53.800
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -415,7 +415,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js a967fe355479c329f4e172c625b7a8403e1132be72fd3ebf9ad0afad249a679c
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c b307d34fc9df19ad2a3d0eeb5b70d03e94443c683157e7b7fd6ee59f024a232c
-F src/default.css ad8b8b33e79a7f735db5ea3209f240f7fb09b553bf74face14968f7a800c44f1
+F src/default.css f486a1de657cac224625c0cb76547e9845ce8938672679e464c52b543ece5abc
 F src/delta.c 623c5f8392295e58176d067442504f6bda03bcb5df787952179c7288d0fb384f
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c f08accd177876a9d41ad36de0559e5bdc07e7f368ac58790634c2dcd75c30d9f
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ab72c29d82f78823335e542a21bf22b41944391beeefbc35ea0e445487d6cd12
-R a5f49f94a4d49f6bec934e36a12a97a6
+P 77642871e0a8453385beaa5e11d87b4eaa51f74c6fdc0079dcdfe7075d4f8502
+R d00b50ad4e925f0dc3b4801c1752b2d1
 U drh
-Z 5ba0323ae6f968f7ad2e95f8beecbfef
+Z d75cbc55d2f421449ff5481eec4dc3c0
 # Remove this line to create a well-formed Fossil manifest.
