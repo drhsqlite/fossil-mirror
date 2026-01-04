@@ -1227,6 +1227,56 @@ const char *get_version(){
   return version;
 }
 
+/* Which time function (plain, _r, _s) should be used. See sqlite3.c. */
+#if !HAVE_LOCALTIME_R && !HAVE_LOCALTIME_S \
+    && defined(_MSC_VER) && defined(_CRT_INSECURE_DEPRECATE)
+#undef  HAVE_LOCALTIME_S
+#define HAVE_LOCALTIME_S 1
+#endif
+
+/*
+** Return the UTC timestamp for the compilation time or fall back to
+** using the information provided by the compiler as-is.
+*/
+static const char *get_compilation_timestamp(){
+  static char zOut[24];
+  int mday, mon, year;
+  char zMonth[4];
+  static const char *const azMonths[] =
+    {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", 0};
+  if( 3==sscanf(__DATE__, "%3[A-Za-z] %d %d", zMonth, &mday, &year) ){
+    for( mon=0; azMonths[mon]; mon++ ){
+      if( !strncmp(azMonths[mon], zMonth, 3) ){
+        struct tm tm_loc;
+        tm_loc.tm_year = year - 1900;
+        tm_loc.tm_mon = mon;
+        tm_loc.tm_mday = mday;
+        tm_loc.tm_isdst = -1;
+        if( 3==sscanf(__TIME__, "%d:%d:%d", &tm_loc.tm_hour,
+                      &tm_loc.tm_min, &tm_loc.tm_sec) ){
+          struct tm tm_gmt, *ptm_gmt = &tm_gmt;
+          time_t tt_loc = mktime(&tm_loc);
+#if !HAVE_LOCALTIME_R && !HAVE_LOCALTIME_S
+          struct tm *pX = gmtime(&tt_loc);
+          if( pX ) *ptm_gmt = *pX;
+#else
+#if HAVE_LOCALTIME_R
+          (void)gmtime_r(&tt_loc, &tm_gmt);
+#else
+          (void)gmtime_s(ptm_gmt, &tt_loc);
+#endif /* HAVE_LOCALTIME_R */
+#endif /* HAVE_LOCALTIME_R || HAVE_LOCALTIME_S */
+          if( strftime(zOut, sizeof(zOut), "%Y-%m-%d %H:%M:%S UTC", ptm_gmt) ){
+            return zOut;
+          }
+        }
+      }
+    }
+  }
+  return __DATE__ " " __TIME__;
+}
+
 /*
 ** This function populates a blob with version information.  It is used by
 ** the "version" command and "test-version" web page.  It assumes the blob
@@ -1246,8 +1296,8 @@ void fossil_version_blob(
   blob_appendf(pOut, "This is fossil version %s\n", get_version());
   if( eVerbose<=0 ) return;
 
-  blob_appendf(pOut, "Compiled on %s %s using %s (%d-bit)\n",
-               __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
+  blob_appendf(pOut, "Compiled on %s using %s (%d-bit)\n",
+               get_compilation_timestamp(), COMPILER_NAME, sizeof(void*)*8);
   blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
                sqlite3_sourceid());
 #if defined(FOSSIL_ENABLE_SSL)
