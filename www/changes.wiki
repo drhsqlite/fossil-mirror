@@ -25,6 +25,8 @@
             [/sitemap] and thus on the hamburger menu.
        <li> The filenames for tarballs and ZIPs are now standardized to
             include a timestamp and a hash prefix.
+       <li> New "[/help/get|fossil get]" command downloads and unpacks a specific
+            check-in without having to clone the repository.
        </ol>
   <li> Timeline enhancements:<ol type="a">
        <li> A new "Simple" view is available.  This is compromise between "Verbose"
