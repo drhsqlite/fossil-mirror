@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.52.0\salpha\sversion\sfor\stesting.
-D 2026-01-05T12:37:01.952
+C Improved\s"help"\sfor\sthe\snew\s"fossil\sget"\scommand.\s\sNo\scode\schanges.
+D 2026-01-05T13:41:14.206
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -402,7 +402,7 @@ F src/captcha.c 2394e4e21d348561a95245e9d936548abed07c2151a1c3a7f8626b1e0b35c45b
 F src/cgi.c e81ac4c3a0d3e70bd786a03c54e5a9a60cbc23efb7f4241102cd870ba11adcb0
 F src/chat.c 5b6b39018559fe496641f49f199069b4a78c4c02e30630ac76ba9ea53f51ec4d
 F src/checkin.c b48a54ad461af074f7340006d52e0170b60dfcdef103b74deb19e46cfe1575e6
-F src/checkout.c 98af6eee06ef17926655361db5d30465fa0bb5e87199a37c206d16f38f33c938
+F src/checkout.c d51cc266ec993b682f1de05b5be71f3ae2542d336d7d39347eaefb18633ffd28
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
 F src/clone.c 1b14e1fe42556ec080492e77c94f50dbb047952f40ba41bd4ca1d0a154d13e15
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 97a4f26609d11e7987126df1e78c5fea13a053770e6e369e3ebefa7d825c4850
-R 69355b43d096be6021b203c62135cf39
+P 12e4a0f415a15e53454e73a3eeee4f8b1f104ca54de23fcad8e816db4a40b9e7
+R f2f43c710277ab1906b91a1f12d5157d
 U drh
-Z 1ddc690d88da135f288d114233cb91d5
+Z 3af8b300ff4ced3669b483cdfdb737fb
 # Remove this line to create a well-formed Fossil manifest.

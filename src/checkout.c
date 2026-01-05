@@ -440,34 +440,31 @@ void close_cmd(void){
 ** Usage: %fossil get URL ?VERSION? ?OPTIONS?
 **
 ** Download a single check-in from a remote repository named URL and
-** unpack all of the files locally. The check-in is identified by VERSION.
-**
-** URL can be a traditional URL like one of:
+** unpack all of the files into a subdirectory.  The specific check-in
+** to download is identified by VERSION.  If VERSION is omitted, the
+** latest trunk check-in is used.  The URL can be a traditional "https:",
+** "ssh:", or "file:" URL similar to the examples shown below, or it can
+** be the name of a local repository/
 **
 **    *   https://domain.com/project
 **    *   ssh://my-server/project.fossil
 **    *   file:/home/user/Fossils/project.fossil
 **
-** Or URL can be just the name of a local repository without the "file:"
-** prefix.
-**
 ** This command works by downloading an SQL archive of the requested
 ** check-in and then extracting all the files from the archive.
 **
 ** Options:
-**   --dest DIRECTORY         Extract files into DIRECTORY.  Use "--dest ."
-**                            to extract into the local directory.
-**
-**   -f|--force               Overwrite existing files
-**
-**   --list                   List all the files that would have been checked
-**                            out but do not actually write anything to the
-**                            filesystem.
-**
-**   --sqlar ARCHIVE          Store the check-out in an SQL-archive rather
-**                            than unpacking them into separate files.
-**
-**   -v|--verbose             Show all files as they are extracted
+**   --dest DIRECTORY   Extract files into DIRECTORY.  Use "--dest ." to
+**                      extract into the local directory.  If this option is
+**                      omitted, Fossil invents a subdirectory name derived
+**                      from base filename in the URL and from the VERSION.
+**   -f|--force         Overwrite existing files
+**   --list             List all the files that would have been checked
+**                      out but do not actually write anything to the
+**                      filesystem.
+**   --sqlar ARCHIVE    Leave the check-out in an SQL-archive named ARCHIVE
+**                      rather than unpacking into separate files.
+**   -v|--verbose       Show all files as they are extracted
 */
 void get_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;
