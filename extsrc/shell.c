@@ -3838,7 +3838,7 @@ static int cli_strncmp(const char *a, const char *b, size_t n){
 ** Unix epoch (1970-01-01T00:00:00Z)
 */
 static sqlite3_int64 timeOfDay(void){
-#if defined(_WIN64)
+#if defined(_WIN64) && _WIN32_WINNT >= _WIN32_WINNT_WIN8
   sqlite3_uint64 t;
   FILETIME tm;
   GetSystemTimePreciseAsFileTime(&tm);
@@ -13568,7 +13568,7 @@ static int zipfileGetEntry(
         );
       }else{
         aRead = (u8*)&aBlob[iOff + ZIPFILE_CDS_FIXED_SZ];
-        if( (iOff + ZIPFILE_LFH_FIXED_SZ + nFile + nExtra)>nBlob ){
+        if( (iOff + ZIPFILE_CDS_FIXED_SZ + nFile + nExtra)>nBlob ){
           rc = zipfileCorrupt(pzErr);
         }
       }
@@ -24180,7 +24180,7 @@ typedef struct Mode {
   u8 autoEQPtrace;       /* autoEQP is in trace mode */
   u8 scanstatsOn;        /* True to display scan stats before each finalize */
   u8 bAutoScreenWidth;   /* Using the TTY to determine screen width */
-  u8 mFlags;             /* MFLG_ECHO and/or MFLG_CRLF */
+  u8 mFlags;             /* MFLG_ECHO, MFLG_CRLF, etc. */
   u8 eMode;              /* One of the MODE_ values */
   sqlite3_qrf_spec spec; /* Spec to be passed into QRF */
 } Mode;
@@ -24188,6 +24188,7 @@ typedef struct Mode {
 /* Flags for Mode.mFlags */
 #define MFLG_ECHO  0x01  /* Echo inputs to output */
 #define MFLG_CRLF  0x02  /* Use CR/LF output line endings */
+#define MFLG_HDR   0x04  /* .header used to change headers on/off */
 
 
 /*
@@ -24552,7 +24553,9 @@ static void modeChange(ShellState *p, unsigned char eMode){
     if( pI->eNull ) modeSetStr(&pM->spec.zNull, aModeStr[pI->eNull]);
     pM->spec.eText = pI->eText;
     pM->spec.eBlob = pI->eBlob;
-    pM->spec.bTitles = pI->bHdr;
+    if( (pM->mFlags & MFLG_HDR)==0 ){
+      pM->spec.bTitles = pI->bHdr;
+    }
     pM->spec.eTitle = pI->eHdr;
     if( pI->mFlg & 0x01 ){
       pM->spec.bBorder = QRF_No;
@@ -31288,6 +31291,7 @@ static int dotCmdMode(ShellState *p){
         return 1;
       }
       p->mode.spec.bTitles = k>=1 ? QRF_Yes : QRF_No;
+      p->mode.mFlags &= ~MFLG_HDR;
       p->mode.spec.eTitle = k>1 ? k-1 : aModeInfo[p->mode.eMode].eHdr;
       chng = 1;
     }else if( optionMatch(z,"widths") || optionMatch(z,"width") ){
@@ -32761,6 +32765,7 @@ static int do_meta_command(const char *zLine, ShellState *p){
   if( c=='h' && cli_strncmp(azArg[0], "headers", n)==0 ){
     if( nArg==2 ){
       p->mode.spec.bTitles = booleanValue(azArg[1]) ? QRF_Yes : QRF_No;
+      p->mode.mFlags |= MFLG_HDR;
       p->mode.spec.eTitle = aModeInfo[p->mode.eMode].eHdr;
     }else{
       eputz("Usage: .headers on|off\n");
