@@ -866,7 +866,7 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
     if( content_is_private(srcid) && !content_is_private(rid) ) continue;
 
     /* Compute all ancestors of srcid and make sure rid is not one of them.
-    ** If rid is an ancestor of srcid, then making rid a descendent of srcid
+    ** If rid is an ancestor of srcid, then making rid a descendant of srcid
     ** would create a delta loop. */
     s = srcid;
     while( (s = delta_source_rid(s))>0 ){

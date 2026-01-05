@@ -1485,7 +1485,7 @@ static int timeline_is_datespan(const char *zDay){
 ** Find the first check-in encountered with a particular tag
 ** when moving either forwards are backwards in time from a
 ** particular starting point (iFrom).  Return the rid of that
-** first check-in.  If there are no check-ins in the descendent
+** first check-in.  If there are no check-ins in the descendant
 ** or ancestor set of check-in iFrom that match the tag, then
 ** return 0.
 */
@@ -1683,10 +1683,10 @@ void timeline_test_endpoint(void){
 **    dp=CHECKIN      Same as 'd=CHECKIN&p=CHECKIN'
 **    dp2=CKIN2       Same as 'd2=CKIN2&p2=CKIN2'
 **    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
-**    bt=CHECKIN      "Back To".  Show ancenstors going back to CHECKIN
+**    bt=CHECKIN      "Back To".  Show ancestors going back to CHECKIN
 **                       p=CX       ... from CX back to time of CHECKIN
 **                       from=CX    ... path from CX back to CHECKIN
-**    ft=CHECKIN      "Forward To":  Show descendents forward to CHECKIN
+**    ft=CHECKIN      "Forward To":  Show descendants forward to CHECKIN
 **                       d=CX       ... from CX up to the time of CHECKIN
 **                       from=CX    ... path from CX up to CHECKIN
 **    t=TAG           Show only check-ins with the given TAG
