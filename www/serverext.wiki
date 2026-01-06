@@ -141,7 +141,7 @@ For example, the author of this documentation page is running
 very paragraph, and presses Reload from time to time to view his
 edits.
 
-A same idea applies when developing new CGI applications using a script
+The same idea applies when developing new CGI applications using a script
 language (for example using [https://wapp.tcl.tk|Wapp]).  Run the
 command "<tt>fossil ui --extpage SCRIPT</tt>" where SCRIPT is the name
 of the application script, while editing that script in a separate

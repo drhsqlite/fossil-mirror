@@ -1,5 +1,5 @@
-C Add\sthe\snew\s"fossil\sget"\scommand\sto\sthe\s2.28\schange\slog.
-D 2026-01-05T21:00:55.099
+C Fix\sa\sdocumentation\stypo.
+D 2026-01-06T01:11:41.561
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -953,7 +953,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md d1722594f35dd00b3a51968b45c9c14cffc29816b4957daa2c2cefdfbe78ae75
 F www/server/windows/stunnel.md eb99980e32c075acd1dcd4c44bcebf2e67f3e0dba8419728beeefa2cdd8fbc3e
-F www/serverext.wiki 9f87715c2da7ff72e4ccda6661e98de7d0e7003548196638c3a17c15ba4c6e0a
+F www/serverext.wiki 0a6ef7a83eb6f1cd0d75789c1966af51a21178ec6cb7ed9e823d26451731f393
 F www/settings.wiki 16c2717030e901586fd6849d07fc85394b0e8bfaecb1d7f291c356c16f3fd5e4
 F www/shunning.wiki 2945acf2d1865cd1301402b2085527d8b23f971c9f894c6d0511dc146a8df767
 F www/signing.md 23845e739ea3b0ed50ba2d2e45da45114f4b92933f3af5e1a28f8bbf270f7271
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 692140d91745dda41c9fc8573e09208a4924cf29b27699803c1fc2cad56ee673
-R ba6859d0e49905e9b1b27e5aece26b6b
+P f83134bc9d3a65a3a537f9ffe5a042cebadb492522534beafe0f6118d19a026e
+R 6c6c52e36ec9c51c73b4a4317deee83b
 U drh
-Z 43ce2a82827fd8d7eb8fa6f6f86c2818
+Z c937e08b4cd77428ec6373be4c2db1fe
 # Remove this line to create a well-formed Fossil manifest.
