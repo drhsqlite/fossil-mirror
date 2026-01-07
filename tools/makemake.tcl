@@ -37,6 +37,7 @@
 # replacing it only here (should it ever changes) is not sufficient.
 #
 set srcDir ../src
+
 # Directory $srcDirExt houses single-file source code solutions which
 # are imported directly into the fossil source tree.
 set srcDirExt ../extsrc
@@ -207,6 +208,7 @@ set src {
 # header files must not be in this list.
 set src_ext {
   pikchr
+  tmstmpvfs
 }
 
 # Additional resource files that get built into the executable.
@@ -256,6 +258,7 @@ set SQLITE_OPTIONS {
   -DSQLITE_ENABLE_DBPAGE_VTAB
   -DSQLITE_TRUSTED_SCHEMA=0
   -DHAVE_USLEEP
+  -DSQLITE_EXTRA_INIT=sqlite3_register_tmstmpvfs
 }
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
@@ -266,6 +269,12 @@ set SQLITE_OPTIONS {
 #
 set PIKCHR_OPTIONS {
   -DPIKCHR_TOKEN_LIMIT=10000
+}
+
+# Options for the tmstmpvfs extension
+#
+set TMSTMPVFS_OPTIONS {
+  -DSQLITE_TMSTMPVFS_STATIC=1
 }
 
 # Options used to compile the included SQLite shell.
@@ -373,6 +382,7 @@ writeln [string map [list \
     <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
     <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "] \
     <<<PIKCHR_OPTIONS>>> [join $PIKCHR_OPTIONS " \\\n                "] \
+    <<<TMSTMPVFS_OPTIONS>>> [join $TMSTMPVFS_OPTIONS " \\\n                "] \
     <<<NEXT_LINE>>> \\] {
 all:	$(APPNAME)
 
@@ -439,6 +449,7 @@ SHELL_OPTIONS = <<<SHELL_OPTIONS>>>
 
 # Setup the options used to compile the included Pikchr formatter.
 PIKCHR_OPTIONS = <<<PIKCHR_OPTIONS>>>
+TMSTMPVFS_OPTIONS = <<<TMSTMPVFS_OPTIONS>>>
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0 or 1.
 # If it is set to 1, then there is no need to build or link
@@ -488,6 +499,7 @@ EXTRAOBJ = <<<NEXT_LINE>>>
  $(SQLITE3_OBJ.$(SQLITE3_ORIGIN)) <<<NEXT_LINE>>>
  $(LINENOISE_OBJ.$(USE_LINENOISE)) <<<NEXT_LINE>>>
  $(OBJDIR)/pikchr.o <<<NEXT_LINE>>>
+ $(OBJDIR)/tmstmpvfs.o <<<NEXT_LINE>>>
  $(OBJDIR)/shell.o <<<NEXT_LINE>>>
  $(OBJDIR)/th.o <<<NEXT_LINE>>>
  $(OBJDIR)/th_lang.o <<<NEXT_LINE>>>
@@ -574,6 +586,9 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 writeln [string map [list <<<NEXT_LINE>>> \\] {
 $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c $(OBJDIR)/mkversion
 	$(XTCC) $(PIKCHR_OPTIONS) -c $(SRCDIR_extsrc)/pikchr.c -o $@
+
+$(OBJDIR)/tmstmpvfs.o:	$(SRCDIR_extsrc)/tmstmpvfs.c $(OBJDIR)/mkversion
+	$(XTCC) $(TMSTMPVFS_OPTIONS) -c $(SRCDIR_extsrc)/tmstmpvfs.c -o $@
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c $(OBJDIR)/mkversion
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
@@ -1215,6 +1230,7 @@ writeln [string map [list <<<NEXT_LINE>>> \\] {
 EXTRAOBJ = <<<NEXT_LINE>>>
  $(SQLITE3_OBJ.$(SQLITE3_ORIGIN)) <<<NEXT_LINE>>>
  $(OBJDIR)/pikchr.o <<<NEXT_LINE>>>
+ $(OBJDIR)/tmstmpvfs.o <<<NEXT_LINE>>>
  $(OBJDIR)/shell.o <<<NEXT_LINE>>>
  $(OBJDIR)/th.o <<<NEXT_LINE>>>
  $(OBJDIR)/th_lang.o <<<NEXT_LINE>>>
@@ -1327,11 +1343,13 @@ lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MALLOC_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MSIZE
 
 set MINGW_PIKCHR_OPTIONS $PIKCHR_OPTIONS
+set MINGW_TMSTMPVFS_OPTIONS $TMSTMPVFS_OPTIONS
 
 set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MINGW_SQLITE_OPTIONS $j]\n"
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]\n"
 writeln "PIKCHR_OPTIONS = [join $MINGW_PIKCHR_OPTIONS $j]\n"
+writeln "TMSTMPVFS_OPTIONS = [join $MINGW_TMSTMPVFS_OPTIONS $j]\n"
 
 writeln "\$(SQLITE3_OBJ):\t\$(SQLITE3_SRC) \$(SRCDIR)/../win/Makefile.mingw"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
@@ -1355,6 +1373,9 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 
 writeln "\$(OBJDIR)/pikchr.o:\t\$(SRCDIR_extsrc)/pikchr.c"
 writeln "\t\$(XTCC) \$(PIKCHR_OPTIONS) -c \$(SRCDIR_extsrc)/pikchr.c -o \$@\n"
+
+writeln "\$(OBJDIR)/tmstmpvfs.o:\t\$(SRCDIR_extsrc)/tmstmpvfs.c"
+writeln "\t\$(XTCC) \$(TMSTMPVS_OPTIONS) -c \$(SRCDIR_extsrc)/tmstmpvfs.c -o \$@\n"
 
 close $output_file
 #
@@ -1401,6 +1422,7 @@ LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32 dnsapi
 writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }]\n"
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS { }]\n"
 writeln "PIKCHR_OPTIONS = [join $PIKCHR_OPTIONS { }]\n"
+writeln "TMSTMPVFS_OPTIONS = [join $TMSTMPVFS_OPTIONS { }]\n"
 writeln -nonewline "SRC   ="
 foreach s [lsort $src] {
   writeln -nonewline " ${s}_.c"
@@ -1849,6 +1871,10 @@ regsub -all {[-]D} [join $PIKCHR_OPTIONS { }] {/D} MSC_PIKCHR_OPTIONS
 set j " \\\n                "
 writeln "PIKCHR_OPTIONS = [join $MSC_PIKCHR_OPTIONS $j]\n"
 
+regsub -all {[-]D} [join $TMSTMPVFS_OPTIONS { }] {/D} MSC_TMSTMPVFS_OPTIONS
+set j " \\\n                "
+writeln "TMSTMPVFS_OPTIONS = [join $MSC_TMSTMPVFS_OPTIONS $j]\n"
+
 writeln -nonewline "SRC   = "
 set i 0
 foreach s [lsort $src] {
@@ -1875,7 +1901,7 @@ foreach s [lsort $extra_files] {
   writeln -nonewline "\"\$(SRCDIR)\\${s}\""; incr i
 }
 writeln "\n"
-set AdditionalObj [list shell sqlite3 th th_lang th_tcl cson_amalgamation pikchr]
+set AdditionalObj [list shell sqlite3 th th_lang th_tcl cson_amalgamation pikchr tmstmpvfs]
 writeln -nonewline "OBJ   = "
 set i 0
 foreach s [lsort [concat $src $AdditionalObj]] {
@@ -2035,6 +2061,9 @@ SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 
 "$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c"
 	$(TCC) $(PIKCHR_OPTIONS) /Fo$@ /Fd$(@D)\ -c $**
+
+"$(OX)\tmstmpvfs$O" : "$(SRCDIR_extsrc)\tmstmpvfs.c"
+	$(TCC) $(TMSTMPVFS_OPTIONS) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
 	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@

@@ -1,5 +1,5 @@
-C Fix\sa\sdocumentation\stypo.
-D 2026-01-06T01:11:41.561
+C This\sbranch\scontains\sa\sbuild\sof\sFossil\sthat\suses\sthe\stmstmpvfs\sextension.\nThe\spurpose\sof\sthis\sbranch\sis\sto\stest\sthe\stmstmpvfs\sextension.\s\sThere\sis\nno\sintent\sto\sever\sland\sthis\sbranch\snor\smake\sit\sa\spermanent\spart\sof\sFossil.
+D 2026-01-07T20:36:01.031
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -280,6 +280,7 @@ F extsrc/qrf.h 2ac14b0aaacf44636d8c81051bfeab4afae50a98fbb2e10ff5aed0c28a87b2b2
 F extsrc/shell.c d5b30e584bc05241e9ca1c211dec650b9f5ef8f9e519ef8addfbeccfcd6aca33
 F extsrc/sqlite3.c dc02ed11ca83285683cd0a157ada0c4bdfd401d2e22ead67b3a587b873aa8c21
 F extsrc/sqlite3.h 4e94bb953364cff28bc0b973130e0095b252bb747c7aead4f57d2ede5cde52c0
+F extsrc/tmstmpvfs.c 4953aa97872c67d55e22351cdf3dc3d06e81ef0f28c6105f1fae2214f3250c74
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -498,7 +499,7 @@ F src/login.c 3d3f525f1a7a6a7a7a9c1f281e672c5fa5022083a79ffe7f86129a333ca65a3f
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c 363c1f07586cf48c0eb3570e2baa39d20b1fb54d0d991fef2f2b15fb53d288b6
-F src/main.mk d3123763f11935150e0e08a7763aa4b2a72d8fe7768bd44b55d143dcf083ab13
+F src/main.mk bbbcd094c6a6e1a473b734346a532c3505bdc61130778083f24180a4ebd2d916
 F src/manifest.c 2a4c82fd116d66f80b024b0b71bbc77c1c26950114b362c599c9111a22881c41
 F src/markdown.c ea27e61986a1366839e7a70f16cd70a056352d7623797eb09372e158f6f7350b
 F src/markdown.md 459394a15e26f64b399382537fdd76a27d413dcbc09625981fe3a329d66da981
@@ -753,7 +754,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c 2d4ffaf9812b93c894010ef9071b08af0d1df2e0d947d8d35a192d24ea16bf0b
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl 39470cee25aae590abf9f94d394edfed3844fa2925ad8a59bb031e53e5995bc5 x
+F tools/makemake.tcl ce6e157c04ab0b6836f0539f2789533e5b360d47c91dedeb54b8ad734f312290 x
 F tools/man_page_command_list.tcl 8f7f2c0717cb7e2ddece0a92bd10809bb16a1d8c3aa8bf6f77f6143b9282a099 x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c ab9760d4ab795e9e04e1e730866320f9f9def3493fb1b84379c39cbf6463aba2
@@ -762,10 +763,10 @@ F tools/randomize-js-names.tcl f298b424ec278c1df2cd5333011b9cab77525ec21813e6160
 F tools/skintxt2config.c b542d5e56db4aa69100e85061db820f6b1c9734cf292bda2d67445d364a5e154
 F tools/sqlcompattest.c e55aa8c8ab4d12e10db6941f5e4f6c518209305fa2fb8903c2ffa9d6c3a183dd
 F tools/translate.c cc2165984ea592f6bb345041bc27d56b9513f03a84dec1445f254691c7ede36b
-F win/Makefile.dmc 226c6a66d1eb8598efd1c333829f258b0aac2364bf7142a961d5b3015f61676e
-F win/Makefile.mingw 4d052b80a5481b6895b02cf9971d17117d361da922382910a7af5b6c75252964
+F win/Makefile.dmc 473343090fdf4ea9eb8a114fde527842f6b1660b26d3ca1d5b130b791be925c8
+F win/Makefile.mingw 78c34cc6d8f1ca58be7f5d83a1976dc05055dfb0f86415c5aac217e65cc5070f
 F win/Makefile.mingw.mistachkin 781390cab203b926f21de517390b7323267513df67fe821ec789eebdc2ba733c
-F win/Makefile.msc a8a57dceb8518f40364804d512e7fa5015ff82d8715bddb1ee162609132058c1
+F win/Makefile.msc 588a27cc806893da37451387ee0d526e81d5beb648058b596805f5bf05fe54b5
 F win/build32.bat 59238cd3017799705054a2ec0fdc38ccc4f50edd41b7d05f06b94de1f7d7de6d
 F win/build64.bat 0eea4906007fc31d141c40918be368cda50d1f4bb7273c01672803af19328fad
 F win/buildmsvc.bat b5c945900619a63112b1483e01569241d3cb2a955099e4a46ee7eafcff9e8b6e x
@@ -980,8 +981,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f83134bc9d3a65a3a537f9ffe5a042cebadb492522534beafe0f6118d19a026e
-R 6c6c52e36ec9c51c73b4a4317deee83b
+P bd70ec5fda11e05a5b340e1459dc5f1030b7f79371bd8ad9e4b4ec7e218b5bf4
+R 455f8a24792311d9c0e3123619f034ce
+T *branch * timestamp-vfs
+T *sym-timestamp-vfs *
+T -sym-trunk *
 U drh
-Z c937e08b4cd77428ec6373be4c2db1fe
+Z 44b9c7c4d411001e8b9b00b3c6f0a379
 # Remove this line to create a well-formed Fossil manifest.

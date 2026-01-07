@@ -1111,6 +1111,7 @@ SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 EXTRAOBJ = \
  $(SQLITE3_OBJ.$(SQLITE3_ORIGIN)) \
  $(OBJDIR)/pikchr.o \
+ $(OBJDIR)/tmstmpvfs.o \
  $(OBJDIR)/shell.o \
  $(OBJDIR)/th.o \
  $(OBJDIR)/th_lang.o \
@@ -1330,6 +1331,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 	$(OBJDIR)/xsystem_.c:$(OBJDIR)/xsystem.h \
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
 	$(SRCDIR_extsrc)/pikchr.c:$(OBJDIR)/pikchr.h \
+	$(SRCDIR_extsrc)/tmstmpvfs.c:$(OBJDIR)/tmstmpvfs.h \
 	$(SRCDIR_extsrc)/sqlite3.h \
 	$(SRCDIR)/th.h \
 	$(OBJDIR)/VERSION.h
@@ -2567,6 +2569,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_DBPAGE_VTAB \
                  -DSQLITE_TRUSTED_SCHEMA=0 \
                  -DHAVE_USLEEP \
+                 -DSQLITE_EXTRA_INIT=sqlite3_register_tmstmpvfs \
                  -DSQLITE_WIN32_NO_ANSI \
                  $(MINGW_OPTIONS) \
                  -DSQLITE_USE_MALLOC_H \
@@ -2598,6 +2601,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_DBPAGE_VTAB \
                  -DSQLITE_TRUSTED_SCHEMA=0 \
                  -DHAVE_USLEEP \
+                 -DSQLITE_EXTRA_INIT=sqlite3_register_tmstmpvfs \
                  -Dmain=sqlite3_shell \
                  -DSQLITE_SHELL_IS_UTF8=1 \
                  -DSQLITE_OMIT_LOAD_EXTENSION=1 \
@@ -2610,6 +2614,8 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                  -Dfopen=fossil_fopen
 
 PIKCHR_OPTIONS = -DPIKCHR_TOKEN_LIMIT=10000
+
+TMSTMPVFS_OPTIONS = -DSQLITE_TMSTMPVFS_STATIC=1
 
 $(SQLITE3_OBJ):	$(SQLITE3_SRC) $(SRCDIR)/../win/Makefile.mingw
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
@@ -2634,4 +2640,7 @@ $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 
 $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
 	$(XTCC) $(PIKCHR_OPTIONS) -c $(SRCDIR_extsrc)/pikchr.c -o $@
+
+$(OBJDIR)/tmstmpvfs.o:	$(SRCDIR_extsrc)/tmstmpvfs.c
+	$(XTCC) $(TMSTMPVS_OPTIONS) -c $(SRCDIR_extsrc)/tmstmpvfs.c -o $@
 

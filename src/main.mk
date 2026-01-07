@@ -670,7 +670,8 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_HAVE_ZLIB \
                  -DSQLITE_ENABLE_DBPAGE_VTAB \
                  -DSQLITE_TRUSTED_SCHEMA=0 \
-                 -DHAVE_USLEEP
+                 -DHAVE_USLEEP \
+                 -DSQLITE_EXTRA_INIT=sqlite3_register_tmstmpvfs
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -DNDEBUG=1 \
@@ -699,6 +700,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_ENABLE_DBPAGE_VTAB \
                 -DSQLITE_TRUSTED_SCHEMA=0 \
                 -DHAVE_USLEEP \
+                -DSQLITE_EXTRA_INIT=sqlite3_register_tmstmpvfs \
                 -Dmain=sqlite3_shell \
                 -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
@@ -708,6 +710,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
 
 # Setup the options used to compile the included Pikchr formatter.
 PIKCHR_OPTIONS = -DPIKCHR_TOKEN_LIMIT=10000
+TMSTMPVFS_OPTIONS = -DSQLITE_TMSTMPVFS_STATIC=1
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0 or 1.
 # If it is set to 1, then there is no need to build or link
@@ -756,6 +759,7 @@ EXTRAOBJ = \
  $(SQLITE3_OBJ.$(SQLITE3_ORIGIN)) \
  $(LINENOISE_OBJ.$(USE_LINENOISE)) \
  $(OBJDIR)/pikchr.o \
+ $(OBJDIR)/tmstmpvfs.o \
  $(OBJDIR)/shell.o \
  $(OBJDIR)/th.o \
  $(OBJDIR)/th_lang.o \
@@ -935,6 +939,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/xsystem_.c:$(OBJDIR)/xsystem.h \
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
 	$(SRCDIR_extsrc)/pikchr.c:$(OBJDIR)/pikchr.h \
+	$(SRCDIR_extsrc)/tmstmpvfs.c:$(OBJDIR)/tmstmpvfs.h \
 	$(SRCDIR_extsrc)/sqlite3.h \
 	$(SRCDIR)/th.h \
 	$(OBJDIR)/VERSION.h 
@@ -2169,6 +2174,9 @@ $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 
 $(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c $(OBJDIR)/mkversion
 	$(XTCC) $(PIKCHR_OPTIONS) -c $(SRCDIR_extsrc)/pikchr.c -o $@
+
+$(OBJDIR)/tmstmpvfs.o:	$(SRCDIR_extsrc)/tmstmpvfs.c $(OBJDIR)/mkversion
+	$(XTCC) $(TMSTMPVFS_OPTIONS) -c $(SRCDIR_extsrc)/tmstmpvfs.c -o $@
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c $(OBJDIR)/mkversion
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@

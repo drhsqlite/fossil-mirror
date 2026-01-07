@@ -325,6 +325,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_ENABLE_DBPAGE_VTAB \
                  /DSQLITE_TRUSTED_SCHEMA=0 \
                  /DHAVE_USLEEP \
+                 /DSQLITE_EXTRA_INIT=sqlite3_register_tmstmpvfs \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /DNDEBUG=1 \
@@ -353,6 +354,7 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /DSQLITE_ENABLE_DBPAGE_VTAB \
                 /DSQLITE_TRUSTED_SCHEMA=0 \
                 /DHAVE_USLEEP \
+                /DSQLITE_EXTRA_INIT=sqlite3_register_tmstmpvfs \
                 /Dmain=sqlite3_shell \
                 /DSQLITE_SHELL_IS_UTF8=1 \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
@@ -365,6 +367,8 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /Dfopen=fossil_fopen
 
 PIKCHR_OPTIONS = /DPIKCHR_TOKEN_LIMIT=10000
+
+TMSTMPVFS_OPTIONS = /DSQLITE_TMSTMPVFS_STATIC=1
 
 SRC   = "$(OX)\add_.c" \
         "$(OX)\ajax_.c" \
@@ -516,7 +520,8 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\xfersetup_.c" \
         "$(OX)\xsystem_.c" \
         "$(OX)\zip_.c" \
-        "$(SRCDIR_extsrc)\pikchr.c"
+        "$(SRCDIR_extsrc)\pikchr.c" \
+        "$(SRCDIR_extsrc)\tmstmpvfs.c"
 
 EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\..\extsrc\pikchr.js" \
@@ -773,6 +778,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\timeline$O" \
         "$(OX)\tkt$O" \
         "$(OX)\tktsetup$O" \
+        "$(OX)\tmstmpvfs$O" \
         "$(OX)\undo$O" \
         "$(OX)\unicode$O" \
         "$(OX)\unversioned$O" \
@@ -1025,6 +1031,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\timeline.obj" >> $@
 	echo "$(OX)\tkt.obj" >> $@
 	echo "$(OX)\tktsetup.obj" >> $@
+	echo "$(OX)\tmstmpvfs.obj" >> $@
 	echo "$(OX)\undo.obj" >> $@
 	echo "$(OX)\unicode.obj" >> $@
 	echo "$(OX)\unversioned.obj" >> $@
@@ -1090,6 +1097,9 @@ SQLITE3_SRC = $(SRCDIR_extsrc)\sqlite3.c
 
 "$(OX)\pikchr$O" : "$(SRCDIR_extsrc)\pikchr.c"
 	$(TCC) $(PIKCHR_OPTIONS) /Fo$@ /Fd$(@D)\ -c $**
+
+"$(OX)\tmstmpvfs$O" : "$(SRCDIR_extsrc)\tmstmpvfs.c"
+	$(TCC) $(TMSTMPVFS_OPTIONS) /Fo$@ /Fd$(@D)\ -c $**
 
 "$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
 	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@
@@ -2327,6 +2337,7 @@ realclean: clean
 			"$(OX)\xsystem_.c":"$(OX)\xsystem.h" \
 			"$(OX)\zip_.c":"$(OX)\zip.h" \
 			"$(SRCDIR_extsrc)\pikchr.c":"$(OX)\pikchr.h" \
+			"$(SRCDIR_extsrc)\tmstmpvfs.c":"$(OX)\tmstmpvfs.h" \
 			"$(SRCDIR_extsrc)\sqlite3.h" \
 			"$(SRCDIR)\th.h" \
 			"$(OX)\VERSION.h" \
