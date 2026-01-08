@@ -1,5 +1,5 @@
-C This\sbranch\scontains\sa\sbuild\sof\sFossil\sthat\suses\sthe\stmstmpvfs\sextension.\nThe\spurpose\sof\sthis\sbranch\sis\sto\stest\sthe\stmstmpvfs\sextension.\s\sThere\sis\nno\sintent\sto\sever\sland\sthis\sbranch\snor\smake\sit\sa\spermanent\spart\sof\sFossil.
-D 2026-01-07T20:36:01.031
+C Update\sthe\sbuiltin\sSQLite\sto\sthe\slatest\strunk\scheck-in,\sto\scapture\nimprovements.
+D 2026-01-08T15:32:14.104
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -277,10 +277,10 @@ F extsrc/pikchr.c 4b92b8d54ac4d523be034f8da8ffee92d2ecca18690b0b3f54fab4d7481553
 F extsrc/pikchr.js 9db23c4d8b68d86686b903bd4b5e5a7bf8dd97f0b5157377f4ac2bc2448f4859
 F extsrc/pikchr.wasm 5dcce2f7eb59441fd8fcb62a57644b86a04d339cdafb662967ae195885f33d5b
 F extsrc/qrf.h 2ac14b0aaacf44636d8c81051bfeab4afae50a98fbb2e10ff5aed0c28a87b2b2
-F extsrc/shell.c d5b30e584bc05241e9ca1c211dec650b9f5ef8f9e519ef8addfbeccfcd6aca33
-F extsrc/sqlite3.c dc02ed11ca83285683cd0a157ada0c4bdfd401d2e22ead67b3a587b873aa8c21
-F extsrc/sqlite3.h 4e94bb953364cff28bc0b973130e0095b252bb747c7aead4f57d2ede5cde52c0
-F extsrc/tmstmpvfs.c 4953aa97872c67d55e22351cdf3dc3d06e81ef0f28c6105f1fae2214f3250c74
+F extsrc/shell.c dfbc049a188d6f94f17b4f441481880e460d38784bd0f38e5f71f855581be938
+F extsrc/sqlite3.c 3a468820e9168d636eaade28be0b31558ce8e897ad29bcf7f5e071ffa1bd4e9f
+F extsrc/sqlite3.h 7f4f39da2ac227b490cf27a1aa393148321e6dd3e0d6fe841133213d1b778ee4
+F extsrc/tmstmpvfs.c ff66db6b88bc5bd011d5a92e8f5e35af93499d4d615330ab14a61a23ce5c7856
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -981,11 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bd70ec5fda11e05a5b340e1459dc5f1030b7f79371bd8ad9e4b4ec7e218b5bf4
-R 455f8a24792311d9c0e3123619f034ce
-T *branch * timestamp-vfs
-T *sym-timestamp-vfs *
-T -sym-trunk *
+P e4685667af0cb56054021fd2a1dd0489b88ed526a17f1ca1fe96fab87fa7b8a5
+R 60f2e9734a243a294ac4b933dbce1217
 U drh
-Z 44b9c7c4d411001e8b9b00b3c6f0a379
+Z 5e10382335ea9ae0f49d2ae529ea008b
 # Remove this line to create a well-formed Fossil manifest.
