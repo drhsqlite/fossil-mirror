@@ -753,11 +753,12 @@ int http_exchange(
                      iRecvLen, iLength);
       goto write_err;
     }
-  }else if( closeConnection ){
+  }else{
     /* Read content until end-of-file */
     int iRecvLen;         /* Received length of the reply payload */
     unsigned int nReq = 1000;
     unsigned int nPrior = 0;
+    closeConnection = 1;
     do{
       nReq *= 2;
       blob_resize(pReply, nPrior+nReq);
@@ -768,11 +769,6 @@ int http_exchange(
     if( mHttpFlags & HTTP_VERBOSE ){
       fossil_print("Reply received: %u bytes (w/o content-length)\n", nPrior);
     }
-  }else{
-    assert( iLength<0 && !closeConnection );
-    if( mHttpFlags & HTTP_QUIET ) goto write_err;
-    fossil_warning("\"content-length\" missing from %d keep-alive reply", rc);
-    goto write_err;
   }
   if( isError ){
     char *z;
