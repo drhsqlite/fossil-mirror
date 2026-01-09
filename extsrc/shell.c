@@ -81,6 +81,10 @@ typedef unsigned short int u16;
 ** and this build mode rewires the user input subsystem to account for
 ** that.
 */
+#if defined(SQLITE_SHELL_FIDDLE)
+# undef SQLITE_OMIT_LOAD_EXTENSION
+# define SQLITE_OMIT_LOAD_EXTENSION 1
+#endif
 
 /*
 ** Warning pragmas copied from msvc.h in the core.
@@ -997,6 +1001,15 @@ static void qrfOom(Qrf *p){
   qrfError(p, SQLITE_NOMEM, "out of memory");
 }
 
+/*
+** Transfer any error in pStr over into p.
+*/
+static void qrfStrErr(Qrf *p, sqlite3_str *pStr){
+  int rc = pStr ? sqlite3_str_errcode(pStr) : 0;
+  if( rc ){
+    qrfError(p, rc, sqlite3_errstr(rc));
+  }
+}
 
 
 /*
@@ -1219,7 +1232,9 @@ static void qrfEqpStats(Qrf *p){
       qrfEqpAppend(p, iId, iPid, zo);
     }
   }
+  qrfStrErr(p, pLine);
   sqlite3_free(sqlite3_str_finish(pLine));
+  qrfStrErr(p, pStats);
   sqlite3_free(sqlite3_str_finish(pStats));
 #endif
 }
@@ -2733,6 +2748,7 @@ static void qrfColumnar(Qrf *p){
       pStr = sqlite3_str_new(p->db);
       qrfEncodeText(p, pStr, z ? z : "");
       n = sqlite3_str_length(pStr);
+      qrfStrErr(p, pStr);
       z = data.az[data.n] = sqlite3_str_finish(pStr);
       if( p->spec.nTitleLimit ){
         nNL = 0;
@@ -2760,6 +2776,7 @@ static void qrfColumnar(Qrf *p){
       pStr = sqlite3_str_new(p->db);
       qrfRenderValue(p, pStr, i);
       n = sqlite3_str_length(pStr);
+      qrfStrErr(p, pStr);
       z = data.az[data.n] = sqlite3_str_finish(pStr);
       data.abNum[data.n] = eType==SQLITE_INTEGER || eType==SQLITE_FLOAT;
       data.aiWth[data.n] = w = qrfDisplayWidth(z, n, &nNL);
@@ -2914,7 +2931,7 @@ static void qrfColumnar(Qrf *p){
   }else{
     bRTrim = 0;
   }
-  for(i=0; i<data.n; i+=nColumn){
+  for(i=0; i<data.n && sqlite3_str_errcode(p->pOut)==SQLITE_OK; i+=nColumn){
     int bMore;
     int nRow = 0;
 
@@ -3101,7 +3118,7 @@ static void qrfExplain(Qrf *p){
   assert( 0==sqlite3_stricmp( sqlite3_column_name(p->pStmt, 2), "p1" ) );
   assert( 0==sqlite3_stricmp( sqlite3_column_name(p->pStmt, 3), "p2" ) );
 
-  for(iOp=0; SQLITE_ROW==sqlite3_step(p->pStmt); iOp++){
+  for(iOp=0; SQLITE_ROW==sqlite3_step(p->pStmt) && !p->iErr; iOp++){
     int iAddr = sqlite3_column_int(p->pStmt, 0);
     const char *zOp = (const char*)sqlite3_column_text(p->pStmt, 1);
     int p1 = sqlite3_column_int(p->pStmt, 2);
@@ -3158,7 +3175,7 @@ static void qrfExplain(Qrf *p){
     }
     if( nArg>nWidth ) nArg = nWidth;
 
-    for(iOp=0; sqlite3_step(p->pStmt)==SQLITE_ROW; iOp++){
+    for(iOp=0; sqlite3_step(p->pStmt)==SQLITE_ROW && !p->iErr; iOp++){
       /* If this is the first row seen, print out the headers */
       if( iOp==0 ){
         for(i=0; i<nArg; i++){
@@ -3414,6 +3431,7 @@ static void qrfOneSimpleRow(Qrf *p){
         }while( zVal[0] );
         sqlite3_str_reset(pVal);
       }
+      qrfStrErr(p, pVal);
       sqlite3_free(sqlite3_str_finish(pVal));
       qrfWrite(p);
       break;
@@ -3477,7 +3495,7 @@ static void qrfInitialize(
     qrfOom(p);
     return;
   }
-  p->iErr = 0;
+  p->iErr = SQLITE_OK;
   p->nCol = sqlite3_column_count(p->pStmt);
   p->nRow = 0;
   sz = sizeof(sqlite3_qrf_spec);
@@ -3655,6 +3673,7 @@ static void qrfFinalize(Qrf *p){
       break;
     }
   }
+  qrfStrErr(p, p->pOut);
   if( p->spec.pzOutput ){
     if( p->spec.pzOutput[0] ){
       sqlite3_int64 n, sz;
@@ -9477,7 +9496,7 @@ int sqlite3_series_init(
 **     ^X      X occurring at the beginning of the string
 **     X$      X occurring at the end of the string
 **     .       Match any single character
-**     \c      Character c where c is one of \{}()[]|*+?.
+**     \c      Character c where c is one of \{}()[]|*+?-.
 **     \c      C-language escapes for c in afnrtv.  ex: \t or \n
 **     \uXXXX  Where XXXX is exactly 4 hex digits, unicode value XXXX
 **     \xXX    Where XX is exactly 2 hex digits, unicode value XX
@@ -9862,7 +9881,7 @@ static int re_hex(int c, int *pV){
 ** return its interpretation.
 */
 static unsigned re_esc_char(ReCompiled *p){
-  static const char zEsc[] = "afnrtv\\()*.+?[$^{|}]";
+  static const char zEsc[] = "afnrtv\\()*.+?[$^{|}]-";
   static const char zTrans[] = "\a\f\n\r\t\v";
   int i, v = 0;
   char c;
@@ -33532,13 +33551,15 @@ static int do_meta_command(const char *zLine, ShellState *p){
                   || sqlite3_strlike(zName,"sqlite_temp_schema", '\\')==0;
       if( isSchema ){
         cli_printf(p->out,
-                      "CREATE TABLE %s (\n"
+                      "CREATE TABLE %ssqlite_schema (\n"
                       "  type text,\n"
                       "  name text,\n"
                       "  tbl_name text,\n"
                       "  rootpage integer,\n"
                       "  sql text\n"
-                      ");\n", zName);
+                      ");\n",
+               sqlite3_strlike("sqlite_t%",zName,0)==0 ? "temp." : ""
+        );
       }
     }
     rc = sqlite3_prepare_v2(p->db, "PRAGMA database_list", -1, &pStmt, 0);
@@ -33598,7 +33619,7 @@ static int do_meta_command(const char *zLine, ShellState *p){
       }
     }
     if( bNoSystemTabs ){
-      sqlite3_str_appendf(pSql, " name NOT LIKE 'sqlite__%%' ESCALE '_' AND ");
+      sqlite3_str_appendf(pSql, " name NOT LIKE 'sqlite__%%' ESCAPE '_' AND ");
     }
     sqlite3_str_appendf(pSql, "sql IS NOT NULL ORDER BY snum, rowid");
     if( bDebug ){
@@ -36142,7 +36163,26 @@ int SQLITE_CDECL main(int argc, char **argv){
     sqlite3_vfs *pVfs = sqlite3_vfs_find(zVfs);
     if( pVfs ){
       sqlite3_vfs_register(pVfs, 1);
-    }else{
+    }
+#if !defined(SQLITE_OMIT_LOAD_EXTENSION)
+    else if( access(zVfs,0)==0 ){
+      /* If the VFS name is not the name of an existing VFS, but it is
+      ** the name of a file, then try to load that file as an extension.
+      ** Presumably the extension implements the desired VFS. */
+      sqlite3 *db = 0;
+      char *zErr = 0;
+      sqlite3_open(":memory:", &db);
+      sqlite3_enable_load_extension(db, 1);
+      rc = sqlite3_load_extension(db, zVfs, 0, &zErr);
+      sqlite3_close(db);
+      if( (rc&0xff)!=SQLITE_OK ){
+        cli_printf(stderr, "could not load extension VFS \"%s\": %s\n",
+                   zVfs, zErr);
+        exit(1);
+      }
+    }
+#endif
+    else{
       cli_printf(stderr,"no such VFS: \"%s\"\n", zVfs);
       exit(1);
     }
