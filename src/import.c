@@ -570,8 +570,8 @@ static void git_fast_import(FILE *pIn){
       **   (B)  refs/tags/TAGNAME
       **
       ** If pattern A is used, then the branchname used is as shown.
-      ** Except, the "master" branch which is the default branch name in
-      ** Git is changed to "trunk" which is the default name in Fossil.
+      ** Except, the "master" branch which is the default branch name in Git
+      ** is changed to the default main branch name in Fossil (usually "trunk")
       ** If the pattern is B, then the new commit should be on the same
       ** branch as its parent.  And, we might need to add the TAGNAME
       ** tag to the new commit.  However, if there are multiple instances
@@ -1265,6 +1265,7 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
 static int svn_parse_path(char *zPath, char **zFile, int *type){
   char *zBranch = 0;
   int branchId = 0;
+  const char *zMainBranch;
   if( gsvn.azIgnTree ){
     const char **pzIgnTree;
     unsigned nPath = strlen(zPath);
@@ -1279,14 +1280,15 @@ static int svn_parse_path(char *zPath, char **zFile, int *type){
   }
   *type = SVN_UNKNOWN;
   *zFile = 0;
+  zMainBranch = db_main_branch();
   if( gsvn.lenTrunk==0 ){
-    zBranch = "trunk";
+    zBranch = fossil_strdup(zMainBranch);
     *zFile = zPath;
     *type = SVN_TRUNK;
   }else
   if( strncmp(zPath, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
     if( zPath[gsvn.lenTrunk-1]=='/' || zPath[gsvn.lenTrunk-1]==0 ){
-      zBranch = "trunk";
+      zBranch = fossil_strdup(zMainBranch);
       *zFile = zPath+gsvn.lenTrunk;
       *type = SVN_TRUNK;
     }else{
@@ -1772,7 +1774,7 @@ void import_cmd(void){
     }
   }
   if( !(gimport.zTrunkName = find_option("rename-trunk", 0, 1)) ){
-    gimport.zTrunkName = "trunk";
+    gimport.zTrunkName = fossil_strdup(db_main_branch());
   }
 
   if( svnFlag ){

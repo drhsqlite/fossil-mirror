@@ -1,6 +1,6 @@
 # The "fossil patch" command
 
-The "[fossil patch](/help?cmd=patch)" command is designed to transfer
+The "[fossil patch](/help/patch)" command is designed to transfer
 uncommitted changes from one check-out to another, including transfering
 those changes to other machines.
 

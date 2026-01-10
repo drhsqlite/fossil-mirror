@@ -2217,7 +2217,7 @@ void test_unclusterd_cmd(void){
 **                      source is a phantom.
 **   --list             Just list the phantoms.  Do not try to describe them.
 */
-void test_phatoms_cmd(void){
+void test_phantoms_cmd(void){
   int bDelta;
   int bList;
   int bCount;

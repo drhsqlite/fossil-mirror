@@ -723,16 +723,22 @@ function TimelineGraph(tx){
     var x = document.getElementById(id);
     if(x) x.style.display=value;
   }
-  function toggleDetail(){
+  function toggleDetail(evt){
+    /* Ignore clicks to hyperlinks and other "click-responsive" HTML elements.
+    ** This click-handler is set for <SPAN> elements with the CSS class names
+    ** "timelineEllipsis" and "timelineCompactComment", which are part of the
+    ** "Compact" and "Simple" views. */
+    var xClickyHTML = /^(?:A|AREA|BUTTON|INPUT|LABEL|SELECT|TEXTAREA|DETAILS)$/;
+    if( xClickyHTML.test(evt.target.tagName) ) return;
     var id = parseInt(this.getAttribute('data-id'))
     var x = document.getElementById("detail-"+id);
     if( x.style.display=="inline" ){
       x.style.display="none";
-      changeDisplayById("ellipsis-"+id,"inline");
+      document.getElementById("ellipsis-"+id).textContent = "...";
       changeDisplayById("links-"+id,"none");
     }else{
       x.style.display="inline";
-      changeDisplayById("ellipsis-"+id,"none");
+      document.getElementById("ellipsis-"+id).textContent = "←";
       changeDisplayById("links-"+id,"inline");
     }
     checkHeight();
@@ -766,17 +772,21 @@ function TimelineGraph(tx){
     scrollToSelected();
   }
 
-  /* Set the onclick= attributes for elements of the "Compact" display
-  ** mode so that clicking turns the details on and off.
+  /* Set the onclick= attributes for elements of the "Compact" and
+  ** "Simple" views so that clicking turns the details on and off.
   */
   var lx = topObj.getElementsByClassName('timelineEllipsis');
   var i;
   for(i=0; i<lx.length; i++){
-    if( lx[i].hasAttribute('data-id') ) lx[i].onclick = toggleDetail;
+    if( lx[i].hasAttribute('data-id') ){
+      lx[i].addEventListener('click',toggleDetail);
+    }
   }
   lx = topObj.getElementsByClassName('timelineCompactComment');
   for(i=0; i<lx.length; i++){
-    if( lx[i].hasAttribute('data-id') ) lx[i].onclick = toggleDetail;
+    if( lx[i].hasAttribute('data-id') ){
+      lx[i].addEventListener('click',toggleDetail);
+    }
   }
   if( window.innerWidth<400 ){
     /* On narrow displays, shift the date from the first column to the

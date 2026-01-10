@@ -1031,7 +1031,7 @@ static int thEvalLocal(Th_Interp *interp, const char *zProgram, int nProgram){
 **     calling procedure.
 **
 **   * If iFrame is +ve, then the nth frame from the bottom of the
-**     stack. An iFrame value of 1 means the toplevel (global) frame.
+**     stack. An iFrame value of 1 means the top level (global) frame.
 */
 static Th_Frame *getFrame(Th_Interp *interp, int iFrame){
   Th_Frame *p = interp->pFrame;

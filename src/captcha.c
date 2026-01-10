@@ -511,7 +511,7 @@ unsigned int captcha_seed(void){
   return x;
 }
 
-/* The SQL that will rotate the the captcha-secret. */
+/* The SQL that will rotate the captcha-secret. */
 static const char captchaSecretRotationSql[] = 
 @ SAVEPOINT rotate;
 @ DELETE FROM config
@@ -531,7 +531,7 @@ static const char captchaSecretRotationSql[] =
 
 /*
 ** Create a new random captcha-secret.  Rotate the old one into
-** the captcha-secret-N backups.  Purge captch-secret-N backups
+** the captcha-secret-N backups.  Purge captcha-secret-N backups
 ** older than 6 hours.
 **
 ** Do this on the current database and in all other databases of
@@ -561,7 +561,7 @@ void captcha_secret_rotate(void){
 
 /*
 ** Return the value of the N-th more recent captcha-secret.  The
-** most recent captch-secret is 0.  Others are prior captcha-secrets
+** most recent captcha-secret is 0.  Others are prior captcha-secrets
 ** that have expired, but are retained for a limited period of time
 ** so that pending anonymous login cookies and/or captcha dialogs
 ** don't malfunction when the captcha-secret changes.

@@ -132,10 +132,10 @@ static Search *search_init(
     p = fossil_malloc(sizeof(*p));
     memset(p, 0, sizeof(*p));
   }
-  p->zPattern = z = fossil_strdup(zPattern);
-  p->zMarkBegin = fossil_strdup(zMarkBegin);
-  p->zMarkEnd = fossil_strdup(zMarkEnd);
-  p->zMarkGap = fossil_strdup(zMarkGap);
+  p->zPattern = z = mprintf("%s",zPattern);
+  p->zMarkBegin = mprintf("%s",zMarkBegin);
+  p->zMarkEnd = mprintf("%s",zMarkEnd);
+  p->zMarkGap = mprintf("%s",zMarkGap);
   p->fSrchFlg = fSrchFlg;
   blob_init(&p->snip, 0, 0);
   while( *z && p->nTerm<SEARCH_MAX_TERM ){
@@ -591,7 +591,7 @@ void search_sql_setup(sqlite3 *db){
 **
 ** Options:
 **     -a|--all          Search everything
-**     -c|--checkins     Search checkin comments
+**     -c|--checkins     Search check-in comments
 **     --docs            Search embedded documentation
 **     --forum           Search forum posts
 **     -h|--bi-help      Search built-in help
@@ -854,7 +854,8 @@ LOCAL void search_fullscan(
           SRCHFLG_STATIC|SRCHFLG_HTML);
   if( (srchFlags & SRCH_DOC)!=0 ){
     char *zDocGlob = db_get("doc-glob","");
-    char *zDocBr = db_get("doc-branch","trunk");
+    const char *zMainBranch = db_main_branch();
+    char *zDocBr = db_get("doc-branch", zMainBranch);
     if( zDocGlob && zDocGlob[0] && zDocBr && zDocBr[0] ){
       Glob * pGlob = glob_create(zDocBr)
         /* We're misusing a Glob as a list of comma-/space-delimited
@@ -985,7 +986,7 @@ LOCAL void search_fullscan(
     db_multi_exec(
       "INSERT INTO x(label,url,score,id,snip)"
       "  SELECT format('%q \"%%s\" %%s',name,type),"
-      "         '/help?cmd='||name,"
+      "         '/help/'||name,"
       "         search_score(),"
       "         'h'||rowid,"
       "         search_snippet()"
@@ -1078,7 +1079,7 @@ static void search_rank_sqlfunc(
 ** result to fossil_free().
 */
 char *search_simplify_pattern(const char * zPattern){
-  char *zPat = fossil_strdup(zPattern);
+  char *zPat = mprintf("%s",zPattern);
   int i;
   for(i=0; zPat[i]; i++){
     if( (zPat[i]&0x80)==0 && !fossil_isalnum(zPat[i]) ) zPat[i] = ' ';
@@ -1988,7 +1989,8 @@ void search_doc_touch(char cType, int rid, const char *zName){
 ** changed.
 */
 static void search_update_doc_index(void){
-  const char *zDocBranches = db_get("doc-branch","trunk");
+  const char *zMainBranch = db_main_branch();
+  const char *zDocBranches = db_get("doc-branch", zMainBranch);
   int i;
   Glob * pGlob = glob_create(zDocBranches)
     /* We're misusing a Glob as a list of comma-/space-delimited
@@ -2865,7 +2867,7 @@ static void fts5MatchinfoFunc(
   if( rc!=SQLITE_OK ){
     sqlite3_result_error_code(pCtx, rc);
   }else{
-    /* No errors has occured, so return a copy of the array of integers. */
+    /* No error has occurred, so return a copy of the array of integers. */
     int nByte = p->nRet * sizeof(u32);
     sqlite3_result_blob(pCtx, (void*)p->aRet, nByte, SQLITE_TRANSIENT);
   }

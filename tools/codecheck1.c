@@ -445,7 +445,7 @@ static int fmtfunc_cmp(const void *pAA, const void *pBB){
 }
 
 /*
-** Determine if the indentifier zIdent of length nIndent is a Fossil
+** Determine if the identifier zIdent of length nIndent is a Fossil
 ** internal interface that uses a printf-style argument.  Return zero if not.
 ** Return the index of the format string if true with the left-most
 ** argument having an index of 1.

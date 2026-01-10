@@ -143,11 +143,18 @@ static void http_build_header(
   const char *zAltMimetype     /* Alternative mimetype */
 ){
   int nPayload = pPayload ? blob_size(pPayload) : 0;
+  const char *zPath;
 
   blob_zero(pHdr);
+  if( g.url.subpath ){
+    zPath = g.url.subpath;
+  }else if( g.url.path==0 || g.url.path[0]==0 ){
+    zPath = "/";
+  }else{
+    zPath = g.url.path;
+  }
   blob_appendf(pHdr, "%s %s HTTP/1.0\r\n",
-               nPayload>0 ? "POST" : "GET",
-               (g.url.path && g.url.path[0]) ? g.url.path : "/");
+               nPayload>0 ? "POST" : "GET", zPath);
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
   }
@@ -241,7 +248,7 @@ char *prompt_for_httpauth_creds(void){
 }
 
 /*
-** Send content pSend to the the server identified by g.url using the
+** Send content pSend to the server identified by g.url using the
 ** external program given by g.zHttpCmd.  Capture the reply from that
 ** program and load it into pReply.
 **
@@ -348,7 +355,7 @@ void test_ssh_needs_path(void){
   }
 }
 
-/* Add an approprate PATH= argument to the SSH command under construction
+/* Add an appropriate PATH= argument to the SSH command under construction
 ** in pCmd.
 **
 ** About This Feature
@@ -461,6 +468,7 @@ int http_exchange(
   */
   if( g.url.isSsh
    && (g.url.flags & URL_SSH_RETRY)==0
+   && g.db!=0
    && ssh_needs_path_argument(g.url.hostname, -1)
   ){
     g.url.flags |= URL_SSH_PATH;
@@ -575,7 +583,9 @@ int http_exchange(
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
-        fossil_warning("server says: %s", &zLine[ii]);
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("server says: %s", &zLine[ii]);
+        }
         goto write_err;
       }
       if( iHttpVersion==0 ){
@@ -610,7 +620,9 @@ int http_exchange(
       int priorUrlFlags;
 
       if ( --maxRedirect == 0){
-        fossil_warning("redirect limit exceeded");
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("redirect limit exceeded");
+        }
         goto write_err;
       }
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
@@ -627,19 +639,25 @@ int http_exchange(
         fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
       }
       if( g.url.isFile || g.url.isSsh ){
-        fossil_warning("cannot redirect from %s to %s", g.url.canonical,
-                       &zLine[i]);
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("cannot redirect from %s to %s", g.url.canonical,
+                         &zLine[i]);
+        }
         goto write_err;
       }
       wasHttps = g.url.isHttps;
       priorUrlFlags = g.url.flags;
       url_parse(&zLine[i], 0);
       if( wasHttps && !g.url.isHttps ){
-        fossil_warning("cannot redirect from HTTPS to HTTP");
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("cannot redirect from HTTPS to HTTP");
+        }
         goto write_err;
       }
       if( g.url.isSsh || g.url.isFile ){
-        fossil_warning("cannot redirect to %s", &zLine[i]);
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("cannot redirect to %s", &zLine[i]);
+        }
         goto write_err;
       }
       transport_close(&g.url);
@@ -680,15 +698,17 @@ int http_exchange(
     ){
       /* Retry after flipping the SSH_PATH setting */
       transport_close(&g.url);
-      fossil_print(
-        "First attempt to run fossil on %s using SSH failed.\n"
-        "Retrying %s the PATH= argument.\n",
-        g.url.hostname,
-        (g.url.flags & URL_SSH_PATH)!=0 ? "without" : "with"
-      );
+      if( (mHttpFlags & HTTP_QUIET)==0 ){
+        fossil_print(
+          "First attempt to run fossil on %s using SSH failed.\n"
+          "Retrying %s the PATH= argument.\n",
+          g.url.hostname,
+          (g.url.flags & URL_SSH_PATH)!=0 ? "without" : "with"
+        );
+      }
       g.url.flags ^= URL_SSH_PATH|URL_SSH_RETRY;
       rc = http_exchange(pSend,pReply,mHttpFlags,0,zAltMimetype);
-      if( rc==0 ){
+      if( rc==0 && g.db!=0 ){
         (void)ssh_needs_path_argument(g.url.hostname,
                                 (g.url.flags & URL_SSH_PATH)!=0);
       }
@@ -696,7 +716,9 @@ int http_exchange(
     }else{
       /* The problem could not be corrected by retrying.  Report the
       ** the error. */
-      if( g.url.isSsh && !g.fSshTrace ){
+      if( mHttpFlags & HTTP_QUIET ){
+        /* no-op */
+      }else if( g.url.isSsh && !g.fSshTrace ){
         fossil_warning("server did not reply: "
                        " rerun with --sshtrace for diagnostics");
       }else{
@@ -706,6 +728,7 @@ int http_exchange(
     }
   }
   if( rc!=200 ){
+    if( mHttpFlags & HTTP_QUIET ) goto write_err;
     fossil_warning("\"location:\" missing from %d redirect reply", rc);
     goto write_err;
   }
@@ -725,15 +748,17 @@ int http_exchange(
       fossil_print("Reply received: %d of %d bytes\n", iRecvLen, iLength);
     }
     if( iRecvLen != iLength ){
+      if( mHttpFlags & HTTP_QUIET ) goto write_err;
       fossil_warning("response truncated: got %d bytes of %d",
                      iRecvLen, iLength);
       goto write_err;
     }
-  }else if( closeConnection ){
+  }else{
     /* Read content until end-of-file */
     int iRecvLen;         /* Received length of the reply payload */
     unsigned int nReq = 1000;
     unsigned int nPrior = 0;
+    closeConnection = 1;
     do{
       nReq *= 2;
       blob_resize(pReply, nPrior+nReq);
@@ -744,9 +769,6 @@ int http_exchange(
     if( mHttpFlags & HTTP_VERBOSE ){
       fossil_print("Reply received: %u bytes (w/o content-length)\n", nPrior);
     }
-  }else{
-    assert( iLength<0 && !closeConnection );
-    fossil_warning("\"content-length\" missing from %d keep-alive reply", rc);
   }
   if( isError ){
     char *z;
@@ -760,7 +782,13 @@ int http_exchange(
       z[j] = z[i];
     }
     z[j] = 0;
-    fossil_warning("server sends error: %s", z);
+    if( mHttpFlags & HTTP_QUIET ){
+      /* no-op */
+    }else if( mHttpFlags & HTTP_VERBOSE ){
+      fossil_warning("server sends error: %s", z);
+    }else{
+      fossil_warning("server sends error");
+    }
     goto write_err;
   }
   if( isCompressed ) blob_uncompress(pReply, pReply);
@@ -786,6 +814,7 @@ int http_exchange(
   ** Jump to here if an error is seen.
   */
 write_err:
+  g.iResultCode = 1;
   transport_close(&g.url);
   return 1;
 }
@@ -810,6 +839,7 @@ write_err:
 **     --mimetype TYPE            Mimetype of the payload
 **     --no-cert-verify           Disable TLS cert verification
 **     --out FILE                 Store the reply in FILE
+**     --subpath PATH             HTTP request path for ssh: and file: URLs
 **     -v                         Verbose output
 **     --xfer                     PAYLOAD in a Fossil xfer protocol message
 */
@@ -817,6 +847,7 @@ void test_httpmsg_command(void){
   const char *zMimetype;
   const char *zInFile;
   const char *zOutFile;
+  const char *zSubpath;
   Blob in, out;
   unsigned int mHttpFlags = HTTP_GENERIC|HTTP_NOCOMPRESS;
 
@@ -833,7 +864,9 @@ void test_httpmsg_command(void){
     mHttpFlags |= HTTP_USE_LOGIN;
     mHttpFlags &= ~HTTP_GENERIC;
   }
-  if( find_option("ipv4",0,0) ) g.fIPv4 = 1;
+  if( find_option("ipv4",0,0) ) g.eIPvers = 1;
+  if( find_option("ipv6",0,0) ) g.eIPvers = 2;
+  zSubpath = find_option("subpath",0,1);
   verify_all_options();
   if( g.argc<3 || g.argc>5 ){
     usage("URL ?PAYLOAD? ?OUTPUT?");
@@ -848,7 +881,11 @@ void test_httpmsg_command(void){
   }
   url_parse(g.argv[2], 0);
   if( g.url.protocol[0]!='h' ){
-    fossil_fatal("the %s command supports only http: and https:", g.argv[1]);
+    if( zSubpath==0 ){
+      fossil_fatal("the --subpath option is required for %s://",g.url.protocol);
+    }else{
+      g.url.subpath = fossil_strdup(zSubpath);
+    }
   }
   if( zInFile ){
     blob_read_from_file(&in, zInFile, ExtFILE);

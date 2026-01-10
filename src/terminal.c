@@ -47,7 +47,7 @@ struct TerminalSize {
 
 /* Get the current terminal size by calling a system service.
 **
-** Return 1 on success. This sets the size parameters to the values retured by
+** Return 1 on success. This sets the size parameters to the values returned by
 ** the system call, when such is supported; set the size to zero otherwise.
 ** Return 0 on the system service call failure.
 **
@@ -125,20 +125,6 @@ unsigned int terminal_get_height(unsigned int nDefault){
     return ts.nLines;
   }
   return nDefault;
-}
-
-/*
-** COMMAND: test-terminal-size
-**
-** Show the size of the terminal window from which the command is launched
-** as two integers, the width in characters and the height in lines.
-**
-** If the size cannot be determined, two zeros are shown.
-*/
-void test_terminal_size_cmd(void){
-  TerminalSize ts;
-  terminal_get_size(&ts);
-  fossil_print("%d %d\n", ts.nColumns, ts.nLines);
 }
 
 /*

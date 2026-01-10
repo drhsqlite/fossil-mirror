@@ -170,7 +170,7 @@ int add_content_sql_commands(sqlite3 *db){
 ** method other than the "fossil sql" command.  If an attacker gains access
 ** to these functions, he will be able to disable other defense mechanisms.
 **
-** This routines are for interactiving testing only.  They are experimental
+** This routines are for interactive testing only.  They are experimental
 ** and undocumented (apart from this comments) and might go away or change
 ** in future releases.
 **
@@ -423,7 +423,7 @@ void cmd_sqlite3(void){
 #endif
   atexit(sqlcmd_atexit);
   g.zConfigDbName = zConfigDb;
-  g.argv[1] = "-quote";
+  g.argv[1] = "--noinit";
   sqlite3_shell(g.argc, g.argv);
   sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
   fossil_close(0, noRepository);

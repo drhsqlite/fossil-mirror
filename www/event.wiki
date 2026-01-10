@@ -109,7 +109,7 @@ This note describes changes in the Fossil snapshot for ...
 
 The <b>-t|--technote</b> option to the <b>export</b> subcommand takes one of
 three identifiers: <b>DATETIME</b>; <b>TECHNOTE-ID</b>; and <b>TAG</b>.
-See the [/help?cmd=wiki | wiki help] for specifics.
+See the [/help/wiki | wiki help] for specifics.
 
 Users must have check-in privileges (permission "i") in order to
 create or edit technotes.  In addition, users must have create-wiki

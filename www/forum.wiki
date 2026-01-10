@@ -374,7 +374,7 @@ repository's administrators and moderators:
 As of version 2.23, the forum interface supports the notion of
 "closing" posts. By default, only users with the [./caps/index.md|'s'
 and 'a' capabilities] may close or re-open posts, or reply to closed
-posts. If the [/help?cmd=forum-close-policy|forum-close-policy
+posts. If the [/help/forum-close-policy|forum-close-policy
 configuration option] is enabled then users with
 [./caps/index.md|forum-moderator permissions] may also perform those
 actions.

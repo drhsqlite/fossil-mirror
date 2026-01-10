@@ -50,7 +50,7 @@ struct CheckinMiniInfo {
   char *zUser;         /* User name */
   char *zDate;         /* Optionally force this date string (anything
                           supported by date_in_standard_format()).
-                          Maybe be NULL. */
+                          May be NULL. */
   Blob *pMfOut;        /* If not NULL, checkin_mini() will write a
                           copy of the generated manifest here. This
                           memory is NOT owned by CheckinMiniInfo. */
@@ -125,7 +125,7 @@ CIMINI_PREFER_DELTA = 1<<8,
 /*
 ** A "stronger hint" to checkin_mini() to prefer creation of a delta
 ** manifest if it at all can. It will decide not to only if creation
-** of a delta is not a realistic option or if it's forbitted by the
+** of a delta is not a realistic option or if it's forbidden by the
 ** forbid-delta-manifests repo config option. For this to work, it
 ** must be set together with the CIMINI_PREFER_DELTA flag, but the two
 ** cannot be combined in this enum.
@@ -402,7 +402,7 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 ** save a manifest for that change. Ownership of pCI and its contents
 ** are unchanged.
 **
-** This function may may modify pCI as follows:
+** This function may modify pCI as follows:
 **
 ** - If one of Manifest pCI->pParent or pCI->zParentUuid are NULL,
 **   then the other will be assigned based on its counterpart. Both
@@ -835,7 +835,7 @@ void test_ci_mini_cmd(void){
     if(g.localOpen/*check-out*/){
       zRevision = db_lget("checkout-hash", 0)/*leak*/;
     }else{
-      zRevision = "trunk";
+      zRevision = db_main_branch();
     }
   }
   name_to_uuid2(zRevision, "ci", &cimi.zParentUuid);

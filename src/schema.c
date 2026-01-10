@@ -261,7 +261,7 @@ const char zRepositorySchema2[] =
 @ --
 @ -- pid==0    if the file is added by check-in mid.
 @ -- pid==(-1) if the file exists in a merge parents but not in the primary
-@  --          parent.  In other words, if the file file was added by merge.
+@  --          parent.  In other words, if the file was added by merge.
 @ -- fid==0    if the file is removed by check-in mid.
 @ --
 @ CREATE TABLE mlink(
@@ -367,7 +367,7 @@ const char zRepositorySchema2[] =
 @ --
 @ -- Wiki pages are tagged with "wiki-NAME" where NAME is the name of
 @ -- the wiki page.  Tickets changes are tagged with "ticket-HASH" where
-@ -- HASH is the indentifier of the ticket.  Tags used to assign symbolic
+@ -- HASH is the identifier of the ticket.  Tags used to assign symbolic
 @ -- names to baselines are branches are of the form "sym-NAME" where
 @ -- NAME is the symbolic name.
 @ --
@@ -502,7 +502,7 @@ const char zRepositorySchema2[] =
 #if INTERFACE
 # define MT_NONE       0   /* unspecified */
 # define MT_WIKI       1   /* Wiki */
-# define MT_MARKDOWN   2   /* Markdonw */
+# define MT_MARKDOWN   2   /* Markdown */
 # define MT_UNKNOWN    3   /* unknown  */
 # define ValidMTC(X)  ((X)>=0 && (X)<=3)  /* True if MIMEtype code is valid */
 #endif
@@ -562,7 +562,9 @@ const char zLocalSchema[] =
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked-out file
 @   vid INTEGER REFERENCES blob,      -- The check-in this file is part of.
-@   chnged INT DEFAULT 0,  -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng 5:i-add
+@   chnged INT DEFAULT 0,
+@   -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng
+@   -- 5:i-add 6:+exec 7:+symlink 8:-exec 9:unlink
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted
 @   isexe BOOLEAN,                    -- True if file should be executable
 @   islink BOOLEAN,                   -- True if file should be symlink

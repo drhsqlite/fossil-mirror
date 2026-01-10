@@ -72,7 +72,7 @@ static sqlite3 *cacheOpen(int bForce){
          "key TEXT PRIMARY KEY,"     /* Key used to access the cache */
          "id INT REFERENCES blob,"   /* The cache content */
          "sz INT,"                   /* Size of content in bytes */
-         "tm INT,"                   /* Last access time (unix timestampe) */
+         "tm INT,"                   /* Last access time (unix timestamp) */
          "nref INT"                  /* Number of uses */
        ");"
        "CREATE TRIGGER IF NOT EXISTS cacheDel AFTER DELETE ON cache BEGIN"
@@ -439,7 +439,7 @@ void cache_page(void){
         @ hit-count: %d(sqlite3_column_int(pStmt,2)),
         @ last-access: %s(sqlite3_column_text(pStmt,3))Z \
         if( zHash ){
-          @ &rarr; %z(href("%R/timeline?c=%S",zHash))checkin info</a>\
+          @ &rarr; %z(href("%R/timeline?c=%S",zHash))check-in info</a>\
           fossil_free(zHash);
         }
         @ </p></li>

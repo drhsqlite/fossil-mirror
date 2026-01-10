@@ -378,7 +378,7 @@ static int safeInt(const char *z){
 **  - /reportftm's $MTIME is in Julian, not the Unix epoch.
 */
 void configure_receive(const char *zName, Blob *pContent, int groupMask){
-  int checkMask;   /* Masks for which we must first check existance of tables */
+  int checkMask;   /* Masks for which we must first check existence of tables */
 
   checkMask = CONFIGSET_SCRIBER;
   if( zName[0]=='/' ){

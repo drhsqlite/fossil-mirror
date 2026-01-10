@@ -954,7 +954,7 @@ void ci_page(void){
     return;
   }
   zRe = P("regex");
-  if( zRe ) re_compile(&pRe, zRe, 0);
+  if( zRe ) fossil_re_compile(&pRe, zRe, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zParent = db_text(0,
     "SELECT uuid FROM plink, blob"
@@ -1011,30 +1011,19 @@ void ci_page(void){
 
     /* The Download: line */
     if( g.perm.Zip  ){
-      char *zPJ = db_get("short-project-name", 0);
-      char *zUrl;
-      Blob projName;
-      int jj;
-      if( zPJ==0 ) zPJ = db_get("project-name", "unnamed");
-      blob_zero(&projName);
-      blob_append(&projName, zPJ, -1);
-      blob_trim(&projName);
-      zPJ = blob_str(&projName);
-      for(jj=0; zPJ[jj]; jj++){
-        if( (zPJ[jj]>0 && zPJ[jj]<' ') || strchr("\"*/:<>?\\|", zPJ[jj]) ){
-          zPJ[jj] = '_';
-        }
-      }
-      zUrl = mprintf("%R/tarball/%S/%t-%S.tar.gz", zUuid, zPJ, zUuid);
       @ <tr><th>Downloads:</th><td>
-      @ %z(href("%s",zUrl))Tarball</a>
-      @ | %z(href("%R/zip/%S/%t-%S.zip",zUuid, zPJ,zUuid))ZIP archive</a>
-      if( g.zLogin!=0 ){
-        @ | %z(href("%R/sqlar/%S/%t-%S.sqlar",zUuid,zPJ,zUuid))\
-        @ SQL archive</a></td></tr>
+      if( robot_would_be_restricted("download") ){
+        @ See separate %z(href("%R/rchvdwnld/%!S",zUuid))download page</a>
+      }else{
+        char *zBase = archive_base_name(rid);
+        @ %z(href("%R/tarball/%s.tar.gz",zBase))Tarball</a>
+        @ | %z(href("%R/zip/%s.zip",zBase))ZIP archive</a>
+        if( g.zLogin!=0 ){
+          @ | %z(href("%R/sqlar/%s.sqlar",zBase))\
+          @ SQL archive</a></td></tr>
+        }
+        fossil_free(zBase);
       }
-      fossil_free(zUrl);
-      blob_reset(&projName);
     }
 
     @ <tr><th>Timelines:</th><td>
@@ -1170,9 +1159,10 @@ void ci_page(void){
     }
 
     if( g.perm.Hyperlink ){
+      const char *zMainBranch = db_main_branch();
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      if( fossil_strcmp(zBrName, db_get("main-branch",0))!=0 ){
+      if( fossil_strcmp(zBrName, zMainBranch)!=0 ){
         @ %z(href("%R/vdiff?branch=%!S", zUuid))branch diff</a> |
       }
       @ %z(href("%R/artifact/%!S",zUuid))manifest</a>
@@ -1490,7 +1480,7 @@ void vdiff_page(void){
   blob_init(&qpGlob, 0, 0);
   diffType = preferred_diff_type();
   zRe = P("regex");
-  if( zRe ) re_compile(&pRe, zRe, 0);
+  if( zRe ) fossil_re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
   if( zBranch && zBranch[0]==0 ) zBranch = 0;
   if( zBranch ){
@@ -1995,7 +1985,7 @@ int preferred_diff_type(void){
   int isBot;
   static char zDflt[2]
     /*static b/c cookie_link_parameter() does not copy it!*/;
-  if( client_might_be_a_robot() && robot_restrict_has_tag("diff") ){
+  if( robot_would_be_restricted("diff") ){
     dflt = 0;
     isBot = 1;
   }else{
@@ -2099,7 +2089,7 @@ void diff_page(void){
   }
   zRe = P("regex");
   cgi_check_for_malice();
-  if( zRe ) re_compile(&pRe, zRe, 0);
+  if( zRe ) fossil_re_compile(&pRe, zRe, 0);
   if( verbose ) objdescFlags |= OBJDESC_DETAIL;
   if( isPatch ){
     Blob c1, c2, *pOut;
@@ -3779,6 +3769,7 @@ void ci_edit_page(void){
     Blob suffix;
     int nTag = 0;
     const char *zDplyBr;   /* Branch name used to determine BG color */
+    const char *zMainBranch = db_main_branch();
     if( zNewBrFlag[0] && zNewBranch[0] ){
       zDplyBr = zNewBranch;
     }else{
@@ -3791,7 +3782,7 @@ void ci_edit_page(void){
       @ <tr><td style="background-color:%h(reasonable_bg_color(zNewColor,0));">
     }else if( zColor[0] ){
       @ <tr><td style="background-color:%h(reasonable_bg_color(zColor,0));">
-    }else if( zDplyBr && fossil_strcmp(zDplyBr,"trunk")!=0 ){
+    }else if( zDplyBr && fossil_strcmp(zDplyBr, zMainBranch)!=0 ){
       @ <tr><td style="background-color:%h(hash_color(zDplyBr));">
     }else{
       @ <tr><td>
@@ -3917,7 +3908,7 @@ void ci_edit_page(void){
   @ </td></tr>
 
   if( !zBranchName ){
-    zBranchName = db_get("main-branch", 0);
+    zBranchName = fossil_strdup(db_main_branch());
   }
   if( !zNewBranch || !zNewBranch[0]){
     zNewBranch = zBranchName;

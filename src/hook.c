@@ -31,7 +31,7 @@
 **     hook-last-rcvid     The last rcvid for which post-receive hooks were
 **                         run.
 **
-**     hook-embargo        Do not run hooks again before this julianday.
+**     hook-embargo        Do not run hooks again before this Julian day.
 **
 ** For "after-receive" hooks, a list of the received artifacts is sent
 ** into the command via standard input.  Each line of input begins with

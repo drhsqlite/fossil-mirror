@@ -779,7 +779,7 @@ void user_log_page(void){
               skip>=n ? skip-n : 0, n, y);
   }
   rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
-  fLogEnabled = db_get_boolean("access-log", 0);
+  fLogEnabled = db_get_boolean("access-log", 1);
   @ <div align="center">User logging is %s(fLogEnabled?"on":"off").
   @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
   @ <table border="1" cellpadding="5" class="sortable" align="center" \

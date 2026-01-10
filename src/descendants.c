@@ -161,7 +161,7 @@ void compute_leaves(int iBase, int closeMode){
 
 /*
 ** If RID refers to a check-in, return the mtime of that check-in - the
-** julian day number of when the check-in occurred.
+** Julian day number of when the check-in occurred.
 */
 double mtime_of_rid(int rid, double mtime){
   static Stmt q;
@@ -439,7 +439,7 @@ void leaves_cmd(void){
   char *zLastBr = 0;
   int n, width;
   char zLineNo[10];
-  char * const zMainBranch = db_get("main-branch","trunk");
+  const char *zMainBranch = db_main_branch();
 
   if( multipleFlag ) byBranch = 1;
   if( zWidth ){
@@ -537,7 +537,6 @@ void leaves_cmd(void){
     fossil_free(z);
     fossil_free(zBranchPoint);
   }
-  fossil_free(zMainBranch);
   fossil_free(zLastBr);
   db_finalize(&q);
 }

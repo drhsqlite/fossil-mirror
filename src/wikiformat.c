@@ -27,7 +27,7 @@
 */
 #define WIKI_HTMLONLY      0x0001  /* HTML markup only.  No wiki */
 #define WIKI_INLINE        0x0002  /* Do not surround with <p>..</p> */
-/* avalable for reuse:     0x0004  ---  formerly WIKI_NOBLOCK */
+/* available for reuse:    0x0004  ---  formerly WIKI_NOBLOCK */
 #define WIKI_BUTTONS       0x0008  /* Allow sub-menu buttons */
 #define WIKI_NOBADLINKS    0x0010  /* Ignore broken hyperlinks */
 #define WIKI_LINKSONLY     0x0020  /* No markup.  Only decorate links */
@@ -568,7 +568,7 @@ static int paragraphBreakLength(const char *z){
 **      [
 **
 ** The "[" is only considered if flags contain ALLOW_LINKS or ALLOW_WIKI.
-** The "\n" is only considered interesting if the flags constains ALLOW_WIKI.
+** The "\n" is only considered interesting if the flags contains ALLOW_WIKI.
 */
 static int textLength(const char *z, int flags){
   const char *zReject;
@@ -1813,7 +1813,7 @@ static void wiki_render(Renderer *p, char *z){
         ** ignored.
         */
         if( markup.iCode==MARKUP_VERBATIM ){
-          int ii; //, vAttrDidAppend=0;
+          int ii; /*, vAttrDidAppend=0;*/
           const char *zClass = 0;
           p->zVerbatimId = 0;
           p->inVerbatim = 1;
@@ -2747,7 +2747,7 @@ static void html_tagstack_init(HtmlTagStack *p){
 }
 
 /*
-** Push a new element onto the tag statk
+** Push a new element onto the tag stack
 */
 static void html_tagstack_push(HtmlTagStack *p, int e){
   if( p->n>=ArraySize(p->aSpace) && p->n>=p->nAlloc ){
@@ -2815,7 +2815,7 @@ static void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
 ** any text in between two consecutive instances of the nonce.  The
 ** nonce itself is an HTML comment so it is harmless to keep the
 ** nonce in the middle of the HTML stream.  A different nonce is
-** choosen each time Fossil is run, using a lot of randomness, so
+** chosen each time Fossil is run, using a lot of randomness, so
 ** an attacker will be unable to guess the nonce in advance.
 **
 ** The original use-case for this mechanism is to allow Pikchr-generated

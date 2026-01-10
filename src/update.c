@@ -90,7 +90,7 @@ int update_to(int vid){
 ** any changes to the current check-out or the repository.
 **
 ** The -v or --verbose option prints status information about
-** unchanged files in addition to those file that actually do change.
+** unchanged files in addition to those files that actually do change.
 **
 ** Options:
 **   --case-sensitive BOOL   Override case-sensitive setting
@@ -258,7 +258,7 @@ void update_cmd(void){
 
   /*
   ** The record.fn field is used to match files against each other.  The
-  ** FV table contains one row for each each unique filename in
+  ** FV table contains one row for each unique filename in
   ** in the current check-out, the pivot, and the version being merged.
   */
   db_multi_exec(
@@ -453,7 +453,7 @@ void update_cmd(void){
       if( file_isfile_or_link(zFullPath) ){
         /* Name of backup file with Original content */
         char *zOrig = file_newname(zFullPath, "original", 1);
-        /* Backup previously unanaged file before to be overwritten */
+        /* Backup previously unmanaged file before being overwritten */
         file_copy(zFullPath, zOrig);
         fossil_free(zOrig);
         fossil_print("ADD %s - overwrites an unmanaged file", zName);
@@ -758,7 +758,7 @@ Manifest *historical_manifest(
   if( zRevision ){
     vid = name_to_typed_rid(zRevision, "ci");
   }else if( !g.localOpen ){
-    vid = name_to_typed_rid(db_get("main-branch", 0), "ci");
+    vid = name_to_typed_rid(db_main_branch(), "ci");
   }else{
     vid = db_lget_int("checkout", 0);
     if( !is_a_version(vid) ){

@@ -496,10 +496,10 @@ static const char zDefaultView[] =
 @ }
 @
 @ if {[capexpr {n}]} {
-@   submenu link "Copy Ticket" /tktnew/$tkt_uuid
+@   submenu link "Copy Ticket" $baseurl/tktnew/$tkt_uuid
 @ }
 @ if {[capexpr {nk}]} {
-@   submenu link "Edit Wiki" /wikiedit?name=ticket/$tkt_uuid
+@   submenu link "Edit Wiki" $baseurl/wikiedit?name=ticket/$tkt_uuid
 @ }
 @ </th1>
 @ <tr><td class="tktDspLabel">Title:</td>
@@ -615,9 +615,10 @@ static const char zDefaultView[] =
 @   } else {
 @     html "<tr><td class='tktDspLabel' style='text-align:left'>\n"
 @     html "User Comments:</td></tr>\n"
-@     html "<tr><td colspan='5' class='tktDspValue'>\n"
+@     html "<tr><td colspan='5' class='tktDspValue'><div class='tktCommentArea'>\n"
 @     set seenRow 1
 @   }
+@   html "<div class='tktCommentEntry'>"
 @   html "<span class='tktDspCommenter'>"
 @   puts $xlogin
 @   if {$xlogin ne $xusername && [string length $xusername]>0} {
@@ -639,8 +640,9 @@ static const char zDefaultView[] =
 @     set r [randhex]
 @     wiki "<verbatim-$r links>[string trimright $xcomment]</verbatim-$r>\n"
 @   }
+@   html "</div>"; # .tktCommentEntry
 @ }
-@ if {$seenRow} {html "</td></tr>\n"}
+@ if {$seenRow} {html "</div></td></tr>\n"}
 @ </th1>
 @ </table>
 ;
@@ -802,9 +804,10 @@ static const char zDefaultEdit[] =
 @     html "<tr><td colspan='2'><hr></td></tr>\n"
 @     html "<tr><td colspan='2' class='tktDspLabel' style='text-align:left'>\n"
 @     html "Previous User Comments:</td></tr>\n"
-@     html "<tr><td colspan='2' class='tktDspValue'>\n"
+@     html "<tr><td colspan='2' class='tktDspValue'><div class='tktCommentArea'>\n"
 @     set seenRow 1
 @   }
+@   html "<div class='tktCommentEntry'>"
 @   html "<span class='tktDspCommenter'>"
 @   puts $xlogin
 @   if {$xlogin ne $xusername && [string length $xusername]>0} {
@@ -826,8 +829,9 @@ static const char zDefaultEdit[] =
 @     set r [randhex]
 @     wiki "<verbatim-$r links>[string trimright $xcomment]</verbatim-$r>\n"
 @   }
+@   html "</div>"; # .tktCommentEntry
 @ }
-@ if {$seenRow} {html "</td></tr>\n"}
+@ if {$seenRow} {html "</div></td></tr>\n"}
 @ </th1>
 @
 @ </table>
@@ -1016,7 +1020,7 @@ void tktsetup_keytplt_page(void){
 /*
 ** WEBPAGE: tktsetup_timeline
 **
-** Administrative page used ot configure how tickets are
+** Administrative page used to configure how tickets are
 ** rendered on timeline views.
 */
 void tktsetup_timeline_page(void){

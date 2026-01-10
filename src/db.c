@@ -1230,8 +1230,8 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 /*
 ** Execute a query.  Return the first column of the first row
 ** of the result set as a string.  Space to hold the string is
-** obtained from malloc().  If the result set is empty, return
-** zDefault instead.
+** obtained from fossil_strdup() and should be freed using fossil_free().
+** If the result set is empty, return a copy of zDefault instead.
 */
 char *db_text(const char *zDefault, const char *zSql, ...){
   va_list ap;
@@ -1720,7 +1720,7 @@ void db_setup_for_saved_encryption_key(){
 
 /*
 ** This function arranges for the database encryption key to be securely
-** saved in non-pagable memory (on platforms where this is possible).
+** saved in non-pageable memory (on platforms where this is possible).
 */
 static void db_save_encryption_key(
   Blob *pKey
@@ -2533,7 +2533,7 @@ static int isValidLocalDb(const char *zDbName){
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
 
-  /* Check to see if the check-out database has the lastest schema changes.
+  /* Check to see if the check-out database has the latest schema changes.
   ** The most recent schema change (2019-01-19) is the addition of the
   ** vmerge.mhash and vfile.mhash fields.  If the schema has the vmerge.mhash
   ** column, assume everything else is up-to-date.
@@ -2786,7 +2786,7 @@ void db_open_repository(const char *zDbName){
   if( g.localOpen ){
 
     /* If the repository database that was just opened has been
-    ** eplaced by a clone of the same project, with different RID
+    ** replaced by a clone of the same project, with different RID
     ** values, then renumber the RID values stored in various tables
     ** of the check-out database, so that the repository and check-out
     ** databases align.
@@ -3601,12 +3601,12 @@ char *db_reveal(const char *zKey){
 ** Return true if the string zVal represents "true" (or "false").
 */
 int is_truth(const char *zVal){
-  static const char *const azOn[] = { "on", "yes", "true", "1" };
+  static const char *const azOn[] = { "on", "yes", "true" };
   int i;
   for(i=0; i<count(azOn); i++){
     if( fossil_stricmp(zVal,azOn[i])==0 ) return 1;
   }
-  return 0;
+  return atoi(zVal);
 }
 int is_false(const char *zVal){
   static const char *const azOff[] = { "off", "no", "false", "0" };
@@ -3657,8 +3657,8 @@ void db_swap_connections(void){
 **
 ** zCkin is normally NULL.  In that case, the versioned setting is
 ** take from the local check-out, if a local checkout exists, or from
-** checkin named by the g.zOpenRevision global variable.  If zCkin is
-** not NULL, then zCkin is the name of the specific checkin from which
+** check-in named by the g.zOpenRevision global variable.  If zCkin is
+** not NULL, then zCkin is the name of the specific check-in from which
 ** versioned setting value is taken.  When zCkin is not NULL, the cache
 ** is bypassed.
 */
@@ -4262,6 +4262,9 @@ void db_record_repository_filename(const char *zName){
 **                     operation, otherwise it has no effect
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
 **                     directory is created if it does not exist.
+**   --reopen REPOFILE Changes the repository file used by the current checkout
+**                     to REPOFILE. Use this after moving a checkout's
+**                     repository. This may lose stash and bisect history.
 **
 ** See also: [[close]], [[clone]]
 */
@@ -4276,10 +4279,19 @@ void cmd_open(void){
   const char *zWorkDir;          /* --workdir value */
   const char *zRepo = 0;         /* Name of the repository file */
   const char *zRepoDir = 0;      /* --repodir value */
+  const char *zReopen = 0;       /* --reopen REPOFILE */
   char *zPwd;                    /* Initial working directory */
   int isUri = 0;                 /* True if REPOSITORY is a URI */
   int nLocal;                    /* Number of preexisting files in cwd */
   int bVerbose = 0;              /* --verbose option for clone */
+
+  zReopen = find_option("reopen",0,1);
+  if( 0!=zReopen ){
+    g.argc = 3;
+    g.argv[2] = (char*)zReopen;
+    move_repo_cmd();
+    return;
+  }
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -4329,7 +4341,7 @@ void cmd_open(void){
   }
   if( keepFlag==0
    && bForce==0
-   && (nLocal = file_directory_size(".", 0, 1))>0
+   && (nLocal = file_directory_list(".", 0, 1, 2, 0))>0
    && (nLocal>1 || isUri || !file_in_cwd(zRepo))
   ){
     fossil_fatal("directory %s is not empty\n"
@@ -4393,7 +4405,7 @@ void cmd_open(void){
     if( g.argc==4 ){
       g.zOpenRevision = g.argv[3];
     }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-      g.zOpenRevision = db_get("main-branch", 0);
+      g.zOpenRevision = fossil_strdup(db_main_branch());
     }
     if( autosync_loop(SYNC_PULL, !bForce, "open") && !bForce ){
       fossil_fatal("unable to auto-sync the repository");
@@ -4559,7 +4571,7 @@ void print_setting(const Setting *pSetting, int valueOnly, int bIfChng){
 ** If var is 0, the settings name is used.
 **
 ** width is the length for the edit field on the behavior page, 0 is
-** used for on/off checkboxes. A negative value indicates that that
+** used for on/off checkboxes. A negative value indicates that the
 ** page should not render this setting. Such values may be rendered
 ** separately/manually on another page, e.g., /setup_access, and are
 ** exposed via the CLI settings command.
@@ -4845,7 +4857,7 @@ struct Setting {
 ** SETTING: empty-dirs      width=40 versionable block-text
 ** The value is a list of pathnames parsed according to the same rules as
 ** the *-glob settings.  On update and checkout commands, if no directory
-** exists with that name, an empty directory will be be created, even if
+** exists with that name, an empty directory will be created, even if
 ** it must create one or more parent directories.
 */
 /*
@@ -5566,13 +5578,13 @@ void test_database_name_cmd(void){
 
 /*
 ** Compute a "fingerprint" on the repository.  A fingerprint is used
-** to verify that that the repository has not been replaced by a clone
+** to verify that the repository has not been replaced by a clone
 ** of the same repository.  More precisely, a fingerprint is used to
 ** verify that the mapping between SHA3 hashes and RID values is unchanged.
 **
 ** The check-out database ("localdb") stores RID values.  When associating
 ** a check-out database against a repository database, it is useful to verify
-** the fingerprint so that we know tha the RID values in the check-out
+** the fingerprint so that we know that the RID values in the check-out
 ** database still correspond to the correct entries in the BLOB table of
 ** the repository.
 **

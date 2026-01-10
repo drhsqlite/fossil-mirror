@@ -38,7 +38,7 @@ a web browser to a fossil URL of the following form:
 The <i>&lt;baseurl&gt;</i> is the main URL used to access the fossil web server.
 For example, the <i>&lt;baseurl&gt;</i> for the fossil project itself is
 [https://fossil-scm.org/home].
-If you launch the web server using the "[/help?cmd=ui|fossil ui]" command line,
+If you launch the web server using the "[/help/ui|fossil ui]" command line,
 then the <i>&lt;baseurl&gt;</i> is usually
 <b>http://localhost:8080/</b>.
 
@@ -55,7 +55,7 @@ The "<b>ckout</b>" keywords means to
 pull the documentation file from the local source tree on disk, not
 from the any check-in.  The "<b>ckout</b>" keyword
 only works when you start your server using the 
-"[/help?cmd=server|fossil server]" or "[/help?cmd=ui|fossil ui]"
+"[/help/server|fossil server]" or "[/help?cmd=ui|fossil ui]"
 commands.  The "/doc/ckout" URL is intended to show a preview of
 the documentation you are currently editing but have not yet checked in.
 

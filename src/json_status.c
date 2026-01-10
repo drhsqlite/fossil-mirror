@@ -97,7 +97,8 @@ cson_value * json_page_status(){
 
   db_prepare(&q,
     "SELECT pathname, deleted, chnged, rid, "
-    "     coalesce(origname!=pathname,0), origname"
+    " coalesce(origname!=pathname,0) AS renamed,"
+    " origname"
     "  FROM vfile "
     " WHERE is_selected(id)"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
@@ -110,7 +111,7 @@ cson_value * json_page_status(){
     int isNew = db_column_int(&q,3)==0;
     int isRenamed = db_column_int(&q,4);
     cson_object * oFile;
-    char const * zStatus = "???";
+    char const * zStatus = "unmodified";
     char * zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     if( isDeleted ){
       zStatus = "deleted";
@@ -125,19 +126,24 @@ cson_value * json_page_status(){
         zStatus = "missing";
         ++nErr;
       }
-    }else if( 2==isChnged ){
-      zStatus = "updatedByMerge";
-    }else if( 3==isChnged ){
-      zStatus = "addedByMerge";
-    }else if( 4==isChnged ){
-      zStatus = "updatedByIntegrate";
-    }else if( 5==isChnged ){
-      zStatus = "addedByIntegrate";
-    }else if( 1==isChnged ){
-      if( file_contains_merge_marker(zFullName) ){
-        zStatus = "conflict";
-      }else{
-        zStatus = "edited";
+    }else if( isChnged ){
+      switch( isChnged ){
+        /* These numbers from checkin.c: status_report() */
+        case 1:
+          if( file_contains_merge_marker(zFullName) ){
+            zStatus = "conflict";
+          }else{
+            zStatus = "edited";
+          }
+          break;
+        case 2: zStatus = "updatedByMerge"; break;
+        case 3: zStatus = "addedByMerge"; break;
+        case 4: zStatus = "updatedByIntegrate"; break;
+        case 5: zStatus = "addedByIntegrate"; break;
+        case 6: zStatus = "+exec"; break;
+        case 7: zStatus = "+symlink"; break;
+        case 8: zStatus = "-exec"; break;
+        case 9: zStatus = "unlink"; break;
       }
     }
     oFile = cson_new_object();

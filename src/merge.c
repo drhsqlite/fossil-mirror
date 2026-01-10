@@ -796,7 +796,7 @@ void merge_cmd(void){
   int bMultiMerge = 0;  /* True if there are two or more VERSION arguments */
   int nMerge = 0;       /* Number of prior merges processed */
   int useUndo = 1;      /* True to record changes in the undo log */
-  Stmt q;               /* SQL statment used for merge processing */
+  Stmt q;               /* SQL statement used for merge processing */
 
 
   /* Notation:
@@ -1046,7 +1046,7 @@ merge_next_child:
 
   /*
   ** The vfile.pathname field is used to match files against each other.  The
-  ** FV table contains one row for each each unique filename in
+  ** FV table contains one row for each unique filename in
   ** in the current check-out, the pivot, and the version being merged.
   */
   db_multi_exec(
@@ -1566,7 +1566,7 @@ merge_next_child:
         && !db_exists("SELECT 1 FROM fv WHERE fn=%Q", zName) ){
       /* Name of backup file with Original content */
       char *zOrig = file_newname(zFullName, "original", 1);
-      /* Backup previously unanaged file before to be overwritten */
+      /* Backup previously unmanaged file before being overwritten */
       file_copy(zFullName, zOrig);
       fossil_free(zOrig);
       fossil_print("ADDED %s (overwrites an unmanaged file)", zName);

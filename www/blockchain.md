@@ -210,7 +210,7 @@ this makes it “not a blockchain” is a subjective matter.
 [arh]:  ./hooks.md
 [bse]:  https://www.researchgate.net/publication/311572122_What_is_Blockchain_a_Gentle_Introduction
 [caps]: ./caps/
-[cs]:   /help?cmd=clearsign
+[cs]:   /help/clearsign
 [dboc]: https://en.wikipedia.org/wiki/Debasement
 [dsig]: https://en.wikipedia.org/wiki/Digital_signature
 [fb]:   ./branching.wiki
@@ -280,7 +280,7 @@ sense.
 [dlt]:    https://en.wikipedia.org/wiki/Distributed_ledger
 [DVCS]:   https://en.wikipedia.org/wiki/Distributed_version_control
 [fc]:     https://en.wikipedia.org/wiki/Fiat_money
-[purge]:  /help?cmd=purge
+[purge]:  /help/purge
 [shun]:   ./shunning.wiki
 
 
@@ -337,7 +337,7 @@ that the commit is legitimate once you get enough HTTP 200 status codes back. Al
 hypothetical, because Fossil doesn’t do this today.
 
 [AGI]:  https://en.wikipedia.org/wiki/Artificial_general_intelligence
-[rcks]: /help?cmd=repo-cksum
+[rcks]: /help/repo-cksum
 
 
 
@@ -449,10 +449,10 @@ self-contained, and with a smaller attack surface.
 
 [alert]: ./alerts.md
 [capi]:  ./caps/ref.html#i
-[mrep]:  /help?cmd=remote
+[mrep]:  /help/remote
 [scost]: https://en.wikipedia.org/wiki/Software_development_effort_estimation
-[scrub]: /help?cmd=scrub
-[sreg]:  /help?cmd=self-register
+[scrub]: /help/scrub
+[sreg]:  /help/self-register
 
 
 # Conclusion

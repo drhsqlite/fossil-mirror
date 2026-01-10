@@ -135,7 +135,7 @@ static int forumpost_is_closed(
 **
 ** Note that this function checks _exactly_ the given rid, whereas
 ** forum post closure/re-opening is always applied to the head of an
-** edit chain so that we get consistent implied locking beheavior for
+** edit chain so that we get consistent implied locking behavior for
 ** later versions and responses to arbitrary versions in the
 ** chain. Even so, the "closed" tag is applied as a propagating tag
 ** so will apply to all edits in a given chain.
@@ -1914,14 +1914,14 @@ void forum_setup(void){
       if( pSetting->width==0 ){
         /* Boolean setting */
         @ <tr><td align="right">
-        @ <a href='%R/help?cmd=%h(pSetting->name)'>%h(pSetting->name)</a>:
+        @ <a href='%R/help/%h(pSetting->name)'>%h(pSetting->name)</a>:
         @ </td><td>
         onoff_attribute("", zQP, pSetting->name/*works-like:"x"*/, 0, 0);
         @ </td></tr>
       }else{
         /* Text value setting */
         @ <tr><td align="right">
-        @ <a href='%R/help?cmd=%h(pSetting->name)'>%h(pSetting->name)</a>:
+        @ <a href='%R/help/%h(pSetting->name)'>%h(pSetting->name)</a>:
         @ </td><td>
         entry_attribute("", 25, pSetting->name, zQP/*works-like:""*/,
                         pSetting->def, 0);

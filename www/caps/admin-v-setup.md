@@ -263,9 +263,9 @@ Setup users can do many things that Admin users cannot. They may not
 only use all of the Admin UI features, they may also:
 
 *   See record IDs (RIDs) on screens that show them
-*   See the MIME type of attachments on [`/ainfo` pages](/help?cmd=/ainfo)
-*   See a remote repo’s HTTP [cache status](/help?cmd=/cachestat)
-    and [pull cache entries](/help?cmd=/cacheget)
+*   See the MIME type of attachments on [`/ainfo` pages](/help/www/ainfo)
+*   See a remote repo’s HTTP [cache status](/help/www/cachestat)
+    and [pull cache entries](/help/www/cacheget)
 *   Edit a Setup user’s account!
 
 The “Admin” feature of Fossil UI is so-named because Admin users can use
@@ -397,7 +397,7 @@ deliberately, hopefully after careful consideration.
 ### <a id="y"></a>Write Unversioned
 
 Fossil currently doesn’t distinguish the sub-operations of
-[`fossil uv`](/help?cmd=uv); they’re all covered by [**WrUnver**][capy]
+[`fossil uv`](/help/uv); they’re all covered by [**WrUnver**][capy]
 (“y”) capability. Since some of these operations are unconditionally
 destructive due to the nature of unversioned content, and since this
 goes against Fossil’s philosophy of immutable history, nobody gets cap
@@ -448,10 +448,10 @@ accidental push.
 [capx]: ./ref.html#x
 [capy]: ./ref.html#y
 
-[fcp]:   https://fossil-scm.org/home/help?cmd=configuration
+[fcp]:   https://fossil-scm.org/home/help/configuration
 [fdp]:   ../fossil-v-git.wiki#devorg
 [forum]: https://fossil-scm.org/forum/
-[fui]:   /help?cmd=ui
+[fui]:   /help/ui
 [lg]:    ./login-groups.md
 [rs]:    https://fossil-scm.org/home/doc/trunk/www/settings.wiki
 [sia]:   https://fossil-scm.org/home/artifact?ln=1259-1260&name=0fda31b6683c206a

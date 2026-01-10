@@ -355,7 +355,7 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 ** is used.  If the --clean option does not appear on the command line then
 ** the "clean-glob" setting is used.
 **
-** When attempting to explicitly add files on the commandline, and if those
+** When attempting to explicitly add files on the command line, and if those
 ** match "ignore-glob", a confirmation is asked first. This can be prevented
 ** using the -f|--force option.
 **
@@ -478,7 +478,7 @@ void add_cmd(void){
   glob_free(pClean);
 
   /** Check for Windows-reserved names and warn or exit, as
-   ** appopriate. Note that the 'add' internal machinery already
+   ** appropriate. Note that the 'add' internal machinery already
    ** _silently_ skips over any names for which
    ** file_is_reserved_name() returns true or which is in the
    ** fossil_reserved_name() list. We do not need to warn for those,
@@ -1008,8 +1008,8 @@ static void process_files_to_move(
 ** COMMAND: mv
 ** COMMAND: rename*
 **
-** Usage: %fossil mv|rename OLDNAME NEWNAME
-**    or: %fossil mv|rename OLDNAME... DIR
+** Usage: %fossil mv|rename ?OPTIONS? OLDNAME NEWNAME
+**    or: %fossil mv|rename ?OPTIONS? OLDNAME... DIR
 **
 ** Move or rename one or more files or directories within the repository tree.
 ** You can either rename a file or directory or move it to another subdirectory.

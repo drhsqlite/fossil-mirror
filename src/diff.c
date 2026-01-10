@@ -1047,7 +1047,7 @@ struct DiffBuilder {
 /* This version of DiffBuilder is used for debugging the diff and diff
 ** diff formatter logic.  It is accessed using the (undocumented) --debug
 ** option to the diff command.  The output is human-readable text that
-** describes the various method calls that are invoked agains the DiffBuilder
+** describes the various method calls that are invoked against the DiffBuilder
 ** object.
 */
 static void dfdebugSkip(DiffBuilder *p, unsigned int n, int isFinal){
@@ -3251,7 +3251,7 @@ int *text_diff(
 **   -n|--linenum                 Show line numbers          DIFF_LINENO
 **   -N|--new-file                Alias for --verbose
 **   --noopt                      Disable optimization       DIFF_NOOPT
-**   --numstat                    Show change counts         DIFF_NUMSTAT
+**   -s|--numstat                 Show change counts         DIFF_NUMSTAT
 **   --strip-trailing-cr          Strip trailing CR          DIFF_STRIP_EOLCR
 **   --tcl                        Tcl-formatted output used internally by --tk
 **   --unified                    Unified diff.              ~DIFF_SIDEBYSIDE
@@ -3326,7 +3326,7 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   }
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
-  if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
+  if( find_option("numstat","s",0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("versions","h",0)!=0 ) diffFlags |= DIFF_SHOW_VERS;
   if( find_option("dark",0,0)!=0 ) diffFlags |= DIFF_DARKMODE;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
@@ -3388,7 +3388,7 @@ void xdiff_cmd(void){
   diff_options(&DCfg, 0, 0);
   zRe = find_option("regexp","e",1);
   if( zRe ){
-    const char *zErr = re_compile(&DCfg.pRe, zRe, 0);
+    const char *zErr = fossil_re_compile(&DCfg.pRe, zRe, 0);
     if( zErr ) fossil_fatal("regex error: %s", zErr);
   }
   verify_all_options();
@@ -3431,7 +3431,7 @@ void fdiff_cmd(void){
   diff_options(&DCfg, 0, 0);
   zRe = find_option("regexp","e",1);
   if( zRe ){
-    const char *zErr = re_compile(&DCfg.pRe, zRe, 0);
+    const char *zErr = fossil_re_compile(&DCfg.pRe, zRe, 0);
     if( zErr ) fossil_fatal("regex error: %s", zErr);
   }
   db_find_and_open_repository(0, 0);
@@ -3951,7 +3951,8 @@ void annotation_page(void){
 **                                 Xs     As much as possible in X seconds
 **                                 none   No limit
 **   -o|--origin VERSION         The origin check-in. By default this is the
-**                               root of the repository. Set to "trunk" or
+**                               root of the repository. Set to the name of
+**                               the main branch (usually "trunk") or
 **                               similar for a reverse annotation.
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end

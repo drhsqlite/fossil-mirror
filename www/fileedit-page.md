@@ -15,7 +15,7 @@ and disclaimers...
 
 In order to "activate" it, a user with [the "setup"
 permission](./caps/index.md) must set the
-[fileedit-glob](/help?cmd=fileedit-glob) repository setting to a
+[fileedit-glob](/help/fileedit-glob) repository setting to a
 comma- or newline-delimited list of globs representing a whitelist of
 files which may be edited online. Any user with commit access may then
 edit files matching one of those globs. Certain pages within the UI

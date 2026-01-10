@@ -74,7 +74,7 @@ of available Fossil repositories.
 
 The "skin" of the reply is determined by the first
 repository in the list that has a non-zero
-[/help?cmd=repolist-skin|repolist-skin] setting.
+[/help/repolist-skin|repolist-skin] setting.
 
 If no repository has such a non-zero repolist-skin setting, then
 the repository list is generic HTML without any decoration, with
@@ -195,7 +195,7 @@ repo name is "*", then an unconditional redirect to URL is taken.
 
 <h2 id="jsmode">jsmode: <i>VALUE</i></h2>
 
-Specifies the delivery mode for JavaScript files. See "[/help?cmd=http |
+Specifies the delivery mode for JavaScript files. See "[/help/http |
 http --jsmode]" for the allowed values and their meanings.
 
 
