@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\scheck-in\sfor\stesting.
-D 2026-01-09T16:44:35.655
+C Do\snot\stry\sto\suse\s"notepad"\sas\sa\stext\seditor\son\snon-windows\ssystems.
+D 2026-01-10T11:52:48.815
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -591,7 +591,7 @@ F src/url.c 3fcddbeb028cb985b979901f16aa2d0dbda4a52b0d6508a3a2e1a32bfb312408
 F src/user.c 8ed24fbe9586c0a633a91037d9947d1772dfda3562750f5a0c52b0d7f0b4c408
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
-F src/util.c 26b025564d47c76b70a0b317d2980e7753f836a44e4bebede4eb519b1fe66097
+F src/util.c 99f3092e94313bf476dfbf29f8f635033444665486cfba2b792fdaaf29172d36
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 34f2f95b66cc1d90ce65d04342826326e496630a857e40660ba25ebf9430c219
 F src/wiki.c 5a5b751ab4ab336f0bbdcf7e9a6346462925e365f8e87a0526fff64236532d3d
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa7a08772613605bbcd68c81d40a7886d464cf2a33ccae153a16d1434b46b003
-R be908fb503f4832552574a9e45979223
+P 2b2530dd077db1a20387a6410da71c962fdb6fa6342fe068fe5c58c0b1ab7901
+R 9e16285f759ab09f6b32c03139a4d078
 U drh
-Z e73323fa461c9620d8d099ac7cf5a654
+Z 1e8943660f2d4f56e7838c0a4d04f0aa
 # Remove this line to create a well-formed Fossil manifest.
