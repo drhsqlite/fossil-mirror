@@ -25,14 +25,14 @@ subfolders holding at least these five files:
    * js.txt
 
 Try out the built-in skins by using the --skin option on the
-[fossil ui](/help?cmd=ui) or [fossil server](/help?cmd=server) commands.
+[fossil ui](/help/ui) or [fossil server](/help/server) commands.
 
 ## <a id="sharing"></a>Sharing Skins
 
 The skin of a repository is not part of the versioned state and does not
 "push" or "pull" like checked-in files.  The skin is local to the
 repository.  However, skins can be shared between repositories using
-the [fossil config](/help?cmd=configuration) command.
+the [fossil config](/help/configuration) command.
 The "fossil config push skin" command will send the local skin to a remote
 repository and the "fossil config pull skin" command will import a skin
 from a remote repository.  The "fossil config export skin FILENAME"
@@ -306,7 +306,7 @@ new live skin that most users see.
 
 An alternative approach is to copy the five control files for your
 baseline skin into a temporary working directory (here called
-"./newskin") and then launch the [fossil ui](/help?cmd=ui) command
+"./newskin") and then launch the [fossil ui](/help/ui) command
 with the "--skin ./newskin" option.  If the argument to the --skin
 option contains a "/" character, then the five control files are
 read out of the directory named.  You can then edit the control
@@ -517,7 +517,7 @@ can serve as a starting point for future work:
        be named exactly "css.txt", "footer.txt", and "header.txt" and that
        they all be in the same directory.
 
-   2.  Run the [fossil ui](/help?cmd=ui) command with an extra
+   2.  Run the [fossil ui](/help/ui) command with an extra
        option "--skin SKINDIR" where SKINDIR is the name of the directory
        in which the three txt files were stored in step 1.   This will bring
        up the Fossil website using the tree files in SKINDIR.

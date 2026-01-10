@@ -164,7 +164,7 @@ static struct SkinDetail {
 **    skin then that will update the display cookie. If the skin name is
 **    illegal it is silently ignored.
 **
-** 3) The built-in skin identfied by the "default-skin" setting, if such
+** 3) The built-in skin identified by the "default-skin" setting, if such
 **    a setting exists and matches one of the built-in skin names.
 **
 ** 4) Skin properties (settings "css", "details", "footer", "header",
@@ -1347,7 +1347,7 @@ void setup_skin(void){
 /*
 ** WEBPAGE: skins
 **
-** Show a list of all of the built-in skins, plus the respository skin,
+** Show a list of all of the built-in skins, plus the repository skin,
 ** and provide the user with an opportunity to change to any of them.
 */
 void skins_page(void){
@@ -1375,7 +1375,7 @@ void skins_page(void){
       @ this fossil instance was started with a hard-coded skin
       @ value
     }
-    @ which supercedes any option selected below. A skin selected
+    @ which supersedes any option selected below. A skin selected
     @ below will be recorded in your 
     @ "%z(href("%R/fdscookie"))fossil_display_settings</a>" cookie
     @ but will not be used so long as the site has a

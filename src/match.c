@@ -144,7 +144,7 @@ Matcher *match_create(MatchStyle style, const char *zPat){
     /* Check for regular expression syntax errors. */
     if( style==MS_REGEXP ){
       ReCompiled *regexp;
-      const char *zFail = re_compile(&regexp, zOne, 0);
+      const char *zFail = fossil_re_compile(&regexp, zOne, 0);
       if( zFail ){
         re_free(regexp);
         continue;
@@ -267,7 +267,7 @@ static const char *tagQuote(
 ** string comparisons against the tag names, so it is necessary to join against
 ** the tag table to access the "tagname" column.
 **
-** Each pattern is adjusted to to start with "sym-" and be anchored at end.
+** Each pattern is adjusted to start with "sym-" and be anchored at end.
 **
 ** In MS_REGEXP mode, backslash can be used to protect delimiter characters.
 ** The backslashes are not removed from the regular expression.
@@ -377,7 +377,7 @@ const char *match_tag_sqlexpr(
     if( matchStyle==MS_REGEXP ){
       ReCompiled *regexp;
       char *zTagDup = fossil_strndup(zTag, i);
-      zFail = re_compile(&regexp, zTagDup, 0);
+      zFail = fossil_re_compile(&regexp, zTagDup, 0);
       re_free(regexp);
       fossil_free(zTagDup);
     }

@@ -29,7 +29,7 @@ interchange formats, and so for compatibility, use of the
 Note that in new imports, Fossil defaults to using the email component of the
 Git <em>committer</em> (or <em>author</em> if <code>--use-author</code> is
 passed) to attribute check-ins in the imported repository. Alternatively, the
-[/help?cmd=import | <code>--attribute</code>] option can be passed to have all
+[/help/import | <code>--attribute</code>] option can be passed to have all
 commits by a given committer attributed to a desired username. This will create
 and populate the new <code>fx_git</code> table in the repository database to
 maintain a record of correspondent usernames and email addresses that can be

@@ -32,7 +32,7 @@ Fossil to work correctly:
 Fossil does all of this as one of many layers of defense against
 hacks and exploits. You can prevent Fossil from entering the chroot
 jail using the <tt>--nojail</tt> option to the 
-[fossil server command](/help?cmd=server)
+[fossil server command](/help/server)
 but you cannot make Fossil hold onto root privileges.  Fossil always drops
 root privilege before accepting inputs, for security.
 

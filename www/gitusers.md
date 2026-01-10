@@ -39,7 +39,7 @@ as-needed, you may find it helpful to skim [the Fossil glossary][gloss].
 It will give you another take on our definitions here, and it may help
 you to understand some of the other Fossil docs better.
 
-[fbis]:  /help?cmd=bisect
+[fbis]:  /help/bisect
 [gbis]:  https://git-scm.com/docs/git-bisect
 [ffor]:  https://fossil-scm.org/forum
 [fvg]:   ./fossil-v-git.wiki
@@ -92,7 +92,7 @@ We think this is less broadly useful, but that’s the subject of the next
 section.
 
 [ckwf]: ./ckout-workflows.md
-[co]:   /help?cmd=checkout
+[co]:   /help/checkout
 
 
 #### <a id="pullup"></a> Update vs Pull
@@ -133,7 +133,7 @@ tip of the current branch.
 We think this is a more sensible command design than `git pull` vs
 `git checkout`. ([…vs `git checkout` vs `git checkout`!][gcokoan])
 
-[fpull]:   /help?cmd=pull
+[fpull]:   /help/pull
 [gpull]:   https://git-scm.com/docs/git-pull
 [gcokoan]: https://stevelosh.com/blog/2013/04/git-koans/#s2-one-thing-well
 
@@ -171,7 +171,7 @@ for the purposes of commands like [`fossil all`][all]. Even that isn’t
 necessary, because Fossil will detect that this has happened and forget
 the working directory for you.
 
-[all]: /help?cmd=all
+[all]: /help/all
 
 
 #### <a id="worktree"></a> Git Worktrees
@@ -273,14 +273,14 @@ does emphasize an earlier point: Fossil doesn’t care where you put the
 repo DB file or what you name it.
 
 
-[clone]:  /help?cmd=clone
-[close]:  /help?cmd=close
+[clone]:  /help/clone
+[close]:  /help/close
 [gloss]:  ./glossary.md
-[open]:   /help?cmd=open
-[set]:    /help?cmd=setting
-[server]: /help?cmd=server
-[stash]:  /help?cmd=stash
-[undo]:   /help?cmd=undo
+[open]:   /help/open
+[set]:    /help/setting
+[server]: /help/server
+[stash]:  /help/stash
+[undo]:   /help/undo
 
 
 ## <a id="log"></a> Fossil’s Timeline Is the “Log”
@@ -418,12 +418,12 @@ intermediate like “`f time desc curr`”, which is reasonably clear.
 [35pct]: https://www.sqlite.org/fasterthanfs.html
 [btree]: https://sqlite.org/btreemodule.html
 [gcn]:   https://git-scm.com/docs/gitrevisions
-[infoc]: /help?cmd=info
-[infow]: /help?cmd=/info
+[infoc]: /help/info
+[infow]: /help/www/info
 [ocomp]: https://www.bigocheatsheet.com/
-[tlc]:   /help?cmd=timeline
-[tlw]:   /help?cmd=/timeline
-[up]:    /help?cmd=update
+[tlc]:   /help/timeline
+[tlw]:   /help/www/timeline
+[up]:    /help/update
 [wdm]:   ./fossil-v-git.wiki#durable
 
 
@@ -633,7 +633,7 @@ until you [tell it to do something different][rem]. It pushes all
 branches, not just one named local branch.
 
 [capt]: ./cap-theorem.md
-[rem]:  /help?cmd=remote
+[rem]:  /help/remote
 
 
 <a id="autosync"></a>
@@ -943,7 +943,7 @@ command set.
 If you leave off the `-v` flag in the second example, the `diffstat`
 output won’t include info about any newly-added files.
 
-[dcset]: https://fossil-scm.org/home/help?cmd=diff-command
+[dcset]: https://fossil-scm.org/home/help/diff-command
 [dst]:   https://invisible-island.net/diffstat/diffstat.html
 
 
@@ -966,7 +966,7 @@ single instance to avoid confusing Git, exporting only the newest tag,
 emulating Fossil’s own ambiguity resolution rule as best it can within
 Git’s limitations.
 
-[fge]:  /help?cmd=git
+[fge]:  /help/git
 [gcrf]: https://git-scm.com/docs/git-check-ref-format
 
 
@@ -983,7 +983,7 @@ both merge operations, and the two actions differ only in direction.
 Unlike in Git, the Fossil file format remembers cherrypicks and backouts
 and can later show them as dashed lines on the graphical timeline.
 
-[merge]: /help?cmd=merge
+[merge]: /help/merge
 
 
 
@@ -1007,8 +1007,8 @@ can cast it away on a per-command basis:
 
     fossil mv --hard old-name new-name
 
-[mv]: /help?cmd=mv
-[rm]: /help?cmd=rm
+[mv]: /help/mv
+[rm]: /help/rm
 
 
 ----

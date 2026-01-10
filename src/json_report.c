@@ -157,7 +157,7 @@ static cson_value * json_report_list(void){
 **
 ** limit=int (CLI: -limit # or -n #) -n is for compat. with other commands.
 **
-** format=a|o Specifies result format: a=each row is an arry, o=each
+** format=a|o Specifies result format: a=each row is an array, o=each
 ** row is an object.  Default=o.
 */
 static cson_value * json_report_run(void){

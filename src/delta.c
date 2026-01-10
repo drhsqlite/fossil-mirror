@@ -318,7 +318,7 @@ static unsigned int checksum(const char *zIn, size_t N){
 **
 **     NNN;
 **
-** In this case, NNN is a 32-bit bigendian checksum of the output file
+** In this case, NNN is a 32-bit big endian checksum of the output file
 ** that can be used to verify that the delta applied correctly.  All
 ** numbers are in base-64.
 **
@@ -604,7 +604,7 @@ int delta_apply(
           /* ERROR: copy exceeds output file size */
           return -1;
         }
-        if( (int)(ofst+cnt) > lenSrc ){
+        if( (u64)ofst+(u64)cnt > (u64)lenSrc ){
           /* ERROR: copy extends past end of input */
           return -1;
         }

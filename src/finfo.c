@@ -178,6 +178,7 @@ void finfo_cmd(void){
     const char *zWidth;
     const char *zOffset;
     int iLimit, iOffset, iBrief, iWidth;
+    const char *zMainBranch;
 
     if( find_option("log","l",0) ){
       /* this is the default, no-op */
@@ -233,6 +234,7 @@ void finfo_cmd(void){
     if( iBrief == 0 ){
       fossil_print("History for %s\n", blob_str(&fname));
     }
+    zMainBranch = db_main_branch();
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFileUuid = db_column_text(&q, 0);
       const char *zCiUuid = db_column_text(&q,1);
@@ -241,7 +243,7 @@ void finfo_cmd(void){
       const char *zUser = db_column_text(&q, 4);
       const char *zBr = db_column_text(&q, 5);
       char *zOut;
-      if( zBr==0 ) zBr = "trunk";
+      if( zBr==0 ) zBr = fossil_strdup(zMainBranch);
       if( iBrief == 0 ){
         fossil_print("%s ", zDate);
         zOut = mprintf(
@@ -378,6 +380,7 @@ void finfo_page(void){
   const char *zMark;          /* Mark this version of the file */
   int selRid = 0;             /* RID of the marked file version */
   int mxfnid;                 /* Maximum filename.fnid value */
+  const char *zMainBranch;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -396,6 +399,8 @@ void finfo_page(void){
     zStyle = "Columnar";
   }else if( tmFlags & TIMELINE_COMPACT ){
     zStyle = "Compact";
+  }else if( tmFlags & TIMELINE_SIMPLE ){
+    zStyle = "Simple";
   }else if( tmFlags & TIMELINE_VERBOSE ){
     zStyle = "Verbose";
   }else if( tmFlags & TIMELINE_CLASSIC ){
@@ -633,11 +638,12 @@ void finfo_page(void){
       nParent++;
     }
     db_reset(&qparent);
-    if( zBr==0 ) zBr = "trunk";
+    zMainBranch = db_main_branch();
+    if( zBr==0 ) zBr = fossil_strdup(zMainBranch);
     if( uBg ){
       zBgClr = user_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
-      zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
+      zBgClr = strcmp(zBr, zMainBranch)==0 ? "" : hash_color(zBr);
     }else if( zBgClr ){
       zBgClr = reasonable_bg_color(zBgClr,0);
     }
@@ -733,10 +739,10 @@ void finfo_page(void){
       cgi_printf("<span class='clutter' id='detail-%d'>",frid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
-    if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ) cgi_printf("(");
+    if( tmFlags & TIMELINE_INLINE ) cgi_printf("(");
     if( zUuid && (tmFlags & TIMELINE_VERBOSE)==0 ){
       @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFName,zCkin))\
-      @ [%S(zUuid)]</a>
+      @ %S(zUuid)</a>
       if( fShowId ){
         int srcId = delta_source_rid(frid);
         if( srcId>0 ){
@@ -747,6 +753,11 @@ void finfo_page(void){
         }
       }
     }
+    if( tmFlags & TIMELINE_SIMPLE ){
+      @ <span class='timelineEllipsis' data-id='%d(frid)' \
+      @ id='ellipsis-%d(frid)'>...</span>
+      @ <span class='clutter' id='detail-%d(frid)'>
+    }
     @ check-in:&nbsp;\
     hyperlink_to_version(zCkin);
     if( fShowId ){
@@ -755,8 +766,8 @@ void finfo_page(void){
     @ user:&nbsp;\
     hyperlink_to_user(zUser, zDate, ",");
     @ branch:&nbsp;%z(href("%R/timeline?t=%T",zBr))%h(zBr)</a>,
-    if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ){
-      @ size:&nbsp;%d(szFile))
+    if( tmFlags & TIMELINE_INLINE ){
+      @ size:&nbsp;%d(szFile)
     }else{
       @ size:&nbsp;%d(szFile)
     }
@@ -795,8 +806,8 @@ void finfo_page(void){
     }
     tag_private_status(frid);
     /* End timelineDetail */
-    if( tmFlags & TIMELINE_COMPACT ){
-      @ </span></span>
+    if( tmFlags & TIMELINE_INLINE ){
+      @ </span>)</span>
     }else{
       @ </span>
     }
@@ -815,7 +826,10 @@ void finfo_page(void){
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph, TIMELINE_FILEDIFF, iTableId);
+  {
+    int tmFlags = TIMELINE_GRAPH | TIMELINE_FILEDIFF;
+    timeline_output_graph_javascript(pGraph, tmFlags, iTableId);
+  }
   style_finish_page();
 }
 

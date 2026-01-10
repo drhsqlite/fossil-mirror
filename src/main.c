@@ -65,7 +65,7 @@ typedef pid_t PID_T;
 #endif
 
 /*
-** Default length of a timeout for serving an HTTP request.  Changable
+** Default length of a timeout for serving an HTTP request.  Changeable
 ** using the "--timeout N" command-line option or via "timeout: N" in the
 ** CGI script.
 */
@@ -130,6 +130,9 @@ struct TclContext {
   char **argv;           /* Full copy of the original (expanded) arguments. */
   void *hLibrary;        /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
+#if TCL_MAJOR_VERSION>=9
+  void *xZipfsAppHook;   /* See TclZipfsAppHookProc in th_tcl.c. */
+#endif
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
   void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
   void *xFinalize;       /* See tcl_FinalizeProc in th_tcl.c. */
@@ -152,6 +155,7 @@ struct Global {
   const char *zPhase;     /* Phase of operation, for use by the error log
                           ** and for deriving $canonical_page TH1 variable */
   int isConst;            /* True if the output is unchanging & cacheable */
+  int iResultCode;        /* Process reply code for commands */
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
@@ -187,7 +191,7 @@ struct Global {
   char *zSshCmd;          /* SSH command string */
   const char *zHttpCmd;   /* External program to do HTTP requests */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
-  int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
+  int eIPvers;            /* 0: any   1: ipv4-only  2: ipv6-only */
   char *zPath;            /* Name of webpage being served (may be NULL) */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
@@ -235,6 +239,13 @@ struct Global {
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
+  int eAuthMethod;        /* How the user authenticated to us */
+# define AUTH_NONE   0    /* Not authenticated */
+# define AUTH_COOKIE 1    /* Authentication by cookie */
+# define AUTH_LOCAL  2    /* Uses loopback */
+# define AUTH_PW     3    /* Authentication by password */
+# define AUTH_ENV    4    /* Authenticated by REMOTE_USER environment var */
+# define AUTH_HTTP   5    /* HTTP Basic Authentication */
   int isRobot;            /* True if the client is definitely a robot.  False
                           ** negatives are common for this flag */
   int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
@@ -728,7 +739,7 @@ int fossil_main(int argc, char **argv){
       fprintf(stderr,
           "attach debugger to process %d and press any key to continue.\n",
           GETPID());
-      fgetc(stdin);
+      (void)fgetc(stdin);
     }else{
 #if defined(_WIN32) || defined(WIN32)
       DebugBreak();
@@ -853,7 +864,7 @@ int fossil_main(int argc, char **argv){
 #if USE_SEE
     db_maybe_handle_saved_encryption_key_for_process(SEE_KEY_READ);
 #endif
-    if( find_option("help",0,0)!=0 ){
+    if( find_option("help","?",0)!=0 ){
       /* If --help is found anywhere on the command line, translate the command
        * to "fossil help cmdname" where "cmdname" is the first argument that
        * does not begin with a "-" character.  If all arguments start with "-",
@@ -1008,7 +1019,7 @@ int fossil_main(int argc, char **argv){
     }
   }
 #endif
-  fossil_exit(0);
+  fossil_exit(g.iResultCode);
   /*NOT_REACHED*/
   return 0;
 }
@@ -1182,7 +1193,7 @@ const char *find_repository_option(){
 ** enable passing-in of filenames which start with a dash).
 **
 ** This function must normally only be called one time per app
-** invokation. The exception is commands which process their
+** invocation. The exception is commands which process their
 ** arguments, call this to confirm that there are no extraneous flags,
 ** then modify the arguments list for forwarding to another
 ** (sub)command (which itself will call this to confirm its own
@@ -1394,7 +1405,7 @@ void test_version_page(void){
 
 
 /*
-** Set the g.zBaseURL value to the full URL for the toplevel of
+** Set the g.zBaseURL value to the full URL for the top level of
 ** the fossil tree.  Set g.zTop to g.zBaseURL without the
 ** leading "http://" and the host and port.
 **
@@ -1687,7 +1698,7 @@ int fossil_wants_https(int iLevel){
 int fossil_redirect_to_https_if_needed(int iLevel){
   if( fossil_wants_https(iLevel) ){
     const char *zQS = P("QUERY_STRING");
-    char *zURL;
+    char *zURL = 0;
     if( zQS==0 || zQS[0]==0 ){
       zURL = mprintf("%s%T", g.zHttpsURL, P("PATH_INFO"));
     }else if( zQS[0]!=0 ){
@@ -2442,7 +2453,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             an unconditional redirect to URL is taken.
 **                             When "*" is used a 301 permanent redirect is
 **                             issued and the tail and query string from the
-**                             original query are appeneded onto URL.
+**                             original query are appended onto URL.
 **
 **    jsmode: VALUE            Specifies the delivery mode for JavaScript
 **                             files. See the help text for the --jsmode
@@ -2868,7 +2879,7 @@ static void decode_ssl_options(void){
 ** alphanumerics, "_", "/", "-" and "." and no "-" may occur after a "/"
 ** and every "." must be surrounded on both sides by alphanumerics or else
 ** a 404 error is returned.  Static content files in the directory are
-** returned if they match comma-separate GLOB pattern specified by --files
+** returned if they match comma-separated GLOB pattern specified by --files
 ** and do not match "*.fossil*" and have a well-known suffix.
 **
 ** Options:
@@ -2880,7 +2891,7 @@ static void decode_ssl_options(void){
 **   --ckout-alias N     Treat URIs of the form /doc/N/... as if they were
 **                          /doc/ckout/...
 **   --extroot DIR       Document root for the /ext extension mechanism
-**   --files GLOB        Comma-separate glob patterns for static file to serve
+**   --files GLOB        Comma-separated glob patterns for static files to serve
 **   --host NAME         DNS Hostname of the server
 **   --https             The HTTP request originated from https but has already
 **                       been decoded by a reverse proxy.  Hence, URLs created
@@ -3101,8 +3112,9 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** breaking legacy.
 **
 ** Options:
-**   --csrf-safe N       Set cgi_csrf_safe() to to return N
+**   --csrf-safe N       Set cgi_csrf_safe() to return N
 **   --nobody            Pretend to be user "nobody"
+**   --ssh-sim           Pretend to be over an SSH connection
 **   --test              Do not do special "sync" processing when operating
 **                       over an SSH link
 **   --th-trace          Trace TH1 execution (for debugging purposes)
@@ -3114,6 +3126,9 @@ void cmd_test_http(void){
   int bTest = 0;
   const char *zCsrfSafe = find_option("csrf-safe",0,1);
 
+  if( find_option("ssh-sim",0,0)!=0 ){
+    putenv("SSH_CONNECTION=127.0.0.1 12345 127.0.0.2 23456");
+  }
   Th_InitTraceLog();
   if( zCsrfSafe ) g.okCsrf = atoi(zCsrfSafe);
   zUserCap = find_option("usercap",0,1);

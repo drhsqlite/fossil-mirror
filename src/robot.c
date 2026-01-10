@@ -41,10 +41,15 @@ static struct RobotCache {
 } robot = { 0, 0, 0 };
 
 /*
-** Allowed values for robot.resultCache
+** Allowed values for robot.resultCache.
+**
+** The names are slightly misleading.  KNOWN_NOT_ROBOT might be set even
+** if the client is a robot, but only if the robot is an approved robot.
+** A better name might be "KNOWN_NOT_UNAUTHORIZED_ROBOT", but that is too
+** long of a name.
 */
-#define KNOWN_NOT_ROBOT  1
-#define MIGHT_BE_ROBOT   2
+#define KNOWN_NOT_ROBOT  1   /* Approved to consume CPU and bandwidth */
+#define MIGHT_BE_ROBOT   2   /* Might be an unapproved robot */
 
 /*
 ** Compute two hashes, robot.h1 and robot.h2, that are used as
@@ -161,7 +166,7 @@ int client_might_be_a_robot(void){
   /* Condition 4:  If there is a "token=VALUE" query parameter with a
   ** valid VALUE argument, then assume that the request is coming from
   ** either an interactive human session, or an authorized robot that we
-  ** want to treat as human.  All it through and also set the robot cookie.
+  ** want to treat as human.  Allow it through and also set the robot cookie.
   */
   z = P("token");
   if( z!=0 ){
@@ -206,7 +211,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
   @ Press <input type="submit" id="x5" value="Ok" focus> to continue</span>
   @ <span id="x7" style="visibility:hidden;">You appear to be a robot.</span>\
   @ </p>
-  cgi_tag_query_parameter("name");
+  if( g.zExtra && g.zExtra[0] ) cgi_tag_query_parameter("name");
   cgi_query_parameters_to_hidden();
   @ <input id="x4" type="hidden" name="proof" value="0">
   @ </form>
@@ -256,18 +261,23 @@ static void ask_for_proof_that_client_is_not_robot(void){
 /*
 ** SETTING: robot-restrict                width=40 block-text
 ** The VALUE of this setting is a list of GLOB patterns that match
-** pages for which complex HTTP requests from unauthenicated clients
+** pages for which complex HTTP requests from unauthenticated clients
 ** should be disallowed.  "Unauthenticated" means the user is "nobody".
 ** The recommended value for this setting is:
 **
-**     timelineX,diff,annotate,zip,fileage,file,finfo,reports
+**   timelineX,diff,annotate,fileage,file,finfo,reports,tree,download,hexdump
 **
-** The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and
-** /vpatch.  The "annotate" tag also covers /blame and /praise.  "zip"
-** also covers /tarball and /sqlar.  If a tag has an "X" character appended,
-** then it only applies if query parameters are such that the page is
-** particularly difficult to compute. In all other case, the tag should
-** exactly match the page name.
+** Usually the tag should exactly match the page name.  The "diff" tag
+** covers all diffing pages such as /vdiff, /fdiff, and /vpatch.  The
+** "annotate" tag also covers /blame and /praise.  "zip" also covers
+** /tarball and /sqlar.  If a tag has an "X" character appended then it
+** only applies if query parameters are such that the page is particularly
+** difficult to compute.  Useful "X" tags include "timelineX" and "zipX".
+** The "ext" tag matches all extension, but a tag of the form "ext/PATH"
+** only matches the extension at PATH.
+**
+** See the [[robot-zip-leaf]] and [[robot-zip-tag]] settings
+** for additional controls associated with the "zipX" restriction.
 **
 ** Change this setting "off" to disable all robot restrictions.
 */
@@ -282,26 +292,47 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** for named versions and releases, you could use an expression like
 ** this:
 **
-**     ^/(tarball|zip)\\b*\\b(version-|release)\\b
+**     ^/tarball/(version-[0-9.]+|release)/
 **
 ** This setting can hold multiple regular expressions, one
 ** regular expression per line.  The input URL is exempted from
 ** anti-robot defenses if any of the multiple regular expressions
 ** matches.
 */
+/*
+** SETTING: robot-zip-leaf               boolean
+**
+** If this setting is true, the robots are allowed to download tarballs,
+** ZIP-archives, and SQL-archives even though "zipX" is found in
+** the [[robot-restrict]] setting as long as the specific check-in being
+** downloaded is a leaf check-in.
+*/
+/*
+** SETTING: robot-zip-tag                width=40 block-text
+**
+** If this setting is a list of GLOB patterns matching tags,
+** then robots are allowed to download tarballs, ZIP-archives, and
+** SQL-archives even though "zipX" appears in [[robot-restrict]], as long as
+** the specific check-in being downloaded has a tags that matches
+** the GLOB list of this setting.  Recommended value:  
+** "release,robot-access".
+*/
 
 /*
 ** Return the default restriction GLOB
 */
 const char *robot_restrict_default(void){
-  return "timelineX,diff,annotate,zip,fileage,file,finfo,reports";
+  return "timelineX,diff,annotate,fileage,file,finfo,reports,"
+         "tree,hexdump,download";
 }
 
 /*
 ** Return true if zTag matches one of the tags in the robot-restrict
 ** setting.
+**
+** A zTag of "*" matches anything.
 */
-int robot_restrict_has_tag(const char *zTag){
+static int robot_restrict_has_tag(const char *zTag){
   static const char *zGlob = 0;
   if( zGlob==0 ){
     zGlob = db_get("robot-restrict",robot_restrict_default());
@@ -309,6 +340,9 @@ int robot_restrict_has_tag(const char *zTag){
   }
   if( zGlob[0]==0 || fossil_strcmp(zGlob, "off")==0 ){
     return 0;
+  }
+  if( zTag==0 || (zTag[0]=='*' && zTag[1]==0) ){
+    return 1;
   }
   return glob_multi_match(zGlob,zTag);
 }
@@ -369,7 +403,7 @@ int robot_exception(void){
     }
     z = mprintf("%.*s", (int)(zNL - zRE)+1, zRE);
     zRE += n;
-    zErr = re_compile(&pRe, z, 0);
+    zErr = fossil_re_compile(&pRe, z, 0);
     if( zErr ){
       fossil_warning("robot-exception error \"%s\" in expression \"%s\"\n",
                      zErr, z);
@@ -385,22 +419,107 @@ int robot_exception(void){
 }
 
 /*
-** Check to see if the page named in the argument is on the
-** robot-restrict list.  If it is on the list and if the user
-** is "nobody" then bring up a captcha to test to make sure that
-** client is not a robot.
+** Return true if one or more of the conditions below are true.
+** Return false if all of the following are false:
 **
-** This routine returns true if a captcha was rendered and if subsequent
-** page generation should be aborted.  It returns false if the page
-** should not be restricted and should be rendered normally.
+**   *  The zTag is on the robot-restrict list
+**
+**   *  The client that submitted the HTTP request might be
+**      a robot
+**
+**   *  The Request URI does not match any of the exceptions
+**      in the robot-exception setting.
+**
+** In other words, return true if a call to robot_restrict() would
+** return true and false if a call to robot_restrict() would return
+** false.
+**
+** The difference between this routine an robot_restrict() is that
+** this routine does not generate a proof-of-work captcha.  This
+** routine does not change the HTTP reply in any way.  It simply
+** returns true or false.
 */
-int robot_restrict(const char *zTag){
+int robot_would_be_restricted(const char *zTag){
   if( robot.resultCache==KNOWN_NOT_ROBOT ) return 0;
   if( !robot_restrict_has_tag(zTag) ) return 0;
   if( !client_might_be_a_robot() ) return 0;
   if( robot_exception() ){
     robot.resultCache = KNOWN_NOT_ROBOT;
     return 0;
+  }
+  return 1;
+}
+
+/*
+** Check to see if the page named in the argument is on the
+** robot-restrict list.  If it is on the list and if the user
+** is might be a robot, then bring up a captcha to test to make
+** sure that client is not a robot.
+**
+** This routine returns true if a captcha was rendered and if subsequent
+** page generation should be aborted.  It returns false if the page
+** should not be restricted and should be rendered normally.
+*/
+int robot_restrict(const char *zTag){
+  if( robot_would_be_restricted(zTag) ){
+    /* Generate the proof-of-work captcha */
+    ask_for_proof_that_client_is_not_robot();
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+/*
+** Check to see if a robot is allowed to download a tarball, ZIP archive,
+** or SQL Archive for a particular check-in identified by the "rid" 
+** argument.  Return true to block the download.  Return false to
+** continue.  Prior to returning true, a captcha is presented to the user.
+** No output is generated when returning false.
+**
+** The rules:
+**
+** (1) If "zipX" is missing from the robot-restrict setting, then robots
+**     are allowed to download any archive.  None of the remaining rules
+**     below are consulted unless "zipX" is on the robot-restrict setting.
+**
+** (2) If the robot-zip-leaf setting is true, then robots are allowed
+**     to download archives for any leaf check-in.  This allows URL like
+**     /tarball/trunk/archive.tar.gz to work since branch labels like "trunk"
+**     always resolve to a leaf.
+**
+** (3) If the robot-zip-tag setting is a comma-separated tags, then any
+**     check-in that contains one of the tags on that list is allowed to
+**     be downloaded.  This allows check-ins with tags like "release" or
+**     "robot-access" to be downloaded by robots.
+*/
+int robot_restrict_zip(int rid){
+  const char *zTag;
+  if( !robot_restrict_has_tag("zipX") || !client_might_be_a_robot() ){
+    return 0;        /* Rule (1) */
+  }
+
+  if( db_get_boolean("robot-zip-leaf",0) && is_a_leaf(rid) ){
+    return 0;        /* Rule (2) */
+  }
+
+  zTag = db_get("robot-zip-tag",0);
+  if( zTag && zTag[0] && fossil_strcmp(zTag,"off")!=0 ){
+    int ok = 0;
+    Stmt q;
+    db_prepare(&q,
+      "SELECT substr(tagname,5) FROM tagxref, tag"
+      " WHERE tagxref.rid=%d"
+      "   AND tag.tagid=tagxref.tagid"
+      "   AND tagxref.tagtype=1"
+      "   AND tag.tagname GLOB 'sym-*'",
+      rid
+    );
+    while( !ok && db_step(&q)==SQLITE_ROW ){
+      if( glob_multi_match(zTag, db_column_text(&q,0)) ) ok = 1;
+    }
+    db_finalize(&q);
+    if( ok ) return 0; /* Rule (3) */
   }
 
   /* Generate the proof-of-work captcha */
@@ -418,17 +537,26 @@ int robot_restrict(const char *zTag){
 ** Whenever this page is successfully rendered (when it doesn't go to
 ** the captcha) it deletes the proof-of-work cookie.  So reloading the
 ** page will reset the cookie and restart the verification.
+**
+** If the zip=CHECKIN query parameter is provided, then also invoke
+** robot_restrict_archive() on the RID of CHECKIN.
 */
 void robot_restrict_test_page(void){
   const char *zName = P("name");
+  const char *zZip = P("zip");
   const char *zP1 = P("proof");
   const char *zP2 = P(ROBOT_COOKIE);
   const char *z;
+  int rid = 0;
   if( zName==0 || zName[0]==0 ) zName = g.zPath;
   login_check_credentials();
   if( g.zLogin==0 ){ login_needed(1); return; }
   g.zLogin = 0;
   if( robot_restrict(zName) ) return;
+  if( zZip && zZip[0] ){
+    rid = symbolic_name_to_rid(zZip, "ci");
+    if( rid && robot_restrict_zip(rid) ) return;
+  }
   style_set_current_feature("test");
   style_header("robot_restrict() test");
   @ <h1>Captcha passed</h1>
@@ -440,6 +568,10 @@ void robot_restrict_test_page(void){
   if( zP2 && zP2[0] ){
     @ %h(ROBOT_COOKIE)=%h(zP2)<br>
     cgi_set_cookie(ROBOT_COOKIE,"",0,-1);
+  }
+  if( zZip && zZip[0] ){
+    @ zip=%h(zZip)<br>
+    @ rid=%d(rid)<br>
   }
   if( g.perm.Admin ){
     z = db_get("robot-restrict",robot_restrict_default());

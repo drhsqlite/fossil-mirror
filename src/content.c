@@ -498,7 +498,7 @@ void content_rcvid_init(const char *zSrc){
 ** and zUuid is zero then the correct zUuid is computed from pBlob.
 **
 ** If the record already exists but is a phantom, the pBlob content
-** is inserted and the phatom becomes a real record.
+** is inserted and the phantom becomes a real record.
 **
 ** The original content of pBlob is not disturbed.  The caller continues
 ** to be responsible for pBlob.  This routine does *not* take over
@@ -653,7 +653,7 @@ int content_put_ex(
 **
 ** The original content of pBlob is not disturbed.  The caller continues
 ** to be responsible for pBlob.  This routine does *not* take over
-** responsiblity for freeing pBlob.
+** responsibility for freeing pBlob.
 */
 int content_put(Blob *pBlob){
   return content_put_ex(pBlob, 0, 0, 0, 0);
@@ -795,7 +795,7 @@ void content_make_private(int rid){
 /*
 ** Try to change the storage of rid so that it is a delta from one
 ** of the artifacts given in aSrc[0]..aSrc[nSrc-1].  The aSrc[*] that
-** gives the smallest delta is choosen.
+** gives the smallest delta is chosen.
 **
 ** If rid is already a delta from some other place then no
 ** conversion occurs and this is a no-op unless force==1.  If force==1,
@@ -866,7 +866,7 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
     if( content_is_private(srcid) && !content_is_private(rid) ) continue;
 
     /* Compute all ancestors of srcid and make sure rid is not one of them.
-    ** If rid is an ancestor of srcid, then making rid a decendent of srcid
+    ** If rid is an ancestor of srcid, then making rid a descendant of srcid
     ** would create a delta loop. */
     s = srcid;
     while( (s = delta_source_rid(s))>0 ){

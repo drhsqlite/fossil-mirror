@@ -96,7 +96,7 @@ void stats_for_email(void){
    && (zDir = db_get("email-send-dir",0))!=0
   ){
     @ Written to files in "%h(zDir)"
-    @ (%,d(file_directory_size(zDir,0,1)) messages)
+    @ (%,d(file_directory_list(zDir,0,1,0,0)) messages)
   }else
   if( fossil_strcmp(zDest,"relay")==0
    && (zRelay = db_get("email-send-relayhost",0))!=0
@@ -505,7 +505,7 @@ void dbstat_cmd(void){
 ** Algorithm:
 **
 ** The public URL is given by the email-url property.  But it is only
-** returned if there have been one more more accesses (as recorded by
+** returned if there have been one or more accesses (as recorded by
 ** "baseurl:URL" entries in the CONFIG table).
 */
 const char *public_url(void){

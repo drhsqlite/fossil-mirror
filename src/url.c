@@ -60,6 +60,7 @@ struct UrlData {
   char *canonical;      /* Canonical representation of the URL */
   char *proxyAuth;      /* Proxy-Authorizer: string */
   char *fossil;         /* The fossil query parameter on ssh: */
+  char *subpath;        /* Secondary HTTP request path for ssh: and file: */
   char *pwConfig;       /* CONFIG table entry that gave us the password */
   unsigned flags;       /* Boolean flags controlling URL processing */
   int useProxy;         /* Used to remember that a proxy is in use */
@@ -408,6 +409,7 @@ void url_unparse(UrlData *p){
   fossil_free(p->user);
   fossil_free(p->passwd);
   fossil_free(p->fossil);
+  fossil_free(p->subpath);
   fossil_free(p->pwConfig);
   memset(p, 0, sizeof(*p));
 }
@@ -485,6 +487,7 @@ void urlparse_print(int showPw){
   fossil_print("g.url.pwConfig  = %s\n", g.url.pwConfig);
   fossil_print("g.url.canonical = %s\n", g.url.canonical);
   fossil_print("g.url.fossil    = %s\n", g.url.fossil);
+  fossil_print("g.url.subpath   = %s\n", g.url.subpath);
   fossil_print("g.url.flags     = 0x%04x\n", g.url.flags);
   fossil_print("url_full(g.url) = %z\n", url_full(&g.url));
 }
@@ -547,6 +550,8 @@ static const char *zProxyOpt = 0;
 **
 **    --ipv4               Disallow IPv6.  Use only IPv4.
 **
+**    --ipv6               Disallow IPv4.  Use only IPv6.
+**
 **    --accept-any-cert    Disable server SSL cert validation. Accept
 **                         any SSL cert that the server provides.
 **                         WARNING: this option opens you up to
@@ -555,7 +560,8 @@ static const char *zProxyOpt = 0;
 void url_proxy_options(void){
   zProxyOpt = find_option("proxy", 0, 1);
   if( find_option("nosync",0,0) ) g.fNoSync = 1;
-  if( find_option("ipv4",0,0) ) g.fIPv4 = 1;
+  if( find_option("ipv4",0,0) ) g.eIPvers = 1;
+  if( find_option("ipv6",0,0) ) g.eIPvers = 2;
 #ifdef FOSSIL_ENABLE_SSL
   if( find_option("accept-any-cert",0,0) ){
     ssl_disable_cert_verification();

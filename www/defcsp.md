@@ -33,7 +33,7 @@ img-src * data:;
 
 The default is recommended for most installations.  However,
 the site administrators can overwrite this default CSP using the
-[default-csp setting](/help?cmd=default-csp).  For example,
+[default-csp setting](/help/default-csp).  For example,
 CSP restrictions can be completely disabled by setting the default-csp to:
 
     default-src *;
@@ -288,21 +288,21 @@ Unversioned content is in the middle of the first list above — between
 fully-external content and fully in-repo content — because it isn’t
 included in a clone unless you give the `--unversioned` flag. If you
 then want updates to the unversioned content to be included in syncs,
-you have to give the same flag to [a `sync` command](/help?cmd=sync).
+you have to give the same flag to [a `sync` command](/help/sync).
 There is no equivalent with other commands such as `up` and `pull`, so
 you must then remember to give `fossil uv` commands when necessary to
 pull new unversioned content down.
 
 Thus our recommendation that you refer to in-repo resources exclusively.
 
-[du]:   /help?cmd=/doc
+[du]:   /help/www/doc
 [fp]:   ./forum.wiki
-[ru]:   /help?cmd=/raw
+[ru]:   /help/www/raw
 [spof]: https://en.wikipedia.org/wiki/Single_point_of_failure
 [tkt]:  ./tickets.wiki
 [tn]:   ./event.wiki
 [tls]:  ./server/debian/nginx.md 
-[uu]:   /help?cmd=/uv
+[uu]:   /help/www/uv
 [uv]:   ./unvers.wiki
 [wiki]: ./wikitheory.wiki
 
@@ -320,7 +320,7 @@ a higher-level method.
 
 ### <a id="cspsetting"></a>The `default-csp` Setting
 
-If the [`default-csp` setting](/help?cmd=default-csp) is defined and is
+If the [`default-csp` setting](/help/default-csp) is defined and is
 not an empty string, its value is injected into the page using
 [TH1](./th1.md) via one or more of the methods below, depending on the
 skin you’re using and local configuration.

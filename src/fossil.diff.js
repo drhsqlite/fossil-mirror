@@ -37,7 +37,7 @@ window.fossil.onPageLoad(function(){
   const allToggles = [/*collection of all diff-toggle checkboxes*/];
   let checkedCount =
       0 /* When showing more than one diff, keep track of how many
-           "show/hide" checkboxes are are checked so we can update the
+           "show/hide" checkboxes are checked so we can update the
            "show/hide all" label dynamically. */;
   let btnAll /* UI control to show/hide all diffs */;
   /* Install a diff-toggle button for the given diff table element. */
@@ -108,7 +108,7 @@ window.fossil.onPageLoad(function(){
         /*per /chat discussion*/
       ) || 20,
       chunkFetch: {
-        /* Default callack handlers for Diff.fetchArtifactChunk(),
+        /* Default callback handlers for Diff.fetchArtifactChunk(),
            unless overridden by options passeed to that function. */
         beforesend: function(){},
         aftersend: function(){},
@@ -360,7 +360,7 @@ window.fossil.onPageLoad(function(){
     },
 
     /**
-       Callack for /jchunk responses.
+       Callback for /jchunk responses.
     */
     injectResponse: function f(fetchType/*as for fetchChunk()*/,
                                urlParam/*from fetchChunk()*/,

@@ -173,7 +173,7 @@ static void bisect_list(int abbreviated){
 ** Append a new entry to the bisect log.  Update the bisect-good or
 ** bisect-bad values as appropriate.
 **
-** The bisect-log consists of a list of token.  Each token is an
+** The bisect-log consists of a list of tokens.  Each token is an
 ** integer RID of a check-in.  The RID is negative for "bad" check-ins
 ** and positive for "good" check-ins.
 */

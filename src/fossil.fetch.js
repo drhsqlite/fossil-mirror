@@ -63,7 +63,7 @@ const fossil = namespace;
    onreadystatechange() and an ontimeout(), in that order.  From the
    former, however, we cannot unambiguously identify the error as
    having been caused by a timeout, so clients which set ontimeout()
-   will get _two_ callback calls: one with with an HTTP error response
+   will get _two_ callback calls: one with an HTTP error response
    followed immediately by an ontimeout() response. Error objects
    passed to this will have (.name='timeout', .status=xhr.HttpStatus).
    In the context of the callback, the options object is "this", Like

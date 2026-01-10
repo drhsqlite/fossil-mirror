@@ -159,15 +159,18 @@ static void collect_argv(Blob *pExtra, int iStart){
 ** are added back to the list of repositories by these commands.
 **
 ** Options:
-**   --dry-run         If given, display instead of run actions
+**   --dry-run         Just display commands that would have run
 **   --showfile        Show the repository or check-out being operated upon
 **   --stop-on-error   Halt immediately if any subprocess fails
+**   -s|--stop         Shorthand for "--stop-on-error"
 */
 void all_cmd(void){
   Stmt q;
   const char *zCmd;
-  char *zSyscmd;
+  char *zSyscmd = 0;
   Blob extra;
+  int bHalted = 0;
+  int rc = 0;
   int useCheckouts = 0;
   int quiet = 0;
   int dryRunFlag = 0;
@@ -178,6 +181,7 @@ void all_cmd(void){
 
   (void)find_option("dontstop",0,0);   /* Legacy.  Now the default */
   stopOnError = find_option("stop-on-error",0,0)!=0;
+  if( find_option("stop","s",0)!=0 ) stopOnError = 1;
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
@@ -332,6 +336,8 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "unversioned","u");
     collect_argument(&extra, "all",0);
+    collect_argument(&extra, "quiet","q");
+    collect_argument(&extra, "ping",0);
   }else if( fossil_strcmp(zCmd, "test-integrity")==0 ){
     collect_argument(&extra, "db-only", "d");
     collect_argument(&extra, "parse", 0);
@@ -467,7 +473,6 @@ void all_cmd(void){
   }
   db_prepare(&q,"SELECT name, tag, inode FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
-    int rc;
     const char *zFilename = db_column_text(&q, 0);
     const char *zInode = db_column_text(&q,2);
 #if !USE_SEE
@@ -504,14 +509,17 @@ void all_cmd(void){
       fflush(stdout);
     }
     rc = dryRunFlag ? 0 : fossil_system(zSyscmd);
-    free(zSyscmd);
     if( rc ){
-      if( stopOnError ) break;
+      if( stopOnError ){
+        bHalted = 1;
+        break;
+      }
       /* If there is an error, pause briefly, but do not stop.  The brief
       ** pause is so that if the prior command failed with Ctrl-C then there
       ** will be time to stop the whole thing with a second Ctrl-C. */
       sqlite3_sleep(330);
     }
+    fossil_free(zSyscmd);
   }
   db_finalize(&q);
 
@@ -530,4 +538,9 @@ void all_cmd(void){
       db_protect_pop();
     }
   }
+
+  if( stopOnError && bHalted ){
+    fossil_fatal("STOPPED: non-zero result code (%d) from\nSTOPPED: %s",
+                     rc, zSyscmd);
+  }    
 }

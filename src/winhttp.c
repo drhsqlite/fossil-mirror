@@ -807,7 +807,7 @@ static char *win32_get_last_errmsg(void){
            NULL
          );
   if( !nMsg ){
-    /* No english, get what the system has available. */
+    /* No English, get what the system has available. */
     nMsg = FormatMessageW(
              FORMAT_MESSAGE_ALLOCATE_BUFFER |
              FORMAT_MESSAGE_FROM_SYSTEM     |

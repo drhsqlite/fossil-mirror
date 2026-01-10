@@ -162,7 +162,8 @@ function _fossil() {
     "(--help --comfmtflags --comment-format)"--comfmtflags'[VALUE Set comment formatting flags to VALUE]:value:'
     "(--help --comment-format --comfmtflags)"--comment-format'[VALUE Alias for --comfmtflags]:value:'
     "(--help --errorlog)"--errorlog'[FILENAME Log errors to FILENAME]:file:_files'
-    "(- --help)"--help'[Show help on the command rather than running it]'
+    "(- -? --help)"{-?,--help}
+    '[Show help on the command rather than running it]'
     "(--help --httptrace)"--httptrace'[Trace outbound HTTP requests]'
     "(--help --localtime)"--localtime'[Display times using the local timezone]'
     "(--help --no-th-hook)"--no-th-hook'[Do not run TH1 hooks]'

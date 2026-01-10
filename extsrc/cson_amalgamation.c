@@ -15,16 +15,16 @@
 /* Windows DLL stuff */
 #ifdef JSON_PARSER_DLL
 #   ifdef _MSC_VER
-#	    ifdef JSON_PARSER_DLL_EXPORTS
-#		    define JSON_PARSER_DLL_API __declspec(dllexport)
-#	    else
-#		    define JSON_PARSER_DLL_API __declspec(dllimport)
-#       endif
+#     ifdef JSON_PARSER_DLL_EXPORTS
+#       define JSON_PARSER_DLL_API __declspec(dllexport)
+#     else
+#       define JSON_PARSER_DLL_API __declspec(dllimport)
+#     endif
 #   else
-#	    define JSON_PARSER_DLL_API 
+#     define JSON_PARSER_DLL_API 
 #   endif
 #else
-#	define JSON_PARSER_DLL_API 
+#   define JSON_PARSER_DLL_API 
 #endif
 
 /* Determine the integer type use to parse non-floating point numbers */

@@ -41,7 +41,7 @@
 #include "autoconfig.h"
 #endif
 
-/* Enable the hardened SHA1 implemenation by default */
+/* Enable the hardened SHA1 implementation by default */
 #ifndef FOSSIL_HARDENED_SHA1
 # define FOSSIL_HARDENED_SHA1 1
 #endif

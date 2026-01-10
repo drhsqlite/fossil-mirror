@@ -552,11 +552,11 @@ static int stash_get_id(const char *zStashId){
 **      changes of STASHID.  Keep STASHID so that it can be reused
 **      This command is undoable.
 **
-** > fossil stash drop|rm ?STASHID? ?-a|--all?
+** > fossil stash drop|rm ?STASHIDs...? ?-a|--all?
 **
-**      Forget everything about STASHID.  Forget the whole stash if the
-**      -a|--all flag is used.  Individual drops are undoable but -a|--all
-**      is not.
+**      Forget everything about the given STASHIDs.  Forget the whole
+**      stash if the -a|--all flag is used.  Individual drops are
+**      undoable but -a|--all is not.
 **
 ** > fossil stash diff ?STASHID? ?DIFF-OPTIONS?
 ** > fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?

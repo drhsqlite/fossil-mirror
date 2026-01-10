@@ -49,7 +49,7 @@ reference on peer repositories without the private branch, the merge parent
 is not recorded when merging the private branch into a public branch.  As a
 consequence, the web UI timeline does not draw a merge line from the private
 merge parent to the public merge child.  Moreover, repeat private-to-public
-merge operations (without the [/help?cmd=merge | --force option]) with files
+merge operations (without the [/help/merge | --force option]) with files
 added on the private branch may only work once, but later abort with
 "WARNING: no common ancestor for FILE", as the parent-child relationship is
 not recorded. (See the [/doc/trunk/www/branching.wiki | Branching, Forking,

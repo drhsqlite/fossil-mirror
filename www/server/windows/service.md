@@ -64,7 +64,7 @@ fossil.exe process is unable to use the directory normally during a scan.
 ### <a id='PowerShell'></a>Advanced service installation using PowerShell
 
 As great as `fossil winsrv` is, it does not have one to one reflection of all of
-the `fossil server` [options](/help?cmd=server).  When you need to use some of
+the `fossil server` [options](/help/server).  When you need to use some of
 the more advanced options, such as `--https`, `--skin`, or `--extroot`, you will
 need to use PowerShell to configure and install the Windows service.
 
@@ -83,7 +83,7 @@ Fossil has a preference for forward slashes.  The use of `--repolist` will make
 this a multiple repository server.  If you want to serve only a single
 repository, then leave off the `--repolist` parameter and provide the full path
 to the proper repository file. Other options are listed in the
-[fossil server](/help?cmd=server) documentation.
+[fossil server](/help/server) documentation.
 
 The service will be installed by default to use the Local Service account.
 Since Fossil only needs access to local files, this is fine and causes no

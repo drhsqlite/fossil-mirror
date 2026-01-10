@@ -449,7 +449,7 @@ void view_edit(void){
   const char *z;
   const char *zOwner;           /* Owner of the report */
   const char *zClrKey;          /* Color key - used to add colors to lines */
-  char *zSQL;                   /* The SQL text that gnerates the report */
+  char *zSQL;                   /* The SQL text that generates the report */
   char *zErr = 0;               /* An error message */
   const char *zDesc;            /* Extra descriptive text about the report */
   const char *zMimetype;        /* Mimetype for zDesc */

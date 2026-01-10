@@ -23,7 +23,7 @@
 **
 ** The "fossil shell" command is intended for use with SEE-enabled fossil.
 ** It allows multiple commands to be issued without having to reenter the
-** crypto phasephrase for each command.
+** crypto passphrase for each command.
 */
 #include "config.h"
 #include "fshell.h"
