@@ -486,7 +486,7 @@ void status_cmd(void){
 
   Blob report = BLOB_INITIALIZER;
   enum {CHANGES, STATUS} command = *g.argv[1]=='s' ? STATUS : CHANGES;
-  /* --sha1sum is an undocumented alias for --hash for backwards compatiblity */
+  /* --sha1sum is an undocumented alias for --hash for backwards compatibility */
   int useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
   int showHdr = command==CHANGES && find_option("header", 0, 0);
   int verboseFlag = command==CHANGES && find_option("verbose", "v", 0);
@@ -720,7 +720,8 @@ static void ls_cmd_rev(
   const char *zRev,  /* Revision string given */
   int verboseFlag,   /* Verbose flag given */
   int showAge,       /* Age flag given */
-  int showHash,      /* Show hash flag given */
+  int showFileHash,  /* Show file hash flag given */
+  int showCkinHash,  /* Show check-in hash flag given */
   int timeOrder,     /* Order by time flag given */
   int treeFmt        /* Show output in the tree format */
 ){
@@ -764,12 +765,17 @@ static void ls_cmd_rev(
   }
 
   compute_fileage(rid,0);
-  db_prepare(&q,
+  db_prepare(&q,   
     "SELECT datetime(fileage.mtime, toLocal()), fileage.pathname,\n"
-    "       blob.size, fileage.uuid\n"
-    "  FROM fileage, blob\n"
-    " WHERE blob.rid=fileage.fid %s\n"
-    " ORDER BY %s;", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
+    "       bfh.size, fileage.uuid %s\n"
+    "  FROM fileage, blob bfh %s\n"
+    " WHERE bfh.rid=fileage.fid %s %s\n"
+    " ORDER BY %s;", 
+        showCkinHash ? ", bch.uuid" : "",
+        showCkinHash ? ", blob bch" : "",
+        showCkinHash ? "\n   AND bch.rid=fileage.mid" : "",
+        blob_sql_text(&where),
+        zOrderBy /*safe-for-%s*/
   );
   blob_reset(&where);
   if( treeFmt ) blob_init(&out, 0, 0);
@@ -781,8 +787,15 @@ static void ls_cmd_rev(
     if( treeFmt ){
       blob_appendf(&out, "%s\n", zFile);
     }else if( verboseFlag ){
-      const char *zUuid = mprintf("[%S]  ", db_column_text(&q,3));
-      fossil_print("%s  %7d  %s%s\n", zTime, size, showHash ? zUuid :"", zFile);
+      if( showFileHash ){
+        const char *zUuidF = db_column_text(&q,3);
+        fossil_print("%s  %7d  [%S]  %s\n", zTime, size, zUuidF, zFile);
+      }else if( showCkinHash ){
+        const char *zUuidC = db_column_text(&q,4);
+        fossil_print("%s  %7d  [%S]  %s\n", zTime, size, zUuidC, zFile);
+      }else{
+        fossil_print("%s  %7d  %s\n", zTime, size, zFile);
+      }
     }else if( showAge ){
       fossil_print("%s  %s\n", zTime, zFile);
     }else{
@@ -816,7 +829,8 @@ static void ls_cmd_rev(
 ** The -v option provides extra information about each file.  Without -r,
 ** -v displays the change status, in the manner of the changes command.
 ** With -r, -v shows the commit time and size of the checked-in files; in
-** this combination, it additionally shows file hashes with -h.
+** this combination, it additionally shows file hashes with -h, or check-in
+** hashes with -H (when both are given, file hashes take precedence).
 **
 ** The -t option changes the sort order.  Without -t, files are sorted by
 ** path and name (case insensitive sort if -r).  If neither --age nor -r
@@ -825,6 +839,7 @@ static void ls_cmd_rev(
 ** Options:
 **   --age                 Show when each file was committed
 **   -h                    With -v and -r, show file hashes
+**   -H                    With -v and -r, show check-in hashes
 **   --hash                With -v, verify file status using hashing
 **                         rather than relying on file sizes and mtimes
 **   -r VERSION            The specific check-in to list
@@ -846,7 +861,8 @@ void ls_cmd(void){
   Blob where;
   int i;
   int useHash = 0;
-  int showHash = 0;
+  int showFHash = 0;  /* Show file hash */
+  int showCHash = 0;  /* Show check-in hash */
   const char *zName;
   const char *zRev;
 
@@ -859,7 +875,11 @@ void ls_cmd(void){
   timeOrder = find_option("t","t",0)!=0;
   if( verboseFlag ){
     useHash = find_option("hash",0,0)!=0;
-    showHash = find_option("h","h",0)!=0;
+    showFHash = find_option("h","h",0)!=0;
+    showCHash = find_option("H","H",0)!=0;
+    if( showFHash ){
+      showCHash = 0;  /* file hashes take precedence */
+    }
   }
   treeFmt = find_option("tree",0,0)!=0;
   if( treeFmt ){
@@ -869,7 +889,7 @@ void ls_cmd(void){
   if( zRev!=0 ){
     db_find_and_open_repository(0, 0);
     verify_all_options();
-    ls_cmd_rev(zRev,verboseFlag,showAge,showHash,timeOrder,treeFmt);
+    ls_cmd_rev(zRev,verboseFlag,showAge,showFHash,showCHash,timeOrder,treeFmt);
     return;
   }else if( find_option("R",0,1)!=0 ){
     fossil_fatal("the -r is required in addition to -R");
@@ -992,7 +1012,7 @@ void tree_cmd(void){
   if( zRev==0 ) zRev = "current";
   db_find_and_open_repository(0, 0);
   verify_all_options();
-  ls_cmd_rev(zRev,0,0,0,0,1);
+  ls_cmd_rev(zRev,0,0,0,0,0,1);
 }
 
 /*
@@ -1625,6 +1645,7 @@ static char *prepare_commit_description_file(
   Blob *pDesc;
   char *zTags;
   char *zFilename;
+  const char *zMainBranch = db_main_branch();
   Blob desc;
   blob_init(&desc, 0, 0);
   pDesc = &desc;
@@ -1633,7 +1654,7 @@ static char *prepare_commit_description_file(
   blob_appendf(pDesc, "user %s\n",
                p->zUserOvrd ? p->zUserOvrd : login_name());
   blob_appendf(pDesc, "branch %s\n",
-    (p->zBranch && p->zBranch[0]) ? p->zBranch : "trunk");
+    (p->zBranch && p->zBranch[0]) ? p->zBranch : zMainBranch);
   zTags = info_tags_of_checkin(parent_rid, 1);
   if( zTags || p->azTag ){
     blob_append(pDesc, "tags ", -1);
@@ -2543,7 +2564,7 @@ void commit_cmd(void){
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
-  /* --sha1sum is an undocumented alias for --hash for backwards compatiblity */
+  /* --sha1sum is an undocumented alias for --hash for backwards compatibility */
   useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
   noSign = find_option("nosign",0,0)!=0;
   if( find_option("nosync",0,0) ) g.fNoSync = 1;
@@ -2622,7 +2643,7 @@ void commit_cmd(void){
   if( vid==0 ){
     useCksum = 1;
     if( privateFlag==0 && sCiInfo.zBranch==0 ) {
-      sCiInfo.zBranch=db_get("main-branch", 0);
+      sCiInfo.zBranch = db_main_branch();
     }
   }else{
     privateParent = content_is_private(vid);

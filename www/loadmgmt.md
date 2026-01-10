@@ -90,7 +90,7 @@ limiter will not function.
 
 
 [503]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.4
-[hte]: /help?cmd=/test-env
+[hte]: /help/www/test-env
 [gla]: https://linux.die.net/man/3/getloadavg
 [lin]: http://www.linode.com
 [sh]:  ./selfhost.wiki

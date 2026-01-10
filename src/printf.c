@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains implementions of routines for formatting output
+** This file contains implementations of routines for formatting output
 ** (ex: mprintf()) and for output to the console.
 */
 #include "config.h"
@@ -91,7 +91,7 @@ int length_of_S_display(void){
 #define etSQLESCAPE  13 /* Strings with '\'' doubled.  %q */
 #define etSQLESCAPE2 14 /* Strings with '\'' doubled and enclosed in '',
                           NULL pointers replaced by SQL NULL.  %Q */
-#define etSQLESCAPE3 15 /* Double '"' characters within an indentifier.  %w */
+#define etSQLESCAPE3 15 /* Double '"' characters within an identifier.  %w */
 #define etPOINTER    16 /* The %p conversion */
 #define etHTMLIZE    17 /* Make text safe for HTML */
 #define etHTTPIZE    18 /* Make text safe for HTTP.  "/" encoded as %2f */
@@ -254,7 +254,7 @@ static int StrNLen32(const char *z, int N){
 ** SETTING: timeline-hard-newlines     boolean default=off
 **
 ** If enabled, the timeline honors newline characters in check-in comments.
-** In other words, newlines are coverted into <br> for HTML display.
+** In other words, newlines are converted into <br> for HTML display.
 ** The default behavior, when this setting is off, is that newlines are
 ** treated like any other whitespace character.
 */
@@ -267,8 +267,8 @@ static int StrNLen32(const char *z, int N){
 ** The altForm2 argument is true for "%!W" (with the "!" alternate-form-2
 ** flags) and is false for plain "%W".  The ! flag indicates that the
 ** formatting is for display of a check-in comment on the timeline.  Such
-** comments used to be renderedd differently, but ever since 2020, they
-** have been rendered identially, so the ! flag does not make any different
+** comments used to be rendered differently, but ever since 2020, they
+** have been rendered identically, so the ! flag does not make any different
 ** in the output any more.
 */
 int wiki_convert_flags(int altForm2){
@@ -458,7 +458,7 @@ int vxprintf(
     **   flag_zeropad                TRUE if the width began with 0.
     **   flag_long                   TRUE if the letter 'l' (ell) prefixed
     **                               the conversion character.
-    **   flag_longlong               TRUE if the letter 'll' (ell ell) prefixed
+    **   flag_longlong               TRUE if the letters 'll' (ell ell) prefixed
     **                               the conversion character.
     **   flag_blanksign              TRUE if a ' ' is present.
     **   width                       The specified field width.  This is
@@ -1190,9 +1190,9 @@ static int fossil_print_error(int rc, const char *z){
 ** fossil_panic() makes an entry in the error log whereas fossil_fatal()
 ** does not. On POSIX platforms, if there is not an error log, then both
 ** routines work similarly with respect to user-visible effects.  Hence,
-** the routines are interchangable for commands and only act differently
+** the routines are interchangeable for commands and only act differently
 ** when processing web pages. On the Windows platform, fossil_panic()
-** also displays a pop-up stating that an error has occured and allowing
+** also displays a pop-up stating that an error has occurred and allowing
 ** just-in-time debugging to commence. On all platforms, fossil_panic()
 ** ends execution with a SIGABRT signal, bypassing atexit processing.
 ** This signal can also produce a core dump on POSIX platforms.

@@ -567,7 +567,7 @@ void test_smtp_senddata(void){
 int smtp_send_msg(
   SmtpSession *p,        /* The SMTP server to which the message is sent */
   const char *zFrom,     /* Who the message is from */
-  int nTo,               /* Number of receipients */
+  int nTo,               /* Number of recipients */
   const char **azTo,     /* Email address of each recipient */
   const char *zMsg       /* Body of the message */
 ){

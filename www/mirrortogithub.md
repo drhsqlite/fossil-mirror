@@ -132,10 +132,10 @@ by following these steps:
      Only if neither of these methods produce a user specified email will the
      abovementioned generic address be used.
 
-[attr]: /help?cmd=import
+[attr]: /help/import
 [fxgit]: ./inout.wiki#fx_git
-[ui]: /help?cmd=ui
-[usercmd]: /help?cmd=user
+[ui]: /help/ui
+[usercmd]: /help/user
 
 
 ## <a id='ex1'></a>Example GitHub Mirrors

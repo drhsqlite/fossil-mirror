@@ -26,11 +26,11 @@ Each repository also has local state.  The local state determines
 the web-page formatting preferences, authorized users, ticket formats,
 and similar information that varies from one repository to another.
 The local state is not usually transferred during a sync.  Except,
-some local state is transferred during a [/help?cmd=clone|clone]
+some local state is transferred during a [/help/clone|clone]
 in order to initialize the local state of the new repository.  Also,
 an administrator can sync local state using
-the [/help?cmd=configuration|config push] and
-[/help?cmd=configuration|config pull]
+the [/help/configuration|config push] and
+[/help/configuration|config pull]
 commands.
 
 <h3 id="crdt">1.1 Conflict-Free Replicated Datatypes</h3>
@@ -58,9 +58,9 @@ issues one or more HTTP requests and receives replies for each
 request.
 
 The server might be running as an independent server
-using the [/help?cmd=server|"fossil server" command], or it
+using the [/help/server|"fossil server" command], or it
 might be launched from inetd or xinetd using the
-[/help?cmd=http|"fossil http" command].  Or the server might
+[/help/http|"fossil http" command].  Or the server might
 be [./server/any/cgi.md|launched from CGI] or from
 [./server/any/scgi.md|SCGI].
 (See "[./server/|How To Configure A Fossil Server]" for details.)
@@ -69,8 +69,8 @@ for incoming HTTP requests is immaterial to this protocol.
 The important point is that the server is listening for requests and
 the client is the issuer of the requests.
 
-A single [/help?cmd=push|push],
-[/help?cmd=pull|pull], or [/help?cmd=sync|sync]
+A single [/help/push|push],
+[/help/pull|pull], or [/help?cmd=sync|sync]
 might involve multiple HTTP requests.
 The client maintains state between all requests.  But on the server
 side, each request is independent.  The server does not preserve

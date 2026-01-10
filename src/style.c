@@ -228,7 +228,7 @@ char *href(const char *zFormat, ...){
 ** and javascript (href.js) added to the page so that the data-action= is
 ** changed into action= after the page loads.  Whether or not this happens
 ** depends on if the user has the "h" privilege and whether or not the
-** auto-hyperlink setting is on.  These setings determine the values of
+** auto-hyperlink setting is on.  These settings determine the values of
 ** variables g.perm.Hyperlink and g.jsHref.
 **
 **    User has "h"  auto-hyperlink      g.perm.Hyperlink  g.jsHref
@@ -915,10 +915,10 @@ static void style_load_all_js_files(void){
 }
 
 /*
-** Transorm input string into a token that is safe for inclusion into
+** Transform input string into a token that is safe for inclusion into
 ** class attribute. Digits and low-case letter are passed unchanged,
 ** upper-case letters are transformed to low-case, everything else is
-** tranformed into hyphens; consequtive and pending hyphens are squeezed.
+** transformed into hyphens; consecutive and pending hyphens are squeezed.
 ** If result does not fit into szOut chars then it is truncated.
 ** Result is always terminated with null.
 */
@@ -1221,7 +1221,7 @@ void page_script_js(void){
 ** Check for "name" or "page" query parameters on an /style.css
 ** page request.  If present, then page-specific CSS is requested,
 ** so add that CSS to pOut.  If the "name" and "page" query parameters
-** are omitted, then pOut is unchnaged.
+** are omitted, then pOut is unchanged.
 */
 static void page_style_css_append_page_style(Blob *pOut){
   const char *zPage = PD("name",P("page"));
@@ -1254,7 +1254,7 @@ static void page_style_css_append_page_style(Blob *pOut){
 /*
 ** WEBPAGE: style.css loadavg-exempt
 **
-** Return the style sheet.   The style sheet is assemblied from
+** Return the style sheet.   The style sheet is assembled from
 ** multiple sources, in order:
 **
 **    (1)   The built-in "default.css" style sheet containing basic defaults.
@@ -1444,6 +1444,11 @@ void webpage_error(const char *zFormat, ...){
     @ g.zPath = %h(g.zPath)<br>
     @ g.userUid = %d(g.userUid)<br>
     @ g.zLogin = %h(g.zLogin)<br>
+    if( g.eAuthMethod!=AUTH_NONE ){
+      const char *zMethod[] = { "COOKIE", "LOCAL", "PW", "ENV", "HTTP" };
+      @ g.eAuthMethod = %d(g.eAuthMethod) (%h(zMethod[g.eAuthMethod-1]))\
+      @ <br>
+    }
     @ g.isRobot = %d(g.isRobot)<br>
     @ g.jsHref = %d(g.jsHref)<br>
     if( g.zLocalRoot ){

@@ -353,7 +353,7 @@ void secaudit0_page(void){
                 " AND length(value)>0") ){
     @ <li><p><b>WARNING:</b>
     @ TH1 scripts might be configured to run on any sync, push, pull, or
-    @ clone operation.  See the the <a href="%R/xfersetup">/xfersetup</a>
+    @ clone operation.  See the <a href="%R/xfersetup">/xfersetup</a>
     @ page for more information.  These TH1 scripts are a potential
     @ security concern and so should be carefully audited by a human.
   }
@@ -371,7 +371,7 @@ void secaudit0_page(void){
    && fossil_strcmp(zVulnReport,"fatal")!=0
   ){
     @ <li><p><b>WARNING:</b>
-    @ The <a href="%R/help?cmd=vuln-report">vuln-report setting</a>
+    @ The <a href="%R/help/vuln-report">vuln-report setting</a>
     @ has a value of "%h(zVulnReport)". This disables defenses against
     @ XSS or SQL-injection vulnerabilities caused by coding errors in
     @ custom TH1 scripts.  For the best security, change
@@ -391,7 +391,7 @@ void secaudit0_page(void){
   }
 
   /* If anonymous users are allowed to create new Wiki, then
-  ** wiki moderation should be activated to pervent spam.
+  ** wiki moderation should be activated to prevent spam.
   */
   if( hasAnyCap(zAnonCap, "fk") ){
     if( db_get_boolean("modreq-wiki",0)==0 ){
@@ -679,7 +679,13 @@ void secaudit0_page(void){
   fossil_free(azCSP);
 
   if( alert_enabled() ){
+    char * zListId = db_get("email-listid", 0);
     @ <li><p> Email alert configuration summary:
+    if( !zListId || !zListId[0] ){
+      @ <br><strong>WARNING:</strong> <code>email-listid</code> is not set,
+      @ so notifications will not include unsubscribe links.
+    }
+    fossil_free(zListId);
     @ <table class="label-value">
     stats_for_email();
     @ </table>
@@ -833,7 +839,9 @@ static void no_error_log_available(void){
 **    y=0x020          Show SMTP error reports
 **    y=0x040          Show TH1 vulnerability reports
 **    y=0x080          Show SQL errors
-**    y=0x800          Show other uncategorized messages
+**    y=0x100          Show timeouts
+**    y=0x200          Show WAL recoveries
+**    y=0x8000         Show other uncategorized messages
 **
 ** If y is omitted or is zero, a count of the various message types is
 ** shown.
@@ -843,7 +851,7 @@ void errorlog_page(void){
   FILE *in;
   char *zLog;
   const char *zType = P("y");
-  static const int eAllTypes = 0x8ff;
+  static const int eAllTypes = 0x83ff;
   long eType = 0;
   int bOutput = 0;
   int prevWasTime = 0;
@@ -856,6 +864,8 @@ void errorlog_page(void){
   int nSmtp = 0;
   int nVuln = 0;
   int nSqlErr = 0;
+  int nTimeout = 0;
+  int nRecover = 0;
   char z[10000];
   char zTime[10000];
 
@@ -941,7 +951,13 @@ void errorlog_page(void){
     if( eType & 0x80 ){
       @ <li>SQL errors
     }
-    if( eType & 0x800 ){
+    if( eType & 0x100 ){
+      @ <li>Timeouts
+    }
+    if( eType & 0x200 ){
+      @ <li>WAL recoveries
+    }
+    if( eType & 0x8000 ){
       @ <li>Other uncategorized messages
     }
     @ </ul>
@@ -956,15 +972,26 @@ void errorlog_page(void){
         bOutput = (eType & 0x01)!=0;
         nHack++;
       }else
-      if( (strncmp(z,"panic: ", 7)==0 && strncmp(z+7,"Timeout",7)!=0)
-       || strstr(z," assertion fault ")!=0
-      ){
+      if( strncmp(z,"panic: ", 7)==0 ){
+        if( strncmp(z+7,"Timeout",7)==0 ){
+          bOutput = (eType & 0x100)!=0;
+          nTimeout++;
+        }else{
+          bOutput = (eType & 0x02)!=0;
+          nPanic++;
+        }
+      }else
+      if( strstr(z,"assertion fault")!=0 ){
         bOutput = (eType & 0x02)!=0;
         nPanic++;
       }else
       if( strncmp(z,"SMTP:", 5)==0 ){
         bOutput = (eType & 0x20)!=0;
         nSmtp++;
+      }else
+      if( sqlite3_strglob("warning: SQLITE_NOTICE(283):*",z)==0 ){
+        bOutput = (eType & 0x200)!=0;
+        nRecover++;
       }else
       if( sqlite3_strglob("warning: backoffice process * still *",z)==0 ){
         bOutput = (eType & 0x04)!=0;
@@ -989,7 +1016,7 @@ void errorlog_page(void){
         nSqlErr++;
       }else
       {
-        bOutput = (eType & 0x800)!=0;
+        bOutput = (eType & 0x8000)!=0;
         nOther++;
       }
       if( bOutput ){
@@ -1032,6 +1059,14 @@ void errorlog_page(void){
       @ <tr><td align="right">%d(nSqlErr)</td>
       @     <td><a href="./errorlog?y=128">SQL Errors</a></td>
     }
+    if( nTimeout>0 ){
+      @ <tr><td align="right">%d(nTimeout)</td>
+      @     <td><a href="./errorlog?y=256">Timeouts</a></td>
+    }
+    if( nRecover>0 ){
+      @ <tr><td align="right">%d(nRecover)</td>
+      @     <td><a href="./errorlog?y=512">WAL recoveries</a></td>
+    }
     if( nHang>0 ){
       @ <tr><td align="right">%d(nHang)</td>
       @     <td><a href="./errorlog?y=4">Hung Backoffice</a></td>
@@ -1050,7 +1085,7 @@ void errorlog_page(void){
     }
     if( nOther>0 ){
       @ <tr><td align="right">%d(nOther)</td>
-      @     <td><a href="./errorlog?y=2048">Other</a></td>
+      @     <td><a href="./errorlog?y=32768">Other</a></td>
     }
     @ <tr><td align="right">%d(nTotal)</td>
     if( nTotal>0 ){

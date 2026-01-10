@@ -340,7 +340,7 @@ void markdown_extract_links(
 
 /*
 ** Transform mimetype string into an integer code.
-** NOTE: In the sake of compatability empty string is parsed as MT_UNKNOWN;
+** NOTE: In the sake of compatibility empty string is parsed as MT_UNKNOWN;
 **       it is yet unclear whether it can safely be changed to MT_NONE.
 */
 int parse_mimetype(const char* zMimetype){

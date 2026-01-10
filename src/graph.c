@@ -53,7 +53,7 @@
 ** The type of integer identifiers for rows of the graph.
 **
 ** For a normal /timeline graph, the identifiers are never that big
-** an an ordinary 32-bit int will work fine.  But for the /finfo page,
+** an ordinary 32-bit int will work fine.  But for the /finfo page,
 ** the identifier is a combination of the BLOB.RID and the FILENAME.FNID
 ** values, and so it can become quite large for repos that have both many
 ** check-ins and many files.  For this reason, we make the identifier
@@ -515,6 +515,7 @@ void graph_finish(
   u64 mask;
   int hasDup = 0;      /* True if one or more isDup entries */
   const char *zTrunk;
+  const char *zMainBranch;
   u8 *aMap;            /* Copy of p->aiRailMap */
   int omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
   int nTimewarp = 0;
@@ -708,9 +709,10 @@ void graph_finish(
   /* Identify rows where the primary parent is off screen.  Assign
   ** each to a rail and draw descenders downward.
   **
-  ** Strive to put the "trunk" branch on far left.
+  ** Strive to put the main branch (usually "trunk") on far left.
   */
-  zTrunk = persistBranchName(p, "trunk");
+  zMainBranch = db_main_branch();
+  zTrunk = persistBranchName(p, zMainBranch);
   for(i=0; i<2; i++){
     for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
       if( i==0 && pRow->zBranch!=zTrunk ) continue;

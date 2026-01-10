@@ -407,36 +407,14 @@ void clone_ssh_db_set_options(void){
 }
 
 /*
-** WEBPAGE: download
+** WEBPAGE: howtoclone
 **
-** Provide a simple page that enables newbies to download the latest tarball or
-** ZIP archive, and provides instructions on how to clone.
+** Provide instructions on how to clone this repository.
 */
-void download_page(void){
+void howtoclone_page(void){
   login_check_credentials();
   cgi_check_for_malice();
-  style_header("Download Page");
-  if( !g.perm.Zip ){
-    @ <p>Bummer.  You do not have permission to download.
-    if( g.zLogin==0 || g.zLogin[0]==0 ){
-      @ Maybe it would work better if you
-      @ %z(href("%R/login"))logged in</a>.
-    }else{
-      @ Contact the site administrator and ask them to give
-      @ you "Download Zip" privileges.
-    }
-  }else{
-    const char *zDLTag = db_get("download-tag","trunk");
-    const char *zNm = db_get("short-project-name","download");
-    char *zUrl = href("%R/zip/%t/%t.zip", zDLTag, zNm);
-    @ <p>ZIP Archive: %z(zUrl)%h(zNm).zip</a>
-    zUrl = href("%R/tarball/%t/%t.tar.gz", zDLTag, zNm);
-    @ <p>Tarball: %z(zUrl)%h(zNm).tar.gz</a>
-    if( g.zLogin!=0 ){
-      zUrl = href("%R/sqlar/%t/%t.sqlar", zDLTag, zNm);
-      @ <p>SQLite Archive: %z(zUrl)%h(zNm).sqlar</a>
-    }
-  }
+  style_header("How To Clone This Repository");
   if( !g.perm.Clone ){
     @ <p>You are not authorized to clone this repository.
     if( g.zLogin==0 || g.zLogin[0]==0 ){
@@ -448,10 +426,12 @@ void download_page(void){
     }
   }else{
     const char *zNm = db_get("short-project-name","clone");
-    @ <p>Clone the repository using this command:
+    @ <p>Clone this repository by running a command like the following:
     @ <blockquote><pre>
     @ fossil  clone  %s(g.zBaseURL)  %h(zNm).fossil
     @ </pre></blockquote>
+    @ <p>Do a web search for "fossil clone" or similar to find additional
+    @ information about using a cloned Fossil repository.
   }
   style_finish_page();
 }

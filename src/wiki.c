@@ -2275,7 +2275,7 @@ int wiki_technote_to_rid(const char *zETime) {
 **         -a|--show-associated        Show wiki pages associated with
 **                                     check-ins and branches.
 **         -s|--show-technote-ids      The id of the tech note will be listed
-**                                     along side the timestamp. The tech note
+**                                     alongside the timestamp. The tech note
 **                                     id will be the first word on each line.
 **                                     This option only applies if the
 **                                     --technote option is also specified.

@@ -619,7 +619,7 @@ void user_edit(void){
         zOldLogin = zLogin;
       }
 #if 0
-      /* Problem: when renaming a user we need to update the subcriber
+      /* Problem: when renaming a user we need to update the subscriber
       ** names to match but we cannot know from here if each member of
       ** the login group has the subscriber tables, so we cannot blindly
       ** include this SQL. */

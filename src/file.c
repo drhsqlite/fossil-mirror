@@ -53,7 +53,7 @@
 **
 **   ExtFILE      Symbolic links always refer to the object to which the
 **                link points.  Symlinks are never recognized as symlinks but
-**                instead always appear to the the target object.
+**                instead always appear to be the target object.
 **
 **   SymFILE      Symbolic links always appear to be files whose name is
 **                the target pathname of the symbolic link.
@@ -2545,65 +2545,133 @@ const char *file_cleanup_fullpath(const char *z){
 }
 
 /*
-** Count the number of objects (files and subdirectories) in a given
-** directory.  Return the count.  Return -1 if the object is not a
-** directory.
+** Find the name of all objects (files and subdirectories) in a given
+** directory that match a GLOB pattern.  If zGlob is NULL, then return
+** all objects.  The list is written into *pazList and the number of
+** entries is returned.  If pazList is NULL, then only the count is
+** returned.
+**
+** If zDir is not a directory, *pazList is unchanged and -1 is returned.
+**
+** Memory used to old *pazList should be freed using a subsequent call
+** to file_directory_list_free().
 **
 ** This routine never counts the two "." and ".." special directory
 ** entries, even if the provided glob would match them.
 */
-int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
+int file_directory_list(
+  const char *zDir,    /* Directory to get a listing of */
+  const char *zGlob,   /* Only list objects matching this pattern */
+  int omitDotFiles,    /* 0: skip "." and "..", 1: no .-files, 2: keep all */
+  int nLimit,          /* Find at most this many files.  0 means "all" */
+  char ***pazList      /* OUT:  Write the list here, if not NULL */
+){
   void *zNative;
   DIR *d;
   int n = -1;
+  int nAlloc = 0;
+  if( pazList ) *pazList = 0;
   zNative = fossil_utf8_to_path(zDir,1);
   d = opendir(zNative);
   if( d ){
     struct dirent *pEntry;
     n = 0;
     while( (pEntry=readdir(d))!=0 ){
+      char *zUtf8 = 0;
       if( pEntry->d_name[0]==0 ) continue;
-      if( pEntry->d_name[0]=='.' &&
-          (omitDotFiles
-           /* Skip the special "." and ".." entries. */
+      if( pEntry->d_name[0]=='.'
+       && omitDotFiles<2
+       && (omitDotFiles==1
+           /* Skip the special "." and ".." entries unless omitDotFiles>=2 */
            || pEntry->d_name[1]==0
-           || (pEntry->d_name[1]=='.' && pEntry->d_name[2]==0))){
+           || (pEntry->d_name[1]=='.' && pEntry->d_name[2]==0)
+          )
+      ){
         continue;
       }
       if( zGlob ){
-        char *zUtf8 = fossil_path_to_utf8(pEntry->d_name);
-        int rc = sqlite3_strglob(zGlob, zUtf8);
-        fossil_path_free(zUtf8);
-        if( rc ) continue;
+        int rc;
+        zUtf8 = fossil_path_to_utf8(pEntry->d_name);
+        rc = sqlite3_strglob(zGlob, zUtf8);
+        if( rc ){
+          fossil_path_free(zUtf8);
+          continue;
+        }
+      }
+      if( pazList ){
+        if( n+1 >= nAlloc ){
+          nAlloc = 100 + n;
+          *pazList = fossil_realloc(*pazList, nAlloc*sizeof(char*));
+        }
+        if( zUtf8==0 ){
+          zUtf8 = fossil_path_to_utf8(pEntry->d_name);
+        }
+        (*pazList)[n] = fossil_strdup(zUtf8);
       }
       n++;
+      if( zUtf8 ) fossil_path_free(zUtf8);
+      if( nLimit>0 && n>=nLimit ) break;
     }
     closedir(d);
   }
   fossil_path_free(zNative);
+  if( pazList ) (*pazList)[n] = 0;
   return n;
+}
+void file_directory_list_free(char **azList){
+  char **az;
+  if( azList==0 ) return;
+  az = azList;
+  while( az[0] ){
+    fossil_free(az[0]);
+    az++;
+  }
+  fossil_free(azList);
 }
 
 /*
-** COMMAND: test-dir-size
+** COMMAND: test-dir-list
 **
-** Usage: %fossil test-dir-size NAME [GLOB] [--nodots]
+** Usage: %fossil test-dir-list NAME [GLOB] [OPTIONS]
 **
-** Return the number of objects in the directory NAME.  If GLOB is
-** provided, then only count objects that match the GLOB pattern.
-** if --nodots is specified, omit files that begin with ".".
+** Return the names of up to N objects in the directory NAME.  If GLOB is
+** provided, then only show objects that match the GLOB pattern.
+**
+** This command is intended for testing the file_directory_list() function.
+**
+** Options:
+**
+**      --count           Only count files, do not list them.
+**      --limit N         Only show the first N files seen
+**      --nodots          Do not show or count files that start with '.'
 */
-void test_dir_size_cmd(void){
+void test_dir_list_cmd(void){
   int omitDotFiles = find_option("nodots",0,0)!=0;
+  const char *zLimit = find_option("limit",0,1);
+  int countOnly = find_option("count",0,0)!=0;
   const char *zGlob;
   const char *zDir;
+  char **azList = 0;
+  int nList;
+
   verify_all_options();
   if( g.argc!=3 && g.argc!=4 ){
     usage("NAME [GLOB] [-nodots]");
   }
   zDir = g.argv[2];
   zGlob = g.argc==4 ? g.argv[3] : 0;
-  fossil_print("%d\n", file_directory_size(zDir, zGlob, omitDotFiles));
+  nList = file_directory_list(zDir, zGlob, omitDotFiles,
+              zLimit ? atoi(zLimit) : 0, 
+              countOnly ? 0 : &azList);
+  if( countOnly ){
+    fossil_print("%d\n", nList);
+  }else{
+    int i;
+    for(i=0; i<nList; i++){
+      fossil_print("  %s\n", azList[i]);
+    }
+  }
+  file_directory_list_free(azList);
 }
 
 /*

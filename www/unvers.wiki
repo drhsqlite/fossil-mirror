@@ -26,11 +26,11 @@ followed by the name of the unversioned file will retrieve the content
 of the file.  The MIME type is inferred from the filename suffix.
 
 The content of unversioned files can also be retrieved using the
-[/help?cmd=unversioned|fossil unvers cat <i>FILENAME...</i>]
-or [/help?cmd=unversioned|fossil unvers export <i>FILENAME</i>] commands.
+[/help/unversioned|fossil unvers cat <i>FILENAME...</i>]
+or [/help/unversioned|fossil unvers export <i>FILENAME</i>] commands.
 
 A list of all unversioned files on a server can be seen using
-the [/help?cmd=/uvlist|/uvlist] URL.  ([/uvlist|example].)
+the [/help/www/uvlist|/uvlist] URL.  ([/uvlist|example].)
 
 <h2>Syncing Unversioned Files</h2>
 
@@ -43,14 +43,14 @@ fossil clone <b>-u</b> <i>URL local-repo-name</i>
 fossil unversioned sync
 </pre>
 
-The [/help?cmd=sync|fossil sync] and [/help?cmd=clone|fossil clone]
+The [/help/sync|fossil sync] and [/help/clone|fossil clone]
 commands will synchronize unversioned content if and only if they're
 given the "-u" (or "--unversioned") command-line option.  The
-[/help?cmd=unversioned|fossil unversioned sync] command synchronizes the
+[/help/unversioned|fossil unversioned sync] command synchronizes the
 unversioned content without synchronizing anything else.
 
 Notice that the "-u" option does not work on
-[/help?cmd=push|fossil push] or [/help?cmd=pull|fossil pull].
+[/help/push|fossil push] or [/help?cmd=pull|fossil pull].
 The "-u" option is only available on "sync" and "clone".
 A rough equivalent of an unversioned pull would be the
 [/help?cmd=unversioned|fossil unversioned revert] command.  The

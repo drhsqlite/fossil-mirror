@@ -214,7 +214,7 @@ void diff_print_filenames(
                          (w-n2)/2, '=', n2, zRight, (w-n2+1)/2, '=');
     }
   }else{
-    blob_appendf(pOut, "--- %s\n+++ %s\n", zLeft, zRight);
+    blob_appendf(pOut, "--- %s\t\n+++ %s\t\n", zLeft, zRight);
   }
 }
 
@@ -815,7 +815,7 @@ void diff_version_to_checkout(
   int vid;
   Blob sql;
   Stmt q;
-  int asNewFile;            /* Treat non-existant files as empty files */
+  int asNewFile;            /* Treat non-existent files as empty files */
   int isNumStat;            /* True for --numstat */
 
   asNewFile = (pCfg->diffFlags & (DIFF_VERBOSE|DIFF_NUMSTAT|DIFF_HTML))!=0;
@@ -1331,7 +1331,7 @@ const char *diff_get_binary_glob(void){
 ** as binary when considering if they should be used with the external diff
 ** program.  This option overrides the "binary-glob" setting.
 **
-** These command show differences between managed files. Use the "fossil xdiff"
+** These commands show differences between managed files. Use the "fossil xdiff"
 ** command to see differences in unmanaged files.
 **
 ** Options:
@@ -1358,9 +1358,9 @@ const char *diff_get_binary_glob(void){
 **   --json                      Output formatted as JSON
 **   -n|--linenum                Show line numbers
 **   -N|--new-file               Alias for --verbose
-**   --numstat                   Show the number of added and deleted lines per
-**                               file, omitting the diff. When combined with
-**                                 --brief, show only the total row.
+**   -s|--numstat                Show the number of added and deleted lines per
+**                               file, omitting the diff. When combined
+**                               with --brief, show only the total row.
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
 **   --tcl                       Tcl-formatted output used internally by --tk
@@ -1462,7 +1462,7 @@ void diff_cmd(void){
       blob_reset(&fname);
     }
   }
-  if( DCfg.diffFlags & DIFF_NUMSTAT ){
+  if( (DCfg.diffFlags & DIFF_NUMSTAT) && !(DCfg.diffFlags & DIFF_BRIEF) ){
     fossil_print("%10s %10s\n", "INSERTED", "DELETED");
   }
   if( zCheckin!=0 ){

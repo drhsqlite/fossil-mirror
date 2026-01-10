@@ -64,7 +64,7 @@ static const char zPurgeInit[] =
 #endif
 
 /*
-** This routine purges multiple artifacts from the repository, transfering
+** This routine purges multiple artifacts from the repository, transferring
 ** those artifacts into the PURGEITEM table.
 **
 ** Prior to invoking this routine, the caller must create a (TEMP) table
@@ -122,7 +122,7 @@ int purge_artifact_list(
 
   /* Make sure we are not removing a manifest that is the baseline of some
   ** manifest that is being left behind.  This step is not strictly necessary.
-  ** is is just a safety check. */
+  ** It is just a safety check. */
   if( purge_baseline_out_from_under_delta(zTab) ){
     fossil_panic("attempt to purge a baseline manifest without also purging "
                  "all of its deltas");
@@ -258,7 +258,7 @@ int purge_baseline_out_from_under_delta(const char *zTab){
 ** not in the set.
 **
 ** The "fossil publish" command with the (undocumented) --test and
-** --exclusive options can be used for interactiving testing of this
+** --exclusive options can be used for interactive testing of this
 ** function.
 */
 void find_checkin_associates(const char *zTab, int bExclusive){

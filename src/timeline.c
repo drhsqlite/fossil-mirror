@@ -24,7 +24,7 @@
 #include "timeline.h"
 
 /*
-** The value of one second in julianday notation
+** The value of one second in Julian day notation
 */
 #define ONE_SECOND (1.0/86400.0)
 
@@ -117,7 +117,9 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_MODERN   0x0004000 /* Use the "modern" view style */
 #define TIMELINE_COLUMNAR 0x0008000 /* Use the "columns" view style */
 #define TIMELINE_CLASSIC  0x0010000 /* Use the "classic" view style */
-#define TIMELINE_VIEWS    0x001f000 /* Mask for all of the view styles */
+#define TIMELINE_SIMPLE   0x0020000 /* Use the "simple" view style */
+#define TIMELINE_INLINE   0x0033000 /* Mask for views with in-line display */
+#define TIMELINE_VIEWS    0x003f000 /* Mask for all of the view styles */
 #define TIMELINE_NOSCROLL 0x0100000 /* Don't scroll to the selection */
 #define TIMELINE_FILEDIFF 0x0200000 /* Show File differences, not ckin diffs */
 #define TIMELINE_CHPICK   0x0400000 /* Show cherrypick merges */
@@ -173,6 +175,178 @@ static void forum_post_content_function(
 
 
 /*
+** This routine generates the default "extra" text after the description
+** in a timeline.
+**
+** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
+**
+** This routine is used if no xExtra argument is supplied to
+** www_print_timeline().
+*/
+void timeline_extra(
+  Stmt *pQuery,               /* Current row of the timeline query */
+  int tmFlags,                /* Flags to www_print_timeline() */
+  const char *zThisUser,      /* Suppress links to this user */
+  const char *zThisTag        /* Suppress links to this tag */
+){
+  int rid = db_column_int(pQuery, 0);
+  const char *zUuid = db_column_text(pQuery, 1);
+  const char *zDate = db_column_text(pQuery, 2);
+  const char *zType = db_column_text(pQuery, 7);
+  const char *zUser = db_column_text(pQuery, 4);
+  const char *zTagList = db_column_text(pQuery, 8);
+  int tagid = db_column_int(pQuery, 9);
+  const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
+
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
+    cgi_printf("(");
+  }
+
+  if( (tmFlags & TIMELINE_CLASSIC)==0 ){
+    if( zType[0]=='c' ){
+      const char *zPrefix = 0;
+      static int markLeaves = -1;
+      if( markLeaves<0 ){
+        markLeaves = db_get_int("timeline-mark-leaves",1);
+        if( markLeaves<0 ) markLeaves = 1;
+      }
+      if( strcmp(zUuid, MANIFEST_UUID)==0 ){
+        /* This will only ever happen when Fossil is drawing a timeline for
+        ** its own self-host repository.  If the timeline shows the specific
+        ** check-in corresponding to the current executable, then tag that
+        ** check-in with "self" */
+        zPrefix = "self&nbsp;";
+      }else if( markLeaves && db_column_int(pQuery,5) ){
+        if( markLeaves==1 ){
+          zPrefix = has_closed_tag(rid) ? "closed&nbsp;" : "leaf&nbsp;";
+        }else{
+          zPrefix = has_closed_tag(rid) ?
+               "<span class='timelineLeaf'>Closed-Leaf</span>\n" :
+               "<span class='timelineLeaf'>Leaf</span>\n";
+        }
+      }
+      cgi_printf("%scheck-in:&nbsp;%z<span class='timelineHash'>"
+                 "%S</span></a> ",
+                  zPrefix, href("%R/info/%!S",zUuid),zUuid);
+    }else if( zType[0]=='e' && tagid ){
+      cgi_printf("technote:&nbsp;");
+      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
+    }else{
+      cgi_printf("artifact:&nbsp;%z%S</a> ",
+                 href("%R/info/%!S",zUuid),zUuid);
+    }
+  }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t'
+            || zType[0]=='n' || zType[0]=='f'){
+    cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
+  }
+
+  if( (tmFlags & TIMELINE_SIMPLE)!=0 ){
+    @ <span class='timelineEllipsis' id='ellipsis-%d(rid)' \
+    @ data-id='%d(rid)'>...</span>
+    @ <span class='clutter' id='detail-%d(rid)'>
+  }
+
+  if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
+    char *zLink;
+    if( zType[0]!='f' || (tmFlags & TIMELINE_FORUMTXT)==0 ){
+      zLink = mprintf("%R/timeline?u=%h&c=%t&y=a", zDispUser, zDate);
+    }else{
+      zLink = mprintf("%R/timeline?u=%h&c=%t&y=a&vfx", zDispUser, zDate);
+    }
+    cgi_printf("user:&nbsp;%z%h</a>", href("%z",zLink), zDispUser);
+  }else{
+    cgi_printf("user:&nbsp;%h", zDispUser);
+  }
+
+  /* Generate the "tags: TAGLIST" at the end of the comment, together
+  ** with hyperlinks to the tag list.
+  */
+  if( zTagList && zTagList[0]==0 ) zTagList = 0;
+  if( zTagList ){
+    if( g.perm.Hyperlink ){
+      int i;
+      const char *z = zTagList;
+      Blob links;
+      blob_zero(&links);
+      while( z && z[0] ){
+        for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
+        if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
+          blob_appendf(&links,
+                "%z%#h</a>%.2s",
+                href("%R/timeline?r=%#t&c=%t",i,z,zDate), i,z, &z[i]
+          );
+        }else{
+          blob_appendf(&links, "%#h", i+2, z);
+        }
+        if( z[i]==0 ) break;
+        z += i+2;
+      }
+      cgi_printf(" tags:&nbsp;%s", blob_str(&links));
+      blob_reset(&links);
+    }else{
+      cgi_printf(" tags:&nbsp;%h", zTagList);
+    }
+  }
+
+  if( tmFlags & TIMELINE_SHOWRID ){
+    int srcId = delta_source_rid(rid);
+    if( srcId ){
+      cgi_printf(" id:&nbsp;%z%d&larr;%d</a>",
+                 href("%R/deltachain/%d",rid), rid, srcId);
+    }else{
+      cgi_printf(" id:&nbsp;%z%d</a>",
+                 href("%R/deltachain/%d",rid), rid);
+    }
+  }
+  tag_private_status(rid);
+
+  if( (tmFlags & TIMELINE_SIMPLE)!=0 ){
+    cgi_printf("</span>");  /* End of the declutter span */
+  }
+
+  /* End timelineDetail */
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
+    cgi_printf(")");
+  }
+}
+
+
+/*
+** SETTING: timeline-truncate-at-blank  boolean default=off
+**
+** If enabled, check-in comments displayed on the timeline are truncated
+** at the first blank line of the comment text.  The comment text after
+** the first blank line is only seen in the /info or similar pages that
+** show details about the check-in.
+*/
+/*
+** SETTING: timeline-tslink-info       boolean default=off
+**
+** The hyperlink on the timestamp associated with each timeline entry,
+** on the far left-hand side of the screen, normally targets another
+** /timeline page that shows the entry in context.  However, if this
+** option is turned on, that hyperlink targets the /info page showing
+** the details of the entry.
+*/
+/*
+** SETTING: timeline-mark-leaves       width=5 default=1
+**
+** Determine whether or not leaf check-ins are marked as such in the
+** details section of the timeline.  The value is an integer between 0
+** and 2:
+**
+**    0   Do not show any special marking for leaf check-ins.
+** 
+**    1   Show just "leaf" or "closed"
+**
+**    2   Show "Leaf" or "Closed-Leaf" with emphasis
+**
+** The default is currently 1.  Prior to 2025-10-19, the default was 2.
+** This setting has no effect on the "Classic" view, which always behaves
+** as if the setting were 2.
+*/
+
+/*
 ** Output a timeline in the web format given a query.  The query
 ** should return these columns:
 **
@@ -196,7 +370,7 @@ void www_print_timeline(
   Matcher *pLeftBranch,    /* Comparison function to use for zLeftBranch */
   int selectedRid,         /* Highlight the line with this RID value or zero */
   int secondRid,           /* Secondary highlight (or zero) */
-  void (*xExtra)(int)      /* Routine to call on each line of display */
+  void (*xExtra)(Stmt*,int,const char*,const char*)  /* generate "extra" text */
 ){
   int mxWikiLen;
   Blob comment;
@@ -216,31 +390,17 @@ void www_print_timeline(
   int iTableId = timeline_tableid();
   int bTimestampLinksToInfo;  /* True if timestamp hyperlinks go to the /info
                               ** page rather than the /timeline page */
+  const char *zMainBranch = db_main_branch();
+
 
   if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
+  if( xExtra==0 ) xExtra = timeline_extra;
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
-/*
-** SETTING: timeline-truncate-at-blank  boolean default=off
-**
-** If enabled, check-in comments displayed on the timeline are truncated
-** at the first blank line of the comment text.  The comment text after
-** the first blank line is only seen in the /info or similar pages that
-** show details about the check-in.
-*/
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
-/*
-** SETTING: timeline-tslink-info       boolean default=off
-**
-** The hyperlink on the timestamp associated with each timeline entry,
-** on the far left-hand side of the screen, normally targets another
-** /timeline page that shows the entry in context.  However, if this
-** option is turned on, that hyperlink targets the /info page showing
-** the details of the entry.
-*/
   bTimestampLinksToInfo = db_get_boolean("timeline-tslink-info", 0);
   if( (tmFlags & TIMELINE_VIEWS)==0 ){
     tmFlags |= timeline_ss_cookie();
@@ -249,6 +409,8 @@ void www_print_timeline(
     zStyle = "Columnar";
   }else if( tmFlags & TIMELINE_COMPACT ){
     zStyle = "Compact";
+  }else if( tmFlags & TIMELINE_SIMPLE ){
+    zStyle = "Simple";
   }else if( tmFlags & TIMELINE_VERBOSE ){
     zStyle = "Verbose";
   }else if( tmFlags & TIMELINE_CLASSIC ){
@@ -258,9 +420,7 @@ void www_print_timeline(
   }
   zDateFmt = P("datefmt");
   if( zDateFmt ) dateFormat = atoi(zDateFmt);
-  if( tmFlags & TIMELINE_GRAPH ){
-    pGraph = graph_init();
-  }
+  pGraph = graph_init();
   if( (tmFlags & TIMELINE_CHPICK)!=0
    && !db_table_exists("repository","cherrypick")
   ){
@@ -277,9 +437,7 @@ void www_print_timeline(
     const char *zDate = db_column_text(pQuery, 2);
     const char *zType = db_column_text(pQuery, 7);
     const char *zUser = db_column_text(pQuery, 4);
-    const char *zTagList = db_column_text(pQuery, 8);
     int tagid = db_column_int(pQuery, 9);
-    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     char *zBr = 0;            /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
@@ -436,7 +594,7 @@ void www_print_timeline(
         /* If no background color is specified, use a color based on the
         ** branch name */
         if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
-        }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
+        }else if( zBr==0 || strcmp(zBr, zMainBranch)==0 ){
           zBgClr = 0;
         }else{
           zBgClr = hash_color(zBr);
@@ -448,28 +606,30 @@ void www_print_timeline(
       int nCherrypick = 0;
       GraphRowId aParent[GR_MAX_RAIL];
       static Stmt qparent;
-      db_static_prepare(&qparent,
-        "SELECT pid FROM plink"
-        " WHERE cid=:rid AND pid NOT IN phantom"
-        " ORDER BY isprim DESC /*sort*/"
-      );
-      db_bind_int(&qparent, ":rid", rid);
-      while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
-        aParent[nParent++] = db_column_int(&qparent, 0);
-      }
-      db_reset(&qparent);
-      if( (tmFlags & TIMELINE_CHPICK)!=0 && nParent>0 ){
-        static Stmt qcherrypick;
-        db_static_prepare(&qcherrypick,
-          "SELECT parentid FROM cherrypick"
-          " WHERE childid=:rid AND parentid NOT IN phantom"
+      if( tmFlags & TIMELINE_GRAPH ){
+        db_static_prepare(&qparent,
+          "SELECT pid FROM plink"
+          " WHERE cid=:rid AND pid NOT IN phantom"
+          " ORDER BY isprim DESC /*sort*/"
         );
-        db_bind_int(&qcherrypick, ":rid", rid);
-        while( db_step(&qcherrypick)==SQLITE_ROW && nParent<count(aParent) ){
-          aParent[nParent++] = db_column_int(&qcherrypick, 0);
-          nCherrypick++;
+        db_bind_int(&qparent, ":rid", rid);
+        while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
+          aParent[nParent++] = db_column_int(&qparent, 0);
         }
-        db_reset(&qcherrypick);
+        db_reset(&qparent);
+        if( (tmFlags & TIMELINE_CHPICK)!=0 && nParent>0 ){
+          static Stmt qcherrypick;
+          db_static_prepare(&qcherrypick,
+            "SELECT parentid FROM cherrypick"
+            " WHERE childid=:rid AND parentid NOT IN phantom"
+          );
+          db_bind_int(&qcherrypick, ":rid", rid);
+          while( db_step(&qcherrypick)==SQLITE_ROW && nParent<count(aParent) ){
+            aParent[nParent++] = db_column_int(&qcherrypick, 0);
+            nCherrypick++;
+          }
+          db_reset(&qcherrypick);
+        }
       }
       gidx = graph_add_row(pGraph, rid, nParent, nCherrypick, aParent,
                            zBr, zBgClr, zUuid,
@@ -600,19 +760,11 @@ void www_print_timeline(
         cgi_printf("%W",blob_str(&comment));
       }
     }
- 
-    if( zType[0]=='c' && strcmp(zUuid, MANIFEST_UUID)==0 ){
-      /* This will only ever happen when Fossil is drawing a timeline for
-      ** its own self-host repository.  If the timeline shows the specific
-      ** check-in corresponding to the current executable, then tag that
-      ** check-in with "This is me!". */
-      @ <b>&larr; This is me!</b>
-    }
 
     @ </span>
     blob_reset(&comment);
 
-    /* Generate extra information and hyperlinks to follow the comment.
+    /* Generate extra information and hyperlinks that follow the comment.
     ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
     if( drawDetailEllipsis ){
@@ -630,97 +782,13 @@ void www_print_timeline(
       cgi_printf("<span class='clutter' id='detail-%d'>",rid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
-    if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
-      cgi_printf("(");
-    }
-
-    if( (tmFlags & TIMELINE_CLASSIC)==0 ){
-      if( zType[0]=='c' ){
-        if( isLeaf ){
-          if( has_closed_tag(rid) ){
-            @ <span class='timelineLeaf'>Closed-Leaf</span>
-          }else{
-            @ <span class='timelineLeaf'>Leaf</span>
-          }
-        }
-        cgi_printf("check-in:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
-      }else if( zType[0]=='e' && tagid ){
-        cgi_printf("technote:&nbsp;");
-        hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
-      }else{
-        cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
-      }
-    }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t'
-              || zType[0]=='n' || zType[0]=='f'){
-      cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
-    }
-
-    if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
-      char *zLink;
-      if( zType[0]!='f' || (tmFlags & TIMELINE_FORUMTXT)==0 ){
-        zLink = mprintf("%R/timeline?u=%h&c=%t&y=a", zDispUser, zDate);
-      }else{
-        zLink = mprintf("%R/timeline?u=%h&c=%t&y=a&vfx", zDispUser, zDate);
-      }
-      cgi_printf("user:&nbsp;%z%h</a>", href("%z",zLink), zDispUser);
-    }else{
-      cgi_printf("user:&nbsp;%h", zDispUser);
-    }
-
-    /* Generate the "tags: TAGLIST" at the end of the comment, together
-    ** with hyperlinks to the tag list.
-    */
-    if( zTagList && zTagList[0]==0 ) zTagList = 0;
-    if( zTagList ){
-      if( g.perm.Hyperlink ){
-        int i;
-        const char *z = zTagList;
-        Blob links;
-        blob_zero(&links);
-        while( z && z[0] ){
-          for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
-          if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
-            blob_appendf(&links,
-                  "%z%#h</a>%.2s",
-                  href("%R/timeline?r=%#t&c=%t",i,z,zDate), i,z, &z[i]
-            );
-          }else{
-            blob_appendf(&links, "%#h", i+2, z);
-          }
-          if( z[i]==0 ) break;
-          z += i+2;
-        }
-        cgi_printf(" tags:&nbsp;%s", blob_str(&links));
-        blob_reset(&links);
-      }else{
-        cgi_printf(" tags:&nbsp;%h", zTagList);
-      }
-    }
-
-    if( tmFlags & TIMELINE_SHOWRID ){
-      int srcId = delta_source_rid(rid);
-      if( srcId ){
-        cgi_printf(" id:&nbsp;%z%d&larr;%d</a>",
-                   href("%R/deltachain/%d",rid), rid, srcId);
-      }else{
-        cgi_printf(" id:&nbsp;%z%d</a>",
-                   href("%R/deltachain/%d",rid), rid);
-      }
-    }
-    tag_private_status(rid);
-    if( xExtra ){
-      xExtra(rid);
-    }
-    /* End timelineDetail */
-    if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
-      cgi_printf(")");
-    }
+    xExtra(pQuery, tmFlags, zThisUser, zThisTag);
     if( tmFlags & TIMELINE_COMPACT ){
       @ </span></span>
     }else{
       @ </span>
     }
-
+  
     /* Generate the file-change list if requested */
     if( (tmFlags & (TIMELINE_FCHANGES|TIMELINE_FRENAMES))!=0
      && zType[0]=='c' && g.perm.Hyperlink
@@ -910,7 +978,9 @@ void timeline_output_graph_javascript(
     int dwellTimeout;    /* Milliseconds to wait for tooltips to show */
     int closeTimeout;    /* Milliseconds to wait for tooltips to close */
     u8 *aiMap;           /* The rail map */
+    u8 bNoGraph;         /* True to show a minimal graph */
 
+    bNoGraph = (tmFlags & TIMELINE_GRAPH)==0;
     iRailPitch = atoi(PD("railpitch","0"));
     showArrowheads = skin_detail_boolean("timeline-arrowheads");
     circleNodes = skin_detail_boolean("timeline-circle-nodes");
@@ -932,7 +1002,7 @@ void timeline_output_graph_javascript(
     @   "omitDescenders": %d(omitDescenders),
     @   "fileDiff": %d(fileDiff),
     @   "scrollToSelect": %d(scrollToSelect),
-    @   "nrail": %d(pGraph->mxRail+1),
+    @   "nrail": %d(bNoGraph?1:pGraph->mxRail+1),
     @   "baseUrl": "%R",
     @   "dwellTimeout": %d(dwellTimeout),
     @   "closeTimeout": %d(closeTimeout),
@@ -977,7 +1047,7 @@ void timeline_output_graph_javascript(
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
     **        is the rail on which the riser should run and the second integer
-    **        is the id of the node upto which the riser should run. If there
+    **        is the id of the node up to which the riser should run. If there
     **        are no risers, this array does not exist.
     **   mi:  "merge-in".  An array of integer rail positions from which
     **        merge arrows should be drawn into this node.  If the value is
@@ -994,8 +1064,12 @@ void timeline_output_graph_javascript(
       int k = 0;
       cgi_printf("{\"id\":%d,",     pRow->idx);
       cgi_printf("\"bg\":\"%s\",",  pRow->zBgClr);
-      cgi_printf("\"r\":%d,",       pRow->iRail>=0 ? aiMap[pRow->iRail] : -1);
-      if( pRow->bDescender ){
+      if( bNoGraph ){
+        cgi_printf("\"r\":0,");  /* Chng to ":-1" to omit node circles */
+      }else{
+        cgi_printf("\"r\":%d,",       pRow->iRail>=0 ? aiMap[pRow->iRail] : -1);
+      }
+      if( pRow->bDescender && !bNoGraph ){
         cgi_printf("\"d\":%d,",       pRow->bDescender);
       }
       if( pRow->mergeOut>=0 ){
@@ -1006,7 +1080,9 @@ void timeline_output_graph_javascript(
           cgi_printf("\"cu\":%d,",    pRow->cherrypickUpto);
         }
       }
-      if( pRow->isStepParent ){
+      if( bNoGraph ){
+        cgi_printf("\"u\":-1,");
+      }else if( pRow->isStepParent ){
         cgi_printf("\"sb\":%d,",      pRow->aiRiser[pRow->iRail]);
       }else{
         cgi_printf("\"u\":%d,",       pRow->aiRiser[pRow->iRail]);
@@ -1209,6 +1285,22 @@ static void timeline_y_submenu(int isDisabled){
 }
 
 /*
+** SETTING: timeline-default-style            width=5 default=m
+**
+** This setting determines the default "view style" for timelines.
+** The setting should be a single character, one of the following:
+**
+**    c     Compact
+**    j     Columnar
+**    m     Modern
+**    s     Simple
+**    v     Verbose
+**    x     Classic
+**
+** The default value is m (Modern).
+*/
+
+/*
 ** Return the default value for the "ss" cookie or query parameter.
 ** The "ss" cookie determines the graph style.  See the
 ** timeline_view_styles[] global constant for a list of choices.
@@ -1232,6 +1324,7 @@ int timeline_ss_cookie(void){
     case 'v':  tmFlags = TIMELINE_VERBOSE;  break;
     case 'j':  tmFlags = TIMELINE_COLUMNAR; break;
     case 'x':  tmFlags = TIMELINE_CLASSIC;  break;
+    case 's':  tmFlags = TIMELINE_SIMPLE;   break;
     default:   tmFlags = TIMELINE_MODERN;   break;
   }
   return tmFlags;
@@ -1244,11 +1337,12 @@ const char *const timeline_view_styles[] = {
   "m", "Modern View",
   "j", "Columnar View",
   "c", "Compact View",
+  "s", "Simple View",
   "v", "Verbose View",
   "x", "Classic View",
 };
 #if INTERFACE
-# define N_TIMELINE_VIEW_STYLE 5
+# define N_TIMELINE_VIEW_STYLE 6
 #endif
 
 /*
@@ -1365,7 +1459,7 @@ const char *timeline_expand_datetime(const char *zIn, int *pbZulu){
 static int timeline_is_datespan(const char *zDay){
   size_t n = strlen(zDay);
   int i, d, m;
-  
+
   if( n<17 || n>18 ) return 0;
   if( n==18 ){
     if( zDay[17]!='Z' && zDay[17]!='z' ) return 0;
@@ -1391,13 +1485,13 @@ static int timeline_is_datespan(const char *zDay){
 ** Find the first check-in encountered with a particular tag
 ** when moving either forwards are backwards in time from a
 ** particular starting point (iFrom).  Return the rid of that
-** first check-in.  If there are no check-ins in the decendent
+** first check-in.  If there are no check-ins in the descendant
 ** or ancestor set of check-in iFrom that match the tag, then
 ** return 0.
 */
 static int timeline_endpoint(
   int iFrom,         /* Starting point */
-  const char *zEnd,  /* Tag we are searching for */   
+  const char *zEnd,  /* Tag we are searching for */
   int bForward       /* 1: forwards in time (descendants) 0: backwards */
 ){
   int tagId;
@@ -1531,8 +1625,8 @@ static void add_extra_rids(const char *zTab, const char *zExtra){
 ** Usage: fossil test-endpoint BASE TAG ?OPTIONS?
 **
 ** Show the first check-in with TAG that is a descendant or ancestor
-** of BASE.  The first descendant checkin is shown by default.  Use
-** the --backto to see the first ancestor checkin.
+** of BASE.  The first descendant check-in is shown by default.  Use
+** the --backto to see the first ancestor check-in.
 **
 ** Options:
 **
@@ -1589,10 +1683,10 @@ void timeline_test_endpoint(void){
 **    dp=CHECKIN      Same as 'd=CHECKIN&p=CHECKIN'
 **    dp2=CKIN2       Same as 'd2=CKIN2&p2=CKIN2'
 **    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
-**    bt=CHECKIN      "Back To".  Show ancenstors going back to CHECKIN
+**    bt=CHECKIN      "Back To".  Show ancestors going back to CHECKIN
 **                       p=CX       ... from CX back to time of CHECKIN
 **                       from=CX    ... path from CX back to CHECKIN
-**    ft=CHECKIN      "Forward To":  Show decendents forward to CHECKIN
+**    ft=CHECKIN      "Forward To":  Show descendants forward to CHECKIN
 **                       d=CX       ... from CX up to the time of CHECKIN
 **                       from=CX    ... path from CX up to CHECKIN
 **    t=TAG           Show only check-ins with the given TAG
@@ -1609,7 +1703,7 @@ void timeline_test_endpoint(void){
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact", v: "Verbose", m: "Modern", j: "Columnar",
-*                     x: "Classic".
+**                    x: "Classic".
 **    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
 **    ncp             Omit cherrypick merges
@@ -1634,7 +1728,7 @@ void timeline_test_endpoint(void){
 **                    All qualifying check-ins are shown unless there is
 **                    also an n= or n1= query parameter.
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
-**                    name matches one of the comma-separate GLOBLIST
+**                    name matches one of the comma-separated GLOBLIST
 **    brbg            Background color determined by branch name
 **    ubg             Background color determined by user
 **    deltabg         Background color red for delta manifests or green
@@ -1730,7 +1824,7 @@ void page_timeline(void){
   int forkOnly = PB("forks");        /* Show only forks and their children */
   int bisectLocal = PB("bisect");    /* Show the check-ins of the bisect */
   const char *zBisect = P("bid");    /* Bisect description */
-  int cpOnly = PB("cherrypicks");    /* Show all cherrypick checkins */
+  int cpOnly = PB("cherrypicks");    /* Show all cherrypick check-ins */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
@@ -1854,7 +1948,9 @@ void page_timeline(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
-  if( (zBefore || zCirca) && robot_restrict("timelineX") ) return;
+  if( zBefore || zCirca ){
+    if( robot_restrict("timelineX") ) return;
+  }
   if( !bisectLocal ){
     etag_check(ETAG_QUERY|ETAG_COOKIE|ETAG_DATA|ETAG_CONFIG, 0);
   }
@@ -1931,7 +2027,7 @@ void page_timeline(void){
   if( zTagName ){
     zType = "ci";
     if( matchStyle==MS_EXACT ){
-      /* For exact maching, inhibit links to the selected tag. */
+      /* For exact matching, inhibit links to the selected tag. */
       zThisTag = zTagName;
       Th_StoreUnsafe("current_checkin", zTagName);
     }
@@ -2068,7 +2164,7 @@ void page_timeline(void){
 
   style_header("Timeline");
   if( advancedMenu ){
-    style_submenu_element("Help", "%R/help?cmd=/timeline");
+    style_submenu_element("Help", "%R/help/www/timeline");
   }
   login_anonymous_available();
   timeline_temp_table();
@@ -2309,7 +2405,7 @@ void page_timeline(void){
                    "are used and have distinct values.";
         }
         zFwdTo = 0;
-      }        
+      }
       if( zFwdTo ){
         double rStartDate = mtime_of_rid(d_rid, 0.0);
         ridFwdTo = first_checkin_with_tag_after_date(zFwdTo, rStartDate);
@@ -2368,7 +2464,7 @@ void page_timeline(void){
                    "are used and have distinct values.";
         }
         zBackTo = 0;
-      }        
+      }
       if( zBackTo ){
         double rDateLimit = mtime_of_rid(p_rid, 0.0);
         ridBackTo = last_checkin_with_tag_before_date(zBackTo, rDateLimit);
@@ -2394,7 +2490,7 @@ void page_timeline(void){
         np = db_int(0, "SELECT count(*)-1 FROM ok");
         if( np>0 || nd==0 ){
           if( nd>0 ) blob_appendf(&desc, " and ");
-          blob_appendf(&desc, "%d ancestor%s", 
+          blob_appendf(&desc, "%d ancestor%s",
                        np>=0 ? np : 0, (1==np)?"":"s");
           db_multi_exec("%s", blob_sql_text(&sql));
         }
@@ -2677,7 +2773,7 @@ void page_timeline(void){
         " AND event.mtime<julianday(%Q,%Q,'+1 day')\n",
         zStart, zTZMod, zEnd, zTZMod);
       nEntry = -1;
-      
+
       if( fossil_ui_localtime() && bZulu ){
         zDay = mprintf("%d days between %zZ and %zZ", nDay, zStart, zEnd);
       }else{
@@ -3133,6 +3229,7 @@ void page_timeline(void){
   blob_zero(&sql);
   if( PB("oldestfirst") ){
     db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby ASC /*scan*/");
+    tmFlags &= ~(TIMELINE_GRAPH|TIMELINE_CHPICK);
   }else{
     db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
   }
@@ -3164,6 +3261,16 @@ void page_timeline(void){
   /* Report any errors. */
   if( zError ){
     @ <p class="generalError">%h(zError)</p>
+  }
+   
+  /* Swap zNewer and zOlder buttons if we display oldestfirst */
+  if( PB("oldestfirst") ){
+    char *zSwap = zNewerButton;
+    char *zSwapLabel = zNewerButtonLabel;
+    zNewerButton = zOlderButton;
+    zNewerButtonLabel = zOlderButtonLabel;
+    zOlderButton = zSwap;
+    zOlderButtonLabel = zSwapLabel;
   }
 
   if( zNewerButton ){
@@ -3587,7 +3694,7 @@ static int isIsoDate(const char *z){
 }
 
 /*
-** Return true if the input string can be converted to a julianday.
+** Return true if the input string can be converted to a Julian day.
 */
 static int fossil_is_julianday(const char *zDate){
   return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd"
@@ -3645,7 +3752,8 @@ static int fossil_is_julianday(const char *zDate){
 **                        zero, no limit.  Default is -20 meaning 20 lines.
 **   --offset P           Skip P changes
 **   -p|--path PATH       Output items affecting PATH only.
-**                        PATH can be a file or a sub directory.
+**                        PATH can be a file or a subdirectory.
+**   -r|--reverse         Show items in chronological order.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current check-out's repository.
 **   --sql                Show the SQL used to generate the timeline
@@ -3655,6 +3763,7 @@ static int fossil_is_julianday(const char *zDate){
 **                            f  = forum posts only
 **                            t  = tickets only
 **                            w  = wiki commits only
+**   -u|--for-user USER   Only show items associated with USER
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the check-in comment.
@@ -3670,13 +3779,15 @@ void timeline_cmd(void){
   const char *zWidth;
   const char *zOffset;
   const char *zType;
+  const char *zUser;
   char *zOrigin;
   char *zDate;
   Blob sql;
   int objid = 0;
   Blob uuid;
   int mode = TIMELINE_MODE_NONE;
-  int verboseFlag = 0 ;
+  int verboseFlag = 0;
+  int reverseFlag = 0;
   int iOffset;
   const char *zFilePattern = 0;
   const char *zFormat = 0;
@@ -3692,6 +3803,7 @@ void timeline_cmd(void){
   zLimit = find_option("limit","n",1);
   zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
+  zUser = find_option("for-user","u",1);
   zFilePattern = find_option("path","p",1);
   zFormat = find_option("format","F",1);
   zBr = find_option("branch","b",1);
@@ -3733,6 +3845,7 @@ void timeline_cmd(void){
   }
   zOffset = find_option("offset",0,1);
   iOffset = zOffset ? atoi(zOffset) : 0;
+  reverseFlag = find_option("reverse","r",0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -3753,7 +3866,7 @@ void timeline_cmd(void){
       mode = TIMELINE_MODE_PARENTS;
     }else if(!zType && !zLimit){
       usage("?WHEN? ?CHECKIN|DATETIME? ?-n|--limit #? ?-t|--type TYPE? "
-            "?-W|--width WIDTH? ?-p|--path PATH?");
+            "?-W|--width WIDTH? ?-p|--path PATH? ?-r|--reverse?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];
@@ -3823,6 +3936,9 @@ void timeline_cmd(void){
   if( zType && (zType[0]!='a') ){
     blob_append_sql(&sql, "\n  AND event.type=%Q ", zType);
   }
+  if( zUser && (zUser[0]!='\0') ){
+    blob_append_sql(&sql, "\n  AND user0=%Q ", zUser);
+  }
 
   /* When zFilePattern is specified, compute complete ancestry;
    * limit later at print_timeline() */
@@ -3876,7 +3992,7 @@ void timeline_cmd(void){
       "  AND (tagxref.value IS NULL OR tagxref.value='%q')",
       zBr, zBr, zBr, TAG_BRANCH, zBr, zBr);
   }
-  
+
   if( mode==TIMELINE_MODE_AFTER ){
     int lim = n;
     if( n == 0 ){
@@ -3885,10 +4001,12 @@ void timeline_cmd(void){
       lim = -n;
     }
     /* Complete the above outer select. */
-    blob_append_sql(&sql, 
-        "\nORDER BY event.mtime LIMIT %d) t ORDER BY t.mDateTime DESC;", lim);
+    blob_append_sql(&sql,
+        "\nORDER BY event.mtime LIMIT %d) t ORDER BY t.mDateTime %s",
+          lim, reverseFlag ? "" : "DESC");
   }else{
-    blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
+    blob_append_sql(&sql,
+         "\nORDER BY event.mtime %s", reverseFlag ? "" : "DESC");
   }
   if( iOffset>0 ){
     /* Don't handle LIMIT here, otherwise print_timeline()

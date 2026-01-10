@@ -36,11 +36,11 @@ is started to do the work.
 
 This happens for every webpage, regardless of how that webpage is launched,
 and regardless of the purpose of the webpage.  This also happens on the
-server for "[fossil sync](/help?cmd=sync)" and
-[fossil clone](/help?cmd=clone)" commands which are implemented as
+server for "[fossil sync](/help/sync)" and
+[fossil clone](/help/clone)" commands which are implemented as
 web requests - albeit requests that the human user never sees.
 Web requests can arrive at the Fossil server via direct TCP/IP (for example
-when Fossil is started using commands like "[fossil server](/help?cmd=server)")
+when Fossil is started using commands like "[fossil server](/help/server)")
 or via [CGI](./server/any/cgi.md) or
 [SCGI](./server/any/scgi.md) or via SSH.
 A backoffice process might be started regardless of the origin of the
@@ -102,7 +102,7 @@ fix the problem.)  For now, the backoffice must be run manually
 on OpenBSD systems.
 
 To set up fully-manual backoffice, first disable the automatic backoffice
-using the "[backoffice-disable](/help?cmd=backoffice-disable)" setting.
+using the "[backoffice-disable](/help/backoffice-disable)" setting.
 
     fossil setting backoffice-disable on
 
@@ -113,7 +113,7 @@ like this:
 
 Multiple repositories can be named.  This one command will handle
 launching the backoffice for all of them.  There are additional useful
-command-line options.  See the "[fossil backoffice](/help?cmd=backoffice)"
+command-line options.  See the "[fossil backoffice](/help/backoffice)"
 documentation for details.
 
 The backoffice processes run manually using the "fossil backoffice"

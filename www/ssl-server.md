@@ -3,9 +3,9 @@
 ## History
 
 Fossil has supported [client-side SSL/TLS][0] since [2010][1].  This means
-that commands like "[fossil sync](/help?cmd=sync)" could use SSL/TLS when
+that commands like "[fossil sync](/help/sync)" could use SSL/TLS when
 contacting a server.  But on the server side, commands like
-"[fossil server](/help?cmd=server)" operated in clear-text only.  To implement
+"[fossil server](/help/server)" operated in clear-text only.  To implement
 an encrypted server, you had to put Fossil behind a web server or reverse
 proxy that handled the SSL/TLS decryption/encryption and passed cleartext
 down to Fossil.
@@ -16,9 +16,9 @@ down to Fossil.
 Beginning in [late December 2021](/timeline?c=f6263bb64195b07f&y=a&n=13),
 Fossil servers are now able to converse directly over TLS.  Commands like
 
-  * "[fossil server](/help?cmd=server)"
-  * "[fossil ui](/help?cmd=ui)", and
-  * "[fossil http](/help?cmd=http)"
+  * "[fossil server](/help/server)"
+  * "[fossil ui](/help/ui)", and
+  * "[fossil http](/help/http)"
 
 may now handle the encryption natively when suitably configured, without
 requiring a third-party proxy layer.
@@ -137,7 +137,7 @@ individual components will still be easily accessible.
 ### <a id="cat"></a>Separate or Concatenated?
 
 Given a single concatenated file that holds both your private key and your
-cert, you can hand it off to the "[fossil server](/help?cmd=server)"
+cert, you can hand it off to the "[fossil server](/help/server)"
 command using the `--cert` option, like this:
 
     fossil server --port 443 --cert mycert.pem /home/www/myproject.fossil
@@ -259,8 +259,8 @@ Here is, in a nutshell, what certbot will do to obtain your cert:
 In order for all of this to happen, certbot needs to be able to create
 a subdirectory named ".well-known", within a directory you specify,
 then populate that subdirectory with a token file of some kind.  To support
-this, the "[fossil server](/help?cmd=server)" and
-"[fossil http](/help?cmd=http)" commands have the --acme option.
+this, the "[fossil server](/help/server)" and
+"[fossil http](/help/http)" commands have the --acme option.
 
 When specified, Fossil sees a URL where the path
 begins with ".well-known", then instead of doing its normal processing, it

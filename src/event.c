@@ -427,7 +427,7 @@ void eventedit_page(void){
     if( zClr && zClr[0] ){
       const char * zRequestMethod = P("REQUEST_METHOD");
       if(zRequestMethod && 'G'==zRequestMethod[0]){
-        /* Apply saved color by defaut for GET requests
+        /* Apply saved color by default for GET requests
         ** (e.g., an Edit menu link).
         */
         zClrFlag = " checked";

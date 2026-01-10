@@ -236,7 +236,7 @@ static int safeCmdStrTest = 0;
 ** Check the input string to ensure that it is safe to pass into system().
 ** A string is unsafe for system() on unix if it contains any of the following:
 **
-**   *  Any occurrance of '$' or '`' except single-quoted or after \
+**   *  Any occurrence of '$' or '`' except single-quoted or after \
 **   *  Any of the following characters, unquoted:  ;|& or \n except
 **      these characters are allowed as the very last character in the
 **      string.
@@ -673,8 +673,8 @@ int fossil_all_whitespace(const char *z){
 ** (3) The global "editor" setting
 ** (4) The VISUAL environment variable
 ** (5) The EDITOR environment variable
-** (6) Any of the following programs that are available:
-**        notepad, nano, pico, jove, edit, vi, vim, ed,
+** (6) Any of several common editors that might be available, such as:
+**        notepad, nano, pico, jove, edit, vi, vim, ed
 **
 ** The search only occurs once, the first time this routine is called.
 ** Second and subsequent invocations always return the same value.
@@ -682,7 +682,10 @@ int fossil_all_whitespace(const char *z){
 const char *fossil_text_editor(void){
   static const char *zEditor = 0;
   const char *azStdEd[] = {
-    "notepad", "nano", "pico", "jove", "edit", "vi", "vim", "ed"
+#ifdef _WIN32
+    "notepad",
+#endif
+    "nano", "pico", "jove", "edit", "vi", "vim", "ed"
   };
   int i = 0;
   if( zEditor==0 ){
@@ -995,30 +998,6 @@ int fossil_app_on_path(const char *zBinary, int ePrint){
     zPath += i;
   }
   return bFound;
-}
-
-/*
-** COMMAND: which*
-**
-** Usage: fossil which [-a] NAME ...
-**
-** For each NAME mentioned as an argument, print the first location on the
-** on PATH of the executable with that name.  Or, show all locations on PATH
-** for each argument if the -a option is used.
-**
-** This command is a substitute for the unix "which" command, which is not
-** always available, especially on Windows.
-*/
-void test_app_on_path(void){
-  int i;
-  int ePrint = 1;
-  if( find_option("all","a",0)!=0 ) ePrint = 2;
-  verify_all_options();
-  for(i=2; i<g.argc; i++){
-    if( fossil_app_on_path(g.argv[i], ePrint)==0 ){
-      fossil_print("NOT FOUND: %s\n", g.argv[i]);
-    }
-  }
 }
 
 /*

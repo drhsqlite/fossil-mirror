@@ -54,7 +54,7 @@ struct Xfer {
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
   u32 remoteVersion;  /* Version of fossil running on the other side */
   u32 remoteDate;     /* Date for specific client software edition */
-  u32 remoteTime;     /* Time of date correspoding on remoteDate */
+  u32 remoteTime;     /* Time of date corresponding on remoteDate */
   time_t maxTime;     /* Time when this transfer should be finished */
 };
 
@@ -1218,7 +1218,7 @@ int xfer_run_common_script(void){
 
 /*
 ** This routine makes a "syncwith:URL" entry in the CONFIG table to
-** indicate that a sync is occuring with zUrl.
+** indicate that a sync is occurring with zUrl.
 **
 ** Add a "syncfrom:URL" entry instead of "syncwith:URL" if bSyncFrom is true.
 */
@@ -1335,7 +1335,6 @@ void page_xfer(void){
   }
   if( g.syncInfo.zLoginCard ){
     /* Login card received via HTTP Cookie header */
-    assert( g.syncInfo.fLoginCardMode && "Set via HTTP cookie" );
     blob_zero(&xfer.line);
     blob_append(&xfer.line, g.syncInfo.zLoginCard, -1);
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken,
@@ -2052,6 +2051,8 @@ static const char zBriefFormat[] =
 #define SYNC_ALLURL         0x08000    /* The --all flag - sync to all URLs */
 #define SYNC_SHARE_LINKS    0x10000    /* Request alternate repo links */
 #define SYNC_XVERBOSE       0x20000    /* Extra verbose.  Network traffic */
+#define SYNC_PING           0x40000    /* Verify server is alive */
+#define SYNC_QUIET          0x80000    /* No output */
 #endif
 
 /*
@@ -2118,7 +2119,8 @@ int client_sync(
 
   if( pnRcvd ) *pnRcvd = 0;
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
-  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
+  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED|SYNC_PING))
+            ==0
      && configRcvMask==0
      && configSendMask==0
   ){
@@ -2387,7 +2389,7 @@ int client_sync(
       blob_appendf(&send, "pragma ci-unlock %s\n", zClientId);
     }
     /* Append randomness to the end of the uplink message.  This makes all
-    ** messages unique so that that the login-card nonce will always
+    ** messages unique so that the login-card nonce will always
     ** be unique.
     */
     zRandomness = db_text(0, "SELECT hex(randomblob(20))");
@@ -2413,6 +2415,9 @@ int client_sync(
     if( syncFlags & SYNC_XVERBOSE ){
       mHttpFlags |= HTTP_VERBOSE;
     }
+    if( syncFlags & SYNC_QUIET ){
+      mHttpFlags |= HTTP_QUIET;
+    }
 
     /* Do the round-trip to the server */
     if( http_exchange(&send, &recv, mHttpFlags, MAX_REDIRECTS, 0) ){
@@ -2434,6 +2439,8 @@ int client_sync(
       fossil_print(zValueFormat /*works-like:"%s%d%d%d%d"*/, "Sent:",
                    blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
                    xfer.nFileSent, xfer.nDeltaSent);
+    }else if( syncFlags & SYNC_QUIET ){
+      /* No-op */
     }else{
       if( bOutIsTty!=0 ){
         fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
@@ -2957,6 +2964,8 @@ int client_sync(
       fossil_print(zValueFormat /*works-like:"%s%d%d%d%d"*/, "Received:",
                    blob_size(&recv), nCardRcvd,
                    xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);
+    }else if( syncFlags & SYNC_QUIET ){
+      /* No-op */
     }else{
       if( bOutIsTty!=0 ){
         fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
@@ -3019,14 +3028,16 @@ int client_sync(
                     db_timespan_name(-rSkew));
      g.clockSkewSeen = 1;
   }
-  if( bOutIsTty==0 ){
+  if( bOutIsTty==0 && (syncFlags & SYNC_QUIET)==0 ){
     fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
                  nRoundtrip, nArtifactSent, nArtifactRcvd);
     fossil_force_newline();
   }
   fossil_force_newline();
   if( g.zHttpCmd==0 ){
-    if( syncFlags & SYNC_VERBOSE ){
+    if( syncFlags & SYNC_QUIET ){
+      /* no-op */
+    }else if( syncFlags & SYNC_VERBOSE ){
       fossil_print(
         "%s done, wire bytes sent: %lld  received: %lld  remote: %s%s\n",
         zOpType, nSent, nRcvd,

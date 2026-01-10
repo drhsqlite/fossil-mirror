@@ -73,6 +73,9 @@ tr.timelineCurrent td {
 span.timelineLeaf {
   font-weight: bold;
 }
+span.timelineHash {
+  font-weight: bold;
+}
 span.timelineHistDsp {
   font-weight: bold;
 }
@@ -767,6 +770,18 @@ body.tkt div.content ol.tkt-changes > li:target > p > span {
 }
 body.tkt div.content ol.tkt-changes > li:target > ol {
   border-left: 1px solid gold;
+}
+body.tkt .tktCommentArea {
+  display: flex;
+  flex-direction: column;
+}
+body.tkt .newest-first-controls {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+body.tkt .tktCommentArea.reverse {
+  flex-direction: column-reverse;
 }
 body.cpage-ckout .file-change-line,
 body.cpage-info .file-change-line,
@@ -1807,12 +1822,12 @@ div.pikchr-wrapper.indent.source.source-inline{
 div.pikchr-wrapper.float-left:not(.source),
 div.pikchr-wrapper.float-left.source.source-inline {
   float: left;
-  padding: 4em;
+  padding: 1em 2em;
 }
 div.pikchr-wrapper.float-right:not(.source),
 div.pikchr-wrapper.float-right.source.source-inline{
   float: right;
-  padding: 4em;
+  padding: 1em 2em;
 }
 
 /* For pikchr-wrapper.source mode, toggle pre.pikchr-src and
@@ -1896,11 +1911,10 @@ code, kbd, pre, samp, tt, var,
     tr.diffskip > td.chunkctrl,
     #fossil-status-bar,
     .monospace {
-  font-family: "Source Code Pro", "Menlo", "Monaco", "Consolas",
-               "Andale Mono", "Ubuntu Mono", "Deja Vu Sans Mono",
-               "Letter Gothic", "Letter Gothic Std", "Prestige Elite Std",
-               "Courier", "Courier New",
-               monospace;
+  font-family: "MesloLGSDZ Nerd Font Mono",     /* 2025 hotness */
+               "Source Code Pro",               /* 2012 hotness */
+               "Menlo", "Monaco", "SF Mono",    /* Safari reverted to Courier in 2022 */
+               monospace;                       /* let OS/browser default take over */
 }
 
 div.markdown > ol.footnotes {
@@ -1976,6 +1990,24 @@ div.markdown > ol.footnotes > li > .fn-backrefs > a:target {
 div.markdown span.notescope:hover,
 div.markdown span.notescope:target {
   border-bottom: 2px solid gold;
+}
+
+/* Cause <dd> elements to be aligned complete to the
+** right of their <dt> on help pages. */
+dl.helpOptions {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 1rem;
+}
+dl.helpOptions > dt {
+  grid-column: 1;
+}
+dl.helpOptions > dd {
+  grid-column: 2;
+  margin: 0;
+}
+div.helpPage blockquote {
+  margin-left: 0.2em;
 }
 
 /* Objects in the "desktoponly" class are invisible on mobile */

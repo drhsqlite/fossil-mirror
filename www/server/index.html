@@ -40,12 +40,12 @@ particular systems, should you want extra help.</p>
 <h2 id="prep">Repository Prep</h2>
 
 <p>Prior to serving a Fossil repository to others, consider running <a
-href="$ROOT/help?cmd=ui"><tt>fossil ui</tt></a> locally and taking these
+href="$ROOT/help/ui"><tt>fossil ui</tt></a> locally and taking these
 minimum recommended preparation steps:</p>
 
 <ol>
   <li><p>Fossil creates only one user in a <a
-  href="$ROOT/help?cmd=new">new repository</a> and gives it the <a
+  href="$ROOT/help/new">new repository</a> and gives it the <a
   href="../caps/admin-v-setup.md#apsu">all-powerful Setup capability</a>.
   The 10-digit random password generated for that user is fairly strong
   against remote attack, even without explicit password guess rate
@@ -97,7 +97,7 @@ administrator preferences.</p>
 CGI script</a>. This method is known to work with Apache,
 <tt>lighttpd</tt>, and <a
 href="any/althttpd.md"><tt>althttpd</tt></a>.  The Fossil server
-administrator places a <a href="$ROOT/help?cmd=cgi">short CGI script</a> in
+administrator places a <a href="$ROOT/help/cgi">short CGI script</a> in
 the web server's document hierarchy and when a client requests the URL
 that corresponds to that script, Fossil runs and generates the
 response.</p>
@@ -116,7 +116,7 @@ href="any/stunnel.md"><tt>stunnel</tt></a>, <a
 href="macos/service.md"><tt>launchd</tt></a>, and <a
 href="debian/service.md"><tt>systemd</tt></a>
 can be configured to invoke the the
-<a href="$ROOT/help?cmd=http"><tt>fossil http</tt></a> command to handle
+<a href="$ROOT/help/http"><tt>fossil http</tt></a> command to handle
 each incoming HTTP request.  The "<tt>fossil http</tt>" command reads
 the HTTP request off of standard input, computes an appropriate
 reply, and writes the reply on standard output.  There is a separate
@@ -129,7 +129,7 @@ handling TLS decryption and encryption.
 
 <p>This is the <a href="any/none.md">easiest method</a>.
 A stand-alone server uses the
-<a href="$ROOT/help?cmd=server"><tt>fossil server</tt></a> command to run a
+<a href="$ROOT/help/server"><tt>fossil server</tt></a> command to run a
 process that listens for incoming HTTP requests on a socket and then
 dispatches a copy of itself to deal with each incoming request. You can
 expose Fossil directly to the clients in this way or you can interpose a
@@ -139,7 +139,7 @@ layer between the clients and Fossil.</p>
 <h3 id="scgi">SCGI</h3>
 
 <p>The Fossil standalone server can also handle <a href="any/scgi.md">SCGI</a>.
-When the <a href="$ROOT/help?cmd=server"><tt>fossil server</tt></a> command is
+When the <a href="$ROOT/help/server"><tt>fossil server</tt></a> command is
 run with the extra <tt>--scgi</tt> option, it listens for incoming
 SCGI requests rather than HTTP requests. This allows Fossil to
 respond to requests from web servers <a href="debian/nginx.md">such as
@@ -289,7 +289,7 @@ service:</p>
 
   <li><p>Now that others can be making changes to the repository,
   consider monitoring them via <a href="../alerts.md">email alerts</a>
-  or the <a href="$ROOT/help?cmd=/timeline.rss">timeline RSS
+  or the <a href="$ROOT/help/www/timeline.rss">timeline RSS
   feed</a>.</p></li>
 
   <li><p>Turn on the various logging features.</p></li>

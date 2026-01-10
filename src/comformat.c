@@ -80,7 +80,7 @@ static const struct {
   {1, 0x00f7f},  {0, 0x00f80},  {1, 0x00f85},  {0, 0x00f86},  {1, 0x00f88},
   {0, 0x00f90},  {1, 0x00f98},  {0, 0x00f99},  {1, 0x00fbd},  {0, 0x00fc6},
   {1, 0x00fc7},  {0, 0x0102d},  {1, 0x01031},  {0, 0x01032},  {1, 0x01033},
-  {0, 0x01036},  {1, 0x01038},  {0, 0x01039},  {1, 0x0103a},  {0, 0x01058},
+  {0, 0x01036},  {1, 0x0103b},  {0, 0x01058},
   {1, 0x0105a},  {2, 0x01100},  {0, 0x01160},  {1, 0x01200},  {0, 0x0135f},
   {1, 0x01360},  {0, 0x01712},  {1, 0x01715},  {0, 0x01732},  {1, 0x01735},
   {0, 0x01752},  {1, 0x01754},  {0, 0x01772},  {1, 0x01774},  {0, 0x017b4},
@@ -123,7 +123,7 @@ static int cli_wcwidth(int c){
   int iFirst, iLast;
 
   /* Fast path for common characters */
-  if( c<=0x300 ) return 1;
+  if( c<0x300 ) return 1;
 
   /* The general case */
   iFirst = 0;
@@ -752,7 +752,7 @@ int get_comment_format(){
 **                      from FILE.
 **   --indent           Number of spaces to indent (default (-1) is to
 **                      auto-detect).  Zero means no indent.
-**   --orig FILE        Take the value for the ORIGTEXT argumetn from FILE.
+**   --orig FILE        Take the value for the ORIGTEXT argument from FILE.
 **   --origbreak        Attempt to break when the original comment text
 **                      is detected.
 **   --trimcrlf         Enable trimming of leading/trailing CR/LF.

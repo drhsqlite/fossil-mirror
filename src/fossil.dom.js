@@ -261,7 +261,7 @@
 
   /**
      Creates and returns a FIELDSET element, optionaly with a LEGEND
-     element added to it. If legendText is an HTMLElement then is is
+     element added to it. If legendText is an HTMLElement then it is
      assumed to be a LEGEND and is appended as-is, else it is assumed
      (if truthy) to be a value suitable for passing to
      dom.append(aLegendElement,...).

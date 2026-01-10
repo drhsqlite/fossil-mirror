@@ -120,6 +120,8 @@ void setup_page(void){
   }
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
+  setup_menu_entry("Tarballs and ZIPs", "setup_download",
+    "Preferences for auto-generated tarballs and ZIP files");
   if( setup_user ){
     setup_menu_entry("Login-Group", "setup_login_group",
       "Manage single sign-on between this repository and others"
@@ -142,8 +144,10 @@ void setup_page(void){
   if( setup_user ){
     setup_menu_entry("Notification", "setup_notification",
       "Automatic notifications of changes via outbound email");
+#if 0  /* Disabled for now.  Does this even work? */
     setup_menu_entry("Transfers", "xfersetup",
       "Configure the transfer system for this repository");
+#endif
   }
   setup_menu_entry("Skins", "setup_skin_admin",
     "Select and/or modify the web interface \"skins\"");
@@ -472,8 +476,8 @@ void setup_robots(void){
   @ might be expensive to compute. A robot that tries to walk the entire
   @ website can present a crippling CPU and bandwidth load.
   @
-  @ <p>The settings on this page are intended to help site administrators
-  @ defend the site against robots.
+  @ <p>The settings on this page are intended to help administrators
+  @ defend against abusive robots.
   @
   @ <form action="%R/setup_robot" method="post"><div>
   login_insert_csrf_secret();
@@ -483,39 +487,54 @@ void setup_robots(void){
   @ If the page name matches the GLOB pattern of this setting, and the
   @ users is "nobody", and the client has not previously passed a captcha
   @ test to show that it is not a robot, then the page is not displayed.
-  @ A captcha test is is rendered instead.
-  @ The recommended value for this setting is:
+  @ A captcha test is rendered instead.
+  @ The default value for this setting is:
   @ <p>
   @ &emsp;&emsp;&emsp;<tt>%h(robot_restrict_default())</tt>
   @ <p>
-  @ The "diff" tag covers all diffing pages such as /vdiff, /fdiff, and 
-  @ /vpatch.  The "annotate" tag covers /annotate and also /blame and
-  @ /praise.  The "zip" covers itself and also /tarball and /sqlar. If a
-  @ tag has an "X" character appended, then it only applies if query
-  @ parameters are such that the page is particularly difficult to compute.
-  @ In all other case, the tag should exactly match the page name.
-  @
+  @ Usually the tag should exactly match the page name. Exceptions:
+  @ <ul>
+  @ <li>  The "diff" tag covers all diffing pages such as /vdiff,
+  @       /fdiff, and /vpatch.
+  @ <li>  The "annotate" tag covers /annotate and also /blame and
+  @       /praise.
+  @ <li>  The "zip" covers itself and also /tarball and /sqlar.
+  @ <li>  If a tag has an "X" character appended (ex: "timelineX")
+  @       then it only applies if query parameters are such that
+  @       the page is expensive and/or unusual.
+  @ <li>  The "ext" tag covers all extensions, but a tag like
+  @       "ext/PATH" only covers the specific extension at PATH.
+  @ </ul>
   @ To disable robot restrictions, change this setting to "off".
-  @ (Property: robot-restrict)
+  @ (Property: <a href="%R/help/robot-restrict">robot-restrict</a>)
   @ <br>
   textarea_attribute("", 2, 80,
       "robot-restrict", "rbrestrict", robot_restrict_default(), 0);
 
-  @ <hr>
-  @ <p><b>Exceptions to anti-robot restrictions</b><br>
-  @ The entry below is a list of regular expressions, one per line.
-  @ If any of these regular expressions match the input URL, then the
-  @ request is exempt from anti-robot defenses.  Use this, for example,
-  @ to allow scripts to download release tarballs using a pattern
-  @ like:</p>
-  @ <p>
-  @ &emsp;&emsp;<tt>^/tarball\b.*\b(version-|release)\b</tt>
-  @ <p>The pattern should match against the REQUEST_URI with the
+  @ <p><b>Exception #1</b><br>
+  @ If "zipX" appears in the robot-restrict list above, then tarballs,
+  @ ZIP-archives, and SQL-archives may be downloaded by robots if
+  @ the check-in is a leaf (robot-zip-leaf):<br>
+  onoff_attribute("Allow tarballs for leaf check-ins",
+        "robot-zip-leaf", "rzleaf", 0, 0);
+
+  @ <p><b>Exception #2</b><br>
+  @ If "zipX" appears in the robot-restrict list above, then tarballs,
+  @ ZIP-archives, and SQL-archives may be downloaded by robots if
+  @ the check-in has one or more tags that match the following
+  @ list of GLOB patterns:  (robot-zip-tag)<br>
+  textarea_attribute("", 2, 80,
+      "robot-zip-tag", "rztag", "", 0);
+
+  @ <p><b>Exception #3</b><br>
+  @ If the request URI matches any of the following
+  @ <a href="%R/re_rules">regular expressions</a> (one per line), then the
+  @ request is exempt from anti-robot defenses.
+  @ The regular expression is matched against the REQUEST_URI with the
   @ SCRIPT_NAME prefix removed, and with QUERY_STRING appended following
   @ a "?" if QUERY_STRING exists.  (Property: robot-exception)<br>
   textarea_attribute("", 3, 80,
       "robot-exception", "rbexcept", "", 0);
-
   @ <hr>
   addAutoHyperlinkSettings();
 
@@ -978,6 +997,11 @@ void setup_timeline(void){
       "3", "YYMMDD HH:MM",
       "4", "(off)"
   };
+  static const char *const azLeafMark[] = {
+      "0", "No",
+      "1", "Yes",
+      "2", "Yes - with emphasis",
+  };
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -1065,6 +1089,12 @@ void setup_timeline(void){
   @ changes.  With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats,
   @ the complete date and time is shown on every timeline entry using the
   @ CSS class "timelineTime". (Property: "timeline-date-format")</p>
+
+  @ <hr>
+  multiple_choice_attribute("Leaf Markings", "timeline-mark-leaves",
+            "tml", "1", count(azLeafMark)/2, azLeafMark);
+  @ <p>Should timeline entries for leaf check-ins be identified in the
+  @ detail section.  (Property: "timeline-mark-leaves")</p>
 
   @ <hr>
   entry_attribute("Max timeline comment length", 6,
@@ -1168,7 +1198,7 @@ void setup_settings(void){
       onoff_attribute("", pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       is_truth(pSet->def), hasVersionableValue);
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      @ <a href='%R/help/%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
       } else {
@@ -1187,7 +1217,7 @@ void setup_settings(void){
         continue;
       }
       @ <tr><td>
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      @ <a href='%R/help/%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)
       } else {
@@ -1208,7 +1238,7 @@ void setup_settings(void){
       if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
         continue;
       }
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
+      @ <a href='%R/help/%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
       } else {
@@ -1320,24 +1350,6 @@ void setup_config(void){
   @ Suggested value: "%h(g.zBaseURL)"
   @ (Property: "email-url")</p>
   @ <hr>
-  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name",
-                  "spn", "", 0);
-  @ <p>This is used as a prefix on the names of generated tarballs and
-  @ ZIP archive. For best results, keep this prefix brief and avoid special
-  @ characters such as "/" and "\".
-  @ If no tarball prefix is specified, then the full Project Name above is used.
-  @ (Property: "short-project-name")
-  @ </p>
-  @ <hr>
-  entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
-  @ <p>The <a href='%R/download'>/download</a> page is designed to provide
-  @ a convenient place for newbies
-  @ to download a ZIP archive or a tarball of the project.  By default,
-  @ the latest trunk check-in is downloaded.  Change this tag to something
-  @ else (ex: release) to alter the behavior of the /download page.
-  @ (Property: "download-tag")
-  @ </p>
-  @ <hr>
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home", 0);
   @ <p>Enter the pathname of the page to display when the "Home" menu
   @ option is selected and when no pathname is
@@ -1418,6 +1430,62 @@ void setup_config(void){
   @ <p>
   textarea_attribute("Custom Sitemap Entries", 8, 80,
       "sitemap-extra", "smextra", "", 0);
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: setup_download
+**
+** The "Admin/Download" page.  Requires Setup privilege.
+*/
+void setup_download(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_set_current_feature("setup");
+  style_header("Tarball and ZIP Downloads");
+  db_begin_transaction();
+  @ <form action="%R/setup_download" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
+  entry_attribute("Tarball and ZIP Name Prefix", 20, "short-project-name",
+                  "spn", "", 0);
+  @ <p>This is used as a prefix for the names of generated tarballs and
+  @ ZIP archive. Keep this prefix brief and use only lower-case ASCII
+  @ characters, digits, "_", "-" in the name. If this setting is blank,
+  @ then the full <a href='%R/help/project-name'>project-name</a> setting
+  @ is used instead.
+  @ (Property: "short-project-name")
+  @ </p>
+  @ <hr>
+  @ <p><b>Configuration for the <a href="%R/download">/download</a> page.</b>
+  @ <p>The value is a TCL list divided into groups of four tokens:
+  @ <ol>
+  @ <li> Maximum number of matches (COUNT).
+  @ <li> Tag to match using glob (TAG).
+  @ <li> Maximum age of check-ins to match (MAX_AGE).
+  @ <li> Comment to apply to matches (COMMENT).
+  @ </ol>
+  @ Each 4-tuple will match zero or more check-ins.  The /download page
+  @ displays the union of matches from all 4-tuples.
+  @ See the <a href="%R/help/suggested-downloads">suggested-downloads</a>
+  @ setting documentation for further detail.
+  @ <p>
+  @ The /download page is omitted from the <a href="%R/sitemap">/sitemap</a>
+  @ if the first token is "0" or "off" or "no".  The default value 
+  @ for this setting is "off".
+  @ (Property: <a href="%R/help/suggested-downloads">suggested-downloads</a>)
+  @ <p>
+  textarea_attribute("", 4, 80,
+      "suggested-downloads", "sgtrlst", "off", 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
@@ -1525,6 +1593,9 @@ void setup_chat(void){
   style_set_current_feature("setup");
   style_header("Chat Configuration");
   db_begin_transaction();
+  if( P("rbldchatidx") && cgi_csrf_safe(2) ){
+    chat_rebuild_index(1);
+  }
   @ <form action="%R/setup_chat" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
@@ -1577,9 +1648,29 @@ void setup_chat(void){
   @ <p>The sound used in the client-side chat to indicate that a new
   @ chat message has arrived.
   @ (Property: "chat-alert-sound")</p>
+
   @ <hr/>
-  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <p><input type="submit"  name="submit" value="Apply Changes">
+  @ <input type="submit" name="rbldchatidx"\
+  @  value="Rebuild Full-Text Search Index"></p>
   @ </div></form>
+
+  /* Validate the chat FTS search index */
+  if( db_table_exists("repository","chatfts1") ){
+    char *zMissing;
+    zMissing = db_text(0,
+      "SELECT group_concat(rowid,', ') FROM chat"
+      " WHERE rowid NOT IN (SELECT rowid FROM chatfts1_docsize)"
+    );
+    if( zMissing && zMissing[0] ){
+      @ <p><b>WARNING:</b> The following chat messages are missing
+      @ from the full-text index.  Press the "Rebuild Full-Text Search Index"
+      @ button above to fix this.</p>
+      @ <p>%h(zMissing)</p>
+    }
+    fossil_free(zMissing);
+  }
+
   db_end_transaction(0);
   @ <script nonce="%h(style_nonce())">
   @ (function(){
@@ -2221,6 +2312,7 @@ static void select_fts_tokenizer(void){
 ** Configure the search engine.  Requires Admin privilege.
 */
 void page_srchsetup(){
+  const char *zMainBranch;
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -2251,9 +2343,11 @@ void page_srchsetup(){
   @ <td>Search nothing. (Disables document search).</tr>
   @ </table>
   @ <hr>
-  entry_attribute("Document Branches", 20, "doc-branch", "db", "trunk", 0);
+  zMainBranch = db_main_branch();
+  entry_attribute("Document Branches", 20, "doc-branch", "db", zMainBranch, 0);
   @ <p>When searching documents, use the versions of the files found at the
-  @ type of the "Document Branches" branch.  Recommended value: "trunk".
+  @ type of the "Document Branches" branch.  Recommended value: the name of
+  @ the main branch (usually "trunk").
   @ Document search is disabled if blank. It may be a list of branch names
   @ separated by spaces and/or commas.
   @ <hr>
@@ -2273,15 +2367,20 @@ void page_srchsetup(){
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  if( P("fts0") ){
-    search_drop_index();
-  }else if( P("fts1") ){
-    const char *zTokenizer = PD("ftstok","off");
-    search_set_tokenizer(zTokenizer);
-    search_drop_index();
-    search_create_index();
-    search_fill_index();
-    search_update_index(search_restrict(SRCH_ALL));
+  if( cgi_csrf_safe(2) ){
+    if( P("fts0") ){
+      search_drop_index();
+    }else if( P("fts1") ){
+      const char *zTokenizer = PD("ftstok","off");
+      search_set_tokenizer(zTokenizer);
+      search_drop_index();
+      search_create_index();
+      search_fill_index();
+      search_update_index(search_restrict(SRCH_ALL));
+    }
+    if( P("rbldchatidx") ){
+      chat_rebuild_index(1);
+    }
   }
   if( search_index_exists() ){
     int pgsz = db_int64(0, "PRAGMA repository.page_size;");
@@ -2298,6 +2397,10 @@ void page_srchsetup(){
     select_fts_tokenizer();
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
+    if( db_table_exists("repository","chat") ){
+      @ <input type="submit" name="rbldchatidx" \
+      @ value="Rebuild The Chat FTS Index">
+    }
     style_submenu_element("FTS Index Debugging","%R/test-ftsdocs");
   }else{
     @ <p>The SQLite search index is disabled.  All searching will be

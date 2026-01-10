@@ -259,7 +259,7 @@ static void SHA1Final(unsigned char *digest, SHA1Context *context){
                 ((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
 }
-#endif /* Built-in SHA1 implemenation */
+#endif /* Built-in SHA1 implementation */
 
 /*
 ** Convert a digest into base-16.  digest should be declared as
