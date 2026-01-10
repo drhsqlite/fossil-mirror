@@ -1203,8 +1203,10 @@ function TimelineGraph(tx){
       var
         bMAIN = 0,
         mCTRL = 1<<14,
-        mod = evt.altKey<<15|evt.ctrlKey<<14|evt.shiftKey<<13|evt.metaKey<<12;
-      if( evt.target.tagName in { 'INPUT':1, 'SELECT':1, 'A':1 } ||
+        mod = evt.altKey<<15|evt.ctrlKey<<14|evt.shiftKey<<13|evt.metaKey<<12,
+        xClickyHTML = /^(?:A|AREA|BUTTON|INPUT|LABEL|SELECT|TEXTAREA|DETAILS)$/;
+      if( xClickyHTML.test(evt.target.tagName) ||
+          evt.target.className=='timelineHash' ||
           evt.button!=bMAIN || mod!=mCTRL ){
         return;
       }

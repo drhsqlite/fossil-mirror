@@ -1,5 +1,5 @@
-C Sync\swith\strunk.
-D 2026-01-10T14:02:00.000
+C Prevent\sclicks\sto\stimeline\shash\slinks,\swhich\sare\snow\senclosed\sin\sextra\sSPAN\selements\swith\sclass\sname\s`timelineHash'\sin\ssome\sview\smodes,\sfrom\sactivating\skeyboard\snavigation\sfocus\stracking.\sAlign\sthe\slist\sof\sclick-responsive\sHTML\selements\swith\s[b09a9b621f]\sto\sfilter\smore\sclicks\son\stimeline\sentries\sto\sbe\signored\sby\sthe\skeyboard\snavigation\sfocus\smanager.
+D 2026-01-10T16:42:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -463,7 +463,7 @@ F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c b31a20db3489603f88493ec408a56b905418dfb8fe106b108d77e3225ee5da13
 F src/glob.c b5d80245b76fba9bb77b066c5062be2407657e7a87330a24deaebb551a4d1491
 F src/graph.c b86a1572269eab9c0a479d8d6f8e3edd9b1209771a74ab365ff26c00ec39963e
-F src/graph.js c455badde6db9e19500546dc1301041eb5cd6dededb0504504687c9197c47581
+F src/graph.js eeeeb738bacff1e49d2c2c59132ed3bb9e91498e193a2e7048a06aace47e842e
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c a40c637ebad60edc30b99d7307c4f95a55753be20862267787cdf6cd9146f53c
@@ -647,7 +647,7 @@ F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
 F test/set-manifest.test 3f1484cb26e6bb85cf8e18b1c2d538b88a24ac338b565de60157d7494bda945b
 F test/settings-repo.test 26de9519938c46bcfbe263a55bbef7e0921b28ac53bcb14dde0b7f18f08fd41f
-F test/settings.test.off c2a59ad1b2d0fdd61ec9accd84d1f58fb1bf78577e47cec6d79d865655b8cbf3 w test/settings.test
+F test/settings.test.off c2a59ad1b2d0fdd61ec9accd84d1f58fb1bf78577e47cec6d79d865655b8cbf3
 F test/stash.test cc97b53b3e9460505091cf591dc68392a2a379831181914069353488219b6131
 F test/subdir\swith\sspaces/filename\swith\sspaces.txt 4c1f053a9aa422cde7f33113511a70ca3a9f77ddebff4458fbf776752fc3a006
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9cea672b5d4dd7c4314c237bc436c1f5ee11a2abe3ba59add5eb0b986e1b0628 9b263d87c15bd740ecd879bee6b8f7d99780f1aaa9178fa768c0a8862f77d735
-R 6cb245c4ff2b7ce542ef0867ad16ecfc
+P c50c8ed9d79c9d90375fbc4d740e94e43bb4b10d1b59e4b67404130cd57b64f9
+R 2c332ed1f7b5a045a46508eb7c7370de
 U florian
-Z 06be962851b0f3fa220da49d83896ef7
+Z b9561000a96a4c154adba2910ec6d931
 # Remove this line to create a well-formed Fossil manifest.
