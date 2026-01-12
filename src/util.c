@@ -673,8 +673,8 @@ int fossil_all_whitespace(const char *z){
 ** (3) The global "editor" setting
 ** (4) The VISUAL environment variable
 ** (5) The EDITOR environment variable
-** (6) Any of the following programs that are available:
-**        notepad, nano, pico, jove, edit, vi, vim, ed,
+** (6) Any of several common editors that might be available, such as:
+**        notepad, nano, pico, jove, edit, vi, vim, ed
 **
 ** The search only occurs once, the first time this routine is called.
 ** Second and subsequent invocations always return the same value.
@@ -682,7 +682,10 @@ int fossil_all_whitespace(const char *z){
 const char *fossil_text_editor(void){
   static const char *zEditor = 0;
   const char *azStdEd[] = {
-    "notepad", "nano", "pico", "jove", "edit", "vi", "vim", "ed"
+#ifdef _WIN32
+    "notepad",
+#endif
+    "nano", "pico", "jove", "edit", "vi", "vim", "ed"
   };
   int i = 0;
   if( zEditor==0 ){
