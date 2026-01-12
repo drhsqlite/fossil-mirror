@@ -1,5 +1,5 @@
-C Modify\sthe\saccordion\spanel\sstyle\sto\shide\sonly\svertical\soverflow\sand\skeep\sthe\sbox\sshadows\sof\sselected\sand\scurrent\stimeline\sentries\svisible\sin\sthe\scontext\ssection\sof\s/info\spages.\sSet\sthe\sCSS\sproperty\sto\s`clip'\sinstead\sof\s`hidden'\sto\sdisallow\sany\svertical\sscrolling\s(for\sexample,\sby\stabbing\sthrough\shyperlinks),\salthough\sthis\sis\sprobably\snot\srelevant\sfor\saccordion\spanels.
-D 2026-01-11T17:04:00.000
+C Avoid\sunsigned\sinteger\soverflow\sin\sthe\sdelta_apply()\sfunction\swhen\shanded\na\smaliciously\smalformed\sinput.
+D 2026-01-12T19:51:13.723
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/copybtn.js a967fe355479c329f4e172c625b7a8403e1132be72fd3ebf9ad0afad249a679
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c b307d34fc9df19ad2a3d0eeb5b70d03e94443c683157e7b7fd6ee59f024a232c
 F src/default.css 15c2d2ce10d60c90361b12e53fef98105a8b60a4b6cd4d3b8b3ea6f4fd4f50b7
-F src/delta.c 623c5f8392295e58176d067442504f6bda03bcb5df787952179c7288d0fb384f
+F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c f08accd177876a9d41ad36de0559e5bdc07e7f368ac58790634c2dcd75c30d9f
 F src/descendants.c 3858bbe661fec7e3226ba55cdfa3f513c178a8f95966a995296ec646c15d2ee6
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9b263d87c15bd740ecd879bee6b8f7d99780f1aaa9178fa768c0a8862f77d735
-R 4f6696d2ac934b3b8768ded429073ebb
-U florian
-Z faf13b19888c0eaaeadfffc8bb05c458
+P b0188ce122c43b41447953d35ba1e122f1205145ee57c7e3d6e84b62b37d1464
+R f5b3cce0d9ccc76abfb5b2b465668581
+U drh
+Z 040477472705be03d22724a340df43c0
 # Remove this line to create a well-formed Fossil manifest.
