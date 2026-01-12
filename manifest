@@ -1,5 +1,5 @@
-C Modify\sthe\saccordion\spanel\sstyle\sto\shide\sonly\svertical\soverflow\sand\skeep\sthe\sbox\sshadows\sof\sselected\sand\scurrent\stimeline\sentries\svisible\sin\sthe\scontext\ssection\sof\s/info\spages.\sSet\sthe\sCSS\sproperty\sto\s`clip'\sinstead\sof\s`hidden'\sto\sdisallow\sany\svertical\sscrolling\s(for\sexample,\sby\stabbing\sthrough\shyperlinks),\salthough\sthis\sis\sprobably\snot\srelevant\sfor\saccordion\spanels.
-D 2026-01-11T17:04:00.000
+C Attempt\sto\sadd\sIDs\sto\sheaders\sin\smarkdown,\sthe\ssame\sway\sthat\sGitHub\sdoes.\nNeeds\sadditional\stesting\sto\sconfirm\sthat\sunusual\scharacters\sin\sheaders\nare\shandled\sreasonably.
+D 2026-01-12T18:55:20.335
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -502,7 +502,7 @@ F src/main.mk d3123763f11935150e0e08a7763aa4b2a72d8fe7768bd44b55d143dcf083ab13
 F src/manifest.c 2a4c82fd116d66f80b024b0b71bbc77c1c26950114b362c599c9111a22881c41
 F src/markdown.c ea27e61986a1366839e7a70f16cd70a056352d7623797eb09372e158f6f7350b
 F src/markdown.md 459394a15e26f64b399382537fdd76a27d413dcbc09625981fe3a329d66da981
-F src/markdown_html.c 6c6f57f283e54c0616ccf42cea5849b22cf293898aa5f6a129e774586b75ac4a
+F src/markdown_html.c 9035a2fa7a225f38a01a58f1ff073bab014de2c8e725e5658fa771e6ca85a517
 F src/match.c a8c5cf61c5af2dff3c82c53f5d846a27f3c8f63c99e9ffca692d2317f7540d02
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -980,8 +980,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9b263d87c15bd740ecd879bee6b8f7d99780f1aaa9178fa768c0a8862f77d735
-R 4f6696d2ac934b3b8768ded429073ebb
-U florian
-Z faf13b19888c0eaaeadfffc8bb05c458
+P b0188ce122c43b41447953d35ba1e122f1205145ee57c7e3d6e84b62b37d1464
+R dc274318368ea5559b19e43ac6fbf189
+T *branch * markdown-header-ids
+T *sym-markdown-header-ids *
+T -sym-trunk *
+U drh
+Z 392ec5136920d33a63b7e67a6017cedf
 # Remove this line to create a well-formed Fossil manifest.
