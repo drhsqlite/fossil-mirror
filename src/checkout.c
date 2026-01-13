@@ -595,7 +595,7 @@ void get_cmd(void){
     fossil_fatal("Cannot create an in-memory database: %s",
                  sqlite3_errmsg(db));
   }
-  zSql = mprintf("SELECT name, mode, sz, data FROM sqlar"
+  zSql = mprintf("SELECT name, mode, sz, data, mtime FROM sqlar"
                  " WHERE name GLOB '%q*'", zDest);
   rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
   fossil_free(zSql);
@@ -635,6 +635,7 @@ void get_cmd(void){
         file_setexe(zFilename, 1);
       }
       blob_zero(&file);
+      file_set_mtime(zFilename, sqlite3_column_int64(pStmt,4));
       if( bVerbose ){
         fossil_print("%s\n", zFilename);
       }

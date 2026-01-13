@@ -1,5 +1,5 @@
-C Tag\slabels\sin\sMarkdown\swith\sIDs\sthat\sare\scompatible\swith\sGitHub.
-D 2026-01-13T19:52:42.486
+C Fix\sthe\s"fossil\sget"\scommand\sso\sthat\sit\ssets\sthe\smtime\son\sextracted\sfiles.\n[forum:/forumpost/7239e92e0f59e407|Forum\spost\s7239e92e0f59e407].
+D 2026-01-13T23:57:35.042
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -402,7 +402,7 @@ F src/captcha.c 2394e4e21d348561a95245e9d936548abed07c2151a1c3a7f8626b1e0b35c45b
 F src/cgi.c e81ac4c3a0d3e70bd786a03c54e5a9a60cbc23efb7f4241102cd870ba11adcb0
 F src/chat.c 5b6b39018559fe496641f49f199069b4a78c4c02e30630ac76ba9ea53f51ec4d
 F src/checkin.c b48a54ad461af074f7340006d52e0170b60dfcdef103b74deb19e46cfe1575e6
-F src/checkout.c d51cc266ec993b682f1de05b5be71f3ae2542d336d7d39347eaefb18633ffd28
+F src/checkout.c 2340563241f06f2909d06849038fd6c1149df06fd1ca7fbe65bcdc9bc490dace
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
 F src/clone.c 1b14e1fe42556ec080492e77c94f50dbb047952f40ba41bd4ca1d0a154d13e15
@@ -980,9 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e417a5070bf0af2995625137997adfe1f3025149aa57b5da390bae6a4859f122 a190fae4a284baa302ed006996309dfd8127e442bb64bfb1e69125fa962d5cca
-R 4288786bebf262ab185586e3c74d9abd
-T +closed a190fae4a284baa302ed006996309dfd8127e442bb64bfb1e69125fa962d5cca
+P f9ead7530c6e61be8ce795e5bc65f8e5c36743775bc76217c383ca032aa01c58
+R 44d9ca67a92b984f88ad58f1fb7a1e37
 U drh
-Z 67becf146125a8013d0d6d173d68f3a0
+Z 1f7dad3129fdfe7e9b4e6ac2255f666f
 # Remove this line to create a well-formed Fossil manifest.
