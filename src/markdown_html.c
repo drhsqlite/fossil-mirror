@@ -218,6 +218,8 @@ static void html_header(
   void *opaque
 ){
   struct Blob *title = ((MarkdownToHtml*)opaque)->output_title;
+  char *z = 0;
+  int i,j;
   /* The first header at the beginning of a text is considered as
    * a title and not output. */
   if( blob_size(ob)<=PROLOG_SIZE && title!=0 && blob_size(title)==0 ){
@@ -225,9 +227,48 @@ static void html_header(
     return;
   }
   INTER_BLOCK(ob);
-  blob_appendf(ob, "<h%d>", level);
+  z = fossil_strdup(blob_buffer(text));
+  if( z==0 ){
+    j = 0;
+  }else{
+    /*
+    ** The GitHub "slugify" algorithm converts the text of a markdown header
+    ** into a ID for that header.  The algorithm is:
+    **
+    **   1.  ASCII alphanumerics -> convert to lower case
+    **   2.  Spaces, hyphens, underscores -> convert to '-'
+    **   3.  Non-ASCII -> preserve as-is
+    **   4.  Other punctuation -> remove
+    **   5.  Multiple consecutive dashes -> collapse to one
+    **   6.  Leading and trailing dashes -> remove
+    **   7.  Markup <...> and &...; -> remove
+    **
+    ** This implementation does the conversion in-place.
+    */
+    for(i=j=0; z[i]; i++){
+      if( fossil_isalnum(z[i]) ){
+        z[j++] = fossil_tolower(z[i]);
+      }else if( fossil_isspace(z[i]) || z[i]=='-' || z[i]=='_' ){
+        if( j>0 && z[j-1]!='-' ) z[j++] = '-';
+      }else if( z[i]=='<' ){
+        do{ i++; }while( z[i]!=0 && z[i]!='>' );
+      }else if( z[i]=='&' ){
+        do{ i++; }while( z[i]!=0 && z[i]!=';' );
+      }else if( (z[i]&0x80)!=0 ){
+        z[j++] = z[i];
+      }
+    }
+    if( j>0 && z[j-1]=='-' ) j--;
+    z[j] = 0;
+  }
+  if( j>0 ){
+    blob_appendf(ob, "<h%d id=\"%s\">", level, z);
+  }else{
+    blob_appendf(ob, "<h%d>", level);
+  }
   blob_appendb(ob, text);
   blob_appendf(ob, "</h%d>", level);
+  fossil_free(z);
 }
 
 static void html_hrule(struct Blob *ob, void *opaque){
