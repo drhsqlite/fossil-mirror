@@ -231,13 +231,31 @@ static void html_header(
   if( z==0 ){
     j = 0;
   }else{
+    /*
+    ** The GitHub "slugify" algorithm converts the text of a markdown header
+    ** into a ID for that header.  The algorithm is:
+    **
+    **   1.  ASCII alphanumerics -> convert to lower case
+    **   2.  Spaces, hyphens, underscores -> convert to '-'
+    **   3.  Non-ASCII -> preserve as-is
+    **   4.  Other punctuation -> remove
+    **   5.  Multiple consecutive dashes -> collapse to one
+    **   6.  Leading and trailing dashes -> remove
+    **   7.  Markup <...> and &...; -> remove
+    **
+    ** This implementation does the conversion in-place.
+    */
     for(i=j=0; z[i]; i++){
       if( fossil_isalnum(z[i]) ){
         z[j++] = fossil_tolower(z[i]);
-      }else if( fossil_isspace(z[i]) && j>0 && fossil_isalnum(z[j-1]) ){
-        z[j++] = '-';
+      }else if( fossil_isspace(z[i]) || z[i]=='-' || z[i]=='_' ){
+        if( j>0 && z[j-1]!='-' ) z[j++] = '-';
       }else if( z[i]=='<' ){
         do{ i++; }while( z[i]!=0 && z[i]!='>' );
+      }else if( z[i]=='&' ){
+        do{ i++; }while( z[i]!=0 && z[i]!=';' );
+      }else if( (z[i]&0x80)!=0 ){
+        z[j++] = z[i];
       }
     }
     if( j>0 && z[j-1]=='-' ) j--;
