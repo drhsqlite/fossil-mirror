@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\sget"\scommand\sso\sthat\sit\ssets\sthe\smtime\son\sextracted\sfiles.\n[forum:/forumpost/7239e92e0f59e407|Forum\spost\s7239e92e0f59e407].
-D 2026-01-13T23:57:35.042
+C Revisit\s[b0188ce122]\sto\simprove\scompatibility\swith\sweb\sbrowsers\slacking\ssupport\sfor\s`overflow-y:\sclip'.\sIt's\sa\sbit\sstrange\sthat\s`overflow-y:\shidden'\sstill\struncates\sthe\sbox\sshadows,\sso\sthis\sfallback\sstyle\sis\sonly\sapplied\stemporarily\sduring\sthe\saccordion\spanel\sanimations.
+D 2026-01-14T12:57:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -376,7 +376,7 @@ F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae
 F skins/xekri/footer.txt 00760bbee5f45decff089e54bc8a11600eeb4644d01f21d7b2a0af52a07312f8
 F skins/xekri/header.txt 8844006d55f16b4ea8f6388db44b5db74a91a366ac934fe081a107a53464dbb3
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/accordion.js b4eaeb177875201bb5cc6dfc6be603ac23137c4c436a116138cfef574ca77766
+F src/accordion.js 5a72ea78003627895026ded60b7515c0831a0be4566771be42c93c7331395888
 F src/add.c dd32e5aef946c283f1ed5aa22b4e72b31c31e905735b17f3f290dbde60c297f2
 F src/ajax.c 506ea4cdb6e6a62da0f9a16afd37229c7e9c51f119b6a44e910aa6ebdf7be3a8
 F src/alerts.c 9672703e1534c7428b9359aa0bc3a2e2d3b849f028e85fb7ccc87892158d0510
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f9ead7530c6e61be8ce795e5bc65f8e5c36743775bc76217c383ca032aa01c58
-R 44d9ca67a92b984f88ad58f1fb7a1e37
-U drh
-Z 1f7dad3129fdfe7e9b4e6ac2255f666f
+P 2a387c970dd42bb2b98d56d765ff8b8a0ca99c3ac97dd4337d43e300f136e2f2
+R 01fe2081b28de55e3974325c04691d07
+U florian
+Z 433e5b3aa7a83319ed8bc4bfe8a134d6
 # Remove this line to create a well-formed Fossil manifest.
