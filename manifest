@@ -1,5 +1,5 @@
-C Revisit\s[b0188ce122]\sto\simprove\scompatibility\swith\sweb\sbrowsers\slacking\ssupport\sfor\s`overflow-y:\sclip'.\sIt's\sa\sbit\sstrange\sthat\s`overflow-y:\shidden'\sstill\struncates\sthe\sbox\sshadows,\sso\sthis\sfallback\sstyle\sis\sonly\sapplied\stemporarily\sduring\sthe\saccordion\spanel\sanimations.
-D 2026-01-14T12:57:00.000
+C Fix\san\sincorrect\scomment\sin\sterms\sof\scontent.
+D 2026-01-23T14:29:14.147
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -591,7 +591,7 @@ F src/url.c 3fcddbeb028cb985b979901f16aa2d0dbda4a52b0d6508a3a2e1a32bfb312408
 F src/user.c 8ed24fbe9586c0a633a91037d9947d1772dfda3562750f5a0c52b0d7f0b4c408
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
-F src/util.c 99f3092e94313bf476dfbf29f8f635033444665486cfba2b792fdaaf29172d36
+F src/util.c cc7d7c9d72d9ba63d06819ad393aec322af87439b826b198c124d05b913f48ce
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 34f2f95b66cc1d90ce65d04342826326e496630a857e40660ba25ebf9430c219
 F src/wiki.c 5a5b751ab4ab336f0bbdcf7e9a6346462925e365f8e87a0526fff64236532d3d
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2a387c970dd42bb2b98d56d765ff8b8a0ca99c3ac97dd4337d43e300f136e2f2
-R 01fe2081b28de55e3974325c04691d07
-U florian
-Z 433e5b3aa7a83319ed8bc4bfe8a134d6
+P 490ddadcfa4a15327b1a9c408c4db7f4ca8d80956e1c9b7f8194a4a8eae710c1
+R 65467cac50b5caa95c66fc6a5fce71a5
+U danield
+Z 0d15cbf50d7696893a619f80472f9058
 # Remove this line to create a well-formed Fossil manifest.

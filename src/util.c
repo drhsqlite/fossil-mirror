@@ -920,7 +920,7 @@ char* fossil_generate_uuid() {
 
   sqlite3_randomness(16, aBlob);
   aBlob[6] = (aBlob[6]&0x0f) + 0x40; /* Version byte:  0100 xxxx */
-  aBlob[8] = (aBlob[8]&0x3f) + 0x80; /* Variant byte:  1000 xxxx */
+  aBlob[8] = (aBlob[8]&0x3f) + 0x80; /* Variant byte:  10xx xxxx */
 
   for(i=0, k=0x550; i<16; i++, k=k>>1){
     if( k&1 ){
