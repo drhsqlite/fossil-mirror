@@ -716,12 +716,13 @@ static void print_filelist_as_tree(Blob *pList){
 /*
 ** Take care of -r version of ls command
 */
-static void ls_cmd_rev(
+void ls_cmd_rev(
   const char *zRev,  /* Revision string given */
   int verboseFlag,   /* Verbose flag given */
   int showAge,       /* Age flag given */
   int showFileHash,  /* Show file hash flag given */
   int showCkinHash,  /* Show check-in hash flag given */
+  int showCkinInfo,  /* Show check-in infos */
   int timeOrder,     /* Order by time flag given */
   int treeFmt        /* Show output in the tree format */
 ){
@@ -765,18 +766,32 @@ static void ls_cmd_rev(
   }
 
   compute_fileage(rid,0);
-  db_prepare(&q,   
+  if( showCkinInfo ){
+    db_prepare(&q,
+    "SELECT datetime(fileage.mtime, toLocal()), fileage.pathname,\n"
+    "       bfh.size, fileage.uuid, bch.uuid,\n"
+    "       coalesce(e.ecomment, e.comment), coalesce(e.euser, e.user)\n"
+    "  FROM fileage, blob bfh, blob bch, event e\n"
+    " WHERE bfh.rid=fileage.fid AND bch.rid=fileage.mid\n"
+    "   AND e.objid = fileage.mid %s\n"
+    " ORDER BY %s;",
+        blob_sql_text(&where),
+        zOrderBy /*safe-for-%s*/
+    );
+  }else{
+    db_prepare(&q,
     "SELECT datetime(fileage.mtime, toLocal()), fileage.pathname,\n"
     "       bfh.size, fileage.uuid %s\n"
     "  FROM fileage, blob bfh %s\n"
     " WHERE bfh.rid=fileage.fid %s %s\n"
-    " ORDER BY %s;", 
+    " ORDER BY %s;",
         showCkinHash ? ", bch.uuid" : "",
         showCkinHash ? ", blob bch" : "",
         showCkinHash ? "\n   AND bch.rid=fileage.mid" : "",
         blob_sql_text(&where),
         zOrderBy /*safe-for-%s*/
-  );
+    );
+  }
   blob_reset(&where);
   if( treeFmt ) blob_init(&out, 0, 0);
 
@@ -787,7 +802,14 @@ static void ls_cmd_rev(
     if( treeFmt ){
       blob_appendf(&out, "%s\n", zFile);
     }else if( verboseFlag ){
-      if( showFileHash ){
+      if( showCkinInfo ){
+        const char *zUuidC = db_column_text(&q,4);
+        const char *zComm = db_column_text(&q,5);
+        const char *zUser = db_column_text(&q,6);     
+        fossil_print("%s  [%S]  %12s  ", zTime, zUuidC, zUser);
+        if( showCkinInfo==2 ) fossil_print("%-20.20s  ", zComm);
+        fossil_print("%s\n", zFile);
+      }else if( showFileHash ){
         const char *zUuidF = db_column_text(&q,3);
         fossil_print("%s  %7d  [%S]  %s\n", zTime, size, zUuidF, zFile);
       }else if( showCkinHash ){
@@ -889,7 +911,8 @@ void ls_cmd(void){
   if( zRev!=0 ){
     db_find_and_open_repository(0, 0);
     verify_all_options();
-    ls_cmd_rev(zRev,verboseFlag,showAge,showFHash,showCHash,timeOrder,treeFmt);
+    ls_cmd_rev(zRev, verboseFlag, showAge, showFHash, showCHash, 0, timeOrder,
+               treeFmt);
     return;
   }else if( find_option("R",0,1)!=0 ){
     fossil_fatal("the -r is required in addition to -R");
@@ -1012,7 +1035,7 @@ void tree_cmd(void){
   if( zRev==0 ) zRev = "current";
   db_find_and_open_repository(0, 0);
   verify_all_options();
-  ls_cmd_rev(zRev,0,0,0,0,0,1);
+  ls_cmd_rev(zRev,0,0,0,0,0,0,1);
 }
 
 /*
