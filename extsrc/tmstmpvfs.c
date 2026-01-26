@@ -42,6 +42,16 @@
 ** You may want to add additional compiler options, of course,
 ** according to the needs of your project.
 **
+** Another option is to statically link both SQLite and this extension
+** into your application.  If both this file and "sqlite3.c" are statically
+** linked, and if "sqlite3.c" is compiled with -DSQLITE_EXTRA_INIT=
+** SQLite amalgamation "sqlite3.c" file with the option like:
+**
+**       -DSQLITE_EXTRA_INIT=sqlite3_register_tmstmpvfs
+**
+** Then SQLite will use the tmstmp VFS by default throughout your
+** application.
+**
 ** LOADING
 **
 ** To load this extension as a shared library, you first have to
@@ -63,6 +73,14 @@
 ** it might be important to ensure that tmstmpvfs is loaded in the
 ** correct order so that it sequences itself into the default VFS
 ** Shim stack in the right order.
+**
+** When running the CLI, you can load this extension at invocation by
+** adding a command-line option like this:  "--vfs ./tmstmpvfs.so".
+** The --vfs option usually specifies the symbolic name of a built-in VFS.
+** But if the argument to --vfs is not a built-in VFS but is instead the
+** name of a file, the CLI tries to load that file as an extension.  Note
+** that the full name of the extension file must be provided, including
+** the ".so" or ".dylib" or ".dll" suffix.
 **
 ** An application can see if the tmstmpvfs is being used by examining
 ** the results from SQLITE_FCNTL_VFSNAME (or the .vfsname command in
@@ -96,13 +114,16 @@
 ** From the CLI, use the ".filectrl reserve_bytes 16" command, 
 ** followed by "VACUUM;".
 **
-** Note that SQLite allows the number of reserve-bytes to be
-** increased but not decreased.  So if a database file already
-** has a reserve-bytes value greater than 16, there is no way to
-** activate timestamping on that database, other than to dump
-** and restore the database file.  Note also that other extensions
-** might also make use of the reserve-bytes.  Timestamping will
-** be incompatible with those other extensions.
+** SQLite allows the number of reserve-bytes to be increased, but
+** not decreased.  If you want to restore the reserve-bytes to 0
+** (to disable tmstmpvfs), the easiest approach is to use VACUUM INTO
+** with a URI filename as the argument and include "reserve=0" query
+** parameter on the URI.  Example:
+**
+**     VACUUM INTO  'file:notimestamps.db?reserve=0';
+**
+** Then switch over to using the new database file.  The reserve=0 query
+** parameter only works on SQLite 3.52.0 and later.
 **
 ** IMPLEMENTATION NOTES
 **
@@ -171,6 +192,7 @@
 **   ELOG_CKPT_PAGE       "Page xfer from WAL to database"
 **                        op = 0x06
 **                        a2 = database page number
+**                        a3 = frame number in the WAL file
 **
 **   ELOG_CKPT_END        "Start of a checkpoint operation"
 **                        op = 0x07
@@ -248,7 +270,7 @@ struct  TmstmpLog {
   unsigned char a[16*6]; /* Buffered header for the log */
 };
 
-/* An open WAL file */
+/* An open WAL or DB file */
 struct TmstmpFile {
   sqlite3_file base;     /* IO methods */
   u32 uMagic;            /* Magic number for sanity checking */
@@ -434,7 +456,8 @@ static void tmstmpEvent(
   u8 op,
   u8 a1,
   u32 a2,
-  u32 a3
+  u32 a3,
+  u8 *pTS
 ){
   unsigned char *a;
   TmstmpLog *pLog;
@@ -451,7 +474,11 @@ static void tmstmpEvent(
   a = pLog->a + pLog->n;
   a[0] = op;
   a[1] = a1;
-  tmstmpPutTS(p, a+2);
+  if( pTS ){
+    memcpy(a+2, pTS, 6);
+  }else{
+    tmstmpPutTS(p, a+2);
+  }
   tmstmpPutU32(a2, a+8);
   tmstmpPutU32(a3, a+12);
   pLog->n += 16;
@@ -466,7 +493,7 @@ static void tmstmpEvent(
 static int tmstmpClose(sqlite3_file *pFile){
   TmstmpFile *p = (TmstmpFile *)pFile;
   if( p->hasCorrectReserve ){
-    tmstmpEvent(p, p->isDb ? ELOG_CLOSE_DB : ELOG_CLOSE_WAL, 0, 0, 0);
+    tmstmpEvent(p, p->isDb ? ELOG_CLOSE_DB : ELOG_CLOSE_WAL, 0, 0, 0, 0);
   }
   tmstmpLogFree(p->pLog);
   if( p->pPartner ){
@@ -505,6 +532,12 @@ static int tmstmpRead(
       p->pPartner->pgsz = p->pgsz;
     }
   }
+  if( p->isWal
+   && p->inCkpt
+   && iAmt>=512 && iAmt<=65535 && (iAmt&(iAmt-1))==0
+  ){
+    p->pPartner->iFrame = (iOfst - 8)/(p->pgsz + 48) + 1;
+  }
   return rc;
 }
 
@@ -539,14 +572,14 @@ static int tmstmpWrite(
       tmstmpPutU32(p->iFrame, s+8);
       tmstmpPutU32(p->salt1, s+12);
       s[12] = p->isCommit ? 1 : 0;
-      tmstmpEvent(p, ELOG_WAL_PAGE, s[12], p->pgno, p->iFrame);
+      tmstmpEvent(p, ELOG_WAL_PAGE, s[12], p->pgno, p->iFrame, s+2);
     }else if( iAmt==32 && iOfst==0 ){
       u32 salt1 = tmstmpGetU32(((const u8*)zBuf)+16);
-      tmstmpEvent(p, ELOG_WAL_RESET, 0, 0, salt1);
+      tmstmpEvent(p, ELOG_WAL_RESET, 0, 0, salt1, 0);
     }
   }else if( p->inCkpt ){
     assert( p->pgsz>0 );
-    tmstmpEvent(p, ELOG_CKPT_PAGE, 0, (iOfst/p->pgsz)+1, 0);
+    tmstmpEvent(p, ELOG_CKPT_PAGE, 0, (iOfst/p->pgsz)+1, p->iFrame, 0);
   }else if( p->pPartner==0 ){
     /* Writing into a database in rollback mode */
     unsigned char *s = (unsigned char*)zBuf+iAmt-TMSTMP_RESERVE;
@@ -554,7 +587,7 @@ static int tmstmpWrite(
     tmstmpPutTS(p, s+2);
     s[12] = 2;
     assert( p->pgsz>0 );
-    tmstmpEvent(p, ELOG_DB_PAGE, 0, (u32)(iOfst/p->pgsz), 0);
+    tmstmpEvent(p, ELOG_DB_PAGE, 0, (u32)(iOfst/p->pgsz), 0, s+2);
   }
   return pSub->pMethods->xWrite(pSub,zBuf,iAmt,iOfst);
 }
@@ -629,7 +662,7 @@ static int tmstmpFileControl(sqlite3_file *pFile, int op, void *pArg){
       assert( p->pPartner!=0 );
       p->pPartner->inCkpt = 1;
       if( p->hasCorrectReserve ){
-        tmstmpEvent(p, ELOG_CKPT_START, 0, 0, 0);
+        tmstmpEvent(p, ELOG_CKPT_START, 0, 0, 0, 0);
       }
       rc = SQLITE_OK;
       break;
@@ -640,7 +673,7 @@ static int tmstmpFileControl(sqlite3_file *pFile, int op, void *pArg){
       assert( p->pPartner!=0 );
       p->pPartner->inCkpt = 0;
       if( p->hasCorrectReserve ){
-        tmstmpEvent(p, ELOG_CKPT_DONE, 0, 0, 0);
+        tmstmpEvent(p, ELOG_CKPT_DONE, 0, 0, 0, 0);
       }
       rc = SQLITE_OK;
       break;
@@ -815,7 +848,7 @@ static int tmstmpOpen(
          "%s-tmstmp/%04d%02d%02dT%02d%02d%02d%03d-%08d-%08x",
           zName,       Y,  M,  D,   h,  m,  s,  f, pid,  r2);
   }
-  tmstmpEvent(p, p->isWal ? ELOG_OPEN_WAL : ELOG_OPEN_DB, 0, GETPID, 0);
+  tmstmpEvent(p, p->isWal ? ELOG_OPEN_WAL : ELOG_OPEN_DB, 0, GETPID, 0, 0);
 
 tmstmp_open_done:
   if( rc ) pFile->pMethods = 0;
