@@ -148,10 +148,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.52.0"
 #define SQLITE_VERSION_NUMBER 3052000
-#define SQLITE_SOURCE_ID      "2026-01-09 00:41:35 9adab8b2bef4130abd358d53384cb5f4dd691b808336bb7102793b0165b1c516"
+#define SQLITE_SOURCE_ID      "2026-01-26 10:53:24 4733d351ec2376291f093ba8d2ba71d82c6f100c68dc860eee0532986c154e71"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2026-01-09T00:41:35.433Z"
+#define SQLITE_SCM_DATETIME   "2026-01-26T10:53:24.426Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4875,8 +4875,8 @@ typedef struct sqlite3_context sqlite3_context;
 ** it should be a pointer to well-formed UTF16 text.
 ** ^If the third parameter to sqlite3_bind_text64() is not NULL, then
 ** it should be a pointer to a well-formed unicode string that is
-** either UTF8 if the sixth parameter is SQLITE_UTF8, or UTF16
-** otherwise.
+** either UTF8 if the sixth parameter is SQLITE_UTF8 or SQLITE_UTF8_ZT,
+** or UTF16 otherwise.
 **
 ** [[byte-order determination rules]] ^The byte-order of
 ** UTF16 input text is determined by the byte-order mark (BOM, U+FEFF)
@@ -4922,10 +4922,15 @@ typedef struct sqlite3_context sqlite3_context;
 ** object and pointer to it must remain valid until then. ^SQLite will then
 ** manage the lifetime of its private copy.
 **
-** ^The sixth argument to sqlite3_bind_text64() must be one of
-** [SQLITE_UTF8], [SQLITE_UTF16], [SQLITE_UTF16BE], or [SQLITE_UTF16LE]
-** to specify the encoding of the text in the third parameter.  If
-** the sixth argument to sqlite3_bind_text64() is not one of the
+** ^The sixth argument (the E argument)
+** to sqlite3_bind_text64(S,K,Z,N,D,E) must be one of
+** [SQLITE_UTF8], [SQLITE_UTF8_ZT], [SQLITE_UTF16], [SQLITE_UTF16BE],
+** or [SQLITE_UTF16LE] to specify the encoding of the text in the
+** third parameter, Z.  The special value [SQLITE_UTF8_ZT] means that the
+** string argument is both UTF-8 encoded and is zero-terminated.  In other
+** words, SQLITE_UTF8_ZT means that the Z array is allocated to hold at
+** least N+1 bytes and that the Z&#91;N&#93; byte is zero.  If
+** the E argument to sqlite3_bind_text64(S,K,Z,N,D,E) is not one of the
 ** allowed values shown above, or if the text encoding is different
 ** from the encoding specified by the sixth parameter, then the behavior
 ** is undefined.
@@ -5792,6 +5797,51 @@ SQLITE_API int sqlite3_create_window_function(
 **
 ** These constants define integer codes that represent the various
 ** text encodings supported by SQLite.
+**
+** <dl>
+** [[SQLITE_UTF8]] <dt>SQLITE_UTF8</dt><dd>Text is encoding as UTF-8</dd>
+**
+** [[SQLITE_UTF16LE]] <dt>SQLITE_UTF16LE</dt><dd>Text is encoding as UTF-16
+** with each code point being expressed "little endian" - the least significant
+** byte first.  This is the usual encoding, for example on Windows.</dd>
+**
+** [[SQLITE_UTF16BE]] <dt>SQLITE_UTF16BE</dt><dd>Text is encoding as UTF-16
+** with each code point being expressed "big endian" - the most significant
+** byte first.  This encoding is less common, but is still sometimes seen,
+** specially on older systems.
+**
+** [[SQLITE_UTF16]] <dt>SQLITE_UTF16</dt><dd>Text is encoding as UTF-16
+** with each code point being expressed either little endian or as big
+** endian, according to the native endianness of the host computer.
+**
+** [[SQLITE_ANY]] <dt>SQLITE_ANY</dt><dd>This encoding value may only be used
+** to declare the preferred text for [application-defined SQL functions]
+** created using [sqlite3_create_function()] and similar.  If the preferred
+** encoding (the 4th parameter to sqlite3_create_function() - the eTextRep
+** parameter) is SQLITE_ANY, that indicates that the function does not have
+** a preference regarding the text encoding of its parameters and can take
+** any text encoding that the SQLite core find convenient to supply.  This
+** option is deprecated.  Please do not use it in new applications.
+**
+** [[SQLITE_UTF16_ALIGNED]] <dt>SQLITE_UTF16_ALIGNED</dt><dd>This encoding
+** value may be used as the 3rd parameter (the eTextRep parameter) to
+** [sqlite3_create_collation()] and similar.  This encoding value means
+** that the application-defined collating sequence created expects its
+** input strings to be in UTF16 in native byte order, and that the start
+** of the strings must be aligned to a 2-byte boundary.
+**
+** [[SQLITE_UTF8_ZT]] <dt>SQLITE_UTF8_ZT</dt><dd>This option can only be
+** used to specify the text encoding to strings input to [sqlite3_result_text64()]
+** and [sqlite3_bind_text64()].  It means that the input string (call it "z")
+** is UTF-8 encoded and that it is zero-terminated.  If the length parameter
+** (call it "n") is non-negative, this encoding option means that the caller
+** guarantees that z array contains at least n+1 bytes and that the z&#91;n&#93;
+** byte has a value of zero.
+** This option gives the same output as SQLITE_UTF8, but can be more efficient
+** by avoiding the need to make a copy of the input string, in some cases.
+** However, if z is allocated to hold fewer than n+1 bytes or if the
+** z&#91;n&#93; byte is not zero, undefined behavior may result.
+** </dl>
 */
 #define SQLITE_UTF8           1    /* IMP: R-37514-35566 */
 #define SQLITE_UTF16LE        2    /* IMP: R-03371-37637 */
@@ -5799,6 +5849,7 @@ SQLITE_API int sqlite3_create_window_function(
 #define SQLITE_UTF16          4    /* Use native byte order */
 #define SQLITE_ANY            5    /* Deprecated */
 #define SQLITE_UTF16_ALIGNED  8    /* sqlite3_create_collation only */
+#define SQLITE_UTF8_ZT       16    /* Zero-terminated UTF8 */
 
 /*
 ** CAPI3REF: Function Flags
@@ -6419,10 +6470,14 @@ typedef void (*sqlite3_destructor_type)(void*);
 ** set the return value of the application-defined function to be
 ** a text string which is represented as UTF-8, UTF-16 native byte order,
 ** UTF-16 little endian, or UTF-16 big endian, respectively.
-** ^The sqlite3_result_text64() interface sets the return value of an
+** ^The sqlite3_result_text64(C,Z,N,D,E) interface sets the return value of an
 ** application-defined function to be a text string in an encoding
-** specified by the fifth (and last) parameter, which must be one
-** of [SQLITE_UTF8], [SQLITE_UTF16], [SQLITE_UTF16BE], or [SQLITE_UTF16LE].
+** specified the E parameter, which must be one
+** of [SQLITE_UTF8], [SQLITE_UTF8_ZT], [SQLITE_UTF16], [SQLITE_UTF16BE],
+** or [SQLITE_UTF16LE].  ^The special value [SQLITE_UTF8_ZT] means that
+** the result text is both UTF-8 and zero-terminated.  In other words,
+** SQLITE_UTF8_ZT means that the Z array holds at least N+1 byes and that
+** the Z&#91;N&#93; is zero.
 ** ^SQLite takes the text result from the application from
 ** the 2nd parameter of the sqlite3_result_text* interfaces.
 ** ^If the 3rd parameter to any of the sqlite3_result_text* interfaces
@@ -6509,7 +6564,7 @@ SQLITE_API void sqlite3_result_int(sqlite3_context*, int);
 SQLITE_API void sqlite3_result_int64(sqlite3_context*, sqlite3_int64);
 SQLITE_API void sqlite3_result_null(sqlite3_context*);
 SQLITE_API void sqlite3_result_text(sqlite3_context*, const char*, int, void(*)(void*));
-SQLITE_API void sqlite3_result_text64(sqlite3_context*, const char*,sqlite3_uint64,
+SQLITE_API void sqlite3_result_text64(sqlite3_context*, const char *z, sqlite3_uint64 n,
                            void(*)(void*), unsigned char encoding);
 SQLITE_API void sqlite3_result_text16(sqlite3_context*, const void*, int, void(*)(void*));
 SQLITE_API void sqlite3_result_text16le(sqlite3_context*, const void*, int,void(*)(void*));

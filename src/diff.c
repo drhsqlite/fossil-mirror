@@ -3624,7 +3624,7 @@ static void annotate_file(
   }
   db_begin_transaction();
 
-  /* Get the artifact ID for the check-in begin analyzed */
+  /* Get the artifact ID for the check-in being analyzed */
   if( zRevision ){
     cid = name_to_typed_rid(zRevision, "ci");
   }else{
@@ -3941,6 +3941,11 @@ void annotation_page(void){
 ** of the file shows the first time each line in the file was changed or
 ** removed by any subsequent check-in.
 **
+** With -t or -T, the "blame" and "praise" commands show for each file the
+** latest (relative to the revision given by -r) check-in that modified it and
+** the check-in's author. If not given, the revision defaults to "current" for
+** a check-out. Option -T additionally shows a comment snippet for the check-in.
+**
 ** Options:
 **   --filevers                  Show file version numbers rather than
 **                               check-in versions
@@ -3956,6 +3961,9 @@ void annotation_page(void){
 **                               similar for a reverse annotation.
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
+**   -t                          Show latest check-in and its author for each
+**                               tracked file in the tree as of VERSION
+**   -T                          Like -t, plus comment snippet
 **
 ** See also: [[info]], [[finfo]], [[timeline]]
 */
@@ -3969,12 +3977,24 @@ void annotate_cmd(void){
   int fileVers;          /* Show file version instead of check-in versions */
   u64 annFlags = 0;      /* Flags to control annotation properties */
   int bBlame = 0;        /* True for BLAME output.  False for ANNOTATE. */
+  int bTreeInfo = 0;     /* Show for the entire tree: 1=checkin, 2=with comment */
   int szHash;            /* Display size of a version hash */
   Blob treename;         /* Name of file to be annotated */
   char *zFilename;       /* Name of file to be annotated */
 
   bBlame = g.argv[1][0]!='a';
+  if( find_option("t","t",0)!=0 ) bTreeInfo = 1;
+  if( find_option("T","T",0)!=0 ) bTreeInfo = 2;
   zRevision = find_option("revision","r",1);
+  if( bBlame && bTreeInfo ){
+    if( find_repository_option()!=0 && zRevision==0 ){
+       fossil_fatal("the -r is required in addition to -R");
+    }
+    db_find_and_open_repository(0, 0);
+    if( zRevision==0 ) zRevision = "current";
+    ls_cmd_rev(zRevision,1,1,0,1,bTreeInfo,0,0);
+    return;
+  }
   zLimit = find_option("limit","n",1);
   zOrig = find_option("origin","o",1);
   showLog = find_option("log","l",0)!=0;
