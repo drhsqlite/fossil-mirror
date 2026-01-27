@@ -1,5 +1,5 @@
-C Fix\sframe\snumber\scomputations\sin\sthe\stimestamp\sVFS.
-D 2026-01-27T11:21:56.947
+C New\sversion\sof\stmstmpvfs.c\sthat\sfixes\sthe\sWAL-checksum\sbug.
+D 2026-01-27T16:20:12.488
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -280,7 +280,7 @@ F extsrc/qrf.h 2ac14b0aaacf44636d8c81051bfeab4afae50a98fbb2e10ff5aed0c28a87b2b2
 F extsrc/shell.c f42d61e7cbc13620699bcbade817910b0e3ed4d7d78ffb44f434a6bac51b3752
 F extsrc/sqlite3.c ee0365a2fe00ac3ddc1bea721e4689d228621abc3059d180b470a5ccddbe3d24
 F extsrc/sqlite3.h 8624a6ec310be6859f47ebf9ceea50c4332d92d60947fe5ab704f24073e95d6e
-F extsrc/tmstmpvfs.c 1bb804100d759ab4e9b9c159c3acaf17a5fe18338e72405d24d9f37ef5dccb1e
+F extsrc/tmstmpvfs.c 1c335f1df51a60896e84721e262fc23e8a3130ba52b1a34e2b8e4870e5be74e9
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2a1a9c357e1a8822e089c89b410b69ee8bd9c3b2042226783a5ea86db3283551
-R a9800f1513418965e5e49316d079c836
+P 7e63541cddb482cc2bd0bfac125107d76ccba8d4471115fadbb14dc7ec44cce2
+R d4a7297cefefd515310d1d445048f458
 U drh
-Z 225063290c6ecc9933ab217a29cf892e
+Z 17947b0f336b4a42164cf5e3241e3abf
 # Remove this line to create a well-formed Fossil manifest.
