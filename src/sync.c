@@ -512,7 +512,7 @@ void sync_cmd(void){
   if( find_option("ping",0,0)!=0 ){
     syncFlags = SYNC_PING;
   }
-  if( find_option("quiet","q",0)!=0 ){
+  if( g.fQuiet ){
     syncFlags |= SYNC_QUIET;
   }
   process_sync_args(&configFlags, &syncFlags, 0, 0);

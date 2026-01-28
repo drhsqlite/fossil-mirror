@@ -995,7 +995,7 @@ void re_grep_cmd(void){
   if( find_option("ignore-case","i",0)!=0 ) ignoreCase = 1;
   if( find_option("files-with-matches","l",0)!=0 ) flags |= GREP_EXISTS;
   if( find_option("verbose",0,0)!=0 ) bVerbose = 1;
-  if( find_option("quiet","q",0) ) flags |= GREP_QUIET|GREP_EXISTS;
+  if( g.fQuiet ) flags |= GREP_QUIET|GREP_EXISTS;
   bNoMsg = find_option("no-messages","s",0)!=0;
   bOnce = find_option("once",0,0)!=0;
   bInvert = find_option("invert-match","v",0)!=0;

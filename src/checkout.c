@@ -469,7 +469,7 @@ void close_cmd(void){
 void get_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;
   int bVerbose = find_option("verbose","v",0)!=0;
-  int bQuiet = find_option("quiet","q",0)!=0;
+  int bQuiet = g.fQuiet;
   int bDebug = find_option("debug",0,0)!=0;
   int bList = find_option("list",0,0)!=0;
   const char *zSqlArchive = find_option("sqlar",0,1);

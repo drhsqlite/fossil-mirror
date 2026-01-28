@@ -1441,7 +1441,7 @@ static void command_list(int cmdMask, int verboseFlag, int useHtml){
 **   --localtime             Display times using the local timezone
 **   --nocgi                 Do not act as CGI
 **   --no-th-hook            Do not run TH1 hooks
-**   --quiet                 Reduce the amount of output
+**   -q|--quiet              Reduce the amount of output
 **   --sqlstats              Show SQL usage statistics when done
 **   --sqltrace              Trace all SQL commands
 **   --sshtrace              Trace SSH activity

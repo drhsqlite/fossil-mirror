@@ -1377,7 +1377,7 @@ void whatis_cmd(void){
   if( find_option("verbose","v",0)!=0 ){
     mFlags |= WHATIS_VERBOSE;
   }
-  if( find_option("quiet","q",0)!=0 ){
+  if( g.fQuiet ){
     mFlags |= WHATIS_OMIT_UNK | WHATIS_REPO;
   }
   fileFlag = find_option("file","f",0)!=0;
