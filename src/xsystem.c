@@ -446,6 +446,72 @@ void xsystem_ls(int argc, char **argv){
 }
 
 /*
+** unzip [-l] ZIPFILE
+*/
+void xsystem_unzip(int argc, char **argv){
+  const char *zZipfile = 0;
+  int doList = 0;
+  int i;
+  char *a[5];
+  int n;
+  extern int sqlite3_shell(int, char**);
+
+  for(i=1; i<argc; i++){
+    const char *z = argv[i];
+    if( z[0]=='-' ){
+      if( z[1]=='-' && z[2]!=0 ) z++;
+      if( strcmp(z,"-l")==0 ){
+        doList = 1;
+      }else
+      {
+        fossil_fatal("unknown option: %s", argv[i]);
+      }
+    }else if( zZipfile!=0 ){
+      fossil_fatal("extra argument: %s", z);
+    }else{
+      zZipfile = z;
+    }
+  }
+  if( zZipfile==0 ){
+    fossil_fatal("Usage: fossil sys unzip [-l] ZIPFILE");
+  }else if( file_size(zZipfile, ExtFILE)<0 ){
+    fossil_fatal("No such file: %s\n", zZipfile);
+  }
+  g.zRepositoryName = 0;
+  g.zLocalDbName = 0;
+  g.zConfigDbName = 0;
+  sqlite3_shutdown();
+  a[0] = argv[0];
+  a[1] = (char*)zZipfile;
+  if( doList ){
+    a[2] = ".mode column";
+    a[3] = "SELECT sz AS Size, date(mtime,'unixepoch') AS Date,"
+                "  time(mtime,'unixepoch') AS Time, name AS Name"
+                " FROM zip;";
+    n = 4;
+  }else{
+    a[2] = ".mode list";
+    a[3] = "SELECT if(writefile(name,data,mode,mtime) IS NULL,"
+                   "'error: '||name,'extracting: '||name) FROM zip;";
+    n = 4;
+  }
+  a[n] = 0;
+  sqlite3_shell(n,a);
+}
+
+/*
+** zip [OPTIONS] ZIPFILE FILE ...
+*/
+void xsystem_zip(int argc, char **argv){
+  int i;
+  for(i=0; i<argc; i++){
+    g.argv[i+1] = argv[i];
+  }
+  g.argc = argc+1;
+  filezip_cmd();
+}
+
+/*
 ** Available system commands.
 */
 typedef struct XSysCmd XSysCmd;
@@ -479,11 +545,20 @@ static struct XSysCmd {
     "\n"
     "Show the size of the TTY\n"
   },
+  { "unzip", xsystem_unzip,
+    "[-l] ZIPFILE\n\n"
+    "Extract content from ZIPFILE, or list the content if the -l option\n"
+    "is used.\n"
+  },
   { "which", xsystem_which,
     "EXE ...\n"
     "Show the location on PATH of executables EXE\n"
     "Options:\n"
     "   -a     Show all path locations rather than just the first\n"
+  },
+  { "zip", xsystem_zip,
+    "ZIPFILE FILE ...\n\n"
+    "Create a new ZIP archive named ZIPFILE using listed files as content\n"
   },
 };
 

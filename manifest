@@ -1,5 +1,5 @@
-C Fix\scommands\ssupporting\sthe\s--quiet\soption\sto\suse\sthe\sglobal\soption\sstate\sinitialized\son\sprogram\sstartup,\sso\sthat\stheir\s--quiet\soption\sreally\sworks.\sMake\s-q\san\salias\sof\s--quiet,\sas\sdocumented\sby\smany\scommands,\sand\sfix\stwo\sresulting\sconflicts\swith\sthe\sshort\sform.\sIMPORTANT\sCOMPATIBILITY\sNOTE:\sFor\sthe\s`test-integrity'\scommand,\sthe\s-q\soption\sis\schanged\sfrom\s--quick\sto\s--quiet,\sand\sfor\sthe\s`ticket'\scommand\sfamily,\sthe\s-q\soption\sis\schanged\sfrom\s--quote\sto\s--quiet!
-D 2026-01-28T16:12:00.000
+C Two\snew\ssub-commands\son\s"fossil\ssystem":\s"unzip"\sand\s"zip".
+D 2026-01-29T14:47:29.184
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -559,7 +559,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c f6a5980d4b0d59fb56376dd020e87410ba41dfd5e1eda7eaa6c172d05a2fdb9e
+F src/sqlcmd.c d001e76b4be191dd2cd564b4368cb7baabd1b1ef004193870c13f4d0a7354939
 F src/stash.c edceac522c114b482922cb3def79106029d0488eafb516894618c50c0df8ecaf
 F src/stat.c 7c7e1ca90025376e61f4d1a7ae2c4c403a71b2154b84161dc2db65ff28cf3985
 F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
@@ -601,7 +601,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
 F src/xfer.c 2d2983a0ce3a6ec28db702cbd87ebd21bc670699259e44bb043b094b784e227a
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/xsystem.c dd30acb9f320addeeac8dcdc995dee69c0833ef9bef7ec5f2c0b91aae5664a74
+F src/xsystem.c 3e5e70656bafd5f703c7d24fb14eb66da1c91519d9d4dff03bdffac76f6320cc
 F src/zip.c f0d24b70e800598d6c921b1e7bc68af891bbd99075c778e3c060ac448d929a7c
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 13c221af37242a59468605eb511f461ad31e18dcb418e4fd06ee9f31e5c5999a
-R 80d3a7df57b4a303f739591680f610dc
-U florian
-Z 039e18e03f6b1fd2c8bec164f4a7d73c
+P 74d5ce39ea9f6850e7cfe4fb48f8c68b33bef3bd40208f83112561dd25f1f278
+R 94714a42843a16c62a5fd7767710903d
+U drh
+Z 5088782f1cac0ed3d7995fe76a9af873
 # Remove this line to create a well-formed Fossil manifest.
