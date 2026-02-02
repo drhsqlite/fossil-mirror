@@ -1,5 +1,5 @@
-C Two\snew\ssub-commands\son\s"fossil\ssystem":\s"unzip"\sand\s"zip".
-D 2026-01-29T14:47:29.184
+C Change\sthe\srecommended\svalue\sfor\sthe\srobot-restrict\ssetting\smentioned\sin\sthe\sonline\shelp\sto\smatch\sthe\sbuilt-in\sdefault\svalue,\sso\sit's\seasier\sto\scheck\sif\sthe\ssetting\swas\smodified.
+D 2026-02-02T15:20:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -525,7 +525,7 @@ F src/rebuild.c 283e00c74a1654b8e33ce5e9697afdc4d2f50b8b4e05aead6d65534b2a07a1c8
 F src/regexp.c ff7f1ecf7508ca82b6af060b5c1a108005c6e57c5ada88339f7aa0b5f72a4054
 F src/repolist.c 3a3fb5895bbc6a43b3a379d7419bc6cbb3b826e921475c15c2624b1bb76157f1
 F src/report.c 3aa94251d24255b266460bb653dd51959a0199f62bafd0cdf5362faeb502360c
-F src/robot.c 1a2befdf9c8f87f6bdc85a06183a985c8120e1db100a854083841d7dc4d4f4e0
+F src/robot.c 0b1dc201dde3dd7f8c7f3420cfbe922cc3d48f7b9ea6878698dbaa15c71eca36
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c a9d70914007da5ac217a8505c0647d36dcf262a97f01e377df1020789685fce8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74d5ce39ea9f6850e7cfe4fb48f8c68b33bef3bd40208f83112561dd25f1f278
-R 94714a42843a16c62a5fd7767710903d
-U drh
-Z 5088782f1cac0ed3d7995fe76a9af873
+P 73e3217bc1ba40de2ab610179df09283e309c9cdd7920855dfa93dc93a93ec32
+R 3e97d68ec7bdcc623d56fc4b8b76f448
+U florian
+Z df3ead1b623ba9dd794846896b160ba1
 # Remove this line to create a well-formed Fossil manifest.
