@@ -1,5 +1,5 @@
-C Change\sthe\srecommended\svalue\sfor\sthe\srobot-restrict\ssetting\smentioned\sin\sthe\sonline\shelp\sto\smatch\sthe\sbuilt-in\sdefault\svalue,\sso\sit's\seasier\sto\scheck\sif\sthe\ssetting\swas\smodified.
-D 2026-02-02T15:20:00.000
+C Update\sthe\sdefault\svalue\sof\sthe\srobot-restrict\ssetting\smentioned\sin\sthe\sDefense\sagainst\sSpiders\sand\sRobots\sdocument,\sand\sadd\sa\ssource\scode\scomment\sindicating\swhere\sthe\ssetting\sis\sreferenced.
+D 2026-02-03T12:48:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -525,7 +525,7 @@ F src/rebuild.c 283e00c74a1654b8e33ce5e9697afdc4d2f50b8b4e05aead6d65534b2a07a1c8
 F src/regexp.c ff7f1ecf7508ca82b6af060b5c1a108005c6e57c5ada88339f7aa0b5f72a4054
 F src/repolist.c 3a3fb5895bbc6a43b3a379d7419bc6cbb3b826e921475c15c2624b1bb76157f1
 F src/report.c 3aa94251d24255b266460bb653dd51959a0199f62bafd0cdf5362faeb502360c
-F src/robot.c 0b1dc201dde3dd7f8c7f3420cfbe922cc3d48f7b9ea6878698dbaa15c71eca36
+F src/robot.c b78151cce262987e8f3888c229415bdf470155b4a18ac953b2aec16679d75659
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c a9d70914007da5ac217a8505c0647d36dcf262a97f01e377df1020789685fce8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
@@ -778,7 +778,7 @@ F www/aboutcgi.wiki 8e36a43aa22f42a565aeaca59bcb2e8272cc2f444bd7cf20357e992148ba
 F www/aboutdownload.wiki dccb233a942a1f870490a471cdc0dbe934315d1828b0a8dd99b589cbd1768259
 F www/adding_code.wiki 06de2a518a772ed1fa8fdb165ff3c53149b6e68f43ad114b80d6df158683158a
 F www/alerts.md 20fac72b2258f0db019db2e80f8520f112bbcec61c71c226d1a2c6484e1c02c5
-F www/antibot.wiki 5f9f2f58a1744922d9d534551657550433b78121bb58c75b15a419a2c257c781
+F www/antibot.wiki efff51c70de97e095c0ae5790a05779c218b464bde9031e43687772c594832d4
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 230a9f22fc3859d50c181e6f2ef87c826d6947437bbb0da5cc8d6d4af3160d36
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 73e3217bc1ba40de2ab610179df09283e309c9cdd7920855dfa93dc93a93ec32
-R 3e97d68ec7bdcc623d56fc4b8b76f448
+P d55227eceead1d4ac6e41eeec27d9bed50339b2718f3f9ef4c78afc0968001e5
+R b09aef908e5bd0c6bfbcad6b3cd91f12
 U florian
-Z df3ead1b623ba9dd794846896b160ba1
+Z fe35e34886dffb459c11a95802188daf
 # Remove this line to create a well-formed Fossil manifest.

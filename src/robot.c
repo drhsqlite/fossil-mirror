@@ -322,6 +322,8 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** Return the default restriction GLOB
 */
 const char *robot_restrict_default(void){
+  /* NOTE: The default value is also mentioned in the online help screen of
+  ** the "robot-restrict" setting, and in the www/antibot.wiki document. */
   return "timelineX,diff,annotate,fileage,file,finfo,reports,"
          "tree,hexdump,download";
 }
