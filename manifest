@@ -1,5 +1,5 @@
-C Mention\sTH1\stainted\sstrings\sin\sthe\sCustom\sSkins\sdocument.
-D 2026-02-03T12:57:00.000
+C Clarify\sthe\suse\sof\sTH1\stainted\sstrings\sin\sthe\sCustom\sSkins\sdocument,\sand\sadd\s"mainmenu"\sto\sthe\slist\sof\sTH1\svariables\savailable\sin\sskin\stemplates.
+D 2026-02-04T06:44:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -822,7 +822,7 @@ F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272b
 F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
 F www/custom_ticket.wiki 136568238a0e4f243d96f364379ac3613203e22e3ec584e5232cd4ce5445499e
 F www/customgraph.md 1478a72db903b5a77166b0487b9d4546b0d0d036bd8acd5532608d6bc4ae398a
-F www/customskin.md 8892f6e04103ad3e4bbc4f4d3f4bac9729fef361190ffa551e6c41847c0b439c
+F www/customskin.md 44c994e4dc31e2613948ed870cd06a75e351d20e879024b3328256269a53bce6
 F www/defcsp.md 0e8185ed3e376e9e796f901fc9844f5511b173f501859f26fb6c9dadbae37137
 F www/delta-manifests.md 906357ba85aab092d43875ad4f28230bc2b2601371388d7a177fb13453b332c4
 F www/delta_encoder_algorithm.wiki 3a178f152bf2fe72a6ee610a303e253e0bc467aaa055b6311776ed5578c913d4
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 67726b6e82882f9aa51589e4251dc2b0603da7cc63c757eb0f5a3eae8eb99a4a
-R 8ea10fad0e4d6ec1c937308cb7326560
+P 2a02993a1ae67994dd2634f53c380197aa644213f311473585fc81b5c32a1255
+R 8d8305760a74956f0b56aaaa48225aec
 U florian
-Z 52737e178226b87dc003912dd00ebe0e
+Z 75b69291a73989c004efcb3d247fd0fc
 # Remove this line to create a well-formed Fossil manifest.

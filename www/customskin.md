@@ -431,7 +431,11 @@ repository settings and the specific page being generated.
 Variables holding text that is loaded from "external, potentially untrusted"
 sources (including the repository settings) are treated as [tainted strings]
 (./th1.md#taint) and must be noted in the `$<NAME>` form, instead of `$NAME`,
-or they may trigger an error (see the linked document for details).
+or they may trigger an error (see the linked document for details).  The
+`$<NAME>` form corresponds to the TH1 statement `puts [ htmlize "$NAME" ]`,
+where the [htmlize](./th1.md#htmlize) function escapes the tainted string,
+making it safe for output in HTML code.
+
 
    *   **`project_name`** - The project_name variable is filled with the
        name of the project as configured under the Admin/Configuration
@@ -442,6 +446,9 @@ or they may trigger an error (see the linked document for details).
        filled with the description of the project as configured under
        the Admin/Configuration menu.  This is a [tainted string]
        (./th1.md#taint) variable and must be used as `$<project_description>`.
+
+   *   **`mainmenu`** - The mainmenu variable contains a TCL list with the main
+       menu entries.  See the [mainmenu](/help/mainmenu) setting for details.
 
    *   **`title`** - The title variable holds the title of the page being
        generated.
