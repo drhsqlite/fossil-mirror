@@ -1,5 +1,5 @@
-C Clarify\sthe\suse\sof\sTH1\stainted\sstrings\sin\sthe\sCustom\sSkins\sdocument,\sand\sadd\s"mainmenu"\sto\sthe\slist\sof\sTH1\svariables\savailable\sin\sskin\stemplates.
-D 2026-02-04T06:44:00.000
+C Add\sthe\s-h/--hash\soption\sto\sthe\s"fossil\swhatis"\scommand.
+D 2026-02-05T11:55:18.429
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -510,7 +510,7 @@ F src/merge.c 48171569e8a7be26e61b11a1253b8c904a907ee1ea31d554fe0d0a80d83f1e5a
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c d16fe90bc0cfcd2d08bafaaf6a858f5b635873e2f1b40e7c9e92a6d8cd6da162
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c c464a822f1ab35ba3c8506e8a47a9522a8ee5174d894baf89f8c9f78a4945714
+F src/name.c 1e69dac89b6465b25d89d30f6fb7ace3cb4e06b99796ba50543229e14eefae62
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 1adf1a85457de922c45d649cbd77e1a483d892e5049a2b812c89a45c22948dec
 F src/piechart.c 9f764d8695b0fda40f4f9fbd1a10d9bbdae7973274de7f60d86794178d61eb15
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2a02993a1ae67994dd2634f53c380197aa644213f311473585fc81b5c32a1255
-R 8d8305760a74956f0b56aaaa48225aec
-U florian
-Z 75b69291a73989c004efcb3d247fd0fc
+P 12036a362cdde66da10893ee95fe65ab2f9bfe54977b0ca71d65a5ec8817f9fb
+R 457259a9de021b81a7c0cacaf2e01052
+U drh
+Z 62241fc161ba09ece0fb5642b003535b
 # Remove this line to create a well-formed Fossil manifest.

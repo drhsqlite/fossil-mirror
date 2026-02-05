@@ -1133,6 +1133,7 @@ char const * whatis_rid_type_label(int rid){
 #define WHATIS_BRIEF     0x02    /* Omit unnecessary output */
 #define WHATIS_REPO      0x04    /* Show repository name */
 #define WHATIS_OMIT_UNK  0x08    /* Do not show "unknown" lines */
+#define WHATIS_HASHONLY  0x10    /* Show only the hash */
 #endif
 
 /*
@@ -1150,7 +1151,9 @@ void whatis_rid(int rid, int flags){
      "   AND rcvfrom.rcvid=blob.rcvid",
      rid);
   if( db_step(&q)==SQLITE_ROW ){
-    if( flags & WHATIS_VERBOSE ){
+    if( flags & WHATIS_HASHONLY ){
+      fossil_print("%s\n", db_column_text(&q,0));
+    }else if( flags & WHATIS_VERBOSE ){
       fossil_print("artifact:   %s (%d)\n", db_column_text(&q,0), rid);
       fossil_print("size:       %d bytes\n", db_column_int(&q,1));
       fossil_print("received:   %s from %s\n",
@@ -1162,6 +1165,7 @@ void whatis_rid(int rid, int flags){
     }
   }
   db_finalize(&q);
+  if( flags & WHATIS_HASHONLY ) return;
 
   /* Report any symbolic tags on this artifact */
   db_prepare(&q,
@@ -1332,7 +1336,7 @@ void whatis_artifact(
     }
     db_finalize(&q);
   }else if( rid==0 ){
-    if( (mFlags & WHATIS_OMIT_UNK)==0 ){
+    if( (mFlags & (WHATIS_OMIT_UNK|WHATIS_HASHONLY))==0 ){
                  /* 0123456789 12 */
       if( zFileName ){
         fossil_print("%-12s%s\n", "name:", zFileName);
@@ -1346,7 +1350,9 @@ void whatis_artifact(
     if( zFileName ){
       zName = zFileName;
     }
-    fossil_print("%-12s%s\n", "name:", zName);
+    if( (mFlags & WHATIS_HASHONLY)==0 ){
+      fossil_print("%-12s%s\n", "name:", zName);
+    }
     whatis_rid(rid, mFlags);
   }
 }
@@ -1363,6 +1369,7 @@ void whatis_artifact(
 ** Options:
 **    -f|--file            Find artifacts with the same hash as file NAME.
 **                         If NAME is "-", read content from standard input.
+**    -h|--hash            Show only the hash of matching artifacts.
 **    -q|--quiet           Show nothing if NAME is not found
 **    --type TYPE          Only find artifacts of TYPE (one of: 'ci', 't',
 **                         'w', 'g', or 'e')
@@ -1376,6 +1383,9 @@ void whatis_cmd(void){
   db_find_and_open_repository(0,0);
   if( find_option("verbose","v",0)!=0 ){
     mFlags |= WHATIS_VERBOSE;
+  }
+  if( find_option("hash","h",0)!=0 ){
+    mFlags |= WHATIS_HASHONLY;
   }
   if( g.fQuiet ){
     mFlags |= WHATIS_OMIT_UNK | WHATIS_REPO;
