@@ -1371,6 +1371,8 @@ void whatis_artifact(
 **                         If NAME is "-", read content from standard input.
 **    -h|--hash            Show only the hash of matching artifacts.
 **    -q|--quiet           Show nothing if NAME is not found
+**    -R REPO_FILE         Specifies the repository db to use. Default is
+**                         the current check-out's repository.
 **    --type TYPE          Only find artifacts of TYPE (one of: 'ci', 't',
 **                         'w', 'g', or 'e')
 **    -v|--verbose         Provide extra information (such as the RID)

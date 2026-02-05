@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion,\sfor\sbeta\stesting.
-D 2026-02-05T12:04:44.994
+C Add\smention\sof\sthe\s"-R\sREPO_FILE"\soption\sin\sthe\swhatis\susage\shelp.
+D 2026-02-05T13:22:50.994
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -510,7 +510,7 @@ F src/merge.c 48171569e8a7be26e61b11a1253b8c904a907ee1ea31d554fe0d0a80d83f1e5a
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c d16fe90bc0cfcd2d08bafaaf6a858f5b635873e2f1b40e7c9e92a6d8cd6da162
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c 1e69dac89b6465b25d89d30f6fb7ace3cb4e06b99796ba50543229e14eefae62
+F src/name.c b6bd640f76ea1cacb7c63d324ad27254789a8439fe228b00fdc6f214509f1a58
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 1adf1a85457de922c45d649cbd77e1a483d892e5049a2b812c89a45c22948dec
 F src/piechart.c 9f764d8695b0fda40f4f9fbd1a10d9bbdae7973274de7f60d86794178d61eb15
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 49f93f8e899382e961a32a41b404952844f5072824b92ca3e4bc54d80aa54a0f
-R f7d7a62236a34b652c5b1727535fb4f6
-U drh
-Z c2452487e6dae62e1c6d2a8306a2f159
+P 7b0960d8db6a23904c54527ef21ad5d0b898c48508ead3724e8f7ecd7e04a163
+R a02fc0bb03381e7bb73adbe94d603a1a
+U mgagnon
+Z 5a92447416a917bbd9e95955fd8e5f54
 # Remove this line to create a well-formed Fossil manifest.
