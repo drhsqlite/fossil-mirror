@@ -732,6 +732,10 @@ void www_print_timeline(
         }
         wiki_hyperlink_override(0);
       }else{
+        if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
+          blob_truncate(&comment, mxWikiLen);
+          blob_appendf(&comment, "...");
+        }
         wiki_convert(&comment, 0, WIKI_INLINE);
       }
     }else{
