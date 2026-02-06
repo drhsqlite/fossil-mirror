@@ -1,5 +1,5 @@
-C Make\sextra\slines\slike\stag\snotifications\sresponsive\sto\sthe\stimeline-max-comment\slimit.
-D 2026-02-06T00:51:38.057
+C Tiny\sgrammar\sniptuck.
+D 2026-02-06T22:45:40.437
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -593,7 +593,7 @@ F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a
 F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
 F src/util.c cc7d7c9d72d9ba63d06819ad393aec322af87439b826b198c124d05b913f48ce
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
-F src/vfile.c 34f2f95b66cc1d90ce65d04342826326e496630a857e40660ba25ebf9430c219
+F src/vfile.c cbd71205d9062cb5c30428841cf41d96d6afdd9e70cf1cd4abd8effe51f93ca9
 F src/wiki.c 5a5b751ab4ab336f0bbdcf7e9a6346462925e365f8e87a0526fff64236532d3d
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c f0ac6b30f6cfac423b9f03c32b41a7c053d085f506544101106f9a937b098bd7
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 32493b85be26eb99f8a05c91322aa0c2b6ef21051f77c2df032f4fdb4789e29e
-R 765fc1a9c0318f351b4da652b293be46
-U drh
-Z 68fe93506fee0b5a78c40180af4926b7
+P 1f20d61a073c2f6eed03194d41de44b2b09d89c8838f00f15040acd1ca05ab1c
+R 9039e0d33865bedd6afef6fbf5793feb
+U brickviking
+Z 52177e08b65ae75de030e324ebc2129b
 # Remove this line to create a well-formed Fossil manifest.
