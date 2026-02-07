@@ -733,8 +733,8 @@ void www_print_timeline(
         wiki_hyperlink_override(0);
       }else{
         if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
-          blob_truncate(&comment, mxWikiLen);
-          blob_appendf(&comment, "...");
+          blob_truncate_utf8(&comment, mxWikiLen);
+          blob_append(&comment, "...", 3);
         }
         wiki_convert(&comment, 0, WIKI_INLINE);
       }
@@ -753,12 +753,9 @@ void www_print_timeline(
         z[ii] = 0;
         cgi_printf("%W",z);
       }else if( mxWikiLen>0 && (int)blob_size(&comment)>mxWikiLen ){
-        Blob truncated;
-        blob_zero(&truncated);
-        blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
-        blob_append(&truncated, "...", 3);
-        @ %W(blob_str(&truncated))
-        blob_reset(&truncated);
+        blob_truncate_utf8(&comment, mxWikiLen);
+        blob_append(&comment, "...", 3);
+        @ %W(blob_str(&comment))
         drawDetailEllipsis = 0;
       }else{
         cgi_printf("%W",blob_str(&comment));
