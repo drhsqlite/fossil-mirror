@@ -1,5 +1,5 @@
-C Tweak\s[1f20d61a07]\sto\savoid\sbroken\sUTF-8\ssequences\sat\sthe\send\sof\struncated\scomments.
-D 2026-02-07T15:08:00.000
+C Add/use\sthe\s--quiet\soption\son\s'timeline'\sto\ssuppress\sprinting\send-of-timeline\snotifications.
+D 2026-02-10T10:01:28.387
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -579,7 +579,7 @@ F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c ecec93b938d1adc94facc0f17280a80f9756ef2347198b6592a34268573ad1b9
 F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
-F src/timeline.c 5ed7b795081d54ddd59e0023c78995287dc30aa437a4dbcb7d641c5ce3373067
+F src/timeline.c aa3edbe04db3853853b412877d8e75dc494168f892a2d4ea8a1f96e9280cc527
 F src/tkt.c fd2fb397bc2cb2ebba17cce22ac47493c073c5a76ec79e0f635a7019b8ceea07
 F src/tktsetup.c 22e7338e93a4e54d0e91acd0bf0e80dbdfe4c2958638e163a89239391d6cb8b9
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P df668553c0f0b471d478fda38b03eddd921930ab9048e0bc06f777c28270a415
-R 81a6bfb3fc097503611945a69b502ba9
-U florian
-Z 422fb5dea7ab5b9a949fd04c3b6e3e6c
+P f661b8de491e40daa44c37eba66f02cca0acfa0cc2a683bc577071412699b1ea
+R 1c16179721b3fd52cb42fddd6cab407b
+U danield
+Z c9a6d2ffaf323bbdec8948326278323e
 # Remove this line to create a well-formed Fossil manifest.
