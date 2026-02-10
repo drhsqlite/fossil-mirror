@@ -234,7 +234,7 @@ void branch_new(void){
 **      mtime          Time of last check-in on this branch
 **      isclosed       True if the branch is closed
 **      mergeto        Another branch this branch was merged into
-**      nckin          Number of checkins on this branch
+**      nckin          Number of check-ins on this branch
 **      ckin           Hash of the last check-in on this branch
 **      isprivate      True if the branch is private
 **      bgclr          Background color for this branch
@@ -560,7 +560,7 @@ static void branch_cmd_hide(int nStartAtArg, int fHide){
 /*
 ** Implementation of (branch close|reopen) subcommands. nStartAtArg is
 ** the g.argv index to start reading branch/check-in names. The given
-** checkins are closed if fClose is true, else their "closed" tag (if
+** check-ins are closed if fClose is true, else their "closed" tag (if
 ** any) is cancelled. Fails fatally on error.
 */
 static void branch_cmd_close(int nStartAtArg, int fClose){
@@ -1118,13 +1118,13 @@ void brtimeline_page(void){
 
 /*
 ** Generate a multichoice submenu for the few recent active branches. zName is
-** the query parameter used to select the current checkin. zCI is optional and
-** represent the currently selected checkin, so if it is a checkin hash
+** the query parameter used to select the current check-in. zCI is optional and
+** represent the currently selected check-in, so if it is a check-in hash
 ** instead of a branch, it can be part of the multichoice menu.
 */
 void generate_branch_submenu_multichoice(
     const char* zName,    /* Query parameter name */
-    const char* zCI       /* Current checkin */
+    const char* zCI       /* Current check-in */
 ){
   Stmt q;
   const int brFlags = BRL_ORDERBY_MTIME | BRL_OPEN_ONLY;
@@ -1136,14 +1136,14 @@ void generate_branch_submenu_multichoice(
 
   branch_prepare_list_query(&q, brFlags, 0, nLimit, 0);
   zBranchMenuList[i++] = "";
-  zBranchMenuList[i++] = "All Checkins";
+  zBranchMenuList[i++] = "All Check-ins";
 
   if( zCI ){
     zCI = fossil_strdup(zCI);
     zBranchMenuList[i++] = zCI;
     zBranchMenuList[i++] = zCI;
   }
-  /* If current checkin is not "tip", add it to the list */
+  /* If current check-in is not "tip", add it to the list */
   if( zCI==0 || strcmp(zCI, "tip") ){
     zBranchMenuList[i++] = "tip";
     zBranchMenuList[i++] = "tip";

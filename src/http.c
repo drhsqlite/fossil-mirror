@@ -248,7 +248,7 @@ char *prompt_for_httpauth_creds(void){
 }
 
 /*
-** Send content pSend to the the server identified by g.url using the
+** Send content pSend to the server identified by g.url using the
 ** external program given by g.zHttpCmd.  Capture the reply from that
 ** program and load it into pReply.
 **
@@ -355,7 +355,7 @@ void test_ssh_needs_path(void){
   }
 }
 
-/* Add an approprate PATH= argument to the SSH command under construction
+/* Add an appropriate PATH= argument to the SSH command under construction
 ** in pCmd.
 **
 ** About This Feature
@@ -583,7 +583,9 @@ int http_exchange(
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
-        fossil_warning("server says: %s", &zLine[ii]);
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("server says: %s", &zLine[ii]);
+        }
         goto write_err;
       }
       if( iHttpVersion==0 ){
@@ -618,7 +620,9 @@ int http_exchange(
       int priorUrlFlags;
 
       if ( --maxRedirect == 0){
-        fossil_warning("redirect limit exceeded");
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("redirect limit exceeded");
+        }
         goto write_err;
       }
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
@@ -635,19 +639,25 @@ int http_exchange(
         fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
       }
       if( g.url.isFile || g.url.isSsh ){
-        fossil_warning("cannot redirect from %s to %s", g.url.canonical,
-                       &zLine[i]);
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("cannot redirect from %s to %s", g.url.canonical,
+                         &zLine[i]);
+        }
         goto write_err;
       }
       wasHttps = g.url.isHttps;
       priorUrlFlags = g.url.flags;
       url_parse(&zLine[i], 0);
       if( wasHttps && !g.url.isHttps ){
-        fossil_warning("cannot redirect from HTTPS to HTTP");
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("cannot redirect from HTTPS to HTTP");
+        }
         goto write_err;
       }
       if( g.url.isSsh || g.url.isFile ){
-        fossil_warning("cannot redirect to %s", &zLine[i]);
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("cannot redirect to %s", &zLine[i]);
+        }
         goto write_err;
       }
       transport_close(&g.url);
@@ -706,7 +716,9 @@ int http_exchange(
     }else{
       /* The problem could not be corrected by retrying.  Report the
       ** the error. */
-      if( g.url.isSsh && !g.fSshTrace ){
+      if( mHttpFlags & HTTP_QUIET ){
+        /* no-op */
+      }else if( g.url.isSsh && !g.fSshTrace ){
         fossil_warning("server did not reply: "
                        " rerun with --sshtrace for diagnostics");
       }else{
@@ -716,6 +728,7 @@ int http_exchange(
     }
   }
   if( rc!=200 ){
+    if( mHttpFlags & HTTP_QUIET ) goto write_err;
     fossil_warning("\"location:\" missing from %d redirect reply", rc);
     goto write_err;
   }
@@ -735,15 +748,17 @@ int http_exchange(
       fossil_print("Reply received: %d of %d bytes\n", iRecvLen, iLength);
     }
     if( iRecvLen != iLength ){
+      if( mHttpFlags & HTTP_QUIET ) goto write_err;
       fossil_warning("response truncated: got %d bytes of %d",
                      iRecvLen, iLength);
       goto write_err;
     }
-  }else if( closeConnection ){
+  }else{
     /* Read content until end-of-file */
     int iRecvLen;         /* Received length of the reply payload */
     unsigned int nReq = 1000;
     unsigned int nPrior = 0;
+    closeConnection = 1;
     do{
       nReq *= 2;
       blob_resize(pReply, nPrior+nReq);
@@ -754,9 +769,6 @@ int http_exchange(
     if( mHttpFlags & HTTP_VERBOSE ){
       fossil_print("Reply received: %u bytes (w/o content-length)\n", nPrior);
     }
-  }else{
-    assert( iLength<0 && !closeConnection );
-    fossil_warning("\"content-length\" missing from %d keep-alive reply", rc);
   }
   if( isError ){
     char *z;
@@ -770,7 +782,13 @@ int http_exchange(
       z[j] = z[i];
     }
     z[j] = 0;
-    fossil_warning("server sends error: %s", z);
+    if( mHttpFlags & HTTP_QUIET ){
+      /* no-op */
+    }else if( mHttpFlags & HTTP_VERBOSE ){
+      fossil_warning("server sends error: %s", z);
+    }else{
+      fossil_warning("server sends error");
+    }
     goto write_err;
   }
   if( isCompressed ) blob_uncompress(pReply, pReply);
@@ -796,6 +814,7 @@ int http_exchange(
   ** Jump to here if an error is seen.
   */
 write_err:
+  g.iResultCode = 1;
   transport_close(&g.url);
   return 1;
 }

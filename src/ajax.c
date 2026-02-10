@@ -397,7 +397,7 @@ void ajax_route_dispatcher(void){
   {"preview-text", ajax_route_preview_text, 0, 1
    /* Note that this does not require write permissions in the repo.
    ** It should arguably require write permissions but doing means
-   ** that /chat does not work without checkin permissions:
+   ** that /chat does not work without check-in permissions:
    **
    ** https://fossil-scm.org/forum/forumpost/ed4a762b3a557898
    **

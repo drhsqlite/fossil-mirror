@@ -1151,7 +1151,7 @@
 
   /**
      Fetches the page preview based on the contents and settings of
-     this page's input fields, and updates the UI with with the
+     this page's input fields, and updates the UI with the
      preview.
 
      Returns this object, noting that the operation is async.

@@ -424,7 +424,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **
 **         Remove the tag TAGNAME from the artifact referenced by
 **         ARTIFACT-ID, and also remove the propagation of the tag to
-**         any descendants.  Use the the -n|--dry-run option to see
+**         any descendants.  Use the -n|--dry-run option to see
 **         what would have happened. Certain tag name prefixes are
 **         forbidden, as documented for the 'add' subcommand.
 **

@@ -37,7 +37,7 @@ window.fossil.onPageLoad(function(){
   const allToggles = [/*collection of all diff-toggle checkboxes*/];
   let checkedCount =
       0 /* When showing more than one diff, keep track of how many
-           "show/hide" checkboxes are are checked so we can update the
+           "show/hide" checkboxes are checked so we can update the
            "show/hide all" label dynamically. */;
   let btnAll /* UI control to show/hide all diffs */;
   /* Install a diff-toggle button for the given diff table element. */
@@ -108,7 +108,7 @@ window.fossil.onPageLoad(function(){
         /*per /chat discussion*/
       ) || 20,
       chunkFetch: {
-        /* Default callack handlers for Diff.fetchArtifactChunk(),
+        /* Default callback handlers for Diff.fetchArtifactChunk(),
            unless overridden by options passeed to that function. */
         beforesend: function(){},
         aftersend: function(){},
@@ -370,7 +370,7 @@ window.fossil.onPageLoad(function(){
     },
 
     /**
-       Callack for /jchunk responses.
+       Callback for /jchunk responses.
     */
     injectResponse: function f(fetchType/*as for fetchChunk()*/,
                                urlParam/*from fetchChunk()*/,
@@ -720,7 +720,7 @@ window.fossil.onPageLoad(function(){
   if( eToggleParent ){
     /* Add a checkbox to toggle sbs scroll sync. Remember that in
        order to be UI-consistent in the /vdiff page we have to ensure
-       that the checkbox is to the LEFT of of its label. We store the
+       that the checkbox is to the LEFT of its label. We store the
        sync-scroll preference in F.storage (not a cookie) so that it
        persists across page loads and different apps. */
     cbSync = D.checkbox(keySbsScroll, F.storage.getBool(keySbsScroll,true));

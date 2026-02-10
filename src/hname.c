@@ -201,7 +201,7 @@ int hname_hash(const Blob *pContent, unsigned int iHType, Blob *pHashOut){
 ** Return the default hash policy for repositories that do not currently
 ** have an assigned hash policy.
 **
-** Make the default HPOLICY_AUTO if there are SHA1 artficates but no SHA3
+** Make the default HPOLICY_AUTO if there are SHA1 artifacts but no SHA3
 ** artifacts in the repository.  Make the default HPOLICY_SHA3 if there
 ** are one or more SHA3 artifacts or if the repository is initially empty.
 */

@@ -505,7 +505,7 @@ void dbstat_cmd(void){
 ** Algorithm:
 **
 ** The public URL is given by the email-url property.  But it is only
-** returned if there have been one more more accesses (as recorded by
+** returned if there have been one or more accesses (as recorded by
 ** "baseurl:URL" entries in the CONFIG table).
 */
 const char *public_url(void){

@@ -236,7 +236,7 @@ static int safeCmdStrTest = 0;
 ** Check the input string to ensure that it is safe to pass into system().
 ** A string is unsafe for system() on unix if it contains any of the following:
 **
-**   *  Any occurrance of '$' or '`' except single-quoted or after \
+**   *  Any occurrence of '$' or '`' except single-quoted or after \
 **   *  Any of the following characters, unquoted:  ;|& or \n except
 **      these characters are allowed as the very last character in the
 **      string.
@@ -673,8 +673,8 @@ int fossil_all_whitespace(const char *z){
 ** (3) The global "editor" setting
 ** (4) The VISUAL environment variable
 ** (5) The EDITOR environment variable
-** (6) Any of the following programs that are available:
-**        notepad, nano, pico, jove, edit, vi, vim, ed,
+** (6) Any of several common editors that might be available, such as:
+**        notepad, nano, pico, jove, edit, vi, vim, ed
 **
 ** The search only occurs once, the first time this routine is called.
 ** Second and subsequent invocations always return the same value.
@@ -682,7 +682,10 @@ int fossil_all_whitespace(const char *z){
 const char *fossil_text_editor(void){
   static const char *zEditor = 0;
   const char *azStdEd[] = {
-    "notepad", "nano", "pico", "jove", "edit", "vi", "vim", "ed"
+#ifdef _WIN32
+    "notepad",
+#endif
+    "nano", "pico", "jove", "edit", "vi", "vim", "ed"
   };
   int i = 0;
   if( zEditor==0 ){
@@ -917,7 +920,7 @@ char* fossil_generate_uuid() {
 
   sqlite3_randomness(16, aBlob);
   aBlob[6] = (aBlob[6]&0x0f) + 0x40; /* Version byte:  0100 xxxx */
-  aBlob[8] = (aBlob[8]&0x3f) + 0x80; /* Variant byte:  1000 xxxx */
+  aBlob[8] = (aBlob[8]&0x3f) + 0x80; /* Variant byte:  10xx xxxx */
 
   for(i=0, k=0x550; i<16; i++, k=k>>1){
     if( k&1 ){

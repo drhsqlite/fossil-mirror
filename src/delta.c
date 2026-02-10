@@ -318,7 +318,7 @@ static unsigned int checksum(const char *zIn, size_t N){
 **
 **     NNN;
 **
-** In this case, NNN is a 32-bit bigendian checksum of the output file
+** In this case, NNN is a 32-bit big endian checksum of the output file
 ** that can be used to verify that the delta applied correctly.  All
 ** numbers are in base-64.
 **
@@ -574,8 +574,8 @@ int delta_apply(
   int lenDelta,          /* Length of the delta */
   char *zOut             /* Write the output into this preallocated buffer */
 ){
-  unsigned int limit;
-  unsigned int total = 0;
+  sqlite3_uint64 limit;
+  sqlite3_uint64 total = 0;
 #ifdef FOSSIL_ENABLE_DELTA_CKSUM_TEST
   char *zOrigOut = zOut;
 #endif

@@ -91,6 +91,13 @@ char *socket_errmsg(void){
 }
 
 /*
+** Return the file descriptor for the open socket.
+*/
+int socket_get_fd(){
+  return iSocket;
+}
+
+/*
 ** Call this routine once before any other use of the socket interface.
 ** This routine does initial configuration of the socket module.
 */

@@ -56,7 +56,7 @@
               intercepted by most Linux window managers to control
               window movement! So...  we just listen for *any* of them
               (except Shift) and the user will need to find one which
-              works on on their environment. */
+              works on their environment. */
            || this.classList.contains('toggle')){
           this.classList.toggle('source');
           ev.stopPropagation();

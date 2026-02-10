@@ -170,7 +170,7 @@ int add_content_sql_commands(sqlite3 *db){
 ** method other than the "fossil sql" command.  If an attacker gains access
 ** to these functions, he will be able to disable other defense mechanisms.
 **
-** This routines are for interactiving testing only.  They are experimental
+** This routines are for interactive testing only.  They are experimental
 ** and undocumented (apart from this comments) and might go away or change
 ** in future releases.
 **
@@ -223,8 +223,10 @@ static int sqlcmd_autoinit(
   g.repositoryOpen = 1;
   g.db = db;
   sqlite3_busy_timeout(db, 10000);
-  sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
-  db_maybe_set_encryption_key(db, g.zRepositoryName);
+  if( g.zRepositoryName ){
+    sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
+    db_maybe_set_encryption_key(db, g.zRepositoryName);
+  }
   if( g.zLocalDbName ){
     char *zSql = sqlite3_mprintf("ATTACH %Q AS 'localdb' KEY ''",
                                  g.zLocalDbName);
@@ -242,15 +244,17 @@ static int sqlcmd_autoinit(
   ** will get cleaned up when the shell closes the database connection */
   if( g.fSqlTrace ) mTrace |= SQLITE_TRACE_PROFILE;
   sqlite3_trace_v2(db, mTrace, db_sql_trace, 0);
-  db_protect_only(PROTECT_NONE);
-  sqlite3_set_authorizer(db, db_top_authorizer, db);
-  if( local_bSqlCmdTest ){
-    sqlite3_create_function(db, "db_protect", 1, SQLITE_UTF8, 0,
-                            sqlcmd_db_protect, 0, 0);
-    sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
-                            sqlcmd_db_protect_pop, 0, 0);
-    sqlite3_create_function(db, "shared_secret", 2, SQLITE_UTF8, 0,
-                            sha1_shared_secret_sql_function, 0, 0);
+  if( g.zRepositoryName ){
+    db_protect_only(PROTECT_NONE);
+    sqlite3_set_authorizer(db, db_top_authorizer, db);
+    if( local_bSqlCmdTest ){
+      sqlite3_create_function(db, "db_protect", 1, SQLITE_UTF8, 0,
+                              sqlcmd_db_protect, 0, 0);
+      sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
+                              sqlcmd_db_protect_pop, 0, 0);
+      sqlite3_create_function(db, "shared_secret", 2, SQLITE_UTF8, 0,
+                              sha1_shared_secret_sql_function, 0, 0);
+    }
   }
   return SQLITE_OK;
 }

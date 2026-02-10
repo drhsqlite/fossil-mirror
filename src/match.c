@@ -267,7 +267,7 @@ static const char *tagQuote(
 ** string comparisons against the tag names, so it is necessary to join against
 ** the tag table to access the "tagname" column.
 **
-** Each pattern is adjusted to to start with "sym-" and be anchored at end.
+** Each pattern is adjusted to start with "sym-" and be anchored at end.
 **
 ** In MS_REGEXP mode, backslash can be used to protect delimiter characters.
 ** The backslashes are not removed from the regular expression.

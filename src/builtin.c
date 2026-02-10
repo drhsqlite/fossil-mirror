@@ -737,7 +737,7 @@ static int builtin_emit_fossil_js_once(const char * zName){
   {"confirmer",      0, 0},
   {"copybutton",     0, "dom\0"},
   {"diff",           0, "dom\0fetch\0storage\0"
-   /* maintenance note: "diff" needs "storage" for storing the the
+   /* maintenance note: "diff" needs "storage" for storing the
    ** sbs-sync-scroll toggle. */},
   {"dom",            0, 0},
   {"fetch",          0, 0},

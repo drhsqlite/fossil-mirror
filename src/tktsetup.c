@@ -1020,7 +1020,7 @@ void tktsetup_keytplt_page(void){
 /*
 ** WEBPAGE: tktsetup_timeline
 **
-** Administrative page used ot configure how tickets are
+** Administrative page used to configure how tickets are
 ** rendered on timeline views.
 */
 void tktsetup_timeline_page(void){

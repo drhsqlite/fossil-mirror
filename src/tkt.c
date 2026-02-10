@@ -1522,7 +1522,7 @@ void ticket_output_change_artifact(
 **
 **     Options:
 **       -l|--limit LIMITCHAR
-**       -q|--quote
+**       --quote
 **       -R|--repository REPO
 **
 **     Run the ticket report, identified by the report format title
@@ -1530,7 +1530,7 @@ void ticket_output_change_artifact(
 **     using TAB as separator. The separator can be changed using
 **     the -l or --limit option.
 **
-**     If TICKETFILTER is given on the commandline, the query is
+**     If TICKETFILTER is given on the command line, the query is
 **     limited with a new WHERE-condition.
 **       example:  Report lists a column # with the uuid
 **                 TICKETFILTER may be [#]='uuuuuuuuu'
@@ -1557,8 +1557,8 @@ void ticket_output_change_artifact(
 **
 **     List all ticket reports defined in the fossil repository.
 **
-** > fossil ticket set TICKETUUID (FIELD VALUE)+ ?-q|--quote?
-** > fossil ticket change TICKETUUID (FIELD VALUE)+ ?-q|--quote?
+** > fossil ticket set TICKETUUID (FIELD VALUE)+ ?--quote?
+** > fossil ticket change TICKETUUID (FIELD VALUE)+ ?--quote?
 **
 **     Change ticket identified by TICKETUUID to set the values of
 **     each field FIELD to VALUE.
@@ -1569,12 +1569,12 @@ void ticket_output_change_artifact(
 **     or substituted in customized installations.
 **
 **     If you use +FIELD, the VALUE is appended to the field FIELD.  You
-**     can use more than one field/value pair on the commandline.  Using
+**     can use more than one field/value pair on the command line.  Using
 **     --quote enables the special character decoding as in "ticket
 **     show", which allows setting multiline text or text with special
 **     characters.
 **
-** > fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
+** > fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?--quote?
 **
 **     Like set, but create a new ticket with the given values.
 **
@@ -1644,7 +1644,7 @@ void ticket_cmd(void){
     /* add a new ticket or set fields on existing tickets */
     tTktShowEncoding tktEncoding;
 
-    tktEncoding = find_option("quote","q",0) ? tktFossilize : tktNoTab;
+    tktEncoding = find_option("quote",0,0) ? tktFossilize : tktNoTab;
 
     if( strncmp(g.argv[2],"show",n)==0 ){
       if( g.argc==3 ){

@@ -47,7 +47,7 @@ struct TerminalSize {
 
 /* Get the current terminal size by calling a system service.
 **
-** Return 1 on success. This sets the size parameters to the values retured by
+** Return 1 on success. This sets the size parameters to the values returned by
 ** the system call, when such is supported; set the size to zero otherwise.
 ** Return 0 on the system service call failure.
 **

@@ -141,7 +141,7 @@ list of GLOB patterns for pages for which robot access is prohibited.
 The default value is:
 
 <blockquote><pre>
-timelineX,diff,annotate,fileage,file,finfo,reports
+timelineX,diff,annotate,fileage,file,finfo,reports,tree,hexdump,download
 </pre></blockquote>
 
 Each entry corresponds to the first path element on the URI for a

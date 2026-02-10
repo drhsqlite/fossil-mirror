@@ -811,7 +811,7 @@ static char *format_three_parser(const char *zName){
 ** In other words, filename itself contains sufficient information to
 ** uniquely identify the check-in, including a timestamp of the form
 ** YYYYMMDDHHMMSS and a prefix of the check-in hash.  The timestamp
-** and hash must immediately preceed the first "." in the name.
+** and hash must immediately precede the first "." in the name.
 */
 char *tar_uuid_from_name(char **pzName){
   char *zName = *pzName;      /* Original input */
@@ -917,7 +917,7 @@ char *tar_uuid_from_name(char **pzName){
 **                       name= or r=, then the name of the main branch
 **                       (usually "trunk") is used.
 **
-**   in=PATTERN          Only include files that match the comma-separate
+**   in=PATTERN          Only include files that match the comma-separated
 **                       list of GLOB patterns in PATTERN, as with ex=
 **
 **   ex=PATTERN          Omit any file that match PATTERN.  PATTERN is a
@@ -1169,7 +1169,7 @@ void download_page(void){
   for(i=0; i<nItem-3; i+=4){
     int cnt;             /* The number of instances of zLabel to use */
     char *zLabel;        /* The label to match */
-    double rStart;       /* Starting time, julian day number */
+    double rStart;       /* Starting time, Julian day number */
     char *zComment = 0;  /* Comment to apply */
     if( anItem[i]==1 && azItem[i][0]=='*' ){
       cnt = -1;

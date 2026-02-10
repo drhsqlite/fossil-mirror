@@ -295,7 +295,7 @@ char *login_gen_user_cookie_value(const char *zUsername, const char *zHash){
 ** and user.cexpire fields for the given user.
 **
 ** If zDest is not NULL then the generated cookie is copied to
-** *zDdest and ownership is transfered to the caller (who should
+** *zDdest and ownership is transferred to the caller (who should
 ** eventually pass it to free()).
 **
 ** If bSessionCookie is true, the cookie will be a session cookie,
@@ -381,7 +381,7 @@ int anon_cookie_lifespan(void){
 ** Search for tag-20250817a to find the code that recognizes this cookie.
 */
 void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
-  char *zNow;                  /* Current time (julian day number) */
+  char *zNow;                  /* Current time (Julian day number) */
   char *zCookie;               /* The login cookie */
   const char *zUserAgent;      /* The user agent */
   const char *zCookieName;     /* Name of the login cookie */
@@ -1373,6 +1373,7 @@ int login_cookie_wellformed(void){
 **    g.anon         Permissions that would be available to anonymous
 **    g.isRobot      True if the client is known to be a spider or robot
 **    g.perm         Populated based on user account's capabilities
+**    g.eAuthMethod  The mechanism used for authentication
 **
 */
 void login_check_credentials(void){
@@ -1413,6 +1414,7 @@ void login_check_credentials(void){
     zCap = "sxy";
     g.noPswd = 1;
     g.isRobot = 0;
+    g.eAuthMethod = AUTH_LOCAL;
     zSeed = db_text("??", "SELECT uid||quote(login)||quote(pw)||quote(cookie)"
                           "  FROM user WHERE uid=%d", uid);
     login_create_csrf_secret(zSeed);
@@ -1492,6 +1494,7 @@ void login_check_credentials(void){
         }
       }
     }
+    if( uid ) g.eAuthMethod = AUTH_COOKIE;
     login_create_csrf_secret(zHash);
   }
 
@@ -1504,6 +1507,7 @@ void login_check_credentials(void){
       uid = db_int(0, "SELECT uid FROM user WHERE login=%Q"
                       " AND octet_length(cap)>0 AND octet_length(pw)>0",
                       zRemoteUser);
+      if( uid ) g.eAuthMethod = AUTH_ENV;
     }
   }
 
@@ -1513,6 +1517,7 @@ void login_check_credentials(void){
   */
   if( uid==0 && db_get_boolean("http_authentication_ok",0) ){
     uid = login_basic_authentication(zIpAddr);
+    if( uid ) g.eAuthMethod = AUTH_HTTP;
   }
 
   /* Check for magic query parameters "resid" (for the username) and
@@ -1531,6 +1536,7 @@ void login_check_credentials(void){
                       "      OR constant_time_cmp(pw,%Q)=0)",
                       zUsr, zSha1Pw, zPW);
       fossil_free(zSha1Pw);
+      if( uid ) g.eAuthMethod = AUTH_PW;
     }
   }
 
@@ -1927,7 +1933,7 @@ void login_needed(int anonOk){
 
 /*
 ** Call this routine if the user lacks g.perm.Hyperlink permission.  If
-** the anonymous user has Hyperlink permission, then paint a mesage
+** the anonymous user has Hyperlink permission, then paint a message
 ** to inform the user that much more information is available by
 ** logging in as anonymous.
 */
@@ -1951,9 +1957,9 @@ void login_insert_csrf_secret(void){
 /*
 ** Check to see if the candidate username zUserID is already used.
 ** Return 1 if it is already in use.  Return 0 if the name is
-** available for a self-registeration.
+** available for a self-registration.
 */
-static int login_self_choosen_userid_already_exists(const char *zUserID){
+static int login_self_chosen_userid_already_exists(const char *zUserID){
   int rc = db_exists(
     "SELECT 1 FROM user WHERE login=%Q "
     "UNION ALL "
@@ -2142,7 +2148,7 @@ void register_page(void){
   }else if( (uid = email_address_in_use(zEAddr))!=0 ){
     iErrLine = 3;
     zErr = "This email address is already associated with a user";
-  }else if( login_self_choosen_userid_already_exists(zUserID) ){
+  }else if( login_self_chosen_userid_already_exists(zUserID) ){
     iErrLine = 1;
     zErr = "This User ID is already taken. Choose something different.";
   }else{
@@ -2153,7 +2159,7 @@ void register_page(void){
     char *zPass = sha1_shared_secret(zPasswd, zUserID, 0);
     const char *zStartPerms = zPerms;
     if( db_get_boolean("selfreg-verify",0) ){
-      /* If email verification is required for self-registration, initalize
+      /* If email verification is required for self-registration, initialize
       ** the new user capabilities to just "7" (Sign up for email).  The
       ** full "default-perms" permissions will be added when they click
       ** the verification link on the email they are sent. */
@@ -2208,7 +2214,7 @@ void register_page(void){
                     "  AND sverified", zEAddr) ){
         /* This the case where the user was formerly a verified subscriber
         ** and here they have also registered as a user as well.  It is
-        ** not necessary to repeat the verfication step */
+        ** not necessary to repeat the verification step */
         login_redirect_to_g();
       }
       /* A verification email */
@@ -2379,7 +2385,7 @@ void login_reqpwreset_page(void){
   }
   zEAddr = PDT("ea","");
 
-  /* Verify user imputs */
+  /* Verify user inputs */
   if( !cgi_csrf_safe(1) || P("reqpwreset")==0 ){
     /* This is the initial display of the form.  No processing or error
     ** checking is to be done. Fall through into the form display

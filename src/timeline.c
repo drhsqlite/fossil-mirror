@@ -24,7 +24,7 @@
 #include "timeline.h"
 
 /*
-** The value of one second in julianday notation
+** The value of one second in Julian day notation
 */
 #define ONE_SECOND (1.0/86400.0)
 
@@ -732,6 +732,10 @@ void www_print_timeline(
         }
         wiki_hyperlink_override(0);
       }else{
+        if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
+          blob_truncate_utf8(&comment, mxWikiLen);
+          blob_append(&comment, "...", 3);
+        }
         wiki_convert(&comment, 0, WIKI_INLINE);
       }
     }else{
@@ -749,12 +753,9 @@ void www_print_timeline(
         z[ii] = 0;
         cgi_printf("%W",z);
       }else if( mxWikiLen>0 && (int)blob_size(&comment)>mxWikiLen ){
-        Blob truncated;
-        blob_zero(&truncated);
-        blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
-        blob_append(&truncated, "...", 3);
-        @ %W(blob_str(&truncated))
-        blob_reset(&truncated);
+        blob_truncate_utf8(&comment, mxWikiLen);
+        blob_append(&comment, "...", 3);
+        @ %W(blob_str(&comment))
         drawDetailEllipsis = 0;
       }else{
         cgi_printf("%W",blob_str(&comment));
@@ -1047,7 +1048,7 @@ void timeline_output_graph_javascript(
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
     **        is the rail on which the riser should run and the second integer
-    **        is the id of the node upto which the riser should run. If there
+    **        is the id of the node up to which the riser should run. If there
     **        are no risers, this array does not exist.
     **   mi:  "merge-in".  An array of integer rail positions from which
     **        merge arrows should be drawn into this node.  If the value is
@@ -1485,7 +1486,7 @@ static int timeline_is_datespan(const char *zDay){
 ** Find the first check-in encountered with a particular tag
 ** when moving either forwards are backwards in time from a
 ** particular starting point (iFrom).  Return the rid of that
-** first check-in.  If there are no check-ins in the descendent
+** first check-in.  If there are no check-ins in the descendant
 ** or ancestor set of check-in iFrom that match the tag, then
 ** return 0.
 */
@@ -1625,8 +1626,8 @@ static void add_extra_rids(const char *zTab, const char *zExtra){
 ** Usage: fossil test-endpoint BASE TAG ?OPTIONS?
 **
 ** Show the first check-in with TAG that is a descendant or ancestor
-** of BASE.  The first descendant checkin is shown by default.  Use
-** the --backto to see the first ancestor checkin.
+** of BASE.  The first descendant check-in is shown by default.  Use
+** the --backto to see the first ancestor check-in.
 **
 ** Options:
 **
@@ -1683,10 +1684,10 @@ void timeline_test_endpoint(void){
 **    dp=CHECKIN      Same as 'd=CHECKIN&p=CHECKIN'
 **    dp2=CKIN2       Same as 'd2=CKIN2&p2=CKIN2'
 **    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
-**    bt=CHECKIN      "Back To".  Show ancenstors going back to CHECKIN
+**    bt=CHECKIN      "Back To".  Show ancestors going back to CHECKIN
 **                       p=CX       ... from CX back to time of CHECKIN
 **                       from=CX    ... path from CX back to CHECKIN
-**    ft=CHECKIN      "Forward To":  Show descendents forward to CHECKIN
+**    ft=CHECKIN      "Forward To":  Show descendants forward to CHECKIN
 **                       d=CX       ... from CX up to the time of CHECKIN
 **                       from=CX    ... path from CX up to CHECKIN
 **    t=TAG           Show only check-ins with the given TAG
@@ -1728,7 +1729,7 @@ void timeline_test_endpoint(void){
 **                    All qualifying check-ins are shown unless there is
 **                    also an n= or n1= query parameter.
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
-**                    name matches one of the comma-separate GLOBLIST
+**                    name matches one of the comma-separated GLOBLIST
 **    brbg            Background color determined by branch name
 **    ubg             Background color determined by user
 **    deltabg         Background color red for delta manifests or green
@@ -1802,7 +1803,7 @@ void page_timeline(void){
   int forkOnly = PB("forks");        /* Show only forks and their children */
   int bisectLocal = PB("bisect");    /* Show the check-ins of the bisect */
   const char *zBisect = P("bid");    /* Bisect description */
-  int cpOnly = PB("cherrypicks");    /* Show all cherrypick checkins */
+  int cpOnly = PB("cherrypicks");    /* Show all cherrypick check-ins */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
@@ -2005,7 +2006,7 @@ void page_timeline(void){
   if( zTagName ){
     zType = "ci";
     if( matchStyle==MS_EXACT ){
-      /* For exact maching, inhibit links to the selected tag. */
+      /* For exact matching, inhibit links to the selected tag. */
       zThisTag = zTagName;
       Th_StoreUnsafe("current_checkin", zTagName);
     }
@@ -3672,7 +3673,7 @@ static int isIsoDate(const char *z){
 }
 
 /*
-** Return true if the input string can be converted to a julianday.
+** Return true if the input string can be converted to a Julian day.
 */
 static int fossil_is_julianday(const char *zDate){
   return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd"
@@ -3730,7 +3731,7 @@ static int fossil_is_julianday(const char *zDate){
 **                        zero, no limit.  Default is -20 meaning 20 lines.
 **   --offset P           Skip P changes
 **   -p|--path PATH       Output items affecting PATH only.
-**                        PATH can be a file or a sub directory.
+**                        PATH can be a file or a subdirectory.
 **   -r|--reverse         Show items in chronological order.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current check-out's repository.

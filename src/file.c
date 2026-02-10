@@ -53,7 +53,7 @@
 **
 **   ExtFILE      Symbolic links always refer to the object to which the
 **                link points.  Symlinks are never recognized as symlinks but
-**                instead always appear to the the target object.
+**                instead always appear to be the target object.
 **
 **   SymFILE      Symbolic links always appear to be files whose name is
 **                the target pathname of the symbolic link.
@@ -2820,7 +2820,7 @@ void touch_cmd(){
   Blob absBuffer = empty_blob; /* Absolute filename buffer */
 
   verboseFlag = find_option("verbose","v",0)!=0;
-  quietFlag = find_option("quiet","q",0)!=0 || g.fQuiet;
+  quietFlag = g.fQuiet;
   dryRunFlag = find_option("dry-run","n",0)!=0;
   zGlobList = find_option("glob", "g",1);
   zGlobFile = find_option("globfile", "G",1);

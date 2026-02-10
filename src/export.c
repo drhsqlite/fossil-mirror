@@ -30,7 +30,7 @@ static struct {
 
 #if INTERFACE
 /*
-** Each line in a git-fast-export "marK" file is an instance of
+** Each line in a git-fast-export "mark" file is an instance of
 ** this object.
 */
 struct mark_t {
@@ -761,7 +761,7 @@ void export_cmd(void){
 ** order.  "Topological order" means that every parent check-in comes
 ** before all of its children.  Topological order is *almost* the same
 ** thing as "ORDER BY event.mtime".  Differences only arise when there
-** are timewarps.  In as much as Git hates timewarps, we have to compute
+** are timewarps.  Inasmuch as Git hates timewarps, we have to compute
 ** a correct topological order when doing an export.
 **
 ** Since mtime is a usually already nearly in topological order, the
@@ -1415,6 +1415,7 @@ void gitmirror_export_command(void){
   bForce = find_option("force","f",0)!=0;
   bIfExists = find_option("if-mirrored",0,0)!=0;
   gitmirror_verbosity = VERB_NORMAL;
+  if( g.fQuiet ){ gitmirror_verbosity--; }  /* Global option not repeatable. */
   while( find_option("quiet","q",0)!=0 ){ gitmirror_verbosity--; }
   while( find_option("verbose","v",0)!=0 ){ gitmirror_verbosity++; }
   verify_all_options();
@@ -1754,7 +1755,7 @@ void gitmirror_status_command(void){
                     ** from "fossil all" and should modify output accordingly */
 
   db_find_and_open_repository(0, 0);
-  bQuiet = find_option("quiet","q",0)!=0;
+  bQuiet = g.fQuiet;
   bByAll = find_option("by-all",0,0)!=0;
   verify_all_options();
   zMirror = db_get("last-git-export-repo", 0);

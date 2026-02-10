@@ -359,7 +359,7 @@ window.fossil.onPageLoad(function(){
           the scroll until the image is loaded, at which point it will
           scroll to either the newest message, if one is set or to
           eMsg (the liklihood is good, at least on initial page load,
-          that the the image won't be loaded until other messages have
+          that the image won't be loaded until other messages have
           been injected). */
       scheduleScrollOfMsg: function(eMsg){
         if(1===+eMsg.dataset.hasImage){
@@ -1052,7 +1052,7 @@ window.fossil.onPageLoad(function(){
       let eLast;
       cs.setCurrentView(cs.e.viewMessages);
       if(eUser.classList.contains('selected')){
-        /* If curently selected, toggle filter off */
+        /* If currently selected, toggle filter off */
         eUser.classList.remove('selected');
         cs.setUserFilter(false);
         delete f.$eSelected;
@@ -2858,7 +2858,7 @@ window.fossil.onPageLoad(function(){
         poll.running = false;
       },
       ontimeout: function(err){
-        f.pendingOnError = undefined /*strip preceeding non-timeout error, if any*/;
+        f.pendingOnError = undefined /*strip preceding non-timeout error, if any*/;
         afterPollFetch(err);
       },
       onerror:function(err){

@@ -217,7 +217,7 @@ int color_name_to_rgb(const char *zName){
 ** SETTING: raw-bgcolor                  boolean default=off
 **
 ** Fossil usually tries to adjust user-specified background colors
-** for checkins so that the text is readable and so that the color
+** for check-ins so that the text is readable and so that the color
 ** is not too garish. This setting disables that filter.  When
 ** this setting is on, the user-selected background colors are shown
 ** exactly as requested.

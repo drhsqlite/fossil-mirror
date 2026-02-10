@@ -666,7 +666,7 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
 
 /*
 ** Scan the header of the email message in pMsg looking for the
-** (first) occurrance of zField.  Fill pValue with the content of
+** (first) occurrence of zField.  Fill pValue with the content of
 ** that field.
 **
 ** This routine initializes pValue.  Any prior content of pValue is
@@ -712,7 +712,7 @@ int email_header_value(Blob *pMsg, const char *zField, Blob *pValue){
 ** Only look at character up to but not including the first \000 or
 ** the first cTerm character, whichever comes first.
 **
-** Return the length of the email addresss string in bytes if the email
+** Return the length of the email address string in bytes if the email
 ** address is valid.  If the email address is misformed, return 0.
 */
 int email_address_is_valid(const char *z, char cTerm){
@@ -2261,7 +2261,7 @@ static const char zUnsubMsg[] =
 ** If a valid subscriber code is supplied in the name= query parameter,
 ** then that subscriber is delisted.
 **
-** Otherwise, If the users is logged in, then they are redirected
+** Otherwise, if the users are logged in, then they are redirected
 ** to the /alerts page where they have an unsubscribe button.
 **
 ** Non-logged-in users with no name= query parameter are invited to enter
@@ -2608,7 +2608,7 @@ void alert_free_eventlist(EmailEvent *p){
 ** for a particular forum post.
 **
 ** This string is an encode list of sender names and rids for all ancestors
-** of the fpdi post - the post that fpid answer, the post that that parent
+** of the fpid post - the post that fpid answers, the post that parent
 ** post answers, and so forth back up to the root post. Duplicates sender
 ** names are omitted.
 **
@@ -2957,8 +2957,8 @@ static void alert_renewal_msg(
   int lastContact,       /* Last contact (days since 1970) */
   const char *zEAddr,    /* Subscriber email address.  Send to this. */
   const char *zSub,      /* Subscription codes */
-  const char *zRepoName, /* Name of the sending Fossil repostory */
-  const char *zUrl       /* URL for the sending Fossil repostory */
+  const char *zRepoName, /* Name of the sending Fossil repository */
+  const char *zUrl       /* URL for the sending Fossil repository */
 ){
   blob_appendf(pHdr,"To: <%s>\r\n", zEAddr);
   blob_appendf(pHdr,"Subject: %s Subscription to %s expires soon\r\n",
@@ -3468,7 +3468,7 @@ void contact_admin_page(void){
 }
 
 /*
-** Send an annoucement message described by query parameter.
+** Send an announcement message described by query parameter.
 ** Permission to do this has already been verified.
 */
 static char *alert_send_announcement(void){

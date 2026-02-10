@@ -76,7 +76,7 @@
 /*
 ** Global variable counting the number of outstanding calls to malloc()
 ** made by the th1 implementation. This is used to catch memory leaks
-** in the interpreter. Obviously, it also means th1 is not threadsafe.
+** in the interpreter. Obviously, it also means th1 is not thread-safe.
 */
 static int nOutstandingMalloc = 0;
 
@@ -153,9 +153,9 @@ void Th_PrintTraceLog(){
 }
 
 /*
-** - adopted from ls_cmd_rev in checkin.c
-** - adopted commands/error handling for usage within th1
-** - interface adopted to allow result creation as TH1 List
+** - adapted from ls_cmd_rev in checkin.c
+** - adapted commands/error handling for usage within th1
+** - interface adapted to allow result creation as TH1 List
 **
 ** Takes a check-in identifier in zRev and an optiona glob pattern in zGLOB
 ** as parameter returns a TH list in pzList,pnList with filenames matching
@@ -1067,7 +1067,7 @@ static int tclReadyCmd(
 /*
 ** TH1 command: anycap STRING
 **
-** Return true if the current user user
+** Return true if the current user
 ** has any one of the capabilities listed in STRING.
 */
 static int anycapCmd(

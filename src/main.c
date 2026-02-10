@@ -65,7 +65,7 @@ typedef pid_t PID_T;
 #endif
 
 /*
-** Default length of a timeout for serving an HTTP request.  Changable
+** Default length of a timeout for serving an HTTP request.  Changeable
 ** using the "--timeout N" command-line option or via "timeout: N" in the
 ** CGI script.
 */
@@ -155,6 +155,7 @@ struct Global {
   const char *zPhase;     /* Phase of operation, for use by the error log
                           ** and for deriving $canonical_page TH1 variable */
   int isConst;            /* True if the output is unchanging & cacheable */
+  int iResultCode;        /* Process reply code for commands */
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
@@ -238,6 +239,13 @@ struct Global {
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
+  int eAuthMethod;        /* How the user authenticated to us */
+# define AUTH_NONE   0    /* Not authenticated */
+# define AUTH_COOKIE 1    /* Authentication by cookie */
+# define AUTH_LOCAL  2    /* Uses loopback */
+# define AUTH_PW     3    /* Authentication by password */
+# define AUTH_ENV    4    /* Authenticated by REMOTE_USER environment var */
+# define AUTH_HTTP   5    /* HTTP Basic Authentication */
   int isRobot;            /* True if the client is definitely a robot.  False
                           ** negatives are common for this flag */
   int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
@@ -825,7 +833,7 @@ int fossil_main(int argc, char **argv){
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.rcvid = 0;
-    g.fQuiet = find_option("quiet", 0, 0)!=0;
+    g.fQuiet = find_option("quiet", "q", 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
@@ -1011,7 +1019,7 @@ int fossil_main(int argc, char **argv){
     }
   }
 #endif
-  fossil_exit(0);
+  fossil_exit(g.iResultCode);
   /*NOT_REACHED*/
   return 0;
 }
@@ -1185,7 +1193,7 @@ const char *find_repository_option(){
 ** enable passing-in of filenames which start with a dash).
 **
 ** This function must normally only be called one time per app
-** invokation. The exception is commands which process their
+** invocation. The exception is commands which process their
 ** arguments, call this to confirm that there are no extraneous flags,
 ** then modify the arguments list for forwarding to another
 ** (sub)command (which itself will call this to confirm its own
@@ -1397,7 +1405,7 @@ void test_version_page(void){
 
 
 /*
-** Set the g.zBaseURL value to the full URL for the toplevel of
+** Set the g.zBaseURL value to the full URL for the top level of
 ** the fossil tree.  Set g.zTop to g.zBaseURL without the
 ** leading "http://" and the host and port.
 **
@@ -2871,7 +2879,7 @@ static void decode_ssl_options(void){
 ** alphanumerics, "_", "/", "-" and "." and no "-" may occur after a "/"
 ** and every "." must be surrounded on both sides by alphanumerics or else
 ** a 404 error is returned.  Static content files in the directory are
-** returned if they match comma-separate GLOB pattern specified by --files
+** returned if they match comma-separated GLOB pattern specified by --files
 ** and do not match "*.fossil*" and have a well-known suffix.
 **
 ** Options:
@@ -2883,7 +2891,7 @@ static void decode_ssl_options(void){
 **   --ckout-alias N     Treat URIs of the form /doc/N/... as if they were
 **                          /doc/ckout/...
 **   --extroot DIR       Document root for the /ext extension mechanism
-**   --files GLOB        Comma-separate glob patterns for static file to serve
+**   --files GLOB        Comma-separated glob patterns for static files to serve
 **   --host NAME         DNS Hostname of the server
 **   --https             The HTTP request originated from https but has already
 **                       been decoded by a reverse proxy.  Hence, URLs created
@@ -3104,7 +3112,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** breaking legacy.
 **
 ** Options:
-**   --csrf-safe N       Set cgi_csrf_safe() to to return N
+**   --csrf-safe N       Set cgi_csrf_safe() to return N
 **   --nobody            Pretend to be user "nobody"
 **   --ssh-sim           Pretend to be over an SSH connection
 **   --test              Do not do special "sync" processing when operating
