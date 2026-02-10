@@ -395,8 +395,7 @@ sed -i -e 's/--\([[:alnum:]-]\{1,\}\)/@option\{--\1\}/g' workfile
 cat workfile >> fossil.texi
 echo "" >> fossil.texi
 
-
-##### Now the webpage content. Here be wild wild web pages. #####
+# Now the webpage content. Here be wild wild web pages.
 echo "List web commands"
 printf "@node Web commands,Common arguments,Fossil settings,Top
 @chapter Web commands

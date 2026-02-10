@@ -1,5 +1,5 @@
-C Latest\smerge\sfrom\strunk.
-D 2026-02-10T08:49:21.881
+C Tidying\sup\sthe\sscript\scomments.
+D 2026-02-10T21:58:34.370
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -748,7 +748,7 @@ F tools/find-fossil-cgis.tcl 02669fa4cb9c72cc2e6a1063bb2d7a5def86984e99d77cd7b04
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-autocomplete.zsh 733bfcc6eb9bbb69d1b8670eaa133166dcaac1a4b8988b73a767220bf15d0b1b x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
-F tools/fossil-makeinfo 7c29204534dd2d507331689fc0ad54d9cea8ff4535d6f00f5437c243c34bf8e3 x
+F tools/fossil-makeinfo 185f3bfe5e52117df26de2efdb5d045fb0952ef3f8efa754ddd570cf2f47c1f1 x
 F tools/fossil-stress.tcl f8c75651b50d14aa619613438e0f1dedb53669a52239e3f274d2096c45e61b49 x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6759efcc813e66cf937413b4a162eae6bfed4d4b1322721202296d9c9755711d f661b8de491e40daa44c37eba66f02cca0acfa0cc2a683bc577071412699b1ea
-R e5395637f2fd53857bf3c623c8953fce
+P d03791648f6bc0237d8a7464c213899b7632c5e89d812d04665f096075372b99
+R 57ac16c2ec7638657f8b77e7316322c5
 U brickviking
-Z 45e04531c4de548bf225c4c923dd98a9
+Z 440998e29e52feedc37aa3829d662220
 # Remove this line to create a well-formed Fossil manifest.
