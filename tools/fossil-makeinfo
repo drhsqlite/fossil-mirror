@@ -94,7 +94,7 @@ This file documents version @value{VERSION} of Fossil.
 * License::              The license agreement of the fossil project.
 @end menu
 
-Help is available for any of the available fossil commands by using:
+You can get help for any of the available fossil commands by using:
 
 @example
 fossil help some-command
