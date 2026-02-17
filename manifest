@@ -1,5 +1,5 @@
-C Carry\sforward\s[0f8bae079e]\sto\sthe\szlib\s1.3.2\supdate.
-D 2026-02-17T15:04:00.000
+C Carry\sforward\s[368d97869b]\sto\sthe\szlib\s1.3.2\supdate.
+D 2026-02-17T15:06:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -50,7 +50,7 @@ F compat/zlib/INDEX d14e4659c47082af6c8ef78d3a65c3f0011728275958c528516ea2da4799
 F compat/zlib/LICENSE b4663005c9cd91f86bf77b4d588b8ad822a43998741f33c0b5534ed84f20794c
 F compat/zlib/MODULE.bazel c063107a3b7c46c2d2dcef4a747da1989a2242ff239c6d561ce32991a327baaa
 F compat/zlib/Makefile b04f62dd1002b9ca07068c90651432dec60029f3
-F compat/zlib/Makefile.in 51b193272ff3930a11f3463ed45e02d11f92dd7356f4fd56f53784c09169c5cb
+F compat/zlib/Makefile.in 7849b3d889c2706743c999ec88f2af66c7667cd033bee05c827bc397fb3b0c5d
 F compat/zlib/README c0b2bfead8990613825ea3d9d6ffe97d7e731318db9079735d90147d5d55cf87
 F compat/zlib/README-cmake.md 0547a64fceeb03b48e12d11e45cf8bfb19286b603cc456a918a9483b3d447db1
 F compat/zlib/adler32.c 42a1a3da42b7ce9eb56a73fb004f5cfc04d6554e8558d0416e9fedab01702f03
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 04f74fdff79d0b0218cd2ca7e7a8488cea737d6ca6a80ddffb183f3c1dd03868
-R 5fa44a06a0bfbfc69de3e98ca5ebdbeb
+P 235b2103878cd2cda86d674d8fb829d91597930d8d8912b4b27e41e31b420cb1
+R be31abebf5f225e80d27aacbf9c6ac52
 U florian
-Z 9309c3481570ba4421e961e11002d91e
+Z 691ea51dcb52cc46b9c11f9b9eb75b09
 # Remove this line to create a well-formed Fossil manifest.
