@@ -2936,7 +2936,8 @@ void artifact_page(void){
     db_prepare(&q,
       "SELECT coalesce(user.login,rcvfrom.uid),"
       "       datetime(rcvfrom.mtime,toLocal()),"
-      "       coalesce(rcvfrom.ipaddr,'unknown')"
+      "       coalesce(rcvfrom.ipaddr,'unknown'),"
+      "       rcvfrom.rcvid"
       "  FROM blob, rcvfrom LEFT JOIN user ON user.uid=rcvfrom.uid"
       " WHERE blob.rid=%d"
       "   AND rcvfrom.rcvid=blob.rcvid;", rid);
@@ -2944,7 +2945,9 @@ void artifact_page(void){
       const char *zUser = db_column_text(&q,0);
       const char *zDate = db_column_text(&q,1);
       const char *zIp = db_column_text(&q,2);
-      @ <p>Received on %s(zDate) from %h(zUser) at %h(zIp).</p>
+      int rcvid = db_column_int(&q,3);
+      @ <p>Received on %s(zDate) from %h(zUser) at %h(zIp).
+      @ (<a href="%R/rcvfrom?rcvid=%d(rcvid)">rcvid&nbsp;%d(rcvid))</a></p>
     }
     db_finalize(&q);
   }

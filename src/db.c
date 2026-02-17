@@ -4427,7 +4427,7 @@ void cmd_open(void){
   db_open_local(0);
   db_lset("repository", zRepo);
   db_record_repository_filename(zRepo);
-  db_set_checkout(0);
+  db_set_checkout(0, 0); /* manifest files handled by checkout_cmd */
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
   if( !emptyFlag ){
@@ -5668,11 +5668,14 @@ void test_fingerprint(void){
 
 /*
 ** Set the value of the "checkout" entry in the VVAR table.
+** If bWriteManifest is non-zero then also attempt to write the manifest
+** files to disk.
 **
 ** Also set "fingerprint" and "checkout-hash".
 */
-void db_set_checkout(int rid){
+void db_set_checkout(int rid, int bWriteManifest){
   char *z;
+  if( bWriteManifest ) manifest_to_disk(rid);
   db_lset_int("checkout", rid);
   if (rid != 0) {
     z = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);

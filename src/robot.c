@@ -265,7 +265,7 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** should be disallowed.  "Unauthenticated" means the user is "nobody".
 ** The recommended value for this setting is:
 **
-**   timelineX,diff,annotate,fileage,file,finfo,reports,tree,download,hexdump
+**   timelineX,diff,annotate,fileage,file,finfo,reports,tree,hexdump,download
 **
 ** Usually the tag should exactly match the page name.  The "diff" tag
 ** covers all diffing pages such as /vdiff, /fdiff, and /vpatch.  The
@@ -322,6 +322,8 @@ static void ask_for_proof_that_client_is_not_robot(void){
 ** Return the default restriction GLOB
 */
 const char *robot_restrict_default(void){
+  /* NOTE: The default value is also mentioned in the online help screen of
+  ** the "robot-restrict" setting, and in the www/antibot.wiki document. */
   return "timelineX,diff,annotate,fileage,file,finfo,reports,"
          "tree,hexdump,download";
 }

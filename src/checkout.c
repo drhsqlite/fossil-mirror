@@ -360,9 +360,8 @@ void checkout_cmd(void){
     vfile_to_disk(vid, 0, !g.fQuiet, promptFlag);
   }
   checkout_set_all_exe(vid);
-  manifest_to_disk(vid);
   ensure_empty_dirs_created(0);
-  db_set_checkout(vid);
+  db_set_checkout(vid, 1);
   undo_reset();
   db_multi_exec("DELETE FROM vmerge");
   if( !keepFlag && db_get_boolean("repo-cksum",1) ){
@@ -469,7 +468,7 @@ void close_cmd(void){
 void get_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;
   int bVerbose = find_option("verbose","v",0)!=0;
-  int bQuiet = find_option("quiet","q",0)!=0;
+  int bQuiet = g.fQuiet;
   int bDebug = find_option("debug",0,0)!=0;
   int bList = find_option("list",0,0)!=0;
   const char *zSqlArchive = find_option("sqlar",0,1);

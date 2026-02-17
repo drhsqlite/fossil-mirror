@@ -573,7 +573,7 @@ void vfile_scan(
 
 /*
 ** Scans the specified base directory for any directories within it, while
-** keeping a count of how many files they each contains, either directly or
+** keeping a count of how many files they each contain, either directly or
 ** indirectly.
 **
 ** Subdirectories are scanned recursively.

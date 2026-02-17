@@ -732,6 +732,10 @@ void www_print_timeline(
         }
         wiki_hyperlink_override(0);
       }else{
+        if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
+          blob_truncate_utf8(&comment, mxWikiLen);
+          blob_append(&comment, "...", 3);
+        }
         wiki_convert(&comment, 0, WIKI_INLINE);
       }
     }else{
@@ -749,12 +753,9 @@ void www_print_timeline(
         z[ii] = 0;
         cgi_printf("%W",z);
       }else if( mxWikiLen>0 && (int)blob_size(&comment)>mxWikiLen ){
-        Blob truncated;
-        blob_zero(&truncated);
-        blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
-        blob_append(&truncated, "...", 3);
-        @ %W(blob_str(&truncated))
-        blob_reset(&truncated);
+        blob_truncate_utf8(&comment, mxWikiLen);
+        blob_append(&comment, "...", 3);
+        @ %W(blob_str(&comment))
         drawDetailEllipsis = 0;
       }else{
         cgi_printf("%W",blob_str(&comment));
@@ -3453,10 +3454,14 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat,
 
     if( nAbsLimit!=0 ){
       if( nLimit<0 && nLine>=nAbsLimit ){
-        fossil_print("--- line limit (%d) reached ---\n", nAbsLimit);
+        if( !g.fQuiet ){
+          fossil_print("--- line limit (%d) reached ---\n", nAbsLimit);
+        }
         break; /* line count limit hit, stop. */
       }else if( nEntry>=nAbsLimit ){
-        fossil_print("--- entry limit (%d) reached ---\n", nAbsLimit);
+        if( !g.fQuiet ){
+          fossil_print("--- entry limit (%d) reached ---\n", nAbsLimit);
+        }
         break; /* entry count limit hit, stop. */
       }
     }
@@ -3571,9 +3576,13 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat,
   if( rc==SQLITE_DONE ){
     /* Did the underlying query actually have all entries? */
     if( nAbsLimit==0 ){
-      fossil_print("+++ end of timeline (%d) +++\n", nEntry);
+      if( !g.fQuiet ){
+        fossil_print("+++ end of timeline (%d) +++\n", nEntry);
+      }
     }else{
-      fossil_print("+++ no more data (%d) +++\n", nEntry);
+      if( !g.fQuiet ){
+        fossil_print("+++ no more data (%d) +++\n", nEntry);
+      }
     }
   }
   if( fchngQueryInit ) db_finalize(&fchngQuery);
@@ -3731,6 +3740,7 @@ static int fossil_is_julianday(const char *zDate){
 **   --offset P           Skip P changes
 **   -p|--path PATH       Output items affecting PATH only.
 **                        PATH can be a file or a subdirectory.
+**   -q|--quiet           Do not print notifications at the end of the timeline. 
 **   -r|--reverse         Show items in chronological order.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current check-out's repository.

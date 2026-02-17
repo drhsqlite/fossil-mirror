@@ -833,7 +833,7 @@ int fossil_main(int argc, char **argv){
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.rcvid = 0;
-    g.fQuiet = find_option("quiet", 0, 0)!=0;
+    g.fQuiet = find_option("quiet", "q", 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;

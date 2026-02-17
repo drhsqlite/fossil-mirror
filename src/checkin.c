@@ -2558,9 +2558,7 @@ void commit_cmd(void){
   int allowFork = 0;     /* Allow the commit to fork */
   int allowOlder = 0;    /* Allow a commit older than its ancestor */
   int noVerifyCom = 0;   /* Allow suspicious check-in comments */
-  char *zManifestFile;   /* Name of the manifest file */
   int useCksum;          /* True if checksums should be computed and verified */
-  int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
   int dryRunFlag;        /* True for a test run.  Debugging only */
   CheckinInfo sCiInfo;   /* Information about this check-in */
   const char *zComFile;  /* Read commit message from this file */
@@ -2569,7 +2567,6 @@ void commit_cmd(void){
   ManifestFile *pFile;   /* File structure in the manifest */
   Manifest *pManifest;   /* Manifest structure */
   Blob manifest;         /* Manifest in baseline form */
-  Blob muuid;            /* Manifest uuid */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
   Blob cksum1b;          /* Checksum recorded in the manifest */
   int szD;               /* Size of the delta manifest */
@@ -2649,7 +2646,6 @@ void commit_cmd(void){
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);
   bIgnoreSkew = find_option("ignore-clock-skew",0,0)!=0;
-  outputManifest = db_get_manifest_setting(0);
   mxSize = db_large_file_size();
   if( find_option("ignore-oversize",0,0)!=0 ) mxSize = 0;
   (void)fossil_text_editor();
@@ -3211,13 +3207,6 @@ void commit_cmd(void){
   if( dryRunFlag ){
     blob_write_to_file(&manifest, "");
   }
-  if( outputManifest & MFESTFLG_RAW ){
-    zManifestFile = mprintf("%smanifest", g.zLocalRoot);
-    blob_write_to_file(&manifest, zManifestFile);
-    blob_reset(&manifest);
-    blob_read_from_file(&manifest, zManifestFile, ExtFILE);
-    free(zManifestFile);
-  }
 
   nvid = content_put(&manifest);
   if( nvid==0 ){
@@ -3244,14 +3233,6 @@ void commit_cmd(void){
   db_finalize(&q);
 
   fossil_print("New_Version: %s\n", zUuid);
-  if( outputManifest & MFESTFLG_UUID ){
-    zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
-    blob_zero(&muuid);
-    blob_appendf(&muuid, "%s\n", zUuid);
-    blob_write_to_file(&muuid, zManifestFile);
-    free(zManifestFile);
-    blob_reset(&muuid);
-  }
 
   /* Update the vfile and vmerge tables */
   db_multi_exec(
@@ -3262,7 +3243,7 @@ void commit_cmd(void){
     " WHERE is_selected(id);"
     , vid, nvid
   );
-  db_set_checkout(nvid);
+  db_set_checkout(nvid, !dryRunFlag);
 
   /* Update the isexe and islink columns of the vfile table */
   db_prepare(&q,
@@ -3326,16 +3307,6 @@ void commit_cmd(void){
     return;
   }
   db_end_transaction(0);
-
-  if( outputManifest & MFESTFLG_TAGS ){
-    Blob tagslist;
-    zManifestFile = mprintf("%smanifest.tags", g.zLocalRoot);
-    blob_zero(&tagslist);
-    get_checkin_taglist(nvid, &tagslist);
-    blob_write_to_file(&tagslist, zManifestFile);
-    blob_reset(&tagslist);
-    free(zManifestFile);
-  }
 
   if( !g.markPrivate ){
     int syncFlags = SYNC_PUSH | SYNC_PULL | SYNC_IFABLE;

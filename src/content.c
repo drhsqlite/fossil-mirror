@@ -967,7 +967,7 @@ static int looks_like_control_artifact(Blob *p){
 **                       No other validation is performed.
 **    --parse            Parse all manifests, wikis, tickets, events, and
 **                       so forth, reporting any errors found.
-**    -q|--quick         Run "PRAGMA quick_check" on the database only.
+**    --quick            Run "PRAGMA quick_check" on the database only.
 **                       No other validation is performed.
 */
 void test_integrity(void){
@@ -981,7 +981,7 @@ void test_integrity(void){
   int anCA[10];
   int bParse = find_option("parse",0,0)!=0;
   int bDbOnly = find_option("db-only","d",0)!=0;
-  int bQuick = find_option("quick","q",0)!=0;
+  int bQuick = find_option("quick",0,0)!=0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   if( bDbOnly || bQuick ){
     const char *zType = bQuick ? "quick" : "integrity";
@@ -1201,7 +1201,7 @@ static int check_exists(
 **
 ** Options:
 **    --notshunned          Do not report shunned artifacts
-**    --quiet               Only show output if there are errors
+**    -q|--quiet            Only show output if there are errors
 */
 void test_missing(void){
   Stmt q;
@@ -1214,7 +1214,7 @@ void test_missing(void){
   int quietFlag;
 
   if( find_option("notshunned", 0, 0)!=0 ) flags |= MISSING_SHUNNED;
-  quietFlag = find_option("quiet","q",0)!=0;
+  quietFlag = g.fQuiet;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   db_prepare(&q,
      "SELECT mid FROM mlink UNION "

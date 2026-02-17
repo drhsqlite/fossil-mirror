@@ -746,10 +746,21 @@ void blob_rewind(Blob *p){
 }
 
 /*
-** Truncate a blob back to zero length
+** Truncate a blob to the specified length in bytes.
 */
 void blob_truncate(Blob *p, int sz){
   if( sz>=0 && sz<(int)(p->nUsed) ) p->nUsed = sz;
+}
+
+/*
+** Truncate a blob to the specified length in bytes. If truncation
+** results in an incomplete UTF-8 sequence at the end, remove up
+** to three more bytes back to the last complete UTF-8 sequence.
+*/
+void blob_truncate_utf8(Blob *p, int sz){
+  if( sz>=0 && sz<(int)(p->nUsed) ){
+    p->nUsed = utf8_nearest_codepoint(p->aData,sz);
+  }
 }
 
 /*
