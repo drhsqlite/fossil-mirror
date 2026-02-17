@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\scheck-in\sfor\sbeta-testing.
-D 2026-02-16T11:24:29.432
+C Provide\sa\slink\sto\sthe\srcvfrom\sentry\son\sthe\sartifact\spage.
+D 2026-02-17T12:06:19.681
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -474,7 +474,7 @@ F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efc
 F src/http_ssl.c 21448e159871c441e761fa58152860a22d123d279e5e661df8f4a6fad88f7c03
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 1ee4f154daf3e687e8e8304777448b2bbd877adb279d6c9e7ff7952a02982b7f
-F src/info.c f7a74f52fa59bac43a7f8dded0151bd3cb86713085ad053154d39362adc4badd
+F src/info.c 0c62869aa336dc454117aacb64051a80f1b12b7e6f8fc6aa0a29521574227f5c
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 226c093fa877714454de330b45ce76e447fe85b99f17d0347b8a5207f3c92b42
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f72ef850fce04521de4049fbfff5a092ba33f6983b31166712cc3b055928eacd
-R b902777a3a84d7ee385b33990b18bbd3
+P d0d5159c281e7a389703d4556a5c9a87618954dcf97aeacabe16f64d14b083c7
+R fe492f3bd158f5b0b2627aeb88c97077
 U drh
-Z bed4ab4a06ac9829749b8bfeccac2db8
+Z 6cdb3c900208aca8e73df8a8dce14fdd
 # Remove this line to create a well-formed Fossil manifest.
