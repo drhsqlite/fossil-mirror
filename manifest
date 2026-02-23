@@ -1,5 +1,5 @@
-C Do\snot\sattempt\sto\sextract\ssymbolic\slinks\sfrom\sZIP\sarchive.\nSee\s[https://sqlite.org/forum/forumpost/2026-02-21T11:04:36z|SQLite\sForum\sPost\s2026-02-21T11:04:36z]\nfor\san\sexplanation\sof\swhy\sthis\sis\sa\spotential\svulnerability.\nWe\scould,\sin\stheory,\senhance\sZIP\sarchive\sunpacking\sto\shandle\nsymbolic\slinks\ssafely,\sbut\sas\sthe\suse\sof\ssymbolic\slinks\sin\sZIP\narchives\sis\srare,\sand\sbecause\sZIP\sarchive\sextraction\sby\sFossil\nis\srare,\sdoing\sso\smight\screate\smore\sproblems\sthan\sit\ssolves.
-D 2026-02-23T14:17:46.491
+C Don't\somit\sexplanation\sof\sa\ssync\soperation\sif\sa\sproxy\sis\sbeing\sused.\nBecause\sinformation\sabout\sthe\sproxy\swithout\sinformation\sabout\sthe\sremote\nlooks\skinda\sawkward.\n<br>\nNote:\sA\sglobal\svariable\s<var>g.url.isAlias</var>\n(introduced\sat\s<code>src/url.c</code>\sby\s[f11c863d91])\nis\sbarely\sused;\smaybe\sit's\sworth\sto\sremove\sit.
+D 2026-02-23T23:13:04.962
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -570,7 +570,7 @@ F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f12099fbe
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
-F src/sync.c df804e492bd9020b231975a5cd51d8aa67cecbf77d9325e1b4b979a30809c8a8
+F src/sync.c d028322157a53faa9acded6517ee8baa2fa7760d6085f3ea4fd87e3ecee09cb4
 F src/tag.c 6642f350836138cc6453569119826ec02bd3e666339840eb392416e821e8d748
 F src/tar.c f2a15c7eb5d6c379adb175b7881917bdfe707388072dde0e599c1c2d7b71ec7d
 F src/terminal.c 1f497ac2f122d3fc856aac9386c064c10e10bf148467986ef73c7562f9379872
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a363d26bec0a68b788f5fe191a165927f16c016c97739c8a473bc0711a95fe4e
-R 410cf324261de3348c6b2b08480ae572
-U drh
-Z 27114bb2271b2ae09df072f5459daeb4
+P 31ce0d31c4d0cbe64cb55973e0c77596964b143522f71b5e49c6971d4c263672
+R 4b88896d01b1a1bb19676c466211e839
+U george
+Z b46ac2b8a1b0488060a899d82aa8710b
 # Remove this line to create a well-formed Fossil manifest.
