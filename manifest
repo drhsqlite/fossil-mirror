@@ -1,5 +1,5 @@
-C Add\sthe\smissing\ssetup/admin\suser\sinheritence\sof\sthe\s(C)hat\spermission\sin\scapabilities_expand(),\sas\spointed\sout\sin\s[forum:46a777f773|forum\spost\s46a777f773].
-D 2026-02-21T03:08:13.805
+C Do\snot\sattempt\sto\sextract\ssymbolic\slinks\sfrom\sZIP\sarchive.\nSee\s[https://sqlite.org/forum/forumpost/2026-02-21T11:04:36z|SQLite\sForum\sPost\s2026-02-21T11:04:36z]\nfor\san\sexplanation\sof\swhy\sthis\sis\sa\spotential\svulnerability.\nWe\scould,\sin\stheory,\senhance\sZIP\sarchive\sunpacking\sto\shandle\nsymbolic\slinks\ssafely,\sbut\sas\sthe\suse\sof\ssymbolic\slinks\sin\sZIP\narchives\sis\srare,\sand\sbecause\sZIP\sarchive\sextraction\sby\sFossil\nis\srare,\sdoing\sso\smight\screate\smore\sproblems\sthan\sit\ssolves.
+D 2026-02-23T14:17:46.491
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -601,8 +601,8 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
 F src/xfer.c 2d2983a0ce3a6ec28db702cbd87ebd21bc670699259e44bb043b094b784e227a
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/xsystem.c 3e5e70656bafd5f703c7d24fb14eb66da1c91519d9d4dff03bdffac76f6320cc
-F src/zip.c f0d24b70e800598d6c921b1e7bc68af891bbd99075c778e3c060ac448d929a7c
+F src/xsystem.c 8235f320c65268b3e6ee9113478fe0f9bd1cb9d2bd1e8a374dacb9292f53638b
+F src/zip.c f9a2f373ee26759b73b04797acffadc788f3b6f3d6db6f87773b3126cba661b2
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c1ea044297b09158caa5c800b2017bcf807d0138cc8c8901ba464bcb8798bafb
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 065736a20c6cc8523fe6d1259dcfe77b0b4c3b2368b6296db665bbb4093d45d6
-R 20f0b0de009520c9327830b99971de7c
-U stephan
-Z 561d50f59febcf26fff3d087c8a4e860
+P a363d26bec0a68b788f5fe191a165927f16c016c97739c8a473bc0711a95fe4e
+R 410cf324261de3348c6b2b08480ae572
+U drh
+Z 27114bb2271b2ae09df072f5459daeb4
 # Remove this line to create a well-formed Fossil manifest.
