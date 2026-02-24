@@ -4253,6 +4253,11 @@ void db_record_repository_filename(const char *zName){
 **   --nosync          Do not auto-sync the repository prior to opening even
 **                     if the autosync setting is on.
 **   --proxy PROXY     Use PROXY as http proxy during sync operation
+**   --reopen REPO     "Reopen" an existing checkout to use a different
+**                     repository file REPO. Useful to reconnect an existing
+**                     checkout to a repository after the original repository
+**                     file is moved. CAUTION: may lose stash and bisect
+**                     history.
 **   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
 **                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side
@@ -4262,9 +4267,6 @@ void db_record_repository_filename(const char *zName){
 **                     operation, otherwise it has no effect
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
 **                     directory is created if it does not exist.
-**   --reopen REPOFILE Changes the repository file used by the current checkout
-**                     to REPOFILE. Use this after moving a checkout's
-**                     repository. This may lose stash and bisect history.
 **
 ** See also: [[close]], [[clone]]
 */

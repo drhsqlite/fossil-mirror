@@ -1,5 +1,5 @@
-C In\sthe\shelp\stext\sfor\s"fossil\sannotate",\smove\sthe\s-t\sand\s-T\soptions\sinto\nalphabetical\sorder.
-D 2026-02-24T12:59:02.033
+C Improvements\sto\sthe\shelp\stext\sfor\sthe\snew\s--reopen\soption\sin\s"fossil\sopen".
+D 2026-02-24T13:14:47.899
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -414,7 +414,7 @@ F src/content.c 4f180446afd1ba1a49769db37e92083fe35009adfa2b1070fdde3a404ed559ca
 F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js a967fe355479c329f4e172c625b7a8403e1132be72fd3ebf9ad0afad249a679c
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c f82fe42239e723576384fd157397d25cdf5ad99667470d5cb757a2ef04612809
+F src/db.c 4c9692d7adb99562a5cfe5eb95230f4f8f866ee14244d6245fb34cd9d4a7b8ec
 F src/default.css 15c2d2ce10d60c90361b12e53fef98105a8b60a4b6cd4d3b8b3ea6f4fd4f50b7
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b8ab8b3d414c23590025ff38f31e433c2074061563b7ea45e48695e7e1a95151
-R 8d11c28d40e02914fb2d217e3eb295f8
+P 12d31f0733d2fc13fc7130c5035a8cee42b9dc519b9c1ac8bb638d34563b6190
+R f2980f110d284f88d9d7e2dc1f8b1d9a
 U drh
-Z b490a2e9956ca8983be6feecbfbeca26
+Z 9cf121d5137761418a2b78289b7ee241
 # Remove this line to create a well-formed Fossil manifest.
