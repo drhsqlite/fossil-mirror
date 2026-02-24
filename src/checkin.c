@@ -839,20 +839,25 @@ void ls_cmd_rev(
 ** List all files in the current check-out.  If PATHS is included, only the
 ** named files (or their children if directories) are shown.
 **
-** The ls command is essentially two related commands in one, depending on
-** whether or not the -r option is given.  -r selects a specific check-in
+** The ls command has grown by accretion, with multiple contributors, over
+** many years, and is hence a little confused.  The ls command is essentially
+** two related commands in one, depending on whether or not the -r option
+** is given or implied.  The -r option selects a specific check-in
 ** version to list, in which case -R can be used to select the repository.
 ** The fine behavior of the --age, -v, and -t options is altered by the -r
-** option as well, as explained below.
+** option as well, as explained below.  The -h and -H options use an
+** implicit "-r current" option if no -r is specified.
 **
 ** The --age option displays file commit times.  Like -r, --age has the
 ** side effect of making -t sort by commit time, not modification time.
 **
 ** The -v option provides extra information about each file.  Without -r,
-** -v displays the change status, in the manner of the changes command.
-** With -r, -v shows the commit time and size of the checked-in files; in
-** this combination, it additionally shows file hashes with -h, or check-in
-** hashes with -H (when both are given, file hashes take precedence).
+** -v displays the change status, in the manner of the [[changes]] command.
+** With -r, -v shows the commit time and size of the checked-in files.
+** The -h option also shows the file hash prefix.  The -H option shows
+** the check-in hash prefix.  The -v option added implicitly if either of the
+** -h or -H options is used.  An implicit "-r current" is also added if
+** -h or -H are used and no -r is specified.
 **
 ** The -t option changes the sort order.  Without -t, files are sorted by
 ** path and name (case insensitive sort if -r).  If neither --age nor -r
@@ -860,10 +865,10 @@ void ls_cmd_rev(
 **
 ** Options:
 **   --age                 Show when each file was committed
-**   -h                    With -v and -r, show file hashes
-**   -H                    With -v and -r, show check-in hashes
-**   --hash                With -v, verify file status using hashing
-**                         rather than relying on file sizes and mtimes
+**   -h                    Show file hashes.  Implies -v and -r
+**   -H                    Show check-in hashes.  Implies -v and -r
+**   --hash                Verify file status using hashing rather than
+**                         relying on file sizes and mtimes.  Implies -v
 **   -r VERSION            The specific check-in to list
 **   -R|--repository REPO  Extract info from repository REPO
 **   -t                    Sort output in time order
@@ -895,13 +900,16 @@ void ls_cmd(void){
   showAge = find_option("age",0,0)!=0;
   zRev = find_option("r","r",1);
   timeOrder = find_option("t","t",0)!=0;
-  if( verboseFlag ){
-    useHash = find_option("hash",0,0)!=0;
-    showFHash = find_option("h","h",0)!=0;
-    showCHash = find_option("H","H",0)!=0;
-    if( showFHash ){
-      showCHash = 0;  /* file hashes take precedence */
+  useHash = find_option("hash",0,0)!=0;
+  if( useHash ) verboseFlag = 1;
+  showFHash = find_option("h","h",0)!=0;
+  showCHash = find_option("H","H",0)!=0;
+  if( showFHash || showCHash ){
+    if( showFHash && showCHash ){
+      fossil_fatal("the \"ls\" command cannot use both -h and -H at once");
     }
+    verboseFlag = 1;
+    if( zRev==0 ) zRev = "current";
   }
   treeFmt = find_option("tree",0,0)!=0;
   if( treeFmt ){

@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\shelp\stext\sfor\sthe\snew\s--reopen\soption\sin\s"fossil\sopen".
-D 2026-02-24T13:14:47.899
+C Attempt\sto\srationalize\sthe\soptions\sand\sbehavior\sof\sthe\s"ls"\scommand,\nwhile\spreserving\sbackwards\scompatibility.
+D 2026-02-24T14:00:08.759
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -401,7 +401,7 @@ F src/capabilities.c 66659300e4e4e7e145b1abb9db4d784f2f2683ac5a3d79f92e1d48c0da0
 F src/captcha.c 2394e4e21d348561a95245e9d936548abed07c2151a1c3a7f8626b1e0b35c45b
 F src/cgi.c e81ac4c3a0d3e70bd786a03c54e5a9a60cbc23efb7f4241102cd870ba11adcb0
 F src/chat.c 5b6b39018559fe496641f49f199069b4a78c4c02e30630ac76ba9ea53f51ec4d
-F src/checkin.c 952f8f46fd43b1a02d6d2cd864c67bf9245768ee36ccbb9776758535123fe387
+F src/checkin.c cacd1dfa4e9176fe787b546c4482e58949ed30a1ad09304fd9187037544ecc65
 F src/checkout.c b4403d7fa11a813fd248c9ffbea29f5cda04264a5393d4ccfd723811a3cafce4
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 12d31f0733d2fc13fc7130c5035a8cee42b9dc519b9c1ac8bb638d34563b6190
-R f2980f110d284f88d9d7e2dc1f8b1d9a
+P 6f566c8438eb9d20a0b9664e92c0aff1d509794a366d3e7467a537c25d05c3d8
+R 19a88b9d361dd78cd0cf1914f78d9c44
 U drh
-Z 9cf121d5137761418a2b78289b7ee241
+Z 8a26fb6978531d2df5db76cf5ce6d6d8
 # Remove this line to create a well-formed Fossil manifest.
