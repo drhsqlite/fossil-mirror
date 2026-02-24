@@ -6753,11 +6753,35 @@ static void decimal_result(sqlite3_context *pCtx, Decimal *p){
 }
 
 /*
+** Round a decimal value to N significant digits.  N must be positive.
+*/
+static void decimal_round(Decimal *p, int N){
+  int i;
+  int nZero;
+  if( N<1 ) return;
+  for(nZero=0; nZero<p->nDigit && p->a[nZero]==0; nZero++){}
+  N += nZero;
+  if( p->nDigit<=N ) return;
+  if( p->a[N]>4 ){
+    p->a[N-1]++;
+    for(i=N-1; i>0 && p->a[i]>9; i--){
+      p->a[i] = 0;
+      p->a[i-1]++;
+    }
+    if( p->a[0]>9 ){
+      p->a[0] = 1;
+      p->nFrac--;
+    }
+  }
+  memset(&p->a[N], 0, p->nDigit - N);
+}
+
+/*
 ** Make the given Decimal the result in an format similar to  '%+#e'.
 ** In other words, show exponential notation with leading and trailing
 ** zeros omitted.
 */
-static void decimal_result_sci(sqlite3_context *pCtx, Decimal *p){
+static void decimal_result_sci(sqlite3_context *pCtx, Decimal *p, int N){
   char *z;       /* The output buffer */
   int i;         /* Loop counter */
   int nZero;     /* Number of leading zeros */
@@ -6775,7 +6799,8 @@ static void decimal_result_sci(sqlite3_context *pCtx, Decimal *p){
     sqlite3_result_null(pCtx);
     return;
   }
-  for(nDigit=p->nDigit; nDigit>0 && p->a[nDigit-1]==0; nDigit--){}
+  if( N<1 ) N = 0;
+  for(nDigit=p->nDigit; nDigit>N && p->a[nDigit-1]==0; nDigit--){}
   for(nZero=0; nZero<nDigit && p->a[nZero]==0; nZero++){}
   nFrac = p->nFrac + (nDigit - p->nDigit);
   nDigit -= nZero;
@@ -7138,10 +7163,16 @@ static void decimalFunc(
   sqlite3_value **argv
 ){
   Decimal *p =  decimal_new(context, argv[0], 0);
-  UNUSED_PARAMETER(argc);
+  int N;
+  if( argc==2 ){
+    N = sqlite3_value_int(argv[1]);
+    if( N>0 ) decimal_round(p, N);
+  }else{
+    N = 0;
+  }
   if( p ){
     if( sqlite3_user_data(context)!=0 ){
-      decimal_result_sci(context, p);
+      decimal_result_sci(context, p, N);
     }else{
       decimal_result(context, p);
     }
@@ -7311,7 +7342,7 @@ static void decimalPow2Func(
   UNUSED_PARAMETER(argc);
   if( sqlite3_value_type(argv[0])==SQLITE_INTEGER ){
     Decimal *pA = decimalPow2(sqlite3_value_int(argv[0]));
-    decimal_result_sci(context, pA);
+    decimal_result_sci(context, pA, 0);
     decimal_free(pA);
   }
 }
@@ -7332,7 +7363,9 @@ int sqlite3_decimal_init(
     void (*xFunc)(sqlite3_context*,int,sqlite3_value**);
   } aFunc[] = {
     { "decimal",       1, 0,  decimalFunc        },
+    { "decimal",       2, 0,  decimalFunc        },
     { "decimal_exp",   1, 1,  decimalFunc        },
+    { "decimal_exp",   2, 1,  decimalFunc        },
     { "decimal_cmp",   2, 0,  decimalCmpFunc     },
     { "decimal_add",   2, 0,  decimalAddFunc     },
     { "decimal_sub",   2, 0,  decimalSubFunc     },
@@ -8388,6 +8421,38 @@ static void ieee754func_to_blob(
 }
 
 /*
+** Functions to convert between 64-bit integers and floats.
+**
+** The bit patterns are copied.  The numeric values are different.
+*/
+static void ieee754func_from_int(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  UNUSED_PARAMETER(argc);
+  if( sqlite3_value_type(argv[0])==SQLITE_INTEGER ){
+    double r;
+    sqlite3_int64 v = sqlite3_value_int64(argv[0]);
+    memcpy(&r, &v, sizeof(r));
+    sqlite3_result_double(context, r);
+  }
+}
+static void ieee754func_to_int(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  UNUSED_PARAMETER(argc);
+  if( sqlite3_value_type(argv[0])==SQLITE_FLOAT ){
+    double r = sqlite3_value_double(argv[0]);
+    sqlite3_uint64 v;
+    memcpy(&v, &r, sizeof(v));
+    sqlite3_result_int64(context, v);
+  }
+}
+
+/*
 ** SQL Function:   ieee754_inc(r,N)
 **
 ** Move the floating point value r by N quantums and return the new
@@ -8439,6 +8504,8 @@ int sqlite3_ieee_init(
     { "ieee754_exponent",  1,   2, ieee754func },
     { "ieee754_to_blob",   1,   0, ieee754func_to_blob },
     { "ieee754_from_blob", 1,   0, ieee754func_from_blob },
+    { "ieee754_to_int",    1,   0, ieee754func_to_int },
+    { "ieee754_from_int",  1,   0, ieee754func_from_int },
     { "ieee754_inc",       2,   0, ieee754inc  },
   };
   unsigned int i;
@@ -10424,12 +10491,16 @@ SQLITE_EXTENSION_INIT1
 #  include <utime.h>
 #  include <sys/time.h>
 #  define STRUCT_STAT struct stat
+#  include <limits.h>
+#  include <stdlib.h>
 #else
 /* #  include "windirent.h" */
 #  include <direct.h>
 #  define STRUCT_STAT struct _stat
 #  define chmod(path,mode) fileio_chmod(path,mode)
 #  define mkdir(path,mode) fileio_mkdir(path)
+   extern LPWSTR sqlite3_win32_utf8_to_unicode(const char*);
+   extern char *sqlite3_win32_unicode_to_utf8(LPCWSTR);
 #endif
 #include <time.h>
 #include <errno.h>
@@ -10461,12 +10532,9 @@ SQLITE_EXTENSION_INIT1
 */
 #if defined(_WIN32) || defined(WIN32)
 static int fileio_chmod(const char *zPath, int pmode){
-  sqlite3_int64 sz = strlen(zPath);
-  wchar_t *b1 = sqlite3_malloc64( (sz+1)*sizeof(b1[0]) );
   int rc;
+  wchar_t *b1 = sqlite3_win32_utf8_to_unicode(zPath);
   if( b1==0 ) return -1;
-  sz = MultiByteToWideChar(CP_UTF8, 0, zPath, sz, b1, sz);
-  b1[sz] = 0;
   rc = _wchmod(b1, pmode);
   sqlite3_free(b1);
   return rc;
@@ -10478,12 +10546,9 @@ static int fileio_chmod(const char *zPath, int pmode){
 */
 #if defined(_WIN32) || defined(WIN32)
 static int fileio_mkdir(const char *zPath){
-  sqlite3_int64 sz = strlen(zPath);
-  wchar_t *b1 = sqlite3_malloc64( (sz+1)*sizeof(b1[0]) );
   int rc;
+  wchar_t *b1 = sqlite3_win32_utf8_to_unicode(zPath);
   if( b1==0 ) return -1;
-  sz = MultiByteToWideChar(CP_UTF8, 0, zPath, sz, b1, sz);
-  b1[sz] = 0;
   rc = _wmkdir(b1);
   sqlite3_free(b1);
   return rc;
@@ -10596,50 +10661,7 @@ static sqlite3_uint64 fileTimeToUnixTime(
 
   return (fileIntervals.QuadPart - epochIntervals.QuadPart) / 10000000;
 }
-
-
-#if defined(FILEIO_WIN32_DLL) && (defined(_WIN32) || defined(WIN32))
-#  /* To allow a standalone DLL, use this next replacement function: */
-#  undef sqlite3_win32_utf8_to_unicode
-#  define sqlite3_win32_utf8_to_unicode utf8_to_utf16
-#
-LPWSTR utf8_to_utf16(const char *z){
-  int nAllot = MultiByteToWideChar(CP_UTF8, 0, z, -1, NULL, 0);
-  LPWSTR rv = sqlite3_malloc(nAllot * sizeof(WCHAR));
-  if( rv!=0 && 0 < MultiByteToWideChar(CP_UTF8, 0, z, -1, rv, nAllot) )
-    return rv;
-  sqlite3_free(rv);
-  return 0;
-}
-#endif
-
-/*
-** This function attempts to normalize the time values found in the stat()
-** buffer to UTC.  This is necessary on Win32, where the runtime library
-** appears to return these values as local times.
-*/
-static void statTimesToUtc(
-  const char *zPath,
-  STRUCT_STAT *pStatBuf
-){
-  HANDLE hFindFile;
-  WIN32_FIND_DATAW fd;
-  LPWSTR zUnicodeName;
-  extern LPWSTR sqlite3_win32_utf8_to_unicode(const char*);
-  zUnicodeName = sqlite3_win32_utf8_to_unicode(zPath);
-  if( zUnicodeName ){
-    memset(&fd, 0, sizeof(WIN32_FIND_DATAW));
-    hFindFile = FindFirstFileW(zUnicodeName, &fd);
-    if( hFindFile!=NULL ){
-      pStatBuf->st_ctime = (time_t)fileTimeToUnixTime(&fd.ftCreationTime);
-      pStatBuf->st_atime = (time_t)fileTimeToUnixTime(&fd.ftLastAccessTime);
-      pStatBuf->st_mtime = (time_t)fileTimeToUnixTime(&fd.ftLastWriteTime);
-      FindClose(hFindFile);
-    }
-    sqlite3_free(zUnicodeName);
-  }
-}
-#endif
+#endif /* _WIN32 */
 
 /*
 ** This function is used in place of stat().  On Windows, special handling
@@ -10651,14 +10673,22 @@ static int fileStat(
   STRUCT_STAT *pStatBuf
 ){
 #if defined(_WIN32)
-  sqlite3_int64 sz = strlen(zPath);
-  wchar_t *b1 = sqlite3_malloc64( (sz+1)*sizeof(b1[0]) );
   int rc;
+  wchar_t *b1 = sqlite3_win32_utf8_to_unicode(zPath);
   if( b1==0 ) return 1;
-  sz = MultiByteToWideChar(CP_UTF8, 0, zPath, sz, b1, sz);
-  b1[sz] = 0;
   rc = _wstat(b1, pStatBuf);
-  if( rc==0 ) statTimesToUtc(zPath, pStatBuf);
+  if( rc==0 ){
+    HANDLE hFindFile;
+    WIN32_FIND_DATAW fd;
+    memset(&fd, 0, sizeof(WIN32_FIND_DATAW));
+    hFindFile = FindFirstFileW(b1, &fd);
+    if( hFindFile!=NULL ){
+      pStatBuf->st_ctime = (time_t)fileTimeToUnixTime(&fd.ftCreationTime);
+      pStatBuf->st_atime = (time_t)fileTimeToUnixTime(&fd.ftLastAccessTime);
+      pStatBuf->st_mtime = (time_t)fileTimeToUnixTime(&fd.ftLastWriteTime);
+      FindClose(hFindFile);
+    }
+  }
   sqlite3_free(b1);
   return rc;
 #else
@@ -11423,6 +11453,154 @@ static int fsdirRegister(sqlite3 *db){
 # define fsdirRegister(x) SQLITE_OK
 #endif
 
+/*
+** This version of realpath() works on any system.  The string
+** returned is held in memory allocated using sqlite3_malloc64().
+** The caller is responsible for calling sqlite3_free().
+*/
+static char *portable_realpath(const char *zPath){
+#if !defined(_WIN32)       /* BEGIN unix */
+
+  char *zOut = 0;          /* Result */
+  char *z;                 /* Temporary buffer */
+#if defined(PATH_MAX)
+  char zBuf[PATH_MAX+1];   /* Space for the temporary buffer */
+#endif
+
+  if( zPath==0 ) return 0;
+#if defined(PATH_MAX)
+  z = realpath(zPath, zBuf);
+  if( z ){
+    zOut = sqlite3_mprintf("%s", zBuf);
+  }
+#endif /* defined(PATH_MAX) */
+  if( zOut==0 ){
+    /* Try POSIX.1-2008 malloc behavior */
+    z = realpath(zPath, NULL);
+    if( z ){
+      zOut = sqlite3_mprintf("%s", z);
+      free(z);
+    }
+  }
+  return zOut;
+
+#else /* End UNIX, Begin WINDOWS */
+
+  wchar_t *zPath16;        /* UTF16 translation of zPath */
+  char *zOut = 0;          /* Result */
+  wchar_t *z = 0;          /* Temporary buffer */
+
+  if( zPath==0 ) return 0;
+
+  zPath16 = sqlite3_win32_utf8_to_unicode(zPath);
+  if( zPath16==0 ) return 0;
+  z = _wfullpath(NULL, zPath16, 0);
+  sqlite3_free(zPath16);
+  if( z ){
+    zOut = sqlite3_win32_unicode_to_utf8(z);
+    free(z);
+  }
+  return zOut;
+
+#endif /* End WINDOWS, Begin common code */
+}
+
+/*
+** SQL function:   realpath(X)
+**
+** Try to convert file or pathname X into its real, absolute pathname.
+** Return NULL if unable.
+**
+** The file or directory X is not required to exist.  The answer is formed
+** by calling system realpath() on the prefix of X that does exist and
+** appending the tail of X that does not (yet) exist.
+*/
+static void realpathFunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zPath;    /* Original input path */
+  char *zCopy;          /* An editable copy of zPath */
+  char *zOut;           /* The result */
+  char cSep = 0;        /* Separator turned into \000 */
+  size_t len;           /* Prefix length before cSep */
+#ifdef _WIN32
+  const int isWin = 1;
+#else
+  const int isWin = 0;
+#endif
+
+  (void)argc;
+  zPath = (const char*)sqlite3_value_text(argv[0]);
+  if( zPath==0 ) return;
+  if( zPath[0]==0 ) zPath = ".";
+  zCopy = sqlite3_mprintf("%s",zPath);
+  len = strlen(zCopy);
+  while( len>1 && (zCopy[len-1]=='/' || (isWin && zCopy[len-1]=='\\')) ){
+    len--;
+  }
+  zCopy[len] = 0;
+  while( 1 /*exit-by-break*/ ){
+    zOut = portable_realpath(zCopy);
+    zCopy[len] = cSep;
+    if( zOut ){
+      if( cSep ){
+        zOut = sqlite3_mprintf("%z%s",zOut,&zCopy[len]);
+      }
+      break;
+    }else{
+      size_t i = len-1;
+      while( i>0 ){
+        if( zCopy[i]=='/' || (isWin && zCopy[i]=='\\') ) break;
+        i--;
+      }
+      if( i<=0 ){
+        if( zCopy[0]=='/' ){
+          zOut = zCopy;
+          zCopy = 0;
+        }else if( (zOut = portable_realpath("."))!=0 ){
+          zOut = sqlite3_mprintf("%z/%s", zOut, zCopy);
+        }          
+        break;
+      }
+      cSep = zCopy[i];
+      zCopy[i] = 0;
+      len = i;
+    }
+  }
+  sqlite3_free(zCopy);
+  if( zOut ){
+    /* Simplify any "/./" or "/../" that might have snuck into the
+    ** pathname due to appending of zCopy.  We only have to consider
+    ** unix "/" separators, because the _wfilepath() system call on
+    ** Windows will have already done this simplification for us. */
+    size_t i, j, n;
+    n = strlen(zOut);
+    for(i=j=0; i<n; i++){
+      if( zOut[i]=='/' ){
+        if( zOut[i+1]=='/' ) continue;
+        if( zOut[i+1]=='.' && i+2<n && zOut[i+2]=='/' ){
+          i += 1;
+          continue;
+        }
+        if( zOut[i+1]=='.' && i+3<n && zOut[i+2]=='.' && zOut[i+3]=='/' ){
+          while( j>0 && zOut[j-1]!='/' ){ j--; }
+          if( j>0 ){ j--; }
+          i += 2;
+          continue;
+        }
+      }
+      zOut[j++] = zOut[i];
+    }
+    zOut[j] = 0;
+
+    /* Return the result */
+    sqlite3_result_text(context, zOut, -1, sqlite3_free);
+  }
+}
+
+
 #ifdef _WIN32
 
 #endif
@@ -11448,6 +11626,11 @@ int sqlite3_fileio_init(
   }
   if( rc==SQLITE_OK ){
     rc = fsdirRegister(db);
+  }
+  if( rc==SQLITE_OK ){
+    rc = sqlite3_create_function(db, "realpath", 1,
+                                 SQLITE_UTF8, 0,
+                                 realpathFunc, 0, 0);
   }
   return rc;
 }
@@ -29884,11 +30067,15 @@ static int arRemoveCommand(ArCommand *pAr){
 */
 static int arExtractCommand(ArCommand *pAr){
   const char *zSql1 =
-    "SELECT "
-    " ($dir || name),"
-    " writefile(($dir || name), %s, mode, mtime) "
-    "FROM %s WHERE (%s) AND (data IS NULL OR $dirOnly = 0)"
-    " AND name NOT GLOB '*..[/\\]*'";
+    "WITH dest(dpath,dlen) AS (SELECT realpath($dir),length(realpath($dir)))\n"
+    "SELECT ($dir || name),\n"
+    "       CASE WHEN $dryrun THEN 0\n"
+    "            ELSE writefile($dir||name, %s, mode, mtime) END\n"
+    "  FROM dest CROSS JOIN %s\n"
+    " WHERE (%s)\n"
+    "   AND (data IS NULL OR $pass==0)\n"                /* Dirs both passes */
+    "   AND dpath=substr(realpath($dir||name),1,dlen)\n" /* No escapes */
+    "   AND name NOT GLOB '*..[/\\]*'\n";                /* No /../ in paths */
 
   const char *azExtraArg[] = {
     "sqlar_uncompress(data, sz)",
@@ -29923,24 +30110,28 @@ static int arExtractCommand(ArCommand *pAr){
   if( rc==SQLITE_OK ){
     j = sqlite3_bind_parameter_index(pSql, "$dir");
     sqlite3_bind_text(pSql, j, zDir, -1, SQLITE_STATIC);
+    j = sqlite3_bind_parameter_index(pSql, "$dryrun");
+    sqlite3_bind_int(pSql, j, pAr->bDryRun);
 
-    /* Run the SELECT statement twice. The first time, writefile() is called
-    ** for all archive members that should be extracted. The second time,
-    ** only for the directories. This is because the timestamps for
-    ** extracted directories must be reset after they are populated (as
-    ** populating them changes the timestamp).  */
+    /* Run the SELECT statement twice
+    **   (0) writefile() all files and directories
+    **   (1) writefile() for directory again
+    ** The second pass is so that the timestamps for extracted directories
+    ** will be reset to the value in the archive, since populating them
+    ** in the first pass will have changed the timestamp. */
     for(i=0; i<2; i++){
-      j = sqlite3_bind_parameter_index(pSql, "$dirOnly");
+      j = sqlite3_bind_parameter_index(pSql, "$pass");
       sqlite3_bind_int(pSql, j, i);
       if( pAr->bDryRun ){
         cli_printf(pAr->out, "%s\n", sqlite3_sql(pSql));
-      }else{
-        while( rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pSql) ){
-          if( i==0 && pAr->bVerbose ){
-            cli_printf(pAr->out, "%s\n", sqlite3_column_text(pSql, 0));
-          }
+        if( pAr->bVerbose==0 ) break;
+      }
+      while( rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pSql) ){
+        if( i==0 && pAr->bVerbose ){
+          cli_printf(pAr->out, "%s\n", sqlite3_column_text(pSql, 0));
         }
       }
+      if( pAr->bDryRun ) break;
       shellReset(&rc, pSql);
     }
     shellFinalize(&rc, pSql);
@@ -32486,6 +32677,7 @@ static int do_meta_command(const char *zLine, ShellState *p){
         { "enable_trigger",     SQLITE_DBCONFIG_ENABLE_TRIGGER        },
         { "enable_view",        SQLITE_DBCONFIG_ENABLE_VIEW           },
         { "fts3_tokenizer",     SQLITE_DBCONFIG_ENABLE_FTS3_TOKENIZER },
+        { "fp_digits",          SQLITE_DBCONFIG_FP_DIGITS             },
         { "legacy_alter_table", SQLITE_DBCONFIG_LEGACY_ALTER_TABLE    },
         { "legacy_file_format", SQLITE_DBCONFIG_LEGACY_FILE_FORMAT    },
         { "load_extension",     SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION },
@@ -32502,11 +32694,19 @@ static int do_meta_command(const char *zLine, ShellState *p){
     for(ii=0; ii<ArraySize(aDbConfig); ii++){
       if( nArg>1 && cli_strcmp(azArg[1], aDbConfig[ii].zName)!=0 ) continue;
       if( nArg>=3 ){
-        sqlite3_db_config(p->db, aDbConfig[ii].op, booleanValue(azArg[2]), 0);
+        if( aDbConfig[ii].op==SQLITE_DBCONFIG_FP_DIGITS ){
+          sqlite3_db_config(p->db, aDbConfig[ii].op, atoi(azArg[2]), 0);
+        }else{
+          sqlite3_db_config(p->db, aDbConfig[ii].op, booleanValue(azArg[2]), 0);
+        }
       }
       sqlite3_db_config(p->db, aDbConfig[ii].op, -1, &v);
-      cli_printf(p->out, "%19s %s\n",
-                      aDbConfig[ii].zName, v ? "on" : "off");
+      if( aDbConfig[ii].op==SQLITE_DBCONFIG_FP_DIGITS ){
+        cli_printf(p->out, "%19s %d\n", aDbConfig[ii].zName, v);
+      }else{
+        cli_printf(p->out, "%19s %s\n",
+                        aDbConfig[ii].zName, v ? "on" : "off");
+      }
       if( nArg>1 ) break;
     }
     if( nArg>1 && ii==ArraySize(aDbConfig) ){
@@ -36565,7 +36765,7 @@ int SQLITE_CDECL main(int argc, char **argv){
       z = cmdline_option_value(argc,argv,++i);
       if( z[0]=='.' ){
         rc = do_meta_command(z, &data);
-        if( rc && bail_on_error ){
+        if( rc && (bail_on_error || rc==2) ){
           if( rc==2 ) rc = 0;
           goto shell_main_exit;
         }
