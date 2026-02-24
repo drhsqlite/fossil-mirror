@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\stesting.
-D 2026-02-24T00:22:44.280
+C In\sthe\shelp\stext\sfor\s"fossil\sannotate",\smove\sthe\s-t\sand\s-T\soptions\sinto\nalphabetical\sorder.
+D 2026-02-24T12:59:02.033
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -420,7 +420,7 @@ F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c f08accd177876a9d41ad36de0559e5bdc07e7f368ac58790634c2dcd75c30d9f
 F src/descendants.c 3858bbe661fec7e3226ba55cdfa3f513c178a8f95966a995296ec646c15d2ee6
-F src/diff.c b3a1a3939db04092b74612b112302d8e78aefd87a71a2a75eef23cd7fba4f42d
+F src/diff.c 3e46c56274896ac8ebc3035a32060bf5898f6cd2b6540816d62d6649125eb3bd
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
 F src/diffcmd.c f529b1130c87c6bf5562d241bad922274893cf0156bf26f0e420652c4a1ea685
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c9d32ae6fa47f290cc822173071c632d3433285f9d45ca4a4bca0b0dcedca7d
-R bc5469d717c1c3ead5893563e3e00dd6
+P b8ab8b3d414c23590025ff38f31e433c2074061563b7ea45e48695e7e1a95151
+R 8d11c28d40e02914fb2d217e3eb295f8
 U drh
-Z 565d5d8d82da1e8f284dde45dc3ef110
+Z b490a2e9956ca8983be6feecbfbeca26
 # Remove this line to create a well-formed Fossil manifest.

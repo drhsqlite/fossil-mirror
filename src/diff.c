@@ -3959,11 +3959,11 @@ void annotation_page(void){
 **                               root of the repository. Set to the name of
 **                               the main branch (usually "trunk") or
 **                               similar for a reverse annotation.
-**   -w|--ignore-all-space       Ignore white space when comparing lines
-**   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **   -t                          Show latest check-in and its author for each
 **                               tracked file in the tree as of VERSION
 **   -T                          Like -t, plus comment snippet
+**   -w|--ignore-all-space       Ignore white space when comparing lines
+**   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
 ** See also: [[info]], [[finfo]], [[timeline]]
 */
