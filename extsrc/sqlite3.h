@@ -148,10 +148,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.52.0"
 #define SQLITE_VERSION_NUMBER 3052000
-#define SQLITE_SOURCE_ID      "2026-02-23 19:51:54 3ca1ed81c4fa41f5f9fdbebf0929dd8421a4e29f95764fe1027d4d8706a41480"
+#define SQLITE_SOURCE_ID      "2026-02-27 22:59:46 0780bce854b962fb2d4a1a19c55c9b5790a9669f26e1ff8b5f1f1733cfc647e0"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2026-02-23T19:51:54.706Z"
+#define SQLITE_SCM_DATETIME   "2026-02-27T22:59:46.633Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4453,19 +4453,20 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** logs the error.
 **
 ** [[SQLITE_PREPARE_FROM_DDL]] <dt>SQLITE_PREPARE_FROM_DDL</dt>
-** <dd>The SQLITE_PREPARE_FROM_DDL flag causes the SQL compiler to behave as if
-** the SQL statement is part of a database schema. This makes a difference
-** when the [SQLITE_DBCONFIG_TRUSTED_SCHEMA] option is set to off.
-** When this option is used and SQLITE_DBCONFIG_TRUSTED_SCHEMA is off,
-** SQL functions may not be called unless they are tagged with
-** [SQLITE_INNOCUOUS] and virtual tables may not be used unless tagged
-** with [SQLITE_VTAB_INNOCUOUS].  Use the SQLITE_PREPARE_FROM_DDL option
-** when preparing SQL that is derived from parts of the database
-** schema. In particular, virtual table implementations that
-** run SQL statements based on the arguments to their CREATE VIRTUAL
-** TABLE statement should use [sqlite3_prepare_v3()] and set the
-** SQLITE_PREPARE_FROM_DLL flag to prevent bypass of the
-** [SQLITE_DBCONFIG_TRUSTED_SCHEMA] security checks.
+** <dd>The SQLITE_PREPARE_FROM_DDL flag causes the SQL compiler to enforce
+** security constraints that would otherwise only be enforced when parsing
+** the database schema.  In other words, the SQLITE_PREPARE_FROM_DDL flag
+** causes the SQL compiler to treat the SQL statement being prepared as if
+** it had come from an attacker.  When SQLITE_PREPARE_FROM_DDL is used and
+** [SQLITE_DBCONFIG_TRUSTED_SCHEMA] is off, SQL functions may only be called
+** if they are tagged with [SQLITE_INNOCUOUS] and virtual tables may only
+** be used if they are tagged with [SQLITE_VTAB_INNOCUOUS].  Best practice
+** is to use the SQLITE_PREPARE_FROM_DDL option when preparing any SQL that
+** is derived from parts of the database schema. In particular, virtual
+** table implementations that run SQL statements that are derived from
+** arguments to their CREATE VIRTUAL TABLE statement should always use
+** [sqlite3_prepare_v3()] and set the SQLITE_PREPARE_FROM_DDL flag to
+** prevent bypass of the [SQLITE_DBCONFIG_TRUSTED_SCHEMA] security checks.
 ** </dl>
 */
 #define SQLITE_PREPARE_PERSISTENT              0x01
