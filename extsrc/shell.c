@@ -25446,6 +25446,7 @@ static int safeModeAuth(
     "fts3_tokenizer",
     "load_extension",
     "readfile",
+    "realpath",
     "writefile",
     "zipfile",
     "zipfile_cds",
