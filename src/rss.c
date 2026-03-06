@@ -26,6 +26,20 @@ void forum_render_to_html(struct Blob*, const char*, const char*);
 void technote_render_to_html(struct Blob*, int);
 
 /*
+** Return the technote id (event- tag suffix) for rid, or NULL.
+** Caller must free the returned string.
+*/
+static char *rss_technote_id(int rid){
+  return db_text(0,
+    "SELECT substr(tagname,7) FROM tag, tagxref"
+    " WHERE tag.tagid=tagxref.tagid"
+    "   AND tagxref.rid=%d"
+    "   AND tagname GLOB 'event-*'",
+    rid
+  );
+}
+
+/*
 ** Append text to pOut, escaping any CDATA terminators.
 */
 static void rss_cdata_append(Blob *pOut, const char *zIn, int nIn){
@@ -382,6 +396,7 @@ void page_timeline_rss(void){
     int nParent = db_column_int(&q, 7);
     const char *zTagList = db_column_text(&q, 8);
     Manifest *pPost = 0;
+    char *zTechnoteId = 0;
     Blob contentHtml = BLOB_INITIALIZER;
     int bForumContent = 0;
     time_t ts;
@@ -433,6 +448,7 @@ void page_timeline_rss(void){
         }
       }
     }else if( zEType[0]=='e' ){
+      zTechnoteId = rss_technote_id(rid);
       technote_render_to_html(&contentHtml, rid);
       if( blob_size(&contentHtml)>0 ){
         Blob normalized = BLOB_INITIALIZER;
@@ -448,7 +464,11 @@ void page_timeline_rss(void){
     }
     @     <item>
     @       <title>%s(zPrefix)%h(zCom)%h(zSuffix)</title>
-    @       <link>%s(g.zBaseURL)/info/%s(zId)</link>
+    if( zEType[0]=='e' && zTechnoteId!=0 ){
+      @       <link>%s(g.zBaseURL)/technote/%s(zTechnoteId)</link>
+    }else{
+      @       <link>%s(g.zBaseURL)/info/%s(zId)</link>
+    }
     @       <description>%s(zPrefix)%h(zCom)%h(zSuffix)</description>
     @       <pubDate>%s(zDate)</pubDate>
     @       <dc:creator>%h(zAuthor)</dc:creator>
@@ -465,6 +485,7 @@ void page_timeline_rss(void){
     }
     @     </item>
     if( pPost ) manifest_destroy(pPost);
+    free(zTechnoteId);
     blob_reset(&contentHtml);
     free(zDate);
     free(zSuffix);
@@ -655,6 +676,7 @@ void cmd_timeline_rss(void){
     int nParent = db_column_int(&q, 7);
     const char *zTagList = db_column_text(&q, 8);
     Manifest *pPost = 0;
+    char *zTechnoteId = 0;
     Blob contentHtml = BLOB_INITIALIZER;
     int bForumContent = 0;
     time_t ts;
@@ -701,6 +723,7 @@ void cmd_timeline_rss(void){
         }
       }
     }else if( zEType[0]=='e' ){
+      zTechnoteId = rss_technote_id(rid);
       technote_render_to_html(&contentHtml, rid);
       if( blob_size(&contentHtml)>0 ){
         Blob normalized = BLOB_INITIALIZER;
@@ -716,7 +739,11 @@ void cmd_timeline_rss(void){
     }
     fossil_print("<item>");
     fossil_print("<title>%s%h%h</title>\n", zPrefix, zCom, zSuffix);
-    fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zId);
+    if( zEType[0]=='e' && zTechnoteId!=0 ){
+      fossil_print("<link>%s/technote/%s</link>\n", zBaseURL, zTechnoteId);
+    }else{
+      fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zId);
+    }
     fossil_print("<description>%s%h%h</description>\n", zPrefix, zCom, zSuffix);
     fossil_print("<pubDate>%s</pubDate>\n", zDate);
     fossil_print("<dc:creator>%h</dc:creator>\n", zAuthor);
@@ -733,6 +760,7 @@ void cmd_timeline_rss(void){
     }
     fossil_print("</item>\n");
     if( pPost ) manifest_destroy(pPost);
+    free(zTechnoteId);
     blob_reset(&contentHtml);
     free(zDate);
     free(zSuffix);
