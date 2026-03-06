@@ -2568,7 +2568,7 @@ void wiki_convert_to_html(
 );
 
 /* Render a technote's content (rid) to HTML in an output blob. */
-void technote_render_to_html(Blob *pOut, int rid);
+char *technote_render_to_html(Blob *pOut, int rid);
 #endif
 
 /*
@@ -2670,14 +2670,18 @@ void wiki_convert_to_html(
 
 /*
 ** Render technote content into an output blob as HTML.
+** Return the technote id.  The caller must free the result.
 */
-void technote_render_to_html(Blob *pOut, int rid){
+char *technote_render_to_html(Blob *pOut, int rid){
   Manifest *pNote;
-  if( pOut==0 ) return;
+  char *zEventId = 0;
+  if( pOut==0 ) return 0;
   pNote = manifest_get(rid, CFTYPE_EVENT, 0);
-  if( pNote==0 ) return;
+  if( pNote==0 ) return 0;
+  if( pNote->zEventId ) zEventId = mprintf("%s", pNote->zEventId);
   wiki_convert_to_html(pOut, pNote->zMimetype, pNote->zWiki, DOCSRC_WIKI);
   manifest_destroy(pNote);
+  return zEventId;
 }
 
 /*

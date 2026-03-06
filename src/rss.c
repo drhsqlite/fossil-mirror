@@ -23,21 +23,7 @@
 #include <assert.h>
 
 void forum_render_to_html(struct Blob*, const char*, const char*);
-void technote_render_to_html(struct Blob*, int);
-
-/*
-** Return the technote id (event- tag suffix) for rid, or NULL.
-** Caller must free the returned string.
-*/
-static char *rss_technote_id(int rid){
-  return db_text(0,
-    "SELECT substr(tagname,7) FROM tag, tagxref"
-    " WHERE tag.tagid=tagxref.tagid"
-    "   AND tagxref.rid=%d"
-    "   AND tagname GLOB 'event-*'",
-    rid
-  );
-}
+char *technote_render_to_html(struct Blob*, int);
 
 /*
 ** Append text to pOut, escaping any CDATA terminators.
@@ -284,9 +270,9 @@ void page_timeline_rss(void){
   if( bHasForum ){
     blob_append_sql(&bSQL,
       " AND (event.type!='f' OR event.objid IN ("
-      "SELECT fpid FROM forumpost AS f "
-      "WHERE NOT EXISTS(SELECT 1 FROM forumpost AS nx "
-      "WHERE nx.fprev=f.fpid)))"
+      "SELECT fpid FROM forumpost "
+      "WHERE fpid NOT IN (SELECT fprev FROM forumpost WHERE fprev IS NOT NULL)"
+      "))"
     );
   }else{
     blob_append_sql(&bSQL, " AND event.type!='f'");
@@ -448,8 +434,7 @@ void page_timeline_rss(void){
         }
       }
     }else if( zEType[0]=='e' ){
-      zTechnoteId = rss_technote_id(rid);
-      technote_render_to_html(&contentHtml, rid);
+      zTechnoteId = technote_render_to_html(&contentHtml, rid);
       if( blob_size(&contentHtml)>0 ){
         Blob normalized = BLOB_INITIALIZER;
         rss_make_abs_links(&normalized, blob_str(&base),
@@ -584,9 +569,9 @@ void cmd_timeline_rss(void){
   if( bHasForum ){
     blob_append_sql(&bSQL,
       " AND (event.type!='f' OR event.objid IN ("
-      "SELECT fpid FROM forumpost AS f "
-      "WHERE NOT EXISTS(SELECT 1 FROM forumpost AS nx "
-      "WHERE nx.fprev=f.fpid)))"
+      "SELECT fpid FROM forumpost "
+      "WHERE fpid NOT IN (SELECT fprev FROM forumpost WHERE fprev IS NOT NULL)"
+      "))"
     );
   }else{
     blob_append_sql(&bSQL, " AND event.type!='f'");
@@ -723,8 +708,7 @@ void cmd_timeline_rss(void){
         }
       }
     }else if( zEType[0]=='e' ){
-      zTechnoteId = rss_technote_id(rid);
-      technote_render_to_html(&contentHtml, rid);
+      zTechnoteId = technote_render_to_html(&contentHtml, rid);
       if( blob_size(&contentHtml)>0 ){
         Blob normalized = BLOB_INITIALIZER;
         rss_make_abs_links(&normalized, blob_str(&base),
