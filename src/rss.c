@@ -23,6 +23,7 @@
 #include <assert.h>
 
 void forum_render_to_html(struct Blob*, const char*, const char*);
+void technote_render_to_html(struct Blob*, int);
 
 /*
 ** Append text to pOut, escaping any CDATA terminators.
@@ -431,6 +432,19 @@ void page_timeline_rss(void){
           bForumContent = 1;
         }
       }
+    }else if( zEType[0]=='e' ){
+      technote_render_to_html(&contentHtml, rid);
+      if( blob_size(&contentHtml)>0 ){
+        Blob normalized = BLOB_INITIALIZER;
+        rss_make_abs_links(&normalized, blob_str(&base),
+                           blob_str(&top), blob_str(&contentHtml),
+                           blob_size(&contentHtml));
+        blob_reset(&contentHtml);
+        blob_append(&contentHtml, blob_str(&normalized),
+                    blob_size(&normalized));
+        blob_reset(&normalized);
+        bForumContent = 1;
+      }
     }
     @     <item>
     @       <title>%s(zPrefix)%h(zCom)%h(zSuffix)</title>
@@ -685,6 +699,19 @@ void cmd_timeline_rss(void){
           blob_reset(&normalized);
           bForumContent = 1;
         }
+      }
+    }else if( zEType[0]=='e' ){
+      technote_render_to_html(&contentHtml, rid);
+      if( blob_size(&contentHtml)>0 ){
+        Blob normalized = BLOB_INITIALIZER;
+        rss_make_abs_links(&normalized, blob_str(&base),
+                           blob_str(&top), blob_str(&contentHtml),
+                           blob_size(&contentHtml));
+        blob_reset(&contentHtml);
+        blob_append(&contentHtml, blob_str(&normalized),
+                    blob_size(&normalized));
+        blob_reset(&normalized);
+        bForumContent = 1;
       }
     }
     fossil_print("<item>");
