@@ -21,6 +21,8 @@
 #include <assert.h>
 #include "forum.h"
 
+void wiki_convert_to_html(struct Blob*, const char*, const char*, int);
+
 /*
 ** Default to using Markdown markup
 */
@@ -682,6 +684,18 @@ void forum_render(
   if( zClass ){
     @ </div>
   }
+}
+
+/*
+** Render forum post content into an output blob as HTML.
+** The output is suitable for embedding in RSS content:encoded.
+*/
+void forum_render_to_html(
+  Blob *pOut,              /* Output HTML is appended here */
+  const char *zMimetype,   /* Mimetype of the message */
+  const char *zContent     /* Content of the message */
+){
+  wiki_convert_to_html(pOut, zMimetype, zContent, DOCSRC_FORUM);
 }
 
 /*
