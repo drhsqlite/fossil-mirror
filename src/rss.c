@@ -459,7 +459,7 @@ void page_timeline_rss(void){
     ts = (time_t)((db_column_double(&q,2) - 2440587.5)*86400.0);
     zDate = cgi_rfc822_datestamp(ts);
 
-    if( zEType[0]=='c' ){
+    if( zEType && zEType[0]=='c' ){
       if( nParent>1 && nChild>1 ){
         zPrefix = "*MERGE/FORK* ";
       }else if( nParent>1 ){
@@ -467,7 +467,7 @@ void page_timeline_rss(void){
       }else if( nChild>1 ){
         zPrefix = "*FORK* ";
       }
-    }else if( zEType[0]=='w' ){
+    }else if( zEType && zEType[0]=='w' ){
       switch(zCom ? zCom[0] : 0){
         case ':': zPrefix = "Edit wiki page: "; break;
         case '+': zPrefix = "Add wiki page: "; break;
@@ -482,35 +482,29 @@ void page_timeline_rss(void){
 
     bHasContent = rss_render_item_html(&contentHtml, &zTechnoteId, rid, zEType,
                                        blob_str(&base), blob_str(&top));
-    if( bHasContent<0 ){
-      free(zTechnoteId);
-      blob_reset(&contentHtml);
-      free(zDate);
-      free(zSuffix);
-      continue;
+    if( bHasContent>=0 ){
+      @     <item>
+      @       <title>%s(zPrefix)%h(zCom)%h(zSuffix)</title>
+      if( zTechnoteId ){
+        @       <link>%s(g.zBaseURL)/info/%s(zTechnoteId)</link>
+      }else{
+        @       <link>%s(g.zBaseURL)/info/%s(zId)</link>
+      }
+      if( bHasContent ){
+        rss_web_emit_html_content(&contentHtml);
+      }else{
+        @       <description>%s(zPrefix)%h(zCom)%h(zSuffix)</description>
+      }
+      @       <pubDate>%s(zDate)</pubDate>
+      @       <dc:creator>%h(zAuthor)</dc:creator>
+      @       <guid>%s(g.zBaseURL)/info/%s(zId)</guid>
+      @     </item>
+      nLine++;
     }
-
-    @     <item>
-    @       <title>%s(zPrefix)%h(zCom)%h(zSuffix)</title>
-    if( zTechnoteId!=0 ){
-      @       <link>%s(g.zBaseURL)/info/%s(zTechnoteId)</link>
-    }else{
-      @       <link>%s(g.zBaseURL)/info/%s(zId)</link>
-    }
-    if( bHasContent ){
-      rss_web_emit_html_content(&contentHtml);
-    }else{
-      @       <description>%s(zPrefix)%h(zCom)%h(zSuffix)</description>
-    }
-    @       <pubDate>%s(zDate)</pubDate>
-    @       <dc:creator>%h(zAuthor)</dc:creator>
-    @       <guid>%s(g.zBaseURL)/info/%s(zId)</guid>
-    @     </item>
     free(zTechnoteId);
     blob_reset(&contentHtml);
     free(zDate);
     free(zSuffix);
-    nLine++;
   }
 
   db_finalize(&q);
@@ -705,7 +699,7 @@ void cmd_timeline_rss(void){
     ts = (time_t)((db_column_double(&q,2) - 2440587.5)*86400.0);
     zDate = cgi_rfc822_datestamp(ts);
 
-    if( zEType[0]=='c' ){
+    if( zEType && zEType[0]=='c' ){
       if( nParent>1 && nChild>1 ){
         zPrefix = "*MERGE/FORK* ";
       }else if( nParent>1 ){
@@ -713,7 +707,7 @@ void cmd_timeline_rss(void){
       }else if( nChild>1 ){
         zPrefix = "*FORK* ";
       }
-    }else if( zEType[0]=='w' ){
+    }else if( zEType && zEType[0]=='w' ){
       switch(zCom ? zCom[0] : 0){
         case ':': zPrefix = "Edit wiki page: "; break;
         case '+': zPrefix = "Add wiki page: "; break;
@@ -728,35 +722,30 @@ void cmd_timeline_rss(void){
 
     bHasContent = rss_render_item_html(&contentHtml, &zTechnoteId, rid, zEType,
                                        blob_str(&base), blob_str(&top));
-    if( bHasContent<0 ){
-      free(zTechnoteId);
-      blob_reset(&contentHtml);
-      free(zDate);
-      free(zSuffix);
-      continue;
+    if( bHasContent>=0 ){
+      fossil_print("<item>");
+      fossil_print("<title>%s%h%h</title>\n", zPrefix, zCom, zSuffix);
+      if( zTechnoteId!=0 ){
+        fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zTechnoteId);
+      }else{
+        fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zId);
+      }
+      if( bHasContent ){
+        rss_cli_emit_html_content(&contentHtml);
+      }else{
+        fossil_print("<description>%s%h%h</description>\n",
+                     zPrefix, zCom, zSuffix);
+      }
+      fossil_print("<pubDate>%s</pubDate>\n", zDate);
+      fossil_print("<dc:creator>%h</dc:creator>\n", zAuthor);
+      fossil_print("<guid>%s/info/%s</guid>\n", g.zBaseURL, zId);
+      fossil_print("</item>\n");
+      nLine++;
     }
-    fossil_print("<item>");
-    fossil_print("<title>%s%h%h</title>\n", zPrefix, zCom, zSuffix);
-    if( zTechnoteId!=0 ){
-      fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zTechnoteId);
-    }else{
-      fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zId);
-    }
-    if( bHasContent ){
-      rss_cli_emit_html_content(&contentHtml);
-    }else{
-      fossil_print("<description>%s%h%h</description>\n",
-                   zPrefix, zCom, zSuffix);
-    }
-    fossil_print("<pubDate>%s</pubDate>\n", zDate);
-    fossil_print("<dc:creator>%h</dc:creator>\n", zAuthor);
-    fossil_print("<guid>%s/info/%s</guid>\n", g.zBaseURL, zId);
-    fossil_print("</item>\n");
     free(zTechnoteId);
     blob_reset(&contentHtml);
     free(zDate);
     free(zSuffix);
-    nLine++;
   }
 
   db_finalize(&q);
