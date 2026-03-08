@@ -190,59 +190,16 @@ const char *wiki_filter_mimetypes(const char *zMimetype){
 }
 
 /*
-** Render wiki text according to its mimetype.
-**
-**   text/x-fossil-wiki      Fossil wiki
-**   text/x-markdown         Markdown
-**   text/x-pikchr           Pikchr
-**   anything else...        Plain text
-**
-** If zMimetype is a null pointer, then use "text/x-fossil-wiki".
+** Shared implementation for wiki_render_by_mimetype() and
+** wiki_convert_to_html().  Appends HTML to pOut.
 */
-void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
-  if( zMimetype==0 || fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
-    wiki_convert(pWiki, 0, 0);
-  }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
-    Blob tail = BLOB_INITIALIZER;
-    markdown_to_html(pWiki, 0, &tail);
-    safe_html(&tail);
-    @ %s(blob_str(&tail))
-    blob_reset(&tail);
-  }else if( fossil_strcmp(zMimetype, "text/x-pikchr")==0 ){
-    int isPopup = P("popup")!=0;
-    const char *zPikchr = blob_str(pWiki);
-    int w, h;
-    char *zOut = pikchr(zPikchr, "pikchr", 0, &w, &h);
-    if( w>0 ){
-      if( isPopup ) cgi_set_content_type("image/svg+xml");
-      else{
-        @ <div class="pikchr-svg" style="max-width:%d(w)px">
-      }
-      @ %s(zOut)
-      if( !isPopup){
-        @ </div>
-      }
-    }else{
-      @ <pre class='error'>
-      @ %h(zOut)
-      @ </pre>
-    }
-    free(zOut);
-  }else{
-    @ <pre class='textPlain'>
-    @ %h(blob_str(pWiki))
-    @ </pre>
-  }
-}
-
-/*
-** Render wiki/markdown/plaintext content into an output blob as HTML.
-*/
-void wiki_convert_to_html(
+static void wiki_render_to_blob_by_mimetype(
   Blob *pOut,
   const char *zMimetype,
   const char *zContent,
-  int eDocSrc
+  int bSetDocSrc,
+  int eDocSrc,
+  int bPikchrPopup
 ){
   Blob in;
   if( pOut==0 ) return;
@@ -252,7 +209,7 @@ void wiki_convert_to_html(
   }
   blob_init(&in, 0, 0);
   blob_append(&in, zContent, -1);
-  safe_html_context(eDocSrc);
+  if( bSetDocSrc ) safe_html_context(eDocSrc);
   if( zMimetype==0 || fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
     wiki_convert(&in, pOut, 0);
   }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
@@ -264,10 +221,16 @@ void wiki_convert_to_html(
     int h = 0;
     char *zOut = pikchr(zPikchr, "pikchr", 0, &w, &h);
     if( w>0 ){
-      blob_appendf(pOut,
-        "<div class=\"pikchr-svg\" style=\"max-width:%dpx\">", w);
+      if( bPikchrPopup ){
+        cgi_set_content_type("image/svg+xml");
+      }else{
+        blob_appendf(pOut,
+          "<div class=\"pikchr-svg\" style=\"max-width:%dpx\">", w);
+      }
       blob_append(pOut, zOut, -1);
-      blob_append_literal(pOut, "</div>");
+      if( !bPikchrPopup ){
+        blob_append_literal(pOut, "</div>");
+      }
     }else{
       blob_append_literal(pOut, "<pre class='error'>");
       htmlize_to_blob(pOut, zOut, -1);
@@ -284,6 +247,36 @@ void wiki_convert_to_html(
     blob_append_literal(pOut, "</pre>");
   }
   blob_reset(&in);
+}
+
+/*
+** Render wiki text according to its mimetype.
+**
+**   text/x-fossil-wiki      Fossil wiki
+**   text/x-markdown         Markdown
+**   text/x-pikchr           Pikchr
+**   anything else...        Plain text
+**
+** If zMimetype is a null pointer, then use "text/x-fossil-wiki".
+*/
+void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
+  Blob out = BLOB_INITIALIZER;
+  wiki_render_to_blob_by_mimetype(&out, zMimetype, blob_str(pWiki),
+                                  0, 0, P("popup")!=0);
+  @ %s(blob_str(&out))
+  blob_reset(&out);
+}
+
+/*
+** Render wiki/markdown/plaintext content into an output blob as HTML.
+*/
+void wiki_convert_to_html(
+  Blob *pOut,
+  const char *zMimetype,
+  const char *zContent,
+  int eDocSrc
+){
+  wiki_render_to_blob_by_mimetype(pOut, zMimetype, zContent, 1, eDocSrc, 0);
 }
 
 /*
