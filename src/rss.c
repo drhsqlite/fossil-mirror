@@ -237,8 +237,9 @@ static int rss_render_item_html(
       forum_render_to_html(pOut, pPost->zMimetype, pPost->zWiki);
     }
   }else if( zEType[0]=='e' ){
-    if( pzAltLink ) *pzAltLink = technote_render_to_html(pOut, rid);
-    else free(technote_render_to_html(pOut, rid));
+    char *zAltLink = technote_render_to_html(pOut, rid);
+    if( pzAltLink ) *pzAltLink = zAltLink;
+    else free(zAltLink);
   }
   if( pPost ) manifest_destroy(pPost);
   if( blob_size(pOut)>0 ){

@@ -1,5 +1,5 @@
-C Share\sRSS\sHTML\scontent\shandling\sbetween\sweb\sand\sCLI\sfeeds.
-D 2026-03-08T11:37:36.708
+C Avoid\sduplicate\stechnote_render_to_html\scalls\sin\sRSS\shelper.
+D 2026-03-08T11:40:58.443
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -526,7 +526,7 @@ F src/regexp.c ff7f1ecf7508ca82b6af060b5c1a108005c6e57c5ada88339f7aa0b5f72a4054
 F src/repolist.c 3a3fb5895bbc6a43b3a379d7419bc6cbb3b826e921475c15c2624b1bb76157f1
 F src/report.c 3aa94251d24255b266460bb653dd51959a0199f62bafd0cdf5362faeb502360c
 F src/robot.c b78151cce262987e8f3888c229415bdf470155b4a18ac953b2aec16679d75659
-F src/rss.c 852b78501b845f4c00b11ccd922dcab4003a05459c8d491642222614c7d14a52
+F src/rss.c 345797a67d06ff7f7f6f5b6a9080b04ea4a1badf3fbbca62dcfcaa76b23a9304
 F src/schema.c a9d70914007da5ac217a8505c0647d36dcf262a97f01e377df1020789685fce8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c c4bd56d8638015525bdacf03d2609e90f9c46f283bb1bfc97d467b7f504365c7
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07dadca733d6aa9db0ab3e85aa3af1c3ffa8b40e6fb8a1832bbd312e873bf360
-R a536b7fb145682615607e5a1bc10e66a
+P 057236b8c9fc5f01d704fd12a58f14068279250cb551ac078eb8a7b755d67be4
+R 8cc0b2e1ad63a8eda20c646c4b717e05
 U vor0nwe
-Z d907a72d02956c909de5b4920928dd43
+Z 098d55735a9a28fe39e541db94379b90
 # Remove this line to create a well-formed Fossil manifest.
