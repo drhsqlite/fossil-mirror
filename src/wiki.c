@@ -236,6 +236,57 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
 }
 
 /*
+** Render wiki/markdown/plaintext content into an output blob as HTML.
+*/
+void wiki_convert_to_html(
+  Blob *pOut,
+  const char *zMimetype,
+  const char *zContent,
+  int eDocSrc
+){
+  Blob in;
+  if( pOut==0 ) return;
+  if( zContent==0 || zContent[0]==0 ){
+    blob_append_literal(pOut, "<i>Deleted</i>");
+    return;
+  }
+  blob_init(&in, 0, 0);
+  blob_append(&in, zContent, -1);
+  safe_html_context(eDocSrc);
+  if( zMimetype==0 || fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
+    wiki_convert(&in, pOut, 0);
+  }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
+    markdown_to_html(&in, 0, pOut);
+    safe_html(pOut);
+  }else if( fossil_strcmp(zMimetype, "text/x-pikchr")==0 ){
+    const char *zPikchr = blob_str(&in);
+    int w = 0;
+    int h = 0;
+    char *zOut = pikchr(zPikchr, "pikchr", 0, &w, &h);
+    if( w>0 ){
+      blob_appendf(pOut,
+        "<div class=\"pikchr-svg\" style=\"max-width:%dpx\">", w);
+      blob_append(pOut, zOut, -1);
+      blob_append_literal(pOut, "</div>");
+    }else{
+      blob_append_literal(pOut, "<pre class='error'>");
+      htmlize_to_blob(pOut, zOut, -1);
+      blob_append_literal(pOut, "</pre>");
+    }
+    free(zOut);
+  }else if( fossil_strcmp(zMimetype, "text/plain")==0 ){
+    blob_append_literal(pOut, "<pre class='textPlain'>");
+    htmlize_to_blob(pOut, blob_str(&in), blob_size(&in));
+    blob_append_literal(pOut, "</pre>");
+  }else{
+    blob_append_literal(pOut, "<pre class='textPlain'>");
+    htmlize_to_blob(pOut, blob_str(&in), blob_size(&in));
+    blob_append_literal(pOut, "</pre>");
+  }
+  blob_reset(&in);
+}
+
+/*
 ** WEBPAGE: md_rules
 **
 ** Show a summary of the Markdown wiki formatting rules.
@@ -2615,57 +2666,6 @@ static void wiki_submenu_to_edit_wiki(
   if( g.perm.WrWiki && (mFlags & WIKIASSOC_MENU_WRITE)!=0 ){
     style_submenu_element("Edit Wiki", "%R/wikiedit?name=%s/%t", zPrefix, zName);
   }
-}
-
-/*
-** Render wiki/markdown/plaintext content into an output blob as HTML.
-*/
-void wiki_convert_to_html(
-  Blob *pOut,
-  const char *zMimetype,
-  const char *zContent,
-  int eDocSrc
-){
-  Blob in;
-  if( pOut==0 ) return;
-  if( zContent==0 || zContent[0]==0 ){
-    blob_append_literal(pOut, "<i>Deleted</i>");
-    return;
-  }
-  blob_init(&in, 0, 0);
-  blob_append(&in, zContent, -1);
-  safe_html_context(eDocSrc);
-  if( zMimetype==0 || fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
-    wiki_convert(&in, pOut, 0);
-  }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
-    markdown_to_html(&in, 0, pOut);
-    safe_html(pOut);
-  }else if( fossil_strcmp(zMimetype, "text/x-pikchr")==0 ){
-    const char *zPikchr = blob_str(&in);
-    int w = 0;
-    int h = 0;
-    char *zOut = pikchr(zPikchr, "pikchr", 0, &w, &h);
-    if( w>0 ){
-      blob_appendf(pOut,
-        "<div class=\"pikchr-svg\" style=\"max-width:%dpx\">", w);
-      blob_append(pOut, zOut, -1);
-      blob_append_literal(pOut, "</div>");
-    }else{
-      blob_append_literal(pOut, "<pre class='error'>");
-      htmlize_to_blob(pOut, zOut, -1);
-      blob_append_literal(pOut, "</pre>");
-    }
-    free(zOut);
-  }else if( fossil_strcmp(zMimetype, "text/plain")==0 ){
-    blob_append_literal(pOut, "<pre class='textPlain'>");
-    htmlize_to_blob(pOut, blob_str(&in), blob_size(&in));
-    blob_append_literal(pOut, "</pre>");
-  }else{
-    blob_append_literal(pOut, "<pre class='textPlain'>");
-    htmlize_to_blob(pOut, blob_str(&in), blob_size(&in));
-    blob_append_literal(pOut, "</pre>");
-  }
-  blob_reset(&in);
 }
 
 /*

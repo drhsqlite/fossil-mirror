@@ -1,5 +1,5 @@
-C Improve\sRSS\sperformance\sfor\sforum\sand\stechnote\scontent\srendering.
-D 2026-03-06T23:16:24.019
+C Move\swiki_convert_to_html\scloser\sto\swiki_render_by_mimetype.
+D 2026-03-08T10:43:37.743
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -594,7 +594,7 @@ F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
 F src/util.c cc7d7c9d72d9ba63d06819ad393aec322af87439b826b198c124d05b913f48ce
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c cbd71205d9062cb5c30428841cf41d96d6afdd9e70cf1cd4abd8effe51f93ca9
-F src/wiki.c d861f3f0ae4954bb6a42c1e46142722e3346d2c04d9b0b988bb8ca35253ed965
+F src/wiki.c 1c1ff4a223fa09072c1c71d2cf8387d9ca8a17b5b11d8d9bbb7515ee55c4ef08
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c f0ac6b30f6cfac423b9f03c32b41a7c053d085f506544101106f9a937b098bd7
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
@@ -980,8 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a88d460c5b329777ed4840a0220b03edbb05bb7ad1760c77146406c5b1526b26
-R 4ffc68c521e07d37b2793f7b96536a84
+P a24637996d9edc69371eeae7bef1d2f2cfb46c3bbcb9c1d89cae7063b91aad3e
+R ede78429290cdebd7c189b95809becd3
 U vor0nwe
-Z 52113920c9ed684333adf260e547780b
+Z 9a754f8174b6e6df0614147c582aa7d7
 # Remove this line to create a well-formed Fossil manifest.
