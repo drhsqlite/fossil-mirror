@@ -209,6 +209,75 @@ static void rss_make_abs_links(
 }
 
 /*
+** Render RSS item HTML content into pOut when applicable.
+** Return 1 if HTML content was produced, 0 if not, and -1 if the
+** item should be skipped entirely.
+** If pzAltLink is not NULL, it may be filled with an alternate link id
+** for event pages. It remains NULL for non-technote items. The caller
+** must free that result.
+*/
+static int rss_render_item_html(
+  Blob *pOut,
+  char **pzAltLink,
+  int rid,
+  const char *zEType,
+  const char *zBase,
+  const char *zTop,
+  int bFilterPrivate
+){
+  Manifest *pPost = 0;
+  int rc = 0;
+  Blob normalized = BLOB_INITIALIZER;
+  if( pzAltLink ) *pzAltLink = 0;
+  if( pOut==0 || zEType==0 ) return 0;
+  if( zEType[0]=='f' ){
+    if( bFilterPrivate && content_is_private(rid) ) return -1;
+    pPost = manifest_get(rid, CFTYPE_FORUM, 0);
+    if( pPost ){
+      forum_render_to_html(pOut, pPost->zMimetype, pPost->zWiki);
+    }
+  }else if( zEType[0]=='e' ){
+    if( pzAltLink ) *pzAltLink = technote_render_to_html(pOut, rid);
+    else free(technote_render_to_html(pOut, rid));
+  }
+  if( pPost ) manifest_destroy(pPost);
+  if( blob_size(pOut)>0 ){
+    rss_make_abs_links(&normalized, zBase, zTop, blob_str(pOut), blob_size(pOut));
+    blob_reset(pOut);
+    blob_append(pOut, blob_str(&normalized), blob_size(&normalized));
+    rc = 1;
+  }
+  blob_reset(&normalized);
+  return rc;
+}
+
+/*
+** Emit HTML content:encoded for the current web RSS item.
+*/
+static void rss_web_emit_html_content(Blob *pHtml){
+  Blob cdata = BLOB_INITIALIZER;
+  @       <dc:format>text/html</dc:format>
+  @       <content:encoded><![CDATA[
+  rss_cdata_append(&cdata, blob_str(pHtml), blob_size(pHtml));
+  cgi_append_content(blob_str(&cdata), blob_size(&cdata));
+  blob_reset(&cdata);
+  @ ]]></content:encoded>
+}
+
+/*
+** Emit HTML content:encoded for the current CLI RSS item.
+*/
+static void rss_cli_emit_html_content(Blob *pHtml){
+  Blob cdata = BLOB_INITIALIZER;
+  fossil_print("<dc:format>text/html</dc:format>\n");
+  fossil_print("<content:encoded><![CDATA[");
+  rss_cdata_append(&cdata, blob_str(pHtml), blob_size(pHtml));
+  fossil_print("%s", blob_str(&cdata));
+  blob_reset(&cdata);
+  fossil_print("]]></content:encoded>\n");
+}
+
+/*
 ** WEBPAGE: timeline.rss
 ** URL:  /timeline.rss?y=TYPE&n=LIMIT&tkt=HASH&tag=TAG&wiki=NAME&name=FILENAME
 **
@@ -381,10 +450,9 @@ void page_timeline_rss(void){
     int nChild = db_column_int(&q, 6);
     int nParent = db_column_int(&q, 7);
     const char *zTagList = db_column_text(&q, 8);
-    Manifest *pPost = 0;
     char *zTechnoteId = 0;
     Blob contentHtml = BLOB_INITIALIZER;
-    int bForumContent = 0;
+    int bHasContent = 0;
     time_t ts;
 
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
@@ -412,45 +480,18 @@ void page_timeline_rss(void){
       zSuffix = mprintf(" (tags: %s)", zTagList);
     }
 
-    if( zEType[0]=='f' ){
-      if( !g.perm.ModForum && content_is_private(rid) ){
-        free(zDate);
-        free(zSuffix);
-        continue;
-      }
-      pPost = manifest_get(rid, CFTYPE_FORUM, 0);
-      if( pPost ){
-        forum_render_to_html(&contentHtml, pPost->zMimetype, pPost->zWiki);
-        if( blob_size(&contentHtml)>0 ){
-          Blob normalized = BLOB_INITIALIZER;
-          rss_make_abs_links(&normalized, blob_str(&base),
-                             blob_str(&top), blob_str(&contentHtml),
-                             blob_size(&contentHtml));
-          blob_reset(&contentHtml);
-          blob_append(&contentHtml, blob_str(&normalized),
-                      blob_size(&normalized));
-          blob_reset(&normalized);
-          bForumContent = 1;
-        }
-      }
-    }else if( zEType[0]=='e' ){
-      zTechnoteId = technote_render_to_html(&contentHtml, rid);
-      if( blob_size(&contentHtml)>0 ){
-        Blob normalized = BLOB_INITIALIZER;
-        rss_make_abs_links(&normalized, blob_str(&base),
-                           blob_str(&top), blob_str(&contentHtml),
-                           blob_size(&contentHtml));
-        blob_reset(&contentHtml);
-        blob_append(&contentHtml, blob_str(&normalized),
-                    blob_size(&normalized));
-        blob_reset(&normalized);
-        bForumContent = 1;
-      }
+    bHasContent = rss_render_item_html(&contentHtml, &zTechnoteId, rid, zEType,
+                                       blob_str(&base), blob_str(&top),
+                                       !g.perm.ModForum);
+    if( bHasContent<0 ){
+      free(zDate);
+      free(zSuffix);
+      continue;
     }
     @     <item>
     @       <title>%s(zPrefix)%h(zCom)%h(zSuffix)</title>
-    if( zEType[0]=='e' && zTechnoteId!=0 ){
-      @       <link>%s(g.zBaseURL)/technote/%s(zTechnoteId)</link>
+    if( zTechnoteId!=0 ){
+      @       <link>%s(g.zBaseURL)/info/%s(zTechnoteId)</link>
     }else{
       @       <link>%s(g.zBaseURL)/info/%s(zId)</link>
     }
@@ -458,18 +499,10 @@ void page_timeline_rss(void){
     @       <pubDate>%s(zDate)</pubDate>
     @       <dc:creator>%h(zAuthor)</dc:creator>
     @       <guid>%s(g.zBaseURL)/info/%s(zId)</guid>
-    if( bForumContent ){
-      Blob cdata = BLOB_INITIALIZER;
-      @       <dc:format>text/html</dc:format>
-      @       <content:encoded><![CDATA[
-      rss_cdata_append(&cdata, blob_str(&contentHtml),
-                       blob_size(&contentHtml));
-      cgi_append_content(blob_str(&cdata), blob_size(&cdata));
-      blob_reset(&cdata);
-      @ ]]></content:encoded>
+    if( bHasContent ){
+      rss_web_emit_html_content(&contentHtml);
     }
     @     </item>
-    if( pPost ) manifest_destroy(pPost);
     free(zTechnoteId);
     blob_reset(&contentHtml);
     free(zDate);
@@ -660,10 +693,9 @@ void cmd_timeline_rss(void){
     int nChild = db_column_int(&q, 6);
     int nParent = db_column_int(&q, 7);
     const char *zTagList = db_column_text(&q, 8);
-    Manifest *pPost = 0;
     char *zTechnoteId = 0;
     Blob contentHtml = BLOB_INITIALIZER;
-    int bForumContent = 0;
+    int bHasContent = 0;
     time_t ts;
 
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
@@ -691,40 +723,12 @@ void cmd_timeline_rss(void){
       zSuffix = mprintf(" (tags: %s)", zTagList);
     }
 
-    if( zEType[0]=='f' ){
-      pPost = manifest_get(rid, CFTYPE_FORUM, 0);
-      if( pPost ){
-        forum_render_to_html(&contentHtml, pPost->zMimetype, pPost->zWiki);
-        if( blob_size(&contentHtml)>0 ){
-          Blob normalized = BLOB_INITIALIZER;
-          rss_make_abs_links(&normalized, blob_str(&base),
-                             blob_str(&top), blob_str(&contentHtml),
-                             blob_size(&contentHtml));
-          blob_reset(&contentHtml);
-          blob_append(&contentHtml, blob_str(&normalized),
-                      blob_size(&normalized));
-          blob_reset(&normalized);
-          bForumContent = 1;
-        }
-      }
-    }else if( zEType[0]=='e' ){
-      zTechnoteId = technote_render_to_html(&contentHtml, rid);
-      if( blob_size(&contentHtml)>0 ){
-        Blob normalized = BLOB_INITIALIZER;
-        rss_make_abs_links(&normalized, blob_str(&base),
-                           blob_str(&top), blob_str(&contentHtml),
-                           blob_size(&contentHtml));
-        blob_reset(&contentHtml);
-        blob_append(&contentHtml, blob_str(&normalized),
-                    blob_size(&normalized));
-        blob_reset(&normalized);
-        bForumContent = 1;
-      }
-    }
+    bHasContent = rss_render_item_html(&contentHtml, &zTechnoteId, rid, zEType,
+                                       blob_str(&base), blob_str(&top), 0);
     fossil_print("<item>");
     fossil_print("<title>%s%h%h</title>\n", zPrefix, zCom, zSuffix);
-    if( zEType[0]=='e' && zTechnoteId!=0 ){
-      fossil_print("<link>%s/technote/%s</link>\n", zBaseURL, zTechnoteId);
+    if( zTechnoteId!=0 ){
+      fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zTechnoteId);
     }else{
       fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zId);
     }
@@ -732,18 +736,10 @@ void cmd_timeline_rss(void){
     fossil_print("<pubDate>%s</pubDate>\n", zDate);
     fossil_print("<dc:creator>%h</dc:creator>\n", zAuthor);
     fossil_print("<guid>%s/info/%s</guid>\n", g.zBaseURL, zId);
-    if( bForumContent ){
-      Blob cdata = BLOB_INITIALIZER;
-      fossil_print("<dc:format>text/html</dc:format>\n");
-      fossil_print("<content:encoded><![CDATA[");
-      rss_cdata_append(&cdata, blob_str(&contentHtml),
-                       blob_size(&contentHtml));
-      fossil_print("%s", blob_str(&cdata));
-      blob_reset(&cdata);
-      fossil_print("]]></content:encoded>\n");
+    if( bHasContent ){
+      rss_cli_emit_html_content(&contentHtml);
     }
     fossil_print("</item>\n");
-    if( pPost ) manifest_destroy(pPost);
     free(zTechnoteId);
     blob_reset(&contentHtml);
     free(zDate);
