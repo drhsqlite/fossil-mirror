@@ -230,7 +230,7 @@ static int rss_render_item_html(
   if( pzAltLink ) *pzAltLink = 0;
   if( pOut==0 || zEType==0 ) return 0;
   if( zEType[0]=='f' ){
-    if( content_is_private(rid) ) return -1;
+    if( content_is_private(rid) && !g.perm.ModForum ) return -1;
     pPost = manifest_get(rid, CFTYPE_FORUM, 0);
     if( pPost ){
       forum_render_to_html(pOut, pPost->zMimetype, pPost->zWiki);
@@ -483,12 +483,11 @@ void page_timeline_rss(void){
     bHasContent = rss_render_item_html(&contentHtml, &zTechnoteId, rid, zEType,
                                        blob_str(&base), blob_str(&top));
     if( bHasContent<0 ){
-      if( zEType[0]=='f' && !g.perm.ModForum ){
-        free(zDate);
-        free(zSuffix);
-        continue;
-      }
-      bHasContent = 0;
+      free(zTechnoteId);
+      blob_reset(&contentHtml);
+      free(zDate);
+      free(zSuffix);
+      continue;
     }
     @     <item>
     @       <title>%s(zPrefix)%h(zCom)%h(zSuffix)</title>
