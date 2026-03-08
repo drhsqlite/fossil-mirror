@@ -222,8 +222,7 @@ static int rss_render_item_html(
   int rid,
   const char *zEType,
   const char *zBase,
-  const char *zTop,
-  int bFilterPrivate
+  const char *zTop
 ){
   Manifest *pPost = 0;
   int rc = 0;
@@ -231,7 +230,7 @@ static int rss_render_item_html(
   if( pzAltLink ) *pzAltLink = 0;
   if( pOut==0 || zEType==0 ) return 0;
   if( zEType[0]=='f' ){
-    if( bFilterPrivate && content_is_private(rid) ) return -1;
+    if( content_is_private(rid) ) return -1;
     pPost = manifest_get(rid, CFTYPE_FORUM, 0);
     if( pPost ){
       forum_render_to_html(pOut, pPost->zMimetype, pPost->zWiki);
@@ -482,12 +481,14 @@ void page_timeline_rss(void){
     }
 
     bHasContent = rss_render_item_html(&contentHtml, &zTechnoteId, rid, zEType,
-                                       blob_str(&base), blob_str(&top),
-                                       !g.perm.ModForum);
+                                       blob_str(&base), blob_str(&top));
     if( bHasContent<0 ){
-      free(zDate);
-      free(zSuffix);
-      continue;
+      if( zEType[0]=='f' && !g.perm.ModForum ){
+        free(zDate);
+        free(zSuffix);
+        continue;
+      }
+      bHasContent = 0;
     }
     @     <item>
     @       <title>%s(zPrefix)%h(zCom)%h(zSuffix)</title>
@@ -725,7 +726,14 @@ void cmd_timeline_rss(void){
     }
 
     bHasContent = rss_render_item_html(&contentHtml, &zTechnoteId, rid, zEType,
-                                       blob_str(&base), blob_str(&top), 0);
+                                       blob_str(&base), blob_str(&top));
+    if( bHasContent<0 ){
+      free(zTechnoteId);
+      blob_reset(&contentHtml);
+      free(zDate);
+      free(zSuffix);
+      continue;
+    }
     fossil_print("<item>");
     fossil_print("<title>%s%h%h</title>\n", zPrefix, zCom, zSuffix);
     if( zTechnoteId!=0 ){
