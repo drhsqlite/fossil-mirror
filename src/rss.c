@@ -496,7 +496,9 @@ void page_timeline_rss(void){
     }else{
       @       <link>%s(g.zBaseURL)/info/%s(zId)</link>
     }
-    @       <description>%s(zPrefix)%h(zCom)%h(zSuffix)</description>
+    if( !bHasContent ){
+      @       <description>%s(zPrefix)%h(zCom)%h(zSuffix)</description>
+    }
     @       <pubDate>%s(zDate)</pubDate>
     @       <dc:creator>%h(zAuthor)</dc:creator>
     @       <guid>%s(g.zBaseURL)/info/%s(zId)</guid>
@@ -740,7 +742,10 @@ void cmd_timeline_rss(void){
     }else{
       fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zId);
     }
-    fossil_print("<description>%s%h%h</description>\n", zPrefix, zCom, zSuffix);
+    if( !bHasContent ){
+      fossil_print("<description>%s%h%h</description>\n",
+                   zPrefix, zCom, zSuffix);
+    }
     fossil_print("<pubDate>%s</pubDate>\n", zDate);
     fossil_print("<dc:creator>%h</dc:creator>\n", zAuthor);
     fossil_print("<guid>%s/info/%s</guid>\n", g.zBaseURL, zId);
