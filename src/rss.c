@@ -489,6 +489,7 @@ void page_timeline_rss(void){
       free(zSuffix);
       continue;
     }
+
     @     <item>
     @       <title>%s(zPrefix)%h(zCom)%h(zSuffix)</title>
     if( zTechnoteId!=0 ){
@@ -496,15 +497,14 @@ void page_timeline_rss(void){
     }else{
       @       <link>%s(g.zBaseURL)/info/%s(zId)</link>
     }
-    if( !bHasContent ){
+    if( bHasContent ){
+      rss_web_emit_html_content(&contentHtml);
+    }else{
       @       <description>%s(zPrefix)%h(zCom)%h(zSuffix)</description>
     }
     @       <pubDate>%s(zDate)</pubDate>
     @       <dc:creator>%h(zAuthor)</dc:creator>
     @       <guid>%s(g.zBaseURL)/info/%s(zId)</guid>
-    if( bHasContent ){
-      rss_web_emit_html_content(&contentHtml);
-    }
     @     </item>
     free(zTechnoteId);
     blob_reset(&contentHtml);
@@ -742,16 +742,15 @@ void cmd_timeline_rss(void){
     }else{
       fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zId);
     }
-    if( !bHasContent ){
+    if( bHasContent ){
+      rss_cli_emit_html_content(&contentHtml);
+    }else{
       fossil_print("<description>%s%h%h</description>\n",
                    zPrefix, zCom, zSuffix);
     }
     fossil_print("<pubDate>%s</pubDate>\n", zDate);
     fossil_print("<dc:creator>%h</dc:creator>\n", zAuthor);
     fossil_print("<guid>%s/info/%s</guid>\n", g.zBaseURL, zId);
-    if( bHasContent ){
-      rss_cli_emit_html_content(&contentHtml);
-    }
     fossil_print("</item>\n");
     free(zTechnoteId);
     blob_reset(&contentHtml);
