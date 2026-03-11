@@ -1,5 +1,5 @@
-C Disable\s"make\stest"\swhich\sis\sunmaintained\sand\sdoes\snot\swork.
-D 2026-03-09T16:35:02.393
+C Version\s2.28
+D 2026-03-11T11:31:46.372
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -874,7 +874,7 @@ F www/hooks.md 327bfc3612213d3520abce00c3d92339f3bd4070b5860c5746393ef16d43fe02
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 308008689b50f1b0989387afe80285910ac3f42e4b80b5e1122181534bdbb425
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki a6b11ceee90e6ea0b1128ef3d703a462fbdfcb50069f0a783fda0ceb665f480c
+F www/index.wiki ea3cc032c864030987832b23743bd2b30382b3fc216d5086d1c22bf1cf288b4c
 F www/inout.wiki 4da592c97797a0bb4f02c849aa0eb3baad5e709014ad5e7cd8c073ecc648ca5a
 F www/interwiki.md 027f698ad84e76a09aa95eeb1868d84b0d1078a0fa7191c1edd4af6db9bd8eeb
 F www/javascript.md 5df7f7f0a3dae5c9c948c5030704e5571a80636fd3d7f331fbd6152a1dc61fb0
@@ -980,8 +980,10 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81eeb1c2b544642d95f5c0fcd10329aed7be123301d5a08071327f6881753d6c
-R 060f4d5b171d5f9df48c3bba3a33884e
+P 1ba3a483dc002735e2e0d4d843fe5896b6dfe9f07ec782380afafc92fea37f19
+R 99014cad43168ffcf0ad4315231cf91a
+T +sym-release *
+T +sym-version-2.28 *
 U drh
-Z 1ac202cebad19e8f15896f7fe4c23e98
+Z a5c75bc4a134086a42621975a44b2902
 # Remove this line to create a well-formed Fossil manifest.
