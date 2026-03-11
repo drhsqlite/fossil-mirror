@@ -454,6 +454,55 @@ static void fossil_atexit(void) {
   }
 }
 
+void process_argv0(void){
+  int i;
+  int nNewArgc = g.argc;
+  int nArgcDiff = 0;
+  char **zNewArgv = NULL;
+
+  if( sqlite3_strglob("*md5sum", g.argv[0]) == 0 
+      || sqlite3_strglob("*pikchr", g.argv[0]) == 0 
+      || sqlite3_strglob("*sha1sum", g.argv[0]) == 0 
+      || sqlite3_strglob("*sha3sum", g.argv[0]) == 0 
+      || sqlite3_strglob("*sqlite3", g.argv[0]) == 0 ){
+    nNewArgc++;
+  }else if( sqlite3_strglob("*date", g.argv[0]) == 0 
+      || sqlite3_strglob("*ls", g.argv[0]) == 0 
+      || sqlite3_strglob("*pwd", g.argv[0]) == 0 
+      || sqlite3_strglob("*stty", g.argv[0]) == 0 
+      || sqlite3_strglob("*unzip", g.argv[0]) == 0 
+      || sqlite3_strglob("*which", g.argv[0]) == 0 
+      || sqlite3_strglob("*zip", g.argv[0]) == 0 ){
+    nNewArgc+=2;
+  }
+
+
+  nArgcDiff = nNewArgc - g.argc;
+  if( nArgcDiff > 0 ){
+    zNewArgv = fossil_malloc( sizeof(char*)*(nNewArgc) );
+    switch( nArgcDiff ){
+      case 2:
+        /* system subcommand */
+        zNewArgv[1] = "system";
+        
+        /* FALLTHROUGH */
+
+      case 1:
+        /*regular subcommand */
+        zNewArgv[0] = "fossil";
+        /* strip any path element: "/path/to/cmd" -> "cmd" */
+        zNewArgv[nArgcDiff] = command_basename(g.argv[0]);
+        for(i=1; i<g.argc; i++){
+          zNewArgv[i+nArgcDiff] = g.argv[i];
+        }
+        g.argc = nNewArgc;
+        g.argv = zNewArgv;
+      
+      default:
+    }
+  }
+}
+
 /*
 ** Convert all arguments from mbcs (or unicode) to UTF-8. Then
 ** search g.argv for arguments "--args FILENAME". If found, then
@@ -782,6 +831,7 @@ int fossil_main(int argc, char **argv){
   g.json.outOpt.indentation = 1 /* in CGI/server mode this can be configured */;
 #endif /* FOSSIL_ENABLE_JSON */
   expand_args_option(argc, argv);
+  process_argv0();
 #ifdef FOSSIL_ENABLE_TCL
   memset(&g.tcl, 0, sizeof(TclContext));
   g.tcl.argc = g.argc;
