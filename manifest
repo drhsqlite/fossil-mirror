@@ -1,5 +1,5 @@
-C Version\s2.28
-D 2026-03-11T11:31:46.372
+C Increase\sthe\sversion\snumber\sto\s2.29.
+D 2026-03-12T12:50:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -16,7 +16,7 @@ F Makefile.classic 25ea72b6fe8959b5bbd638363af82dec3ba475c09ea79918deda199eb15c3
 F Makefile.in 4c7578bdf3b161564ed3e59674a73054e02af72b03a6dfb27fe75602db6d462a
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION 3b0f155d2d0b8b24d67a58111a30ac3920964ec5c4a245b4c405c03da01d2b29
+F VERSION 64a13b480b4a6962246f7338be9405a4a51de56cf8a203baaacb9cc46305e867
 F auto.def 829a7782d4bfc39d69adb559e9147f952f3265d3089995d4cb9945a5cd1e92ee
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
@@ -980,10 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1ba3a483dc002735e2e0d4d843fe5896b6dfe9f07ec782380afafc92fea37f19
-R 99014cad43168ffcf0ad4315231cf91a
-T +sym-release *
-T +sym-version-2.28 *
-U drh
-Z a5c75bc4a134086a42621975a44b2902
+P 52445a27f116603d784ad753c6acd494e0b02aeaf8502ee0fee0aa30030f4c4e
+R a69b58ee82699e0d749ae80f42e9ab0f
+U florian
+Z f13d3a018ba70a9ac0b4767c6579afce
 # Remove this line to create a well-formed Fossil manifest.
