@@ -1,5 +1,5 @@
-C Experiment\sthe\suse\sof\sargv0\sas\sdirect\ssubcommand\s(like\sbusybox)\sfor\sa\nfew\ssubcommand\sthat\scan\sbe\sconveniently\suse\sas\salias.\sRequested\sin\sthis\n[forum:/forumpost/07a7c30be0|forum\spost].
-D 2026-03-11T22:57:39.898
+C Use\s"command_basename"\sonce\son\sbeginning\sto\ssimplify\scommand\scomparison\swith\nargv[0].
+D 2026-03-12T00:29:12.134
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -497,7 +497,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c 3d3f525f1a7a6a7a7a9c1f281e672c5fa5022083a79ffe7f86129a333ca65a3f
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c 7125de54253764b345e7640ba37b9b47c6f738f1503fadda844cbe1f5423fe3b
+F src/main.c 272a1af75da91bd7c56c448265e8cb4364bb97b1b318cad988abf038ec6d53d1
 F src/main.mk d3123763f11935150e0e08a7763aa4b2a72d8fe7768bd44b55d143dcf083ab13
 F src/manifest.c 2a4c82fd116d66f80b024b0b71bbc77c1c26950114b362c599c9111a22881c41
 F src/markdown.c ea27e61986a1366839e7a70f16cd70a056352d7623797eb09372e158f6f7350b
@@ -980,11 +980,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 52445a27f116603d784ad753c6acd494e0b02aeaf8502ee0fee0aa30030f4c4e
-R b60e76111220b8bf04f5b8a6ee07a65f
-T *branch * argv0_as_subcommand
-T *sym-argv0_as_subcommand *
-T -sym-trunk *
+P 96de01f8e96960d94b8b41ddab9b94dfdab749062098cb2f9bb237c6710c99bf
+R 43fc9fb3dc8ca02ae6efdaaaabb11b32
 U mgagnon
-Z 594fe936f4d1788886050d4910e7988a
+Z 899b4202997fa4ec8e61cc2966bdb603
 # Remove this line to create a well-formed Fossil manifest.

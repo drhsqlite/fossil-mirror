@@ -454,28 +454,34 @@ static void fossil_atexit(void) {
   }
 }
 
+
+/*
+** Compare argv[0] with a list of subcommand and shift argv in order fossil is
+** invoked with the matching subcommand.
+*/
 void process_argv0(void){
   int i;
   int nNewArgc = g.argc;
+  char *zArg0BaseName = command_basename(g.argv[0]);
   int nArgcDiff = 0;
   char **zNewArgv = NULL;
 
-  if( sqlite3_strglob("*md5sum", g.argv[0]) == 0 
-      || sqlite3_strglob("*pikchr", g.argv[0]) == 0 
-      || sqlite3_strglob("*sha1sum", g.argv[0]) == 0 
-      || sqlite3_strglob("*sha3sum", g.argv[0]) == 0 
-      || sqlite3_strglob("*sqlite3", g.argv[0]) == 0 ){
+  
+  if( fossil_strcmp(zArg0BaseName, "md5sum") == 0 
+      || fossil_strcmp(zArg0BaseName, "pikchr") == 0 
+      || fossil_strcmp(zArg0BaseName, "sha1sum") == 0 
+      || fossil_strcmp(zArg0BaseName, "sha3sum") == 0 
+      || fossil_strcmp(zArg0BaseName, "sqlite3") == 0 ){
     nNewArgc++;
-  }else if( sqlite3_strglob("*date", g.argv[0]) == 0 
-      || sqlite3_strglob("*ls", g.argv[0]) == 0 
-      || sqlite3_strglob("*pwd", g.argv[0]) == 0 
-      || sqlite3_strglob("*stty", g.argv[0]) == 0 
-      || sqlite3_strglob("*unzip", g.argv[0]) == 0 
-      || sqlite3_strglob("*which", g.argv[0]) == 0 
-      || sqlite3_strglob("*zip", g.argv[0]) == 0 ){
+  }else if( fossil_strcmp(zArg0BaseName, "date") == 0 
+      || fossil_strcmp(zArg0BaseName, "ls") == 0 
+      || fossil_strcmp(zArg0BaseName, "pwd") == 0 
+      || fossil_strcmp(zArg0BaseName, "stty") == 0 
+      || fossil_strcmp(zArg0BaseName, "unzip") == 0 
+      || fossil_strcmp(zArg0BaseName, "which") == 0 
+      || fossil_strcmp(zArg0BaseName, "zip") == 0 ){
     nNewArgc+=2;
   }
-
 
   nArgcDiff = nNewArgc - g.argc;
   if( nArgcDiff > 0 ){
@@ -491,7 +497,7 @@ void process_argv0(void){
         /*regular subcommand */
         zNewArgv[0] = "fossil";
         /* strip any path element: "/path/to/cmd" -> "cmd" */
-        zNewArgv[nArgcDiff] = command_basename(g.argv[0]);
+        zNewArgv[nArgcDiff] = zArg0BaseName;
         for(i=1; i<g.argc; i++){
           zNewArgv[i+nArgcDiff] = g.argv[i];
         }
