@@ -462,6 +462,7 @@ static void fossil_atexit(void) {
 void process_argv0(void){
   int i;
   int nNewArgc = g.argc;
+  /* strip any path element: "/path/to/cmd" -> "cmd" */
   char *zArg0BaseName = command_basename(g.argv[0]);
   int nArgcDiff = 0;
   char **zNewArgv = NULL;
@@ -470,9 +471,9 @@ void process_argv0(void){
   if( fossil_strcmp(zArg0BaseName, "md5sum") == 0 
       || fossil_strcmp(zArg0BaseName, "pikchr") == 0 
       || fossil_strcmp(zArg0BaseName, "sha1sum") == 0 
-      || fossil_strcmp(zArg0BaseName, "sha3sum") == 0 
-      || fossil_strcmp(zArg0BaseName, "sqlite3") == 0 ){
+      || fossil_strcmp(zArg0BaseName, "sha3sum") == 0 ){
     nNewArgc++;
+
   }else if( fossil_strcmp(zArg0BaseName, "date") == 0 
       || fossil_strcmp(zArg0BaseName, "ls") == 0 
       || fossil_strcmp(zArg0BaseName, "pwd") == 0 
@@ -481,6 +482,20 @@ void process_argv0(void){
       || fossil_strcmp(zArg0BaseName, "which") == 0 
       || fossil_strcmp(zArg0BaseName, "zip") == 0 ){
     nNewArgc+=2;
+  
+  }else if( fossil_strcmp(zArg0BaseName, "sqlite3") == 0 ){
+    /* with sqlite3 use --no-repository to make it behave like real sqlite3 */
+    nNewArgc+=2;
+    zNewArgv = fossil_malloc( sizeof(char*)*(nNewArgc) );
+    zNewArgv[0] = "fossil";
+    zNewArgv[1] = zArg0BaseName;
+    zNewArgv[2] = "--no-repository";
+    for(i=1; i<g.argc; i++){
+      zNewArgv[i+2] = g.argv[i];
+    }
+    g.argc = nNewArgc;
+    g.argv = zNewArgv;
+    return;
   }
 
   nArgcDiff = nNewArgc - g.argc;
@@ -496,15 +511,12 @@ void process_argv0(void){
       case 1:
         /*regular subcommand */
         zNewArgv[0] = "fossil";
-        /* strip any path element: "/path/to/cmd" -> "cmd" */
         zNewArgv[nArgcDiff] = zArg0BaseName;
         for(i=1; i<g.argc; i++){
           zNewArgv[i+nArgcDiff] = g.argv[i];
         }
         g.argc = nNewArgc;
         g.argv = zNewArgv;
-      
-      default: break;
     }
   }
 }
