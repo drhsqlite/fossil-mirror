@@ -504,7 +504,7 @@ void process_argv0(void){
         g.argc = nNewArgc;
         g.argv = zNewArgv;
       
-      default:
+      default: break;
     }
   }
 }
