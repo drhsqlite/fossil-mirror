@@ -146,12 +146,12 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.52.0"
-#define SQLITE_VERSION_NUMBER 3052000
-#define SQLITE_SOURCE_ID      "2026-03-06 16:01:44 557aeb43869d3585137b17690cb3b64f7de6921774daae9e56403c3717dceab6"
+#define SQLITE_VERSION        "3.53.0"
+#define SQLITE_VERSION_NUMBER 3053000
+#define SQLITE_SOURCE_ID      "2026-03-18 22:31:56 5c237f1f863a32cf229010d2024d0d1e76a07a4d8b9492b26503b959f1c32485"
 #define SQLITE_SCM_BRANCH     "trunk"
-#define SQLITE_SCM_TAGS       "release major-release version-3.52.0"
-#define SQLITE_SCM_DATETIME   "2026-03-06T16:01:44.367Z"
+#define SQLITE_SCM_TAGS       ""
+#define SQLITE_SCM_DATETIME   "2026-03-18T22:31:56.220Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2658,7 +2658,7 @@ struct sqlite3_mem_methods {
 ** This option takes two arguments which are an integer and a pointer
 ** to an integer.  The first argument is a small integer, between 3 and 23, or
 ** zero.  The FP_DIGITS setting is changed to that small integer, or left
-** altered if the first argument is zero or out of range.  The second argument
+** unaltered if the first argument is zero or out of range.  The second argument
 ** is a pointer to an integer.  If the pointer is not NULL, then the value of
 ** the FP_DIGITS setting, after possibly being modified by the first
 ** arguments, is written into the integer to which the second argument points.
@@ -4488,7 +4488,7 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** The preferred routine to use is [sqlite3_prepare_v2()].  The
 ** [sqlite3_prepare()] interface is legacy and should be avoided.
 ** [sqlite3_prepare_v3()] has an extra
-** [SQLITE_PREPARE_FROM_DDL|"prepFlags" option] that is some times
+** [SQLITE_PREPARE_FROM_DDL|"prepFlags" option] that is sometimes
 ** needed for special purpose or to pass along security restrictions.
 **
 ** The use of the UTF-8 interfaces is preferred, as SQLite currently
@@ -6495,7 +6495,7 @@ typedef void (*sqlite3_destructor_type)(void*);
 ** of [SQLITE_UTF8], [SQLITE_UTF8_ZT], [SQLITE_UTF16], [SQLITE_UTF16BE],
 ** or [SQLITE_UTF16LE].  ^The special value [SQLITE_UTF8_ZT] means that
 ** the result text is both UTF-8 and zero-terminated.  In other words,
-** SQLITE_UTF8_ZT means that the Z array holds at least N+1 byes and that
+** SQLITE_UTF8_ZT means that the Z array holds at least N+1 bytes and that
 ** the Z&#91;N&#93; is zero.
 ** ^SQLite takes the text result from the application from
 ** the 2nd parameter of the sqlite3_result_text* interfaces.
@@ -8865,7 +8865,7 @@ SQLITE_API void sqlite3_str_free(sqlite3_str*);
 ** inside [sqlite3_str] object X back to zero bytes in length.
 **
 ** ^The [sqlite3_str_truncate(X,N)] method changes the length of the string
-** under construction to be N bytes are less.  This routine is a no-op if
+** under construction to be N bytes or less.  This routine is a no-op if
 ** N is negative or if the string is already N bytes or smaller in size.
 **
 ** These methods do not return a result code.  ^If an error occurs, that fact
@@ -10729,7 +10729,7 @@ SQLITE_API int sqlite3_vtab_rhs_value(sqlite3_index_info*, int, sqlite3_value **
 ** the variable that pOut points to is unchanged.
 **
 ** See also: [sqlite3_stmt_scanstatus_reset()] and the
-** [nexec and ncycle] columnes of the [bytecode virtual table].
+** [nexec and ncycle] columns of the [bytecode virtual table].
 */
 SQLITE_API int sqlite3_stmt_scanstatus(
   sqlite3_stmt *pStmt,      /* Prepared statement for which info desired */
@@ -11285,17 +11285,17 @@ SQLITE_API int sqlite3_deserialize(
 ** values [SQLITE_STATIC] or [SQLITE_TRANSIENT], then SQLite will invoke
 ** the function X with argument D when it is finished using the data in P.
 ** The call to X(D) is a destructor for the array P. The destructor X(D)
-** is invoked even if the call to sqlite3_carray_bind() fails. If the X
+** is invoked even if the call to sqlite3_carray_bind_v2() fails. If the X
 ** parameter is the special-case value [SQLITE_STATIC], then SQLite assumes
 ** that the data static and the destructor is never invoked.  If the X
 ** parameter is the special-case value [SQLITE_TRANSIENT], then
 ** sqlite3_carray_bind_v2() makes its own private copy of the data prior
 ** to returning and never invokes the destructor X.
 **
-** The sqlite3_carray_bind() function works the same as sqlite_carray_bind_v2()
+** The sqlite3_carray_bind() function works the same as sqlite3_carray_bind_v2()
 ** with a D parameter set to P.  In other words,
 ** sqlite3_carray_bind(S,I,P,N,F,X) is same as
-** sqlite3_carray_bind(S,I,P,N,F,X,P).
+** sqlite3_carray_bind_v2(S,I,P,N,F,X,P).
 */
 SQLITE_API int sqlite3_carray_bind_v2(
   sqlite3_stmt *pStmt,        /* Statement to be bound */
