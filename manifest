@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.53.0\sdevelopment\sversion\nfor\stesting.
-D 2026-03-18T23:00:25.754
+C Add\sotf\s(OpenType\sfont)\smime\stype.
+D 2026-03-20T12:07:37.689
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
 F src/diffcmd.c f529b1130c87c6bf5562d241bad922274893cf0156bf26f0e420652c4a1ea685
 F src/dispatch.c f9b0602b200fb378bed080e327e2cf7db08f683c21aa81ba834be0ac7c597b88
-F src/doc.c 85a8ea5014ac5665b815a19cf8ad6ef0ec62cc60b81ed57e8e915a5d89cab37b
+F src/doc.c 8490787eb5f1272446522c2e24175a741c95403baee6399b8031cb6b655b8ccf
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
 F src/event.c 63a324e1c514d0780efcd101dda6b144a6ed4354bd7bee93e21d63ce908147e6
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d98ec8a04596b5890bdebabbd477daa8c795354a6b9be2b60b99d8ff8db2af1c
-R 0843456224cbccf666f889a6bfe467b1
-U drh
-Z 100063f46640053558552c05b134c932
+P 17f98784c2d62cb9795fed0b234272bf005d8c266b9f53cb93b7c8152b0e27d7
+R 474cd65224393ab605763497426cceab
+U stephan
+Z b0bda7c3ee365c9fb5d469ce7cc64c8e
 # Remove this line to create a well-formed Fossil manifest.

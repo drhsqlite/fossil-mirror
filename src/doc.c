@@ -202,6 +202,7 @@ static const struct {
   { "odt",        3, "application/vnd.oasis.opendocument.text" },
   { "ogg",        3, "application/ogg"                   },
   { "ogm",        3, "application/ogg"                   },
+  { "otf",        3, "font/otf"                          },
   { "pbm",        3, "image/x-portable-bitmap"           },
   { "pdb",        3, "chemical/x-pdb"                    },
   { "pdf",        3, "application/pdf"                   },
