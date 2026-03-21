@@ -40,6 +40,11 @@ You can serve a directory containing multiple `*.fossil` files like so:
 
     $ fossil server --port 9000 --repolist /path/to/repo/dir
 
+As a security precaution, when the “`server`” or
+“`ui`” commands are run as `root` Fossil will drop into
+a [chroot](../../chroot.md) with the directory where the repository is located 
+as the new root of the filesystem.
+
 There is an [example script](/file/tools/fslsrv) in the Fossil
 distribution that wraps `fossil server` to produce more complicated
 effects. Feel free to take it, study it, and modify it to suit your
