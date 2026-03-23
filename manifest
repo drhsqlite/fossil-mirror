@@ -1,5 +1,5 @@
-C Add\s"current_checkin"\sto\sthe\slist\sof\sTH1\svariables\savailable\sin\sskin\stemplates.
-D 2026-03-23T15:10:00.000
+C Fix\sa\ssection\stitle\sin\sthe\sTH1\sdocs.
+D 2026-03-23T15:12:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -966,7 +966,7 @@ F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c06
 F www/sync.wiki 44e603cb0cf67a3c38350822fa225fc5ed8f17aad0837d8f3faf6ccc56d80a32
 F www/tech_overview.wiki 6d6a67e9d982eaf8d1f98b18c97282bdeaddfd4c20b98ce24715ce30785a3313
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
-F www/th1.md acfde51e5c0cf5c2b2a2fe171c0cc1933168035b3d29ddb3dc72d1165ea552b4
+F www/th1.md 5dd5405d51b23078f194493d179d618d17a879d67d10b28cfb05ff6ad2af2627
 F www/theory1.wiki 23fe43903706feb8d6852c9e1174f20b10aa4a6a82aa716992b5e31f70745303
 F www/tickets.wiki d46ce2febd0160a67a7b804d9ee68ef0c8a5f482255247d157cb4ded882333ed
 F www/title-test.md 5579cbcda122eff4f5d0343683cd48f365b92d1054131629a3d0be7af113275c
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb89386af5d1b9278ca589802d1b0fd93b00363646d4e885cce4095fee2e2a55
-R 917b2f2611ea28d25c41cfc0d49802aa
+P c90e810f3fc83a8bd0da3d38c3bd975c7323e1782469f9848cf97e36dca1aeef
+R 22d12b7710883b7dd82ed8c9e8aa621d
 U florian
-Z 660b34ba11d0091a2e5a7a4ddd8f1873
+Z 56647b29666602523c8172159a2df217
 # Remove this line to create a well-formed Fossil manifest.
