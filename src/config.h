@@ -58,6 +58,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+#include "sqlite3.h"
 
 #endif
 

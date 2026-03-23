@@ -3611,7 +3611,8 @@ static void annotate_file(
     }else if( sqlite3_strglob("*[0-9]s", zLimit)==0 ){
       iLimit = 0;
       mxTime =
-        (sqlite3_int64)(current_time_in_milliseconds() + 1000.0*atof(zLimit));
+        (sqlite3_int64)(current_time_in_milliseconds() +
+        1000.0*fossil_atof(zLimit));
     }else{
       iLimit = atoi(zLimit);
       if( iLimit<=0 ) iLimit = 30;

@@ -1184,7 +1184,7 @@ void download_page(void){
       rStart = 0.0;
     }else{
       char *zMax = fossil_strndup(azItem[i+2], anItem[i+2]);
-      double r = atof(zMax);
+      double r = fossil_atof(zMax);
       if( strstr(zMax,"sec") ){
         rStart = rNow - r/86400.0;
       }else

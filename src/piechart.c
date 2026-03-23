@@ -298,7 +298,7 @@ void piechart_test_page(void){
       while( fossil_isdigit(zData[j]) ){ j++; }
     }
     if( i==j ) break;
-    rAmt = atof(&zData[i]);
+    rAmt = fossil_atof(&zData[i]);
     i = j;
     while( zData[i]==',' || fossil_isspace(zData[i]) ){ i++; }
     n++;

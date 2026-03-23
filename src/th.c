@@ -14,6 +14,7 @@
 */
 void fossil_panic(const char*,...);
 void fossil_errorlog(const char*,...);
+double fossil_atof(const char*);
 
 /*
 ** Values used for element values in the tcl_platform array.
@@ -2752,72 +2753,6 @@ static int sqlite3IsNumber(const char *z, int *realnum){
 }
 
 /*
-** The string z[] is an ascii representation of a real number.
-** Convert this string to a double.
-**
-** This routine assumes that z[] really is a valid number.  If it
-** is not, the result is undefined.
-**
-** This routine is used instead of the library atof() function because
-** the library atof() might want to use "," as the decimal point instead
-** of "." depending on how locale is set.  But that would cause problems
-** for SQL.  So this routine always uses "." regardless of locale.
-*/
-static int sqlite3AtoF(const char *z, double *pResult){
-  int sign = 1;
-  const char *zBegin = z;
-  LONGDOUBLE_TYPE v1 = 0.0;
-  while( th_isspace(*(u8*)z) ) z++;
-  if( *z=='-' ){
-    sign = -1;
-    z++;
-  }else if( *z=='+' ){
-    z++;
-  }
-  while( th_isdigit(*(u8*)z) ){
-    v1 = v1*10.0 + (*z - '0');
-    z++;
-  }
-  if( *z=='.' ){
-    LONGDOUBLE_TYPE divisor = 1.0;
-    z++;
-    while( th_isdigit(*(u8*)z) ){
-      v1 = v1*10.0 + (*z - '0');
-      divisor *= 10.0;
-      z++;
-    }
-    v1 /= divisor;
-  }
-  if( *z=='e' || *z=='E' ){
-    int esign = 1;
-    int eval = 0;
-    LONGDOUBLE_TYPE scale = 1.0;
-    z++;
-    if( *z=='-' ){
-      esign = -1;
-      z++;
-    }else if( *z=='+' ){
-      z++;
-    }
-    while( th_isdigit(*(u8*)z) ){
-      eval = eval*10 + *z - '0';
-      z++;
-    }
-    while( eval>=64 ){ scale *= 1.0e+64; eval -= 64; }
-    while( eval>=16 ){ scale *= 1.0e+16; eval -= 16; }
-    while( eval>=4 ){ scale *= 1.0e+4; eval -= 4; }
-    while( eval>=1 ){ scale *= 1.0e+1; eval -= 1; }
-    if( esign<0 ){
-      v1 /= scale;
-    }else{
-      v1 *= scale;
-    }
-  }
-  *pResult = sign<0 ? -v1 : v1;
-  return z - zBegin;
-}
-
-/*
 ** Try to convert the string passed as arguments (z, n) to an integer.
 ** If successful, store the result in *piOut and return TH_OK.
 **
@@ -2893,12 +2828,11 @@ int Th_ToDouble(
   int n,
   double *pfOut
 ){
-  if( !sqlite3IsNumber((const char *)z, 0) ){
+  *pfOut = fossil_atof(z);
+  if( 0.0==(*pfOut) && !sqlite3IsNumber((const char *)z, 0) ){
     Th_ErrorMessage(interp, "expected number, got: \"", z, TH1_LEN(n));
     return TH_ERROR;
   }
-
-  sqlite3AtoF((const char *)z, pfOut);
   return TH_OK;
 }
 

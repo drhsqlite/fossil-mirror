@@ -138,6 +138,7 @@ typedef unsigned short int u16;
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
+#include <stdint.h>
 #include "sqlite3.h"
 typedef sqlite3_int64 i64;
 typedef sqlite3_uint64 u64;
@@ -700,6 +701,7 @@ struct sqlite3_qrf_spec {
   short int nScreenWidth;     /* Maximum overall table width */
   short int nLineLimit;       /* Maximum number of lines for any row */
   short int nTitleLimit;      /* Maximum number of characters in a title */
+  unsigned int nMultiInsert;  /* Add rows to one INSERT until size exceeds */
   int nCharLimit;             /* Maximum number of characters in a cell */
   int nWidth;                 /* Number of entries in aWidth[] */
   int nAlign;                 /* Number of entries in aAlignment[] */
@@ -714,8 +716,6 @@ struct sqlite3_qrf_spec {
   void *pRenderArg;           /* First argument to the xRender callback */
   void *pWriteArg;            /* First argument to the xWrite callback */
   char **pzOutput;            /* Storage location for output string */
-  /* Fields below are only available if iVersion>=2 */
-  unsigned int nMultiInsert;  /* Add rows to one INSERT until size exceeds */
   /* Additional fields may be added in the future */
 };
 
@@ -3427,7 +3427,7 @@ static void qrfOneSimpleRow(Qrf *p){
       break;
     }
     case QRF_STYLE_Insert: {
-      unsigned int mxIns = p->spec.iVersion>=2 ? p->spec.nMultiInsert : 0;
+      unsigned int mxIns = p->spec.nMultiInsert;
       int szStart = sqlite3_str_length(p->pOut);
       if( p->u.nIns==0 || p->u.nIns>=mxIns ){
         if( p->u.nIns ){
@@ -3575,7 +3575,7 @@ static void qrfInitialize(
   size_t sz;                     /* Size of pSpec[], based on pSpec->iVersion */
   memset(p, 0, sizeof(*p));
   p->pzErr = pzErr;
-  if( pSpec->iVersion>2 ){
+  if( pSpec->iVersion>1 ){
     qrfError(p, SQLITE_ERROR,
        "unusable sqlite3_qrf_spec.iVersion (%d)",
        pSpec->iVersion);
@@ -24850,7 +24850,7 @@ static void modeFree(Mode *p){
   free(p->spec.zTableName);
   free(p->spec.zNull);
   memset(p, 0, sizeof(*p));
-  p->spec.iVersion = 2;
+  p->spec.iVersion = 1;
   p->autoExplain = autoExplain;
 }
 
@@ -24966,7 +24966,7 @@ static void modeChange(ShellState *p, unsigned char eMode){
 ** already been freed and zeroed prior to calling this routine.
 */
 static void modeDefault(ShellState *p){
-  p->mode.spec.iVersion = 2;
+  p->mode.spec.iVersion = 1;
   p->mode.autoExplain = 1;
   if( stdin_is_interactive || stdout_is_console ){
     modeChange(p, MODE_TTY);
@@ -26518,10 +26518,12 @@ static int shell_exec(
   memcpy(&spec, &pArg->mode.spec, sizeof(spec));
   spec.xWrite = shellWriteQR;
   spec.pWriteArg = (void*)pArg;
-  if( pArg->mode.eMode==MODE_Insert && ShellHasFlag(pArg, SHFLG_PreserveRowid) ){
+  if( pArg->mode.eMode==MODE_Insert && ShellHasFlag(pArg,SHFLG_PreserveRowid) ){
     spec.bTitles = QRF_SW_On;
   }
-  assert( pArg->mode.eMode>=0 && pArg->mode.eMode<ArraySize(aModeInfo) );
+         /*                        ,- This is true, but it is omitted
+         ** vvvvvvvvvvvvvvvvvvv ----- to avoid compiler warnings.         */
+  assert( /*pArg->mode.eMode>=0 &&*/ pArg->mode.eMode<ArraySize(aModeInfo) );
   eStyle = aModeInfo[pArg->mode.eMode].eStyle;
   if( pArg->mode.bAutoScreenWidth ){
     spec.nScreenWidth = shellScreenWidth();
@@ -31333,9 +31335,9 @@ static int modeTitleDsply(ShellState *p, int bAll){
   /* Variable "v" is the truth table that will determine the answer
   **
   **                   Actual encoding is different from default 
-  **                   vvvvvvvv                                 */
-  sqlite3_uint64 v = 0x0133013311220102;
-  /*                   ^^^^    ^^^^
+  **                            vvvvvvvv                                    */
+  sqlite3_uint64 v = UINT64_C(0x0133013311220102);
+  /*                            ^^^^    ^^^^
   **                   Upper 2-byte groups for when ON/OFF disagrees with
   **                   the default.                                         */
 
@@ -33862,7 +33864,7 @@ static int do_meta_command(const char *zLine, ShellState *p){
             return 1;
           }
           i++;
-          p->tmProgress = atof(azArg[i]);
+          p->tmProgress = sqlite3_atof(azArg[i]);
           if( p->tmProgress>0.0 ){
             p->flgProgress = SHELL_PROGRESS_QUIET|SHELL_PROGRESS_TMOUT;
             if( nn==0 ) nn = 100;
