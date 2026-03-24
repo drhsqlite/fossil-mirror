@@ -1,5 +1,5 @@
-C Fix\sa\ssection\stitle\sin\sthe\sTH1\sdocs.
-D 2026-03-23T15:12:00.000
+C Add\sa\snotice\sto\sthe\sforum\spost\seditor\spolitely\srequesting\sthat\susers\srefrain\sfrom\smaking\smultiple\sposts\sor\sedits\sin\srapid\ssuccession\sto\savoid\sspamming\ssubscribers.\sPrompted\sby\srecent\ssqlite\sforum\sactivity.\sA\smore\scomplete\ssolution\swould\sinclude\sa\stoggle\sto\shide\sthis\snotice\sand\sremember\sthat\spreference\svia\ssessionStorage.
+D 2026-03-24T15:23:00.949
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -437,7 +437,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c ae0e196f6efdd704d722db6ddef83a3a48b82474dfae8bbd88bc4d3b5b51e756
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c e513b266bf41f28bb089c1b01bfb06ac8e8e41fbc09d25127fbdb533b677dfbe
+F src/forum.c 38aaa24287b910e97a02d0e1fd8a92d1ec6fd28e3e9efe9080f2fd7a4a8290dd
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
@@ -982,8 +982,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c90e810f3fc83a8bd0da3d38c3bd975c7323e1782469f9848cf97e36dca1aeef
-R 22d12b7710883b7dd82ed8c9e8aa621d
-U florian
-Z 56647b29666602523c8172159a2df217
+P 1cf64a94569ddd52bed3537b432e994c72ad0ae36f7aaaedb3c82de743bf8e2c
+R 389ccbe30e6d855dfc6f764c8aac3da6
+T *branch * forum-notification-reminder
+T *sym-forum-notification-reminder *
+T -sym-trunk * Cancelled\sby\sbranch.
+U stephan
+Z 3765f776a84d7cc8a350ad36c6aa75c7
 # Remove this line to create a well-formed Fossil manifest.

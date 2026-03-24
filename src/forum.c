@@ -1557,6 +1557,17 @@ static void forum_render_debug_options(void){
   }
 }
 
+static void forum_render_notification_reminder(void){
+  if( alert_tables_exist() ){
+    @ <div class='debug'>Creating and editing forum posts may send notifications
+    @ to an arbitrary number of subscribers. To reduce subscriber annoyance and
+    @ the risk of this forum's messages being flagged as spam by mail providers,
+    @ <em>please refrain from making multiple new posts or edits in rapid
+    @ succession</em>.
+    @ </div>
+  }
+}
+
 /*
 ** WEBPAGE: forume1
 **
@@ -1586,6 +1597,7 @@ void forumnew_page(void){
   @ <h1>New Thread:</h1>
   forum_from_line();
   forum_post_widget(zTitle, zMimetype, zContent);
+  forum_render_notification_reminder();
   @ <input type="submit" name="preview" value="Preview">
   if( P("preview") && !whitespace_only(zContent) ){
     @ <input type="submit" name="submit" value="Submit">
@@ -1777,6 +1789,7 @@ void forumedit_page(void){
     forum_post_widget(0, zMimetype, zContent);
   }
   if( !isDelete ){
+    forum_render_notification_reminder();
     @ <input type="submit" name="preview" value="Preview">
   }
   @ <input type="submit" name="cancel" value="Cancel">
