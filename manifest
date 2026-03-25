@@ -1,9 +1,13 @@
 B 422785d5dfafc5116a145aa96b75f89527bcddd4d0f471a34149a019f35167db
-C Add\sa\sreference\sto\sthe\schroot\sdocument\salso\sin\sthe\sstandalone\sserver\sdocumentation.
-D 2026-03-21T16:15:58.788
+C Make\ssync\serrors\smore\sobvious\sby\sissuing\sa\swarning\sat\sthe\send\sof\sthe\soperation\nif\serrors\soccur.
+D 2026-03-25T05:32:07.432
+F src/sync.c 623e48e337cc439beabfd924949dc193b792fdf54f0cf0e117e974506c21f915
 F www/server/any/none.md 23d8d8cb722a5bfec486d6537afd25f558492cfe0b2aef5950613fc50b4084d1
-P 422785d5dfafc5116a145aa96b75f89527bcddd4d0f471a34149a019f35167db
-R a358ad415febaa99c6c74004f45c3f50
+P e40bdbff497c1359758568856f7dc9a1ed65ebd09dd00c35cbbcb4f74d1e56c8
+R a87db616ce2011c154a900b7d3eaef84
+T *branch * sync-errors
+T *sym-sync-errors *
+T -sym-trunk *
 U andybradford
-Z 74f02d91a99f3d6c1925af16afbd445c
+Z 9389b550f47475bfd013514cf73cacf9
 # Remove this line to create a well-formed Fossil manifest.

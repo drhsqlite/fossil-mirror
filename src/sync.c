@@ -357,6 +357,13 @@ static void process_sync_args(
   }
 }
 
+/*
+* Wrapper method around fossil_warning for sync errors takes single
+* argument for the operation (e.g. sync, pull, push).
+*/
+static void sync_errors(const char *zOp){
+  fossil_warning("Warning: see above for errors encountered during %s.", zOp);
+}
 
 /*
 ** COMMAND: pull
@@ -401,6 +408,7 @@ void pull_cmd(void){
   unsigned syncFlags = SYNC_PULL;
   unsigned urlOmitFlags = 0;
   const char *zAltPCode = find_option("project-code",0,1);
+  int nErr;
   if( find_option("from-parent-project",0,0)!=0 ){
     syncFlags |= SYNC_FROMPARENT;
   }
@@ -410,7 +418,8 @@ void pull_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  client_sync_all_urls(syncFlags, configFlags, 0, zAltPCode);
+  nErr = client_sync_all_urls(syncFlags, configFlags, 0, zAltPCode);
+  if( nErr ){ sync_errors("pull"); }
 }
 
 /*
@@ -452,6 +461,7 @@ void pull_cmd(void){
 void push_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH;
+  int nErr;
   process_sync_args(&configFlags, &syncFlags, 0, 0);
 
   /* We should be done with options.. */
@@ -460,7 +470,8 @@ void push_cmd(void){
   if( db_get_boolean("dont-push",0) ){
     fossil_fatal("pushing is prohibited: the 'dont-push' option is set");
   }
-  client_sync_all_urls(syncFlags, 0, 0, 0);
+  nErr = client_sync_all_urls(syncFlags, 0, 0, 0);
+  if( nErr ){ sync_errors("push"); }
 }
 
 
@@ -506,6 +517,7 @@ void push_cmd(void){
 void sync_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH|SYNC_PULL;
+  int nErr;
   if( find_option("unversioned","u",0)!=0 ){
     syncFlags |= SYNC_UNVERSIONED;
   }
@@ -526,7 +538,8 @@ void sync_cmd(void){
       fossil_warning("pull only: the 'dont-push' option is set");
     }
   }
-  client_sync_all_urls(syncFlags, configFlags, 0, 0);
+  nErr = client_sync_all_urls(syncFlags, configFlags, 0, 0);
+  if( nErr ){ sync_errors("sync"); }
 }
 
 /*
