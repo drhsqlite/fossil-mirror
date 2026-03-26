@@ -2947,7 +2947,7 @@ void artifact_page(void){
       const char *zIp = db_column_text(&q,2);
       int rcvid = db_column_int(&q,3);
       @ <p>Received on %s(zDate) from %h(zUser) at %h(zIp).
-      @ (<a href="%R/rcvfrom?rcvid=%d(rcvid)">rcvid&nbsp;%d(rcvid))</a></p>
+      @ (<a href="%R/rcvfrom?rcvid=%d(rcvid)">rcvid&nbsp;%d(rcvid)</a>)</p>
     }
     db_finalize(&q);
   }
