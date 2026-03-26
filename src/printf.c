@@ -1305,17 +1305,6 @@ void fossil_warning(const char *zFormat, ...){
 }
 
 /*
-** Convert text floating-point literals into double.
-*/
-double fossil_atof(const char *z){
-#if SQLITE_VERSION_NUMBER>=3053000
-  return sqlite3_atof(z);
-#else
-  return atof(z);
-#endif
-}
-
-/*
 ** Turn off any LF to CRLF translation on the stream given as an
 ** argument.  This is a no-op on unix but is necessary on windows.
 */

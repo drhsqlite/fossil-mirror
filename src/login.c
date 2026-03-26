@@ -1451,7 +1451,7 @@ void login_check_credentials(void){
       ** "captcha-secret" value in the repository.  See tag-20250817a
       ** for the code the creates this cookie.
       */
-      double rTime = fossil_atof(zArg);
+      double rTime = atof(zArg);
       const char *zUserAgent = PD("HTTP_USER_AGENT","nil");
       Blob b;
       char *zSecret;

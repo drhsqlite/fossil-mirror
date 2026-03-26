@@ -351,7 +351,7 @@ void chat_create_tables(void){
 */
 static void chat_purge(void){
    int mxCnt = db_get_int("chat-keep-count",50);
-   double mxDays = fossil_atof(db_get("chat-keep-days","7"));
+   double mxDays = atof(db_get("chat-keep-days","7"));
    double rAge;
    int msgid;
    rAge = db_double(0.0, "SELECT julianday('now')-mtime FROM chat"

@@ -725,14 +725,14 @@ void pikchr_to_html(
   }
   zPikVar = skin_detail("pikchr-scale");
   if( zPikVar
-   && (rPikVar = fossil_atof(zPikVar))>=0.1
+   && (rPikVar = atof(zPikVar))>=0.1
    && rPikVar<10.0
   ){
     blob_appendf(&bSrc, "scale = %.13g\n", rPikVar);
   }
   zPikVar = skin_detail("pikchr-fontscale");
   if( zPikVar
-   && (rPikVar = fossil_atof(zPikVar))>=0.1
+   && (rPikVar = atof(zPikVar))>=0.1
    && rPikVar<10.0
   ){
     blob_appendf(&bSrc, "fontscale = %.13g\n", rPikVar);

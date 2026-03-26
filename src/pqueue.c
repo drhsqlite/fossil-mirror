@@ -215,7 +215,7 @@ void pqueuex_test_cmd(void){
       }
       if( bDebug) pqueuex_test_print(&x);
     }else{
-      double r = fossil_atof(zArg);
+      double r = atof(zArg);
       zId = strchr(zArg,'/');
       if( zId==0 ) zId = zArg;
       if( zId[0]=='/' ) zId++;

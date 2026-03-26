@@ -148,10 +148,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.53.0"
 #define SQLITE_VERSION_NUMBER 3053000
-#define SQLITE_SOURCE_ID      "2026-03-23 13:00:56 276c350313a1ac2ebc70c1e8e50ed4baecd4be4d4c93ba04cf5e0078da18700e"
+#define SQLITE_SOURCE_ID      "2026-03-26 19:11:57 c5af6a10245b6b847d30002806c1577b020c36ab27f7b1cf202ade136aa4779c"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2026-03-23T13:00:56.709Z"
+#define SQLITE_SCM_DATETIME   "2026-03-26T19:11:57.079Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -3229,28 +3229,6 @@ SQLITE_API char *sqlite3_mprintf(const char*,...);
 SQLITE_API char *sqlite3_vmprintf(const char*, va_list);
 SQLITE_API char *sqlite3_snprintf(int,char*,const char*, ...);
 SQLITE_API char *sqlite3_vsnprintf(int,char*,const char*, va_list);
-
-/*
-** CAPI3REF: Text-to-float conversion
-**
-** The sqlite3_atof(X) interface returns a "double" derived from the
-** text representation of a floating point value in X.
-** This interface provides applications with access to the
-** same text&rarr;float conversion routine used by SQLite for SQL parsing
-** and type coercion.  The sqlite3_atof(X) routine works like the standard
-** C-library atof(X) routine with the following exceptions:
-**
-** <ul>
-** <li> Parsing of the input X is strict. If anything about X
-**      is not well-formed, 0.0 is returned.
-** <li> Special values such like "INF", "INFINITY", and "NAN" are not
-**      recognized.
-** <li> Hexadecimal floating point literals are not recognized.
-** <li> The current locale is ignored. The radix character is always ".".
-** <li> The sqlite3_atof() interface does not set errno.
-** </ul>
-*/
-SQLITE_API double sqlite3_atof(const char*);
 
 /*
 ** CAPI3REF: Memory Allocation Subsystem
@@ -8379,13 +8357,6 @@ SQLITE_API int sqlite3_vfs_unregister(sqlite3_vfs*);
 ** SQLITE_MUTEX_W32 implementations are appropriate for use on Unix
 ** and Windows.
 **
-** If SQLite is compiled with the SQLITE_MUTEX_APPDEF preprocessor
-** macro defined (with "-DSQLITE_MUTEX_APPDEF=1"), then no mutex
-** implementation is included with the library. In this case the
-** application must supply a custom mutex implementation using the
-** [SQLITE_CONFIG_MUTEX] option of the sqlite3_config() function
-** before calling sqlite3_initialize() or any other public sqlite3_
-** function that calls sqlite3_initialize().
 **
 ** ^The sqlite3_mutex_alloc() routine allocates a new
 ** mutex and returns a pointer to it. ^The sqlite3_mutex_alloc()
@@ -8740,6 +8711,7 @@ SQLITE_API int sqlite3_test_control(int op, ...);
 #define SQLITE_TESTCTRL_TUNE                    32
 #define SQLITE_TESTCTRL_LOGEST                  33
 #define SQLITE_TESTCTRL_USELONGDOUBLE           34  /* NOT USED */
+#define SQLITE_TESTCTRL_ATOF                    34
 #define SQLITE_TESTCTRL_LAST                    34  /* Largest TESTCTRL */
 
 /*

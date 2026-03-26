@@ -54,7 +54,7 @@ void loadavg_test_cmd(void){
 ** testing of the overload warning page.
 */
 void overload_page(void){
-  double mxLoad = fossil_atof(db_get("max-loadavg", "0.0"));
+  double mxLoad = atof(db_get("max-loadavg", "0.0"));
   style_set_current_feature("test");
   style_header("Server Overload");
   @ <h2>The server load is currently too high.
@@ -72,7 +72,7 @@ void overload_page(void){
 ** restriction.
 */
 void load_control(void){
-  double mxLoad = fossil_atof(db_get("max-loadavg", "0.0"));
+  double mxLoad = atof(db_get("max-loadavg", "0.0"));
 #if 1
   /* Disable this block only to test load restrictions */
   if( mxLoad<=0.0 || mxLoad>=load_average() ) return;
