@@ -1,5 +1,5 @@
-C Make\smerge\sa\sno-op\swhen\smerging\sin\sthe\scurrent\scheckout\sversion,\sas\ssuggested\sin\s[forum:6367db867c|forum\spost\s6367db867c].
-D 2026-03-30T12:21:53.030
+C When\sdoing\sa\s"fossil\supdate",\sif\sa\sfile\sunder\smanagement\sneeds\sto\soverwrite\nan\sunmanaged\sfile,\sdisplay\sthe\sname\sof\sthe\sbackup\sthat\sis\smade\sof\sthe\nunmanaged\sfile,\sand\suse\sfile_delete()\sto\sdelete\sthe\sunmanaged\sfile,\seven\nif\sthat\sunmanaged\sfile\sis\sread-only.\s\sThe\senables\s"fossil\sup\sversion-3.50.0"\nto\swork\son\sthe\sSQLite\srepository\swhen\sstarting\sfrom\sthe\slatest\strunk.
+D 2026-04-01T12:10:11.335
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -588,7 +588,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 36128b298c386eb55f45c48d0af0fc49c1e9506e179f88a486c060fec6752a23
 F src/unicode.c a9d294a2914d5bb360c0f5bcc9b9b9d24c6d5d6c9718ed747a9eed01484b3d16
 F src/unversioned.c d39361fa12c51ed05b506b4efa5ef049b614f906fdb7ebd133c587d00b88746c
-F src/update.c 28b5f8e64e7fc52d87999ec1a48bd6e4b190f64abc6cccd10b47e2129d28d320
+F src/update.c 977849692d77b17fd90ab2e8135b4e39c12a44a4a4104089c184c3d98c0b6a22
 F src/url.c 3fcddbeb028cb985b979901f16aa2d0dbda4a52b0d6508a3a2e1a32bfb312408
 F src/user.c 8ed24fbe9586c0a633a91037d9947d1772dfda3562750f5a0c52b0d7f0b4c408
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a10f931ba1f9a90add133a00849ece100986554956da0ba88a609fe36669a745
-R bfdcb08f5130f85438b8457d00a84901
-U stephan
-Z 9a590d6f6134e6a47c0a0f8921ab71db
+P e84be9f2d6bd8356ca4aa1f85fac7fc36beaea272d0e4568750b938de40ba0be
+R da9ae593bf25967095144b45a0179d60
+U drh
+Z b7475ca7308bc8a4eb3056cf87e97ddf
 # Remove this line to create a well-formed Fossil manifest.
