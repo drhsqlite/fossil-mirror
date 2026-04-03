@@ -208,7 +208,7 @@
     }
   };
 
-  importScripts('pikchr-v2813665466.js');
+  importScripts('pikchr-v8806526039.js');
   /**
      initPikchrModule() is installed via pikchr.js due to
      building with:
