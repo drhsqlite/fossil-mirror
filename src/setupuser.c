@@ -405,7 +405,7 @@ static void alert_user_cap_change(const char *zLogin,   /*Affected user*/
                  "permissions [%q] by user [%q].\n",
                  zLogin, zNewCaps, g.zLogin);
   } else {
-    blob_appendf(&body, "Permissions for user [%q] where changed "
+    blob_appendf(&body, "Permissions for user [%q] were changed "
                  "from [%q] to [%q] by user [%q].\n",
                  zLogin, zOrigCaps, zNewCaps, g.zLogin);
   }

@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sPikchr\sto\sthe\slatest\strunk\scheck-in
-D 2026-04-03T11:02:01.813
+C Typo\sfix\sin\sthe\semail\salert\ssent\son\suser\scaps\schange
+D 2026-04-05T18:09:19.145
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -534,7 +534,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c c4bd56d8638015525bdacf03d2609e90f9c46f283bb1bfc97d467b7f504365c7
 F src/security_audit.c 8944cd768cf5226ea74cd667212b793923ad80824bf4e03f5fcf76bc720133ff
 F src/setup.c 0150c6648496f6d87c846983333125354bc90bd0c4ff7b8b5724429c80c7773d
-F src/setupuser.c 08acbf2c94a13e270e8060088f199b31e4a7bf0300c0fd336ac804510a82d15d
+F src/setupuser.c 43798b5e33c138940ba720454f331135df1e90d98216580508cfc4fe7750f279
 F src/sha1.c eac76e7bf2a68e6b433c2aa4fa4d08fa4264a27f5c817cd44958e268592ac0b4
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
 F src/sha3.c 6f51bfb14500f8fb7594fc2ea45bbad2b4d06bc0107d011576bb3d9bfb94fc71
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad59a046cb820c51b0fa85bd86a515c69eba32118a5587ba8d578e8ba8df997c
-R 6b1c6c3c3132724a8105234aeb3faeae
-U drh
-Z 0b48afd4c915ea901e12210d585332ee
+P adc7bfce73ba88fc0a30d9b52ab0c8291b39646bdeb2e8512807d65dc42d6853
+R 3fffb6317eb0720df2f46f18859e9e13
+U wyoung
+Z af64ab18a8848903358dcdbf723c9408
 # Remove this line to create a well-formed Fossil manifest.
