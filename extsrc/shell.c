@@ -451,8 +451,8 @@ FILE *sqlite3_fopen(const char *zFilename, const char *zMode){
 
   sz1 = (int)strlen(zFilename);
   sz2 = (int)strlen(zMode);
-  b1 = sqlite3_malloc( (sz1+1)*sizeof(b1[0]) );
-  b2 = sqlite3_malloc( (sz2+1)*sizeof(b1[0]) );
+  b1 = sqlite3_malloc64( (sz1+1)*sizeof(b1[0]) );
+  b2 = sqlite3_malloc64( (sz2+1)*sizeof(b1[0]) );
   if( b1 && b2 ){
     sz1 = MultiByteToWideChar(CP_UTF8, 0, zFilename, sz1, b1, sz1);
     b1[sz1] = 0;
@@ -477,8 +477,8 @@ FILE *sqlite3_popen(const char *zCommand, const char *zMode){
 
   sz1 = (int)strlen(zCommand);
   sz2 = (int)strlen(zMode);
-  b1 = sqlite3_malloc( (sz1+1)*sizeof(b1[0]) );
-  b2 = sqlite3_malloc( (sz2+1)*sizeof(b1[0]) );
+  b1 = sqlite3_malloc64( (sz1+1)*sizeof(b1[0]) );
+  b2 = sqlite3_malloc64( (sz2+1)*sizeof(b1[0]) );
   if( b1 && b2 ){
     sz1 = MultiByteToWideChar(CP_UTF8, 0, zCommand, sz1, b1, sz1);
     b1[sz1] = 0;
@@ -501,7 +501,7 @@ char *sqlite3_fgets(char *buf, int sz, FILE *in){
     ** that into UTF-8.  Otherwise, non-ASCII characters all get translated
     ** into '?'.
     */
-    wchar_t *b1 = sqlite3_malloc( sz*sizeof(wchar_t) );
+    wchar_t *b1 = sqlite3_malloc64( sz*sizeof(wchar_t) );
     if( b1==0 ) return 0;
 #ifdef SQLITE_USE_W32_FOR_CONSOLE_IO
     DWORD nRead = 0;
@@ -576,7 +576,7 @@ int sqlite3_fputs(const char *z, FILE *out){
     ** to the console on Windows. 
     */
     int sz = (int)strlen(z);
-    wchar_t *b1 = sqlite3_malloc( (sz+1)*sizeof(wchar_t) );
+    wchar_t *b1 = sqlite3_malloc64( (sz+1)*sizeof(wchar_t) );
     if( b1==0 ) return 0;
     sz = MultiByteToWideChar(CP_UTF8, 0, z, sz, b1, sz);
     b1[sz] = 0;
@@ -685,7 +685,7 @@ void sqlite3_fsetmode(FILE *fp, int mode){
 **
 *************************************************************************
 ** Header file for the Result-Format or "resfmt" utility library for SQLite.
-** See the resfmt.md documentation for additional information.
+** See the README.md documentation for additional information.
 */
 #ifndef SQLITE_QRF_H
 #define SQLITE_QRF_H
@@ -5815,7 +5815,7 @@ static Decimal *decimalNewFromText(const char *zIn, int n){
   int iExp = 0;
 
   if( zIn==0 ) goto new_from_text_failed;
-  p = sqlite3_malloc( sizeof(*p) );
+  p = sqlite3_malloc64( sizeof(*p) );
   if( p==0 ) goto new_from_text_failed;
   p->sign = 0;
   p->oom = 0;
@@ -6555,7 +6555,7 @@ static void decimalSumStep(
   if( p==0 ) return;
   if( !p->isInit ){
     p->isInit = 1;
-    p->a = sqlite3_malloc(2);
+    p->a = sqlite3_malloc64(2);
     if( p->a==0 ){
       p->oom = 1;
     }else{
@@ -6928,7 +6928,7 @@ static void base64(sqlite3_context *context, int na, sqlite3_value *av[]){
       sqlite3_result_text(context,"",-1,SQLITE_STATIC);
       break;
     }
-    cBuf = sqlite3_malloc(nc);
+    cBuf = sqlite3_malloc64(nc);
     if( !cBuf ) goto memFail;
     nc = (int)(toBase64(bBuf, nb, cBuf) - cBuf);
     sqlite3_result_text(context, cBuf, nc, sqlite3_free);
@@ -6950,7 +6950,7 @@ static void base64(sqlite3_context *context, int na, sqlite3_value *av[]){
       sqlite3_result_zeroblob(context, 0);
       break;
     }
-    bBuf = sqlite3_malloc(nb);
+    bBuf = sqlite3_malloc64(nb);
     if( !bBuf ) goto memFail;
     nb = (int)(fromBase64(cBuf, nc, bBuf) - bBuf);
     sqlite3_result_blob(context, bBuf, nb, sqlite3_free);
@@ -7305,7 +7305,7 @@ static void base85(sqlite3_context *context, int na, sqlite3_value *av[]){
       sqlite3_result_text(context,"",-1,SQLITE_STATIC);
       break;
     }
-    cBuf = sqlite3_malloc(nc);
+    cBuf = sqlite3_malloc64(nc);
     if( !cBuf ) goto memFail;
     nc = (int)(toBase85(bBuf, nb, cBuf, "\n") - cBuf);
     sqlite3_result_text(context, cBuf, nc, sqlite3_free);
@@ -7327,7 +7327,7 @@ static void base85(sqlite3_context *context, int na, sqlite3_value *av[]){
       sqlite3_result_zeroblob(context, 0);
       break;
     }
-    bBuf = sqlite3_malloc(nb);
+    bBuf = sqlite3_malloc64(nb);
     if( !bBuf ) goto memFail;
     nb = (int)(fromBase85(cBuf, nc, bBuf) - bBuf);
     sqlite3_result_blob(context, bBuf, nb, sqlite3_free);
@@ -8056,7 +8056,7 @@ static int seriesConnect(
   rc = sqlite3_declare_vtab(db,
      "CREATE TABLE x(value,start hidden,stop hidden,step hidden)");
   if( rc==SQLITE_OK ){
-    pNew = *ppVtab = sqlite3_malloc( sizeof(*pNew) );
+    pNew = *ppVtab = sqlite3_malloc64( sizeof(*pNew) );
     if( pNew==0 ) return SQLITE_NOMEM;
     memset(pNew, 0, sizeof(*pNew));
     sqlite3_vtab_config(db, SQLITE_VTAB_INNOCUOUS);
@@ -8078,7 +8078,7 @@ static int seriesDisconnect(sqlite3_vtab *pVtab){
 static int seriesOpen(sqlite3_vtab *pUnused, sqlite3_vtab_cursor **ppCursor){
   series_cursor *pCur;
   (void)pUnused;
-  pCur = sqlite3_malloc( sizeof(*pCur) );
+  pCur = sqlite3_malloc64( sizeof(*pCur) );
   if( pCur==0 ) return SQLITE_NOMEM;
   memset(pCur, 0, sizeof(*pCur));
   *ppCursor = &pCur->base;
@@ -9433,7 +9433,7 @@ static const char *re_compile(
   int i, j;
 
   *ppRe = 0;
-  pRe = sqlite3_malloc( sizeof(*pRe) );
+  pRe = sqlite3_malloc64( sizeof(*pRe) );
   if( pRe==0 ){
     return "out of memory";
   }
@@ -10302,7 +10302,7 @@ static int fsdirConnect(
   (void)pzErr;
   rc = sqlite3_declare_vtab(db, "CREATE TABLE x" FSDIR_SCHEMA);
   if( rc==SQLITE_OK ){
-    pNew = (fsdir_tab*)sqlite3_malloc( sizeof(*pNew) );
+    pNew = (fsdir_tab*)sqlite3_malloc64( sizeof(*pNew) );
     if( pNew==0 ) return SQLITE_NOMEM;
     memset(pNew, 0, sizeof(*pNew));
     sqlite3_vtab_config(db, SQLITE_VTAB_DIRECTONLY);
@@ -10325,7 +10325,7 @@ static int fsdirDisconnect(sqlite3_vtab *pVtab){
 static int fsdirOpen(sqlite3_vtab *p, sqlite3_vtab_cursor **ppCursor){
   fsdir_cursor *pCur;
   (void)p;
-  pCur = sqlite3_malloc( sizeof(*pCur) );
+  pCur = sqlite3_malloc64( sizeof(*pCur) );
   if( pCur==0 ) return SQLITE_NOMEM;
   memset(pCur, 0, sizeof(*pCur));
   pCur->iLvl = -1;
@@ -11058,7 +11058,7 @@ static int completionConnect(
       "  phase INT HIDDEN"        /* Used for debugging only */
       ")");
   if( rc==SQLITE_OK ){
-    pNew = sqlite3_malloc( sizeof(*pNew) );
+    pNew = sqlite3_malloc64( sizeof(*pNew) );
     *ppVtab = (sqlite3_vtab*)pNew;
     if( pNew==0 ) return SQLITE_NOMEM;
     memset(pNew, 0, sizeof(*pNew));
@@ -11080,7 +11080,7 @@ static int completionDisconnect(sqlite3_vtab *pVtab){
 */
 static int completionOpen(sqlite3_vtab *p, sqlite3_vtab_cursor **ppCursor){
   completion_cursor *pCur;
-  pCur = sqlite3_malloc( sizeof(*pCur) );
+  pCur = sqlite3_malloc64( sizeof(*pCur) );
   if( pCur==0 ) return SQLITE_NOMEM;
   memset(pCur, 0, sizeof(*pCur));
   pCur->db = ((completion_vtab*)p)->db;
@@ -12584,7 +12584,7 @@ static int zipfileDisconnect(sqlite3_vtab *pVtab){
 static int zipfileOpen(sqlite3_vtab *p, sqlite3_vtab_cursor **ppCsr){
   ZipfileTab *pTab = (ZipfileTab*)p;
   ZipfileCsr *pCsr;
-  pCsr = sqlite3_malloc(sizeof(*pCsr));
+  pCsr = sqlite3_malloc64(sizeof(*pCsr));
   *ppCsr = (sqlite3_vtab_cursor*)pCsr;
   if( pCsr==0 ){
     return SQLITE_NOMEM;
@@ -13123,7 +13123,7 @@ static void zipfileInflate(
   int nIn,                        /* Size of buffer aIn[] in bytes */
   int nOut                        /* Expected output size */
 ){
-  u8 *aRes = sqlite3_malloc(nOut);
+  u8 *aRes = sqlite3_malloc64(nOut);
   if( aRes==0 ){
     sqlite3_result_error_nomem(pCtx);
   }else{
@@ -13520,7 +13520,7 @@ static int zipfileBestIndex(
 
 static ZipfileEntry *zipfileNewEntry(const char *zPath){
   ZipfileEntry *pNew;
-  pNew = sqlite3_malloc(sizeof(ZipfileEntry));
+  pNew = sqlite3_malloc64(sizeof(ZipfileEntry));
   if( pNew ){
     memset(pNew, 0, sizeof(ZipfileEntry));
     pNew->cds.zFile = sqlite3_mprintf("%s", zPath);
@@ -14470,7 +14470,7 @@ static void sqlarCompressFunc(
     uLongf nOut = compressBound(nData);
     Bytef *pOut;
 
-    pOut = (Bytef*)sqlite3_malloc(nOut);
+    pOut = (Bytef*)sqlite3_malloc64(nOut);
     if( pOut==0 ){
       sqlite3_result_error_nomem(context);
       return;
@@ -14515,7 +14515,7 @@ static void sqlarUncompressFunc(
   }else{
     uLongf szf = sz;
     const Bytef *pData= sqlite3_value_blob(argv[0]);
-    Bytef *pOut = sqlite3_malloc(sz);
+    Bytef *pOut = sqlite3_malloc64(sz);
     if( pOut==0 ){
       sqlite3_result_error_nomem(context);
     }else if( Z_OK!=uncompress(pOut, &szf, pData, nData) ){
@@ -18136,7 +18136,7 @@ static void stmtrandFunc(
   p = (Stmtrand*)sqlite3_get_auxdata(context, STMTRAND_KEY);
   if( p==0 ){
     unsigned int seed;
-    p = sqlite3_malloc( sizeof(*p) );
+    p = sqlite3_malloc64( sizeof(*p) );
     if( p==0 ){
       sqlite3_result_error_nomem(context);
       return;
@@ -19076,7 +19076,7 @@ static int vfstraceOpen(
   vfstrace_printf(pInfo, "%s.xOpen(%s,flags=0x%x)",
                   pInfo->zVfsName, p->zFName, flags);
   if( p->pReal->pMethods ){
-    sqlite3_io_methods *pNew = sqlite3_malloc( sizeof(*pNew) );
+    sqlite3_io_methods *pNew = sqlite3_malloc64( sizeof(*pNew) );
     const sqlite3_io_methods *pSub = p->pReal->pMethods;
     memset(pNew, 0, sizeof(*pNew));
     pNew->iVersion = pSub->iVersion;
@@ -36329,6 +36329,21 @@ static int vfstraceOut(const char *z, void *pArg){
   return 1;
 }
 
+#if defined(SQLITE_DEBUG) && !defined(SQLITE_SHELL_FIDDLE)
+/* Ensure that sqlite3_reset_auto_extension() clears auto-extension
+** memory. https://sqlite.org/forum/forumpost/310cb231b07c80d1.
+** Testing this: if we (inadvertently) remove the
+** sqlite3_reset_auto_extension() call from main(), most shell tests
+** will fail because of a leak message in their output. */
+static int auto_ext_leak_tester(
+  sqlite3 *db, const char **pzErrMsg,
+  const struct sqlite3_api_routines *pThunk
+){
+  (void)db; (void)pzErrMsg; (void)pThunk;
+  return SQLITE_OK;
+}
+#endif
+
 /* Alternative name to the entry point for Fiddle */
 #ifdef SQLITE_SHELL_FIDDLE
 #  define main fiddle_main
@@ -36731,6 +36746,9 @@ int SQLITE_CDECL main(int argc, char **argv){
   }
 #ifndef SQLITE_SHELL_FIDDLE
   sqlite3_appendvfs_init(0,0,0);
+#ifdef SQLITE_DEBUG
+  sqlite3_auto_extension( (void (*)())auto_ext_leak_tester );
+#endif
 #endif
   modeDefault(&data);
 
@@ -37108,6 +37126,7 @@ int SQLITE_CDECL main(int argc, char **argv){
   if( bEnableVfstrace ){
     vfstrace_unregister("trace");
   }
+  sqlite3_reset_auto_extension();
 #ifdef SQLITE_DEBUG
   if( sqlite3_memory_used()>mem_main_enter ){
     cli_printf(stderr,"Memory leaked: %u bytes\n",
