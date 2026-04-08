@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\sSQLite\s3.53.0\sbeta\sfor\stesting.
-D 2026-04-07T09:58:25.498
+C Remove\sthe\slong-unmaintained\sdebian/makedeb.sh,\sas\sdiscussed\sin\s[forum:5ab11b34d8326d52|forum\spost\s5ab11b34d8326d52].
+D 2026-04-08T16:57:34.756
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -268,7 +268,6 @@ F compat/zlib/zlibConfig.cmake.in 56d3bb30ff945660727bfb47f89dedb2d0301e61157e9b
 F compat/zlib/zutil.c c697f21f8c76dde7a96f3cae35dcad0b0cf30c5618ece7cc3b2806545eff261a
 F compat/zlib/zutil.h f5ce3c36dfadc8cfbec058dbf8f0fdf76676171648a09007be5829ca06185fec
 F configure 9a00b21dfd13757bbfb8d89b30660a89ec1f8f3a79402b8f9f9b6fc475c3303a x
-F debian/makedeb.sh a6f25e2697977d7865196cc87b67271575681d2fc148256b58bdd574bd49a5d7
 F extsrc/cson_amalgamation.c 6244638c0b9d0c8f5dc832aa4601739250e4d3243728dae984d5dadb085d0567
 F extsrc/cson_amalgamation.h 3903869fccd066d54ce9716125e5d0fade48bc106b82a3c5f370160dcedc7551
 F extsrc/linenoise-win32.c 4edab5d16a9ba9e1561ba271f35a9f74c86ab5363f402840c7c3a37647fb1a0b
@@ -982,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3f8def361224f153a89828b3a5a8fc9e3bba476da22a905f49b36b4bd4ff161d
-R 76b1a098e8c06d1091ad5669e827b580
-U drh
-Z 2031291b6cd183bee3807ec381dbf09c
+P 0201a1e2cc7a54bb1cf0e894f61c3ea3eb0be931df3e2844ab7ebb117f9e0998
+R cc11758860b667cbf576366c563ff2e2
+U stephan
+Z b8c34a534c7e2181529a1d9b6549cca8
 # Remove this line to create a well-formed Fossil manifest.
