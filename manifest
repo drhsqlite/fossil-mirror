@@ -1,5 +1,5 @@
-C Grammar\stidyups\sfor\sbackoffice\sdoc.
-D 2026-04-09T22:09:13.537
+C Clarification\sfor\schat\sdocs.
+D 2026-04-10T04:03:42.856
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -803,7 +803,7 @@ F www/caps/login-groups.md b578bfee7063fe0a3fef310b79d0b9ca23e084b17aa3044d57f5a
 F www/caps/ref.html 80f46f8229fa89f4cd1d1a1ff6bd1700905d64e65fd2201ad315b652b292ae4b
 F www/cgi.wiki b9c5bcae4ac589ed274f8f4b2a64dc854f14c78883f4f0200504ec7e3cdf2b56
 F www/changes.wiki 2f21505d0e4bcd0a815c32162942f3718472839cd7eb1f75b0fd0ca5578179ab
-F www/chat.md d0d9ed26c0ba1d51e90aa3a30dc56dd90e8b3a782bef9ed0f65284e5eb807fef
+F www/chat.md 9e962760a95d717205757d0839cd70a0f91471a23a5e0198c0b629b99889e078
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
 F www/childprojects.wiki b9e85fab11f4fe1559182a24952be845062b33bb50d1ec8904b9289eeac60209
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 59bb3743987706f331367dcd13f2192943e3e25bddb30c35aa34417e2e86e4d8
-R f1ffe8bed3c291d1465fd5f1c2a6d817
+P c500fa61cf648da8d660eefeff0051ceeb805c5cfc13b348b08cab1475cc0e33
+R 59b0e78208fe24d4be5ad691274db843
 U brickviking
-Z 7ca5de9ab2b9532b16823ec2238545cc
+Z 8f4421295eac1dc49109cc979360e839
 # Remove this line to create a well-formed Fossil manifest.
