@@ -1,5 +1,5 @@
-C Clarification\sfor\schat\sdocs.
-D 2026-04-10T04:03:42.856
+C Clarification\sfor\schroot\sdoc.
+D 2026-04-10T04:09:45.598
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -807,7 +807,7 @@ F www/chat.md 9e962760a95d717205757d0839cd70a0f91471a23a5e0198c0b629b99889e078
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
 F www/childprojects.wiki b9e85fab11f4fe1559182a24952be845062b33bb50d1ec8904b9289eeac60209
-F www/chroot.md 80dd943e55e260f619d09051756603ed0b159e104ef4944be0a7ce8e1d383cfc
+F www/chroot.md aa30c06d3459077ae0ece24034226a7f4b874548d489c70b49aea6a173834894
 F www/ckout-workflows.md ccf327ca7123d7a98f948ab4548f4e2e977b95d1ed09c37cf7e7ae82ca08048e
 F www/co-vs-up.md 61850e6fc11a282121928647d8d38b64286459150e02a1e98adbf044707293bd
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c500fa61cf648da8d660eefeff0051ceeb805c5cfc13b348b08cab1475cc0e33
-R 59b0e78208fe24d4be5ad691274db843
+P 7924b4a3887159f51b98abc4d7656be09fbf13cac5b453edef50202b6aa91038
+R 70de99fe7b6d2f1a19b2a49284d8cb27
 U brickviking
-Z 8f4421295eac1dc49109cc979360e839
+Z 17ae882cdc18015eed2cbccdd6d9ab19
 # Remove this line to create a well-formed Fossil manifest.
