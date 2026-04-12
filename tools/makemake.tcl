@@ -277,6 +277,7 @@ set SHELL_OPTIONS [concat $SQLITE_OPTIONS {
   -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE)
   -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname
   -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc
+  -DSQLITE_PS1=\\\"FossilSQL/040/~/076/040\\\"
 }]
 
 # Options used to compile the included SQLite shell on Windows.
@@ -1841,9 +1842,9 @@ regsub -all {[-]D} [join $SQLITE_WIN32_OPTIONS { }] {/D} MSC_SQLITE_OPTIONS
 set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MSC_SQLITE_OPTIONS $j]\n"
 
-regsub -all {[-]D} [join $SHELL_WIN32_OPTIONS { }] {/D} MSC_SHELL_OPTIONS
 set j " \\\n                "
-writeln "SHELL_OPTIONS = [join $MSC_SHELL_OPTIONS $j]\n"
+writeln [string map {-D /D} \
+         "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]"]\n
 
 regsub -all {[-]D} [join $PIKCHR_OPTIONS { }] {/D} MSC_PIKCHR_OPTIONS
 set j " \\\n                "
