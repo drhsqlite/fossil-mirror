@@ -297,6 +297,7 @@ void stat_page(void){
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
   @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))
   @ <a href='version?verbose'>(details)</a></td></tr>
+  @ <tr><th>Pikchr&nbsp;Version:</th><td>%s(pikchr_version())</td></tr>
   if( g.perm.Admin ){
     const char *zCgi = P("SERVER_SOFTWARE");
     @ <tr><th>OpenSSL&nbsp;Version:</th>
@@ -355,14 +356,14 @@ void stat_page(void){
 **   --db-verify          Run a full verification of the repository integrity.
 **                        This involves decoding and reparsing all artifacts
 **                        and can take significant time.
-**   --omit-version-info  Omit the SQLite and Fossil version information
+**   --omit-version-info  Omit the SQLite, Fossil, Pikchr version information
 */
 void dbstat_cmd(void){
   i64 t, fsize;
   int n, m;
   int szMax, szAvg;
   int brief;
-  int omitVers;            /* Omit Fossil and SQLite version information */
+  int omitVers;            /* Omit Fossil, SQLite, Pikchr version information */
   int dbCheck;             /* True for the --db-check option */
   const int colWidth = -19 /* printf alignment/width for left column */;
   const char *p, *z;
@@ -471,6 +472,9 @@ void dbstat_cmd(void){
                  colWidth, "sqlite-version:",
                  sqlite3_sourceid(), &sqlite3_sourceid()[20],
                  sqlite3_libversion());
+    fossil_print("%*s%s\n",
+                 colWidth, "pikchr-version:",
+                 pikchr_version());
   }
   fossil_print("%*s%,d pages, %d bytes/pg, %,d free pages, "
                "%s, %s mode\n",

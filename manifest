@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\strunk\sversion\sof\sSQLite,\sincluding\sthe\snew\sCLI\sprompt\nenhancement.\s\sConfigure\sthe\sprompt\sto\sbe\s"FossilSQL\sREPONAME>"\sfor\nthe\s"fossil\ssql"\scommand.
-D 2026-04-12T00:01:22.674
+C Display\sPikchr\sversion\sin\sthe\soutput\sof\s'dbstat'\sand\s/stat.
+D 2026-04-13T12:12:12.363
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -562,7 +562,7 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c d001e76b4be191dd2cd564b4368cb7baabd1b1ef004193870c13f4d0a7354939
 F src/stash.c edceac522c114b482922cb3def79106029d0488eafb516894618c50c0df8ecaf
-F src/stat.c 7c7e1ca90025376e61f4d1a7ae2c4c403a71b2154b84161dc2db65ff28cf3985
+F src/stat.c 87d72f69cc2603b7fa4a81e37782c5db910f31a1508aff46290e32c012f40ba2
 F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 372468fc9bd8cab5f2fafe4325577e90ff9296ee455d0c5d7fd8cac93986e060
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 200f486dbfd8eeeb33797dc563123b4fd559bc78593e4c671071b36421282712
-R e58d409daedcabd07f32c3d65af7de83
-U drh
-Z 0e0c4cf3caab4782fd32dd0930c2d814
+P 3361df86b3ba75322d997ad86f1ab87e353b62cedd1a0d612b83248b559332cf
+R d5d93db7994986b95fb6c78a54eba776
+U danield
+Z 3901c97f2cc3034eba15213b8147b611
 # Remove this line to create a well-formed Fossil manifest.
