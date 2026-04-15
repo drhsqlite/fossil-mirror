@@ -207,17 +207,11 @@ void stat_page(void){
       @ %d(a):%d(b)
       @ </td></tr>
     }
-    if( db_table_exists("repository","unversioned") ){
-      Stmt q;
-      char zStored[100];
-      db_prepare(&q,
-        "SELECT count(*), sum(sz), sum(octet_length(content))"
-        "  FROM unversioned"
-        " WHERE length(hash)>1"
-      );
-      if( db_step(&q)==SQLITE_ROW && (n = db_column_int(&q,0))>0 ){
-        sqlite3_int64 iStored, pct;
-        iStored = db_column_int64(&q,2);
+    { /* Unversioned Files stat (if any) */
+      sqlite3_int64 iStored = unversioned_stat(&n);
+      if( n>0 ){
+        sqlite3_int64 pct;
+        char zStored[100];
         pct = (iStored*100 + fsize/2)/fsize;
         approxSizeName(sizeof(zStored), zStored, iStored);
         @ <tr><th>Unversioned&nbsp;Files:</th><td>
@@ -225,7 +219,6 @@ void stat_page(void){
         @ %s(zStored) compressed, %d(pct)%% of total repository space
         @ </td></tr>
       }
-      db_finalize(&q);
     }
     @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
     n = db_int(0, "SELECT count(*) FROM event WHERE type='ci' /*scan*/");
@@ -412,6 +405,17 @@ void dbstat_cmd(void){
       }
       a = t/fsize;
       fossil_print("%*s%d:%d\n", colWidth, "compression-ratio:", a, b);
+    }
+    { /* Unversioned Files stat (if any) */
+      sqlite3_int64 iStored = unversioned_stat(&n);
+      if( n>0 ){
+        sqlite3_int64 pct;
+        char zStored[100];
+        pct = (iStored*100 + fsize/2)/fsize;
+        approxSizeName(sizeof(zStored), zStored, iStored);
+        fossil_print("%*s%d files, %s compressed, %d%% of total repository space\n",
+            colWidth, "unversioned-files:", n, zStored, pct);
+      }
     }
     n = db_int(0, "SELECT COUNT(*) FROM event e WHERE e.type='ci'");
     fossil_print("%*s%,d\n", colWidth, "check-ins:", n);
