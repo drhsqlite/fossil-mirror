@@ -1,5 +1,5 @@
-C Display\sUnversioned\sFiles\sinfo\sin\sdbstat\scommand\s(like\son\s/stat\spage)
-D 2026-04-15T17:16:35.685
+C Fix\sthe\sfossil_roundup_date()\sfunction\sso\sthat\sit\salso\srounds\sup\sdates\nwith\smilliseconds\sat\sthe\send.
+D 2026-04-16T11:47:57.199
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -511,7 +511,7 @@ F src/merge.c 27971d57e16450f5480efcde4431c32843546584a471cf5064f706564fabc2e9
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c d16fe90bc0cfcd2d08bafaaf6a858f5b635873e2f1b40e7c9e92a6d8cd6da162
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c b6bd640f76ea1cacb7c63d324ad27254789a8439fe228b00fdc6f214509f1a58
+F src/name.c d3ae6ed154d19b494d42ef790aca35777aad55137677b8484d40cca0b414cd07
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 1adf1a85457de922c45d649cbd77e1a483d892e5049a2b812c89a45c22948dec
 F src/piechart.c 9f764d8695b0fda40f4f9fbd1a10d9bbdae7973274de7f60d86794178d61eb15
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cca8cc15f2331578c8667460696d6a042894c7b771c4303a7c1c3c11f247a80e
-R fc5b52d9326551bb89e1bb4a02220fb2
-U mgagnon
-Z a1ba1101f2e27db3acc55a9a7a209977
+P 349e9f2ff3d1ba3b94a74d086aafae85f052e23e8117bc87b3522398dafd36b5
+R ff6ffbdda86629139be3860c91db009c
+U drh
+Z c1008be9de1d62ae12a76cb14328d777
 # Remove this line to create a well-formed Fossil manifest.
