@@ -1,5 +1,5 @@
-C Documentation\stypo\sfix.
-D 2026-04-16T19:53:44.545
+C blitz\sskin\sfix:\sremove\sdisplay:block\sproperty\son\sthe\s"label"\sclass\sto\sfix\nmiss-aligned\scheckbox\swith\stheir\slabel\son\sthe\s/setting\spage.
+D 2026-04-16T21:05:11.540
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -329,7 +329,7 @@ F skins/black_and_white/footer.txt 0c32f13f6ad5fa409b38e0093a897d71f407ede5fb3a9
 F skins/black_and_white/header.txt 4e8685c45aa6202f7c7c92f9edc5568ce90152a0e86c21b1c93a1d507e66d4f8
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt 264e5899bbc577a4e8843d2569ecbc54b9229440184e9d69dd71a57b3a43fe60
+F skins/blitz/css.txt ce67ad931a2a6a1e30b90c9c54bb06056525119bfd2c32868f5ab34de212f46e
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 68b27378f5f3e80e2819485a68e7a8c516cdd217f8ad22c92d0e236d3b2f8625
-R fa999908e2338158ee83e656c7a2204e
-U drh
-Z ead5aa7983ecc206f54142294fc8ab97
+P 44d2c0a5242939ace57e826567ca02fe3fdd21658c10414d6697b88da386c91d
+R 60215e9fb6dacabddeb0ecfc2a24fc95
+U mgagnon
+Z 79852b36f419d902253e1779cf9aac8c
 # Remove this line to create a well-formed Fossil manifest.

@@ -390,6 +390,7 @@ fieldset {
 legend {
   border: 0; /* 1 */
   padding: 0; /* 2 */
+  display: block;
 }
 
 /**
@@ -627,7 +628,6 @@ select:focus {
 
 label,
 legend {
-  display: block;
   margin-bottom: .5rem;
   font-weight: 700;
 }
