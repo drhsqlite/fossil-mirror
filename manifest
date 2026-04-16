@@ -1,5 +1,5 @@
-C A\smore\sinvasive\simplementation\sof\sthe\sconvenience\s"copy"\sbutton\sbefore\ndate/time\sstrings\sthat\stries\sto\swork\saround\sobjections\sraised\son\sthe\nForum.
-D 2026-04-16T19:02:03.554
+C Documentation\stypo\sfix.
+D 2026-04-16T19:53:44.545
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -914,7 +914,7 @@ F www/password.wiki b00115320bd1a6ebb4dc778b85ad60c1d8e3dc0749a8df2da249319338ba
 F www/patchcmd.md eec1e87eb12649e85ff434833e63c2e169195e70333ca4510238b298f54a955e
 F www/permutedindex.html 1ec1615ffadc642144014a9b5504323299c0181a8328474a2468915a66536155
 F www/pikchr.md 231f484be5306b2280542c2a36e2147ceb7027a04218cf299e43d6fb7a3ba7c1
-F www/pop.wiki 71c8121b0f265c7a957ae4145f091317d3e23055ec1f98eacb9124e48a2ce3b7
+F www/pop.wiki e24e6cde324716a60f3a045153fea8457eabf7b2339322f57fec0bfcebba56cd
 F www/private.wiki bc1ef4bf545d2e46228f43234073eade1668c1667718a4594c0ab5df0eb72343
 F www/qandc.wiki 256511da7ec09719877dbc2e8161c1caae85d8344ccc514e145fbb38810fb2be
 F www/quickstart.wiki e2127ef8726171c44cf3f99b1fd12a1c9749e64f65ead133c007ebb57d992e7b
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e39933757acd4c06ec9f2b72cafe9ee614a2943bc5ee5b07f1c663998d29684d
-R cd9d2d902258c8428660776025a50bf4
+P 68b27378f5f3e80e2819485a68e7a8c516cdd217f8ad22c92d0e236d3b2f8625
+R fa999908e2338158ee83e656c7a2204e
 U drh
-Z b69847e5c3cc29cbea732ad47c19ec70
+Z ead5aa7983ecc206f54142294fc8ab97
 # Remove this line to create a well-formed Fossil manifest.
