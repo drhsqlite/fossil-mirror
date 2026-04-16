@@ -1196,7 +1196,7 @@ static int copybtnCmd(
     }
     zResult = style_copy_button(
                 /*bOutputCGI==*/0, /*TARGETID==*/(char*)argv[1],
-                flipped, copylength, "%h", /*TEXT==*/(char*)argv[3]);
+                flipped, copylength, 0, "%h", /*TEXT==*/(char*)argv[3]);
     sendText(0,zResult, -1, 0);
     free(zResult);
   }

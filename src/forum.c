@@ -765,8 +765,9 @@ static void forum_display_post(
   char *zPosterName;    /* Name of user who originally made this post */
   char *zEditorName;    /* Name of user who provided the current edit */
   char *zDate;          /* The time/date string */
-  char *zDateTag;       /* Tag for the time/date text */
+  char *zDateZulu;      /* The date/time string in Zulul time */
   char *zHist;          /* History query string */
+  char *z;
   Manifest *pManifest;  /* Manifest comprising the current post */
   int bPrivate;         /* True for posts awaiting moderation */
   int bSameUser;        /* True if author is also the reader */
@@ -804,15 +805,14 @@ static void forum_display_post(
     **    *  The post was last edited by the original author
     **    *  The post was last edited by a different person
     */
-    if( p->pEditHead ){
-      zDate = db_text(0, "SELECT datetime(%.17g,toLocal())",
-                      p->pEditHead->rDate);
-    }else{
+    if( !p->pEditHead ){
       zPosterName = forum_post_display_name(p, pManifest);
       zEditorName = zPosterName;
     }
     zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", p->rDate);
-    zDateTag = mprintf("datetag-%d", p->fpid);
+    zDateZulu = db_text(0,
+          "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%SZ',%.17g)",
+          p->rDate);
     if( p->pEditPrev ){
       zPosterName = forum_post_display_name(p->pEditHead, 0);
       zEditorName = forum_post_display_name(p, pManifest);
@@ -820,12 +820,16 @@ static void forum_display_post(
       @ <h3 class='forumPostHdr'>(%d(p->sid)\
       @ .%0*d(fossil_num_digits(p->nEdit))(p->rev))
       if( fossil_strcmp(zPosterName, zEditorName)==0 ){
-        @ By %s(zPosterName) on %h(zDate) edited from \
+        @ By %s(zPosterName) on \
+        style_copy_button(1, 0, 0, 0, zDateZulu, "%h", zDate);
+        @ &#32;edited from \
         @ %z(href("%R/forumpost/%S%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
         @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
       }else{
         @ Originally by %s(zPosterName) \
-        @ with edits by %s(zEditorName) on %h(zDate) from \
+        @ with edits by %s(zEditorName) on \
+        style_copy_button(1, 0, 0, 0, zDateZulu, "%h", zDate);
+        @ &#32;from \
         @ %z(href("%R/forumpost/%S%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
         @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
       }
@@ -833,11 +837,11 @@ static void forum_display_post(
       zPosterName = forum_post_display_name(p, pManifest);
       @ <h3 class='forumPostHdr'>(%d(p->sid))
       @ By %s(zPosterName) on \
-      style_copy_button(1, zDateTag, 0, 0, "%h", zDate);
-      cgi_printf(" ");
+      style_copy_button(1, 0, 0, 0, zDateZulu, "%h", zDate);
+      cgi_append_content(" ", 1);
     }
     fossil_free(zDate);
-    fossil_free(zDateTag);
+    fossil_free(zDateZulu);
 
 
     /* If debugging is enabled, link to the artifact page. */

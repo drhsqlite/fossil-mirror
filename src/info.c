@@ -947,8 +947,13 @@ void ci_page(void){
   );
   isLeaf = !db_exists("SELECT 1 FROM plink WHERE pid=%d", rid);
   db_prepare(&q1,
-     "SELECT uuid, datetime(mtime,toLocal(),'subsec'), user, comment,"
-     "       datetime(omtime,toLocal(),'subsec'), mtime"
+     "SELECT uuid,"                                         /* 0 */
+           " datetime(mtime,toLocal(),'subsec'),"           /* 1 */
+           " user,"                                         /* 2 */
+           " comment,"                                      /* 3 */
+           " datetime(omtime,toLocal(),'subsec'),"          /* 4 */
+           " mtime,"                                        /* 5 */
+           " strftime('%%Y-%%m-%%dT%%H:%%M:%%fZ',mtime)"    /* 6 */
      "  FROM blob, event"
      " WHERE blob.rid=%d"
      "   AND event.objid=%d",
@@ -965,7 +970,7 @@ void ci_page(void){
     const char *zUser;
     const char *zOrigUser;
     const char *zComment;
-    const char *zDate;
+    const char *zDate, *zZulu;
     const char *zOrigDate;
     int okWiki = 0;
     Blob wiki_read_links = BLOB_INITIALIZER;
@@ -987,6 +992,7 @@ void ci_page(void){
     zDate = db_column_text(&q1,1);
     zOrigDate = db_column_text(&q1, 4);
     if( zOrigDate==0 ) zOrigDate = zDate;
+    zZulu = db_column_text(&q1, 6);
     @ <div class="section accordion">Overview</div>
     @ <div class="accordion_panel">
     @ <table class="label-value">
@@ -1029,7 +1035,7 @@ void ci_page(void){
       const char *zTagName = db_column_text(&q2, 0);
       if( fossil_strcmp(zTagName,zBrName)==0 ){
         cgi_printf(" | ");
-        style_copy_button(1, "name-br", 0, 0, "%z%h</a>",
+        style_copy_button(1, "name-br", 0, 0, 0, "%z%h</a>",
           href("%R/timeline?r=%T&unhide",zTagName), zTagName);
         cgi_printf("\n");
         if( wiki_tagid2("branch",zTagName)!=0 ){
@@ -1065,14 +1071,14 @@ void ci_page(void){
     @ </tr>
 
     @ <tr><th>%s(hname_alg(nUuid)):</th><td>
-    style_copy_button(1, "hash-ci", 0, 2, "%.32s<wbr>%s", zUuid, zUuid+32);
+    style_copy_button(1, "hash-ci", 0, 2, 0, "%.32s<wbr>%s", zUuid, zUuid+32);
     if( g.perm.Setup ){
       @  (Record ID: %d(rid))
     }
     @ </td></tr>
     @ <tr><th>User&nbsp;&amp;&nbsp;Date:</th><td>
     hyperlink_to_user(zUser,zDate," on ");
-    style_copy_button(1, "date-ci", 0, 0,
+    style_copy_button(1, 0, 0, 0, zZulu,
           "%z%h</a>", href("%R/timeline?c=%T",zDate), zDate);
     @ </td></tr>
     //    hyperlink_to_date(zDate, "</td></tr>");
@@ -2431,7 +2437,7 @@ void hexdump_page(void){
   zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
   etag_check(ETAG_HASH, zUuid);
   @ <h2>Artifact
-  style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
+  style_copy_button(1, "hash-ar", 0, 2, 0, "%s", zUuid);
   if( g.perm.Setup ){
     @  (%d(rid)):</h2>
   }else{
@@ -2864,7 +2870,7 @@ void artifact_page(void){
       hyperlinked_path(zName, &path, zCI, "dir", "", LINKPATH_FINFO);
       zPath = blob_str(&path);
       @ <h2>File %s(zPath) artifact \
-      style_copy_button(1,"hash-fid",0,0,"%z%S</a> ",
+      style_copy_button(1,"hash-fid",0,0,0,"%z%S</a> ",
            href("%R/info/%s",zUuid),zUuid);
       if( isBranchCI ){
         @ on branch %z(href("%R/timeline?r=%T",zCI))%h(zCI)</a></h2>
@@ -2888,7 +2894,7 @@ void artifact_page(void){
     objType = OBJTYPE_CONTENT;
   }else{
     @ <h2>Artifact
-    style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
+    style_copy_button(1, "hash-ar", 0, 2, 0, "%s", zUuid);
     if( g.perm.Setup ){
       @  (%d(rid)):</h2>
     }else{
