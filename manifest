@@ -1,5 +1,5 @@
-C Fix\sthe\sfossil_roundup_date()\sfunction\sso\sthat\sit\salso\srounds\sup\sdates\nwith\smilliseconds\sat\sthe\send.
-D 2026-04-16T11:47:57.199
+C Improve\sthe\sheader\scomment\son\sthe\sstyle_copy_button()\sroutine\sto\sbe\smore\naccurate\sand\slucid.
+D 2026-04-16T12:18:23.980
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -565,7 +565,7 @@ F src/stash.c edceac522c114b482922cb3def79106029d0488eafb516894618c50c0df8ecaf
 F src/stat.c f4f19ef8d3215dd121649399ee9e58f75549afce36cf7b677f05b2d477d2b052
 F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 372468fc9bd8cab5f2fafe4325577e90ff9296ee455d0c5d7fd8cac93986e060
+F src/style.c 22b1224609f68c4941032937489403a902e729321cfbfc1826a2f7e12566e0ae
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 349e9f2ff3d1ba3b94a74d086aafae85f052e23e8117bc87b3522398dafd36b5
-R ff6ffbdda86629139be3860c91db009c
+P 5298941066616b332e234a2ae733aa27caaf2e50bd57d2a563800bb589c186b2
+R ddb13524fb5597232a3695cd01a75a74
 U drh
-Z c1008be9de1d62ae12a76cb14328d777
+Z ab8dd6ed18d35dc8c5f7bbe8e69e7405
 # Remove this line to create a well-formed Fossil manifest.

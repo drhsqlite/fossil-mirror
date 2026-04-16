@@ -476,28 +476,35 @@ static void image_url_var(const char *zImageName){
 }
 
 /*
-** Output TEXT with a click-to-copy button next to it. Loads the copybtn.js
-** Javascript module, and generates HTML elements with the following IDs:
+** Output text generated from zTextFmt,... with a click-to-copy button
+** next to it.  This routine assures that the copybtn.js Javascript module
+** is loaded.  It generates HTML elements with the following IDs:
 **
-**    TARGETID:       The <span> wrapper around TEXT.
-**    copy-TARGETID:  The <button> for the copy button.
+**    zTargetId:       The <span> wrapper around the generated text.
+**    copy-zTargetId:  The <button> for the copy button.
 **
-** If the FLIPPED argument is non-zero, the copy button is displayed after TEXT.
+** The bOutputCGI parameter is usually true, meaning that the output
+** is appended to the CGI result under construction.  However, if 
+** bOutputCGI is false, the generated HTML is written into memory
+** obtained from fossil_malloc() and returned.
 **
-** The COPYLENGTH argument defines the length of the substring of TEXT copied to
-** clipboard:
+** If the bFlipped argument is non-zero, the copy button is displayed
+** after the text.  Normally the copy button comes before.
 **
-**    <= 0:   No limit (default if the argument is omitted).
-**    >= 3:   Truncate TEXT after COPYLENGTH (single-byte) characters.
+** The mxLength argument defines the length of the substring of the
+** text to be copied to the clipboard:
+**
+**    <= 0:   Use all of the text
+**    >= 3:   Truncate the text after mxLength bytes.
 **       1:   Use the "hash-digits" setting as the limit.
 **       2:   Use the length appropriate for URLs as the limit (defined at
 **            compile-time by FOSSIL_HASH_DIGITS_URL, defaults to 16).
 */
 char *style_copy_button(
   int bOutputCGI,         /* Don't return result, but send to cgi_printf(). */
-  const char *zTargetId,  /* The TARGETID argument. */
-  int bFlipped,           /* The FLIPPED argument. */
-  int cchLength,          /* The COPYLENGTH argument. */
+  const char *zTargetId,  /* HTML id of the text */
+  int bFlipped,           /* True to put copy button after text */
+  int mxLength,           /* Length of text to copy to clipboard */
   const char *zTextFmt,   /* Formatting of the TEXT argument (htmlized). */
   ...                     /* Formatting parameters of the TEXT argument. */
 ){
@@ -507,8 +514,8 @@ char *style_copy_button(
   va_start(ap,zTextFmt);
   zText = vmprintf(zTextFmt/*works-like:?*/,ap);
   va_end(ap);
-  if( cchLength==1 ) cchLength = hash_digits(0);
-  else if( cchLength==2 ) cchLength = hash_digits(1);
+  if( mxLength==1 ) mxLength = hash_digits(0);
+  else if( mxLength==2 ) mxLength = hash_digits(1);
   if( !bFlipped ){
     const char *zBtnFmt =
       "<span class=\"nobr\">"
@@ -527,11 +534,11 @@ char *style_copy_button(
     if( bOutputCGI ){
       cgi_printf(
                   zBtnFmt/*works-like:"%h%h%d%h%s"*/,
-                  zTargetId,zTargetId,cchLength,zTargetId,zText);
+                  zTargetId,zTargetId,mxLength,zTargetId,zText);
     }else{
       zResult = mprintf(
                   zBtnFmt/*works-like:"%h%h%d%h%s"*/,
-                  zTargetId,zTargetId,cchLength,zTargetId,zText);
+                  zTargetId,zTargetId,mxLength,zTargetId,zText);
     }
   }else{
     const char *zBtnFmt =
@@ -551,11 +558,11 @@ char *style_copy_button(
     if( bOutputCGI ){
       cgi_printf(
                   zBtnFmt/*works-like:"%h%s%h%h%d"*/,
-                  zTargetId,zText,zTargetId,zTargetId,cchLength);
+                  zTargetId,zText,zTargetId,zTargetId,mxLength);
     }else{
       zResult = mprintf(
                   zBtnFmt/*works-like:"%h%s%h%h%d"*/,
-                  zTargetId,zText,zTargetId,zTargetId,cchLength);
+                  zTargetId,zText,zTargetId,zTargetId,mxLength);
     }
   }
   free(zText);
