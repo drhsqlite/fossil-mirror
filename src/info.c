@@ -1072,7 +1072,10 @@ void ci_page(void){
     @ </td></tr>
     @ <tr><th>User&nbsp;&amp;&nbsp;Date:</th><td>
     hyperlink_to_user(zUser,zDate," on ");
-    hyperlink_to_date(zDate, "</td></tr>");
+    style_copy_button(1, "date-ci", 0, 0,
+          "%z%h</a>", href("%R/timeline?c=%T",zDate), zDate);
+    @ </td></tr>
+    //    hyperlink_to_date(zDate, "</td></tr>");
     if( zEComment ){
       @ <tr><th>Original&nbsp;Comment:</th>
       @     <td class="infoComment">%!W(zComment)</td></tr>

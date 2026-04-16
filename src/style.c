@@ -499,6 +499,10 @@ static void image_url_var(const char *zImageName){
 **       1:   Use the "hash-digits" setting as the limit.
 **       2:   Use the length appropriate for URLs as the limit (defined at
 **            compile-time by FOSSIL_HASH_DIGITS_URL, defaults to 16).
+**
+** Note: If the text to be copied is an ISO8601 date-time with a space
+** separator between the date and the time, that space is converted to "T"
+** for the copy.
 */
 char *style_copy_button(
   int bOutputCGI,         /* Don't return result, but send to cgi_printf(). */

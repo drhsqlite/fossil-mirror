@@ -765,6 +765,7 @@ static void forum_display_post(
   char *zPosterName;    /* Name of user who originally made this post */
   char *zEditorName;    /* Name of user who provided the current edit */
   char *zDate;          /* The time/date string */
+  char *zDateTag;       /* Tag for the time/date text */
   char *zHist;          /* History query string */
   Manifest *pManifest;  /* Manifest comprising the current post */
   int bPrivate;         /* True for posts awaiting moderation */
@@ -811,6 +812,7 @@ static void forum_display_post(
       zEditorName = zPosterName;
     }
     zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", p->rDate);
+    zDateTag = mprintf("datetag-%d", p->fpid);
     if( p->pEditPrev ){
       zPosterName = forum_post_display_name(p->pEditHead, 0);
       zEditorName = forum_post_display_name(p, pManifest);
@@ -830,9 +832,12 @@ static void forum_display_post(
     }else{
       zPosterName = forum_post_display_name(p, pManifest);
       @ <h3 class='forumPostHdr'>(%d(p->sid))
-      @ By %s(zPosterName) on %h(zDate)
+      @ By %s(zPosterName) on \
+      style_copy_button(1, zDateTag, 0, 0, "%h", zDate);
+      cgi_printf(" ");
     }
     fossil_free(zDate);
+    fossil_free(zDateTag);
 
 
     /* If debugging is enabled, link to the artifact page. */

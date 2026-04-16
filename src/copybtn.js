@@ -68,6 +68,8 @@ function clickCopyButton(e){
     var cchLength = parseInt(this.getAttribute("data-copylength"));
     if( !isNaN(cchLength) && cchLength>0 ){
       text = text.slice(0,cchLength);   /* Assume single-byte chars. */
+    }else if( /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(text) ){
+      text = text.replace(' ', 'T');
     }
     copyTextToClipboard(text);
   }
