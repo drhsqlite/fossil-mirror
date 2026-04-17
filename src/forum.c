@@ -767,7 +767,6 @@ static void forum_display_post(
   char *zDate;          /* The time/date string */
   char *zDateZulu;      /* The date/time string in Zulul time */
   char *zHist;          /* History query string */
-  char *z;
   Manifest *pManifest;  /* Manifest comprising the current post */
   int bPrivate;         /* True for posts awaiting moderation */
   int bSameUser;        /* True if author is also the reader */
