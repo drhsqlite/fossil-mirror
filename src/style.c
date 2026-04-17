@@ -529,6 +529,7 @@ char *style_copy_button(
   char *zResult = 0;
   char *zId = 0;
   Blob btn;
+  const char *zBtnClass = "copy-button";
 
   va_start(ap,zTextFmt);
   zText = vmprintf(zTextFmt/*works-like:?*/,ap);
@@ -543,20 +544,21 @@ char *style_copy_button(
   blob_append_string(&btn, "<span class=\"nobr\">");
   if( zTargetId==0 ){
     static unsigned int cnt = 0;
-    zId = mprintf("copy-button-id-%u", ++cnt);
+    zId = mprintf("content-id-%u", ++cnt);
     zTargetId = zId;
   }
   if( bAfter ){
     blob_appendf(&btn, "<span id=\"%h\">%s</span>",
         zTargetId, zText);
+    zBtnClass = "copy-button copy-button-flipped";
   }
   blob_appendf(&btn,
     "<button "
-      "class=\"copy-button\" "
+      "class=\"%s\" "
       "id=\"copy-%h\" "
       "data-copytarget=\"%h\" "
       "data-copylength=\"%d\"",
-    zTargetId, zTargetId, mxLength);
+    zBtnClass, zTargetId, zTargetId, mxLength);
   if( zToCopy ){
     blob_appendf(&btn," data-content=\"%h\"", zToCopy);
   }
