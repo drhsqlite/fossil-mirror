@@ -1,5 +1,5 @@
-C Add\s.m4a\smimetype,\sas\sdiscussed\sin\s[forum:173711157e693275|forum\spost\s173711157e693275].
-D 2026-04-19T06:15:50.263
+C Bug\sfix\sin\sthe\scompute_ues_files()\ssubroutine,\sfound\swhen\sa\nquery\sfrom\sthe\sMeta\sAI\sspider\scaused\sthe\sserver\sto\sabort\swith\san\ninvalid\sSQL\serror.
+D 2026-04-19T10:28:01.465
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -420,7 +420,7 @@ F src/default.css 15c2d2ce10d60c90361b12e53fef98105a8b60a4b6cd4d3b8b3ea6f4fd4f50
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c f08accd177876a9d41ad36de0559e5bdc07e7f368ac58790634c2dcd75c30d9f
-F src/descendants.c 3858bbe661fec7e3226ba55cdfa3f513c178a8f95966a995296ec646c15d2ee6
+F src/descendants.c 65a211ee2d819ce6832e3b213e747a160c6b15c24f1582198b1cc2550e5f3b65
 F src/diff.c 3e46c56274896ac8ebc3035a32060bf5898f6cd2b6540816d62d6649125eb3bd
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ce9ca95f79829056daa8f509f5fe04f7a44b061a2542f9b1388938a81b6c7b3
-R cc176b2dfe16ec6dc1829378ce42ca36
-U stephan
-Z 371e6af72464be218450c7a350eb83ae
+P ec26e850c13afc394d5430a3306ac6d0b3b0c54bb1e27724a373c4f5cc6e1d95
+R 88d9e9159ce13f82abea9eddb4764816
+U drh
+Z a466fb25d986531df76697786fe8a34d
 # Remove this line to create a well-formed Fossil manifest.
