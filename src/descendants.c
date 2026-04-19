@@ -681,7 +681,6 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
   int nIns = 0;
   Stmt q;
   int rid;
-  int nTerm = 0;
 
   bag_init(&seen);
   bag_init(&pending);
@@ -692,7 +691,6 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
     bag_insert(&pending, mid);
     bag_insert(&seen, mid);
     uses_file_append_term(&ins, &nIns, mid);
-    nTerm++;
   }
   db_finalize(&q);
 
@@ -702,7 +700,6 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
     bag_insert(&seen, mid);
     if( usesFlags & USESFILE_DELETE ){
       uses_file_append_term(&ins, &nIns, mid);
-      nTerm++;
     }
   }
   db_finalize(&q);
@@ -717,12 +714,11 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
       bag_insert(&seen, mid);
       bag_insert(&pending, mid);
       uses_file_append_term(&ins, &nIns, mid);
-      nTerm++;
     }
     db_reset(&q);
   }
   db_finalize(&q);
-  if( nTerm>0 ) db_exec_sql(blob_str(&ins));
+  if( nIns>0 ) db_exec_sql(blob_str(&ins));
   blob_reset(&ins);
   bag_clear(&seen);
   bag_clear(&pending);
