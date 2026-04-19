@@ -172,6 +172,9 @@ static const struct {
   { "lzh",        3, "application/octet-stream"          },
   { "m",          1, "text/plain"                        },
   { "m3u",        3, "audio/x-mpegurl"                   },
+  { "m4a",        3, "audio/mp4"
+    /* Many sources call this audio/m4a, but that's
+       deprecated */                                     },
   { "man",        3, "text/plain"                        },
   { "markdown",   8, "text/x-markdown"                   },
   { "md",         2, "text/x-markdown"                   },

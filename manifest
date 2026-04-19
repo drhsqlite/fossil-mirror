@@ -1,5 +1,5 @@
-C Minor\stweaks\sto\sthe\sCopy\sButtons:\srestore\sthe\sflipped\sbutton\slook,\sand\sshorten\sthe\ssequence\s"copy-copy-button"\sfor\sauto-generated\sIDs.
-D 2026-04-17T12:09:00.000
+C Add\s.m4a\smimetype,\sas\sdiscussed\sin\s[forum:173711157e693275|forum\spost\s173711157e693275].
+D 2026-04-19T06:15:50.263
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -426,7 +426,7 @@ F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
 F src/diffcmd.c f529b1130c87c6bf5562d241bad922274893cf0156bf26f0e420652c4a1ea685
 F src/dispatch.c f9b0602b200fb378bed080e327e2cf7db08f683c21aa81ba834be0ac7c597b88
-F src/doc.c 8490787eb5f1272446522c2e24175a741c95403baee6399b8031cb6b655b8ccf
+F src/doc.c f34584042c9a4e2ff3223e7a8bab7154f6824ba413ad909aac54b65681428d77
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
 F src/event.c 63a324e1c514d0780efcd101dda6b144a6ed4354bd7bee93e21d63ce908147e6
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 30bfba32c86c939022d36e87feac96aa9ad12576c0dfcca536b5ef0bb1fc2612
-R bbae493e7facdd64e3999b97e4ffcc88
-U florian
-Z b2219280020b398b7e5b6712566ba588
+P 2ce9ca95f79829056daa8f509f5fe04f7a44b061a2542f9b1388938a81b6c7b3
+R cc176b2dfe16ec6dc1829378ce42ca36
+U stephan
+Z 371e6af72464be218450c7a350eb83ae
 # Remove this line to create a well-formed Fossil manifest.
