@@ -1,5 +1,5 @@
-C A\sbetter\sfix\sfor\sthe\sprevious.\s\sThe\sexisting\snIns\svariable\sis\ssufficient;\nno\sneed\sto\sadd\sthe\snew\snTerm\svariable.
-D 2026-04-19T10:31:21.662
+C Build\stweaks\sbased\son\s[forum:ab38ad08882f123e|forum\spost\sab38ad088]\sto\senable\sdownstream\spackagers\sto\sstrip\sout\smost\sof\s./autosetup/\sand\suse\sa\ssystem-installed\scopy.\sAlso\sensure\sthat\sthe\semcc-related\schecks\sare\sonly\sapplied\sfor\sin-tree\sbuilds\sand\sthat\sthey\sare\scleaned\sup\sproperly.\sNo\scode\schanges.
+D 2026-04-20T09:00:05.236
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -13,11 +13,11 @@ F BUILD.txt a92d9dc35ad8b4dfb7c1e35278362da66ccbc5a41ee6decdd8727e17fd4542e0
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 609deb40ad1d5fed540cab1ec0a99aedf9b5c9e75d877cea4da6ffdf02b6009c
 F Makefile.classic 25ea72b6fe8959b5bbd638363af82dec3ba475c09ea79918deda199eb15c3d3a
-F Makefile.in 4c7578bdf3b161564ed3e59674a73054e02af72b03a6dfb27fe75602db6d462a
+F Makefile.in 3b63b4b9c203efbfb639c3d67366b5125aa67d8a255d2c78e22373a9348c54c9
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 64a13b480b4a6962246f7338be9405a4a51de56cf8a203baaacb9cc46305e867
-F auto.def 829a7782d4bfc39d69adb559e9147f952f3265d3089995d4cb9945a5cd1e92ee
+F auto.def 7aeb7471835e551f370868b2db1e07918f34bccf0989a4b45b4aa81331fdc9b8
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -267,7 +267,7 @@ F compat/zlib/zlib.pc.in 21a7a16a8a7916de01064998c9dc5d61d04575dc526d0b08ae591b5
 F compat/zlib/zlibConfig.cmake.in 56d3bb30ff945660727bfb47f89dedb2d0301e61157e9bfa24d703ba6c7e5a76
 F compat/zlib/zutil.c c697f21f8c76dde7a96f3cae35dcad0b0cf30c5618ece7cc3b2806545eff261a
 F compat/zlib/zutil.h f5ce3c36dfadc8cfbec058dbf8f0fdf76676171648a09007be5829ca06185fec
-F configure 9a00b21dfd13757bbfb8d89b30660a89ec1f8f3a79402b8f9f9b6fc475c3303a x
+F configure 6de06807819a3edd2a59b771050b9212afaf15004e33fa0de61a2424b0259e14 x
 F extsrc/cson_amalgamation.c 6244638c0b9d0c8f5dc832aa4601739250e4d3243728dae984d5dadb085d0567
 F extsrc/cson_amalgamation.h 3903869fccd066d54ce9716125e5d0fade48bc106b82a3c5f370160dcedc7551
 F extsrc/linenoise-win32.c 4edab5d16a9ba9e1561ba271f35a9f74c86ab5363f402840c7c3a37647fb1a0b
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f2fa98329d31f8461cd121e2e9bf39160c408107055f4c57be1748b54b5286bd
-R 368b9b4c6ed4b7b6a651c513708f4e38
-U drh
-Z f8883b07b9b8cc2f648f0e1b6f328092
+P 2c61a6c2865ae3d74e2c035b60811472a702110f97e5cb21ec12454c9d570f41
+R 420f024a173f96c737c904f5aae34334
+U stephan
+Z 8e2eee7df1e3dff73dbf52d8d39150f5
 # Remove this line to create a well-formed Fossil manifest.

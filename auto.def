@@ -2,7 +2,7 @@
 
 # This must be above "options" below because it implicitly brings in the
 # default Autosetup options, things like --prefix.
-use cc cc-lib
+use cc cc-lib local
 
 options {
     with-openssl:path|auto|tree|none
@@ -52,7 +52,8 @@ if {[opt-bool print-minimum-sqlite-version]} {
 # could be confusing.  The following checks make the reason for the
 # failure clear.
 #
-if {[string first " " $autosetup(srcdir)] != -1} {
+set ::dirSrc $::autosetup(srcdir)
+if {[string first " " $$::dirSrc] != -1} {
   user-error "The pathname of the source tree\
               may not contain space characters"
 }
@@ -77,7 +78,7 @@ define USE_PREAD [cc-check-functions pread]
 
 # If we have cscope here, we'll use it in the "tags" target
 if {[cc-check-progs cscope]} {
-  define COLLECT_CSCOPE_DATA "cscope -bR $::autosetup(srcdir)/src/*.\[ch\]"
+  define COLLECT_CSCOPE_DATA "cscope -bR $$::dirSrc/src/*.\[ch\]"
 } else {
   define COLLECT_CSCOPE_DATA ""
 }
@@ -214,7 +215,8 @@ if {![opt-bool internal-sqlite]} {
     set cmdline {}
     lappend cmdline {*}[get-define CCACHE]
     lappend cmdline {*}[get-define CC] {*}[get-define CFLAGS]
-    lappend cmdline $::autosetup(dir)/../tools/sqlcompattest.c -o conftest__
+    lappend cmdline $::dirSrc/tools/sqlcompattest.c
+    lappend cmdline -o conftest__
     lappend cmdline {*}[get-define LDFLAGS]
     lappend cmdline {*}[get-define LIBS]
     set sqlite-version [string cat "-D MINIMUM_SQLITE_VERSION=" [get-define MINIMUM_SQLITE_VERSION]]
@@ -942,15 +944,16 @@ proc proj-check-emsdk {} {
   return $rc
 }
 
-if {[proj-check-emsdk]} {
-  define EMCC_WRAPPER $::autosetup(dir)/../tools/emcc.sh
+if {!$outOfTreeBuild && [proj-check-emsdk]} {
+  # Maintenance note: the WASM-related pieces are only for in-tree
+  # maintenance, not out-of-tree builds.
+  define EMCC_WRAPPER $::dirSrc/tools/emcc.sh
   define EMCC_OPT [get-env EMCC_OPT "-Oz"]; # optional flags to pass to emcc
   make-template tools/emcc.sh.in
-  catch {exec chmod u+x tools/emcc.sh}
+  catch {exec chmod u+x [get-define EMCC_WRAPPER]}
 } else {
   define EMCC_WRAPPER ""
   define EMCC_OPT ""
-  catch {exec rm -f tools/emcc.sh}
 }
 
 handle-with-openssl
@@ -995,7 +998,7 @@ apply {{} {
 # them, it also changes the URL we fetch the source tarball from, so
 # repeated builds of a given version generate and fetch the source
 # tarball once only, keeping it in the local Docker/Podman cache.
-set ci [readfile "$::autosetup(srcdir)/manifest.uuid"]
+set ci [readfile "$$::dirSrc/manifest.uuid"]
 define FOSSIL_CI_PFX [string range $ci 0 11]
 
 make-template Makefile.in
