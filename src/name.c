@@ -192,11 +192,11 @@ const char *fossil_roundup_date(const char *zDate){
       if( zUp[22]<='9' ){
         zUp[22]++;
       }else{
-        zUp[22] = 0;
+        zUp[22] = '0';
         if( zUp[21]<'9' ){
           zUp[21]++;
         }else{
-          zUp[21] = 0;
+          zUp[21] = '0';
           zUp[20]++;
         }
       }
