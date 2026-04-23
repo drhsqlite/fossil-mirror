@@ -189,7 +189,7 @@ const char *fossil_roundup_date(const char *zDate){
     while( n<23 ) zUp[n++] = '9';
     /* If milliseconds is less than 999, round up to the next millisecond */
     if( strcmp(&zUp[20],"999")<0 ){
-      if( zUp[22]<='9' ){
+      if( zUp[22]<'9' ){
         zUp[22]++;
       }else{
         zUp[22] = '0';

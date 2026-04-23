@@ -1,5 +1,5 @@
-C Fix\sbug\sin\sfossil_roundup_date().
-D 2026-04-22T16:58:32.329
+C Yet\sanother\sbug\sfix\sto\sfossil_roundup_date().
+D 2026-04-23T11:33:16.037
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -511,7 +511,7 @@ F src/merge.c 27971d57e16450f5480efcde4431c32843546584a471cf5064f706564fabc2e9
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c d16fe90bc0cfcd2d08bafaaf6a858f5b635873e2f1b40e7c9e92a6d8cd6da162
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c 78c68d3a0a5a4d8980513e53a4fe3f3688fbf154f5a4e6e98f0feb209754a635
+F src/name.c 5c40c7e5edf27cdac9bed5aa713f08aacd7dd45b7955e059e5e25523d6575483
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 1adf1a85457de922c45d649cbd77e1a483d892e5049a2b812c89a45c22948dec
 F src/piechart.c 9f764d8695b0fda40f4f9fbd1a10d9bbdae7973274de7f60d86794178d61eb15
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f99e07d194bff94d114816fd6a2a28e6456646ae05697892f23ea6baab5138bd
-R 5cb1ecd8e0849c70001435f57a80bf85
+P edce45b4ed03a2295d0bfeb6b3fd1fd510f919ab8afd6eec9846ad144bfd81f4
+R 07bdb3b45373b8a6ada93e1936868aee
 U drh
-Z 2a05f721bd0b138c6fc5ff0cdbe17a32
+Z 6e4257e7d218e624890138b130b8ab3f
 # Remove this line to create a well-formed Fossil manifest.
