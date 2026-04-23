@@ -705,7 +705,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
                 -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc \
-                -DSQLITE_PS1=\"FossilSQL/040/~/076/040\"
+                -DSQLITE_PS_APPDEF=sqlcmd_ps_appdef
 
 # Setup the options used to compile the included Pikchr formatter.
 PIKCHR_OPTIONS = -DPIKCHR_TOKEN_LIMIT=10000

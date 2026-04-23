@@ -2604,7 +2604,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                  -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                  -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
                  -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc \
-                 -DSQLITE_PS1=\"FossilSQL/040/~/076/040\" \
+                 -DSQLITE_PS_APPDEF=sqlcmd_ps_appdef \
                  -Daccess=file_access \
                  -Dsystem=fossil_system \
                  -Dgetenv=fossil_getenv \

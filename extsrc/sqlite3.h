@@ -148,10 +148,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.54.0"
 #define SQLITE_VERSION_NUMBER 3054000
-#define SQLITE_SOURCE_ID      "2026-04-11 23:58:15 79a8d3edf8207d72f0c4650272ee239a1c7783a07f907fbf0cf5a7ad99b27a2a"
+#define SQLITE_SOURCE_ID      "2026-04-23 16:40:34 e5f8840d11c1863cfc5c0b4a3d16c9ec9ab6ca6ecb7ff1a3a9a237715eed5d30"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2026-04-11T23:58:15.898Z"
+#define SQLITE_SCM_DATETIME   "2026-04-23T16:40:34.462Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2992,7 +2992,7 @@ SQLITE_API int sqlite3_is_interrupted(sqlite3*);
 ** then the return value from sqlite3_complete16() will be non-zero
 ** regardless of whether or not the input SQL is complete.)^
 **
-** The X input to [sqlite3_complete(X)] and [sqlite3_incomplete(X)
+** The X input to [sqlite3_complete(X)] and [sqlite3_incomplete(X)]
 ** must be a zero-terminated UTF-8 string.
 **
 ** The input to [sqlite3_complete16()] must be a zero-terminated
