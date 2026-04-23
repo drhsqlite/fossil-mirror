@@ -435,7 +435,6 @@ void cmd_sqlite3(void){
   int noRepository;
   char *zConfigDb;
   char *zPrompt;
-  char zRelease[16];
   extern int sqlite3_shell(int, char**);
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
   g.fNoThHook = 1;
