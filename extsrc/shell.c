@@ -19888,7 +19888,7 @@ static void analyzeFunc(
   int rc;
   sqlite3_stmt *pStmt;
   int n;
-  sqlite3_int64 i64;
+  sqlite3_int64 ii;
   sqlite3_int64 pgsz;
   sqlite3_int64 nPage;
   sqlite3_int64 nPageInUse;
@@ -19898,6 +19898,7 @@ static void analyzeFunc(
   Analysis s;
   sqlite3_uint64 r[2];
 
+  (void)argc;
   memset(&s, 0, sizeof(s));
   s.db = sqlite3_context_db_handle(context);
   s.context = context;
@@ -19914,10 +19915,10 @@ static void analyzeFunc(
     sqlite3_result_text(context, "cannot analyze \"temp\"",-1,SQLITE_STATIC);
     return;
   }
-  i64 = 0;
-  rc = analysisSqlInt(&s,&i64,"SELECT 1 FROM pragma_database_list"
+  ii = 0;
+  rc = analysisSqlInt(&s,&ii,"SELECT 1 FROM pragma_database_list"
                              " WHERE name=%Q COLLATE nocase",s.zSchema);
-  if( rc || i64==0 ){
+  if( rc || ii==0 ){
     analysisReset(&s);
     sqlite3_result_text(context,"no such database",-1,SQLITE_STATIC);
     return;
@@ -20039,25 +20040,25 @@ static void analyzeFunc(
   analysisLine(&s, "Pages on the freelist", "%-11lld ", nFreeList);
   analysisPercent(&s, (nFreeList*100.0)/(double)nPage);
 
-  i64 = 0;
-  rc = analysisSqlInt(&s, &i64, "PRAGMA \"%w\".auto_vacuum", s.zSchema);
+  ii = 0;
+  rc = analysisSqlInt(&s, &ii, "PRAGMA \"%w\".auto_vacuum", s.zSchema);
   if( rc ) return;
-  if( i64==0 || nPage<=1 ){
-    i64 = 0;
+  if( ii==0 || nPage<=1 ){
+    ii = 0;
   }else{
     double rPtrsPerPage = pgsz/5;
     double rAvPage = (nPage-1.0)/(rPtrsPerPage+1.0);
-    i64 = (sqlite3_int64)ceil(rAvPage);
+    ii = (sqlite3_int64)ceil(rAvPage);
   }
-  analysisLine(&s, "Pages of auto-vacuum overhead", "%-11lld ", i64);
-  analysisPercent(&s, (i64*100.0)/(double)nPage);
+  analysisLine(&s, "Pages of auto-vacuum overhead", "%-11lld ", ii);
+  analysisPercent(&s, (ii*100.0)/(double)nPage);
 
-  i64 = 0;
-  rc = analysisSqlInt(&s, &i64, 
+  ii = 0;
+  rc = analysisSqlInt(&s, &ii, 
        "SELECT count(*)+1 FROM \"%w\".sqlite_schema WHERE type='table'",
        s.zSchema);
   if( rc ) return;
-  analysisLine(&s, "Number of tables", "%lld\n", i64);
+  analysisLine(&s, "Number of tables", "%lld\n", ii);
   nWORowid = 0;
   rc = analysisSqlInt(&s, &nWORowid,
        "SELECT count(*) FROM \"%w\".pragma_table_list WHERE wr",
@@ -20065,7 +20066,7 @@ static void analyzeFunc(
   if( rc ) return;
   if( nWORowid>0 ){
     analysisLine(&s, "Number of WITHOUT ROWID tables", "%lld\n", nWORowid);
-    analysisLine(&s, "Number of rowid tables", "%lld\n", i64 - nWORowid);
+    analysisLine(&s, "Number of rowid tables", "%lld\n", ii - nWORowid);
   }
   nIndex = 0;
   rc = analysisSqlInt(&s, &nIndex, 
@@ -20073,23 +20074,23 @@ static void analyzeFunc(
        s.zSchema);
   if( rc ) return;
   analysisLine(&s, "Number of indexes", "%lld\n", nIndex);
-  i64 = 0;
-  rc = analysisSqlInt(&s, &i64, 
+  ii = 0;
+  rc = analysisSqlInt(&s, &ii, 
        "SELECT count(*) FROM \"%w\".sqlite_schema"
        " WHERE name GLOB 'sqlite_autoindex_*' AND type='index'",
        s.zSchema);
   if( rc ) return;
-  analysisLine(&s, "Number of defined indexes", "%lld\n", nIndex - i64);
-  analysisLine(&s, "Number of implied indexes", "%lld\n", i64);
+  analysisLine(&s, "Number of defined indexes", "%lld\n", nIndex - ii);
+  analysisLine(&s, "Number of implied indexes", "%lld\n", ii);
   analysisLine(&s, "Size of the database in bytes", "%lld\n", pgsz*nPage);
-  i64 = 0;
-  rc = analysisSqlInt(&s, &i64, 
+  ii = 0;
+  rc = analysisSqlInt(&s, &ii, 
        "SELECT sum(payload) FROM temp.%s"
        " WHERE NOT is_index AND name NOT LIKE 'sqlite_schema'",
        s.zSU);
   if( rc ) return;
-  analysisLine(&s, "Bytes of payload", "%-11lld ", i64);
-  analysisPercent(&s, i64*100.0/(double)(pgsz*nPage));
+  analysisLine(&s, "Bytes of payload", "%-11lld ", ii);
+  analysisPercent(&s, ii*100.0/(double)(pgsz*nPage));
 
   analysisTitle(&s, "Page counts for all tables with their indexes");
   pStmt = analysisPrepare(&s,
@@ -24902,6 +24903,10 @@ static int cli_printf(FILE *out, const char *zFormat, ...){
 static int cli_write(FILE *out, const char *zData, int nData){
   if( cli_output_capture && (out==stdout || out==stderr) ){
     sqlite3_str_append(cli_output_capture, zData, nData);
+#ifdef _WIN32
+  }else if( out==stdout || out==stderr ){
+    nData = sqlite3_fprintf(out, "%.*s", nData, zData);
+#endif
   }else{
     nData = (int)fwrite(zData, 1, nData, out);
   }
@@ -25101,46 +25106,76 @@ static char *local_getline(char *zLine, FILE *in){
 }
 
 /*
-** The default prompts.
+** The SQLITE_PS_APPDEF macro should be set to the name of a function
+** that accepts a single "int" argument and returns a "const char *"
+** that is guaranteed to be non-NULL.  The value returned depends on the
+** argument:
+**
+**    1      Default main prompt.
+**    2      Default continuation prompt.
+**    3      Environment variable to override main prompt ("SQLITE_PS1")
+**    4      Environment variable to override continuatio ("SQLITE_PS2")
+**    'A'    The name of the application.  (Nominally "SQLite")
+**    'V'    Version number including patch.  (ex: "3.54.1")
+**    'v'    Version number without patch.  (ex: "3.54")
+**
 */
-#ifndef SQLITE_PS1
-# define SQLITE_PS1 "/A /f> "
-#endif
-#ifndef SQLITE_PS2
-# define SQLITE_PS2 "/B.../H> "
-#endif
-
-/*
-** Redefinable name of a function that is used to find the text for
-** some prompt expansions:  /A  /V  /v
-*/
-#ifndef SQLITE_PS_APPDEF
-# define SQLITE_PS_APPDEF shellPromptAppDef
-#else
+#ifdef SQLITE_PS_APPDEF
 extern const char *SQLITE_PS_APPDEF(int);
+#else
+# define SQLITE_PS_APPDEF shellPromptAppDef
+static const char *shellPromptAppDef(int c){
+  switch( c ){
+    /* The default main prompt string */
+    case 1:
+#if   defined(SQLITE_PS1)
+      return SQLITE_PS1;
+#elif defined(SQLITE_PS_NOANSI)
+      return "/A-/v /~> ";
+#else
+      return "/e[1;/x33/:36/;m/A-/v /~>/e[0m ";
 #endif
 
-/*
-** Return a string appropriate for various prompt expansion characters.
-** Return an empty string at least.  Always return a valid string pointer.
-*/
-static const char *shellPromptAppDef(int c){
-  if( c=='A' ) return "SQLite";
-  if( c=='V' ) return sqlite3_libversion();
-  if( c=='v' ){
-    static char zRel[16];
-    const char *zF = sqlite3_libversion();
-    const char *zD = strrchr(zF,'.');
-    if( zD && (size_t)(zD-zF)<sizeof(zRel)-1 ){
-      memcpy(zRel,zF,(size_t)(zD-zF));
-      zRel[(size_t)(zD-zF)] = 0;
-      return zRel;
-    }else{
-      return zF;
+    /* The default continuation prompt string */
+    case 2:
+#if   defined(SQLITE_PS2)
+      return SQLITE_PS2;
+#elif defined(SQLITE_PS_NOANSI)
+      return "/B/C> ";
+#else
+      return "/B/e[1;/x33/:36/;m/C>/e[0m ";
+#endif
+
+    /* Name of environment variables that override the prompt strings
+    ** of cases 1 and 2 */
+    case 3:   return "SQLITE_PS1";
+    case 4:   return "SQLITE_PS2";
+
+    /* Name of the application */
+    case 'A': return "SQLite";
+
+    /* Full version number of the application, including patch level */
+    case 'V': return sqlite3_libversion();
+
+    /* Version number without the patch level */
+    case 'v': {
+      static char zRel[16];
+      const char *zF = sqlite3_libversion();
+      const char *zD = strrchr(zF,'.');
+      if( zD && (size_t)(zD-zF)<sizeof(zRel)-1 ){
+        memcpy(zRel,zF,(size_t)(zD-zF));
+        zRel[(size_t)(zD-zF)] = 0;
+        return zRel;
+      }else{
+        return zF;
+      }
     }
   }
   return "";
 }
+#endif /* !defined(SQLITE_PS_APPDEF) */
+
+
 
 /*
 ** Return the raw (unexpanded) prompt string.  This will be the
@@ -25160,14 +25195,10 @@ static const char *prompt_string(ShellState *p, int bContinue){
     return p->azPrompt[bContinue];
   }
 #ifndef SQLITE_SHELL_FIDDLE
-  zPS = getenv(bContinue ? "SQLITE_PS2" : "SQLITE_PS1");
+  zPS = getenv(SQLITE_PS_APPDEF(3+bContinue));
   if( zPS ) return zPS;
 #endif
-  if( bContinue ){
-    return SQLITE_PS2;
-  }else{
-    return SQLITE_PS1;
-  }
+  return SQLITE_PS_APPDEF(1+bContinue);
 }
 
 /*
@@ -25189,6 +25220,45 @@ static const char *prompt_filename(ShellState *p){
     }
   }
   return zFN;
+}
+
+/*
+** Return the name of the computer on which we are running.
+*/
+static const char *prompt_hostname(int bFull){
+#ifdef _WIN32
+  const char *z = getenv("COMPUTERNAME");
+  if( z==0 || z[0]==0 ) z = "?";
+  return z;
+#else
+  static char zHost[256];
+  if( gethostname(zHost, sizeof(zHost)) ){
+    zHost[0] = '?';
+    zHost[1] = 0;
+  }
+  if( !bFull ){
+    char *p = strchr(zHost,'.');
+    if( p ) p[0] = 0;
+  }
+  return zHost;
+#endif
+}
+
+/*
+** Return the username.  This is taken from an environment variable
+** and can thus be forged.  Do not depend on it.
+*/
+static const char *prompt_user(void){
+  const char *z;
+#ifdef _WIN32
+  z = getenv("USERNAME");
+  if( z==0 || z[0]==0 ) z = "?";
+#else
+  z = getenv("USER");
+  if( z==0 || z[0]==0 ) z = getenv("LOGNAME");
+  if( z==0 || z[0]==0 ) z = "?";
+#endif
+  return z;
 }
 
 /*
@@ -25336,8 +25406,28 @@ static char *expand_prompt(
       continue;
     }
 
-    if( c=='H' ){
-      /* /H becomes text needed to terminate current input */
+    if( c=='h' || c=='H' ){
+      /* /h becomes hostname up to the first '.' */
+      /* /H is the full hostname */
+      if( !mOff ){
+        sqlite3_str_appendall(pOut, prompt_hostname(c=='H'));
+      }
+      zPrompt += 2;
+      i = -1;
+      continue;
+    }
+    if( c=='u' ){
+      /* /u becomes the username (taken from environment variables) */
+      if( !mOff ){
+        sqlite3_str_appendall(pOut, prompt_user());
+      }
+      zPrompt += 2;
+      i = -1;
+      continue;
+    }
+
+    if( c=='C' ){
+      /* /C becomes text needed to terminate current input */
       if( !mOff ){
         sqlite3_int64 R = zPrior ? sqlite3_incomplete(zPrior) : 0;
         int cc = (R>>16)&0xff;
@@ -37974,7 +38064,7 @@ int SQLITE_CDECL main(int argc, char **argv){
 #ifndef SQLITE_SHELL_FIDDLE
   sqlite3_appendvfs_init(0,0,0);
 #ifdef SQLITE_DEBUG
-  sqlite3_auto_extension( (void (*)())auto_ext_leak_tester );
+  sqlite3_auto_extension( (void(*)(void))auto_ext_leak_tester );
 #endif
 #endif
   modeDefault(&data);

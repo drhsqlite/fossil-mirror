@@ -323,26 +323,49 @@ static void fossil_close(int bDb, int noRepository){
 }
 
 /*
-** Return text for /A, /V, or /v prompt excapes.
+** This routine overrides some of the prompt generation behavior in the
+** SQLite shell.  Always return a static string.  For invalid inputs,
+** return a zero-length string.  Valid inputs:
+**
+**    1      Default main prompt.
+**    2      Default continuation prompt.
+**    3      Environment variable to override main prompt ("FOSSIL_PS1")
+**    4      Environment variable to override continuatio ("FOSSIL_PS2")
+**    'A'    The name of the application.  (Nominally "Fossil")
+**    'V'    Version number including patch.  (ex: "2.29.1")
+**    'v'    Version number without patch.  (ex: "2.29")
 */
 const char *sqlcmd_ps_appdef(int c){
-  if( c=='A' ) return "Fossil";
-  if( c=='V' ) return RELEASE_VERSION;
-  if( c=='v' ){
-    const char *zFull = RELEASE_VERSION;
-    const char *zD1, *zD2;
-    size_t i;
-    static char zRelease[16];
-    zD2 = strrchr(zFull,'.');
-    zD1 = strchr(zFull,'.');
-    if( zD2==0 || zD2==zD1 ){
-      return zFull;
+  switch( c ){
+    /* Default prompt strings */
+    case 1:   return "/e[1;/x33/:36/;m/A-/v /~>/e[0m ";
+    case 2:   return "/B/e[1;/x33/:36/;m/H>/e[0m ";
+
+    /* Names of environment variables to override cases 1 and 2 */
+    case 3:   return "FOSSIL_PS1";
+    case 4:   return "FOSSIL_PS2";
+
+    /* Application name */
+    case 'A': return "Fossil";
+
+    /* Version numbers */
+    case 'V': return RELEASE_VERSION;
+    case 'v': {
+      const char *zFull = RELEASE_VERSION;
+      const char *zD1, *zD2;
+      size_t i;
+      static char zRelease[32];
+      zD2 = strrchr(zFull,'.');
+      zD1 = strchr(zFull,'.');
+      if( zD2==0 || zD2==zD1 ){
+        return zFull;
+      }
+      i = zD2 - zFull;
+      if( i>sizeof(zRelease)-1 ) return zFull;
+      memcpy(zRelease, zFull, i);
+      zRelease[i] = 0;
+      return zRelease;
     }
-    i = zD2 - zFull;
-    if( i>sizeof(zRelease)-1 ) return zFull;
-    memcpy(zRelease, zFull, i);
-    zRelease[i] = 0;
-    return zRelease;
   }
   return "";
 }
@@ -434,7 +457,6 @@ const char *sqlcmd_ps_appdef(int c){
 void cmd_sqlite3(void){
   int noRepository;
   char *zConfigDb;
-  char *zPrompt;
   extern int sqlite3_shell(int, char**);
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
   g.fNoThHook = 1;
@@ -454,16 +476,6 @@ void cmd_sqlite3(void){
   atexit(sqlcmd_atexit);
   g.zConfigDbName = zConfigDb;
   g.argv[1] = "--noinit";
-  zPrompt = fossil_getenv("FOSSIL_PS1");
-  if( zPrompt ){
-    fossil_setenv("SQLITE_PS1",zPrompt);
-  }else{
-    fossil_setenv("SQLITE_PS1","/A-/V /~> ");
-  }
-  zPrompt = fossil_getenv("FOSSIL_PS2");
-  if( zPrompt ){
-    fossil_setenv("SQLITE_PS2",zPrompt);
-  }
   sqlite3_shell(g.argc, g.argv);
   sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
   fossil_close(0, noRepository);
