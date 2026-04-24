@@ -338,8 +338,8 @@ static void fossil_close(int bDb, int noRepository){
 const char *sqlcmd_ps_appdef(int c){
   switch( c ){
     /* Default prompt strings */
-    case 1:   return "/e[1;/x33/:36/;m/A-/v /~>/e[0m ";
-    case 2:   return "/B/e[1;/x33/:36/;m/H>/e[0m ";
+    case 1:   return "/e[1;34m/A-/v /e[1;/x33/:36/;m/~>/e[0m ";
+    case 2:   return "/B/e[1;/x33/:36/;m/C>/e[0m ";
 
     /* Names of environment variables to override cases 1 and 2 */
     case 3:   return "FOSSIL_PS1";

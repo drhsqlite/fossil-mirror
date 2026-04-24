@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\sSQLite\senhancements\swith\sthe\snew\sand\simproved\sCLI\nprompt\sinterface.
-D 2026-04-23T20:17:51.114
+C Improvements\sto\sthe\sdefault\sprompt\sfor\sthe\s"fossil\ssql"\scommand.
+D 2026-04-24T01:34:46.535
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -560,7 +560,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c 205b19561307a80855c47ae0eb4cf10dc9785fc0ccba1f8a2cd2026022a31a85
+F src/sqlcmd.c ccf4f45827298e2b8e4131f355ee4098135ecf4ddc396564450c6efd97016f37
 F src/stash.c edceac522c114b482922cb3def79106029d0488eafb516894618c50c0df8ecaf
 F src/stat.c f4f19ef8d3215dd121649399ee9e58f75549afce36cf7b677f05b2d477d2b052
 F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a543fb31d2cb14bdc3fbfcc056458144d0605e4395715ec03372ca5d2cad3e61
-R 9529b484e49892f98f09e5814905973c
+P 87881e8d7b86858cda5fe4a6f8333c10302835b6a5fea5b93062547fe0f6966a
+R 49c9e9270b09b249eee75e7a0acff1d4
 U drh
-Z 76521de54caf0102b263d5038d8022ae
+Z bc751b5cbf31c7b75461ac5763c565a4
 # Remove this line to create a well-formed Fossil manifest.
