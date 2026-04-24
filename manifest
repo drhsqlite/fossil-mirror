@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sdefault\sprompt\sfor\sthe\s"fossil\ssql"\scommand.
-D 2026-04-24T01:34:46.535
+C Fix\sa\svar\sderef\stypo\sin\s[f99e07d194bff]\swhich\swould\scause\scontainer\sbuilds\sto\sbe\smis-tagged.
+D 2026-04-24T07:17:42.356
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 3b63b4b9c203efbfb639c3d67366b5125aa67d8a255d2c78e22373a9348c54c9
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 64a13b480b4a6962246f7338be9405a4a51de56cf8a203baaacb9cc46305e867
-F auto.def 7aeb7471835e551f370868b2db1e07918f34bccf0989a4b45b4aa81331fdc9b8
+F auto.def 46f5e6d048e11e4a5c8d46d57f92795a3b374620cb293206a21cbae5769840ab
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 87881e8d7b86858cda5fe4a6f8333c10302835b6a5fea5b93062547fe0f6966a
-R 49c9e9270b09b249eee75e7a0acff1d4
-U drh
-Z bc751b5cbf31c7b75461ac5763c565a4
+P ad133f5462219c2e8b4088bac323928d43929b04e61fafc514c33bf92e9fea00
+R f1b378ed85377e6c188d14e68568a70b
+U stephan
+Z cb947b4baba74159162508ce432db8d6
 # Remove this line to create a well-formed Fossil manifest.

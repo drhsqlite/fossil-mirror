@@ -998,7 +998,7 @@ apply {{} {
 # them, it also changes the URL we fetch the source tarball from, so
 # repeated builds of a given version generate and fetch the source
 # tarball once only, keeping it in the local Docker/Podman cache.
-set ci [readfile "$$::dirSrc/manifest.uuid"]
+set ci [readfile "$::dirSrc/manifest.uuid"]
 define FOSSIL_CI_PFX [string range $ci 0 11]
 
 make-template Makefile.in
