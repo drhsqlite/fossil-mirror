@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\sdefault\sprompt\sfor\s"fossil\ssql".
-D 2026-04-24T09:19:18.653
+C Be\ssure\sto\senable\sVT100/ANSI\sescape\scodes\son\sWindows.\s\sA\srecent\sWindows\nautomatic\supdate\sturned\sthat\soff\sby\sdefault\son\smy\sWindows-ARM\stablet.
+D 2026-04-24T20:50:59.420
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -498,7 +498,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c 3d3f525f1a7a6a7a7a9c1f281e672c5fa5022083a79ffe7f86129a333ca65a3f
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c 96a359d991c1392b431f33f81a66572e45025b7a6502fa0cd82a29db5631c113
+F src/main.c 856081ec00f5fa5c475e6061eff1ab5c75dbba72d4c2aa81146c7e22c13b9b5e
 F src/main.mk 706b1e0372a45351e2cb888dfae4c4abe003c3cb46e392c661dedff415f7bc65
 F src/manifest.c 2a4c82fd116d66f80b024b0b71bbc77c1c26950114b362c599c9111a22881c41
 F src/markdown.c ea27e61986a1366839e7a70f16cd70a056352d7623797eb09372e158f6f7350b
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7b9402ff156c9e4841ea68c3a3addd1c29522562d0f5e6a3bc4f9432d8028e9b
-R f80f43e5c2d79e695cb5eda6ccb4502d
+P 5c3150bc0f0e32eaa41cdb3f7fb59427cc6f57297ddbed677b18634d2d098175
+R 7dcfa5524c580251d022077ebc7a92dc
 U drh
-Z d7f9104bfc07c45cf869a9ac54681f5f
+Z dbeecfc6f2d87a77b08d3049fcf60c91
 # Remove this line to create a well-formed Fossil manifest.
