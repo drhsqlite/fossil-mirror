@@ -1,5 +1,5 @@
-C Fix\sa\svar\sderef\stypo\sin\s[f99e07d194bff]\swhich\swould\scause\scontainer\sbuilds\sto\sbe\smis-tagged.
-D 2026-04-24T07:17:42.356
+C Further\simprovements\sto\sthe\sdefault\sprompt\sfor\s"fossil\ssql".
+D 2026-04-24T09:19:18.653
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -560,7 +560,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c ccf4f45827298e2b8e4131f355ee4098135ecf4ddc396564450c6efd97016f37
+F src/sqlcmd.c 1d00e10020faf8118ec64a99db5e4907361ceac36f40fa5b23b554b8e8c58b3a
 F src/stash.c edceac522c114b482922cb3def79106029d0488eafb516894618c50c0df8ecaf
 F src/stat.c f4f19ef8d3215dd121649399ee9e58f75549afce36cf7b677f05b2d477d2b052
 F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad133f5462219c2e8b4088bac323928d43929b04e61fafc514c33bf92e9fea00
-R f1b378ed85377e6c188d14e68568a70b
-U stephan
-Z cb947b4baba74159162508ce432db8d6
+P 7b9402ff156c9e4841ea68c3a3addd1c29522562d0f5e6a3bc4f9432d8028e9b
+R f80f43e5c2d79e695cb5eda6ccb4502d
+U drh
+Z d7f9104bfc07c45cf869a9ac54681f5f
 # Remove this line to create a well-formed Fossil manifest.
