@@ -838,12 +838,12 @@ void alert_display_name_func(
 ** Return the hostname portion of an email address - the part following
 ** the @
 */
-char *alert_hostname(const char *zAddr){
-  char *z = strchr(zAddr, '@');
+const char *alert_hostname(const char *zAddr){
+  const char *z = strchr(zAddr, '@');
   if( z ){
     z++;
   }else{
-    z = (char*)zAddr;
+    z = zAddr;
   }
   return z;
 }

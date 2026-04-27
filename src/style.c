@@ -631,7 +631,7 @@ char *style_csp(int toHeader){
     zFormat = zBackupCSP;
   }
   blob_init(&csp, 0, 0);
-  while( zFormat[0] && (zNonce = strstr(zFormat,"$nonce"))!=0 ){
+  while( zFormat[0] && (zNonce = (char*)strstr(zFormat,"$nonce"))!=0 ){
     blob_append(&csp, zFormat, (int)(zNonce - zFormat));
     blob_append(&csp, style_nonce(), -1);
     zFormat = zNonce + 6;
