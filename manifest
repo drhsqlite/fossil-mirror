@@ -1,5 +1,5 @@
-C Discontinue\sthe\suse\sof\sthe\sundocumented\sand\sdeprecated\nsqlite3_win32_write_debug()\sinterface\sto\sSQLite.
-D 2026-04-29T14:59:35.261
+C Remove\sa\snewline\sfrom\stools/fossil-autocomplete.zsh\swhich,\sper\s[forum:2026-04-30T12:01:26Z|forum\spost\s2026-04-30T12:01:26Z],\sconfuses\szsh.
+D 2026-04-30T13:35:39.178
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -747,7 +747,7 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fake-smtpd.tcl b8dd0e8d82d9b1906c09ad3e1bf96969a5a944dbc04ad083efcb4e7876f68c34
 F tools/find-fossil-cgis.tcl 02669fa4cb9c72cc2e6a1063bb2d7a5def86984e99d77cd7b04d97583cd7554e x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
-F tools/fossil-autocomplete.zsh 733bfcc6eb9bbb69d1b8670eaa133166dcaac1a4b8988b73a767220bf15d0b1b x
+F tools/fossil-autocomplete.zsh 7054953d44f9b1b258a8354212b7d247881254d663bc923d3e283494b251344b x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
 F tools/fossil-stress.tcl f8c75651b50d14aa619613438e0f1dedb53669a52239e3f274d2096c45e61b49 x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea099022b54d22be2a85d10afc82b0db25b292240038642b578835088b8827b7
-R 64ca8b72fbdf9df69e2c05968130fd68
-U drh
-Z 07ead0b90301f1578dcbff03d51ede22
+P 7a8fb34c56cc62db235ba23dde90dda3841649262a34ef0b55c943eee716307d
+R 71d80b2061dd598e78fe8c7411ab2336
+U stephan
+Z 6d384dd34ef78d300ba2df4011663388
 # Remove this line to create a well-formed Fossil manifest.
