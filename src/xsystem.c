@@ -486,13 +486,15 @@ void xsystem_unzip(int argc, char **argv){
   if( doList ){
     a[2] = ".mode column";
     a[3] = "SELECT sz AS Size, date(mtime,'unixepoch') AS Date,"
-                "  time(mtime,'unixepoch') AS Time, name AS Name"
+                " time(mtime,'unixepoch') AS Time,"
+                " if(((mode>>12)&15)=10,name||' -> '||data,name) AS Name"
                 " FROM zip;";
     n = 4;
   }else{
     a[2] = ".mode list";
-    a[3] = "SELECT if(writefile(name,data,mode,mtime) IS NULL,"
-                   "'error: '||name,'extracting: '||name) FROM zip;";
+    a[3] = "SELECT if(((mode>>12)&15)==10,'symlink-ignored: '||name,"
+                   "writefile(name,data,mode,mtime) IS NULL,"
+                   "'error: '||name,'extracting: '||name) FROM zip";
     n = 4;
   }
   a[n] = 0;

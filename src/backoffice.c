@@ -160,22 +160,13 @@ static int backofficeLogDetail = 0;
 ** This function emits a diagnostic message related to the processing in
 ** this module.
 */
-#if defined(_WIN32)
-# define BKOFCE_ALWAYS_TRACE   (1)
-extern void sqlite3_win32_write_debug(const char *, int);
-#else
-# define BKOFCE_ALWAYS_TRACE   (0)
-#endif
 static void backofficeTrace(const char *zFormat, ...){
   char *zMsg = 0;
-  if( BKOFCE_ALWAYS_TRACE || g.fAnyTrace ){
+  if( g.fAnyTrace ){
     va_list ap;
     va_start(ap, zFormat);
     zMsg = sqlite3_vmprintf(zFormat, ap);
     va_end(ap);
-#if defined(_WIN32)
-    sqlite3_win32_write_debug(zMsg, -1);
-#endif
   }
   if( g.fAnyTrace ) fprintf(stderr, "%s", zMsg);
   if( zMsg ) sqlite3_free(zMsg);

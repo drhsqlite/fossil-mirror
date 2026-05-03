@@ -422,7 +422,7 @@ struct FmtFunc {
   { "smtp_server_send",           2, FMT_SAFE },
   { "socket_set_errmsg",          1, FMT_SAFE },
   { "ssl_set_errmsg",             1, FMT_SAFE },
-  { "style_copy_button",          5, FMT_SAFE },
+  { "style_copy_button",          6, FMT_SAFE },
   { "style_header",               1, FMT_HTML },
   { "style_set_current_page",     1, FMT_URL },
   { "style_submenu_element",      2, FMT_URL },

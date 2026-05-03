@@ -718,7 +718,7 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
     db_reset(&q);
   }
   db_finalize(&q);
-  db_exec_sql(blob_str(&ins));
+  if( nIns>0 ) db_exec_sql(blob_str(&ins));
   blob_reset(&ins);
   bag_clear(&seen);
   bag_clear(&pending);

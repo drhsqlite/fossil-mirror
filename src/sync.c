@@ -25,7 +25,7 @@
 ** Explain what type of sync operation is about to occur
 */
 static void sync_explain(unsigned syncFlags){
-  if( g.url.isAlias && (syncFlags & SYNC_QUIET)==0 ){
+  if( (g.url.isAlias || g.url.useProxy) && (syncFlags & SYNC_QUIET)==0 ){
     const char *url;
     if( g.url.useProxy ){
       url = g.url.proxyUrlCanonical;

@@ -346,7 +346,7 @@ int vxprintf(
   etByte flag_rtz;           /* True if trailing zeros should be removed */
   etByte flag_exp;           /* True to force display of the exponent */
   int nsd;                   /* Number of significant digits returned */
-  char *zFmtLookup;
+  const char *zFmtLookup;
 
   count = length = 0;
   bufpt = 0;

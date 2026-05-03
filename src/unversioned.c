@@ -770,3 +770,28 @@ void uvlist_json_page(void){
    blob_appendf(&json,"]\n");
    cgi_set_content(&json);
 }
+
+
+/*
+** Get the file count and total size of unversioned files in bytes.
+**    - Return total size in bytes.
+**    - Optionally udpate filecount pointer if non-null pointer is given.
+*/
+sqlite3_int64 unversioned_stat(int *filecount){
+  sqlite3_int64 iStored=0;
+  int n=0;
+  if( db_table_exists("repository","unversioned") ){
+    Stmt q;
+    db_prepare(&q,
+        "SELECT count(*), sum(sz), sum(octet_length(content))"
+        "  FROM unversioned"
+        " WHERE length(hash)>1"
+        );
+    if( db_step(&q)==SQLITE_ROW && (n = db_column_int(&q,0))>0 ){
+      iStored = db_column_int64(&q,2);
+    }
+    db_finalize(&q);
+  }
+  if( filecount ) *filecount=n;
+  return iStored;
+}

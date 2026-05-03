@@ -27,13 +27,13 @@
 */
 /************ Begin %include sections from the grammar ************************/
 #line 1 "VERSION.h"
-#define MANIFEST_UUID "8a43b020141f772a0ac45291a7fd73041d2efba5e3665c6bd2f334ad9b2e9845"
-#define MANIFEST_VERSION "[8a43b02014]"
-#define MANIFEST_DATE "2025-03-19 16:19:43"
-#define MANIFEST_YEAR "2025"
-#define MANIFEST_ISODATE "20250319161943"
-#define MANIFEST_NUMERIC_DATE 20250319
-#define MANIFEST_NUMERIC_TIME 161943
+#define MANIFEST_UUID "a7f1c35bc0448daf15e2bafa36e510c1517534e620c452ecb314ed57d974f081"
+#define MANIFEST_VERSION "[a7f1c35bc0]"
+#define MANIFEST_DATE "2026-04-03 10:29:56"
+#define MANIFEST_YEAR "2026"
+#define MANIFEST_ISODATE "20260403102956"
+#define MANIFEST_NUMERIC_DATE 20260403
+#define MANIFEST_NUMERIC_TIME 102956
 #define RELEASE_VERSION "1.0"
 #define RELEASE_VERSION_NUMBER 10000
 #define RELEASE_RESOURCE_VERSION 1,0,0,0
@@ -7880,13 +7880,21 @@ static unsigned int pik_parse_macro_args(
   }
   if( z[i]==')' ){
     args[nArg].n = i - iStart;
-    /* Remove leading and trailing whitespace from each argument.
-    ** If what remains is one of $1, $2, ... $9 then transfer the
-    ** corresponding argument from the outer context */
+    /* Remove leading and trailing whitespace from each argument (including
+    ** backslash-escaped newlines).  If what remains is one of $1, $2, ... $9
+    ** then transfer the corresponding argument from the outer context */
     for(j=0; j<=nArg; j++){
       PToken *t = &args[j];
-      while( t->n>0 && IsSpace(t->z[0]) ){ t->n--; t->z++; }
-      while( t->n>0 && IsSpace(t->z[t->n-1]) ){ t->n--; }
+      while( (t->n>0 && IsSpace(t->z[0]))
+          || (t->n>1 && t->z[0]=='\\' && IsSpace(t->z[1]))
+      ){
+        t->z++;
+        t->n--;
+      }
+      while( t->n>0 && IsSpace(t->z[t->n-1]) ){
+        t->n--;
+        if( t->n>0 && t->z[t->n-1]=='\\' ) t->n--;
+      }
       if( t->n==2 && t->z[0]=='$' && t->z[1]>='1' && t->z[1]<='9' ){
         if( pOuter ) *t = pOuter[t->z[1]-'1'];
         else t->n = 0;
@@ -8259,12 +8267,19 @@ int main(int argc, char **argv){
   if( !bSvgOnly ){
     printf("</body></html>\n");
   }
-  return exitCode ? EXIT_FAILURE : EXIT_SUCCESS; 
+  return exitCode ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 #endif /* PIKCHR_SHELL */
 
 #ifdef PIKCHR_TCL
 #include <tcl.h>
+/* Compatability between Tcl8.6 and Tcl9.0 */
+#if TCL_MAJOR_VERSION==9
+# define CONST const
+#elif !defined(Tcl_Size)
+  typedef int Tcl_Size;
+#endif
+
 /*
 ** An interface to TCL
 **
@@ -8286,7 +8301,7 @@ static int pik_tcl_command(
   ClientData clientData, /* Not Used */
   Tcl_Interp *interp,    /* The TCL interpreter that invoked this command */
   int objc,              /* Number of arguments */
-  Tcl_Obj *const objv[]  /* Command arguments */
+  Tcl_Obj *CONST objv[]  /* Command arguments */
 ){
   int w, h;              /* Width and height of the pikchr */
   const char *zIn;       /* Source text input */
@@ -8332,4 +8347,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8335 "pikchr.c"
+#line 8350 "pikchr.c"

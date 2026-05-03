@@ -168,7 +168,7 @@ static void undo_all(int redoFlag){
   ncid = db_lget_int("undo_checkout", 0);
   ucid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", ucid);
-  db_set_checkout(ncid);
+  db_set_checkout(ncid, 1);
 }
 
 /*

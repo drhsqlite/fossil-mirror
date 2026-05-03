@@ -626,7 +626,10 @@ void filezip_cmd(void){
     }
     sqlite3_zipfile_init(g.db, 0, 0);
     db_multi_exec("CREATE VIRTUAL TABLE z1 USING zipfile(%Q)", zArchiveName);
-    db_prepare(&q, "SELECT sz, datetime(mtime,'unixepoch'), name FROM z1");
+    db_prepare(&q,
+       "SELECT sz, datetime(mtime,'unixepoch'),"
+       "       if(((mode>>12)&15)==10,name||' -> '||data,name) FROM z1"
+    );
     while( db_step(&q)==SQLITE_ROW ){
       int sz = db_column_int(&q, 0);
       szTotal += sz;
@@ -654,7 +657,10 @@ void filezip_cmd(void){
     sqlite3_zipfile_init(g.db, 0, 0);
     sqlite3_fileio_init(g.db, 0, 0);
     db_multi_exec("CREATE VIRTUAL TABLE z1 USING zipfile(%Q)", zArchiveName);
-    db_multi_exec("SELECT writefile(name,data) FROM z1");
+    db_multi_exec(
+       "SELECT writefile(name,data) FROM z1"
+       " WHERE ((mode>>12)&15)!=10"
+    );
   }else{
     /* Without the -x or -l options, construct a new ZIP archive */
     int i;

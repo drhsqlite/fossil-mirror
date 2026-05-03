@@ -455,10 +455,13 @@ void update_cmd(void){
         char *zOrig = file_newname(zFullPath, "original", 1);
         /* Backup previously unmanaged file before being overwritten */
         file_copy(zFullPath, zOrig);
-        fossil_free(zOrig);
         fossil_print("ADD %s - overwrites an unmanaged file", zName);
-        if( !dryRunFlag ) fossil_print(", original copy backed up locally");
+        if( !dryRunFlag ){
+          fossil_print(", original copy backed up as \"%s\"", zOrig);
+          file_delete(zFullPath);
+        }
         fossil_print("\n");
+        fossil_free(zOrig);
         nOverwrite++;
         nc = 1;
         zOp = "CONFLICT";
@@ -689,8 +692,7 @@ void update_cmd(void){
       /* All files updated.  Shift the current check-out to the target. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
       checkout_set_all_exe(tid);
-      manifest_to_disk(tid);
-      db_set_checkout(tid);
+      db_set_checkout(tid, 1);
     }else{
       /* A subset of files have been checked out.  Keep the current
       ** check-out unchanged. */
