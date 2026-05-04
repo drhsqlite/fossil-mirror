@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\sSQLite\strunk\schanges,\sfor\sbeta\stesting\sof\sSQLite.
-D 2026-04-30T20:48:04.524
+C Honor\sthe\sNO_COLOR\senvironment\svariable\sfor\sthe\s"fossil\ssys\sls"\scommand.
+D 2026-05-04T10:22:37.081
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -602,7 +602,7 @@ F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
 F src/xfer.c 2d2983a0ce3a6ec28db702cbd87ebd21bc670699259e44bb043b094b784e227a
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
-F src/xsystem.c 8235f320c65268b3e6ee9113478fe0f9bd1cb9d2bd1e8a374dacb9292f53638b
+F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c f9a2f373ee26759b73b04797acffadc788f3b6f3d6db6f87773b3126cba661b2
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 92a0764bfe220a7573f05bdf7c0d7c9d3509aa7b429b8e0b2fb1e06df15bebad
-R fa95dfe5fc8c535c2dec4f2f025026ec
+P 1d618cc41bc94c4210965c615111834f8a3463ecbe1b716a42d281eb5c8be18c
+R 163c7fe14fdd9c39bc150f0f3c08a3b6
 U drh
-Z f0adedab493930f4fc878341b8b4b543
+Z 84bc5fb345801987014c214d5390c497
 # Remove this line to create a well-formed Fossil manifest.
