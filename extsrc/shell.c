@@ -22127,17 +22127,38 @@ static void recoverFinalize(sqlite3_recover *p, sqlite3_stmt *pStmt){
 }
 
 /*
+** Run a single SQL statement in zSql.  If zSql contains two or more
+** SQL statements separated by ';', only the first is run.
+**
+** Return the sqlite3_finalizer() or sqlite3_prepare() result code
+** from running the zSql statement.
+*/
+static int recoverOneStmt(sqlite3 *db, const char *zSql){
+  sqlite3_stmt *pStmt = 0;
+  int rc;
+  if( zSql==0 ) return SQLITE_OK;
+  rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
+  if( rc ){
+    sqlite3_finalize(pStmt);
+    return rc;
+  }
+  while( SQLITE_ROW==sqlite3_step(pStmt) ){}
+  return sqlite3_finalize(pStmt);
+}
+
+/*
 ** This function is a no-op if recover handle p already contains an error
 ** (if p->errCode!=SQLITE_OK). A copy of p->errCode is returned in this 
 ** case.
 **
-** Otherwise, execute SQL script zSql. If successful, return SQLITE_OK.
-** Or, if an error occurs, leave an error code and message in the recover
-** handle and return a copy of the error code.
+** Otherwise, execute a single SQL statment in zSql.  Even if zSql contains
+** two or more SQL statements separated by ';', only execute the first one.
+** If successful, return SQLITE_OK.  Or, if an error occurs, leave an error
+** code and message in the recover handle and return a copy of the error code.
 */
 static int recoverExec(sqlite3_recover *p, sqlite3 *db, const char *zSql){
   if( p->errCode==SQLITE_OK ){
-    int rc = sqlite3_exec(db, zSql, 0, 0, 0);
+    int rc = recoverOneStmt(db, zSql);
     if( rc ){
       recoverDbError(p, db);
     }
@@ -22537,7 +22558,8 @@ static void recoverTransferSettings(sqlite3_recover *p){
       }
       recoverFinalize(p, p1);
     }
-    recoverExec(p, db2, "CREATE TABLE t1(a); DROP TABLE t1;");
+    recoverExec(p, db2, "CREATE TABLE t1(a)");
+    recoverExec(p, db2, "DROP TABLE t1");
 
     if( p->errCode==SQLITE_OK ){
       sqlite3 *db = p->dbOut;
@@ -22619,12 +22641,12 @@ static int recoverOpenOutput(sqlite3_recover *p){
 static void recoverOpenRecovery(sqlite3_recover *p){
   char *zSql = recoverMPrintf(p, "ATTACH %Q AS recovery;", p->zStateDb);
   recoverExec(p, p->dbOut, zSql);
-  recoverExec(p, p->dbOut,
-      "PRAGMA writable_schema = 1;"
-      "CREATE TABLE recovery.map(pgno INTEGER PRIMARY KEY, parent INT);" 
-      "CREATE TABLE recovery.schema(type, name, tbl_name, rootpage, sql);"
-  );
   sqlite3_free(zSql);
+  recoverExec(p, p->dbOut, "PRAGMA writable_schema = 1");
+  recoverExec(p, p->dbOut,
+      "CREATE TABLE recovery.map(pgno INTEGER PRIMARY KEY, parent INT)");
+  recoverExec(p, p->dbOut,
+      "CREATE TABLE recovery.schema(type, name, tbl_name, rootpage, sql)");
 }
 
 
@@ -22764,7 +22786,7 @@ static int recoverWriteSchema1(sqlite3_recover *p){
       ")"
       "SELECT rootpage, tbl, isVirtual, name, sql"
       " FROM dbschema "
-      "  WHERE tbl OR isIndex"
+      "  WHERE (tbl OR isIndex) AND sql GLOB 'CREATE *'"
       "  ORDER BY tbl DESC, name=='sqlite_sequence' DESC"
   );
 
@@ -22790,7 +22812,7 @@ static int recoverWriteSchema1(sqlite3_recover *p){
             zName, zName, zSql
         ));
       }
-      rc = sqlite3_exec(p->dbOut, zSql, 0, 0, 0);
+      rc = recoverOneStmt(p->dbOut, zSql);
       if( rc==SQLITE_OK ){
         recoverSqlCallback(p, zSql);
         if( bTable && !bVirtual ){
@@ -22832,15 +22854,17 @@ static int recoverWriteSchema2(sqlite3_recover *p){
       p->bSlowIndexes ?
       "SELECT rootpage, sql FROM recovery.schema "
       "  WHERE type!='table' AND type!='index'"
+      "    AND sql GLOB 'CREATE *'"
       :
       "SELECT rootpage, sql FROM recovery.schema "
       "  WHERE type!='table' AND (type!='index' OR sql NOT LIKE '%unique%')"
+      "    AND sql GLOB 'CREATE *'"
   );
 
   if( pSelect ){
     while( sqlite3_step(pSelect)==SQLITE_ROW ){
       const char *zSql = (const char*)sqlite3_column_text(pSelect, 1);
-      int rc = sqlite3_exec(p->dbOut, zSql, 0, 0, 0);
+      int rc = recoverOneStmt(p->dbOut, zSql);
       if( rc==SQLITE_OK ){
         recoverSqlCallback(p, zSql);
       }else if( rc!=SQLITE_ERROR ){
@@ -24218,7 +24242,7 @@ static void recoverStep(sqlite3_recover *p){
           if( bUseWrapper ) recoverUninstallWrapper(p);
         }while( p->errCode==SQLITE_NOTADB 
              && (bUseWrapper--) 
-             && SQLITE_OK==sqlite3_exec(p->dbIn, "ROLLBACK", 0, 0, 0)
+             && SQLITE_OK==recoverOneStmt(p->dbIn, "ROLLBACK")
         );
       }
 
@@ -24283,7 +24307,7 @@ static void recoverStep(sqlite3_recover *p){
       ** database. Regardless of whether or not an error has occurred, make
       ** an attempt to end the read transaction on the input database.  */
       recoverExec(p, p->dbOut, "COMMIT");
-      rc = sqlite3_exec(p->dbIn, "END", 0, 0, 0);
+      rc = recoverOneStmt(p->dbIn, "END");
       if( p->errCode==SQLITE_OK ) p->errCode = rc;
 
       recoverSqlCallback(p, "PRAGMA writable_schema = off");
@@ -24479,7 +24503,7 @@ int sqlite3_recover_finish(sqlite3_recover *p){
   }else{
     recoverFinalCleanup(p);
     if( p->bCloseTransaction && sqlite3_get_autocommit(p->dbIn)==0 ){
-      rc = sqlite3_exec(p->dbIn, "END", 0, 0, 0);
+      rc = recoverOneStmt(p->dbIn, "END");
       if( p->errCode==SQLITE_OK ) p->errCode = rc;
     }
     rc = p->errCode;
@@ -24566,6 +24590,7 @@ struct ShellState {
   u8 nPopOutput;         /* Revert .output settings when reaching zero */
   u8 nPopMode;           /* Revert .mode settings when reaching zero */
   u8 enableTimer;        /* Enable the timer.  2: permanently 1: only once */
+  u8 bDelimitNonprint;   /* Add \001...\002 around non-printing in prompts */
   int inputNesting;      /* Track nesting level of .read and other redirects */
   double prevTimer;      /* Last reported timer value */
   double tmProgress;     /* --timeout option for .progress */
@@ -25111,6 +25136,18 @@ static char *local_getline(char *zLine, FILE *in){
 }
 
 /*
+** Return true if either the SQLITE_NO_COLOR compile-time option is used
+** or if the NO_COLOR environment variable exists
+*/
+static int shellNoColor(void){
+#ifdef SQLITE_NO_COLOR
+  return 1;
+#else
+  return getenv("NO_COLOR")!=0;
+#endif
+}
+
+/*
 ** The SQLITE_PS_APPDEF macro should be set to the name of a function
 ** that accepts a single "int" argument and returns a "const char *"
 ** that is guaranteed to be non-NULL.  The value returned depends on the
@@ -25135,20 +25172,24 @@ static const char *shellPromptAppDef(int c){
     case 1:
 #if   defined(SQLITE_PS1)
       return SQLITE_PS1;
-#elif defined(SQLITE_PS_NOANSI)
-      return "/A-/v /~> ";
 #else
-      return "/e[1;32m/A-/v /e[1;/x33/:36/;m/m/e[3m/;/f/;/e[0m-> ";
+      if( shellNoColor() ){
+        return "/A-/v /~> ";
+      }else{
+        return "/e[1;32m/A-/v /e[1;/x33/:36/;m/m/e[3m/;/f/;/e[0m-> ";
+      }
 #endif
 
     /* The default continuation prompt string */
     case 2:
 #if   defined(SQLITE_PS2)
       return SQLITE_PS2;
-#elif defined(SQLITE_PS_NOANSI)
-      return "/B/C> ";
 #else
-      return "/B/e[1;/x33/:36/;m/C/e[0m-> ";
+      if( shellNoColor() ){
+        return "/B/C> ";
+      }else{
+        return "/B/e[1;/x33/:36/;m/C/e[0m-> ";
+      }
 #endif
 
     /* Name of environment variables that override the prompt strings
@@ -25220,9 +25261,9 @@ static const char *prompt_filename(ShellState *p, const char *zMemoryName){
   }
   if( zFN==0 || zFN[0]==0 ){
     zFN = p->pAuxDb->zDbFilename;
-    if( zFN==0 || zFN[0]==0 || cli_strcmp(zFN,":memory:")==0 ){
-      zFN = zMemoryName;
-    }
+  }
+  if( zFN==0 || zFN[0]==0 || cli_strcmp(zFN,":memory:")==0 ){
+    zFN = zMemoryName;
   }
   return zFN;
 }
@@ -25264,6 +25305,22 @@ static const char *prompt_user(void){
   if( z==0 || z[0]==0 ) z = "?";
 #endif
   return z;
+}
+
+/* If z[] begins with one or more ANSI X3.64 (VT100) escape sequences
+** return the number of bytes in all such escape sequences.  Return
+** zero if there are no valid escape sequences.
+*/
+static int nAnsiEscape(const char *z){
+  int i = 0;
+  while( z[i]=='\033' && z[i+1]=='[' ){
+    int k = i+2;
+    while( z[k]>=0x30 && z[k]<=0x3f ){ k++; }
+    while( z[k]>=0x20 && z[k]<=0x2f ){ k++; }
+    if( z[k]<0x40 || z[k]>0x7e ) break;
+    i = k+1;
+  }
+  return i;
 }
 
 /*
@@ -25313,6 +25370,7 @@ static char *expand_prompt(
     if( c>='0' && c<='7' ){
       /* /nnn becomes a single byte given by octal nnn */
       int v = c - '0';
+      i++;
       while( i<=2 && zPrompt[i+1]>='0' && zPrompt[i+1]<='7' ){
         v = v*8 + zPrompt[++i] - '0';
       }
@@ -25535,11 +25593,32 @@ static char *expand_prompt(
       }
     }
   }
-
   if( 0==sqlite3_str_length(pOut) ){
     /* Avoid a bogus OOM */
     sqlite3_str_appendchar(pOut, 1, '\0');
   }
+
+  /* Editline does not recognize ANSI X3.64 escape sequences.  So we have
+  ** to find them all and enclose them inside '\001'...'\002' delimiters.
+  ** Some versions of readline also require this, but others do not.
+  */
+  if( p->bDelimitNonprint && strstr(sqlite3_str_value(pOut),"\033[")!=0 ){
+    char *zOrig = sqlite3_str_finish(pOut);
+    int n;
+    pOut = sqlite3_str_new(0);
+    for(i=0; zOrig[i]; i++){
+      if( zOrig[i]=='\033' && (n = nAnsiEscape(zOrig+i))>0 ){
+        sqlite3_str_appendchar(pOut, 1, 1);
+        sqlite3_str_append(pOut, &zOrig[i], n);
+        sqlite3_str_appendchar(pOut, 1, 2);
+        i += n-1;
+      }else{
+        sqlite3_str_appendchar(pOut, 1, zOrig[i]);
+      }
+    }
+    sqlite3_free(zOrig);
+  }
+
   return sqlite3_str_finish(pOut);
 }
 
@@ -25914,9 +25993,7 @@ static void shellAddSchemaName(
 }
 
 /*
-** SQL function:  shell_prompt_test(PROMPT)
-**                shell_prompt_test(PROMPT,PRIOR)
-**                shell_prompt_test(PROMPT,PRIOR,FILENAME)
+** SQL function:  shell_prompt_test(PROMPT,PRIOR,FILENAME,FLAGS)
 **
 ** Return the shell prompt, with escapes expanded, for testing purposes.
 ** The first argument is the raw (unexpanded) prompt string.  Or if the
@@ -25924,7 +26001,15 @@ static void shellAddSchemaName(
 ** configured.  If the second argument exists and is not NULL, then the
 ** second argument is understood to be prior incomplete text and a
 ** continuation prompt is generated.  If a third argument is provided,
-** it is assumed to be the full pathname of the database file.
+** it is assumed to be the full pathname of the database file.  The
+** fourth argument, if provided, is an integer of flags:
+**
+**      0x0001       Always insert \001..\002 delimiters around ANSI escapes
+**      0x0002       Never insert \001..\002 delimiters
+**
+** This function is for testing purposes only.  The interface may change.
+** The function itself might be renamed or removed in future releases.  Do
+** not use this function in applications.
 */
 static void shellExpandPrompt(
   sqlite3_context *pCtx,
@@ -25938,7 +26023,10 @@ static void shellExpandPrompt(
   int mSavedFlgs;
   const char *zFName;
   char *zRes;
+  int mFlags;
+  char bSavedDelimit = p->bDelimitNonprint;
 
+  if( nVal<1 ) return;
   if( nVal<2 
    || (zPrior = (const char*)sqlite3_value_text(apVal[1]))==0
    || zPrior[0]==0
@@ -25955,7 +26043,14 @@ static void shellExpandPrompt(
     p->pAuxDb->zDbFilename = zFName;
     p->pAuxDb->mFlgs |= 0x001;
   }
+  mFlags = nVal>=4 ? sqlite3_value_int(apVal[3]) : 0;
+  if( mFlags & 0x0001 ){
+    p->bDelimitNonprint = 1;
+  }else if( mFlags & 0x0002 ){
+    p->bDelimitNonprint = 0;
+  }
   zRes = expand_prompt(p, zPrior, zPrompt);
+  p->bDelimitNonprint = bSavedDelimit;
   p->pAuxDb->zDbFilename = zSavedDbFile;
   p->pAuxDb->mFlgs = mSavedFlgs;
   sqlite3_result_text(pCtx, zRes, -1, SQLITE_TRANSIENT);
@@ -29408,11 +29503,7 @@ static void open_db(ShellState *p, int openFlags){
     sqlite3_create_function(p->db, "edit", 2, SQLITE_UTF8, 0,
                             editFunc, 0, 0);
 #endif
-    sqlite3_create_function(p->db, "shell_prompt_test", 1, SQLITE_UTF8,
-                            p, shellExpandPrompt, 0, 0);
-    sqlite3_create_function(p->db, "shell_prompt_test", 2, SQLITE_UTF8,
-                            p, shellExpandPrompt, 0, 0);
-    sqlite3_create_function(p->db, "shell_prompt_test", 3, SQLITE_UTF8,
+    sqlite3_create_function(p->db, "shell_prompt_test", -1, SQLITE_UTF8,
                             p, shellExpandPrompt, 0, 0);
     sqlite3_create_function(p->db, "shell_temp_filename", 1, SQLITE_UTF8,
                             p, shellTempFilenameFunc, 0, 0);
@@ -37726,27 +37817,28 @@ static void main_init(ShellState *p) {
   sqlite3_config(SQLITE_CONFIG_URI, 1);
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
   globalShellState = p;
+#if HAVE_EDITLINE || HAVE_READLINE
+  /* Editline requires \001...\002 delimiters around ANSI x3.64 escapes in
+  ** prompt strings.  Readline does sometimes, depending on how it is
+  ** compiled and installed. */
+  p->bDelimitNonprint = 1;
+#else
+  /* No \001...\002 escapes required for linenoise or when not using a
+  ** command-line editing library */
+  p->bDelimitNonprint = 0;
+#endif
 }
 
 /*
 ** Output text to the console in a font that attracts extra attention.
 */
-#if 0 /* Windows now handles ANSI escape codes */
 static void printBold(const char *zText){
-  HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
-  CONSOLE_SCREEN_BUFFER_INFO defaultScreenInfo;
-  GetConsoleScreenBufferInfo(out, &defaultScreenInfo);
-  SetConsoleTextAttribute(out,
-         FOREGROUND_RED|FOREGROUND_INTENSITY
-  );
-  sputz(stdout, zText);
-  SetConsoleTextAttribute(out, defaultScreenInfo.wAttributes);
+  if( shellNoColor() ){
+    cli_printf(stdout, "%s", zText);
+  }else{
+    cli_printf(stdout, "\033[1;36m\033[3m%s\033[0m", zText);
+  }
 }
-#else
-static void printBold(const char *zText){
-  cli_printf(stdout, "\033[1;36m\033[3m%s\033[0m", zText);
-}
-#endif
 
 /*
 ** Get the argument to an --option.  Throw an error and die if no argument
