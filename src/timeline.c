@@ -310,6 +310,17 @@ void timeline_extra(
   }
 }
 
+/*
+** Clients of the www_print_timeline() routine can create an instance
+** of the following object to pass supplemental information into
+** www_print_timeline() as the last (8th) argument.
+*/
+#if INTERFACE
+struct TimelineXtra {
+  void (*xExtra)(Stmt*,int,const char*,const char*); /* generate "extra" text */
+};
+#endif
+
 
 /*
 ** SETTING: timeline-truncate-at-blank  boolean default=off
@@ -370,7 +381,7 @@ void www_print_timeline(
   Matcher *pLeftBranch,    /* Comparison function to use for zLeftBranch */
   int selectedRid,         /* Highlight the line with this RID value or zero */
   int secondRid,           /* Secondary highlight (or zero) */
-  void (*xExtra)(Stmt*,int,const char*,const char*)  /* generate "extra" text */
+  TimelineXtra *pXtra      /* Supplemental information */
 ){
   int mxWikiLen;
   Blob comment;
@@ -392,11 +403,9 @@ void www_print_timeline(
                               ** page rather than the /timeline page */
   const char *zMainBranch = db_main_branch();
 
-
   if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
-  if( xExtra==0 ) xExtra = timeline_extra;
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
@@ -783,7 +792,11 @@ void www_print_timeline(
       cgi_printf("<span class='clutter' id='detail-%d'>",rid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
-    xExtra(pQuery, tmFlags, zThisUser, zThisTag);
+    if( pXtra && pXtra->xExtra ){
+      pXtra->xExtra(pQuery, tmFlags, zThisUser, zThisTag);
+    }else{
+      timeline_extra(pQuery, tmFlags, zThisUser, zThisTag);
+    }
     if( tmFlags & TIMELINE_COMPACT ){
       @ </span></span>
     }else{

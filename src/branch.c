@@ -1078,6 +1078,7 @@ void brtimeline_page(void){
   int tmFlags;                            /* Timeline display flags */
   int fNoHidden = PB("nohidden")!=0;      /* The "nohidden" query parameter */
   int fOnlyHidden = PB("onlyhidden")!=0;  /* The "onlyhidden" query parameter */
+  TimelineXtra xtra;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -1111,7 +1112,9 @@ void brtimeline_page(void){
   }else{
     tmFlags |= TIMELINE_BRCOLOR;
   }
-  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, brtimeline_extra);
+  memset(&xtra, 0, sizeof(xtra));
+  xtra.xExtra = brtimeline_extra;
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, &xtra);
   db_finalize(&q);
   style_finish_page();
 }

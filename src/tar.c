@@ -1250,6 +1250,7 @@ void download_page(void){
   if( n==0 ){
     @ <h2>No tarball/ZIP suggestions are available at this time</h2>
   }else{
+    TimelineXtra xtra;
     @ <h2>%d(n) Tarball/ZIP Download Suggestion%s(n>1?"s":""):</h2>
     db_prepare(&q,
       "WITH matches AS (%s AND blob.rid IN (SELECT rid FROM tarlist))\n"
@@ -1263,7 +1264,9 @@ void download_page(void){
 
     tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL | TIMELINE_COLUMNAR
             | TIMELINE_BRCOLOR;
-    www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, download_extra);
+    memset(&xtra, 0, sizeof(xtra));
+    xtra.xExtra = download_extra;
+    www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, &xtra);
     db_finalize(&q);
   }
   if( g.perm.Clone ){
