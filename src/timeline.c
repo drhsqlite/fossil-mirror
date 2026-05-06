@@ -461,7 +461,7 @@ void www_print_timeline(
     char *zDateLink;          /* URL for the link on the timestamp */
     int drawDetailEllipsis;   /* True to show ellipsis in place of detail */
     int gidx = 0;             /* Graph row identifier */
-    int isSelectedOrCurrent = 0;  /* True if current row is selected */
+    int omitCommentColor = 0; /* True to skip added color to comments */
     const char *zExtraClass = "";
     char zTime[20];
 
@@ -534,10 +534,10 @@ void www_print_timeline(
     pendingEndTr = 1;
     if( rid==pXtra->selectedRid ){
       @ <tr class="timelineSelected">
-      isSelectedOrCurrent = 1;
+      omitCommentColor = 1;
     }else if( rid==pXtra->secondRid ){
       @ <tr class="timelineSelected timelineSecondary">
-      isSelectedOrCurrent = 1;
+      omitCommentColor = 1;
     }else if( rid==vid ){
       @ <tr class="timelineCurrent">
     }else {
@@ -660,10 +660,10 @@ void www_print_timeline(
     }
     fossil_free(zBr);
     @</td>
-    if( !isSelectedOrCurrent ){
-      @ <td class="timeline%s(zStyle)Cell%s(zExtraClass)" id='mc%d(gidx)'>
-    }else{
+    if( omitCommentColor ){
       @ <td class="timeline%s(zStyle)Cell%s(zExtraClass)">
+    }else{
+      @ <td class="timeline%s(zStyle)Cell%s(zExtraClass)" id='mc%d(gidx)'>
     }
     if( pGraph ){
       if( zType[0]=='e' ){
@@ -789,10 +789,10 @@ void www_print_timeline(
       @ data-id='%d(rid)'>...</span>
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
-      if( !isSelectedOrCurrent ){
-        @ <td class="timelineDetailCell%s(zExtraClass)" id='md%d(gidx)'>
-      }else{
+      if( omitCommentColor ){
         @ <td class="timelineDetailCell%s(zExtraClass)">
+      }else{
+        @ <td class="timelineDetailCell%s(zExtraClass)" id='md%d(gidx)'>
       }
     }
     if( tmFlags & TIMELINE_COMPACT ){

@@ -3702,7 +3702,7 @@ void ci_edit_page(void){
   int fHasHidden = 0;           /* True if hidden tag already set */
   int fHasClosed = 0;           /* True if closed tag already set */
   const char *zChngTime = 0;    /* Value of chngtime= query param, if any */
-  int bApply = P("apply")!=0 && cgi_csrf_safe(2);
+  int bApply = P("apply")!=0;
   int bPreview = P("preview")!=0;
   char *zUuid;
   Blob comment;
@@ -3746,7 +3746,7 @@ void ci_edit_page(void){
   zCloseFlag = P("close") ? " checked" : "";
   zHideFlag = P("hide") ? " checked" : "";
   blob_zero(&ctrl);
-  if( bApply || bPreview ){
+  if( (bApply && cgi_csrf_safe(2)) || bPreview ){
     char *zNow = date_in_standard_format(zChngTime ? zChngTime : "now");
     blob_appendf(&ctrl, "D %s\n", zNow);
     init_newtags();
@@ -3778,11 +3778,13 @@ void ci_edit_page(void){
     if( zNewTagFlag[0] && zNewTag[0] ) add_tag(zNewTag);
     if( zNewBrFlag[0] && zNewBranch[0] ) change_branch(rid,zNewBranch);
     construct_newtags_artifact(&ctrl, rid, zUuid, 0);
-    if( bApply && artifact_is_complete(&ctrl) ){
-      db_begin_transaction();
-      publish_newtags_artifact(&ctrl, rid);
-      db_end_transaction(0);
-      blob_reset(&ctrl);
+    if( bApply ){
+      if( artifact_is_complete(&ctrl) ){
+        db_begin_transaction();
+        publish_newtags_artifact(&ctrl, rid);
+        db_end_transaction(0);
+        blob_reset(&ctrl);
+      }
       cgi_redirectf("%R/ci/%S", zUuid);
     }
   }
@@ -3947,6 +3949,7 @@ void ci_edit_page(void){
   }
   @ </td></tr>
   @ </table>
+  login_insert_csrf_secret();
   @ </div></form>
   builtin_request_js("ci_edit.js");
   style_finish_page();
@@ -4222,7 +4225,6 @@ void ci_amend_cmd(void){
   if( fHide && !fHasHidden ) hide_branch();
   if( fClose && !fHasClosed ) close_leaf(rid);
   if( zNewBranch && zNewBranch[0] ) change_branch(rid,zNewBranch);
-  if( !fDryRun ) db_begin_transaction();
   construct_newtags_artifact(&ctrl, rid, zUuid, zUserOvrd);
   if( fDryRun ){
     fossil_print("%s", blob_str(&ctrl));
