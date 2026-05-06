@@ -273,13 +273,20 @@ void info_cmd(void){
 
 /*
 ** Show the context graph (immediate parents and children) for
-** check-in rid and rid2
+** check-in rid and rid2.  rid2 might be zero, in which case only
+** show the context for rid1.
 */
-void render_checkin_context(int rid, int rid2, int parentsOnly, int mFlags){
+void render_checkin_context(
+  int rid, int rid2,     /* One or two checkins for which to show context */
+  int mRCCFlags,         /* Flags.  1: parents only, 2: shadow-select rid */
+  int mFlags             /* Graph flags */
+){
   Blob sql;
   Stmt q;
   int rx[2];
   int i, n;
+  TimelineXtra xtra;
+
   rx[0] = rid;
   rx[1] = rid2;
   n = rid2 ? 2 : 1;
@@ -297,7 +304,7 @@ void render_checkin_context(int rid, int rid2, int parentsOnly, int mFlags){
       rx[i], rx[i]
     );
   }
-  if( !parentsOnly ){
+  if( (mRCCFlags & 0x01)==0 ){
     for(i=0; i<n; i++){
       db_multi_exec(
         "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;", rx[i]
@@ -315,14 +322,16 @@ void render_checkin_context(int rid, int rid2, int parentsOnly, int mFlags){
   }
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
-  www_print_timeline(&q,
-         mFlags
-         |TIMELINE_GRAPH
-         |TIMELINE_FILLGAPS
-         |TIMELINE_NOSCROLL
-         |TIMELINE_XMERGE
-         |TIMELINE_CHPICK,
-       0, 0, 0, rid, rid2, 0);
+  memset(&xtra, 0, sizeof(xtra));
+  if( mRCCFlags & 0x02 ){
+    xtra.currentRid = rid;
+  }else{
+    xtra.selectedRid = rid;
+    xtra.secondRid = rid2;
+  }
+  mFlags |= TIMELINE_GRAPH|TIMELINE_FILLGAPS|TIMELINE_NOSCROLL|
+            TIMELINE_XMERGE|TIMELINE_CHPICK;
+  www_print_timeline(&q, mFlags, &xtra);
   db_finalize(&q);
   blob_reset(&sql);
 }
@@ -510,6 +519,7 @@ void ci_tags_page(void){
   int cnt = 0;
   Blob sql;
   char const *zType;
+  TimelineXtra xtra;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -609,8 +619,10 @@ void ci_tags_page(void){
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
+  memset(&xtra, 0, sizeof(xtra));
+  xtra.selectedRid = rid;
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, rid, 0, 0);
+                     &xtra);
   db_finalize(&q);
   style_finish_page();
 }
@@ -878,7 +890,7 @@ void ckout_page(void){
   }else{
     style_header("Checkout Status: %h", zCwd);
   }
-  render_checkin_context(vid, 0, 0, 0);
+  render_checkin_context(vid, 0, 2, 0);
   @ <hr>
   zExBase = P("exbase");
   if( zExBase && zExBase[0] ){
@@ -1185,7 +1197,7 @@ void ci_page(void){
   render_backlink_graph(zUuid,
        "<div class=\"section accordion\">References</div>\n");
   @ <div class="section accordion">Context</div><div class="accordion_panel">
-  render_checkin_context(rid, 0, 0, 0);
+  render_checkin_context(rid, 0, 2, 0);
   @ </div><div class="section accordion" id="changes_section">Changes</div>
   @ <div class="accordion_panel">
   @ <div class="sectionmenu info-changes-menu">
@@ -3455,14 +3467,18 @@ static int comment_compare(const char *zA, const char *zB){
 }
 
 /*
-** The following methods operate on the newtags temporary table
-** that is used to collect various changes to be added to a control
-** artifact for a check-in edit.
+*****************************************************************************
+** The following methods operate on the "newtags" temporary table.  This
+** table collects changes for a control artifact that will implement an
+** edit to a check-in.
+**
+** Initialize the newtags table
 */
 static void init_newtags(void){
   db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
 }
 
+/* Add a new changes to the newtags table */
 static void change_special(
   const char *zName,    /* Name of the special tag */
   const char *zOp,      /* Operation prefix (e.g. +,-,*) */
@@ -3471,54 +3487,69 @@ static void change_special(
   db_multi_exec("REPLACE INTO newtags VALUES(%Q,'%q',%Q)", zName, zOp, zValue);
 }
 
+/* Change a symbolic tag */
 static void change_sym_tag(const char *zTag, const char *zOp){
   db_multi_exec("REPLACE INTO newtags VALUES('sym-%q',%Q,NULL)", zTag, zOp);
 }
 
+/* Cancel a tag */
 static void cancel_special(const char *zTag){
   change_special(zTag,"-",0);
 }
 
+/* Add a background color tag.  This will be propagating tag
+** if fPropagateColor is true. */
 static void add_color(const char *zNewColor, int fPropagateColor){
   change_special("bgcolor",fPropagateColor ? "*" : "+", zNewColor);
 }
 
+/* Cancel a background color tag */
 static void cancel_color(void){
   change_special("bgcolor","-",0);
 }
 
+/* Add a comment-change tag */
 static void add_comment(const char *zNewComment){
   change_special("comment","+",zNewComment);
 }
 
+/* Add a date-change tag */
 static void add_date(const char *zNewDate){
   change_special("date","+",zNewDate);
 }
 
+/* Add a change-user tag */
 static void add_user(const char *zNewUser){
   change_special("user","+",zNewUser);
 }
 
+/* Add a generic symbolic tag (one that has no value) */
 static void add_tag(const char *zNewTag){
   change_sym_tag(zNewTag,"+");
 }
 
+/* Cancel an existing symbolic tag associated with check-in rid */
 static void cancel_tag(int rid, const char *zCancelTag){
   if( db_exists("SELECT 1 FROM tagxref, tag"
                 " WHERE tagxref.rid=%d AND tagtype>0"
                 "   AND tagxref.tagid=tag.tagid AND tagname='sym-%q'",
                 rid, zCancelTag)
-  ) change_sym_tag(zCancelTag,"-");
+  ){
+    change_sym_tag(zCancelTag,"-");
+  }
 }
 
+/* Add a hidden tag that propagates to all ancestors */
 static void hide_branch(void){
   change_special("hidden","*",0);
 }
 
+/* Close the branch */
 static void close_leaf(int rid){
   change_special("closed",is_a_leaf(rid)?"+":"*",0);
 }
 
+/* Move the check-in to a different branch */
 static void change_branch(int rid, const char *zNewBranch){
   db_multi_exec(
     "REPLACE INTO newtags "
@@ -3533,15 +3564,27 @@ static void change_branch(int rid, const char *zNewBranch){
 }
 
 /*
-** The apply_newtags method is called after all newtags have been added
-** and the control artifact is completed and then written to the DB.
+** Construct a control artifact.
+**
+** Preconditions:
+**
+**    (1)  "ctrl" contains the beginning of a control artifact with
+**         just the D-card showing the timestamp on the control artifact
+**         itself.
+**
+**    (2)  The newtags temporary table has been constructed.
+**
+**    (3)  Zero or more methods may have been called to populate the
+**         newtags table.  Or the newtags table might be empty.
+**
+** Construct the complete control artifact.  Or, if there are not
+** changes, just zero out the ctrl blob.
 */
-static void apply_newtags(
-  Blob *ctrl,
-  int rid,
-  const char *zUuid,
-  const char *zUserOvrd,  /* The user name on the control artifact */
-  int fDryRun             /* Print control artifact, but make no changes */
+static void construct_newtags_artifact(
+  Blob *ctrl,            /* The control artifact text */
+  int rid,               /* rid of the check-in that the artifact applies to */
+  const char *zUuid,     /* UUID of the check-in to which the artifact applies*/
+  const char *zUserOvrd  /* The user name on the control artifact */
 ){
   Stmt q;
   int nChng = 0;
@@ -3561,7 +3604,6 @@ static void apply_newtags(
   }
   db_finalize(&q);
   if( nChng>0 ){
-    int nrid;
     Blob cksum;
     if( zUserOvrd && zUserOvrd[0] ){
       blob_appendf(ctrl, "U %F\n", zUserOvrd);
@@ -3570,20 +3612,34 @@ static void apply_newtags(
     }
     md5sum_blob(ctrl, &cksum);
     blob_appendf(ctrl, "Z %b\n", &cksum);
-    if( fDryRun ){
-      assert( g.isHTTP==0 ); /* Only print control artifact in console mode. */
-      fossil_print("%s", blob_str(ctrl));
-      blob_reset(ctrl);
-    }else{
-      db_begin_transaction();
-      g.markPrivate = content_is_private(rid);
-      nrid = content_put(ctrl);
-      manifest_crosslink(nrid, ctrl, MC_PERMIT_HOOKS);
-      db_end_transaction(0);
-    }
-    assert( blob_is_reset(ctrl) );
+    blob_reset(&cksum);
+  }else{
+    blob_reset(ctrl);
   }
 }
+
+/*
+** Return true if the artifact is complete.  We assume that any non-empty
+** artifact is complete.
+*/
+static int artifact_is_complete(Blob *ctrl){
+  return blob_size(ctrl)>0;
+}
+
+/*
+** Apply a control artifact to the repository database.  Except, if the
+** artifact is empty, this routine is a no-op.
+*/
+static void publish_newtags_artifact(Blob *ctrl, int rid){
+  if( artifact_is_complete(ctrl) ){
+    int nrid;
+    g.markPrivate = content_is_private(rid);
+    nrid = content_put(ctrl);
+    manifest_crosslink(nrid, ctrl, MC_PERMIT_HOOKS);
+  }
+}
+/* End of the newtags subsystem
+******************************************************************************/
 
 /*
 ** This method checks that the date can be parsed.
@@ -3646,10 +3702,13 @@ void ci_edit_page(void){
   int fHasHidden = 0;           /* True if hidden tag already set */
   int fHasClosed = 0;           /* True if closed tag already set */
   const char *zChngTime = 0;    /* Value of chngtime= query param, if any */
+  int bApply = P("apply")!=0;
+  int bPreview = P("preview")!=0;
   char *zUuid;
   Blob comment;
   char *zBranchName = 0;
   Stmt q;
+  Blob ctrl;                    /* The generated control artifact */
 
   login_check_credentials();
   if( !g.perm.Write ){ login_needed(g.anon.Write); return; }
@@ -3686,12 +3745,10 @@ void ci_edit_page(void){
   zBranchName = branch_of_rid(rid);
   zCloseFlag = P("close") ? " checked" : "";
   zHideFlag = P("hide") ? " checked" : "";
-  if( P("apply") && cgi_csrf_safe(2) ){
-    Blob ctrl;
-    char *zNow;
-
-    blob_zero(&ctrl);
-    zNow = date_in_standard_format(zChngTime ? zChngTime : "now");
+  blob_zero(&ctrl);
+  if( bApply && !cgi_csrf_safe(2) ) bApply = 0;
+  if( bApply || bPreview ){
+    char *zNow = date_in_standard_format(zChngTime ? zChngTime : "now");
     blob_appendf(&ctrl, "D %s\n", zNow);
     init_newtags();
     if( zNewColorFlag[0]
@@ -3721,65 +3778,37 @@ void ci_edit_page(void){
     if( zCloseFlag[0] ) close_leaf(rid);
     if( zNewTagFlag[0] && zNewTag[0] ) add_tag(zNewTag);
     if( zNewBrFlag[0] && zNewBranch[0] ) change_branch(rid,zNewBranch);
-    apply_newtags(&ctrl, rid, zUuid, 0, 0);
-    cgi_redirectf("%R/ci/%S", zUuid);
+    construct_newtags_artifact(&ctrl, rid, zUuid, 0);
+    if( bApply ){
+      if( artifact_is_complete(&ctrl) ){
+        db_begin_transaction();
+        publish_newtags_artifact(&ctrl, rid);
+        db_end_transaction(0);
+        blob_reset(&ctrl);
+      }
+      cgi_redirectf("%R/ci/%S", zUuid);
+    }
   }
   blob_zero(&comment);
   blob_append(&comment, zNewComment, -1);
-  zUuid[10] = 0;
-  style_header("Edit Check-in [%s]", zUuid);
-  if( P("preview") ){
-    Blob suffix;
-    int nTag = 0;
-    const char *zDplyBr;   /* Branch name used to determine BG color */
-    const char *zMainBranch = db_main_branch();
-    if( zNewBrFlag[0] && zNewBranch[0] ){
-      zDplyBr = zNewBranch;
-    }else{
-      zDplyBr = zBranchName;
-    }
-    @ <b>Preview:</b>
-    @ <blockquote>
-    @ <table border=0>
-    if( zNewColorFlag[0] && zNewColor && zNewColor[0] ){
-      @ <tr><td style="background-color:%h(reasonable_bg_color(zNewColor,0));">
-    }else if( zColor[0] ){
-      @ <tr><td style="background-color:%h(reasonable_bg_color(zColor,0));">
-    }else if( zDplyBr && fossil_strcmp(zDplyBr, zMainBranch)!=0 ){
-      @ <tr><td style="background-color:%h(hash_color(zDplyBr));">
-    }else{
-      @ <tr><td>
-    }
-    @ %!W(blob_str(&comment))
-    blob_zero(&suffix);
-    blob_appendf(&suffix, "(user: %h", zNewUser);
-    db_prepare(&q, "SELECT substr(tagname,5) FROM tagxref, tag"
-                   " WHERE tagname GLOB 'sym-*' AND tagxref.rid=%d"
-                   "   AND tagtype>1 AND tag.tagid=tagxref.tagid",
-                   rid);
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zTag = db_column_text(&q, 0);
-      if( nTag==0 ){
-        blob_appendf(&suffix, ", tags: %h", zTag);
-      }else{
-        blob_appendf(&suffix, ", %h", zTag);
-      }
-      nTag++;
-    }
-    db_finalize(&q);
-    blob_appendf(&suffix, ")");
-    @ %s(blob_str(&suffix))
-    @ </td></tr></table>
-    if( zChngTime ){
-      @ <p>The timestamp on the tag used to make the changes above
-      @ will be overridden as: %s(date_in_standard_format(zChngTime))</p>
-    }
-    @ </blockquote>
-    @ <hr>
-    blob_reset(&suffix);
+  style_header("Edit Check-in %S", zUuid);
+  @ <div class="section accordion">Original Context Around \
+  @ Check-in %S(zUuid) on %s(zDate)</div>
+  @ <div class="accordion_panel">
+  render_checkin_context(rid, 0, 2, 0);
+  @ </div>
+  if( bPreview ){
+    @ <div class="section accordion">After The Proposed Changes</div>
+    @ <div class="accordion_panel">
+    db_begin_transaction();
+    publish_newtags_artifact(&ctrl, rid);
+    render_checkin_context(rid, 0, 2, 0);
+    db_end_transaction(1);
+    @ </div>
   }
-  @ <p>Make changes to attributes of check-in
-  @ [%z(href("%R/ci/%!S",zUuid))%s(zUuid)</a>]:</p>
+  @ <div class="section accordion">Proposed Changes For \
+  @ Check-In %S(zUuid):</div>
+  @ <div class="accordion_panel">
   form_begin(0, "%R/ci_edit");
   @ <div><input type="hidden" name="r" value="%s(zUuid)">
   @ <table border="0" cellspacing="10">
@@ -3921,6 +3950,7 @@ void ci_edit_page(void){
   }
   @ </td></tr>
   @ </table>
+  login_insert_csrf_secret();
   @ </div></form>
   builtin_request_js("ci_edit.js");
   style_finish_page();
@@ -4196,9 +4226,15 @@ void ci_amend_cmd(void){
   if( fHide && !fHasHidden ) hide_branch();
   if( fClose && !fHasClosed ) close_leaf(rid);
   if( zNewBranch && zNewBranch[0] ) change_branch(rid,zNewBranch);
-  apply_newtags(&ctrl, rid, zUuid, zUserOvrd, fDryRun);
-  if( fDryRun==0 ){
+  construct_newtags_artifact(&ctrl, rid, zUuid, zUserOvrd);
+  if( fDryRun ){
+    fossil_print("%s", blob_str(&ctrl));
+    blob_reset(&ctrl);
+  }else{
+    db_begin_transaction();
+    publish_newtags_artifact(&ctrl, rid);
     show_common_info(rid, "hash:", 1, 0);
+    db_end_transaction(0);
   }
   if( g.localOpen ){
     manifest_to_disk(rid);
