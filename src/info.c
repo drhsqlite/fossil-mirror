@@ -3746,7 +3746,8 @@ void ci_edit_page(void){
   zCloseFlag = P("close") ? " checked" : "";
   zHideFlag = P("hide") ? " checked" : "";
   blob_zero(&ctrl);
-  if( (bApply && cgi_csrf_safe(2)) || bPreview ){
+  if( bApply && !cgi_csrf_safe(2) ) bApply = 0;
+  if( bApply || bPreview ){
     char *zNow = date_in_standard_format(zChngTime ? zChngTime : "now");
     blob_appendf(&ctrl, "D %s\n", zNow);
     init_newtags();
