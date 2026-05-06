@@ -2592,7 +2592,8 @@ void commit_cmd(void){
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
-  /* --sha1sum is an undocumented alias for --hash for backwards compatibility */
+                               /* Undocumented.  Supported only for backwards
+                               ** compatibility -------vvvvvvv */
   useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
   noSign = find_option("nosign",0,0)!=0;
   if( find_option("nosync",0,0) ) g.fNoSync = 1;

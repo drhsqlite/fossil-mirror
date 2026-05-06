@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\sbeta\stesting\nof\sSQLite.
-D 2026-05-04T10:25:41.834
+C Comment\simprovement.\s\sNo\schanges\sto\scode.
+D 2026-05-06T11:21:52.079
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -402,7 +402,7 @@ F src/capabilities.c 66659300e4e4e7e145b1abb9db4d784f2f2683ac5a3d79f92e1d48c0da0
 F src/captcha.c 2394e4e21d348561a95245e9d936548abed07c2151a1c3a7f8626b1e0b35c45b
 F src/cgi.c c785c8da4ad0bb51912d4c1c4f0568fa5e24f6e67845eff494953cdd2909f96a
 F src/chat.c 5b6b39018559fe496641f49f199069b4a78c4c02e30630ac76ba9ea53f51ec4d
-F src/checkin.c cacd1dfa4e9176fe787b546c4482e58949ed30a1ad09304fd9187037544ecc65
+F src/checkin.c 8c2cdc0ef711432ff33d7392110c26e8da83a3b36cc8cbae41f2721183cbdb57
 F src/checkout.c b4403d7fa11a813fd248c9ffbea29f5cda04264a5393d4ccfd723811a3cafce4
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 471f4d00c87722db52c057e780adac34069789da075140401547330823f60d50
-R 646dcb8b53f2a978c0b89d3bbfb501dd
+P c93e1c8721e9c62c42f3030568ae9575d4978672ac2a1c8e3d99eb04abee18f0
+R eaf0b9925f373c530316451b6949f7a0
 U drh
-Z 72518a132b7fd76b0d8ccd0a06922543
+Z fb053a9b8f0b1ba76cd9880fe1f75bc8
 # Remove this line to create a well-formed Fossil manifest.
