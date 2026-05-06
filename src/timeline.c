@@ -318,6 +318,12 @@ void timeline_extra(
 #if INTERFACE
 struct TimelineXtra {
   void (*xExtra)(Stmt*,int,const char*,const char*); /* generate "extra" text */
+  const char *zThisUser;   /* Suppress links to this user */
+  const char *zThisTag;    /* Suppress links to this tag */
+  Matcher *pLeftBranch;    /* Comparison function to use for zLeftBranch */
+  int selectedRid;         /* CSS: timelineSelected */
+  int secondRid;           /* CSS: timelineSelected timelineSecondary */
+  int currentRid;          /* CSS: timelineCurrent */
 };
 #endif
 
@@ -376,11 +382,6 @@ struct TimelineXtra {
 void www_print_timeline(
   Stmt *pQuery,            /* Query to implement the timeline */
   int tmFlags,             /* Flags controlling display behavior */
-  const char *zThisUser,   /* Suppress links to this user */
-  const char *zThisTag,    /* Suppress links to this tag */
-  Matcher *pLeftBranch,    /* Comparison function to use for zLeftBranch */
-  int selectedRid,         /* Highlight the line with this RID value or zero */
-  int secondRid,           /* Secondary highlight (or zero) */
   TimelineXtra *pXtra      /* Supplemental information */
 ){
   int mxWikiLen;
@@ -402,8 +403,15 @@ void www_print_timeline(
   int bTimestampLinksToInfo;  /* True if timestamp hyperlinks go to the /info
                               ** page rather than the /timeline page */
   const char *zMainBranch = db_main_branch();
+  TimelineXtra zeroXtra;      /* Substitute for pXtra==NULL */
 
-  if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
+  if( pXtra==0 ){
+    memset(&zeroXtra, 0, sizeof(zeroXtra));
+    pXtra = &zeroXtra;
+  }
+  if( pXtra->currentRid ){
+    vid = pXtra->currentRid;
+  }else if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
   zPrevDate[0] = 0;
@@ -524,15 +532,14 @@ void www_print_timeline(
       zTime[0] = 0;
     }
     pendingEndTr = 1;
-    if( rid==selectedRid ){
+    if( rid==pXtra->selectedRid ){
       @ <tr class="timelineSelected">
       isSelectedOrCurrent = 1;
-    }else if( rid==secondRid ){
+    }else if( rid==pXtra->secondRid ){
       @ <tr class="timelineSelected timelineSecondary">
       isSelectedOrCurrent = 1;
     }else if( rid==vid ){
       @ <tr class="timelineCurrent">
-      isSelectedOrCurrent = 1;
     }else {
       @ <tr>
     }
@@ -792,10 +799,10 @@ void www_print_timeline(
       cgi_printf("<span class='clutter' id='detail-%d'>",rid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
-    if( pXtra && pXtra->xExtra ){
-      pXtra->xExtra(pQuery, tmFlags, zThisUser, zThisTag);
+    if( pXtra->xExtra ){
+      pXtra->xExtra(pQuery, tmFlags, pXtra->zThisUser, pXtra->zThisTag);
     }else{
-      timeline_extra(pQuery, tmFlags, zThisUser, zThisTag);
+      timeline_extra(pQuery, tmFlags, pXtra->zThisUser, pXtra->zThisTag);
     }
     if( tmFlags & TIMELINE_COMPACT ){
       @ </span></span>
@@ -919,7 +926,7 @@ void www_print_timeline(
     @ </td></tr>
   }
   if( pGraph ){
-    graph_finish(pGraph, pLeftBranch, tmFlags);
+    graph_finish(pGraph, pXtra->pLeftBranch, tmFlags);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
@@ -3271,8 +3278,9 @@ void page_timeline(void){
   }
   cgi_check_for_malice();
   {
-    Matcher *pLeftBranch;
+    TimelineXtra xtra;
     const char *zPattern = P("sl");
+    memset(&xtra, 0, sizeof(xtra));
     if( zPattern!=0 ){
       MatchStyle ms;
       if( zMatchStyle!=0 ){
@@ -3280,13 +3288,16 @@ void page_timeline(void){
       }else{
         ms = strpbrk(zPattern,"*[?")!=0 ? MS_GLOB : MS_BRLIST;
       }
-      pLeftBranch = match_create(ms,zPattern);
+      xtra.pLeftBranch = match_create(ms,zPattern);
     }else{
-      pLeftBranch = match_create(matchStyle, zBrName?zBrName:zTagName);
+      xtra.pLeftBranch = match_create(matchStyle, zBrName?zBrName:zTagName);
     }
-    www_print_timeline(&q, tmFlags, zThisUser, zThisTag, pLeftBranch,
-                       selectedRid, secondaryRid, 0);
-    match_free(pLeftBranch);
+    xtra.zThisUser = zThisUser;
+    xtra.zThisTag = zThisTag;
+    xtra.selectedRid = selectedRid;
+    xtra.secondRid = secondaryRid;
+    www_print_timeline(&q, tmFlags, &xtra);
+    match_free(xtra.pLeftBranch);
   }
   db_finalize(&q);
   if( zOlderButton ){
@@ -4092,7 +4103,7 @@ void thisdayinhistory_page(void){
     @ <h2>%d(iAgo) Year%s(iAgo>1?"s":"") Ago
     @ <small>%z(href("%R/timeline?c=%t",zId))(more context)</a>\
     @ </small></h2>
-    www_print_timeline(&q, TIMELINE_GRAPH, 0, 0, 0, 0, 0, 0);
+    www_print_timeline(&q, TIMELINE_GRAPH, 0);
   }
   db_finalize(&q);
   style_finish_page();

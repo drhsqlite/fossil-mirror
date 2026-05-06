@@ -1266,7 +1266,7 @@ void download_page(void){
             | TIMELINE_BRCOLOR;
     memset(&xtra, 0, sizeof(xtra));
     xtra.xExtra = download_extra;
-    www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, &xtra);
+    www_print_timeline(&q, tmFlags, &xtra);
     db_finalize(&q);
   }
   if( g.perm.Clone ){

@@ -278,13 +278,15 @@ void info_cmd(void){
 */
 void render_checkin_context(
   int rid, int rid2,     /* One or two checkins for which to show context */
-  int mRCCFlags,         /* Flags.  1: parents only.  2: no-highlight */
+  int mRCCFlags,         /* Flags.  1: parents only, 2: shadow-select rid */
   int mFlags             /* Graph flags */
 ){
   Blob sql;
   Stmt q;
   int rx[2];
   int i, n;
+  TimelineXtra xtra;
+
   rx[0] = rid;
   rx[1] = rid2;
   n = rid2 ? 2 : 1;
@@ -320,17 +322,16 @@ void render_checkin_context(
   }
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
+  memset(&xtra, 0, sizeof(xtra));
   if( mRCCFlags & 0x02 ){
-    rid = rid2 = 0;
+    xtra.currentRid = rid;
+  }else{
+    xtra.selectedRid = rid;
+    xtra.secondRid = rid2;
   }
-  www_print_timeline(&q,
-         mFlags
-         |TIMELINE_GRAPH
-         |TIMELINE_FILLGAPS
-         |TIMELINE_NOSCROLL
-         |TIMELINE_XMERGE
-         |TIMELINE_CHPICK,
-       0, 0, 0, rid, rid2, 0);
+  mFlags |= TIMELINE_GRAPH|TIMELINE_FILLGAPS|TIMELINE_NOSCROLL|
+            TIMELINE_XMERGE|TIMELINE_CHPICK;
+  www_print_timeline(&q, mFlags, &xtra);
   db_finalize(&q);
   blob_reset(&sql);
 }
@@ -518,6 +519,7 @@ void ci_tags_page(void){
   int cnt = 0;
   Blob sql;
   char const *zType;
+  TimelineXtra xtra;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -617,8 +619,10 @@ void ci_tags_page(void){
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
+  memset(&xtra, 0, sizeof(xtra));
+  xtra.selectedRid = rid;
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, rid, 0, 0);
+                     &xtra);
   db_finalize(&q);
   style_finish_page();
 }
@@ -886,7 +890,7 @@ void ckout_page(void){
   }else{
     style_header("Checkout Status: %h", zCwd);
   }
-  render_checkin_context(vid, 0, 0, 0);
+  render_checkin_context(vid, 0, 2, 0);
   @ <hr>
   zExBase = P("exbase");
   if( zExBase && zExBase[0] ){
@@ -1193,7 +1197,7 @@ void ci_page(void){
   render_backlink_graph(zUuid,
        "<div class=\"section accordion\">References</div>\n");
   @ <div class="section accordion">Context</div><div class="accordion_panel">
-  render_checkin_context(rid, 0, 0, 0);
+  render_checkin_context(rid, 0, 2, 0);
   @ </div><div class="section accordion" id="changes_section">Changes</div>
   @ <div class="accordion_panel">
   @ <div class="sectionmenu info-changes-menu">
