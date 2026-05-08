@@ -131,7 +131,7 @@ static const unsigned char aFont2[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 160*strlen(zPw) + 9 );
+  char *z = fossil_malloc( 224*strlen(zPw) + 9 );
   int i, j, k, m;
 
   k = 0;
@@ -148,8 +148,12 @@ char *captcha_render(const char *zPw){
           z[k++] = 0x96;
           z[k++] = 0x88;
         }else{
-          z[k++] = ' ';
-          z[k++] = ' ';
+          z[k++] = 0xe2;
+          z[k++] = 0x96;
+          z[k++] = 0x91;
+          z[k++] = 0xe2;
+          z[k++] = 0x96;
+          z[k++] = 0x91;
         }
       }
       z[k++] = ' ';
