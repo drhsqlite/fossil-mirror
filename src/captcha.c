@@ -489,13 +489,13 @@ char *captcha_render(const char *zPw){
 */
 void test_captcha(void){
   int i;
-  unsigned int v;
+  sqlite3_uint64 v;
   char *z;
 
   for(i=2; i<g.argc; i++){
     char zHex[30];
-    v = (unsigned int)atoi(g.argv[i]);
-    sqlite3_snprintf(sizeof(zHex), zHex, "%x", v);
+    v = (sqlite3_uint64)strtoll(g.argv[i],0,0);
+    sqlite3_snprintf(sizeof(zHex), zHex, "%llx", v);
     z = captcha_render(zHex);
     fossil_print("%s:\n%s", zHex, z);
     free(z);
