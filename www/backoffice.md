@@ -37,7 +37,7 @@ is started to do the work.
 This happens for every webpage, regardless of how that webpage is launched,
 and regardless of the purpose of the webpage.  This also happens on the
 server for "[fossil sync](/help/sync)" and
-[fossil clone](/help/clone)" commands which are implemented as
+"[fossil clone](/help/clone)" commands which are implemented as
 web requests - albeit requests that the human user never sees.
 Web requests can arrive at the Fossil server via direct TCP/IP (for example
 when Fossil is started using commands like "[fossil server](/help/server)")
@@ -95,13 +95,13 @@ Automatic Backoffice Does Not Work On Some Systems
 --------------------------------------------------
 
 We have observed that the automatic backoffice does not work on
-some system - OpenBSD in particular.  We still do not understand why
+some systems - OpenBSD in particular.  We still do not understand why
 this is.  (If you have insights, please share them on the
 [Fossil Forum](https://fossil-scm.org/forum) so that we can perhaps
 fix the problem.)  For now, the backoffice must be run manually
 on OpenBSD systems.
 
-To set up fully-manual backoffice, first disable the automatic backoffice
+To set up a fully-manual backoffice, first disable the automatic backoffice
 using the "[backoffice-disable](/help/backoffice-disable)" setting.
 
     fossil setting backoffice-disable on
@@ -116,7 +116,7 @@ launching the backoffice for all of them.  There are additional useful
 command-line options.  See the "[fossil backoffice](/help/backoffice)"
 documentation for details.
 
-The backoffice processes run manually using the "fossil backoffice"
+The backoffice processes that are run manually using the "fossil backoffice"
 command do not normally use a lease.  That means that if you run the
 "fossil backoffice" command with --poll and you forget to disable
 automatic backoffice by setting the "backoffice-disable" flag, then

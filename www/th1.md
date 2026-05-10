@@ -920,8 +920,8 @@ is currently available for use by TH1 scripts.
 
 Generates a TH1 trace message if TH1 tracing is enabled.
 
-<a id="untaintCmd"></a>TH1 taint Command
------------------------------------------
+<a id="untaintCmd"></a>TH1 untaint Command
+------------------------------------------
 
   *  untaint STRING
 

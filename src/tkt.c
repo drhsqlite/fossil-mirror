@@ -1220,7 +1220,7 @@ void tkt_draw_timeline(int tagid, const char *zType){
   www_print_timeline(&q,
     TIMELINE_ARTID | TIMELINE_DISJOINT | TIMELINE_GRAPH | TIMELINE_NOTKT |
     TIMELINE_REFS,
-    0, 0, 0, 0, 0, 0);
+    0);
   db_finalize(&q);
   fossil_free(zFullUuid);
 }

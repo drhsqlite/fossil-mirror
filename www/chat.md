@@ -200,7 +200,7 @@ interfaces are used by the XHR:
   *  [/chat-poll](/help?name=/chat-poll) &rarr;
      Downloads chat content as JSON.
      Chat messages are numbered sequentially.
-     The client tells the server the largest chat message it currently
+     The client tells the server the latest chat message ID it currently
      holds, and the server sends back subsequent messages.  If there
      are no subsequent messages, the /chat-poll page blocks until new
      messages are available.

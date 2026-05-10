@@ -474,6 +474,17 @@ making it safe for output in HTML code.
        without the leading "/" and without query parameters.
        Examples:  "timeline", "doc/trunk/README.txt", "wiki".
 
+   *   **`current_checkin`** - The [check-in name](./checkin_names.wiki) to
+       which the current
+         [/ci](/help/www/ci),
+         [/dir](/help/www/dir),
+         [/tree](/help/www/tree),
+         [/timeline](/help/www/timeline) or
+         [/vinfo](/help/www/vinfo)
+       page refers, or undefined for all other pages.  This variable is
+       derived from query parameters and is therefore a [tainted string]
+       (./th1.md#taint).
+
    *   **`csrf_token`** - A token used to prevent cross-site request forgery.
 
    *   **`default_csp`** - [Fossil’s default CSP](./defcsp.md) unless

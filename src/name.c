@@ -184,19 +184,40 @@ const char *fossil_roundup_date(const char *zDate){
     n--;
     addZ = 1;
   }
-  if( n==19 ){  /* YYYY-MM-DD HH:MM:SS */
+  if( n>=21 && n<=23 ){       /* YYYY-MM-DD HH:MM:SS.SSS */
+    memcpy(zUp, zDate, n);
+    while( n<23 ) zUp[n++] = '9';
+    /* If milliseconds is less than 999, round up to the next millisecond */
+    if( strcmp(&zUp[20],"999")<0 ){
+      if( zUp[22]<'9' ){
+        zUp[22]++;
+      }else{
+        zUp[22] = '0';
+        if( zUp[21]<'9' ){
+          zUp[21]++;
+        }else{
+          zUp[21] = '0';
+          zUp[20]++;
+        }
+      }
+    }
+    if( addZ ) zUp[n++] = 'z';
+    zUp[n] = 0;
+    return zUp;
+  }
+  if( n==19 ){                /* YYYY-MM-DD HH:MM:SS */
     memcpy(zUp, zDate, 19);
     memcpy(zUp+19, ".999z", 6);
     if( !addZ ) zUp[23] = 0;
     return zUp;
   }
-  if( n==16 ){ /* YYYY-MM-DD HH:MM */
+  if( n==16 ){                /* YYYY-MM-DD HH:MM */
     memcpy(zUp, zDate, 16);
     memcpy(zUp+16, ":59.999z", 8);
     if( !addZ ) zUp[23] = 0;
     return zUp;
   }
-  if( n==10 ){ /* YYYY-MM-DD */
+  if( n==10 ){                /* YYYY-MM-DD */
     memcpy(zUp, zDate, 10);
     memcpy(zUp+10, " 23:59:59.999z", 14);
     if( !addZ ) zUp[23] = 0;

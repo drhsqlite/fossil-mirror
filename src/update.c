@@ -455,10 +455,13 @@ void update_cmd(void){
         char *zOrig = file_newname(zFullPath, "original", 1);
         /* Backup previously unmanaged file before being overwritten */
         file_copy(zFullPath, zOrig);
-        fossil_free(zOrig);
         fossil_print("ADD %s - overwrites an unmanaged file", zName);
-        if( !dryRunFlag ) fossil_print(", original copy backed up locally");
+        if( !dryRunFlag ){
+          fossil_print(", original copy backed up as \"%s\"", zOrig);
+          file_delete(zFullPath);
+        }
         fossil_print("\n");
+        fossil_free(zOrig);
         nOverwrite++;
         nc = 1;
         zOp = "CONFLICT";

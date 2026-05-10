@@ -207,17 +207,11 @@ void stat_page(void){
       @ %d(a):%d(b)
       @ </td></tr>
     }
-    if( db_table_exists("repository","unversioned") ){
-      Stmt q;
-      char zStored[100];
-      db_prepare(&q,
-        "SELECT count(*), sum(sz), sum(octet_length(content))"
-        "  FROM unversioned"
-        " WHERE length(hash)>1"
-      );
-      if( db_step(&q)==SQLITE_ROW && (n = db_column_int(&q,0))>0 ){
-        sqlite3_int64 iStored, pct;
-        iStored = db_column_int64(&q,2);
+    { /* Unversioned Files stat (if any) */
+      sqlite3_int64 iStored = unversioned_stat(&n);
+      if( n>0 ){
+        sqlite3_int64 pct;
+        char zStored[100];
         pct = (iStored*100 + fsize/2)/fsize;
         approxSizeName(sizeof(zStored), zStored, iStored);
         @ <tr><th>Unversioned&nbsp;Files:</th><td>
@@ -225,7 +219,6 @@ void stat_page(void){
         @ %s(zStored) compressed, %d(pct)%% of total repository space
         @ </td></tr>
       }
-      db_finalize(&q);
     }
     @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
     n = db_int(0, "SELECT count(*) FROM event WHERE type='ci' /*scan*/");
@@ -297,6 +290,7 @@ void stat_page(void){
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
   @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))
   @ <a href='version?verbose'>(details)</a></td></tr>
+  @ <tr><th>Pikchr&nbsp;Version:</th><td>%s(pikchr_version())</td></tr>
   if( g.perm.Admin ){
     const char *zCgi = P("SERVER_SOFTWARE");
     @ <tr><th>OpenSSL&nbsp;Version:</th>
@@ -355,14 +349,14 @@ void stat_page(void){
 **   --db-verify          Run a full verification of the repository integrity.
 **                        This involves decoding and reparsing all artifacts
 **                        and can take significant time.
-**   --omit-version-info  Omit the SQLite and Fossil version information
+**   --omit-version-info  Omit the SQLite, Fossil, Pikchr version information
 */
 void dbstat_cmd(void){
   i64 t, fsize;
   int n, m;
   int szMax, szAvg;
   int brief;
-  int omitVers;            /* Omit Fossil and SQLite version information */
+  int omitVers;            /* Omit Fossil, SQLite, Pikchr version information */
   int dbCheck;             /* True for the --db-check option */
   const int colWidth = -19 /* printf alignment/width for left column */;
   const char *p, *z;
@@ -411,6 +405,17 @@ void dbstat_cmd(void){
       }
       a = t/fsize;
       fossil_print("%*s%d:%d\n", colWidth, "compression-ratio:", a, b);
+    }
+    { /* Unversioned Files stat (if any) */
+      sqlite3_int64 iStored = unversioned_stat(&n);
+      if( n>0 ){
+        sqlite3_int64 pct;
+        char zStored[100];
+        pct = (iStored*100 + fsize/2)/fsize;
+        approxSizeName(sizeof(zStored), zStored, iStored);
+        fossil_print("%*s%d files, %s compressed, %d%% of total repository space\n",
+            colWidth, "unversioned-files:", n, zStored, pct);
+      }
     }
     n = db_int(0, "SELECT COUNT(*) FROM event e WHERE e.type='ci'");
     fossil_print("%*s%,d\n", colWidth, "check-ins:", n);
@@ -471,6 +476,9 @@ void dbstat_cmd(void){
                  colWidth, "sqlite-version:",
                  sqlite3_sourceid(), &sqlite3_sourceid()[20],
                  sqlite3_libversion());
+    fossil_print("%*s%s\n",
+                 colWidth, "pikchr-version:",
+                 pikchr_version());
   }
   fossil_print("%*s%,d pages, %d bytes/pg, %,d free pages, "
                "%s, %s mode\n",

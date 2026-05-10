@@ -67,7 +67,7 @@ const unsigned char *builtin_file(const char *zFilename, int *piSize){
     if( piSize ) *piSize = aBuiltinFiles[i].nByte;
     return aBuiltinFiles[i].pData;
   }else{
-    char *zV = strstr(zFilename, "-v");
+    const char *zV = strstr(zFilename, "-v");
     if( zV!=0 ){
       for(i=0; fossil_isdigit(zV[i+2]); i++){}
       if( i>=8 && zV[i+2]=='.' ){

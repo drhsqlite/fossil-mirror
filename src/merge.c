@@ -989,7 +989,7 @@ merge_next_child:
   if( !is_a_version(pid) ){
     fossil_fatal("not a version: record #%d", pid);
   }
-  if( !forceFlag && mid==pid ){
+  if( !forceFlag && (mid==pid || mid==vid) ){
     fossil_print("Merge skipped because it is a no-op. "
                  " Use --force to override.\n");
     return;

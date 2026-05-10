@@ -323,6 +323,54 @@ static void fossil_close(int bDb, int noRepository){
 }
 
 /*
+** This routine overrides some of the prompt generation behavior in the
+** SQLite shell.  Always return a static string.  For invalid inputs,
+** return a zero-length string.  Valid inputs:
+**
+**    1      Default main prompt.
+**    2      Default continuation prompt.
+**    3      Environment variable to override main prompt ("FOSSIL_PS1")
+**    4      Environment variable to override continuatio ("FOSSIL_PS2")
+**    'A'    The name of the application.  (Nominally "Fossil")
+**    'V'    Version number including patch.  (ex: "2.29.1")
+**    'v'    Version number without patch.  (ex: "2.29")
+*/
+const char *sqlcmd_ps_appdef(int c){
+  switch( c ){
+    /* Default prompt strings */
+    case 1:   return "/e[1;34m/A-/v /e[1;/x33/:36/;m/f/e[0m-> ";
+    case 2:   return "/B/e[1;/x33/:36/;m/C/e[0m-> ";
+
+    /* Names of environment variables to override cases 1 and 2 */
+    case 3:   return "FOSSIL_PS1";
+    case 4:   return "FOSSIL_PS2";
+
+    /* Application name */
+    case 'A': return "Fossil";
+
+    /* Version numbers */
+    case 'V': return RELEASE_VERSION;
+    case 'v': {
+      const char *zFull = RELEASE_VERSION;
+      const char *zD1, *zD2;
+      size_t i;
+      static char zRelease[32];
+      zD2 = strrchr(zFull,'.');
+      zD1 = strchr(zFull,'.');
+      if( zD2==0 || zD2==zD1 ){
+        return zFull;
+      }
+      i = zD2 - zFull;
+      if( i>sizeof(zRelease)-1 ) return zFull;
+      memcpy(zRelease, zFull, i);
+      zRelease[i] = 0;
+      return zRelease;
+    }
+  }
+  return "";
+}
+
+/*
 ** COMMAND: sql
 ** COMMAND: sqlite3*
 **

@@ -20,9 +20,13 @@
 **
 ** HTML snippet for statically created buttons:
 **
-**    <button class="copy-button" id="copy-<idTarget>"
-**        data-copytarget="<idTarget>" data-copylength="<cchLength>">
-**      <span></span>
+**    <button
+**       class="copy-button"
+**       id="copy-<idTarget>"
+**       data-copytarget="<idTarget>"
+**       data-copylength="<cchLength>"
+**       data-content="<content>">
+**       <span></span>
 **    </button>
 */
 function makeCopyButton(idTarget,bFlipped,cchLength){
@@ -64,10 +68,13 @@ function clickCopyButton(e){
   var idTarget = this.getAttribute("data-copytarget");
   var elTarget = document.getElementById(idTarget);
   if( elTarget ){
-    var text = elTarget.innerText.replace(/^\s+|\s+$/g,"");
-    var cchLength = parseInt(this.getAttribute("data-copylength"));
-    if( !isNaN(cchLength) && cchLength>0 ){
-      text = text.slice(0,cchLength);   /* Assume single-byte chars. */
+    var text = this.getAttribute("data-content");
+    if( !text ){
+      text = elTarget.innerText.replace(/^\s+|\s+$/g,"");
+      var cchLength = parseInt(this.getAttribute("data-copylength"));
+      if( !isNaN(cchLength) && cchLength>0 ){
+        text = text.slice(0,cchLength);   /* Assume single-byte chars. */
+      }
     }
     copyTextToClipboard(text);
   }

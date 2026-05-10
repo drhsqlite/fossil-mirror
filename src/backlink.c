@@ -64,8 +64,7 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q,
-      TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL|TIMELINE_REFS,
-                     0, 0, 0, 0, 0, 0);
+      TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL|TIMELINE_REFS, 0);
   db_finalize(&q);
   if( needEndPanel ){
     cgi_printf("</div>\n");
@@ -101,8 +100,7 @@ void backlink_timeline_page(void){
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
-  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0, 0, 0);
+  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,0);
   db_finalize(&q);
   style_finish_page();
 }

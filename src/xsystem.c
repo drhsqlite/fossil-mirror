@@ -417,7 +417,7 @@ void xsystem_ls(int argc, char **argv){
     }
   }
   if( fossil_isatty(1) ){
-    if( bAutoColor ) mFlags |= LS_COLOR;
+    if( bAutoColor && terminal_is_vt100() ) mFlags |= LS_COLOR;
     mFlags |= LS_COLUMNS;
   }
   if( nFile>0 ){

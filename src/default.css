@@ -37,7 +37,7 @@ span.timelineDisabled {
 tr.timelineCurrent {
   padding: .1em .2em;
   border: 1px dashed #446979;
-  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 1px 4px 1px rgba(0, 0, 0, 0.5);
 }
 .timelineSelected {
   padding: .1em .2em;

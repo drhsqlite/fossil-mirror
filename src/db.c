@@ -4536,7 +4536,7 @@ void print_setting(const Setting *pSetting, int valueOnly, int bIfChng){
       }else{
         fossil_print("%-24s %-11s\n", pSetting->name, zName);
         while( zVal[0] ){
-          char *zNL = strchr(zVal, '\n');
+          const char *zNL = strchr(zVal, '\n');
           if( zNL==0 ){
             fossil_print("    %s\n", zVal);
             break;

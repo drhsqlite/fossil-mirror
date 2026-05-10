@@ -4,7 +4,7 @@ If you run Fossil as root in any mode that [serves data on the
 network][srv], and you're running it on Unix or a compatible OS, Fossil
 will drop itself into a [`chroot(2)` jail][cj] shortly after starting
 up. The usual reason for launching Fossil 
-as root to allow it to bind to TCP port 80 for HTTP
+as root is to allow it to bind to TCP port 80 for HTTP
 service, since normal users are restricted to ports 1024 and higher.
 
 Fossil uses the owner of the Fossil repository file as its new user

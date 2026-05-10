@@ -1392,7 +1392,7 @@ int cgi_setup_query_string(void){
 void cgi_init(void){
   char *z;
   const char *zType;
-  char *zSemi;
+  const char *zSemi;
   int len;
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
@@ -1414,7 +1414,7 @@ void cgi_init(void){
     if( zRequestUri==0 || zPathInfo==0 ){
       malformed_request("missing SCRIPT_NAME");  /* Does not return */
     }
-    z = strstr(zRequestUri,zPathInfo);
+    z = (char*)strstr(zRequestUri,zPathInfo);
     if( z==0 ){
       malformed_request("PATH_INFO not found in REQUEST_URI");
     }

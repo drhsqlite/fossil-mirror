@@ -731,6 +731,12 @@ int fossil_main(int argc, char **argv){
   const char *zCmdName = "unknown";
   const CmdOrPage *pCmd = 0;
   int rc;
+#ifdef _WIN32
+  DWORD mode;
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  GetConsoleMode(hOut, &mode);
+  SetConsoleMode(hOut, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+#endif
 
   g.zPhase = "init";
 #if !defined(_WIN32_WCE)
