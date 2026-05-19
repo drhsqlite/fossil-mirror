@@ -1,5 +1,5 @@
-C Fix\sthe\stest-captcha\scommand\sso\sthat\saccepts\s64-bit\svalues\sin\ndecimal,\soctal,\sor\shex.
-D 2026-05-08T17:27:03.473
+C Update\sthe\sdelta_parse()\stable-valued\sfunction\sto\sbetter\salign\swith\sthe\ncode\sin\sthe\sSQLite\ssource\stree.
+D 2026-05-19T11:16:06.131
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -419,7 +419,7 @@ F src/db.c 64aeb853723f74fb4f22290997773a0957716886fa73a50c40fc8a0bd9cfaf9d
 F src/default.css a0f029832f69ada7df8952fedb47c6333ac3e332e433166086c71bf75b41ed45
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
-F src/deltafunc.c f08accd177876a9d41ad36de0559e5bdc07e7f368ac58790634c2dcd75c30d9f
+F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
 F src/descendants.c 4bb7fb447369984f041da4a5ec05c201383bde3a59d18c537293d520712a1b09
 F src/diff.c 3e46c56274896ac8ebc3035a32060bf5898f6cd2b6540816d62d6649125eb3bd
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20c579e435ef8c4f0825220a7e8fad0391a0569a4acce38a01866b2d883788a6
-R c870f175013dc9943959d9e388645c10
+P ee6a2f0c21dd1ab03a6382581b4908b9aaac8b92a57359d498db70f0122552af
+R e398ca495666ec8a9d345500930d8270
 U drh
-Z b70e59b35cf7127cb19121fd46f444ad
+Z a538020a2f354d21b842ef15365ba1da
 # Remove this line to create a well-formed Fossil manifest.
