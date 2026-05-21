@@ -1,5 +1,5 @@
-C Update\sthe\sdelta_parse()\stable-valued\sfunction\sto\sbetter\salign\swith\sthe\ncode\sin\sthe\sSQLite\ssource\stree.
-D 2026-05-19T11:16:06.131
+C Update\sthe\schange\slog.\s\sAlso\supdate\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\ntrunk\sversion\sfor\sbeta-testing\sof\sSQLite.
+D 2026-05-21T19:13:51.495
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -277,10 +277,10 @@ F extsrc/pikchr-worker.js 3eb34cda523e2cc003a6cd9faa9b1daf0552c9245c0d544435bf09
 F extsrc/pikchr.c 080044411bbd03956d8e488e56fe2ea135c06e96b3bc7fe148740f2e7cbe70ba
 F extsrc/pikchr.js e4808790ff38ede2acad784cfab62acd25caf41d23ace454c0190b637934f031
 F extsrc/pikchr.wasm 023299eec760d3c7addba21b415dfb07ca2172afcb46be4b13e95f4e0fcbbfcf
-F extsrc/qrf.h fbb223ff5789b324b3e9c22e787e4c1f53e217cff7cc5a243164d4b2e8410f4b
-F extsrc/shell.c bac30dd41effa33aeec00e88fdc7f346e8d2bdc4d40f50cc73b8f7d1377a81a1
-F extsrc/sqlite3.c 64b578a919bf788cecdad54a18fa56b0bf90a053459615502d7e802f7a1f7f40
-F extsrc/sqlite3.h d37a84229228ce50639414a0bdad0d6f96138488a448c207944068504c53ea3f
+F extsrc/qrf.h 7a832022bc3f40dc09fff1cb6f18025395a19313de090265a4a1d22bb9b400be
+F extsrc/shell.c 1cd204915739221053e9915a01161ce3bf12871aae5983a1dc279ee3b72de992
+F extsrc/sqlite3.c a70a504e44999e48202c7883b4e02260554bbb510bed6c93cd416bf53fea134c
+F extsrc/sqlite3.h e47c0667403c22bb6db771ad1325a4fd4816d87ca7d06645588d65f6a152b40c
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -802,7 +802,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md b578bfee7063fe0a3fef310b79d0b9ca23e084b17aa3044d57f5a4b94b180b4d
 F www/caps/ref.html 80f46f8229fa89f4cd1d1a1ff6bd1700905d64e65fd2201ad315b652b292ae4b
 F www/cgi.wiki b9c5bcae4ac589ed274f8f4b2a64dc854f14c78883f4f0200504ec7e3cdf2b56
-F www/changes.wiki 2f21505d0e4bcd0a815c32162942f3718472839cd7eb1f75b0fd0ca5578179ab
+F www/changes.wiki ebd0e9934961b747a99341bd49548a82ff6ad58a7b9c25132aab9462db66721e
 F www/chat.md 9e962760a95d717205757d0839cd70a0f91471a23a5e0198c0b629b99889e078
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ee6a2f0c21dd1ab03a6382581b4908b9aaac8b92a57359d498db70f0122552af
-R e398ca495666ec8a9d345500930d8270
+P 921e7c1ec82bf6c68d05ce119ad7092f2cf7454f1cea7850c1590298da979871
+R f7fbe9a57d7d1b601a117da50d5e5e81
 U drh
-Z a538020a2f354d21b842ef15365ba1da
+Z 88fa2d9babbe5540ea6f481e9e8b9b7f
 # Remove this line to create a well-formed Fossil manifest.
