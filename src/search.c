@@ -597,6 +597,7 @@ void search_sql_setup(sqlite3 *db){
 **     -h|--bi-help      Search built-in help
 **     --highlight N     Used VT100 color N for matching text.  0 means "off".
 **     -n|--limit N      Limit output to N matches
+**     --subject         Restrict --forum search to subject lines only
 **     --technotes       Search tech notes
 **     --tickets         Search tickets
 **     -W|--width WIDTH  Set display width to WIDTH columns, 0 for
@@ -662,12 +663,13 @@ void search_cmd(void){
   if( find_option("checkins","c",0) ){ srchFlags |= SRCH_CKIN;     bFts = 1; }
   if( find_option("docs",0,0) ){       srchFlags |= SRCH_DOC;      bFts = 1; }
   if( find_option("forum",0,0) ){      srchFlags |= SRCH_FORUM;    bFts = 1; }
+  if( find_option("subject",0,0) ){    srchFlags |= SRCH_FORUM_SUBJ;         }
   if( find_option("technotes",0,0) ){  srchFlags |= SRCH_TECHNOTE; bFts = 1; }
   if( find_option("tickets",0,0) ){    srchFlags |= SRCH_TKT;      bFts = 1; }
   if( find_option("wiki",0,0) ){       srchFlags |= SRCH_WIKI;     bFts = 1; }
 
   /* If no search objects are specified, default to "check-in comments" */
-  if( srchFlags==0 ) srchFlags = SRCH_CKIN;
+  if( (srchFlags & SRCH_ALL)==0 ) srchFlags = SRCH_CKIN;
 
   if( srchFlags==SRCH_HELP ) bFlags = OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE;
   db_find_and_open_repository(bFlags, 0);
@@ -708,7 +710,13 @@ void search_cmd(void){
       search_fullscan(zPattern, srchFlags);  /* Full-scan search */
     }else{
       search_update_index(srchFlags);        /* Update the index */
-      search_indexed(zPattern, srchFlags);   /* Indexed search */
+      if( srchFlags & SRCH_FORUM_SUBJ ){
+        unsigned int idxFlags = srchFlags & ~SRCH_FORUM & ~SRCH_FORUM_SUBJ;
+        if( idxFlags ) search_indexed(zPattern, idxFlags);
+        search_fullscan(zPattern, SRCH_FORUM | SRCH_FORUM_SUBJ);
+      }else{
+        search_indexed(zPattern, srchFlags); /* Indexed search */
+      }
       if( srchFlags & SRCH_HELP ){
         search_fullscan(zPattern, SRCH_HELP);
       }
@@ -790,6 +798,7 @@ void search_cmd(void){
 #define SRCH_FORUM    0x0020    /* Search over forum messages */
 #define SRCH_HELP     0x0040    /* Search built-in help (full-scan only) */
 #define SRCH_ALL      0x007f    /* Search over everything */
+#define SRCH_FORUM_SUBJ 0x0080  /* Restrict forum search to subject lines only */
 #endif
 
 /*
@@ -963,17 +972,37 @@ LOCAL void search_fullscan(
     );
   }
   if( (srchFlags & SRCH_FORUM)!=0 ){
-    db_multi_exec(
-      "INSERT INTO x(label,url,score,id,date,snip)"
-      "  SELECT 'Forum '||comment,"
-      "         '/forumpost/'||uuid,"
-      "         search_score(),"
-      "         'f'||rid,"
-      "         datetime(event.mtime),"
-      "         search_snippet()"
-      "    FROM event JOIN blob on event.objid=blob.rid"
-      "   WHERE search_match('',body('f',rid,NULL));"
-    );
+    if( srchFlags & SRCH_FORUM_SUBJ ){
+      /* Search only forum subject lines.  The subject is extracted from
+      ** event.comment which is stored as "TYPE: SUBJECT" for every forum
+      ** post (original, reply, edit, …). */
+      db_multi_exec(
+        "INSERT INTO x(label,url,score,id,date,snip)"
+        "  SELECT 'Forum '||comment,"
+        "         '/forumpost/'||uuid,"
+        "         search_score(),"
+        "         'f'||rid,"
+        "         datetime(event.mtime),"
+        "         search_snippet()"
+        "    FROM event JOIN blob ON event.objid=blob.rid"
+        "   WHERE event.type='f'"
+        "     AND search_match("
+        "           substr(event.comment,instr(event.comment,':')+2),'');"
+      );
+    }else{
+      db_multi_exec(
+        "INSERT INTO x(label,url,score,id,date,snip)"
+        "  SELECT 'Forum '||comment,"
+        "         '/forumpost/'||uuid,"
+        "         search_score(),"
+        "         'f'||rid,"
+        "         datetime(event.mtime),"
+        "         search_snippet()"
+        "    FROM event JOIN blob ON event.objid=blob.rid"
+        "   WHERE event.type='f'"
+        "     AND search_match('',body('f',rid,NULL));"
+      );
+    }
   }
   if( (srchFlags & SRCH_HELP)!=0 ){
     const char *zPrefix;
@@ -1253,7 +1282,15 @@ int search_run_and_output(
     search_fullscan(zPattern, srchFlags);  /* Full-scan search */
   }else{
     search_update_index(srchFlags);        /* Update the index, if necessary */
-    search_indexed(zPattern, srchFlags);   /* Indexed search */
+    if( srchFlags & SRCH_FORUM_SUBJ ){
+      /* Forum subject search: exclude forum from the indexed search and
+      ** instead use fullscan restricted to forum subject lines only. */
+      unsigned int idxFlags = srchFlags & ~SRCH_FORUM & ~SRCH_FORUM_SUBJ;
+      if( idxFlags ) search_indexed(zPattern, idxFlags);
+      search_fullscan(zPattern, SRCH_FORUM | SRCH_FORUM_SUBJ);
+    }else{
+      search_indexed(zPattern, srchFlags); /* Indexed search */
+    }
     if( srchFlags & SRCH_HELP ){
       search_fullscan(zPattern, SRCH_HELP);
     }
@@ -1387,6 +1424,12 @@ int search_screen(unsigned srchAllowed, int mFlags){
     @ <input type="hidden" name="debug" value="1">
   }
   @ <input type="submit" value="Search%s(zType)"%s(zDisable2)>
+  if( (srchThisTime & SRCH_FORUM)!=0 ){
+    int bSubjOnly = PB("subj");
+    @ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label><input type='checkbox' name='subj' value='1'%s(bSubjOnly?" checked":"")>
+    @ search subject lines only</label>
+    if( bSubjOnly ) srchThisTime |= SRCH_FORUM_SUBJ;
+  }
   if( srchAllowed==0 && srchThisTime==0 ){
     @ <p class="generalError">Search is disabled</p>
   }
