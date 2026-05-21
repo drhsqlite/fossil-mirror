@@ -2992,9 +2992,13 @@ void commit_cmd(void){
       while(  1/*exit-by-break*/ ){
         int rc;
         char *zInit;
+        assert( db_transaction_nesting_depth()==1 );
         zInit = db_text(0,"SELECT value FROM vvar WHERE name='ci-comment'");
         prepare_commit_comment(&comment, zInit, &sCiInfo, vid, dryRunFlag);
         db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
+        assert( db_transaction_nesting_depth()==1 );
+        db_end_transaction(0);
+        db_begin_transaction();
         if( (rc = verify_comment(&comment, ckComFlgs))!=0 ){
           if( rc==COMCK_PREVIEW ){
             prompt_user("Continue, abort, or edit? (C/a/e)? ", &ans);
