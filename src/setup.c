@@ -2247,7 +2247,7 @@ void page_admin_log(){
   ofst = atoi(PD("x","0"));
   fLogEnabled = db_get_boolean("admin-log", 1);
   @ <div>Admin logging is %s(fLogEnabled?"on":"off").
-  @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
+  @ (Change this on the <a href="setup_settings?all">settings</a> page.)</div>
 
   if( ofst>0 ){
     int prevx = ofst - limit;
