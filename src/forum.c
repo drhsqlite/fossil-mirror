@@ -83,29 +83,34 @@ int forum_rid_has_been_edited(int rid){
 }
 
 /*
-** Given a valid forumpost.fpid value, this function returns the first
-** fpid in the chain of edits for that forum post, or rid if no prior
-** versions are found.
+** Given a valid forumpost.fpid value, this function returns the
+** initial forumpost.fpid in the chain of edits for that forum post,
+** or rid if no prior versions are found.
 */
 int forumpost_head_rid(int rid){
-  Stmt q;
+  static Stmt q = empty_Stmt_m;
   int rcRid = rid;
-
-  db_prepare(&q, "SELECT fprev FROM forumpost"
-             " WHERE fpid=:rid AND fprev IS NOT NULL");
+  if( !q.pStmt ){
+    db_static_prepare(&q,
+       "SELECT fprev FROM forumpost"
+       " WHERE fpid=:rid AND fprev IS NOT NULL"
+    );
+  }
   db_bind_int(&q, ":rid", rid);
   while( SQLITE_ROW==db_step(&q) ){
     rcRid = db_column_int(&q, 0);
     db_reset(&q);
     db_bind_int(&q, ":rid", rcRid);
   }
-  db_finalize(&q);
+  db_reset(&q);
   return rcRid;
 }
 
 /*
 ** Works like forumpost_head_rid() but expects zUuid to be an
-** unambiguous forum post name.
+** unambiguous forum post name. It may be a hash prefix, so long as
+** it's unambiguous. Returns 0 if the name cannot be unambiguously
+** resolved as a forum post.
 */
 int forumpost_head_rid2(const char *zUuid){
   const int fpid = symbolic_name_to_rid(zUuid, "f");
