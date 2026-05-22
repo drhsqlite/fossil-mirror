@@ -1,5 +1,5 @@
-C Add\spossibility\sto\sonly\ssearch\sforum\ssubject\slines
-D 2026-05-21T21:01:36.029
+C Minor\scosmetic\scode\sstyle\stweak\s-\sspacing\sonly,\sno\scode\schanges.
+D 2026-05-22T07:55:04.715
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -530,7 +530,7 @@ F src/robot.c b78151cce262987e8f3888c229415bdf470155b4a18ac953b2aec16679d75659
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c a9d70914007da5ac217a8505c0647d36dcf262a97f01e377df1020789685fce8
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 5cede46434d75ff3787a35ec1e5b427613f55da5ed30e9a8f59aa677108eba59
+F src/search.c dacb9f1b2caba1acfe6b6b45fb753970668941c485cd090a4cb55fadb3e348fe
 F src/security_audit.c 8944cd768cf5226ea74cd667212b793923ad80824bf4e03f5fcf76bc720133ff
 F src/setup.c 0150c6648496f6d87c846983333125354bc90bd0c4ff7b8b5724429c80c7773d
 F src/setupuser.c 43798b5e33c138940ba720454f331135df1e90d98216580508cfc4fe7750f279
@@ -981,11 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea99abc540d9c26328a2a22f77fd3ea7f6b31c924d1e0cd0c7136fc9e076bd1d
-R 560fbc3735bebdd1f7c5f25baa63371e
-T *branch * forum-subject-search
-T *sym-forum-subject-search *
-T -sym-trunk *
-U Torsten
-Z 73c71e7c8bcac0a0641248b12ef64155
+P 8798a342444632b8748b978f0b12d7afae0c5028b94e91ff7c8909d26e9b896c
+R 2f5364a828a70cb31af5393baf72f27f
+U stephan
+Z 5a9daa7f7c0e6c22bb12d5d7ae3cf0fb
 # Remove this line to create a well-formed Fossil manifest.

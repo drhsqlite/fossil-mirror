@@ -790,14 +790,14 @@ void search_cmd(void){
 
 #if INTERFACE
 /* What to search for */
-#define SRCH_CKIN     0x0001    /* Search over check-in comments */
-#define SRCH_DOC      0x0002    /* Search over embedded documents */
-#define SRCH_TKT      0x0004    /* Search over tickets */
-#define SRCH_WIKI     0x0008    /* Search over wiki */
-#define SRCH_TECHNOTE 0x0010    /* Search over tech notes */
-#define SRCH_FORUM    0x0020    /* Search over forum messages */
-#define SRCH_HELP     0x0040    /* Search built-in help (full-scan only) */
-#define SRCH_ALL      0x007f    /* Search over everything */
+#define SRCH_CKIN       0x0001  /* Search over check-in comments */
+#define SRCH_DOC        0x0002  /* Search over embedded documents */
+#define SRCH_TKT        0x0004  /* Search over tickets */
+#define SRCH_WIKI       0x0008  /* Search over wiki */
+#define SRCH_TECHNOTE   0x0010  /* Search over tech notes */
+#define SRCH_FORUM      0x0020  /* Search over forum messages */
+#define SRCH_HELP       0x0040  /* Search built-in help (full-scan only) */
+#define SRCH_ALL        0x007f  /* Search over everything */
 #define SRCH_FORUM_SUBJ 0x0080  /* Restrict forum search to subject lines only */
 #endif
 
