@@ -1873,42 +1873,35 @@ int object_description(
       @ Attachment "%h(zFilename)" to
     }
     objType |= OBJTYPE_ATTACHMENT;
-    if( fossil_is_artifact_hash(zTarget) ){
-      if( forumpost_head_rid2(zTarget)>0 ){
+    switch( attachment_target_type(zTarget) ){
+      case CFTYPE_FORUM:
         if( g.perm.Hyperlink && g.anon.RdForum ){
           @ forum post [%z(href("%R/forumpost/%!S",zTarget))%S(zTarget)</a>]
         }else{
           @ forum post [%S(zTarget)]
         }
-      }else if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
-            zTarget)
-      ){
+        break;
+      case CFTYPE_TICKET:
         if( g.perm.Hyperlink && g.anon.RdTkt ){
           @ ticket [%z(href("%R/tktview?name=%!S",zTarget))%S(zTarget)</a>]
         }else{
           @ ticket [%S(zTarget)]
         }
-      }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",
-            zTarget)
-      ){
+        break;
+      case CFTYPE_EVENT:
         if( g.perm.Hyperlink && g.anon.RdWiki ){
           @ tech note [%z(href("%R/technote/%h",zTarget))%S(zTarget)</a>]
         }else{
           @ tech note [%S(zTarget)]
         }
-      }else{
+        break;
+      case CFTYPE_WIKI:
+      default /* historical behavior - assume wiki */:
         if( g.perm.Hyperlink && g.anon.RdWiki ){
           @ wiki page [%z(href("%R/wiki?name=%t",zTarget))%h(zTarget)</a>]
         }else{
           @ wiki page [%h(zTarget)]
         }
-      }
-    }else{
-      if( g.perm.Hyperlink && g.anon.RdWiki ){
-        @ wiki page [%z(href("%R/wiki?name=%t",zTarget))%h(zTarget)</a>]
-      }else{
-        @ wiki page [%h(zTarget)]
-      }
     }
     @ added by
     hyperlink_to_user(zUser,zDate," on");

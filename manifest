@@ -1,5 +1,5 @@
-C Add\s'attachment-size-limit'\ssetting\sand\shonor\sit\sin\s/attachadd.\sUpdate\sgeneration\sof\stimeline\smessages\sfor\sattachment\sartifacts\sto\sdistinguish\sforum\spost\sattachments.
-D 2026-05-22T17:54:45.130
+C Make\suse\sof\snew\sattachment\starget\stype\sdetection\sto\sslightly\ssimplify\show\s/artifacts\srenders\sattachments.
+D 2026-05-22T18:10:49.364
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -475,7 +475,7 @@ F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efc
 F src/http_ssl.c 21448e159871c441e761fa58152860a22d123d279e5e661df8f4a6fad88f7c03
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 1ee4f154daf3e687e8e8304777448b2bbd877adb279d6c9e7ff7952a02982b7f
-F src/info.c e845767c4461f365f35fd0fbb3f28031c65039d5ad88cf776dcb7b728a296a2f
+F src/info.c 8854c26527e83bdec49a290346bea38a3c1708e9c7b7ba8fd9935d2076ac2ee9
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 226c093fa877714454de330b45ce76e447fe85b99f17d0347b8a5207f3c92b42
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19506538a50fb334f970e2766dc37008a97ce262afd3b71740f5bcb2f04d1b12
-R 4b6ae4ff9a62f7f12960bcf130e89bc4
+P fed106e8b6121f9e8ce3f929625228afa11cafdf92bcd0621efa099c0a27bdf1
+R e5dfa08028ee83de6c27fa9cc7dfd106
 U stephan
-Z c5e5bb1919ad7e457c2fe1eab20cb46f
+Z 3a70add9b6563e2eebb984539e8eac83
 # Remove this line to create a well-formed Fossil manifest.
