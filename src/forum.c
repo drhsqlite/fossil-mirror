@@ -49,7 +49,7 @@ struct ForumPost {
   ForumPost *pDisplay;   /* Next in display order */
   int nEdit;             /* Number of edits to this post */
   int nIndent;           /* Number of levels of indentation for this post */
-  int iClosed;           /* See forum_rid_is_closed() */
+  int iClosed;           /* True if forum_rid_is_tagged("closed") */
 };
 
 /*
@@ -128,21 +128,21 @@ static int forumpost_is_closed(
 
 /*
 ** Given a forum post RID, this function returns true if that post has
-** (or inherits) an active "closed" tag. If bCheckIrt is true then
-** the post to which the given post responds is also checked
+** (or inherits) an active tag named zTagName. If bCheckIrt is true
+** then the post to which the given post responds is also checked
 ** (recursively), else they are not. When checking in-response-to
 ** posts, the first one which is closed ends the search.
 **
-** Note that this function checks _exactly_ the given rid, whereas
-** forum post closure/re-opening is always applied to the head of an
-** edit chain so that we get consistent implied locking behavior for
-** later versions and responses to arbitrary versions in the
-** chain. Even so, the "closed" tag is applied as a propagating tag
-** so will apply to all edits in a given chain.
+** This function checks _exactly_ the given rid, whereas forum post
+** closure/re-opening is always applied to the head of an edit chain
+** so that we get consistent implied locking behavior for later
+** versions and responses to arbitrary versions in the chain. Even so,
+** the "closed" tag is applied as a propagating tag so will apply to
+** all edits in a given chain.
 **
 ** The return value is one of:
 **
-** - 0 if no "closed" tag is found.
+** - 0 if no matching tag is found.
 **
 ** - The tagxref.rowid of the tagxref entry for the closure if rid is
 **   the forum post to which the closure applies.
@@ -150,13 +150,13 @@ static int forumpost_is_closed(
 ** - (-tagxref.rowid) if the given rid inherits a "closed" tag from an
 **   IRT forum post.
 */
-static int forum_rid_is_closed(int rid, int bCheckIrt){
+static int forum_rid_is_tagged(int rid, const char *zTagName, int bCheckIrt){
   static Stmt qIrt = empty_Stmt_m;
   int rc = 0, i = 0;
   /* TODO: this can probably be turned into a CTE by someone with
   ** superior SQL-fu. */
   for( ; rid; i++ ){
-    rc = rid_has_active_tag_name(rid, "closed");
+    rc = rid_has_active_tag_name(rid, zTagName);
     if( rc || !bCheckIrt ) break;
     else if( !qIrt.pStmt ) {
       db_static_prepare(&qIrt,
@@ -185,7 +185,7 @@ static int forum_rid_is_closed(int rid, int bCheckIrt){
 ** cancelled, except as noted below. zReason is ignored if doClose is
 ** false or if zReason is NULL or starts with a NUL byte.
 **
-** This function only adds a "closed" tag if forum_rid_is_closed()
+** This function only adds a "closed" tag if forum_rid_is_tagged()
 ** indicates that frid's head is not closed. If a parent post is
 ** already closed, no tag is added. Similarly, it will only remove a
 ** "closed" tag from a post which has its own "closed" tag, and will
@@ -226,7 +226,7 @@ static int forumpost_close(int frid, int doClose, const char *zReason){
 
   db_begin_transaction();
   frid = forumpost_head_rid(frid);
-  iClosed = forum_rid_is_closed(frid, 1);
+  iClosed = forum_rid_is_tagged(frid, "closed", 1);
   if( (iClosed && doClose
       /* Already closed, noting that in the case of (iClosed<0), it's
       ** actually a parent which is closed. */)
@@ -445,9 +445,9 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
         p->pEditTail = pPost;
       }
     }
-    pPost->iClosed = forum_rid_is_closed(pPost->pEditHead
+    pPost->iClosed = forum_rid_is_tagged(pPost->pEditHead
                                          ? pPost->pEditHead->fpid
-                                         : pPost->fpid, 1);
+                                         : pPost->fpid, "closed", 1);
   }
   db_finalize(&q);
 
@@ -1334,7 +1334,7 @@ static int forum_post(
 
   schema_forum();
   if( !g.perm.Admin && (iEdit || iInReplyTo)
-      && forum_rid_is_closed(iEdit ? iEdit : iInReplyTo, 1) ){
+      && forum_rid_is_tagged(iEdit ? iEdit : iInReplyTo, "closed", 1) ){
     forumpost_error_closed();
     return 0;
   }
@@ -1652,7 +1652,7 @@ void forumedit_page(void){
   }
   bPreview = P("preview")!=0;
   bReply = P("reply")!=0;
-  iClosed = forum_rid_is_closed(fpid, 1);
+  iClosed = forum_rid_is_tagged(fpid, "closed", 1);
   isCsrfSafe = cgi_csrf_safe(2);
   bPrivate = content_is_private(fpid);
   bSameUser = login_is_individual()

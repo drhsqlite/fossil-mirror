@@ -964,8 +964,8 @@ int rid_has_tag(int rid, int tagId){
 /*
 ** Returns tagxref.rowid if the given blob.rid has a tagxref.rid entry
 ** of an active (non-cancelled) tag matching the given rid and tag
-** name string, else returns 0. Note that this function does not
-** distinguish between a non-existent tag and a cancelled tag.
+** name string, else returns 0. This function does not distinguish
+** between a non-existent tag and a cancelled tag.
 **
 ** Design note: the return value is the tagxref.rowid because that
 ** gives us an easy way to fetch the value of the tag later on, if
