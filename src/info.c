@@ -1874,7 +1874,13 @@ int object_description(
     }
     objType |= OBJTYPE_ATTACHMENT;
     if( fossil_is_artifact_hash(zTarget) ){
-      if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
+      if( forumpost_head_rid2(zTarget)>0 ){
+        if( g.perm.Hyperlink && g.anon.RdForum ){
+          @ forum post [%z(href("%R/forumpost/%!S",zTarget))%S(zTarget)</a>]
+        }else{
+          @ forum post [%S(zTarget)]
+        }
+      }else if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
             zTarget)
       ){
         if( g.perm.Hyperlink && g.anon.RdTkt ){

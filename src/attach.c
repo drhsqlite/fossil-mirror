@@ -28,6 +28,7 @@
 **    tkt=HASH
 **    page=WIKIPAGE
 **    technote=HASH
+**    forumpost=HASH
 **
 ** At most one of technote=, tkt= or page= may be supplied.
 **
