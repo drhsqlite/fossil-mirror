@@ -780,6 +780,10 @@ static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
   return p->zDisplayName;
 }
 
+static void forum_render_attachment_list(ForumPost *p){
+  while( p->pEditPrev ) p = p->pEditPrev;
+  attachment_list(p->zUuid, "Attachments", 1);
+}
 
 /*
 ** Display a single post in a forum thread.
@@ -925,6 +929,7 @@ static void forum_display_post(
       zMimetype = pManifest->zMimetype;
     }
     forum_render(0, zMimetype, pManifest->zWiki, 0, !bRaw);
+    forum_render_attachment_list(p);
   }
 
   /* When not in raw mode, finish creating the border around the post. */

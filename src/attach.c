@@ -512,6 +512,8 @@ void attachadd_page(void){
 ** WEBPAGE: ainfo
 ** URL: /ainfo?name=ARTIFACTID
 **
+**    name=ATTACHMENT_ARTIFACT_UUID
+**
 ** Show the details of an attachment artifact.
 */
 void ainfo_page(void){
