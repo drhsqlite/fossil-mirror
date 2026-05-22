@@ -1828,6 +1828,10 @@ void forumedit_page(void){
 ** default is just "Forum".  But in some setups, admins might want to
 ** change it to "Developer Forum" or "User Forum" or whatever other name
 ** seems more appropriate for the particular usage.
+**
+** SETTING: attachment-size-limit    width=16
+** The maximum number of bytes for an attachment. The default is unlimited
+** but a limit may be imposed by the web server or proxy.
 */
 
 /*

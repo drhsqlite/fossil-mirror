@@ -22,6 +22,33 @@
 #include <assert.h>
 
 /*
+** Given a presumedly legal attachment target name, this guesses the
+** target type and returns one of CFTYPE_FORUM, CFTYPE_WIKI,
+** CFTYPE_TICKET, or CFTYPE_TECHNOTE. Returns 0 if it cannot
+** distinguish the target type.
+**
+** In the case of CFTYPE_FORUM, it is up to the caller to ensure that,
+** if needed, they resolve zTarget using forumpost_head_rid2() so that
+** they get the RID of the earliest version of the post, as that is
+** the only one which attachments should target.
+*/
+int attachment_target_type(const char *zTarget){
+  if( forumpost_head_rid2(zTarget)>0 ){
+    return CFTYPE_FORUM;
+  }
+  return db_int(0,
+     "SELECT CASE "
+     "WHEN 'tkt-'||%Q IN (SELECT tagname FROM tag) THEN %d "
+     "WHEN 'event-'||%Q IN (SELECT tagname FROM tag) THEN %d "
+     "WHEN 'wiki-'||%Q IN (SELECT tagname FROM tag) THEN %d "
+     "ELSE 0 END",
+     zTarget, CFTYPE_TICKET,
+     zTarget, CFTYPE_TECHNOTE,
+     zTarget, CFTYPE_WIKI
+  );
+}
+
+/*
 ** WEBPAGE: attachlist
 ** List attachments.
 **
@@ -54,14 +81,7 @@ void attachlist_page(void){
   blob_append_sql(&sql,
      "SELECT datetime(mtime,toLocal()), src, target, filename,"
      "       comment, user,"
-     "       (SELECT uuid FROM blob WHERE rid=attachid), attachid,"
-     "       (CASE WHEN 'tkt-'||target IN (SELECT tagname FROM tag)"
-     "                  THEN 1"
-     "             WHEN 'event-'||target IN (SELECT tagname FROM tag)"
-     "                  THEN 2"
-     "             WHEN 'wiki-'||target IN (SELECT tagname FROM tag)"
-     "                  THEN 3"
-     "             ELSE 0 END)"
+     "       (SELECT uuid FROM blob WHERE rid=attachid), attachid"
      "  FROM attachment"
   );
   if( zForumPost ){
@@ -107,9 +127,9 @@ void attachlist_page(void){
     const char *zComment = db_column_text(&q, 4);
     const char *zUser = db_column_text(&q, 5);
     const char *zUuid = db_column_text(&q, 6);
-    int attachid = db_column_int(&q, 7);
+    const int attachid = db_column_int(&q, 7);
     /* type 0 is a wiki page, 1 is a ticket, 2 is a tech note */
-    int type = db_column_int(&q, 8);
+    const int type = attachment_target_type(zTarget);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     int i;
     char *zUrlTail;
@@ -142,21 +162,25 @@ void attachlist_page(void){
         zSrc = "Added to";
       }
       switch( type ){
-        case 1:
+        case CFTYPE_TICKET:
           @ %s(zSrc) ticket <a href="%R/tktview?name=%s(zTarget)">
           @ %S(zTarget)</a>
           break;
-        case 2:
+        case CFTYPE_TECHNOTE:
           @ %s(zSrc) tech note <a href="%R/technote/%s(zTarget)">
           @ %S(zTarget)</a>
           break;
-        case 3:
-        @ %s(zSrc) wiki page <a href="%R/wiki?name=%t(zTarget)">
-        @ %h(zTarget)</a>
+        case CFTYPE_WIKI:
+          @ %s(zSrc) wiki page <a href="%R/wiki?name=%t(zTarget)">
+          @ %h(zTarget)</a>
           break;
-        case 0:
-        @ %s(zSrc) forum post <a href="%R/forumpost/%s(zTarget)">
-        @ %h(zTarget)</a>
+        case CFTYPE_FORUM:
+          @ %s(zSrc) forum post <a href="%R/forumpost/%s(zTarget)">
+          @ %h(zTarget)</a>
+          break;
+        default:
+          @ <span class='error'>%s(zSrc) cannot determine target type
+          @ of %h(zTarget)</span>
         break;
       }
     }else{
@@ -357,6 +381,7 @@ void attachadd_page(void){
   char *zExtraFree = 0;
   int szContent = atoi(PD("f:bytes","0"));
   int goodCaptcha = 1;
+  int szLimit = 0;
 
   if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ) cgi_redirect(zFrom);
@@ -365,6 +390,11 @@ void attachadd_page(void){
     fossil_fatal("Requires exactly one one: page=X, tkt=X, forumpost=X, or technote=X");
   }
   login_check_credentials();
+  szLimit = db_get_int("attachment-size-limit", 0);
+  if( szContent<0 || (szLimit && szContent>szLimit) ){
+    fossil_fatal("Attachment %s is too large. Limit is %d bytes.", zName,
+                 (szLimit>0 && szContent>0) ? szLimit : 0x7fffffff);
+  }
   if( zForumPost ){
     int fpid;
     if( g.perm.AttachForum==0 ){
@@ -551,7 +581,7 @@ void ainfo_page(void){
     }
     zFile += n;
     if( zFile[0]==0 ) zFile = "unknown";
-    blob_appendf(&manifest, "A %F\n", zFile);
+    blob_appendf(&manifest, "A %F %F\n", zFile, zTarget);
     zNewDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zNewDate);
     blob_appendf(&manifest, "U %F\n", login_name());
