@@ -57,7 +57,7 @@ int attachment_target_type(const char *zTarget){
 **    technote=HASH
 **    forumpost=HASH
 **
-** At most one of technote=, tkt= or page= may be supplied.
+** At most one of technote=, tkt=, forumpost=, or page= may be supplied.
 **
 ** If none are given, all attachments are listed.  If one is given, only
 ** attachments for the designated technote, ticket or wiki page are shown.
@@ -132,19 +132,26 @@ void attachlist_page(void){
     const int type = attachment_target_type(zTarget);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     int i;
-    char *zUrlTail;
+    char *zUrlTail = 0;
     for(i=0; zFilename[i]; i++){
       if( zFilename[i]=='/' && zFilename[i+1]!=0 ){
         zFilename = &zFilename[i+1];
         i = -1;
       }
     }
-    if( type==1 ){
-      zUrlTail = mprintf("tkt=%s&file=%t", zTarget, zFilename);
-    }else if( type==2 ){
-      zUrlTail = mprintf("technote=%s&file=%t", zTarget, zFilename);
-    }else{
-      zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
+    switch( type ){
+      case CFTYPE_TICKET:
+        zUrlTail = mprintf("tkt=%s&file=%t", zTarget, zFilename);
+        break;
+      case CFTYPE_TECHNOTE:
+        zUrlTail = mprintf("technote=%s&file=%t", zTarget, zFilename);
+        break;
+      case CFTYPE_FORUM:
+        zUrlTail = mprintf("forumpost=%t&file=%t", zTarget, zFilename);
+        break;
+      case CFTYPE_WIKI:
+        zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
+        break;
     }
     @ <li><p>
     @ Attachment %z(href("%R/ainfo/%!S",zUuid))%S(zUuid)</a>
@@ -212,6 +219,7 @@ void attachlist_page(void){
 **    tkt=HASH
 **    page=WIKIPAGE
 **    technote=HASH
+**    forumpost=HASH
 **    file=FILENAME
 **    attachid=ID
 **
@@ -220,15 +228,23 @@ void attachview_page(void){
   const char *zPage = P("page");
   const char *zTkt = P("tkt");
   const char *zTechNote = P("technote");
+  const char *zForumPost = P("forumpost");
   const char *zFile = P("file");
   const char *zTarget = 0;
   int attachid = atoi(PD("attachid","0"));
-  char *zUUID;
+  char *zUUID = 0;
 
   if( zFile==0 ) fossil_redirect_home();
   login_check_credentials();
   style_set_current_feature("attach");
-  if( zPage ){
+  if( zForumPost ){
+    int fnid;
+    if( g.perm.RdForum==0 ){ login_needed(g.anon.RdForum); return; }
+    /* Forum attachments are always tied to the post's initial version */
+    fnid = forumpost_head_rid2(zForumPost);
+    if( fnid>0 ) zTarget = rid_to_uuid(fnid);
+    @ DEBUG: fnid=%d(fnid) zForumPost=%h(zForumPost) zUUID=%s(zUUID)<br>
+  }else if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     zTarget = zPage;
   }else if( zTkt ){
@@ -377,6 +393,7 @@ void attachadd_page(void){
   const char *aContent = P("f");
   const char *zName = PD("f:filename","unknown");
   const char *zTarget;
+  char * zTo = 0;
   char *zTargetType;
   char *zExtraFree = 0;
   int szContent = atoi(PD("f:bytes","0"));
@@ -386,14 +403,13 @@ void attachadd_page(void){
   if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ) cgi_redirect(zFrom);
   if( (!!zPage + !!zTkt + !!zTechNote + !!zForumPost)!=1 ){
-    //fossil_redirect_home();
     fossil_fatal("Requires exactly one one: page=X, tkt=X, forumpost=X, or technote=X");
   }
   login_check_credentials();
   szLimit = db_get_int("attachment-size-limit", 0);
   if( szContent<0 || (szLimit && szContent>szLimit) ){
     fossil_fatal("Attachment %s is too large. Limit is %d bytes.", zName,
-                 (szLimit>0 && szContent>0) ? szLimit : 0x7fffffff);
+                 szLimit ? szLimit : 0x7fffffff);
   }
   if( zForumPost ){
     int fpid;
@@ -404,10 +420,15 @@ void attachadd_page(void){
     fpid = forumpost_head_rid2(zForumPost);
     if( fpid<=0 ){
       fossil_fatal("Invalid forum post ID: %h", zForumPost);
+    }else if( !g.perm.Admin && !forumpost_is_owner(fpid, 0) ){
+      fossil_fatal("Only admins can attach files to other users' "
+                   "forum posts.");
     }
     zTarget = zExtraFree = rid_to_uuid(fpid);
     zTargetType = mprintf("Forum post <a href=\"%R/forumpost/%S\">%h</a>",
                           zTarget, zForumPost);
+    zTo = mprintf("%R/attachview?forumpost=%T&file=%T",
+                  zTarget, zName);
   }else if( zPage ){
     if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
       login_needed(g.anon.ApndWiki && g.anon.Attach);
@@ -454,7 +475,7 @@ void attachadd_page(void){
                         (zPage!=0 && wiki_need_moderation(0));
     const char *zComment = PD("comment", "");
     attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
-    cgi_redirect(zFrom);
+    cgi_redirect(zTo ? zTo : zFrom);
   }
   style_set_current_feature("attach");
   style_header("Add Attachment");
@@ -514,7 +535,7 @@ void ainfo_page(void){
   const char *zMime;             /* MIME Type */
   Blob attach;                   /* Content of the attachment */
   int fShowContent = 0;
-  int bUserIsOwner = 0;
+  int bUserIsOwner = 0;          /* True if pAttach->zUser is login_name() */
   int showDelMenu = 0;
   const char *zLn = P("ln");
 
@@ -574,6 +595,10 @@ void ainfo_page(void){
     Blob cksum;
     const char *zFile = zName;
 
+    if( !g.perm.Admin && !bUserIsOwner ){
+      fossil_fatal("Only admins can delete other users' attachments from "
+                   "forum posts.");
+    }
     db_begin_transaction();
     blob_zero(&manifest);
     for(i=n=0; zFile[i]; i++){

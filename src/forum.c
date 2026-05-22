@@ -114,6 +114,18 @@ int forumpost_head_rid2(const char *zUuid){
     : 0;
 }
 
+/*
+** Given a forum post RID and user name, returns true if zUserName
+** matches the event.(euser,user) field for a formpost entry with the
+** matching RID. Returns false if no match is found. If zUserName is
+** 0 then login_name() is used.
+*/
+int forumpost_is_owner(int rid, const char *zUserName){
+  return db_int(0, "SELECT 1 FROM event "
+                "WHERE type='f' AND objid=%d "
+                "AND coalesce(euser,user)=%Q",
+                rid, zUserName ? zUserName : login_name());
+}
 
 /*
 ** Returns true if p, or any parent of p, has a non-zero iClosed
@@ -1830,8 +1842,8 @@ void forumedit_page(void){
 ** seems more appropriate for the particular usage.
 **
 ** SETTING: attachment-size-limit    width=16
-** The maximum number of bytes for an attachment. The default is unlimited
-** but a limit may be imposed by the web server or proxy.
+** The maximum number of bytes for an attachment. The default (or 0) is
+** unlimited but a limit may be imposed by the web server or a proxy.
 */
 
 /*

@@ -1,5 +1,5 @@
-C Correct\sa\smisformated\svariadic\scaused\sby\semacs\shaving\schased\sa\scompileation\serror\sinto\sthe\sgenerated\sbuild/manifest_.c\sand\smy\shaving\sedited\sthat\sinstead\sof\sthe\soriginal\ssrc/manifest.c.
-D 2026-05-22T19:21:54.373
+C Correct\s/attachlist's\slinking\sto\sthe\sproper\sattachment-target\spage.\sFor\sforumpost\sattachments,\shave\s/attachadd\sredirect\sto\s/attachview\sfor\sthe\stime\sbeing,\sand\sthat\spage\shas\sa\slink\sback\sto\sthe\sforum\spost(s).
+D 2026-05-22T20:36:47.204
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -387,7 +387,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c f2250f3fd1fd4c69aa8816885d47da5110cb7936adf66eae1df83e6c46f9c0a6
-F src/attach.c 6c553c81037c6dce6481241e8fda8ebc51e30373b76076d3c4ab4c40d68b1216
+F src/attach.c 2002d6baf22189c21a57f3cbed02241280ab45702d69b7705c77bfaeadfe03b4
 F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a7
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c ae0e196f6efdd704d722db6ddef83a3a48b82474dfae8bbd88bc4d3b5b51e756
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c f0c8ba7d2eee1e5ffb7cd3912dc5b60a4fab3338f145cf2e36178939235ce844
+F src/forum.c 3f32dccbe9c7c1105ff2185d5f0cc2474ccfc574a4569ad234a617308e9987ba
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
@@ -802,7 +802,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md b578bfee7063fe0a3fef310b79d0b9ca23e084b17aa3044d57f5a4b94b180b4d
 F www/caps/ref.html 80f46f8229fa89f4cd1d1a1ff6bd1700905d64e65fd2201ad315b652b292ae4b
 F www/cgi.wiki b9c5bcae4ac589ed274f8f4b2a64dc854f14c78883f4f0200504ec7e3cdf2b56
-F www/changes.wiki ebd0e9934961b747a99341bd49548a82ff6ad58a7b9c25132aab9462db66721e
+F www/changes.wiki 5ae44273f613e78799b121ddbd44763b14b6d9ed33f3e56f927e72b25b730881
 F www/chat.md 9e962760a95d717205757d0839cd70a0f91471a23a5e0198c0b629b99889e078
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P efe251332943eb7f39dbeba1fb67e925e7f13786f810a0b13266855faedde88e
-R 4a44365c9e9e8f2b7090e38cd63ba467
+P 184de2d2afd78c20448fa0a78e48a34c274176d974927d47152bb0ad33a541eb
+R aef88bc6a1717166e46b36e6a06585d9
 U stephan
-Z 63b5a7de39a6e96a4b9c2db37e71365e
+Z 771fb4826956c92bb2b3a4ac351fd4c4
 # Remove this line to create a well-formed Fossil manifest.
