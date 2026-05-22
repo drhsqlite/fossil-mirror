@@ -243,7 +243,6 @@ void attachview_page(void){
     /* Forum attachments are always tied to the post's initial version */
     fnid = forumpost_head_rid2(zForumPost);
     if( fnid>0 ) zTarget = rid_to_uuid(fnid);
-    @ DEBUG: fnid=%d(fnid) zForumPost=%h(zForumPost) zUUID=%s(zUUID)<br>
   }else if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     zTarget = zPage;
