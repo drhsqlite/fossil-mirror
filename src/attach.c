@@ -743,19 +743,31 @@ void ainfo_page(void){
   style_finish_page();
 }
 
+#if INTERFACE
+/*
+** Flags for use with attachment_list(). ATTACHLIST_HRULE_ABOVE
+** must have a value of 1 for historical call compatibility.
+*/
+#define ATTACHLIST_HRULE_ABOVE  0x01 /* Insert <hr> above header. */
+#define ATTACHLIST_TARGET_BLANK 0x02 /* use target=_blank for links */
+#define ATTACHLIST_SIZE         0x04 /* add size */
+#endif
+
 /*
 ** Output HTML to show a list of attachments.
 */
 void attachment_list(
   const char *zTarget,   /* Object that things are attached to */
   const char *zHeader,   /* Header to display with attachments */
-  int fHorizontalRule    /* Insert <hr> separator above header */
+  int flags              /* ATTACHLIST_... flags */
 ){
   int cnt = 0;
+  const char * zLinkTgt = (ATTACHLIST_TARGET_BLANK & flags)
+    ? " target=\"_blank\"" : "";
   Stmt q;
   db_prepare(&q,
      "SELECT datetime(mtime,toLocal()), filename, user,"
-     "       (SELECT uuid FROM blob WHERE rid=attachid), src"
+     "       (SELECT uuid FROM blob WHERE rid=attachid), src, target"
      "  FROM attachment"
      " WHERE isLatest AND src!='' AND target=%Q"
      " ORDER BY mtime DESC",
@@ -767,22 +779,39 @@ void attachment_list(
     const char *zUser = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
     const char *zSrc = db_column_text(&q, 4);
+    const char *zTarget = db_column_text(&q, 5);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
+    const char *zTypeArg = 0; /* URL arg name for /attachdownload */
     if( cnt==0 ){
       @ <section class='attachlist'>
-      if( fHorizontalRule ){
+      if( flags & ATTACHLIST_HRULE_ABOVE ){
         @ <hr>
       }
       @ %s(zHeader)
       @ <ul>
     }
     cnt++;
+    switch( attachment_target_type(zTarget) ){
+      case CFTYPE_TICKET: zTypeArg = "tkt"; break;
+      case CFTYPE_FORUM:  zTypeArg = "forumpost"; break;
+      case CFTYPE_EVENT:  zTypeArg = "event"; break;
+      case CFTYPE_WIKI:
+      default:            zTypeArg = "page"; break;
+    }
     @ <li>
-    @ %z(href("%R/artifact/%!S",zSrc))%h(zFile)</a>
-    @ [<a href="%R/attachdownload/%t(zFile)?page=%t(zTarget)&file=%t(zFile)">download</a>]
+    @ <a href="%R/artifact/%!S(zSrc)"%s(zLinkTgt)>%h(zFile)</a>
+    @ [<a href="%R/attachdownload/%t(zFile)?%s(zTypeArg)=%t(zTarget)&file=%t(zFile)" \
+    @ %s(zLinkTgt)>download</a>
+    if( flags & ATTACHLIST_SIZE ){
+      /* FIXME: this block causes us to interupt the @ lines and
+      ** introduces an extra space before the closing ']'. */
+      const int sz = db_int(0,"SELECT size FROM blob WHERE uuid=%Q", zSrc);
+      @ %d(sz) bytes
+    }
+    @ ]
     @ added by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
-    @ [%z(href("%R/ainfo/%!S",zUuid))details</a>]
+    @ [<a href="%R/ainfo/%!S(zUuid)"%s(zLinkTgt)>details</a>]
     @ </li>
   }
   if( cnt ){

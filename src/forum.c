@@ -782,7 +782,7 @@ static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
 
 static void forum_render_attachment_list(ForumPost *p){
   if( p->pEditHead ) p = p->pEditHead;
-  attachment_list(p->zUuid, "Attachments:", 1);
+  attachment_list(p->zUuid, "Attachments:", ATTACHLIST_SIZE);
 }
 
 /*
