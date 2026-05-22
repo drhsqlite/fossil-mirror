@@ -781,8 +781,8 @@ static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
 }
 
 static void forum_render_attachment_list(ForumPost *p){
-  while( p->pEditPrev ) p = p->pEditPrev;
-  attachment_list(p->zUuid, "Attachments", 1);
+  if( p->pEditHead ) p = p->pEditHead;
+  attachment_list(p->zUuid, "Attachments:", 1);
 }
 
 /*
@@ -973,17 +973,26 @@ static void forum_display_post(
       }
       login_insert_csrf_secret();
       @ </form>
-      if( bSelect && forumpost_may_close() && iClosed>=0 ){
-        int iHead = forumpost_head_rid(p->fpid);
-        @ <form method="post" \
-        @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
-        login_insert_csrf_secret();
-        @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
-        if( moderation_pending(p->fpid)==0 ){
-          @ <input type="button" value='%s(iClosed ? "Re-open" : "Close")' \
-          @  class='%s(iClosed ? "action-reopen" : "action-close")'/>
+
+      if( bSelect ){
+        ForumPost *pHead = p->pEditHead ? p->pEditHead : p;
+        if( forumpost_may_close() && iClosed>=0 ){
+          @ <form method="post" \
+          @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
+          login_insert_csrf_secret();
+          @ <input type="hidden" name="fpid" value="%s(pHead->zUuid)" />
+          if( moderation_pending(p->fpid)==0 ){
+            @ <input type="button" value='%s(iClosed ? "Re-open" : "Close")' \
+            @  class='%s(iClosed ? "action-reopen" : "action-close")'/>
+          }
+          @ </form>
         }
-        @ </form>
+        if( g.perm.Admin || forumpost_is_owner(p/*not pHead*/->fpid, 0) ){
+          @ <form method="post" action="%R/attachadd">\
+          @ <input type="hidden" name="forumpost" value="%T(pHead->zUuid)">
+          @ <input type="submit" value="Attach...">
+          @ </form>
+        }
       }
       @ </div>
     }
