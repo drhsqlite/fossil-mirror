@@ -2655,11 +2655,13 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         if( isAdd ){
           zComment = mprintf(
             "Add attachment [/artifact/%!S|%h] to [/artifact/%!S|%h]",
-            p->zAttachSrc, p->zAttachName, p->zAttachTarget);
+            p->zAttachSrc, p->zAttachName,
+            p->zAttachTarget, p->zAttachTarget);
         }else{
           zComment = mprintf("Delete attachment \"%h\" from "
                              "[/artifact/%!S|%h",
-                             p->zAttachName, p->zAttachTarget);
+                             p->zAttachName, p->zAttachTarget,
+                             p->zAttachTarget);
         }
         break;
       case CFTYPE_WIKI:
