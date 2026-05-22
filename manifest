@@ -1,5 +1,5 @@
-C Minor\srefactoring\sof\sforum\spost\s'closed'\stag\slookup\sinternals,\smoving\stowards\sextending\sit\sto\ssupport\sother\stags,\se.g.\s'resolved'.
-D 2026-05-22T12:35:23.093
+C Refactor\ssetting\sof\sforum\spost\s'closed'\stag\sso\sthat\sit\scan\sbe\sreused\sfor\sother\stags.
+D 2026-05-22T12:53:30.499
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c ae0e196f6efdd704d722db6ddef83a3a48b82474dfae8bbd88bc4d3b5b51e756
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c 439f289ea5bd037e2a0d3e8d3e8c9885f3c58d65a1230527d02f96cb717965f5
+F src/forum.c 52d3f49c942328cbf210f1322f748b6bb02b18204137c7d63c93b4f1de7b08f1
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea99abc540d9c26328a2a22f77fd3ea7f6b31c924d1e0cd0c7136fc9e076bd1d
-R 18a89d9b5fd59bfc18ca672c05bb433a
+P 2d7e2cb24e2ebd7efb39d0e74e1595a4baa5f2d1d90a8a9f1dbeb0c2a7455d1a
+R cbd5c081f8be34f683d35a708b5f65ea
 U stephan
-Z 8154c179bd6c1db45be922bcb4112959
+Z c8f0446c328851a6a8ff6c7f18e8ae11
 # Remove this line to create a well-formed Fossil manifest.

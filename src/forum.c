@@ -172,78 +172,80 @@ static int forum_rid_is_tagged(int rid, const char *zTagName, int bCheckIrt){
 }
 
 /*
-** Closes or re-opens the given forum RID via addition of a new
-** control artifact into the repository. In order to provide
-** consistent behavior for implied closing of responses and later
-** versions, it always acts on the first version of the given forum
-** post, walking the forumpost.fprev values to find the head of the
-** chain.
+** Applies or cancels a tag named zTagName on the given forum RID via
+** addition of a new control artifact into the repository. In order to
+** provide consistent behavior, it always acts on the first version of
+** the given forum post, walking the forumpost.fprev values to find
+** the head of the chain.
 **
-** If doClose is true then a propagating "closed" tag is added, except
-** as noted below, with the given optional zReason string as the tag's
-** value. If doClose is false then any active "closed" tag on frid is
+** If addTag is true then a propagating tag is added, except as noted
+** below, with the given optional zReason string as the tag's
+** value. If addTag is false then any matching active tag on frid is
 ** cancelled, except as noted below. zReason is ignored if doClose is
 ** false or if zReason is NULL or starts with a NUL byte.
 **
-** This function only adds a "closed" tag if forum_rid_is_tagged()
-** indicates that frid's head is not closed. If a parent post is
-** already closed, no tag is added. Similarly, it will only remove a
-** "closed" tag from a post which has its own "closed" tag, and will
-** not remove an inherited one from a parent post.
+** This function only adds a tag if forum_rid_is_tagged() indicates
+** that frid's head is not tagged. If a parent post is already tagged,
+** no tag is added. Similarly, it will only remove a tagtag from a
+** post which has its own tag tag, and will not remove an inherited
+** one from a parent post.
 **
-** If doClose is true and frid is closed (directly or inherited), this
-** is a no-op. Likewise, if doClose is false and frid itself is not
-** closed (not accounting for an inherited closed tag), this is a
-** no-op.
+** If addTag is true and frid is already tagged (directly or
+** inherited), this is a no-op. Likewise, if addTag is false and frid
+** itself is not tagged (not accounting for an inherited closed tag),
+** this is a no-op.
 **
 ** Returns true if it actually creates a new tag, else false. Fails
-** fatally on error. If it returns true then any ForumPost::iClosed
-** values from previously loaded posts are invalidated if they refer
-** to the amended post or a response to it.
+** fatally on error.
+**
+** If it returns true then state from previously-loaded posts may be
+** invalidated if they refer to the amended post or a response to it.
+** e.g. if zTagName is "closed" then ForumPost::iClosed values may be
+** stale.
 **
 ** Sidebars:
 **
 ** - Unless the caller has a transaction open, via
 **   db_begin_transaction(), there is a very tiny race condition
 **   window during which the caller's idea of whether or not the forum
-**   post is closed may differ from the current repository state.
+**   post is tagged may differ from the current repository state.
 **
 ** - This routine assumes that frid really does refer to a forum post.
 **
 ** - This routine assumes that frid is not private or pending
 **   moderation.
 **
-** - Closure of a forum post requires a propagating "closed" tag to
+** - The applied tag is propagating so so that "closed" tags can
 **   account for how edits of posts are handled. This differs from
 **   closure of a branch, where a non-propagating tag is used.
 */
-static int forumpost_close(int frid, int doClose, const char *zReason){
+static int forumpost_tag(int frid, const char *zTagName, int addTag,
+                         const char *zReason){
   Blob artifact = BLOB_INITIALIZER;  /* Output artifact */
   Blob cksum = BLOB_INITIALIZER;     /* Z-card */
-  int iClosed;                       /* true if frid is closed */
+  int iTagged;                       /* true if frid is already tagged */
   int trid;                          /* RID of new control artifact */
   char *zUuid;                       /* UUID of head version of post */
 
   db_begin_transaction();
   frid = forumpost_head_rid(frid);
-  iClosed = forum_rid_is_tagged(frid, "closed", 1);
-  if( (iClosed && doClose
-      /* Already closed, noting that in the case of (iClosed<0), it's
-      ** actually a parent which is closed. */)
-      || (iClosed<=0 && !doClose
-          /* This entry is not closed, but a parent post may be. */) ){
+  iTagged = forum_rid_is_tagged(frid, "closed", 1);
+  if( (iTagged && addTag
+      /* Already tagged, noting that in the case of (addTag<0) it may
+      ** actually be a parent which is tagged. */)
+      || (iTagged<=0 && !addTag
+          /* This entry is not tagged, but a parent post may be. */) ){
     db_end_transaction(0);
     return 0;
   }
-  if( doClose==0 || (zReason && !zReason[0]) ){
+  if( addTag==0 || (zReason && !zReason[0]) ){
     zReason = 0;
   }
   zUuid = rid_to_uuid(frid);
   blob_appendf(&artifact, "D %z\n", date_in_standard_format( "now" ));
-  blob_appendf(&artifact,
-               "T %cclosed %s%s%F\n",
-               doClose ? '*' : '-', zUuid,
-               zReason ? " " : "", zReason ? zReason : "");
+  blob_appendf(&artifact, "T %c%s %s%s%F\n",
+               addTag ? '*' : '-', zTagName,
+               zUuid, zReason ? " " : "", zReason ? zReason : "");
   blob_appendf(&artifact, "U %F\n", login_name());
   md5sum_blob(&artifact, &cksum);
   blob_appendf(&artifact, "Z %b\n", &cksum);
@@ -258,7 +260,8 @@ static int forumpost_close(int frid, int doClose, const char *zReason){
   }
   assert( blob_is_reset(&artifact) );
   db_add_unsent(trid);
-  admin_log("%s forum post %S", doClose ? "Close" : "Re-open", zUuid);
+  admin_log("Tag forum post %S with %c%s",
+            zUuid, addTag ? '*' : '-', zTagName);
   fossil_free(zUuid);
   /* Potential TODO: if (iClosed>0) then we could find the initial tag
   ** artifact and content_deltify(thatRid,&trid,1,0). Given the tiny
@@ -1449,7 +1452,7 @@ static void forum_post_widget(
 **   reason=X      Optional reason for closure.
 **
 ** Closes or re-opens the given forum post, within the bounds of the
-** API for forumpost_close(). After (perhaps) modifying the "closed"
+** API for forumpost_tag(). After (perhaps) modifying the "closed"
 ** status of the given thread, it redirects to that post's thread
 ** view. Requires admin privileges.
 */
@@ -1471,7 +1474,7 @@ void forum_page_close(void){
   }
   fClose = sqlite3_strglob("*_close*", g.zPath)==0;
   if( fClose ) zReason = PD("reason",0);
-  forumpost_close(fpid, fClose, zReason);
+  forumpost_tag(fpid, "closed", fClose, zReason);
   cgi_redirectf("%R/forumpost/%S",zFpid);
   return;
 }
