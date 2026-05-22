@@ -823,6 +823,8 @@ void user_edit(void){
   @  Hyperlinks%s(B('h'))</label>
   @  <li><label><input type="checkbox" name="ab"%s(oa['b'])>
   @  Attachments%s(B('b'))</label>
+  @  <li><label><input type="checkbox" name="aB"%s(oa['B'])>
+  @  Forum Attachments%s(B('B'))</label>
   @  <li><label><input type="checkbox" name="ag"%s(oa['g'])>
   @  Clone%s(B('g'))</label>
   @  <li><label><input type="checkbox" name="aj"%s(oa['j'])>

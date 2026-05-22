@@ -42,6 +42,7 @@ void attachlist_page(void){
   const char *zPage = P("page");
   const char *zTkt = P("tkt");
   const char *zTechNote = P("technote");
+  const char *zForumPost = P("forumpost");
   Blob sql;
   Stmt q;
 
@@ -57,10 +58,24 @@ void attachlist_page(void){
      "                  THEN 1"
      "             WHEN 'event-'||target IN (SELECT tagname FROM tag)"
      "                  THEN 2"
+     "             WHEN 'wiki-'||target IN (SELECT tagname FROM tag)"
+     "                  THEN 3"
      "             ELSE 0 END)"
      "  FROM attachment"
   );
-  if( zPage ){
+  if( zForumPost ){
+    int fnid;
+    char *zUuid;
+    if( g.perm.RdForum==0 ){ login_needed(g.anon.RdForum); return; }
+    style_header("Attachments To %h", zForumPost);
+    fnid = forumpost_head_rid2(zForumPost);
+    if( fnid<=0 ){
+      fossil_fatal("Invalid forum post ID: %h", zForumPost);
+    }
+    zUuid = rid_to_uuid(fnid);
+    blob_append_sql(&sql, " WHERE target=%Q", zUuid);
+    fossil_free(zUuid);
+  }else if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     style_header("Attachments To %h", zPage);
     blob_append_sql(&sql, " WHERE target=%Q", zPage);
@@ -119,21 +134,29 @@ void attachlist_page(void){
     if( zComment && zComment[0] ){
       @ %!W(zComment)<br>
     }
-    if( zPage==0 && zTkt==0 && zTechNote==0 ){
+    if( zForumPost==0 && zPage==0 && zTkt==0 && zTechNote==0 ){
       if( zSrc==0 || zSrc[0]==0 ){
         zSrc = "Deleted from";
       }else {
         zSrc = "Added to";
       }
-      if( type==1 ){
-        @ %s(zSrc) ticket <a href="%R/tktview?name=%s(zTarget)">
-        @ %S(zTarget)</a>
-      }else if( type==2 ){
-        @ %s(zSrc) tech note <a href="%R/technote/%s(zTarget)">
-        @ %S(zTarget)</a>
-      }else{
+      switch( type ){
+        case 1:
+          @ %s(zSrc) ticket <a href="%R/tktview?name=%s(zTarget)">
+          @ %S(zTarget)</a>
+          break;
+        case 2:
+          @ %s(zSrc) tech note <a href="%R/technote/%s(zTarget)">
+          @ %S(zTarget)</a>
+          break;
+        case 3:
         @ %s(zSrc) wiki page <a href="%R/wiki?name=%t(zTarget)">
         @ %h(zTarget)</a>
+          break;
+        case 0:
+        @ %s(zSrc) forum post <a href="%R/forumpost/%s(zTarget)">
+        @ %h(zTarget)</a>
+        break;
       }
     }else{
       if( zSrc==0 || zSrc[0]==0 ){
@@ -316,11 +339,13 @@ void attach_commit(
 **    tkt=HASH
 **    page=WIKIPAGE
 **    technote=HASH
+**    forumpost=HASH
 **    from=URL
 **
 */
 void attachadd_page(void){
   const char *zPage = P("page");
+  const char *zForumPost = P("forumpost");
   const char *zTkt = P("tkt");
   const char *zTechNote = P("technote");
   const char *zFrom = P("from");
@@ -328,19 +353,31 @@ void attachadd_page(void){
   const char *zName = PD("f:filename","unknown");
   const char *zTarget;
   char *zTargetType;
+  char *zExtraFree = 0;
   int szContent = atoi(PD("f:bytes","0"));
   int goodCaptcha = 1;
 
+  if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ) cgi_redirect(zFrom);
-  if( (zPage && zTkt)
-   || (zPage && zTechNote)
-   || (zTkt && zTechNote)
-  ){
-   fossil_redirect_home();
+  if( (!!zPage + !!zTkt + !!zTechNote + !!zForumPost)!=1 ){
+    //fossil_redirect_home();
+    fossil_fatal("Requires exactly one one: page=X, tkt=X, forumpost=X, or technote=X");
   }
-  if( zPage==0 && zTkt==0 && zTechNote==0) fossil_redirect_home();
   login_check_credentials();
-  if( zPage ){
+  if( zForumPost ){
+    int fpid;
+    if( g.perm.AttachForum==0 ){
+      login_needed(g.anon.AttachForum);
+      return;
+    }
+    fpid = forumpost_head_rid2(zForumPost);
+    if( fpid<=0 ){
+      fossil_fatal("Invalid forum post ID: %h", zForumPost);
+    }
+    zTarget = zExtraFree = rid_to_uuid(fpid);
+    zTargetType = mprintf("Forum post <a href=\"%R/forumpost/%S\">%h</a>",
+                          zTarget, zForumPost);
+  }else if( zPage ){
     if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
       login_needed(g.anon.ApndWiki && g.anon.Attach);
       return;
@@ -366,6 +403,7 @@ void attachadd_page(void){
                            zTechNote, zTechNote);
 
   }else{
+    assert( zTkt );
     if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
       login_needed(g.anon.ApndTkt && g.anon.Attach);
       return;
@@ -379,12 +417,9 @@ void attachadd_page(void){
     zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
                           zTkt, zTkt);
   }
-  if( zFrom==0 ) zFrom = mprintf("%R/home");
-  if( P("cancel") ){
-    cgi_redirect(zFrom);
-  }
   if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct(0)) ){
-    int needModerator = (zTkt!=0 && ticket_need_moderation(0)) ||
+    int needModerator = (zForumPost!=0 && forum_need_moderation()) ||
+                        (zTkt!=0 && ticket_need_moderation(0)) ||
                         (zPage!=0 && wiki_need_moderation(0));
     const char *zComment = PD("comment", "");
     attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
@@ -402,7 +437,9 @@ void attachadd_page(void){
   @ <input type="file" name="f" size="60"><br>
   @ Description:<br>
   @ <textarea name="comment" cols="80" rows="5" wrap="virtual"></textarea><br>
-  if( zTkt ){
+  if( zForumPost ){
+    @ <input type="hidden" name="forumpost" value="%h(zTarget)">
+  }else if( zTkt ){
     @ <input type="hidden" name="tkt" value="%h(zTkt)">
   }else if( zTechNote ){
     @ <input type="hidden" name="technote" value="%h(zTechNote)">
@@ -417,6 +454,7 @@ void attachadd_page(void){
   @ </form>
   style_finish_page();
   fossil_free(zTargetType);
+  fossil_free(zExtraFree);
 }
 
 /*
@@ -438,12 +476,15 @@ void ainfo_page(void){
   const char *zWikiName = 0;     /* Wiki page name when attached to Wiki */
   const char *zTNUuid = 0;       /* Tech Note ID when attached to tech note */
   const char *zTktUuid = 0;      /* Ticket ID when attached to a ticket */
+  const char *zForumPost = 0;    /* Forum post UID when attached to a forum post */
   int modPending;                /* True if awaiting moderation */
   const char *zModAction;        /* Moderation action or NULL */
   int isModerator;               /* TRUE if user is the moderator */
   const char *zMime;             /* MIME Type */
   Blob attach;                   /* Content of the attachment */
   int fShowContent = 0;
+  int bUserIsOwner = 0;
+  int showDelMenu = 0;
   const char *zLn = P("ln");
 
   login_check_credentials();
@@ -453,9 +494,10 @@ void ainfo_page(void){
   }
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
-  zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
+  zUuid = rid_to_uuid(rid);
   pAttach = manifest_get(rid, CFTYPE_ATTACHMENT, 0);
   if( pAttach==0 ) fossil_redirect_home();
+  bUserIsOwner = fossil_strcmp(pAttach->zUser, login_name());
   zTarget = pAttach->zAttachTarget;
   zSrc = pAttach->zAttachSrc;
   ridSrc = db_int(0,"SELECT rid FROM blob WHERE uuid='%q'", zSrc);
@@ -463,36 +505,40 @@ void ainfo_page(void){
   zDesc = pAttach->zComment;
   zMime = mimetype_from_name(zName);
   fShowContent = zMime ? strncmp(zMime,"text/", 5)==0 : 0;
-  if( validate16(zTarget, strlen(zTarget))
+  if( db_int(0,"SELECT 1 FROM event WHERE objid=%d and type='f'", rid) ){
+    if( !g.perm.RdForum ){ login_needed(g.anon.RdForum); return; }
+    showDelMenu = g.perm.Admin || bUserIsOwner;
+    zForumPost = zTarget;
+  }else if( validate16(zTarget, strlen(zTarget))
    && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%q'", zTarget)
   ){
-    zTktUuid = zTarget;
     if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
-    if( g.perm.WrTkt ){
-      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
-    }
+    zTktUuid = zTarget;
+    showDelMenu = g.perm.WrTkt;
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",zTarget) ){
+    if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
     zWikiName = zTarget;
-    if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
-    if( g.perm.WrWiki ){
-      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
-    }
+    showDelMenu = g.perm.WrWiki;
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",zTarget) ){
-    zTNUuid = zTarget;
     if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
-    if( g.perm.Write && g.perm.WrWiki ){
-      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
-    }
+    zTNUuid = zTarget;
+    showDelMenu = g.perm.Write && g.perm.WrWiki;
+  }
+  if( showDelMenu ){
+    style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
   }
   zDate = db_text(0, "SELECT datetime(%.12f)", pAttach->rDate);
 
-  if( P("confirm")
-   && ((zTktUuid && g.perm.WrTkt) ||
+  if( P("confirm") &&
+      ((zForumPost
+        && (g.perm.Admin || (g.perm.AttachForum && bUserIsOwner))) ||
+       (zTktUuid && g.perm.WrTkt) ||
        (zWikiName && g.perm.WrWiki) ||
        (zTNUuid && g.perm.Write && g.perm.WrWiki))
   ){
+    /* Delete attachment. */
     int i, n, rid;
-    char *zDate;
+    char *zNewDate;
     Blob manifest;
     Blob cksum;
     const char *zFile = zName;
@@ -504,9 +550,9 @@ void ainfo_page(void){
     }
     zFile += n;
     if( zFile[0]==0 ) zFile = "unknown";
-    blob_appendf(&manifest, "A %F %F\n", zFile, zTarget);
-    zDate = date_in_standard_format("now");
-    blob_appendf(&manifest, "D %s\n", zDate);
+    blob_appendf(&manifest, "A %F\n", zFile);
+    zNewDate = date_in_standard_format("now");
+    blob_appendf(&manifest, "D %s\n", zNewDate);
     blob_appendf(&manifest, "U %F\n", login_name());
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
@@ -514,10 +560,12 @@ void ainfo_page(void){
     manifest_crosslink(rid, &manifest, MC_NONE);
     db_end_transaction(0);
     @ <p>The attachment below has been deleted.</p>
+    fossil_free(zNewDate);
   }
 
   if( P("del")
-   && ((zTktUuid && g.perm.WrTkt) ||
+      && ((zForumPost && (g.perm.Admin || bUserIsOwner)) ||
+       (zTktUuid && g.perm.WrTkt) ||
        (zWikiName && g.perm.WrWiki) ||
        (zTNUuid && g.perm.Write && g.perm.WrWiki))
   ){
@@ -528,19 +576,25 @@ void ainfo_page(void){
   }
 
   isModerator = g.perm.Admin ||
+                (zForumPost && g.perm.ModForum) ||
                 (zTktUuid && g.perm.ModTkt) ||
                 (zWikiName && g.perm.ModWiki);
-  if( isModerator && (zModAction = P("modaction"))!=0 ){
+  zModAction = P("modaction");
+  if( zModAction!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
-      moderation_disapprove(rid);
-      if( zTktUuid ){
+      if( isModerator ){
+        moderation_disapprove(rid);
+      }
+      if( zForumPost ){
+        cgi_redirectf("%R/forumpost/%!S", zForumPost);
+      }else if( zTktUuid ){
         cgi_redirectf("%R/tktview/%!S", zTktUuid);
       }else{
         cgi_redirectf("%R/wiki?name=%t", zWikiName);
       }
       return;
     }
-    if( strcmp(zModAction,"approve")==0 ){
+    if( isModerator && strcmp(zModAction,"approve")==0 ){
       moderation_approve('a', rid);
     }
   }
@@ -560,15 +614,16 @@ void ainfo_page(void){
     @ (%d(rid))
   }
   modPending = moderation_pending_www(rid);
-  if( zTktUuid ){
+  if( zForumPost ){
+    @ <tr><th>Forum&nbsp;Post:</th>
+    @ <td>%z(href("%R/forumpost/%s",zForumPost))%h(zForumPost)</a></td></tr>
+  }else if( zTktUuid ){
     @ <tr><th>Ticket:</th>
     @ <td>%z(href("%R/tktview/%s",zTktUuid))%s(zTktUuid)</a></td></tr>
-  }
-  if( zTNUuid ){
+  }else if( zTNUuid ){
     @ <tr><th>Tech Note:</th>
     @ <td>%z(href("%R/technote/%s",zTNUuid))%s(zTNUuid)</a></td></tr>
-  }
-  if( zWikiName ){
+  }else if( zWikiName ){
     @ <tr><th>Wiki&nbsp;Page:</th>
     @ <td>%z(href("%R/wiki?name=%t",zWikiName))%h(zWikiName)</a></td></tr>
   }

@@ -87,7 +87,7 @@ int forum_rid_has_been_edited(int rid){
 ** fpid in the chain of edits for that forum post, or rid if no prior
 ** versions are found.
 */
-static int forumpost_head_rid(int rid){
+int forumpost_head_rid(int rid){
   Stmt q;
   int rcRid = rid;
 
@@ -102,6 +102,18 @@ static int forumpost_head_rid(int rid){
   db_finalize(&q);
   return rcRid;
 }
+
+/*
+** Works like forumpost_head_rid() but expects zUuid to be an
+** unambiguous forum post name.
+*/
+int forumpost_head_rid2(const char *zUuid){
+  const int fpid = symbolic_name_to_rid(zUuid, "f");
+  return fpid>0
+    ? forumpost_head_rid(fpid)
+    : 0;
+}
+
 
 /*
 ** Returns true if p, or any parent of p, has a non-zero iClosed
@@ -1282,7 +1294,7 @@ void forumthread_page(void){
 /*
 ** Return true if a forum post should be moderated.
 */
-static int forum_need_moderation(void){
+int forum_need_moderation(void){
   if( P("domod") ) return 1;
   if( g.perm.WrTForum ) return 0;
   if( g.perm.ModForum ) return 0;

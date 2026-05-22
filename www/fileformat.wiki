@@ -441,8 +441,8 @@ The following cards are allowed on an attachment artifact:
 </div>
 
 The <b>A</b> card specifies a filename for the attachment in its first argument.
-The second argument to the <b>A</b> card is the name of the wiki page or
-ticket or technical note to which the attachment is connected.  The
+The second argument to the <b>A</b> card is the name of the wiki page,
+ticket, technical note, or forum post to which the attachment is connected.  The
 third argument is either missing or else it is the lower-case artifact
 ID of the attachment itself.  A missing third argument means that the
 attachment should be deleted.
