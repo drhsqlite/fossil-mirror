@@ -1225,12 +1225,19 @@ void whatis_rid(int rid, int flags){
 
   /* Check for entries on the timeline that reference this object */
   db_prepare(&q,
-     "SELECT type, datetime(mtime,toLocal()),"
-     "       coalesce(euser,user), coalesce(ecomment,comment)"
-     "  FROM event WHERE objid=%d", rid);
+     "SELECT"
+     " type,"
+     " datetime(mtime,toLocal()),"
+     " coalesce(euser,user),"
+     " coalesce(ecomment,comment),"
+     " if(type='t',(SELECT substr(tagname,5) FROM tag"
+                   " WHERE tag.tagid=event.tagid))"
+     "FROM event WHERE objid=%d",
+     rid);
   if( db_step(&q)==SQLITE_ROW ){
     const char *zType;
-    switch( db_column_text(&q,0)[0] ){
+    char eType = db_column_text(&q,0)[0];
+    switch( eType ){
       case 'c':  zType = "Check-in";       break;
       case 'w':  zType = "Wiki-edit";      break;
       case 'e':  zType = "Technote";       break;
@@ -1241,6 +1248,9 @@ void whatis_rid(int rid, int flags){
     }
     fossil_print("type:       %s by %s on %s\n", zType, db_column_text(&q,2),
                  db_column_text(&q, 1));
+    if( eType=='t' && db_column_type(&q,4)==SQLITE_TEXT ){
+      fossil_print("ticket-id:  %s\n", db_column_text(&q,4));
+    }
     fossil_print("comment:    ");
     comment_print(db_column_text(&q,3), 0, 12, -1, get_comment_format());
     cnt++;
@@ -1337,6 +1347,28 @@ void whatis_artifact(
     int mFlags            /* WHATIS_* flags */
 ){
   int rid = symbolic_name_to_rid(zName, zType);
+  size_t nName;
+  char *zC = 0;
+  int nTkt = 0;
+  if( (nName = strlen(zName))>=4 && validate16(zName,nName) ){
+    zC = fossil_strdup(zName);
+    canonical16(zC, nName);
+    nTkt = db_int(0,"SELECT count(*) FROM tag WHERE tagname GLOB 'tkt-%q*'",zC);
+    if( nTkt>0 ){
+      if( rid==0 ){
+        rid = db_int(0,
+          "SELECT srcid FROM tag, tagxref"
+          " WHERE tag.tagname GLOB 'tkt-%q*'"
+          "   AND tagxref.tagid=tag.tagid"
+          "   AND tagxref.tagtype=1"
+          " ORDER BY tagxref.mtime",
+          zC
+        );
+      }else{
+        rid = -1;
+      }
+    }
+  }
   if( rid<0 ){
     Stmt q;
     int cnt = 0;
@@ -1350,12 +1382,27 @@ void whatis_artifact(
     db_prepare(&q,
         "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
         zName, zName
-        );
+    );
     while( db_step(&q)==SQLITE_ROW ){
       if( cnt++ ) fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
       whatis_rid(db_column_int(&q, 0), mFlags);
     }
     db_finalize(&q);
+    if( nTkt>0 ){
+      db_prepare(&q,
+        "SELECT (SELECT srcid FROM tagxref"
+                " WHERE tagxref.tagid=tag.tagid"
+                "   AND tagxref.tagtype=1"
+                " ORDER BY mtime LIMIT 1)"
+        " FROM tag WHERE tagname GLOB 'tkt-%q*'",
+        zC
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        if( cnt++ ) fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
+        whatis_rid(db_column_int(&q, 0), mFlags);
+      }
+      db_finalize(&q);
+    }
   }else if( rid==0 ){
     if( (mFlags & (WHATIS_OMIT_UNK|WHATIS_HASHONLY))==0 ){
                  /* 0123456789 12 */
@@ -1376,6 +1423,7 @@ void whatis_artifact(
     }
     whatis_rid(rid, mFlags);
   }
+  fossil_free(zC);
 }
 
 /*

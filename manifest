@@ -1,5 +1,5 @@
-C In\s/admin_log's\slink\sto\s/setup_settings,\sadd\sthe\s?all\sURL\sargument\sso\sthat\sthe\sadmin-log\ssetting\sgets\sdisplayed.
-D 2026-05-22T14:59:38.547
+C Enhance\sthe\s"fossil\swhatis"\scommand\sso\sthat\sit\sresponse\sto\sticket\sIDs.
+D 2026-05-22T16:07:31.695
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -511,7 +511,7 @@ F src/merge.c 27971d57e16450f5480efcde4431c32843546584a471cf5064f706564fabc2e9
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c d16fe90bc0cfcd2d08bafaaf6a858f5b635873e2f1b40e7c9e92a6d8cd6da162
 F src/moderate.c 621400cdf1268ce0436c8b59e478d0f155b8649e58125527283c993d037aac47
-F src/name.c 5c40c7e5edf27cdac9bed5aa713f08aacd7dd45b7955e059e5e25523d6575483
+F src/name.c c4cf7d50641e231f08ba8a541e61afd3e0e83082db134fce57fc38ae1895bf91
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 1adf1a85457de922c45d649cbd77e1a483d892e5049a2b812c89a45c22948dec
 F src/piechart.c 9f764d8695b0fda40f4f9fbd1a10d9bbdae7973274de7f60d86794178d61eb15
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f0563d7c3a9de06caeb94f123f6203ce221b43fdf5b372f55d3ad6ef26def847
-R 8b35fa50c19a912288f57106eb7846cc
-U stephan
-Z 8d525d3c5ba45e89c982c137b0a1f55f
+P 1a93c064ccc562cb9cdc9c9d6030ee641c2936b5ac0d9499b8913792739ede91
+R a9d5dd5dd5e1af2db253b21256305a70
+U drh
+Z 274f8248b4fb8129de687847c68ff6b8
 # Remove this line to create a well-formed Fossil manifest.
