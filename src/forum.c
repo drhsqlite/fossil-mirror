@@ -202,7 +202,7 @@ static int forum_rid_is_tagged(int rid, const char *zTagName, int bCheckIrt){
 
 /* True if moderation of forum posts performs the same operation
 ** on its attachments. UNTESTED. */
-#define FORUMPOST_MOD_ATTACHMENTS 0
+#define FORUMPOST_MOD_ATTACHMENTS 1
 #if FORUMPOST_MOD_ATTACHMENTS
 /*
 ** Internal helper for moderation_forumpost_...().
@@ -1043,6 +1043,10 @@ static void forum_display_post(
           @ </form>
         }
         if( g.perm.Admin || forumpost_is_owner(p/*not pHead*/->fpid, 0) ){
+          /* When an admin edits someone else's post, the admin
+          ** effectively takes over ownership of it (and we currently
+          ** have no way of passing it back). Because of this, we
+          ** check the ownership of `p` instead of `pHead`. */
           @ <form method="post" action="%R/attachadd">\
           @ <input type="hidden" name="forumpost" value="%T(pHead->zUuid)">
           @ <input type="submit" value="Attach...">

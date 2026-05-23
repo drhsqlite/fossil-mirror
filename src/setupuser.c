@@ -862,6 +862,8 @@ void user_edit(void){
   @  <li><label><input type="checkbox" name="a4"%s(oa['4'])>
   @  WriteTrusted Forum%s(B('4'))</label>
   @  <li><label><input type="checkbox" name="a5"%s(oa['5'])>
+  @  Attach to Forum%s(B('B'))</label>
+  @  <li><label><input type="checkbox" name="ag"%s(oa['g'])>
   @  Moderate Forum%s(B('5'))</label>
   @  <li><label><input type="checkbox" name="a6"%s(oa['6'])>
   @  Supervise Forum%s(B('6'))</label>
