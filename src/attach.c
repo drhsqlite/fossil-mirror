@@ -818,11 +818,11 @@ void attachment_list(
     }
     cnt++;
     switch( iAType ){
-      case CFTYPE_TICKET: zTypeArg = "tkt"; break;
-      case CFTYPE_FORUM:  zTypeArg = "forumpost"; break;
-      case CFTYPE_EVENT:  zTypeArg = "event"; break;
+      case CFTYPE_TICKET:   zTypeArg = "tkt"; break;
+      case CFTYPE_FORUM:    zTypeArg = "forumpost"; break;
+      case CFTYPE_TECHNOTE: zTypeArg = "technote"; break;
       case CFTYPE_WIKI:
-      default:            zTypeArg = "page"; break;
+      default:              zTypeArg = "page"; break;
     }
     @ <li>
     @ <a href="%R/artifact/%!S(zSrc)"%s(zLinkTgt)>%h(zFile)</a>
