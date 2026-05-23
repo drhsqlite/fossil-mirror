@@ -610,14 +610,15 @@ The <b>Z</b> card is the required checksum over the rest of the artifact.
 <a name="forumpost-tag"></a>
 <strong>Forum posts and tags:</strong>
 
-When adding [#ctrl|tags] to forum posts it is generally up to the
-application to tag only the first version of any given post. For
-example, if post X has two edits, a tag applied by the user to X+2
-should generally be applied to version X instead. Though this
-complicates the app logic for applying tags, it simplifies the app's
-location of tags.  As of this writing (May 2026), no current Fossil
-use cases would be improved by tagging specific subsequent versions of
-posts, e.g. our hypothetical X+1.
+When adding [#ctrl|tags] or [#attachment|attachments] to forum posts
+it is generally up to the application to tag/attach to only the first
+version of any given post. For example, if post X has two edits, a tag
+or applied, or attachment added, by the user to post X+2 should
+generally be applied to version X instead. Though this complicates the
+app logic for applying tags, it simplifies the app's location of tags.
+As of this writing (May 2026), no current Fossil use cases would be
+improved by tagging specific subsequent versions of posts, e.g. our
+hypothetical X+1.
 
 
 <h2 id="summary">3.0 Card Summary</h2>
