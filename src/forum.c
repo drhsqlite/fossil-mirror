@@ -200,6 +200,61 @@ static int forum_rid_is_tagged(int rid, const char *zTagName, int bCheckIrt){
   return i ? -rc : rc;
 }
 
+/* True if moderation of forum posts performs the same operation
+** on its attachments. UNTESTED. */
+#define FORUMPOST_MOD_ATTACHMENTS 0
+#if FORUMPOST_MOD_ATTACHMENTS
+/*
+** Internal helper for moderation_forumpost_...().
+*/
+static void forumpost_prepare_attachids(Stmt *q, int fpid){
+  db_prepare(
+    q,
+    "SELECT attachid FROM attachment a "
+    "WHERE a.target=("
+    "  SELECT uuid FROM blob WHERE rid=%d"
+    ") and attachid in ("
+    "  SELECT objid FROM modreq"
+    ")",
+    forumpost_head_rid(fpid)
+  );
+}
+#endif
+/*
+** Approve the given forum post RID and any pending-approval
+** attachments associated with it.
+*/
+static void moderation_forumpost_approve(int fpid){
+#if !FORUMPOST_MOD_ATTACHMENTS
+  moderation_approve('f', fpid);
+#else
+  /* UNTESTED! Also approve any pending attachments */
+  Stmt q;
+  moderation_approve('f', fpid);
+  forumpost_prepare_attachids(&q, fpid);
+  while( SQLITE_ROW==db_step(&q) ){
+    moderation_approve('a', db_column_int(&q, 0));
+  }
+  db_finalize(&q);
+#endif
+}
+
+static void moderation_forumpost_disapprove(int fpid){
+#if !FORUMPOST_MOD_ATTACHMENTS
+  moderation_disapprove(fpid);
+#else
+  /* UNTESTED! Also disapprove any pending attachments */
+  Stmt q;
+  moderation_disapprove(fpid);
+  forumpost_prepare_attachids(&q, fpid);
+  while( SQLITE_ROW==db_step(&q) ){
+    moderation_disapprove(db_column_int(&q, 0));
+  }
+  db_finalize(&q);
+#endif
+}
+#undef FORUMPOST_MOD_ATTACHMENTS
+
 /*
 ** Applies or cancels a tag named zTagName on the given forum RID via
 ** addition of a new control artifact into the repository. In order to
@@ -975,7 +1030,7 @@ static void forum_display_post(
       @ </form>
 
       if( bSelect ){
-        ForumPost *pHead = p->pEditHead ? p->pEditHead : p;
+        const ForumPost *pHead = p->pEditHead ? p->pEditHead : p;
         if( forumpost_may_close() && iClosed>=0 ){
           @ <form method="post" \
           @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
@@ -1707,7 +1762,7 @@ void forumedit_page(void){
   if( isCsrfSafe && (g.perm.ModForum || (bPrivate && bSameUser)) ){
     if( g.perm.ModForum && P("approve") ){
       const char *zUserToTrust;
-      moderation_approve('f', fpid);
+      moderation_forumpost_approve(fpid);
       if( g.perm.AdminForum
        && PB("trust")
        && (zUserToTrust = P("trustuser"))!=0
@@ -1728,7 +1783,7 @@ void forumedit_page(void){
           " WHERE forumpost.fpid=%d AND blob.rid=forumpost.firt",
           fpid
         );
-      moderation_disapprove(fpid);
+      moderation_forumpost_disapprove(fpid);
       if( zParent ){
         cgi_redirectf("%R/forumpost/%S",zParent);
       }else{
@@ -1985,7 +2040,7 @@ void forum_setup(void){
         entry_attribute("", 25, pSetting->name, zQP/*works-like:""*/,
                         pSetting->def, 0);
         @ </td></tr>
-      }   
+      }
     }
     @ </tbody></table>
     @ <input type='submit' name='submit' value='Apply changes'>
