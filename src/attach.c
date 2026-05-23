@@ -100,7 +100,7 @@ void attachlist_page(void){
     style_header("Attachments To %h", zForumPost);
     fnid = forumpost_head_rid2(zForumPost);
     if( fnid<=0 ){
-      fossil_fatal("Invalid forum post ID: %h", zForumPost);
+      webpage_error("Invalid forum post ID: %h", zForumPost);
     }
     zUuid = rid_to_uuid(fnid);
     blob_append_sql(&sql, " WHERE target=%Q", zUuid);
@@ -411,12 +411,12 @@ void attachadd_page(void){
   if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ) cgi_redirect(zFrom);
   if( (!!zPage + !!zTkt + !!zTechNote + !!zForumPost)!=1 ){
-    fossil_fatal("Requires exactly one one: page=X, tkt=X, forumpost=X, or technote=X");
+    webpage_error("Requires exactly one one: page=X, tkt=X, forumpost=X, or technote=X");
   }
   login_check_credentials();
   szLimit = db_get_int("attachment-size-limit", 0);
   if( szContent<0 || (szLimit && szContent>szLimit) ){
-    fossil_fatal("Attachment %s is too large. Limit is %d bytes.", zName,
+    webpage_error("Attachment %s is too large. Limit is %d bytes.", zName,
                  szLimit ? szLimit : 0x7fffffff);
   }
   if( zForumPost ){
@@ -427,9 +427,9 @@ void attachadd_page(void){
     }
     fpid = forumpost_head_rid2(zForumPost);
     if( fpid<=0 ){
-      fossil_fatal("Invalid forum post ID: %h", zForumPost);
+      webpage_error("Invalid forum post ID: %h", zForumPost);
     }else if( !g.perm.Admin && !forumpost_is_owner(fpid, 0) ){
-      fossil_fatal("Only admins can attach files to other users' "
+      webpage_error("Only admins can attach files to other users' "
                    "forum posts.");
     }
     zTarget = zExtraFree = rid_to_uuid(fpid);
@@ -606,8 +606,8 @@ void ainfo_page(void){
     const char *zFile = zName;
 
     if( !g.perm.Admin && !bUserIsOwner ){
-      fossil_fatal("Only admins can delete other users' attachments from "
-                   "forum posts.");
+      webpage_error("Only admins can delete other users' attachments from "
+                    "forum posts.");
     }
     db_begin_transaction();
     blob_zero(&manifest);
