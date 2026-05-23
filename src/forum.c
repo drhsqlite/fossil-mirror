@@ -372,8 +372,11 @@ static int forumpost_close_policy(void){
 ** Returns 1 if the current user is an admin, -1 if the current user
 ** is a forum moderator and the forum-close-policy setting is true,
 ** else returns 0. The value is cached for subsequent calls.
+**
+** This policy also determines whether non-admin forum moderators
+** may delete forum attachments.
 */
-static int forumpost_may_close(void){
+int forumpost_may_close(void){
   static int permClose = -99;
   if( permClose!=-99 ){
     return permClose;
@@ -1927,6 +1930,8 @@ void forumedit_page(void){
 ** to closed posts. If false, only administrators may do so. Note that
 ** this only affects the forum web UI, not post-closing tags which
 ** arrive via the command-line or from synchronization with a remote.
+** This policy also determines whether moderators may delete forum
+** attachments.
 */
 /*
 ** SETTING: forum-title          width=20 default=Forum

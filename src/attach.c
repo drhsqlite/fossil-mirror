@@ -545,9 +545,9 @@ void ainfo_page(void){
   int isModerator;               /* TRUE if user is the moderator */
   const char *zMime;             /* MIME Type */
   Blob attach;                   /* Content of the attachment */
-  int fShowContent = 0;
+  int fShowContent = 0;          /* True to emit the content */
   int bUserIsOwner = 0;          /* True if pAttach->zUser is login_name() */
-  int showDelMenu = 0;
+  int showDelMenu = 0;           /* True to enable delete option */
   const char *zLn = P("ln");
 
   login_check_credentials();
@@ -594,7 +594,8 @@ void ainfo_page(void){
 
   if( P("confirm") &&
       ((zForumPost
-        && (g.perm.Admin || (g.perm.AttachForum && bUserIsOwner))) ||
+        && ((bUserIsOwner && g.perm.AttachForum) ||
+            forumpost_may_close())) ||
        (zTktUuid && g.perm.WrTkt) ||
        (zWikiName && g.perm.WrWiki) ||
        (zTNUuid && g.perm.Write && g.perm.WrWiki))
@@ -606,9 +607,10 @@ void ainfo_page(void){
     Blob cksum;
     const char *zFile = zName;
 
-    if( !g.perm.Admin && !bUserIsOwner ){
-      webpage_error("Only admins can delete other users' attachments from "
-                    "forum posts.");
+    if( !bUserIsOwner ){
+      if( zForumPost ? !forumpost_may_close() : !g.perm.Admin ){
+        webpage_error("Only admins can delete other users' attachments.");
+      }
     }
     db_begin_transaction();
     blob_zero(&manifest);
