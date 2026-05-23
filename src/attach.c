@@ -436,7 +436,8 @@ void attachadd_page(void){
     zTargetType = mprintf("Forum post <a href=\"%R/forumpost/%S\">%h</a>",
                           zTarget, zForumPost);
     zTo = mprintf("%R/attachview?forumpost=%T&file=%T",
-                  zTarget, zName);
+                  zTarget, zName)
+      /* Or we could return directly to the forum post. */;
   }else if( zPage ){
     if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
       login_needed(g.anon.ApndWiki && g.anon.Attach);
