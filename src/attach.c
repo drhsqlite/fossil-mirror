@@ -759,9 +759,10 @@ void ainfo_page(void){
 void attachment_list(
   const char *zTarget,   /* Object that things are attached to */
   const char *zHeader,   /* Header to display with attachments */
-  int flags              /* ATTACHLIST_... flags */
+  const int flags        /* ATTACHLIST_... flags */
 ){
   int cnt = 0;
+  char szBuf[36] = {0};  /* scratchpad for attachment size value */
   const char * zLinkTgt = (ATTACHLIST_TARGET_BLANK & flags)
     ? " target=\"_blank\"" : "";
   Stmt q;
@@ -800,15 +801,12 @@ void attachment_list(
     }
     @ <li>
     @ <a href="%R/artifact/%!S(zSrc)"%s(zLinkTgt)>%h(zFile)</a>
-    @ [<a href="%R/attachdownload/%t(zFile)?%s(zTypeArg)=%t(zTarget)&file=%t(zFile)" \
-    @ %s(zLinkTgt)>download</a>
     if( flags & ATTACHLIST_SIZE ){
-      /* FIXME: this block causes us to interupt the @ lines and
-      ** introduces an extra space before the closing ']'. */
       const int sz = db_int(0,"SELECT size FROM blob WHERE uuid=%Q", zSrc);
-      @ %d(sz) bytes
+      sqlite3_snprintf(sizeof(szBuf), szBuf, " %d bytes", sz);
     }
-    @ ]
+    @ [<a href="%R/attachdownload/%t(zFile)?%s(zTypeArg)=%t(zTarget)\
+    @&file=%t(zFile)%s(zLinkTgt)">download</a>%s(szBuf)]
     @ added by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
     @ [<a href="%R/ainfo/%!S(zUuid)"%s(zLinkTgt)>details</a>]
