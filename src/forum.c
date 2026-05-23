@@ -837,7 +837,8 @@ static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
 
 static void forum_render_attachment_list(ForumPost *p){
   if( p->pEditHead ) p = p->pEditHead;
-  attachment_list(p->zUuid, "Attachments:", ATTACHLIST_SIZE);
+  attachment_list(p->zUuid, "Attachments:",
+                  ATTACHLIST_SIZE | ATTACHLIST_HIDE_UNAPPROVED);
 }
 
 /*
@@ -1672,6 +1673,18 @@ static void forum_render_debug_options(void){
 }
 
 /*
+** If the user has AttachForum permissions, emit a notice that
+** attachments may be added after saving. If p is not NULL,
+** also emit its list of attachments.
+*/
+static void forum_render_attachment_notice(){
+  if( g.perm.AttachForum ){
+    @ <div>You will be able to attach files to this post after saving
+    @ it.</div>
+  }
+}
+
+/*
 ** WEBPAGE: forume1
 **
 ** Start a new forum thread.
@@ -1709,6 +1722,7 @@ void forumnew_page(void){
   forum_render_debug_options();
   login_insert_csrf_secret();
   @ </form>
+  forum_render_attachment_notice(0);
   forum_emit_js();
   style_finish_page();
 }
@@ -1902,6 +1916,7 @@ void forumedit_page(void){
   forum_render_debug_options();
   login_insert_csrf_secret();
   @ </form>
+  forum_render_attachment_notice();
   forum_emit_js();
   style_finish_page();
 }

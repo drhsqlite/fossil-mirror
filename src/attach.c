@@ -33,19 +33,28 @@
 ** the only one which attachments should target.
 */
 int attachment_target_type(const char *zTarget){
+  static Stmt q = empty_Stmt_m;
+  int rc = 0;
   if( forumpost_head_rid2(zTarget)>0 ){
     return CFTYPE_FORUM;
   }
-  return db_int(0,
-     "SELECT CASE "
-     "WHEN 'tkt-'||%Q IN (SELECT tagname FROM tag) THEN %d "
-     "WHEN 'event-'||%Q IN (SELECT tagname FROM tag) THEN %d "
-     "WHEN 'wiki-'||%Q IN (SELECT tagname FROM tag) THEN %d "
-     "ELSE 0 END",
-     zTarget, CFTYPE_TICKET,
-     zTarget, CFTYPE_TECHNOTE,
-     zTarget, CFTYPE_WIKI
-  );
+  if( !q.pStmt ){
+    db_static_prepare(
+      &q,
+      "SELECT CASE "
+      "WHEN 'tkt-'||:tgt IN (SELECT tagname FROM tag) THEN %d "
+      "WHEN 'event-'||:tgt IN (SELECT tagname FROM tag) THEN %d "
+      "WHEN 'wiki-'||:tgt IN (SELECT tagname FROM tag) THEN %d "
+      "ELSE 0 END",
+      CFTYPE_TICKET, CFTYPE_TECHNOTE, CFTYPE_WIKI
+    );
+  }
+  db_bind_text(&q, ":tgt", zTarget);
+  if( SQLITE_ROW==db_step(&q) ){
+    rc = db_column_int(&q, 0);
+  }
+  db_reset(&q);
+  return rc;
 }
 
 /*
@@ -98,7 +107,7 @@ void attachlist_page(void){
     fossil_free(zUuid);
   }else if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
-    style_header("Attachments To %h", zPage);
+    style_header("Attachments To Wiki page %h", zPage);
     blob_append_sql(&sql, " WHERE target=%Q", zPage);
   }else if( zTkt ){
     if( g.perm.RdTkt==0 ){ login_needed(g.anon.RdTkt); return; }
@@ -106,7 +115,7 @@ void attachlist_page(void){
     blob_append_sql(&sql, " WHERE target GLOB '%q*'", zTkt);
   }else if( zTechNote ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
-    style_header("Attachments to Tech Note %S", zTechNote);
+    style_header("Attachments To Tech Note %S", zTechNote);
     blob_append_sql(&sql, " WHERE target GLOB '%q*'",
                     zTechNote);
   }else{
@@ -633,9 +642,9 @@ void ainfo_page(void){
   }
 
   isModerator = g.perm.Admin ||
-                (zForumPost && g.perm.ModForum) ||
-                (zTktUuid && g.perm.ModTkt) ||
-                (zWikiName && g.perm.ModWiki);
+    (zForumPost && g.perm.ModForum) ||
+    (zTktUuid && g.perm.ModTkt) ||
+    (zWikiName && g.perm.ModWiki);
   zModAction = P("modaction");
   if( zModAction!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
@@ -646,9 +655,11 @@ void ainfo_page(void){
         cgi_redirectf("%R/forumpost/%!S", zForumPost);
       }else if( zTktUuid ){
         cgi_redirectf("%R/tktview/%!S", zTktUuid);
-      }else{
+      }else if( zWikiName ) {
         cgi_redirectf("%R/wiki?name=%t", zWikiName);
       }
+      /* zTNUuid is intentionally unhandled. Tech note attachments
+      ** don't go through moderation. */
       return;
     }
     if( isModerator && strcmp(zModAction,"approve")==0 ){
@@ -748,9 +759,10 @@ void ainfo_page(void){
 ** Flags for use with attachment_list(). ATTACHLIST_HRULE_ABOVE
 ** must have a value of 1 for historical call compatibility.
 */
-#define ATTACHLIST_HRULE_ABOVE  0x01 /* Insert <hr> above header. */
-#define ATTACHLIST_TARGET_BLANK 0x02 /* use target=_blank for links */
-#define ATTACHLIST_SIZE         0x04 /* add size */
+#define ATTACHLIST_HRULE_ABOVE     0x01 /* Insert <hr> above header */
+#define ATTACHLIST_TARGET_BLANK    0x02 /* use target=_blank for links */
+#define ATTACHLIST_SIZE            0x04 /* add size */
+#define ATTACHLIST_HIDE_UNAPPROVED 0x08 /* Hide pending-moderation files */
 #endif
 
 /*
@@ -768,7 +780,8 @@ void attachment_list(
   Stmt q;
   db_prepare(&q,
      "SELECT datetime(mtime,toLocal()), filename, user,"
-     "       (SELECT uuid FROM blob WHERE rid=attachid), src, target"
+     "       (SELECT uuid FROM blob WHERE rid=attachid), src, target, "
+     "       attachid "
      "  FROM attachment"
      " WHERE isLatest AND src!='' AND target=%Q"
      " ORDER BY mtime DESC",
@@ -783,6 +796,18 @@ void attachment_list(
     const char *zTarget = db_column_text(&q, 5);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     const char *zTypeArg = 0; /* URL arg name for /attachdownload */
+    const int aid = db_column_int(&q, 6);
+    const int iAType = attachment_target_type(zTarget);
+    if( (flags & ATTACHLIST_HIDE_UNAPPROVED)
+        && moderation_pending(aid)
+        && !(g.perm.Admin
+             || (g.perm.ModForum && CFTYPE_FORUM==iAType)
+             || (g.perm.ModTkt && CFTYPE_TICKET==iAType)
+             || (g.perm.ModWiki && CFTYPE_WIKI==iAType)
+             || 0==fossil_strcmp(login_name(), zUser)
+        ) ){
+      continue;
+    }
     if( cnt==0 ){
       @ <section class='attachlist'>
       if( flags & ATTACHLIST_HRULE_ABOVE ){
@@ -792,7 +817,7 @@ void attachment_list(
       @ <ul>
     }
     cnt++;
-    switch( attachment_target_type(zTarget) ){
+    switch( iAType ){
       case CFTYPE_TICKET: zTypeArg = "tkt"; break;
       case CFTYPE_FORUM:  zTypeArg = "forumpost"; break;
       case CFTYPE_EVENT:  zTypeArg = "event"; break;
@@ -810,6 +835,7 @@ void attachment_list(
     @ added by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
     @ [<a href="%R/ainfo/%!S(zUuid)"%s(zLinkTgt)>details</a>]
+    moderation_pending_www(aid);
     @ </li>
   }
   if( cnt ){
@@ -817,7 +843,6 @@ void attachment_list(
     @ </section>
   }
   db_finalize(&q);
-
 }
 
 /*
