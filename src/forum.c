@@ -991,6 +991,7 @@ static void forum_display_post(
           @ <form method="post" action="%R/attachadd">\
           @ <input type="hidden" name="forumpost" value="%T(pHead->zUuid)">
           @ <input type="submit" value="Attach...">
+          login_insert_csrf_secret();
           @ </form>
         }
       }
