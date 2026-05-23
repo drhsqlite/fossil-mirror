@@ -1,5 +1,5 @@
-C Correct\sa\stechnote\sattachment\sURL\sarg\sname\sin\sattachment_list().
-D 2026-05-23T17:20:08.663
+C Add\ssome\scomments\sexplaining\sthe\sreason\sbehind\sa\sparticular\sattachment-handling\scase.\sRemove\sthe\snew\s(in\sthis\sbranch)\sCFTYPE_TECHNOTE\salias\sfor\sCFTYPE_EVENT.
+D 2026-05-23T17:34:34.755
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -387,7 +387,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c f2250f3fd1fd4c69aa8816885d47da5110cb7936adf66eae1df83e6c46f9c0a6
-F src/attach.c 54560162dabe11addda0dafa074ea0710fbc7188343dc772bfd918c320e3027d
+F src/attach.c 3e68c4f8a9d06af76e099d64f0b9fcfffd1feac3b16b8d9d4bdfe87965c12961
 F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a7
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
@@ -500,7 +500,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c 737032593ef80a8bdae0c866232dd5f95eb397026ec63d771c27de5bbd77fb2a
 F src/main.mk 706b1e0372a45351e2cb888dfae4c4abe003c3cb46e392c661dedff415f7bc65
-F src/manifest.c 0388a29270dceba740250b47bcad0a72fc7fe288d0bf437787342a3805019838
+F src/manifest.c be38b2b37daf092b769c3b4498754cb1c0b7b2c49f03a4aeda702f184339d551
 F src/markdown.c ea27e61986a1366839e7a70f16cd70a056352d7623797eb09372e158f6f7350b
 F src/markdown.md 459394a15e26f64b399382537fdd76a27d413dcbc09625981fe3a329d66da981
 F src/markdown_html.c 7489eafdec202371c5d5e8f898c5742158a5ab1013a480e9ba8fc3c03754df1b
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9692f7ba547fdf99e95fa78c05c0d093773a7d5939c0a77e32a678a78c2b3995
-R d69253dad05931e38c4af10a84bee307
+P 554fdf8f503f22b2df82166862f3fd10b3f56a9bc82722017b709fa45d2f7c5f
+R 47528533e2ddc06b95357af9922e51f9
 U stephan
-Z 5f9b92fef90ca1ce8e43c94a7dfdef96
+Z 775046ca8194596c0784329c596873bb
 # Remove this line to create a well-formed Fossil manifest.

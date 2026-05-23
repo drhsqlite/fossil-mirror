@@ -35,8 +35,7 @@
 #define CFTYPE_WIKI       4
 #define CFTYPE_TICKET     5
 #define CFTYPE_ATTACHMENT 6
-#define CFTYPE_EVENT      7 /* older name for CFTYPE_TECHNOTE */
-#define CFTYPE_TECHNOTE   7
+#define CFTYPE_EVENT      7
 #define CFTYPE_FORUM      8
 
 /*
@@ -2651,6 +2650,10 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     );
     switch( attachment_target_type(p->zAttachTarget) ){
       case 0:
+        /* It is possible that p->zAttachTarget is not yet in this
+        ** copy of the repository. If we cannot identify it yet,
+        ** generate a generic /artifact link to it instead of a
+        ** type-specific link or an error message. */
         attachToType = 'a';
         if( isAdd ){
           zComment = mprintf(

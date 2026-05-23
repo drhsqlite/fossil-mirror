@@ -24,7 +24,7 @@
 /*
 ** Given a presumedly legal attachment target name, this guesses the
 ** target type and returns one of CFTYPE_FORUM, CFTYPE_WIKI,
-** CFTYPE_TICKET, or CFTYPE_TECHNOTE. Returns 0 if it cannot
+** CFTYPE_TICKET, or CFTYPE_EVENT. Returns 0 if it cannot
 ** distinguish the target type.
 **
 ** In the case of CFTYPE_FORUM, it is up to the caller to ensure that,
@@ -46,7 +46,7 @@ int attachment_target_type(const char *zTarget){
       "WHEN 'event-'||:tgt IN (SELECT tagname FROM tag) THEN %d "
       "WHEN 'wiki-'||:tgt IN (SELECT tagname FROM tag) THEN %d "
       "ELSE 0 END",
-      CFTYPE_TICKET, CFTYPE_TECHNOTE, CFTYPE_WIKI
+      CFTYPE_TICKET, CFTYPE_EVENT, CFTYPE_WIKI
     );
   }
   db_bind_text(&q, ":tgt", zTarget);
@@ -152,7 +152,7 @@ void attachlist_page(void){
       case CFTYPE_TICKET:
         zUrlTail = mprintf("tkt=%s&file=%t", zTarget, zFilename);
         break;
-      case CFTYPE_TECHNOTE:
+      case CFTYPE_EVENT:
         zUrlTail = mprintf("technote=%s&file=%t", zTarget, zFilename);
         break;
       case CFTYPE_FORUM:
@@ -182,7 +182,7 @@ void attachlist_page(void){
           @ %s(zSrc) ticket <a href="%R/tktview?name=%s(zTarget)">
           @ %S(zTarget)</a>
           break;
-        case CFTYPE_TECHNOTE:
+        case CFTYPE_EVENT:
           @ %s(zSrc) tech note <a href="%R/technote/%s(zTarget)">
           @ %S(zTarget)</a>
           break;
@@ -818,11 +818,11 @@ void attachment_list(
     }
     cnt++;
     switch( iAType ){
-      case CFTYPE_TICKET:   zTypeArg = "tkt"; break;
-      case CFTYPE_FORUM:    zTypeArg = "forumpost"; break;
-      case CFTYPE_TECHNOTE: zTypeArg = "technote"; break;
+      case CFTYPE_TICKET: zTypeArg = "tkt"; break;
+      case CFTYPE_FORUM:  zTypeArg = "forumpost"; break;
+      case CFTYPE_EVENT:  zTypeArg = "technote"; break;
       case CFTYPE_WIKI:
-      default:              zTypeArg = "page"; break;
+      default:            zTypeArg = "page"; break;
     }
     @ <li>
     @ <a href="%R/artifact/%!S(zSrc)"%s(zLinkTgt)>%h(zFile)</a>
