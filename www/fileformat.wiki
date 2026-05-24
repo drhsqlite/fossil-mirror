@@ -445,8 +445,8 @@ wiki page, ticket, technical note, or full hash of a forum post to
 which the attachment is connected.  The third argument is either
 missing or else it is the lower-case artifact ID of the attachment
 itself.  A missing third argument means that the attachment should be
-deleted.  If <i>source</i> is a forum post, the hash provided should
-generally be the hash of the first version of the post for reasons
+deleted.  If <i>target</i> is a forum post, the hash provided should
+generally be that of the first version of the post for reasons
 [#forumpost-tag|explained elsewhere].
 
 The <b>C</b> card is an optional comment describing what the attachment is about.
