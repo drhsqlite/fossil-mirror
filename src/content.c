@@ -703,20 +703,35 @@ int content_new(const char *zUuid, int isPrivate){
 /*
 ** COMMAND: test-content-put
 **
-** Usage: %fossil test-content-put FILE
+** Usage: %fossil test-content-put [OPTIONS] FILE ...
 **
-** Read the content of FILE and add it to the Blob table as a new
-** artifact using a direct call to content_put().
+** Read the content of all FILE argments and add them to the Blob
+** table as a new artifact using a direct call to content_put().
+**
+** Options:
+**
+**    --moderate           Make corresponding entries to the MODREQ table
+**    -R REPO              Add the content to repository file REPO
 */
 void test_content_put_cmd(void){
   int rid;
   Blob content;
-  if( g.argc!=3 ) usage("FILENAME");
-  db_must_be_within_tree();
+  int i;
+  int bModreq = find_option("moderate",0,0)!=0;
+  db_find_and_open_repository(0,0);
   user_select();
-  blob_read_from_file(&content, g.argv[2], ExtFILE);
-  rid = content_put(&content);
-  fossil_print("inserted as record %d\n", rid);
+  verify_all_options();
+  db_begin_transaction();
+  if( bModreq ) moderation_table_create();
+  for(i=2; i<g.argc; i++){
+    blob_read_from_file(&content, g.argv[i], ExtFILE);
+    rid = content_put(&content);
+    if( bModreq ){
+      db_multi_exec("INSERT INTO modreq(objid) VALUES(%d)",rid);
+    }
+    fossil_print("inserted as record %d\n", rid);
+  }
+  db_end_transaction(0);
 }
 
 /*
