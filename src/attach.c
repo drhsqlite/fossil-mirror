@@ -576,7 +576,7 @@ void ainfo_page(void){
   zUuid = rid_to_uuid(rid);
   pAttach = manifest_get(rid, CFTYPE_ATTACHMENT, 0);
   if( pAttach==0 ) fossil_redirect_home();
-  bUserIsOwner = fossil_strcmp(pAttach->zUser, login_name());
+  bUserIsOwner = 0==fossil_strcmp(pAttach->zUser, login_name());
   zTarget = pAttach->zAttachTarget;
   zSrc = pAttach->zAttachSrc;
   ridSrc = db_int(0,"SELECT rid FROM blob WHERE uuid='%q'", zSrc);
@@ -667,7 +667,7 @@ void ainfo_page(void){
   zModAction = P("modaction");
   if( zModAction!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
-      if( isModerator ){
+      if( isModerator || bUserIsOwner ){
         moderation_disapprove(rid);
       }
       if( zForumPost ){
@@ -730,14 +730,16 @@ void ainfo_page(void){
   @ <tr><th valign="top">Description:</th><td valign="top">%h(zDesc)</td></tr>
   @ </table>
 
-  if( isModerator && modPending ){
+  if( modPending && (isModerator || bUserIsOwner) ){
     @ <div class="section">Moderation</div>
     @ <blockquote>
     form_begin(0, "%R/ainfo/%s", zUuid);
     @ <label><input type="radio" name="modaction" value="delete">
     @ Delete this change</label><br>
-    @ <label><input type="radio" name="modaction" value="approve">
-    @ Approve this change</label><br>
+    if( isModerator ){
+      @ <label><input type="radio" name="modaction" value="approve">
+      @ Approve this change</label><br>
+    }
     @ <input type="submit" value="Submit">
     @ </form>
     @ </blockquote>
