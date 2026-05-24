@@ -446,8 +446,10 @@ void attachadd_page(void){
     zTarget = zExtraFree = rid_to_uuid(fpid);
     zTargetType = mprintf("Forum post <a href=\"%R/forumpost/%S\">%h</a>",
                           zTarget, zForumPost);
-    zTo = mprintf("%R/attachview?forumpost=%T&file=%T",
-                  zTarget, zName)
+    zTo = 1
+      ? mprintf("%R/forumpost/%S", zTarget)
+      : mprintf("%R/attachview?forumpost=%T&file=%T",
+                zTarget, zName)
       /* Or we could return directly to the forum post. */;
   }else if( zPage ){
     if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
