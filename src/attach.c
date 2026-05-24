@@ -819,12 +819,7 @@ void attachment_list(
     const int iAType = attachment_target_type(zTarget);
     if( (flags & ATTACHLIST_HIDE_UNAPPROVED)
         && moderation_pending(aid)
-        && !(g.perm.Admin
-             || (g.perm.ModForum && CFTYPE_FORUM==iAType)
-             || (g.perm.ModTkt && CFTYPE_TICKET==iAType)
-             || (g.perm.ModWiki && CFTYPE_WIKI==iAType)
-             || 0==fossil_strcmp(login_name(), zUser)
-        ) ){
+        && !moderation_user_could(aid, 1, 0) ){
       continue;
     }
     if( cnt==0 ){
