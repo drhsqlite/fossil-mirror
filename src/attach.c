@@ -416,9 +416,10 @@ void attachadd_page(void){
   const char *zFrom = P("from");
   const char *aContent = P("f");
   const char *zName = PD("f:filename","unknown");
+  const char *zComment = PD("comment", "");
   const char *zTarget;
   char * zTo = 0;
-  char *zTargetType;
+  char *zTargetType = 0;
   char *zExtraFree = 0;
   int szContent = atoi(PD("f:bytes","0"));
   int goodCaptcha = 1;
@@ -430,11 +431,6 @@ void attachadd_page(void){
     webpage_error("Requires exactly one one: page=X, tkt=X, forumpost=X, or technote=X");
   }
   login_check_credentials();
-  szLimit = db_get_int("attachment-size-limit", 0);
-  if( szContent<0 || (szLimit && szContent>szLimit) ){
-    webpage_error("Attachment %s is too large. Limit is %d bytes.", zName,
-                 szLimit ? szLimit : 0x7fffffff);
-  }
   if( zForumPost ){
     int fpid;
     if( g.perm.AttachForum==0 ){
@@ -494,14 +490,21 @@ void attachadd_page(void){
     zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
                           zTkt, zTkt);
   }
-  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct(0)) ){
+  szLimit = db_get_int("attachment-size-limit", 0);
+  if( szContent<0 || (szLimit && szContent>szLimit) ){
+    /* This check must be done late so that zTargetType is set up. */
+    @ <p class="generalError">Attachment %s(zName) is too large.
+    @ <a href="%R/help/attachment-size-limit">Limit</a> is
+    @ %d(szLimit ? szLimit : 0x7fffffff) bytes</p>
+    /* Fall through and render form. */
+   }else if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct(0)) ){
     int needModerator = (zForumPost!=0 && forum_need_moderation()) ||
                         (zTkt!=0 && ticket_need_moderation(0)) ||
                         (zPage!=0 && wiki_need_moderation(0));
-    const char *zComment = PD("comment", "");
     attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
     cgi_redirect(zTo ? zTo : zFrom);
   }
+
   style_set_current_feature("attach");
   style_header("Add Attachment");
   if( !goodCaptcha ){
@@ -513,7 +516,8 @@ void attachadd_page(void){
   @ File to Attach:
   @ <input type="file" name="f" size="60"><br>
   @ Description:<br>
-  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"></textarea><br>
+  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"
+  @ >%s(zComment)</textarea><br>
   if( zForumPost ){
     @ <input type="hidden" name="forumpost" value="%h(zTarget)">
   }else if( zTkt ){

@@ -1,5 +1,5 @@
-C Slight\smisinformation\sfix\sin\sfileformat.wiki.
-D 2026-05-24T10:31:52.014
+C If\s/attachadd\sfails\sdue\sto\sa\ssize\slimit\sviolation,\sre-render\sthe\sinput\sform\sand\spopulate\sthe\sdescription\sfield\s(we\scan't\srepopulate\sthe\sfile\sselector).
+D 2026-05-24T12:06:35.398
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -387,7 +387,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c f2250f3fd1fd4c69aa8816885d47da5110cb7936adf66eae1df83e6c46f9c0a6
-F src/attach.c 16820db9e1c906c4f8b6905c7975d37755b30237dcc6c8c03bb0fddf7693fd84
+F src/attach.c b457798379523632f8e072dd5f79ff7c64497f0819bf09ac98ae74892f9527a1
 F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a7
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c4ba59b73e27fdc3fe5c158d8c047c305b2e545669c8c5340dc02952398c0fdc
-R 70b3b6c66bc5b298d0172e3fefbef975
+P 2a03fc1dbd4f7ee9409ba08402d58dbc47cc8253d308ec43f0bef95ac4f42131
+R cf8939a6a691029a65f11cf2a2992ae1
 U stephan
-Z 48b569986d6ff0a156413b7dd721f169
+Z f9411beb10f3a22f4ddf43d02e6978cc
 # Remove this line to create a well-formed Fossil manifest.
