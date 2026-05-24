@@ -576,7 +576,9 @@ void ainfo_page(void){
   zUuid = rid_to_uuid(rid);
   pAttach = manifest_get(rid, CFTYPE_ATTACHMENT, 0);
   if( pAttach==0 ) fossil_redirect_home();
-  bUserIsOwner = 0==fossil_strcmp(pAttach->zUser, login_name());
+  bUserIsOwner =
+    0==fossil_strcmp(pAttach->zUser, login_name())
+    && login_is_individual();
   zTarget = pAttach->zAttachTarget;
   zSrc = pAttach->zAttachSrc;
   ridSrc = db_int(0,"SELECT rid FROM blob WHERE uuid='%q'", zSrc);
@@ -657,6 +659,7 @@ void ainfo_page(void){
     form_begin(0, "%R/ainfo/%!S", zUuid);
     @ <p>Confirm you want to delete the attachment shown below.
     @ <input type="submit" name="confirm" value="Confirm">
+    login_insert_csrf_secret();
     @ </form>
   }
 
@@ -665,7 +668,7 @@ void ainfo_page(void){
     (zTktUuid && g.perm.ModTkt) ||
     (zWikiName && g.perm.ModWiki);
   zModAction = P("modaction");
-  if( zModAction!=0 ){
+  if( zModAction!=0 && cgi_csrf_safe(2) ){
     if( strcmp(zModAction,"delete")==0 ){
       if( isModerator || bUserIsOwner ){
         moderation_disapprove(rid);
@@ -741,6 +744,7 @@ void ainfo_page(void){
       @ Approve this change</label><br>
     }
     @ <input type="submit" value="Submit">
+    login_insert_csrf_secret();
     @ </form>
     @ </blockquote>
   }
