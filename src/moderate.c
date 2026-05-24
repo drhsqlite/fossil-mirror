@@ -227,3 +227,106 @@ void moderation_disapprove_for_missing_users(){
   setup_incr_cfgcnt();
   db_end_transaction(0);
 }
+
+/*
+** Returns true if the current user could ostensibly moderate the blob
+** refered to by rid, irrespective of whether that object is currently
+** pending moderation. If rid is not an event.objid value then this
+** returns 0.
+**
+** If bMayDeny is true then a matching user is permitted to moderate a
+** decline by not an approval. Pass 1 here if true should be returned
+** if the current user matches the artifact. When passing false, it
+** will only return true for users who have explicit moderation
+** permissions. The purpose of this is to exclude pending-moderation
+** from the current user in some contexts but not others.
+**
+** zWho is an optional user name to consider for ownership. If 0 it
+** defaults to login_name().
+**
+** The moderation rules applied here are:
+**
+** - Admins may always moderate. This is a fast path which bypasses
+**   artifact lookup. For non-admins, we look for a record in the
+**   event table.
+**
+** - Forum, Wiki, and Ticket moderators may always moderate a matching
+**   artifact. If bMayDeny is true then an artifact's owner, even if
+**   not a moderator, may moderate it.  i.e. a non-moderator owner can
+**   reject their pending-moderation objects but they may not approve
+**   them.
+**
+** - Returns 0 for all other artifact types except that it will always
+**   return true for admins because that's
+**
+ */
+int moderation_user_could(int rid, int bMayDeny, const char *zWho){
+  static Stmt q;
+  int rc = 0;
+  if( g.perm.Admin ) return g.perm.Admin;
+  if( !q.pStmt ){
+    db_static_prepare(
+      &q,
+      "SELECT coalesce(euser,user)=:user, type FROM event "
+      "WHERE objid=:rid"
+    );
+  }
+  db_bind_int(&q, ":rid", rid);
+  db_bind_text(&q, ":user", zWho ? zWho : login_name());
+  if( SQLITE_ROW==db_step(&q) ){
+    const int bIsOwner = db_column_int(&q, 0);
+    const char *zType = db_column_text(&q, 1);
+    switch( zType ? zType[0] : 0 ){
+      case 'f': rc  = g.perm.ModForum || (bIsOwner && bMayDeny); break;
+      case 't': rc  = g.perm.ModTkt || (bIsOwner && bMayDeny); break;
+      case 'w': rc  = g.perm.ModWiki || (bIsOwner && bMayDeny); break;
+      /* case 'e': Technotes and their attachments are not subject
+      ** to moderation. */
+      default: break;
+    }
+  }
+  db_reset(&q);
+  return rc;
+}
+
+
+/*
+** COMMAND: test-user-could-moderate
+**
+** Usage: %d test-user-could-modeate ?-deny? user-name ...artifactNames
+**
+** Tests whether a given user would have the ability to moderate
+** the given artifacts. The -deny flag indicates that the check should
+** permit moderation if the artifact is owned by the same user.
+*/
+void test_moderation_user_could_cmd(void){
+  const char *zWho;
+  const int bMayDeny = find_option("deny",0,0) != 0;
+  char * zCap;
+  int i;
+  db_find_and_open_repository(0,0);
+  verify_all_options();
+  if( g.argc<4 ){
+    usage("user-name artifact-names...");
+  }
+  zWho = g.zLogin = g.argv[2];
+  zCap = db_text(
+    0, "SELECT cap FROM user WHERE login=%Q", zWho
+  );
+  if( !zCap ){
+    fossil_fatal("Cannot determine capabilities of user %s", zWho);
+  }
+  login_set_capabilities(zCap, 0);
+  fossil_print("User: %s\nCaps: %s\n", zWho, zCap);
+  fossil_free(zCap);
+  for( i = 3; i < g.argc; ++i ){
+    const char * zArg = g.argv[i];
+    int rid = symbolic_name_to_rid(zArg, "*");
+    int may;
+    if( rid<=0 ){
+      fossil_fatal("Cannot resolve name: %s", zArg);
+    }
+    may = moderation_user_could(rid, bMayDeny, zWho);
+    fossil_print("%s\t\t=> %d\t=> %s\n", zArg, rid, may ? "yes" : "no");
+  }
+}

@@ -129,25 +129,41 @@ void attachlist_page(void){
   db_prepare(&q, "%s", blob_sql_text(&sql));
   @ <ol>
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 0);
-    const char *zSrc = db_column_text(&q, 1);
-    const char *zTarget = db_column_text(&q, 2);
-    const char *zFilename = db_column_text(&q, 3);
-    const char *zComment = db_column_text(&q, 4);
-    const char *zUser = db_column_text(&q, 5);
-    const char *zUuid = db_column_text(&q, 6);
+    const char *zDate;
+    const char *zSrc;
+    const char *zTarget;
+    const char *zFilename;
+    const char *zComment;
+    const char *zUser;
+    const char *zUuid;
+    const char *zDispUser;
     const int attachid = db_column_int(&q, 7);
-    /* type 0 is a wiki page, 1 is a ticket, 2 is a tech note */
-    const int type = attachment_target_type(zTarget);
-    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
+    int type;
     int i;
     char *zUrlTail = 0;
+
+    if( moderation_pending(attachid)
+        && !moderation_user_could(attachid, 1, 0) ){
+      /* Elide entries which are currently pending moderation unless
+      ** the user would be able to moderate the entry themselves. */
+      continue;
+    }
+
+    zDate = db_column_text(&q, 0);
+    zSrc = db_column_text(&q, 1);
+    zTarget = db_column_text(&q, 2);
+    zFilename = db_column_text(&q, 3);
+    zComment = db_column_text(&q, 4);
+    zUser = db_column_text(&q, 5);
+    zUuid = db_column_text(&q, 6);
+    zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     for(i=0; zFilename[i]; i++){
       if( zFilename[i]=='/' && zFilename[i+1]!=0 ){
         zFilename = &zFilename[i+1];
         i = -1;
       }
     }
+    type = attachment_target_type(zTarget);
     switch( type ){
       case CFTYPE_TICKET:
         zUrlTail = mprintf("tkt=%s&file=%t", zTarget, zFilename);
