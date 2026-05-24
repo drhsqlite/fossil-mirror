@@ -207,11 +207,11 @@ static int forum_rid_is_tagged(int rid, const char *zTagName, int bCheckIrt){
 /*
 ** Internal helper for moderation_forumpost_...().
 */
-static void forumpost_prepare_attachids(Stmt *q, int fpid){
+static void forumpost_prep_pending_attachids(Stmt *q, int fpid){
   db_prepare(
     q,
-    "SELECT attachid FROM attachment a "
-    "WHERE a.target=("
+    "SELECT attachid FROM attachment "
+    "WHERE target=("
     "  SELECT uuid FROM blob WHERE rid=%d"
     ") and attachid in ("
     "  SELECT objid FROM modreq"
@@ -220,9 +220,10 @@ static void forumpost_prepare_attachids(Stmt *q, int fpid){
   );
 }
 #endif
+
 /*
 ** Approve the given forum post RID and any pending-approval
-** attachments associated with it.
+** attachments associated with its initial version.
 */
 static void moderation_forumpost_approve(int fpid){
 #if !FORUMPOST_MOD_ATTACHMENTS
@@ -231,7 +232,7 @@ static void moderation_forumpost_approve(int fpid){
   /* Also approve any pending attachments */
   Stmt q;
   moderation_approve('f', fpid);
-  forumpost_prepare_attachids(&q, fpid);
+  forumpost_prep_pending_attachids(&q, fpid);
   while( SQLITE_ROW==db_step(&q) ){
     moderation_approve('a', db_column_int(&q, 0));
   }
@@ -239,6 +240,10 @@ static void moderation_forumpost_approve(int fpid){
 #endif
 }
 
+/*
+** Disapprove the given forum post and any pending-moderation
+** attachments on its initial version.
+*/
 static void moderation_forumpost_disapprove(int fpid){
 #if !FORUMPOST_MOD_ATTACHMENTS
   moderation_disapprove(fpid);
@@ -246,7 +251,7 @@ static void moderation_forumpost_disapprove(int fpid){
   /* Also disapprove any pending attachments */
   Stmt q;
   moderation_disapprove(fpid);
-  forumpost_prepare_attachids(&q, fpid);
+  forumpost_prep_pending_attachids(&q, fpid);
   while( SQLITE_ROW==db_step(&q) ){
     moderation_disapprove(db_column_int(&q, 0));
   }
@@ -265,14 +270,14 @@ static void moderation_forumpost_disapprove(int fpid){
 ** If addTag is true then a propagating tag is added, except as noted
 ** below, with the given optional zReason string as the tag's
 ** value. If addTag is false then any matching active tag on frid is
-** cancelled, except as noted below. zReason is ignored if doClose is
-** false or if zReason is NULL or starts with a NUL byte.
+** cancelled, except as noted below. zReason is ignored if it is NULL
+** or starts with a NUL byte, or if addTag is false.
 **
 ** This function only adds a tag if forum_rid_is_tagged() indicates
 ** that frid's head is not tagged. If a parent post is already tagged,
-** no tag is added. Similarly, it will only remove a tagtag from a
-** post which has its own tag tag, and will not remove an inherited
-** one from a parent post.
+** no tag is added. Similarly, it will only remove a tag from a post
+** which has its own tag, and will not remove an inherited one from a
+** parent post.
 **
 ** If addTag is true and frid is already tagged (directly or
 ** inherited), this is a no-op. Likewise, if addTag is false and frid
@@ -1056,7 +1061,9 @@ static void forum_display_post(
           }
           @ </form>
         }
-        if( g.perm.Admin || forumpost_is_owner(p/*not pHead*/->fpid, 0) ){
+        if( g.perm.Admin ||
+            (login_is_individual()
+             && forumpost_is_owner(p/*not pHead*/->fpid, 0)) ){
           /* When an admin edits someone else's post, the admin
           ** effectively takes over ownership of it (and we currently
           ** have no way of passing it back). Because of this, we
@@ -1065,6 +1072,7 @@ static void forum_display_post(
           @ <input type="hidden" name="forumpost" value="%T(pHead->zUuid)">
           @ <input type="submit" value="Attach...">
           login_insert_csrf_secret();
+          moderation_pending_www(p->fpid);
           @ </form>
         }
       }
