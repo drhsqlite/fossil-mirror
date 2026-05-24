@@ -742,10 +742,10 @@ void ainfo_page(void){
     @ <blockquote>
     form_begin(0, "%R/ainfo/%s", zUuid);
     @ <label><input type="radio" name="modaction" value="delete">
-    @ Delete this change</label><br>
+    @ Delete this attachment</label><br>
     if( isModerator ){
       @ <label><input type="radio" name="modaction" value="approve">
-      @ Approve this change</label><br>
+      @ Approve this attachment</label><br>
     }
     @ <input type="submit" value="Submit">
     login_insert_csrf_secret();
@@ -753,31 +753,35 @@ void ainfo_page(void){
     @ </blockquote>
   }
 
-  @ <div class="section">Content Appended</div>
-  @ <blockquote>
+  @ <div class="section">Content:</div>
   blob_zero(&attach);
-  if( fShowContent ){
-    const char *z;
-    content_get(ridSrc, &attach);
-    blob_to_utf8_no_bom(&attach, 0);
-    z = blob_str(&attach);
-    if( zLn ){
-      output_text_with_line_numbers(z, blob_size(&attach), zName, zLn, 1);
-    }else{
-      @ <pre>
-      @ %h(z)
-      @ </pre>
-    }
-  }else if( strncmp(zMime, "image/", 6)==0 ){
-    int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
-    @ <i>(file is %d(sz) bytes of image data)</i><br>
-    @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
-    style_submenu_element("Image", "%R/raw/%s?m=%s", zSrc, zMime);
+  if( modPending && !moderation_user_could(rid, 1, 0) ){
+    @ <p><span class="modpending">Content is awaiting moderator approval.</span></p>
   }else{
-    int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
-    @ <i>(file is %d(sz) bytes of binary data)</i>
-  }
-  @ </blockquote>
+    @ <blockquote>
+    if( fShowContent ){
+      const char *z;
+      content_get(ridSrc, &attach);
+      blob_to_utf8_no_bom(&attach, 0);
+      z = blob_str(&attach);
+      if( zLn ){
+        output_text_with_line_numbers(z, blob_size(&attach), zName, zLn, 1);
+      }else{
+        @ <pre>
+        @ %h(z)
+        @ </pre>
+      }
+    }else if( strncmp(zMime, "image/", 6)==0 ){
+      int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
+      @ <i>(file is %d(sz) bytes of image data)</i><br>
+      @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
+      style_submenu_element("Image", "%R/raw/%s?m=%s", zSrc, zMime);
+    }else{
+      int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
+      @ <i>(file is %d(sz) bytes of binary data)</i>
+    }
+    @ </blockquote>
+ }
   manifest_destroy(pAttach);
   blob_reset(&attach);
   style_finish_page();
