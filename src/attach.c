@@ -73,7 +73,8 @@ int attachment_target_type(const char *zTarget){
 **
 ** HASH may be just a prefix of the relevant technical note or ticket
 ** artifact hash, in which case all attachments of all technical notes or
-** tickets with the prefix will be listed.
+** tickets with the prefix will be listed. Forum posts, on the other hand,
+** require a unique hash prefix.
 */
 void attachlist_page(void){
   const char *zPage = P("page");
@@ -95,16 +96,14 @@ void attachlist_page(void){
   );
   if( zForumPost ){
     int fnid;
-    char *zUuid;
     if( g.perm.RdForum==0 ){ login_needed(g.anon.RdForum); return; }
-    style_header("Attachments To %h", zForumPost);
+    style_header("Attachments To Forum post %S", zForumPost);
     fnid = forumpost_head_rid2(zForumPost);
     if( fnid<=0 ){
       webpage_error("Invalid forum post ID: %h", zForumPost);
     }
-    zUuid = rid_to_uuid(fnid);
-    blob_append_sql(&sql, " WHERE target=%Q", zUuid);
-    fossil_free(zUuid);
+    blob_append_sql(&sql, " WHERE target="
+                    "(SELECT uuid FROM blob WHERE rid=%d)", fnid);
   }else if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     style_header("Attachments To Wiki page %h", zPage);

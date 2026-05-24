@@ -280,8 +280,8 @@ void moderation_disapprove_for_missing_users(){
 **   them.
 **
 ** - Returns 0 for all other artifact types except that it will always
-**   return true for admins because that's that check skips looking at
-**   the db.
+**   return true for admins because that check skips looking at the
+**   db.
 **
  */
 int moderation_user_could(int rid, int bMayDeny, const char *zWho){

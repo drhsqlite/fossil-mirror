@@ -838,10 +838,20 @@ static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
   return p->zDisplayName;
 }
 
+/*
+** Renders the attachment list for p or (if not NULL) pEditHead.
+** Emits no output if there are no attachments.
+*/
 static void forum_render_attachment_list(ForumPost *p){
+  char * zLbl;
   if( p->pEditHead ) p = p->pEditHead;
-  attachment_list(p->zUuid, "Attachments:",
-                  ATTACHLIST_SIZE | ATTACHLIST_HIDE_UNAPPROVED);
+  zLbl = mprintf("<a href='%R/attachlist?forumpost=%s'>"
+                 "Attachments:</a>", p->zUuid);
+  attachment_list(p->zUuid, zLbl,
+                  ATTACHLIST_HRULE_ABOVE
+                  | ATTACHLIST_SIZE
+                  | ATTACHLIST_HIDE_UNAPPROVED);
+  fossil_free(zLbl);
 }
 
 /*
