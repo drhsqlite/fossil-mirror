@@ -241,8 +241,11 @@ void moderation_disapprove_for_missing_users(){
 ** permissions. The purpose of this is to exclude pending-moderation
 ** from the current user in some contexts but not others.
 **
-** zWho is an optional user name to consider for ownership. If 0 it
-** defaults to login_name().
+** zWho is an optional user name to consider for ownership of an
+** artifact, as compared to the artifact's matching event.(euser,user)
+** fields. If 0 then it defaults to login_name(). This is strictly a
+** name comparison - it does not inspect zWho's repo-level
+** permissions.
 **
 ** The moderation rules applied here are:
 **
