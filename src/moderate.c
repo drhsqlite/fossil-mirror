@@ -67,7 +67,21 @@ int moderation_pending(int rid){
 int moderation_pending_www(int rid){
   int pending = moderation_pending(rid);
   if( pending ){
-    @ <span class="modpending">(Awaiting Moderator Approval)</span>
+#if 0
+    if( moderation_user_could(rid, 1, 0) ){
+      /* It would be nice to emit a link to the appropriate page to
+      ** approve/reject the moderation, but for that we need
+      ** artifact-type-dependent info and links. That's complicated by
+      ** the fact that deriving whether rid refers to an attachment or
+      ** an attachment target is apparently tricky because of how
+      ** attachments are recorded in the event table. */
+      @ <span class="modpending">(<a href="%R/WHAT_GOES_HERE?">\
+      @Awaiting Moderator Approval</a>)</span>
+    }else
+#endif
+    {
+      @ <span class="modpending">(Awaiting Moderator Approval)</span>
+    }
   }
   return pending;
 }
@@ -247,6 +261,12 @@ void moderation_disapprove_for_missing_users(){
 ** name comparison - it does not inspect zWho's repo-level
 ** permissions.
 **
+** Design issue: since this gets its info from the event table, it
+** cannot unambiguously distinguish between an attachment-capable
+** artifact type and attachments to one. Attachment events are encoded
+** with type=X, where X is the same as the artifact type to which the
+** attachment was applied.
+**
 ** The moderation rules applied here are:
 **
 ** - Admins may always moderate. This is a fast path which bypasses
@@ -260,7 +280,8 @@ void moderation_disapprove_for_missing_users(){
 **   them.
 **
 ** - Returns 0 for all other artifact types except that it will always
-**   return true for admins because that's
+**   return true for admins because that's that check skips looking at
+**   the db.
 **
  */
 int moderation_user_could(int rid, int bMayDeny, const char *zWho){

@@ -201,7 +201,7 @@ static int forum_rid_is_tagged(int rid, const char *zTagName, int bCheckIrt){
 }
 
 /* True if moderation of forum posts performs the same operation
-** on its attachments. UNTESTED. */
+** on its attachments. */
 #define FORUMPOST_MOD_ATTACHMENTS 1
 #if FORUMPOST_MOD_ATTACHMENTS
 /*
@@ -228,7 +228,7 @@ static void moderation_forumpost_approve(int fpid){
 #if !FORUMPOST_MOD_ATTACHMENTS
   moderation_approve('f', fpid);
 #else
-  /* UNTESTED! Also approve any pending attachments */
+  /* Also approve any pending attachments */
   Stmt q;
   moderation_approve('f', fpid);
   forumpost_prepare_attachids(&q, fpid);
@@ -243,7 +243,7 @@ static void moderation_forumpost_disapprove(int fpid){
 #if !FORUMPOST_MOD_ATTACHMENTS
   moderation_disapprove(fpid);
 #else
-  /* UNTESTED! Also disapprove any pending attachments */
+  /* Also disapprove any pending attachments */
   Stmt q;
   moderation_disapprove(fpid);
   forumpost_prepare_attachids(&q, fpid);
@@ -2103,7 +2103,7 @@ void forum_main_page(void){
   }
   cgi_check_for_malice();
   style_set_current_feature("forum");
-  style_header("%s%s", db_get("forum-title","Forum"), 
+  style_header("%s%s", db_get("forum-title","Forum"),
                        isSearch ? " Search Results" : "");
   style_submenu_element("Timeline", "%R/timeline?ss=v&y=f&vfx");
   if( g.perm.WrForum ){
