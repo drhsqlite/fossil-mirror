@@ -293,7 +293,7 @@ int moderation_user_could(int rid, int bMayDeny, const char *zWho){
 /*
 ** COMMAND: test-user-could-moderate
 **
-** Usage: %d test-user-could-modeate ?-deny? user-name ...artifactNames
+** Usage: %fossil test-user-could-moderate ?-deny? user-name ...artifactNames
 **
 ** Tests whether a given user would have the ability to moderate
 ** the given artifacts. The -deny flag indicates that the check should

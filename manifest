@@ -1,5 +1,5 @@
-C Simplify\sthe\sskip-pending-moderation\scheck\sin\sattachment_list().
-D 2026-05-24T09:04:40.457
+C Correct\s'Usage:'\stag\sfor\stest-user-could-moderate.
+D 2026-05-24T09:06:29.510
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -510,7 +510,7 @@ F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 27971d57e16450f5480efcde4431c32843546584a471cf5064f706564fabc2e9
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c d16fe90bc0cfcd2d08bafaaf6a858f5b635873e2f1b40e7c9e92a6d8cd6da162
-F src/moderate.c ecb349898939ec355297edb427ffa09d7c5e9579ac934419ab0f77e7477a134b
+F src/moderate.c d78acccdbf02a5a342c8e45f3a78dfc1c1ef3f644fdf358fc814d629adbdb8b8
 F src/name.c c4cf7d50641e231f08ba8a541e61afd3e0e83082db134fce57fc38ae1895bf91
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 1adf1a85457de922c45d649cbd77e1a483d892e5049a2b812c89a45c22948dec
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 686057e0e6b6d7ea4001f14d85c11a62893ca641680790cbf1efb63a490025e4
-R 3e62b199bbc6b871d7b99ee30649cf9e
+P c72ac2aac740bde6f35a280b5a0e5fdb981af5b7cbca4b77443f46b6ea97f570
+R 8f360899df7ecaf2329889cca37eb994
 U stephan
-Z 8c012fd7e28f91c9887457688a3fae5d
+Z f5677bf51b11190e5270c3eec4e3d8ef
 # Remove this line to create a well-formed Fossil manifest.
