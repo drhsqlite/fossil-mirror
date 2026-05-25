@@ -1116,9 +1116,8 @@ div.setup_forum-column {
   flex-direction: column;
 }
 
-body.forum div.forumPosts table tr.pinned > td:nth-child(1):before {
-  padding-right: 0.25em;
-  content: "📌";
+body.forum div.forumPosts table tr.pinned > td:nth-child(2):before {
+  content: "📌 ";
 }
 
 body.cpage-setup_forum > .content table {
