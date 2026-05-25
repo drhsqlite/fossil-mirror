@@ -2361,7 +2361,7 @@ void forum_main_page(void){
   iCnt = 0;
   if( db_table_exists("repository","forumpost") ){
     db_prepare(&q,
-      "WITH thread(age,duration,cnt,root,last,sticky) AS ("
+      "WITH thread(age,duration,cnt,root,last,pinned) AS ("
       "  SELECT"
       "    julianday('now') - max(fmtime),"
       "    max(fmtime) - min(fmtime),"
@@ -2391,7 +2391,7 @@ void forum_main_page(void){
       "  blob.uuid,"                                          /* 3 */
       "  substr(event.comment,instr(event.comment,':')+1),"   /* 4 */
       "  thread.last,"                                        /* 5 */
-      "  thread.sticky"                                       /* 6 */
+      "  thread.pinned"                                       /* 6 */
       " FROM thread, blob, event"
       " WHERE blob.rid=thread.last"
       "  AND event.objid=thread.last"
@@ -2403,7 +2403,7 @@ void forum_main_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       char *zAge = human_readable_age(db_column_double(&q,0));
       int nMsg = db_column_int(&q, 2);
-      int bSticky = db_column_int(&q, 6);
+      int bPinned = db_column_int(&q, 6);
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
       if( iCnt==0 ){
@@ -2432,21 +2432,21 @@ void forum_main_page(void){
         fossil_free(zAge);
         break;
       }
-      @ <tr%s(bSticky ? " class='sticky'" : "")><td>%h(zAge) ago</td>
-      @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a></td>
-      @ <td>\
+      @ <tr%s(bPinned ? " class='pinned'" : "")><td>%h(zAge) ago</td>
+      @ <td class='subject'>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a>\
+      @ </td><td>\
       if( g.perm.ModForum && moderation_pending(db_column_int(&q,5)) ){
         @ <span class="modpending">\
         @ Awaiting Moderator Approval</span><br>
       }
       if( nMsg<2 ){
-        @ no replies</td>
+        @ no replies\
       }else{
         char *zDuration = human_readable_age(db_column_double(&q,1));
-        @ %d(nMsg) posts spanning %h(zDuration)</td>
+        @ %d(nMsg) posts spanning %h(zDuration)\
         fossil_free(zDuration);
       }
-      @ </tr>
+      @ </td></tr>
       fossil_free(zAge);
     }
     db_finalize(&q);
