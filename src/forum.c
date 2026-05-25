@@ -83,24 +83,53 @@ int forum_rid_has_been_edited(int rid){
 }
 
 /*
-** Given a valid forumpost.fpid value, this function returns the first
-** fpid in the chain of edits for that forum post, or rid if no prior
-** versions are found.
+** Given a valid forumpost.fpid value, this function returns the
+** initial forumpost.fpid in the chain of edits for that forum post,
+** or rid if no prior versions are found.
 */
-static int forumpost_head_rid(int rid){
-  Stmt q;
+int forumpost_head_rid(int rid){
+  static Stmt q = empty_Stmt_m;
   int rcRid = rid;
-
-  db_prepare(&q, "SELECT fprev FROM forumpost"
-             " WHERE fpid=:rid AND fprev IS NOT NULL");
+  if( !q.pStmt ){
+    db_static_prepare(&q,
+       "SELECT fprev FROM forumpost"
+       " WHERE fpid=:rid AND fprev IS NOT NULL"
+    );
+  }
   db_bind_int(&q, ":rid", rid);
   while( SQLITE_ROW==db_step(&q) ){
     rcRid = db_column_int(&q, 0);
     db_reset(&q);
     db_bind_int(&q, ":rid", rcRid);
   }
-  db_finalize(&q);
+  db_reset(&q);
   return rcRid;
+}
+
+/*
+** Works like forumpost_head_rid() but expects zUuid to be an
+** unambiguous forum post name. It may be a hash prefix, so long as
+** it's unambiguous. Returns 0 if the name cannot be unambiguously
+** resolved as a forum post.
+*/
+int forumpost_head_rid2(const char *zUuid){
+  const int fpid = symbolic_name_to_rid(zUuid, "f");
+  return fpid>0
+    ? forumpost_head_rid(fpid)
+    : 0;
+}
+
+/*
+** Given a forum post RID and user name, returns true if zUserName
+** matches the event.(euser,user) field for a formpost entry with the
+** matching RID. Returns false if no match is found. If zUserName is
+** 0 then login_name() is used.
+*/
+int forumpost_is_owner(int rid, const char *zUserName){
+  return db_int(0, "SELECT 1 FROM event "
+                "WHERE type='f' AND objid=%d "
+                "AND coalesce(euser,user)=%Q",
+                rid, zUserName ? zUserName : login_name());
 }
 
 /*
@@ -171,6 +200,66 @@ static int forum_rid_is_tagged(int rid, const char *zTagName, int bCheckIrt){
   return i ? -rc : rc;
 }
 
+/* True if moderation of forum posts performs the same operation
+** on its attachments. */
+#define FORUMPOST_MOD_ATTACHMENTS 1
+#if FORUMPOST_MOD_ATTACHMENTS
+/*
+** Internal helper for moderation_forumpost_...().
+*/
+static void forumpost_prep_pending_attachids(Stmt *q, int fpid){
+  db_prepare(
+    q,
+    "SELECT attachid FROM attachment "
+    "WHERE target=("
+    "  SELECT uuid FROM blob WHERE rid=%d"
+    ") and attachid in ("
+    "  SELECT objid FROM modreq"
+    ")",
+    forumpost_head_rid(fpid)
+  );
+}
+#endif
+
+/*
+** Approve the given forum post RID and any pending-approval
+** attachments associated with its initial version.
+*/
+static void moderation_forumpost_approve(int fpid){
+#if !FORUMPOST_MOD_ATTACHMENTS
+  moderation_approve('f', fpid);
+#else
+  /* Also approve any pending attachments */
+  Stmt q;
+  moderation_approve('f', fpid);
+  forumpost_prep_pending_attachids(&q, fpid);
+  while( SQLITE_ROW==db_step(&q) ){
+    moderation_approve('a', db_column_int(&q, 0));
+  }
+  db_finalize(&q);
+#endif
+}
+
+/*
+** Disapprove the given forum post and any pending-moderation
+** attachments on its initial version.
+*/
+static void moderation_forumpost_disapprove(int fpid){
+#if !FORUMPOST_MOD_ATTACHMENTS
+  moderation_disapprove(fpid);
+#else
+  /* Also disapprove any pending attachments */
+  Stmt q;
+  moderation_disapprove(fpid);
+  forumpost_prep_pending_attachids(&q, fpid);
+  while( SQLITE_ROW==db_step(&q) ){
+    moderation_disapprove(db_column_int(&q, 0));
+  }
+  db_finalize(&q);
+#endif
+}
+#undef FORUMPOST_MOD_ATTACHMENTS
+
 /*
 ** Applies or cancels a tag named zTagName on the given forum RID via
 ** addition of a new control artifact into the repository. In order to
@@ -181,14 +270,14 @@ static int forum_rid_is_tagged(int rid, const char *zTagName, int bCheckIrt){
 ** If addTag is true then a propagating tag is added, except as noted
 ** below, with the given optional zReason string as the tag's
 ** value. If addTag is false then any matching active tag on frid is
-** cancelled, except as noted below. zReason is ignored if doClose is
-** false or if zReason is NULL or starts with a NUL byte.
+** cancelled, except as noted below. zReason is ignored if it is NULL
+** or starts with a NUL byte, or if addTag is false.
 **
 ** This function only adds a tag if forum_rid_is_tagged() indicates
 ** that frid's head is not tagged. If a parent post is already tagged,
-** no tag is added. Similarly, it will only remove a tagtag from a
-** post which has its own tag tag, and will not remove an inherited
-** one from a parent post.
+** no tag is added. Similarly, it will only remove a tag from a post
+** which has its own tag, and will not remove an inherited one from a
+** parent post.
 **
 ** If addTag is true and frid is already tagged (directly or
 ** inherited), this is a no-op. Likewise, if addTag is false and frid
@@ -288,8 +377,11 @@ static int forumpost_close_policy(void){
 ** Returns 1 if the current user is an admin, -1 if the current user
 ** is a forum moderator and the forum-close-policy setting is true,
 ** else returns 0. The value is cached for subsequent calls.
+**
+** This policy also determines whether non-admin forum moderators
+** may delete forum attachments.
 */
-static int forumpost_may_close(void){
+int forumpost_may_close(void){
   static int permClose = -99;
   if( permClose!=-99 ){
     return permClose;
@@ -751,6 +843,27 @@ static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
   return p->zDisplayName;
 }
 
+/*
+** Renders the attachment list for the given forum post.
+** Emits no output if there are no attachments.
+*/
+static void forum_render_attachment_list(const char *zUuid){
+  char * zLbl = mprintf("<a href='%R/attachlist?forumpost=%s'>"
+                        "Attachments:</a>", zUuid);
+  attachment_list(zUuid, zLbl,
+                  ATTACHLIST_HRULE_ABOVE
+                  | ATTACHLIST_SIZE
+                  | ATTACHLIST_HIDE_UNAPPROVED);
+  fossil_free(zLbl);
+}
+
+/*
+** Renders the attachment list for p or (if not NULL) pEditHead.
+*/
+static void forum_render_attachment_list2(ForumPost *p){
+  if( p->pEditHead ) p = p->pEditHead;
+  forum_render_attachment_list(p->zUuid);
+}
 
 /*
 ** Display a single post in a forum thread.
@@ -896,6 +1009,7 @@ static void forum_display_post(
       zMimetype = pManifest->zMimetype;
     }
     forum_render(0, zMimetype, pManifest->zWiki, 0, !bRaw);
+    forum_render_attachment_list2(p);
   }
 
   /* When not in raw mode, finish creating the border around the post. */
@@ -939,17 +1053,34 @@ static void forum_display_post(
       }
       login_insert_csrf_secret();
       @ </form>
-      if( bSelect && forumpost_may_close() && iClosed>=0 ){
-        int iHead = forumpost_head_rid(p->fpid);
-        @ <form method="post" \
-        @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
-        login_insert_csrf_secret();
-        @ <input type="hidden" name="fpid" value="%z(rid_to_uuid(iHead))" />
-        if( moderation_pending(p->fpid)==0 ){
-          @ <input type="button" value='%s(iClosed ? "Re-open" : "Close")' \
-          @  class='%s(iClosed ? "action-reopen" : "action-close")'/>
+
+      if( bSelect ){
+        const ForumPost *pHead = p->pEditHead ? p->pEditHead : p;
+        if( forumpost_may_close() && iClosed>=0 ){
+          @ <form method="post" \
+          @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
+          login_insert_csrf_secret();
+          @ <input type="hidden" name="fpid" value="%s(pHead->zUuid)" />
+          if( moderation_pending(p->fpid)==0 ){
+            @ <input type="button" value='%s(iClosed ? "Re-open" : "Close")' \
+            @  class='%s(iClosed ? "action-reopen" : "action-close")'/>
+          }
+          @ </form>
         }
-        @ </form>
+        if( g.perm.Admin ||
+            (login_is_individual()
+             && forumpost_is_owner(p/*not pHead*/->fpid, 0)) ){
+          /* When an admin edits someone else's post, the admin
+          ** effectively takes over ownership of it (and we currently
+          ** have no way of passing it back). Because of this, we
+          ** check the ownership of `p` instead of `pHead`. */
+          @ <form method="post" action="%R/attachadd">\
+          @ <input type="hidden" name="forumpost" value="%T(pHead->zUuid)">
+          @ <input type="submit" value="Attach...">
+          login_insert_csrf_secret();
+          moderation_pending_www(p->fpid);
+          @ </form>
+        }
       }
       @ </div>
     }
@@ -1282,7 +1413,7 @@ void forumthread_page(void){
 /*
 ** Return true if a forum post should be moderated.
 */
-static int forum_need_moderation(void){
+int forum_need_moderation(void){
   if( P("domod") ) return 1;
   if( g.perm.WrTForum ) return 0;
   if( g.perm.ModForum ) return 0;
@@ -1569,6 +1700,18 @@ static void forum_render_debug_options(void){
 }
 
 /*
+** If the user has AttachForum permissions, emit a notice that
+** attachments may be added after saving. If p is not NULL,
+** also emit its list of attachments.
+*/
+static void forum_render_attachment_notice(void){
+  if( g.perm.AttachForum ){
+    @ <div>You will be able to attach files to this post after saving
+    @ it.</div>
+  }
+}
+
+/*
 ** WEBPAGE: forume1
 **
 ** Start a new forum thread.
@@ -1606,6 +1749,7 @@ void forumnew_page(void){
   forum_render_debug_options();
   login_insert_csrf_secret();
   @ </form>
+  forum_render_attachment_notice();
   forum_emit_js();
   style_finish_page();
 }
@@ -1663,7 +1807,7 @@ void forumedit_page(void){
   if( isCsrfSafe && (g.perm.ModForum || (bPrivate && bSameUser)) ){
     if( g.perm.ModForum && P("approve") ){
       const char *zUserToTrust;
-      moderation_approve('f', fpid);
+      moderation_forumpost_approve(fpid);
       if( g.perm.AdminForum
        && PB("trust")
        && (zUserToTrust = P("trustuser"))!=0
@@ -1684,7 +1828,7 @@ void forumedit_page(void){
           " WHERE forumpost.fpid=%d AND blob.rid=forumpost.firt",
           fpid
         );
-      moderation_disapprove(fpid);
+      moderation_forumpost_disapprove(fpid);
       if( zParent ){
         cgi_redirectf("%R/forumpost/%S",zParent);
       }else{
@@ -1799,6 +1943,10 @@ void forumedit_page(void){
   forum_render_debug_options();
   login_insert_csrf_secret();
   @ </form>
+  if( !bReply ){
+    forum_render_attachment_list(rid_to_uuid(fpid));
+  }
+  forum_render_attachment_notice();
   forum_emit_js();
   style_finish_page();
 }
@@ -1809,6 +1957,8 @@ void forumedit_page(void){
 ** to closed posts. If false, only administrators may do so. Note that
 ** this only affects the forum web UI, not post-closing tags which
 ** arrive via the command-line or from synchronization with a remote.
+** This policy also determines whether moderators may delete forum
+** attachments.
 */
 /*
 ** SETTING: forum-title          width=20 default=Forum
@@ -1816,6 +1966,10 @@ void forumedit_page(void){
 ** default is just "Forum".  But in some setups, admins might want to
 ** change it to "Developer Forum" or "User Forum" or whatever other name
 ** seems more appropriate for the particular usage.
+**
+** SETTING: attachment-size-limit    width=16
+** The maximum number of bytes for an attachment. The default (or 0) is
+** unlimited but a limit may be imposed by the web server or a proxy.
 */
 
 /*
@@ -1937,7 +2091,7 @@ void forum_setup(void){
         entry_attribute("", 25, pSetting->name, zQP/*works-like:""*/,
                         pSetting->def, 0);
         @ </td></tr>
-      }   
+      }
     }
     @ </tbody></table>
     @ <input type='submit' name='submit' value='Apply changes'>
@@ -1976,7 +2130,7 @@ void forum_main_page(void){
   }
   cgi_check_for_malice();
   style_set_current_feature("forum");
-  style_header("%s%s", db_get("forum-title","Forum"), 
+  style_header("%s%s", db_get("forum-title","Forum"),
                        isSearch ? " Search Results" : "");
   style_submenu_element("Timeline", "%R/timeline?ss=v&y=f&vfx");
   if( g.perm.WrForum ){

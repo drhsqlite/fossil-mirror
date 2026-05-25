@@ -16,6 +16,11 @@
        "[/help/sqlite3|fossil sql]" command.
   <li> The captcha now uses light-gray boxes as the background, instead of
        spaces, to work around width inconsistencies in some fonts.
+  <li> Forum posts may now have attachments if their poster has the new "B"
+       capability.</li>
+  <li> Add the "[/help/attachment-size-limit|attachment-size-limit]" setting
+       to limit the size of file attachments to wiki pages, tech notes,
+       tickets, and forum posts.
 </ol>
 
 <h2 id='v2_28'>Changes for version 2.28 (2026-03-11)</h2><ol>

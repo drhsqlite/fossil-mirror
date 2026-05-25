@@ -22,26 +22,65 @@
 #include <assert.h>
 
 /*
+** Given a presumedly legal attachment target name, this guesses the
+** target type and returns one of CFTYPE_FORUM, CFTYPE_WIKI,
+** CFTYPE_TICKET, or CFTYPE_EVENT. Returns 0 if it cannot
+** distinguish the target type.
+**
+** In the case of CFTYPE_FORUM, it is up to the caller to ensure that,
+** if needed, they resolve zTarget using forumpost_head_rid2() so that
+** they get the RID of the earliest version of the post, as that is
+** the only one which attachments should target.
+*/
+int attachment_target_type(const char *zTarget){
+  static Stmt q = empty_Stmt_m;
+  int rc = 0;
+  if( forumpost_head_rid2(zTarget)>0 ){
+    return CFTYPE_FORUM;
+  }
+  if( !q.pStmt ){
+    db_static_prepare(
+      &q,
+      "SELECT CASE "
+      "WHEN 'tkt-'||:tgt IN (SELECT tagname FROM tag) THEN %d "
+      "WHEN 'event-'||:tgt IN (SELECT tagname FROM tag) THEN %d "
+      "WHEN 'wiki-'||:tgt IN (SELECT tagname FROM tag) THEN %d "
+      "ELSE 0 END",
+      CFTYPE_TICKET, CFTYPE_EVENT, CFTYPE_WIKI
+    );
+  }
+  db_bind_text(&q, ":tgt", zTarget);
+  if( SQLITE_ROW==db_step(&q) ){
+    rc = db_column_int(&q, 0);
+  }
+  db_reset(&q);
+  return rc;
+}
+
+/*
 ** WEBPAGE: attachlist
 ** List attachments.
 **
 **    tkt=HASH
 **    page=WIKIPAGE
 **    technote=HASH
+**    forumpost=HASH
 **
-** At most one of technote=, tkt= or page= may be supplied.
+** At most one of technote=, tkt=, forumpost=, or page= may be supplied.
 **
 ** If none are given, all attachments are listed.  If one is given, only
 ** attachments for the designated technote, ticket or wiki page are shown.
 **
 ** HASH may be just a prefix of the relevant technical note or ticket
 ** artifact hash, in which case all attachments of all technical notes or
-** tickets with the prefix will be listed.
+** tickets with the prefix will be listed. Forum posts, on the other hand,
+** require a unique hash prefix.
 */
 void attachlist_page(void){
   const char *zPage = P("page");
   const char *zTkt = P("tkt");
   const char *zTechNote = P("technote");
+  const char *zForumPost = P("forumpost");
   Blob sql;
   Stmt q;
 
@@ -52,17 +91,22 @@ void attachlist_page(void){
   blob_append_sql(&sql,
      "SELECT datetime(mtime,toLocal()), src, target, filename,"
      "       comment, user,"
-     "       (SELECT uuid FROM blob WHERE rid=attachid), attachid,"
-     "       (CASE WHEN 'tkt-'||target IN (SELECT tagname FROM tag)"
-     "                  THEN 1"
-     "             WHEN 'event-'||target IN (SELECT tagname FROM tag)"
-     "                  THEN 2"
-     "             ELSE 0 END)"
+     "       (SELECT uuid FROM blob WHERE rid=attachid), attachid"
      "  FROM attachment"
   );
-  if( zPage ){
+  if( zForumPost ){
+    int fnid;
+    if( g.perm.RdForum==0 ){ login_needed(g.anon.RdForum); return; }
+    style_header("Attachments To Forum post %S", zForumPost);
+    fnid = forumpost_head_rid2(zForumPost);
+    if( fnid<=0 ){
+      webpage_error("Invalid forum post ID: %h", zForumPost);
+    }
+    blob_append_sql(&sql, " WHERE target="
+                    "(SELECT uuid FROM blob WHERE rid=%d)", fnid);
+  }else if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
-    style_header("Attachments To %h", zPage);
+    style_header("Attachments To Wiki page %h", zPage);
     blob_append_sql(&sql, " WHERE target=%Q", zPage);
   }else if( zTkt ){
     if( g.perm.RdTkt==0 ){ login_needed(g.anon.RdTkt); return; }
@@ -70,7 +114,7 @@ void attachlist_page(void){
     blob_append_sql(&sql, " WHERE target GLOB '%q*'", zTkt);
   }else if( zTechNote ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
-    style_header("Attachments to Tech Note %S", zTechNote);
+    style_header("Attachments To Tech Note %S", zTechNote);
     blob_append_sql(&sql, " WHERE target GLOB '%q*'",
                     zTechNote);
   }else{
@@ -84,31 +128,54 @@ void attachlist_page(void){
   db_prepare(&q, "%s", blob_sql_text(&sql));
   @ <ol>
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 0);
-    const char *zSrc = db_column_text(&q, 1);
-    const char *zTarget = db_column_text(&q, 2);
-    const char *zFilename = db_column_text(&q, 3);
-    const char *zComment = db_column_text(&q, 4);
-    const char *zUser = db_column_text(&q, 5);
-    const char *zUuid = db_column_text(&q, 6);
-    int attachid = db_column_int(&q, 7);
-    /* type 0 is a wiki page, 1 is a ticket, 2 is a tech note */
-    int type = db_column_int(&q, 8);
-    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
+    const char *zDate;
+    const char *zSrc;
+    const char *zTarget;
+    const char *zFilename;
+    const char *zComment;
+    const char *zUser;
+    const char *zUuid;
+    const char *zDispUser;
+    const int attachid = db_column_int(&q, 7);
+    int type;
     int i;
-    char *zUrlTail;
+    char *zUrlTail = 0;
+
+    if( moderation_pending(attachid)
+        && !moderation_user_could(attachid, 1, 0) ){
+      /* Elide entries which are currently pending moderation unless
+      ** the user would be able to moderate the entry themselves. */
+      continue;
+    }
+
+    zDate = db_column_text(&q, 0);
+    zSrc = db_column_text(&q, 1);
+    zTarget = db_column_text(&q, 2);
+    zFilename = db_column_text(&q, 3);
+    zComment = db_column_text(&q, 4);
+    zUser = db_column_text(&q, 5);
+    zUuid = db_column_text(&q, 6);
+    zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     for(i=0; zFilename[i]; i++){
       if( zFilename[i]=='/' && zFilename[i+1]!=0 ){
         zFilename = &zFilename[i+1];
         i = -1;
       }
     }
-    if( type==1 ){
-      zUrlTail = mprintf("tkt=%s&file=%t", zTarget, zFilename);
-    }else if( type==2 ){
-      zUrlTail = mprintf("technote=%s&file=%t", zTarget, zFilename);
-    }else{
-      zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
+    type = attachment_target_type(zTarget);
+    switch( type ){
+      case CFTYPE_TICKET:
+        zUrlTail = mprintf("tkt=%s&file=%t", zTarget, zFilename);
+        break;
+      case CFTYPE_EVENT:
+        zUrlTail = mprintf("technote=%s&file=%t", zTarget, zFilename);
+        break;
+      case CFTYPE_FORUM:
+        zUrlTail = mprintf("forumpost=%t&file=%t", zTarget, zFilename);
+        break;
+      case CFTYPE_WIKI:
+        zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
+        break;
     }
     @ <li><p>
     @ Attachment %z(href("%R/ainfo/%!S",zUuid))%S(zUuid)</a>
@@ -119,21 +186,33 @@ void attachlist_page(void){
     if( zComment && zComment[0] ){
       @ %!W(zComment)<br>
     }
-    if( zPage==0 && zTkt==0 && zTechNote==0 ){
+    if( zForumPost==0 && zPage==0 && zTkt==0 && zTechNote==0 ){
       if( zSrc==0 || zSrc[0]==0 ){
         zSrc = "Deleted from";
       }else {
         zSrc = "Added to";
       }
-      if( type==1 ){
-        @ %s(zSrc) ticket <a href="%R/tktview?name=%s(zTarget)">
-        @ %S(zTarget)</a>
-      }else if( type==2 ){
-        @ %s(zSrc) tech note <a href="%R/technote/%s(zTarget)">
-        @ %S(zTarget)</a>
-      }else{
-        @ %s(zSrc) wiki page <a href="%R/wiki?name=%t(zTarget)">
-        @ %h(zTarget)</a>
+      switch( type ){
+        case CFTYPE_TICKET:
+          @ %s(zSrc) ticket <a href="%R/tktview?name=%s(zTarget)">
+          @ %S(zTarget)</a>
+          break;
+        case CFTYPE_EVENT:
+          @ %s(zSrc) tech note <a href="%R/technote/%s(zTarget)">
+          @ %S(zTarget)</a>
+          break;
+        case CFTYPE_WIKI:
+          @ %s(zSrc) wiki page <a href="%R/wiki?name=%t(zTarget)">
+          @ %h(zTarget)</a>
+          break;
+        case CFTYPE_FORUM:
+          @ %s(zSrc) forum post <a href="%R/forumpost/%s(zTarget)">
+          @ %h(zTarget)</a>
+          break;
+        default:
+          @ <span class='error'>%s(zSrc) cannot determine target type
+          @ of %h(zTarget)</span>
+        break;
       }
     }else{
       if( zSrc==0 || zSrc[0]==0 ){
@@ -164,6 +243,7 @@ void attachlist_page(void){
 **    tkt=HASH
 **    page=WIKIPAGE
 **    technote=HASH
+**    forumpost=HASH
 **    file=FILENAME
 **    attachid=ID
 **
@@ -172,15 +252,22 @@ void attachview_page(void){
   const char *zPage = P("page");
   const char *zTkt = P("tkt");
   const char *zTechNote = P("technote");
+  const char *zForumPost = P("forumpost");
   const char *zFile = P("file");
   const char *zTarget = 0;
   int attachid = atoi(PD("attachid","0"));
-  char *zUUID;
+  char *zUUID = 0;
 
   if( zFile==0 ) fossil_redirect_home();
   login_check_credentials();
   style_set_current_feature("attach");
-  if( zPage ){
+  if( zForumPost ){
+    int fnid;
+    if( g.perm.RdForum==0 ){ login_needed(g.anon.RdForum); return; }
+    /* Forum attachments are always tied to the post's initial version */
+    fnid = forumpost_head_rid2(zForumPost);
+    if( fnid>0 ) zTarget = rid_to_uuid(fnid);
+  }else if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     zTarget = zPage;
   }else if( zTkt ){
@@ -316,31 +403,56 @@ void attach_commit(
 **    tkt=HASH
 **    page=WIKIPAGE
 **    technote=HASH
+**    forumpost=HASH
 **    from=URL
 **
 */
 void attachadd_page(void){
   const char *zPage = P("page");
+  const char *zForumPost = P("forumpost");
   const char *zTkt = P("tkt");
   const char *zTechNote = P("technote");
   const char *zFrom = P("from");
   const char *aContent = P("f");
   const char *zName = PD("f:filename","unknown");
+  const char *zComment = PD("comment", "");
   const char *zTarget;
-  char *zTargetType;
+  char * zTo = 0;
+  char *zTargetType = 0;
+  char *zExtraFree = 0;
   int szContent = atoi(PD("f:bytes","0"));
   int goodCaptcha = 1;
+  int szLimit = 0;
 
+  if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ) cgi_redirect(zFrom);
-  if( (zPage && zTkt)
-   || (zPage && zTechNote)
-   || (zTkt && zTechNote)
-  ){
-   fossil_redirect_home();
+  if( (!!zPage + !!zTkt + !!zTechNote + !!zForumPost)!=1 ){
+    webpage_error("Requires exactly one one: page=X, tkt=X, forumpost=X,"
+                  " or technote=X");
   }
-  if( zPage==0 && zTkt==0 && zTechNote==0) fossil_redirect_home();
   login_check_credentials();
-  if( zPage ){
+  if( zForumPost ){
+    int fpid;
+    if( g.perm.AttachForum==0 ){
+      login_needed(g.anon.AttachForum);
+      return;
+    }
+    fpid = forumpost_head_rid2(zForumPost);
+    if( fpid<=0 ){
+      webpage_error("Invalid forum post ID: %h", zForumPost);
+    }else if( !g.perm.Admin && !forumpost_is_owner(fpid, 0) ){
+      webpage_error("Only admins can attach files to other users' "
+                   "forum posts.");
+    }
+    zTarget = zExtraFree = rid_to_uuid(fpid);
+    zTargetType = mprintf("Forum post <a href=\"%R/forumpost/%S\">%h</a>",
+                          zTarget, zForumPost);
+    zTo = 1
+      ? mprintf("%R/forumpost/%S", zTarget)
+      : mprintf("%R/attachview?forumpost=%T&file=%T",
+                zTarget, zName)
+      /* Or we could return directly to the forum post. */;
+  }else if( zPage ){
     if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
       login_needed(g.anon.ApndWiki && g.anon.Attach);
       return;
@@ -366,6 +478,7 @@ void attachadd_page(void){
                            zTechNote, zTechNote);
 
   }else{
+    assert( zTkt );
     if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
       login_needed(g.anon.ApndTkt && g.anon.Attach);
       return;
@@ -379,17 +492,21 @@ void attachadd_page(void){
     zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
                           zTkt, zTkt);
   }
-  if( zFrom==0 ) zFrom = mprintf("%R/home");
-  if( P("cancel") ){
-    cgi_redirect(zFrom);
-  }
-  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct(0)) ){
-    int needModerator = (zTkt!=0 && ticket_need_moderation(0)) ||
+  szLimit = db_get_int("attachment-size-limit", 0);
+  if( szContent<0 || (szLimit && szContent>szLimit) ){
+    /* This check must be done late so that zTargetType is set up. */
+    @ <p class="generalError">Attachment %h(zName) is too large.
+    @ <a href="%R/help/attachment-size-limit">Limit</a> is
+    @ %d(szLimit ? szLimit : 0x7fffffff) bytes</p>
+    /* Fall through and render form. */
+   }else if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct(0)) ){
+    int needModerator = (zForumPost!=0 && forum_need_moderation()) ||
+                        (zTkt!=0 && ticket_need_moderation(0)) ||
                         (zPage!=0 && wiki_need_moderation(0));
-    const char *zComment = PD("comment", "");
     attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
-    cgi_redirect(zFrom);
+    cgi_redirect(zTo ? zTo : zFrom);
   }
+
   style_set_current_feature("attach");
   style_header("Add Attachment");
   if( !goodCaptcha ){
@@ -401,8 +518,11 @@ void attachadd_page(void){
   @ File to Attach:
   @ <input type="file" name="f" size="60"><br>
   @ Description:<br>
-  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"></textarea><br>
-  if( zTkt ){
+  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"\
+  @ >%h(zComment)</textarea><br>
+  if( zForumPost ){
+    @ <input type="hidden" name="forumpost" value="%h(zTarget)">
+  }else if( zTkt ){
     @ <input type="hidden" name="tkt" value="%h(zTkt)">
   }else if( zTechNote ){
     @ <input type="hidden" name="technote" value="%h(zTechNote)">
@@ -417,11 +537,14 @@ void attachadd_page(void){
   @ </form>
   style_finish_page();
   fossil_free(zTargetType);
+  fossil_free(zExtraFree);
 }
 
 /*
 ** WEBPAGE: ainfo
 ** URL: /ainfo?name=ARTIFACTID
+**
+**    name=ATTACHMENT_ARTIFACT_UUID
 **
 ** Show the details of an attachment artifact.
 */
@@ -438,12 +561,15 @@ void ainfo_page(void){
   const char *zWikiName = 0;     /* Wiki page name when attached to Wiki */
   const char *zTNUuid = 0;       /* Tech Note ID when attached to tech note */
   const char *zTktUuid = 0;      /* Ticket ID when attached to a ticket */
+  const char *zForumPost = 0;    /* Forum UID when attached to forum post */
   int modPending;                /* True if awaiting moderation */
   const char *zModAction;        /* Moderation action or NULL */
   int isModerator;               /* TRUE if user is the moderator */
   const char *zMime;             /* MIME Type */
   Blob attach;                   /* Content of the attachment */
-  int fShowContent = 0;
+  int fShowContent = 0;          /* True to emit the content */
+  int bUserIsOwner = 0;          /* True if pAttach->zUser is login_name() */
+  int showDelMenu = 0;           /* True to enable delete option */
   const char *zLn = P("ln");
 
   login_check_credentials();
@@ -453,9 +579,12 @@ void ainfo_page(void){
   }
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
-  zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
+  zUuid = rid_to_uuid(rid);
   pAttach = manifest_get(rid, CFTYPE_ATTACHMENT, 0);
   if( pAttach==0 ) fossil_redirect_home();
+  bUserIsOwner =
+    0==fossil_strcmp(pAttach->zUser, login_name())
+    && login_is_individual();
   zTarget = pAttach->zAttachTarget;
   zSrc = pAttach->zAttachSrc;
   ridSrc = db_int(0,"SELECT rid FROM blob WHERE uuid='%q'", zSrc);
@@ -463,40 +592,51 @@ void ainfo_page(void){
   zDesc = pAttach->zComment;
   zMime = mimetype_from_name(zName);
   fShowContent = zMime ? strncmp(zMime,"text/", 5)==0 : 0;
-  if( validate16(zTarget, strlen(zTarget))
+  if( db_int(0,"SELECT 1 FROM event WHERE objid=%d and type='f'", rid) ){
+    if( !g.perm.RdForum ){ login_needed(g.anon.RdForum); return; }
+    showDelMenu = g.perm.Admin || bUserIsOwner;
+    zForumPost = zTarget;
+  }else if( validate16(zTarget, strlen(zTarget))
    && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%q'", zTarget)
   ){
-    zTktUuid = zTarget;
     if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
-    if( g.perm.WrTkt ){
-      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
-    }
+    zTktUuid = zTarget;
+    showDelMenu = g.perm.WrTkt;
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",zTarget) ){
+    if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
     zWikiName = zTarget;
-    if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
-    if( g.perm.WrWiki ){
-      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
-    }
+    showDelMenu = g.perm.WrWiki;
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",zTarget) ){
-    zTNUuid = zTarget;
     if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
-    if( g.perm.Write && g.perm.WrWiki ){
-      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
-    }
+    zTNUuid = zTarget;
+    showDelMenu = g.perm.Write && g.perm.WrWiki;
+  }
+  if( showDelMenu ){
+    style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
   }
   zDate = db_text(0, "SELECT datetime(%.12f)", pAttach->rDate);
 
   if( P("confirm")
-   && ((zTktUuid && g.perm.WrTkt) ||
+   && cgi_csrf_safe(2)
+   && ((zForumPost
+        && ((bUserIsOwner && g.perm.AttachForum) ||
+            forumpost_may_close())) ||
+       (zTktUuid && g.perm.WrTkt) ||
        (zWikiName && g.perm.WrWiki) ||
        (zTNUuid && g.perm.Write && g.perm.WrWiki))
   ){
+    /* Delete attachment. */
     int i, n, rid;
-    char *zDate;
+    char *zNewDate;
     Blob manifest;
     Blob cksum;
     const char *zFile = zName;
 
+    if( !bUserIsOwner ){
+      if( zForumPost ? !forumpost_may_close() : !g.perm.Admin ){
+        webpage_error("Only admins can delete other users' attachments.");
+      }
+    }
     db_begin_transaction();
     blob_zero(&manifest);
     for(i=n=0; zFile[i]; i++){
@@ -505,8 +645,8 @@ void ainfo_page(void){
     zFile += n;
     if( zFile[0]==0 ) zFile = "unknown";
     blob_appendf(&manifest, "A %F %F\n", zFile, zTarget);
-    zDate = date_in_standard_format("now");
-    blob_appendf(&manifest, "D %s\n", zDate);
+    zNewDate = date_in_standard_format("now");
+    blob_appendf(&manifest, "D %s\n", zNewDate);
     blob_appendf(&manifest, "U %F\n", login_name());
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
@@ -514,33 +654,44 @@ void ainfo_page(void){
     manifest_crosslink(rid, &manifest, MC_NONE);
     db_end_transaction(0);
     @ <p>The attachment below has been deleted.</p>
+    fossil_free(zNewDate);
   }
 
   if( P("del")
-   && ((zTktUuid && g.perm.WrTkt) ||
+      && ((zForumPost && (bUserIsOwner || forumpost_may_close())) ||
+       (zTktUuid && g.perm.WrTkt) ||
        (zWikiName && g.perm.WrWiki) ||
        (zTNUuid && g.perm.Write && g.perm.WrWiki))
   ){
     form_begin(0, "%R/ainfo/%!S", zUuid);
     @ <p>Confirm you want to delete the attachment shown below.
     @ <input type="submit" name="confirm" value="Confirm">
+    login_insert_csrf_secret();
     @ </form>
   }
 
   isModerator = g.perm.Admin ||
-                (zTktUuid && g.perm.ModTkt) ||
-                (zWikiName && g.perm.ModWiki);
-  if( isModerator && (zModAction = P("modaction"))!=0 ){
+    (zForumPost && g.perm.ModForum) ||
+    (zTktUuid && g.perm.ModTkt) ||
+    (zWikiName && g.perm.ModWiki);
+  zModAction = P("modaction");
+  if( zModAction!=0 && cgi_csrf_safe(2) ){
     if( strcmp(zModAction,"delete")==0 ){
-      moderation_disapprove(rid);
-      if( zTktUuid ){
+      if( isModerator || bUserIsOwner ){
+        moderation_disapprove(rid);
+      }
+      if( zForumPost ){
+        cgi_redirectf("%R/forumpost/%!S", zForumPost);
+      }else if( zTktUuid ){
         cgi_redirectf("%R/tktview/%!S", zTktUuid);
-      }else{
+      }else if( zWikiName ) {
         cgi_redirectf("%R/wiki?name=%t", zWikiName);
       }
+      /* zTNUuid is intentionally unhandled. Tech note attachments
+      ** don't go through moderation. */
       return;
     }
-    if( strcmp(zModAction,"approve")==0 ){
+    if( isModerator && strcmp(zModAction,"approve")==0 ){
       moderation_approve('a', rid);
     }
   }
@@ -560,15 +711,16 @@ void ainfo_page(void){
     @ (%d(rid))
   }
   modPending = moderation_pending_www(rid);
-  if( zTktUuid ){
+  if( zForumPost ){
+    @ <tr><th>Forum&nbsp;Post:</th>
+    @ <td>%z(href("%R/forumpost/%s",zForumPost))%h(zForumPost)</a></td></tr>
+  }else if( zTktUuid ){
     @ <tr><th>Ticket:</th>
     @ <td>%z(href("%R/tktview/%s",zTktUuid))%s(zTktUuid)</a></td></tr>
-  }
-  if( zTNUuid ){
+  }else if( zTNUuid ){
     @ <tr><th>Tech Note:</th>
     @ <td>%z(href("%R/technote/%s",zTNUuid))%s(zTNUuid)</a></td></tr>
-  }
-  if( zWikiName ){
+  }else if( zWikiName ){
     @ <tr><th>Wiki&nbsp;Page:</th>
     @ <td>%z(href("%R/wiki?name=%t",zWikiName))%h(zWikiName)</a></td></tr>
   }
@@ -588,48 +740,67 @@ void ainfo_page(void){
   @ <tr><th valign="top">Description:</th><td valign="top">%h(zDesc)</td></tr>
   @ </table>
 
-  if( isModerator && modPending ){
+  if( modPending && (isModerator || bUserIsOwner) ){
     @ <div class="section">Moderation</div>
     @ <blockquote>
     form_begin(0, "%R/ainfo/%s", zUuid);
     @ <label><input type="radio" name="modaction" value="delete">
-    @ Delete this change</label><br>
-    @ <label><input type="radio" name="modaction" value="approve">
-    @ Approve this change</label><br>
+    @ Delete this attachment</label><br>
+    if( isModerator ){
+      @ <label><input type="radio" name="modaction" value="approve">
+      @ Approve this attachment</label><br>
+    }
     @ <input type="submit" value="Submit">
+    login_insert_csrf_secret();
     @ </form>
     @ </blockquote>
   }
 
-  @ <div class="section">Content Appended</div>
-  @ <blockquote>
+  @ <div class="section">Content:</div>
   blob_zero(&attach);
-  if( fShowContent ){
-    const char *z;
-    content_get(ridSrc, &attach);
-    blob_to_utf8_no_bom(&attach, 0);
-    z = blob_str(&attach);
-    if( zLn ){
-      output_text_with_line_numbers(z, blob_size(&attach), zName, zLn, 1);
-    }else{
-      @ <pre>
-      @ %h(z)
-      @ </pre>
-    }
-  }else if( strncmp(zMime, "image/", 6)==0 ){
-    int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
-    @ <i>(file is %d(sz) bytes of image data)</i><br>
-    @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
-    style_submenu_element("Image", "%R/raw/%s?m=%s", zSrc, zMime);
+  if( modPending && !moderation_user_could(rid, 1, 0) ){
+    @ <p><span class="modpending">Content is awaiting moderator \
+    @ approval.</span></p>
   }else{
-    int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
-    @ <i>(file is %d(sz) bytes of binary data)</i>
-  }
-  @ </blockquote>
+    @ <blockquote>
+    if( fShowContent ){
+      const char *z;
+      content_get(ridSrc, &attach);
+      blob_to_utf8_no_bom(&attach, 0);
+      z = blob_str(&attach);
+      if( zLn ){
+        output_text_with_line_numbers(z, blob_size(&attach), zName, zLn, 1);
+      }else{
+        @ <pre>
+        @ %h(z)
+        @ </pre>
+      }
+    }else if( strncmp(zMime, "image/", 6)==0 ){
+      int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
+      @ <i>(file is %d(sz) bytes of image data)</i><br>
+      @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
+      style_submenu_element("Image", "%R/raw/%s?m=%s", zSrc, zMime);
+    }else{
+      int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
+      @ <i>(file is %d(sz) bytes of binary data)</i>
+    }
+    @ </blockquote>
+ }
   manifest_destroy(pAttach);
   blob_reset(&attach);
   style_finish_page();
 }
+
+#if INTERFACE
+/*
+** Flags for use with attachment_list(). ATTACHLIST_HRULE_ABOVE
+** must have a value of 1 for historical call compatibility.
+*/
+#define ATTACHLIST_HRULE_ABOVE     0x01 /* Insert <hr> above header */
+#define ATTACHLIST_TARGET_BLANK    0x02 /* use target=_blank for links */
+#define ATTACHLIST_SIZE            0x04 /* add size */
+#define ATTACHLIST_HIDE_UNAPPROVED 0x08 /* Hide pending-moderation files */
+#endif
 
 /*
 ** Output HTML to show a list of attachments.
@@ -637,13 +808,17 @@ void ainfo_page(void){
 void attachment_list(
   const char *zTarget,   /* Object that things are attached to */
   const char *zHeader,   /* Header to display with attachments */
-  int fHorizontalRule    /* Insert <hr> separator above header */
+  const int flags        /* ATTACHLIST_... flags */
 ){
   int cnt = 0;
+  char szBuf[36] = {0};  /* scratchpad for attachment size value */
+  const char * zLinkTgt = (ATTACHLIST_TARGET_BLANK & flags)
+    ? " target=\"_blank\"" : "";
   Stmt q;
   db_prepare(&q,
      "SELECT datetime(mtime,toLocal()), filename, user,"
-     "       (SELECT uuid FROM blob WHERE rid=attachid), src"
+     "       (SELECT uuid FROM blob WHERE rid=attachid), src, target, "
+     "       attachid "
      "  FROM attachment"
      " WHERE isLatest AND src!='' AND target=%Q"
      " ORDER BY mtime DESC",
@@ -655,22 +830,44 @@ void attachment_list(
     const char *zUser = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
     const char *zSrc = db_column_text(&q, 4);
+    const char *zTarget = db_column_text(&q, 5);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
+    const char *zTypeArg = 0; /* URL arg name for /attachdownload */
+    const int aid = db_column_int(&q, 6);
+    const int iAType = attachment_target_type(zTarget);
+    if( (flags & ATTACHLIST_HIDE_UNAPPROVED)
+        && moderation_pending(aid)
+        && !moderation_user_could(aid, 1, 0) ){
+      continue;
+    }
     if( cnt==0 ){
       @ <section class='attachlist'>
-      if( fHorizontalRule ){
+      if( flags & ATTACHLIST_HRULE_ABOVE ){
         @ <hr>
       }
       @ %s(zHeader)
       @ <ul>
     }
     cnt++;
+    switch( iAType ){
+      case CFTYPE_TICKET: zTypeArg = "tkt"; break;
+      case CFTYPE_FORUM:  zTypeArg = "forumpost"; break;
+      case CFTYPE_EVENT:  zTypeArg = "technote"; break;
+      case CFTYPE_WIKI:
+      default:            zTypeArg = "page"; break;
+    }
     @ <li>
-    @ %z(href("%R/artifact/%!S",zSrc))%h(zFile)</a>
-    @ [<a href="%R/attachdownload/%t(zFile)?page=%t(zTarget)&file=%t(zFile)">download</a>]
+    @ <a href="%R/artifact/%!S(zSrc)"%s(zLinkTgt)>%h(zFile)</a>
+    if( flags & ATTACHLIST_SIZE ){
+      const int sz = db_int(0,"SELECT size FROM blob WHERE uuid=%Q", zSrc);
+      sqlite3_snprintf(sizeof(szBuf), szBuf, " %d bytes", sz);
+    }
+    @ [<a href="%R/attachdownload/%t(zFile)?%s(zTypeArg)=%t(zTarget)\
+    @&file=%t(zFile)%s(zLinkTgt)">download</a>%s(szBuf)]
     @ added by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
-    @ [%z(href("%R/ainfo/%!S",zUuid))details</a>]
+    @ [<a href="%R/ainfo/%!S(zUuid)"%s(zLinkTgt)>details</a>]
+    moderation_pending_www(aid);
     @ </li>
   }
   if( cnt ){
@@ -678,7 +875,6 @@ void attachment_list(
     @ </section>
   }
   db_finalize(&q);
-
 }
 
 /*

@@ -429,7 +429,7 @@ const char zRepositorySchema2[] =
 @   isLatest BOOLEAN DEFAULT 0,     -- True if this is the one to use
 @   mtime TIMESTAMP,                -- Last changed.  Julian day.
 @   src TEXT,                       -- Hash of the attachment.  NULL to delete
-@   target TEXT,                    -- Object attached to. Wikiname or Tkt hash
+@   target TEXT,                    -- Object attached to. Wikiname or Tkt/Event/Forum post ID
 @   filename TEXT,                  -- Filename for the attachment
 @   comment TEXT,                   -- Comment associated with this attachment
 @   user TEXT                       -- Name of user adding attachment
