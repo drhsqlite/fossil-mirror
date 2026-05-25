@@ -1116,7 +1116,7 @@ div.setup_forum-column {
   flex-direction: column;
 }
 
-body.forum div.forumPosts table tr.sticky > td:nth-child(1):before {
+body.forum div.forumPosts table tr.pinned > td:nth-child(1):before {
   padding-right: 0.25em;
   content: "📌";
 }
