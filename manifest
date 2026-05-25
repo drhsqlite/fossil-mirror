@@ -1,5 +1,5 @@
-C Move\sthe\spinned-post\sindicator\sto\sthe\scolumn\swith\sthe\sthread\stopic.
-D 2026-05-25T16:17:40.123
+C Increase\sthe\spinned-post\spin\ssize\sa\stick\sso\sthat\sit\sis\sunambiguously\sdistinguishable\sfrom\san\sLHS\spin\semoji\sin\sthe\sthread\stitle.
+D 2026-05-25T16:40:45.965
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 79cbf26fe6504c19a7bfeed588c059429be1a0b5afe06437863a43c85bc82995
-F src/default.css 62abb91a04d36f1114dde77eec3b96e7d26ffddb37228ecc655f60aeb7655e66
+F src/default.css b0dcf94bc90c58dbda10f5e2c246ce0398ed811aceef7fbdd554cd8848139d71
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f145235ff4fe018c9e5e90500cd9ff8036770e229410c9dea0bda52145484c8
-R df5da178d1af15baeb18012d1c6512fd
+P dcd43c1d7773f166fdbf9d2b530dfbe08e990c869f11cf29301b603b9236c03e
+R ee0cec9aeb421f242e92e119f5dfe715
 U stephan
-Z 496a750c9338c7b73779ae3a91fa571d
+Z c55a5b2ad7f9735e63ddca8409b9aae8
 # Remove this line to create a well-formed Fossil manifest.

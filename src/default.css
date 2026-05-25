@@ -1118,6 +1118,7 @@ div.setup_forum-column {
 
 body.forum div.forumPosts table tr.pinned > td:nth-child(2):before {
   content: "📌 ";
+  font-size: 120%;
 }
 
 body.cpage-setup_forum > .content table {
