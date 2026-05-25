@@ -68,8 +68,8 @@ struct ForumThread {
 ** A single entry from the forum-statuses setting.
 */
 struct ForumStatus {
-  char *zValue;  /* status=X tag value */
   char *zLabel;  /* Label for the UI */
+  char *zValue;  /* status=X tag value */
   char *zDescr;  /* Brief description */
 };
 
@@ -89,17 +89,63 @@ struct ForumStatusList {
 static const ForumStatusList * forum_statuses(void){
   static ForumStatusList fses = {0,0};
   static int once = 0;
-  if( !once ){
+  while( !once ){
+    Stmt q;
+    char *zSetting;
     ++once;
-    /* TODO: read `forum-statuses` setting and transform it into the
+    /* Read `forum-statuses` setting and transform it into the
     ** fses object.
     **
     ** Maybe: if it's empty, synthesize a length-1 list from
     ** {value:"default",label:"Default",...}.  It's expected that
     ** usage may be slightly simplified if we always have a non-empty
     ** list. A length-1 list is, for purposes of the UI, identical to
-    ** an empty one - we cannot change statuses if there's only one
-    ** choice. */
+    ** an empty one - status selection/filtering makes no sense if
+    ** there's only one choice. */
+    zSetting = db_get("forum-statuses", 0);
+    db_multi_exec(
+      "CREATE TEMP TABLE forumstatus("
+      " ord, label, value, descr"
+      ");"
+    );
+    if( !zSetting ) break;
+    db_prepare(&q,
+      " WITH setting(v) AS (SELECT %Q),"
+      " room(r) AS ("
+      "   SELECT e.value FROM setting s, jsonb_each(s.v) e"
+      "   WHERE json_valid(s.v, 0x02)"
+      " )"
+      " SELECT r->>'label', r->>'value', r->>'description'"
+      " FROM room",
+      zSetting
+    );
+    while( SQLITE_ROW==db_step(&q) ){
+      ++fses.n;
+    }
+    if( fses.n ){
+      unsigned int i = 0;
+      Stmt qIns;
+      fses.aStatus = fossil_malloc(sizeof(fses.aStatus[0]) * fses.n);
+      db_reset(&q);
+      db_prepare(&qIns,
+                 "INSERT INTO forumstatus(ord,label,value,descr)"
+                 " VALUES(:ord,:label,:value,:descr)");
+      while( SQLITE_ROW==db_step(&q) ){
+        ForumStatus * fs = &fses.aStatus[i++];
+        fs->zLabel = fossil_strdup(db_column_text(&q, 0));
+        fs->zValue = fossil_strdup(db_column_text(&q, 1));
+        fs->zDescr = fossil_strdup(db_column_text(&q, 2));
+        db_reset(&qIns);
+        db_bind_int(&qIns, ":ord", (int)i);
+        db_bind_text(&qIns, ":label", fs->zLabel);
+        db_bind_text(&qIns, ":value", fs->zValue);
+        db_bind_text(&qIns, ":descr", fs->zDescr);
+        db_step(&qIns);
+      }
+      db_finalize(&qIns);
+    }
+    db_finalize(&q);
+    fossil_free(zSetting);
   }
   return &fses;
 }
@@ -125,6 +171,23 @@ const ForumStatus * forum_status_by_value(const char *z, int bFirst){
     }
   }
   return bFirst ? fs0 : 0;
+}
+
+/*
+** COMMAND: test-forum-statuses
+*/
+void test_forum_statuses_cmd(void){
+  const ForumStatusList * fses;
+  unsigned i;
+  db_find_and_open_repository(0,0);
+  fses = forum_statuses();
+  for(i = 0; i < fses->n; ++i ){
+    const ForumStatus * fs = &fses->aStatus[i];
+    fossil_print("Status: %!j %!j %!j\n",
+                 fs->zValue, fs->zLabel, fs->zDescr);
+    assert( fs==forum_status_by_value(fs->zValue, 0) );
+  }
+  fossil_print("Total statuses: %u\n", i);
 }
 
 /*
