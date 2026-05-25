@@ -2297,20 +2297,20 @@ void forum_main_page(void){
         break;
       }
       @ <tr%s(bPinned ? " class='pinned'" : "")><td>%h(zAge) ago</td>
-      @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a></td>
-      @ <td>\
+      @ <td class='subject'>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a>\
+      @ </td><td>\
       if( g.perm.ModForum && moderation_pending(db_column_int(&q,5)) ){
         @ <span class="modpending">\
         @ Awaiting Moderator Approval</span><br>
       }
       if( nMsg<2 ){
-        @ no replies</td>
+        @ no replies\
       }else{
         char *zDuration = human_readable_age(db_column_double(&q,1));
-        @ %d(nMsg) posts spanning %h(zDuration)</td>
+        @ %d(nMsg) posts spanning %h(zDuration)\
         fossil_free(zDuration);
       }
-      @ </tr>
+      @ </td></tr>
       fossil_free(zAge);
     }
     db_finalize(&q);
