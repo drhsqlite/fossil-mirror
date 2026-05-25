@@ -1,5 +1,5 @@
-C Add\sfile\sattachment\scapability\sto\sforum\sposts.
-D 2026-05-25T11:39:31.148
+C PoC\sfor\ssticky\sforum\sposts,\swhere\sa\s'sticky'\stag\sset\son\sthe\sfirst\sversion\sof\sthe\sroot\spost\sof\sa\sthread\swill\scause\sit\sto\ssort\sto\sthe\stop\sof\sthe\slist.\sPending\sis\sa\sway\sfor\sSetup\susers\s(only)\sto\sset/unset\sthe\ssticky\stag\s(it\scurrently\srequires\stagging\sfrom\sthe\sCLI).
+D 2026-05-25T13:44:47.150
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 79cbf26fe6504c19a7bfeed588c059429be1a0b5afe06437863a43c85bc82995
-F src/default.css a0f029832f69ada7df8952fedb47c6333ac3e332e433166086c71bf75b41ed45
+F src/default.css 32a691edfd73f5412487d1849b11873dddc53fb1ef950669af583031d736b03e
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c ae0e196f6efdd704d722db6ddef83a3a48b82474dfae8bbd88bc4d3b5b51e756
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c d69ba38ef68f17e224b9e27a4e906d08c6360301f2033a15d7efb85a886bf9fb
+F src/forum.c 172deaa9023e75d22378826cd465f657f7ed1a927855429682bec67df04cd9f2
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
@@ -981,9 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c2efda1a0119769b62a55bf9a0805b33b0e250f3fb1aaee13b83dc375ddae6a cb9e36ecd8c80c553f72fc06b12f8047173b767879275feb2f78d12db120fa5a
-R 38c8866459726f4d83617d46f9831b8a
-T +closed cb9e36ecd8c80c553f72fc06b12f8047173b767879275feb2f78d12db120fa5a Closed\sby\sintegrate-merge.
+P 5079ffb0278d122d1218faed72743cfaf695eee0da7cb79d12ccc368829ea71a
+R 058331beab91455b42ed796a754e5fb9
 U stephan
-Z dff625588bab08bad1d942608e547968
+Z f5a7e604a6cf37bb498b3c6440904b4d
 # Remove this line to create a well-formed Fossil manifest.

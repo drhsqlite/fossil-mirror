@@ -2170,7 +2170,7 @@ void forum_main_page(void){
   iCnt = 0;
   if( db_table_exists("repository","forumpost") ){
     db_prepare(&q,
-      "WITH thread(age,duration,cnt,root,last) AS ("
+      "WITH thread(age,duration,cnt,root,last,sticky) AS ("
       "  SELECT"
       "    julianday('now') - max(fmtime),"
       "    max(fmtime) - min(fmtime),"
@@ -2178,11 +2178,20 @@ void forum_main_page(void){
       "    froot,"
       "    (SELECT fpid FROM forumpost AS y"
       "      WHERE y.froot=x.froot %s"
-      "      ORDER BY y.fmtime DESC LIMIT 1)"
+      "      ORDER BY y.fmtime DESC LIMIT 1),"
+      "    CASE WHEN"
+      "      firt IS NULL AND"
+      "      (SELECT 1 FROM tagxref ref, tag t"
+      "        WHERE ref.rid=x.fpid AND ref.tagtype>0"
+      "        AND ref.tagid=t.tagid"
+      "        AND t.tagname='sticky')"
+      "    THEN 1"
+      "    ELSE 0"
+      "    END"
       "  FROM forumpost AS x"
       "  WHERE %s"
       "  GROUP BY froot"
-      "  ORDER BY 1 LIMIT %d OFFSET %d"
+      "  ORDER BY 6 DESC, 1 LIMIT %d OFFSET %d"
       ")"
       "SELECT"
       "  thread.age,"                                         /* 0 */
@@ -2190,11 +2199,12 @@ void forum_main_page(void){
       "  thread.cnt,"                                         /* 2 */
       "  blob.uuid,"                                          /* 3 */
       "  substr(event.comment,instr(event.comment,':')+1),"   /* 4 */
-      "  thread.last"                                         /* 5 */
+      "  thread.last,"                                        /* 5 */
+      "  thread.sticky"                                       /* 6 */
       " FROM thread, blob, event"
       " WHERE blob.rid=thread.last"
       "  AND event.objid=thread.last"
-      " ORDER BY 1;",
+      " ORDER BY 7 DESC, 1;",
       g.perm.ModForum ? "" : "AND y.fpid NOT IN private" /*safe-for-%s*/,
       g.perm.ModForum ? "true" : "fpid NOT IN private" /*safe-for-%s*/,
       iLimit+1, iOfst
@@ -2202,6 +2212,7 @@ void forum_main_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       char *zAge = human_readable_age(db_column_double(&q,0));
       int nMsg = db_column_int(&q, 2);
+      int bSticky = db_column_int(&q, 6);
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
       if( iCnt==0 ){
@@ -2230,7 +2241,7 @@ void forum_main_page(void){
         fossil_free(zAge);
         break;
       }
-      @ <tr><td>%h(zAge) ago</td>
+      @ <tr%s(bSticky ? " class='sticky'" : "")><td>%h(zAge) ago</td>
       @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a></td>
       @ <td>\
       if( g.perm.ModForum && moderation_pending(db_column_int(&q,5)) ){
