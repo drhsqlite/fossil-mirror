@@ -658,7 +658,7 @@ void ainfo_page(void){
   }
 
   if( P("del")
-      && ((zForumPost && (g.perm.Admin || bUserIsOwner)) ||
+      && ((zForumPost && (bUserIsOwner || forumpost_may_close())) ||
        (zTktUuid && g.perm.WrTkt) ||
        (zWikiName && g.perm.WrWiki) ||
        (zTNUuid && g.perm.Write && g.perm.WrWiki))
