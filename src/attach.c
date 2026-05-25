@@ -427,7 +427,8 @@ void attachadd_page(void){
   if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ) cgi_redirect(zFrom);
   if( (!!zPage + !!zTkt + !!zTechNote + !!zForumPost)!=1 ){
-    webpage_error("Requires exactly one one: page=X, tkt=X, forumpost=X, or technote=X");
+    webpage_error("Requires exactly one one: page=X, tkt=X, forumpost=X,"
+                  " or technote=X");
   }
   login_check_credentials();
   if( zForumPost ){
@@ -494,7 +495,7 @@ void attachadd_page(void){
   szLimit = db_get_int("attachment-size-limit", 0);
   if( szContent<0 || (szLimit && szContent>szLimit) ){
     /* This check must be done late so that zTargetType is set up. */
-    @ <p class="generalError">Attachment %s(zName) is too large.
+    @ <p class="generalError">Attachment %h(zName) is too large.
     @ <a href="%R/help/attachment-size-limit">Limit</a> is
     @ %d(szLimit ? szLimit : 0x7fffffff) bytes</p>
     /* Fall through and render form. */
@@ -517,8 +518,8 @@ void attachadd_page(void){
   @ File to Attach:
   @ <input type="file" name="f" size="60"><br>
   @ Description:<br>
-  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"
-  @ >%s(zComment)</textarea><br>
+  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"\
+  @ >%h(zComment)</textarea><br>
   if( zForumPost ){
     @ <input type="hidden" name="forumpost" value="%h(zTarget)">
   }else if( zTkt ){
@@ -560,7 +561,7 @@ void ainfo_page(void){
   const char *zWikiName = 0;     /* Wiki page name when attached to Wiki */
   const char *zTNUuid = 0;       /* Tech Note ID when attached to tech note */
   const char *zTktUuid = 0;      /* Ticket ID when attached to a ticket */
-  const char *zForumPost = 0;    /* Forum post UID when attached to a forum post */
+  const char *zForumPost = 0;    /* Forum UID when attached to forum post */
   int modPending;                /* True if awaiting moderation */
   const char *zModAction;        /* Moderation action or NULL */
   int isModerator;               /* TRUE if user is the moderator */
@@ -615,8 +616,9 @@ void ainfo_page(void){
   }
   zDate = db_text(0, "SELECT datetime(%.12f)", pAttach->rDate);
 
-  if( P("confirm") &&
-      ((zForumPost
+  if( P("confirm")
+   && cgi_csrf_safe(2)
+   && ((zForumPost
         && ((bUserIsOwner && g.perm.AttachForum) ||
             forumpost_may_close())) ||
        (zTktUuid && g.perm.WrTkt) ||
@@ -757,7 +759,8 @@ void ainfo_page(void){
   @ <div class="section">Content:</div>
   blob_zero(&attach);
   if( modPending && !moderation_user_could(rid, 1, 0) ){
-    @ <p><span class="modpending">Content is awaiting moderator approval.</span></p>
+    @ <p><span class="modpending">Content is awaiting moderator \
+    @ approval.</span></p>
   }else{
     @ <blockquote>
     if( fShowContent ){
