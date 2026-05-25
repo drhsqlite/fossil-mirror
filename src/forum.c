@@ -865,6 +865,13 @@ static void forum_render_attachment_list2(ForumPost *p){
   forum_render_attachment_list(p->zUuid);
 }
 
+/* Flags for use with forum_display_post() */
+#define FDISPLAY_RAW         0x01 /* omit the border */
+#define FDISPLAY_UNFORMATTED 0x02 /* leave the post unformatted */
+#define FDISPLAY_HISTORY     0x04 /* Showing edit history */
+#define FDISPLAY_SELECTED    0x08 /* This is the selected post */
+#define FDISPLAY_ISROOT      0x10 /* This is the root post */
+
 /*
 ** Display a single post in a forum thread.
 */
@@ -872,10 +879,7 @@ static void forum_display_post(
   ForumThread *pThread, /* The thread that this post is a member of */
   ForumPost *p,         /* Forum post to display */
   int iIndentScale,     /* Indent scale factor */
-  int bRaw,             /* True to omit the border */
-  int bUnf,             /* True to leave the post unformatted */
-  int bHist,            /* True if showing edit history */
-  int bSelect,          /* True if this is the selected post */
+  int flags,            /* From the FDISPLAY_... enum */
   char *zQuery          /* Common query string */
 ){
   char *zPosterName;    /* Name of user who originally made this post */
@@ -888,6 +892,10 @@ static void forum_display_post(
   int bSameUser;        /* True if author is also the reader */
   int iIndent;          /* Indent level */
   int iClosed;          /* True if (sub)thread is closed */
+  const int bRaw = flags & FDISPLAY_RAW;
+  const int bUnf = flags & FDISPLAY_UNFORMATTED;
+  const int bHist = flags & FDISPLAY_HISTORY;
+  const int bSelect = flags & FDISPLAY_SELECTED;
   const char *zMimetype;/* Formatting MIME type */
 
   /* Get the manifest for the post.  Abort if not found (e.g. shunned). */
@@ -1081,6 +1089,16 @@ static void forum_display_post(
           moderation_pending_www(p->fpid);
           @ </form>
         }
+        if( !p->pIrt && g.perm.Setup ){
+          const int isPinned = forum_rid_is_tagged(pHead->fpid, "pinned", 0);
+          @ <form method="post" \
+          @  action='%R/forumpost_%s(isPinned > 0 ? "unpin" : "pin")'>
+          login_insert_csrf_secret();
+          @ <input type="hidden" name="fpid" value="%s(pHead->zUuid)" />
+          @ <input type="button" value='%s(isPinned ? "Unpin" : "Pin")' \
+          @  class='%s(isPinned ? "action-unpin" : "action-pin")'/>
+          @ </form>
+        }
       }
       @ </div>
     }
@@ -1199,8 +1217,15 @@ static void forum_display_thread(
   /* Display the appropriate subset of posts in sequence. */
   while( p ){
     /* Display the post. */
-    forum_display_post(pThread, p, iIndentScale, mode==FD_RAW,
-        bUnf, bHist, p==pSelect, zQuery);
+    forum_display_post(
+      pThread, p, iIndentScale,
+      (mode==FD_RAW ? FDISPLAY_RAW : 0) |
+      (bUnf ? FDISPLAY_UNFORMATTED : 0) |
+      (bHist ? FDISPLAY_HISTORY : 0) |
+      (p==pSelect ? FDISPLAY_SELECTED : 0) |
+      ((0==fpid || fpid==froot) ? FDISPLAY_ISROOT : 0),
+      zQuery
+    );
 
     /* Advance to the next post in the thread. */
     if( mode==FD_CHRONO ){
@@ -1576,6 +1601,25 @@ static void forum_post_widget(
 }
 
 /*
+** Internal helper for /forumpost_XYZ internal pages which tag/untag
+** posts.
+*/
+static void forumpost_action_helper(const char *zTag, const char *zVal,
+                                    int addTag){
+  const char *zFpid = PD("fpid","");
+  int fpid;
+
+  cgi_csrf_verify();
+  fpid = symbolic_name_to_rid(zFpid, "f");
+  if( fpid<=0 ){
+    webpage_error("Missing or invalid fpid query parameter");
+  }
+  forumpost_tag(fpid, zTag, addTag, zVal);
+  cgi_redirectf("%R/forumpost/%S",zFpid);
+  return;
+}
+
+/*
 ** WEBPAGE: forumpost_close hidden
 ** WEBPAGE: forumpost_reopen hidden
 **
@@ -1588,26 +1632,36 @@ static void forum_post_widget(
 ** view. Requires admin privileges.
 */
 void forum_page_close(void){
-  const char *zFpid = PD("fpid","");
-  const char *zReason = 0;
-  int fClose;
-  int fpid;
-
   login_check_credentials();
   if( forumpost_may_close()==0 ){
     login_needed(g.anon.Admin);
     return;
+  }else{
+    int bIsAdd = sqlite3_strglob("*_close*", g.zPath)==0;
+    char const *zReason = bIsAdd ? 0 : PD("reason", 0);
+    forumpost_action_helper("closed", zReason, bIsAdd);
   }
-  cgi_csrf_verify();
-  fpid = symbolic_name_to_rid(zFpid, "f");
-  if( fpid<=0 ){
-    webpage_error("Missing or invalid fpid query parameter");
+}
+
+/*
+** WEBPAGE: forumpost_pin hidden
+** WEBPAGE: forumpost_unpin hidden
+**
+**   fpid=X        Hash of the post to be edited.  REQUIRED
+**
+** Pins or unpins the given forum post, within the bounds of the
+** API for forumpost_tag(). After (perhaps) modifying the "pinned"
+** tag of the given thread, it redirects to that post's thread
+** view. Requires setup privileges.
+*/
+void forum_page_pin(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(g.anon.Setup);
+    return;
   }
-  fClose = sqlite3_strglob("*_close*", g.zPath)==0;
-  if( fClose ) zReason = PD("reason",0);
-  forumpost_tag(fpid, "closed", fClose, zReason);
-  cgi_redirectf("%R/forumpost/%S",zFpid);
-  return;
+  forumpost_action_helper("pinned", 0,
+                          sqlite3_strglob("*_pin*", g.zPath)==0);
 }
 
 /*
@@ -2184,7 +2238,7 @@ void forum_main_page(void){
       "      (SELECT 1 FROM tagxref ref, tag t"
       "        WHERE ref.rid=x.fpid AND ref.tagtype>0"
       "        AND ref.tagid=t.tagid"
-      "        AND t.tagname='sticky')"
+      "        AND t.tagname='pinned')"
       "    THEN 1"
       "    ELSE 0"
       "    END"
