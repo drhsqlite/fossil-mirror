@@ -318,7 +318,7 @@ static int forumpost_tag(int frid, const char *zTagName, int addTag,
 
   db_begin_transaction();
   frid = forumpost_head_rid(frid);
-  iTagged = forum_rid_is_tagged(frid, "closed", 1);
+  iTagged = forum_rid_is_tagged(frid, zTagName, 1);
   if( (iTagged && addTag
       /* Already tagged, noting that in the case of (addTag<0) it may
       ** actually be a parent which is tagged. */)
@@ -1068,10 +1068,11 @@ static void forum_display_post(
           @ <form method="post" \
           @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
           login_insert_csrf_secret();
-          @ <input type="hidden" name="fpid" value="%s(pHead->zUuid)" />
+          @ <input type="hidden" name="fpid" value="%s(p->zUuid)" />
           if( moderation_pending(p->fpid)==0 ){
             @ <input type="button" value='%s(iClosed ? "Re-open" : "Close")' \
-            @  class='%s(iClosed ? "action-reopen" : "action-close")'/>
+            @  class='hidden %s(iClosed ? "action-reopen" : "action-close")'/>
+            /* ^^^ activated by fossil.page.forumpost.js */
           }
           @ </form>
         }
@@ -1092,11 +1093,12 @@ static void forum_display_post(
         if( !p->pIrt && g.perm.Setup ){
           const int isPinned = forum_rid_is_tagged(pHead->fpid, "pinned", 0);
           @ <form method="post" \
-          @  action='%R/forumpost_%s(isPinned > 0 ? "unpin" : "pin")'>
+          @  action='%R/forumpost_%s(isPinned ? "unpin" : "pin")'>
           login_insert_csrf_secret();
-          @ <input type="hidden" name="fpid" value="%s(pHead->zUuid)" />
+          @ <input type="hidden" name="fpid" value="%s(p->zUuid)" />
           @ <input type="button" value='%s(isPinned ? "Unpin" : "Pin")' \
-          @  class='%s(isPinned ? "action-unpin" : "action-pin")'/>
+          @  class='hidden %s(isPinned ? "action-unpin" : "action-pin")'/>
+          /* ^^^ activated by fossil.page.forumpost.js */
           @ </form>
         }
       }
@@ -1635,9 +1637,8 @@ void forum_page_close(void){
   login_check_credentials();
   if( forumpost_may_close()==0 ){
     login_needed(g.anon.Admin);
-    return;
   }else{
-    int bIsAdd = sqlite3_strglob("*_close*", g.zPath)==0;
+    const int bIsAdd = sqlite3_strglob("*_close*", g.zPath)==0;
     char const *zReason = bIsAdd ? 0 : PD("reason", 0);
     forumpost_action_helper("closed", zReason, bIsAdd);
   }
@@ -1658,10 +1659,10 @@ void forum_page_pin(void){
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed(g.anon.Setup);
-    return;
+  }else{
+    const int bIsAdd = sqlite3_strglob("*_pin*", g.zPath)==0;
+    forumpost_action_helper("pinned", 0, bIsAdd);
   }
-  forumpost_action_helper("pinned", 0,
-                          sqlite3_strglob("*_pin*", g.zPath)==0);
 }
 
 /*
