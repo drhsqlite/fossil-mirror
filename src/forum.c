@@ -844,19 +844,25 @@ static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
 }
 
 /*
-** Renders the attachment list for p or (if not NULL) pEditHead.
+** Renders the attachment list for the given forum post.
 ** Emits no output if there are no attachments.
 */
-static void forum_render_attachment_list(ForumPost *p){
-  char * zLbl;
-  if( p->pEditHead ) p = p->pEditHead;
-  zLbl = mprintf("<a href='%R/attachlist?forumpost=%s'>"
-                 "Attachments:</a>", p->zUuid);
-  attachment_list(p->zUuid, zLbl,
+static void forum_render_attachment_list(const char *zUuid){
+  char * zLbl = mprintf("<a href='%R/attachlist?forumpost=%s'>"
+                        "Attachments:</a>", zUuid);
+  attachment_list(zUuid, zLbl,
                   ATTACHLIST_HRULE_ABOVE
                   | ATTACHLIST_SIZE
                   | ATTACHLIST_HIDE_UNAPPROVED);
   fossil_free(zLbl);
+}
+
+/*
+** Renders the attachment list for p or (if not NULL) pEditHead.
+*/
+static void forum_render_attachment_list2(ForumPost *p){
+  if( p->pEditHead ) p = p->pEditHead;
+  forum_render_attachment_list(p->zUuid);
 }
 
 /*
@@ -1003,7 +1009,7 @@ static void forum_display_post(
       zMimetype = pManifest->zMimetype;
     }
     forum_render(0, zMimetype, pManifest->zWiki, 0, !bRaw);
-    forum_render_attachment_list(p);
+    forum_render_attachment_list2(p);
   }
 
   /* When not in raw mode, finish creating the border around the post. */
@@ -1698,7 +1704,7 @@ static void forum_render_debug_options(void){
 ** attachments may be added after saving. If p is not NULL,
 ** also emit its list of attachments.
 */
-static void forum_render_attachment_notice(){
+static void forum_render_attachment_notice(void){
   if( g.perm.AttachForum ){
     @ <div>You will be able to attach files to this post after saving
     @ it.</div>
@@ -1743,7 +1749,7 @@ void forumnew_page(void){
   forum_render_debug_options();
   login_insert_csrf_secret();
   @ </form>
-  forum_render_attachment_notice(0);
+  forum_render_attachment_notice();
   forum_emit_js();
   style_finish_page();
 }
@@ -1937,6 +1943,9 @@ void forumedit_page(void){
   forum_render_debug_options();
   login_insert_csrf_secret();
   @ </form>
+  if( !bReply ){
+    forum_render_attachment_list(rid_to_uuid(fpid));
+  }
   forum_render_attachment_notice();
   forum_emit_js();
   style_finish_page();
