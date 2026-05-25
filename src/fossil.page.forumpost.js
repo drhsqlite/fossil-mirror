@@ -102,7 +102,8 @@
       F.pikchr.addSrcView();
     }
 
-    /* Attempt to keep stray double-clicks from double-posting. */
+    /* Attempt to keep stray double-clicks from double-posting.
+       https://fossil-scm.org/forum/info/6bd02466533aa131 */
     const formSubmitted = function(event){
       const form = event.target;
       if( form.dataset.submitted ){
@@ -122,10 +123,22 @@
       form
         .querySelectorAll("input.action-close, input.action-reopen")
         .forEach(function(e){
+          e.classList.remove('hidden');
           F.confirmer(e, {
             confirmText: (e.classList.contains('action-reopen')
                           ? "Confirm re-open"
                           : "Confirm close"),
+            onconfirm: ()=>form.submit()
+          });
+        });
+      form
+        .querySelectorAll("input.action-pin, input.action-unpin")
+        .forEach(function(e){
+          e.classList.remove('hidden');
+          F.confirmer(e, {
+            confirmText: (e.classList.contains('action-unpin')
+                          ? "Confirm unpin"
+                          : "Confirm pin"),
             onconfirm: ()=>form.submit()
           });
         });

@@ -380,7 +380,7 @@ static int forumpost_tag(int frid, const char *zTagName, int addTag,
 
   db_begin_transaction();
   frid = forumpost_head_rid(frid);
-  iTagged = forum_rid_is_tagged(frid, "closed", 1);
+  iTagged = forum_rid_is_tagged(frid, zTagName, 1);
   if( (iTagged && addTag
       /* Already tagged, noting that in the case of (addTag<0) it may
       ** actually be a parent which is tagged. */)
@@ -927,6 +927,13 @@ static void forum_render_attachment_list2(ForumPost *p){
   forum_render_attachment_list(p->zUuid);
 }
 
+/* Flags for use with forum_display_post() */
+#define FDISPLAY_RAW         0x01 /* omit the border */
+#define FDISPLAY_UNFORMATTED 0x02 /* leave the post unformatted */
+#define FDISPLAY_HISTORY     0x04 /* Showing edit history */
+#define FDISPLAY_SELECTED    0x08 /* This is the selected post */
+#define FDISPLAY_ISROOT      0x10 /* This is the root post */
+
 /*
 ** Display a single post in a forum thread.
 */
@@ -934,10 +941,7 @@ static void forum_display_post(
   ForumThread *pThread, /* The thread that this post is a member of */
   ForumPost *p,         /* Forum post to display */
   int iIndentScale,     /* Indent scale factor */
-  int bRaw,             /* True to omit the border */
-  int bUnf,             /* True to leave the post unformatted */
-  int bHist,            /* True if showing edit history */
-  int bSelect,          /* True if this is the selected post */
+  int flags,            /* From the FDISPLAY_... enum */
   char *zQuery          /* Common query string */
 ){
   char *zPosterName;    /* Name of user who originally made this post */
@@ -950,6 +954,10 @@ static void forum_display_post(
   int bSameUser;        /* True if author is also the reader */
   int iIndent;          /* Indent level */
   int iClosed;          /* True if (sub)thread is closed */
+  const int bRaw = flags & FDISPLAY_RAW;
+  const int bUnf = flags & FDISPLAY_UNFORMATTED;
+  const int bHist = flags & FDISPLAY_HISTORY;
+  const int bSelect = flags & FDISPLAY_SELECTED;
   const char *zMimetype;/* Formatting MIME type */
 
   /* Get the manifest for the post.  Abort if not found (e.g. shunned). */
@@ -1122,10 +1130,11 @@ static void forum_display_post(
           @ <form method="post" \
           @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
           login_insert_csrf_secret();
-          @ <input type="hidden" name="fpid" value="%s(pHead->zUuid)" />
+          @ <input type="hidden" name="fpid" value="%s(p->zUuid)" />
           if( moderation_pending(p->fpid)==0 ){
             @ <input type="button" value='%s(iClosed ? "Re-open" : "Close")' \
-            @  class='%s(iClosed ? "action-reopen" : "action-close")'/>
+            @  class='hidden %s(iClosed ? "action-reopen" : "action-close")'/>
+            /* ^^^ activated by fossil.page.forumpost.js */
           }
           @ </form>
         }
@@ -1141,6 +1150,17 @@ static void forum_display_post(
           @ <input type="submit" value="Attach...">
           login_insert_csrf_secret();
           moderation_pending_www(p->fpid);
+          @ </form>
+        }
+        if( !p->pIrt && g.perm.Setup ){
+          const int isPinned = forum_rid_is_tagged(pHead->fpid, "pinned", 0);
+          @ <form method="post" \
+          @  action='%R/forumpost_%s(isPinned ? "unpin" : "pin")'>
+          login_insert_csrf_secret();
+          @ <input type="hidden" name="fpid" value="%s(p->zUuid)" />
+          @ <input type="button" value='%s(isPinned ? "Unpin" : "Pin")' \
+          @  class='hidden %s(isPinned ? "action-unpin" : "action-pin")'/>
+          /* ^^^ activated by fossil.page.forumpost.js */
           @ </form>
         }
       }
@@ -1261,8 +1281,15 @@ static void forum_display_thread(
   /* Display the appropriate subset of posts in sequence. */
   while( p ){
     /* Display the post. */
-    forum_display_post(pThread, p, iIndentScale, mode==FD_RAW,
-        bUnf, bHist, p==pSelect, zQuery);
+    forum_display_post(
+      pThread, p, iIndentScale,
+      (mode==FD_RAW ? FDISPLAY_RAW : 0) |
+      (bUnf ? FDISPLAY_UNFORMATTED : 0) |
+      (bHist ? FDISPLAY_HISTORY : 0) |
+      (p==pSelect ? FDISPLAY_SELECTED : 0) |
+      ((0==fpid || fpid==froot) ? FDISPLAY_ISROOT : 0),
+      zQuery
+    );
 
     /* Advance to the next post in the thread. */
     if( mode==FD_CHRONO ){
@@ -1638,6 +1665,25 @@ static void forum_post_widget(
 }
 
 /*
+** Internal helper for /forumpost_XYZ internal pages which tag/untag
+** posts.
+*/
+static void forumpost_action_helper(const char *zTag, const char *zVal,
+                                    int addTag){
+  const char *zFpid = PD("fpid","");
+  int fpid;
+
+  cgi_csrf_verify();
+  fpid = symbolic_name_to_rid(zFpid, "f");
+  if( fpid<=0 ){
+    webpage_error("Missing or invalid fpid query parameter");
+  }
+  forumpost_tag(fpid, zTag, addTag, zVal);
+  cgi_redirectf("%R/forumpost/%S",zFpid);
+  return;
+}
+
+/*
 ** WEBPAGE: forumpost_close hidden
 ** WEBPAGE: forumpost_reopen hidden
 **
@@ -1650,26 +1696,35 @@ static void forum_post_widget(
 ** view. Requires admin privileges.
 */
 void forum_page_close(void){
-  const char *zFpid = PD("fpid","");
-  const char *zReason = 0;
-  int fClose;
-  int fpid;
-
   login_check_credentials();
   if( forumpost_may_close()==0 ){
     login_needed(g.anon.Admin);
-    return;
+  }else{
+    const int bIsAdd = sqlite3_strglob("*_close*", g.zPath)==0;
+    char const *zReason = bIsAdd ? 0 : PD("reason", 0);
+    forumpost_action_helper("closed", zReason, bIsAdd);
   }
-  cgi_csrf_verify();
-  fpid = symbolic_name_to_rid(zFpid, "f");
-  if( fpid<=0 ){
-    webpage_error("Missing or invalid fpid query parameter");
+}
+
+/*
+** WEBPAGE: forumpost_pin hidden
+** WEBPAGE: forumpost_unpin hidden
+**
+**   fpid=X        Hash of the post to be edited.  REQUIRED
+**
+** Pins or unpins the given forum post, within the bounds of the
+** API for forumpost_tag(). After (perhaps) modifying the "pinned"
+** tag of the given thread, it redirects to that post's thread
+** view. Requires setup privileges.
+*/
+void forum_page_pin(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(g.anon.Setup);
+  }else{
+    const int bIsAdd = sqlite3_strglob("*_pin*", g.zPath)==0;
+    forumpost_action_helper("pinned", 0, bIsAdd);
   }
-  fClose = sqlite3_strglob("*_close*", g.zPath)==0;
-  if( fClose ) zReason = PD("reason",0);
-  forumpost_tag(fpid, "closed", fClose, zReason);
-  cgi_redirectf("%R/forumpost/%S",zFpid);
-  return;
 }
 
 /*
@@ -2243,7 +2298,7 @@ void forum_main_page(void){
   iCnt = 0;
   if( db_table_exists("repository","forumpost") ){
     db_prepare(&q,
-      "WITH thread(age,duration,cnt,root,last) AS ("
+      "WITH thread(age,duration,cnt,root,last,sticky) AS ("
       "  SELECT"
       "    julianday('now') - max(fmtime),"
       "    max(fmtime) - min(fmtime),"
@@ -2251,11 +2306,20 @@ void forum_main_page(void){
       "    froot,"
       "    (SELECT fpid FROM forumpost AS y"
       "      WHERE y.froot=x.froot %s"
-      "      ORDER BY y.fmtime DESC LIMIT 1)"
+      "      ORDER BY y.fmtime DESC LIMIT 1),"
+      "    CASE WHEN"
+      "      firt IS NULL AND"
+      "      (SELECT 1 FROM tagxref ref, tag t"
+      "        WHERE ref.rid=x.fpid AND ref.tagtype>0"
+      "        AND ref.tagid=t.tagid"
+      "        AND t.tagname='pinned')"
+      "    THEN 1"
+      "    ELSE 0"
+      "    END"
       "  FROM forumpost AS x"
       "  WHERE %s"
       "  GROUP BY froot"
-      "  ORDER BY 1 LIMIT %d OFFSET %d"
+      "  ORDER BY 6 DESC, 1 LIMIT %d OFFSET %d"
       ")"
       "SELECT"
       "  thread.age,"                                         /* 0 */
@@ -2263,11 +2327,12 @@ void forum_main_page(void){
       "  thread.cnt,"                                         /* 2 */
       "  blob.uuid,"                                          /* 3 */
       "  substr(event.comment,instr(event.comment,':')+1),"   /* 4 */
-      "  thread.last"                                         /* 5 */
+      "  thread.last,"                                        /* 5 */
+      "  thread.sticky"                                       /* 6 */
       " FROM thread, blob, event"
       " WHERE blob.rid=thread.last"
       "  AND event.objid=thread.last"
-      " ORDER BY 1;",
+      " ORDER BY 7 DESC, 1;",
       g.perm.ModForum ? "" : "AND y.fpid NOT IN private" /*safe-for-%s*/,
       g.perm.ModForum ? "true" : "fpid NOT IN private" /*safe-for-%s*/,
       iLimit+1, iOfst
@@ -2275,6 +2340,7 @@ void forum_main_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       char *zAge = human_readable_age(db_column_double(&q,0));
       int nMsg = db_column_int(&q, 2);
+      int bSticky = db_column_int(&q, 6);
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
       if( iCnt==0 ){
@@ -2303,7 +2369,7 @@ void forum_main_page(void){
         fossil_free(zAge);
         break;
       }
-      @ <tr><td>%h(zAge) ago</td>
+      @ <tr%s(bSticky ? " class='sticky'" : "")><td>%h(zAge) ago</td>
       @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a></td>
       @ <td>\
       if( g.perm.ModForum && moderation_pending(db_column_int(&q,5)) ){
