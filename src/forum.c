@@ -63,7 +63,69 @@ struct ForumThread {
   int mxIndent;          /* Maximum indentation level */
   int nArtifact;         /* Number of forum artifacts in this thread */
 };
+
+/*
+** A single entry from the forum-statuses setting.
+*/
+struct ForumStatus {
+  char *zValue;  /* status=X tag value */
+  char *zLabel;  /* Label for the UI */
+  char *zDescr;  /* Brief description */
+};
+
+/*
+** A list of ForumStatus objects.
+*/
+struct ForumStatusList {
+  struct ForumStatus * aStatus; /* List of statuses */
+  unsigned int n;               /* Number of entries */
+};
 #endif /* INTERFACE */
+
+/*
+** Returns a high-level representation of the forum-statuses setting.
+** This is a singleton, cached across calls.
+ */
+static const ForumStatusList * forum_statuses(void){
+  static ForumStatusList fses = {0,0};
+  static int once = 0;
+  if( !once ){
+    ++once;
+    /* TODO: read `forum-statuses` setting and transform it into the
+    ** fses object.
+    **
+    ** Maybe: if it's empty, synthesize a length-1 list from
+    ** {value:"default",label:"Default",...}.  It's expected that
+    ** usage may be slightly simplified if we always have a non-empty
+    ** list. A length-1 list is, for purposes of the UI, identical to
+    ** an empty one - we cannot change statuses if there's only one
+    ** choice. */
+  }
+  return &fses;
+}
+
+/*
+** Search for a ForumStatus object by its tag value. If a match is
+** found, the corresponding object is returned. If no match is found
+** then (A) if bFirst is false then 0 is returned, else (B) the first
+** entry in the list is returned, noting that the list may be empty,
+** in which case 0 is returned.
+*/
+const ForumStatus * forum_status_by_value(const char *z, int bFirst){
+  const ForumStatusList * const fses = forum_statuses();
+  const ForumStatus * fs0 = 0;
+  unsigned int i;
+  if( !fses->n ) return 0;
+  for( i = 0; i < fses->n; ++i ){
+    const ForumStatus * fs = &fses->aStatus[i];
+    if( 0==fossil_strcmp(z, fs->zValue) ){
+      return fs;
+    }else if( !fs0 ){
+      fs0 = fs;
+    }
+  }
+  return bFirst ? fs0 : 0;
+}
 
 /*
 ** Return true if the forum post with the given rid has been
@@ -176,8 +238,8 @@ static int forumpost_is_closed(
 ** - The tagxref.rowid of the tagxref entry for the closure if rid is
 **   the forum post to which the closure applies.
 **
-** - (-tagxref.rowid) if the given rid inherits a "closed" tag from an
-**   IRT forum post.
+** - (-tagxref.rowid) if the given rid inherits the tag from an IRT
+**   forum post.
 */
 static int forum_rid_is_tagged(int rid, const char *zTagName, int bCheckIrt){
   static Stmt qIrt = empty_Stmt_m;
@@ -1970,6 +2032,17 @@ void forumedit_page(void){
 ** SETTING: attachment-size-limit    width=16
 ** The maximum number of bytes for an attachment. The default (or 0) is
 ** unlimited but a limit may be imposed by the web server or a proxy.
+**
+** SETTING: forum-statuses        width=40 block-text
+** This JSON5-formatted value defines an array of objects describing
+** the available statuses of forum posts. Each entry of the array must
+** be an object in the form {label:"X",value:"Y",description:"Z"}.
+** The label is used in the UI and value becomes the value of the
+** "status" tag on forum posts. Any forum post which has a status
+** value which does not appear in this list is treated as if it had
+** the first value from this list. If this setting is empty, is
+** ill-formed JSON, or has only a single entry then the forum will
+** lack the capability of setting and filtering by status.
 */
 
 /*

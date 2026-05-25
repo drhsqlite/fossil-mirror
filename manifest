@@ -1,5 +1,5 @@
-C Add\sfile\sattachment\scapability\sto\sforum\sposts.
-D 2026-05-25T11:39:31.148
+C Initial\ssketches\sfor\sthe\sability\sto\sassign\sa\sstatus=X\stag\sto\sforum\sposts,\se.g.\sopened\svs\sresolved.\sThis\scompiles\sbut\sdoes\snothing\suseful.
+D 2026-05-25T13:05:49.634
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -410,7 +410,7 @@ F src/clone.c 1b14e1fe42556ec080492e77c94f50dbb047952f40ba41bd4ca1d0a154d13e15
 F src/color.c dbea75182cd46c3ed261229766a710df6414aafd8de8e3505621c9109904cad0
 F src/comformat.c e28d054cbc160d069d2c725d9a1429543c6655e44012d4a7d2f37e5c9e5a7183
 F src/config.h 0ed672f15c096edbea44b24657bd91e3acb8bcd5827c62df9f8635abe1da7c21
-F src/configure.c 0f36ef7d6238251946affba936e21c0406de0d99dc4d014d2c4f73f423a9164c
+F src/configure.c fe912332a4f649540a71f328c45150b11566df5240dc68913bf931c2985d2259
 F src/content.c 21e593843c226319b79e07db8eb32a94d47b958261766e153a2aeedee96609a9
 F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c ae0e196f6efdd704d722db6ddef83a3a48b82474dfae8bbd88bc4d3b5b51e756
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c d69ba38ef68f17e224b9e27a4e906d08c6360301f2033a15d7efb85a886bf9fb
+F src/forum.c c0265a61fd03264c45d566620e64c25a829247a938727455ccd6ad87b95e1b8c
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
@@ -981,9 +981,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c2efda1a0119769b62a55bf9a0805b33b0e250f3fb1aaee13b83dc375ddae6a cb9e36ecd8c80c553f72fc06b12f8047173b767879275feb2f78d12db120fa5a
-R 38c8866459726f4d83617d46f9831b8a
-T +closed cb9e36ecd8c80c553f72fc06b12f8047173b767879275feb2f78d12db120fa5a Closed\sby\sintegrate-merge.
+P 5079ffb0278d122d1218faed72743cfaf695eee0da7cb79d12ccc368829ea71a
+R 72ee1b92890685cd38530d5752d05e29
+T *branch * forum-statuses
+T *sym-forum-statuses *
+T -sym-trunk * Cancelled\sby\sbranch.
 U stephan
-Z dff625588bab08bad1d942608e547968
+Z 79dfcbb7e7895fe520c5fffebc54720d
 # Remove this line to create a well-formed Fossil manifest.
