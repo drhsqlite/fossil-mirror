@@ -2436,6 +2436,8 @@ static void forum_status_submenu(void){
     az[i++] = "Any status";
     for( j = 0; j < fss->n; ++j ){
       const ForumStatus * fs = &fss->aStatus[j];
+      /* Potential TODO: skip any entries for which there are no
+      ** forum posts with a status=${fs->zValue} tag. */
       az[i++] = fs->zValue;
       az[i++] = fs->zLabel;
     }

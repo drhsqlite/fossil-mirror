@@ -444,7 +444,9 @@ behavior changes in the following ways:
      <tt>body.cpage-forum div.forumPosts tr&#91;data-status="open"]</tt><br>
      Because there is no default status list, no predefined styles
      are applied.
-  *  The forum list shows the "label" value of the current status.
+  *  The forum list shows the "label" value of the current status and
+     a selection list of available filters. It elides the status column
+     when filtering on a specific status.
   *  The root of each thread, when selected, gets a new UI control for
      displaying or editing the status, depending on permissions.
 
@@ -466,7 +468,7 @@ Status tag rules:
      value of the first entry in the list.
   *  The tag is applied only to the first version of any given post. The
      UI ensures that the tag is applied to the proper post, even when
-     it is rendering a newer version.
+     rendering a newer version.
 
 The UI will eventually offer the ability to filter the post list by
 status.
