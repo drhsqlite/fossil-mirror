@@ -2421,6 +2421,32 @@ void forum_setup(void){
 }
 
 /*
+** If the forum-statuses setting is active and has 2 or more entries,
+** this adds a submenu for selecting the status filter, else it emits
+** nothing.
+*/
+static void forum_status_submenu(void){
+  const ForumStatusList * const fss = forum_statuses();
+  static int i = 0;
+  static const char **az;
+  if( i==0 && fss->n>1 ){
+    unsigned j;
+    az = fossil_malloc(sizeof(az[0]) * ((1 + fss->n) * 2));
+    az[i++] = "*";
+    az[i++] = "Any status";
+    for( j = 0; j < fss->n; ++j ){
+      const ForumStatus * fs = &fss->aStatus[j];
+      az[i++] = fs->zValue;
+      az[i++] = fs->zLabel;
+    }
+    //assert( i==(1+fss->n)*2 );
+  }
+  if( i ){
+    style_submenu_multichoice("status", i/2, az, 0);
+  }
+}
+
+/*
 ** WEBPAGE: forummain
 ** WEBPAGE: forum
 **
@@ -2441,6 +2467,7 @@ void forum_main_page(void){
   const int isSearch = P("s")!=0;
   const char *zStatusFilter = P("status");
   char const *zLimit = 0;
+  const int bHasStatus = forum_statuses()->n>1;
 
   login_check_credentials();
   srchFlags = search_restrict(SRCH_FORUM);
@@ -2486,11 +2513,14 @@ void forum_main_page(void){
     iLimit = 25;
   }
   style_submenu_entry("n","Max:",4,0);
+  forum_status_submenu();
   iOfst = atoi(PD("x","0"));
   iCnt = 0;
-  if( zStatusFilter && !*zStatusFilter ) zStatusFilter = 0;
+  if( zStatusFilter &&
+      (!*zStatusFilter || 0==fossil_strcmp("*",zStatusFilter)) ){
+    zStatusFilter = 0;
+  }
   if( db_table_exists("repository","forumpost") ){
-    const int bHasStatus = forum_statuses()->n>1;
     db_prepare(&q,
       "WITH "
       "root(id,pinned,status,statlbl) AS ("
@@ -2502,6 +2532,7 @@ void forum_main_page(void){
       "   WHERE ref.rid=x.fpid AND ref.tagtype>0"
       "   AND ref.tagid=t.tagid"
       "   AND t.tagname='pinned') pinned,"
+      /* Status value: */
       "  CASE WHEN %d /*bHasStatus*/ THEN coalesce("
       "   (SELECT ref.value FROM tagxref ref, tag t, forumstatus fs"
       "    WHERE ref.rid=x.froot AND ref.tagtype>0"
@@ -2512,6 +2543,7 @@ void forum_main_page(void){
       "   ),"
       "   (SELECT value FROM forumstatus WHERE ord=1)"
       "  ) ELSE NULL END status,"
+      /* Status label: */
       "  CASE WHEN %d /*bHasStatus*/ THEN coalesce("
       "   (SELECT fs.label FROM tagxref ref, tag t, forumstatus fs"
       "    WHERE ref.rid=x.froot AND ref.tagtype>0"
@@ -2522,7 +2554,7 @@ void forum_main_page(void){
       "   ),"
       "   (SELECT label FROM forumstatus WHERE ord=1)"
       "  ) ELSE NULL END statlbl"
-      " FROM forumpost x WHERE firt IS NULL AND fprev IS NULL"
+      " FROM forumpost x WHERE firt IS NULL" /*??? AND fprev IS NULL*/
       "),"
       " thread(age,duration,cnt,root,last,pinned,status,statlbl)"
       " AS ("
@@ -2554,7 +2586,7 @@ void forum_main_page(void){
       " FROM thread, blob, event"
       " WHERE blob.rid=thread.last"
       "  AND event.objid=thread.last"
-      " ORDER BY 7 DESC, 1;",
+      " ORDER BY 7/*pinned*/ DESC, 1;",
       bHasStatus, bHasStatus,
       g.perm.ModForum ? "" : "AND y.fpid NOT IN private" /*safe-for-%s*/,
       g.perm.ModForum ? "true" : "fpid NOT IN private" /*safe-for-%s*/,
