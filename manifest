@@ -1,5 +1,5 @@
-C Swap\sthe\spositions\sof\sthe\sUnpin\sand\sAttach\sbuttons.
-D 2026-05-26T14:21:42.781
+C forum.wiki\supdates.
+D 2026-05-26T14:35:55.364
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -846,7 +846,7 @@ F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
 F www/fileedit-page.md 05b5429894d86d052d647ee354d94a7b18f66e701c23a94040b2517328431260
 F www/fileformat.wiki eb2e02ea94b9f544027a66180b442a7757f791c77e33e9760c6993f2688d98e6
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
-F www/forum.wiki f0ff537e328c4e1fa564b8fb1e03539933815ff4de1ac9b1e43b100532a315a8
+F www/forum.wiki f0b10f46a723f7c1e4cbd08bf1c50806c2022dfb35c9d8be2898e05f6a44dee0
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39e97fc0284029de994d90ed47d3c8ecab318b48f9042aa8ce8a240d9f424bd2
-R 702e02f585bd41c7ff09a4006526d168
+P e2bb38a4636865bab97dc1821938893a947be2b0f6c6634a3e2a830af4507ecb
+R 381f20bb165fcbc46afc1a3a7a319e77
 U stephan
-Z c0e3185afa1bf6bc17b7261a8252b068
+Z 52be8bd52acae869ca3280c99df9bce7
 # Remove this line to create a well-formed Fossil manifest.

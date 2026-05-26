@@ -413,7 +413,7 @@ further responses.
 <h2 name="status">Setting Post Statuses</h2>
 
 The setting <tt>forum-statuses</tt> controls whether this feature is
-is abled. If it is not set, is not valid JSON5, or has only a single
+is enabled. If it is not set, is not valid JSON5, or has only a single
 entry, then status are not shown in the forum.
 
 <tt>forum-statuses</tt> is a JSON5-format array of objects in the
@@ -428,7 +428,7 @@ following format:
 
 The list defines the legal statuses for forum posts and syncs with
 other project-level settings. All "label" and "value" members must be
-unique.
+unique within the scope of that list.
 
 If the list has two or more entries then the forum behavior changes in
 the following ways:
@@ -437,18 +437,25 @@ the following ways:
      displaying or editing the status, depending on permissions.
   *  The forum list shows the "label" value of the current status.
 
-This is managed via a <tt>status</tt> tag on the first version of
-that post. That tag may be set to any value from the "values" members
-of the <tt>forum-statuses</tt> list.
+A list with only a single entry is treated as empty, the justification
+being that if there is only one option then the UI does not need to be
+cluttered with it.
+
+This setting is applied via a <tt>status</tt> tag on the first version
+of a legal post. That tag may be set to any value from the "values"
+members of the <tt>forum-statuses</tt> list.
 
 Status tag rules:
 
   *  <tt>status</tt> is only observed on the root of each thread. The UI
      does nothing with that tag on responses.
+  *  The first list entry is considered to be the default status. Any post
+     which has no <tt>status</tt> tag, or has a <tt>status</tt> tag value
+     which is not in that list, is assumed for most purposes to have the
+     value of the first entry in the list.
   *  The tag is applied only to the first version of any given post. The
      UI ensures that the tag is applied to the proper post, even when
      it is rendering a newer version.
-  *  The first list entry is considered to be the default status. Any post
-     which has a <tt>status</tt> tag value which is not in the
-     list, or which has no <tt>status</tt> tag, is assumed for most
-     purposes to have the value of the first entry in the list.
+
+The UI will eventually offer the ability to filter the post list by
+status.
