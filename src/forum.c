@@ -1286,9 +1286,21 @@ static void forum_display_post(
           }
           @ </form>
         }
-        if( g.perm.Admin
-            || (login_is_individual()
-                && forumpost_is_owner(p/*not pHead*/->fpid, 0)) ){
+        if( !p->pIrt && g.perm.Setup ){
+          const int isPinned = forum_rid_is_tagged(pHead->fpid, "pinned", 0);
+          @ <form method="post" \
+          @  action='%R/forumpost_%s(isPinned ? "unpin" : "pin")'>
+          login_insert_csrf_secret();
+          @ <input type="hidden" name="fpid" value="%s(p->zUuid)" />
+          @ <input type="button" value='%s(isPinned ? "Unpin" : "Pin")' \
+          @ class='submit hidden \
+          @ %s(isPinned ? "action-unpin" : "action-pin")'/>
+          /* ^^^ activated by fossil.page.forumpost.js */
+          @ </form>
+        }
+        if( g.perm.Admin ||
+            (login_is_individual()
+             && forumpost_is_owner(p/*not pHead*/->fpid, 0)) ){
           /* When an admin edits someone else's post, the admin
           ** effectively takes over ownership of it (and we currently
           ** have no way of passing it back). Because of this, we
@@ -1299,21 +1311,6 @@ static void forum_display_post(
           login_insert_csrf_secret();
           moderation_pending_www(p->fpid);
           @ </form>
-        }
-        if( !p->pIrt ){
-          /* Root node only... */
-          if( g.perm.Setup ){
-            const int isPinned = forum_rid_is_tagged(pHead->fpid, "pinned", 0);
-            @ <form method="post" \
-            @  action='%R/forumpost_%s(isPinned ? "unpin" : "pin")'>
-            login_insert_csrf_secret();
-            @ <input type="hidden" name="fpid" value="%s(p->zUuid)" />
-            @ <input type="button" value='%s(isPinned ? "Unpin" : "Pin")' \
-            @ class='submit hidden \
-            @ %s(isPinned ? "action-unpin" : "action-pin")'/>
-            /* ^^^ activated by fossil.page.forumpost.js */
-            @ </form>
-          }
         }
       }
       @ </div>
