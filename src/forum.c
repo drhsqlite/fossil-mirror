@@ -90,7 +90,6 @@ static const ForumStatusList * forum_statuses(void){
   static ForumStatusList fses = {0,0};
   static int once = 0;
   while( !once ){
-    Stmt q;
     ++once;
     /* Read `forum-statuses` setting and transform it into the
     ** fses object.
@@ -101,57 +100,37 @@ static const ForumStatusList * forum_statuses(void){
     ** list. A length-1 list is, for purposes of the UI, identical to
     ** an empty one - status selection/filtering makes no sense if
     ** there's only one choice. */
-    db_get("forum-statuses", 0);
     db_multi_exec(
       "CREATE TEMP TABLE forumstatus("
-      " ord, label, value, descr"
+      " ord INTEGER PRIMARY KEY AUTOINCREMENT,"
+      " label, value, descr"
       ");"
+      "INSERT INTO forumstatus(label,value,descr)"
+      "  WITH setting(v) AS ("
+      "    SELECT value v FROM config WHERE name='forum-statuses'"
+      "  ),"
+      "  room(r) AS ("
+      "    SELECT e.value FROM setting s, jsonb_each(s.v) e"
+      "    WHERE json_valid(s.v, 0x02)"
+      "  )"
+      "  SELECT r->>'label', r->>'value', r->>'description'"
+      "  FROM room"
     );
-    db_prepare(&q,
-      "WITH setting(v) AS ("
-      "  SELECT value v FROM config WHERE name='forum-statuses'"
-      "),"
-      "room(r) AS ("
-      "  SELECT e.value FROM setting s, jsonb_each(s.v) e"
-      "  WHERE json_valid(s.v, 0x02)"
-      ")"
-      " SELECT r->>'label', r->>'value', r->>'description'"
-      " FROM room"
-    );
-    /*
-    ** Quirk: we run the query twice: once to count and once to insert
-    ** into the forumstatus table. We could do the query and populate
-    ** in the same step but we need an ordinal value to go with each
-    ** so that we can retain their order. If the above CTE can be
-    ** altered to provide a sequential ordinal value then we can
-    ** eliminate this double-step.
-    */
-    while( SQLITE_ROW==db_step(&q) ){
-      ++fses.n;
-    }
+    fses.n = (unsigned)db_int(0, "SELECT count(*) FROM forumstatus");
     if( fses.n ){
       int i = 0;
-      Stmt qIns;
+      Stmt q;
+      db_prepare(&q,"SELECT label, value, descr FROM forumstatus"
+                 " ORDER BY ord");
       fses.aStatus = fossil_malloc(sizeof(fses.aStatus[0]) * fses.n);
-      db_reset(&q);
-      db_prepare(&qIns,
-                 "INSERT INTO forumstatus(ord,label,value,descr)"
-                 " VALUES(:ord,:label,:value,:descr)");
       while( SQLITE_ROW==db_step(&q) ){
         ForumStatus * fs = &fses.aStatus[i++];
         fs->zLabel = fossil_strdup(db_column_text(&q, 0));
         fs->zValue = fossil_strdup(db_column_text(&q, 1));
         fs->zDescr = fossil_strdup(db_column_text(&q, 2));
-        db_reset(&qIns);
-        db_bind_int(&qIns, ":ord", i);
-        db_bind_text(&qIns, ":label", fs->zLabel);
-        db_bind_text(&qIns, ":value", fs->zValue);
-        db_bind_text(&qIns, ":descr", fs->zDescr);
-        db_step(&qIns);
       }
-      db_finalize(&qIns);
+      db_finalize(&q);
     }
-    db_finalize(&q);
   }
   return &fses;
 }
