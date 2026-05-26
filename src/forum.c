@@ -907,8 +907,7 @@ static void forum_render_status_selection( const ForumPost *fp ){
     if( !sCurrent ) sCurrent = &fss->aStatus[0];
     assert( sCurrent );
     @ <span class='forum-status-selection'>
-    if( forum_may_set_status(fp->fpid)
-        /* FIXME: only do this if fp is the currently-selected post */ ){
+    if( forum_may_set_status(fp->fpid) ){
       @ <form method="post" action='%R/forumpost_status'>
       login_insert_csrf_secret();
       @ <input type='hidden' name='fpid' value='%s(fp->zUuid)' />
@@ -928,7 +927,7 @@ static void forum_render_status_selection( const ForumPost *fp ){
       @ </form>
       /* Form is activated in fossil.page.forumpost.js */
     }else{
-      @ Status: %h(sCurrent->zLabel);
+      @ <button disabled>Status: %h(sCurrent->zLabel)</button>
     }
     @ </span>
     fossil_free(zCurrent);
@@ -1274,7 +1273,6 @@ static void forum_display_post(
 
       if( bSelect ){
         const ForumPost *pHead = p->pEditHead ? p->pEditHead : p;
-        const int bIsOwner = forumpost_is_owner(p/*not pHead*/->fpid, 0);
         if( forumpost_may_close() && iClosed>=0 ){
           @ <form method="post" \
           @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
@@ -1288,7 +1286,9 @@ static void forum_display_post(
           }
           @ </form>
         }
-        if( g.perm.Admin || (login_is_individual() && bIsOwner) ){
+        if( g.perm.Admin
+            || (login_is_individual()
+                && forumpost_is_owner(p/*not pHead*/->fpid, 0)) ){
           /* When an admin edits someone else's post, the admin
           ** effectively takes over ownership of it (and we currently
           ** have no way of passing it back). Because of this, we
