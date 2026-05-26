@@ -290,7 +290,9 @@ select {
 button,
 html input[type="button"], /* 1 */
 input[type="reset"],
-input[type="submit"] {
+input[type="submit"],
+input[type="button"].submit,
+button.submit{
   -webkit-appearance: button; /* 2 */
   cursor: pointer; /* 3 */
 }
@@ -519,7 +521,9 @@ hr {
 button,
 input[type="button"],
 input[type="reset"],
-input[type="submit"] {
+input[type="submit"],
+input[type="button"].submit,
+button.submit{
   display: inline-block;
   height: 3.3rem;
   padding: 0 2.2rem;
@@ -553,20 +557,28 @@ input[type="reset"]:focus {
   outline: 0;
 }
 
-input[type="submit"] {
+input[type="submit"],
+input[type="button"].submit,
+button.submit{
   color: white !important;
   background-color: #446979;
   border-color: #446979;
 }
 
 input[type="submit"]:hover,
-input[type="submit"]:focus {
+input[type="submit"]:focus,
+input[type="button"].submit:hover,
+input[type="button"].submit:focus,
+button.submit:hover,
+button.submit:focus{
   color: white !important;
   background-color: #648898;
   border-color: #648898;
 }
 
-input[type="submit"]:disabled {
+input[type="submit"]:disabled,
+input[type="button"].submit:disabled,
+button.submit:disabled{
   color: rgb(128,128,128);
   background-color: rgb(153,153,153);
 }

@@ -257,10 +257,20 @@ int forumpost_head_rid2(const char *zUuid){
 ** 0 then login_name() is used.
 */
 int forumpost_is_owner(int rid, const char *zUserName){
-  return db_int(0, "SELECT 1 FROM event "
-                "WHERE type='f' AND objid=%d "
-                "AND coalesce(euser,user)=%Q",
-                rid, zUserName ? zUserName : login_name());
+  static Stmt q;
+  int rc;
+  if( !q.pStmt ){
+    db_static_prepare(
+      &q, "SELECT 1 FROM event"
+      " WHERE type='f' AND objid=$rid"
+      " AND coalesce(euser,user)=$user"
+    );
+  }
+  db_bind_int(&q, "$rid", rid);
+  db_bind_text(&q, "$user", zUserName ? zUserName : login_name());
+  rc = SQLITE_ROW==db_step(&q);
+  db_reset(&q);
+  return rc;
 }
 
 /*
@@ -399,9 +409,9 @@ static void moderation_forumpost_disapprove(int fpid){
 ** the head of the chain.
 **
 ** If addTag is true then a propagating tag is added, except as noted
-** below, with the given optional zReason string as the tag's
+** below, with the given optional zValue string as the tag's
 ** value. If addTag is false then any matching active tag on frid is
-** cancelled, except as noted below. zReason is ignored if it is NULL
+** cancelled, except as noted below. zValue is ignored if it is NULL
 ** or starts with a NUL byte, or if addTag is false.
 **
 ** This function only adds a tag if forum_rid_is_tagged() indicates
@@ -410,10 +420,12 @@ static void moderation_forumpost_disapprove(int fpid){
 ** which has its own tag, and will not remove an inherited one from a
 ** parent post.
 **
-** If addTag is true and frid is already tagged (directly or
-** inherited), this is a no-op. Likewise, if addTag is false and frid
-** itself is not tagged (not accounting for an inherited closed tag),
-** this is a no-op.
+** If addTag is true and frid is already tagged, this is a
+** no-op. Likewise, if addTag is false and frid is not tagged
+** (not accounting for an inherited closed tag), this is a no-op.
+**
+** If bCheckIrt is true then the forum post IRT hierarchy is searched
+** for the tag, otherwise only the given RID is checked.
 **
 ** Returns true if it actually creates a new tag, else false. Fails
 ** fatally on error.
@@ -440,7 +452,7 @@ static void moderation_forumpost_disapprove(int fpid){
 **   closure of a branch, where a non-propagating tag is used.
 */
 static int forumpost_tag(int frid, const char *zTagName, int addTag,
-                         const char *zReason){
+                         const char *zValue){
   Blob artifact = BLOB_INITIALIZER;  /* Output artifact */
   Blob cksum = BLOB_INITIALIZER;     /* Z-card */
   int iTagged;                       /* true if frid is already tagged */
@@ -449,23 +461,33 @@ static int forumpost_tag(int frid, const char *zTagName, int addTag,
 
   db_begin_transaction();
   frid = forumpost_head_rid(frid);
-  iTagged = forum_rid_is_tagged(frid, zTagName, 1);
-  if( (iTagged && addTag
-      /* Already tagged, noting that in the case of (addTag<0) it may
-      ** actually be a parent which is tagged. */)
-      || (iTagged<=0 && !addTag
-          /* This entry is not tagged, but a parent post may be. */) ){
+  iTagged = forum_rid_is_tagged(frid, zTagName, 0);
+  if( !addTag && !iTagged ){
+    /* Nothing to do. We never tag an IRT-inherited post via this
+    ** function. */
     db_end_transaction(0);
     return 0;
   }
-  if( addTag==0 || (zReason && !zReason[0]) ){
-    zReason = 0;
+  if( !addTag || (zValue && !zValue[0]) ){
+    zValue = 0;
+  }
+  if( addTag && iTagged ){
+    char *zOld = 0;
+    int cmp;
+    rid_has_tag2(iTagged, zTagName, &zOld);
+    cmp = fossil_strcmp(zOld, zValue);
+    fossil_free(zOld);
+    if( 0==cmp ){
+      /* Same value - leave it as is. */
+      db_end_transaction(0);
+      return 0;
+    }
   }
   zUuid = rid_to_uuid(frid);
   blob_appendf(&artifact, "D %z\n", date_in_standard_format( "now" ));
   blob_appendf(&artifact, "T %c%s %s%s%F\n",
                addTag ? '*' : '-', zTagName,
-               zUuid, zReason ? " " : "", zReason ? zReason : "");
+               zUuid, zValue ? " " : "", zValue ? zValue : "");
   blob_appendf(&artifact, "U %F\n", login_name());
   md5sum_blob(&artifact, &cksum);
   blob_appendf(&artifact, "Z %b\n", &cksum);
@@ -474,8 +496,7 @@ static int forumpost_tag(int frid, const char *zTagName, int addTag,
   if( trid==0 ){
     fossil_fatal("Error saving tag artifact: %s", g.zErrMsg);
   }
-  if( manifest_crosslink(trid, &artifact,
-                         MC_NONE /*MC_PERMIT_HOOKS?*/)==0 ){
+  if( manifest_crosslink(trid, &artifact, MC_NONE)==0 ){
     fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&artifact) );
@@ -483,10 +504,6 @@ static int forumpost_tag(int frid, const char *zTagName, int addTag,
   admin_log("Tag forum post %S with %c%s",
             zUuid, addTag ? '*' : '-', zTagName);
   fossil_free(zUuid);
-  /* Potential TODO: if (iClosed>0) then we could find the initial tag
-  ** artifact and content_deltify(thatRid,&trid,1,0). Given the tiny
-  ** size of these artifacts, however, that would save little space,
-  ** if any. */
   db_end_transaction(0);
   return 1;
 }
@@ -857,6 +874,68 @@ void forumthreadhashlist(void){
 }
 
 /*
+** Returns true if the current user is authorized to set forum post
+** fpid's status.
+*/
+static int forum_may_set_status(int fpid){
+  return g.perm.Admin
+    || g.perm.ModForum
+    || (login_is_individual()
+        && forumpost_is_owner(fpid, 0));
+}
+
+/*
+** If the current user is authorized to set fp's status then this
+** renders a mini-form for setting the status then redirecting back to
+** the post. Else it may emit a status label or no output.
+*/
+static void forum_render_status_selection( const ForumPost *fp ){
+  const ForumStatusList * const fss = forum_statuses();
+  if( fss->n>1 ){
+    const ForumPost * pHead = fp->pEditHead ? fp->pEditHead : fp;
+    int i;
+    char * zCurrent = 0;
+    const ForumStatus * sCurrent = 0;
+    rid_has_tag2(pHead->fpid, "status", &zCurrent);
+    for( i = 0; i < fss->n; ++i ){
+      const ForumStatus * const fs = &fss->aStatus[i];
+      if( 0==fossil_strcmp(zCurrent, fs->zValue) ){
+        sCurrent = fs;
+        break;
+      }
+    }
+    if( !sCurrent ) sCurrent = &fss->aStatus[0];
+    assert( sCurrent );
+    @ <span class='forum-status-selection'>
+    if( forum_may_set_status(fp->fpid)
+        /* FIXME: only do this if fp is the currently-selected post */ ){
+      @ <form method="post" action='%R/forumpost_status'>
+      login_insert_csrf_secret();
+      @ <input type='hidden' name='fpid' value='%s(fp->zUuid)' />
+      @ <select name='status' data-fpid='%s(fp->zUuid)>'\
+      @ data-initial-value='%h(zCurrent ? zCurrent : "")'>
+      for( i = 0; i < fss->n; ++i ){
+        const ForumStatus * const fs = &fss->aStatus[i];
+        @ <option value='%h(fs->zValue)'\
+        @ %s(sCurrent==fs ? " selected" : "")>\
+        @ %h(fs->zLabel)</option>
+      }
+      @ </select>
+      @ <input type='button' class='submit action-status' disabled
+      @ value='Change' />
+      /* ^^^ This must be <input>, not <button>, or else tapping it
+      ** will unconditionally submit. */
+      @ </form>
+      /* Form is activated in fossil.page.forumpost.js */
+    }else{
+      @ Status: %h(sCurrent->zLabel);
+    }
+    @ </span>
+    fossil_free(zCurrent);
+  }
+}
+
+/*
 ** Render a forum post for display
 */
 void forum_render(
@@ -1131,7 +1210,7 @@ static void forum_display_post(
       @ %z(href("%R/forumpost/%!S?raw",p->zUuid))[source]</a>
     }
     @ </h3>
-  }
+  }/*!bRaw*/
 
   /* Check if this post is approved, also if it's by the current user. */
   bPrivate = content_is_private(p->fpid);
@@ -1195,6 +1274,7 @@ static void forum_display_post(
 
       if( bSelect ){
         const ForumPost *pHead = p->pEditHead ? p->pEditHead : p;
+        const int bIsOwner = forumpost_is_owner(p/*not pHead*/->fpid, 0);
         if( forumpost_may_close() && iClosed>=0 ){
           @ <form method="post" \
           @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
@@ -1202,14 +1282,13 @@ static void forum_display_post(
           @ <input type="hidden" name="fpid" value="%s(p->zUuid)" />
           if( moderation_pending(p->fpid)==0 ){
             @ <input type="button" value='%s(iClosed ? "Re-open" : "Close")' \
-            @  class='hidden %s(iClosed ? "action-reopen" : "action-close")'/>
+            @ class='submit hidden \
+            @ %s(iClosed ? "action-reopen" : "action-close")'/>
             /* ^^^ activated by fossil.page.forumpost.js */
           }
           @ </form>
         }
-        if( g.perm.Admin ||
-            (login_is_individual()
-             && forumpost_is_owner(p/*not pHead*/->fpid, 0)) ){
+        if( g.perm.Admin || (login_is_individual() && bIsOwner) ){
           /* When an admin edits someone else's post, the admin
           ** effectively takes over ownership of it (and we currently
           ** have no way of passing it back). Because of this, we
@@ -1221,22 +1300,29 @@ static void forum_display_post(
           moderation_pending_www(p->fpid);
           @ </form>
         }
-        if( !p->pIrt && g.perm.Setup ){
-          const int isPinned = forum_rid_is_tagged(pHead->fpid, "pinned", 0);
-          @ <form method="post" \
-          @  action='%R/forumpost_%s(isPinned ? "unpin" : "pin")'>
-          login_insert_csrf_secret();
-          @ <input type="hidden" name="fpid" value="%s(p->zUuid)" />
-          @ <input type="button" value='%s(isPinned ? "Unpin" : "Pin")' \
-          @  class='hidden %s(isPinned ? "action-unpin" : "action-pin")'/>
-          /* ^^^ activated by fossil.page.forumpost.js */
-          @ </form>
+        if( !p->pIrt ){
+          /* Root node only... */
+          if( g.perm.Setup ){
+            const int isPinned = forum_rid_is_tagged(pHead->fpid, "pinned", 0);
+            @ <form method="post" \
+            @  action='%R/forumpost_%s(isPinned ? "unpin" : "pin")'>
+            login_insert_csrf_secret();
+            @ <input type="hidden" name="fpid" value="%s(p->zUuid)" />
+            @ <input type="button" value='%s(isPinned ? "Unpin" : "Pin")' \
+            @ class='submit hidden \
+            @ %s(isPinned ? "action-unpin" : "action-pin")'/>
+            /* ^^^ activated by fossil.page.forumpost.js */
+            @ </form>
+          }
         }
       }
       @ </div>
     }
+    if( !p->pIrt && (flags & FDISPLAY_SELECTED)){
+      forum_render_status_selection(p);
+    }
     @ </div>
-  }
+  }/*!bRaw*/
 
   /* Clean up. */
   manifest_destroy(pManifest);
@@ -1734,22 +1820,35 @@ static void forum_post_widget(
 }
 
 /*
+** If PD("fpid") refers to a forum post, its rid is returned, else
+** this function emits an error does not does return.
+*/
+static int forum_validate_fpid_param(void){
+  const char *zFpid = PD("fpid","");
+  int fpid = symbolic_name_to_rid(zFpid, "f");
+  if( fpid<=0 ){
+    webpage_error("Missing or invalid fpid parameter.");
+  }
+  return fpid;
+}
+
+/*
 ** Internal helper for /forumpost_XYZ internal pages which tag/untag
 ** posts.
 */
 static void forumpost_action_helper(const char *zTag, const char *zVal,
-                                    int addTag){
-  const char *zFpid = PD("fpid","");
-  int fpid;
-
-  cgi_csrf_verify();
-  fpid = symbolic_name_to_rid(zFpid, "f");
-  if( fpid<=0 ){
-    webpage_error("Missing or invalid fpid query parameter");
+                                    int addTag, int validFpid){
+  if( !cgi_csrf_safe(2) ){
+    webpage_error("CSRF validation failed");
+  }else{
+    const int fpid = validFpid>0 ? validFpid : forum_validate_fpid_param();
+    forumpost_tag(fpid, zTag, addTag, zVal);
+#if 0
+    @ DEBUG frid=%d(fpid) addTag=%d(addTag) %h(zTag)=%h(zVal ? zVal : "NULL")
+#else
+    cgi_redirectf("%R/forumpost/%S",P("fpid"));
+#endif
   }
-  forumpost_tag(fpid, zTag, addTag, zVal);
-  cgi_redirectf("%R/forumpost/%S",zFpid);
-  return;
 }
 
 /*
@@ -1771,7 +1870,7 @@ void forum_page_close(void){
   }else{
     const int bIsAdd = sqlite3_strglob("*_close*", g.zPath)==0;
     char const *zReason = bIsAdd ? 0 : PD("reason", 0);
-    forumpost_action_helper("closed", zReason, bIsAdd);
+    forumpost_action_helper("closed", zReason, bIsAdd, 0);
   }
 }
 
@@ -1792,7 +1891,31 @@ void forum_page_pin(void){
     login_needed(g.anon.Setup);
   }else{
     const int bIsAdd = sqlite3_strglob("*_pin*", g.zPath)==0;
-    forumpost_action_helper("pinned", 0, bIsAdd);
+    forumpost_action_helper("pinned", 0, bIsAdd, 0);
+  }
+}
+
+/*
+** WEBPAGE: forumpost_status hidden
+**
+**   fpid=X        Hash of the post to be edited.  REQUIRED
+**   status=Y      New status value. REQUIRED
+**
+** Updates the current status=Y tag on the first version of
+** the forum post X. Requires forum_may_set_status() permissions.
+*/
+void forum_page_status(void){
+  int fpid;
+  login_check_credentials();
+  fpid = forum_validate_fpid_param();
+  if(forum_may_set_status(fpid)){
+    const char *zStatus = PD("status",0);
+    if( !zStatus || !zStatus[0] ){
+      webpage_error("Missing required status.");
+    }
+    forumpost_action_helper("status", zStatus, 1, fpid);
+  }else{
+    webpage_error("You lack permissions to change this post's status.");
   }
 }
 
@@ -2468,7 +2591,7 @@ void forum_main_page(void){
         fossil_free(zDuration);
       }
       @ </td>\
-      if( bHasStatus ){
+      if( zStatus ){
         @ <td>%h(zStatus)</td>\
       }
       @</tr>

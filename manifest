@@ -1,5 +1,5 @@
-C Render\sa\scolumn\sfor\seach\spost's\sstatus\sin\sthe\s/forum\slist\sif\sthe\srepo\shas\sa\svalid\sforum-statuses\ssetting.\sThese\sare\sexploratory,\snot\sdefinitive,\schanges.\sIt's\snot\sclear\show\sto\sget\sboth\sa\sstatus's\slabel\sand\sits\svalue\sinto\sthis\slist\swithout\sduplicating\sone\sof\sthe\sinner\squeries.
-D 2026-05-26T09:45:23.457
+C Update\sBlitz\sskin\sstyle\sto\streat\sbuttons\sconsistently\sto\sinput[type=button].
+D 2026-05-26T13:30:07.992
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -329,7 +329,7 @@ F skins/black_and_white/footer.txt 0c32f13f6ad5fa409b38e0093a897d71f407ede5fb3a9
 F skins/black_and_white/header.txt 4e8685c45aa6202f7c7c92f9edc5568ce90152a0e86c21b1c93a1d507e66d4f8
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt ce67ad931a2a6a1e30b90c9c54bb06056525119bfd2c32868f5ab34de212f46e
+F skins/blitz/css.txt f195141c2b9611d1f6fb035addb6167e6aa9b539369f3ac2b7f87b3a6a0ba1af
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 79cbf26fe6504c19a7bfeed588c059429be1a0b5afe06437863a43c85bc82995
-F src/default.css 1343707f42cbbfa0d60bb4352c90e449d1059aadf4990286445e520b5c2774c0
+F src/default.css 1b6e82dc63cd35f944ef9171444bd07cb01b7938f7459a73cb7a6f5a140c66ee
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c ae0e196f6efdd704d722db6ddef83a3a48b82474dfae8bbd88bc4d3b5b51e756
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c 7035f04763367efe57e02d117297660ced7db794b28ab715c3b484ce2cc9a58f
+F src/forum.c a128f14fd696239bf836b8b54b4b616196f9e5a077c32996610e21c58d084e27
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
@@ -448,7 +448,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js 127c7cf826f70f4f01c6c034bdb8841c8c83912f55769a3d2c9b78a5b7bb7d69
+F src/fossil.page.forumpost.js dbbaee7e7fccd86a4b71778e9f535914b892a48adbbe5a60068087202c52e8a2
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -572,7 +572,7 @@ F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2
 F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f12099fbe
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c d028322157a53faa9acded6517ee8baa2fa7760d6085f3ea4fd87e3ecee09cb4
-F src/tag.c 90ae7a157324b05284672463144dba9df2fb0b4e78fe34bcf7c7df54d5216d1d
+F src/tag.c 5701b706ce42fb3cd3132ceb3392cf3f34752c07fcafc6d72306f3f9437d6c06
 F src/tar.c 2a3f5a6efe11b03cc2953a32fd50c48281d9e1d37ed3425284f8c5debe9c4668
 F src/terminal.c 1f497ac2f122d3fc856aac9386c064c10e10bf148467986ef73c7562f9379872
 F src/th.c b09f277fb687cb594f69215e91ee4a3fd86a245eec45985da4b824e969bfbeb5
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 555a0556e670d05c9b927574bfa86c114c366d1145fb742038147fc70b60fc55
-R fe50372938bccc88256ac704e1ef5f69
+P 696c85418d037a84f41d62ea8ce1c25b1a642eaab9e1c715ffa6e8c21bc0737a
+R e3ac0b01f9884280d3e65ef1ab707784
 U stephan
-Z 5e14cec33722a4ded304a571d9205a9d
+Z 3b6ad00d9db27c344011987ce5cd5cef
 # Remove this line to create a well-formed Fossil manifest.

@@ -142,6 +142,33 @@
             onconfirm: ()=>form.submit()
           });
         });
+      form
+        .querySelectorAll("input[type='button'].action-status")
+        .forEach(function(btn){
+          btn.classList.remove('hidden');
+          const sel = btn.previousElementSibling;
+          const updateAble = ()=>{
+            if( sel.dataset.initialValue ){
+              if( sel.dataset.initialValue===sel.value ){
+                btn.setAttribute('disabled','');
+              }else{
+                btn.removeAttribute('disabled');
+              }
+            }else{
+              if(sel.selectedIndex===0){
+                btn.setAttribute('disabled','');
+              }else{
+                btn.removeAttribute('disabled');
+              }
+            }
+          };
+          sel.addEventListener('change', updateAble, true);
+          updateAble();
+          F.confirmer(btn, {
+            confirmText: "Confirm status change",
+            onconfirm: ()=>form.submit()
+          });
+        });
     });
 
   })/*F.onPageLoad callback*/;

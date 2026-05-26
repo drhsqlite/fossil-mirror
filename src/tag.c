@@ -962,6 +962,41 @@ int rid_has_tag(int rid, int tagId){
 
 
 /*
+** If the given blob.rid value has the given tag applied to it,
+** returns false and sets *pOut to a copy of its value (or NULL if it
+** has no value).  Else returns false and sets *pOut to 0.
+** A truthy value returned is the associated tag.tagid value.
+**
+** Ownership of *pOut is transfered to the caller, who must eventually
+** fossil_free() it.
+*/
+int rid_has_tag2(int rid, const char *zTag, char **pOut){
+  static Stmt q;
+  int rc = 0;
+  if( !q.pStmt ){
+    db_prepare(
+      &q, "SELECT t.tagid, x.value"
+      " FROM tagxref x, tag t"
+      " WHERE x.rid=:rid"
+      " AND x.tagtype>0"
+      " AND x.tagid=t.tagid"
+      " AND t.tagname=:name"
+      " ORDER BY mtime DESC"
+    );
+  }
+  *pOut = 0;
+  db_bind_int(&q, ":rid", rid);
+  db_bind_text(&q, ":name", zTag);
+  if( SQLITE_ROW==db_step(&q) ){
+    rc = db_column_int(&q, 0);
+    *pOut = fossil_strdup(db_column_text(&q, 1));
+  }
+  db_reset(&q);
+  return rc;
+}
+
+
+/*
 ** Returns tagxref.rowid if the given blob.rid has a tagxref.rid entry
 ** of an active (non-cancelled) tag matching the given rid and tag
 ** name string, else returns 0. This function does not distinguish
