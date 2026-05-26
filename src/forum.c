@@ -2096,7 +2096,9 @@ void forumedit_page(void){
     webpage_error("Missing or invalid fpid query parameter");
   }
   froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
-  if( froot==0 || (pRootPost = manifest_get(froot, CFTYPE_FORUM, 0))==0 ){
+  if( (froot==0 || (pRootPost = manifest_get(froot, CFTYPE_FORUM, 0))==0)
+   && P("reject")==0
+  ){
     webpage_error("fpid does not appear to be a forum post: \"%d\"", fpid);
   }
   if( P("cancel") ){
