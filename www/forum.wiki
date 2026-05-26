@@ -409,3 +409,46 @@ posts. This is intentional, as closing one's own post can be used to
 antagonize other forum users. For example, by posting something
 trollish or highly controversial in nature and closing the post to
 further responses.
+
+<h2 name="status">Setting Post Statuses</h2>
+
+The setting <tt>forum-statuses</tt> controls whether this feature is
+is abled. If it is not set, is not valid JSON5, or has only a single
+entry, then status are not shown in the forum.
+
+<tt>forum-statuses</tt> is a JSON5-format array of objects in the
+following format:
+
+<verbatim>
+[
+  {label:"Open", value:"open", description:"Unresolved posts"},
+  {label:"Resolved", value:"resolved", description:"Resolved posts"}
+  ...
+]</verbatim>
+
+The list defines the legal statuses for forum posts and syncs with
+other project-level settings. All "label" and "value" members must be
+unique.
+
+If the list has two or more entries then the forum behavior changes in
+the following ways:
+
+  *  The root of each thread, when selected, gets a new UI control for
+     displaying or editing the status, depending on permissions.
+  *  The forum list shows the "label" value of the current status.
+
+This is managed via a <tt>status</tt> tag on the first version of
+that post. That tag may be set to any value from the "values" members
+of the <tt>forum-statuses</tt> list.
+
+Status tag rules:
+
+  *  <tt>status</tt> is only observed on the root of each thread. The UI
+     does nothing with that tag on responses.
+  *  The tag is applied only to the first version of any given post. The
+     UI ensures that the tag is applied to the proper post, even when
+     it is rendering a newer version.
+  *  The first list entry is considered to be the default status. Any post
+     which has a <tt>status</tt> tag value which is not in the
+     list, or which has no <tt>status</tt> tag, is assumed for most
+     purposes to have the value of the first entry in the list.
