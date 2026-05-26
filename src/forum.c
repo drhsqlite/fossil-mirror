@@ -2439,7 +2439,7 @@ void forum_main_page(void){
   int iLimit = 0, iOfst, iCnt;
   int srchFlags;
   const int isSearch = P("s")!=0;
-  const char *zStatus = P("status");
+  const char *zStatusFilter = P("status");
   char const *zLimit = 0;
 
   login_check_credentials();
@@ -2488,6 +2488,7 @@ void forum_main_page(void){
   style_submenu_entry("n","Max:",4,0);
   iOfst = atoi(PD("x","0"));
   iCnt = 0;
+  if( zStatusFilter && !*zStatusFilter ) zStatusFilter = 0;
   if( db_table_exists("repository","forumpost") ){
     const int bHasStatus = forum_statuses()->n>1;
     db_prepare(&q,
@@ -2521,7 +2522,7 @@ void forum_main_page(void){
       "   ),"
       "   (SELECT label FROM forumstatus WHERE ord=1)"
       "  ) ELSE NULL END statlbl"
-      " FROM forumpost x WHERE firt IS NULL"
+      " FROM forumpost x WHERE firt IS NULL AND fprev IS NULL"
       "),"
       " thread(age,duration,cnt,root,last,pinned,status,statlbl)"
       " AS ("
@@ -2535,7 +2536,8 @@ void forum_main_page(void){
       "      ORDER BY y.fmtime DESC LIMIT 1),"
       "    root.pinned, root.status, root.statlbl"
       "  FROM forumpost, root"
-      "  WHERE root.id=froot AND %s"
+      "  WHERE root.id=froot AND %s/*ModForum*/"
+      "  AND CASE WHEN %d/*status filter*/ THEN root.status=%Q ELSE 1 END"
       "  GROUP BY froot"
       "  ORDER BY 6 DESC, 1 LIMIT %d OFFSET %d"
       ")"
@@ -2556,6 +2558,7 @@ void forum_main_page(void){
       bHasStatus, bHasStatus,
       g.perm.ModForum ? "" : "AND y.fpid NOT IN private" /*safe-for-%s*/,
       g.perm.ModForum ? "true" : "fpid NOT IN private" /*safe-for-%s*/,
+      !!zStatusFilter, zStatusFilter,
       iLimit+1, iOfst
     );
     while( db_step(&q)==SQLITE_ROW ){
@@ -2566,29 +2569,45 @@ void forum_main_page(void){
       const char *zTitle = db_column_text(&q, 4);
       const char *zStatus = bHasStatus ? db_column_text(&q, 7) : NULL;
       const char *zStatusLbl = bHasStatus ? db_column_text(&q, 8) : NULL;
+      const int bShowStatus = bHasStatus && !zStatusFilter;
+      const int nCols = bShowStatus ? 4 : 3;
       if( iCnt==0 ){
+        char * zTail = zStatusFilter
+          ? mprintf(" with status=%Q", zStatusFilter)
+          : 0;
         if( iOfst>0 ){
-          @ <h1>Threads at least %s(zAge) old</h1>
+          @ <h1>Threads at least %s(zAge) old%h(zTail ? zTail : "")</h1>
         }else{
-          @ <h1>Most recent threads</h1>
+          @ <h1>Most recent threads%h(zTail ? zTail : "")</h1>
         }
+        fossil_free(zTail);
         @ <div class='forumPosts fileage'><table width="100%%">
         if( iOfst>0 ){
           if( iOfst>iLimit ){
-            @ <tr><td colspan="3">\
-            @ %z(href("%R/forum?x=%d&n=%d",iOfst-iLimit,iLimit))\
-            @ &uarr; Newer...</a></td></tr>
+            @ <tr><td colspan="%d(nCols)">\
+            @ <a href='%R/forum?x=%d(iOfst-iLimit)&n=%d(iLimit) \
+            if( zStatusFilter ){
+              @ &status=%T(zStatusFilter)\
+            }
+            @ '>&uarr; Newer...</a></td></tr>
           }else{
-            @ <tr><td colspan="3">%z(href("%R/forum?n=%d",iLimit))\
-            @ &uarr; Newer...</a></td></tr>
+            @ <tr><td colspan="%d(nCols)">\
+            @ <a href='%R/forum?n=%d(iLimit)\
+            if( zStatusFilter ){
+              @ &status=%T(zStatusFilter) \
+            }
+            @ '>&uarr; Newer...</a></td></tr>
           }
         }
       }
       iCnt++;
       if( iCnt>iLimit ){
-        @ <tr><td colspan="3">\
-        @ %z(href("%R/forum?x=%d&n=%d",iOfst+iLimit,iLimit))\
-        @ &darr; Older...</a></td></tr>
+        @ <tr><td colspan="%d(nCols)">\
+        @ <a href='%R/forum?x=%d(iOfst+iLimit)&n=%d(iLimit) \
+        if( zStatusFilter ){
+          @ &status=%T(zStatusFilter)\
+        }
+        @ '>&darr; Older...</a></td></tr>
         fossil_free(zAge);
         break;
       }
@@ -2611,7 +2630,7 @@ void forum_main_page(void){
         fossil_free(zDuration);
       }
       @ </td>\
-      if( bHasStatus ){
+      if( bShowStatus ){
         @ <td class='status'>%h(zStatusLbl)</td>\
       }
       @</tr>
