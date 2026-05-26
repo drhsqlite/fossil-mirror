@@ -91,7 +91,6 @@ static const ForumStatusList * forum_statuses(void){
   static int once = 0;
   while( !once ){
     Stmt q;
-    char *zSetting;
     ++once;
     /* Read `forum-statuses` setting and transform it into the
     ** fses object.
@@ -102,28 +101,36 @@ static const ForumStatusList * forum_statuses(void){
     ** list. A length-1 list is, for purposes of the UI, identical to
     ** an empty one - status selection/filtering makes no sense if
     ** there's only one choice. */
-    zSetting = db_get("forum-statuses", 0);
+    db_get("forum-statuses", 0);
     db_multi_exec(
       "CREATE TEMP TABLE forumstatus("
       " ord, label, value, descr"
       ");"
     );
-    if( !zSetting ) break;
     db_prepare(&q,
-      " WITH setting(v) AS (SELECT %Q),"
-      " room(r) AS ("
-      "   SELECT e.value FROM setting s, jsonb_each(s.v) e"
-      "   WHERE json_valid(s.v, 0x02)"
-      " )"
+      "WITH setting(v) AS ("
+      "  SELECT value v FROM config WHERE name='forum-statuses'"
+      "),"
+      "room(r) AS ("
+      "  SELECT e.value FROM setting s, jsonb_each(s.v) e"
+      "  WHERE json_valid(s.v, 0x02)"
+      ")"
       " SELECT r->>'label', r->>'value', r->>'description'"
-      " FROM room",
-      zSetting
+      " FROM room"
     );
+    /*
+    ** Quirk: we run the query twice: once to count and once to insert
+    ** into the forumstatus table. We could do the query and populate
+    ** in the same step but we need an ordinal value to go with each
+    ** so that we can retain their order. If the above CTE can be
+    ** altered to provide a sequential ordinal value then we can
+    ** eliminate this double-step.
+    */
     while( SQLITE_ROW==db_step(&q) ){
       ++fses.n;
     }
     if( fses.n ){
-      unsigned int i = 0;
+      int i = 0;
       Stmt qIns;
       fses.aStatus = fossil_malloc(sizeof(fses.aStatus[0]) * fses.n);
       db_reset(&q);
@@ -136,7 +143,7 @@ static const ForumStatusList * forum_statuses(void){
         fs->zValue = fossil_strdup(db_column_text(&q, 1));
         fs->zDescr = fossil_strdup(db_column_text(&q, 2));
         db_reset(&qIns);
-        db_bind_int(&qIns, ":ord", (int)i);
+        db_bind_int(&qIns, ":ord", i);
         db_bind_text(&qIns, ":label", fs->zLabel);
         db_bind_text(&qIns, ":value", fs->zValue);
         db_bind_text(&qIns, ":descr", fs->zDescr);
@@ -145,7 +152,6 @@ static const ForumStatusList * forum_statuses(void){
       db_finalize(&qIns);
     }
     db_finalize(&q);
-    fossil_free(zSetting);
   }
   return &fses;
 }
@@ -2360,8 +2366,9 @@ void forum_main_page(void){
   iOfst = atoi(PD("x","0"));
   iCnt = 0;
   if( db_table_exists("repository","forumpost") ){
+    const int bHasStatus = forum_statuses()->n>1;
     db_prepare(&q,
-      "WITH thread(age,duration,cnt,root,last,pinned) AS ("
+      "WITH thread(age,duration,cnt,root,last,pinned,status) AS ("
       "  SELECT"
       "    julianday('now') - max(fmtime),"
       "    max(fmtime) - min(fmtime),"
@@ -2370,15 +2377,27 @@ void forum_main_page(void){
       "    (SELECT fpid FROM forumpost AS y"
       "      WHERE y.froot=x.froot %s"
       "      ORDER BY y.fmtime DESC LIMIT 1),"
-      "    CASE WHEN"
-      "      firt IS NULL AND"
-      "      (SELECT 1 FROM tagxref ref, tag t"
-      "        WHERE ref.rid=x.fpid AND ref.tagtype>0"
+      "      (firt IS NULL AND"
+      "        (SELECT 1 FROM tagxref ref, tag t"
+      "          WHERE ref.rid=x.fpid AND ref.tagtype>0"
+      "          AND ref.tagid=t.tagid"
+      "          AND t.tagname='pinned')),"
+#if 0
+      "      (SELECT ref.value FROM tagxref ref, tag t"
+      "        WHERE ref.rid=x.froot AND ref.tagtype>0"
       "        AND ref.tagid=t.tagid"
-      "        AND t.tagname='pinned')"
-      "    THEN 1"
-      "    ELSE 0"
-      "    END"
+      "        AND t.tagname='status'"
+      "        UNION ALL"
+      "        SELECT value FROM forumstatus WHERE ord=1)"
+#else
+      "      (SELECT fs.label FROM tagxref ref, tag t, forumstatus fs"
+      "        WHERE ref.rid=x.froot AND ref.tagtype>0"
+      "        AND ref.tagid=t.tagid"
+      "        AND t.tagname='status'"
+      "        AND fs.value=ref.value"
+      "        UNION ALL"
+      "        SELECT label FROM forumstatus WHERE ord=1)"
+#endif
       "  FROM forumpost AS x"
       "  WHERE %s"
       "  GROUP BY froot"
@@ -2391,7 +2410,8 @@ void forum_main_page(void){
       "  blob.uuid,"                                          /* 3 */
       "  substr(event.comment,instr(event.comment,':')+1),"   /* 4 */
       "  thread.last,"                                        /* 5 */
-      "  thread.pinned"                                       /* 6 */
+      "  thread.pinned,"                                      /* 6 */
+      "  thread.status"                                       /* 7 */
       " FROM thread, blob, event"
       " WHERE blob.rid=thread.last"
       "  AND event.objid=thread.last"
@@ -2406,6 +2426,7 @@ void forum_main_page(void){
       int bPinned = db_column_int(&q, 6);
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
+      const char *zStatus = bHasStatus ? db_column_text(&q, 7) : NULL;
       if( iCnt==0 ){
         if( iOfst>0 ){
           @ <h1>Threads at least %s(zAge) old</h1>
@@ -2446,7 +2467,11 @@ void forum_main_page(void){
         @ %d(nMsg) posts spanning %h(zDuration)\
         fossil_free(zDuration);
       }
-      @ </td></tr>
+      @ </td>\
+      if( bHasStatus ){
+        @ <td>%h(zStatus)</td>\
+      }
+      @</tr>
       fossil_free(zAge);
     }
     db_finalize(&q);
