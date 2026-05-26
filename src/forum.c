@@ -2439,6 +2439,7 @@ void forum_main_page(void){
   int iLimit = 0, iOfst, iCnt;
   int srchFlags;
   const int isSearch = P("s")!=0;
+  const char *zStatus = P("status");
   char const *zLimit = 0;
 
   login_check_credentials();
@@ -2490,38 +2491,51 @@ void forum_main_page(void){
   if( db_table_exists("repository","forumpost") ){
     const int bHasStatus = forum_statuses()->n>1;
     db_prepare(&q,
-      "WITH thread(age,duration,cnt,root,last,pinned,status) AS ("
+      "WITH "
+      "root(id,pinned,status,statlbl) AS ("
+      /* FIXME: the status/statlbl columns are running the same query
+      ** to get two adjacent columns. Certainly this query can be
+      ** restructured to avoid the duplicated lookup? */
+      "  SELECT froot id,"
+      "  (SELECT 1 FROM tagxref ref, tag t"
+      "   WHERE ref.rid=x.fpid AND ref.tagtype>0"
+      "   AND ref.tagid=t.tagid"
+      "   AND t.tagname='pinned') pinned,"
+      "  CASE WHEN %d /*bHasStatus*/ THEN coalesce("
+      "   (SELECT ref.value FROM tagxref ref, tag t, forumstatus fs"
+      "    WHERE ref.rid=x.froot AND ref.tagtype>0"
+      "    AND ref.tagid=t.tagid"
+      "    AND t.tagname='status'"
+      "    AND ref.value=fs.value"
+      "    ORDER BY ref.mtime desc"
+      "   ),"
+      "   (SELECT value FROM forumstatus WHERE ord=1)"
+      "  ) ELSE NULL END status,"
+      "  CASE WHEN %d /*bHasStatus*/ THEN coalesce("
+      "   (SELECT fs.label FROM tagxref ref, tag t, forumstatus fs"
+      "    WHERE ref.rid=x.froot AND ref.tagtype>0"
+      "    AND ref.tagid=t.tagid"
+      "    AND t.tagname='status'"
+      "    AND ref.value=fs.value"
+      "    ORDER BY ref.mtime desc"
+      "   ),"
+      "   (SELECT label FROM forumstatus WHERE ord=1)"
+      "  ) ELSE NULL END statlbl"
+      " FROM forumpost x WHERE firt IS NULL"
+      "),"
+      " thread(age,duration,cnt,root,last,pinned,status,statlbl)"
+      " AS ("
       "  SELECT"
       "    julianday('now') - max(fmtime),"
       "    max(fmtime) - min(fmtime),"
       "    sum(fprev IS NULL),"
-      "    froot,"
+      "    root.id,"
       "    (SELECT fpid FROM forumpost AS y"
-      "      WHERE y.froot=x.froot %s"
+      "      WHERE y.froot=root.id %s"
       "      ORDER BY y.fmtime DESC LIMIT 1),"
-      "      (firt IS NULL AND"
-      "        (SELECT 1 FROM tagxref ref, tag t"
-      "          WHERE ref.rid=x.fpid AND ref.tagtype>0"
-      "          AND ref.tagid=t.tagid"
-      "          AND t.tagname='pinned')),"
-#if 0
-      "      (SELECT ref.value FROM tagxref ref, tag t"
-      "        WHERE ref.rid=x.froot AND ref.tagtype>0"
-      "        AND ref.tagid=t.tagid"
-      "        AND t.tagname='status'"
-      "        UNION ALL"
-      "        SELECT value FROM forumstatus WHERE ord=1)"
-#else
-      "      (SELECT fs.label FROM tagxref ref, tag t, forumstatus fs"
-      "        WHERE ref.rid=x.froot AND ref.tagtype>0"
-      "        AND ref.tagid=t.tagid"
-      "        AND t.tagname='status'"
-      "        AND fs.value=ref.value"
-      "        UNION ALL"
-      "        SELECT label FROM forumstatus WHERE ord=1)"
-#endif
-      "  FROM forumpost AS x"
-      "  WHERE %s"
+      "    root.pinned, root.status, root.statlbl"
+      "  FROM forumpost, root"
+      "  WHERE root.id=froot AND %s"
       "  GROUP BY froot"
       "  ORDER BY 6 DESC, 1 LIMIT %d OFFSET %d"
       ")"
@@ -2533,11 +2547,13 @@ void forum_main_page(void){
       "  substr(event.comment,instr(event.comment,':')+1),"   /* 4 */
       "  thread.last,"                                        /* 5 */
       "  thread.pinned,"                                      /* 6 */
-      "  thread.status"                                       /* 7 */
+      "  thread.status,"                                      /* 7 */
+      "  thread.statlbl"                                      /* 8 */
       " FROM thread, blob, event"
       " WHERE blob.rid=thread.last"
       "  AND event.objid=thread.last"
       " ORDER BY 7 DESC, 1;",
+      bHasStatus, bHasStatus,
       g.perm.ModForum ? "" : "AND y.fpid NOT IN private" /*safe-for-%s*/,
       g.perm.ModForum ? "true" : "fpid NOT IN private" /*safe-for-%s*/,
       iLimit+1, iOfst
@@ -2549,6 +2565,7 @@ void forum_main_page(void){
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
       const char *zStatus = bHasStatus ? db_column_text(&q, 7) : NULL;
+      const char *zStatusLbl = bHasStatus ? db_column_text(&q, 8) : NULL;
       if( iCnt==0 ){
         if( iOfst>0 ){
           @ <h1>Threads at least %s(zAge) old</h1>
@@ -2575,7 +2592,11 @@ void forum_main_page(void){
         fossil_free(zAge);
         break;
       }
-      @ <tr%s(bPinned ? " class='pinned'" : "")><td>%h(zAge) ago</td>
+      @ <tr%s(bPinned ? " class='pinned'" : "")
+      if( bHasStatus ){
+        @ data-status="%h(zStatus)"\
+      }
+      @ ><td>%h(zAge) ago</td>
       @ <td class='subject'>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a>\
       @ </td><td>\
       if( g.perm.ModForum && moderation_pending(db_column_int(&q,5)) ){
@@ -2590,8 +2611,8 @@ void forum_main_page(void){
         fossil_free(zDuration);
       }
       @ </td>\
-      if( zStatus ){
-        @ <td>%h(zStatus)</td>\
+      if( bHasStatus ){
+        @ <td class='status'>%h(zStatusLbl)</td>\
       }
       @</tr>
       fossil_free(zAge);

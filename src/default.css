@@ -1116,13 +1116,23 @@ div.setup_forum-column {
   flex-direction: column;
 }
 
-body.forum div.forumPosts table tr.pinned > td.subject:before {
+body.cpage-forum div.forumPosts table tr.pinned > td.subject:before {
   content: "📌 "/*this space works around an unsightly FF quirk*/;
   font-size: 120%;
 }
 
 body.forum span.forum-status-selection {
   white-space: nowrap;
+}
+
+body.cpage-forum div.forumPosts tr[data-status] td.status {
+  /* Add a gap before the "X posts spanning Y time" labels,
+  ** which sometimes wrap and look odd without this gap. */
+  padding-left: 1em;
+}
+body.cpage-forum div.forumPosts tr[data-status="open"] {
+}
+body.cpage-forum div.forumPosts tr[data-status="resolved"] {
 }
 
 body.cpage-setup_forum > .content table {
