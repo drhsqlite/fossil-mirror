@@ -1199,7 +1199,7 @@ void whatis_rid(int rid, int flags, sqlite3_str *pOut){
   Stmt q;
   int cnt;
 
-  if( pOut ) sqlite3_str_append(pOut, "{", 1);
+  if( pOut ) sqlite3_str_appendf(pOut, "{\"rid\":%d", rid);
 
   /* Basic information about the object. */
   db_prepare(&q,
@@ -1221,6 +1221,8 @@ void whatis_rid(int rid, int flags, sqlite3_str *pOut){
       whatis_line(pOut, "artifact","%s", db_column_text(&q,0));
       whatis_line(pOut, "size",    "%d bytes", db_column_int(&q,1));
     }
+  }else if( pOut ){
+    sqlite3_str_appendf(pOut, ",\"artifact\":null");
   }
   db_finalize(&q);
   if( flags & WHATIS_HASHONLY ) return;
@@ -1242,7 +1244,7 @@ void whatis_rid(int rid, int flags, sqlite3_str *pOut){
       const char *zSep = cnt==0 ? ",tags:[" : ",";
       sqlite3_str_appendf(pOut, "%s%J", zSep, zTag);
     }else{
-      const char *zPrefix = cnt++ ? ", " : "tags:       ";
+      const char *zPrefix = cnt ? ", " : "tags:       ";
       fossil_print("%s%s", zPrefix, db_column_text(&q,0));
     }
     cnt++;
@@ -1272,7 +1274,7 @@ void whatis_rid(int rid, int flags, sqlite3_str *pOut){
       const char *zSep = cnt==0 ? ",\"raw-tags\":[" : ",";
       sqlite3_str_appendf(pOut, "%s%J", zSep, zTag);
     }else{
-      const char *zPrefix = cnt++ ? ", " : "raw-tags:       ";
+      const char *zPrefix = cnt ? ", " : "raw-tags:       ";
       fossil_print("%s%s", zPrefix, db_column_text(&q,0));
     }
     cnt++;
@@ -1413,6 +1415,8 @@ void whatis_rid(int rid, int flags, sqlite3_str *pOut){
     fossil_print("%s\n", zDesc);
     fossil_free(zDesc);
   }
+
+  if( pOut ) sqlite3_str_append(pOut, "}", 1);
 }
 
 /*
@@ -1501,7 +1505,7 @@ void whatis_artifact(
       }
       db_finalize(&q);
     }
-    if( pOut ) sqlite3_str_append(pOut, "]", 1);
+    if( pOut ) sqlite3_str_append(pOut, "]}", 2);
   }else if( rid==0 ){
     if( (mFlags & (WHATIS_OMIT_UNK|WHATIS_HASHONLY))==0 ){
                  /* 0123456789 12 */

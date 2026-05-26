@@ -1,5 +1,5 @@
-C Add\sthe\swhatis()\sSQL\sfunction\sfor\suse\sin\sdebugging.
-D 2026-05-26T18:13:54.768
+C Improvements\sto\sthe\swhatis()\sSQL\sfunction.
+D 2026-05-26T18:49:29.582
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -511,7 +511,7 @@ F src/merge.c 27971d57e16450f5480efcde4431c32843546584a471cf5064f706564fabc2e9
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c d16fe90bc0cfcd2d08bafaaf6a858f5b635873e2f1b40e7c9e92a6d8cd6da162
 F src/moderate.c cb8b95d94457517aeaa92b5147de2a05e752167b69669c17cb9116a18c98ceb6
-F src/name.c d0c86a44d77a352415c03753c32f769c1b424c2abd48ae83b5d42e24fc79ed73
+F src/name.c 8e7ebe77a2970450de14cef075237a341e16880104a67a4c8bd2139c407bb2ec
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c 1adf1a85457de922c45d649cbd77e1a483d892e5049a2b812c89a45c22948dec
 F src/piechart.c 9f764d8695b0fda40f4f9fbd1a10d9bbdae7973274de7f60d86794178d61eb15
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72ac51e06990a0a8a8226bdc79fcd991f523417e4b4381cafd4c0bee47725779
-R c9bee3fe514f7046c1f178574d92d0e8
+P db8c6f909d43c5df9ccdbb15dff6cf3799704fb06725d55f27b50805e3afa5f8
+R 102b7de6f86307d3a3e5908eb163d415
 U drh
-Z f61927cd9e525ca0c9b3ac49eeb2091f
+Z c7b2b54c75ff09c4e1e0c4188faf5bfb
 # Remove this line to create a well-formed Fossil manifest.
