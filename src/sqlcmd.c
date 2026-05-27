@@ -144,6 +144,8 @@ static void sqlcmd_gather_artifact_stats(
 /*
 ** Add the content(), compress(), decompress(), and
 ** gather_artifact_stats() SQL functions to database connection db.
+**
+** Also add whatis().
 */
 int add_content_sql_commands(sqlite3 *db){
   sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
@@ -154,6 +156,8 @@ int add_content_sql_commands(sqlite3 *db){
                           sqlcmd_decompress, 0, 0);
   sqlite3_create_function(db, "gather_artifact_stats", 0, SQLITE_UTF8, 0,
                           sqlcmd_gather_artifact_stats, 0, 0);
+  sqlite3_create_function(db, "whatis", 1, SQLITE_UTF8|SQLITE_RESULT_SUBTYPE, 0,
+                          whatis_sql_function, 0, 0);
   return SQLITE_OK;
 }
 
