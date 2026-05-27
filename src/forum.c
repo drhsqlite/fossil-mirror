@@ -2480,8 +2480,10 @@ void forum_main_page(void){
         " WHERE tagid=%d AND tagtype>=1\n"
         "   AND forumstatus.value=tagxref.value\n"
         "   AND rid=:rid\n"
+        "   AND if(%d=0,1,tagxref.value=%Q)\n"
         " ORDER BY mtime DESC",
-        db_int(0,"SELECT tagid FROM tag WHERE tagname='status'")
+        db_int(0,"SELECT tagid FROM tag WHERE tagname='status'"),
+        !!zStatusFilter, zStatusFilter
       );
     }
     db_prepare(&q,
@@ -2514,14 +2516,15 @@ void forum_main_page(void){
       iLimit+1, iOfst
     );
     while( db_step(&q)==SQLITE_ROW ){
-      char *zAge = human_readable_age(db_column_double(&q,0));
-      int nMsg = db_column_int(&q, 2);
-      const char *zUuid = db_column_text(&q, 3);
-      const char *zTitle = db_column_text(&q, 4);
+      char *zAge;
+      int nMsg;
+      const char *zUuid;
+      const char *zTitle;
       const char *zStatus;
       const char *zStatusLbl;
       const int bShowStatus = bHasStatus && !zStatusFilter;
-      const int nCols = bShowStatus ? 4 : 3;
+      const int nCols = bShowStatus ? 4 : 3
+        /* When filtering on status, elide the status column */;
       if( bHasStatus ){
         db_reset(&qStat);
         db_bind_int(&qStat, ":rid", db_column_int(&q,6));
@@ -2532,9 +2535,16 @@ void forum_main_page(void){
           zStatus = forum_statuses()->aStatus[0].zValue;
           zStatusLbl = forum_statuses()->aStatus[0].zLabel;
         }
+        if( zStatusFilter && 0!=fossil_strcmp(zStatusFilter,zStatus) ){
+          continue;
+        }
       }else{
         zStatus = zStatusLbl = NULL;
       }
+      zAge = human_readable_age(db_column_double(&q,0));
+      nMsg = db_column_int(&q, 2);
+      zUuid = db_column_text(&q, 3);
+      zTitle = db_column_text(&q, 4);
       if( iCnt==0 ){
         char * zTail = zStatusFilter
           ? mprintf(" with status=%Q", zStatusFilter)
