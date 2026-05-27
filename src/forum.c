@@ -2417,7 +2417,8 @@ void forum_main_page(void){
   const int isSearch = P("s")!=0;
   const char *zStatusFilter = P("status");
   char const *zLimit = 0;
-  const int bHasStatus = forum_statuses()->n>1;
+  int eStatusTag = 0;
+  int bHasStatus = 0;
 
   login_check_credentials();
   srchFlags = search_restrict(SRCH_FORUM);
@@ -2426,6 +2427,10 @@ void forum_main_page(void){
     return;
   }
   cgi_check_for_malice();
+  eStatusTag = db_int(0, "SELECT tagid FROM tag WHERE tagname='status'");
+  if( eStatusTag && forum_statuses()->n>1 ){
+    bHasStatus = 1;
+  }
   style_set_current_feature("forum");
   style_header("%s%s", db_get("forum-title","Forum"),
                        isSearch ? " Search Results" : "");
@@ -2467,48 +2472,43 @@ void forum_main_page(void){
     zStatusFilter = 0;
   }
   if( db_table_exists("repository","forumpost") ){
+    Stmt qStat;
+    if( bHasStatus ){
+      db_prepare(&qStat,
+        "SELECT tagxref.value, forumstatus.label\n"
+        " FROM forumstatus, tagxref\n"
+        " WHERE tagid=%d AND tagtype>=1\n"
+        "   AND forumstatus.value=tagxref.value\n"
+        "   AND rid=:rid\n"
+        " ORDER BY mtime DESC",
+        db_int(0,"SELECT tagid FROM tag WHERE tagname='status'")
+      );
+    }
     db_prepare(&q,
-      "WITH "
-      "thread(age,duration,cnt,root,last) AS (\n"
+      "WITH thread(root,endtime,lastrid) AS (\n"
       "  SELECT\n"
-      "    julianday('now') - max(fmtime),\n"
-      "    max(fmtime) - min(fmtime),\n"
-      "    sum(fprev IS NULL),\n"
       "    froot,\n"
-      "    (SELECT fpid FROM forumpost AS y\n"
-      "      WHERE y.froot=x.froot %s\n"
-      "      ORDER BY y.fmtime DESC LIMIT 1)\n"
-      "  FROM forumpost AS x\n"
+      "    max(fmtime),\n"
+      "    fpid\n"
+      "  FROM forumpost\n"
       "  WHERE firt IS NULL AND %s/*ModForum*/\n"
       "  GROUP BY froot\n"
-      "  ORDER BY 1\n"
+      "  ORDER BY 2 DESC\n"
       "  LIMIT %d OFFSET %d\n"
       ")\n"
       "SELECT\n"
-      "  thread.age,\n"                                         /* 0 */
-      "  thread.duration,\n"                                    /* 1 */
-      "  thread.cnt,\n"                                         /* 2 */
+      "  julianday('now') - thread.endtime,\n"                  /* 0 */
+      "  (SELECT fmtime FROM forumpost WHERE fpid=root),\n"     /* 1 */
+      "  (SELECT sum(fprev IS NULL) FROM forumpost"
+         " WHERE froot=root),\n"                                /* 2 */
       "  blob.uuid,\n"                                          /* 3 */
       "  substr(event.comment,instr(event.comment,':')+1),\n"   /* 4 */
-      "  thread.last,\n"                                        /* 5 */
-      "  (SELECT coalesce(fs.value,dfs.value)\n"
-      "     FROM tag, tagxref, forumstatus fs\n"
-      "    WHERE tag.tagname='status'\n"
-      "      AND tagxref.tagid=tag.tagid\n"
-      "      AND tagxref.tagtype>=1\n"
-      "      AND fs.value=tagxref.value),"                      /* 6 */
-      "  (SELECT coalesce(fs.label,dfs.label)\n"
-      "     FROM tag, tagxref, forumstatus fs\n"
-      "    WHERE tag.tagname='status'\n"
-      "      AND tagxref.tagid=tag.tagid\n"
-      "      AND tagxref.tagtype>=1\n"
-      "      AND fs.value=tagxref.value)"                       /* 7 */
+      "  thread.lastrid,\n"                                     /* 5 */
+      "  thread.root\n"                                         /* 6 */
       " FROM thread, blob, event\n"
-      "  LEFT JOIN forumstatus AS dfs ON (dfs.ord=1)\n"
-      " WHERE blob.rid=thread.last\n"
-      "   AND event.objid=thread.last\n"
+      " WHERE blob.rid=thread.lastrid\n"
+      "   AND event.objid=thread.lastrid\n"
       " ORDER BY 1;",
-      g.perm.ModForum ? "" : "AND y.fpid NOT IN private" /*safe-for-%s*/,
       g.perm.ModForum ? "true" : "fpid NOT IN private" /*safe-for-%s*/,
       iLimit+1, iOfst
     );
@@ -2517,10 +2517,23 @@ void forum_main_page(void){
       int nMsg = db_column_int(&q, 2);
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
-      const char *zStatus = bHasStatus ? db_column_text(&q, 6) : NULL;
-      const char *zStatusLbl = bHasStatus ? db_column_text(&q, 7) : NULL;
+      const char *zStatus;
+      const char *zStatusLbl;
       const int bShowStatus = bHasStatus && !zStatusFilter;
       const int nCols = bShowStatus ? 4 : 3;
+      if( bHasStatus ){
+        db_reset(&qStat);
+        db_bind_int(&qStat, ":rid", db_column_int(&q,6));
+        if( db_step(&qStat)==SQLITE_ROW ){
+          zStatus = db_column_text(&qStat, 0);
+          zStatusLbl = db_column_text(&qStat, 1);
+        }else{
+          zStatus = forum_statuses()->aStatus[0].zValue;
+          zStatusLbl = forum_statuses()->aStatus[0].zLabel;
+        }
+      }else{
+        zStatus = zStatusLbl = NULL;
+      }
       if( iCnt==0 ){
         char * zTail = zStatusFilter
           ? mprintf(" with status=%Q", zStatusFilter)
@@ -2575,7 +2588,7 @@ void forum_main_page(void){
       if( nMsg<2 ){
         @ no replies\
       }else{
-        char *zDuration = human_readable_age(db_column_double(&q,1));
+        char *zDuration = human_readable_age(db_column_double(&q,0));
         @ %d(nMsg) posts spanning %h(zDuration)\
         fossil_free(zDuration);
       }
@@ -2583,10 +2596,14 @@ void forum_main_page(void){
       if( bShowStatus ){
         @ <td class='status'>%h(zStatusLbl)</td>\
       }
+      if( bHasStatus ){
+        db_reset(&qStat);
+      }
       @</tr>
       fossil_free(zAge);
     }
     db_finalize(&q);
+    if( bHasStatus ) db_finalize(&qStat);
   }
   if( iCnt>0 ){
     @ </table></div>
