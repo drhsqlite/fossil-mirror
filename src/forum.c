@@ -2491,7 +2491,7 @@ void forum_main_page(void){
       "    max(fmtime),\n"
       "    fpid\n"
       "  FROM forumpost\n"
-      "  WHERE firt IS NULL AND %s/*ModForum*/\n"
+      "  WHERE %s/*ModForum*/\n"
       "  GROUP BY froot\n"
       "  ORDER BY 2 DESC\n"
       "  LIMIT %d OFFSET %d\n"
