@@ -101,10 +101,11 @@ static const ForumStatusList * forum_statuses(void){
     ** an empty one - status selection/filtering makes no sense if
     ** there's only one choice. */
     db_multi_exec(
-      "CREATE TEMP TABLE forumstatus("
-      " ord INTEGER PRIMARY KEY AUTOINCREMENT,"
+      "CREATE TEMP TABLE IF NOT EXISTS forumstatus("
+      " ord INTEGER PRIMARY KEY,"
       " label, value, descr"
       ");"
+      "DELETE FROM forumstatus;"
       "INSERT INTO forumstatus(label,value,descr)"
       "  WITH setting(v) AS ("
       "    SELECT value v FROM config WHERE name='forum-statuses'"
@@ -114,7 +115,8 @@ static const ForumStatusList * forum_statuses(void){
       "    WHERE json_valid(s.v, 0x02)"
       "  )"
       "  SELECT r->>'label', r->>'value', r->>'description'"
-      "  FROM room"
+      "  FROM room;"
+/*      "INSERT OR IGNORE INTO forumstatus(1,'Open','open','Open');" */
     );
     fses.n = (unsigned)db_int(0, "SELECT count(*) FROM forumstatus");
     if( fses.n ){
@@ -2464,10 +2466,6 @@ void forum_main_page(void){
   if( g.perm.WrForum ){
     style_submenu_element("New Thread","%R/forumnew");
   }else{
-    /* Can't combine this with previous case using the ternary operator
-     * because that causes an error yelling about "non-constant format"
-     * with some compilers.  I can't see it, since both expressions have
-     * the same format, but I'm no C spec lawyer. */
     style_submenu_element("New Thread","%R/login");
   }
   if( g.perm.ModForum && moderation_needed() ){
@@ -2504,74 +2502,55 @@ void forum_main_page(void){
   if( db_table_exists("repository","forumpost") ){
     db_prepare(&q,
       "WITH "
-      "root(id,pinned,status,statlbl) AS ("
-      /* FIXME: the status/statlbl columns are running the same query
-      ** to get two adjacent columns. Certainly this query can be
-      ** restructured to avoid the duplicated lookup? */
-      "  SELECT froot id,"
-      "  (SELECT 1 FROM tagxref ref, tag t"
-      "   WHERE ref.rid=x.fpid AND ref.tagtype>0"
-      "   AND ref.tagid=t.tagid"
-      "   AND t.tagname='pinned') pinned,"
-      /* Status value: */
-      "  CASE WHEN %d /*bHasStatus*/ THEN coalesce("
-      "   (SELECT ref.value FROM tagxref ref, tag t, forumstatus fs"
-      "    WHERE ref.rid=x.froot AND ref.tagtype>0"
-      "    AND ref.tagid=t.tagid"
-      "    AND t.tagname='status'"
-      "    AND ref.value=fs.value"
-      "    ORDER BY ref.mtime desc"
-      "   ),"
-      "   (SELECT value FROM forumstatus WHERE ord=1)"
-      "  ) ELSE NULL END status,"
-      /* Status label: */
-      "  CASE WHEN %d /*bHasStatus*/ THEN coalesce("
-      "   (SELECT fs.label FROM tagxref ref, tag t, forumstatus fs"
-      "    WHERE ref.rid=x.froot AND ref.tagtype>0"
-      "    AND ref.tagid=t.tagid"
-      "    AND t.tagname='status'"
-      "    AND ref.value=fs.value"
-      "    ORDER BY ref.mtime desc"
-      "   ),"
-      "   (SELECT label FROM forumstatus WHERE ord=1)"
-      "  ) ELSE NULL END statlbl"
-      " FROM forumpost x WHERE firt IS NULL" /*??? AND fprev IS NULL*/
-      "),"
-      " thread(age,duration,cnt,root,last,pinned,status,statlbl)"
-      " AS ("
-      "  SELECT"
-      "    julianday('now') - max(fmtime),"
-      "    max(fmtime) - min(fmtime),"
-      "    sum(fprev IS NULL),"
-      "    root.id,"
-      "    (SELECT fpid FROM forumpost AS y"
-      "      WHERE y.froot=root.id %s"
-      "      ORDER BY y.fmtime DESC LIMIT 1),"
-      "    root.pinned, root.status, root.statlbl"
-      "  FROM forumpost, root"
-      "  WHERE root.id=froot AND %s/*ModForum*/"
-      "  AND CASE WHEN %d/*status filter*/ THEN root.status=%Q ELSE 1 END"
-      "  GROUP BY froot"
-      "  ORDER BY 6 DESC, 1 LIMIT %d OFFSET %d"
-      ")"
-      "SELECT"
-      "  thread.age,"                                         /* 0 */
-      "  thread.duration,"                                    /* 1 */
-      "  thread.cnt,"                                         /* 2 */
-      "  blob.uuid,"                                          /* 3 */
-      "  substr(event.comment,instr(event.comment,':')+1),"   /* 4 */
-      "  thread.last,"                                        /* 5 */
-      "  thread.pinned,"                                      /* 6 */
-      "  thread.status,"                                      /* 7 */
-      "  thread.statlbl"                                      /* 8 */
-      " FROM thread, blob, event"
-      " WHERE blob.rid=thread.last"
-      "  AND event.objid=thread.last"
+      "pinned(pinnedid) AS MATERIALIZED (\n"
+      "  SELECT DISTINCT tagxref.rid\n"
+      "    FROM tag, tagxref\n"
+      "   WHERE tag.tagname='pinned'\n"
+      "     AND tagxref.tagid=tag.tagid\n"
+      "     AND tagxref.tagtype>=1\n"
+      "),\n"
+      "thread(age,duration,cnt,root,last,pinned) AS (\n"
+      "  SELECT\n"
+      "    julianday('now') - max(fmtime),\n"
+      "    max(fmtime) - min(fmtime),\n"
+      "    sum(fprev IS NULL),\n"
+      "    froot,\n"
+      "    (SELECT fpid FROM forumpost AS y\n"
+      "      WHERE y.froot=x.froot %s\n"
+      "      ORDER BY y.fmtime DESC LIMIT 1),\n"
+      "    froot IN pinned\n"
+      "  FROM forumpost AS x\n"
+      "  WHERE firt IS NULL AND %s/*ModForum*/\n"
+      "  GROUP BY froot\n"
+      "  ORDER BY 6 DESC, 1 LIMIT %d OFFSET %d\n"
+      ")\n"
+      "SELECT\n"
+      "  thread.age,\n"                                         /* 0 */
+      "  thread.duration,\n"                                    /* 1 */
+      "  thread.cnt,\n"                                         /* 2 */
+      "  blob.uuid,\n"                                          /* 3 */
+      "  substr(event.comment,instr(event.comment,':')+1),\n"   /* 4 */
+      "  thread.last,\n"                                        /* 5 */
+      "  thread.pinned,\n"                                      /* 6 */
+      "  (SELECT coalesce(fs.value,dfs.value)\n"
+      "     FROM tag, tagxref, forumstatus fs\n"
+      "    WHERE tag.tagname='status'\n"
+      "      AND tagxref.tagid=tag.tagid\n"
+      "      AND tagxref.tagtype>=1\n"
+      "      AND fs.value=tagxref.value),"                      /* 7 */
+      "  (SELECT coalesce(fs.label,dfs.label)\n"
+      "     FROM tag, tagxref, forumstatus fs\n"
+      "    WHERE tag.tagname='status'\n"
+      "      AND tagxref.tagid=tag.tagid\n"
+      "      AND tagxref.tagtype>=1\n"
+      "      AND fs.value=tagxref.value)"                       /* 8 */
+      " FROM thread, blob, event\n"
+      "  LEFT JOIN forumstatus AS dfs ON (dfs.ord=1)\n"
+      " WHERE blob.rid=thread.last\n"
+      "   AND event.objid=thread.last\n"
       " ORDER BY 7/*pinned*/ DESC, 1;",
-      bHasStatus, bHasStatus,
       g.perm.ModForum ? "" : "AND y.fpid NOT IN private" /*safe-for-%s*/,
       g.perm.ModForum ? "true" : "fpid NOT IN private" /*safe-for-%s*/,
-      !!zStatusFilter, zStatusFilter,
       iLimit+1, iOfst
     );
     while( db_step(&q)==SQLITE_ROW ){
