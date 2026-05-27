@@ -2498,7 +2498,8 @@ void forum_main_page(void){
       ")\n"
       "SELECT\n"
       "  julianday('now') - thread.endtime,\n"                  /* 0 */
-      "  (SELECT fmtime FROM forumpost WHERE fpid=root),\n"     /* 1 */
+      "  thread.endtime - "
+        "(SELECT fmtime FROM forumpost WHERE fpid=root),\n"     /* 1 */
       "  (SELECT sum(fprev IS NULL) FROM forumpost"
          " WHERE froot=root),\n"                                /* 2 */
       "  blob.uuid,\n"                                          /* 3 */
@@ -2588,7 +2589,7 @@ void forum_main_page(void){
       if( nMsg<2 ){
         @ no replies\
       }else{
-        char *zDuration = human_readable_age(db_column_double(&q,0));
+        char *zDuration = human_readable_age(db_column_double(&q,1));
         @ %d(nMsg) posts spanning %h(zDuration)\
         fossil_free(zDuration);
       }
