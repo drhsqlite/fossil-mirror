@@ -1116,11 +1116,6 @@ div.setup_forum-column {
   flex-direction: column;
 }
 
-body.cpage-forum div.forumPosts table tr.pinned > td.subject:before {
-  content: "📌 "/*this space works around an unsightly FF quirk*/;
-  font-size: 120%;
-}
-
 body.forum span.forum-status-selection {
   white-space: nowrap;
 }

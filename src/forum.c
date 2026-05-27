@@ -1267,18 +1267,6 @@ static void forum_display_post(
           }
           @ </form>
         }
-        if( !p->pIrt && g.perm.Setup ){
-          const int isPinned = forum_rid_is_tagged(pHead->fpid, "pinned", 0);
-          @ <form method="post" \
-          @  action='%R/forumpost_%s(isPinned ? "unpin" : "pin")'>
-          login_insert_csrf_secret();
-          @ <input type="hidden" name="fpid" value="%s(p->zUuid)" />
-          @ <input type="button" value='%s(isPinned ? "Unpin" : "Pin")' \
-          @ class='submit hidden \
-          @ %s(isPinned ? "action-unpin" : "action-pin")'/>
-          /* ^^^ activated by fossil.page.forumpost.js */
-          @ </form>
-        }
         if( g.perm.Admin ||
             (login_is_individual()
              && forumpost_is_owner(p/*not pHead*/->fpid, 0)) ){
@@ -1849,27 +1837,6 @@ void forum_page_close(void){
     const int bIsAdd = sqlite3_strglob("*_close*", g.zPath)==0;
     char const *zReason = bIsAdd ? 0 : PD("reason", 0);
     forumpost_action_helper("closed", zReason, bIsAdd, 0);
-  }
-}
-
-/*
-** WEBPAGE: forumpost_pin hidden
-** WEBPAGE: forumpost_unpin hidden
-**
-**   fpid=X        Hash of the post to be edited.  REQUIRED
-**
-** Pins or unpins the given forum post, within the bounds of the
-** API for forumpost_tag(). After (perhaps) modifying the "pinned"
-** tag of the given thread, it redirects to that post's thread
-** view. Requires setup privileges.
-*/
-void forum_page_pin(void){
-  login_check_credentials();
-  if( !g.perm.Setup ){
-    login_needed(g.anon.Setup);
-  }else{
-    const int bIsAdd = sqlite3_strglob("*_pin*", g.zPath)==0;
-    forumpost_action_helper("pinned", 0, bIsAdd, 0);
   }
 }
 
@@ -2502,14 +2469,7 @@ void forum_main_page(void){
   if( db_table_exists("repository","forumpost") ){
     db_prepare(&q,
       "WITH "
-      "pinned(pinnedid) AS MATERIALIZED (\n"
-      "  SELECT DISTINCT tagxref.rid\n"
-      "    FROM tag, tagxref\n"
-      "   WHERE tag.tagname='pinned'\n"
-      "     AND tagxref.tagid=tag.tagid\n"
-      "     AND tagxref.tagtype>=1\n"
-      "),\n"
-      "thread(age,duration,cnt,root,last,pinned) AS (\n"
+      "thread(age,duration,cnt,root,last) AS (\n"
       "  SELECT\n"
       "    julianday('now') - max(fmtime),\n"
       "    max(fmtime) - min(fmtime),\n"
@@ -2517,12 +2477,12 @@ void forum_main_page(void){
       "    froot,\n"
       "    (SELECT fpid FROM forumpost AS y\n"
       "      WHERE y.froot=x.froot %s\n"
-      "      ORDER BY y.fmtime DESC LIMIT 1),\n"
-      "    froot IN pinned\n"
+      "      ORDER BY y.fmtime DESC LIMIT 1)\n"
       "  FROM forumpost AS x\n"
       "  WHERE firt IS NULL AND %s/*ModForum*/\n"
       "  GROUP BY froot\n"
-      "  ORDER BY 6 DESC, 1 LIMIT %d OFFSET %d\n"
+      "  ORDER BY 1\n"
+      "  LIMIT %d OFFSET %d\n"
       ")\n"
       "SELECT\n"
       "  thread.age,\n"                                         /* 0 */
@@ -2531,24 +2491,23 @@ void forum_main_page(void){
       "  blob.uuid,\n"                                          /* 3 */
       "  substr(event.comment,instr(event.comment,':')+1),\n"   /* 4 */
       "  thread.last,\n"                                        /* 5 */
-      "  thread.pinned,\n"                                      /* 6 */
       "  (SELECT coalesce(fs.value,dfs.value)\n"
       "     FROM tag, tagxref, forumstatus fs\n"
       "    WHERE tag.tagname='status'\n"
       "      AND tagxref.tagid=tag.tagid\n"
       "      AND tagxref.tagtype>=1\n"
-      "      AND fs.value=tagxref.value),"                      /* 7 */
+      "      AND fs.value=tagxref.value),"                      /* 6 */
       "  (SELECT coalesce(fs.label,dfs.label)\n"
       "     FROM tag, tagxref, forumstatus fs\n"
       "    WHERE tag.tagname='status'\n"
       "      AND tagxref.tagid=tag.tagid\n"
       "      AND tagxref.tagtype>=1\n"
-      "      AND fs.value=tagxref.value)"                       /* 8 */
+      "      AND fs.value=tagxref.value)"                       /* 7 */
       " FROM thread, blob, event\n"
       "  LEFT JOIN forumstatus AS dfs ON (dfs.ord=1)\n"
       " WHERE blob.rid=thread.last\n"
       "   AND event.objid=thread.last\n"
-      " ORDER BY 7/*pinned*/ DESC, 1;",
+      " ORDER BY 1;",
       g.perm.ModForum ? "" : "AND y.fpid NOT IN private" /*safe-for-%s*/,
       g.perm.ModForum ? "true" : "fpid NOT IN private" /*safe-for-%s*/,
       iLimit+1, iOfst
@@ -2556,11 +2515,10 @@ void forum_main_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       char *zAge = human_readable_age(db_column_double(&q,0));
       int nMsg = db_column_int(&q, 2);
-      int bPinned = db_column_int(&q, 6);
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
-      const char *zStatus = bHasStatus ? db_column_text(&q, 7) : NULL;
-      const char *zStatusLbl = bHasStatus ? db_column_text(&q, 8) : NULL;
+      const char *zStatus = bHasStatus ? db_column_text(&q, 6) : NULL;
+      const char *zStatusLbl = bHasStatus ? db_column_text(&q, 7) : NULL;
       const int bShowStatus = bHasStatus && !zStatusFilter;
       const int nCols = bShowStatus ? 4 : 3;
       if( iCnt==0 ){
@@ -2603,7 +2561,7 @@ void forum_main_page(void){
         fossil_free(zAge);
         break;
       }
-      @ <tr%s(bPinned ? " class='pinned'" : "")
+      @ <tr \
       if( bHasStatus ){
         @ data-status="%h(zStatus)"\
       }

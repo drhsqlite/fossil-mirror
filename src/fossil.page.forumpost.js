@@ -132,17 +132,6 @@
           });
         });
       form
-        .querySelectorAll("input.action-pin, input.action-unpin")
-        .forEach(function(e){
-          e.classList.remove('hidden');
-          F.confirmer(e, {
-            confirmText: (e.classList.contains('action-unpin')
-                          ? "Confirm unpin"
-                          : "Confirm pin"),
-            onconfirm: ()=>form.submit()
-          });
-        });
-      form
         .querySelectorAll("input[type='button'].action-status")
         .forEach(function(btn){
           btn.classList.remove('hidden');
