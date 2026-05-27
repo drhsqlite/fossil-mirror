@@ -3234,3 +3234,25 @@ void test_manifest_to_json(void){
     fossil_warning("Error count: %d", nErr);
   }
 }
+
+/*
+** Given the RID of an artifact, if that artifact type supports
+** P-cards then this returns the root-most RID of the P-card chain by
+** traversing the plink table, considering only primary parents. If
+** rid refers to anything other than such an artifact, or if the
+** artifact has no primary parent, rid is returned as-is.
+*/
+int rid_root_parent(int rid){
+  Stmt q;
+  db_prepare(
+    &q, "SELECT pid FROM plink WHERE isprim AND cid=:cid"
+  );
+  db_bind_int(&q, ":cid", rid);
+  while( SQLITE_ROW==db_step(&q) ){
+    rid = db_column_int(&q, 0);
+    db_reset(&q);
+    db_bind_int(&q, ":cid", rid);
+  }
+  db_finalize(&q);
+  return rid;
+}

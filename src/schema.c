@@ -279,7 +279,7 @@ const char zRepositorySchema2[] =
 @ CREATE INDEX mlink_i3 ON mlink(fid);
 @ CREATE INDEX mlink_i4 ON mlink(pid);
 @
-@ -- Parent/child linkages between check-ins
+@ -- Parent/child linkages between artifacts with P-cards.
 @ --
 @ CREATE TABLE plink(
 @   pid INTEGER REFERENCES blob,    -- Parent manifest
