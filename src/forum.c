@@ -1072,7 +1072,6 @@ static void forum_render_attachment_list2(ForumPost *p){
 #define FDISPLAY_UNFORMATTED 0x02 /* leave the post unformatted */
 #define FDISPLAY_HISTORY     0x04 /* Showing edit history */
 #define FDISPLAY_SELECTED    0x08 /* This is the selected post */
-#define FDISPLAY_ISROOT      0x10 /* This is the root post */
 
 /*
 ** Display a single post in a forum thread.
@@ -1419,8 +1418,7 @@ static void forum_display_thread(
       (mode==FD_RAW ? FDISPLAY_RAW : 0) |
       (bUnf ? FDISPLAY_UNFORMATTED : 0) |
       (bHist ? FDISPLAY_HISTORY : 0) |
-      (p==pSelect ? FDISPLAY_SELECTED : 0) |
-      ((0==fpid || fpid==froot) ? FDISPLAY_ISROOT : 0),
+      (p==pSelect ? FDISPLAY_SELECTED : 0),
       zQuery
     );
 
