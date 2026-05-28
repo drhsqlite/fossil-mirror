@@ -1008,9 +1008,9 @@ int rid_has_tag(int rid, int tagId){
 
 /*
 ** If the given blob.rid value has the given tag applied to it,
-** returns false and sets *pOut to a copy of its value (or NULL if it
-** has no value).  Else returns false and sets *pOut to 0.
-** A truthy value returned is the associated tag.tagid value.
+** returns true and sets *pOut to a copy of its value (or NULL if it
+** has no value).  Else returns false and sets *pOut to 0.  A truthy
+** value returned is the associated tag.tagid value.
 **
 ** Ownership of *pOut is transfered to the caller, who must eventually
 ** fossil_free() it.

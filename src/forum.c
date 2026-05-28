@@ -904,7 +904,7 @@ static void forum_render_status_selection( const ForumPost *fp ){
       @ <form method="post" action='%R/forumpost_status'>
       login_insert_csrf_secret();
       @ <input type='hidden' name='fpid' value='%s(fp->zUuid)' />
-      @ <select name='status' data-fpid='%s(fp->zUuid)>'\
+      @ <select name='status' data-fpid='%s(fp->zUuid)'>\
       @ data-initial-value='%h(zCurrent ? zCurrent : "")'>
       for( i = 0; i < fss->n; ++i ){
         const ForumStatus * const fs = &fss->aStatus[i];
@@ -1821,11 +1821,7 @@ static void forumpost_action_helper(const char *zTag, const char *zVal,
   }else{
     const int fpid = validFpid>0 ? validFpid : forum_validate_fpid_param();
     forumpost_tag(fpid, zTag, addTag, zVal);
-#if 0
-    @ DEBUG frid=%d(fpid) addTag=%d(addTag) %h(zTag)=%h(zVal ? zVal : "NULL")
-#else
     cgi_redirectf("%R/forumpost/%S",P("fpid"));
-#endif
   }
 }
 
@@ -1834,7 +1830,6 @@ static void forumpost_action_helper(const char *zTag, const char *zVal,
 ** WEBPAGE: forumpost_reopen hidden
 **
 **   fpid=X        Hash of the post to be edited.  REQUIRED
-**   reason=X      Optional reason for closure.
 **
 ** Closes or re-opens the given forum post, within the bounds of the
 ** API for forumpost_tag(). After (perhaps) modifying the "closed"
@@ -1847,8 +1842,7 @@ void forum_page_close(void){
     login_needed(g.anon.Admin);
   }else{
     const int bIsAdd = sqlite3_strglob("*_close*", g.zPath)==0;
-    char const *zReason = bIsAdd ? 0 : PD("reason", 0);
-    forumpost_action_helper("closed", zReason, bIsAdd, 0);
+    forumpost_action_helper("closed", 0, bIsAdd, 0);
   }
 }
 
