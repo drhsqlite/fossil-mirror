@@ -96,69 +96,85 @@
       content.appendChild(rightTapZone);
       rightTapZone.addEventListener('click', widgetEventHandler, false);
       refillTapZone();
-    })/*F.onPageLoad()*/;
+    })/*for-each div.forumTime|div.forumEdit*/;
 
     if(F.pikchr){
       F.pikchr.addSrcView();
     }
 
-    /* Attempt to keep stray double-clicks from double-posting.
-       https://fossil-scm.org/forum/info/6bd02466533aa131 */
-    const formSubmitted = function(event){
-      const form = event.target;
-      if( form.dataset.submitted ){
-        event.preventDefault();
-        return;
+    const eStatus = document.querySelector(
+      'form div.submenu select.submenuctrl[name="status"]'
+    );
+    if( eStatus ){
+      /* Main /forum list. Remove the 'x' form element when eStatus
+      ** changes, to avoid propagating x when changing the filter. */
+      const pForm = eStatus.parentElement?.parentElement;
+      if( pForm ){
+        eStatus.addEventListener('change', ()=>{
+          pForm.querySelector('input[type="hidden"][name="x"]')?.remove();
+        }, true);
       }
-      form.dataset.submitted = '1';
-      /** If the user is left waiting "a long time," disable the
-          resubmit protection. If we don't do this and they tap the
-          browser's cancel button while waiting, they'll be stuck with
-          an unsubmittable form. */
-      setTimeout(()=>{delete form.dataset.submitted}, 7000);
-      return;
-    };
-    document.querySelectorAll("form").forEach(function(form){
-      form.addEventListener('submit',formSubmitted);
-      form
-        .querySelectorAll("input.action-close, input.action-reopen")
-        .forEach(function(e){
-          e.classList.remove('hidden');
-          F.confirmer(e, {
-            confirmText: (e.classList.contains('action-reopen')
-                          ? "Confirm re-open"
-                          : "Confirm close"),
-            onconfirm: ()=>form.submit()
+    }else{
+      /* One of the single-post edit/view pages.  Handle various UI
+         controls and attempt to keep stray double-clicks from
+         double-posting.
+         https://fossil-scm.org/forum/info/6bd02466533aa131 */
+      const formSubmitted = function(event){
+        const form = event.target;
+        if( form.dataset.submitted ){
+          event.preventDefault();
+          return;
+        }
+        form.dataset.submitted = '1';
+        /** If the user is left waiting "a long time," disable the
+            resubmit protection. If we don't do this and they tap the
+            browser's cancel button while waiting, they'll be stuck with
+            an unsubmittable form. */
+        setTimeout(()=>{delete form.dataset.submitted}, 7000);
+        return;
+      };
+      document.querySelectorAll("form").forEach(function(form){
+        form.addEventListener('submit', formSubmitted);
+        form
+          .querySelectorAll("input.action-close, input.action-reopen")
+          .forEach(function(e){
+            e.classList.remove('hidden');
+            F.confirmer(e, {
+              confirmText: (e.classList.contains('action-reopen')
+                            ? "Confirm re-open"
+                            : "Confirm close"),
+              onconfirm: ()=>form.submit()
+            });
           });
-        });
-      form
-        .querySelectorAll("input[type='button'].action-status")
-        .forEach(function(btn){
-          btn.classList.remove('hidden');
-          const sel = btn.previousElementSibling;
-          const updateAble = ()=>{
-            if( sel.dataset.initialValue ){
-              if( sel.dataset.initialValue===sel.value ){
-                btn.setAttribute('disabled','');
+        form
+          .querySelectorAll("input[type='button'].action-status")
+          .forEach(function(btn){
+            btn.classList.remove('hidden');
+            const sel = btn.previousElementSibling;
+            const updateAble = ()=>{
+              if( sel.dataset.initialValue ){
+                if( sel.dataset.initialValue===sel.value ){
+                  btn.setAttribute('disabled','');
+                }else{
+                  btn.removeAttribute('disabled');
+                }
               }else{
-                btn.removeAttribute('disabled');
+                if(sel.selectedIndex===0){
+                  btn.setAttribute('disabled','');
+                }else{
+                  btn.removeAttribute('disabled');
+                }
               }
-            }else{
-              if(sel.selectedIndex===0){
-                btn.setAttribute('disabled','');
-              }else{
-                btn.removeAttribute('disabled');
-              }
-            }
-          };
-          sel.addEventListener('change', updateAble, true);
-          updateAble();
-          F.confirmer(btn, {
-            confirmText: "Confirm status change",
-            onconfirm: ()=>form.submit()
+            };
+            sel.addEventListener('change', updateAble, true);
+            updateAble();
+            F.confirmer(btn, {
+              confirmText: "Confirm status change",
+              onconfirm: ()=>form.submit()
+            });
           });
-        });
-    });
+      });
+    }
 
   })/*F.onPageLoad callback*/;
 })(window.fossil);

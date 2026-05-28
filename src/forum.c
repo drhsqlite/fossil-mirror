@@ -2501,6 +2501,10 @@ void forum_main_page(void){
       if( zStatusFilter ){
         const int bIsDflt =
           0==fossil_strcmp(pFstat->aStatus[0].zValue, zStatusFilter);
+        const int bIsKnown =bIsDflt
+          ? 1
+          : db_int(0, "SELECT 1 FROM forumstatus WHERE value=%Q",
+                   zStatusFilter);
         db_multi_exec(
           "INSERT INTO trootid\n"
           /* Rules:
@@ -2678,6 +2682,11 @@ void forum_main_page(void){
     @ </table></div>
   }else{
     @ <h1>No forum posts found</h1>
+  }
+  if( bHasStatus ){
+    /* We need a JS-side kludge to avoid passing on the x=N
+    ** URL arg when the status selection list is activated. */
+    forum_emit_js();
   }
   style_finish_page();
 }

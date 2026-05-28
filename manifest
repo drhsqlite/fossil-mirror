@@ -1,5 +1,5 @@
-C Attempt\sN\sat\sfiltering\s/forum\son\sthe\sstatus\stag.\sThis\sstill\srequires\sa\sseparate\squery\sto\sget\sthe\sstatus\slabel\sfor\seach\sentry\sand\sit's\snot\syet\sproven\sto\sbe\sperformant\senough\sfor\sreal\suse,\sbut\sit\sessentially\sworks.\sBug:\swhen\sbrowsing\sto\spage\s2+\sof\sa\sfiltered\slist\sthen\schanging\sthe\sfilter\svia\sthe\sdropdown\sselection\slist,\sthe\sx=\sparam\s(starting\soffset)\sis\sretained\sbut\swe\sneed\sit\sto\sbe\sremoved.
-D 2026-05-28T09:14:17.190
+C In\s/forum,\swhen\sselecting\sa\sstatus\sfilter\sclear\sout\sthe\sx=\shidden\sform\sfield\sso\sthat\swe\sreturn\sto\sthe\sstart\sof\sthe\slist\sfor\sthe\snewly-selected\sstatus.\sThis\srequires\sa\sJS-side\ssolution.\sJust\snow\sdiscovered\sthat\sit's\snot\sfiltering\squite\sproperly\swhen\sthe\sexplicitly-selected\sstatus\sis\sthe\sdefault\sstatus\sand\sa\spost\shas\sa\sstatus=Z\svalue\sfor\swhich\sZ\sis\snot\sin\sthe\sconfigured\sstatus\slist.\sPer\sthe\sagreed-upon\srules,\ssuch\sposts\sshould\sbe\streated\sas\shaving\sthe\sfirst/default\sstatus\sbut\sthey're\scurrently\sbeing\sfiltered\sout\sin\sthat\scase.
+D 2026-05-28T10:06:53.608
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c 6475e1e8115c43f0457e50b16483787ed7fc478f013f303756b8d26f6939b4ed
+F src/forum.c 1b34f3dd7b8cafdb7c81ebdf4aeaba882f35bf92c942cc55b08dfe6fe76f5088
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js facf9146e261cc67c8273f11ab2131569b032d69fc1166369e5b666c4f7507ee
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
@@ -448,7 +448,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js 87dd4144f9868334a2cabd3920d063e9ccac9114f7b82931c292b62fe3cf5ed4
+F src/fossil.page.forumpost.js 43fd37f03398d47e0541b4d07a4c4024d7ebd9103ac45918206da791d1e50ab5
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d01961c346476c571cd0de4cf29e0d1668538ae94db95747e2e7beb2f4bd417e
-R bcc7ce4075e4ad45e311f3a5eb3d15c9
+P 45a8de423b9af62470f24e9cf035347dd736071a41c6bf6415040f38c1581db2
+R a7782d3c26119761253dc6f5b359c10b
 U stephan
-Z 4c124c18acbe7933d77d559c5f7c21de
+Z 29b7d559d90d4c7b4a8afe2af3358604
 # Remove this line to create a well-formed Fossil manifest.
