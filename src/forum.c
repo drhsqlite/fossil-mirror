@@ -2396,6 +2396,7 @@ static void forum_status_submenu(void){
     //assert( i==(1+fss->n)*2 );
   }
   if( i ){
+    cookie_link_parameter("status","forumStatus","*");
     style_submenu_multichoice("status", i/2, az, 0);
   }
 }
@@ -2484,7 +2485,7 @@ void forum_main_page(void){
   int iLimit = 0, iOfst, iCnt;
   int srchFlags;
   const int isSearch = P("s")!=0;
-  const char *zStatusFilter = P("status");
+  const char *zStatusFilter;
   char const *zLimit = 0;    /* Value of the n= query parameter */
   int eStatusTag = 0;        /* tagid for the "status" property */
   int bHasStatus = 0;        /* True if forum-statuses setting exists */
@@ -2536,6 +2537,7 @@ void forum_main_page(void){
   }
   style_submenu_entry("n","Max:",4,0);
   forum_status_submenu();
+  zStatusFilter = P("status") /*must be after forum_status_submenu()!*/;
   iOfst = atoi(PD("x","0"));
   iCnt = 0;
   if( zStatusFilter ){
