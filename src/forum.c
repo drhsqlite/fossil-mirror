@@ -77,10 +77,23 @@ struct ForumStatus {
 ** A list of ForumStatus objects.
 */
 struct ForumStatusList {
-  struct ForumStatus * aStatus; /* List of statuses */
-  unsigned int n;               /* Number of entries */
+  struct ForumStatus *aStatus; /* List of statuses */
+  unsigned int n;              /* Number of entries */
+};
+
+/*
+** Information passed into the status_match() SQL function
+** via the sqlite3_user_data() mechanism, and used by status_match()
+** to determine whether or not a particular forum thread should
+** be displayed.
+*/
+struct ForumStatusMatch {
+  const ForumStatusList *pFses;  /* Parsed forum-statuses setting */
+  int eStatusTag;                /* tagid for the "status" property */
+  unsigned int iMatch;           /* Match this status value */
 };
 #endif /* INTERFACE */
+
 
 /*
 ** Returns a high-level representation of the forum-statuses setting.
@@ -116,7 +129,6 @@ static const ForumStatusList * forum_statuses(void){
       "  )"
       "  SELECT r->>'label', r->>'value', r->>'description'"
       "  FROM room;"
-/*      "INSERT OR IGNORE INTO forumstatus(1,'Open','open','Open');" */
     );
     fses.n = (unsigned)db_int(0, "SELECT count(*) FROM forumstatus");
     if( fses.n ){
@@ -2397,6 +2409,71 @@ static void forum_status_submenu(void){
 }
 
 /*
+** Transient SQL Function:    status_match(FROOT)
+**
+** Return true if the forum thread identified by FROOT should be included
+** in a list of threads.  Used to implement the status=NAME query parameter
+** on /forum.
+**
+** The result of this routine depends on the content of the
+** ForumStatusMatch *pMData object that is available via sqlite3_user_data().
+**
+**    *   If pMData==NULL, always return true.  This means that no
+**        filtering of threads is being done.  This is the common case.
+**
+**    *   If FROOT contains a status property value that matches
+**        pMData->iMatch, return true.
+**
+**    *   if pMData->iMatch==0 (meaning we want to match the default
+**        status value) and if the FROOT thread contains a status that
+**        is not on the list of statuses or if FROOT has no statue
+**        property at all, then return true.  In other words, a forum
+**        thread with no status property or an unknown status property
+**        is treated as if it had the default status.
+**
+**    *   Otherwise, return false.
+*/
+static void forum_status_match(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  static Stmt q;
+  ForumStatusMatch *pMData = sqlite3_user_data(context);
+  int i;
+
+  if( pMData==0 ){
+    sqlite3_result_int(context, 1);
+    return;
+  }
+  db_static_prepare(&q,
+    "SELECT value FROM tagxref\n"
+    " WHERE tagid=%d\n"
+    "   AND tagtype>=1\n"
+    "   AND rid=:rid\n"
+    " ORDER BY mtime DESC LIMIT 1",
+    pMData->eStatusTag
+  );
+  db_bind_int(&q, ":rid", sqlite3_value_int(argv[0]));
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *zValue = (const char*)db_column_text(&q,0);
+    const ForumStatusList *pFses = pMData->pFses;
+    if( zValue==0 ){
+      i = 0;
+    }else{
+      for(i=0; i<pFses->n; i++){
+        if( fossil_strcmp(pFses->aStatus[i].zValue,zValue)==0 ) break;
+      }
+    }
+    if( i>=pMData->pFses->n ) i = 0;
+  }else{
+    i = 0;
+  }
+  db_reset(&q);
+  sqlite3_result_int(context, i==pMData->iMatch);
+}
+
+/*
 ** WEBPAGE: forummain
 ** WEBPAGE: forum
 **
@@ -2416,9 +2493,11 @@ void forum_main_page(void){
   int srchFlags;
   const int isSearch = P("s")!=0;
   const char *zStatusFilter = P("status");
-  char const *zLimit = 0;
-  int eStatusTag = 0;
-  int bHasStatus = 0;
+  char const *zLimit = 0;    /* Value of the n= query parameter */
+  int eStatusTag = 0;        /* tagid for the "status" property */
+  int bHasStatus = 0;        /* True if forum-statuses setting exists */
+  int bFilter = 0;           /* True if status=NAME query parameter */
+  ForumStatusMatch sFSM;     /* Aux data to status_match() SQL function */
 
   login_check_credentials();
   srchFlags = search_restrict(SRCH_FORUM);
@@ -2467,99 +2546,62 @@ void forum_main_page(void){
   forum_status_submenu();
   iOfst = atoi(PD("x","0"));
   iCnt = 0;
-  if( zStatusFilter &&
-      (!*zStatusFilter || 0==fossil_strcmp("*",zStatusFilter)) ){
-    zStatusFilter = 0;
+  if( zStatusFilter ){
+    if( zStatusFilter[0]==0 || 0==fossil_strcmp("*",zStatusFilter) ){
+      zStatusFilter = 0;
+    }else{
+      bFilter = bHasStatus;
+    }
   }
   if( db_table_exists("repository","forumpost") ){
-    const ForumStatusList * pFstat = forum_statuses();
-    const int iStatusTagId = bHasStatus
-      ? db_int(0, "SELECT tagid FROM TAG WHERE tagname='status'")
-      : 0;
-    Stmt qStat = empty_Stmt;
-    db_multi_exec(
-      /* List of forumpost.fpid values which match current
-         filters. */
-      "CREATE TEMP TABLE trootid(id INTEGER PRIMARY KEY);"
-    );
+    const ForumStatusList *pFstat = forum_statuses();
+    Stmt qStat = empty_Stmt;     /* Query to get status information */
     if( bHasStatus ){
-      db_prepare(
-        /* FIXME/TODO: it would be nice to be able to get this info
-        ** directly into the thread query below, rather than
-        ** requiring a separate statement and lookup inside the
-        ** q loop. */
-        &qStat,
+      /* The qStat query runs once for each output row generate by the
+      ** q query.  It determines the value and label of the status for
+      ** the row with froot=:rowid
+      */
+      db_prepare(&qStat,
         "SELECT tagxref.value, forumstatus.label\n"
         " FROM forumstatus, tagxref\n"
         " WHERE tagid=%d AND tagtype>=1\n"
         "   AND forumstatus.value=tagxref.value\n"
         "   AND rid=:rid\n"
-        "   AND if(%d=0,1,tagxref.value=%Q)\n"
         " ORDER BY mtime DESC",
-        iStatusTagId, !!zStatusFilter, zStatusFilter
-      );
-      if( zStatusFilter ){
-        const int bIsDflt =
-          0==fossil_strcmp(pFstat->aStatus[0].zValue, zStatusFilter);
-        db_multi_exec(
-          "WITH stati(val) AS (SELECT value FROM forumstatus)\n"
-          "INSERT INTO trootid\n"
-          /* Rules:
-
-             (1) Filter on status=$zStatusFilter
-             (2) If $zStatusFilter==default status then also include
-                 any posts with no status tag.
-             (3) If no status tag is found for a given post, assume a tag
-                 with the value of the first (default) status.
-             (4) If a status value is found which is not in
-                 [forumstatus] then treat it as if it were the default
-                 value.
-
-             We need to ensure that we filter only the most recent
-             value of each tag and count tagtype=0 (cancel) tags
-             properly.
-          */
-          "  SELECT fpid FROM forumpost\n"
-          "  LEFT JOIN tagxref x ON fpid=rid\n"
-          "  WHERE froot=fpid AND firt IS NULL\n"
-          "  AND (x.tagtype IS NULL OR x.tagtype>0)\n"
-          "  AND (x.tagid IS NULL OR x.tagid=%d)\n"
-          "  AND CASE\n"
-          "    WHEN %d" /*bIsDflt*/
-          "      THEN ("
-          "        x.value IS NULL"
-          "        OR x.value=%Q"
-          "        OR x.value NOT IN stati" /* (4) */
-          "      )\n" /* (2,3,4) */
-          "    ELSE x.value=%Q\n" /* (1) */
-          "    END",
-          iStatusTagId, bIsDflt, zStatusFilter, zStatusFilter
-        );
-        (void)bIsDflt;
-      }else{
-        db_multi_exec(
-          "INSERT INTO trootid\n"
-          "  SELECT fpid FROM forumpost\n"
-          "  WHERE froot=fpid AND firt IS NULL"
-        );
-      }
-    }else{
-      db_multi_exec(
-        "INSERT INTO trootid\n"
-        "  SELECT fpid FROM forumpost\n"
-        "  WHERE froot=fpid AND firt IS NULL"
+        eStatusTag
       );
     }
+
+    /* Create the status_match() SQL function that will determine
+    ** whether or not each thread in the "q" query below is eligible
+    ** for display
+    */
+    if( bFilter ){
+      sFSM.pFses = pFstat;
+      sFSM.eStatusTag = eStatusTag;
+      for(sFSM.iMatch=0; sFSM.iMatch<pFstat->n; sFSM.iMatch++){
+        if( 0==fossil_strcmp(zStatusFilter,
+                             pFstat->aStatus[sFSM.iMatch].zValue) ){
+          break;
+        }
+      }
+      sqlite3_create_function(g.db,"status_match",1,SQLITE_UTF8,(void*)&sFSM,
+                              forum_status_match, 0, 0);
+    }else{
+      sqlite3_create_function(g.db,"status_match",1,SQLITE_UTF8,0,
+                              forum_status_match, 0, 0);
+    }
+
     db_prepare(&q,
       "WITH thread(root,endtime,lastrid) AS (\n"
       "  SELECT\n"
       "    froot,\n"
       "    max(fmtime),\n"
       "    fpid\n"
-      "  FROM forumpost, trootid\n"
+      "  FROM forumpost\n"
       "  WHERE %s/*ModForum*/\n"
-      "  AND froot=trootid.id\n"
       "  GROUP BY froot\n"
+      "  HAVING status_match(froot)\n"
       "  ORDER BY 2 DESC\n"
       "  LIMIT %d OFFSET %d\n"
       ")\n"
@@ -2588,9 +2630,10 @@ void forum_main_page(void){
       const char *zStatus;
       const char *zStatusLbl;
       const int bShowStatus = bHasStatus && !zStatusFilter;
-      const int nCols = bShowStatus ? 4 : 3
-        /* When filtering on status, elide the status column */;
+      const int nCols = bShowStatus ? 4 : 3;
+
       if( qStat.pStmt ){
+        /* Determine the status value for this row */
         db_reset(&qStat);
         db_bind_int(&qStat, ":rid", db_column_int(&q,6));
         if( db_step(&qStat)==SQLITE_ROW ){
@@ -2600,9 +2643,6 @@ void forum_main_page(void){
           zStatus = pFstat->aStatus[0].zValue;
           zStatusLbl = pFstat->aStatus[0].zLabel;
         }
-        if( zStatusFilter && 0!=fossil_strcmp(zStatusFilter,zStatus) ){
-          continue;
-        }
       }else{
         zStatus = zStatusLbl = NULL;
       }
@@ -2611,9 +2651,7 @@ void forum_main_page(void){
       zUuid = db_column_text(&q, 3);
       zTitle = db_column_text(&q, 4);
       if( iCnt==0 ){
-        char * zTail = zStatusFilter
-          ? mprintf(" with status=%Q", zStatusFilter)
-          : 0;
+        char *zTail = bFilter ? mprintf(" with status=%Q", zStatusFilter): 0;
         if( iOfst>0 ){
           @ <h1>Threads at least %s(zAge) old%h(zTail ? zTail : "")</h1>
         }else{
@@ -2625,14 +2663,14 @@ void forum_main_page(void){
           if( iOfst>iLimit ){
             @ <tr><td colspan="%d(nCols)">\
             @ <a href='%R/forum?x=%d(iOfst-iLimit)&n=%d(iLimit) \
-            if( zStatusFilter ){
+            if( bFilter ){
               @ &status=%T(zStatusFilter)\
             }
             @ '>&uarr; Newer...</a></td></tr>
           }else{
             @ <tr><td colspan="%d(nCols)">\
             @ <a href='%R/forum?n=%d(iLimit)\
-            if( zStatusFilter ){
+            if( bFilter ){
               @ &status=%T(zStatusFilter) \
             }
             @ '>&uarr; Newer...</a></td></tr>
@@ -2643,7 +2681,7 @@ void forum_main_page(void){
       if( iCnt>iLimit ){
         @ <tr><td colspan="%d(nCols)">\
         @ <a href='%R/forum?x=%d(iOfst+iLimit)&n=%d(iLimit) \
-        if( zStatusFilter ){
+        if( bFilter ){
           @ &status=%T(zStatusFilter)\
         }
         @ '>&darr; Older...</a></td></tr>
@@ -2680,6 +2718,7 @@ void forum_main_page(void){
     }
     db_finalize(&q);
     if( qStat.pStmt ) db_finalize(&qStat);
+    sqlite3_create_function(g.db,"status_match",1,SQLITE_UTF8,0,0,0,0);
   }
   if( iCnt>0 ){
     @ </table></div>
