@@ -2472,9 +2472,23 @@ void forum_main_page(void){
     zStatusFilter = 0;
   }
   if( db_table_exists("repository","forumpost") ){
-    Stmt qStat;
+    const ForumStatusList * pFstat = forum_statuses();
+    const int iStatusTagId = bHasStatus
+      ? db_int(0, "SELECT tagid FROM TAG WHERE tagname='status'")
+      : 0;
+    Stmt qStat = empty_Stmt;
+    db_multi_exec(
+      /* List of forumpost.fpid values which match current
+         filters. */
+      "CREATE TEMP TABLE trootid(id INTEGER PRIMARY KEY);"
+    );
     if( bHasStatus ){
-      db_prepare(&qStat,
+      db_prepare(
+        /* FIXME/TODO: it would be nice to be able to get this info
+        ** directly into the thread query below, rather than
+        ** requiring a separate statement and lookup inside the
+        ** q loop. */
+        &qStat,
         "SELECT tagxref.value, forumstatus.label\n"
         " FROM forumstatus, tagxref\n"
         " WHERE tagid=%d AND tagtype>=1\n"
@@ -2482,8 +2496,51 @@ void forum_main_page(void){
         "   AND rid=:rid\n"
         "   AND if(%d=0,1,tagxref.value=%Q)\n"
         " ORDER BY mtime DESC",
-        db_int(0,"SELECT tagid FROM tag WHERE tagname='status'"),
-        !!zStatusFilter, zStatusFilter
+        iStatusTagId, !!zStatusFilter, zStatusFilter
+      );
+      if( zStatusFilter ){
+        const int bIsDflt =
+          0==fossil_strcmp(pFstat->aStatus[0].zValue, zStatusFilter);
+        db_multi_exec(
+          "INSERT INTO trootid\n"
+          /* Rules:
+
+             (1) Filter on status=$zStatusFilter
+             (2) If $zStatusFilter==default status then also include
+                 any posts with no status tag.
+             (3) If no matching tag is found, assume a tag with the value
+                 of the first (default) status.
+
+             We need to ensure that we filter only the most recent
+             value of each tag and count tagtype=0 (cancel) tags
+             properly.
+          */
+          "  SELECT fpid FROM forumpost, event\n"
+          "  LEFT JOIN tagxref x ON objid=rid\n"
+          "  WHERE froot=fpid AND firt IS NULL\n"
+          "  AND (x.tagid IS NULL OR x.tagid=%d)\n"
+          "  AND fpid=objid AND type='f'\n"
+          "  AND CASE\n"
+          "    WHEN %d THEN (x.value IS NULL OR x.value=%Q)\n" /* (2,3) */
+          "    ELSE x.value=%Q\n" /* (1) */
+          "    END",
+          iStatusTagId, bIsDflt, zStatusFilter, zStatusFilter
+        );
+        (void)bIsDflt;
+      }else{
+        db_multi_exec(
+          "INSERT INTO trootid\n"
+          "  SELECT fpid FROM forumpost, event\n"
+          "  WHERE froot=fpid AND firt IS NULL\n"
+          "  AND fpid=objid AND type='f'"
+        );
+      }
+    }else{
+      db_multi_exec(
+        "INSERT INTO trootid\n"
+        "  SELECT fpid FROM forumpost, event\n"
+        "  WHERE froot=fpid AND firt IS NULL\n"
+        "  AND fpid=objid AND type='f'"
       );
     }
     db_prepare(&q,
@@ -2492,8 +2549,9 @@ void forum_main_page(void){
       "    froot,\n"
       "    max(fmtime),\n"
       "    fpid\n"
-      "  FROM forumpost\n"
+      "  FROM forumpost, trootid\n"
       "  WHERE %s/*ModForum*/\n"
+      "  AND froot=trootid.id\n"
       "  GROUP BY froot\n"
       "  ORDER BY 2 DESC\n"
       "  LIMIT %d OFFSET %d\n"
@@ -2525,15 +2583,15 @@ void forum_main_page(void){
       const int bShowStatus = bHasStatus && !zStatusFilter;
       const int nCols = bShowStatus ? 4 : 3
         /* When filtering on status, elide the status column */;
-      if( bHasStatus ){
+      if( qStat.pStmt ){
         db_reset(&qStat);
         db_bind_int(&qStat, ":rid", db_column_int(&q,6));
         if( db_step(&qStat)==SQLITE_ROW ){
           zStatus = db_column_text(&qStat, 0);
           zStatusLbl = db_column_text(&qStat, 1);
         }else{
-          zStatus = forum_statuses()->aStatus[0].zValue;
-          zStatusLbl = forum_statuses()->aStatus[0].zLabel;
+          zStatus = pFstat->aStatus[0].zValue;
+          zStatusLbl = pFstat->aStatus[0].zLabel;
         }
         if( zStatusFilter && 0!=fossil_strcmp(zStatusFilter,zStatus) ){
           continue;
@@ -2607,14 +2665,14 @@ void forum_main_page(void){
       if( bShowStatus ){
         @ <td class='status'>%h(zStatusLbl)</td>\
       }
-      if( bHasStatus ){
+      if( qStat.pStmt ){
         db_reset(&qStat);
       }
       @</tr>
       fossil_free(zAge);
     }
     db_finalize(&q);
-    if( bHasStatus ) db_finalize(&qStat);
+    if( qStat.pStmt ) db_finalize(&qStat);
   }
   if( iCnt>0 ){
     @ </table></div>
