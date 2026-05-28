@@ -2501,31 +2501,36 @@ void forum_main_page(void){
       if( zStatusFilter ){
         const int bIsDflt =
           0==fossil_strcmp(pFstat->aStatus[0].zValue, zStatusFilter);
-        const int bIsKnown =bIsDflt
-          ? 1
-          : db_int(0, "SELECT 1 FROM forumstatus WHERE value=%Q",
-                   zStatusFilter);
         db_multi_exec(
+          "WITH stati(val) AS (SELECT value FROM forumstatus)\n"
           "INSERT INTO trootid\n"
           /* Rules:
 
              (1) Filter on status=$zStatusFilter
              (2) If $zStatusFilter==default status then also include
                  any posts with no status tag.
-             (3) If no matching tag is found, assume a tag with the value
-                 of the first (default) status.
+             (3) If no status tag is found for a given post, assume a tag
+                 with the value of the first (default) status.
+             (4) If a status value is found which is not in
+                 [forumstatus] then treat it as if it were the default
+                 value.
 
              We need to ensure that we filter only the most recent
              value of each tag and count tagtype=0 (cancel) tags
              properly.
           */
-          "  SELECT fpid FROM forumpost, event\n"
-          "  LEFT JOIN tagxref x ON objid=rid\n"
+          "  SELECT fpid FROM forumpost\n"
+          "  LEFT JOIN tagxref x ON fpid=rid\n"
           "  WHERE froot=fpid AND firt IS NULL\n"
+          "  AND (x.tagtype IS NULL OR x.tagtype>0)\n"
           "  AND (x.tagid IS NULL OR x.tagid=%d)\n"
-          "  AND fpid=objid AND type='f'\n"
           "  AND CASE\n"
-          "    WHEN %d THEN (x.value IS NULL OR x.value=%Q)\n" /* (2,3) */
+          "    WHEN %d" /*bIsDflt*/
+          "      THEN ("
+          "        x.value IS NULL"
+          "        OR x.value=%Q"
+          "        OR x.value NOT IN stati" /* (4) */
+          "      )\n" /* (2,3,4) */
           "    ELSE x.value=%Q\n" /* (1) */
           "    END",
           iStatusTagId, bIsDflt, zStatusFilter, zStatusFilter
@@ -2534,17 +2539,15 @@ void forum_main_page(void){
       }else{
         db_multi_exec(
           "INSERT INTO trootid\n"
-          "  SELECT fpid FROM forumpost, event\n"
-          "  WHERE froot=fpid AND firt IS NULL\n"
-          "  AND fpid=objid AND type='f'"
+          "  SELECT fpid FROM forumpost\n"
+          "  WHERE froot=fpid AND firt IS NULL"
         );
       }
     }else{
       db_multi_exec(
         "INSERT INTO trootid\n"
-        "  SELECT fpid FROM forumpost, event\n"
-        "  WHERE froot=fpid AND firt IS NULL\n"
-        "  AND fpid=objid AND type='f'"
+        "  SELECT fpid FROM forumpost\n"
+        "  WHERE froot=fpid AND firt IS NULL"
       );
     }
     db_prepare(&q,
