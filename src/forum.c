@@ -904,7 +904,7 @@ static void forum_render_status_selection( const ForumPost *fp ){
       @ <form method="post" action='%R/forumpost_status'>
       login_insert_csrf_secret();
       @ <input type='hidden' name='fpid' value='%s(fp->zUuid)' />
-      @ <select name='status' data-fpid='%s(fp->zUuid)'>\
+      @ <select name='status' data-fpid='%s(fp->zUuid)'\
       @ data-initial-value='%h(zCurrent ? zCurrent : "")'>
       for( i = 0; i < fss->n; ++i ){
         const ForumStatus * const fs = &fss->aStatus[i];
