@@ -1794,7 +1794,7 @@ static void qrfEncodeText(Qrf *p, sqlite3_str *pOut, const char *zTxt){
           sqlite3_str_append(pOut, (const char*)z, i);
         }
         switch( z[i] ){
-          case '>':   sqlite3_str_append(pOut, "&lt;", 4);   break;
+          case '>':   sqlite3_str_append(pOut, "&gt;", 4);   break;
           case '&':   sqlite3_str_append(pOut, "&amp;", 5);  break;
           case '<':   sqlite3_str_append(pOut, "&lt;", 4);   break;
           case '"':   sqlite3_str_append(pOut, "&quot;", 6); break;
@@ -2288,7 +2288,7 @@ static void qrfWrapLine(
     for(k=i-1; k>=i/2; k--){
       if( qrfSpace(z[k]) ) break;
     }
-    if( k<i/2 ){
+    if( k<i/2 && i/2>0 ){
       for(k=i; k>=i/2; k--){
         if( qrfAlnum(z[k-1])!=qrfAlnum(z[k]) && (z[k]&0xc0)!=0x80 ) break;
       }
@@ -19813,7 +19813,7 @@ static int analysisSubreport(
   if( pStmt==0 ) return 1;
   rc = sqlite3_step(pStmt);
   if( rc==SQLITE_ROW ){
-    analysisTitle(p, zTitle);
+    analysisTitle(p, "%s", zTitle);
 
     nentry = sqlite3_column_int64(pStmt, 0);
     payload = sqlite3_column_int64(pStmt, 1);
@@ -25212,7 +25212,11 @@ static const char *shellPromptAppDef(int c){
     case 4:   return "SQLITE_PS2";
 
     /* Name of the application */
+#ifndef SQLITE_CLI_APPNAME
     case 'A': return "SQLite";
+#else
+    case 'A': return SHELL_STRINGIFY(SQLITE_CLI_APPNAME);
+#endif
 
     /* Full version number of the application, including patch level */
     case 'V': return sqlite3_libversion();
@@ -37841,7 +37845,7 @@ static void verify_uninitialized(void){
 /*
 ** https://sqlite.org/forum/forumpost/aad7a634916ff050:
 **
-** Calling setlocale(LC_ALL,"") is required to get libedit to accept
+** Calling setlocale(LC_...,"") is required to get libedit to accept
 ** non-ASCII input.
 */
 #define DO_SET_LOCALE 1
@@ -38118,7 +38122,7 @@ int SQLITE_CDECL main(int argc, char **argv){
         azCmd = realloc(azCmd, sizeof(azCmd[0])*nCmd);
         shell_check_oom(azCmd);
         aiCmd = realloc(aiCmd, sizeof(aiCmd[0])*nCmd);
-        shell_check_oom(azCmd);
+        shell_check_oom(aiCmd);
         azCmd[nCmd-1] = z;
         aiCmd[nCmd-1] = i;
       }
