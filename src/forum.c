@@ -63,7 +63,131 @@ struct ForumThread {
   int mxIndent;          /* Maximum indentation level */
   int nArtifact;         /* Number of forum artifacts in this thread */
 };
+
+/*
+** A single entry from the forum-statuses setting.
+*/
+struct ForumStatus {
+  char *zLabel;  /* Label for the UI */
+  char *zValue;  /* status=X tag value */
+  char *zDescr;  /* Brief description */
+};
+
+/*
+** A list of ForumStatus objects.
+*/
+struct ForumStatusList {
+  struct ForumStatus *aStatus; /* List of statuses */
+  unsigned int n;              /* Number of entries */
+};
+
+/*
+** Information passed into the status_match() SQL function
+** via the sqlite3_user_data() mechanism, and used by status_match()
+** to determine whether or not a particular forum thread should
+** be displayed.
+*/
+struct ForumStatusMatch {
+  const ForumStatusList *pFses;  /* Parsed forum-statuses setting */
+  int eStatusTag;                /* tagid for the "status" property */
+  unsigned int iMatch;           /* Match this status value */
+};
 #endif /* INTERFACE */
+
+
+/*
+** Returns a high-level representation of the forum-statuses setting.
+** This is a singleton, cached across calls.
+ */
+static const ForumStatusList * forum_statuses(void){
+  static ForumStatusList fses = {0,0};
+  static int once = 0;
+  while( !once ){
+    ++once;
+    /* Read `forum-statuses` setting and transform it into the
+    ** fses object.
+    **
+    ** Maybe: if it's empty, synthesize a length-1 list from
+    ** {value:"default",label:"Default",...}.  It's expected that
+    ** usage may be slightly simplified if we always have a non-empty
+    ** list. A length-1 list is, for purposes of the UI, identical to
+    ** an empty one - status selection/filtering makes no sense if
+    ** there's only one choice. */
+    db_multi_exec(
+      "CREATE TEMP TABLE IF NOT EXISTS forumstatus("
+      " ord INTEGER PRIMARY KEY,"
+      " label, value, descr"
+      ");"
+      "DELETE FROM forumstatus;"
+      "INSERT INTO forumstatus(label,value,descr)"
+      "  WITH setting(v) AS ("
+      "    SELECT value v FROM config WHERE name='forum-statuses'"
+      "  ),"
+      "  room(r) AS ("
+      "    SELECT e.value FROM setting s, jsonb_each(s.v) e"
+      "    WHERE json_valid(s.v, 0x02)"
+      "  )"
+      "  SELECT r->>'label', r->>'value', r->>'description'"
+      "  FROM room;"
+    );
+    fses.n = (unsigned)db_int(0, "SELECT count(*) FROM forumstatus");
+    if( fses.n ){
+      int i = 0;
+      Stmt q;
+      db_prepare(&q,"SELECT label, value, descr FROM forumstatus"
+                 " ORDER BY ord");
+      fses.aStatus = fossil_malloc(sizeof(fses.aStatus[0]) * fses.n);
+      while( SQLITE_ROW==db_step(&q) ){
+        ForumStatus * fs = &fses.aStatus[i++];
+        fs->zLabel = fossil_strdup(db_column_text(&q, 0));
+        fs->zValue = fossil_strdup(db_column_text(&q, 1));
+        fs->zDescr = fossil_strdup(db_column_text(&q, 2));
+      }
+      db_finalize(&q);
+    }
+  }
+  return &fses;
+}
+
+/*
+** Search for a ForumStatus object by its tag value. If a match is
+** found, the corresponding object is returned. If no match is found
+** then (A) if bFirst is false then 0 is returned, else (B) the first
+** entry in the list is returned, noting that the list may be empty,
+** in which case 0 is returned.
+*/
+const ForumStatus * forum_status_by_value(const char *z, int bFirst){
+  const ForumStatusList * const fses = forum_statuses();
+  const ForumStatus * fs0 = 0;
+  unsigned int i;
+  if( !fses->n ) return 0;
+  for( i = 0; i < fses->n; ++i ){
+    const ForumStatus * fs = &fses->aStatus[i];
+    if( 0==fossil_strcmp(z, fs->zValue) ){
+      return fs;
+    }else if( !fs0 ){
+      fs0 = fs;
+    }
+  }
+  return bFirst ? fs0 : 0;
+}
+
+/*
+** COMMAND: test-forum-statuses
+*/
+void test_forum_statuses_cmd(void){
+  const ForumStatusList * fses;
+  unsigned i;
+  db_find_and_open_repository(0,0);
+  fses = forum_statuses();
+  for(i = 0; i < fses->n; ++i ){
+    const ForumStatus * fs = &fses->aStatus[i];
+    fossil_print("Status: %!j %!j %!j\n",
+                 fs->zValue, fs->zLabel, fs->zDescr);
+    assert( fs==forum_status_by_value(fs->zValue, 0) );
+  }
+  fossil_print("Total statuses: %u\n", i);
+}
 
 /*
 ** Return true if the forum post with the given rid has been
@@ -126,10 +250,20 @@ int forumpost_head_rid2(const char *zUuid){
 ** 0 then login_name() is used.
 */
 int forumpost_is_owner(int rid, const char *zUserName){
-  return db_int(0, "SELECT 1 FROM event "
-                "WHERE type='f' AND objid=%d "
-                "AND coalesce(euser,user)=%Q",
-                rid, zUserName ? zUserName : login_name());
+  static Stmt q;
+  int rc;
+  if( !q.pStmt ){
+    db_static_prepare(
+      &q, "SELECT 1 FROM event"
+      " WHERE type='f' AND objid=$rid"
+      " AND coalesce(euser,user)=$user"
+    );
+  }
+  db_bind_int(&q, "$rid", rid);
+  db_bind_text(&q, "$user", zUserName ? zUserName : login_name());
+  rc = SQLITE_ROW==db_step(&q);
+  db_reset(&q);
+  return rc;
 }
 
 /*
@@ -176,8 +310,8 @@ static int forumpost_is_closed(
 ** - The tagxref.rowid of the tagxref entry for the closure if rid is
 **   the forum post to which the closure applies.
 **
-** - (-tagxref.rowid) if the given rid inherits a "closed" tag from an
-**   IRT forum post.
+** - (-tagxref.rowid) if the given rid inherits the tag from an IRT
+**   forum post.
 */
 static int forum_rid_is_tagged(int rid, const char *zTagName, int bCheckIrt){
   static Stmt qIrt = empty_Stmt_m;
@@ -268,9 +402,9 @@ static void moderation_forumpost_disapprove(int fpid){
 ** the head of the chain.
 **
 ** If addTag is true then a propagating tag is added, except as noted
-** below, with the given optional zReason string as the tag's
+** below, with the given optional zValue string as the tag's
 ** value. If addTag is false then any matching active tag on frid is
-** cancelled, except as noted below. zReason is ignored if it is NULL
+** cancelled, except as noted below. zValue is ignored if it is NULL
 ** or starts with a NUL byte, or if addTag is false.
 **
 ** This function only adds a tag if forum_rid_is_tagged() indicates
@@ -279,10 +413,12 @@ static void moderation_forumpost_disapprove(int fpid){
 ** which has its own tag, and will not remove an inherited one from a
 ** parent post.
 **
-** If addTag is true and frid is already tagged (directly or
-** inherited), this is a no-op. Likewise, if addTag is false and frid
-** itself is not tagged (not accounting for an inherited closed tag),
-** this is a no-op.
+** If addTag is true and frid is already tagged, this is a
+** no-op. Likewise, if addTag is false and frid is not tagged
+** (not accounting for an inherited closed tag), this is a no-op.
+**
+** If bCheckIrt is true then the forum post IRT hierarchy is searched
+** for the tag, otherwise only the given RID is checked.
 **
 ** Returns true if it actually creates a new tag, else false. Fails
 ** fatally on error.
@@ -309,7 +445,7 @@ static void moderation_forumpost_disapprove(int fpid){
 **   closure of a branch, where a non-propagating tag is used.
 */
 static int forumpost_tag(int frid, const char *zTagName, int addTag,
-                         const char *zReason){
+                         const char *zValue){
   Blob artifact = BLOB_INITIALIZER;  /* Output artifact */
   Blob cksum = BLOB_INITIALIZER;     /* Z-card */
   int iTagged;                       /* true if frid is already tagged */
@@ -318,23 +454,33 @@ static int forumpost_tag(int frid, const char *zTagName, int addTag,
 
   db_begin_transaction();
   frid = forumpost_head_rid(frid);
-  iTagged = forum_rid_is_tagged(frid, "closed", 1);
-  if( (iTagged && addTag
-      /* Already tagged, noting that in the case of (addTag<0) it may
-      ** actually be a parent which is tagged. */)
-      || (iTagged<=0 && !addTag
-          /* This entry is not tagged, but a parent post may be. */) ){
+  iTagged = forum_rid_is_tagged(frid, zTagName, 0);
+  if( !addTag && !iTagged ){
+    /* Nothing to do. We never tag an IRT-inherited post via this
+    ** function. */
     db_end_transaction(0);
     return 0;
   }
-  if( addTag==0 || (zReason && !zReason[0]) ){
-    zReason = 0;
+  if( !addTag || (zValue && !zValue[0]) ){
+    zValue = 0;
+  }
+  if( addTag && iTagged ){
+    char *zOld = 0;
+    int cmp;
+    rid_has_tag2(iTagged, zTagName, &zOld);
+    cmp = fossil_strcmp(zOld, zValue);
+    fossil_free(zOld);
+    if( 0==cmp ){
+      /* Same value - leave it as is. */
+      db_end_transaction(0);
+      return 0;
+    }
   }
   zUuid = rid_to_uuid(frid);
   blob_appendf(&artifact, "D %z\n", date_in_standard_format( "now" ));
   blob_appendf(&artifact, "T %c%s %s%s%F\n",
                addTag ? '*' : '-', zTagName,
-               zUuid, zReason ? " " : "", zReason ? zReason : "");
+               zUuid, zValue ? " " : "", zValue ? zValue : "");
   blob_appendf(&artifact, "U %F\n", login_name());
   md5sum_blob(&artifact, &cksum);
   blob_appendf(&artifact, "Z %b\n", &cksum);
@@ -343,8 +489,7 @@ static int forumpost_tag(int frid, const char *zTagName, int addTag,
   if( trid==0 ){
     fossil_fatal("Error saving tag artifact: %s", g.zErrMsg);
   }
-  if( manifest_crosslink(trid, &artifact,
-                         MC_NONE /*MC_PERMIT_HOOKS?*/)==0 ){
+  if( manifest_crosslink(trid, &artifact, MC_NONE)==0 ){
     fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&artifact) );
@@ -352,10 +497,6 @@ static int forumpost_tag(int frid, const char *zTagName, int addTag,
   admin_log("Tag forum post %S with %c%s",
             zUuid, addTag ? '*' : '-', zTagName);
   fossil_free(zUuid);
-  /* Potential TODO: if (iClosed>0) then we could find the initial tag
-  ** artifact and content_deltify(thatRid,&trid,1,0). Given the tiny
-  ** size of these artifacts, however, that would save little space,
-  ** if any. */
   db_end_transaction(0);
   return 1;
 }
@@ -726,6 +867,67 @@ void forumthreadhashlist(void){
 }
 
 /*
+** Returns true if the current user is authorized to set forum post
+** fpid's status.
+*/
+static int forum_may_set_status(int fpid){
+  return g.perm.Admin
+    || g.perm.ModForum
+    || (login_is_individual()
+        && forumpost_is_owner(fpid, 0));
+}
+
+/*
+** If the current user is authorized to set fp's status then this
+** renders a mini-form for setting the status then redirecting back to
+** the post. Else it may emit a status label or no output.
+*/
+static void forum_render_status_selection( const ForumPost *fp ){
+  const ForumStatusList * const fss = forum_statuses();
+  if( fss->n>1 ){
+    const ForumPost * pHead = fp->pEditHead ? fp->pEditHead : fp;
+    int i;
+    char * zCurrent = 0;
+    const ForumStatus * sCurrent = 0;
+    rid_has_tag2(pHead->fpid, "status", &zCurrent);
+    for( i = 0; i < fss->n; ++i ){
+      const ForumStatus * const fs = &fss->aStatus[i];
+      if( 0==fossil_strcmp(zCurrent, fs->zValue) ){
+        sCurrent = fs;
+        break;
+      }
+    }
+    if( !sCurrent ) sCurrent = &fss->aStatus[0];
+    assert( sCurrent );
+    @ <span class='forum-status-selection'>
+    if( forum_may_set_status(fp->fpid) ){
+      @ <form method="post" action='%R/forumpost_status'>
+      login_insert_csrf_secret();
+      @ <input type='hidden' name='fpid' value='%s(fp->zUuid)' />
+      @ <select name='status' data-fpid='%s(fp->zUuid)'\
+      @ data-initial-value='%h(zCurrent ? zCurrent : "")'>
+      for( i = 0; i < fss->n; ++i ){
+        const ForumStatus * const fs = &fss->aStatus[i];
+        @ <option value='%h(fs->zValue)'\
+        @ %s(sCurrent==fs ? " selected" : "")>\
+        @ %h(fs->zLabel)</option>
+      }
+      @ </select>
+      @ <input type='button' class='submit action-status' disabled
+      @ value='Change' />
+      /* ^^^ This must be <input>, not <button>, or else tapping it
+      ** will unconditionally submit. */
+      @ </form>
+      /* Form is activated in fossil.page.forumpost.js */
+    }else{
+      @ <button disabled>Status: %h(sCurrent->zLabel)</button>
+    }
+    @ </span>
+    fossil_free(zCurrent);
+  }
+}
+
+/*
 ** Render a forum post for display
 */
 void forum_render(
@@ -865,6 +1067,12 @@ static void forum_render_attachment_list2(ForumPost *p){
   forum_render_attachment_list(p->zUuid);
 }
 
+/* Flags for use with forum_display_post() */
+#define FDISPLAY_RAW         0x01 /* omit the border */
+#define FDISPLAY_UNFORMATTED 0x02 /* leave the post unformatted */
+#define FDISPLAY_HISTORY     0x04 /* Showing edit history */
+#define FDISPLAY_SELECTED    0x08 /* This is the selected post */
+
 /*
 ** Display a single post in a forum thread.
 */
@@ -872,10 +1080,7 @@ static void forum_display_post(
   ForumThread *pThread, /* The thread that this post is a member of */
   ForumPost *p,         /* Forum post to display */
   int iIndentScale,     /* Indent scale factor */
-  int bRaw,             /* True to omit the border */
-  int bUnf,             /* True to leave the post unformatted */
-  int bHist,            /* True if showing edit history */
-  int bSelect,          /* True if this is the selected post */
+  int flags,            /* From the FDISPLAY_... enum */
   char *zQuery          /* Common query string */
 ){
   char *zPosterName;    /* Name of user who originally made this post */
@@ -888,6 +1093,10 @@ static void forum_display_post(
   int bSameUser;        /* True if author is also the reader */
   int iIndent;          /* Indent level */
   int iClosed;          /* True if (sub)thread is closed */
+  const int bRaw = flags & FDISPLAY_RAW;
+  const int bUnf = flags & FDISPLAY_UNFORMATTED;
+  const int bHist = flags & FDISPLAY_HISTORY;
+  const int bSelect = flags & FDISPLAY_SELECTED;
   const char *zMimetype;/* Formatting MIME type */
 
   /* Get the manifest for the post.  Abort if not found (e.g. shunned). */
@@ -992,7 +1201,7 @@ static void forum_display_post(
       @ %z(href("%R/forumpost/%!S?raw",p->zUuid))[source]</a>
     }
     @ </h3>
-  }
+  }/*!bRaw*/
 
   /* Check if this post is approved, also if it's by the current user. */
   bPrivate = content_is_private(p->fpid);
@@ -1060,10 +1269,12 @@ static void forum_display_post(
           @ <form method="post" \
           @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
           login_insert_csrf_secret();
-          @ <input type="hidden" name="fpid" value="%s(pHead->zUuid)" />
+          @ <input type="hidden" name="fpid" value="%s(p->zUuid)" />
           if( moderation_pending(p->fpid)==0 ){
             @ <input type="button" value='%s(iClosed ? "Re-open" : "Close")' \
-            @  class='%s(iClosed ? "action-reopen" : "action-close")'/>
+            @ class='submit hidden \
+            @ %s(iClosed ? "action-reopen" : "action-close")'/>
+            /* ^^^ activated by fossil.page.forumpost.js */
           }
           @ </form>
         }
@@ -1084,8 +1295,11 @@ static void forum_display_post(
       }
       @ </div>
     }
+    if( !p->pIrt && (flags & FDISPLAY_SELECTED)){
+      forum_render_status_selection(p);
+    }
     @ </div>
-  }
+  }/*!bRaw*/
 
   /* Clean up. */
   manifest_destroy(pManifest);
@@ -1199,8 +1413,14 @@ static void forum_display_thread(
   /* Display the appropriate subset of posts in sequence. */
   while( p ){
     /* Display the post. */
-    forum_display_post(pThread, p, iIndentScale, mode==FD_RAW,
-        bUnf, bHist, p==pSelect, zQuery);
+    forum_display_post(
+      pThread, p, iIndentScale,
+      (mode==FD_RAW ? FDISPLAY_RAW : 0) |
+      (bUnf ? FDISPLAY_UNFORMATTED : 0) |
+      (bHist ? FDISPLAY_HISTORY : 0) |
+      (p==pSelect ? FDISPLAY_SELECTED : 0),
+      zQuery
+    );
 
     /* Advance to the next post in the thread. */
     if( mode==FD_CHRONO ){
@@ -1576,11 +1796,38 @@ static void forum_post_widget(
 }
 
 /*
+** If PD("fpid") refers to a forum post, its rid is returned, else
+** this function emits an error does not does return.
+*/
+static int forum_validate_fpid_param(void){
+  const char *zFpid = PD("fpid","");
+  int fpid = symbolic_name_to_rid(zFpid, "f");
+  if( fpid<=0 ){
+    webpage_error("Missing or invalid fpid parameter.");
+  }
+  return fpid;
+}
+
+/*
+** Internal helper for /forumpost_XYZ internal pages which tag/untag
+** posts.
+*/
+static void forumpost_action_helper(const char *zTag, const char *zVal,
+                                    int addTag, int validFpid){
+  if( !cgi_csrf_safe(2) ){
+    webpage_error("CSRF validation failed");
+  }else{
+    const int fpid = validFpid>0 ? validFpid : forum_validate_fpid_param();
+    forumpost_tag(fpid, zTag, addTag, zVal);
+    cgi_redirectf("%R/forumpost/%S",P("fpid"));
+  }
+}
+
+/*
 ** WEBPAGE: forumpost_close hidden
 ** WEBPAGE: forumpost_reopen hidden
 **
 **   fpid=X        Hash of the post to be edited.  REQUIRED
-**   reason=X      Optional reason for closure.
 **
 ** Closes or re-opens the given forum post, within the bounds of the
 ** API for forumpost_tag(). After (perhaps) modifying the "closed"
@@ -1588,26 +1835,37 @@ static void forum_post_widget(
 ** view. Requires admin privileges.
 */
 void forum_page_close(void){
-  const char *zFpid = PD("fpid","");
-  const char *zReason = 0;
-  int fClose;
-  int fpid;
-
   login_check_credentials();
   if( forumpost_may_close()==0 ){
     login_needed(g.anon.Admin);
-    return;
+  }else{
+    const int bIsAdd = sqlite3_strglob("*_close*", g.zPath)==0;
+    forumpost_action_helper("closed", 0, bIsAdd, 0);
   }
-  cgi_csrf_verify();
-  fpid = symbolic_name_to_rid(zFpid, "f");
-  if( fpid<=0 ){
-    webpage_error("Missing or invalid fpid query parameter");
+}
+
+/*
+** WEBPAGE: forumpost_status hidden
+**
+**   fpid=X        Hash of the post to be edited.  REQUIRED
+**   status=Y      New status value. REQUIRED
+**
+** Updates the current status=Y tag on the first version of
+** the forum post X. Requires forum_may_set_status() permissions.
+*/
+void forum_page_status(void){
+  int fpid;
+  login_check_credentials();
+  fpid = forum_validate_fpid_param();
+  if(forum_may_set_status(fpid)){
+    const char *zStatus = PD("status",0);
+    if( !zStatus || !zStatus[0] ){
+      webpage_error("Missing required status.");
+    }
+    forumpost_action_helper("status", zStatus, 1, fpid);
+  }else{
+    webpage_error("You lack permissions to change this post's status.");
   }
-  fClose = sqlite3_strglob("*_close*", g.zPath)==0;
-  if( fClose ) zReason = PD("reason",0);
-  forumpost_tag(fpid, "closed", fClose, zReason);
-  cgi_redirectf("%R/forumpost/%S",zFpid);
-  return;
 }
 
 /*
@@ -1790,7 +2048,9 @@ void forumedit_page(void){
     webpage_error("Missing or invalid fpid query parameter");
   }
   froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
-  if( froot==0 || (pRootPost = manifest_get(froot, CFTYPE_FORUM, 0))==0 ){
+  if( (froot==0 || (pRootPost = manifest_get(froot, CFTYPE_FORUM, 0))==0)
+   && P("reject")==0
+  ){
     webpage_error("fpid does not appear to be a forum post: \"%d\"", fpid);
   }
   if( P("cancel") ){
@@ -1970,6 +2230,17 @@ void forumedit_page(void){
 ** SETTING: attachment-size-limit    width=16
 ** The maximum number of bytes for an attachment. The default (or 0) is
 ** unlimited but a limit may be imposed by the web server or a proxy.
+**
+** SETTING: forum-statuses        width=40 block-text
+** This JSON5-formatted value defines an array of objects describing
+** the available statuses of forum posts. Each entry of the array must
+** be an object in the form {label:"X",value:"Y",description:"Z"}.
+** The label is used in the UI and value becomes the value of the
+** "status" tag on forum posts. Any forum post which has a status
+** value which does not appear in this list is treated as if it had
+** the first value from this list. If this setting is empty, is
+** ill-formed JSON, or has only a single entry then the forum will
+** lack the capability of setting and filtering by status.
 */
 
 /*
@@ -2102,6 +2373,100 @@ void forum_setup(void){
 }
 
 /*
+** If the forum-statuses setting is active and has 2 or more entries,
+** this adds a submenu for selecting the status filter, else it emits
+** nothing.
+*/
+static void forum_status_submenu(void){
+  const ForumStatusList * const fss = forum_statuses();
+  static int i = 0;
+  static const char **az;
+  if( i==0 && fss->n>1 ){
+    unsigned j;
+    az = fossil_malloc(sizeof(az[0]) * ((1 + fss->n) * 2));
+    az[i++] = "*";
+    az[i++] = "Any status";
+    for( j = 0; j < fss->n; ++j ){
+      const ForumStatus * fs = &fss->aStatus[j];
+      /* Potential TODO: skip any entries for which there are no
+      ** forum posts with a status=${fs->zValue} tag. */
+      az[i++] = fs->zValue;
+      az[i++] = fs->zLabel;
+    }
+    //assert( i==(1+fss->n)*2 );
+  }
+  if( i ){
+    cookie_link_parameter("status","forumStatus","*");
+    style_submenu_multichoice("status", i/2, az, 0);
+  }
+}
+
+/*
+** Transient SQL Function:    status_match(FROOT)
+**
+** Return true if the forum thread identified by FROOT should be included
+** in a list of threads.  Used to implement the status=NAME query parameter
+** on /forum.
+**
+** The result of this routine depends on the content of the
+** ForumStatusMatch *pMData object that is available via sqlite3_user_data().
+**
+**    *   If pMData==NULL, always return true.  This means that no
+**        filtering of threads is being done.  This is the common case.
+**
+**    *   If FROOT contains a status property value that matches
+**        pMData->iMatch, return true.
+**
+**    *   if pMData->iMatch==0 (meaning we want to match the default
+**        status value) and if the FROOT thread contains a status that
+**        is not on the list of statuses or if FROOT has no statue
+**        property at all, then return true.  In other words, a forum
+**        thread with no status property or an unknown status property
+**        is treated as if it had the default status.
+**
+**    *   Otherwise, return false.
+*/
+static void forum_status_match(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  static Stmt q;
+  ForumStatusMatch *pMData = sqlite3_user_data(context);
+  int i;
+
+  if( pMData==0 ){
+    sqlite3_result_int(context, 1);
+    return;
+  }
+  db_static_prepare(&q,
+    "SELECT value FROM tagxref\n"
+    " WHERE tagid=%d\n"
+    "   AND tagtype>=1\n"
+    "   AND rid=:rid\n"
+    " ORDER BY mtime DESC LIMIT 1",
+    pMData->eStatusTag
+  );
+  db_bind_int(&q, ":rid", sqlite3_value_int(argv[0]));
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *zValue = (const char*)db_column_text(&q,0);
+    const ForumStatusList *pFses = pMData->pFses;
+    if( zValue==0 ){
+      i = 0;
+    }else{
+      for(i=0; i<pFses->n; i++){
+        if( fossil_strcmp(pFses->aStatus[i].zValue,zValue)==0 ) break;
+      }
+    }
+    if( i>=pMData->pFses->n ) i = 0;
+  }else{
+    i = 0;
+  }
+  db_reset(&q);
+  sqlite3_result_int(context, i==pMData->iMatch);
+}
+
+/*
 ** WEBPAGE: forummain
 ** WEBPAGE: forum
 **
@@ -2120,7 +2485,12 @@ void forum_main_page(void){
   int iLimit = 0, iOfst, iCnt;
   int srchFlags;
   const int isSearch = P("s")!=0;
-  char const *zLimit = 0;
+  const char *zStatusFilter;
+  char const *zLimit = 0;    /* Value of the n= query parameter */
+  int eStatusTag = 0;        /* tagid for the "status" property */
+  int bHasStatus = 0;        /* True if forum-statuses setting exists */
+  int bFilter = 0;           /* True if status=NAME query parameter */
+  ForumStatusMatch sFSM;     /* Aux data to status_match() SQL function */
 
   login_check_credentials();
   srchFlags = search_restrict(SRCH_FORUM);
@@ -2129,6 +2499,10 @@ void forum_main_page(void){
     return;
   }
   cgi_check_for_malice();
+  eStatusTag = db_int(0, "SELECT tagid FROM tag WHERE tagname='status'");
+  if( eStatusTag && forum_statuses()->n>1 ){
+    bHasStatus = 1;
+  }
   style_set_current_feature("forum");
   style_header("%s%s", db_get("forum-title","Forum"),
                        isSearch ? " Search Results" : "");
@@ -2136,10 +2510,6 @@ void forum_main_page(void){
   if( g.perm.WrForum ){
     style_submenu_element("New Thread","%R/forumnew");
   }else{
-    /* Can't combine this with previous case using the ternary operator
-     * because that causes an error yelling about "non-constant format"
-     * with some compilers.  I can't see it, since both expressions have
-     * the same format, but I'm no C spec lawyer. */
     style_submenu_element("New Thread","%R/login");
   }
   if( g.perm.ModForum && moderation_needed() ){
@@ -2166,93 +2536,193 @@ void forum_main_page(void){
     iLimit = 25;
   }
   style_submenu_entry("n","Max:",4,0);
+  forum_status_submenu();
+  zStatusFilter = P("status") /*must be after forum_status_submenu()!*/;
   iOfst = atoi(PD("x","0"));
   iCnt = 0;
+  if( zStatusFilter ){
+    if( zStatusFilter[0]==0 || 0==fossil_strcmp("*",zStatusFilter) ){
+      zStatusFilter = 0;
+    }else{
+      bFilter = bHasStatus;
+    }
+  }
   if( db_table_exists("repository","forumpost") ){
+    const ForumStatusList *pFstat = forum_statuses();
+    Stmt qStat = empty_Stmt;     /* Query to get status information */
+    if( bHasStatus ){
+      /* The qStat query runs once for each output row generate by the
+      ** q query.  It determines the value and label of the status for
+      ** the row with froot=:rowid
+      */
+      db_prepare(&qStat,
+        "SELECT tagxref.value, forumstatus.label\n"
+        " FROM forumstatus, tagxref\n"
+        " WHERE tagid=%d AND tagtype>=1\n"
+        "   AND forumstatus.value=tagxref.value\n"
+        "   AND rid=:rid\n"
+        " ORDER BY mtime DESC",
+        eStatusTag
+      );
+    }
+
+    /* Create the status_match() SQL function that will determine
+    ** whether or not each thread in the "q" query below is eligible
+    ** for display
+    */
+    if( bFilter ){
+      sFSM.pFses = pFstat;
+      sFSM.eStatusTag = eStatusTag;
+      for(sFSM.iMatch=0; sFSM.iMatch<pFstat->n; sFSM.iMatch++){
+        if( 0==fossil_strcmp(zStatusFilter,
+                             pFstat->aStatus[sFSM.iMatch].zValue) ){
+          break;
+        }
+      }
+      sqlite3_create_function(g.db,"status_match",1,SQLITE_UTF8,(void*)&sFSM,
+                              forum_status_match, 0, 0);
+    }else{
+      sqlite3_create_function(g.db,"status_match",1,SQLITE_UTF8,0,
+                              forum_status_match, 0, 0);
+    }
+
     db_prepare(&q,
-      "WITH thread(age,duration,cnt,root,last) AS ("
-      "  SELECT"
-      "    julianday('now') - max(fmtime),"
-      "    max(fmtime) - min(fmtime),"
-      "    sum(fprev IS NULL),"
-      "    froot,"
-      "    (SELECT fpid FROM forumpost AS y"
-      "      WHERE y.froot=x.froot %s"
-      "      ORDER BY y.fmtime DESC LIMIT 1)"
-      "  FROM forumpost AS x"
-      "  WHERE %s"
-      "  GROUP BY froot"
-      "  ORDER BY 1 LIMIT %d OFFSET %d"
-      ")"
-      "SELECT"
-      "  thread.age,"                                         /* 0 */
-      "  thread.duration,"                                    /* 1 */
-      "  thread.cnt,"                                         /* 2 */
-      "  blob.uuid,"                                          /* 3 */
-      "  substr(event.comment,instr(event.comment,':')+1),"   /* 4 */
-      "  thread.last"                                         /* 5 */
-      " FROM thread, blob, event"
-      " WHERE blob.rid=thread.last"
-      "  AND event.objid=thread.last"
+      "WITH thread(root,endtime,lastrid) AS (\n"
+      "  SELECT\n"
+      "    froot,\n"
+      "    max(fmtime),\n"
+      "    fpid\n"
+      "  FROM forumpost\n"
+      "  WHERE %s/*ModForum*/\n"
+      "  GROUP BY froot\n"
+      "  HAVING status_match(froot)\n"
+      "  ORDER BY 2 DESC\n"
+      "  LIMIT %d OFFSET %d\n"
+      ")\n"
+      "SELECT\n"
+      "  julianday('now') - thread.endtime,\n"                  /* 0 */
+      "  thread.endtime - "
+        "(SELECT fmtime FROM forumpost WHERE fpid=root),\n"     /* 1 */
+      "  (SELECT sum(fprev IS NULL) FROM forumpost"
+         " WHERE froot=root),\n"                                /* 2 */
+      "  blob.uuid,\n"                                          /* 3 */
+      "  substr(event.comment,instr(event.comment,':')+1),\n"   /* 4 */
+      "  thread.lastrid,\n"                                     /* 5 */
+      "  thread.root\n"                                         /* 6 */
+      " FROM thread, blob, event\n"
+      " WHERE blob.rid=thread.lastrid\n"
+      "   AND event.objid=thread.lastrid\n"
       " ORDER BY 1;",
-      g.perm.ModForum ? "" : "AND y.fpid NOT IN private" /*safe-for-%s*/,
       g.perm.ModForum ? "true" : "fpid NOT IN private" /*safe-for-%s*/,
       iLimit+1, iOfst
     );
     while( db_step(&q)==SQLITE_ROW ){
-      char *zAge = human_readable_age(db_column_double(&q,0));
-      int nMsg = db_column_int(&q, 2);
-      const char *zUuid = db_column_text(&q, 3);
-      const char *zTitle = db_column_text(&q, 4);
-      if( iCnt==0 ){
-        if( iOfst>0 ){
-          @ <h1>Threads at least %s(zAge) old</h1>
+      char *zAge;
+      int nMsg;
+      const char *zUuid;
+      const char *zTitle;
+      const char *zStatus;
+      const char *zStatusLbl;
+      const int bShowStatus = bHasStatus && !zStatusFilter;
+      const int nCols = bShowStatus ? 4 : 3;
+
+      if( qStat.pStmt ){
+        /* Determine the status value for this row */
+        db_reset(&qStat);
+        db_bind_int(&qStat, ":rid", db_column_int(&q,6));
+        if( db_step(&qStat)==SQLITE_ROW ){
+          zStatus = db_column_text(&qStat, 0);
+          zStatusLbl = db_column_text(&qStat, 1);
         }else{
-          @ <h1>Most recent threads</h1>
+          zStatus = pFstat->aStatus[0].zValue;
+          zStatusLbl = pFstat->aStatus[0].zLabel;
         }
+      }else{
+        zStatus = zStatusLbl = NULL;
+      }
+      zAge = human_readable_age(db_column_double(&q,0));
+      nMsg = db_column_int(&q, 2);
+      zUuid = db_column_text(&q, 3);
+      zTitle = db_column_text(&q, 4);
+      if( iCnt==0 ){
+        char *zTail = bFilter ? mprintf(" with status=%Q", zStatusFilter): 0;
+        if( iOfst>0 ){
+          @ <h1>Threads at least %s(zAge) old%h(zTail ? zTail : "")</h1>
+        }else{
+          @ <h1>Most recent threads%h(zTail ? zTail : "")</h1>
+        }
+        fossil_free(zTail);
         @ <div class='forumPosts fileage'><table width="100%%">
         if( iOfst>0 ){
           if( iOfst>iLimit ){
-            @ <tr><td colspan="3">\
-            @ %z(href("%R/forum?x=%d&n=%d",iOfst-iLimit,iLimit))\
-            @ &uarr; Newer...</a></td></tr>
+            @ <tr><td colspan="%d(nCols)">\
+            @ <a href='%R/forum?x=%d(iOfst-iLimit)&n=%d(iLimit) \
+            if( bFilter ){
+              @ &status=%T(zStatusFilter)\
+            }
+            @ '>&uarr; Newer...</a></td></tr>
           }else{
-            @ <tr><td colspan="3">%z(href("%R/forum?n=%d",iLimit))\
-            @ &uarr; Newer...</a></td></tr>
+            @ <tr><td colspan="%d(nCols)">\
+            @ <a href='%R/forum?n=%d(iLimit)\
+            if( bFilter ){
+              @ &status=%T(zStatusFilter) \
+            }
+            @ '>&uarr; Newer...</a></td></tr>
           }
         }
       }
       iCnt++;
       if( iCnt>iLimit ){
-        @ <tr><td colspan="3">\
-        @ %z(href("%R/forum?x=%d&n=%d",iOfst+iLimit,iLimit))\
-        @ &darr; Older...</a></td></tr>
+        @ <tr><td colspan="%d(nCols)">\
+        @ <a href='%R/forum?x=%d(iOfst+iLimit)&n=%d(iLimit) \
+        if( bFilter ){
+          @ &status=%T(zStatusFilter)\
+        }
+        @ '>&darr; Older...</a></td></tr>
         fossil_free(zAge);
         break;
       }
-      @ <tr><td>%h(zAge) ago</td>
-      @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a></td>
-      @ <td>\
+      @ <tr \
+      if( bHasStatus ){
+        @ data-status="%h(zStatus)"\
+      }
+      @ ><td>%h(zAge) ago</td>
+      @ <td class='subject'>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a>\
+      @ </td><td>\
       if( g.perm.ModForum && moderation_pending(db_column_int(&q,5)) ){
         @ <span class="modpending">\
         @ Awaiting Moderator Approval</span><br>
       }
       if( nMsg<2 ){
-        @ no replies</td>
+        @ no replies\
       }else{
         char *zDuration = human_readable_age(db_column_double(&q,1));
-        @ %d(nMsg) posts spanning %h(zDuration)</td>
+        @ %d(nMsg) posts spanning %h(zDuration)\
         fossil_free(zDuration);
       }
-      @ </tr>
+      @ </td>\
+      if( bShowStatus ){
+        @ <td class='status'>%h(zStatusLbl)</td>\
+      }
+      if( qStat.pStmt ){
+        db_reset(&qStat);
+      }
+      @</tr>
       fossil_free(zAge);
     }
     db_finalize(&q);
+    if( qStat.pStmt ) db_finalize(&qStat);
+    sqlite3_create_function(g.db,"status_match",1,SQLITE_UTF8,0,0,0,0);
   }
   if( iCnt>0 ){
     @ </table></div>
   }else{
     @ <h1>No forum posts found</h1>
+  }
+  if( bHasStatus ){
+    /* We need a JS-side kludge to avoid passing on the x=N
+    ** URL arg when the status selection list is activated. */
+    forum_emit_js();
   }
   style_finish_page();
 }

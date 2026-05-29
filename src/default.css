@@ -1116,6 +1116,20 @@ div.setup_forum-column {
   flex-direction: column;
 }
 
+body.forum span.forum-status-selection {
+  white-space: nowrap;
+}
+
+body.cpage-forum div.forumPosts tr[data-status] td.status {
+  /* Add a gap before the "X posts spanning Y time" labels,
+  ** which sometimes wrap and look odd without this gap. */
+  padding-left: 1em;
+}
+body.cpage-forum div.forumPosts tr[data-status="open"] {
+}
+body.cpage-forum div.forumPosts tr[data-status="resolved"] {
+}
+
 body.cpage-setup_forum > .content table {
   margin-bottom: 1em;
 }
