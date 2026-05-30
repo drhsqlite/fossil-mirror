@@ -421,8 +421,8 @@ following format:
 
 <verbatim>
 [
-  {label:"Open", value:"open", description:"Unresolved posts"},
-  {label:"Resolved", value:"resolved", description:"Resolved posts"}
+  {label:"Open", value:"open"},
+  {label:"Resolved", value:"resolved"}
   ...
 ]</verbatim>
 
@@ -449,6 +449,8 @@ behavior changes in the following ways:
      when filtering on a specific status.
   *  The root of each thread, when selected, gets a new UI control for
      displaying or editing the status, depending on permissions.
+  *  A drop-down selection list is added to the <tt>/forum</tt> page
+     for filtering based on the status.
 
 A list with only a single entry is treated as empty, the justification
 being that if there is only one option then the UI does not need to be
@@ -469,9 +471,6 @@ Status tag rules:
   *  The tag is applied only to the first version of any given post. The
      UI ensures that the tag is applied to the proper post, even when
      rendering a newer version.
-
-The UI will eventually offer the ability to filter the post list by
-status.
 
 Caveat: a "closed" status is not recommended because it's easy to confuse with
 the <a href='#close-post'>"closed" tag feature</a>, which behaves considerably

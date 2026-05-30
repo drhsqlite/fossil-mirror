@@ -70,7 +70,6 @@ struct ForumThread {
 struct ForumStatus {
   char *zLabel;  /* Label for the UI */
   char *zValue;  /* status=X tag value */
-  char *zDescr;  /* Brief description */
 };
 
 /*
@@ -115,11 +114,10 @@ static const ForumStatusList * forum_statuses(void){
     ** there's only one choice. */
     db_multi_exec(
       "CREATE TEMP TABLE IF NOT EXISTS forumstatus("
-      " ord INTEGER PRIMARY KEY,"
-      " label, value, descr"
+      " ord INTEGER PRIMARY KEY, label, value"
       ");"
       "DELETE FROM forumstatus;"
-      "INSERT INTO forumstatus(label,value,descr)"
+      "INSERT INTO forumstatus(label,value)"
       "  WITH setting(v) AS ("
       "    SELECT value v FROM config WHERE name='forum-statuses'"
       "  ),"
@@ -127,21 +125,20 @@ static const ForumStatusList * forum_statuses(void){
       "    SELECT e.value FROM setting s, jsonb_each(s.v) e"
       "    WHERE json_valid(s.v, 0x02)"
       "  )"
-      "  SELECT r->>'label', r->>'value', r->>'description'"
+      "  SELECT r->>'label', r->>'value'"
       "  FROM room;"
     );
     fses.n = (unsigned)db_int(0, "SELECT count(*) FROM forumstatus");
     if( fses.n ){
       int i = 0;
       Stmt q;
-      db_prepare(&q,"SELECT label, value, descr FROM forumstatus"
-                 " ORDER BY ord");
+      db_prepare(&q,"SELECT label, value FROM forumstatus"
+                 "   ORDER BY ord");
       fses.aStatus = fossil_malloc(sizeof(fses.aStatus[0]) * fses.n);
       while( SQLITE_ROW==db_step(&q) ){
         ForumStatus * fs = &fses.aStatus[i++];
         fs->zLabel = fossil_strdup(db_column_text(&q, 0));
         fs->zValue = fossil_strdup(db_column_text(&q, 1));
-        fs->zDescr = fossil_strdup(db_column_text(&q, 2));
       }
       db_finalize(&q);
     }
@@ -182,8 +179,7 @@ void test_forum_statuses_cmd(void){
   fses = forum_statuses();
   for(i = 0; i < fses->n; ++i ){
     const ForumStatus * fs = &fses->aStatus[i];
-    fossil_print("Status: %!j %!j %!j\n",
-                 fs->zValue, fs->zLabel, fs->zDescr);
+    fossil_print("Status: %!j %!j\n", fs->zValue, fs->zLabel);
     assert( fs==forum_status_by_value(fs->zValue, 0) );
   }
   fossil_print("Total statuses: %u\n", i);
@@ -2234,7 +2230,7 @@ void forumedit_page(void){
 ** SETTING: forum-statuses        width=40 block-text
 ** This JSON5-formatted value defines an array of objects describing
 ** the available statuses of forum posts. Each entry of the array must
-** be an object in the form {label:"X",value:"Y",description:"Z"}.
+** be an object in the form {label:"X",value:"Y"}.
 ** The label is used in the UI and value becomes the value of the
 ** "status" tag on forum posts. Any forum post which has a status
 ** value which does not appear in this list is treated as if it had
