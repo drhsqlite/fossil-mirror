@@ -1,5 +1,5 @@
-C Remove\sthe\sunused\sdescription\sfield\sfrom\sthe\sforum-statuses\ssetting.
-D 2026-05-30T06:35:42.209
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\sversion\swith\sthe\sdiskused()\sSQL\nfunction\ssupport.\s\sAdd\san\soption\s(accessible\sto\sAdmin\susers\sonly)\sto\nview\sthe\soutput\sof\sdiskused()\sas\sthe\s"Details"\ssubmenu\son\sthe\s/repo-tabsize\npage,\sif\sFossil\sis\slinked\sagainst\sSQLite\s3.54.0\sor\slater.
+D 2026-05-30T13:54:59.089
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -278,9 +278,9 @@ F extsrc/pikchr.c 080044411bbd03956d8e488e56fe2ea135c06e96b3bc7fe148740f2e7cbe70
 F extsrc/pikchr.js e4808790ff38ede2acad784cfab62acd25caf41d23ace454c0190b637934f031
 F extsrc/pikchr.wasm 023299eec760d3c7addba21b415dfb07ca2172afcb46be4b13e95f4e0fcbbfcf
 F extsrc/qrf.h 7a832022bc3f40dc09fff1cb6f18025395a19313de090265a4a1d22bb9b400be
-F extsrc/shell.c a01c266221f31053609eda3647d7e9af71e47d1989014aa109ac8d2de863ce25
-F extsrc/sqlite3.c 2aff4a8c6dea72522746f8fdef33349ab7fa0f0fca421487104b7bddd71e903f
-F extsrc/sqlite3.h 0a12b133e187a0712458528da0897c423d1172012c7730ac7b51808bd3126ea5
+F extsrc/shell.c 99a3814e57669b21f1084310cf15f8b84766c6bd17759943e2a7d8fadfff149b
+F extsrc/sqlite3.c 31d95c534e49564170c36df6341c58de8d246a71bd18dda0653b873146be5f8c
+F extsrc/sqlite3.h 64f6acc0cd55e6a94165547cb09ea512ac4dc015f4d60ce6e435fbe50180e593
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -562,7 +562,7 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 85964c5e5e9b782fd6aa05da8f6959c7b2e4b4d7192abb5cfb9bd64c190e8533
 F src/stash.c edceac522c114b482922cb3def79106029d0488eafb516894618c50c0df8ecaf
-F src/stat.c f4f19ef8d3215dd121649399ee9e58f75549afce36cf7b677f05b2d477d2b052
+F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
 F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 97bf24ee89e6b8a462de1420bdd2d5f61bed6965cbd8979f654ed7bc2600e42d
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3b2d0c9f59eb7bdce2473ff7c4c9f8dcf87cd3146899743beca91bb36dcdef0b
-R 9409df04996fbf93eb420115635896e0
-U stephan
-Z 8f258aa2e1edd2064bc39a1ea744b811
+P c56de3f19a5abd3e8e687cb3796b3e4a874d275b179cbbcdc9d36b2af7b30f2b
+R 42b92605b073a25a4d661f94ff9eab87
+U drh
+Z c9f5048228917cab18f393222f37d6bb
 # Remove this line to create a well-formed Fossil manifest.

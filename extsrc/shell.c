@@ -7,12 +7,12 @@
 **   ext/expert/sqlite3expert.h
 **   ext/intck/sqlite3intck.c
 **   ext/intck/sqlite3intck.h
-**   ext/misc/analyze.c
 **   ext/misc/appendvfs.c
 **   ext/misc/base64.c
 **   ext/misc/base85.c
 **   ext/misc/completion.c
 **   ext/misc/decimal.c
+**   ext/misc/diskused.c
 **   ext/misc/fileio.c
 **   ext/misc/ieee754.c
 **   ext/misc/memtrace.c
@@ -19480,7 +19480,7 @@ void vfstrace_unregister(const char *zTraceName){
 }
 
 /************************* End ext/misc/vfstrace.c ********************/
-/************************* Begin ext/misc/analyze.c ******************/
+/************************* Begin ext/misc/diskused.c ******************/
 /*
 ** 2026-04-13
 **
@@ -19493,8 +19493,17 @@ void vfstrace_unregister(const char *zTraceName){
 **
 ******************************************************************************
 **
-** Partial reimplement of the sqlite3_analyzer utility program as
-** loadable SQL function.
+** This extension implements an SQL function:
+**
+**     diskused(X)
+**
+** Where X is the schema name (typically 'main').  The output is text
+** that describes how much filesystem space the various tables and indexes
+** of the database consume.
+**
+** This function is a replacement for the (now deprecated)
+** "sqlite3_analyzer" utility program.  This function is built
+** into the CLI and is used to implement the ".diskused" command there.
 */
 /* #include "sqlite3ext.h" */
 SQLITE_EXTENSION_INIT1
@@ -19506,8 +19515,8 @@ SQLITE_EXTENSION_INIT1
 /*
 ** State information for the analysis
 */
-typedef struct Analysis Analysis;
-struct Analysis {
+typedef struct DiskUsed DiskUsed;
+struct DiskUsed {
   sqlite3 *db;               /* Database connection */
   sqlite3_context *context;  /* SQL function context */
   sqlite3_str *pOut;         /* Write output here */
@@ -19516,14 +19525,14 @@ struct Analysis {
 };
 
 /*
-** Free all resources that the Analysis object references and
-** reset the Analysis object.
+** Free all resources that the DiskUsed object references and
+** reset the DiskUsed object.
 **
-** Call this routine multiple times on the same Analysis object
+** Call this routine multiple times on the same DiskUsed object
 ** is a harmless no-op, as long as the memory for the object itself
 ** has not been freed.
 */
-static void analysisReset(Analysis *p){
+static void diskusedReset(DiskUsed *p){
   if( p->zSU ){
     char *zSql = sqlite3_mprintf("DROP TABLE temp.%s;", p->zSU);
     if( zSql ){
@@ -19540,7 +19549,7 @@ static void analysisReset(Analysis *p){
 ** Report an error using formatted text.  If zFormat==NULL then report
 ** an OOM error.
 */
-static void analysisError(Analysis *p, const char *zFormat, ...){
+static void diskusedError(DiskUsed *p, const char *zFormat, ...){
   char *zErr;
   if( zFormat ){
     va_list ap;
@@ -19556,34 +19565,34 @@ static void analysisError(Analysis *p, const char *zFormat, ...){
     sqlite3_result_error(p->context, zErr, -1);
     sqlite3_free(zErr);
   }
-  analysisReset(p);
+  diskusedReset(p);
 }
 
 /*
 ** Prepare and return an SQL statement.
 */
-static sqlite3_stmt *analysisVPrep(Analysis *p, const char *zFmt, va_list ap){
+static sqlite3_stmt *diskusedVPrep(DiskUsed *p, const char *zFmt, va_list ap){
   char *zSql;
   int rc;
   sqlite3_stmt *pStmt = 0;
   zSql = sqlite3_vmprintf(zFmt, ap);
-  if( zSql==0 ){ analysisError(p,0); return 0; }
+  if( zSql==0 ){ diskusedError(p,0); return 0; }
   rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
   if( rc ){
-    analysisError(p, "SQL parse error: %s\nOriginal SQL: %s",
+    diskusedError(p, "SQL parse error: %s\nOriginal SQL: %s",
                                  sqlite3_errmsg(p->db), zSql);
     sqlite3_finalize(pStmt);
-    analysisReset(p);
+    diskusedReset(p);
     pStmt = 0;
   }
   sqlite3_free(zSql);
   return pStmt;
 }
-static sqlite3_stmt *analysisPrepare(Analysis *p, const char *zFormat, ...){
+static sqlite3_stmt *diskusedPrepare(DiskUsed *p, const char *zFormat, ...){
   va_list ap;
   sqlite3_stmt *pStmt = 0;
   va_start(ap, zFormat);
-  pStmt = analysisVPrep(p,zFormat,ap);
+  pStmt = diskusedVPrep(p,zFormat,ap);
   va_end(ap);
   return pStmt;
 }
@@ -19596,14 +19605,14 @@ static sqlite3_stmt *analysisPrepare(Analysis *p, const char *zFormat, ...){
 **
 ** The prepared statement is closed in either case.
 */
-static int analysisStmtFinish(Analysis *p, int rc, sqlite3_stmt *pStmt){
+static int diskusedStmtFinish(DiskUsed *p, int rc, sqlite3_stmt *pStmt){
   if( rc==SQLITE_DONE ){
     rc = SQLITE_OK;
   }
   if( rc!=SQLITE_OK || (rc = sqlite3_reset(pStmt))!=SQLITE_OK ){
-    analysisError(p, "SQL run-time error: %s\nOriginal SQL: %s",
+    diskusedError(p, "SQL run-time error: %s\nOriginal SQL: %s",
                   sqlite3_errmsg(p->db), sqlite3_sql(pStmt));
-    analysisReset(p);
+    diskusedReset(p);
   }
   sqlite3_finalize(pStmt);
   return rc;
@@ -19612,21 +19621,21 @@ static int analysisStmtFinish(Analysis *p, int rc, sqlite3_stmt *pStmt){
 /*
 ** Run SQL.  Return the number of errors. 
 */
-static int analysisSql(Analysis *p, const char *zFormat, ...){
+static int diskusedSql(DiskUsed *p, const char *zFormat, ...){
   va_list ap;
   int rc;
   sqlite3_stmt *pStmt = 0;
   va_start(ap, zFormat);
-  pStmt = analysisVPrep(p,zFormat,ap);
+  pStmt = diskusedVPrep(p,zFormat,ap);
   va_end(ap);
   if( pStmt==0 ) return 1;
   while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){}
   if( rc==SQLITE_DONE ){
     rc = SQLITE_OK;
   }else{
-    analysisError(p, "SQL run-time error: %s\nOriginal SQL: %s",
+    diskusedError(p, "SQL run-time error: %s\nOriginal SQL: %s",
                   sqlite3_errmsg(p->db), sqlite3_sql(pStmt));
-    analysisReset(p);
+    diskusedReset(p);
   }
   sqlite3_finalize(pStmt);
   return rc;
@@ -19636,8 +19645,8 @@ static int analysisSql(Analysis *p, const char *zFormat, ...){
 ** Run an SQL query that returns an integer.  Write that integer
 ** into *piRes.  Return the number of errors. 
 */
-static int analysisSqlInt(
-  Analysis *p,
+static int diskusedSqlInt(
+  DiskUsed *p,
   sqlite3_int64 *piRes,
   const char *zFormat, ...
 ){
@@ -19645,7 +19654,7 @@ static int analysisSqlInt(
   int rc;
   sqlite3_stmt *pStmt = 0;
   va_start(ap, zFormat);
-  pStmt = analysisVPrep(p,zFormat,ap);
+  pStmt = diskusedVPrep(p,zFormat,ap);
   va_end(ap);
   if( pStmt==0 ) return 1;
   rc = sqlite3_step(pStmt);
@@ -19657,10 +19666,10 @@ static int analysisSqlInt(
   }else{
     if( p->db ){
       /* p->db is NULL if there was some prior error */
-      analysisError(p, "SQL run-time error: %s\nOriginal SQL: %s",
+      diskusedError(p, "SQL run-time error: %s\nOriginal SQL: %s",
                     sqlite3_errmsg(p->db), sqlite3_sql(pStmt));
     }
-    analysisReset(p);
+    diskusedReset(p);
   }
   sqlite3_finalize(pStmt);
   return rc;
@@ -19673,7 +19682,7 @@ static int analysisSqlInt(
 ** comment.  Otherwise begin with a new-line.  Always finish with a
 ** newline.
 */
-static void analysisTitle(Analysis *p, const char *zFormat, ...){
+static void diskusedTitle(DiskUsed *p, const char *zFormat, ...){
   char *zFirst;
   char *zTitle;
   size_t nTitle;
@@ -19682,7 +19691,7 @@ static void analysisTitle(Analysis *p, const char *zFormat, ...){
   zTitle = sqlite3_vmprintf(zFormat, ap);
   va_end(ap);
   if( zTitle==0 ){
-    analysisError(p, 0);
+    diskusedError(p, 0);
     return;
   }
   zFirst = sqlite3_str_length(p->pOut)==0 ? "/" : "\n*";
@@ -19701,8 +19710,8 @@ static void analysisTitle(Analysis *p, const char *zFormat, ...){
 ** 50 columns with "." characters, and followed by whatever text is
 ** described by zFormat.
 */
-static void analysisLine(
-  Analysis *p,             /* Analysis context */
+static void diskusedLine(
+  DiskUsed *p,             /* DiskUsed context */
   const char *zDesc,       /* Description */
   const char *zFormat,     /* Argument to the description */
   ...
@@ -19714,10 +19723,10 @@ static void analysisLine(
   zTxt = sqlite3_vmprintf(zFormat, ap);
   va_end(ap);
   if( zTxt==0 ){
-    analysisError(p, 0);
+    diskusedError(p, 0);
     return;
   }
-  nDesc = strlen(zDesc);
+  nDesc = zDesc ? strlen(zDesc) : 0;
   if( nDesc>=50 ){
     sqlite3_str_appendf(p->pOut, "%s %z", zDesc, zTxt);
   }else{
@@ -19731,7 +19740,7 @@ static void analysisLine(
 ** two or three significant digits, with the decimal point being the fourth
 ** character.  
 */
-static void analysisPercent(Analysis *p, double r){
+static void diskusedPercent(DiskUsed *p, double r){
   char zNum[100];
   char *zDP;
   int nLeadingDigit;
@@ -19760,8 +19769,8 @@ static void analysisPercent(Analysis *p, double r){
 ** a boolean expression that can go in the WHERE clause to select
 ** the relevant rows of the s.zSU table.
 */
-static int analysisSubreport(
-  Analysis *p,                  /* Analysis context */
+static int diskusedSubreport(
+  DiskUsed *p,                  /* DiskUsed context */
   char *zTitle,                 /* Title for this subreport */
   char *zWhere,                 /* WHERE clause for this subreport */
   sqlite3_int64 pgsz,           /* Database page size */
@@ -19789,10 +19798,10 @@ static int analysisSubreport(
   int rc;
 
   if( zTitle==0 || zWhere==0 ){
-    analysisError(p, 0);
+    diskusedError(p, 0);
     return SQLITE_NOMEM;
   }
-  pStmt = analysisPrepare(p,
+  pStmt = diskusedPrepare(p,
     "SELECT\n"
     "  sum(if(is_without_rowid OR is_index,nentry,leaf_entries)),\n" /* 0 */
     "  sum(payload),\n"            /* 1 */
@@ -19813,7 +19822,7 @@ static int analysisSubreport(
   if( pStmt==0 ) return 1;
   rc = sqlite3_step(pStmt);
   if( rc==SQLITE_ROW ){
-    analysisTitle(p, "%s", zTitle);
+    diskusedTitle(p, "%s", zTitle);
 
     nentry = sqlite3_column_int64(pStmt, 0);
     payload = sqlite3_column_int64(pStmt, 1);
@@ -19832,69 +19841,69 @@ static int analysisSubreport(
     rc = SQLITE_DONE;
 
     total_pages = leaf_pages + int_pages + ovfl_pages;
-    analysisLine(p, "Percentage of total database", "%.3g%%\n",
+    diskusedLine(p, "Percentage of total database", "%.3g%%\n",
                  (total_pages*100.0)/(double)nPage);
-    analysisLine(p, "Number of entries", "%lld\n", nentry);
+    diskusedLine(p, "Number of entries", "%lld\n", nentry);
     storage = total_pages*pgsz;
-    analysisLine(p, "Bytes of storage consumed", "%lld\n", storage);
-    analysisLine(p, "Bytes of payload", "%-11lld ", payload);
-    analysisPercent(p, payload*100.0/(double)storage);
+    diskusedLine(p, "Bytes of storage consumed", "%lld\n", storage);
+    diskusedLine(p, "Bytes of payload", "%-11lld ", payload);
+    diskusedPercent(p, payload*100.0/(double)storage);
     if( ovfl_cnt>0 ){
-      analysisLine(p, "Bytes of payload in overflow","%-11lld ",ovfl_payload);
-      analysisPercent(p, ovfl_payload*100.0/(double)payload);
+      diskusedLine(p, "Bytes of payload in overflow","%-11lld ",ovfl_payload);
+      diskusedPercent(p, ovfl_payload*100.0/(double)payload);
     }
     total_unused = leaf_unused + int_unused + ovfl_unused;
     total_meta = storage - payload - total_unused;
-    analysisLine(p, "Bytes of metadata","%-11lld ", total_meta);
-    analysisPercent(p, total_meta*100.0/(double)storage);
+    diskusedLine(p, "Bytes of metadata","%-11lld ", total_meta);
+    diskusedPercent(p, total_meta*100.0/(double)storage);
     if( cnt==1 ){
-      analysisLine(p, "B-tree depth", "%lld\n", depth);
+      diskusedLine(p, "B-tree depth", "%lld\n", depth);
       if( int_cell>1 ){
-        analysisLine(p, "Average fanout", "%.1f\n",
+        diskusedLine(p, "Average fanout", "%.1f\n",
                      (double)(int_cell+int_pages)/(double)int_pages);
       }
     }
     if( nentry>0 ){
-      analysisLine(p, "Average payload per entry", "%.1f\n",
+      diskusedLine(p, "Average payload per entry", "%.1f\n",
                    (double)payload/(double)nentry);
-      analysisLine(p, "Average unused bytes per entry", "%.1f\n",
+      diskusedLine(p, "Average unused bytes per entry", "%.1f\n",
                    (double)total_unused/(double)nentry);
-      analysisLine(p, "Average metadata per entry", "%.1f\n",
+      diskusedLine(p, "Average metadata per entry", "%.1f\n",
                    (double)total_meta/(double)nentry);
     }
-    analysisLine(p, "Maximum single-entry payload", "%lld\n", mx_payload);
+    diskusedLine(p, "Maximum single-entry payload", "%lld\n", mx_payload);
     if( nentry>0 ){
-      analysisLine(p, "Entries that use overflow", "%-11lld ", ovfl_cnt);
-      analysisPercent(p, ovfl_cnt*100.0/(double)nentry);
+      diskusedLine(p, "Entries that use overflow", "%-11lld ", ovfl_cnt);
+      diskusedPercent(p, ovfl_cnt*100.0/(double)nentry);
     }
     if( int_pages>0 ){
-      analysisLine(p, "Index pages used", "%lld\n", int_pages);
+      diskusedLine(p, "Index pages used", "%lld\n", int_pages);
     }
-    analysisLine(p, "Primary pages used", "%lld\n", leaf_pages);
+    diskusedLine(p, "Primary pages used", "%lld\n", leaf_pages);
     if( ovfl_cnt ){
-      analysisLine(p, "Overflow pages used", "%lld\n", ovfl_pages);
+      diskusedLine(p, "Overflow pages used", "%lld\n", ovfl_pages);
     }
-    analysisLine(p, "Total pages used", "%lld\n", total_pages);
+    diskusedLine(p, "Total pages used", "%lld\n", total_pages);
     if( int_pages>0 ){
-      analysisLine(p, "Unused bytes on index pages", "%lld\n", int_unused);
+      diskusedLine(p, "Unused bytes on index pages", "%lld\n", int_unused);
     }
-    analysisLine(p, "Unused bytes on primary pages", "%lld\n", leaf_unused);
+    diskusedLine(p, "Unused bytes on primary pages", "%lld\n", leaf_unused);
     if( ovfl_cnt ){
-      analysisLine(p, "Unused bytes on overflow pages", "%lld\n", ovfl_unused);
+      diskusedLine(p, "Unused bytes on overflow pages", "%lld\n", ovfl_unused);
     }
-    analysisLine(p, "Unused bytes on all pages", "%-11lld ", total_unused);
-    analysisPercent(p, total_unused*100.0/(double)storage);
+    diskusedLine(p, "Unused bytes on all pages", "%-11lld ", total_unused);
+    diskusedPercent(p, total_unused*100.0/(double)storage);
   }
-  return analysisStmtFinish(p, rc, pStmt);
+  return diskusedStmtFinish(p, rc, pStmt);
 }
 
 /*
-** SQL Function:   analyze(SCHEMA)
+** SQL Function:   diskused(SCHEMA)
 **
 ** Analyze the database schema named in the argument.  Return text
-** containing the analysis.
+** containing the space utilization stats.
 */
-static void analyzeFunc(
+static void diskusedFunc(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
@@ -19909,7 +19918,7 @@ static void analyzeFunc(
   sqlite3_int64 nFreeList;
   sqlite3_int64 nIndex;
   sqlite3_int64 nWORowid;
-  Analysis s;
+  DiskUsed s;
   sqlite3_uint64 r[2];
 
   (void)argc;
@@ -19918,34 +19927,34 @@ static void analyzeFunc(
   s.context = context;
   s.pOut = sqlite3_str_new(0);
   if( sqlite3_str_errcode(s.pOut) ){
-    analysisError(&s, 0);
+    diskusedError(&s, 0);
     return;
   }
   s.zSchema = (const char*)sqlite3_value_text(argv[0]);
   if( s.zSchema==0 ){
     s.zSchema = "main";
   }else if( sqlite3_strlike("temp",s.zSchema,0)==0 ){
-    analysisReset(&s);
+    diskusedReset(&s);
     sqlite3_result_text(context, "cannot analyze \"temp\"",-1,SQLITE_STATIC);
     return;
   }
   ii = 0;
-  rc = analysisSqlInt(&s,&ii,"SELECT 1 FROM pragma_database_list"
+  rc = diskusedSqlInt(&s,&ii,"SELECT 1 FROM pragma_database_list"
                              " WHERE name=%Q COLLATE nocase",s.zSchema);
   if( rc || ii==0 ){
-    analysisReset(&s);
+    diskusedReset(&s);
     sqlite3_result_text(context,"no such database",-1,SQLITE_STATIC);
     return;
   }
   sqlite3_randomness(sizeof(r), &r);
-  s.zSU = sqlite3_mprintf("analysis%016llx%016llx", r[0], r[1]);
-  if( s.zSU==0 ){ analysisError(&s, 0); return; }
+  s.zSU = sqlite3_mprintf("diskused%016llx%016llx", r[0], r[1]);
+  if( s.zSU==0 ){ diskusedError(&s, 0); return; }
 
   /* The s.zSU table contains the data used for the analysis.
   ** The table name contains 128-bits of randomness to avoid
   ** collisions with preexisting tables in temp.
   */
-  rc = analysisSql(&s,
+  rc = diskusedSql(&s,
     "CREATE TABLE temp.%s(\n"
     "   name text,                -- A table or index\n"
     "   tblname text,             -- Table that owns name\n"
@@ -19972,7 +19981,7 @@ static void analyzeFunc(
 
   /* Populate the s.zSU table
   */
-  rc = analysisSql(&s,
+  rc = diskusedSql(&s,
     "WITH\n"
     "  allidx(idxname) AS (\n"
     "    SELECT name FROM \"%w\".sqlite_schema WHERE type='index'\n"
@@ -20024,38 +20033,38 @@ static void analyzeFunc(
   if( rc ) return;
 
   nPage = 0;
-  rc = analysisSqlInt(&s, &nPage, "PRAGMA \"%w\".page_count", s.zSchema);
+  rc = diskusedSqlInt(&s, &nPage, "PRAGMA \"%w\".page_count", s.zSchema);
   if( rc ) return;
   if( nPage<=0 ){
     /* Very brief reply for an empty database */
-    analysisReset(&s);
+    diskusedReset(&s);
     sqlite3_result_text(context, "empty database", -1, SQLITE_STATIC);
     return;
   }
 
   /* Begin generating the report */
-  analysisTitle(&s, "Database storage utilization report");
+  diskusedTitle(&s, "Database storage utilization report");
   pgsz = 0;
-  rc = analysisSqlInt(&s, &pgsz, "PRAGMA \"%w\".page_size", s.zSchema);
+  rc = diskusedSqlInt(&s, &pgsz, "PRAGMA \"%w\".page_size", s.zSchema);
   if( rc ) return;
-  analysisLine(&s, "Page size in bytes","%lld\n",pgsz);
-  analysisLine(&s, "Pages in the database", "%lld\n", nPage);
+  diskusedLine(&s, "Page size in bytes","%lld\n",pgsz);
+  diskusedLine(&s, "Pages in the database", "%lld\n", nPage);
 
   nPageInUse = 0;
-  rc = analysisSqlInt(&s, &nPageInUse, 
+  rc = diskusedSqlInt(&s, &nPageInUse, 
        "SELECT sum(leaf_pages+int_pages+ovfl_pages) FROM temp.%s", s.zSU);
   if( rc ) return;
-  analysisLine(&s, "Pages that store data", "%-11lld ", nPageInUse);
-  analysisPercent(&s, (nPageInUse*100.0)/(double)nPage);
+  diskusedLine(&s, "Pages that store data", "%-11lld ", nPageInUse);
+  diskusedPercent(&s, (nPageInUse*100.0)/(double)nPage);
 
   nFreeList = 0;
-  rc = analysisSqlInt(&s, &nFreeList, "PRAGMA \"%w\".freelist_count",s.zSchema);
+  rc = diskusedSqlInt(&s, &nFreeList, "PRAGMA \"%w\".freelist_count",s.zSchema);
   if( rc ) return;
-  analysisLine(&s, "Pages on the freelist", "%-11lld ", nFreeList);
-  analysisPercent(&s, (nFreeList*100.0)/(double)nPage);
+  diskusedLine(&s, "Pages on the freelist", "%-11lld ", nFreeList);
+  diskusedPercent(&s, (nFreeList*100.0)/(double)nPage);
 
   ii = 0;
-  rc = analysisSqlInt(&s, &ii, "PRAGMA \"%w\".auto_vacuum", s.zSchema);
+  rc = diskusedSqlInt(&s, &ii, "PRAGMA \"%w\".auto_vacuum", s.zSchema);
   if( rc ) return;
   if( ii==0 || nPage<=1 ){
     ii = 0;
@@ -20064,97 +20073,99 @@ static void analyzeFunc(
     double rAvPage = (nPage-1.0)/(rPtrsPerPage+1.0);
     ii = (sqlite3_int64)ceil(rAvPage);
   }
-  analysisLine(&s, "Pages of auto-vacuum overhead", "%-11lld ", ii);
-  analysisPercent(&s, (ii*100.0)/(double)nPage);
+  diskusedLine(&s, "Pages of auto-vacuum overhead", "%-11lld ", ii);
+  diskusedPercent(&s, (ii*100.0)/(double)nPage);
 
   ii = 0;
-  rc = analysisSqlInt(&s, &ii, 
+  rc = diskusedSqlInt(&s, &ii, 
        "SELECT count(*)+1 FROM \"%w\".sqlite_schema WHERE type='table'",
        s.zSchema);
   if( rc ) return;
-  analysisLine(&s, "Number of tables", "%lld\n", ii);
+  diskusedLine(&s, "Number of tables", "%lld\n", ii);
   nWORowid = 0;
-  rc = analysisSqlInt(&s, &nWORowid,
+  rc = diskusedSqlInt(&s, &nWORowid,
        "SELECT count(*) FROM \"%w\".pragma_table_list WHERE wr",
        s.zSchema);
   if( rc ) return;
   if( nWORowid>0 ){
-    analysisLine(&s, "Number of WITHOUT ROWID tables", "%lld\n", nWORowid);
-    analysisLine(&s, "Number of rowid tables", "%lld\n", ii - nWORowid);
+    diskusedLine(&s, "Number of WITHOUT ROWID tables", "%lld\n", nWORowid);
+    diskusedLine(&s, "Number of rowid tables", "%lld\n", ii - nWORowid);
   }
   nIndex = 0;
-  rc = analysisSqlInt(&s, &nIndex, 
+  rc = diskusedSqlInt(&s, &nIndex, 
        "SELECT count(*) FROM \"%w\".sqlite_schema WHERE type='index'",
        s.zSchema);
   if( rc ) return;
-  analysisLine(&s, "Number of indexes", "%lld\n", nIndex);
+  diskusedLine(&s, "Number of indexes", "%lld\n", nIndex);
   ii = 0;
-  rc = analysisSqlInt(&s, &ii, 
+  rc = diskusedSqlInt(&s, &ii, 
        "SELECT count(*) FROM \"%w\".sqlite_schema"
        " WHERE name GLOB 'sqlite_autoindex_*' AND type='index'",
        s.zSchema);
   if( rc ) return;
-  analysisLine(&s, "Number of defined indexes", "%lld\n", nIndex - ii);
-  analysisLine(&s, "Number of implied indexes", "%lld\n", ii);
-  analysisLine(&s, "Size of the database in bytes", "%lld\n", pgsz*nPage);
+  diskusedLine(&s, "Number of defined indexes", "%lld\n", nIndex - ii);
+  diskusedLine(&s, "Number of implied indexes", "%lld\n", ii);
+  diskusedLine(&s, "Size of the database in bytes", "%lld\n", pgsz*nPage);
   ii = 0;
-  rc = analysisSqlInt(&s, &ii, 
+  rc = diskusedSqlInt(&s, &ii, 
        "SELECT sum(payload) FROM temp.%s"
        " WHERE NOT is_index AND name NOT LIKE 'sqlite_schema'",
        s.zSU);
   if( rc ) return;
-  analysisLine(&s, "Bytes of payload", "%-11lld ", ii);
-  analysisPercent(&s, ii*100.0/(double)(pgsz*nPage));
+  diskusedLine(&s, "Bytes of payload", "%-11lld ", ii);
+  diskusedPercent(&s, ii*100.0/(double)(pgsz*nPage));
 
-  analysisTitle(&s, "Page counts for all tables with their indexes");
-  pStmt = analysisPrepare(&s,
+  diskusedTitle(&s, "Page counts for all tables with their indexes");
+  pStmt = diskusedPrepare(&s,
     "SELECT upper(tblname),\n"
     "       sum(int_pages+leaf_pages+ovfl_pages)\n"
     "  FROM temp.%s\n"
+    " WHERE tblname IS NOT NULL\n"
     " GROUP BY 1\n"
     " ORDER BY 2 DESC, 1;",
     s.zSU);
   if( pStmt==0 ) return;
   while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
     sqlite3_int64 nn = sqlite3_column_int64(pStmt,1);
-    analysisLine(&s, (const char*)sqlite3_column_text(pStmt,0), "%-11lld ", nn);
-    analysisPercent(&s, (nn*100.0)/(double)nPage);
+    diskusedLine(&s, (const char*)sqlite3_column_text(pStmt,0), "%-11lld ", nn);
+    diskusedPercent(&s, (nn*100.0)/(double)nPage);
   }
-  if( analysisStmtFinish(&s, rc, pStmt) ) return;
+  if( diskusedStmtFinish(&s, rc, pStmt) ) return;
 
-  analysisTitle(&s, "Page counts for all tables and indexes separately");
-  pStmt = analysisPrepare(&s,
+  diskusedTitle(&s, "Page counts for all tables and indexes separately");
+  pStmt = diskusedPrepare(&s,
     "SELECT upper(name),\n"
     "       sum(int_pages+leaf_pages+ovfl_pages)\n"
     "  FROM temp.%s\n"
+    " WHERE name IS NOT NULL\n"
     " GROUP BY 1\n"
     " ORDER BY 2 DESC, 1;",
     s.zSU);
   if( pStmt==0 ) return;
   while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
     sqlite3_int64 nn = sqlite3_column_int64(pStmt,1);
-    analysisLine(&s, (const char*)sqlite3_column_text(pStmt,0), "%-11lld ", nn);
-    analysisPercent(&s, (nn*100.0)/(double)nPage);
+    diskusedLine(&s, (const char*)sqlite3_column_text(pStmt,0), "%-11lld ", nn);
+    diskusedPercent(&s, (nn*100.0)/(double)nPage);
   }
-  if( analysisStmtFinish(&s, rc, pStmt) ) return;
+  if( diskusedStmtFinish(&s, rc, pStmt) ) return;
 
-  rc = analysisSubreport(&s, "All tables and indexes", "1", pgsz, nPage);
+  rc = diskusedSubreport(&s, "All tables and indexes", "1", pgsz, nPage);
   if( rc ) return;
-  rc = analysisSubreport(&s, "All tables", "NOT is_index", pgsz, nPage);
+  rc = diskusedSubreport(&s, "All tables", "NOT is_index", pgsz, nPage);
   if( rc ) return;
   if( nWORowid>0 ){
-    rc = analysisSubreport(&s, "All WITHOUT ROWID tables", "is_without_rowid",
+    rc = diskusedSubreport(&s, "All WITHOUT ROWID tables", "is_without_rowid",
                            pgsz, nPage);
     if( rc ) return;
-    rc = analysisSubreport(&s, "All rowid tables",
+    rc = diskusedSubreport(&s, "All rowid tables",
                            "NOT is_without_rowid AND NOT is_index",
                            pgsz, nPage);
     if( rc ) return;
   }
-  rc = analysisSubreport(&s, "All indexes", "is_index", pgsz, nPage);
+  rc = diskusedSubreport(&s, "All indexes", "is_index", pgsz, nPage);
   if( rc ) return;
 
-  pStmt = analysisPrepare(&s,
+  pStmt = diskusedPrepare(&s,
     "SELECT upper(tblname), tblname, sum(is_index) FROM temp.%s"
     " GROUP BY 1 ORDER BY 1",
     s.zSU);
@@ -20166,7 +20177,7 @@ static void analyzeFunc(
     if( nSubIndex==0 ){
       char *zTitle = sqlite3_mprintf("Table %s", zUpper);
       char *zWhere = sqlite3_mprintf("name=%Q", zName);
-      rc = analysisSubreport(&s, zTitle, zWhere, pgsz, nPage);
+      rc = diskusedSubreport(&s, zTitle, zWhere, pgsz, nPage);
       sqlite3_free(zTitle);
       sqlite3_free(zWhere);
       if( rc ) break;
@@ -20174,25 +20185,25 @@ static void analyzeFunc(
       sqlite3_stmt *pS2;
       char *zTitle = sqlite3_mprintf("Table %s and all its indexes", zUpper);
       char *zWhere = sqlite3_mprintf("tblname=%Q", zName);
-      rc = analysisSubreport(&s, zTitle, zWhere, pgsz, nPage);
+      rc = diskusedSubreport(&s, zTitle, zWhere, pgsz, nPage);
       sqlite3_free(zTitle);
       sqlite3_free(zWhere);
       if( rc ) break;
       zTitle = sqlite3_mprintf("Table %s w/o any indexes", zUpper);
       zWhere = sqlite3_mprintf("name=%Q", zName);
-      rc = analysisSubreport(&s, zTitle, zWhere, pgsz, nPage);
+      rc = diskusedSubreport(&s, zTitle, zWhere, pgsz, nPage);
       sqlite3_free(zTitle);
       sqlite3_free(zWhere);
       if( rc ) break;
       if( nSubIndex>1 ){
         zTitle = sqlite3_mprintf("All indexes of table %s", zUpper);
         zWhere = sqlite3_mprintf("tblname=%Q AND is_index", zName);
-        rc = analysisSubreport(&s, zTitle, zWhere, pgsz, nPage);
+        rc = diskusedSubreport(&s, zTitle, zWhere, pgsz, nPage);
         sqlite3_free(zTitle);
         sqlite3_free(zWhere);
         if( rc ) break;
       }
-      pS2 = analysisPrepare(&s,
+      pS2 = diskusedPrepare(&s,
               "SELECT name, upper(name) FROM temp.%s"
               " WHERE is_index AND tblname=%Q",
               s.zSU, zName);
@@ -20205,21 +20216,21 @@ static void analyzeFunc(
         const char *zN = (const char*)sqlite3_column_text(pS2, 0);
         zTitle = sqlite3_mprintf("Index %s", zU);
         zWhere = sqlite3_mprintf("name=%Q", zN);
-        rc = analysisSubreport(&s, zTitle, zWhere, pgsz, nPage);
+        rc = diskusedSubreport(&s, zTitle, zWhere, pgsz, nPage);
         sqlite3_free(zTitle);
         sqlite3_free(zWhere);
         if( rc ) break;
       }
-      rc = analysisStmtFinish(&s, rc, pS2);
+      rc = diskusedStmtFinish(&s, rc, pS2);
       if( rc ) break;
     }
   }
-  if( analysisStmtFinish(&s, rc, pStmt) ) return;
+  if( diskusedStmtFinish(&s, rc, pStmt) ) return;
 
   /* Append SQL statements that will recreate the raw data used for
   ** the analysis.
   */
-  analysisTitle(&s, "Raw data used to generate this report");
+  diskusedTitle(&s, "Raw data used to generate this report");
   sqlite3_str_appendf(s.pOut,
     "The following SQL will create a table named \"space_used\" which\n"
     "contains most of the information used to generate the report above.\n"
@@ -20249,7 +20260,7 @@ static void analyzeFunc(
     ");\n"
     "INSERT INTO space_used VALUES\n"
   );
-  pStmt = analysisPrepare(&s,
+  pStmt = diskusedPrepare(&s,
      "SELECT quote(name), quote(tblname),\n"                        /* 0..1 */
      "       is_index, is_without_rowid, nentry, leaf_entries,\n"   /* 2..5 */
      "       depth, payload, ovfl_payload, ovfl_cnt, mx_payload,\n" /* 6..10 */
@@ -20284,7 +20295,7 @@ static void analyzeFunc(
       sqlite3_column_int64(pStmt, 17));
   }
   if( rc!=SQLITE_DONE ){
-    analysisError(&s, "SQL run-time error: %s\nSQL: %s",
+    diskusedError(&s, "SQL run-time error: %s\nSQL: %s",
                   sqlite3_errmsg(s.db), sqlite3_sql(pStmt));
     sqlite3_finalize(pStmt);
     return;
@@ -20297,14 +20308,14 @@ static void analyzeFunc(
                         sqlite3_free);
     s.pOut = 0;
   }
-  analysisReset(&s);
+  diskusedReset(&s);
 }
 
 
 #ifdef _WIN32
 
 #endif
-int sqlite3_analyze_init(
+int sqlite3_diskused_init(
   sqlite3 *db, 
   char **pzErrMsg, 
   const sqlite3_api_routines *pApi
@@ -20312,13 +20323,13 @@ int sqlite3_analyze_init(
   int rc = SQLITE_OK;
   SQLITE_EXTENSION_INIT2(pApi);
   (void)pzErrMsg;  /* Unused parameter */
-  rc = sqlite3_create_function(db, "analyze", 1,
+  rc = sqlite3_create_function(db, "diskused", 1,
                    SQLITE_UTF8|SQLITE_INNOCUOUS,
-                   0, analyzeFunc, 0, 0);
+                   0, diskusedFunc, 0, 0);
   return rc;
 }
 
-/************************* End ext/misc/analyze.c ********************/
+/************************* End ext/misc/diskused.c ********************/
 
 #if !defined(SQLITE_OMIT_VIRTUALTABLE) && defined(SQLITE_ENABLE_DBPAGE_VTAB)
 #define SQLITE_SHELL_HAVE_RECOVER 1
@@ -26324,6 +26335,43 @@ static void modeSetStr(char **az, const char *zNew){
   }
 }
 
+/* Forward reference */
+static int pickStr(const char *zArg, char **pzErr, ...);
+
+/*
+** Change the limits on the display mode.  Return 0 on
+** success.  Return non-zero if zArg is mis-formatted.
+**
+** Valid arguments:
+**
+**    "on"             Default limits
+**    "off"            All limits turned off
+**    L,C              Line and Characters limits set
+**    L,C,T            Line, Character, and Title limits set
+**
+** Anything else returns non-zero
+*/
+static int modeSetLimit(ShellState *p, const char *zArg){
+  int k = zArg==0 ? 1 : pickStr(zArg,0,"on","off","");
+  if( k==0 ){
+    p->mode.spec.nLineLimit = DFLT_LINE_LIMIT;
+    p->mode.spec.nCharLimit = DFLT_CHAR_LIMIT;
+    p->mode.spec.nTitleLimit = DFLT_TITLE_LIMIT;
+  }else if( k==1 ){
+    p->mode.spec.nLineLimit = 0;
+    p->mode.spec.nCharLimit = 0;
+    p->mode.spec.nTitleLimit = 0;
+  }else{
+    int L, C, T = 0;
+    int nNum = sscanf(zArg, "%d,%d,%d", &L, &C, &T);
+    if( nNum<2 || L<0 || C<0 || T<0) return 1;
+    p->mode.spec.nLineLimit = L;
+    p->mode.spec.nCharLimit = C;
+    if( nNum==3 ) p->mode.spec.nTitleLimit = T;
+  }
+  return 0;
+}
+
 /*
 ** Change the mode to eMode
 */
@@ -26360,6 +26408,7 @@ static void modeChange(ShellState *p, unsigned char eMode){
     u8 mFlags = p->mode.mFlags;
     modeFree(&p->mode);
     modeChange(p, MODE_List);
+    modeSetLimit(p, "off");
     p->mode.mFlags = mFlags;
   }else if( eMode==MODE_TTY ){
     u8 mFlags = p->mode.mFlags;
@@ -28448,8 +28497,8 @@ static const char *(azHelp[]) = {
 #if SQLITE_SHELL_HAVE_RECOVER
   ".dbinfo ?DB?             Show status information about the database",
 #endif
-  ".dbstat ?SCHEMA?         Report database space and size stats",
   ".dbtotxt                 Hex dump of the database file",
+  ".diskused ?SCHEMA?       Report database space and size stats",
   ".dump ?OBJECTS?          Render database content as SQL",
   "   Options:",
   "     --data-only            Output only INSERT statements",
@@ -29463,7 +29512,7 @@ static void open_db(ShellState *p, int openFlags){
     sqlite3_regexp_init(p->db, 0, 0);
     sqlite3_ieee_init(p->db, 0, 0);
     sqlite3_series_init(p->db, 0, 0);
-    sqlite3_analyze_init(p->db, 0, 0);
+    sqlite3_diskused_init(p->db, 0, 0);
 #ifndef SQLITE_SHELL_FIDDLE
     sqlite3_fileio_init(p->db, 0, 0);
     sqlite3_completion_init(p->db, 0, 0);
@@ -33125,26 +33174,10 @@ static int dotCmdMode(ShellState *p){
         dotCmdError(p, i-1, "missing argument", 0);
         return 1;
       }
-      k = pickStr(azArg[i],0,"on","off","");
-      if( k==0 ){
-        p->mode.spec.nLineLimit = DFLT_LINE_LIMIT;
-        p->mode.spec.nCharLimit = DFLT_CHAR_LIMIT;
-        p->mode.spec.nTitleLimit = DFLT_TITLE_LIMIT;
-      }else if( k==1 ){
-        p->mode.spec.nLineLimit = 0;
-        p->mode.spec.nCharLimit = 0;
-        p->mode.spec.nTitleLimit = 0;
-      }else{
-        int L, C, T = 0;
-        int nNum = sscanf(azArg[i], "%d,%d,%d", &L, &C, &T);
-        if( nNum<2 || L<0 || C<0 || T<0){
-          dotCmdError(p, i, "bad argument", "Should be \"L,C,T\" where L, C"
-                            " and T are unsigned integers");
-          return 1;
-        }        
-        p->mode.spec.nLineLimit = L;
-        p->mode.spec.nCharLimit = C;
-        if( nNum==3 ) p->mode.spec.nTitleLimit = T;
+      if( modeSetLimit(p, azArg[i]) ){
+        dotCmdError(p, i, "bad argument", "Should be \"on\" or \"off\" or "
+                    "\"L,C,T\" where L, C, and T are unsigned integers");
+        return 1;
       }
       chng = 1;
     }else if( optionMatch(z,"list") ){
@@ -34362,7 +34395,12 @@ static int do_meta_command(const char *zLine, ShellState *p){
   }else
 #endif /* SQLITE_SHELL_HAVE_RECOVER */
 
-  if( c=='d' && n==6 && cli_strncmp(azArg[0], "dbstat", n)==0 ){
+  if( c=='d' && n>=3 && cli_strncmp(azArg[0], "dbtotxt", n)==0 ){
+    open_db(p, 0);
+    rc = shell_dbtotxt_command(p, nArg, azArg);
+  }else
+
+  if( c=='d' && n==8 && cli_strncmp(azArg[0], "diskused", n)==0 ){
     const char *zSchema = 0;
     int ii;
     char *zSql;
@@ -34381,21 +34419,13 @@ static int do_meta_command(const char *zLine, ShellState *p){
       }
       zSchema = z;
     }
-    zSql = sqlite3_mprintf("SELECT analyze(%Q)", zSchema);
+    zSql = sqlite3_mprintf("SELECT diskused(%Q)", zSchema);
     shell_check_oom(zSql);
     modePush(p);
     modeChange(p, MODE_BATCH);
-    p->mode.spec.nLineLimit = 0;
-    p->mode.spec.nCharLimit = 0;
-    p->mode.spec.nTitleLimit = 0;
     shell_exec(p, zSql, 0);
     modePop(p);
     sqlite3_free(zSql);
-  }else
-
-  if( c=='d' && n>=3 && cli_strncmp(azArg[0], "dbtotxt", n)==0 ){
-    open_db(p, 0);
-    rc = shell_dbtotxt_command(p, nArg, azArg);
   }else
 
   if( c=='d' && cli_strncmp(azArg[0], "dump", n)==0 ){
@@ -37757,13 +37787,13 @@ static const char zOptions[] =
   "   -A ARGS...           run \".archive ARGS\" and exit\n"
 #endif
   "   -append              append the database to the end of the file\n"
-  "   -ascii               set output mode to 'ascii'\n"
+  "   -ascii               set '.mode ascii'\n"
   "   -bail                stop after hitting an error\n"
   "   -batch               force batch I/O\n"
-  "   -box                 set output mode to 'box'\n"
+  "   -box                 set '.mode box'\n"
   "   -cmd COMMAND         run \"COMMAND\" before reading stdin\n"
-  "   -column              set output mode to 'column'\n"
-  "   -csv                 set output mode to 'csv'\n"
+  "   -column              set '.mode column'\n"
+  "   -csv                 set '.mode csv -limits off'\n"
 #if !defined(SQLITE_OMIT_DESERIALIZE)
   "   -deserialize         open the database using sqlite3_deserialize()\n"
 #endif
@@ -37775,14 +37805,14 @@ static const char zOptions[] =
   "   -heap SIZE           Size of heap for memsys3 or memsys5\n"
 #endif
   "   -help                show this message\n"
-  "   -html                set output mode to HTML\n"
+  "   -html                set '.mode html'\n"
   "   -ifexists            only open if database already exists\n"
   "   -interactive         force interactive I/O\n"
-  "   -json                set output mode to 'json'\n"
-  "   -line                set output mode to 'line'\n"
-  "   -list                set output mode to 'list'\n"
+  "   -json                set '.mode json'\n"
+  "   -line                set '.mode line'\n"
+  "   -list                set '.mode list'\n"
   "   -lookaside SIZE N    use N entries of SZ bytes for lookaside memory\n"
-  "   -markdown            set output mode to 'markdown'\n"
+  "   -markdown            set '.mode markdown'\n"
 #if !defined(SQLITE_OMIT_DESERIALIZE)
   "   -maxsize N           maximum size for a --deserialize database\n"
 #endif
@@ -37799,7 +37829,7 @@ static const char zOptions[] =
   "   -nullvalue TEXT      set text string for NULL values. Default ''\n"
   "   -pagecache SIZE N    use N slots of SZ bytes each for page cache memory\n"
   "   -pcachetrace         trace all page cache operations\n"
-  "   -quote               set output mode to 'quote'\n"
+  "   -quote               set '.mode quote'\n"
   "   -readonly            open the database read-only\n"
   "   -safe                enable safe-mode\n"
   "   -screenwidth N       use N as the default screenwidth \n"
@@ -37808,8 +37838,8 @@ static const char zOptions[] =
   "   -sorterref SIZE      sorter references threshold size\n"
 #endif
   "   -stats               print memory stats before each finalize\n"
-  "   -table               set output mode to 'table'\n"
-  "   -tabs                set output mode to 'tabs'\n"
+  "   -table               set '.mode table'\n"
+  "   -tabs                set '.mode tabs'\n"
   "   -unsafe-testing      allow unsafe commands and modes for testing\n"
   "   -version             show SQLite version\n"
   "   -vfs NAME            use NAME as the default VFS\n"
@@ -38411,6 +38441,7 @@ int SQLITE_CDECL main(int argc, char **argv){
       modeChange(&data, MODE_Box);
     }else if( cli_strcmp(z,"-csv")==0 ){
       modeChange(&data, MODE_Csv);
+      modeSetLimit(&data, "off");
     }else if( cli_strcmp(z,"-escape")==0 && i+1<argc ){
       /* See similar code at tag-20250224-1 */
       const char *zEsc = argv[++i];
