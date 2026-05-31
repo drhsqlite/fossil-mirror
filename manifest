@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\sversion\swith\sthe\sdiskused()\sSQL\nfunction\ssupport.\s\sAdd\san\soption\s(accessible\sto\sAdmin\susers\sonly)\sto\nview\sthe\soutput\sof\sdiskused()\sas\sthe\s"Details"\ssubmenu\son\sthe\s/repo-tabsize\npage,\sif\sFossil\sis\slinked\sagainst\sSQLite\s3.54.0\sor\slater.
-D 2026-05-30T13:54:59.089
+C In\smain.mk\suse\s=\sinstead\sof\s:=,\swhich\sis\snot\sPOSIX-portable.
+D 2026-05-31T10:49:39.367
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -499,7 +499,7 @@ F src/login.c 756c63c26fb79c0ff8c1d73512d0b8805294ef07a4366264620b62bfa4f3d254
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c 737032593ef80a8bdae0c866232dd5f95eb397026ec63d771c27de5bbd77fb2a
-F src/main.mk 706b1e0372a45351e2cb888dfae4c4abe003c3cb46e392c661dedff415f7bc65
+F src/main.mk 5876184c141ae366fae927388a920525ebc674ecc6b5c947ef3b0ad653c368f6
 F src/manifest.c b0bb0c80f04d0dff727f44dd6ca88c901b250dd7ad0b8aba20d601ba94f7e5f1
 F src/markdown.c ea27e61986a1366839e7a70f16cd70a056352d7623797eb09372e158f6f7350b
 F src/markdown.md 459394a15e26f64b399382537fdd76a27d413dcbc09625981fe3a329d66da981
@@ -754,7 +754,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c 2d4ffaf9812b93c894010ef9071b08af0d1df2e0d947d8d35a192d24ea16bf0b
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl 1404e2a78c0fd1ad368d44a6526703da5c7fb41ff2e09521afbad9dab00a7056 x
+F tools/makemake.tcl da5364272745e944eedfb977a980d44a7393f5f3bdfd591e92c52726e6317ae4 x
 F tools/man_page_command_list.tcl 8f7f2c0717cb7e2ddece0a92bd10809bb16a1d8c3aa8bf6f77f6143b9282a099 x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c ab9760d4ab795e9e04e1e730866320f9f9def3493fb1b84379c39cbf6463aba2
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c56de3f19a5abd3e8e687cb3796b3e4a874d275b179cbbcdc9d36b2af7b30f2b
-R 42b92605b073a25a4d661f94ff9eab87
-U drh
-Z c9f5048228917cab18f393222f37d6bb
+P 71439dc76ad2bbf466756dbb6409e9586e0e3bdf2d88debb8af803a8264c24a7
+R 67ddc810a032788f1ad826e94f8e229c
+U stephan
+Z 80bca2b3f97b70d1aee489e24d61aaef
 # Remove this line to create a well-formed Fossil manifest.

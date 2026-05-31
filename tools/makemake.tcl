@@ -348,7 +348,7 @@ writeln {#
 XBCC = $(BCC) $(BCCFLAGS)
 XTCC = $(TCC) $(CFLAGS_INCLUDE) -I$(OBJDIR) $(TCCFLAGS)
 
-TESTFLAGS := -quiet
+TESTFLAGS = -quiet
 }
 writeln -nonewline "SRC ="
 foreach s [lsort $src] {

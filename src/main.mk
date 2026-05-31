@@ -13,7 +13,7 @@
 XBCC = $(BCC) $(BCCFLAGS)
 XTCC = $(TCC) $(CFLAGS_INCLUDE) -I$(OBJDIR) $(TCCFLAGS)
 
-TESTFLAGS := -quiet
+TESTFLAGS = -quiet
 
 SRC = \
   $(SRCDIR)/add.c \
