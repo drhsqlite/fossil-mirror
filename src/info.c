@@ -374,6 +374,17 @@ static void append_diff(
 }
 
 /*
+** The append_file_change_line() routine updates an array of counts
+** for various kinds of changes.
+*/
+#define FCHNG_NEW     0
+#define FCHNG_DELETE  1
+#define FCHNG_RENAME  2
+#define FCHNG_MODE    3
+#define FCHNG_EDIT    4
+#define N_FCHNG       5
+
+/*
 ** Write a line of web-page output that shows changes that have occurred
 ** to a file between two check-ins.
 */
@@ -384,7 +395,8 @@ static void append_file_change_line(
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
   const char *zOldName, /* Prior name.  NULL if no name change. */
   DiffConfig *pCfg,     /* Flags for text_diff() or NULL to omit all */
-  int mperm             /* executable or symlink permission for zNew */
+  int mperm,            /* executable or symlink permission for zNew */
+  int *aChng            /* Change count array */
 ){
   @ <div class='file-change-line'><span>
     /* Maintenance reminder: the extra level of SPAN is for
@@ -392,10 +404,13 @@ static void append_file_change_line(
   if( !g.perm.Hyperlink ){
     if( zNew==0 ){
       @ Deleted %h(zName).
+      aChng[FCHNG_DELETE]++;
     }else if( zOld==0 ){
       @ Added %h(zName).
+      aChng[FCHNG_NEW]++;
     }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
       @ Name change from %h(zOldName) to %h(zName).
+      aChng[FCHNG_RENAME]++;
     }else if( fossil_strcmp(zNew, zOld)==0 ){
       if( mperm==PERM_EXE ){
         @ %h(zName) became executable.
@@ -404,8 +419,10 @@ static void append_file_change_line(
       }else{
         @ %h(zName) became a regular file.
       }
+      aChng[FCHNG_MODE]++;
     }else{
       @ Changes to %h(zName).
+      aChng[FCHNG_EDIT]++;
     }
     @ </span></div>
     if( pCfg ){
@@ -424,18 +441,21 @@ static void append_file_change_line(
           @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
           @ %h(zName)</a>
           @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+          aChng[FCHNG_RENAME]++;
         }else{
           @ Modified %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
           @ %h(zName)</a>
           @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
           @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
         }
+        aChng[FCHNG_EDIT]++;
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
         @ Name change
         @ from %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zOldName,zOld,zCkin2))\
         @ %h(zOldName)</a>
         @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
         @ %h(zName)</a>.
+        aChng[FCHNG_RENAME]++;
       }else{
         @ %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
         @ %h(zName)</a> became
@@ -447,13 +467,16 @@ static void append_file_change_line(
           @ a regular file with contents
         }
         @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+        aChng[FCHNG_MODE]++;
       }
     }else if( zOld ){
       @ Deleted %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zOld,zCkin2))\
       @ %h(zName)</a> version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
+      aChng[FCHNG_DELETE]++;
     }else{
       @ Added %z(href("%R/finfo?name=%T&m=%!S&ci=%s",zName,zNew,zCkin2))\
       @ %h(zName)</a> version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+      aChng[FCHNG_NEW]++;
     }
     if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       if( pCfg ){
@@ -628,6 +651,54 @@ void ci_tags_page(void){
 }
 
 /*
+** Generate JS code that will adjust the change counts in the title
+** of the "changes_section" panel where "changes_section" is a JS id.
+**
+** The change counts are taken from g.diffCnt[] for edits, and from
+** the aChng[] parameter for additions, deletions, and modifications.
+** The aChng parameter may be NULL, in which case those factors are
+** ignored.
+*/
+static void adjust_changes_section_title(
+  int iLine,   /* Souce code line number of caller */
+  int *aChng   /* Change categories */
+){
+  sqlite3_str *pTxt = sqlite3_str_new(0);
+  if( g.diffCnt[0]>0 ){
+    sqlite3_str_appendf(pTxt, "%d file%s edited [+%d -%d lines]",
+       g.diffCnt[0], g.diffCnt[0]==1 ? "" : "s",
+       g.diffCnt[1], g.diffCnt[2]);
+  }
+  if( aChng ){
+    static const int aiType[] =
+       { FCHNG_NEW, FCHNG_DELETE, FCHNG_RENAME, FCHNG_MODE };
+    static const char *azType[] =
+       { "added",   "deleted",    "renamed",    "mode change"};
+    int i;
+    for(i=0; i<4; i++){
+      int j = aiType[i];
+      if( aChng[j] ){
+        const char *zFiles = "";
+        if( sqlite3_str_length(pTxt)>0 ){
+          sqlite3_str_append(pTxt,", ", 2);
+        }else{
+          zFiles = i<3 && aChng[j]>1 ? " files" : " file";
+        }
+        sqlite3_str_appendf(pTxt,"%d%s %s", aChng[j], zFiles, azType[i]);
+        if( i==3 && aChng[j]>1 ) sqlite3_str_appendf(pTxt, "s");
+      }
+    }
+  }
+  if( sqlite3_str_length(pTxt)>0 ){
+    @ <script nonce='%h(style_nonce())'>;/* info.c:%d(iLine) */
+    @ document.getElementById('changes_section').textContent = \
+    @  'Changes (%h(sqlite3_str_value(pTxt)))'
+    @ </script>
+  }
+  sqlite3_str_free(pTxt);
+}
+
+/*
 ** Render a web-page diff of the changes in the working check-out
 */
 static void ckout_normal_diff(int vid){
@@ -736,12 +807,7 @@ static void ckout_normal_diff(int vid){
     }
   }
   db_finalize(&q);
-  @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
-  @ document.getElementById('changes_section').textContent =  'Changes ' +
-  @   '(%d(g.diffCnt[0]) file' + (%d(g.diffCnt[0])===1 ? '' : 's') + ': ' +
-  @   '+%d(g.diffCnt[1]) ' +
-  @   '−%d(g.diffCnt[2]))'
-  @ </script>
+  adjust_changes_section_title(__LINE__, 0);
   append_diff_javascript(diffType);
 }
 
@@ -829,12 +895,7 @@ static void ckout_external_base_diff(int vid, const char *zExBase){
     fossil_free(zRhs);
   }
   db_finalize(&q);
-  @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
-  @ document.getElementById('changes_section').textContent =  'Changes ' +
-  @   '(%d(g.diffCnt[0]) file' + (%d(g.diffCnt[0])===1 ? '' : 's') + ': ' +
-  @   '+%d(g.diffCnt[1]) ' +
-  @   '−%d(g.diffCnt[2]))'
-  @ </script>
+  adjust_changes_section_title(__LINE__, 0);
   append_diff_javascript(diffType);
 }
 
@@ -937,7 +998,9 @@ void ci_page(void){
   const char *zPage = "vinfo";  /* Page that shows diffs */
   const char *zBrName;          /* Branch name */
   DiffConfig DCfg,*pCfg;        /* Type of diff */
+  int aChng[N_FCHNG];           /* Counts of change types */
 
+  memset(aChng, 0, sizeof(aChng));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_set_current_feature("vinfo");
@@ -1255,17 +1318,12 @@ void ci_page(void){
     const char *zNew = db_column_text(&q3,3);
     const char *zOldName = db_column_text(&q3, 4);
     append_file_change_line(zUuid, zName, zOld, zNew, zOldName,
-                            pCfg,mperm);
+                            pCfg,mperm,aChng);
   }
   db_finalize(&q3);
   @ </div>
   if( diffType!=0 ){
-    @ <script nonce='%h(style_nonce())'>;/* info.c:%d(__LINE__) */
-    @ document.getElementById('changes_section').textContent =  'Changes ' +
-    @   '(%d(g.diffCnt[0]) file' + (%d(g.diffCnt[0])===1 ? '' : 's') + ': ' +
-    @   '+%d(g.diffCnt[1]) ' +
-    @   '−%d(g.diffCnt[2]))'
-    @ </script>
+    adjust_changes_section_title(__LINE__, aChng);
   }
   append_diff_javascript(diffType);
   style_finish_page();
@@ -1451,7 +1509,9 @@ void vdiff_page(void){
   Blob qp;                /* non-glob= query parameters for generated links */
   Blob qpGlob;            /* glob= query parameter for generated links */
   int bInvert = PB("inv");
+  int aChng[N_FCHNG];     /* Count of versiou change types */
 
+  memset(aChng, 0, sizeof(aChng));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( robot_restrict("diff") ) return;
@@ -1596,14 +1656,14 @@ void vdiff_page(void){
     if( cmp<0 ){
       if( !pGlob || glob_match(pGlob, pFileFrom->zName) ){
         append_file_change_line(zFrom, pFileFrom->zName,
-                                pFileFrom->zUuid, 0, 0, pCfg, 0);
+                                pFileFrom->zUuid, 0, 0, pCfg, 0,aChng);
       }
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       if( !pGlob || glob_match(pGlob, pFileTo->zName) ){
         append_file_change_line(zTo, pFileTo->zName,
                                 0, pFileTo->zUuid, 0, pCfg,
-                                manifest_file_mperm(pFileTo));
+                                manifest_file_mperm(pFileTo),aChng);
       }
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
@@ -1615,7 +1675,7 @@ void vdiff_page(void){
         append_file_change_line(zFrom, pFileFrom->zName,
                                 pFileFrom->zUuid,
                                 pFileTo->zUuid, 0, pCfg,
-                                manifest_file_mperm(pFileTo));
+                                manifest_file_mperm(pFileTo),aChng);
       }
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
