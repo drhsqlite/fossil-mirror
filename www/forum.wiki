@@ -371,7 +371,7 @@ repository's administrators and moderators:
 
 <h2 id="close-post">Closing Forum Posts</h2>
 
-As of version 2.23, the forum interface supports the notion of
+As of version 2.23 the forum interface supports the notion of
 "closing" posts. By default, only users with the [./caps/index.md|'s'
 and 'a' capabilities] may close or re-open posts, or reply to closed
 posts. If the [/help/forum-close-policy|forum-close-policy
@@ -412,8 +412,9 @@ further responses.
 
 <h2 name="status">Setting Post Statuses</h2>
 
-The setting <tt>forum-statuses</tt> controls whether this feature is
-is enabled. If it is not set, is not valid JSON5, or has only a single
+As of version 2.29 forum posts may be tagged with a status.  The
+setting <tt>forum-statuses</tt> controls whether this feature is is
+enabled. If it is not set, is not valid JSON5, or has only a single
 entry, then status are not shown in the forum.
 
 <tt>forum-statuses</tt> is a JSON5-format array of objects in the
@@ -476,3 +477,41 @@ Caveat: a "closed" status is not recommended because it's easy to confuse with
 the <a href='#close-post'>"closed" tag feature</a>, which behaves considerably
 differently and predates that "status" tag support by about three years. The
 "closed" semantics cannot be trivially consolidated with those of "status".
+
+<h2 name="attachments">Attachments</h2>
+
+As of version 2.29 users with the [./caps/index.md|'B' capabilities]
+may attach files to forum posts. Files may not be attached until a
+forum post is saved for the first time, after which an "Attach" button
+will appear in the post when it is selected. Attached files undergo
+moderation exactly like forum posts do. When a moderator accepts a
+pending-moderation posts, all files attached to it which are also
+pending approval are also approved.  Similarly, when a moderator
+rejects a pending-moderation post, all files attached to it when are
+also pending approval are rejected.
+
+Developer notes regarding the save-before-attach limitation:
+
+  *  We cannot add the attachment form to the current post editor
+     because (A) the Preview option would upload the files each time
+     (B) we cannot pre-populate file selection elements so could not
+     restore them when rendering the preview's response.
+  *  To work around that we need to reimplement the forum editor
+     using AJAX-friendly APIs. That would allow us to render a preview
+     without reloading the page, to attach multiple files at once,
+     to support pasting a screenshot as an attachment, and to submit both
+     a new post and its attachments at the same time.
+  *  We have AJAX-capable preview code in /wiki and /fileedit.
+  *  We have paste-screenshot code in /chat but integrating it here will
+     require adding a "paste" button to the attachment UI.
+
+Developer notes regarding automatic acceptance/rejection of
+attachments:
+
+  * There is a race condition here where an admin may approve
+    attachments they have not yet seen: user creates posts, admin gets
+    notified, admin reads post, user attaches a file at that time,
+    admin approves post.
+
+TBD is whether to accept that case or to remove automatic approval of
+attached files.

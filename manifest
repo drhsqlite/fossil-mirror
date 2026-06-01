@@ -1,5 +1,5 @@
-C Fix\s/forum\sfiltering\sfor\sthe\scase\sthat\sthe\srepo\shas\sa\sforum-statuses\ssetting\sbut\sno\sposts\shave\sa\sstatus\stag.
-D 2026-06-01T07:45:08.338
+C www/forum.wiki:\sdocument\sthe\sfile\sattachment\scapability\sand\sadd\ssome\sdeveloper\snotes\sregarding\scurrent\slimitations\sand\sovercoming\sthem.
+D 2026-06-01T08:22:41.654
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -846,7 +846,7 @@ F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
 F www/fileedit-page.md 05b5429894d86d052d647ee354d94a7b18f66e701c23a94040b2517328431260
 F www/fileformat.wiki eb2e02ea94b9f544027a66180b442a7757f791c77e33e9760c6993f2688d98e6
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
-F www/forum.wiki 6ef0fd20a4d66a283af8be83189c98c53cb67852016e15f3c236fc6fb3a295ba
+F www/forum.wiki 4564a85b0b24cc516ccc09278ddc18e641801936f8af297c750898867cf202cf
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7796221f386bf791c6713cc2a9a80662f91b71b8d0bbc74a3a85084665f34475
-R 55f7d556d4f0af6003d9e934d9c72932
+P 0f934bb0755a5c55b9977b047885bf0ab566da516a55e9bb65be056969571623
+R d217a72f8718a73d10fd85633a956327
 U stephan
-Z bf0f3c6e5042e83d6b4deb711cc99cb4
+Z d61382f64e387c9845f43ba1650a77cd
 # Remove this line to create a well-formed Fossil manifest.
