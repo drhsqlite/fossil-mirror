@@ -2144,12 +2144,15 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h $(SRCDIR)/config.h
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 
 $(SQLITE3_OBJ):	$(SQLITE3_SRC)
+	-mkdir -p $(OBJDIR)
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
 $(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR_extsrc)/sqlite3.h
+	-mkdir -p $(OBJDIR)
 	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/linenoise.o:	$(SRCDIR_extsrc)/linenoise.c $(SRCDIR_extsrc)/linenoise.h
+	-mkdir -p $(OBJDIR)
 	$(XTCC) -c $(SRCDIR_extsrc)/linenoise.c -o $@
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c

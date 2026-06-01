@@ -551,13 +551,16 @@ foreach s [lsort $src] {
 }
 
 writeln "\$(SQLITE3_OBJ):\t\$(SQLITE3_SRC)"
+writeln "\t-mkdir -p \$(OBJDIR)"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR_extsrc)/sqlite3.h"
+writeln "\t-mkdir -p \$(OBJDIR)"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(SEE_FLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR_extsrc)/linenoise.c \$(SRCDIR_extsrc)/linenoise.h"
+writeln "\t-mkdir -p \$(OBJDIR)"
 writeln "\t\$(XTCC) -c \$(SRCDIR_extsrc)/linenoise.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
