@@ -2486,6 +2486,8 @@ void forum_main_page(void){
   int eStatusTag = 0;        /* tagid for the "status" property */
   int bHasStatus = 0;        /* True if forum-statuses setting exists */
   int bFilter = 0;           /* True if status=NAME query parameter */
+  int bHasForum = 0;         /* True if forumpost table exists */
+  const ForumStatusList *pFstat = forum_statuses();
   ForumStatusMatch sFSM;     /* Aux data to status_match() SQL function */
 
   login_check_credentials();
@@ -2495,9 +2497,10 @@ void forum_main_page(void){
     return;
   }
   cgi_check_for_malice();
-  eStatusTag = db_int(0, "SELECT tagid FROM tag WHERE tagname='status'");
-  if( eStatusTag && forum_statuses()->n>1 ){
-    bHasStatus = 1;
+  bHasForum = db_table_exists("repository","forumpost");
+  if( bHasForum ){
+    eStatusTag = db_int(0, "SELECT tagid FROM tag WHERE tagname='status'");
+    bHasStatus = pFstat->n>1;
   }
   style_set_current_feature("forum");
   style_header("%s%s", db_get("forum-title","Forum"),
@@ -2543,8 +2546,7 @@ void forum_main_page(void){
       bFilter = bHasStatus;
     }
   }
-  if( db_table_exists("repository","forumpost") ){
-    const ForumStatusList *pFstat = forum_statuses();
+  if( bHasForum ){
     Stmt qStat = empty_Stmt;     /* Query to get status information */
     if( bHasStatus ){
       /* The qStat query runs once for each output row generate by the
