@@ -239,6 +239,11 @@
               this.#injestBlob(rowObj, blob);
             });
             break;
+          }else if(0){
+            e.preventDefault();
+            const blob = undefined /* ??? */;
+            this.#injestBlob(rowObj, blob);
+            break;
           }
         }
       });
