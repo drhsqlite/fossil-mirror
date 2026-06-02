@@ -2026,6 +2026,9 @@ div.helpPage blockquote {
   border-radius: 0.25em;
   background-color: #fafafa;
 }
+body.fossil-dark-style .attach-container > .attach-row {
+  background-color: initial;
+}
 .attach-container > .attach-row > .attach-dropzone {
   padding: 1em;
   text-align: center;
@@ -2038,13 +2041,27 @@ div.helpPage blockquote {
   flex-direction: row;
   flex-wrap: nowrap;
 }
+body.fossil-dark-style .attach-container > .attach-row > .attach-dropzone{
+  background: initial;
+}
 .attach-container > .attach-row > .attach-dropzone.populated {
   background-color: #f1f8e9;
   border-color: #8bc34a;
   border-style: solid;
   text-align: left;
 }
+body.fossil-dark-style .attach-container > .attach-row > .attach-dropzone.populated{
+  background-color: initial;
+  border-color: #8bc34a;
+}
 .attach-container > .attach-row > .attach-dropzone.dragover {
+  background-color: #e1f5fe;
+  border-color: #03a9f4;
+}
+body.fossil-dark-style .attach-container > .attach-row > .attach-dropzone.dragover{
+  border-color: #03a9f4;
+}
+body.fossil-dark-style  > .attach-row > .attach-dropzone.dragover{
   background-color: #e1f5fe;
   border-color: #03a9f4;
 }

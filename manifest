@@ -1,5 +1,5 @@
-C Reorder\ssome\sstyles\sto\sensure\sthat\sthe\sdrag-over\sstyle\seffect\shappens\sfor\spopulated\sattachment\sslots.
-D 2026-06-02T21:14:21.258
+C Make\sthe\snew\sattachment\sform\slegible\sin\sdark\smode.\sCorrect\sthe\senabling/disabling\sof\sthe\ssubmit\sbutton,\sbroken\sin\srecent\srefactoring.
+D 2026-06-02T21:29:14.255
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f
 F skins/blitz/header.txt 9cbbf8a2cede512b4ccf47f2bf284ef043c1acd1e6dab38b776a0140fd7fa200
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401d7fdd60446d9a13db
-F skins/darkmode/css.txt 22f204145704d2c2693d5929e473688745bdb1d6dbb87d7cc4d8b4486c428ec0
+F skins/darkmode/css.txt 7adf2f18c982bf1deaf94022b0fa80ed9b655fa41d5d4a9c4ea479b34b7f4932
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt d909e2ffcadfd595707d7cb057d654888cf45de37910137bac508651c7f6f03f
 F skins/darkmode/header.txt 3fe4fb78b2a6f8d6c9a4c2c4dbba7d80a7302b166fe5e4cec86f05713ddf830b
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
-F src/default.css ff5379bc5732c531c77af8840dacb53dfd2cc18965e413f418f5d54d6d9de9cc
+F src/default.css 834e4eb5cb69a92ee4f5e5db1aa94c8860f8f4a1091f1a236dcdf084f7a4892d
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -438,7 +438,7 @@ F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c 9cdc26361ac307666a4d20f162b7aede1eedbe24e0e8cea380463bdcf2299105
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
-F src/fossil.attach.js a15a9aca61b50850c09d12b94e294bf44eadbfc12b0f8f2ae5513e1cd695a07d
+F src/fossil.attach.js 79c313fef1d3110e72d128d285dfb58df5013ed3753b0fb5f903331ce2984240
 F src/fossil.bootstrap.js 80253c8526b2764bf7d2441dd011a10396a5bcef416c6d2d66ea50f6cf9305ba
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
 F src/fossil.copybutton.js 57ad69acea5741a54cdec843db7aecfa82234932ec5a2ae5ba6c2a67e2077e88
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 307213a0631ec193239c094073fd5c1684f6443bd6d7c4417d0fc1db68189706
-R 6a2c1bdd99c28855137ddb7684ce79e0
+P 58d98eed186ab599d64b6385c43231f6d33e286cd77bcb50356a5089b5888f9f
+R faea249689b2dbddadbf9a013dab4686
 U stephan
-Z c259f5702f6e86076282b71bd1491ad6
+Z adee229e8ad6b7b4995fc5e450a47f5f
 # Remove this line to create a well-formed Fossil manifest.

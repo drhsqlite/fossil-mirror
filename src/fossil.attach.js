@@ -84,15 +84,15 @@
       opt.container.appendChild(this.#e.list);
       this.#e.list.appendChild(eControls);
       if( opt.listener ){
-        if( (opt.listener.add || opt.listener.all) instanceof Function ){
-          this.addEventListener('entry-added', opt.listener.add);
-        }
-        if( (opt.listener.remove || opt.listener.all) instanceof Function ){
-          this.addEventListener('entry-removed', opt.listener.remove);
-        }
-        if( (opt.listener.populate || opt.listener.all) instanceof Function ){
-          this.addEventListener('entry-populated', opt.listener.populate);
-        }
+        const doCb = (eventType, cb)=>{
+          const f = cb || opt.listener.all;
+          if( f instanceof Function ){
+            this.addEventListener(eventType, f);
+          }
+        };
+        doCb('entry-added', opt.listener.add);
+        doCb('entry-removed', opt.listener.remove);
+        doCb('entry-populated', opt.listener.populate);
       }
       if( Array.isArray(opt.controls) ){
         eControls.append(...opt.controls);

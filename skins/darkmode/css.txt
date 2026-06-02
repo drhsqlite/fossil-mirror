@@ -131,6 +131,7 @@ input[type=submit]:hover {
   color: rgba(24,24,24,0.8);
   outline: 0
 }
+button:disabled,
 input[type=submit]:disabled {
   color: #363636;
   background-color: #707070;
