@@ -578,6 +578,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\diff.js" \
         "$(SRCDIR)\diff.tcl" \
         "$(SRCDIR)\forum.js" \
+        "$(SRCDIR)\fossil.attach.js" \
         "$(SRCDIR)\fossil.bootstrap.js" \
         "$(SRCDIR)\fossil.confirmer.js" \
         "$(SRCDIR)\fossil.copybutton.js" \
@@ -1216,6 +1217,7 @@ realclean: clean
 	echo "$(SRCDIR)\diff.js" >> $@
 	echo "$(SRCDIR)\diff.tcl" >> $@
 	echo "$(SRCDIR)\forum.js" >> $@
+	echo "$(SRCDIR)\fossil.attach.js" >> $@
 	echo "$(SRCDIR)\fossil.bootstrap.js" >> $@
 	echo "$(SRCDIR)\fossil.confirmer.js" >> $@
 	echo "$(SRCDIR)\fossil.copybutton.js" >> $@

@@ -613,6 +613,7 @@ EXTRA_FILES = \
   $(SRCDIR)/diff.js \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
+  $(SRCDIR)/fossil.attach.js \
   $(SRCDIR)/fossil.bootstrap.js \
   $(SRCDIR)/fossil.confirmer.js \
   $(SRCDIR)/fossil.copybutton.js \

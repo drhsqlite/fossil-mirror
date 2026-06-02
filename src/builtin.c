@@ -734,6 +734,7 @@ static int builtin_emit_fossil_js_once(const char * zName){
                         ** the final one! */
   } fjs[] = {
   /* This list ordering isn't strictly important. */
+  {"attach",         0, "dom\0"},
   {"confirmer",      0, 0},
   {"copybutton",     0, "dom\0"},
   {"diff",           0, "dom\0fetch\0storage\0"

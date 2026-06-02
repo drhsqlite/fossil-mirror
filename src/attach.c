@@ -535,6 +535,7 @@ void attachadd_page(void){
   @ </div>
   captcha_generate(0);
   @ </form>
+  builtin_fossil_js_bundle_or("attach", NULL);
   style_finish_page();
   fossil_free(zTargetType);
   fossil_free(zExtraFree);

@@ -1281,7 +1281,8 @@ static void forum_display_post(
           ** effectively takes over ownership of it (and we currently
           ** have no way of passing it back). Because of this, we
           ** check the ownership of `p` instead of `pHead`. */
-          @ <form method="post" action="%R/attachadd">\
+          @ <form method="post" action="%R/attachadd" \
+          @ class='file-attach'>\
           @ <input type="hidden" name="forumpost" value="%T(pHead->zUuid)">
           @ <input type="submit" value="Attach...">
           login_insert_csrf_secret();
