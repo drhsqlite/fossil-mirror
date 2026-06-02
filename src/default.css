@@ -2052,7 +2052,6 @@ div.helpPage blockquote {
 .attach-container > .attach-row .attach-row-info {
   font-family: monospace;
   font-size: 0.9em;
-  color: #555;
   flex-grow: 1;
 }
 .attach-container > .attach-row .attach-desc {

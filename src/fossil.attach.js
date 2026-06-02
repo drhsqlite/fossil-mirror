@@ -1,5 +1,8 @@
 "use strict";
 /**
+   Utility for interactive file attachment. Supports attachment
+   selection from a file dialog, from the clipboard, or drag/drop.
+
    Requires that window.fossil has already been set up.
    Depends on fossil.dom.
 */
@@ -26,9 +29,20 @@
 
        opt.addButtonLabel: optional label for the "add attachment"
        button, defaulting to something generic.
+
+       opt.limit: optional max number of attachments to allow.  This
+       defaults to "some sensible value".
+
+       opt.startWith[=0]: if >0 then that many file selection widgets
+       are automatically activated, as if the user had tapped the Add
+       button that many times.
     */
     constructor(opt){
-      this.#opt = opt = Object.assign(Object.create(null),opt);
+      this.#opt = opt = Object.assign(Object.create(null),{
+        addButtonLabel: false,
+        startWith: 0,
+        limit: 7
+      }, opt);
       const eBtnAdd = this.#e.btnAdd = D.addClass(
         D.button(this.#opt.addButtonLabel || 'Add attachment',
                  ()=>this.#addRow()),
@@ -38,11 +52,39 @@
       this.#e.list = D.addClass(D.div(), 'attach-container');
       opt.container.appendChild(this.#e.list);
       this.#e.list.appendChild(eBtnAdd);
+      if( opt.startWith > 0 ){
+        for(let i = 0; i < opt.startWith; ++i ){
+          this.#addRow();
+        }
+      }
     }
 
     #removeRow(rowObj){
       rowObj.eRow.remove();
       this.#rows = this.#rows.filter(v=>v!==rowObj);
+      this.#updateBtnAdd();
+      if( 0===this.#rows.length
+          && 1===this.#opt.limit
+          && 1===this.#opt.startWith ){
+        /* Intended primarily for /addattach. */
+        this.#addRow();
+      }
+    }
+
+    /**
+       Hide or show the Add button, as appropriate.
+    */
+    #updateBtnAdd(){
+      const b = this.#e.btnAdd;
+      if( this.#opt.limit>0 && this.#rows.length >= this.#opt.limit ){
+        b.classList.add('hidden');
+        //b.setAttribute('disabled','');
+        //F.toast.warning("Attachment form limit reached.");
+      }else{
+        b.classList.remove('hidden');
+        //b.removeAttribute('disabled');
+        this.#e.list.append(b/*move to the end*/);
+      }
     }
 
     #addRow(){
@@ -124,8 +166,9 @@
       rowObj.eInfo = eInfo;
       rowObj.eDesc = eDesc;
       rowObj.eRow = eRow;
+      this.#e.list.append(eRow);
       this.#rows.push( rowObj );
-      this.#e.list.append(eRow, this.#e.btnAdd)/*move to the end*/;
+      this.#updateBtnAdd();
       if( 0 ){
         /* To allow immediate ctrl-v, we need a trick...
            But don't do this because it will interfere with, e.g.,
@@ -144,10 +187,10 @@
     #injestBlob(rowObj, file){
       if( !file ) return;
       if( file.name === 'image.png' ){
-        /* Workaround to attempt to avoid name collisions when
-           pasting multiple images. We cannot, at this level, unambiguously
-           distinguish a ctrl-v of bitmap data vs a ctrl-v of an
-           image file using a desktop file manager. */
+        /* Workaround to attempt to avoid name collisions when pasting
+           multiple images. We cannot, at this level, unambiguously
+           distinguish a ctrl-v of bitmap data vs a ctrl-v of an image
+           file copied via a desktop file manager. */
         file = new File([file], `pasted-image-${rowObj.id}.png`,
                         {type: file.type});
       }
