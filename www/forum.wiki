@@ -480,7 +480,7 @@ differently and predates that "status" tag support by about three years. The
 
 <h2 name="attachments">Attachments</h2>
 
-As of version 2.29 users with the [./caps/index.md|'B' capabilities]
+As of version 2.29 users with the [./caps/index.md|'B' capability]
 may attach files to forum posts. Files may not be attached until a
 forum post is saved for the first time, after which an "Attach" button
 will appear in the post when it is selected. Attached files undergo
