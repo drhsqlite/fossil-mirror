@@ -40,14 +40,6 @@
       this.#e.list.appendChild(eBtnAdd);
     }
 
-    #removeRow(id){
-      const e = this.#opt.container.querySelector('[data-id="'+id+'"]');
-      if( e ){
-        e.remove();
-        this.#rows = this.#rows.filter(v=>v.id!==+id);
-      }
-    }
-
     #addRow(){
       const id = ++idCounter;
       const rowObj = {
@@ -61,20 +53,26 @@
       );
       const eInfo = D.append(
         D.addClass(D.span(), 'attach-row-info'),
-        "Click to select, drop file, or paste content here"
+        "Select/drop file or click the outer border and tap your "+
+        "platform's conventional Paste keyboard shortcut."
       );
-      D.append(eDropzone, eInfo, eFile);
+
       const eDesc = D.addClass(
         D.attr(D.textarea(), 'placeholder',
                'Optional description...'),
-        'hidden'
+        'hidden', 'attach-desc'
       );
       const eRemove = D.addClass(
-        D.button('Remove', ()=>this.#removeRow(id)),
+        D.button('Remove', (ev)=>{
+          ev.stopPropagation();
+          eRow.remove();
+          this.#rows = this.#rows.filter(v=>v!==rowObj);
+        }),
         'attach-row-remove'
       );
       eRemove.type = 'button';
 
+      D.append(eDropzone, eInfo, eFile, eRemove);
       eDropzone.addEventListener('click', ()=>eFile.click());
       eFile.addEventListener('change', (ev)=>{
         if( ev.target.files.length ){
@@ -109,29 +107,51 @@
           }else if( item.type === 'text/plain' ){
             e.preventDefault();
             item.getAsString((text) => {
-              const blob = new Blob([text], {type: 'text/plain'});
-              blob.name = `pasted-text-${id}.txt`;
+              const blob = new File([text], `pasted-text-${id}.txt`,
+                                    {type: 'text/plain'});
               this.#injestBlob(rowObj, blob);
             });
             break;
           }
         }
       });
-      D.append(eRow, eDropzone, eDesc, eRemove);
+      D.append(eRow, eDropzone, eDesc);
       rowObj.eDropzone = eDropzone;
       rowObj.eInfo = eInfo;
       rowObj.eDesc = eDesc;
       this.#rows.push( rowObj );
       this.#e.list.append(eRow, this.#e.btnAdd);
+      if( 0 ){
+        /* To allow immediate ctrl-v, we need a trick...
+           But don't do this because it will interfere with, e.g.,
+           the forum editor. */
+        D.attr(eRow, 'tabindex', '-1');
+        eRow.focus();
+      }
     }
 
     #injestBlob(rowObj, file){
       if( !file ) return;
+      if( file.name === 'image.png' ){
+        /* Workaround to attempt to avoid name collisions when
+           pasting multiple images. We cannot, at this level, unambiguously
+           distinguish a ctrl-v of bitmap data vs a ctrl-v of an
+           image file using a desktop file manager. */
+        file = new File([file], `pasted-image-${rowObj.id}.png`,
+                        {type: file.type});
+      }
       rowObj.file = file;
       rowObj.mimeType = file.type || 'application/octet-stream';
 
       const lbl = file.name || 'Pasted Content';
-      const szLbl = (file.size / 1024).toFixed(2)+' KB';
+      let szLbl;
+      if( file.size < 500000 ){
+        szLbl = file.size + ' bytes';
+      }else if( file.size < 1000000 ){
+        szLbl = (file.size / 1024).toFixed(2)+' KB';
+      }else{
+        szLbl = (file.size / (1024 * 1024)).toFixed(2)+' MB';
+      }
       rowObj.eInfo.textContent = `${lbl} (${szLbl}, ${rowObj.mimeType})`;
       rowObj.eDropzone.classList.add('populated');
       rowObj.eDesc.classList.remove('hidden');
@@ -148,7 +168,7 @@
           continue;
         }
         rv.push(Object.assign(Object.create(null),{
-          name: r.file.name || `pasted-content-${r.id}.${row.mimeType.split('/')[1] || 'txt'}`,
+          name: r.file.name || `pasted-content-${r.id}.${r.mimeType.split('/')[1] || 'txt'}`,
           content: r.file,
           description: r.eDesc?.value || '',
           mimeType: r.mimeType
@@ -165,16 +185,17 @@
     */
     populateFormData(fd, namePrefix='file'){
       const st = this.collectState();
-      for(const ndx in st){
-        const s = st[ndx];
-        const suffix = ndx+1;
+      let i = 0;
+      for( ; i < st.length; ++i){
+        const s = st[i];
+        const suffix = i+1;
         fd.append(`${namePrefix}${suffix}`, s.content, s.name);
         const d = s.description?.trim?.();
         if( d ){
           fd.append(`${namePrefix}${suffix}_desc`, d);
         }
       }
-      return st.length;
+      return i;
     }
   }/*Attacher*/;
 
