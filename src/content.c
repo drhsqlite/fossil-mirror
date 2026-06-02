@@ -712,24 +712,38 @@ int content_new(const char *zUuid, int isPrivate){
 **
 **    --moderate           Make corresponding entries to the MODREQ table
 **    -R REPO              Add the content to repository file REPO
+**    -x|--crosslink       Assume all inputs are artifacts and crosslink them.
 */
 void test_content_put_cmd(void){
   int rid;
   Blob content;
   int i;
   int bModreq = find_option("moderate",0,0)!=0;
+  int bCrosslink = find_option("crosslink","x",0)!=0;
   db_find_and_open_repository(0,0);
   user_select();
   verify_all_options();
   db_begin_transaction();
   if( bModreq ) moderation_table_create();
+  if( bCrosslink ){
+    manifest_crosslink_begin();
+  }
   for(i=2; i<g.argc; i++){
-    blob_read_from_file(&content, g.argv[i], ExtFILE);
+    const char *zFile = g.argv[i];
+    blob_read_from_file(&content, zFile, ExtFILE);
     rid = content_put(&content);
+    if( bCrosslink ){
+      manifest_crosslink(rid, &content, MC_NONE);
+    }else{
+      blob_reset(&content);
+    }
     if( bModreq ){
       db_multi_exec("INSERT INTO modreq(objid) VALUES(%d)",rid);
     }
-    fossil_print("inserted as record %d\n", rid);
+    fossil_print("inserted as record %d: %s\n", rid, zFile);
+  }
+  if( bCrosslink ){
+    manifest_crosslink_end(MC_NONE);
   }
   db_end_transaction(0);
 }

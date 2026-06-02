@@ -1331,6 +1331,7 @@ void db_checkin_mtime_function(
 **     symbolic_name_to_rid('trunk');
 **     symbolic_name_to_rid('trunk','w');
 **
+** Its result is either an RID or NULL.
 */
 void db_sym2rid_function(
   sqlite3_context *context,

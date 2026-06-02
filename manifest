@@ -1,5 +1,5 @@
-C www/forum.wiki:\sdocument\sthe\sfile\sattachment\scapability\sand\sadd\ssome\sdeveloper\snotes\sregarding\scurrent\slimitations\sand\sovercoming\sthem.
-D 2026-06-01T08:22:41.654
+C Add\sthe\s-x/--crosslink\sflag\sto\stest-content-put,\swhich\scauses\sit\sto\streat\sall\sinputs\sas\sartifacts\sand\scrosslink\sthem.
+D 2026-06-02T09:15:03.426
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,11 +411,11 @@ F src/color.c dbea75182cd46c3ed261229766a710df6414aafd8de8e3505621c9109904cad0
 F src/comformat.c e28d054cbc160d069d2c725d9a1429543c6655e44012d4a7d2f37e5c9e5a7183
 F src/config.h 0ed672f15c096edbea44b24657bd91e3acb8bcd5827c62df9f8635abe1da7c21
 F src/configure.c fe912332a4f649540a71f328c45150b11566df5240dc68913bf931c2985d2259
-F src/content.c 21e593843c226319b79e07db8eb32a94d47b958261766e153a2aeedee96609a9
+F src/content.c 3018fea9d9557cb6f1edc6be062f2db5dc76af211a357d5aa13c4a69e248f623
 F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 79cbf26fe6504c19a7bfeed588c059429be1a0b5afe06437863a43c85bc82995
+F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
 F src/default.css 1ad5e64434c093a9a7f6e0cfac469f1a6af05cd30c714d94a9f29d97a80731d6
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f934bb0755a5c55b9977b047885bf0ab566da516a55e9bb65be056969571623
-R d217a72f8718a73d10fd85633a956327
+P ff4caf13ba30b08c4409dcce0147f4421b714eaeb1cb154b02f405707d3c905e
+R 3114ffa2d2f0e11ba04776930595b912
 U stephan
-Z d61382f64e387c9845f43ba1650a77cd
+Z 6df9d94f3eab8fcc2ecdffafc80eebb0
 # Remove this line to create a well-formed Fossil manifest.
