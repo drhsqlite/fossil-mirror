@@ -2039,7 +2039,7 @@ div.helpPage blockquote {
   background-color: #e1f5fe;
   border-color: #03a9f4;
 }
-.attach-dropzone.row-populated {
+.attach-dropzone.populated {
   background-color: #f1f8e9;
   border-color: #8bc34a;
   border-style: solid;
