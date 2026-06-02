@@ -35,9 +35,14 @@
         'attach-add-button'
       );
       eBtnAdd.type = 'button';
-      this.#e.list = D.addClass(D.div(), 'attach-container')
+      this.#e.list = D.addClass(D.div(), 'attach-container');
       opt.container.appendChild(this.#e.list);
       this.#e.list.appendChild(eBtnAdd);
+    }
+
+    #removeRow(rowObj){
+      rowObj.eRow.remove();
+      this.#rows = this.#rows.filter(v=>v!==rowObj);
     }
 
     #addRow(){
@@ -65,8 +70,7 @@
       const eRemove = D.addClass(
         D.button('Remove', (ev)=>{
           ev.stopPropagation();
-          eRow.remove();
-          this.#rows = this.#rows.filter(v=>v!==rowObj);
+          this.#removeRow(rowObj);
         }),
         'attach-row-remove'
       );
@@ -119,14 +123,21 @@
       rowObj.eDropzone = eDropzone;
       rowObj.eInfo = eInfo;
       rowObj.eDesc = eDesc;
+      rowObj.eRow = eRow;
       this.#rows.push( rowObj );
-      this.#e.list.append(eRow, this.#e.btnAdd);
+      this.#e.list.append(eRow, this.#e.btnAdd)/*move to the end*/;
       if( 0 ){
         /* To allow immediate ctrl-v, we need a trick...
            But don't do this because it will interfere with, e.g.,
            the forum editor. */
         D.attr(eRow, 'tabindex', '-1');
         eRow.focus();
+      }
+    }
+
+    #rowMatchingName(name){
+      for(let r of this.#rows){
+        if( r.file?.name===name ) return r;
       }
     }
 
@@ -139,6 +150,19 @@
            image file using a desktop file manager. */
         file = new File([file], `pasted-image-${rowObj.id}.png`,
                         {type: file.type});
+      }
+      /*
+        Fossil attachments treat the name as a unique-per-target key,
+        with the newest one being the primary.  If a name is given
+        twice, replace the prior entry before adding the new
+        one. There are conceivable, but also unlikely, cases where
+        this will have unintended side-effects, but that seems like a
+        lesser evil than attaching the same file N times, leading to N
+        attachment artifacts.
+      */
+      const old = this.#rowMatchingName(file.name);
+      if( old && rowObj !== old){
+        this.#removeRow(old);
       }
       rowObj.file = file;
       rowObj.mimeType = file.type || 'application/octet-stream';

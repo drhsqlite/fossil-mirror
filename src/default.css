@@ -2047,6 +2047,7 @@ div.helpPage blockquote {
   background-color: #f1f8e9;
   border-color: #8bc34a;
   border-style: solid;
+  text-align: left;
 }
 .attach-container > .attach-row .attach-row-info {
   font-family: monospace;
