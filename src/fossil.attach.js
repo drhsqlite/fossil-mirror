@@ -36,12 +36,19 @@
 
        opt.startWith[=0]: if >0 then that many file selection widgets
        are automatically activated, as if the user had tapped the Add
-       button that many times.
+       button that many times. As a special case, if this is >0
+       and the user removes the last entry, a new one is added.
+
+       opt.controls = [array of DOM elements]. Optional DOM elements
+       to inject into the UI element which wraps the "Add" button.
+       See this.controlsElement.
 
        opt.listener = {add: func, remove: func, populate: func}: if
        these are functions they are registered as listeners for
        'entry-added', 'entry-removed', and/or 'entry-populated'
-       events, described below.
+       events, described below. opt.listener.all, if set, is used
+       as a fallback for any of 'add', 'remove', or 'populate'
+       which are not set.
 
        Events:
 
@@ -49,10 +56,11 @@
 
        'entry-added' and 'entry-removed' trigger when an attachment
        entry row is added/removed. Its event.detail is {attacher:
-       this, row: object}.
+       this, row: object, type: 'same as event type'}.
 
        'entry-populated' is triggered when a visible entry gets
-       content attached to it.
+       content attached to it, with the same detail structure as
+       described above.
 
        The public structure of the row object passed to each is
        currently TBD.
@@ -61,7 +69,7 @@
       this.#opt = opt = F.nu({
         addButtonLabel: false,
         startWith: 0,
-        limit: 7
+        limit: 0
       }, opt);
       const eBtnAdd = this.#e.btnAdd = D.addClass(
         D.button(this.#opt.addButtonLabel || 'Add attachment',
@@ -76,15 +84,18 @@
       opt.container.appendChild(this.#e.list);
       this.#e.list.appendChild(eControls);
       if( opt.listener ){
-        if( opt.listener.add instanceof Function ){
+        if( (opt.listener.add || opt.listener.all) instanceof Function ){
           this.addEventListener('entry-added', opt.listener.add);
         }
-        if( opt.listener.remove instanceof Function ){
+        if( (opt.listener.remove || opt.listener.all) instanceof Function ){
           this.addEventListener('entry-removed', opt.listener.remove);
         }
-        if( opt.listener.populate instanceof Function ){
+        if( (opt.listener.populate || opt.listener.all) instanceof Function ){
           this.addEventListener('entry-populated', opt.listener.populate);
         }
+      }
+      if( Array.isArray(opt.controls) ){
+        eControls.append(...opt.controls);
       }
       if( opt.startWith > 0 ){
         for(let i = 0; i < opt.startWith; ++i ){
@@ -103,6 +114,8 @@
       return this.#events.removeEventListener(...args);
     }
 
+    /** Returns true if any visible input widgets have content
+        selected. */
     get isPopulated(){
       for(let r of this.#rows){
         if( r.file ) return true;
@@ -110,6 +123,10 @@
       return false;
     }
 
+    /**
+       Returns the DOM element (div.attach-controls) which wraps the
+       "Add" button.  Clients may add buttons to it.
+    */
     get controlsElement(){
       return this.#e.controls;
     }
@@ -121,13 +138,14 @@
       this.#events.dispatchEvent(
         new CustomEvent('entry-removed',{
           detail: F.nu({
+            type: 'entry-removed',
             row: rowObj,
             attacher: this
           })
         })
       );
       if( 0===this.#rows.length
-          && 1===this.#opt.startWith ){
+          && this.#opt.startWith>0 ){
         /* Intended primarily for /addattach. */
         this.#addRow();
       }
@@ -228,12 +246,14 @@
       rowObj.eInfo = eInfo;
       rowObj.eDesc = eDesc;
       rowObj.eRow = eRow;
+      rowObj.eRemove = eRemove;
       this.#e.list.append(eRow);
       this.#rows.push( rowObj );
       this.#updateControls();
       this.#events.dispatchEvent(
         new CustomEvent('entry-added',{
           detail: F.nu({
+            type: 'entry-added',
             row: rowObj,
             attacher: this
           })
@@ -295,9 +315,18 @@
       );
       rowObj.eDropzone.classList.add('populated');
       rowObj.eDesc.classList.remove('hidden');
+      if( file.type?.startsWith?.('image/') || file.type==='BITMAP' ){
+        const img = D.img();
+        img.classList.add('thumbnail');
+        rowObj.eDropzone.insertBefore(img, rowObj.eRemove);
+        const reader = new FileReader();
+        reader.onload = (e)=>img.setAttribute('src', e.target.result);
+        reader.readAsDataURL(file);
+      }
       this.#events.dispatchEvent(
         new CustomEvent('entry-populated',{
           detail: F.nu({
+            type: 'entry-populated',
             row: rowObj,
             attacher: this
           })
@@ -362,15 +391,7 @@
         eBtnSubmit.setAttribute('disabled', '');
       }
     };
-    const cbAdd = (ev)=>{
-      const a = ev.detail.attacher;
-      updateBtnSubmit(a);
-    };
-    const cbRm = (ev)=>{
-      const a = ev.detail.attacher;
-      updateBtnSubmit(a);
-    };
-    const cbPopulated = (ev)=>{
+    const cbAttacherChange = (ev)=>{
       const a = ev.detail.attacher;
       updateBtnSubmit(a);
     };
@@ -380,9 +401,10 @@
     const att = new Attacher({
       container: eFormDiv,
       startWith: 1,
-      listener: {add: cbAdd, remove: cbRm, populate: cbPopulated}
+      listener: F.nu({all: cbAttacherChange}),
+      controls: [eBtnSubmit]
     });
-    att.controlsElement.append(eBtnSubmit);
+    updateBtnSubmit(att);
   }/* /attachaddV2 */
 
 })(window.fossil);

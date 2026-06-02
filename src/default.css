@@ -2048,6 +2048,10 @@ div.helpPage blockquote {
   border-style: solid;
   text-align: left;
 }
+.attach-container > .attach-row > .attach-dropzone > .thumbnail {
+  max-width: 10em;
+  max-height: 10em;
+}
 .attach-container > .attach-row .attach-row-info {
   font-family: monospace;
   flex-grow: 1;
