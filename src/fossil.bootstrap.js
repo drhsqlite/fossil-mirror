@@ -19,6 +19,10 @@
 
   const F = global.fossil;
 
+  /** Creates a prototype-less plain object with properties derived
+      from all of its object-type arguments. */
+  F.nu = (...obj)=>Object.assign(Object.create(null),...obj);
+
   /**
      Returns the current time in something approximating
      ISO-8601 format.

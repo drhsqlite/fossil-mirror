@@ -21,6 +21,7 @@
     #opt;
     #rows = [];
     #e = Object.create(null);
+    #events = new EventTarget();
 
     /**
        Options:
@@ -36,9 +37,28 @@
        opt.startWith[=0]: if >0 then that many file selection widgets
        are automatically activated, as if the user had tapped the Add
        button that many times.
+
+       opt.listener = {add: func, remove: func, populate: func}: if
+       these are functions they are registered as listeners for
+       'entry-added', 'entry-removed', and/or 'entry-populated'
+       events, described below.
+
+       Events:
+
+       This class fires CustomEvents for certain changes:
+
+       'entry-added' and 'entry-removed' trigger when an attachment
+       entry row is added/removed. Its event.detail is {attacher:
+       this, row: object}.
+
+       'entry-populated' is triggered when a visible entry gets
+       content attached to it.
+
+       The public structure of the row object passed to each is
+       currently TBD.
     */
     constructor(opt){
-      this.#opt = opt = Object.assign(Object.create(null),{
+      this.#opt = opt = F.nu({
         addButtonLabel: false,
         startWith: 0,
         limit: 7
@@ -49,22 +69,64 @@
         'attach-add-button'
       );
       eBtnAdd.type = 'button';
+      const eControls = this.#e.controls =
+            D.addClass(D.div(), 'attach-controls');
+      eControls.append(eBtnAdd);
       this.#e.list = D.addClass(D.div(), 'attach-container');
       opt.container.appendChild(this.#e.list);
-      this.#e.list.appendChild(eBtnAdd);
+      this.#e.list.appendChild(eControls);
+      if( opt.listener ){
+        if( opt.listener.add instanceof Function ){
+          this.addEventListener('entry-added', opt.listener.add);
+        }
+        if( opt.listener.remove instanceof Function ){
+          this.addEventListener('entry-removed', opt.listener.remove);
+        }
+        if( opt.listener.populate instanceof Function ){
+          this.addEventListener('entry-populated', opt.listener.populate);
+        }
+      }
       if( opt.startWith > 0 ){
         for(let i = 0; i < opt.startWith; ++i ){
           this.#addRow();
         }
+      }else{
+        this.#updateControls();
       }
+    }
+
+    addEventListener(...args){
+      return this.#events.addEventListener(...args);
+    }
+
+    removeEventListener(...args){
+      return this.#events.removeEventListener(...args);
+    }
+
+    get isPopulated(){
+      for(let r of this.#rows){
+        if( r.file ) return true;
+      }
+      return false;
+    }
+
+    get controlsElement(){
+      return this.#e.controls;
     }
 
     #removeRow(rowObj){
       rowObj.eRow.remove();
       this.#rows = this.#rows.filter(v=>v!==rowObj);
-      this.#updateBtnAdd();
+      this.#updateControls();
+      this.#events.dispatchEvent(
+        new CustomEvent('entry-removed',{
+          detail: F.nu({
+            row: rowObj,
+            attacher: this
+          })
+        })
+      );
       if( 0===this.#rows.length
-          && 1===this.#opt.limit
           && 1===this.#opt.startWith ){
         /* Intended primarily for /addattach. */
         this.#addRow();
@@ -74,7 +136,7 @@
     /**
        Hide or show the Add button, as appropriate.
     */
-    #updateBtnAdd(){
+    #updateControls(){
       const b = this.#e.btnAdd;
       if( this.#opt.limit>0 && this.#rows.length >= this.#opt.limit ){
         b.classList.add('hidden');
@@ -83,7 +145,7 @@
       }else{
         b.classList.remove('hidden');
         //b.removeAttribute('disabled');
-        this.#e.list.append(b/*move to the end*/);
+        this.#e.list.append(this.#e.controls/*move to the end*/);
       }
     }
 
@@ -168,7 +230,15 @@
       rowObj.eRow = eRow;
       this.#e.list.append(eRow);
       this.#rows.push( rowObj );
-      this.#updateBtnAdd();
+      this.#updateControls();
+      this.#events.dispatchEvent(
+        new CustomEvent('entry-added',{
+          detail: F.nu({
+            row: rowObj,
+            attacher: this
+          })
+        })
+      );
       if( 0 ){
         /* To allow immediate ctrl-v, we need a trick...
            But don't do this because it will interfere with, e.g.,
@@ -219,9 +289,20 @@
       }else{
         szLbl = (file.size / (1024 * 1024)).toFixed(2)+' MB';
       }
-      rowObj.eInfo.textContent = `${lbl} (${szLbl}, ${rowObj.mimeType})`;
+      D.append(
+        D.clearElement(rowObj.eInfo),
+        lbl, D.br(), szLbl, ' ', rowObj.mimeType || ''
+      );
       rowObj.eDropzone.classList.add('populated');
       rowObj.eDesc.classList.remove('hidden');
+      this.#events.dispatchEvent(
+        new CustomEvent('entry-populated',{
+          detail: F.nu({
+            row: rowObj,
+            attacher: this
+          })
+        })
+      );
     }
 
     /**
@@ -234,7 +315,7 @@
         if( !r.eDropzone?.classList?.contains?.('populated') ){
           continue;
         }
-        rv.push(Object.assign(Object.create(null),{
+        rv.push(F.nu({
           name: r.file.name || `pasted-content-${r.id}.${r.mimeType.split('/')[1] || 'txt'}`,
           content: r.file,
           description: r.eDesc?.value || '',
@@ -268,7 +349,40 @@
       return i;
     }
   }/*Attacher*/;
-
   F.Attacher = Attacher;
+
+  if( document.body.classList.contains('cpage-attachaddV2') ){
+    const eFormDiv = document.querySelector('#attachadd-form-wrapper');
+    const eBtnSubmit = D.button("Submit");
+    eBtnSubmit.type = 'button';
+    const updateBtnSubmit = (attacher)=>{
+      if( attacher.isPopulated ){
+        eBtnSubmit.removeAttribute('disabled');
+      }else{
+        eBtnSubmit.setAttribute('disabled', '');
+      }
+    };
+    const cbAdd = (ev)=>{
+      const a = ev.detail.attacher;
+      updateBtnSubmit(a);
+    };
+    const cbRm = (ev)=>{
+      const a = ev.detail.attacher;
+      updateBtnSubmit(a);
+    };
+    const cbPopulated = (ev)=>{
+      const a = ev.detail.attacher;
+      updateBtnSubmit(a);
+    };
+    const cbSubmit = (ev)=>{
+    };
+    eBtnSubmit.addEventListener('click', cbSubmit, false);
+    const att = new Attacher({
+      container: eFormDiv,
+      startWith: 1,
+      listener: {add: cbAdd, remove: cbRm, populate: cbPopulated}
+    });
+    att.controlsElement.append(eBtnSubmit);
+  }/* /attachaddV2 */
 
 })(window.fossil);

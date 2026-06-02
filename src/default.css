@@ -2026,14 +2026,13 @@ div.helpPage blockquote {
   border-radius: 0.25em;
   background-color: #fafafa;
 }
-
 .attach-container > .attach-row > .attach-dropzone {
   padding: 1em;
   text-align: center;
   background: #ffffff;
   border: 1px solid #ddd;
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: 0.25em;
   transition: background-color 0.15s ease-in-out;
   display: flex;
   flex-direction: row;
@@ -2051,7 +2050,6 @@ div.helpPage blockquote {
 }
 .attach-container > .attach-row .attach-row-info {
   font-family: monospace;
-  font-size: 0.9em;
   flex-grow: 1;
 }
 .attach-container > .attach-row .attach-desc {
@@ -2061,24 +2059,30 @@ div.helpPage blockquote {
   min-height: 4em;
   padding: 0.5em;
   font-family: inherit;
-  font-size: 0.9em;
   resize: vertical;
 }
 .attach-container > .attach-row .attach-row-remove {
-  align-self: flex-end;
+  align-self: center;
   padding: 0.25em 0.75em;
+  margin-left: 1em;
   background-color: #d32f2f;
   color: #fff;
   border: none;
-  border-radius: 2px;
+  border-radius: 0.25em;
   cursor: pointer;
 }
 .attach-container > .attach-row .attach-row-remove:hover {
   background-color: #b71c1c;
 }
-.attach-container > .attach-add-button {
+.attach-container > .attach-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+.attach-container > .attach-controls .attach-add-button {
   padding: 0.5em 1em;
   cursor: pointer;
+  flex-grow: 2;
 }
 
 /* Objects in the "desktoponly" class are invisible on mobile */

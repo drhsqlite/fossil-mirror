@@ -455,8 +455,7 @@ void attachadd_page(void){
     zTo = 1
       ? mprintf("%R/forumpost/%S", zTarget)
       : mprintf("%R/attachview?forumpost=%T&file=%T",
-                zTarget, zName)
-      /* Or we could return directly to the forum post. */;
+                zTarget, zName);
   }else if( zPage ){
     if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
       login_needed(g.anon.ApndWiki && g.anon.Attach);
@@ -542,6 +541,145 @@ void attachadd_page(void){
   captcha_generate(0);
   @ </form>
   builtin_fossil_js_bundle_or("attach", NULL);
+  style_finish_page();
+  fossil_free(zTargetType);
+  fossil_free(zExtraFree);
+}
+
+/*
+** WEBPAGE: attachaddV2   hidden
+** Add a new attachment.
+**
+**    target=TKT_HASH|WIKIPAGE_NAME|TECHNOTE_HASH|FORUMPOST_HASH
+**    from=URL
+**
+*/
+void attachaddV2_page(void){
+  const char *zFrom = P("from");
+  const char *zTarget = P("target");
+  char * zTo = 0;
+  char *zTargetType = 0;
+  char *zExtraFree = 0;
+  int iTgtType = 0;
+  int szContent = 0;
+  int goodCaptcha = 1;
+  int szLimit = 0;
+  int bNeedsModeration = 0;
+
+  if( zFrom==0 ) zFrom = mprintf("%R/home");
+  if( P("cancel") ) cgi_redirect(zFrom);
+  if( 0==zTarget ){
+    webpage_error("Requires target=X");
+  }
+  login_check_credentials();
+  iTgtType = attachment_target_type(zTarget);
+  switch( iTgtType ){
+    default:
+    case 0:
+      webpage_error("Cannot resolve target=%h.", zTarget);
+      break;
+    case CFTYPE_FORUM:{
+      int fpid;
+      if( g.perm.AttachForum==0 ){
+        login_needed(g.anon.AttachForum);
+        return;
+      }
+      fpid = forumpost_head_rid2(zTarget);
+      if( fpid<=0 ){
+        webpage_error("Invalid forum post ID: %h", zTarget);
+      }else if( !g.perm.Admin && !forumpost_is_owner(fpid, 0) ){
+        webpage_error("Only admins can attach files to other users' "
+                      "forum posts.");
+      }
+      zTarget = zExtraFree = rid_to_uuid(fpid);
+      zTargetType = mprintf("Forum post <a href=\"%R/forumpost/%S\">%.16h</a>",
+                            zTarget, zTarget);
+      zTo = mprintf("%R/forumpost/%S", zTarget);
+      bNeedsModeration = forum_need_moderation();
+      break;
+    }
+    case CFTYPE_EVENT:{
+      if( g.perm.Write==0 || g.perm.ApndWiki==0 || g.perm.Attach==0 ){
+        login_needed(g.anon.Write && g.anon.ApndWiki && g.anon.Attach);
+        return;
+      }
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'", zTarget) ){
+        zTarget = db_text(0, "SELECT substr(tagname,7) FROM tag"
+                            " WHERE tagname GLOB 'event-%q*'", zTarget);
+        if( zTarget==0) fossil_redirect_home();
+      }
+      zTargetType = mprintf("Tech Note <a href=\"%R/technote/%s\">%S</a>",
+                            zTarget, zTarget);
+      bNeedsModeration = 0;
+      break;
+    }
+    case CFTYPE_TICKET:{
+      if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
+        login_needed(g.anon.ApndTkt && g.anon.Attach);
+        return;
+      }
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTarget) ){
+        zTarget = db_text(0, "SELECT substr(tagname,5) FROM tag"
+                       " WHERE tagname GLOB 'tkt-%q*'", zTarget);
+        if( zTarget==0 ) fossil_redirect_home();
+      }
+      zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
+                            zTarget, zTarget);
+      bNeedsModeration = ticket_need_moderation(0);
+      break;
+    }
+    case CFTYPE_WIKI:{
+      if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
+        login_needed(g.anon.ApndWiki && g.anon.Attach);
+        return;
+      }
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'", zTarget) ){
+        fossil_redirect_home();
+      }
+      zTargetType = mprintf("Wiki Page <a href=\"%R/wiki?name=%h\">%h</a>",
+                            zTarget, zTarget);
+      bNeedsModeration = wiki_need_moderation(0);
+      break;
+    }
+  }
+
+  db_begin_transaction();
+#if 0
+  szLimit = db_get_int("attachment-size-limit", 0);
+  if( szContent<0 || (szLimit && szContent>szLimit) ){
+    /* This check must be done late so that zTargetType is set up. */
+    @ <p class="generalError">Attachment %h(zName) is too large.
+    @ <a href="%R/help/attachment-size-limit">Limit</a> is
+    @ %d(szLimit ? szLimit : 0x7fffffff) bytes</p>
+    /* Fall through and render form. */
+   }else if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct(0)) ){
+#if 0
+    attach_commit(zName, zTarget, aContent, szContent, zMimetype,
+                  bNeedsModeration, zComment);
+#endif
+    cgi_redirect(zTo ? zTo : zFrom);
+  }
+#else
+  (void)bNeedsModeration;
+  (void)szLimit;
+#endif
+
+  style_set_current_feature("attach");
+  style_header("Add Attachment");
+  if( !goodCaptcha ){
+    @ <p class="generalError">Error: Incorrect security code.</p>
+  }
+  @ <h2>Attachments for %s(zTargetType)</h2>
+  attachment_list(zTarget, NULL,
+                  ATTACHLIST_SIZE | ATTACHLIST_HIDE_UNAPPROVED);
+  /* Form gets fleshed out and activate from fossil.attach.js. */
+  @ <div id='attachadd-form-wrapper'>
+  @ <input type="hidden" name="target" value="%h(zTarget)">
+  @ <input type="hidden" name="from" value="%h(zFrom)">
+  captcha_generate(0);
+  @ </div>
+  builtin_fossil_js_bundle_or("attach", NULL);
+  db_end_transaction(0);
   style_finish_page();
   fossil_free(zTargetType);
   fossil_free(zExtraFree);
