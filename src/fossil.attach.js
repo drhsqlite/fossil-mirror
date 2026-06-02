@@ -169,9 +169,9 @@
 
     #addRow(){
       const id = ++idCounter;
-      const rowObj = {
+      const rowObj = F.nu({
         id, file: null, mimeType: ''
-      };
+      });
       const eRow = D.addClass(D.div(), 'attach-row');
       eRow.dataset.id = id;
       const eDropzone = D.addClass(D.div(), 'attach-dropzone');
@@ -233,7 +233,8 @@
           }else if( item.type === 'text/plain' ){
             e.preventDefault();
             item.getAsString((text) => {
-              const blob = new File([text], `pasted-text-${id}.txt`,
+              rowObj.name = `pasted-text-${Date.now()}.txt`;
+              const blob = new File([text], rowObj.name,
                                     {type: 'text/plain'});
               this.#injestBlob(rowObj, blob);
             });
@@ -281,8 +282,10 @@
            multiple images. We cannot, at this level, unambiguously
            distinguish a ctrl-v of bitmap data vs a ctrl-v of an image
            file copied via a desktop file manager. */
-        file = new File([file], `pasted-image-${rowObj.id}.png`,
-                        {type: file.type});
+        rowObj.name = `pasted-image-${Date.now()}.png`;
+      }
+      if( rowObj.name && rowObj.name!==file.name ){
+        file = new File([file], rowObj.name, {type: file.type});
       }
       /*
         Fossil attachments treat the name as a unique-per-target key,
@@ -293,10 +296,6 @@
         lesser evil than attaching the same file N times, leading to N
         attachment artifacts.
       */
-      const old = this.#rowMatchingName(file.name);
-      if( old && rowObj !== old){
-        this.#removeRow(old);
-      }
       rowObj.file = file;
       rowObj.mimeType = file.type || 'application/octet-stream';
 
@@ -313,9 +312,14 @@
         D.clearElement(rowObj.eInfo),
         lbl, D.br(), szLbl, ' ', rowObj.mimeType || ''
       );
+      const old = this.#rowMatchingName(file.name);
+      if( old && rowObj !== old){
+        this.#removeRow(old);
+      }
       rowObj.eDropzone.classList.add('populated');
       rowObj.eDesc.classList.remove('hidden');
       if( file.type?.startsWith?.('image/') || file.type==='BITMAP' ){
+        rowObj.eDropzone.querySelectorAll('img.thumbnail').forEach(e=>e.remove());
         const img = D.img();
         img.classList.add('thumbnail');
         rowObj.eDropzone.insertBefore(img, rowObj.eRemove);
@@ -345,7 +349,7 @@
           continue;
         }
         rv.push(F.nu({
-          name: r.file.name || `pasted-content-${r.id}.${r.mimeType.split('/')[1] || 'txt'}`,
+          name: r.name || r.file.name || `pasted-content-${r.id}.${r.mimeType.split('/')[1] || 'txt'}`,
           content: r.file,
           description: r.eDesc?.value || '',
           mimeType: r.mimeType

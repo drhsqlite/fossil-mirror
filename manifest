@@ -1,5 +1,5 @@
-C Add\simage\sattachment\sthumbnails\sto\sthe\sattachment\swidget.
-D 2026-06-02T20:48:27.616
+C When\spasting\simages\smultiple\stimes\sin\sthe\ssame\sattachment\sslot,\sremove\sstale\sthumbnails.\sUse\stimestamps\sinstead\sof\sslot\snumbers\swhen\sgenerating\sa\sname\sfor\spasted\scontent.
+D 2026-06-02T21:12:16.976
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -438,7 +438,7 @@ F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c 9cdc26361ac307666a4d20f162b7aede1eedbe24e0e8cea380463bdcf2299105
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
-F src/fossil.attach.js 6fda411a2fe2184ae7655d57181ab1daf2d6f00c30b64920c0da9a0d1aab44fb
+F src/fossil.attach.js a15a9aca61b50850c09d12b94e294bf44eadbfc12b0f8f2ae5513e1cd695a07d
 F src/fossil.bootstrap.js 80253c8526b2764bf7d2441dd011a10396a5bcef416c6d2d66ea50f6cf9305ba
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
 F src/fossil.copybutton.js 57ad69acea5741a54cdec843db7aecfa82234932ec5a2ae5ba6c2a67e2077e88
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3c649c92cf78899350f836a1fdd3101907ef37474527c31594c7e2c8c497cb4
-R 7ddde18ce71292812d47ff4599fca7af
+P 81389347e5337459ac712f1f25c339037123534cddb046fb5aeb007db643c85c
+R e9500ef0abc38dbe8f459461254dbb67
 U stephan
-Z c48112ae66d565392805356d1ed0aaf1
+Z 0b3772c00e2eb5c424d8dad9d08e44b6
 # Remove this line to create a well-formed Fossil manifest.
