@@ -1,5 +1,5 @@
-C When\spasting\simages\smultiple\stimes\sin\sthe\ssame\sattachment\sslot,\sremove\sstale\sthumbnails.\sUse\stimestamps\sinstead\sof\sslot\snumbers\swhen\sgenerating\sa\sname\sfor\spasted\scontent.
-D 2026-06-02T21:12:16.976
+C Reorder\ssome\sstyles\sto\sensure\sthat\sthe\sdrag-over\sstyle\seffect\shappens\sfor\spopulated\sattachment\sslots.
+D 2026-06-02T21:14:21.258
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
-F src/default.css 1c1635c9c0e495057f48ff4bf8ba11500c160129250be1f5e8d9b5a556f1cee1
+F src/default.css ff5379bc5732c531c77af8840dacb53dfd2cc18965e413f418f5d54d6d9de9cc
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81389347e5337459ac712f1f25c339037123534cddb046fb5aeb007db643c85c
-R e9500ef0abc38dbe8f459461254dbb67
+P 307213a0631ec193239c094073fd5c1684f6443bd6d7c4417d0fc1db68189706
+R 6a2c1bdd99c28855137ddb7684ce79e0
 U stephan
-Z 0b3772c00e2eb5c424d8dad9d08e44b6
+Z c259f5702f6e86076282b71bd1491ad6
 # Remove this line to create a well-formed Fossil manifest.

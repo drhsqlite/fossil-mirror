@@ -2038,15 +2038,15 @@ div.helpPage blockquote {
   flex-direction: row;
   flex-wrap: nowrap;
 }
-.attach-container > .attach-row > .attach-dropzone.dragover {
-  background-color: #e1f5fe;
-  border-color: #03a9f4;
-}
 .attach-container > .attach-row > .attach-dropzone.populated {
   background-color: #f1f8e9;
   border-color: #8bc34a;
   border-style: solid;
   text-align: left;
+}
+.attach-container > .attach-row > .attach-dropzone.dragover {
+  background-color: #e1f5fe;
+  border-color: #03a9f4;
 }
 .attach-container > .attach-row > .attach-dropzone > .thumbnail {
   max-width: 10em;
