@@ -469,10 +469,10 @@
   }/*Attacher*/;
   F.Attacher = Attacher;
 
-  if( document.body.classList.contains('cpage-attachaddV2') ){
+  const eFormDiv = document.querySelector('#attachadd-form-wrapper');
+  if( eFormDiv ){
     const urlArgs = new URLSearchParams(window.location.search);
     let zTarget = urlArgs.get('target');
-    const eFormDiv = document.querySelector('#attachadd-form-wrapper');
     const eBtnSubmit = D.button("Submit");
     eBtnSubmit.type = 'button';
     const updateBtnSubmit = (attacher)=>{

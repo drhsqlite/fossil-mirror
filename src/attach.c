@@ -409,29 +409,49 @@ void attach_commit(
 **    forumpost=HASH
 **    from=URL
 **
+** Or:
+**
+**    target=ATTACHMENT_TARGET
+**
+** Behaves exactly like /attachaddV2.
+**
 */
 void attachadd_page(void){
-  const char *zPage = P("page");
-  const char *zForumPost = P("forumpost");
-  const char *zTkt = P("tkt");
-  const char *zTechNote = P("technote");
-  const char *zFrom = P("from");
-  const char *aContent = P("f");
-  const char *zName = PD("f:filename","unknown");
-  const char *zComment = PD("comment", "");
+  const char *zPage;
+  const char *zForumPost;
+  const char *zTkt;
+  const char *zTechNote;
+  const char *zFrom;
+  const char *aContent;
+  const char *zName;
+  const char *zComment;
   const char *zTarget;
   char * zTo = 0;
   char *zTargetType = 0;
   char *zExtraFree = 0;
-  int szContent = atoi(PD("f:bytes","0"));
+  int szContent;
   int goodCaptcha = 1;
   int szLimit = 0;
+
+  if( P("target")!=0 ){
+    attachaddV2_page();
+    return;
+  }
+  zPage = P("page");
+  zForumPost = P("forumpost");
+  zTkt = P("tkt");
+  zTechNote = P("technote");
+  zFrom = P("from");
+  aContent = P("f");
+  zName = PD("f:filename","unknown");
+  zComment = PD("comment", "");
+  szContent = atoi(PD("f:bytes","0"));
 
   if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ) cgi_redirect(zFrom);
   if( (!!zPage + !!zTkt + !!zTechNote + !!zForumPost)!=1 ){
     webpage_error("Requires exactly one one: page=X, tkt=X, forumpost=X,"
-                  " or technote=X");
+                  " technote=X, or target=X");
   }
   login_check_credentials();
   if( zForumPost ){
@@ -561,7 +581,7 @@ void attachadd_page(void){
 **  subject to amendment.
 */
 void attachaddV2_ajax_post(void){
-  const char *zTarget = P("target");
+  const char *zTarget;
   char *zExtraFree = 0;
   int iTgtType = 0;
   int bNeedsModeration = 0;
@@ -573,12 +593,14 @@ void attachaddV2_ajax_post(void){
   char aKeySize[30];           /* Buffer for key "file%d:bytes" */
   char aKeyName[30];           /* Buffer for key "file%d:filename" */
   char aKeyDesc[30];           /* Buffer for key "file%d_desc" */
+
   if( ! ajax_route_bootstrap(0, 1) ){
     return;
   }else if( !(goodCaptcha = captcha_is_correct(0)) ){
     goto ajax_post_403;
   }
   db_begin_transaction();
+  zTarget = P("target");
   iTgtType = attachment_target_type(zTarget);
   switch( iTgtType ){
     default:
@@ -830,6 +852,7 @@ void attachaddV2_page(void){
   @ <input type="hidden" name="target" value="%h(zTarget)">
   @ <input type="hidden" name="from" value="%h(zFrom)">
   captcha_generate(0);
+  login_insert_csrf_secret();
   @ </div>
   builtin_fossil_js_bundle_or("attach", NULL);
   db_end_transaction(0);

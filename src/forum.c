@@ -1281,7 +1281,7 @@ static void forum_display_post(
           ** effectively takes over ownership of it (and we currently
           ** have no way of passing it back). Because of this, we
           ** check the ownership of `p` instead of `pHead`. */
-          @ <form method="post" action="%R/attachaddV2" \
+          @ <form method="post" action="%R/attachadd" \
           @ class='file-attach'>\
           @ <input type="hidden" name="target" value="%T(pHead->zUuid)">
           @ <input type="submit" value="Attach...">
