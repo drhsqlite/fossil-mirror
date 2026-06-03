@@ -80,7 +80,7 @@
       const eControls = this.#e.controls =
             D.addClass(D.div(), 'attach-controls');
       eControls.append(eBtnAdd);
-      this.#e.list = D.addClass(D.div(), 'attach-container');
+      this.#e.list = D.addClass(D.div(), 'attach-widget');
       opt.container.appendChild(this.#e.list);
       this.#e.list.appendChild(eControls);
       if( opt.listener ){
@@ -132,7 +132,7 @@
     }
 
     #removeRow(rowObj){
-      rowObj.eRow.remove();
+      rowObj.e.row.remove();
       this.#rows = this.#rows.filter(v=>v!==rowObj);
       this.#updateControls();
       this.#events.dispatchEvent(
@@ -178,12 +178,14 @@
       const eFile = D.addClass(
         D.input('file'), 'attach-file-input', 'hidden'
       );
-      const eInfo = D.append(
-        D.addClass(D.span(), 'attach-row-info'),
+      const eInfo = D.addClass(D.span(), 'attach-row-info');
+      const eFilename = D.append(
+        D.addClass(D.span(), 'attach-filename'),
         "Select/drop file or click the outer border and tap your "+
         "platform's conventional Paste keyboard shortcut."
       );
-
+      const eSize = D.addClass(D.span(), 'attach-size');
+      eInfo.append(eFilename, eSize);
       const eDesc = D.addClass(
         D.attr(D.textarea(), 'placeholder',
                'Optional description...'),
@@ -248,11 +250,15 @@
         }
       });
       D.append(eRow, eDropzone, eDesc);
-      rowObj.eDropzone = eDropzone;
-      rowObj.eInfo = eInfo;
-      rowObj.eDesc = eDesc;
-      rowObj.eRow = eRow;
-      rowObj.eRemove = eRemove;
+      rowObj.e = F.nu({
+        dropzone: eDropzone,
+        info: eInfo,
+        filename: eFilename,
+        size: eSize,
+        desc: eDesc,
+        row: eRow,
+        remove: eRemove
+      });
       this.#e.list.append(eRow);
       this.#rows.push( rowObj );
       this.#updateControls();
@@ -292,19 +298,7 @@
       if( rowObj.name && rowObj.name!==file.name ){
         file = new File([file], rowObj.name, {type: file.type});
       }
-      /*
-        Fossil attachments treat the name as a unique-per-target key,
-        with the newest one being the primary.  If a name is given
-        twice, replace the prior entry before adding the new
-        one. There are conceivable, but also unlikely, cases where
-        this will have unintended side-effects, but that seems like a
-        lesser evil than attaching the same file N times, leading to N
-        attachment artifacts.
-      */
-      rowObj.file = file;
-      rowObj.mimeType = file.type || 'application/octet-stream';
 
-      const lbl = file.name || 'Pasted Content';
       let szLbl;
       if( file.size < 500000 ){
         szLbl = file.size + ' bytes';
@@ -313,22 +307,33 @@
       }else{
         szLbl = (file.size / (1024 * 1024)).toFixed(2)+' MB';
       }
-      D.append(
-        D.clearElement(rowObj.eInfo),
-        lbl, D.br(), szLbl, ' ', rowObj.mimeType || ''
-      );
       const old = this.#rowMatchingName(file.name);
       if( old && rowObj !== old){
-        /* FIXME: recycle `old` instead to avoid UI flicker. */
-        this.#removeRow(old);
+        /*
+          Fossil attachments treat the name as a unique-per-target
+          key, with the newest one being the primary.  If a name is
+          given twice, remove the new entry and reuse the older
+          one. There are conceivable, but also unlikely, cases where
+          this will have unintended side-effects, e.g. attaching both
+          /foo/bar and /baz/bar, but that seems like a lesser evil
+          than attaching the same file N times, leading to N
+          attachment artifacts.
+        */
+        /* recycle `old` instead to avoid UI flicker. */
+        this.#removeRow(rowObj);
+        rowObj.e = old.e;
       }
-      rowObj.eDropzone.classList.add('populated');
-      rowObj.eDesc.classList.remove('hidden');
+      rowObj.file = file;
+      rowObj.mimeType = file.type || 'application/octet-stream';
+      D.clearElement(rowObj.e.filename).append(file.name || 'Pasted Content');
+      D.clearElement(rowObj.e.size).append(szLbl, ' ', rowObj.mimeType || '');
+      rowObj.e.dropzone.classList.add('populated');
+      rowObj.e.desc.classList.remove('hidden');
       if( file.type?.startsWith?.('image/') || file.type==='BITMAP' ){
         /* Add a thumbnail */
-        const img = rowObj.eDropzone.querySelector('img.thumbnail') || D.img();
+        const img = rowObj.e.dropzone.querySelector('img.thumbnail') || D.img();
         img.classList.add('thumbnail');
-        rowObj.eDropzone.insertBefore(img, rowObj.eRemove);
+        rowObj.e.dropzone.insertBefore(img, rowObj.e.remove);
         const reader = new FileReader();
         reader.onload = (e)=>img.setAttribute('src', e.target.result);
         reader.readAsDataURL(file);

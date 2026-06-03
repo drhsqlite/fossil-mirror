@@ -2011,13 +2011,13 @@ div.helpPage blockquote {
 }
 
 /* .attach* = styles for file attachments */
-.attach-container {
+.attach-widget {
   margin-bottom: 1em;
   display: flex;
   flex-direction: column;
   gap: 0.75em;
 }
-.attach-container > .attach-row {
+.attach-widget .attach-row {
   display: flex;
   flex-direction: column;
   gap: 0.5em;
@@ -2026,10 +2026,10 @@ div.helpPage blockquote {
   border-radius: 0.25em;
   background-color: #fafafa;
 }
-body.fossil-dark-style .attach-container > .attach-row {
+body.fossil-dark-style .attach-widget .attach-row {
   background-color: initial;
 }
-.attach-container > .attach-row > .attach-dropzone {
+.attach-widget .attach-dropzone {
   padding: 1em;
   text-align: center;
   background: #ffffff;
@@ -2041,39 +2041,42 @@ body.fossil-dark-style .attach-container > .attach-row {
   flex-direction: row;
   flex-wrap: nowrap;
 }
-body.fossil-dark-style .attach-container > .attach-row > .attach-dropzone{
+body.fossil-dark-style .attach-widget .attach-dropzone{
   background: initial;
 }
-.attach-container > .attach-row > .attach-dropzone.populated {
+.attach-widget .attach-dropzone.populated {
   background-color: #f1f8e9;
   border-color: #8bc34a;
   border-style: solid;
   text-align: left;
 }
-body.fossil-dark-style .attach-container > .attach-row > .attach-dropzone.populated{
+body.fossil-dark-style .attach-widget .attach-dropzone.populated{
   background-color: initial;
-  border-color: #8bc34a;
 }
-.attach-container > .attach-row > .attach-dropzone.dragover {
+.attach-widget .attach-dropzone.dragover {
   background-color: #e1f5fe;
   border-color: #03a9f4;
 }
-body.fossil-dark-style .attach-container > .attach-row > .attach-dropzone.dragover{
+body.fossil-dark-style .attach-widget .attach-dropzone.dragover{
   border-color: #03a9f4;
 }
-body.fossil-dark-style  > .attach-row > .attach-dropzone.dragover{
+body.fossil-dark-style  .attach-widget .attach-dropzone.dragover{
   background-color: #e1f5fe;
   border-color: #03a9f4;
 }
-.attach-container > .attach-row > .attach-dropzone > .thumbnail {
+.attach-widget .thumbnail {
   max-width: 10em;
   max-height: 10em;
 }
-.attach-container > .attach-row .attach-row-info {
+.attach-widget .attach-row-info{
   font-family: monospace;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
-.attach-container > .attach-row .attach-desc {
+.attach-widget .attach-filename {}
+.attach-widget .attach-size {/*size and mimetype*/}
+.attach-widget .attach-desc {
   max-width: initial;
   width: 100%;
   box-sizing: border-box;
@@ -2082,7 +2085,7 @@ body.fossil-dark-style  > .attach-row > .attach-dropzone.dragover{
   font-family: inherit;
   resize: vertical;
 }
-.attach-container > .attach-row .attach-row-remove {
+.attach-widget .attach-row-remove {
   align-self: center;
   padding: 0.25em 0.75em;
   margin-left: 1em;
@@ -2092,15 +2095,15 @@ body.fossil-dark-style  > .attach-row > .attach-dropzone.dragover{
   border-radius: 0.25em;
   cursor: pointer;
 }
-.attach-container > .attach-row .attach-row-remove:hover {
+.attach-widget .attach-row-remove:hover {
   background-color: #b71c1c;
 }
-.attach-container > .attach-controls {
+.attach-widget .attach-controls {
   display: flex;
   flex-direction: row;
   gap: 1em;
 }
-.attach-container > .attach-controls .attach-add-button {
+.attach-widget .attach-controls .attach-add-button {
   padding: 0.5em 1em;
   cursor: pointer;
   flex-grow: 2;

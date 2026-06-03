@@ -1,5 +1,5 @@
-C Factor\sout\sextraneous\sthumbnail\selement\screation\swhen\sre-assigning\san\sattachment\sslot\sto\sa\sdifferent\simage.\sAdd\sattachment\ssize\slimit\sto\sJS's\sfossil.config\sfor\suse\sin\sclient-side\svalidation.
-D 2026-06-03T06:38:33.117
+C Simplify\sCSS\sselectors.\sImprove\shandling\sof\sattaching\sa\sgiven\sfilename\stwice.
+D 2026-06-03T08:05:23.232
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
-F src/default.css 834e4eb5cb69a92ee4f5e5db1aa94c8860f8f4a1091f1a236dcdf084f7a4892d
+F src/default.css 1012573cb9c52fabd00ab9c29d2a255f80762e824e179866aaa1f00d2841f908
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -438,7 +438,7 @@ F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c 9cdc26361ac307666a4d20f162b7aede1eedbe24e0e8cea380463bdcf2299105
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
-F src/fossil.attach.js 7680bfb3545a54cbcfb4e0f44edaca809cbbdb1bba7bae6185f871e79be88a67
+F src/fossil.attach.js 92f34c992aa0c37040be1518cb6dd33aebdbed874e7c8150880a1a3a923045cc
 F src/fossil.bootstrap.js 80253c8526b2764bf7d2441dd011a10396a5bcef416c6d2d66ea50f6cf9305ba
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
 F src/fossil.copybutton.js 57ad69acea5741a54cdec843db7aecfa82234932ec5a2ae5ba6c2a67e2077e88
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7795074a1a52cd3cee1c317a6feeccf58a81fef03f4bb8504c17ea67cb989515
-R 2c18eef2b68bf156514847b61ee31800
+P b3814a431a26024bb170caa72150f5aafddd009e6718b8816d1d2461046f6218
+R 2807e21bf512dca90afc47c7a027abdd
 U stephan
-Z c359dc7eb3834151de56a31062ab735e
+Z 4bfa125395028522e292073566004a8c
 # Remove this line to create a well-formed Fossil manifest.
