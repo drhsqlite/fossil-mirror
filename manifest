@@ -1,5 +1,5 @@
-C Remove\s/attachaddv2\sin\sfavor\sof\shaving\s/attachadd?target=X\simplement\sthat\sbehavior.
-D 2026-06-03T16:59:55.217
+C Make\sthe\s'awaiting\sapproval'\slabel\son\sforum\sposts\smore\sprominent\sfor\sthose\swho\scan\ssee\stheir\scontent\sdespite\sthem\sbeing\spending.
+D 2026-06-03T17:21:56.601
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c 567acab2ac98fc0c49acc3e2ff2c23ca58bae8e476d0577615741f88838a1f63
+F src/forum.c d90ef11c725f1cc19ca11039b9a7930c26e640c7111d277ceb6589d1d2c5530c
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.attach.js 825ab6a4c9cd127d3bb7893e59dce2a94b7d2281d57602eae434bca8da64ac22
 F src/fossil.bootstrap.js 80253c8526b2764bf7d2441dd011a10396a5bcef416c6d2d66ea50f6cf9305ba
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 59ac3a461cc73e76c402dd3b57d7de45601f0b54a1b55633638b917b129fa0a6
-R 1e62477233767888bddf34644dbafcab
+P bcdd98b8914c1954126b0fd69b28f915975e1b058d4c76c7283cdf56e74cadd8
+R 5a4f961e546dafd8db7ffa209571d4f6
 U stephan
-Z 4a295f782990a8b38c73d911670b4101
+Z 6e7be22505e5763de75c314f27b7ad68
 # Remove this line to create a well-formed Fossil manifest.

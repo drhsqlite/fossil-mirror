@@ -1115,6 +1115,9 @@ static void forum_display_post(
       @ >
     }
 
+    bPrivate = content_is_private(p->fpid);
+    bSameUser = login_is_individual()
+      && fossil_strcmp(pManifest->zUser, g.zLogin)==0;
     /* If this is the first post (or an edit thereof), emit the thread title. */
     if( pManifest->zThreadTitle ){
       @ <h1>%h(pManifest->zThreadTitle)</h1>
@@ -1198,14 +1201,14 @@ static void forum_display_post(
       @ %z(href("%R/forumpost/%!S?raw",p->zUuid))[source]</a>
     }
     @ </h3>
+
+    if( bPrivate && (bSameUser || g.perm.Admin || g.perm.ModForum) ){
+      moderation_pending_www(p->fpid);
+    }
   }/*!bRaw*/
 
-  /* Check if this post is approved, also if it's by the current user. */
-  bPrivate = content_is_private(p->fpid);
-  bSameUser = login_is_individual()
-           && fossil_strcmp(pManifest->zUser, g.zLogin)==0;
-
-  /* Render the post if the user is able to see it. */
+  /* Check if this post is approved, also if it's by the current user.
+     Render the post if the user is able to see it. */
   if( bPrivate && !g.perm.ModForum && !bSameUser ){
     @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
   }else{
