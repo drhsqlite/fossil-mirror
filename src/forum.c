@@ -1262,7 +1262,7 @@ static void forum_display_post(
 
       if( bSelect ){
         const ForumPost *pHead = p->pEditHead ? p->pEditHead : p;
-        if( forumpost_may_close() && iClosed>=0 ){
+        if( !bPrivate && forumpost_may_close() && iClosed>=0 ){
           @ <form method="post" \
           @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
           login_insert_csrf_secret();
