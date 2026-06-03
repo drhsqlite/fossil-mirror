@@ -43,20 +43,22 @@
        to inject into the UI element which wraps the "Add" button.
        See this.controlsElement.
 
-       opt.listener = {add: func, remove: func, populate: func}: if
-       these are functions they are registered as listeners for
-       'entry-added', 'entry-removed', and/or 'entry-populated'
-       events, described below. opt.listener.all, if set, is used
-       as a fallback for any of 'add', 'remove', or 'populate'
-       which are not set.
+       opt.listener = function or object: {add: func, remove: func,
+       populate: func}: if these are functions they are registered as
+       listeners for 'entry-added', 'entry-removed', and/or
+       'entry-populated' events, described below. opt.listener.all, if
+       set, is used as a fallback for any of 'add', 'remove', or
+       'populate' which are not set. If opt.listener is a function
+       then it behaves as if listener={all: thatFunction}.
 
        Events:
 
        This class fires CustomEvents for certain changes:
 
        'entry-added' and 'entry-removed' trigger when an attachment
-       entry row is added/removed. Its event.detail is {attacher:
-       this, row: object, type: 'same as event type'}.
+       entry row is added/removed. Its event.detail is:
+
+       {attacher: this, row: object, type: 'same as event type'}.
 
        'entry-populated' is triggered when a visible entry gets
        content attached to it, with the same detail structure as
@@ -69,30 +71,45 @@
       this.#opt = opt = F.nu({
         addButtonLabel: false,
         startWith: 0,
-        limit: 0
+        limit: 0,
+        dryRun: false
       }, opt);
+      this.#e.body = D.addClass(D.div(), 'attach-widget');
       const eBtnAdd = this.#e.btnAdd = D.addClass(
         D.button(this.#opt.addButtonLabel || 'Add attachment',
                  ()=>this.#addRow()),
         'attach-add-button'
       );
       eBtnAdd.type = 'button';
+      this.#e.err = D.addClass(D.div(), 'error', 'hidden');
+      this.#e.body.append(this.#e.err);
+
       const eControls = this.#e.controls =
             D.addClass(D.div(), 'attach-controls');
       eControls.append(eBtnAdd);
-      this.#e.list = D.addClass(D.div(), 'attach-widget');
-      opt.container.appendChild(this.#e.list);
-      this.#e.list.appendChild(eControls);
+      opt.container.appendChild(this.#e.body);
+      this.#e.body.appendChild(eControls);
       if( opt.listener ){
-        const doCb = (eventType, cb)=>{
-          const f = cb || opt.listener.all;
+        const doCb = (eventType, key)=>{
+          const f = (opt.listener instanceof Function)
+                ? opt.listener
+                : (opt.listener[key] || opt.listener.all);
           if( f instanceof Function ){
             this.addEventListener(eventType, f);
           }
         };
-        doCb('entry-added', opt.listener.add);
-        doCb('entry-removed', opt.listener.remove);
-        doCb('entry-populated', opt.listener.populate);
+        doCb('entry-added', 'add');
+        doCb('entry-removed', 'remove');
+        doCb('entry-populated', 'populate');
+      }
+      if( 0 ){
+        /* Add dry-run toggle for testing. */
+        const eLbl = D.label(false, "Dry-run?");
+        const eCb = D.checkbox(true);
+        eLbl.append(eCb);
+        eControls.append(eLbl);
+        eCb.checked = opt.dryRun = true;
+        eCb.addEventListener('change',()=>opt.dryRun=eCb.checked);
       }
       if( Array.isArray(opt.controls) ){
         eControls.append(...opt.controls);
@@ -123,12 +140,31 @@
       return false;
     }
 
+    get isDryRun(){
+      return !!this.#opt.dryRun;
+    }
     /**
        Returns the DOM element (div.attach-controls) which wraps the
        "Add" button.  Clients may add buttons to it.
     */
     get controlsElement(){
       return this.#e.controls;
+    }
+
+    /**
+       Reports an error by appending each argument to the error widget
+       and unhiding it. If passed no arugments, it clears and hides
+       the error widget.
+    */
+    reportError(...msg){
+      const e = this.#e.err;
+      D.clearElement(e);
+      if( msg.length ){
+        e.classList.remove('hidden');
+        e.append(...msg);
+      }else{
+        e.classList.add('hidden');
+      }
     }
 
     #removeRow(rowObj){
@@ -151,23 +187,34 @@
       }
     }
 
+    clear(){
+      for(const r of [...this.#rows/*clone because #rows may change*/]){
+        this.#removeRow(r);
+      }
+      this.reportError();
+    }
+
     /**
-       Hide or show the Add button, as appropriate.
+       Hides or shows the Add button, as appropriate.
     */
     #updateControls(){
       const b = this.#e.btnAdd;
       if( this.#opt.limit>0 && this.#rows.length >= this.#opt.limit ){
         b.classList.add('hidden');
-        //b.setAttribute('disabled','');
+        D.disable(b);
         //F.toast.warning("Attachment form limit reached.");
       }else{
         b.classList.remove('hidden');
-        //b.removeAttribute('disabled');
-        this.#e.list.append(this.#e.controls/*move to the end*/);
+        D.enable(b);
+        this.#e.body.append(this.#e.controls/*move to the end*/);
       }
     }
 
-    #rowError(rowObj, ...msg){
+    /**
+       Sets rowObj.e.err up with an error message, or clears it if
+       passed only 1 argument.
+    */
+    #rowError(rowObj,...msg){
       let e = rowObj.e.err;
       if( e ){
         D.clearElement(e);
@@ -276,7 +323,7 @@
         row: eRow,
         remove: eRemove
       });
-      this.#e.list.append(eRow);
+      this.#e.body.append(eRow);
       this.#rows.push( rowObj );
       this.#updateControls();
       this.#events.dispatchEvent(
@@ -324,8 +371,9 @@
       }else{
         szLbl = (file.size / (1024 * 1024)).toFixed(2)+' MB';
       }
+      this.#rowError(rowObj);
       const old = this.#rowMatchingName(file.name);
-      if( old && rowObj !== old){
+      if( old && rowObj !== old ){
         /*
           Fossil attachments treat the name as a unique-per-target
           key, with the newest one being the primary.  If a name is
@@ -337,6 +385,7 @@
           attachment artifacts.
         */
         /* recycle `old` instead to avoid UI flicker. */
+        this.#rowError(old);
         this.#removeRow(rowObj);
         rowObj.e = old.e;
       }
@@ -421,6 +470,8 @@
   F.Attacher = Attacher;
 
   if( document.body.classList.contains('cpage-attachaddV2') ){
+    const urlArgs = new URLSearchParams(window.location.search);
+    let zTarget = urlArgs.get('target');
     const eFormDiv = document.querySelector('#attachadd-form-wrapper');
     const eBtnSubmit = D.button("Submit");
     eBtnSubmit.type = 'button';
@@ -435,15 +486,63 @@
       const a = ev.detail.attacher;
       updateBtnSubmit(a);
     };
-    const cbSubmit = (ev)=>{
-    };
-    eBtnSubmit.addEventListener('click', cbSubmit, false);
     const att = new Attacher({
       container: eFormDiv,
       startWith: 1,
-      listener: F.nu({all: cbAttacherChange}),
+      listener: cbAttacherChange,
       controls: [eBtnSubmit]
     });
+    eBtnSubmit.addEventListener('click', async (ev)=>{
+      att.reportError();
+      const li = att.collectState();
+      if( !li.length ) return;
+      if( eBtnSubmit.dataset.submitted ) return;
+      eBtnSubmit.dataset.submitted = 1;
+      D.disable(eBtnSubmit);
+      const fd = new FormData();
+      let i = 0;
+      for(const row of li){
+        ++i;
+        fd.append(`file${i}`, row.content);
+        if( row.description ) fd.append(`file${i}_desc`, row.description);
+      }
+      for( const eIn of eFormDiv.querySelectorAll(':scope > input[type="hidden"]') ){
+        if( eIn.name==='target' ){
+          zTarget = eIn.value;
+        }
+        fd.append(eIn.name, eIn.value)
+      }
+      if( att.isDryRun ){
+        fd.append('dryrun', '1');
+      }
+      let err;
+      const resp = await window.fetch(F.repoUrl('attachaddV2_ajax_post'), {
+        method: 'POST',
+        body: fd
+      }).catch((e)=>{
+        err = e;
+      });
+      D.enable(eBtnSubmit);
+      delete eBtnSubmit.dataset.submitted;
+      const jr = err ? undefined : await resp.json().catch(()=>{});
+      if( jr?.error || !resp.ok ){
+        const msg = err ? err.message : (jr?.error || resp.statusText);
+        att.reportError("Attaching failed: ", msg);
+      }else{
+        att.clear();
+        const to = urlArgs.get('to') || urlArgs.get('from') || jr?.redirect;
+        if( to ){
+          if( '/'===to[0] ){
+            to = F.repoUrl(to.substr(1));
+          }
+          window.location = to;
+        }else{
+          const tgt = '?target='+zTarget+'&cacheBuster='+Date.now();
+          //console.error("FIXME: location=",tgt);
+          window.location = tgt;
+        }
+      }
+    })/*submit handler*/;
     updateBtnSubmit(att);
     F.page.attacher = att /* only for testing via dev console */;
   }/* /attachaddV2 */

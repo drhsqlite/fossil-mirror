@@ -229,14 +229,14 @@ int forumpost_head_rid(int rid){
 /*
 ** Works like forumpost_head_rid() but expects zUuid to be an
 ** unambiguous forum post name. It may be a hash prefix, so long as
-** it's unambiguous. Returns 0 if the name cannot be unambiguously
-** resolved as a forum post.
+** it's unambiguous. Returns the rid of the head post, -1 if the name
+** is ambiguous, and 0 if the name cannot be resolved as a forum post.
 */
 int forumpost_head_rid2(const char *zUuid){
   const int fpid = symbolic_name_to_rid(zUuid, "f");
   return fpid>0
     ? forumpost_head_rid(fpid)
-    : 0;
+    : fpid;
 }
 
 /*
@@ -1281,9 +1281,9 @@ static void forum_display_post(
           ** effectively takes over ownership of it (and we currently
           ** have no way of passing it back). Because of this, we
           ** check the ownership of `p` instead of `pHead`. */
-          @ <form method="post" action="%R/attachadd" \
+          @ <form method="post" action="%R/attachaddV2" \
           @ class='file-attach'>\
-          @ <input type="hidden" name="forumpost" value="%T(pHead->zUuid)">
+          @ <input type="hidden" name="target" value="%T(pHead->zUuid)">
           @ <input type="submit" value="Attach...">
           login_insert_csrf_secret();
           moderation_pending_www(p->fpid);

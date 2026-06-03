@@ -35,10 +35,11 @@
 int attachment_target_type(const char *zTarget){
   static Stmt q = empty_Stmt_m;
   int rc = 0;
-  if( forumpost_head_rid2(zTarget)>0 ){
+  if( !zTarget || !zTarget[0] || strlen(zTarget)>64/*vs. abuse*/ ){
+    return 0;
+  }else if( forumpost_head_rid2(zTarget)>0 ){
     return CFTYPE_FORUM;
-  }
-  if( !q.pStmt ){
+  }else if( !q.pStmt ){
     db_static_prepare(
       &q,
       "SELECT CASE "
@@ -380,11 +381,13 @@ void attach_commit(
     if( zName[0]==0 ) zName = "unknown";
     blob_appendf(&manifest, "A %F%s %F %s\n",
                  zName, addCompress ? ".gz" : "", zTarget, zUUID);
-    while( fossil_isspace(zComment[0]) ) zComment++;
-    n = strlen(zComment);
-    while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
-    if( n>0 ){
-      blob_appendf(&manifest, "C %#F\n", n, zComment);
+    if( zComment!=0 && zComment[0]!=0 ){
+      while( fossil_isspace(zComment[0]) ) zComment++;
+      n = strlen(zComment);
+      while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
+      if( n>0 ){
+        blob_appendf(&manifest, "C %#F\n", n, zComment);
+      }
     }
     zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
@@ -541,17 +544,171 @@ void attachadd_page(void){
 }
 
 /*
+** WEBPAGE: attachaddV2_ajax_post   hidden
+**
+** Requires a POST request with:
+**
+**     target=ATTACHMENT_TARGET
+**     file1..fileN=FILE_OBJECTS
+**     dryrun=0|1
+**
+**  Each posted file in the set file1..fileN gets attached to the
+**  given target, permissions permitting. If dryrun>0 then the change
+**  is rolled back instead of committed.
+**
+**  Responds with JSON: an empty object on success and
+**  {error:"message"} on error. The on-success response structure is
+**  subject to amendment.
+*/
+void attachaddV2_ajax_post(void){
+  const char *zTarget = P("target");
+  char *zExtraFree = 0;
+  int iTgtType = 0;
+  int bNeedsModeration = 0;
+  int i;
+  int goodCaptcha = 1;
+  int szLimit;                 /* attachment-max-size setting */
+  int bRollback = 0;           /* Roll back if true. */
+  char aKeyPrefix[20];         /* Buffer for key "file%d" */
+  char aKeySize[30];           /* Buffer for key "file%d:bytes" */
+  char aKeyName[30];           /* Buffer for key "file%d:filename" */
+  char aKeyDesc[30];           /* Buffer for key "file%d_desc" */
+  if( ! ajax_route_bootstrap(0, 1) ){
+    return;
+  }else if( !(goodCaptcha = captcha_is_correct(0)) ){
+    goto ajax_post_403;
+  }
+  db_begin_transaction();
+  iTgtType = attachment_target_type(zTarget);
+  switch( iTgtType ){
+    default:
+    case 0:
+      ajax_route_error(400, "Invalid attachment target.");
+      db_rollback_transaction();
+      return;
+    case CFTYPE_FORUM:{
+      int fpid;
+      if( g.perm.AttachForum==0 ){
+        goto ajax_post_403;
+      }
+      fpid = forumpost_head_rid2(zTarget);
+      if( fpid<=0 ){
+        goto ajax_post_404;
+      }else if( !g.perm.Admin && !forumpost_is_owner(fpid, 0) ){
+        ajax_route_error(403, "Only admins can attach files to "
+                         "other users' forum posts.");
+        db_rollback_transaction();
+        return;
+      }
+      zTarget = zExtraFree = rid_to_uuid(fpid);
+      bNeedsModeration = forum_need_moderation();
+      break;
+    }
+    case CFTYPE_EVENT:{
+      if( g.perm.Write==0 || g.perm.ApndWiki==0 || g.perm.Attach==0 ){
+        goto ajax_post_403;
+      }
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'", zTarget) ){
+        zTarget = zExtraFree =
+          db_text(0, "SELECT substr(tagname,7) FROM tag"
+                  " WHERE tagname GLOB 'event-%q*'", zTarget);
+        if( zTarget==0){
+          goto ajax_post_404;
+        }
+      }
+      bNeedsModeration = 0;
+      break;
+    }
+    case CFTYPE_TICKET:{
+      if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
+        goto ajax_post_403;
+      }
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTarget) ){
+        zTarget = db_text(0, "SELECT substr(tagname,5) FROM tag"
+                       " WHERE tagname GLOB 'tkt-%q*'", zTarget);
+        if( zTarget==0 ){
+          goto ajax_post_404;
+        }
+      }
+      bNeedsModeration = ticket_need_moderation(0);
+      break;
+    }
+    case CFTYPE_WIKI:{
+      if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
+        goto ajax_post_403;
+      }
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'", zTarget) ){
+        goto ajax_post_404;
+      }
+      bNeedsModeration = wiki_need_moderation(0);
+      break;
+    }
+  }
+
+  szLimit = db_get_int("attachment-size-limit", 0);
+  for(i = 1; !bRollback; ++i){
+    /* Look for P("fileN"), where N=1..n */
+    const char *zContent;
+    int szContent;
+    sqlite3_snprintf(sizeof(aKeyPrefix), aKeyPrefix, "file%d", i);
+    zContent = P(aKeyPrefix);
+    if( !zContent ){
+      /* End of the list. */
+      break;
+    }
+    sqlite3_snprintf(sizeof(aKeySize), aKeySize, "%s:bytes",
+                     aKeyPrefix);
+    szContent = atoi(PD(aKeySize,"-1"));
+    if( szContent<0 ){
+      bRollback = 1;
+      ajax_route_error(400,"Invalid file size.");
+    }else if( szLimit>0 && szContent>szLimit ){
+      bRollback = 1;
+      ajax_route_error(400, "File size limit is %d bytes.", szLimit);
+      break;
+    }else{
+      sqlite3_snprintf(sizeof(aKeyName), aKeyName, "%s:filename",
+                       aKeyPrefix);
+      sqlite3_snprintf(sizeof(aKeyDesc), aKeyDesc, "%s_desc",
+                       aKeyPrefix);
+      attach_commit(P(aKeyName), zTarget, zContent, szContent,
+                    bNeedsModeration, P(aKeyDesc));
+    }
+  }
+  fossil_free(zExtraFree);
+  if( !bRollback ){
+    CX("{}");
+    if( atoi(PD("dryrun","0"))>0 ){
+      bRollback = 1;
+    }
+  }
+  db_end_transaction(bRollback);
+  return;
+ajax_post_403:
+  db_rollback_transaction();
+  ajax_route_error(403, "Permission denied.");
+  return;
+ajax_post_404:
+  db_rollback_transaction();
+  ajax_route_error(404, "Target not found.");
+  return;
+}
+
+/*
 ** WEBPAGE: attachaddV2   hidden
 ** Add a new attachment.
 **
 **    target=TKT_HASH|WIKIPAGE_NAME|TECHNOTE_HASH|FORUMPOST_HASH
 **    from=URL
 **
+**  Works like /attachadd but uses a JS-based interactive attachment
+**  selector.
+**
 */
 void attachaddV2_page(void){
   const char *zFrom = P("from");
   const char *zTarget = P("target");
-  char * zTo = 0;
+  char *zTo = 0;
   char *zTargetType = 0;
   char *zExtraFree = 0;
   int iTgtType = 0;
@@ -648,7 +805,7 @@ void attachaddV2_page(void){
     /* Fall through and render form. */
    }else if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct(0)) ){
 #if 0
-    attach_commit(zName, zTarget, aContent, szContent, zMimetype,
+    attach_commit(zName, zTarget, aContent, szContent,
                   bNeedsModeration, zComment);
 #endif
     cgi_redirect(zTo ? zTo : zFrom);
