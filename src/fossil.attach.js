@@ -319,13 +319,14 @@
       );
       const old = this.#rowMatchingName(file.name);
       if( old && rowObj !== old){
+        /* FIXME: recycle `old` instead to avoid UI flicker. */
         this.#removeRow(old);
       }
       rowObj.eDropzone.classList.add('populated');
       rowObj.eDesc.classList.remove('hidden');
       if( file.type?.startsWith?.('image/') || file.type==='BITMAP' ){
-        rowObj.eDropzone.querySelectorAll('img.thumbnail').forEach(e=>e.remove());
-        const img = D.img();
+        /* Add a thumbnail */
+        const img = rowObj.eDropzone.querySelector('img.thumbnail') || D.img();
         img.classList.add('thumbnail');
         rowObj.eDropzone.insertBefore(img, rowObj.eRemove);
         const reader = new FileReader();

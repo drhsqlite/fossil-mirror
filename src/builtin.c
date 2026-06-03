@@ -670,6 +670,8 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        "isNew:'[+]', isModified:'[*]', isDeleted:'[-]'},\n");
     CX("confirmerButtonTicks: 3 "
        "/*default fossil.confirmer tick count.*/,\n");
+    CX("attachmentSizeLimit: %d,\n",
+       db_get_int("attachment-size-limit",0));
     /* Inject certain info about the current skin... */
     CX("skin:{");
     /* can leak a local filesystem path:

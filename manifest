@@ -1,5 +1,5 @@
-C Back\sout\s[639e2cf0b7c6861],\sas\sthe\sthe\sattachment\sN-card\sis\sthe\smimetype\sof\sthe\scomment,\snot\sthe\sattachment.
-D 2026-06-03T06:30:38.041
+C Factor\sout\sextraneous\sthumbnail\selement\screation\swhen\sre-assigning\san\sattachment\sslot\sto\sa\sdifferent\simage.\sAdd\sattachment\ssize\slimit\sto\sJS's\sfossil.config\sfor\suse\sin\sclient-side\svalidation.
+D 2026-06-03T06:38:33.117
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -387,7 +387,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c f2250f3fd1fd4c69aa8816885d47da5110cb7936adf66eae1df83e6c46f9c0a6
-F src/attach.c 5428fc65a1057e39d9c486f58da796f0c9a1d49fda4985cef558595b1b769a56
+F src/attach.c aadeace476554dc27b2f27ec51de8f23b378923712bb6497b37ea5169fd71ae3
 F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a7
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
@@ -395,7 +395,7 @@ F src/bisect.c 59b6374581ce25ee6d0797a523e16903d42b77d4b233e5b2d35e8ab058ab9db8
 F src/blob.c a748ce7555e46ff3704b3db39f553a97ffcee8b71c483b2ed6c1f601c2225b2c
 F src/branch.c 9ac51ee492d81d79be857084c9207949c293c846d6d2204ca84d99fbeb8e401c
 F src/browse.c a0ff8e6a87321663e4ebb223373aa7c9d9b4007c2e930327f48c94f4d0753234
-F src/builtin.c 8e532765354bd7eef7c0314435cfa7555d90c7d8ccca449b69f26128b1c0e176
+F src/builtin.c 553faad22018a7fc8795d458b4cfe83af5d0cc017e79848a8e7321f2e7b17c8f
 F src/bundle.c 7662a17b1e4492587af14cd0944424c86a2a1fc74828fb99d081073349c433b0
 F src/cache.c e7c49243b8b30cc82358f3a81e9c3652de500481c16f7691d6d6c4528ecc5300
 F src/capabilities.c 7b611448e775a4b7cf6600b188b4ffeb94f720e7cc437fe6f3b5efedc5ca3251
@@ -438,7 +438,7 @@ F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c 9cdc26361ac307666a4d20f162b7aede1eedbe24e0e8cea380463bdcf2299105
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
-F src/fossil.attach.js 248ee56fe72db1ba06d00be11b3d3ca0501d95c2d126ca469bc286249cf6478a
+F src/fossil.attach.js 7680bfb3545a54cbcfb4e0f44edaca809cbbdb1bba7bae6185f871e79be88a67
 F src/fossil.bootstrap.js 80253c8526b2764bf7d2441dd011a10396a5bcef416c6d2d66ea50f6cf9305ba
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
 F src/fossil.copybutton.js 57ad69acea5741a54cdec843db7aecfa82234932ec5a2ae5ba6c2a67e2077e88
@@ -982,9 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c7952086431daddf02202a6bbca5b69c2a94c78a89303307aed954efa289b70
-Q -639e2cf0b7c68618a71895d091a6d4b4c1ac210b684b3ef228af87f6e6c24bf1
-R 52eae22f7cc2a18e14249bb658b1d301
+P 7795074a1a52cd3cee1c317a6feeccf58a81fef03f4bb8504c17ea67cb989515
+R 2c18eef2b68bf156514847b61ee31800
 U stephan
-Z e29ac6f2cc374cacf855cbb019829871
+Z c359dc7eb3834151de56a31062ab735e
 # Remove this line to create a well-formed Fossil manifest.

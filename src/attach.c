@@ -656,6 +656,8 @@ void attachaddV2_page(void){
 #else
   (void)bNeedsModeration;
   (void)szLimit;
+  (void)szContent;
+  (void)zTo;
 #endif
 
   style_set_current_feature("attach");
