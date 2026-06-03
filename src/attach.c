@@ -89,7 +89,7 @@ int attach_user_may(int rid, int iArtifactType){
 ** Emits a single-button FORM which invokes
 ** /attachadd?target=$zTarget.
 */
-void attach_emit_attachadd_button(const char *zTarget){
+void attach_render_attachadd_button(const char *zTarget){
   @ <form method="post" action="%R/attachadd">\
   @ <input type="hidden" name="target" value="%T(zTarget)">\
   @ <input type="submit" value="Attach...">

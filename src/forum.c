@@ -1215,11 +1215,12 @@ static void forum_display_post(
       zMimetype = pManifest->zMimetype;
     }
     forum_render(0, zMimetype, pManifest->zWiki, 0, !bRaw);
-    forum_render_attachment_list2(p);
   }
 
   /* When not in raw mode, finish creating the border around the post. */
   if( !bRaw ){
+    int bBrBeforeAttach = 0;  /* Layout kludge for Attach button */
+    forum_render_attachment_list2(p);
     /* If the user is able to write to the forum and if this post has not been
     ** edited, create a form with various interaction buttons. */
     if( g.perm.WrForum && !p->pEditTail ){
@@ -1252,6 +1253,7 @@ static void forum_display_post(
           @ "%h(pManifest->zUser)" do not require moderation.
           @ </label>
           @ <input type="hidden" name="trustuser" value="%h(pManifest->zUser)">
+          bBrBeforeAttach = 1 /* slightly improve the layout */;
         }
       }else if( bSameUser ){
         /* Allow users to delete (reject) their own pending posts. */
@@ -1280,7 +1282,10 @@ static void forum_display_post(
           ** effectively takes over ownership of it (and we currently
           ** have no way of passing it back). Because of this, we
           ** check the ownership of `p` instead of `pHead`. */
-          attach_emit_attachadd_button(pHead->zUuid);
+          if( bBrBeforeAttach ){
+            @ <br>
+          }
+          attach_render_attachadd_button(pHead->zUuid);
         }
       }
       @ </div>
