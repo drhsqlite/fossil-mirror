@@ -134,7 +134,7 @@ input[type=submit]:hover {
 button:disabled,
 input[type=submit]:disabled {
   color: #363636;
-  background-color: #707070;
+  background-color: #a0a0a0;
 }
 .button:focus,
 button:focus,

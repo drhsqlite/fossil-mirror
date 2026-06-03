@@ -1,5 +1,5 @@
-C Ensure\sthere's\senough\scontrast\sto\sread\sthe\stext\swhen\sthe\smouse\sis\sdropping\sover\sthe\sattachment\swidget.\sExperimentally\srelable\sthe\sRemove\sbutton\sas\sX.
-D 2026-06-03T17:49:57.861
+C Minor\sdoc\sand\sstyle\stweaks.
+D 2026-06-03T18:05:04.828
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f
 F skins/blitz/header.txt 9cbbf8a2cede512b4ccf47f2bf284ef043c1acd1e6dab38b776a0140fd7fa200
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401d7fdd60446d9a13db
-F skins/darkmode/css.txt 7adf2f18c982bf1deaf94022b0fa80ed9b655fa41d5d4a9c4ea479b34b7f4932
+F skins/darkmode/css.txt 2eddcdb71fa4c3511c2481126831caaf201bebc9adc549348a03a961e4020b66
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt d909e2ffcadfd595707d7cb057d654888cf45de37910137bac508651c7f6f03f
 F skins/darkmode/header.txt 3fe4fb78b2a6f8d6c9a4c2c4dbba7d80a7302b166fe5e4cec86f05713ddf830b
@@ -387,7 +387,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c f2250f3fd1fd4c69aa8816885d47da5110cb7936adf66eae1df83e6c46f9c0a6
-F src/attach.c 9384ee42255dc475a57be8321c10f6e67bfb01014879e200709e39b71149bd6d
+F src/attach.c 544360d9a853f3ffc05d449580e81091bfa2e7cfa53426716217e446f631ac84
 F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a7
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a8a290676c9c14979e361870ef3e8832a8fb18440bd4ee719b3707581a64aa2
-R 3e01845254f9f0a61203eb09d1168400
+P 05865c2310b5d4866a96317b7e2dd546a6ad4cf056c84c6c0c1e1b9e819630f8
+R 3ece8ba3b69f7c2dcd7e25563c1b63f0
 U stephan
-Z bbf5779eab59917acb57d019cec694f0
+Z c74c7958b5e0b17057e147751598bd24
 # Remove this line to create a well-formed Fossil manifest.

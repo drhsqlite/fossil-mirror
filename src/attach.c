@@ -59,19 +59,20 @@ int attachment_target_type(const char *zTarget){
 }
 
 /*
-** For a given aritfact ID and type, returns true if the current user
-** could hypothetically attach something to it, else returns 0.
+** For a given aritfact ID and type (from the CFTYPE_xyz enum),
+** returns true if the current user could hypothetically attach
+** something to it, else returns 0.
 **
-** The rid is currently only relevant when iArtifactType is
+** The rid is currently only relevant when eArtifactType is
 ** CFTYPE_FORUM.  For forum posts, it checks precisely the rid given,
 ** not the head RID, to keep non-admins from attaching files to
 ** threads which have since been taken over by another user (this
 ** happens when an admin edits another user's post).
 */
-int attach_user_may(int rid, int iArtifactType){
+int attach_user_may(int rid, int eArtifactType){
   if( g.perm.Admin ) return 1;
   if( !login_is_individual() ) return 0;
-  switch(iArtifactType){
+  switch(eArtifactType){
     case CFTYPE_FORUM:
       return forumpost_is_owner(rid, 0);
     case CFTYPE_WIKI:
@@ -90,6 +91,8 @@ int attach_user_may(int rid, int iArtifactType){
 ** /attachadd?target=$zTarget.
 */
 void attach_render_attachadd_button(const char *zTarget){
+  /* This could be changed from POST to GET, and arguably should so
+  ** that the target=X part becomes part of the resulting URL. */
   @ <form method="post" action="%R/attachadd">\
   @ <input type="hidden" name="target" value="%T(zTarget)">\
   @ <input type="submit" value="Attach...">
