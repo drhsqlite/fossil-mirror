@@ -348,7 +348,6 @@ void attach_commit(
   const char *zTarget,                 /* The artifact hash to attach to */
   const char *aContent,                /* The content of the attachment */
   int         szContent,               /* The length of the attachment */
-  const char *zMimetype,               /* Content mimetype or NULL */
   int         needModerator,           /* Moderate the attachment? */
   const char *zComment                 /* The comment for the attachment */
 ){
@@ -389,9 +388,6 @@ void attach_commit(
     }
     zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
-    if( zMimetype && 0!=zMimetype[0] ){
-      blob_appendf(&manifest, "N %F\n", zMimetype);
-    }
     blob_appendf(&manifest, "U %F\n", login_name());
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
@@ -420,7 +416,6 @@ void attachadd_page(void){
   const char *aContent = P("f");
   const char *zName = PD("f:filename","unknown");
   const char *zComment = PD("comment", "");
-  const char *zMimetype = P("mimetype");
   const char *zTarget;
   char * zTo = 0;
   char *zTargetType = 0;
@@ -507,8 +502,7 @@ void attachadd_page(void){
     int needModerator = (zForumPost!=0 && forum_need_moderation()) ||
                         (zTkt!=0 && ticket_need_moderation(0)) ||
                         (zPage!=0 && wiki_need_moderation(0));
-    attach_commit(zName, zTarget, aContent, szContent, zMimetype,
-                  needModerator, zComment);
+    attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
     cgi_redirect(zTo ? zTo : zFrom);
   }
 
@@ -1037,8 +1031,6 @@ void attachment_list(
 **                                with the specified timestamp.
 **    -t|--technote TECHNOTE-ID   Specifies the technote to be
 **                                updated by its technote id
-**    --mimetype TYPE             Optional mimetype of the attached
-**                                content
 **
 ** One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
 **
@@ -1063,19 +1055,12 @@ void attachment_cmd(void){
     const char *zPageName = 0;    /* Name of the wiki page to attach to */
     const char *zFile;            /* Name of the file to be attached */
     const char *zETime;           /* The name of the technote to attach to */
-    const char *zMimetype;        /* --mimetype NAME */
     Manifest *pWiki = 0;          /* Parsed wiki page content */
     char *zBody = 0;              /* Wiki page content */
     int rid;
     const char *zTarget;          /* Target of the attachment */
     Blob content;                 /* The content of the attachment */
-    zMimetype = find_option("mimetype",0,1);
     zETime = find_option("technote","t",1);
-    /*
-      FIXME/TODO (2026-06-02): adapt this to use
-      attachment_target_type() and, when attaching to tech notes and
-      forum posts, always attach to their root version.
-    */
     if( !zETime ){
       if( g.argc!=5 ){
         usage("add PAGENAME FILENAME");
@@ -1122,7 +1107,6 @@ void attachment_cmd(void){
       zTarget,                 /* The artifact hash to attach to */
       blob_buffer(&content),   /* The content of the attachment */
       blob_size(&content),     /* The length of the attachment */
-      zMimetype,               /* Mimetype */
       0,                       /* No need to moderate the attachment */
       ""                       /* Empty attachment comment */
     );

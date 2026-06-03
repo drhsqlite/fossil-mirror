@@ -380,9 +380,6 @@
         if( d ){
           fd.append(`${namePrefix}${suffix}_desc`, d);
         }
-        if( s.mimetype ){
-          fd.append(`${namePrefix}${suffix}_mimetype`, s.mimetype);
-        }
       }
       return i;
     }

@@ -865,8 +865,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       /*
       **    N <uuid>
       **
-      ** An N-line identifies the mimetype of wiki or comment text,
-      ** as well as that of the content of attachments.
+      ** An N-line identifies the mimetype of wiki or comment text.
       */
       case 'N': {
         if( p->zMimetype!=0 ) SYNTAX("more than one N-card");
