@@ -482,8 +482,8 @@
   }/*Attacher*/;
   F.Attacher = Attacher;
 
-  const eFormDiv = document.querySelector('#attachadd-form-wrapper');
-  if( eFormDiv ){
+  const eFormWrapper = document.querySelector('#attachadd-form-wrapper');
+  if( eFormWrapper ){
     /* Inject a file-attachment form. */
     const urlArgs = new URLSearchParams(window.location.search);
     let zTarget = urlArgs.get('target');
@@ -502,7 +502,7 @@
       updateBtnSubmit(a);
     };
     const att = new Attacher({
-      container: eFormDiv,
+      container: eFormWrapper,
       startWith: 1,
       listener: cbAttacherChange,
       controls: [eBtnSubmit],
@@ -522,7 +522,10 @@
         fd.append('file'+i, row.content);
         if( row.description ) fd.append('file'+i+'_desc', row.description);
       }
-      for( const eIn of eFormDiv.querySelectorAll(':scope > input[type="hidden"]') ){
+      for( const eIn of eFormWrapper.querySelectorAll(
+        ':scope > input[type="hidden"]'
+      ) ){
+        /* Copy over hidden input fields emitted by the server. */
         if( eIn.name==='target' ){
           zTarget = eIn.value;
         }else if( eIn.name==='to' || (eIn.name==='from' && !zTo) ){
@@ -543,7 +546,7 @@
       D.enable(eBtnSubmit);
       delete eBtnSubmit.dataset.submitted;
       const jr = err ? undefined : await resp.json().catch(()=>{});
-      if( jr?.error || !resp.ok ){
+      if( err || jr?.error || !resp.ok ){
         const msg = err ? err.message : (jr?.error || resp.statusText);
         att.reportError("Attaching failed: ", msg);
       }else{
@@ -554,7 +557,7 @@
             to = F.repoUrl(to);
           }
           window.location = to;
-        }else{
+        }else if( target ){
           window.location = '?target='+zTarget+'&'+Date.now();
         }
       }

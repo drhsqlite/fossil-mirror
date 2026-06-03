@@ -59,6 +59,44 @@ int attachment_target_type(const char *zTarget){
 }
 
 /*
+** For a given aritfact ID and type, returns true if the current user
+** could hypothetically attach something to it, else returns 0.
+**
+** The rid is currently only relevant when iArtifactType is
+** CFTYPE_FORUM.  For forum posts, it checks precisely the rid given,
+** not the head RID, to keep non-admins from attaching files to
+** threads which have since been taken over by another user (this
+** happens when an admin edits another user's post).
+*/
+int attach_user_may(int rid, int iArtifactType){
+  if( g.perm.Admin ) return 1;
+  if( !login_is_individual() ) return 0;
+  switch(iArtifactType){
+    case CFTYPE_FORUM:
+      return forumpost_is_owner(rid, 0);
+    case CFTYPE_WIKI:
+      return g.perm.ApndWiki && g.perm.Attach==0;
+    case CFTYPE_TICKET:
+      return g.perm.ApndTkt && g.perm.Attach==0;
+    case CFTYPE_EVENT:
+      return g.perm.Write && g.perm.ApndWiki && g.perm.Attach;
+    default:
+      return 0;
+  }
+}
+
+/*
+** Emits a single-button FORM which invokes
+** /attachadd?target=$zTarget.
+*/
+void attach_emit_attachadd_button(const char *zTarget){
+  @ <form method="post" action="%R/attachadd">\
+  @ <input type="hidden" name="target" value="%T(zTarget)">\
+  @ <input type="submit" value="Attach...">
+  @ </form>\
+}
+
+/*
 ** WEBPAGE: attachlist
 ** List attachments.
 **
@@ -521,7 +559,10 @@ void attachadd_page(void){
     @ <a href="%R/help/attachment-size-limit">Limit</a> is
     @ %d(szLimit ? szLimit : 0x7fffffff) bytes</p>
     /* Fall through and render form. */
-   }else if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct(0)) ){
+   }else if( P("ok")
+             && cgi_csrf_safe(2)
+             && szContent>0
+             && (goodCaptcha = captcha_is_correct(0)) ){
     int needModerator = (zForumPost!=0 && forum_need_moderation()) ||
                         (zTkt!=0 && ticket_need_moderation(0)) ||
                         (zPage!=0 && wiki_need_moderation(0));
@@ -556,6 +597,7 @@ void attachadd_page(void){
   @ <input type="submit" name="cancel" value="Cancel">
   @ </div>
   captcha_generate(0);
+  login_insert_csrf_secret();
   @ </form>
   builtin_fossil_js_bundle_or("attach", NULL);
   style_finish_page();
@@ -744,7 +786,6 @@ void attachaddV2_page(void){
   char *zTargetType = 0;
   char *zExtraFree = 0;
   int iTgtType = 0;
-  int szContent = 0;
   int goodCaptcha = 1;
 
   if( zFrom==0 ) zFrom = mprintf("%R/home");
@@ -830,10 +871,12 @@ void attachaddV2_page(void){
   @ <h2>Attachments for %s(zTargetType)</h2>
   attachment_list(zTarget, NULL,
                   ATTACHLIST_SIZE | ATTACHLIST_HIDE_UNAPPROVED);
-  /* Form gets fleshed out and activate from fossil.attach.js. */
   @ <div id='attachadd-form-wrapper'>
+ /* JS code imports these hidden fields into a form it generates. */
   @ <input type="hidden" name="target" value="%h(zTarget)">
-  @ <input type="hidden" name="from" value="%h(zFrom)">
+  if( zFrom ){
+    @ <input type="hidden" name="from" value="%h(zFrom)">
+  }
   if( zTo ){
     @ <input type="hidden" name="to" value="%h(zTo)">
   }
@@ -1342,3 +1385,4 @@ void test_list_attachments(void){
   }
   db_finalize(&q);
 }
+

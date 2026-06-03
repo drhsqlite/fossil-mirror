@@ -867,7 +867,9 @@ void forumthreadhashlist(void){
 ** fpid's status.
 */
 static int forum_may_set_status(int fpid){
-  return g.perm.Admin
+  if( moderation_pending(fpid) ) return 0;
+  return
+    g.perm.Admin
     || g.perm.ModForum
     || (login_is_individual()
         && forumpost_is_owner(fpid, 0));
@@ -1274,20 +1276,13 @@ static void forum_display_post(
           }
           @ </form>
         }
-        if( g.perm.Admin ||
-            (login_is_individual()
-             && forumpost_is_owner(p/*not pHead*/->fpid, 0)) ){
+        if( attach_user_may(p/*not pHead*/->fpid, CFTYPE_FORUM) ){
           /* When an admin edits someone else's post, the admin
           ** effectively takes over ownership of it (and we currently
           ** have no way of passing it back). Because of this, we
           ** check the ownership of `p` instead of `pHead`. */
-          @ <form method="post" action="%R/attachadd" \
-          @ class='file-attach'>\
-          @ <input type="hidden" name="target" value="%T(pHead->zUuid)">
-          @ <input type="submit" value="Attach...">
-          login_insert_csrf_secret();
+          attach_emit_attachadd_button(pHead->zUuid);
           moderation_pending_www(p->fpid);
-          @ </form>
         }
       }
       @ </div>
