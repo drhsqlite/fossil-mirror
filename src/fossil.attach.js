@@ -87,6 +87,7 @@
       eBtnAdd.type = 'button';
       this.#e.err = D.addClass(D.div(), 'error', 'hidden');
       this.#e.body.append(this.#e.err);
+      this.#e.err.addEventListener('dblclick',()=>this.reportError());
 
       const eControls = this.#e.controls =
             D.addClass(D.div(), 'attach-controls');
@@ -424,6 +425,9 @@
         eLink.addEventListener('click', ev=>ev.stopPropagation());
         this.#rowError(rowObj, "Too large: ", eLink,
                        " is ",F.config.attachmentSizeLimit," bytes");
+        rowObj.ok = false;
+      }else if( !file.size ){
+        this.#rowError(rowObj, "Cannot attach zero-byte files.");
         rowObj.ok = false;
       }else{
         rowObj.ok = true;

@@ -727,9 +727,9 @@ void attachadd_ajax_post(void){
     sqlite3_snprintf(sizeof(aKeySize), aKeySize, "%s:bytes",
                      aKeyPrefix);
     szContent = atoi(PD(aKeySize,"-1"));
-    if( szContent<0 ){
+    if( szContent<=0 ){
       bRollback = 1;
-      ajax_route_error(400,"Invalid file size.");
+      ajax_route_error(400,"Invalid file size: %d", szContent);
     }else if( szLimit>0 && szContent>szLimit ){
       bRollback = 1;
       ajax_route_error(400, "File size limit is %d bytes.", szLimit);
