@@ -537,7 +537,7 @@
         fd.append('dryrun', '1');
       }
       let err;
-      const resp = await window.fetch(F.repoUrl('attachaddV2_ajax_post'), {
+      const resp = await window.fetch(F.repoUrl('attachadd_ajax_post'), {
         method: 'POST',
         body: fd
       }).catch((e)=>{
@@ -564,6 +564,6 @@
     })/*submit handler*/;
     updateBtnSubmit(att);
     F.page.attacher = att /* only for testing via dev console */;
-  }/* /attachaddV2 */
+  }/* /attachadd */
 
 })(window.fossil);

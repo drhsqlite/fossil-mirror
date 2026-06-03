@@ -447,12 +447,13 @@ void attach_commit(
 **    forumpost=HASH
 **    from=URL
 **
-** Or:
+** Adds a POSTed file attachment to the given target.
+**
+** Or the "version 2" interface:
 **
 **    target=ATTACHMENT_TARGET
 **
-** Behaves exactly like /attachaddV2.
-**
+** Behaves exactly like attachaddV2_page().
 */
 void attachadd_page(void){
   const char *zPage;
@@ -606,9 +607,9 @@ void attachadd_page(void){
 }
 
 /*
-** WEBPAGE: attachaddV2_ajax_post   hidden
+** WEBPAGE: attachadd_ajax_post   hidden
 **
-** Used by /attachaddV2 to handle attachments via POST requests with:
+** Used by attachadd V2 to handle attachments via POST requests with:
 **
 **     target=ATTACHMENT_TARGET
 **     file1..fileN=FILE_OBJECTS
@@ -622,7 +623,7 @@ void attachadd_page(void){
 **  {error:"message"} on error. The on-success response structure is
 **  subject to amendment.
 */
-void attachaddV2_ajax_post(void){
+void attachadd_ajax_post(void){
   const char *zTarget;
   char *zExtraFree = 0;
   int iTgtType = 0;
@@ -762,7 +763,7 @@ ajax_post_404:
 }
 
 /*
-** WEBPAGE: attachaddV2   hidden
+** Proxy for /attachadd?target=X
 **
 ** Lists attachments for, and can add them to, a target artifact.
 **

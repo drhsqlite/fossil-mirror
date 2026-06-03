@@ -1048,7 +1048,7 @@ static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
 */
 static void forum_render_attachment_list(const char *zUuid){
   char * zLbl = mprintf("<a href='%R/attachlist?forumpost=%s'>"
-                        "Attachments:</a>", zUuid);
+                        "Attachments</a>:", zUuid);
   attachment_list(zUuid, zLbl,
                   ATTACHLIST_HRULE_ABOVE
                   | ATTACHLIST_SIZE
