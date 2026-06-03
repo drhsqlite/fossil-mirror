@@ -167,6 +167,23 @@
       }
     }
 
+    #rowError(rowObj, ...msg){
+      let e = rowObj.e.err;
+      if( e ){
+        D.clearElement(e);
+      }else{
+        if( !msg.length ) return;
+        e = rowObj.e.err = D.addClass(D.span(), 'error');
+        rowObj.e.info.append(e);
+      }
+      if( msg.length ){
+        e.append(...msg);
+        e.classList.remove('hidden');
+      }else{
+        e.classList.add('hidden');
+      }
+    }
+
     #addRow(){
       const id = ++idCounter;
       const rowObj = F.nu({
@@ -338,6 +355,17 @@
         reader.onload = (e)=>img.setAttribute('src', e.target.result);
         reader.readAsDataURL(file);
       }
+      if( file.size>F.config.attachmentSizeLimit ){
+        /* Problem: tapping this link propagates its click event through
+           to eDropzone. Thus... */
+        const eLink = D.a(F.repoUrl('help/attachment-size-limit'),'limit');
+        eLink.addEventListener('click', ev=>ev.stopPropagation());
+        this.#rowError(rowObj, "Too large: ", eLink,
+                       " is ",F.config.attachmentSizeLimit," bytes");
+        rowObj.ok = false;
+      }else{
+        rowObj.ok = true;
+      }
       this.#events.dispatchEvent(
         new CustomEvent('entry-populated',{
           detail: F.nu({
@@ -356,13 +384,13 @@
     collectState(){
       const rv = [];
       for(let r of this.#rows){
-        if( !r.eDropzone?.classList?.contains?.('populated') ){
+        if( !r.e.dropzone?.classList?.contains?.('populated') ){
           continue;
         }
         rv.push(F.nu({
           name: r.name || r.file.name || `pasted-content-${r.id}.${r.mimeType.split('/')[1] || 'txt'}`,
           content: r.file,
-          description: r.eDesc?.value || '',
+          description: r.e.desc?.value || '',
           mimeType: r.mimeType
         }));
       }
@@ -417,6 +445,7 @@
       controls: [eBtnSubmit]
     });
     updateBtnSubmit(att);
+    F.page.attacher = att /* only for testing via dev console */;
   }/* /attachaddV2 */
 
 })(window.fossil);

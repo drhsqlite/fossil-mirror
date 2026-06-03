@@ -2026,6 +2026,11 @@ div.helpPage blockquote {
   border-radius: 0.25em;
   background-color: #fafafa;
 }
+.attach-widget .error {
+  padding: 0.5em;
+  background-color: #d32f2f;
+  color: #fff;
+}
 body.fossil-dark-style .attach-widget .attach-row {
   background-color: initial;
 }
@@ -2067,6 +2072,7 @@ body.fossil-dark-style  .attach-widget .attach-dropzone.dragover{
 .attach-widget .thumbnail {
   max-width: 10em;
   max-height: 10em;
+  margin: 0 1em;
 }
 .attach-widget .attach-row-info{
   font-family: monospace;
