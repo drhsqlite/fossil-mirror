@@ -628,6 +628,10 @@ void wiki_page(void){
     if( g.perm.Hyperlink ){
       style_submenu_element("History", "%R/whistory?name=%T", zPageName);
     }
+    if( rid>0 && attach_user_may(rid, CFTYPE_WIKI) ){
+      style_submenu_element("Attach", "%R/attachadd?target=%T",
+                            zPageName);
+    }
   }
   if( !isPopup ){
     style_set_current_page("%T?name=%T", g.zPath, zPageName);

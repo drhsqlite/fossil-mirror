@@ -75,9 +75,9 @@ int attach_user_may(int rid, int iArtifactType){
     case CFTYPE_FORUM:
       return forumpost_is_owner(rid, 0);
     case CFTYPE_WIKI:
-      return g.perm.ApndWiki && g.perm.Attach==0;
+      return g.perm.ApndWiki && g.perm.Attach;
     case CFTYPE_TICKET:
-      return g.perm.ApndTkt && g.perm.Attach==0;
+      return g.perm.ApndTkt && g.perm.Attach;
     case CFTYPE_EVENT:
       return g.perm.Write && g.perm.ApndWiki && g.perm.Attach;
     default:
