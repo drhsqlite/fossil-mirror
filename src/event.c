@@ -119,7 +119,11 @@ void event_page(void){
     style_finish_page();
     return;
   }
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  zUuid = rid_to_uuid(rid);
+  zFullId = db_text(0, "SELECT SUBSTR(tagname,7)"
+                       "  FROM tag"
+                       " WHERE tagname GLOB 'event-%q*'",
+                    zId);
   zVerbose = P("v");
   if( !zVerbose ){
     zVerbose = P("verbose");
@@ -159,7 +163,7 @@ void event_page(void){
     style_submenu_element("Edit", "%R/technoteedit?name=%!S", zId);
     if( g.perm.Attach ){
       style_submenu_element("Attach",
-           "%R/attachadd?technote=%!S&from=%R/technote/%!S", zId, zId);
+           "%R/attachadd?target=%s&from=%R/technote/%!S", zFullId, zId);
     }
   }
   zETime = db_text(0, "SELECT datetime(%.17g)", pTNote->rEventDate);
@@ -227,10 +231,6 @@ void event_page(void){
     @ %h(blob_str(&fullbody))
     @ </pre>
   }
-  zFullId = db_text(0, "SELECT SUBSTR(tagname,7)"
-                       "  FROM tag"
-                       " WHERE tagname GLOB 'event-%q*'",
-                    zId);
   attachment_list(zFullId, "<h2>Attachments:</h2>", 1);
   document_emit_js();
   style_finish_page();

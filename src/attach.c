@@ -31,6 +31,14 @@
 ** if needed, they resolve zTarget using forumpost_head_rid2() so that
 ** they get the RID of the earliest version of the post, as that is
 ** the only one which attachments should target.
+**
+** FIXME (2026-06-03)? Figuring out if an event or a ticket are a
+** unique prefix is more work than this function performs. This makes
+** it unsuitable as a drop-in replacement for legacy
+** /attachadd?x=SHORT_ID links using newer /attachadd?target=ID URLs
+** because the the former, via /attachadd?technote=ID or ?ticket=ID,
+** accept unique prefixes whereas the latter, via this function, does
+** not.
 */
 int attachment_target_type(const char *zTarget){
   static Stmt q = empty_Stmt_m;

@@ -1,5 +1,5 @@
-C Minor\sdoc\sand\sstyle\stweaks.
-D 2026-06-03T18:05:04.828
+C Teach\stickets\sand\stech-notes\sto\suse\sthe\snew\sattachment\sapproach.\sDocument\sa\sshortcoming\sof\sthe\snew\sapproach\scompared\sto\sthe\sold,\snamely\sthat\sthe\snew\sone\srequires\sthat\sX\sin\starget=X\sbe\sa\sfull\sID\srather\sthan\san\sevent/ticket\sprefix.
+D 2026-06-03T19:25:48.695
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -387,7 +387,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c f2250f3fd1fd4c69aa8816885d47da5110cb7936adf66eae1df83e6c46f9c0a6
-F src/attach.c 544360d9a853f3ffc05d449580e81091bfa2e7cfa53426716217e446f631ac84
+F src/attach.c 9602d6021aefc85ae2b116d438d1a4b135a7846f541c4c3b7c0771f06080944c
 F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a7
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
@@ -429,7 +429,7 @@ F src/dispatch.c f9b0602b200fb378bed080e327e2cf7db08f683c21aa81ba834be0ac7c597b8
 F src/doc.c f34584042c9a4e2ff3223e7a8bab7154f6824ba413ad909aac54b65681428d77
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
-F src/event.c 63a324e1c514d0780efcd101dda6b144a6ed4354bd7bee93e21d63ce908147e6
+F src/event.c 89421da7e1d22a604249afe54094258b1f40ab1695e2edb3aac2cc0576db6890
 F src/export.c 463d889f18e961456d53bfe7c68f02ce255c5d4fb9e274cd9a5c7a4e5a9f351c
 F src/extcgi.c ba1285ef63307493e837f74e4f0c98e0cfc8029a43dcc0c90b81c59f5dff12dc
 F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
@@ -582,7 +582,7 @@ F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 228e96489b6cc548706af08968756808e9cd78dd8ea7ef6fc6877827100ff71b
 F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
 F src/timeline.c 16bc0f4a8122cf74801ed81733616fe0e5f79ca2db39ed9b82aec28bb9ff2c13
-F src/tkt.c 77f41e17f8350f3c89b5ccf7263fbb1811dbf4c001c9baf056699b85e9699d63
+F src/tkt.c eea08faa29bd1eadfbd0f495753eff7b1d86388f8b115f3448bb663bdbb60c5e
 F src/tktsetup.c 22e7338e93a4e54d0e91acd0bf0e80dbdfe4c2958638e163a89239391d6cb8b9
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 36128b298c386eb55f45c48d0af0fc49c1e9506e179f88a486c060fec6752a23
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 05865c2310b5d4866a96317b7e2dd546a6ad4cf056c84c6c0c1e1b9e819630f8
-R 3ece8ba3b69f7c2dcd7e25563c1b63f0
+P 766755a3f910b39e8b1ac597ce0a4feb269dd44d170f2f67036ebf39c5c45ac1
+R 63b736e9669c3a55671ccc9d622732a5
 U stephan
-Z c74c7958b5e0b17057e147751598bd24
+Z 529ab31fd3c2e05110a41fbf459d3cbe
 # Remove this line to create a well-formed Fossil manifest.
