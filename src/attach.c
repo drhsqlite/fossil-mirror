@@ -448,6 +448,37 @@ void attach_commit(
     db_end_transaction(0);
 }
 
+static void attach_render_legacy_form(const char *zForumPost,
+                                      const char *zTechNote,
+                                      const char *zTicket,
+                                      const char *zWikiPage,
+                                      const char *zComment,
+                                      const char *zFrom){
+  form_begin("enctype='multipart/form-data'", "%R/attachadd");
+  @ <div>\
+  @ File to Attach:
+  @ <input type="file" name="f" size="60"><br>
+  @ Description:<br>
+  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"\
+  @ >%h(zComment)</textarea><br>
+  if( zForumPost ){
+    @ <input type="hidden" name="forumpost" value="%h(zForumPost)">\
+  }else if( zTicket ){
+    @ <input type="hidden" name="tkt" value="%h(zTicket)">\
+  }else if( zTechNote ){
+    @ <input type="hidden" name="technote" value="%h(zTechNote)">\
+  }else if( zWikiPage ){
+    @ <input type="hidden" name="page" value="%h(zWikiPage)">\
+  }
+  @ <input type="hidden" name="from" value="%h(zFrom)">\
+  @ <input type="submit" name="ok" value="Add Attachment">\
+  @ <input type="submit" name="cancel" value="Cancel">\
+  @ </div>
+  captcha_generate(0);
+  login_insert_csrf_secret();
+  @ </form>
+}
+
 /*
 ** WEBPAGE: attachadd
 ** Add a new attachment.
@@ -588,29 +619,8 @@ void attachadd_page(void){
     @ <p class="generalError">Error: Incorrect security code.</p>
   }
   @ <h2>Add Attachment To %s(zTargetType)</h2>
-  form_begin("enctype='multipart/form-data'", "%R/attachadd");
-  @ <div>
-  @ File to Attach:
-  @ <input type="file" name="f" size="60"><br>
-  @ Description:<br>
-  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"\
-  @ >%h(zComment)</textarea><br>
-  if( zForumPost ){
-    @ <input type="hidden" name="forumpost" value="%h(zTarget)">
-  }else if( zTkt ){
-    @ <input type="hidden" name="tkt" value="%h(zTkt)">
-  }else if( zTechNote ){
-    @ <input type="hidden" name="technote" value="%h(zTechNote)">
-  }else{
-    @ <input type="hidden" name="page" value="%h(zPage)">
-  }
-  @ <input type="hidden" name="from" value="%h(zFrom)">
-  @ <input type="submit" name="ok" value="Add Attachment">
-  @ <input type="submit" name="cancel" value="Cancel">
-  @ </div>
-  captcha_generate(0);
-  login_insert_csrf_secret();
-  @ </form>
+  attach_render_legacy_form(zForumPost, zTechNote, zTechNote, zPage,
+                            zComment, zFrom);
   builtin_fossil_js_bundle_or("attach", NULL);
   style_finish_page();
   fossil_free(zTargetType);
@@ -659,6 +669,7 @@ void attachadd_ajax_post(void){
   db_begin_transaction();
   zTarget = P("target");
   iTgtType = attachment_target_type(zTarget);
+  CX("{");
   switch( iTgtType ){
     default:
     case 0:
@@ -756,7 +767,7 @@ void attachadd_ajax_post(void){
   }
   fossil_free(zExtraFree);
   if( !bRollback ){
-    CX("{}");
+    CX("}");
     if( atoi(PD("dryrun","0"))>0 ){
       bRollback = 1;
     }
@@ -780,10 +791,10 @@ ajax_post_404:
 **
 **    target=TKT_HASH|WIKIPAGE_NAME|TECHNOTE_HASH|FORUMPOST_HASH
 **    from=ORIGINATING_URL
-**    to=URL_ON_COMPLETION
 **
 **  Works like /attachadd but uses a JS-based interactive attachment
-**  selector.
+**  selector. If from=X is set, this page arrganges for a redirect
+**  back to X after attaching.
 **
 **  from=X and to=X tell it how to redirect when it's done. to=X
 **  overrides from=X. If neither is set, it will redirect back to this
@@ -797,17 +808,17 @@ void attachaddV2_page(void){
   char *zTo = 0;
   char *zTargetType = 0;
   char *zExtraFree = 0;
-  int iTgtType = 0;
+  int eTgtType = 0;
   int goodCaptcha = 1;
+  char const * noJsArgs[] = {0,0,0,0}; /* Args for noscript form */
 
-  if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ) cgi_redirect(zFrom);
   if( 0==zTarget ){
     webpage_error("Requires target=X");
   }
   login_check_credentials();
-  iTgtType = attachment_target_type(zTarget);
-  switch( iTgtType ){
+  eTgtType = attachment_target_type(zTarget);
+  switch( eTgtType ){
     default:
     case 0:
       webpage_error("Cannot resolve target=%h.", zTarget);
@@ -826,6 +837,7 @@ void attachaddV2_page(void){
                       "forum posts.");
       }
       zTarget = zExtraFree = rid_to_uuid(fpid);
+      noJsArgs[0] = zTarget;
       zTargetType = mprintf("Forum post <a href=\"%R/forumpost/%S\">%.16h</a>",
                             zTarget, zTarget);
       zTo = mprintf("%R/forumpost/%S", zTarget);
@@ -841,8 +853,10 @@ void attachaddV2_page(void){
                             " WHERE tagname GLOB 'event-%q*'", zTarget);
         if( zTarget==0) fossil_redirect_home();
       }
+      zTo = zFrom ? 0 : mprintf("%R/technote?name=%T", zTarget);
       zTargetType = mprintf("Tech Note <a href=\"%R/technote/%s\">%S</a>",
                             zTarget, zTarget);
+      noJsArgs[1] = zTarget;
       break;
     }
     case CFTYPE_TICKET:{
@@ -855,8 +869,10 @@ void attachaddV2_page(void){
                        " WHERE tagname GLOB 'tkt-%q*'", zTarget);
         if( zTarget==0 ) fossil_redirect_home();
       }
+      zTo = zFrom ? 0 : mprintf("%R/tktview/%t", zTarget);
       zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
                             zTarget, zTarget);
+      noJsArgs[2] = zTarget;
       break;
     }
     case CFTYPE_WIKI:{
@@ -867,8 +883,10 @@ void attachaddV2_page(void){
       if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'", zTarget) ){
         fossil_redirect_home();
       }
+      zTo = zFrom ? 0 : mprintf("%R/wiki?name=%T", zTarget);
       zTargetType = mprintf("Wiki Page <a href=\"%R/wiki?name=%h\">%h</a>",
                             zTarget, zTarget);
+      noJsArgs[3] = zTarget;
       break;
     }
   }
@@ -881,10 +899,19 @@ void attachaddV2_page(void){
     @ <p class="generalError">Error: Incorrect security code.</p>
   }
   @ <h2>Attachments for %s(zTargetType)</h2>
+  if(1){
+    /* noscript fallback is completely tested */
+    @ <noscript>
+    attach_render_legacy_form(noJsArgs[0], noJsArgs[1], noJsArgs[2],
+                              noJsArgs[3], 0,
+                              zFrom ? zFrom : mprintf("%R/home"));
+    @ </noscript>
+  }
   attachment_list(zTarget, NULL,
                   ATTACHLIST_SIZE | ATTACHLIST_HIDE_UNAPPROVED);
-  @ <div id='attachadd-form-wrapper'>
- /* JS code imports these hidden fields into a form it generates. */
+  @ <div id='attachadd-form-wrapper' class='hidden'>
+  /* fossil.attach.js populates this DIV with the attachment widget
+  ** and imports these hidden fields. */
   @ <input type="hidden" name="target" value="%h(zTarget)">
   if( zFrom ){
     @ <input type="hidden" name="from" value="%h(zFrom)">

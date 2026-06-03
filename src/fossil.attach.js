@@ -490,6 +490,7 @@
   const eFormWrapper = document.querySelector('#attachadd-form-wrapper');
   if( eFormWrapper ){
     /* Inject a file-attachment form. */
+    eFormWrapper.classList.remove('hidden');
     const urlArgs = new URLSearchParams(window.location.search);
     let zTarget = urlArgs.get('target');
     let zTo = urlArgs.get('to') || urlArgs.get('from');
