@@ -39,6 +39,9 @@
        button that many times. As a special case, if this is >0
        and the user removes the last entry, a new one is added.
 
+       opt.description[=true]: if true then show the file description
+       field, otherwise elide it.
+
        opt.controls = [array of DOM elements]. Optional DOM elements
        to inject into the UI element which wraps the "Add" button.
        See this.controlsElement.
@@ -72,7 +75,8 @@
         addButtonLabel: false,
         startWith: 0,
         limit: 0,
-        dryRun: false
+        dryRun: false,
+        description: true
       }, opt);
       this.#e.body = D.addClass(D.div(), 'attach-widget');
       const eBtnAdd = this.#e.btnAdd = D.addClass(
@@ -250,11 +254,13 @@
       );
       const eSize = D.addClass(D.span(), 'attach-size');
       eInfo.append(eFilename, eSize);
-      const eDesc = D.addClass(
-        D.attr(D.textarea(), 'placeholder',
-               'Optional description...'),
-        'hidden', 'attach-desc'
-      );
+      const eDesc = this.#opt.description
+            ? D.addClass(
+              D.attr(D.textarea(), 'placeholder',
+                     'Optional description...'),
+              'hidden', 'attach-desc'
+            )
+            : undefined;
       const eRemove = D.addClass(
         D.button('Remove', (ev)=>{
           ev.stopPropagation();
@@ -313,7 +319,8 @@
           }
         }
       });
-      D.append(eRow, eDropzone, eDesc);
+      eRow.append(eDropzone);
+      if( eDesc ) eRow.append(eDesc);
       rowObj.e = F.nu({
         dropzone: eDropzone,
         info: eInfo,
@@ -394,12 +401,18 @@
       D.clearElement(rowObj.e.filename).append(file.name || 'Pasted Content');
       D.clearElement(rowObj.e.size).append(szLbl, ' ', rowObj.mimeType || '');
       rowObj.e.dropzone.classList.add('populated');
-      rowObj.e.desc.classList.remove('hidden');
+      if( rowObj.e.desc ){
+        rowObj.e.desc.classList.remove('hidden');
+      }
+      if( rowObj.e.thumbnail ){
+        rowObj.e.thumbnail.remove();
+        rowObj.e.thumbnail = undefined;
+      }
       if( file.type?.startsWith?.('image/') || file.type==='BITMAP' ){
         /* Add a thumbnail */
-        const img = rowObj.e.dropzone.querySelector('img.thumbnail') || D.img();
-        img.classList.add('thumbnail');
+        const img = rowObj.e.thumbnail = D.img();
         rowObj.e.dropzone.insertBefore(img, rowObj.e.remove);
+        img.classList.add('thumbnail');
         const reader = new FileReader();
         reader.onload = (e)=>img.setAttribute('src', e.target.result);
         reader.readAsDataURL(file);
@@ -471,8 +484,10 @@
 
   const eFormDiv = document.querySelector('#attachadd-form-wrapper');
   if( eFormDiv ){
+    /* Inject a file-attachment form. */
     const urlArgs = new URLSearchParams(window.location.search);
     let zTarget = urlArgs.get('target');
+    let zTo = urlArgs.get('to') || urlArgs.get('from');
     const eBtnSubmit = D.button("Submit");
     eBtnSubmit.type = 'button';
     const updateBtnSubmit = (attacher)=>{
@@ -490,7 +505,8 @@
       container: eFormDiv,
       startWith: 1,
       listener: cbAttacherChange,
-      controls: [eBtnSubmit]
+      controls: [eBtnSubmit],
+      description: false
     });
     eBtnSubmit.addEventListener('click', async (ev)=>{
       att.reportError();
@@ -503,12 +519,14 @@
       let i = 0;
       for(const row of li){
         ++i;
-        fd.append(`file${i}`, row.content);
-        if( row.description ) fd.append(`file${i}_desc`, row.description);
+        fd.append('file'+i, row.content);
+        if( row.description ) fd.append('file'+i+'_desc', row.description);
       }
       for( const eIn of eFormDiv.querySelectorAll(':scope > input[type="hidden"]') ){
         if( eIn.name==='target' ){
           zTarget = eIn.value;
+        }else if( eIn.name==='to' || (eIn.name==='from' && !zTo) ){
+          zTo = eIn.value;
         }
         fd.append(eIn.name, eIn.value)
       }
@@ -530,16 +548,14 @@
         att.reportError("Attaching failed: ", msg);
       }else{
         att.clear();
-        const to = urlArgs.get('to') || urlArgs.get('from') || jr?.redirect;
+        let to = zTo || jr?.redirect;
         if( to ){
-          if( '/'===to[0] ){
-            to = F.repoUrl(to.substr(1));
+          if( '/'!==to[0] ){
+            to = F.repoUrl(to);
           }
           window.location = to;
         }else{
-          const tgt = '?target='+zTarget+'&cacheBuster='+Date.now();
-          //console.error("FIXME: location=",tgt);
-          window.location = tgt;
+          window.location = '?target='+zTarget+'&'+Date.now();
         }
       }
     })/*submit handler*/;

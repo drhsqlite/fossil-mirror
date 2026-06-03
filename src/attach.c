@@ -390,7 +390,7 @@ void attach_commit(
       }
     }
     zDate = date_in_standard_format("now");
-    blob_appendf(&manifest, "D %s\n", zDate);
+    blob_appendf(&manifest, "D %z\n", zDate);
     blob_appendf(&manifest, "U %F\n", login_name());
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
@@ -426,7 +426,7 @@ void attachadd_page(void){
   const char *zName;
   const char *zComment;
   const char *zTarget;
-  char * zTo = 0;
+  char * zTo = 0;          /* Optionally redirect here after saving */
   char *zTargetType = 0;
   char *zExtraFree = 0;
   int szContent;
@@ -566,7 +566,7 @@ void attachadd_page(void){
 /*
 ** WEBPAGE: attachaddV2_ajax_post   hidden
 **
-** Requires a POST request with:
+** Used by /attachaddV2 to handle attachments via POST requests with:
 **
 **     target=ATTACHMENT_TARGET
 **     file1..fileN=FILE_OBJECTS
@@ -598,6 +598,9 @@ void attachaddV2_ajax_post(void){
     return;
   }else if( !(goodCaptcha = captcha_is_correct(0)) ){
     goto ajax_post_403;
+  }else if( !cgi_csrf_safe(2) ){
+    ajax_route_error(403, "Invalid CSRF signature.");
+    return;
   }
   db_begin_transaction();
   zTarget = P("target");
@@ -718,14 +721,21 @@ ajax_post_404:
 
 /*
 ** WEBPAGE: attachaddV2   hidden
-** Add a new attachment.
+**
+** Lists attachments for, and can add them to, a target artifact.
 **
 **    target=TKT_HASH|WIKIPAGE_NAME|TECHNOTE_HASH|FORUMPOST_HASH
-**    from=URL
+**    from=ORIGINATING_URL
+**    to=URL_ON_COMPLETION
 **
 **  Works like /attachadd but uses a JS-based interactive attachment
 **  selector.
 **
+**  from=X and to=X tell it how to redirect when it's done. to=X
+**  overrides from=X. If neither is set, it will redirect back to this
+**  page to render the updated attachment list.
+**
+** This page requires a post-2020 JS-capable browser.
 */
 void attachaddV2_page(void){
   const char *zFrom = P("from");
@@ -736,8 +746,6 @@ void attachaddV2_page(void){
   int iTgtType = 0;
   int szContent = 0;
   int goodCaptcha = 1;
-  int szLimit = 0;
-  int bNeedsModeration = 0;
 
   if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ) cgi_redirect(zFrom);
@@ -768,7 +776,6 @@ void attachaddV2_page(void){
       zTargetType = mprintf("Forum post <a href=\"%R/forumpost/%S\">%.16h</a>",
                             zTarget, zTarget);
       zTo = mprintf("%R/forumpost/%S", zTarget);
-      bNeedsModeration = forum_need_moderation();
       break;
     }
     case CFTYPE_EVENT:{
@@ -783,7 +790,6 @@ void attachaddV2_page(void){
       }
       zTargetType = mprintf("Tech Note <a href=\"%R/technote/%s\">%S</a>",
                             zTarget, zTarget);
-      bNeedsModeration = 0;
       break;
     }
     case CFTYPE_TICKET:{
@@ -798,7 +804,6 @@ void attachaddV2_page(void){
       }
       zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
                             zTarget, zTarget);
-      bNeedsModeration = ticket_need_moderation(0);
       break;
     }
     case CFTYPE_WIKI:{
@@ -811,33 +816,11 @@ void attachaddV2_page(void){
       }
       zTargetType = mprintf("Wiki Page <a href=\"%R/wiki?name=%h\">%h</a>",
                             zTarget, zTarget);
-      bNeedsModeration = wiki_need_moderation(0);
       break;
     }
   }
 
   db_begin_transaction();
-#if 0
-  szLimit = db_get_int("attachment-size-limit", 0);
-  if( szContent<0 || (szLimit && szContent>szLimit) ){
-    /* This check must be done late so that zTargetType is set up. */
-    @ <p class="generalError">Attachment %h(zName) is too large.
-    @ <a href="%R/help/attachment-size-limit">Limit</a> is
-    @ %d(szLimit ? szLimit : 0x7fffffff) bytes</p>
-    /* Fall through and render form. */
-   }else if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct(0)) ){
-#if 0
-    attach_commit(zName, zTarget, aContent, szContent,
-                  bNeedsModeration, zComment);
-#endif
-    cgi_redirect(zTo ? zTo : zFrom);
-  }
-#else
-  (void)bNeedsModeration;
-  (void)szLimit;
-  (void)szContent;
-  (void)zTo;
-#endif
 
   style_set_current_feature("attach");
   style_header("Add Attachment");
@@ -851,6 +834,9 @@ void attachaddV2_page(void){
   @ <div id='attachadd-form-wrapper'>
   @ <input type="hidden" name="target" value="%h(zTarget)">
   @ <input type="hidden" name="from" value="%h(zFrom)">
+  if( zTo ){
+    @ <input type="hidden" name="to" value="%h(zTo)">
+  }
   captcha_generate(0);
   login_insert_csrf_secret();
   @ </div>
