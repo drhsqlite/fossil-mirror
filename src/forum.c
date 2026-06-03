@@ -867,6 +867,7 @@ void forumthreadhashlist(void){
 ** fpid's status.
 */
 static int forum_may_set_status(int fpid){
+  if( moderation_pending(fpid) ) return 0;
   return g.perm.Admin
     || g.perm.ModForum
     || (login_is_individual()
