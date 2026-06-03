@@ -868,8 +868,7 @@ void forumthreadhashlist(void){
 */
 static int forum_may_set_status(int fpid){
   if( moderation_pending(fpid) ) return 0;
-  return
-    g.perm.Admin
+  return g.perm.Admin
     || g.perm.ModForum
     || (login_is_individual()
         && forumpost_is_owner(fpid, 0));
@@ -1263,7 +1262,7 @@ static void forum_display_post(
 
       if( bSelect ){
         const ForumPost *pHead = p->pEditHead ? p->pEditHead : p;
-        if( forumpost_may_close() && iClosed>=0 ){
+        if( !bPrivate && forumpost_may_close() && iClosed>=0 ){
           @ <form method="post" \
           @  action='%R/forumpost_%s(iClosed > 0 ? "reopen" : "close")'>
           login_insert_csrf_secret();
@@ -1282,7 +1281,6 @@ static void forum_display_post(
           ** have no way of passing it back). Because of this, we
           ** check the ownership of `p` instead of `pHead`. */
           attach_emit_attachadd_button(pHead->zUuid);
-          moderation_pending_www(p->fpid);
         }
       }
       @ </div>

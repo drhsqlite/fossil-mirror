@@ -1097,8 +1097,25 @@ void ainfo_page(void){
     @ <label><input type="radio" name="modaction" value="delete">
     @ Delete this attachment</label><br>
     if( isModerator ){
-      @ <label><input type="radio" name="modaction" value="approve">
-      @ Approve this attachment</label><br>
+#if 0
+      /* TODO: only allow approval of an attachment if its target has
+      ** been approved. Without this, we can end up with stale
+      ** attachments which refer to rejected targets. We need a
+      ** type-specific RID/UUID here, which requires refactoring
+      ** above to get it. */
+      const int tgtid = 0;
+      if( moderation_pending(tgtid) ){
+        @ <label><input type="radio" name="modaction" disabled value="approve">
+        @ <span class='modpending'>Cannot approve:
+        @ target is pending moderation</span>\
+        @ </label><br>
+      }else
+#else
+     {
+        @ <label><input type="radio" name="modaction" value="approve">
+        @ Approve this attachment</label><br>
+      }
+#endif
     }
     @ <input type="submit" value="Submit">
     login_insert_csrf_secret();
