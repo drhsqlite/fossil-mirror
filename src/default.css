@@ -2060,6 +2060,7 @@ body.fossil-dark-style .attach-widget .attach-dropzone.populated{
 }
 .attach-widget .attach-dropzone.dragover {
   background-color: #e1f5fe;
+  color: black;
   border-color: #03a9f4;
 }
 body.fossil-dark-style .attach-widget .attach-dropzone.dragover{
@@ -2100,6 +2101,7 @@ body.fossil-dark-style  .attach-widget .attach-dropzone.dragover{
   border: none;
   border-radius: 0.25em;
   cursor: pointer;
+  font-weight: bold;
 }
 .attach-widget .attach-row-remove:hover {
   background-color: #b71c1c;

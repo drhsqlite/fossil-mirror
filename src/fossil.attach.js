@@ -36,8 +36,7 @@
 
        opt.startWith[=0]: if >0 then that many file selection widgets
        are automatically activated, as if the user had tapped the Add
-       button that many times. As a special case, if this is >0
-       and the user removes the last entry, a new one is added.
+       button that many times.
 
        opt.description[=true]: if true then show the file description
        field, otherwise elide it.
@@ -185,7 +184,8 @@
           })
         })
       );
-      if( 0===this.#rows.length
+      if( false /* arguable */
+          && 0===this.#rows.length
           && this.#opt.startWith>0 ){
         /* Intended primarily for /addattach. */
         this.#addRow();
@@ -251,7 +251,7 @@
       const eFilename = D.append(
         D.addClass(D.span(), 'attach-filename'),
         "Select/drop file or click the outer border and tap your "+
-        "platform's conventional Paste keyboard shortcut."
+        "platform's conventional <paste> keyboard shortcut."
       );
       const eSize = D.addClass(D.span(), 'attach-size');
       eInfo.append(eFilename, eSize);
@@ -263,12 +263,13 @@
             )
             : undefined;
       const eRemove = D.addClass(
-        D.button('Remove', (ev)=>{
+        D.button('X', (ev)=>{
           ev.stopPropagation();
           this.#removeRow(rowObj);
         }),
         'attach-row-remove'
       );
+      eRemove.setAttribute('title', 'Remove this attachment.');
       eRemove.type = 'button';
 
       D.append(eDropzone, eInfo, eFile, eRemove);
