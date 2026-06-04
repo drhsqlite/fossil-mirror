@@ -832,45 +832,11 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
 static void wiki_ajax_emit_page_attachments(Manifest * pWiki,
                                             int latestOnly,
                                             int nullIfEmpty){
-  int i = 0;
-  Stmt q = empty_Stmt;
-  db_prepare(&q,
-     "SELECT datetime(mtime), src, target, filename, isLatest,"
-     "  (SELECT uuid FROM blob WHERE rid=attachid) uuid"
-     "  FROM attachment"
-     "  WHERE target=%Q"
-     "  AND (isLatest OR %d)"
-     "  ORDER BY target, isLatest DESC, mtime DESC",
-     pWiki->zWikiTitle, !latestOnly
-  );
-  while(SQLITE_ROW == db_step(&q)){
-    const char * zTime = db_column_text(&q, 0);
-    const char * zSrc = db_column_text(&q, 1);
-    const char * zTarget = db_column_text(&q, 2);
-    const char * zName = db_column_text(&q, 3);
-    const int isLatest = db_column_int(&q, 4);
-    const char * zUuid = db_column_text(&q, 5);
-    if(!i++){
-      CX("[");
-    }else{
-      CX(",");
-    }
-    CX("{");
-    CX("\"uuid\": %!j, \"src\": %!j, \"target\": %!j, "
-       "\"filename\": %!j, \"mtime\": %!j, \"isLatest\": %s}",
-       zUuid, zSrc, zTarget,
-       zName, zTime, isLatest ? "true" : "false");
-  }
-  db_finalize(&q);
-  if(!i){
-    if(nullIfEmpty){
-      CX("null");
-    }else{
-      CX("[]");
-    }
-  }else{
-    CX("]");
-  }
+  Blob b = BLOB_INITIALIZER;
+  attachments_to_json(pWiki, &b, latestOnly,
+                      nullIfEmpty ? -1 : 1);
+  CX("%b", &b);
+  blob_reset(&b);
 }
 
 /*

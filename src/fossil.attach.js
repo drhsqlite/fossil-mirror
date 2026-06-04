@@ -487,10 +487,12 @@
   }/*Attacher*/;
   F.Attacher = Attacher;
 
-  const eFormWrapper = document.querySelector('#attachadd-form-wrapper');
-  if( eFormWrapper ){
-    /* Inject a file-attachment form. */
-    eFormWrapper.classList.remove('hidden');
+  const eAttachWrapper = document.querySelector('#attachadd-form-wrapper');
+  if( eAttachWrapper ){
+    /* This page is /attachadd v2 or a workalike. eAttachWrapper holds
+       input[type=hidden] fields for use in attaching files and is
+       where we inject a file attachment widget. */
+    eAttachWrapper.classList.remove('hidden');
     const urlArgs = new URLSearchParams(window.location.search);
     let zTarget = urlArgs.get('target');
     let zTo = urlArgs.get('to') || urlArgs.get('from');
@@ -508,7 +510,7 @@
       updateBtnSubmit(a);
     };
     const att = new Attacher({
-      container: eFormWrapper,
+      container: eAttachWrapper,
       startWith: 1,
       listener: cbAttacherChange,
       controls: [eBtnSubmit],
@@ -528,8 +530,8 @@
         fd.append('file'+i, row.content);
         if( row.description ) fd.append('file'+i+'_desc', row.description);
       }
-      for( const eIn of eFormWrapper.querySelectorAll(
-        ':scope > input[type="hidden"]'
+      for( const eIn of eAttachWrapper.querySelectorAll(
+        'input[type="hidden"]'
       ) ){
         /* Copy over hidden input fields emitted by the server. */
         if( eIn.name==='target' ){

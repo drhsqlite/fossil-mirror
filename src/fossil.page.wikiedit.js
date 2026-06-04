@@ -1189,7 +1189,7 @@
                btnReload,
                " No attachments found for page ["+wi.name+"]. ",
                D.a(F.repoUrl('attachadd',{
-                 page: wi.name,
+                 target: wi.name,
                  from: F.repoUrl('wikiedit',{name: wi.name})}),
                    "Add attachments..." )
               );
@@ -1200,10 +1200,10 @@
       D.append(D.p(),
                btnReload," ",
                D.a(F.repoUrl('attachlist',{page:wi.name}),
-                   "Attachments for page ["+wi.name+"]."),
-               " ",
+                   "Attachments for page ["+wi.name+"]"),
+               ". ",
                D.a(F.repoUrl('attachadd',{
-                 page:wi.name,
+                 target:wi.name,
                  from: F.repoUrl('wikiedit',{name: wi.name})}),
                    "Add attachments..." )
               )

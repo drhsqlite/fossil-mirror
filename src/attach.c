@@ -1448,3 +1448,93 @@ void test_list_attachments(void){
   db_finalize(&q);
 }
 
+/*
+** Renders the list of attachments for artifact pManifest as JSON to
+** blob pOut. If pManifest->type is not one of (CFTYPE_TICKET,
+** CFTYPE_FORUM, CFTYPE_EVENT, CFTYPE_WIKI) then it behaves as if the
+** result set is empty.
+**
+** If there are no matching attachments then its behavior depends on
+** emptyPolicy:
+**
+**  <0 = emit a JSON NULL
+**   0 = emit no output
+**  >0 = emit an empty JSON array
+**
+** If bLatestOnly is true then only the most recent entry for a given
+** attachment is emitted, else all versions are emitted in descending
+** mtime order.
+**
+** Returns the number of attachments.
+**
+** Output format:
+**
+** [{
+**   "uuid": attachment artifact hash,
+**   "src": hash of the attachment blob,
+**   "target": wiki page name or ticket/event ID,
+**   "filename": filename of attachment,
+**   "mtime": ISO-8601 timestamp UTC,
+**   "isLatest": true if this is the latest version of this file
+**               else false,
+** }, ...once per attachment]
+**
+*/
+int attachments_to_json(const Manifest *pManifest,
+                        Blob *pOut, int bLatestOnly,
+                        int emptyPolicy){
+  int i = 0;
+  Stmt q = empty_Stmt;
+  char *zToFree = 0;
+  const char *zTgt = 0;
+  switch(pManifest->type){
+    case CFTYPE_FORUM:  zTgt = zToFree = rid_to_uuid(pManifest->rid);
+      break;
+    case CFTYPE_WIKI:   zTgt = pManifest->zWikiTitle;  break;
+    case CFTYPE_EVENT:  zTgt = pManifest->zEventId;    break;
+    case CFTYPE_TICKET: zTgt = pManifest->zTicketUuid; break;
+    default:
+      goto empty_result;
+  }
+  db_prepare(&q,
+     "SELECT datetime(mtime), src, target, filename, isLatest,"
+     "  (SELECT uuid FROM blob WHERE rid=attachid) uuid"
+     "  FROM attachment"
+     "  WHERE target=%Q"
+     "  AND (isLatest OR %d)"
+     "  ORDER BY target, isLatest DESC, mtime DESC",
+     zTgt, !bLatestOnly
+  );
+  while(SQLITE_ROW == db_step(&q)){
+    const char * zTime = db_column_text(&q, 0);
+    const char * zSrc = db_column_text(&q, 1);
+    const char * zTarget = db_column_text(&q, 2);
+    const char * zName = db_column_text(&q, 3);
+    const int isLatest = db_column_int(&q, 4);
+    const char * zUuid = db_column_text(&q, 5);
+    if(!i++){
+      blob_append_char(pOut, '[');
+    }else{
+      blob_append_char(pOut, ',');
+    }
+    blob_appendf(
+      pOut,
+      "{\"uuid\": %!j, \"src\": %!j, \"target\": %!j, "
+      "\"filename\": %!j, \"mtime\": %!j, \"isLatest\": %s}",
+      zUuid, zSrc, zTarget,
+      zName, zTime, isLatest ? "true" : "false");
+  }
+  fossil_free(zToFree);
+  db_finalize(&q);
+  if(!i){
+  empty_result:
+    if( emptyPolicy>0 ){
+      blob_append_literal(pOut, "[]");
+    }else if( emptyPolicy<0 ){
+      blob_append_literal(pOut, "null");
+    }
+  }else{
+    blob_append_char(pOut, ']');
+  }
+  return i;
+}
