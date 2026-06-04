@@ -67,6 +67,62 @@ int attachment_target_type(const char *zTarget){
 }
 
 /*
+** Given a full attachment target ID, returns its blob.rid.  zTarget
+** must be a full wiki page name, tech-note ID, ticket ID, or forum
+** post hash. Returns 0 if no match is found.
+*/
+int attachment_resolve_target(const char *zTarget){
+  int rid = 0;
+  int eType = attachment_target_type(zTarget);
+  switch(eType){
+    case CFTYPE_EVENT:
+      rid = db_int(
+        0, "SELECT b.rid FROM blob b, tag t, tagxref x\n"
+        "WHERE tagname='event-%q'\n"
+        "AND x.tagtype>0\n"
+        "AND x.tagid=t.tagid\n"
+        "AND x.rid=b.rid\n"
+        "ORDER BY x.mtime DESC",
+        zTarget
+      );
+      break;
+    case CFTYPE_FORUM:
+      rid = db_int(
+        0, "SELECT f.fpid FROM forumpost f, blob b\n"
+        "WHERE f.fpid=b.rid\n"
+        "AND b.uuid=%Q",
+        zTarget
+      );
+      break;
+    case CFTYPE_TICKET:
+      rid = db_int(
+        0, "SELECT b.rid FROM blob b, tag t, tagxref x\n"
+        "WHERE tagname='tkt-%q'\n"
+        "AND x.tagtype>0\n"
+        "AND x.tagid=t.tagid\n"
+        "AND x.rid=b.rid\n"
+        "ORDER BY x.mtime DESC",
+        zTarget
+      );
+      break;
+    case CFTYPE_WIKI:
+      rid = db_int(
+        0, "SELECT b.rid FROM blob b, tag t, tagxref x\n"
+        "WHERE tagname='wiki-%q'\n"
+        "AND x.tagtype>0\n"
+        "AND x.tagid=t.tagid\n"
+        "AND x.rid=b.rid\n"
+        "ORDER BY x.mtime DESC",
+        zTarget
+      );
+      break;
+    default:
+      break;
+  }
+  return rid;
+}
+
+/*
 ** For a given aritfact ID and type (from the CFTYPE_xyz enum),
 ** returns true if the current user could hypothetically attach
 ** something to it, else returns 0.
@@ -513,7 +569,7 @@ void attachadd_page(void){
   const char *zComment;
   const char *zTarget;
   const char *zFrom;       /* Origin page - redirect here after saving */
-  char * zTo = 0;          /* Optionally redirect here after saving */
+  char *zTo = 0;           /* Optionally redirect here after saving */
   char *zTargetType = 0;
   char *zExtraFree = 0;
   int szContent;
@@ -1224,7 +1280,7 @@ void attachment_list(
 ){
   int cnt = 0;
   char szBuf[36] = {0};  /* scratchpad for attachment size value */
-  const char * zLinkTgt = (ATTACHLIST_TARGET_BLANK & flags)
+  const char *zLinkTgt = (ATTACHLIST_TARGET_BLANK & flags)
     ? " target=\"_blank\"" : "";
   Stmt q;
   db_prepare(&q,
@@ -1437,10 +1493,10 @@ void test_list_attachments(void){
     const char *zPage = g.argv[i];
     db_bind_text(&q, ":tgtname", zPage);
     while(SQLITE_ROW == db_step(&q)){
-      const char * zTime = db_column_text(&q, 0);
-      const char * zSrc = db_column_text(&q, 1);
-      const char * zTarget = db_column_text(&q, 2);
-      const char * zName = db_column_text(&q, 3);
+      const char *zTime = db_column_text(&q, 0);
+      const char *zSrc = db_column_text(&q, 1);
+      const char *zTarget = db_column_text(&q, 2);
+      const char *zName = db_column_text(&q, 3);
       printf("%-20s %s %.12s %s\n", zTarget, zTime, zSrc, zName);
     }
     db_reset(&q);
@@ -1497,21 +1553,26 @@ int attachments_to_json(const Manifest *pManifest,
       goto empty_result;
   }
   db_prepare(&q,
-     "SELECT datetime(mtime), src, target, filename, isLatest,"
-     "  (SELECT uuid FROM blob WHERE rid=attachid) uuid"
-     "  FROM attachment"
-     "  WHERE target=%Q"
-     "  AND (isLatest OR %d)"
-     "  ORDER BY target, isLatest DESC, mtime DESC",
+     "SELECT datetime(mtime), a.src, a.target, a.filename, a.isLatest,\n"
+     "  b2.size, b1.uuid, a.comment\n"
+     "  FROM attachment a, blob b1, blob b2\n"
+     "  WHERE a.target=%Q\n"
+     "  AND b1.rid=a.attachid\n"
+     "  AND b2.uuid=a.src\n"
+     "  AND b2.size>0\n"
+     "  AND (a.isLatest OR %d)\n"
+     "  ORDER BY a.target, a.isLatest DESC, a.mtime DESC\n",
      zTgt, !bLatestOnly
   );
   while(SQLITE_ROW == db_step(&q)){
-    const char * zTime = db_column_text(&q, 0);
-    const char * zSrc = db_column_text(&q, 1);
-    const char * zTarget = db_column_text(&q, 2);
-    const char * zName = db_column_text(&q, 3);
+    const char *zTime = db_column_text(&q, 0);
+    const char *zSrc = db_column_text(&q, 1);
+    const char *zTarget = db_column_text(&q, 2);
+    const char *zName = db_column_text(&q, 3);
     const int isLatest = db_column_int(&q, 4);
-    const char * zUuid = db_column_text(&q, 5);
+    const int sz = db_column_int(&q, 5);
+    const char *zUuid = db_column_text(&q, 6);
+    const char *zComment = db_column_text(&q, 7);
     if(!i++){
       blob_append_char(pOut, '[');
     }else{
@@ -1520,9 +1581,17 @@ int attachments_to_json(const Manifest *pManifest,
     blob_appendf(
       pOut,
       "{\"uuid\": %!j, \"src\": %!j, \"target\": %!j, "
-      "\"filename\": %!j, \"mtime\": %!j, \"isLatest\": %s}",
+      "\"filename\": %!j, \"size\":%d, \"mtime\": %!j, "
+      "\"isLatest\": %s,\"comment\": ",
       zUuid, zSrc, zTarget,
-      zName, zTime, isLatest ? "true" : "false");
+      zName, sz, zTime, isLatest ? "true" : "false"
+    );
+    if( zComment && zComment[0] ){
+      blob_appendf(pOut, "%!j", zComment);
+    }else{
+      blob_append_literal(pOut, "null");
+    }
+    blob_append_char(pOut, '}');
   }
   fossil_free(zToFree);
   db_finalize(&q);
@@ -1537,4 +1606,46 @@ int attachments_to_json(const Manifest *pManifest,
     blob_append_char(pOut, ']');
   }
   return i;
+}
+
+/*
+** COMMAND: test-attachments-to-json
+**
+** Usage: %fossil test-attachments-to-json FULL_TARGET_ID
+**
+** Options:
+**    --old          List all versions of attachments. Default is to
+**                   list only the latest.
+**
+** Emits a JSON array of attachments for the given attachment target.
+** The given ID must be a full wiki page name, ticket hash, tech-note
+** hash, or forum post hash. It does not accept partial prefixes.
+*/
+void test_attachments_to_json_cmd(void){
+  Manifest *pManifest;
+  Blob b = BLOB_INITIALIZER;
+  int bLatestOnly = find_option("old",0,0)==0;
+  int emptyPolicy = 1;
+  int rid;
+  const char *zTarget;
+  verify_all_options();
+  db_find_and_open_repository(0, 0);
+  if( g.argc<3 ){
+    usage("test-attachments-to-json TARGET_ID");
+    return;
+  }
+  zTarget = g.argv[2];
+  rid = attachment_resolve_target(zTarget);
+  if( 0==rid ){
+    fossil_fatal("Cannot resolve ID.");
+  }
+  pManifest = manifest_get(rid, CFTYPE_ANY, NULL);
+  attachments_to_json(pManifest, &b, bLatestOnly, emptyPolicy);
+  if( b.nUsed ){
+    char *zPretty = db_text(0,"SELECT json_pretty(%B)", &b);
+    fossil_print("%s\n", zPretty);
+    fossil_free(zPretty);
+  }
+  blob_reset(&b);
+  manifest_destroy(pManifest);
 }
