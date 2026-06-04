@@ -231,7 +231,14 @@ void event_page(void){
     @ %h(blob_str(&fullbody))
     @ </pre>
   }
-  attachment_list(zFullId, "<h2>Attachments:</h2>", 1);
+  {
+    char * z = mprintf(
+      "<h2><a href='%R/attachlist?technote=%t'>Attachments</a>:</h2>",
+      zFullId
+    );
+    attachment_list(zFullId, z, 1);
+    fossil_free(z);
+  }
   document_emit_js();
   style_finish_page();
   manifest_destroy(pTNote);

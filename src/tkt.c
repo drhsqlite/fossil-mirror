@@ -791,7 +791,12 @@ void tktview_page(void){
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br>\n", -1);
 
   if( zFullName ){
-    attachment_list(zFullName, "<h2>Attachments:</h2>", 1);
+    char * z = mprintf(
+      "<h2><a href='%R/attachlist?tkt=%t'>Attachments</a>:</h2>",
+      zFullName
+    );
+    attachment_list(zFullName, z, 1);
+    fossil_free(z);
   }
 
   builtin_fossil_js_bundle_or("dom", "storage", NULL);

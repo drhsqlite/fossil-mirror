@@ -2011,6 +2011,10 @@ div.helpPage blockquote {
 }
 
 /* .attach* = styles for file attachments */
+section.attachlist {}
+details.attachlist > summary {
+  cursor: pointer;
+}
 .attach-widget {
   margin-bottom: 1em;
   display: flex;

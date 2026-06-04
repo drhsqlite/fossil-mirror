@@ -217,16 +217,17 @@ void attach_render_attachadd_button(const char *zTarget){
 ** If none are given, all attachments are listed.  If one is given, only
 ** attachments for the designated technote, ticket or wiki page are shown.
 **
-** HASH may be just a prefix of the relevant technical note or ticket
-** artifact hash, in which case all attachments of all technical notes or
-** tickets with the prefix will be listed. Forum posts, on the other hand,
-** require a unique hash prefix.
+** HASH may be just a prefix of the relevant forum post, technical
+** note, or ticket artifact hash, in which case all attachments of all
+** technical notes or tickets with the prefix will be listed. Forum
+** posts, on the other hand, require a unique hash or hash prefix.
 */
 void attachlist_page(void){
   const char *zPage = P("page");
   const char *zTkt = P("tkt");
   const char *zTechNote = P("technote");
   const char *zForumPost = P("forumpost");
+  char *zLink = 0;
   Blob sql;
   Stmt q;
 
@@ -250,19 +251,27 @@ void attachlist_page(void){
     }
     blob_append_sql(&sql, " WHERE target="
                     "(SELECT uuid FROM blob WHERE rid=%d)", fnid);
+    zLink = mprintf("forum post <a href='%R/forumpost/%t'>%#h</a>",
+                    zForumPost, hash_digits(0), zForumPost);
   }else if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     style_header("Attachments To Wiki page %h", zPage);
     blob_append_sql(&sql, " WHERE target=%Q", zPage);
+    zLink = mprintf("wiki page <a href='%R/wiki?name=%t'>%h</a>",
+                    zPage, zPage);
   }else if( zTkt ){
     if( g.perm.RdTkt==0 ){ login_needed(g.anon.RdTkt); return; }
     style_header("Attachments To Ticket %S", zTkt);
     blob_append_sql(&sql, " WHERE target GLOB '%q*'", zTkt);
+    zLink = mprintf("ticket <a href='%R/tktview?name=%t'>%#h</a>",
+                    zTkt, hash_digits(0), zTkt);
   }else if( zTechNote ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     style_header("Attachments To Tech Note %S", zTechNote);
     blob_append_sql(&sql, " WHERE target GLOB '%q*'",
                     zTechNote);
+    zLink = mprintf("tech-note <a href='%R/technote?name=%t'>%#h</a>",
+                    zTechNote, hash_digits(0), zTechNote);
   }else{
     if( g.perm.RdTkt==0 && g.perm.RdWiki==0 ){
       login_needed(g.anon.RdTkt || g.anon.RdWiki);
@@ -272,6 +281,13 @@ void attachlist_page(void){
   }
   blob_append_sql(&sql, " ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
+
+  if( zLink ){
+    @ <h2>Attachments for %s(zLink)</h2>
+    fossil_free(zLink);
+    zLink = 0;
+  }
+
   @ <ol>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate;
@@ -956,7 +972,7 @@ void attachaddV2_page(void){
         if( zTarget==0) fossil_redirect_home();
       }
       zTo = zFrom ? 0 : mprintf("%R/technote?name=%T", zTarget);
-      zTargetType = mprintf("Tech Note <a href=\"%R/technote/%s\">%S</a>",
+      zTargetType = mprintf("Tech-note <a href=\"%R/technote/%s\">%S</a>",
                             zTarget, zTarget);
       noJsArgs[1] = zTarget;
       break;
@@ -986,7 +1002,7 @@ void attachaddV2_page(void){
         fossil_redirect_home();
       }
       zTo = zFrom ? 0 : mprintf("%R/wiki?name=%T", zTarget);
-      zTargetType = mprintf("Wiki Page <a href=\"%R/wiki?name=%h\">%h</a>",
+      zTargetType = mprintf("Wiki page <a href=\"%R/wiki?name=%h\">%h</a>",
                             zTarget, zTarget);
       noJsArgs[3] = zTarget;
       break;
@@ -1308,6 +1324,8 @@ void ainfo_page(void){
 #define ATTACHLIST_TARGET_BLANK    0x02 /* use target=_blank for links */
 #define ATTACHLIST_SIZE            0x04 /* add size */
 #define ATTACHLIST_HIDE_UNAPPROVED 0x08 /* Hide pending-moderation files */
+#define ATTACHLIST_DETAILS_CLOSED  0x10 /* Wrap in a closed DETAILS element */
+#define ATTACHLIST_DETAILS_OPEN    0x20 /* Wrap in an open DETAILS element */
 #endif
 
 /*
@@ -1322,7 +1340,10 @@ void attachment_list(
   char szBuf[36] = {0};  /* scratchpad for attachment size value */
   const char *zLinkTgt = (ATTACHLIST_TARGET_BLANK & flags)
     ? " target=\"_blank\"" : "";
+  const int bUseDetail = flags &
+    (ATTACHLIST_DETAILS_CLOSED | ATTACHLIST_DETAILS_OPEN);
   Stmt q;
+
   db_prepare(&q,
      "SELECT datetime(mtime,toLocal()), a.filename, a.user,"
      "       b1.uuid, a.src, a.target, a.attachid, b2.size\n"
@@ -1352,11 +1373,23 @@ void attachment_list(
       continue;
     }
     if( cnt==0 ){
-      @ <section class='attachlist'>
+      if( bUseDetail ){
+        @ <details class='attachlist'
+        if( ATTACHLIST_DETAILS_OPEN & flags ){
+          @ open
+        }
+        @ >
+      }else{
+        @ <section class='attachlist'>
+      }
       if( flags & ATTACHLIST_HRULE_ABOVE ){
         @ <hr>
       }
-      @ %s(zHeader)
+      if( bUseDetail ){
+        @ <summary>%s(zHeader)</summary>
+      }else{
+        @ %s(zHeader)
+      }
       @ <ul>
     }
     cnt++;

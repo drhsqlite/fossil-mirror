@@ -1047,13 +1047,20 @@ static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
 ** Emits no output if there are no attachments.
 */
 static void forum_render_attachment_list(const char *zUuid){
-  char * zLbl = mprintf("<a href='%R/attachlist?forumpost=%!S'>"
-                        "Attachments</a>:", zUuid);
-  attachment_list(zUuid, zLbl,
-                  ATTACHLIST_HRULE_ABOVE
-                  | ATTACHLIST_SIZE
-                  | ATTACHLIST_HIDE_UNAPPROVED);
-  fossil_free(zLbl);
+#if 1
+    attachment_list(zUuid, "&#128206; Attachments", 0
+                    | ATTACHLIST_SIZE
+                    | ATTACHLIST_HIDE_UNAPPROVED
+                    | ATTACHLIST_DETAILS_CLOSED);
+#else
+    char * zLbl = mprintf("<a href='%R/attachlist?forumpost=%!S'>"
+                          "Attachments</a>:", zUuid);
+    attachment_list(zUuid, zLbl,
+                    ATTACHLIST_HRULE_ABOVE
+                    | ATTACHLIST_SIZE
+                    | ATTACHLIST_HIDE_UNAPPROVED);
+    fossil_free(zLbl);
+#endif
 }
 
 /*
