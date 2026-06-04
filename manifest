@@ -1,5 +1,5 @@
-C Doc\sadditions\sand\sadd\ssensible\stype-dependent\sredirect\sdefaults\sfor\s/attachadd.
-D 2026-06-04T08:34:34.140
+C Move\stwo\sinitializations\swhich\scould\shave\sbeen\sskipped\swhen\srendering\sa\sforum\spost\sin\sraw\smode.
+D 2026-06-04T09:22:36.503
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c cac263a6f44239daf4bef715c92e33535eb20f2eecba72ba8bd28b224f007bf0
+F src/forum.c a6e0b40467503ce3a66d4c86d11893c76d4541a299b133ce58c6f71a16d980d9
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.attach.js 50db21067ec7f5a680116efa034c0c20e3999e90aba272f3ca5e8ed397067157
 F src/fossil.bootstrap.js 80253c8526b2764bf7d2441dd011a10396a5bcef416c6d2d66ea50f6cf9305ba
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31d882879aed1364ca151cec5ca9cbc36641189f0cb469b603b55ee09562eaa6
-R 4fee388043075a73cdde0874743fbec9
+P ae89edbc9340ec70addc33fadc5cb3014068e8ebc6232145d155c0b15f7bad0e
+R 2e2d31c8179bae796d962d405cfbe4e1
 U stephan
-Z b847c86d5e218606faa1c8836c3d9598
+Z 330a8fb0067a1335345f647f3a1f77f6
 # Remove this line to create a well-formed Fossil manifest.

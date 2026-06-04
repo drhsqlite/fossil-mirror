@@ -1100,6 +1100,9 @@ static void forum_display_post(
   pManifest = manifest_get(p->fpid, CFTYPE_FORUM, 0);
   if( !pManifest ) return;
   iClosed = forumpost_is_closed(pThread, p, 1);
+  bPrivate = content_is_private(p->fpid);
+  bSameUser = login_is_individual()
+    && fossil_strcmp(pManifest->zUser, g.zLogin)==0;
   /* When not in raw mode, create the border around the post. */
   if( !bRaw ){
     /* Open the <div> enclosing the post. Set the class string to mark the post
@@ -1115,9 +1118,6 @@ static void forum_display_post(
       @ >
     }
 
-    bPrivate = content_is_private(p->fpid);
-    bSameUser = login_is_individual()
-      && fossil_strcmp(pManifest->zUser, g.zLogin)==0;
     /* If this is the first post (or an edit thereof), emit the thread title. */
     if( pManifest->zThreadTitle ){
       @ <h1>%h(pManifest->zThreadTitle)</h1>
