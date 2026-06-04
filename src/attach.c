@@ -132,6 +132,9 @@ int attachment_target_rid(const char *zTarget, int bFull){
         zTarget,
         bFull ? "" : "*"/*safe-for-%s*/
       );
+      if( rid>0 ){
+        rid = forumpost_head_rid(rid);
+      }
       break;
     case CFTYPE_WIKI:
       rid = db_int(
@@ -1312,11 +1315,14 @@ void attachment_list(
     ? " target=\"_blank\"" : "";
   Stmt q;
   db_prepare(&q,
-     "SELECT datetime(mtime,toLocal()), filename, user,"
-     "       (SELECT uuid FROM blob WHERE rid=attachid), src, target, "
-     "       attachid "
-     "  FROM attachment"
-     " WHERE isLatest AND src!='' AND target=%Q"
+     "SELECT datetime(mtime,toLocal()), a.filename, a.user,"
+     "       b1.uuid, a.src, a.target, a.attachid, b2.size\n"
+     " FROM attachment a, blob b1, blob b2\n"
+     " WHERE a.isLatest\n"
+     " AND a.src IS NOT NULL\n"
+     " AND a.target=%Q\n"
+     " AND b1.rid=a.attachid\n"
+     " AND b2.uuid=a.src\n"
      " ORDER BY mtime DESC",
      zTarget
   );
@@ -1330,7 +1336,7 @@ void attachment_list(
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     const char *zTypeArg = 0; /* URL arg name for /attachdownload */
     const int aid = db_column_int(&q, 6);
-    const int iAType = attachment_target_type(zTarget, 1);
+    const int sz = db_column_int(&q, 7);
     if( (flags & ATTACHLIST_HIDE_UNAPPROVED)
         && moderation_pending(aid)
         && !moderation_user_could(aid, 1, 0) ){
@@ -1345,7 +1351,7 @@ void attachment_list(
       @ <ul>
     }
     cnt++;
-    switch( iAType ){
+    switch( attachment_target_type(zTarget, 1) ){
       case CFTYPE_TICKET: zTypeArg = "tkt"; break;
       case CFTYPE_FORUM:  zTypeArg = "forumpost"; break;
       case CFTYPE_EVENT:  zTypeArg = "technote"; break;
@@ -1355,7 +1361,6 @@ void attachment_list(
     @ <li>
     @ <a href="%R/artifact/%!S(zSrc)"%s(zLinkTgt)>%h(zFile)</a>
     if( flags & ATTACHLIST_SIZE ){
-      const int sz = db_int(0,"SELECT size FROM blob WHERE uuid=%Q", zSrc);
       sqlite3_snprintf(sizeof(szBuf), szBuf, " %d bytes", sz);
     }
     @ [<a href="%R/attachdownload/%t(zFile)?%s(zTypeArg)=%t(zTarget)\
@@ -1585,9 +1590,9 @@ int attachments_to_json(const Manifest *pManifest,
      "  b2.size, b1.uuid, a.user, a.comment\n"
      "  FROM attachment a, blob b1, blob b2\n"
      "  WHERE a.target=%Q\n"
+     "  AND a.src IS NOT NULL\n"
      "  AND b1.rid=a.attachid\n"
      "  AND b2.uuid=a.src\n"
-     "  AND b2.size>0\n"
      "  AND (a.isLatest OR %d)\n"
      "  ORDER BY a.target, a.isLatest DESC, a.mtime DESC\n",
      zTgt, !bLatestOnly
@@ -1639,6 +1644,37 @@ int attachments_to_json(const Manifest *pManifest,
 }
 
 /*
+** COMMAND: test-attachment-target
+**
+** Usage: %fossil test-attachment-target TARGET_ID...
+*/
+void test_attachment_target_type_cmd(void){
+  int i;
+  verify_all_options();
+  db_find_and_open_repository(0, 0);
+  if( g.argc<3 ){
+    usage("test-attachment-target TARGET_ID");
+    return;
+  }
+  for( i = 2; i < g.argc; ++i ){
+    const char *zTarget = g.argv[i];
+    const int rid = attachment_target_rid(zTarget, 0);
+    const int type = attachment_target_type(zTarget, 0);
+    const char *zType = "<invalid>";
+    switch(type){
+      case CFTYPE_EVENT: zType = "e"; break;
+      case CFTYPE_FORUM: zType = "f"; break;
+      case CFTYPE_TICKET: zType = "t"; break;
+      case CFTYPE_WIKI: zType = "w"; break;
+    }
+    fossil_print("%-20s = %s %d %z\n",
+                 zTarget, zType, rid,
+                 rid>0 ? rid_to_uuid(rid) : 0);
+  }
+}
+
+
+/*
 ** COMMAND: test-attachments-to-json
 **
 ** Usage: %fossil test-attachments-to-json TARGET_ID
@@ -1659,27 +1695,32 @@ void test_attachments_to_json_cmd(void){
   Blob b = BLOB_INITIALIZER;
   int bLatestOnly = find_option("old",0,0)==0;
   int emptyPolicy = 1;
-  int rid;
+  int rid, i;
   int bFullId = find_option("full",0,0)!=0;
-  const char *zTarget;
   verify_all_options();
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
     usage("test-attachments-to-json TARGET_ID");
     return;
   }
-  zTarget = g.argv[2];
-  rid = attachment_target_rid(zTarget, bFullId);
-  if( 0==rid ){
-    fossil_fatal("Cannot resolve ID.");
+  for( i = 2; i < g.argc; ++i ){
+    const char *zTarget = g.argv[i];
+    rid = attachment_target_rid(zTarget, bFullId);
+    if( 0==rid ){
+      fossil_print("** cannot resolve %s\n", zTarget);
+      continue;
+    }
+    pManifest = manifest_get(rid, CFTYPE_ANY, NULL);
+    attachments_to_json(pManifest, &b, bLatestOnly, emptyPolicy);
+    fossil_print("Attachments for %s: ", zTarget);
+    if( b.nUsed ){
+      char *zPretty = db_text(0,"SELECT json_pretty(%B)", &b);
+      fossil_print("%s\n", zPretty);
+      fossil_free(zPretty);
+    }else{
+      fossil_print("none\n");
+    }
+    blob_reset(&b);
+    manifest_destroy(pManifest);
   }
-  pManifest = manifest_get(rid, CFTYPE_ANY, NULL);
-  attachments_to_json(pManifest, &b, bLatestOnly, emptyPolicy);
-  if( b.nUsed ){
-    char *zPretty = db_text(0,"SELECT json_pretty(%B)", &b);
-    fossil_print("%s\n", zPretty);
-    fossil_free(zPretty);
-  }
-  blob_reset(&b);
-  manifest_destroy(pManifest);
 }
