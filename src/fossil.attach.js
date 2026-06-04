@@ -298,6 +298,13 @@
         if( item.type.indexOf('image') === 0 ) {
           event.preventDefault();
           const blob = item.getAsFile();
+          if( blob.name === 'image.png' ){
+            /* Workaround to attempt to avoid name collisions when pasting
+               multiple images. We cannot, at this level, unambiguously
+               distinguish a ctrl-v of bitmap data vs a ctrl-v of an image
+               file copied via a desktop file manager. */
+            rowObj.overrideName = `pasted-image-${Date.now()}.png`;
+          }
           this.#injestBlob(rowObj, blob);
           return true;
         }
@@ -378,13 +385,6 @@
 
     #injestBlob(rowObj, file){
       if( !file ) return;
-      if( file.name === 'image.png' ){
-        /* Workaround to attempt to avoid name collisions when pasting
-           multiple images. We cannot, at this level, unambiguously
-           distinguish a ctrl-v of bitmap data vs a ctrl-v of an image
-           file copied via a desktop file manager. */
-        rowObj.overrideName = `pasted-image-${Date.now()}.png`;
-      }
       const old = this.#rowMatchingName(file.name);
       if( old && rowObj !== old ){
         /*
@@ -401,11 +401,8 @@
         this.#rowError(old);
         this.#removeRow(rowObj);
         rowObj.e = old.e;
-        //if( rowObj.e.eDesc ) rowObj.e.eDesc.value = '';
       }
-      console.warn("rowObj, old",rowObj, old);
       if( rowObj.overrideName ){
-        console.warn("Renaming file to",rowObj.overrideName);
         file = new File([file], rowObj.overrideName, {type: file.type});
         rowObj.overrideName = undefined;
       }
