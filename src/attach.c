@@ -24,28 +24,37 @@
 /*
 ** Given a presumedly legal attachment target name, this guesses the
 ** target type and returns one of CFTYPE_FORUM, CFTYPE_WIKI,
-** CFTYPE_TICKET, or CFTYPE_EVENT. Returns 0 if it cannot
-** distinguish the target type.
+** CFTYPE_TICKET, or CFTYPE_EVENT. Returns 0 if it cannot distinguish
+** the target type.
 **
-** If bFull is true then it requires zTarget to be an exact matches
-** for wiki, tech-note, and ticket IDs. If bFull is false then
-** tech-notes and tickets will perform a prefix match, but it is up to
-** the caller to provide enough of a prefix to rule out a
-** collision[^1]. Forum posts are a special case and ignore the bFull
-** flag. When called repeatedly, this routine can run a bit faster and
-** more efficiently if bFull is true, but some historical use cases
-** call for prefix matches.
+** zTarget is an attachment target name: wiki page name, tech-note ID,
+** ticket ID, or forumpost hash.
 **
-** In the case of CFTYPE_FORUM, it is up to the caller to ensure that,
-** if needed, they resolve zTarget using forumpost_head_rid2() so that
-** they get the RID of the earliest version of the post, as that is
-** the only one which attachments should target.
+** If bFull is true then it requires zTarget to be a full ID for
+** tech-notes and tickets, otherwise such IDs may be prefixes. If
+** bFull is false then tech-notes and tickets will perform a prefix
+** match, but it is up to the caller to provide enough of a prefix to
+** rule out a collision[^1]. When called repeatedly, this routine can
+** run a bit faster and more efficiently if bFull is true, but some
+** historical use cases call for prefix matches.
 **
-** [^1]: Historically (as of 2026-06) attachment target lookups have
-** used GLOB prefix matching but taken no measures to ensure that the
-** prefix is unambiguous. Ergo we don't here, either. It is assumed
-** that the caller passes enough of a prefix to be unambiguous and
-** that's worked out fine so far.
+** Wiki page names always require an exact match.
+**
+** Forum posts are a special case:
+**
+** - The ignore the bFull flag. That is, they will do prefix matches
+**   but will not match an ambiguous prefix.
+**
+** - It is up to the caller to, if needed, resolve zTarget using
+**   forumpost_head_rid2() to resolve the RID of the earliest version
+**   of the post, as that is the only one which attachments should
+**   target.
+**
+** [^1]: Historically (from the perspective of 2026-06) attachment
+** target lookups have used GLOB prefix matching but have taken no
+** measures to ensure that the prefix is unambiguous. Ergo we don't
+** here, either. It is assumed that the caller passes enough of a
+** prefix to be unambiguous and that's worked out fine so far.
 */
 int attachment_target_type(const char *zTarget, int bFull){
   if( !zTarget || !zTarget[0] || strlen(zTarget)>64/*vs. abuse*/ ){
@@ -97,10 +106,10 @@ int attachment_target_type(const char *zTarget, int bFull){
 
 /*
 ** Given an attachment target name, returns the target's blob.rid.
-** zTarget must be a full wiki page name, tech-note ID, ticket ID, or
-** forum post hash. Returns 0 if no match is found.
+** zTarget and bFull work as described for attachment_target_type().
 **
-** bFull is interpreted as per attachment_target_type().
+** For forum posts, this always returns the RID of the first version
+** of the post, as attachments should always target that instance.
 */
 int attachment_target_rid(const char *zTarget, int bFull){
   int rid = 0;
@@ -1662,12 +1671,12 @@ void test_attachment_target_type_cmd(void){
     const int type = attachment_target_type(zTarget, 0);
     const char *zType = "<invalid>";
     switch(type){
-      case CFTYPE_EVENT: zType = "e"; break;
-      case CFTYPE_FORUM: zType = "f"; break;
-      case CFTYPE_TICKET: zType = "t"; break;
-      case CFTYPE_WIKI: zType = "w"; break;
+      case CFTYPE_EVENT:  zType = "technote"; break;
+      case CFTYPE_FORUM:  zType = "forumpost"; break;
+      case CFTYPE_TICKET: zType = "ticket"; break;
+      case CFTYPE_WIKI:   zType = "wiki"; break;
     }
-    fossil_print("%-20s = %s %d %z\n",
+    fossil_print("%-20s = %-9s #%d %z\n",
                  zTarget, zType, rid,
                  rid>0 ? rid_to_uuid(rid) : 0);
   }
@@ -1677,26 +1686,25 @@ void test_attachment_target_type_cmd(void){
 /*
 ** COMMAND: test-attachments-to-json
 **
-** Usage: %fossil test-attachments-to-json TARGET_ID
+** Usage: %fossil test-attachments-to-json TARGET_ID...
 **
 ** Options:
 **    --old          List all versions of attachments. Default is to
 **                   list only the latest.
 **    --full         Require a full target ID, not a prefix.
 **
-** Emits a JSON array of attachments for the given attachment target.
-** The given ID must be a wiki page name, ticket hash, tech-note hash,
-** or forum post hash. By default it accepts prefixes but does not
-** detection of ambiguity or cross-type prefix collisions so may emit
-** curious results if given short/colliding IDs.
+** Emits a JSON array of attachments for the given attachment targets.
+** The given IDs must be wiki page names, ticket hashes, tech-note
+** hashes, or forum post hashes. By default it accepts hash prefixes
+** but does no detection of ambiguity or cross-type prefix collisions
+** so may emit curious results if given short, colliding IDs.
 */
 void test_attachments_to_json_cmd(void){
-  Manifest *pManifest;
-  Blob b = BLOB_INITIALIZER;
-  int bLatestOnly = find_option("old",0,0)==0;
-  int emptyPolicy = 1;
-  int rid, i;
-  int bFullId = find_option("full",0,0)!=0;
+  const int emptyPolicy = 1;
+  const int bLatestOnly = find_option("old",0,0)==0;
+  const int bFullId = find_option("full",0,0)!=0;
+  int i;
+
   verify_all_options();
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -1705,22 +1713,24 @@ void test_attachments_to_json_cmd(void){
   }
   for( i = 2; i < g.argc; ++i ){
     const char *zTarget = g.argv[i];
-    rid = attachment_target_rid(zTarget, bFullId);
+    const int rid = attachment_target_rid(zTarget, bFullId);
     if( 0==rid ){
       fossil_print("** cannot resolve %s\n", zTarget);
-      continue;
-    }
-    pManifest = manifest_get(rid, CFTYPE_ANY, NULL);
-    attachments_to_json(pManifest, &b, bLatestOnly, emptyPolicy);
-    fossil_print("Attachments for %s: ", zTarget);
-    if( b.nUsed ){
-      char *zPretty = db_text(0,"SELECT json_pretty(%B)", &b);
-      fossil_print("%s\n", zPretty);
-      fossil_free(zPretty);
     }else{
-      fossil_print("none\n");
+      Blob b = BLOB_INITIALIZER;
+      Manifest *pManifest = manifest_get(rid, CFTYPE_ANY, NULL);
+      assert( pManifest );
+      attachments_to_json(pManifest, &b, bLatestOnly, emptyPolicy);
+      fossil_print("Attachments for %s: ", zTarget);
+      if( b.nUsed ){
+        char *zPretty = db_text(0,"SELECT json_pretty(%B)", &b);
+        fossil_print("%s\n", zPretty);
+        fossil_free(zPretty);
+      }else{
+        fossil_print("none\n");
+      }
+      blob_reset(&b);
+      manifest_destroy(pManifest);
     }
-    blob_reset(&b);
-    manifest_destroy(pManifest);
   }
 }
