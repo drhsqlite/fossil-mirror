@@ -294,21 +294,38 @@
           this.#injestBlob(rowObj, ev.dataTransfer.files[0]);
         }
       });
+      const pasteImage = (event, item)=>{
+        if( item.type.indexOf('image') === 0 ) {
+          event.preventDefault();
+          const blob = item.getAsFile();
+          this.#injestBlob(rowObj, blob);
+          return true;
+        }
+        return false;
+      };
+      eDesc?.addEventListener?.('paste', (e) => {
+        e.stopPropagation();
+        const items = (e.clipboardData || e.originalEvent.clipboardData)?.items;
+        if( !items ) return;
+        for( let i = 0; i < items.length; ++i ){
+          const item = items[i];
+          if( pasteImage(e, item) ){
+            break;
+          }
+        }
+      });
       eRow.addEventListener('paste', (e) => {
         const items = (e.clipboardData || e.originalEvent.clipboardData)?.items;
         if( !items ) return;
         for( let i = 0; i < items.length; ++i ){
           const item = items[i];
-          if( item.type.indexOf('image') === 0 ) {
-            e.preventDefault();
-            const blob = item.getAsFile();
-            this.#injestBlob(rowObj, blob);
+          if( pasteImage(e, item) ){
             break;
           }else if( item.type === 'text/plain' ){
             e.preventDefault();
             item.getAsString((text) => {
-              rowObj.name = `pasted-text-${Date.now()}.txt`;
-              const blob = new File([text], rowObj.name,
+              rowObj.overrideName = `pasted-text-${Date.now()}.txt`;
+              const blob = new File([text], rowObj.overrideName,
                                     {type: 'text/plain'});
               this.#injestBlob(rowObj, blob);
             });
@@ -366,21 +383,8 @@
            multiple images. We cannot, at this level, unambiguously
            distinguish a ctrl-v of bitmap data vs a ctrl-v of an image
            file copied via a desktop file manager. */
-        rowObj.name = `pasted-image-${Date.now()}.png`;
+        rowObj.overrideName = `pasted-image-${Date.now()}.png`;
       }
-      if( rowObj.name && rowObj.name!==file.name ){
-        file = new File([file], rowObj.name, {type: file.type});
-      }
-
-      let szLbl;
-      if( file.size < 500000 ){
-        szLbl = file.size + ' bytes';
-      }else if( file.size < 1000000 ){
-        szLbl = (file.size / 1024).toFixed(2)+' KB';
-      }else{
-        szLbl = (file.size / (1024 * 1024)).toFixed(2)+' MB';
-      }
-      this.#rowError(rowObj);
       const old = this.#rowMatchingName(file.name);
       if( old && rowObj !== old ){
         /*
@@ -397,7 +401,24 @@
         this.#rowError(old);
         this.#removeRow(rowObj);
         rowObj.e = old.e;
+        //if( rowObj.e.eDesc ) rowObj.e.eDesc.value = '';
       }
+      console.warn("rowObj, old",rowObj, old);
+      if( rowObj.overrideName ){
+        console.warn("Renaming file to",rowObj.overrideName);
+        file = new File([file], rowObj.overrideName, {type: file.type});
+        rowObj.overrideName = undefined;
+      }
+
+      let szLbl;
+      if( file.size < 500000 ){
+        szLbl = file.size + ' bytes';
+      }else if( file.size < 1000000 ){
+        szLbl = (file.size / 1024).toFixed(2)+' KB';
+      }else{
+        szLbl = (file.size / (1024 * 1024)).toFixed(2)+' MB';
+      }
+      this.#rowError(rowObj);
       rowObj.file = file;
       rowObj.mimeType = file.type || 'application/octet-stream';
       D.clearElement(rowObj.e.filename).append(file.name || 'Pasted Content');
