@@ -27,82 +27,110 @@
 ** CFTYPE_TICKET, or CFTYPE_EVENT. Returns 0 if it cannot
 ** distinguish the target type.
 **
+** If bFull is true then it requires zTarget to be an exact matches
+** for wiki, tech-note, and ticket IDs. If bFull is false then
+** tech-notes and tickets will perform a prefix match, but it is up to
+** the caller to provide enough of a prefix to rule out a
+** collision[^1]. Forum posts are a special case and ignore the bFull
+** flag. When called repeatedly, this routine can run a bit faster and
+** more efficiently if bFull is true, but some historical use cases
+** call for prefix matches.
+**
 ** In the case of CFTYPE_FORUM, it is up to the caller to ensure that,
 ** if needed, they resolve zTarget using forumpost_head_rid2() so that
 ** they get the RID of the earliest version of the post, as that is
 ** the only one which attachments should target.
 **
-** FIXME (2026-06-03)? Figuring out if an event or a ticket are a
-** unique prefix is more work than this function performs. This makes
-** it unsuitable as a drop-in replacement for legacy
-** /attachadd?x=SHORT_ID links using newer /attachadd?target=ID URLs
-** because the the former, via /attachadd?technote=ID or ?ticket=ID,
-** accept unique prefixes whereas the latter, via this function, does
-** not.
+** [^1]: Historically (as of 2026-06) attachment target lookups have
+** used GLOB prefix matching but taken no measures to ensure that the
+** prefix is unambiguous. Ergo we don't here, either. It is assumed
+** that the caller passes enough of a prefix to be unambiguous and
+** that's worked out fine so far.
 */
-int attachment_target_type(const char *zTarget){
-  static Stmt q = empty_Stmt_m;
-  int rc = 0;
+int attachment_target_type(const char *zTarget, int bFull){
   if( !zTarget || !zTarget[0] || strlen(zTarget)>64/*vs. abuse*/ ){
     return 0;
-  }else if( forumpost_head_rid2(zTarget)>0 ){
+  }
+  if( symbolic_name_to_rid(zTarget, "f")>0 ){
+    /* Check forum posts first because they are the most likely target
+    ** as of 2026. */
     return CFTYPE_FORUM;
-  }else if( !q.pStmt ){
-    db_static_prepare(
-      &q,
+  }
+  if( bFull ){
+    static Stmt q = empty_Stmt_m;
+    int rc = 0;
+    if( !q.pStmt ){
+      db_static_prepare(
+        &q,
+        "SELECT CASE "
+        /* Ordered by presumed likelihood of attachments. */
+        "WHEN (SELECT 1 FROM tag WHERE tagname='tkt-'||:tgt) THEN %d\n"
+        "WHEN (SELECT 1 FROM tag WHERE tagname='wiki-'||:tgt) THEN %d\n"
+        "WHEN (SELECT 1 FROM tag WHERE tagname='event-'||:tgt) THEN %d\n"
+        "ELSE 0 END",
+        CFTYPE_TICKET, CFTYPE_WIKI, CFTYPE_EVENT
+      );
+    }
+    db_bind_text(&q, ":tgt", zTarget);
+    if( SQLITE_ROW==db_step(&q) ){
+      rc = db_column_int(&q, 0);
+    }
+    db_reset(&q);
+    return rc;
+  }else{
+    return db_int(
+      0,
       "SELECT CASE "
-      "WHEN 'tkt-'||:tgt IN (SELECT tagname FROM tag) THEN %d "
-      "WHEN 'event-'||:tgt IN (SELECT tagname FROM tag) THEN %d "
-      "WHEN 'wiki-'||:tgt IN (SELECT tagname FROM tag) THEN %d "
+      "WHEN (SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*')"
+      "  THEN %d\n"
+      "WHEN (SELECT tagid FROM tag WHERE tagname='wiki-%q')"
+      "  THEN %d\n"
+      "WHEN (SELECT tagid FROM tag WHERE tagname GLOB 'event-%q*')"
+      "  THEN %d\n"
       "ELSE 0 END",
-      CFTYPE_TICKET, CFTYPE_EVENT, CFTYPE_WIKI
+      zTarget, CFTYPE_TICKET,
+      zTarget, CFTYPE_WIKI,
+      zTarget, CFTYPE_EVENT
     );
   }
-  db_bind_text(&q, ":tgt", zTarget);
-  if( SQLITE_ROW==db_step(&q) ){
-    rc = db_column_int(&q, 0);
-  }
-  db_reset(&q);
-  return rc;
 }
 
 /*
-** Given a full attachment target ID, returns its blob.rid.  zTarget
-** must be a full wiki page name, tech-note ID, ticket ID, or forum
-** post hash. Returns 0 if no match is found.
+** Given an attachment target name, returns the target's blob.rid.
+** zTarget must be a full wiki page name, tech-note ID, ticket ID, or
+** forum post hash. Returns 0 if no match is found.
+**
+** bFull is interpreted as per attachment_target_type().
 */
-int attachment_resolve_target(const char *zTarget){
+int attachment_target_rid(const char *zTarget, int bFull){
   int rid = 0;
-  int eType = attachment_target_type(zTarget);
+  const int eType = attachment_target_type(zTarget, bFull);
   switch(eType){
-    case CFTYPE_EVENT:
+    case CFTYPE_TICKET:
+    case CFTYPE_EVENT:{
+      const char *zTagPrefix = (eType==CFTYPE_EVENT) ? "event" : "tkt";
       rid = db_int(
         0, "SELECT b.rid FROM blob b, tag t, tagxref x\n"
-        "WHERE tagname='event-%q'\n"
+        "WHERE tagname %s '%s-%q%s'\n"
         "AND x.tagtype>0\n"
         "AND x.tagid=t.tagid\n"
         "AND x.rid=b.rid\n"
         "ORDER BY x.mtime DESC",
-        zTarget
+        bFull ? "=" : "GLOB"/*safe-for-%s*/,
+        zTagPrefix/*safe-for-%s*/,
+        zTarget,
+        bFull ? "" : "*"/*safe-for-%s*/
       );
       break;
+    }
     case CFTYPE_FORUM:
       rid = db_int(
         0, "SELECT f.fpid FROM forumpost f, blob b\n"
         "WHERE f.fpid=b.rid\n"
-        "AND b.uuid=%Q",
-        zTarget
-      );
-      break;
-    case CFTYPE_TICKET:
-      rid = db_int(
-        0, "SELECT b.rid FROM blob b, tag t, tagxref x\n"
-        "WHERE tagname='tkt-%q'\n"
-        "AND x.tagtype>0\n"
-        "AND x.tagid=t.tagid\n"
-        "AND x.rid=b.rid\n"
-        "ORDER BY x.mtime DESC",
-        zTarget
+        "AND b.uuid %s '%q%s'",
+        bFull ? "=" : "GLOB"/*safe-for-%s*/,
+        zTarget,
+        bFull ? "" : "*"/*safe-for-%s*/
       );
       break;
     case CFTYPE_WIKI:
@@ -124,8 +152,8 @@ int attachment_resolve_target(const char *zTarget){
 
 /*
 ** For a given aritfact ID and type (from the CFTYPE_xyz enum),
-** returns true if the current user could hypothetically attach
-** something to it, else returns 0.
+** returns true if the current user could hypothetically apply and
+** attachment to it, else returns 0.
 **
 ** The rid is currently only relevant when eArtifactType is
 ** CFTYPE_FORUM.  For forum posts, it checks precisely the rid given,
@@ -152,7 +180,7 @@ int attach_user_may(int rid, int eArtifactType){
 
 /*
 ** Emits a single-button FORM which invokes
-** /attachadd?target=$zTarget.
+** /attachadd with target=$zTarget.
 */
 void attach_render_attachadd_button(const char *zTarget){
   /* This could be changed from POST to GET, and arguably should so
@@ -268,7 +296,7 @@ void attachlist_page(void){
         i = -1;
       }
     }
-    type = attachment_target_type(zTarget);
+    type = attachment_target_type(zTarget, 1);
     switch( type ){
       case CFTYPE_TICKET:
         zUrlTail = mprintf("tkt=%s&file=%t", zTarget, zFilename);
@@ -730,7 +758,7 @@ void attachadd_ajax_post(void){
   }
   db_begin_transaction();
   zTarget = P("target");
-  iTgtType = attachment_target_type(zTarget);
+  iTgtType = attachment_target_type(zTarget, 1);
   CX("{");
   switch( iTgtType ){
     default:
@@ -879,7 +907,7 @@ void attachaddV2_page(void){
     webpage_error("Requires target=X");
   }
   login_check_credentials();
-  eTgtType = attachment_target_type(zTarget);
+  eTgtType = attachment_target_type(zTarget, 1);
   switch( eTgtType ){
     default:
     case 0:
@@ -1302,7 +1330,7 @@ void attachment_list(
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     const char *zTypeArg = 0; /* URL arg name for /attachdownload */
     const int aid = db_column_int(&q, 6);
-    const int iAType = attachment_target_type(zTarget);
+    const int iAType = attachment_target_type(zTarget, 1);
     if( (flags & ATTACHLIST_HIDE_UNAPPROVED)
         && moderation_pending(aid)
         && !moderation_user_could(aid, 1, 0) ){
@@ -1554,7 +1582,7 @@ int attachments_to_json(const Manifest *pManifest,
   }
   db_prepare(&q,
      "SELECT datetime(mtime), a.src, a.target, a.filename, a.isLatest,\n"
-     "  b2.size, b1.uuid, a.comment\n"
+     "  b2.size, b1.uuid, a.user, a.comment\n"
      "  FROM attachment a, blob b1, blob b2\n"
      "  WHERE a.target=%Q\n"
      "  AND b1.rid=a.attachid\n"
@@ -1572,7 +1600,8 @@ int attachments_to_json(const Manifest *pManifest,
     const int isLatest = db_column_int(&q, 4);
     const int sz = db_column_int(&q, 5);
     const char *zUuid = db_column_text(&q, 6);
-    const char *zComment = db_column_text(&q, 7);
+    const char *zUser = db_column_text(&q, 7);
+    const char *zComment = db_column_text(&q, 8);
     if(!i++){
       blob_append_char(pOut, '[');
     }else{
@@ -1582,9 +1611,10 @@ int attachments_to_json(const Manifest *pManifest,
       pOut,
       "{\"uuid\": %!j, \"src\": %!j, \"target\": %!j, "
       "\"filename\": %!j, \"size\":%d, \"mtime\": %!j, "
-      "\"isLatest\": %s,\"comment\": ",
+      "\"isLatest\": %s, \"user\": %!j, \"comment\": ",
       zUuid, zSrc, zTarget,
-      zName, sz, zTime, isLatest ? "true" : "false"
+      zName, sz, zTime, isLatest ? "true" : "false",
+      zUser
     );
     if( zComment && zComment[0] ){
       blob_appendf(pOut, "%!j", zComment);
@@ -1611,15 +1641,18 @@ int attachments_to_json(const Manifest *pManifest,
 /*
 ** COMMAND: test-attachments-to-json
 **
-** Usage: %fossil test-attachments-to-json FULL_TARGET_ID
+** Usage: %fossil test-attachments-to-json TARGET_ID
 **
 ** Options:
 **    --old          List all versions of attachments. Default is to
 **                   list only the latest.
+**    --full         Require a full target ID, not a prefix.
 **
 ** Emits a JSON array of attachments for the given attachment target.
-** The given ID must be a full wiki page name, ticket hash, tech-note
-** hash, or forum post hash. It does not accept partial prefixes.
+** The given ID must be a wiki page name, ticket hash, tech-note hash,
+** or forum post hash. By default it accepts prefixes but does not
+** detection of ambiguity or cross-type prefix collisions so may emit
+** curious results if given short/colliding IDs.
 */
 void test_attachments_to_json_cmd(void){
   Manifest *pManifest;
@@ -1627,6 +1660,7 @@ void test_attachments_to_json_cmd(void){
   int bLatestOnly = find_option("old",0,0)==0;
   int emptyPolicy = 1;
   int rid;
+  int bFullId = find_option("full",0,0)!=0;
   const char *zTarget;
   verify_all_options();
   db_find_and_open_repository(0, 0);
@@ -1635,7 +1669,7 @@ void test_attachments_to_json_cmd(void){
     return;
   }
   zTarget = g.argv[2];
-  rid = attachment_resolve_target(zTarget);
+  rid = attachment_target_rid(zTarget, bFullId);
   if( 0==rid ){
     fossil_fatal("Cannot resolve ID.");
   }

@@ -2648,7 +2648,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
        p->zAttachTarget, p->zAttachName,
        p->zAttachTarget, p->zAttachName
     );
-    switch( attachment_target_type(p->zAttachTarget) ){
+    switch( attachment_target_type(p->zAttachTarget, 1) ){
       case 0:
         /* It is possible that p->zAttachTarget is not yet in this
         ** copy of the repository. If we cannot identify it yet,

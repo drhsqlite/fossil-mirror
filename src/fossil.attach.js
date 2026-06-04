@@ -259,7 +259,7 @@
             ? D.addClass(
               D.attr(D.textarea(), 'placeholder',
                      'Optional description...'),
-              'hidden', 'attach-desc'
+              'attach-desc'
             )
             : undefined;
       const eRemove = D.addClass(
@@ -514,7 +514,7 @@
       startWith: 1,
       listener: cbAttacherChange,
       controls: [eBtnSubmit],
-      description: false
+      description: true
     });
     eBtnSubmit.addEventListener('click', async (ev)=>{
       att.reportError();

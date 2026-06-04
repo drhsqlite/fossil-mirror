@@ -1933,7 +1933,7 @@ int object_description(
       @ Attachment "%h(zFilename)" to
     }
     objType |= OBJTYPE_ATTACHMENT;
-    switch( attachment_target_type(zTarget) ){
+    switch( attachment_target_type(zTarget, 1) ){
       case CFTYPE_FORUM:
         if( g.perm.Hyperlink && g.anon.RdForum ){
           @ forum post [%z(href("%R/forumpost/%!S",zTarget))%S(zTarget)</a>]
