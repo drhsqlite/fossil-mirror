@@ -1,5 +1,5 @@
-C Move\stwo\sinitializations\swhich\scould\shave\sbeen\sskipped\swhen\srendering\sa\sforum\spost\sin\sraw\smode.
-D 2026-06-04T09:22:36.503
+C Merge\strunk\sfor\sa\slarger\sdiff\s-tk.
+D 2026-06-04T09:23:41.185
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -423,7 +423,7 @@ F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7
 F src/descendants.c 4bb7fb447369984f041da4a5ec05c201383bde3a59d18c537293d520712a1b09
 F src/diff.c 3e46c56274896ac8ebc3035a32060bf5898f6cd2b6540816d62d6649125eb3bd
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
-F src/diff.tcl 25847794b0b5e6ed5c53343ccb1bad3b29d58efcd14490e4be6558ae8b76eb6e
+F src/diff.tcl 3e98ffcb81feab8288c26101b7260e09821c51f5e434ff6880ea4407e796bf8d
 F src/diffcmd.c f529b1130c87c6bf5562d241bad922274893cf0156bf26f0e420652c4a1ea685
 F src/dispatch.c f9b0602b200fb378bed080e327e2cf7db08f683c21aa81ba834be0ac7c597b88
 F src/doc.c f34584042c9a4e2ff3223e7a8bab7154f6824ba413ad909aac54b65681428d77
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ae89edbc9340ec70addc33fadc5cb3014068e8ebc6232145d155c0b15f7bad0e
-R 2e2d31c8179bae796d962d405cfbe4e1
+P dfc58f12f9bf0b7a0414851106a5f03d38d2fd02e1d2f21f15be23026d68db50 7f2f04c835a42bc8c456a09eeffb0bcf0cd161f539b3c0697cbe1a7376491d16
+R 6b7f0a05f1f0b42f97d891486dd36fa2
 U stephan
-Z 330a8fb0067a1335345f647f3a1f77f6
+Z 7430ed4f9a64d5eef37be4235b0d0a9e
 # Remove this line to create a well-formed Fossil manifest.

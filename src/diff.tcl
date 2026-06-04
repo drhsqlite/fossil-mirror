@@ -127,7 +127,7 @@ proc readDiffs {fossilcmd redo} {
   set ii 0
   set nDiffs 0
   set n1 0
-  set n2 0  
+  set n2 0
   array set widths {txt 3 ln 3 mkr 1}
   if {$redo} {
     foreach c [cols] {$c config -state normal}
@@ -138,8 +138,8 @@ proc readDiffs {fossilcmd redo} {
     .mkr delete 1.0 end
     .wfiles.lb delete 0 end
   }
-  
-  
+
+
   set fromIndex [lsearch -glob $fossilcmd *-from]
   set toIndex [lsearch -glob $fossilcmd *-to]
   set branchIndex [lsearch -glob $fossilcmd *-branch]
@@ -169,7 +169,7 @@ proc readDiffs {fossilcmd redo} {
       set fA "primary parent"; set fB [lindex $fossilcmd $checkinIndex+1]
     }
   }
-  
+
   while {[set line [getLine $difftxt $N ii]] != -1} {
     switch -- [lindex $line 0] {
       FILE {
@@ -628,6 +628,18 @@ grid .spacer -row 2 -column 2
 grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
 
 .spacer config -height [winfo height .sbxA]
+
+set h [winfo screenheight .]
+if {$h > 1280} {
+  set w [winfo screenwidth .]; # [winfo width] == 32
+  if {$w > 2048} {
+    set w 2048
+  }
+  set g [expr {$w / 3 * 2}]x[expr {$h / 4 * 3}]
+  wm geometry . $g
+}
+
 wm deiconify .
+
 }
 eval $prog
