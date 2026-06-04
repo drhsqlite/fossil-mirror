@@ -1256,7 +1256,7 @@ static void forum_display_post(
           @ "%h(pManifest->zUser)" do not require moderation.
           @ </label>
           @ <input type="hidden" name="trustuser" value="%h(pManifest->zUser)">
-          bBrBeforeAttach = 1 /* slightly improve the layout */;
+          bBrBeforeAttach = 1 /* slightly unmangle the layout */;
         }
       }else if( bSameUser ){
         /* Allow users to delete (reject) their own pending posts. */

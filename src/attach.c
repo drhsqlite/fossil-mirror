@@ -448,6 +448,12 @@ void attach_commit(
     db_end_transaction(0);
 }
 
+/*
+** Renders the "legacy" (static) /attachadd form. One of the first
+** four arguments must be non-NULL and the other three must be NULL.
+** zComment may be NULL, as may zFrom. See the call sites for more
+** context.
+*/
 static void attach_render_legacy_form(const char *zForumPost,
                                       const char *zTechNote,
                                       const char *zTicket,
@@ -495,18 +501,18 @@ static void attach_render_legacy_form(const char *zForumPost,
 **
 **    target=ATTACHMENT_TARGET
 **
-** Behaves exactly like attachaddV2_page().
+** Behaves as documented for attachaddV2_page().
 */
 void attachadd_page(void){
   const char *zPage;
   const char *zForumPost;
   const char *zTkt;
   const char *zTechNote;
-  const char *zFrom;
   const char *aContent;
   const char *zName;
   const char *zComment;
   const char *zTarget;
+  const char *zFrom;       /* Origin page - redirect here after saving */
   char * zTo = 0;          /* Optionally redirect here after saving */
   char *zTargetType = 0;
   char *zExtraFree = 0;
@@ -551,10 +557,7 @@ void attachadd_page(void){
     zTarget = zExtraFree = rid_to_uuid(fpid);
     zTargetType = mprintf("Forum post <a href=\"%R/forumpost/%S\">%h</a>",
                           zTarget, zForumPost);
-    zTo = 1
-      ? mprintf("%R/forumpost/%S", zTarget)
-      : mprintf("%R/attachview?forumpost=%T&file=%T",
-                zTarget, zName);
+    zTo = zFrom ? 0 : mprintf("%R/forumpost/%S", zTarget);
   }else if( zPage ){
     if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
       login_needed(g.anon.ApndWiki && g.anon.Attach);
@@ -564,8 +567,9 @@ void attachadd_page(void){
       fossil_redirect_home();
     }
     zTarget = zPage;
-    zTargetType = mprintf("Wiki Page <a href=\"%R/wiki?name=%h\">%h</a>",
+    zTargetType = mprintf("Wiki Page <a href=\"%R/wiki?name=%t\">%h</a>",
                            zPage, zPage);
+    zTo = zFrom ? 0 : mprintf("%R/wiki?name=%T", zTarget);
   }else if ( zTechNote ){
     if( g.perm.Write==0 || g.perm.ApndWiki==0 || g.perm.Attach==0 ){
       login_needed(g.anon.Write && g.anon.ApndWiki && g.anon.Attach);
@@ -579,7 +583,7 @@ void attachadd_page(void){
     zTarget = zTechNote;
     zTargetType = mprintf("Tech Note <a href=\"%R/technote/%s\">%S</a>",
                            zTechNote, zTechNote);
-
+    zTo = zFrom ? 0 : mprintf("%R/technote/%S", zTarget);
   }else{
     assert( zTkt );
     if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
@@ -592,8 +596,9 @@ void attachadd_page(void){
       if( zTkt==0 ) fossil_redirect_home();
     }
     zTarget = zTkt;
-    zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
+    zTargetType = mprintf("Ticket <a href=\"%R/tktview/%S\">%S</a>",
                           zTkt, zTkt);
+    zTo = zFrom ? 0 : mprintf("%R/tktview/%S", zTarget);
   }
   szLimit = db_get_int("attachment-size-limit", 0);
   if( szContent<0 || (szLimit && szContent>szLimit) ){
@@ -638,7 +643,8 @@ void attachadd_page(void){
 **
 **  Each posted file in the set file1..fileN gets attached to the
 **  given target, permissions permitting. If dryrun>0 then the change
-**  is rolled back instead of committed.
+**  is rolled back instead of committed. target=X must refer to a full
+**  target ID, not a prefix.
 **
 **  Responds with JSON: an empty object on success and
 **  {error:"message"} on error. The on-success response structure is
@@ -900,7 +906,7 @@ void attachaddV2_page(void){
   }
   @ <h2>Attachments for %s(zTargetType)</h2>
   if(1){
-    /* noscript fallback is completely tested */
+    /* noscript fallback is completely untested */
     @ <noscript>
     attach_render_legacy_form(noJsArgs[0], noJsArgs[1], noJsArgs[2],
                               noJsArgs[3], 0,
