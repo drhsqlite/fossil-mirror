@@ -1048,7 +1048,7 @@ static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
 */
 static void forum_render_attachment_list(const char *zUuid){
 #if 1
-    attachment_list(zUuid, "&#128206; Attachments", 0
+    attachment_list(zUuid, "&#x1f4ce; Attachments", 0
                     | ATTACHLIST_SIZE
                     | ATTACHLIST_HIDE_UNAPPROVED
                     | ATTACHLIST_DETAILS_CLOSED);

@@ -1415,7 +1415,11 @@ void attachment_list(
   }
   if( cnt ){
     @ </ul>
-    @ </section>
+    if( bUseDetail ){
+      @ </details>
+    }else{
+      @ </section>
+    }
   }
   db_finalize(&q);
 }
