@@ -301,6 +301,7 @@ void attachlist_page(void){
     const int attachid = db_column_int(&q, 7);
     int type;
     int i;
+    int bDeleted;
     char *zUrlTail = 0;
 
     if( moderation_pending(attachid)
@@ -324,6 +325,7 @@ void attachlist_page(void){
         i = -1;
       }
     }
+    bDeleted = 0==zSrc || 0==zSrc[0];
     type = attachment_target_type(zTarget, 1);
     switch( type ){
       case CFTYPE_TICKET:
@@ -340,16 +342,24 @@ void attachlist_page(void){
         break;
     }
     @ <li><p>
-    @ Attachment %z(href("%R/ainfo/%!S",zUuid))%S(zUuid)</a>
+    if( bDeleted ){
+      @ <s>\
+    }
+    @ Attachment %z(href("%R/ainfo/%!S",zUuid))%S(zUuid)</a>\
     moderation_pending_www(attachid);
-    @ <br><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
-    @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br>
+    @ <br>\
+    @ <a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
+    @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]\
+    if( bDeleted ){
+      @ </s>
+    }
+    @ <br>
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
       @ %!W(zComment)<br>
     }
     if( zForumPost==0 && zPage==0 && zTkt==0 && zTechNote==0 ){
-      if( zSrc==0 || zSrc[0]==0 ){
+      if( bDeleted ){
         zSrc = "Deleted from";
       }else {
         zSrc = "Added to";
