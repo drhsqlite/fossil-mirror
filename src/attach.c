@@ -42,7 +42,7 @@
 **
 ** Forum posts are a special case:
 **
-** - The ignore the bFull flag. That is, they will do prefix matches
+** - They ignore the bFull flag. That is, they will do prefix matches
 **   but will not match an ambiguous prefix.
 **
 ** - It is up to the caller to, if needed, resolve zTarget using
@@ -775,7 +775,7 @@ void attachadd_page(void){
 void attachadd_ajax_post(void){
   const char *zTarget;
   char *zExtraFree = 0;
-  int iTgtType = 0;
+  int eTgtType = 0;
   int bNeedsModeration = 0;
   int i;
   int goodCaptcha = 1;
@@ -796,9 +796,9 @@ void attachadd_ajax_post(void){
   }
   db_begin_transaction();
   zTarget = P("target");
-  iTgtType = attachment_target_type(zTarget, 1);
+  eTgtType = attachment_target_type(zTarget, 1);
   CX("{");
-  switch( iTgtType ){
+  switch( eTgtType ){
     default:
     case 0:
       ajax_route_error(400, "Invalid attachment target.");
@@ -826,7 +826,8 @@ void attachadd_ajax_post(void){
       if( g.perm.Write==0 || g.perm.ApndWiki==0 || g.perm.Attach==0 ){
         goto ajax_post_403;
       }
-      if( !db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'", zTarget) ){
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",
+                     zTarget) ){
         zTarget = zExtraFree =
           db_text(0, "SELECT substr(tagname,7) FROM tag"
                   " WHERE tagname GLOB 'event-%q*'", zTarget);
@@ -841,7 +842,8 @@ void attachadd_ajax_post(void){
       if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
         goto ajax_post_403;
       }
-      if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTarget) ){
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
+                     zTarget) ){
         zTarget = db_text(0, "SELECT substr(tagname,5) FROM tag"
                        " WHERE tagname GLOB 'tkt-%q*'", zTarget);
         if( zTarget==0 ){
@@ -855,7 +857,8 @@ void attachadd_ajax_post(void){
       if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
         goto ajax_post_403;
       }
-      if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'", zTarget) ){
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",
+                     zTarget) ){
         goto ajax_post_404;
       }
       bNeedsModeration = wiki_need_moderation(0);
@@ -880,6 +883,7 @@ void attachadd_ajax_post(void){
     if( szContent<=0 ){
       bRollback = 1;
       ajax_route_error(400,"Invalid file size: %d", szContent);
+      break;
     }else if( szLimit>0 && szContent>szLimit ){
       bRollback = 1;
       ajax_route_error(400, "File size limit is %d bytes.", szLimit);
@@ -921,14 +925,11 @@ ajax_post_404:
 **    from=ORIGINATING_URL
 **
 **  Works like /attachadd but uses a JS-based interactive attachment
-**  selector. If from=X is set, this page arrganges for a redirect
-**  back to X after attaching.
+**  selector.
 **
-**  from=X and to=X tell it how to redirect when it's done. to=X
-**  overrides from=X. If neither is set, it will redirect back to this
-**  page to render the updated attachment list.
+**  from=X tells it where to redirect to when it's done.
 **
-** This page requires a post-2020 JS-capable browser.
+** This page requires a post-2018-ish JS-capable browser.
 */
 void attachaddV2_page(void){
   const char *zFrom = P("from");
@@ -966,8 +967,10 @@ void attachaddV2_page(void){
       }
       zTarget = zExtraFree = rid_to_uuid(fpid);
       noJsArgs[0] = zTarget;
-      zTargetType = mprintf("Forum post <a href=\"%R/forumpost/%S\">%.16h</a>",
-                            zTarget, zTarget);
+      zTargetType = mprintf(
+        "Forum post <a href=\"%R/forumpost/%S\">%.16h</a>",
+        zTarget, zTarget
+      );
       zTo = mprintf("%R/forumpost/%S", zTarget);
       break;
     }
@@ -976,9 +979,11 @@ void attachaddV2_page(void){
         login_needed(g.anon.Write && g.anon.ApndWiki && g.anon.Attach);
         return;
       }
-      if( !db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'", zTarget) ){
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",
+                     zTarget) ){
         zTarget = db_text(0, "SELECT substr(tagname,7) FROM tag"
-                            " WHERE tagname GLOB 'event-%q*'", zTarget);
+                            " WHERE tagname GLOB 'event-%q*'",
+                          zTarget);
         if( zTarget==0) fossil_redirect_home();
       }
       zTo = zFrom ? 0 : mprintf("%R/technote?name=%T", zTarget);
@@ -992,7 +997,8 @@ void attachaddV2_page(void){
         login_needed(g.anon.ApndTkt && g.anon.Attach);
         return;
       }
-      if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTarget) ){
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
+                     zTarget) ){
         zTarget = db_text(0, "SELECT substr(tagname,5) FROM tag"
                        " WHERE tagname GLOB 'tkt-%q*'", zTarget);
         if( zTarget==0 ) fossil_redirect_home();
@@ -1008,12 +1014,15 @@ void attachaddV2_page(void){
         login_needed(g.anon.ApndWiki && g.anon.Attach);
         return;
       }
-      if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'", zTarget) ){
+      if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",
+                     zTarget) ){
         fossil_redirect_home();
       }
       zTo = zFrom ? 0 : mprintf("%R/wiki?name=%T", zTarget);
-      zTargetType = mprintf("Wiki page <a href=\"%R/wiki?name=%h\">%h</a>",
-                            zTarget, zTarget);
+      zTargetType = mprintf(
+        "Wiki page <a href=\"%R/wiki?name=%h\">%h</a>",
+        zTarget, zTarget
+      );
       noJsArgs[3] = zTarget;
       break;
     }
@@ -1119,11 +1128,13 @@ void ainfo_page(void){
     if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
     zTktUuid = zTarget;
     showDelMenu = g.perm.WrTkt;
-  }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",zTarget) ){
+  }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",
+                      zTarget) ){
     if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
     zWikiName = zTarget;
     showDelMenu = g.perm.WrWiki;
-  }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",zTarget) ){
+  }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",
+                      zTarget) ){
     if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
     zTNUuid = zTarget;
     showDelMenu = g.perm.Write && g.perm.WrWiki;
@@ -1151,7 +1162,9 @@ void ainfo_page(void){
 
     if( !bUserIsOwner ){
       if( zForumPost ? !forumpost_may_close() : !g.perm.Admin ){
-        webpage_error("Only admins can delete other users' attachments.");
+        webpage_error(
+          "Only admins can delete other users' attachments."
+        );
       }
     }
     db_begin_transaction();
@@ -1175,10 +1188,10 @@ void ainfo_page(void){
   }
 
   if( P("del")
-      && ((zForumPost && (bUserIsOwner || forumpost_may_close())) ||
-       (zTktUuid && g.perm.WrTkt) ||
-       (zWikiName && g.perm.WrWiki) ||
-       (zTNUuid && g.perm.Write && g.perm.WrWiki))
+      && ((zForumPost && (bUserIsOwner || forumpost_may_close()))
+          || (zTktUuid && g.perm.WrTkt)
+          || (zWikiName && g.perm.WrWiki)
+          || (zTNUuid && g.perm.Write && g.perm.WrWiki))
   ){
     form_begin(0, "%R/ainfo/%!S", zUuid);
     @ <p>Confirm you want to delete the attachment shown below.
@@ -1230,7 +1243,8 @@ void ainfo_page(void){
   modPending = moderation_pending_www(rid);
   if( zForumPost ){
     @ <tr><th>Forum&nbsp;Post:</th>
-    @ <td>%z(href("%R/forumpost/%s",zForumPost))%h(zForumPost)</a></td></tr>
+    @ <td>%z(href("%R/forumpost/%s",zForumPost))%h(zForumPost)</a>\
+    @ </td></tr>
   }else if( zTktUuid ){
     @ <tr><th>Ticket:</th>
     @ <td>%z(href("%R/tktview/%s",zTktUuid))%s(zTktUuid)</a></td></tr>
@@ -1239,7 +1253,8 @@ void ainfo_page(void){
     @ <td>%z(href("%R/technote/%s",zTNUuid))%s(zTNUuid)</a></td></tr>
   }else if( zWikiName ){
     @ <tr><th>Wiki&nbsp;Page:</th>
-    @ <td>%z(href("%R/wiki?name=%t",zWikiName))%h(zWikiName)</a></td></tr>
+    @ <td>%z(href("%R/wiki?name=%t",zWikiName))%h(zWikiName)</a>\
+    @ </td></tr>
   }
   @ <tr><th>Date:</th><td>
   hyperlink_to_date(zDate, "</td></tr>");
@@ -1254,7 +1269,8 @@ void ainfo_page(void){
   if( g.perm.Setup ){
     @ <tr><th>MIME-Type:</th><td>%h(zMime)</td></tr>
   }
-  @ <tr><th valign="top">Description:</th><td valign="top">%h(zDesc)</td></tr>
+  @ <tr><th valign="top">Description:</th>\
+  @ <td valign="top">%h(zDesc)</td></tr>
   @ </table>
 
   if( modPending && (isModerator || bUserIsOwner) ){
@@ -1265,14 +1281,15 @@ void ainfo_page(void){
     @ Delete this attachment</label><br>
     if( isModerator ){
 #if 0
-      /* TODO: only allow approval of an attachment if its target has
-      ** been approved. Without this, we can end up with stale
-      ** attachments which refer to rejected targets. We need a
-      ** type-specific RID/UUID here, which requires refactoring
-      ** above to get it. */
+      /* TODO/FIXME (2026-06-03): only allow approval of an attachment
+      ** if its target has been approved. Without this, we can end up
+      ** with stale attachments which refer to rejected targets. We
+      ** need a type-specific RID/UUID here, which requires
+      ** refactoring above to get it. */
       const int tgtid = 0;
       if( moderation_pending(tgtid) ){
-        @ <label><input type="radio" name="modaction" disabled value="approve">
+        @ <label><input type="radio" name="modaction" \
+        @ disabled value="approve">
         @ <span class='modpending'>Cannot approve:
         @ target is pending moderation</span>\
         @ </label><br>
@@ -1303,7 +1320,8 @@ void ainfo_page(void){
       blob_to_utf8_no_bom(&attach, 0);
       z = blob_str(&attach);
       if( zLn ){
-        output_text_with_line_numbers(z, blob_size(&attach), zName, zLn, 1);
+        output_text_with_line_numbers(z, blob_size(&attach),
+                                      zName, zLn, 1);
       }else{
         @ <pre>
         @ %h(z)
