@@ -8,7 +8,7 @@
 */
 (function(namespace){
   "use strict";
-  const F = namespace, D = fossil.dom;
+  const F = namespace, D = F.dom;
 
   let idCounter = 0;
 
@@ -18,9 +18,13 @@
      an artifact.
   */
   class Attacher {
+    /* Options. */
     #opt;
+    /* List of objects representing each row. */
     #rows = [];
+    /* DOM elements */
     #e = Object.create(null);
+    /* Proxy for various events this object fires. */
     #events = new EventTarget();
 
     /**
@@ -149,7 +153,7 @@
     }
     /**
        Returns the DOM element (div.attach-controls) which wraps the
-       "Add" button.  Clients may add buttons to it.
+       "Add" button. Clients may add buttons to it.
     */
     get controlsElement(){
       return this.#e.controls;
@@ -184,16 +188,13 @@
           })
         })
       );
-      if( false /* arguable */
-          && 0===this.#rows.length
-          && this.#opt.startWith>0 ){
-        /* Intended primarily for /addattach. */
-        this.#addRow();
-      }
     }
 
+    /**
+       Removes all attachments and clears the error state.
+    */
     clear(){
-      for(const r of [...this.#rows/*clone because #rows may change*/]){
+      for(const r of [...this.#rows/*clone because this updates #rows*/]){
         this.#removeRow(r);
       }
       this.reportError();
@@ -386,6 +387,10 @@
     #injestBlob(rowObj, file){
       if( !file ) return;
       const old = this.#rowMatchingName(file.name);
+      if( rowObj.overrideName ){
+        file = new File([file], rowObj.overrideName, {type: file.type});
+        rowObj.overrideName = undefined;
+      }
       if( old && rowObj !== old ){
         /*
           Fossil attachments treat the name as a unique-per-target
@@ -400,11 +405,7 @@
         /* recycle `old` instead to avoid UI flicker. */
         this.#rowError(old);
         this.#removeRow(rowObj);
-        rowObj.e = old.e;
-      }
-      if( rowObj.overrideName ){
-        file = new File([file], rowObj.overrideName, {type: file.type});
-        rowObj.overrideName = undefined;
+        rowObj = old;
       }
 
       let szLbl;
@@ -542,12 +543,7 @@
       eBtnSubmit.dataset.submitted = 1;
       D.disable(eBtnSubmit);
       const fd = new FormData();
-      let i = 0;
-      for(const row of li){
-        ++i;
-        fd.append('file'+i, row.content);
-        if( row.description ) fd.append('file'+i+'_desc', row.description);
-      }
+      att.populateFormData(fd);
       for( const eIn of eAttachWrapper.querySelectorAll(
         'input[type="hidden"]'
       ) ){
@@ -583,7 +579,7 @@
             to = F.repoUrl(to);
           }
           window.location = to;
-        }else if( target ){
+        }else if( zTarget ){
           window.location = '?target='+zTarget+'&'+Date.now();
         }
       }
