@@ -356,7 +356,11 @@ void attachlist_page(void){
     @ <br>
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
-      @ %!W(zComment)<br>
+      /* FIXME (2026-06-05): Honor the N-card (comment mimetype). %W
+      ** (historically used here) assumes fossil-wiki and the
+      ** fileformat.wiki doc has always claimed that it defaults to
+      ** text/plain. /ainfo assumes it is plain text. */
+      @ %h(zComment)<br>
     }
     if( zForumPost==0 && zPage==0 && zTkt==0 && zTechNote==0 ){
       if( bDeleted ){
@@ -1270,6 +1274,7 @@ void ainfo_page(void){
     @ <tr><th>MIME-Type:</th><td>%h(zMime)</td></tr>
   }
   @ <tr><th valign="top">Description:</th>\
+  /* FIXME (2026-06-05): Honor the N-card (comment mimetype). */
   @ <td valign="top">%h(zDesc)</td></tr>
   @ </table>
 
