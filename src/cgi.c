@@ -1337,8 +1337,9 @@ int cgi_setup_query_string(void){
     }
   }
   if( !g.syncInfo.zLoginCard && 0!=(z=(char*)P("x-f-l-c")) ){
-    /* x-f-l-c (X-Fossil-Login-Card card transmitted via cookie
-    ** instead of in the sync payload. */
+    /* x-f-l-c (X-Fossil-Login-Card) transmitted via cookie instead of
+    ** in the sync payload. The format of this value is the same as a
+    ** "login" card, as parsed by xfer.c:page_xfer(). */
     rc |= 0x04;
     g.syncInfo.zLoginCard = fossil_strdup(z);
     g.syncInfo.fLoginCardMode |= 0x02;

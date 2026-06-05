@@ -1,5 +1,5 @@
-C In\s/attachlist,\smake\sdeleted\sattachments\smore\snoticable\sby\susing\sstrike-through.
-D 2026-06-04T19:44:34.639
+C Minor\sdoc\saddition.
+D 2026-06-05T08:07:52.451
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -400,7 +400,7 @@ F src/bundle.c 7662a17b1e4492587af14cd0944424c86a2a1fc74828fb99d081073349c433b0
 F src/cache.c e7c49243b8b30cc82358f3a81e9c3652de500481c16f7691d6d6c4528ecc5300
 F src/capabilities.c 7b611448e775a4b7cf6600b188b4ffeb94f720e7cc437fe6f3b5efedc5ca3251
 F src/captcha.c f07d93b8bd0c2b5948725700000a6d8b5ecc8cf7614013ae0467f5106b60b349
-F src/cgi.c c785c8da4ad0bb51912d4c1c4f0568fa5e24f6e67845eff494953cdd2909f96a
+F src/cgi.c c12fdf3436eb3f3c13d7352ccd84cc5c7279f9d864f165f7e992f001be5ba3e2
 F src/chat.c 5b6b39018559fe496641f49f199069b4a78c4c02e30630ac76ba9ea53f51ec4d
 F src/checkin.c 10d688ec09cf9ada309fc3fadb04fabfaa1c58ec433e4ee6337c19c40d55d06b
 F src/checkout.c b4403d7fa11a813fd248c9ffbea29f5cda04264a5393d4ccfd723811a3cafce4
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5fcc0dd3933baae5fb0dd68a62ad66c9b5921f8f0c38098a764996d8c0c7fe5b
-R 39976e4934da85de0022c656bc0f424f
+P d3747df93a5042d29894800fabc415ad1304b50d50a0629a449b3ab57e2939d1
+R fa1e1692132be601764fafce26882b3a
 U stephan
-Z f8abf062ea1e0de9e5c841fd5e762ea7
+Z 9cc773e9617f6522b12aca8ea5b4922d
 # Remove this line to create a well-formed Fossil manifest.
