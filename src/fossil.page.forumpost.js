@@ -273,6 +273,7 @@
       if( msg.length ){
         e.classList.remove('hidden');
         e.append(...msg);
+        console.error('ForumPostEditor:',...msg);
       }else{
         e.classList.add('hidden');
       }
@@ -280,14 +281,14 @@
 
     /**
        Adds a list of input[type=hidden] form fields to this object,
-       imported from the server-generated HTML. This is used for collecting,
-       e.g., the CSRF token.
+       imported from the server-generated HTML. This is used for
+       collecting, e.g., the CSRF token and an initial page title.
     */
     addHiddenFields(list){
       this.#extraFields ??= [];
       for( const f of list ){
-        if( 'title'===f.name && this.#opt.isNewThread ){
-          if( !this.#e.title.value ){
+        if( 'title'===f.name ){
+          if( f.value && this.#opt.isNewThread && !this.#e.title.value ){
             this.#e.title.value = f.value;
           }
         }else{
@@ -300,15 +301,25 @@
       return this.#e.mimetype.select.value;
     }
 
-    async #fetchPreview(content){
-      /* TODO: fetch preview */
-      const e = this.#e;
+    get title(){
+      return this.#e.title.value;
+    }
+
+    #newFormData(addThisContent){
       const fd = new FormData;
       for(const f of this.#extraFields){
         fd.append(f.name, f.value);
       }
       fd.append('mimetype', this.mimetype);
-      fd.append('content', content);
+      fd.append('title', this.title.trim());
+      fd.append('content', addThisContent || this.editorContent.trim());
+      return fd;
+    }
+
+    async #fetchPreview(content){
+      /* TODO: fetch preview */
+      const e = this.#e;
+      const fd = this.#newFormData(content);
       return window
         .fetch(F.repoUrl('wikiajax/preview'), {
           method: 'POST',
@@ -354,7 +365,7 @@
       this.#fetchPreview(content)
         .then((c)=>{
           this.#setPreviewContent(c);
-          D.enable(this.#toDisable, e.button.submit);
+          D.enable(e.button.submit);
         })
         .catch(err=>{
           e.preview.textContent = "Error fetching preview: "+err.message;
@@ -367,11 +378,13 @@
         });
     }
 
-    #validate(){
-      let v = this.#e.title.value.trim();
-      if( !v ){
-        this.reportError("A non-empty title is required.");
-        return;
+    #validate(tgt){
+      if( this.#opt.isNewThread ){
+        let v = this.#e.title.value.trim();
+        if( !v ){
+          this.reportError("A non-empty title is required.");
+          return;
+        }
       }
       return true;
     }
@@ -383,16 +396,20 @@
       const e = this.#e;
       D.disable(e.button.submit);
       this.reportError("Submit is TODO.");
-      if( opt.draftKey ){
-        F.storage.remove(opt.draftKey+'.content');
-        F.storage.remove(opt.draftKey+'.title');
-      }
+      const fd = this.#newFormData();
+      this.#att.populateFormData(fd);
+      console.warn("Ready to submit",fd);
       /*
         TODO: save it, set #isWaiting=false, then handle error or
         redirect to the post (if this is a new post) or, if replying
         inline, replace this object with a static rendering from the
         response.
       */
+      if( 0 && this.#opt.draftKey ){
+        F.storage.remove(this.#opt.draftKey+'.content');
+        F.storage.remove(this.#opt.draftKey+'.title');
+      }
+      this.#isWaiting = false;
     }
 
     async #fetchPost(){
