@@ -1485,7 +1485,7 @@ static void forum_display_thread(
 */
 static void forum_emit_js(void){
   builtin_fossil_js_bundle_or("copybutton", "pikchr", "confirmer",
-                              "attach", "tabs", NULL);
+                              "attach", "tabs", "storage", NULL);
   builtin_request_js("fossil.page.forumpost.js");
 }
 

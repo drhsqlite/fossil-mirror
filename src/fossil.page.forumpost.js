@@ -1,6 +1,6 @@
 /**
    Code for the forum family of pages. Requires fossil.X where X is
-   (copybutton, pikchr, confirmer, attach, tabs).
+   (copybutton, pikchr, confirmer, attach, tabs, storage).
 */
 (function(F/*the fossil object*/){
   "use strict";
@@ -32,14 +32,22 @@
     #extraFields;
 
     /**
-     */
+       Options:
+
+       opt.draftKey[string=undefined]: if set then this object's state
+       will be stored in fossil.storage when the relevant input fields
+       lose focus. If old state is found, the form is pre-populated
+       from it.  The state is cleared on a successful submit.
+    */
     constructor(opt){
       opt = this.#opt = F.nu({
         // todo: defaults once we determine the options
         // replyTo: hash
         // edit: hash
+        draftKey: undefined
       }, opt);
       opt.isNewThread = !opt.replyTo && !opt.edit;
+      if( !opt.draftKey) opt.draftKey = '';
       const e = this.#e = F.nu({
         mimetype: F.nu(),
         button: F.nu()
@@ -54,6 +62,13 @@
           D.append(D.span(), "Title:"),
           e.title
         );
+        if( opt.draftKey ){
+          const key = opt.draftKey+'.title';
+          e.title.addEventListener('blur', ()=>{
+            F.storage.set(key, e.title.value)
+          });
+          e.title.value = F.storage.get(key,'');
+        }
         wrapper.append(e.titleBar);
       }
       e.mimetype.wrapper = D.addClass(D.div(), 'mimetype-wrapper');
@@ -94,7 +109,7 @@
       e.err.addEventListener('dblclick',()=>this.reportError());
 
       const idPrefix = 'FormPostEditor'+(++idCounter)/* TabManager requires IDs */;
-      { /* Tabs... */
+      { /* Main tabs... */
         e.tabs = D.attr(
           D.addClass(D.div(), 'tab-container'),
           'id', idPrefix+'-tabs'
@@ -119,7 +134,13 @@
         e.tabEdit.dataset.tabLabel = 'Edit';
         this.#tabs.addTab( e.tabEdit );
         this.#tabs.switchToTab( e.tabEdit );
-
+        if( opt.draftKey ){
+          const key = opt.draftKey+'.content';
+          this.editorContent = F.storage.get(key,'');
+          e.editor.addEventListener(
+            'blur', ()=>F.storage.set(key, this.editorContent)
+          );
+        }
         e.preview = D.addClass(D.div(), 'preview');
         e.preview.dataset.tabLabel = 'Preview';
         this.#tabs.addTab( e.preview );
@@ -156,10 +177,38 @@
       }
       e.buttons.append(e.button.preview, e.button.submit);
       this.#toDisable.push(e.button.preview);
+
+      if( opt.hiddenFields ){
+        this.addHiddenFields( opt.hiddenFields );
+        delete opt.hiddenFields;
+      }
+
     }/*constructor*/
 
+    /** This widget's top-most DOM element. */
     get widget(){
       return this.#e.widget;
+    }
+
+    get editorContent(){
+      /* We wrap access to the editor's contents in a getter/setter so
+         that we can eventually add optional use of a contenteditable
+         edit field, as those are generally more comfortable. The code
+         for that is in fossil.page.chat.js. */
+      return this.#e.editor.value;
+    }
+
+    set editorContent(v){
+      this.#e.editor.value = v;
+    }
+
+    /** Clears any draft state. */
+    clearDraft(){
+      const k = this.#opt.draftKey;
+      if( k ){
+        F.storage.remove(k+'.content');
+        F.storage.remove(k+'.title');
+      }
     }
 
     /**
@@ -187,11 +236,17 @@
       this.#extraFields ??= [];
       for( const f of list ){
         if( 'title'===f.name && this.#opt.isNewThread ){
-          this.#e.title.value = f.value;
+          if( !this.#e.title.value ){
+            this.#e.title.value = f.value;
+          }
         }else{
           this.#extraFields.push(f);
         }
       }
+    }
+
+    get mimetype(){
+      return e.mimetype.select.value;
     }
 
     async #fetchPreview(content){
@@ -201,7 +256,7 @@
       for(const f of this.#extraFields){
         fd.append(f.name, f.value);
       }
-      fd.append('mimetype', e.mimetype.select.value);
+      fd.append('mimetype', this.mimetype);
       fd.append('content', content);
       return window
         .fetch(F.repoUrl('wikiajax/preview'), {
@@ -218,6 +273,16 @@
         });
     }
 
+    setContent(rawHtml){
+      const preview = this.#e.preview;
+      previe.innerHTML = c;
+      if(F.pikchr && 'text/x-markdown'===this.mimetype){
+        F.pikchr.addSrcView(
+          preview.querySelectorAll('svg.pikchr')
+        );
+      }
+    }
+
     async #preview(){
       if( this.#isWaiting ) return;
       const e = this.#e;
@@ -228,7 +293,7 @@
       }
       this.#isWaiting = true;
       D.clearElement(e.preview);
-      const content = e.editor.value.trim();
+      const content = this.editorContent.trim();
       if( !content ){
         return;
       }
@@ -236,7 +301,7 @@
       e.preview.textContent = "Fetching preview...";
       this.#fetchPreview(content)
         .then((c)=>{
-          e.preview.innerHTML = c;
+          this.setContent(c);
           D.enable(this.#toDisable, e.button.submit);
         })
         .catch(err=>{
@@ -266,6 +331,10 @@
       const e = this.#e;
       D.disable(e.button.submit);
       this.reportError("Submit is TODO.");
+      if( opt.draftKey ){
+        F.storage.remove(opt.draftKey+'.content');
+        F.storage.remove(opt.draftKey+'.title');
+      }
       /*
         TODO: save it, set #isWaiting=false, then handle error or
         redirect to the post (if this is a new post) or, if replying
@@ -465,8 +534,10 @@
           : null;
     if( eForumNew ){
       /* /forumnew */
-      const fpe = new fossil.ForumPostEditor({});
-      fpe.addHiddenFields( eForumNew.querySelectorAll('input[type=hidden]') );
+      const fpe = new fossil.ForumPostEditor({
+        draftKey: 'forumnew',
+        hiddenFields: eForumNew.querySelectorAll('input[type=hidden]')
+      });
       eForumNew.parentElement.insertBefore(fpe.widget, eForumNew);
       eForumNew.remove();
       fossil.page.fpe = fpe /* for testing via the console */;
