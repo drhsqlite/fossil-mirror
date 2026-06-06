@@ -34,7 +34,7 @@
 ** tech-notes and tickets, otherwise such IDs may be prefixes. If
 ** bFull is false then tech-notes and tickets will perform a prefix
 ** match, but it is up to the caller to provide enough of a prefix to
-** rule out a collision[^1]. When called repeatedly, this routine can
+** rule out ambiguity[^1]. When called repeatedly, this routine can
 ** run a bit faster and more efficiently if bFull is true, but some
 ** historical use cases call for prefix matches.
 **
@@ -52,9 +52,9 @@
 **
 ** [^1]: Historically (from the perspective of 2026-06) attachment
 ** target lookups have used GLOB prefix matching but have taken no
-** measures to ensure that the prefix is unambiguous. Ergo we don't
-** here, either. It is assumed that the caller passes enough of a
-** prefix to be unambiguous and that's worked out fine so far.
+** measures to ensure that the prefix is unambiguous. Ergo we do the
+** same here. It is assumed that the caller passes enough of a prefix
+** to be unambiguous and that's worked out fine so far.
 */
 int attachment_target_type(const char *zTarget, int bFull){
   if( !zTarget || !zTarget[0] || strlen(zTarget)>64/*vs. abuse*/ ){
@@ -62,7 +62,8 @@ int attachment_target_type(const char *zTarget, int bFull){
   }
   if( symbolic_name_to_rid(zTarget, "f")>0 ){
     /* Check forum posts first because they are the most likely target
-    ** as of 2026. */
+    ** as of 2026. We should arguably use something more
+    ** specialized/efficient than symbolic_name_to_rid(). */
     return CFTYPE_FORUM;
   }
   if( bFull ){
