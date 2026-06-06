@@ -681,6 +681,23 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        skin_detail_boolean("white-foreground") ? "true" : "false");
     CX("}\n"/*fossil.config.skin*/);
     CX("};\n"/* fossil.config */);
+    CX("window.fossil.config.forumStatuses =");
+    if( forum_statuses()->n>1 ){
+      const ForumStatusList * fsl = forum_statuses();
+      int i;
+      CX("[");
+      for(i = 0; i < fsl->n; ++i){
+        const ForumStatus *fs = &fsl->aStatus[i];
+        if(i){
+          CX(",");
+        }
+        CX("{\"label\":%!j,\"value\":%!j}",
+           fs->zLabel, fs->zValue);
+      }
+      CX("];\n");
+    }else{
+      CX("[];\n");
+    }
     CX("window.fossil.user = {");
     CX("name: %!j,", (g.zLogin&&*g.zLogin) ? g.zLogin : "guest");
     CX("isAdmin: %s,", (g.perm.Admin || g.perm.Setup) ? "true" : "false");

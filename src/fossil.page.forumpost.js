@@ -71,23 +71,26 @@
         }
         wrapper.append(e.titleBar);
       }
-      e.mimetype.wrapper = D.addClass(D.div(), 'mimetype-wrapper');
-      e.mimetype.select = D.addClass(D.select(), 'mimetype-select');
-      this.#toDisable.push(e.mimetype.select);
-      e.mimetype.label = D.span();
-      e.mimetype.label.append(
-        D.a(F.repoUrl('markup_help'), 'Markup style'),
-        ':'
-      );
-      e.mimetype.wrapper.append(e.mimetype.label, e.mimetype.select);
-      let i = 0;
-      for(const [k,v] of Object.entries({
-        'text/x-markdown': 'Markdown',
-        'text/x-fossil-wiki': 'Fossil Wiki',
-        'text/plain': 'Plain text'
-      })) {
-        const o = D.option(e.mimetype.select, k, v);
-        if( !i++ ) o.setAttribute('selected', '');
+
+      { /* Mimetype bits... */
+        e.mimetype.wrapper = D.addClass(D.div(), 'mimetype-wrapper');
+        e.mimetype.select = D.addClass(D.select(), 'mimetype-select');
+        this.#toDisable.push(e.mimetype.select);
+        let i = 0;
+        for(const [k,v] of Object.entries({
+          'text/x-markdown': 'Markdown',
+          'text/x-fossil-wiki': 'Fossil Wiki',
+          'text/plain': 'Plain text'
+        })) {
+          const o = D.option(e.mimetype.select, k, v);
+          if( !i++ ) o.setAttribute('selected', '');
+        }
+        e.mimetype.label = D.span();
+        e.mimetype.label.append(
+          D.a(F.repoUrl('markup_help'), 'Markup style'),
+          ':'
+        );
+        e.mimetype.wrapper.append(e.mimetype.label, e.mimetype.select);
       }
 
       e.button.preview = D.button("Preview", e=>this.#preview());
@@ -163,6 +166,37 @@
         this.#tabs.addTab(e.debug);
       }
       e.buttons.append(e.mimetype.wrapper);
+
+      if( 0 ){
+        /*
+          Status selection. We probably don't _really_ want this in
+          the editor because people will open the editor, change the
+          status, and tap submit, resulting in a whole new, unedited
+          copy of the post, differing only in the new 'status' tag
+          added to it.
+        */
+        let i = 0;
+        for(const [k,v] of Object.entries({
+          'text/x-markdown': 'Markdown',
+          'text/x-fossil-wiki': 'Fossil Wiki',
+          'text/plain': 'Plain text'
+        })) {
+          const o = D.option(e.mimetype.select, k, v);
+          if( !i++ ) o.setAttribute('selected', '');
+        }
+        if( F.config.forumStatuses?.length>0 ){
+          const sel = e.status = D.select();
+          D.option(sel, "", "- Status -").disabled = true;
+          for( const status of F.config.forumStatuses ){
+            D.option(sel, status.value, status.label);
+          }
+          e.buttons.append(sel);
+          if( opt.status ){
+            sel.value = opt.status;
+          }
+        }
+      }
+
       if( F.user.mayAttachForum ){
         this.#att = new F.Attacher({
           reverse: true
@@ -251,6 +285,10 @@
 
     set editorContent(v){
       this.#e.editor.value = v;
+    }
+
+    get status(){
+      return this.#e.status?.value;
     }
 
     /** Clears any draft state. */
@@ -398,6 +436,9 @@
       this.reportError("Submit is TODO.");
       const fd = this.#newFormData();
       this.#att.populateFormData(fd);
+      if( this.#e.status ){
+        fd.append( "status", this.status );
+      }
       console.warn("Ready to submit",fd);
       /*
         TODO: save it, set #isWaiting=false, then handle error or

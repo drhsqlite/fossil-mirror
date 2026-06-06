@@ -98,7 +98,7 @@ struct ForumStatusMatch {
 ** Returns a high-level representation of the forum-statuses setting.
 ** This is a singleton, cached across calls.
  */
-static const ForumStatusList * forum_statuses(void){
+const ForumStatusList * forum_statuses(void){
   static ForumStatusList fses = {0,0};
   static int once = 0;
   while( !once ){
@@ -153,7 +153,9 @@ static const ForumStatusList * forum_statuses(void){
 ** entry in the list is returned, noting that the list may be empty,
 ** in which case 0 is returned.
 */
-const ForumStatus * forum_status_by_value(const char *z, int bFirst){
+static const ForumStatus * forum_status_by_value(
+  const char *z, int bFirst
+){
   const ForumStatusList * const fses = forum_statuses();
   const ForumStatus * fs0 = 0;
   unsigned int i;
