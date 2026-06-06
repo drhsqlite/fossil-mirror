@@ -27,7 +27,8 @@
   cursor: pointer;
 }
 
-.ForumPostEditor .tab-panel.editor-wrapper {
+
+.ForumPostEditor > .tab-container >  .tabs > .tab-panel {
   display: flex;
   flex-direction: column;
 }
@@ -42,11 +43,19 @@
 .ForumPostEditor > .titlebar{
   display: flex;
   flex-direction: row;
+  font-size: 120%;
+  align-items: stretch;
   gap: 0.75em;
 }
-
+.ForumPostEditor > .titlebar{
+  align-items: center;
+}
 .ForumPostEditor > .titlebar > .title {
   flex-grow: 1;
+  /* Clear some globals... */
+  font-size: inherit;
+  max-width: initial;
+  color: initial;
 }
 
 .ForumPostEditor > .buttons {

@@ -1111,6 +1111,8 @@ static void wiki_ajax_route_diff(void){
 **
 **  mimetype = the wiki page mimetype (determines rendering style)
 **  content = the wiki page content
+**
+** Responds with a partial HTML document.
 */
 static void wiki_ajax_route_preview(void){
   const char * zContent = P("content");

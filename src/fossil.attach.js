@@ -317,13 +317,19 @@
       eDropzone.addEventListener('dragleave', (ev)=>{
         eDropzone.classList.remove('dragover');
       });
-      eDropzone.addEventListener('drop', (ev)=>{
+      const handleDrop = (ev, theRealRowObj)=>{
         ev.preventDefault();
         eDropzone.classList.remove('dragover');
         if( ev.dataTransfer.files.length ){
-          this.#injestBlob(rowObj, ev.dataTransfer.files[0]);
+          const r = theRealRowObj || rowObj;
+          this.#injestBlob(r, ev.dataTransfer.files[0]);
         }
-      });
+      };
+      /* Isn't working? eBtnAdd.addEventListener('drop', (ev)=>{
+        this.#addRow();
+        handleDrop(ev, this.#rows[this.#rows.length-1]);
+      });*/
+      eDropzone.addEventListener('drop', handleDrop);
       const pasteImage = (event, item)=>{
         if( item.type.indexOf('image') === 0 ) {
           event.preventDefault();

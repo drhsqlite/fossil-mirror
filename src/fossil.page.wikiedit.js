@@ -1390,7 +1390,6 @@
   P.baseHrefRestore = function(){
     this.base.tag.href = this.base.originalHref;
   };
-  
 
   /**
      loadPage() loads the given wiki page and updates the relevant
@@ -1456,7 +1455,7 @@
     });
     return this;
   };
-  
+
   /**
      Fetches the page preview based on the contents and settings of
      this page's input fields, and updates the UI with the

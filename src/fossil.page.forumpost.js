@@ -27,13 +27,19 @@
     #toDisable = [];
     /* DOM element of the current active tab. */
     #activeTab;
+    /* Extra input[type=hidden] fields imported from fossil's
+       static page generation. */
+    #extraFields;
 
+    /**
+     */
     constructor(opt){
       opt = this.#opt = F.nu({
         // todo: defaults once we determine the options
         // replyTo: hash
         // edit: hash
       }, opt);
+      opt.isNewThread = !opt.replyTo && !opt.edit;
       const e = this.#e = F.nu({
         mimetype: F.nu(),
         button: F.nu()
@@ -43,6 +49,7 @@
       if( !opt.inReplyTo ){
         e.titleBar = D.addClass(D.div(),'titlebar');
         e.title = D.addClass(D.input('text'), 'title');
+        e.title.setAttribute('maxlength', 125);
         e.titleBar.append(
           D.append(D.span(), "Title:"),
           e.title
@@ -51,6 +58,7 @@
       }
       e.mimetype.wrapper = D.addClass(D.div(), 'mimetype-wrapper');
       e.mimetype.select = D.addClass(D.select(), 'mimetype-select');
+      this.#toDisable.push(e.mimetype.select);
       e.mimetype.label = D.span();
       e.mimetype.label.append(
         D.a(F.repoUrl('markup_help'), 'Markup style'),
@@ -69,10 +77,14 @@
 
       e.button.preview = D.button("Preview", e=>this.#preview());
       e.button.submit = D.button("Submit");
-      F.confirmer(e.button.submit, {
-        confirmText: "Confirm submit...",
-        onconfirm: ()=>this.#submit()
-      });
+      if( 1 ){
+        F.confirmer(e.button.submit, {
+          confirmText: "Confirm submit...",
+          onconfirm: ()=>this.#submit()
+        });
+      }else{
+        e.button.submit.addEventListener('click', ()=>this.#submit());
+      }
       e.button.submit.setAttribute('disabled', '');
       e.buttons = D.addClass(D.div(), 'buttons');
       wrapper.append(e.buttons);
@@ -88,6 +100,12 @@
           'id', idPrefix+'-tabs'
         );
         this.#tabs = new F.TabManager(e.tabs);
+        this.#tabs.addEventListener('before-switch-to', (ev)=>{
+          this.#activeTab = ev.detail;
+          if( e.preview === this.#activeTab ){
+            this.#e.button.preview.click();
+          }
+        });
         wrapper.append( e.tabs );
 
         e.tabEdit = D.div();
@@ -95,21 +113,16 @@
         e.editor = D.attr(
           D.addClass(D.textarea(), 'editor'),
           'placeholder',
-          'Your content...'
+          'Your message to other forum-goers...'
         );
         e.tabEdit.append(e.editor);
         e.tabEdit.dataset.tabLabel = 'Edit';
         this.#tabs.addTab( e.tabEdit );
+        this.#tabs.switchToTab( e.tabEdit );
 
         e.preview = D.addClass(D.div(), 'preview');
         e.preview.dataset.tabLabel = 'Preview';
         this.#tabs.addTab( e.preview );
-        this.#tabs.addEventListener('before-switch-to', (ev)=>{
-          this.#activeTab = ev.detail;
-          if( e.preview === this.#activeTab ){
-            this.#e.button.preview.click();
-          }
-        });
       }
 
       if( F.user.enableDebug ){
@@ -149,7 +162,6 @@
       return this.#e.widget;
     }
 
-
     /**
        Reports an error by appending each argument to the error widget
        and unhiding it. If passed no arugments, it clears and hides
@@ -166,10 +178,44 @@
       }
     }
 
-    async #fetchPreview(){
+    /**
+       Adds a list of input[type=hidden] form fields to this object,
+       imported from the server-generated HTML. This is used for collecting,
+       e.g., the CSRF token.
+    */
+    addHiddenFields(list){
+      this.#extraFields ??= [];
+      for( const f of list ){
+        if( 'title'===f.name && this.#opt.isNewThread ){
+          this.#e.title.value = f.value;
+        }else{
+          this.#extraFields.push(f);
+        }
+      }
+    }
+
+    async #fetchPreview(content){
       /* TODO: fetch preview */
-      this.#isWaiting = false;
-      D.enable(this.#toDisable);
+      const e = this.#e;
+      const fd = new FormData;
+      for(const f of this.#extraFields){
+        fd.append(f.name, f.value);
+      }
+      fd.append('mimetype', e.mimetype.select.value);
+      fd.append('content', content);
+      return window
+        .fetch(F.repoUrl('wikiajax/preview'), {
+          method: 'POST',
+          body: fd
+        })
+        .then(r=>r.text())
+        .then(t=>{
+          if( /^\{.*}$/.test(t) ){
+            const o = JSON.parse(t);
+            throw new Error(o.error);
+          }
+          return t;
+        });
     }
 
     async #preview(){
@@ -181,24 +227,45 @@
         return;
       }
       this.#isWaiting = true;
+      D.clearElement(e.preview);
+      const content = e.editor.value.trim();
+      if( !content ){
+        return;
+      }
       D.disable(this.#toDisable, e.button.submit);
       e.preview.textContent = "Fetching preview...";
-      this.#fetchPreview()
-        .then(()=>{
-          e.preview.textContent = "TODO: actually fetch the preview "+Date.now();
+      this.#fetchPreview(content)
+        .then((c)=>{
+          e.preview.innerHTML = c;
           D.enable(this.#toDisable, e.button.submit);
         })
-        .catch(e=>{
-          this.reportError(e.message);
+        .catch(err=>{
+          e.preview.textContent = "Error fetching preview: "+err.message;
+          this.reportError(err.message);
+        })
+        .finally(()=>{
+          this.#isWaiting = false;
           D.enable(this.#toDisable);
+          console.warn("finally()!");
         });
+    }
+
+    #validate(){
+      let v = this.#e.title.value.trim();
+      if( !v ){
+        this.reportError("A non-empty title is required.");
+        return;
+      }
+      return true;
     }
 
     #submit(){
       if( this.#isWaiting ) return;
+      if( !this.#validate() ) return;
       this.#isWaiting = true;
       const e = this.#e;
       D.disable(e.button.submit);
+      this.reportError("Submit is TODO.");
       /*
         TODO: save it, set #isWaiting=false, then handle error or
         redirect to the post (if this is a new post) or, if replying
@@ -393,5 +460,16 @@
       });
     }
 
+    const eForumNew = document.body.classList.contains('cpage-forumnew')
+          ? document.querySelector('#forumnew-placeholder')
+          : null;
+    if( eForumNew ){
+      /* /forumnew */
+      const fpe = new fossil.ForumPostEditor({});
+      fpe.addHiddenFields( eForumNew.querySelectorAll('input[type=hidden]') );
+      eForumNew.parentElement.insertBefore(fpe.widget, eForumNew);
+      eForumNew.remove();
+      fossil.page.fpe = fpe /* for testing via the console */;
+    }/*eForumNew*/
   })/*F.onPageLoad callback*/;
 })(window.fossil);

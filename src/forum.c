@@ -1999,6 +1999,8 @@ void forumnew_page(void){
   }
   style_set_current_feature("forum");
   style_header("New Forum Thread");
+
+  @ <noscript>
   @ <form action="%R/forume1" method="POST">
   @ <h1>New Thread:</h1>
   forum_from_line();
@@ -2013,6 +2015,15 @@ void forumnew_page(void){
   login_insert_csrf_secret();
   @ </form>
   forum_render_attachment_notice();
+  @ </noscript>
+  /* When JS is disabled the block above will work.
+     When it's enabled, the above won't do anything and
+     JS will render the editor form. */
+
+  @ <div hidden id='forumnew-placeholder'>
+  @ <input type='hidden' name='title' value='%h(zTitle)'>
+  login_insert_csrf_secret() /* the 2026 form */;
+  @ </div>
   forum_emit_js();
   style_finish_page();
 }
