@@ -246,7 +246,7 @@
     }
 
     get mimetype(){
-      return e.mimetype.select.value;
+      return this.#e.mimetype.select.value;
     }
 
     async #fetchPreview(content){
@@ -273,9 +273,10 @@
         });
     }
 
-    setContent(rawHtml){
+    #setPreviewContent(rawHtml){
       const preview = this.#e.preview;
-      previe.innerHTML = c;
+      D.clearElement(preview);
+      D.parseHtml(preview, rawHtml);
       if(F.pikchr && 'text/x-markdown'===this.mimetype){
         F.pikchr.addSrcView(
           preview.querySelectorAll('svg.pikchr')
@@ -301,17 +302,17 @@
       e.preview.textContent = "Fetching preview...";
       this.#fetchPreview(content)
         .then((c)=>{
-          this.setContent(c);
+          this.#setPreviewContent(c);
           D.enable(this.#toDisable, e.button.submit);
         })
         .catch(err=>{
           e.preview.textContent = "Error fetching preview: "+err.message;
+          console.error("Error fetching preview:",err);
           this.reportError(err.message);
         })
         .finally(()=>{
           this.#isWaiting = false;
           D.enable(this.#toDisable);
-          console.warn("finally()!");
         });
     }
 
