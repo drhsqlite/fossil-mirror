@@ -183,6 +183,58 @@
         delete opt.hiddenFields;
       }
 
+      { /* Shift-enter pieces... */
+        const eCb = D.checkbox(1);
+        const eLbl = D.label();
+        const eHelp = D.append(
+          D.addClass(D.span(), "help-buttonlet"), [
+            'When checked, shift-enter will toggle between preview ',
+            'and edit modes. This is generally useful but some ',
+            'software keyboards misinteract with it. If the preview ',
+            'starts when you tap Enter, turn this setting off.'
+          ].join('')
+        );
+        eCb.checked = F.storage.getBool('edit-shift-enter-preview', true);
+        eCb.addEventListener('change', (ev)=>{
+          F.storage.set('edit-shift-enter-preview', eCb.checked);
+        });
+        F.helpButtonlets.setup(eHelp);
+        eLbl.append("Shift-enter toggles preview?", eCb, eHelp);
+        e.buttons.append(eLbl);
+        const isShiftEnter = (ev)=>eCb.checked && ev.shiftKey && 13===ev.keyCode;
+        e.editor.addEventListener('keydown',(ev)=>{
+          /**
+             If eCb.checked is true, a keyboard combo of shift-enter
+             (from the editor) toggles between preview and edit modes.
+             This is normally desired but at least one software
+             keyboard is known to misinteract with this, treating an
+             Enter after automatically-capitalized letters as a
+             shift-enter:
+
+             https://fossil-scm.org/forum/forumpost/dbd5b68366147ce8
+          */
+          if(!isShiftEnter(ev)) return;
+          ev.preventDefault();
+          ev.stopPropagation();
+          e.editor.blur(/*force change event, if needed*/);
+          this.#tabs.switchToTab(e.preview);
+          this.#preview();
+        }, false);
+        // If we're in the preview tab, have ctrl-enter switch back to the editor.
+        document.body.addEventListener('keydown',(ev)=>{
+          if(!isShiftEnter(ev)) return;
+          console.warn("this.#activeTab =",this.#activeTab);
+          if(this.#activeTab !== e.tabEdit){
+            ev.preventDefault();
+            ev.stopPropagation();
+            this.#tabs.switchToTab(e.tabEdit);
+            e.editor.focus(/*slow as molasses for long docs, as focus()
+                             forces a document reflow. */);
+            return false;
+          }
+        }, true);
+      }/*shift-enter preview bits*/
+
     }/*constructor*/
 
     /** This widget's top-most DOM element. */
