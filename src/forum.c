@@ -1986,7 +1986,7 @@ void forumnew_page(void){
   const char *zTitle = PDT("title","");
   const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
   const char *zContent = PDT("content","");
-
+  const int bLegacy = PB("legacy"); /* True for legacy HTML form */
   login_check_credentials();
   if( !g.perm.WrForum ){
     login_needed(g.anon.WrForum);
@@ -2003,12 +2003,15 @@ void forumnew_page(void){
   style_set_current_feature("forum");
   style_header("New Forum Thread");
 
-  @ <noscript>
+  if( !bLegacy ){
+    @ <noscript>
+  }
   @ <form action="%R/forume1" method="POST">
   @ <h1>New Thread:</h1>
   forum_from_line();
   forum_post_widget(zTitle, zMimetype, zContent);
   @ <input type="submit" name="preview" value="Preview">
+  @ <input type="hidden" name="legacy" value="1">
   if( P("preview") && !whitespace_only(zContent) ){
     @ <input type="submit" name="submit" value="Submit">
   }else{
@@ -2018,15 +2021,16 @@ void forumnew_page(void){
   login_insert_csrf_secret();
   @ </form>
   forum_render_attachment_notice();
-  @ </noscript>
-  /* When JS is disabled the block above will work.
-     When it's enabled, the above won't do anything and
-     JS will render the editor form. */
-
-  @ <div hidden id='forumnew-placeholder'>
-  @ <input type='hidden' name='title' value='%h(zTitle)'>
-  login_insert_csrf_secret() /* the 2026 form */;
-  @ </div>
+  if( !bLegacy ){
+    @ </noscript>
+    /* When JS is disabled the block above will work.
+       When it's enabled, the above won't do anything and
+       JS will render the editor form in the next element. */
+    @ <div hidden id='forumnew-placeholder'>
+    @ <input type='hidden' name='title' value='%h(zTitle)'>
+    login_insert_csrf_secret();
+    @ </div>
+  }
   forum_emit_js();
   style_finish_page();
 }
