@@ -34,7 +34,6 @@
         // replyTo: hash
         // edit: hash
       }, opt);
-      opt.isNew = !opt.edit && !opt.replyTo;
       const e = this.#e = F.nu({
         mimetype: F.nu(),
         button: F.nu()
@@ -128,16 +127,18 @@
       e.buttons.append(e.mimetype.wrapper);
       if( F.user.mayAttachForum ){
         this.#att = new F.Attacher({
-          addButtonLabel: 'Attach'
+          reverse: true
         });
-        e.buttons.append( e.button.addAttach = this.#att.takeAddButton() );
-        this.#toDisable.push( e.button.addAttach );
+        //e.buttons.append( e.button.addAttach = this.#att.takeAddButton() );
+        e.tabAttach = D.append(D.div(), this.#att.widget);
+        e.tabAttach.setAttribute('id', idPrefix+'-attach');
+        e.tabAttach.dataset.tabLabel = 'Attachments';
+        this.#tabs.addTab(e.tabAttach);
+        /* Reminder: we don't currently have a way to disable/enable
+           an Attacher's controls. */
       }
       e.buttons.append(e.button.preview, e.button.submit);
       this.#toDisable.push(e.button.preview);
-      if( this.#att ){
-        wrapper.append(this.#att.widget);
-      }
     }/*constructor*/
 
     get widget(){

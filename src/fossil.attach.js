@@ -47,6 +47,10 @@
        opt.description[=true]: if true then show the file description
        field, otherwise elide it.
 
+       opt.reverse[=false]: reverses the flow of the widget such that
+       the Add button stays on the top and rows are ordered
+       most-recently-added.
+
        opt.controls = [array of DOM elements]. Optional DOM elements
        to inject into the UI element which wraps the "Add" button.
        See this.controlsElement.
@@ -81,9 +85,11 @@
         startWith: 0,
         limit: 0,
         dryRun: undefined,
-        description: true
+        description: true,
+        reverse: false
       }, opt);
       this.#e.body = D.addClass(D.div(), 'Attacher');
+      if( opt.reverse ) this.#e.body.classList.add('reverse');
       const eBtnAdd = this.#e.btnAdd = D.addClass(
         D.button(this.#opt.addButtonLabel || 'Add attachment',
                  ()=>this.#addRow()),

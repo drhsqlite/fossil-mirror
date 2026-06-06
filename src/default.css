@@ -2021,6 +2021,9 @@ details.attachlist > summary {
   flex-direction: column;
   gap: 0.75em;
 }
+.Attacher.reverse {
+  flex-direction: column-reverse;
+}
 .Attacher .attach-row {
   display: flex;
   flex-direction: column;
