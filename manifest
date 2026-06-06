@@ -1,5 +1,5 @@
-C Integrate\sa\sstatus-selection\swidget\sinto\sthe\snew\seditor\sbut\sdisable\sit\sfor\sreasons\sdescribed\sin\sthe\scode\scomments.
-D 2026-06-06T16:56:48.318
+C Remove\ssome\sunnecessary\squoting.\sOnly\semit\swindow.fossil.config.forumStatuses\sif\sthe\srepo\shas\sany.
+D 2026-06-06T17:01:35.325
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -395,7 +395,7 @@ F src/bisect.c 59b6374581ce25ee6d0797a523e16903d42b77d4b233e5b2d35e8ab058ab9db8
 F src/blob.c a748ce7555e46ff3704b3db39f553a97ffcee8b71c483b2ed6c1f601c2225b2c
 F src/branch.c 9ac51ee492d81d79be857084c9207949c293c846d6d2204ca84d99fbeb8e401c
 F src/browse.c a0ff8e6a87321663e4ebb223373aa7c9d9b4007c2e930327f48c94f4d0753234
-F src/builtin.c 75bccb57f4b1bac447c0d3dcfe0b908461606a580c20c121a8e607eced0174b4
+F src/builtin.c e5ac108a3f75a7dc56a1350f48f040fe4e7bf7e6cc85a3ae91b42c3f4f828a6a
 F src/bundle.c 7662a17b1e4492587af14cd0944424c86a2a1fc74828fb99d081073349c433b0
 F src/cache.c e7c49243b8b30cc82358f3a81e9c3652de500481c16f7691d6d6c4528ecc5300
 F src/capabilities.c 7b611448e775a4b7cf6600b188b4ffeb94f720e7cc437fe6f3b5efedc5ca3251
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a8bebc81c0237a5dca3d5d305f4dac9bed47d8653ab7c029c8ac63867c40559
-R af18171715c89721c16afd1b56ff68fb
+P bd2bb5faccc4ad3d85164afced0c15130582e1872fc36150d02985b8a6892676
+R 3de87ce61ceb8b690263dd880e1c89ba
 U stephan
-Z 3b53f103398be3785c8c06af3c5e6678
+Z cbf65b93b956eba7ec533409d61fe89e
 # Remove this line to create a well-formed Fossil manifest.
