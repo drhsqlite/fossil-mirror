@@ -2030,7 +2030,7 @@ void forumnew_page(void){
     @ <div hidden id='forumnew-placeholder'>
     @ <input type='hidden' name='title' value='%h(zTitle)'>
     login_insert_csrf_secret();
-    captcha_generate_for_js(0x02);
+    captcha_generate_for_js(0);
     @ </div>
   }
   forum_emit_js();

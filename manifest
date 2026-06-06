@@ -1,5 +1,5 @@
-C Integrate\sthe\scaptcha\sin\sthe\snew\seditor\sform.\sStart\shooking\sin\sto\s/forumedit,\sbut\sit's\sincomplete.
-D 2026-06-06T20:11:57.516
+C Disable\sthe\scaptcha\swhen\sit's\snot\sneeded,\sas\sit\scomplicates\stesting.
+D 2026-06-06T20:18:49.114
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c b1bf870f5454c58ffb36d67d27588bbee70e2f22942bb56ced4c45bb628c9afe
+F src/forum.c a5d6a0320159546167f7243e8266952496259cf4ee6a1ad4370abde350f8ba3e
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.attach.js 0447721a064466aa66952ff16818385ea6ebe8d58d4a7e120f8736ba0c42a464
 F src/fossil.bootstrap.js 80253c8526b2764bf7d2441dd011a10396a5bcef416c6d2d66ea50f6cf9305ba
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6ffb97a8c50b08f461587616e219a90eff8abf3b6754dde51a6e96eac444b254
-R 737ecb9a8142da100f351cb14cdcdef7
+P c7a84df415a01956f38aa9aa873ba5696ec522201dabc6f141e77202fda8bf1b
+R 6e6d5ccde3bc479931bf1f806075b8b0
 U stephan
-Z 03b6a32da946869b1b60c9c4112641bf
+Z e5848d683263227af84c5079dad11853
 # Remove this line to create a well-formed Fossil manifest.
