@@ -2015,13 +2015,13 @@ section.attachlist {}
 details.attachlist > summary {
   cursor: pointer;
 }
-.attach-widget {
+.Attacher {
   margin-bottom: 1em;
   display: flex;
   flex-direction: column;
   gap: 0.75em;
 }
-.attach-widget .attach-row {
+.Attacher .attach-row {
   display: flex;
   flex-direction: column;
   gap: 0.5em;
@@ -2030,15 +2030,15 @@ details.attachlist > summary {
   border-radius: 0.25em;
   background-color: #fafafa;
 }
-.attach-widget .error {
+.Attacher .error {
   padding: 0.5em;
   background-color: #d32f2f;
   color: #fff;
 }
-body.fossil-dark-style .attach-widget .attach-row {
+body.fossil-dark-style .Attacher .attach-row {
   background-color: initial;
 }
-.attach-widget .attach-dropzone {
+.Attacher .attach-dropzone {
   padding: 1em;
   text-align: center;
   background: #ffffff;
@@ -2050,44 +2050,44 @@ body.fossil-dark-style .attach-widget .attach-row {
   flex-direction: row;
   flex-wrap: nowrap;
 }
-body.fossil-dark-style .attach-widget .attach-dropzone{
+body.fossil-dark-style .Attacher .attach-dropzone{
   background: initial;
 }
-.attach-widget .attach-dropzone.populated {
+.Attacher .attach-dropzone.populated {
   background-color: #f1f8e9;
   border-color: #8bc34a;
   border-style: solid;
   text-align: left;
 }
-body.fossil-dark-style .attach-widget .attach-dropzone.populated{
+body.fossil-dark-style .Attacher .attach-dropzone.populated{
   background-color: initial;
 }
-.attach-widget .attach-dropzone.dragover {
+.Attacher .attach-dropzone.dragover {
   background-color: #e1f5fe;
   color: black;
   border-color: #03a9f4;
 }
-body.fossil-dark-style .attach-widget .attach-dropzone.dragover{
+body.fossil-dark-style .Attacher .attach-dropzone.dragover{
   border-color: #03a9f4;
 }
-body.fossil-dark-style  .attach-widget .attach-dropzone.dragover{
+body.fossil-dark-style  .Attacher .attach-dropzone.dragover{
   background-color: #e1f5fe;
   border-color: #03a9f4;
 }
-.attach-widget .thumbnail {
+.Attacher .thumbnail {
   max-width: 10em;
   max-height: 10em;
   margin: 0 1em;
 }
-.attach-widget .attach-row-info{
+.Attacher .attach-row-info{
   font-family: monospace;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
-.attach-widget .attach-filename {}
-.attach-widget .attach-size {/*size and mimetype*/}
-.attach-widget .attach-desc {
+.Attacher .attach-filename {}
+.Attacher .attach-size {/*size and mimetype*/}
+.Attacher .attach-desc {
   max-width: initial;
   width: 100%;
   box-sizing: border-box;
@@ -2096,7 +2096,7 @@ body.fossil-dark-style  .attach-widget .attach-dropzone.dragover{
   font-family: inherit;
   resize: vertical;
 }
-.attach-widget .attach-row-remove {
+.Attacher .attach-row-remove {
   align-self: center;
   padding: 0.25em 0.75em;
   margin-left: 1em;
@@ -2107,15 +2107,15 @@ body.fossil-dark-style  .attach-widget .attach-dropzone.dragover{
   cursor: pointer;
   font-weight: bold;
 }
-.attach-widget .attach-row-remove:hover {
+.Attacher .attach-row-remove:hover {
   background-color: #b71c1c;
 }
-.attach-widget .attach-controls {
+.Attacher .attach-controls {
   display: flex;
   flex-direction: row;
   gap: 1em;
 }
-.attach-widget .attach-controls .attach-add-button {
+.Attacher .attach-controls .attach-add-button {
   padding: 0.5em 1em;
   cursor: pointer;
   flex-grow: 2;

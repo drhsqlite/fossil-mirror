@@ -30,7 +30,9 @@
     /**
        Options:
 
-       opt.container: DOM element to wrap this object in.
+       opt.container: Optional DOM element to append the resulting
+       widget to. If not set, the client can get access to the widget
+       element using this.body.
 
        opt.addButtonLabel: optional label for the "add attachment"
        button, defaulting to something generic.
@@ -78,10 +80,10 @@
         addButtonLabel: false,
         startWith: 0,
         limit: 0,
-        dryRun: false,
+        dryRun: undefined,
         description: true
       }, opt);
-      this.#e.body = D.addClass(D.div(), 'attach-widget');
+      this.#e.body = D.addClass(D.div(), 'Attacher');
       const eBtnAdd = this.#e.btnAdd = D.addClass(
         D.button(this.#opt.addButtonLabel || 'Add attachment',
                  ()=>this.#addRow()),
@@ -95,7 +97,9 @@
       const eControls = this.#e.controls =
             D.addClass(D.div(), 'attach-controls');
       eControls.append(eBtnAdd);
-      opt.container.appendChild(this.#e.body);
+      if( opt.container ){
+        opt.container.appendChild(this.#e.body);
+      }
       this.#e.body.appendChild(eControls);
       if( opt.listener ){
         const doCb = (eventType, key)=>{
@@ -110,7 +114,7 @@
         doCb('entry-removed', 'remove');
         doCb('entry-populated', 'populate');
       }
-      if( 0 ){
+      if( opt.dryRun ){
         /* Add dry-run toggle for testing. */
         const eLbl = D.label(false, "Dry-run?");
         const eCb = D.checkbox(true);
@@ -129,6 +133,11 @@
       }else{
         this.#updateControls();
       }
+    }
+
+
+    get widget(){
+      return this.#e.body;
     }
 
     addEventListener(...args){
@@ -243,7 +252,6 @@
         id, file: null, mimeType: ''
       });
       const eRow = D.addClass(D.div(), 'attach-row');
-      eRow.dataset.id = id;
       const eDropzone = D.addClass(D.div(), 'attach-dropzone');
       const eFile = D.addClass(
         D.input('file'), 'attach-file-input', 'hidden'
@@ -474,9 +482,9 @@
           continue;
         }
         rv.push(F.nu({
-          name: r.name || r.file.name || `pasted-content-${r.id}.${r.mimeType.split('/')[1] || 'txt'}`,
+          name: r.name || r.file.name,
           content: r.file,
-          description: r.e.desc?.value || '',
+          description: r.e.desc?.value ?? '',
           mimeType: r.mimeType
         }));
       }

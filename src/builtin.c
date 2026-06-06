@@ -683,7 +683,8 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     CX("};\n"/* fossil.config */);
     CX("window.fossil.user = {");
     CX("name: %!j,", (g.zLogin&&*g.zLogin) ? g.zLogin : "guest");
-    CX("isAdmin: %s", (g.perm.Admin || g.perm.Setup) ? "true" : "false");
+    CX("isAdmin: %s,", (g.perm.Admin || g.perm.Setup) ? "true" : "false");
+    CX("enableDebug: %s", (g.perm.Debug || g.perm.Admin) ? "true" : "false");
     CX("};\n"/*fossil.user*/);
     CX("if(fossil.config.skin.isDark) "
        "document.body.classList.add('fossil-dark-style');\n");
