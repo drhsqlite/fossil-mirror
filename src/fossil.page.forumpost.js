@@ -133,7 +133,10 @@
         setTimeout(()=>{delete form.dataset.submitted}, 7000);
         return;
       };
+
       document.querySelectorAll("form").forEach(function(form){
+        /* Set up controls for closing posts and setting thread
+           status. */
         form.addEventListener('submit', formSubmitted);
         form
           .querySelectorAll("input.action-close, input.action-reopen")
@@ -151,7 +154,9 @@
           .forEach(function(btn){
             btn.classList.remove('hidden');
             const sel = btn.previousElementSibling;
-            const updateAble = ()=>{
+            const updateButton = ()=>{
+              /* Enable btn only when the status has been locally
+                 modified. */
               if( sel.dataset.initialValue ){
                 if( sel.dataset.initialValue===sel.value ){
                   btn.setAttribute('disabled','');
@@ -166,8 +171,8 @@
                 }
               }
             };
-            sel.addEventListener('change', updateAble, true);
-            updateAble();
+            sel.addEventListener('change', updateButton, true);
+            updateButton();
             F.confirmer(btn, {
               confirmText: "Confirm status change",
               onconfirm: ()=>form.submit()

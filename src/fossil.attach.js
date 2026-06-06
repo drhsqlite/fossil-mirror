@@ -506,86 +506,88 @@
   }/*Attacher*/;
   F.Attacher = Attacher;
 
-  const eAttachWrapper = document.querySelector('#attachadd-form-wrapper');
-  if( eAttachWrapper ){
-    /* This page is /attachadd v2 or a workalike. eAttachWrapper holds
-       input[type=hidden] fields for use in attaching files and is
-       where we inject a file attachment widget. */
-    eAttachWrapper.classList.remove('hidden');
-    const urlArgs = new URLSearchParams(window.location.search);
-    let zTarget = urlArgs.get('target');
-    let zTo = urlArgs.get('to') || urlArgs.get('from');
-    const eBtnSubmit = D.button("Submit");
-    eBtnSubmit.type = 'button';
-    const updateBtnSubmit = (attacher)=>{
-      if( attacher.isPopulated ){
-        eBtnSubmit.removeAttribute('disabled');
-      }else{
-        eBtnSubmit.setAttribute('disabled', '');
-      }
-    };
-    const cbAttacherChange = (ev)=>{
-      const a = ev.detail.attacher;
-      updateBtnSubmit(a);
-    };
-    const att = new Attacher({
-      container: eAttachWrapper,
-      startWith: 1,
-      listener: cbAttacherChange,
-      controls: [eBtnSubmit],
-      description: true
-    });
-    eBtnSubmit.addEventListener('click', async (ev)=>{
-      att.reportError();
-      const li = att.collectState();
-      if( !li.length ) return;
-      if( eBtnSubmit.dataset.submitted ) return;
-      eBtnSubmit.dataset.submitted = 1;
-      D.disable(eBtnSubmit);
-      const fd = new FormData();
-      att.populateFormData(fd);
-      for( const eIn of eAttachWrapper.querySelectorAll(
-        'input[type="hidden"]'
-      ) ){
-        /* Copy over hidden input fields emitted by the server. */
-        if( eIn.name==='target' ){
-          zTarget = eIn.value;
-        }else if( eIn.name==='to' || (eIn.name==='from' && !zTo) ){
-          zTo = eIn.value;
+  F.onPageLoad(function(){
+    const eAttachWrapper = document.querySelector('#attachadd-form-wrapper');
+    if( eAttachWrapper ){
+      /* This page is /attachadd v2 or a workalike. eAttachWrapper holds
+         input[type=hidden] fields for use in attaching files and is
+         where we inject a file attachment widget. */
+      eAttachWrapper.classList.remove('hidden');
+      const urlArgs = new URLSearchParams(window.location.search);
+      let zTarget = urlArgs.get('target');
+      let zTo = urlArgs.get('to') || urlArgs.get('from');
+      const eBtnSubmit = D.button("Submit");
+      eBtnSubmit.type = 'button';
+      const updateBtnSubmit = (attacher)=>{
+        if( attacher.isPopulated ){
+          eBtnSubmit.removeAttribute('disabled');
+        }else{
+          eBtnSubmit.setAttribute('disabled', '');
         }
-        fd.append(eIn.name, eIn.value)
-      }
-      if( att.isDryRun ){
-        fd.append('dryrun', '1');
-      }
-      let err;
-      const resp = await window.fetch(F.repoUrl('attachadd_ajax_post'), {
-        method: 'POST',
-        body: fd
-      }).catch((e)=>{
-        err = e;
+      };
+      const cbAttacherChange = (ev)=>{
+        const a = ev.detail.attacher;
+        updateBtnSubmit(a);
+      };
+      const att = new Attacher({
+        container: eAttachWrapper,
+        startWith: 1,
+        listener: cbAttacherChange,
+        controls: [eBtnSubmit],
+        description: true
       });
-      D.enable(eBtnSubmit);
-      delete eBtnSubmit.dataset.submitted;
-      const jr = err ? undefined : await resp.json().catch(()=>{});
-      if( err || jr?.error || !resp.ok ){
-        const msg = err ? err.message : (jr?.error || resp.statusText);
-        att.reportError("Attaching failed: ", msg);
-      }else{
-        att.clear();
-        let to = zTo || jr?.redirect;
-        if( to ){
-          if( '/'!==to[0] ){
-            to = F.repoUrl(to);
+      eBtnSubmit.addEventListener('click', async (ev)=>{
+        att.reportError();
+        const li = att.collectState();
+        if( !li.length ) return;
+        if( eBtnSubmit.dataset.submitted ) return;
+        eBtnSubmit.dataset.submitted = 1;
+        D.disable(eBtnSubmit);
+        const fd = new FormData();
+        att.populateFormData(fd);
+        for( const eIn of eAttachWrapper.querySelectorAll(
+          'input[type="hidden"]'
+        ) ){
+          /* Copy over hidden input fields emitted by the server. */
+          if( eIn.name==='target' ){
+            zTarget = eIn.value;
+          }else if( eIn.name==='to' || (eIn.name==='from' && !zTo) ){
+            zTo = eIn.value;
           }
-          window.location = to;
-        }else if( zTarget ){
-          window.location = '?target='+zTarget+'&'+Date.now();
+          fd.append(eIn.name, eIn.value)
         }
-      }
-    })/*submit handler*/;
-    updateBtnSubmit(att);
-    F.page.attacher = att /* only for testing via dev console */;
-  }/* /attachadd */
+        if( att.isDryRun ){
+          fd.append('dryrun', '1');
+        }
+        let err;
+        const resp = await window.fetch(F.repoUrl('attachadd_ajax_post'), {
+          method: 'POST',
+          body: fd
+        }).catch((e)=>{
+          err = e;
+        });
+        D.enable(eBtnSubmit);
+        delete eBtnSubmit.dataset.submitted;
+        const jr = err ? undefined : await resp.json().catch(()=>{});
+        if( err || jr?.error || !resp.ok ){
+          const msg = err ? err.message : (jr?.error || resp.statusText);
+          att.reportError("Attaching failed: ", msg);
+        }else{
+          att.clear();
+          let to = zTo || jr?.redirect;
+          if( to ){
+            if( '/'!==to[0] ){
+              to = F.repoUrl(to);
+            }
+            window.location = to;
+          }else if( zTarget ){
+            window.location = '?target='+zTarget+'&'+Date.now();
+          }
+        }
+      })/*submit handler*/;
+      updateBtnSubmit(att);
+      F.page.attacher = att /* only for testing via dev console */;
+    }/* /attachadd */
+  })/*onPageLoad()*/;
 
 })(window.fossil);
