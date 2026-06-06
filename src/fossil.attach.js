@@ -90,6 +90,7 @@
         'attach-add-button'
       );
       eBtnAdd.type = 'button';
+      opt.ownsAddButton = true;
       this.#e.err = D.addClass(D.div(), 'error', 'hidden');
       this.#e.body.append(this.#e.err);
       this.#e.err.addEventListener('dblclick',()=>this.reportError());
@@ -221,10 +222,24 @@
       }else{
         b.classList.remove('hidden');
         D.enable(b);
-        this.#e.body.append(this.#e.controls/*move to the end*/);
+        if( this.#opt.ownsAddButton ){
+          this.#e.body.append(this.#e.controls/*move to the end*/);
+        }
       }
     }
 
+    /**
+       Returns the "Add" button widget, Passing control of it to the
+       caller so that they can place it in another location. This
+       object will still manage its enabled/disabled/hidden state but
+       will no longer move it when adding a row.
+    */
+    takeAddButton(){
+      if( this.#opt.ownsAddButton ){
+        this.#opt.ownsAddButton;
+      }
+      return this.#e.btnAdd;
+    }
     /**
        Sets rowObj.e.err up with an error message, or clears it if
        passed only 1 argument.

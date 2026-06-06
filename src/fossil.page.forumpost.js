@@ -1,8 +1,215 @@
+/**
+   Code for the forum family of pages. Requires fossil.X where X is
+   (copybutton, pikchr, confirmer, attach, tabs).
+*/
 (function(F/*the fossil object*/){
   "use strict";
   /* JS code for /forumpost and friends. Requires fossil.dom
      and can optionally use fossil.pikchr. */
   const P = F.page, D = F.dom;
+
+  let idCounter = 0;
+  /**
+     A WIP forum post editor widget for both new posts and responses.
+  */
+  class ForumPostEditor {
+    /* Options */
+    #opt;
+    /* Dom elements */
+    #e;
+    /* Attacher */
+    #att;
+    /* Is waiting on a pending remote response. */
+    #isWaiting = false;
+    /* F.TabManager */
+    #tabs;
+    /* Elements to disable while an XHR is pending. */
+    #toDisable = [];
+    /* DOM element of the current active tab. */
+    #activeTab;
+
+    constructor(opt){
+      opt = this.#opt = F.nu({
+        // todo: defaults once we determine the options
+        // replyTo: hash
+        // edit: hash
+      }, opt);
+      opt.isNew = !opt.edit && !opt.replyTo;
+      const e = this.#e = F.nu({
+        mimetype: F.nu(),
+        button: F.nu()
+      });
+      const wrapper = e.widget = D.addClass(D.div(), 'ForumPostEditor');
+      D.clearElement(wrapper);
+      if( !opt.inReplyTo ){
+        e.titleBar = D.addClass(D.div(),'titlebar');
+        e.title = D.addClass(D.input('text'), 'title');
+        e.titleBar.append(
+          D.append(D.span(), "Title:"),
+          e.title
+        );
+        wrapper.append(e.titleBar);
+      }
+      e.mimetype.wrapper = D.addClass(D.div(), 'mimetype-wrapper');
+      e.mimetype.select = D.addClass(D.select(), 'mimetype-select');
+      e.mimetype.label = D.span();
+      e.mimetype.label.append(
+        D.a(F.repoUrl('markup_help'), 'Markup style'),
+        ':'
+      );
+      e.mimetype.wrapper.append(e.mimetype.label, e.mimetype.select);
+      let i = 0;
+      for(const [k,v] of Object.entries({
+        'text/x-markdown': 'Markdown',
+        'text/x-fossil-wiki': 'Fossil Wiki',
+        'text/plain': 'Plain text'
+      })) {
+        const o = D.option(e.mimetype.select, k, v);
+        if( !i++ ) o.setAttribute('selected', '');
+      }
+
+      e.button.preview = D.button("Preview", e=>this.#preview());
+      e.button.submit = D.button("Submit", e=>this.#submit());
+      e.button.submit.setAttribute('disabled', '');
+      e.buttons = D.addClass(D.div(), 'buttons');
+      wrapper.append(e.buttons);
+
+      e.err = D.addClass(D.div(), 'error', 'hidden');
+      wrapper.append(e.err);
+      e.err.addEventListener('dblclick',()=>this.reportError());
+
+      const idPrefix = 'FormPostEditor'+(++idCounter)/* TabManager requires IDs */;
+      { /* Tabs... */
+        e.tabs = D.attr(
+          D.addClass(D.div(), 'tab-container'),
+          'id', idPrefix+'-tabs'
+        );
+        this.#tabs = new F.TabManager(e.tabs);
+        wrapper.append( e.tabs );
+
+        e.tabEdit = D.div();
+        e.tabEdit.classList.add('editor-wrapper');
+        e.editor = D.attr(
+          D.addClass(D.textarea(), 'editor'),
+          'placeholder',
+          'Your content...'
+        );
+        e.tabEdit.append(e.editor);
+        e.tabEdit.dataset.tabLabel = 'Edit';
+        this.#tabs.addTab( e.tabEdit );
+
+        e.preview = D.addClass(D.div(), 'preview');
+        e.preview.dataset.tabLabel = 'Preview';
+        this.#tabs.addTab( e.preview );
+        this.#tabs.addEventListener('before-switch-to', (ev)=>{
+          this.#activeTab = ev.detail;
+          if( e.preview === this.#activeTab ){
+            this.#e.button.preview.click();
+          }
+        });
+      }
+
+      if( F.user.enableDebug ){
+        e.debug = D.addClass(D.div(), 'debug');
+        e.debug.dataset.tabLabel = 'Debug';
+        e.debug.setAttribute('id', idPrefix+'-debug');
+        for(const [k,v] of Object.entries({
+          dryrun: 'Dry run',
+          domod: 'Require moderation approval',
+          showqp: 'Show query parameters',
+          fpsilent: 'Do not send notification emails'
+        })){
+          const lbl = D.label(false, v);
+          lbl.prepend(D.checkbox(k));
+          e.debug.append(lbl);
+        }
+        this.#tabs.addTab(e.debug);
+      }
+      e.buttons.append(e.mimetype.wrapper);
+      if( F.user.mayAttachForum ){
+        this.#att = new F.Attacher({
+          addButtonLabel: 'Attach'
+        });
+        e.buttons.append( e.button.addAttach = this.#att.takeAddButton() );
+        this.#toDisable.push( e.button.addAttach );
+      }
+      e.buttons.append(e.button.preview, e.button.submit);
+      this.#toDisable.push(e.button.preview);
+      if( this.#att ){
+        wrapper.append(this.#att.widget);
+      }
+    }/*constructor*/
+
+    get widget(){
+      return this.#e.widget;
+    }
+
+
+    /**
+       Reports an error by appending each argument to the error widget
+       and unhiding it. If passed no arugments, it clears and hides
+       the error widget.
+    */
+    reportError(...msg){
+      const e = this.#e.err;
+      D.clearElement(e);
+      if( msg.length ){
+        e.classList.remove('hidden');
+        e.append(...msg);
+      }else{
+        e.classList.add('hidden');
+      }
+    }
+
+    async #fetchPreview(){
+      /* TODO: fetch preview */
+      this.#isWaiting = false;
+      D.enable(this.#toDisable);
+    }
+
+    async #preview(){
+      if( this.#isWaiting ) return;
+      const e = this.#e;
+      if( e.preview !== this.#activeTab ){
+        this.#tabs.switchToTab(e.preview);
+        /* Will recurse into here */
+        return;
+      }
+      this.#isWaiting = true;
+      D.disable(this.#toDisable, e.button.submit);
+      e.preview.textContent = "Fetching preview...";
+      this.#fetchPreview()
+        .then(()=>{
+          e.preview.textContent = "TODO: actually fetch the preview "+Date.now();
+          D.enable(this.#toDisable, e.button.submit);
+        })
+        .catch(e=>{
+          this.reportError(e.message);
+          D.enable(this.#toDisable);
+        });
+    }
+
+    #submit(){
+      if( this.#isWaiting ) return;
+      this.#isWaiting = true;
+      const e = this.#e;
+      D.disable(e.button.submit);
+      /*
+        TODO: save it, set #isWaiting=false, then handle error or
+        redirect to the post (if this is a new post) or, if replying
+        inline, replace this object with a static rendering from the
+        response.
+      */
+    }
+
+    async #fetchPost(){
+      /*
+        TODO: when editing an existing post, fetch the raw body of the
+        post and populate this.e.
+       */
+    }
+  }/*ForumPostEditor*/;
+  F.ForumPostEditor = ForumPostEditor;
 
   /**
      When the page is loaded, this handler does the following:

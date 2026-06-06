@@ -278,6 +278,7 @@ EXTRA_FILES = \
   $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/style.chat.css \
   $(SRCDIR)/style.fileedit.css \
+  $(SRCDIR)/style.forum.css \
   $(SRCDIR)/style.pikchrshow.css \
   $(SRCDIR)/style.uvlist.css \
   $(SRCDIR)/style.wikiedit.css \
