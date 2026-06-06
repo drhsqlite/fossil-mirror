@@ -208,6 +208,22 @@ void ajax_route_error(int httpCode, const char * zFmt, ...){
   cgi_set_content_type("application/json");
 }
 
+void ajax_route_error_forbidden(){
+  ajax_route_error(403, "Permission denied.");
+}
+
+void ajax_route_error_csrf(){
+  ajax_route_error(403, "Invalid CSRF signature.");
+}
+
+int ajax_check_csrf(int level){
+  if( 0==cgi_csrf_safe(level) ){
+    ajax_route_error_csrf();
+    return 0;
+  }
+  return 1;
+}
+
 /*
 ** Performs bootstrapping common to the /ajax/xyz AJAX routes, such as
 ** logging in the user.

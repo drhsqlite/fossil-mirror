@@ -789,8 +789,7 @@ void attachadd_ajax_post(void){
     return;
   }else if( !(goodCaptcha = captcha_is_correct(0)) ){
     goto ajax_post_403;
-  }else if( !cgi_csrf_safe(2) ){
-    ajax_route_error(403, "Invalid CSRF signature.");
+  }else if( !ajax_check_csrf(2) ){
     return;
   }
   db_begin_transaction();
@@ -876,7 +875,7 @@ void attachadd_ajax_post(void){
   return;
 ajax_post_403:
   db_rollback_transaction();
-  ajax_route_error(403, "Permission denied.");
+  ajax_route_error_forbidden();
   return;
 ajax_post_404:
   db_rollback_transaction();

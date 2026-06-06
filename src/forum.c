@@ -1987,6 +1987,7 @@ void forumnew_page(void){
   const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
   const char *zContent = PDT("content","");
   const int bLegacy = PB("legacy"); /* True for legacy HTML form */
+
   login_check_credentials();
   if( !g.perm.WrForum ){
     login_needed(g.anon.WrForum);
@@ -2029,6 +2030,7 @@ void forumnew_page(void){
     @ <div hidden id='forumnew-placeholder'>
     @ <input type='hidden' name='title' value='%h(zTitle)'>
     login_insert_csrf_secret();
+    captcha_generate_for_js(0x02);
     @ </div>
   }
   forum_emit_js();
@@ -2053,6 +2055,7 @@ void forumedit_page(void){
   const char *zTitle = 0;
   char *zDate = 0;
   const char *zFpid = PD("fpid","");
+  const int bLegacy = PB("legacy"); /* True for legacy HTML form */
   int isCsrfSafe;
   int isDelete = 0;
   int iClosed = 0;
@@ -2060,6 +2063,11 @@ void forumedit_page(void){
   int bPreview;         /* True in preview mode. */
   int bPrivate;         /* True if post is private (not yet moderated) */
   int bReply;           /* True if replying to a post */
+
+  if( !bLegacy ){
+    forumedit_page_v2();
+    return;
+  }
 
   login_check_credentials();
   if( !g.perm.WrForum ){
@@ -2217,6 +2225,7 @@ void forumedit_page(void){
   if( !isDelete ){
     @ <input type="submit" name="preview" value="Preview">
   }
+  @ <input type="hidden" name="legacy" value="1">
   @ <input type="submit" name="cancel" value="Cancel">
   if( (bPreview && !whitespace_only(zContent)) || isDelete ){
     if( !iClosed || g.perm.Admin ) {
@@ -2232,6 +2241,35 @@ void forumedit_page(void){
   forum_render_attachment_notice();
   forum_emit_js();
   style_finish_page();
+}
+
+/*
+** WEBPAGE: forume2_v2 hidden
+**
+** A work in progress.
+*/
+void forumedit_page_v2(void){
+  const char *zFpid = PD("fpid","");
+
+  login_check_credentials();
+  if( !g.perm.WrForum ){
+    login_needed(g.anon.WrForum);
+    return;
+  }
+  style_set_current_feature("forum");
+  style_header("Edit Forum Post");
+  (void)zFpid;
+  @ Much to do here.
+  @ <div hidden id='forumedit-placeholder'>
+#if 0
+  @ <input type='hidden' name='title' value='%h(zTitle)'>
+#endif
+  login_insert_csrf_secret();
+  captcha_generate_for_js(0);
+  @ </div>
+  forum_emit_js();
+  style_finish_page();
+
 }
 
 /*

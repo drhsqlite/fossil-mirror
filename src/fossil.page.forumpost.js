@@ -122,6 +122,21 @@
         e.error.addEventListener('dblclick',()=>this.reportError());
       }
 
+      if( opt.captcha ){
+        const eCap = opt.captcha;
+        const w = D.div();
+        w.style.display = 'flex';
+        w.style.flexDirection = 'row';
+        w.style.gap = '1em';
+        eCap.style.fontFamily = 'monospace';
+        eCap.style.whiteSpace = 'pre';
+        eCap.style.fontSize = '50%';
+        e.captcha = D.attr(D.input('text'), 'size', 8);
+        w.append("Enter captcha value:", e.captcha);
+        wrapper.append(eCap, w);
+        eCap.classList.remove('hidden');
+      }
+
       const idPrefix = 'FormPostEditor'+(++idCounter)/* TabManager requires IDs */;
       { /* Main tabs... */
         e.tabs = D.attr(
@@ -391,6 +406,9 @@
       fd.append('mimetype', this.mimetype);
       fd.append('title', this.title.trim());
       fd.append('content', addThisContent || this.editorContent.trim());
+      if( this.#e.captcha ){
+        fd.append('captcha', this.#e.captcha.value);
+      }
       return fd;
     }
 
@@ -457,6 +475,10 @@
     }
 
     #validate(tgt){
+      if( this.#e.captcha && 8!==this.#e.captcha.value.length ){
+        this.reportError("Enter the captcha value.");
+        return;
+      }
       if( this.#opt.isNewThread ){
         let v = this.#e.title.value.trim();
         if( !v ){
@@ -686,7 +708,8 @@
       /* /forumnew */
       const fpe = new fossil.ForumPostEditor({
         draftKey: 'forumnew',
-        hiddenFields: eForumNew.querySelectorAll('input[type=hidden]')
+        hiddenFields: eForumNew.querySelectorAll('input[type=hidden]'),
+        captcha: eForumNew.querySelector('.captcha-for-js')
         //mimetype: 'text/plain'
       });
       eForumNew.parentElement.insertBefore(fpe.widget, eForumNew);
