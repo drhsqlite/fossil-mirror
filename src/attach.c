@@ -782,14 +782,8 @@ void attachadd_ajax_post(void){
   char *zExtraFree = 0;
   int eTgtType = 0;
   int bNeedsModeration = 0;
-  int i;
   int goodCaptcha = 1;
-  int szLimit;                 /* attachment-max-size setting */
   int bRollback = 0;           /* Roll back if true. */
-  char aKeyPrefix[20];         /* Buffer for key "file%d" */
-  char aKeySize[30];           /* Buffer for key "file%d:bytes" */
-  char aKeyName[30];           /* Buffer for key "file%d:filename" */
-  char aKeyDesc[30];           /* Buffer for key "file%d_desc" */
 
   if( ! ajax_route_bootstrap(0, 1) ){
     return;
@@ -871,10 +865,61 @@ void attachadd_ajax_post(void){
     }
   }
 
+  if( attachments_from_POST_ajax(zTarget, bNeedsModeration)>=0 ){
+    CX("}");
+    if( atoi(PD("dryrun","0"))>0 ){
+      bRollback = 1;
+    }
+  }/*else error response was set up*/
+  fossil_free(zExtraFree);
+  db_end_transaction(bRollback);
+  return;
+ajax_post_403:
+  db_rollback_transaction();
+  ajax_route_error(403, "Permission denied.");
+  return;
+ajax_post_404:
+  db_rollback_transaction();
+  ajax_route_error(404, "Target not found.");
+  return;
+}
+
+/*
+** A helper for AJAX-style routines which accept file attachments via
+** POST.  zTarget must be a full attachment target. bNeedsModeration
+** must be true if the attachment requires moderation.
+**
+** It is up to the caller to have validated all security measures
+** before calling this.
+**
+** This looks for POSTed files names "file1".."fileN", stopping when
+** it finds no entry. Returns the number of entries attached to the
+** target or a negative value on error (in which case the current db
+** transaction will be in a rollback state).
+**
+** The only errors are currently attachment size limit violations:
+** attachments must have a non-0 size and if the attachment-size-limit
+** setting is >0 then each file's size must be <= that.
+**
+** If this returns a negative value, it will have populated an error
+** response using ajax_route_error(). On success it produces no
+** output.
+*/
+int attachments_from_POST_ajax(const char *zTarget, int bNeedsModeration){
+  int i;
+  int rc = 0;
+  int n = 0;
+  int szLimit;                 /* attachment-max-size setting */
+  char aKeyPrefix[20];         /* Buffer for key "file%d" */
+  char aKeySize[30];           /* Buffer for key "file%d:bytes" */
+  char aKeyName[30];           /* Buffer for key "file%d:filename" */
+  char aKeyDesc[30];           /* Buffer for key "file%d_desc" */
+  db_begin_transaction();
   szLimit = db_get_int("attachment-size-limit", 0);
-  for(i = 1; !bRollback; ++i){
+  for(i = 1; ; ++i, ++n){
     /* Look for P("fileN"), where N=1..n */
     const char *zContent;
+    const char *zFilename;
     int szContent;
     sqlite3_snprintf(sizeof(aKeyPrefix), aKeyPrefix, "file%d", i);
     zContent = P(aKeyPrefix);
@@ -886,11 +931,11 @@ void attachadd_ajax_post(void){
                      aKeyPrefix);
     szContent = atoi(PD(aKeySize,"-1"));
     if( szContent<=0 ){
-      bRollback = 1;
+      rc = -1;
       ajax_route_error(400,"Invalid file size: %d", szContent);
       break;
     }else if( szLimit>0 && szContent>szLimit ){
-      bRollback = 1;
+      rc = -2;
       ajax_route_error(400, "File size limit is %d bytes.", szLimit);
       break;
     }else{
@@ -898,27 +943,22 @@ void attachadd_ajax_post(void){
                        aKeyPrefix);
       sqlite3_snprintf(sizeof(aKeyDesc), aKeyDesc, "%s_desc",
                        aKeyPrefix);
-      attach_commit(P(aKeyName), zTarget, zContent, szContent,
+      if( 0==(zFilename=P(aKeyName)) ){
+        rc = -3;
+        ajax_route_error(400, "Missing filename.");
+        break;
+      }
+      attach_commit(zFilename, zTarget, zContent, szContent,
                     bNeedsModeration, P(aKeyDesc));
     }
   }
-  fossil_free(zExtraFree);
-  if( !bRollback ){
-    CX("}");
-    if( atoi(PD("dryrun","0"))>0 ){
-      bRollback = 1;
-    }
+  if( rc<0 ){
+    db_rollback_transaction();
+    return rc;
+  }else{
+    db_commit_transaction();
+    return n;
   }
-  db_end_transaction(bRollback);
-  return;
-ajax_post_403:
-  db_rollback_transaction();
-  ajax_route_error(403, "Permission denied.");
-  return;
-ajax_post_404:
-  db_rollback_transaction();
-  ajax_route_error(404, "Target not found.");
-  return;
 }
 
 /*
