@@ -111,7 +111,7 @@
       const pForm = eStatus.parentElement?.parentElement;
       if( pForm ){
         eStatus.addEventListener('change', ()=>{
-          pForm.querySelector('input[type="hidden"][name="x"]')?.remove();
+          pForm.querySelector('input[type="hidden"][name="x"]')?.remove?.();
         }, true);
       }
     }else{

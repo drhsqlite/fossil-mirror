@@ -1,5 +1,5 @@
-C Minor\sdoc\sedits.
-D 2026-06-06T07:48:24.279
+C Fix\sa\swildly\shypothetical\sJS\snull\sderef.\sDefensive\sprintf\sformat\stweak\sin\scalculating\s/style.css/X.
+D 2026-06-06T08:03:31.842
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js 43fd37f03398d47e0541b4d07a4c4024d7ebd9103ac45918206da791d1e50ab5
+F src/fossil.page.forumpost.js 41e135dc3395545d480f122e95429a1f54d87cea37ea9345f79ef5ee71e818eb
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -566,7 +566,7 @@ F src/stash.c edceac522c114b482922cb3def79106029d0488eafb516894618c50c0df8ecaf
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
 F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 97bf24ee89e6b8a462de1420bdd2d5f61bed6965cbd8979f654ed7bc2600e42d
+F src/style.c 2a92d465078cdfd30c2cc4f9f0fa99cd1e1370be9513bbc9f8aa6459c6b85a07
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7723db560690b745589dcc545744c16a39964a9e2eca6ca53b3af198894a3dc2
-R 9ffbef4c9d8c5d2b5b7fa82724f853cd
+P 0c5322dda4fe6efbe3c8ea838de7e5e7bec6d49c27a18653bb66a1e1fb8c7b0f
+R 4fb3557d7db5c686d037fcf448c9a930
 U stephan
-Z 322d878179ccb4b75b06a84663dd713d
+Z 58eff5d3a819930887532e4261dc29f0
 # Remove this line to create a well-formed Fossil manifest.

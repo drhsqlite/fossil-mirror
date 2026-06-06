@@ -437,7 +437,7 @@ static void stylesheet_url_var(void){
   */
   zBuiltin = mprintf("style.%s.css", zPage);
   if( builtin_file(zBuiltin,0)!=0 ){
-    blob_appendf(&url, "/%s", zPage);
+    blob_appendf(&url, "/%t", zPage);
   }
   fossil_free(zBuiltin);
 
