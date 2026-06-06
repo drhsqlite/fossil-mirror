@@ -55,6 +55,7 @@
       const wrapper = e.widget = D.addClass(D.div(), 'ForumPostEditor');
       D.clearElement(wrapper);
       if( !opt.inReplyTo ){
+        /* Title... */
         e.titleBar = D.addClass(D.div(),'titlebar');
         e.title = D.addClass(D.input('text'), 'title');
         e.title.setAttribute('maxlength', 125);
@@ -67,49 +68,58 @@
           e.title.addEventListener('blur', ()=>{
             F.storage.set(key, e.title.value)
           });
-          e.title.value = F.storage.get(key,'');
+          e.title.value = opt.title || F.storage.get(key, '');
+        }else if( opt.title ){
+          e.title.value = opt.title;
         }
         wrapper.append(e.titleBar);
       }
 
-      { /* Mimetype bits... */
+      { /* Mimetype... */
         e.mimetype.wrapper = D.addClass(D.div(), 'mimetype-wrapper');
         e.mimetype.select = D.addClass(D.select(), 'mimetype-select');
         this.#toDisable.push(e.mimetype.select);
         let i = 0;
+        D.option(e.mimetype.select, '', 'Markdown format').disabled = true;
         for(const [k,v] of Object.entries({
           'text/x-markdown': 'Markdown',
           'text/x-fossil-wiki': 'Fossil Wiki',
           'text/plain': 'Plain text'
         })) {
           const o = D.option(e.mimetype.select, k, v);
-          if( !i++ ) o.setAttribute('selected', '');
+          if( (opt.isNewThread && !i++)
+              || opt.mimetype===k ) o.setAttribute('selected', '');
         }
-        e.mimetype.label = D.span();
-        e.mimetype.label.append(
-          D.a(F.repoUrl('markup_help'), 'Markup style'),
-          ':'
-        );
-        e.mimetype.wrapper.append(e.mimetype.label, e.mimetype.select);
+        if( 0 ){
+          e.mimetype.label = D.span();
+          e.mimetype.label.append(
+            D.a(F.repoUrl('markup_help'), 'Markup style'),
+            ':'
+          );
+          e.mimetype.wrapper.append(e.mimetype.label);
+        }
+        e.mimetype.wrapper.append(e.mimetype.select);
       }
 
-      e.button.preview = D.button("Preview", e=>this.#preview());
-      e.button.submit = D.button("Submit");
-      if( 1 ){
-        F.confirmer(e.button.submit, {
-          confirmText: "Confirm submit...",
-          onconfirm: ()=>this.#submit()
-        });
-      }else{
-        e.button.submit.addEventListener('click', ()=>this.#submit());
-      }
-      e.button.submit.setAttribute('disabled', '');
-      e.buttons = D.addClass(D.div(), 'buttons');
-      wrapper.append(e.buttons);
+      { /* Preview/submit buttons... */
+        e.button.preview = D.button("Preview", e=>this.#preview());
+        e.button.submit = D.button("Submit");
+        if( 1 ){
+          F.confirmer(e.button.submit, {
+            confirmText: "Confirm submit...",
+            onconfirm: ()=>this.#submit()
+          });
+        }else{
+          e.button.submit.addEventListener('click', ()=>this.#submit());
+        }
+        e.button.submit.setAttribute('disabled', '');
+        e.buttons = D.addClass(D.div(), 'buttons');
+        wrapper.append(e.buttons);
 
-      e.err = D.addClass(D.div(), 'error', 'hidden');
-      wrapper.append(e.err);
-      e.err.addEventListener('dblclick',()=>this.reportError());
+        e.error = D.addClass(D.div(), 'error', 'hidden');
+        wrapper.append(e.error);
+        e.error.addEventListener('dblclick',()=>this.reportError());
+      }
 
       const idPrefix = 'FormPostEditor'+(++idCounter)/* TabManager requires IDs */;
       { /* Main tabs... */
@@ -119,9 +129,17 @@
         );
         this.#tabs = new F.TabManager(e.tabs);
         this.#tabs.addEventListener('before-switch-to', (ev)=>{
-          this.#activeTab = ev.detail;
-          if( e.preview === this.#activeTab ){
-            this.#e.button.preview.click();
+          console.debug("Switching to tab",ev.detail);
+          switch( (this.#activeTab = ev.detail) ){
+            case e.preview:
+              this.#e.button.preview.click();
+              break;
+            case e.help:
+              if( e.help.$needsInit ){
+                delete e.help.$needsInit;
+                this.#initHelpTab();
+              }
+              break;
           }
         });
         wrapper.append( e.tabs );
@@ -175,15 +193,6 @@
           copy of the post, differing only in the new 'status' tag
           added to it.
         */
-        let i = 0;
-        for(const [k,v] of Object.entries({
-          'text/x-markdown': 'Markdown',
-          'text/x-fossil-wiki': 'Fossil Wiki',
-          'text/plain': 'Plain text'
-        })) {
-          const o = D.option(e.mimetype.select, k, v);
-          if( !i++ ) o.setAttribute('selected', '');
-        }
         if( F.config.forumStatuses?.length>0 ){
           const sel = e.status = D.select();
           D.option(sel, "", "- Status -").disabled = true;
@@ -211,6 +220,11 @@
       }
       e.buttons.append(e.button.preview, e.button.submit);
       this.#toDisable.push(e.button.preview);
+
+      e.help = D.attr(D.div(), 'id', idPrefix+'-help');
+      e.help.$needsInit = true;
+      e.help.dataset.tabLabel = 'Help';
+      this.#tabs.addTab(e.help);
 
       if( opt.hiddenFields ){
         this.addHiddenFields( opt.hiddenFields );
@@ -306,7 +320,7 @@
        the error widget.
     */
     reportError(...msg){
-      const e = this.#e.err;
+      const e = this.#e.error;
       D.clearElement(e);
       if( msg.length ){
         e.classList.remove('hidden');
@@ -341,6 +355,17 @@
 
     get title(){
       return this.#e.title.value;
+    }
+
+    #initHelpTab(){
+      const eh = this.#e.help;
+      const list = D.ul();
+      D.append(
+        D.li(list),
+        D.attr(D.a(F.repoUrl('markup_help'), 'Markup styles'),
+               'target', '_new')
+      );
+      eh.append(list);
     }
 
     #newFormData(addThisContent){
@@ -647,6 +672,7 @@
       const fpe = new fossil.ForumPostEditor({
         draftKey: 'forumnew',
         hiddenFields: eForumNew.querySelectorAll('input[type=hidden]')
+        //mimetype: 'text/plain'
       });
       eForumNew.parentElement.insertBefore(fpe.widget, eForumNew);
       eForumNew.remove();

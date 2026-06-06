@@ -419,11 +419,24 @@
       }
     }
 
+    /**
+       Injects the given File object as the attached content for the
+       given row. If the object's name collides with another row,
+       rowObj is removed from this widget and the old row is instead
+       re-populated with the new file.
+
+       If rowObj.overrideName is set then the given file gets wrapped
+       with that name before attaching it, and that property is
+       removed from rowObj. This is intended only for communicating
+       auto-generated names for pasted data.
+    */
     #injestBlob(rowObj, file){
       if( !file ) return;
       const old = this.#rowMatchingName(file.name);
       if( rowObj.overrideName ){
-        file = new File([file], rowObj.overrideName, {type: file.type});
+        if( rowObj.overrideName !== file.name ){
+          file = new File([file], rowObj.overrideName, {type: file.type});
+        }
         rowObj.overrideName = undefined;
       }
       if( old && rowObj !== old ){
