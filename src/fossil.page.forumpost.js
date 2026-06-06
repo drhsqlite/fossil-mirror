@@ -187,11 +187,11 @@
         const eCb = D.checkbox(1);
         const eLbl = D.label();
         const eHelp = D.append(
-          D.addClass(D.span(), "help-buttonlet"), [
+          D.span(), [
             'When checked, shift-enter will toggle between preview ',
-            'and edit modes. This is generally useful but some ',
+            'and edit modes, which is generally useful but some ',
             'software keyboards misinteract with it. If the preview ',
-            'starts when you tap Enter, turn this setting off.'
+            'starts when tapping Enter, turn this setting off.'
           ].join('')
         );
         eCb.checked = F.storage.getBool('edit-shift-enter-preview', true);
@@ -223,7 +223,6 @@
         // If we're in the preview tab, have ctrl-enter switch back to the editor.
         document.body.addEventListener('keydown',(ev)=>{
           if(!isShiftEnter(ev)) return;
-          console.warn("this.#activeTab =",this.#activeTab);
           if(this.#activeTab !== e.tabEdit){
             ev.preventDefault();
             ev.stopPropagation();

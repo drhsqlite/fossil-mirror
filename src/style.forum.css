@@ -71,6 +71,9 @@
   flex-direction: row;
   align-items: last baseline;
   cursor: pointer;
+  border: 1px inset rgba(128, 128, 128, 0.5);
+  border-radius: 0.25em;
+  padding: 0.1em;
 }
 .ForumPostEditor > .buttons > label > input[type=checkbox]{
   cursor: pointer;
