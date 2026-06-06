@@ -54,6 +54,7 @@
       });
       const wrapper = e.widget = D.addClass(D.div(), 'ForumPostEditor');
       D.clearElement(wrapper);
+
       if( !opt.inReplyTo ){
         /* Title... */
         e.titleBar = D.addClass(D.div(),'titlebar');
@@ -101,6 +102,7 @@
         e.mimetype.wrapper.append(e.mimetype.select);
       }
 
+      e.buttons = D.addClass(D.div(), 'buttons');
       { /* Preview/submit buttons... */
         e.button.preview = D.button("Preview", e=>this.#preview());
         e.button.submit = D.button("Submit");
@@ -113,7 +115,6 @@
           e.button.submit.addEventListener('click', ()=>this.#submit());
         }
         e.button.submit.setAttribute('disabled', '');
-        e.buttons = D.addClass(D.div(), 'buttons');
         wrapper.append(e.buttons);
 
         e.error = D.addClass(D.div(), 'error', 'hidden');
@@ -281,6 +282,20 @@
           }
         }, true);
       }/*shift-enter preview bits*/
+
+      {
+        let visible = true;
+        const elemsToToggle = document.body.querySelectorAll(
+          ':scope > header, :scope > nav'
+        );
+        e.button.toggleHeader =
+          D.button('Toggle header', e=>{
+            for(const et of elemsToToggle){
+              et.classList.toggle('hidden');
+            }
+          });
+        e.buttons.append(e.button.toggleHeader);
+      }
 
     }/*constructor*/
 
