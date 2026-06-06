@@ -68,7 +68,11 @@
       }
 
       e.button.preview = D.button("Preview", e=>this.#preview());
-      e.button.submit = D.button("Submit", e=>this.#submit());
+      e.button.submit = D.button("Submit");
+      F.confirmer(e.button.submit, {
+        confirmText: "Confirm submit...",
+        onconfirm: ()=>this.#submit()
+      });
       e.button.submit.setAttribute('disabled', '');
       e.buttons = D.addClass(D.div(), 'buttons');
       wrapper.append(e.buttons);
