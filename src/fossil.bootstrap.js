@@ -60,7 +60,7 @@
   **
   ** Returns this object.
   */
-  F.message = function f(msg){
+  F.message = function f(){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = f.targetElement;
     if(args.length) args.unshift(
@@ -90,22 +90,21 @@
     );
   }
   /*
-  ** By default fossil.error() sends its first argument to
+  ** By default fossil.error() sends all arguments to
   ** console.error(). If fossil.message.targetElement (yes,
   ** fossil.message) is set, it adds the 'error' CSS class to
   ** that element and sets its content as defined for message().
   **
   ** Returns this object.
   */
-  F.error = function f(msg){
+  F.error = function f(){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = F.message.targetElement;
     args.unshift(timestring(),'UTC:');
     if(tgt){
       tgt.classList.add('error');
       tgt.innerText = args.join(' ');
-    }
-    else{
+    }else{
       args.unshift('Fossil error:');
       console.error.apply(console,args);
     }

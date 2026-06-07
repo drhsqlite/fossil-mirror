@@ -40,15 +40,29 @@
        will be stored in fossil.storage when the relevant input fields
        lose focus. If old state is found, the form is pre-populated
        from it.  The state is cleared on a successful submit.
+
+       opt.ondiscard[=function]: if set, a Discard button is added
+       which, when activated, clears the current draft and removes
+       this object's widget from the DOM. After that, opt.ondiscard()
+       is called and passed no arguments.
+
+       TODO:
+
+       opt.inReplyTo=uuid: if this is a new response to a post, this
+       is the full forum post uuid of the being-replied-to post.
+
+       opt.edit=artifactObject: if this is an edit of an existing
+       post, this is the full JSON-format artifact of the forum post
+       the being-edit post.
     */
     constructor(opt){
       opt = this.#opt = F.nu({
         // todo: defaults once we determine the options
-        // replyTo: hash
+        // inReplyTo: hash
         // fpid: hash
         draftKey: undefined
       }, opt);
-      opt.isNewThread = !opt.replyTo && !opt.edit;
+      opt.isNewThread = !opt.inReplyTo && !opt.edit;
       if( opt.draftKey ){
         this.#draft = F.nu(F.storage.getJSON(opt.draftKey, {}));
       }
@@ -77,9 +91,9 @@
             this.#draft.title = e.title.value;
             this.#storeDraft();
           });
-          e.title.value = opt.title || this.#draft.title || '';
-        }else if( opt.title ){
-          e.title.value = opt.title;
+          e.title.value = opt.edit?.H || this.#draft.title || '';
+        }else if( opt.edit?.H ){
+          e.title.value = opt.edit.H;
         }
         wrapper.append(e.titleBar);
       }
@@ -193,13 +207,15 @@
         this.#tabs.addTab( e.tabEdit );
         this.#tabs.switchToTab( e.tabEdit );
         if( this.#draft ){
-          this.editorContent = this.#draft.content || '';
+          this.editorContent = opt.edit?.W || this.#draft.content || '';
           e.editor.addEventListener(
             'blur', ()=>{
               this.#draft.content = this.editorContent;
               this.#storeDraft();
             }
           );
+        }else if( opt.edit?.W ){
+          this.editorContent = opt.artifact.W;
         }
         e.preview = D.addClass(D.div(), 'preview');
         e.preview.dataset.tabLabel = 'Preview';
@@ -474,7 +490,11 @@
       const e = this.#e;
       const fd = this.#newFormData(content);
       return window
-        .fetch(F.repoUrl('wikiajax/preview'), {
+        .fetch(F.repoUrl(
+          'wikiajax/preview'
+          /* ^^^ Maybe change to /ajax/preview-text, but it's
+          ** got a more complicated interface */
+        ), {
           method: 'POST',
           body: fd
         })
@@ -801,6 +821,7 @@
       });
     }
 
+    const userIsIndividual = ['anonymous','guest'].indexOf(F.user.name)<0;
     const eForumNew = document.body.classList.contains('cpage-forumnew')
           ? document.querySelector('#forumnew-placeholder')
           : null;
@@ -819,40 +840,114 @@
       eForumNew.remove();
       fossil.page.fpe = fpe /* for testing via the console */;
     }/*eForumNew*/
-    else if( 0 && (document.body.classList.contains('cpage-forumpost')
-              || document.body.classList.contains('cpage-forumthread'))){
+    else if( userIsIndividual
+             && (document.body.classList.contains('cpage-forumpost')
+                 || document.body.classList.contains('cpage-forumthread'))){
       /* /forumpost and /forumthread */
-      const replyClicked = (replyButton, fpid)=>{
+
+      const fetchPost = async (fpid)=>{
+        return window.fetch(F.repoUrl('ajax/artifact.json?uuid='+fpid))
+          .then(r=>r.json())
+          .then(j=>{
+            if( j.error ) throw new Error(j.error);
+            return j;
+          });
+      };
+
+      const setupEditReplyElement = (ePost, eButton)=>{
+        const fpid = ePost.dataset.fpid;
+        ePost.dataset.originalMarginLeft = ePost.style.marginLeft;
+        ePost.style.marginLeft = 'initial';
+        eButton.disabled = true;
+        eButton.dataset.originalLabel = eButton.value;
+        return fpid;
+      };
+
+      const restoreEditReplyElement = (ePost, eButton)=>{
+        if( ePost.dataset.originalMarginLeft ){
+          ePost.style.marginLeft = ePost.dataset.originalMarginLeft;
+          delete ePost.dataset.originalMarginLeft;
+        }
+        eButton.disabled = false;
+        if( eButton.dataset.originalLabel ){
+          eButton.innerText = eButton.dataset.originalLabel;
+          delete eButton.dataset.originalLabel;
+        }
+      };
+
+      const replyClicked = (ePost, eBtnReply)=>{
+        const fpid = setupEditReplyElement(ePost, eBtnReply);
+        eBtnReply.innerText = "Replying...";
         F.toast.error("Reply is TODO. fpid="+fpid);
         /*
           TODOs include:
 
           - Hide replyButton
 
-          - Pop up a ForumPostEditor. It needs a Cancel button.
+          - Shift ePost to the left edge.
 
-          - When cancelled or submitted, restore the reply button.
+          - Fetch /ajax/artifact.json?uuid=fpid
+
+          - Pop up a ForumPostEditor immediately under ePost. It needs
+            a Cancel button.
+
+          - When cancelled or submitted, restore the reply button and
+            ePost position.
         */
-      };
+        if( 0 ) restoreEditReplyElement(ePost, eBtnReply);
+      }/*replyClicked()*/;
+
+      const editClicked = (ePost, eBtnEdit)=>{
+        const fpid = setupEditReplyElement(ePost, eBtnEdit);
+        eBtnEdit.innerText = "Editing...";
+        F.toast.error("Edit is TODO. fpid="+fpid);
+        /*
+          TODOs include:
+
+          - Disable editButton.
+
+          - Shift ePost to the left edge.
+
+          - Pop up a ForumPostEditor immediately under ePost. It needs
+            a Cancel button.
+
+          - When cancelled or submitted, restore the edit button and
+            ePost position.
+        */
+        fetchPost(fpid)
+          .then(j=>{
+            console.debug("Got post... now what?", j);
+            if( 0 ) restoreEditReplyElement(ePost, eBtnEdit);
+          });
+      }/*editClicked()*/;
+
       document.body.querySelectorAll(
         '.forumpost-single-controls > form'
       ).forEach(form=>{
-        const eReplyTo = form.parentElement.parentElement;
-        const fpid = eReplyTo?.dataset?.fpid;
-        if( !fpid ){
-          console.warn("Unexpected non-fpid", form, eReplyTo);
+        //console.debug("Checking form",form);
+        const eThePost = form.parentElement.parentElement;
+        if( !eThePost?.dataset?.fpid ){
+          console.warn("Unexpected missing fpid", eThePost);
           return;
         }
-        const rb = form.querySelector('input[type=submit][name=reply]');
-        if( rb ){
-          console.debug("hacking Reply button", rb);
-          const b = D.button("Reply", ()=>replyClicked(b, fpid));
+        const btnReply = form.querySelector('input[type=submit][name=reply]');
+        if( btnReply ){
+          //console.debug("hacking Reply button", btnReply);
+          const b = D.button("Reply", ()=>replyClicked(eThePost, b));
           b.type = 'button'/*keep container form from submitting*/;
-          rb.parentElement.insertBefore(b, rb);
-          rb.remove();
+          btnReply.parentElement.insertBefore(b, btnReply);
+          btnReply.remove();
         }
-      });
-    }
+        const btnEdit = form.querySelector('input[type=submit][name=edit]');
+        if( btnEdit ){
+          //console.debug("hacking Edit button", btnEdit);
+          const b = D.button("Edit", ()=>editClicked(eThePost, b));
+          b.type = 'button';
+          btnEdit.parentElement.insertBefore(b, btnEdit);
+          btnEdit.remove();
+        }
+      })/*for-each form*/;
+    }/* /forumpost and /forumthread */
 
   })/*F.onPageLoad callback*/;
 })(window.fossil);

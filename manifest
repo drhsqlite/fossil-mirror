@@ -1,5 +1,5 @@
-C Add\sthe\sinternal-use\s/ajax/artifact.json?uuid=X\sroute\sto\ssupport\sthe\sforum\seditor.\sIt\semits\sartifact_to_json(X).\sFix\sajax_route_bootstrap()'s\scsrf\scheck\sto\strigger\sonly\sfor\srequests\swhich\srequire\sPOST.
-D 2026-06-07T16:47:30.557
+C Incremental\s(does-not-yet-)work\son\shooking\sinto\sthe\sedit/reply\sbuttons.
+D 2026-06-07T17:38:33.487
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -379,7 +379,7 @@ F skins/xekri/header.txt 8844006d55f16b4ea8f6388db44b5db74a91a366ac934fe081a107a
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 5a72ea78003627895026ded60b7515c0831a0be4566771be42c93c7331395888
 F src/add.c dd32e5aef946c283f1ed5aa22b4e72b31c31e905735b17f3f290dbde60c297f2
-F src/ajax.c 73a069faff68f8c0e3fcd90391a90abab151d2b39a4499b9ca1d698f58df6b74
+F src/ajax.c 7b91049385df894a3da82a805215b65bc9da8f3be1b64635a3f349482a86db8f
 F src/alerts.c 0d668eeb30dcbd3271c1642960cd8617581fcdd3dd4bdc8c0cceb24115b067fd
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
@@ -439,7 +439,7 @@ F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c 9880062c85e5ddc7df02d41cddd70307bdd814541776f4b08365a7027f5185be
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.attach.js 0447721a064466aa66952ff16818385ea6ebe8d58d4a7e120f8736ba0c42a464
-F src/fossil.bootstrap.js 80253c8526b2764bf7d2441dd011a10396a5bcef416c6d2d66ea50f6cf9305ba
+F src/fossil.bootstrap.js 2b54affdf43546829fb3a209973f03af72d8da0137f0ba27b0c5940c7d0212b8
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
 F src/fossil.copybutton.js 57ad69acea5741a54cdec843db7aecfa82234932ec5a2ae5ba6c2a67e2077e88
 F src/fossil.diff.js 84216d021376dff9ebe00b64d2df4ef06588145c885ad9f98c26bb0576c9194d
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js 251dd4d1ed919d87fe51492b93e3775db0906cd2ac1bd9d492b2ec852c1b815d
+F src/fossil.page.forumpost.js aab08bcd919de5fc917001871c67624aafbe89a713809a3b1d67bb77531a33f1
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 44aafa6117f4c08ddbf1edd1d10f44c53bba6a0b017a9b68742b0983cfd6a7a8
-R 67520115cb2cd14c404d9322a88d7546
+P 35448ae96ade54917df7a3a0e15ace3513ef7401703225a88b17b54e126338a3
+R c1da2a481442ec927d2352796d747670
 U stephan
-Z 355c07963ee13b7caf0cbfc9360205fd
+Z ef88c40153b623148e88872c0196b0f5
 # Remove this line to create a well-formed Fossil manifest.
