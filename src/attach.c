@@ -912,11 +912,15 @@ void attachadd_ajax_post(void){
   db_end_transaction(bRollback);
   return;
 ajax_post_403:
-  db_rollback_transaction();
+  if( db_transaction_nesting_depth()>0 ){
+    db_rollback_transaction();
+  }
   ajax_route_error(403, "Permission denied.");
   return;
 ajax_post_404:
-  db_rollback_transaction();
+  if( db_transaction_nesting_depth()>0 ){
+    db_rollback_transaction();
+  }
   ajax_route_error(404, "Target not found.");
   return;
 }
