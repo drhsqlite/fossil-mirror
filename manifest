@@ -1,5 +1,5 @@
-C Add\sthe\sskeleton\sfor\sajax-friendly\sforumpost\ssaving.\sRestructure\sthe\sdraft\spost\sobject\sto\smore\seasily\ssupport\sadditional\spersistent\sfields.\sFix\sa\sbad\scall\sto\srollback\swhen\sattachment\ssaving\sfails\sdue\sto\sa\sbad\scaptcha.
-D 2026-06-07T08:58:57.251
+C Make\sthe\sdraft's\smimetype\sand\sstatus\spersistent.
+D 2026-06-07T09:25:40.987
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -387,7 +387,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c f2250f3fd1fd4c69aa8816885d47da5110cb7936adf66eae1df83e6c46f9c0a6
-F src/attach.c f2a7b506c66bd2bd7d6f3bdcd5f5e74b433ea74eeef36b2810265ff50a8dc09a
+F src/attach.c 8ed08e09a37d542c25ad8f71faa78e5cef3ce67e87dca17649c967452b6da715
 F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a7
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js ad54cb94eebf0e76f16c8c7ea3aabf51ba34d49b2f7a26b077b9281b9936ce73
+F src/fossil.page.forumpost.js ca5633970e81273fc772d0facab5df26ce167a3f3b31471e515a1969d56c4cbf
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c75911980a3d3c0c43a1f9f9913a100a54c87822724196cfbd7f50f2b28ed14
-R 03036b837afd6d4f71f9f118cd974c5a
+P 2ee0f61f8c26d515aaeba85bb145e8afc9baff5ce7fbb5fa104ea027a458247e
+R af9dccf4476a3c1d55eda5e1ad5be893
 U stephan
-Z 5358f4f0628f65b7261c7db7d56c0c2c
+Z 18da288ecf21e2d6eb60a616b3d76e97
 # Remove this line to create a well-formed Fossil manifest.

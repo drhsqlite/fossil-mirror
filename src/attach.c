@@ -784,7 +784,6 @@ void attachadd_ajax_post(void){
   int bNeedsModeration = 0;
   int goodCaptcha = 1;
   int bRollback = 0;           /* Roll back if true. */
-  int bInTransaction = 0;
 
   if( ! ajax_route_bootstrap(0, 1) ){
     return;
@@ -794,7 +793,6 @@ void attachadd_ajax_post(void){
     return;
   }
   db_begin_transaction();
-  bInTransaction = 1;
   zTarget = P("target");
   eTgtType = attachment_target_type(zTarget, 1);
   CX("{");
@@ -876,13 +874,13 @@ void attachadd_ajax_post(void){
   db_end_transaction(bRollback);
   return;
 ajax_err_403:
-  if( bInTransaction ){
+  if( db_transaction_nesting_depth()>0 ){
     db_rollback_transaction();
   }
   ajax_route_error_forbidden();
   return;
 ajax_err_404:
-  assert( bInTransaction );
+  assert( db_transaction_nesting_depth()>0 );
   db_rollback_transaction();
   ajax_route_error(404, "Target not found.");
   return;

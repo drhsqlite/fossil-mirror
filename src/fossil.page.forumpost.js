@@ -50,12 +50,7 @@
       }, opt);
       opt.isNewThread = !opt.replyTo && !opt.edit;
       if( opt.draftKey ){
-        this.#draft = F.storage.getJSON(opt.draftKey, F.nu({
-          title: undefined,
-          content: undefined,
-          mimetype: undefined,
-          status: undefined
-        }));
+        this.#draft = F.nu(F.storage.getJSON(opt.draftKey, {}));
       }
       const e = this.#e = F.nu({
         mimetype: F.nu(),
@@ -90,23 +85,22 @@
         e.mimetype.select = D.addClass(D.select(), 'mimetype-select');
         this.#toDisable.push(e.mimetype.select);
         let i = 0;
-        D.option(e.mimetype.select, '', 'Markdown format').disabled = true;
+        D.option(e.mimetype.select, '', 'Markup format').disabled = true;
         for(const [k,v] of Object.entries({
           'text/x-markdown': 'Markdown',
           'text/x-fossil-wiki': 'Fossil Wiki',
           'text/plain': 'Plain text'
         })) {
-          const o = D.option(e.mimetype.select, k, v);
-          if( (opt.isNewThread && !i++)
-              || opt.mimetype===k ) o.setAttribute('selected', '');
+          D.option(e.mimetype.select, k, v);
         }
-        if( 0 ){
-          e.mimetype.label = D.span();
-          e.mimetype.label.append(
-            D.a(F.repoUrl('markup_help'), 'Markup style'),
-            ':'
-          );
-          e.mimetype.wrapper.append(e.mimetype.label);
+        if( this.#draft ){
+          e.mimetype.select.value = opt.mimetype || this.#draft.mimetype;
+          e.mimetype.select.addEventListener('change',ev=>{
+            if( this.#draft.mimetype!==ev.target.value ){
+              this.#draft.mimetype = ev.target.value;
+              this.#storeDraft();
+            }
+          });
         }
         e.mimetype.wrapper.append(e.mimetype.select);
       }
@@ -215,25 +209,33 @@
       }
       e.buttons.append(e.mimetype.wrapper);
 
-      if( 0 ){
-        /*
-          Status selection. We probably don't _really_ want this in
-          the editor because people will open the editor, change the
-          status, and tap submit, resulting in a whole new, unedited
-          copy of the post, differing only in the new 'status' tag
-          added to it.
-        */
-        if( F.config.forumStatuses?.length>0 ){
-          const sel = e.status = D.select();
-          D.option(sel, "", "- Status -").disabled = true;
-          sel.dataset.originalValue = opt.status;
-          for( const status of F.config.forumStatuses ){
-            D.option(sel, status.value, status.label);
+      if( 0 && F.config.forumStatuses?.length>0 ){
+        /* Status selection. We probably don't _really_ want this in
+           the editor because people will open the editor, change the
+           status, and tap submit, resulting in a whole new, unedited
+           copy of the post, differing only in the new 'status' tag
+           added to it. */
+        const sel = e.status = D.select();
+        D.option(sel, "", "- Status -").disabled = true;
+        for( const status of F.config.forumStatuses ){
+          D.option(sel, status.value, status.label);
+        }
+        e.buttons.append(sel);
+        if( opt.status ){
+          sel.value = opt.status;
+        }else if( this.#draft ){
+          if( this.#draft.status ){
+            sel.value = this.#draft.status;
+          }else{
+            this.#draft.status = sel.value = F.config.forumStatuses[0].value;
           }
-          e.buttons.append(sel);
-          if( opt.status ){
-            sel.value = opt.status;
-          }
+          sel.addEventListener('change',ev=>{
+            const v = sel.value;
+            if( this.#draft.status !== v ){
+              this.#draft.status = v;
+              this.#storeDraft();
+            }
+          });
         }
       }
 
