@@ -255,13 +255,14 @@ int ajax_route_bootstrap(int requireWrite, int requirePost){
   if( requireWrite!=0 && g.perm.Write==0 ){
     ajax_route_error(403,"Write permissions required.");
     return 0;
-  }else if(0==cgi_csrf_safe(requirePost)){
+  }else if(requirePost && 0==cgi_csrf_safe(requirePost)){
     ajax_route_error(403,
                      "CSRF violation (make sure sending of HTTP "
                      "Referer headers is enabled for XHR "
                      "connections).");
     return 0;
   }
+  cgi_set_content_type("application/json");
   return 1;
 }
 
@@ -373,6 +374,33 @@ void ajax_route_preview_text(void){
   }
 }
 
+/*
+** AJAX route /ajax/artifact.json.
+** URL arguments:
+**
+**     uuid=ARTIFACT_ID REQUIRED
+**
+** and emits either:
+**
+** { error: "..." }
+**
+** with a non-200 response code or the artifact's manifest in JSON
+** form with a 200 response code.
+*/
+void ajax_route_artifact_json(void){
+  const char *zUuid = P("uuid");
+  Blob json = BLOB_INITIALIZER;
+  login_check_credentials();
+  if( ! g.perm.Read ){
+    ajax_route_error_forbidden();
+  }else if( artifact_to_json_by_name(zUuid, &json) ){
+    @ %b(&json)
+  }else{
+    ajax_route_error_404("Cannot resolve artifact ID.");
+  }
+  blob_reset(&json);
+}
+
 #if INTERFACE
 /*
 ** Internal mapping of ajax sub-route names to various metadata.
@@ -382,7 +410,8 @@ struct AjaxRoute {
   void (*xCallback)(); /* Impl function for the route. */
   int bWriteMode;      /* True if requires write mode */
   int bPost;           /* True if requires POST (i.e. CSRF
-                       ** verification) */
+                       ** verification). Value is passed to
+                       ** cgi_csrf_safe(). */
 };
 typedef struct AjaxRoute AjaxRoute;
 #endif /*INTERFACE*/
@@ -432,7 +461,8 @@ void ajax_route_dispatcher(void){
    **
    ** This particular route is used by /fileedit and /chat, whereas
    ** /wikiedit uses a simpler wiki-specific route.
-   */ }
+   */ },
+  {"artifact.json", ajax_route_artifact_json, 0, 0}
   };
 
   if(zName==0 || zName[0]==0){
