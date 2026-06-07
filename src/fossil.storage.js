@@ -133,8 +133,16 @@
       this.keys().forEach((k)=>$storage.removeItem(/*w/o prefix*/k));
       return this;
     },
-    /** Returns an array of all keys currently in the storage. */
+    /** Returns an array of all keys currently in the storage. These
+        include the storage key prefix. */
     keys: ()=>Object.keys($storageHolder).filter((v)=>(v||'').startsWith(storageKeyPrefix)),
+    /**
+       Like this.keys() but returns the keys shorn of the key prefix.
+    */
+    shortKeys: function(){
+      const n = this.storageKeyPrefix.length;
+      return this.keys().map(v=>v.substring(n));
+    },
     /** Returns true if this storage is transient (only available
         until the page is reloaded), indicating that fileStorage
         and sessionStorage are unavailable. */

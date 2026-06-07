@@ -373,7 +373,7 @@
     discard(){
       const e = this.#e.widget;
       if( e.parentNode ){
-        console.debug("FPE discarding", this);
+        //console.debug("FPE discarding", this);
         this.#clearDraft();
         e.remove();
         if( this.#opt.ondiscard instanceof Function ){
@@ -397,15 +397,6 @@
 
     set editorContent(v){
       this.#e.editor.value = v;
-    }
-
-    /** Clears any persistent draft state. Does not clear the UI
-        widgets. */
-    #clearDraft(){
-      if( this.#draft ){
-        F.storage.remove(this.#opt.draftKey);
-        this.#draft = F.nu();
-      }
     }
 
     /**
@@ -466,12 +457,16 @@
       this.#att = new F.Attacher({
         reverse: true
       });
-      if( this.#opt.fpid ){
+      if( this.#opt.edit ){
         const eNote = D.append(
           D.div(),
           "Tip: attachments can be added to posts without editing them",
           "by visiting ",
-          D.a(F.repoUrl('attachadd?target='+this.#opt.fpid), '/attachadd'),
+          D.attr(
+            D.a(F.repoUrl('attachadd?target='+this.#opt.edit.uuid), '/attachadd'),
+            'target',
+            '_new'
+          ),
           ".",
         );
         this.#e.tabAttach.append(eNote);
@@ -651,26 +646,36 @@
       }
     }
 
+    /** Clears any persistent draft state. Does not clear the UI
+        widgets. */
+    #clearDraft(){
+      if( this.#draft ){
+        F.storage.remove(this.#opt.draftKey);
+        this.#draft = F.nu();
+      }
+    }
+
     /**
-       Looks for editing draft keys matching either a fixes key or a
-       regex, and removes each matching one which is older than some
-       fixed "best-before" date.
+       Looks for editing draft keys matching either a fixed key or a
+       regex, and removes each matching one which is older than the
+       given number of days. Pass days=0 to purge all entries
+       immediately.
     */
-    static purgeOldDrafts(key){
-      const age = (3600 * 24 * 10/*days*/) * 1000/*ms*/;
-      const now = Date().now();
+    static purgeOldDrafts(key, days=10){
+      const age = (3600 * 24 * days) * 1000/*ms*/;
+      const now = Date.now();
+      const check = (k)=>{
+        const o = F.storage.getJSON(k);
+        if( o && (!days || (o.mtime+age < now)) ){
+          F.storage.remove(k);
+        }
+      };
       if( key instanceof RegExp ){
-        for(const k of F.storage.keys().filter(v=>key.test(v))){
-          const o = F.getJSON(k);
-          if( o &&  (o.mtime+age < now)){
-            F.storage.remove(k);
-          }
+        for(const k of F.storage.shortKeys().filter(v=>key.test(v))){
+          check(k);
         }
       }else{
-        const o = F.getJSON(key);
-        if( o &&  (o.mtime+age < now)){
-          F.storage.remove(key);
-        }
+        check(key);
       }
     }
 
@@ -896,29 +901,29 @@
           });
       };
 
-      const setupEditReplyElement = (ePost, eButton)=>{
+      const setupEditReplyElement = (ePost, eButton, eToDisable)=>{
         const fpid = ePost.dataset.fpid;
         ePost.dataset.originalMarginLeft = ePost.style.marginLeft;
         ePost.style.marginLeft = 'initial';
-        eButton.disabled = true;
         eButton.dataset.originalLabel = eButton.value;
+        D.disable(eToDisable);
         return fpid;
       };
 
-      const restoreEditReplyElement = (ePost, eButton)=>{
+      const restoreEditReplyElement = (ePost, eButton, eToDisable)=>{
         if( ePost.dataset.originalMarginLeft ){
           ePost.style.marginLeft = ePost.dataset.originalMarginLeft;
           delete ePost.dataset.originalMarginLeft;
         }
-        eButton.disabled = false;
         if( eButton.dataset.originalLabel ){
           eButton.innerText = eButton.dataset.originalLabel;
           delete eButton.dataset.originalLabel;
         }
+        D.enable(eToDisable);
       };
 
-      const replyClicked = (form, ePost, eBtnReply)=>{
-        const fpid = setupEditReplyElement(ePost, eBtnReply);
+      const replyClicked = (form, ePost, eBtnReply, eToDisable)=>{
+        const fpid = setupEditReplyElement(ePost, eBtnReply, eToDisable);
         eBtnReply.innerText = "Replying...";
         F.toast.error("Reply is TODO. fpid="+fpid);
         /*
@@ -936,11 +941,11 @@
           - When cancelled or submitted, restore the reply button and
             ePost position.
         */
-        restoreEditReplyElement(ePost, eBtnReply);
+        restoreEditReplyElement(ePost, eBtnReply, eToDisable);
       }/*replyClicked()*/;
 
-      const editClicked = (form, ePost, eBtnEdit)=>{
-        const fpid = setupEditReplyElement(ePost, eBtnEdit);
+      const editClicked = (form, ePost, eBtnEdit, eToDisable)=>{
+        const fpid = setupEditReplyElement(ePost, eBtnEdit, eToDisable);
         eBtnEdit.innerText = "Editing...";
         F.toast.error("Edit is TODO. fpid="+fpid);
         /*
@@ -959,8 +964,8 @@
         fetchPost(fpid)
           .then(artifact=>{
             const ondone = (fpe)=>{
-              restoreEditReplyElement(ePost, eBtnEdit);
-              console.debug("ondiscard/onsubmit", fpe);
+              restoreEditReplyElement(ePost, eBtnEdit, eToDisable);
+              //console.debug("ondiscard/onsubmit", fpe, eToDisable);
               if( fpe/*onsubmit*/ ){
                 if( fpe.widget.parentNode ){
                   fpe.widget.remove();
@@ -985,6 +990,7 @@
         '.forumpost-single-controls > form'
       ).forEach(form=>{
         //console.debug("Checking form",form);
+        const eToDisable = [];
         const eThePost = form.parentElement.parentElement;
         if( !eThePost?.dataset?.fpid ){
           console.warn("Unexpected missing fpid", eThePost);
@@ -993,24 +999,26 @@
         const btnReply = form.querySelector('input[type=submit][name=reply]');
         if( btnReply ){
           //console.debug("hacking Reply button", btnReply);
-          const b = D.button("Reply", ()=>replyClicked(form, eThePost, b));
+          const b = D.button("Reply", ()=>replyClicked(form, eThePost, b, eToDisable));
           b.type = 'button'/*keep container form from submitting*/;
+          eToDisable.push(b);
           btnReply.parentElement.insertBefore(b, btnReply);
           btnReply.remove();
         }
         const btnEdit = form.querySelector('input[type=submit][name=edit]');
         if( btnEdit ){
           //console.debug("hacking Edit button", btnEdit);
-          const b = D.button("Edit", ()=>editClicked(form, eThePost, b));
+          const b = D.button("Edit", ()=>editClicked(form, eThePost, b, eToDisable));
           b.type = 'button';
+          eToDisable.push(b);
           btnEdit.parentElement.insertBefore(b, btnEdit);
           btnEdit.remove();
         }
       })/*for-each form*/;
     }/* /forumpost and /forumthread */
 
-    if( 0 ){
-      /* TODO every now and then, not every request... */
+    if( Date.now() % 17 === 0 ){
+      /* Purge old drafts only every now and then. */
       F.ForumPostEditor.purgeOldDrafts(/^draft-forum.*/);
     }
   })/*F.onPageLoad callback*/;
