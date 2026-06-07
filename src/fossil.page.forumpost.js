@@ -62,7 +62,11 @@
       if( !opt.inReplyTo ){
         /* Title... */
         e.titleBar = D.addClass(D.div(),'titlebar');
-        e.title = D.addClass(D.input('text'), 'title');
+        e.title = D.attr(
+          D.addClass(D.input('text'), 'title'),
+          'placeholder',
+          'Thread title (required)'
+        );
         e.title.setAttribute('maxlength', 125);
         e.titleBar.append(
           D.append(D.span(), "Title:"),
@@ -73,7 +77,7 @@
             this.#draft.title = e.title.value;
             this.#storeDraft();
           });
-          e.title.value = opt.title || this.#draft.title;
+          e.title.value = opt.title || this.#draft.title || '';
         }else if( opt.title ){
           e.title.value = opt.title;
         }
@@ -82,27 +86,29 @@
 
       { /* Mimetype... */
         e.mimetype.wrapper = D.addClass(D.div(), 'mimetype-wrapper');
-        e.mimetype.select = D.addClass(D.select(), 'mimetype-select');
-        this.#toDisable.push(e.mimetype.select);
+        const sel = e.mimetype.select = D.addClass(D.select(), 'mimetype-select');
+        this.#toDisable.push(sel);
         let i = 0;
-        D.option(e.mimetype.select, '', 'Markup format').disabled = true;
+        D.option(sel, '', 'Markup format').disabled = true;
         for(const [k,v] of Object.entries({
           'text/x-markdown': 'Markdown',
           'text/x-fossil-wiki': 'Fossil Wiki',
           'text/plain': 'Plain text'
         })) {
-          D.option(e.mimetype.select, k, v);
+          D.option(sel, k, v);
         }
+        sel.value = opt.mimetype
+          || this.#draft?.mimetype
+          || sel.options[1].value;
         if( this.#draft ){
-          e.mimetype.select.value = opt.mimetype || this.#draft.mimetype;
-          e.mimetype.select.addEventListener('change',ev=>{
+          sel.addEventListener('change',ev=>{
             if( this.#draft.mimetype!==ev.target.value ){
               this.#draft.mimetype = ev.target.value;
               this.#storeDraft();
             }
           });
         }
-        e.mimetype.wrapper.append(e.mimetype.select);
+        e.mimetype.wrapper.append(sel);
       }
 
       e.buttons = D.addClass(D.div(), 'buttons');
@@ -178,7 +184,7 @@
         this.#tabs.addTab( e.tabEdit );
         this.#tabs.switchToTab( e.tabEdit );
         if( this.#draft ){
-          this.editorContent = this.#draft.content;
+          this.editorContent = this.#draft.content || '';
           e.editor.addEventListener(
             'blur', ()=>{
               this.#draft.content = this.editorContent;
@@ -525,10 +531,17 @@
           fd.append( "status", v );
         }
       }
-      if( 1 ){
-        fd.append("dryrun", 1);
+      if( e.debug ){
+        e.debug.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+          console.debug("Debug option:",cb);
+          if( cb.checked ) fd.append(cb.value, 1);
+        });
       }
       console.warn("Ready to submit",fd);
+      if( 0 ){
+        this.#isWaiting = false;
+        return;
+      }
       /*
         TODO: save it, set #isWaiting=false, then handle error or
         redirect to the post (if this is a new post) or, if replying
@@ -540,15 +553,21 @@
         body: fd
       }).then(r=>r.json())
         .then(j=>{
-          console.debug("submit response:",j);
+          console.debug("forum post submit response:",j);
           if( j.error ){
             throw new Error(j.error);
           }else if( j.message ){
             this.reportError(j.message);
             return;
           }
-          this.#clearDraft();
-          window.location = F.repoUrl('forumpost/'+j.uuid);
+          if( 1 ){
+            this.#clearDraft();
+            window.location = F.repoUrl('forumpost/'+j.uuid);
+          }else{
+            this.reportError(
+              "Saving worked but we're ignoring it and staying here."
+            );
+          }
         })
         .catch((e)=>this.reportError(e.message))
         .finally(()=>this.#isWaiting = false);

@@ -933,12 +933,10 @@ int attachments_ajax_from_POST(const char *zTarget, int bNeedsModeration){
                      aKeyPrefix);
     szContent = atoi(PD(aKeySize,"-1"));
     if( szContent<=0 ){
-      rc = -400;
-      ajax_route_error(400,"Invalid file size: %d", szContent);
+      rc = -ajax_route_error(400,"Invalid file size: %d", szContent);
       break;
     }else if( szLimit>0 && szContent>szLimit ){
-      rc = -413;
-      ajax_route_error(413, "File size limit is %d bytes.", szLimit);
+      rc = -ajax_route_error(413, "File size limit is %d bytes.", szLimit);
       break;
     }else{
       sqlite3_snprintf(sizeof(aKeyName), aKeyName, "%s:filename",
@@ -946,8 +944,7 @@ int attachments_ajax_from_POST(const char *zTarget, int bNeedsModeration){
       sqlite3_snprintf(sizeof(aKeyDesc), aKeyDesc, "%s_desc",
                        aKeyPrefix);
       if( 0==(zFilename=P(aKeyName)) ){
-        rc = -400;
-        ajax_route_error(400, "Missing filename.");
+        rc = -ajax_route_error(400, "Missing filename.");
         break;
       }
       attach_commit(zFilename, zTarget, zContent, szContent,

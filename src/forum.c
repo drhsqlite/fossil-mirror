@@ -418,8 +418,9 @@ static void moderation_forumpost_disapprove(int fpid){
 ** If bCheckIrt is true then the forum post IRT hierarchy is searched
 ** for the tag, otherwise only the given RID is checked.
 **
-** Returns true if it actually creates a new tag, else false. Fails
-** fatally on error.
+** Returns a positive value (a new tag.tagid value) if it actually
+** creates a new tag, else 0. On error it returns a negative alue
+** and g.zErrMsg "should" contain details.
 **
 ** If it returns true then state from previously-loaded posts may be
 ** invalidated if they refer to the amended post or a response to it.
@@ -486,10 +487,10 @@ static int forumpost_tag(int frid, int addTag,
   blob_reset(&cksum);
   trid = content_put_ex(&artifact, 0, 0, 0, 0);
   if( trid==0 ){
-    fossil_fatal("Error saving tag artifact: %s", g.zErrMsg);
+    return -1;
   }
   if( manifest_crosslink(trid, &artifact, MC_NONE)==0 ){
-    fossil_fatal("%s", g.zErrMsg);
+    return -2;
   }
   assert( blob_is_reset(&artifact) );
   db_add_unsent(trid);
@@ -497,7 +498,7 @@ static int forumpost_tag(int frid, int addTag,
             zUuid, addTag ? '*' : '-', zTagName);
   fossil_free(zUuid);
   db_end_transaction(0);
-  return 1;
+  return trid;
 }
 
 /*
@@ -1660,7 +1661,7 @@ static int whitespace_only(const char *z){
 
 /* Flags for use with forum_post() */
 #define FPOST_NO_ALERT 1 /* do not send any alerts */
-#define FPOST_DRY_RUN  2 /* do not save the artifact */
+#define FPOST_DRYRUN   2 /* do not save the artifact */
 
 /*
 ** Return a flags value for use with the final argument to
@@ -1672,7 +1673,7 @@ static int forum_post_flags(void){
     iPostFlags |= FPOST_NO_ALERT;
   }
   if( P("dryrun")!=0 ){
-    iPostFlags |= FPOST_DRY_RUN;
+    iPostFlags |= FPOST_DRYRUN;
   }
   return iPostFlags;
 }
@@ -1770,7 +1771,7 @@ static int forum_post(
   webpage_assert( pPost->type==CFTYPE_FORUM );
   manifest_destroy(pPost);
 
-  if( (iFlags & FPOST_DRY_RUN)!=0 ){
+  if( (iFlags & FPOST_DRYRUN)!=0 ){
     @ <div class='debug'>
     @ This is the artifact that would have been generated:
     @ <pre>%h(blob_str(&x))</pre>
@@ -1833,8 +1834,13 @@ static void forumpost_action_helper(const char *zTag, const char *zVal,
     webpage_error("CSRF validation failed");
   }else{
     const int fpid = validFpid>0 ? validFpid : forum_validate_fpid_param();
-    forumpost_tag(fpid, addTag, zTag, zVal);
-    cgi_redirectf("%R/forumpost/%S",P("fpid"));
+    if( fpid>0 ){
+      if( forumpost_tag(fpid, addTag, zTag, zVal) < 0 ){
+        webpage_error("Tagging artifact failed: %s", g.zErrMsg);
+      }else{
+        cgi_redirectf("%R/forumpost/%S",P("fpid"));
+      }
+    }
   }
 }
 
@@ -2920,7 +2926,7 @@ int forum_post_ajax(
   }
   webpage_assert( pPost->type==CFTYPE_FORUM );
 
-  if( (iFlags & FPOST_DRY_RUN)!=0 ){
+  if( (iFlags & FPOST_DRYRUN)!=0 ){
     rc = 0;
   }else{
     int nrid;
@@ -2950,7 +2956,7 @@ post_ajax_end:
 ** { uuid: hash, ...tbd }
 */
 void forum_ajax_save(void){
-  const char *zUuid;
+  const char *zFpid;
   const char *zTitle;
   const char *zIrt;
   const char *zMimetype;
@@ -2958,13 +2964,13 @@ void forum_ajax_save(void){
   const char *zStatus;
   const int bHasAttachment = P("file1")!=0;
   char *zNewUuid = 0;
-  int bNeedsModeration = 0;
   int goodCaptcha = 1;
-  int bRollback = PB("rollback"); /* True if we should roll back. */
   int iIrt = 0;        /* In-reply-to rid or 0 */
   int iEditRid = 0;    /* Post rid being edited or 0 */
   int rc = 0;
   int nrid = 0;
+  const int iPostFlags = forum_post_flags();
+  int bRollback = (FPOST_DRYRUN & iPostFlags); /* True = roll back. */
 
   if( !ajax_route_bootstrap(0, 1) ){
     return;
@@ -2994,58 +3000,87 @@ void forum_ajax_save(void){
   ** - Fork forum_post() into an AJAX-friendly form. It currently
   **   assumes HTML output.
   **
-  ** - If zUuid then this is an edit. Else...
+  ** - If zFpid then this is an edit. Else...
   **
   ** - If zIrt then this is a new response.
   **
-  ** - zTitle is only honored if !zIrt, i.e. zUuid is the root post.
+  ** - zTitle is only honored if !zIrt, i.e. zFpid is the root post.
   **
   ** - attachments_ajax_from_POST()
   **
   ** - Allow status change only if permissions allow.
   */
 
-  (void)bNeedsModeration;
-  (void)zUuid;
-  (void)zIrt;
-  (void)zMimetype;
-  (void)zContent;
-  (void)zStatus;
-
-  if( 1 ){
-    bRollback = 1;
-    ajax_route_error(400, "Save is TODO");
-    goto ajax_save_end;
+  if( zFpid ){
+    iEditRid = symbolic_name_to_rid(zFpid, "f");
+    if( iEditRid<0 ){
+      rc = -ajax_route_error(400, "Ambiguous forum ID.");
+      goto ajax_save_end;
+    }else if( 0==iEditRid ){
+      rc = -ajax_route_error(404, "Cannot resolve forum post ID.");
+      goto ajax_save_end;
+    }
   }
-
-  nrid = forum_post_ajax(zTitle, iIrt, iEditRid, 0, zMimetype,
-                         zContent, forum_post_flags());
-  if( nrid==0 ){
-    CX("{\"message\": \"No changes needed saving.\"}\n");
-    goto ajax_save_end;
-  }
-  if( zStatus!=0 && zStatus[0]!=0 ){
-    forumpost_tag(nrid, 1, "status", zStatus)
-      /* FIXME: ^^^ fails fatally on error */;
-  }
-  zNewUuid = rid_to_uuid(nrid);
-  if( 0!=P("file1") ){
-    /* Attachments */
-    const int atRc =
-      attachments_ajax_from_POST(zNewUuid, bNeedsModeration);
-    if( atRc<0 ){
-      rc = atRc;
+  if( zIrt ){
+    iIrt = symbolic_name_to_rid(zIrt, "f");
+    if( iIrt<0 ){
+      rc = -ajax_route_error(400, "Ambiguous in-reply-do ID.");
+      goto ajax_save_end;
+    }else if( 0==iIrt ){
+      rc = -ajax_route_error(404, "Cannot resolve in-reply-do ID.");
       goto ajax_save_end;
     }
   }
 
-
-  if( 0==rc ){
-    CX("{\"uuid\": %!j}\n", zNewUuid);
+  if( 0 ){
+    rc = -ajax_route_error(400, "Save is TODO");
+    goto ajax_save_end;
   }
+
+  nrid = forum_post_ajax(zTitle, iIrt, iEditRid, 0, zMimetype,
+                         zContent, iPostFlags);
+  if( nrid<0 ){
+    rc = nrid;
+    goto ajax_save_end;
+  }else if( nrid==0 ){
+    if( 0==(FPOST_DRYRUN & iPostFlags) ){
+      bRollback = 1;
+      CX("{\"message\": \"No saving needed.\"}\n");
+    }else{
+      CX("{\"message\": \"Rolled back for dry-run.\"}\n");
+    }
+    goto ajax_save_end;
+  }
+  if( nrid>0 ){
+    zNewUuid = rid_to_uuid(nrid);
+    if( 0!=P("file1") ){
+      /* Attachments */
+      if( !g.perm.Admin && !g.perm.AttachForum ){
+        rc = -ajax_route_error(403, "No permission no attach files.");
+        goto ajax_save_end;
+      }else{
+        const int atRc =
+          attachments_ajax_from_POST(zNewUuid, forum_need_moderation());
+        if( atRc<0 ){
+          rc = atRc;
+          goto ajax_save_end;
+        }
+      }
+    }
+    if( zStatus!=0 && zStatus[0]!=0
+        && forum_may_set_status(nrid)
+        && forumpost_tag(nrid, 1, "status", zStatus)<0 ){
+      rc = -ajax_route_error(500, "Tagging failed: %s", g.zErrMsg);
+      goto ajax_save_end;
+    }
+  }
+
+  assert( 0==rc );
+  assert( zNewUuid );
+  CX("{\"uuid\": %!j, \"dryrun\": %s}\n",
+     zNewUuid, bRollback ? "true" : "false");
 
 ajax_save_end:
   fossil_free(zNewUuid);
-  if( 0!=rc ) bRollback = 1;
-  db_end_transaction(bRollback);
+  db_end_transaction(rc || bRollback);
 }
