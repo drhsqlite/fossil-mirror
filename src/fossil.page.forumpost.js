@@ -45,7 +45,7 @@
       opt = this.#opt = F.nu({
         // todo: defaults once we determine the options
         // replyTo: hash
-        // edit: hash
+        // fpid: hash
         draftKey: undefined
       }, opt);
       opt.isNewThread = !opt.replyTo && !opt.edit;
@@ -115,11 +115,20 @@
       { /* Preview/submit buttons... */
         e.button.preview = D.button("Preview", e=>this.#preview());
         e.button.submit = D.button("Submit");
+        if( opt.ondiscard instanceof Function ){
+          e.button.discard = D.button('Discard');
+        }
         if( 1 ){
           F.confirmer(e.button.submit, {
             confirmText: "Confirm submit...",
             onconfirm: ()=>this.#submit()
           });
+          if( e.button.discard ){
+            F.confirmer(e.button.discard, {
+              confirmText: "Really discard?",
+              onconfirm: ()=>this.discard()
+            });
+          }
         }else{
           e.button.submit.addEventListener('click', ()=>this.#submit());
         }
@@ -255,6 +264,10 @@
            an Attacher's controls during ajax traffic. */
       }
       e.buttons.append(e.button.preview, e.button.submit);
+      if( e.button.discard ){
+        e.buttons.append(e.button.discard);
+        this.#toDisable.push(e.button.discard);
+      }
       this.#toDisable.push(e.button.preview);
 
       e.help = D.attr(D.div(), 'id', idPrefix+'-help');
@@ -333,6 +346,17 @@
       }
 
     }/*constructor*/
+
+    discard(){
+      this.#clearDraft();
+      const e = this.#e.widget;
+      if( e.parentNode ){
+        e.remove();
+        if( this.#opt.ondiscard instanceof Function ){
+          this.#opt.ondiscard();
+        }
+      }
+    }
 
     /** This widget's top-most DOM element. */
     get widget(){
@@ -418,6 +442,16 @@
       this.#att = new F.Attacher({
         reverse: true
       });
+      if( this.#opt.fpid ){
+        const eNote = D.append(
+          D.div(),
+          "Tip: attachments can be added to posts without editing them",
+          "by visiting ",
+          D.a(F.repoUrl('attachadd?target='+this.#opt.fpid), '/attachadd'),
+          ".",
+        );
+        this.#e.tabAttach.append(eNote);
+      }
       this.#e.tabAttach.append(this.#att.widget);
     }
 
@@ -775,12 +809,50 @@
       const fpe = new fossil.ForumPostEditor({
         draftKey: 'forumnew',
         hiddenFields: eForumNew.querySelectorAll('input[type=hidden]'),
-        captcha: eForumNew.querySelector('.captcha-for-js')
+        captcha: eForumNew.querySelector('.captcha-for-js'),
+        ondiscard: ()=>{
+          window.location = F.repoUrl('forum');
+        }
         //mimetype: 'text/plain'
       });
       eForumNew.parentElement.insertBefore(fpe.widget, eForumNew);
       eForumNew.remove();
       fossil.page.fpe = fpe /* for testing via the console */;
     }/*eForumNew*/
+    else if( 0 && (document.body.classList.contains('cpage-forumpost')
+              || document.body.classList.contains('cpage-forumthread'))){
+      /* /forumpost and /forumthread */
+      const replyClicked = (replyButton, fpid)=>{
+        F.toast.error("Reply is TODO. fpid="+fpid);
+        /*
+          TODOs include:
+
+          - Hide replyButton
+
+          - Pop up a ForumPostEditor. It needs a Cancel button.
+
+          - When cancelled or submitted, restore the reply button.
+        */
+      };
+      document.body.querySelectorAll(
+        '.forumpost-single-controls > form'
+      ).forEach(form=>{
+        const eReplyTo = form.parentElement.parentElement;
+        const fpid = eReplyTo?.dataset?.fpid;
+        if( !fpid ){
+          console.warn("Unexpected non-fpid", form, eReplyTo);
+          return;
+        }
+        const rb = form.querySelector('input[type=submit][name=reply]');
+        if( rb ){
+          console.debug("hacking Reply button", rb);
+          const b = D.button("Reply", ()=>replyClicked(b, fpid));
+          b.type = 'button'/*keep container form from submitting*/;
+          rb.parentElement.insertBefore(b, rb);
+          rb.remove();
+        }
+      });
+    }
+
   })/*F.onPageLoad callback*/;
 })(window.fossil);

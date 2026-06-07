@@ -1124,10 +1124,9 @@ static void forum_display_post(
     @ %s(iClosed ? " forumClosed" : "")\
     @ %s(p->pEditTail ? " forumObs" : "")' \
     if( iIndent && iIndentScale ){
-      @ style='margin-left:%d(iIndent*iIndentScale)ex;'>
-    }else{
-      @ >
+      @ style='margin-left:%d(iIndent*iIndentScale)ex;' \
     }
+    @ data-fpid="%s(p->zUuid)">
 
     /* If this is the first post (or an edit thereof), emit the thread title. */
     if( pManifest->zThreadTitle ){
