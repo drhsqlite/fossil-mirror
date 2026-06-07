@@ -154,7 +154,7 @@
         );
         this.#tabs = new F.TabManager(e.tabs);
         this.#tabs.addEventListener('before-switch-to', (ev)=>{
-          console.debug("Switching to tab",ev.detail);
+          //console.debug("Switching to tab",ev.detail);
           switch( (this.#activeTab = ev.detail) ){
             case e.preview:
               this.#e.button.preview.click();
@@ -204,7 +204,7 @@
         for(const [k,v] of Object.entries({
           dryrun: 'Dry run',
           domod: 'Require moderation approval',
-          showqp: 'Show query parameters',
+          //showqp: 'Show query parameters',
           fpsilent: 'Do not send notification emails'
         })){
           const lbl = D.label(false, v);
@@ -520,9 +520,6 @@
       const e = this.#e;
       D.disable(e.button.submit);
       const fd = this.#newFormData();
-      if( this.#att ){
-        this.#att.populateFormData(fd);
-      }
       if( this.#e.status ){
         /* Send the status only if it was modified, otherwise we may
            add a superfluous tag. */
@@ -533,9 +530,14 @@
       }
       if( e.debug ){
         e.debug.querySelectorAll('input[type=checkbox]').forEach(cb=>{
-          console.debug("Debug option:",cb);
-          if( cb.checked ) fd.append(cb.value, 1);
+          if( cb.checked ){
+            fd.append(cb.value, 1);
+            console.debug("Debug option:",cb);
+          }
         });
+      }
+      if( this.#att ){
+        this.#att.populateFormData(fd);
       }
       console.warn("Ready to submit",fd);
       if( 0 ){

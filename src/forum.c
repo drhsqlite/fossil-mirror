@@ -2955,7 +2955,7 @@ post_ajax_end:
 **
 ** { uuid: hash, ...tbd }
 */
-void forum_ajax_save(void){
+void forum_ajax_save_page(void){
   const char *zFpid;
   const char *zTitle;
   const char *zIrt;
@@ -2969,8 +2969,8 @@ void forum_ajax_save(void){
   int iEditRid = 0;    /* Post rid being edited or 0 */
   int rc = 0;
   int nrid = 0;
-  const int iPostFlags = forum_post_flags();
-  int bRollback = (FPOST_DRYRUN & iPostFlags); /* True = roll back. */
+  int iPostFlags;
+  int bRollback = 1;   /* True = roll back. */
 
   if( !ajax_route_bootstrap(0, 1) ){
     return;
@@ -2986,31 +2986,15 @@ void forum_ajax_save(void){
     return;
   }
 
+  iPostFlags = forum_post_flags();
+  bRollback = (FPOST_DRYRUN & iPostFlags);
+  zFpid = P("fpid");
   zTitle = P("title");
   zIrt = P("firt");
   zMimetype = P("mimetype");
   zContent = P("content");
   zStatus = P("status");
   db_begin_transaction();
-  /*
-  ** TODOs include:
-  **
-  ** - Permissions and sanity checks, of course.
-  **
-  ** - Fork forum_post() into an AJAX-friendly form. It currently
-  **   assumes HTML output.
-  **
-  ** - If zFpid then this is an edit. Else...
-  **
-  ** - If zIrt then this is a new response.
-  **
-  ** - zTitle is only honored if !zIrt, i.e. zFpid is the root post.
-  **
-  ** - attachments_ajax_from_POST()
-  **
-  ** - Allow status change only if permissions allow.
-  */
-
   if( zFpid ){
     iEditRid = symbolic_name_to_rid(zFpid, "f");
     if( iEditRid<0 ){
@@ -3033,7 +3017,9 @@ void forum_ajax_save(void){
   }
 
   if( 0 ){
-    rc = -ajax_route_error(400, "Save is TODO");
+    rc = -ajax_route_error(400, "Save is TODO. "
+                           "iPostFlags=%d debug=%d",
+                           iPostFlags, g.perm.Debug);
     goto ajax_save_end;
   }
 
@@ -3047,7 +3033,8 @@ void forum_ajax_save(void){
       bRollback = 1;
       CX("{\"message\": \"No saving needed.\"}\n");
     }else{
-      CX("{\"message\": \"Rolled back for dry-run.\"}\n");
+      CX("{\"message\": \"Rolled back for dry-run.\","
+         "\"iPostFlags\":%d}\n", iPostFlags);
     }
     goto ajax_save_end;
   }
@@ -3065,6 +3052,25 @@ void forum_ajax_save(void){
           rc = atRc;
           goto ajax_save_end;
         }
+        if( atRc>0
+            && (iPostFlags & FPOST_NO_ALERT)!=0
+            && db_table_exists("repository","pending_alert") ){
+          /* Unqueue any alerts for these attachments. Recall that
+          ** they're attached to the first version of the post, which
+          ** means we actually risk cancelling _other_ pending
+          ** notifications for attachments on this same post. */
+          const int fpRoot = forumpost_head_rid(nrid);
+          db_multi_exec(
+            "WITH x(id) AS (\n"
+            "  SELECT 'f%d'\n"
+            "  UNION ALL\n"
+            "  SELECT 'f'||a.attachid FROM blob b, attachment a\n"
+            "    WHERE b.rid=%d\n"
+            "    AND b.uuid=a.target\n"
+            ") DELETE FROM pending_alert WHERE eventid IN x",
+            fpRoot, fpRoot
+          );
+        }
       }
     }
     if( zStatus!=0 && zStatus[0]!=0
@@ -3077,8 +3083,8 @@ void forum_ajax_save(void){
 
   assert( 0==rc );
   assert( zNewUuid );
-  CX("{\"uuid\": %!j, \"dryrun\": %s}\n",
-     zNewUuid, bRollback ? "true" : "false");
+  CX("{\"uuid\": %!j, \"dryrun\": %s, \"iPostFlags\":%d}\n",
+     zNewUuid, bRollback ? "true" : "false", iPostFlags);
 
 ajax_save_end:
   fossil_free(zNewUuid);
