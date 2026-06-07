@@ -46,6 +46,14 @@
        this object's widget from the DOM. After that, opt.ondiscard()
        is called and passed no arguments.
 
+       opt.onsubmit[=function]: if set, this function is called
+       immediately after the post has been successfully saved,
+       and passed this object.
+
+       opt.hiddenFields: an optional list of input elements to
+       incorporate into the form for requests which request the
+       preview or save the post.
+
        TODO:
 
        opt.inReplyTo=uuid: if this is a new response to a post, this
@@ -73,7 +81,7 @@
       const wrapper = e.widget = D.addClass(D.div(), 'ForumPostEditor');
       D.clearElement(wrapper);
 
-      if( !opt.inReplyTo ){
+      if( !opt.inReplyTo && !opt.hideTitle ){
         /* Title... */
         e.titleBar = D.addClass(D.div(),'titlebar');
         e.title = D.attr(
@@ -207,7 +215,7 @@
         this.#tabs.addTab( e.tabEdit );
         this.#tabs.switchToTab( e.tabEdit );
         if( this.#draft ){
-          this.editorContent = opt.edit?.W || this.#draft.content || '';
+          this.editorContent = this.#draft.content || opt.edit?.W || '';
           e.editor.addEventListener(
             'blur', ()=>{
               this.#draft.content = this.editorContent;
@@ -219,6 +227,7 @@
         }
         e.preview = D.addClass(D.div(), 'preview');
         e.preview.dataset.tabLabel = 'Preview';
+        this.#toDisable.push(e.button.preview);
         this.#tabs.addTab( e.preview );
       }
 
@@ -284,7 +293,6 @@
         e.buttons.append(e.button.discard);
         this.#toDisable.push(e.button.discard);
       }
-      this.#toDisable.push(e.button.preview);
 
       e.help = D.attr(D.div(), 'id', idPrefix+'-help');
       e.help.$needsInit = true;
@@ -347,8 +355,7 @@
         }, true);
       }/*shift-enter preview bits*/
 
-      {
-        let visible = true;
+      if(0){ /* Needs to be optional */
         const elemsToToggle = document.body.querySelectorAll(
           ':scope > header, :scope > nav'
         );
@@ -364,9 +371,10 @@
     }/*constructor*/
 
     discard(){
-      this.#clearDraft();
       const e = this.#e.widget;
       if( e.parentNode ){
+        console.debug("FPE discarding", this);
+        this.#clearDraft();
         e.remove();
         if( this.#opt.ondiscard instanceof Function ){
           this.#opt.ondiscard();
@@ -425,7 +433,7 @@
     addHiddenFields(list){
       this.#extraFields ??= [];
       for( const f of list ){
-        if( 'title'===f.name ){
+        if( 'title'===f.name && this.#e.title ){
           if( f.value && this.#opt.isNewThread && !this.#e.title.value ){
             this.#e.title.value = f.value;
           }
@@ -440,7 +448,7 @@
     }
 
     get title(){
-      return this.#e.title.value;
+      return this.#e.title?.value;
     }
 
     #initHelpTab(){
@@ -476,8 +484,12 @@
       for(const f of this.#extraFields){
         fd.append(f.name, f.value);
       }
+      if( this.#e.title ){
+        fd.append('title', this.title.trim());
+      }else if( this.#opt.edit?.H ){
+        fd.append('title', this.#opt.edit.H);
+      }
       fd.append('mimetype', this.mimetype);
-      fd.append('title', this.title.trim());
       fd.append('content', addThisContent || this.editorContent.trim());
       if( this.#e.captcha ){
         fd.append('captcha', this.#e.captcha.value);
@@ -557,8 +569,8 @@
         this.reportError("Enter the captcha value.");
         return;
       }
-      if( this.#opt.isNewThread ){
-        let v = this.#e.title.value.trim();
+      if( this.#e.title ){
+        const v = this.#e.title.value.trim();
         if( !v ){
           this.reportError("A non-empty title is required.");
           return;
@@ -618,6 +630,9 @@
           }
           if( 1 ){
             this.#clearDraft();
+            if( this.#opt.onsubmit instanceof Function ){
+              this.#opt.onsubmit(this);
+            }
             window.location = F.repoUrl('forumpost/'+j.uuid);
           }else{
             this.reportError(
@@ -631,7 +646,31 @@
 
     #storeDraft(){
       if( this.#draft ){
+        this.#draft.mtime = Date.now();
         F.storage.setJSON(this.#opt.draftKey, this.#draft);
+      }
+    }
+
+    /**
+       Looks for editing draft keys matching either a fixes key or a
+       regex, and removes each matching one which is older than some
+       fixed "best-before" date.
+    */
+    static purgeOldDrafts(key){
+      const age = (3600 * 24 * 10/*days*/) * 1000/*ms*/;
+      const now = Date().now();
+      if( key instanceof RegExp ){
+        for(const k of F.storage.keys().filter(v=>key.test(v))){
+          const o = F.getJSON(k);
+          if( o &&  (o.mtime+age < now)){
+            F.storage.remove(k);
+          }
+        }
+      }else{
+        const o = F.getJSON(key);
+        if( o &&  (o.mtime+age < now)){
+          F.storage.remove(key);
+        }
       }
     }
 
@@ -821,29 +860,32 @@
       });
     }
 
-    const userIsIndividual = ['anonymous','guest'].indexOf(F.user.name)<0;
+    F.user.isIndividual = ['anonymous','guest'].indexOf(F.user.name)<0;
+
     const eForumNew = document.body.classList.contains('cpage-forumnew')
           ? document.querySelector('#forumnew-placeholder')
           : null;
     if( eForumNew ){
       /* /forumnew */
-      const fpe = new fossil.ForumPostEditor({
-        draftKey: 'forumnew',
+      const fpe = new F.ForumPostEditor({
+        draftKey: 'draft-forumnew',
         hiddenFields: eForumNew.querySelectorAll('input[type=hidden]'),
         captcha: eForumNew.querySelector('.captcha-for-js'),
         ondiscard: ()=>{
           window.location = F.repoUrl('forum');
         }
-        //mimetype: 'text/plain'
       });
       eForumNew.parentElement.insertBefore(fpe.widget, eForumNew);
       eForumNew.remove();
       fossil.page.fpe = fpe /* for testing via the console */;
     }/*eForumNew*/
-    else if( userIsIndividual
+    else if( F.user.isIndividual
              && (document.body.classList.contains('cpage-forumpost')
                  || document.body.classList.contains('cpage-forumthread'))){
-      /* /forumpost and /forumthread */
+      /* /forumpost and /forumthread. Take over the Edit/Reply buttons
+         to use a ForumPostEditor. Because of complications involving
+         fetching a captcha, we'll leave the buttons as-is for
+         non-logged-in users. */
 
       const fetchPost = async (fpid)=>{
         return window.fetch(F.repoUrl('ajax/artifact.json?uuid='+fpid))
@@ -875,7 +917,7 @@
         }
       };
 
-      const replyClicked = (ePost, eBtnReply)=>{
+      const replyClicked = (form, ePost, eBtnReply)=>{
         const fpid = setupEditReplyElement(ePost, eBtnReply);
         eBtnReply.innerText = "Replying...";
         F.toast.error("Reply is TODO. fpid="+fpid);
@@ -894,10 +936,10 @@
           - When cancelled or submitted, restore the reply button and
             ePost position.
         */
-        if( 0 ) restoreEditReplyElement(ePost, eBtnReply);
+        restoreEditReplyElement(ePost, eBtnReply);
       }/*replyClicked()*/;
 
-      const editClicked = (ePost, eBtnEdit)=>{
+      const editClicked = (form, ePost, eBtnEdit)=>{
         const fpid = setupEditReplyElement(ePost, eBtnEdit);
         eBtnEdit.innerText = "Editing...";
         F.toast.error("Edit is TODO. fpid="+fpid);
@@ -915,9 +957,27 @@
             ePost position.
         */
         fetchPost(fpid)
-          .then(j=>{
-            console.debug("Got post... now what?", j);
-            if( 0 ) restoreEditReplyElement(ePost, eBtnEdit);
+          .then(artifact=>{
+            const ondone = (fpe)=>{
+              restoreEditReplyElement(ePost, eBtnEdit);
+              console.debug("ondiscard/onsubmit", fpe);
+              if( fpe/*onsubmit*/ ){
+                if( fpe.widget.parentNode ){
+                  fpe.widget.remove();
+                }
+              }
+            };
+            const fpe = new F.ForumPostEditor({
+              hiddenFields: form.querySelectorAll('input[type=hidden]'),
+              ondiscard: ondone,
+              onsubmit: ondone,
+              draftKey: 'draft-forumedit-'+fpid.substr(0,12),
+              hideTitle: true/*fixme: only show if this is the root post*/,
+              edit: artifact
+            });
+            const w = fpe.widget;
+            w.style.borderTop = '2px dotted';
+            ePost.append(w);
           });
       }/*editClicked()*/;
 
@@ -933,7 +993,7 @@
         const btnReply = form.querySelector('input[type=submit][name=reply]');
         if( btnReply ){
           //console.debug("hacking Reply button", btnReply);
-          const b = D.button("Reply", ()=>replyClicked(eThePost, b));
+          const b = D.button("Reply", ()=>replyClicked(form, eThePost, b));
           b.type = 'button'/*keep container form from submitting*/;
           btnReply.parentElement.insertBefore(b, btnReply);
           btnReply.remove();
@@ -941,7 +1001,7 @@
         const btnEdit = form.querySelector('input[type=submit][name=edit]');
         if( btnEdit ){
           //console.debug("hacking Edit button", btnEdit);
-          const b = D.button("Edit", ()=>editClicked(eThePost, b));
+          const b = D.button("Edit", ()=>editClicked(form, eThePost, b));
           b.type = 'button';
           btnEdit.parentElement.insertBefore(b, btnEdit);
           btnEdit.remove();
@@ -949,5 +1009,9 @@
       })/*for-each form*/;
     }/* /forumpost and /forumthread */
 
+    if( 0 ){
+      /* TODO every now and then, not every request... */
+      F.ForumPostEditor.purgeOldDrafts(/^draft-forum.*/);
+    }
   })/*F.onPageLoad callback*/;
 })(window.fossil);
