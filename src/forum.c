@@ -2055,7 +2055,7 @@ void forumedit_page(void){
   const char *zTitle = 0;
   char *zDate = 0;
   const char *zFpid = PD("fpid","");
-  const int bLegacy = PB("legacy"); /* True for legacy HTML form */
+  const int bLegacy = 1 ? 1 : PB("legacy"); /* True for legacy HTML form */
   int isCsrfSafe;
   int isDelete = 0;
   int iClosed = 0;
@@ -2788,4 +2788,70 @@ void forum_main_page(void){
     forum_emit_js();
   }
   style_finish_page();
+}
+
+/*
+** WEBPAGE: forumajax_save hidden
+**
+** WIP
+**
+** Response JSON:
+**
+** { uuid: hash, ...tbd }
+*/
+void forum_ajax_save(void){
+  const char *zUuid;
+  const char *zTitle;
+  const char *zIrt;
+  const char *zMimetype;
+  const char *zContent;
+  const char *zStatus;
+  const int bHasAttachment = P("file1")!=0;
+  int bNeedsModeration = 0;
+  int goodCaptcha = 1;
+  int bRollback = 0;
+
+  if( !ajax_route_bootstrap(0, 1) ){
+    return;
+  }else if( !g.perm.WrForum
+            || (bHasAttachment && !g.perm.AttachForum) ){
+    ajax_route_error_forbidden();
+    return;
+  }else if( !ajax_check_csrf(2) ){
+    ajax_route_error_csrf();
+    return;
+  }else if( 0==(goodCaptcha = captcha_is_correct(0)) ){
+    ajax_route_error_captcha();
+    return;
+  }
+  db_begin_transaction();
+  /*
+  ** TODOs include:
+  **
+  ** - Permissions and sanity checks, of course.
+  **
+  ** - Fork forum_post() into an AJAX-friendly form. It currently
+  **   assumes HTML output.
+  **
+  ** - If zUuid then this is an edit. Else...
+  **
+  ** - If zIrt then this is a new response.
+  **
+  ** - zTitle is only honored if !zIrt, i.e. zUuid is the root post.
+  **
+  ** - attachments_ajax_from_POST()
+  **
+  ** - Allow status change only if permissions allow.
+  */
+
+  (void)bNeedsModeration;
+  (void)zUuid;
+  (void)zTitle;
+  (void)zIrt;
+  (void)zMimetype;
+  (void)zContent;
+  (void)zStatus;
+
+  ajax_route_error(400, "Save is TODO");
+  db_end_transaction(bRollback);
 }

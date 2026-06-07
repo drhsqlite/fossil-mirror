@@ -212,8 +212,16 @@ void ajax_route_error_forbidden(){
   ajax_route_error(403, "Permission denied.");
 }
 
+void ajax_route_error_captcha(){
+  ajax_route_error(400, "Invalid captcha response.");
+}
+
 void ajax_route_error_csrf(){
   ajax_route_error(403, "Invalid CSRF signature.");
+}
+
+void ajax_route_error_404(const char *zMsg){
+  ajax_route_error(404, "%s", zMsg ? zMsg : "Resource not found.");
 }
 
 int ajax_check_csrf(int level){

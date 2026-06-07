@@ -768,14 +768,14 @@ void attachadd_page(void){
 **     file1..fileN=FILE_OBJECTS
 **     dryrun=0|1
 **
-**  Each posted file in the set file1..fileN gets attached to the
-**  given target, permissions permitting. If dryrun>0 then the change
-**  is rolled back instead of committed. target=X must refer to a full
-**  target ID, not a prefix.
+** Each posted file in the set file1..fileN gets attached to the given
+** target, permissions permitting. If dryrun>0 then the change is
+** rolled back instead of committed. target=X must refer to a full
+** target ID, not a prefix.
 **
-**  Responds with JSON: an empty object on success and
-**  {error:"message"} on error. The on-success response structure is
-**  subject to amendment.
+** Responds with JSON: an empty object on success and
+** {error:"message"} on error. The on-success response structure is
+** subject to amendment.
 */
 void attachadd_ajax_post(void){
   const char *zTarget;
@@ -784,15 +784,17 @@ void attachadd_ajax_post(void){
   int bNeedsModeration = 0;
   int goodCaptcha = 1;
   int bRollback = 0;           /* Roll back if true. */
+  int bInTransaction = 0;
 
   if( ! ajax_route_bootstrap(0, 1) ){
     return;
   }else if( !(goodCaptcha = captcha_is_correct(0)) ){
-    goto ajax_post_403;
+    goto ajax_err_403;
   }else if( !ajax_check_csrf(2) ){
     return;
   }
   db_begin_transaction();
+  bInTransaction = 1;
   zTarget = P("target");
   eTgtType = attachment_target_type(zTarget, 1);
   CX("{");
@@ -805,11 +807,11 @@ void attachadd_ajax_post(void){
     case CFTYPE_FORUM:{
       int fpid;
       if( g.perm.AttachForum==0 ){
-        goto ajax_post_403;
+        goto ajax_err_403;
       }
       fpid = forumpost_head_rid2(zTarget);
       if( fpid<=0 ){
-        goto ajax_post_404;
+        goto ajax_err_404;
       }else if( !g.perm.Admin && !forumpost_is_owner(fpid, 0) ){
         ajax_route_error(403, "Only admins can attach files to "
                          "other users' forum posts.");
@@ -822,7 +824,7 @@ void attachadd_ajax_post(void){
     }
     case CFTYPE_EVENT:{
       if( g.perm.Write==0 || g.perm.ApndWiki==0 || g.perm.Attach==0 ){
-        goto ajax_post_403;
+        goto ajax_err_403;
       }
       if( !db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",
                      zTarget) ){
@@ -830,7 +832,7 @@ void attachadd_ajax_post(void){
           db_text(0, "SELECT substr(tagname,7) FROM tag"
                   " WHERE tagname GLOB 'event-%q*'", zTarget);
         if( zTarget==0){
-          goto ajax_post_404;
+          goto ajax_err_404;
         }
       }
       bNeedsModeration = 0;
@@ -838,14 +840,14 @@ void attachadd_ajax_post(void){
     }
     case CFTYPE_TICKET:{
       if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
-        goto ajax_post_403;
+        goto ajax_err_403;
       }
       if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
                      zTarget) ){
         zTarget = db_text(0, "SELECT substr(tagname,5) FROM tag"
                        " WHERE tagname GLOB 'tkt-%q*'", zTarget);
         if( zTarget==0 ){
-          goto ajax_post_404;
+          goto ajax_err_404;
         }
       }
       bNeedsModeration = ticket_need_moderation(0);
@@ -853,18 +855,18 @@ void attachadd_ajax_post(void){
     }
     case CFTYPE_WIKI:{
       if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
-        goto ajax_post_403;
+        goto ajax_err_403;
       }
       if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",
                      zTarget) ){
-        goto ajax_post_404;
+        goto ajax_err_404;
       }
       bNeedsModeration = wiki_need_moderation(0);
       break;
     }
   }
 
-  if( attachments_from_POST_ajax(zTarget, bNeedsModeration)>=0 ){
+  if( attachments_ajax_from_POST(zTarget, bNeedsModeration)>=0 ){
     CX("}");
     if( atoi(PD("dryrun","0"))>0 ){
       bRollback = 1;
@@ -873,11 +875,14 @@ void attachadd_ajax_post(void){
   fossil_free(zExtraFree);
   db_end_transaction(bRollback);
   return;
-ajax_post_403:
-  db_rollback_transaction();
+ajax_err_403:
+  if( bInTransaction ){
+    db_rollback_transaction();
+  }
   ajax_route_error_forbidden();
   return;
-ajax_post_404:
+ajax_err_404:
+  assert( bInTransaction );
   db_rollback_transaction();
   ajax_route_error(404, "Target not found.");
   return;
@@ -904,7 +909,7 @@ ajax_post_404:
 ** response using ajax_route_error(). On success it produces no
 ** output.
 */
-int attachments_from_POST_ajax(const char *zTarget, int bNeedsModeration){
+int attachments_ajax_from_POST(const char *zTarget, int bNeedsModeration){
   int i;
   int rc = 0;
   int n = 0;
@@ -935,7 +940,7 @@ int attachments_from_POST_ajax(const char *zTarget, int bNeedsModeration){
       break;
     }else if( szLimit>0 && szContent>szLimit ){
       rc = -2;
-      ajax_route_error(400, "File size limit is %d bytes.", szLimit);
+      ajax_route_error(413, "File size limit is %d bytes.", szLimit);
       break;
     }else{
       sqlite3_snprintf(sizeof(aKeyName), aKeyName, "%s:filename",

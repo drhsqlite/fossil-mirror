@@ -30,6 +30,8 @@
     /* Extra input[type=hidden] fields imported from fossil's
        static page generation. */
     #extraFields;
+    /* Persistent draft message object. */
+    #draft;
 
     /**
        Options:
@@ -47,7 +49,14 @@
         draftKey: undefined
       }, opt);
       opt.isNewThread = !opt.replyTo && !opt.edit;
-      if( !opt.draftKey) opt.draftKey = '';
+      if( opt.draftKey ){
+        this.#draft = F.storage.getJSON(opt.draftKey, F.nu({
+          title: undefined,
+          content: undefined,
+          mimetype: undefined,
+          status: undefined
+        }));
+      }
       const e = this.#e = F.nu({
         mimetype: F.nu(),
         button: F.nu()
@@ -64,12 +73,12 @@
           D.append(D.span(), "Title:"),
           e.title
         );
-        if( opt.draftKey ){
-          const key = opt.draftKey+'.title';
+        if( this.#draft ){
           e.title.addEventListener('blur', ()=>{
-            F.storage.set(key, e.title.value)
+            this.#draft.title = e.title.value;
+            this.#storeDraft();
           });
-          e.title.value = opt.title || F.storage.get(key, '');
+          e.title.value = opt.title || this.#draft.title;
         }else if( opt.title ){
           e.title.value = opt.title;
         }
@@ -156,6 +165,9 @@
                 this.#initHelpTab();
               }
               break;
+            case e.tabAttach:
+              if( !this.#att ) this.#initAttacherTab();
+              break;
           }
         });
         wrapper.append( e.tabs );
@@ -171,11 +183,13 @@
         e.tabEdit.dataset.tabLabel = 'Edit';
         this.#tabs.addTab( e.tabEdit );
         this.#tabs.switchToTab( e.tabEdit );
-        if( opt.draftKey ){
-          const key = opt.draftKey+'.content';
-          this.editorContent = F.storage.get(key,'');
+        if( this.#draft ){
+          this.editorContent = this.#draft.content;
           e.editor.addEventListener(
-            'blur', ()=>F.storage.set(key, this.editorContent)
+            'blur', ()=>{
+              this.#draft.content = this.editorContent;
+              this.#storeDraft();
+            }
           );
         }
         e.preview = D.addClass(D.div(), 'preview');
@@ -212,6 +226,7 @@
         if( F.config.forumStatuses?.length>0 ){
           const sel = e.status = D.select();
           D.option(sel, "", "- Status -").disabled = true;
+          sel.dataset.originalValue = opt.status;
           for( const status of F.config.forumStatuses ){
             D.option(sel, status.value, status.label);
           }
@@ -223,16 +238,13 @@
       }
 
       if( F.user.mayAttachForum ){
-        this.#att = new F.Attacher({
-          reverse: true
-        });
         //e.buttons.append( e.button.addAttach = this.#att.takeAddButton() );
-        e.tabAttach = D.append(D.div(), this.#att.widget);
+        e.tabAttach = D.div();
         e.tabAttach.setAttribute('id', idPrefix+'-attach');
         e.tabAttach.dataset.tabLabel = 'Attachments';
         this.#tabs.addTab(e.tabAttach);
         /* Reminder: we don't currently have a way to disable/enable
-           an Attacher's controls. */
+           an Attacher's controls during ajax traffic. */
       }
       e.buttons.append(e.button.preview, e.button.submit);
       this.#toDisable.push(e.button.preview);
@@ -331,16 +343,12 @@
       this.#e.editor.value = v;
     }
 
-    get status(){
-      return this.#e.status?.value;
-    }
-
-    /** Clears any draft state. */
-    clearDraft(){
-      const k = this.#opt.draftKey;
-      if( k ){
-        F.storage.remove(k+'.content');
-        F.storage.remove(k+'.title');
+    /** Clears any persistent draft state. Does not clear the UI
+        widgets. */
+    #clearDraft(){
+      if( this.#draft ){
+        F.storage.remove(this.#opt.draftKey);
+        this.#draft = F.nu();
       }
     }
 
@@ -398,6 +406,13 @@
       eh.append(list);
     }
 
+    #initAttacherTab(){
+      this.#att = new F.Attacher({
+        reverse: true
+      });
+      this.#e.tabAttach.append(this.#att.widget);
+    }
+
     #newFormData(addThisContent){
       const fd = new FormData;
       for(const f of this.#extraFields){
@@ -453,6 +468,7 @@
       this.#isWaiting = true;
       D.clearElement(e.preview);
       const content = this.editorContent.trim();
+      //console.debug("content to preview", content);
       if( !content ){
         return;
       }
@@ -495,11 +511,17 @@
       this.#isWaiting = true;
       const e = this.#e;
       D.disable(e.button.submit);
-      this.reportError("Submit is TODO.");
       const fd = this.#newFormData();
-      this.#att.populateFormData(fd);
+      if( this.#att ){
+        this.#att.populateFormData(fd);
+      }
       if( this.#e.status ){
-        fd.append( "status", this.status );
+        /* Send the status only if it was modified, otherwise we may
+           add a superfluous tag. */
+        const v = this.#e.status.value;
+        if( this.#e.status.dataset.originalValue !== v ){
+          fd.append( "status", v );
+        }
       }
       console.warn("Ready to submit",fd);
       /*
@@ -508,11 +530,25 @@
         inline, replace this object with a static rendering from the
         response.
       */
-      if( 0 && this.#opt.draftKey ){
-        F.storage.remove(this.#opt.draftKey+'.content');
-        F.storage.remove(this.#opt.draftKey+'.title');
+      const resp = window.fetch(F.repoUrl('forumajax_save'), {
+        method: 'POST',
+        body: fd
+      }).then(r=>r.json())
+        .then(j=>{
+          if( j.error ){
+            throw new Error(j.error);
+          }
+          this.#clearDraft();
+          window.location = F.repoUrl('forumpost/'+j.uuid);
+        })
+        .catch((e)=>this.reportError(e.message))
+        .finally(()=>this.#isWaiting = false);
+    }
+
+    #storeDraft(){
+      if( this.#draft ){
+        F.storage.setJSON(this.#opt.draftKey, this.#draft);
       }
-      this.#isWaiting = false;
     }
 
     async #fetchPost(){
