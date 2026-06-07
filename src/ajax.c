@@ -193,19 +193,24 @@ int ajax_p_bool(char const *zKey){
 ** If httpCode<=0 then it defaults to 500.
 **
 ** After calling this, the caller should immediately return.
+**
+** Returns the resulting http code.
 */
-void ajax_route_error(int httpCode, const char * zFmt, ...){
+int ajax_route_error(int httpCode, const char * zFmt, ...){
   Blob msg = empty_blob;
   Blob content = empty_blob;
   va_list vargs;
+
+  if( httpCode<=0 ) httpCode=500;
   va_start(vargs,zFmt);
   blob_vappendf(&msg, zFmt, vargs);
   va_end(vargs);
   blob_appendf(&content,"{\"error\":%!j}", blob_str(&msg));
   blob_reset(&msg);
   cgi_set_content(&content);
-  cgi_set_status(httpCode>0 ? httpCode : 500, "Error");
+  cgi_set_status(httpCode, "Error");
   cgi_set_content_type("application/json");
+  return httpCode;
 }
 
 void ajax_route_error_forbidden(){

@@ -525,6 +525,9 @@
           fd.append( "status", v );
         }
       }
+      if( 1 ){
+        fd.append("dryrun", 1);
+      }
       console.warn("Ready to submit",fd);
       /*
         TODO: save it, set #isWaiting=false, then handle error or
@@ -537,8 +540,12 @@
         body: fd
       }).then(r=>r.json())
         .then(j=>{
+          console.debug("submit response:",j);
           if( j.error ){
             throw new Error(j.error);
+          }else if( j.message ){
+            this.reportError(j.message);
+            return;
           }
           this.#clearDraft();
           window.location = F.repoUrl('forumpost/'+j.uuid);

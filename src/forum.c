@@ -442,7 +442,8 @@ static void moderation_forumpost_disapprove(int fpid){
 **   account for how edits of posts are handled. This differs from
 **   closure of a branch, where a non-propagating tag is used.
 */
-static int forumpost_tag(int frid, const char *zTagName, int addTag,
+static int forumpost_tag(int frid, int addTag,
+                         const char *zTagName,
                          const char *zValue){
   Blob artifact = BLOB_INITIALIZER;  /* Output artifact */
   Blob cksum = BLOB_INITIALIZER;     /* Z-card */
@@ -1659,6 +1660,7 @@ static int whitespace_only(const char *z){
 
 /* Flags for use with forum_post() */
 #define FPOST_NO_ALERT 1 /* do not send any alerts */
+#define FPOST_DRY_RUN  2 /* do not save the artifact */
 
 /*
 ** Return a flags value for use with the final argument to
@@ -1668,6 +1670,9 @@ static int forum_post_flags(void){
   int iPostFlags = 0;
   if( g.perm.Debug && P("fpsilent")!=0 ){
     iPostFlags |= FPOST_NO_ALERT;
+  }
+  if( P("dryrun")!=0 ){
+    iPostFlags |= FPOST_DRY_RUN;
   }
   return iPostFlags;
 }
@@ -1725,13 +1730,15 @@ static int forum_post(
   if( zTitle ){
     blob_appendf(&x, "H %F\n", zTitle);
   }
-  zI = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", iInReplyTo);
+  zI = rid_to_uuid(iInReplyTo);
   if( zI ){
     blob_appendf(&x, "I %s\n", zI);
     fossil_free(zI);
   }
-  if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")!=0 ){
-    blob_appendf(&x, "N %s\n", zMimetype);
+  if( zMimetype!=0
+      && zMimetype[0]!=0
+      && fossil_strcmp(zMimetype,"text/x-fossil-wiki")!=0 ){
+    blob_appendf(&x, "N %F\n", zMimetype);
   }
   if( iEdit>0 ){
     char *zP = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", iEdit);
@@ -1763,7 +1770,7 @@ static int forum_post(
   webpage_assert( pPost->type==CFTYPE_FORUM );
   manifest_destroy(pPost);
 
-  if( P("dryrun") ){
+  if( (iFlags & FPOST_DRY_RUN)!=0 ){
     @ <div class='debug'>
     @ This is the artifact that would have been generated:
     @ <pre>%h(blob_str(&x))</pre>
@@ -1826,7 +1833,7 @@ static void forumpost_action_helper(const char *zTag, const char *zVal,
     webpage_error("CSRF validation failed");
   }else{
     const int fpid = validFpid>0 ? validFpid : forum_validate_fpid_param();
-    forumpost_tag(fpid, zTag, addTag, zVal);
+    forumpost_tag(fpid, addTag, zTag, zVal);
     cgi_redirectf("%R/forumpost/%S",P("fpid"));
   }
 }
@@ -2791,6 +2798,149 @@ void forum_main_page(void){
 }
 
 /*
+** The AJAX counterpart of forum_post().
+**
+** Returns the new artifact's RID on success, 0 if no changes were
+** necessary (e.g. an empty new post or dry-run mode), and a negative
+** value on error. If it returns a negative value then it will have
+** populated the ajax response state with an error object.
+**
+** The caller must have started a transaction and must roll it back if
+** this call returns <=0, noting that only the negative-value case is
+** an error.
+*/
+int forum_post_ajax(
+  const char *zTitle,          /* Title.  NULL for replies */
+  int iInReplyTo,              /* Post replying to.  0 for new threads */
+  int iEdit,                   /* Post being edited, or zero for a new post */
+  const char *zUser,           /* Username.  NULL means use login name */
+  const char *zMimetype,       /* Mimetype of content. */
+  const char *zContent,        /* Content */
+  int iFlags                   /* FPOST_xyz flag values */
+){
+  char *zI;
+  char *zG;
+  int iBasis;
+  Blob x = BLOB_INITIALIZER,
+    cksum = BLOB_INITIALIZER,
+    formatCheck = BLOB_INITIALIZER,
+    errMsg = BLOB_INITIALIZER;
+  Manifest *pPost = 0;
+  int nContent = zContent ? (int)strlen(zContent) : 0;
+  int rc = 0;
+
+  assert( db_transaction_nesting_depth()>0 );
+  schema_forum();
+  if( iEdit==0 && whitespace_only(zContent) ){
+    return 0;
+  }
+  if( !g.perm.Admin && (iEdit || iInReplyTo)
+      && forum_rid_is_tagged(iEdit ? iEdit : iInReplyTo, "closed", 1) ){
+    return -ajax_route_error(400, "Thread is closed.");
+  }
+  if( 0==iInReplyTo && whitespace_only(zTitle) ){
+    return -ajax_route_error(400, "Empty title is not permitted.");
+  }
+
+  if( zUser==0 ){
+    if( login_is_nobody() ){
+      zUser = "anonymous";
+    }else{
+      zUser = login_name();
+    }
+  }
+  if( iEdit>0
+      && !g.perm.Admin
+      && !forumpost_is_owner(iEdit, zUser) ){
+    return -ajax_route_error(
+      403, "Only admins may edit other peoples' posts."
+    );
+  }
+  if( iInReplyTo==0 && iEdit>0 ){
+    iBasis = iEdit;
+    iInReplyTo = db_int(0, "SELECT firt FROM forumpost WHERE fpid=%d",
+                        iEdit);
+  }else{
+    iBasis = iInReplyTo;
+  }
+  webpage_assert( (zTitle==0)+(iInReplyTo==0)==1 );
+  blob_init(&x, 0, 0);
+  blob_appendf(&x, "D %z\n", date_in_standard_format("now"));
+  zG = db_text(
+    0,
+    "SELECT uuid FROM blob, forumpost"
+    " WHERE blob.rid==forumpost.froot"
+    "   AND forumpost.fpid=%d",
+    iBasis
+  );
+  if( zG ){
+    blob_appendf(&x, "G %z\n", zG);
+  }
+  if( zTitle ){
+    blob_appendf(&x, "H %F\n", zTitle);
+  }
+  if( iInReplyTo>0 ){
+    zI = rid_to_uuid(iInReplyTo);
+    if( 0==zI ){
+      rc = -ajax_route_error(404, "Missing in-reply-to artifact %d",
+                             iInReplyTo);
+      goto post_ajax_end;
+    }
+    blob_appendf(&x, "I %z\n", zI);
+  }
+  if( zMimetype!=0
+      && zMimetype[0]!=0
+      && fossil_strcmp(zMimetype,"text/x-fossil-wiki")!=0 ){
+    blob_appendf(&x, "N %F\n", zMimetype);
+  }
+  if( iEdit>0 ){
+    char *zP = rid_to_uuid(iEdit);
+    if( zP==0 ){
+      rc = -ajax_route_error(404, "Missing edit artifact %d", iEdit);
+      goto post_ajax_end;
+    }
+    blob_appendf(&x, "P %z\n", zP);
+  }
+
+  blob_appendf(&x, "U %F\n", zUser);
+  blob_appendf(&x, "W %d\n%s\n", nContent, zContent);
+  md5sum_blob(&x, &cksum);
+  blob_appendf(&x, "Z %b\n", &cksum);
+  blob_reset(&cksum);
+
+  /* Verify that the artifact we are creating is well-formed */
+  blob_init(&formatCheck, 0, 0);
+  blob_init(&errMsg, 0, 0);
+  blob_copy(&formatCheck, &x);
+  pPost = manifest_parse(&formatCheck, 0, &errMsg);
+  if( pPost==0 ){
+    ajax_route_error(500, "Malformed forum post artifact: %b", &errMsg);
+    rc = -500;
+    goto post_ajax_end;
+  }
+  webpage_assert( pPost->type==CFTYPE_FORUM );
+
+  if( (iFlags & FPOST_DRY_RUN)!=0 ){
+    rc = 0;
+  }else{
+    int nrid;
+    db_begin_transaction();
+    nrid = wiki_put(&x, iEdit>0 ? iEdit : 0, forum_need_moderation());
+    blob_reset(&x);
+    if( (iFlags & FPOST_NO_ALERT)!=0 ){
+      alert_unqueue('f', nrid);
+    }
+    rc = nrid;
+    db_end_transaction(0);
+  }
+post_ajax_end:
+  manifest_destroy(pPost);
+  blob_reset(&x);
+  blob_reset(&cksum);
+  blob_reset(&formatCheck);
+  return rc;
+}
+/*
 ** WEBPAGE: forumajax_save hidden
 **
 ** WIP
@@ -2807,9 +2957,14 @@ void forum_ajax_save(void){
   const char *zContent;
   const char *zStatus;
   const int bHasAttachment = P("file1")!=0;
+  char *zNewUuid = 0;
   int bNeedsModeration = 0;
   int goodCaptcha = 1;
-  int bRollback = 0;
+  int bRollback = PB("rollback"); /* True if we should roll back. */
+  int iIrt = 0;        /* In-reply-to rid or 0 */
+  int iEditRid = 0;    /* Post rid being edited or 0 */
+  int rc = 0;
+  int nrid = 0;
 
   if( !ajax_route_bootstrap(0, 1) ){
     return;
@@ -2824,6 +2979,12 @@ void forum_ajax_save(void){
     ajax_route_error_captcha();
     return;
   }
+
+  zTitle = P("title");
+  zIrt = P("firt");
+  zMimetype = P("mimetype");
+  zContent = P("content");
+  zStatus = P("status");
   db_begin_transaction();
   /*
   ** TODOs include:
@@ -2846,12 +3007,45 @@ void forum_ajax_save(void){
 
   (void)bNeedsModeration;
   (void)zUuid;
-  (void)zTitle;
   (void)zIrt;
   (void)zMimetype;
   (void)zContent;
   (void)zStatus;
 
-  ajax_route_error(400, "Save is TODO");
+  if( 1 ){
+    bRollback = 1;
+    ajax_route_error(400, "Save is TODO");
+    goto ajax_save_end;
+  }
+
+  nrid = forum_post_ajax(zTitle, iIrt, iEditRid, 0, zMimetype,
+                         zContent, forum_post_flags());
+  if( nrid==0 ){
+    CX("{\"message\": \"No changes needed saving.\"}\n");
+    goto ajax_save_end;
+  }
+  if( zStatus!=0 && zStatus[0]!=0 ){
+    forumpost_tag(nrid, 1, "status", zStatus)
+      /* FIXME: ^^^ fails fatally on error */;
+  }
+  zNewUuid = rid_to_uuid(nrid);
+  if( 0!=P("file1") ){
+    /* Attachments */
+    const int atRc =
+      attachments_ajax_from_POST(zNewUuid, bNeedsModeration);
+    if( atRc<0 ){
+      rc = atRc;
+      goto ajax_save_end;
+    }
+  }
+
+
+  if( 0==rc ){
+    CX("{\"uuid\": %!j}\n", zNewUuid);
+  }
+
+ajax_save_end:
+  fossil_free(zNewUuid);
+  if( 0!=rc ) bRollback = 1;
   db_end_transaction(bRollback);
 }
