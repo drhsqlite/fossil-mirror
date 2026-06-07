@@ -540,10 +540,8 @@ void attach_commit(
 
     db_begin_transaction();
     blob_init(&content, aContent, szContent);
-    pManifest = manifest_parse(&content, 0, 0);
-    manifest_destroy(pManifest);
-    blob_init(&content, aContent, szContent);
-    if( pManifest ){
+    if( (pManifest = manifest_parse(&content, 0, 0)) ){
+      manifest_destroy(pManifest);
       blob_compress(&content, &content);
       addCompress = 1;
     }

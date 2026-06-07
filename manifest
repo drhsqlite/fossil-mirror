@@ -1,5 +1,5 @@
-C Milestone:\sfirst\snew\sforum\spost\swith\sthe\snew\seditor.
-D 2026-06-07T13:09:10.166
+C Fix\sa\sduplicated\sblob\sinitialization\sin\sattach_commit().
+D 2026-06-07T14:49:39.344
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -387,7 +387,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c f2250f3fd1fd4c69aa8816885d47da5110cb7936adf66eae1df83e6c46f9c0a6
-F src/attach.c e4b1ee4acbb8125edb25e2f3ed026707983278144f78fca0d62fc3fdf3cb9887
+F src/attach.c 56dc4cbfd61535712dbefcd79445b1778246c85116985d89523e991bb26e4cb9
 F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a7
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e1571561608ec68e43b585f4fcf0de9ffc495b0502edb52e5fb96faabc58de0d
-R 3cdcbb115e552dafee7aac5ba421c160
+P 46bb3a1255dc8793dff26766365b01d7098b53929c94dcb4cbae579ee28f96c8
+R 67c0bea98ae9fca4cef328835775df24
 U stephan
-Z 4c8ee4c51529119140a54f0127dd0ae5
+Z 2672f938ea0dc17d6e4e4b98dd0e7db5
 # Remove this line to create a well-formed Fossil manifest.
