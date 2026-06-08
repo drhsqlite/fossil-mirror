@@ -209,7 +209,6 @@ figure {
  */
 
 hr {
-  -moz-box-sizing: content-box;
   box-sizing: content-box;
   height: 0;
 }
@@ -288,11 +287,10 @@ select {
  */
 
 button,
-html input[type="button"], /* 1 */
-input[type="reset"],
-input[type="submit"],
-input[type="button"].submit,
-button.submit{
+input[type=button], /* 1 */
+input[type=reset],
+input[type=submit],
+input[type=button]{
   -webkit-appearance: button; /* 2 */
   cursor: pointer; /* 3 */
 }
@@ -301,19 +299,11 @@ button.submit{
  * Re-set default cursor for disabled elements.
  */
 
-button[disabled],
-html input[disabled] {
+button:disabled,
+input[type=button]:disabled,
+input[type=reset]:disabled,
+input[type=submit]:disabled{
   cursor: default;
-}
-
-/**
- * Remove inner padding and border in Firefox 4+.
- */
-
-button::-moz-focus-inner,
-input::-moz-focus-inner {
-  border: 0;
-  padding: 0;
 }
 
 /**
@@ -350,16 +340,7 @@ input[type="number"]::-webkit-outer-spin-button {
   height: auto;
 }
 
-/**
- * 1. Address `appearance` set to `searchfield` in Safari and Chrome.
- * 2. Address `box-sizing` set to `border-box` in Safari and Chrome
- *    (include `-moz` to future-proof).
- */
-
 input[type="search"] {
-  -webkit-appearance: textfield; /* 1 */
-  -moz-box-sizing: content-box;
-  -webkit-box-sizing: content-box; /* 2 */
   box-sizing: content-box;
 }
 
@@ -519,15 +500,13 @@ hr {
 ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
 .button,
 button,
-input[type="button"],
-input[type="reset"],
-input[type="submit"],
-input[type="button"].submit,
-button.submit{
+input[type=button],
+input[type=reset],
+input[type=submit]{
   display: inline-block;
   height: 3.3rem;
   padding: 0 2.2rem;
-  color: #555 !important;
+  color: #555;
   text-align: center;
   font-size: 1.1rem;
   font-weight: 700;
@@ -545,44 +524,36 @@ button.submit{
 
 .button:hover,
 button:hover,
-input[type="button"]:hover,
-input[type="reset"]:hover,
-.button:focus,
+input[type=button]:hover,
+input[type=reset]:hover,
+input[type=submit]:hover,
+.button:hover,
 button:focus,
-input[type="button"]:focus,
-input[type="reset"]:focus {
-  color: #444 !important;
-  background-color: #eee;
-  border-color: #aaa;
+input[type=button]:focus,
+input[type=reset]:focus,
+input[type=submit]:focus{
   outline: 0;
-}
-
-input[type="submit"],
-input[type="button"].submit,
-button.submit{
-  color: white !important;
-  background-color: #446979;
-  border-color: #446979;
-}
-
-input[type="submit"]:hover,
-input[type="submit"]:focus,
-input[type="button"].submit:hover,
-input[type="button"].submit:focus,
-button.submit:hover,
-button.submit:focus{
-  color: white !important;
+  color: white;
   background-color: #648898;
   border-color: #648898;
 }
 
-input[type="submit"]:disabled,
-input[type="button"].submit:disabled,
-button.submit:disabled{
+.button:disabled,
+button:disabled,
+input[type=button]:disabled,
+input[type=reset]:disabled,
+input[type=submit]:disabled{
   color: rgb(128,128,128);
-  background-color: rgb(153,153,153);
+  background-color: rgb(227,227,227);
 }
 
+.button:disabled:hover,
+button:disabled:hover,
+input[type=button]:disabled:hover,
+input[type=reset]:disabled:hover,
+input[type=submit]:disabled:hover{
+
+}
 
 /* Forms
 ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
@@ -613,8 +584,6 @@ input[type="tel"],
 input[type="url"],
 input[type="password"],
 textarea {
-  -webkit-appearance: none;
-     -moz-appearance: none;
           appearance: none;
 }
 
