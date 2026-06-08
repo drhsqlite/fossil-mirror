@@ -100,47 +100,51 @@ a:visited:hover {
 div.filetreeline:hover {
   background-color: #333;
 }
-div.file-change-line button {
+div.file-change-line button{
   background-color: #484848
 }
+button,
+input,
+optgroup,
+select,
+textarea {
+  background: inherit;
+  color: inherit;
+  font: inherit;
+  margin: 0
+}
 .button,
-button {
-  color: #aaa;
-  background-color: #484848;
-  border-radius: 5px;
-  border: 0
-}
-.button:hover,
-button:hover {
-  background-color: #FF4500f0;
-  color: rgba(24,24,24,0.8);
-  outline: 0
-}
+button,
 input[type=button],
-input[type=reset],
-input[type=submit] {
+input[type=submit],
+input[type=reset]{
   color: #ddd;
   background-color: #446979;
+  border-radius: 5px;
   border: 0;
-  border-radius: 5px
 }
+.button:hover,
+button:hover,
 input[type=button]:hover,
-input[type=reset]:hover,
-input[type=submit]:hover {
+input[type=submit]:hover,
+input[type=reset]:hover {
   background-color: #FF4500f0;
   color: rgba(24,24,24,0.8);
-  outline: 0
+  outline: 0;
 }
+.button:disabled,
 button:disabled,
-input[type=submit]:disabled {
-  color: #363636;
-  background-color: #a0a0a0;
+input[type=button]:disabled,
+input[type=submit]:disabled,
+input[type=reset]:disabled{
+  color: #202020;
+  background-color: #b0b0b0;
 }
 .button:focus,
 button:focus,
 input[type=button]:focus,
-input[type=reset]:focus,
-input[type=submit]:focus {
+input[type=submit]:focus,
+input[type=reset]:focus {
   outline: 2px outset #333;
   border-color: #888;
 }
@@ -531,19 +535,6 @@ svg.pikchr {
 span.snippet>mark {
   color: white;
   font-weight: bold;
-}
-button,
-input,
-optgroup,
-select,
-textarea {
-  background: inherit;
-  color: inherit;
-  font: inherit;
-  margin: 0
-}
-button {
-  background-color: rgba(45,45,45,0.75);
 }
 input, textarea, select {
   border: 1px solid rgba(127, 201, 255, 0.9);
