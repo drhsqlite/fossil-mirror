@@ -123,15 +123,14 @@
         }
         sel.value = opt.mimetype
           || this.#draft?.mimetype
-          || sel.options[1].value;
-        if( this.#draft ){
-          sel.addEventListener('change',ev=>{
-            if( this.#draft.mimetype!==ev.target.value ){
-              this.#draft.mimetype = ev.target.value;
-              this.#storeDraft();
-            }
-          });
-        }
+          || F.storage.get('forum-mimetype', sel.options[1].value);
+        sel.addEventListener('change',ev=>{
+          if( this.#draft && this.#draft.mimetype!==ev.target.value ){
+            this.#draft.mimetype = ev.target.value;
+            this.#storeDraft();
+          }
+          F.storage.set('forum-mimetype', ev.target.value);
+        });
         e.mimetype.wrapper.append(sel);
       }
 
