@@ -346,13 +346,29 @@
         }
         return false;
       };
+      const pasteThing = (event, thing)=>{
+        console.debug("pasteThing 1",thing);
+        if( pasteImage(event, thing) ) return true;
+        console.debug("pasteThing 2",thing);
+        if( 'file' === thing.kind ){
+          event.preventDefault();
+          const blob = thing.getAsFile();
+          if( blob ){
+            console.debug("Pasting unknown thing...", thing, blob);
+            this.#injestBlob(rowObj, blob);
+            return true;
+          }
+        }
+        console.debug("pasteThing nope", thing);
+        return false;
+      };
       eDesc?.addEventListener?.('paste', (e) => {
         e.stopPropagation();
         const items = (e.clipboardData || e.originalEvent.clipboardData)?.items;
         if( !items ) return;
         for( let i = 0; i < items.length; ++i ){
           const item = items[i];
-          if( pasteImage(e, item) ){
+          if( pasteThing(e, item) ){
             break;
           }
         }
@@ -362,9 +378,7 @@
         if( !items ) return;
         for( let i = 0; i < items.length; ++i ){
           const item = items[i];
-          if( pasteImage(e, item) ){
-            break;
-          }else if( item.type === 'text/plain' ){
+          if( item.type === 'text/plain' ){
             e.preventDefault();
             item.getAsString((text) => {
               rowObj.overrideName = `pasted-text-${Date.now()}.txt`;
@@ -373,10 +387,7 @@
               this.#injestBlob(rowObj, blob);
             });
             break;
-          }else if(0){
-            e.preventDefault();
-            const blob = undefined /* ??? */;
-            this.#injestBlob(rowObj, blob);
+          }else if( pasteThing(e, item) ){
             break;
           }
         }
