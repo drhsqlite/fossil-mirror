@@ -1,5 +1,5 @@
-C Merge\sin\strunk.
-D 2026-06-08T19:50:58.758
+C In\s/forumnew,\sstart\sthe\seditor\sa\sbit\staller\sthan\sit\sdefaults\sto\sin\sother\spages.
+D 2026-06-08T21:03:55.640
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -569,7 +569,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c 7d18036ac46645c368b9ff669890b300c8019fe32fbca3513f95c99d0e4a0d23
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
-F src/style.forum.css f31d04f08b5e1d6d773f806d98056a9e6b4f65c34e3695484cde33344e749b67
+F src/style.forum.css 0deac2b278f5c016f32e9e370878048da8f8a7391ef32bd45790b1c153d1c656
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f12099fbe
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4e852f85847c0bb81e3da322a693b5a4abb588936acc4ed47598ad02ff583acd 59985724d71229bf7c1744996de9f59bbb087a8e2c1842b1d1cfa95ea03dd73b
-R 58fa19181aff043b14f7e1189af7aa04
+P 919cfb87113177dc27740dce31de6d7a570623fbf10b8bc40cd75047453fbb18
+R f34c5f2dbc40e250e75c8cf72f5556fb
 U stephan
-Z 23db85c19d135c10284a9864317350c0
+Z e7034fd2848932852d52437b69723cce
 # Remove this line to create a well-formed Fossil manifest.

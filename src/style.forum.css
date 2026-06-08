@@ -48,6 +48,9 @@ fieldset.forum-status-selection {
   min-height: 14em;
   flex-grow: 1
 }
+body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
+  min-height: 24em;
+}
 
 .ForumPostEditor > .buttons > .mimetype-wrapper,
 .ForumPostEditor > .titlebar{
