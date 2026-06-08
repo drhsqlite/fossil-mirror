@@ -1,5 +1,5 @@
-C Do\snot\slink\sattachments\sto\sunknown\stargets\sas\swiki\spages\sin\s/info.
-D 2026-06-08T13:09:05.657
+C Move\sthe\sshift-enter-previews\stoggle\sout\sof\sthe\sway,\sto\sthe\sbottom\sof\sthe\seditor\stab.
+D 2026-06-08T13:20:04.041
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js 649a93f257c2fea11bb91683ef63f5053e718b7e6cfb854a3b29c0c83de6f04b
+F src/fossil.page.forumpost.js 4433955de0415a54b3adc8249f387ce0d763bec20a592e985648b117a1b201dc
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P febb8c155b77f970430e7488a2d82993070c32aefb6ca1d716e9a2e06a2594c8
-R ea901335bf1e0c0b81db48c28316182c
+P 22771143cdb11dab4179293255cf55b7cbb6b99fa6142e5a86314d13d39f7482
+R 03d129c48c4a131fcd27b9d3b1080a21
 U stephan
-Z b5ba7b54764244bcd014eec036194945
+Z 8a7cdbe423dc5100b3d8cf991f686a13
 # Remove this line to create a well-formed Fossil manifest.

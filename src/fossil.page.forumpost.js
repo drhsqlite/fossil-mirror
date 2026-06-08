@@ -326,7 +326,7 @@
         });
         F.helpButtonlets.setup(eHelp);
         eLbl.append("Shift-enter toggles preview?", eCb, eHelp);
-        e.buttons.append(eLbl);
+        e.tabEdit.append(eLbl);
         const isShiftEnter = (ev)=>eCb.checked && ev.shiftKey && 13===ev.keyCode;
         e.editor.addEventListener('keydown',(ev)=>{
           /**
@@ -474,7 +474,7 @@
       if( this.#opt.edit ){
         const eNote = D.append(
           D.div(),
-          "Tip: attachments can be added to posts without editing them",
+          "Tip: attachments can be added to posts without editing them ",
           "by visiting ",
           D.attr(
             D.a(F.repoUrl('attachadd?target='+this.#opt.edit.uuid), '/attachadd'),
@@ -945,7 +945,7 @@
           if( fpe/*onsubmit*/ ){
             if( fpe.widget.parentNode ){
               fpe.widget.remove();
-                }
+            }
           }
         };
         const fpe = new F.ForumPostEditor({
