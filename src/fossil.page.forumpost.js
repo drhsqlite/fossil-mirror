@@ -100,7 +100,7 @@
             this.#draft.title = e.title.value;
             this.#storeDraft();
           });
-          e.title.value = opt.edit?.H || this.#draft.title || '';
+          e.title.value = this.#draft.title || opt.edit?.H || '';
         }else if( opt.edit?.H ){
           e.title.value = opt.edit.H;
         }
@@ -494,7 +494,7 @@
       let v;
       if( this.#opt.inReplyTo ){
         fd.append( 'firt', this.#opt.inReplyTo );
-      }else if( (v = this.#e.title?.trim?.() ?? this.#opt.edit?.H) ){
+      }else if( (v = (this.#e.title?.value?.trim?.() || this.#opt.edit?.H)) ){
         fd.append('title', v);
       }
       fd.append('mimetype', this.mimetype);
@@ -960,7 +960,32 @@
           - When cancelled or submitted, restore the reply button and
             ePost position.
         */
-        restoreEditReplyElement(ePost, eBtnReply, eToDisable);
+        fetchPost(fpid)
+          .then(artifact=>{
+            const ondone = (fpe)=>{
+              restoreEditReplyElement(ePost, eBtnReply, eToDisable);
+              //console.debug("ondiscard/onsubmit", fpe, eToDisable);
+              if( fpe/*onsubmit*/ ){
+                if( fpe.widget.parentNode ){
+                  fpe.widget.remove();
+                }
+              }
+            };
+            const fpe = new F.ForumPostEditor({
+              hiddenFields: form.querySelectorAll('input[type=hidden]'),
+              ondiscard: ondone,
+              onsubmit: ondone,
+              draftKey: 'draft-forumedit-'+(fEditHead || fpid).substr(0,12),
+              hideTitle: true/*fixme: only show if this is the root post*/,
+              edit: artifact,
+              inReplyTo: firt
+            });
+            const w = fpe.widget;
+            w.style.borderTop = '2px dotted';
+            /* Adding an "Editing..." <h3> here adds way too much space */
+            ePost.append(w);
+            w.scrollIntoView();
+          });
       }/*replyClicked()*/;
 
       const editClicked = (form, ePost, eBtnEdit, eToDisable)=>{
@@ -968,19 +993,6 @@
         const firt = ePost.dataset.firt;
         const fEditHead = ePost.dataset.fedithead;
         eBtnEdit.innerText = "Editing...";
-        /*
-          TODOs include:
-
-          - Disable editButton.
-
-          - Shift ePost to the left edge.
-
-          - Pop up a ForumPostEditor immediately under ePost. It needs
-            a Cancel button.
-
-          - When cancelled or submitted, restore the edit button and
-            ePost position.
-        */
         fetchPost(fpid)
           .then(artifact=>{
             const ondone = (fpe)=>{
@@ -1001,7 +1013,6 @@
               ondiscard: ondone,
               onsubmit: ondone,
               draftKey: 'draft-forumedit-'+(fEditHead || fpid).substr(0,12),
-              hideTitle: true/*fixme: only show if this is the root post*/,
               edit: artifact,
               status: eStatusSelect?.value,
               inReplyTo: firt

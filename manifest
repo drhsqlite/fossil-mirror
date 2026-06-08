@@ -1,5 +1,5 @@
-C Elide\sempty/phantom\s(deleted)\sattachments\sfrom\sforum\spost\sattachment\slist.\sHook\sstatus\sselection\sinto\sthe\seditor,\swith\sthe\scaveat\sthat\schanging\sONLY\sthe\sstatus\svia\sthe\seditor\swill\ssave\sa\snew\scopy\sof\sthe\spost\s(identical\sto\sthe\sprevious\sone)\sso\sthat\sshould\sbe\sdone\susing\sthe\sstatus\sselection\swidget\sshown\sin\sthe\spost\sinstead\s(which\sis\snow\sdisabled\swhile\sthe\seditor\sis\sopen).
-D 2026-06-08T10:58:47.359
+C Fix\sediting\sof\sa\sthread\stitle\sin\sthe\snew\seditor.
+D 2026-06-08T11:09:31.697
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js 04deade898a4d62c7efb68251c71796e1d2f696d93e7bc891e13e536d218f222
+F src/fossil.page.forumpost.js f51353d4252071e28377393ee9a29d938886dcb9619b07fa27a51f51bb18771e
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4e81a9ee7b2a8666ceed08701ae0b3ff9816c58643901d791aeab2dc8d17b135
-R 18bd83b5bef55eb138f020ca90de8c7c
+P 344c64e271a752b35a84f4db7725b85a6db419fcda1595bb15a46ea42f82a6e9
+R 8d0f0fd54bafadd5a848ba4c36c7194f
 U stephan
-Z c8b0bcc7079786508401332471ed2d07
+Z 14d3e28ab6c34c035911da3191c62aff
 # Remove this line to create a well-formed Fossil manifest.
