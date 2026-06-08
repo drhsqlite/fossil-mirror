@@ -1,5 +1,11 @@
 /* Styles specific to the forum family of pages */
 
+fieldset.forum-status-selection {
+  max-width: max-content;
+  border-radius: 0.5em;
+  padding: 0 0.5em;
+}
+
 .ForumPostEditor {
   display: flex;
   flex-direction: column;

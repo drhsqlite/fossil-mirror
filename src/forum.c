@@ -900,7 +900,14 @@ static void forum_render_status_selection( const ForumPost *fp ){
     }
     if( !sCurrent ) sCurrent = &fss->aStatus[0];
     assert( sCurrent );
-    @ <span class='forum-status-selection'>
+    @ <fieldset class='forum-status-selection'>\
+    @ <legend>Status \
+    @ <span class='help-buttonlet'>\
+    @ Moderators and post owners may change \
+    @ the status of this thread. See \
+    @ <a href='%R/help/forum-statuses' target='_new'>\
+    @ /help/forum-statuses</a></span>\
+    @ </legend>\
     if( forum_may_set_status(fp->fpid) ){
       @ <form method="post" action='%R/forumpost_status'>
       login_insert_csrf_secret();
@@ -923,7 +930,7 @@ static void forum_render_status_selection( const ForumPost *fp ){
     }else{
       @ <button disabled>Status: %h(sCurrent->zLabel)</button>
     }
-    @ </span>
+    @ </fieldset>
     fossil_free(zCurrent);
   }
 }
@@ -1055,14 +1062,16 @@ static void forum_render_attachment_list(const char *zUuid){
     attachment_list(zUuid, "&#x1f4ce; Attachments", 0
                     | ATTACHLIST_SIZE
                     | ATTACHLIST_HIDE_UNAPPROVED
-                    | ATTACHLIST_DETAILS_CLOSED);
+                    | ATTACHLIST_DETAILS_CLOSED
+                    | ATTACHLIST_HIDE_EMPTY);
 #else
     char * zLbl = mprintf("<a href='%R/attachlist?forumpost=%!S'>"
                           "Attachments</a>:", zUuid);
     attachment_list(zUuid, zLbl,
                     ATTACHLIST_HRULE_ABOVE
                     | ATTACHLIST_SIZE
-                    | ATTACHLIST_HIDE_UNAPPROVED);
+                    | ATTACHLIST_HIDE_UNAPPROVED
+                    | ATTACHLIST_HIDE_EMPTY);
     fossil_free(zLbl);
 #endif
 }
@@ -3066,8 +3075,9 @@ void forum_ajax_save_page(void){
     goto ajax_save_end;
   }else{
     const int bNeedsModeration = forum_need_moderation();
-    const int fpRoot = forumpost_head_rid(nrid);
+    const int fpHead = forumpost_head_rid(nrid);
     assert( nrid>0 );
+    assert( fpHead>0 );
     zNewUuid = rid_to_uuid(nrid);
     if( 0!=P("file1") ){
       /* Attachments */
@@ -3075,7 +3085,7 @@ void forum_ajax_save_page(void){
         rc = -ajax_route_error(403, "No permission no attach files.");
         goto ajax_save_end;
       }else{
-        char *zRoot = (nrid==fpRoot) ? 0 : rid_to_uuid(fpRoot);
+        char *zRoot = (nrid==fpHead) ? 0 : rid_to_uuid(fpHead);
         const int atRc =
           attachments_ajax_from_POST(zRoot ? zRoot : zNewUuid,
                                      bNeedsModeration);
@@ -3100,7 +3110,7 @@ void forum_ajax_save_page(void){
             "    WHERE b.rid=%d\n"
             "    AND b.uuid=a.target\n"
             ") DELETE FROM pending_alert WHERE eventid IN x",
-            fpRoot, fpRoot
+            fpHead, fpHead
           );
         }
       }

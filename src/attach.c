@@ -908,7 +908,9 @@ ajax_err_404:
 ** ACHTUNG: if zTarget is a forum post, it "really should" be the ID
 ** of the first version of that post, as that's where attachments are
 ** intended to be applied so that they can be found and removed
-** consistently.
+** consistently. Potential TODO is have this function do that if
+** attachment_target_type(zTarget,1)!=0 but it would (for current
+** uses) require duplicating work already done in the callers.
 */
 int attachments_ajax_from_POST(const char *zTarget, int bNeedsModeration){
   int i;
@@ -922,6 +924,7 @@ int attachments_ajax_from_POST(const char *zTarget, int bNeedsModeration){
 
   db_begin_transaction();
   szLimit = db_get_int("attachment-size-limit", 0);
+
   for(i = 1; ; ++i, ++n){
     /* Look for P("fileN"), where N=1..n */
     const char *zContent;
@@ -1403,6 +1406,7 @@ void ainfo_page(void){
 #define ATTACHLIST_HIDE_UNAPPROVED 0x08 /* Hide pending-moderation files */
 #define ATTACHLIST_DETAILS_CLOSED  0x10 /* Wrap in a closed DETAILS element */
 #define ATTACHLIST_DETAILS_OPEN    0x20 /* Wrap in an open DETAILS element */
+#define ATTACHLIST_HIDE_EMPTY      0x40 /* Skip if size<1 */
 #endif
 
 /*
@@ -1447,6 +1451,10 @@ void attachment_list(
     if( (flags & ATTACHLIST_HIDE_UNAPPROVED)
         && moderation_pending(aid)
         && !moderation_user_could(aid, 1, 0) ){
+      continue;
+    }
+    if( sz<1 && (flags & ATTACHLIST_HIDE_EMPTY) ){
+      /* Deleted or phantom items. */
       continue;
     }
     if( cnt==0 ){

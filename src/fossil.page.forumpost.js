@@ -54,14 +54,15 @@
        incorporate into the form for requests which request the
        preview or save the post.
 
-       TODO:
-
        opt.inReplyTo=uuid: if this is a response to a post, this
        is the full forum post uuid of the being-replied-to post.
 
        opt.edit=artifactObject: if this is an edit of an existing
        post, this is the full JSON-format artifact of the forum post
        the being-edited post, as returned by /ajax/artifact.json.
+
+       opt.status: optional current status tag value for opt.edit,
+       if known. This is used for pre-selecting a status value.
     */
     constructor(opt){
       opt = this.#opt = F.nu({
@@ -111,7 +112,7 @@
         const sel = e.mimetype.select = D.addClass(D.select(), 'mimetype-select');
         this.#toDisable.push(sel);
         let i = 0;
-        D.option(sel, '', 'Markup format').disabled = true;
+        D.option(sel, '', '- Markup format -').disabled = true;
         for(const [k,v] of Object.entries({
           'text/x-markdown': 'Markdown',
           'text/x-fossil-wiki': 'Fossil Wiki',
@@ -211,7 +212,8 @@
           'Your message to other forum-goers...'
         );
         e.tabEdit.append(e.editor);
-        e.tabEdit.dataset.tabLabel = 'Edit';
+        e.tabEdit.dataset.tabLabel = (opt.edit || !opt.inReplyTo)
+          ? 'Edit' : 'Reply';
         this.#tabs.addTab( e.tabEdit );
         this.#tabs.switchToTab( e.tabEdit );
         if( this.#draft ){
@@ -249,7 +251,9 @@
       }
       e.buttons.append(e.mimetype.wrapper);
 
-      if( 0 && F.config.forumStatuses?.length>0 ){
+      if( opt.edit
+          && !opt.inReplyTo
+          && F.config.forumStatuses?.length>0 ){
         /* Status selection. We probably don't _really_ want this in
            the editor because people will open the editor, change the
            status, and tap submit, resulting in a whole new, unedited
@@ -450,6 +454,14 @@
         D.attr(D.a(F.repoUrl('markup_help'), 'Markup styles'),
                'target', '_new')
       );
+      if( this.#e.status ){
+        D.append(
+          D.li(list),
+          "Trip: to change just the status, use the widget which appears in ",
+          "the post, not the editor. That will save only a single tag instead of ",
+          "a new edit of the post."
+        );
+      }
       eh.append(list);
     }
 
@@ -587,7 +599,7 @@
            add a superfluous tag. */
         const v = this.#e.status.value;
         if( this.#e.status.dataset.originalValue !== v ){
-          fd.append( "status", v );
+          fd.append("status", v);
         }
       }
       if( e.debug ){
@@ -980,6 +992,10 @@
                 }
               }
             };
+            const eStatusSelect = ePost.querySelector(
+              ':scope > fieldset.forum-status-selection select[name=status]'
+            );
+
             const fpe = new F.ForumPostEditor({
               hiddenFields: form.querySelectorAll('input[type=hidden]'),
               ondiscard: ondone,
@@ -987,6 +1003,7 @@
               draftKey: 'draft-forumedit-'+(fEditHead || fpid).substr(0,12),
               hideTitle: true/*fixme: only show if this is the root post*/,
               edit: artifact,
+              status: eStatusSelect?.value,
               inReplyTo: firt
             });
             const w = fpe.widget;
@@ -1025,6 +1042,16 @@
           btnEdit.parentElement.insertBefore(b, btnEdit);
           btnEdit.remove();
         }
+        /* Problem: we really need to disable the status-selection
+           button because it would redirect mid-edit. We wouldn't lose
+           the edits but would lose any pending attachments. We work
+           around this by disabling this selection and adding a new
+           status selection widget in the editor, inheriting this
+           one's value. */
+        const eStatusChange = eThePost.querySelector(
+          ':scope > fieldset.forum-status-selection'
+        );
+        if( eStatusChange ) eToDisable.push(eStatusChange);
       })/*for-each form*/;
     }/* /forumpost and /forumthread */
 
