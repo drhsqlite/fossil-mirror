@@ -2038,6 +2038,10 @@ details.attachlist > summary {
   background-color: #d32f2f;
   color: #fff;
 }
+.Attacher .error a {
+  color: inherit;
+  text-decoration: underline;
+}
 body.fossil-dark-style .Attacher .attach-row {
   background-color: initial;
 }

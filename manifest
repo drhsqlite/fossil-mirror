@@ -1,5 +1,5 @@
-C When\spasting\sin\sthe\sattachment\sdescription\sfield,\sif\sit's\sa\sclipboarded\sfile\sthen\sattach\sit\srather\sthan\spaste\sits\sname.\sSuggested\sby\sMartin\sG.
-D 2026-06-08T14:41:18.017
+C CSS:\sensure\sthat\slinks\sin\sthe\sattachment\swidget's\serror\smessages\sare\slegible\s(add\scontrast).
+D 2026-06-08T14:45:09.280
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
-F src/default.css c8804b5692cb1ae6b38bc5a007bae2c0bfc759a44a60b78f8ebcaeb899c8c644
+F src/default.css 69b39970d2a17797baf9d85842c2352146a71177339ce5efa5c625662954d9b9
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d14ee6c4fee0bdd2d3c8031d20e580790e1d2fd5ad57845e186dd864150ff305
-R 4d33d033cccea0fd3236a8f060f7818c
+P 45c5ce742b88778f6b3d6976ef2560592334da281d8cd3e8d11f155d0294cc76
+R 28408f7f83d4381f2fb5daa8cb1f73c4
 U stephan
-Z c5e5806d121c89e399336c3798588a38
+Z 019e4e41d50bee0f01cc1d1e71d7549e
 # Remove this line to create a well-formed Fossil manifest.
