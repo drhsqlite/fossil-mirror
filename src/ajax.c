@@ -450,6 +450,7 @@ void ajax_route_dispatcher(void){
   const AjaxRoute * pRoute = 0;
   const AjaxRoute routes[] = {
   /* Keep these sorted by zName (for bsearch()) */
+  {"artifact.json", ajax_route_artifact_json, 0, 0},
   {"preview-text", ajax_route_preview_text, 0, 1
    /* Preview does not require write permissions in the repo.  It
    ** should arguably require write permissions simply to limit abuse
@@ -460,8 +461,7 @@ void ajax_route_dispatcher(void){
    **
    ** This particular route is used by /fileedit and /chat, whereas
    ** /wikiedit uses a simpler wiki-specific route.
-   */ },
-  {"artifact.json", ajax_route_artifact_json, 0, 0}
+   */ }
   };
 
   if(zName==0 || zName[0]==0){

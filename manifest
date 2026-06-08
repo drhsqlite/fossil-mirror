@@ -1,5 +1,5 @@
-C Typo\sfixes\sand\smake\sthe\seditor\sinput\sfield\sa\sbit\sshorter\sby\sdefault.
-D 2026-06-08T14:19:58.719
+C Fix\ssorting\sof\s/ajax/X\sroutes\s-\sa\srecent\saddition\sbroke\spreview\sin\s/chat\sand\s/fileedit.
+D 2026-06-08T14:25:07.483
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -379,7 +379,7 @@ F skins/xekri/header.txt 8844006d55f16b4ea8f6388db44b5db74a91a366ac934fe081a107a
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 5a72ea78003627895026ded60b7515c0831a0be4566771be42c93c7331395888
 F src/add.c dd32e5aef946c283f1ed5aa22b4e72b31c31e905735b17f3f290dbde60c297f2
-F src/ajax.c 7b91049385df894a3da82a805215b65bc9da8f3be1b64635a3f349482a86db8f
+F src/ajax.c e192ef9143eedb02b8e7e2c873db831af63bc798f19c34aa97add3c8cd8b31ac
 F src/alerts.c 0d668eeb30dcbd3271c1642960cd8617581fcdd3dd4bdc8c0cceb24115b067fd
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc9ff7c70734470a7caa5cc62d82ab45d23055e3b4800118691cdc3b493ab6f1
-R a17cc714484032bd5790e1cae81bec28
+P 16e97eaefffd13c359b4ff528092d6055a4468dc02ebe52c68dd7b8fd85a35b0
+R b3dcdd9fdf0c6b43abd7fc9a0c72967b
 U stephan
-Z 3c12a3588ca3bbc04cb777c9c7c1ba63
+Z 9e037e9be080f032889abedb338979d1
 # Remove this line to create a well-formed Fossil manifest.
