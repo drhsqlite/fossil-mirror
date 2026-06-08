@@ -12701,6 +12701,7 @@ static void zipfileResetCursor(ZipfileCsr *pCsr){
     pNext = p->pNext;
     zipfileEntryFree(p);
   }
+  pCsr->pFreeEntry = 0;
 }
 
 /*
@@ -13103,7 +13104,13 @@ static int zipfileGetEntry(
 
     if( rc==SQLITE_OK ){
       u32 *pt = &pNew->mUnixTime;
-      pNew->cds.zFile = sqlite3_mprintf("%.*s", nFile, aRead); 
+      /* aRead[0..nFile-1] might contain embedded \000 characters
+      ** See Bug 2026-05-31T11:43:05Z */
+      pNew->cds.zFile = sqlite3_malloc64(nFile+1);
+      if( pNew->cds.zFile!=0 ){
+        memcpy(pNew->cds.zFile, aRead, nFile);
+        pNew->cds.zFile[nFile] = 0;
+      }
       pNew->aExtra = (u8*)&pNew[1];
       memcpy(pNew->aExtra, &aRead[nFile], nExtra);
       if( pNew->cds.zFile==0 ){
@@ -14207,10 +14214,10 @@ struct ZipfileCtx {
 };
 
 static int zipfileBufferGrow(ZipfileBuffer *pBuf, i64 nByte){
-  if( pBuf->n+nByte>pBuf->nAlloc ){
+  if( (pBuf->nAlloc-pBuf->n)<nByte ){
     u8 *aNew;
-    sqlite3_int64 nNew = pBuf->n ? pBuf->n*2 : 512;
-    int nReq = pBuf->n + nByte;
+    i64 nNew = pBuf->n ? (i64)pBuf->n*2 : 512;
+    i64 nReq = pBuf->n + nByte;
 
     while( nNew<nReq ) nNew = nNew*2;
     aNew = sqlite3_realloc64(pBuf->a, nNew);
@@ -16312,7 +16319,7 @@ static int idxCreateVtabSchema(sqlite3expert *p, char **pzErrmsg){
         /* The statement the vtab will pass to sqlite3_declare_vtab() */
         zInner = idxAppendText(&rc, 0, "CREATE TABLE x(");
         for(i=0; i<pTab->nCol; i++){
-          zInner = idxAppendText(&rc, zInner, "%s%Q COLLATE %s", 
+          zInner = idxAppendText(&rc, zInner, "%s%Q COLLATE %Q",
               (i==0 ? "" : ", "), pTab->aCol[i].zName, pTab->aCol[i].zColl
           );
         }
@@ -16512,7 +16519,7 @@ static int idxPopulateOneStat1(
       return sqlite3_reset(pIndexXInfo);
     }
     zCols = idxAppendText(&rc, zCols, 
-        "%sx.%Q IS sqlite_expert_rem(%d, x.%Q) COLLATE %s", 
+        "%sx.%Q IS sqlite_expert_rem(%d, x.%Q) COLLATE %Q", 
         zComma, zName, nCol, zName, zColl
     );
     zOrder = idxAppendText(&rc, zOrder, "%s%d", zComma, ++nCol);
@@ -25165,7 +25172,7 @@ static char *local_getline(char *zLine, FILE *in){
 ** or if the NO_COLOR environment variable exists
 */
 static int shellNoColor(void){
-#ifdef SQLITE_NO_COLOR
+#if defined(SQLITE_NO_COLOR) || defined(SQLITE_SHELL_FIDDLE)
   return 1;
 #else
   return getenv("NO_COLOR")!=0;
@@ -32329,7 +32336,7 @@ SELECT CASE WHEN (nc < 10) THEN 1 WHEN (nc < 100) THEN 2 \
 SELECT\
  '('||x'0a'\
  || group_concat(\
-  cname||' ANY',\
+  cname,\
   ','||iif((cpos-1)%4>0, ' ', x'0a'||' '))\
  ||')' AS ColsSpec \
 FROM (\
@@ -37941,7 +37948,7 @@ static char *cmdline_option_value(int argc, char **argv, int i){
 /*
 ** The callback from atexit().
 */
-static void abnormalExit(void){
+static void SQLITE_CDECL abnormalExit(void){
   if( seenInterrupt ) eputz("Program interrupted.\n");
   if( globalShellState ){
     clearTempFile(globalShellState, 1, 1);

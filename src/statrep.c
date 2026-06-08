@@ -78,6 +78,11 @@ static int stats_report_init_view(){
       zRealType = "f";
       rc = *zRealType;
       break;
+    case 'h':
+    case 'H':
+      zRealType = "h";
+      rc = *zRealType;
+      break;
     case 'g':
     case 'G':
       zRealType = "g";
@@ -119,6 +124,12 @@ static int stats_report_init_view(){
     statsReportTimelineYFlag = "a";
     db_multi_exec("CREATE TEMP VIEW v_reports AS "
                   "SELECT * FROM event WHERE %s", zTimeSpan/*safe-for-%s*/);
+  }else if( rc=='h' ){
+    statsReportTimelineYFlag = zRealType;
+    db_multi_exec("CREATE TEMP VIEW v_reports AS "
+                  "SELECT * FROM event WHERE (type='f') "
+                  " AND (comment GLOB 'Post:*') AND %s",
+                  zTimeSpan/*safe-for-%s*/);
   }else if( rc!='n' && rc!='m' ){
     statsReportTimelineYFlag = zRealType;
     db_multi_exec("CREATE TEMP VIEW v_reports AS "
@@ -156,6 +167,8 @@ static const char *stats_report_label_for_type(){
       return "technotes";
     case 'f':
       return "forum posts";
+    case 'h':
+      return "forum threads";
     case 'w':
       return "wiki changes";
     case 't':
@@ -857,12 +870,13 @@ static void stats_report_last_change(void){
 **                        * m   (merge check-in),
 **                        * n   (non-merge check-in)
 **                        * f   (forum post)
+**                        * h   (forum thread)
 **                        * w   (wiki page change)
 **                        * t   (ticket change)
 **                        * g   (tag added or removed)
 **                     Defaulting to all event types.
-**   from=DATETIME     Consider only events after this timestamp (requires to)
-**   to=DATETIME       Consider only events before this timestamp (requires from)
+**   from=DATETIME     Consider only events after this time (requires to)
+**   to=DATETIME       Consider only events before this time (requires from)
 **
 **
 ** The view-specific query parameters include:
@@ -896,6 +910,7 @@ void stats_report_page(){
      "a",  "All Changes",
      "ci", "Check-ins",
      "f",  "Forum Posts",
+     "h",  "Forum Threads",
      "m",  "Merge check-ins",
      "n",  "Non-merge check-ins",
      "g",  "Tags",
