@@ -1126,7 +1126,14 @@ static void forum_display_post(
     if( iIndent && iIndentScale ){
       @ style='margin-left:%d(iIndent*iIndentScale)ex;' \
     }
-    @ data-fpid="%s(p->zUuid)">
+    /* These data-X fields are used by the JS editor. */
+    if( p->pIrt ){
+      @ data-firt="%s(p->pIrt->zUuid)" \
+    }
+    if( p->pEditHead ){
+      @ data-fedithead="%s(p->pEditHead->zUuid)" \
+    }
+    @ data-fpid="%s(p->zUuid)">\
 
     /* If this is the first post (or an edit thereof), emit the thread title. */
     if( pManifest->zThreadTitle ){
@@ -1649,15 +1656,6 @@ int forum_need_moderation(void){
   return 1;
 }
 
-/*
-** Return true if the string is white-space only.
-*/
-static int whitespace_only(const char *z){
-  if( z==0 ) return 1;
-  while( z[0] && fossil_isspace(z[0]) ){ z++; }
-  return z[0]==0;
-}
-
 /* Flags for use with forum_post() */
 #define FPOST_NO_ALERT 1 /* do not send any alerts */
 #define FPOST_DRYRUN   2 /* do not save the artifact */
@@ -1705,7 +1703,7 @@ static int forum_post(
     forumpost_error_closed();
     return 0;
   }
-  if( iEdit==0 && whitespace_only(zContent) ){
+  if( iEdit==0 && fossil_all_whitespace(zContent) ){
     return 0;
   }
   if( iInReplyTo==0 && iEdit>0 ){
@@ -1990,7 +1988,7 @@ static void forum_render_attachment_notice(void){
 }
 
 /*
-** WEBPAGE: forume1
+** WEBPAGE: forume1 hidden
 **
 ** Start a new forum thread.
 */
@@ -2009,7 +2007,7 @@ void forumnew_page(void){
     if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent,
                    forum_post_flags()) ) return;
   }
-  if( P("preview") && !whitespace_only(zContent) ){
+  if( P("preview") && !fossil_all_whitespace(zContent) ){
     @ <h1>Preview:</h1>
     forum_render(zTitle, zMimetype, zContent, "forumEdit", 1);
   }
@@ -2025,7 +2023,7 @@ void forumnew_page(void){
   forum_post_widget(zTitle, zMimetype, zContent);
   @ <input type="submit" name="preview" value="Preview">
   @ <input type="hidden" name="legacy" value="1">
-  if( P("preview") && !whitespace_only(zContent) ){
+  if( P("preview") && !fossil_all_whitespace(zContent) ){
     @ <input type="submit" name="submit" value="Submit">
   }else{
     @ <input type="submit" name="submit" value="Submit" disabled>
@@ -2050,7 +2048,7 @@ void forumnew_page(void){
 }
 
 /*
-** WEBPAGE: forume2
+** WEBPAGE: forume2 hidden
 **
 ** Edit an existing forum message.
 ** Query parameters:
@@ -2145,7 +2143,7 @@ void forumedit_page(void){
   if( P("submit")
    && isCsrfSafe
    && (zContent = PDT("content",""))!=0
-   && (!whitespace_only(zContent) || isDelete)
+   && (isDelete || !fossil_all_whitespace(zContent))
   ){
     int done = 1;
     const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
@@ -2223,7 +2221,7 @@ void forumedit_page(void){
     fossil_free(zDisplayName);
     fossil_free(zDate);
     forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit", 1);
-    if( bPreview && !whitespace_only(zContent) ){
+    if( bPreview && !fossil_all_whitespace(zContent) ){
       @ <h2>Preview:</h2>
       forum_render(0, zMimetype,zContent, "forumEdit", 1);
     }
@@ -2239,7 +2237,7 @@ void forumedit_page(void){
   }
   @ <input type="hidden" name="legacy" value="1">
   @ <input type="submit" name="cancel" value="Cancel">
-  if( (bPreview && !whitespace_only(zContent)) || isDelete ){
+  if( isDelete || (bPreview && !fossil_all_whitespace(zContent)) ){
     if( !iClosed || g.perm.Admin ) {
       @ <input type="submit" name="submit" value="Submit">
     }
@@ -2810,11 +2808,21 @@ void forum_main_page(void){
 ** value on error. If it returns a negative value then it will have
 ** populated the ajax response state with an error object.
 **
+** zTitle must be NULL if iInReplyTo>0 and must be non-empty if
+** iInReplyTo==0.
+**
 ** The caller must have started a transaction and must roll it back if
 ** this call returns <=0, noting that only the negative-value case is
 ** an error.
+**
+** Maintenance reminders:
+**
+** - iInReplyTo==0 && iEdit==0: new thread
+** - iInReplyTo==0 && iEdit>0 : edit top post or response
+** - iInReplyTo>0  && iEdit==0: new response
+** - iInReplyTo>0  && iEdit>0 : edit response
 */
-int forum_post_ajax(
+static int forum_post_ajax(
   const char *zTitle,          /* Title.  NULL for replies */
   int iInReplyTo,              /* Post replying to.  0 for new threads */
   int iEdit,                   /* Post being edited, or zero for a new post */
@@ -2836,14 +2844,14 @@ int forum_post_ajax(
 
   assert( db_transaction_nesting_depth()>0 );
   schema_forum();
-  if( iEdit==0 && whitespace_only(zContent) ){
+  if( iEdit==0 && fossil_all_whitespace(zContent) ){
     return 0;
   }
   if( !g.perm.Admin && (iEdit || iInReplyTo)
       && forum_rid_is_tagged(iEdit ? iEdit : iInReplyTo, "closed", 1) ){
     return -ajax_route_error(400, "Thread is closed.");
   }
-  if( 0==iInReplyTo && whitespace_only(zTitle) ){
+  if( 0==iInReplyTo && fossil_all_whitespace(zTitle) ){
     return -ajax_route_error(400, "Empty title is not permitted.");
   }
 
@@ -2867,7 +2875,12 @@ int forum_post_ajax(
                         iEdit);
   }else{
     iBasis = iInReplyTo;
+    /* TODO (2026-06-008) If (iInReplyTo>0 && iEdit>0), validate that
+    ** iInReplyTo is connected to iEdit properly, else we risk
+    ** reparenting the new edit and having unrepredictable downstream
+    ** side effects. */
   }
+  if( 0!=zTitle && 0==zTitle[0] ) zTitle = 0;
   webpage_assert( (zTitle==0)+(iInReplyTo==0)==1 );
   blob_init(&x, 0, 0);
   blob_appendf(&x, "D %z\n", date_in_standard_format("now"));
@@ -2962,14 +2975,15 @@ void forum_ajax_save_page(void){
   const char *zContent;
   const char *zStatus;
   const int bHasAttachment = P("file1")!=0;
+  Manifest *pPost = 0;
   char *zNewUuid = 0;
   int goodCaptcha = 1;
-  int iIrt = 0;        /* In-reply-to rid or 0 */
-  int iEditRid = 0;    /* Post rid being edited or 0 */
-  int rc = 0;
-  int nrid = 0;
-  int iPostFlags;
-  int bRollback = 1;   /* True = roll back. */
+  int firt = 0;        /* In-reply-to rid or 0 */
+  int fpid = 0;        /* Post rid being edited or 0 */
+  int rc = 0;          /* Result code. */
+  int nrid = 0;        /* New artifact rid. */
+  int iPostFlags;      /* forum_post_flags() (after perms check) */
+  int bRollback;       /* True = roll back. */
 
   if( !ajax_route_bootstrap(0, 1) ){
     return;
@@ -2985,31 +2999,44 @@ void forum_ajax_save_page(void){
     return;
   }
 
-  iPostFlags = forum_post_flags();
+  iPostFlags = forum_post_flags(/*must come after permissions init*/);
   bRollback = (FPOST_DRYRUN & iPostFlags);
   zFpid = P("fpid");
-  zTitle = P("title");
   zIrt = P("firt");
   zMimetype = P("mimetype");
   zContent = P("content");
   zStatus = P("status");
   db_begin_transaction();
-  if( zFpid ){
-    iEditRid = symbolic_name_to_rid(zFpid, "f");
-    if( iEditRid<0 ){
+  if( zFpid && zFpid[0] ){
+    fpid = symbolic_name_to_rid(zFpid, "f");
+    if( fpid<0 ){
       rc = -ajax_route_error(400, "Ambiguous forum ID.");
       goto ajax_save_end;
-    }else if( 0==iEditRid ){
+    }else if( 0==fpid
+              || 0==(pPost = manifest_get(fpid, CFTYPE_FORUM, 0)) ){
       rc = -ajax_route_error(404, "Cannot resolve forum post ID.");
       goto ajax_save_end;
     }
   }
-  if( zIrt ){
-    iIrt = symbolic_name_to_rid(zIrt, "f");
-    if( iIrt<0 ){
+  /*
+  ** Problem: if we derive firt from fpid/pPost then there's a race
+  ** condition where the IRT post is edited between the time that this
+  ** edit was initiated and when it is posted: the new edit's IRT will
+  ** point to the edit which was made in the meantime, not the one the
+  ** user intended to respond to. However, if we accept firt from the
+  ** enviornment, we "really should" validate that it's actually in
+  ** the current chain, to prohibit that malicious posts could move
+  ** posts around.
+  **
+  ** forum_post_ajax() will, if fpid>0 && !firt, select fpid's current
+  ** firt.
+  */
+  if( zIrt && zIrt[0] ){
+    firt = symbolic_name_to_rid(zIrt, "f");
+    if( firt<0 ){
       rc = -ajax_route_error(400, "Ambiguous in-reply-do ID.");
       goto ajax_save_end;
-    }else if( 0==iIrt ){
+    }else if( 0==firt ){
       rc = -ajax_route_error(404, "Cannot resolve in-reply-do ID.");
       goto ajax_save_end;
     }
@@ -3022,7 +3049,8 @@ void forum_ajax_save_page(void){
     goto ajax_save_end;
   }
 
-  nrid = forum_post_ajax(zTitle, iIrt, iEditRid, 0, zMimetype,
+  zTitle = firt ? 0 : P("title");
+  nrid = forum_post_ajax(zTitle, firt, fpid, 0, zMimetype,
                          zContent, iPostFlags);
   if( nrid<0 ){
     rc = nrid;
@@ -3036,8 +3064,10 @@ void forum_ajax_save_page(void){
          "\"iPostFlags\":%d}\n", iPostFlags);
     }
     goto ajax_save_end;
-  }
-  if( nrid>0 ){
+  }else{
+    const int bNeedsModeration = forum_need_moderation();
+    const int fpRoot = forumpost_head_rid(nrid);
+    assert( nrid>0 );
     zNewUuid = rid_to_uuid(nrid);
     if( 0!=P("file1") ){
       /* Attachments */
@@ -3045,8 +3075,11 @@ void forum_ajax_save_page(void){
         rc = -ajax_route_error(403, "No permission no attach files.");
         goto ajax_save_end;
       }else{
+        char *zRoot = (nrid==fpRoot) ? 0 : rid_to_uuid(fpRoot);
         const int atRc =
-          attachments_ajax_from_POST(zNewUuid, forum_need_moderation());
+          attachments_ajax_from_POST(zRoot ? zRoot : zNewUuid,
+                                     bNeedsModeration);
+        fossil_free(zRoot);
         if( atRc<0 ){
           rc = atRc;
           goto ajax_save_end;
@@ -3057,8 +3090,8 @@ void forum_ajax_save_page(void){
           /* Unqueue any alerts for these attachments. Recall that
           ** they're attached to the first version of the post, which
           ** means we actually risk cancelling _other_ pending
-          ** notifications for attachments on this same post. */
-          const int fpRoot = forumpost_head_rid(nrid);
+          ** notifications for attachments on this same post. C'est la
+          ** vie.*/
           db_multi_exec(
             "WITH x(id) AS (\n"
             "  SELECT 'f%d'\n"
@@ -3072,7 +3105,11 @@ void forum_ajax_save_page(void){
         }
       }
     }
-    if( zStatus!=0 && zStatus[0]!=0
+    if( 0==bNeedsModeration
+        /* ^^^ Do not allow a status tag on a pending-moderation post
+        ** because it will introduce a reference to an artifact which
+        ** will become a phantom if it is rejected by a moderator. */
+        && zStatus!=0 && zStatus[0]!=0
         && forum_may_set_status(nrid)
         && forumpost_tag(nrid, 1, "status", zStatus)<0 ){
       rc = -ajax_route_error(500, "Tagging failed: %s", g.zErrMsg);
@@ -3086,6 +3123,7 @@ void forum_ajax_save_page(void){
      zNewUuid, bRollback ? "true" : "false", iPostFlags);
 
 ajax_save_end:
+  manifest_destroy(pPost);
   fossil_free(zNewUuid);
   db_end_transaction(rc || bRollback);
 }

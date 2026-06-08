@@ -1436,6 +1436,9 @@ void page_test_env(void){
 ** the error message is shown.
 **
 ** If zFormat is an empty string, then this is the /test-env page.
+**
+** If the resulting formatted error message is not empty then this
+** function does not return.
 */
 void webpage_error(const char *zFormat, ...){
   int showAll = 0;

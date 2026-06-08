@@ -56,12 +56,12 @@
 
        TODO:
 
-       opt.inReplyTo=uuid: if this is a new response to a post, this
+       opt.inReplyTo=uuid: if this is a response to a post, this
        is the full forum post uuid of the being-replied-to post.
 
        opt.edit=artifactObject: if this is an edit of an existing
        post, this is the full JSON-format artifact of the forum post
-       the being-edit post.
+       the being-edited post, as returned by /ajax/artifact.json.
     */
     constructor(opt){
       opt = this.#opt = F.nu({
@@ -439,7 +439,7 @@
     }
 
     get title(){
-      return this.#e.title?.value;
+      return this.#e.title?.value || this.#opt.edit?.H;
     }
 
     #initHelpTab(){
@@ -479,10 +479,11 @@
       for(const f of this.#extraFields){
         fd.append(f.name, f.value);
       }
-      if( this.#e.title ){
-        fd.append('title', this.title.trim());
-      }else if( this.#opt.edit?.H ){
-        fd.append('title', this.#opt.edit.H);
+      let v;
+      if( this.#opt.inReplyTo ){
+        fd.append( 'firt', this.#opt.inReplyTo );
+      }else if( (v = this.#e.title?.trim?.() ?? this.#opt.edit?.H) ){
+        fd.append('title', v);
       }
       fd.append('mimetype', this.mimetype);
       fd.append('content', addThisContent || this.editorContent.trim());
@@ -616,10 +617,13 @@
         body: fd
       }).then(r=>r.json())
         .then(j=>{
-          console.debug("forum post submit response:",j);
+          j = F.nu(j);
+          console.debug("forum post editor response:",j);
           if( j.error ){
             throw new Error(j.error);
           }else if( j.message ){
+            /* This is only for use in debugging during
+             * development. */
             this.reportError(j.message);
             return;
           }
@@ -896,6 +900,7 @@
         return window.fetch(F.repoUrl('ajax/artifact.json?uuid='+fpid))
           .then(r=>r.json())
           .then(j=>{
+            j = F.nu(j);
             if( j.error ) throw new Error(j.error);
             return j;
           });
@@ -924,6 +929,8 @@
 
       const replyClicked = (form, ePost, eBtnReply, eToDisable)=>{
         const fpid = setupEditReplyElement(ePost, eBtnReply, eToDisable);
+        const firt = ePost.dataset.firt;
+        const fEditHead = ePost.dataset.fedithead;
         eBtnReply.innerText = "Replying...";
         F.toast.error("Reply is TODO. fpid="+fpid);
         /*
@@ -946,6 +953,8 @@
 
       const editClicked = (form, ePost, eBtnEdit, eToDisable)=>{
         const fpid = setupEditReplyElement(ePost, eBtnEdit, eToDisable);
+        const firt = ePost.dataset.firt;
+        const fEditHead = ePost.dataset.fedithead;
         eBtnEdit.innerText = "Editing...";
         F.toast.error("Edit is TODO. fpid="+fpid);
         /*
@@ -976,9 +985,10 @@
               hiddenFields: form.querySelectorAll('input[type=hidden]'),
               ondiscard: ondone,
               onsubmit: ondone,
-              draftKey: 'draft-forumedit-'+fpid.substr(0,12),
+              draftKey: 'draft-forumedit-'+(fEditHead || fpid).substr(0,12),
               hideTitle: true/*fixme: only show if this is the root post*/,
-              edit: artifact
+              edit: artifact,
+              inReplyTo: firt
             });
             const w = fpe.widget;
             w.style.borderTop = '2px dotted';

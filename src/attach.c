@@ -904,6 +904,11 @@ ajax_err_404:
 ** If this returns a negative value, it will have populated an error
 ** response using ajax_route_error(). On success it produces no
 ** output.
+**
+** ACHTUNG: if zTarget is a forum post, it "really should" be the ID
+** of the first version of that post, as that's where attachments are
+** intended to be applied so that they can be found and removed
+** consistently.
 */
 int attachments_ajax_from_POST(const char *zTarget, int bNeedsModeration){
   int i;
@@ -914,6 +919,7 @@ int attachments_ajax_from_POST(const char *zTarget, int bNeedsModeration){
   char aKeySize[30];           /* Buffer for key "file%d:bytes" */
   char aKeyName[30];           /* Buffer for key "file%d:filename" */
   char aKeyDesc[30];           /* Buffer for key "file%d_desc" */
+
   db_begin_transaction();
   szLimit = db_get_int("attachment-size-limit", 0);
   for(i = 1; ; ++i, ++n){
