@@ -540,13 +540,15 @@ void attach_commit(
 
     db_begin_transaction();
     blob_init(&content, aContent, szContent);
-    if( (pManifest = manifest_parse(&content, 0, 0)) ){
-      manifest_destroy(pManifest);
+    pManifest = manifest_parse(&content, 0, 0);
+    addCompress = pManifest!=0;
+    manifest_destroy(pManifest);
+    blob_init(&content, aContent, szContent);
+    if( addCompress ){
       blob_compress(&content, &content);
-      addCompress = 1;
     }
     rid = content_put_ex(&content, 0, 0, 0, needModerator);
-    zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    zUUID = rid_to_uuid(rid);
     blob_zero(&manifest);
     for(i=n=0; zName[i]; i++){
       if( zName[i]=='/' || zName[i]=='\\' ) n = i+1;
