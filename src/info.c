@@ -1956,12 +1956,16 @@ int object_description(
         }
         break;
       case CFTYPE_WIKI:
-      default /* historical behavior - assume wiki */:
         if( g.perm.Hyperlink && g.anon.RdWiki ){
           @ wiki page [%z(href("%R/wiki?name=%t",zTarget))%h(zTarget)</a>]
         }else{
           @ wiki page [%h(zTarget)]
         }
+        break;
+      default:
+         /* historical behavior is to assume wiki, but we can end up showing
+         ** bogus links that way to stale attachemnts. */
+        @ unknown artifact %h(zTarget)
     }
     @ added by
     hyperlink_to_user(zUser,zDate," on");

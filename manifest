@@ -1,5 +1,5 @@
-C Roll\sback\s[195571aa79e79f0]\sbecause\sit\sturns\sout\sthat\sthe\sduplicate\sinit\sis\snecessary\sdue\sto\show\smanifest_parse()\sworks.\sThis\sfixes\sthe\sall-attachments-save-as-empty\sbug.
-D 2026-06-08T13:04:12.107
+C Do\snot\slink\sattachments\sto\sunknown\stargets\sas\swiki\spages\sin\s/info.
+D 2026-06-08T13:09:05.657
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -476,7 +476,7 @@ F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efc
 F src/http_ssl.c 21448e159871c441e761fa58152860a22d123d279e5e661df8f4a6fad88f7c03
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 1ee4f154daf3e687e8e8304777448b2bbd877adb279d6c9e7ff7952a02982b7f
-F src/info.c 4091dcd2ec2e5417591d39a25ab916ddf7b61f0abd4bd7b7aade89c66ef1c49b
+F src/info.c c64dae4ec0be472bd31d82e7395c01b8ff5d0d881fe88d1b85adebb88e615f2a
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 226c093fa877714454de330b45ce76e447fe85b99f17d0347b8a5207f3c92b42
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6269e5d70004f6f9b090757d41fd10973b1886631c2f577d4d2f3305cb6bc579
-R c0357028bcf65d07a2aa4f718e9c11b0
+P febb8c155b77f970430e7488a2d82993070c32aefb6ca1d716e9a2e06a2594c8
+R ea901335bf1e0c0b81db48c28316182c
 U stephan
-Z 5840896d553c9ae89518c0720494ec73
+Z b5ba7b54764244bcd014eec036194945
 # Remove this line to create a well-formed Fossil manifest.
