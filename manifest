@@ -1,5 +1,5 @@
-C CSS:\sensure\sthat\slinks\sin\sthe\sattachment\swidget's\serror\smessages\sare\slegible\s(add\scontrast).
-D 2026-06-08T14:45:09.280
+C Remove\sstray\sdebug\soutput.
+D 2026-06-08T14:46:48.474
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -438,7 +438,7 @@ F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
 F src/forum.c f81d8eb9484fd83bae40d8c3e9c7ac634902117a37ea094782a49952e28900d0
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
-F src/fossil.attach.js b8ffea41923f841a6ffe03151dac7214b74dad1038ea08e55db84ef43ab92faa
+F src/fossil.attach.js dd6985188d617ffbd8d18d60d24fa24be199fd10ace4887cff265986ea9fbdcc
 F src/fossil.bootstrap.js 2b54affdf43546829fb3a209973f03af72d8da0137f0ba27b0c5940c7d0212b8
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
 F src/fossil.copybutton.js 57ad69acea5741a54cdec843db7aecfa82234932ec5a2ae5ba6c2a67e2077e88
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45c5ce742b88778f6b3d6976ef2560592334da281d8cd3e8d11f155d0294cc76
-R 28408f7f83d4381f2fb5daa8cb1f73c4
+P f3bf8445746feea03d60f906357ef1e0cb630cc68bbcb5f085292f1954568b10
+R 7c17013474d7f3bf30d87643071f8d65
 U stephan
-Z 019e4e41d50bee0f01cc1d1e71d7549e
+Z d82f4bcc62ba1d710a3c93ea5b17fc03
 # Remove this line to create a well-formed Fossil manifest.

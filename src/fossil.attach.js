@@ -347,19 +347,15 @@
         return false;
       };
       const pasteThing = (event, thing)=>{
-        console.debug("pasteThing 1",thing);
         if( pasteImage(event, thing) ) return true;
-        console.debug("pasteThing 2",thing);
         if( 'file' === thing.kind ){
           event.preventDefault();
           const blob = thing.getAsFile();
           if( blob ){
-            console.debug("Pasting unknown thing...", thing, blob);
             this.#injestBlob(rowObj, blob);
             return true;
           }
         }
-        console.debug("pasteThing nope", thing);
         return false;
       };
       eDesc?.addEventListener?.('paste', (e) => {
