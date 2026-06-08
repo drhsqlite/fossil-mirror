@@ -1052,6 +1052,13 @@
       })/*for-each form*/;
     }/* /forumpost and /forumthread */
 
+    document.body.querySelectorAll('.initially-hidden').forEach(e=>{
+      /* This is a workaround for a span.help-buttonlet which we need
+         to start hidden so that it does not show up for no-JS
+         clients. */
+      e.classList.remove('initially-hidden');
+    });
+
     if( Date.now() % 17 === 0 ){
       /* Purge old drafts only every now and then. */
       F.ForumPostEditor.purgeOldDrafts(/^draft-forum.*/);

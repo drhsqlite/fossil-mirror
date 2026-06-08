@@ -1,5 +1,5 @@
-C When\schanging\sthe\smimetype\sin\sthe\snew\sforum\seditor,\srecord\sthat\schange\sin\slocal/sessionStorage\sand\suse\sit\sas\sthe\sdefault\sfor\snew\sreplies\sand\sposts.
-D 2026-06-08T16:23:56.984
+C In\sthe\sstatus-change\swidget,\sstart\sits\sinner\shelp\stext\selement\shidden\sso\sthat\sit\sdoes\snot\sinterfere\swith\sno-js\sclients.\sIt\sgets\sunhidden\sin\sthe\sforum\sJS.\sProblem\sreported\sby\sMartin\sG.
+D 2026-06-08T18:05:34.175
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c 7c197cba4289211f8b3fb5bb33016bc3cac1ac5480896927ccf395accdf6d804
+F src/forum.c a9c23251ea9aa740bd3cf2aa73536495b7a70acf024493a56582b4eca6ad22d9
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.attach.js dd6985188d617ffbd8d18d60d24fa24be199fd10ace4887cff265986ea9fbdcc
 F src/fossil.bootstrap.js 2b54affdf43546829fb3a209973f03af72d8da0137f0ba27b0c5940c7d0212b8
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js d4e0a98b2006f33ea7044e46da3aa37c9cecdd6a4068e19d4d245b4fd37cd70d
+F src/fossil.page.forumpost.js a443875685ac66570d9649c1442e242443bbc387cd87d2e8c791cafcbbdfa663
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0896ceb7954df7f5024ea017bfb96c7bb3c7dc6d4b4aaeab2fea9a99484be723
-R 4456ca1f000c19b0c68e48a947fe5074
+P 079ea1c339d4cff267394bf4b8288a4ca947c42d78e4bf9ad578ca0bc1c3df56
+R 541fb32246f3191201227781e3bbca0b
 U stephan
-Z 64a21743d9092b1bc54516e38035cccf
+Z d097aca743f9913e5a3043844a23d749
 # Remove this line to create a well-formed Fossil manifest.
