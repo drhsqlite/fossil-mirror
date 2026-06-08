@@ -1963,8 +1963,8 @@ int object_description(
         }
         break;
       default:
-         /* historical behavior is to assume wiki, but we can end up showing
-         ** bogus links that way to stale attachemnts. */
+         /* historical behavior is to assume wiki, but we can end up
+         ** showing bogus links that way to stale attachments. */
         @ unknown artifact %h(zTarget)
     }
     @ added by

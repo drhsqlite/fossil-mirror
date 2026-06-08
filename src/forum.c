@@ -903,7 +903,7 @@ static void forum_render_status_selection( const ForumPost *fp ){
     @ <fieldset class='forum-status-selection'>\
     @ <legend>Status \
     @ <span class='help-buttonlet'>\
-    @ Moderators and post owners may change \
+    @ Moderators and the post's owner may change \
     @ the status of this thread. See \
     @ <a href='%R/help/forum-statuses' target='_new'>\
     @ /help/forum-statuses</a></span>\

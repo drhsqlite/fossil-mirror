@@ -23,7 +23,7 @@ fieldset.forum-status-selection {
 }
 
 .ForumPostEditor > .tab-container > .tabs {
-  min-height: 16em;
+  /*min-height: 10em;*/
 }
 
 .ForumPostEditor > .tab-container > .tabs > .tab-panel.debug {
@@ -45,7 +45,7 @@ fieldset.forum-status-selection {
 
 .ForumPostEditor .tab-panel.editor-wrapper > .editor {
   max-width: initial;
-  min-height: 18em;
+  min-height: 14em;
   flex-grow: 1
 }
 
