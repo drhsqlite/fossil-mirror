@@ -4,6 +4,7 @@ fieldset.forum-status-selection {
   max-width: max-content;
   border-radius: 0.5em;
   padding: 0 0.5em;
+  margin-bottom: 0.35em;
 }
 
 .ForumPostEditor {

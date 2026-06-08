@@ -79,7 +79,7 @@
         mimetype: F.nu(),
         button: F.nu()
       });
-      console.debug("Setting up FPE opt =",opt);
+      //console.debug("Setting up FPE opt =",opt);
       const wrapper = e.widget = D.addClass(D.div(), 'ForumPostEditor');
       D.clearElement(wrapper);
 
@@ -878,6 +878,16 @@
 
     F.user.isIndividual = ['anonymous','nobody'].indexOf(F.user.name)<0;
 
+    /* Page-specific style tweaks for a ForumPostEditor instance. */
+    const initFPEWidget = (ePost, fpe)=>{
+      const w = fpe.widget;
+      w.style.borderTop = '1px dotted';
+      //w.style.marginTop = '0.35em';
+      /* Adding an "Editing..." <h3> here adds way too much space */
+      ePost.append(w);
+      w.scrollIntoView();
+    };
+
     const eForumNew = (
       document.body.classList.contains('cpage-forumnew')
         || document.body.classList.contains('cpage-forume1')
@@ -965,11 +975,7 @@
               || fpid
           ).substr(0,12)
         });
-        const w = fpe.widget;
-        w.style.borderTop = '2px dotted';
-        /* Adding an "Editing..." <h3> here adds way too much space */
-        ePost.append(w);
-        w.scrollIntoView();
+        initFPEWidget(ePost, fpe);
       }/*replyClicked()*/;
 
       const editClicked = (form, ePost, eBtnEdit, eToDisable)=>{
@@ -1001,13 +1007,7 @@
               status: eStatusSelect?.value,
               inReplyTo: firt
             });
-            const w = fpe.widget;
-            w.style.borderTop = '2px dotted';
-            //w.style.height = '0px';
-            /* Adding an "Editing..." <h3> here adds way too much space */
-            ePost.append(w);
-            w.scrollIntoView();
-            //w.style.height = '';
+            initFPEWidget(ePost, fpe);
           });
       }/*editClicked()*/;
 
@@ -1050,6 +1050,7 @@
         );
         if( eStatusChange ) eToDisable.push(eStatusChange);
       })/*for-each form*/;
+
     }/* /forumpost and /forumthread */
 
     document.body.querySelectorAll('.initially-hidden').forEach(e=>{
