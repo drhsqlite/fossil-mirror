@@ -877,17 +877,19 @@
       });
     }
 
-    F.user.isIndividual = ['anonymous','guest'].indexOf(F.user.name)<0;
+    F.user.isIndividual = ['anonymous','nobody'].indexOf(F.user.name)<0;
 
-    const eForumNew = document.body.classList.contains('cpage-forumnew')
+    const eForumNew = (
+      document.body.classList.contains('cpage-forumnew')
+        || document.body.classList.contains('cpage-forume1')
+    )
           ? document.querySelector('#forumnew-placeholder')
           : null;
     if( eForumNew ){
-      /* /forumnew */
+      /* /forumnew and /forume2 */
       const fpe = new F.ForumPostEditor({
         draftKey: 'draft-forumnew',
         hiddenFields: eForumNew.querySelectorAll('input[type=hidden]'),
-        captcha: eForumNew.querySelector('.captcha-for-js'),
         ondiscard: ()=>{
           window.location = F.repoUrl('forum');
         }
@@ -896,13 +898,10 @@
       eForumNew.remove();
       fossil.page.fpe = fpe /* for testing via the console */;
     }/*eForumNew*/
-    else if( F.user.isIndividual
-             && (document.body.classList.contains('cpage-forumpost')
-                 || document.body.classList.contains('cpage-forumthread'))){
+    else if( (document.body.classList.contains('cpage-forumpost')
+              || document.body.classList.contains('cpage-forumthread'))){
       /* /forumpost and /forumthread. Take over the Edit/Reply buttons
-         to use a ForumPostEditor. Because of complications involving
-         fetching a captcha, we'll leave the buttons as-is for
-         non-logged-in users. */
+         to use a ForumPostEditor. */
 
       const fetchPost = async (fpid)=>{
         return window.fetch(F.repoUrl('ajax/artifact.json?uuid='+fpid))

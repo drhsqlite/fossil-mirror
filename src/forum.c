@@ -2049,7 +2049,6 @@ void forumnew_page(void){
     @ <div hidden id='forumnew-placeholder'>
     @ <input type='hidden' name='title' value='%h(zTitle)'>
     login_insert_csrf_secret();
-    captcha_generate_for_js(0);
     @ </div>
   }
   forum_emit_js();
@@ -2284,7 +2283,6 @@ void forumedit_page_v2(void){
   @ <input type='hidden' name='title' value='%h(zTitle)'>
 #endif
   login_insert_csrf_secret();
-  captcha_generate_for_js(0);
   @ </div>
   forum_emit_js();
   style_finish_page();
@@ -2986,7 +2984,6 @@ void forum_ajax_save_page(void){
   const int bHasAttachment = P("file1")!=0;
   Manifest *pPost = 0;
   char *zNewUuid = 0;
-  int goodCaptcha = 1;
   int firt = 0;        /* In-reply-to rid or 0 */
   int fpid = 0;        /* Post rid being edited or 0 */
   int rc = 0;          /* Result code. */
@@ -3002,9 +2999,6 @@ void forum_ajax_save_page(void){
     return;
   }else if( !ajax_check_csrf(2) ){
     ajax_route_error_csrf();
-    return;
-  }else if( 0==(goodCaptcha = captcha_is_correct(0)) ){
-    ajax_route_error_captcha();
     return;
   }
 

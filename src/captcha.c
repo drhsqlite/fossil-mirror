@@ -716,24 +716,6 @@ void captcha_generate(int mFlags){
 }
 
 /*
-** Like captcha_generate() but emits it in a different form, intended
-** for consumption by JS.
-*/
-void captcha_generate_for_js(int mFlags){
-  unsigned int uSeed;
-  const char *zDecoded;
-  char *zCaptcha;
-
-  if( !captcha_needed() && (mFlags & 0x02)==0 ) return;
-  uSeed = captcha_seed();
-  zDecoded = captcha_decode(uSeed, 0);
-  zCaptcha = captcha_render(zDecoded);
-  @ <div class='hidden captcha-for-js'>%h(zCaptcha)</div>
-  @ <input type="hidden" name="captchaseed" value="%u(uSeed)">
-}
-
-
-/*
 ** Add a "Speak the captcha" button.
 */
 void captcha_speakit_button(unsigned int uSeed, const char *zMsg){
