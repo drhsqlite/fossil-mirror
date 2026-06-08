@@ -910,7 +910,7 @@
         const fpid = ePost.dataset.fpid;
         ePost.dataset.originalMarginLeft = ePost.style.marginLeft;
         ePost.style.marginLeft = 'initial';
-        eButton.dataset.originalLabel = eButton.value;
+        eButton.dataset.originalLabel = eButton.innerText;
         D.disable(eToDisable);
         return fpid;
       };
@@ -956,7 +956,6 @@
         const firt = ePost.dataset.firt;
         const fEditHead = ePost.dataset.fedithead;
         eBtnEdit.innerText = "Editing...";
-        F.toast.error("Edit is TODO. fpid="+fpid);
         /*
           TODOs include:
 
@@ -992,7 +991,9 @@
             });
             const w = fpe.widget;
             w.style.borderTop = '2px dotted';
+            /* Adding an "Editing..." <h3> here adds way too much space */
             ePost.append(w);
+            w.scrollIntoView();
           });
       }/*editClicked()*/;
 
