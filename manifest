@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion,\sfor\stesting.
-D 2026-06-08T19:29:19.586
+C New\s"Forum\sThreads"\scategory\sunder\sthe\s/reports\swebpage.
+D 2026-06-08T19:44:21.701
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -563,7 +563,7 @@ F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e80346
 F src/sqlcmd.c 85964c5e5e9b782fd6aa05da8f6959c7b2e4b4d7192abb5cfb9bd64c190e8533
 F src/stash.c edceac522c114b482922cb3def79106029d0488eafb516894618c50c0df8ecaf
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
-F src/statrep.c 9a53380f2ba818eacf437f680e6f63eb6539dea4337e80aeb9796bf0b6c46b7b
+F src/statrep.c d09516a66324c67a9a62a9d0783dcfdfd8384dea627c7ecddc26ba524ad42835
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 97bf24ee89e6b8a462de1420bdd2d5f61bed6965cbd8979f654ed7bc2600e42d
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7f2f04c835a42bc8c456a09eeffb0bcf0cd161f539b3c0697cbe1a7376491d16
-R 86d1ede5fec76832b4c88a6363536793
+P a570ebc608437016f1526ebb51b10eb0dd7abd9bace7a0298e2d976b07fc281b
+R d536a690dc23fe243dd3fe1f4addad87
 U drh
-Z 2f84d0a0ddc8e3bb65a2fbec098e0ea5
+Z 30ca8c18d225c163201891a6f054d2ad
 # Remove this line to create a well-formed Fossil manifest.
