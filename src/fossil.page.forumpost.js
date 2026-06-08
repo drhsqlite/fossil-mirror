@@ -79,10 +79,11 @@
         mimetype: F.nu(),
         button: F.nu()
       });
+      console.debug("Setting up FPE opt =",opt);
       const wrapper = e.widget = D.addClass(D.div(), 'ForumPostEditor');
       D.clearElement(wrapper);
 
-      if( !opt.inReplyTo && !opt.hideTitle ){
+      if( !opt.inReplyTo ){
         /* Title... */
         e.titleBar = D.addClass(D.div(),'titlebar');
         e.title = D.attr(
@@ -281,7 +282,7 @@
             }
           });
         }
-      }
+      }/*e.status*/
 
       if( F.user.mayAttachForum ){
         //e.buttons.append( e.button.addAttach = this.#att.takeAddButton() );
@@ -428,6 +429,7 @@
     addHiddenFields(list){
       this.#extraFields ??= [];
       for( const f of list ){
+        if( !f ) continue;
         if( 'title'===f.name && this.#e.title ){
           if( f.value && this.#opt.isNewThread && !this.#e.title.value ){
             this.#e.title.value = f.value;
@@ -606,7 +608,7 @@
         e.debug.querySelectorAll('input[type=checkbox]').forEach(cb=>{
           if( cb.checked ){
             fd.append(cb.value, 1);
-            console.debug("Debug option:",cb);
+            //console.debug("Forum post debug option:",cb);
           }
         });
       }
@@ -618,12 +620,6 @@
         this.#isWaiting = false;
         return;
       }
-      /*
-        TODO: save it, set #isWaiting=false, then handle error or
-        redirect to the post (if this is a new post) or, if replying
-        inline, replace this object with a static rendering from the
-        response.
-      */
       const resp = window.fetch(F.repoUrl('forumajax_save'), {
         method: 'POST',
         body: fd
@@ -941,51 +937,41 @@
 
       const replyClicked = (form, ePost, eBtnReply, eToDisable)=>{
         const fpid = setupEditReplyElement(ePost, eBtnReply, eToDisable);
-        const firt = ePost.dataset.firt;
         const fEditHead = ePost.dataset.fedithead;
         eBtnReply.innerText = "Replying...";
-        F.toast.error("Reply is TODO. fpid="+fpid);
-        /*
-          TODOs include:
-
-          - Hide replyButton
-
-          - Shift ePost to the left edge.
-
-          - Fetch /ajax/artifact.json?uuid=fpid
-
-          - Pop up a ForumPostEditor immediately under ePost. It needs
-            a Cancel button.
-
-          - When cancelled or submitted, restore the reply button and
-            ePost position.
-        */
-        fetchPost(fpid)
-          .then(artifact=>{
-            const ondone = (fpe)=>{
-              restoreEditReplyElement(ePost, eBtnReply, eToDisable);
-              //console.debug("ondiscard/onsubmit", fpe, eToDisable);
-              if( fpe/*onsubmit*/ ){
-                if( fpe.widget.parentNode ){
-                  fpe.widget.remove();
+        const ondone = (fpe)=>{
+          restoreEditReplyElement(ePost, eBtnReply, eToDisable);
+          //console.debug("ondiscard/onsubmit", fpe, eToDisable);
+          if( fpe/*onsubmit*/ ){
+            if( fpe.widget.parentNode ){
+              fpe.widget.remove();
                 }
-              }
-            };
-            const fpe = new F.ForumPostEditor({
-              hiddenFields: form.querySelectorAll('input[type=hidden]'),
-              ondiscard: ondone,
-              onsubmit: ondone,
-              draftKey: 'draft-forumedit-'+(fEditHead || fpid).substr(0,12),
-              hideTitle: true/*fixme: only show if this is the root post*/,
-              edit: artifact,
-              inReplyTo: firt
-            });
-            const w = fpe.widget;
-            w.style.borderTop = '2px dotted';
-            /* Adding an "Editing..." <h3> here adds way too much space */
-            ePost.append(w);
-            w.scrollIntoView();
-          });
+          }
+        };
+        const fpe = new F.ForumPostEditor({
+          hiddenFields: form.querySelectorAll(
+            'input[type=hidden][name=csrf]'
+            /* Do not inherit the fpid field, else this will become
+               an edit to that post rather than a response. */
+          ),
+          ondiscard: ondone,
+          onsubmit: ondone,
+          inReplyTo: fpid,
+          draftKey: 'draft-reply-'+(
+            fEditHead
+            /* The problem with firt as a key is that firt is not
+               necessarily the root edit of that post, which is
+               what we really want as a draft key so that the
+               draft does not disapper if firt is later edited
+               (giving us a new firt value here). */
+              || fpid
+          ).substr(0,12)
+        });
+        const w = fpe.widget;
+        w.style.borderTop = '2px dotted';
+        /* Adding an "Editing..." <h3> here adds way too much space */
+        ePost.append(w);
+        w.scrollIntoView();
       }/*replyClicked()*/;
 
       const editClicked = (form, ePost, eBtnEdit, eToDisable)=>{
@@ -1019,9 +1005,11 @@
             });
             const w = fpe.widget;
             w.style.borderTop = '2px dotted';
+            //w.style.height = '0px';
             /* Adding an "Editing..." <h3> here adds way too much space */
             ePost.append(w);
             w.scrollIntoView();
+            //w.style.height = '';
           });
       }/*editClicked()*/;
 

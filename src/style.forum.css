@@ -11,6 +11,9 @@ fieldset.forum-status-selection {
   flex-direction: column;
   gap: 1em;
   padding: 0.5em;
+  /* Anyone know how to make these fade/slide in gracefully?
+  transition: display 0.5s ease-in-out;
+  transition: height 0.5s ease-in-out; */
 }
 
 .ForumPostEditor > .tab-bar{
