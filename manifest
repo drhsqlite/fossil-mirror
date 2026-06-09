@@ -1,5 +1,5 @@
-C Ardoise\sskin:\sconsolidate\sthe\svarious\sflavors\sof\sbuttons.\sBlitz\sskin:\sremove\sa\sduplicted\sselector.
-D 2026-06-09T09:10:15.962
+C Darkmode\sskin:\smake\sdisabled\sbuttons\svery\sslightly\sless\sprominent.
+D 2026-06-09T09:12:50.318
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -340,7 +340,7 @@ F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f
 F skins/blitz/header.txt 9cbbf8a2cede512b4ccf47f2bf284ef043c1acd1e6dab38b776a0140fd7fa200
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401d7fdd60446d9a13db
-F skins/darkmode/css.txt cb75336084c8abe6cb91aaec765c454c18c5232157230c98945cd09c5aa097b0
+F skins/darkmode/css.txt 3347eeba41af8edb0baabed03efaf9e104fb695e8666fa7b0758f4e1880baa1c
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt d909e2ffcadfd595707d7cb057d654888cf45de37910137bac508651c7f6f03f
 F skins/darkmode/header.txt 3fe4fb78b2a6f8d6c9a4c2c4dbba7d80a7302b166fe5e4cec86f05713ddf830b
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ddb40c531647b8bd9100266ecd18949321e8c0dbe7f8c56584420b6e59719883
-R a64efeaec53dae2e9fc13f416bb3c140
+P 3d9a5cce68cc902296cabab7fe2fa0a2840fb157864365db29b4214773a0294d
+R e6ea9e87b8dd8b730b42d130b82d9b78
 U stephan
-Z 3603dc5615b84bc62d4839e089c2a16c
+Z 75ed3214f1ee10b0b84930c03d4d4811
 # Remove this line to create a well-formed Fossil manifest.

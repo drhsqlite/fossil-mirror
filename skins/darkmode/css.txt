@@ -137,8 +137,9 @@ button:disabled,
 input[type=button]:disabled,
 input[type=submit]:disabled,
 input[type=reset]:disabled{
-  color: #202020;
+  color: #222;
   background-color: #b0b0b0;
+  opacity: 0.8;
 }
 .button:focus,
 button:focus,
