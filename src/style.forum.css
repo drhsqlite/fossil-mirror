@@ -7,6 +7,10 @@ fieldset.forum-status-selection {
   margin-bottom: 0.35em;
 }
 
+body.forum .forumpost-single-controls button.draft:after {
+  content: " [draft]";
+}
+
 .ForumPostEditor {
   display: flex;
   flex-direction: column;

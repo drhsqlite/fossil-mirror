@@ -45,7 +45,7 @@
        opt.ondiscard[=function]: if set, a Discard button is added
        which, when activated, clears the current draft and removes
        this object's widget from the DOM. After doing so,
-       opt.ondiscard() is called and passed no arguments. Exceptions
+       opt.ondiscard() is called and passed this object. Exceptions
        thrown by ondiscard() are ignored but may be logged.
 
        opt.onsubmit[=function]: if set, this function is called
@@ -403,7 +403,7 @@
     */
     discard(){
       if( this.#opt.ondiscard instanceof Function ){
-        try{this.#opt.ondiscard();}
+        try{this.#opt.ondiscard(this);}
         catch(e){
           console.error("ForumPostEditor.ondiscard() threw:",e);
         }
@@ -984,6 +984,10 @@
           });
       };
 
+      const makeDraftKey = (prefix,uuid)=>{
+        return prefix+'-'+uuid.substr(0,12);
+      };
+
       const setupEditReplyElement = (ePost, eButton, eToDisable)=>{
         const fpid = ePost.dataset.fpid;
         ePost.dataset.originalMarginLeft = ePost.style.marginLeft;
@@ -1013,9 +1017,11 @@
           /* onsubmit() and ondiscard() callback */
           restoreEditReplyElement(ePost, eBtnReply, eToDisable);
           //console.debug("ondiscard/onsubmit", fpe, artifact);
-          if( response/*onsubmit*/ ){
+          if( response/*onsubmit()*/ ){
             window.location = F.repoUrl('forumpost/'+response.uuid);
             fpe.close();
+          }else{/*ondiscard()*/
+            eBtnReply.classList.remove('draft');
           }
         };
         const fpe = new F.ForumPostEditor({
@@ -1027,15 +1033,14 @@
           ondiscard: ondone,
           onsubmit: ondone,
           inReplyTo: fpid,
-          draftKey: 'draft-reply-'+(
-            fEditHead
+          draftKey: makeDraftKey('draft-reply', fEditHead
             /* The problem with firt as a key is that firt is not
                necessarily the root edit of that post, which is
                what we really want as a draft key so that the
                draft does not disapper if firt is later edited
                (giving us a new firt value here). */
               || fpid
-          ).substr(0,12)
+          )
         });
         initFPEWidget(ePost, fpe);
       }/*replyClicked()*/;
@@ -1050,7 +1055,7 @@
             const ondone = (fpe, response)=>{
               /* onsubmit() and ondiscard() callback */
               //console.debug("ondiscard/onsubmit", fpe, eToDisable);
-              if( fpe/*onsubmit*/ ){
+              if( response/*onsubmit()*/ ){
                 if( fpid === response.uuid
                     && !response.statusModified
                     && 0===response.attachedCount ){
@@ -1060,6 +1065,8 @@
                   window.location = F.repoUrl('forumpost/'+response.uuid);
                 }
               }else{
+                /*ondiscard()*/
+                eBtnEdit.classList.remove('draft');
                 restoreEditReplyElement(ePost, eBtnEdit, eToDisable);
               }
             };
@@ -1071,7 +1078,7 @@
               hiddenFields: form.querySelectorAll('input[type=hidden]'),
               ondiscard: ondone,
               onsubmit: ondone,
-              draftKey: 'draft-forumedit-'+(fEditHead || fpid).substr(0,12),
+              draftKey: makeDraftKey('draft-forumedit', fEditHead || fpid),
               edit: artifact,
               status: eStatusSelect?.value,
               inReplyTo: firt
@@ -1094,6 +1101,26 @@
           console.warn("Unexpected missing fpid", eThePost);
           return;
         }
+
+        const checkButtonForDraft = (draftKeyPrefix, eBtn)=>{
+          if( 1 ){
+            /* 2026-06-09: this is currently disabled because it's
+               much of the solution but not all of it. Still to solve
+               is how to tag/untag these elements as local drafts are
+               added/removed during this page's lifetime.
+               ForumPostEditor does not have access to these buttons
+               so can't flag them. We may need to add events to
+               F.storage and monitor those.
+            */
+            return;
+          }
+          const fpid = eThePost.dataset.fpid;
+          const fEditHead = eThePost.dataset.fedithead;
+          const draftKey = makeDraftKey(draftKeyPrefix, fEditHead || fpid);
+          if( F.storage.contains(draftKey) ){
+            eBtn.classList.add('draft');
+          }
+        };
         /* Replace the Reply and Edit buttons with ones which will activate
            a ForumPostEditor. */
         const btnReply = form.querySelector('input[type=submit][name=reply]');
@@ -1101,6 +1128,7 @@
           const b = D.button("Reply", ()=>replyClicked(form, eThePost, b, eToDisable));
           b.type = 'button'/*keep container form from submitting*/;
           eToDisable.push(b);
+          checkButtonForDraft('draft-reply',b);
           btnReply.parentElement.insertBefore(b, btnReply);
           btnReply.remove();
         }
@@ -1110,6 +1138,7 @@
           const b = D.button("Edit", ()=>editClicked(form, eThePost, b, eToDisable));
           b.type = 'button';
           eToDisable.push(b);
+          checkButtonForDraft('draft-forumedit',b);
           btnEdit.parentElement.insertBefore(b, btnEdit);
           btnEdit.remove();
         }
@@ -1136,7 +1165,7 @@
 
     if( Date.now() % 17 === 0 ){
       /* Purge old drafts only every now and then. */
-      F.ForumPostEditor.purgeOldDrafts(/^draft-forum.*/);
+      F.ForumPostEditor.purgeOldDrafts(/^draft-(reply|forumedit)-.*/)/*not purging forumnew*/;
     }
   })/*F.onPageLoad callback*/;
 })(window.fossil);
