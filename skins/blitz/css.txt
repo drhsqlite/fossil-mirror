@@ -529,13 +529,6 @@ input[type=submit]:disabled{
   background-color: rgb(153,153,153);
 }
 
-.button:disabled:hover,
-button:disabled:hover,
-input[type=button]:disabled:hover,
-input[type=reset]:disabled:hover,
-input[type=submit]:disabled:hover{
-  color: #222;
-}
 
 /* Forms
 ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
