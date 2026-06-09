@@ -530,3 +530,8 @@ Local drafts for replies and responses (but not new posts) are
 automatically purged at semi-random intervals. Every Nth visit to a
 forum page has a small chance to run the cleanup, and drafts older
 than 10 days old are purged.
+
+If neither <code>localStorage</code> nor <code>sessionStorage</code>
+are available, it uses a transient storage object which is recreated
+on each page-load, so it cannot store drafts outside of a single
+thread at a time.
