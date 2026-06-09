@@ -192,18 +192,22 @@
     }
 
     #removeRow(rowObj){
-      rowObj.e.row.remove();
-      this.#rows = this.#rows.filter(v=>v!==rowObj);
-      this.#updateControls();
-      this.#events.dispatchEvent(
-        new CustomEvent('entry-removed',{
-          detail: F.nu({
-            type: 'entry-removed',
-            row: rowObj,
-            attacher: this
+      const er = rowObj.e.row;
+      if( er.parentNode ){
+        this.#rows = this.#rows.filter(v=>v!==rowObj);
+        this.#updateControls();
+        er.classList.add('animate-exit');
+        er.addEventListener('animationend', ()=>er.remove(), {once: true});
+        this.#events.dispatchEvent(
+          new CustomEvent('entry-removed',{
+            detail: F.nu({
+              type: 'entry-removed',
+              row: rowObj,
+              attacher: this
+            })
           })
-        })
-      );
+        );
+      }
     }
 
     /**
@@ -400,6 +404,15 @@
         remove: eRemove
       });
       this.#e.body.append(eRow);
+      eRow.classList.add('animate-entrance');
+      requestAnimationFrame(() => {
+        eRow.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      });
+
       this.#rows.push( rowObj );
       this.#updateControls();
       this.#events.dispatchEvent(

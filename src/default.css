@@ -2128,6 +2128,45 @@ body.fossil-dark-style  .Attacher .attach-dropzone.dragover{
   flex-grow: 2;
 }
 
+.animate-entrance {
+  animation: slideFadeIn 0.25s ease-out forwards;
+  transform-origin: top;
+  overflow: hidden /*prevent content bleeding during expansion*/;
+}
+.animate-exit {
+  animation: slideFadeOut 0.25s ease-in forwards;
+  transform-origin: top;
+  overflow: hidden;
+}
+@keyframes slideFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-1em/*must match slideFadeOut*/);
+    max-height: 0;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 100em /*a value safely larger than the widget*/;
+  }
+}
+@keyframes slideFadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 100em /*must match slideFadeIn*/;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-1em/*must match slideFadeIn*/);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {
   .desktoponly {

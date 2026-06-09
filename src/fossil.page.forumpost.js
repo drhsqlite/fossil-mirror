@@ -374,16 +374,30 @@
 
     }/*constructor*/
 
-    discard(){
+    close(){
       const e = this.#e.widget;
-      if( e.parentNode ){
+      if( e?.parentNode ){
+        if( this.#opt.onclose instanceof Function ){
+          try{this.#opt.onclose();}
+          catch(e){
+            console.error("ForumPostEditor.onclose() threw:",e);
+          }
+        }
         //console.debug("FPE discarding", this);
-        this.#clearDraft();
-        e.remove();
-        if( this.#opt.ondiscard instanceof Function ){
-          this.#opt.ondiscard();
+        e.classList.add('animate-exit');
+        e.addEventListener('animationend', ()=>e.remove(), {once: true});
+      }
+    }
+
+    discard(){
+      if( this.#opt.ondiscard instanceof Function ){
+        try{this.#opt.ondiscard();}
+        catch(e){
+          console.error("ForumPostEditor.ondiscard() threw:",e);
         }
       }
+      this.#clearDraft();
+      this.close();
     }
 
     /** This widget's top-most DOM element. */
@@ -412,9 +426,9 @@
       const e = this.#e.error;
       D.clearElement(e);
       if( msg.length ){
+        console.error('ForumPostEditor:',...msg);
         e.classList.remove('hidden');
         e.append(...msg);
-        console.error('ForumPostEditor:',...msg);
       }else{
         e.classList.add('hidden');
       }
@@ -614,7 +628,7 @@
       if( this.#att ){
         this.#att.populateFormData(fd);
       }
-      console.warn("Ready to submit",fd);
+      //console.warn("Ready to submit",fd);
       if( 0 ){
         this.#isWaiting = false;
         return;
@@ -637,7 +651,10 @@
           if( 1 ){
             this.#clearDraft();
             if( this.#opt.onsubmit instanceof Function ){
-              this.#opt.onsubmit(this);
+              try{this.#opt.onsubmit(this);}
+              catch(e){
+                console.error("ForumPostEditor.onsubmit() threw: ", e);
+              }
             }
             window.location = F.repoUrl('forumpost/'+j.uuid);
           }else{
@@ -885,7 +902,14 @@
       //w.style.marginTop = '0.35em';
       /* Adding an "Editing..." <h3> here adds way too much space */
       ePost.append(w);
-      w.scrollIntoView();
+      w.classList.add('animate-entrance');
+      requestAnimationFrame(() => {
+        w.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      });
     };
 
     const eForumNew = (
