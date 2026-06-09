@@ -585,9 +585,10 @@ Both Fossil and Git store history as a directed acyclic graph (DAG)
 of changes, but Git tends to focus more on individual branches of
 the DAG, whereas Fossil puts more emphasis on the entire DAG.
 
-For example, the default behavior in Git is to only synchronize
-a single branch, whereas with Fossil the only sync option is to
-sync the entire DAG.  Git commands,
+While a common usage pattern in Git is to only synchronize
+a single branch — <tt>git pull upstream feature/branch</tt> — instead
+of all refs Fossil does not give you a choice; it
+syncs the entire DAG or nothing.  Git commands,
 GitHub, and GitLab tend to show only a single branch at
 a time, whereas Fossil usually shows all parallel branches at
 once.  Git has commands like "rebase" that help keep all relevant
@@ -606,9 +607,6 @@ and its handful of active committers.  Seeing all
 changes on all branches all at once helps keep the whole team
 up-to-date with what everybody else is doing, resulting in a more 
 tightly focused and cohesive implementation.
-
-Parts of this section are [https://fossil-scm.org/forum/forumpost/5961e969fa|disputed]
-by [https://github.com/olorin37|Jakub A. G.].
 
 
 <h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>
