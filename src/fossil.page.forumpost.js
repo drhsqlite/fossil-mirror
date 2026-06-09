@@ -736,7 +736,7 @@
         }
       };
       if( key instanceof RegExp ){
-        for(const k of F.storage.shortKeys().filter(v=>key.test(v))){
+        for(const k of F.storage.keys(false).filter(v=>key.test(v))){
           check(k);
         }
       }else{
@@ -1021,7 +1021,6 @@
             window.location = F.repoUrl('forumpost/'+response.uuid);
             fpe.close();
           }else{/*ondiscard()*/
-            eBtnReply.classList.remove('draft');
           }
         };
         const fpe = new F.ForumPostEditor({
@@ -1066,7 +1065,6 @@
                 }
               }else{
                 /*ondiscard()*/
-                eBtnEdit.classList.remove('draft');
                 restoreEditReplyElement(ePost, eBtnEdit, eToDisable);
               }
             };
@@ -1103,23 +1101,25 @@
         }
 
         const checkButtonForDraft = (draftKeyPrefix, eBtn)=>{
-          if( 1 ){
-            /* 2026-06-09: this is currently disabled because it's
-               much of the solution but not all of it. Still to solve
-               is how to tag/untag these elements as local drafts are
-               added/removed during this page's lifetime.
-               ForumPostEditor does not have access to these buttons
-               so can't flag them. We may need to add events to
-               F.storage and monitor those.
-            */
-            return;
-          }
+          /* If a draft is found associated with eThePost, mark eBtn
+             as a draft and set up storage event listeners to update
+             the button as new drafts come and go. */
           const fpid = eThePost.dataset.fpid;
           const fEditHead = eThePost.dataset.fedithead;
           const draftKey = makeDraftKey(draftKeyPrefix, fEditHead || fpid);
           if( F.storage.contains(draftKey) ){
             eBtn.classList.add('draft');
           }
+          F.storage.addEventListener('set', ({detail})=>{
+            if( draftKey === detail.key ){
+              eBtn.classList.add('draft');
+            }
+          });
+          F.storage.addEventListener('remove', ({detail})=>{
+            if( draftKey === detail.key ){
+              eBtn.classList.remove('draft');
+            }
+          });
         };
         /* Replace the Reply and Edit buttons with ones which will activate
            a ForumPostEditor. */

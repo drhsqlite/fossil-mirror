@@ -85,6 +85,10 @@
   );
 
   /**
+     Proxy for custom events. Created on demand.
+  */
+  let events;
+  /**
      A proxy for localStorage or sessionStorage or a
      page-instance-local proxy, if neither one is availble.
 
@@ -93,11 +97,36 @@
   */
   F.storage = {
     storageKeyPrefix: storageKeyPrefix,
+    addEventListener(...args){
+      events ??= new EventTarget()
+      return events.addEventListener(...args);
+    },
+    removeEventListener(...args){
+      events ??= new EventTarget()
+      return events.removeEventListener(...args);
+    },
     /** Sets the storage key k to value v, implicitly converting
-        it to a string. */
-    set: (k,v)=>$storage.setItem(storageKeyPrefix+k,v),
+        it to a string.
+
+        Fires a 'set' CustomEvent with a detail value in the form
+        {key, value} with the new value.
+    */
+    set: (k,v)=>{
+      $storage.setItem(storageKeyPrefix+k,v);
+      if( events ){
+        events.dispatchEvent(
+          new CustomEvent('set',{
+            detail: F.nu({
+              key: k, value: v
+            })
+          })
+        );
+      }
+    },
     /** Sets storage key k to JSON.stringify(v). */
-    setJSON: (k,v)=>$storage.setItem(storageKeyPrefix+k,JSON.stringify(v)),
+    setJSON: function(k,v){
+      return this.set(k,JSON.stringify(v));
+    },
     /** Returns the value for the given storage key, or
         dflt if the key is not found in the storage. */
     get: (k,dflt)=>$storageHolder.hasOwnProperty(
@@ -123,9 +152,27 @@
     /** Returns true if the storage contains the given key,
         else false. */
     contains: (k)=>$storageHolder.hasOwnProperty(storageKeyPrefix+k),
-    /** Removes the given key from the storage. Returns this. */
+    /**
+       Removes the given key from the storage. Returns this.
+
+       Fires a 'remove' CustomEvent with a detail value in the form
+       {key}.
+    */
     remove: function(k){
-      $storage.removeItem(storageKeyPrefix+k);
+      const kk = storageKeyPrefix+k;
+      if( events ){
+        const had = $storageHolder.hasOwnProperty(kk)
+        $storage.removeItem(kk);
+        if( had ){
+          events.dispatchEvent(
+            new CustomEvent('remove',{
+              detail: F.nu({key: k})
+            })
+          );
+        }
+      }else{
+        $storage.removeItem(kk);
+      }
       return this;
     },
     /** Clears ALL keys from the storage. Returns this. */
@@ -133,15 +180,15 @@
       this.keys().forEach((k)=>$storage.removeItem(/*w/o prefix*/k));
       return this;
     },
-    /** Returns an array of all keys currently in the storage. These
-        include the storage key prefix. */
-    keys: ()=>Object.keys($storageHolder).filter((v)=>(v||'').startsWith(storageKeyPrefix)),
-    /**
-       Like this.keys() but returns the keys shorn of the key prefix.
-    */
-    shortKeys: function(){
+    /** Returns an array of all keys currently in the storage. If full
+        is true then the keys include the storage key prefix, else
+        they don't. It should default to false but does not for
+        historical compatibility. */
+    keys: (full=true)=>{
+      const li = Object.keys($storageHolder).filter((v)=>(v||'').startsWith(storageKeyPrefix));
+      if( full ) return li;
       const n = this.storageKeyPrefix.length;
-      return this.keys().map(v=>v.substring(n));
+      return li.map(v=>v.substring(n));
     },
     /** Returns true if this storage is transient (only available
         until the page is reloaded), indicating that fileStorage
