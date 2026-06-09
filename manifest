@@ -1,5 +1,5 @@
-C Blitz\sskin:\sbring\sthe\soverall\sbutton\sappearance\smore\sin\sline\swith\sthe\strunk\sbutton,\swith\sthe\sdisabled\sbuttons\sless\sglaring.
-D 2026-06-09T08:54:37.230
+C Fix\smisalignment\sof\sthe\sAttacher\swidget's\sadd-a-row\sbutton.
+D 2026-06-09T08:58:22.965
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
-F src/default.css b71e6cf3aa3a1aaf813995bcd0b60d90820cc15bf2bb443c904ff02cb516b47b
+F src/default.css 9fe64151631f130c33d15f8fb393a61677f5db9eceaf98cee70fbb65c004e7dc
 F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 210435c0d115e7d16c3299cd93adff30a57dc3b3a6cc3a82afa82aa0dde15e4e
-R 4d62293ecd0b5c0c32a741a495eb57cc
+P e068cffcbe6558fd538699829f484dfff171d892f931c3708cdcef814c2b66ea
+R 50e020d11c529c529fd781490923444e
 U stephan
-Z b4999fb19277b193087748ef555187bf
+Z 0d43b1c948953b5b5e60cf29c9702f15
 # Remove this line to create a well-formed Fossil manifest.

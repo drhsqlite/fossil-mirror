@@ -2126,6 +2126,7 @@ body.fossil-dark-style  .Attacher .attach-dropzone.dragover{
   padding: 0.5em 1em;
   cursor: pointer;
   flex-grow: 2;
+  line-height: initial/*work around an inherited alignment quirk*/;
 }
 
 .animate-entrance {
