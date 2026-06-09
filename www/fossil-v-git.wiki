@@ -22,8 +22,8 @@ aside and focus on the important differences between the two, especially
 those that impact the user experience.
 
 Keep in mind that you are reading this on a Fossil website, and though
-we try to be fair, the information here
-might be biased in favor of Fossil, if only because we spend most of our
+we try to be fair, the information here will inevitably
+be biased in favor of Fossil purely because we spend most of our
 time using Fossil, not Git.  Ask around for second opinions from
 people who have used <em>both</em> Fossil and Git.
 
@@ -854,31 +854,38 @@ only solves the SHAttered problem, it should prevent a reoccurrence of
 similar problems for the foreseeable future.
 
 Meanwhile, the Git community took until August 2018 to publish
-[https://git-scm.com/docs/hash-function-transition/|their first plan]
-for solving the same problem by moving to SHA-256, a variant of the
-[https://en.wikipedia.org/wiki/SHA-2 | older SHA-2 algorithm].  As of
-this writing in February 2020, that plan hasn't been implemented, as far
-as this author is aware, but there is now
-[https://lwn.net/ml/git/20200113124729.3684846-1-sandals@crustytoothpaste.net/
-| a competing SHA-256 based plan] which requires complete repository
-conversion from SHA-1 to SHA-256, breaking all public hashes in the
-repo. One way to characterize such a massive upheaval in Git terms is a
-whole-project rebase, which violates the
-[https://www.atlassian.com/git/tutorials/merging-vs-rebasing#the-golden-rule-of-rebasing|Golden Rule of Rebasing].
+[https://git-scm.com/docs/hash-function-transition/ | their plan] for
+solving the same problem by moving to SHA-256, a variant of the
+[https://en.wikipedia.org/wiki/SHA-2 | older SHA-2 algorithm].  That is
+now technically implemented in the sense that <tt>git init
+--object-format=sha256</tt> exists, but note well: this is not only an
+optional setting, Git forge support is mixed, most notably
+[https://github.com/GitoxideLabs/gitoxide/issues/281 | lacking in
+GitHub], plus also BitBucket and others. This is doubtless because of
+this warning in the latest ([https://git-scm.com/docs/git-init/2.54.0 |
+as of this writing]) <tt>git init</tt> docs:
 
-Regardless of the eventual implementation details, we fully expect Git
-to move off SHA-1 eventually and for the changes to take years more to
-percolate through the community.
+<blockquote>Note: At present, there is no interoperability between
+SHA-256 repositories and SHA-1 repositories.</blockquote>
 
+Although we are now in the <i>tenth year</i> of this situation, there
+remains hope that Git will manage to make the transition without taking
+the full decade: the
+[https://www.deployhq.com/blog/git-3-0-on-the-horizon-what-git-users-need-to-know-about-the-next-major-release
+| latest plan] is that Git 3.0 will finally <i>(finally!)</i> switch to
+SHA256 by default, forcing the issue. Given the track record, we are
+taking a "show me" stance on this claim.
+
+Always remember, attacks only get better, never worse.
 Almost three years after Fossil solved this problem, the
 [https://sha-mbles.github.io/ | SHAmbles attack] was published, further
 weakening the case for continuing to use SHA-1.
 
 The practical impact of attacks like SHAttered and SHAmbles on the
 Git and Fossil Merkle trees isn't clear, but you want to have your repositories
-moved over to a stronger hash algorithm before someone figures out how
-to make use of the weaknesses in the old one. Fossil has had this covered
-for years now, so that the solution is now almost universally deployed.
+moved over to a stronger hash algorithm <i>before</i> someone figures out how
+to make use of the weaknesses in the old one. Fossil's solution is long
+since [https://repology.org/project/fossil/versions | universally deployed].
 
 <hr/>
 

@@ -1,5 +1,5 @@
-C New\s"Forum\sThreads"\scategory\sunder\sthe\s/reports\swebpage.
-D 2026-06-08T19:44:21.701
+C With\sGit\s3.0\sin\ssight,\sthe\stime\shas\scome\sto\supdate\sthe\sSHA256\ssituation\nin\sthe\swww/fossil-v-git.wiki\sdoc\sonce\sagain.
+D 2026-06-09T06:28:32.072
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -850,7 +850,7 @@ F www/forum.wiki 4f90788990f08c481823ecf2ea19019001641b2f1496e2d09b6146d7b9dc58d
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
-F www/fossil-v-git.wiki 29ac83fb0a887a75f157ffafef390d49720f27f3b6ca5d9c3fbd6a1554babec9
+F www/fossil-v-git.wiki d5debf349e36c61c9e09fb87710f9de233c0e02ef8554241cbd96d53d048c43c
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a570ebc608437016f1526ebb51b10eb0dd7abd9bace7a0298e2d976b07fc281b
-R d536a690dc23fe243dd3fe1f4addad87
-U drh
-Z 30ca8c18d225c163201891a6f054d2ad
+P 59985724d71229bf7c1744996de9f59bbb087a8e2c1842b1d1cfa95ea03dd73b
+R 91f8cf21f3ea70169fbdad2fbdac587f
+U tangent
+Z acbe0b89f30b7f24416e4b0e570f583a
 # Remove this line to create a well-formed Fossil manifest.
