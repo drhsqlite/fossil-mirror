@@ -523,13 +523,18 @@
     async #fetchPreview(content){
       /* TODO: fetch preview */
       const e = this.#e;
-      const fd = this.#newFormData(content);
+      const fd = /*no: this.#newFormData(content); */
+            new FormData;
+      let ext;
+      switch(this.mimetype){
+        case 'text/x-markdown':    ext = 'md';   break;
+        case 'text/x-fossil-wiki': ext = 'wiki'; break;
+        default:                   ext = 'txt';  break;
+      }
+      fd.append('filename', 'x.'+ext/*for mimetype determination*/);
+      fd.append('content', this.editorContent.trim());
       return window
-        .fetch(F.repoUrl(
-          'wikiajax/preview'
-          /* ^^^ Maybe change to /ajax/preview-text, but it's
-          ** got a more complicated interface */
-        ), {
+        .fetch(F.repoUrl('ajax/preview-text'),{
           method: 'POST',
           body: fd
         })

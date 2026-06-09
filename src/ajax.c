@@ -461,7 +461,11 @@ void ajax_route_dispatcher(void){
    **
    ** This particular route is used by /fileedit and /chat, whereas
    ** /wikiedit uses a simpler wiki-specific route.
-   */ }
+   */
+   /* TODO (2026-06-09): preview.txt, preview.md, preview.wiki as
+   ** shorthand for preview-text?filename=X.(txt|md|wiki), noting that
+   ** the filename is only used for mimetype determination. */
+  }
   };
 
   if(zName==0 || zName[0]==0){
