@@ -516,3 +516,17 @@ attachments:
 
 TBD is whether to accept that case or to remove automatic approval of
 attached files.
+
+<h2 name="drafts">Draft Edits</h2>
+
+The forum uses, if available, JavaScript's <code>localStorage</code>
+or <code>sessionStorage</code> to store local drafts of new
+posts, replies, and edits to existing posts. Each time an editor
+input field loses focus, the draft is saved. When viewing a forum
+thread, the Edit and Reply buttons get clearly marked if they
+have an associated local draft.
+
+Local drafts for replies and responses (but not new posts) are
+automatically purged at semi-random intervals. Every Nth visit to a
+forum page has a small chance to run the cleanup, and drafts older
+than 10 days old are purged.

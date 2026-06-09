@@ -1,5 +1,5 @@
-C Teach\sthe\sEdit\sand\sReply\sbuttons\sin\sthe\sforum\sto\sclearly\sshow\swhen\sa\scorresponding\slocal\sdraft\sedit\sis\savailable.
-D 2026-06-09T22:39:36.514
+C Document\sdraft\sedits\sin\swww/forum.wiki.
+D 2026-06-09T22:49:21.246
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -848,7 +848,7 @@ F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
 F www/fileedit-page.md 05b5429894d86d052d647ee354d94a7b18f66e701c23a94040b2517328431260
 F www/fileformat.wiki eb2e02ea94b9f544027a66180b442a7757f791c77e33e9760c6993f2688d98e6
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
-F www/forum.wiki 6a4e4a6b711d9046ad7a4089927101db4c669c882a3b904877ddc6a64e3d25da
+F www/forum.wiki 2186113cd39c82f0a5b64465bf2758cd2ee69fe2cdc2d77f23d4ee20d4ce661a
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bee75fb8b22ff892857e4762ea35274fc427e92cd60a3917a457cc96fc876f98
-R b20c8023f9977cca87c6f32bbd030ec8
+P 04e8708769b4a748e5be1f27cddcdc4a7cc741b1bda2516e33de97c087b56f58
+R 12ee6854bf6cbe80f15ff77918feee64
 U stephan
-Z 34d98d00acd4595d061c15e5484f5090
+Z 721783e3101c69dfbe4e7b1ebc95e020
 # Remove this line to create a well-formed Fossil manifest.
