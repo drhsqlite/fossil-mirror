@@ -554,14 +554,14 @@ their low-friction paths.
 The Linux kernel has a far bigger developer community than that of
 SQLite: there are thousands and thousands of contributors to Linux, most
 of whom do not know each other's names. These thousands are responsible
-for producing roughly 89× more code than is in SQLite. (10.7
-[https://en.wikipedia.org/wiki/Source_lines_of_code|MLOC] vs. 0.12 MLOC
-according to [https://dwheeler.com/sloccount/|SLOCCount].) The Linux
+for producing roughly 73× more code than is in SQLite. (32.0
+[https://en.wikipedia.org/wiki/Source_lines_of_code|MLOC] vs. 0.44 MLOC
+according to [https://github.com/boyter/scc | scc.) The Linux
 kernel and its development process were already uncommonly large back in
 2005 when Git was designed, specifically to support the consequences of
 having such a large set of developers working on such a large code base.
 
-95% of the code in SQLite comes from just four programmers, and 64% of
+95% of the code in SQLite comes from just six programmers, and 62% of
 it is from the lead developer alone. The SQLite developers know each
 other well and interact daily. Fossil was designed for this development
 model.
