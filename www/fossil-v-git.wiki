@@ -521,8 +521,8 @@ mental picture of what is happening, leading to better situational
 awareness.
 
 By contrast, "…[https://docs.github.com/en/get-started/quickstart/contributing-to-projects|forking is
-at the core of social coding at GitHub]".  As of January 2022,
-[https://github.com/search?q=is:public|Github hosts 47 million distinct
+at the core of social coding at GitHub]".  As of June 2026,
+[https://github.com/search?q=is:public|Github hosts 324 million distinct
 software projects], most of which were created by forking a
 previously-existing project. Since this is
 [https://evansdata.com/reports/viewRelease.php?reportID=9 | roughly
