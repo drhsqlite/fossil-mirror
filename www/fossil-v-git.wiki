@@ -282,29 +282,30 @@ The difference is that Git stores its objects as individual files in the
 whereas Fossil stores its objects in a [https://www.sqlite.org/|SQLite]
 database file which provides ACID transactions and a high-level query
 language.
-This difference is more than an implementation detail. It has important
+
+This difference is more than an implementation detail; it has important
 practical consequences.
 
-One notable consequence is that it is difficult to find the descendants
+One notable example is that it is difficult to find the descendants
 of check-ins in Git.
 One can easily locate the ancestors of a particular Git check-in
-by following the pointers embedded in the check-in object, but it is
-difficult to go the other direction and locate the descendants of a
-check-in.  It is so difficult, in fact, that neither native Git nor
-GitHub provide this capability short of crawling the
-[https://www.git-scm.com/docs/git-log|commit log].  With Fossil,
-on the other hand, finding descendants is a simple SQL query.
-It is common in Fossil to ask to see
-[/timeline?df=release&y=ci|all check-ins since the last release].
-Git lets you see "what came before".  Fossil makes it just as
-easy to also see "what came after".
+by following the pointers embedded in the check-in object, but
+going the other direction is difficult enough
+that neither native Git nor the big "forge" facilities
+like GitHub and GitLab provide this capability short of crawling the
+[https://www.git-scm.com/docs/git-log|commit log].  In Fossil,
+we can find descendants using a simple SQL query, which then allows
+us to see [/timeline?df=release&y=ci|all check-ins since the last release],
+as but one example.
+Git lets you see "what came before," but Fossil makes it just as
+easy to also see "what came after."
 
 Leaf check-ins in Git that lack a "ref" become "detached," making them
 difficult to locate and subject to garbage collection. This
 [https://stackoverflow.com/q/3965676 | detached head
 state] problem has caused grief for
-[https://www.google.com/search?q=git+detached+head+state | many
-Git users]. With
+[https://www.google.com/search?q=git+detached+head+state |
+untold millions of Git users]. With
 Fossil, detached heads are simply impossible because we can always find
 our way back into the Merkle tree using one or more of the relations
 in the SQL database.
@@ -315,29 +316,22 @@ you can easily find
 [/finfo/www/fossil-v-git.wiki|the complete edit history of this one document],
 or even 
 [/finfo/www/fossil-v-git.wiki?ubg|the same history color-coded by committer],
-Both questions are simple SQL query in Fossil, with procedural code
+Both come down to simple SQL queries in Fossil, with procedural code
 only being used to format the result for display.
 The same result could be obtained from Git, but because the data is
 in a key/value store, much more procedural code has to be written to
-walk the data and compute the result. And since that is a lot more
-work, the question is seldom asked.
+walk the data and compute the result.
 
 The ease of querying Fossil data using SQL means that status or
 history information about the project under management is easier
-to obtain. Being easier means that it is more likely to happen.
+to obtain, hence more likely to happen, giving its developers better
+situational awareness.
 Fossil reports tend to be more detailed and useful.
 Compare [/timeline?c=6df7a853ec16865b|this Fossil timeline] 
 to
 [https://github.com/drhsqlite/fossil-mirror/commits/master?after=f720c106d297ca1f61bccb30c5c191b88a626d01+34 |
-its closest equivalent in GitHub].  Judge for yourself: which of those
+its closest equivalent in the GitHub mirror].  Judge for yourself: which of those
 reports is more useful to a developer trying to understand what happened?
-
-The bottom line is that even though Fossil and Git are built around
-the same low-level data structure, the use of SQL
-to query this data makes the data more accessible in Fossil, resulting
-in more detailed information being available to the user.  This
-improves situational awareness and makes working on the project
-easier.
 
 <h3 id="portable">2.4 Portable</h3>
 
