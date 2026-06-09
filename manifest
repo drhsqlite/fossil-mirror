@@ -1,5 +1,5 @@
-C Fix\smisalignment\sof\sthe\sAttacher\swidget's\sadd-a-row\sbutton.
-D 2026-06-09T08:58:22.965
+C Ardoise\sskin:\sconsolidate\sthe\svarious\sflavors\sof\sbuttons.\sBlitz\sskin:\sremove\sa\sduplicted\sselector.
+D 2026-06-09T09:10:15.962
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -286,7 +286,7 @@ F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 35c559e340d6db2b8c7426f091d5e6c44e84b8b31413c04d65c774523b4a84fe
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt 993ebf5de24d419f3b9b37f0a064825a4fab11f83b24c050edb4648c25436b1a
+F skins/ardoise/css.txt 502a9853811e60ad748e1d592d832f119b49c2f3947927a8dc91ca5b476b9574
 F skins/ardoise/details.txt 576a91d4d8455fed2d25b3e06b020c000c37a61ac1d166f93697fb6e9d5a1e22
 F skins/ardoise/footer.txt 7d07eb13f6246f720fefa751df5d0424f91b2f6bf7ebe6965493e8577de593cc
 F skins/ardoise/header.txt 8b9702e244c2cffd5f97128c99c7e7c30cc0e6e14bded3fb12d49fcd5a5a5f90
@@ -329,7 +329,7 @@ F skins/black_and_white/footer.txt 0c32f13f6ad5fa409b38e0093a897d71f407ede5fb3a9
 F skins/black_and_white/header.txt 4e8685c45aa6202f7c7c92f9edc5568ce90152a0e86c21b1c93a1d507e66d4f8
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt bd2cffa46a2c362218c566d11d075d52478e419db1a4004f3f7b909d204842f0
+F skins/blitz/css.txt 3ee7e3be9b116f4ab6929373645d4da6a4979605ae3bc4a62d7c19e7fe646ba0
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e068cffcbe6558fd538699829f484dfff171d892f931c3708cdcef814c2b66ea
-R 50e020d11c529c529fd781490923444e
+P ddb40c531647b8bd9100266ecd18949321e8c0dbe7f8c56584420b6e59719883
+R a64efeaec53dae2e9fc13f416bb3c140
 U stephan
-Z 0d43b1c948953b5b5e60cf29c9702f15
+Z 3603dc5615b84bc62d4839e089c2a16c
 # Remove this line to create a well-formed Fossil manifest.
