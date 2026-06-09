@@ -846,10 +846,10 @@ operation.
 
 Fossil's implementation of the feature is also simpler to describe. The
 brief online help for <tt>[/help/merge | fossil merge]</tt> is
-currently 41 lines long, to which you want to add the 600 lines of
+currently 50 lines long, to which you want to add the ~800 lines of
 [./branching.wiki | the branching document]. The equivalent
 documentation in Git is the aggregation of the man pages for the above
-three commands, which is over 1000 lines, much of it mutually redundant.
+three commands, which is approaching 1400 lines as of this writing, much of it mutually redundant.
 (e.g.  Git's <tt>--edit</tt> and <tt>--no-commit</tt> options get
 described three times, each time differently.) Fossil's
 documentation is not only more concise, it gives a nice split of brief

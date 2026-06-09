@@ -1,5 +1,5 @@
-C Clarified\sthe\smatter\sof\sgit\sworktrees\sin\sthe\sfossil-v-git.wiki\sdoc,\nwhich\sthen\sallows\sremoval\sof\sthe\ssecond\s"disputed"\scomment.
-D 2026-06-09T10:45:02.378
+C Updated\sthe\sstats\sin\s§2.8\son\sthe\slength\sof\sthe\sdescription\sof\s`fossil\nmerge`\svs\sthe\sGit\salternatives.
+D 2026-06-09T10:56:49.207
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -850,7 +850,7 @@ F www/forum.wiki 4f90788990f08c481823ecf2ea19019001641b2f1496e2d09b6146d7b9dc58d
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
-F www/fossil-v-git.wiki b58d0ad165661926beb71c7f78c5c42597b3b34c997129f5125ddcf465d416c9
+F www/fossil-v-git.wiki cc0cb04c00540ebbf1be206f98e43b28a80dbd9fe9cbaf7e9e08c0c3664e85f8
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4146f2d04ef8208e9eb5c833ad2b538fd00d10b546ce01433829db5cd7725298
-R 67db5d5991ae02d406e26142963d798f
+P 2bfb72a63edb41df7d1667e735087caa69a912ba6358222f2e2e7abd4c7a3a2f
+R f62adf4744292f7aa3d22de7be096b3f
 U wyoung
-Z 4fc9962625059160ac6fbba0942d5143
+Z 7c4bc80807b770f9fec4c5989936540d
 # Remove this line to create a well-formed Fossil manifest.
