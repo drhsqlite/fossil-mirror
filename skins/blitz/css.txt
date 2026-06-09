@@ -298,7 +298,6 @@ input[type=button]{
 /**
  * Re-set default cursor for disabled elements.
  */
-
 button:disabled,
 input[type=button]:disabled,
 input[type=reset]:disabled,
@@ -544,7 +543,7 @@ input[type=button]:disabled,
 input[type=reset]:disabled,
 input[type=submit]:disabled{
   color: rgb(128,128,128);
-  background-color: rgb(227,227,227);
+  opacity: 80%;
 }
 
 .button:disabled:hover,
@@ -552,7 +551,7 @@ button:disabled:hover,
 input[type=button]:disabled:hover,
 input[type=reset]:disabled:hover,
 input[type=submit]:disabled:hover{
-
+  color: #222;
 }
 
 /* Forms

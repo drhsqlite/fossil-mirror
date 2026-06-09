@@ -1,5 +1,5 @@
-C Have\sthe\sforum\seditor\spreview\suse\s/ajax/preview-text\sinstead\sof\s/wikiajax/preview\sso\sthat\sit\sdoes\snot\srequire\swiki-read\spermissions\sto\suse.\sReported\sin\s[forum:87f2e5d3356beb10|forum\spost\s2026-06-08T20:14:31Z].
-D 2026-06-09T08:13:24.765
+C Blitz\sskin:\sbring\sthe\soverall\sbutton\sappearance\smore\sin\sline\swith\sthe\strunk\sbutton,\swith\sthe\sdisabled\sbuttons\sless\sglaring.
+D 2026-06-09T08:54:37.230
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -329,7 +329,7 @@ F skins/black_and_white/footer.txt 0c32f13f6ad5fa409b38e0093a897d71f407ede5fb3a9
 F skins/black_and_white/header.txt 4e8685c45aa6202f7c7c92f9edc5568ce90152a0e86c21b1c93a1d507e66d4f8
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt c0f85568e4dd2009bf3e47b6860906593db4150f5d9922a038c574e80f800882
+F skins/blitz/css.txt bd2cffa46a2c362218c566d11d075d52478e419db1a4004f3f7b909d204842f0
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 78478f45e91a527f02af9c38b10c3b09fd7b7367f2661df0ae66a992c49c86fd
-R af257984b893e55fefb1cd6f0c55403a
+P 210435c0d115e7d16c3299cd93adff30a57dc3b3a6cc3a82afa82aa0dde15e4e
+R 4d62293ecd0b5c0c32a741a495eb57cc
 U stephan
-Z c1d32ae2dc88c294f230c9a38ce81aee
+Z b4999fb19277b193087748ef555187bf
 # Remove this line to create a well-formed Fossil manifest.
