@@ -92,3 +92,9 @@ body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
 .ForumPostEditor > .buttons > label > input[type=checkbox]{
   cursor: pointer;
 }
+
+.forumTime {
+  /* Animate the transition when a ForumPostEditor shifts
+     its post to the left. */
+  transition: margin-left 0.25s ease-in-out;
+}

@@ -1,5 +1,5 @@
-C Blitz\sskin:\sremove\sthe\son-hover\scolor\schange\sfor\sdisabled\sbuttons\sinadvertently\sadded\sin\sthis\sbranch.
-D 2026-06-09T10:18:49.927
+C Slightly\sanimate\swhen\sthe\spost\seditor\sshifts\sits\spost\sto\sthe\sleft\sor\sreverts\sit,\sso\sthat\sit's\snot\sso\sjarring.
+D 2026-06-09T10:27:12.248
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -569,7 +569,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c 7d18036ac46645c368b9ff669890b300c8019fe32fbca3513f95c99d0e4a0d23
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
-F src/style.forum.css abe5009911e01baa34d920ce3033da3e4e7e3700685b6736f058155db59d71e2
+F src/style.forum.css 672e8c9a05a572011f0937cb93a3bda631463f38ffe79fcd4ae77a8e179e6867
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f12099fbe
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7f54bb7d5e9958acf0642e28902c9056d4258b1460db1c83d8f8fd94f268d64b
-R a75115a89fec03405d187f06da5d702b
+P 810b65546dc9ff4efc42d4b6e7a41e22000221dafe1ea0c65fe190d702d8bef2
+R 04a763f6dfb115024f3e64555897b362
 U stephan
-Z 542c0d402f88b52e15ce616e7ba2d09b
+Z 14af92664a8304e4d34384830ca2d2d7
 # Remove this line to create a well-formed Fossil manifest.
