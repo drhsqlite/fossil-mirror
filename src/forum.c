@@ -412,11 +412,9 @@ static void moderation_forumpost_disapprove(int fpid){
 ** parent post.
 **
 ** If addTag is true and frid is already tagged, this is a
-** no-op. Likewise, if addTag is false and frid is not tagged
-** (not accounting for an inherited closed tag), this is a no-op.
-**
-** If bCheckIrt is true then the forum post IRT hierarchy is searched
-** for the tag, otherwise only the given RID is checked.
+** no-op. Likewise, if addTag is false and frid is not tagged (not
+** accounting for a tag inherited via an in-response-to post), this is
+** a no-op.
 **
 ** Returns a positive value (a new tag.tagid value) if it actually
 ** creates a new tag, else 0. On error it returns a negative alue
@@ -467,7 +465,7 @@ static int forumpost_tag(int frid, int addTag,
   if( addTag && iTagged ){
     char *zOld = 0;
     int cmp;
-    rid_has_tag2(iTagged, zTagName, &zOld);
+    rid_has_tag2(frid, zTagName, &zOld);
     cmp = fossil_strcmp(zOld, zValue);
     fossil_free(zOld);
     if( 0==cmp ){
@@ -499,6 +497,42 @@ static int forumpost_tag(int frid, int addTag,
   fossil_free(zUuid);
   db_end_transaction(0);
   return trid;
+}
+
+/*
+** COMMAND: test-forumpost-tag
+**
+** Usage: %fossil test-forumpost-tag ?-cancel? THREADID TAGNAME TAGVAL
+**
+** A tester for forumpost_tag(). It always rolls back changes.
+*/
+void test_forumpost_tag_command(void){
+  int fpid;
+  int rc;
+  const char *zPost;
+  const char *zTag;
+  const char *zVal;
+  const int bAdd = find_option("cancel","",0)==0;
+
+  db_find_and_open_repository(0,0);
+  verify_all_options();
+  if( g.argc<5 ){
+    usage("forum-post-id tag-name value");
+  }
+  zPost = g.argv[2];
+  zTag = g.argv[3];
+  zVal = g.argv[4];
+
+  db_begin_transaction();
+  fpid = forumpost_head_rid2(zPost);
+  if( fpid<=0 ){
+    fossil_fatal("Cannot resolve post ID %s", zPost);
+  }
+  fossil_print("%s => %d => %z\n", zTag, fpid,
+               rid_to_uuid(fpid));
+  rc = forumpost_tag(fpid, bAdd, zTag, zVal);
+  fossil_print("tag fpid=%d taxgxref.tagid=%d\n", fpid, rc);
+  db_end_transaction(1);
 }
 
 /*

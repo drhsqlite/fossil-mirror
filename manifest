@@ -1,5 +1,5 @@
-C When\ssubmitting\sedits\sto\sa\spost,\sdo\snot\ssave\sa\snew\scopy\sif\snothing\smodified\sand\sinstead\salert\sthe\suser.\sRemove\sthe\sStatus\stag\swidget\sfrom\sthe\seditor\sbecause\san\sapparent\sbug\sis\scausing\sthat\stag\sto\sbe\sapplied\son\seach\ssave,\seven\sif\sit's\snot\smodified,\sand\sthat\sneeds\sto\sbe\schased\sdown.
-D 2026-06-09T18:32:48.947
+C Fix\san\sincorrect\sargument\sbug\sin\sforumpost_tag()\swhich\scaused\sit\sto\sre-apply\stags\seven\sif\sdoing\sso\swould\sreapply\sthe\ssame\svalue.\sThe\sthe\stest-forumpost-tag\scommand.\sMinor\swww/forum.wiki\stouchups.
+D 2026-06-09T19:39:03.122
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c ec5e2e4631c4bd26de75781cabb4773ef574bdf03e68792bc7a05def6e0d6b0e
+F src/forum.c 38c1520ab148edccbb7354fcb9df564a7fe979549b0204e01da1d22d6b8b2659
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.attach.js f46753bc45ca6b9bcd7f91f126551170388a6661feb8c891b1ae62024d3b2c41
 F src/fossil.bootstrap.js 2b54affdf43546829fb3a209973f03af72d8da0137f0ba27b0c5940c7d0212b8
@@ -848,7 +848,7 @@ F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
 F www/fileedit-page.md 05b5429894d86d052d647ee354d94a7b18f66e701c23a94040b2517328431260
 F www/fileformat.wiki eb2e02ea94b9f544027a66180b442a7757f791c77e33e9760c6993f2688d98e6
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
-F www/forum.wiki 4f90788990f08c481823ecf2ea19019001641b2f1496e2d09b6146d7b9dc58d6
+F www/forum.wiki 6a4e4a6b711d9046ad7a4089927101db4c669c882a3b904877ddc6a64e3d25da
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ef49e3fdc75183c36fcefb8b3a684bcb32a853e18ffa40460c7c2ae986d747ca
-R 3f62679e55ba466b2464c34f1671ecfd
+P 598d45f816991ec1fd7742ecd02d16eca2e677bd2e0931454ea6b1336349853b
+R fff646ad0b315136c795b6859b09f050
 U stephan
-Z 9e7694fe1bb6f50cde38e87dcc45a378
+Z de4818bc529459bb06d0528184671e31
 # Remove this line to create a well-formed Fossil manifest.

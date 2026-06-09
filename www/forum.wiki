@@ -476,18 +476,19 @@ Status tag rules:
 Caveat: a "closed" status is not recommended because it's easy to confuse with
 the <a href='#close-post'>"closed" tag feature</a>, which behaves considerably
 differently and predates that "status" tag support by about three years. The
-"closed" semantics cannot be trivially consolidated with those of "status".
+"closed" semantics cannot be trivially consolidated with those of "status"
+but we reserve the right to do so at some point.
 
 <h2 name="attachments">Attachments</h2>
 
-As of version 2.29 users with the [./caps/index.md|'B' capability]
-may attach files to forum posts. Files may not be attached until a
-forum post is saved for the first time, after which an "Attach" button
-will appear in the post when it is selected. Attached files undergo
+As of version 2.29 users with the [./caps/index.md|'B' capability] may
+attach files to forum posts. Files may not be attached until a forum
+post is saved for the first time, after which an "Attach" button will
+appear in the post when it is selected. Attached files undergo
 moderation exactly like forum posts do. When a moderator accepts a
 pending-moderation posts, all files attached to it which are also
 pending approval are also approved.  Similarly, when a moderator
-rejects a pending-moderation post, all files attached to it when are
+rejects a pending-moderation post, all files attached to it which are
 also pending approval are rejected.
 
 Developer notes regarding the save-before-attach limitation:
