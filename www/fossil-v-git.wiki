@@ -180,32 +180,36 @@ restrictive container, anything from [./chroot.md | classic chroot
 jails] to modern [https://en.wikipedia.org/wiki/OS-level_virtualization
 | OS-level virtualization mechanisms] such as
 [https://en.wikipedia.org/wiki/Docker_(software) | Docker].
-Our [./containers.md | stock container image] is under 8&nbsp;MB when
-uncompressed and running. It contains nothing but a single
+Our [./containers.md | stock container image] is under 11&nbsp;MB when
+uncompressed and running because it contains nothing but a single
 statically-linked binary.
 
-If you build a dynamically linked binary instead, Fossil's on-disk size
-drops to around 6&nbsp;MB, and it's dependent only on widespread
+If you build a dynamically linked binary instead, a Linux
+x86_64 build of Fossil drops to under 5&nbsp;MB on-disk, stripped.
+It will depend only on widespread
 platform libraries with stable ABIs such as glibc, zlib, and openssl.
 
-Full static linking is easier on Windows, so our precompiled Windows
-binaries are just a ZIP archive
-containing only "<tt>fossil.exe</tt>".  There is no "<tt>setup.exe</tt>"
-to run.
+Much the same is true on Windows, where our precompiled static binaries
+are distributed inside a ZIP archive containing "<tt>fossil.exe</tt>"
+and not a thing else, with a size on-par that of the Linux container
+build. There is no "<tt>setup.exe</tt>" to run; just copy it into your
+<tt>%PATH%</tt>.
 
 Fossil is easy to build from sources. Just run
 "<tt>./configure && make</tt>" on POSIX systems and
 "<tt>nmake /f Makefile.msc</tt>" on Windows.
 
-Contrast a basic installation of Git, which takes up about
-15&nbsp;MiB on Debian 10 across 230 files, not counting the contents of
-<tt>/usr/share/doc</tt> or <tt>/usr/share/locale</tt>. If you need to
-deploy to any platform where you cannot count on facilities like the POSIX
-shell, Perl interpreter, and Tcl/Tk platform needed to fully use Git
-as part of the base platform, the full footprint of a Git installation
-extends to more like 45&nbsp;MiB and thousands of files. This complicates
-several common scenarios: Git for Windows, chrooted Git servers,
-Docker images...
+Git, by contrast, takes 25&nbsp;MiB on Ubuntu 26.04 across 940 files.
+That doesn't count platform facilities like the POSIX shell and script
+interpreters its full feature set requires. A fairer comparison to
+Fossil's single static binary container is the Docker Hardened Image for
+[https://hub.docker.com/hardened-images/catalog/dhi/git |Git 2.x on
+Alpine], which presently weighs in at 36.3 megs unpacked and 607 files,
+if you count all the <tt>busybox</tt> symlinks which would otherwise be
+separate binaries on a more traditional Linux system. Worst of all are
+the "Git for Windows" packages where they end up needing to ship a large
+yet nerfed Linux-like userland to support Git's many loosely coupled
+pieces, approaching a hundred megs and thousands of files.
 
 Some say that Git more closely adheres to the Unix philosophy,
 summarized as "many small tools, loosely joined," but we have many
@@ -218,22 +222,43 @@ this.
 
 The above size comparisons aren't apples-to-apples anyway. We've
 compared the size of Fossil with all of its [#features | many built-in
-features] to a fairly minimal Git installation. You must add a lot of
-third-party software to Git to give it a Fossil-equivalent feature set.
-Consider [https://about.gitlab.com/|GitLab], a third-party extension to
-Git wrapping it in many features, making it roughly Fossil-equivalent,
-though [https://docs.gitlab.com/ee/install/requirements.html|much more
-resource hungry] and hence more costly to run than the equivalent Fossil
-setup. [https://hub.docker.com/r/gitlab/gitlab-ce/ | The official GitLab
-Community Edition container] currently clocks in at 2.66 GiB!
+features] to a relatively bare-bones Git installation. You must add a
+lot of third-party software to Git to give it a Fossil-equivalent
+feature set.
 
-GitLab's requirements are easy to accept when you're dedicating
-a local rack server or blade to it, since its minimum requirements are
-more or less a description of the smallest
-thing you could call a "server" these days, but when you go to host that
-in the cloud, you can expect to pay about 8 times as much to comfortably host
-GitLab as for Fossil.³ This difference is largely due to basic
-technology choices: Ruby and PostgreSQL vs C and SQLite.
+Consider [https://about.gitlab.com/|GitLab], which wraps Git in enough
+features to bring it to a rough (very rough) parity with Fossil. While
+it is certainly ahead in some areas — automation comes to mind — it must
+be noted that GitLab's own forums are on Discourse, not self-hosted as
+with Fossil. You may then argue that Discourse is superior to the Fossil
+forum feature, but this merely brings us back to another of Fossil's
+advantages: when the posts are part of the repo, you can migrate your
+entire project to another host merely by standing that repo back up on
+other hardware. Choosing to assemble your project hosting from multiple
+pieces requires each to have their own backups, their own management
+processes, and their own migration strategies.
+
+Even then, these disparate services do not cooperate at the same level
+as in Fossil, where the ability to have a forum post linking to a wiki
+article linking to a trouble ticket linking to a commit falls out of the
+model nearly for free. These are all internal links, mind, potentially
+using nothing but repository artifact hashes, all backed by SQLite's
+referential integrity. With something like GitLab, its "internal
+references" are tacked on after the fact, not Git repo hashes at all,
+and when it comes to external services like Discourse, history tells us
+you're storing up tech debt which will come due at some future point in
+the form of piles of broken links when one piece or the other needs
+changing out.
+
+Furthermore, GitLab is far more resource hungry even in its
+[https://docs.gitlab.com/omnibus/settings/memory_constrained_envs/ |
+minimal configuration], hence more costly to run than the equivalent
+Fossil setup.  [https://hub.docker.com/r/gitlab/gitlab-ce/ | The
+official GitLab Community Edition container] currently clocks in at
+3.44 GiB, independent of add-ons like Discourse. You can expect it to
+cost around 8× as much to host it on a cloud service.  Even pared down
+to the minimum, there remain the consequences from the difference in
+basic technology choices: Ruby and PostgreSQL vs C and SQLite.
 
 The Fossil project itself is [./selfhost.wiki|hosted on a small and
 inexpensive VPS].  A bare-bones $5/month VPS or a
@@ -328,7 +353,7 @@ etc.) There are certainly well-known platforms Fossil hasn't been ported
 to yet, but that's most likely due to lack of interest rather than
 inherent difficulties in doing the port. We believe the most stringent
 limit on its portability is that it assumes at least a 32-bit CPU and
-several megs of flat-addressed memory.⁴ Fossil isn't quite as
+several megs of flat-addressed memory.³ Fossil isn't quite as
 [https://www.sqlite.org/custombuild.html|portable as SQLite], but it's
 close.
 
@@ -346,7 +371,7 @@ UI scripting uses a custom minimal
 [https://en.wikipedia.org/wiki/Tcl|Tcl] dialect called
 [./th1.md|TH1], which is
 embedded into Fossil itself. Fossil's build system and test suite are
-largely based on Tcl.⁵ All of this is quite portable.
+largely based on Tcl.⁴ All of this is quite portable.
 
 About half of Git's code is POSIX C, and about a third is POSIX shell
 code. This is largely why the so-called "Git for Windows" distributions
@@ -355,7 +380,7 @@ code. This is largely why the so-called "Git for Windows" distributions
 [https://www.msys2.org/wiki/Home/|MSYS POSIX portability environment] bundled
 with all of the Git stuff, because it would be too painful to port Git
 natively to Windows. Git is a foreign citizen on Windows, speaking to it
-only through a translator.⁶
+only through a translator.⁵
 
 While Fossil does lean toward POSIX norms when given a choice — LF-only
 line endings are treated as first-class citizens over CR+LF, for example
@@ -446,7 +471,7 @@ development model:
      [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
      contributions]. Fossil's closest equivalents are its unique
      [/help/bundle|bundle] and [/help/patch|patch] features, which require higher engagement
-     than firing off a PR.⁷ This difference comes directly from the
+     than firing off a PR.⁶ This difference comes directly from the
      initial designed purpose for each tool: the SQLite project doesn't
      accept outside contributions from previously-unknown developers, but
      the Linux kernel does.
@@ -918,12 +943,6 @@ since [https://repology.org/project/fossil/versions | universally deployed].
     <tt>[https://sqlite.org/althttpd/|althttpd]</tt>,
     which is configured as a front end to Fossil running in CGI mode on
     these sites.
-
-    <li><p>That estimate is based on pricing at Digital Ocean in
-    mid-2019: Fossil will run just fine on the smallest instance they
-    offer, at US $5/month, but the closest match to GitLab's minimum
-    requirements among Digital Ocean's offerings currently costs
-    $40/month.
 
     <li><p>This means you can give up waiting for Fossil to be ported to
     the PDP-11, but we remain hopeful that someone may eventually port
