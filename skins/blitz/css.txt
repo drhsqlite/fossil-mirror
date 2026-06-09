@@ -1,15 +1,7 @@
 /*! normalize.css v3.0.2 | MIT License | git.io/normalize */
 
-/**
- * 1. Set default font family to sans-serif.
- * 2. Prevent iOS text size adjust after orientation change, without disabling
- *    user zoom.
- */
-
 html {
   font-family: sans-serif; /* 1 */
-  -ms-text-size-adjust: 100%; /* 2 */
-  -webkit-text-size-adjust: 100%; /* 2 */
 }
 
 /**
@@ -278,20 +270,11 @@ select {
   text-transform: none;
 }
 
-/**
- * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
- *    and `video` controls.
- * 2. Correct inability to style clickable `input` types in iOS.
- * 3. Improve usability and consistency of cursor style between image-type
- *    `input` and others.
- */
-
 button,
-input[type=button], /* 1 */
+input[type=button],
 input[type=reset],
 input[type=submit]{
-  -webkit-appearance: button; /* 2 */
-  cursor: pointer; /* 3 */
+  cursor: pointer;
 }
 
 /**
@@ -504,7 +487,9 @@ input[type=submit]{
   display: inline-block;
   height: 3.3rem;
   padding: 0 2.2rem;
-  color: #555;
+  color: white;
+  background-color: #446979;
+  border-color: #446979;
   text-align: center;
   font-size: 1.1rem;
   font-weight: 700;
@@ -513,9 +498,9 @@ input[type=submit]{
   text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
-  background-color: transparent;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  /*border: 1px solid #ccc;*/
+  border: 1px solid #446979;
   cursor: pointer;
   box-sizing: border-box;
 }
@@ -541,8 +526,7 @@ button:disabled,
 input[type=button]:disabled,
 input[type=reset]:disabled,
 input[type=submit]:disabled{
-  color: rgb(128,128,128);
-  opacity: 80%;
+  background-color: rgb(153,153,153);
 }
 
 .button:disabled:hover,

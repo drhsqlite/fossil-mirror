@@ -1,5 +1,5 @@
-C Darkmode\sskin:\smake\sdisabled\sbuttons\svery\sslightly\sless\sprominent.
-D 2026-06-09T09:12:50.318
+C Blitz\sskin:\srework\sthe\sbuttons\sto\slook\smore\slike\strunk,\sthis\stime\swith\sonly\stiny\sdifferences\sbut\sstyling\sall\sbuttons\sconsistently\sinstead\sof\ssingling-out\ssubmit\sbuttons.
+D 2026-06-09T10:05:19.276
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -329,7 +329,7 @@ F skins/black_and_white/footer.txt 0c32f13f6ad5fa409b38e0093a897d71f407ede5fb3a9
 F skins/black_and_white/header.txt 4e8685c45aa6202f7c7c92f9edc5568ce90152a0e86c21b1c93a1d507e66d4f8
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt 3ee7e3be9b116f4ab6929373645d4da6a4979605ae3bc4a62d7c19e7fe646ba0
+F skins/blitz/css.txt 099fc868c1960edc1116babb594a6513c80cf04e5c36c2ea19d5adc976e4ce57
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3d9a5cce68cc902296cabab7fe2fa0a2840fb157864365db29b4214773a0294d
-R e6ea9e87b8dd8b730b42d130b82d9b78
+P 6456e3cb3ff2d384b859b1b62c770b143b36f6b900da94ab28e41847a81673a1
+R fd18f161343b6f655dac1cdf569f023b
 U stephan
-Z 75ed3214f1ee10b0b84930c03d4d4811
+Z 7860e2a90301733303e1b112ea17b308
 # Remove this line to create a well-formed Fossil manifest.
