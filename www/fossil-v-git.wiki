@@ -525,8 +525,8 @@ at the core of social coding at GitHub]".  As of June 2026,
 [https://github.com/search?q=is:public|Github hosts 324 million distinct
 software projects], most of which were created by forking a
 previously-existing project. Since this is
-[https://evansdata.com/reports/viewRelease.php?reportID=9 | roughly
-twice the number of developers in the world], it beggars belief that
+[https://www.griddynamics.com/blog/number-software-developers-world |
+~11× the number of developers in the world], it beggars belief that
 most of these forks are still under active development.  The vast bulk
 of these must be abandoned one-off efforts. This is part of the nature
 of bazaar style development.

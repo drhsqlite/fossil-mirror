@@ -1,5 +1,5 @@
-C Updated\sGitHub\srepo\scount
-D 2026-06-09T08:39:36.104
+C Fixed\sa\sbroken\slink
+D 2026-06-09T08:42:57.978
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -850,7 +850,7 @@ F www/forum.wiki 4f90788990f08c481823ecf2ea19019001641b2f1496e2d09b6146d7b9dc58d
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
-F www/fossil-v-git.wiki a7ec8aeaa436d6be67cbf2e9d26cc8a408b4a50ba848baed132fee7f91dea51f
+F www/fossil-v-git.wiki ab422e9939ad2e66c2ac36862eb2651024e2a3090363599ee342232cdcbd6f13
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 939136a7ea44b764bcb61c4991e0c2261fb5ba5c8a5f445eb06867e2e64a516b
-R 395e7edc1848433a4b1f4a3d86852d6a
+P 765b2154097621631ed52b7a503c9322c98c2fe7979950f309d23bad4626b1b4
+R e0ed1683628c0d79197240b18396d6cf
 U tangent
-Z 3f43099f8039102a7ce294ca42503960
+Z a84a6873b9d3ed74e501c8e060f3daa7
 # Remove this line to create a well-formed Fossil manifest.
