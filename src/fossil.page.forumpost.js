@@ -43,12 +43,17 @@
 
        opt.ondiscard[=function]: if set, a Discard button is added
        which, when activated, clears the current draft and removes
-       this object's widget from the DOM. After that, opt.ondiscard()
-       is called and passed no arguments.
+       this object's widget from the DOM. After doing so,
+       opt.ondiscard() is called and passed no arguments. Exceptions
+       thrown by ondiscard() are ignored but may be logged.
 
        opt.onsubmit[=function]: if set, this function is called
-       immediately after the post has been successfully saved,
-       and passed this object.
+       immediately after the post has been successfully saved, and
+       passed this object and a JSON-format response object from the
+       save request. On a successful edit, if the artifact was
+       actually modified then submission will redirect the page to
+       /forumpost/THE_POST_ID. Exceptions thrown by onsubmit()
+       are ignored but may be logged.
 
        opt.hiddenFields: an optional list of input elements to
        incorporate into the form for requests which request the
@@ -154,6 +159,9 @@
           }
         }else{
           e.button.submit.addEventListener('click', ()=>this.#submit());
+          if( e.button.discard ){
+            e.button.submit.addEventListener('click', ()=>this.discard());
+          }
         }
         e.button.submit.setAttribute('disabled', '');
         wrapper.append(e.buttons);
@@ -251,7 +259,13 @@
       }
       e.buttons.append(e.mimetype.wrapper);
 
-      if( opt.edit
+      if( 0 /* 2026-06-09: disabling the status selection to keep
+               people from using the editor to change just that,
+               because doing so leaves us in a staet where we know
+               whether or not a Submit modifies the post, but not
+               whether or not out-of-band state like the status and
+               attachments were modified. */
+          && opt.edit
           && !opt.inReplyTo
           && F.config.forumStatuses?.length>0 ){
         /* Status selection. We probably don't _really_ want this in
@@ -374,6 +388,10 @@
 
     }/*constructor*/
 
+    /*
+    ** Removes this object from the DOM. It has no side effects if
+    ** it's not in the DOM.
+    */
     close(){
       const e = this.#e.widget;
       if( e?.parentNode ){
@@ -389,6 +407,12 @@
       }
     }
 
+    /*
+    ** Discards any draft edits then calls close(). If an ondiscard
+    ** callback was provided to the constructor then it is called
+    ** before the drafts are cleared and any exceptions it throws are
+    ** ignored (but may be logged).
+    */
     discard(){
       if( this.#opt.ondiscard instanceof Function ){
         try{this.#opt.ondiscard();}
@@ -428,7 +452,11 @@
       if( msg.length ){
         console.error('ForumPostEditor:',...msg);
         e.classList.remove('hidden');
-        e.append(...msg);
+        e.append(
+          ...msg, D.br(),
+          D.button("Clear", ()=>this.reportError())
+          /* Looks horrid in the Blitz skin */
+        );
       }else{
         e.classList.add('hidden');
       }
@@ -656,12 +684,28 @@
           if( 1 ){
             this.#clearDraft();
             if( this.#opt.onsubmit instanceof Function ){
-              try{this.#opt.onsubmit(this);}
+              try{this.#opt.onsubmit(this, j);}
               catch(e){
                 console.error("ForumPostEditor.onsubmit() threw: ", e);
               }
             }
-            window.location = F.repoUrl('forumpost/'+j.uuid);
+            /*
+              if( this.#opt.edit?.uuid === j.uuid ) then we know the
+              content did not change, but it's possible that attachments
+              and/or a status tag did. Ergo, we need to unconditionally
+              reload to render those changes (if any). The other option
+              is to tell the user "nothing changed" and leave them in
+              the editor, but that could be a lie because we don't know
+              if any attachments or tags were changed.
+            */
+            if( 0 ){
+              if( this.#opt.edit.uuid === j.uuid
+                  && !j.statusModified && 0===j.attachedCount ){
+                this.reportError("No changes made.");
+              }else{
+                window.location = F.repoUrl('forumpost/'+j.uuid);
+              }
+            }
           }else{
             this.reportError(
               "Saving worked but we're ignoring it and staying here."
@@ -898,8 +942,6 @@
       });
     }
 
-    F.user.isIndividual = ['anonymous','nobody'].indexOf(F.user.name)<0;
-
     /* Page-specific style tweaks for a ForumPostEditor instance. */
     const initFPEWidget = (ePost, fpe)=>{
       const w = fpe.widget;
@@ -930,6 +972,9 @@
         hiddenFields: eForumNew.querySelectorAll('input[type=hidden]'),
         ondiscard: ()=>{
           window.location = F.repoUrl('forum');
+        },
+        onsubmit: (fpe, artifact)=>{
+          window.location = F.repoUrl('forumpost/'+artifact.uuid);
         }
       });
       eForumNew.parentElement.insertBefore(fpe.widget, eForumNew);
@@ -976,13 +1021,13 @@
         const fpid = setupEditReplyElement(ePost, eBtnReply, eToDisable);
         const fEditHead = ePost.dataset.fedithead;
         eBtnReply.innerText = "Replying...";
-        const ondone = (fpe)=>{
+        const ondone = (fpe, response)=>{
+          /* onsubmit() and ondiscard() callback */
           restoreEditReplyElement(ePost, eBtnReply, eToDisable);
-          //console.debug("ondiscard/onsubmit", fpe, eToDisable);
-          if( fpe/*onsubmit*/ ){
-            if( fpe.widget.parentNode ){
-              fpe.widget.remove();
-            }
+          //console.debug("ondiscard/onsubmit", fpe, artifact);
+          if( response/*onsubmit*/ ){
+            window.location = F.repoUrl('forumpost/'+response.uuid);
+            fpe.close();
           }
         };
         const fpe = new F.ForumPostEditor({
@@ -1014,13 +1059,20 @@
         eBtnEdit.innerText = "Editing...";
         fetchPost(fpid)
           .then(artifact=>{
-            const ondone = (fpe)=>{
-              restoreEditReplyElement(ePost, eBtnEdit, eToDisable);
+            const ondone = (fpe, response)=>{
+              /* onsubmit() and ondiscard() callback */
               //console.debug("ondiscard/onsubmit", fpe, eToDisable);
               if( fpe/*onsubmit*/ ){
-                if( fpe.widget.parentNode ){
-                  fpe.widget.remove();
+                if( fpid === response.uuid
+                    && !response.statusModified
+                    && 0===response.attachedCount ){
+                  fpe.reportError("No changes made.");
+                }else{
+                  restoreEditReplyElement(ePost, eBtnEdit, eToDisable);
+                  window.location = F.repoUrl('forumpost/'+response.uuid);
                 }
+              }else{
+                restoreEditReplyElement(ePost, eBtnEdit, eToDisable);
               }
             };
             const eStatusSelect = ePost.querySelector(
@@ -1033,7 +1085,7 @@
               onsubmit: ondone,
               draftKey: 'draft-forumedit-'+(fEditHead || fpid).substr(0,12),
               edit: artifact,
-              status: eStatusSelect?.value,
+              //status: eStatusSelect?.value,
               inReplyTo: firt
             });
             initFPEWidget(ePost, fpe);
@@ -1043,7 +1095,7 @@
       document.body.querySelectorAll(
         '.forumpost-single-controls > form'
       ).forEach(form=>{
-        //console.debug("Checking form",form);
+        /* For each forum post... */
         const eToDisable = [];
         const eThePost = form.parentElement.parentElement;
         if( !eThePost?.dataset?.fpid ){

@@ -93,6 +93,11 @@ body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
   cursor: pointer;
 }
 
+.ForumPostEditor > .error {
+  padding: 0.5em;
+  border-radius: 0.5em;
+}
+
 .forumTime {
   /* Animate the transition when a ForumPostEditor shifts
      its post to the left. */

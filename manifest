@@ -1,5 +1,5 @@
-C Slightly\sanimate\swhen\sthe\spost\seditor\sshifts\sits\spost\sto\sthe\sleft\sor\sreverts\sit,\sso\sthat\sit's\snot\sso\sjarring.
-D 2026-06-09T10:27:12.248
+C When\ssubmitting\sedits\sto\sa\spost,\sdo\snot\ssave\sa\snew\scopy\sif\snothing\smodified\sand\sinstead\salert\sthe\suser.\sRemove\sthe\sStatus\stag\swidget\sfrom\sthe\seditor\sbecause\san\sapparent\sbug\sis\scausing\sthat\stag\sto\sbe\sapplied\son\seach\ssave,\seven\sif\sit's\snot\smodified,\sand\sthat\sneeds\sto\sbe\schased\sdown.
+D 2026-06-09T18:32:48.947
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c a9c23251ea9aa740bd3cf2aa73536495b7a70acf024493a56582b4eca6ad22d9
+F src/forum.c ec5e2e4631c4bd26de75781cabb4773ef574bdf03e68792bc7a05def6e0d6b0e
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.attach.js f46753bc45ca6b9bcd7f91f126551170388a6661feb8c891b1ae62024d3b2c41
 F src/fossil.bootstrap.js 2b54affdf43546829fb3a209973f03af72d8da0137f0ba27b0c5940c7d0212b8
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js 244e58959061e3f193b83fc4d14d953d1cba540c29f638056b6d035bd961cbce
+F src/fossil.page.forumpost.js 4eeb957244ecb6856388050c32f518f1df245ed79c18936420868c572af99036
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -569,7 +569,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c 7d18036ac46645c368b9ff669890b300c8019fe32fbca3513f95c99d0e4a0d23
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
-F src/style.forum.css 672e8c9a05a572011f0937cb93a3bda631463f38ffe79fcd4ae77a8e179e6867
+F src/style.forum.css d4715bcb5dc8133c05944cbe8ba487f894ff12a3d785be43405bae37c1f115ce
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f12099fbe
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 810b65546dc9ff4efc42d4b6e7a41e22000221dafe1ea0c65fe190d702d8bef2
-R 04a763f6dfb115024f3e64555897b362
+P ef49e3fdc75183c36fcefb8b3a684bcb32a853e18ffa40460c7c2ae986d747ca
+R 3f62679e55ba466b2464c34f1671ecfd
 U stephan
-Z 14af92664a8304e4d34384830ca2d2d7
+Z 9e7694fe1bb6f50cde38e87dcc45a378
 # Remove this line to create a well-formed Fossil manifest.

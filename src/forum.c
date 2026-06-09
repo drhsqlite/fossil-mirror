@@ -904,7 +904,8 @@ static void forum_render_status_selection( const ForumPost *fp ){
     @ <legend>Status \
     @ <span class='help-buttonlet initially-hidden'>\
     @ Moderators and the post's owner may change \
-    @ the status of this thread. See \
+    @ the status of this thread unless it is still. \
+    @ pending moderation. See \
     @ <a href='%R/help/forum-statuses' target='_new'>\
     @ /help/forum-statuses</a></span>\
     @ </legend>\
@@ -2822,6 +2823,12 @@ void forum_main_page(void){
 ** this call returns <=0, noting that only the negative-value case is
 ** an error.
 **
+** This function does some work to try to ensure that duplicate
+** entries are not save (this can happen as a side effect of the forum
+** post editor added in 2026-06). If the given post will not have been
+** materially edited by these changes, they are not applied and the
+** rid of the existing entry is used.
+**
 ** Maintenance reminders:
 **
 ** - iInReplyTo==0 && iEdit==0: new thread
@@ -2840,6 +2847,7 @@ static int forum_post_ajax(
 ){
   char *zI;
   char *zG;
+  char *zP = 0;
   int iBasis;
   Blob x = BLOB_INITIALIZER,
     cksum = BLOB_INITIALIZER,
@@ -2887,8 +2895,60 @@ static int forum_post_ajax(
     ** reparenting the new edit and having unrepredictable downstream
     ** side effects. */
   }
+
+  if( 0!=zMimetype && 0==zMimetype[0] ){
+    zMimetype = 0;
+  }
+
   if( 0!=zTitle && 0==zTitle[0] ) zTitle = 0;
   webpage_assert( (zTitle==0)+(iInReplyTo==0)==1 );
+
+  if( iEdit>0 ){
+    int cmp;
+    pPost = manifest_get(iEdit, CFTYPE_FORUM, 0);
+    if( pPost==0 ){
+      rc = -ajax_route_error(404, "Missing edit artifact %d", iEdit);
+      goto post_ajax_end;
+    }
+    /*
+    ** If the old content matches the new then do not save a new copy.
+    ** It's easy to get re-posts of unedited content via the forum
+    ** editor, especially since the one added in 2026-06, where a
+    ** post's status and attachments may be amended from the editor
+    ** without modifying any of the post's content. In the legacy
+    ** editor such "out-of-band" changes weren't possible and users
+    ** have never made a practice of re-posting unedited content.
+    **
+    ** We compare the following fields to the original: user, mimetype,
+    ** content, and (for root posts only) the title.
+    */
+    cmp = (0==pPost->zInReplyTo)
+      ? fossil_strcmp(pPost->zThreadTitle, zTitle)
+      : 0;
+    if( 0==cmp ){
+      cmp=fossil_strcmp(pPost->zWiki, zContent);
+      if( 0==cmp ){
+        cmp = fossil_strcmp(pPost->zUser, zUser);
+      }
+      if( 0==cmp
+          && 0!=(cmp=fossil_strcmp(pPost->zMimetype, zMimetype)) ){
+        /* Extra mimetype checks for a common condition seen elsewhere */
+        if( (0==zMimetype
+             && 0==fossil_strcmp(pPost->zMimetype, "text/x-fossil-wiki"))
+            || (0==pPost->zMimetype
+                && 0==fossil_strcmp(zMimetype, "text/x-fossil-wiki")) ){
+          cmp = 0;
+        }
+      }
+      if( 0==cmp ){
+        rc = iEdit;
+        goto post_ajax_end;
+      }
+    }
+    zP = rid_to_uuid(iEdit);
+  }
+
+  /* Write the new artifact */
   blob_init(&x, 0, 0);
   blob_appendf(&x, "D %z\n", date_in_standard_format("now"));
   zG = db_text(
@@ -2914,17 +2974,11 @@ static int forum_post_ajax(
     blob_appendf(&x, "I %z\n", zI);
   }
   if( zMimetype!=0
-      && zMimetype[0]!=0
       && fossil_strcmp(zMimetype,"text/x-fossil-wiki")!=0 ){
     blob_appendf(&x, "N %F\n", zMimetype);
   }
-  if( iEdit>0 ){
-    char *zP = rid_to_uuid(iEdit);
-    if( zP==0 ){
-      rc = -ajax_route_error(404, "Missing edit artifact %d", iEdit);
-      goto post_ajax_end;
-    }
-    blob_appendf(&x, "P %z\n", zP);
+  if( zP ){
+    blob_appendf(&x, "P %s\n", zP);
   }
 
   blob_appendf(&x, "U %F\n", zUser);
@@ -2960,6 +3014,7 @@ static int forum_post_ajax(
   }
 post_ajax_end:
   manifest_destroy(pPost);
+  fossil_free(zP);
   blob_reset(&x);
   blob_reset(&cksum);
   blob_reset(&formatCheck);
@@ -2990,6 +3045,8 @@ void forum_ajax_save_page(void){
   int nrid = 0;        /* New artifact rid. */
   int iPostFlags;      /* forum_post_flags() (after perms check) */
   int bRollback;       /* True = roll back. */
+  int nAttach = 0;     /* Number of attachments added */
+  int bStatusSet = 0;  /* True if status tag set. */
 
   if( !ajax_route_bootstrap(0, 1) ){
     return;
@@ -3080,15 +3137,14 @@ void forum_ajax_save_page(void){
         goto ajax_save_end;
       }else{
         char *zRoot = (nrid==fpHead) ? 0 : rid_to_uuid(fpHead);
-        const int atRc =
-          attachments_ajax_from_POST(zRoot ? zRoot : zNewUuid,
-                                     bNeedsModeration);
+        nAttach = attachments_ajax_from_POST(zRoot ? zRoot : zNewUuid,
+                                             bNeedsModeration);
         fossil_free(zRoot);
-        if( atRc<0 ){
-          rc = atRc;
+        if( nAttach<0 ){
+          rc = nAttach;
           goto ajax_save_end;
         }
-        if( atRc>0
+        if( nAttach>0
             && (iPostFlags & FPOST_NO_ALERT)!=0
             && db_table_exists("repository","pending_alert") ){
           /* Unqueue any alerts for these attachments. Recall that
@@ -3115,7 +3171,7 @@ void forum_ajax_save_page(void){
         ** will become a phantom if it is rejected by a moderator. */
         && zStatus!=0 && zStatus[0]!=0
         && forum_may_set_status(nrid)
-        && forumpost_tag(nrid, 1, "status", zStatus)<0 ){
+        && (bStatusSet=forumpost_tag(nrid, 1, "status", zStatus))<0 ){
       rc = -ajax_route_error(500, "Tagging failed: %s", g.zErrMsg);
       goto ajax_save_end;
     }
@@ -3123,8 +3179,11 @@ void forum_ajax_save_page(void){
 
   assert( 0==rc );
   assert( zNewUuid );
-  CX("{\"uuid\": %!j, \"dryrun\": %s, \"iPostFlags\":%d}\n",
-     zNewUuid, bRollback ? "true" : "false", iPostFlags);
+  CX("{\"uuid\": %!j, \"attachedCount\": %d, "
+     "\"statusModified\": %d, "
+     "\"dryrun\": %s, \"iPostFlags\":%d}\n",
+     zNewUuid, nAttach,
+     bStatusSet, bRollback ? "true" : "false", iPostFlags);
 
 ajax_save_end:
   manifest_destroy(pPost);
