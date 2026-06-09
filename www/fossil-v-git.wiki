@@ -631,16 +631,24 @@ the disturbance from switching branches is small, and to use multiple
 checkouts when you have long-lived working branches that are different
 enough that switching in place is disruptive.
 
-While you can [./gitusers.md#worktree | use Git in the Fossil style],
-Git's default tie between working directory and
-repository means the standard method for working with a Git repo is to
-have one working directory only. Most Git tutorials teach this style, so
-it is how most people learn to use Git. Because relatively few people
-use Git with multiple working directories per repository, there are
+While you can [./gitusers.md#worktree | use Git in the Fossil style] via
+its worktree feature, tutorials continue to teach the style of having
+one working directory only. Git can even fight you on this, as when
+working with a forked repository; it is best to have independent clones
+of the upstream and your fork, to allow separate "remote" lists and
+such. This can result in two working directories but each having a
+captive repo clone each, which isn't in the spirit of <tt>git
+worktree</tt> at all. Yet, it beats the alternative, which then
+highlights a gap in the model of diverging and re-converging forks.
+Ideally, Git would let you create one of these forks as a worktree while
+maintaining a strong separation between your fork and the upstream repo,
+but it ends up being too much hassle to bother with.
+
+There are
 [https://duckduckgo.com/?q=git+worktree+problem | several known
-problems] with that way of working, problems which don't happen in Fossil because of
-the clear [./ckout-workflows.md | separation] between a Fossil repository and
-each working directory.
+problems] with the single worktree style, ones which don't happen in
+Fossil because of the clear [./ckout-workflows.md | separation] between
+a Fossil repository and each working directory.
 
 This distinction matters because switching branches inside a single working directory loses local context
 on each switch.
@@ -676,9 +684,6 @@ own local state — makes switching versions cheap and fast.
 Plus,
 <tt>cd</tt> is faster to type than <tt>git checkout</tt> or <tt>fossil
 update</tt>.
-
-Parts of this section are [https://fossil-scm.org/forum/forumpost/5961e969fa|disputed]
-by [https://github.com/olorin37|Jakub A. G.].
 
 <h3 id="history">2.7 What you should have done vs. What you actually did</h3>
 
