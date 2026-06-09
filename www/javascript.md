@@ -68,7 +68,7 @@ ones we’ve heard before and give our stock answers to them here:
     Atop that, Fossil sends HTTP headers to the browser that allow it
     to perform aggressive caching so that typical page loads will skip
     re-loading this content on subsequent loads. These features are
-    currently optional: you must either set the new
+    currently optional: you must either set the
     [`fossil server --jsmode bundle` option][fsrv] or the corresponding
     `jsmode` control line
     in your [`fossil cgi`][fcgi] script when setting up your
