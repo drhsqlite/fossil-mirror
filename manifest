@@ -1,5 +1,5 @@
-C Fix\san\sincorrect\sargument\sbug\sin\sforumpost_tag()\swhich\scaused\sit\sto\sre-apply\stags\seven\sif\sdoing\sso\swould\sreapply\sthe\ssame\svalue.\sThe\sthe\stest-forumpost-tag\scommand.\sMinor\swww/forum.wiki\stouchups.
-D 2026-06-09T19:39:03.122
+C Re-enable\sthe\sforum\spost\sstatus\sselection\sin\sthe\seditor\ssince\sthe\sprevious\scheck-in\smade\sit\ssafe\sto\suse,\sin\sthat\schanging\sonly\sthe\sstatus\sfrom\sthe\seditor\swill\sno\slonger\screate\sa\snew\scopy\sof\san\sotherwise\sunedited\spost.
+D 2026-06-09T19:59:36.656
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js 4eeb957244ecb6856388050c32f518f1df245ed79c18936420868c572af99036
+F src/fossil.page.forumpost.js b316cc091fb6d77a8ed7ee35cdc343a1721b935378b7823aab36922c18c03ae4
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 598d45f816991ec1fd7742ecd02d16eca2e677bd2e0931454ea6b1336349853b
-R fff646ad0b315136c795b6859b09f050
+P ab52bc833121dcc1e7d58a5f7bb2d600307cf942b8fc02df11349198b27cce06
+R bcfbf35c54c2e8491ce5b6dd2fa2ba9f
 U stephan
-Z de4818bc529459bb06d0528184671e31
+Z c5c135cecf2e23762a76d47b2392661f
 # Remove this line to create a well-formed Fossil manifest.

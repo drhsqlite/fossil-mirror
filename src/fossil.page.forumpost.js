@@ -39,7 +39,8 @@
        opt.draftKey[string=undefined]: if set then this object's state
        will be stored in fossil.storage when the relevant input fields
        lose focus. If old state is found, the form is pre-populated
-       from it.  The state is cleared on a successful submit.
+       from it. The state is cleared on a discard() or successful
+       submit.
 
        opt.ondiscard[=function]: if set, a Discard button is added
        which, when activated, clears the current draft and removes
@@ -50,10 +51,8 @@
        opt.onsubmit[=function]: if set, this function is called
        immediately after the post has been successfully saved, and
        passed this object and a JSON-format response object from the
-       save request. On a successful edit, if the artifact was
-       actually modified then submission will redirect the page to
-       /forumpost/THE_POST_ID. Exceptions thrown by onsubmit()
-       are ignored but may be logged.
+       save request. It is generally then up to the caller to close()
+       this object and/or redirect to /forumpost/${arguments[1].uuid}.
 
        opt.hiddenFields: an optional list of input elements to
        incorporate into the form for requests which request the
@@ -259,20 +258,9 @@
       }
       e.buttons.append(e.mimetype.wrapper);
 
-      if( 0 /* 2026-06-09: disabling the status selection to keep
-               people from using the editor to change just that,
-               because doing so leaves us in a staet where we know
-               whether or not a Submit modifies the post, but not
-               whether or not out-of-band state like the status and
-               attachments were modified. */
-          && opt.edit
+      if( opt.edit
           && !opt.inReplyTo
           && F.config.forumStatuses?.length>0 ){
-        /* Status selection. We probably don't _really_ want this in
-           the editor because people will open the editor, change the
-           status, and tap submit, resulting in a whole new, unedited
-           copy of the post, differing only in the new 'status' tag
-           added to it. */
         const sel = e.status = D.select();
         D.option(sel, "", "- Status -").disabled = true;
         for( const status of F.config.forumStatuses ){
@@ -698,7 +686,7 @@
               the editor, but that could be a lie because we don't know
               if any attachments or tags were changed.
             */
-            if( 0 ){
+            else if( 0 ){
               if( this.#opt.edit.uuid === j.uuid
                   && !j.statusModified && 0===j.attachedCount ){
                 this.reportError("No changes made.");
@@ -973,8 +961,8 @@
         ondiscard: ()=>{
           window.location = F.repoUrl('forum');
         },
-        onsubmit: (fpe, artifact)=>{
-          window.location = F.repoUrl('forumpost/'+artifact.uuid);
+        onsubmit: (fpe, response)=>{
+          window.location = F.repoUrl('forumpost/'+response.uuid);
         }
       });
       eForumNew.parentElement.insertBefore(fpe.widget, eForumNew);
@@ -1085,7 +1073,7 @@
               onsubmit: ondone,
               draftKey: 'draft-forumedit-'+(fEditHead || fpid).substr(0,12),
               edit: artifact,
-              //status: eStatusSelect?.value,
+              status: eStatusSelect?.value,
               inReplyTo: firt
             });
             initFPEWidget(ePost, fpe);
@@ -1096,15 +1084,20 @@
         '.forumpost-single-controls > form'
       ).forEach(form=>{
         /* For each forum post... */
-        const eToDisable = [];
-        const eThePost = form.parentElement.parentElement;
+        const eToDisable = [
+          /* List of non-editor DOM elements which need to be disabled
+             when the editor is active. */
+        ];
+        const eThePost = form.parentElement.parentElement/*main post DOM element*/;
         if( !eThePost?.dataset?.fpid ){
+          /* The server injects these. */
           console.warn("Unexpected missing fpid", eThePost);
           return;
         }
+        /* Replace the Reply and Edit buttons with ones which will activate
+           a ForumPostEditor. */
         const btnReply = form.querySelector('input[type=submit][name=reply]');
         if( btnReply ){
-          //console.debug("hacking Reply button", btnReply);
           const b = D.button("Reply", ()=>replyClicked(form, eThePost, b, eToDisable));
           b.type = 'button'/*keep container form from submitting*/;
           eToDisable.push(b);
