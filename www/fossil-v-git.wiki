@@ -556,7 +556,7 @@ SQLite: there are thousands and thousands of contributors to Linux, most
 of whom do not know each other's names. These thousands are responsible
 for producing roughly 73× more code than is in SQLite. (32.0
 [https://en.wikipedia.org/wiki/Source_lines_of_code|MLOC] vs. 0.44 MLOC
-according to [https://github.com/boyter/scc | scc.) The Linux
+according to [https://github.com/boyter/scc | scc].) The Linux
 kernel and its development process were already uncommonly large back in
 2005 when Git was designed, specifically to support the consequences of
 having such a large set of developers working on such a large code base.
