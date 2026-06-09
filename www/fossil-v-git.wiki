@@ -587,7 +587,7 @@ the DAG, whereas Fossil puts more emphasis on the entire DAG.
 
 While a common usage pattern in Git is to only synchronize
 a single branch — <tt>git pull upstream feature/branch</tt> — instead
-of all refs Fossil does not give you a choice; it
+of all refs, Fossil does not give you a choice; it
 syncs the entire DAG or nothing.  Git commands,
 GitHub, and GitLab tend to show only a single branch at
 a time, whereas Fossil usually shows all parallel branches at
@@ -598,7 +598,7 @@ undergoing active development in parallel for a few days or weeks, then
 merging back into the main line and disappearing.
 
 This difference in emphasis arises from the different purposes of
-the two systems.  Git focuses on individual branches, because that
+the two systems.  Git's focus on individual branches
 is exactly what you want for a highly-distributed bazaar-style project
 such as Linux.  Linus Torvalds does not want to see every check-in
 by every contributor to Linux: such extreme visibility does not scale

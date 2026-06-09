@@ -1,5 +1,5 @@
-C Better\sexample\sof\sGit\sfocusing\son\ssingle-branch\ssyncing,\sallowing\nremoval\sof\sthe\s"dispute"\scommentary.
-D 2026-06-09T10:13:48.482
+C Clarity\stweaks\sto\s§2.5.3\sof\sprevious
+D 2026-06-09T10:28:56.383
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -850,7 +850,7 @@ F www/forum.wiki 4f90788990f08c481823ecf2ea19019001641b2f1496e2d09b6146d7b9dc58d
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
-F www/fossil-v-git.wiki 32b80bad88632cf8dd471a498351a7e4aade6d49388d87ba1004736cf820324b
+F www/fossil-v-git.wiki b933a204f4b450fde2ac988eb3dedf90aa8a5477be43d5a9be9c15681d0ef272
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e4beb0be58a66dfd0ecdde4e2bd4ed3a4f4b6040e0caa62f9d9a54a8cae8cd64
-R 0650b99aaddeeaf1e61530f7986ee4bb
+P 03f2393dae86661dea368dffc2c30bf48f2542337d2b31a6fa8ac52ce633ad26
+R 495349a7a43997b0c40a8768b265bfb1
 U wyoung
-Z 6c1b222bb24617732c11617a63d91666
+Z afb0911ff6cb676d65b256128b215a8e
 # Remove this line to create a well-formed Fossil manifest.
