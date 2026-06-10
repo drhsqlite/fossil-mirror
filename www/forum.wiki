@@ -536,6 +536,18 @@ are available, it uses a transient storage object which is recreated
 on each page-load, so it cannot store drafts outside of a single
 thread at a time.
 
+Beware: Each draft is keyed to the post it is editing or replied to,
+which means that editing or replying to the same post from different
+tabs will cause collisions. The editor to most recently lose the focus
+will save the draft, overwriting the other.
+
+In browsers which support Web Locks, attempts to edit resp. reply to a
+post which is already being edited resp. replied to in another tab
+will show an error for the second and subsequent tabs.  The first tab
+to use the edit/reply buttons will hold a separate Web Lock for each
+and forbid edit/reply access to the post in other tabs until the
+locking tab is closed.
+
 
 <h2 name="padding">Curious Extra Page Padding</h2>
 
@@ -547,8 +559,3 @@ especially helpful when working on posts while the bottom footer of
 the page is in the viewport, as the footer is a hard boundary against
 scrolling. With the extra padding, the editor widget's top edge shifts
 around less when the preview is shown and hidden.
-
-Beware: Each draft is keyed to the post it is editing or replied to,
-which means that editing or replying to the same post from different
-tabs will cause collisions. The editor to most recently lose the focus
-will save the draft, overwriting the other.

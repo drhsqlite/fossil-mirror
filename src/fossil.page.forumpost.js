@@ -74,6 +74,11 @@
        save request. It is generally then up to the caller to close()
        this object and/or redirect to /forumpost/${arguments[1].uuid}.
 
+       opt.onclose[=function]: like opt.onsubmit, this function is
+       called when this.close() is called, and passed no arguments.
+       onclose() is called before the widget is removed from the dom
+       and _does not_ fire if it is not in the DOM.
+
        opt.hiddenFields: an optional list of input elements to
        incorporate into the form for requests which request the
        preview or save the post.
@@ -518,14 +523,15 @@
         "WARNING: draft edits are keyed on the ID of the message they ",
         "are editing or responding to. Attempting to edit or reply to ",
         "the same post from multiple tabs will cause the most-recently-edited ",
-        "one to overwrite the draft slot for that post."
+        "one to overwrite the draft slot for that post. In browsers which support ",
+        "Web Locks, a second attempt to edit or reply to a post will be blocked ",
+        "and an error will be shown explaning the problme."
       );
       if( this.#e.status ){
         D.append(
           D.li(list),
-          "Tip: to change just the status, use the widget which appears in ",
-          "the post, not the editor. That will save only a single tag instead of ",
-          "a new edit of the post."
+          "Tip: changing just the status in the editor will change only that, ",
+          "not a whole new (but unedited) copy of the post."
         );
       }
       eh.append(list);
@@ -1066,9 +1072,64 @@
         D.enable(eToDisable);
       };
 
-      const replyClicked = (form, ePost, eBtnReply, eToDisable)=>{
-        const fpid = setupEditReplyElement(ePost, eBtnReply, eToDisable);
+      /**
+         Reports an error regarding the forum post element
+         ePost, appending each entry in msg to a wrapper
+         element with the class
+      */
+      const reportFPEError = (ePost,...msg)=>{
+        const e = D.addClass(D.p(), 'error');
+        e.append(
+          ...msg,
+          D.br(),
+          D.button("Clear error", ()=>e.remove())
+        );
+        ePost.append(e);
+      };
+
+      const replyClicked = async (form, ePost, eBtnReply, eToDisable)=>{
+        const fpid = ePost.dataset.fpid;
         const fEditHead = ePost.dataset.fedithead;
+        const draftKey = makeDraftKey(
+          'draft-reply', fEditHead
+          /* The problem with firt as a key is that firt is not
+             necessarily the root edit of that post, which is
+             what we really want as a draft key so that the
+             draft does not disapper if firt is later edited
+             (giving us a new firt value here). */
+            || fpid
+        );
+        const lockName = 'fossil-'+draftKey;
+        let releaseLock;
+
+        if( window.navigator.locks ){
+          releaseLock = await new Promise((resolve)=>{
+            window.navigator.locks.request(
+              lockName, { ifAvailable: true }, async (lock) => {
+                if( !lock ){
+                  /*lock contention*/
+                  resolve(null);
+                  return;
+                }
+                let release;
+                const lockReleased = new Promise(res=>release=res);
+                resolve(release);
+                await lockReleased/*hold the lock open*/;
+              });
+          });
+          if( !releaseLock ){
+            reportFPEError(
+              ePost,
+              "This post is actively being replied to ",
+              "in another tab. To avoid losing edits, ",
+              "it cannot be opened here until the locking ",
+              "tab is closed."
+            );
+            return;
+          }
+        }
+
+        setupEditReplyElement(ePost, eBtnReply, eToDisable);
         eBtnReply.innerText = "Replying...";
         const ondone = (fpe, response)=>{
           /* onsubmit() and ondiscard() callback */
@@ -1088,23 +1149,51 @@
           ),
           ondiscard: ondone,
           onsubmit: ondone,
+          onclose: ()=>{
+            if( releaseLock ){
+              releaseLock();
+              releaseLock = null;
+            }
+          },
           inReplyTo: fpid,
-          draftKey: makeDraftKey('draft-reply', fEditHead
-            /* The problem with firt as a key is that firt is not
-               necessarily the root edit of that post, which is
-               what we really want as a draft key so that the
-               draft does not disapper if firt is later edited
-               (giving us a new firt value here). */
-              || fpid
-          )
+          draftKey
         });
         initFPEWidget(ePost, fpe);
       }/*replyClicked()*/;
 
-      const editClicked = (form, ePost, eBtnEdit, eToDisable)=>{
-        const fpid = setupEditReplyElement(ePost, eBtnEdit, eToDisable);
+      const editClicked = async (form, ePost, eBtnEdit, eToDisable)=>{
+        const fpid = ePost.dataset.fpid;
         const firt = ePost.dataset.firt;
         const fEditHead = ePost.dataset.fedithead;
+        const draftKey = makeDraftKey('draft-forumedit', fEditHead || fpid);
+        const lockName = 'fossil-'+draftKey;
+        let releaseLock;
+        if( navigator.locks ){
+          releaseLock = await new Promise((resolve) => {
+            navigator.locks.request(lockName, {ifAvailable: true}, async (lock)=>{
+              if( !lock ){
+                resolve(null);
+                return;
+              }
+              let release;
+              const lockReleased = new Promise(res=>release=res);
+              resolve(release);
+              await lockReleased;
+            });
+          });
+
+          if( !releaseLock ){
+            reportFPEError(
+              ePost,
+              "This post is actively being edited ",
+              "in another tab. To avoid losing edits, ",
+              "it cannot be opened here until the locking ",
+              "tab is closed."
+            );
+            return;
+          }
+        }
+        setupEditReplyElement(ePost, eBtnEdit, eToDisable);
         eBtnEdit.innerText = "Editing...";
         fetchPost(fpid)
           .then(artifact=>{
@@ -1133,12 +1222,27 @@
               hiddenFields: form.querySelectorAll('input[type=hidden]'),
               ondiscard: ondone,
               onsubmit: ondone,
-              draftKey: makeDraftKey('draft-forumedit', fEditHead || fpid),
+              onclose: ()=>{
+                if(releaseLock){
+                  releaseLock();
+                  releaseLock = null;
+                }
+              },
+              draftKey,
               edit: artifact,
               status: eStatusSelect?.value,
               inReplyTo: firt
             });
             initFPEWidget(ePost, fpe);
+          })
+          .catch(err=>{
+            if( releaseLock ){
+              releaseLock();
+              releaseLock = null;
+            }
+            restoreEditReplyElement(ePost, eBtnEdit, eToDisable);
+            console.error("Error fetching post:", err);
+            reportFPEError(ePost, "Error fetching post: ", err.message);
           });
       }/*editClicked()*/;
 
