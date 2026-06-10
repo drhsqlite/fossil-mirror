@@ -1,5 +1,5 @@
-C Increase\sthe\sdummy\spadding\safter\ssome\stesting\sshowed\sit\sto\shelp\swhen\sadding\smultiple\sattachments\sto\sa\sbottom-most\spost.
-D 2026-06-10T08:48:02.361
+C An\san\sexplanation\sof\sthe\sextra\sbody\spadding\sto\swww/forum.wiki\sso\sthat\swe\sdon't\slater\smistake\sit\sfor\sa\sbug.
+D 2026-06-10T09:02:14.403
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -848,7 +848,7 @@ F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
 F www/fileedit-page.md 05b5429894d86d052d647ee354d94a7b18f66e701c23a94040b2517328431260
 F www/fileformat.wiki eb2e02ea94b9f544027a66180b442a7757f791c77e33e9760c6993f2688d98e6
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
-F www/forum.wiki 68e606eb829b0cc2ee8768d9939b1463959274d0a1de05f9984dedcbd540c42e
+F www/forum.wiki bac95c7ea45d0ff022201c73fa7bfce332c71773b45c214ad331fc80b4f24c55
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6f86204fe2639ab9709571154b49b28f591d43fb260b4cec92cf5653f087de3
-R 66912a1641acd03c759a8829db91537d
+P 6bcfdf15f7130590fa0103ba74f07cced43ce4770f5d09ddc0345796b993a485
+R 23160cf308f42e32517e8c5b7547a851
 U stephan
-Z 18e935cf6a981a5e29d7358d114f85cf
+Z aa15f7cf1611e093aee8342c0cdbf651
 # Remove this line to create a well-formed Fossil manifest.

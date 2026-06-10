@@ -535,3 +535,15 @@ If neither <code>localStorage</code> nor <code>sessionStorage</code>
 are available, it uses a transient storage object which is recreated
 on each page-load, so it cannot store drafts outside of a single
 thread at a time.
+
+
+<h2 name="padding">Curious Extra Page Padding</h2>
+
+Users may notice that the forum pages get a bunch of padding added to
+the bottom of the page when an editor widget is opened.  This is not a
+bug, but a workaround to help avoid the UI jumping around when
+rendering a preview wildly resizes the widget. The effect is
+especially helpful when working on posts while the bottom footer of
+the page is in the viewport, as the footer is a hard boundary against
+scrolling. With the extra padding, the editor widget's top edge shifts
+around less when the preview is shown and hidden.
