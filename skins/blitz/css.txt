@@ -529,7 +529,12 @@ input[type=submit]:disabled{
   background-color: rgb(153,153,153);
 }
 
-.content a.button { color: white; }
+.content a.button,
+.submenu a.button,
+.submenu a.button:visited {
+    color: white;
+}
+
 
 /* Forms
 ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
