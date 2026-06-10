@@ -188,16 +188,25 @@ static unsigned int getInt(const char **pz, int *pLen){
     25, 26, 27, 28, 29, 30, 31, 32,   33, 34, 35, -1, -1, -1, -1, 36,
     -1, 37, 38, 39, 40, 41, 42, 43,   44, 45, 46, 47, 48, 49, 50, 51,
     52, 53, 54, 55, 56, 57, 58, 59,   60, 61, 62, -1, -1, -1, 63, -1,
+
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
   };
   unsigned int v = 0;
   int c;
   unsigned char *z = (unsigned char*)*pz;
-  unsigned char *zStart = z;
-  while( (c = zValue[0x7f&*(z++)])>=0 ){
-     v = (v<<6) + c;
+  unsigned char *zEnd = z + (*pLen);
+  while( z<zEnd && (c = zValue[*z])>=0 ){
+    v = (v<<6) + c;
+    z++;
   }
-  z--;
-  *pLen -= z - zStart;
+  *pLen -= (int)(z - (unsigned char*)*pz);
   *pz = (char*)z;
   return v;
 }
@@ -539,7 +548,7 @@ int delta_create(
 int delta_output_size(const char *zDelta, int lenDelta){
   int size;
   size = getInt(&zDelta, &lenDelta);
-  if( *zDelta!='\n' ){
+  if( lenDelta<=0 || *zDelta!='\n' ){
     /* ERROR: size integer not terminated by "\n" */
     return -1;
   }
@@ -576,24 +585,26 @@ int delta_apply(
 ){
   sqlite3_uint64 limit;
   sqlite3_uint64 total = 0;
+
 #ifdef FOSSIL_ENABLE_DELTA_CKSUM_TEST
   char *zOrigOut = zOut;
 #endif
 
   limit = getInt(&zDelta, &lenDelta);
-  if( *zDelta!='\n' ){
+  if( lenDelta<=0 || *zDelta!='\n' ){
     /* ERROR: size integer not terminated by "\n" */
     return -1;
   }
-  zDelta++; lenDelta--;
-  while( *zDelta && lenDelta>0 ){
+  zDelta++; lenDelta--;  /* Skip the \n */
+  while( lenDelta>0 && zDelta[0] ){
     unsigned int cnt, ofst;
     cnt = getInt(&zDelta, &lenDelta);
+    if( lenDelta<=0 ) break;
     switch( zDelta[0] ){
       case '@': {
         zDelta++; lenDelta--;
         ofst = getInt(&zDelta, &lenDelta);
-        if( lenDelta>0 && zDelta[0]!=',' ){
+        if( lenDelta<=0 || zDelta[0]!=',' ){
           /* ERROR: copy command not terminated by ',' */
           return -1;
         }
@@ -620,7 +631,7 @@ int delta_apply(
           return -1;
         }
         DEBUG1( printf("INSERT %d\n", cnt); )
-        if( (int)cnt>lenDelta ){
+        if( (i64)cnt>(i64)lenDelta ){
           /* ERROR: insert count exceeds size of delta */
           return -1;
         }
@@ -670,7 +681,7 @@ int delta_analyze(
   unsigned int nCopy = 0;
 
   (void)getInt(&zDelta, &lenDelta);
-  if( *zDelta!='\n' ){
+  if( lenDelta<=0 || *zDelta!='\n' ){
     /* ERROR: size integer not terminated by "\n" */
     return -1;
   }
@@ -678,11 +689,12 @@ int delta_analyze(
   while( *zDelta && lenDelta>0 ){
     unsigned int cnt;
     cnt = getInt(&zDelta, &lenDelta);
+    if( lenDelta<=0 ) break;
     switch( zDelta[0] ){
       case '@': {
         zDelta++; lenDelta--;
         (void)getInt(&zDelta, &lenDelta);
-        if( lenDelta>0 && zDelta[0]!=',' ){
+        if( lenDelta<=0 || zDelta[0]!=',' ){
           /* ERROR: copy command not terminated by ',' */
           return -1;
         }
@@ -693,7 +705,7 @@ int delta_analyze(
       case ':': {
         zDelta++; lenDelta--;
         nInsert += cnt;
-        if( (int)cnt>lenDelta ){
+        if( (i64)cnt>(i64)lenDelta ){
           /* ERROR: insert count exceeds size of delta */
           return -1;
         }

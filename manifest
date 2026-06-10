@@ -1,5 +1,5 @@
-C Removed\sa\s"new"\squalifier\son\sdescription\sof\sa\sfeature\sthat\swas\sadded\sin\s2020.
-D 2026-06-09T11:13:52.747
+C Harden\sdelta\sprocessing\sagainst\smalicious\sdelta\sinputs.
+D 2026-06-10T09:02:44.437
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -417,7 +417,7 @@ F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c801
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
 F src/default.css 1ad5e64434c093a9a7f6e0cfac469f1a6af05cd30c714d94a9f29d97a80731d6
-F src/delta.c 262c184c1335cbc6613f959698b58c9d1f66fbea47db0751096531138c8f6ac5
+F src/delta.c 7b960998d9e32b927460c2d689d2c8d9da1022a66a09554f8c480dfb1bd13828
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
 F src/descendants.c 4bb7fb447369984f041da4a5ec05c201383bde3a59d18c537293d520712a1b09
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5b46aafb6a35261434db669e3e6bfa0fc414b1d1c37c9d7c898ea2e5948b47e5
-R 5a18e05e51db882713dd21f66406fa6e
-U wyoung
-Z e140c865e31f8c773eea9d6b7e2f8962
+P cc021ea610dddbcddc3f4bde141f99158a7d79f4b830a63f5be2649fe655d0be
+R 9b3d6269a0af58ae70b528131d67983a
+U drh
+Z da681b6040ffb5f9da95656d15395abc
 # Remove this line to create a well-formed Fossil manifest.
