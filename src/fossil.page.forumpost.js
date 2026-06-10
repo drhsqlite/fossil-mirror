@@ -1051,15 +1051,27 @@
         return prefix+'-'+uuid.substr(0,12);
       };
 
+      /**
+         Perform some init common to both Reply and Edit.  ePost = the
+         forum post DOM element. eButton = the Reply or Edit
+         button. eToDisable = an array of DOM elements which must be
+         disabled when the editor is active and re-enabled when it is
+         closed.
+      */
       const setupEditReplyElement = (ePost, eButton, eToDisable)=>{
-        const fpid = ePost.dataset.fpid;
+        /* Forum posts are indented in the main forum view to
+           represent their place in the hierarchy. In order to gain
+           some screen space, we shift the post to the left margin and
+           arrange to shift it back when the editor is closed. We also
+           record the original button label so that it can be
+           restored on close. */
         ePost.dataset.originalMarginLeft = ePost.style.marginLeft;
         ePost.style.marginLeft = 'initial';
         eButton.dataset.originalLabel = eButton.innerText;
         D.disable(eToDisable);
-        return fpid;
       };
 
+      /** Undoes the damage done by setupEditReplyElement(). */
       const restoreEditReplyElement = (ePost, eButton, eToDisable)=>{
         if( ePost.dataset.originalMarginLeft ){
           ePost.style.marginLeft = ePost.dataset.originalMarginLeft;
@@ -1087,25 +1099,31 @@
         ePost.append(e);
       };
 
+      /**
+         Plug in an editor widget representing a reply to a post.
+         form = a (.forum-post-single-controls > form) element.  The
+         final 3 arguments are as documented for
+         setupEditReplyElement().
+      */
       const replyClicked = async (form, ePost, eBtnReply, eToDisable)=>{
         const fpid = ePost.dataset.fpid;
         const fEditHead = ePost.dataset.fedithead;
         const draftKey = makeDraftKey(
           'draft-reply', fEditHead
           /* The problem with firt as a key is that firt is not
-             necessarily the root edit of that post, which is
-             what we really want as a draft key so that the
-             draft does not disapper if firt is later edited
-             (giving us a new firt value here). */
+             necessarily the root edit of that post, which is what we
+             really want as a draft key so that the draft does not
+             disappear if firt is later edited (giving us a new firt
+             value here). */
             || fpid
         );
-        const lockName = 'fossil-'+draftKey;
         let releaseLock;
-
         if( window.navigator.locks ){
           releaseLock = await new Promise((resolve)=>{
             window.navigator.locks.request(
-              lockName, { ifAvailable: true }, async (lock) => {
+              'fossil-'+draftKey,
+              {ifAvailable: true},
+              async (lock) => {
                 if( !lock ){
                   /*lock contention*/
                   resolve(null);
@@ -1141,7 +1159,7 @@
           }else{/*ondiscard()*/
           }
         };
-        const fpe = new F.ForumPostEditor({
+        const fpe = new F.ForumPostEditor(F.nu({
           hiddenFields: form.querySelectorAll(
             'input[type=hidden][name=csrf]'
             /* Do not inherit the fpid field, else this will become
@@ -1157,29 +1175,37 @@
           },
           inReplyTo: fpid,
           draftKey
-        });
+        }));
         initFPEWidget(ePost, fpe);
       }/*replyClicked()*/;
 
+      /**
+         Plug in an editor widget representing an edit to a post.
+         form = a (.forum-post-single-controls > form) element.  The
+         final 3 arguments are as documented for
+         setupEditReplyElement().
+      */
       const editClicked = async (form, ePost, eBtnEdit, eToDisable)=>{
         const fpid = ePost.dataset.fpid;
         const firt = ePost.dataset.firt;
         const fEditHead = ePost.dataset.fedithead;
         const draftKey = makeDraftKey('draft-forumedit', fEditHead || fpid);
-        const lockName = 'fossil-'+draftKey;
         let releaseLock;
         if( navigator.locks ){
           releaseLock = await new Promise((resolve) => {
-            navigator.locks.request(lockName, {ifAvailable: true}, async (lock)=>{
-              if( !lock ){
-                resolve(null);
-                return;
-              }
-              let release;
-              const lockReleased = new Promise(res=>release=res);
-              resolve(release);
-              await lockReleased;
-            });
+            navigator.locks.request(
+              'fossil-'+draftKey,
+              {ifAvailable: true},
+              async (lock)=>{
+                if( !lock ){
+                  resolve(null);
+                  return;
+                }
+                let release;
+                const lockReleased = new Promise(res=>release=res);
+                resolve(release);
+                await lockReleased;
+              });
           });
 
           if( !releaseLock ){
@@ -1218,7 +1244,7 @@
               ':scope > fieldset.forum-status-selection select[name=status]'
             );
 
-            const fpe = new F.ForumPostEditor({
+            const fpe = new F.ForumPostEditor(F.nu({
               hiddenFields: form.querySelectorAll('input[type=hidden]'),
               ondiscard: ondone,
               onsubmit: ondone,
@@ -1232,7 +1258,7 @@
               edit: artifact,
               status: eStatusSelect?.value,
               inReplyTo: firt
-            });
+            }));
             initFPEWidget(ePost, fpe);
           })
           .catch(err=>{
@@ -1252,7 +1278,8 @@
         /* For each forum post... */
         const eToDisable = [
           /* List of non-editor DOM elements which need to be disabled
-             when the editor is active. */
+             while the editor is active and re-enabled when it
+             closes. */
         ];
         const eThePost = form.parentElement.parentElement/*main post DOM element*/;
         if( !eThePost?.dataset?.fpid ){
@@ -1295,9 +1322,8 @@
         }
         const btnEdit = form.querySelector('input[type=submit][name=edit]');
         if( btnEdit ){
-          //console.debug("hacking Edit button", btnEdit);
           const b = D.button("Edit", ()=>editClicked(form, eThePost, b, eToDisable));
-          b.type = 'button';
+          b.type = 'button'/*keep container form from submitting*/;
           eToDisable.push(b);
           checkButtonForDraft('draft-forumedit',b);
           btnEdit.parentElement.insertBefore(b, btnEdit);
