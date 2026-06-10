@@ -9,6 +9,24 @@
   const P = F.page, D = F.dom;
 
   let idCounter = 0;
+
+  /*
+    The problem: when previewing the bottom-most post of a thread, the
+    preview widget's size changes cause the page to scroll
+    unpredictably as the bottom boundary of the page moves. A weird
+    workaround (not invented here) is to add dummy blank padding to
+    the page to allow the preview widget to grow and shrink without
+    (usually) scrolling, but whether it does so really depends on its
+    size.
+
+  */
+  const dummyPadding = D.div();
+  dummyPadding.style.height = '100em';
+  /* Keep track of ForumPostEditor instances so we can remove this
+     padding when none are active. */
+  dummyPadding.refs = new Set();
+  F.dummyPadding = dummyPadding /* only for debugging */;
+
   /**
      A WIP forum post editor widget for both new posts and responses.
   */
@@ -392,6 +410,10 @@
         //console.debug("FPE discarding", this);
         e.classList.add('animate-exit');
         e.addEventListener('animationend', ()=>e.remove(), {once: true});
+        dummyPadding.refs.delete(this);
+        if( 0===dummyPadding.refs.size ){
+          dummyPadding.remove();
+        }
       }
     }
 
@@ -414,6 +436,10 @@
 
     /** This widget's top-most DOM element. */
     get widget(){
+      if( !dummyPadding.parentElement ){
+        document.body.append(dummyPadding);
+      }
+      dummyPadding.refs.add(this);
       return this.#e.widget;
     }
 
@@ -565,13 +591,31 @@
     }
 
     #setPreviewContent(rawHtml){
+      /**
+         Append the new content then remove the old, to help reduce
+         jumping-around of the UI if the preview is cleared then
+         repopulated.
+      */
+      const dummy = D.div();
+      dummy.style.height = '50em';
+      document.body.append(dummy);
       const preview = this.#e.preview;
-      D.clearElement(preview);
+      const childs = [...preview.childNodes];
       D.parseHtml(preview, rawHtml);
+      D.remove(childs);
+      dummy.remove();
+      //preview.style.removeProperty('height');
       if(F.pikchr && 'text/x-markdown'===this.mimetype){
         F.pikchr.addSrcView(
           preview.querySelectorAll('svg.pikchr')
         );
+      }
+      if( 0 /* This isn't doing what is desired */
+          && !F.dom.isElementKindaInViewport(preview, true) ){
+        /* On the bottom-most post, these widgets sometimes
+           end up off-screen */
+        //F.dom.scrollChildIntoView(preview);
+        preview.scrollIntoView();
       }
     }
 
@@ -583,15 +627,24 @@
         /* Will recurse into here */
         return;
       }
-      this.#isWaiting = true;
-      D.clearElement(e.preview);
       const content = this.editorContent.trim();
       //console.debug("content to preview", content);
       if( !content ){
         return;
       }
+      if( 0
+          && !e.preview.firstElementChild ){
+        /* On an initial first preview, inherit the editor's height to
+           reduce jumping-around of the UI. */
+        if( 0 /* does not work: height of the editor is "auto" */ ){
+          const c = window.getComputedStyle(e.editor/*tabEdit*/);
+          e.preview.style.height = c.height;
+        }else{
+          e.preview.style.height = '20em';
+        }
+      }
+      this.#isWaiting = true;
       D.disable(this.#toDisable, e.button.submit);
-      e.preview.textContent = "Fetching preview...";
       this.#fetchPreview(content)
         .then((c)=>{
           this.#setPreviewContent(c);
