@@ -599,7 +599,7 @@ int delta_apply(
   while( lenDelta>0 && zDelta[0] ){
     unsigned int cnt, ofst;
     cnt = getInt(&zDelta, &lenDelta);
-    if( lenDelta<=0 ) break;
+    if( lenDelta<=0 ) return -1;
     switch( zDelta[0] ){
       case '@': {
         zDelta++; lenDelta--;
