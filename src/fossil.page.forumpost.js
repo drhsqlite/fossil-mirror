@@ -1350,9 +1350,17 @@
       e.classList.remove('initially-hidden');
     });
 
-    if( plugInEditor && (Date.now() % 17 === 0) ){
+    if( plugInEditor ){
       /* Purge old drafts only every now and then. */
-      F.ForumPostEditor.purgeOldDrafts(/^draft-(reply|forumedit)-.*/)/*not purging forumnew*/;
+      const now = Date.now();
+      const lastPurge = +F.storage.get('forum-drafts-last-purge', 0);
+      if( now - lastPurge > (24 * 60 * 60 * 1000 /*1 day ms*/) ){
+        F.storage.set('forum-drafts-last-purge', now);
+        setTimeout(()=>{
+          /* Don't block the UI while we're doing I/O */
+          F.ForumPostEditor.purgeOldDrafts(/^draft-(reply|forumedit)-.*/);
+        }, 50);
+      }
     }
   })/*F.onPageLoad callback*/;
 })(window.fossil);

@@ -184,7 +184,7 @@
         is true then the keys include the storage key prefix, else
         they don't. It should default to false but does not for
         historical compatibility. */
-    keys: (full=true)=>{
+    keys: function(full=true){
       const li = Object.keys($storageHolder).filter((v)=>(v||'').startsWith(storageKeyPrefix));
       if( full ) return li;
       const n = this.storageKeyPrefix.length;
