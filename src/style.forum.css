@@ -50,11 +50,11 @@ body.forum .forumpost-single-controls button.draft:after {
 
 .ForumPostEditor .tab-panel.editor-wrapper > .editor {
   max-width: initial;
-  min-height: 14em;
+  min-height: 20em;
   flex-grow: 1
 }
 body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
-  min-height: 24em;
+  min-height: 28em;
 }
 
 .ForumPostEditor > .buttons > .mimetype-wrapper,

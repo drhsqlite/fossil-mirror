@@ -18,6 +18,9 @@
     the page to allow the preview widget to grow and shrink without
     (usually) scrolling, but whether it does so really depends on its
     size.
+
+    We could maybe get the same effect by adding this size as
+    padding-bottom to document.body instead of as a new element.
   */
   const dummyPadding = D.div();
   dummyPadding.style.height = '75em';
