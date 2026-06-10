@@ -813,16 +813,19 @@
   /**
      When the page is loaded, this handler does the following:
 
-     - Installs expand/collapse UI elements on "long" posts and collapses
+     1. Installs expand/collapse UI elements on "long" posts and collapses
      them.
 
-     - Any pikchr-generated SVGs get a source-toggle button added to them
+     2. Any pikchr-generated SVGs get a source-toggle button added to them
      which activates when the mouse is over the image or it is tapped.
 
+     3. Plugs in a new edit/reply widget to forum posts.
+
      This is a harmless no-op if the current page has neither forum
-     post constructs for (1) nor any pikchr images for (2), nor will
-     NOT running this code cause any breakage for clients with no JS
-     support: this is all "nice-to-have", not required functionality.
+     post constructs for (1) and (3) nor any pikchr images for (2),
+     nor will NOT running this code cause any breakage for clients
+     with no JS support: this is all "nice-to-have", not required
+     functionality.
   */
   F.onPageLoad(function(){
     const scrollbarIsVisible = (e)=>e.scrollHeight > e.clientHeight;
