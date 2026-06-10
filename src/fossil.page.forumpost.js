@@ -18,10 +18,9 @@
     the page to allow the preview widget to grow and shrink without
     (usually) scrolling, but whether it does so really depends on its
     size.
-
   */
   const dummyPadding = D.div();
-  dummyPadding.style.height = '100em';
+  dummyPadding.style.height = '50em';
   /* Keep track of ForumPostEditor instances so we can remove this
      padding when none are active. */
   dummyPadding.refs = new Set();
@@ -596,26 +595,15 @@
          jumping-around of the UI if the preview is cleared then
          repopulated.
       */
-      const dummy = D.div();
-      dummy.style.height = '50em';
-      document.body.append(dummy);
       const preview = this.#e.preview;
       const childs = [...preview.childNodes];
       D.parseHtml(preview, rawHtml);
       D.remove(childs);
-      dummy.remove();
       //preview.style.removeProperty('height');
       if(F.pikchr && 'text/x-markdown'===this.mimetype){
         F.pikchr.addSrcView(
           preview.querySelectorAll('svg.pikchr')
         );
-      }
-      if( 0 /* This isn't doing what is desired */
-          && !F.dom.isElementKindaInViewport(preview, true) ){
-        /* On the bottom-most post, these widgets sometimes
-           end up off-screen */
-        //F.dom.scrollChildIntoView(preview);
-        preview.scrollIntoView();
       }
     }
 
