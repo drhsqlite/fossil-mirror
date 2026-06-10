@@ -2040,7 +2040,7 @@ void forumnew_page(void){
   const char *zTitle = PDT("title","");
   const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
   const char *zContent = PDT("content","");
-  const int bLegacy = PB("legacy"); /* True for legacy HTML form */
+  const int bNoJs = PB("nojs"); /* True for legacy HTML form */
 
   login_check_credentials();
   if( !g.perm.WrForum ){
@@ -2058,7 +2058,7 @@ void forumnew_page(void){
   style_set_current_feature("forum");
   style_header("New Forum Thread");
 
-  if( !bLegacy ){
+  if( !bNoJs ){
     @ <noscript>
   }
   @ <form action="%R/forume1" method="POST">
@@ -2076,7 +2076,7 @@ void forumnew_page(void){
   login_insert_csrf_secret();
   @ </form>
   forum_render_attachment_notice();
-  if( !bLegacy ){
+  if( !bNoJs ){
     @ </noscript>
     /* When JS is disabled the block above will work.
        When it's enabled, the above won't do anything and
@@ -2108,7 +2108,7 @@ void forumedit_page(void){
   const char *zTitle = 0;
   char *zDate = 0;
   const char *zFpid = PD("fpid","");
-  const int bLegacy = 1 ? 1 : PB("legacy"); /* True for legacy HTML form */
+  const int bNoJs = PB("nojs");
   int isCsrfSafe;
   int isDelete = 0;
   int iClosed = 0;
@@ -2117,7 +2117,7 @@ void forumedit_page(void){
   int bPrivate;         /* True if post is private (not yet moderated) */
   int bReply;           /* True if replying to a post */
 
-  if( !bLegacy ){
+  if( !bNoJs ){
     forumedit_page_v2();
     return;
   }

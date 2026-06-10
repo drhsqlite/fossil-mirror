@@ -991,13 +991,18 @@
       });
     };
 
+    const plugInEditor =
+          (new URL(window.location).searchParams).get('nojs')===null;
+
     const eForumNew = (
-      document.body.classList.contains('cpage-forumnew')
-        || document.body.classList.contains('cpage-forume1')
-    )
+      plugInEditor
+        && (
+          document.body.classList.contains('cpage-forumnew')
+            || document.body.classList.contains('cpage-forume1')
+        ))
           ? document.querySelector('#forumnew-placeholder')
           : null;
-    if( eForumNew ){
+    if( plugInEditor && eForumNew ){
       /* /forumnew and /forume2 */
       const fpe = new F.ForumPostEditor({
         draftKey: 'draft-forumnew',
@@ -1013,8 +1018,9 @@
       eForumNew.remove();
       fossil.page.fpe = fpe /* for testing via the console */;
     }/*eForumNew*/
-    else if( (document.body.classList.contains('cpage-forumpost')
-              || document.body.classList.contains('cpage-forumthread'))){
+    else if( plugInEditor
+             && (document.body.classList.contains('cpage-forumpost')
+                 || document.body.classList.contains('cpage-forumthread')) ){
       /* /forumpost and /forumthread. Take over the Edit/Reply buttons
          to use a ForumPostEditor. */
 
@@ -1207,7 +1213,7 @@
       e.classList.remove('initially-hidden');
     });
 
-    if( Date.now() % 17 === 0 ){
+    if( plugInEditor && (Date.now() % 17 === 0) ){
       /* Purge old drafts only every now and then. */
       F.ForumPostEditor.purgeOldDrafts(/^draft-(reply|forumedit)-.*/)/*not purging forumnew*/;
     }
