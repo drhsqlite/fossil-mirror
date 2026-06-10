@@ -153,7 +153,7 @@ static void http_build_header(
   }else{
     zPath = g.url.path;
   }
-  blob_appendf(pHdr, "%s %s HTTP/1.0\r\n",
+  blob_appendf(pHdr, "%s %s HTTP/1.1\r\n",
                nPayload>0 ? "POST" : "GET", zPath);
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
@@ -165,6 +165,7 @@ static void http_build_header(
     fossil_free(zEncoded);
   }
   blob_appendf(pHdr, "Host: %s\r\n", g.url.hostname);
+  blob_appendf(pHdr, "Connection: close\r\n");
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
   if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
   if( g.syncInfo.fLoginCardMode>0
@@ -457,6 +458,7 @@ int http_exchange(
   int i;                /* Loop counter */
   int isError = 0;      /* True if the reply is an error message */
   int isCompressed = 1; /* True if the reply is compressed */
+  int isChunked = 0;    /* True if Transfer-Encoding: chunked */
 
   if( g.zHttpCmd!=0 ){
     /* Handle the --transport-command option for "fossil sync" and similar */
@@ -607,6 +609,10 @@ int http_exchange(
     }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
+    }else if( fossil_strnicmp(zLine, "transfer-encoding:", 18)==0 ){
+      if( sqlite3_strlike("%chunked%", &zLine[18], 0)==0 ){
+        isChunked = 1;
+      }
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
       if( sqlite3_strlike("%close%", &zLine[11], 0)==0 ){
         closeConnection = 1;
@@ -737,7 +743,42 @@ int http_exchange(
   ** Extract the reply payload that follows the header
   */
   blob_zero(pReply);
-  if( iLength==0 ){
+  if( isChunked ){
+    /* Decode an HTTP/1.1 "Transfer-Encoding: chunked" reply body.  Each
+    ** chunk is a hex length on its own line (optionally followed by a
+    ** ";extension" that is ignored), then that many payload bytes, then a
+    ** bare CRLF.  A zero-length chunk terminates the body, after which any
+    ** trailer header lines are read and discarded up to the blank line. */
+    char *zChunk;
+    while( (zChunk = transport_receive_line(&g.url))!=0 ){
+      int nChunk;             /* Size of this chunk in bytes */
+      int nPrior;             /* Bytes already in pReply */
+      while( fossil_isspace(zChunk[0]) ) zChunk++;
+      nChunk = (int)strtol(zChunk, 0, 16);
+      if( nChunk<0 ){
+        goto write_err;
+      }
+      if( nChunk==0 ){
+        /* Final chunk: consume trailer lines up to the terminating blank. */
+        while( (zChunk = transport_receive_line(&g.url))!=0 && zChunk[0]!=0 ){}
+        break;
+      }
+      nPrior = blob_size(pReply);
+      blob_resize(pReply, nPrior+nChunk);
+      /* transport_receive() may return short; loop until the chunk is full. */
+      while( nChunk>0 ){
+        int nGot = transport_receive(&g.url, &pReply->aData[nPrior], nChunk);
+        if( nGot<=0 ){
+          fossil_warning("chunked reply truncated");
+          goto write_err;
+        }
+        nPrior += nGot;
+        nChunk -= nGot;
+        pReply->nUsed = nPrior;
+      }
+      transport_receive_line(&g.url); /* CRLF that follows the chunk data */
+    }
+  }else if( iLength==0 ){
     /* No content to read */
   }else if( iLength>0 ){
     /* Read content of a known length */

@@ -1,5 +1,5 @@
-C On\stall-ish\sscreens,\sexperimentally\sresize\sdiff\s-tk's\sview\sto\ssome\sappreciable\sfraction\sof\sthe\sscreen\ssize.\sThis\sis\sarguable\sbut\sis\sexpected\sto\ssave\sme\smany\sfuture\smanual\swindow\sresizings.\sDown-side\sis\sthat\sit's\soverkill\sfor\ssmall\sdiffs.
-D 2026-06-04T08:56:52.201
+C Minimal\sclient\simplementation\sof\sHTTP\sversion\s1.1\swith\schunked\stransfer-encoding.\n\nSome\segress\sfilters\sdrop\sall\sHTTP\sversion\s1.0\straffic\sat\sthe\sWeb\sApplication\sFirewalls\n(WAF).\sWAFs\scommonly\sprovided\sby\sCDN\s(Content\sDistribution\sNetworks)\ssuch\sas\sCloudFlare\nand\sAWS\sto\stheir\scustomers\shave\ssuch\scontrols\son\sthem,\sand\sthere\sare\sunderstandable\spolicy\nreasons\sfor\sdisallowing\s1.0.\sIt\sis\salmost\sexclusively\sused\sby\sold\ssoftware\sthat\sis\soften\nexploitable\s(eg\sancient\sversions\sof\scurl).\sFossil\susers\swithin\svirtual\smachines\swith\ssuch\negress\sfilters\sin\splace\sget\sconfusing\smessages\salong\sthe\slines\sof\s"Upgrade\srequired".\sThis\nis\sinconvenient\sfor\sFossil\susers,\sand\sthe\squick\ssolution\sis\sto\sseek\sa\sgit\smirror\sfor\sthe\nFossil\srepo\sif\sone\sis\savailable,\sbecause\sgit\sjust\sworks.\n\nThere\sis\sno\sneed\sto\supgrade\sthe\sFossil\sserver\sto\ssupport\s1.1\sto\ssolve\sthe\segress\sproblem.\s\n\nThis\sis\s(I\sbelieve)\san\sRFC\scompliant\sminimal\simplementation\sand\sit\sseems\sto\swork,\sbut\snone\sof\nthe\soptional\sextensions\sare\ssupported\sbecause\sI\sdon't\sthink\sFossil\sneeds\sthem.\sIt\sdoes\nneed\smore\scareful\schecking\son\sthe\ssupplied\schunk\slength\sbecause\sstrtol\sis\sinsufficient.
+D 2026-06-10T11:08:15.571
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -470,7 +470,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c a40c637ebad60edc30b99d7307c4f95a55753be20862267787cdf6cd9146f53c
 F src/hook.c 622578a5156b42001f583e8446e6418f6419b8a27670c2d5530b91975ff1b35a
 F src/href.js 97641963c7127a0c000c5a90ad2e2b3b2d216614b6f552737b552aa68feb0f21
-F src/http.c 22e5ffbb56918922234e351adec2870d5a7dd3e4a8820e97cc3ecae6c75b41c6
+F src/http.c fa7bd2bb093f02658a4d44906963c114483a33048cd328259994559e87885ac2
 F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efce2f6
 F src/http_ssl.c 21448e159871c441e761fa58152860a22d123d279e5e661df8f4a6fad88f7c03
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
@@ -981,8 +981,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f1c281dd466b4bcd072b0355ddd4f40bc3e5b0891ec46bbfaaac1f2bbbc19052
-R 98fb6454ea8073526b9177a1a276e67b
-U stephan
-Z 708bbeb73c974f66ef8758dabf62f8d8
+P 7f2f04c835a42bc8c456a09eeffb0bcf0cd161f539b3c0697cbe1a7376491d16
+R c5bf41ca93248a7941a56a618d5969c0
+T *branch * http1-1-chunked
+T *sym-http1-1-chunked *
+T -sym-trunk *
+U danshearer
+Z dc252947afad1004885b70f0b6592007
 # Remove this line to create a well-formed Fossil manifest.
