@@ -20,7 +20,7 @@
     size.
   */
   const dummyPadding = D.div();
-  dummyPadding.style.height = '50em';
+  dummyPadding.style.height = '75em';
   /* Keep track of ForumPostEditor instances so we can remove this
      padding when none are active. */
   dummyPadding.refs = new Set();
