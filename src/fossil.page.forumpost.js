@@ -513,10 +513,17 @@
         D.attr(D.a(F.repoUrl('markup_help'), 'Markup styles'),
                'target', '_new')
       );
+      D.append(
+        D.li(list),
+        "WARNING: draft edits are keyed on the ID of the message they ",
+        "are editing or responding to. Attempting to edit or reply to ",
+        "the same post from multiple tabs will cause the most-recently-edited ",
+        "one to overwrite the draft slot for that post."
+      );
       if( this.#e.status ){
         D.append(
           D.li(list),
-          "Trip: to change just the status, use the widget which appears in ",
+          "Tip: to change just the status, use the widget which appears in ",
           "the post, not the editor. That will save only a single tag instead of ",
           "a new edit of the post."
         );

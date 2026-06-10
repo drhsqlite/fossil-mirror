@@ -547,3 +547,8 @@ especially helpful when working on posts while the bottom footer of
 the page is in the viewport, as the footer is a hard boundary against
 scrolling. With the extra padding, the editor widget's top edge shifts
 around less when the preview is shown and hidden.
+
+Beware: Each draft is keyed to the post it is editing or replied to,
+which means that editing or replying to the same post from different
+tabs will cause collisions. The editor to most recently lose the focus
+will save the draft, overwriting the other.
