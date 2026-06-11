@@ -30,14 +30,14 @@
   F.dummyPadding = dummyPadding /* only for debugging */;
 
   /**
-     A WIP forum post editor widget for both new posts and responses.
+     A forum post editor widget for new posts and responses.
   */
   class ForumPostEditor {
     /* Options */
     #opt;
     /* Dom elements */
     #e;
-    /* Attacher */
+    /* F.Attacher instance */
     #att;
     /* Is waiting on a pending remote response. */
     #isWaiting = false;
@@ -916,7 +916,12 @@
     );
     if( eStatus ){
       /* Main /forum list. Remove the 'x' form element when eStatus
-      ** changes, to avoid propagating x when changing the filter. */
+         changes, to avoid propagating x when changing the filter.
+         The problem this solves: we're browsed to page 3 of status X.
+         We change the status filter selection to Y. We're redirected
+         to page x, but Y only has 2 posts with that status, so we see
+         an empty list. When changing the filter, we need to ensure
+         that we start back and that beginning. */
       const pForm = eStatus.parentElement?.parentElement;
       if( pForm ){
         eStatus.addEventListener('change', ()=>{
@@ -937,8 +942,10 @@
         form.dataset.submitted = '1';
         /** If the user is left waiting "a long time," disable the
             resubmit protection. If we don't do this and they tap the
-            browser's cancel button while waiting, they'll be stuck with
-            an unsubmittable form. */
+            browser's cancel button while waiting, they'll be stuck
+            with an unsubmittable form. It can apparently also happen,
+            via browser-back, that the form gets left in a submitted
+            state. */
         setTimeout(()=>{delete form.dataset.submitted}, 7000);
         return;
       };
@@ -1279,17 +1286,17 @@
         '.forumpost-single-controls > form'
       ).forEach(form=>{
         /* For each forum post... */
+        const eThePost = form.parentElement.parentElement/*main post DOM element*/;
+        if( !eThePost?.dataset?.fpid ){
+          /* The server injects these dataset values. */
+          console.warn("Unexpected missing fpid", eThePost);
+          return;
+        }
         const eToDisable = [
           /* List of non-editor DOM elements which need to be disabled
              while the editor is active and re-enabled when it
              closes. */
         ];
-        const eThePost = form.parentElement.parentElement/*main post DOM element*/;
-        if( !eThePost?.dataset?.fpid ){
-          /* The server injects these. */
-          console.warn("Unexpected missing fpid", eThePost);
-          return;
-        }
 
         const checkButtonForDraft = (draftKeyPrefix, eBtn)=>{
           /* If a draft is found associated with eThePost, mark eBtn

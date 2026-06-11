@@ -506,7 +506,8 @@
         reader.onload = (e)=>img.setAttribute('src', e.target.result);
         reader.readAsDataURL(file);
       }
-      if( file.size>F.config.attachmentSizeLimit ){
+      if( F.config.attachmentSizeLimit>0
+          && file.size>F.config.attachmentSizeLimit ){
         /* Problem: tapping this link propagates its click event through
            to eDropzone. Thus... */
         const eLink = D.a(F.repoUrl('help/attachment-size-limit'),'limit');
