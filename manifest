@@ -1,5 +1,5 @@
-C Chnage\sall\sbuttons\son\sBlitz\sskin\sto\sbe\sas\sthey\swere\soriginally\s(transparent)\ninstead\sof\sdark-aqua'ish\slike\ssome\sexceptions.\sUse\sbody\sbackground\scolor\ninstead\sof\stransparent\sso\son\sselected\sforum,\sthey\sdon't\slooks\sdisabled.
-D 2026-06-11T12:14:29.165
+C Typo\sfix\sreported\sby\sDan\sShearer.\sMention\sthe\sforum\soverhaul\sin\sthe\schange\slog.
+D 2026-06-11T17:48:13.209
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js fe5d276964d3cb19898e6a5f04f2a5f20d4a02c18381968a3990488512c8e6b0
+F src/fossil.page.forumpost.js 33603968ccd983ee26ac836720b5bffea478c72cd114f7cbdc37e92e93c27f7b
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -804,7 +804,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md b578bfee7063fe0a3fef310b79d0b9ca23e084b17aa3044d57f5a4b94b180b4d
 F www/caps/ref.html 82732721eff68eee38f791c89574d266c798026a61cb653d6ddd851402c4f0d5
 F www/cgi.wiki b9c5bcae4ac589ed274f8f4b2a64dc854f14c78883f4f0200504ec7e3cdf2b56
-F www/changes.wiki b71d56ae4f677fb2d2684ba06a8498a3de7326a2c5712bdee0463d283404fe16
+F www/changes.wiki 4769d4ee740ac6c220159b844a1a77ac8ca004ea5fbe7d4863df880bb7e1c80e
 F www/chat.md 9e962760a95d717205757d0839cd70a0f91471a23a5e0198c0b629b99889e078
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f6785741d98573e7175c34b81156df39cc503b7dffd59da220da1c3c1ef290b3
-R 3bc811de0961ffe66b39d11884db11ef
-U mgagnon
-Z dcd14d78c390a2afda2459d35e02f985
+P 15782c004931451c20253508123144a167cef4db7e52f90a5b1d0df9a3887c6c
+R 0f9983adbf1d3084e3fa0a16427b6147
+U stephan
+Z 4e95ccce750670cd7c881f6f51264a32
 # Remove this line to create a well-formed Fossil manifest.
