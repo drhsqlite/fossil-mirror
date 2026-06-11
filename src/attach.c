@@ -179,7 +179,7 @@ int attach_user_may(int rid, int eArtifactType){
   if( !login_is_individual() ) return 0;
   switch(eArtifactType){
     case CFTYPE_FORUM:
-      return forumpost_is_owner(rid, 0);
+      return g.perm.AttachForum && forumpost_is_owner(rid, 0);
     case CFTYPE_WIKI:
       return g.perm.ApndWiki && g.perm.Attach;
     case CFTYPE_TICKET:
