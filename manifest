@@ -1,5 +1,5 @@
-C Doc\supdates.\sFix\sthe\s(harmless\sbut\sannoying)\swarning\sin\sthe\sfile\sattachment\sabout\sthe\sattachment\sbeing\stoo\slarge\sif\sthe\sattachment-size-limit\sis\snot\sset\sor\sis\sset\sto\s0.
-D 2026-06-11T10:55:41.576
+C Chnage\sall\sbuttons\son\sBlitz\sskin\sto\sbe\sas\sthey\swere\soriginally\s(transparent)\ninstead\sof\sdark-aqua'ish\slike\ssome\sexceptions.\sUse\sbody\sbackground\scolor\ninstead\sof\stransparent\sso\son\sselected\sforum,\sthey\sdon't\slooks\sdisabled.
+D 2026-06-11T12:14:29.165
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -329,7 +329,7 @@ F skins/black_and_white/footer.txt 0c32f13f6ad5fa409b38e0093a897d71f407ede5fb3a9
 F skins/black_and_white/header.txt 4e8685c45aa6202f7c7c92f9edc5568ce90152a0e86c21b1c93a1d507e66d4f8
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt 322a5b3eb029514b54d5855ee67baabc24d8c2203afbe4001b0c3960bd63b833
+F skins/blitz/css.txt f97452901cf97ec962a7a703178f026f6767538b4af029cbdbc00b71305df8cc
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 77c3ce12e94cfb32e61c7a379d03e0f614efebf6569634fec447e239051929bc
-R debff087ea607ecb12c120a95e3f7df1
-U stephan
-Z 469b52904bf13a1fca7c3e7454921b93
+P f6785741d98573e7175c34b81156df39cc503b7dffd59da220da1c3c1ef290b3
+R 3bc811de0961ffe66b39d11884db11ef
+U mgagnon
+Z dcd14d78c390a2afda2459d35e02f985
 # Remove this line to create a well-formed Fossil manifest.

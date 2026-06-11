@@ -487,8 +487,8 @@ input[type=submit]{
   display: inline-block;
   height: 3.3rem;
   padding: 0 2.2rem;
-  color: white;
-  background-color: #446979;
+  color: #444;
+  background-color: #f8f8f8;;
   border-color: #446979;
   text-align: center;
   font-size: 1.1rem;
@@ -526,13 +526,15 @@ button:disabled,
 input[type=button]:disabled,
 input[type=reset]:disabled,
 input[type=submit]:disabled{
+  color: #444;
   background-color: rgb(153,153,153);
 }
 
 .content a.button,
 .submenu a.button,
 .submenu a.button:visited {
-    color: white;
+    color: #444;
+    background: #f8f8f8;
 }
 
 
