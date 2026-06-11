@@ -2117,11 +2117,6 @@ void forumedit_page(void){
   int bPrivate;         /* True if post is private (not yet moderated) */
   int bReply;           /* True if replying to a post */
 
-  if( !bNoJs ){
-    forumedit_page_v2();
-    return;
-  }
-
   login_check_credentials();
   if( !g.perm.WrForum ){
     login_needed(g.anon.WrForum);
@@ -2180,6 +2175,10 @@ void forumedit_page(void){
       }
       return;
     }
+  }
+  if( !bNoJs ){
+    forumedit_page_v2();
+    return;
   }
   style_set_current_feature("forum");
   isDelete = P("nullout")!=0;
@@ -2312,7 +2311,6 @@ void forumedit_page_v2(void){
   style_set_current_feature("forum");
   style_header("Edit Forum Post");
   (void)zFpid;
-  @ Much to do here.
   @ <div hidden id='forumedit-placeholder'>
 #if 0
   @ <input type='hidden' name='title' value='%h(zTitle)'>
