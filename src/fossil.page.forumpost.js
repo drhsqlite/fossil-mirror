@@ -1016,10 +1016,10 @@
           document.body.classList.contains('cpage-forumnew')
             || document.body.classList.contains('cpage-forume1')
         ))
-          ? document.querySelector('#forumnew-placeholder')
+          ? document.body.querySelector('#forumnew-placeholder')
           : null;
     if( plugInEditor && eForumNew ){
-      /* /forumnew and /forume2 */
+      /* /forumnew and /forume1 */
       const fpe = new F.ForumPostEditor({
         draftKey: 'draft-forumnew',
         hiddenFields: eForumNew.querySelectorAll('input[type=hidden]'),
@@ -1346,6 +1346,7 @@
 
     }/* /forumpost and /forumthread */
 
+    document.body.querySelectorAll('.remove-on-load').forEach(e=>e.remove());
     document.body.querySelectorAll('.initially-hidden').forEach(e=>{
       /* This is a workaround for a span.help-buttonlet which we need
          to start hidden so that it does not show up for no-JS
@@ -1354,6 +1355,7 @@
     });
 
     if( plugInEditor ){
+      document.body.querySelectorAll('.remove-if-replaced').forEach(e=>e.remove());
       /* Purge old drafts only every now and then. */
       const now = Date.now();
       const lastPurge = +F.storage.get('forum-drafts-last-purge', 0);

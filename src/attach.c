@@ -587,7 +587,8 @@ static void attach_render_legacy_form(const char *zForumPost,
                                       const char *zWikiPage,
                                       const char *zComment,
                                       const char *zFrom){
-  form_begin("enctype='multipart/form-data'", "%R/attachadd");
+  form_begin("enctype='multipart/form-data' class='remove-on-load'",
+             "%R/attachadd");
   @ <div>\
   @ File to Attach:
   @ <input type="file" name="f" size="60"><br>
@@ -1089,19 +1090,14 @@ void attachaddV2_page(void){
     @ <p class="generalError">Error: Incorrect security code.</p>
   }
   @ <h2>Attachments for %s(zTargetType)</h2>
-  if(1){
-    /* noscript fallback is completely untested */
-    @ <noscript>
-    attach_render_legacy_form(noJsArgs[0], noJsArgs[1], noJsArgs[2],
-                              noJsArgs[3], 0,
-                              zFrom ? zFrom : mprintf("%R/home"));
-    @ </noscript>
-  }
   attachment_list(zTarget, NULL,
                   ATTACHLIST_SIZE | ATTACHLIST_HIDE_UNAPPROVED);
+  attach_render_legacy_form(noJsArgs[0], noJsArgs[1], noJsArgs[2],
+                            noJsArgs[3], 0,
+                            zFrom ? zFrom : mprintf("%R/home"));
   @ <div id='attachadd-form-wrapper' class='hidden'>
-  /* fossil.attach.js populates this DIV with the attachment widget
-  ** and imports these hidden fields. */
+  /* fossil.attach.js populates this DIV with the attachment widget,
+  ** imports these hidden fields, and removes the legacy form. */
   @ <input type="hidden" name="target" value="%h(zTarget)">
   if( zFrom ){
     @ <input type="hidden" name="from" value="%h(zFrom)">

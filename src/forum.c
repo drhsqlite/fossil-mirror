@@ -2040,7 +2040,6 @@ void forumnew_page(void){
   const char *zTitle = PDT("title","");
   const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
   const char *zContent = PDT("content","");
-  const int bNoJs = PB("nojs"); /* True for legacy HTML form */
 
   login_check_credentials();
   if( !g.perm.WrForum ){
@@ -2058,15 +2057,12 @@ void forumnew_page(void){
   style_set_current_feature("forum");
   style_header("New Forum Thread");
 
-  if( !bNoJs ){
-    @ <noscript>
-  }
-  @ <form action="%R/forume1" method="POST">
+  @ <form action="%R/forume1" method="POST" \
+  @ class="remove-if-replaced">
   @ <h1>New Thread:</h1>
   forum_from_line();
   forum_post_widget(zTitle, zMimetype, zContent);
   @ <input type="submit" name="preview" value="Preview">
-  @ <input type="hidden" name="legacy" value="1">
   if( P("preview") && !fossil_all_whitespace(zContent) ){
     @ <input type="submit" name="submit" value="Submit">
   }else{
@@ -2075,17 +2071,14 @@ void forumnew_page(void){
   forum_render_debug_options();
   login_insert_csrf_secret();
   @ </form>
+  /* When JS is disabled the block above will work.  When it's
+     enabled, the above will be removed and JS will render the editor
+     form in the next element. */
+  @ <div hidden id='forumnew-placeholder'>
+  @ <input type='hidden' name='title' value='%h(zTitle)'>
+  login_insert_csrf_secret();
+  @ </div>
   forum_render_attachment_notice();
-  if( !bNoJs ){
-    @ </noscript>
-    /* When JS is disabled the block above will work.
-       When it's enabled, the above won't do anything and
-       JS will render the editor form in the next element. */
-    @ <div hidden id='forumnew-placeholder'>
-    @ <input type='hidden' name='title' value='%h(zTitle)'>
-    login_insert_csrf_secret();
-    @ </div>
-  }
   forum_emit_js();
   style_finish_page();
 }
@@ -2108,7 +2101,6 @@ void forumedit_page(void){
   const char *zTitle = 0;
   char *zDate = 0;
   const char *zFpid = PD("fpid","");
-  const int bNoJs = PB("nojs");
   int isCsrfSafe;
   int isDelete = 0;
   int iClosed = 0;
@@ -2176,10 +2168,6 @@ void forumedit_page(void){
       return;
     }
   }
-  if( !bNoJs ){
-    forumedit_page_v2();
-    return;
-  }
   style_set_current_feature("forum");
   isDelete = P("nullout")!=0;
   if( P("submit")
@@ -2210,7 +2198,7 @@ void forumedit_page(void){
                  "forumEdit", 1);
     @ <h1>Change Into:</h1>
     forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
-    @ <form action="%R/forume2" method="POST">
+    @ <form action="%R/forume2" method="POST" class="remove-on-load">
     login_insert_csrf_secret();
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="nullout" value="1">
@@ -2238,7 +2226,7 @@ void forumedit_page(void){
       forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
     }
     @ <h2>Revised Message:</h2>
-    @ <form action="%R/forume2" method="POST">
+    @ <form action="%R/forume2" method="POST" class="remove-on-load">
     login_insert_csrf_secret();
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
@@ -2293,33 +2281,6 @@ void forumedit_page(void){
   forum_render_attachment_notice();
   forum_emit_js();
   style_finish_page();
-}
-
-/*
-** WEBPAGE: forume2_v2 hidden
-**
-** A work in progress.
-*/
-void forumedit_page_v2(void){
-  const char *zFpid = PD("fpid","");
-
-  login_check_credentials();
-  if( !g.perm.WrForum ){
-    login_needed(g.anon.WrForum);
-    return;
-  }
-  style_set_current_feature("forum");
-  style_header("Edit Forum Post");
-  (void)zFpid;
-  @ <div hidden id='forumedit-placeholder'>
-#if 0
-  @ <input type='hidden' name='title' value='%h(zTitle)'>
-#endif
-  login_insert_csrf_secret();
-  @ </div>
-  forum_emit_js();
-  style_finish_page();
-
 }
 
 /*

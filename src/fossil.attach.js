@@ -11,7 +11,7 @@
   const F = namespace, D = F.dom;
 
   let idCounter = 0;
-
+  document.body.querySelectorAll('.remove-on-load').forEach(e=>e.remove());
   /**
      Implements a multi-file selector widget. Intended to be plugged
      in to places in Fossil's UI where attachments can be assigned to

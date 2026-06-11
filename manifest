@@ -1,5 +1,5 @@
-C Fix\smoderation\sapproval\sin\sthe\sforum\sbroken\sby\srecent\srefactoring.
-D 2026-06-11T07:51:25.575
+C Use\sa\sJS-disabling\sbrowser\splugin\sto\sfix\sthe\slegacy-form\sfallback\sin\sthe\sforum\seditor,\sreply,\sand\sattachment-adding\spages.
+D 2026-06-11T09:17:20.763
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -387,7 +387,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c f2250f3fd1fd4c69aa8816885d47da5110cb7936adf66eae1df83e6c46f9c0a6
-F src/attach.c 2a134025f3753af9a161cd138ebe817f26d6d4619002d34bb41d9f8f5c298385
+F src/attach.c 6964b916dae5c11b3a60cb2c3b3f2d855e0f6bd311253f7ebe32539e6576597b
 F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a7
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
@@ -436,9 +436,9 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c e9abc4ab71d9c040b041c696594480d778e292c938667d3ee5ef47750f28c21d
+F src/forum.c a2db19bd45ba75d09dbba455c5d4c8b0234a720d3ec2efb7f7e13dfb43c6b111
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
-F src/fossil.attach.js f46753bc45ca6b9bcd7f91f126551170388a6661feb8c891b1ae62024d3b2c41
+F src/fossil.attach.js 1ea75bd26e97b86585c5ed13e24eb0aea49ddfadb92c3f11d5fbb8d4f5e417b7
 F src/fossil.bootstrap.js 2b54affdf43546829fb3a209973f03af72d8da0137f0ba27b0c5940c7d0212b8
 F src/fossil.confirmer.js 1084a88432a83d92fc98afbc8bc9206064b324085e5c81cf121dec8c19068bae
 F src/fossil.copybutton.js 57ad69acea5741a54cdec843db7aecfa82234932ec5a2ae5ba6c2a67e2077e88
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js ff4dda83e31234d4eb0f39db0b01c34295ad1e6fde866e5626ef9a4be9e41f3e
+F src/fossil.page.forumpost.js 936e6876f3e45f60d1b459f8823bd0880573f9f3d5644c784fd2fe7f4cdf9f66
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ee59442ab35080e4a59c76d7aa4fe1bf4b2761cd18a339093371960249e897fe
-R 731b86bb87ae6361c88b6bf4be54779b
+P 888383791dfc6dfdb824da73b14c1fe0e8994d9bdfdb420a53ba7bb759bf4a1d
+R 2c5cb992ecef1347d75b2203050b1e28
 U stephan
-Z b64267167bf25dcf3e877364989e0a05
+Z 10146c164605844dc2e248f51c6ea5e6
 # Remove this line to create a well-formed Fossil manifest.
