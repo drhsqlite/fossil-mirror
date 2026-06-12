@@ -1134,7 +1134,7 @@
             || fpid
         );
         let releaseLock;
-        if( window.navigator.locks ){
+        if( window.navigator?.locks ){
           releaseLock = await new Promise((resolve)=>{
             window.navigator.locks.request(
               'fossil-'+draftKey,
