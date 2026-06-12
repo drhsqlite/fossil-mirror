@@ -11,7 +11,6 @@
   const F = namespace, D = F.dom;
 
   let idCounter = 0;
-  document.body.querySelectorAll('.remove-on-load').forEach(e=>e.remove());
   /**
      Implements a multi-file selector widget. Intended to be plugged
      in to places in Fossil's UI where attachments can be assigned to
@@ -578,9 +577,11 @@
   F.onPageLoad(function(){
     const eAttachWrapper = document.querySelector('#attachadd-form-wrapper');
     if( eAttachWrapper ){
-      /* This page is /attachadd v2 or a workalike. eAttachWrapper holds
+      /* This page is /attachadd v2. eAttachWrapper holds
          input[type=hidden] fields for use in attaching files and is
          where we inject a file attachment widget. */
+      document.body.querySelectorAll('#attachadd-legacy-form').forEach(e=>e.remove());
+
       eAttachWrapper.classList.remove('hidden');
       const urlArgs = new URLSearchParams(window.location.search);
       let zTarget = urlArgs.get('target');

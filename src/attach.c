@@ -587,7 +587,7 @@ static void attach_render_legacy_form(const char *zForumPost,
                                       const char *zWikiPage,
                                       const char *zComment,
                                       const char *zFrom){
-  form_begin("enctype='multipart/form-data' class='remove-on-load'",
+  form_begin("enctype='multipart/form-data' id='attachadd-legacy-form'",
              "%R/attachadd");
   @ <div>\
   @ File to Attach:
@@ -752,7 +752,7 @@ void attachadd_page(void){
     @ <p class="generalError">Error: Incorrect security code.</p>
   }
   @ <h2>Add Attachment To %s(zTargetType)</h2>
-  attach_render_legacy_form(zForumPost, zTechNote, zTechNote, zPage,
+  attach_render_legacy_form(zForumPost, zTechNote, zTkt, zPage,
                             zComment, zFrom);
   builtin_fossil_js_bundle_or("attach", NULL);
   style_finish_page();
