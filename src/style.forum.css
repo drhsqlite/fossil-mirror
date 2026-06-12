@@ -93,6 +93,10 @@ body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
   border-radius: 0.25em;
   padding: 0.1em;
 }
+.ForumPostEditor > .buttons > label.logged-in-as {
+  cursor: initial;
+  white-space: nowrap;
+}
 .ForumPostEditor > .buttons > label > input[type=checkbox]{
   cursor: pointer;
 }

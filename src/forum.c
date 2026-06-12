@@ -2291,8 +2291,7 @@ void forumedit_page(void){
 ** arrive via the command-line or from synchronization with a remote.
 ** This policy also determines whether moderators may delete forum
 ** attachments.
-*/
-/*
+**
 ** SETTING: forum-title          width=20 default=Forum
 ** This is the name or "title" of the Forum for this repository.  The
 ** default is just "Forum".  But in some setups, admins might want to
@@ -2300,8 +2299,9 @@ void forumedit_page(void){
 ** seems more appropriate for the particular usage.
 **
 ** SETTING: attachment-size-limit    width=16
-** The maximum number of bytes for an attachment. The default (or 0) is
-** unlimited but a limit may be imposed by the web server or a proxy.
+** The maximum number of bytes for an attachment to a wiki page,
+** ticket, tech note, or forum post. The default (or 0) is unlimited
+** but a limit may be imposed by the web server or a proxy.
 **
 ** SETTING: forum-statuses        width=40 block-text
 ** This JSON5-formatted value defines an array of objects describing

@@ -692,11 +692,13 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
       }
       CX("];\n");
     }
+#define JBOOL(COND) ((COND) ? "true" : "false")
     CX("window.fossil.user = {");
     CX("name: %!j,", (g.zLogin&&*g.zLogin) ? g.zLogin : "guest");
-    CX("isAdmin: %s,", (g.perm.Admin || g.perm.Setup) ? "true" : "false");
-    CX("mayAttachForum: %s,", g.perm.AttachForum ? "true" : "false");
-    CX("enableDebug: %s", (g.perm.Debug || g.perm.Admin) ? "true" : "false");
+    CX("isAdmin: %s,", JBOOL(g.perm.Admin || g.perm.Setup));
+    CX("mayAttachForum: %s,", JBOOL(g.perm.AttachForum));
+    CX("enableDebug: %s,", JBOOL(g.perm.Debug || g.perm.Admin));
+    CX("isIndividual: %s", JBOOL(login_is_individual()));
     CX("};\n"/*fossil.user*/);
     CX("if(fossil.config.skin.isDark) "
        "document.body.classList.add('fossil-dark-style');\n");
@@ -716,6 +718,7 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     ** C-runtime state... */
     builtin_request_js("fossil.bootstrap.js");
   }
+#undef JBOOL
 }
 
 /*

@@ -399,6 +399,12 @@
         e.buttons.append(e.button.toggleHeader);
       }
 
+      {
+        const eLbl = D.label(false, "Posting as "+F.user.name)
+        eLbl.classList.add('logged-in-as');
+        e.buttons.append(eLbl);
+      }
+
     }/*constructor*/
 
     /*
@@ -525,7 +531,7 @@
         "the same post from multiple tabs will cause the most-recently-edited ",
         "one to overwrite the draft slot for that post. In browsers which support ",
         "Web Locks, a second attempt to edit or reply to a post will be blocked ",
-        "and an error will be shown explaning the problem."
+        "and an error will be shown explaining the problem."
       );
       if( this.#e.status ){
         D.append(
