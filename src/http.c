@@ -610,7 +610,9 @@ int http_exchange(
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
     }else if( fossil_strnicmp(zLine, "transfer-encoding:", 18)==0 ){
-      if( sqlite3_strlike("%chunked%", &zLine[18], 0)==0 ){
+      /* RFC 7230: "chunked" must be the final transfer-coding so only
+      ** match when it appears at the end of the line. */
+      if( sqlite3_strlike("%chunked", &zLine[18], 0)==0 ){
         isChunked = 1;
       }
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
@@ -750,33 +752,58 @@ int http_exchange(
     ** bare CRLF.  A zero-length chunk terminates the body, after which any
     ** trailer header lines are read and discarded up to the blank line. */
     char *zChunk;
-    while( (zChunk = transport_receive_line(&g.url))!=0 ){
-      int nChunk;             /* Size of this chunk in bytes */
-      int nPrior;             /* Bytes already in pReply */
+    int sawTerminator = 0;    /* True once the 0-length chunk is seen */
+    while( (zChunk = transport_receive_line(&g.url))!=0 && zChunk[0]!=0 ){
+      sqlite3_int64 nChunk;   /* Size of this chunk in bytes (wide, unclamped) */
+      unsigned int nPrior;    /* Bytes already in pReply (matches blob nUsed) */
+      char *zEnd = 0;         /* End of the hex digits actually parsed */
       while( fossil_isspace(zChunk[0]) ) zChunk++;
-      nChunk = (int)strtol(zChunk, 0, 16);
-      if( nChunk<0 ){
+      nChunk = strtoll(zChunk, &zEnd, 16);
+      if( zEnd==zChunk ){
+        /* No hex digit consumed: a blank or malformed chunk-size line, which
+        ** is the symptom of a connection that closed mid-stream.  Treat it as
+        ** a truncated (failed) */
+        fossil_warning("chunked reply: missing or malformed chunk size");
+        goto write_err;
+      }
+      if( nChunk<0 || nChunk>0x7fffffff ){
+        /* Negative, or larger than we will ever accept in one chunk. */
+        fossil_warning("chunked reply: invalid chunk size");
         goto write_err;
       }
       if( nChunk==0 ){
         /* Final chunk: consume trailer lines up to the terminating blank. */
+        sawTerminator = 1;
         while( (zChunk = transport_receive_line(&g.url))!=0 && zChunk[0]!=0 ){}
         break;
       }
       nPrior = blob_size(pReply);
-      blob_resize(pReply, nPrior+nChunk);
-      /* transport_receive() may return short; loop until the chunk is full. */
-      while( nChunk>0 ){
-        int nGot = transport_receive(&g.url, &pReply->aData[nPrior], nChunk);
-        if( nGot<=0 ){
-          fossil_warning("chunked reply truncated");
-          goto write_err;
+      /* Reserve space without advancing nUsed, so that on error
+      ** the blob's reported size equals the bytes actually
+      ** received rather the claimed chunk length */
+      blob_reserve(pReply, nPrior+(unsigned int)nChunk);
+      {
+        unsigned int nRemaining = (unsigned int)nChunk;
+        /* transport_receive() may return short; loop until the chunk is full. */
+        while( nRemaining>0 ){
+          int nGot = transport_receive(&g.url, &pReply->aData[nPrior], nRemaining);
+          if( nGot<=0 ){
+            fossil_warning("chunked reply truncated");
+            goto write_err;
+          }
+          nPrior += (unsigned int)nGot;
+          nRemaining -= (unsigned int)nGot;
+          pReply->nUsed = nPrior;
         }
-        nPrior += nGot;
-        nChunk -= nGot;
-        pReply->nUsed = nPrior;
       }
       transport_receive_line(&g.url); /* CRLF that follows the chunk data */
+    }
+    if( !sawTerminator ){
+      /* The loop exited without ever seeing the 0-length terminator chunk,
+      ** meaning the peer closed before the body was complete.  A truncated
+      ** sync must be an error, never silent success. */
+      fossil_warning("chunked reply ended without terminator");
+      goto write_err;
     }
   }else if( iLength==0 ){
     /* No content to read */
