@@ -1,5 +1,5 @@
-C Fix\sa\snull\sderef\swhich\swould\strigger\sif\sthe\sXHR\sto\sfetch\sa\sforum\spost\sfails.
-D 2026-06-13T08:41:17.998
+C Add\snotes\sabout\sforked\sforum\sposts\sto\swww/forum.wiki\sso\sthat\sfuture\sus\swill\sbe\sreminded\sat\ssome\spoint\sto\sreturn\sto\sthat\stopic.
+D 2026-06-13T09:18:17.433
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -848,7 +848,7 @@ F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
 F www/fileedit-page.md 05b5429894d86d052d647ee354d94a7b18f66e701c23a94040b2517328431260
 F www/fileformat.wiki eb2e02ea94b9f544027a66180b442a7757f791c77e33e9760c6993f2688d98e6
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
-F www/forum.wiki 350902867b5bfc9b45663f65d8f35c6af449cc8eb6efbd2f47d1664406715a61
+F www/forum.wiki 4150c1d2cb8259f7e9c278804d4e840384e499d5d518013d80fc042ba828c493
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86dc0502db82ba0a5ee5b6f35a1770a9e45fedaa12db644cefd35f7557d6f6ec
-R 36fd5f8f64ea99044166b1a052bebd27
+P 8da3b3f796f88d92bdfbcaa9e333ae57e4a8a727ba98d96157c0cc64be1b39c0
+R a370948da5e4993a85d07b1d1d902236
 U stephan
-Z 135040398e1fb4a5f6604294785b4c5d
+Z 9406fd2aa27266749b978e0f2c933c88
 # Remove this line to create a well-formed Fossil manifest.
