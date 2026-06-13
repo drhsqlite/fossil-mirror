@@ -1,5 +1,5 @@
-C Bug\sfixes:\s/attachadd?legacyArgName=X\swas\s(A)\shaving\sits\sform\spulled\sout\sfrom\sunderneath\sit\sby\sJS\sand\s(B)\snot\shandling\sticket\sIDs\sproperly.
-D 2026-06-12T15:22:18.938
+C Small\stweak\son\s/chat\ssingle-line\sinput\sfield:\severything\swas\stransparent\swhen\nfocused,\slet's\sput\sa\ssmall\sborder\sat\sleast.
+D 2026-06-13T01:42:44.761
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -329,7 +329,7 @@ F skins/black_and_white/footer.txt 0c32f13f6ad5fa409b38e0093a897d71f407ede5fb3a9
 F skins/black_and_white/header.txt 4e8685c45aa6202f7c7c92f9edc5568ce90152a0e86c21b1c93a1d507e66d4f8
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt f97452901cf97ec962a7a703178f026f6767538b4af029cbdbc00b71305df8cc
+F skins/blitz/css.txt eb60286cf2ece6d72f38c15f617ac735e6dbb4c86487edaa06f5d3fdcecd901d
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 73c5b76df7e89a339896cc9f499b245d86961b83c32dba7a15a9cc1a6667412d
-R 84fe9ebd60482595dd140427f5eac923
-U stephan
-Z 46fac922da585a3ee0ee2d3d72a84913
+P fd327fd26136546a924e2377f552bd66bd347705780be6e5b920ac892e92dbbf
+R b2fa1bf11ec7b91718daba3bc256d72f
+U mgagnon
+Z 7c3e0935120d5999f1b98f9eabfc9bc1
 # Remove this line to create a well-formed Fossil manifest.

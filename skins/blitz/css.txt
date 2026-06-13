@@ -1247,3 +1247,9 @@ td.usetupEditLabel {
 body.forum .forumPosts.fileage a:visited {
   color: #648999;
 }
+
+/* Chat
+––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
+body.chat .chat-input-field:focus {
+    border-color: #446979;
+}
