@@ -2015,6 +2015,8 @@ section.attachlist {}
 details.attachlist > summary {
   cursor: pointer;
 }
+/* .Attacher is the top container element used by the JS Attacher
+   class in fossil.attach.js. */
 .Attacher {
   margin-bottom: 1em;
   display: flex;

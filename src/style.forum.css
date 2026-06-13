@@ -8,52 +8,47 @@ fieldset.forum-status-selection {
 }
 
 body.forum .forumpost-single-controls button.draft:after {
+  /* Reply/Edit buttons on posts which have local draft edits. */
   content: " [draft]";
 }
 
+/* .ForumPostEditor is the top container element used by the JS
+   ForumPostEditor class in fossil.page.forumpost.js. */
 .ForumPostEditor {
   display: flex;
   flex-direction: column;
   gap: 1em;
   padding: 0.5em;
 }
-
 .ForumPostEditor > .tab-bar{
 }
-
 .ForumPostEditor > .tab-container {
 }
-
 .ForumPostEditor > .tab-container > .tabs {
   /*min-height: 10em;*/
 }
-
 .ForumPostEditor > .tab-container > .tabs > .tab-panel.debug {
   display: flex;
   flex-direction: column;
   gap: 0.75em;
 }
-
 .ForumPostEditor > .tab-container > .tabs > .tab-panel.debug label,
 .ForumPostEditor > .tab-container > .tabs > .tab-panel.debug input[type=checkbox]{
   cursor: pointer;
 }
-
-
 .ForumPostEditor > .tab-container >  .tabs > .tab-panel {
   display: flex;
   flex-direction: column;
 }
-
 .ForumPostEditor .tab-panel.editor-wrapper > .editor {
   max-width: initial;
   min-height: 20em;
   flex-grow: 1
 }
 body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
+  /* Start the editor out taller in /forumnew. */
   min-height: 28em;
 }
-
 .ForumPostEditor > .buttons > .mimetype-wrapper,
 .ForumPostEditor > .titlebar{
   display: flex;
@@ -72,7 +67,6 @@ body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
   max-width: initial;
   color: initial;
 }
-
 .ForumPostEditor > .buttons {
   font-size: 90%;
   display: flex;
@@ -97,12 +91,10 @@ body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
 .ForumPostEditor > .buttons > label > input[type=checkbox]{
   cursor: pointer;
 }
-
 .ForumPostEditor > .error {
   padding: 0.5em;
   border-radius: 0.5em;
 }
-
 .forumpost > .ForumPostEditor {
   border-top: 1px dotted;
 }

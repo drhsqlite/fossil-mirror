@@ -1,5 +1,5 @@
-C Only\sshow\sthe\sforum\seditor's\sStash\sbutton\swhen\ssaving\sof\sdrafts\sis\senabled\s(it\scurrently\salways\sis).
-D 2026-06-13T13:21:20.543
+C CSS\sdocs\sand\sremove\ssome\sextraneous\sempty\slines.
+D 2026-06-13T13:48:43.614
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
-F src/default.css c479a9c031fa36d76d110df23851bf64b4a0671ea846292c72bc8ee76961e880
+F src/default.css 42f2a1c54d0a32660358c9545613f052974edfa6a346abd3c650f21746883a86
 F src/delta.c f2b7df726a0d1acea0fed66947ac76b23c4d4ed4709770eb94d24aab3d31b891
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -569,7 +569,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c 7d18036ac46645c368b9ff669890b300c8019fe32fbca3513f95c99d0e4a0d23
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
-F src/style.forum.css 73df4134ab7729ce996c290039e5d5da6de314aefbfd0a25ac4e295d3461a155
+F src/style.forum.css 6b20e3d3b201ce3e1f4228479ef922d30aefcd808733404ef81bfb7ce0ef920c
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f12099fbe
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 157f5a4c69171c75f97a31eadcd572dfbf6237bf40b58d42eda7246b6f13f29b
-R 3aa7921aa83dfa6d1c62a56d4c05d007
+P b45242d8fd1e327c23d1b046a40909a6cbc4294040b3332372ec71d15d05f452
+R 27eb4d676337817e54dbe223db3e7d90
 U stephan
-Z ee1e2a559c736f5375ade58edb011fbb
+Z 18dfd66940e7cda3170368f04a341b20
 # Remove this line to create a well-formed Fossil manifest.
