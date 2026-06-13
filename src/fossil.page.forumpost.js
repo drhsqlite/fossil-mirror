@@ -1101,7 +1101,7 @@
           eButton.innerText = eButton.dataset.originalLabel;
           delete eButton.dataset.originalLabel;
         }
-        for(const ee of (fpe.eUnhideThenWhenDone || [])){
+        for(const ee of (fpe?.eUnhideThenWhenDone || [])){
           ee.removeAttribute('hidden');
         }
       };
@@ -1288,7 +1288,7 @@
               releaseLock();
               releaseLock = null;
             }
-            restoreEditReplyElement(ePost, eBtnEdit);
+            restoreEditReplyElement(ePost, eBtnEdit, null);
             console.error("Error fetching post:", err);
             reportFPEError(ePost, "Error fetching post: ", err.message);
           });
