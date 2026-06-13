@@ -16,9 +16,6 @@ body.forum .forumpost-single-controls button.draft:after {
   flex-direction: column;
   gap: 1em;
   padding: 0.5em;
-  /* Anyone know how to make these fade/slide in gracefully?
-  transition: display 0.5s ease-in-out;
-  transition: height 0.5s ease-in-out; */
 }
 
 .ForumPostEditor > .tab-bar{
@@ -113,5 +110,5 @@ body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
 .forumTime {
   /* Animate the transition when a ForumPostEditor shifts
      its post to the left. */
-  transition: margin-left 0.25s ease-in-out;
+  transition: margin-left 0.25s linear;
 }

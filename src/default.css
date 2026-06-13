@@ -2052,7 +2052,7 @@ body.fossil-dark-style .Attacher .attach-row {
   border: 1px solid #ddd;
   cursor: pointer;
   border-radius: 0.25em;
-  transition: background-color 0.15s ease-in-out;
+  transition: background-color 0.15s linear;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
