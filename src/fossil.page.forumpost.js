@@ -1351,10 +1351,11 @@
            around this by disabling this selection and adding a new
            status selection widget in the editor, inheriting this
            one's value. */
-        const eStatusChange = eThePost.querySelector(
-          ':scope > fieldset.forum-status-selection'
-        );
-        if( eStatusChange ) eToDisable.push(eStatusChange);
+        eThePost.querySelectorAll(
+          'fieldset.forum-status-selection,'+
+          '.forumpost-single-controls input[type=button],'+
+          '.forumpost-single-controls input[type=submit]'
+        ).forEach(ee=>eToDisable.push(ee));
       })/*for-each form*/;
 
     }/* /forumpost and /forumthread */

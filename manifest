@@ -1,5 +1,5 @@
-C Small\stweak\son\s/chat\ssingle-line\sinput\sfield:\severything\swas\stransparent\swhen\nfocused,\slet's\sput\sa\ssmall\sborder\sat\sleast.
-D 2026-06-13T01:42:44.761
+C While\sthe\sforum\seditor\sis\sopen,\salso\sdisable\sthe\spost's\sClose,\sDelete,\sand\sAttach\sbuttons\sbecause\sthose\swill\schange\sthe\scurrent\spage.\sPresumably\snobody\swants\sto\sclose\sor\sdelete\sduring\san\sedit,\sand\sattachment\scan\sbe\sdone\svia\sthe\seditor\sform.
+D 2026-06-13T07:55:47.424
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js cec174d4243d4f71a3a18ebf67099461a4799567e026c6337b11e022c3a47d3f
+F src/fossil.page.forumpost.js 886174e0d2ae6395da27f53c18995a535405b3deb82789689112d80d0e4776d2
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd327fd26136546a924e2377f552bd66bd347705780be6e5b920ac892e92dbbf
-R b2fa1bf11ec7b91718daba3bc256d72f
-U mgagnon
-Z 7c3e0935120d5999f1b98f9eabfc9bc1
+P 935bd936ac947c6d187881cb583a3b0512d00788e5a601a9187f234ac5a2345d
+R 3d5e859f551c175aaa27695baa9f2398
+U stephan
+Z 71e6dee1f7bc1c63352821b8ddf402a3
 # Remove this line to create a well-formed Fossil manifest.
