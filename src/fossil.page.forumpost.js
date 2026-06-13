@@ -1195,6 +1195,7 @@
             /* Do not inherit the fpid field, else this will become
                an edit to that post rather than a response. */
           ),
+          ondiscard: ()=>{/*need a noop here. Will call onclose()*/},
           onsubmit: ondone,
           onclose: ()=>{
             if( releaseLock ){
@@ -1276,6 +1277,7 @@
 
             const fpe = new F.ForumPostEditor(F.nu({
               hiddenFields: form.querySelectorAll('input[type=hidden]'),
+              ondiscard: ()=>{/*need a noop here. Will call onclose()*/},
               onsubmit: ondone,
               onclose: ()=>{
                 if(releaseLock){
