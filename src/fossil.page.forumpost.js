@@ -140,6 +140,7 @@
       { /* Mimetype... */
         e.mimetype.wrapper = D.addClass(D.div(), 'mimetype-wrapper');
         const sel = e.mimetype.select = D.addClass(D.select(), 'mimetype-select');
+        sel.setAttribute('title', 'Markup format for this post.');
         this.#toDisable.push(sel);
         let i = 0;
         D.option(sel, '', '- Markup format -').disabled = true;
@@ -165,10 +166,31 @@
 
       e.buttons = D.addClass(D.div(), 'buttons');
       { /* Preview/submit buttons... */
-        e.button.preview = D.button("Preview", e=>this.#preview());
-        e.button.submit = D.button("Submit");
+        e.button.preview = D.attr(
+          D.button("Preview", e=>this.#preview()),
+          'title',
+          'Preview your edits.'
+        );
+        e.button.submit = D.attr(
+          D.button("Submit"),
+          'title',
+          'Save any edits to the server. Not permitted until Preview has been used.'
+        );
+        e.button.stash = D.attr(
+          D.button(
+            "Stash", e=>this.close()
+            /* This could be called Close, but that would semantically
+               collide with the Close [this post] button. All "Stash"
+               does is close the widget. */
+          ),
+          'title', "Close this editor and stash any edits locally."
+        );
         if( opt.ondiscard instanceof Function ){
-          e.button.discard = D.button('Discard');
+          e.button.discard = D.attr(
+            D.button('Discard'),
+            'title',
+            'Close the editor and discard all local edits.'
+          );
         }
         if( 1 ){
           F.confirmer(e.button.submit, {
@@ -272,6 +294,7 @@
           && !opt.inReplyTo
           && F.config.forumStatuses?.length>0 ){
         const sel = e.status = D.select();
+        sel.setAttribute('title', 'The status tag value for this post.');
         D.option(sel, "", "- Status -").disabled = true;
         for( const status of F.config.forumStatuses ){
           D.option(sel, status.value, status.label);
@@ -304,7 +327,7 @@
         /* Reminder: we don't currently have a way to disable/enable
            an Attacher's controls during ajax traffic. */
       }
-      e.buttons.append(e.button.preview, e.button.submit);
+      e.buttons.append(e.button.preview, e.button.submit, e.button.stash);
       if( e.button.discard ){
         e.buttons.append(e.button.discard);
         this.#toDisable.push(e.button.discard);
@@ -331,7 +354,12 @@
             'starts when tapping Enter, turn this setting off.'
           ].join('')
         );
-        eCb.checked = F.storage.getBool('edit-shift-enter-preview', true);
+        eCb.checked = F.storage.getBool(
+          'edit-shift-enter-preview',
+          true
+          /* Maintenance reminder: this setting is shared across
+             several apps, like /chat, /wikiedit, and /fileedit. */
+        );
         eCb.addEventListener('change', (ev)=>{
           F.storage.set('edit-shift-enter-preview', eCb.checked);
         });
@@ -353,9 +381,8 @@
           if(!isShiftEnter(ev)) return;
           ev.preventDefault();
           ev.stopPropagation();
-          e.editor.blur(/*force change event, if needed*/);
+          e.editor.blur(/*force draft update if needed*/);
           this.#tabs.switchToTab(e.preview);
-          this.#preview();
         }, false);
         // If we're in the preview tab, have ctrl-enter switch back to the editor.
         document.body.addEventListener('keydown',(ev)=>{
@@ -985,8 +1012,7 @@
     /* Apply page-specific tweaks for ForumPostEditor instance fpe
        then plug it into the UI at the end of ePost. */
     const initFPEWidget = (fpe, ePost)=>{
-      const w = fpe.widget;
-      fpe.eUnhideThenWhenDone = [
+      ePost.eUnhideThenWhenDone = [
         /* List of elements to hide while editing/replying and reveal
            when discarding or saving. */
       ];
@@ -994,8 +1020,9 @@
         '.forumpost-single-controls, fieldset.forum-status-selection'
       ) ){
         ee.hidden = true;
-        fpe.eUnhideThenWhenDone.push(ee);
+        ePost.eUnhideThenWhenDone.push(ee);
       }
+      const w = fpe.widget;
       w.classList.add('animate-entrance');
       ePost.append(w);
       requestAnimationFrame(() => {
@@ -1072,7 +1099,7 @@
       };
 
       /** Undoes the damage done by setupEditReplyElement(). */
-      const restoreEditReplyElement = (ePost, eButton, fpe)=>{
+      const restoreEditReplyElement = (ePost, eButton)=>{
         if( ePost.dataset.originalMarginLeft ){
           ePost.style.marginLeft = ePost.dataset.originalMarginLeft;
           delete ePost.dataset.originalMarginLeft;
@@ -1081,9 +1108,10 @@
           eButton.innerText = eButton.dataset.originalLabel;
           delete eButton.dataset.originalLabel;
         }
-        for(const ee of (fpe?.eUnhideThenWhenDone || [])){
+        for(const ee of (ePost.eUnhideThenWhenDone || [])){
           ee.removeAttribute('hidden');
         }
+        ePost.eUnhideThenWhenDone = undefined;
       };
 
       /**
@@ -1153,12 +1181,12 @@
         eBtnReply.innerText = "Replying...";
         const ondone = (fpe, response)=>{
           /* onsubmit() and ondiscard() callback */
-          restoreEditReplyElement(ePost, eBtnReply, fpe);
+          restoreEditReplyElement(ePost, eBtnReply);
           //console.debug("ondiscard/onsubmit", fpe, artifact);
           if( response/*onsubmit()*/ ){
             window.location = F.repoUrl('forumpost/'+response.uuid);
             setTimeout(()=>fpe.close(), 500/*just in case not redirected*/);
-          }else{/*ondiscard()*/
+          }else{/*ondiscard() or onclose()*/
           }
         };
         const fpe = new F.ForumPostEditor(F.nu({
@@ -1167,13 +1195,13 @@
             /* Do not inherit the fpid field, else this will become
                an edit to that post rather than a response. */
           ),
-          ondiscard: ondone,
           onsubmit: ondone,
           onclose: ()=>{
             if( releaseLock ){
               releaseLock();
               releaseLock = null;
             }
+            ondone();
           },
           inReplyTo: fpid,
           draftKey
@@ -1233,13 +1261,13 @@
                     && 0===response.attachedCount ){
                   fpe.reportError("No changes made.");
                 }else{
-                  restoreEditReplyElement(ePost, eBtnEdit, fpe);
+                  restoreEditReplyElement(ePost, eBtnEdit);
                   window.location = F.repoUrl('forumpost/'+response.uuid);
                   setTimeout(()=>fpe.close(), 500/*just in case not redirected*/);
                 }
               }else{
-                /*ondiscard()*/
-                restoreEditReplyElement(ePost, eBtnEdit, fpe);
+                /*ondiscard() or onclose()*/
+                restoreEditReplyElement(ePost, eBtnEdit);
               }
             };
             const eStatusSelect = ePost.querySelector(
@@ -1248,13 +1276,13 @@
 
             const fpe = new F.ForumPostEditor(F.nu({
               hiddenFields: form.querySelectorAll('input[type=hidden]'),
-              ondiscard: ondone,
               onsubmit: ondone,
               onclose: ()=>{
                 if(releaseLock){
                   releaseLock();
                   releaseLock = null;
                 }
+                ondone();
               },
               draftKey,
               edit: artifact,
@@ -1268,7 +1296,7 @@
               releaseLock();
               releaseLock = null;
             }
-            restoreEditReplyElement(ePost, eBtnEdit, null);
+            restoreEditReplyElement(ePost, eBtnEdit);
             console.error("Error fetching post:", err);
             reportFPEError(ePost, "Error fetching post: ", err.message);
           });
