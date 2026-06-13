@@ -2198,7 +2198,7 @@ void forumedit_page(void){
                  "forumEdit", 1);
     @ <h1>Change Into:</h1>
     forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
-    @ <form action="%R/forume2" method="POST" class="remove-on-load">
+    @ <form action="%R/forume2" method="POST">
     login_insert_csrf_secret();
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="nullout" value="1">
@@ -2226,7 +2226,7 @@ void forumedit_page(void){
       forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
     }
     @ <h2>Revised Message:</h2>
-    @ <form action="%R/forume2" method="POST" class="remove-on-load">
+    @ <form action="%R/forume2" method="POST">
     login_insert_csrf_secret();
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
@@ -2278,7 +2278,9 @@ void forumedit_page(void){
   if( !bReply ){
     forum_render_attachment_list(rid_to_uuid(fpid));
   }
-  forum_render_attachment_notice();
+  if( !isDelete ){
+    forum_render_attachment_notice();
+  }
   forum_emit_js();
   style_finish_page();
 }
