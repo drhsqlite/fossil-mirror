@@ -1,5 +1,5 @@
-C Add\snotes\sabout\sforked\sforum\sposts\sto\swww/forum.wiki\sso\sthat\sfuture\sus\swill\sbe\sreminded\sat\ssome\spoint\sto\sreturn\sto\sthat\stopic.
-D 2026-06-13T09:18:17.433
+C Slight\sforum\seditor\sanimation\stweaks.\sAdd\ssome\sarguably\ssuperfluous\s"just\sin\scase"\serror\shandling.
+D 2026-06-13T10:41:16.983
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
-F src/default.css 534d842b93596389751e4a665af42c7ed1f216e558afe49eff9f743595bd7209
+F src/default.css c2c3b1ded326eae606081709cd4cd097df7b26591704656328e3786695089882
 F src/delta.c f2b7df726a0d1acea0fed66947ac76b23c4d4ed4709770eb94d24aab3d31b891
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -449,7 +449,7 @@ F src/fossil.numbered-lines.js 9b6958161e7724c8e6006583866a0b17f062cb2ac148d9cef
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
 F src/fossil.page.chat.js 8b080a2aff67059cc79de09956424b015ca2a940550c6f37becac87011613fdb
 F src/fossil.page.fileedit.js a9a4e279cf24af5532f0f93c7e508208d98aa62b4302a86b8bc19f9b6a363d2f
-F src/fossil.page.forumpost.js c45dcd81d47f3565dd56d726183521e41cb8f1e1499a747b92c89253555f7643
+F src/fossil.page.forumpost.js f6e8b5d5f748476dd5c2cc3cd259e8d27002469a6c87504b722e768cae1dae68
 F src/fossil.page.pikchrshow.js cdc726e195ae6455a8efe3cf30c6e74cb9ac82e2d2fe076a85e2e680a9c94114
 F src/fossil.page.pikchrshowasm.js e0b25c5537b955f8eb5b0e606812d1a7ffee3af438e30bbe1926dad399714a4a
 F src/fossil.page.ticket.js f3383c63a33a395111a9be9a10e8e09e5c8abbadc9c0e1c8f0e92dd37eac9f65
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8da3b3f796f88d92bdfbcaa9e333ae57e4a8a727ba98d96157c0cc64be1b39c0
-R a370948da5e4993a85d07b1d1d902236
+P 22648d1832fb7a28f544366b02d04bc6e5d05a290a23f92c3d68fe6e9fa65020
+R 03426bda18e5c9fb3e2d19314204de78
 U stephan
-Z 9406fd2aa27266749b978e0f2c933c88
+Z 7f2c1b3d5baa3e0b42ec188894158019
 # Remove this line to create a well-formed Fossil manifest.

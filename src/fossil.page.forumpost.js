@@ -755,6 +755,7 @@
                 this.reportError("No changes made.");
               }else{
                 window.location = F.repoUrl('forumpost/'+j.uuid);
+                setTimeout(()=>this.close(), 500/*just in case not redirected*/);
               }
             }
           }else{
@@ -1177,7 +1178,7 @@
           //console.debug("ondiscard/onsubmit", fpe, artifact);
           if( response/*onsubmit()*/ ){
             window.location = F.repoUrl('forumpost/'+response.uuid);
-            fpe.close();
+            setTimeout(()=>fpe.close(), 500/*just in case not redirected*/);
           }else{/*ondiscard()*/
           }
         };
@@ -1247,7 +1248,6 @@
           .then(artifact=>{
             const ondone = (fpe, response)=>{
               /* onsubmit() and ondiscard() callback */
-              //console.debug("ondiscard/onsubmit", fpe);
               if( response/*onsubmit()*/ ){
                 if( fpid === response.uuid
                     && !response.statusModified
@@ -1256,6 +1256,7 @@
                 }else{
                   restoreEditReplyElement(ePost, eBtnEdit, fpe);
                   window.location = F.repoUrl('forumpost/'+response.uuid);
+                  setTimeout(()=>fpe.close(), 500/*just in case not redirected*/);
                 }
               }else{
                 /*ondiscard()*/
