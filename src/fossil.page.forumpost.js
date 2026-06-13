@@ -176,15 +176,17 @@
           'title',
           'Save any edits to the server. Not permitted until Preview has been used.'
         );
-        e.button.stash = D.attr(
-          D.button(
-            "Stash", e=>this.close()
-            /* This could be called Close, but that would semantically
-               collide with the Close [this post] button. All "Stash"
-               does is close the widget. */
-          ),
-          'title', "Close this editor and stash any edits locally."
-        );
+        if( this.#draft ){
+          e.button.stash = D.attr(
+            D.button(
+              "Stash", e=>this.close()
+              /* This could be called Close, but that would semantically
+                 collide with the Close [this post] button. All "Stash"
+                 does is close the widget. */
+            ),
+            'title', "Close this editor and stash any edits locally."
+          );
+        }
         if( opt.ondiscard instanceof Function ){
           e.button.discard = D.attr(
             D.button('Discard'),
@@ -327,7 +329,11 @@
         /* Reminder: we don't currently have a way to disable/enable
            an Attacher's controls during ajax traffic. */
       }
-      e.buttons.append(e.button.preview, e.button.submit, e.button.stash);
+      e.buttons.append(e.button.preview, e.button.submit);
+      if( e.button.stash ){
+        e.buttons.append(e.button.stash);
+        this.#toDisable.push(e.button.stash);
+      }
       if( e.button.discard ){
         e.buttons.append(e.button.discard);
         this.#toDisable.push(e.button.discard);
