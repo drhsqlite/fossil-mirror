@@ -195,21 +195,6 @@
         e.error.addEventListener('dblclick',()=>this.reportError());
       }
 
-      if( opt.captcha ){
-        const eCap = opt.captcha;
-        const w = D.div();
-        w.style.display = 'flex';
-        w.style.flexDirection = 'row';
-        w.style.gap = '1em';
-        eCap.style.fontFamily = 'monospace';
-        eCap.style.whiteSpace = 'pre';
-        eCap.style.fontSize = '50%';
-        e.captcha = D.attr(D.input('text'), 'size', 8);
-        w.append("Enter captcha value:", e.captcha);
-        wrapper.append(eCap, w);
-        eCap.classList.remove('hidden');
-      }
-
       const idPrefix = 'FormPostEditor'+(++idCounter)/* TabManager requires IDs */;
       { /* Main tabs... */
         e.tabs = D.attr(
@@ -577,9 +562,6 @@
       }
       fd.append('mimetype', this.mimetype);
       fd.append('content', addThisContent || this.editorContent.trim());
-      if( this.#e.captcha ){
-        fd.append('captcha', this.#e.captcha.value);
-      }
       return fd;
     }
 
@@ -672,10 +654,6 @@
     }
 
     #validate(tgt){
-      if( this.#e.captcha && 8!==this.#e.captcha.value.length ){
-        this.reportError("Enter the captcha value.");
-        return;
-      }
       if( this.#e.title ){
         const v = this.#e.title.value.trim();
         if( !v ){
@@ -795,7 +773,7 @@
       const now = Date.now();
       const check = (k)=>{
         const o = F.storage.getJSON(k);
-        if( o && (!days || (o.mtime+age < now)) ){
+        if( o && o.mtime && (!days || (o.mtime+age <= now)) ){
           F.storage.remove(k);
         }
       };
@@ -1004,19 +982,20 @@
       });
     }
 
-    /* Page-specific style tweaks for a ForumPostEditor instance. */
-    const initFPEWidget = (ePost, fpe)=>{
+    /* Apply page-specific tweaks for ForumPostEditor instance fpe
+       then plug it into the UI at the end of ePost. */
+    const initFPEWidget = (fpe, ePost)=>{
       const w = fpe.widget;
       fpe.eUnhideThenWhenDone = [
         /* List of elements to hide while editing/replying and reveal
            when discarding or saving. */
       ];
-      ePost.querySelectorAll(
+      for( const ee of ePost.querySelectorAll(
         '.forumpost-single-controls, fieldset.forum-status-selection'
-      ).forEach(ee=>{
+      ) ){
         ee.hidden = true;
         fpe.eUnhideThenWhenDone.push(ee);
-      });
+      }
       w.classList.add('animate-entrance');
       ePost.append(w);
       requestAnimationFrame(() => {
@@ -1199,7 +1178,7 @@
           inReplyTo: fpid,
           draftKey
         }));
-        initFPEWidget(ePost, fpe);
+        initFPEWidget(fpe, ePost);
       }/*replyClicked()*/;
 
       /**
@@ -1282,7 +1261,7 @@
               status: eStatusSelect?.value,
               inReplyTo: firt
             }));
-            initFPEWidget(ePost, fpe);
+            initFPEWidget(fpe, ePost);
           })
           .catch(err=>{
             if( releaseLock ){
@@ -1357,7 +1336,9 @@
     });
 
     if( plugInEditor ){
-      document.body.querySelectorAll('.remove-if-replaced').forEach(e=>e.remove());
+      document.body.querySelectorAll('.remove-if-replaced').forEach(
+        /* Remove remaining legacy UI elements. */ e=>e.remove()
+      );
       /* Purge old drafts only every now and then. */
       const now = Date.now();
       const lastPurge = +F.storage.get('forum-drafts-last-purge', 0);
@@ -1365,7 +1346,10 @@
         F.storage.set('forum-drafts-last-purge', now);
         setTimeout(()=>{
           /* Don't block the UI while we're doing I/O */
-          F.ForumPostEditor.purgeOldDrafts(/^draft-(reply|forumedit)-.*/);
+          F.ForumPostEditor.purgeOldDrafts(
+            /^draft-(reply|forumedit)-.*/
+            /* Intentionally leaving draft-forumnew in place. */
+          );
         }, 50);
       }
     }
