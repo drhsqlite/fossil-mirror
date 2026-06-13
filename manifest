@@ -1,5 +1,5 @@
-C Improved\serror\sreporting\swhen\sencountering\sa\smalformed\sdelta.
-D 2026-06-10T09:44:13.317
+C Mention\sthe\ssystemd\ssandboxing\sin\sthe\sCGI\sdocumentation.
+D 2026-06-13T19:34:22.892
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -926,7 +926,7 @@ F www/scgi.wiki 8a0f5e5ba635f40fc9e2e8d9afc5eaa6df854152ab9413ebacd2809866e104b7
 F www/selfcheck.wiki bdadf16dc00fe01497186397287d311b4eeb3a578d8afc56b279a1bd65da1b2c
 F www/selfhost.wiki f556d309a5f2fad1a5d68bddb4b91a07423a16ee9adf34818565ca4f9dfe4f6c
 F www/server/any/althttpd.md 4ac7121aa47d8ce6321128097884528354428a7606d60a83efb01c1e31270fad
-F www/server/any/cgi.md 3ea5ac4eab6916352192675869a4920a875db0e916374a2321fba3659281b693
+F www/server/any/cgi.md 32083ba0a9c8fee92c3ce9f6fd079085bb5044b0b4c2269aac7cb513c303e463
 F www/server/any/http-over-ssh.md 87c3f07f1b56beb9eab8a2504b38ec963b34d28e7c48deeaa753cced343ba008
 F www/server/any/index.md 362cf7a4991592606ef26bd684b4e89681c60558ff94a96f96651659ff62a86a
 F www/server/any/inetd.md 9bbff868954a69ed40b595f1a059cf74f7b4afd6ccb50d7ee2d7e4d6a6a7ff85
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60c7b5f4231f3725fac704631de2c7bdd8854dde9d89b0b499a754f51b45e184
-R 718ae8a9ee091f76d6d5982f22a6c5e2
-U drh
-Z a6e5854844b69c8f9cc43a8ca02aba7e
+P cb5edcab07be198b4777f1f67dae9efd2fafd445f48ae969b6961f8fd427575a
+R 5a4e1cc6b2a7f81b823d7ec51f989e70
+U danield
+Z 910a84a1ea3c8202640d95dd97f5fab3
 # Remove this line to create a well-formed Fossil manifest.
