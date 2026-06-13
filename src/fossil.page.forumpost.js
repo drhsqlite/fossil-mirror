@@ -92,13 +92,14 @@
 
        opt.status: optional current status tag value for opt.edit,
        if known. This is used for pre-selecting a status value.
+
+       opt.hideStash[bool=false]: if true, the "Stash" button does not
+       get added. Intended for use with /forumnew.
     */
     constructor(opt){
       opt = this.#opt = F.nu({
-        // todo: defaults once we determine the options
-        // inReplyTo: hash
-        // fpid: hash
-        draftKey: undefined
+        draftKey: undefined,
+        hideStash: false
       }, opt);
       opt.isNewThread = !opt.inReplyTo && !opt.edit;
       if( opt.draftKey ){
@@ -176,7 +177,7 @@
           'title',
           'Save any edits to the server. Not permitted until Preview has been used.'
         );
-        if( this.#draft ){
+        if( this.#draft && !opt.hideStash ){
           e.button.stash = D.attr(
             D.button(
               "Stash", e=>this.close()
@@ -1056,6 +1057,7 @@
       const fpe = new F.ForumPostEditor({
         draftKey: 'draft-forumnew',
         hiddenFields: eForumNew.querySelectorAll('input[type=hidden]'),
+        hideStash: true,
         ondiscard: ()=>{
           window.location = F.repoUrl('forum');
         },
