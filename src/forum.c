@@ -1163,7 +1163,7 @@ static void forum_display_post(
     /* Open the <div> enclosing the post. Set the class string to mark the post
     ** as selected and/or obsolete. */
     iIndent = (p->pEditHead ? p->pEditHead->nIndent : p->nIndent)-1;
-    @ <div id='forum%d(p->fpid)' class='forumTime\
+    @ <div id='forum%d(p->fpid)' class='forumpost forumTime\
     @ %s(bSelect ? " forumSel" : "")\
     @ %s(iClosed ? " forumClosed" : "")\
     @ %s(p->pEditTail ? " forumObs" : "")' \

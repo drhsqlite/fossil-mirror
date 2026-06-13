@@ -1006,11 +1006,18 @@
     /* Page-specific style tweaks for a ForumPostEditor instance. */
     const initFPEWidget = (ePost, fpe)=>{
       const w = fpe.widget;
-      w.style.borderTop = '1px dotted';
-      //w.style.marginTop = '0.35em';
-      /* Adding an "Editing..." <h3> here adds way too much space */
-      ePost.append(w);
+      fpe.eUnhideThenWhenDone = [
+        /* List of elements to hide while editing/replying and reveal
+           when discarding or saving. */
+      ];
+      ePost.querySelectorAll(
+        '.forumpost-single-controls, fieldset.forum-status-selection'
+      ).forEach(ee=>{
+        ee.hidden = true;
+        fpe.eUnhideThenWhenDone.push(ee);
+      });
       w.classList.add('animate-entrance');
+      ePost.append(w);
       requestAnimationFrame(() => {
         w.scrollIntoView({
           behavior: 'smooth',
@@ -1070,11 +1077,9 @@
       /**
          Perform some init common to both Reply and Edit.  ePost = the
          forum post DOM element. eButton = the Reply or Edit
-         button. eToDisable = an array of DOM elements which must be
-         disabled when the editor is active and re-enabled when it is
-         closed.
+         button.
       */
-      const setupEditReplyElement = (ePost, eButton, eToDisable)=>{
+      const setupEditReplyElement = (ePost, eButton)=>{
         /* Forum posts are indented in the main forum view to
            represent their place in the hierarchy. In order to gain
            some screen space, we shift the post to the left margin and
@@ -1084,11 +1089,10 @@
         ePost.dataset.originalMarginLeft = ePost.style.marginLeft;
         ePost.style.marginLeft = 'initial';
         eButton.dataset.originalLabel = eButton.innerText;
-        D.disable(eToDisable);
       };
 
       /** Undoes the damage done by setupEditReplyElement(). */
-      const restoreEditReplyElement = (ePost, eButton, eToDisable)=>{
+      const restoreEditReplyElement = (ePost, eButton, fpe)=>{
         if( ePost.dataset.originalMarginLeft ){
           ePost.style.marginLeft = ePost.dataset.originalMarginLeft;
           delete ePost.dataset.originalMarginLeft;
@@ -1097,7 +1101,9 @@
           eButton.innerText = eButton.dataset.originalLabel;
           delete eButton.dataset.originalLabel;
         }
-        D.enable(eToDisable);
+        for(const ee of (fpe.eUnhideThenWhenDone || [])){
+          ee.removeAttribute('hidden');
+        }
       };
 
       /**
@@ -1121,7 +1127,7 @@
          final 3 arguments are as documented for
          setupEditReplyElement().
       */
-      const replyClicked = async (form, ePost, eBtnReply, eToDisable)=>{
+      const replyClicked = async (form, ePost, eBtnReply)=>{
         const fpid = ePost.dataset.fpid;
         const fEditHead = ePost.dataset.fedithead;
         const draftKey = makeDraftKey(
@@ -1163,11 +1169,11 @@
           }
         }
 
-        setupEditReplyElement(ePost, eBtnReply, eToDisable);
+        setupEditReplyElement(ePost, eBtnReply);
         eBtnReply.innerText = "Replying...";
         const ondone = (fpe, response)=>{
           /* onsubmit() and ondiscard() callback */
-          restoreEditReplyElement(ePost, eBtnReply, eToDisable);
+          restoreEditReplyElement(ePost, eBtnReply, fpe);
           //console.debug("ondiscard/onsubmit", fpe, artifact);
           if( response/*onsubmit()*/ ){
             window.location = F.repoUrl('forumpost/'+response.uuid);
@@ -1201,7 +1207,7 @@
          final 3 arguments are as documented for
          setupEditReplyElement().
       */
-      const editClicked = async (form, ePost, eBtnEdit, eToDisable)=>{
+      const editClicked = async (form, ePost, eBtnEdit)=>{
         const fpid = ePost.dataset.fpid;
         const firt = ePost.dataset.firt;
         const fEditHead = ePost.dataset.fedithead;
@@ -1235,25 +1241,25 @@
             return;
           }
         }
-        setupEditReplyElement(ePost, eBtnEdit, eToDisable);
+        setupEditReplyElement(ePost, eBtnEdit);
         eBtnEdit.innerText = "Editing...";
         fetchPost(fpid)
           .then(artifact=>{
             const ondone = (fpe, response)=>{
               /* onsubmit() and ondiscard() callback */
-              //console.debug("ondiscard/onsubmit", fpe, eToDisable);
+              //console.debug("ondiscard/onsubmit", fpe);
               if( response/*onsubmit()*/ ){
                 if( fpid === response.uuid
                     && !response.statusModified
                     && 0===response.attachedCount ){
                   fpe.reportError("No changes made.");
                 }else{
-                  restoreEditReplyElement(ePost, eBtnEdit, eToDisable);
+                  restoreEditReplyElement(ePost, eBtnEdit, fpe);
                   window.location = F.repoUrl('forumpost/'+response.uuid);
                 }
               }else{
                 /*ondiscard()*/
-                restoreEditReplyElement(ePost, eBtnEdit, eToDisable);
+                restoreEditReplyElement(ePost, eBtnEdit, fpe);
               }
             };
             const eStatusSelect = ePost.querySelector(
@@ -1282,7 +1288,7 @@
               releaseLock();
               releaseLock = null;
             }
-            restoreEditReplyElement(ePost, eBtnEdit, eToDisable);
+            restoreEditReplyElement(ePost, eBtnEdit);
             console.error("Error fetching post:", err);
             reportFPEError(ePost, "Error fetching post: ", err.message);
           });
@@ -1298,12 +1304,6 @@
           console.warn("Unexpected missing fpid", eThePost);
           return;
         }
-        const eToDisable = [
-          /* List of non-editor DOM elements which need to be disabled
-             while the editor is active and re-enabled when it
-             closes. */
-        ];
-
         const checkButtonForDraft = (draftKeyPrefix, eBtn)=>{
           /* If a draft is found associated with eThePost, mark eBtn
              as a draft and set up storage event listeners to update
@@ -1329,33 +1329,20 @@
            a ForumPostEditor. */
         const btnReply = form.querySelector('input[type=submit][name=reply]');
         if( btnReply ){
-          const b = D.button("Reply", ()=>replyClicked(form, eThePost, b, eToDisable));
+          const b = D.button("Reply", ()=>replyClicked(form, eThePost, b));
           b.type = 'button'/*keep container form from submitting*/;
-          eToDisable.push(b);
           checkButtonForDraft('draft-reply',b);
           btnReply.parentElement.insertBefore(b, btnReply);
           btnReply.remove();
         }
         const btnEdit = form.querySelector('input[type=submit][name=edit]');
         if( btnEdit ){
-          const b = D.button("Edit", ()=>editClicked(form, eThePost, b, eToDisable));
+          const b = D.button("Edit", ()=>editClicked(form, eThePost, b));
           b.type = 'button'/*keep container form from submitting*/;
-          eToDisable.push(b);
           checkButtonForDraft('draft-forumedit',b);
           btnEdit.parentElement.insertBefore(b, btnEdit);
           btnEdit.remove();
         }
-        /* Problem: we really need to disable the status-selection
-           button because it would redirect mid-edit. We wouldn't lose
-           the edits but would lose any pending attachments. We work
-           around this by disabling this selection and adding a new
-           status selection widget in the editor, inheriting this
-           one's value. */
-        eThePost.querySelectorAll(
-          'fieldset.forum-status-selection,'+
-          '.forumpost-single-controls input[type=button],'+
-          '.forumpost-single-controls input[type=submit]'
-        ).forEach(ee=>eToDisable.push(ee));
       })/*for-each form*/;
 
     }/* /forumpost and /forumthread */

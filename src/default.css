@@ -2130,12 +2130,12 @@ body.fossil-dark-style  .Attacher .attach-dropzone.dragover{
 }
 
 .animate-entrance {
-  animation: slideFadeIn 0.25s ease-out forwards;
+  animation: slideFadeIn 0.5s ease-out forwards;
   transform-origin: top;
   overflow: hidden /*prevent content bleeding during expansion*/;
 }
 .animate-exit {
-  animation: slideFadeOut 0.25s ease-in forwards;
+  animation: slideFadeOut 0.5s ease-in forwards;
   transform-origin: top;
   overflow: hidden;
 }

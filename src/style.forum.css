@@ -106,6 +106,10 @@ body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
   border-radius: 0.5em;
 }
 
+.forumpost > .ForumPostEditor {
+  border-top: 1px dotted;
+}
+
 .forumTime {
   /* Animate the transition when a ForumPostEditor shifts
      its post to the left. */
