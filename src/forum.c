@@ -2265,7 +2265,6 @@ void forumedit_page(void){
   if( !isDelete ){
     @ <input type="submit" name="preview" value="Preview">
   }
-  @ <input type="hidden" name="legacy" value="1">
   @ <input type="submit" name="cancel" value="Cancel">
   if( isDelete || (bPreview && !fossil_all_whitespace(zContent)) ){
     if( !iClosed || g.perm.Admin ) {

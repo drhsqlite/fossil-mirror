@@ -1,5 +1,5 @@
-C Fix\sthe\sbroken\sDelete\sPost\spage,\scaused\sby\snow-outdated/removed\sgoings-on\sin\sthis\sbranch.
-D 2026-06-13T16:01:04.855
+C Remove\sa\sdead\sform\sfield.\sConsolidate\stwo\spartially-duplicated\sCSS\srules.
+D 2026-06-14T06:24:29.121
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
-F src/default.css 42f2a1c54d0a32660358c9545613f052974edfa6a346abd3c650f21746883a86
+F src/default.css 2080c7a6447e8f615a078268545a6ab480b5d5658ab31c64c3cc3b5f11f1a69a
 F src/delta.c f2b7df726a0d1acea0fed66947ac76b23c4d4ed4709770eb94d24aab3d31b891
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -436,7 +436,7 @@ F src/file.c d6f624365e905e686efeacd8e431722946beebefa5d05d4c99195b9b419b86ee
 F src/fileedit.c b919130f16ca029264c23bda7f247799240f411d0ef2f8c18bbc1c5af5b08fc1
 F src/finfo.c 0c72c87d74ace653c73b48f0504998bf655d57ec070406d9cdca65db70eb4836
 F src/foci.c 2b554bb2443db706f07d8e5a8a5215e372c1baec3af2c4f78e1d9d5612326d06
-F src/forum.c f7a78067b362dd202f18ab5d5c38001cc0edb3337747077daf530d3145d9df7f
+F src/forum.c 9959aa79eab6388b6424503415a704849d1b349081118b1f1f8711c0b8f4c66e
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.attach.js bdc459429b9053edb88a5c3cc2bc5bb47401211ba2d5414956d149325cb7349d
 F src/fossil.bootstrap.js 2b54affdf43546829fb3a209973f03af72d8da0137f0ba27b0c5940c7d0212b8
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e9e4c4fabea8c42dddfa505c9a933b656871cfd2798ef7c5cb4c8938b60c9e97
-R a1b59f4b420870e56999eca0d75eb219
+P 01f6259455d1d62e2e46384e285e370080cc23408a5f285d5ffb9152eea43023
+R dc729c8eb63b34984fcc9e422f2014ce
 U stephan
-Z 7f4d1c3c161e2165704e4bc30964605c
+Z 76188d8e8042be62166020b33c95f803
 # Remove this line to create a well-formed Fossil manifest.

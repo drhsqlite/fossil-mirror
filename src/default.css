@@ -2077,9 +2077,6 @@ body.fossil-dark-style .Attacher .attach-dropzone.populated{
   border-color: #03a9f4;
 }
 body.fossil-dark-style .Attacher .attach-dropzone.dragover{
-  border-color: #03a9f4;
-}
-body.fossil-dark-style  .Attacher .attach-dropzone.dragover{
   background-color: #e1f5fe;
   border-color: #03a9f4;
 }
@@ -2131,6 +2128,8 @@ body.fossil-dark-style  .Attacher .attach-dropzone.dragover{
   line-height: initial/*work around an inherited alignment quirk*/;
 }
 
+/* .animate-X and their associated @keyframes are used by various
+   widgets to animate their comings and goings. */
 .animate-entrance {
   animation: slideFadeIn 0.25s linear forwards;
   transform-origin: top;
