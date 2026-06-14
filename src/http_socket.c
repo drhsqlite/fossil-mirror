@@ -48,6 +48,7 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <errno.h>
 
 /*
 ** There can only be a single socket connection open at a time.
@@ -198,6 +199,15 @@ int socket_open(UrlData *pUrlData){
   }
 #if !defined(_WIN32)
   signal(SIGPIPE, SIG_IGN);
+  {
+    /* Bound how long any single read/write can block so a silent peer
+    ** cannot wedge the transfer forever.  The fd stays blocking, so the
+    ** TLS handshake is unaffected. */
+    struct timeval tv;
+    tv.tv_sec = 30; tv.tv_usec = 0;
+    setsockopt(iSocket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    setsockopt(iSocket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+  }
 #endif
 end_socket_open:
   if( rc && iSocket>=0 ) socket_close();
@@ -213,6 +223,7 @@ size_t socket_send(void *NotUsed, const void *pContent, size_t N){
   size_t total = 0;
   while( N>0 ){
     sent = send(iSocket, pContent, N, 0);
+    if( sent<0 && errno==EINTR ) continue;
     if( sent<=0 ) break;
     total += (size_t)sent;
     N -= (size_t)sent;
@@ -238,6 +249,7 @@ size_t socket_receive(void *NotUsed, void *pContent, size_t N, int bDontBlock){
   while( N>0 ){
     /* WinXP fails for large values of N.  So limit it to 64KiB. */
     got = recv(iSocket, pContent, N>65536 ? 65536 : N, flags);
+    if( got<0 && errno==EINTR ) continue;
     if( got<=0 ) break;
     total += (size_t)got;
     N -= (size_t)got;

@@ -650,14 +650,17 @@ LOCAL void ssl_one_time_exception(
 */
 size_t ssl_send(void *NotUsed, void *pContent, size_t N){
   size_t total = 0;
+  int nStall = 0;
   while( N>0 ){
     int sent = BIO_write(iBio, pContent, N);
     if( sent<=0 ){
       if( BIO_should_retry(iBio) ){
+        if( ++nStall > 4 ) break;
         continue;
       }
       break;
     }
+    nStall = 0;
     total += sent;
     N -= sent;
     pContent = (void*)&((char*)pContent)[sent];
@@ -671,14 +674,19 @@ size_t ssl_send(void *NotUsed, void *pContent, size_t N){
 */
 size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
   size_t total = 0;
+  int nStall = 0;
   while( N>0 ){
     int got = BIO_read(iBio, pContent, N);
     if( got<=0 ){
       if( BIO_should_retry(iBio) ){
+        /* SO_RCVTIMEO made the underlying read time out with no data.
+        ** Allow a few consecutive stalls, then give up. */
+        if( ++nStall > 4 ) break;
         continue;
       }
       break;
     }
+    nStall = 0;
     total += got;
     N -= got;
     pContent = (void*)&((char*)pContent)[got];

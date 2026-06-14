@@ -1,5 +1,5 @@
-C Update\sa\slegacy\sreference\sto\show\spage\sheaders\sare\screated\sin\sa\sskins,\sas\sreported\sby\s[forum:d8e2afdfd1|forum\spost\sd8e2afdfd1].
-D 2026-06-14T13:29:11.590
+C Apply\stimeouts\sand\sretries\sto\snetwork\sread/write\swaits\sto\savoid\shangs.\n\nA\sclone\sor\ssync\sover\sHTTP/HTTPS\scould\sblock\swhen\sthe\speer\sstopped\ssending\nwithout\sclosing\sthe\sconnection.\sThe\sclient\ssat\sin\sa\sblocking\sread\son\sthe\ssocket\nwith\sno\stimeout.\sThe\strick\swas\sto\sfix\sit\swithout\sbreaking\sthe\sTLS\shandshake.\n\nhttp_socket.c:\sset\sSO_RCVTIMEO\sand\sSO_SNDTIMEO\s(30s)\son\sthe\sconnection\nsocket.\sThe\sfd\sstays\sin\sblocking\smode\sso\sthe\sTLS\shandshake\sis\sunaffected.\n\nhttp_ssl.c:\swhen\sreads\stime\sout\swith\sSO_RCVTIMEO,\sthere\sis\sno\sdata\sand\nBIO_should_retry()\sis\strue.\sCount\sconsecutive\sretries\swithout\sprogress\sin\nssl_send()/ssl_receive()\sand\sgive\sup\safter\sa\sfew.
+D 2026-06-14T22:05:16.820
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -471,8 +471,8 @@ F src/hname.c a40c637ebad60edc30b99d7307c4f95a55753be20862267787cdf6cd9146f53c
 F src/hook.c 622578a5156b42001f583e8446e6418f6419b8a27670c2d5530b91975ff1b35a
 F src/href.js 97641963c7127a0c000c5a90ad2e2b3b2d216614b6f552737b552aa68feb0f21
 F src/http.c 22e5ffbb56918922234e351adec2870d5a7dd3e4a8820e97cc3ecae6c75b41c6
-F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efce2f6
-F src/http_ssl.c 21448e159871c441e761fa58152860a22d123d279e5e661df8f4a6fad88f7c03
+F src/http_socket.c 583499ac4a360469618e287bb729c1f66c9bd293d6c148e71896d9e62d2c9797
+F src/http_ssl.c 75544cb28a9593a29f62a8b4c1f4c1fbe524030b9ca5967268e6ad30a36cdbac
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 1ee4f154daf3e687e8e8304777448b2bbd877adb279d6c9e7ff7952a02982b7f
 F src/info.c b0fa6aaace439bc19a8210e072b7087848f4df4e69d279adb102248592917653
@@ -981,8 +981,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69d43cc15e4f864fc28ca7ecfc4d38e8ee0b5cb4073649b42435dbaf94ac583b
-R 5816f907fe3ef0201b67b77b6cc76634
-U stephan
-Z 46600c68fdea251b24480b66b44fe8fe
+P 922ec24c994c1a902f8436c0e236ab36627b19334a07bb4b28910c253481fba3
+R 649e0e9102ea44c038ddc0c75bfc246c
+T *branch * client-timeout-fixes
+T *sym-client-timeout-fixes *
+T -sym-trunk *
+U danshearer
+Z ba2e8768fd6844094e7e81cef6780543
 # Remove this line to create a well-formed Fossil manifest.
