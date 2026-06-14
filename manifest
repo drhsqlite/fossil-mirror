@@ -1,5 +1,5 @@
-C Mention\sthe\ssystemd\ssandboxing\sin\sthe\sCGI\sdocumentation.
-D 2026-06-13T19:34:22.892
+C Update\sa\slegacy\sreference\sto\show\spage\sheaders\sare\screated\sin\sa\sskins,\sas\sreported\sby\s[forum:d8e2afdfd1|forum\spost\sd8e2afdfd1].
+D 2026-06-14T13:29:11.590
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -823,7 +823,7 @@ F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272b
 F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
 F www/custom_ticket.wiki 136568238a0e4f243d96f364379ac3613203e22e3ec584e5232cd4ce5445499e
 F www/customgraph.md 1478a72db903b5a77166b0487b9d4546b0d0d036bd8acd5532608d6bc4ae398a
-F www/customskin.md 0bbdf6e362be81b8418aa8b6f24437837c032e3bcbfe2e2d92848071463729f7
+F www/customskin.md f7d4618b252828cdde4f8461299cbf838caa68cbab22bb71609fcb9089b35369
 F www/defcsp.md 0e8185ed3e376e9e796f901fc9844f5511b173f501859f26fb6c9dadbae37137
 F www/delta-manifests.md 906357ba85aab092d43875ad4f28230bc2b2601371388d7a177fb13453b332c4
 F www/delta_encoder_algorithm.wiki 3a178f152bf2fe72a6ee610a303e253e0bc467aaa055b6311776ed5578c913d4
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb5edcab07be198b4777f1f67dae9efd2fafd445f48ae969b6961f8fd427575a
-R 5a4e1cc6b2a7f81b823d7ec51f989e70
-U danield
-Z 910a84a1ea3c8202640d95dd97f5fab3
+P 69d43cc15e4f864fc28ca7ecfc4d38e8ee0b5cb4073649b42435dbaf94ac583b
+R 5816f907fe3ef0201b67b77b6cc76634
+U stephan
+Z 46600c68fdea251b24480b66b44fe8fe
 # Remove this line to create a well-formed Fossil manifest.
