@@ -1,5 +1,5 @@
-C Remove\sa\sdead\sform\sfield.\sConsolidate\stwo\spartially-duplicated\sCSS\srules.
-D 2026-06-14T06:24:29.121
+C Ensure\sthat\sthe\slegacy\s/attachadd\sform\sredirects\sback\sto\sthe\spage\sfor\sthe\sattachment's\starget\sunless\sit's\stold\sotherwise\svia\s?from=X.
+D 2026-06-14T08:47:00.494
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -387,7 +387,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c f2250f3fd1fd4c69aa8816885d47da5110cb7936adf66eae1df83e6c46f9c0a6
-F src/attach.c ee69d3d19aba9709634af418f122f270bfbbff846afc38838b77450cb5ac709f
+F src/attach.c 9e50e8680fd7548aeca4860c186137240cce0d35ab639dd172dac5013b336c43
 F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a7
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 01f6259455d1d62e2e46384e285e370080cc23408a5f285d5ffb9152eea43023
-R dc729c8eb63b34984fcc9e422f2014ce
+P 9ea044d982d4bc46b523bce73c41a29877bf09c6352ffcb21818335e4e11376c
+R 98acb3e5fb90087cdfb7d134802c7a35
 U stephan
-Z 76188d8e8042be62166020b33c95f803
+Z 3a568693e9b0f8a2c9a20337ad4624eb
 # Remove this line to create a well-formed Fossil manifest.

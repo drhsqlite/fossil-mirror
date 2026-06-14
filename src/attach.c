@@ -1092,9 +1092,11 @@ void attachaddV2_page(void){
   @ <h2>Attachments for %s(zTargetType)</h2>
   attachment_list(zTarget, NULL,
                   ATTACHLIST_SIZE | ATTACHLIST_HIDE_UNAPPROVED);
-  attach_render_legacy_form(noJsArgs[0], noJsArgs[1], noJsArgs[2],
-                            noJsArgs[3], 0,
-                            zFrom ? zFrom : mprintf("%R/home"));
+  attach_render_legacy_form(
+    noJsArgs[0], noJsArgs[1], noJsArgs[2],
+    noJsArgs[3], 0,
+    zFrom ? zFrom : (zTo ? zTo : (zTo=mprintf("%R/home")))
+  );
   @ <div id='attachadd-form-wrapper' class='hidden'>
   /* fossil.attach.js populates this DIV with the attachment widget,
   ** imports these hidden fields, and removes the legacy form. */
@@ -1113,6 +1115,7 @@ void attachaddV2_page(void){
   style_finish_page();
   fossil_free(zTargetType);
   fossil_free(zExtraFree);
+  fossil_free(zTo);
 }
 
 /*
