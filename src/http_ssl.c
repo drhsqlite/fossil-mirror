@@ -37,6 +37,8 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
+#include <poll.h>
+#include <fcntl.h>
 
 #include <assert.h>
 #include <sys/types.h>
@@ -507,6 +509,15 @@ int ssl_open_client(UrlData *pUrlData){
     ssl_close_client();
     return 1;
   }
+  {
+    /* The TLS handshake completes on a blocking socket.  Switch to non-blocking
+    ** afterwards so that a stalled read returns instead of sleeping in the
+    ** kernel indefinitely; ssl_send()/ssl_receive() use poll() with a timeout
+    ** to wait for the socket and abandon a connection that has gone silent. */
+    int fd = socket_get_fd();
+    int fl = fcntl(fd, F_GETFL, 0);
+    if( fl!=-1 ) fcntl(fd, F_SETFL, fl | O_NONBLOCK);
+  }
   /* Check if certificate is valid */
   cert = SSL_get_peer_certificate(ssl);
 
@@ -650,17 +661,19 @@ LOCAL void ssl_one_time_exception(
 */
 size_t ssl_send(void *NotUsed, void *pContent, size_t N){
   size_t total = 0;
-  int nStall = 0;
   while( N>0 ){
     int sent = BIO_write(iBio, pContent, N);
     if( sent<=0 ){
       if( BIO_should_retry(iBio) ){
-        if( ++nStall > 4 ) break;
+        struct pollfd pfd;
+        pfd.fd = socket_get_fd();
+        pfd.events = BIO_should_read(iBio) ? POLLIN : POLLOUT;
+        if( poll(&pfd, 1, 120000)<=0 ) break;
+        if( pfd.revents & (POLLHUP|POLLERR|POLLNVAL) ) break;
         continue;
       }
       break;
     }
-    nStall = 0;
     total += sent;
     N -= sent;
     pContent = (void*)&((char*)pContent)[sent];
@@ -674,19 +687,19 @@ size_t ssl_send(void *NotUsed, void *pContent, size_t N){
 */
 size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
   size_t total = 0;
-  int nStall = 0;
   while( N>0 ){
     int got = BIO_read(iBio, pContent, N);
     if( got<=0 ){
       if( BIO_should_retry(iBio) ){
-        /* SO_RCVTIMEO made the underlying read time out with no data.
-        ** Allow a few consecutive stalls, then give up. */
-        if( ++nStall > 4 ) break;
+        struct pollfd pfd;
+        pfd.fd = socket_get_fd();
+        pfd.events = BIO_should_write(iBio) ? POLLOUT : POLLIN;
+        if( poll(&pfd, 1, 120000)<=0 ) break;
+        if( pfd.revents & (POLLHUP|POLLERR|POLLNVAL) ) break;
         continue;
       }
       break;
     }
-    nStall = 0;
     total += got;
     N -= got;
     pContent = (void*)&((char*)pContent)[got];

@@ -441,10 +441,17 @@ char *transport_receive_line(UrlData *pUrlData){
   i = iStart = transport.iCursor;
   while(1){
     if( i >= transport.nUsed ){
+      i64 nRcvdBefore = transport.nRcvd;
       transport_load_buffer(pUrlData, pUrlData->isSsh ? 2 : 1000);
       i -= iStart;
       iStart = 0;
       if( i >= transport.nUsed ){
+        /* No newline yet.  If the load brought in no new bytes, the peer has
+        ** stalled or closed mid-line: return NULL (truncation) rather than a
+        ** partial, newline-less line that the caller would misparse. */
+        if( transport.nRcvd==nRcvdBefore ){
+          return 0;
+        }
         transport.pBuf[i] = 0;
         transport.iCursor = i;
         break;

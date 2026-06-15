@@ -1,5 +1,5 @@
-C Apply\stimeouts\sand\sretries\sto\snetwork\sread/write\swaits\sto\savoid\shangs.\n\nA\sclone\sor\ssync\sover\sHTTP/HTTPS\scould\sblock\swhen\sthe\speer\sstopped\ssending\nwithout\sclosing\sthe\sconnection.\sThe\sclient\ssat\sin\sa\sblocking\sread\son\sthe\ssocket\nwith\sno\stimeout.\sThe\strick\swas\sto\sfix\sit\swithout\sbreaking\sthe\sTLS\shandshake.\n\nhttp_socket.c:\sset\sSO_RCVTIMEO\sand\sSO_SNDTIMEO\s(30s)\son\sthe\sconnection\nsocket.\sThe\sfd\sstays\sin\sblocking\smode\sso\sthe\sTLS\shandshake\sis\sunaffected.\n\nhttp_ssl.c:\swhen\sreads\stime\sout\swith\sSO_RCVTIMEO,\sthere\sis\sno\sdata\sand\nBIO_should_retry()\sis\strue.\sCount\sconsecutive\sretries\swithout\sprogress\sin\nssl_send()/ssl_receive()\sand\sgive\sup\safter\sa\sfew.
-D 2026-06-14T22:05:16.820
+C Replace\sread\stimeout\swith\snon-blocking\spoll,\sand\sadd\sTCP_NODELAY\n\nclone\sand\ssync\soften\shang\sor\sappear\sto\shang\son\slinks\swith\shighly\svariable\slatency,\nsometimes\sdoing\sso\smany\sretries\sthe\stransfer\srate\sis\sinfeasibly\sslow\sand\sat\sothers\nspinning\son\sreads\sthat\snever\scomplete.\sBoth\sgit\sand\smercurial\scope\swell\swith\sthe\ssame\nnetwork\sdoing\svery\ssimilar\stransfers,\sseemingly\sdue\sto\stheir\sprotocol\sdesign\sand\nimplementatin.\sThe\sfixes\shere\simprove\sthe\sfossil\simplementation\ssomewhat.\sEverything\shere\nwas\stested\swith\sthe\sfossil\sHTTP\s1.1\spatch.\n\n*\sSet\sTCP_NODELAY\son\sthe\sclient\ssocket\n\nThe\ssync\sprotocol\sinterleaves\ssmall\scontrol\swrites\swith\sbulk\stransfer,\sand\swith\sthe\sNagle\nalgorithm\sactive\sthose\ssmall\swrites\sare\sheld\swaiting\sfor\sACKs;\scombined\swith\sthe\speer's\ndelayed\sACKs\sthis\sthrottles\sthroughput\sbadly\son\shigher-latency\spaths.\sDisabling\sNagle\scan\ngive\sa\s10x\sthroughput\simprovement.\sThis\sis\swhat\scurl\sand\smany\sother\sHTTP\sclients\sdo\s(Git\nuses\scurl.)\n\n*\sNo\sblocking\sforever\son\sTLS\sreads\sand\swrites\n\nAfter\sthe\sTLS\shandshake\sthe\ssocket\sis\sswitched\sto\snon-blocking\smode.\sssl_send()\sand\nssl_receive()\snow\swait\sfor\sreadiness\swith\spoll()\sand\sa\stimeout,\sand\sabandon\sa\sconnection\nthat\shas\sstopped\scommunicating\sor\sbeen\sreset.\sThe\sblocking\ssocket\sremains\sduring\sthe\nhandshake\sso\sbehaviour\sis\sunchanged.\n\n*\sRetry\son\sEINTR\n\nIf\sa\ssignal\sinterrupts\srecv()/send()\swe\snow\sreturn\s-1/EINTR.\sThis\sseems\sto\sbe\san\nimprovement\son\streating\sthe\ssignal\sas\send-of-stream\sand\ssilently\struncating\sthe\stransfer.\n\n*\sReport\struncated\sreplies\sas\serrors\n\nWhen\sa\sread\smakes\sno\sprogress\sdue\sto\sa\sstalled\sor\shalf-closed\sconnection\swe\snow\sreturn\nNULL\sto\sindicate\send\sof\sinput.\sThis\smeans\swe\sno\slonger\stry\sto\sparse\spartial\sresponses.
+D 2026-06-15T07:44:51.510
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -471,9 +471,9 @@ F src/hname.c a40c637ebad60edc30b99d7307c4f95a55753be20862267787cdf6cd9146f53c
 F src/hook.c 622578a5156b42001f583e8446e6418f6419b8a27670c2d5530b91975ff1b35a
 F src/href.js 97641963c7127a0c000c5a90ad2e2b3b2d216614b6f552737b552aa68feb0f21
 F src/http.c 22e5ffbb56918922234e351adec2870d5a7dd3e4a8820e97cc3ecae6c75b41c6
-F src/http_socket.c 583499ac4a360469618e287bb729c1f66c9bd293d6c148e71896d9e62d2c9797
-F src/http_ssl.c 75544cb28a9593a29f62a8b4c1f4c1fbe524030b9ca5967268e6ad30a36cdbac
-F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
+F src/http_socket.c 3d8ea8bbc98817f9cb70899cc8e1cd7dcc847e4511bb6698561ba6d2c91cbdca
+F src/http_ssl.c 8d0a64bd1eb58000a485fd5d4a2588ec58150b366f0f1a43e6c3e39ffe4bd983
+F src/http_transport.c 9a17ca8d9d117c1d499341e737f779c2fa430111d5aeead71594f8859de12a6f
 F src/import.c 1ee4f154daf3e687e8e8304777448b2bbd877adb279d6c9e7ff7952a02982b7f
 F src/info.c b0fa6aaace439bc19a8210e072b7087848f4df4e69d279adb102248592917653
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
@@ -981,11 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 922ec24c994c1a902f8436c0e236ab36627b19334a07bb4b28910c253481fba3
-R 649e0e9102ea44c038ddc0c75bfc246c
-T *branch * client-timeout-fixes
-T *sym-client-timeout-fixes *
-T -sym-trunk *
+P 8da6e3590a1ad6b194fe877474af1571404852afdd173ec4b7273b7bad6e04a7
+R e75baa02f1c8c2aea440c39be68909e4
 U danshearer
-Z ba2e8768fd6844094e7e81cef6780543
+Z f734cf87bd5179d2daca302cee4ec5eb
 # Remove this line to create a well-formed Fossil manifest.

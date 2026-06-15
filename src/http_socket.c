@@ -41,6 +41,7 @@
 #  include <ws2tcpip.h>
 #else
 #  include <netinet/in.h>
+#  include <netinet/tcp.h>
 #  include <arpa/inet.h>
 #  include <sys/socket.h>
 #  include <netdb.h>
@@ -183,6 +184,14 @@ int socket_open(UrlData *pUrlData){
       socket_close();
       continue;
     }
+    {
+      /* Disable Nagle's algorithm.  Without this, the small writes that the
+      ** sync protocol interleaves with bulk transfer are held by Nagle waiting
+      ** for ACKs which, combined with the peer's delayed ACKs, can throttle a
+      ** clone or sync to a small fraction of the available bandwidth. */
+      int on = 1;
+      setsockopt(iSocket, IPPROTO_TCP, TCP_NODELAY, (void*)&on, sizeof(on));
+    }
     rc = getnameinfo(p->ai_addr, p->ai_addrlen, zRemote, sizeof(zRemote),
                      0, 0, NI_NUMERICHOST);
     if( rc ){
@@ -199,15 +208,6 @@ int socket_open(UrlData *pUrlData){
   }
 #if !defined(_WIN32)
   signal(SIGPIPE, SIG_IGN);
-  {
-    /* Bound how long any single read/write can block so a silent peer
-    ** cannot wedge the transfer forever.  The fd stays blocking, so the
-    ** TLS handshake is unaffected. */
-    struct timeval tv;
-    tv.tv_sec = 30; tv.tv_usec = 0;
-    setsockopt(iSocket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-    setsockopt(iSocket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
-  }
 #endif
 end_socket_open:
   if( rc && iSocket>=0 ) socket_close();
