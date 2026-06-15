@@ -1,5 +1,5 @@
-C Update\sa\slegacy\sreference\sto\show\spage\sheaders\sare\screated\sin\sa\sskins,\sas\sreported\sby\s[forum:d8e2afdfd1|forum\spost\sd8e2afdfd1].
-D 2026-06-14T13:29:11.590
+C www/sync.wiki\ssymbol\srename\swhich\sshould\shave\sbeen\spart\sof\s[9789e1dce77ac767].
+D 2026-06-15T14:34:52.710
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -962,7 +962,7 @@ F www/ssl-server.md ceeee18810704801de2c84dcf34f85b133cc8fb8aa504222f89976e005da
 F www/ssl.wiki d1fc950cf538f469424b7a2d67d465678cc5f5a53c01e4c9f5cbc4929bd1c65f
 F www/stats.wiki f2713acf5c005f1ccecbec63dc5f826499f5f842e8ad17ec3d34ab2f57790792
 F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c068
-F www/sync.wiki 44e603cb0cf67a3c38350822fa225fc5ed8f17aad0837d8f3faf6ccc56d80a32
+F www/sync.wiki fcc503bbdd5578f47934cafc77f271d0f93d1ed6bf0107ce731f5799a1535774
 F www/tech_overview.wiki 6d6a67e9d982eaf8d1f98b18c97282bdeaddfd4c20b98ce24715ce30785a3313
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
 F www/th1.md 5dd5405d51b23078f194493d179d618d17a879d67d10b28cfb05ff6ad2af2627
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69d43cc15e4f864fc28ca7ecfc4d38e8ee0b5cb4073649b42435dbaf94ac583b
-R 5816f907fe3ef0201b67b77b6cc76634
+P 922ec24c994c1a902f8436c0e236ab36627b19334a07bb4b28910c253481fba3
+R 52f76ed25c69a4dcfbdcb84e39f1dcef
 U stephan
-Z 46600c68fdea251b24480b66b44fe8fe
+Z 23b50cb5212a46394625a4cc1d8895cd
 # Remove this line to create a well-formed Fossil manifest.
