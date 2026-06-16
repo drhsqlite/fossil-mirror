@@ -2021,13 +2021,15 @@ static void forum_render_debug_options(void){
 
 /*
 ** If the user has AttachForum permissions, emit a notice that
-** attachments may be added after saving. If p is not NULL,
-** also emit its list of attachments.
+** attachments may be added after saving. If p is not NULL, also emit
+** its list of attachments. We only emit this for No-JS environments,
+** as in JS environments the interactive forum editor includes
+** attachment support.
 */
 static void forum_render_attachment_notice(void){
   if( g.perm.AttachForum ){
-    @ <div>You will be able to attach files to this post after saving
-    @ it.</div>
+    @ <noscript><div>You will be able to attach files to this post
+    @ after saving it.</div></noscript>
   }
 }
 
