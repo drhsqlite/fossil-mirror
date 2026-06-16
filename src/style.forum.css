@@ -65,7 +65,6 @@ body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
   /* Clear some globals... */
   font-size: inherit;
   max-width: initial;
-  color: initial;
 }
 .ForumPostEditor > .buttons {
   font-size: 90%;
