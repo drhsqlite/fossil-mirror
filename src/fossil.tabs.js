@@ -9,7 +9,7 @@
      passed to init(). If passed a truthy second argument, it must be
      an Object holding configuration options:
 
-     { 
+     {
        tabAccessKeys: boolean (=true)
           If true, tab buttons are assigned "accesskey" values
           equal to their 1-based tab number.
@@ -58,7 +58,7 @@
        (DOM element or selector for a single element). This must be
        called once before using any other member functions of a given
        instance, noting that the constructor will call this if it is
-       passed an argument. 
+       passed an argument.
 
        The tab container must have an 'id' attribute. This function
        looks through the DOM for all elements which have
@@ -152,6 +152,7 @@
       }
       tab = tabArg(tab);
       tab.remove();
+      tab.classList.add('hidden');
       D.append(this.e.tabs, D.addClass(tab,'tab-panel'));
       const tabCount = this.e.tabBar.childNodes.length+1;
       const lbl = tab.dataset.tabLabel || 'Tab #'+tabCount;

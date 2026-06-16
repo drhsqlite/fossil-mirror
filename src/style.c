@@ -386,6 +386,7 @@ static int submenuCompare(const void *a, const void *b){
 ** is NULL then use g.zPath.
 */
 static char *local_zCurrentPage = 0;
+static char *local_zCurrentFeature = 0;
 
 /*
 ** Set the desired $current_page to something other than g.zPath
@@ -421,8 +422,9 @@ static void stylesheet_url_var(void){
   url = empty_blob;
   blob_appendf(&url, "%R/style.css");
 
-  /* If page-specific CSS exists for the current page, then append
-  ** the pathname for the page-specific CSS.  The default CSS is
+  /* If page- or feature-specific CSS exists for the current page,
+  ** then append the pathname for the page-specific CSS.  The default
+  ** CSS is
   **
   **     /style.css
   **
@@ -434,10 +436,21 @@ static void stylesheet_url_var(void){
   ** The /style.css page (implemented below) will detect this extra "wikiedit"
   ** path information and include the page-specific CSS along with the
   ** default CSS when it delivers the page.
+  **
+  ** Prior to 2026-06-06, this only looked at zPage but /forum and
+  ** friends need a per-feature style, so it now falls back to
+  ** local_zCurrentFeature. The current mechanism cannot support both
+  ** concurrently in a single request.
   */
   zBuiltin = mprintf("style.%s.css", zPage);
   if( builtin_file(zBuiltin,0)!=0 ){
-    blob_appendf(&url, "/%s", zPage);
+    blob_appendf(&url, "/%t", zPage);
+  }else if( local_zCurrentFeature ){
+    fossil_free(zBuiltin);
+    zBuiltin = mprintf("style.%s.css", local_zCurrentFeature);
+    if( builtin_file(zBuiltin,0)!=0 ){
+      blob_appendf(&url, "/%t", local_zCurrentFeature);
+    }
   }
   fossil_free(zBuiltin);
 
@@ -729,6 +742,8 @@ static const char* feature_from_page_path(const char *zPath){
 ** to override that "maybe" default with something better.
 */
 void style_set_current_feature(const char* zFeature){
+  fossil_free( local_zCurrentFeature );
+  local_zCurrentFeature = fossil_strdup(zFeature);
   Th_Store("current_feature", zFeature);
 }
 
@@ -1260,6 +1275,7 @@ static void page_style_css_append_page_style(Blob *pOut){
       zPage);
     blob_append(pOut, zBuiltin, nFile);
     fossil_free(zFile);
+    zFile = 0;
     return;
   }
   /* Potential TODO: check for aliases/page groups. e.g. group all
@@ -1420,6 +1436,9 @@ void page_test_env(void){
 ** the error message is shown.
 **
 ** If zFormat is an empty string, then this is the /test-env page.
+**
+** If the resulting formatted error message is not empty then this
+** function does not return.
 */
 void webpage_error(const char *zFormat, ...){
   int showAll = 0;
