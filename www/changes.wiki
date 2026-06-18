@@ -7,7 +7,7 @@
        "[/help/system|fossil sys ls]" command.
   <li> On the [/help/www/info|/info webpage] (and similar) put a
        "copy" button before the date.
-  <li> Add the ".m4a" and ".oft" mimetypes.
+  <li> Add the ".m4a" and ".otf" mimetypes.
   <li> When doing a "fossil update", if a file under management needs to
        overwrite an unmanaged file, display the name of the backup that
        is made of the unmanaged file, and use file_delete() to delete

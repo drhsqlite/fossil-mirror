@@ -1,5 +1,5 @@
-C Add\san\soption\sto\stimeline\scommand\sthat\sdoes\sthe\ssame\sas\stimeline-truncate-at-blank\son\s/timeline.
-D 2026-06-18T13:52:08.115
+C Minor\stypo\sfix\sin\sthe\schange\slog,\sreported\sin\sthe\sforum.
+D 2026-06-18T14:22:41.841
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -804,7 +804,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md b578bfee7063fe0a3fef310b79d0b9ca23e084b17aa3044d57f5a4b94b180b4d
 F www/caps/ref.html 82732721eff68eee38f791c89574d266c798026a61cb653d6ddd851402c4f0d5
 F www/cgi.wiki b9c5bcae4ac589ed274f8f4b2a64dc854f14c78883f4f0200504ec7e3cdf2b56
-F www/changes.wiki 4769d4ee740ac6c220159b844a1a77ac8ca004ea5fbe7d4863df880bb7e1c80e
+F www/changes.wiki 0c1306cabeb8a57e9cd427dd445f333c6b9143fad3dd4770759ee09c14d4982d
 F www/chat.md 9e962760a95d717205757d0839cd70a0f91471a23a5e0198c0b629b99889e078
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 71b0c80bbcce72c6eb10c10a0768e9cc3018fd7468067faae6626470dd21df63
-R 40a343194215ebc92fab85d6d965a030
-U danield
-Z 2dd3d2731b536528c40c3a93cfc2c5d6
+P 0848396b86194abd25e6220d62405388ace620ad29898109093ae775cd28d628
+R ccdefd6c43155be90732d562dc49b2f2
+U stephan
+Z bbb1ffba68fb704d0c6187ae88127ffe
 # Remove this line to create a well-formed Fossil manifest.
