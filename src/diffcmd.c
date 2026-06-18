@@ -778,7 +778,7 @@ void diff_file_mem(
 ** Return true if the disk file is identical to the Blob.  Return zero
 ** if the files differ in any way.
 */
-static int file_same_as_blob(Blob *blob, const char *zDiskFile){
+int file_same_as_blob(Blob *blob, const char *zDiskFile){
   Blob file;
   int rc = 0;
   if( blob_size(blob)!=file_size(zDiskFile, ExtFILE) ) return 0;

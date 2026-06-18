@@ -1,5 +1,5 @@
-C Avoid\sunnecessarily\sallocating\sa\sUUID\swhen\smanifest_parse()\sfails\sand\sis\snot\sgiven\san\serror\sblob.
-D 2026-06-18T12:12:53.263
+C Fix\s"stash\sdiff"\scommand\sso\sif\sfile\son\sfilesystem\sis\ssame\sas\sthe\sstashed\sfile,\ndon't\sprint\s"CHANGED"\sand\sskip\sthe\sdiff.\sThis\smatch\sregular\s"fossil\sdiff"\ncommand.
+D 2026-06-18T12:57:28.407
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -424,7 +424,7 @@ F src/descendants.c 4bb7fb447369984f041da4a5ec05c201383bde3a59d18c537293d520712a
 F src/diff.c 3e46c56274896ac8ebc3035a32060bf5898f6cd2b6540816d62d6649125eb3bd
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 3e98ffcb81feab8288c26101b7260e09821c51f5e434ff6880ea4407e796bf8d
-F src/diffcmd.c f529b1130c87c6bf5562d241bad922274893cf0156bf26f0e420652c4a1ea685
+F src/diffcmd.c 723ef6411493dc00b0f497b9623fcc6e59dec43fafe5489d05724a8164637566
 F src/dispatch.c f9b0602b200fb378bed080e327e2cf7db08f683c21aa81ba834be0ac7c597b88
 F src/doc.c f34584042c9a4e2ff3223e7a8bab7154f6824ba413ad909aac54b65681428d77
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
@@ -562,7 +562,7 @@ F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616e
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 85964c5e5e9b782fd6aa05da8f6959c7b2e4b4d7192abb5cfb9bd64c190e8533
-F src/stash.c edceac522c114b482922cb3def79106029d0488eafb516894618c50c0df8ecaf
+F src/stash.c b3228b60ae92dcc8c686e8079516e13b6b874c7cadedeb026900667ddab56a8c
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
 F src/statrep.c d09516a66324c67a9a62a9d0783dcfdfd8384dea627c7ecddc26ba524ad42835
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 524474cfa0c05a07d62f75d46014beb3eab79e9896725696df0c06774c156002
-R 9dcb0d0617423de226f7fa29b4c7af6f
-U stephan
-Z fdf9f274a486bfa719f6caa34a9c4041
+P 07592007ce0a9233fab8b45c8be9dfcf56bfb6e1b43ded31cb6a4f1046af9331
+R 945c0b6dda31bf068bc74e7c6f2a1039
+U mgagnon
+Z 6e0e7c673c93cc4b9d9b1013665b224a
 # Remove this line to create a well-formed Fossil manifest.
