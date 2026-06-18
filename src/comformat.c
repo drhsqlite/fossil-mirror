@@ -35,6 +35,8 @@
 #define COMMENT_PRINT_TRIM_SPACE ((u32)0x00000004) /* Trim leading/trailing. */
 #define COMMENT_PRINT_WORD_BREAK ((u32)0x00000008) /* Break lines on words. */
 #define COMMENT_PRINT_ORIG_BREAK ((u32)0x00000010) /* Break before original. */
+#define COMMENT_PRINT_SUMMARY    ((u32)0x00000020)
+                                        /* Truncate after first blank line. */
 #endif
 
 /********* Code copied from SQLite src/shell.c.in on 2024-09-30 **********/

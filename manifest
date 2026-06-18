@@ -1,5 +1,5 @@
-C Fix\s"stash\sdiff"\scommand\sso\sif\sfile\son\sfilesystem\sis\ssame\sas\sthe\sstashed\sfile,\ndon't\sprint\s"CHANGED"\sand\sskip\sthe\sdiff.\sThis\smatch\sregular\s"fossil\sdiff"\ncommand.
-D 2026-06-18T12:57:28.407
+C Add\san\soption\sto\stimeline\scommand\sthat\sdoes\sthe\ssame\sas\stimeline-truncate-at-blank\son\s/timeline.
+D 2026-06-18T13:52:08.115
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -408,7 +408,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
 F src/clone.c 1b14e1fe42556ec080492e77c94f50dbb047952f40ba41bd4ca1d0a154d13e15
 F src/color.c dbea75182cd46c3ed261229766a710df6414aafd8de8e3505621c9109904cad0
-F src/comformat.c e28d054cbc160d069d2c725d9a1429543c6655e44012d4a7d2f37e5c9e5a7183
+F src/comformat.c 7c13708fbafa03a92d63baee15178f00175fd7add64f918f7e406badae628e69
 F src/config.h 0ed672f15c096edbea44b24657bd91e3acb8bcd5827c62df9f8635abe1da7c21
 F src/configure.c fe912332a4f649540a71f328c45150b11566df5240dc68913bf931c2985d2259
 F src/content.c 3018fea9d9557cb6f1edc6be062f2db5dc76af211a357d5aa13c4a69e248f623
@@ -582,7 +582,7 @@ F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 228e96489b6cc548706af08968756808e9cd78dd8ea7ef6fc6877827100ff71b
 F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
-F src/timeline.c 16bc0f4a8122cf74801ed81733616fe0e5f79ca2db39ed9b82aec28bb9ff2c13
+F src/timeline.c 2c9a27b5eabbc24bfaef7022aadfb997d46664801774e1f3b46fbc95d9ab93ac
 F src/tkt.c 2bf10f3e1c7f26b0d925b7ba9acfa49ac921d04125a45f44e586183c64ab376e
 F src/tktsetup.c 22e7338e93a4e54d0e91acd0bf0e80dbdfe4c2958638e163a89239391d6cb8b9
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07592007ce0a9233fab8b45c8be9dfcf56bfb6e1b43ded31cb6a4f1046af9331
-R 945c0b6dda31bf068bc74e7c6f2a1039
-U mgagnon
-Z 6e0e7c673c93cc4b9d9b1013665b224a
+P 71b0c80bbcce72c6eb10c10a0768e9cc3018fd7468067faae6626470dd21df63
+R 40a343194215ebc92fab85d6d965a030
+U danield
+Z 2dd3d2731b536528c40c3a93cfc2c5d6
 # Remove this line to create a well-formed Fossil manifest.
