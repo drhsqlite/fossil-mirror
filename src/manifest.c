@@ -1130,16 +1130,12 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   return p;
 
 manifest_syntax_error:
-  {
-    char *zUuid = rid_to_uuid(rid);
+  if(pErr!=0){
+    char *zUuid = rid>0 ? rid_to_uuid(rid) : 0;
     if( zUuid ){
-      if(pErr!=0){
-        blob_appendf(pErr, "artifact [%s] ", zUuid);
-      }
+      blob_appendf(pErr, "artifact [%s] ", zUuid);
       fossil_free(zUuid);
     }
-  }
-  if(pErr!=0){
     if( zErr ){
       blob_appendf(pErr, "line %d: %s", lineNo, zErr);
     }else{

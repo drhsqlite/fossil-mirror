@@ -1,5 +1,5 @@
-C Use\sbitwise\soperators\sconsistently,\seven\sif\sin\sthis\scase\sit\sdoes\snot\smake\sa\sdifference.
-D 2026-06-17T15:47:13.164
+C Avoid\sunnecessarily\sallocating\sa\sUUID\swhen\smanifest_parse()\sfails\sand\sis\snot\sgiven\san\serror\sblob.
+D 2026-06-18T12:12:53.263
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -501,7 +501,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c 737032593ef80a8bdae0c866232dd5f95eb397026ec63d771c27de5bbd77fb2a
 F src/main.mk 03d571fb153b44581aa754a56f77fb49e425b6c27e2da2162190b41dbfb6fef3
-F src/manifest.c 15a943a72d263c7e63a43be50130b4d7748beecc87d93ddfd7d5e91f17f5985d
+F src/manifest.c dec1ebab98335d121fd3fdbc7dfd5f3ff8b04e895897eddceb4fd7742cbb5599
 F src/markdown.c ea27e61986a1366839e7a70f16cd70a056352d7623797eb09372e158f6f7350b
 F src/markdown.md 459394a15e26f64b399382537fdd76a27d413dcbc09625981fe3a329d66da981
 F src/markdown_html.c 7489eafdec202371c5d5e8f898c5742158a5ab1013a480e9ba8fc3c03754df1b
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba00a4350442f6bb30153fb018de5cce6527edc6f186890f89a2646f54e2aa3c
-R fd7e79121228b722e92218cebb521a5f
-U danield
-Z 92b92ae7ad96e15444d5aaa5d7e06575
+P 524474cfa0c05a07d62f75d46014beb3eab79e9896725696df0c06774c156002
+R 9dcb0d0617423de226f7fa29b4c7af6f
+U stephan
+Z fdf9f274a486bfa719f6caa34a9c4041
 # Remove this line to create a well-formed Fossil manifest.
