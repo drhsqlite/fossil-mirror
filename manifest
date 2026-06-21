@@ -1,5 +1,5 @@
-C Added\sseveral\sharmless\sHTML\selement\stypes\sto\sthe\swhitelist,\smainly\sHTML5\nsemantic\sthings,\splus\sones\sneeded\sfor\sstructured\sfallback\sfrom\sAVIF\sto\nWebP\sto\sJPEG\sbased\son\sbrowser\scapabilities.\s\sAdded\sthis\swhitelist\sto\sthe\n/md_rules\sdoc\sfor\sthe\sfirst\stime;\sit\swas\spreviously\sonly\sin\s/wiki_rules,\nwhich\smerely\sneeded\ssmall\sadditions\sto\scover\sthe\schanges.
-D 2026-06-21T01:16:16.445
+C Cut\sa\sverbose\saddition\sfrom\sthe\s/wiki_rules\sdoc
+D 2026-06-21T01:18:10.492
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -598,7 +598,7 @@ F src/util.c 9133330e4937c2fe6a583ad5943933c85204581c7685b15e3bc741ff6b6e7d85
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c cbd71205d9062cb5c30428841cf41d96d6afdd9e70cf1cd4abd8effe51f93ca9
 F src/wiki.c 706a648b1e98687503f53e01f66596d371a82a3a0b1c89ea64865f8e991db924
-F src/wiki.wiki 2d602b0c003441909a0493e020ec2708d9c8cbc7af6d5ac4c032d3a0b19bdeb5
+F src/wiki.wiki bd6ca20a0df1054d68bbd7683acc6f24225652276f0ed53ce6fa564faed4dd60
 F src/wikiformat.c 70892392639bfcce37eba6ea7c9eb7e71083be6c37e208c22bdd1cec4c72fdce
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
@@ -983,11 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec592b517ce909a94211df0b7a43cf8f2d345f2a008bd2a67c05da81f078b147
-R ececbce23ad24a06c08626fdae8952bb
-T *branch * safe-html-extensions
-T *sym-safe-html-extensions *
-T -sym-trunk *
+P f40b9c10335d4abe06509460d298cacbeb7dec92f2126aba7857988ad60f69e3
+R 8d200e562b2bbbce582574b92b5dbd28
 U wyoung
-Z ce09c4254f08c61e3c5f979245e7edf4
+Z 0a37f3be3343efba7bdcd03bf3649b69
 # Remove this line to create a well-formed Fossil manifest.

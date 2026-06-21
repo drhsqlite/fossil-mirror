@@ -76,15 +76,6 @@ The last two rules are the HTML formatting rules.
       All attributes are checked and only a few benign attributes are
       allowed on each element. In particular, any attributes that specify
       javascript or CSS are elided.
-      Use &lt;picture&gt; and &lt;source&gt; with <tt>type=</tt> and
-      <tt>srcset=</tt> to offer WebP or AVIF images with a JPEG or PNG
-      fallback, for example:
-      <pre>&lt;picture&gt;
-  &lt;source type="image/webp" srcset="/raw/doc/trunk/www/hero.webp"&gt;
-  &lt;img src="/raw/doc/trunk/www/hero.jpg" alt="Diagram"&gt;
-&lt;/picture&gt;</pre>
-      A single-format image such as WebP may also be referenced directly
-      with &lt;img src="..."&gt;.
 
   7.  <b>Special Markup.</b>
       The &lt;nowiki&gt; tag disables all wiki formatting rules through
