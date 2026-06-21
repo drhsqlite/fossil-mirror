@@ -410,7 +410,7 @@ antagonize other forum users. For example, by posting something
 trollish or highly controversial in nature and closing the post to
 further responses.
 
-<h2 name="status">Setting Post Statuses</h2>
+<h2 id="status">Setting Post Statuses</h2>
 
 As of version 2.29 forum posts may be tagged with a status.  The
 setting <tt>forum-statuses</tt> controls whether this feature is is
@@ -479,7 +479,7 @@ differently and predates that "status" tag support by about three years. The
 "closed" semantics cannot be trivially consolidated with those of "status"
 but we reserve the right to do so at some point.
 
-<h2 name="attachments">Attachments</h2>
+<h2 id="attachments">Attachments</h2>
 
 As of version 2.29 users with the [./caps/index.md|'B' capability] may
 attach files to forum posts. Files may not be attached until a forum
@@ -517,7 +517,7 @@ attachments:
 TBD is whether to accept that case or to remove automatic approval of
 attached files.
 
-<h2 name="drafts">Draft Edits</h2>
+<h2 id="drafts">Draft Edits</h2>
 
 The forum uses, if available, JavaScript's <code>localStorage</code>
 or <code>sessionStorage</code> to store local drafts of new
@@ -549,7 +549,7 @@ and forbid edit/reply access to the post in other tabs until the
 locking tab is closed.
 
 
-<h2 name="padding">Curious Extra Page Padding</h2>
+<h2 id="padding">Curious Extra Page Padding</h2>
 
 Users may notice that the forum pages get a bunch of padding added to
 the bottom of the page when an editor widget is opened.  This is not a
@@ -560,7 +560,7 @@ the page is in the viewport, as the footer is a hard boundary against
 scrolling. With the extra padding, the editor widget's top edge shifts
 around less when the preview is shown and hidden.
 
-<h2 name="fork">Forked Edits</h2>
+<h2 id="fork">Forked Edits</h2>
 
 It is possible to "fork" forum messages, in the same way that any
 given check-in may cause a fork. This can happen when a message is
