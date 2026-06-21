@@ -1,5 +1,5 @@
-C Added\sa\schangelog\sentry\sfor\sthe\sprior\sbranch\smerge
-D 2026-06-21T17:14:25.183
+C Enforcing\sallowedAttr\slimitations\sin\sthe\swiki/MD\sdoc\srenderers.\s\sThis\nfixes\san\sapparent\soversight\srather\sthan\sgiving\snew\sfunctionality.\s\sThe\nallowed\sattributes\swere\sextended\sto\scover\swww/*\sand\swhat\swe've\npreviously\sdocumented\sas\sallowed.
+D 2026-06-21T17:23:49.702
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -599,7 +599,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c cbd71205d9062cb5c30428841cf41d96d6afdd9e70cf1cd4abd8effe51f93ca9
 F src/wiki.c 706a648b1e98687503f53e01f66596d371a82a3a0b1c89ea64865f8e991db924
 F src/wiki.wiki bd6ca20a0df1054d68bbd7683acc6f24225652276f0ed53ce6fa564faed4dd60
-F src/wikiformat.c 41f058ace70603eb53a31f89d381b02f7f777e6198f097b0622adfa0dfcf42db
+F src/wikiformat.c 4115668dff671957328974207c877fc97cdd5ea172715de5c992c5177d94369f
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
 F src/xfer.c 2d2983a0ce3a6ec28db702cbd87ebd21bc670699259e44bb043b094b784e227a
@@ -804,7 +804,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md b578bfee7063fe0a3fef310b79d0b9ca23e084b17aa3044d57f5a4b94b180b4d
 F www/caps/ref.html 82732721eff68eee38f791c89574d266c798026a61cb653d6ddd851402c4f0d5
 F www/cgi.wiki b9c5bcae4ac589ed274f8f4b2a64dc854f14c78883f4f0200504ec7e3cdf2b56
-F www/changes.wiki 7a1360aa985a26d658bc0ecfa7378e8ee1b26cad53d7981398c0f7ff014ee45b
+F www/changes.wiki 9fb7625e0763792a10d5e7d4bdfda963a332b1b8913f33e3c421842dc85eb748
 F www/chat.md 9e962760a95d717205757d0839cd70a0f91471a23a5e0198c0b629b99889e078
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -983,8 +983,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea92c2bf9fe6e82ca8df7f2c78036800e0cf4306846ad474b980350177189f74
-R c94ff972bb4d221faa98593888c0e831
+P c328d90371e3129ea76b93ab2b6a2bf6aa1750ab44ae612387ae0a1e35866d7f
+R ddc1a639a45915624760a0575c81dd74
+T *branch * html-attr-limit-enf
+T *sym-html-attr-limit-enf *
+T -sym-trunk *
 U wyoung
-Z 8ca1c4e38edf747e67be2d1bfb1a388d
+Z 197b5ca4a8e820f19245bd458735b230
 # Remove this line to create a well-formed Fossil manifest.

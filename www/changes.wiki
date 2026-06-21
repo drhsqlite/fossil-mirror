@@ -24,6 +24,11 @@
        to limit the size of file attachments to wiki pages, tech notes,
        tickets, and forum posts.
   <li> Addded several HTML5 tags deemed harmless to the MD/wiki allowlists.
+  <li> Enforcing the allowed attribute list in MD/wiki doc rendering, as
+       was always intended.  This change will not break existing docs
+       outright; because it strips disallowed attributes — e.g. &lt;h1
+       bogus="nonsense"&gt; — from allowed elements, existing misuses
+       may go silently unnoticed. Be warned.
 </ol>
 
 <h2 id='v2_28'>Changes for version 2.28 (2026-03-11)</h2><ol>
