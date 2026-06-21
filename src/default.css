@@ -1507,6 +1507,9 @@ table.numbered-lines td.line-numbers > pre {
   margin: 0.25em/*must match top PADDING of td.file-content
                   > pre > code*/ 0 0 0;
   padding: 0;
+  line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
 }
 table.numbered-lines td.line-numbers span {
   display: inline-block;

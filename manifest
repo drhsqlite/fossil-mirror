@@ -1,5 +1,5 @@
-C Added\sa\schangelog\sentry\sfor\sthe\sprior\sbranch\smerge
-D 2026-06-21T17:14:25.183
+C Harden\sthe\sdefault\sCSS\sfor\stable.numbered-lines\std.line-numbers\sso\sthat\sit\nis\simmune\sto\sskin-specific\sfont\schanges\sin\spre\sor\scode.\n[forum:/info/2026-06-21T15:05:42Z|Forum\s2026-06-21T15:05:42Z].
+D 2026-06-21T17:19:02.084
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -416,7 +416,7 @@ F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
-F src/default.css 2080c7a6447e8f615a078268545a6ab480b5d5658ab31c64c3cc3b5f11f1a69a
+F src/default.css d3c3794f2b0a55699e3825ce5e983aad777f79db0ede4a005a4efac77343ec1a
 F src/delta.c f2b7df726a0d1acea0fed66947ac76b23c4d4ed4709770eb94d24aab3d31b891
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea92c2bf9fe6e82ca8df7f2c78036800e0cf4306846ad474b980350177189f74
-R c94ff972bb4d221faa98593888c0e831
-U wyoung
-Z 8ca1c4e38edf747e67be2d1bfb1a388d
+P c328d90371e3129ea76b93ab2b6a2bf6aa1750ab44ae612387ae0a1e35866d7f
+R 9f206235a754abfb13a7d7bde1eccb8d
+U drh
+Z 9c1beeebdf30cfefada2f0469a671102
 # Remove this line to create a well-formed Fossil manifest.
