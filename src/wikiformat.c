@@ -70,21 +70,32 @@ enum allowed_attr_t {
   ATTR_BORDER,
   ATTR_CELLPADDING,
   ATTR_CELLSPACING,
+  ATTR_CITE,
   ATTR_CLASS,
   ATTR_CLEAR,
   ATTR_COLOR,
   ATTR_COLSPAN,
   ATTR_COMPACT,
+  ATTR_DATETIME,
   ATTR_FACE,
+  ATTR_FOR,
   ATTR_HEIGHT,
+  ATTR_HIGH,
   ATTR_HREF,
   ATTR_HSPACE,
   ATTR_ID,
   ATTR_LINKS,
+  ATTR_LOW,
+  ATTR_MAX,
+  ATTR_MEDIA,
+  ATTR_MIN,
   ATTR_NAME,
+  ATTR_OPTIMUM,
   ATTR_ROWSPAN,
   ATTR_SIZE,
+  ATTR_SIZES,
   ATTR_SRC,
+  ATTR_SRCSET,
   ATTR_START,
   ATTR_STYLE,
   ATTR_TARGET,
@@ -126,7 +137,9 @@ enum amsk_t {
   AMSK_VALIGN       = 0x04000000,
   AMSK_VALUE        = 0x08000000,
   AMSK_VSPACE       = 0x10000000,
-  AMSK_WIDTH        = 0x20000000
+  AMSK_WIDTH        = 0x20000000,
+  AMSK_CITE         = 0x40000000,
+  AMSK_DATETIME     = 0x80000000
 };
 
 static const struct AllowedAttribute {
@@ -143,21 +156,32 @@ static const struct AllowedAttribute {
   { "border",        AMSK_BORDER         },
   { "cellpadding",   AMSK_CELLPADDING    },
   { "cellspacing",   AMSK_CELLSPACING    },
+  { "cite",          AMSK_CITE           },
   { "class",         AMSK_CLASS          },
   { "clear",         AMSK_CLEAR          },
   { "color",         AMSK_COLOR          },
   { "colspan",       AMSK_COLSPAN        },
   { "compact",       AMSK_COMPACT        },
+  { "datetime",      AMSK_DATETIME       },
   { "face",          AMSK_FACE           },
+  { "for",           0                   },
   { "height",        AMSK_HEIGHT         },
+  { "high",          0                   },
   { "href",          AMSK_HREF           },
   { "hspace",        AMSK_HSPACE         },
   { "id",            AMSK_ID             },
   { "links",         AMSK_LINKS          },
+  { "low",           0                   },
+  { "max",           0                   },
+  { "media",         0                   },
+  { "min",           0                   },
   { "name",          AMSK_NAME           },
+  { "optimum",       0                   },
   { "rowspan",       AMSK_ROWSPAN        },
   { "size",          AMSK_SIZE           },
+  { "sizes",         0                   },
   { "src",           AMSK_SRC            },
+  { "srcset",        0                   },
   { "start",         AMSK_START          },
   { "style",         AMSK_STYLE          },
   { "target",        AMSK_TARGET         },
@@ -211,6 +235,7 @@ enum markup_t {
   MARKUP_BIG,
   MARKUP_BLOCKQUOTE,
   MARKUP_BR,
+  MARKUP_CAPTION,
   MARKUP_CENTER,
   MARKUP_CITE,
   MARKUP_CODE,
@@ -224,6 +249,8 @@ enum markup_t {
   MARKUP_DL,
   MARKUP_DT,
   MARKUP_EM,
+  MARKUP_FIGCAPTION,
+  MARKUP_FIGURE,
   MARKUP_FONT,
   MARKUP_HTML5_FOOTER,
   MARKUP_H1,
@@ -238,17 +265,24 @@ enum markup_t {
   MARKUP_IMG,
   MARKUP_INS,
   MARKUP_KBD,
+  MARKUP_LABEL,
   MARKUP_LI,
+  MARKUP_MARK,
+  MARKUP_METER,
   MARKUP_HTML5_NAV,
   MARKUP_NOBR,
   MARKUP_NOWIKI,
   MARKUP_OL,
   MARKUP_P,
+  MARKUP_PICTURE,
   MARKUP_PRE,
+  MARKUP_PROGRESS,
+  MARKUP_Q,
   MARKUP_S,
   MARKUP_SAMP,
   MARKUP_HTML5_SECTION,
   MARKUP_SMALL,
+  MARKUP_SOURCE,
   MARKUP_SPAN,
   MARKUP_STRIKE,
   MARKUP_STRONG,
@@ -261,12 +295,14 @@ enum markup_t {
   MARKUP_TFOOT,
   MARKUP_TH,
   MARKUP_THEAD,
+  MARKUP_TIME,
   MARKUP_TITLE,
   MARKUP_TR,
   MARKUP_TT,
   MARKUP_U,
   MARKUP_UL,
   MARKUP_VAR,
+  MARKUP_WBR,
   MARKUP_VERBATIM
 };
 
@@ -318,6 +354,8 @@ static const struct AllowedMarkup {
  { "big",           MARKUP_BIG,          MUTYPE_FONT,          AMSK_STYLE },
  { "blockquote",    MARKUP_BLOCKQUOTE,   MUTYPE_BLOCK,         AMSK_STYLE },
  { "br",            MARKUP_BR,           MUTYPE_SINGLE,        AMSK_CLEAR },
+ { "caption",       MARKUP_CAPTION,      MUTYPE_BLOCK,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "center",        MARKUP_CENTER,       MUTYPE_BLOCK,         AMSK_STYLE },
  { "cite",          MARKUP_CITE,         MUTYPE_FONT,          AMSK_STYLE },
  { "code",          MARKUP_CODE,         MUTYPE_FONT,          AMSK_STYLE },
@@ -336,6 +374,10 @@ static const struct AllowedMarkup {
                     AMSK_COMPACT|AMSK_STYLE },
  { "dt",            MARKUP_DT,           MUTYPE_LI,            AMSK_STYLE },
  { "em",            MARKUP_EM,           MUTYPE_FONT,          AMSK_STYLE },
+ { "figcaption",    MARKUP_FIGCAPTION,   MUTYPE_BLOCK,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+ { "figure",        MARKUP_FIGURE,       MUTYPE_BLOCK,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "font",          MARKUP_FONT,         MUTYPE_FONT,
                     AMSK_COLOR|AMSK_FACE|AMSK_SIZE|AMSK_STYLE },
  { "footer",        MARKUP_HTML5_FOOTER, MUTYPE_BLOCK,
@@ -360,11 +402,17 @@ static const struct AllowedMarkup {
  { "i",             MARKUP_I,            MUTYPE_FONT,          AMSK_STYLE },
  { "img",           MARKUP_IMG,          MUTYPE_SINGLE,
                     AMSK_ALIGN|AMSK_ALT|AMSK_BORDER|AMSK_HEIGHT|
-                    AMSK_HSPACE|AMSK_SRC|AMSK_VSPACE|AMSK_WIDTH|AMSK_STYLE  },
+                    AMSK_HSPACE|AMSK_SRC|AMSK_VSPACE|AMSK_WIDTH|AMSK_STYLE },
  { "ins",           MARKUP_INS,          MUTYPE_FONT,          AMSK_STYLE },
  { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          AMSK_STYLE },
+ { "label",         MARKUP_LABEL,        MUTYPE_FONT,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "li",            MARKUP_LI,           MUTYPE_LI,
                     AMSK_TYPE|AMSK_VALUE|AMSK_STYLE  },
+ { "mark",          MARKUP_MARK,         MUTYPE_FONT,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+ { "meter",         MARKUP_METER,        MUTYPE_FONT,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE|AMSK_VALUE },
  { "nav",           MARKUP_HTML5_NAV,    MUTYPE_BLOCK,
                     AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "nobr",          MARKUP_NOBR,         MUTYPE_FONT,          0  },
@@ -373,12 +421,20 @@ static const struct AllowedMarkup {
                     AMSK_START|AMSK_TYPE|AMSK_COMPACT|AMSK_STYLE  },
  { "p",             MARKUP_P,            MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "picture",       MARKUP_PICTURE,      MUTYPE_BLOCK,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         AMSK_STYLE },
+ { "progress",      MARKUP_PROGRESS,     MUTYPE_FONT,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE|AMSK_VALUE },
+ { "q",             MARKUP_Q,            MUTYPE_FONT,
+                    AMSK_CLASS|AMSK_STYLE|AMSK_CITE },
  { "s",             MARKUP_S,            MUTYPE_FONT,          AMSK_STYLE },
  { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          AMSK_STYLE },
  { "section",       MARKUP_HTML5_SECTION, MUTYPE_BLOCK,
                     AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "small",         MARKUP_SMALL,        MUTYPE_FONT,          AMSK_STYLE },
+ { "source",        MARKUP_SOURCE,       MUTYPE_SINGLE,
+                    AMSK_TYPE|AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "span",          MARKUP_SPAN,         MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "strike",        MARKUP_STRIKE,       MUTYPE_FONT,          AMSK_STYLE },
@@ -403,6 +459,8 @@ static const struct AllowedMarkup {
                     AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "thead",         MARKUP_THEAD,        MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "time",          MARKUP_TIME,         MUTYPE_FONT,
+                    AMSK_DATETIME|AMSK_ID|AMSK_CLASS|AMSK_STYLE|AMSK_TITLE },
  { "title",         MARKUP_TITLE,        MUTYPE_BLOCK, 0 },
  { "tr",            MARKUP_TR,           MUTYPE_TR,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE },
@@ -411,6 +469,7 @@ static const struct AllowedMarkup {
  { "ul",            MARKUP_UL,           MUTYPE_LIST,
                     AMSK_TYPE|AMSK_COMPACT|AMSK_STYLE  },
  { "var",           MARKUP_VAR,          MUTYPE_FONT,          AMSK_STYLE },
+ { "wbr",           MARKUP_WBR,          MUTYPE_SINGLE,        0  },
  { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,
                     AMSK_ID|AMSK_TYPE },
 };
@@ -820,6 +879,17 @@ struct ParsedMarkup {
 };
 
 /*
+** Return true if attribute iACode has already been parsed into p.
+*/
+static int markupHasAttr(const ParsedMarkup *p, int iACode){
+  int i;
+  for(i=0; i<p->nAttr; i++){
+    if( p->aAttr[i].iACode==iACode ) return 1;
+  }
+  return 0;
+}
+
+/*
 ** z[] is an HTML markup element - something that begins with '<'.
 ** Parse this element into the p structure.
 **
@@ -870,7 +940,7 @@ static int parseMarkup(ParsedMarkup *p, char *z){
     }
     zTag[j] = 0;
     p->aAttr[p->nAttr].iACode = iACode = findAttr(zTag);
-    attrOk = iACode!=0 && (seen & aAttribute[iACode].iMask)==0;
+    attrOk = iACode!=0 && !markupHasAttr(p, iACode);
     while( fossil_isspace(z[i]) ){ z++; }
     if( z[i]!='=' ){
       p->aAttr[p->nAttr].zValue = 0;
@@ -906,7 +976,7 @@ static int parseMarkup(ParsedMarkup *p, char *z){
       i++;
     }
     if( attrOk ){
-      seen |= aAttribute[iACode].iMask;
+      if( aAttribute[iACode].iMask ) seen |= aAttribute[iACode].iMask;
       p->nAttr++;
     }
     while( fossil_isspace(z[i]) ){ i++; }
@@ -1714,7 +1784,7 @@ static void wiki_render(Renderer *p, char *z){
       case TOKEN_MARKUP: {
         const char *zId;
         int iDiv;
-        int mAttr = parseMarkup(&markup, z);
+        (void)parseMarkup(&markup, z);
 
         /* Convert <title> to <h1 align='center'> */
         if( markup.iCode==MARKUP_TITLE && !p->inVerbatim ){
@@ -1803,7 +1873,7 @@ static void wiki_render(Renderer *p, char *z){
 
         /* Push <div> markup onto the stack together with the id=ID attribute.
         */
-        if( markup.iCode==MARKUP_DIV && (mAttr & ATTR_ID)!=0 ){
+        if( markup.iCode==MARKUP_DIV && attributeValue(&markup, ATTR_ID)!=0 ){
           pushStackWithId(p, markup.iCode, markupId(&markup),
                           (p->state & ALLOW_WIKI)!=0);
         }else
