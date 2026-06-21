@@ -1792,7 +1792,7 @@ static void wiki_render(Renderer *p, char *z){
         if( markup.iCode==MARKUP_TITLE && !p->inVerbatim ){
           markup.iCode = MARKUP_H1;
           markup.nAttr = 1;
-          markup.aAttr[0].iACode = AMSK_ALIGN;
+          markup.aAttr[0].iACode = ATTR_ALIGN;
           markup.aAttr[0].zValue = "center";
           markup.aAttr[0].cTerm = 0;
         }
