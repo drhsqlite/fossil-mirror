@@ -226,7 +226,8 @@ oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
 
 > *   In-line images are made using **\!\[alt-text\]\(image-URL\)**.
 > *   Use HTML for advanced formatting; see [Safe HTML](#safe-html) above.
-> *   **\<!--** HTML-style comments **-->** are supported.
+> *   **\<!--** HTML-style comments **-->** are allowed through only when
+>     the safe-HTML rules are bypassed.
 > *   Escape special characters (ex: **\[** **\(** **\|** **\***)
 >     using backslash (ex: **\\\[** **\\\(** **\\\|** **\\\***).
 > *   A line consisting of **---**, **\*\*\***, or **\_\_\_** is a horizontal

@@ -1,5 +1,5 @@
-C Expanded\sthe\sset\sof\s"safe\sHTML"\selements\sto\sinclude\sseveral\sharmless\nones\sadded\sto\sHTML5,\swhich\sare\suseful\sin\sMD/wiki\sdocs.
-D 2026-06-21T14:53:38.727
+C Documented\sin\s/md_rules\sthat\sHTML\scomments\sare\sdisallowed\sunder\sthe\n"safe\sHTML"\srules\seven\sthough\sthey\spass\sthe\sMD\sprocessor.
+D 2026-06-21T17:10:07.177
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -503,7 +503,7 @@ F src/main.c 737032593ef80a8bdae0c866232dd5f95eb397026ec63d771c27de5bbd77fb2a
 F src/main.mk 03d571fb153b44581aa754a56f77fb49e425b6c27e2da2162190b41dbfb6fef3
 F src/manifest.c dec1ebab98335d121fd3fdbc7dfd5f3ff8b04e895897eddceb4fd7742cbb5599
 F src/markdown.c ea27e61986a1366839e7a70f16cd70a056352d7623797eb09372e158f6f7350b
-F src/markdown.md 1025865ee6b07c640d11d99b6f2b0436b8f1570f94eb1f8fcea85f5f0528fd77
+F src/markdown.md b5754276541d04eabb786da6d3073f913ad6d6be85d082031642f7e0cc717944
 F src/markdown_html.c 7489eafdec202371c5d5e8f898c5742158a5ab1013a480e9ba8fc3c03754df1b
 F src/match.c a8c5cf61c5af2dff3c82c53f5d846a27f3c8f63c99e9ffca692d2317f7540d02
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
@@ -983,9 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 904e2457152e85196dfc9805e4d405ca72d88be03689eed1253793824edc7489 f1c08fdff1841bba7679e354cc13654f20bb90ac1ded58c206ac316bb8070c97
-R cb3a12547b05e5e160e59152be320d27
-T +closed f1c08fdff1841bba7679e354cc13654f20bb90ac1ded58c206ac316bb8070c97
+P 6436ecf91132f81244cc6cd26896c55c130b138e1fa2f83e8c20dd6ec7662acc
+R 6d5a1e403de5c066e72f0c0a560539a7
 U wyoung
-Z dab572f37ea63e7f0bdb6cd25d232ab7
+Z 372f5575de6b69cddf46c9531eea60ae
 # Remove this line to create a well-formed Fossil manifest.
