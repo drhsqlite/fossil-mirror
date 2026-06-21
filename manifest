@@ -1,5 +1,5 @@
-C Documented\sin\s/md_rules\sthat\sHTML\scomments\sare\sdisallowed\sunder\sthe\n"safe\sHTML"\srules\seven\sthough\sthey\spass\sthe\sMD\sprocessor.
-D 2026-06-21T17:10:07.177
+C Added\sa\schangelog\sentry\sfor\sthe\sprior\sbranch\smerge
+D 2026-06-21T17:14:25.183
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -804,7 +804,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md b578bfee7063fe0a3fef310b79d0b9ca23e084b17aa3044d57f5a4b94b180b4d
 F www/caps/ref.html 82732721eff68eee38f791c89574d266c798026a61cb653d6ddd851402c4f0d5
 F www/cgi.wiki b9c5bcae4ac589ed274f8f4b2a64dc854f14c78883f4f0200504ec7e3cdf2b56
-F www/changes.wiki 0c1306cabeb8a57e9cd427dd445f333c6b9143fad3dd4770759ee09c14d4982d
+F www/changes.wiki 7a1360aa985a26d658bc0ecfa7378e8ee1b26cad53d7981398c0f7ff014ee45b
 F www/chat.md 9e962760a95d717205757d0839cd70a0f91471a23a5e0198c0b629b99889e078
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6436ecf91132f81244cc6cd26896c55c130b138e1fa2f83e8c20dd6ec7662acc
-R 6d5a1e403de5c066e72f0c0a560539a7
+P ea92c2bf9fe6e82ca8df7f2c78036800e0cf4306846ad474b980350177189f74
+R c94ff972bb4d221faa98593888c0e831
 U wyoung
-Z 372f5575de6b69cddf46c9531eea60ae
+Z 8ca1c4e38edf747e67be2d1bfb1a388d
 # Remove this line to create a well-formed Fossil manifest.
