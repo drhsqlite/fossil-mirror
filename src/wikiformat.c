@@ -90,6 +90,7 @@ enum allowed_attr_t {
   ATTR_MEDIA,
   ATTR_MIN,
   ATTR_NAME,
+  ATTR_OPEN,
   ATTR_OPTIMUM,
   ATTR_ROWSPAN,
   ATTR_SIZE,
@@ -107,44 +108,44 @@ enum allowed_attr_t {
   ATTR_WIDTH
 };
 
-enum amsk_t {
-  AMSK_ALIGN        = 0x00000001,
-  AMSK_ALT          = 0x00000002,
-  AMSK_BGCOLOR      = 0x00000004,
-  AMSK_BORDER       = 0x00000008,
-  AMSK_CELLPADDING  = 0x00000010,
-  AMSK_CELLSPACING  = 0x00000020,
-  AMSK_CLASS        = 0x00000040,
-  AMSK_CLEAR        = 0x00000080,
-  AMSK_COLOR        = 0x00000100,
-  AMSK_COLSPAN      = 0x00000200,
-  AMSK_COMPACT      = 0x00000400,
-  AMSK_FACE         = 0x00000800,
-  AMSK_HEIGHT       = 0x00001000,
-  AMSK_HREF         = 0x00002000,
-  AMSK_HSPACE       = 0x00004000,
-  AMSK_ID           = 0x00008000,
-  AMSK_LINKS        = 0x00010000,
-  AMSK_NAME         = 0x00020000,
-  AMSK_ROWSPAN      = 0x00040000,
-  AMSK_SIZE         = 0x00080000,
-  AMSK_SRC          = 0x00100000,
-  AMSK_START        = 0x00200000,
-  AMSK_STYLE        = 0x00400000,
-  AMSK_TARGET       = 0x00800000,
-  AMSK_TITLE        = 0x01000000,
-  AMSK_TYPE         = 0x02000000,
-  AMSK_VALIGN       = 0x04000000,
-  AMSK_VALUE        = 0x08000000,
-  AMSK_VSPACE       = 0x10000000,
-  AMSK_WIDTH        = 0x20000000,
-  AMSK_CITE         = 0x40000000,
-  AMSK_DATETIME     = 0x80000000
-};
+typedef uint64_t amsk_t;
+#define AMSK_ALIGN        ((amsk_t)1 << 0)
+#define AMSK_ALT          ((amsk_t)1 << 1)
+#define AMSK_BGCOLOR      ((amsk_t)1 << 2)
+#define AMSK_BORDER       ((amsk_t)1 << 3)
+#define AMSK_CELLPADDING  ((amsk_t)1 << 4)
+#define AMSK_CELLSPACING  ((amsk_t)1 << 5)
+#define AMSK_CLASS        ((amsk_t)1 << 6)
+#define AMSK_CLEAR        ((amsk_t)1 << 7)
+#define AMSK_COLOR        ((amsk_t)1 << 8)
+#define AMSK_COLSPAN      ((amsk_t)1 << 9)
+#define AMSK_COMPACT      ((amsk_t)1 << 10)
+#define AMSK_FACE         ((amsk_t)1 << 11)
+#define AMSK_HEIGHT       ((amsk_t)1 << 12)
+#define AMSK_HREF         ((amsk_t)1 << 13)
+#define AMSK_HSPACE       ((amsk_t)1 << 14)
+#define AMSK_ID           ((amsk_t)1 << 15)
+#define AMSK_LINKS        ((amsk_t)1 << 16)
+#define AMSK_NAME         ((amsk_t)1 << 17)
+#define AMSK_OPEN         ((amsk_t)1 << 18)
+#define AMSK_ROWSPAN      ((amsk_t)1 << 19)
+#define AMSK_SIZE         ((amsk_t)1 << 20)
+#define AMSK_SRC          ((amsk_t)1 << 21)
+#define AMSK_START        ((amsk_t)1 << 22)
+#define AMSK_STYLE        ((amsk_t)1 << 23)
+#define AMSK_TARGET       ((amsk_t)1 << 24)
+#define AMSK_TITLE        ((amsk_t)1 << 25)
+#define AMSK_TYPE         ((amsk_t)1 << 26)
+#define AMSK_VALIGN       ((amsk_t)1 << 27)
+#define AMSK_VALUE        ((amsk_t)1 << 28)
+#define AMSK_VSPACE       ((amsk_t)1 << 29)
+#define AMSK_WIDTH        ((amsk_t)1 << 30)
+#define AMSK_CITE         ((amsk_t)1 << 31)
+#define AMSK_DATETIME     ((amsk_t)1 << 32)
 
 static const struct AllowedAttribute {
   const char *zName;
-  unsigned int iMask;
+  amsk_t iMask;
 } aAttribute[] = {
   /* These indexes MUST line up with their
      corresponding allowed_attr_t enum values.
@@ -176,6 +177,7 @@ static const struct AllowedAttribute {
   { "media",         0                   },
   { "min",           0                   },
   { "name",          AMSK_NAME           },
+  { "open",          AMSK_OPEN           },
   { "optimum",       0                   },
   { "rowspan",       AMSK_ROWSPAN        },
   { "size",          AMSK_SIZE           },
@@ -337,7 +339,7 @@ static const struct AllowedMarkup {
   const char *zName;       /* Name of the markup */
   char iCode;              /* The MARKUP_* code */
   short int iType;         /* The MUTYPE_* code */
-  int allowedAttr;         /* Allowed attributes on this markup */
+  amsk_t allowedAttr;      /* Allowed attributes on this markup */
 } aMarkup[] = {
  { 0,               MARKUP_INVALID,      0,                    0  },
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
@@ -366,7 +368,7 @@ static const struct AllowedMarkup {
  { "dd",            MARKUP_DD,           MUTYPE_LI,            AMSK_STYLE },
  { "del",           MARKUP_DEL,          MUTYPE_FONT,          AMSK_STYLE },
  { "details",       MARKUP_DETAILS,      MUTYPE_BLOCK,
-                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE|AMSK_OPEN },
  { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          AMSK_STYLE },
  { "div",           MARKUP_DIV,          MUTYPE_BLOCK,
                     AMSK_ID|AMSK_CLASS|AMSK_STYLE },
@@ -896,11 +898,11 @@ static int markupHasAttr(const ParsedMarkup *p, int iACode){
 ** The content of z[] might be modified by converting characters
 ** to lowercase and by inserting some "\000" characters.
 */
-static int parseMarkup(ParsedMarkup *p, char *z){
+static amsk_t parseMarkup(ParsedMarkup *p, char *z){
   int i, j, c;
   int iACode;
   char *zValue;
-  int seen = 0;
+  amsk_t seen = 0;
   char zTag[100];
 
   if( z[1]=='/' ){
