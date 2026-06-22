@@ -156,19 +156,14 @@ select {
   text-transform: none
 }
 button,
-html input[type=button],
+input[type=button],
 input[type=reset],
-input[type=submit] {
+input[type=submit]{
   cursor: pointer
 }
-button[disabled],
-html input[disabled] {
+button:disabled,
+input:disabled {
   cursor: default
-}
-button::-moz-focus-inner,
-input::-moz-focus-inner {
-  border: 0;
-  padding: 0
 }
 input {
   line-height: normal
@@ -309,7 +304,7 @@ input[type=submit] {
   white-space: nowrap;
   cursor: pointer
 }
-input[type=submit]:disabled {
+input:disabled {
   color: rgb(70,70,70);
   background-color: rgb(153,153,153);
 }
@@ -418,12 +413,7 @@ input[type=submit]:disabled {
   }
 }
 .button,
-button {
-  color: #aaa;
-  background-color: #444;
-  border-radius: 5px;
-  border: 0
-}
+button,
 input[type=button],
 input[type=reset],
 input[type=submit] {
@@ -432,12 +422,7 @@ input[type=submit] {
   border: 0;
   border-radius: 5px
 }
-.button:hover,
-button:hover {
-  color: #444;
-  background-color: #aaa;
-  outline: 0
-}
+button:hover,
 input[type=button]:hover,
 input[type=reset]:hover,
 input[type=submit]:hover {
@@ -454,25 +439,16 @@ input[type=submit]:focus {
   border-color: #888;
   outline: 0
 }
-.button.button-primary,
-.button.button-primary:focus,
-.button.button-primary:hover,
-button.button-primary,
-button.button-primary:focus,
-button.button-primary:hover,
-input[type=button].button-primary,
-input[type=button].button-primary:focus,
-input[type=button].button-primary:hover,
-input[type=reset].button-primary,
-input[type=reset].button-primary:focus,
-input[type=reset].button-primary:hover,
-input[type=submit].button-primary,
-input[type=submit].button-primary:focus,
-input[type=submit].button-primary:hover {
-  color: #303536;
-  background-color: #ff8000;
-  border-color: #ff8000
+
+button:disabled,
+input[type=button]:disabled,
+input[type=reset]:disabled,
+input[type=submit]:disabled{
+  color: #ddd;
+  background-color: #7f7f7f;
+  opacity: 0.8;
 }
+
 input[type=email],
 input[type=number],
 input[type=password],

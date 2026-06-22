@@ -3540,6 +3540,17 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat,
       }
     }else{
       zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
+
+      if( get_comment_format() & COMMENT_PRINT_SUMMARY ){
+        char *z, *t;
+        for(z=zFree; *z!='\0'; z++){
+          if( *z=='\n' ){
+            for(t=z+1; *t!='\0' && *t!='\n' && fossil_isspace(*t); t++){}
+            if( *t=='\n' ) break;
+          }
+        }
+        *z = '\0';
+      }
     }
 
     if( zFormat ){
@@ -3768,6 +3779,7 @@ static int fossil_is_julianday(const char *zDate){
 **   -r|--reverse         Show items in chronological order.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current check-out's repository.
+**   -s|--summmary        Truncate comments after the first blank line.
 **   --sql                Show the SQL used to generate the timeline
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
@@ -3806,6 +3818,8 @@ void timeline_cmd(void){
   const char *zBr = 0;
   Blob treeName;
   int showSql = 0;
+  int bCommentGitStyle = 0;
+  int oldComFmtFlags = get_comment_format();
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag){
@@ -3818,6 +3832,9 @@ void timeline_cmd(void){
   zUser = find_option("for-user","u",1);
   zFilePattern = find_option("path","p",1);
   zFormat = find_option("format","F",1);
+  if( (bCommentGitStyle = (find_option("summary","s",0))!=0) ){
+    g.comFmtFlags |= COMMENT_PRINT_SUMMARY;
+  }
   zBr = find_option("branch","b",1);
   if( find_option("current-branch","c",0)!=0 ){
     if( !g.localOpen ){
@@ -4032,6 +4049,7 @@ void timeline_cmd(void){
   blob_reset(&sql);
   print_timeline(&q, n, width, zFormat, verboseFlag);
   db_finalize(&q);
+  g.comFmtFlags = oldComFmtFlags;
 }
 
 /*

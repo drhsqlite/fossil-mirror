@@ -449,20 +449,30 @@ static void stash_diff(
       Blob delta;
       int isOrigLink = file_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
-      if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
       if( !isOrigLink != !isLink ){
+        if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
         diff_print_index(zNew, pCfg, 0);
         diff_print_filenames(zOrig, zNew, pCfg, 0);
         printf(DIFF_CANNOT_COMPUTE_SYMLINK);
       }else{
+        int isChanged = 0;
         content_get(rid, &a);
         blob_delta_apply(&a, &delta, &b);
         if( fBaseline ){
-          diff_file_mem(&a, &b, zNew, pCfg);
-        }else{
+          if( blob_compare(&a, &b) ){
+            isChanged = 1;
+            if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
+            diff_file_mem(&a, &b, zNew, pCfg);
+          }
+        }else if( !file_same_as_blob(&b, zOPath) ){
+          isChanged = 1;
+          if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
           pCfg->diffFlags ^= DIFF_INVERT;
           diff_file(&b, zOPath, zNew, pCfg, 0);
           pCfg->diffFlags ^= DIFF_INVERT;
+        }
+        if( !bWebpage && !isChanged && pCfg->diffFlags & DIFF_VERBOSE ){
+            fossil_print("UNCHANGED %s\n", zNew);
         }
         blob_reset(&a);
         blob_reset(&b);

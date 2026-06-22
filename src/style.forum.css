@@ -1,0 +1,105 @@
+/* Styles specific to the forum family of pages */
+
+fieldset.forum-status-selection {
+  max-width: max-content;
+  border-radius: 0.5em;
+  padding: 0 0.5em;
+  margin-bottom: 0.35em;
+}
+
+body.forum .forumpost-single-controls button.draft:after {
+  /* Reply/Edit buttons on posts which have local draft edits. */
+  content: " [draft]";
+}
+
+/* .ForumPostEditor is the top container element used by the JS
+   ForumPostEditor class in fossil.page.forumpost.js. */
+.ForumPostEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  padding: 0.5em;
+}
+.ForumPostEditor > .tab-bar{
+}
+.ForumPostEditor > .tab-container {
+}
+.ForumPostEditor > .tab-container > .tabs {
+  /*min-height: 10em;*/
+}
+.ForumPostEditor > .tab-container > .tabs > .tab-panel.debug {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+.ForumPostEditor > .tab-container > .tabs > .tab-panel.debug label,
+.ForumPostEditor > .tab-container > .tabs > .tab-panel.debug input[type=checkbox]{
+  cursor: pointer;
+}
+.ForumPostEditor > .tab-container >  .tabs > .tab-panel {
+  display: flex;
+  flex-direction: column;
+}
+.ForumPostEditor .tab-panel.editor-wrapper > .editor {
+  max-width: initial;
+  min-height: 20em;
+  flex-grow: 1
+}
+body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
+  /* Start the editor out taller in /forumnew. */
+  min-height: 28em;
+}
+.ForumPostEditor > .buttons > .mimetype-wrapper,
+.ForumPostEditor > .titlebar{
+  display: flex;
+  flex-direction: row;
+  font-size: 120%;
+  align-items: stretch;
+  gap: 0.75em;
+}
+.ForumPostEditor > .titlebar{
+  align-items: center;
+}
+.ForumPostEditor > .titlebar > .title {
+  flex-grow: 1;
+  /* Clear some globals... */
+  font-size: inherit;
+  max-width: initial;
+}
+.ForumPostEditor > .buttons {
+  font-size: 90%;
+  display: flex;
+  flex-direction: row;
+  gap: 0.75em;
+  flex-wrap: wrap;
+}
+.ForumPostEditor > .buttons > label {
+  white-space: nowrap;
+  display: flex;
+  flex-direction: row;
+  align-items: last baseline;
+  cursor: pointer;
+  border: 1px inset rgba(128, 128, 128, 0.5);
+  border-radius: 0.25em;
+  padding: 0.1em;
+}
+.ForumPostEditor > .buttons > label.logged-in-as {
+  cursor: initial;
+  white-space: nowrap;
+}
+.ForumPostEditor > .buttons > label > input[type=checkbox]{
+  cursor: pointer;
+}
+.ForumPostEditor > .error {
+  padding: 0.5em;
+  border-radius: 0.5em;
+}
+.forumpost > .ForumPostEditor {
+  border-top: 1px dotted;
+}
+
+.forumTime {
+  /* Animate the transition when a ForumPostEditor shifts
+     its post to the left. */
+  transition: margin-left 0.25s linear;
+}
