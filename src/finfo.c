@@ -166,7 +166,7 @@ void finfo_cmd(void){
       fossil_fatal("file not found for revision %s: %s",
                    zRevision, blob_str(&fname));
     }
-    whatis_rid(rid,whatisFlags);
+    whatis_rid(rid,whatisFlags,0);
     blob_reset(&fname);
   }else{
     Blob line;

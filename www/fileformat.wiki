@@ -426,10 +426,9 @@ An example ticket-change artifact can be seen
 <h3 id="attachment">2.6 Attachments</h3>
 
 An attachment artifact associates some other artifact that is the
-attachment (the source artifact) with a ticket or wiki page or
-technical note to which
-the attachment is connected (the target artifact).
-The following cards are allowed on an attachment artifact:
+attachment (the source artifact) with a ticket, wiki page, technical
+note, or forum post to which the attachment is connected (the target
+artifact).  The following cards are allowed on an attachment artifact:
 
 <div class="indent">
 <b>A</b> <i>filename target</i> ?<i>source</i>?<br />
@@ -440,12 +439,15 @@ The following cards are allowed on an attachment artifact:
 <b>Z</b> <i>checksum</i>
 </div>
 
-The <b>A</b> card specifies a filename for the attachment in its first argument.
-The second argument to the <b>A</b> card is the name of the wiki page or
-ticket or technical note to which the attachment is connected.  The
-third argument is either missing or else it is the lower-case artifact
-ID of the attachment itself.  A missing third argument means that the
-attachment should be deleted.
+The <b>A</b> card specifies a filename for the attachment in its first
+argument.  The second argument to the <b>A</b> card is the name of the
+wiki page, ticket, technical note, or full hash of a forum post to
+which the attachment is connected.  The third argument is either
+missing or else it is the lower-case artifact ID of the attachment
+itself.  A missing third argument means that the attachment should be
+deleted.  If <i>target</i> is a forum post, the hash provided should
+generally be that of the first version of the post for reasons
+[#forumpost-tag|explained elsewhere].
 
 The <b>C</b> card is an optional comment describing what the attachment is about.
 The <b>C</b> card is optional, but there can only be one.
@@ -603,6 +605,22 @@ The format of the <b>W</b> card is exactly the same as for a
 [#wikichng | wiki artifact].
 
 The <b>Z</b> card is the required checksum over the rest of the artifact.
+
+<a name="forumpost-tag"></a>
+<h4>2.8.1 Tags and Attachments on Forum Posts</h4>
+
+When adding [#ctrl|tags] or [#attachment|attachments] to [#forum|forum
+posts] it is generally up to the application to tag, or attach to,
+only the first version of any given post. For example, if post X has
+two edits then a tag applied, or attachment added, by the user to post
+X+2 should generally be applied to version X instead. Though this
+complicates the app logic for applying tags, it simplifies the app's
+location of tags for purposes of applying tag-/attachment-dependent
+logic. As of this writing (May 2026), no current Fossil use cases
+would be improved by tagging specific subsequent versions of posts,
+e.g. the hypothetical X+1.
+
+Forum posts, because they have a P-card, support propagating tags.
 
 
 <h2 id="summary">3.0 Card Summary</h2>

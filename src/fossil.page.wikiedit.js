@@ -1189,7 +1189,7 @@
                btnReload,
                " No attachments found for page ["+wi.name+"]. ",
                D.a(F.repoUrl('attachadd',{
-                 page: wi.name,
+                 target: wi.name,
                  from: F.repoUrl('wikiedit',{name: wi.name})}),
                    "Add attachments..." )
               );
@@ -1200,10 +1200,10 @@
       D.append(D.p(),
                btnReload," ",
                D.a(F.repoUrl('attachlist',{page:wi.name}),
-                   "Attachments for page ["+wi.name+"]."),
-               " ",
+                   "Attachments for page ["+wi.name+"]"),
+               ". ",
                D.a(F.repoUrl('attachadd',{
-                 page:wi.name,
+                 target:wi.name,
                  from: F.repoUrl('wikiedit',{name: wi.name})}),
                    "Add attachments..." )
               )
@@ -1390,7 +1390,6 @@
   P.baseHrefRestore = function(){
     this.base.tag.href = this.base.originalHref;
   };
-  
 
   /**
      loadPage() loads the given wiki page and updates the relevant
@@ -1456,7 +1455,7 @@
     });
     return this;
   };
-  
+
   /**
      Fetches the page preview based on the contents and settings of
      this page's input fields, and updates the UI with the

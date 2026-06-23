@@ -306,6 +306,8 @@ static struct Caps {
     "Alerts", "Sign up for email alerts" },
   { 'A', CAPCLASS_ALERT|CAPCLASS_SUPER, 0,
     "Announce", "Send announcements to all subscribers" },
+  { 'B', CAPCLASS_FORUM|CAPCLASS_SUPER, 0,
+    "Forum-Attach", "Add attachment to Forum posts" },
   { 'C', CAPCLASS_FORUM, 0,
     "Chat",  "Read and/or writes messages in the chatroom" },
   { 'D', CAPCLASS_OTHER, 0,

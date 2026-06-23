@@ -388,6 +388,26 @@ static void tag_cmd_tagname_check(const char *zTag){
 }
 
 /*
+** Internal helper for the tag command. Fetches rid_root_parent(rid)
+** and if it differs from the input, assigns *zSym to the root object's
+** UUID (intentionally leaking it).
+*/
+static int tag_cmd_root(int rid, char const **zSym, int bVerbose){
+  const int origRid = rid;
+  rid = rid_root_parent(rid);
+  assert( rid>0 );
+  if( origRid!=rid ){
+    char const *zOrig = *zSym;
+    *zSym = rid_to_uuid(rid)/*intentional leak*/;
+    if( bVerbose ){
+      fossil_print("Redirecting tag from %!S to root ancestor %!S.\n",
+                   zOrig, *zSym);
+    }
+  }
+  return rid;
+}
+
+/*
 ** COMMAND: tag
 **
 ** Usage: %fossil tag SUBCOMMAND ...
@@ -411,6 +431,14 @@ static void tag_cmd_tagname_check(const char *zTag){
 **           --raw                      Raw tag name. Ignored for
 **                                      non-CHECK-IN artifacts.
 **           --user-override USER       Name USER when adding the tag
+**           --root                     If ARTIFACT-ID refers to an artifact
+**                                      with a P-card, it gets translated to the
+**                                      oldest parent of that artifact and
+**                                      --propagate is assumed. This is
+**                                      most useful with forum posts, wiki
+**                                      pages, and tech notes, where tags are
+**                                      most easliy managed via their initial
+**                                      version.
 **
 **         The --date-override and --user-override options support
 **         importing history from other SCM systems. DATETIME has
@@ -419,6 +447,9 @@ static void tag_cmd_tagname_check(const char *zTag){
 **         Note that fossil uses some tag prefixes internally and this
 **         command will reject tags with these prefixes to avoid
 **         causing problems or confusion: "wiki-", "tkt-", "event-".
+**
+**         When tagging forum posts, the ARTIFACT-ID is translated to
+**         the initial version of that post and --propagate is implied.
 **
 ** > fossil tag cancel ?--raw? TAGNAME ARTIFACT-ID
 **
@@ -435,6 +466,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **           --raw                       Raw tag name. Ignored for
 **                                       non-CHECK-IN artifacts.
 **           --user-override USER        Name USER when deleting the tag
+**           --root                      As described for 'add'.
 **
 ** > fossil tag find ?OPTIONS? TAGNAME
 **
@@ -454,8 +486,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 ** > fossil tag list|ls ?OPTIONS? ?ARTIFACT-ID?
 **
 **         List all tags or, if ARTIFACT-ID is supplied, all tags and
-**         their values for that artifact. The tagtype option accepts
-**         one of: propagated, singleton, cancel.  For historical
+**         their values for that artifact. For historical
 **         scripting compatibility, the internal tag types "wiki-",
 **         "tkt-", and "event-" (technote) are elided by default
 **         unless the --raw or --prefix options are used.
@@ -477,6 +508,8 @@ static void tag_cmd_tagname_check(const char *zTag){
 **                           If --sep is supplied, list all values of a tag on
 **                           the same line, separated by SEP; otherwise list
 **                           each value on its own line.
+**           --root          As described for 'add' and only if ARTIFACT-ID is
+**                           provided.
 **
 ** The option --raw allows the manipulation of all types of tags
 ** used for various internal purposes in fossil. It also shows
@@ -514,13 +547,15 @@ void tag_cmd(void){
     char *zValue;
     int dryRun = 0;
     int fRaw = find_option("raw","",0)!=0;
-    const char *zPrefix = "";
     int fPropagate = find_option("propagate","",0)!=0;
+    int fRoot = find_option("root","",0)!=0;
+    int objType;
+    int rid;
+    const char *zPrefix = "";
     const char *zDateOvrd = find_option("date-override",0,1);
     const char *zUserOvrd = find_option("user-override",0,1);
     const char *zTag;
     const char *zObjId;
-    int objType;
     if( find_option("dry-run","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 && g.argc!=6 ){
       usage("add ?options? TAGNAME ARTIFACT-ID ?VALUE?");
@@ -529,15 +564,17 @@ void tag_cmd(void){
     tag_cmd_tagname_check(zTag);
     zObjId = g.argv[4];
     zValue = g.argc==6 ? g.argv[5] : 0;
-    objType = whatis_rid_type(symbolic_name_to_rid(zObjId, 0));
-    switch(objType){
-      case 0:
-        fossil_fatal("Cannot resolve artifact ID: %s", zObjId);
-        break;
-      case CFTYPE_MANIFEST:
-        zPrefix = fRaw ? "" : "sym-";
-        break;
-      default: break;
+    rid = symbolic_name_to_rid(zObjId, 0);
+    if( rid<=0 ){
+      fossil_fatal("Cannot resolve artifact ID: %s", zObjId);
+    }
+    if( fRoot ){
+      rid = tag_cmd_root(rid, &zObjId, dryRun);
+      fPropagate = 1;
+    }
+    objType = whatis_rid_type(rid);
+    if( CFTYPE_MANIFEST==objType ){
+      zPrefix = fRaw ? "" : "sym-";
     }
     db_begin_transaction();
     tag_add_artifact(zPrefix, zTag, zObjId, zValue,
@@ -553,12 +590,14 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"cancel",n)==0 ){
     int dryRun = 0;
     int fRaw = find_option("raw","",0)!=0;
+    int fRoot = find_option("root","",0)!=0;
+    int objType;
+    int rid;
     const char *zPrefix = "";
     const char *zDateOvrd = find_option("date-override",0,1);
     const char *zUserOvrd = find_option("user-override",0,1);
     const char *zTag;
     const char *zObjId;
-    int objType;
     if( find_option("dry-run","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 ){
       usage("cancel ?options? TAGNAME ARTIFACT-ID");
@@ -566,15 +605,16 @@ void tag_cmd(void){
     zTag = g.argv[3];
     tag_cmd_tagname_check(zTag);
     zObjId = g.argv[4];
-    objType = whatis_rid_type(symbolic_name_to_rid(zObjId, 0));
-    switch(objType){
-      case 0:
-        fossil_fatal("Cannot resolve artifact ID: %s", zObjId);
-        break;
-      case CFTYPE_MANIFEST:
-        zPrefix = fRaw ? "" : "sym-";
-        break;
-      default: break;
+    rid = symbolic_name_to_rid(zObjId, 0);
+    if( rid<=0 ){
+      fossil_fatal("Cannot resolve artifact ID: %s", zObjId);
+    }
+    if( fRoot ){
+      rid = tag_cmd_root(rid, &zObjId, dryRun);
+    }
+    objType = whatis_rid_type(rid);
+    if( CFTYPE_MANIFEST==objType ){
+      zPrefix = fRaw ? "" : "sym-";
     }
     db_begin_transaction();
     tag_add_artifact(zPrefix, zTag, zObjId, 0, dryRun,
@@ -641,6 +681,7 @@ void tag_cmd(void){
     const char *zTagPrefix = find_option("prefix","",1);
     int nTagType = fRaw ? -1 : 0;
     int fValues = find_option("values","",0)!=0;
+    int fRoot = find_option("root","",0)!=0;
     const char *zSep = find_option("sep","",1);
 
 
@@ -714,11 +755,15 @@ void tag_cmd(void){
       db_finalize(&q);
     }else if( g.argc==4 ){
       char const *zObjId = g.argv[3];
-      const int rid = name_to_rid(zObjId);
-      const int objType = whatis_rid_type(rid);
+      int rid = name_to_rid(zObjId);
+      int objType;
       int nTagOffset = 0;
 
+      if( fRoot ){
+        rid = tag_cmd_root(rid, &zObjId, 0);
+      }
       zTagPrefix = 0;
+      objType = rid>=0 ? whatis_rid_type(rid) : 0;
       if(objType<=0){
         fossil_fatal("Cannot resolve artifact ID: %s", zObjId);
       }else if(fRaw==0){
@@ -962,10 +1007,45 @@ int rid_has_tag(int rid, int tagId){
 
 
 /*
+** If the given blob.rid value has the given tag applied to it,
+** returns true and sets *pOut to a copy of its value (or NULL if it
+** has no value).  Else returns false and sets *pOut to 0.  A truthy
+** value returned is the associated tag.tagid value.
+**
+** Ownership of *pOut is transfered to the caller, who must eventually
+** fossil_free() it.
+*/
+int rid_has_tag2(int rid, const char *zTag, char **pOut){
+  static Stmt q;
+  int rc = 0;
+  if( !q.pStmt ){
+    db_prepare(
+      &q, "SELECT t.tagid, x.value"
+      " FROM tagxref x, tag t"
+      " WHERE x.rid=:rid"
+      " AND x.tagtype>0"
+      " AND x.tagid=t.tagid"
+      " AND t.tagname=:name"
+      " ORDER BY mtime DESC"
+    );
+  }
+  *pOut = 0;
+  db_bind_int(&q, ":rid", rid);
+  db_bind_text(&q, ":name", zTag);
+  if( SQLITE_ROW==db_step(&q) ){
+    rc = db_column_int(&q, 0);
+    *pOut = fossil_strdup(db_column_text(&q, 1));
+  }
+  db_reset(&q);
+  return rc;
+}
+
+
+/*
 ** Returns tagxref.rowid if the given blob.rid has a tagxref.rid entry
 ** of an active (non-cancelled) tag matching the given rid and tag
-** name string, else returns 0. Note that this function does not
-** distinguish between a non-existent tag and a cancelled tag.
+** name string, else returns 0. This function does not distinguish
+** between a non-existent tag and a cancelled tag.
 **
 ** Design note: the return value is the tagxref.rowid because that
 ** gives us an easy way to fetch the value of the tag later on, if

@@ -99,7 +99,7 @@ struct FossilUserPerms {
   char ApndTkt;          /* c: append to tickets via the web */
   char WrTkt;            /* w: make changes to tickets via web */
   char ModTkt;           /* q: approve and publish ticket changes (Moderator) */
-  char Attach;           /* b: add attachments */
+  char Attach;           /* b: add attachments to wiki or tickets */
   char TktFmt;           /* t: create new ticket report formats */
   char RdAddr;           /* e: read email addresses or other private data */
   char Zip;              /* z: download zipped artifact via /zip URL */
@@ -112,6 +112,7 @@ struct FossilUserPerms {
   char AdminForum;       /* 6: Grant capability 4 to other users */
   char EmailAlert;       /* 7: Sign up for email notifications */
   char Announce;         /* A: Send announcements */
+  char AttachForum;      /* B: add attachments to forum */
   char Chat;             /* C: read or write the chatroom */
   char Debug;            /* D: show extra Fossil debugging features */
   /* These last two are included to block infinite recursion */

@@ -186,12 +186,48 @@ oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
 > Both a footnote's text and a fragment to which a footnote applies
 > are subject to further interpretation as Markdown sources.
 
+## Safe HTML ##
+
+> Markdown documents may contain raw HTML, filtered to allow the following:
+>
+> &lt;a&gt; &lt;abbr&gt; &lt;address&gt; &lt;article&gt; &lt;aside&gt;
+> &lt;b&gt; &lt;big&gt; &lt;blockquote&gt; &lt;br&gt; &lt;caption&gt;
+> &lt;center&gt; &lt;cite&gt; &lt;code&gt; &lt;col&gt; &lt;colgroup&gt;
+> &lt;dd&gt; &lt;del&gt; &lt;details&gt; &lt;dfn&gt; &lt;div&gt; &lt;dl&gt;
+> &lt;dt&gt; &lt;em&gt; &lt;figcaption&gt; &lt;figure&gt; &lt;font&gt;
+> &lt;footer&gt; &lt;h1&gt; &lt;h2&gt; &lt;h3&gt; &lt;h4&gt; &lt;h5&gt;
+> &lt;h6&gt; &lt;header&gt; &lt;hr&gt; &lt;i&gt; &lt;img&gt; &lt;ins&gt;
+> &lt;kbd&gt; &lt;label&gt; &lt;li&gt; &lt;mark&gt; &lt;meter&gt; &lt;nav&gt;
+> &lt;nobr&gt; &lt;nowiki&gt; &lt;ol&gt; &lt;p&gt; &lt;picture&gt; &lt;pre&gt;
+> &lt;progress&gt; &lt;q&gt; &lt;s&gt; &lt;samp&gt; &lt;section&gt; &lt;small&gt;
+> &lt;source&gt; &lt;span&gt; &lt;strike&gt; &lt;strong&gt; &lt;sub&gt;
+> &lt;summary&gt; &lt;sup&gt; &lt;table&gt; &lt;tbody&gt; &lt;td&gt;
+> &lt;tfoot&gt; &lt;th&gt; &lt;thead&gt; &lt;time&gt; &lt;title&gt; &lt;tr&gt;
+> &lt;tt&gt; &lt;u&gt; &lt;ul&gt; &lt;var&gt; &lt;wbr&gt; &lt;verbatim&gt;
+>
+> Any other tag is sent through to the output in a way that causes it to be
+> visibly called out as disallowed.  This is the same whitelist as for
+> [Fossil Wiki](/wiki_rules) markup.
+>
+> Fossil-specific elements **&lt;nowiki&gt;** and **&lt;verbatim&gt;** disable
+> wiki and Markdown processing within their spans; see
+> [Wiki formatting rules](/wiki_rules) for details.
+>
+> Only a fixed set of attributes is permitted (for example **id**,
+> **class**, **style**, **href**, **src**, **srcset**, **alt**, **type**,
+> **datetime**, and **value**).  Event handlers, **javascript:** URLs, and
+> similar constructs are stripped.
+>
+> Repository administrators may allow additional unsafe HTML (such as
+> **&lt;script&gt;** and **&lt;form&gt;**) in some contexts using the
+> [safe-html setting](/help/safe-html) on the Admin/Wiki page.
+
 ## Miscellaneous ##
 
 > *   In-line images are made using **\!\[alt-text\]\(image-URL\)**.
-> *   Use HTML for advanced formatting such as forms, noting that certain
->     tags are [disallowed in some contexts](/help/safe-html).
-> *   **\<!--** HTML-style comments **-->** are supported.
+> *   Use HTML for advanced formatting; see [Safe HTML](#safe-html) above.
+> *   **\<!--** HTML-style comments **-->** are allowed through only when
+>     the safe-HTML rules are bypassed.
 > *   Escape special characters (ex: **\[** **\(** **\|** **\***)
 >     using backslash (ex: **\\\[** **\\\(** **\\\|** **\\\***).
 > *   A line consisting of **---**, **\*\*\***, or **\_\_\_** is a horizontal

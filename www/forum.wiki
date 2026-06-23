@@ -371,7 +371,7 @@ repository's administrators and moderators:
 
 <h2 id="close-post">Closing Forum Posts</h2>
 
-As of version 2.23, the forum interface supports the notion of
+As of version 2.23 the forum interface supports the notion of
 "closing" posts. By default, only users with the [./caps/index.md|'s'
 and 'a' capabilities] may close or re-open posts, or reply to closed
 posts. If the [/help/forum-close-policy|forum-close-policy
@@ -409,3 +409,195 @@ posts. This is intentional, as closing one's own post can be used to
 antagonize other forum users. For example, by posting something
 trollish or highly controversial in nature and closing the post to
 further responses.
+
+<h2 id="status">Setting Post Statuses</h2>
+
+As of version 2.29 forum posts may be tagged with a status.  The
+setting <tt>forum-statuses</tt> controls whether this feature is is
+enabled. If it is not set, is not valid JSON5, or has only a single
+entry, then status are not shown in the forum.
+
+<tt>forum-statuses</tt> is a JSON5-format array of objects in the
+following format:
+
+<verbatim>
+[
+  {label:"Open", value:"open"},
+  {label:"Resolved", value:"resolved"}
+  ...
+]</verbatim>
+
+The list defines the legal statuses for forum posts and syncs with
+other project-level settings. All "label" and "value" members must be
+unique within the scope of that list.
+
+The "value" values must be legal for use as HTML "dataset" members so
+that they can be used for with CSS selectors to apply per-status
+styling.
+
+If the list is valid JSON5 and has two or more entries then the forum
+behavior changes in the following ways:
+
+  *  Each TR element of the main <tt>/forum</tt> view table gets a
+     <tt>data-status="X"</tt> member, where "X" is the value part from
+     the associated status. This can be used to style the statuses
+     in the site skin using CSS selectors such as<br>
+     <tt>body.cpage-forum div.forumPosts tr&#91;data-status="open"]</tt><br>
+     Because there is no default status list, no predefined styles
+     are applied.
+  *  The forum list shows the "label" value of the current status and
+     a selection list of available filters. It elides the status column
+     when filtering on a specific status.
+  *  The root of each thread, when selected, gets a new UI control for
+     displaying or editing the status, depending on permissions.
+  *  A drop-down selection list is added to the <tt>/forum</tt> page
+     for filtering based on the status.
+
+A list with only a single entry is treated as empty, the justification
+being that if there is only one option then the UI does not need to be
+cluttered with it.
+
+This setting is applied via a <tt>status</tt> tag on the first version
+of a legal post. That tag may be set to any value from the "values"
+members of the <tt>forum-statuses</tt> list.
+
+Status tag rules:
+
+  *  <tt>status</tt> is only observed on the root of each thread. The UI
+     does nothing with that tag on responses.
+  *  The first list entry is considered to be the default status. Any post
+     which has no <tt>status</tt> tag, or has a <tt>status</tt> tag value
+     which is not in that list, is assumed for most purposes to have the
+     value of the first entry in the list.
+  *  The tag is applied only to the first version of any given post. The
+     UI ensures that the tag is applied to the proper post, even when
+     rendering a newer version.
+
+Caveat: a "closed" status is not recommended because it's easy to confuse with
+the <a href='#close-post'>"closed" tag feature</a>, which behaves considerably
+differently and predates that "status" tag support by about three years. The
+"closed" semantics cannot be trivially consolidated with those of "status"
+but we reserve the right to do so at some point.
+
+<h2 id="attachments">Attachments</h2>
+
+As of version 2.29 users with the [./caps/index.md|'B' capability] may
+attach files to forum posts. Files may not be attached until a forum
+post is saved for the first time, after which an "Attach" button will
+appear in the post when it is selected. Attached files undergo
+moderation exactly like forum posts do. When a moderator accepts a
+pending-moderation posts, all files attached to it which are also
+pending approval are also approved.  Similarly, when a moderator
+rejects a pending-moderation post, all files attached to it which are
+also pending approval are rejected.
+
+Developer notes regarding the save-before-attach limitation:
+
+  *  We cannot add the attachment form to the current post editor
+     because (A) the Preview option would upload the files each time
+     (B) we cannot pre-populate file selection elements so could not
+     restore them when rendering the preview's response.
+  *  To work around that we need to reimplement the forum editor
+     using AJAX-friendly APIs. That would allow us to render a preview
+     without reloading the page, to attach multiple files at once,
+     to support pasting a screenshot as an attachment, and to submit both
+     a new post and its attachments at the same time.
+  *  We have AJAX-capable preview code in /wiki and /fileedit.
+  *  We have paste-screenshot code in /chat but integrating it here will
+     require adding a "paste" button to the attachment UI.
+
+Developer notes regarding automatic acceptance/rejection of
+attachments:
+
+  * There is a race condition here where an admin may approve
+    attachments they have not yet seen: user creates posts, admin gets
+    notified, admin reads post, user attaches a file at that time,
+    admin approves post.
+
+TBD is whether to accept that case or to remove automatic approval of
+attached files.
+
+<h2 id="drafts">Draft Edits</h2>
+
+The forum uses, if available, JavaScript's <code>localStorage</code>
+or <code>sessionStorage</code> to store local drafts of new
+posts, replies, and edits to existing posts. Each time an editor
+input field loses focus, the draft is saved. When viewing a forum
+thread, the Edit and Reply buttons get clearly marked if they
+have an associated local draft.
+
+Local drafts for replies and responses (but not new posts) are
+automatically purged at semi-random intervals. Every Nth visit to a
+forum page has a small chance to run the cleanup, and drafts older
+than 10 days old are purged.
+
+If neither <code>localStorage</code> nor <code>sessionStorage</code>
+are available, it uses a transient storage object which is recreated
+on each page-load, so it cannot store drafts outside of a single
+thread at a time.
+
+Beware: Each draft is keyed to the post it is editing or replied to,
+which means that editing or replying to the same post from different
+tabs will cause collisions. The editor to most recently lose the focus
+will save the draft, overwriting the other.
+
+In browsers which support Web Locks, attempts to edit resp. reply to a
+post which is already being edited resp. replied to in another tab
+will show an error for the second and subsequent tabs.  The first tab
+to use the edit/reply buttons will hold a separate Web Lock for each
+and forbid edit/reply access to the post in other tabs until the
+locking tab is closed.
+
+
+<h2 id="padding">Curious Extra Page Padding</h2>
+
+Users may notice that the forum pages get a bunch of padding added to
+the bottom of the page when an editor widget is opened.  This is not a
+bug, but a workaround to help avoid the UI jumping around when
+rendering a preview wildly resizes the widget. The effect is
+especially helpful when working on posts while the bottom footer of
+the page is in the viewport, as the footer is a hard boundary against
+scrolling. With the extra padding, the editor widget's top edge shifts
+around less when the preview is shown and hidden.
+
+<h2 id="fork">Forked Edits</h2>
+
+It is possible to "fork" forum messages, in the same way that any
+given check-in may cause a fork. This can happen when a message is
+edited concurrently from two or more browser tabs or via two or more
+fossil instances which subsequently sync with each other.
+
+When a forum post is forked, the UI currently behaves as it does for
+concurrent wiki page edits, showing only the most recent
+edit. Currently (2026-06) the UI is incapable of showing the older
+forked copies but (A) the data are still part of the SCM history and
+(B) there are plans to improve the UI to show such forks.
+
+For trivia's sake, here's a query which finds posts which have
+forks:
+
+<pre><verbatim>
+SELECT bp.rid AS parentRid, bp.uuid parentUuid, count(f.fprev) forkCount
+FROM blob b, blob bp, forumpost f
+WHERE b.rid=f.fpid
+AND f.fprev=bp.rid
+GROUP BY f.fprev
+HAVING forkCount>1;
+</verbatim></pre>
+
+And here's one which lists forked posts:
+
+<pre><verbatim>
+WITH multiparent(mpid) AS (
+  SELECT fprev FROM forumpost f
+  GROUP BY fprev
+  HAVING count(fprev)>1
+)
+SELECT datetime(fmtime), forumpost.*
+FROM forumpost, multiparent
+WHERE fprev=mpid
+ORDER BY mpid, fpid, fmtime;
+</verbatim></pre>
+
+The telling part is the <code>fprev</code> column: those with matching
+values forked from the post referred to by <code>fprev</code>.

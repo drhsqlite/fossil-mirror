@@ -1130,16 +1130,12 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   return p;
 
 manifest_syntax_error:
-  {
-    char *zUuid = rid_to_uuid(rid);
+  if(pErr!=0){
+    char *zUuid = rid>0 ? rid_to_uuid(rid) : 0;
     if( zUuid ){
-      if(pErr!=0){
-        blob_appendf(pErr, "artifact [%s] ", zUuid);
-      }
+      blob_appendf(pErr, "artifact [%s] ", zUuid);
       fossil_free(zUuid);
     }
-  }
-  if(pErr!=0){
     if( zErr ){
       blob_appendf(pErr, "line %d: %s", lineNo, zErr);
     }else{
@@ -2632,22 +2628,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_ATTACHMENT ){
     char *zComment = 0;
     const char isAdd = (p->zAttachSrc && p->zAttachSrc[0]) ? 1 : 0;
-    /* We assume that we're attaching to a wiki page until we
-    ** prove otherwise (which could on a later artifact if we
-    ** process the attachment artifact before the artifact to
-    ** which it is attached!) */
-    char attachToType = 'w';
-    if( fossil_is_artifact_hash(p->zAttachTarget) ){
-      if( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
-            p->zAttachTarget)
-        ){
-        attachToType = 't';          /* Attaching to known ticket */
-      }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",
-                  p->zAttachTarget)
-            ){
-        attachToType = 'e';          /* Attaching to known tech note */
-      }
-    }
+    char attachToType = 0;
     db_multi_exec(
        "INSERT INTO attachment(attachid, mtime, src, target,"
                               "filename, comment, user)"
@@ -2663,36 +2644,78 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
        p->zAttachTarget, p->zAttachName,
        p->zAttachTarget, p->zAttachName
     );
-    if( 'w' == attachToType ){
-      if( isAdd ){
-        zComment = mprintf(
-             "Add attachment [/artifact/%!S|%h] to wiki page [%h]",
-             p->zAttachSrc, p->zAttachName, p->zAttachTarget);
-      }else{
-        zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
-             p->zAttachName, p->zAttachTarget);
-      }
-    }else if( 'e' == attachToType ){
-      if( isAdd ){
-        zComment = mprintf(
-          "Add attachment [/artifact/%!S|%h] to tech note [/technote/%!S|%S]",
-          p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
-      }else{
-        zComment = mprintf(
-             "Delete attachment \"/artifact/%!S|%h\" from"
-             " tech note [/technote/%!S|%S]",
-             p->zAttachName, p->zAttachName,
-             p->zAttachTarget,p->zAttachTarget);
-      }
-    }else{
-      if( isAdd ){
-        zComment = mprintf(
-             "Add attachment [/artifact/%!S|%h] to ticket [%!S|%S]",
-             p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
-      }else{
-        zComment = mprintf("Delete attachment \"%h\" from ticket [%!S|%S]",
-             p->zAttachName, p->zAttachTarget, p->zAttachTarget);
-      }
+    switch( attachment_target_type(p->zAttachTarget, 1) ){
+      case 0:
+        /* It is possible that p->zAttachTarget is not yet in this
+        ** copy of the repository. If we cannot identify it yet,
+        ** generate a generic /artifact link to it instead of a
+        ** type-specific link or an error message. */
+        attachToType = 'a';
+        if( isAdd ){
+          zComment = mprintf(
+            "Add attachment [/artifact/%!S|%h] to [/artifact/%!S|%h]",
+            p->zAttachSrc, p->zAttachName,
+            p->zAttachTarget, p->zAttachTarget);
+        }else{
+          zComment = mprintf("Delete attachment \"%h\" from "
+                             "[/artifact/%!S|%h",
+                             p->zAttachName, p->zAttachTarget,
+                             p->zAttachTarget);
+        }
+        break;
+      case CFTYPE_WIKI:
+        attachToType = 'w';
+        if( isAdd ){
+          zComment = mprintf(
+            "Add attachment [/artifact/%!S|%h] to wiki page [%h]",
+            p->zAttachSrc, p->zAttachName, p->zAttachTarget);
+        }else{
+          zComment = mprintf("Delete attachment \"%h\" from "
+                             "wiki page [%h]",
+                             p->zAttachName, p->zAttachTarget);
+        }
+        break;
+      case CFTYPE_EVENT:
+        attachToType = 'e';
+        if( isAdd ){
+          zComment = mprintf(
+            "Add attachment [/artifact/%!S|%h] to tech note "
+            "[/technote/%!S|%S]",
+            p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
+        }else{
+          zComment = mprintf(
+            "Delete attachment \"/artifact/%!S|%h\" from"
+            " tech note [/technote/%!S|%S]",
+            p->zAttachName, p->zAttachName,
+            p->zAttachTarget,p->zAttachTarget);
+        }
+        break;
+      case CFTYPE_TICKET:
+        attachToType = 't';
+        if( isAdd ){
+          zComment = mprintf(
+            "Add attachment [/artifact/%!S|%h] to ticket [%!S|%S]",
+            p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
+        }else{
+          zComment = mprintf(
+            "Delete attachment \"%h\" from ticket [%!S|%S]",
+            p->zAttachName, p->zAttachTarget, p->zAttachTarget);
+        }
+        break;
+      case CFTYPE_FORUM:
+        attachToType = 'f';
+        if( isAdd ){
+          zComment = mprintf(
+            "Add attachment [/artifact/%!S|%h] to forum post "
+            "[/forumpost/%!S|%S]",
+            p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
+        }else{
+          zComment = mprintf(
+            "Delete attachment \"%h\" from forum post "
+            "[/forumpost/%!S|%S]",
+            p->zAttachName, p->zAttachTarget, p->zAttachTarget);
+        }
+        break;
     }
     assert( manifest_event_triggers_are_enabled );
     db_multi_exec(
@@ -3206,4 +3229,26 @@ void test_manifest_to_json(void){
   if( nErr ){
     fossil_warning("Error count: %d", nErr);
   }
+}
+
+/*
+** Given the RID of an artifact, if that artifact type supports
+** P-cards then this returns the root-most RID of the P-card chain by
+** traversing the plink table, considering only primary parents. If
+** rid refers to anything other than such an artifact, or if the
+** artifact has no primary parent, rid is returned as-is.
+*/
+int rid_root_parent(int rid){
+  Stmt q;
+  db_prepare(
+    &q, "SELECT pid FROM plink WHERE isprim AND cid=:cid"
+  );
+  db_bind_int(&q, ":cid", rid);
+  while( SQLITE_ROW==db_step(&q) ){
+    rid = db_column_int(&q, 0);
+    db_reset(&q);
+    db_bind_int(&q, ":cid", rid);
+  }
+  db_finalize(&q);
+  return rid;
 }

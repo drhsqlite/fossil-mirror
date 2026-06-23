@@ -1710,7 +1710,8 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->ModWiki = p->ModTkt =
                              p->RdForum = p->WrForum = p->ModForum =
                              p->WrTForum = p->AdminForum = p->Chat =
-                             p->EmailAlert = p->Announce = p->Debug = 1;
+                             p->EmailAlert = p->Announce = p->AttachForum =
+                             p->Debug = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
       case 'o':   p->Read = 1;                                 break;
@@ -1746,6 +1747,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
 
       case '7':   p->EmailAlert = 1;                           break;
       case 'A':   p->Announce = 1;                             break;
+      case 'B':   p->AttachForum = 1;                          break;
       case 'C':   p->Chat = 1;                                 break;
       case 'D':   p->Debug = 1;                                break;
 

@@ -244,11 +244,11 @@ As of version 2.27, Fossil supports transfering of the login card
 externally to the request payload via a Cookie HTTP header:
 
 <verbatim>
-  Cookie: x-f-x-l=...
+  Cookie: x-f-l-c=...
 </verbatim>
 
-Where "..." is the URL-encoded login cookie. <code>x-f-x-l</code> is
-short for X-Fossil-Xfer-Login.
+Where "..." is the URL-encoded login cookie. <code>x-f-l-c</code> is
+short for X-Fossil-Login-Cookie.
 
 
 <h3 id="file">3.3 File Cards</h3>

@@ -751,9 +751,12 @@ void tktview_page(void){
   if( g.anon.NewTkt ){
     style_submenu_element("New Ticket", "%R/tktnew");
   }
+  zFullName = db_text(0,
+       "SELECT tkt_uuid FROM ticket"
+       " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( g.anon.ApndTkt && g.anon.Attach ){
-    style_submenu_element("Attach", "%R/attachadd?tkt=%T&from=%R/tktview/%t",
-        zUuid, zUuid);
+    style_submenu_element("Attach", "%R/attachadd?target=%T&from=%R/tktview/%t",
+        zFullName, zUuid);
   }
   if( P("plaintext") ){
     style_submenu_element("Formatted", "%R/tktview/%s", zUuid);
@@ -775,9 +778,6 @@ void tktview_page(void){
   if( !showTimeline && g.perm.Hyperlink ){
     style_submenu_element("Timeline", "%R/info/%T", zUuid);
   }
-  zFullName = db_text(0,
-       "SELECT tkt_uuid FROM ticket"
-       " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br>\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
@@ -791,7 +791,12 @@ void tktview_page(void){
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br>\n", -1);
 
   if( zFullName ){
-    attachment_list(zFullName, "<h2>Attachments:</h2>", 1);
+    char * z = mprintf(
+      "<h2><a href='%R/attachlist?tkt=%t'>Attachments</a>:</h2>",
+      zFullName
+    );
+    attachment_list(zFullName, z, 1);
+    fossil_free(z);
   }
 
   builtin_fossil_js_bundle_or("dom", "storage", NULL);

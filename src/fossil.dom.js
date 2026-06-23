@@ -82,6 +82,10 @@
      and that id is set as the 'for' attribute of the
      label. If passed 2 arguments, the 2nd is text or
      a DOM element to append to the label.
+
+     2026-06: this is a goofy interface. Generally simpler that
+     dealing with IDs is to embed the target control within the label
+     element.
   */
   dom.label = function(forElem, text){
     const rc = document.createElement('label');

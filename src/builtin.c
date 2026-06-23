@@ -670,6 +670,8 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        "isNew:'[+]', isModified:'[*]', isDeleted:'[-]'},\n");
     CX("confirmerButtonTicks: 3 "
        "/*default fossil.confirmer tick count.*/,\n");
+    CX("attachmentSizeLimit: %d,\n",
+       db_get_int("attachment-size-limit",0));
     /* Inject certain info about the current skin... */
     CX("skin:{");
     /* can leak a local filesystem path:
@@ -679,9 +681,24 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        skin_detail_boolean("white-foreground") ? "true" : "false");
     CX("}\n"/*fossil.config.skin*/);
     CX("};\n"/* fossil.config */);
+    if( forum_statuses()->n>1 ){
+      const ForumStatusList * fsl = forum_statuses();
+      int i;
+      CX("window.fossil.config.forumStatuses = [");
+      for(i = 0; i < fsl->n; ++i){
+        const ForumStatus *fs = &fsl->aStatus[i];
+        if(i) CX(",");
+        CX("{label:%!j, value:%!j}", fs->zLabel, fs->zValue);
+      }
+      CX("];\n");
+    }
+#define JBOOL(COND) ((COND) ? "true" : "false")
     CX("window.fossil.user = {");
     CX("name: %!j,", (g.zLogin&&*g.zLogin) ? g.zLogin : "guest");
-    CX("isAdmin: %s", (g.perm.Admin || g.perm.Setup) ? "true" : "false");
+    CX("isAdmin: %s,", JBOOL(g.perm.Admin || g.perm.Setup));
+    CX("mayAttachForum: %s,", JBOOL(g.perm.AttachForum));
+    CX("enableDebug: %s,", JBOOL(g.perm.Debug || g.perm.Admin));
+    CX("isIndividual: %s", JBOOL(login_is_individual()));
     CX("};\n"/*fossil.user*/);
     CX("if(fossil.config.skin.isDark) "
        "document.body.classList.add('fossil-dark-style');\n");
@@ -701,6 +718,7 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     ** C-runtime state... */
     builtin_request_js("fossil.bootstrap.js");
   }
+#undef JBOOL
 }
 
 /*
@@ -734,6 +752,7 @@ static int builtin_emit_fossil_js_once(const char * zName){
                         ** the final one! */
   } fjs[] = {
   /* This list ordering isn't strictly important. */
+  {"attach",         0, "dom\0"},
   {"confirmer",      0, 0},
   {"copybutton",     0, "dom\0"},
   {"diff",           0, "dom\0fetch\0storage\0"

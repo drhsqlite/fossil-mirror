@@ -279,7 +279,7 @@ const char zRepositorySchema2[] =
 @ CREATE INDEX mlink_i3 ON mlink(fid);
 @ CREATE INDEX mlink_i4 ON mlink(pid);
 @
-@ -- Parent/child linkages between check-ins
+@ -- Parent/child linkages between artifacts with P-cards.
 @ --
 @ CREATE TABLE plink(
 @   pid INTEGER REFERENCES blob,    -- Parent manifest
@@ -429,7 +429,7 @@ const char zRepositorySchema2[] =
 @   isLatest BOOLEAN DEFAULT 0,     -- True if this is the one to use
 @   mtime TIMESTAMP,                -- Last changed.  Julian day.
 @   src TEXT,                       -- Hash of the attachment.  NULL to delete
-@   target TEXT,                    -- Object attached to. Wikiname or Tkt hash
+@   target TEXT,                    -- Object attached to. Wikiname or Tkt/Event/Forum post ID
 @   filename TEXT,                  -- Filename for the attachment
 @   comment TEXT,                   -- Comment associated with this attachment
 @   user TEXT                       -- Name of user adding attachment

@@ -148,10 +148,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.54.0"
 #define SQLITE_VERSION_NUMBER 3054000
-#define SQLITE_SOURCE_ID      "2026-05-04 10:14:13 7e4134e3ff1ca8712f5fc78fadae665549450988dc43af27c7fe0c77f10ce3fb"
+#define SQLITE_SOURCE_ID      "2026-06-16 13:43:08 3f3fb9b638f59ad982beafb7c117f24ddd3da612e62c862510805fa672ffae06"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2026-05-04T10:14:13.819Z"
+#define SQLITE_SCM_DATETIME   "2026-06-16T13:43:08.110Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4054,8 +4054,7 @@ SQLITE_API int sqlite3_open_v2(
 **
 ** The sqlite3_uri_int64(F,P,D) routine converts the value of P into a
 ** 64-bit signed integer and returns that integer, or D if P does not
-** exist.  If the value of P is something other than an integer, then
-** zero is returned.
+** exist or ff the value of P is something other than an integer.
 **
 ** The sqlite3_uri_key(F,N) returns a pointer to the name (not
 ** the value) of the N-th query parameter for filename F, or a NULL
@@ -4378,7 +4377,8 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** or in an ORDER BY or GROUP BY clause.</dd>)^
 **
 ** [[SQLITE_LIMIT_EXPR_DEPTH]] ^(<dt>SQLITE_LIMIT_EXPR_DEPTH</dt>
-** <dd>The maximum depth of the parse tree on any expression.</dd>)^
+** <dd>The maximum depth of the parse tree on any expression and
+** the maximum nesting depth for subqueries and VIEWs</dd>)^
 **
 ** [[SQLITE_LIMIT_PARSER_DEPTH]] ^(<dt>SQLITE_LIMIT_PARSER_DEPTH</dt>
 ** <dd>The maximum depth of the LALR(1) parser stack used to analyze
@@ -4409,7 +4409,8 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** <dd>The maximum index number of any [parameter] in an SQL statement.)^
 **
 ** [[SQLITE_LIMIT_TRIGGER_DEPTH]] ^(<dt>SQLITE_LIMIT_TRIGGER_DEPTH</dt>
-** <dd>The maximum depth of recursion for triggers.</dd>)^
+** <dd>The maximum depth of recursion for triggers, and the maximum
+** nesting depth for separate triggers.</dd>)^
 **
 ** [[SQLITE_LIMIT_WORKER_THREADS]] ^(<dt>SQLITE_LIMIT_WORKER_THREADS</dt>
 ** <dd>The maximum number of auxiliary worker threads that a single
@@ -11215,8 +11216,19 @@ SQLITE_API unsigned char *sqlite3_serialize(
 ** used. The serialized database P is N bytes in size.  M is the size
 ** of the buffer P, which might be larger than N.  If M is larger than
 ** N, and the SQLITE_DESERIALIZE_READONLY bit is not set in F, then
-** SQLite is permitted to add content to the in-memory database as
-** long as the total size does not exceed M bytes.
+** SQLite is permitted to add content to the in-memory database, in
+** page-sized chunks, as long as the total size does not exceed M bytes.
+**
+** The parameter M must be greater than or equal to N.  Ideally, M
+** should have a value which is N+(512&times;K)+20 where K determines how
+** must extra space is available to hold new content as the database
+** grows.  K can be 0 if the database is read-only.
+**
+** If the database content in P is malformed in a malicious way then
+** it is possible that SQLite might try to read a few more than N bytes
+** from P.  If the veracity of the database content P is uncertain,
+** then applications are advised to allocate about 20 extra bytes on
+** the end of the P buffer to avoid a memory error.
 **
 ** If the SQLITE_DESERIALIZE_FREEONCLOSE bit is set in F, then SQLite will
 ** invoke sqlite3_free() on the serialization buffer when the database
@@ -12865,11 +12877,23 @@ SQLITE_API int sqlite3changeset_apply_v3(
 **   database behave as if they were declared with "ON UPDATE NO ACTION ON
 **   DELETE NO ACTION", even if they are actually CASCADE, RESTRICT, SET NULL
 **   or SET DEFAULT.
+**
+** <dt>SQLITE_CHANGESETAPPLY_NOUPDATELOOP <dd>
+**   Sometimes, a changeset contains two or more update statements such that
+**   although after applying all updates the database will contain no
+**   constraint violations, no single update can be applied before the others.
+**   The simplest example of this is a pair of UPDATEs that have "swapped"
+**   two column values with a UNIQUE constraint.
+**   <p>
+**   Usually, sqlite3changeset_apply() and similar functions work hard to try
+**   to find a way to apply such a changeset. However, if this flag is set,
+**   then all such updates are considered CONSTRAINT conflicts.
 */
 #define SQLITE_CHANGESETAPPLY_NOSAVEPOINT   0x0001
 #define SQLITE_CHANGESETAPPLY_INVERT        0x0002
 #define SQLITE_CHANGESETAPPLY_IGNORENOOP    0x0004
 #define SQLITE_CHANGESETAPPLY_FKNOACTION    0x0008
+#define SQLITE_CHANGESETAPPLY_NOUPDATELOOP  0x0010
 
 /*
 ** CAPI3REF: Constants Passed To The Conflict Handler
