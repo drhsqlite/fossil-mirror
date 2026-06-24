@@ -1,5 +1,5 @@
-C Add\sthe\s-v/--verbose\soption\sto\sthe\s"fossil\smerge-info"\scommand.
-D 2026-06-22T15:34:11.973
+C Replace\san\sad-hoc\squery\swith\srid_to_uuid().\sAdd\sa\snote\sabout\sfossil\shistorically\seliding\sthe\sU-card\son\swiki\sedits\smade\sby\s'nobody',\swhich\sisn't\sspec-legal\sbut\sis\san\sage-old\spractice.
+D 2026-06-24T16:42:26.420
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -597,7 +597,7 @@ F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
 F src/util.c 9133330e4937c2fe6a583ad5943933c85204581c7685b15e3bc741ff6b6e7d85
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c cbd71205d9062cb5c30428841cf41d96d6afdd9e70cf1cd4abd8effe51f93ca9
-F src/wiki.c 706a648b1e98687503f53e01f66596d371a82a3a0b1c89ea64865f8e991db924
+F src/wiki.c c2840735456e64a2a041e20020e6b5ab8163f645b4976a9b7d56fe18b1df9822
 F src/wiki.wiki bd6ca20a0df1054d68bbd7683acc6f24225652276f0ed53ce6fa564faed4dd60
 F src/wikiformat.c 41f058ace70603eb53a31f89d381b02f7f777e6198f097b0622adfa0dfcf42db
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
@@ -846,7 +846,7 @@ F www/event.wiki 368889d786a4e0fee3fd9243b6852c8e514d3ce07d6001709e66f784cfa4833
 F www/faq.tcl 67d1413f63a45d68c2ae409d0d7676ce926ddea6d61c5b3eeaa0e81c2a979ec8 x
 F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
 F www/fileedit-page.md 05b5429894d86d052d647ee354d94a7b18f66e701c23a94040b2517328431260
-F www/fileformat.wiki eb2e02ea94b9f544027a66180b442a7757f791c77e33e9760c6993f2688d98e6
+F www/fileformat.wiki b9cb9663eb9aca703977ec96bfd0a85e8ea541633c37b392eaf610c6931a873e
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
 F www/forum.wiki 7d55e4bafd7111f091df42f17f2778805b5a3b298ea5091f0cc68c90869f5fad
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 018d4a5d68fb3186aca6d8ff631bc4b3da70f6bcbd2a4d82f75f712bd415c56d
-R 125ec8ef80d581b36bb62ed1aa3a8b79
-U drh
-Z c6ace1fae46bfc9b04dc07c75ee30889
+P 3c8de67618e6557c3a59a9ee71809dd423f72ae5a0e5b0a10e2983c98e121eed
+R 42aeb7f4a53bcdd23b74ac9bcd13b4b8
+U stephan
+Z 32501d9c9f41fb90890347fd694bf885
 # Remove this line to create a well-formed Fossil manifest.
