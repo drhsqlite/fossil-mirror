@@ -5841,6 +5841,9 @@ static void decimal_free(Decimal *p){
 /*
 ** Allocate a new Decimal object initialized to the text in zIn[].
 ** Return NULL if any kind of error occurs.
+**
+** Note that zIn[] is not necessarily zero-terminated.  Always
+** respect the boundary imposed by the n argument.
 */
 static Decimal *decimalNewFromText(const char *zIn, int n){
   Decimal *p = 0;
@@ -5858,11 +5861,11 @@ static Decimal *decimalNewFromText(const char *zIn, int n){
   p->nFrac = 0;
   p->a = sqlite3_malloc64( n+1 );
   if( p->a==0 ) goto new_from_text_failed;
-  for(i=0; IsSpace(zIn[i]); i++){}
-  if( zIn[i]=='-' ){
+  for(i=0; i<n && IsSpace(zIn[i]); i++){}
+  if( i<n && zIn[i]=='-' ){
     p->sign = 1;
     i++;
-  }else if( zIn[i]=='+' ){
+  }else if( i<n && zIn[i]=='+' ){
     i++;
   }
   while( i<n && zIn[i]=='0' ) i++;
@@ -6093,7 +6096,7 @@ static void decimal_round(Decimal *p, int N){
     ** by adding a new 0 to the front */
     for(i=0; i<N && p->a[i]==9; i++){}
     if( i==N ){
-      decimal_expand(p, p->nDigit+1, 0);
+      decimal_expand(p, p->nDigit+1, p->nFrac);
       if( p->oom ) return;
     }
 
@@ -6251,6 +6254,7 @@ static void decimal_expand(Decimal *p, int nDigit, int nFrac){
   signed char *a;
   if( p==0 ) return;
   nAddFrac = nFrac - p->nFrac;
+  assert( nAddFrac>=0 );
   nAddSig = (nDigit - p->nDigit) - nAddFrac;
   if( nAddFrac==0 && nAddSig==0 ) return;
   if( nDigit+1>SQLITE_DECIMAL_MAX_DIGIT ){ p->oom = 1; return; }
@@ -8259,6 +8263,16 @@ static double seriesFloor(double r){
 }
 #endif
 
+/* Convert a floating point value to its closest integer.  Do so in
+** a way that avoids 'outside the range of representable values' warnings
+** from UBSAN.
+*/
+sqlite3_int64 seriesRealToI64(double r){
+  if( r<-9223372036854774784.0 ) return SMALLEST_INT64;
+  if( r>+9223372036854774784.0 ) return LARGEST_INT64;
+  return (sqlite3_int64)r;
+}
+
 /*
 ** This method is called to "rewind" the series_cursor object back
 ** to the first row of output.  This method is always called at least
@@ -8381,7 +8395,7 @@ static int seriesFilter(
          && r>=(double)SMALLEST_INT64
          && r<=(double)LARGEST_INT64
         ){
-          iMin = iMax = (sqlite3_int64)r;
+          iMin = iMax = seriesRealToI64(r);
         }else{
           goto series_no_rows;
         }
@@ -8397,10 +8411,7 @@ static int seriesFilter(
           }else if( r>(double)LARGEST_INT64 ){
             goto series_no_rows;
           }else{
-            iMin = (sqlite3_int64)seriesCeil(r);
-            if( iMin<0 && r>0.0 ){
-              iMin = LARGEST_INT64;
-            }
+            iMin = seriesRealToI64(seriesCeil(r));
             if( (idxNum & 0x0200)!=0 && r==seriesCeil(r) ){
               if( iMin==LARGEST_INT64 ) goto series_no_rows;
               iMin++;
@@ -8425,10 +8436,8 @@ static int seriesFilter(
           }else if( r<=(double)SMALLEST_INT64 ){
             goto series_no_rows;
           }else{
-            iMax = (sqlite3_int64)seriesFloor(r);
-            if( iMax<0 && r>0.0 ){
-              iMax = LARGEST_INT64;
-            }else if( (idxNum & 0x2000)!=0 && r==seriesFloor(r) ){
+            iMax = seriesRealToI64(seriesFloor(r));
+            if( (idxNum & 0x2000)!=0 && r==seriesFloor(r) ){
               if( iMax==SMALLEST_INT64 ) goto series_no_rows;
               iMax--;
             }
@@ -14459,7 +14468,7 @@ static void zipfileFinal(sqlite3_context *pCtx){
     eocd.nSize = p->cds.n;
     eocd.iOffset = p->body.n;
 
-    nZip = p->body.n + p->cds.n + ZIPFILE_EOCD_FIXED_SZ;
+    nZip = (i64)p->body.n + (i64)p->cds.n + ZIPFILE_EOCD_FIXED_SZ;
     aZip = (u8*)sqlite3_malloc64(nZip);
     if( aZip==0 ){
       sqlite3_result_error_nomem(pCtx);
@@ -17586,7 +17595,7 @@ static int intckGetToken(const char *z){
     }
   }
   else if( c=='[' ){
-    while( z[iRet++]!=']' && z[iRet] );
+    while( z[iRet] && z[iRet++]!=']' ){}
   }
   else if( (c>='A' && c<='Z') || (c>='a' && c<='z') ){
     while( (z[iRet]>='A' && z[iRet]<='Z') || (z[iRet]>='a' && z[iRet]<='z') ){
@@ -20357,7 +20366,7 @@ int sqlite3_diskused_init(
   SQLITE_EXTENSION_INIT2(pApi);
   (void)pzErrMsg;  /* Unused parameter */
   rc = sqlite3_create_function(db, "diskused", 1,
-                   SQLITE_UTF8|SQLITE_INNOCUOUS,
+                   SQLITE_UTF8|SQLITE_DIRECTONLY,
                    0, diskusedFunc, 0, 0);
   return rc;
 }
