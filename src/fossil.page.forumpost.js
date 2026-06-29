@@ -985,9 +985,21 @@
             });
           });
         form
+          .querySelectorAll("input.action-approve, input.action-reject")
+          .forEach(function(e){
+            e.type = 'button'/*do not submit form on click*/;
+            F.confirmer(e, {
+              confirmText: (e.classList.contains('action-approve')
+                            ? "Confirm approval"
+                            : "Confirm rejection"),
+              onconfirm: ()=>form.submit()
+            });
+            /* We should also arguably disable the approve/reject
+               button's counterpart while it's counting down. */
+          });
+        form
           .querySelectorAll("input[type='button'].action-status")
           .forEach(function(btn){
-            btn.classList.remove('hidden');
             const sel = btn.previousElementSibling;
             const updateButton = ()=>{
               /* Enable btn only when the status has been locally
