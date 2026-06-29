@@ -103,3 +103,7 @@ body.cpage-forumnew .ForumPostEditor .tab-panel.editor-wrapper > .editor {
      its post to the left. */
   transition: margin-left 0.25s linear;
 }
+
+.forum form input.action-approve {
+  margin-right: 1em;
+}

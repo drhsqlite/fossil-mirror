@@ -540,7 +540,12 @@
       const list = D.ul();
       D.append(
         D.li(list),
-        D.attr(D.a(F.repoUrl('markup_help'), 'Markup styles'),
+        D.attr(D.a(F.repoUrl('md_rules'), 'Markdown markup rules'),
+               'target', '_new')
+      );
+      D.append(
+        D.li(list),
+        D.attr(D.a(F.repoUrl('wiki_rules'), 'Fossil wiki markup rules'),
                'target', '_new')
       );
       D.append(
@@ -985,9 +990,34 @@
             });
           });
         form
+          .querySelectorAll("input.action-approve, input.action-reject")
+          .forEach(function(e){
+            e.type = 'button'/*do not submit form on click*/;
+            const isApprove = e.classList.contains('action-approve');
+            F.confirmer(e, {
+              confirmText: (isApprove
+                            ? "Confirm approval"
+                            : "Confirm rejection"),
+              onconfirm: ()=>{
+                form.append(
+                  /* Workaround for the button element's value not
+                     being sent with the form: inject a hidden field
+                     corresponding to the button's action. */
+                  D.attr(
+                    D.input('hidden'),
+                    'name', isApprove ? 'approve' : 'reject',
+                    'value', 'ignored'
+                  )
+                );
+                form.submit();
+              }
+            });
+            /* We should also arguably disable the approve/reject
+               button's counterpart while it's counting down. */
+          });
+        form
           .querySelectorAll("input[type='button'].action-status")
           .forEach(function(btn){
-            btn.classList.remove('hidden');
             const sel = btn.previousElementSibling;
             const updateButton = ()=>{
               /* Enable btn only when the status has been locally
