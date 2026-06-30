@@ -1,5 +1,5 @@
-C Improvements\sto\sbyweek\sand\sbyday\sreports.
-D 2026-06-30T17:25:23.673
+C Fix\soff-by-one\sin\sthe\scomputation\sof\sday-of-week\snames\sin\sthe\sbyday\sreport.
+D 2026-06-30T17:30:54.881
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -564,7 +564,7 @@ F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e80346
 F src/sqlcmd.c 85964c5e5e9b782fd6aa05da8f6959c7b2e4b4d7192abb5cfb9bd64c190e8533
 F src/stash.c b3228b60ae92dcc8c686e8079516e13b6b874c7cadedeb026900667ddab56a8c
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
-F src/statrep.c 349605016ddcc2d25a4472e11b641babb5250323e87a29daf1dbeb278bc13799
+F src/statrep.c 4e1babd7491069462052294791978be2f7c44fe8bac910bb79912ad15b38d59c
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 3fc53f46044ad8af47b09db980a86b3bcc6a344d626e297ef6d1c040a15bc36f
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31da5e3db7b8e428a08e7341503a9de7d65703b1f54bdfff084589e7db345836
-R 657543e8780e584499e40a5ff6268e98
+P c810af8dab8607ec3d6c57be265246037ba1fb64baea8f7b0d78d5ea7c49de5c
+R f8de0f34d440cf884a25841c63c15403
 U drh
-Z 81efd91cae376bd523c326fef20497ca
+Z c4a4c94423a99ecef2aa44d7550e6e59
 # Remove this line to create a well-formed Fossil manifest.

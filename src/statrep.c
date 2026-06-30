@@ -848,7 +848,7 @@ static void stats_report_year_days(const char *zUserName){
     "WITH RECURSIVE c(daynum, isodate, dow) AS (\n"
     "  VALUES(0,'%q-01-01',0+strftime('%%w','%q-01-01'))\n"
     "   UNION ALL\n"
-    "   SELECT daynum+1, date(isodate,'+1 day'), (dow+1)%%6\n"
+    "   SELECT daynum+1, date(isodate,'+1 day'), (dow+1)%%7\n"
     "     FROM c\n"
     "    WHERE isodate<%Q\n"
     ")\n"
