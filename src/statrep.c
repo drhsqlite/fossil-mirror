@@ -683,6 +683,8 @@ static void stats_report_year_weeks(const char *zUserName){
   int iCurrentWeek;               /* Current week number */
   double rNowFraction = 0.0;      /* Fraction of current week that has
                                   ** passed */
+  double rStartOfYear = 0.0;      /* Start of year */
+  double rEndOfYear = 0.0;        /* End of the year */
 
   stats_report_init_view();
   style_submenu_sql("y", "Year:",
@@ -697,9 +699,12 @@ static void stats_report_year_weeks(const char *zUserName){
     zYear = db_text("1970","SELECT substr(date('now'),1,4);");
   }
   zLimit = db_text("1971-01-01",
-    "SELECT min(date('%q-01-01','+1 year','-1 day'),date())",
+    "SELECT min(date('%q-01-01','+1 year','-1 day','weekday 6'),"
+               "date('now','weekday 6'))",
     zYear
   );
+  rStartOfYear = db_double(0.0,"SELECT julianday('%q-01-01')",zYear);
+  rEndOfYear = db_double(0.0,"SELECT julianday('%q-12-31 23:59:59.999')",zYear);
   db_multi_exec(
     "CREATE TEMP TABLE wkdata(wk,n);\n"
     "WITH RECURSIVE c(wkn) AS (\n"
@@ -711,14 +716,16 @@ static void stats_report_year_weeks(const char *zUserName){
     "INSERT INTO wkdata(wk,n)\n"
     "  SELECT c.wkn, coalesce(x.n,0)\n"
     "    FROM c LEFT JOIN (\n"
-    "           SELECT 0+strftime('%%W',mtime) AS w,\n"
-    "                count(*) AS n \n"
-    "             FROM v_reports\n"
-    "            WHERE mtime BETWEEN julianday('%q-01-01 00:00:00')\n"
-    "                            AND julianday(%Q)\n"
-    "              AND ifnull(coalesce(euser,user,'')=%Q,1)\n"
-    "            GROUP BY w) AS x ON c.wkn=x.w;\n",
+    "      SELECT 0+strftime('%%W',min(max(%!.16g,mtime),%!.16g)) AS w,\n"
+    "             count(*) AS n \n"
+    "        FROM v_reports\n"
+    "       WHERE mtime BETWEEN julianday('%q-01-01','weekday 6','-6 days')\n"
+    "                       AND julianday('%q 23:59:59.999','weekday 6')\n"
+    "         AND ifnull(coalesce(euser,user,'')=%Q,1)\n"
+    "       GROUP BY w\n"
+    "      ) AS x ON c.wkn=x.w;\n",
     zYear, zLimit,
+    rStartOfYear, rEndOfYear,
     zYear, zLimit, zUserName
   );
   cgi_printf("<br>\n");
@@ -846,7 +853,7 @@ static void stats_report_year_days(const char *zUserName){
   db_multi_exec(
     "CREATE TEMP TABLE daydata(dn,isodate,dow,n);\n"
     "WITH RECURSIVE c(daynum, isodate, dow) AS (\n"
-    "  VALUES(0,'%q-01-01',0+strftime('%%w','%q-01-01'))\n"
+    "  VALUES(0,date('%q-01-01'),0+strftime('%%w','%q-01-01'))\n"
     "   UNION ALL\n"
     "   SELECT daynum+1, date(isodate,'+1 day'), (dow+1)%%7\n"
     "     FROM c\n"
@@ -855,12 +862,13 @@ static void stats_report_year_days(const char *zUserName){
     "INSERT INTO daydata(dn,isodate,dow,n)\n"
     "  SELECT c.daynum, c.isodate, c.dow, coalesce(x.n,0)\n"
     "    FROM c LEFT JOIN (\n"
-    "           SELECT date(mtime) AS edate, count(*) AS n\n"
-    "             FROM v_reports\n"
-    "            WHERE mtime BETWEEN julianday('%q-01-01 00:00:00')\n"
-    "                            AND julianday(%Q)\n"
-    "              AND ifnull(coalesce(euser,user,'')=%Q,1)\n"
-    "            GROUP BY edate) AS x ON c.isodate=x.edate;\n",
+    "      SELECT date(mtime) AS edate, count(*) AS n\n"
+    "        FROM v_reports\n"
+    "       WHERE mtime BETWEEN julianday('%q-01-01')\n"
+    "                       AND julianday('%q 23:59:59.999')\n"
+    "         AND ifnull(coalesce(euser,user,'')=%Q,1)\n"
+    "       GROUP BY edate\n"
+    "      ) AS x ON c.isodate=x.edate;\n",
     zYear, zYear,
     zLimit,
     zYear,
