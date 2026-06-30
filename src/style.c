@@ -1026,7 +1026,8 @@ void style_finish_page(){
         if( p->zLink==0 ){
           @ <span class="label sml-%s(zClass)">%h(p->zLabel)</span>
         }else{
-          @ <a class="label sml-%s(zClass)" href="%h(p->zLink)">%h(p->zLabel)</a>
+          @ <a class="label sml-%s(zClass)" \
+          @  href="%h(p->zLink)">%h(p->zLabel)</a>
         }
       }
     }

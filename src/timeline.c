@@ -1269,7 +1269,7 @@ char *names_of_file(const char *zUuid){
 */
 static void timeline_y_submenu(int isDisabled){
   static int i = 0;
-  static const char *az[16];
+  static const char *az[20];
   if( i==0 ){
     az[0] = "all";
     az[1] = "Any Type";
@@ -1297,6 +1297,8 @@ static void timeline_y_submenu(int isDisabled){
     if( g.perm.RdForum ){
       az[i++] = "f";
       az[i++] = "Forum";
+      az[i++] = "h";
+      az[i++] = "New Threads";
     }
     assert( i<=count(az) );
   }

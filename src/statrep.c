@@ -168,7 +168,7 @@ static const char *stats_report_label_for_type(){
     case 'f':
       return "forum posts";
     case 'h':
-      return "forum threads";
+      return "new forum threads";
     case 'w':
       return "wiki changes";
     case 't':
@@ -673,50 +673,68 @@ static void stats_report_hour_of_day(const char *zUserName){
 ** created by the named user account.
 */
 static void stats_report_year_weeks(const char *zUserName){
-  const char *zYear = P("y");        /* Year for which report shown */
+  const char *zYear = P("y");     /* Year for which report shown */
+  int bShowAll = PB("sa");        /* Show all weeks if true, active if false */
+  char *zLimit;                   /* Date of last week to show */
   Stmt q;
-  int nMaxEvents = 1;                /* max number of events for
-                                        all rows. */
-  int iterations = 0;                /* # of active time periods. */
+  int nMaxEvents = 1;             /* max number of events for all rows. */
   int rowCount = 0;
-  int total = 0;
-  char *zCurrentWeek;                /* Current week number */
-  double rNowFraction = 0.0;         /* Fraction of current week that has
-                                     ** passed */
+  int total;
+  int iCurrentWeek;               /* Current week number */
+  double rNowFraction = 0.0;      /* Fraction of current week that has
+                                  ** passed */
 
   stats_report_init_view();
   style_submenu_sql("y", "Year:",
      "WITH RECURSIVE a(b) AS ("
      "  SELECT substr(date('now'),1,4) UNION ALL"
-     "  SELECT b-1 FROM a"
+     "  SELECT b-1 FROM a\n"
      "   WHERE b>0+(SELECT substr(date(min(mtime)),1,4) FROM event)"
-     ") SELECT b, b FROM a ORDER BY b DESC");
+     ") SELECT b, b FROM a ORDER BY b DESC"
+  );
+  style_submenu_checkbox("sa", "Show-All", 0, 0);
   if( zYear==0 || strlen(zYear)!=4 ){
     zYear = db_text("1970","SELECT substr(date('now'),1,4);");
   }
+  zLimit = db_text("1971-01-01",
+    "SELECT min(date('%q-01-01','+1 year','-1 day'),date())",
+    zYear
+  );
+  db_multi_exec(
+    "CREATE TEMP TABLE wkdata(wk,n);\n"
+    "WITH RECURSIVE c(wkn) AS (\n"
+    "  VALUES(0)\n"
+    "   UNION ALL\n"
+    "   SELECT wkn+1 FROM c\n"
+    "    WHERE date('%q-01-01',format('%%+d days',wkn*7+7))<=%Q\n"
+    ")\n"
+    "INSERT INTO wkdata(wk,n)\n"
+    "  SELECT c.wkn, coalesce(x.n,0)\n"
+    "    FROM c LEFT JOIN (\n"
+    "           SELECT 0+strftime('%%W',mtime) AS w,\n"
+    "                count(*) AS n \n"
+    "             FROM v_reports\n"
+    "            WHERE mtime BETWEEN julianday('%q-01-01 00:00:00')\n"
+    "                            AND julianday(%Q)\n"
+    "              AND ifnull(coalesce(euser,user,'')=%Q,1)\n"
+    "            GROUP BY w) AS x ON c.wkn=x.w;\n",
+    zYear, zLimit,
+    zYear, zLimit, zUserName
+  );
   cgi_printf("<br>\n");
-  db_prepare(&q,
-             "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
-             "       count(*) AS n "
-             "  FROM v_reports "
-             " WHERE %Q=substr(date(mtime),1,4) "
-             "   AND mtime < current_timestamp "
-             "   AND ifnull(coalesce(euser,user,'')=%Q,1)"
-             " GROUP BY wk ORDER BY wk DESC", zYear, zUserName);
   @ <h1>Timeline events (%h(stats_report_label_for_type()))
   @ for the calendar weeks of %h(zYear)
   if( zUserName ){
     @  for user %h(zUserName)
   }
   @ </h1>
-  zCurrentWeek = db_text(0,
-      "SELECT strftime('%%W','now') WHERE date() LIKE '%q%%'",
-      zYear);
-  if( zCurrentWeek ){
+  iCurrentWeek = db_int(0,
+       "SELECT strftime('%%W','now') WHERE date() LIKE '%q-%%'", zYear);
+  if( iCurrentWeek>0 ){
     rNowFraction = db_double(0.5,
       "SELECT (unixepoch()-unixepoch('now','weekday 0','-7 days'))/604800.0;");
   }
-    style_table_sorter();
+  style_table_sorter();
   cgi_printf("<table class='statistics-report-table-events sortable' "
               "border='0' cellpadding='2' width='100%%' "
              "cellspacing='0' data-column-types='tnx' data-init-sort='0'>\n");
@@ -726,42 +744,179 @@ static void stats_report_year_weeks(const char *zUserName){
              "<th width='90%%'><!-- relative commits graph --></th>"
              "</tr></thead>\n"
              "<tbody>\n");
+  nMaxEvents = db_int(0, "SELECT max(n) FROM wkdata");
+  db_prepare(&q, "SELECT wk, n FROM wkdata ORDER BY wk DESC");
   while( SQLITE_ROW == db_step(&q) ){
-    int nCount = db_column_int(&q, 1);
-    if( zCurrentWeek!=0
-     && strcmp(db_column_text(&q,0),zCurrentWeek)==0
-     && rNowFraction>0.05
-    ){
-      nCount = (int)(((double)nCount)/rNowFraction);
-    }
-    if(nCount>nMaxEvents){
-      nMaxEvents = nCount;
-    }
-    ++iterations;
-  }
-  db_reset(&q);
-  while( SQLITE_ROW == db_step(&q) ){
-    const char *zWeek = db_column_text(&q,0);
+    const int iWeek = db_column_int(&q,0);
     const int nCount = db_column_int(&q,1);
     int nSize = (nCount>0 && nMaxEvents>0)
       ? (int)(100 * nCount / nMaxEvents)
       : 0;
+    if( nCount==0 && !bShowAll ) continue;
     if(!nSize) nSize = 1;
-    total += nCount;
     cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
-    cgi_printf("<td><a href='%R/timeline?yw=%t%s&y=%s",
-               zYear, zWeek,
+    cgi_printf("<td><a href='%R/timeline?yw=%t%02d&y=%s",
+               zYear, iWeek,
                statsReportTimelineYFlag);
     if( zUserName ){
       cgi_printf("&u=%t",zUserName);
     }
-    cgi_printf("'>%s</a></td>",zWeek);
+    cgi_printf("'>%02d</a></td>",iWeek);
 
     cgi_printf("<td>%d</td>",nCount);
     cgi_printf("<td style='white-space: nowrap;'>");
     if( nCount ){
-      if( zCurrentWeek!=0
-      && strcmp(zWeek, zCurrentWeek)==0
+      if( iCurrentWeek==iWeek
+       && rNowFraction>0.05
+       && nMaxEvents>0
+      ){
+        /* If the timespan covered by this row contains "now", then project
+        ** the number of changes until the completion of the week and
+        ** show a dashed box of that projection. */
+        int nProj = (int)(((double)nCount)/rNowFraction);
+        int nExtra = (int)(((double)nCount)/rNowFraction) - nCount;
+        int nXSize = (100 * nExtra)/nMaxEvents;
+        @ <span class='statistics-report-graph-line' \
+        @  style='display:inline-block;min-width:%d(nSize)%%;'>&nbsp;</span>\
+        @ <span class='statistics-report-graph-extra' title='%d(nProj)' \
+        @  style='display:inline-block;min-width:%d(nXSize)%%;'>&nbsp;</span>\
+      }else{
+        @ <div class='statistics-report-graph-line' \
+        @  style='width:%d(nSize)%%;'>&nbsp;</div> \
+      }
+    }
+    cgi_printf("</td></tr>\n");
+  }
+  db_finalize(&q);
+  cgi_printf("</tbody></table>\n<br>\n<div\n");
+  total = db_int(0, "SELECT sum(n) FROM wkdata");
+  cgi_printf("Total events: %d<br>\n", total);
+  if( total ){
+    cgi_printf("Weeks covered: %d<br>\n",
+               db_int(0, "SELECT count(*) FROM wkdata"));
+    cgi_printf("Average events per week: %.1f<br>\n", 
+               db_double(0.0, "SELECT avg(n) FROM wkdata"));
+    cgi_printf("Median events per week: %.1f<br>\n", 
+               db_double(0.0, "SELECT median(n) FROM wkdata"));
+    cgi_printf("Active weeks: %d<br>\n",
+               db_int(0, "SELECT count(*) FROM wkdata WHERE n>0"));
+    cgi_printf("Average events per active week: %.1f<br>\n", 
+               db_double(0.0, "SELECT avg(n) FROM wkdata WHERE n>0"));
+    cgi_printf("Median events per active week: %.1f<br>\n", 
+               db_double(0.0, "SELECT median(n) FROM wkdata WHERE n>0"));
+  }
+}
+
+/*
+** Generator for the by-day report (RPT_BYDAY).
+**
+** The "y" query parameter is the year in format YYYY.
+**
+** If zUserName is not NULL then the report is restricted to events
+** created by the named user account.
+*/
+static void stats_report_year_days(const char *zUserName){
+  const char *zYear = P("y");     /* Year for which report shown */
+  int bShowAll = PB("sa");        /* Show all days if true, active if false */
+  char *zLimit;                   /* Date of last day to show */
+  Stmt q;
+  int nMaxEvents = 1;             /* max number of events for all rows. */
+  int rowCount = 0;
+  int total;
+  char *zCurrentDay;              /* Current week number */
+  double rNowFraction = 0.0;      /* Fraction of current day that has
+                                  ** passed */
+
+  stats_report_init_view();
+  style_submenu_sql("y", "Year:",
+     "WITH RECURSIVE a(b) AS ("
+     "  SELECT substr(date('now'),1,4) UNION ALL"
+     "  SELECT b-1 FROM a\n"
+     "   WHERE b>0+(SELECT substr(date(min(mtime)),1,4) FROM event)"
+     ") SELECT b, b FROM a ORDER BY b DESC"
+  );
+  style_submenu_checkbox("sa", "Show-All", 0, 0);
+  if( zYear==0 || strlen(zYear)!=4 ){
+    zYear = db_text("1970","SELECT substr(date('now'),1,4);");
+  }
+  zLimit = db_text("1971-01-01",
+    "SELECT min(date('%q-01-01','+1 year','-1 day'),date())",
+    zYear
+  );
+  db_multi_exec(
+    "CREATE TEMP TABLE daydata(dn,isodate,dow,n);\n"
+    "WITH RECURSIVE c(daynum, isodate, dow) AS (\n"
+    "  VALUES(0,'%q-01-01',0+strftime('%%w','%q-01-01'))\n"
+    "   UNION ALL\n"
+    "   SELECT daynum+1, date(isodate,'+1 day'), (dow+1)%%6\n"
+    "     FROM c\n"
+    "    WHERE isodate<%Q\n"
+    ")\n"
+    "INSERT INTO daydata(dn,isodate,dow,n)\n"
+    "  SELECT c.daynum, c.isodate, c.dow, coalesce(x.n,0)\n"
+    "    FROM c LEFT JOIN (\n"
+    "           SELECT date(mtime) AS edate, count(*) AS n\n"
+    "             FROM v_reports\n"
+    "            WHERE mtime BETWEEN julianday('%q-01-01 00:00:00')\n"
+    "                            AND julianday(%Q)\n"
+    "              AND ifnull(coalesce(euser,user,'')=%Q,1)\n"
+    "            GROUP BY edate) AS x ON c.isodate=x.edate;\n",
+    zYear, zYear,
+    zLimit,
+    zYear,
+    zLimit,
+    zUserName
+  );
+  cgi_printf("<br>\n");
+  @ <h1>Timeline events (%h(stats_report_label_for_type()))
+  @ for the calendar weeks of %h(zYear)
+  if( zUserName ){
+    @  for user %h(zUserName)
+  }
+  @ </h1>
+  zCurrentDay = db_text(0, "SELECT date()");
+  if( zCurrentDay ){
+    rNowFraction = db_double(0.5,
+      "SELECT (unixepoch()-unixepoch('now','start of day'))/604800.0;");
+  }
+  style_table_sorter();
+  cgi_printf("<table class='statistics-report-table-events sortable' "
+              "border='0' cellpadding='2' width='100%%' "
+             "cellspacing='0' data-column-types='tnx' data-init-sort='0'>\n");
+  cgi_printf("<thead><tr>"
+             "<th>Week</th>"
+             "<th>Events</th>"
+             "<th width='90%%'><!-- relative commits graph --></th>"
+             "</tr></thead>\n"
+             "<tbody>\n");
+  nMaxEvents = db_int(0, "SELECT max(n) FROM daydata");
+  db_prepare(&q, "SELECT isodate,dow,n FROM daydata ORDER BY dn DESC");
+  while( SQLITE_ROW == db_step(&q) ){
+    static const char *azDayName[] = {
+      "Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"
+    };
+    const char *zDate = db_column_text(&q,0);
+    int iDOW = db_column_int(&q,1);
+    const int nCount = db_column_int(&q,2);
+    int nSize = (nCount>0 && nMaxEvents>0)
+      ? (int)(100 * nCount / nMaxEvents)
+      : 0;
+    assert( iDOW>=0 && iDOW<=6 );
+    if( nCount==0 && !bShowAll ) continue;
+    if(!nSize) nSize = 1;
+    cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
+    cgi_printf("<td><a href='%R/timeline?ymd=%s&y=%s",
+               zDate, statsReportTimelineYFlag);
+    if( zUserName ){
+      cgi_printf("&u=%t",zUserName);
+    }
+    cgi_printf("'>%s&nbsp;(%s)</a></td>",zDate,azDayName[iDOW]);
+
+    cgi_printf("<td>%d</td>",nCount);
+    cgi_printf("<td style='white-space: nowrap;'>");
+    if( nCount ){
+      if( zCurrentDay!=0
+      && strcmp(zDate, zCurrentDay)==0
       && rNowFraction>0.05
       && nMaxEvents>0
       ){
@@ -783,111 +938,22 @@ static void stats_report_year_weeks(const char *zUserName){
     cgi_printf("</td></tr>\n");
   }
   db_finalize(&q);
-  cgi_printf("</tbody></table>");
-  if(total){
-    int nAvg = iterations ? (total/iterations) : 0;
-    cgi_printf("<br><div>Total events: %d<br>"
-               "Average per active week: %d</div>",
-               total, nAvg);
-  }
-}
-
-/*
-** Generator for the by-day report (RPT_BYDAY).
-**
-** The "y" query parameter is the year in format YYYY.
-**
-** If zUserName is not NULL then the report is restricted to events
-** created by the named user account.
-*/
-static void stats_report_year_days(const char *zUserName){
-  const char *zYear = P("y");        /* Year for which report shown */
-  Stmt q;
-  int nMaxEvents = 1;                /* max number of events for
-                                        all rows. */
-  int iterations = 0;                /* # of active time periods. */
-  int rowCount = 0;
-  int total = 0;
-
-  stats_report_init_view();
-  style_submenu_sql("y", "Year:",
-     "WITH RECURSIVE a(b) AS ("
-     "  SELECT substr(date('now'),1,4) UNION ALL"
-     "  SELECT b-1 FROM a"
-     "   WHERE b>0+(SELECT substr(date(min(mtime)),1,4) FROM event)"
-     ") SELECT b, b FROM a ORDER BY b DESC");
-  if( zYear==0 || strlen(zYear)!=4 ){
-    zYear = db_text("1970","SELECT substr(date('now'),1,4);");
-  }
-  cgi_printf("<br>\n");
-  db_prepare(&q,
-     "SELECT DISTINCT strftime('%%w',mtime) AS wkday, "
-     "       date(mtime) AS date,"
-     "       count(*) AS n "
-     "  FROM v_reports"
-     " WHERE %Q=substr(date(mtime),1,4) "
-     "   AND mtime < current_timestamp "
-     "   AND ifnull(coalesce(euser,user,'')=%Q,1)"
-     " GROUP BY date ORDER BY date DESC", zYear, zUserName);
-  @ <h1>Timeline events (%h(stats_report_label_for_type()))
-  @ for each day of %h(zYear)
-  if( zUserName ){
-    @  for user %h(zUserName)
-  }
-  @ </h1>
-  style_table_sorter();
-  cgi_printf("<table class='statistics-report-table-events sortable' "
-              "border='0' cellpadding='2' width='100%%' "
-             "cellspacing='0' data-column-types='tnx' data-init-sort='0'>\n");
-  cgi_printf("<thead><tr>"
-             "<th>Date</th>"
-             "<th>Events</th>"
-             "<th width='90%%'><!-- relative commits graph --></th>"
-             "</tr></thead>\n"
-             "<tbody>\n");
-  while( SQLITE_ROW == db_step(&q) ){
-    int nCount = db_column_int(&q, 2);
-    if(nCount>nMaxEvents){
-      nMaxEvents = nCount;
-    }
-    ++iterations;
-  }
-  db_reset(&q);
-  while( SQLITE_ROW == db_step(&q) ){
-    static const char *azDayName[] = {
-      "Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"
-    };
-    int dayOfWeek = db_column_int(&q,0);
-    const char *zDate = db_column_text(&q,1);
-    const int nCount = db_column_int(&q,2);
-    int nSize = (nCount>0 && nMaxEvents>0)
-      ? (int)(100 * nCount / nMaxEvents)
-      : 0;
-    if(!nSize) nSize = 1;
-    total += nCount;
-    cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
-    cgi_printf("<td><a href='%R/timeline?ymd=%s&y=%s",
-               zDate, statsReportTimelineYFlag);
-    if( zUserName ){
-      cgi_printf("&u=%t",zUserName);
-    }
-    cgi_printf("'>%s&nbsp;(%s)</a></td>",zDate, azDayName[dayOfWeek]);
-
-    cgi_printf("<td>%d</td>",nCount);
-    cgi_printf("<td style='white-space: nowrap;'>");
-    if( nCount ){
-      @ <div class='statistics-report-graph-line' \
-      @  style='width:%d(nSize)%%;'>&nbsp;</div> \
-    }
-    cgi_printf("</td></tr>\n");
-  }
-  db_finalize(&q);
-  cgi_printf("</tbody></table>");
-  if(total){
-    int nAvg = iterations ? (total/iterations) : 0;
-    cgi_printf("<br><div>Total events: %d<br>"
-               "Average per active day: %d</div>",
-               total, nAvg);
+  cgi_printf("</tbody></table>\n<br>\n<div\n");
+  total = db_int(0, "SELECT sum(n) FROM daydata");
+  cgi_printf("Total events: %d<br>\n", total);
+  if( total ){
+    cgi_printf("Days covered: %d<br>\n",
+               db_int(0, "SELECT count(*) FROM daydata"));
+    cgi_printf("Average events per day: %.1f<br>\n", 
+               db_double(0.0, "SELECT avg(n) FROM daydata"));
+    cgi_printf("Median events per day: %.1f<br>\n", 
+               db_double(0.0, "SELECT median(n) FROM daydata"));
+    cgi_printf("Active days: %d<br>\n",
+               db_int(0, "SELECT count(*) FROM daydata WHERE n>0"));
+    cgi_printf("Average events per active day: %.1f<br>\n", 
+               db_double(0.0, "SELECT avg(n) FROM daydata WHERE n>0"));
+    cgi_printf("Median events per active day: %.1f<br>\n", 
+               db_double(0.0, "SELECT median(n) FROM daydata WHERE n>0"));
   }
 }
 
