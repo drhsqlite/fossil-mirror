@@ -1,5 +1,5 @@
-C Fix\sthe\sforum\sapproval/rejection\sbroken\sby\sthe\sprevious\scheck-in\sby\sinjecting\sa\shidden\sinput\sfield\sto\sreplace\sthe\shijacked\sbutton.\sAlso\sadd\sseparate\slinks\sto\sthe\smarkdown/wiki\sformat\srules,\srather\sthan\sa\slink\sto\sthe\slist\sof\slinks\sto\sthose\srules,\sas\srequested\sin\s[https://sqlite.org/forum/forumpost/d6343657f0865d44|sqlite\sforum\spost\s2026-06-28T11:49:11Z].
-D 2026-06-29T10:59:08.509
+C New\s"By\sDay"\sreport\sformat.
+D 2026-06-30T12:59:18.160
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -564,7 +564,7 @@ F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e80346
 F src/sqlcmd.c 85964c5e5e9b782fd6aa05da8f6959c7b2e4b4d7192abb5cfb9bd64c190e8533
 F src/stash.c b3228b60ae92dcc8c686e8079516e13b6b874c7cadedeb026900667ddab56a8c
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
-F src/statrep.c d09516a66324c67a9a62a9d0783dcfdfd8384dea627c7ecddc26ba524ad42835
+F src/statrep.c 11f666bebed61a7080baa5a235f3c5560ef140308a09b4c1db421d6ee7b90e4d
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 7d18036ac46645c368b9ff669890b300c8019fe32fbca3513f95c99d0e4a0d23
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
@@ -582,7 +582,7 @@ F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 228e96489b6cc548706af08968756808e9cd78dd8ea7ef6fc6877827100ff71b
 F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
-F src/timeline.c 2c9a27b5eabbc24bfaef7022aadfb997d46664801774e1f3b46fbc95d9ab93ac
+F src/timeline.c 708698f8134fed79e01bf87655525d2ee93e8d02569bd062d4b84d99c55f2505
 F src/tkt.c 2bf10f3e1c7f26b0d925b7ba9acfa49ac921d04125a45f44e586183c64ab376e
 F src/tktsetup.c 22e7338e93a4e54d0e91acd0bf0e80dbdfe4c2958638e163a89239391d6cb8b9
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 859458555b9ba82cf034908d21e025a352f26002db387f45c4e4c046c4ff8d93 a3e5bd4a52cfacbdf06743653d2dc0bc0b6f611a18701f7f5a814030f35567fc
-R 5b41222b10d4c4293e1c689fea44b2d3
-U stephan
-Z bf7d25accae60f6779375f80c9ef7a21
+P 68414a41171e7661913e3014863bff2606b1952c1fb99c735762fa3ddb325c0e
+R 6887f357df98713a1657522d9be2c404
+U drh
+Z 66979b6b8562267f9e63d05894b3e994
 # Remove this line to create a well-formed Fossil manifest.

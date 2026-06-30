@@ -1722,7 +1722,7 @@ void timeline_test_endpoint(void){
 **    ms=MATCHSTYLE   Set tag name match algorithm.  One of "exact", "glob",
 **                    "like", or "regexp".
 **    u=USER          Only show items associated with USER
-**    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', or 'all'.
+**    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', 'h', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact", v: "Verbose", m: "Modern", j: "Columnar",
 **                    x: "Classic".
 **    advm            Use the "Advanced" or "Busy" menu design.
@@ -2946,6 +2946,7 @@ void page_timeline(void){
      || (zType[0]=='c' && !g.perm.Read)
      || (zType[0]=='g' && !g.perm.Read)
      || (zType[0]=='f' && !g.perm.RdForum)
+     || (zType[0]=='h' && !g.perm.RdForum)
     ){
       zType = "all";
     }
@@ -2975,6 +2976,9 @@ void page_timeline(void){
       if( zType[0]=='n' ){
         blob_append_sql(&cond,
             " AND event.type='t' AND event.comment GLOB 'New ticket*'");
+      }else if( zType[0]=='h' ){
+        blob_append_sql(&cond,
+            " AND event.type='f' AND event.comment GLOB 'Post:*'");
       }else{
         blob_append_sql(&cond, " AND event.type=%Q", zType);
       }
@@ -2992,6 +2996,8 @@ void page_timeline(void){
         zEType = "tag";
       }else if( zType[0]=='f' ){
         zEType = "forum post";
+      }else if( zType[0]=='h' ){
+        zEType = "new forum thread";
       }
     }
     if( zUser ){

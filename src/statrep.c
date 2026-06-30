@@ -665,8 +665,10 @@ static void stats_report_hour_of_day(const char *zUserName){
 
 
 /*
-** Helper for stats_report_by_month_year(), which generates a list of
-** week numbers.  The "y" query parameter is the year in format YYYY.
+** Generator for the by-week report (RPT_BYWEEK).
+**
+** The "y" query parameter is the year in format YYYY.
+**
 ** If zUserName is not NULL then the report is restricted to events
 ** created by the named user account.
 */
@@ -790,6 +792,105 @@ static void stats_report_year_weeks(const char *zUserName){
   }
 }
 
+/*
+** Generator for the by-day report (RPT_BYDAY).
+**
+** The "y" query parameter is the year in format YYYY.
+**
+** If zUserName is not NULL then the report is restricted to events
+** created by the named user account.
+*/
+static void stats_report_year_days(const char *zUserName){
+  const char *zYear = P("y");        /* Year for which report shown */
+  Stmt q;
+  int nMaxEvents = 1;                /* max number of events for
+                                        all rows. */
+  int iterations = 0;                /* # of active time periods. */
+  int rowCount = 0;
+  int total = 0;
+
+  stats_report_init_view();
+  style_submenu_sql("y", "Year:",
+     "WITH RECURSIVE a(b) AS ("
+     "  SELECT substr(date('now'),1,4) UNION ALL"
+     "  SELECT b-1 FROM a"
+     "   WHERE b>0+(SELECT substr(date(min(mtime)),1,4) FROM event)"
+     ") SELECT b, b FROM a ORDER BY b DESC");
+  if( zYear==0 || strlen(zYear)!=4 ){
+    zYear = db_text("1970","SELECT substr(date('now'),1,4);");
+  }
+  cgi_printf("<br>\n");
+  db_prepare(&q,
+     "SELECT DISTINCT strftime('%%w',mtime) AS wkday, "
+     "       date(mtime) AS date,"
+     "       count(*) AS n "
+     "  FROM v_reports"
+     " WHERE %Q=substr(date(mtime),1,4) "
+     "   AND mtime < current_timestamp "
+     "   AND ifnull(coalesce(euser,user,'')=%Q,1)"
+     " GROUP BY date ORDER BY date DESC", zYear, zUserName);
+  @ <h1>Timeline events (%h(stats_report_label_for_type()))
+  @ for each day of %h(zYear)
+  if( zUserName ){
+    @  for user %h(zUserName)
+  }
+  @ </h1>
+  style_table_sorter();
+  cgi_printf("<table class='statistics-report-table-events sortable' "
+              "border='0' cellpadding='2' width='100%%' "
+             "cellspacing='0' data-column-types='tnx' data-init-sort='0'>\n");
+  cgi_printf("<thead><tr>"
+             "<th>Date</th>"
+             "<th>Events</th>"
+             "<th width='90%%'><!-- relative commits graph --></th>"
+             "</tr></thead>\n"
+             "<tbody>\n");
+  while( SQLITE_ROW == db_step(&q) ){
+    int nCount = db_column_int(&q, 2);
+    if(nCount>nMaxEvents){
+      nMaxEvents = nCount;
+    }
+    ++iterations;
+  }
+  db_reset(&q);
+  while( SQLITE_ROW == db_step(&q) ){
+    static const char *azDayName[] = {
+      "Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"
+    };
+    int dayOfWeek = db_column_int(&q,0);
+    const char *zDate = db_column_text(&q,1);
+    const int nCount = db_column_int(&q,2);
+    int nSize = (nCount>0 && nMaxEvents>0)
+      ? (int)(100 * nCount / nMaxEvents)
+      : 0;
+    if(!nSize) nSize = 1;
+    total += nCount;
+    cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
+    cgi_printf("<td><a href='%R/timeline?ymd=%s&y=%s",
+               zDate, statsReportTimelineYFlag);
+    if( zUserName ){
+      cgi_printf("&u=%t",zUserName);
+    }
+    cgi_printf("'>%s&nbsp;(%s)</a></td>",zDate, azDayName[dayOfWeek]);
+
+    cgi_printf("<td>%d</td>",nCount);
+    cgi_printf("<td style='white-space: nowrap;'>");
+    if( nCount ){
+      @ <div class='statistics-report-graph-line' \
+      @  style='width:%d(nSize)%%;'>&nbsp;</div> \
+    }
+    cgi_printf("</td></tr>\n");
+  }
+  db_finalize(&q);
+  cgi_printf("</tbody></table>");
+  if(total){
+    int nAvg = iterations ? (total/iterations) : 0;
+    cgi_printf("<br><div>Total events: %d<br>"
+               "Average per active day: %d</div>",
+               total, nAvg);
+  }
+}
+
 
 /*
 ** Generate a report that shows the most recent change for each user.
@@ -845,6 +946,7 @@ static void stats_report_last_change(void){
 #define RPT_BYYEAR    6
 #define RPT_LASTCHNG  7  /* Last change made for each user */
 #define RPT_BYHOUR    8  /* hour-of-day */
+#define RPT_BYDAY     9
 #define RPT_NONE      0  /* None of the above */
 
 /*
@@ -858,6 +960,7 @@ static void stats_report_last_change(void){
 **                        * byyear
 **                        * bymonth
 **                        * byweek
+**                        * byday
 **                        * byweekday
 **                        * byhour
 **                        * byuser
@@ -891,7 +994,7 @@ void stats_report_page(){
   int eType = RPT_NONE;              /* Numeric code for view/report to show */
   int i;                             /* Loop counter */
   const char *zUserName;             /* Name of user */
-  const char *azView[16];            /* Drop-down menu of view types */
+  const char *azView[24];            /* Drop-down menu of view types */
   static const struct {
     const char *zName;  /* Name of view= screen type */
     const char *zVal;   /* Value of view= query parameter */
@@ -902,6 +1005,7 @@ void stats_report_page(){
      {  "By Month",    "bymonth",   RPT_BYMONTH   },
      {  "By User",     "byuser",    RPT_BYUSER    },
      {  "By Week",     "byweek",    RPT_BYWEEK    },
+     {  "By Day",      "byday",     RPT_BYDAY     },
      {  "By Weekday",  "byweekday", RPT_BYWEEKDAY },
      {  "By Year",     "byyear",    RPT_BYYEAR    },
      {  "By Hour",     "byhour",    RPT_BYHOUR    },
@@ -966,6 +1070,9 @@ void stats_report_page(){
       break;
     case RPT_BYWEEK:
       stats_report_year_weeks(zUserName);
+      break;
+    case RPT_BYDAY:
+      stats_report_year_days(zUserName);
       break;
     default:
     case RPT_BYUSER:
