@@ -907,7 +907,7 @@ static void stats_report_byday(const char *zUserName){
               "border='0' cellpadding='2' width='100%%' "
              "cellspacing='0' data-column-types='tnx' data-init-sort='0'>\n");
   cgi_printf("<thead><tr>"
-             "<th>Week</th>"
+             "<th>Day</th>"
              "<th>Events</th>"
              "<th width='90%%'><!-- relative commits graph --></th>"
              "</tr></thead>\n"
