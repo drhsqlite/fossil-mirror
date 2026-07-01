@@ -916,7 +916,7 @@ static void stats_report_byday(const char *zUserName){
   db_prepare(&q, "SELECT isodate,dow,n FROM daydata ORDER BY dn DESC");
   while( SQLITE_ROW == db_step(&q) ){
     static const char *azDayName[] = {
-      "Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"
+      "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
     };
     const char *zDate = db_column_text(&q,0);
     int iDOW = db_column_int(&q,1);
