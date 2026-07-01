@@ -900,7 +900,7 @@ static void stats_report_byday(const char *zUserName){
   zCurrentDay = db_text(0, "SELECT date()");
   if( zCurrentDay ){
     rNowFraction = db_double(0.5,
-      "SELECT (unixepoch()-unixepoch('now','start of day'))/604800.0;");
+      "SELECT (unixepoch()-unixepoch('now','start of day'))/86400.0;");
   }
   style_table_sorter();
   cgi_printf("<table class='statistics-report-table-events sortable' "
@@ -944,11 +944,11 @@ static void stats_report_byday(const char *zUserName){
       && nMaxEvents>0
       ){
         /* If the timespan covered by this row contains "now", then project
-        ** the number of changes until the completion of the week and
+        ** the number of changes until the completion of the day and
         ** show a dashed box of that projection. */
-        int nProj = (int)(((double)nCount)/rNowFraction);
-        int nExtra = (int)(((double)nCount)/rNowFraction) - nCount;
-        int nXSize = (100 * nExtra)/nMaxEvents;
+        int nProj = (int)(nCount/rNowFraction);
+        int nExtra = (int)(100.0*nCount/rNowFraction - 100*nCount);
+        int nXSize = nExtra/nMaxEvents;
         @ <span class='statistics-report-graph-line' \
         @  style='display:inline-block;min-width:%d(nSize)%%;'>&nbsp;</span>\
         @ <span class='statistics-report-graph-extra' title='%d(nProj)' \
