@@ -1,5 +1,5 @@
-C Additional\srefinements\sto\sthe\sbyweek\salgorithm\sfor\s/report.\s\sIt\sappears\nthat\sthe\syw=\squery\sparameter\sfor\s/timeline\sdoes\snot\swork\scorrectly\sfor\nyears\sthat\sstart\son\sMonday.\s\sThis\sis\sthe\sfault\sof\s/timeline,\snot\s/report\nand\swill\sneed\sto\sbe\sfixed\sseparately.
-D 2026-07-01T01:44:25.842
+C Allow\sTH1\scommands\sin\sAd-Units
+D 2026-07-01T13:06:44.471
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -533,7 +533,7 @@ F src/schema.c 602fca4d0af4cba3186a9bb01eb4ff160802f9ff501b2a018dce36f6692399e5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c c4bd56d8638015525bdacf03d2609e90f9c46f283bb1bfc97d467b7f504365c7
 F src/security_audit.c 8944cd768cf5226ea74cd667212b793923ad80824bf4e03f5fcf76bc720133ff
-F src/setup.c a401c4560835a4e9ed19cbdb147432758a64fa3d8f4469e2c613b2140e215f51
+F src/setup.c 31702bf1b8099718986e12725da72917634ee5277af6b2c4bd6cfce9e399d654
 F src/setupuser.c e2332600755153655c9c01a0f3073c0abd6091d7150e9321abdcf2f3c02c58c9
 F src/sha1.c eac76e7bf2a68e6b433c2aa4fa4d08fa4264a27f5c817cd44958e268592ac0b4
 F src/sha1hard.c 2735f2e8551da32c7ad7673899ef48bc3868a2fed23bc8902f379e823d0b9afd
@@ -566,7 +566,7 @@ F src/stash.c b3228b60ae92dcc8c686e8079516e13b6b874c7cadedeb026900667ddab56a8c
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
 F src/statrep.c 1e9da214a62a011e3f02e8f16a271377e41d8eedf267085bb33e7b284f4387d1
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 3fc53f46044ad8af47b09db980a86b3bcc6a344d626e297ef6d1c040a15bc36f
+F src/style.c 94a020a0922597c40ef14617585eff5308b6e03f961c5d839b064e0232114d4d
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.forum.css c113bdf0dfdbc643321d14c795bcfb804ae3fe40b66c2153527b328a3a036dea
@@ -967,7 +967,7 @@ F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c06
 F www/sync.wiki fcc503bbdd5578f47934cafc77f271d0f93d1ed6bf0107ce731f5799a1535774
 F www/tech_overview.wiki 6d6a67e9d982eaf8d1f98b18c97282bdeaddfd4c20b98ce24715ce30785a3313
 F www/th1-hooks.md 01090d9200962b10c5068bd32a9de39f5972db651270040441f4ff7fd030641b
-F www/th1.md 5dd5405d51b23078f194493d179d618d17a879d67d10b28cfb05ff6ad2af2627
+F www/th1.md adf51091504384e940337958438a3f0eefbb231f55b32a0f44036c36e1f51414
 F www/theory1.wiki 23fe43903706feb8d6852c9e1174f20b10aa4a6a82aa716992b5e31f70745303
 F www/tickets.wiki d46ce2febd0160a67a7b804d9ee68ef0c8a5f482255247d157cb4ded882333ed
 F www/title-test.md 5579cbcda122eff4f5d0343683cd48f365b92d1054131629a3d0be7af113275c
@@ -983,8 +983,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fbffbe115252be5e20782643eeb542186f7903332c28589fc5f02577b6760760
-R 32e25a935be8978deb571d6c98b7a70a
-U drh
-Z 28da5852d664696c316e706cd3857442
+P a34352a1acb0d9023d3ecdb8e27008aece1457ab587fb1ee0a69fb0ae5b6a920
+R 22ae0b20e92e5d698735c45df0026e9e
+T *branch * th1-ad-unit
+T *sym-th1-ad-unit *
+T -sym-trunk *
+U Torsten
+Z a1a352263c79d0cab3327af4fc802aaf
 # Remove this line to create a well-formed Fossil manifest.

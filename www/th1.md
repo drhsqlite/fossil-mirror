@@ -31,8 +31,10 @@ Where TH1 Is Used In Fossil
   *  In the header and footer for [skins](./customskin.md)
      text within `<th1>...</th1>` is run as a TH1 script.
      ([example](/builtin/skins/default/header.txt))
+     
+  *  In the Ad-Units
 
-  *  This display of [tickets](./bugtheory.wiki) is controlled by TH1
+  *  The display of [tickets](./bugtheory.wiki) is controlled by TH1
      scripts, so that the ticket format can be customized for each
      project.  Administrators can visit the <b>/tktsetup</b> page in
      their repositories to view and customize these scripts.

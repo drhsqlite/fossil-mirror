@@ -1126,11 +1126,11 @@ void style_finish_page(){
   if( (mAdFlags & ADUNIT_RIGHT_OK)!=0  ){
     @ <div class="content adunit_right_container">
     @ <div class="adunit_right">
-    cgi_append_content(zAd, -1);
+    Th_RenderToBlob(zAd, NULL, TH_R2B_NO_VARS);
     @ </div>
   }else if( zAd ){
     @ <div class="adunit_banner">
-    cgi_append_content(zAd, -1);
+    Th_RenderToBlob(zAd, NULL, TH_R2B_NO_VARS);
     @ </div>
   }
 

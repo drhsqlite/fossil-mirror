@@ -155,7 +155,7 @@ void setup_page(void){
     "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
     " changes and attachments.");
   setup_menu_entry("Ad-Unit", "setup_adunit",
-    "Edit HTML text for an ad unit inserted after the menu bar");
+    "Edit HTML/TH1 for an ad unit inserted after the menu bar");
   setup_menu_entry("URLs & Checkouts", "urllist",
     "Show URLs used to access this repo and known check-outs");
   if( setup_user ){
@@ -1786,6 +1786,8 @@ void setup_adunit(void){
   @     used on all pages.
   @ <li>Properties: "adunit", "adunit-right", "adunit-omit-if-admin", and
   @     "adunit-omit-if-user".
+  @ <li>Ad-Units can contain TH1 commands, the following TH1 variables are most
+  @     useful: $current_feature, $current_page, $requested_page, $login
   @ <li>Suggested <a href="setup_skinedit?w=0">CSS</a> changes:
   @ <blockquote><pre>
   @ div.adunit_banner {
@@ -1810,7 +1812,16 @@ void setup_adunit(void){
   @   background-color: #fcc;
   @ '&gt;Demo Ad&lt;/div&gt;
   @ </pre></blockquote>
-  @ </li>
+  @ <li>Example of a page-specific Ad-Unit:
+  @ <blockquote><pre>
+  @ &lt;th1&gt;
+  @ if {$current_page eq "forum"} {
+  @   # only show Ad-Unit on Forum start page:
+  @   html {&lt;strong&gt;Notice:&lt;/strong&gt; Search the forum for an answer before asking in a new post!}
+  @ }
+  @ &lt;/th1&gt;
+  @ </pre></blockquote>
+  @ </ul>
   style_finish_page();
   db_end_transaction(0);
 }
