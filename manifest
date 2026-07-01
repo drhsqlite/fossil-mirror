@@ -1,5 +1,5 @@
-C Begin\smaking\suse\sof\sthe\snew\sdate/time\smodifiers\savailable\sin\sSQLite\nin\sthe\simplementation\sof\sthe\sbyweek\svariant\sof\sthe\s/report\spage.
-D 2026-07-01T12:22:01.118
+C Fixes\sto\sthe\syw=YYYYWW\squery\sparameter\sto\s/timeline
+D 2026-07-01T13:21:59.449
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -582,7 +582,7 @@ F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 228e96489b6cc548706af08968756808e9cd78dd8ea7ef6fc6877827100ff71b
 F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
-F src/timeline.c bc79b6df6bef0148ba65476a8333ad7c434d4c37e15fd49e0ac96aa3b93ef6b7
+F src/timeline.c aed0ea44b5d1fd7f3815b1ec3046d43f919971570a6bf1bcdb1a3ab0fa18c1d2
 F src/tkt.c 2bf10f3e1c7f26b0d925b7ba9acfa49ac921d04125a45f44e586183c64ab376e
 F src/tktsetup.c 22e7338e93a4e54d0e91acd0bf0e80dbdfe4c2958638e163a89239391d6cb8b9
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4fcd911ef7ae308d0adeba8697f8f5e8f5097650459593fc77205cfe05c451d3
-R ce6e0bfd58564e1144c217de7f28b97d
+P a13a024beacf72e910dd1b6c53d5cfc8ec460e33ffd3862ade0cb75f16e3dfb8
+R bb9c6ce5ff1304704a7cd15300b18a03
 U drh
-Z a4dc053afeb3bd53acfb5886b2d94b9d
+Z ac1b58e72d51002cc5056643a15b1727
 # Remove this line to create a well-formed Fossil manifest.

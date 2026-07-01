@@ -2665,22 +2665,22 @@ void page_timeline(void){
       zYearWeek = timeline_expand_datetime(zYearWeek, &bZulu);
       z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
       if( z && z[0] ){
-        zYearWeekStart = db_text(0, "SELECT date(%Q,'-6 days','weekday 1')",
+        zYearWeekStart = db_text(0, "SELECT date(%Q,'weekday -1')",
                                  zYearWeek);
         zYearWeek = z;
       }else{
         if( strlen(zYearWeek)==7 ){
           zYearWeekStart = db_text(0,
-             "SELECT date('%.4q-01-01','%+d days','weekday 1')",
-             zYearWeek, atoi(zYearWeek+5)*7-6);
+             "SELECT date('%.4q-01-01','weekday 1','%+d days')",
+             zYearWeek, atoi(zYearWeek+5)*7 - 7);
         }else{
           zYearWeekStart = 0;
         }
         if( zYearWeekStart==0 || zYearWeekStart[0]==0 ){
           zYearWeekStart = db_text(0,
-             "SELECT date('now','-6 days','weekday 1');");
+             "SELECT date('now','weekday -1');");
           zYearWeek = db_text(0,
-             "SELECT strftime('%%Y-%%W','now','-6 days','weekday 1')");
+             "SELECT strftime('%%Y-%%W','now','weekday -1')");
         }
       }
       zTZMod = (bZulu==0 && fossil_ui_localtime()) ? "utc" : "+00:00";
@@ -3082,8 +3082,10 @@ void page_timeline(void){
       blob_appendf(&desc, "%d %s%s for the month beginning %h",
                    n, zEType, zPlural, zYearMonth);
     }else if( zYearWeek ){
-      blob_appendf(&desc, "%d %s%s for week %h beginning on %h",
-                   n, zEType, zPlural, zYearWeek, zYearWeekStart);
+      char *zEnd = db_text("?","SELECT date(%Q,'weekday 0')",zYearWeekStart);
+      blob_appendf(&desc, "%d %s%s for week %h spanning %h to %h",
+                   n, zEType, zPlural, zYearWeek, zYearWeekStart, zEnd);
+      fossil_free(zEnd);
     }else if( zDay ){
       blob_appendf(&desc, "%d %s%s occurring on %h", n, zEType, zPlural, zDay);
     }else if( zNDays ){
