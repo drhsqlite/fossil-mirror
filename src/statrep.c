@@ -673,20 +673,19 @@ static void stats_report_hour_of_day(const char *zUserName){
 ** created by the named user account.
 */
 static void stats_report_byweek(const char *zUserName){
-  const char *zYear = P("y");     /* Year for which report shown */
-  int bShowAll = PB("sa");        /* Show all weeks if true, active if false */
-  Stmt q;
-  int nMaxEvents = 1;             /* max number of events for all rows. */
-  int rowCount = 0;
-  int total;
-  int iCurrentWeek;               /* Current week number */
-  double rNowFraction = 0.0;      /* Fraction of current week that has
-                                  ** passed */
-  double rYearStart;              /* Start of year */
-  double rYearEnd;                /* End of the year */
-  double rWeekOne;                /* Start of first Monday of the year */
-  double rWeekZero;               /* If Jan01 is Mon, then rWeekOne, else rWeekOne-7.0 */
-  double rAllEnd;                 /* End of last week of year, overflow into next year */
+  const char *zYear = P("y"); /* Year for which report shown */
+  int bShowAll = PB("sa");    /* Show all weeks if true, active if false */
+  Stmt q;                     /* Query */
+  int nMaxEvents = 1;         /* max number of events in any row */
+  int rowCount = 0;           /* Rows of output generated */
+  int total;                  /* Total number of events */
+  int iCurrentWeek;           /* Current week number */
+  double rNowFraction = 0.0;  /* Fraction of current week that has passed */
+  double rYearStart;          /* Start of year */
+  double rYearEnd;            /* End of the year */
+  double rWeekOne;     /* Start of first Monday of the year */
+  double rWeekZero;    /* If Jan01 is Mon, then rWeekOne, else rWeekOne-7.0 */
+  double rAllEnd;      /* End of last week of year, overflow into next year */
 
   stats_report_init_view();
   style_submenu_sql("y", "Year:",
@@ -713,12 +712,12 @@ static void stats_report_byweek(const char *zUserName){
     "  VALUES(if(:WeekZero<:WeekOne,0,1))\n"
     "  UNION ALL\n"
     "  SELECT wkn+1 FROM c\n"
-    "   WHERE (:YearStart+wkn*7+7)<=:AllEnd\n"
+    "   WHERE (:YearStart+wkn*7)<=:AllEnd\n"
     ")\n"
     "INSERT INTO wkdata(wk,n)\n"
     "  SELECT c.wkn, coalesce(x.n,0)\n"
     "    FROM c LEFT JOIN (\n"
-    "      SELECT 0+strftime('%%W',min(max(:YearStart,mtime),:YearEnd)) AS w,\n"
+    "      SELECT 0+strftime('%%W',min(max(mtime,:YearStart),:YearEnd)) AS w,\n"
     "             count(*) AS n\n"
     "        FROM v_reports\n"
     "       WHERE mtime BETWEEN :WeekZero AND :AllEnd\n"
