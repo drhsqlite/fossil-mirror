@@ -701,10 +701,12 @@ static void stats_report_byweek(const char *zUserName){
     zYear = db_text("1970","SELECT substr(date('now'),1,4);");
   }
   rYearStart = db_double(0.0,"SELECT julianday('%q-01-01')",zYear);
-  rYearEnd = db_double(0.0,"SELECT julianday('%q-12-31 23:59:59.999')",zYear);
+  rYearEnd = db_double(0.0,"SELECT julianday('%q-01-01','end of year')",zYear);
   rWeekOne = db_double(0.0,"SELECT julianday('%q-01-01','weekday 1')",zYear);
   rWeekZero = rWeekOne>rYearStart ? rWeekOne - 7.0 : rWeekOne;
-  rAllEnd = db_double(0.0,"SELECT julianday('%q-12-31 23:59:59.999','weekday 0')",zYear);
+  rAllEnd = db_double(0.0,
+       "SELECT julianday('%q-01-01','end of year','weekday 0')",
+       zYear);
   db_multi_exec("CREATE TEMP TABLE wkdata(wk,n);");
   db_prepare(&q,
     "WITH RECURSIVE c(wkn) AS (\n"

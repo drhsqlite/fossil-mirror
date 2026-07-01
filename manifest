@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sthat\sincludes\ssupport\nfor\sthe\s"weekday\s-N"\sand\s"end\sof\sday/month/year"\sdate/time\smodifiers.
-D 2026-07-01T12:15:36.554
+C Begin\smaking\suse\sof\sthe\snew\sdate/time\smodifiers\savailable\sin\sSQLite\nin\sthe\simplementation\sof\sthe\sbyweek\svariant\sof\sthe\s/report\spage.
+D 2026-07-01T12:22:01.118
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 3b63b4b9c203efbfb639c3d67366b5125aa67d8a255d2c78e22373a9348c54c9
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 64a13b480b4a6962246f7338be9405a4a51de56cf8a203baaacb9cc46305e867
-F auto.def 46f5e6d048e11e4a5c8d46d57f92795a3b374620cb293206a21cbae5769840ab
+F auto.def dfadf2feab372d284bef75c30db13a98923ce68702ac01d085bb7b24a6589540
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -499,7 +499,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c 756c63c26fb79c0ff8c1d73512d0b8805294ef07a4366264620b62bfa4f3d254
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c 737032593ef80a8bdae0c866232dd5f95eb397026ec63d771c27de5bbd77fb2a
+F src/main.c 906789f90d5d9a3cbdcb6a50d601b334a28ec0525c6ba526b4db2a1c234f2674
 F src/main.mk 03d571fb153b44581aa754a56f77fb49e425b6c27e2da2162190b41dbfb6fef3
 F src/manifest.c dec1ebab98335d121fd3fdbc7dfd5f3ff8b04e895897eddceb4fd7742cbb5599
 F src/markdown.c ea27e61986a1366839e7a70f16cd70a056352d7623797eb09372e158f6f7350b
@@ -564,7 +564,7 @@ F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e80346
 F src/sqlcmd.c 85964c5e5e9b782fd6aa05da8f6959c7b2e4b4d7192abb5cfb9bd64c190e8533
 F src/stash.c b3228b60ae92dcc8c686e8079516e13b6b874c7cadedeb026900667ddab56a8c
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
-F src/statrep.c 1e9da214a62a011e3f02e8f16a271377e41d8eedf267085bb33e7b284f4387d1
+F src/statrep.c ad5c7ec393641edac36bb7d10538ca0ccaed3c893a2f5db55307c6b096aa083c
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 3fc53f46044ad8af47b09db980a86b3bcc6a344d626e297ef6d1c040a15bc36f
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a34352a1acb0d9023d3ecdb8e27008aece1457ab587fb1ee0a69fb0ae5b6a920
-R 21cbf5d1c2a6654a08f2d9d707567df6
+P 4fcd911ef7ae308d0adeba8697f8f5e8f5097650459593fc77205cfe05c451d3
+R ce6e0bfd58564e1144c217de7f28b97d
 U drh
-Z fa90a65ad6753bbd6c0dbe93d9d0b286
+Z a4dc053afeb3bd53acfb5886b2d94b9d
 # Remove this line to create a well-formed Fossil manifest.
