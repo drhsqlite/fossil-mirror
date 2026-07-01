@@ -709,10 +709,10 @@ static void stats_report_byweek(const char *zUserName){
   db_multi_exec("CREATE TEMP TABLE wkdata(wk,n);");
   db_prepare(&q,
     "WITH RECURSIVE c(wkn) AS (\n"
-    "  VALUES(if(:WeekZero<:WeekOne,0,1))\n"
+    "  VALUES(0+strftime('%%W',:YearStart))\n"
     "  UNION ALL\n"
     "  SELECT wkn+1 FROM c\n"
-    "   WHERE (:YearStart+wkn*7)<=:AllEnd\n"
+    "   WHERE wkn<0+strftime('%%W',min(julianday(),:YearEnd))\n"
     ")\n"
     "INSERT INTO wkdata(wk,n)\n"
     "  SELECT c.wkn, coalesce(x.n,0)\n"
@@ -728,7 +728,6 @@ static void stats_report_byweek(const char *zUserName){
   );
   db_bind_double(&q, ":YearStart", rYearStart);
   db_bind_double(&q, ":YearEnd", rYearEnd);
-  db_bind_double(&q, ":WeekOne", rWeekOne);
   db_bind_double(&q, ":WeekZero", rWeekZero);
   db_bind_double(&q, ":AllEnd", rAllEnd);
   db_step(&q);
@@ -740,7 +739,6 @@ static void stats_report_byweek(const char *zUserName){
   @ :YearStart = %h(db_text("","SELECT datetime(%!.17g)",rYearStart))<br>
   @ :YearEnd = %h(db_text("","SELECT datetime(%!.17g)",rYearEnd))<br>
   @ :WeekZero = %h(db_text("","SELECT datetime(%!.17g)",rWeekZero))<br>
-  @ :WeekOne = %h(db_text("","SELECT datetime(%!.17g)",rWeekOne))<br>
   @ :AllEnd = %h(db_text("","SELECT datetime(%!.17g)",rAllEnd))<br>
 #endif
 
