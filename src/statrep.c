@@ -672,10 +672,9 @@ static void stats_report_hour_of_day(const char *zUserName){
 ** If zUserName is not NULL then the report is restricted to events
 ** created by the named user account.
 */
-static void stats_report_year_weeks(const char *zUserName){
+static void stats_report_byweek(const char *zUserName){
   const char *zYear = P("y");     /* Year for which report shown */
   int bShowAll = PB("sa");        /* Show all weeks if true, active if false */
-  char *zLimit;                   /* Date of last week to show */
   Stmt q;
   int nMaxEvents = 1;             /* max number of events for all rows. */
   int rowCount = 0;
@@ -683,8 +682,11 @@ static void stats_report_year_weeks(const char *zUserName){
   int iCurrentWeek;               /* Current week number */
   double rNowFraction = 0.0;      /* Fraction of current week that has
                                   ** passed */
-  double rStartOfYear = 0.0;      /* Start of year */
-  double rEndOfYear = 0.0;        /* End of the year */
+  double rYearStart;              /* Start of year */
+  double rYearEnd;                /* End of the year */
+  double rWeekOne;                /* Start of first Monday of the year */
+  double rWeekZero;               /* If Jan01 is Mon, then rWeekOne, else rWeekOne-7.0 */
+  double rAllEnd;                 /* End of last week of year, overflow into next year */
 
   stats_report_init_view();
   style_submenu_sql("y", "Year:",
@@ -698,37 +700,49 @@ static void stats_report_year_weeks(const char *zUserName){
   if( zYear==0 || strlen(zYear)!=4 ){
     zYear = db_text("1970","SELECT substr(date('now'),1,4);");
   }
-  zLimit = db_text("1971-01-01",
-    "SELECT min(date('%q-01-01','+1 year','-1 day','weekday 6'),"
-               "date('now','weekday 6'))",
-    zYear
-  );
-  rStartOfYear = db_double(0.0,"SELECT julianday('%q-01-01')",zYear);
-  rEndOfYear = db_double(0.0,"SELECT julianday('%q-12-31 23:59:59.999')",zYear);
-  db_multi_exec(
-    "CREATE TEMP TABLE wkdata(wk,n);\n"
+  rYearStart = db_double(0.0,"SELECT julianday('%q-01-01')",zYear);
+  rYearEnd = db_double(0.0,"SELECT julianday('%q-12-31 23:59:59.999')",zYear);
+  rWeekOne = db_double(0.0,"SELECT julianday('%q-01-01','weekday 1')",zYear);
+  rWeekZero = rWeekOne>rYearStart ? rWeekOne - 7.0 : rWeekOne;
+  rAllEnd = db_double(0.0,"SELECT julianday('%q-12-31 23:59:59.999','weekday 0')",zYear);
+  db_multi_exec("CREATE TEMP TABLE wkdata(wk,n);");
+  db_prepare(&q,
     "WITH RECURSIVE c(wkn) AS (\n"
-    "  VALUES(0)\n"
-    "   UNION ALL\n"
-    "   SELECT wkn+1 FROM c\n"
-    "    WHERE date('%q-01-01',format('%%+d days',wkn*7+7))<=%Q\n"
+    "  VALUES(if(:WeekZero<:WeekOne,0,1))\n"
+    "  UNION ALL\n"
+    "  SELECT wkn+1 FROM c\n"
+    "   WHERE (:YearStart+wkn*7+7)<=:AllEnd\n"
     ")\n"
     "INSERT INTO wkdata(wk,n)\n"
     "  SELECT c.wkn, coalesce(x.n,0)\n"
     "    FROM c LEFT JOIN (\n"
-    "      SELECT 0+strftime('%%W',min(max(%!.16g,mtime),%!.16g)) AS w,\n"
-    "             count(*) AS n \n"
+    "      SELECT 0+strftime('%%W',min(max(:YearStart,mtime),:YearEnd)) AS w,\n"
+    "             count(*) AS n\n"
     "        FROM v_reports\n"
-    "       WHERE mtime BETWEEN julianday('%q-01-01','weekday 6','-6 days')\n"
-    "                       AND julianday('%q 23:59:59.999','weekday 6')\n"
+    "       WHERE mtime BETWEEN :WeekZero AND :AllEnd\n"
     "         AND ifnull(coalesce(euser,user,'')=%Q,1)\n"
     "       GROUP BY w\n"
-    "      ) AS x ON c.wkn=x.w;\n",
-    zYear, zLimit,
-    rStartOfYear, rEndOfYear,
-    zYear, zLimit, zUserName
+    "      ) AS x ON c.wkn=x.w",
+    zUserName
   );
+  db_bind_double(&q, ":YearStart", rYearStart);
+  db_bind_double(&q, ":YearEnd", rYearEnd);
+  db_bind_double(&q, ":WeekOne", rWeekOne);
+  db_bind_double(&q, ":WeekZero", rWeekZero);
+  db_bind_double(&q, ":AllEnd", rAllEnd);
+  db_step(&q);
+  db_finalize(&q);
+
   cgi_printf("<br>\n");
+
+#if 0
+  @ :YearStart = %h(db_text("","SELECT datetime(%!.17g)",rYearStart))<br>
+  @ :YearEnd = %h(db_text("","SELECT datetime(%!.17g)",rYearEnd))<br>
+  @ :WeekZero = %h(db_text("","SELECT datetime(%!.17g)",rWeekZero))<br>
+  @ :WeekOne = %h(db_text("","SELECT datetime(%!.17g)",rWeekOne))<br>
+  @ :AllEnd = %h(db_text("","SELECT datetime(%!.17g)",rAllEnd))<br>
+#endif
+
   @ <h1>Timeline events (%h(stats_report_label_for_type()))
   @ for the calendar weeks of %h(zYear)
   if( zUserName ){
@@ -822,7 +836,7 @@ static void stats_report_year_weeks(const char *zUserName){
 ** If zUserName is not NULL then the report is restricted to events
 ** created by the named user account.
 */
-static void stats_report_year_days(const char *zUserName){
+static void stats_report_byday(const char *zUserName){
   const char *zYear = P("y");     /* Year for which report shown */
   int bShowAll = PB("sa");        /* Show all days if true, active if false */
   char *zLimit;                   /* Date of last day to show */
@@ -1143,10 +1157,10 @@ void stats_report_page(){
       stats_report_by_month_year(1, zUserName);
       break;
     case RPT_BYWEEK:
-      stats_report_year_weeks(zUserName);
+      stats_report_byweek(zUserName);
       break;
     case RPT_BYDAY:
-      stats_report_year_days(zUserName);
+      stats_report_byday(zUserName);
       break;
     default:
     case RPT_BYUSER:

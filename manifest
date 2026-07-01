@@ -1,5 +1,5 @@
-C The\sstricter\sattribute\schecking\sapplied\sin\s[6436ecf911]\scause\sthe\simg\nsrcset\sattribute\sto\snot\sget\sthe\srepo-root\s(%R)\srewriting\sthat\ssrc\sgets.\nThis\sbreaks\sexisting\sdocs\sthat\sused\sthis\sfor\sresolution-dependent\simage\nrendering\sin\sMD\sand\ssuch.\s\sFor\stesting\sthe\sfix,\sthis\sadds\sthe\s--top\sflag\nto\sthe\stest-safe-html\scommand,\ssince\sa\sregular\s"fossil\sui"\sdoesn't\sshow\nthe\sproblem;\sit\seither\shas\sto\sbe\shosted\sunderneath\sa\sURL\sby\san\sRP\sserver\nor\svia\sthis\stest\soption\sto\ssee\sthe\seffect\sof\s%R\srewriting.
-D 2026-07-01T01:00:04.462
+C Additional\srefinements\sto\sthe\sbyweek\salgorithm\sfor\s/report.\s\sIt\sappears\nthat\sthe\syw=\squery\sparameter\sfor\s/timeline\sdoes\snot\swork\scorrectly\sfor\nyears\sthat\sstart\son\sMonday.\s\sThis\sis\sthe\sfault\sof\s/timeline,\snot\s/report\nand\swill\sneed\sto\sbe\sfixed\sseparately.
+D 2026-07-01T01:44:25.842
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -564,7 +564,7 @@ F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e80346
 F src/sqlcmd.c 85964c5e5e9b782fd6aa05da8f6959c7b2e4b4d7192abb5cfb9bd64c190e8533
 F src/stash.c b3228b60ae92dcc8c686e8079516e13b6b874c7cadedeb026900667ddab56a8c
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
-F src/statrep.c 9bd184cb04bfc7425333aca5aef0dc8782c59f65a9ddc4df2dae94368f4f920b
+F src/statrep.c 1e9da214a62a011e3f02e8f16a271377e41d8eedf267085bb33e7b284f4387d1
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 3fc53f46044ad8af47b09db980a86b3bcc6a344d626e297ef6d1c040a15bc36f
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 407e6c63ae06eb2c230a2bbeda07add7f2f692802c9f4a494c8a40d9fe2fdf64
-R 324f4ca4f240c4bea8b519997b719d3e
-U wyoung
-Z 7f052dfb60c5f0a16afaf2cbbefae2e7
+P fbffbe115252be5e20782643eeb542186f7903332c28589fc5f02577b6760760
+R 32e25a935be8978deb571d6c98b7a70a
+U drh
+Z 28da5852d664696c316e706cd3857442
 # Remove this line to create a well-formed Fossil manifest.
