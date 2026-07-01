@@ -988,6 +988,53 @@ static amsk_t parseMarkup(ParsedMarkup *p, char *z){
 }
 
 /*
+** Append an HTML attribute value, rewriting root-relative URLs in src
+** and srcset the same way (%R prefix).
+*/
+static void appendRewrittenAttrValue(Blob *pOut, int iACode, const char *zVal){
+  if( iACode==ATTR_SRC && zVal[0]=='/' ){
+    blob_appendf(pOut, "=\"%R%s\"", zVal);
+    return;
+  }
+  if( iACode==ATTR_SRCSET ){
+    const char *z = zVal;
+    int nCand = 0;
+    blob_append_char(pOut, '=');
+    blob_append_char(pOut, '"');
+    while( z[0] ){
+      const char *zComma = strchr(z, ',');
+      int len = zComma ? (int)(zComma - z) : (int)strlen(z);
+      const char *zCand = z;
+      int urlStart = 0;
+      int urlLen;
+      if( len>0 ){
+        while( urlStart<len && fossil_isspace(zCand[urlStart]) ) urlStart++;
+        urlLen = urlStart;
+        while( urlLen<len && !fossil_isspace(zCand[urlLen]) ) urlLen++;
+        urlLen -= urlStart;
+        if( nCand++ ) blob_append_char(pOut, ',');
+        if( urlStart>0 ){
+          blob_append(pOut, zCand, urlStart);
+        }
+        if( urlLen>0 && zCand[urlStart]=='/' ){
+          blob_appendf(pOut, "%R%.*s", urlLen, zCand+urlStart);
+        }else if( urlLen>0 ){
+          blob_appendf(pOut, "%.*s", urlLen, zCand+urlStart);
+        }
+        if( urlStart+urlLen < len ){
+          blob_appendf(pOut, "%.*s", len-urlStart-urlLen, zCand+urlStart+urlLen);
+        }
+      }
+      if( zComma==0 ) break;
+      z = zComma + 1;
+    }
+    blob_append_char(pOut, '"');
+    return;
+  }
+  blob_appendf(pOut, "=\"%s\"", zVal);
+}
+
+/*
 ** Render markup on the given blob.
 */
 static void renderMarkup(Blob *pOut, ParsedMarkup *p){
@@ -999,12 +1046,7 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
     for(i=0; i<p->nAttr; i++){
       blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iACode].zName);
       if( p->aAttr[i].zValue ){
-        const char *zVal = p->aAttr[i].zValue;
-        if( p->aAttr[i].iACode==ATTR_SRC && zVal[0]=='/' ){
-          blob_appendf(pOut, "=\"%R%s\"", zVal);
-        }else{
-          blob_appendf(pOut, "=\"%s\"", zVal);
-        }
+        appendRewrittenAttrValue(pOut, p->aAttr[i].iACode, p->aAttr[i].zValue);
       }
     }
     if (p->iType & MUTYPE_SINGLE){
@@ -3107,15 +3149,21 @@ void safe_html(Blob *in){
 /*
 ** COMMAND: test-safe-html
 **
-** Usage: %fossil test-safe-html FILE ...
+** Usage: %fossil test-safe-html ?OPTIONS? FILE ...
 **
 ** Read files named on the command-line.  Send the text of each file
 ** through safe_html_append() and then write the result on
 ** standard output.
+**
+** Options:
+**    --top PATH     Use PATH as g.zTop when rewriting root-relative URLs
 */
 void test_safe_html_cmd(void){
   int i;
   Blob x;
+  const char *zTop = find_option("top",0,1);
+  verify_all_options();
+  if( zTop ) g.zTop = (char*)zTop;
   for(i=2; i<g.argc; i++){
     char *z;
     int n;

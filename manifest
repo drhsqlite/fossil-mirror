@@ -1,5 +1,5 @@
-C Bug\sfixes\son\sboundary\scases\sthe\sthe\sbyday\sand\sbyweek\sreports.
-D 2026-06-30T18:50:20.454
+C The\sstricter\sattribute\schecking\sapplied\sin\s[6436ecf911]\scause\sthe\simg\nsrcset\sattribute\sto\snot\sget\sthe\srepo-root\s(%R)\srewriting\sthat\ssrc\sgets.\nThis\sbreaks\sexisting\sdocs\sthat\sused\sthis\sfor\sresolution-dependent\simage\nrendering\sin\sMD\sand\ssuch.\s\sFor\stesting\sthe\sfix,\sthis\sadds\sthe\s--top\sflag\nto\sthe\stest-safe-html\scommand,\ssince\sa\sregular\s"fossil\sui"\sdoesn't\sshow\nthe\sproblem;\sit\seither\shas\sto\sbe\shosted\sunderneath\sa\sURL\sby\san\sRP\sserver\nor\svia\sthis\stest\soption\sto\ssee\sthe\seffect\sof\s%R\srewriting.
+D 2026-07-01T01:00:04.462
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -599,7 +599,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c cbd71205d9062cb5c30428841cf41d96d6afdd9e70cf1cd4abd8effe51f93ca9
 F src/wiki.c c2840735456e64a2a041e20020e6b5ab8163f645b4976a9b7d56fe18b1df9822
 F src/wiki.wiki bd6ca20a0df1054d68bbd7683acc6f24225652276f0ed53ce6fa564faed4dd60
-F src/wikiformat.c 41f058ace70603eb53a31f89d381b02f7f777e6198f097b0622adfa0dfcf42db
+F src/wikiformat.c 995b0b3b1b566671a267c0903d324f6237e1e613e98f4b68300226c2dfcfda97
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
 F src/xfer.c 2d2983a0ce3a6ec28db702cbd87ebd21bc670699259e44bb043b094b784e227a
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d530589c3fd7766a15d4f6bdd1e628eeee31515f9f106f74e9c78e50625b0e75
-R e7f2096f365e4e3236f86644ead46743
-U drh
-Z cc9f433b994b40d50ea31fb978bf692f
+P 407e6c63ae06eb2c230a2bbeda07add7f2f692802c9f4a494c8a40d9fe2fdf64
+R 324f4ca4f240c4bea8b519997b719d3e
+U wyoung
+Z 7f052dfb60c5f0a16afaf2cbbefae2e7
 # Remove this line to create a well-formed Fossil manifest.
