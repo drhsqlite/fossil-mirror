@@ -304,8 +304,8 @@ enum markup_t {
   MARKUP_U,
   MARKUP_UL,
   MARKUP_VAR,
-  MARKUP_WBR,
-  MARKUP_VERBATIM
+  MARKUP_VERBATIM,
+  MARKUP_WBR
 };
 
 /*
@@ -471,9 +471,9 @@ static const struct AllowedMarkup {
  { "ul",            MARKUP_UL,           MUTYPE_LIST,
                     AMSK_TYPE|AMSK_COMPACT|AMSK_STYLE  },
  { "var",           MARKUP_VAR,          MUTYPE_FONT,          AMSK_STYLE },
- { "wbr",           MARKUP_WBR,          MUTYPE_SINGLE,        0  },
  { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,
                     AMSK_ID|AMSK_TYPE },
+ { "wbr",           MARKUP_WBR,          MUTYPE_SINGLE,        0  },
 };
 
 void show_allowed_wiki_markup( void ){
