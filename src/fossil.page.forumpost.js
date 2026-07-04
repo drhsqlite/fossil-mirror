@@ -1204,11 +1204,25 @@
         );
         let releaseLock;
         if( window.navigator.locks ){
+          /* This business with forceReleaseLockOnClose and 'pagehide'
+             event is a workaround for Chrome being overly lazy in
+             releasing Web Locks when a tab is closed. It sometimes
+             waits half a minute or more before release.
+
+             Sidebar: we cannot use AbortController because it cannot
+             be used with the ifAvailable lock check. */
+          let forceReleaseLockOnClose = null;
+          const handlePageHide = ()=>{
+            if( forceReleaseLockOnClose ){
+              forceReleaseLockOnClose();
+            }
+          };
+          window.addEventListener('pagehide', handlePageHide);
           releaseLock = await new Promise((resolve)=>{
             window.navigator.locks.request(
               'fossil-'+draftKey,
               {ifAvailable: true},
-              async (lock) => {
+              async (lock)=>{
                 if( !lock ){
                   /*lock contention*/
                   resolve(null);
@@ -1216,11 +1230,17 @@
                 }
                 let release;
                 const lockReleased = new Promise(res=>release=res);
-                resolve(release);
+                forceReleaseLockOnClose = release;
+                const wrappedRelease = ()=>{
+                  window.removeEventListener('pagehide', handlePageHide);
+                  if( release ) release();
+                };
+                resolve(wrappedRelease);
                 await lockReleased/*hold the lock open*/;
               });
           });
           if( !releaseLock ){
+            window.removeEventListener('pagehide', handlePageHide);
             reportFPEError(
               ePost,
               "This post is actively being replied to ",
