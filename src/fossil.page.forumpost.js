@@ -173,7 +173,7 @@
           'Preview your edits.'
         );
         e.button.submit = D.attr(
-          D.button("Submit"),
+          D.button("Post as "+F.user.name),
           'title',
           'Save any edits to the server. Not permitted until Preview has been used.'
         );
@@ -435,7 +435,8 @@
         e.buttons.append(e.button.toggleHeader);
       }
 
-      {
+      if(0){
+        // Tentatively replaced with the user name in the Submit button
         const eLbl = D.label(false, "Posting as "+F.user.name)
         eLbl.classList.add('logged-in-as');
         e.buttons.append(eLbl);
