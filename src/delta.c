@@ -686,7 +686,7 @@ int delta_analyze(
     return -1;
   }
   zDelta++; lenDelta--;
-  while( *zDelta && lenDelta>0 ){
+  while( lenDelta>0 && *zDelta ){
     unsigned int cnt;
     cnt = getInt(&zDelta, &lenDelta);
     if( lenDelta<=0 ) break;
