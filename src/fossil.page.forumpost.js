@@ -253,6 +253,23 @@
           'placeholder',
           'Your message to other forum-goers...'
         );
+        if( opt.inReplyTo && !F.user.isIndividual ){
+          const w = D.addClass(D.div(), 'warning');
+          w.append(
+            "You are not ",
+            D.a(F.repoUrl(
+              'login'
+              /*, {
+                // Leads to a confusing 'you need more permissions
+                // to view /forumpost/.... warning
+                g: 'forumpost/'+(opt.inReplyTo || opt.edit?.uuid)
+                }*/
+            ), 'logged in'), ' so will be posting anonymously. ',
+            "If you log in then return here, your draft edit will ",
+            "still be here."
+          );
+          e.tabEdit.append(w);
+        }
         e.tabEdit.append(e.editor);
         e.tabEdit.dataset.tabLabel = (opt.edit || !opt.inReplyTo)
           ? 'Edit' : 'Reply';
