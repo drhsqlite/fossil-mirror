@@ -604,7 +604,7 @@ int delta_apply(
       case '@': {
         zDelta++; lenDelta--;
         ofst = getInt(&zDelta, &lenDelta);
-        if( lenDelta<=0 || zDelta[0]!=',' ){
+        if( lenDelta>0 && zDelta[0]!=',' ){
           /* ERROR: copy command not terminated by ',' */
           return -1;
         }
@@ -631,7 +631,7 @@ int delta_apply(
           return -1;
         }
         DEBUG1( printf("INSERT %d\n", cnt); )
-        if( (i64)cnt>(i64)lenDelta ){
+        if( cnt>lenDelta ){
           /* ERROR: insert count exceeds size of delta */
           return -1;
         }

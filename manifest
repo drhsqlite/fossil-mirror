@@ -1,5 +1,5 @@
-C In\sthe\sforum\seditor,\sremove\sthe\s'Posting\sas\sNAME'\slabel\sand\srelabel\sthe\ssubmit\sbutton\sto\sinclude\sthe\suser's\sname.\sSuggested\sin\s[forum:a6256fd7f867ec42|forum\spost\sa6256fd7].
-D 2026-07-04T11:21:42.730
+C Reduce\sdivergence\sin\sthe\sdelta\salgorithm.
+D 2026-07-06T16:13:34.032
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -417,7 +417,7 @@ F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c801
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 695c5e01bae5695c3868c07097dc4a887a3fa0523a336b99bc166c70ae5e9208
 F src/default.css d3c3794f2b0a55699e3825ce5e983aad777f79db0ede4a005a4efac77343ec1a
-F src/delta.c b041923208c633963052b246d17423107050da00ccb9af56834497b0caf102a3
+F src/delta.c 14708bc9955a9d74f6542aae48a5a88e4af3db300ac91c714b791d677d19156a
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7cb
 F src/descendants.c 4bb7fb447369984f041da4a5ec05c201383bde3a59d18c537293d520712a1b09
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 146cdcd9cb5bf8faf496ad8b439e1f9e090a2f038e9a5c8256b8ea69831540eb
-R 51f4814e7fdcb42218845cbed7fc6c07
-U stephan
-Z a89119b628000ec47b5de0e5657cfe1c
+P 09ec3734a5009496a05b92b47f9d970c01af28cc01a4eb3ee0e4e48f58dba0ff
+R b43e23c7b9fbf4d4db1e86e62902d0d9
+U drh
+Z 25ddb1facb48c9caf038a05fa25d66d3
 # Remove this line to create a well-formed Fossil manifest.
