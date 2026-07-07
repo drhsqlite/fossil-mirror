@@ -24,6 +24,8 @@
        to limit the size of file attachments to wiki pages, tech notes,
        tickets, and forum posts.
   <li> Addded several HTML5 tags deemed harmless to the MD/wiki allowlists.
+  <li> Fix various pages on deployments where a custom skin emits
+       its own <code>BODY</code> tag without the expected CSS classes.
 </ol>
 
 <h2 id='v2_28'>Changes for version 2.28 (2026-03-11)</h2><ol>
