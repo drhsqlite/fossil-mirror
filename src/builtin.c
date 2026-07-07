@@ -707,7 +707,6 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
       ** and JS-side filters will work. */
       char *pSlash = strchr(g.zPath,'/')/*hack taken from style.c*/;
       if( pSlash ) *pSlash = 0;
-      Th_Store("requested_page", escape_quotes(g.zPath));
       CX("document.body.classList.add(%!j, \"rpage-%j\","
          "\"cpage-%j\");\n",
          style_get_current_feature(), g.zPath, g.zPhase+1);

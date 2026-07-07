@@ -1,5 +1,5 @@
-C Simplify\sthe\sprevious\scheckin\sa\sbit\s-\swe\sdo\snot\sneed\sto\spersist\sthe\sCSS\sclass\slist\sin\sthe\swindow.fossil\sobject.
-D 2026-07-07T08:20:55.501
+C Remove\sa\sstray,\sbut\sharmless,\scopy/paste\sline\sfrom\sthe\sprevious\stwo\scheckins.
+D 2026-07-07T08:33:20.566
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -395,7 +395,7 @@ F src/bisect.c 59b6374581ce25ee6d0797a523e16903d42b77d4b233e5b2d35e8ab058ab9db8
 F src/blob.c a748ce7555e46ff3704b3db39f553a97ffcee8b71c483b2ed6c1f601c2225b2c
 F src/branch.c 9ac51ee492d81d79be857084c9207949c293c846d6d2204ca84d99fbeb8e401c
 F src/browse.c a0ff8e6a87321663e4ebb223373aa7c9d9b4007c2e930327f48c94f4d0753234
-F src/builtin.c a98ac3fcf0127026263fe2071455bbf689b52c57d5aecbee16c4060556442f3e
+F src/builtin.c 40dc9e0db62213c93ea522ad87e07c9d5b44944fd0ee859314f05ca85339f62d
 F src/bundle.c 7662a17b1e4492587af14cd0944424c86a2a1fc74828fb99d081073349c433b0
 F src/cache.c e7c49243b8b30cc82358f3a81e9c3652de500481c16f7691d6d6c4528ecc5300
 F src/capabilities.c 7b611448e775a4b7cf6600b188b4ffeb94f720e7cc437fe6f3b5efedc5ca3251
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c9525608f061213780a8267c5c053636bf86732530306bf36caf7cc57454cfe3
-R a0b1ac8cf19a3bf3f39cbc5438bcd289
+P 12bb89d436bd5220200075e410073791961212d87d26c9998f2e6207a2f41cc7
+R 4ded990a874547fdc0a717f0aa2823c0
 U stephan
-Z 1771348a924d3aaf183003143e6aa5ad
+Z 98b88ad04d0e8d1faa45fba4fbe7e0a0
 # Remove this line to create a well-formed Fossil manifest.
