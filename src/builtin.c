@@ -708,11 +708,10 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
       char *pSlash = strchr(g.zPath,'/')/*hack taken from style.c*/;
       if( pSlash ) *pSlash = 0;
       Th_Store("requested_page", escape_quotes(g.zPath));
-      CX("window.fossil.pageClasses = [%!j, \"rpage-%j\","
-         "\"cpage-%j\"];\n",
+      CX("document.body.classList.add(%!j, \"rpage-%j\","
+         "\"cpage-%j\");\n",
          style_get_current_feature(), g.zPath, g.zPhase+1);
       if( pSlash ) *pSlash = '/';
-      CX("document.body.classList.add(...window.fossil.pageClasses);\n");
     }
     CX("if(fossil.config.skin.isDark) "
        "document.body.classList.add('fossil-dark-style');\n");
