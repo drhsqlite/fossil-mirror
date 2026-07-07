@@ -700,6 +700,20 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     CX("enableDebug: %s,", JBOOL(g.perm.Debug || g.perm.Admin));
     CX("isIndividual: %s", JBOOL(login_is_individual()));
     CX("};\n"/*fossil.user*/);
+    { /* Workaround for cases like:
+      ** https://fossil-scm.org/forum/forumpost/31cc00b361496cb8
+      ** Summary: custom skins which emit their own BODY need to have
+      ** the BODY element's CSS classes set so that various CSS selectors
+      ** and JS-side filters will work. */
+      char *pSlash = strchr(g.zPath,'/')/*hack taken from style.c*/;
+      if( pSlash ) *pSlash = 0;
+      Th_Store("requested_page", escape_quotes(g.zPath));
+      CX("window.fossil.pageClasses = [%!j, \"rpage-%j\","
+         "\"cpage-%j\"];\n",
+         style_get_current_feature(), g.zPath, g.zPhase+1);
+      if( pSlash ) *pSlash = '/';
+      CX("document.body.classList.add(...window.fossil.pageClasses);\n");
+    }
     CX("if(fossil.config.skin.isDark) "
        "document.body.classList.add('fossil-dark-style');\n");
     /*

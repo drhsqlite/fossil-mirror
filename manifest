@@ -1,5 +1,5 @@
-C Reduce\sdivergence\sin\sthe\sdelta\salgorithm.
-D 2026-07-06T16:13:34.032
+C During\sfossil's\sJS\sbootstrapping,\sensure\sthat\sthe\sBODY\selement's\sCSS\sclasses\sare\sset\sto\sthose\swhich\sthe\sskin\ssystem\swould\soutput.\sThis\sresolves\s[forum:31cc00b361496cb8:forum\spost\s31cc00b361496cb8],\sin\swhich\sa\scustom\sskin\swhich\semits\sits\sown\sBODY\selement\sis\smissing\sthe\scpage-X\sand\srpage-X\sCSS\sclasses,\swhich\san\sincreasing\snumber\sof\sJS\sand\sCSS\sbits\suse\sfor\slimiting\stheir\sblast\sradius\sto\sa\sspecific\spage.
+D 2026-07-07T08:11:30.092
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -395,7 +395,7 @@ F src/bisect.c 59b6374581ce25ee6d0797a523e16903d42b77d4b233e5b2d35e8ab058ab9db8
 F src/blob.c a748ce7555e46ff3704b3db39f553a97ffcee8b71c483b2ed6c1f601c2225b2c
 F src/branch.c 9ac51ee492d81d79be857084c9207949c293c846d6d2204ca84d99fbeb8e401c
 F src/browse.c a0ff8e6a87321663e4ebb223373aa7c9d9b4007c2e930327f48c94f4d0753234
-F src/builtin.c 2125497b059522746d0a4980f91ae62207b6d5a2158143ba95963c94aebaaa3c
+F src/builtin.c 8dbd8b289ae2e7fe353ff10f4c74c42b9c2d90497f0193d853eccaa2c42540db
 F src/bundle.c 7662a17b1e4492587af14cd0944424c86a2a1fc74828fb99d081073349c433b0
 F src/cache.c e7c49243b8b30cc82358f3a81e9c3652de500481c16f7691d6d6c4528ecc5300
 F src/capabilities.c 7b611448e775a4b7cf6600b188b4ffeb94f720e7cc437fe6f3b5efedc5ca3251
@@ -566,7 +566,7 @@ F src/stash.c b3228b60ae92dcc8c686e8079516e13b6b874c7cadedeb026900667ddab56a8c
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
 F src/statrep.c b29e07e678d75e7de25ab044f7211dff8d066cce544a2996facab414e2923d29
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 3fc53f46044ad8af47b09db980a86b3bcc6a344d626e297ef6d1c040a15bc36f
+F src/style.c 64a723b482a7d2792b722fe1bf7051e9a2ceefcbc791c4b017c20f8c03f3a19c
 F src/style.chat.css c1a293678b2fdbe82e2d160df3366168938c5a075331168c01a54d064fd2b53d
 F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba50357efc2
 F src/style.forum.css c113bdf0dfdbc643321d14c795bcfb804ae3fe40b66c2153527b328a3a036dea
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09ec3734a5009496a05b92b47f9d970c01af28cc01a4eb3ee0e4e48f58dba0ff
-R b43e23c7b9fbf4d4db1e86e62902d0d9
-U drh
-Z 25ddb1facb48c9caf038a05fa25d66d3
+P 901894f520a066ac80189c36eb7c0e64da9d9e7374409178dec706007d758708
+R ad4972282ed07b06a0bc45a4ce71f9ba
+U stephan
+Z f719c9c5269f42c73939a5d01e99274f
 # Remove this line to create a well-formed Fossil manifest.
