@@ -707,8 +707,8 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
       ** and JS-side filters will work. */
       char *pSlash = strchr(g.zPath,'/')/*hack taken from style.c*/;
       if( pSlash ) *pSlash = 0;
-      CX("document.body.classList.add(%!j, \"rpage-%j\","
-         "\"cpage-%j\");\n",
+      CX("for(const x of [%!j, \"rpage-%j\",\"cpage-%j\"]) {"
+         "if(x) document.body.classList.add(x);};\n",
          style_get_current_feature(), g.zPath, g.zPhase+1);
       if( pSlash ) *pSlash = '/';
     }
