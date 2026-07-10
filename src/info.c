@@ -972,6 +972,17 @@ void ckout_page(void){
 }
 
 /*
+** SETTING: path-to-tag            width=40
+**
+** If the path-to-tag setting is defined and is not an empty string
+** then then /info page for checking HASH will display a link to
+** a timeline showing an abbreviated path from the HASH check-in to
+** the next checkin that has a tag which is the value of this setting.
+** 
+** A typical value for this setting is "release"
+*/
+
+/*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
 ** URL:  /ci/ARTIFACTID
@@ -1097,7 +1108,12 @@ void ci_page(void){
       @ | %z(href("%R/timeline?p=%!S&unhide",zUuid))ancestors</a>
     }
     if( !isLeaf ){
+      char *zPathTo = db_get("path-to-tag",0);
       @ | %z(href("%R/timeline?d=%!S&unhide",zUuid))descendants</a>
+      if( zPathTo!=0 && zPathTo[0]!=0 ){
+        @ | %z(href("%R/timeline?from=%!S&ft=%t&min",zUuid,zPathTo))\
+        @ path-to-%h(zPathTo)</a>
+      }
     }
     if( zParent && !isLeaf ){
       @ | %z(href("%R/timeline?dp=%!S&unhide",zUuid))both</a>

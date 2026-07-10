@@ -1,5 +1,5 @@
-C Fix\stypo\son\sthe\stitle\sof\sthe\schart\sfor\s/reports\swith\sview=byday.
-D 2026-07-10T16:49:01.164
+C Add\sthe\spath-to-tag\ssetting.
+D 2026-07-10T17:04:31.997
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -476,7 +476,7 @@ F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efc
 F src/http_ssl.c 21448e159871c441e761fa58152860a22d123d279e5e661df8f4a6fad88f7c03
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
 F src/import.c 1ee4f154daf3e687e8e8304777448b2bbd877adb279d6c9e7ff7952a02982b7f
-F src/info.c e791d4c9a78ed1a0620c2d435b965f759d2201445342c55c4b6e8eb77305ad42
+F src/info.c cd45403cee8f1442a9c5d0b4c9da240423cd26771a63848c5294fcaf83b55075
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 226c093fa877714454de330b45ce76e447fe85b99f17d0347b8a5207f3c92b42
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39efcebe0b280568a7226337167bec501f0f02f98d2550dd28928f319936ae35
-R e4de2bde3683498bb6ca19e2069e7515
+P 7e09e6604d8ee2ed3ebb0b0c812f0e8e0db691fee9ac606b3562a0b7ad191bf8
+R 4be9488ec6e5077d4daad73e27c50b0e
 U drh
-Z 790981406fb6024028bad4f72b52cbc6
+Z e6998cb2c013f1147eeaa636ba78f772
 # Remove this line to create a well-formed Fossil manifest.
