@@ -146,6 +146,7 @@ static struct {
   { "forbid-delta-manifests", CONFIGSET_PROJ },
   { "mv-rm-files",            CONFIGSET_PROJ },
   { "forum-statuses",         CONFIGSET_PROJ },
+  { "path-to-tag",            CONFIGSET_PROJ },
   { "ticket-table",           CONFIGSET_TKT  },
   { "ticket-common",          CONFIGSET_TKT  },
   { "ticket-change",          CONFIGSET_TKT  },

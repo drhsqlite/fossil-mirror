@@ -1,5 +1,5 @@
-C Add\sthe\s"Brief"\stoggle\sto\sthe\s/timeline\ssubmenu\swith\sdoing\sa\sfrom=,to=\squery.
-D 2026-07-10T17:45:29.547
+C Include\spath-to-tag\swith\sthe\sPROJ\sparameters.
+D 2026-07-10T20:21:42.881
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -410,7 +410,7 @@ F src/clone.c 1b14e1fe42556ec080492e77c94f50dbb047952f40ba41bd4ca1d0a154d13e15
 F src/color.c dbea75182cd46c3ed261229766a710df6414aafd8de8e3505621c9109904cad0
 F src/comformat.c 7c13708fbafa03a92d63baee15178f00175fd7add64f918f7e406badae628e69
 F src/config.h 0ed672f15c096edbea44b24657bd91e3acb8bcd5827c62df9f8635abe1da7c21
-F src/configure.c fe912332a4f649540a71f328c45150b11566df5240dc68913bf931c2985d2259
+F src/configure.c 1c2908547bfebd55d1ed690d18a2f0f73c5a026ee27b89f53082ba3259f68b77
 F src/content.c 3018fea9d9557cb6f1edc6be062f2db5dc76af211a357d5aa13c4a69e248f623
 F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P face9316a47dcc2316c36fd0eec0f9f79cae4658afc94f51c8f3852834772a06
-R 227f9a0bbcbeb8687233f59a20b807a1
+P 20af21bad811b379b80e2686fa9a338a7bc503317e11f6d88a67675740e0f863
+R 6205319e7d2c097573d7b3a8c4b7f857
 U drh
-Z 545120423cfa406b03af5dc33662a692
+Z 2242e76bf22c68fdfb59c321fe203a7e
 # Remove this line to create a well-formed Fossil manifest.
