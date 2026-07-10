@@ -890,7 +890,7 @@ static void stats_report_byday(const char *zUserName){
   );
   cgi_printf("<br>\n");
   @ <h1>Timeline events (%h(stats_report_label_for_type()))
-  @ for the calendar weeks of %h(zYear)
+  @ for the individual days of year %h(zYear)
   if( zUserName ){
     @  for user %h(zUserName)
   }
