@@ -1511,6 +1511,14 @@ static int timeline_is_datespan(const char *zDay){
 ** first check-in.  If there are no check-ins in the descendant
 ** or ancestor set of check-in iFrom that match the tag, then
 ** return 0.
+**
+** If looking fowards (if bForward is true) then the first link
+** is allowed to be a cherrypick, but subsequent links must be
+** either full merges or normal check-ins.  The idea is that we
+** are looking for the first use of the code in the iFrom check-in
+** that has the zEnd tag.  The first link is allowed to be a cherrypick
+** because the code in question crosses that link, but the code does
+** not cross any subsequent cherrypick.
 */
 static int timeline_endpoint(
   int iFrom,         /* Starting point */
@@ -1534,6 +1542,10 @@ static int timeline_endpoint(
         "WITH RECURSIVE dx(id,mtime) AS ("
         "  SELECT %d, event.mtime FROM event WHERE objid=%d"
         "  UNION"
+        "  SELECT cp.childid, event.mtime FROM cherrypick AS cp, event"
+        "   WHERE cp.parentid=%d AND NOT cp.isExclude"
+        "     AND event.objid=cp.childid"
+        "  UNION"
         "  SELECT plink.cid, plink.mtime"
         "    FROM dx, plink"
         "   WHERE plink.pid=dx.id"
@@ -1544,12 +1556,16 @@ static int timeline_endpoint(
         "SELECT id FROM dx, tagxref"
         " WHERE tagid=%d AND tagtype>0 AND rid=id"
         " ORDER BY dx.mtime LIMIT 1",
-        iFrom, iFrom, tagId, tagId
+        iFrom, iFrom, iFrom, tagId, tagId
       );
     }else{
       db_prepare(&q,
         "WITH RECURSIVE dx(id,mtime) AS ("
         "  SELECT %d, event.mtime FROM event WHERE objid=%d"
+        "  UNION"
+        "  SELECT cp.childid, event.mtime FROM cherrypick AS cp, event"
+        "   WHERE cp.parentid=%d AND NOT cp.isExclude"
+        "     AND event.objid=cp.childid"
         "  UNION"
         "  SELECT plink.cid, plink.mtime"
         "    FROM dx, plink"
@@ -1557,7 +1573,7 @@ static int timeline_endpoint(
         "     AND plink.mtime<=(SELECT mtime FROM event WHERE objid=%d)"
         "   ORDER BY plink.mtime)"
         "SELECT id FROM dx WHERE id=%d",
-        iFrom, iFrom, endId, endId
+        iFrom, iFrom, iFrom, endId, endId
       );
     }
   }else{
@@ -2223,7 +2239,7 @@ void page_timeline(void){
       if( from_to_mode==0 ){
         p = path_shortest(from_rid, to_rid, 0, 0, 0, cost);
       }else if( from_to_mode==1 ){
-        p = path_shortest(from_rid, to_rid, 0, 1, 0, cost);
+        p = path_shortest(from_rid, to_rid, 0, 2, 0, cost);
         earlierRid = commonAncs = from_rid;
         laterRid = to_rid;
       }else{
