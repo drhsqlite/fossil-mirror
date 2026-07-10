@@ -1870,7 +1870,7 @@ void page_timeline(void){
   int from_to_mode = 0;               /* 0: from,to. 1: from,ft 2: from,bt */
   int showSql = PB("showsql");        /* True to show the SQL */
   Blob allSql;                        /* Copy of all SQL text */
-  int bMin = P("min")!=0;             /* True if "min" query parameter used */
+  int bMin = PB("min");               /* True if "min" query parameter used */
 
   login_check_credentials();
   url_initialize(&url, "timeline");
@@ -2290,6 +2290,7 @@ void page_timeline(void){
           blob_append_sql(&ins, ",(%d)", p->rid);
         }
       }
+      style_submenu_checkbox("min","Brief",0,0);
     }
     path_reset();
     db_multi_exec("%s", blob_str(&ins)/*safe-for-%s*/);
