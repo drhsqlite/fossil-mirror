@@ -1,5 +1,5 @@
-C Include\spath-to-tag\swith\sthe\sPROJ\sparameters.
-D 2026-07-10T20:21:42.881
+C Typo\sfix\sreported\sin\s[forum:6335ff55f2].
+D 2026-07-11T06:03:30.369
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -980,11 +980,11 @@ F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c
 F www/webui.wiki b0a9e1731acf1934ac8f69534d03cd7c2814e364d762193e699855d969539168
 F www/whyallinone.md 47587c0dd6b2547bfa97da64a53acacd641ac8e924f0bd7f4c46566683821485
 F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c72726cf6
-F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
+F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20af21bad811b379b80e2686fa9a338a7bc503317e11f6d88a67675740e0f863
-R 6205319e7d2c097573d7b3a8c4b7f857
-U drh
-Z 2242e76bf22c68fdfb59c321fe203a7e
+P 8cfe7b22222cde7243887a0f4e521f313b5be749c6bc89f7b530357b0b25f449
+R ce05cd84acfa90f548501aed3c6a4510
+U stephan
+Z 19c01ec9471afe98e0f3a667811a00a0
 # Remove this line to create a well-formed Fossil manifest.
