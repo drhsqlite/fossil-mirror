@@ -1610,6 +1610,7 @@ void forumthread_page(void){
   }
   if( zName==0 ){
     webpage_error("Missing \"name=\" query parameter");
+    return;
   }
   cgi_check_for_malice();
   fpid = symbolic_name_to_rid(zName, "f");
@@ -1624,6 +1625,7 @@ void forumthread_page(void){
   froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
   if( froot==0 ){
     webpage_notfound_error("Not a forum post: \"%s\"", zName);
+    return;
   }
 
   /* Decode the mode parameters. */
