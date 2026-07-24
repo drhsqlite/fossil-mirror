@@ -1,5 +1,5 @@
-C In\sthe\s/forumthread\spage,\sstop\strying\sto\srender\simmediately\supon\sencountering\nan\serror.
-D 2026-07-13T10:41:00.665
+C Fix\sstash\spop/apply\struncating\sbinary\sfiles\son\sconflict;\sleave\sfile\suntouched\nand\spoint\suser\sto\smerge\sside-files.
+D 2026-07-24T02:49:05.207
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -562,7 +562,7 @@ F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616e
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 85964c5e5e9b782fd6aa05da8f6959c7b2e4b4d7192abb5cfb9bd64c190e8533
-F src/stash.c b3228b60ae92dcc8c686e8079516e13b6b874c7cadedeb026900667ddab56a8c
+F src/stash.c 65ac6a35ddc1bc8f67ac113a453f026b64dbf4e0e9a3436d6dc6149466643b3d
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
 F src/statrep.c 73c0555a69b0fdb92a2354346f5607b8c7393584bc7e91a4905830da9ff193eb
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af8d09b267c916081cca77affad44dce0c69380b8f210c2d50b200286932645b
-R 57c7ff42e808a4c1828233d0e3f3eb1d
-U drh
-Z a5fe8d53916adf020d659b7df4e22769
+P 61998ec8aa4f567cbb21f9ad3eeac11e8320184c1d3c822c5a4f3d82dcdaa3cd
+R d9063292214e4e1a9218c41b026a929f
+U mgagnon
+Z fb7bcadd96537f42b5d62759bdd3d01a
 # Remove this line to create a well-formed Fossil manifest.
