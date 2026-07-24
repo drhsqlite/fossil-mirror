@@ -1,5 +1,5 @@
-C When\sapproving,\srejecting,\sor\schanging\sthe\sstatus\sof\sa\sforum\spost\susing\sthe\snew\scontrols,\sdisable\sthe\sassociated\sbutton\swhen\sits\sunderlying\sform\sis\ssubmitted\sso\sthat\sthe\suser\sis\snot\stempted\sto\stap\sthose\sagain.\sSuccessful\sposting\sredirects\sthe\spage\sand\sa\sfailure\swill\sunblock\sthe\sbutton\safter\sa\sbrief\swait.
-D 2026-07-24T10:45:11.794
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion,\sfor\sbeta\stesting.
+D 2026-07-24T22:13:46.094
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -277,10 +277,10 @@ F extsrc/pikchr-worker.js 3eb34cda523e2cc003a6cd9faa9b1daf0552c9245c0d544435bf09
 F extsrc/pikchr.c 080044411bbd03956d8e488e56fe2ea135c06e96b3bc7fe148740f2e7cbe70ba
 F extsrc/pikchr.js e4808790ff38ede2acad784cfab62acd25caf41d23ace454c0190b637934f031
 F extsrc/pikchr.wasm 023299eec760d3c7addba21b415dfb07ca2172afcb46be4b13e95f4e0fcbbfcf
-F extsrc/qrf.h fcbc33578176b2fd9dda8310d8f6ba4eaf4f75052f466dfe682802e6664df8bd
-F extsrc/shell.c 79a4565c920374745b00c124d697f2247291f7925fab8e0c65fcaf3d579d50d6
-F extsrc/sqlite3.c a4974a36bb2c9a59086fc928214fbd7146edfd473490b112e499c89555831405
-F extsrc/sqlite3.h eff9186f58bcf956dcbedf5879f3caa0e5927b704c3b4a4cf6ea6da03a299150
+F extsrc/qrf.h 457ab1299039fca5d591246be924eb328397df0d4be35d3a193d78e9c7874b4a
+F extsrc/shell.c 3df74005073015ee304d3cfc98c8500b872cb80f140efc3bdf4433b016824679
+F extsrc/sqlite3.c 40c7097ceddf2dcaa5e7100ee4417e9a9110c9a7efe0bee1b96c26ed6f3d4831
+F extsrc/sqlite3.h 9c0dc3327cf7cb813d12821495fb002e70c84d02df1e084db875b49923dbcf2c
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 071cf8cb58fd53c053a66b232287580e3e3339aea11c71da017864c30ef5c22c
-R c5e39fd33147afc7150e54756ccdeda3
-U stephan
-Z 79df594e4f91df078cf018a636f1ab94
+P e0c33b0519d6000d1b49386ad3b60e1fc28de69805e1da3e50784aef61417724
+R 480ff110710b8d2946fed4dfd27cc523
+U drh
+Z e30e0554dd1f62671a4477d4592788e9
 # Remove this line to create a well-formed Fossil manifest.

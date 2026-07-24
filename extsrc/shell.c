@@ -208,6 +208,7 @@ typedef unsigned char u8;
 # define shell_write_history(X) write_history(X)
 # define shell_stifle_history(X) stifle_history(X)
 # define shell_readline(X) readline(X)
+# define SHELL_CMDLINE_EDIT_AVAILABLE 1  /* command-line editing available */
 
 #elif HAVE_LINENOISE
 
@@ -217,15 +218,24 @@ typedef unsigned char u8;
 # define shell_write_history(X) linenoiseHistorySave(X)
 # define shell_stifle_history(X) linenoiseHistorySetMaxLen(X)
 # define shell_readline(X) linenoise(X)
+# define SHELL_CMDLINE_EDIT_AVAILABLE 1  /* command-line editing available */
 
 #else
 
 # define shell_read_history(X)
 # define shell_write_history(X)
 # define shell_stifle_history(X)
-
-# define SHELL_USE_LOCAL_GETLINE 1
+# define SHELL_CMDLINE_EDIT_AVAILABLE 0  /* command-line editing not available */
 #endif
+
+/*
+** Global variable shellCmdLineEdit determines whether or not command-line
+** editing is enabled.  It defaults to 1 if the CLI is linked against a
+** command-line editing library (linenoise, readline, or editline) and
+** to 0 if no command-line editing library is available.  The
+** "--cmdline-edit off" command-line option will change this value to 0.
+*/
+static int shellCmdLineEdit = SHELL_CMDLINE_EDIT_AVAILABLE;
 
 #ifndef deliberate_fall_through
 /* Quiet some compilers about some of our intentional code. */
@@ -766,7 +776,7 @@ int sqlite3_format_query_result(
 #define QRF_STYLE_Csv       4 /* Comma-separated-value */
 #define QRF_STYLE_Eqp       5 /* Format EXPLAIN QUERY PLAN output */
 #define QRF_STYLE_Explain   6 /* EXPLAIN output */
-#define QRF_STYLE_Html      7 /* Generate an XHTML table */
+#define QRF_STYLE_Html      7 /* Generate HTML-style <tr><td> output */
 #define QRF_STYLE_Insert    8 /* Generate SQL "insert" statements */
 #define QRF_STYLE_Json      9 /* Output is a list of JSON objects */
 #define QRF_STYLE_JObject  10 /* Independent JSON objects for each row */
@@ -3493,13 +3503,13 @@ static void qrfSimpleTitle(Qrf *p){
   switch( p->spec.eStyle ){
     case QRF_STYLE_Html: {
       int i;
-      sqlite3_str_append(p->pOut, "<TR>", 4);
+      sqlite3_str_append(p->pOut, "<tr>", 4);
       for(i=0; i<p->nCol; i++){
         const char *zCName = sqlite3_column_name(p->pStmt, i);
-        sqlite3_str_append(p->pOut, "\n<TH>", 5);
+        sqlite3_str_append(p->pOut, "\n<th>", 5);
         qrfEncodeText(p, p->pOut, zCName);
       }
-      sqlite3_str_append(p->pOut, "\n</TR>\n", 7);
+      sqlite3_str_append(p->pOut, "\n</tr>\n", 7);
       break;
     }
     case QRF_STYLE_Quote:
@@ -3555,12 +3565,12 @@ static void qrfOneSimpleRow(Qrf *p){
       if( p->nRow==0 && p->spec.bTitles>=QRF_Yes ){
         qrfSimpleTitle(p);
       }
-      sqlite3_str_append(p->pOut, "<TR>", 4);
+      sqlite3_str_append(p->pOut, "<tr>", 4);
       for(i=0; i<p->nCol; i++){
-        sqlite3_str_append(p->pOut, "\n<TD>", 5);
+        sqlite3_str_append(p->pOut, "\n<td>", 5);
         qrfRenderValue(p, p->pOut, i);
       }
-      sqlite3_str_append(p->pOut, "\n</TR>\n", 7);
+      sqlite3_str_append(p->pOut, "\n</tr>\n", 7);
       qrfWrite(p);
       break;
     }
@@ -24841,6 +24851,16 @@ int sqlite3_recover_finish(sqlite3_recover *p){
 # include SHELL_STRINGIFY(SQLITE_SHELL_EXTSRC)
 #endif
 
+/*
+** Set the SQLITE_SHELL_EDITION to a YYYYMMDD date string and the
+** code will attempt to use defaults for the prompt and for the
+** initial output mode (and maybe other feature) that were for
+** the most recent version not newer than the specified date.
+*/
+#ifndef SQLITE_SHELL_EDITION
+# define SQLITE_SHELL_EDITION 99991231  /* Use the latest if unspecified */
+#endif
+
 #if defined(SQLITE_ENABLE_SESSION)
 /*
 ** State information for a single open session
@@ -25422,7 +25442,7 @@ static char *local_getline(char *zLine, FILE *in){
   int nLine = zLine==0 ? 0 : 100;
   int n = 0;
 
-  while( 1 ){
+  while( seenInterrupt<2 ){
     if( n+100>nLine ){
       if( nLine>=1073741773 ){
         free(zLine);
@@ -25486,7 +25506,9 @@ static const char *shellPromptAppDef(int c){
   switch( c ){
     /* The default main prompt string */
     case 1:
-#if   defined(SQLITE_PS1)
+#if   SQLITE_SHELL_EDITION<20260423
+      return "sqlite> ";  /* Legacy prompt for backwards compatibility */
+#elif defined(SQLITE_PS1)
       return SQLITE_PS1;
 #else
       if( shellNoColor() ){
@@ -25498,7 +25520,9 @@ static const char *shellPromptAppDef(int c){
 
     /* The default continuation prompt string */
     case 2:
-#if   defined(SQLITE_PS2)
+#if   SQLITE_SHELL_EDITION<20260423
+      return "   ...> ";  /* Legacy continuation prompt */
+#elif defined(SQLITE_PS2)
       return SQLITE_PS2;
 #else
       if( shellNoColor() ){
@@ -25971,26 +25995,29 @@ static char *one_input_line(
     const char *zBase = prompt_string(p, bContinue!=0);
     char *zPrompt = expand_prompt(p, zAll, zBase);
     shell_check_oom(zPrompt);
-#if SHELL_USE_LOCAL_GETLINE
-    sputz(stdout, zPrompt);
-    fflush(stdout);
-    do{
-      zResult = local_getline(zPrior, stdin);
-      zPrior = 0;
-      /* ^C trap creates a false EOF, so let "interrupt" thread catch up. */
-      if( zResult==0 ) sqlite3_sleep(50);
-    }while( zResult==0 && seenInterrupt>0 );
-#else
-    free(zPrior);
-    zResult = shell_readline(zPrompt);
-    while( zResult==0 ){
-      /* ^C trap creates a false EOF, so let "interrupt" thread catch up. */
-      sqlite3_sleep(50);
-      if( seenInterrupt==0 ) break;
-      zResult = shell_readline("");
-    }
-    if( zResult && *zResult ) shell_add_history(zResult);
+#if SHELL_CMDLINE_EDIT_AVAILABLE
+    if( shellCmdLineEdit ){
+      free(zPrior);
+      zResult = shell_readline(zPrompt);
+      while( zResult==0 ){
+        /* ^C trap creates a false EOF, so let "interrupt" thread catch up. */
+        sqlite3_sleep(50);
+        if( seenInterrupt==0 ) break;
+        zResult = shell_readline("");
+      }
+      if( zResult && *zResult ) shell_add_history(zResult);
+    }else
 #endif
+    {
+      sputz(stdout, zPrompt);
+      fflush(stdout);
+      do{
+        zResult = local_getline(zPrior, stdin);
+        zPrior = 0;
+        /* ^C trap creates a false EOF, so let "interrupt" thread catch up. */
+        if( zResult==0 ) sqlite3_sleep(50);
+      }while( zResult==0 && seenInterrupt>0 );
+    }
     sqlite3_free(zPrompt);
   }
   return zResult;
@@ -26728,7 +26755,9 @@ static void modeChange(ShellState *p, unsigned char eMode){
 static void modeDefault(ShellState *p){
   p->mode.spec.iVersion = 2;
   p->mode.autoExplain = 1;
-  if( stdin_is_interactive || stdout_is_console ){
+  if( (stdin_is_interactive || stdout_is_console)
+   && SQLITE_SHELL_EDITION>=20260409
+  ){
     modeChange(p, MODE_TTY);
   }else{
     modeChange(p, MODE_BATCH);
@@ -35521,6 +35550,7 @@ static int do_meta_command(const char *zLine, ShellState *p){
       { "variable_number",       SQLITE_LIMIT_VARIABLE_NUMBER           },
       { "trigger_depth",         SQLITE_LIMIT_TRIGGER_DEPTH             },
       { "worker_threads",        SQLITE_LIMIT_WORKER_THREADS            },
+      { "schema",                SQLITE_LIMIT_SCHEMA                    },
     };
     int i, n2;
     open_db(p, 0);
@@ -38215,6 +38245,7 @@ static const char zOptions[] =
   "   -batch               force batch I/O\n"
   "   -box                 set '.mode box'\n"
   "   -cmd COMMAND         run \"COMMAND\" before reading stdin\n"
+  "   -cmdline-edit BOOL   enable or disable command-line editing\n"
   "   -column              set '.mode column'\n"
   "   -csv                 set '.mode csv -limits off'\n"
 #if !defined(SQLITE_OMIT_DESERIALIZE)
@@ -38485,6 +38516,9 @@ int SQLITE_CDECL main(int argc, char **argv){
 #else
   stdin_is_interactive = isatty(0);
   stdout_is_console = isatty(1);
+  if( !stdin_is_interactive || !stdout_is_console ){
+    shellCmdLineEdit = 0;
+  }
 #endif
   atexit(abnormalExit);
 #ifdef SQLITE_DEBUG
@@ -38732,6 +38766,8 @@ int SQLITE_CDECL main(int argc, char **argv){
     }else if( cli_strcmp(z,"-escape")==0 && i+1<argc ){
       /* skip over the argument */
       i++;
+    }else if( cli_strcmp(z,"-cmdline-edit")==0 ){
+      shellCmdLineEdit = booleanValue(cmdline_option_value(argc,argv,++i));
     }else if( cli_strcmp(z,"-test-argv")==0 ){
       /* Undocumented test option.  Print the values in argv[] and exit.
       ** Use this to verify that any translation of the argv[], for example
@@ -38994,6 +39030,8 @@ int SQLITE_CDECL main(int argc, char **argv){
     }else if( cli_strcmp(z,"-multiplex")==0 ){
       i++;
 #endif
+    }else if( cli_strcmp(z,"-cmdline-edit")==0 ){
+      i+=2;
     }else if( cli_strcmp(z,"-help")==0 ){
       usage(1);
     }else if( cli_strcmp(z,"-cmd")==0 ){
@@ -39023,8 +39061,10 @@ int SQLITE_CDECL main(int argc, char **argv){
       }
       open_db(&data, OPEN_DB_ZIPFILE);
       if( z[2] ){
+        char *zSaved = argv[i];
         argv[i] = &z[2];
         arDotCommand(&data, 1, argv+(i-1), argc-(i-1));
+        argv[i] = zSaved;
       }else{
         arDotCommand(&data, 1, argv+i, argc-i);
       }
