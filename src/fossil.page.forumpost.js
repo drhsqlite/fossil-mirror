@@ -992,6 +992,29 @@
         return;
       };
 
+      /**
+         The problem: "Approve", "Reject" and their ilk stays active
+         while their form post is in flight, just begging to be
+         clicked again. We don't really have a way to know when the
+         submit finishes, so we'll (A) disable them before submit and
+         (B) reenable them after some long timeout in case the request
+         fails. On a successful submit we're redirected, making this
+         all moot.
+      */
+      const deactivateButtonInFlight = (elem, form)=>{
+        if( elem.disabled ) return /* potential double-click protection */;
+        elem.disabled = true;
+        setTimeout(
+          /* This is a stupid workaround for a failed request but none
+             better come to mind except replacing the form.submit()
+             with a fetch() POST, such that we can do this at
+             precisely the right time. That change would not be
+             difficult (we do this in /chat, /wikiedit, etc.) but
+             that exceeds this morning's ambitions. */
+          ()=>elem.disabled = false, 10000
+        );
+        form.submit();
+      };
       document.querySelectorAll("form").forEach(function(form){
         /* Set up controls for closing posts and setting thread
            status. */
@@ -1004,7 +1027,7 @@
               confirmText: (e.classList.contains('action-reopen')
                             ? "Confirm re-open"
                             : "Confirm close"),
-              onconfirm: ()=>form.submit()
+              onconfirm: ()=>deactivateButtonInFlight(e, form)
             });
           });
         form
@@ -1027,7 +1050,7 @@
                     'value', 'ignored'
                   )
                 );
-                form.submit();
+                deactivateButtonInFlight(e, form);
               }
             });
             /* We should also arguably disable the approve/reject
@@ -1058,7 +1081,7 @@
             updateButton();
             F.confirmer(btn, {
               confirmText: "Confirm status change",
-              onconfirm: ()=>form.submit()
+              onconfirm: ()=>deactivateButtonInFlight(btn, form)
             });
           });
       });
