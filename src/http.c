@@ -613,7 +613,8 @@ int http_exchange(
       /* RFC 7230: "chunked" must be the final transfer-coding so only
       ** match when it appears at the end of the line. */
       if( sqlite3_strlike("%chunked", &zLine[18], 0)==0 ){
-        isChunked = 1;
+        size_t nx = strlen(&zLine[18]);
+        if( !fossil_isalnum(zLine[nx+11]) ) isChunked = 1;
       }
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
       if( sqlite3_strlike("%close%", &zLine[11], 0)==0 ){
@@ -752,11 +753,11 @@ int http_exchange(
     ** bare CRLF.  A zero-length chunk terminates the body, after which any
     ** trailer header lines are read and discarded up to the blank line. */
     char *zChunk;
-    int sawTerminator = 0;    /* True once the 0-length chunk is seen */
+    int sawTerminator = 0;  /* True once the 0-length chunk is seen */
     while( (zChunk = transport_receive_line(&g.url))!=0 && zChunk[0]!=0 ){
-      sqlite3_int64 nChunk;   /* Size of this chunk in bytes (wide, unclamped) */
-      unsigned int nPrior;    /* Bytes already in pReply (matches blob nUsed) */
-      char *zEnd = 0;         /* End of the hex digits actually parsed */
+      i64 nChunk;           /* Size of this chunk in bytes (wide, unclamped) */
+      i64 nPrior;           /* Bytes already in pReply (matches blob nUsed) */
+      char *zEnd = 0;       /* End of the hex digits actually parsed */
       while( fossil_isspace(zChunk[0]) ) zChunk++;
       nChunk = strtoll(zChunk, &zEnd, 16);
       if( zEnd==zChunk ){
@@ -781,19 +782,21 @@ int http_exchange(
       /* Reserve space without advancing nUsed, so that on error
       ** the blob's reported size equals the bytes actually
       ** received rather the claimed chunk length */
-      blob_reserve(pReply, nPrior+(unsigned int)nChunk);
+      blob_reserve(pReply, (u64)(nPrior+nChunk));
       {
         unsigned int nRemaining = (unsigned int)nChunk;
-        /* transport_receive() may return short; loop until the chunk is full. */
+        /* transport_receive() may return short; loop until the chunk is
+        ** full. */
         while( nRemaining>0 ){
-          int nGot = transport_receive(&g.url, &pReply->aData[nPrior], nRemaining);
+          int nGot;
+          nGot = transport_receive(&g.url, &pReply->aData[nPrior], nRemaining);
           if( nGot<=0 ){
             fossil_warning("chunked reply truncated");
             goto write_err;
           }
-          nPrior += (unsigned int)nGot;
-          nRemaining -= (unsigned int)nGot;
-          pReply->nUsed = nPrior;
+          nPrior += nGot;
+          nRemaining -= nGot;
+          pReply->nUsed = (unsigned int)nPrior;
         }
       }
       transport_receive_line(&g.url); /* CRLF that follows the chunk data */

@@ -1,5 +1,5 @@
-C Merge\simproved\sBlob\soverflow\sdefensive\scode\sfrom\strunk.
-D 2026-07-25T10:45:35.037
+C Fix\san\sinteger\soverflow\svulnerability.\s\sShorten\sall\ssource\scode\slines\nto\sbe\sno\smore\sthan\s80\scharacters.\s\sDo\snot\sselect\sthe\s"chunked"\ntransfer\sencoding,\sif\sthe\slast\stoken\sof\sthe\stransfer-encoding\sis\ssome\nkeyword\sthat\shas\s"chunked"\sas\sa\ssuffix,\sex:\s"superchunked".
+D 2026-07-25T11:04:56.879
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -471,7 +471,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c a40c637ebad60edc30b99d7307c4f95a55753be20862267787cdf6cd9146f53c
 F src/hook.c 622578a5156b42001f583e8446e6418f6419b8a27670c2d5530b91975ff1b35a
 F src/href.js 97641963c7127a0c000c5a90ad2e2b3b2d216614b6f552737b552aa68feb0f21
-F src/http.c ddfd550691dbb7304634314ce99cf81426d54c8af36accc2c3542117c76b7f47
+F src/http.c 00e0855a943be14d75d542f455bd0da16a08f0a0fe4de3790b94de1e7c4488a1
 F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efce2f6
 F src/http_ssl.c 21448e159871c441e761fa58152860a22d123d279e5e661df8f4a6fad88f7c03
 F src/http_transport.c 6993891f2f390152939fa9d4e3598d651182b2d9f9429927ab2cdfcfb9a04572
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a5f61586b7493c3d5298a4a16edf269c2fa09967f483d58b7e924b2c15e0fba4 052390edaf04a5f587def306f13a7cbfc7c2cf57c76b83824fd5cf0c617eb7f5
-R a0bcd9e91f943653837d9b4160f13512
+P 109a5e1a0432c0d1de703e4709ee4a507427af6da72c974d86ddf73aa8669cdb
+R 241f562d319815580d829feb9cea895f
 U drh
-Z 81b5d8eaed2e9017154cb604058ea0b9
+Z 7786b47f07ca3c324cd4ce557f695efe
 # Remove this line to create a well-formed Fossil manifest.
