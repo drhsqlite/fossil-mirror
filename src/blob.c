@@ -37,7 +37,7 @@ struct Blob {
   unsigned int iCursor;          /* Next character of input to parse */
   unsigned int blobFlags;        /* One or more BLOBFLAG_* bits */
   char *aData;                   /* Where the information is stored */
-  void (*xRealloc)(Blob*, unsigned int); /* Function to reallocate the buffer */
+  void (*xRealloc)(Blob*,u64);   /* Function to reallocate the buffer */
 };
 
 /*
@@ -192,7 +192,7 @@ static void blob_panic(void){
 ** If n >= MAX_BLOB_SIZE, calls blob_panic(),
 ** else this is a no-op.
 */
-static void blob_assert_safe_size(i64 n){
+static void blob_assert_safe_size(u64 n){
   if( n>=(i64)MAX_BLOB_SIZE ){
     blob_panic();
   }
@@ -207,7 +207,7 @@ static void blob_assert_safe_size(i64 n){
 ** If an OOM error occurs, an error message is printed on stderr
 ** and the program exits.
 */
-void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
+void blobReallocMalloc(Blob *pBlob, u64 newSize){
   if( newSize==0 ){
     free(pBlob->aData);
     pBlob->aData = 0;
@@ -217,10 +217,10 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
     pBlob->blobFlags = 0;
   }else if( newSize>pBlob->nAlloc || newSize+4000<pBlob->nAlloc ){
     char *pNew;
-    blob_assert_safe_size((i64)newSize);
+    blob_assert_safe_size(newSize);
     pNew = fossil_realloc(pBlob->aData, newSize);
     pBlob->aData = pNew;
-    pBlob->nAlloc = newSize;
+    pBlob->nAlloc = (unsigned int)newSize;
     if( pBlob->nUsed>pBlob->nAlloc ){
       pBlob->nUsed = pBlob->nAlloc;
     }
@@ -239,18 +239,18 @@ const Blob empty_blob = BLOB_INITIALIZER;
 ** A reallocation function for when the initial string is in unmanaged
 ** space.  Copy the string to memory obtained from malloc().
 */
-static void blobReallocStatic(Blob *pBlob, unsigned int newSize){
+static void blobReallocStatic(Blob *pBlob, u64 newSize){
   if( newSize==0 ){
     *pBlob = empty_blob;
   }else{
     char *pNew;
-    blob_assert_safe_size((i64)newSize);
+    blob_assert_safe_size(newSize);
     pNew = fossil_malloc( newSize );
     if( pBlob->nUsed>newSize ) pBlob->nUsed = newSize;
     memcpy(pNew, pBlob->aData, pBlob->nUsed);
     pBlob->aData = pNew;
     pBlob->xRealloc = blobReallocMalloc;
-    pBlob->nAlloc = newSize;
+    pBlob->nAlloc = (unsigned int)newSize;
   }
 }
 
@@ -337,7 +337,7 @@ void blob_zero(Blob *pBlob){
 ** necessary.
 */
 static void blob_append_full(Blob *pBlob, const char *aData, int nData){
-  sqlite3_int64 nNew;
+  u64 nNew;
   /* assert( aData!=0 || nData==0 ); // omitted for speed */
   /* blob_is_init(pBlob); // omitted for speed */
   if( nData<0 ) nData = strlen(aData);
@@ -366,7 +366,7 @@ static void blob_append_full(Blob *pBlob, const char *aData, int nData){
   pBlob->aData[pBlob->nUsed] = 0;   /* Blobs are always nul-terminated */
 }
 void blob_append(Blob *pBlob, const char *aData, int nData){
-  sqlite3_int64 nUsed;
+  u64 nUsed;
   /* assert( aData!=0 || nData==0 ); // omitted for speed */
   if( nData<=0 || pBlob==0 || pBlob->nUsed + nData >= pBlob->nAlloc ){
     blob_append_full(pBlob, aData, nData);
@@ -416,8 +416,8 @@ void blob_append_xfer(Blob *pTo, Blob *pFrom){
 ** and JSON.  Double-quotes are added to both ends.  Double-quote and
 ** backslash characters are escaped.
 */
-void blob_append_tcl_literal(Blob *pOut, const char *z, int n){
-  int i;
+void blob_append_tcl_literal(Blob *pOut, const char *z, size_t n){
+  size_t i;
   blob_append_char(pOut, '"');
   for(i=0; i<n; i++){
     char c = z[i];
@@ -435,8 +435,8 @@ void blob_append_tcl_literal(Blob *pOut, const char *z, int n){
   }
   blob_append_char(pOut, '"');
 }
-void blob_append_json_literal(Blob *pOut, const char *z, int n){
-  int i;
+void blob_append_json_literal(Blob *pOut, const char *z, size_t n){
+  size_t i;
   blob_append_char(pOut, '"');
   for(i=0; i<n; i++){
     char c = z[i];
@@ -617,7 +617,7 @@ int blob_eq_str(Blob *pBlob, const char *z, int n){
 ** Attempt to resize a blob so that its internal buffer is
 ** nByte in size.  The blob is truncated if necessary.
 */
-void blob_resize(Blob *pBlob, unsigned int newSize){
+void blob_resize(Blob *pBlob, u64 newSize){
   pBlob->xRealloc(pBlob, newSize+1);
   pBlob->nUsed = newSize;
   pBlob->aData[newSize] = 0;
@@ -638,8 +638,8 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 ** which implies that this is unconditionally failing on mingw 32-bit
 ** builds.
 */
-void blob_reserve(Blob *pBlob, unsigned int newSize){
-  blob_assert_safe_size( (i64)newSize );
+void blob_reserve(Blob *pBlob, u64 newSize){
+  blob_assert_safe_size( newSize );
   if(newSize>pBlob->nAlloc){
     pBlob->xRealloc(pBlob, newSize+1);
     pBlob->aData[newSize] = 0;
@@ -654,7 +654,6 @@ char *blob_materialize(Blob *pBlob){
   blob_resize(pBlob, pBlob->nUsed);
   return pBlob->aData;
 }
-
 
 /*
 ** Call dehttpize on a blob.  This causes an ephemeral blob to be

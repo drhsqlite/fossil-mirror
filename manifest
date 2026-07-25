@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion,\sfor\sbeta\stesting.
-D 2026-07-24T22:13:46.094
+C Harden\sthe\sBlob\sobject\sagainst\sinteger\soverflow\sattacks.
+D 2026-07-25T10:04:53.725
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -392,7 +392,7 @@ F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 59b6374581ce25ee6d0797a523e16903d42b77d4b233e5b2d35e8ab058ab9db8
-F src/blob.c a748ce7555e46ff3704b3db39f553a97ffcee8b71c483b2ed6c1f601c2225b2c
+F src/blob.c 0ce55401be25056ee172fc37abd500a093d0d24d990114253edd153921263950
 F src/branch.c 9ac51ee492d81d79be857084c9207949c293c846d6d2204ca84d99fbeb8e401c
 F src/browse.c a0ff8e6a87321663e4ebb223373aa7c9d9b4007c2e930327f48c94f4d0753234
 F src/builtin.c 315c7ac2ba949e46ebf468309517ed3fa4255c206f327a2703751cc5fc9e640b
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0c33b0519d6000d1b49386ad3b60e1fc28de69805e1da3e50784aef61417724
-R 480ff110710b8d2946fed4dfd27cc523
+P 896a4636ae374e285571abb0a4e7821421c741751c5d3a206c9b0fa4e614c541
+R f8c132fac96195a56827584de0c5f8ed
 U drh
-Z e30e0554dd1f62671a4477d4592788e9
+Z 3a8d62ff79089f28c08249adf3f3d4e1
 # Remove this line to create a well-formed Fossil manifest.
