@@ -1050,19 +1050,22 @@ int blob_is_filename(Blob *pBlob){
 }
 
 /*
-** Return true if the blob contains a valid 32-bit integer.  Store
-** the integer value in *pValue.
+** Return true if the blob contains a valid non-negative 32-bit integer
+** and store the integer value in *pValue.  If the blob is not a valid
+** non-negative 32-bit integer, return false and leave *pValue unchanged.
 */
 int blob_is_int(Blob *pBlob, int *pValue){
   const char *z = blob_buffer(pBlob);
-  int i, n, c, v;
+  int i, n, c;
+  sqlite3_uint64 v;
   n = blob_size(pBlob);
   v = 0;
   for(i=0; i<n && (c = z[i])!=0 && c>='0' && c<='9'; i++){
     v = v*10 + c - '0';
+    if( v>0x7fffffff ) return 0;
   }
   if( i==n ){
-    *pValue = v;
+    *pValue = (int)v;
     return 1;
   }else{
     return 0;
@@ -1070,23 +1073,49 @@ int blob_is_int(Blob *pBlob, int *pValue){
 }
 
 /*
-** Return true if the blob contains a valid 64-bit integer.  Store
-** the integer value in *pValue.
+** Return true if the blob contains a valid non-negative 64-bit integer
+** and store the integer value in *pValue.  If the blob is not a valid
+** non-negative 64-bit integer, return false and leave *pValue unchanged.
 */
 int blob_is_int64(Blob *pBlob, sqlite3_int64 *pValue){
   const char *z = blob_buffer(pBlob);
   int i, n, c;
-  sqlite3_int64 v;
+  sqlite3_uint64 v;
   n = blob_size(pBlob);
   v = 0;
   for(i=0; i<n && (c = z[i])!=0 && c>='0' && c<='9'; i++){
-    v = v*10 + c - '0';
+    if( v<922337203685477580ULL || (v==922337203685477580ULL && c<='7') ){
+      v = v*10 + c - '0';
+    }else{
+      return 0;
+    }
   }
   if( i==n ){
-    *pValue = v;
+    *pValue = (sqlite3_int64)v;
     return 1;
   }else{
     return 0;
+  }
+}
+
+/*
+** COMMAND: test-atoi
+**
+** Use the blob_is_int() and blob_is_int64() routines to convert arguments
+** into integers.  Used for unit testing of those routines.
+*/
+void blob_is_int_cmd(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    Blob x;
+    int i32 = 0;
+    sqlite3_int64 i64 = 0;
+    int rc;
+    blob_init(&x, g.argv[i], -1);
+    rc = blob_is_int(&x, &i32);
+    fossil_print("%20s: 32-bit %d %-10d", g.argv[i], rc, i32);
+    rc = blob_is_int64(&x, &i64);
+    fossil_print(" 64-bit %d %lld\n", rc, i64);
   }
 }
 

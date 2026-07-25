@@ -1,5 +1,5 @@
-C Harden\sthe\sBlob\sobject\sagainst\sinteger\soverflow\sattacks.
-D 2026-07-25T10:04:53.725
+C Detect\sinteger\soverflow\sin\sthe\sblob_is_int()\sand\sblob_is_int64()\sroutines.
+D 2026-07-25T10:25:40.706
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -392,7 +392,7 @@ F src/backlink.c 9b38387d958179ef05c6c88300b11770cc558a8b0829b888862998fb4b7db0a
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 59b6374581ce25ee6d0797a523e16903d42b77d4b233e5b2d35e8ab058ab9db8
-F src/blob.c 0ce55401be25056ee172fc37abd500a093d0d24d990114253edd153921263950
+F src/blob.c 64626576a10fbe2bfe2c1f24a23d7ccad470bf553a19eb46e065384deeb83a3f
 F src/branch.c 9ac51ee492d81d79be857084c9207949c293c846d6d2204ca84d99fbeb8e401c
 F src/browse.c a0ff8e6a87321663e4ebb223373aa7c9d9b4007c2e930327f48c94f4d0753234
 F src/builtin.c 315c7ac2ba949e46ebf468309517ed3fa4255c206f327a2703751cc5fc9e640b
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 896a4636ae374e285571abb0a4e7821421c741751c5d3a206c9b0fa4e614c541
-R f8c132fac96195a56827584de0c5f8ed
+P 4816e03320c664758e46b0bcca2a2e309e06ce9e33960f62090a717e7111dd9e
+R ef956b2ccbaf6200c6509cd35c8ad754
 U drh
-Z 3a8d62ff79089f28c08249adf3f3d4e1
+Z e5c7eca1f572d63898f204e1d4fecad9
 # Remove this line to create a well-formed Fossil manifest.
