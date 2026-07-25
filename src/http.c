@@ -614,7 +614,7 @@ int http_exchange(
       ** match when it appears at the end of the line. */
       if( sqlite3_strlike("%chunked", &zLine[18], 0)==0 ){
         size_t nx = strlen(&zLine[18]);
-        if( !fossil_isalnum(zLine[nx+11]) ) isChunked = 1;
+        if( !fossil_isalnum(zLine[nx+10]) ) isChunked = 1;
       }
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
       if( sqlite3_strlike("%close%", &zLine[11], 0)==0 ){
