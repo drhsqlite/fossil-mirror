@@ -1309,8 +1309,10 @@ static void forum_display_post(
         /* Allow moderators to approve or reject pending posts.  Also allow
         ** forum supervisors to mark non-special users as trusted and therefore
         ** able to post unmoderated. */
-        @ <input type="submit" name="approve" value="Approve">
-        @ <input type="submit" name="reject" value="Reject">
+        @ <input type="submit" name="approve" value="Approve" \
+        @  class="action-approve">\
+        @ <input type="submit" name="reject" value="Reject" \
+        @  class="action-reject">\
         if( g.perm.AdminForum && !login_is_special(pManifest->zUser) ){
           @ <br><label><input type="checkbox" name="trust">
           @ Trust user "%h(pManifest->zUser)" so that future posts by \
@@ -1608,6 +1610,7 @@ void forumthread_page(void){
   }
   if( zName==0 ){
     webpage_error("Missing \"name=\" query parameter");
+    return;
   }
   cgi_check_for_malice();
   fpid = symbolic_name_to_rid(zName, "f");
@@ -1622,6 +1625,7 @@ void forumthread_page(void){
   froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
   if( froot==0 ){
     webpage_notfound_error("Not a forum post: \"%s\"", zName);
+    return;
   }
 
   /* Decode the mode parameters. */

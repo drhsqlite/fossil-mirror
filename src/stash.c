@@ -367,12 +367,18 @@ static void stash_apply(int stashid, int nConflict){
           fossil_print("***** Cannot merge symlink %s\n", zNew);
         }else{
           rc = merge_3way(&a, zOPath, &b, &out, MERGE_KEEP_FILES);
-          blob_write_to_file(&out, zNPath);
+          if( rc>=0 ){
+            blob_write_to_file(&out, zNPath);
+            file_setexe(zNPath, isExec);
+          }
           blob_reset(&out);
-          file_setexe(zNPath, isExec);
         }
         if( rc ){
           fossil_print("CONFLICT %s\n", zNew);
+          if( rc<0 ){
+            fossil_print("       binary file left unchanged - resolve using "
+                "-baseline/-original/-merge\n");
+          }
           nConflict++;
         }else{
           fossil_print("MERGE %s\n", zNew);

@@ -1269,7 +1269,7 @@ char *names_of_file(const char *zUuid){
 */
 static void timeline_y_submenu(int isDisabled){
   static int i = 0;
-  static const char *az[16];
+  static const char *az[20];
   if( i==0 ){
     az[0] = "all";
     az[1] = "Any Type";
@@ -1297,6 +1297,8 @@ static void timeline_y_submenu(int isDisabled){
     if( g.perm.RdForum ){
       az[i++] = "f";
       az[i++] = "Forum";
+      az[i++] = "h";
+      az[i++] = "New Threads";
     }
     assert( i<=count(az) );
   }
@@ -1509,6 +1511,14 @@ static int timeline_is_datespan(const char *zDay){
 ** first check-in.  If there are no check-ins in the descendant
 ** or ancestor set of check-in iFrom that match the tag, then
 ** return 0.
+**
+** If looking fowards (if bForward is true) then the first link
+** is allowed to be a cherrypick, but subsequent links must be
+** either full merges or normal check-ins.  The idea is that we
+** are looking for the first use of the code in the iFrom check-in
+** that has the zEnd tag.  The first link is allowed to be a cherrypick
+** because the code in question crosses that link, but the code does
+** not cross any subsequent cherrypick.
 */
 static int timeline_endpoint(
   int iFrom,         /* Starting point */
@@ -1532,6 +1542,10 @@ static int timeline_endpoint(
         "WITH RECURSIVE dx(id,mtime) AS ("
         "  SELECT %d, event.mtime FROM event WHERE objid=%d"
         "  UNION"
+        "  SELECT cp.childid, event.mtime FROM cherrypick AS cp, event"
+        "   WHERE cp.parentid=%d AND NOT cp.isExclude"
+        "     AND event.objid=cp.childid"
+        "  UNION"
         "  SELECT plink.cid, plink.mtime"
         "    FROM dx, plink"
         "   WHERE plink.pid=dx.id"
@@ -1542,12 +1556,16 @@ static int timeline_endpoint(
         "SELECT id FROM dx, tagxref"
         " WHERE tagid=%d AND tagtype>0 AND rid=id"
         " ORDER BY dx.mtime LIMIT 1",
-        iFrom, iFrom, tagId, tagId
+        iFrom, iFrom, iFrom, tagId, tagId
       );
     }else{
       db_prepare(&q,
         "WITH RECURSIVE dx(id,mtime) AS ("
         "  SELECT %d, event.mtime FROM event WHERE objid=%d"
+        "  UNION"
+        "  SELECT cp.childid, event.mtime FROM cherrypick AS cp, event"
+        "   WHERE cp.parentid=%d AND NOT cp.isExclude"
+        "     AND event.objid=cp.childid"
         "  UNION"
         "  SELECT plink.cid, plink.mtime"
         "    FROM dx, plink"
@@ -1555,7 +1573,7 @@ static int timeline_endpoint(
         "     AND plink.mtime<=(SELECT mtime FROM event WHERE objid=%d)"
         "   ORDER BY plink.mtime)"
         "SELECT id FROM dx WHERE id=%d",
-        iFrom, iFrom, endId, endId
+        iFrom, iFrom, iFrom, endId, endId
       );
     }
   }else{
@@ -1722,7 +1740,7 @@ void timeline_test_endpoint(void){
 **    ms=MATCHSTYLE   Set tag name match algorithm.  One of "exact", "glob",
 **                    "like", or "regexp".
 **    u=USER          Only show items associated with USER
-**    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', or 'all'.
+**    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', 'h', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact", v: "Verbose", m: "Modern", j: "Columnar",
 **                    x: "Classic".
 **    advm            Use the "Advanced" or "Busy" menu design.
@@ -1852,7 +1870,7 @@ void page_timeline(void){
   int from_to_mode = 0;               /* 0: from,to. 1: from,ft 2: from,bt */
   int showSql = PB("showsql");        /* True to show the SQL */
   Blob allSql;                        /* Copy of all SQL text */
-  int bMin = P("min")!=0;             /* True if "min" query parameter used */
+  int bMin = PB("min");               /* True if "min" query parameter used */
 
   login_check_credentials();
   url_initialize(&url, "timeline");
@@ -2221,7 +2239,7 @@ void page_timeline(void){
       if( from_to_mode==0 ){
         p = path_shortest(from_rid, to_rid, 0, 0, 0, cost);
       }else if( from_to_mode==1 ){
-        p = path_shortest(from_rid, to_rid, 0, 1, 0, cost);
+        p = path_shortest(from_rid, to_rid, 0, 2, 0, cost);
         earlierRid = commonAncs = from_rid;
         laterRid = to_rid;
       }else{
@@ -2272,6 +2290,7 @@ void page_timeline(void){
           blob_append_sql(&ins, ",(%d)", p->rid);
         }
       }
+      style_submenu_checkbox("min","Brief",0,0);
     }
     path_reset();
     db_multi_exec("%s", blob_str(&ins)/*safe-for-%s*/);
@@ -2663,22 +2682,22 @@ void page_timeline(void){
       zYearWeek = timeline_expand_datetime(zYearWeek, &bZulu);
       z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
       if( z && z[0] ){
-        zYearWeekStart = db_text(0, "SELECT date(%Q,'-6 days','weekday 1')",
+        zYearWeekStart = db_text(0, "SELECT date(%Q,'weekday -1')",
                                  zYearWeek);
         zYearWeek = z;
       }else{
         if( strlen(zYearWeek)==7 ){
           zYearWeekStart = db_text(0,
-             "SELECT date('%.4q-01-01','%+d days','weekday 1')",
-             zYearWeek, atoi(zYearWeek+5)*7-6);
+             "SELECT date('%.4q-01-01','weekday 1','%+d days')",
+             zYearWeek, atoi(zYearWeek+5)*7 - 7);
         }else{
           zYearWeekStart = 0;
         }
         if( zYearWeekStart==0 || zYearWeekStart[0]==0 ){
           zYearWeekStart = db_text(0,
-             "SELECT date('now','-6 days','weekday 1');");
+             "SELECT date('now','weekday -1');");
           zYearWeek = db_text(0,
-             "SELECT strftime('%%Y-%%W','now','-6 days','weekday 1')");
+             "SELECT strftime('%%Y-%%W','now','weekday -1')");
         }
       }
       zTZMod = (bZulu==0 && fossil_ui_localtime()) ? "utc" : "+00:00";
@@ -2946,6 +2965,7 @@ void page_timeline(void){
      || (zType[0]=='c' && !g.perm.Read)
      || (zType[0]=='g' && !g.perm.Read)
      || (zType[0]=='f' && !g.perm.RdForum)
+     || (zType[0]=='h' && !g.perm.RdForum)
     ){
       zType = "all";
     }
@@ -2975,6 +2995,9 @@ void page_timeline(void){
       if( zType[0]=='n' ){
         blob_append_sql(&cond,
             " AND event.type='t' AND event.comment GLOB 'New ticket*'");
+      }else if( zType[0]=='h' ){
+        blob_append_sql(&cond,
+            " AND event.type='f' AND event.comment GLOB 'Post:*'");
       }else{
         blob_append_sql(&cond, " AND event.type=%Q", zType);
       }
@@ -2992,6 +3015,8 @@ void page_timeline(void){
         zEType = "tag";
       }else if( zType[0]=='f' ){
         zEType = "forum post";
+      }else if( zType[0]=='h' ){
+        zEType = "new forum thread";
       }
     }
     if( zUser ){
@@ -3074,8 +3099,10 @@ void page_timeline(void){
       blob_appendf(&desc, "%d %s%s for the month beginning %h",
                    n, zEType, zPlural, zYearMonth);
     }else if( zYearWeek ){
-      blob_appendf(&desc, "%d %s%s for week %h beginning on %h",
-                   n, zEType, zPlural, zYearWeek, zYearWeekStart);
+      char *zEnd = db_text("?","SELECT date(%Q,'weekday 0')",zYearWeekStart);
+      blob_appendf(&desc, "%d %s%s for week %h spanning %h to %h",
+                   n, zEType, zPlural, zYearWeek, zYearWeekStart, zEnd);
+      fossil_free(zEnd);
     }else if( zDay ){
       blob_appendf(&desc, "%d %s%s occurring on %h", n, zEType, zPlural, zDay);
     }else if( zNDays ){

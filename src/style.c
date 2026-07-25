@@ -748,6 +748,14 @@ void style_set_current_feature(const char* zFeature){
 }
 
 /*
+** Returns the local feature string, owned by this file and
+** invalidated by style_set_current_feature().
+*/
+const char * style_get_current_feature(void){
+  return local_zCurrentFeature;
+}
+
+/*
 ** Returns the current mainmenu value from either the --mainmenu flag
 ** (handled by the server/ui/cgi commands), the "mainmenu" config
 ** setting, or style_default_mainmenu(), in that order, returning the
@@ -1026,7 +1034,8 @@ void style_finish_page(){
         if( p->zLink==0 ){
           @ <span class="label sml-%s(zClass)">%h(p->zLabel)</span>
         }else{
-          @ <a class="label sml-%s(zClass)" href="%h(p->zLink)">%h(p->zLabel)</a>
+          @ <a class="label sml-%s(zClass)" \
+          @  href="%h(p->zLink)">%h(p->zLabel)</a>
         }
       }
     }

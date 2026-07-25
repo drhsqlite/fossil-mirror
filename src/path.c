@@ -171,6 +171,10 @@ static void path_reverse_path(void){
 ** If directOnly is true, then use only the "primary" links from parent to
 ** child.  In other words, ignore merges.
 **
+** If oneWayOnly is 1, then only follow edges from parent to child.
+** If oneWayOnly is 2, that is like 1 except the first edge out of iFrom
+** is allowed to be cherrypick edge.  
+**
 ** Return a pointer to the beginning of the path (the iFrom node).
 ** Elements of the path can be traversed by following the PathNode.u.pTo
 ** pointer chain.
@@ -219,6 +223,21 @@ PathNode *path_shortest(
     );
   }
   bag_init(&seen);
+  if( oneWayOnly==2 ){
+    Stmt s2;
+    db_prepare(&s2,
+       "SELECT childid FROM cherrypick WHERE parentid=%d AND NOT isExclude",
+       iFrom
+    );
+    while( db_step(&s2)==SQLITE_ROW ){
+      int cid = db_column_int(&s2,0);
+      PathNode *pNew;
+      if( bag_find(&seen, cid) ) continue;
+      pNew = path_new_node(cid, path.pStart, 1);
+      if( pHidden && bag_find(pHidden,cid) ) pNew->isHidden = 1;
+    }
+    db_finalize(&s2);
+  }
   while( (p = pqueuex_extract_ptr(&path.pending))!=0 ){
     if( path_debug ){
       printf("PULL %s %g\n", path_rid_desc(p->rid), p->u.rCost);

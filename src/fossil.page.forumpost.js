@@ -173,7 +173,7 @@
           'Preview your edits.'
         );
         e.button.submit = D.attr(
-          D.button("Submit"),
+          D.button("Post as "+F.user.name),
           'title',
           'Save any edits to the server. Not permitted until Preview has been used.'
         );
@@ -253,6 +253,23 @@
           'placeholder',
           'Your message to other forum-goers...'
         );
+        if( opt.inReplyTo && !F.user.isIndividual ){
+          const w = D.addClass(D.div(), 'warning');
+          w.append(
+            "You are not ",
+            D.a(F.repoUrl(
+              'login'
+              /*, {
+                // Leads to a confusing 'you need more permissions
+                // to view /forumpost/.... warning
+                g: 'forumpost/'+(opt.inReplyTo || opt.edit?.uuid)
+                }*/
+            ), 'logged in'), ' so will be posting anonymously. ',
+            "If you log in then return here, your draft edit will ",
+            "still be here."
+          );
+          e.tabEdit.append(w);
+        }
         e.tabEdit.append(e.editor);
         e.tabEdit.dataset.tabLabel = (opt.edit || !opt.inReplyTo)
           ? 'Edit' : 'Reply';
@@ -418,7 +435,8 @@
         e.buttons.append(e.button.toggleHeader);
       }
 
-      {
+      if(0){
+        // Tentatively replaced with the user name in the Submit button
         const eLbl = D.label(false, "Posting as "+F.user.name)
         eLbl.classList.add('logged-in-as');
         e.buttons.append(eLbl);
@@ -540,7 +558,12 @@
       const list = D.ul();
       D.append(
         D.li(list),
-        D.attr(D.a(F.repoUrl('markup_help'), 'Markup styles'),
+        D.attr(D.a(F.repoUrl('md_rules'), 'Markdown markup rules'),
+               'target', '_new')
+      );
+      D.append(
+        D.li(list),
+        D.attr(D.a(F.repoUrl('wiki_rules'), 'Fossil wiki markup rules'),
                'target', '_new')
       );
       D.append(
@@ -969,6 +992,29 @@
         return;
       };
 
+      /**
+         The problem: "Approve", "Reject" and their ilk stays active
+         while their form post is in flight, just begging to be
+         clicked again. We don't really have a way to know when the
+         submit finishes, so we'll (A) disable them before submit and
+         (B) reenable them after some long timeout in case the request
+         fails. On a successful submit we're redirected, making this
+         all moot.
+      */
+      const deactivateButtonInFlight = (elem, form)=>{
+        if( elem.disabled ) return /* potential double-click protection */;
+        elem.disabled = true;
+        setTimeout(
+          /* This is a stupid workaround for a failed request but none
+             better come to mind except replacing the form.submit()
+             with a fetch() POST, such that we can do this at
+             precisely the right time. That change would not be
+             difficult (we do this in /chat, /wikiedit, etc.) but
+             that exceeds this morning's ambitions. */
+          ()=>elem.disabled = false, 10000
+        );
+        form.submit();
+      };
       document.querySelectorAll("form").forEach(function(form){
         /* Set up controls for closing posts and setting thread
            status. */
@@ -981,13 +1027,38 @@
               confirmText: (e.classList.contains('action-reopen')
                             ? "Confirm re-open"
                             : "Confirm close"),
-              onconfirm: ()=>form.submit()
+              onconfirm: ()=>deactivateButtonInFlight(e, form)
             });
+          });
+        form
+          .querySelectorAll("input.action-approve, input.action-reject")
+          .forEach(function(e){
+            e.type = 'button'/*do not submit form on click*/;
+            const isApprove = e.classList.contains('action-approve');
+            F.confirmer(e, {
+              confirmText: (isApprove
+                            ? "Confirm approval"
+                            : "Confirm rejection"),
+              onconfirm: ()=>{
+                form.append(
+                  /* Workaround for the button element's value not
+                     being sent with the form: inject a hidden field
+                     corresponding to the button's action. */
+                  D.attr(
+                    D.input('hidden'),
+                    'name', isApprove ? 'approve' : 'reject',
+                    'value', 'ignored'
+                  )
+                );
+                deactivateButtonInFlight(e, form);
+              }
+            });
+            /* We should also arguably disable the approve/reject
+               button's counterpart while it's counting down. */
           });
         form
           .querySelectorAll("input[type='button'].action-status")
           .forEach(function(btn){
-            btn.classList.remove('hidden');
             const sel = btn.previousElementSibling;
             const updateButton = ()=>{
               /* Enable btn only when the status has been locally
@@ -1010,7 +1081,7 @@
             updateButton();
             F.confirmer(btn, {
               confirmText: "Confirm status change",
-              onconfirm: ()=>form.submit()
+              onconfirm: ()=>deactivateButtonInFlight(btn, form)
             });
           });
       });
@@ -1157,11 +1228,25 @@
         );
         let releaseLock;
         if( window.navigator.locks ){
+          /* This business with forceReleaseLockOnClose and 'pagehide'
+             event is a workaround for Chrome being overly lazy in
+             releasing Web Locks when a tab is closed. It sometimes
+             waits half a minute or more before release.
+
+             Sidebar: we cannot use AbortController because it cannot
+             be used with the ifAvailable lock check. */
+          let forceReleaseLockOnClose = null;
+          const handlePageHide = ()=>{
+            if( forceReleaseLockOnClose ){
+              forceReleaseLockOnClose();
+            }
+          };
+          window.addEventListener('pagehide', handlePageHide);
           releaseLock = await new Promise((resolve)=>{
             window.navigator.locks.request(
               'fossil-'+draftKey,
               {ifAvailable: true},
-              async (lock) => {
+              async (lock)=>{
                 if( !lock ){
                   /*lock contention*/
                   resolve(null);
@@ -1169,11 +1254,17 @@
                 }
                 let release;
                 const lockReleased = new Promise(res=>release=res);
-                resolve(release);
+                forceReleaseLockOnClose = release;
+                const wrappedRelease = ()=>{
+                  window.removeEventListener('pagehide', handlePageHide);
+                  if( release ) release();
+                };
+                resolve(wrappedRelease);
                 await lockReleased/*hold the lock open*/;
               });
           });
           if( !releaseLock ){
+            window.removeEventListener('pagehide', handlePageHide);
             reportFPEError(
               ePost,
               "This post is actively being replied to ",

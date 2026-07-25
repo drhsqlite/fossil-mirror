@@ -2075,7 +2075,6 @@ int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
   char *zDate;            /* timestamp */
-  char *zUuid;            /* uuid for rid */
 
   blob_zero(&wiki);
   zDate = date_in_standard_format("now");
@@ -2087,13 +2086,12 @@ int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
     blob_appendf(&wiki, "N %F\n", zMimeType);
   }
   if( rid ){
-    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-    blob_appendf(&wiki, "P %s\n", zUuid);
-    free(zUuid);
+    char *zUuid = rid_to_uuid(rid);
+    blob_appendf(&wiki, "P %z\n", zUuid);
   }
   user_select();
   if( !login_is_nobody() ){
-      blob_appendf(&wiki, "U %F\n", login_name());
+    blob_appendf(&wiki, "U %F\n", login_name());
   }
   blob_appendf( &wiki, "W %d\n%s\n", blob_size(pContent),
                 blob_str(pContent) );
