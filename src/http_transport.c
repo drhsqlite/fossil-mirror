@@ -38,8 +38,9 @@ static struct {
   char *zOutFile;         /* Name of outbound file for FILE: */
   char *zInFile;          /* Name of inbound file for FILE: */
   FILE *pLog;             /* Log output here */
+  int bTest;              /* file:// testing */
 } transport = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 /*
@@ -166,12 +167,35 @@ int transport_ssh_open(UrlData *pUrlData){
 }
 
 /*
+** Return true if the filename given matches the pattern that means
+** it is a test-reply.
+*/
+static int transport_is_test(const char *zFilename){
+  return sqlite3_strglob("*.http-test",zFilename)==0;
+}
+
+/*
 ** Open a connection to the server.  The server is defined by the following
 ** variables:
 **
 **   pUrlData->name        Name of the server.  Ex: fossil-scm.org
+**
 **   pUrlData->port        TCP/IP port.  Ex: 80
+**
 **   pUrlData->isHttps     Use TLS for the connection
+**
+**   pUrlData->isSsh       Use an SSH connection to the server.  name is
+**                         the SSH host name.  subpath is the server
+**                         method name (ex: timeline)
+**
+**   pUrlData->isFile      The .name is a filename in the local filesystem.
+**                         If that file is a Fossil repo, then launch
+**                         "fossil http" as a subprocess to handle the request.
+**                         Or if filename ends with ".test-http" then the
+**                         content of that file becomes the HTTP reply.
+**                         (The latter is used for testing only.)
+**
+**   pUrlData->subpath     The method name on the request for SSH and FILE
 **
 ** Return the number of errors.
 */
@@ -190,11 +214,26 @@ int transport_open(UrlData *pUrlData){
       rc = 1;
 #endif
     }else if( pUrlData->isFile ){
-      if( !db_looks_like_a_repository(pUrlData->name) ){
-        fossil_fatal("not a fossil repository: \"%s\"", pUrlData->name);
+      if( !file_isfile(pUrlData->name, ExtFILE) ){
+        fossil_fatal("no such file: \"%s\"", pUrlData->name);
       }
       transport.zOutFile = fossil_temp_filename();
       transport.zInFile = fossil_temp_filename();
+      if( !db_looks_like_a_repository(pUrlData->name) ){
+        if( transport_is_test(pUrlData->name) ){
+          /* If the URI filename ends with ".http-test" then the content
+          ** of that file becomes the HTTP reply and the request is stored
+          ** in a file with the same name but with ".request" added to the
+          ** end.  Used for testing only */
+          transport.bTest = 1;
+          sqlite3_free(transport.zOutFile);
+          transport.zOutFile = sqlite3_mprintf("%s.request",pUrlData->name);
+          sqlite3_free(transport.zInFile);
+          transport.zInFile = sqlite3_mprintf("%s",pUrlData->name);
+        }else{
+          fossil_fatal("not a fossil repository: \"%s\"", pUrlData->name);
+        }
+      }
       transport.pFile = fossil_fopen(transport.zOutFile, "wb");
       if( transport.pFile==0 ){
         fossil_fatal("cannot output temporary file: %s", transport.zOutFile);
@@ -233,8 +272,10 @@ void transport_close(UrlData *pUrlData){
         fclose(transport.pFile);
         transport.pFile = 0;
       }
-      file_delete(transport.zInFile);
-      file_delete(transport.zOutFile);
+      if( !transport.bTest ){
+        file_delete(transport.zInFile);
+        file_delete(transport.zOutFile);
+      }
       sqlite3_free(transport.zInFile);
       sqlite3_free(transport.zOutFile);
     }else{
@@ -280,19 +321,30 @@ void transport_send(UrlData const *pUrlData, const Blob *toSend){
 /*
 ** This routine is called when the outbound message is complete and
 ** it is time to begin receiving a reply.
+**
+** This is a no-op for http:, https:, and ssh:.  It only does this
+** for file:.  If the file is a Fossil database, then an instance of
+** "fossil http" is invoked in a subprocess to handle the request.
+** Or if the filename ends with ".http-test" then the text of that
+** file becomes the reply.  The ".http-test" hack is for testing purposes.
 */
 void transport_flip(UrlData *pUrlData){
   if( pUrlData->isFile ){
     char *zCmd;
     fclose(transport.pFile);
-    zCmd = mprintf("%$ http --in %$ --out %$ --ipaddr 127.0.0.1"
-                   " %$ --localauth",
-       g.nameOfExe, transport.zOutFile, transport.zInFile, pUrlData->name
-    );
-    if( g.fHttpTrace ) fossil_print("RUN %s\n", zCmd);
-    fossil_system(zCmd);
-    free(zCmd);
+    if( !transport.bTest ){
+      zCmd = mprintf("%$ http --in %$ --out %$ --ipaddr 127.0.0.1"
+                     " %$ --localauth",
+         g.nameOfExe, transport.zOutFile, transport.zInFile, pUrlData->name
+      );
+      if( g.fHttpTrace ) fossil_print("RUN %s\n", zCmd);
+      fossil_system(zCmd);
+      free(zCmd);
+    }
     transport.pFile = fossil_fopen(transport.zInFile, "rb");
+    if( transport.pFile==0 ){
+      fossil_fatal("unable to open HTTP reply: \"%s\"",transport.zInFile);
+    }
   }
 }
 
