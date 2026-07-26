@@ -1,5 +1,5 @@
-C Fix\ssegfault\sif\sthe\sserver\sreplies\swith\sjust\sone\sbyte.
-D 2026-07-26T19:55:47.492
+C Fix\sdoc\scomment\stypo
+D 2026-07-26T20:00:14.089
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -474,7 +474,7 @@ F src/href.js 97641963c7127a0c000c5a90ad2e2b3b2d216614b6f552737b552aa68feb0f21
 F src/http.c e3d71f30974d2ed9a37e5968a5f503bb164c6f07f23d8c3cfce258c2dfbaf4dc
 F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efce2f6
 F src/http_ssl.c 21448e159871c441e761fa58152860a22d123d279e5e661df8f4a6fad88f7c03
-F src/http_transport.c 16574429813ed3047c2c9e0b69977096409dc7d65cc3922edc171b68c881d4b5
+F src/http_transport.c 45bc45771bc72d9428ce2169270c0349e83d3dd3ebe6e51935b967a03caa4119
 F src/import.c 1ee4f154daf3e687e8e8304777448b2bbd877adb279d6c9e7ff7952a02982b7f
 F src/info.c cd45403cee8f1442a9c5d0b4c9da240423cd26771a63848c5294fcaf83b55075
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3bd7c3a0edff89a47350dad9b98c5a50035a82eedc9f0e3f22651a9d1ed831d
-R 18740fe8a231a97652219d25efa3fe7e
+P b63d654041f7aee0c01f558dfb0d1c19e46fc8f217300ebd6fde72b868148b07
+R a214f5359e7bd088dd899df4c595f89e
 U danshearer
-Z 7aa2a1b8c397e287f80e39b50dd81f0c
+Z bed9f1a2534b2238875bbbcdaf734297
 # Remove this line to create a well-formed Fossil manifest.

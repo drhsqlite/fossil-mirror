@@ -191,7 +191,7 @@ static int transport_is_test(const char *zFilename){
 **   pUrlData->isFile      The .name is a filename in the local filesystem.
 **                         If that file is a Fossil repo, then launch
 **                         "fossil http" as a subprocess to handle the request.
-**                         Or if filename ends with ".test-http" then the
+**                         Or if filename ends with ".http-test" then the
 **                         content of that file becomes the HTTP reply.
 **                         (The latter is used for testing only.)
 **
