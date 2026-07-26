@@ -779,10 +779,10 @@ int http_exchange(
         break;
       }
       nPrior = blob_size(pReply);
-      /* Reserve space without advancing nUsed, so that on error
-      ** the blob's reported size equals the bytes actually
-      ** received rather the claimed chunk length */
-      blob_reserve(pReply, (u64)(nPrior+nChunk));
+      /* Grow the reply buffer, then restore nUsed, so that on error the
+      ** blob's reported size is bytes received not claimed chunk length */
+      blob_resize(pReply, (u64)(nPrior+nChunk));
+      pReply->nUsed = (unsigned int)nPrior;
       {
         unsigned int nRemaining = (unsigned int)nChunk;
         /* transport_receive() may return short; loop until the chunk is
