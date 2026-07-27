@@ -570,6 +570,13 @@ int http_exchange(
     }
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
+      if( rc/100==1 ){
+        /* Parse and discard an unexpected 1xx interim reply, most commonly "100 Continue".
+        ** Skip the remaining header lines of the reply. (A 1xx reply has no body.) */
+        while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){}
+        if( zLine==0 ) goto write_err;
+        continue;
+      }
       if( rc==401 ){
         if( fSeenHttpAuth++ < MAX_HTTP_AUTH ){
           if( g.zHttpAuth ){
