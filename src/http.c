@@ -575,6 +575,7 @@ int http_exchange(
         ** "100 Continue". Skip the remaining header lines of the reply.
         ** A 1xx reply has no body.) */
         while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){}
+        iHttpVersion = -1; /* Ensures correct error msg if connection drops */
         if( zLine==0 ) goto write_err;
         continue;
       }
