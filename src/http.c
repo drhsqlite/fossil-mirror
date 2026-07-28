@@ -758,6 +758,12 @@ int http_exchange(
     goto write_err;
   }
 
+  if( isChunked && iLength>=0 ){
+    /* RFC 7230 says to reject in this case */
+    fossil_warning("reply has both content-length and transfer-encoding");
+    goto write_err;
+  }
+
   /*
   ** Extract the reply payload that follows the header
   */
