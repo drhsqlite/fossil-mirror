@@ -617,12 +617,19 @@ int http_exchange(
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
     }else if( fossil_strnicmp(zLine, "transfer-encoding:", 18)==0 ){
-      /* RFC 7230: "chunked" must be the final transfer-coding so only
-      ** match when it appears at the end of the line. */
-      if( sqlite3_strlike("%chunked", &zLine[18], 0)==0 ){
-        size_t nx = strlen(&zLine[18]);
-        if( !fossil_isalnum(zLine[nx+10]) ) isChunked = 1;
+      /* Fossil never sends a "transfer-encoding:" request header, so we may
+      ** reject any encoding other than "chunked", including "gzip, chunked",
+      ** "superchunked", "deflate" etc. */
+      int bOk = 0;
+      for(i=18; fossil_isspace(zLine[i]); i++){}
+      if( fossil_strnicmp(&zLine[i], "chunked", 7)==0 ){
+        bOk = zLine[i+7]==0;
       }
+      if( !bOk ){
+        fossil_warning("unsupported transfer-encoding: %s", &zLine[18]);
+        goto write_err;
+      }
+      isChunked = 1;
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
       if( sqlite3_strlike("%close%", &zLine[11], 0)==0 ){
         closeConnection = 1;
