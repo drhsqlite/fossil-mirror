@@ -3,9 +3,9 @@
 *This is a work in progress.  I only have 38 reasons typed in so far,
 but I have a separate text file of notes that lists 104 candidate reasons.
 It's just taking me a while to compose and edit the rationale for each
-one, so it seems expedient to check-in this draft.*
+one, so it seems expedient to checkin this draft.*
 
-  1.  **Fossil comes as a single executable file**.<p>
+  1.  **Fossil comes as a single self-contained executable file**.<p>
       Install Fossil by copying "fossil" (or "fossil.exe") to someplace
       on your $PATH (or %PATH%).  Upgrade (or downgrade) by overwriting
       that one file.  Uninstall by deleting that one file.<p>
@@ -47,8 +47,8 @@ one, so it seems expedient to check-in this draft.*
       A Fossil repository can be colocated with the working check-out, as
       they are required to be in Git.  But most people keep the repository
       separate.  One common pattern is to put all Fossil repositories in
-      a single directory name $HOME/Fossils or $HOME/Museum, and then open 
-      working  check-outs against each repository whereever they are needed.
+      a single directory named $HOME/Fossils or $HOME/Museum, and then open 
+      working check-outs against each repository whereever they are needed.
 
   1.  **A single Fossil repository can support multiple working check-outs.**
       <p>
@@ -67,13 +67,14 @@ one, so it seems expedient to check-in this draft.*
       specifically an SQLite database file.
 
   1.  **Fossil does not have a staging area**.</p>
-      A user-visible staging area adds no capabilities.  (Partial commits
+      A staging area adds no new capabilities.  (Partial commits
       are accomplished in Fossil simply by listing the subset of files to
-      be committed on the "fossil commit" command line.)  But the staging
-      area does complicate the mental model of the project that Git users
-      need to keep up with, forcing the developer to spend more time thinking
-      about the version control system and hence less time thinking about
-      the project they are working on.
+      be committed on the "fossil commit" command line.)  A staging area
+      only adds complication.  The staging area adds to the mental model 
+      of the project that Git users need to keep up with, forcing the
+      developer to spend more time thinking about the version control
+      system and hence less time thinking about the project they are
+      working on.
 
   1.  **Fossil remembers where all your repositories and working
       check-outs are located.**<p>
@@ -101,11 +102,11 @@ one, so it seems expedient to check-in this draft.*
       Are you on an infrequently used travel laptop and forgot where you
       put a particular repository, this feature helps you find it.
 
-  1.  **Fossil allows multiple check-ins to have the same tag.**<p>
+  1.  **Fossil allows multiple checkins to have the same tag.**<p>
       For example, on the SQLite project, every release is tagged with
       "release".
 
-  1.  **The Fossil timeline can show all check-ins with a specific tag.**<p>
+  1.  **The Fossil timeline can show all checkins with a specific tag.**<p>
       For example, to see all SQLite releases visit
       <https://sqlite.org/src/timeline?t=release> or to see all
       Fossil releases go to
@@ -115,17 +116,17 @@ one, so it seems expedient to check-in this draft.*
       Wiki pages are colocated in the same repository as your code, so that
       they push, pull, sync, and clone together with your code.
 
-  1.  **Fossil can associated a wiki page with a particular check-in.**<p>
-      Rather than including a massive and verbose check-in comment on an
-      important check-in (such as the merge of a big new feature), Fossil
-      allows you to assign a wiki page to that check-in.  That wiki page
-      is show as part of the check-in information in the web interface.
+  1.  **Fossil can associated a wiki page with a particular checkin.**<p>
+      Rather than including a massive and verbose checkin comment on an
+      important checkin (such as the merge of a big new feature), Fossil
+      allows you to assign a wiki page to that checkin.  That wiki page
+      is show as part of the checkin information in the web interface.
       See, for example, the "About" section of 
-      [SQLite check-in 2019-11-21T18:28:44.463Z](https://sqlite.org/src/info/2019-11-21T18:28:44.463Z).
-      The wiki page associated with a check-in can be created and revised
-      after the check-in is comimtted and pushed.  So it can be used, for
+      [SQLite checkin 2019-11-21T18:28:44.463Z](https://sqlite.org/src/info/2019-11-21T18:28:44.463Z).
+      The wiki page associated with a checkin can be created and revised
+      after the checkin is comimtted and pushed.  So it can be used, for
       example, to add notes or bug reports that occur long after the
-      check-in itself has been inserted into the DAG.
+      checkin itself has been inserted into the DAG.
 
   1.  **Fossil can associate a wiki page with a particular branch.**<p>
       You can create a wiki page for a branch that documents the purpose
@@ -144,52 +145,56 @@ one, so it seems expedient to check-in this draft.*
       can [see it on GitHub](https://github.com/sqlite/sqlite/commits/setlk-snapshot-fix)
       and [in Fossil](https://sqlite.org/src/timeline?r=setlk-snapshot-fix).
       Notice, thought, that GitHub does not show how the branch was resolved.
+      (Aside: Also notice how much faster Fossil renders!)
       Fossil clearly shows that the branch ended up being merged into trunk.
       GitHub just shows us all ancestors of the leaf node labeled
       "setlk-snapshot-fix", including ancestors that were in other branches
       that got merged in, and ancestors that predate the founding of the
       setlk-snapshot-fix branch.
       <p>
-      GitHub just cannot shows you the check-ins of branch setlk-snapshot-fix
+      GitHub just cannot shows you the checkins of branch setlk-snapshot-fix
       only.  There are other third-party tools that will show you that, I am
       told, but they all require a local clone of the repository.  Apparently
       there is no way to see this information in a web browser runnig on
       your phone.
 
   1.  **Fossil allows multiple branches with the same name.**<p>
-      This feature is used a lot for branches named "experimental" and
-      "mistake".  See
+      This is used, for example, to name a lot for branches "experimental"
+      and mistake".  See
       <https://sqlite.org/src/timeline?r=experimental> and
       <https://sqlite.org/src/timeline?r=mistake>.  Or see
-      [the empty-table-optimizations branch(es)](https://sqlite.org/src/timeline?r=empty-table-optimizations) which was initially merge to trunk and closed
+      [the empty-table-optimizations branch(es)](https://sqlite.org/src/timeline?r=empty-table-optimizations) which was initially mergde to trunk and closed
       on 2025-07-02, but then reopened and continued with more enhancements
       until it was merged again on 2025-07-08.  
 
   1.  **Fossil allows legacy SHA1 hashes and newer SHA3-256 hashes in the
       same repository.**<p>
       Both Fossil and Git started out using SHA1 hashes.  But when the
-      SHAttered attack](https://www.marc-stevens.nl/research/shattered.io/)
+      [SHAttered attack](https://www.marc-stevens.nl/research/shattered.io/)
       against SHA1 was published on 2017-02-23, the need to migrate to a
       stronger hash algorithm was recognized.  Fossil added the ability
-      to use SHA3-256 as an alternative on 2017-03-01, and to this day
-      it continues to support both, though SHA3-256 is the default for all
-      new repositories and check-ins.  But older check-ins that occurred
-      prior to ShAttered still use their original SHA1 hash and so no
+      to use SHA3-256 as an alternative on 2017-03-01 (six days after the
+      attack was first published), and to this day
+      it continues to support both.  SHA3-256 is now the default for all
+      new repositories and checkins, though older checkins that occurred
+      prior to ShAttered can still use their original SHA1 hash and so no
       repositories had to be rebuilt and no hyperlinks were broken.<p>
-      In contrast, a Git repository supports only one hash algorithm.
-      Newer repos can use SHA2, though the default is still SHA1.
+      In contrast, after nine years, a Git repository can still only 
+      support only one hash algorithm at a time.
+      Newer Git repositories are able to use SHA2, though the default
+      is still SHA1.
  
-  1.  **Fossil allows check-ins to be identified by timestamp**<p>
-      The canonical name for a check-in is its hash.  Both Git and Fossil
-      allow a check-in to be identified by any unique prefix of its hash.
-      But only Fossil allows a check-in to also be identified by its
+  1.  **Fossil allows checkins to be identified by timestamp**<p>
+      The canonical name for a checkin is its hash.  Both Git and Fossil
+      allow a checkin to be identified by any unique prefix of its hash.
+      But only Fossil allows a checkin to also be identified by its
       timestamp.  The names "2026-02-02T16:03:24.852Z" and "fdebbedbd9a99165"
-      both refer to [the same check-in](https://sqlite.org/src/fdebbedbd9a99165)
+      both refer to [the same checkin](https://sqlite.org/src/fdebbedbd9a99165)
       in SQLite, but the first one has the advantage of giving some time
       context rather than just being a seemingly random sequence of hexadecimal
-      digits.  It is possible that two or more check-ins can have the same
+      digits.  It is possible that two or more checkins can have the same
       timestamp, in which case the timestamp would be ambiguous.  And a
-      check-in timestamp can be changed after it is committed, by using
+      checkin timestamp can be changed after it is committed, by using
       a special tag.  So timestamp identifiers do not have the uniqueness
       and stability guarantees as hash identifiers, but they are available
       as an option and are often useful.
@@ -236,18 +241,18 @@ one, so it seems expedient to check-in this draft.*
       to keep the remote up-to-date and helps all the developers working on
       the software keep up with what other developers are doing.
       <p>
-      Users whose prior experience is only with Git might object to
-      autosync, saying that this could cause all kinds of problems for Git
-      if another developer commits ahead of you.  True enough, that would
-      cause headaches for Git, but it does not cause any problems for Fossil.
+      Long-time Git users might cringe at autosync, thinking that this
+      could cause problems if another developer commits ahead of you.
+      True enough, that would cause headaches for Git, but it does not
+      create problems for Fossil.
       The worse that could happen is that the branch will fork.  Fossil
-      will usually detect that a fork is about to happen and warn you.
+      will usually detect an impending fork and warn you.
       But even if you don't get the warning (due to a race) or even if you
       override the warning and force the commit anyhow, a fork on a branch
-      in Fossil is quite harmless.  It shows cleanly on the timeline and
-      is easily resolved.  So while autosync might case issues with Git,
-      it does not cause issues in Fossil and so the benefits far outweigh
-      the risks and autosync is the default behavior.
+      in Fossil is harmless.  It shows cleanly on the timeline and
+      is easily resolved.  So while autosync might cause issues with Git,
+      it is harmless to Fossil.  Since forks are harmless, the benefits
+      of autosync far outweigh the risks.
 
   1.  **Fossil supports embedded Pikchr in Wiki and in the Forum.**</p>
       [Pikchr](https://pikchr.org/) is a 
@@ -278,7 +283,7 @@ one, so it seems expedient to check-in this draft.*
       GitLab, Gitea, Forgejo, and similar generally support some variant
       of Markdown.  However, none of these system support links (apart from
       full URLs) to other wiki systems.  Fossil does support interwiki links
-      using the syntax "<tt>remote:path</tt>".  So, for example, a check-in
+      using the syntax "<tt>remote:path</tt>".  So, for example, a checkin
       in the SQLite source repository (<https://sqlite.org/src>) that wants
       to reference a bug report (perhaps because it fixes the bug) can
       include a link of the form "<tt>bugs:/info/</tt><i>HASH</i>" to
@@ -295,28 +300,41 @@ one, so it seems expedient to check-in this draft.*
       of the source repository can map to a clone of the Bugs Forum
       repository.
 
-  1.  **Fossil has a built-in chat server**<p>
+  1.  **Fossil has a built-in chat server.**<p>
       Users with appropriate permissions (usually just known and registered
       developers, not anonymous passers-by) can bring up a web-based chat
       server on any Fossil web-server instance.  This feature allow
       geographically distributed developers to collaborate interactively,
       without having to involve a third-party chat provider such as Slack.
-      Fossil can be configured to automatically report new check-ins and
-      other activities as chat messages, so that developers are alerted to
-      changes.  This feature is built-in to every Fossil web interface
-      and it works with any modern web browser.  No extra plugins or
-      JS frameworks are required.  Nothing need to be configured, other
+      Nothing need to be configured in order to activate Chat, other
       that enabling the Chat privilege on the permission bits of the
       users whom you want to have access to Chat.
 
-  1.  **Fossil supports hyperlinks in check-in comments.**<p>
+  1.  **Fossil chat can be configured to send automatic notifications
+      when changes occur in the repository.**<p>
+      This helps developers keep up with what is happening in the repository.
+      The chat window beeps (or not, configurable individually by each user)
+      when new messages arrive, as an alert.
+
+  1.  **The Fossil Chat system has hooks that allow external subsystems
+      to inject chat message.**<p>
+      The SQLite developers use this to get notifications of testing
+      failures from our fuzz testing infrastructure.  It could also
+      be leveraged to get chat notifications of CI/CD problems.
+
+  1.  **Fossil chat is able to send attachments.**<p>
+      When the SQLite developers are working collaboratively on a problem
+      (while sitting, literally, in three different continents) we easily
+      send patches or diffs to one another over Chat.
+
+  1.  **Fossil supports hyperlinks in checkin comments.**<p>
       Check-in comments need not be just verbatim text (though they can
-      be depending on repository settings).  By default, check-in
+      be depending on repository settings).  By default, checkin
       comments can contain hyperlinks, including hyperlinks to
-      wiki pages, prior check-ins, forum posts, and interwiki hyperlinks.
+      wiki pages, prior checkins, forum posts, and interwiki hyperlinks.
 
   1.  **Fossil supports hyperlink back references**<p>
-      If the check-in comment for a newer commits contains a hyperlink
+      If the checkin comment for a newer commits contains a hyperlink
       back to an older commit, then when the web interface show the
       details of the older commit, it also provides are forward
       reference to the newer commit.
@@ -326,9 +344,9 @@ one, so it seems expedient to check-in this draft.*
       This is not strictly necessary to make effective use of bisect, but
       the graphical display does seem to help with situational awareness.
 
-  1.  **Fossil allows you to revise a check-in comment without
+  1.  **Fossil allows you to revise a checkin comment without
       rewriting history.**<p>
-      If you find a typo or other error in an historical check-in comment,
+      If you find a typo or other error in an historical checkin comment,
       you can fix the problem in Fossil without having to rewrite all
       subsequent history.  The Fossil file format allows you to set
       a special tag on the checkin you want to revise (actually a
@@ -339,55 +357,55 @@ one, so it seems expedient to check-in this draft.*
       preserved, so there is still an immutable audit trail.  But for
       common use cases, only the new revised comment is shown.
       <p>
-      If you are using the web interface and if you have check-in privilege
-      on the repository, then on the /info page for the check-in, under
+      If you are using the web interface and if you have checkin privilege
+      on the repository, then on the /info page for the checkin, under
       the "Overview" section, to the right of "Other Links:", there is
       an "edit" link that will take you to a page that lets you change
-      the check-in comment from the web interface.  This is the easiest
+      the checkin comment from the web interface.  This is the easiest
       way to make the change.
       <p>
-      See [Fossil check-in b63d654041](/info/b63d65404) for a
+      See [Fossil checkin b63d654041](/info/b63d65404) for a
       recent example.  The original comment is shown in the "Overview"
       section of the checkin details, but the revised comment is show
       in the timeline.
 
-  1.  **Fossil allows you to revise a check-in timestamp without
+  1.  **Fossil allows you to revise a checkin timestamp without
       rewriting history.**<p>
       When generating a new checkin, Fossil uses the current time on the
       system where the commit is occurring.  But if the system clock on
-      that system is incorrect, that can lead to a check-in with an
-      inaccurate timestamp.  It can be the case that prior check-ins
-      have later timestamps or that subsequent check-ins can have
+      that system is incorrect, that can lead to a checkin with an
+      inaccurate timestamp.  It can be the case that prior checkins
+      have later timestamps or that subsequent checkins can have
       earlier timestamps, resulting in goofy-looking "time-warps" in the
       timeline.  This can be correct by add a timestamp correction tag
-      to the faulty check-in to fix the timestamp.
+      to the faulty checkin to fix the timestamp.
       <p>
-      If you are using the web interface and if you have check-in privilege
-      on the repository, then on the /info page for the check-in, under
+      If you are using the web interface and if you have checkin privilege
+      on the repository, then on the /info page for the checkin, under
       the "Overview" section, to the right of "Other Links:", there is
       an "edit" link that will take you to a page that lets you change
-      the timestamp for a check-in from the web interface.  This is the
+      the timestamp for a checkin from the web interface.  This is the
       easiest way to make the change.
 
-  1.  **Fossil allows you to move a check-in to a new branch without
+  1.  **Fossil allows you to move a checkin to a new branch without
       rewriting history.**<p>
       If you mistakenly commit to the wrong branch, you can move that
-      check-in to a new branch by attaching a special tag.
-      Note, however, that this will also move all subsequent check-ins
+      checkin to a new branch by attaching a special tag.
+      Note, however, that this will also move all subsequent checkins
       to that same new branch.
       <p>
       In the SQLite and Fossil projects, when developers mistakenly commit
       on the wrong branch, the usual way we fix that is to move the
-      mistaken check-in to a branch named "mistake".  Sometimes we also
-      set the "hidden" tag on that check-in as well, so that it does not
+      mistaken checkin to a branch named "mistake".  Sometimes we also
+      set the "hidden" tag on that checkin as well, so that it does not
       show up on ordinary timelines (though it is still part of the
       immutable audit history and is visible with special options).
       Then we just redo the commit on the correct branch.
       <p>
-      If you are using the web interface and if you have check-in privilege
-      on the repository, then on the /info page for the check-in, under
+      If you are using the web interface and if you have checkin privilege
+      on the repository, then on the /info page for the checkin, under
       the "Overview" section, to the right of "Other Links:", there is
-      an "edit" link that will take you to a page that lets move the check-in
+      an "edit" link that will take you to a page that lets move the checkin
       to a new branch from the web interface.  You can also do this
       from the Fossil commit-line, but the web interface is easier and less
       error prone.
@@ -398,7 +416,7 @@ one, so it seems expedient to check-in this draft.*
       synced by default.  Unversioned files are used by Fossil itself
       to store [Precompiled Binaries of Fossil](/uv/download.html).
 
-  1.  **Fossil automatically select checkin background colors according to
+  1.  **Fossil automatically selects checkin background colors according to
       the branch that each checkin occurs on.**<p>
       This helps to make the timeline easier to read at a glance, by
       clearly showing which checkins are on which branches.  Developers
@@ -415,7 +433,7 @@ one, so it seems expedient to check-in this draft.*
       pick for that branch name.  This seems like cheating, but I will
       admit that I do this myself, sometimes...
 
-  1.  **The Fossil web interface timeline can be asked to pick check-in
+  1.  **The Fossil web interface timeline can be asked to pick checkin
       colors according to the name of the committer, rather than the branch
       name.**<p>
       Simply add the "ubg" query parameter (mnemonic: User BackGround) and
@@ -424,3 +442,52 @@ one, so it seems expedient to check-in this draft.*
       results in a timeline that gives reader a clearer view of who is
       making changes.
       [Example](/timeline?n=200&y=ci&ubg).
+
+  1.  **Fossil tracks cherrypick merges.**<p>
+      Cherrypicks are recorded as part of the underlying
+      [Fossil file format](/doc/trunk/www/fileformat.wiki).
+      Cherrypicks appear on the timeline as thin dashed lines.
+
+  1.  **Fossil draws arrows pointing forwards in time.**<p>
+      Forward-pointing arrows are far more intuitive than arrows
+      that point backwards in times, like Git uses.  Yes, I am aware
+      that the underlying implementation of Git has pointers going from child
+      to parent, and thus must necessarily go backwards in time.  Fossil
+      has the same pointers.  But just because the *implementation*
+      points backwards in time does not mean that the *user interface*
+      needs to do the same.  Fossil flips those pointers around so that
+      they make more sense from the perspective of the human reader.
+
+  1.  **Fossil implements some unix-like shell commands to use as
+      substitutes on systems that don't have them or that have inferior
+      implementations.**<p>
+      For example the "fossil system ls" command works like the standard
+      "ls" command on unix.  It doesn't support all the options that a typical
+      "ls" implementation supports on Linux, but it is still way better than
+      having to run "dir". Other substitute commands include
+      "date", "pwd", "stty", "unzip", "which", and "zip".  Probably
+      more will be added as needs arise.  Having ready access to these
+      commands built into the standalone Fossil binary makes working on
+      non-Linux platforms more comfortable for unix geeks, and saves having
+      to hunt around and install system-specific alternatives.
+
+  1.  **Fossil can transfer all uncommited changes from a check-out on a
+      remote system over to a check-out on the local machine.**<p>
+      The command is [fossil patch pull](/help?patch).  It contacts the
+      remote system via SSH, updates its local check-out to the same baseline
+      as is found on the remote, then pulls over a minimal set of diffs and
+      applies them.<p>
+      This is very useful in pre-commit testing.  For example, if you have
+      a big change on your desktop, and you want to test it before
+      committing, on multiple platforms, you can ssh over to those other
+      platforms and run "fossil patch pull ... && make test".  When working
+      on SQLite, I will typically do that on a remote Mac, and remote
+      Win11 machine, and on a 32-core remote Linux machine that runs
+      faster than my desktop.
+
+  1.  **Fossil can push uncommitted chagnes to a remote check-out for the
+      same project.**<p>
+      This is the same as the previous but in reverse.  It is used, for
+      example, to push proposed changes up to a secure sandbox to be
+      reviewed by Claude/Codex/Copilot prior to commit.  The sandbox is
+      not able to pull, for security reasons, but it can accept a push.
