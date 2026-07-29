@@ -116,7 +116,7 @@ one, so it seems expedient to checkin this draft.*
       Wiki pages are colocated in the same repository as your code, so that
       they push, pull, sync, and clone together with your code.
 
-  1.  **Fossil can associated a wiki page with a particular checkin.**<p>
+  1.  **Fossil can associate a wiki page with a particular checkin.**<p>
       Rather than including a massive and verbose checkin comment on an
       important checkin (such as the merge of a big new feature), Fossil
       allows you to assign a wiki page to that checkin.  That wiki page
@@ -293,9 +293,9 @@ one, so it seems expedient to checkin this draft.*
       <p>
       Interwiki links are important because (1) they help keep hyperlink
       shorter, thus helping to avoid typos, and (2) if the target wiki
-      ever modes to a new domain, all the links can be automatically
+      ever moves to a new domain, all the links can be automatically
       adjusted using a server setting rather than causing all of the links
-      to go stale, and (3) clone can have different mappings for
+      to go stale, and (3) clones can have different mappings for
       interwiki links, so that (for example) a "bugs:" link in a clone
       of the source repository can map to a clone of the Bugs Forum
       repository.
@@ -364,8 +364,8 @@ one, so it seems expedient to checkin this draft.*
       the checkin comment from the web interface.  This is the easiest
       way to make the change.
       <p>
-      See [Fossil checkin b63d654041](/info/b63d65404) for a
-      recent example.  The original comment is shown in the "Overview"
+      See [Fossil checkin b63d654041](/info/b63d65404) for an
+      example.  The original comment is shown in the "Overview"
       section of the checkin details, but the revised comment is show
       in the timeline.
 
