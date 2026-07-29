@@ -1,5 +1,5 @@
-C Reject\sif\sboth\sHTTP\s1.1\scontent-length\sand\stransfer-encoding\sheaders\sset.
-D 2026-07-28T02:11:09.386
+C Add\sa\sparagraph\sto\swww/forum.wiki,\sin\sthe\sAccessing\sthe\sForum\ssection,\sabout\show\sto\seither\sdisable\sor\sbypass\sthe\snewfangled\sJS\sforum\sbits\sand\suse\sthe\slegacy\sUI\sinstead.\sBased\son\sconfusion\scaused\sby\shaving\sinadvertently\svisited\sa\sforum\spost\svia\s/info\sinstead\sof\s/forumpost.
+D 2026-07-29T13:09:37.019
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -848,7 +848,7 @@ F www/faq.wiki f298490c861b6f2d7cc39b376d0925aad0692312f78df495df7ee6157b7a7cb6
 F www/fileedit-page.md 05b5429894d86d052d647ee354d94a7b18f66e701c23a94040b2517328431260
 F www/fileformat.wiki b9cb9663eb9aca703977ec96bfd0a85e8ea541633c37b392eaf610c6931a873e
 F www/fiveminutes.wiki fec4d042fa75e694bf207729b53401582e7bcc48892ac1ec8e798df1236d169d
-F www/forum.wiki 7d55e4bafd7111f091df42f17f2778805b5a3b298ea5091f0cc68c90869f5fad
+F www/forum.wiki b66b23d58300a2a8cb0bc3b0f2011aef721b1ec9f5fadc1b1fb7e0dbdc79b64b
 F www/foss-cklist.wiki d14757289226fb8373e6d68e772b65bd73c045a9d5e8335c1a55d739330d2b96
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md 6088939531d5bc7792d12ebe6b461b7114eee0a53edecb8aab2e823c28eb8f88
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bd777e5d19d736b96bfe3990eeb1eddb9e65853a515a5f91bfd54886f1bb0be9
-R 4fba8413fa6a95a6bffaa398777f37ba
-U danshearer
-Z 0da90a040f14448a284cb6286fc1dbc0
+P 63826bf8a4ce7300cf45ff16fe82bcd0b132fdb2a9dc561277776f6e72572828
+R 999277b006e433c6247c727f2c55d9ad
+U stephan
+Z 6d9a5ae549d98306a39516c7ef5146e9
 # Remove this line to create a well-formed Fossil manifest.

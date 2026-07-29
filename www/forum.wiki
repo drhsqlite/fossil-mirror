@@ -284,6 +284,17 @@ There are many paths to a repository's Fossil forum:
   panel.</li>
 </ul>
 
+The forum uses JavaScript to allow for a more comfortable editing
+experience than is possible with static HTML. If one takes issue with,
+or has issues with, the JavaScript-based forum editing and response
+features, there are several ways around them: (1) Clients with JS
+disabled should see the legacy (pre-mid-2026) input forms and
+buttons. (2) Adding <code>?nojs</code> to any <code>/forumpost</code>
+URL will disable plugging-in of the JS UI elements. (3) When forum
+posts are visited via <code>/info</code> instead of
+<code>/forumpost</code>, the JS-based UI elements do not plug
+themselves in, leaving the legacy UI intact.
+
 
 <h2 id="moderation">How Moderation Works</h2>
 
