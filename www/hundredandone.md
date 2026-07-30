@@ -1,6 +1,6 @@
 # 101 Reasons Why Fossil Is Better Than Git
 
-*This is a work in progress.  Only 82 reasons have been typed in so far,
+*This is a work in progress.  Only 91 reasons have been typed in so far,
 but I have a separate text file of notes that lists 104 candidate reasons.
 It's just taking me a while to compose and edit the rationale for each
 one, and to arrange the reasons in a sensible order.  I will merge this
@@ -216,6 +216,13 @@ ready to publish.*
       told, but they all require a local clone of the repository.  Apparently
       there is no way to see this information in a web browser running on
       your phone.
+
+  1.  **Fossil has a built-in bug tracking system.**.<p>
+      Tickets are stored in the repository together with source code and
+      push/pull/sync the same as the code.  The ticket system is configurable
+      and distributed.  Repository administrators can determine what
+      fields appear in tickets and what users are allowed to create,
+      edit, or moderate tickets.
 
   1.  **Fossil allows multiple branches with the same name.**<p>
       This is used, for example, to name a lot for branches "experimental"
@@ -864,3 +871,84 @@ ready to publish.*
       rebust and modular design of the Fossil implementation,
       pages like this can be generated, using very little memory or CPU,
       and with not very much code.
+
+  1.  **Fossil allows you to update your current check-out even if it
+      contains uncommitted changes.**<p>
+      This is a very common idiom in Fossil.  You are working on changes
+      and somebody commits ahead of you.  You just run
+      "<tt>fossil&nbsp;up</tt>" ("up" is short for "update") and the new
+      external changes are merge into your own uncommitted changes.  You
+      continue working.
+      <p>
+      Doing this in Git appears to require multiple commands involving
+      the stash and a rebase.
+
+  1.  **Fossil lets you undo an update.**<p>
+      If you run "<tt>fossil&nbsp;up</tt>" on a check-out that contains
+      uncommitted changes, and the update does not go well (for example,
+      if there are a lot of merge conflicts) you can back out the update
+      by running "<tt>fossil&nbsp;undo</tt>".
+      <p>
+      The need for this does not arise often, because
+      "<tt>fossil&nbsp;up</tt>" normally just works.  But the ability to
+      undo is a nice safety for the rare cases when the update goes awry.
+      Current versions of Fossil only support a single level of undo,
+      but that might change in the future.
+
+  1.  **Fossil warns you if you try to commit and somebody else has
+      committed and pushed ahead of you.**<p>
+      You can then run "<tt>fossil&nbsp;up</tt>" and then retest and retry.
+      Or you can override the warning and force Fossil to commit anyhow,
+      thus forking the branch.  Either way,
+      you enter the commit with more knowledge about what is happening,
+      and thus improved situational awareness.
+
+  1.  **Every Fossil project has a unique identifier**.<p>
+      When a new repository is created, the unique identifier is created
+      and stored in the repository.  That identifier is called the
+      "project code".  The identifier is copied with every
+      clone.  (Uniqueness is probabilistic. The identifier simply contains
+      enough of high-quality randomness to make it unlikely that there
+      will ever be a collision.)
+      <p>
+      It is not possible in Fossil to push to or pull from a repository
+      with the wrong project code.  Thus you cannot contaminate one
+      project with code from another simply by specifying the wrong
+      remote and adding the --force flag, as is apparently possible in Git.
+
+  1.  **Each Fossil repository keeps an audit trail.**<p>
+      For each new artifact received into a Fossil repository, by push or
+      pull or by direct commit from the command line, Fossil records a
+      timestamp, username, and an IP address (where applicable) for
+      that artifact.  If harmful or malicious is ever introduced into
+      a repository, the repository administrator has the capability to
+      trace that content back to its source, so that appropriate
+      sanctions can be applied to the malefactor.
+
+  1.  **Fossil stores content in a power-safe ACID database.**<p>
+      The repository content cannot be corrupted by a program crash,
+      system crash, or unexpected power loss.  The repository moves
+      from one consistent state to another, atomically.  This helps
+      to ensure that the resources stored in Fossil are kept safe,
+      even if the Fossil implementation itself contains bugs.
+      <p>
+      The underlying datbase engine used by Fossil is SQLite, of course.
+      <p>
+      Git also claims to be transactional.  However, because Git does
+      not use a separate database engine, the transactional integrity
+      of Git depends entirely upon the correctness of the Git code
+      itself.  Git is thus far more sensitive to implementation bugs.
+
+  1.  **Fossil supports a built-in graphical diff tool.**<p>
+      Running "<tt>fossil&nbsp;gdiff</tt>" show the currently
+      uncommitted changes in a Tk-based graphical display.  This
+      is built into Fossil and does not require any external tools
+      (though it does require Tcl/Tk).  Git requires external tooling
+      in order to do the same.
+
+  1.  **Fossil support showing diffs in a web browser.**<p>
+      Adding the "<tt>-b</tt>" or "<tt>-by</tt>" option to any Fossil
+      diff command causes that diff to be rendered as a new page in
+      the users default web browser.  Git does not have any such
+      capability, even with the aid of external programs, as far as
+      I am aware.
