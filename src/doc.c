@@ -880,8 +880,8 @@ void document_render(
 /*
 ** WEBPAGE: uv
 ** WEBPAGE: doc
-** URL: /uv/FILE
-** URL: /doc/CHECKIN/FILE
+**
+** URLs can be either /doc/CHECKIN/FILE or /uv/FILE.
 **
 ** CHECKIN can be either tag or hash prefix or timestamp identifying a
 ** particular check-in, or the name of a branch (meaning the most recent

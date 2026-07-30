@@ -1,5 +1,5 @@
-C Minor\spedantic\sdoc\stouchups\s[https://claude.ai/code/artifact/c121be7a-5c6a-4a18-ab7f-63d086ac8071|suggested\sby\san\sLLM]\sfocused\son\sRFCing\sthe\sfossil\sartifact\sformat.
-D 2026-07-30T10:36:33.188
+C Improvements\sto\sthe\sdocumentation\sfor\sthe\s/doc\sand\s/uv\spages.
+D 2026-07-30T21:47:58.586
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -426,7 +426,7 @@ F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 3e98ffcb81feab8288c26101b7260e09821c51f5e434ff6880ea4407e796bf8d
 F src/diffcmd.c 723ef6411493dc00b0f497b9623fcc6e59dec43fafe5489d05724a8164637566
 F src/dispatch.c f9b0602b200fb378bed080e327e2cf7db08f683c21aa81ba834be0ac7c597b88
-F src/doc.c f34584042c9a4e2ff3223e7a8bab7154f6824ba413ad909aac54b65681428d77
+F src/doc.c f938d93ea40675e563863b06631a4b266a9f343965ee31c9b1ea999b753a8d0a
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
 F src/event.c 2f44da7c6151346d8879a0b16e65120a9a092844dbb666c0dcf42f778408ac10
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a131cfa173b0a198fda720b85fa3e444b05b3734d06b30d403e46e304c160d6
-R f4170f68299d82ccf73e918cf0e08278
-U stephan
-Z b90140fbd99146d430f671670536ea7f
+P f44ad30da14633f9bfd82ea207c3dab625f3bc3915722484e8781a84fcd21d00
+R 5b508c707a75dcab4a1d20c1f89b0cd4
+U drh
+Z 2404d565873866a20528355772cf4745
 # Remove this line to create a well-formed Fossil manifest.
