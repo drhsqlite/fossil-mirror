@@ -277,7 +277,8 @@ relationships, including the timeline, are *transient*, how can Fossil
 distinguish between the two types of data?
 
 Fossil's artifact format is extremely rigid and is *strictly* enforced
-internally, with zero room provided for leniency. Every artifact which
+internally, with very near zero room provided for leniency (barring a
+small handful of historical compatibility cases). Every artifact which
 is internally created is re-parsed for validity before it is committed
 to the database, making it impossible that Fossil can inject an
 invalid artifact into the repository. Because of the strictness of the
