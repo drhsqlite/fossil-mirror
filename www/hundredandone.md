@@ -1,9 +1,11 @@
 # 101 Reasons Why Fossil Is Better Than Git
 
-*This is a work in progress.  I only have 38 reasons typed in so far,
+*This is a work in progress.  Only 60 reasons have been typed in so far,
 but I have a separate text file of notes that lists 104 candidate reasons.
 It's just taking me a while to compose and edit the rationale for each
-one, so it seems expedient to checkin this draft.*
+one, and to arrange the reasons in a sensible order.  I will merge this
+document from its current branch onto trunk when it gets closer to being
+ready to publish.*
 
   1.  **Fossil comes as a single self-contained executable file**.<p>
       Install Fossil by copying "fossil" (or "fossil.exe") to someplace
@@ -35,13 +37,53 @@ one, so it seems expedient to checkin this draft.*
       See, for example <https://sqlite.org/src/timeline> or
       <https://fossil-scm.org/home/timeline>.  Similar timeline features
       for Git are available from the command-line for a local clone
-      (for example using "gitk" or other third-party extensions), but
+      (for example using "gitk" or other third-party programs), but
       nothing with anything close to the capabilities of the Fossil
       timeline is available via a web interface, as far as I know.<p>
       Using the web interface, one can easily check on the status
       of a project when away from the office and without access to a clone
       of the repository, just by visiting a link using
       any web browser, even from a phone.
+
+  1.  **The graphical timeline dynamically adjusts its layout as you resize 
+      your browser window.**<p>
+      The server sends down JSON that gives the basic structure of the
+      timeline graph, then Javascript renders the graph.  The JS code is
+      small, does not use any third-party frameworks, and is (by default)
+      appended to the HTML page.  There is a separate CSS file, but apart
+      from that, the HTML page is completely stand-alone.  The local
+      web browser isn't required to go gather lots of separate resources.
+
+  1.  **The graphical timeline works on a phone.**<p>
+      The layout can get a little cramped on a small display.  The
+      timeline does look better on a desktop.
+      Even so, it is functional on a phone and it is very convenient
+      to be able to see what is happening on a project
+      while away from the office and without access to a laptop.
+
+  1.  **The graphical timeline is bandwidth efficient.**<p>
+      To display a timeline of recent activity on Fossil uses less
+      than 5% of the bandwidth as does GitHub.  In a typical example,
+      GitHub requires about 3.5MB of transfer compared to 150KB for
+      Fossil.  And for all that 3.5MB, GitHub just gives you a list
+      of recent check-ins without any indication of the branching
+      structure, whereas Fossil gives you an easy-to-read color-coded
+      graph.
+
+  1.  **The Fossil web interface makes it easy to see a diff between
+      any two checkins with just a couple of clicks.**<p>
+      On the timeline display, click on one node of the graph to
+      select it (a red dot will appear in the center of the node) and
+      then click on any other graph node, and Fossil will compute and
+      display a diff between those two check-ins.
+
+  1.  **The Fossil web-based diff page shows the context of the two
+      checkins being diffed.**<p>
+      At the top of the web-based diff is a graph that shows
+      specifically the two checkins being diffed and the context
+      around them.
+      [Example](/vdiff?from=052390edaf04a5f5&to=9b686daeeda7b4ca).
+      This helps to relieve any confusion about what you are looking at.
 
   1.  **In Fossil, a repository is distinct from a working check-out.**<p>
       A Fossil repository can be colocated with the working check-out, as
@@ -81,12 +123,12 @@ one, so it seems expedient to checkin this draft.*
       This and other information (such as all your global settings)
       is stored in a per-user database file
       at $HOME/.config/fossil.db on unix or in %LOCALAPPDATA%/_fossil on
-      Windows.  Fossil creates and manages that file automatically; you
-      the user never have to touch it or even know it exists.  If you
+      Windows.  Fossil creates and manages that file automatically.
+      The user never has know the file even exists.  If you
       move or rename repositories or check-outs, the database will get
       temporarily out of sync with reality, but Fossil will automatically
-      resynchornize the next time you do anything with the file or check-out
-      that was moved or renamed.<p>
+      fix the database the next time you do anything with the file or
+      check-out  that was moved or renamed.<p>
       You can get a list of repositories using the "fossil all ls" command,
       or a list of open check-outs using "fossil all ls --ckout".
 
@@ -141,10 +183,10 @@ one, so it seems expedient to checkin this draft.*
       assigned to the leaf.  Fossil actually remembers the name of
       the branch.  For example, suppose a customer asks
       "Whatever became of that setlk-snapshot-fix branch you
-      started last year?"  That branch still exists and you
-      can [see it on GitHub](https://github.com/sqlite/sqlite/commits/setlk-snapshot-fix)
+      started last year?"  That branch still exists and you can
+      [see it on GitHub](https://github.com/sqlite/sqlite/commits/setlk-snapshot-fix)
       and [in Fossil](https://sqlite.org/src/timeline?r=setlk-snapshot-fix).
-      Notice, thought, that GitHub does not show how the branch was resolved.
+      Notice, though, that GitHub does not show how the branch was resolved.
       (Aside: Also notice how much faster Fossil renders!)
       Fossil clearly shows that the branch ended up being merged into trunk.
       GitHub just shows us all ancestors of the leaf node labeled
@@ -155,15 +197,15 @@ one, so it seems expedient to checkin this draft.*
       GitHub just cannot shows you the checkins of branch setlk-snapshot-fix
       only.  There are other third-party tools that will show you that, I am
       told, but they all require a local clone of the repository.  Apparently
-      there is no way to see this information in a web browser runnig on
+      there is no way to see this information in a web browser running on
       your phone.
 
   1.  **Fossil allows multiple branches with the same name.**<p>
       This is used, for example, to name a lot for branches "experimental"
-      and mistake".  See
+      or "mistake".  See
       <https://sqlite.org/src/timeline?r=experimental> and
       <https://sqlite.org/src/timeline?r=mistake>.  Or see
-      [the empty-table-optimizations branch(es)](https://sqlite.org/src/timeline?r=empty-table-optimizations) which was initially mergde to trunk and closed
+      [the empty-table-optimizations branch(es)](https://sqlite.org/src/timeline?r=empty-table-optimizations) which was initially merged to trunk and closed
       on 2025-07-02, but then reopened and continued with more enhancements
       until it was merged again on 2025-07-08.  
 
@@ -174,7 +216,7 @@ one, so it seems expedient to checkin this draft.*
       against SHA1 was published on 2017-02-23, the need to migrate to a
       stronger hash algorithm was recognized.  Fossil added the ability
       to use SHA3-256 as an alternative on 2017-03-01 (six days after the
-      attack was first published), and to this day
+      SHAttered attack was first published), and to this day
       it continues to support both.  SHA3-256 is now the default for all
       new repositories and checkins, though older checkins that occurred
       prior to ShAttered can still use their original SHA1 hash and so no
@@ -200,7 +242,7 @@ one, so it seems expedient to checkin this draft.*
       as an option and are often useful.
 
   1.  **Fossil has a built-in forum.**<p>
-      The forum content replicated via push, pull, sync, and clone just like
+      The forum content is replicated via push, pull, sync, and clone just like
       source code.  Forum posts can be enabled per user or for all user or
       for all users and anonymous passers-by.  Some user can be appointed
       as moderators and posts from untrusted users can be held for
@@ -210,9 +252,9 @@ one, so it seems expedient to checkin this draft.*
       [SQLite User Forum](https://sqlite.org/forum), and the
       [SQLite Bugs Forum](https://sqlite.org/bugs) are all forums
       set up for specific purposes and deliberately kept separate
-      from source code.  But for other projects such as
-      [Pikchr](https://pikchr.org/) the Forum and the source code
-      are colocated in the same repository.  Thus when you clone the
+      from source code.  But other projects such as
+      [Pikchr](https://pikchr.org/) comingle their forum and the source code
+      in the same repository.  Thus when you clone the
       Pikchr source repository, you also get all the Forum history.
 
   1.  **Fossil makes it easy to set up a project website using CGI.**<p>
@@ -229,11 +271,41 @@ one, so it seems expedient to checkin this draft.*
          #!/usr/bin/fossil
          repository: /Fossils/fossil.fossil</pre>
       You can, of course, also create a self-hosting website using
-      GitLab or similar, but the setup and maintenance is somewhat more
-      involved.  You'll also probably need a bigger machine if you are
-      using GitLab, whereas a Fossil website
+      GitLab or Forgejo or similar, but the setup and maintenance is
+      somewhat more involved.  You'll also probably need a bigger machine
+      if you are using GitLab, whereas a Fossil website
       works fine on a 2GiB Raspberry PI or a $6/month VPS.  In fairness,
       I am told that Gitea and Forgejo also work well on a small machine.
+
+  1.  **Fossil makes it easy to set up a project website using SCGI.**<p>
+      CGI is easier, but some web servers (ex: Nginx) do not support CGI.
+      If you are using such a web server, you can also run a Fossil
+      server using SCGI. See the
+      [on-line Fossil SCGI documentation](/doc/trunk/www/scgi.wiki)
+      for details.
+
+  1.  **Fossil makes it easy to set up a project website behind a
+      reverse proxy.**<p>
+      Simply run a [Fossil HTTP server](/doc/trunk/www/server/any/none.md)
+      and have your reverse proxy redirect requests to the local server.
+
+  1.  **Fossil makes it easy to set up a project website without
+      using any web server at all.**<p>
+      The [fossil server command](/help/server) includes a --cert
+      option with which you can specify a TLS cert for encrypted
+      communication, and with the option, Fossil will except ordinary
+      HTTPS requests from the open internet.  There is no need to
+      install and configure a separate web server.
+
+  1.  **A single Fossil server is able to host multiple projects.**<p>
+      By default, each Fossil server provides content for a single
+      repository.  But you can launch a Fossil server that hosts
+      multiple repositories by putting all those repositories in a
+      directory and giving the directory name as the object to serve
+      instead of the repository name.  For this mode of operation,
+      the repositories must be named with the "<tt>.fossil</tt>" file
+      suffix.  Individual projects have URLs that begin with the
+      repository base name, omitting the "<tt>.fossil</tt>" suffix.
 
   1.  **Fossil automatically pushes after each commit, by default**.<p>
       The [autosync setting](/help/autosync), which defaults to "on", causes
@@ -344,6 +416,30 @@ one, so it seems expedient to checkin this draft.*
       This is not strictly necessary to make effective use of bisect, but
       the graphical display does seem to help with situational awareness.
 
+  1.  **Fossil can show you the first release in which a particular
+      checkin appears, in a single mouse click.**<p>
+      You have to configure the repository by giving it the name of the
+      tag that you use to mark releases, using the
+      [path-to-tag setting](/help/path-to-tag).  Suppose you use the tag
+      name "release".  Once you do that, then
+      when your are looking at the "info" page for a checkin, a link
+      named "path-to-release" appears in the overview section, and if
+      you click on that link, it brings up a new graph showing the
+      shortest path from that checkin to the next descendant checkin
+      tagged with "release".
+      <p>
+      Example: On the info page at 
+      <https://sqlite.org/src/info/b1d7123bc619e3cb>, in the Overview
+      section at the top, to the right of the "Timelines:" label, you
+      will see the "path-to-release" link.  Click that link to take you
+      to a page showing an abbreviated path from the original checkin
+      to the first "release" checkin that contains the change.  To
+      See the full path, uncheck the "Brief" box near the top of the page.
+      <p>
+      This feature is useful for when you bisect to find a bug, or a bug
+      fix, and want to know the first release in which that bug or bug fix
+      appeared.
+
   1.  **Fossil allows you to revise a checkin comment without
       rewriting history.**<p>
       If you find a typo or other error in an historical checkin comment,
@@ -415,6 +511,10 @@ one, so it seems expedient to checkin this draft.*
       in the repository but which are not versioned are which are not
       synced by default.  Unversioned files are used by Fossil itself
       to store [Precompiled Binaries of Fossil](/uv/download.html).
+      <p>
+      Unversioned contain is not synced *by default*.  But it will
+      sync if you add the -u option to the [fossil sync command](/help/sync).
+      There are also the [fossil uv sync](/help/uv) command.
 
   1.  **Fossil automatically selects checkin background colors according to
       the branch that each checkin occurs on.**<p>
@@ -473,7 +573,7 @@ one, so it seems expedient to checkin this draft.*
 
   1.  **Fossil can transfer all uncommited changes from a check-out on a
       remote system over to a check-out on the local machine.**<p>
-      The command is [fossil patch pull](/help?patch).  It contacts the
+      The command is [fossil patch pull](/help/patch).  It contacts the
       remote system via SSH, updates its local check-out to the same baseline
       as is found on the remote, then pulls over a minimal set of diffs and
       applies them.<p>
@@ -485,9 +585,63 @@ one, so it seems expedient to checkin this draft.*
       Win11 machine, and on a 32-core remote Linux machine that runs
       faster than my desktop.
 
-  1.  **Fossil can push uncommitted chagnes to a remote check-out for the
+  1.  **Fossil can push uncommitted changes to a remote check-out for the
       same project.**<p>
       This is the same as the previous but in reverse.  It is used, for
       example, to push proposed changes up to a secure sandbox to be
       reviewed by Claude/Codex/Copilot prior to commit.  The sandbox is
       not able to pull, for security reasons, but it can accept a push.
+
+  1.  **Fossil lets you set up aliases for remote checkouts with which
+      you commonly push or pull.**<p>
+      My desktop is named "r21" and I normally do SQLite development
+      work in the direcctory ~/sqlite/sqlite.  If I have uncommitted
+      changes that I want to test on Windows, I SSH over to the Win11
+      machine then run a commands like:<pre>
+        fossil patch pull r21:sqlite/sqlite -f
+        make clean test</pre>
+      But typing in "r21:sqlite/sqlite" can be tedious and error-prone,
+      maybe not so much in this particular examples, but definitely the
+      case for longer hostnames and subdirectory paths.  Fortunately,
+      Fossil allows us to define patch alias.  On my Win11 machine,
+      the alias named "@" is defined as "r21:sqlite/sqlite" and so I
+      can get by with typing just:<pre>
+        fossil patch pull @ -f</pre>
+      (Aside: the -f option tells the command to first "revert" any
+      uncommitted changes prior currently in the checkout prior to pulling
+      over the new ones from r21:sqlite/sqlite.  Without that option, the
+      changes would be merged.)
+      
+
+  1.  **Fossil allows you view uncommitted changes on a remote machine
+      in a web browser over SSH.**<p>
+      Suppose you have some edits on a remote, headless machine and you
+      would like to review those changes.  Fossil lets you see those
+      changes using a command like:<pre>
+        fossil ui remote:path/to/checkout</pre>
+      Substitute the name of your remote and the path to the checkout
+      on the remote, of course.<p>
+      The way this works is that Fossil opens an SSH connection to the
+      remote machine that runs [fossil server](/help/server) on the
+      remote and that tunnels the HTTP content back through SSH connection
+      to your desktop.  At the same time, Fossil brings up your default
+      web browser and points it to the local end of your SSH tunnel.
+
+  1.  **Fossil lets you browse a repository on a remote, headless machine
+      over an SSH connection.**<p>
+      Just run "<tt>fossil ui remote:path/to/repository</tt>" (substituting
+      in the name of the remote machine and the path to the repository you
+      want to browse, of course) and Fossil will pop up a new page on your
+      default web browser (on your desktop!) that is connected over an
+      SSH tunnel to that remote repository.
+
+  1.  **Fossil lets you see all repositories on a remote, headless machine
+      all at once, over SSH.**<p>
+      The command is "<tt>fossil ui remote:/</tt>".  Substitute the name of
+      the remote machine, of course.  The special pathname "/" indicates to
+      Fossil that you want to view all of the repositories on that machine.
+      It causes Fossil to consult the $HOME/.config/fossil.db file
+      (or %LOCALAPPDATA%/_fossil on Windows) to find the locations of all
+      repositories on the remote machine, then bring up a web page listing
+      all those repositories.  Links on that initial page let you explore
+      deeper into the details of each repository.
