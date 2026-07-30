@@ -1,6 +1,6 @@
 # 101 Reasons Why Fossil Is Better Than Git
 
-*This is a work in progress.  Only 60 reasons have been typed in so far,
+*This is a work in progress.  Only 82 reasons have been typed in so far,
 but I have a separate text file of notes that lists 104 candidate reasons.
 It's just taking me a while to compose and edit the rationale for each
 one, and to arrange the reasons in a sensible order.  I will merge this
@@ -143,6 +143,23 @@ ready to publish.*
       system, this feature makes it easier to keep track of them all.
       Are you on an infrequently used travel laptop and forgot where you
       put a particular repository, this feature helps you find it.
+
+  1.  **Fossil lets you quickly find all of your local checkouts that have
+      uncommitted changes.**<p>
+      Simply run "<tt>fossil&nbsp;all&nbsp;changes</tt>" to get a quick
+      summary of every checkout on your local machine that needs a commit.
+
+  1.  **Fossil lets you sync all of the changes in all of your local
+      repositories to their remotes, with a single command.**<p>
+      Run "<tt>fossil&nbsp;all&nbsp;sync</tt>" and all your local
+      repositories will sync up.  This is useful, for example when
+      taking a laptop off-network.  Before disconnecting, you sync
+      all of your repositories (I typically have about a hundred)
+      with a single command, so there is no chance that you forget
+      one.  While off-network, you might commit changes to one or
+      more of those repositories.  Once you reconnect, you simply
+      run "fossil all sync" again to push out your edits to the
+      rest of the community.
 
   1.  **Fossil allows multiple checkins to have the same tag.**<p>
       For example, on the SQLite project, every release is tagged with
@@ -343,6 +360,34 @@ ready to publish.*
       for details.  Markdown, Wiki, plain-text, and HTML files in the
       source tree can be rendered and used as documentation pages.  This
       is how all of the documentation files for Fossil itself are rendered.
+
+  1.  **Fossil can easily host an entire project website, using only the
+      repository as the backing store.**<p>
+      The embedded documentation and wiki features allow you to write
+      web pages.  The unversioned file feature gives you space to put of
+      precompiled binaries or other transient and/or derived resources
+      without contaminating the source tree.  Indeed, the
+      [canonical Fossil website](https://fossil-scm.org/home) is just
+      an instance of Fossil running on the self-hosting Fossil repository.
+      If you clone the Fossil self-hosting repository, you don't get just
+      code - you get the entire website.  (Exception:  
+      [Fossil Forum](https://sqlite.org/forum) is hosted separately using
+      a separate Fossil repository, so you'd actually need to clone that
+      one too, in order to get the whole website.)
+
+  1.  **Using Fossil, backing up your project website is just a sync.**<p>
+      If you do host your entire project website in a Fossil repository,
+      as Fossil itself does, then backing up that website is as simple
+      as creating a clone and keeping the clone synced.
+
+  1.  **Fossil will render uncommitted changes to embedded documentation.**
+      <p>
+      Using the "<tt>fossil&nbsp;ui</tt>", if in for the
+      [/doc/VERSION/FILE](/help/www/doc) webpage, if the VERSION is the
+      special keyword "ckout", then the content is taken from the local
+      checkout not from the repository.  This allows you to edit embedded
+      documentation files and then see how they look and work on the
+      actual website without having to commit.
 
   1.  **Fossil has a wiki sandbox for experimenting with markup.**</p>
       The [wiki sandbox](/wikiedit?name=Sandbox) allows users to experiment
@@ -611,7 +656,6 @@ ready to publish.*
       uncommitted changes prior currently in the checkout prior to pulling
       over the new ones from r21:sqlite/sqlite.  Without that option, the
       changes would be merged.)
-      
 
   1.  **Fossil allows you view uncommitted changes on a remote machine
       in a web browser over SSH.**<p>
@@ -645,3 +689,178 @@ ready to publish.*
       repositories on the remote machine, then bring up a web page listing
       all those repositories.  Links on that initial page let you explore
       deeper into the details of each repository.
+
+  1.  **The Fossil web interface supports multiple timeline formats, to
+      accommodate personal tastes.**<p>
+      The different formats are called "Views".  The current repertiore
+      includes "Modern", "Columnar", "Compact", "Simple", "Verbose", and
+      "Classic".  Users can select whichever format they want and their
+      preference is remembered in a cookie.
+
+  1.  **A Fossil web server admin can set the default timeline format.**<p>
+      Individual users have a lot of control over what their own timeline
+      displays look like, but the repository administrator can set the
+      default separately for each repository.
+
+  1.  **Fossil is open and transparent about the cookies that it uses.**<p>
+      There are really only two:  The login cookie (if you are logged in)
+      and the display preferences cookie.  If you visit the
+      [/cookies page](/cookies), Fossil will
+      show you all the cookies it use and it will decode them for you to
+      show you exactly what they mean and what information they are holding
+      and give you an opportunity to delete them individually.
+
+  1.  **The Fossil web interface comes with a variety of "skins" built in.**<p>
+      Visit the [/skins page](/skins) to see all the available skins and
+      which one is currently in use.
+
+  1.  **Individual users get to choose their favorite Fossil skin.**<p>
+      The repository administrator sets the default skin, but if
+      individual users do not like that choice, they can select a different
+      skin and their choice is recorded in the display preferences cookie.
+
+  1.  **Repository administators can create new custom skins.**<p>
+      The current library of skins are most derived from custom skins that
+      users of Fossil have created over the years and generously donated
+      to the project.  If none of the default skins work for you, you can
+      create your own, perhaps using one of the existing skins as a template.
+ 
+  1.  **Most Fossil web-interface skins include a hamburger (☰) menu.**<p>
+      Clicking on the hamburger menu brings up a dropdown "site-map"
+      page that lets you quickly navigate to the information you want.
+      (Note: The presence an operation of the hamburger menu is a
+      skin-specific feature and might not be present on every skin, but
+      it is used on the more popular skins.)  Curiously, none of GitHub,
+      GitLab, Gitea, nor Forgejo have a hamburger menu, which in my
+      experience makes sites based on those systems much harder to
+      navigate.
+
+  1.  **The Fossil web interface /sitemap page is responsive to
+      individual user permissions and capabilities.**<p>
+      Each user on the Fossil web interface, including the special
+      user "nobody" used if no login is attempted, has rich collection
+      of "capabilities" assigned by the repository administrator.
+      Depending on capabilities, some pages will display different or
+      will not display at all.  Pages that a user does not have access
+      to are automatically omitted from the [/sitemap page](/sitemap).
+
+  1.  **The Fossil web interface allows "anonymous" users.**<p>
+      The "anonymous" user is a human (we think, because he has solved
+      a captcha) but we do not know who.  User who do not want to
+      identify themselves but who also don't want to be mistaken for
+      a spider or robot can log in as anonymous.
+      <p>
+      The repository administrator has complete control over the capabilities
+      of anonymous.  Anonymous can be completely banned, or maybe given
+      read-only capabilities, or given complete access, with lots of shade
+      in between, according to the needs of the project.
+      <p>
+      The "anonymous" user is distinct from user "nobody" in that we
+      believe anonymous is a real human, whereas user nobody is presumed
+      to be a robot.  The repository administrator also has complete control
+      over the capabilities for user "nobody".
+
+  1.  **The Fossil web interface has lots of built-in defenses against
+      abuse by spiders and robots.**<p>
+      Sadly, the internet is rapidly devolving such that most HTTP requests
+      now come from AI spiders trying to find training content, and/or robots
+      looking for website vulnerabilities.  The flood of requests can
+      rapidly bog down an undefended server.  Fossil includes a range of
+      defenses against aggressive bots that help keep the server load and
+      hence ISP costs down while still providing fast and detailed responses
+      to real humans.  This is an on-going battle.  But Fossil is, at least,
+      in the fight.  Everything is easily configurable, via the web interface,
+      by repository administrators.
+
+  1.  **The Fossil web interface includes a "security audit" page accessible
+      to repositoriy administrators.**<p>
+      The security-audit pages give a succinct summary of how a repository
+      web interface is configured, with an eye toward operational security.
+      As with any full-featured web application, the Fossil web interface
+      as a large number of settings.  A common worry amoung system
+      administrators is overlooking or omitting or misconfiguring some
+      security-sensitive setting.  The security-audit page is designed to
+      assuage that worry.
+      <p>
+      The security-audit shows at a glance how a repository web interface
+      is set up, and raises alerts about any settings that are questionable
+      or that might facilitate mischief.  The page fits on a single screen
+      with minimal or no scrolling.  After standing up a new Fossil server,
+      a quick glance at the security-audit page (accessible only to
+      administrators) gives peace of mind that all is well and that nothing
+      was overlooked.
+
+  1.  **The Fossil web interface menu bar can be customized.**<p>
+      Repository administrators can customize the menu bar on the web
+      interface.  Individual items can be added or omitted from the
+      menu bar based on user capabilities and/or whether or not the
+      client is a phone or other narrow-screen mobile devide, a standard
+      desktop browser, or a wide-screen desktop browser.
+
+  1.  **The Fossil web interface sitemap can be customized.**<p>
+      Repository administrators can add new entries to the
+      [/sitemap](/sitemap) that are shown or omitted
+      based on user capabilities.
+
+  1.  **The Fossil web interface can be augmented with auxiliary content
+      and/or CGIs that exist outside of the repository.**<p>
+      The auxiliary content or CGI result uses the same theme and skin as 
+      the default website, and blends right in.  An example of this is
+      the 
+      [SQLite Release Checklist](https://sqlite.org/src/ext/checklist/top/index).
+      The SQLite Release Checklist is a CGI that is completely separate from
+      Fossil, but appears to be integrated in the Fossil web interface.
+      It uses the same skin and interface settings.  But the content is
+      created by a separate CGI program.  Fossil passes down additional
+      CGI variables to tell the CGI what the Fossil user name is and what
+      capabilities that user has, among other things.  In the case of the
+      SQLite Release Checklist, those additional settings mean only project
+      committers can make changes to the checklist (such as marking items
+      as "done") and that the checklist is read-only for the general public.
+      <p>
+      Additional information about this advanced feature of Fossil
+      can be seen at <https://fossil-scm.org/home/doc/trunk/www/serverext.wiki>.
+
+  1.  **Experts can browse low-level details of a Fossil repository
+      using SQL.**<p>
+      A Fossil repository is just an SQLite database file.  Low-level content
+      of that database file can be viewed and even changed using ordinary
+      SQL and the "<tt>fossil&nbsp;sql</tt>" command.  The "fossil sql"
+      command brings up a standard SQLite command-line shell, already
+      connected to the repository database, and extended to include extra
+      functions (including table-valued functions) to help interpret the
+      low-level content of the repository.  This feature is not needed nor
+      recommended for the average user, however, if you want to learn more
+      about the inner workings of Fossil, the SQL interface is a great tool
+      to help you explore.
+
+  1.  **The underlying artifacts of a Fossil repository are well-documented,
+      human-readable, and human-understandable.**<p>
+      A Fossil repository is an SQLite database file, but not every SQLite
+      database file is a Fossil repository.  Fossil repositories store
+      "artifacts" in a very particular format.  See
+      <https://fossil-scm.org/home/doc/trunk/www/fileformat.wiki> for
+      the details of that format.
+      <p>
+      This underlying format is text-only.  It is designed to be easily
+      parsed and interpreted by programs written in any language.  It is
+      designed to be easily understood by humans, even humans not yet born.
+      <p>
+      Many of the low-level artifact formats for Git, in contrast, are
+      binary and are only thinly documented.
+
+  1.  **The Fossil web interface has a "This Day In History" page.**<p>
+      See that page for [Fossil](/thisdayinhistory) or
+      [SQLite](https://sqlite.org/src/thisdayinhistory).
+      It should multiple timeline snippets for a day that at various
+      points in the past.
+      <p>
+      This is something of a vanity page.  It is difficult to describe a
+      real business need for this information.  But the page does jog old
+      memories and helps developers keep perspective on how a project has
+      changed through the years.
+      <p>
+      One important aspect of Fossil that this page illustrates due to the
+      rebust and modular design of the Fossil implementation,
+      pages like this can be generated, using very little memory or CPU,
+      and with not very much code.
