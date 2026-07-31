@@ -1051,3 +1051,8 @@
       The ease with which Fossil can be enhanced is part of the reason why
       it has picked up so many useful features and has become so useful
       and powerful over its 19-year lifetime.
+
+## Conclusion
+
+There are more reasons to prefer Fossil over Git, but
+I think 101 is sufficient to prove my point.
