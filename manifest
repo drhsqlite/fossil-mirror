@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sdocumentation\sfor\sthe\s/doc\sand\s/uv\spages.
-D 2026-07-30T21:47:58.586
+C Increase\sthe\ssize\sof\sthe\saPriority&#91;&#93;\sarray\sin\sgraph.c\sby\sone\sto\sensure\nit\snever\soverflows.\n[forum:/info/2026-07-31T06:40:58Z|Forum\s2026-07-31T06:40:58Z]
+D 2026-07-31T11:15:15.653
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -464,7 +464,7 @@ F src/fshell.c 499f7773dcb383dcc6aa742ae1d18640eee20c395d0af11300ac7ea25ffb3495
 F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c b31a20db3489603f88493ec408a56b905418dfb8fe106b108d77e3225ee5da13
 F src/glob.c b5d80245b76fba9bb77b066c5062be2407657e7a87330a24deaebb551a4d1491
-F src/graph.c b86a1572269eab9c0a479d8d6f8e3edd9b1209771a74ab365ff26c00ec39963e
+F src/graph.c d45d2a2ba3d60901ddf0dbd6db45e424cf0e2831188370e8485d6e29476f03c8
 F src/graph.js 6832bf2b15a5ad6a9802c842c511f9bac2cf717015ea9929d0465bd9bec6a309
 F src/gzip.c 7958b376aa8512a41e3b52063c797c180c1767bf4c6ee31e43268525ac2f841f
 F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
@@ -983,8 +983,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f44ad30da14633f9bfd82ea207c3dab625f3bc3915722484e8781a84fcd21d00
-R 5b508c707a75dcab4a1d20c1f89b0cd4
+P 6ab3ff5f778652b221d3f256607124eb693c419fc526a9486e0bbf9d432df2c5
+R 9953bbe984afbfdf6a26d372fef721b0
 U drh
-Z 2404d565873866a20528355772cf4745
+Z 4e02c41eb783c1557c15a2aa2c4ea30e
 # Remove this line to create a well-formed Fossil manifest.

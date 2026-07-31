@@ -1013,7 +1013,7 @@ void graph_finish(
     **
     **    0x01      A rail that merges with the preferred branch
     */
-    u16 aPriority[GR_MAX_RAIL];
+    u16 aPriority[GR_MAX_RAIL+1];
     int mxMatch = 0;
     memset(aPriority, 0, (p->mxRail+1)*sizeof(aPriority[0]));
     if( pLeftBranch ){
