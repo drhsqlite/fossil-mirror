@@ -1,12 +1,5 @@
 # 101 Reasons Why Fossil Is Better Than Git
 
-*This is a work in progress.  Only 91 reasons have been typed in so far,
-but I have a separate text file of notes that lists 104 candidate reasons.
-It's just taking me a while to compose and edit the rationale for each
-one, and to arrange the reasons in a sensible order.  I will merge this
-document from its current branch onto trunk when it gets closer to being
-ready to publish.*
-
   1.  **Fossil comes as a single self-contained executable file**.<p>
       Install Fossil by copying "fossil" (or "fossil.exe") to someplace
       on your $PATH (or %PATH%).  Upgrade (or downgrade) by overwriting
@@ -18,11 +11,11 @@ ready to publish.*
 
   1.  **Fossil comes with a built-in full-featured web interface**.<p>
       The Fossil web interface is on par with GitHub, GitLab,
-      Gitea, and similar.  Some people think of Fossil as
-      "Github-in-a-box".  Git has "gitweb", but that CGI program
+      Gitea, Forgejo, and similar.  Some people think of Fossil as
+      "GitHub-in-a-box".  Git has "gitweb", but that CGI program
       is so limited and difficult to set up and use that few people
-      even know it exists, so I do not count it as a built-in web
-      interface for the purposes of this point.
+      even know it exists, so I do not count it
+      for the purposes of this point.
 
   1.  **You can run the Fossil web interface locally
       using the "fossil ui" command.**<p>
@@ -42,8 +35,17 @@ ready to publish.*
       timeline is available via a web interface, as far as I know.<p>
       Using the web interface, one can easily check on the status
       of a project when away from the office and without access to a clone
-      of the repository, just by visiting a link using
-      any web browser, even from a phone.
+      of the repository.
+
+  1.  **The Fossil web interface view of a single checkin shows a
+      context graph of all other directly connected checkins.**<p>
+      See the page for [checkin 59985724d71229bf](/info/59985724d71229bf)
+      for example.  The context graph shows for other checkins,
+      two direct descendants, one merge descendant, and one ancestor.
+      This context graph is useful in understanding how a particular
+      checkin fits into the history of the project.  The context graph
+      can also be used to step forwards or backwards in time, by
+      clicking on the "check-in:" hash links for nearby checkins.
 
   1.  **The graphical timeline dynamically adjusts its layout as you resize 
       your browser window.**<p>
@@ -63,8 +65,9 @@ ready to publish.*
 
   1.  **The graphical timeline is bandwidth efficient.**<p>
       To display a timeline of recent activity on Fossil uses less
-      than 5% of the bandwidth as does GitHub.  In a typical example,
-      GitHub requires about 3.5MB of transfer compared to 150KB for
+      than 5% of the bandwidth as GitHub.  In a typical example,
+      GitHub requires about 3.5MB of transfer across 56 different
+      resources compared to 150KB for just the HTML and CSS for
       Fossil.  And for all that 3.5MB, GitHub just gives you a list
       of recent check-ins without any indication of the branching
       structure, whereas Fossil gives you an easy-to-read color-coded
@@ -75,7 +78,8 @@ ready to publish.*
       On the timeline display, click on one node of the graph to
       select it (a red dot will appear in the center of the node) and
       then click on any other graph node, and Fossil will compute and
-      display a diff between those two check-ins.
+      display a diff between those two check-ins.  (Usage hint:
+      click the selected node a second time to deselect it.)
 
   1.  **The Fossil web-based diff page shows the context of the two
       checkins being diffed.**<p>
@@ -83,18 +87,18 @@ ready to publish.*
       specifically the two checkins being diffed and the context
       around them.
       [Example](/vdiff?from=052390edaf04a5f5&to=9b686daeeda7b4ca).
-      This helps to relieve any confusion about what you are looking at.
+      This helps to reduce any confusion about what you are looking at.
 
   1.  **In Fossil, a repository is distinct from a working check-out.**<p>
       A Fossil repository can be colocated with the working check-out, as
       they are required to be in Git.  But most people keep the repository
       separate.  One common pattern is to put all Fossil repositories in
-      a single directory named $HOME/Fossils or $HOME/Museum, and then open 
+      a single directory named $HOME/Fossils or $HOME/Museum and then open 
       working check-outs against each repository whereever they are needed.
 
   1.  **A single Fossil repository can support multiple working check-outs.**
       <p>
-      Git has worktrees, but all worktrees checkouts must be on separate
+      Git has worktrees, but all worktrees check-outs must be on separate
       branches.  Fossil allows multiple working check-outs on the same branch
       or even on the same checkin.  One common pattern is to have one
       check-out that is being edited, and another than is a pristine, unedited
@@ -128,19 +132,22 @@ ready to publish.*
       move or rename repositories or check-outs, the database will get
       temporarily out of sync with reality, but Fossil will automatically
       fix the database the next time you do anything with the file or
-      check-out  that was moved or renamed.<p>
-      You can get a list of repositories using the "fossil all ls" command,
-      or a list of open check-outs using "fossil all ls --ckout".
+      check-out that was moved or renamed.<p>
+      You can get a list of repositories using the 
+      "<tt>fossil&nbsp;all&nbsp;ls</tt>" command, or a list of open
+      check-outs using "<tt>fossil&nbsp;all&nbsp;ls&nbsp;--ckout</tt>".
 
-  1.  **Fossil enables you to bring up a web-based UI that shows all of
+  1.  **Fossil lets you to bring up a web-based UI that shows all of
       your repositories at once.**<p>
-      Run the command "fossil ui /" and your default web browser will pop
-      of a screen that lists all of your repositories together with the
+      Run the command "<tt>fossil&nbsp;ui&nbsp;/</tt>" and your
+      default web browser will pop up a new tab that lists all of your
+      repositories together with the
       associated project name and how recently that repository was modified.
       Click on links to bring up repository-specific web-pages.  Or click
       on column headers to sort by that column.<p>
       If you are like me and have hundreds of repositories on your desktop
-      system, this feature makes it easier to keep track of them all.
+      system, this feature makes it easier to keep track of them all, or
+      just to remember what you called each one.
       Are you on an infrequently used travel laptop and forgot where you
       put a particular repository, this feature helps you find it.
 
@@ -154,12 +161,13 @@ ready to publish.*
       Run "<tt>fossil&nbsp;all&nbsp;sync</tt>" and all your local
       repositories will sync up.  This is useful, for example when
       taking a laptop off-network.  Before disconnecting, you sync
-      all of your repositories (I typically have about a hundred)
-      with a single command, so there is no chance that you forget
-      one.  While off-network, you might commit changes to one or
+      all of your repositories (I typically have about a hundred).
+      The command itself keeps track of them all and so you cannot forget
+      one by mistake.<p>
+      While off-network, you might commit changes to one or
       more of those repositories.  Once you reconnect, you simply
-      run "fossil all sync" again to push out your edits to the
-      rest of the community.
+      run "<tt>fossil&nbsp;all&nbsp;sync</tt>" again to push out your edits
+      to the community.
 
   1.  **Fossil allows multiple checkins to have the same tag.**<p>
       For example, on the SQLite project, every release is tagged with
@@ -179,12 +187,12 @@ ready to publish.*
       Rather than including a massive and verbose checkin comment on an
       important checkin (such as the merge of a big new feature), Fossil
       allows you to assign a wiki page to that checkin.  That wiki page
-      is show as part of the checkin information in the web interface.
+      is shown as part of the checkin information in the web interface.
       See, for example, the "About" section of 
       [SQLite checkin 2019-11-21T18:28:44.463Z](https://sqlite.org/src/info/2019-11-21T18:28:44.463Z).
       The wiki page associated with a checkin can be created and revised
-      after the checkin is comimtted and pushed.  So it can be used, for
-      example, to add notes or bug reports that occur long after the
+      after the checkin is comimtted and pushed.  This feature can be used
+      to add notes or bug reports that occur long after the
       checkin itself has been inserted into the DAG.
 
   1.  **Fossil can associate a wiki page with a particular branch.**<p>
@@ -211,11 +219,10 @@ ready to publish.*
       that got merged in, and ancestors that predate the founding of the
       setlk-snapshot-fix branch.
       <p>
-      GitHub just cannot shows you the checkins of branch setlk-snapshot-fix
+      GitHub is unable to show you the checkins of branch setlk-snapshot-fix
       only.  There are other third-party tools that will show you that, I am
       told, but they all require a local clone of the repository.  Apparently
-      there is no way to see this information in a web browser running on
-      your phone.
+      there is no way to see this information in a web browser.
 
   1.  **Fossil has a built-in bug tracking system.**.<p>
       Tickets are stored in the repository together with source code and
@@ -225,26 +232,28 @@ ready to publish.*
       edit, or moderate tickets.
 
   1.  **Fossil allows multiple branches with the same name.**<p>
-      This is used, for example, to name a lot for branches "experimental"
-      or "mistake".  See
-      <https://sqlite.org/src/timeline?r=experimental> and
-      <https://sqlite.org/src/timeline?r=mistake>.  Or see
-      [the empty-table-optimizations branch(es)](https://sqlite.org/src/timeline?r=empty-table-optimizations) which was initially merged to trunk and closed
+      As an example, the SQLite project has multiple branches
+      named "experimental"
+      <https://sqlite.org/src/timeline?r=experimental> and many
+      others named "mistake"
+      <https://sqlite.org/src/timeline?r=mistake>.
+      [the empty-table-optimizations branch(es)](https://sqlite.org/src/timeline?r=empty-table-optimizations)
+      which was initially merged to trunk and closed
       on 2025-07-02, but then reopened and continued with more enhancements
       until it was merged again on 2025-07-08.  
 
-  1.  **Fossil allows legacy SHA1 hashes and newer SHA3-256 hashes in the
-      same repository.**<p>
+  1.  **Fossil allows both legacy SHA1 hashes and newer SHA3-256 hashes
+      in the same repository.**<p>
       Both Fossil and Git started out using SHA1 hashes.  But when the
       [SHAttered attack](https://www.marc-stevens.nl/research/shattered.io/)
       against SHA1 was published on 2017-02-23, the need to migrate to a
       stronger hash algorithm was recognized.  Fossil added the ability
       to use SHA3-256 as an alternative on 2017-03-01 (six days after the
-      SHAttered attack was first published), and to this day
-      it continues to support both.  SHA3-256 is now the default for all
+      SHAttered attack was first published).
+      SHA3-256 is now the default for all
       new repositories and checkins, though older checkins that occurred
-      prior to ShAttered can still use their original SHA1 hash and so no
-      repositories had to be rebuilt and no hyperlinks were broken.<p>
+      prior to ShAttered can still use their original SHA1 hash.  Hence,
+      no repositories had to be rebuilt and no hyperlinks were broken.<p>
       In contrast, after nine years, a Git repository can still only 
       support only one hash algorithm at a time.
       Newer Git repositories are able to use SHA2, though the default
@@ -828,6 +837,39 @@ ready to publish.*
       Additional information about this advanced feature of Fossil
       can be seen at <https://fossil-scm.org/home/doc/trunk/www/serverext.wiki>.
 
+  1.  **Fossil makes convenience commands available to run its
+      cryptographic hash algorithms (SHA1 and SHA3-256)**<p>
+      The "<tt>fossil&nbsp;sha1sum&nbsp;FILE&nbsp;...</tt>" and
+      "<tt>fossil&nbsp;sha3sum&nbsp;FILE&nbsp;...</tt>" commands will
+      compute SHA1 and SHA3-256 hashes on files.  These commands are not
+      necessary to use Fossil, but they are still useful, and they are
+      not commonly installed on non-Linux platforms.  Fossil ensures that
+      those hash functions are available whereever Fossil is available.
+
+  1.  **Fossil exposes its 3-way-diff algorithm for external use.**<p>
+      The "<tt>fossil&nbsp;3-way-merge&nbsp;...</tt>" command works
+      like the classic unix "diff3" command in that it does a merge
+      of two variants of a file given a common ancestor.  This is the
+      exact same algorithm that Fossil uses to compute merges internally,
+      simply exposed for external use.
+
+  1.  **On a merge conflict, Fossil shows the conflicting inputs just
+      like other merge algorithms, but it also shows a suggested conflict
+      resolution.**<p>
+      The suggested conflict resolution is not always right, but it is
+      sometimes, and its presence often makes resolving merge conflicts
+      simpler.
+
+  1.  **Fossil supports single sign-in when serving multiple repositories
+      from the same host computer.**<p>
+      If you have a server that is hosting Fossil web interfaces for
+      multiple repositories, those repositories can be interconnected
+      into a common "login group" such that when a user logs into one
+      repositories web interface, they are also automatically logged into
+      all other for which the have a login.  Furthermore, if the user
+      changes his password on one repository, it is automatically changed
+      on all the others within that login group.
+
   1.  **Experts can browse low-level details of a Fossil repository
       using SQL.**<p>
       A Fossil repository is just an SQLite database file.  Low-level content
@@ -952,3 +994,60 @@ ready to publish.*
       the users default web browser.  Git does not have any such
       capability, even with the aid of external programs, as far as
       I am aware.
+
+  1.  **The Fossil web interface provides a captcha-gated method to download
+      tarballs and ZIP archives for any checkin.**<p>
+      See, for example, <https://sqlite.org/src/rchvdwnld/20260704>.
+      That link provides access to the last checkin for the day 2026-07-04.
+      The last element of the patch can be any hash prefix, timestamp prefix,
+      or tag that references a checkin.<p>
+      Tarballs and ZIP archive are expensive to compute, not because Fossil
+      has any difficulty assembly the content,
+      but rather because the result must be run through zlib compression.
+      When computing a new archive, almost all of the CPU time is spent
+      inside of the zlib compression library.
+      For an SQLite-size tarball, the zlib compression alone can take as
+      much as 10 seconds of CPU time.  If the tarball/ZIP-archive download
+      link is not protected by a captcha, multiple spiders will attempt to
+      download every possible tarball and ZIP archive, multiple times per
+      day, bringing your server to its knees.
+
+  1.  **Repository adminstrators can create a cache of recently downloaded
+      tarballs and ZIP archives**<p>
+      That way, if there are common downloads (like the most recent release)
+      the archive does not get recomputed from scratch with each download.
+      A download of an archive of a checkin is reasonably fast as long as
+      the content can be served from cache.
+      The size of the cache is configurable by the repository administrator.
+
+  1.  **The Fossil web interface has a "Repository Status" page that shows
+      interesting and useful facts about the repository being served.**<p>
+      See the [stat page for Fossil](/stat) for example.
+
+  1.  **The Fossil web interface easily shows all of the contributors to
+      a project, and the number of changes they have committed.**<p>
+      See <https://fossil-scm.org/home/reports> for that report about
+      Fossil itself.
+      Many other reports can be generated from the same page by selecting
+      different options from the pull-down menus at the top.
+      <p>The page is capcha-gated since it is a magnet for for spiders.
+
+  1.  **The Fossil source code is easy to enhance with new web pages and
+      commands.**<p>
+      The design of the Fossil implementation makes it eash to extend with
+      new capabilities as needs arise.
+      <ul type="disk">
+      <li> The code is C-89
+      <li> Each command and each web page runs as a separate process which
+           exits when the action completes, so minor memory leaks are not
+           a concern.
+      <li> Preprocessors that run before the code reaches the C compiler help
+           to ensure that there are no SQL injections nor XSS vulnerabilities.
+      <li> New commands and new web pages can be added simply adding a new
+           procedure to do the necessary computation.  The name, properties,
+           and documentation for the command or webpage are extracted from
+           specially formatted comments just prior to the procedure.
+      </ul><p>
+      The ease with which Fossil can be enhanced is part of the reason why
+      it has picked up so many useful features and has become so useful
+      and powerful over its 19-year lifetime.

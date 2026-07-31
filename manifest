@@ -1,5 +1,5 @@
-C Now\sup\sto\s91\sreasons.
-D 2026-07-30T20:57:24.003
+C All\s101\sreasons\sadded.\s\sStill\sneeds\srefinement\sand\sprobably\ssome\nbetter\sgrouping\sand\sreordering\sof\sthe\selements\son\sthe\slist.
+D 2026-07-31T00:38:15.400
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -874,7 +874,7 @@ F www/hashpolicy.wiki 7c5ba4b3f343527670c6c4b343bb901b85ae0a1dd944029e4acd430444
 F www/hints.wiki b39c4c18f025edb3968cf12002cfa919b4d1fac7ee7121383d5f182a93ca4f5e
 F www/history.md 3ee9f7bc4dca635f94c951914b5cad958d500906abc9a528331239dd09f3da73
 F www/hooks.md 327bfc3612213d3520abce00c3d92339f3bd4070b5860c5746393ef16d43fe02
-F www/hundredandone.md dd8bb6304b4f76b4fc722f9175dd0e1e1461f87242547fbd8895a9d4b37284bb
+F www/hundredandone.md 0f998894629e080d82c0783df15bc7e8476d0045f7b128aa7177c6988f2962d1
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 308008689b50f1b0989387afe80285910ac3f42e4b80b5e1122181534bdbb425
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ff819b5ec8f555ed8c04706620c1cf3c6c7159f0b2537169a671e919be76b635
-R db247e7d97bec90dc2ab964e61570854
+P f15daa89a42f396e855a09773466fa9c2650d1d41fba40e9466e78ab46f44d83
+R 1af8001e82b5b12d8082111fad8f8c90
 U drh
-Z 11c04690a10a70cc65abffc249b83433
+Z 190f9de9ab8934e8960eb423f8489a2e
 # Remove this line to create a well-formed Fossil manifest.
