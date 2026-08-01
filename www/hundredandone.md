@@ -273,7 +273,8 @@
       allow a check-in to be identified by any unique prefix of its hash.
       But only Fossil allows a check-in to also be identified by its
       timestamp.  The names "2026-02-02T16:03:24.852Z" and "fdebbedbd9a99165"
-      both refer to [the same check-in](https://sqlite.org/src/fdebbedbd9a99165),
+      both refer to
+      [the same check-in](https://sqlite.org/src/info/fdebbedbd9a99165),
       but the first one has the advantage of giving some time
       context rather than just being a seemingly random sequence of hexadecimal
       digits.  It is possible that two or more check-ins can have the same
@@ -406,7 +407,7 @@
       [canonical Fossil website](https://fossil-scm.org/home) is just
       an instance of Fossil running on the self-hosting Fossil repository.
       If you clone the Fossil self-hosting repository, you don't get just
-      code - you get the entire website.  (Exception:  
+      code - you get the entire website.  (Exception:
       [Fossil Forum](https://sqlite.org/forum) is hosted separately using
       a separate Fossil repository, so you'd actually need to clone that
       one too, in order to get the whole website.)
@@ -1063,21 +1064,21 @@
       The design of the Fossil implementation makes it easy to extend with
       new capabilities as needs arise.
       <ul type="disk">
-      <li> The code is C89.
-      <li> Each command and each web page runs as a separate process which
+      <li> The code is simple C89.
+      <li> Each command or web page runs as a separate process which
            exits when the action completes, so minor memory leaks are not
            a concern.
-      <li> Preprocessors that run over the Fossil source code before the
-           code reaches the C compiler help
-           to ensure that there are no SQL injections nor XSS vulnerabilities.
-      <li> New commands and new web pages can be added simply by adding a new
+      <li> Preprocessors run over the Fossil source code before the
+           code reaches the C compiler to verify
+           that there are no SQL injections nor XSS vulnerabilities.
+      <li> New commands and webpages can be added simply by adding a new
            procedure to do the necessary computation.  The name, properties,
            and documentation for the command or webpage are extracted from
            specially formatted comments just prior to the procedure.
       </ul><p>
       The ease with which Fossil can be enhanced is part of the reason why
-      it has picked up so many useful features and has become so useful
-      and powerful over its 19-year history.
+      it has picked up so many useful features and has become so
+      powerful over its 19-year history.
 
 ## Conclusion
 
