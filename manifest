@@ -1,5 +1,5 @@
-C Simplification\sof\sthe\slogic\sthat\suses\s--tk\sfor\sgdiff\sif\sno\sother\sgraphical\ndiff\sprogram\sis\sspecified\sand\sif\sTcl/Tk\sis\savailable.\s\sImprovement\sto\ncheck-in\s[5bec7a698eb110ef].
-D 2026-08-01T19:33:52.656
+C The\s"fossil\sdiff\s--tk\sUSER@HOST:DIR"\sform\snow\sworks.\s\sNeeds\sbetter\serror\nchecking\sfor\sthe\scase\swhere\s--tk\sis\somitted.\s\sMaybe\sother\schecks\stoo.\nThis\sis\sa\swork\sin\sprogress.
+D 2026-08-01T23:51:23.569
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -423,8 +423,8 @@ F src/deltafunc.c 5ae2d927e7a265ea1d220fcf92d1c3cdd76c43ce0137f50d89dc4c49a046d7
 F src/descendants.c 4bb7fb447369984f041da4a5ec05c201383bde3a59d18c537293d520712a1b09
 F src/diff.c 3e46c56274896ac8ebc3035a32060bf5898f6cd2b6540816d62d6649125eb3bd
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
-F src/diff.tcl 3e98ffcb81feab8288c26101b7260e09821c51f5e434ff6880ea4407e796bf8d
-F src/diffcmd.c fc2366a52157c62ff869c855ba637bd51878ab496454bd91163b2e7f78a1819d
+F src/diff.tcl 6208e877c1ce30bfd81b04aa2e486d58c2394bfd2a477e4855e758eb7d6e75b8
+F src/diffcmd.c ba5f19fc3c9acb4750d8d473df2e1bc4b83df8488a87242bfdfe015cef63579b
 F src/dispatch.c f9b0602b200fb378bed080e327e2cf7db08f683c21aa81ba834be0ac7c597b88
 F src/doc.c f938d93ea40675e563863b06631a4b266a9f343965ee31c9b1ea999b753a8d0a
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
@@ -984,8 +984,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 84ced252d972b748c2d46d3792cf5e69b2235d4aa21b889e8a81c74863321357
-R 22610aa9830e3ee053708ba550f3318b
+P f3c2b9a29e540d1102ecc10fdc77b64fdd1c9c19c9f6ce5b5c271fe4ecf1da79
+R e9b2abc00e88e5a9fd195699d4c4c5b9
+T *branch * enhanced-diff-tk
+T *sym-enhanced-diff-tk *
+T -sym-trunk *
 U drh
-Z 3b04914fe43e5532c6db986536942eec
+Z e978951e35f6873d2728d08550cdd405
 # Remove this line to create a well-formed Fossil manifest.

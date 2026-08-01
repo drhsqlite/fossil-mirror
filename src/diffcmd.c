@@ -1191,6 +1191,31 @@ int gdiff_using_tk(int isGdiff){
 }
 
 /*
+** A TCL list is being constructed in pBlob.  Append a single list
+** element z[] to that list.  Do all necessary quoting and escaping.
+** The content of z[] might be controlled by an attacker.
+*/
+static void diff_tcl_lappend(Blob *pBlob, const char *z, int isFilename){
+  if( strchr(z,'{')==0 && strchr(z,'}')==0 ){
+    if( isFilename ){
+      blob_appendf(pBlob, " {%/}", z);
+    }else{
+      blob_appendf(pBlob, " {%s}", z);
+    }
+  }else{
+    int j;
+    blob_append_char(pBlob, ' ');
+    for(j=0; z[j]; j++){
+      if( fossil_isalnum(z[j]) ){
+        blob_append_char(pBlob, z[j]);
+      }else{
+        blob_appendf(pBlob, "\\%03o", (unsigned char)z[j]);
+      }
+    }
+  }
+}
+
+/*
 ** Show diff output in a Tcl/Tk window, in response to the --tk option
 ** to the diff command.
 **
@@ -1207,6 +1232,8 @@ void diff_tk(const char *zSubCmd, int firstArg){
   const char *zTempFile = 0;
   char *zCmd;
   const char *zTclsh;
+  const char *zHost = 0;
+  const char *zDir = 0;
   int bDebug = find_option("tkdebug",0,0)!=0;
   int bDarkMode = find_option("dark",0,0)!=0;
   (void)find_option("debug",0,0);
@@ -1234,16 +1261,24 @@ void diff_tk(const char *zSubCmd, int firstArg){
   zTempFile = find_option("script",0,1);
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
-    if( sqlite3_strglob("*}*",z) ){
-      blob_appendf(&script, " {%/}", z);
-    }else{
-      int j;
-      blob_append(&script, " ", 1);
-      for(j=0; z[j]; j++) blob_appendf(&script, "\\%03o", (unsigned char)z[j]);
+    if( zHost==0
+     && !file_isfile_or_link(z)
+     && (zDir = file_skip_userhost(z))!=0
+    ){
+      zHost = mprintf("%.*s", (int)(zDir - z - 1), z);
+      continue;
     }
+    diff_tcl_lappend(&script, z, 1);
   }
   blob_appendf(&script, "}\nset darkmode %d\n", bDarkMode);
   blob_appendf(&script, "set debug %d\n", bDebug);
+  if( zHost ){
+    blob_appendf(&script, "set remotehost");
+    diff_tcl_lappend(&script, zHost, 0);
+    blob_appendf(&script, "\nset remotedir");
+    diff_tcl_lappend(&script, zDir, 1);
+    blob_append_char(&script, '\n');
+  }
   blob_appendf(&script, "%s", builtin_file("diff.tcl", 0));
   if( zTempFile ){
     blob_write_to_file(&script, zTempFile);
