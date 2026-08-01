@@ -1107,15 +1107,6 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
   return zReturn;
 }
 
-/*
-** Restore an option previously removed by find_option().
-*/
-void restore_option(const char *zName, const char *zValue, int hasOpt){
-  if( zValue==0 && hasOpt ) return;
-  g.argv[g.argc++] = (char*)zName;
-  if( hasOpt ) g.argv[g.argc++] = (char*)zValue;
-}
-
 /* Return true if zOption exists in the command-line arguments,
 ** but do not remove it from the list or otherwise process it.
 */

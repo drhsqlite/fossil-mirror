@@ -1387,7 +1387,10 @@ void diff_cmd(void){
   int bFromIsDir = 0;        /* True if zFrom is a directory name */
 
   isGDiff = g.argv[1][0]=='g';
-  if( find_option("tk",0,0)!=0|| has_option("tclsh") ){
+  if( find_option("tk",0,0)!=0
+   || has_option("tclsh")
+   || gdiff_using_tk(isGDiff)
+  ){
     diff_tk("diff", 2);
     return;
   }
@@ -1421,15 +1424,6 @@ void diff_cmd(void){
     }
   }else{
     db_find_and_open_repository(0, 0);
-  }
-  if( gdiff_using_tk(isGDiff) ){
-    restore_option("--from", zFrom, 1);
-    restore_option("--to", zTo, 1);
-    restore_option("--checkin", zCheckin, 1);
-    restore_option("--branch", zBranch, 1);
-    if( againstUndo ) restore_option("--undo", 0, 0);
-    diff_tk("diff", 2);
-    return;
   }
   determine_exec_relative_option(1);
   if( zFrom!=file_tail(zFrom)

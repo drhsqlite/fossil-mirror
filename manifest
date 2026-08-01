@@ -1,5 +1,5 @@
-C Tweaks\sto\sthe\s101-reasons\sdocument,\sincluding\sa\sfix\sto\sa\sbroken\shyperlink.
-D 2026-08-01T15:57:39.738
+C Simplification\sof\sthe\slogic\sthat\suses\s--tk\sfor\sgdiff\sif\sno\sother\sgraphical\ndiff\sprogram\sis\sspecified\sand\sif\sTcl/Tk\sis\savailable.\s\sImprovement\sto\ncheck-in\s[5bec7a698eb110ef].
+D 2026-08-01T19:33:52.656
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -424,7 +424,7 @@ F src/descendants.c 4bb7fb447369984f041da4a5ec05c201383bde3a59d18c537293d520712a
 F src/diff.c 3e46c56274896ac8ebc3035a32060bf5898f6cd2b6540816d62d6649125eb3bd
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 3e98ffcb81feab8288c26101b7260e09821c51f5e434ff6880ea4407e796bf8d
-F src/diffcmd.c 723ef6411493dc00b0f497b9623fcc6e59dec43fafe5489d05724a8164637566
+F src/diffcmd.c fc2366a52157c62ff869c855ba637bd51878ab496454bd91163b2e7f78a1819d
 F src/dispatch.c f9b0602b200fb378bed080e327e2cf7db08f683c21aa81ba834be0ac7c597b88
 F src/doc.c f938d93ea40675e563863b06631a4b266a9f343965ee31c9b1ea999b753a8d0a
 F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
@@ -499,7 +499,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c 756c63c26fb79c0ff8c1d73512d0b8805294ef07a4366264620b62bfa4f3d254
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c 906789f90d5d9a3cbdcb6a50d601b334a28ec0525c6ba526b4db2a1c234f2674
+F src/main.c 2260acbd0e53280aab3ce02140e78a4c8346400d8007622cb925470d5ca9ca09
 F src/main.mk 03d571fb153b44581aa754a56f77fb49e425b6c27e2da2162190b41dbfb6fef3
 F src/manifest.c dec1ebab98335d121fd3fdbc7dfd5f3ff8b04e895897eddceb4fd7742cbb5599
 F src/markdown.c ea27e61986a1366839e7a70f16cd70a056352d7623797eb09372e158f6f7350b
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d494477e0a0bd7e17f1aab8c50697642a4c32a79f67c5477ffba961b6c04e5f0
-R 945f0222d17036b67e76641f217300f7
+P 84ced252d972b748c2d46d3792cf5e69b2235d4aa21b889e8a81c74863321357
+R 22610aa9830e3ee053708ba550f3318b
 U drh
-Z e4547be8fd3ae5d6995f4cc238d5e3ae
+Z 3b04914fe43e5532c6db986536942eec
 # Remove this line to create a well-formed Fossil manifest.
