@@ -1325,9 +1325,11 @@ const char *diff_get_binary_glob(void){
 **
 ** Show the difference between the current version of each of the FILEs
 ** specified (as they exist on disk) and that same file as it was checked-
-** out.  Or if the FILE arguments are omitted, show all unsaved changes
+** out.  Or if the FILE arguments are omitted, show all committed changes
 ** currently in the working check-out.  The "gdiff" variant means to
-** use a GUI diff.
+** use a GUI diff specified by the "gdiff-command" setting.  If 
+** gdiff-command is unset or is an empty string, then "gdiff" behaves
+** like "diff --tk".
 **
 ** The default output format is a "unified patch" (the same as the
 ** output of "diff -u" on most unix systems).  Many alternative formats
@@ -1365,6 +1367,13 @@ const char *diff_get_binary_glob(void){
 ** The "--binary" option causes files matching the glob PATTERN to be treated
 ** as binary when considering if they should be used with the external diff
 ** program.  This option overrides the "binary-glob" setting.
+**
+** If the "--tk" option is used (or "gdiff" is used and no third-party
+** graphical diff tool is specified) then an additional argument of
+** the form "USER@HOST:DIRECTORY" or "HOST:DIRECTORY" can be added to specify
+** a remote host and directory from which the diff should be taken.  If this
+** happens, Fossil will run the diff using SSH, capture the results, then
+** display the results locally using the Tcl/Tk diff GUI.
 **
 ** These commands show differences between managed files. Use the "fossil xdiff"
 ** command to see differences in unmanaged files.
