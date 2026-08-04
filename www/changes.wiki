@@ -26,6 +26,13 @@
   <li> Addded several HTML5 tags deemed harmless to the MD/wiki allowlists.
   <li> Fix various pages on deployments where a custom skin emits
        its own <code>BODY</code> tag without the expected CSS classes.
+  <li> When behaving as an HTTP client, Fossil now always uses HTTP/1.1 and
+       it understands the "chunked" transfer encoding.
+  <li> The "diff" command (in all its variations) when invoked with --tk
+       now accepts an extra argument of the form "HOST:DIRECTORY" or
+       "USER@HOST:DIRECTORY" to specify a directory on a remote host in which
+       the diff is to be taken.  The diff is run using SSH, the results are
+       captured, then displayed locally using the Tcl/Tk diff GUI.
 </ol>
 
 <h2 id='v2_28'>Changes for version 2.28 (2026-03-11)</h2><ol>
