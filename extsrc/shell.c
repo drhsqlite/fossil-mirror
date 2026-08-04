@@ -5243,6 +5243,8 @@ static void sha3QueryFunc(
   const char *z;
   SHA3Context cx;
   int iSize;
+  int isRecursive = 0;
+  int *pIsRecursive;
 
   if( argc==1 ){
     iSize = 256;
@@ -5256,6 +5258,11 @@ static void sha3QueryFunc(
   }
   if( zSql==0 ) return;
   SHA3Init(&cx, iSize);
+  pIsRecursive = (int*)sqlite3_get_clientdata(db,"sha3_query()");
+  if( pIsRecursive ){
+    *pIsRecursive = 1;
+    return;
+  }
   while( zSql[0] ){
     rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, &zSql);
     if( rc ){
@@ -5282,6 +5289,7 @@ static void sha3QueryFunc(
     }
 
     /* Compute a hash over the result of the query */
+    sqlite3_set_clientdata(db, "sha3_query()", &isRecursive, 0);
     while( SQLITE_ROW==sqlite3_step(pStmt) ){
       SHA3Update(&cx,(const unsigned char*)"R",1);
       for(i=0; i<nCol; i++){
@@ -5289,8 +5297,13 @@ static void sha3QueryFunc(
       }
     }
     sqlite3_finalize(pStmt);
+    sqlite3_set_clientdata(db, "sha3_query()", 0, 0);
   }
-  sqlite3_result_blob(context, SHA3Final(&cx), iSize/8, SQLITE_TRANSIENT);
+  if( isRecursive ){
+    sqlite3_result_error(context, "recursive use of sha3_query()", -1);
+  }else{
+    sqlite3_result_blob(context, SHA3Final(&cx), iSize/8, SQLITE_TRANSIENT);
+  }
 }
 
 /*
@@ -5645,7 +5658,10 @@ static void sha1Func(
   }else{
     pData = (const unsigned char*)sqlite3_value_text(argv[0]);
   }
-  if( pData==0 ) return;
+  if( pData==0 ){
+    if( nByte ) return;
+    pData = (const unsigned char*)"";
+  }
   hash_step(&cx, pData, nByte);
   if( sqlite3_user_data(context)!=0 ){
     /* sha1b() - binary result */
@@ -5685,9 +5701,16 @@ static void sha1QueryFunc(
   const char *z;
   SHA1Context cx;
   char zOut[44];
+  int isRecursive = 0;
+  int *pIsRecursive;
 
   assert( argc==1 );
   if( zSql==0 ) return;
+  pIsRecursive = sqlite3_get_clientdata(db, "sha1_query()");
+  if( pIsRecursive ){
+    *pIsRecursive = 1;
+    return;
+  }
   hash_init(&cx);
   while( zSql[0] ){
     rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, &zSql);
@@ -5714,6 +5737,7 @@ static void sha1QueryFunc(
     hash_step(&cx,(unsigned char*)z,n);
 
     /* Compute a hash over the result of the query */
+    sqlite3_set_clientdata(db, "sha1_query()", &isRecursive, 0);
     while( SQLITE_ROW==sqlite3_step(pStmt) ){
       hash_step(&cx,(const unsigned char*)"R",1);
       for(i=0; i<nCol; i++){
@@ -5768,9 +5792,14 @@ static void sha1QueryFunc(
       }
     }
     sqlite3_finalize(pStmt);
+    sqlite3_set_clientdata(db, "sha1_query()", 0, 0);
   }
   hash_finish(&cx, zOut, 0);
-  sqlite3_result_text(context, zOut, 40, SQLITE_TRANSIENT);
+  if( isRecursive ){
+    sqlite3_result_error(context, "recursive use of sha1_query()", -1);
+  }else{
+    sqlite3_result_text(context, zOut, 40, SQLITE_TRANSIENT);
+  }
 }
 
 
@@ -11984,7 +12013,9 @@ static int apndWrite(
 ){
   ApndFile *paf = (ApndFile *)pFile;
   sqlite_int64 iWriteEnd = iOfst + iAmt;
-  if( iWriteEnd>=APND_MAX_SIZE ) return SQLITE_FULL;
+  if( iWriteEnd + paf->iPgOne >= APND_MAX_SIZE-APND_MARK_SIZE ){
+    return SQLITE_FULL;
+  }
   pFile = ORIGFILE(pFile);
   /* If append-mark is absent or will be overwritten, write it. */
   if( paf->iMark < 0 || paf->iPgOne + iWriteEnd > paf->iMark ){
@@ -12402,6 +12433,8 @@ int sqlite3_appendvfs_init(
 **    *  No support for ZIP archives spanning multiple files
 **    *  No support for zip64 extensions
 **    *  Only the "inflate/deflate" (zlib) compression method is supported
+**    *  No support for transactions.  ROLLBACK is the same as COMMIT.
+**       A crash mid-transaction can leave the ZIP archive in a corrupt state.
 */
 /* #include "sqlite3ext.h" */
 SQLITE_EXTENSION_INIT1
@@ -19929,11 +19962,24 @@ static void diskusedLine(
 ** two or three significant digits, with the decimal point being the fourth
 ** character.  
 */
-static void diskusedPercent(DiskUsed *p, double r){
+static void diskusedPercent(
+  DiskUsed *p,           /* Context of the disk-usage analysis */
+  sqlite3_int64 num,     /* Numerator of the fraction */
+  sqlite3_int64 denom    /* Denominator of the fraction.  Might be zero! */
+){
   char zNum[100];
   char *zDP;
   int nLeadingDigit;
   int sz;
+  double r;
+  if( num==0 ){
+    r = 0.0;
+  }else if( denom==0 ){
+    sqlite3_str_appendchar(p->pOut, 1, '\n');
+    return;
+  }else{
+    r = num*100.0/(double)denom;
+  }
   sqlite3_snprintf(sizeof(zNum)-5, zNum, r>=10.0 ? "%.3g" :"%.2g", r);
   sz = (int)strlen(zNum);
   zDP = strchr(zNum, '.');
@@ -20036,15 +20082,15 @@ static int diskusedSubreport(
     storage = total_pages*pgsz;
     diskusedLine(p, "Bytes of storage consumed", "%lld\n", storage);
     diskusedLine(p, "Bytes of payload", "%-11lld ", payload);
-    diskusedPercent(p, payload*100.0/(double)storage);
+    diskusedPercent(p, payload, storage);
     if( ovfl_cnt>0 ){
       diskusedLine(p, "Bytes of payload in overflow","%-11lld ",ovfl_payload);
-      diskusedPercent(p, ovfl_payload*100.0/(double)payload);
+      diskusedPercent(p, ovfl_payload, payload);
     }
     total_unused = leaf_unused + int_unused + ovfl_unused;
     total_meta = storage - payload - total_unused;
     diskusedLine(p, "Bytes of metadata","%-11lld ", total_meta);
-    diskusedPercent(p, total_meta*100.0/(double)storage);
+    diskusedPercent(p, total_meta, storage);
     if( cnt==1 ){
       diskusedLine(p, "B-tree depth", "%lld\n", depth);
       if( int_cell>1 ){
@@ -20063,7 +20109,7 @@ static int diskusedSubreport(
     diskusedLine(p, "Maximum single-entry payload", "%lld\n", mx_payload);
     if( nentry>0 ){
       diskusedLine(p, "Entries that use overflow", "%-11lld ", ovfl_cnt);
-      diskusedPercent(p, ovfl_cnt*100.0/(double)nentry);
+      diskusedPercent(p, ovfl_cnt, nentry);
     }
     if( int_pages>0 ){
       diskusedLine(p, "Index pages used", "%lld\n", int_pages);
@@ -20081,7 +20127,7 @@ static int diskusedSubreport(
       diskusedLine(p, "Unused bytes on overflow pages", "%lld\n", ovfl_unused);
     }
     diskusedLine(p, "Unused bytes on all pages", "%-11lld ", total_unused);
-    diskusedPercent(p, total_unused*100.0/(double)storage);
+    diskusedPercent(p, total_unused, storage);
   }
   return diskusedStmtFinish(p, rc, pStmt);
 }
@@ -20244,13 +20290,13 @@ static void diskusedFunc(
        "SELECT sum(leaf_pages+int_pages+ovfl_pages) FROM temp.%s", s.zSU);
   if( rc ) return;
   diskusedLine(&s, "Pages that store data", "%-11lld ", nPageInUse);
-  diskusedPercent(&s, (nPageInUse*100.0)/(double)nPage);
+  diskusedPercent(&s, nPageInUse, nPage);
 
   nFreeList = 0;
   rc = diskusedSqlInt(&s, &nFreeList, "PRAGMA \"%w\".freelist_count",s.zSchema);
   if( rc ) return;
   diskusedLine(&s, "Pages on the freelist", "%-11lld ", nFreeList);
-  diskusedPercent(&s, (nFreeList*100.0)/(double)nPage);
+  diskusedPercent(&s, nFreeList, nPage);
 
   ii = 0;
   rc = diskusedSqlInt(&s, &ii, "PRAGMA \"%w\".auto_vacuum", s.zSchema);
@@ -20263,7 +20309,7 @@ static void diskusedFunc(
     ii = (sqlite3_int64)ceil(rAvPage);
   }
   diskusedLine(&s, "Pages of auto-vacuum overhead", "%-11lld ", ii);
-  diskusedPercent(&s, (ii*100.0)/(double)nPage);
+  diskusedPercent(&s, ii, nPage);
 
   ii = 0;
   rc = diskusedSqlInt(&s, &ii, 
@@ -20302,7 +20348,7 @@ static void diskusedFunc(
        s.zSU);
   if( rc ) return;
   diskusedLine(&s, "Bytes of payload", "%-11lld ", ii);
-  diskusedPercent(&s, ii*100.0/(double)(pgsz*nPage));
+  diskusedPercent(&s, ii, pgsz*nPage);
 
   diskusedTitle(&s, "Page counts for all tables with their indexes");
   pStmt = diskusedPrepare(&s,
@@ -20317,7 +20363,7 @@ static void diskusedFunc(
   while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
     sqlite3_int64 nn = sqlite3_column_int64(pStmt,1);
     diskusedLine(&s, (const char*)sqlite3_column_text(pStmt,0), "%-11lld ", nn);
-    diskusedPercent(&s, (nn*100.0)/(double)nPage);
+    diskusedPercent(&s, nn, nPage);
   }
   if( diskusedStmtFinish(&s, rc, pStmt) ) return;
 
@@ -20334,7 +20380,7 @@ static void diskusedFunc(
   while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
     sqlite3_int64 nn = sqlite3_column_int64(pStmt,1);
     diskusedLine(&s, (const char*)sqlite3_column_text(pStmt,0), "%-11lld ", nn);
-    diskusedPercent(&s, (nn*100.0)/(double)nPage);
+    diskusedPercent(&s, nn, nPage);
   }
   if( diskusedStmtFinish(&s, rc, pStmt) ) return;
 
@@ -26262,7 +26308,8 @@ static void shellDtostr(
   char z[400];
   if( n<1 ) n = 1;
   if( n>350 ) n = 350;
-  sprintf(z, "%#+.*e", n, r);
+  z[sizeof(z)-1] = 0;
+  snprintf(z, sizeof(z)-1, "%#+.*e", n, r);
   sqlite3_result_text(pCtx, z, -1, SQLITE_TRANSIENT);
 }
 
@@ -38470,6 +38517,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   hOut = GetStdHandle(STD_OUTPUT_HANDLE);
   GetConsoleMode(hOut, &mode);
   SetConsoleMode(hOut, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+  _setmode(_fileno(stdout),_O_BINARY); /* Bug 2026-08-03T08:52:42Z */
   rc = utf8_main(argc, argv);
   for(i=0; i<argc; i++) free(orig[i]);
   free(argv);

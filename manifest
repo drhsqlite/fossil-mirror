@@ -1,5 +1,5 @@
-C Simplification\sof\sthe\slogic\sthat\suses\s--tk\sfor\sgdiff\sif\sno\sother\sgraphical\ndiff\sprogram\sis\sspecified\sand\sif\sTcl/Tk\sis\savailable.\s\sImprovement\sto\ncheck-in\s[5bec7a698eb110ef].
-D 2026-08-01T19:33:52.656
+C Merge\sthe\slatest\sSQLite\strunk\sversion,\swhich\sincludes\sthe\ssort-by-float\npatch,\sfor\sbeta\stesting.\s\sFossil\sdoes\slots\sof\ssorting\sby\sfloat.
+D 2026-08-04T15:01:48.057
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -278,9 +278,9 @@ F extsrc/pikchr.c 080044411bbd03956d8e488e56fe2ea135c06e96b3bc7fe148740f2e7cbe70
 F extsrc/pikchr.js e4808790ff38ede2acad784cfab62acd25caf41d23ace454c0190b637934f031
 F extsrc/pikchr.wasm 023299eec760d3c7addba21b415dfb07ca2172afcb46be4b13e95f4e0fcbbfcf
 F extsrc/qrf.h 457ab1299039fca5d591246be924eb328397df0d4be35d3a193d78e9c7874b4a
-F extsrc/shell.c 3df74005073015ee304d3cfc98c8500b872cb80f140efc3bdf4433b016824679
-F extsrc/sqlite3.c 40c7097ceddf2dcaa5e7100ee4417e9a9110c9a7efe0bee1b96c26ed6f3d4831
-F extsrc/sqlite3.h 9c0dc3327cf7cb813d12821495fb002e70c84d02df1e084db875b49923dbcf2c
+F extsrc/shell.c 8259fcbacb03c0bd90c5c0318bdb4624a22ba31af18e2ad70a051268d256f5a0
+F extsrc/sqlite3.c c5c64ad500f91cd3e3beb6b7f1fdd818e7e526247a203997845c636686a28a4b
+F extsrc/sqlite3.h aff9a1c64528a700d9dbc6f4fc0166eebb2f8578204e897444a44383f0e91dad
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 84ced252d972b748c2d46d3792cf5e69b2235d4aa21b889e8a81c74863321357
-R 22610aa9830e3ee053708ba550f3318b
+P f3c2b9a29e540d1102ecc10fdc77b64fdd1c9c19c9f6ce5b5c271fe4ecf1da79
+R 167fe7eb8cd75df1bdf390ca388d3226
 U drh
-Z 3b04914fe43e5532c6db986536942eec
+Z f4e9bc3de8785528b5c89e3bc5720144
 # Remove this line to create a well-formed Fossil manifest.
