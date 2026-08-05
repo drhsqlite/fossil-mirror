@@ -1,7 +1,7 @@
 # 101 Reasons Why Fossil Is Better Than Git
 
   1.  **Fossil comes as a single self-contained executable file**.<p>
-      Install Fossil by copying "fossil" (or "fossil.exe") to someplace
+      Install Fossil by copying "fossil" (or "fossil.exe") to some place
       on your $PATH (or %PATH%).  Upgrade (or downgrade) by overwriting
       that one file.  Uninstall by deleting that one file.<p>
       A Git installation requires hundreds of files.  You want to use a
@@ -378,7 +378,7 @@
   1.  **Fossil supports embedded Pikchr in Wiki and in the Forum.**</p>
       [Pikchr](https://pikchr.org/) is a 
       [PIC-like](https://en.wikipedia.org/wiki/Pic_language) markup language
-      for diagram.  Pikchr is designed for use with Markdown, but also works
+      for diagrams.  Pikchr is designed for use with Markdown, but also works
       with other markup languages.
       The diagrams that appear in the Fossil documentation are
       all drawn using Pikchr.
@@ -398,7 +398,7 @@
   1.  **Fossil can easily host an entire project website, using only the
       repository as the backing store.**<p>
       The embedded documentation and wiki features allow you to write
-      web pages.  The unversioned file feature gives you space to put off
+      web pages.  The unversioned file feature gives you space to put
       precompiled binaries or other transient and/or derived resources
       without contaminating the source tree.  The Forum and Ticket features
       provide for community discussion and bug tracking.  Fossil provides
@@ -446,7 +446,7 @@
       to the [SQLite Bug Forum](https://sqlite.org/bugs) and completes the
       link accordingly.
       <p>
-      Interwiki links are important because (1) they help keep hyperlink
+      Interwiki links are important because (1) they help keep hyperlinks
       shorter, and (2) if the target wiki
       ever moves to a new domain, all the links automatically adjust
       by changing a single server setting, and (3) clones can have
@@ -458,11 +458,11 @@
   1.  **Fossil has a built-in chat server.**<p>
       Users with appropriate permissions (usually just registered
       developers, not anonymous passers-by) can bring up a web-based chat
-      window on any Fossil web-server instance.  This feature allow
+      window on any Fossil web-server instance.  This feature allows
       geographically distributed developers to collaborate interactively,
       without having to involve a third-party chat provider such as Slack.
       Nothing needs to be configured in order to activate Chat, other
-      that enabling the Chat privilege on the permission bits of the
+      than enabling the Chat privilege on the permission bits of the
       users whom you want to have access to Chat.
 
   1.  **Fossil chat can be configured to send automatic notifications
