@@ -1,5 +1,5 @@
-C Further\stweaks\sto\sgrammar.
-D 2026-08-05T02:30:49.066
+C The\s"clone"\sprivilege\s(letter\s"g")\simplies\sthe\sability\sto\s"fossil\spull".
+D 2026-08-05T18:09:08.808
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -602,7 +602,7 @@ F src/wiki.wiki bd6ca20a0df1054d68bbd7683acc6f24225652276f0ed53ce6fa564faed4dd60
 F src/wikiformat.c a2ef3f312c5aef3d3006ade29b0931f6bfc197f7cbe6b5d070481728e0a74cff
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
-F src/xfer.c 2d2983a0ce3a6ec28db702cbd87ebd21bc670699259e44bb043b094b784e227a
+F src/xfer.c 9853a0f3acc6cb59563f331d84f195601ed1ee4e50a5f1f99b35728422083aab
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c f9a2f373ee26759b73b04797acffadc788f3b6f3d6db6f87773b3126cba661b2
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c629e71c25c20f4541d375d42736d07cc25567dbed32fe7427636f6dd9b56093
-R baaec674b8bada7c045236335d1c159c
-U brickviking
-Z ab9e10b54899a13f63635a263e898a61
+P fa7f71560f2780cc8fc92aa1a9905824203c25d396ed556f5ce24b37492487f5
+R 0740f72efd02138958d94d4db8a35acb
+U drh
+Z 61d47f551f2d4c5c8d882b7f115003c5
 # Remove this line to create a well-formed Fossil manifest.
