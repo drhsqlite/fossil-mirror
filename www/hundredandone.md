@@ -489,7 +489,7 @@
       wiki pages, prior check-ins, forum posts, and interwiki hyperlinks.
 
   1.  **Fossil supports hyperlink back references**<p>
-      If the check-in comment for a newer commits contains a hyperlink
+      If the check-in comment for a newer commit contains a hyperlink
       back to an older commit, then when the web interface shows the
       details of the older commit, it also provides a forward
       reference to the newer commit.
@@ -505,7 +505,7 @@
       tag that you use to mark releases, using the
       [path-to-tag setting](/help/path-to-tag).  Suppose you use the tag
       name "release".  Once you do that, then
-      when your are looking at the "info" page for a check-in, a link
+      when you are looking at the "info" page for a check-in, a link
       named "path-to-release" appears in the overview section, and if
       you click on that link, it brings up a new graph showing the
       shortest path from that check-in to the next descendant check-in
@@ -517,7 +517,7 @@
       will see the "path-to-release" link.  Click that link to take you
       to a page showing an abbreviated path from the original check-in
       to the first "release" check-in that contains the change.  To
-      See the full path, uncheck the "Brief" checkbox near the top of the page.
+      see the full path, uncheck the "Brief" checkbox near the top of the page.
       <p>
       This feature is useful for when you bisect to find a bug, or a bug
       fix, and you want to know the first release in which that bug or bug fix
@@ -583,8 +583,8 @@
       If you are using the web interface and if you have check-in privilege
       on the repository, then on the /info page for the check-in, under
       the "Overview" section, to the right of "Other Links:", there is
-      an "edit" link that will take you to a page that lets move the check-in
-      to a new branch from the web interface.  You can also do this
+      an "edit" link that will take you to a page that lets you move the
+      check-in to a new branch from the web interface.  You can also do this
       from the Fossil command-line, but the web interface is easier and less
       error prone.
 
@@ -684,7 +684,7 @@
         fossil patch pull r21:sqlite/sqlite -f
         make clean test</pre>
       But typing in "r21:sqlite/sqlite" can be tedious and error-prone,
-      maybe not so much in this particular examples but definitely the
+      maybe not so much in this particular example but definitely the
       case for longer hostnames and subdirectory paths.  Fortunately,
       Fossil allows us to define patch alias.  On my Win11 machine,
       the alias named "@" is defined as "r21:sqlite/sqlite" and so I
@@ -695,7 +695,7 @@
       over the new ones from r21:sqlite/sqlite.  Without that option, the
       changes would be merged.)
 
-  1.  **Fossil allows you view uncommitted changes on a remote machine
+  1.  **Fossil allows you to view uncommitted changes on a remote machine
       in a web browser over SSH.**<p>
       Suppose you have some edits on a remote, headless machine and you
       would like to review those changes.  Fossil lets you see those
@@ -990,7 +990,7 @@
       For each new artifact received into a Fossil repository, by push or
       pull, or by direct commit from the command line, Fossil records a
       timestamp, username, and an IP address (where applicable) for
-      that artifact.  If harmful or malicious content is added
+      that artifact.  If harmful or malicious content is added to
       a repository, the repository administrator has the capability to
       trace that content back to its source, so that appropriate
       sanctions can be applied to the malefactor.
@@ -1030,7 +1030,7 @@
       The last element of the patch can be any hash prefix, timestamp prefix,
       or tag that references a check-in.<p>
       Tarballs and ZIP archives are expensive to compute, not because Fossil
-      has any difficulty to assembly the content,
+      has trouble assembling the content,
       but rather because the result must be run through zlib compression.
       When computing a new archive, almost all of the CPU time is spent
       inside of the zlib compression library.
