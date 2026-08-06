@@ -3533,6 +3533,9 @@ void cmd_webserver(void){
     const char *zProtocol = g.httpUseSSL ? "https" : "http";
     db_open_config(0,0);
     zBrowser = fossil_web_browser();
+    if( zRemote && fossil_strcmp(g.argv[2],"/")==0 ){
+      zInitPage = mprintf("?home=%T", zInitPage);
+    }      
     if( zIpAddr==0 ){
       zBrowserArg = mprintf("%s://localhost:%%d/%s", zProtocol, zInitPage);
     }else if( strchr(zIpAddr,':') ){
@@ -3586,13 +3589,6 @@ void cmd_webserver(void){
       if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
       if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
       if( fCreate ) blob_appendf(&ssh, " --create");
-      if( zInitPage && zInitPage[0] ){
-        if( fossil_strcmp(zUrl,"/")==0 ){
-          zInitPage = mprintf("/?home=%T", zInitPage);
-        }else{
-          blob_appendf(&ssh, " --page %!$", zInitPage);
-        }
-      }
       blob_appendf(&ssh, " %$", zUrl);
       if( isRetry ){
         fossil_print("First attempt to run \"fossil\" on %s failed\n"
