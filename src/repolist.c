@@ -131,6 +131,7 @@ int repo_list_page(void){
   const char *zShow;   /* Value of FOSSIL_REPOLIST_SHOW environment variable */
   int bShowDesc = 0;   /* True to show the description column */
   int bShowLg = 0;     /* True to show the login-group column */
+  const char *zHome;   /* Home page */
 
   assert( g.db==0 );
   zShow = P("FOSSIL_REPOLIST_SHOW");
@@ -139,6 +140,7 @@ int repo_list_page(void){
     bShowLg = strstr(zShow,"login-group")!=0;
   }
   blob_init(&html, 0, 0);
+  zHome = PD("home","home");
   if( fossil_strcmp(g.zRepositoryName,"/")==0 && !g.fJail ){
     /* For the special case of the "repository directory" being "/",
     ** show all of the repositories named in the ~/.fossil database.
@@ -299,8 +301,8 @@ int repo_list_page(void){
         blob_appendf(&html, "%h (hidden)", zName);
       } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
         blob_appendf(&html,
-          "<a href='%R/%T/home' target='_blank'>/%h</a>\n",
-          zUrl, zName);
+          "<a href='%R/%T/%T' target='_blank'>/%h</a>\n",
+          zUrl, zHome, zName);
       }else if( file_ends_with_repository_extension(zName,1) ){
         /* As described in
         ** https://fossil-scm.org/forum/info/f50f647c97c72fc1: if
