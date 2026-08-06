@@ -1,5 +1,5 @@
-C Second\sattempt\sto\sget\s--page\sworking\sfor\s"fossil\sui\sremote:/".
-D 2026-08-06T16:07:05.641
+C Another\sfix\sso\sthat\s"fossil\sui\s/\s--page\s..."\salso\sworks.
+D 2026-08-06T16:10:14.560
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -499,7 +499,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c 14b99a6b0f4e8c3217e0f8ccebe85ad8c330bbb946e55fde5b81e126eca068cb
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c 8d8b9261f1be1e895b358f96a2c0787ea2b93e6993a50dbecc6b0ec69c1a3ddd
+F src/main.c d787c860aada0e2628891a0b938850179f3754773972060c22074ecc8e829f51
 F src/main.mk 03d571fb153b44581aa754a56f77fb49e425b6c27e2da2162190b41dbfb6fef3
 F src/manifest.c dec1ebab98335d121fd3fdbc7dfd5f3ff8b04e895897eddceb4fd7742cbb5599
 F src/markdown.c ea27e61986a1366839e7a70f16cd70a056352d7623797eb09372e158f6f7350b
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 24d6bba2d80fdc082f91c401368b58179c4fb435001a51913e729eb21258371e
-R 83012dbcd68355ed4365edc41d93a287
+P e6732228f10a6f7084b9d9ac0e7766af971447ac697b338647e38362ea588594
+R 09c9f335563fb2c4ed8cdf93b51b9368
 U drh
-Z 050eee88e4c4573770abeb77ec7a42d6
+Z 0298ca54a8481e7349a34942d95adc93
 # Remove this line to create a well-formed Fossil manifest.

@@ -3533,7 +3533,7 @@ void cmd_webserver(void){
     const char *zProtocol = g.httpUseSSL ? "https" : "http";
     db_open_config(0,0);
     zBrowser = fossil_web_browser();
-    if( zRemote && fossil_strcmp(g.argv[2],"/")==0 ){
+    if( fossil_strcmp(g.argv[2],"/")==0 ){
       zInitPage = mprintf("?home=%T", zInitPage);
     }      
     if( zIpAddr==0 ){
