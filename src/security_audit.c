@@ -103,6 +103,7 @@ void secaudit0_page(void){
   int hasSelfReg = 0;        /* True if able to self-register */
   const char *zPublicUrl;    /* Canonical access URL */
   const char *zVulnReport;   /* The vuln-report setting */
+  int bCompletelyPrivate = 0;/* True only if the repo is completely private */
   Blob cmd;
   char *z;
   int n, i;
@@ -170,6 +171,7 @@ void secaudit0_page(void){
          && (zPubPages==0 || zPubPages[0]==0) ){
     @ <li><p>This repository is <big><b>Completely PRIVATE</b></big>.
     @ A valid login and password is required to access any content.
+    bCompletelyPrivate = 1;
   }else{
     @ <li><p>This repository is <big><b>Mostly PRIVATE</b></big>.
     @ A valid login and password is usually required, however some
@@ -714,35 +716,37 @@ void secaudit0_page(void){
     @ </li>
   }
 
-  @ <li><p><a href="setup_robot">Robot Defenses</a>:
-  @ <ol type="a">
-  switch( db_get_int("auto-hyperlink",1) ){
-    default:
-       @ <li> No auto-enable of hyperlinks.
-       break;
-    case 1:
-       @ <li> Hyperlinks auto-enabled based on HTTP Header and Javascript.
-       break;
-    case 2:
-       @ <li> Hyperlinks auto-enabled based on HTTP Header only.
-       break;
+  if( !bCompletelyPrivate ){
+    @ <li><p><a href="setup_robot">Robot Defenses</a>:
+    @ <ol type="a">
+    switch( db_get_int("auto-hyperlink",1) ){
+      default:
+         @ <li> No auto-enable of hyperlinks.
+         break;
+      case 1:
+         @ <li> Hyperlinks auto-enabled based on HTTP Header and Javascript.
+         break;
+      case 2:
+         @ <li> Hyperlinks auto-enabled based on HTTP Header only.
+         break;
+    }
+    z = db_get("max-loadavg",0);
+    if( z && atof(z)>0.0 ){
+      @ <li> Maximum load average for expensive requests: %h(z);
+    }else{
+      @ <li> No limits on the load average
+    }
+    z = db_get("robot-restrict",robot_restrict_default());
+    if( z==0 || strcmp(z,"off")==0 ){
+      @ <li> Robots are not excluded from any page.
+    }else if( z[0]=='*' && z[1]==0 ){
+      @ <li> Robots are excluded from all pages other than /login.
+    }else{
+      @ <li> Robots are excluded from pages matching: %h(z)
+    }
+    @ </ol>
   }
-  z = db_get("max-loadavg",0);
-  if( z && atof(z)>0.0 ){
-    @ <li> Maximum load average for expensive requests: %h(z);
-  }else{
-    @ <li> No limits on the load average
-  }
-  z = db_get("robot-restrict",robot_restrict_default());
-  if( z==0 || strcmp(z,"off")==0 ){
-    @ <li> Robots are not excluded from any page.
-  }else if( z[0]=='*' && z[1]==0 ){
-    @ <li> Robots are excluded from all pages other than /login.
-  }else{
-    @ <li> Robots are excluded from pages matching: %h(z)
-  }
-  @ </ol>
-
+  
   blob_init(&cmd, 0, 0);
   for(i=0; g.argvOrig[i]!=0; i++){
     blob_append_escaped_arg(&cmd, g.argvOrig[i], 0);
