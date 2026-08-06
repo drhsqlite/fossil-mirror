@@ -733,7 +733,7 @@ void secaudit0_page(void){
   }else{
     @ <li> No limits on the load average
   }
-  z = db_get("robot-restrict",0);
+  z = db_get("robot-restrict",robot_restrict_default());
   if( z==0 || strcmp(z,"off")==0 ){
     @ <li> Robots are not excluded from any page.
   }else if( z[0]=='*' && z[1]==0 ){
