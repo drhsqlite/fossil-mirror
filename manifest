@@ -1,5 +1,5 @@
-C Change\sthe\sdefault\svalue\sfor\sthe\s"vuln-report"\ssetting\sto\s"block".
-D 2026-08-06T12:57:11.440
+C Improvements\sto\sdocumentation\sand\sto\sthe\ssecurity_audit\spage.
+D 2026-08-06T14:15:56.937
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -496,7 +496,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c 789448a0ef976023396b50b1671797188e12bfa795fdf751daa44fc2b5edc97f
 F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf8
-F src/login.c 756c63c26fb79c0ff8c1d73512d0b8805294ef07a4366264620b62bfa4f3d254
+F src/login.c 14b99a6b0f4e8c3217e0f8ccebe85ad8c330bbb946e55fde5b81e126eca068cb
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c 2260acbd0e53280aab3ce02140e78a4c8346400d8007622cb925470d5ca9ca09
@@ -532,7 +532,7 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c 602fca4d0af4cba3186a9bb01eb4ff160802f9ff501b2a018dce36f6692399e5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c c4bd56d8638015525bdacf03d2609e90f9c46f283bb1bfc97d467b7f504365c7
-F src/security_audit.c 54ee13648c4ede5a6f675e2671e630f0ebdb7169654027af2e8d1dc2d804fc72
+F src/security_audit.c d379dd02a843eb99f29631e3ef28da765069d3387e4b6e523409d5132e7419ba
 F src/setup.c 8f15afcdc357cc7a35c7555a38e07428c426a7158bab07fdd3c2cdfb2481724a
 F src/setupuser.c e2332600755153655c9c01a0f3073c0abd6091d7150e9321abdcf2f3c02c58c9
 F src/sha1.c eac76e7bf2a68e6b433c2aa4fa4d08fa4264a27f5c817cd44958e268592ac0b4
@@ -781,7 +781,7 @@ F www/aboutcgi.wiki 8e36a43aa22f42a565aeaca59bcb2e8272cc2f444bd7cf20357e992148ba
 F www/aboutdownload.wiki dccb233a942a1f870490a471cdc0dbe934315d1828b0a8dd99b589cbd1768259
 F www/adding_code.wiki 06de2a518a772ed1fa8fdb165ff3c53149b6e68f43ad114b80d6df158683158a
 F www/alerts.md 20fac72b2258f0db019db2e80f8520f112bbcec61c71c226d1a2c6484e1c02c5
-F www/antibot.wiki efff51c70de97e095c0ae5790a05779c218b464bde9031e43687772c594832d4
+F www/antibot.wiki bd26662c7fa41c6ae372c22297d8ff505694927b362dd64c2d8dc6183d1b9394
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md daad9c846687cc1af67ee770f0a3e73d18957997b6b96212c9b3777c1acccefc
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc8cefb6419d288e92e897f3b568b10fa52df05f14c6b5d2d9c2fa251a9385d4
-R 205eb36ef500b2a0eff17497d2e64d61
+P 9dd7f23116dda15cfc38fd7bc35c6177e7feacbbe12ca0b2cf1f198a386a426d
+R 0e2ac00374be11765745f393481cf373
 U drh
-Z 000814af25c68fe3f7690a40f31fd917
+Z b47a2cb0096b42ea0ff53f8cf3c3488c
 # Remove this line to create a well-formed Fossil manifest.

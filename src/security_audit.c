@@ -714,17 +714,17 @@ void secaudit0_page(void){
     @ </li>
   }
 
-  @ <li><p>Robot Defenses:
+  @ <li><p><a href="setup_robot">Robot Defenses</a>:
   @ <ol type="a">
   switch( db_get_int("auto-hyperlink",1) ){
     default:
        @ <li> No auto-enable of hyperlinks.
        break;
     case 1:
-       @ <li> Hyperlinks auto-enabled based on UserAgent and Javascript.
+       @ <li> Hyperlinks auto-enabled based on HTTP Header and Javascript.
        break;
     case 2:
-       @ <li> Hyperlinks auto-enabled based on UserAgent only.
+       @ <li> Hyperlinks auto-enabled based on HTTP Header only.
        break;
   }
   z = db_get("max-loadavg",0);
@@ -734,10 +734,12 @@ void secaudit0_page(void){
     @ <li> No limits on the load average
   }
   z = db_get("robot-restrict",0);
-  if( z==0 ){
-    @ <li> No complex-request constraints on robots
+  if( z==0 || strcmp(z,"off")==0 ){
+    @ <li> Robots are not excluded from any page.
+  }else if( z[0]=='*' && z[1]==0 ){
+    @ <li> Robots are excluded from all pages other than /login.
   }else{
-    @ <li> Complex requests limited for pages matching: %h(z)
+    @ <li> Robots are excluded from pages matching: %h(z)
   }
   @ </ol>
 

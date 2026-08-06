@@ -438,6 +438,13 @@ void login_clear_login_data(){
 ** Look at the HTTP_USER_AGENT parameter and try to determine if the user agent
 ** is a manually operated browser or a bot.  When in doubt, assume a bot.
 ** Return true if we believe the agent is a real person.
+**
+** UPDATE 2026-08-06:  Robots have recently become much more aggressive and
+** these days most of the troublesome robots do a good job of impersonating
+** humans.  Hence, this routine is much less effective that it used to be.
+** It is still useful at blocking honest (self-reporting) robots, and so we
+** keep it around for that reason.  But it is not something that one should
+** depend on as a robot defense.
 */
 static int isHuman(const char *zAgent){
   if( zAgent==0 ) return 0;  /* If no UserAgent, then probably a bot */
