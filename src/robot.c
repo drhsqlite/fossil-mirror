@@ -94,6 +94,24 @@ static void robot_pow_hash(void){
 }
 
 /*
+** Remember that the client is human, as evidenced by the presence of
+** the fossil-client-ok or similar proof of work.  Enable hyperlinks if
+** auto-hyperlink is turned on.
+*/
+static void remember_is_human(void){
+  robot.resultCache = KNOWN_NOT_ROBOT;
+  if( g.perm.Hyperlink==0 ){
+    int autoLink = db_get_int("auto-hyperlink",1);
+    if( autoLink==1 ){
+      g.jsHref = 1;
+      g.perm.Hyperlink = 1;
+    }else if( autoLink==2 ){
+      g.perm.Hyperlink = 1;
+    }
+  }    
+}
+
+/*
 ** Return true if the HTTP client has not demonstrated that it is
 ** human interactive.  Return false is the HTTP client might be
 ** a non-interactive robot.
@@ -142,7 +160,7 @@ int client_might_be_a_robot(void){
     unsigned h = atoi(z);
     robot_pow_hash();
     if( (h==robot.h1 || h==robot.h2) && !cgi_is_qp(ROBOT_COOKIE) ){
-      robot.resultCache = KNOWN_NOT_ROBOT;
+      remember_is_human();
       return 0;
     }
   }
@@ -157,7 +175,7 @@ int client_might_be_a_robot(void){
     robot_pow_hash();
     if( h==robot.h1 || h==robot.h2 ){
       cgi_set_cookie(ROBOT_COOKIE,z,"/",900);
-      robot.resultCache = KNOWN_NOT_ROBOT;
+      remember_is_human();
       return 0;
     }
     cgi_tag_query_parameter("proof");

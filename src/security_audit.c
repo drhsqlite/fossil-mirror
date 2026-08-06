@@ -533,7 +533,7 @@ void secaudit0_page(void){
     @ <li>Remove the 'h' privilege from the
     @     <a href="%R/setup_uedit?id=%d(nobodyId)">'nobody' user</a> so that
     @     robots cannot see hyperlinks.
-    @ <li>Activate <a href="%R/setup_robot">autohyperlink</a> so that
+    @ <li>Activate <a href="%R/setup_robot">auto-hyperlink</a> so that
     @     human readers can still see hyperlinks even if they are not logged in.
     @     Set the delay to at least 50 milliseconds and require a mouse
     @     event for maximum robot defense.
