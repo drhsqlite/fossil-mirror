@@ -505,7 +505,8 @@ void setup_robots(void){
   @ <li>  The "ext" tag covers all extensions, but a tag like
   @       "ext/PATH" only covers the specific extension at PATH.
   @ </ul>
-  @ To disable robot restrictions, change this setting to "off".
+  @ Make this setting "off" to disable all robot restrictions, or "*"
+  @ to exclude robots from all pages other than "/login" and "/xfer".
   @ (Property: <a href="%R/help/robot-restrict">robot-restrict</a>)
   @ <br>
   textarea_attribute("", 2, 80,

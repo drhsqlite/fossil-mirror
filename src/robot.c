@@ -424,7 +424,14 @@ int robot_exception(void){
 ** Return true if one or more of the conditions below are true.
 ** Return false if all of the following are false:
 **
-**   *  The zTag is on the robot-restrict list
+**   *  The zTag is on the robot-restrict list and there exists
+**      some tags that do not match robot-restrict or else zTag is
+**      neither "/" or "xfer" or "login".  
+**      
+**         The complication of the previous rule (everything after the
+**         first "and") prevents a robot-restrict setting that contains
+**         "*" from trying to bring up a robot-captcha for a "sync"
+**         operation (the "/" or "xfer" page) or for the "login" page.
 **
 **   *  The client that submitted the HTTP request might be
 **      a robot
@@ -447,6 +454,11 @@ int robot_would_be_restricted(const char *zTag){
   if( !client_might_be_a_robot() ) return 0;
   if( robot_exception() ){
     robot.resultCache = KNOWN_NOT_ROBOT;
+    return 0;
+  }
+  if( robot_restrict_has_tag("-not-a-real-tag-")
+   && (strcmp(zTag,"login")==0 || strcmp(zTag,"xfer")==0 || zTag[0]=='/')
+  ){
     return 0;
   }
   return 1;
