@@ -1,5 +1,5 @@
-C The\sauto-hyperlink\ssetting\snow\salso\sapplies\sof\sthe\sfossil-client-ok\scookie\nis\spresent\sand\svalid.
-D 2026-08-06T12:46:22.135
+C Change\sthe\sdefault\svalue\sfor\sthe\s"vuln-report"\ssetting\sto\s"block".
+D 2026-08-06T12:57:11.440
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -580,7 +580,7 @@ F src/terminal.c 1f497ac2f122d3fc856aac9386c064c10e10bf148467986ef73c7562f937987
 F src/th.c b09f277fb687cb594f69215e91ee4a3fd86a245eec45985da4b824e969bfbeb5
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
-F src/th_main.c 228e96489b6cc548706af08968756808e9cd78dd8ea7ef6fc6877827100ff71b
+F src/th_main.c 1c502e67cc252c5f57c0567df93fe5cc1b616d60671c8b94f7e02687c9306da4
 F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
 F src/timeline.c 82821ef2f411908b881803e3539683de0f1e7cf78c789e86aa69c389807405de
 F src/tkt.c 2bf10f3e1c7f26b0d925b7ba9acfa49ac921d04125a45f44e586183c64ab376e
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 35a09aea15efbe5134e95c7c07f896d752410360c883858c35a7cafd00990d11
-R 62e7a94d44c7199d60ccf9441ce37f5c
+P fc8cefb6419d288e92e897f3b568b10fa52df05f14c6b5d2d9c2fa251a9385d4
+R 205eb36ef500b2a0eff17497d2e64d61
 U drh
-Z 1796dc9318e1cc29d7d9a48325338430
+Z 000814af25c68fe3f7690a40f31fd917
 # Remove this line to create a well-formed Fossil manifest.
