@@ -3551,6 +3551,7 @@ void cmd_webserver(void){
     Blob ssh;
     int bRunning = 0;    /* True when fossil starts up on the remote */
     int isRetry;         /* True if on the second attempt */
+    const char *zUrl = g.argv[2];
     char zLine[1000];
 
     blob_init(&ssh, 0, 0);
@@ -3585,7 +3586,14 @@ void cmd_webserver(void){
       if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
       if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
       if( fCreate ) blob_appendf(&ssh, " --create");
-      blob_appendf(&ssh, " %$", g.argv[2]);
+      if( zInitPage && zInitPage[0] ){
+        if( fossil_strcmp(zUrl,"/")==0 ){
+          zInitPage = mprintf("/?home=%T", zInitPage);
+        }else{
+          blob_appendf(&ssh, " --page %!$", zInitPage);
+        }
+      }
+      blob_appendf(&ssh, " %$", zUrl);
       if( isRetry ){
         fossil_print("First attempt to run \"fossil\" on %s failed\n"
                      "Retry: ", zRemote);
