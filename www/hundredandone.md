@@ -189,6 +189,11 @@
   1.  **Fossil has a built-in wiki**.<p>
       Wiki pages are stored in the same repository file as your code, so that
       they push, pull, sync, and clone together with your code.
+      <p>
+      Git does not itself have a wiki.  The various Git forges usually add
+      wikis, and store the wiki content in Git, though in a separate
+      Git repository.  There is no option to store the wiki and source code
+      together such that they clone and sync as one, in the Git ecosystem.
 
   1.  **Fossil can associate a wiki page with a particular check-in.**<p>
       Rather than including an oversized check-in comment on an
@@ -769,14 +774,16 @@
       to the project.  If none of the default skins work for you, you can
       create your own, perhaps using one of the existing skins as a template.
  
-  1.  **Most Fossil web-interface skins include a hamburger (☰) menu.**<p>
+  1.  **Most Fossil web-interface skins include a detailed hamburger
+      (☰) menu.**<p>
       Clicking on the hamburger menu brings up a dropdown "site-map"
       page that lets you quickly navigate to the information you want.
       (Note: The presence and operation of the hamburger menu is a
       skin-specific feature and might not be available on every skin, but
-      it is used on the more popular skins.)  Curiously, none of GitHub,
-      GitLab, Gitea, nor Forgejo have a hamburger menu, which in my
-      experience makes those sites harder to navigate.
+      it is used on the more popular skins.)  Git itself has nothing like
+      this.  The various Git forges sometimes have a limited hamburger
+      menu, that it is not nearly as complete.  I find it difficult to
+      locate the screens I want without consulting an AI.
 
   1.  **The Fossil web interface /sitemap page is responsive to
       individual user permissions and capabilities.**<p>
