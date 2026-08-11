@@ -525,7 +525,7 @@ void graph_finish(
   ** coming up from the bottom of the graph from off-screen check-in Y
   ** where Y is the RID.  There is no riser on rail X if mergeRiserFrom[X]==0.
   */
-  GraphRowId mergeRiserFrom[GR_MAX_RAIL];
+  GraphRowId mergeRiserFrom[GR_MAX_RAIL+1];
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
   p->nErr = 1;   /* Assume an error until proven otherwise */
