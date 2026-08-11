@@ -23,6 +23,10 @@
   <li> Add the "[/help/attachment-size-limit|attachment-size-limit]" setting
        to limit the size of file attachments to wiki pages, tech notes,
        tickets, and forum posts.
+  <li> Add the "[/help/path-to-tag|path-to-tag]" setting, which if set to
+       something like "release" provides a link named "path-to-release" on
+       /info pages for checkins.  Clicking that link shows the path to the
+       first release containing that check-in.
   <li> Addded several HTML5 tags deemed harmless to the MD/wiki allowlists.
   <li> Fix various pages on deployments where a custom skin emits
        its own <code>BODY</code> tag without the expected CSS classes.

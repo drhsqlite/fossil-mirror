@@ -975,11 +975,12 @@ void ckout_page(void){
 ** SETTING: path-to-tag            width=40
 **
 ** If the path-to-tag setting is defined and is not an empty string
-** then then /info page for checking HASH will display a link to
-** a timeline showing an abbreviated path from the HASH check-in to
+** then the /info page for checkin HASH will display a link to
+** a timeline showing an abbreviated path from the HASH checkin to
 ** the next checkin that has a tag which is the value of this setting.
 ** 
-** A typical value for this setting is "release"
+** A typical value for this setting is "release", in which case a
+** "path-to-release" link is shown on /info pages of checkins.
 */
 
 /*
