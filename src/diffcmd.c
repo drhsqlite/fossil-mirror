@@ -1476,7 +1476,7 @@ void diff_cmd(void){
       fossil_fatal("cannot use --from, --to, or --checkin with --branch");
     }
     zTo = zBranch;
-    zFrom = mprintf("root:%s", zBranch);
+    zFrom = mprintf("merge-in:%s", zBranch);
     zBranch = 0;
   }
   if( zCheckin!=0 && (zFrom!=0 || zTo!=0) ){
