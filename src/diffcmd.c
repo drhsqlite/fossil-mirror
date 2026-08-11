@@ -1216,6 +1216,29 @@ static void diff_tcl_lappend(Blob *pBlob, const char *z, int isFilename){
 }
 
 /*
+** Return TRUE (non-zero) if zArg is a valid option to "diff" or
+** "gdiff" that takes an argument that might be confused for a
+** HOST:PATH or USER@HOST:PATH filename.
+*/
+static int isDiffOptionWithArg(const char *zArg){
+  int i;
+  const char *az[] = {
+    "binary",
+    "branch",
+    "ci", "checkin",
+    "r", "from",
+    "to"
+  };
+  if( zArg[0]!='-' ) return 0;
+  zArg++;
+  if( zArg[0]=='-' ) zArg++;
+  for(i=0; i<count(az); i++){
+    if( fossil_strcmp(zArg, az[i])==0 ) return 1;
+  }
+  return 0;
+}
+
+/*
 ** Show diff output in a Tcl/Tk window, in response to the --tk option
 ** to the diff command.
 **
@@ -1262,6 +1285,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
     if( zHost==0
+     && (i==firstArg || !isDiffOptionWithArg(g.argv[i-1]))
      && !file_isfile_or_link(z)
      && (zDir = file_skip_userhost(z))!=0
     ){
